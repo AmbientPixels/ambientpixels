@@ -204,6 +204,33 @@ var ActionRouter = (function () {
     var enqueued = ActionQueue.enqueue(queueItem);
     if (enqueued) {
       ActionAudit.logEnqueued(enqueued.id, proposal.actionType, def.riskLevel, proposal.targetId, proposal.correlationId, proposal.source);
+      // Bridge: also write to AgentEngine actions store so Actions page sees it
+      if (typeof AgentEngine !== 'undefined' && AgentEngine.getActions) {
+        try {
+          var actions = AgentEngine.getActions();
+          var exists = actions.some(function (a) { return a.id === enqueued.id; });
+          if (!exists) {
+            actions.push({
+              id: enqueued.id,
+              type: enqueued.actionType || 'unknown',
+              created_by: enqueued.source || 'planner',
+              created_at: enqueued.createdAt || new Date().toISOString(),
+              platform: 'internal',
+              classification: enqueued.classification || 'operational',
+              risk_level: def.riskLevel || 'low',
+              requires_ceo_approval: !!enqueued.requiresApproval,
+              payload: enqueued.payload || {},
+              target_id: enqueued.targetId || null,
+              correlationId: enqueued.correlationId || null,
+              approval: { status: enqueued.requiresApproval ? 'pending' : 'approved', approvedBy: null, approvedAt: null },
+              execution: { status: 'pending', started_at: null, completed_at: null, attempts: 0 },
+              execution_status: 'pending'
+            });
+            if (actions.length > 500) actions = actions.slice(-500);
+            localStorage.setItem('ap_actions', JSON.stringify(actions));
+          }
+        } catch (e) { console.warn('[ActionRouter] Bridge sync error:', e.message); }
+      }
     }
     return enqueued;
   }
@@ -211,10 +238,30 @@ var ActionRouter = (function () {
   // ═══════════════════════════════════════════════════
   // ── approve / reject ──
   // ═══════════════════════════════════════════════════
+  function _syncActionStatus(id, approvalStatus, approver, reason) {
+    if (typeof AgentEngine === 'undefined' || !AgentEngine.getActions) return;
+    try {
+      var actions = AgentEngine.getActions();
+      for (var i = 0; i < actions.length; i++) {
+        if (actions[i].id === id) {
+          actions[i].approval = actions[i].approval || {};
+          actions[i].approval.status = approvalStatus;
+          actions[i].approval.approvedBy = approver || 'CEO';
+          actions[i].approval.approvedAt = new Date().toISOString();
+          if (reason) actions[i].approval.reason = reason;
+          actions[i].execution_status = approvalStatus === 'approved' ? 'approved' : approvalStatus;
+          localStorage.setItem('ap_actions', JSON.stringify(actions));
+          break;
+        }
+      }
+    } catch (e) { console.warn('[ActionRouter] Status sync error:', e.message); }
+  }
+
   function approve(id, approver) {
     var item = ActionQueue.approve(id, approver || 'CEO');
     if (item) {
       ActionAudit.logApproved(item.id, item.actionType, item.targetId, item.correlationId, approver || 'CEO');
+      _syncActionStatus(item.id, 'approved', approver);
     }
     return item;
   }
@@ -223,6 +270,7 @@ var ActionRouter = (function () {
     var item = ActionQueue.reject(id, approver || 'CEO', reason);
     if (item) {
       ActionAudit.logRejected(item.id, item.actionType, item.targetId, item.correlationId, approver || 'CEO', reason || 'Rejected');
+      _syncActionStatus(item.id, 'rejected', approver, reason);
     }
     return item;
   }

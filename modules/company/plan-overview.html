@@ -412,6 +412,22 @@
         }).join('');
       }
 
+      // Friendly action type labels
+      var _REC_LABELS = {
+        'move_task_lane': 'Move Task', 'move_task': 'Move Task', 'update_task': 'Update Task',
+        'create_task': 'Create Task', 'execute_task': 'Execute Task', 'review_task': 'Review Task',
+        'comment_task': 'Comment', 'request_info': 'Request Info', 'assign_task': 'Assign Task',
+        'reassign': 'Reassign', 'close_task': 'Close Task', 'reopen_task': 'Reopen Task',
+        'escalate': 'Escalate', 'delegate': 'Delegate', 'system_adjustment': 'System Adjustment',
+        'schedule_post': 'Schedule Post', 'publish_document': 'Publish Document',
+        'create_social_action': 'Social Post', 'send_email': 'Send Email',
+        'create_document': 'Create Document', 'flag_task': 'Flag Task'
+      };
+      function _friendlyRecType(raw) {
+        if (_REC_LABELS[raw]) return _REC_LABELS[raw];
+        return (raw || '?').replace(/[_-]/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+      }
+
       // Recommendations
       if (plan.recommendations && plan.recommendations.length > 0) {
         recsSec.style.display = '';
@@ -419,7 +435,7 @@
           var pending = _isAlreadyPending(r.type, r.targetId);
           return '<div class="exec-plan-rec">' +
             '<div class="exec-plan-rec-header">' +
-              '<span class="exec-plan-rec-type">' + esc(r.type) + '</span>' +
+              '<span class="exec-plan-rec-type">' + esc(_friendlyRecType(r.type)) + '</span>' +
               '<span class="exec-plan-bucket exec-plan-bucket--' + (r.priorityBucket || 'medium') + '">' + (r.priorityBucket || 'medium') + '</span>' +
               (pending ? '<span class="exec-plan-rec-pill exec-plan-rec-pill--pending"><i class="fas fa-clock"></i> pending</span>' : '') +
             '</div>' +
