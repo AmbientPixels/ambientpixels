@@ -1269,6 +1269,91 @@ var AgentEngine = (function () {
     return { tasks: createdTasks, directives: createdDirectives };
   }
 
+  // Per-proposal decision (v2.7)
+  // type: 'task' | 'directive', index: array index, decision: 'approved' | 'activated' | 'rejected' | 'deferred'
+  function decideMeetingProposal(meetingId, type, index, decision) {
+    var log = _loadMeetings();
+    var meeting = null;
+    var mi = -1;
+    for (var i = 0; i < log.length; i++) {
+      if (log[i].id === meetingId) { meeting = log[i]; mi = i; break; }
+    }
+    if (!meeting) { console.warn('[AgentEngine] Meeting not found:', meetingId); return null; }
+
+    var arr = type === 'task' ? (meeting.proposals.tasks || []) : (meeting.proposals.directives || []);
+    if (index < 0 || index >= arr.length) { console.warn('[AgentEngine] Proposal index out of range:', index); return null; }
+
+    var proposal = arr[index];
+    proposal._decision = decision;
+    proposal._decidedAt = new Date().toISOString();
+    proposal._decidedBy = 'ceo';
+
+    var source = { type: 'meeting', id: meetingId, title: meeting.title, date: meeting.date };
+
+    // Create artifact on approve/activate
+    if (decision === 'approved' || decision === 'activated') {
+      var created = null;
+      if (type === 'task') {
+        created = addTask({
+          title: proposal.title,
+          description: (proposal.rationale || '') + (proposal._proposers ? '\n[Proposed by: ' + proposal._proposers.join(', ') + ']' : ''),
+          status: decision === 'activated' ? 'todo' : 'pending-approval',
+          priority: proposal.priority || 'medium',
+          assignee: proposal.assignee || null,
+          dueDate: proposal.dueDate || null,
+          tags: ['meeting-proposal'],
+          source: source,
+          impact: proposal.impact || 'Medium',
+          effort: proposal.effort || 'Medium'
+        });
+      } else {
+        created = addDirective({
+          title: proposal.title,
+          description: (proposal.rationale || '') + (proposal._proposers ? '\n[Proposed by: ' + proposal._proposers.join(', ') + ']' : ''),
+          status: decision === 'activated' ? 'active' : 'pending-approval',
+          priority: proposal.priority || 'medium',
+          classification: proposal.classification || 'Operational',
+          owner: proposal.owner || null,
+          impact: proposal.impact || 'Medium',
+          effort: proposal.effort || 'Medium',
+          dependencies: [],
+          source: source,
+          approval: decision === 'activated'
+            ? { status: 'approved', approvedBy: 'ceo', approvedAt: new Date().toISOString() }
+            : { status: 'pending', approvedBy: null, approvedAt: null }
+        });
+      }
+      if (created) {
+        proposal._createdId = created.id;
+        // Track on meeting-level arrays too
+        if (type === 'task') {
+          if (!meeting._createdTaskIds) meeting._createdTaskIds = [];
+          meeting._createdTaskIds.push(created.id);
+        } else {
+          if (!meeting._createdDirectiveIds) meeting._createdDirectiveIds = [];
+          meeting._createdDirectiveIds.push(created.id);
+        }
+      }
+    }
+
+    // Auto-update meeting-level decision status based on all proposals
+    var allProposals = (meeting.proposals.tasks || []).concat(meeting.proposals.directives || []);
+    var decided = allProposals.filter(function (p) { return p._decision; });
+    if (decided.length === allProposals.length && allProposals.length > 0) {
+      var anyApproved = decided.some(function (p) { return p._decision === 'approved' || p._decision === 'activated'; });
+      meeting.decisionStatus = anyApproved ? 'Approved' : 'Rejected';
+      meeting.locked = true;
+      meeting.decisionAt = new Date().toISOString();
+      meeting.decisionBy = 'ceo';
+    }
+
+    log[mi] = meeting;
+    _saveMeetings(log);
+    _logGovernance('meeting-proposal-decision', { meetingId: meetingId, type: type, index: index, decision: decision, title: proposal.title });
+    emit('meeting-proposal-decided', { meetingId: meetingId, type: type, index: index, decision: decision, proposal: proposal });
+    return meeting;
+  }
+
   // Approve + Activate meeting proposals
   function approveAndActivateMeeting(meetingId) {
     var meeting = getMeetingById(meetingId);
@@ -2767,6 +2852,7 @@ var AgentEngine = (function () {
     updateMeetingDecision: updateMeetingDecision,
     createMeetingProposals: createMeetingProposals,
     approveAndActivateMeeting: approveAndActivateMeeting,
+    decideMeetingProposal: decideMeetingProposal,
     getMeetingTopicKeys: getMeetingTopicKeys,
     // v2.4.4 Artifact Registry
     getArtifacts: getArtifacts,

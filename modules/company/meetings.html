@@ -60,18 +60,19 @@
     .mt-proposal-badge { font-size:0.55rem; padding:1px 6px; border-radius:6px; font-weight:500; }
     .mt-proposal-rationale { font-size:0.62rem; opacity:0.5; margin-top:0.2rem; }
 
-    .mt-actions-bar { display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.8rem; padding:0.6rem 0.7rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; }
-    .mt-action-btn { font-size:0.78rem; padding:8px 18px; border-radius:8px; border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.06); color:#e0e0e0; cursor:pointer; font-family:inherit; transition:all 0.15s; font-weight:500; }
-    .mt-action-btn:hover { background:rgba(255,255,255,0.12); }
-    .mt-action-btn--approve { border-color:rgba(34,197,94,0.5); color:#22c55e; background:rgba(34,197,94,0.1); }
-    .mt-action-btn--approve:hover { background:rgba(34,197,94,0.2); }
-    .mt-action-btn--reject { border-color:rgba(239,68,68,0.5); color:#ef4444; background:rgba(239,68,68,0.1); }
-    .mt-action-btn--reject:hover { background:rgba(239,68,68,0.2); }
-    .mt-action-btn--defer { border-color:rgba(139,92,246,0.5); color:#8b5cf6; background:rgba(139,92,246,0.1); }
-    .mt-action-btn--defer:hover { background:rgba(139,92,246,0.2); }
-    .mt-action-btn--create { border-color:rgba(59,130,246,0.5); color:#3b82f6; background:rgba(59,130,246,0.12); }
-    .mt-action-btn--create:hover { background:rgba(59,130,246,0.22); }
-    .mt-action-btn:disabled { opacity:0.3; cursor:not-allowed; }
+    .mt-proposal-actions { display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.5rem; padding-top:0.4rem; border-top:1px solid rgba(255,255,255,0.05); }
+    .mt-proposal-action { font-size:0.68rem; padding:5px 12px; border-radius:6px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.04); color:#e0e0e0; cursor:pointer; font-family:inherit; transition:all 0.15s; font-weight:500; }
+    .mt-proposal-action:hover { background:rgba(255,255,255,0.1); }
+    .mt-proposal-action--activate { border-color:rgba(34,197,94,0.5); color:#22c55e; background:rgba(34,197,94,0.1); }
+    .mt-proposal-action--activate:hover { background:rgba(34,197,94,0.2); }
+    .mt-proposal-action--approve { border-color:rgba(59,130,246,0.5); color:#3b82f6; background:rgba(59,130,246,0.08); }
+    .mt-proposal-action--approve:hover { background:rgba(59,130,246,0.18); }
+    .mt-proposal-action--reject { border-color:rgba(239,68,68,0.4); color:#ef4444; background:rgba(239,68,68,0.06); }
+    .mt-proposal-action--reject:hover { background:rgba(239,68,68,0.15); }
+    .mt-proposal-action--defer { border-color:rgba(139,92,246,0.4); color:#8b5cf6; background:rgba(139,92,246,0.06); }
+    .mt-proposal-action--defer:hover { background:rgba(139,92,246,0.15); }
+    .mt-proposal-action:disabled { opacity:0.3; cursor:not-allowed; }
+    .mt-proposal-item--decided { opacity:0.7; }
 
     .mt-count-badge { display:inline-flex; align-items:center; justify-content:center; min-width:18px; height:18px; font-size:0.55rem; font-weight:600; border-radius:9px; padding:0 5px; background:rgba(78,205,196,0.15); color:#4ecdc4; margin-left:6px; }
   </style>
@@ -146,14 +147,6 @@
         </div>
         <div class="mt-decision-grid" id="mt-decision-grid">
           <div class="mt-decision-card">
-            <div class="mt-decision-card-label">Decisions Made</div>
-            <div class="mt-decision-card-value" id="mt-decisions-count">0</div>
-          </div>
-          <div class="mt-decision-card">
-            <div class="mt-decision-card-label">Approvals Required</div>
-            <div class="mt-decision-card-value" id="mt-approvals-count">0</div>
-          </div>
-          <div class="mt-decision-card">
             <div class="mt-decision-card-label">Proposed Tasks</div>
             <div class="mt-decision-card-value" id="mt-tasks-count">0</div>
           </div>
@@ -161,15 +154,24 @@
             <div class="mt-decision-card-label">Proposed Directives</div>
             <div class="mt-decision-card-value" id="mt-directives-count">0</div>
           </div>
+          <div class="mt-decision-card">
+            <div class="mt-decision-card-label" style="color:#22c55e;">Approved</div>
+            <div class="mt-decision-card-value" id="mt-approved-count" style="color:#22c55e;">0</div>
+          </div>
+          <div class="mt-decision-card">
+            <div class="mt-decision-card-label" style="color:#ef4444;">Rejected</div>
+            <div class="mt-decision-card-value" id="mt-rejected-count" style="color:#ef4444;">0</div>
+          </div>
+          <div class="mt-decision-card">
+            <div class="mt-decision-card-label" style="color:#8b5cf6;">Deferred</div>
+            <div class="mt-decision-card-value" id="mt-deferred-count" style="color:#8b5cf6;">0</div>
+          </div>
+          <div class="mt-decision-card">
+            <div class="mt-decision-card-label">Remaining</div>
+            <div class="mt-decision-card-value" id="mt-remaining-count">0</div>
+          </div>
         </div>
-        <div class="mt-actions-bar" id="mt-decision-actions">
-          <button class="mt-action-btn mt-action-btn--approve" data-decision="Approved"><i class="fas fa-check"></i> Approve</button>
-          <button class="mt-action-btn mt-action-btn--reject" data-decision="Rejected"><i class="fas fa-times"></i> Reject</button>
-          <button class="mt-action-btn mt-action-btn--defer" data-decision="Deferred"><i class="fas fa-clock"></i> Defer</button>
-          <button class="mt-action-btn" data-decision="NoAction"><i class="fas fa-minus"></i> No Action</button>
-          <button class="mt-action-btn mt-action-btn--create" id="mt-create-all"><i class="fas fa-plus-circle"></i> Create All (Pending Approval)</button>
-          <button class="mt-action-btn" id="mt-approve-activate" style="margin-left:auto;border-color:rgba(34,197,94,0.4);color:#22c55e;background:rgba(34,197,94,0.08);"><i class="fas fa-rocket"></i> Approve + Activate</button>
-        </div>
+        <div style="font-size:0.6rem;opacity:0.35;margin-top:0.5rem;">Review each proposed action below and approve, reject, or defer individually.</div>
       </div>
 
       <!-- Risk Aggregation Panel -->
@@ -433,64 +435,47 @@
       function renderDecisionPanel(meeting) {
         if (!meeting || meeting.status !== 'complete') return;
         decisionPanel.style.display = 'block';
-        var totalProposals = (meeting.proposals.tasks || []).length + (meeting.proposals.directives || []).length;
 
-        document.getElementById('mt-decision-badge').className = 'mt-status-badge mt-status-' + (meeting.decisionStatus || 'Pending');
-        document.getElementById('mt-decision-badge').textContent = meeting.decisionStatus || 'Pending';
-        document.getElementById('mt-decisions-count').textContent = (meeting.decisionStatus === 'Approved' || meeting.decisionStatus === 'Rejected') ? '1' : '0';
-        document.getElementById('mt-approvals-count').textContent = totalProposals;
-        document.getElementById('mt-tasks-count').textContent = (meeting.proposals.tasks || []).length;
-        document.getElementById('mt-directives-count').textContent = (meeting.proposals.directives || []).length;
+        var tasks = meeting.proposals.tasks || [];
+        var dirs = meeting.proposals.directives || [];
+        var all = tasks.concat(dirs);
+        var approved = 0, rejected = 0, deferred = 0, remaining = 0;
+        all.forEach(function (p) {
+          if (p._decision === 'approved' || p._decision === 'activated') approved++;
+          else if (p._decision === 'rejected') rejected++;
+          else if (p._decision === 'deferred') deferred++;
+          else remaining++;
+        });
+
+        document.getElementById('mt-tasks-count').textContent = tasks.length;
+        document.getElementById('mt-directives-count').textContent = dirs.length;
+        document.getElementById('mt-approved-count').textContent = approved;
+        document.getElementById('mt-rejected-count').textContent = rejected;
+        document.getElementById('mt-deferred-count').textContent = deferred;
+        document.getElementById('mt-remaining-count').textContent = remaining;
 
         var lockIcon = document.getElementById('mt-lock-icon');
-        var actionsBar = document.getElementById('mt-decision-actions');
-        if (meeting.locked) {
-          lockIcon.style.display = '';
-          actionsBar.querySelectorAll('.mt-action-btn').forEach(function (b) { b.disabled = true; });
-        } else {
-          lockIcon.style.display = 'none';
-          actionsBar.querySelectorAll('.mt-action-btn').forEach(function (b) { b.disabled = false; });
-        }
+        var overallStatus = remaining === 0 && all.length > 0 ? (approved > 0 ? 'Approved' : 'Rejected') : 'Pending';
+        document.getElementById('mt-decision-badge').className = 'mt-status-badge mt-status-' + overallStatus;
+        document.getElementById('mt-decision-badge').textContent = overallStatus;
+        lockIcon.style.display = (meeting.locked || remaining === 0 && all.length > 0) ? '' : 'none';
       }
 
-      // Decision action buttons
-      document.getElementById('mt-decision-actions').addEventListener('click', function (e) {
-        var btn = e.target.closest('.mt-action-btn');
+      // Per-proposal decision handler (delegated from proposals list)
+      document.getElementById('mt-proposals-list').addEventListener('click', function (e) {
+        var btn = e.target.closest('.mt-proposal-action');
         if (!btn || btn.disabled || !_currentMeetingId) return;
 
-        if (btn.id === 'mt-create-all') {
-          var result = AE.createMeetingProposals(_currentMeetingId);
-          if (result) {
-            alert('Created ' + result.tasks.length + ' task(s) and ' + result.directives.length + ' directive(s) as Pending Approval.');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-check"></i> Created';
-            var m = AE.getMeetingById(_currentMeetingId);
-            if (m) { renderArtifacts(m); renderOutcomeSummary(m); }
-          }
-          return;
-        }
-
-        if (btn.id === 'mt-approve-activate') {
-          var res = AE.approveAndActivateMeeting(_currentMeetingId);
-          if (res) {
-            alert('Approved and activated: ' + res.activatedTasks + ' task(s) moved to Todo, ' + res.activatedDirs + ' directive(s) activated.');
-            var updated = AE.getMeetingById(_currentMeetingId);
-            if (updated) {
-              renderDecisionPanel(updated);
-              renderArtifacts(updated);
-              renderOutcomeSummary(updated);
-            }
-          }
-          return;
-        }
-
+        var type = btn.dataset.type;
+        var index = parseInt(btn.dataset.index, 10);
         var decision = btn.dataset.decision;
-        if (decision) {
-          var updated = AE.updateMeetingDecision(_currentMeetingId, decision);
-          if (updated) {
-            renderDecisionPanel(updated);
-            renderOutcomeSummary(updated);
-          }
+
+        var updated = AE.decideMeetingProposal(_currentMeetingId, type, index, decision);
+        if (updated) {
+          renderDecisionPanel(updated);
+          renderProposalsPanel(updated);
+          renderArtifacts(updated);
+          renderOutcomeSummary(updated);
         }
       });
 
@@ -513,6 +498,25 @@
       }
 
       // ── Proposals Panel ──
+      function _proposalDecisionBadge(p) {
+        if (!p._decision) return '';
+        var COLORS = { approved: '#22c55e', activated: '#22c55e', rejected: '#ef4444', deferred: '#8b5cf6' };
+        var LABELS = { approved: 'Approved (Pending)', activated: 'Approved + Active', rejected: 'Rejected', deferred: 'Deferred' };
+        var c = COLORS[p._decision] || '#6b7280';
+        return '<span style="font-size:0.6rem;font-weight:600;padding:2px 8px;border-radius:8px;background:' + c + '22;color:' + c + ';">' +
+          (LABELS[p._decision] || p._decision) + '</span>';
+      }
+
+      function _proposalActionButtons(type, index, p) {
+        if (p._decision) return '';
+        return '<div class="mt-proposal-actions">' +
+          '<button class="mt-proposal-action mt-proposal-action--activate" data-type="' + type + '" data-index="' + index + '" data-decision="activated"><i class="fas fa-rocket"></i> Approve + Activate</button>' +
+          '<button class="mt-proposal-action mt-proposal-action--approve" data-type="' + type + '" data-index="' + index + '" data-decision="approved"><i class="fas fa-check"></i> Approve</button>' +
+          '<button class="mt-proposal-action mt-proposal-action--reject" data-type="' + type + '" data-index="' + index + '" data-decision="rejected"><i class="fas fa-times"></i> Reject</button>' +
+          '<button class="mt-proposal-action mt-proposal-action--defer" data-type="' + type + '" data-index="' + index + '" data-decision="deferred"><i class="fas fa-clock"></i> Defer</button>' +
+          '</div>';
+      }
+
       function renderProposalsPanel(meeting) {
         var tasks = meeting.proposals.tasks || [];
         var dirs = meeting.proposals.directives || [];
@@ -524,11 +528,11 @@
         var IMPACT_COLORS = { High: '#ef4444', Medium: '#fbbf24', Low: '#6b7280' };
         var PRI_COLORS = { urgent: '#ef4444', high: '#f59e0b', medium: '#3b82f6', low: '#6b7280' };
 
-        tasks.forEach(function (t) {
+        tasks.forEach(function (t, i) {
           var el = document.createElement('div');
-          el.className = 'mt-proposal-item mt-proposal-item--task';
+          el.className = 'mt-proposal-item mt-proposal-item--task' + (t._decision ? ' mt-proposal-item--decided' : '');
           el.innerHTML =
-            '<div class="mt-proposal-name"><i class="fas fa-tasks" style="color:#3b82f6;margin-right:4px;font-size:0.6rem;"></i>' + esc(t.title) + '</div>' +
+            '<div class="mt-proposal-name"><i class="fas fa-tasks" style="color:#3b82f6;margin-right:4px;font-size:0.6rem;"></i>' + esc(t.title) + ' ' + _proposalDecisionBadge(t) + '</div>' +
             '<div class="mt-proposal-meta">' +
               '<span class="mt-proposal-badge" style="background:rgba(59,130,246,0.12);color:#3b82f6;">Task</span>' +
               (t.assignee ? '<span class="mt-proposal-badge" style="background:rgba(255,255,255,0.06);color:#ccc;">' + t.assignee + '</span>' : '') +
@@ -537,15 +541,16 @@
               '<span class="mt-proposal-badge" style="background:rgba(255,255,255,0.06);color:#ccc;">Effort: ' + (t.effort || '?') + '</span>' +
               (t._proposers && t._proposers.length > 1 ? '<span class="mt-proposal-badge" style="background:rgba(138,43,226,0.12);color:#a855f7;">Merged (' + t._proposers.join(', ') + ')</span>' : '') +
             '</div>' +
-            (t.rationale ? '<div class="mt-proposal-rationale">' + esc(t.rationale) + '</div>' : '');
+            (t.rationale ? '<div class="mt-proposal-rationale">' + esc(t.rationale) + '</div>' : '') +
+            _proposalActionButtons('task', i, t);
           list.appendChild(el);
         });
 
-        dirs.forEach(function (d) {
+        dirs.forEach(function (d, i) {
           var el = document.createElement('div');
-          el.className = 'mt-proposal-item';
+          el.className = 'mt-proposal-item' + (d._decision ? ' mt-proposal-item--decided' : '');
           el.innerHTML =
-            '<div class="mt-proposal-name"><i class="fas fa-compass" style="color:#a855f7;margin-right:4px;font-size:0.6rem;"></i>' + esc(d.title) + '</div>' +
+            '<div class="mt-proposal-name"><i class="fas fa-compass" style="color:#a855f7;margin-right:4px;font-size:0.6rem;"></i>' + esc(d.title) + ' ' + _proposalDecisionBadge(d) + '</div>' +
             '<div class="mt-proposal-meta">' +
               '<span class="mt-proposal-badge" style="background:rgba(138,43,226,0.12);color:#a855f7;">Directive</span>' +
               '<span class="mt-proposal-badge" style="background:rgba(255,255,255,0.06);color:#ccc;">' + (d.classification || 'Operational') + '</span>' +
@@ -555,7 +560,8 @@
               '<span class="mt-proposal-badge" style="background:rgba(255,255,255,0.06);color:#ccc;">Effort: ' + (d.effort || '?') + '</span>' +
               (d._proposers && d._proposers.length > 1 ? '<span class="mt-proposal-badge" style="background:rgba(138,43,226,0.12);color:#a855f7;">Merged (' + d._proposers.join(', ') + ')</span>' : '') +
             '</div>' +
-            (d.rationale ? '<div class="mt-proposal-rationale">' + esc(d.rationale) + '</div>' : '');
+            (d.rationale ? '<div class="mt-proposal-rationale">' + esc(d.rationale) + '</div>' : '') +
+            _proposalActionButtons('directive', i, d);
           list.appendChild(el);
         });
       }
