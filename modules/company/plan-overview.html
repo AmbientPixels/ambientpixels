@@ -148,6 +148,37 @@
     .exec-plan-run-btn:disabled { opacity: 0.3; cursor: default; }
     .exec-plan-run-status { font-size: 0.6rem; opacity: 0.35; }
 
+    /* ── Ops Health & Calibration (v1) ── */
+    .cal-panel {
+      background: rgba(52,211,153,0.02);
+      border: 1px solid rgba(52,211,153,0.1);
+      border-radius: 12px; padding: 1.2rem 1.4rem;
+      margin-bottom: 1.4rem;
+    }
+    .cal-title { font-size: 0.72rem; font-weight: 600; color: #34d399; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem; }
+    .cal-title i { opacity: 0.5; }
+    .cal-meta { font-size: 0.6rem; opacity: 0.35; margin-bottom: 0.8rem; }
+    .cal-metrics-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 0.5rem; margin-bottom: 1rem; }
+    .cal-metric { text-align: center; padding: 0.6rem 0.4rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); border-radius: 6px; }
+    .cal-metric-val { font-size: 1.2rem; font-weight: 600; line-height: 1.2; }
+    .cal-metric-label { font-size: 0.48rem; opacity: 0.3; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.15rem; }
+    .cal-section { margin-bottom: 0.8rem; }
+    .cal-section-title { font-size: 0.62rem; font-weight: 600; opacity: 0.4; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem; }
+    .cal-reason-row { font-size: 0.6rem; padding: 0.25rem 0; display: flex; gap: 0.5rem; opacity: 0.5; }
+    .cal-reason-count { font-weight: 600; min-width: 18px; text-align: right; }
+    .cal-rec { padding: 0.5rem 0.7rem; margin-bottom: 0.4rem; background: rgba(52,211,153,0.02); border-left: 3px solid rgba(52,211,153,0.25); border-radius: 0 6px 6px 0; font-size: 0.62rem; }
+    .cal-rec-header { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.2rem; }
+    .cal-rec-type { font-weight: 600; text-transform: uppercase; font-size: 0.5rem; opacity: 0.5; }
+    .cal-rec-rationale { font-size: 0.58rem; opacity: 0.45; }
+    .cal-rec-pill { font-size: 0.46rem; padding: 0.06rem 0.22rem; border-radius: 3px; }
+    .cal-rec-pill--pending { background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.2); color: #fbbf24; }
+    .cal-run-row { margin-top: 0.8rem; display: flex; align-items: center; gap: 0.6rem; }
+    .cal-run-btn { padding: 0.5rem 1.2rem; border-radius: 6px; font-size: 0.68rem; font-weight: 500; cursor: pointer; border: 1px solid rgba(52,211,153,0.25); background: rgba(52,211,153,0.06); color: #34d399; font-family: inherit; transition: all 0.15s; }
+    .cal-run-btn:hover { background: rgba(52,211,153,0.12); border-color: rgba(52,211,153,0.4); }
+    .cal-run-btn:disabled { opacity: 0.3; cursor: default; }
+    .cal-run-status { font-size: 0.6rem; opacity: 0.35; }
+    .cal-empty { opacity: 0.3; font-size: 0.62rem; }
+
     @media (prefers-reduced-motion: reduce) {
       .plan-obj-fill { transition: none; }
     }
@@ -215,6 +246,26 @@
       </div>
     </div>
 
+    <!-- Ops Health & Calibration -->
+    <div class="ov-section-title">Ops Health & Calibration</div>
+    <div class="cal-panel" id="cal-panel">
+      <div class="cal-title"><i class="fas fa-stethoscope"></i> Ops Health Report</div>
+      <div class="cal-meta" id="cal-meta">No calibration run yet.</div>
+      <div class="cal-metrics-grid" id="cal-metrics" style="display:none;"></div>
+      <div class="cal-section" id="cal-reasons-section" style="display:none;">
+        <div class="cal-section-title"><i class="fas fa-times-circle"></i> Top Reject Reasons</div>
+        <div id="cal-reasons"></div>
+      </div>
+      <div class="cal-section" id="cal-recs-section" style="display:none;">
+        <div class="cal-section-title"><i class="fas fa-wrench"></i> Tuning Proposals</div>
+        <div id="cal-recs"></div>
+      </div>
+      <div class="cal-run-row">
+        <button class="cal-run-btn" id="cal-run-btn"><i class="fas fa-play"></i> Run Calibration Now</button>
+        <span class="cal-run-status" id="cal-run-status"></span>
+      </div>
+    </div>
+
     <!-- Quick Nav -->
     <div class="ov-section-title">Navigate</div>
     <div class="plan-nav">
@@ -234,6 +285,8 @@
   <script src="/js/action-router.js"></script>
   <script src="/js/planner-audit.js"></script>
   <script src="/js/planner-loop.js"></script>
+  <script src="/js/calibration-audit.js"></script>
+  <script src="/js/calibration-loop.js"></script>
   <script src="/js/company-store.js"></script>
   <script>
   (function () {
@@ -436,6 +489,119 @@
         });
       }
     });
+    // ── Calibration auto-run cadence check ──
+    CalibrationLoop.loadRules().then(function () {
+      renderCalibration();
+      if (CalibrationLoop.shouldAutoRun()) {
+        CompanyStore.getState('ap_tasks', []).then(function (tasks) {
+          CalibrationLoop.run({ tasks: tasks });
+          renderCalibration();
+        });
+      }
+    });
+  })();
+  </script>
+
+  <script>
+  // Ops Health & Calibration panel
+  (function () {
+    function esc(s) { if (!s) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+    function renderCalibration() {
+      var artifact = CalibrationLoop.getLatestArtifact();
+      var metaEl = document.getElementById('cal-meta');
+      var metricsEl = document.getElementById('cal-metrics');
+      var reasonsSec = document.getElementById('cal-reasons-section');
+      var reasonsEl = document.getElementById('cal-reasons');
+      var recsSec = document.getElementById('cal-recs-section');
+      var recsEl = document.getElementById('cal-recs');
+      var statusEl = document.getElementById('cal-run-status');
+
+      var lastRun = CalibrationLoop.getLastRunTimestamp();
+      if (lastRun) statusEl.textContent = 'Last run: ' + new Date(lastRun).toLocaleString();
+
+      if (!artifact) { metaEl.textContent = 'No calibration run yet. Click "Run Calibration Now" to generate.'; return; }
+
+      metaEl.textContent = 'Generated ' + new Date(artifact.createdAt).toLocaleString();
+
+      // Metrics grid
+      var m = artifact.metrics || {};
+      metricsEl.style.display = '';
+      metricsEl.innerHTML =
+        _mCard(_pct(m.approvalRate), 'Approval Rate', m.approvalRate >= 0.7 ? '#34d399' : '#fbbf24') +
+        _mCard(_pct(m.successRate), 'Success Rate', m.successRate >= 0.8 ? '#34d399' : '#ef4444') +
+        _mCard(_pct(m.criticalResolutionRate), 'Crit Resolution', m.criticalResolutionRate >= 0.5 ? '#34d399' : '#f87171') +
+        _mCard(m.avgTimeToApproval != null ? m.avgTimeToApproval + 'm' : 'N/A', 'Avg Approval Time', '#60a5fa') +
+        _mCard(m.blockedDoneCount || 0, 'Blocked Done', m.blockedDoneCount > 0 ? '#ef4444' : '#34d399') +
+        _mCard(_pct(m.rejectionRate), 'Rejection Rate', m.rejectionRate > 0.3 ? '#ef4444' : '#34d399');
+
+      // Top reject reasons
+      var br = artifact.breakdowns || {};
+      if (br.topRejectReasons && br.topRejectReasons.length > 0) {
+        reasonsSec.style.display = '';
+        reasonsEl.innerHTML = br.topRejectReasons.map(function (r) {
+          return '<div class="cal-reason-row"><span class="cal-reason-count">' + r.count + '</span><span>' + esc(r.reason) + '</span></div>';
+        }).join('');
+      }
+
+      // Recommendations
+      if (artifact.recommendations && artifact.recommendations.length > 0) {
+        recsSec.style.display = '';
+        recsEl.innerHTML = artifact.recommendations.map(function (r) {
+          var pending = _isPending(r.target);
+          return '<div class="cal-rec">' +
+            '<div class="cal-rec-header">' +
+              '<span class="cal-rec-type">' + esc(r.type) + '</span>' +
+              (pending ? '<span class="cal-rec-pill cal-rec-pill--pending"><i class="fas fa-clock"></i> pending</span>' : '') +
+            '</div>' +
+            '<div class="cal-rec-rationale">' + esc(r.rationale) + '</div>' +
+          '</div>';
+        }).join('');
+      }
+    }
+
+    function _mCard(val, label, color) {
+      return '<div class="cal-metric"><div class="cal-metric-val" style="color:' + color + ';">' + (val != null ? val : 'N/A') + '</div><div class="cal-metric-label">' + label + '</div></div>';
+    }
+    function _pct(val) { return val != null ? Math.round(val * 100) + '%' : 'N/A'; }
+    function _isPending(target) {
+      try {
+        var pending = ActionQueue.getPendingApproval();
+        for (var i = 0; i < pending.length; i++) {
+          if (pending[i].actionType === 'system_adjustment' && pending[i].targetId === target) return true;
+        }
+      } catch (e) {}
+      return false;
+    }
+
+    // Run button
+    var _calRunning = false;
+    document.getElementById('cal-run-btn').addEventListener('click', function () {
+      if (_calRunning) return;
+      _calRunning = true;
+      var btn = this;
+      btn.disabled = true;
+      btn.textContent = 'Running...';
+      var statusEl = document.getElementById('cal-run-status');
+      statusEl.textContent = 'Analyzing signals...';
+
+      CalibrationLoop.loadRules().then(function () {
+        return CompanyStore.getState('ap_tasks', []);
+      }).then(function (tasks) {
+        CalibrationLoop.run({ tasks: tasks });
+        renderCalibration();
+        statusEl.textContent = 'Calibration complete at ' + new Date().toLocaleTimeString();
+      }).catch(function () {
+        statusEl.textContent = 'Calibration error. Check console.';
+      }).then(function () {
+        _calRunning = false;
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-play"></i> Run Calibration Now';
+      });
+    });
+
+    // Expose for auto-run
+    window.renderCalibration = renderCalibration;
   })();
   </script>
 

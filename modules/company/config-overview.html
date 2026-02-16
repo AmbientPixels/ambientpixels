@@ -252,6 +252,30 @@
     .cfg-planner-toggle--enable { border-color: rgba(52,211,153,0.2); background: rgba(52,211,153,0.05); color: #34d399; }
     .cfg-planner-info { margin-top: 0.6rem; font-size: 0.62rem; opacity: 0.35; }
 
+    /* Calibration Automation panel */
+    .cfg-cal-panel {
+      background: rgba(52,211,153,0.03);
+      border: 1px solid rgba(52,211,153,0.12);
+      border-radius: 10px; padding: 1rem 1.2rem;
+      margin-bottom: 1.4rem;
+    }
+    .cfg-cal-title { font-size: 0.7rem; font-weight: 600; color: #34d399; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.4rem; }
+    .cfg-cal-status { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; }
+    .cfg-cal-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .cfg-cal-dot--on { background: #34d399; }
+    .cfg-cal-dot--off { background: #ef4444; }
+    .cfg-cal-state { font-size: 0.72rem; font-weight: 500; }
+    .cfg-cal-helper { font-size: 0.62rem; opacity: 0.35; margin-bottom: 0.6rem; }
+    .cfg-cal-toggle {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.45rem 1rem; border-radius: 6px;
+      font-size: 0.65rem; font-family: inherit; font-weight: 500;
+      cursor: pointer; transition: all 0.15s; border: 1px solid;
+    }
+    .cfg-cal-toggle--disable { border-color: rgba(239,68,68,0.2); background: rgba(239,68,68,0.05); color: #ef4444; }
+    .cfg-cal-toggle--enable { border-color: rgba(52,211,153,0.2); background: rgba(52,211,153,0.05); color: #34d399; }
+    .cfg-cal-info { margin-top: 0.6rem; font-size: 0.62rem; opacity: 0.35; }
+
     @media (prefers-reduced-motion: reduce) {
       .cfg-status-dot { animation: none; opacity: 1; }
     }
@@ -387,6 +411,19 @@
       <div class="cfg-planner-info" id="cfg-planner-info"></div>
     </div>
 
+    <!-- Calibration Automation -->
+    <div class="ov-section-title">Calibration Automation</div>
+    <div class="cfg-cal-panel" id="cfg-cal-panel">
+      <div class="cfg-cal-title"><i class="fas fa-stethoscope" style="opacity:0.5;"></i> Calibration Loop</div>
+      <div class="cfg-cal-status">
+        <div class="cfg-cal-dot" id="cfg-cal-dot"></div>
+        <span class="cfg-cal-state" id="cfg-cal-state">—</span>
+      </div>
+      <div class="cfg-cal-helper" id="cfg-cal-helper"></div>
+      <button class="cfg-cal-toggle" id="cfg-cal-toggle"></button>
+      <div class="cfg-cal-info" id="cfg-cal-info"></div>
+    </div>
+
     <!-- System Tools -->
     <div class="ov-section-title">System Tools</div>
     <div class="cfg-tools-grid">
@@ -440,6 +477,8 @@
   <script src="/js/task-verifier.js"></script>
   <script src="/js/planner-audit.js"></script>
   <script src="/js/planner-loop.js"></script>
+  <script src="/js/calibration-audit.js"></script>
+  <script src="/js/calibration-loop.js"></script>
   <script src="/js/action-audit.js"></script>
   <script src="/js/action-queue.js"></script>
   <script src="/js/action-executors.js"></script>
@@ -744,6 +783,49 @@
       var action = current ? 'Disable' : 'Enable';
       if (!confirm(action + ' planner automation?')) return;
       PlannerLoop.setEnabled(!current);
+      render();
+      _debounceTimer = setTimeout(function () { _debounceTimer = null; }, 3000);
+    });
+
+    render();
+  })();
+  </script>
+
+  <script>
+  // Calibration Automation panel
+  (function () {
+    var dot = document.getElementById('cfg-cal-dot');
+    var stateEl = document.getElementById('cfg-cal-state');
+    var helperEl = document.getElementById('cfg-cal-helper');
+    var toggleBtn = document.getElementById('cfg-cal-toggle');
+    var infoEl = document.getElementById('cfg-cal-info');
+    if (!dot || !stateEl || !toggleBtn) return;
+
+    var _debounceTimer = null;
+
+    function render() {
+      var enabled = CalibrationLoop.isEnabled();
+      dot.className = 'cfg-cal-dot ' + (enabled ? 'cfg-cal-dot--on' : 'cfg-cal-dot--off');
+      stateEl.textContent = enabled ? 'Enabled' : 'Disabled (safe default)';
+      stateEl.style.color = enabled ? '#34d399' : '#ef4444';
+      helperEl.textContent = 'Calibration analyzes system health and proposes bounded tuning. All proposals require CEO approval.';
+      toggleBtn.textContent = enabled ? '\u23F8 Disable Calibration' : '\u25B6 Enable Calibration';
+      toggleBtn.className = 'cfg-cal-toggle ' + (enabled ? 'cfg-cal-toggle--disable' : 'cfg-cal-toggle--enable');
+
+      var cadence = CalibrationLoop.getCadenceDays();
+      var lastRun = CalibrationLoop.getLastRunTimestamp();
+      var infoParts = ['Cadence: every ' + cadence + ' days'];
+      if (lastRun) infoParts.push('Last run: ' + new Date(lastRun).toLocaleString());
+      else infoParts.push('Never run');
+      infoEl.textContent = infoParts.join(' \u2022 ');
+    }
+
+    toggleBtn.addEventListener('click', function () {
+      if (_debounceTimer) return;
+      var current = CalibrationLoop.isEnabled();
+      var action = current ? 'Disable' : 'Enable';
+      if (!confirm(action + ' calibration automation?')) return;
+      CalibrationLoop.setEnabled(!current);
       render();
       _debounceTimer = setTimeout(function () { _debounceTimer = null; }, 3000);
     });

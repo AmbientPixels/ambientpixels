@@ -169,6 +169,19 @@
     .ops-planner-strip-ts { opacity: 0.3; font-size: 0.6rem; margin-left: auto; white-space: nowrap; }
     .ops-feed-row--planner { border-left-color: rgba(138,43,226,0.5); }
 
+    /* Calibration strip */
+    .ops-cal-strip {
+      display: flex; align-items: center; gap: 0.8rem;
+      padding: 0.5rem 0.8rem; margin-bottom: 1rem;
+      background: rgba(52,211,153,0.015);
+      border: 1px solid rgba(52,211,153,0.06);
+      border-radius: 8px; font-size: 0.68rem;
+    }
+    .ops-cal-strip-label { opacity: 0.4; font-weight: 500; white-space: nowrap; }
+    .ops-cal-strip-value { font-weight: 600; }
+    .ops-cal-strip-ts { opacity: 0.3; font-size: 0.6rem; margin-left: auto; white-space: nowrap; }
+    .ops-feed-row--calibration { border-left-color: rgba(52,211,153,0.5); }
+
     @media (prefers-reduced-motion: reduce) {
       .ops-status-dot { animation: none; opacity: 1; }
     }
@@ -234,6 +247,13 @@
       <span class="ops-planner-strip-ts" id="ops-planner-ts"></span>
     </div>
 
+    <!-- Calibration Strip -->
+    <div class="ops-cal-strip" id="ops-cal-strip">
+      <span class="ops-cal-strip-label"><i class="fas fa-stethoscope" style="margin-right:4px; opacity:0.4;"></i>Calibration:</span>
+      <span class="ops-cal-strip-value" id="ops-cal-value">—</span>
+      <span class="ops-cal-strip-ts" id="ops-cal-ts"></span>
+    </div>
+
     <!-- Heartbeat Feed -->
     <div class="ops-feed-panel">
       <div class="ops-feed-title"><i class="fas fa-heartbeat" style="margin-right:4px;"></i> Recent Heartbeat Activity</div>
@@ -272,6 +292,8 @@
   <script src="/js/priority-engine.js"></script>
   <script src="/js/planner-audit.js"></script>
   <script src="/js/planner-loop.js"></script>
+  <script src="/js/calibration-audit.js"></script>
+  <script src="/js/calibration-loop.js"></script>
   <script src="/js/action-audit.js"></script>
   <script src="/js/action-queue.js"></script>
   <script src="/js/action-executors.js"></script>
@@ -365,6 +387,19 @@
           '</div>';
       }).join('');
 
+      // Append recent calibration audit events to feed
+      var calEvents = CalibrationAudit.getRecent(3);
+      feedHtml += calEvents.map(function (ev) {
+        var time = ev.timestamp ? new Date(ev.timestamp).toLocaleString() : '?';
+        var label = ev.eventType.replace(/_/g, ' ');
+        if (ev.counts && ev.counts.enqueued) label += ' (' + ev.counts.enqueued + ' enqueued)';
+        if (ev.reason) label += ' \u2014 ' + ev.reason;
+        return '<div class="ops-feed-row ops-feed-row--calibration">' +
+          '<span class="ops-feed-time">' + time + '</span>' +
+          '<span class="ops-feed-detail"><i class="fas fa-stethoscope" style="margin-right:4px; opacity:0.35;"></i>' + label + '</span>' +
+          '</div>';
+      }).join('');
+
       // Append recent planner audit events to feed
       var pEvents = PlannerAudit.getRecent(4);
       feedHtml += pEvents.map(function (ev) {
@@ -453,6 +488,30 @@
         var recCount = plan && plan.recommendations ? plan.recommendations.length : 0;
         countEl.textContent = recCount + ' recommendation' + (recCount !== 1 ? 's' : '') + ' queued';
         countEl.style.color = recCount > 0 ? '#a855f7' : '';
+        tsEl.textContent = 'Last run: ' + new Date(lastRun).toLocaleString();
+      }
+    })();
+
+    // Calibration strip
+    (function () {
+      var valEl = document.getElementById('ops-cal-value');
+      var tsEl = document.getElementById('ops-cal-ts');
+      if (!valEl) return;
+      var artifact = CalibrationLoop.getLatestArtifact();
+      var lastRun = CalibrationLoop.getLastRunTimestamp();
+      if (!lastRun) {
+        valEl.textContent = 'No runs yet';
+        tsEl.textContent = '';
+      } else if (artifact && artifact.metrics) {
+        var m = artifact.metrics;
+        var parts = [];
+        if (m.approvalRate != null) parts.push('Approval ' + Math.round(m.approvalRate * 100) + '%');
+        if (m.criticalResolutionRate != null) parts.push('Crit Res ' + Math.round(m.criticalResolutionRate * 100) + '%');
+        valEl.textContent = parts.length > 0 ? parts.join(' \u00B7 ') : 'Run complete';
+        valEl.style.color = (m.approvalRate != null && m.approvalRate < 0.6) ? '#fbbf24' : '#34d399';
+        tsEl.textContent = 'Last run: ' + new Date(lastRun).toLocaleString();
+      } else {
+        valEl.textContent = 'Run complete';
         tsEl.textContent = 'Last run: ' + new Date(lastRun).toLocaleString();
       }
     })();

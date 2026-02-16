@@ -1,0 +1,21 @@
+{
+  "version": "1.0",
+  "description": "Calibration Loop v1 — Configurable thresholds and caps for tuning proposals",
+  "cadenceDays": 7,
+  "thresholds": {
+    "lowApprovalRate": 0.6,
+    "lowSuccessRate": 0.8,
+    "lowCriticalResolution": 0.3,
+    "highRejectReasonFrequency": 3,
+    "stuckReviewDays": 2
+  },
+  "caps": {
+    "maxWeightAdjustment": 0.5,
+    "minWeight": 0,
+    "maxWeight": 5,
+    "maxPlannerRecommendationAdjustment": 1,
+    "minPlannerRecommendations": 2,
+    "maxPlannerRecommendations": 12
+  },
+  "maxProposals": 6
+}
