@@ -1824,6 +1824,8 @@ var AgentEngine = (function () {
       impact: entry.impact || null,            // Low/Medium/High (v2.2)
       effort: entry.effort || null,            // Low/Medium/High (v2.2)
       source: entry.source || null,            // { type, id, title, date } traceability (v2.2)
+      directive_id: entry.directive_id || null, // link to parent directive
+      objective_id: entry.objective_id || null, // link to parent objective
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       completedAt: null,
