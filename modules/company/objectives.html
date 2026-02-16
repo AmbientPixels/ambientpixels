@@ -111,6 +111,9 @@
         renderObjectives();
       });
 
+      // Re-render after CompanyStore server sync
+      window.addEventListener('companystoreready', function () { renderObjectives(); });
+
       document.addEventListener('sync-complete', function () {
         populateDirectiveSelect();
         renderObjectives();

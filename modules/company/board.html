@@ -144,6 +144,9 @@
 
       AgentEngine.loadRegistry().then(function () { renderBoard(); });
 
+      // Re-render after CompanyStore server sync
+      window.addEventListener('companystoreready', function () { renderBoard(); });
+
       renderBtn.addEventListener('click', renderBoard);
       copyBtn.addEventListener('click', copyPacket);
 

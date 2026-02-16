@@ -321,6 +321,9 @@
       // Re-render when server sync pulls in agent-created tasks
       AgentEngine.on('sync-complete', function () { renderAll(); });
 
+      // Re-render after CompanyStore server sync
+      window.addEventListener('companystoreready', function () { renderAll(); });
+
       AgentEngine.loadRegistry().then(function (data) {
         if (!data || !data.agents) return;
         agents = data.agents;

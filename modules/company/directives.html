@@ -234,6 +234,9 @@
 
       document.addEventListener('sync-complete', function () { renderDirectives(); });
 
+      // Re-render after CompanyStore server sync
+      window.addEventListener('companystoreready', function () { renderDirectives(); });
+
       editCancel.addEventListener('click', closeModal);
       modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
       editSave.addEventListener('click', function () {

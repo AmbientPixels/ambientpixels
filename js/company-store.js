@@ -366,6 +366,21 @@ var CompanyStore = (function () {
   };
 })();
 
+// ── Auto-init: probe server + sync on script load ──
+// Fires 'companystoreready' event on window when sync is complete (or skipped).
+(function () {
+  if (typeof window === 'undefined') return;
+  CompanyStore.init().then(function () {
+    if (CompanyStore.isServerAvailable()) {
+      return CompanyStore.syncFromServer();
+    }
+  }).then(function () {
+    window.dispatchEvent(new Event('companystoreready'));
+  }).catch(function () {
+    window.dispatchEvent(new Event('companystoreready'));
+  });
+})();
+
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = CompanyStore;
 }

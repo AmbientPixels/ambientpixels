@@ -790,6 +790,9 @@
 
     ActionRouter.loadRegistry().then(function () { render(); });
 
+    // Re-render after CompanyStore server sync
+    window.addEventListener('companystoreready', function () { render(); });
+
     function render() {
       var enabled = ActionRouter.isEnabled();
       dot.className = 'cfg-action-dot ' + (enabled ? 'cfg-action-dot--on' : 'cfg-action-dot--off');

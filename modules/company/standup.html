@@ -289,6 +289,11 @@
         initStandup();
       });
 
+      // Re-render after server sync (cron standups live in blob storage)
+      window.addEventListener('companystoreready', function () {
+        initStandup();
+      });
+
       function initStandup() {
         var latest = AgentEngine.getLatestStandup();
         var log = AgentEngine.getStandupLog();

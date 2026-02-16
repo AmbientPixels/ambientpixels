@@ -671,6 +671,12 @@
         updateStoreModeBadge();
       });
 
+      // Re-render after CompanyStore server sync
+      window.addEventListener('companystoreready', function () {
+        renderAll();
+        updateStoreModeBadge();
+      });
+
       document.getElementById('dash-refresh').addEventListener('click', renderAll);
 
       // Live updates

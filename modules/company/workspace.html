@@ -273,6 +273,11 @@
         initDates();
       });
 
+      // Re-render after CompanyStore server sync
+      window.addEventListener('companystoreready', function () {
+        initIdentity(); initMemory(); initAgents(); initTools(); initDates();
+      });
+
       // ════════════════════════════════════════
       //  IDENTITY
       // ════════════════════════════════════════

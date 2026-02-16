@@ -279,6 +279,11 @@
         initMeetings();
       });
 
+      // Re-render after server sync (meetings/standups live in blob storage)
+      window.addEventListener('companystoreready', function () {
+        initMeetings();
+      });
+
       function initMeetings() {
         var meetings = AE.getMeetings();
         if (meetings.length > 0) {

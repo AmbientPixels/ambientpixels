@@ -323,6 +323,9 @@
       var _storedDay = localStorage.getItem('ap_calendar_open_day') || '';
       selectedDate = null;
 
+      // Re-render after CompanyStore server sync
+      window.addEventListener('companystoreready', function () { loadAllData().then(function () { render(); }); });
+
       AgentEngine.loadRegistry().then(function () {
         loadAllData().then(function () {
           render();
