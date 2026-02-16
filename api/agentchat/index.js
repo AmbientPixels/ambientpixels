@@ -619,8 +619,14 @@ List any risks in this exact format (or state "None identified"):
 **Proposed Actions:**
 Use these exact formats for any proposed tasks or directives (or state "No Action Required."):
 
-[Task] Title — Assignee — Priority — Impact — Effort — DueDate — Rationale
 [Directive] Title — Classification — Owner — Priority — Impact — Effort — Rationale
+[Task] Title — Assignee — Priority — Impact — Effort — DueDate — Rationale
+
+IMPORTANT: Directives are STRATEGIC GOALS (e.g. "Weekly X Growth Campaign", "Improve Site Performance"). Tasks are the WORK ITEMS that fulfill a directive. Do NOT create a separate directive for each task. Instead:
+1. Propose 1-2 directives maximum per standup/meeting (broad strategic goals)
+2. Propose multiple tasks that fulfill those directives
+3. Only propose a new directive if no existing active directive covers the topic
+4. If existing directives already cover your area, just propose tasks — no new directive needed
 
 Classification options: Strategic, Operational, Financial, Brand, Infrastructure, Experiment
 Impact/Effort options: Low, Medium, High

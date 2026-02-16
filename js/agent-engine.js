@@ -762,6 +762,55 @@ var AgentEngine = (function () {
     return overlap / Math.max(wa.length, wb.length);
   }
 
+  // Auto-link tasks to directives from the same meeting/standup
+  // Matches by title similarity; if only one directive, all tasks link to it
+  function _autoLinkTasksToDirectives(source) {
+    var taskIds = source._createdTaskIds || [];
+    var dirIds = source._createdDirectiveIds || [];
+    if (taskIds.length === 0 || dirIds.length === 0) return;
+
+    // Load created directives
+    var directives = getDirectives();
+    var createdDirs = dirIds.map(function (did) {
+      for (var i = 0; i < directives.length; i++) {
+        if (directives[i].id === did && directives[i].status === 'active') return directives[i];
+      }
+      return null;
+    }).filter(Boolean);
+    if (createdDirs.length === 0) return;
+
+    var linked = 0;
+    taskIds.forEach(function (tid) {
+      var task = getTask(tid);
+      if (!task || task.directive_id) return; // skip if already linked
+
+      var bestDir = null;
+      var bestScore = 0;
+
+      if (createdDirs.length === 1) {
+        // Only one directive — link all tasks to it
+        bestDir = createdDirs[0];
+      } else {
+        // Multiple directives — find best match by title similarity
+        createdDirs.forEach(function (dir) {
+          var score = _stringSimilarity(task.title.toLowerCase(), dir.title.toLowerCase());
+          // Also check description overlap
+          var descScore = _stringSimilarity((task.description || '').toLowerCase(), dir.title.toLowerCase());
+          var combined = Math.max(score, descScore);
+          if (combined > bestScore) { bestScore = combined; bestDir = dir; }
+        });
+        // Require minimum similarity threshold
+        if (bestScore < 0.15) bestDir = null;
+      }
+
+      if (bestDir) {
+        updateTask(tid, { directive_id: bestDir.id });
+        linked++;
+      }
+    });
+    if (linked > 0) console.log('[AgentEngine] Auto-linked ' + linked + ' tasks to directives');
+  }
+
   // Deduplicate proposals: merge similar titles, combine rationales, keep highest priority/impact
   // v2.3: Tasks only merge when same assignee; directives only merge when same classification
   function _dedupeProposals(proposals) {
@@ -996,6 +1045,8 @@ var AgentEngine = (function () {
       standup.locked = true;
       standup.decisionAt = new Date().toISOString();
       standup.decisionBy = 'ceo';
+      // Auto-link approved tasks to their best-matching approved directive
+      _autoLinkTasksToDirectives(standup);
     }
 
     log[si] = standup;
@@ -1051,6 +1102,10 @@ var AgentEngine = (function () {
         activatedDirs++;
       }
     });
+
+    // Auto-link tasks to directives
+    var standupForLink = getStandupById(standupId);
+    if (standupForLink) _autoLinkTasksToDirectives(standupForLink);
 
     emit('standup-activated', { standupId: standupId, activatedTasks: activatedTasks, activatedDirs: activatedDirs });
     return { activatedTasks: activatedTasks, activatedDirs: activatedDirs };
@@ -1425,6 +1480,8 @@ var AgentEngine = (function () {
       meeting.locked = true;
       meeting.decisionAt = new Date().toISOString();
       meeting.decisionBy = 'ceo';
+      // Auto-link approved tasks to their best-matching approved directive
+      _autoLinkTasksToDirectives(meeting);
     }
 
     log[mi] = meeting;
@@ -1475,6 +1532,10 @@ var AgentEngine = (function () {
         }
       }
     });
+
+    // Auto-link tasks to directives
+    var meetingForLink = getMeetingById(meetingId);
+    if (meetingForLink) _autoLinkTasksToDirectives(meetingForLink);
 
     emit('meeting-activated', { meetingId: meetingId, activatedTasks: activatedTasks, activatedDirs: activatedDirs });
     return { activatedTasks: activatedTasks, activatedDirs: activatedDirs };
