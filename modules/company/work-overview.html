@@ -45,9 +45,10 @@
     }
     .work-pipe-value { font-size: 1.6rem; font-weight: 600; line-height: 1.2; }
     .work-pipe-label { font-size: 0.5rem; opacity: 0.35; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 0.15rem; }
-    .work-pipe-arrow { font-size: 0.7rem; opacity: 0.15; flex-shrink: 0; padding: 0 0.1rem; }
+    .work-pipe-arrow { font-size: 0.7rem; opacity: 0.25; flex-shrink: 0; padding: 0 0.1rem; }
     .work-pipe-stage--active .work-pipe-value { color: #FFA500; }
-    .work-pipe-stage--active { border-bottom: 2px solid rgba(255,165,0,0.4); border-radius: 0; }
+    .work-pipe-stage--active { border-bottom: 3px solid rgba(255,165,0,0.5); border-radius: 0; }
+    @media (max-width: 500px) { .work-pipeline { flex-wrap: wrap; } .work-pipe-arrow { display: none; } .work-pipe-stage { min-width: 45%; } }
 
     /* Needs Attention Panel */
     .work-attention {
@@ -61,7 +62,8 @@
       padding: 0.7rem 1rem;
       text-align: center;
     }
-    .work-attention-card--warn { border-color: rgba(239,68,68,0.2); background: rgba(239,68,68,0.03); }
+    .work-attention-card--warn { border-color: rgba(239,68,68,0.2); background: rgba(239,68,68,0.03); box-shadow: 0 0 12px rgba(239,68,68,0.06); }
+    .work-attention-card--amber { border-color: rgba(251,191,36,0.2); background: rgba(251,191,36,0.03); box-shadow: 0 0 10px rgba(251,191,36,0.05); }
     .work-attention-value { font-size: 1.4rem; font-weight: 600; line-height: 1.2; }
     .work-attention-label { font-size: 0.5rem; opacity: 0.4; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.15rem; }
 
@@ -69,7 +71,7 @@
     .work-task-list { margin-bottom: 1.4rem; }
     .work-task-row {
       display: flex; align-items: center; gap: 0.6rem;
-      padding: 0.6rem 0.8rem; margin-bottom: 0.4rem;
+      padding: 0.6rem 0.8rem; margin-bottom: 0.55rem;
       background: rgba(255,255,255,0.02);
       border: 1px solid rgba(255,255,255,0.04);
       border-radius: 8px;
@@ -78,7 +80,7 @@
     }
     .work-task-row:hover { border-color: rgba(255,165,0,0.15); }
     .work-task-priority {
-      width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+      width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; align-self: center;
     }
     .work-task-title { flex: 1; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .work-task-badge {
@@ -107,7 +109,7 @@
     .work-quick-label { font-weight: 500; }
     .work-quick-desc { font-size: 0.6rem; opacity: 0.35; margin-top: 0.15rem; }
 
-    .ov-section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.3; font-weight: 500; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+    .ov-section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.4; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem; }
   </style>
 </head>
 <body style="background:#071019" data-theme="dark">
@@ -153,7 +155,7 @@
         <div class="work-attention-value" style="color:#fbbf24;" id="work-overdue">0</div>
         <div class="work-attention-label">Overdue</div>
       </div>
-      <div class="work-attention-card">
+      <div class="work-attention-card work-attention-card--amber">
         <div class="work-attention-value" style="color:#8A2BE2;" id="work-pending-review">0</div>
         <div class="work-attention-label">Pending Review</div>
       </div>

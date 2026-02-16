@@ -131,6 +131,26 @@
     .cfg-quick-desc { font-size: 0.6rem; opacity: 0.35; margin-top: 0.15rem; }
 
     .ov-section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.3; font-weight: 500; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+
+    /* v3.1 — Status value coloring */
+    .cfg-val--ok { color: #34d399; }
+    .cfg-val--warn { color: #fbbf24; }
+    .cfg-val--err { color: #ef4444; }
+
+    /* v3.1 — Empty state tile */
+    .cfg-empty-state {
+      grid-column: 1 / -1;
+      text-align: center; padding: 2rem 1rem;
+      border: 1px dashed rgba(255,255,255,0.08); border-radius: 10px;
+      background: rgba(255,255,255,0.01);
+    }
+    .cfg-empty-state-icon { font-size: 1.5rem; opacity: 0.15; margin-bottom: 0.5rem; }
+    .cfg-empty-state-title { font-size: 0.75rem; opacity: 0.4; font-weight: 500; margin-bottom: 0.25rem; }
+    .cfg-empty-state-hint { font-size: 0.62rem; opacity: 0.25; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .cfg-status-dot { animation: none; opacity: 1; }
+    }
   </style>
 </head>
 <body style="background:#071019" data-theme="dark">
@@ -241,9 +261,23 @@
   <script src="/js/company-store.js"></script>
   <script>
   (function () {
+    // v3.1 — Defensive helpers
+    function _cfgSetStatus(id, text, level) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = text;
+      el.className = 'cfg-check-value cfg-val--' + (level || 'ok');
+    }
+    function _cfgSetIcon(row, level) {
+      if (!row) return;
+      var icon = row.querySelector('.cfg-check-icon');
+      if (icon) icon.className = 'cfg-check-icon cfg-check-icon--' + level;
+    }
+
     CompanyStore.init().then(function () {
       // Store mode
-      document.getElementById('stat-store').textContent = CompanyStore.getMode();
+      var mode = CompanyStore.getMode();
+      _cfgSetStatus('stat-store', mode || 'unknown', mode ? 'ok' : 'warn');
 
       return Promise.all([
         CompanyStore.getState('ap_workspace_memory', []),
@@ -252,8 +286,12 @@
     }).then(function (results) {
       var memories = results[0] || [];
       var tools = results[1] || [];
-      document.getElementById('stat-memory').textContent = memories.length + ' items';
-      document.getElementById('stat-tools').textContent = tools.length + ' registered';
+      _cfgSetStatus('stat-memory', memories.length + ' items', memories.length > 0 ? 'ok' : 'warn');
+      _cfgSetStatus('stat-tools', tools.length + ' registered', tools.length > 0 ? 'ok' : 'warn');
+    }).catch(function () {
+      _cfgSetStatus('stat-store', '\u26A0 Store unavailable', 'err');
+      _cfgSetStatus('stat-memory', '\u26A0 Unable to read', 'err');
+      _cfgSetStatus('stat-tools', '\u26A0 Unable to read', 'err');
     });
 
     // API connectivity check
@@ -263,34 +301,64 @@
     fetch(apiBase + '/company-state?key=ap_workspace_memory', { method: 'HEAD' })
       .then(function (r) {
         var el = document.getElementById('cfg-api-status');
-        if (r.ok) { el.textContent = 'OK'; }
-        else { el.textContent = 'Error ' + r.status; el.closest('.cfg-check-row').querySelector('.cfg-check-icon').className = 'cfg-check-icon cfg-check-icon--warn'; }
+        var row = el ? el.closest('.cfg-check-row') : null;
+        if (r.ok) {
+          _cfgSetStatus('cfg-api-status', 'Connected', 'ok');
+        } else {
+          _cfgSetStatus('cfg-api-status', '\u26A0 API unavailable', 'warn');
+          _cfgSetIcon(row, 'warn');
+        }
       })
       .catch(function () {
         var el = document.getElementById('cfg-api-status');
-        el.textContent = 'Unreachable';
-        el.closest('.cfg-check-row').querySelector('.cfg-check-icon').className = 'cfg-check-icon cfg-check-icon--err';
+        var row = el ? el.closest('.cfg-check-row') : null;
+        _cfgSetStatus('cfg-api-status', '\u26A0 API unreachable', 'err');
+        _cfgSetIcon(row, 'err');
       });
 
-    // Agent roster — health grid tiles
+    // Agent roster — health grid tiles (with styled empty state)
     fetch('/data/company-agents.json')
-      .then(function (r) { return r.json(); })
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.json();
+      })
       .then(function (agents) {
-        document.getElementById('stat-agents').textContent = agents.length + ' loaded';
+        if (!Array.isArray(agents) || agents.length === 0) {
+          _cfgRenderAgentEmpty();
+          return;
+        }
+        _cfgSetStatus('stat-agents', agents.length + ' active', 'ok');
+        var agentRow = document.getElementById('stat-agents');
+        if (agentRow) {
+          var row = agentRow.closest('.cfg-check-row');
+          _cfgSetIcon(row, 'ok');
+        }
         var el = document.getElementById('ov-agents');
         var tierColors = { 1: '#FFD700', 2: '#8A2BE2', 3: '#4ECDC4', 4: '#888' };
         el.innerHTML = agents.map(function (a) {
           var color = tierColors[a.tier] || '#666';
           return '<div class="cfg-agent-tile">' +
             '<div class="cfg-agent-dot" style="background:' + color + ';"></div>' +
-            '<span class="cfg-agent-name">' + a.name + '</span>' +
+            '<span class="cfg-agent-name">' + (a.name || 'Unknown') + '</span>' +
             '<span class="cfg-agent-role">' + (a.role || '') + '</span>' +
             '<span class="cfg-agent-status" style="color:' + color + ';">Active</span>' +
             '</div>';
         }).join('');
       }).catch(function () {
-        document.getElementById('ov-agents').innerHTML = '<span style="opacity:0.3; font-size:0.7rem;">Could not load agents.</span>';
+        _cfgRenderAgentEmpty();
       });
+
+    function _cfgRenderAgentEmpty() {
+      _cfgSetStatus('stat-agents', '\u26A0 Not detected', 'warn');
+      var agentRow = document.getElementById('stat-agents');
+      if (agentRow) _cfgSetIcon(agentRow.closest('.cfg-check-row'), 'warn');
+      document.getElementById('ov-agents').innerHTML =
+        '<div class="cfg-empty-state">' +
+          '<div class="cfg-empty-state-icon"><i class="fas fa-robot"></i></div>' +
+          '<div class="cfg-empty-state-title">\u26A0 No agents detected</div>' +
+          '<div class="cfg-empty-state-hint">Check system connectivity or reload the page.</div>' +
+        '</div>';
+    }
   })();
   </script>
 

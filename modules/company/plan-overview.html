@@ -72,12 +72,13 @@
       font-size: 0.55rem; font-weight: 600; padding: 2px 8px; border-radius: 4px;
     }
     .plan-obj-bar {
-      width: 100%; height: 6px; border-radius: 3px;
+      width: 100%; height: 8px; border-radius: 4px;
       background: rgba(255,255,255,0.06); overflow: hidden;
     }
     .plan-obj-fill {
-      height: 100%; border-radius: 3px;
+      height: 100%; border-radius: 4px;
       transition: width 0.8s ease-out;
+      box-shadow: 0 0 8px rgba(168,85,247,0.15);
     }
     .plan-obj-pct { font-size: 0.55rem; opacity: 0.4; margin-top: 0.2rem; }
 
@@ -86,12 +87,12 @@
       display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.6rem;
     }
     .plan-gov-stat {
-      text-align: center; padding: 0.8rem 0.6rem;
+      text-align: center; padding: 1rem 0.8rem;
       background: rgba(255,255,255,0.02);
       border: 1px solid rgba(255,255,255,0.04);
       border-radius: 8px;
     }
-    .plan-gov-value { font-size: 1.5rem; font-weight: 600; line-height: 1.2; }
+    .plan-gov-value { font-size: 1.6rem; font-weight: 600; line-height: 1.2; }
     .plan-gov-label { font-size: 0.5rem; opacity: 0.35; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.2rem; }
 
     /* Quick nav links */
@@ -101,10 +102,14 @@
       border: 1px solid rgba(138,43,226,0.15); background: rgba(138,43,226,0.04);
       color: #c084fc; text-decoration: none; transition: all 0.15s;
     }
-    .plan-nav-link:hover { background: rgba(138,43,226,0.1); border-color: rgba(138,43,226,0.3); }
+    .plan-nav-link:hover { background: rgba(138,43,226,0.1); border-color: rgba(138,43,226,0.35); box-shadow: 0 0 8px rgba(138,43,226,0.1); }
     .plan-nav-link i { margin-right: 4px; opacity: 0.5; }
 
     .ov-section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.3; font-weight: 500; margin-top: 1.8rem; margin-bottom: 0.6rem; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .plan-obj-fill { transition: none; }
+    }
   </style>
 </head>
 <body style="background:#071019" data-theme="dark">
