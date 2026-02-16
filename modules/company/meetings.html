@@ -60,14 +60,17 @@
     .mt-proposal-badge { font-size:0.55rem; padding:1px 6px; border-radius:6px; font-weight:500; }
     .mt-proposal-rationale { font-size:0.62rem; opacity:0.5; margin-top:0.2rem; }
 
-    .mt-actions-bar { display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.6rem; }
-    .mt-action-btn { font-size:0.65rem; padding:5px 12px; border-radius:6px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.04); color:#e0e0e0; cursor:pointer; font-family:inherit; transition:all 0.15s; }
-    .mt-action-btn:hover { background:rgba(255,255,255,0.08); }
-    .mt-action-btn--approve { border-color:rgba(34,197,94,0.3); color:#22c55e; }
-    .mt-action-btn--reject { border-color:rgba(239,68,68,0.3); color:#ef4444; }
-    .mt-action-btn--defer { border-color:rgba(139,92,246,0.3); color:#8b5cf6; }
-    .mt-action-btn--create { border-color:rgba(59,130,246,0.3); color:#3b82f6; background:rgba(59,130,246,0.08); }
-    .mt-action-btn--create:hover { background:rgba(59,130,246,0.15); }
+    .mt-actions-bar { display:flex; gap:0.5rem; flex-wrap:wrap; margin-top:0.8rem; padding:0.6rem 0.7rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; }
+    .mt-action-btn { font-size:0.78rem; padding:8px 18px; border-radius:8px; border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.06); color:#e0e0e0; cursor:pointer; font-family:inherit; transition:all 0.15s; font-weight:500; }
+    .mt-action-btn:hover { background:rgba(255,255,255,0.12); }
+    .mt-action-btn--approve { border-color:rgba(34,197,94,0.5); color:#22c55e; background:rgba(34,197,94,0.1); }
+    .mt-action-btn--approve:hover { background:rgba(34,197,94,0.2); }
+    .mt-action-btn--reject { border-color:rgba(239,68,68,0.5); color:#ef4444; background:rgba(239,68,68,0.1); }
+    .mt-action-btn--reject:hover { background:rgba(239,68,68,0.2); }
+    .mt-action-btn--defer { border-color:rgba(139,92,246,0.5); color:#8b5cf6; background:rgba(139,92,246,0.1); }
+    .mt-action-btn--defer:hover { background:rgba(139,92,246,0.2); }
+    .mt-action-btn--create { border-color:rgba(59,130,246,0.5); color:#3b82f6; background:rgba(59,130,246,0.12); }
+    .mt-action-btn--create:hover { background:rgba(59,130,246,0.22); }
     .mt-action-btn:disabled { opacity:0.3; cursor:not-allowed; }
 
     .mt-count-badge { display:inline-flex; align-items:center; justify-content:center; min-width:18px; height:18px; font-size:0.55rem; font-weight:600; border-radius:9px; padding:0 5px; background:rgba(78,205,196,0.15); color:#4ecdc4; margin-left:6px; }
@@ -429,7 +432,7 @@
       // ── Decision Panel ──
       function renderDecisionPanel(meeting) {
         if (!meeting || meeting.status !== 'complete') return;
-        decisionPanel.style.display = '';
+        decisionPanel.style.display = 'block';
         var totalProposals = (meeting.proposals.tasks || []).length + (meeting.proposals.directives || []).length;
 
         document.getElementById('mt-decision-badge').className = 'mt-status-badge mt-status-' + (meeting.decisionStatus || 'Pending');
@@ -495,7 +498,7 @@
       function renderRiskPanel(meeting) {
         var risks = meeting.riskSummary || [];
         if (risks.length === 0) { riskPanel.style.display = 'none'; return; }
-        riskPanel.style.display = '';
+        riskPanel.style.display = 'block';
         var list = document.getElementById('mt-risk-list');
         list.innerHTML = '';
         risks.forEach(function (r) {
@@ -514,7 +517,7 @@
         var tasks = meeting.proposals.tasks || [];
         var dirs = meeting.proposals.directives || [];
         if (tasks.length === 0 && dirs.length === 0) { proposalsPanel.style.display = 'none'; return; }
-        proposalsPanel.style.display = '';
+        proposalsPanel.style.display = 'block';
         var list = document.getElementById('mt-proposals-list');
         list.innerHTML = '';
 
@@ -562,7 +565,7 @@
         var related = meeting.relatedMeetings || [];
         var locked = related.filter(function (r) { return r.decisionStatus === 'Approved' || r.decisionStatus === 'Rejected'; });
         if (locked.length === 0) { warningBanner.style.display = 'none'; return; }
-        warningBanner.style.display = '';
+        warningBanner.style.display = 'block';
         var msgs = locked.map(function (r) {
           var d = new Date(r.date);
           var src = r.source === 'standup' ? ' (standup)' : '';
@@ -576,7 +579,7 @@
         var taskIds = meeting._createdTaskIds || [];
         var dirIds = meeting._createdDirectiveIds || [];
         if (taskIds.length === 0 && dirIds.length === 0) { artifactsPanel.style.display = 'none'; return; }
-        artifactsPanel.style.display = '';
+        artifactsPanel.style.display = 'block';
         var html = '';
         if (taskIds.length > 0) {
           html += '<div style="margin-bottom:0.3rem;"><strong>Tasks (' + taskIds.length + '):</strong> ';
@@ -604,7 +607,7 @@
       function renderParseWarnings(meeting) {
         var errors = meeting.parseErrors || [];
         if (errors.length === 0) { parseWarnings.style.display = 'none'; return; }
-        parseWarnings.style.display = '';
+        parseWarnings.style.display = 'block';
         var txt = 'Parser warnings: ' + errors.length + ' — ';
         txt += errors.map(function (e) { return e.agentId + ': ' + esc(e.error); }).join('; ');
         document.getElementById('mt-parse-warnings-text').textContent = txt;
@@ -647,7 +650,7 @@
         if (!summary || (summary.counts.directives === 0 && summary.counts.tasks === 0 && summary.counts.risks === 0)) {
           outcomePanel.style.display = 'none'; return;
         }
-        outcomePanel.style.display = '';
+        outcomePanel.style.display = 'block';
         var body = document.getElementById('mt-outcome-body');
         var html = '';
         var IMPACT_COLORS = { High: '#ef4444', Medium: '#fbbf24', Low: '#6b7280' };

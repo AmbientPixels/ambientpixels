@@ -389,7 +389,7 @@
       // ── Decision Panel ──
       function renderDecisionPanel(standup) {
         if (!standup || standup.status !== 'complete') return;
-        suDecisionPanel.style.display = '';
+        suDecisionPanel.style.display = 'block';
         var totalProposals = (standup.proposals.tasks || []).length + (standup.proposals.directives || []).length;
 
         document.getElementById('su-decision-badge').className = 'su-status-badge su-status-' + (standup.decisionStatus || 'Pending');
@@ -457,7 +457,7 @@
       function renderRiskPanel(standup) {
         var risks = standup.riskSummary || [];
         if (risks.length === 0) { suRiskPanel.style.display = 'none'; return; }
-        suRiskPanel.style.display = '';
+        suRiskPanel.style.display = 'block';
         var list = document.getElementById('su-risk-list');
         list.innerHTML = '';
         risks.forEach(function (r) {
@@ -476,7 +476,7 @@
         var tasks = standup.proposals.tasks || [];
         var dirs = standup.proposals.directives || [];
         if (tasks.length === 0 && dirs.length === 0) { suProposalsPanel.style.display = 'none'; return; }
-        suProposalsPanel.style.display = '';
+        suProposalsPanel.style.display = 'block';
         var list = document.getElementById('su-proposals-list');
         list.innerHTML = '';
 
@@ -524,7 +524,7 @@
         var related = standup.relatedStandups || [];
         var locked = related.filter(function (r) { return r.decisionStatus === 'Approved' || r.decisionStatus === 'Rejected'; });
         if (locked.length === 0) { suWarningBanner.style.display = 'none'; return; }
-        suWarningBanner.style.display = '';
+        suWarningBanner.style.display = 'block';
         var msgs = locked.map(function (r) {
           var d = new Date(r.date);
           return '<a href="/modules/company/standup.html" style="color:#fbbf24;text-decoration:underline;">' + escapeHtml(r.title) + '</a> — ' + r.decisionStatus + ' on ' + d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -537,7 +537,7 @@
         var taskIds = standup._createdTaskIds || [];
         var dirIds = standup._createdDirectiveIds || [];
         if (taskIds.length === 0 && dirIds.length === 0) { suArtifactsPanel.style.display = 'none'; return; }
-        suArtifactsPanel.style.display = '';
+        suArtifactsPanel.style.display = 'block';
         var html = '';
         if (taskIds.length > 0) {
           html += '<div style="margin-bottom:0.3rem;"><strong>Tasks (' + taskIds.length + '):</strong> ';
@@ -565,7 +565,7 @@
       function renderParseWarnings(standup) {
         var errors = standup.parseErrors || [];
         if (errors.length === 0) { suParseWarnings.style.display = 'none'; return; }
-        suParseWarnings.style.display = '';
+        suParseWarnings.style.display = 'block';
         var txt = 'Parser warnings: ' + errors.length + ' — ';
         txt += errors.map(function (e) { return e.agentId + ': ' + escapeHtml(e.error); }).join('; ');
         document.getElementById('su-parse-warnings-text').textContent = txt;
@@ -647,7 +647,7 @@
           suOutcomePanel.style.display = 'none';
           return;
         }
-        suOutcomePanel.style.display = '';
+        suOutcomePanel.style.display = 'block';
         var body = document.getElementById('su-outcome-body');
         var html = '';
 
