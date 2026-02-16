@@ -687,6 +687,7 @@
 
       function renderAll() {
         _govEntriesCache = null; // clear gov cache for fresh data
+        if (AgentEngine.reconcileProposals) AgentEngine.reconcileProposals();
         renderCeoInbox();
         renderStats();
         renderFleet();

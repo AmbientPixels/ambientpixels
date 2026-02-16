@@ -2541,6 +2541,57 @@ var AgentEngine = (function () {
     return null;
   }
 
+  // Reconcile standup/meeting proposals: activate pending tasks+directives, link tasks to directives
+  function reconcileProposals() {
+    var fixed = { activatedTasks: 0, activatedDirs: 0, linkedTasks: 0 };
+
+    // 1) Activate pending-approval standup/meeting tasks → todo
+    var tasks = getTasks();
+    tasks.forEach(function (t) {
+      if (t.status === 'pending-approval' && t.tags && (t.tags.indexOf('standup-proposal') !== -1 || t.tags.indexOf('meeting-proposal') !== -1)) {
+        updateTask(t.id, { status: 'todo' });
+        fixed.activatedTasks++;
+      }
+    });
+
+    // 2) Activate pending-approval directives → active
+    var directives = getDirectives();
+    directives.forEach(function (d) {
+      if (d.status === 'pending-approval') {
+        updateDirective(d.id, {
+          status: 'active',
+          approval: { status: 'approved', approvedBy: 'ceo', approvedAt: new Date().toISOString() }
+        });
+        fixed.activatedDirs++;
+      }
+    });
+
+    // 3) Link orphan tasks to best-matching active directive by title similarity
+    var activeDirs = getDirectives().filter(function (d) { return d.status === 'active'; });
+    if (activeDirs.length > 0) {
+      getTasks().forEach(function (t) {
+        if (t.directive_id || t.status === 'done') return;
+        var bestDir = null;
+        var bestScore = 0;
+        activeDirs.forEach(function (dir) {
+          var score = _stringSimilarity(t.title.toLowerCase(), dir.title.toLowerCase());
+          var descScore = _stringSimilarity((t.description || '').toLowerCase(), dir.title.toLowerCase());
+          var combined = Math.max(score, descScore);
+          if (combined > bestScore) { bestScore = combined; bestDir = dir; }
+        });
+        if (bestDir && bestScore >= 0.2) {
+          updateTask(t.id, { directive_id: bestDir.id });
+          fixed.linkedTasks++;
+        }
+      });
+    }
+
+    if (fixed.activatedTasks || fixed.activatedDirs || fixed.linkedTasks) {
+      console.log('[AgentEngine] reconcileProposals:', fixed);
+    }
+    return fixed;
+  }
+
   // Reconcile approvalQueue against actions store — remove orphans, sync status
   function reconcileApprovalQueue() {
     var queue = getApprovalQueue();
@@ -3051,6 +3102,7 @@ var AgentEngine = (function () {
     resolveArtifactUrl: resolveArtifactUrl,
     resolveActionTokens: resolveActionTokens,
     checkActionDependencies: checkActionDependencies,
-    reconcileApprovalQueue: reconcileApprovalQueue
+    reconcileApprovalQueue: reconcileApprovalQueue,
+    reconcileProposals: reconcileProposals
   };
 })();
