@@ -278,7 +278,32 @@
         if (meetings.length > 0) {
           pastToggle.style.display = '';
         }
+
+        // Restore latest complete meeting's panels on page load
+        if (meetings.length > 0) {
+          var latest = meetings[meetings.length - 1];
+          if (latest && latest.status === 'complete') {
+            loadMeetingView(latest);
+          }
+        }
+
         renderPastMeetings(meetings);
+      }
+
+      // Load a meeting into the main view (transcript + all panels)
+      function loadMeetingView(meeting) {
+        _currentMeetingId = meeting.id;
+        feed.innerHTML = '';
+        (meeting.entries || []).forEach(function (entry) {
+          feed.appendChild(createEntryEl(entry));
+        });
+        renderDecisionPanel(meeting);
+        renderRiskPanel(meeting);
+        renderProposalsPanel(meeting);
+        renderWarningBanner(meeting);
+        renderArtifacts(meeting);
+        renderParseWarnings(meeting);
+        renderOutcomeSummary(meeting);
       }
 
       // ── Trigger Meeting ──
@@ -691,20 +716,16 @@
             ' <span style="opacity:0.4;font-size:0.65rem;">— ' + esc(meeting.title || 'Meeting') + '</span>' +
             ' <span style="opacity:0.25;font-size:0.55rem;">(' + (meeting.entries || []).length + ' entries)</span></div>';
 
-          // Expandable: click to show entries
-          var feedDiv = document.createElement('div');
-          feedDiv.className = 'standup-feed';
-          feedDiv.style.display = 'none';
-          (meeting.entries || []).forEach(function (entry) {
-            feedDiv.appendChild(createEntryEl(entry));
-          });
-
+          // Click to load full meeting view (transcript + decision panel)
           item.querySelector('.standup-date-label').style.cursor = 'pointer';
-          item.querySelector('.standup-date-label').addEventListener('click', function () {
-            feedDiv.style.display = feedDiv.style.display === 'none' ? '' : 'none';
-          });
+          (function (m) {
+            item.querySelector('.standup-date-label').addEventListener('click', function () {
+              loadMeetingView(m);
+              renderPastMeetings(AE.getMeetings());
+              window.scrollTo({ top: 0, behavior: 'smooth' });
+            });
+          })(meeting);
 
-          item.appendChild(feedDiv);
           pastLog.appendChild(item);
         });
       }
