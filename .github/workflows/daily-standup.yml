@@ -1,0 +1,54 @@
+name: Daily Standup (Auto)
+
+# Schedule: Weekdays at 7:30am America/Los_Angeles
+# UTC conversion: 7:30am PST = 15:30 UTC (during PST, Nov-Mar)
+#                 7:30am PDT = 14:30 UTC (during PDT, Mar-Nov)
+# Using 15:30 UTC (PST). During PDT this will run at 8:30am PT.
+# Acceptable 1-hour drift; no DST logic needed.
+on:
+  schedule:
+    - cron: '30 15 * * 1-5'  # Mon-Fri at 15:30 UTC (7:30am PST / 8:30am PDT)
+  workflow_dispatch:  # Allow manual trigger
+
+jobs:
+  run-standup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Log trigger
+        run: |
+          echo "🗓️ Daily Standup trigger: ${{ github.event_name }}"
+          echo "🕐 UTC time: $(date -u)"
+
+      - name: Run Daily Standup
+        id: standup
+        run: |
+          HTTP_CODE=$(curl -s -o response.json -w "%{http_code}" \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -H "x-standup-key: ${{ secrets.STANDUP_API_KEY }}" \
+            "https://ambientpixels-nova-api.azurewebsites.net/api/company-standup-run")
+
+          echo "HTTP status: $HTTP_CODE"
+          cat response.json
+          echo ""
+
+          # Parse response
+          SKIPPED=$(cat response.json | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('skipped',''))" 2>/dev/null || echo "")
+          ERROR=$(cat response.json | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('error',''))" 2>/dev/null || echo "")
+
+          if [ "$HTTP_CODE" = "200" ]; then
+            if [ "$SKIPPED" = "True" ]; then
+              echo "✅ Standup already ran today — skipped."
+            else
+              echo "✅ Standup completed successfully."
+            fi
+          elif [ "$HTTP_CODE" = "409" ]; then
+            echo "⚠️ Standup already in progress (409) — not an error."
+          else
+            echo "❌ Standup failed with HTTP $HTTP_CODE"
+            exit 1
+          fi
+
+      - name: Log completion
+        if: always()
+        run: echo "🏁 Daily standup workflow finished at $(date -u)"

@@ -167,6 +167,11 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/api/company-standup-run",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/company-standup-run",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/api/*",
       "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/{path}"
     },
