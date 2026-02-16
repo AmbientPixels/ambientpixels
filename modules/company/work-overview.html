@@ -220,6 +220,24 @@
     .work-priority-pill { font-size:0.48rem; padding:0.08rem 0.25rem; border-radius:3px; margin-left:0.25rem; white-space:nowrap; }
     .work-priority-pill--critical { background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); color:#f87171; }
     .work-priority-pill--high { background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.25); color:#fbbf24; }
+
+    /* System Adjustment diff preview (v0.2) */
+    .sysadj-diff { background:rgba(59,130,246,0.03); border:1px solid rgba(59,130,246,0.08); border-radius:6px; padding:0.3rem 0.5rem; margin:0.25rem 0 0.15rem; width:100%; font-size:0.55rem; }
+    .sysadj-row { display:flex; gap:0.5rem; align-items:center; padding:0.08rem 0; }
+    .sysadj-label { opacity:0.4; min-width:55px; font-size:0.5rem; text-transform:uppercase; letter-spacing:0.04em; }
+    .sysadj-before { color:#ef4444; opacity:0.8; }
+    .sysadj-arrow { opacity:0.25; font-size:0.5rem; }
+    .sysadj-after { color:#34d399; font-weight:600; }
+    .sysadj-delta { opacity:0.4; font-size:0.48rem; margin-left:0.2rem; }
+    .sysadj-note { font-size:0.48rem; opacity:0.4; font-style:italic; padding:0.1rem 0 0; color:#fbbf24; }
+    .sysadj-safety { display:flex; gap:0.2rem; flex-wrap:wrap; margin-top:0.15rem; width:100%; }
+    .sysadj-pill { font-size:0.44rem; padding:0.04rem 0.18rem; border-radius:3px; white-space:nowrap; }
+    .sysadj-pill--on { background:rgba(52,211,153,0.08); border:1px solid rgba(52,211,153,0.2); color:#34d399; }
+    .sysadj-pill--off { background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.2); color:#ef4444; }
+    .sysadj-pill--info { background:rgba(59,130,246,0.06); border:1px solid rgba(59,130,246,0.15); color:#60a5fa; }
+    .sysadj-pill--warn { background:rgba(251,191,36,0.06); border:1px solid rgba(251,191,36,0.15); color:#fbbf24; }
+    .sysadj-group-hint { font-size:0.48rem; opacity:0.35; font-style:italic; }
+    .sysadj-excluded-note { font-size:0.5rem; opacity:0.3; font-style:italic; display:inline-flex; align-items:center; gap:0.2rem; }
   </style>
 </head>
 <body style="background:#071019" data-theme="dark">
@@ -565,6 +583,96 @@
         return '<span class="work-pending-ctx-pill work-pending-ctx-pill--corr"><i class="fas fa-link"></i> ' + label + ' #' + item.correlationId.substring(0, 8) + '</span>';
       }
 
+      // ── System Adjustment preview helpers (v0.2) ──
+      var _THRESH_BOUNDS = { recommendationsMax:{min:2,max:12}, focusListMax:{min:1,max:20}, stuckListMax:{min:1,max:20}, stuckInReviewDays:{min:1,max:30}, stuckInProgressDays:{min:1,max:60}, pendingApprovalsWarning:{min:1,max:50}, cadenceDays:{min:1,max:30} };
+      var _THRESH_DEFAULTS = { stuckInReviewDays:2, stuckInProgressDays:7, pendingApprovalsWarning:5, focusListMax:5, stuckListMax:5, recommendationsMax:8, cadenceDays:7 };
+
+      function _fieldLabel(f) { return f ? f.replace(/([A-Z])/g, ' $1').replace(/^./, function(s) { return s.toUpperCase(); }).trim() : '?'; }
+
+      function _readWeights() {
+        try { if (typeof PriorityEngine !== 'undefined' && PriorityEngine.getWeights) return PriorityEngine.getWeights(); } catch(e) {}
+        return null;
+      }
+      function _readThresholds() {
+        try { if (typeof PlannerLoop !== 'undefined' && PlannerLoop.getThresholds) return PlannerLoop.getThresholds(); } catch(e) {}
+        try { var raw = localStorage.getItem('ap_planner_thresholds'); if (raw) { var s = JSON.parse(raw), out = {}; for (var k in _THRESH_DEFAULTS) out[k] = (s[k] != null) ? s[k] : _THRESH_DEFAULTS[k]; return out; } } catch(e) {}
+        var c = {}; for (var k2 in _THRESH_DEFAULTS) c[k2] = _THRESH_DEFAULTS[k2]; return c;
+      }
+      function _threshBounds(f) {
+        try { if (typeof PlannerLoop !== 'undefined' && PlannerLoop.THRESHOLD_BOUNDS && PlannerLoop.THRESHOLD_BOUNDS[f]) return PlannerLoop.THRESHOLD_BOUNDS[f]; } catch(e) {}
+        return _THRESH_BOUNDS[f] || null;
+      }
+
+      function _systemAdjPreview(item) {
+        if (!item || !item.payload || !item.payload.type || !item.payload.proposedChange) return { ok:false, reason:'Missing payload' };
+        var p = item.payload, pc = p.proposedChange, type = p.type;
+        if (type === 'flag_action_type') {
+          return { ok:true, label:'Flag for review', field:_fieldLabel(pc.actionType || p.target || ''), before:'\u2014', after:'\u2014', deltaText:'', clampedNote:null };
+        }
+        if (type === 'adjust_priority_weight') {
+          var w = _readWeights();
+          if (!w) return { ok:false, reason:'Weights unavailable' };
+          var f = pc.field;
+          if (!f || w[f] == null) return { ok:false, reason:'Unknown field' };
+          var bv = w[f], raw;
+          if (pc.newValue != null) raw = pc.newValue; else if (pc.delta != null) raw = bv + pc.delta; else return { ok:false, reason:'No delta or newValue' };
+          var av = Math.max(0, Math.min(5, Math.round(raw * 100) / 100));
+          var cn = (Math.round(raw * 100) !== Math.round(av * 100)) ? ('Clamped to ' + (raw > 5 ? 'max 5.0' : 'min 0.0')) : null;
+          var d = av - bv;
+          return { ok:true, label:'Priority weight', field:_fieldLabel(f), before:bv.toFixed(2), after:av.toFixed(2), deltaText:(d >= 0 ? '+' : '') + d.toFixed(2), clampedNote:cn };
+        }
+        if (type === 'adjust_planner_threshold') {
+          var th = _readThresholds(), f2 = pc.field;
+          if (!f2 || th[f2] == null) return { ok:false, reason:'Unknown field' };
+          var bv2 = th[f2], raw2;
+          if (pc.newValue != null) raw2 = pc.newValue; else if (pc.delta != null) raw2 = bv2 + pc.delta; else return { ok:false, reason:'No delta or newValue' };
+          var b = _threshBounds(f2);
+          var av2 = b ? Math.max(b.min, Math.min(b.max, Math.round(raw2))) : Math.round(raw2);
+          var cn2 = (b && Math.round(raw2) !== av2) ? ('Clamped to ' + (raw2 > b.max ? 'max ' + b.max : 'min ' + b.min)) : null;
+          var d2 = av2 - bv2;
+          return { ok:true, label:'Planner threshold', field:_fieldLabel(f2), before:'' + bv2, after:'' + av2, deltaText:(d2 >= 0 ? '+' : '') + d2, clampedNote:cn2 };
+        }
+        return { ok:false, reason:'Unknown type: ' + type };
+      }
+
+      function _systemAdjSafety() {
+        var ae = false, ce = false, rv = false;
+        try { ae = (typeof ActionRouter !== 'undefined' && ActionRouter.isEnabled) ? ActionRouter.isEnabled() : false; } catch(e) {}
+        try { ce = (typeof ActionRouter !== 'undefined' && ActionRouter.isConfigChangesEnabled) ? ActionRouter.isConfigChangesEnabled() : false; } catch(e) {}
+        try { rv = (typeof ActionExecutors !== 'undefined' && ActionExecutors.getBackupInfo) ? !!ActionExecutors.getBackupInfo() : !!(localStorage.getItem('ap_system_adjustment_backup_latest')); } catch(e) {}
+        return { actionsEnabled:ae, configChangesEnabled:ce, revertAvailable:rv };
+      }
+
+      function _renderSysAdjBlock(item) {
+        if (item.actionType !== 'system_adjustment') return '';
+        var pv = _systemAdjPreview(item);
+        var sf = _systemAdjSafety();
+        var h = '<div class="sysadj-diff">';
+        if (pv.ok) {
+          h += '<div class="sysadj-row"><span class="sysadj-label">' + esc(pv.label) + '</span></div>';
+          h += '<div class="sysadj-row"><span class="sysadj-label">Field</span><span>' + esc(pv.field) + '</span></div>';
+          if (pv.before !== '\u2014' || pv.after !== '\u2014') {
+            h += '<div class="sysadj-row"><span class="sysadj-label">Value</span>';
+            h += '<span class="sysadj-before">' + esc(pv.before) + '</span>';
+            h += '<span class="sysadj-arrow">\u2192</span>';
+            h += '<span class="sysadj-after">' + esc(pv.after) + '</span>';
+            if (pv.deltaText) h += '<span class="sysadj-delta">(' + esc(pv.deltaText) + ')</span>';
+            h += '</div>';
+          }
+          if (pv.clampedNote) h += '<div class="sysadj-note">\u26A0 ' + esc(pv.clampedNote) + '</div>';
+        } else {
+          h += '<div class="sysadj-row"><span class="sysadj-label">Preview</span><span style="opacity:0.4;">Unknown \u2014 ' + esc(pv.reason || '') + '</span></div>';
+        }
+        h += '</div>';
+        h += '<div class="sysadj-safety">';
+        h += '<span class="sysadj-pill ' + (sf.actionsEnabled ? 'sysadj-pill--on' : 'sysadj-pill--off') + '">Actions: ' + (sf.actionsEnabled ? 'ON' : 'OFF') + '</span>';
+        h += '<span class="sysadj-pill ' + (sf.configChangesEnabled ? 'sysadj-pill--on' : 'sysadj-pill--off') + '">Config: ' + (sf.configChangesEnabled ? 'ON' : 'OFF') + '</span>';
+        h += '<span class="sysadj-pill ' + (sf.revertAvailable ? 'sysadj-pill--info' : 'sysadj-pill--warn') + '">Revert: ' + (sf.revertAvailable ? 'Available' : 'None') + '</span>';
+        h += '<span class="sysadj-pill ' + (pv.ok && !pv.clampedNote ? 'sysadj-pill--on' : (pv.ok ? 'sysadj-pill--info' : 'sysadj-pill--warn')) + '">Bounds: ' + (pv.ok ? 'Passed' : 'Unknown') + '</span>';
+        h += '</div>';
+        return h;
+      }
+
       function renderPending() {
         var groups = ActionQueue.getPendingGroups();
         var totalPending = ActionQueue.countByStatus('pending_approval');
@@ -577,6 +685,8 @@
 
         var html = '<div class="work-pending-global">';
         html += '<button class="work-pending-global-btn work-pending-global-btn--low" id="work-approve-all-low"' + (lowCount === 0 ? ' disabled' : '') + '><i class="fas fa-check-double"></i> Approve All Low-Risk (' + lowCount + ')</button>';
+        var _hasSysAdj = groups.some(function(g2) { return g2.items.some(function(it) { return it.actionType === 'system_adjustment'; }); });
+        if (_hasSysAdj) html += '<span class="sysadj-excluded-note"><i class="fas fa-info-circle"></i> System adjustments excluded (medium risk)</span>';
         html += '</div>';
 
         groups.forEach(function (g) {
@@ -590,6 +700,8 @@
           html += '<span class="work-pending-group-title">' + esc(g.title) + '</span>';
           if (g.subtitle) html += '<span class="work-pending-group-sub">#' + esc(g.subtitle) + '</span>';
           html += '<span class="work-pending-group-counts">' + g.counts.total + ' items (' + riskInfo.join(', ') + ')</span>';
+          var _grpSysAdj = g.items.filter(function(it) { return it.actionType === 'system_adjustment'; }).length;
+          if (_grpSysAdj > 0) html += '<span class="sysadj-group-hint">System adjustments (' + _grpSysAdj + ') \u2014 preview shown</span>';
           html += '<span class="work-pending-group-actions">';
           html += '<button class="work-pending-btn work-pending-btn--approve" data-approve-group="' + g.groupId + '" title="Approve group"><i class="fas fa-check-double"></i></button>';
           html += '<button class="work-pending-btn work-pending-btn--reject" data-reject-group="' + g.groupId + '" title="Reject group"><i class="fas fa-times"></i></button>';
@@ -607,6 +719,7 @@
             html += _verifyPill(item);
             html += _corrPill(item);
             html += '</span>';
+            html += _renderSysAdjBlock(item);
             html += '<span class="work-pending-item-actions">';
             html += '<button class="work-pending-btn work-pending-btn--approve" data-approve="' + item.id + '" title="Approve"><i class="fas fa-check"></i></button>';
             html += '<button class="work-pending-btn work-pending-btn--reject" data-reject="' + item.id + '" title="Reject"><i class="fas fa-times"></i></button>';
