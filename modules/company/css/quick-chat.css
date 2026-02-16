@@ -1,0 +1,195 @@
+/* ── Quick Chat FAB + Drawer (shared component) ── */
+
+.qc-fab {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(138,43,226,0.25);
+  border: 1px solid rgba(138,43,226,0.4);
+  color: #c9a0ff;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 900;
+  transition: all 0.2s;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+}
+.qc-fab:hover {
+  background: rgba(138,43,226,0.35);
+  transform: scale(1.05);
+}
+.qc-fab:focus-visible {
+  box-shadow: 0 0 0 3px rgba(138,43,226,0.4);
+}
+
+/* Drawer */
+.qc-drawer {
+  position: fixed;
+  top: 0;
+  right: -380px;
+  width: 360px;
+  height: 100vh;
+  background: #0d1825;
+  border-left: 1px solid rgba(255,255,255,0.08);
+  z-index: 950;
+  display: flex;
+  flex-direction: column;
+  transition: right 0.25s ease;
+  box-shadow: -8px 0 32px rgba(0,0,0,0.4);
+}
+.qc-drawer.open {
+  right: 0;
+}
+.qc-drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.8rem 1rem;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+.qc-drawer-header h3 {
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin: 0;
+  color: rgba(255,255,255,0.7);
+}
+.qc-drawer-close {
+  background: none;
+  border: 1px solid rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.4);
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+.qc-drawer-close:hover {
+  color: rgba(255,255,255,0.8);
+  border-color: rgba(255,255,255,0.2);
+}
+.qc-drawer-close:focus-visible {
+  box-shadow: 0 0 0 2px rgba(138,43,226,0.4);
+}
+.qc-drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.8rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.qc-drawer-input {
+  display: flex;
+  gap: 0.4rem;
+  padding: 0.8rem 1rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  flex-shrink: 0;
+}
+.qc-drawer-footer {
+  padding: 0.3rem 1rem 0.6rem;
+  text-align: center;
+  flex-shrink: 0;
+}
+.qc-drawer-footer a {
+  font-size: 0.6rem;
+  color: rgba(201,160,255,0.5);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.qc-drawer-footer a:hover {
+  color: #c9a0ff;
+}
+
+/* Overlay */
+.qc-overlay {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 940;
+}
+.qc-overlay.open { display: block; }
+
+/* Messages */
+.qc-msg {
+  font-size: 0.78rem;
+  padding: 0.4rem 0.7rem;
+  border-radius: 8px;
+  line-height: 1.45;
+  max-width: 85%;
+}
+.qc-msg--user {
+  align-self: flex-end;
+  background: rgba(138,43,226,0.1);
+  border: 1px solid rgba(138,43,226,0.15);
+}
+.qc-msg--agent {
+  align-self: flex-start;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+/* Input elements */
+.qc-select {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 6px;
+  color: #e0e0e0;
+  font-size: 0.72rem;
+  padding: 6px 8px;
+  font-family: inherit;
+  outline: none;
+  width: 90px;
+}
+.qc-input {
+  flex: 1;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 6px;
+  color: #e0e0e0;
+  font-size: 0.78rem;
+  padding: 6px 10px;
+  font-family: inherit;
+  outline: none;
+}
+.qc-input:focus {
+  border-color: rgba(138,43,226,0.3);
+}
+.qc-send {
+  background: rgba(138,43,226,0.15);
+  border: 1px solid rgba(138,43,226,0.25);
+  color: #c9a0ff;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 6px 12px;
+  font-size: 0.78rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+.qc-send:hover {
+  background: rgba(138,43,226,0.25);
+}
+.qc-send:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .qc-drawer {
+    width: 100vw;
+    right: -110vw;
+  }
+}

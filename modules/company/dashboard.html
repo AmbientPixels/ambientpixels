@@ -17,6 +17,7 @@
   <link rel="stylesheet" href="/modules/company/css/company.css" />
   <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
   <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
 </head>
 <body style="background:#071019" data-theme="dark">
 
@@ -332,34 +333,7 @@
 
   </main>
 
-  <!-- FAB Chat Button -->
-  <button class="dash-chat-fab" id="dash-chat-fab" title="Quick Chat" aria-label="Open Quick Chat"><i class="fas fa-comments"></i></button>
-
-  <!-- Chat Drawer Overlay -->
-  <div class="dash-chat-overlay" id="dash-chat-overlay"></div>
-
-  <!-- Chat Drawer -->
-  <div class="dash-chat-drawer" id="dash-chat-drawer" role="dialog" aria-label="Quick Chat">
-    <div class="dash-chat-drawer-header">
-      <h3><i class="fas fa-comments" style="margin-right:6px; color:#c9a0ff;"></i> Quick Chat</h3>
-      <button class="dash-chat-drawer-close" id="dash-chat-drawer-close" aria-label="Close chat"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="dash-chat-drawer-body" id="dash-chat-messages"></div>
-    <div class="dash-chat-drawer-input">
-      <select class="dash-chat-select" id="dash-chat-agent" aria-label="Select agent">
-        <option value="nova">Nova</option>
-        <option value="cipher">Cipher</option>
-        <option value="pixel">Pixel</option>
-        <option value="forge">Forge</option>
-        <option value="echo">Echo</option>
-        <option value="scribe">Scribe</option>
-        <option value="quill">Quill</option>
-        <option value="scout">Scout</option>
-      </select>
-      <input type="text" class="dash-chat-input" id="dash-chat-input" placeholder="Ask any agent..." aria-label="Chat message" />
-      <button class="dash-chat-send" id="dash-chat-send" aria-label="Send message"><i class="fas fa-paper-plane"></i></button>
-    </div>
-  </div>
+  <!-- Quick Chat injected by /modules/company/js/quick-chat.js -->
 
   <!-- Transcript Modal -->
   <div class="transcript-overlay" id="transcript-overlay">
@@ -375,6 +349,7 @@
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="/js/company-store.js"></script>
   <script src="/js/agent-engine.js"></script>
+  <script src="/modules/company/js/quick-chat.js"></script>
 
   <script>
     (function () {
@@ -398,16 +373,10 @@
       var cronEmpty = document.getElementById('cron-empty');
       var panelOvernight = document.getElementById('panel-overnight');
       var overnightEmpty = document.getElementById('overnight-empty');
-      var dashChatMessages = document.getElementById('dash-chat-messages');
-      var dashChatInput = document.getElementById('dash-chat-input');
-      var dashChatSend = document.getElementById('dash-chat-send');
-      var dashChatAgent = document.getElementById('dash-chat-agent');
       var transcriptOverlay = document.getElementById('transcript-overlay');
       var transcriptMessages = document.getElementById('transcript-messages');
       var transcriptTitle = document.getElementById('transcript-title');
       var transcriptClose = document.getElementById('transcript-close');
-
-      var _chatThinking = false;
 
       // ── View Mode Toggle ──
       var _viewMode = localStorage.getItem('ap_dashboard_view_mode') || 'ceo';
@@ -476,49 +445,6 @@
         header.addEventListener('keydown', function (e) {
           if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); header.click(); }
         });
-      });
-
-      // ── FAB Chat Drawer ──
-      var chatFab = document.getElementById('dash-chat-fab');
-      var chatDrawer = document.getElementById('dash-chat-drawer');
-      var chatOverlay = document.getElementById('dash-chat-overlay');
-      var chatDrawerClose = document.getElementById('dash-chat-drawer-close');
-
-      // Restore last agent
-      var savedAgent = localStorage.getItem('ap_quick_chat_agent');
-      if (savedAgent && dashChatAgent.querySelector('option[value="' + savedAgent + '"]')) {
-        dashChatAgent.value = savedAgent;
-      }
-      dashChatAgent.addEventListener('change', function () {
-        try { localStorage.setItem('ap_quick_chat_agent', dashChatAgent.value); } catch (e) {}
-      });
-
-      function openChatDrawer() {
-        chatDrawer.classList.add('open');
-        chatOverlay.classList.add('open');
-        chatFab.style.display = 'none';
-        setTimeout(function () { dashChatInput.focus(); }, 300);
-      }
-      function closeChatDrawer() {
-        chatDrawer.classList.remove('open');
-        chatOverlay.classList.remove('open');
-        chatFab.style.display = '';
-        chatFab.focus();
-      }
-      chatFab.addEventListener('click', openChatDrawer);
-      chatDrawerClose.addEventListener('click', closeChatDrawer);
-      chatOverlay.addEventListener('click', closeChatDrawer);
-      // Focus trap: Tab cycles within drawer, Escape closes
-      chatDrawer.addEventListener('keydown', function (e) {
-        if (e.key === 'Escape') { closeChatDrawer(); return; }
-        if (e.key === 'Tab') {
-          var focusable = chatDrawer.querySelectorAll('button, input, select, [tabindex]:not([tabindex="-1"])');
-          if (focusable.length === 0) return;
-          var first = focusable[0];
-          var last = focusable[focusable.length - 1];
-          if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-          else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-        }
       });
 
       // ── Store mode badge ──
@@ -1213,66 +1139,6 @@
       transcriptOverlay.addEventListener('click', function (e) {
         if (e.target === transcriptOverlay) transcriptOverlay.classList.remove('visible');
       });
-
-      // ── Quick Chat ──
-      dashChatSend.addEventListener('click', sendDashChat);
-      dashChatInput.addEventListener('keydown', function (e) {
-        if (e.key === 'Enter') sendDashChat();
-      });
-
-      function sendDashChat() {
-        var msg = dashChatInput.value.trim();
-        if (!msg || _chatThinking) return;
-
-        var agentId = dashChatAgent.value;
-        var agent = AgentEngine.getAgent(agentId);
-
-        dashChatInput.value = '';
-        addDashMsg('user', msg);
-
-        _chatThinking = true;
-        dashChatSend.disabled = true;
-
-        AgentEngine.chat(agentId, msg, 'chat').then(function (result) {
-          _chatThinking = false;
-          dashChatSend.disabled = false;
-          if (result && result.reply) {
-            addDashMsg('agent', result.reply, agent);
-            if (result.actions && result.actions.length > 0) {
-              addDashActionCards(result.actions);
-            }
-          } else if (result && typeof result === 'string') {
-            addDashMsg('agent', result, agent);
-          } else {
-            addDashMsg('agent', '(no response)', agent);
-          }
-          // Refresh stats after chat
-          renderAll();
-        });
-      }
-
-      function addDashMsg(role, text, agent) {
-        var div = document.createElement('div');
-        div.className = 'dash-chat-msg dash-chat-msg--' + role;
-        div.textContent = text;
-        dashChatMessages.appendChild(div);
-        dashChatMessages.scrollTop = dashChatMessages.scrollHeight;
-      }
-
-      function addDashActionCards(actions) {
-        actions.forEach(function (action) {
-          var div = document.createElement('div');
-          var color = action.success ? 'rgba(52,211,153,0.1)' : 'rgba(248,113,113,0.1)';
-          var border = action.success ? 'rgba(52,211,153,0.2)' : 'rgba(248,113,113,0.2)';
-          var textColor = action.success ? '#34d399' : '#f87171';
-          var iconMap = { 'create-task': 'fa-plus-circle', 'update-task': 'fa-edit', 'move-task': 'fa-arrows-alt', 'comment-task': 'fa-comment', 'create-doc': 'fa-file-alt', 'update-doc': 'fa-file-edit' };
-          var icon = iconMap[action.type] || 'fa-bolt';
-          div.style.cssText = 'padding:0.3rem 0.5rem; margin:0.15rem 0; border-radius:6px; background:' + color + '; border:1px solid ' + border + '; font-size:0.65rem; color:' + textColor + '; align-self:flex-start;';
-          div.innerHTML = '<i class="fas ' + icon + '"></i> ' + (action.success ? '✓' : '✗') + ' ' + (action.summary || action.type);
-          dashChatMessages.appendChild(div);
-        });
-        dashChatMessages.scrollTop = dashChatMessages.scrollHeight;
-      }
 
       // ── v2.4.1 Aging helpers ──
       function _aqFormatAge(iso) {
