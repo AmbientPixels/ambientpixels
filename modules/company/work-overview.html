@@ -558,12 +558,15 @@
 
       // Friendly action type names
       var _ACTION_LABELS = {
-        'move_task_lane': 'Move Task', 'update_task': 'Update Task', 'create_task': 'Create Task',
-        'execute_task': 'Execute Task', 'review_task': 'Review Task', 'comment_task': 'Comment',
+        'move_task': 'Move Task', 'move_task_lane': 'Move Task', 'update_task': 'Update Task',
+        'create_task': 'Create Task', 'execute_task': 'Execute Task', 'review_task': 'Review Task',
+        'comment_task': 'Comment', 'request_info': 'Request Info', 'assign_task': 'Assign Task',
         'system_adjustment': 'System Adjustment', 'escalate': 'Escalate', 'delegate': 'Delegate',
         'reassign': 'Reassign', 'close_task': 'Close Task', 'reopen_task': 'Reopen Task',
         'schedule_post': 'Schedule Post', 'publish_document': 'Publish Document',
-        'create_social_action': 'Social Post', 'send_email': 'Send Email'
+        'create_social_action': 'Social Post', 'send_email': 'Send Email',
+        'create_document': 'Create Document', 'submit_for_publish': 'Submit for Publish',
+        'approve_task': 'Approve Task', 'reject_task': 'Reject Task', 'flag_task': 'Flag Task'
       };
       function _friendlyType(raw) {
         if (_ACTION_LABELS[raw]) return _ACTION_LABELS[raw];
@@ -575,6 +578,11 @@
           var task = AgentEngine.getTaskById(targetId);
           if (task && task.title) return task.title;
         } catch (e) {}
+        // Friendly fallback: shorten raw task IDs
+        if (targetId.indexOf('task-') === 0) {
+          var parts = targetId.split('-');
+          return 'Task #' + (parts.length > 2 ? parts[parts.length - 1] : targetId.slice(-6));
+        }
         return targetId;
       }
 
@@ -609,8 +617,8 @@
       }
       function _corrPill(item) {
         if (!item.correlationId) return '';
-        var label = item.source === 'planner' ? 'Plan' : 'Run';
-        return '<span class="work-pending-ctx-pill work-pending-ctx-pill--corr"><i class="fas fa-link"></i> ' + label + ' #' + item.correlationId.substring(0, 8) + '</span>';
+        var label = item.source === 'planner' ? 'Planner Batch' : 'Worker Batch';
+        return '<span class="work-pending-ctx-pill work-pending-ctx-pill--corr"><i class="fas fa-link"></i> ' + label + '</span>';
       }
 
       // ── System Adjustment preview helpers (v0.2) ──
@@ -728,7 +736,7 @@
           html += '<div class="work-pending-group" data-group-id="' + g.groupId + '">';
           html += '<div class="work-pending-group-header">';
           html += '<span class="work-pending-group-title">' + esc(g.title) + '</span>';
-          if (g.subtitle) html += '<span class="work-pending-group-sub">#' + esc(g.subtitle) + '</span>';
+          if (g.subtitle) html += '<span class="work-pending-group-sub">#' + esc(g.subtitle).slice(0, 12) + '</span>';
           html += '<span class="work-pending-group-counts">' + g.counts.total + ' items (' + riskInfo.join(', ') + ')</span>';
           var _grpSysAdj = g.items.filter(function(it) { return it.actionType === 'system_adjustment'; }).length;
           if (_grpSysAdj > 0) html += '<span class="sysadj-group-hint">System adjustments (' + _grpSysAdj + ') \u2014 preview shown</span>';
