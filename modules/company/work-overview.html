@@ -499,6 +499,14 @@
       var body = document.getElementById('work-reports-body');
       if (!panel || !toggle || !body) return;
 
+      var _WORKER_LABELS = {
+        'triage_worker': 'Triage Worker', 'scribe_worker': 'Scribe Worker',
+        'research_worker': 'Research Worker', 'qa_worker': 'QA Worker'
+      };
+      function _friendlyWorker(raw) {
+        if (_WORKER_LABELS[raw]) return _WORKER_LABELS[raw];
+        return (raw || '?').replace(/[_-]/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+      }
       var reports = WorkerManager.getLatestReports(5);
       if (reports.length === 0 && !WorkerManager.isEnabled()) {
         panel.style.display = 'none';
@@ -525,7 +533,7 @@
               }).join('') + '</div>';
           }
           return '<div class="work-report-card">' +
-            '<div class="work-report-header"><span class="work-report-type">' + esc(r.type || '?') + '</span><span class="work-report-ts">' + ts + '</span></div>' +
+            '<div class="work-report-header"><span class="work-report-type">' + esc(_friendlyWorker(r.type)) + '</span><span class="work-report-ts">' + ts + '</span></div>' +
             '<div class="work-report-summary">' + esc(r.summary || '') + '</div>' +
             actionsHtml + '</div>';
         }).join('');
