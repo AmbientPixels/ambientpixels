@@ -18,6 +18,62 @@
   <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
   <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
   <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
+  <style>
+    /* Observability Dashboard v1 */
+    .obs-controls { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.8rem; flex-wrap: wrap; gap: 0.4rem; }
+    .obs-controls-right { display: flex; gap: 0.3rem; }
+    .obs-toggle { display: inline-flex; border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; overflow: hidden; }
+    .obs-toggle-btn { font-size: 0.6rem; padding: 0.3rem 0.7rem; background: transparent; color: rgba(255,255,255,0.35); border: none; cursor: pointer; font-family: inherit; font-weight: 500; transition: all 0.15s; }
+    .obs-toggle-btn.active { background: rgba(96,165,250,0.1); color: #60a5fa; }
+    .obs-btn { font-size: 0.58rem; padding: 0.3rem 0.6rem; border-radius: 5px; cursor: pointer; border: 1px solid; font-family: inherit; font-weight: 500; }
+    .obs-btn--refresh { border-color: rgba(96,165,250,0.2); background: rgba(96,165,250,0.04); color: #60a5fa; }
+    .obs-btn--export { border-color: rgba(52,211,153,0.2); background: rgba(52,211,153,0.04); color: #34d399; }
+    .obs-section-title { font-size: 0.65rem; font-weight: 600; opacity: 0.4; text-transform: uppercase; letter-spacing: 0.04em; margin: 0.8rem 0 0.4rem; }
+    .obs-range-label { font-weight: 400; opacity: 0.5; text-transform: none; letter-spacing: 0; }
+    .obs-kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.4rem; }
+    .obs-kpi-card { background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.04); border-radius: 8px; padding: 0.5rem 0.6rem; }
+    .obs-kpi-label { font-size: 0.55rem; opacity: 0.35; font-weight: 500; margin-bottom: 0.15rem; }
+    .obs-kpi-value { font-size: 1.1rem; font-weight: 700; line-height: 1.2; }
+    .obs-kpi-sub { font-size: 0.52rem; opacity: 0.3; margin-top: 0.1rem; }
+    .obs-trends-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.6rem; }
+    .obs-spark-chart { background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.04); border-radius: 8px; padding: 0.5rem 0.6rem; }
+    .obs-spark-title { font-size: 0.58rem; font-weight: 500; opacity: 0.4; margin-bottom: 0.4rem; }
+    .obs-spark-row { display: flex; align-items: flex-end; gap: 2px; height: 50px; }
+    .obs-spark-col { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; min-width: 0; }
+    .obs-spark-bar { width: 100%; min-height: 1px; border-radius: 2px 2px 0 0; transition: height 0.2s; opacity: 0.8; }
+    .obs-spark-label { font-size: 0.4rem; opacity: 0.2; margin-top: 2px; white-space: nowrap; overflow: hidden; }
+    .obs-drivers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    @media (max-width: 640px) { .obs-drivers-grid { grid-template-columns: 1fr; } }
+    .obs-driver-panel { background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.04); border-radius: 8px; padding: 0.5rem 0.6rem; }
+    .obs-driver-title { font-size: 0.6rem; font-weight: 600; opacity: 0.5; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 0.3rem; }
+    .obs-driver-row { display: flex; justify-content: space-between; font-size: 0.58rem; padding: 0.15rem 0; border-bottom: 1px solid rgba(255,255,255,0.02); }
+    .obs-driver-reason { opacity: 0.5; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80%; }
+    .obs-driver-count { font-weight: 600; color: #ef4444; }
+    .obs-driver-table { font-size: 0.55rem; }
+    .obs-driver-table-head { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; opacity: 0.3; font-weight: 600; padding-bottom: 0.2rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .obs-driver-table-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; padding: 0.15rem 0; border-bottom: 1px solid rgba(255,255,255,0.02); }
+    .obs-recent-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; }
+    @media (max-width: 640px) { .obs-recent-grid { grid-template-columns: 1fr; } }
+    .obs-recent-panel { background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.04); border-radius: 8px; padding: 0.5rem 0.6rem; max-height: 220px; overflow-y: auto; }
+    .obs-recent-panel:last-child { grid-column: 1 / -1; }
+    .obs-recent-title { font-size: 0.6rem; font-weight: 600; opacity: 0.5; margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.3rem; }
+    .obs-recent-count { font-weight: 400; opacity: 0.4; }
+    .obs-recent-table { font-size: 0.52rem; }
+    .obs-recent-table-head { display: grid; grid-template-columns: 2fr 1.5fr 1.5fr 1fr; opacity: 0.3; font-weight: 600; padding-bottom: 0.15rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .obs-recent-table-row { display: grid; grid-template-columns: 2fr 1.5fr 1.5fr 1fr; padding: 0.12rem 0; border-bottom: 1px solid rgba(255,255,255,0.015); }
+    .obs-recent-ts { opacity: 0.3; font-size: 0.5rem; }
+    .obs-recent-compact { font-size: 0.55rem; padding: 0.12rem 0; border-bottom: 1px solid rgba(255,255,255,0.015); display: flex; align-items: center; gap: 0.3rem; flex-wrap: wrap; }
+    .obs-recent-ev { font-weight: 500; }
+    .obs-recent-extra { opacity: 0.35; font-size: 0.5rem; }
+    .obs-src-pill { font-size: 0.45rem; padding: 0.08rem 0.3rem; border-radius: 3px; font-weight: 500; }
+    .obs-src-pill--planner { background: rgba(138,43,226,0.1); color: #c084fc; }
+    .obs-src-pill--cal { background: rgba(52,211,153,0.1); color: #34d399; }
+    .obs-storage-strip { display: flex; align-items: center; gap: 1rem; font-size: 0.58rem; padding: 0.4rem 0.6rem; background: rgba(255,255,255,0.015); border: 1px solid rgba(255,255,255,0.04); border-radius: 8px; flex-wrap: wrap; }
+    .obs-storage-item { opacity: 0.5; }
+    .obs-storage-hint { opacity: 0.25; font-size: 0.5rem; margin-left: auto; }
+    .obs-storage-hint a { color: #60a5fa; text-decoration: none; }
+    .obs-empty { font-size: 0.58rem; opacity: 0.25; padding: 0.4rem 0; }
+  </style>
 </head>
 <body style="background:#071019" data-theme="dark">
 
@@ -193,6 +249,22 @@
         </div>
       </div>
 
+      <!-- CEO: Observability Section -->
+      <div class="dash-section" id="obs-section" data-section="observability">
+        <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
+          <i class="fas fa-binoculars" style="color:#60a5fa;"></i>
+          <h2>Observability</h2>
+          <i class="fas fa-chevron-down dash-section-chevron"></i>
+        </div>
+        <div class="dash-section-body">
+          <div class="dash-panel dash-panel--full" style="border:1px solid rgba(96,165,250,0.08); background:rgba(96,165,250,0.01);">
+            <div id="obs-dashboard-root">
+              <div class="dash-empty">Loading observability data...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- CEO: Content Section -->
       <div class="dash-section" id="section-content" data-section="content">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
@@ -347,8 +419,18 @@
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="/js/storage-manager.js"></script>
   <script src="/js/company-store.js"></script>
   <script src="/js/agent-engine.js"></script>
+  <script src="/js/action-audit.js"></script>
+  <script src="/js/worker-audit.js"></script>
+  <script src="/js/planner-audit.js"></script>
+  <script src="/js/calibration-audit.js"></script>
+  <script src="/js/priority-audit.js"></script>
+  <script src="/js/priority-engine.js"></script>
+  <script src="/js/action-queue.js"></script>
+  <script src="/js/observability-metrics.js"></script>
+  <script src="/js/observability-ui.js"></script>
   <script src="/modules/company/js/quick-chat.js"></script>
 
   <script>
@@ -513,6 +595,10 @@
       AgentEngine.loadRegistry().then(function () {
         renderAll();
         updateStoreModeBadge();
+        // Init Observability Dashboard
+        if (typeof ObservabilityUI !== 'undefined') {
+          ObservabilityUI.init(document.getElementById('obs-dashboard-root'));
+        }
       });
 
       AgentEngine.on('store-ready', updateStoreModeBadge);

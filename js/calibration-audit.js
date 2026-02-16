@@ -38,6 +38,11 @@ var CalibrationAudit = (function () {
     return _read().filter(function (e) { return e.runId === runId; });
   }
 
+  function getSince(isoDate) {
+    var ts = new Date(isoDate).getTime();
+    return _read().filter(function (e) { return new Date(e.timestamp).getTime() >= ts; });
+  }
+
   // ── Lifecycle shortcuts ──
   function logRunStarted(runId) {
     return append({ eventType: 'calibration_run_started', runId: runId });
@@ -82,6 +87,7 @@ var CalibrationAudit = (function () {
     getAll: getAll,
     getRecent: getRecent,
     getByRunId: getByRunId,
+    getSince: getSince,
     logRunStarted: logRunStarted,
     logRunCompleted: logRunCompleted,
     logRecommendationsEnqueued: logRecommendationsEnqueued,

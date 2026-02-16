@@ -38,6 +38,11 @@ var PlannerAudit = (function () {
     return _read().filter(function (e) { return e.plannerRunId === runId; });
   }
 
+  function getSince(isoDate) {
+    var ts = new Date(isoDate).getTime();
+    return _read().filter(function (e) { return new Date(e.timestamp).getTime() >= ts; });
+  }
+
   // ── Lifecycle shortcuts ──
   function logRunStarted(runId) {
     return append({ eventType: 'planner_run_started', plannerRunId: runId });
@@ -82,6 +87,7 @@ var PlannerAudit = (function () {
     getAll: getAll,
     getRecent: getRecent,
     getByRunId: getByRunId,
+    getSince: getSince,
     logRunStarted: logRunStarted,
     logRunCompleted: logRunCompleted,
     logRecommendationsEnqueued: logRecommendationsEnqueued,

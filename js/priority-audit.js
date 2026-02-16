@@ -48,6 +48,11 @@ var PriorityAudit = (function () {
     return filtered;
   }
 
+  function getSince(isoDate) {
+    var ts = new Date(isoDate).getTime();
+    return _read().filter(function (e) { return new Date(e.timestamp).getTime() >= ts; });
+  }
+
   // ── Lifecycle event shortcuts ──
   function logEvaluated(taskId, score, bucket, breakdown) {
     return append({ eventType: 'priority_evaluated', taskId: taskId, score: score, newBucket: bucket, breakdown: breakdown });
@@ -85,6 +90,7 @@ var PriorityAudit = (function () {
     getRecent: getRecent,
     getByTask: getByTask,
     getChanges: getChanges,
+    getSince: getSince,
     logEvaluated: logEvaluated,
     logChanged: logChanged,
     logError: logError
