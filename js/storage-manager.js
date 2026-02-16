@@ -278,16 +278,19 @@ var StorageManager = (function () {
   // ═══════════════════════════════════════════════════
   function estimateUsage() {
     try {
-      var total = 0;
+      var companyTotal = 0;
+      var companyKeys = 0;
       for (var i = 0; i < localStorage.length; i++) {
         var key = localStorage.key(i);
+        if (key.indexOf('ap_') !== 0) continue;
         var val = localStorage.getItem(key);
-        total += key.length + (val ? val.length : 0);
+        companyTotal += key.length + (val ? val.length : 0);
+        companyKeys++;
       }
       return {
-        bytesEstimate: total * 2, // JS strings are UTF-16
-        kbEstimate: Math.round((total * 2) / 1024),
-        itemCount: localStorage.length
+        bytesEstimate: companyTotal * 2, // JS strings are UTF-16
+        kbEstimate: Math.round((companyTotal * 2) / 1024),
+        itemCount: companyKeys
       };
     } catch (e) {
       return { bytesEstimate: 0, kbEstimate: 0, itemCount: 0 };
