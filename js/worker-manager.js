@@ -6,10 +6,12 @@ var WorkerManager = (function () {
 
   // ── Constants: Policy thresholds ──
   var PRESSURE_THRESHOLDS = {
-    reviewCount: 20,
-    overdueCount: 5,
-    pendingApprovals: 10,
-    oldestInReviewHours: 48
+    reviewCount: 8,
+    overdueCount: 3,
+    pendingApprovals: 6,
+    oldestInReviewHours: 24,
+    unassignedCount: 30,
+    backlogCount: 80
   };
 
   // ── Caps ──
@@ -194,12 +196,17 @@ var WorkerManager = (function () {
       }
     } catch (e) { /* fail closed */ }
 
+    var unassignedCount = snapshot.unassignedCount || 0;
+    var backlogCount = (lc.backlog || 0) + (lc.todo || 0);
+
     return (
       reviewCount >= PRESSURE_THRESHOLDS.reviewCount ||
       overdueCount >= PRESSURE_THRESHOLDS.overdueCount ||
       pendingApprovals >= PRESSURE_THRESHOLDS.pendingApprovals ||
       oldestInReviewHours >= PRESSURE_THRESHOLDS.oldestInReviewHours ||
-      criticalCount >= 3
+      criticalCount >= 2 ||
+      unassignedCount >= PRESSURE_THRESHOLDS.unassignedCount ||
+      backlogCount >= PRESSURE_THRESHOLDS.backlogCount
     );
   }
 

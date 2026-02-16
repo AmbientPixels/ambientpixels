@@ -486,6 +486,9 @@
   <script src="/js/agent-engine.js"></script>
   <script src="/js/action-audit.js"></script>
   <script src="/js/worker-audit.js"></script>
+  <script src="/js/company-workers.js"></script>
+  <script src="/js/worker-runtime.js"></script>
+  <script src="/js/worker-manager.js"></script>
   <script src="/js/planner-audit.js"></script>
   <script src="/js/calibration-audit.js"></script>
   <script src="/js/priority-audit.js"></script>
@@ -2373,6 +2376,65 @@
       }
 
     })();
+  </script>
+
+  <!-- Worker Evaluation Loop -->
+  <script>
+  (function () {
+    if (typeof WorkerManager === 'undefined' || typeof AgentEngine === 'undefined') return;
+
+    function buildSnapshot() {
+      var tasks = AgentEngine.getTasks ? AgentEngine.getTasks() : [];
+      var stats = AgentEngine.getTaskStats ? AgentEngine.getTaskStats() : {};
+      var queue = AgentEngine.getApprovalQueue ? AgentEngine.getApprovalQueue() : [];
+      var pendingApprovals = queue.filter(function (q) { return q.status === 'pending'; }).length;
+      var now = new Date();
+      var oldestReviewHours = 0;
+      tasks.forEach(function (t) {
+        if (t.status === 'in_review' || t.status === 'review') {
+          var updated = new Date(t.updated_at || t.created_at);
+          var hours = (now - updated) / 3600000;
+          if (hours > oldestReviewHours) oldestReviewHours = hours;
+        }
+      });
+      return {
+        tasks: tasks,
+        laneCounts: {
+          backlog: stats.backlog || 0,
+          todo: stats.todo || 0,
+          in_progress: stats['in-progress'] || 0,
+          in_review: stats.review || 0,
+          done: stats.done || 0
+        },
+        overdueCount: stats.overdue || 0,
+        unassignedCount: stats.unassigned || 0,
+        pendingApprovalsCount: pendingApprovals,
+        oldestInReviewHours: Math.round(oldestReviewHours),
+        directives: [],
+        objectives: []
+      };
+    }
+
+    function runWorkerEval() {
+      if (!WorkerManager.isEnabled()) return;
+      var snapshot = buildSnapshot();
+      console.log('[WorkerLoop] Evaluating pressure:', JSON.stringify(snapshot.laneCounts), 'overdue:', snapshot.overdueCount, 'unassigned:', snapshot.unassignedCount, 'pendingApprovals:', snapshot.pendingApprovalsCount, 'oldestReview:', snapshot.oldestInReviewHours + 'h');
+      WorkerManager.evaluateAndRun({ snapshot: snapshot }).then(function (result) {
+        if (result.ran) {
+          console.log('[WorkerLoop] Workers ran:', result.reports.length, 'reports produced');
+        } else {
+          console.log('[WorkerLoop] No workers needed:', result.reason);
+        }
+      }).catch(function (err) {
+        console.warn('[WorkerLoop] Error:', err);
+      });
+    }
+
+    // Initial evaluation after 30s (let page data load), then every 5 minutes
+    setTimeout(runWorkerEval, 30000);
+    setInterval(runWorkerEval, 300000);
+    console.log('[WorkerLoop] Worker evaluation loop initialized (30s initial, 5min interval)');
+  })();
   </script>
 
   <script src="/modules/company/js/sidebar.js"></script>
