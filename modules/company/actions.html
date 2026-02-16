@@ -548,6 +548,8 @@
     }
 
     function renderAll() {
+      // Reconcile approval queue with actions store before rendering
+      if (AE.reconcileApprovalQueue) AE.reconcileApprovalQueue();
       renderActionDrift();
       renderExecutionPulse();
       renderRawStats();

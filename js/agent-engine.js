@@ -2482,6 +2482,40 @@ var AgentEngine = (function () {
     return null;
   }
 
+  // Reconcile approvalQueue against actions store — remove orphans, sync status
+  function reconcileApprovalQueue() {
+    var queue = getApprovalQueue();
+    var actions = getActions();
+    var actionMap = {};
+    for (var i = 0; i < actions.length; i++) actionMap[actions[i].id] = actions[i];
+    var changed = false;
+    var cleaned = 0;
+    for (var j = queue.length - 1; j >= 0; j--) {
+      var entry = queue[j];
+      if (entry.kind !== 'action' || !entry.action_id) continue;
+      var action = actionMap[entry.action_id];
+      if (!action) {
+        // Orphan: approvalQueue entry with no matching action — remove it
+        queue.splice(j, 1);
+        changed = true;
+        cleaned++;
+        continue;
+      }
+      // Sync status if mismatched
+      var actionApprovalStatus = (action.approval && action.approval.status) || 'pending';
+      if (entry.status === 'pending' && actionApprovalStatus !== 'pending') {
+        entry.status = actionApprovalStatus;
+        changed = true;
+        cleaned++;
+      }
+    }
+    if (changed) {
+      _saveStorage(APPROVAL_KEY, queue);
+      console.log('[AgentEngine] Reconciled approvalQueue: cleaned ' + cleaned + ' entries');
+    }
+    return cleaned;
+  }
+
   // Update matching approval queue entry status
   function _updateApprovalQueueForAction(actionId, status) {
     var queue = getApprovalQueue();
@@ -2957,6 +2991,7 @@ var AgentEngine = (function () {
     findArtifactByActionId: findArtifactByActionId,
     resolveArtifactUrl: resolveArtifactUrl,
     resolveActionTokens: resolveActionTokens,
-    checkActionDependencies: checkActionDependencies
+    checkActionDependencies: checkActionDependencies,
+    reconcileApprovalQueue: reconcileApprovalQueue
   };
 })();

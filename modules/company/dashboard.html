@@ -1343,6 +1343,8 @@
 
       // ── CEO Approval Queue (read-only overview) ──
       function renderApprovalQueue() {
+        // Reconcile: clean orphaned entries before rendering
+        if (AgentEngine.reconcileApprovalQueue) AgentEngine.reconcileApprovalQueue();
         var queue = AgentEngine.getApprovalQueue();
         var pending = queue.filter(function (q) { return q.status === 'pending'; });
         var listEl = document.getElementById('panel-approval-list');
