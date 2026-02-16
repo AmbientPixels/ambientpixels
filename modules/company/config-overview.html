@@ -589,11 +589,8 @@
       <button class="cfg-tool-btn" onclick="if(confirm('Reset shared memory?')) { CompanyStore.setState('ap_workspace_memory',[]); location.reload(); }">
         <i class="fas fa-brain"></i> Memory Reset
       </button>
-      <button class="cfg-tool-btn" onclick="alert('Automation toggle not yet wired.');">
+      <button class="cfg-tool-btn" id="cfg-master-automation-toggle">
         <i class="fas fa-robot"></i> Automation Toggle
-      </button>
-      <button class="cfg-tool-btn" onclick="alert('Key rotation not yet wired.');">
-        <i class="fas fa-key"></i> Key Rotation
       </button>
     </div>
 
@@ -1351,6 +1348,56 @@
     });
 
     renderStorePanel();
+  })();
+  </script>
+
+  <script>
+  // Master Automation Toggle — kill switch for all 4 automation systems
+  (function () {
+    var btn = document.getElementById('cfg-master-automation-toggle');
+    if (!btn) return;
+
+    function allEnabled() {
+      var w = typeof WorkerManager !== 'undefined' && WorkerManager.isEnabled();
+      var a = typeof ActionRouter !== 'undefined' && ActionRouter.isEnabled();
+      var p = typeof PlannerLoop !== 'undefined' && PlannerLoop.isEnabled();
+      var c = typeof CalibrationLoop !== 'undefined' && CalibrationLoop.isEnabled();
+      return { worker: w, action: a, planner: p, calibration: c };
+    }
+
+    function anyEnabled(s) { return s.worker || s.action || s.planner || s.calibration; }
+
+    function updateLabel() {
+      var s = allEnabled();
+      if (anyEnabled(s)) {
+        btn.innerHTML = '<i class="fas fa-robot"></i> Kill All Automation';
+        btn.style.borderColor = 'rgba(239,68,68,0.3)';
+        btn.style.color = '#ef4444';
+      } else {
+        btn.innerHTML = '<i class="fas fa-robot"></i> Enable All Automation';
+        btn.style.borderColor = 'rgba(52,211,153,0.3)';
+        btn.style.color = '#34d399';
+      }
+    }
+
+    btn.addEventListener('click', function () {
+      var s = allEnabled();
+      var turning = anyEnabled(s) ? 'OFF' : 'ON';
+      var names = ['Worker', 'Action Router', 'Planner', 'Calibration'];
+      if (!confirm('Turn ' + turning + ' all automation?\n\n' + names.join(', ') + '\n\nThis affects all 4 systems at once.')) return;
+
+      var enable = !anyEnabled(s);
+      if (typeof WorkerManager !== 'undefined') WorkerManager.setEnabled(enable, 'CEO');
+      if (typeof ActionRouter !== 'undefined') ActionRouter.setEnabled(enable, 'CEO');
+      if (typeof PlannerLoop !== 'undefined') PlannerLoop.setEnabled(enable);
+      if (typeof CalibrationLoop !== 'undefined') CalibrationLoop.setEnabled(enable);
+
+      updateLabel();
+      // Re-render individual panels so their dots/states update
+      setTimeout(function () { location.reload(); }, 300);
+    });
+
+    updateLabel();
   })();
   </script>
 
