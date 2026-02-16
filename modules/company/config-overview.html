@@ -276,6 +276,31 @@
     .cfg-cal-toggle--enable { border-color: rgba(52,211,153,0.2); background: rgba(52,211,153,0.05); color: #34d399; }
     .cfg-cal-info { margin-top: 0.6rem; font-size: 0.62rem; opacity: 0.35; }
 
+    /* System Storage panel */
+    .cfg-storage-panel {
+      background: rgba(59,130,246,0.03);
+      border: 1px solid rgba(59,130,246,0.12);
+      border-radius: 10px; padding: 1rem 1.2rem;
+      margin-bottom: 1.4rem;
+    }
+    .cfg-storage-title { font-size: 0.7rem; font-weight: 600; color: #60a5fa; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.4rem; }
+    .cfg-storage-usage { font-size: 0.72rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .cfg-storage-counts { font-size: 0.6rem; opacity: 0.4; margin-bottom: 0.6rem; line-height: 1.6; }
+    .cfg-storage-count-row { display: flex; justify-content: space-between; max-width: 280px; }
+    .cfg-storage-count-label { opacity: 0.6; }
+    .cfg-storage-count-val { font-weight: 600; }
+    .cfg-storage-oldest { font-size: 0.58rem; opacity: 0.3; margin-bottom: 0.6rem; }
+    .cfg-storage-btns { display: flex; gap: 0.4rem; flex-wrap: wrap; }
+    .cfg-storage-btn {
+      font-size: 0.6rem; padding: 0.4rem 0.8rem; border-radius: 5px;
+      cursor: pointer; border: 1px solid; font-family: inherit; font-weight: 500;
+    }
+    .cfg-storage-btn--prune { border-color: rgba(59,130,246,0.25); background: rgba(59,130,246,0.04); color: #60a5fa; }
+    .cfg-storage-btn--export { border-color: rgba(52,211,153,0.25); background: rgba(52,211,153,0.04); color: #34d399; }
+    .cfg-storage-btn--reset { border-color: rgba(239,68,68,0.25); background: rgba(239,68,68,0.04); color: #ef4444; }
+    .cfg-storage-btn:disabled { opacity: 0.3; cursor: default; }
+    .cfg-storage-toast { font-size: 0.58rem; opacity: 0.5; margin-top: 0.4rem; min-height: 1rem; }
+
     @media (prefers-reduced-motion: reduce) {
       .cfg-status-dot { animation: none; opacity: 1; }
     }
@@ -424,6 +449,21 @@
       <div class="cfg-cal-info" id="cfg-cal-info"></div>
     </div>
 
+    <!-- System Storage -->
+    <div class="ov-section-title">System Storage</div>
+    <div class="cfg-storage-panel" id="cfg-storage-panel">
+      <div class="cfg-storage-title"><i class="fas fa-database" style="opacity:0.5;"></i> Storage Health</div>
+      <div class="cfg-storage-usage" id="cfg-storage-usage"></div>
+      <div class="cfg-storage-counts" id="cfg-storage-counts"></div>
+      <div class="cfg-storage-oldest" id="cfg-storage-oldest"></div>
+      <div class="cfg-storage-btns">
+        <button class="cfg-storage-btn cfg-storage-btn--prune" id="cfg-storage-prune"><i class="fas fa-broom"></i> Prune Now</button>
+        <button class="cfg-storage-btn cfg-storage-btn--export" id="cfg-storage-export"><i class="fas fa-download"></i> Export Diagnostics</button>
+        <button class="cfg-storage-btn cfg-storage-btn--reset" id="cfg-storage-reset"><i class="fas fa-eraser"></i> Reset Non-Critical Caches</button>
+      </div>
+      <div class="cfg-storage-toast" id="cfg-storage-toast"></div>
+    </div>
+
     <!-- System Tools -->
     <div class="ov-section-title">System Tools</div>
     <div class="cfg-tools-grid">
@@ -474,6 +514,7 @@
 
   </main>
 
+  <script src="/js/storage-manager.js"></script>
   <script src="/js/task-verifier.js"></script>
   <script src="/js/planner-audit.js"></script>
   <script src="/js/planner-loop.js"></script>
@@ -828,6 +869,76 @@
       CalibrationLoop.setEnabled(!current);
       render();
       _debounceTimer = setTimeout(function () { _debounceTimer = null; }, 3000);
+    });
+
+    render();
+  })();
+  </script>
+
+  <script>
+  // System Storage panel
+  (function () {
+    var usageEl = document.getElementById('cfg-storage-usage');
+    var countsEl = document.getElementById('cfg-storage-counts');
+    var oldestEl = document.getElementById('cfg-storage-oldest');
+    var toastEl = document.getElementById('cfg-storage-toast');
+    var pruneBtn = document.getElementById('cfg-storage-prune');
+    var exportBtn = document.getElementById('cfg-storage-export');
+    var resetBtn = document.getElementById('cfg-storage-reset');
+    if (!usageEl || !countsEl) return;
+
+    var _debounce = null;
+    function _toast(msg) { if (toastEl) { toastEl.textContent = msg; setTimeout(function () { toastEl.textContent = ''; }, 4000); } }
+
+    function render() {
+      var u = StorageManager.estimateUsage();
+      usageEl.textContent = u.kbEstimate + ' KB used (' + u.itemCount + ' keys)';
+      usageEl.style.color = u.kbEstimate > 4000 ? '#ef4444' : (u.kbEstimate > 2000 ? '#fbbf24' : '#60a5fa');
+
+      var c = StorageManager.getStoreCounts();
+      var labels = {
+        'ap_action_audit': 'Action Audit',
+        'ap_worker_audit': 'Worker Audit',
+        'ap_planner_audit': 'Planner Audit',
+        'ap_calibration_audit': 'Calibration Audit',
+        'ap_priority_audit': 'Priority Audit',
+        'ap_action_queue': 'Action Queue',
+        'ap_action_queue_pending': 'Pending Approvals',
+        'ap_priority_cache': 'Priority Cache'
+      };
+      var rows = '';
+      var keys = Object.keys(c);
+      for (var i = 0; i < keys.length; i++) {
+        rows += '<div class="cfg-storage-count-row"><span class="cfg-storage-count-label">' + (labels[keys[i]] || keys[i]) + '</span><span class="cfg-storage-count-val">' + c[keys[i]] + '</span></div>';
+      }
+      countsEl.innerHTML = rows;
+
+      var oldest = StorageManager.getOldestEntry();
+      oldestEl.textContent = oldest ? 'Oldest audit entry: ' + new Date(oldest).toLocaleString() : 'No audit entries yet.';
+    }
+
+    pruneBtn.addEventListener('click', function () {
+      if (_debounce) return;
+      _debounce = setTimeout(function () { _debounce = null; }, 800);
+      var result = StorageManager.pruneAll();
+      render();
+      _toast('Pruned: ' + result.logs + ' log entries, ' + result.queue + ' queue items, ' + result.cache + ' cache entries.');
+    });
+
+    exportBtn.addEventListener('click', function () {
+      if (_debounce) return;
+      _debounce = setTimeout(function () { _debounce = null; }, 800);
+      StorageManager.exportDiagnostics();
+      _toast('Diagnostics JSON downloaded.');
+    });
+
+    resetBtn.addEventListener('click', function () {
+      if (_debounce) return;
+      if (!confirm('Reset non-critical caches? This clears priority cache, planner artifact, and calibration artifact. Queue and audits are preserved.')) return;
+      _debounce = setTimeout(function () { _debounce = null; }, 800);
+      StorageManager.resetCaches();
+      render();
+      _toast('Non-critical caches cleared.');
     });
 
     render();

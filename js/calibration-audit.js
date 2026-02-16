@@ -69,8 +69,12 @@ var CalibrationAudit = (function () {
   }
 
   function _write(log) {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(log)); }
-    catch (e) { console.warn('[CalibrationAudit] Storage write failed'); }
+    if (typeof StorageManager !== 'undefined' && StorageManager.safeSet) {
+      StorageManager.safeSet(STORAGE_KEY, log);
+    } else {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(log)); }
+      catch (e) { console.warn('[CalibrationAudit] Storage write failed'); }
+    }
   }
 
   return {

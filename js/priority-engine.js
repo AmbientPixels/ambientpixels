@@ -266,8 +266,12 @@ var PriorityEngine = (function () {
   }
 
   function _writeCache(cache) {
-    try { localStorage.setItem(CACHE_KEY, JSON.stringify(cache)); }
-    catch (e) { console.warn('[PriorityEngine] Cache write failed'); }
+    if (typeof StorageManager !== 'undefined' && StorageManager.safeSet) {
+      StorageManager.safeSet(CACHE_KEY, cache);
+    } else {
+      try { localStorage.setItem(CACHE_KEY, JSON.stringify(cache)); }
+      catch (e) { console.warn('[PriorityEngine] Cache write failed'); }
+    }
   }
 
   return {

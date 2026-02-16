@@ -307,8 +307,12 @@ var ActionQueue = (function () {
   }
 
   function _write(queue) {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(queue)); }
-    catch (e) { console.warn('[ActionQueue] Storage write failed'); }
+    if (typeof StorageManager !== 'undefined' && StorageManager.safeSet) {
+      StorageManager.safeSet(STORAGE_KEY, queue);
+    } else {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(queue)); }
+      catch (e) { console.warn('[ActionQueue] Storage write failed'); }
+    }
   }
 
   return {
