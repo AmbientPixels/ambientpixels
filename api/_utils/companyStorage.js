@@ -191,24 +191,47 @@ async function getStoreAudits(type, options) {
   return events;
 }
 
+const DEDUP_TAIL = 2000;
+
 async function appendStoreAudits(type, newEvents) {
-  if (AUDIT_TYPES.indexOf(type) === -1) return { appended: 0, rejected: 0, reason: 'invalid type' };
-  if (!Array.isArray(newEvents) || newEvents.length === 0) return { appended: 0, rejected: 0 };
+  if (AUDIT_TYPES.indexOf(type) === -1) return { received: 0, appended: 0, droppedDuplicate: 0, reason: 'invalid type' };
+  if (!Array.isArray(newEvents) || newEvents.length === 0) return { received: 0, appended: 0, droppedDuplicate: 0 };
+  const received = newEvents.length;
   const key = _storeKey('audits', type);
   let existing = (await getState(key)) || [];
-  existing = existing.concat(newEvents);
+  // Assign server-side eventId to any event missing one
+  newEvents.forEach(e => {
+    if (!e.eventId) e.eventId = 'srv_' + type + '_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+  });
+  // Build dedup set from tail of existing (bounded)
+  const tail = existing.length > DEDUP_TAIL ? existing.slice(-DEDUP_TAIL) : existing;
+  const seen = new Set();
+  tail.forEach(e => { if (e.eventId) seen.add(e.eventId); });
+  // Filter duplicates
+  const unique = newEvents.filter(e => !seen.has(e.eventId));
+  const droppedDuplicate = received - unique.length;
+  existing = existing.concat(unique);
   // Prune by age
   const cutoff = Date.now() - AUDIT_MAX_AGE_MS;
   existing = existing.filter(e => new Date(e.timestamp || 0).getTime() >= cutoff);
   // Prune by count
   if (existing.length > AUDIT_MAX) existing = existing.slice(-AUDIT_MAX);
   await setState(key, existing);
-  return { appended: newEvents.length, total: existing.length };
+  return { received, appended: unique.length, droppedDuplicate, total: existing.length };
 }
 
 // ── Queue ──
 async function getStoreQueue() {
-  return (await getState(_storeKey('queue'))) || [];
+  const raw = (await getState(_storeKey('queue'))) || [];
+  // Dedup by id (last occurrence wins)
+  const seen = {};
+  const deduped = [];
+  for (let i = raw.length - 1; i >= 0; i--) {
+    if (!raw[i].id || seen[raw[i].id]) continue;
+    seen[raw[i].id] = true;
+    deduped.unshift(raw[i]);
+  }
+  return deduped;
 }
 
 async function upsertStoreQueue(upserts, tombstones) {

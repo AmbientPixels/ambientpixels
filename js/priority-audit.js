@@ -8,10 +8,13 @@ var PriorityAudit = (function () {
   var STORAGE_KEY = 'ap_priority_audit';
   var MAX_ENTRIES = 500;
 
+  function _makeEventId(e) { return 'priority_' + (e.timestamp || Date.now()) + '_' + (e.taskId || '') + '_' + Math.random().toString(36).slice(2, 8); }
+
   // ── Core append ──
   function append(event) {
     if (!event || !event.eventType) return;
     var entry = {
+      eventId: event.eventId || null,
       timestamp: new Date().toISOString(),
       eventType: event.eventType,
       taskId: event.taskId || null,
@@ -21,6 +24,7 @@ var PriorityAudit = (function () {
       breakdown: event.breakdown || null,
       reason: event.reason || null
     };
+    if (!entry.eventId) entry.eventId = _makeEventId(entry);
     var log = _read();
     log.push(entry);
     if (log.length > MAX_ENTRIES) log = log.slice(-MAX_ENTRIES);

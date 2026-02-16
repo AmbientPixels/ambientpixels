@@ -8,10 +8,13 @@ var ActionAudit = (function () {
   var STORAGE_KEY = 'ap_action_audit';
   var MAX_ENTRIES = 500;
 
+  function _makeEventId(e) { return 'action_' + (e.timestamp || Date.now()) + '_' + (e.correlationId || '') + '_' + Math.random().toString(36).slice(2, 8); }
+
   // ── Core append ──
   function append(event) {
     if (!event || !event.eventType) return;
     var entry = {
+      eventId: event.eventId || null,
       timestamp: new Date().toISOString(),
       eventType: event.eventType,
       actionId: event.actionId || null,
@@ -24,6 +27,7 @@ var ActionAudit = (function () {
       reason: event.reason || null,
       meta: event.meta || null
     };
+    if (!entry.eventId) entry.eventId = _makeEventId(entry);
     var log = _read();
     log.push(entry);
     if (log.length > MAX_ENTRIES) log = log.slice(-MAX_ENTRIES);

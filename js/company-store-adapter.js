@@ -140,7 +140,7 @@ var CompanyStoreAdapter = (function () {
       .then(function (resp) {
         _flushing = false;
         if (resp && resp.ok) {
-          _setLastSync(new Date().toISOString());
+          _setLastSync((resp.serverTime) || new Date().toISOString());
           return true;
         }
         _pushOutbox(batch);
@@ -216,12 +216,23 @@ var CompanyStoreAdapter = (function () {
     return _get('/company-store-snapshot', params)
       .then(function (resp) {
         if (resp && resp.ok) {
-          _setLastSync(new Date().toISOString());
+          _setLastSync(resp.serverTime || new Date().toISOString());
           return resp.snapshot;
         }
         return null;
       })
       .catch(function () { return null; });
+  }
+
+  function deltaSync() {
+    if (!isEnabled()) return Promise.resolve({ ok: false, reason: 'Adapter disabled' });
+    var since = getLastSync();
+    return loadSnapshot(since ? { since: since } : {})
+      .then(function (snapshot) {
+        if (!snapshot) return { ok: false, reason: 'No snapshot available' };
+        _mergeSnapshotToLocal(snapshot, !!since);
+        return { ok: true, delta: !!since };
+      });
   }
 
   // ── Migrate: push local → server ──
@@ -247,6 +258,62 @@ var CompanyStoreAdapter = (function () {
         _applySnapshotToLocal(snapshot);
         return { ok: true };
       });
+  }
+
+  // ── Merge snapshot (delta-aware) ──
+  function _mergeSnapshotToLocal(snapshot, isDelta) {
+    // Settings — server wins (same as full)
+    if (snapshot.settings) {
+      var s = snapshot.settings;
+      if (s.actionsEnabled != null) localStorage.setItem('ap_actions_enabled', s.actionsEnabled ? 'true' : 'false');
+      if (s.taskEnabled != null) localStorage.setItem('ap_actions_task_enabled', s.taskEnabled ? 'true' : 'false');
+      if (s.socialEnabled != null) localStorage.setItem('ap_actions_social_enabled', s.socialEnabled ? 'true' : 'false');
+      if (s.emailEnabled != null) localStorage.setItem('ap_actions_email_enabled', s.emailEnabled ? 'true' : 'false');
+      if (s.configChangesEnabled != null) localStorage.setItem('ap_config_changes_enabled', s.configChangesEnabled ? 'true' : 'false');
+      if (s.priorityWeights) localStorage.setItem('ap_priority_weights', JSON.stringify(s.priorityWeights));
+      if (s.plannerThresholds) localStorage.setItem('ap_planner_thresholds', JSON.stringify(s.plannerThresholds));
+    }
+    // Audits — delta: append new, dedup by eventId; full: replace
+    var auditMap = { action: 'ap_action_audit', worker: 'ap_worker_audit', planner: 'ap_planner_audit', calibration: 'ap_calibration_audit', priority: 'ap_priority_audit' };
+    if (snapshot.audits) {
+      for (var type in auditMap) {
+        if (!Array.isArray(snapshot.audits[type])) continue;
+        try {
+          if (isDelta && snapshot.audits[type].length > 0) {
+            var local = JSON.parse(localStorage.getItem(auditMap[type]) || '[]');
+            var seen = {};
+            var tail = local.length > 2000 ? local.slice(-2000) : local;
+            for (var k = 0; k < tail.length; k++) { if (tail[k].eventId) seen[tail[k].eventId] = true; }
+            var newOnes = [];
+            for (var j = 0; j < snapshot.audits[type].length; j++) {
+              var ev = snapshot.audits[type][j];
+              if (ev.eventId && seen[ev.eventId]) continue;
+              newOnes.push(ev);
+            }
+            if (newOnes.length > 0) {
+              local = local.concat(newOnes);
+              if (local.length > 500) local = local.slice(-500);
+              localStorage.setItem(auditMap[type], JSON.stringify(local));
+            }
+          } else {
+            localStorage.setItem(auditMap[type], JSON.stringify(snapshot.audits[type]));
+          }
+        } catch (e) { /* ignore */ }
+      }
+    }
+    // Queue — server wins, preserve local pending not on server
+    if (Array.isArray(snapshot.actionQueue)) {
+      try {
+        var localQueue = JSON.parse(localStorage.getItem('ap_action_queue') || '[]');
+        var serverIds = {};
+        snapshot.actionQueue.forEach(function (item) { serverIds[item.id] = true; });
+        var localOnly = localQueue.filter(function (item) {
+          return !serverIds[item.id] && item.status === 'pending_approval';
+        });
+        var merged = snapshot.actionQueue.concat(localOnly);
+        localStorage.setItem('ap_action_queue', JSON.stringify(merged));
+      } catch (e) { /* ignore */ }
+    }
   }
 
   // ── Local state collection (for push) ──
@@ -334,8 +401,9 @@ var CompanyStoreAdapter = (function () {
     bufferArtifact: bufferArtifact,
     flush: flush,
     flushOutbox: flushOutbox,
-    // Snapshot
+    // Snapshot + delta
     loadSnapshot: loadSnapshot,
+    deltaSync: deltaSync,
     // Migrate
     pushLocalToServer: pushLocalToServer,
     pullServerToLocal: pullServerToLocal

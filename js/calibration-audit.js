@@ -6,12 +6,15 @@ var CalibrationAudit = (function () {
   'use strict';
 
   var STORAGE_KEY = 'ap_calibration_audit';
-  var MAX_ENTRIES = 300;
+  var MAX_ENTRIES = 500;
 
   // ── Core append ──
+  function _makeEventId(e) { return 'calibration_' + (e.timestamp || Date.now()) + '_' + (e.runId || '') + '_' + Math.random().toString(36).slice(2, 8); }
+
   function append(event) {
     if (!event || !event.eventType) return;
     var entry = {
+      eventId: event.eventId || null,
       timestamp: new Date().toISOString(),
       eventType: event.eventType,
       runId: event.runId || null,
@@ -19,6 +22,7 @@ var CalibrationAudit = (function () {
       reason: event.reason || null,
       metrics: event.metrics || null
     };
+    if (!entry.eventId) entry.eventId = _makeEventId(entry);
     var log = _read();
     log.push(entry);
     if (log.length > MAX_ENTRIES) log = log.slice(-MAX_ENTRIES);
