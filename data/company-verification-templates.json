@@ -1,0 +1,42 @@
+{
+  "version": "1.0",
+  "description": "Task completion templates — defines what 'Done' means per task type",
+  "templates": [
+    {
+      "id": "social_post",
+      "name": "Social Post",
+      "requiredFields": ["title", "content", "platform"],
+      "requiredArtifacts": ["preview"],
+      "validations": [
+        { "type": "nonEmpty", "field": "content" },
+        { "type": "minLength", "field": "content", "value": 40 }
+      ],
+      "riskLevel": "medium",
+      "requiresApproval": true
+    },
+    {
+      "id": "blog_update",
+      "name": "Blog Update",
+      "requiredFields": ["title", "content"],
+      "requiredArtifacts": ["summary"],
+      "validations": [
+        { "type": "nonEmpty", "field": "content" },
+        { "type": "minLength", "field": "content", "value": 100 }
+      ],
+      "riskLevel": "medium",
+      "requiresApproval": true
+    },
+    {
+      "id": "ui_change",
+      "name": "UI Change",
+      "requiredFields": ["title", "description"],
+      "requiredArtifacts": [],
+      "validations": [
+        { "type": "nonEmpty", "field": "title" },
+        { "type": "nonEmpty", "field": "description" }
+      ],
+      "riskLevel": "low",
+      "requiresApproval": false
+    }
+  ]
+}

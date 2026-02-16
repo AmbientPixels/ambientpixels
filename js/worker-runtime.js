@@ -23,7 +23,7 @@ var WorkerRuntime = (function () {
     // Use AgentEngine.chat if available, otherwise simulate
     return _callAgent(workerDef, prompt).then(function (raw) {
       var finishedAt = new Date().toISOString();
-      return _shapeReport(workerDef, correlationId, startedAt, finishedAt, items.length, raw);
+      return _shapeReport(workerDef, correlationId, startedAt, finishedAt, items.length, raw, items);
     });
   }
 
@@ -120,7 +120,7 @@ var WorkerRuntime = (function () {
   }
 
   // ── Shape final report ──
-  function _shapeReport(workerDef, correlationId, startedAt, finishedAt, itemCount, raw) {
+  function _shapeReport(workerDef, correlationId, startedAt, finishedAt, itemCount, raw, items) {
     var report = {
       workerId: workerDef.id + '_' + correlationId,
       type: workerDef.id,
@@ -132,7 +132,7 @@ var WorkerRuntime = (function () {
       itemsProcessed: itemCount,
       summary: (raw && raw.summary) || 'No summary produced.',
       findings: (raw && Array.isArray(raw.findings)) ? raw.findings : [],
-      proposed_actions: _sanitizeActions(raw && raw.proposed_actions),
+      proposed_actions: _sanitizeActions(raw && raw.proposed_actions, items),
       risks: (raw && Array.isArray(raw.risks)) ? raw.risks : [],
       next_steps: (raw && Array.isArray(raw.next_steps)) ? raw.next_steps : []
     };
@@ -149,16 +149,30 @@ var WorkerRuntime = (function () {
   }
 
   // ── Sanitize proposed actions (strip any mutation flags) ──
-  function _sanitizeActions(actions) {
+  // Verification Gate v1: annotate proposals with verification result
+  function _sanitizeActions(actions, items) {
     if (!Array.isArray(actions)) return [];
+    // Build item lookup for verification
+    var itemMap = {};
+    if (Array.isArray(items)) {
+      items.forEach(function (it) { if (it && it.id) itemMap[it.id] = it; });
+    }
     return actions.map(function (a) {
-      return {
+      var sanitized = {
         itemId: a.itemId || null,
         actionType: a.actionType || 'review',
         rationale: a.rationale || '',
         priority: _normPriority(a.priority),
         riskLevel: _normRisk(a.riskLevel)
       };
+      // Verification Gate v1 — validate proposal against task data
+      if (typeof TaskVerifier !== 'undefined' && TaskVerifier.isLoaded && TaskVerifier.isLoaded()) {
+        var task = (sanitized.itemId && itemMap[sanitized.itemId]) ? itemMap[sanitized.itemId] : null;
+        if (task) {
+          sanitized = TaskVerifier.validateProposal(sanitized, task);
+        }
+      }
+      return sanitized;
     });
   }
 

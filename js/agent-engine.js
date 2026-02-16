@@ -1831,6 +1831,14 @@ var AgentEngine = (function () {
     return null;
   }
 
+  function getTaskById(id) {
+    var tasks = getTasks();
+    for (var i = 0; i < tasks.length; i++) {
+      if (tasks[i].id === id) return tasks[i];
+    }
+    return null;
+  }
+
   function getTasksByStatus(status) {
     return getTasks().filter(function (t) { return t.status === status; });
   }
@@ -2868,6 +2876,7 @@ var AgentEngine = (function () {
     deleteTask: deleteTask,
     moveTask: moveTask,
     addTaskComment: addTaskComment,
+    getTaskById: getTaskById,
     getTasksByStatus: getTasksByStatus,
     getTasksByAssignee: getTasksByAssignee,
     getTaskStats: getTaskStats,

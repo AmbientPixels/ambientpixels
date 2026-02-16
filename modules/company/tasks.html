@@ -27,6 +27,22 @@
     .task-risk-pill--high { border-color:rgba(248,113,113,0.4); color:#f87171; }
     .task-risk-pill--medium { border-color:rgba(251,191,36,0.4); color:#fbbf24; }
     .task-risk-pill--low { border-color:rgba(52,211,153,0.4); color:#34d399; }
+
+    /* Verification badges */
+    .verify-badge { font-size:0.5rem; padding:0.1rem 0.3rem; border-radius:3px; margin-left:0.3rem; white-space:nowrap; vertical-align:middle; }
+    .verify-badge--pass { background:rgba(52,211,153,0.1); border:1px solid rgba(52,211,153,0.3); color:#34d399; }
+    .verify-badge--fail { background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; }
+    .verify-badge--manual { background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.3); color:#fbbf24; }
+    .verify-badge--warn { background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.3); color:#fbbf24; }
+
+    /* Verification block toast */
+    .verify-toast { position:fixed; bottom:1.5rem; left:50%; transform:translateX(-50%); z-index:9999; padding:0.6rem 1.2rem; border-radius:8px; font-size:0.72rem; font-weight:500; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); color:#f87171; box-shadow:0 4px 20px rgba(0,0,0,0.4); pointer-events:none; opacity:0; transition:opacity 0.2s; }
+    .verify-toast.show { opacity:1; }
+    .verify-toast--notice { background:rgba(251,191,36,0.12); border-color:rgba(251,191,36,0.3); color:#fbbf24; }
+
+    /* Badge emphasis in review lane */
+    [data-status="review"] .verify-badge--fail { background:rgba(239,68,68,0.15); }
+    [data-status="review"] .verify-badge--manual { background:rgba(251,191,36,0.15); }
   </style>
 </head>
 <body style="background:#071019" data-theme="dark">
@@ -246,6 +262,7 @@
 
   </main>
 
+  <script src="/js/task-verifier.js"></script>
   <script src="/js/company-store.js"></script>
   <script src="/js/agent-engine.js"></script>
   <script src="/modules/company/js/quick-chat.js"></script>
@@ -512,6 +529,35 @@
         return '<span class="' + cls + '">' + task.risk_level + '</span>';
       }
 
+      // Verification Gate v1 — badge helper
+      function _verifyBadgeHtml(task) {
+        if (!TaskVerifier || !TaskVerifier.isLoaded()) return '';
+        var b = TaskVerifier.getBadge(task);
+        if (!b) return '';
+        return '<span class="verify-badge ' + b.cls + '" title="' + b.label + '"><i class="' + b.icon + '"></i> ' + b.label + '</span>';
+      }
+
+      // Verification Gate v1 — toast notification
+      var _toastEl = null;
+      var _toastTimer = null;
+      function _showVerifyToast(msg, type) {
+        if (!_toastEl) {
+          _toastEl = document.createElement('div');
+          _toastEl.className = 'verify-toast';
+          document.body.appendChild(_toastEl);
+        }
+        var isNotice = type === 'notice';
+        _toastEl.className = 'verify-toast' + (isNotice ? ' verify-toast--notice' : '');
+        var icon = isNotice ? 'fas fa-circle-info' : 'fas fa-shield-halved';
+        _toastEl.innerHTML = '<i class="' + icon + '" style="margin-right:6px;"></i>' + (msg || 'Verification failed');
+        _toastEl.classList.add('show');
+        clearTimeout(_toastTimer);
+        _toastTimer = setTimeout(function () { _toastEl.classList.remove('show'); }, 3500);
+      }
+
+      // Load verification templates
+      TaskVerifier.load();
+
       function renderBoard() {
         var tasks = getFilteredTasks(true);
         var cols = ['pending-approval', 'backlog', 'todo', 'in-progress', 'review', 'done'];
@@ -605,6 +651,7 @@
         }
 
         var badge = riskPill(task);
+        var vBadge = _verifyBadgeHtml(task);
 
         // v2.3 D) Source traceability link
         var sourceHtml = '';
@@ -612,7 +659,7 @@
           sourceHtml = '<div style="font-size:0.55rem;opacity:0.4;margin-top:0.2rem;"><i class="fas fa-link" style="margin-right:2px;"></i> From standup: <a href="/modules/company/standup.html" style="color:#fbbf24;text-decoration:none;">' + escapeHtml(task.source.title || 'Standup') + '</a></div>';
         }
 
-        card.innerHTML = '<div class="tm-card-title">' + escapeHtml(task.title) + badge + '</div>' + meta + sourceHtml;
+        card.innerHTML = '<div class="tm-card-title">' + escapeHtml(task.title) + badge + vBadge + '</div>' + meta + sourceHtml;
 
         card.addEventListener('click', function () { openEditModal(task.id); });
 
@@ -681,6 +728,16 @@
           var taskId = e.dataTransfer.getData('text/plain');
           var newStatus = col.getAttribute('data-status');
           if (taskId && newStatus) {
+            // Verification Gate v1.1 — lane transition hook (loose review, strict done)
+            var task = AgentEngine.getTaskById ? AgentEngine.getTaskById(taskId) : null;
+            if (task && (newStatus === 'review' || newStatus === 'done')) {
+              var vr = TaskVerifier.verifyForTransition(task, newStatus);
+              if (!vr.allowed) {
+                _showVerifyToast(vr.message || 'Verification failed');
+                return;
+              }
+              if (vr.notice) _showVerifyToast(vr.notice, 'notice');
+            }
             AgentEngine.moveTask(taskId, newStatus);
             renderAll();
           }
@@ -906,6 +963,19 @@
         };
 
         if (taskIdField.value) {
+          // Verification Gate v1.1 — modal save lane check (loose review, strict done)
+          var existingTask = AgentEngine.getTaskById ? AgentEngine.getTaskById(taskIdField.value) : null;
+          if (existingTask && existingTask.status !== data.status && (data.status === 'review' || data.status === 'done')) {
+            var merged = {};
+            for (var mk in existingTask) { if (existingTask.hasOwnProperty(mk)) merged[mk] = existingTask[mk]; }
+            for (var dk in data) { if (data.hasOwnProperty(dk)) merged[dk] = data[dk]; }
+            var vr = TaskVerifier.verifyForTransition(merged, data.status);
+            if (!vr.allowed) {
+              _showVerifyToast(vr.message || 'Verification failed');
+              return;
+            }
+            if (vr.notice) _showVerifyToast(vr.notice, 'notice');
+          }
           AgentEngine.updateTask(taskIdField.value, data);
         } else {
           AgentEngine.addTask(data);

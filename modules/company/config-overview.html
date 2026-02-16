@@ -178,6 +178,21 @@
     .cfg-worker-audit-ts { opacity: 0.5; min-width: 100px; flex-shrink: 0; }
     .cfg-worker-audit-ev { flex: 1; }
 
+    /* Verification Engine status */
+    .cfg-verify-panel {
+      background: rgba(52,211,153,0.03);
+      border: 1px solid rgba(52,211,153,0.1);
+      border-radius: 10px; padding: 0.8rem 1.2rem;
+      margin-bottom: 1.4rem;
+    }
+    .cfg-verify-title { font-size: 0.7rem; font-weight: 600; color: #34d399; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem; }
+    .cfg-verify-row { display: flex; align-items: center; gap: 0.5rem; font-size: 0.68rem; padding: 0.2rem 0; }
+    .cfg-verify-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .cfg-verify-dot--ok { background: #34d399; }
+    .cfg-verify-dot--warn { background: #fbbf24; }
+    .cfg-verify-label { opacity: 0.5; }
+    .cfg-verify-value { font-weight: 500; }
+
     @media (prefers-reduced-motion: reduce) {
       .cfg-status-dot { animation: none; opacity: 1; }
     }
@@ -254,6 +269,21 @@
       </div>
     </div>
 
+    <!-- Verification Engine -->
+    <div class="ov-section-title">Verification Engine</div>
+    <div class="cfg-verify-panel" id="cfg-verify-panel">
+      <div class="cfg-verify-title"><i class="fas fa-shield-halved" style="opacity:0.5;"></i> Verification Gate</div>
+      <div class="cfg-verify-row">
+        <div class="cfg-verify-dot" id="cfg-verify-dot"></div>
+        <span class="cfg-verify-label">Status:</span>
+        <span class="cfg-verify-value" id="cfg-verify-status">—</span>
+      </div>
+      <div class="cfg-verify-row">
+        <span class="cfg-verify-label">Templates:</span>
+        <span class="cfg-verify-value" id="cfg-verify-templates">—</span>
+      </div>
+    </div>
+
     <!-- System Tools -->
     <div class="ov-section-title">System Tools</div>
     <div class="cfg-tools-grid">
@@ -304,6 +334,7 @@
 
   </main>
 
+  <script src="/js/task-verifier.js"></script>
   <script src="/js/worker-audit.js"></script>
   <script src="/js/company-workers.js"></script>
   <script src="/js/worker-runtime.js"></script>
@@ -458,6 +489,35 @@
     });
 
     render();
+  })();
+  </script>
+
+  <script>
+  // Verification Engine status panel
+  (function () {
+    var dot = document.getElementById('cfg-verify-dot');
+    var statusEl = document.getElementById('cfg-verify-status');
+    var templatesEl = document.getElementById('cfg-verify-templates');
+    if (!dot || !statusEl || !templatesEl) return;
+
+    TaskVerifier.load().then(function () {
+      if (TaskVerifier.isLoaded()) {
+        dot.className = 'cfg-verify-dot cfg-verify-dot--ok';
+        statusEl.textContent = 'Active';
+        statusEl.style.color = '#34d399';
+        var count = 0;
+        try { count = JSON.parse(localStorage.getItem('_vg_tpl_count') || '0'); } catch (e) {}
+        // Re-count from fetch
+        fetch('/data/company-verification-templates.json').then(function (r) { return r.json(); }).then(function (d) {
+          if (d && d.templates) templatesEl.textContent = d.templates.length + ' loaded';
+        }).catch(function () { templatesEl.textContent = '\u26A0 Unable to count'; });
+      } else {
+        dot.className = 'cfg-verify-dot cfg-verify-dot--warn';
+        statusEl.textContent = '\u26A0 Not loaded';
+        statusEl.style.color = '#fbbf24';
+        templatesEl.textContent = '\u26A0 Unavailable';
+      }
+    });
   })();
   </script>
 

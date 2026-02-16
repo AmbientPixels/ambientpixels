@@ -154,6 +154,12 @@
     .work-report-actions { margin-top: 0.3rem; padding-left: 0.8rem; }
     .work-report-action { font-size: 0.6rem; opacity: 0.5; padding: 0.1rem 0; }
     .work-report-empty { opacity: 0.3; font-size: 0.65rem; padding: 0.5rem 0; }
+
+    /* Verification tags in reports */
+    .work-verify-tag { font-size:0.5rem; padding:0.1rem 0.3rem; border-radius:3px; margin-left:0.3rem; white-space:nowrap; }
+    .work-verify-tag--pass { background:rgba(52,211,153,0.1); border:1px solid rgba(52,211,153,0.3); color:#34d399; }
+    .work-verify-tag--fail { background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; }
+    .work-verify-tag--manual { background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.3); color:#fbbf24; }
   </style>
 </head>
 <body style="background:#071019" data-theme="dark">
@@ -265,6 +271,7 @@
 
   </main>
 
+  <script src="/js/task-verifier.js"></script>
   <script src="/js/worker-audit.js"></script>
   <script src="/js/company-workers.js"></script>
   <script src="/js/worker-runtime.js"></script>
@@ -397,7 +404,13 @@
           if (r.proposed_actions && r.proposed_actions.length > 0) {
             actionsHtml = '<div class="work-report-actions">' +
               r.proposed_actions.slice(0, 3).map(function (a) {
-                return '<div class="work-report-action">\u2022 ' + esc(a.actionType || '') + ': ' + esc(a.rationale || '') + '</div>';
+                var vTag = '';
+                if (a.verification) {
+                  var vCls = a.verification.status === 'pass' ? 'work-verify-tag--pass' : (a.verification.status === 'fail' ? 'work-verify-tag--fail' : 'work-verify-tag--manual');
+                  var vLabel = a.verification.tag || a.verification.status || '';
+                  vTag = ' <span class="work-verify-tag ' + vCls + '">' + esc(vLabel.replace(/_/g, ' ')) + '</span>';
+                }
+                return '<div class="work-report-action">\u2022 ' + esc(a.actionType || '') + ': ' + esc(a.rationale || '') + vTag + '</div>';
               }).join('') + '</div>';
           }
           return '<div class="work-report-card">' +
