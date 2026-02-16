@@ -1245,7 +1245,7 @@
       _debounce = setTimeout(function () { _debounce = null; }, 800);
       var result = StorageManager.pruneAll();
       render();
-      _toast('Pruned: ' + result.logs + ' log entries, ' + result.queue + ' queue items, ' + result.cache + ' cache entries.');
+      _toast('Pruned: ' + result.logs + ' log entries, ' + result.queue + ' queue items, ' + result.cache + ' cache entries, ' + (result.store || 0) + ' store items.');
     });
 
     exportBtn.addEventListener('click', function () {

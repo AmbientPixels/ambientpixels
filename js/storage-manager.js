@@ -213,8 +213,19 @@ var StorageManager = (function () {
   // ═══════════════════════════════════════════════════
   // ── pruneAll ──
   // ═══════════════════════════════════════════════════
+  // CompanyStore large array keys + their cache limits
+  // Mirrors LOCAL_CACHE_LIMITS from company-store.js
+  var COMPANY_STORE_LIMITS = {
+    'ap_tasks': 80, 'ap_actions': 60, 'ap_action_audit_log': 40,
+    'ap_action_queue': 40, 'ap_approval_queue': 40, 'ap_governance_log': 40,
+    'ap_cron_log': 30, 'ap_standup_log': 20, 'ap_documents': 40,
+    'ap_published_docs': 30, 'ap_workspace_dates': 30, 'ap_workspace_memory': 30,
+    'ap_session_log': 50, 'ap_meetings': 20, 'ap_directives': 40,
+    'ap_objectives': 30, 'ap_artifacts': 20
+  };
+
   function pruneAll() {
-    var summary = { logs: 0, queue: 0, cache: 0 };
+    var summary = { logs: 0, queue: 0, cache: 0, store: 0 };
 
     // Prune all log arrays
     for (var i = 0; i < LOG_KEYS.length; i++) {
@@ -226,6 +237,22 @@ var StorageManager = (function () {
 
     // Prune priority cache (no active task list available here, just cap)
     summary.cache = pruneCache(null);
+
+    // Prune CompanyStore large arrays (keep newest N items per key)
+    var storeKeys = Object.keys(COMPANY_STORE_LIMITS);
+    for (var j = 0; j < storeKeys.length; j++) {
+      var key = storeKeys[j];
+      var limit = COMPANY_STORE_LIMITS[key];
+      try {
+        var raw = localStorage.getItem(key);
+        if (!raw) continue;
+        var arr = JSON.parse(raw);
+        if (!Array.isArray(arr) || arr.length <= limit) continue;
+        var trimmed = arr.slice(-limit);
+        safeSet(key, trimmed);
+        summary.store += arr.length - trimmed.length;
+      } catch (e) { /* skip */ }
+    }
 
     return summary;
   }
