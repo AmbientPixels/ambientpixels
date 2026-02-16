@@ -1114,6 +1114,31 @@
           html += '<div style="font-size:0.65rem;color:#fbbf24;margin-top:0.3rem;"><i class="fas fa-clock" style="margin-right:0.3rem;"></i>Scheduled: ' + fmtDate(payload.scheduled_for) + '</div>';
         }
         html += '</div>';
+      } else if (payload.content_md && (aType === 'publish_document' || payload.slug)) {
+        // Article preview for published documents
+        html += '<div class="act-drawer-section">';
+        html += '<h4>Article Preview</h4>';
+        html += '<div style="padding:0.6rem 0.8rem;border-radius:8px;border:1px solid rgba(168,85,247,0.15);background:rgba(168,85,247,0.04);max-height:400px;overflow-y:auto;">';
+        if (payload.title) html += '<div style="font-size:1rem;font-weight:700;margin-bottom:0.4rem;color:#e2e8f0;">' + esc(payload.title) + '</div>';
+        var metaParts = [];
+        if (payload.kind) metaParts.push(esc(payload.kind).replace(/_/g, ' '));
+        if (payload.visibility) metaParts.push(payload.visibility === 'public' ? '<span style="color:#34d399;">public</span>' : '<span style="color:#fbbf24;">internal</span>');
+        if (payload.slug) metaParts.push('<span style="opacity:0.4;">/' + esc(payload.slug) + '</span>');
+        if (metaParts.length) html += '<div style="font-size:0.6rem;opacity:0.6;margin-bottom:0.6rem;display:flex;gap:0.5rem;align-items:center;">' + metaParts.join(' · ') + '</div>';
+        // Render markdown as styled HTML
+        var articleHtml = esc(payload.content_md)
+          .replace(/^### (.+)$/gm, '<h5 style="font-size:0.8rem;font-weight:600;color:#c4b5fd;margin:0.6rem 0 0.3rem;">$1</h5>')
+          .replace(/^## (.+)$/gm, '<h4 style="font-size:0.85rem;font-weight:600;color:#c4b5fd;margin:0.8rem 0 0.3rem;">$1</h4>')
+          .replace(/^# (.+)$/gm, '<h3 style="font-size:0.95rem;font-weight:700;color:#e2e8f0;margin:0.8rem 0 0.3rem;">$1</h3>')
+          .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+          .replace(/\*(.+?)\*/g, '<em>$1</em>')
+          .replace(/\n\n/g, '</p><p style="font-size:0.75rem;line-height:1.6;color:rgba(255,255,255,0.8);margin:0 0 0.4rem;">')
+          .replace(/\n/g, '<br>');
+        html += '<p style="font-size:0.75rem;line-height:1.6;color:rgba(255,255,255,0.8);margin:0 0 0.4rem;">' + articleHtml + '</p>';
+        var charCount = payload.content_md.length;
+        var wordCount = payload.content_md.split(/\s+/).length;
+        html += '<div style="font-size:0.55rem;opacity:0.3;margin-top:0.5rem;border-top:1px solid rgba(255,255,255,0.05);padding-top:0.4rem;">' + wordCount + ' words · ' + charCount + ' chars</div>';
+        html += '</div></div>';
       } else if (payload.text || payload.content) {
         html += '<div class="act-drawer-section"><h4>Content</h4>';
         html += '<div class="act-drawer-post"><div class="act-drawer-post-text">' + esc(payload.text || payload.content) + '</div></div>';
