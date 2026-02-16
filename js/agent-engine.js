@@ -1000,7 +1000,7 @@ var AgentEngine = (function () {
         created = addTask({
           title: proposal.title,
           description: (proposal.rationale || '') + (proposal._proposers ? '\n[Proposed by: ' + proposal._proposers.join(', ') + ']' : ''),
-          status: decision === 'activated' ? 'todo' : 'pending-approval',
+          status: 'todo',
           priority: proposal.priority || 'medium',
           assignee: proposal.assignee || null,
           dueDate: proposal.dueDate || null,
@@ -1434,7 +1434,7 @@ var AgentEngine = (function () {
         created = addTask({
           title: proposal.title,
           description: (proposal.rationale || '') + (proposal._proposers ? '\n[Proposed by: ' + proposal._proposers.join(', ') + ']' : ''),
-          status: decision === 'activated' ? 'todo' : 'pending-approval',
+          status: 'todo',
           priority: proposal.priority || 'medium',
           assignee: proposal.assignee || null,
           dueDate: proposal.dueDate || null,
