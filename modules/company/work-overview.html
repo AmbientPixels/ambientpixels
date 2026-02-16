@@ -110,6 +110,50 @@
     .work-quick-desc { font-size: 0.6rem; opacity: 0.35; margin-top: 0.15rem; }
 
     .ov-section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.4; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+
+    /* Worker assist strip */
+    .work-assist-strip {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.45rem 0.8rem; margin-bottom: 1rem;
+      background: rgba(59,130,246,0.03);
+      border: 1px solid rgba(59,130,246,0.1);
+      border-radius: 8px; font-size: 0.68rem;
+    }
+    .work-assist-strip i { opacity: 0.4; }
+    .work-assist-strip--disabled { border-color: rgba(251,191,36,0.12); background: rgba(251,191,36,0.02); }
+    .work-assist-strip--disabled .work-assist-label { color: #fbbf24; }
+    .work-assist-label { font-weight: 500; }
+    .work-assist-hint { opacity: 0.3; font-size: 0.6rem; margin-left: auto; }
+
+    /* Worker reports panel */
+    .work-reports-panel {
+      background: rgba(255,255,255,0.015);
+      border: 1px solid rgba(59,130,246,0.08);
+      border-radius: 10px; padding: 0.8rem 1rem;
+      margin-bottom: 1.4rem;
+    }
+    .work-reports-toggle {
+      display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; font-size: 0.7rem; font-weight: 600; color: #60a5fa;
+      user-select: none;
+    }
+    .work-reports-toggle i { transition: transform 0.2s; font-size: 0.6rem; opacity: 0.4; }
+    .work-reports-toggle.open i { transform: rotate(90deg); }
+    .work-reports-body { display: none; margin-top: 0.6rem; }
+    .work-reports-body.open { display: block; }
+    .work-report-card {
+      padding: 0.5rem 0.7rem; margin-bottom: 0.4rem;
+      background: rgba(255,255,255,0.02);
+      border-left: 3px solid rgba(59,130,246,0.3);
+      border-radius: 0 6px 6px 0; font-size: 0.65rem;
+    }
+    .work-report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem; }
+    .work-report-type { font-weight: 600; text-transform: uppercase; font-size: 0.55rem; opacity: 0.5; }
+    .work-report-ts { font-size: 0.55rem; opacity: 0.3; }
+    .work-report-summary { opacity: 0.7; line-height: 1.4; }
+    .work-report-actions { margin-top: 0.3rem; padding-left: 0.8rem; }
+    .work-report-action { font-size: 0.6rem; opacity: 0.5; padding: 0.1rem 0; }
+    .work-report-empty { opacity: 0.3; font-size: 0.65rem; padding: 0.5rem 0; }
   </style>
 </head>
 <body style="background:#071019" data-theme="dark">
@@ -169,6 +213,22 @@
       </div>
     </div>
 
+    <!-- Worker Assist Strip -->
+    <div class="work-assist-strip" id="work-assist-strip">
+      <i class="fas fa-robot"></i>
+      <span class="work-assist-label" id="work-assist-label">—</span>
+      <span class="work-assist-hint" id="work-assist-hint"></span>
+    </div>
+
+    <!-- Worker Reports -->
+    <div class="work-reports-panel" id="work-reports-panel" style="display:none;">
+      <div class="work-reports-toggle" id="work-reports-toggle">
+        <span><i class="fas fa-file-lines" style="margin-right:4px;"></i>Latest Worker Reports</span>
+        <i class="fas fa-chevron-right"></i>
+      </div>
+      <div class="work-reports-body" id="work-reports-body"></div>
+    </div>
+
     <!-- Recently Updated Tasks (promoted) -->
     <div class="ov-section-title">Recently Updated Tasks</div>
     <div class="work-task-list" id="ov-tasks">Loading...</div>
@@ -205,6 +265,10 @@
 
   </main>
 
+  <script src="/js/worker-audit.js"></script>
+  <script src="/js/company-workers.js"></script>
+  <script src="/js/worker-runtime.js"></script>
+  <script src="/js/worker-manager.js"></script>
   <script src="/js/company-store.js"></script>
   <script>
   (function () {
@@ -290,6 +354,64 @@
     });
 
     function esc(s) { if (!s) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+    // Worker assist strip
+    (function () {
+      var strip = document.getElementById('work-assist-strip');
+      var label = document.getElementById('work-assist-label');
+      var hint = document.getElementById('work-assist-hint');
+      if (!strip || !label) return;
+      var enabled = WorkerManager.isEnabled();
+      if (!enabled) {
+        strip.classList.add('work-assist-strip--disabled');
+        label.textContent = 'Assist paused by CEO';
+        hint.textContent = 'Enable in Config \u2192 Worker Automation';
+      } else {
+        var count = WorkerManager.getActiveCount();
+        label.textContent = count > 0 ? 'Assist active: ' + count + ' worker' + (count > 1 ? 's' : '') : 'Assist: standby';
+        label.style.color = count > 0 ? '#60a5fa' : '';
+        hint.textContent = '';
+      }
+    })();
+
+    // Worker reports panel
+    (function () {
+      var panel = document.getElementById('work-reports-panel');
+      var toggle = document.getElementById('work-reports-toggle');
+      var body = document.getElementById('work-reports-body');
+      if (!panel || !toggle || !body) return;
+
+      var reports = WorkerManager.getLatestReports(5);
+      if (reports.length === 0 && !WorkerManager.isEnabled()) {
+        panel.style.display = 'none';
+        return;
+      }
+      panel.style.display = '';
+
+      if (reports.length === 0) {
+        body.innerHTML = '<div class="work-report-empty">No worker reports yet.</div>';
+      } else {
+        body.innerHTML = reports.reverse().map(function (r) {
+          var ts = r.finishedAt ? new Date(r.finishedAt).toLocaleString() : '?';
+          var actionsHtml = '';
+          if (r.proposed_actions && r.proposed_actions.length > 0) {
+            actionsHtml = '<div class="work-report-actions">' +
+              r.proposed_actions.slice(0, 3).map(function (a) {
+                return '<div class="work-report-action">\u2022 ' + esc(a.actionType || '') + ': ' + esc(a.rationale || '') + '</div>';
+              }).join('') + '</div>';
+          }
+          return '<div class="work-report-card">' +
+            '<div class="work-report-header"><span class="work-report-type">' + esc(r.type || '?') + '</span><span class="work-report-ts">' + ts + '</span></div>' +
+            '<div class="work-report-summary">' + esc(r.summary || '') + '</div>' +
+            actionsHtml + '</div>';
+        }).join('');
+      }
+
+      toggle.addEventListener('click', function () {
+        toggle.classList.toggle('open');
+        body.classList.toggle('open');
+      });
+    })();
   })();
   </script>
 

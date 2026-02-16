@@ -148,6 +148,36 @@
     .cfg-empty-state-title { font-size: 0.75rem; opacity: 0.4; font-weight: 500; margin-bottom: 0.25rem; }
     .cfg-empty-state-hint { font-size: 0.62rem; opacity: 0.25; }
 
+    /* Worker Automation panel */
+    .cfg-worker-panel {
+      background: rgba(59,130,246,0.03);
+      border: 1px solid rgba(59,130,246,0.12);
+      border-radius: 10px; padding: 1rem 1.2rem;
+      margin-bottom: 1.4rem;
+    }
+    .cfg-worker-title { font-size: 0.7rem; font-weight: 600; color: #60a5fa; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.4rem; }
+    .cfg-worker-status { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.6rem; }
+    .cfg-worker-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .cfg-worker-dot--on { background: #34d399; }
+    .cfg-worker-dot--off { background: #ef4444; }
+    .cfg-worker-state { font-size: 0.72rem; font-weight: 500; }
+    .cfg-worker-helper { font-size: 0.62rem; opacity: 0.35; margin-bottom: 0.6rem; }
+    .cfg-worker-toggle {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.45rem 1rem; border-radius: 6px;
+      font-size: 0.65rem; font-family: inherit; font-weight: 500;
+      cursor: pointer; transition: all 0.15s; border: 1px solid;
+    }
+    .cfg-worker-toggle--disable { border-color: rgba(239,68,68,0.2); background: rgba(239,68,68,0.05); color: #ef4444; }
+    .cfg-worker-toggle--disable:hover { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.35); }
+    .cfg-worker-toggle--enable { border-color: rgba(52,211,153,0.2); background: rgba(52,211,153,0.05); color: #34d399; }
+    .cfg-worker-toggle--enable:hover { background: rgba(52,211,153,0.1); border-color: rgba(52,211,153,0.35); }
+    .cfg-worker-audit { margin-top: 0.8rem; border-top: 1px solid rgba(255,255,255,0.04); padding-top: 0.6rem; }
+    .cfg-worker-audit-title { font-size: 0.6rem; opacity: 0.3; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.4rem; }
+    .cfg-worker-audit-row { font-size: 0.6rem; opacity: 0.4; padding: 0.15rem 0; display: flex; gap: 0.5rem; }
+    .cfg-worker-audit-ts { opacity: 0.5; min-width: 100px; flex-shrink: 0; }
+    .cfg-worker-audit-ev { flex: 1; }
+
     @media (prefers-reduced-motion: reduce) {
       .cfg-status-dot { animation: none; opacity: 1; }
     }
@@ -208,6 +238,22 @@
     <div class="ov-section-title">Agent Health</div>
     <div class="cfg-agent-grid" id="ov-agents">Loading...</div>
 
+    <!-- Worker Automation -->
+    <div class="ov-section-title">Worker Automation</div>
+    <div class="cfg-worker-panel" id="cfg-worker-panel">
+      <div class="cfg-worker-title"><i class="fas fa-robot" style="opacity:0.5;"></i> Worker Framework</div>
+      <div class="cfg-worker-status">
+        <div class="cfg-worker-dot" id="cfg-worker-dot"></div>
+        <span class="cfg-worker-state" id="cfg-worker-state">—</span>
+      </div>
+      <div class="cfg-worker-helper" id="cfg-worker-helper"></div>
+      <button class="cfg-worker-toggle" id="cfg-worker-toggle"></button>
+      <div class="cfg-worker-audit">
+        <div class="cfg-worker-audit-title">Recent Worker Activity</div>
+        <div id="cfg-worker-audit-feed">No activity yet.</div>
+      </div>
+    </div>
+
     <!-- System Tools -->
     <div class="ov-section-title">System Tools</div>
     <div class="cfg-tools-grid">
@@ -258,6 +304,10 @@
 
   </main>
 
+  <script src="/js/worker-audit.js"></script>
+  <script src="/js/company-workers.js"></script>
+  <script src="/js/worker-runtime.js"></script>
+  <script src="/js/worker-manager.js"></script>
   <script src="/js/company-store.js"></script>
   <script>
   (function () {
@@ -359,6 +409,55 @@
           '<div class="cfg-empty-state-hint">Check system connectivity or reload the page.</div>' +
         '</div>';
     }
+  })();
+  </script>
+
+  <script>
+  // Worker Automation panel — CEO Kill Switch
+  (function () {
+    var dot = document.getElementById('cfg-worker-dot');
+    var stateEl = document.getElementById('cfg-worker-state');
+    var helperEl = document.getElementById('cfg-worker-helper');
+    var toggleBtn = document.getElementById('cfg-worker-toggle');
+    var auditFeed = document.getElementById('cfg-worker-audit-feed');
+    if (!dot || !stateEl || !toggleBtn) return;
+
+    var _debounceTimer = null;
+
+    function render() {
+      var enabled = WorkerManager.isEnabled();
+      dot.className = 'cfg-worker-dot ' + (enabled ? 'cfg-worker-dot--on' : 'cfg-worker-dot--off');
+      stateEl.textContent = enabled ? 'Enabled' : 'Disabled';
+      stateEl.style.color = enabled ? '#34d399' : '#ef4444';
+      helperEl.textContent = enabled ? 'Workers will spawn automatically during pressure spikes.' : 'Worker spawning and runs are paused. Existing workers will terminate safely.';
+      toggleBtn.textContent = enabled ? '\u23F8 Disable Workers' : '\u25B6 Enable Workers';
+      toggleBtn.className = 'cfg-worker-toggle ' + (enabled ? 'cfg-worker-toggle--disable' : 'cfg-worker-toggle--enable');
+      renderAudit();
+    }
+
+    function renderAudit() {
+      var events = WorkerAudit.getRecent(8);
+      if (events.length === 0) { auditFeed.innerHTML = '<span style="opacity:0.25; font-size:0.6rem;">No activity yet.</span>'; return; }
+      auditFeed.innerHTML = events.reverse().map(function (ev) {
+        var ts = ev.timestamp ? new Date(ev.timestamp).toLocaleTimeString() : '?';
+        var label = ev.eventType.replace(/_/g, ' ');
+        if (ev.workerType) label += ' (' + ev.workerType + ')';
+        if (ev.reason) label += ' \u2014 ' + ev.reason;
+        return '<div class="cfg-worker-audit-row"><span class="cfg-worker-audit-ts">' + ts + '</span><span class="cfg-worker-audit-ev">' + label + '</span></div>';
+      }).join('');
+    }
+
+    toggleBtn.addEventListener('click', function () {
+      if (_debounceTimer) return;
+      var current = WorkerManager.isEnabled();
+      var action = current ? 'Disable' : 'Enable';
+      if (!confirm(action + ' worker automation?')) return;
+      WorkerManager.setEnabled(!current, 'CEO');
+      render();
+      _debounceTimer = setTimeout(function () { _debounceTimer = null; }, 3000);
+    });
+
+    render();
   })();
   </script>
 

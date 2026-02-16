@@ -1,0 +1,94 @@
+{
+  "version": "1.0",
+  "description": "AmbientPixels Worker Registry — ephemeral worker type definitions",
+  "workers": [
+    {
+      "id": "triage_worker",
+      "name": "Triage Worker",
+      "ownerRole": "Nova",
+      "enabled": true,
+      "maxConcurrent": 2,
+      "ttlMinutes": 10,
+      "budget": {
+        "maxRunsPerHour": 6,
+        "maxItemsPerRun": 25
+      },
+      "permissions": {
+        "toolsAllowed": ["text"],
+        "canCreateTasks": false,
+        "canMoveTasks": false,
+        "canPublish": false
+      },
+      "outputSchema": {
+        "format": "worker_report_v1",
+        "requiredSections": ["summary", "findings", "proposed_actions", "risks", "next_steps"]
+      }
+    },
+    {
+      "id": "scribe_worker",
+      "name": "Scribe Worker",
+      "ownerRole": "Scribe",
+      "enabled": true,
+      "maxConcurrent": 2,
+      "ttlMinutes": 8,
+      "budget": {
+        "maxRunsPerHour": 4,
+        "maxItemsPerRun": 15
+      },
+      "permissions": {
+        "toolsAllowed": ["text"],
+        "canCreateTasks": false,
+        "canMoveTasks": false,
+        "canPublish": false
+      },
+      "outputSchema": {
+        "format": "worker_report_v1",
+        "requiredSections": ["summary", "findings", "proposed_actions", "risks", "next_steps"]
+      }
+    },
+    {
+      "id": "research_worker",
+      "name": "Research Worker",
+      "ownerRole": "Scout",
+      "enabled": false,
+      "maxConcurrent": 1,
+      "ttlMinutes": 15,
+      "budget": {
+        "maxRunsPerHour": 3,
+        "maxItemsPerRun": 10
+      },
+      "permissions": {
+        "toolsAllowed": ["text"],
+        "canCreateTasks": false,
+        "canMoveTasks": false,
+        "canPublish": false
+      },
+      "outputSchema": {
+        "format": "worker_report_v1",
+        "requiredSections": ["summary", "findings", "proposed_actions", "risks", "next_steps"]
+      }
+    },
+    {
+      "id": "qa_worker",
+      "name": "QA Worker",
+      "ownerRole": "Pixel",
+      "enabled": false,
+      "maxConcurrent": 1,
+      "ttlMinutes": 12,
+      "budget": {
+        "maxRunsPerHour": 4,
+        "maxItemsPerRun": 20
+      },
+      "permissions": {
+        "toolsAllowed": ["text"],
+        "canCreateTasks": false,
+        "canMoveTasks": false,
+        "canPublish": false
+      },
+      "outputSchema": {
+        "format": "worker_report_v1",
+        "requiredSections": ["summary", "findings", "proposed_actions", "risks", "next_steps"]
+      }
+    }
+  ]
+}
