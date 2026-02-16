@@ -172,6 +172,19 @@ var WorkerRuntime = (function () {
           sanitized = TaskVerifier.validateProposal(sanitized, task);
         }
       }
+      // Action Router v1 — route eligible proposals into ActionQueue
+      if (typeof ActionRouter !== 'undefined' && ActionRouter.routeProposal) {
+        var isVerified = sanitized.verification && sanitized.verification.tag === 'verification_passed';
+        var isLowRisk = sanitized.riskLevel === 'low';
+        var taskCtx = (sanitized.itemId && itemMap[sanitized.itemId]) ? itemMap[sanitized.itemId] : null;
+        if (isVerified && isLowRisk) {
+          ActionRouter.routeProposal({ actionType: sanitized.actionType, targetId: sanitized.itemId, payload: sanitized, correlationId: null, source: 'worker', proposedBy: null }, taskCtx);
+          sanitized._routed = 'auto';
+        } else if (sanitized.actionType && sanitized.actionType !== 'review' && sanitized.actionType !== 'requires_fix') {
+          ActionRouter.routeProposal({ actionType: sanitized.actionType, targetId: sanitized.itemId, payload: sanitized, correlationId: null, source: 'worker', proposedBy: null, requiresApproval: true }, taskCtx);
+          sanitized._routed = 'pending_approval';
+        }
+      }
       return sanitized;
     });
   }

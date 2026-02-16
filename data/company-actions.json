@@ -1,0 +1,87 @@
+{
+  "version": "1.0",
+  "description": "Action Router v1 — Action type registry with risk levels and governance rules",
+  "actions": [
+    {
+      "id": "add_task_comment",
+      "name": "Add task comment",
+      "riskLevel": "low",
+      "requiresApproval": false,
+      "requiresVerification": false,
+      "executor": "task",
+      "enabled": true
+    },
+    {
+      "id": "label_task",
+      "name": "Label task",
+      "riskLevel": "low",
+      "requiresApproval": false,
+      "requiresVerification": false,
+      "executor": "task",
+      "enabled": true
+    },
+    {
+      "id": "move_task_lane",
+      "name": "Move task to lane",
+      "riskLevel": "low",
+      "requiresApproval": false,
+      "requiresVerification": false,
+      "executor": "task",
+      "enabled": true
+    },
+    {
+      "id": "request_info",
+      "name": "Request missing info",
+      "riskLevel": "low",
+      "requiresApproval": false,
+      "requiresVerification": false,
+      "executor": "task",
+      "enabled": true
+    },
+    {
+      "id": "move_task_to_done",
+      "name": "Move task to Done",
+      "riskLevel": "medium",
+      "requiresApproval": true,
+      "requiresVerification": true,
+      "executor": "task",
+      "enabled": true
+    },
+    {
+      "id": "publish_social_draft",
+      "name": "Queue social draft for approval",
+      "riskLevel": "medium",
+      "requiresApproval": true,
+      "requiresVerification": false,
+      "executor": "social",
+      "enabled": false
+    },
+    {
+      "id": "create_task",
+      "name": "Create task",
+      "riskLevel": "medium",
+      "requiresApproval": true,
+      "requiresVerification": false,
+      "executor": "task",
+      "enabled": true
+    },
+    {
+      "id": "delete_task",
+      "name": "Delete task",
+      "riskLevel": "high",
+      "requiresApproval": true,
+      "requiresVerification": false,
+      "executor": "task",
+      "enabled": false
+    },
+    {
+      "id": "publish_social_live",
+      "name": "Publish social post live",
+      "riskLevel": "high",
+      "requiresApproval": true,
+      "requiresVerification": false,
+      "executor": "social",
+      "enabled": false
+    }
+  ]
+}

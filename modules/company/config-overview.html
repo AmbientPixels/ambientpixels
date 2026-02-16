@@ -193,6 +193,41 @@
     .cfg-verify-label { opacity: 0.5; }
     .cfg-verify-value { font-weight: 500; }
 
+    /* Action Automation panel */
+    .cfg-action-panel {
+      background: rgba(255,165,0,0.03);
+      border: 1px solid rgba(255,165,0,0.12);
+      border-radius: 10px; padding: 1rem 1.2rem;
+      margin-bottom: 1.4rem;
+    }
+    .cfg-action-title { font-size: 0.7rem; font-weight: 600; color: #FFA500; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.4rem; }
+    .cfg-action-status { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; }
+    .cfg-action-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .cfg-action-dot--on { background: #34d399; }
+    .cfg-action-dot--off { background: #ef4444; }
+    .cfg-action-state { font-size: 0.72rem; font-weight: 500; }
+    .cfg-action-helper { font-size: 0.62rem; opacity: 0.35; margin-bottom: 0.6rem; }
+    .cfg-action-toggle {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.45rem 1rem; border-radius: 6px;
+      font-size: 0.65rem; font-family: inherit; font-weight: 500;
+      cursor: pointer; transition: all 0.15s; border: 1px solid;
+    }
+    .cfg-action-toggle--disable { border-color: rgba(239,68,68,0.2); background: rgba(239,68,68,0.05); color: #ef4444; }
+    .cfg-action-toggle--enable { border-color: rgba(52,211,153,0.2); background: rgba(52,211,153,0.05); color: #34d399; }
+    .cfg-action-subs { margin-top: 0.7rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.04); }
+    .cfg-action-sub-row { display: flex; align-items: center; gap: 0.5rem; font-size: 0.65rem; padding: 0.2rem 0; }
+    .cfg-action-sub-label { opacity: 0.5; min-width: 60px; }
+    .cfg-action-sub-toggle { font-size: 0.6rem; padding: 0.15rem 0.5rem; border-radius: 4px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); color: inherit; font-family: inherit; }
+    .cfg-action-sub-toggle.on { border-color: rgba(52,211,153,0.3); color: #34d399; }
+    .cfg-action-sub-toggle.off { border-color: rgba(239,68,68,0.2); color: #ef4444; }
+    .cfg-action-counts { margin-top: 0.6rem; font-size: 0.62rem; opacity: 0.35; }
+    .cfg-action-audit { margin-top: 0.8rem; border-top: 1px solid rgba(255,255,255,0.04); padding-top: 0.6rem; }
+    .cfg-action-audit-title { font-size: 0.6rem; opacity: 0.3; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.4rem; }
+    .cfg-action-audit-row { font-size: 0.6rem; opacity: 0.4; padding: 0.15rem 0; display: flex; gap: 0.5rem; }
+    .cfg-action-audit-ts { opacity: 0.5; min-width: 100px; flex-shrink: 0; }
+    .cfg-action-audit-ev { flex: 1; }
+
     @media (prefers-reduced-motion: reduce) {
       .cfg-status-dot { animation: none; opacity: 1; }
     }
@@ -284,6 +319,37 @@
       </div>
     </div>
 
+    <!-- Action Automation -->
+    <div class="ov-section-title">Action Automation</div>
+    <div class="cfg-action-panel" id="cfg-action-panel">
+      <div class="cfg-action-title"><i class="fas fa-bolt" style="opacity:0.5;"></i> Action Router</div>
+      <div class="cfg-action-status">
+        <div class="cfg-action-dot" id="cfg-action-dot"></div>
+        <span class="cfg-action-state" id="cfg-action-state">—</span>
+      </div>
+      <div class="cfg-action-helper" id="cfg-action-helper"></div>
+      <button class="cfg-action-toggle" id="cfg-action-toggle"></button>
+      <div class="cfg-action-subs">
+        <div class="cfg-action-sub-row">
+          <span class="cfg-action-sub-label">Tasks</span>
+          <button class="cfg-action-sub-toggle" id="cfg-action-sub-task"></button>
+        </div>
+        <div class="cfg-action-sub-row">
+          <span class="cfg-action-sub-label">Social</span>
+          <button class="cfg-action-sub-toggle" id="cfg-action-sub-social"></button>
+        </div>
+        <div class="cfg-action-sub-row">
+          <span class="cfg-action-sub-label">Email</span>
+          <button class="cfg-action-sub-toggle" id="cfg-action-sub-email"></button>
+        </div>
+      </div>
+      <div class="cfg-action-counts" id="cfg-action-counts"></div>
+      <div class="cfg-action-audit">
+        <div class="cfg-action-audit-title">Recent Action Activity</div>
+        <div id="cfg-action-audit-feed">No activity yet.</div>
+      </div>
+    </div>
+
     <!-- System Tools -->
     <div class="ov-section-title">System Tools</div>
     <div class="cfg-tools-grid">
@@ -335,6 +401,10 @@
   </main>
 
   <script src="/js/task-verifier.js"></script>
+  <script src="/js/action-audit.js"></script>
+  <script src="/js/action-queue.js"></script>
+  <script src="/js/action-executors.js"></script>
+  <script src="/js/action-router.js"></script>
   <script src="/js/worker-audit.js"></script>
   <script src="/js/company-workers.js"></script>
   <script src="/js/worker-runtime.js"></script>
@@ -518,6 +588,85 @@
         templatesEl.textContent = '\u26A0 Unavailable';
       }
     });
+  })();
+  </script>
+
+  <script>
+  // Action Automation panel
+  (function () {
+    var dot = document.getElementById('cfg-action-dot');
+    var stateEl = document.getElementById('cfg-action-state');
+    var helperEl = document.getElementById('cfg-action-helper');
+    var toggleBtn = document.getElementById('cfg-action-toggle');
+    var countsEl = document.getElementById('cfg-action-counts');
+    var auditFeed = document.getElementById('cfg-action-audit-feed');
+    var subTask = document.getElementById('cfg-action-sub-task');
+    var subSocial = document.getElementById('cfg-action-sub-social');
+    var subEmail = document.getElementById('cfg-action-sub-email');
+    if (!dot || !stateEl || !toggleBtn) return;
+
+    var _debounceTimer = null;
+
+    ActionRouter.loadRegistry().then(function () { render(); });
+
+    function render() {
+      var enabled = ActionRouter.isEnabled();
+      dot.className = 'cfg-action-dot ' + (enabled ? 'cfg-action-dot--on' : 'cfg-action-dot--off');
+      stateEl.textContent = enabled ? 'Enabled' : 'Disabled (safe default)';
+      stateEl.style.color = enabled ? '#34d399' : '#ef4444';
+      helperEl.textContent = enabled
+        ? 'Low-risk actions execute automatically. Medium/high require approval.'
+        : 'Action execution is paused. Proposals still queue for approval.';
+      toggleBtn.textContent = enabled ? '\u23F8 Disable Actions' : '\u25B6 Enable Actions';
+      toggleBtn.className = 'cfg-action-toggle ' + (enabled ? 'cfg-action-toggle--disable' : 'cfg-action-toggle--enable');
+
+      // Sub toggles
+      renderSub(subTask, ActionRouter.isTaskEnabled(), 'task');
+      renderSub(subSocial, ActionRouter.isSocialEnabled(), 'social');
+      renderSub(subEmail, ActionRouter.isEmailEnabled(), 'email');
+
+      // Registry counts
+      var c = ActionRouter.getRegistryCounts();
+      countsEl.textContent = 'Registry: ' + c.enabled + ' enabled, ' + c.disabled + ' disabled (' + c.total + ' total)';
+
+      renderAudit();
+    }
+
+    function renderSub(btn, on, type) {
+      if (!btn) return;
+      btn.textContent = on ? 'ON' : 'OFF';
+      btn.className = 'cfg-action-sub-toggle ' + (on ? 'on' : 'off');
+      btn.onclick = function () {
+        if (type === 'task') ActionRouter.setTaskEnabled(!on);
+        else if (type === 'social') ActionRouter.setSocialEnabled(!on);
+        else if (type === 'email') ActionRouter.setEmailEnabled(!on);
+        render();
+      };
+    }
+
+    function renderAudit() {
+      var events = ActionAudit.getRecent(10);
+      if (events.length === 0) { auditFeed.innerHTML = '<span style="opacity:0.25; font-size:0.6rem;">No activity yet.</span>'; return; }
+      auditFeed.innerHTML = events.reverse().map(function (ev) {
+        var ts = ev.timestamp ? new Date(ev.timestamp).toLocaleTimeString() : '?';
+        var label = ev.eventType.replace(/_/g, ' ');
+        if (ev.actionType) label += ' (' + ev.actionType + ')';
+        if (ev.reason) label += ' \u2014 ' + ev.reason;
+        return '<div class="cfg-action-audit-row"><span class="cfg-action-audit-ts">' + ts + '</span><span class="cfg-action-audit-ev">' + label + '</span></div>';
+      }).join('');
+    }
+
+    toggleBtn.addEventListener('click', function () {
+      if (_debounceTimer) return;
+      var current = ActionRouter.isEnabled();
+      var action = current ? 'Disable' : 'Enable';
+      if (!confirm(action + ' action automation?')) return;
+      ActionRouter.setEnabled(!current, 'CEO');
+      render();
+      _debounceTimer = setTimeout(function () { _debounceTimer = null; }, 3000);
+    });
+
+    render();
   })();
   </script>
 

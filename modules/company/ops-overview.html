@@ -127,6 +127,21 @@
     .ops-feed-row--workers { border-left-color: rgba(59,130,246,0.5); }
     .ops-feed-row--killswitch { border-left-color: rgba(239,68,68,0.5); }
 
+    /* Action strip */
+    .ops-action-strip {
+      display: flex; align-items: center; gap: 0.8rem;
+      padding: 0.5rem 0.8rem; margin-bottom: 1rem;
+      background: rgba(255,165,0,0.015);
+      border: 1px solid rgba(255,165,0,0.06);
+      border-radius: 8px; font-size: 0.68rem;
+    }
+    .ops-action-strip-label { opacity: 0.4; font-weight: 500; white-space: nowrap; }
+    .ops-action-strip-value { font-weight: 600; }
+    .ops-action-strip-ts { opacity: 0.3; font-size: 0.6rem; margin-left: auto; white-space: nowrap; }
+    .ops-action-strip--disabled { border-color: rgba(251,191,36,0.15); }
+    .ops-action-strip--disabled .ops-action-strip-value { color: #fbbf24; }
+    .ops-feed-row--action { border-left-color: rgba(255,165,0,0.5); }
+
     @media (prefers-reduced-motion: reduce) {
       .ops-status-dot { animation: none; opacity: 1; }
     }
@@ -171,6 +186,13 @@
       <span class="ops-worker-strip-ts" id="ops-worker-ts"></span>
     </div>
 
+    <!-- Action Strip -->
+    <div class="ops-action-strip" id="ops-action-strip">
+      <span class="ops-action-strip-label"><i class="fas fa-bolt" style="margin-right:4px; opacity:0.4;"></i>Actions:</span>
+      <span class="ops-action-strip-value" id="ops-action-count">—</span>
+      <span class="ops-action-strip-ts" id="ops-action-ts"></span>
+    </div>
+
     <!-- Heartbeat Feed -->
     <div class="ops-feed-panel">
       <div class="ops-feed-title"><i class="fas fa-heartbeat" style="margin-right:4px;"></i> Recent Heartbeat Activity</div>
@@ -205,6 +227,10 @@
 
   </main>
 
+  <script src="/js/action-audit.js"></script>
+  <script src="/js/action-queue.js"></script>
+  <script src="/js/action-executors.js"></script>
+  <script src="/js/action-router.js"></script>
   <script src="/js/worker-audit.js"></script>
   <script src="/js/company-workers.js"></script>
   <script src="/js/worker-runtime.js"></script>
@@ -281,6 +307,19 @@
           '</div>';
       }).join('');
 
+      // Append recent action audit events to feed
+      var aEvents = ActionAudit.getRecent(6);
+      feedHtml += aEvents.map(function (ev) {
+        var time = ev.timestamp ? new Date(ev.timestamp).toLocaleString() : '?';
+        var label = ev.eventType.replace(/_/g, ' ');
+        if (ev.actionType) label += ' (' + ev.actionType + ')';
+        if (ev.reason) label += ' \u2014 ' + ev.reason;
+        return '<div class="ops-feed-row ops-feed-row--action">' +
+          '<span class="ops-feed-time">' + time + '</span>' +
+          '<span class="ops-feed-detail"><i class="fas fa-bolt" style="margin-right:4px; opacity:0.35;"></i>' + label + '</span>' +
+          '</div>';
+      }).join('');
+
       el.innerHTML = feedHtml;
     });
 
@@ -301,6 +340,27 @@
         countEl.style.color = activeCount > 0 ? '#4ECDC4' : '';
         var lastTs = WorkerManager.getLastReportTimestamp();
         tsEl.textContent = lastTs ? 'Last report: ' + new Date(lastTs).toLocaleString() : 'No reports yet';
+      }
+    })();
+
+    // Action strip
+    (function () {
+      var strip = document.getElementById('ops-action-strip');
+      var countEl = document.getElementById('ops-action-count');
+      var tsEl = document.getElementById('ops-action-ts');
+      if (!strip || !countEl) return;
+      ActionRouter.loadRegistry();
+      var enabled = ActionRouter.isEnabled();
+      if (!enabled) {
+        strip.classList.add('ops-action-strip--disabled');
+        countEl.textContent = '\u26A0 Disabled';
+        tsEl.textContent = 'Enable in Config \u2192 Action Automation';
+      } else {
+        var pending = ActionRouter.getPendingCount();
+        var today = ActionRouter.getExecutedTodayCount();
+        countEl.textContent = pending + ' pending, ' + today + ' executed today';
+        countEl.style.color = pending > 0 ? '#FFA500' : '';
+        tsEl.textContent = '';
       }
     })();
   })();

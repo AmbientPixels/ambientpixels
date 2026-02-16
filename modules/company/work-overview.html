@@ -160,6 +160,31 @@
     .work-verify-tag--pass { background:rgba(52,211,153,0.1); border:1px solid rgba(52,211,153,0.3); color:#34d399; }
     .work-verify-tag--fail { background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#ef4444; }
     .work-verify-tag--manual { background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.3); color:#fbbf24; }
+
+    /* Action status pills */
+    .work-action-pill { font-size:0.48rem; padding:0.08rem 0.25rem; border-radius:3px; margin-left:0.25rem; white-space:nowrap; }
+    .work-action-pill--queued { background:rgba(59,130,246,0.1); border:1px solid rgba(59,130,246,0.25); color:#60a5fa; }
+    .work-action-pill--pending { background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.25); color:#fbbf24; }
+    .work-action-pill--approved { background:rgba(52,211,153,0.1); border:1px solid rgba(52,211,153,0.25); color:#34d399; }
+    .work-action-pill--executed { background:rgba(52,211,153,0.15); border:1px solid rgba(52,211,153,0.3); color:#34d399; }
+    .work-action-pill--blocked { background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); color:#ef4444; }
+    .work-action-pill--failed { background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); color:#ef4444; }
+
+    /* Pending actions panel */
+    .work-pending-panel { background:rgba(255,165,0,0.02); border:1px solid rgba(255,165,0,0.08); border-radius:10px; padding:0.8rem 1rem; margin-bottom:1.4rem; }
+    .work-pending-toggle { display:flex; align-items:center; justify-content:space-between; cursor:pointer; font-size:0.7rem; font-weight:600; color:#FFA500; user-select:none; }
+    .work-pending-toggle i { transition:transform 0.2s; font-size:0.6rem; opacity:0.4; }
+    .work-pending-toggle.open i { transform:rotate(90deg); }
+    .work-pending-body { display:none; margin-top:0.6rem; }
+    .work-pending-body.open { display:block; }
+    .work-pending-item { padding:0.4rem 0.6rem; margin-bottom:0.3rem; background:rgba(255,255,255,0.02); border-left:3px solid rgba(255,165,0,0.3); border-radius:0 6px 6px 0; font-size:0.62rem; display:flex; align-items:center; gap:0.5rem; }
+    .work-pending-type { font-weight:600; text-transform:uppercase; font-size:0.52rem; opacity:0.5; }
+    .work-pending-target { opacity:0.4; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .work-pending-actions { display:flex; gap:0.3rem; }
+    .work-pending-btn { font-size:0.55rem; padding:0.15rem 0.4rem; border-radius:4px; cursor:pointer; border:1px solid; font-family:inherit; }
+    .work-pending-btn--approve { border-color:rgba(52,211,153,0.3); background:rgba(52,211,153,0.05); color:#34d399; }
+    .work-pending-btn--reject { border-color:rgba(239,68,68,0.3); background:rgba(239,68,68,0.05); color:#ef4444; }
+    .work-pending-empty { opacity:0.3; font-size:0.62rem; padding:0.4rem 0; }
   </style>
 </head>
 <body style="background:#071019" data-theme="dark">
@@ -235,6 +260,15 @@
       <div class="work-reports-body" id="work-reports-body"></div>
     </div>
 
+    <!-- Pending Actions -->
+    <div class="work-pending-panel" id="work-pending-panel" style="display:none;">
+      <div class="work-pending-toggle" id="work-pending-toggle">
+        <span><i class="fas fa-bolt" style="margin-right:4px;"></i>Pending Actions</span>
+        <i class="fas fa-chevron-right"></i>
+      </div>
+      <div class="work-pending-body" id="work-pending-body"></div>
+    </div>
+
     <!-- Recently Updated Tasks (promoted) -->
     <div class="ov-section-title">Recently Updated Tasks</div>
     <div class="work-task-list" id="ov-tasks">Loading...</div>
@@ -272,6 +306,10 @@
   </main>
 
   <script src="/js/task-verifier.js"></script>
+  <script src="/js/action-audit.js"></script>
+  <script src="/js/action-queue.js"></script>
+  <script src="/js/action-executors.js"></script>
+  <script src="/js/action-router.js"></script>
   <script src="/js/worker-audit.js"></script>
   <script src="/js/company-workers.js"></script>
   <script src="/js/worker-runtime.js"></script>
@@ -419,6 +457,57 @@
             actionsHtml + '</div>';
         }).join('');
       }
+
+      toggle.addEventListener('click', function () {
+        toggle.classList.toggle('open');
+        body.classList.toggle('open');
+      });
+    })();
+
+    // Pending actions panel
+    (function () {
+      var panel = document.getElementById('work-pending-panel');
+      var toggle = document.getElementById('work-pending-toggle');
+      var body = document.getElementById('work-pending-body');
+      if (!panel || !toggle || !body) return;
+
+      ActionRouter.loadRegistry();
+      var pending = ActionQueue.getPendingApproval();
+      if (pending.length === 0) { panel.style.display = 'none'; return; }
+      panel.style.display = '';
+
+      function renderPending() {
+        var items = ActionQueue.getPendingApproval();
+        if (items.length === 0) {
+          body.innerHTML = '<div class="work-pending-empty">No pending actions.</div>';
+          return;
+        }
+        body.innerHTML = items.slice(0, 15).map(function (item) {
+          return '<div class="work-pending-item" data-action-id="' + item.id + '">' +
+            '<span class="work-pending-type">' + esc(item.actionType || '?') + '</span>' +
+            '<span class="work-pending-target">' + esc(item.targetId || '') + '</span>' +
+            '<span class="work-action-pill work-action-pill--pending"><i class="fas fa-clock"></i> pending</span>' +
+            '<span class="work-pending-actions">' +
+              '<button class="work-pending-btn work-pending-btn--approve" data-approve="' + item.id + '"><i class="fas fa-check"></i></button>' +
+              '<button class="work-pending-btn work-pending-btn--reject" data-reject="' + item.id + '"><i class="fas fa-times"></i></button>' +
+            '</span>' +
+          '</div>';
+        }).join('');
+      }
+
+      renderPending();
+
+      body.addEventListener('click', function (e) {
+        var approveBtn = e.target.closest('[data-approve]');
+        var rejectBtn = e.target.closest('[data-reject]');
+        if (approveBtn) {
+          ActionRouter.approve(approveBtn.getAttribute('data-approve'), 'CEO');
+          renderPending();
+        } else if (rejectBtn) {
+          ActionRouter.reject(rejectBtn.getAttribute('data-reject'), 'CEO', 'Rejected by CEO');
+          renderPending();
+        }
+      });
 
       toggle.addEventListener('click', function () {
         toggle.classList.toggle('open');
