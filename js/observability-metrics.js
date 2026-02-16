@@ -271,9 +271,9 @@ var ObservabilityMetrics = (function () {
     var wSpawned = 0, wRuns = 0, wTerminated = 0;
     for (var q = 0; q < workerEv.length; q++) {
       var wet = workerEv[q].eventType;
-      if (wet === 'worker_spawned') wSpawned++;
-      if (wet === 'worker_run_started' || wet === 'worker_run_completed') wRuns++;
-      if (wet === 'worker_terminated') wTerminated++;
+      if (wet === 'worker_spawned' || wet === 'spawned') wSpawned++;
+      if (wet === 'worker_run_started' || wet === 'worker_run_completed' || wet === 'started' || wet === 'reported') wRuns++;
+      if (wet === 'worker_terminated' || wet === 'terminated') wTerminated++;
     }
 
     // Planner
@@ -368,7 +368,7 @@ var ObservabilityMetrics = (function () {
     for (var j = 0; j < workerEv.length; j++) {
       var wd = _toDay(workerEv[j].timestamp);
       if (!wd || !dayMap[wd]) continue;
-      if (workerEv[j].eventType === 'worker_run_completed') dayMap[wd].workerRuns++;
+      if (workerEv[j].eventType === 'worker_run_completed' || workerEv[j].eventType === 'reported') dayMap[wd].workerRuns++;
     }
 
     // Bucket planner events
