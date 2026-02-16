@@ -254,6 +254,22 @@ var StorageManager = (function () {
       } catch (e) { /* skip */ }
     }
 
+    // Size-based pruning for oversized single-value keys (> MAX_SINGLE_KB)
+    // These aren't arrays but can bloat localStorage
+    var MAX_SINGLE_KB = 100;
+    var OVERSIZED_PRUNEABLE = ['ap_morning_report', 'ap_priority_cache'];
+    for (var k = 0; k < OVERSIZED_PRUNEABLE.length; k++) {
+      try {
+        var val = localStorage.getItem(OVERSIZED_PRUNEABLE[k]);
+        if (!val) continue;
+        var sizeKb = (val.length * 2) / 1024;
+        if (sizeKb > MAX_SINGLE_KB) {
+          localStorage.removeItem(OVERSIZED_PRUNEABLE[k]);
+          summary.store++;
+        }
+      } catch (e) { /* skip */ }
+    }
+
     return summary;
   }
 

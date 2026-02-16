@@ -559,7 +559,12 @@
       <div class="cfg-storage-btns">
         <button class="cfg-storage-btn cfg-storage-btn--prune" id="cfg-storage-prune"><i class="fas fa-broom"></i> Prune Now</button>
         <button class="cfg-storage-btn cfg-storage-btn--export" id="cfg-storage-export"><i class="fas fa-download"></i> Export Diagnostics</button>
-        <button class="cfg-storage-btn cfg-storage-btn--reset" id="cfg-storage-reset"><i class="fas fa-eraser"></i> Reset Non-Critical Caches</button>
+        <button class="cfg-storage-btn cfg-storage-btn--reset" id="cfg-storage-reset"><i class="fas fa-eraser"></i> Reset Non-Critical</button>
+      </div>
+      <div style="display:flex; gap:0.8rem; margin-top:0.3rem; font-size:0.48rem; opacity:0.25;">
+        <span><b>Prune:</b> Trim old entries, keep recent</span>
+        <span><b>Export:</b> Download snapshot for debugging</span>
+        <span><b>Reset:</b> Clear caches, keep tasks &amp; settings</span>
       </div>
       <div class="cfg-storage-toast" id="cfg-storage-toast"></div>
     </div>
@@ -1212,29 +1217,48 @@
 
     function render() {
       var u = StorageManager.estimateUsage();
-      usageEl.textContent = u.kbEstimate + ' KB used (' + u.itemCount + ' keys)';
-      usageEl.style.color = u.kbEstimate > 4000 ? '#ef4444' : (u.kbEstimate > 2000 ? '#fbbf24' : '#60a5fa');
+      var pct = Math.min(100, Math.round((u.kbEstimate / 5120) * 100));
+      var barColor = pct > 85 ? '#ef4444' : (pct > 60 ? '#fbbf24' : '#34d399');
+      var statusText = pct > 85 ? 'Critical — prune recommended' : (pct > 60 ? 'Getting full' : 'Healthy');
+      usageEl.innerHTML =
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem;">' +
+          '<span style="font-size:0.65rem;">' + u.kbEstimate + ' KB / ~5,120 KB (' + pct + '%)</span>' +
+          '<span style="font-size:0.55rem;color:' + barColor + ';">' + statusText + '</span>' +
+        '</div>' +
+        '<div style="height:6px;background:rgba(255,255,255,0.05);border-radius:3px;overflow:hidden;">' +
+          '<div style="height:100%;width:' + pct + '%;background:' + barColor + ';border-radius:3px;transition:width 0.3s;"></div>' +
+        '</div>';
 
       var c = StorageManager.getStoreCounts();
-      var labels = {
-        'ap_action_audit': 'Action Audit',
-        'ap_worker_audit': 'Worker Audit',
-        'ap_planner_audit': 'Planner Audit',
-        'ap_calibration_audit': 'Calibration Audit',
-        'ap_priority_audit': 'Priority Audit',
-        'ap_action_queue': 'Action Queue',
-        'ap_action_queue_pending': 'Pending Approvals',
-        'ap_priority_cache': 'Priority Cache'
-      };
+      var items = [
+        { key: 'ap_action_audit', label: 'Action Audit', desc: 'Log of executed actions', limit: 1000 },
+        { key: 'ap_worker_audit', label: 'Worker Audit', desc: 'Background task history', limit: 1000 },
+        { key: 'ap_planner_audit', label: 'Planner Audit', desc: 'Planning cycle records', limit: 1000 },
+        { key: 'ap_calibration_audit', label: 'Calibration Audit', desc: 'Agent tuning history', limit: 1000 },
+        { key: 'ap_priority_audit', label: 'Priority Audit', desc: 'Priority scoring log', limit: 1000 },
+        { key: 'ap_action_queue', label: 'Action Queue', desc: 'Pending + completed actions', limit: 300 },
+        { key: 'ap_action_queue_pending', label: 'Pending Approvals', desc: 'Awaiting your decision', limit: null },
+        { key: 'ap_priority_cache', label: 'Priority Cache', desc: 'Cached scoring data', limit: 500 }
+      ];
       var rows = '';
-      var keys = Object.keys(c);
-      for (var i = 0; i < keys.length; i++) {
-        rows += '<div class="cfg-storage-count-row"><span class="cfg-storage-count-label">' + (labels[keys[i]] || keys[i]) + '</span><span class="cfg-storage-count-val">' + c[keys[i]] + '</span></div>';
+      for (var i = 0; i < items.length; i++) {
+        var val = c[items[i].key] || 0;
+        var lim = items[i].limit;
+        var ratio = lim ? (val / lim) : 0;
+        var color = !lim ? '#60a5fa' : (ratio > 0.8 ? '#ef4444' : (ratio > 0.5 ? '#fbbf24' : '#34d399'));
+        var limitLabel = lim ? ' / ' + lim : '';
+        rows +=
+          '<div class="cfg-storage-count-row" title="' + items[i].desc + '">' +
+            '<span class="cfg-storage-count-label">' + items[i].label +
+              '<span style="font-size:0.45rem;opacity:0.3;margin-left:4px;">' + items[i].desc + '</span>' +
+            '</span>' +
+            '<span class="cfg-storage-count-val" style="color:' + color + ';">' + val + limitLabel + '</span>' +
+          '</div>';
       }
       countsEl.innerHTML = rows;
 
       var oldest = StorageManager.getOldestEntry();
-      oldestEl.textContent = oldest ? 'Oldest audit entry: ' + new Date(oldest).toLocaleString() : 'No audit entries yet.';
+      oldestEl.textContent = oldest ? 'Oldest entry: ' + new Date(oldest).toLocaleDateString() : '';
     }
 
     pruneBtn.addEventListener('click', function () {
