@@ -274,6 +274,15 @@
 
       function initMeetings() {
         var meetings = AE.getMeetings();
+        if (meetings.length > 0) {
+          _applyMeetings(meetings);
+        } else {
+          // Fallback: fetch directly from server (handles localStorage full)
+          _fetchMeetingsFromServer();
+        }
+      }
+
+      function _applyMeetings(meetings) {
         totalCountBadge.textContent = meetings.length;
         if (meetings.length > 0) {
           pastToggle.style.display = '';
@@ -288,6 +297,31 @@
         }
 
         renderPastMeetings(meetings);
+      }
+
+      var _serverMeetingsCache = null;
+      function _fetchMeetingsFromServer() {
+        var base = (window.CompanyStore && CompanyStore.getServerBase) ? CompanyStore.getServerBase() : '/api';
+        fetch(base + '/company-state?key=meetings')
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (data) {
+            var meetings = Array.isArray(data) ? data : (data && data.value ? data.value : []);
+            _serverMeetingsCache = meetings;
+            _applyMeetings(meetings);
+          })
+          .catch(function () { _applyMeetings([]); });
+      }
+
+      // Override getMeetingById to also check server cache
+      function _getMeetingById(id) {
+        var m = AE.getMeetingById(id);
+        if (m) return m;
+        if (_serverMeetingsCache) {
+          for (var i = 0; i < _serverMeetingsCache.length; i++) {
+            if (_serverMeetingsCache[i].id === id) return _serverMeetingsCache[i];
+          }
+        }
+        return null;
       }
 
       // Load a meeting into the main view (transcript + all panels)
