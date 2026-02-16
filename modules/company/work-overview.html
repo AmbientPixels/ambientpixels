@@ -548,6 +548,28 @@
       ActionRouter.loadRegistry();
       var _batchDebounce = null;
 
+      // Friendly action type names
+      var _ACTION_LABELS = {
+        'move_task_lane': 'Move Task', 'update_task': 'Update Task', 'create_task': 'Create Task',
+        'execute_task': 'Execute Task', 'review_task': 'Review Task', 'comment_task': 'Comment',
+        'system_adjustment': 'System Adjustment', 'escalate': 'Escalate', 'delegate': 'Delegate',
+        'reassign': 'Reassign', 'close_task': 'Close Task', 'reopen_task': 'Reopen Task',
+        'schedule_post': 'Schedule Post', 'publish_document': 'Publish Document',
+        'create_social_action': 'Social Post', 'send_email': 'Send Email'
+      };
+      function _friendlyType(raw) {
+        if (_ACTION_LABELS[raw]) return _ACTION_LABELS[raw];
+        return (raw || '?').replace(/[_-]/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+      }
+      function _resolveTarget(targetId) {
+        if (!targetId) return '';
+        try {
+          var task = AgentEngine.getTaskById(targetId);
+          if (task && task.title) return task.title;
+        } catch (e) {}
+        return targetId;
+      }
+
       function _riskPill(r) {
         return '<span class="work-pending-ctx-pill work-pending-ctx-pill--risk-' + (r || 'low') + '"><i class="fas fa-shield-halved"></i> ' + (r || 'low') + '</span>';
       }
@@ -710,8 +732,8 @@
           html += '<div class="work-pending-group-items">';
           g.items.forEach(function (item) {
             html += '<div class="work-pending-item" data-action-id="' + item.id + '">';
-            html += '<span class="work-pending-type">' + esc(item.actionType || '?') + '</span>';
-            if (item.targetId) html += '<span class="work-pending-target">' + esc(item.targetId) + '</span>';
+            html += '<span class="work-pending-type">' + esc(_friendlyType(item.actionType)) + '</span>';
+            if (item.targetId) html += '<span class="work-pending-target" title="' + esc(item.targetId) + '">' + esc(_resolveTarget(item.targetId)) + '</span>';
             html += '<span class="work-pending-context">';
             html += _riskPill(item.riskLevel);
             html += _srcPill(item.source);
