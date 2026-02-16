@@ -170,7 +170,8 @@ const SETTINGS_ALLOW_LIST = [
   'actionsEnabled', 'taskEnabled', 'socialEnabled', 'emailEnabled',
   'configChangesEnabled', 'plannerEnabled', 'calibrationEnabled',
   'workerEnabled', 'priorityWeights', 'plannerThresholds',
-  'plannerCadenceDays', 'calibrationCadenceDays'
+  'plannerCadenceDays', 'calibrationCadenceDays',
+  'timezone'
 ];
 
 function _storeKey(collection, subtype) {

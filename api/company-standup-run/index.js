@@ -438,7 +438,7 @@ module.exports = async function (context, req) {
   // Load configurable timezone (default: America/Los_Angeles)
   let companyTz = DEFAULT_TIMEZONE;
   try {
-    const settings = await storage.getState('companySettings');
+    const settings = await storage.getStoreSettings();
     if (settings && settings.timezone) companyTz = settings.timezone;
   } catch (e) { /* use default */ }
   const today = getBusinessDate(companyTz);
