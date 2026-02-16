@@ -2721,16 +2721,58 @@ var AgentEngine = (function () {
     return approved;
   }
 
-  // Autonomy Score
+  // Autonomy Score — composite multi-signal, 7-day rolling window
   function getAutonomyScore() {
-    var tasks = getTasks();
-    if (tasks.length === 0) return { score: 100, autonomous: 0, total: 0 };
-    var doneTasks = tasks.filter(function (t) { return t.status === 'done'; });
-    if (doneTasks.length === 0) return { score: 100, autonomous: 0, total: 0 };
-    var autonomous = doneTasks.filter(function (t) {
-      return !t.escalated && !t.requires_ceo_approval && (t.classification === 'autonomous' || !t.classification);
+    var now = Date.now();
+    var cutoff = new Date(now - 7 * 86400000).toISOString();
+    function inWindow(d) { return d && d >= cutoff; }
+
+    // 1) Action autonomy (40%): low-risk or auto-approved / total actions
+    var actions = getActions();
+    var recentActions = actions.filter(function (a) { return inWindow(a.created_at || a.createdAt); });
+    var actionsTotal = recentActions.length;
+    var actionsAuto = recentActions.filter(function (a) {
+      return !a.approval || a.approval.status === 'auto_approved' || a.riskLevel === 'low';
     }).length;
-    return { score: Math.round((autonomous / doneTasks.length) * 100), autonomous: autonomous, total: doneTasks.length };
+    var actionScore = actionsTotal > 0 ? actionsAuto / actionsTotal : 1;
+
+    // 2) Task escalation rate (30%): tasks NOT escalated or requiring approval
+    var tasks = getTasks();
+    var recentTasks = tasks.filter(function (t) { return inWindow(t.updatedAt || t.createdAt); });
+    var tasksTotal = recentTasks.length;
+    var tasksAuto = recentTasks.filter(function (t) {
+      return !t.escalated && !t.requires_ceo_approval;
+    }).length;
+    var taskScore = tasksTotal > 0 ? tasksAuto / tasksTotal : 1;
+
+    // 3) Delegation rate (20%): tasks assigned by agents (not CEO)
+    var assigned = recentTasks.filter(function (t) {
+      return t.assignee && t.source && t.source !== 'ceo' && (typeof t.source !== 'object' || t.source.type !== 'ceo');
+    }).length;
+    var delegationScore = tasksTotal > 0 ? assigned / tasksTotal : 1;
+
+    // 4) Completion autonomy (10%): done tasks without CEO intervention
+    var doneTasks = recentTasks.filter(function (t) { return t.status === 'done'; });
+    var doneAuto = doneTasks.filter(function (t) {
+      return !t.escalated && !t.requires_ceo_approval;
+    }).length;
+    var completionScore = doneTasks.length > 0 ? doneAuto / doneTasks.length : 1;
+
+    var composite = (actionScore * 0.4) + (taskScore * 0.3) + (delegationScore * 0.2) + (completionScore * 0.1);
+    var score = Math.round(composite * 100);
+    var total = actionsTotal + tasksTotal;
+    var autonomous = actionsAuto + tasksAuto;
+
+    return {
+      score: score, autonomous: autonomous, total: total,
+      breakdown: {
+        actions: { score: Math.round(actionScore * 100), count: actionsAuto, total: actionsTotal, weight: '40%' },
+        escalation: { score: Math.round(taskScore * 100), count: tasksAuto, total: tasksTotal, weight: '30%' },
+        delegation: { score: Math.round(delegationScore * 100), count: assigned, total: tasksTotal, weight: '20%' },
+        completion: { score: Math.round(completionScore * 100), count: doneAuto, total: doneTasks.length, weight: '10%' }
+      },
+      window: '7d'
+    };
   }
 
   // Risk Heatmap — derives risk from multiple real signals

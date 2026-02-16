@@ -412,6 +412,15 @@
               </div>
               <ul class="agent-status-list" id="panel-agent-status"></ul>
             </div>
+            <!-- KPI Scoreboard (Dev) -->
+            <div class="dash-panel dash-panel--full" id="panel-kpi-wrap">
+              <div class="dash-panel-header">
+                <span class="dash-panel-title"><i class="fas fa-chart-line" style="color:#4ECDC4;"></i> KPI Scoreboard</span>
+                <a href="/modules/company/board.html" style="font-size:0.65rem; opacity:0.4; text-decoration:none;">Board Mode →</a>
+              </div>
+              <div id="panel-kpi-list" style="display:flex; gap:0.5rem; flex-wrap:wrap; padding:0.3rem 0;"></div>
+              <div class="dash-empty" id="kpi-empty">No KPIs registered.</div>
+            </div>
             <!-- Session Log -->
             <div class="dash-panel dash-panel--full">
               <div class="dash-panel-header">
@@ -435,30 +444,22 @@
                 <div class="dash-empty" id="session-empty">No sessions recorded yet. Chat with an agent to see data here.</div>
               </div>
             </div>
-            <!-- Cron Log -->
-            <div class="dash-panel">
-              <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-clock"></i> Cron Log</span>
+            <!-- Cron Log + Governance Log (Dev) — side by side -->
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
+              <div class="dash-panel">
+                <div class="dash-panel-header">
+                  <span class="dash-panel-title"><i class="fas fa-clock"></i> Cron Log</span>
+                </div>
+                <ul class="log-list" id="panel-cron"></ul>
+                <div class="dash-empty" id="cron-empty">No scheduled tasks have run yet.</div>
               </div>
-              <ul class="log-list" id="panel-cron"></ul>
-              <div class="dash-empty" id="cron-empty">No scheduled tasks have run yet.</div>
-            </div>
-            <!-- KPI Scoreboard (Dev) -->
-            <div class="dash-panel dash-panel--full" id="panel-kpi-wrap">
-              <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-chart-line" style="color:#4ECDC4;"></i> KPI Scoreboard</span>
-                <a href="/modules/company/board.html" style="font-size:0.65rem; opacity:0.4; text-decoration:none;">Board Mode →</a>
+              <div class="dash-panel">
+                <div class="dash-panel-header">
+                  <span class="dash-panel-title"><i class="fas fa-scroll" style="color:#FF8C00;"></i> Governance Log (Dev)</span>
+                </div>
+                <ul class="log-list" id="panel-governance-log-dev"></ul>
+                <div class="dash-empty" id="governance-log-dev-empty">No governance events yet.</div>
               </div>
-              <div id="panel-kpi-list" style="display:flex; gap:0.5rem; flex-wrap:wrap; padding:0.3rem 0;"></div>
-              <div class="dash-empty" id="kpi-empty">No KPIs registered.</div>
-            </div>
-            <!-- Governance Log (Dev copy — uses same IDs, rendered once) -->
-            <div class="dash-panel">
-              <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-scroll" style="color:#FF8C00;"></i> Governance Log (Dev)</span>
-              </div>
-              <ul class="log-list" id="panel-governance-log-dev"></ul>
-              <div class="dash-empty" id="governance-log-dev-empty">No governance events yet.</div>
             </div>
           </div>
         </div>
@@ -2122,7 +2123,25 @@
         arc.setAttribute('stroke', color);
         pct.textContent = score + '%';
         pct.style.color = color;
-        detail.textContent = data.autonomous + ' of ' + data.total + ' tasks autonomous';
+
+        var b = data.breakdown || {};
+        var lines = [];
+        if (b.actions) lines.push(_autoBar('Actions', b.actions.score, b.actions.count, b.actions.total, b.actions.weight));
+        if (b.escalation) lines.push(_autoBar('Escalation', b.escalation.score, b.escalation.count, b.escalation.total, b.escalation.weight));
+        if (b.delegation) lines.push(_autoBar('Delegation', b.delegation.score, b.delegation.count, b.delegation.total, b.delegation.weight));
+        if (b.completion) lines.push(_autoBar('Completion', b.completion.score, b.completion.count, b.completion.total, b.completion.weight));
+        detail.innerHTML = '<span style="opacity:0.5;font-size:0.55rem;">7-day window · ' + data.total + ' items</span>' + lines.join('');
+      }
+      function _autoBar(label, score, count, total, weight) {
+        var c = score >= 80 ? '#34d399' : score >= 50 ? '#fbbf24' : '#ef4444';
+        return '<div style="display:flex;align-items:center;gap:0.3rem;margin-top:0.2rem;font-size:0.55rem;">' +
+          '<span style="width:60px;opacity:0.5;">' + label + '</span>' +
+          '<div style="flex:1;height:4px;border-radius:2px;background:rgba(255,255,255,0.08);overflow:hidden;">' +
+            '<div style="width:' + score + '%;height:100%;background:' + c + ';border-radius:2px;"></div>' +
+          '</div>' +
+          '<span style="width:30px;text-align:right;color:' + c + ';font-weight:600;">' + score + '%</span>' +
+          '<span style="width:30px;opacity:0.3;font-size:0.45rem;">' + weight + '</span>' +
+        '</div>';
       }
 
       // ── Risk Heatmap ──
