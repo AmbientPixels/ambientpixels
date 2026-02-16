@@ -62,6 +62,27 @@
     .cfg-check-icon--err { color: #ef4444; }
     .cfg-check-value { font-size: 0.65rem; opacity: 0.5; font-family: 'Courier New', monospace; }
 
+    /* External API Health */
+    .cfg-api-health { background:rgba(255,255,255,0.02); border:1px solid rgba(96,165,250,0.1); border-radius:10px; padding:1rem 1.2rem; margin-bottom:1.4rem; }
+    .cfg-api-health-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:0.6rem; }
+    .cfg-api-health-title { font-size:0.7rem; font-weight:600; color:#60a5fa; }
+    .cfg-api-health-meta { font-size:0.5rem; opacity:0.3; }
+    .cfg-api-health-btn { font-size:0.55rem; padding:3px 10px; background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.2); border-radius:5px; color:#60a5fa; cursor:pointer; font-family:inherit; }
+    .cfg-api-health-btn:hover { background:rgba(96,165,250,0.15); }
+    .cfg-api-health-btn:disabled { opacity:0.4; cursor:default; }
+    .cfg-api-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:0.4rem; }
+    .cfg-api-tile { display:flex; align-items:center; gap:0.5rem; padding:0.45rem 0.6rem; border-radius:6px; background:rgba(255,255,255,0.015); border:1px solid rgba(255,255,255,0.04); font-size:0.68rem; }
+    .cfg-api-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+    .cfg-api-dot--up { background:#34d399; box-shadow:0 0 4px rgba(52,211,153,0.4); }
+    .cfg-api-dot--down { background:#ef4444; box-shadow:0 0 4px rgba(239,68,68,0.4); }
+    .cfg-api-dot--unknown { background:#6b7280; }
+    .cfg-api-name { flex:1; font-weight:500; }
+    .cfg-api-latency { font-size:0.5rem; opacity:0.35; font-family:'Courier New',monospace; }
+    .cfg-api-status-badge { font-size:0.45rem; padding:1px 5px; border-radius:3px; font-weight:600; text-transform:uppercase; }
+    .cfg-api-status-badge--up { background:rgba(52,211,153,0.12); color:#34d399; }
+    .cfg-api-status-badge--down { background:rgba(239,68,68,0.12); color:#ef4444; }
+    .cfg-api-summary { display:flex; gap:0.8rem; margin-top:0.5rem; font-size:0.55rem; opacity:0.4; }
+
     /* Agent Health Grid */
     .cfg-agent-grid {
       display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem;
@@ -385,6 +406,21 @@
       </div>
     </div>
 
+    <!-- External API Health -->
+    <div class="cfg-api-health" id="cfg-api-health">
+      <div class="cfg-api-health-header">
+        <div class="cfg-api-health-title"><i class="fas fa-satellite-dish" style="margin-right:4px;"></i> External API Health</div>
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+          <span class="cfg-api-health-meta" id="cfg-api-health-time">Not checked yet</span>
+          <button class="cfg-api-health-btn" id="cfg-api-health-btn"><i class="fas fa-sync-alt"></i> Check Now</button>
+        </div>
+      </div>
+      <div class="cfg-api-grid" id="cfg-api-grid">
+        <div style="font-size:0.6rem;opacity:0.3;grid-column:1/-1;">Click "Check Now" to ping external APIs.</div>
+      </div>
+      <div class="cfg-api-summary" id="cfg-api-summary"></div>
+    </div>
+
     <!-- Agent Health Grid -->
     <div class="ov-section-title">Agent Health</div>
     <div class="cfg-agent-grid" id="ov-agents">Loading...</div>
@@ -675,6 +711,77 @@
       }).catch(function () {
         _cfgRenderAgentEmpty();
       });
+
+    // ── External API Health Panel ──
+    (function () {
+      var grid = document.getElementById('cfg-api-grid');
+      var timeEl = document.getElementById('cfg-api-health-time');
+      var summaryEl = document.getElementById('cfg-api-summary');
+      var btn = document.getElementById('cfg-api-health-btn');
+      if (!grid || !btn) return;
+
+      var _checking = false;
+
+      function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+      function renderEndpoints(data) {
+        if (!data || !data.endpoints) {
+          grid.innerHTML = '<div style="font-size:0.6rem;opacity:0.3;grid-column:1/-1;">Health check failed.</div>';
+          return;
+        }
+        timeEl.textContent = 'Checked ' + new Date(data.checkedAt).toLocaleTimeString();
+        grid.innerHTML = data.endpoints.map(function (ep) {
+          var dotClass = ep.reachable ? 'cfg-api-dot--up' : 'cfg-api-dot--down';
+          var badge = ep.reachable
+            ? '<span class="cfg-api-status-badge cfg-api-status-badge--up">up</span>'
+            : '<span class="cfg-api-status-badge cfg-api-status-badge--down">down</span>';
+          var latency = ep.latencyMs != null ? ep.latencyMs + 'ms' : '—';
+          return '<div class="cfg-api-tile">' +
+            '<div class="cfg-api-dot ' + dotClass + '"></div>' +
+            '<span class="cfg-api-name">' + esc(ep.name) + '</span>' +
+            '<span class="cfg-api-latency">' + latency + '</span>' +
+            badge +
+            '</div>';
+        }).join('');
+        if (data.summary) {
+          summaryEl.innerHTML =
+            '<span>\u2705 ' + data.summary.reachable + ' reachable</span>' +
+            (data.summary.down > 0 ? '<span>\u274C ' + data.summary.down + ' down</span>' : '') +
+            '<span>\u23F1 ' + data.endpoints.length + ' checked</span>';
+        }
+      }
+
+      function runCheck() {
+        if (_checking) return;
+        _checking = true;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking\u2026';
+        grid.innerHTML = '<div style="font-size:0.6rem;opacity:0.3;grid-column:1/-1;">Pinging external APIs\u2026</div>';
+
+        var base = window.location.hostname.includes('ambientpixels.ai')
+          ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+          : '/api';
+
+        fetch(base + '/api-health-check')
+          .then(function (r) { return r.json(); })
+          .then(function (data) {
+            renderEndpoints(data);
+          })
+          .catch(function () {
+            grid.innerHTML = '<div style="font-size:0.6rem;color:#ef4444;grid-column:1/-1;">\u26A0 Health check endpoint unreachable. Deploy api-health-check first.</div>';
+          })
+          .finally(function () {
+            _checking = false;
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-sync-alt"></i> Check Now';
+          });
+      }
+
+      btn.addEventListener('click', runCheck);
+
+      // Auto-check on page load after a short delay
+      setTimeout(runCheck, 1500);
+    })();
 
     function _cfgRenderAgentEmpty() {
       _cfgSetStatus('stat-agents', '\u26A0 Not detected', 'warn');
