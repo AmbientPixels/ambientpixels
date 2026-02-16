@@ -420,6 +420,11 @@
           <button class="cfg-action-sub-toggle" id="cfg-configchg-toggle"></button>
         </div>
         <div id="cfg-configchg-info" style="font-size:0.55rem;opacity:0.3;padding:0.2rem 0 0 0.2rem;"></div>
+        <div id="cfg-revert-panel" style="margin-top:0.4rem;padding:0.3rem 0.2rem 0 0.2rem;border-top:1px solid rgba(255,255,255,0.03);">
+          <div id="cfg-revert-backup-info" style="font-size:0.52rem;opacity:0.25;margin-bottom:0.3rem;"></div>
+          <button id="cfg-revert-btn" class="cfg-action-sub-toggle off" style="font-size:0.55rem;padding:0.25rem 0.6rem;cursor:pointer;">Revert Last Adjustment</button>
+          <div id="cfg-revert-status" style="font-size:0.5rem;opacity:0.3;margin-top:0.2rem;"></div>
+        </div>
       </div>
       <div class="cfg-action-counts" id="cfg-action-counts"></div>
       <div class="cfg-action-audit">
@@ -729,6 +734,9 @@
     var subEmail = document.getElementById('cfg-action-sub-email');
     var subConfigChg = document.getElementById('cfg-configchg-toggle');
     var configChgInfo = document.getElementById('cfg-configchg-info');
+    var revertBackupInfo = document.getElementById('cfg-revert-backup-info');
+    var revertBtn = document.getElementById('cfg-revert-btn');
+    var revertStatus = document.getElementById('cfg-revert-status');
     if (!dot || !stateEl || !toggleBtn) return;
 
     var _debounceTimer = null;
@@ -752,6 +760,7 @@
       renderSub(subEmail, ActionRouter.isEmailEnabled(), 'email');
       renderSub(subConfigChg, ActionRouter.isConfigChangesEnabled(), 'configChanges');
       renderConfigChgInfo();
+      renderRevertPanel();
 
       // Registry counts
       var c = ActionRouter.getRegistryCounts();
@@ -795,6 +804,63 @@
         if (pending > 0) lines.push(pending + ' pending system adjustment(s)');
       } catch (e) { /* ignore */ }
       configChgInfo.innerHTML = lines.join('<br>');
+    }
+
+    function renderRevertPanel() {
+      if (!revertBackupInfo) return;
+      var info = (typeof ActionExecutors !== 'undefined' && ActionExecutors.getBackupInfo) ? ActionExecutors.getBackupInfo() : null;
+      if (!info) {
+        revertBackupInfo.textContent = 'No backup snapshot available.';
+        if (revertBtn) revertBtn.disabled = true;
+      } else {
+        var parts = [];
+        if (info.createdAt) parts.push('Backup from: ' + new Date(info.createdAt).toLocaleString());
+        if (info.actionId) parts.push('Action: ' + info.actionId.substring(0, 12));
+        var includes = [];
+        if (info.hasWeights) includes.push('priority weights');
+        if (info.hasThresholds) includes.push('planner thresholds');
+        if (includes.length) parts.push('Includes: ' + includes.join(' + '));
+        revertBackupInfo.innerHTML = parts.join('<br>');
+        if (revertBtn) revertBtn.disabled = false;
+      }
+      if (revertStatus) {
+        var lr = (typeof ActionExecutors !== 'undefined' && ActionExecutors.getLastRevert) ? ActionExecutors.getLastRevert() : null;
+        if (lr && lr.timestamp) {
+          revertStatus.textContent = 'Last revert: ' + new Date(lr.timestamp).toLocaleString();
+        } else {
+          revertStatus.textContent = '';
+        }
+      }
+    }
+
+    if (revertBtn) {
+      var _revertDebounce = null;
+      revertBtn.addEventListener('click', function () {
+        if (_revertDebounce) return;
+        _revertDebounce = setTimeout(function () { _revertDebounce = null; }, 800);
+        if (!ActionRouter.isConfigChangesEnabled()) {
+          alert('Config Changes is disabled \u2014 enable to revert.');
+          return;
+        }
+        var info = (typeof ActionExecutors !== 'undefined' && ActionExecutors.getBackupInfo) ? ActionExecutors.getBackupInfo() : null;
+        if (!info) { alert('No backup snapshot available.'); return; }
+        var msg = 'Revert last system adjustment? This will restore prior weights/thresholds.';
+        if (info.createdAt) {
+          var ageMs = Date.now() - new Date(info.createdAt).getTime();
+          if (ageMs > 30 * 86400000) msg += '\n\n\u26A0 Backup is older than 30 days.';
+        }
+        if (!confirm(msg)) return;
+        var result = ActionExecutors.revertLastAdjustment('CEO');
+        if (result.ok) {
+          var rp = [];
+          if (result.reverted.weights) rp.push('priority weights');
+          if (result.reverted.thresholds) rp.push('planner thresholds');
+          alert('Reverted: ' + (rp.join(' + ') || 'unknown') + '.');
+        } else {
+          alert('Revert failed: ' + (result.reason || 'Unknown error'));
+        }
+        render();
+      });
     }
 
     function renderAudit() {

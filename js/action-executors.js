@@ -361,8 +361,139 @@ var ActionExecutors = (function () {
     } catch (e) { /* fail silent */ }
   }
 
+  // ═══════════════════════════════════════════════════
+  // ── Revert last adjustment v0.1 ──
+  // ═══════════════════════════════════════════════════
+  var LAST_REVERT_KEY = 'ap_system_adjustment_last_revert';
+
+  function revertLastAdjustment(source) {
+    // ── Precondition: configChangesEnabled ──
+    if (typeof ActionRouter === 'undefined' || !ActionRouter.isConfigChangesEnabled || !ActionRouter.isConfigChangesEnabled()) {
+      return { ok: false, reason: 'Config Changes is disabled — enable to revert.' };
+    }
+
+    // ── Read + validate backup ──
+    var backup;
+    try {
+      var raw = localStorage.getItem(BACKUP_KEY);
+      if (!raw) return { ok: false, reason: 'No backup snapshot found.' };
+      backup = JSON.parse(raw);
+    } catch (e) {
+      return { ok: false, reason: 'Backup snapshot is corrupted.' };
+    }
+    if (!backup || !backup.before || typeof backup.before !== 'object') {
+      return { ok: false, reason: 'Backup snapshot has no restorable data.' };
+    }
+    var hasWeights = backup.before.priorityWeights && typeof backup.before.priorityWeights === 'object';
+    var hasThresholds = (backup.before.plannerThresholds && typeof backup.before.plannerThresholds === 'object') ||
+                        (backup.before.plannerRules && typeof backup.before.plannerRules === 'object');
+    if (!hasWeights && !hasThresholds) {
+      return { ok: false, reason: 'Backup contains no priority weights or planner thresholds.' };
+    }
+
+    // ── Capture current state before revert ──
+    var currentWeights = _safeGetPriorityWeights();
+    var currentThresholds = _safeGetPlannerThresholds();
+
+    var revertedWeights = false;
+    var revertedThresholds = false;
+
+    // ── A) Restore priority weights ──
+    if (hasWeights) {
+      if (typeof PriorityEngine === 'undefined' || !PriorityEngine.setWeights) {
+        _auditRevert('system_adjustment_revert_failed', source, backup, currentWeights, currentThresholds, null, null, 'PriorityEngine API unavailable');
+        return { ok: false, reason: 'PriorityEngine API unavailable.' };
+      }
+      var wOk = PriorityEngine.setWeights(backup.before.priorityWeights);
+      if (!wOk) {
+        _auditRevert('system_adjustment_revert_failed', source, backup, currentWeights, currentThresholds, null, null, 'Weight restore write failed');
+        return { ok: false, reason: 'Failed to write restored weights.' };
+      }
+      revertedWeights = true;
+    }
+
+    // ── B) Restore planner thresholds ──
+    if (hasThresholds) {
+      var thresholdData = backup.before.plannerThresholds || backup.before.plannerRules;
+      if (typeof PlannerLoop === 'undefined' || !PlannerLoop.setThresholds) {
+        _auditRevert('system_adjustment_revert_failed', source, backup, currentWeights, currentThresholds, null, null, 'PlannerLoop API unavailable');
+        return { ok: false, reason: 'PlannerLoop API unavailable.' };
+      }
+      var tOk = PlannerLoop.setThresholds(thresholdData);
+      if (!tOk) {
+        _auditRevert('system_adjustment_revert_failed', source, backup, currentWeights, currentThresholds, null, null, 'Threshold restore write failed');
+        return { ok: false, reason: 'Failed to write restored thresholds.' };
+      }
+      revertedThresholds = true;
+    }
+
+    // ── Persist last revert metadata ──
+    var revertMeta = {
+      timestamp: new Date().toISOString(),
+      backupId: backup.id || null,
+      backupActionId: backup.actionId || null
+    };
+    try {
+      if (typeof StorageManager !== 'undefined' && StorageManager.safeSet) {
+        StorageManager.safeSet(LAST_REVERT_KEY, revertMeta);
+      } else {
+        localStorage.setItem(LAST_REVERT_KEY, JSON.stringify(revertMeta));
+      }
+    } catch (e) { /* best-effort */ }
+
+    // ── Audit success ──
+    var restoredWeights = revertedWeights ? _safeGetPriorityWeights() : null;
+    var restoredThresholds = revertedThresholds ? _safeGetPlannerThresholds() : null;
+    _auditRevert('system_adjustment_reverted', source, backup, currentWeights, currentThresholds, restoredWeights, restoredThresholds, null);
+
+    return { ok: true, reverted: { weights: revertedWeights, thresholds: revertedThresholds } };
+  }
+
+  function _auditRevert(eventType, source, backup, beforeWeights, beforeThresholds, afterWeights, afterThresholds, reason) {
+    if (typeof ActionAudit === 'undefined' || !ActionAudit.append) return;
+    try {
+      ActionAudit.append({
+        eventType: eventType,
+        source: source || 'CONFIG_UI',
+        backupCreatedAt: (backup && backup.createdAt) || null,
+        backupActionId: (backup && backup.actionId) || null,
+        revertedWeights: !!afterWeights,
+        revertedThresholds: !!afterThresholds,
+        beforeValue: { weights: beforeWeights, thresholds: beforeThresholds },
+        afterValue: { weights: afterWeights, thresholds: afterThresholds },
+        reason: reason || null
+      });
+    } catch (e) { /* fail silent */ }
+  }
+
+  function getLastRevert() {
+    try {
+      var raw = localStorage.getItem(LAST_REVERT_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch (e) { return null; }
+  }
+
+  function getBackupInfo() {
+    try {
+      var raw = localStorage.getItem(BACKUP_KEY);
+      if (!raw) return null;
+      var b = JSON.parse(raw);
+      if (!b || !b.before) return null;
+      return {
+        id: b.id || null,
+        createdAt: b.createdAt || null,
+        actionId: b.actionId || null,
+        hasWeights: !!(b.before.priorityWeights && typeof b.before.priorityWeights === 'object'),
+        hasThresholds: !!((b.before.plannerThresholds || b.before.plannerRules) && typeof (b.before.plannerThresholds || b.before.plannerRules) === 'object')
+      };
+    } catch (e) { return null; }
+  }
+
   return {
     execute: execute,
+    revertLastAdjustment: revertLastAdjustment,
+    getLastRevert: getLastRevert,
+    getBackupInfo: getBackupInfo,
     SAFE_LANES: SAFE_LANES,
     BACKUP_KEY: BACKUP_KEY
   };
