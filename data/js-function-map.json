@@ -1,5 +1,5 @@
 {
-  "scannedAt": "2026-02-15T13:48:26.096Z",
+  "scannedAt": "2026-02-16T14:05:57.146Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -9,6 +9,16 @@
     "apiMonitor.js": [
       "checkAPI",
       "runMonitor"
+    ],
+    "buildSiteManifest.js": [
+      "getCategory",
+      "extractTitle",
+      "extractMeta",
+      "extractOgMeta",
+      "scanDir",
+      "getGitHead",
+      "getDeployHint",
+      "build"
     ],
     "changelogSnapshot.js": [
       "getRecentCommits",
