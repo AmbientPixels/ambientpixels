@@ -104,6 +104,15 @@ var ActionAudit = (function () {
     return append({ eventType: 'action_blocked', actionType: actionType, correlationId: correlationId, source: source, reason: 'unknown_action_type' });
   }
 
+  // ── Batch audit events (v1.5) ──
+  function logBatchApproved(count, groupId, approver) {
+    return append({ eventType: 'action_batch_approved', meta: { count: count, groupId: groupId, approvedBy: approver || 'CEO' } });
+  }
+
+  function logBatchRejected(count, groupId, approver, reason) {
+    return append({ eventType: 'action_batch_rejected', reason: reason, meta: { count: count, groupId: groupId, rejectedBy: approver || 'CEO' } });
+  }
+
   // ── Internal storage ──
   function _read() {
     try {
@@ -135,7 +144,9 @@ var ActionAudit = (function () {
     logFailed: logFailed,
     logActionsEnabled: logActionsEnabled,
     logActionsDisabled: logActionsDisabled,
-    logUnknownAction: logUnknownAction
+    logUnknownAction: logUnknownAction,
+    logBatchApproved: logBatchApproved,
+    logBatchRejected: logBatchRejected
   };
 })();
 

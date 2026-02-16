@@ -209,6 +209,43 @@ var ActionRouter = (function () {
   }
 
   // ═══════════════════════════════════════════════════
+  // ── Batch approve / reject (v1.5) ──
+  // ═══════════════════════════════════════════════════
+  function approveGroup(groupId, approver) {
+    var groups = ActionQueue.getPendingGroups();
+    var group = null;
+    for (var i = 0; i < groups.length; i++) { if (groups[i].groupId === groupId) { group = groups[i]; break; } }
+    if (!group) return { approved: 0, skipped: 0 };
+    var ids = group.items.map(function (it) { return it.id; });
+    var result = ActionQueue.approveMany(ids, approver || 'CEO');
+    if (result.approved > 0) ActionAudit.logBatchApproved(result.approved, groupId, approver || 'CEO');
+    return result;
+  }
+
+  function rejectGroup(groupId, approver, reason) {
+    var groups = ActionQueue.getPendingGroups();
+    var group = null;
+    for (var i = 0; i < groups.length; i++) { if (groups[i].groupId === groupId) { group = groups[i]; break; } }
+    if (!group) return { rejected: 0, skipped: 0 };
+    var ids = group.items.map(function (it) { return it.id; });
+    var result = ActionQueue.rejectMany(ids, approver || 'CEO', reason);
+    if (result.rejected > 0) ActionAudit.logBatchRejected(result.rejected, groupId, approver || 'CEO', reason);
+    return result;
+  }
+
+  function approveAllLowRisk(approver) {
+    var pending = ActionQueue.getPendingApproval();
+    var ids = [];
+    for (var i = 0; i < pending.length; i++) {
+      if (pending[i].riskLevel === 'low') ids.push(pending[i].id);
+    }
+    if (ids.length === 0) return { approved: 0, skipped: 0 };
+    var result = ActionQueue.approveMany(ids, approver || 'CEO');
+    if (result.approved > 0) ActionAudit.logBatchApproved(result.approved, 'all_low_risk', approver || 'CEO');
+    return result;
+  }
+
+  // ═══════════════════════════════════════════════════
   // ── evaluateAndRun() ──
   // ═══════════════════════════════════════════════════
   function evaluateAndRun() {
@@ -310,6 +347,9 @@ var ActionRouter = (function () {
     routeProposal: routeProposal,
     approve: approve,
     reject: reject,
+    approveGroup: approveGroup,
+    rejectGroup: rejectGroup,
+    approveAllLowRisk: approveAllLowRisk,
     evaluateAndRun: evaluateAndRun,
     // UI helpers
     getPendingCount: getPendingCount,

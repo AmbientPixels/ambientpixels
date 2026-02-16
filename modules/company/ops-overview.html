@@ -416,7 +416,9 @@
       } else {
         var pending = ActionRouter.getPendingCount();
         var today = ActionRouter.getExecutedTodayCount();
-        countEl.textContent = pending + ' pending, ' + today + ' executed today';
+        var groups = ActionQueue.getPendingGroups();
+        var groupLabel = groups.length > 0 ? ' (' + groups.length + ' group' + (groups.length !== 1 ? 's' : '') + ')' : '';
+        countEl.textContent = pending + ' pending' + groupLabel + ', ' + today + ' executed today';
         countEl.style.color = pending > 0 ? '#FFA500' : '';
         tsEl.textContent = '';
       }

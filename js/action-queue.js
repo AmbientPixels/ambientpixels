@@ -195,6 +195,96 @@ var ActionQueue = (function () {
     return false;
   }
 
+  // ── Grouped pending approvals (v1.5) ──
+  function getPendingGroups() {
+    var pending = getPendingApproval();
+    var groupMap = {};
+    var groupOrder = [];
+
+    for (var i = 0; i < pending.length; i++) {
+      var item = pending[i];
+      var gid, title, subtitle;
+
+      if (item.correlationId) {
+        gid = 'corr_' + item.correlationId;
+        title = item.source === 'planner' ? 'Planner Run' : 'Correlated Group';
+        subtitle = item.correlationId.substring(0, 12);
+      } else if (item.targetId) {
+        gid = 'task_' + item.targetId;
+        title = 'Task Group';
+        subtitle = item.targetId;
+      } else if (item.source) {
+        gid = 'src_' + item.source;
+        title = 'Source: ' + item.source;
+        subtitle = '';
+      } else {
+        gid = 'risk_' + (item.riskLevel || 'unknown');
+        title = (item.riskLevel || 'unknown') + ' risk';
+        subtitle = '';
+      }
+
+      if (!groupMap[gid]) {
+        groupMap[gid] = { groupId: gid, title: title, subtitle: subtitle, items: [], counts: { total: 0, low: 0, medium: 0, high: 0 }, actionTypes: {}, oldest: item.createdAt, newest: item.createdAt };
+        groupOrder.push(gid);
+      }
+      var g = groupMap[gid];
+      g.items.push(item);
+      g.counts.total++;
+      g.counts[item.riskLevel] = (g.counts[item.riskLevel] || 0) + 1;
+      g.actionTypes[item.actionType] = true;
+      if (item.createdAt < g.oldest) g.oldest = item.createdAt;
+      if (item.createdAt > g.newest) g.newest = item.createdAt;
+    }
+
+    return groupOrder.map(function (gid) { return groupMap[gid]; });
+  }
+
+  // ── Batch approve (v1.5) ──
+  function approveMany(ids, approver) {
+    if (!Array.isArray(ids) || ids.length === 0) return { approved: 0, skipped: 0 };
+    var queue = _read();
+    var approved = 0;
+    var skipped = 0;
+    var ts = new Date().toISOString();
+    for (var i = 0; i < queue.length; i++) {
+      if (ids.indexOf(queue[i].id) !== -1) {
+        if (queue[i].status === 'pending_approval') {
+          queue[i].status = 'approved_ready';
+          queue[i].approvedBy = approver || 'CEO';
+          queue[i].approvedAt = ts;
+          approved++;
+        } else { skipped++; }
+      }
+    }
+    _write(queue);
+    return { approved: approved, skipped: skipped };
+  }
+
+  // ── Batch reject (v1.5) ──
+  function rejectMany(ids, approver, reason) {
+    if (!Array.isArray(ids) || ids.length === 0) return { rejected: 0, skipped: 0 };
+    var norm = _normalizeReason(reason);
+    var queue = _read();
+    var rejected = 0;
+    var skipped = 0;
+    for (var i = 0; i < queue.length; i++) {
+      if (ids.indexOf(queue[i].id) !== -1) {
+        if (queue[i].status === 'pending_approval') {
+          queue[i].status = 'failed';
+          queue[i].failureReason = norm;
+          rejected++;
+        } else { skipped++; }
+      }
+    }
+    _write(queue);
+    return { rejected: rejected, skipped: skipped };
+  }
+
+  function _normalizeReason(reason) {
+    if (!reason || typeof reason !== 'string') return 'Rejected';
+    return reason.trim().replace(/\s+/g, ' ').substring(0, 200);
+  }
+
   // ── Internal helpers ──
   function _setStatus(id, status) {
     var queue = _read();
@@ -242,7 +332,10 @@ var ActionQueue = (function () {
     getByCorrelation: getByCorrelation,
     getRecent: getRecent,
     countByStatus: countByStatus,
-    getExecutedToday: getExecutedToday
+    getExecutedToday: getExecutedToday,
+    getPendingGroups: getPendingGroups,
+    approveMany: approveMany,
+    rejectMany: rejectMany
   };
 })();
 

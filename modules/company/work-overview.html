@@ -170,21 +170,51 @@
     .work-action-pill--blocked { background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); color:#ef4444; }
     .work-action-pill--failed { background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); color:#ef4444; }
 
-    /* Pending actions panel */
+    /* Pending actions panel (v1.5 grouped) */
     .work-pending-panel { background:rgba(255,165,0,0.02); border:1px solid rgba(255,165,0,0.08); border-radius:10px; padding:0.8rem 1rem; margin-bottom:1.4rem; }
     .work-pending-toggle { display:flex; align-items:center; justify-content:space-between; cursor:pointer; font-size:0.7rem; font-weight:600; color:#FFA500; user-select:none; }
     .work-pending-toggle i { transition:transform 0.2s; font-size:0.6rem; opacity:0.4; }
     .work-pending-toggle.open i { transform:rotate(90deg); }
     .work-pending-body { display:none; margin-top:0.6rem; }
     .work-pending-body.open { display:block; }
-    .work-pending-item { padding:0.4rem 0.6rem; margin-bottom:0.3rem; background:rgba(255,255,255,0.02); border-left:3px solid rgba(255,165,0,0.3); border-radius:0 6px 6px 0; font-size:0.62rem; display:flex; align-items:center; gap:0.5rem; }
-    .work-pending-type { font-weight:600; text-transform:uppercase; font-size:0.52rem; opacity:0.5; }
-    .work-pending-target { opacity:0.4; flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-    .work-pending-actions { display:flex; gap:0.3rem; }
-    .work-pending-btn { font-size:0.55rem; padding:0.15rem 0.4rem; border-radius:4px; cursor:pointer; border:1px solid; font-family:inherit; }
+    .work-pending-global { display:flex; gap:0.4rem; margin-bottom:0.6rem; flex-wrap:wrap; }
+    .work-pending-global-btn { font-size:0.58rem; padding:0.3rem 0.7rem; border-radius:5px; cursor:pointer; border:1px solid; font-family:inherit; font-weight:500; }
+    .work-pending-global-btn--low { border-color:rgba(52,211,153,0.25); background:rgba(52,211,153,0.04); color:#34d399; }
+    .work-pending-global-btn--low:disabled { opacity:0.3; cursor:default; }
+    .work-pending-group { margin-bottom:0.7rem; border:1px solid rgba(255,255,255,0.04); border-radius:8px; overflow:hidden; }
+    .work-pending-group-header { display:flex; align-items:center; gap:0.5rem; padding:0.45rem 0.7rem; background:rgba(255,255,255,0.02); font-size:0.62rem; }
+    .work-pending-group-title { font-weight:600; flex:1; }
+    .work-pending-group-sub { font-size:0.52rem; opacity:0.3; }
+    .work-pending-group-counts { font-size:0.5rem; opacity:0.4; }
+    .work-pending-group-actions { display:flex; gap:0.3rem; }
+    .work-pending-group-items { padding:0.3rem 0; }
+    .work-pending-item { padding:0.35rem 0.7rem; margin-bottom:0.2rem; font-size:0.6rem; display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap; }
+    .work-pending-type { font-weight:600; text-transform:uppercase; font-size:0.5rem; opacity:0.5; }
+    .work-pending-target { opacity:0.4; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:120px; }
+    .work-pending-context { display:flex; gap:0.25rem; align-items:center; flex-wrap:wrap; }
+    .work-pending-ctx-pill { font-size:0.46rem; padding:0.06rem 0.2rem; border-radius:3px; white-space:nowrap; }
+    .work-pending-ctx-pill--risk-low { background:rgba(156,163,175,0.08); border:1px solid rgba(156,163,175,0.15); color:#9ca3af; }
+    .work-pending-ctx-pill--risk-medium { background:rgba(59,130,246,0.08); border:1px solid rgba(59,130,246,0.2); color:#60a5fa; }
+    .work-pending-ctx-pill--risk-high { background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.2); color:#f87171; }
+    .work-pending-ctx-pill--src { background:rgba(138,43,226,0.06); border:1px solid rgba(138,43,226,0.15); color:#a855f7; }
+    .work-pending-ctx-pill--pri-low { background:rgba(156,163,175,0.06); border:1px solid rgba(156,163,175,0.12); color:#9ca3af; }
+    .work-pending-ctx-pill--pri-medium { background:rgba(59,130,246,0.06); border:1px solid rgba(59,130,246,0.15); color:#60a5fa; }
+    .work-pending-ctx-pill--pri-high { background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.2); color:#fbbf24; }
+    .work-pending-ctx-pill--pri-critical { background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.2); color:#f87171; }
+    .work-pending-ctx-pill--verify-pass { background:rgba(52,211,153,0.06); border:1px solid rgba(52,211,153,0.15); color:#34d399; }
+    .work-pending-ctx-pill--verify-fail { background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.15); color:#ef4444; }
+    .work-pending-ctx-pill--verify-manual { background:rgba(251,191,36,0.06); border:1px solid rgba(251,191,36,0.15); color:#fbbf24; }
+    .work-pending-ctx-pill--corr { background:rgba(255,165,0,0.06); border:1px solid rgba(255,165,0,0.12); color:#FFA500; }
+    .work-pending-item-actions { display:flex; gap:0.25rem; margin-left:auto; }
+    .work-pending-btn { font-size:0.52rem; padding:0.12rem 0.35rem; border-radius:4px; cursor:pointer; border:1px solid; font-family:inherit; }
     .work-pending-btn--approve { border-color:rgba(52,211,153,0.3); background:rgba(52,211,153,0.05); color:#34d399; }
     .work-pending-btn--reject { border-color:rgba(239,68,68,0.3); background:rgba(239,68,68,0.05); color:#ef4444; }
     .work-pending-empty { opacity:0.3; font-size:0.62rem; padding:0.4rem 0; }
+    /* Reject reason inline */
+    .work-reject-input { display:none; margin-top:0.2rem; padding:0.25rem 0.5rem; width:100%; }
+    .work-reject-input.show { display:flex; gap:0.3rem; align-items:center; }
+    .work-reject-input input { flex:1; font-size:0.58rem; padding:0.2rem 0.4rem; border-radius:4px; border:1px solid rgba(239,68,68,0.2); background:rgba(239,68,68,0.03); color:inherit; font-family:inherit; outline:none; }
+    .work-reject-input button { font-size:0.52rem; padding:0.15rem 0.4rem; border-radius:4px; cursor:pointer; border:1px solid rgba(239,68,68,0.3); background:rgba(239,68,68,0.05); color:#ef4444; font-family:inherit; }
 
     /* Priority pills in work page */
     .work-priority-pill { font-size:0.48rem; padding:0.08rem 0.25rem; border-radius:3px; margin-left:0.25rem; white-space:nowrap; }
@@ -269,10 +299,10 @@
       <div class="work-reports-body" id="work-reports-body"></div>
     </div>
 
-    <!-- Pending Actions -->
+    <!-- Pending Actions (v1.5 grouped) -->
     <div class="work-pending-panel" id="work-pending-panel" style="display:none;">
       <div class="work-pending-toggle" id="work-pending-toggle">
-        <span><i class="fas fa-bolt" style="margin-right:4px;"></i>Pending Actions</span>
+        <span><i class="fas fa-bolt" style="margin-right:4px;"></i>Pending Actions <span id="work-pending-count" style="opacity:0.4;"></span></span>
         <i class="fas fa-chevron-right"></i>
       </div>
       <div class="work-pending-body" id="work-pending-body"></div>
@@ -489,48 +519,157 @@
       });
     })();
 
-    // Pending actions panel
+    // Pending actions panel (v1.5 grouped)
     (function () {
       var panel = document.getElementById('work-pending-panel');
       var toggle = document.getElementById('work-pending-toggle');
       var body = document.getElementById('work-pending-body');
+      var countEl = document.getElementById('work-pending-count');
       if (!panel || !toggle || !body) return;
 
       ActionRouter.loadRegistry();
-      var pending = ActionQueue.getPendingApproval();
-      if (pending.length === 0) { panel.style.display = 'none'; return; }
-      panel.style.display = '';
+      var _batchDebounce = null;
+
+      function _riskPill(r) {
+        return '<span class="work-pending-ctx-pill work-pending-ctx-pill--risk-' + (r || 'low') + '"><i class="fas fa-shield-halved"></i> ' + (r || 'low') + '</span>';
+      }
+      function _srcPill(s) {
+        if (!s) return '';
+        var icons = { planner: 'fas fa-brain', worker: 'fas fa-robot', user: 'fas fa-user' };
+        return '<span class="work-pending-ctx-pill work-pending-ctx-pill--src"><i class="' + (icons[s] || 'fas fa-circle') + '"></i> ' + s + '</span>';
+      }
+      function _priPill(targetId) {
+        try {
+          var c = PriorityEngine.getCached(targetId);
+          if (c) return '<span class="work-pending-ctx-pill work-pending-ctx-pill--pri-' + c.bucket + '"><i class="' + _priIcon(c.bucket) + '"></i> ' + c.bucket + '</span>';
+        } catch (e) {}
+        return '<span class="work-pending-ctx-pill work-pending-ctx-pill--pri-low">Unknown</span>';
+      }
+      function _priIcon(b) {
+        if (b === 'critical') return 'fas fa-fire';
+        if (b === 'high') return 'fas fa-arrow-up';
+        if (b === 'medium') return 'fas fa-equals';
+        return 'fas fa-minus';
+      }
+      function _verifyPill(item) {
+        if (item.verification && item.verification.status) {
+          var s = item.verification.status;
+          var cls = s === 'pass' ? 'verify-pass' : (s === 'fail' ? 'verify-fail' : 'verify-manual');
+          return '<span class="work-pending-ctx-pill work-pending-ctx-pill--' + cls + '"><i class="fas fa-shield"></i> ' + s + '</span>';
+        }
+        return '';
+      }
+      function _corrPill(item) {
+        if (!item.correlationId) return '';
+        var label = item.source === 'planner' ? 'Plan' : 'Run';
+        return '<span class="work-pending-ctx-pill work-pending-ctx-pill--corr"><i class="fas fa-link"></i> ' + label + ' #' + item.correlationId.substring(0, 8) + '</span>';
+      }
 
       function renderPending() {
-        var items = ActionQueue.getPendingApproval();
-        if (items.length === 0) {
-          body.innerHTML = '<div class="work-pending-empty">No pending actions.</div>';
-          return;
-        }
-        body.innerHTML = items.slice(0, 15).map(function (item) {
-          return '<div class="work-pending-item" data-action-id="' + item.id + '">' +
-            '<span class="work-pending-type">' + esc(item.actionType || '?') + '</span>' +
-            '<span class="work-pending-target">' + esc(item.targetId || '') + '</span>' +
-            '<span class="work-action-pill work-action-pill--pending"><i class="fas fa-clock"></i> pending</span>' +
-            '<span class="work-pending-actions">' +
-              '<button class="work-pending-btn work-pending-btn--approve" data-approve="' + item.id + '"><i class="fas fa-check"></i></button>' +
-              '<button class="work-pending-btn work-pending-btn--reject" data-reject="' + item.id + '"><i class="fas fa-times"></i></button>' +
-            '</span>' +
-          '</div>';
-        }).join('');
+        var groups = ActionQueue.getPendingGroups();
+        var totalPending = ActionQueue.countByStatus('pending_approval');
+        if (countEl) countEl.textContent = totalPending > 0 ? '(' + totalPending + ')' : '';
+        if (totalPending === 0) { panel.style.display = 'none'; body.innerHTML = '<div class="work-pending-empty">No pending actions.</div>'; return; }
+        panel.style.display = '';
+
+        var lowCount = 0;
+        groups.forEach(function (g) { lowCount += (g.counts.low || 0); });
+
+        var html = '<div class="work-pending-global">';
+        html += '<button class="work-pending-global-btn work-pending-global-btn--low" id="work-approve-all-low"' + (lowCount === 0 ? ' disabled' : '') + '><i class="fas fa-check-double"></i> Approve All Low-Risk (' + lowCount + ')</button>';
+        html += '</div>';
+
+        groups.forEach(function (g) {
+          var riskInfo = [];
+          if (g.counts.low) riskInfo.push(g.counts.low + ' low');
+          if (g.counts.medium) riskInfo.push(g.counts.medium + ' med');
+          if (g.counts.high) riskInfo.push(g.counts.high + ' high');
+
+          html += '<div class="work-pending-group" data-group-id="' + g.groupId + '">';
+          html += '<div class="work-pending-group-header">';
+          html += '<span class="work-pending-group-title">' + esc(g.title) + '</span>';
+          if (g.subtitle) html += '<span class="work-pending-group-sub">#' + esc(g.subtitle) + '</span>';
+          html += '<span class="work-pending-group-counts">' + g.counts.total + ' items (' + riskInfo.join(', ') + ')</span>';
+          html += '<span class="work-pending-group-actions">';
+          html += '<button class="work-pending-btn work-pending-btn--approve" data-approve-group="' + g.groupId + '" title="Approve group"><i class="fas fa-check-double"></i></button>';
+          html += '<button class="work-pending-btn work-pending-btn--reject" data-reject-group="' + g.groupId + '" title="Reject group"><i class="fas fa-times"></i></button>';
+          html += '</span></div>';
+
+          html += '<div class="work-pending-group-items">';
+          g.items.forEach(function (item) {
+            html += '<div class="work-pending-item" data-action-id="' + item.id + '">';
+            html += '<span class="work-pending-type">' + esc(item.actionType || '?') + '</span>';
+            if (item.targetId) html += '<span class="work-pending-target">' + esc(item.targetId) + '</span>';
+            html += '<span class="work-pending-context">';
+            html += _riskPill(item.riskLevel);
+            html += _srcPill(item.source);
+            if (item.targetId) html += _priPill(item.targetId);
+            html += _verifyPill(item);
+            html += _corrPill(item);
+            html += '</span>';
+            html += '<span class="work-pending-item-actions">';
+            html += '<button class="work-pending-btn work-pending-btn--approve" data-approve="' + item.id + '" title="Approve"><i class="fas fa-check"></i></button>';
+            html += '<button class="work-pending-btn work-pending-btn--reject" data-reject="' + item.id + '" title="Reject"><i class="fas fa-times"></i></button>';
+            html += '</span></div>';
+          });
+          html += '</div></div>';
+        });
+
+        body.innerHTML = html;
       }
 
       renderPending();
 
+      function _promptRejectReason(callback) {
+        var reason = prompt('Reject reason (required, min 4 chars):');
+        if (!reason || reason.trim().length < 4) { alert('Reject reason is required (min 4 characters).'); return; }
+        callback(reason.trim());
+      }
+
       body.addEventListener('click', function (e) {
+        if (_batchDebounce) return;
+
+        var approveAllBtn = e.target.closest('#work-approve-all-low');
+        if (approveAllBtn && !approveAllBtn.disabled) {
+          if (!confirm('Approve all low-risk pending actions?')) return;
+          _batchDebounce = setTimeout(function () { _batchDebounce = null; }, 800);
+          ActionRouter.approveAllLowRisk('CEO');
+          renderPending();
+          return;
+        }
+
+        var approveGroupBtn = e.target.closest('[data-approve-group]');
+        if (approveGroupBtn) {
+          _batchDebounce = setTimeout(function () { _batchDebounce = null; }, 800);
+          ActionRouter.approveGroup(approveGroupBtn.getAttribute('data-approve-group'), 'CEO');
+          renderPending();
+          return;
+        }
+
+        var rejectGroupBtn = e.target.closest('[data-reject-group]');
+        if (rejectGroupBtn) {
+          _promptRejectReason(function (reason) {
+            _batchDebounce = setTimeout(function () { _batchDebounce = null; }, 800);
+            ActionRouter.rejectGroup(rejectGroupBtn.getAttribute('data-reject-group'), 'CEO', reason);
+            renderPending();
+          });
+          return;
+        }
+
         var approveBtn = e.target.closest('[data-approve]');
-        var rejectBtn = e.target.closest('[data-reject]');
         if (approveBtn) {
           ActionRouter.approve(approveBtn.getAttribute('data-approve'), 'CEO');
           renderPending();
-        } else if (rejectBtn) {
-          ActionRouter.reject(rejectBtn.getAttribute('data-reject'), 'CEO', 'Rejected by CEO');
-          renderPending();
+          return;
+        }
+
+        var rejectBtn = e.target.closest('[data-reject]');
+        if (rejectBtn) {
+          _promptRejectReason(function (reason) {
+            ActionRouter.reject(rejectBtn.getAttribute('data-reject'), 'CEO', reason);
+            renderPending();
+          });
+          return;
         }
       });
 
