@@ -17,61 +17,224 @@
   <link rel="stylesheet" href="/modules/company/css/company.css" />
   <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
   <style>
-    .ov-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; margin-top: 1rem; }
-    .ov-card {
-      border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; background: rgba(255,255,255,0.02);
-      padding: 1.2rem; text-decoration: none; color: inherit; display: flex; flex-direction: column; gap: 0.6rem;
-      transition: border-color 0.2s, background 0.2s;
+    /* ── CONFIG v3.0 — System Control Room ── */
+
+    .cfg-hero {
+      position: relative;
+      background: linear-gradient(135deg, rgba(78,205,196,0.05) 0%, rgba(59,130,246,0.03) 100%);
+      border: 1px solid rgba(78,205,196,0.12);
+      border-radius: 14px;
+      padding: 1.6rem 1.8rem 1.2rem;
+      margin-bottom: 1.4rem;
     }
-    .ov-card:hover { border-color: rgba(138,43,226,0.25); background: rgba(138,43,226,0.03); }
-    .ov-card-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
-    .ov-card-title { font-size: 0.85rem; font-weight: 600; }
-    .ov-card-desc { font-size: 0.68rem; opacity: 0.45; line-height: 1.5; }
-    .ov-stats { display: flex; gap: 1.5rem; flex-wrap: wrap; padding: 1rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); margin-bottom: 1rem; }
-    .ov-stat { text-align: center; }
-    .ov-stat-value { font-size: 1.5rem; font-weight: 600; }
-    .ov-stat-label { font-size: 0.55rem; opacity: 0.35; text-transform: uppercase; letter-spacing: 0.05em; }
+    .cfg-hero h1 { margin: 0 0 0.25rem; font-size: 1.3rem; font-weight: 600; }
+    .cfg-hero p { margin: 0; font-size: 0.72rem; opacity: 0.45; }
+    .cfg-status-dot {
+      position: absolute; top: 1.4rem; right: 1.6rem;
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #4ECDC4;
+      animation: cfgBlink 4s ease-in-out infinite;
+    }
+    @keyframes cfgBlink {
+      0%,90%,100% { opacity: 1; }
+      95% { opacity: 0.2; }
+    }
+
+    /* System Status Checklist */
+    .cfg-checklist {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(78,205,196,0.1);
+      border-radius: 10px;
+      padding: 1rem 1.2rem;
+      margin-bottom: 1.4rem;
+    }
+    .cfg-checklist-title { font-size: 0.7rem; font-weight: 600; color: #4ECDC4; margin-bottom: 0.6rem; }
+    .cfg-check-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0.45rem 0; border-bottom: 1px solid rgba(255,255,255,0.03);
+      font-size: 0.72rem;
+    }
+    .cfg-check-row:last-child { border-bottom: none; }
+    .cfg-check-label { display: flex; align-items: center; gap: 0.5rem; }
+    .cfg-check-icon { width: 16px; text-align: center; font-size: 0.65rem; }
+    .cfg-check-icon--ok { color: #34d399; }
+    .cfg-check-icon--warn { color: #fbbf24; }
+    .cfg-check-icon--err { color: #ef4444; }
+    .cfg-check-value { font-size: 0.65rem; opacity: 0.5; font-family: 'Courier New', monospace; }
+
+    /* Agent Health Grid */
+    .cfg-agent-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.5rem;
+      margin-bottom: 1.4rem;
+    }
+    @media (max-width: 500px) { .cfg-agent-grid { grid-template-columns: 1fr; } }
+    .cfg-agent-tile {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.6rem 0.8rem;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 8px;
+      font-size: 0.72rem;
+    }
+    .cfg-agent-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .cfg-agent-name { font-weight: 500; flex: 1; }
+    .cfg-agent-status { font-size: 0.55rem; opacity: 0.4; text-transform: uppercase; }
+    .cfg-agent-role { font-size: 0.55rem; opacity: 0.25; }
+
+    /* System Tools */
+    .cfg-tools-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 0.6rem;
+      margin-bottom: 1.4rem;
+    }
+    .cfg-tool-btn {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.7rem 1rem; border-radius: 8px;
+      border: 1px solid rgba(78,205,196,0.12); background: rgba(78,205,196,0.03);
+      color: #e0e0e0; font-size: 0.7rem; font-family: inherit;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .cfg-tool-btn:hover { border-color: rgba(78,205,196,0.25); background: rgba(78,205,196,0.07); }
+    .cfg-tool-btn i { opacity: 0.5; font-size: 0.65rem; color: #4ECDC4; }
+
+    /* Danger Zone */
+    .cfg-danger {
+      background: rgba(239,68,68,0.03);
+      border: 1px solid rgba(239,68,68,0.15);
+      border-radius: 10px;
+      padding: 1rem 1.2rem;
+      margin-top: 2rem;
+    }
+    .cfg-danger-title { font-size: 0.7rem; font-weight: 600; color: #ef4444; margin-bottom: 0.6rem; }
+    .cfg-danger-desc { font-size: 0.62rem; opacity: 0.4; margin-bottom: 0.6rem; }
+    .cfg-danger-btn {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.5rem 1rem; border-radius: 6px;
+      border: 1px solid rgba(239,68,68,0.25); background: rgba(239,68,68,0.06);
+      color: #ef4444; font-size: 0.65rem; font-family: inherit;
+      cursor: pointer; transition: all 0.15s; margin-right: 0.5rem; margin-bottom: 0.3rem;
+    }
+    .cfg-danger-btn:hover { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.4); }
+
+    /* Quick Access */
+    .cfg-quick-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.7rem; margin-top: 0.6rem;
+    }
+    .cfg-quick-card {
+      border: 1px solid rgba(255,255,255,0.04); border-radius: 8px;
+      background: rgba(255,255,255,0.015); padding: 0.8rem 1rem;
+      text-decoration: none; color: inherit; display: flex; align-items: center; gap: 0.6rem;
+      transition: border-color 0.2s, background 0.2s; font-size: 0.72rem;
+    }
+    .cfg-quick-card:hover { border-color: rgba(78,205,196,0.2); background: rgba(78,205,196,0.02); }
+    .cfg-quick-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; flex-shrink: 0; }
+    .cfg-quick-label { font-weight: 500; }
+    .cfg-quick-desc { font-size: 0.6rem; opacity: 0.35; margin-top: 0.15rem; }
+
     .ov-section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.3; font-weight: 500; margin-top: 1.5rem; margin-bottom: 0.5rem; }
-    .ov-agent-row { display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.72rem; }
-    .ov-agent-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    .ov-agent-name { font-weight: 500; }
-    .ov-agent-role { opacity: 0.35; font-size: 0.6rem; }
   </style>
 </head>
 <body style="background:#071019" data-theme="dark">
 
   <main class="content-section" style="max-width: 900px; margin: 0 auto; padding: 1rem;">
 
-    <div class="company-header">
+    <!-- Hero -->
+    <div class="cfg-hero">
+      <div class="cfg-status-dot"></div>
       <h1><i class="fas fa-sliders" style="opacity:0.4; margin-right:8px; color:#4ECDC4;"></i>Config</h1>
       <p>Workspace settings, agent configuration, and system tools.</p>
     </div>
 
-    <!-- Stats -->
-    <div class="ov-stats">
-      <div class="ov-stat"><div class="ov-stat-value" id="stat-agents">—</div><div class="ov-stat-label">Agents</div></div>
-      <div class="ov-stat"><div class="ov-stat-value" style="color:#4ECDC4;" id="stat-memory">—</div><div class="ov-stat-label">Memory Items</div></div>
-      <div class="ov-stat"><div class="ov-stat-value" style="color:#FFA500;" id="stat-tools">—</div><div class="ov-stat-label">Tools</div></div>
-      <div class="ov-stat"><div class="ov-stat-value" style="color:#34d399;" id="stat-store">—</div><div class="ov-stat-label">Store Mode</div></div>
+    <!-- System Status Checklist -->
+    <div class="cfg-checklist">
+      <div class="cfg-checklist-title"><i class="fas fa-server" style="margin-right:4px;"></i> System Status</div>
+      <div class="cfg-check-row">
+        <div class="cfg-check-label">
+          <span class="cfg-check-icon cfg-check-icon--ok"><i class="fas fa-check"></i></span>
+          <span>API Connected</span>
+        </div>
+        <span class="cfg-check-value" id="cfg-api-status">checking...</span>
+      </div>
+      <div class="cfg-check-row">
+        <div class="cfg-check-label">
+          <span class="cfg-check-icon cfg-check-icon--ok"><i class="fas fa-check"></i></span>
+          <span>Agents Loaded</span>
+        </div>
+        <span class="cfg-check-value" id="stat-agents">—</span>
+      </div>
+      <div class="cfg-check-row">
+        <div class="cfg-check-label">
+          <span class="cfg-check-icon cfg-check-icon--ok"><i class="fas fa-check"></i></span>
+          <span>Memory Active</span>
+        </div>
+        <span class="cfg-check-value" id="stat-memory">—</span>
+      </div>
+      <div class="cfg-check-row">
+        <div class="cfg-check-label">
+          <span class="cfg-check-icon cfg-check-icon--ok"><i class="fas fa-check"></i></span>
+          <span>Store Mode</span>
+        </div>
+        <span class="cfg-check-value" id="stat-store">—</span>
+      </div>
+      <div class="cfg-check-row">
+        <div class="cfg-check-label">
+          <span class="cfg-check-icon cfg-check-icon--ok"><i class="fas fa-check"></i></span>
+          <span>Tools Registry</span>
+        </div>
+        <span class="cfg-check-value" id="stat-tools">—</span>
+      </div>
     </div>
 
+    <!-- Agent Health Grid -->
+    <div class="ov-section-title">Agent Health</div>
+    <div class="cfg-agent-grid" id="ov-agents">Loading...</div>
+
+    <!-- System Tools -->
+    <div class="ov-section-title">System Tools</div>
+    <div class="cfg-tools-grid">
+      <button class="cfg-tool-btn" onclick="if(confirm('Reset shared memory?')) { CompanyStore.setState('ap_workspace_memory',[]); location.reload(); }">
+        <i class="fas fa-brain"></i> Memory Reset
+      </button>
+      <button class="cfg-tool-btn" onclick="alert('Automation toggle not yet wired.');">
+        <i class="fas fa-robot"></i> Automation Toggle
+      </button>
+      <button class="cfg-tool-btn" onclick="alert('Key rotation not yet wired.');">
+        <i class="fas fa-key"></i> Key Rotation
+      </button>
+    </div>
+
+    <!-- Quick Access -->
     <div class="ov-section-title">Quick Access</div>
-    <div class="ov-grid">
-      <a href="/modules/company/workspace.html" class="ov-card">
-        <div class="ov-card-icon" style="background:rgba(78,205,196,0.08); color:#4ECDC4;"><i class="fas fa-layer-group"></i></div>
-        <div class="ov-card-title">Workspace</div>
-        <div class="ov-card-desc">Company identity, shared memory, agent configs, tools registry, and important dates.</div>
+    <div class="cfg-quick-grid">
+      <a href="/modules/company/workspace.html" class="cfg-quick-card">
+        <div class="cfg-quick-icon" style="background:rgba(78,205,196,0.08); color:#4ECDC4;"><i class="fas fa-layer-group"></i></div>
+        <div>
+          <div class="cfg-quick-label">Workspace</div>
+          <div class="cfg-quick-desc">Identity, memory, agent configs</div>
+        </div>
       </a>
-      <a href="/modules/company/agent-chat.html" class="ov-card">
-        <div class="ov-card-icon" style="background:rgba(138,43,226,0.08); color:#8A2BE2;"><i class="fas fa-comments"></i></div>
-        <div class="ov-card-title">Agent Chat</div>
-        <div class="ov-card-desc">Direct conversation with any agent. CEO commands: /override, /directive, /objective.</div>
+      <a href="/modules/company/agent-chat.html" class="cfg-quick-card">
+        <div class="cfg-quick-icon" style="background:rgba(138,43,226,0.08); color:#8A2BE2;"><i class="fas fa-comments"></i></div>
+        <div>
+          <div class="cfg-quick-label">Agent Chat</div>
+          <div class="cfg-quick-desc">Direct conversation with agents</div>
+        </div>
       </a>
     </div>
 
-    <!-- Agent Roster -->
-    <div class="ov-section-title">Agent Roster</div>
-    <div id="ov-agents" style="padding:0.5rem 0;">Loading...</div>
+    <!-- Danger Zone -->
+    <div class="cfg-danger">
+      <div class="cfg-danger-title"><i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i> Danger Zone</div>
+      <div class="cfg-danger-desc">These actions are destructive and cannot be undone. Use with caution.</div>
+      <button class="cfg-danger-btn" onclick="if(confirm('Clear ALL company store data? This cannot be undone.')) { localStorage.clear(); location.reload(); }">
+        <i class="fas fa-trash"></i> Clear Store
+      </button>
+      <button class="cfg-danger-btn" onclick="if(confirm('Reset all tasks?')) { CompanyStore.setState('ap_tasks',[]); location.reload(); }">
+        <i class="fas fa-eraser"></i> Reset Tasks
+      </button>
+      <button class="cfg-danger-btn" onclick="if(confirm('Reset governance log?')) { CompanyStore.setState('ap_governance_log',[]); location.reload(); }">
+        <i class="fas fa-broom"></i> Reset Governance
+      </button>
+    </div>
 
   </main>
 
@@ -89,23 +252,40 @@
     }).then(function (results) {
       var memories = results[0] || [];
       var tools = results[1] || [];
-      document.getElementById('stat-memory').textContent = memories.length;
-      document.getElementById('stat-tools').textContent = tools.length;
+      document.getElementById('stat-memory').textContent = memories.length + ' items';
+      document.getElementById('stat-tools').textContent = tools.length + ' registered';
     });
 
-    // Agent roster (static JSON file)
+    // API connectivity check
+    var apiBase = window.location.hostname.includes('ambientpixels.ai')
+      ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+      : '/api';
+    fetch(apiBase + '/company-state?key=ap_workspace_memory', { method: 'HEAD' })
+      .then(function (r) {
+        var el = document.getElementById('cfg-api-status');
+        if (r.ok) { el.textContent = 'OK'; }
+        else { el.textContent = 'Error ' + r.status; el.closest('.cfg-check-row').querySelector('.cfg-check-icon').className = 'cfg-check-icon cfg-check-icon--warn'; }
+      })
+      .catch(function () {
+        var el = document.getElementById('cfg-api-status');
+        el.textContent = 'Unreachable';
+        el.closest('.cfg-check-row').querySelector('.cfg-check-icon').className = 'cfg-check-icon cfg-check-icon--err';
+      });
+
+    // Agent roster — health grid tiles
     fetch('/data/company-agents.json')
       .then(function (r) { return r.json(); })
       .then(function (agents) {
-        document.getElementById('stat-agents').textContent = agents.length;
+        document.getElementById('stat-agents').textContent = agents.length + ' loaded';
         var el = document.getElementById('ov-agents');
         var tierColors = { 1: '#FFD700', 2: '#8A2BE2', 3: '#4ECDC4', 4: '#888' };
         el.innerHTML = agents.map(function (a) {
           var color = tierColors[a.tier] || '#666';
-          return '<div class="ov-agent-row">' +
-            '<div class="ov-agent-dot" style="background:' + color + ';"></div>' +
-            '<span class="ov-agent-name">' + a.name + '</span>' +
-            '<span class="ov-agent-role">' + (a.role || '') + '</span>' +
+          return '<div class="cfg-agent-tile">' +
+            '<div class="cfg-agent-dot" style="background:' + color + ';"></div>' +
+            '<span class="cfg-agent-name">' + a.name + '</span>' +
+            '<span class="cfg-agent-role">' + (a.role || '') + '</span>' +
+            '<span class="cfg-agent-status" style="color:' + color + ';">Active</span>' +
             '</div>';
         }).join('');
       }).catch(function () {

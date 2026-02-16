@@ -17,68 +17,141 @@
   <link rel="stylesheet" href="/modules/company/css/company.css" />
   <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
   <style>
-    .ov-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; margin-top: 1rem; }
-    .ov-card {
-      border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; background: rgba(255,255,255,0.02);
-      padding: 1.2rem; text-decoration: none; color: inherit; display: flex; flex-direction: column; gap: 0.6rem;
-      transition: border-color 0.2s, background 0.2s;
+    /* ── PLAN v3.0 — Strategic Brain ── */
+
+    .plan-hero {
+      position: relative;
+      background: linear-gradient(135deg, rgba(138,43,226,0.06) 0%, rgba(138,43,226,0.01) 100%);
+      border: 1px solid rgba(138,43,226,0.15);
+      border-radius: 14px;
+      padding: 1.8rem 2rem 1.4rem;
+      margin-bottom: 1.6rem;
     }
-    .ov-card:hover { border-color: rgba(138,43,226,0.25); background: rgba(138,43,226,0.03); }
-    .ov-card-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
-    .ov-card-title { font-size: 0.85rem; font-weight: 600; }
-    .ov-card-desc { font-size: 0.68rem; opacity: 0.45; line-height: 1.5; }
-    .ov-stats { display: flex; gap: 1.5rem; flex-wrap: wrap; padding: 1rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); margin-bottom: 1rem; }
-    .ov-stat { text-align: center; }
-    .ov-stat-value { font-size: 1.5rem; font-weight: 600; }
-    .ov-stat-label { font-size: 0.55rem; opacity: 0.35; text-transform: uppercase; letter-spacing: 0.05em; }
-    .ov-section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.3; font-weight: 500; margin-top: 1.5rem; margin-bottom: 0.5rem; }
-    .ov-list-item { padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.72rem; display: flex; justify-content: space-between; align-items: center; }
-    .ov-badge { font-size: 0.5rem; padding: 0.12rem 0.4rem; border-radius: 3px; font-weight: 500; text-transform: uppercase; }
+    .plan-hero h1 { margin: 0 0 0.3rem; font-size: 1.3rem; font-weight: 600; }
+    .plan-hero p { margin: 0; font-size: 0.72rem; opacity: 0.45; }
+    .plan-hero-summary { margin-top: 0.7rem; font-size: 0.68rem; color: #a855f7; opacity: 0.8; }
+
+    /* Strategic Panels — stacked full-width */
+    .plan-panel {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(138,43,226,0.1);
+      border-radius: 12px;
+      padding: 1.2rem 1.4rem;
+      margin-bottom: 1.4rem;
+    }
+    .plan-panel-title {
+      font-size: 0.72rem; font-weight: 600; color: #a855f7;
+      margin-bottom: 0.8rem; display: flex; align-items: center; gap: 0.4rem;
+    }
+    .plan-panel-title i { opacity: 0.5; font-size: 0.65rem; }
+
+    /* Directive rows — left accent, spacious */
+    .plan-dir-row {
+      padding: 0.7rem 0.9rem; margin-bottom: 0.5rem;
+      background: rgba(138,43,226,0.03);
+      border-left: 3px solid rgba(138,43,226,0.4);
+      border-radius: 0 8px 8px 0;
+      font-size: 0.72rem; font-weight: 500;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .plan-dir-badge {
+      font-size: 0.5rem; padding: 2px 8px; border-radius: 4px; font-weight: 500;
+      text-transform: uppercase;
+    }
+
+    /* Objective rows — with wide progress bar */
+    .plan-obj-row {
+      padding: 0.7rem 0; margin-bottom: 0.7rem;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .plan-obj-header {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.72rem; font-weight: 500; margin-bottom: 0.4rem;
+    }
+    .plan-obj-status {
+      font-size: 0.55rem; font-weight: 600; padding: 2px 8px; border-radius: 4px;
+    }
+    .plan-obj-bar {
+      width: 100%; height: 6px; border-radius: 3px;
+      background: rgba(255,255,255,0.06); overflow: hidden;
+    }
+    .plan-obj-fill {
+      height: 100%; border-radius: 3px;
+      transition: width 0.8s ease-out;
+    }
+    .plan-obj-pct { font-size: 0.55rem; opacity: 0.4; margin-top: 0.2rem; }
+
+    /* Governance snapshot */
+    .plan-gov-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.6rem;
+    }
+    .plan-gov-stat {
+      text-align: center; padding: 0.8rem 0.6rem;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 8px;
+    }
+    .plan-gov-value { font-size: 1.5rem; font-weight: 600; line-height: 1.2; }
+    .plan-gov-label { font-size: 0.5rem; opacity: 0.35; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.2rem; }
+
+    /* Quick nav links */
+    .plan-nav { display: flex; gap: 0.6rem; flex-wrap: wrap; margin-top: 0.6rem; }
+    .plan-nav-link {
+      font-size: 0.68rem; padding: 6px 14px; border-radius: 6px;
+      border: 1px solid rgba(138,43,226,0.15); background: rgba(138,43,226,0.04);
+      color: #c084fc; text-decoration: none; transition: all 0.15s;
+    }
+    .plan-nav-link:hover { background: rgba(138,43,226,0.1); border-color: rgba(138,43,226,0.3); }
+    .plan-nav-link i { margin-right: 4px; opacity: 0.5; }
+
+    .ov-section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.3; font-weight: 500; margin-top: 1.8rem; margin-bottom: 0.6rem; }
   </style>
 </head>
 <body style="background:#071019" data-theme="dark">
 
   <main class="content-section" style="max-width: 900px; margin: 0 auto; padding: 1rem;">
 
-    <div class="company-header">
+    <!-- Hero -->
+    <div class="plan-hero">
       <h1><i class="fas fa-compass" style="opacity:0.4; margin-right:8px; color:#8A2BE2;"></i>Strategy</h1>
       <p>Strategic direction, quarterly objectives, and governance protocols.</p>
+      <div class="plan-hero-summary" id="plan-summary">Loading strategic overview...</div>
     </div>
 
-    <!-- Stats -->
-    <div class="ov-stats">
-      <div class="ov-stat"><div class="ov-stat-value" style="color:#8A2BE2;" id="stat-directives">—</div><div class="ov-stat-label">Directives</div></div>
-      <div class="ov-stat"><div class="ov-stat-value" style="color:#4ECDC4;" id="stat-objectives">—</div><div class="ov-stat-label">Objectives</div></div>
-      <div class="ov-stat"><div class="ov-stat-value" style="color:#FFA500;" id="stat-pending">—</div><div class="ov-stat-label">Pending Approvals</div></div>
-      <div class="ov-stat"><div class="ov-stat-value" style="color:#34d399;" id="stat-gov-events">—</div><div class="ov-stat-label">Gov Events</div></div>
+    <!-- Strategic Directives Panel -->
+    <div class="plan-panel">
+      <div class="plan-panel-title"><i class="fas fa-compass"></i> Strategic Directives <span style="opacity:0.4; font-size:0.6rem; margin-left:auto;" id="stat-directives">—</span></div>
+      <div id="ov-directives">Loading...</div>
     </div>
 
-    <div class="ov-section-title">Quick Access</div>
-    <div class="ov-grid">
-      <a href="/modules/company/directives.html" class="ov-card">
-        <div class="ov-card-icon" style="background:rgba(138,43,226,0.08); color:#8A2BE2;"><i class="fas fa-compass"></i></div>
-        <div class="ov-card-title">Strategic Directives</div>
-        <div class="ov-card-desc">CEO-defined high-level direction. Nova translates directives into objectives and tasks.</div>
-      </a>
-      <a href="/modules/company/objectives.html" class="ov-card">
-        <div class="ov-card-icon" style="background:rgba(78,205,196,0.08); color:#4ECDC4;"><i class="fas fa-bullseye"></i></div>
-        <div class="ov-card-title">Quarterly Objectives</div>
-        <div class="ov-card-desc">Track measurable goals linked to directives. Progress updated by Nova weekly.</div>
-      </a>
-      <a href="/modules/company/governance.html" class="ov-card">
-        <div class="ov-card-icon" style="background:rgba(255,215,0,0.08); color:#FFD700;"><i class="fas fa-scroll"></i></div>
-        <div class="ov-card-title">Governance Document</div>
-        <div class="ov-card-desc">Organizational hierarchy, authority levels, decision classification, escalation, and override protocols.</div>
-      </a>
+    <!-- Quarterly Objectives Panel -->
+    <div class="plan-panel">
+      <div class="plan-panel-title"><i class="fas fa-bullseye"></i> Quarterly Objectives <span style="opacity:0.4; font-size:0.6rem; margin-left:auto;" id="stat-objectives">—</span></div>
+      <div id="ov-objectives">Loading...</div>
     </div>
 
-    <!-- Active Directives -->
-    <div class="ov-section-title">Active Directives</div>
-    <div id="ov-directives" style="font-size:0.7rem; opacity:0.5; padding:0.5rem 0;">Loading...</div>
+    <!-- Governance Snapshot Panel -->
+    <div class="plan-panel">
+      <div class="plan-panel-title"><i class="fas fa-scroll"></i> Governance Snapshot</div>
+      <div class="plan-gov-grid">
+        <div class="plan-gov-stat">
+          <div class="plan-gov-value" style="color:#FFA500;" id="stat-pending">—</div>
+          <div class="plan-gov-label">Pending Approvals</div>
+        </div>
+        <div class="plan-gov-stat">
+          <div class="plan-gov-value" style="color:#34d399;" id="stat-gov-events">—</div>
+          <div class="plan-gov-label">Gov Events</div>
+        </div>
+      </div>
+    </div>
 
-    <!-- Active Objectives -->
-    <div class="ov-section-title">Active Objectives</div>
-    <div id="ov-objectives" style="font-size:0.7rem; opacity:0.5; padding:0.5rem 0;">Loading...</div>
+    <!-- Quick Nav -->
+    <div class="ov-section-title">Navigate</div>
+    <div class="plan-nav">
+      <a href="/modules/company/directives.html" class="plan-nav-link"><i class="fas fa-compass"></i> Directives</a>
+      <a href="/modules/company/objectives.html" class="plan-nav-link"><i class="fas fa-bullseye"></i> Objectives</a>
+      <a href="/modules/company/governance.html" class="plan-nav-link"><i class="fas fa-scroll"></i> Governance</a>
+    </div>
 
   </main>
 
@@ -98,28 +171,40 @@
       var queue = results[2] || [];
       var govLog = results[3] || [];
 
-      // Directives
+      // Directives — accented rows
       var activeDirs = dirs.filter(function (d) { return d.status === 'active'; });
-      document.getElementById('stat-directives').textContent = activeDirs.length;
+      document.getElementById('stat-directives').textContent = activeDirs.length + ' active';
       var dirEl = document.getElementById('ov-directives');
-      if (activeDirs.length === 0) { dirEl.textContent = 'No active directives.'; }
+      if (activeDirs.length === 0) { dirEl.innerHTML = '<div style="opacity:0.35; font-size:0.68rem;">No active directives.</div>'; }
       else {
-        dirEl.innerHTML = activeDirs.slice(0, 5).map(function (d) {
-          return '<div class="ov-list-item"><span>' + esc(d.title) + '</span><span class="ov-badge" style="background:rgba(138,43,226,0.12); color:#8A2BE2;">active</span></div>';
+        dirEl.innerHTML = activeDirs.slice(0, 8).map(function (d) {
+          return '<div class="plan-dir-row">' +
+            '<span>' + esc(d.title) + '</span>' +
+            '<span class="plan-dir-badge" style="background:rgba(138,43,226,0.12); color:#a855f7;">active</span>' +
+            '</div>';
         }).join('');
       }
 
-      // Objectives (statuses: on_track, at_risk, behind, complete)
-      var activeObjs = objs.filter(function (o) { return o.status === 'on_track' || o.status === 'at_risk'; });
-      document.getElementById('stat-objectives').textContent = activeObjs.length;
+      // Objectives — wide progress bars
+      var activeObjs = objs.filter(function (o) { return o.status === 'on_track' || o.status === 'at_risk' || o.status === 'behind'; });
+      document.getElementById('stat-objectives').textContent = activeObjs.length + ' active';
       var objEl = document.getElementById('ov-objectives');
-      if (activeObjs.length === 0) { objEl.textContent = 'No active objectives.'; }
+      if (activeObjs.length === 0) { objEl.innerHTML = '<div style="opacity:0.35; font-size:0.68rem;">No active objectives.</div>'; }
       else {
         var statusColor = { on_track: '#34d399', at_risk: '#fbbf24', behind: '#f87171', complete: '#8A2BE2' };
-        objEl.innerHTML = activeObjs.slice(0, 5).map(function (o) {
+        var statusLabel = { on_track: 'On Track', at_risk: 'At Risk', behind: 'Behind', complete: 'Complete' };
+        objEl.innerHTML = activeObjs.slice(0, 6).map(function (o) {
           var pct = o.progressPercentage || 0;
           var color = statusColor[o.status] || '#888';
-          return '<div class="ov-list-item"><span>' + esc(o.title) + '</span><span style="font-size:0.6rem; color:' + color + ';">' + pct + '% — ' + (o.status || '').replace(/_/g, ' ') + '</span></div>';
+          var label = statusLabel[o.status] || o.status;
+          return '<div class="plan-obj-row">' +
+            '<div class="plan-obj-header">' +
+              '<span>' + esc(o.title) + '</span>' +
+              '<span class="plan-obj-status" style="background:' + color + '22; color:' + color + ';">' + label + '</span>' +
+            '</div>' +
+            '<div class="plan-obj-bar"><div class="plan-obj-fill" style="width:' + pct + '%; background:' + color + ';"></div></div>' +
+            '<div class="plan-obj-pct">' + pct + '% complete</div>' +
+            '</div>';
         }).join('');
       }
 
@@ -129,6 +214,14 @@
 
       // Governance log
       document.getElementById('stat-gov-events').textContent = govLog.length;
+
+      // Hero dynamic summary
+      var topObj = activeObjs.length > 0 ? activeObjs[0] : null;
+      var summaryParts = [];
+      if (topObj) summaryParts.push('Q1 objective at ' + (topObj.progressPercentage || 0) + '%');
+      if (pending.length > 0) summaryParts.push(pending.length + ' approval' + (pending.length > 1 ? 's' : '') + ' pending');
+      summaryParts.push(activeDirs.length + ' active directive' + (activeDirs.length !== 1 ? 's' : ''));
+      document.getElementById('plan-summary').textContent = summaryParts.join('. ') + '.';
     });
 
     function esc(s) { if (!s) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }

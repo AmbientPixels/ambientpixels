@@ -17,70 +17,189 @@
   <link rel="stylesheet" href="/modules/company/css/company.css" />
   <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
   <style>
-    .ov-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; margin-top: 1rem; }
-    .ov-card {
-      border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; background: rgba(255,255,255,0.02);
-      padding: 1.2rem; text-decoration: none; color: inherit; display: flex; flex-direction: column; gap: 0.6rem;
-      transition: border-color 0.2s, background 0.2s;
+    /* ── WORK v3.0 — Production Flow ── */
+
+    .work-hero {
+      position: relative;
+      background: linear-gradient(135deg, rgba(255,165,0,0.06) 0%, rgba(255,165,0,0.01) 100%);
+      border: 1px solid rgba(255,165,0,0.15);
+      border-radius: 14px;
+      padding: 1.6rem 1.8rem 1.2rem;
+      margin-bottom: 1.2rem;
     }
-    .ov-card:hover { border-color: rgba(138,43,226,0.25); background: rgba(138,43,226,0.03); }
-    .ov-card-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1rem; }
-    .ov-card-title { font-size: 0.85rem; font-weight: 600; }
-    .ov-card-desc { font-size: 0.68rem; opacity: 0.45; line-height: 1.5; }
-    .ov-stats { display: flex; gap: 1.5rem; flex-wrap: wrap; padding: 1rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); margin-bottom: 1rem; }
-    .ov-stat { text-align: center; }
-    .ov-stat-value { font-size: 1.5rem; font-weight: 600; }
-    .ov-stat-label { font-size: 0.55rem; opacity: 0.35; text-transform: uppercase; letter-spacing: 0.05em; }
-    .ov-section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.3; font-weight: 500; margin-top: 1.5rem; margin-bottom: 0.5rem; }
+    .work-hero h1 { margin: 0 0 0.25rem; font-size: 1.3rem; font-weight: 600; }
+    .work-hero p { margin: 0; font-size: 0.72rem; opacity: 0.45; }
+
+    /* Pipeline Summary Bar */
+    .work-pipeline {
+      display: flex; align-items: center; gap: 0;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,165,0,0.1);
+      border-radius: 10px;
+      padding: 0.6rem 0.4rem;
+      margin-bottom: 1.4rem;
+      overflow-x: auto;
+    }
+    .work-pipe-stage {
+      flex: 1; text-align: center; padding: 0.6rem 0.4rem; min-width: 80px;
+    }
+    .work-pipe-value { font-size: 1.6rem; font-weight: 600; line-height: 1.2; }
+    .work-pipe-label { font-size: 0.5rem; opacity: 0.35; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 0.15rem; }
+    .work-pipe-arrow { font-size: 0.7rem; opacity: 0.15; flex-shrink: 0; padding: 0 0.1rem; }
+    .work-pipe-stage--active .work-pipe-value { color: #FFA500; }
+    .work-pipe-stage--active { border-bottom: 2px solid rgba(255,165,0,0.4); border-radius: 0; }
+
+    /* Needs Attention Panel */
+    .work-attention {
+      display: flex; gap: 0.8rem; margin-bottom: 1.4rem; flex-wrap: wrap;
+    }
+    .work-attention-card {
+      flex: 1; min-width: 120px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      padding: 0.7rem 1rem;
+      text-align: center;
+    }
+    .work-attention-card--warn { border-color: rgba(239,68,68,0.2); background: rgba(239,68,68,0.03); }
+    .work-attention-value { font-size: 1.4rem; font-weight: 600; line-height: 1.2; }
+    .work-attention-label { font-size: 0.5rem; opacity: 0.4; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.15rem; }
+
+    /* Task Card Rows */
+    .work-task-list { margin-bottom: 1.4rem; }
+    .work-task-row {
+      display: flex; align-items: center; gap: 0.6rem;
+      padding: 0.6rem 0.8rem; margin-bottom: 0.4rem;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 8px;
+      font-size: 0.72rem;
+      transition: border-color 0.15s;
+    }
+    .work-task-row:hover { border-color: rgba(255,165,0,0.15); }
+    .work-task-priority {
+      width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0;
+    }
+    .work-task-title { flex: 1; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .work-task-badge {
+      font-size: 0.5rem; padding: 2px 6px; border-radius: 4px; font-weight: 500;
+      text-transform: uppercase; flex-shrink: 0;
+    }
+    .work-task-age { font-size: 0.55rem; opacity: 0.3; flex-shrink: 0; min-width: 40px; text-align: right; }
+    .work-task-assignee { font-size: 0.55rem; opacity: 0.35; flex-shrink: 0; max-width: 80px; overflow: hidden; text-overflow: ellipsis; }
+
+    /* Document list */
     .ov-list-item { padding: 0.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.72rem; display: flex; justify-content: space-between; align-items: center; }
     .ov-badge { font-size: 0.5rem; padding: 0.12rem 0.4rem; border-radius: 3px; font-weight: 500; text-transform: uppercase; }
+
+    /* Quick Access (demoted) */
+    .work-quick-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.7rem; margin-top: 0.6rem;
+    }
+    .work-quick-card {
+      border: 1px solid rgba(255,255,255,0.04); border-radius: 8px;
+      background: rgba(255,255,255,0.015); padding: 0.8rem 1rem;
+      text-decoration: none; color: inherit; display: flex; align-items: center; gap: 0.6rem;
+      transition: border-color 0.2s, background 0.2s; font-size: 0.72rem;
+    }
+    .work-quick-card:hover { border-color: rgba(255,165,0,0.2); background: rgba(255,165,0,0.02); }
+    .work-quick-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; flex-shrink: 0; }
+    .work-quick-label { font-weight: 500; }
+    .work-quick-desc { font-size: 0.6rem; opacity: 0.35; margin-top: 0.15rem; }
+
+    .ov-section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.3; font-weight: 500; margin-top: 1.5rem; margin-bottom: 0.5rem; }
   </style>
 </head>
 <body style="background:#071019" data-theme="dark">
 
   <main class="content-section" style="max-width: 900px; margin: 0 auto; padding: 1rem;">
 
-    <div class="company-header">
+    <!-- Hero -->
+    <div class="work-hero">
       <h1><i class="fas fa-list-check" style="opacity:0.4; margin-right:8px; color:#FFA500;"></i>Work</h1>
       <p>Tasks, actions, and documents — everything the team is building and shipping.</p>
     </div>
 
-    <!-- Stats -->
-    <div class="ov-stats">
-      <div class="ov-stat"><div class="ov-stat-value" style="color:#FFA500;" id="stat-backlog">—</div><div class="ov-stat-label">Backlog</div></div>
-      <div class="ov-stat"><div class="ov-stat-value" style="color:#4ECDC4;" id="stat-active">—</div><div class="ov-stat-label">In Progress</div></div>
-      <div class="ov-stat"><div class="ov-stat-value" style="color:#8A2BE2;" id="stat-review">—</div><div class="ov-stat-label">In Review</div></div>
-      <div class="ov-stat"><div class="ov-stat-value" style="color:#34d399;" id="stat-done">—</div><div class="ov-stat-label">Done</div></div>
-      <div class="ov-stat"><div class="ov-stat-value" id="stat-actions">—</div><div class="ov-stat-label">Actions</div></div>
-      <div class="ov-stat"><div class="ov-stat-value" id="stat-docs">—</div><div class="ov-stat-label">Docs</div></div>
+    <!-- Pipeline Summary Bar -->
+    <div class="work-pipeline">
+      <div class="work-pipe-stage">
+        <div class="work-pipe-value" style="color:#FFA500;" id="stat-backlog">—</div>
+        <div class="work-pipe-label">Backlog</div>
+      </div>
+      <div class="work-pipe-arrow"><i class="fas fa-chevron-right"></i></div>
+      <div class="work-pipe-stage work-pipe-stage--active">
+        <div class="work-pipe-value" style="color:#4ECDC4;" id="stat-active">—</div>
+        <div class="work-pipe-label">In Progress</div>
+      </div>
+      <div class="work-pipe-arrow"><i class="fas fa-chevron-right"></i></div>
+      <div class="work-pipe-stage">
+        <div class="work-pipe-value" style="color:#8A2BE2;" id="stat-review">—</div>
+        <div class="work-pipe-label">In Review</div>
+      </div>
+      <div class="work-pipe-arrow"><i class="fas fa-chevron-right"></i></div>
+      <div class="work-pipe-stage">
+        <div class="work-pipe-value" style="color:#34d399;" id="stat-done">—</div>
+        <div class="work-pipe-label">Done</div>
+      </div>
     </div>
 
-    <div class="ov-section-title">Quick Access</div>
-    <div class="ov-grid">
-      <a href="/modules/company/tasks.html" class="ov-card">
-        <div class="ov-card-icon" style="background:rgba(255,165,0,0.08); color:#FFA500;"><i class="fas fa-tasks"></i></div>
-        <div class="ov-card-title">Task Board</div>
-        <div class="ov-card-desc">Kanban board with backlog, todo, in-progress, review, and done columns. Create, assign, and track tasks.</div>
-      </a>
-      <a href="/modules/company/actions.html" class="ov-card">
-        <div class="ov-card-icon" style="background:rgba(255,140,0,0.08); color:#FF8C00;"><i class="fas fa-bolt"></i></div>
-        <div class="ov-card-title">Action Command Center</div>
-        <div class="ov-card-desc">Social publishing pipeline — draft, approve, execute, and audit all external actions.</div>
-      </a>
-      <a href="/modules/company/documents.html" class="ov-card">
-        <div class="ov-card-icon" style="background:rgba(255,215,0,0.08); color:#FFD700;"><i class="fas fa-folder-open"></i></div>
-        <div class="ov-card-title">Document Center</div>
-        <div class="ov-card-desc">Specs, briefs, runbooks, and marketing posts. Draft → review → CEO-approved final.</div>
-      </a>
+    <!-- Needs Attention -->
+    <div class="work-attention">
+      <div class="work-attention-card work-attention-card--warn">
+        <div class="work-attention-value" style="color:#ef4444;" id="work-blocked">0</div>
+        <div class="work-attention-label">Blocked</div>
+      </div>
+      <div class="work-attention-card work-attention-card--warn">
+        <div class="work-attention-value" style="color:#fbbf24;" id="work-overdue">0</div>
+        <div class="work-attention-label">Overdue</div>
+      </div>
+      <div class="work-attention-card">
+        <div class="work-attention-value" style="color:#8A2BE2;" id="work-pending-review">0</div>
+        <div class="work-attention-label">Pending Review</div>
+      </div>
+      <div class="work-attention-card">
+        <div class="work-attention-value" id="stat-actions">—</div>
+        <div class="work-attention-label">Actions</div>
+      </div>
+      <div class="work-attention-card">
+        <div class="work-attention-value" id="stat-docs">—</div>
+        <div class="work-attention-label">Docs</div>
+      </div>
     </div>
 
-    <!-- Recent Tasks -->
+    <!-- Recently Updated Tasks (promoted) -->
     <div class="ov-section-title">Recently Updated Tasks</div>
-    <div id="ov-tasks" style="font-size:0.7rem; opacity:0.5; padding:0.5rem 0;">Loading...</div>
+    <div class="work-task-list" id="ov-tasks">Loading...</div>
 
     <!-- Recent Docs -->
     <div class="ov-section-title">Latest Documents</div>
     <div id="ov-docs" style="font-size:0.7rem; opacity:0.5; padding:0.5rem 0;">Loading...</div>
+
+    <!-- Quick Access (demoted, below content) -->
+    <div class="ov-section-title">Quick Access</div>
+    <div class="work-quick-grid">
+      <a href="/modules/company/tasks.html" class="work-quick-card">
+        <div class="work-quick-icon" style="background:rgba(255,165,0,0.08); color:#FFA500;"><i class="fas fa-tasks"></i></div>
+        <div>
+          <div class="work-quick-label">Task Board</div>
+          <div class="work-quick-desc">Kanban board — create, assign, track</div>
+        </div>
+      </a>
+      <a href="/modules/company/actions.html" class="work-quick-card">
+        <div class="work-quick-icon" style="background:rgba(255,140,0,0.08); color:#FF8C00;"><i class="fas fa-bolt"></i></div>
+        <div>
+          <div class="work-quick-label">Action Command Center</div>
+          <div class="work-quick-desc">Social publishing pipeline</div>
+        </div>
+      </a>
+      <a href="/modules/company/documents.html" class="work-quick-card">
+        <div class="work-quick-icon" style="background:rgba(255,215,0,0.08); color:#FFD700;"><i class="fas fa-folder-open"></i></div>
+        <div>
+          <div class="work-quick-label">Document Center</div>
+          <div class="work-quick-desc">Specs, briefs, runbooks</div>
+        </div>
+      </a>
+    </div>
 
   </main>
 
@@ -98,20 +217,57 @@
       var actions = results[1] || [];
       var docs = results[2] || [];
 
-      // Task stats
-      document.getElementById('stat-backlog').textContent = tasks.filter(function (t) { return t.status === 'backlog' || t.status === 'todo'; }).length;
-      document.getElementById('stat-active').textContent = tasks.filter(function (t) { return t.status === 'in-progress'; }).length;
-      document.getElementById('stat-review').textContent = tasks.filter(function (t) { return t.status === 'review'; }).length;
-      document.getElementById('stat-done').textContent = tasks.filter(function (t) { return t.status === 'done'; }).length;
+      // Pipeline stats
+      var backlogCount = tasks.filter(function (t) { return t.status === 'backlog' || t.status === 'todo'; }).length;
+      var activeCount = tasks.filter(function (t) { return t.status === 'in-progress'; }).length;
+      var reviewCount = tasks.filter(function (t) { return t.status === 'review'; }).length;
+      var doneCount = tasks.filter(function (t) { return t.status === 'done'; }).length;
+      document.getElementById('stat-backlog').textContent = backlogCount;
+      document.getElementById('stat-active').textContent = activeCount;
+      document.getElementById('stat-review').textContent = reviewCount;
+      document.getElementById('stat-done').textContent = doneCount;
 
-      // Recent tasks
+      // Highlight active pipeline stage
+      if (activeCount > 0) {
+        var activeStage = document.getElementById('stat-active').closest('.work-pipe-stage');
+        if (activeStage) activeStage.classList.add('work-pipe-stage--active');
+      }
+
+      // Needs attention
+      var now = Date.now();
+      var blocked = tasks.filter(function (t) { return t.status === 'blocked'; }).length;
+      var overdue = tasks.filter(function (t) {
+        return t.dueDate && new Date(t.dueDate).getTime() < now && t.status !== 'done';
+      }).length;
+      document.getElementById('work-blocked').textContent = blocked;
+      document.getElementById('work-overdue').textContent = overdue;
+      document.getElementById('work-pending-review').textContent = reviewCount;
+      if (blocked > 0) document.getElementById('work-blocked').closest('.work-attention-card').classList.add('work-attention-card--warn');
+      if (overdue > 0) document.getElementById('work-overdue').closest('.work-attention-card').classList.add('work-attention-card--warn');
+
+      // Recent tasks — styled card rows
       var taskEl = document.getElementById('ov-tasks');
-      var recentTasks = tasks.slice().sort(function (a, b) { return new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0); }).slice(0, 5);
-      if (recentTasks.length === 0) { taskEl.textContent = 'No tasks yet.'; }
+      var recentTasks = tasks.slice().sort(function (a, b) { return new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0); }).slice(0, 8);
+      if (recentTasks.length === 0) { taskEl.innerHTML = '<div style="opacity:0.35; font-size:0.68rem; padding:0.5rem 0;">No tasks yet.</div>'; }
       else {
-        var statusColor = { 'backlog': '#666', 'todo': '#888', 'in-progress': '#4ECDC4', 'review': '#8A2BE2', 'done': '#34d399' };
+        var statusColor = { 'backlog': '#666', 'todo': '#888', 'in-progress': '#4ECDC4', 'review': '#8A2BE2', 'done': '#34d399', 'blocked': '#ef4444', 'pending-approval': '#fbbf24' };
+        var priColor = { urgent: '#ef4444', high: '#f59e0b', medium: '#3b82f6', low: '#6b7280' };
         taskEl.innerHTML = recentTasks.map(function (t) {
-          return '<div class="ov-list-item"><span>' + esc(t.title) + '</span><span class="ov-badge" style="background:' + (statusColor[t.status] || '#666') + '22; color:' + (statusColor[t.status] || '#666') + ';">' + t.status + '</span></div>';
+          var sc = statusColor[t.status] || '#666';
+          var pc = priColor[t.priority] || '#3b82f6';
+          var age = '';
+          var ref = t.updatedAt || t.createdAt;
+          if (ref) {
+            var days = Math.floor((now - new Date(ref).getTime()) / 86400000);
+            age = days === 0 ? 'today' : days + 'd ago';
+          }
+          return '<div class="work-task-row">' +
+            '<div class="work-task-priority" style="background:' + pc + ';"></div>' +
+            '<span class="work-task-title">' + esc(t.title) + '</span>' +
+            (t.assignee ? '<span class="work-task-assignee">' + esc(t.assignee) + '</span>' : '') +
+            '<span class="work-task-age">' + age + '</span>' +
+            '<span class="work-task-badge" style="background:' + sc + '22; color:' + sc + ';">' + (t.status || '?') + '</span>' +
+            '</div>';
         }).join('');
       }
 
