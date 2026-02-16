@@ -228,6 +228,30 @@
     .cfg-action-audit-ts { opacity: 0.5; min-width: 100px; flex-shrink: 0; }
     .cfg-action-audit-ev { flex: 1; }
 
+    /* Planner Automation panel */
+    .cfg-planner-panel {
+      background: rgba(138,43,226,0.03);
+      border: 1px solid rgba(138,43,226,0.12);
+      border-radius: 10px; padding: 1rem 1.2rem;
+      margin-bottom: 1.4rem;
+    }
+    .cfg-planner-title { font-size: 0.7rem; font-weight: 600; color: #a855f7; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.4rem; }
+    .cfg-planner-status { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.5rem; }
+    .cfg-planner-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .cfg-planner-dot--on { background: #34d399; }
+    .cfg-planner-dot--off { background: #ef4444; }
+    .cfg-planner-state { font-size: 0.72rem; font-weight: 500; }
+    .cfg-planner-helper { font-size: 0.62rem; opacity: 0.35; margin-bottom: 0.6rem; }
+    .cfg-planner-toggle {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.45rem 1rem; border-radius: 6px;
+      font-size: 0.65rem; font-family: inherit; font-weight: 500;
+      cursor: pointer; transition: all 0.15s; border: 1px solid;
+    }
+    .cfg-planner-toggle--disable { border-color: rgba(239,68,68,0.2); background: rgba(239,68,68,0.05); color: #ef4444; }
+    .cfg-planner-toggle--enable { border-color: rgba(52,211,153,0.2); background: rgba(52,211,153,0.05); color: #34d399; }
+    .cfg-planner-info { margin-top: 0.6rem; font-size: 0.62rem; opacity: 0.35; }
+
     @media (prefers-reduced-motion: reduce) {
       .cfg-status-dot { animation: none; opacity: 1; }
     }
@@ -350,6 +374,19 @@
       </div>
     </div>
 
+    <!-- Planner Automation -->
+    <div class="ov-section-title">Planner Automation</div>
+    <div class="cfg-planner-panel" id="cfg-planner-panel">
+      <div class="cfg-planner-title"><i class="fas fa-brain" style="opacity:0.5;"></i> Planner Loop</div>
+      <div class="cfg-planner-status">
+        <div class="cfg-planner-dot" id="cfg-planner-dot"></div>
+        <span class="cfg-planner-state" id="cfg-planner-state">—</span>
+      </div>
+      <div class="cfg-planner-helper" id="cfg-planner-helper"></div>
+      <button class="cfg-planner-toggle" id="cfg-planner-toggle"></button>
+      <div class="cfg-planner-info" id="cfg-planner-info"></div>
+    </div>
+
     <!-- System Tools -->
     <div class="ov-section-title">System Tools</div>
     <div class="cfg-tools-grid">
@@ -401,6 +438,8 @@
   </main>
 
   <script src="/js/task-verifier.js"></script>
+  <script src="/js/planner-audit.js"></script>
+  <script src="/js/planner-loop.js"></script>
   <script src="/js/action-audit.js"></script>
   <script src="/js/action-queue.js"></script>
   <script src="/js/action-executors.js"></script>
@@ -662,6 +701,49 @@
       var action = current ? 'Disable' : 'Enable';
       if (!confirm(action + ' action automation?')) return;
       ActionRouter.setEnabled(!current, 'CEO');
+      render();
+      _debounceTimer = setTimeout(function () { _debounceTimer = null; }, 3000);
+    });
+
+    render();
+  })();
+  </script>
+
+  <script>
+  // Planner Automation panel
+  (function () {
+    var dot = document.getElementById('cfg-planner-dot');
+    var stateEl = document.getElementById('cfg-planner-state');
+    var helperEl = document.getElementById('cfg-planner-helper');
+    var toggleBtn = document.getElementById('cfg-planner-toggle');
+    var infoEl = document.getElementById('cfg-planner-info');
+    if (!dot || !stateEl || !toggleBtn) return;
+
+    var _debounceTimer = null;
+
+    function render() {
+      var enabled = PlannerLoop.isEnabled();
+      dot.className = 'cfg-planner-dot ' + (enabled ? 'cfg-planner-dot--on' : 'cfg-planner-dot--off');
+      stateEl.textContent = enabled ? 'Enabled' : 'Disabled (safe default)';
+      stateEl.style.color = enabled ? '#34d399' : '#ef4444';
+      helperEl.textContent = 'Planner generates proposals only; approvals required before execution.';
+      toggleBtn.textContent = enabled ? '\u23F8 Disable Planner' : '\u25B6 Enable Planner';
+      toggleBtn.className = 'cfg-planner-toggle ' + (enabled ? 'cfg-planner-toggle--disable' : 'cfg-planner-toggle--enable');
+
+      var cadence = PlannerLoop.getCadenceDays();
+      var lastRun = PlannerLoop.getLastRunTimestamp();
+      var infoParts = ['Cadence: every ' + cadence + ' days'];
+      if (lastRun) infoParts.push('Last run: ' + new Date(lastRun).toLocaleString());
+      else infoParts.push('Never run');
+      infoEl.textContent = infoParts.join(' \u2022 ');
+    }
+
+    toggleBtn.addEventListener('click', function () {
+      if (_debounceTimer) return;
+      var current = PlannerLoop.isEnabled();
+      var action = current ? 'Disable' : 'Enable';
+      if (!confirm(action + ' planner automation?')) return;
+      PlannerLoop.setEnabled(!current);
       render();
       _debounceTimer = setTimeout(function () { _debounceTimer = null; }, 3000);
     });

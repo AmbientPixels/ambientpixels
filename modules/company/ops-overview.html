@@ -156,6 +156,19 @@
     .ops-priority-strip-high { color: #fbbf24; }
     .ops-priority-strip-ts { opacity: 0.3; font-size: 0.6rem; margin-left: auto; white-space: nowrap; }
 
+    /* Planner strip */
+    .ops-planner-strip {
+      display: flex; align-items: center; gap: 0.8rem;
+      padding: 0.5rem 0.8rem; margin-bottom: 1rem;
+      background: rgba(138,43,226,0.015);
+      border: 1px solid rgba(138,43,226,0.06);
+      border-radius: 8px; font-size: 0.68rem;
+    }
+    .ops-planner-strip-label { opacity: 0.4; font-weight: 500; white-space: nowrap; }
+    .ops-planner-strip-value { font-weight: 600; }
+    .ops-planner-strip-ts { opacity: 0.3; font-size: 0.6rem; margin-left: auto; white-space: nowrap; }
+    .ops-feed-row--planner { border-left-color: rgba(138,43,226,0.5); }
+
     @media (prefers-reduced-motion: reduce) {
       .ops-status-dot { animation: none; opacity: 1; }
     }
@@ -214,6 +227,13 @@
       <span class="ops-priority-strip-ts" id="ops-priority-ts"></span>
     </div>
 
+    <!-- Planner Strip -->
+    <div class="ops-planner-strip" id="ops-planner-strip">
+      <span class="ops-planner-strip-label"><i class="fas fa-brain" style="margin-right:4px; opacity:0.4;"></i>Planner:</span>
+      <span class="ops-planner-strip-value" id="ops-planner-count">—</span>
+      <span class="ops-planner-strip-ts" id="ops-planner-ts"></span>
+    </div>
+
     <!-- Heartbeat Feed -->
     <div class="ops-feed-panel">
       <div class="ops-feed-title"><i class="fas fa-heartbeat" style="margin-right:4px;"></i> Recent Heartbeat Activity</div>
@@ -250,6 +270,8 @@
 
   <script src="/js/priority-audit.js"></script>
   <script src="/js/priority-engine.js"></script>
+  <script src="/js/planner-audit.js"></script>
+  <script src="/js/planner-loop.js"></script>
   <script src="/js/action-audit.js"></script>
   <script src="/js/action-queue.js"></script>
   <script src="/js/action-executors.js"></script>
@@ -343,6 +365,19 @@
           '</div>';
       }).join('');
 
+      // Append recent planner audit events to feed
+      var pEvents = PlannerAudit.getRecent(4);
+      feedHtml += pEvents.map(function (ev) {
+        var time = ev.timestamp ? new Date(ev.timestamp).toLocaleString() : '?';
+        var label = ev.eventType.replace(/_/g, ' ');
+        if (ev.counts && ev.counts.enqueued) label += ' (' + ev.counts.enqueued + ' enqueued)';
+        if (ev.reason) label += ' \u2014 ' + ev.reason;
+        return '<div class="ops-feed-row ops-feed-row--planner">' +
+          '<span class="ops-feed-time">' + time + '</span>' +
+          '<span class="ops-feed-detail"><i class="fas fa-brain" style="margin-right:4px; opacity:0.35;"></i>' + label + '</span>' +
+          '</div>';
+      }).join('');
+
       el.innerHTML = feedHtml;
     });
 
@@ -400,6 +435,24 @@
       if (parts.length === 0) parts.push('No critical or high priority tasks');
       countsEl.innerHTML = parts.join(' &middot; ');
       if (tsEl) tsEl.textContent = '';
+    })();
+
+    // Planner strip
+    (function () {
+      var countEl = document.getElementById('ops-planner-count');
+      var tsEl = document.getElementById('ops-planner-ts');
+      if (!countEl) return;
+      var lastRun = PlannerLoop.getLastRunTimestamp();
+      var plan = PlannerLoop.getLatestPlan();
+      if (!lastRun) {
+        countEl.textContent = 'No runs yet';
+        tsEl.textContent = '';
+      } else {
+        var recCount = plan && plan.recommendations ? plan.recommendations.length : 0;
+        countEl.textContent = recCount + ' recommendation' + (recCount !== 1 ? 's' : '') + ' queued';
+        countEl.style.color = recCount > 0 ? '#a855f7' : '';
+        tsEl.textContent = 'Last run: ' + new Date(lastRun).toLocaleString();
+      }
     })();
   })();
   </script>

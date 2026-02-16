@@ -1,0 +1,20 @@
+{
+  "version": "1.0",
+  "description": "Planner Loop v1 — Configurable thresholds for recommendation generation",
+  "thresholds": {
+    "stuckInReviewDays": 2,
+    "stuckInProgressDays": 7,
+    "pendingApprovalsWarning": 5,
+    "focusListMax": 5,
+    "stuckListMax": 5,
+    "recommendationsMax": 8,
+    "cadenceDays": 7
+  },
+  "impactMap": {
+    "critical_verification_fail": "request_info",
+    "critical_in_backlog": "move_task_lane",
+    "verification_blocked_done": "add_task_comment",
+    "pending_approvals_high": "create_task",
+    "no_social_posts": "create_task"
+  }
+}

@@ -107,6 +107,47 @@
 
     .ov-section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.3; font-weight: 500; margin-top: 1.8rem; margin-bottom: 0.6rem; }
 
+    /* ── Executive Plan (Planner Loop v1) ── */
+    .exec-plan-panel {
+      background: rgba(255,165,0,0.02);
+      border: 1px solid rgba(255,165,0,0.12);
+      border-radius: 12px; padding: 1.2rem 1.4rem;
+      margin-bottom: 1.4rem;
+    }
+    .exec-plan-title { font-size: 0.72rem; font-weight: 600; color: #FFA500; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.4rem; }
+    .exec-plan-title i { opacity: 0.5; }
+    .exec-plan-meta { font-size: 0.6rem; opacity: 0.35; margin-bottom: 0.8rem; }
+    .exec-plan-summary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 0.5rem; margin-bottom: 1rem; }
+    .exec-plan-stat { text-align: center; padding: 0.6rem 0.4rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.04); border-radius: 6px; }
+    .exec-plan-stat-val { font-size: 1.2rem; font-weight: 600; line-height: 1.2; }
+    .exec-plan-stat-label { font-size: 0.48rem; opacity: 0.3; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.15rem; }
+    .exec-plan-section { margin-bottom: 0.8rem; }
+    .exec-plan-section-title { font-size: 0.62rem; font-weight: 600; opacity: 0.4; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.4rem; }
+    .exec-plan-item { padding: 0.4rem 0.7rem; margin-bottom: 0.3rem; background: rgba(255,255,255,0.015); border-left: 3px solid rgba(255,165,0,0.25); border-radius: 0 6px 6px 0; font-size: 0.65rem; display: flex; align-items: center; gap: 0.5rem; }
+    .exec-plan-item-title { font-weight: 500; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .exec-plan-bucket { font-size: 0.48rem; padding: 0.08rem 0.3rem; border-radius: 3px; white-space: nowrap; }
+    .exec-plan-bucket--critical { background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.3); color: #f87171; }
+    .exec-plan-bucket--high { background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.25); color: #fbbf24; }
+    .exec-plan-bucket--medium { background: rgba(59,130,246,0.08); border: 1px solid rgba(59,130,246,0.2); color: #60a5fa; }
+    .exec-plan-bucket--low { background: rgba(156,163,175,0.08); border: 1px solid rgba(156,163,175,0.2); color: #9ca3af; }
+    .exec-plan-stuck-hint { font-size: 0.55rem; opacity: 0.4; margin-top: 0.1rem; }
+    .exec-plan-rec { padding: 0.5rem 0.7rem; margin-bottom: 0.4rem; background: rgba(255,165,0,0.02); border-left: 3px solid rgba(255,165,0,0.3); border-radius: 0 6px 6px 0; font-size: 0.62rem; }
+    .exec-plan-rec-header { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.2rem; }
+    .exec-plan-rec-type { font-weight: 600; text-transform: uppercase; font-size: 0.5rem; opacity: 0.5; }
+    .exec-plan-rec-rationale { font-size: 0.58rem; opacity: 0.45; }
+    .exec-plan-rec-actions { margin-top: 0.3rem; }
+    .exec-plan-rec-btn { font-size: 0.55rem; padding: 0.15rem 0.5rem; border-radius: 4px; cursor: pointer; border: 1px solid rgba(255,165,0,0.25); background: rgba(255,165,0,0.04); color: #FFA500; font-family: inherit; }
+    .exec-plan-rec-btn:disabled { opacity: 0.3; cursor: default; }
+    .exec-plan-rec-pill { font-size: 0.48rem; padding: 0.08rem 0.25rem; border-radius: 3px; margin-left: 0.3rem; }
+    .exec-plan-rec-pill--pending { background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.2); color: #fbbf24; }
+    .exec-plan-rec-pill--queued { background: rgba(52,211,153,0.1); border: 1px solid rgba(52,211,153,0.2); color: #34d399; }
+    .exec-plan-empty { opacity: 0.3; font-size: 0.62rem; padding: 0.4rem 0; }
+    .exec-plan-run-row { margin-top: 0.8rem; display: flex; align-items: center; gap: 0.6rem; }
+    .exec-plan-run-btn { padding: 0.5rem 1.2rem; border-radius: 6px; font-size: 0.68rem; font-weight: 500; cursor: pointer; border: 1px solid rgba(255,165,0,0.25); background: rgba(255,165,0,0.06); color: #FFA500; font-family: inherit; transition: all 0.15s; }
+    .exec-plan-run-btn:hover { background: rgba(255,165,0,0.12); border-color: rgba(255,165,0,0.4); }
+    .exec-plan-run-btn:disabled { opacity: 0.3; cursor: default; }
+    .exec-plan-run-status { font-size: 0.6rem; opacity: 0.35; }
+
     @media (prefers-reduced-motion: reduce) {
       .plan-obj-fill { transition: none; }
     }
@@ -150,6 +191,30 @@
       </div>
     </div>
 
+    <!-- Executive Plan (Planner Loop v1) -->
+    <div class="ov-section-title">Executive Plan</div>
+    <div class="exec-plan-panel" id="exec-plan-panel">
+      <div class="exec-plan-title"><i class="fas fa-brain"></i> Latest Executive Plan</div>
+      <div class="exec-plan-meta" id="exec-plan-meta">No plan generated yet.</div>
+      <div class="exec-plan-summary-grid" id="exec-plan-summary" style="display:none;"></div>
+      <div class="exec-plan-section" id="exec-plan-focus-section" style="display:none;">
+        <div class="exec-plan-section-title"><i class="fas fa-fire"></i> Focus (Top Priority)</div>
+        <div id="exec-plan-focus"></div>
+      </div>
+      <div class="exec-plan-section" id="exec-plan-stuck-section" style="display:none;">
+        <div class="exec-plan-section-title"><i class="fas fa-clock"></i> Stuck Items</div>
+        <div id="exec-plan-stuck"></div>
+      </div>
+      <div class="exec-plan-section" id="exec-plan-recs-section" style="display:none;">
+        <div class="exec-plan-section-title"><i class="fas fa-lightbulb"></i> Recommendations</div>
+        <div id="exec-plan-recs"></div>
+      </div>
+      <div class="exec-plan-run-row">
+        <button class="exec-plan-run-btn" id="exec-plan-run-btn"><i class="fas fa-play"></i> Run Planner Now</button>
+        <span class="exec-plan-run-status" id="exec-plan-run-status"></span>
+      </div>
+    </div>
+
     <!-- Quick Nav -->
     <div class="ov-section-title">Navigate</div>
     <div class="plan-nav">
@@ -160,6 +225,15 @@
 
   </main>
 
+  <script src="/js/priority-audit.js"></script>
+  <script src="/js/priority-engine.js"></script>
+  <script src="/js/task-verifier.js"></script>
+  <script src="/js/action-audit.js"></script>
+  <script src="/js/action-queue.js"></script>
+  <script src="/js/action-executors.js"></script>
+  <script src="/js/action-router.js"></script>
+  <script src="/js/planner-audit.js"></script>
+  <script src="/js/planner-loop.js"></script>
   <script src="/js/company-store.js"></script>
   <script>
   (function () {
@@ -230,6 +304,138 @@
     });
 
     function esc(s) { if (!s) return ''; var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+    // ── Executive Plan rendering ──
+    function renderExecPlan() {
+      var plan = PlannerLoop.getLatestPlan();
+      var metaEl = document.getElementById('exec-plan-meta');
+      var summaryEl = document.getElementById('exec-plan-summary');
+      var focusSec = document.getElementById('exec-plan-focus-section');
+      var focusEl = document.getElementById('exec-plan-focus');
+      var stuckSec = document.getElementById('exec-plan-stuck-section');
+      var stuckEl = document.getElementById('exec-plan-stuck');
+      var recsSec = document.getElementById('exec-plan-recs-section');
+      var recsEl = document.getElementById('exec-plan-recs');
+      var statusEl = document.getElementById('exec-plan-run-status');
+
+      var lastRun = PlannerLoop.getLastRunTimestamp();
+      if (lastRun) statusEl.textContent = 'Last run: ' + new Date(lastRun).toLocaleString();
+
+      if (!plan) { metaEl.textContent = 'No plan generated yet. Click "Run Planner Now" to generate.'; return; }
+
+      metaEl.textContent = 'Generated ' + new Date(plan.createdAt).toLocaleString() + ' \u2014 Range: ' + plan.range.startDate + ' to ' + plan.range.endDate;
+
+      // Summary grid
+      var s = plan.summary || {};
+      summaryEl.style.display = '';
+      summaryEl.innerHTML =
+        _statCard(s.criticalCount, 'Critical', '#f87171') +
+        _statCard(s.highCount, 'High', '#fbbf24') +
+        _statCard(s.overdueCount, 'Overdue', '#ef4444') +
+        _statCard(s.inReviewCount, 'In Review', '#8A2BE2') +
+        _statCard(s.pendingApprovalsCount, 'Pending Approvals', '#FFA500') +
+        _statCard(s.verificationBlockedDoneCount, 'Blocked Done', '#ef4444');
+
+      // Focus list
+      if (plan.focus && plan.focus.length > 0) {
+        focusSec.style.display = '';
+        focusEl.innerHTML = plan.focus.map(function (f) {
+          return '<div class="exec-plan-item">' +
+            '<span class="exec-plan-item-title">' + esc(f.title) + '</span>' +
+            '<span class="exec-plan-bucket exec-plan-bucket--' + f.bucket + '"><i class="' + _bucketIcon(f.bucket) + '"></i> ' + f.bucket + '</span>' +
+            '</div>';
+        }).join('');
+      }
+
+      // Stuck list
+      if (plan.stuck && plan.stuck.length > 0) {
+        stuckSec.style.display = '';
+        stuckEl.innerHTML = plan.stuck.map(function (s) {
+          return '<div class="exec-plan-item" style="border-left-color:rgba(239,68,68,0.3);">' +
+            '<span class="exec-plan-item-title">' + esc(s.title) + '</span>' +
+            '<span style="font-size:0.52rem;opacity:0.4;">' + s.ageDays + 'd in ' + s.lane + '</span>' +
+            '</div>' +
+            (s.blockerHint ? '<div class="exec-plan-stuck-hint">' + esc(s.blockerHint) + '</div>' : '');
+        }).join('');
+      }
+
+      // Recommendations
+      if (plan.recommendations && plan.recommendations.length > 0) {
+        recsSec.style.display = '';
+        recsEl.innerHTML = plan.recommendations.map(function (r) {
+          var pending = _isAlreadyPending(r.type, r.targetId);
+          return '<div class="exec-plan-rec">' +
+            '<div class="exec-plan-rec-header">' +
+              '<span class="exec-plan-rec-type">' + esc(r.type) + '</span>' +
+              '<span class="exec-plan-bucket exec-plan-bucket--' + (r.priorityBucket || 'medium') + '">' + (r.priorityBucket || 'medium') + '</span>' +
+              (pending ? '<span class="exec-plan-rec-pill exec-plan-rec-pill--pending"><i class="fas fa-clock"></i> pending</span>' : '') +
+            '</div>' +
+            '<div class="exec-plan-rec-rationale">' + esc(r.rationale) + '</div>' +
+            '</div>';
+        }).join('');
+      }
+    }
+
+    function _statCard(val, label, color) {
+      return '<div class="exec-plan-stat"><div class="exec-plan-stat-val" style="color:' + color + ';">' + (val || 0) + '</div><div class="exec-plan-stat-label">' + label + '</div></div>';
+    }
+
+    function _bucketIcon(b) {
+      if (b === 'critical') return 'fas fa-fire';
+      if (b === 'high') return 'fas fa-arrow-up';
+      if (b === 'medium') return 'fas fa-equals';
+      return 'fas fa-minus';
+    }
+
+    function _isAlreadyPending(actionType, targetId) {
+      try {
+        var pending = ActionQueue.getPendingApproval();
+        for (var i = 0; i < pending.length; i++) {
+          if (pending[i].actionType === actionType && pending[i].targetId === targetId) return true;
+        }
+      } catch (e) { /* degrade */ }
+      return false;
+    }
+
+    // ── Run button ──
+    var _planRunning = false;
+    document.getElementById('exec-plan-run-btn').addEventListener('click', function () {
+      if (_planRunning) return;
+      _planRunning = true;
+      var btn = this;
+      btn.disabled = true;
+      btn.textContent = 'Running...';
+      var statusEl = document.getElementById('exec-plan-run-status');
+      statusEl.textContent = 'Generating plan...';
+
+      PlannerLoop.loadRules().then(function () {
+        return CompanyStore.getState('ap_tasks', []);
+      }).then(function (tasks) {
+        try { PriorityEngine.recalculateAll(tasks); } catch (e) { /* fail closed */ }
+        try { TaskVerifier.load(); } catch (e) { /* fail closed */ }
+        PlannerLoop.run({ tasks: tasks });
+        renderExecPlan();
+        statusEl.textContent = 'Plan generated at ' + new Date().toLocaleTimeString();
+      }).catch(function () {
+        statusEl.textContent = 'Planner error. Check console.';
+      }).then(function () {
+        _planRunning = false;
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-play"></i> Run Planner Now';
+      });
+    });
+
+    // ── Auto-run cadence check ──
+    PlannerLoop.loadRules().then(function () {
+      renderExecPlan();
+      if (PlannerLoop.shouldAutoRun()) {
+        CompanyStore.getState('ap_tasks', []).then(function (tasks) {
+          try { PriorityEngine.recalculateAll(tasks); } catch (e) {}
+          PlannerLoop.run({ tasks: tasks });
+          renderExecPlan();
+        });
+      }
+    });
   })();
   </script>
 
