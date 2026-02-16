@@ -2970,13 +2970,20 @@ var AgentEngine = (function () {
     var tokens = action.tokens || {};
     var issues = [];
 
+    var pendingArtifacts = [];
+
     // Check explicit dependsOn
     for (var i = 0; i < deps.length; i++) {
       var dep = deps[i];
       if (dep.type === 'artifact') {
         var art = getArtifactById(dep.id);
-        if (!art) { issues.push('Artifact ' + dep.id + ' not found'); }
-        else if (art.status !== 'published') { issues.push('Waiting for "' + (art.title || art.slug || art.id) + '" to be published'); }
+        if (!art) {
+          issues.push('Required article not yet created — publish the blog post first');
+        } else if (art.status !== 'published') {
+          var artTitle = art.title || art.slug || dep.id;
+          issues.push('Publish "' + artTitle + '" first');
+          pendingArtifacts.push({ id: dep.id, title: artTitle, status: art.status });
+        }
       }
     }
 
@@ -2986,23 +2993,30 @@ var AgentEngine = (function () {
       var tk = tokens[tokenKeys[j]];
       if (tk && tk.type === 'artifact') {
         var tArt = getArtifactById(tk.id);
-        if (!tArt) { issues.push('Artifact ' + tk.id + ' not found for token ' + tokenKeys[j]); }
-        else if (tArt.status !== 'published') { issues.push('Token ' + tokenKeys[j] + ': waiting for "' + (tArt.title || tArt.slug || tArt.id) + '" to be published'); }
+        if (!tArt) {
+          if (!issues.length) issues.push('Required article not yet created — publish the blog post first');
+        } else if (tArt.status !== 'published') {
+          var tTitle = tArt.title || tArt.slug || tk.id;
+          if (!pendingArtifacts.some(function (p) { return p.id === tk.id; })) {
+            issues.push('Publish "' + tTitle + '" first');
+            pendingArtifacts.push({ id: tk.id, title: tTitle, status: tArt.status });
+          }
+        }
       }
     }
 
     // Also check for unresolved {{ARTICLE_URL}} in text
-    if (action.payload && action.payload.text && /\{\{ARTICLE_URL/.test(action.payload.text)) {
+    if (issues.length === 0 && action.payload && action.payload.text && /\{\{ARTICLE_URL/.test(action.payload.text)) {
       var resolution = resolveActionTokens(action);
       if (!resolution.resolved) {
         resolution.missing.forEach(function (m) {
-          issues.push('Missing ' + m.token + ': ' + m.reason);
+          issues.push('Article URL not available yet — publish the linked blog post first');
         });
       }
     }
 
-    if (issues.length === 0) return { ready: true, blockedReason: null };
-    return { ready: false, blockedReason: issues.join('; ') };
+    if (issues.length === 0) return { ready: true, blockedReason: null, pendingArtifacts: [] };
+    return { ready: false, blockedReason: issues.join('; '), pendingArtifacts: pendingArtifacts };
   }
 
   // ── Public API ──
