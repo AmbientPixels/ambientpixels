@@ -436,8 +436,32 @@ var AgentEngine = (function () {
     _saveStorage(STANDUP_KEY, log);
   }
 
+  // Business day helper — matches server-side getBusinessDate()
+  // Configurable via localStorage 'ap_company_timezone', defaults to America/Los_Angeles
+  var DEFAULT_TIMEZONE = 'America/Los_Angeles';
+  function _getBusinessDate() {
+    var tz = DEFAULT_TIMEZONE;
+    try {
+      var stored = localStorage.getItem('ap_company_timezone');
+      if (stored) tz = stored;
+      else if (window.CompanyStore) {
+        var settings = CompanyStore.getStateSync('ap_company_settings');
+        if (settings && settings.timezone) tz = settings.timezone;
+      }
+    } catch (e) { /* use default */ }
+    try {
+      var parts = new Intl.DateTimeFormat('en-CA', { timeZone: tz, year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date());
+      var y = parts.find(function (p) { return p.type === 'year'; }).value;
+      var m = parts.find(function (p) { return p.type === 'month'; }).value;
+      var d = parts.find(function (p) { return p.type === 'day'; }).value;
+      return y + '-' + m + '-' + d;
+    } catch (e) {
+      return new Date(Date.now() - 8 * 3600000).toISOString().split('T')[0];
+    }
+  }
+
   function hasStandupToday() {
-    var today = new Date().toISOString().split('T')[0];
+    var today = _getBusinessDate();
     // Fast path: check localStorage flag
     var lastDate = localStorage.getItem(STANDUP_DATE_KEY);
     if (lastDate === today) return true;
@@ -515,7 +539,7 @@ var AgentEngine = (function () {
       type: (STANDUP_TYPES.indexOf(opts.type) !== -1) ? opts.type : 'Status',
       requestedOutputs: opts.requestedOutputs || [],
       date: new Date().toISOString(),
-      dateLabel: new Date().toISOString().split('T')[0],
+      dateLabel: _getBusinessDate(),
       entries: [],
       status: 'in-progress',
       decisionStatus: 'Pending',
@@ -1129,7 +1153,7 @@ var AgentEngine = (function () {
       type: (STANDUP_TYPES.indexOf(opts.type) !== -1) ? opts.type : 'Status',
       attendees: attendees,
       date: new Date().toISOString(),
-      dateLabel: new Date().toISOString().split('T')[0],
+      dateLabel: _getBusinessDate(),
       entries: [],
       status: 'in-progress',
       decisionStatus: 'Pending',

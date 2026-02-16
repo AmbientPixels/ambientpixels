@@ -12,6 +12,25 @@ const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemi
 // ── In-memory lock (per Function App instance) ──
 let _running = false;
 
+// ── Business Day Timezone ──
+// Configurable via blob key 'companySettings' → { timezone: 'America/Los_Angeles' }
+const DEFAULT_TIMEZONE = 'America/Los_Angeles';
+
+function getBusinessDate(timezone) {
+  try {
+    const parts = new Intl.DateTimeFormat('en-CA', {
+      timeZone: timezone || DEFAULT_TIMEZONE,
+      year: 'numeric', month: '2-digit', day: '2-digit'
+    }).formatToParts(new Date());
+    const y = parts.find(p => p.type === 'year').value;
+    const m = parts.find(p => p.type === 'month').value;
+    const d = parts.find(p => p.type === 'day').value;
+    return y + '-' + m + '-' + d;
+  } catch (e) {
+    return new Date(Date.now() - 8 * 3600000).toISOString().split('T')[0];
+  }
+}
+
 // ── Standup speaking order (matches client-side STANDUP_ORDER) ──
 const STANDUP_ORDER = ['nova', 'forge', 'pixel', 'cipher', 'echo', 'scribe', 'scout', 'nova'];
 const MAX_STANDUPS = 14;
@@ -415,14 +434,22 @@ module.exports = async function (context, req) {
   }
 
   const startTime = Date.now();
-  const today = new Date().toISOString().split('T')[0];
+
+  // Load configurable timezone (default: America/Los_Angeles)
+  let companyTz = DEFAULT_TIMEZONE;
+  try {
+    const settings = await storage.getState('companySettings');
+    if (settings && settings.timezone) companyTz = settings.timezone;
+  } catch (e) { /* use default */ }
+  const today = getBusinessDate(companyTz);
+  context.log('[StandupRun] Business day:', today, '(tz:', companyTz + ')');
 
   try {
     // ── Already ran today? ──
     const standupLog = (await storage.getState('standupLog')) || [];
     if (standupLog.length > 0 && standupLog[standupLog.length - 1].dateLabel === today) {
-      await writeGovernanceEntry('skipped', { source: 'cron', runDate: today, reason: 'already_ran' });
-      context.res = { status: 200, headers: corsHeaders, body: { ok: true, skipped: true, reason: 'already_ran' } };
+      await writeGovernanceEntry('skipped', { source: 'cron', runDate: today, reason: 'already_ran', timezone: companyTz });
+      context.res = { status: 200, headers: corsHeaders, body: { ok: true, skipped: true, reason: 'already_ran', businessDay: today, timezone: companyTz } };
       return;
     }
 
