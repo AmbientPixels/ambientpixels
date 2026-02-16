@@ -22,32 +22,47 @@ jobs:
       - name: Run Daily Standup
         id: standup
         run: |
+          # POST directly to the Azure Function App (SWA only proxies GET)
           HTTP_CODE=$(curl -s -o response.json -w "%{http_code}" \
+            --max-time 300 \
             -X POST \
             -H "Content-Type: application/json" \
             -H "x-standup-key: ${{ secrets.STANDUP_API_KEY }}" \
             "https://ambientpixels-nova-api.azurewebsites.net/api/company-standup-run")
 
+          echo "::group::Response"
           echo "HTTP status: $HTTP_CODE"
-          cat response.json
+          cat response.json 2>/dev/null || echo "(no response body)"
           echo ""
+          echo "::endgroup::"
 
-          # Parse response
-          SKIPPED=$(cat response.json | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('skipped',''))" 2>/dev/null || echo "")
-          ERROR=$(cat response.json | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('error',''))" 2>/dev/null || echo "")
-
-          if [ "$HTTP_CODE" = "200" ]; then
-            if [ "$SKIPPED" = "True" ]; then
-              echo "✅ Standup already ran today — skipped."
-            else
-              echo "✅ Standup completed successfully."
-            fi
-          elif [ "$HTTP_CODE" = "409" ]; then
-            echo "⚠️ Standup already in progress (409) — not an error."
-          else
-            echo "❌ Standup failed with HTTP $HTTP_CODE"
-            exit 1
-          fi
+          # ── Evaluate result ──
+          # Success: 200 (ran or skipped) and 409 (concurrent run already in progress)
+          # Failure: 401 (auth), 5xx (server error), network error, anything else
+          case "$HTTP_CODE" in
+            200)
+              if grep -q '"skipped":true' response.json 2>/dev/null; then
+                echo "✅ Standup already ran today — skipped (success)."
+              else
+                echo "✅ Standup completed successfully."
+              fi
+              ;;
+            409)
+              echo "⚠️ Standup already in progress (409) — treating as success."
+              ;;
+            401)
+              echo "❌ Unauthorized (401). Check STANDUP_API_KEY secret."
+              exit 1
+              ;;
+            000)
+              echo "❌ Network error — could not reach Function App."
+              exit 1
+              ;;
+            *)
+              echo "❌ Standup failed with HTTP $HTTP_CODE"
+              exit 1
+              ;;
+          esac
 
       - name: Log completion
         if: always()
