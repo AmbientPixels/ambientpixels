@@ -964,7 +964,7 @@ var AgentEngine = (function () {
         created = addDirective({
           title: proposal.title,
           description: (proposal.rationale || '') + (proposal._proposers ? '\n[Proposed by: ' + proposal._proposers.join(', ') + ']' : ''),
-          status: decision === 'activated' ? 'active' : 'pending-approval',
+          status: 'active',
           priority: proposal.priority || 'medium',
           classification: proposal.classification || 'Operational',
           owner: proposal.owner || null,
@@ -972,9 +972,7 @@ var AgentEngine = (function () {
           effort: proposal.effort || 'Medium',
           dependencies: [],
           source: source,
-          approval: decision === 'activated'
-            ? { status: 'approved', approvedBy: 'ceo', approvedAt: new Date().toISOString() }
-            : { status: 'pending', approvedBy: null, approvedAt: null }
+          approval: { status: 'approved', approvedBy: 'ceo', approvedAt: new Date().toISOString() }
         });
       }
       if (created) {
@@ -1394,7 +1392,7 @@ var AgentEngine = (function () {
         created = addDirective({
           title: proposal.title,
           description: (proposal.rationale || '') + (proposal._proposers ? '\n[Proposed by: ' + proposal._proposers.join(', ') + ']' : ''),
-          status: decision === 'activated' ? 'active' : 'pending-approval',
+          status: 'active',
           priority: proposal.priority || 'medium',
           classification: proposal.classification || 'Operational',
           owner: proposal.owner || null,
@@ -1402,9 +1400,7 @@ var AgentEngine = (function () {
           effort: proposal.effort || 'Medium',
           dependencies: [],
           source: source,
-          approval: decision === 'activated'
-            ? { status: 'approved', approvedBy: 'ceo', approvedAt: new Date().toISOString() }
-            : { status: 'pending', approvedBy: null, approvedAt: null }
+          approval: { status: 'approved', approvedBy: 'ceo', approvedAt: new Date().toISOString() }
         });
       }
       if (created) {
