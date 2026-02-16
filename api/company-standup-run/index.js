@@ -445,13 +445,15 @@ module.exports = async function (context, req) {
   context.log('[StandupRun] Business day:', today, '(tz:', companyTz + ')');
 
   try {
-    // ── Already ran today? ──
+    // ── Already ran today? (bypass with { force: true } in body) ──
+    const forceRun = req.body && req.body.force === true;
     const standupLog = (await storage.getState('standupLog')) || [];
-    if (standupLog.length > 0 && standupLog[standupLog.length - 1].dateLabel === today) {
+    if (!forceRun && standupLog.length > 0 && standupLog[standupLog.length - 1].dateLabel === today) {
       await writeGovernanceEntry('skipped', { source: 'cron', runDate: today, reason: 'already_ran', timezone: companyTz });
       context.res = { status: 200, headers: corsHeaders, body: { ok: true, skipped: true, reason: 'already_ran', businessDay: today, timezone: companyTz } };
       return;
     }
+    if (forceRun) context.log('[StandupRun] Force run requested — bypassing dedup guard');
 
     // ── Acquire lock ──
     _running = true;
