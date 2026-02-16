@@ -18,16 +18,36 @@
   <link rel="stylesheet" href="/css/banner.css" />
   <link rel="stylesheet" href="/modules/company/css/company.css" />
   <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/hq.css" />
 </head>
 <body style="background:#071019" data-theme="dark">
 
 
   <main class="content-section" style="max-width: 900px; margin: 0 auto; padding: 1rem;">
 
-    <!-- Company Header -->
-    <div class="company-header">
-      <h1><i class="fas fa-building" style="opacity:0.4; margin-right:8px;"></i>AmbientPixels HQ</h1>
-      <p>AI-operated company with human executive authority — governed, tiered, and approval-gated.</p>
+    <!-- Hero -->
+    <div class="hq-hero">
+      <h1 class="hq-hero-headline">AmbientPixels — <em>AI Orchestration</em> with Human Governance</h1>
+      <p class="hq-hero-sub">Run work through agents, approvals, and audit trails — so automation moves fast without losing control.</p>
+      <div class="hq-cta-row">
+        <a href="/modules/company/dashboard.html" class="hq-cta hq-cta--primary"><i class="fas fa-tachometer-alt"></i> View Live Console</a>
+        <a href="/modules/company/governance.html" class="hq-cta hq-cta--secondary"><i class="fas fa-book"></i> Read the Playbook</a>
+      </div>
+      <div class="hq-trust-line">
+        <span class="hq-trust-chip">Approval-gated execution</span>
+        <span class="hq-trust-chip">Full audit log</span>
+        <span class="hq-trust-chip">Multi-agent ops</span>
+        <span class="hq-trust-chip">Drift detection</span>
+      </div>
+    </div>
+
+    <!-- Quick Nav -->
+    <div class="hq-quick-nav">
+      <a href="/modules/company/dashboard.html" class="hq-nav-pill"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a href="/modules/company/tasks.html" class="hq-nav-pill"><i class="fas fa-tasks"></i> Tasks</a>
+      <a href="/modules/company/actions.html" class="hq-nav-pill"><i class="fas fa-bolt"></i> Actions</a>
+      <a href="/modules/company/calendar.html" class="hq-nav-pill"><i class="fas fa-calendar-alt"></i> Calendar</a>
+      <a href="/modules/company/meetings.html" class="hq-nav-pill"><i class="fas fa-handshake"></i> Meetings</a>
     </div>
 
     <!-- Org Chart -->
@@ -61,6 +81,40 @@
 
     <!-- Agent Detail Panel (shown when clicking a card) -->
     <div class="agent-detail" id="agent-detail"></div>
+
+    <!-- Proof Strip -->
+    <div class="hq-proof-strip">
+      <div class="hq-proof-card">
+        <div class="hq-proof-icon"><i class="fas fa-shield-alt"></i></div>
+        <div class="hq-proof-title">Governance</div>
+        <ul class="hq-proof-list">
+          <li><i class="fas fa-check"></i> Approval Queue</li>
+          <li><i class="fas fa-check"></i> Audit Log</li>
+          <li><i class="fas fa-check"></i> Drift Alerts</li>
+        </ul>
+        <a href="/modules/company/governance.html" class="hq-proof-link">Open <i class="fas fa-arrow-right"></i></a>
+      </div>
+      <div class="hq-proof-card">
+        <div class="hq-proof-icon"><i class="fas fa-bolt"></i></div>
+        <div class="hq-proof-title">Execution</div>
+        <ul class="hq-proof-list">
+          <li><i class="fas fa-check"></i> Action Center</li>
+          <li><i class="fas fa-check"></i> Integrations</li>
+          <li><i class="fas fa-check"></i> Rate Limits</li>
+        </ul>
+        <a href="/modules/company/actions.html" class="hq-proof-link">Open <i class="fas fa-arrow-right"></i></a>
+      </div>
+      <div class="hq-proof-card">
+        <div class="hq-proof-icon"><i class="fas fa-brain"></i></div>
+        <div class="hq-proof-title">Intelligence</div>
+        <ul class="hq-proof-list">
+          <li><i class="fas fa-check"></i> Bottleneck Detection</li>
+          <li><i class="fas fa-check"></i> Overload Alerts</li>
+          <li><i class="fas fa-check"></i> Recommendations</li>
+        </ul>
+        <a href="/modules/company/dashboard.html" class="hq-proof-link">Open <i class="fas fa-arrow-right"></i></a>
+      </div>
+    </div>
 
     <!-- Standup Quick Link -->
     <div style="margin-top:1.5rem; padding-top:1.5rem; border-top:1px solid rgba(255,255,255,0.05);">
