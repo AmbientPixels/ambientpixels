@@ -7,17 +7,68 @@ var PriorityEngine = (function () {
   'use strict';
 
   var CACHE_KEY = 'ap_priority_cache';
+  var WEIGHTS_KEY = 'ap_priority_weights';
 
   // ═══════════════════════════════════════════════════
-  // ── Configurable weights ──
+  // ── Configurable weights (with localStorage override layer) ──
   // ═══════════════════════════════════════════════════
-  var WEIGHTS = {
+  var DEFAULT_WEIGHTS = {
     impact: 3,
     urgency: 2,
     strategicAlignment: 3,
     agingFactor: 1.5,
     riskPenalty: 2
   };
+
+  var WEIGHTS = _loadWeights();
+
+  var WEIGHT_FIELDS = ['impact', 'urgency', 'strategicAlignment', 'agingFactor', 'riskPenalty'];
+  var WEIGHT_MIN = 0;
+  var WEIGHT_MAX = 5;
+
+  function _loadWeights() {
+    try {
+      var raw = localStorage.getItem(WEIGHTS_KEY);
+      if (raw) {
+        var stored = JSON.parse(raw);
+        var merged = {};
+        for (var k in DEFAULT_WEIGHTS) {
+          merged[k] = (stored[k] != null && typeof stored[k] === 'number') ? stored[k] : DEFAULT_WEIGHTS[k];
+        }
+        return merged;
+      }
+    } catch (e) { /* ignore */ }
+    var copy = {};
+    for (var k2 in DEFAULT_WEIGHTS) { copy[k2] = DEFAULT_WEIGHTS[k2]; }
+    return copy;
+  }
+
+  function getWeights() {
+    var copy = {};
+    for (var k in WEIGHTS) { copy[k] = WEIGHTS[k]; }
+    return copy;
+  }
+
+  function setWeights(next) {
+    if (!next || typeof next !== 'object') return false;
+    var updated = getWeights();
+    for (var i = 0; i < WEIGHT_FIELDS.length; i++) {
+      var f = WEIGHT_FIELDS[i];
+      if (next[f] != null && typeof next[f] === 'number') {
+        updated[f] = Math.max(WEIGHT_MIN, Math.min(WEIGHT_MAX, Math.round(next[f] * 100) / 100));
+      }
+    }
+    WEIGHTS.impact = updated.impact;
+    WEIGHTS.urgency = updated.urgency;
+    WEIGHTS.strategicAlignment = updated.strategicAlignment;
+    WEIGHTS.agingFactor = updated.agingFactor;
+    WEIGHTS.riskPenalty = updated.riskPenalty;
+    if (typeof StorageManager !== 'undefined' && StorageManager.safeSet) {
+      return StorageManager.safeSet(WEIGHTS_KEY, updated);
+    }
+    try { localStorage.setItem(WEIGHTS_KEY, JSON.stringify(updated)); return true; }
+    catch (e) { return false; }
+  }
 
   // ── Impact map by task.type (0–5) ──
   var IMPACT_MAP = {
@@ -282,6 +333,9 @@ var PriorityEngine = (function () {
     getCounts: getCounts,
     getByBucket: getByBucket,
     getSortedIds: getSortedIds,
+    getWeights: getWeights,
+    setWeights: setWeights,
+    WEIGHT_FIELDS: WEIGHT_FIELDS,
     WEIGHTS: WEIGHTS,
     IMPACT_MAP: IMPACT_MAP,
     BUCKETS: BUCKETS

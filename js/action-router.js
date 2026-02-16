@@ -10,11 +10,12 @@ var ActionRouter = (function () {
     global: 'ap_actions_enabled',
     task: 'ap_actions_task_enabled',
     social: 'ap_actions_social_enabled',
-    email: 'ap_actions_email_enabled'
+    email: 'ap_actions_email_enabled',
+    configChanges: 'ap_config_changes_enabled'
   };
 
   // ── Defaults (SAFE) ──
-  var DEFAULTS = { global: false, task: true, social: false, email: false };
+  var DEFAULTS = { global: false, task: true, social: false, email: false, configChanges: false };
 
   // ── Execution caps ──
   var MAX_PER_CYCLE = 5;
@@ -47,6 +48,7 @@ var ActionRouter = (function () {
   function isTaskEnabled() { return _getSetting(KEYS.task, DEFAULTS.task); }
   function isSocialEnabled() { return _getSetting(KEYS.social, DEFAULTS.social); }
   function isEmailEnabled() { return _getSetting(KEYS.email, DEFAULTS.email); }
+  function isConfigChangesEnabled() { return _getSetting(KEYS.configChanges, DEFAULTS.configChanges); }
 
   function setEnabled(val, source) {
     var prev = isEnabled();
@@ -67,12 +69,29 @@ var ActionRouter = (function () {
   function setSocialEnabled(val) { _setSetting(KEYS.social, val); }
   function setEmailEnabled(val) { _setSetting(KEYS.email, val); }
 
+  function setConfigChangesEnabled(val, source) {
+    var prev = isConfigChangesEnabled();
+    var next = !!val;
+    _setSetting(KEYS.configChanges, next);
+    if (prev !== next) {
+      var now = Date.now();
+      if (now - _lastKillAuditTs > KILL_DEBOUNCE_MS) {
+        _lastKillAuditTs = now;
+        if (typeof ActionAudit !== 'undefined') {
+          ActionAudit.append({ eventType: next ? 'config_changes_enabled' : 'config_changes_disabled', source: source || 'CONFIG_UI' });
+        }
+      }
+    }
+    return next;
+  }
+
   // Tool kill switch check by executor type
   function _isToolEnabled(executorType) {
     switch (executorType) {
       case 'task': return isTaskEnabled();
       case 'social': return isSocialEnabled();
       case 'email': return isEmailEnabled();
+      case 'system': return isConfigChangesEnabled();
       default: return false;
     }
   }
@@ -339,6 +358,8 @@ var ActionRouter = (function () {
     setSocialEnabled: setSocialEnabled,
     isEmailEnabled: isEmailEnabled,
     setEmailEnabled: setEmailEnabled,
+    isConfigChangesEnabled: isConfigChangesEnabled,
+    setConfigChangesEnabled: setConfigChangesEnabled,
     // Registry
     loadRegistry: loadRegistry,
     getActionDef: getActionDef,

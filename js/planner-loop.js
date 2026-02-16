@@ -15,6 +15,7 @@ var PlannerLoop = (function () {
   // ── Defaults ──
   var DEFAULT_ENABLED = false;
   var DEFAULT_CADENCE_DAYS = 7;
+  var THRESHOLDS_KEY = 'ap_planner_thresholds';
 
   // ── Thresholds (from rules file or defaults) ──
   var THRESHOLDS = {
@@ -27,7 +28,58 @@ var PlannerLoop = (function () {
     cadenceDays: 7
   };
 
+  // ── Bounds for adjustable threshold fields ──
+  var THRESHOLD_BOUNDS = {
+    recommendationsMax: { min: 2, max: 12 },
+    focusListMax: { min: 1, max: 20 },
+    stuckListMax: { min: 1, max: 20 },
+    stuckInReviewDays: { min: 1, max: 30 },
+    stuckInProgressDays: { min: 1, max: 60 },
+    pendingApprovalsWarning: { min: 1, max: 50 },
+    cadenceDays: { min: 1, max: 30 }
+  };
+
   var _rulesLoaded = false;
+
+  // ── Apply localStorage overrides on top of current THRESHOLDS ──
+  function _applyStoredOverrides() {
+    try {
+      var raw = localStorage.getItem(THRESHOLDS_KEY);
+      if (!raw) return;
+      var stored = JSON.parse(raw);
+      for (var k in THRESHOLDS) {
+        if (stored[k] != null && typeof stored[k] === 'number') {
+          var b = THRESHOLD_BOUNDS[k];
+          THRESHOLDS[k] = b ? Math.max(b.min, Math.min(b.max, stored[k])) : stored[k];
+        }
+      }
+    } catch (e) { /* ignore */ }
+  }
+
+  function getThresholds() {
+    var copy = {};
+    for (var k in THRESHOLDS) { copy[k] = THRESHOLDS[k]; }
+    return copy;
+  }
+
+  function setThresholds(next) {
+    if (!next || typeof next !== 'object') return false;
+    var updated = getThresholds();
+    for (var k in next) {
+      if (updated[k] != null && typeof next[k] === 'number') {
+        var b = THRESHOLD_BOUNDS[k];
+        updated[k] = b ? Math.max(b.min, Math.min(b.max, Math.round(next[k]))) : next[k];
+      }
+    }
+    // Apply to live THRESHOLDS
+    for (var k2 in updated) { THRESHOLDS[k2] = updated[k2]; }
+    // Persist overrides
+    if (typeof StorageManager !== 'undefined' && StorageManager.safeSet) {
+      return StorageManager.safeSet(THRESHOLDS_KEY, updated);
+    }
+    try { localStorage.setItem(THRESHOLDS_KEY, JSON.stringify(updated)); return true; }
+    catch (e) { return false; }
+  }
 
   // ═══════════════════════════════════════════════════
   // ── Settings ──
@@ -91,10 +143,11 @@ var PlannerLoop = (function () {
           if (t.recommendationsMax) THRESHOLDS.recommendationsMax = t.recommendationsMax;
           if (t.cadenceDays) THRESHOLDS.cadenceDays = t.cadenceDays;
         }
+        _applyStoredOverrides();
         _rulesLoaded = true;
         return THRESHOLDS;
       })
-      .catch(function () { _rulesLoaded = true; return THRESHOLDS; });
+      .catch(function () { _applyStoredOverrides(); _rulesLoaded = true; return THRESHOLDS; });
   }
 
   // ═══════════════════════════════════════════════════
@@ -461,6 +514,9 @@ var PlannerLoop = (function () {
     loadRules: loadRules,
     run: run,
     getLatestPlan: getLatestPlan,
+    getThresholds: getThresholds,
+    setThresholds: setThresholds,
+    THRESHOLD_BOUNDS: THRESHOLD_BOUNDS,
     THRESHOLDS: THRESHOLDS
   };
 })();

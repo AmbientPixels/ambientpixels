@@ -415,6 +415,11 @@
           <span class="cfg-action-sub-label">Email</span>
           <button class="cfg-action-sub-toggle" id="cfg-action-sub-email"></button>
         </div>
+        <div class="cfg-action-sub-row">
+          <span class="cfg-action-sub-label">Config Changes</span>
+          <button class="cfg-action-sub-toggle" id="cfg-configchg-toggle"></button>
+        </div>
+        <div id="cfg-configchg-info" style="font-size:0.55rem;opacity:0.3;padding:0.2rem 0 0 0.2rem;"></div>
       </div>
       <div class="cfg-action-counts" id="cfg-action-counts"></div>
       <div class="cfg-action-audit">
@@ -722,6 +727,8 @@
     var subTask = document.getElementById('cfg-action-sub-task');
     var subSocial = document.getElementById('cfg-action-sub-social');
     var subEmail = document.getElementById('cfg-action-sub-email');
+    var subConfigChg = document.getElementById('cfg-configchg-toggle');
+    var configChgInfo = document.getElementById('cfg-configchg-info');
     if (!dot || !stateEl || !toggleBtn) return;
 
     var _debounceTimer = null;
@@ -743,6 +750,8 @@
       renderSub(subTask, ActionRouter.isTaskEnabled(), 'task');
       renderSub(subSocial, ActionRouter.isSocialEnabled(), 'social');
       renderSub(subEmail, ActionRouter.isEmailEnabled(), 'email');
+      renderSub(subConfigChg, ActionRouter.isConfigChangesEnabled(), 'configChanges');
+      renderConfigChgInfo();
 
       // Registry counts
       var c = ActionRouter.getRegistryCounts();
@@ -759,8 +768,33 @@
         if (type === 'task') ActionRouter.setTaskEnabled(!on);
         else if (type === 'social') ActionRouter.setSocialEnabled(!on);
         else if (type === 'email') ActionRouter.setEmailEnabled(!on);
+        else if (type === 'configChanges') ActionRouter.setConfigChangesEnabled(!on, 'CEO');
         render();
       };
+    }
+
+    function renderConfigChgInfo() {
+      if (!configChgInfo) return;
+      var lines = [];
+      lines.push('Applies approved calibration tuning changes. Default OFF.');
+      try {
+        var raw = localStorage.getItem('ap_system_adjustment_backup_latest');
+        if (raw) {
+          var backup = JSON.parse(raw);
+          if (backup && backup.createdAt) {
+            lines.push('Last applied: ' + new Date(backup.createdAt).toLocaleString());
+          }
+        }
+      } catch (e) { /* ignore */ }
+      try {
+        var q = JSON.parse(localStorage.getItem('ap_action_queue') || '[]');
+        var pending = 0;
+        for (var i = 0; i < q.length; i++) {
+          if (q[i].actionType === 'system_adjustment' && q[i].status === 'pending_approval') pending++;
+        }
+        if (pending > 0) lines.push(pending + ' pending system adjustment(s)');
+      } catch (e) { /* ignore */ }
+      configChgInfo.innerHTML = lines.join('<br>');
     }
 
     function renderAudit() {

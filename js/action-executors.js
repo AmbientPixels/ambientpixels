@@ -1,4 +1,4 @@
-// action-executors.js — Action Router v1: Safe executors with strict allow-lists
+// action-executors.js — Action Router v1.1: Safe executors with strict allow-lists
 // Each executor validates inputs, enforces safety rules, and returns { success, reason? }
 // Never throws raw errors. Never executes unknown actions.
 
@@ -34,6 +34,8 @@ var ActionExecutors = (function () {
         return { success: false, reason: 'Social draft publishing not integrated' };
       case 'publish_social_live':
         return { success: false, reason: 'Social live publishing not integrated' };
+      case 'system_adjustment':
+        return _execSystemAdjustment(item);
       default:
         return { success: false, reason: 'Unknown executor for action: ' + item.actionType };
     }
@@ -168,9 +170,201 @@ var ActionExecutors = (function () {
     return { success: false, reason: 'AgentEngine not available' };
   }
 
+  // ═══════════════════════════════════════════════════
+  // ── system_adjustment executor v0 ──
+  // ═══════════════════════════════════════════════════
+  var BACKUP_KEY = 'ap_system_adjustment_backup_latest';
+  var FLAGS_KEY = 'ap_action_flags';
+  var MAX_FLAGS = 50;
+
+  var ALLOWED_TYPES = ['adjust_priority_weight', 'adjust_planner_threshold', 'flag_action_type'];
+
+  function _execSystemAdjustment(item) {
+    // ── Preconditions ──
+    if (!item || item.status !== 'approved_ready') {
+      return { success: false, reason: 'Item must be approved_ready' };
+    }
+    if (typeof ActionRouter === 'undefined' || !ActionRouter.isEnabled || !ActionRouter.isEnabled()) {
+      return { success: false, reason: 'actionsEnabled is false' };
+    }
+    if (typeof ActionRouter === 'undefined' || !ActionRouter.isConfigChangesEnabled || !ActionRouter.isConfigChangesEnabled()) {
+      return { success: false, reason: 'configChangesEnabled is false' };
+    }
+    var payload = item.payload;
+    if (!payload || !payload.type || !payload.proposedChange) {
+      return { success: false, reason: 'Missing payload type or proposedChange' };
+    }
+    if (ALLOWED_TYPES.indexOf(payload.type) === -1) {
+      _auditAdjustment('system_adjustment_blocked', item, null, null, 'Unknown adjustment type: ' + payload.type);
+      return { success: false, reason: 'Unknown adjustment type: ' + payload.type };
+    }
+
+    // ── Dispatch by type ──
+    switch (payload.type) {
+      case 'adjust_priority_weight': return _applyPriorityWeight(item);
+      case 'adjust_planner_threshold': return _applyPlannerThreshold(item);
+      case 'flag_action_type': return _applyFlagActionType(item);
+      default: return { success: false, reason: 'Unhandled type' };
+    }
+  }
+
+  // ── A) adjust_priority_weight ──
+  function _applyPriorityWeight(item) {
+    if (typeof PriorityEngine === 'undefined' || !PriorityEngine.getWeights || !PriorityEngine.setWeights) {
+      _auditAdjustment('system_adjustment_blocked', item, null, null, 'PriorityEngine API unavailable');
+      return { success: false, reason: 'PriorityEngine API unavailable' };
+    }
+    var pc = item.payload.proposedChange;
+    var field = pc.field;
+    if (!field || (PriorityEngine.WEIGHT_FIELDS || []).indexOf(field) === -1) {
+      _auditAdjustment('system_adjustment_blocked', item, null, null, 'Invalid weight field: ' + field);
+      return { success: false, reason: 'Invalid weight field: ' + field };
+    }
+    var before = PriorityEngine.getWeights();
+    _writeBackup(item, { priorityWeights: before, plannerThresholds: _safeGetPlannerThresholds() });
+
+    var currentVal = before[field];
+    var newVal;
+    if (pc.newValue != null) {
+      newVal = pc.newValue;
+    } else if (pc.delta != null) {
+      newVal = currentVal + pc.delta;
+    } else {
+      _auditAdjustment('system_adjustment_blocked', item, null, null, 'No delta or newValue provided');
+      return { success: false, reason: 'No delta or newValue provided' };
+    }
+    // Bounds: 0–5
+    newVal = Math.max(0, Math.min(5, Math.round(newVal * 100) / 100));
+
+    var next = {};
+    next[field] = newVal;
+    var writeOk = PriorityEngine.setWeights(next);
+    if (!writeOk) {
+      _auditAdjustment('system_adjustment_failed', item, currentVal, newVal, 'Storage write failed');
+      return { success: false, reason: 'Storage write failed' };
+    }
+    _auditAdjustment('system_adjustment_applied', item, currentVal, newVal, null);
+    return { success: true, applied: { field: field, before: currentVal, after: newVal } };
+  }
+
+  // ── B) adjust_planner_threshold ──
+  function _applyPlannerThreshold(item) {
+    if (typeof PlannerLoop === 'undefined' || !PlannerLoop.getThresholds || !PlannerLoop.setThresholds) {
+      _auditAdjustment('system_adjustment_blocked', item, null, null, 'PlannerLoop API unavailable');
+      return { success: false, reason: 'PlannerLoop API unavailable' };
+    }
+    var pc = item.payload.proposedChange;
+    var field = pc.field;
+    var current = PlannerLoop.getThresholds();
+    if (!field || current[field] == null) {
+      _auditAdjustment('system_adjustment_blocked', item, null, null, 'Invalid threshold field: ' + field);
+      return { success: false, reason: 'Invalid threshold field: ' + field };
+    }
+    var before = _safeGetPriorityWeights();
+    _writeBackup(item, { priorityWeights: before, plannerThresholds: current });
+
+    var currentVal = current[field];
+    var newVal;
+    if (pc.newValue != null) {
+      newVal = pc.newValue;
+    } else if (pc.delta != null) {
+      newVal = currentVal + pc.delta;
+    } else {
+      _auditAdjustment('system_adjustment_blocked', item, null, null, 'No delta or newValue provided');
+      return { success: false, reason: 'No delta or newValue provided' };
+    }
+    // Use PlannerLoop bounds if available
+    var bounds = (PlannerLoop.THRESHOLD_BOUNDS && PlannerLoop.THRESHOLD_BOUNDS[field]);
+    if (bounds) {
+      newVal = Math.max(bounds.min, Math.min(bounds.max, Math.round(newVal)));
+    }
+
+    var next = {};
+    next[field] = newVal;
+    var writeOk = PlannerLoop.setThresholds(next);
+    if (!writeOk) {
+      _auditAdjustment('system_adjustment_failed', item, currentVal, newVal, 'Storage write failed');
+      return { success: false, reason: 'Storage write failed' };
+    }
+    _auditAdjustment('system_adjustment_applied', item, currentVal, newVal, null);
+    return { success: true, applied: { field: field, before: currentVal, after: newVal } };
+  }
+
+  // ── C) flag_action_type (no config mutation) ──
+  function _applyFlagActionType(item) {
+    var pc = item.payload.proposedChange || {};
+    var target = item.payload.target || pc.actionType || 'unknown';
+    var note = pc.rationale || pc.note || 'Flagged by calibration';
+
+    // Append to capped flags list
+    try {
+      var flags = [];
+      var raw = localStorage.getItem(FLAGS_KEY);
+      if (raw) flags = JSON.parse(raw);
+      if (!Array.isArray(flags)) flags = [];
+      flags.push({ actionType: target, note: note, createdAt: new Date().toISOString(), actionId: item.id });
+      if (flags.length > MAX_FLAGS) flags = flags.slice(-MAX_FLAGS);
+      if (typeof StorageManager !== 'undefined' && StorageManager.safeSet) {
+        StorageManager.safeSet(FLAGS_KEY, flags);
+      } else {
+        localStorage.setItem(FLAGS_KEY, JSON.stringify(flags));
+      }
+    } catch (e) { /* best-effort */ }
+
+    _auditAdjustment('system_adjustment_flagged', item, null, target, note);
+    return { success: true, applied: { flagged: target, note: note } };
+  }
+
+  // ── Backup snapshot ──
+  function _writeBackup(item, beforeState) {
+    var backup = {
+      id: 'backup_' + Date.now().toString(36),
+      createdAt: new Date().toISOString(),
+      actionId: item.id || null,
+      correlationId: item.correlationId || null,
+      before: beforeState
+    };
+    try {
+      if (typeof StorageManager !== 'undefined' && StorageManager.safeSet) {
+        StorageManager.safeSet(BACKUP_KEY, backup);
+      } else {
+        localStorage.setItem(BACKUP_KEY, JSON.stringify(backup));
+      }
+    } catch (e) { /* best-effort */ }
+  }
+
+  function _safeGetPriorityWeights() {
+    try { return (typeof PriorityEngine !== 'undefined' && PriorityEngine.getWeights) ? PriorityEngine.getWeights() : null; }
+    catch (e) { return null; }
+  }
+
+  function _safeGetPlannerThresholds() {
+    try { return (typeof PlannerLoop !== 'undefined' && PlannerLoop.getThresholds) ? PlannerLoop.getThresholds() : null; }
+    catch (e) { return null; }
+  }
+
+  // ── Audit helper ──
+  function _auditAdjustment(eventType, item, beforeValue, afterValue, reason) {
+    if (typeof ActionAudit === 'undefined' || !ActionAudit.append) return;
+    try {
+      ActionAudit.append({
+        eventType: eventType,
+        actionId: item.id || null,
+        correlationId: item.correlationId || null,
+        adjustmentType: (item.payload && item.payload.type) || null,
+        target: (item.payload && item.payload.target) || null,
+        field: (item.payload && item.payload.proposedChange && item.payload.proposedChange.field) || null,
+        beforeValue: beforeValue,
+        afterValue: afterValue,
+        reason: reason || null
+      });
+    } catch (e) { /* fail silent */ }
+  }
+
   return {
     execute: execute,
-    SAFE_LANES: SAFE_LANES
+    SAFE_LANES: SAFE_LANES,
+    BACKUP_KEY: BACKUP_KEY
   };
 })();
 

@@ -82,6 +82,15 @@
       "requiresVerification": false,
       "executor": "social",
       "enabled": false
+    },
+    {
+      "id": "system_adjustment",
+      "name": "Apply system adjustment",
+      "riskLevel": "medium",
+      "requiresApproval": true,
+      "requiresVerification": false,
+      "executor": "system",
+      "enabled": true
     }
   ]
 }
