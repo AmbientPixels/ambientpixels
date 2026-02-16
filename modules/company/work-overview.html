@@ -185,6 +185,11 @@
     .work-pending-btn--approve { border-color:rgba(52,211,153,0.3); background:rgba(52,211,153,0.05); color:#34d399; }
     .work-pending-btn--reject { border-color:rgba(239,68,68,0.3); background:rgba(239,68,68,0.05); color:#ef4444; }
     .work-pending-empty { opacity:0.3; font-size:0.62rem; padding:0.4rem 0; }
+
+    /* Priority pills in work page */
+    .work-priority-pill { font-size:0.48rem; padding:0.08rem 0.25rem; border-radius:3px; margin-left:0.25rem; white-space:nowrap; }
+    .work-priority-pill--critical { background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.3); color:#f87171; }
+    .work-priority-pill--high { background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.25); color:#fbbf24; }
   </style>
 </head>
 <body style="background:#071019" data-theme="dark">
@@ -233,6 +238,10 @@
       <div class="work-attention-card work-attention-card--amber">
         <div class="work-attention-value" style="color:#8A2BE2;" id="work-pending-review">0</div>
         <div class="work-attention-label">Pending Review</div>
+      </div>
+      <div class="work-attention-card work-attention-card--warn">
+        <div class="work-attention-value" style="color:#f87171;" id="work-critical-count">0</div>
+        <div class="work-attention-label">Critical</div>
       </div>
       <div class="work-attention-card">
         <div class="work-attention-value" id="stat-actions">—</div>
@@ -305,6 +314,8 @@
 
   </main>
 
+  <script src="/js/priority-audit.js"></script>
+  <script src="/js/priority-engine.js"></script>
   <script src="/js/task-verifier.js"></script>
   <script src="/js/action-audit.js"></script>
   <script src="/js/action-queue.js"></script>
@@ -356,9 +367,23 @@
       if (blocked > 0) document.getElementById('work-blocked').closest('.work-attention-card').classList.add('work-attention-card--warn');
       if (overdue > 0) document.getElementById('work-overdue').closest('.work-attention-card').classList.add('work-attention-card--warn');
 
-      // Recent tasks — styled card rows
+      // Priority Engine v1 — recalculate + populate critical count
+      try { PriorityEngine.recalculateAll(tasks); } catch (e) { /* fail closed */ }
+      var priCounts = PriorityEngine.getCounts();
+      var critEl = document.getElementById('work-critical-count');
+      if (critEl) {
+        critEl.textContent = priCounts.critical || 0;
+        if (priCounts.critical > 0) critEl.closest('.work-attention-card').classList.add('work-attention-card--warn');
+      }
+
+      // Recent tasks — sorted by priority score DESC, then by date
       var taskEl = document.getElementById('ov-tasks');
-      var recentTasks = tasks.slice().sort(function (a, b) { return new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0); }).slice(0, 8);
+      var recentTasks = tasks.filter(function (t) { return t.status !== 'done'; }).slice().sort(function (a, b) {
+        var sa = (PriorityEngine.getCached(a.id) || {}).score || 0;
+        var sb = (PriorityEngine.getCached(b.id) || {}).score || 0;
+        if (sb !== sa) return sb - sa;
+        return new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0);
+      }).slice(0, 8);
       if (recentTasks.length === 0) { taskEl.innerHTML = '<div style="opacity:0.35; font-size:0.68rem; padding:0.5rem 0;">No tasks yet.</div>'; }
       else {
         var statusColor = { 'backlog': '#666', 'todo': '#888', 'in-progress': '#4ECDC4', 'review': '#8A2BE2', 'done': '#34d399', 'blocked': '#ef4444', 'pending-approval': '#fbbf24' };

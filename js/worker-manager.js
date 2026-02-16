@@ -186,11 +186,20 @@ var WorkerManager = (function () {
     var pendingApprovals = snapshot.pendingApprovalsCount || 0;
     var oldestInReviewHours = snapshot.oldestInReviewHours || 0;
 
+    // Priority Engine v1 — escalate on critical count
+    var criticalCount = 0;
+    try {
+      if (typeof PriorityEngine !== 'undefined' && PriorityEngine.getCounts) {
+        criticalCount = PriorityEngine.getCounts().critical || 0;
+      }
+    } catch (e) { /* fail closed */ }
+
     return (
       reviewCount >= PRESSURE_THRESHOLDS.reviewCount ||
       overdueCount >= PRESSURE_THRESHOLDS.overdueCount ||
       pendingApprovals >= PRESSURE_THRESHOLDS.pendingApprovals ||
-      oldestInReviewHours >= PRESSURE_THRESHOLDS.oldestInReviewHours
+      oldestInReviewHours >= PRESSURE_THRESHOLDS.oldestInReviewHours ||
+      criticalCount >= 3
     );
   }
 

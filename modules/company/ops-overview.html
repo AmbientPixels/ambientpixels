@@ -142,6 +142,20 @@
     .ops-action-strip--disabled .ops-action-strip-value { color: #fbbf24; }
     .ops-feed-row--action { border-left-color: rgba(255,165,0,0.5); }
 
+    /* Priority strip */
+    .ops-priority-strip {
+      display: flex; align-items: center; gap: 0.8rem;
+      padding: 0.5rem 0.8rem; margin-bottom: 1rem;
+      background: rgba(239,68,68,0.015);
+      border: 1px solid rgba(239,68,68,0.06);
+      border-radius: 8px; font-size: 0.68rem;
+    }
+    .ops-priority-strip-label { opacity: 0.4; font-weight: 500; white-space: nowrap; }
+    .ops-priority-strip-value { font-weight: 600; }
+    .ops-priority-strip-crit { color: #f87171; }
+    .ops-priority-strip-high { color: #fbbf24; }
+    .ops-priority-strip-ts { opacity: 0.3; font-size: 0.6rem; margin-left: auto; white-space: nowrap; }
+
     @media (prefers-reduced-motion: reduce) {
       .ops-status-dot { animation: none; opacity: 1; }
     }
@@ -193,6 +207,13 @@
       <span class="ops-action-strip-ts" id="ops-action-ts"></span>
     </div>
 
+    <!-- Priority Strip -->
+    <div class="ops-priority-strip" id="ops-priority-strip">
+      <span class="ops-priority-strip-label"><i class="fas fa-fire" style="margin-right:4px; opacity:0.4;"></i>Priority:</span>
+      <span class="ops-priority-strip-value" id="ops-priority-counts">—</span>
+      <span class="ops-priority-strip-ts" id="ops-priority-ts"></span>
+    </div>
+
     <!-- Heartbeat Feed -->
     <div class="ops-feed-panel">
       <div class="ops-feed-title"><i class="fas fa-heartbeat" style="margin-right:4px;"></i> Recent Heartbeat Activity</div>
@@ -227,6 +248,8 @@
 
   </main>
 
+  <script src="/js/priority-audit.js"></script>
+  <script src="/js/priority-engine.js"></script>
   <script src="/js/action-audit.js"></script>
   <script src="/js/action-queue.js"></script>
   <script src="/js/action-executors.js"></script>
@@ -362,6 +385,21 @@
         countEl.style.color = pending > 0 ? '#FFA500' : '';
         tsEl.textContent = '';
       }
+    })();
+
+    // Priority strip
+    (function () {
+      var countsEl = document.getElementById('ops-priority-counts');
+      var tsEl = document.getElementById('ops-priority-ts');
+      if (!countsEl) return;
+      try { PriorityEngine.recalculateAll(tasks); } catch (e) { /* fail closed */ }
+      var c = PriorityEngine.getCounts();
+      var parts = [];
+      if (c.critical > 0) parts.push('<span class="ops-priority-strip-crit"><i class="fas fa-fire"></i> ' + c.critical + ' Critical</span>');
+      if (c.high > 0) parts.push('<span class="ops-priority-strip-high"><i class="fas fa-arrow-up"></i> ' + c.high + ' High</span>');
+      if (parts.length === 0) parts.push('No critical or high priority tasks');
+      countsEl.innerHTML = parts.join(' &middot; ');
+      if (tsEl) tsEl.textContent = '';
     })();
   })();
   </script>

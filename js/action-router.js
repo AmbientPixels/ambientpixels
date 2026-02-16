@@ -220,6 +220,17 @@ var ActionRouter = (function () {
     var ready = ActionQueue.getReady(MAX_PER_CYCLE);
     if (ready.length === 0) return { ran: 0, reason: 'queue_empty' };
 
+    // Priority Engine v1 — sort by target task priority score DESC
+    try {
+      if (typeof PriorityEngine !== 'undefined' && PriorityEngine.getCached) {
+        ready.sort(function (a, b) {
+          var sa = (a.targetId && PriorityEngine.getCached(a.targetId)) ? PriorityEngine.getCached(a.targetId).score : 0;
+          var sb = (b.targetId && PriorityEngine.getCached(b.targetId)) ? PriorityEngine.getCached(b.targetId).score : 0;
+          return sb - sa;
+        });
+      }
+    } catch (e) { /* fail closed — use original order */ }
+
     var executed = 0;
 
     for (var i = 0; i < ready.length; i++) {

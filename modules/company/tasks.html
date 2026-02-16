@@ -43,6 +43,13 @@
     /* Badge emphasis in review lane */
     [data-status="review"] .verify-badge--fail { background:rgba(239,68,68,0.15); }
     [data-status="review"] .verify-badge--manual { background:rgba(251,191,36,0.15); }
+
+    /* Priority Engine pills */
+    .priority-pill { font-size:0.5rem; padding:0.1rem 0.3rem; border-radius:3px; margin-left:0.3rem; white-space:nowrap; vertical-align:middle; }
+    .priority-pill--low { background:rgba(156,163,175,0.08); border:1px solid rgba(156,163,175,0.2); color:#9ca3af; }
+    .priority-pill--medium { background:rgba(59,130,246,0.08); border:1px solid rgba(59,130,246,0.25); color:#60a5fa; }
+    .priority-pill--high { background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.3); color:#fbbf24; }
+    .priority-pill--critical { background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.35); color:#f87171; }
   </style>
 </head>
 <body style="background:#071019" data-theme="dark">
@@ -262,6 +269,8 @@
 
   </main>
 
+  <script src="/js/priority-audit.js"></script>
+  <script src="/js/priority-engine.js"></script>
   <script src="/js/task-verifier.js"></script>
   <script src="/js/company-store.js"></script>
   <script src="/js/agent-engine.js"></script>
@@ -341,6 +350,8 @@
 
       // ── Render ──
       function renderAll() {
+        // Priority Engine v1 — recalculate before render
+        try { PriorityEngine.recalculateAll(AgentEngine.getTasks()); } catch (e) { /* fail closed */ }
         renderTaskIntel();
         renderStats();
         renderBoard();
@@ -555,6 +566,16 @@
         _toastTimer = setTimeout(function () { _toastEl.classList.remove('show'); }, 3500);
       }
 
+      // Priority Engine v1 — pill helper
+      function _priorityPillHtml(task) {
+        var cached = PriorityEngine.getCached(task.id);
+        if (!cached) return '';
+        var b = cached.bucket;
+        var icons = { low: 'fas fa-minus', medium: 'fas fa-equals', high: 'fas fa-arrow-up', critical: 'fas fa-fire' };
+        var labels = { low: 'Low', medium: 'Med', high: 'High', critical: 'Crit' };
+        return '<span class="priority-pill priority-pill--' + b + '" title="Priority: ' + b + '"><i class="' + (icons[b] || 'fas fa-minus') + '"></i> ' + (labels[b] || b) + '</span>';
+      }
+
       // Load verification templates
       TaskVerifier.load();
 
@@ -652,6 +673,7 @@
 
         var badge = riskPill(task);
         var vBadge = _verifyBadgeHtml(task);
+        var pPill = _priorityPillHtml(task);
 
         // v2.3 D) Source traceability link
         var sourceHtml = '';
@@ -659,7 +681,7 @@
           sourceHtml = '<div style="font-size:0.55rem;opacity:0.4;margin-top:0.2rem;"><i class="fas fa-link" style="margin-right:2px;"></i> From standup: <a href="/modules/company/standup.html" style="color:#fbbf24;text-decoration:none;">' + escapeHtml(task.source.title || 'Standup') + '</a></div>';
         }
 
-        card.innerHTML = '<div class="tm-card-title">' + escapeHtml(task.title) + badge + vBadge + '</div>' + meta + sourceHtml;
+        card.innerHTML = '<div class="tm-card-title">' + escapeHtml(task.title) + badge + vBadge + pPill + '</div>' + meta + sourceHtml;
 
         card.addEventListener('click', function () { openEditModal(task.id); });
 
