@@ -407,28 +407,6 @@
         </div>
         <span class="cfg-check-value" id="stat-tools">—</span>
       </div>
-      <div class="cfg-check-row">
-        <div class="cfg-check-label">
-          <span class="cfg-check-icon cfg-check-icon--ok"><i class="fas fa-clock"></i></span>
-          <span>Business Day TZ</span>
-        </div>
-        <div style="display:flex;align-items:center;">
-          <select class="cfg-tz-select" id="cfg-tz-select">
-            <option value="America/Los_Angeles">Pacific (PST/PDT)</option>
-            <option value="America/Denver">Mountain (MST/MDT)</option>
-            <option value="America/Chicago">Central (CST/CDT)</option>
-            <option value="America/New_York">Eastern (EST/EDT)</option>
-            <option value="America/Anchorage">Alaska (AKST/AKDT)</option>
-            <option value="Pacific/Honolulu">Hawaii (HST)</option>
-            <option value="Europe/London">London (GMT/BST)</option>
-            <option value="Europe/Berlin">Central Europe (CET/CEST)</option>
-            <option value="Asia/Tokyo">Tokyo (JST)</option>
-            <option value="Australia/Sydney">Sydney (AEST/AEDT)</option>
-            <option value="UTC">UTC</option>
-          </select>
-          <span class="cfg-tz-saved" id="cfg-tz-saved">Saved</span>
-        </div>
-      </div>
     </div>
 
     <!-- External API Health -->
@@ -533,6 +511,23 @@
       <div class="cfg-planner-helper" id="cfg-planner-helper"></div>
       <button class="cfg-planner-toggle" id="cfg-planner-toggle"></button>
       <div class="cfg-planner-info" id="cfg-planner-info"></div>
+      <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.6rem; padding-top:0.5rem; border-top:1px solid rgba(138,43,226,0.08);">
+        <span style="font-size:0.62rem; opacity:0.5;"><i class="fas fa-clock" style="margin-right:3px;"></i> Business Day TZ</span>
+        <select class="cfg-tz-select" id="cfg-tz-select">
+          <option value="America/Los_Angeles">Pacific (PST/PDT)</option>
+          <option value="America/Denver">Mountain (MST/MDT)</option>
+          <option value="America/Chicago">Central (CST/CDT)</option>
+          <option value="America/New_York">Eastern (EST/EDT)</option>
+          <option value="America/Anchorage">Alaska (AKST/AKDT)</option>
+          <option value="Pacific/Honolulu">Hawaii (HST)</option>
+          <option value="Europe/London">London (GMT/BST)</option>
+          <option value="Europe/Berlin">Central Europe (CET/CEST)</option>
+          <option value="Asia/Tokyo">Tokyo (JST)</option>
+          <option value="Australia/Sydney">Sydney (AEST/AEDT)</option>
+          <option value="UTC">UTC</option>
+        </select>
+        <span class="cfg-tz-saved" id="cfg-tz-saved">Saved</span>
+      </div>
     </div>
 
     <!-- Calibration Automation -->
