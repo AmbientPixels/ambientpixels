@@ -923,6 +923,89 @@ var AgentEngine = (function () {
     return { tasks: createdTasks, directives: createdDirectives };
   }
 
+  // Per-proposal standup decision (v2.7)
+  // type: 'task' | 'directive', index: array index, decision: 'approved' | 'activated' | 'rejected' | 'deferred'
+  function decideStandupProposal(standupId, type, index, decision) {
+    var log = _loadStandupLog();
+    var standup = null;
+    var si = -1;
+    for (var i = 0; i < log.length; i++) {
+      if (log[i].id === standupId) { standup = log[i]; si = i; break; }
+    }
+    if (!standup) { console.warn('[AgentEngine] Standup not found:', standupId); return null; }
+
+    var arr = type === 'task' ? (standup.proposals.tasks || []) : (standup.proposals.directives || []);
+    if (index < 0 || index >= arr.length) { console.warn('[AgentEngine] Proposal index out of range:', index); return null; }
+
+    var proposal = arr[index];
+    proposal._decision = decision;
+    proposal._decidedAt = new Date().toISOString();
+    proposal._decidedBy = 'ceo';
+
+    var source = { type: 'standup', id: standupId, title: standup.title, date: standup.date };
+
+    if (decision === 'approved' || decision === 'activated') {
+      var created = null;
+      if (type === 'task') {
+        created = addTask({
+          title: proposal.title,
+          description: (proposal.rationale || '') + (proposal._proposers ? '\n[Proposed by: ' + proposal._proposers.join(', ') + ']' : ''),
+          status: decision === 'activated' ? 'todo' : 'pending-approval',
+          priority: proposal.priority || 'medium',
+          assignee: proposal.assignee || null,
+          dueDate: proposal.dueDate || null,
+          tags: ['standup-proposal'],
+          source: source,
+          impact: proposal.impact || 'Medium',
+          effort: proposal.effort || 'Medium'
+        });
+      } else {
+        created = addDirective({
+          title: proposal.title,
+          description: (proposal.rationale || '') + (proposal._proposers ? '\n[Proposed by: ' + proposal._proposers.join(', ') + ']' : ''),
+          status: decision === 'activated' ? 'active' : 'pending-approval',
+          priority: proposal.priority || 'medium',
+          classification: proposal.classification || 'Operational',
+          owner: proposal.owner || null,
+          impact: proposal.impact || 'Medium',
+          effort: proposal.effort || 'Medium',
+          dependencies: [],
+          source: source,
+          approval: decision === 'activated'
+            ? { status: 'approved', approvedBy: 'ceo', approvedAt: new Date().toISOString() }
+            : { status: 'pending', approvedBy: null, approvedAt: null }
+        });
+      }
+      if (created) {
+        proposal._createdId = created.id;
+        if (type === 'task') {
+          if (!standup._createdTaskIds) standup._createdTaskIds = [];
+          standup._createdTaskIds.push(created.id);
+        } else {
+          if (!standup._createdDirectiveIds) standup._createdDirectiveIds = [];
+          standup._createdDirectiveIds.push(created.id);
+        }
+      }
+    }
+
+    // Auto-update standup-level decision status
+    var allProposals = (standup.proposals.tasks || []).concat(standup.proposals.directives || []);
+    var decided = allProposals.filter(function (p) { return p._decision; });
+    if (decided.length === allProposals.length && allProposals.length > 0) {
+      var anyApproved = decided.some(function (p) { return p._decision === 'approved' || p._decision === 'activated'; });
+      standup.decisionStatus = anyApproved ? 'Approved' : 'Rejected';
+      standup.locked = true;
+      standup.decisionAt = new Date().toISOString();
+      standup.decisionBy = 'ceo';
+    }
+
+    log[si] = standup;
+    _saveStandupLog(log);
+    _logGovernance('standup-proposal-decision', { standupId: standupId, type: type, index: index, decision: decision, title: proposal.title });
+    emit('standup-proposal-decided', { standupId: standupId, type: type, index: index, decision: decision, proposal: proposal });
+    return standup;
+  }
+
   // v2.3 G) One-click Approve + Activate: approve standup, create proposals if needed, activate all
   function approveAndActivate(standupId) {
     var standup = getStandupById(standupId);
@@ -2744,6 +2827,7 @@ var AgentEngine = (function () {
     updateStandupDecision: updateStandupDecision,
     createProposalsAsPending: createProposalsAsPending,
     approveAndActivate: approveAndActivate,
+    decideStandupProposal: decideStandupProposal,
     getStandupTopicKeys: getStandupTopicKeys,
     buildPreview: buildPreview,
     STANDUP_TYPES: STANDUP_TYPES,

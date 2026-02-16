@@ -60,15 +60,19 @@
     .su-proposal-badge { font-size:0.55rem; padding:1px 6px; border-radius:6px; font-weight:500; }
     .su-proposal-rationale { font-size:0.62rem; opacity:0.5; margin-top:0.2rem; }
 
-    .su-actions-bar { display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.6rem; }
-    .su-action-btn { font-size:0.65rem; padding:5px 12px; border-radius:6px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.04); color:#e0e0e0; cursor:pointer; font-family:inherit; transition:all 0.15s; }
-    .su-action-btn:hover { background:rgba(255,255,255,0.08); }
-    .su-action-btn--approve { border-color:rgba(34,197,94,0.3); color:#22c55e; }
-    .su-action-btn--reject { border-color:rgba(239,68,68,0.3); color:#ef4444; }
-    .su-action-btn--defer { border-color:rgba(139,92,246,0.3); color:#8b5cf6; }
-    .su-action-btn--create { border-color:rgba(59,130,246,0.3); color:#3b82f6; background:rgba(59,130,246,0.08); }
-    .su-action-btn--create:hover { background:rgba(59,130,246,0.15); }
-    .su-action-btn:disabled { opacity:0.3; cursor:not-allowed; }
+    .su-proposal-actions { display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.5rem; padding-top:0.4rem; border-top:1px solid rgba(255,255,255,0.05); }
+    .su-proposal-action { font-size:0.68rem; padding:5px 12px; border-radius:6px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.04); color:#e0e0e0; cursor:pointer; font-family:inherit; transition:all 0.15s; font-weight:500; }
+    .su-proposal-action:hover { background:rgba(255,255,255,0.1); }
+    .su-proposal-action--activate { border-color:rgba(34,197,94,0.5); color:#22c55e; background:rgba(34,197,94,0.1); }
+    .su-proposal-action--activate:hover { background:rgba(34,197,94,0.2); }
+    .su-proposal-action--approve { border-color:rgba(59,130,246,0.5); color:#3b82f6; background:rgba(59,130,246,0.08); }
+    .su-proposal-action--approve:hover { background:rgba(59,130,246,0.18); }
+    .su-proposal-action--reject { border-color:rgba(239,68,68,0.4); color:#ef4444; background:rgba(239,68,68,0.06); }
+    .su-proposal-action--reject:hover { background:rgba(239,68,68,0.15); }
+    .su-proposal-action--defer { border-color:rgba(139,92,246,0.4); color:#8b5cf6; background:rgba(139,92,246,0.06); }
+    .su-proposal-action--defer:hover { background:rgba(139,92,246,0.15); }
+    .su-proposal-action:disabled { opacity:0.3; cursor:not-allowed; }
+    .su-proposal-item--decided { opacity:0.7; }
 
     .su-recurrence { display:flex; gap:0.4rem; align-items:center; }
     .su-recurrence label { margin:0; white-space:nowrap; }
@@ -154,14 +158,6 @@
         </div>
         <div class="su-decision-grid" id="su-decision-grid">
           <div class="su-decision-card">
-            <div class="su-decision-card-label">Decisions Made</div>
-            <div class="su-decision-card-value" id="su-decisions-count">0</div>
-          </div>
-          <div class="su-decision-card">
-            <div class="su-decision-card-label">Approvals Required</div>
-            <div class="su-decision-card-value" id="su-approvals-count">0</div>
-          </div>
-          <div class="su-decision-card">
             <div class="su-decision-card-label">Proposed Tasks</div>
             <div class="su-decision-card-value" id="su-tasks-count">0</div>
           </div>
@@ -169,15 +165,24 @@
             <div class="su-decision-card-label">Proposed Directives</div>
             <div class="su-decision-card-value" id="su-directives-count">0</div>
           </div>
+          <div class="su-decision-card">
+            <div class="su-decision-card-label" style="color:#22c55e;">Approved</div>
+            <div class="su-decision-card-value" id="su-approved-count" style="color:#22c55e;">0</div>
+          </div>
+          <div class="su-decision-card">
+            <div class="su-decision-card-label" style="color:#ef4444;">Rejected</div>
+            <div class="su-decision-card-value" id="su-rejected-count" style="color:#ef4444;">0</div>
+          </div>
+          <div class="su-decision-card">
+            <div class="su-decision-card-label" style="color:#8b5cf6;">Deferred</div>
+            <div class="su-decision-card-value" id="su-deferred-count" style="color:#8b5cf6;">0</div>
+          </div>
+          <div class="su-decision-card">
+            <div class="su-decision-card-label">Remaining</div>
+            <div class="su-decision-card-value" id="su-remaining-count">0</div>
+          </div>
         </div>
-        <div class="su-actions-bar" id="su-decision-actions">
-          <button class="su-action-btn su-action-btn--approve" data-decision="Approved"><i class="fas fa-check"></i> Approve</button>
-          <button class="su-action-btn su-action-btn--reject" data-decision="Rejected"><i class="fas fa-times"></i> Reject</button>
-          <button class="su-action-btn su-action-btn--defer" data-decision="Deferred"><i class="fas fa-clock"></i> Defer</button>
-          <button class="su-action-btn" data-decision="NoAction"><i class="fas fa-minus"></i> No Action</button>
-          <button class="su-action-btn su-action-btn--create" id="su-create-all"><i class="fas fa-plus-circle"></i> Create All (Pending Approval)</button>
-          <button class="su-action-btn" id="su-approve-activate" style="margin-left:auto;border-color:rgba(34,197,94,0.4);color:#22c55e;background:rgba(34,197,94,0.08);"><i class="fas fa-rocket"></i> Approve + Activate</button>
-        </div>
+        <div style="font-size:0.6rem;opacity:0.35;margin-top:0.5rem;">Review each proposed action below and approve, reject, or defer individually.</div>
       </div>
 
       <!-- Risk Aggregation Panel -->
@@ -390,66 +395,47 @@
       function renderDecisionPanel(standup) {
         if (!standup || standup.status !== 'complete') return;
         suDecisionPanel.style.display = 'block';
-        var totalProposals = (standup.proposals.tasks || []).length + (standup.proposals.directives || []).length;
 
-        document.getElementById('su-decision-badge').className = 'su-status-badge su-status-' + (standup.decisionStatus || 'Pending');
-        document.getElementById('su-decision-badge').textContent = standup.decisionStatus || 'Pending';
+        var tasks = standup.proposals.tasks || [];
+        var dirs = standup.proposals.directives || [];
+        var all = tasks.concat(dirs);
+        var approved = 0, rejected = 0, deferred = 0, remaining = 0;
+        all.forEach(function (p) {
+          if (p._decision === 'approved' || p._decision === 'activated') approved++;
+          else if (p._decision === 'rejected') rejected++;
+          else if (p._decision === 'deferred') deferred++;
+          else remaining++;
+        });
 
-        document.getElementById('su-decisions-count').textContent = (standup.decisionStatus === 'Approved' || standup.decisionStatus === 'Rejected') ? '1' : '0';
-        document.getElementById('su-approvals-count').textContent = totalProposals;
-        document.getElementById('su-tasks-count').textContent = (standup.proposals.tasks || []).length;
-        document.getElementById('su-directives-count').textContent = (standup.proposals.directives || []).length;
+        document.getElementById('su-tasks-count').textContent = tasks.length;
+        document.getElementById('su-directives-count').textContent = dirs.length;
+        document.getElementById('su-approved-count').textContent = approved;
+        document.getElementById('su-rejected-count').textContent = rejected;
+        document.getElementById('su-deferred-count').textContent = deferred;
+        document.getElementById('su-remaining-count').textContent = remaining;
 
-        // Lock state
         var lockIcon = document.getElementById('su-lock-icon');
-        var actionsBar = document.getElementById('su-decision-actions');
-        if (standup.locked) {
-          lockIcon.style.display = '';
-          actionsBar.querySelectorAll('.su-action-btn').forEach(function (b) { b.disabled = true; });
-        } else {
-          lockIcon.style.display = 'none';
-          actionsBar.querySelectorAll('.su-action-btn').forEach(function (b) { b.disabled = false; });
-        }
+        var overallStatus = remaining === 0 && all.length > 0 ? (approved > 0 ? 'Approved' : 'Rejected') : 'Pending';
+        document.getElementById('su-decision-badge').className = 'su-status-badge su-status-' + overallStatus;
+        document.getElementById('su-decision-badge').textContent = overallStatus;
+        lockIcon.style.display = (standup.locked || remaining === 0 && all.length > 0) ? '' : 'none';
       }
 
-      // Decision action buttons
-      document.getElementById('su-decision-actions').addEventListener('click', function (e) {
-        var btn = e.target.closest('.su-action-btn');
+      // Per-proposal decision handler (delegated from proposals list)
+      document.getElementById('su-proposals-list').addEventListener('click', function (e) {
+        var btn = e.target.closest('.su-proposal-action');
         if (!btn || btn.disabled || !_currentStandupId) return;
 
-        if (btn.id === 'su-create-all') {
-          var result = AgentEngine.createProposalsAsPending(_currentStandupId);
-          if (result) {
-            alert('Created ' + result.tasks.length + ' task(s) and ' + result.directives.length + ' directive(s) as Pending Approval.');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-check"></i> Created';
-            var s = AgentEngine.getStandupById(_currentStandupId);
-            if (s) { renderArtifacts(s); renderOutcomeSummary(s); }
-          }
-          return;
-        }
-
-        if (btn.id === 'su-approve-activate') {
-          var res = AgentEngine.approveAndActivate(_currentStandupId);
-          if (res) {
-            alert('Approved and activated: ' + res.activatedTasks + ' task(s) moved to Todo, ' + res.activatedDirs + ' directive(s) activated.');
-            var updated = AgentEngine.getStandupById(_currentStandupId);
-            if (updated) {
-              renderDecisionPanel(updated);
-              renderArtifacts(updated);
-              renderOutcomeSummary(updated);
-            }
-          }
-          return;
-        }
-
+        var type = btn.dataset.type;
+        var index = parseInt(btn.dataset.index, 10);
         var decision = btn.dataset.decision;
-        if (decision) {
-          var updated = AgentEngine.updateStandupDecision(_currentStandupId, decision);
-          if (updated) {
-            renderDecisionPanel(updated);
-            renderOutcomeSummary(updated);
-          }
+
+        var updated = AgentEngine.decideStandupProposal(_currentStandupId, type, index, decision);
+        if (updated) {
+          renderDecisionPanel(updated);
+          renderProposalsPanel(updated);
+          renderArtifacts(updated);
+          renderOutcomeSummary(updated);
         }
       });
 
@@ -472,6 +458,25 @@
       }
 
       // ── Proposals Panel ──
+      function _suProposalDecisionBadge(p) {
+        if (!p._decision) return '';
+        var COLORS = { approved: '#22c55e', activated: '#22c55e', rejected: '#ef4444', deferred: '#8b5cf6' };
+        var LABELS = { approved: 'Approved (Pending)', activated: 'Approved + Active', rejected: 'Rejected', deferred: 'Deferred' };
+        var c = COLORS[p._decision] || '#6b7280';
+        return '<span style="font-size:0.6rem;font-weight:600;padding:2px 8px;border-radius:8px;background:' + c + '22;color:' + c + ';">' +
+          (LABELS[p._decision] || p._decision) + '</span>';
+      }
+
+      function _suProposalActionButtons(type, index, p) {
+        if (p._decision) return '';
+        return '<div class="su-proposal-actions">' +
+          '<button class="su-proposal-action su-proposal-action--activate" data-type="' + type + '" data-index="' + index + '" data-decision="activated"><i class="fas fa-rocket"></i> Approve + Activate</button>' +
+          '<button class="su-proposal-action su-proposal-action--approve" data-type="' + type + '" data-index="' + index + '" data-decision="approved"><i class="fas fa-check"></i> Approve</button>' +
+          '<button class="su-proposal-action su-proposal-action--reject" data-type="' + type + '" data-index="' + index + '" data-decision="rejected"><i class="fas fa-times"></i> Reject</button>' +
+          '<button class="su-proposal-action su-proposal-action--defer" data-type="' + type + '" data-index="' + index + '" data-decision="deferred"><i class="fas fa-clock"></i> Defer</button>' +
+          '</div>';
+      }
+
       function renderProposalsPanel(standup) {
         var tasks = standup.proposals.tasks || [];
         var dirs = standup.proposals.directives || [];
@@ -483,11 +488,11 @@
         var IMPACT_COLORS = { High: '#ef4444', Medium: '#fbbf24', Low: '#6b7280' };
         var PRI_COLORS = { urgent: '#ef4444', high: '#f59e0b', medium: '#3b82f6', low: '#6b7280' };
 
-        tasks.forEach(function (t) {
+        tasks.forEach(function (t, i) {
           var el = document.createElement('div');
-          el.className = 'su-proposal-item su-proposal-item--task';
+          el.className = 'su-proposal-item su-proposal-item--task' + (t._decision ? ' su-proposal-item--decided' : '');
           el.innerHTML =
-            '<div class="su-proposal-name"><i class="fas fa-tasks" style="color:#3b82f6;margin-right:4px;font-size:0.6rem;"></i>' + escapeHtml(t.title) + '</div>' +
+            '<div class="su-proposal-name"><i class="fas fa-tasks" style="color:#3b82f6;margin-right:4px;font-size:0.6rem;"></i>' + escapeHtml(t.title) + ' ' + _suProposalDecisionBadge(t) + '</div>' +
             '<div class="su-proposal-meta">' +
               '<span class="su-proposal-badge" style="background:rgba(59,130,246,0.12);color:#3b82f6;">Task</span>' +
               (t.assignee ? '<span class="su-proposal-badge" style="background:rgba(255,255,255,0.06);color:#ccc;">' + t.assignee + '</span>' : '') +
@@ -496,15 +501,16 @@
               '<span class="su-proposal-badge" style="background:rgba(255,255,255,0.06);color:#ccc;">Effort: ' + (t.effort || '?') + '</span>' +
               (t._proposers && t._proposers.length > 1 ? '<span class="su-proposal-badge" style="background:rgba(138,43,226,0.12);color:#a855f7;">Merged (' + t._proposers.join(', ') + ')</span>' : '') +
             '</div>' +
-            (t.rationale ? '<div class="su-proposal-rationale">' + escapeHtml(t.rationale) + '</div>' : '');
+            (t.rationale ? '<div class="su-proposal-rationale">' + escapeHtml(t.rationale) + '</div>' : '') +
+            _suProposalActionButtons('task', i, t);
           list.appendChild(el);
         });
 
-        dirs.forEach(function (d) {
+        dirs.forEach(function (d, i) {
           var el = document.createElement('div');
-          el.className = 'su-proposal-item';
+          el.className = 'su-proposal-item' + (d._decision ? ' su-proposal-item--decided' : '');
           el.innerHTML =
-            '<div class="su-proposal-name"><i class="fas fa-compass" style="color:#a855f7;margin-right:4px;font-size:0.6rem;"></i>' + escapeHtml(d.title) + '</div>' +
+            '<div class="su-proposal-name"><i class="fas fa-compass" style="color:#a855f7;margin-right:4px;font-size:0.6rem;"></i>' + escapeHtml(d.title) + ' ' + _suProposalDecisionBadge(d) + '</div>' +
             '<div class="su-proposal-meta">' +
               '<span class="su-proposal-badge" style="background:rgba(138,43,226,0.12);color:#a855f7;">Directive</span>' +
               '<span class="su-proposal-badge" style="background:rgba(255,255,255,0.06);color:#ccc;">' + (d.classification || 'Operational') + '</span>' +
@@ -514,7 +520,8 @@
               '<span class="su-proposal-badge" style="background:rgba(255,255,255,0.06);color:#ccc;">Effort: ' + (d.effort || '?') + '</span>' +
               (d._proposers && d._proposers.length > 1 ? '<span class="su-proposal-badge" style="background:rgba(138,43,226,0.12);color:#a855f7;">Merged (' + d._proposers.join(', ') + ')</span>' : '') +
             '</div>' +
-            (d.rationale ? '<div class="su-proposal-rationale">' + escapeHtml(d.rationale) + '</div>' : '');
+            (d.rationale ? '<div class="su-proposal-rationale">' + escapeHtml(d.rationale) + '</div>' : '') +
+            _suProposalActionButtons('directive', i, d);
           list.appendChild(el);
         });
       }
