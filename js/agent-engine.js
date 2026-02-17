@@ -2474,6 +2474,18 @@ var AgentEngine = (function () {
             markArtifactPublished(docId, artUrl);
           }
         }
+        // Auto-complete parent task when social action is approved
+        if (a._parentTaskId && (a.type === 'social_post.publish' || a.type === 'social_post.schedule')) {
+          var parentTask = getTask(a._parentTaskId);
+          if (parentTask && parentTask.status !== 'done') {
+            updateTask(a._parentTaskId, { status: 'done' });
+            addTaskComment(a._parentTaskId, {
+              text: 'Task auto-completed: CEO approved the linked social action (' + actionId + ').',
+              author: 'system',
+              type: 'system'
+            });
+          }
+        }
         _logAction('action-approved', { actionId: actionId, type: a.type, platform: a.platform });
         _logGovernance('ceo-approval', { actionId: actionId, type: a.type, platform: a.platform, context: 'action' });
         return a;

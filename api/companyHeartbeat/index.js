@@ -685,6 +685,9 @@ Write the full deliverable first, then the structured JSON block.`;
         context.log('[Heartbeat]', agentId, 'social action linked to artifact:', socialPayload.artifact_id);
       }
 
+      // Link action to parent task if provided
+      if (action.taskId) newAction._parentTaskId = action.taskId;
+
       actionsStore.push(newAction);
       await storage.setState('actions', actionsStore);
 
@@ -719,8 +722,8 @@ Write the full deliverable first, then the structured JSON block.`;
           tasks[parentIdx].comments.push({
             id: 'cmt-' + Date.now(),
             author: agentId,
-            text: 'Social post created and submitted for CEO approval (action: ' + newAction.id + ')',
-            type: 'system',
+            text: 'Social post created and submitted for CEO approval (action: ' + newAction.id + '). Awaiting CEO decision.',
+            type: 'deliverable',
             createdAt: new Date().toISOString()
           });
           context.log('[Heartbeat]', agentId, 'auto-advanced task', socialTaskId, 'to review (social action created)');

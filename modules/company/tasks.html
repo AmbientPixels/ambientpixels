@@ -302,6 +302,12 @@
     (function () {
       'use strict';
 
+      // Local date helper (avoids UTC timezone shift causing false overdue)
+      function _localToday() {
+        var d = new Date();
+        return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+      }
+
       var agents = [];
       var allDivisions = [];
       var currentView = 'board';
@@ -392,7 +398,7 @@
         var tasks = AgentEngine.getTasks();
         var nowMs = Date.now();
         var dayMs = 86400000;
-        var today = new Date().toISOString().split('T')[0];
+        var today = _localToday();
         var alerts = [];
 
         // Single pass: gather column stats + agent load + objective freshness
@@ -530,7 +536,7 @@
         if (applySignal && _signalFilter !== 'all') {
           var nowMs = Date.now();
           var dayMs = 86400000;
-          var today = new Date().toISOString().split('T')[0];
+          var today = _localToday();
           tasks = tasks.filter(function (t) {
             if (_signalFilter === 'aging') {
               return t.createdAt && (nowMs - new Date(t.createdAt).getTime()) > 5 * dayMs;
@@ -616,7 +622,7 @@
       function renderBoard() {
         var tasks = getFilteredTasks(true);
         var cols = ['pending-approval', 'backlog', 'todo', 'in-progress', 'review', 'done'];
-        var today = new Date().toISOString().split('T')[0];
+        var today = _localToday();
         var nowMs = Date.now();
         var dayMs = 86400000;
 
@@ -681,8 +687,8 @@
 
         var agent = task.assignee ? getAgentById(task.assignee) : null;
         var div = task.division ? getDivisionById(task.division) : null;
-        var today = new Date().toISOString().split('T')[0];
-        var isOverdue = task.dueDate && task.dueDate < today && task.status !== 'done';
+        var today = _localToday();
+        var isOverdue = task.dueDate && task.dueDate.substring(0,10) < today && task.status !== 'done';
 
         var meta = '<div class="tm-card-meta">';
         meta += '<span class="tm-card-priority tm-card-priority--' + task.priority + '">' + task.priority + '</span>';
@@ -752,8 +758,8 @@
         tasks.forEach(function (task) {
           var agent = task.assignee ? getAgentById(task.assignee) : null;
           var div = task.division ? getDivisionById(task.division) : null;
-          var today = new Date().toISOString().split('T')[0];
-          var isOverdue = task.dueDate && task.dueDate < today && task.status !== 'done';
+          var today = _localToday();
+          var isOverdue = task.dueDate && task.dueDate.substring(0,10) < today && task.status !== 'done';
 
           var tr = document.createElement('tr');
           tr.innerHTML =
