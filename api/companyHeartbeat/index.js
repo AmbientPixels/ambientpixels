@@ -1645,6 +1645,7 @@ Rules:
 - Keep observations brief and factual
 - When creating tasks, ALWAYS set: status ("todo" or "in-progress"), priority, assignee, and a realistic dueDate (1-7 days out). Tasks without these fields are incomplete and will be triaged.
 - Use update-task to assign unassigned tasks, adjust priorities, or set missing due dates
+- CEO TASK PROTECTION: Tasks NOT created by heartbeat (source != "heartbeat") were created by the CEO. You MUST NOT change their title or description — the CEO's intent is immutable. You may update assignee, priority, dueDate, status, and tags. If you need to add context, use comment-task instead.
 - Use comment-task to leave delegation notes, ask questions, or flag blockers
 
 ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
@@ -1909,8 +1910,12 @@ function applyTaskUpdate(tasks, update, _pendingEscalations) {
     for (let i = 0; i < tasks.length; i++) {
       if (tasks[i].id === update.taskId) {
         if (update.updates) {
+          // CEO task protection: agents cannot rewrite title/description of CEO-created tasks
+          const isCeoTask = tasks[i].source !== 'heartbeat';
+          const PROTECTED_FIELDS = ['title', 'description'];
           Object.keys(update.updates).forEach(k => {
             if (k !== 'id' && k !== 'createdAt' && k !== 'comments') {
+              if (isCeoTask && PROTECTED_FIELDS.indexOf(k) !== -1) return; // skip — CEO intent is immutable
               tasks[i][k] = update.updates[k];
             }
           });
