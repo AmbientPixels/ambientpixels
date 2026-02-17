@@ -27,6 +27,46 @@ function contentHash(text) {
 }
 
 /**
+ * Pre-flight token check — calls /v2/me to verify token validity
+ * @returns {Promise<{valid: boolean, name?: string, error?: string}>}
+ */
+function validateToken() {
+  const creds = getCredentials();
+  if (!creds.accessToken) return Promise.resolve({ valid: false, error: 'LINKEDIN_ACCESS_TOKEN not set' });
+  return new Promise((resolve) => {
+    const options = {
+      hostname: 'api.linkedin.com',
+      path: '/v2/me',
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer ' + creds.accessToken
+      }
+    };
+    const req = https.request(options, (res) => {
+      let data = '';
+      res.on('data', chunk => { data += chunk; });
+      res.on('end', () => {
+        if (res.statusCode === 200) {
+          try {
+            const me = JSON.parse(data);
+            resolve({ valid: true, name: (me.localizedFirstName || '') + ' ' + (me.localizedLastName || ''), sub: me.id });
+          } catch (e) { resolve({ valid: true }); }
+        } else if (res.statusCode === 401) {
+          resolve({ valid: false, error: 'Access token expired or revoked (401). Generate a new token at https://www.linkedin.com/developers/apps' });
+        } else if (res.statusCode === 403) {
+          resolve({ valid: false, error: 'Token lacks required scopes. Ensure r_liteprofile and w_member_social are granted.' });
+        } else {
+          resolve({ valid: false, error: 'LinkedIn /v2/me returned HTTP ' + res.statusCode });
+        }
+      });
+    });
+    req.on('error', (err) => resolve({ valid: false, error: 'Network error checking token: ' + err.message }));
+    req.setTimeout(8000, () => { req.destroy(); resolve({ valid: false, error: 'Token check timed out' }); });
+    req.end();
+  });
+}
+
+/**
  * Publish a post to LinkedIn
  * @param {Object} action - Full action object
  * @returns {Promise<{receipt: Object}>}
@@ -44,6 +84,12 @@ async function publishToLinkedIn(action) {
   }
   if (text.length > MAX_CHARS) {
     throw { code: 'CONTENT_TOO_LONG', message: 'Post exceeds ' + MAX_CHARS + ' chars (' + text.length + ')' };
+  }
+
+  // Pre-flight: verify token is still valid
+  const tokenCheck = await validateToken();
+  if (!tokenCheck.valid) {
+    throw { code: 'TOKEN_INVALID', message: tokenCheck.error || 'LinkedIn access token is invalid or expired. Refresh it in Azure App Settings.' };
   }
 
   // Build Posts API payload
@@ -123,7 +169,13 @@ async function publishToLinkedIn(action) {
             }
           });
         } else {
-          const errMsg = (parsed && parsed.message) || (parsed && parsed.status) || data.substring(0, 300);
+          let errMsg = (parsed && parsed.message) || (parsed && parsed.status) || data.substring(0, 300);
+          // Add diagnostic hints for common errors
+          if (res.statusCode === 403) {
+            errMsg += ' | 403 Hint: Token may lack w_member_social scope, or person URN (' + creds.personUrn + ') does not match the token owner. Regenerate token with correct scopes.';
+          } else if (res.statusCode === 401) {
+            errMsg += ' | 401 Hint: Access token expired. LinkedIn tokens expire after 60 days. Refresh at https://www.linkedin.com/developers/apps';
+          }
           reject({
             code: 'LINKEDIN_API_ERROR_' + res.statusCode,
             message: errMsg,
@@ -151,5 +203,6 @@ module.exports = {
   publishToLinkedIn,
   getCredentials,
   validateCredentials,
+  validateToken,
   contentHash
 };
