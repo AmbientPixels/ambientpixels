@@ -223,6 +223,34 @@ module.exports = async function (context) {
       }
     }
 
+    // ── Auto-triage CEO tasks ──
+    // CEO-created tasks with assignee AND dueDate already set need no human triage.
+    // Inject a system comment so the prompt-level triage gate is satisfied immediately.
+    let autoTriageCount = 0;
+    for (const task of tasks) {
+      if (task.source === 'heartbeat') continue;          // agent-created — needs real triage
+      if (task.status === 'done' || task.status === 'backlog') continue;
+      if (!task.assignee || !task.dueDate) continue;      // incomplete — needs Nova triage
+      const hasTriageStamp = task.comments && task.comments.some(
+        c => c.author === 'nova' || c.author === 'system'
+      );
+      if (hasTriageStamp) continue;                        // already triaged
+      // Inject auto-triage stamp
+      if (!task.comments) task.comments = [];
+      task.comments.push({
+        id: 'cmt-autotriage-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+        author: 'system',
+        text: 'Auto-triaged: CEO-assigned task with assignee (' + task.assignee + ') and due date (' + task.dueDate.substring(0, 10) + ') preset. Ready for execution.',
+        type: 'system',
+        createdAt: new Date().toISOString()
+      });
+      task.updatedAt = new Date().toISOString();
+      autoTriageCount++;
+    }
+    if (autoTriageCount > 0) {
+      context.log('[Heartbeat] Auto-triaged', autoTriageCount, 'CEO task(s) with assignee+dueDate');
+    }
+
     // Review cooldown: track tasks that enter review THIS cycle — cannot be reviewed in same cycle
     const _reviewCooldownIds = new Set();
 
