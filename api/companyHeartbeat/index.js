@@ -694,7 +694,7 @@ Write the full deliverable first, then the structured JSON block.`;
         id: 'aq-' + newAction.id,
         kind: 'action',
         action_id: newAction.id,
-        taskId: null,
+        taskId: action.taskId || null,
         taskTitle: 'Social Post (' + (newAction.platform || 'x') + ')',
         originAgent: agentId,
         classification: newAction.classification,
@@ -708,8 +708,27 @@ Write the full deliverable first, then the structured JSON block.`;
       if (approvalQueue.length > 100) approvalQueue.splice(0, approvalQueue.length - 100);
       await storage.setState('approvalQueue', approvalQueue);
 
+      // Auto-advance parent task to review if taskId provided
+      var socialTaskId = action.taskId || null;
+      if (socialTaskId) {
+        var parentIdx = tasks.findIndex(t => t.id === socialTaskId);
+        if (parentIdx !== -1 && tasks[parentIdx].status !== 'done' && tasks[parentIdx].status !== 'review') {
+          tasks[parentIdx].status = 'review';
+          tasks[parentIdx].updatedAt = new Date().toISOString();
+          if (!tasks[parentIdx].comments) tasks[parentIdx].comments = [];
+          tasks[parentIdx].comments.push({
+            id: 'cmt-' + Date.now(),
+            author: agentId,
+            text: 'Social post created and submitted for CEO approval (action: ' + newAction.id + ')',
+            type: 'system',
+            createdAt: new Date().toISOString()
+          });
+          context.log('[Heartbeat]', agentId, 'auto-advanced task', socialTaskId, 'to review (social action created)');
+        }
+      }
+
       context.log('[Heartbeat]', agentId, 'created social action:', newAction.id, newAction.type, newAction.platform);
-      result.taskUpdates.push({ action: 'social-action-created', actionId: newAction.id, agentId: agentId });
+      result.taskUpdates.push({ action: 'social-action-created', actionId: newAction.id, agentId: agentId, taskId: socialTaskId });
 
     } else if (action.type === 'revise-action' && action.action_id && action.social) {
       // Agent revising a CEO-rejected action — update payload and re-submit for approval
@@ -1741,6 +1760,7 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
   - Focus on executing research tasks with structured briefs: findings, analysis, recommendations, and cited sources.
   - When creating research docs with create-doc, use proper markdown with clear headings, structured sections, and cited sources.` : '') + `
 - Echo (Marketing): Use create-social-action to draft social posts. All posts require CEO approval. Keep brand voice consistent, professional, and forward-looking.
+  - TASK-TO-SOCIAL LINK: When creating a social post that fulfills an existing task, ALWAYS include "taskId" in the create-social-action so the system can auto-advance the task to review. Example: { "type": "create-social-action", "taskId": "task-123", "social": { ... } }
   - Echo CAN also use create-doc with kind "marketing_post" to draft blog posts for the public blog at /blog/. After creating a doc, use submit-for-publish to send it for CEO approval.
   - ALLOWED actions: execute-task, create-task, update-task, move-task, comment-task, review-task, create-social-action, create-doc (marketing_post only), submit-for-publish
 - SOCIAL POST RULES (ALL AGENTS):
