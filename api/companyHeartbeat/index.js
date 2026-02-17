@@ -223,6 +223,9 @@ module.exports = async function (context) {
       }
     }
 
+    // Review cooldown: track tasks that enter review THIS cycle — cannot be reviewed in same cycle
+    const _reviewCooldownIds = new Set();
+
     // Process each agent
     for (const agentId of AGENT_IDS) {
       if (geminiCalls >= GUARDRAILS.maxGeminiCallsPerCycle) {
@@ -258,7 +261,8 @@ module.exports = async function (context) {
           agentId === 'nova' ? novaSkipTaskIds : null,
           activeDirectives, activeObjectives, documents,
           workspaceMemory, workspaceDates, revisionActions,
-          agentId === 'cipher' ? costIntel : null
+          agentId === 'cipher' ? costIntel : null,
+          _reviewCooldownIds
         );
         geminiCalls += result.geminiCalls;
         agentActions[agentId] = result.actions;
@@ -270,8 +274,17 @@ module.exports = async function (context) {
               context.log('[Heartbeat] Max new tasks reached, skipping create');
               continue;
             }
-            applyTaskUpdate(tasks, update, _pendingEscalations);
+            // Review cooldown: block reviews on tasks that entered review this cycle
+            if (update.action === 'review' && update.taskId && _reviewCooldownIds.has(update.taskId)) {
+              context.log('[Heartbeat]', agentId, 'BLOCKED review on', update.taskId, '— task just entered review this cycle (cooldown)');
+              continue;
+            }
+            const updatedTask = applyTaskUpdate(tasks, update, _pendingEscalations);
             if (update.action === 'create') newTasksCreated++;
+            // Track tasks that just entered review — block same-cycle reviews
+            if (updatedTask && updatedTask.status === 'review' && (update.action === 'execute' || update.action === 'move' || update.action === 'social-action-created')) {
+              _reviewCooldownIds.add(updatedTask.id);
+            }
           }
         }
 
@@ -365,7 +378,7 @@ module.exports = async function (context) {
 };
 
 // ── Run a single agent's heartbeat ──
-async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel) {
+async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds) {
   const result = { geminiCalls: 0, actions: 0, taskUpdates: [] };
   const agent = AGENT_ROLES[agentId];
   if (!agent) return result;
@@ -384,7 +397,7 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
   // Only show this agent their own revision-requested actions
   const agentRevisions = (revisionActions || []).filter(a => a.created_by === agentId || a.origin_agent === agentId);
 
-  const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel);
+  const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds);
 
   // Call Gemini
   const response = await callGemini(prompt, agentId);
@@ -622,6 +635,15 @@ Write the full deliverable first, then the structured JSON block.`;
         newStatus: action.newStatus
       });
     } else if (action.type === 'execute-task' && action.taskId) {
+      // TRIAGE GATE: block execution on untriaged tasks (must have Nova/system comment first)
+      if (agentId !== 'nova') {
+        const targetTask = tasks.find(t => t.id === action.taskId);
+        const hasTriageComment = targetTask && targetTask.comments && targetTask.comments.some(c => c.author === 'nova' || c.author === 'system');
+        if (targetTask && !hasTriageComment) {
+          context.log('[Heartbeat]', agentId, 'BLOCKED execute-task on', action.taskId, '— task not yet triaged by Nova');
+          continue;
+        }
+      }
       // Execute: agent produces actual work on a task (costs 1 extra Gemini call)
       if (result.executes >= GUARDRAILS.maxExecutesPerCyclePerAgent) {
         context.log('[Heartbeat]', agentId, 'max executes reached, skipping');
@@ -642,6 +664,15 @@ Write the full deliverable first, then the structured JSON block.`;
         }
       }
     } else if (action.type === 'create-social-action' && action.social) {
+      // TRIAGE GATE: if this social action is linked to a task, that task must be triaged first
+      if (agentId !== 'nova' && action.taskId) {
+        const socialTarget = tasks.find(t => t.id === action.taskId);
+        const hasSocialTriage = socialTarget && socialTarget.comments && socialTarget.comments.some(c => c.author === 'nova' || c.author === 'system');
+        if (socialTarget && !hasSocialTriage) {
+          context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action on', action.taskId, '— task not yet triaged by Nova');
+          continue;
+        }
+      }
       // Agent-initiated social post action — routes through action layer governance
       const socialPayload = action.social;
       const postText = socialPayload.text || '';
@@ -1410,7 +1441,7 @@ function buildSiteContextBlock() {
 }
 
 // ── Build heartbeat prompt ──
-function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel) {
+function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds) {
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
   documents = documents || [];
@@ -1449,27 +1480,35 @@ function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirective
     .join('\n') || '(none)';
 
   // Find tasks in review from other agents (for potential review action)
+  // Exclude tasks that entered review THIS heartbeat cycle (review cooldown)
+  const _cooldownSet = reviewCooldownIds || new Set();
   const reviewableTasks = allActiveTasks
-    .filter(t => t.status === 'review' && t.assignee !== agent.name.toLowerCase() && t.comments && t.comments.some(c => c.type === 'deliverable'))
+    .filter(t => t.status === 'review' && t.assignee !== agent.name.toLowerCase() && !_cooldownSet.has(t.id) && t.comments && t.comments.some(c => c.type === 'deliverable'))
     .slice(0, 3)
     .map(t => '- [review] ' + t.title + ' (by ' + (t.assignee || 'unassigned') + ', id: ' + t.id + ')')
     .join('\n') || '(none)';
 
-  // Nova-only: surface untriaged tasks (unassigned OR missing due dates OR zero comments)
+  // Nova-only: surface untriaged tasks — ANY task without a Nova/system comment needs triage
+  // This ensures ALL tasks (CEO-created, standup, meeting, agent-created) go through Nova first
   let triageSection = '';
   if (agent.name === 'Nova') {
+    const _hasNovaComment = (t) => t.comments && t.comments.some(c => c.author === 'nova' || c.author === 'system');
     const needsTriage = allActiveTasks.filter(t =>
-      t.status !== 'done' && (!t.assignee || !t.dueDate || !(t.comments && t.comments.length))
-    ).slice(0, 8);
+      t.status !== 'done' && !_hasNovaComment(t)
+    ).slice(0, 10);
     if (needsTriage.length > 0) {
       const triageList = needsTriage.map(t => {
         const missing = [];
         if (!t.assignee) missing.push('NO ASSIGNEE');
         if (!t.dueDate) missing.push('NO DUE DATE');
         if (!(t.comments && t.comments.length)) missing.push('NO COMMENTS');
-        return '- ' + t.title + ' [' + t.status + '] ⚠ ' + missing.join(', ') + ' (id: ' + t.id + ')';
+        if (t.assignee && t.dueDate) missing.push('NEEDS TRIAGE COMMENT');
+        const src = t.source === 'heartbeat' ? 'agent-created' : 'CEO/manual';
+        return '- ' + t.title + ' [' + t.status + ', ' + src + '] ⚠ ' + missing.join(', ') + ' (assignee: ' + (t.assignee || 'none') + ', id: ' + t.id + ')';
       }).join('\n');
-      triageSection = `\n\n⚠ NEEDS TRIAGE (your top priority as Prime Operator):\n${triageList}`;
+      triageSection = `\n\n⚠ NEEDS TRIAGE (your #1 priority — every task MUST have your triage comment before agents can execute):
+${triageList}
+For each task: verify assignee is correct for the task type, set dueDate if missing, and leave a delegation comment explaining what you expect. Your comment is the triage stamp that unlocks the task for execution.`;
     }
   }
 
@@ -1723,8 +1762,13 @@ Rules:
 - CEO TASK PROTECTION: Tasks NOT created by heartbeat (source != "heartbeat") were created by the CEO. You MUST NOT change their title or description — the CEO's intent is immutable. You may update assignee, priority, dueDate, status, and tags. If you need to add context, use comment-task instead.
 - Use comment-task to leave delegation notes, ask questions, or flag blockers
 
+TRIAGE GATE — ALL TASKS MUST BE TRIAGED BY NOVA FIRST:
+- Before you can execute, create-social-action, or create-doc on any task, it MUST have at least one comment from Nova (the Prime Operator). Nova's comment is the triage stamp.
+- If a task assigned to you has NO comment from Nova, do NOT execute it. Instead, wait — Nova will triage it in her heartbeat.
+- Exception: If YOU are Nova, you may triage AND execute in the same cycle.
+
 ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
-- CRITICAL RULE: If you have a task assigned to you that is in-progress OR todo with priority critical or high, your FIRST action MUST be to produce work on that task. Do NOT create sub-tasks, comment, or plan — produce the actual deliverable NOW.
+- CRITICAL RULE: If you have a TRIAGED task (has Nova comment) assigned to you that is in-progress OR todo with priority critical or high, your FIRST action MUST be to produce work on that task. Do NOT create sub-tasks, comment, or plan — produce the actual deliverable NOW.
   - For content/analysis tasks: use execute-task to produce the deliverable.
   - For social media / LinkedIn / X / Bluesky post tasks: use create-social-action with the taskId to draft the post immediately.
   - For document tasks: use create-doc to produce the document directly.
