@@ -380,7 +380,7 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
   const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions);
 
   // Call Gemini
-  const response = await callGemini(prompt);
+  const response = await callGemini(prompt, agentId);
   result.geminiCalls = 1;
 
   if (!response) {
@@ -1963,7 +1963,7 @@ function applyTaskUpdate(tasks, update, _pendingEscalations) {
 // ── Execute a task: agent produces actual work output ──
 async function executeTask(context, agent, task) {
   const prompt = buildExecutePrompt(agent, task);
-  const output = await callGeminiExecute(prompt);
+  const output = await callGeminiExecute(prompt, agent.name.toLowerCase());
   if (!output) {
     context.log('[Heartbeat]', agent.name, 'execute-task returned empty for:', task.title);
     return null;
@@ -2017,7 +2017,7 @@ CRITICAL RULES — READ CAREFULLY:
 // ── Review a task: agent evaluates another agent's deliverable ──
 async function reviewTask(context, agent, task) {
   const prompt = buildReviewPrompt(agent, task);
-  const response = await callGeminiExecute(prompt);
+  const response = await callGeminiExecute(prompt, agent.name.toLowerCase());
   if (!response) {
     context.log('[Heartbeat]', agent.name, 'review-task returned empty for:', task.title);
     return null;
@@ -2098,7 +2098,7 @@ Guidelines:
 }
 
 // ── Call Gemini with higher token limit for deliverables/reviews ──
-async function callGeminiExecute(prompt) {
+async function callGeminiExecute(prompt, agentId) {
   if (!GEMINI_API_KEY) return null;
 
   const body = {
@@ -2123,6 +2123,11 @@ async function callGeminiExecute(prompt) {
     }
 
     const data = await res.json();
+    // Track token usage
+    const um = data?.usageMetadata;
+    if (um) {
+      storage.logGeminiUsage({ caller: 'heartbeat-execute', model: 'gemini-2.0-flash', agentId: agentId || null, promptTokens: um.promptTokenCount || 0, completionTokens: um.candidatesTokenCount || 0, totalTokens: um.totalTokenCount || 0 }).catch(() => {});
+    }
     return data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
   } catch (err) {
     console.error('[Heartbeat] Gemini execute call failed:', err.message);
@@ -2131,7 +2136,7 @@ async function callGeminiExecute(prompt) {
 }
 
 // ── Call Gemini directly (same pattern as agentchat) ──
-async function callGemini(prompt) {
+async function callGemini(prompt, agentId) {
   if (!GEMINI_API_KEY) return null;
 
   const body = {
@@ -2156,6 +2161,11 @@ async function callGemini(prompt) {
     }
 
     const data = await res.json();
+    // Track token usage
+    const um = data?.usageMetadata;
+    if (um) {
+      storage.logGeminiUsage({ caller: 'heartbeat', model: 'gemini-2.0-flash', agentId: agentId || null, promptTokens: um.promptTokenCount || 0, completionTokens: um.candidatesTokenCount || 0, totalTokens: um.totalTokenCount || 0 }).catch(() => {});
+    }
     return data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
   } catch (err) {
     console.error('[Heartbeat] Gemini call failed:', err.message);

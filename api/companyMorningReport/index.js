@@ -332,6 +332,11 @@ async function callGemini(prompt) {
   }
 
   const data = await res.json();
+  // Track token usage
+  const um = data?.usageMetadata;
+  if (um) {
+    storage.logGeminiUsage({ caller: 'morning-report', model: 'gemini-2.0-flash', promptTokens: um.promptTokenCount || 0, completionTokens: um.candidatesTokenCount || 0, totalTokens: um.totalTokenCount || 0 }).catch(() => {});
+  }
   return data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
 }
 
@@ -413,6 +418,11 @@ Rules:
   }
 
   const geminiData = await res.json();
+  // Track token usage
+  const dlum = geminiData?.usageMetadata;
+  if (dlum) {
+    storage.logGeminiUsage({ caller: 'morning-report-dailylog', model: 'gemini-2.0-flash', promptTokens: dlum.promptTokenCount || 0, completionTokens: dlum.candidatesTokenCount || 0, totalTokens: dlum.totalTokenCount || 0 }).catch(() => {});
+  }
   const raw = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
   // Parse JSON from response (strip markdown fences if present)

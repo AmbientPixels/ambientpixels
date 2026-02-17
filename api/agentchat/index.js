@@ -675,6 +675,12 @@ ${message}`;
       return;
     }
 
+    // Track token usage
+    const um = data?.usageMetadata;
+    if (um) {
+      storage.logGeminiUsage({ caller: 'agentchat', model: 'gemini-2.0-flash', agentId: agentId || null, promptTokens: um.promptTokenCount || 0, completionTokens: um.candidatesTokenCount || 0, totalTokens: um.totalTokenCount || 0 }).catch(() => {});
+    }
+
     const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
 
     // Parse response for reply + actions

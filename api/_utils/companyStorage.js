@@ -374,6 +374,94 @@ async function migrateStore(payload) {
   return summary;
 }
 
+// ── Gemini API Usage Tracking ──
+// Gemini 2.0 Flash pricing (per 1M tokens)
+const GEMINI_PRICING = {
+  'gemini-2.0-flash': { input: 0.10, output: 0.40 },
+  'gemini-2.0-flash-lite': { input: 0.025, output: 0.10 },
+  'default': { input: 0.10, output: 0.40 }
+};
+
+async function logGeminiUsage(entry) {
+  // entry: { caller, model, promptTokens, completionTokens, totalTokens, timestamp, agentId? }
+  try {
+    const usage = (await getState('geminiUsage')) || [];
+    const model = entry.model || 'gemini-2.0-flash';
+    const pricing = GEMINI_PRICING[model] || GEMINI_PRICING['default'];
+    const inputCost = (entry.promptTokens || 0) * pricing.input / 1000000;
+    const outputCost = (entry.completionTokens || 0) * pricing.output / 1000000;
+
+    usage.push({
+      id: 'gu_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+      caller: entry.caller || 'unknown',
+      model: model,
+      agentId: entry.agentId || null,
+      promptTokens: entry.promptTokens || 0,
+      completionTokens: entry.completionTokens || 0,
+      totalTokens: entry.totalTokens || 0,
+      inputCost: Math.round(inputCost * 1000000) / 1000000,
+      outputCost: Math.round(outputCost * 1000000) / 1000000,
+      totalCost: Math.round((inputCost + outputCost) * 1000000) / 1000000,
+      timestamp: entry.timestamp || new Date().toISOString()
+    });
+
+    // Retention: keep last 5000 entries, max 30 days
+    const cutoff = new Date(Date.now() - 30 * 86400000).toISOString();
+    const pruned = usage.filter(u => u.timestamp >= cutoff).slice(-5000);
+    await setState('geminiUsage', pruned);
+  } catch (err) {
+    console.error('[CompanyStorage] logGeminiUsage failed:', err.message);
+  }
+}
+
+async function getGeminiCostSummary(days) {
+  days = days || 30;
+  const usage = (await getState('geminiUsage')) || [];
+  const cutoff = new Date(Date.now() - days * 86400000).toISOString();
+  const recent = usage.filter(u => u.timestamp >= cutoff);
+
+  // Aggregate by day
+  const byDay = {};
+  const byCaller = {};
+  const byAgent = {};
+  let totalInput = 0, totalOutput = 0, totalCost = 0;
+
+  recent.forEach(function (u) {
+    var day = u.timestamp.substring(0, 10);
+    if (!byDay[day]) byDay[day] = { calls: 0, promptTokens: 0, completionTokens: 0, cost: 0 };
+    byDay[day].calls++;
+    byDay[day].promptTokens += u.promptTokens;
+    byDay[day].completionTokens += u.completionTokens;
+    byDay[day].cost += u.totalCost;
+
+    var caller = u.caller || 'unknown';
+    if (!byCaller[caller]) byCaller[caller] = { calls: 0, cost: 0 };
+    byCaller[caller].calls++;
+    byCaller[caller].cost += u.totalCost;
+
+    if (u.agentId) {
+      if (!byAgent[u.agentId]) byAgent[u.agentId] = { calls: 0, cost: 0 };
+      byAgent[u.agentId].calls++;
+      byAgent[u.agentId].cost += u.totalCost;
+    }
+
+    totalInput += u.promptTokens;
+    totalOutput += u.completionTokens;
+    totalCost += u.totalCost;
+  });
+
+  return {
+    period: days + 'd',
+    totalCalls: recent.length,
+    totalPromptTokens: totalInput,
+    totalCompletionTokens: totalOutput,
+    totalCost: Math.round(totalCost * 100) / 100,
+    byDay: byDay,
+    byCaller: byCaller,
+    byAgent: byAgent
+  };
+}
+
 module.exports = {
   getState,
   setState,
@@ -392,5 +480,9 @@ module.exports = {
   getStoreArtifacts,
   upsertStoreArtifacts,
   getStoreSnapshot,
-  migrateStore
+  migrateStore,
+  // Gemini Usage
+  logGeminiUsage,
+  getGeminiCostSummary,
+  GEMINI_PRICING
 };
