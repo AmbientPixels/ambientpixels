@@ -635,12 +635,12 @@ Write the full deliverable first, then the structured JSON block.`;
         newStatus: action.newStatus
       });
     } else if (action.type === 'execute-task' && action.taskId) {
-      // TRIAGE GATE: block execution on untriaged tasks (must have Nova/system comment first)
+      // TRIAGE GATE: block execution on truly untouched tasks (zero comments = never triaged)
       if (agentId !== 'nova') {
         const targetTask = tasks.find(t => t.id === action.taskId);
-        const hasTriageComment = targetTask && targetTask.comments && targetTask.comments.some(c => c.author === 'nova' || c.author === 'system');
-        if (targetTask && !hasTriageComment) {
-          context.log('[Heartbeat]', agentId, 'BLOCKED execute-task on', action.taskId, '— task not yet triaged by Nova');
+        const hasAnyComment = targetTask && targetTask.comments && targetTask.comments.length > 0;
+        if (targetTask && !hasAnyComment) {
+          context.log('[Heartbeat]', agentId, 'BLOCKED execute-task on', action.taskId, '— task has zero comments (needs Nova triage first)');
           continue;
         }
       }
@@ -667,9 +667,9 @@ Write the full deliverable first, then the structured JSON block.`;
       // TRIAGE GATE: if this social action is linked to a task, that task must be triaged first
       if (agentId !== 'nova' && action.taskId) {
         const socialTarget = tasks.find(t => t.id === action.taskId);
-        const hasSocialTriage = socialTarget && socialTarget.comments && socialTarget.comments.some(c => c.author === 'nova' || c.author === 'system');
+        const hasSocialTriage = socialTarget && socialTarget.comments && socialTarget.comments.length > 0;
         if (socialTarget && !hasSocialTriage) {
-          context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action on', action.taskId, '— task not yet triaged by Nova');
+          context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action on', action.taskId, '— task has zero comments (needs Nova triage first)');
           continue;
         }
       }
@@ -1493,9 +1493,11 @@ function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirective
   let triageSection = '';
   if (agent.name === 'Nova') {
     const _hasNovaComment = (t) => t.comments && t.comments.some(c => c.author === 'nova' || c.author === 'system');
+    const _prioOrder = { critical: 0, high: 1, medium: 2, low: 3 };
     const needsTriage = allActiveTasks.filter(t =>
       t.status !== 'done' && !_hasNovaComment(t)
-    ).slice(0, 10);
+    ).sort((a, b) => (_prioOrder[a.priority] || 3) - (_prioOrder[b.priority] || 3))
+    .slice(0, 10);
     if (needsTriage.length > 0) {
       const triageList = needsTriage.map(t => {
         const missing = [];
