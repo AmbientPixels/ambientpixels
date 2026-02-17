@@ -2050,20 +2050,6 @@ function applyTaskUpdate(tasks, update, _pendingEscalations) {
   if (update.action === 'review') {
     for (let i = 0; i < tasks.length; i++) {
       if (tasks[i].id === update.taskId) {
-        // CEO TASK GUARD: CEO-created tasks must stay in review for human inspection
-        // Agents cannot auto-approve these — CEO reviews deliverables manually
-        if (tasks[i].source !== 'heartbeat' && tasks[i].source !== undefined) {
-          if (!tasks[i].comments) tasks[i].comments = [];
-          tasks[i].comments.push({
-            id: 'cmt-' + Date.now(),
-            author: 'system',
-            text: 'Agent review blocked: CEO-created task requires manual review by the CEO. Task stays in review.',
-            type: 'system',
-            createdAt: new Date().toISOString()
-          });
-          tasks[i].updatedAt = new Date().toISOString();
-          return tasks[i];
-        }
         // MANDATORY PEER REVIEW: block self-review — reviewer must be different from assignee
         const taskAssignee = (tasks[i].assignee || '').toLowerCase();
         const reviewerId = (update.agentId || '').toLowerCase();
@@ -2092,8 +2078,14 @@ function applyTaskUpdate(tasks, update, _pendingEscalations) {
         });
         // Move based on verdict
         if (update.review.verdict === 'approved') {
-          tasks[i].status = 'done';
-          tasks[i].completedAt = new Date().toISOString();
+          // CEO TASK GATE: CEO-created tasks go to pending-approval so CEO can inspect
+          const isCeoTask = tasks[i].source !== 'heartbeat' && tasks[i].source !== undefined;
+          if (isCeoTask) {
+            tasks[i].status = 'pending-approval';
+          } else {
+            tasks[i].status = 'done';
+            tasks[i].completedAt = new Date().toISOString();
+          }
         } else {
           // Request changes — back to in-progress
           tasks[i].status = 'in-progress';
