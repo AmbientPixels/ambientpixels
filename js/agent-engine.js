@@ -2371,12 +2371,15 @@ var AgentEngine = (function () {
 
   // Sync legacy fields on an action object
   function _syncLegacy(a) {
-    a.execution_status = (a.approval && a.approval.status === 'approved' && a.execution && a.execution.status === 'success') ? 'success'
-      : (a.approval && a.approval.status === 'approved' && a.execution && a.execution.status === 'failed') ? 'failed'
-      : (a.execution && a.execution.status === 'running') ? 'running'
-      : (a.approval && a.approval.status === 'approved') ? 'approved'
-      : (a.approval && a.approval.status === 'rejected') ? 'rejected'
-      : (a.approval && a.approval.status === 'overridden') ? 'approved'
+    var _appSt = (a.approval && a.approval.status) || '';
+    var _exSt = (a.execution && a.execution.status) || '';
+    var _isApproved = _appSt === 'approved' || _appSt === 'overridden';
+    a.execution_status = (_isApproved && _exSt === 'success') ? 'success'
+      : (_isApproved && _exSt === 'failed') ? 'failed'
+      : (_exSt === 'running') ? 'running'
+      : (_isApproved) ? 'approved'
+      : (_appSt === 'rejected') ? 'rejected'
+      : (_appSt === 'cancelled') ? 'rejected'
       : 'pending';
     a.action_type = a.type;
     a.origin_agent = a.created_by;

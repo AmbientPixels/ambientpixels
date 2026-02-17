@@ -1105,7 +1105,7 @@
       html += '<span class="act-drawer-badge" style="background:' + statusColor + '20;color:' + statusColor + ';">' + friendlyApproval + '</span>';
       if (execStatus !== 'pending' && execStatus !== approvalStatus) {
         var execColor = statusColors[execStatus] || '#888';
-        html += '<span class="act-drawer-badge" style="background:' + execColor + '20;color:' + execColor + ';">exec: ' + execStatus + '</span>';
+        html += '<span class="act-drawer-badge" style="background:' + execColor + '20;color:' + execColor + ';">exec: ' + friendlyExecD + '</span>';
       }
       html += '<span style="font-size:0.6rem;opacity:0.35;margin-left:auto;">' + esc(a.id) + '</span>';
       html += '</div>';
@@ -1188,8 +1188,8 @@
       html += kv('Agent', agentLabel);
       html += kv('Created', fmtDate(a.created_at));
       if (a.source) html += kv('Source', a.source);
-      html += kv('Risk', a.risk_level || 'low');
-      html += kv('Classification', a.classification || '—');
+      html += kv('Risk', typeof FriendlyLabels !== 'undefined' ? FriendlyLabels.titleCase(a.risk_level || 'low') : (a.risk_level || 'low'));
+      html += kv('Classification', typeof FriendlyLabels !== 'undefined' ? FriendlyLabels.titleCase(a.classification || '—') : (a.classification || '—'));
       if (a.requires_ceo_approval) html += kv('CEO Approval', 'Required');
       if (a.approval && a.approval.revision_count) html += kv('Revisions', a.approval.revision_count);
       html += '</dl></div>';
@@ -1197,7 +1197,7 @@
       // Approval
       if (a.approval) {
         html += '<div class="act-drawer-section"><h4>Approval</h4><dl class="act-drawer-kv">';
-        html += kv('Status', approvalStatus.replace(/_/g, ' '));
+        html += kv('Status', friendlyApproval);
         if (a.approval.approved_by) html += kv('Approved by', a.approval.approved_by);
         if (a.approval.approved_at) html += kv('Approved at', fmtDate(a.approval.approved_at));
         if (a.approval.revised_at) html += kv('Last revised', fmtDate(a.approval.revised_at));
