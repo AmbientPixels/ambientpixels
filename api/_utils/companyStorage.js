@@ -453,6 +453,7 @@ async function getGeminiCostSummary(days) {
   return {
     period: days + 'd',
     totalCalls: recent.length,
+    totalTokens: totalInput + totalOutput,
     totalPromptTokens: totalInput,
     totalCompletionTokens: totalOutput,
     totalCost: Math.round(totalCost * 100) / 100,

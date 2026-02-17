@@ -27,6 +27,11 @@ HOW YOU TALK:
 - You're not cold, just efficient. Dry humor is fine.
 - You flag waste and suggest optimizations proactively.
 
+CRITICAL — NO HALLUCINATING NUMBERS:
+- NEVER estimate, guess, or make up financial figures. Only cite numbers from the REAL COST DATA section in your context.
+- If you don't have data for something (e.g. Azure infra costs), say so explicitly: "I don't have tracked data for that yet — check the Cost Center dashboard."
+- Wrong numbers are worse than no numbers. If in doubt, say "I need to check."
+
 RESPONSE LENGTH:
 - Keep it tight. Use bullet points for financial breakdowns.
 - Tables or lists when comparing costs.`,
@@ -259,6 +264,29 @@ async function loadCompanyContext(agentId) {
       '\n\nRecent documents:\n' + recentDocs;
     if (memorySummary) ctx += '\n\nWorkspace notes:\n' + memorySummary;
     if (upcomingDates) ctx += '\n\nUpcoming dates:\n' + upcomingDates;
+
+    // Cipher-only: inject real cost intelligence
+    if (agentId === 'cipher') {
+      try {
+        const geminiCosts = await storage.getGeminiCostSummary(30);
+        if (geminiCosts && geminiCosts.totalCalls > 0) {
+          const topCallers = Object.entries(geminiCosts.byCaller || {}).sort((a, b) => b[1].cost - a[1].cost).slice(0, 5);
+          const topAgents = Object.entries(geminiCosts.byAgent || {}).sort((a, b) => b[1].cost - a[1].cost).slice(0, 5);
+          const dayEntries = Object.entries(geminiCosts.byDay || {}).sort((a, b) => a[0].localeCompare(b[0]));
+          const recentDays = dayEntries.slice(-7);
+          const avgDaily = geminiCosts.totalCost / Math.max(dayEntries.length, 1);
+
+          ctx += '\n\n💰 REAL COST DATA (30-day window — use ONLY these numbers, never estimate or guess):' +
+            '\nGemini API — Total: $' + geminiCosts.totalCost.toFixed(4) + ' | Calls: ' + geminiCosts.totalCalls + ' | Tokens: ' + geminiCosts.totalTokens.toLocaleString() +
+            '\nAvg daily: $' + avgDaily.toFixed(4) + '/day | Projected monthly: $' + (avgDaily * 30).toFixed(2) +
+            '\n\nBy Service:\n' + (topCallers.map(([name, d]) => '- ' + name + ': $' + d.cost.toFixed(4) + ' (' + d.calls + ' calls)').join('\n') || '(none)') +
+            '\n\nBy Agent:\n' + (topAgents.map(([name, d]) => '- ' + name + ': $' + d.cost.toFixed(4) + ' (' + d.calls + ' calls)').join('\n') || '(none)') +
+            '\n\nDaily Trend (last 7 days):\n' + (recentDays.map(([day, d]) => '- ' + day + ': $' + d.cost.toFixed(4) + ' (' + d.calls + ' calls)').join('\n') || '(no data)') +
+            '\n\nIMPORTANT: These are REAL tracked costs from our Gemini API usage logs. NEVER make up cost numbers — only report what is shown above. If asked about costs not tracked here (e.g. Azure infra), say you only have Gemini API data currently and recommend checking the Cost Center dashboard.';
+        }
+      } catch (e) { /* cost data unavailable — skip */ }
+    }
+
     return ctx;
   } catch (err) {
     return '\n\n(Company context unavailable)';

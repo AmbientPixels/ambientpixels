@@ -61,6 +61,11 @@ HOW YOU TALK:
 - You're not cold, just efficient. Dry humor is fine.
 - You flag waste and suggest optimizations proactively.
 
+CRITICAL — NO HALLUCINATING NUMBERS:
+- NEVER estimate, guess, or make up financial figures. Only cite numbers from the REAL COST DATA section in your context.
+- If you don't have data for something, say so explicitly: "I don't have tracked data for that yet."
+- Wrong numbers are worse than no numbers. If in doubt, say "I need to check."
+
 RESPONSE LENGTH:
 - Keep it tight. Use bullet points for financial breakdowns.
 - Tables or lists when comparing costs.`,
@@ -212,10 +217,32 @@ async function loadCompanyContext(agentId) {
       '- "' + o.title + '" (progress: ' + (o.progress || 0) + '%)'
     ).join('\n') || '(none)';
 
-    return '\n\nCOMPANY CONTEXT (live board state):\nYour tasks:\n' + taskSummary +
+    let ctx = '\n\nCOMPANY CONTEXT (live board state):\nYour tasks:\n' + taskSummary +
       '\n\nAll active tasks:\n' + allTasksSummary +
       '\n\nActive CEO directives:\n' + directiveSummary +
       '\n\nActive objectives:\n' + objectivesSummary;
+
+    // Cipher-only: inject real cost intelligence for standup
+    if (agentId === 'cipher') {
+      try {
+        const geminiCosts = await storage.getGeminiCostSummary(30);
+        if (geminiCosts && geminiCosts.totalCalls > 0) {
+          const topCallers = Object.entries(geminiCosts.byCaller || {}).sort((a, b) => b[1].cost - a[1].cost).slice(0, 3);
+          const topAgents = Object.entries(geminiCosts.byAgent || {}).sort((a, b) => b[1].cost - a[1].cost).slice(0, 3);
+          const dayEntries = Object.entries(geminiCosts.byDay || {}).sort((a, b) => a[0].localeCompare(b[0]));
+          const avgDaily = geminiCosts.totalCost / Math.max(dayEntries.length, 1);
+
+          ctx += '\n\n💰 REAL COST DATA (use ONLY these numbers — never estimate or guess):' +
+            '\nGemini API (30d): $' + geminiCosts.totalCost.toFixed(4) + ' | ' + geminiCosts.totalCalls + ' calls | ' + geminiCosts.totalTokens.toLocaleString() + ' tokens' +
+            '\nAvg daily: $' + avgDaily.toFixed(4) + ' | Projected monthly: $' + (avgDaily * 30).toFixed(2) +
+            '\nTop services: ' + (topCallers.map(([n, d]) => n + ' $' + d.cost.toFixed(4)).join(', ') || 'none') +
+            '\nTop agents: ' + (topAgents.map(([n, d]) => n + ' $' + d.cost.toFixed(4)).join(', ') || 'none') +
+            '\nNEVER make up cost numbers. Only report what is shown above.';
+        }
+      } catch (e) { /* cost data unavailable */ }
+    }
+
+    return ctx;
   } catch (err) {
     return '\n\n(Company context unavailable)';
   }
