@@ -797,6 +797,30 @@ Write the full deliverable first, then the structured JSON block.`;
       }
       // Agent-initiated social post action — routes through action layer governance
       const socialPayload = action.social;
+
+      // Server-side sanitizer: strip deliverable metadata that agents sometimes dump into post text
+      if (socialPayload.text) {
+        let raw = socialPayload.text;
+        // Remove known deliverable sections (everything from section header to next section or end)
+        raw = raw.replace(/\*\*(?:Task|Deliverable|Notes|Peer Review[^*]*|Follow-up Comment|Review)(?:\s*\([^)]*\))?:\*\*[^]*?(?=\*\*(?:Task|Deliverable|Notes|Peer Review|Follow-up Comment|LinkedIn Post Draft|Review):\*\*|$)/gi, function(match) {
+          // Keep only the LinkedIn Post Draft section content if that's what matched
+          return '';
+        });
+        // If we still have markdown headers or bold labels, try to extract just the post draft
+        const draftMatch = raw.match(/\*\*LinkedIn Post Draft:\*\*\s*([\s\S]*?)(?:\*\*(?:Follow-up|Notes|Peer Review)|\n\*\s|$)/i)
+          || raw.match(/\*\*(?:Post|Draft|Content):\*\*\s*([\s\S]*?)(?:\*\*(?:Follow-up|Notes|Peer Review)|\n\*\s|$)/i);
+        if (draftMatch) {
+          raw = draftMatch[1];
+        }
+        // Strip remaining markdown formatting
+        raw = raw.replace(/^#{1,4}\s+.*$/gm, '');          // ## headings
+        raw = raw.replace(/\*\*([^*]+)\*\*/g, '$1');        // **bold** → bold
+        raw = raw.replace(/\*([^*]+)\*/g, '$1');             // *italic* → italic
+        raw = raw.replace(/^\s*\*\s+/gm, '');               // bullet points
+        raw = raw.replace(/\n{3,}/g, '\n\n').trim();         // collapse blank lines
+        socialPayload.text = raw;
+      }
+
       const postText = socialPayload.text || '';
 
       // Server-side enforcement: reject posts with unfilled template placeholders
@@ -912,6 +936,20 @@ Write the full deliverable first, then the structured JSON block.`;
 
     } else if (action.type === 'revise-action' && action.action_id && action.social) {
       // Agent revising a CEO-rejected action — update payload and re-submit for approval
+      // Server-side sanitizer: strip deliverable metadata from revised text
+      if (action.social.text) {
+        let raw = action.social.text;
+        raw = raw.replace(/\*\*(?:Task|Deliverable|Notes|Peer Review[^*]*|Follow-up Comment|Review)(?:\s*\([^)]*\))?:\*\*[^]*?(?=\*\*(?:Task|Deliverable|Notes|Peer Review|Follow-up Comment|LinkedIn Post Draft|Review):\*\*|$)/gi, '');
+        const draftMatch = raw.match(/\*\*LinkedIn Post Draft:\*\*\s*([\s\S]*?)(?:\*\*(?:Follow-up|Notes|Peer Review)|\n\*\s|$)/i)
+          || raw.match(/\*\*(?:Post|Draft|Content):\*\*\s*([\s\S]*?)(?:\*\*(?:Follow-up|Notes|Peer Review)|\n\*\s|$)/i);
+        if (draftMatch) raw = draftMatch[1];
+        raw = raw.replace(/^#{1,4}\s+.*$/gm, '');
+        raw = raw.replace(/\*\*([^*]+)\*\*/g, '$1');
+        raw = raw.replace(/\*([^*]+)\*/g, '$1');
+        raw = raw.replace(/^\s*\*\s+/gm, '');
+        raw = raw.replace(/\n{3,}/g, '\n\n').trim();
+        action.social.text = raw;
+      }
       const revisedText = action.social.text || '';
 
       // Server-side enforcement: reject revised posts with placeholder brackets
@@ -1864,6 +1902,7 @@ Action types:
 - review-task: Review a completed deliverable from another agent's task in the review column. Approve (done) or request changes (back to in-progress). You CANNOT review your own tasks — you must review tasks assigned to a DIFFERENT agent. Self-reviews are blocked by the system.
 - comment-task: Add a comment to any task. Provide taskId and "comment" string. Use for status updates, delegation notes, questions, or flagging blockers.
 - create-social-action: (Marketing/Echo) Draft a social media post routed through CEO approval. Include "social" with: text (max 280 for X, 300 for Bluesky, 3000 for LinkedIn), platform ("x"|"linkedin"|"bluesky"), optionally media (URLs). You may include scheduled_for (ISO datetime) to time posts strategically (e.g., peak engagement hours, staggering content throughout the day). Keep scheduling within 24 hours. If you have no specific timing reason, omit scheduled_for and the post will go live immediately after CEO approval.
+  CRITICAL: The "text" field must contain ONLY the clean, publish-ready post copy that will appear on the social platform. Do NOT include task titles, deliverable headers, markdown formatting (**bold**, ## headings), notes sections, peer review comments, follow-up instructions, or any internal metadata. The text is posted VERBATIM to the platform. Example: "text": "AmbientPixels helps teams govern AI at scale. Learn more at https://ambientpixels.ai #AI" — NOT "**Task:** Hello World\\n**Deliverable:**\\n## Draft\\nAmbientPixels...".
   ARTICLE URL RULES: Never hardcode an article/blog URL unless you are 100% certain the article is already published. If linking to an article that is pending publish or was just submitted, use the placeholder token {{ARTICLE_URL}} in your text and include "artifact_id" in the social object (set it to the artifact ID from the publish action). The URL will be resolved automatically when the article is published. Example: "social": { "text": "Check out our latest post {{ARTICLE_URL}}", "platform": "x", "artifact_id": "art_123_my-slug" }. Never link to /modules/company/ or /docs/published/ as those are internal and auth-gated.
 - revise-action: Revise an action that the CEO sent back for changes. Provide "action_id" (from the CEO REVISION REQUESTS section) and "social" with the corrected content (same format as create-social-action). The revised action replaces the old one and is re-submitted for CEO approval. Address ALL of the CEO's feedback in your revision.
 - create-doc: Create a NEW document. Include "document" with: title (string), kind ("spec"|"runbook"|"release_notes"|"product_brief"|"marketing_post"|"governance"), tags (array of strings), and content_md (full markdown content — MUST be complete, publish-ready text with NO placeholders like "[insert here]" or "[TBD]"). Also include "taskId" if this doc is for a specific task. marketing_post/product_brief → CEO approval queue for blog. Internal kinds (spec, runbook, release_notes, governance) → auto-published to /docs/published/ immediately. IMPORTANT: Check EXISTING DOCUMENTS below first — if a relevant doc already exists, use update-doc instead of creating a duplicate.
