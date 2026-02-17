@@ -548,8 +548,9 @@
     }
 
     function renderAll() {
-      // Reconcile approval queue with actions store before rendering
+      // Reconcile approval queue and artifacts before rendering
       if (AE.reconcileApprovalQueue) AE.reconcileApprovalQueue();
+      if (AE.reconcileArtifacts) AE.reconcileArtifacts();
       renderActionDrift();
       renderExecutionPulse();
       renderRawStats();
@@ -897,7 +898,7 @@
       if (!depCheck.ready) {
         html += '<div style="font-size:0.65rem;margin-top:3px;padding:3px 8px;border-radius:4px;background:rgba(251,191,36,0.08);color:#fbbf24;border:1px solid rgba(251,191,36,0.15);display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">';
         html += '<span><i class="fas fa-link" style="margin-right:4px;"></i>' + esc(depCheck.blockedReason) + '</span>';
-        html += '<button onclick="renderAll()" style="font-size:0.55rem;padding:2px 8px;border-radius:3px;border:1px solid rgba(251,191,36,0.3);background:rgba(251,191,36,0.1);color:#fbbf24;cursor:pointer;" title="Re-check after publishing the article"><i class="fas fa-sync-alt" style="margin-right:3px;"></i>Retry</button>';
+        html += '<button onclick="event.stopPropagation();renderAll();" style="font-size:0.55rem;padding:2px 8px;border-radius:3px;border:1px solid rgba(251,191,36,0.3);background:rgba(251,191,36,0.1);color:#fbbf24;cursor:pointer;" title="Re-check after publishing the article"><i class="fas fa-sync-alt" style="margin-right:3px;"></i>Retry</button>';
         html += '</div>';
       } else if (a.dependsOn && a.dependsOn.length > 0) {
         html += '<div style="font-size:0.6rem;margin-top:3px;opacity:0.4;"><i class="fas fa-check-circle" style="margin-right:3px;color:#34d399;"></i>Dependencies satisfied</div>';

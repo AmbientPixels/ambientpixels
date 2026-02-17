@@ -2314,7 +2314,11 @@ var AgentEngine = (function () {
   var ACTION_AUDIT_KEY = 'ap_action_audit_log';
   var ACTION_RATE_KEY = 'ap_action_rate_counts';
 
-  function getActions() { return _loadStorage(ACTIONS_KEY, []); }
+  function getActions() {
+    var list = _loadStorage(ACTIONS_KEY, []);
+    for (var i = 0; i < list.length; i++) { _syncLegacy(list[i]); }
+    return list;
+  }
   function _saveActions(list) { _saveStorage(ACTIONS_KEY, list); }
   // Legacy compat — old UI reads from ap_action_queue
   function getActionQueue() { return getActions(); }
@@ -2456,6 +2460,17 @@ var AgentEngine = (function () {
         _saveActions(list);
         // Update approval queue entry
         _updateApprovalQueueForAction(actionId, 'approved');
+        // Auto-register artifact when publish_document is approved
+        if (a.type === 'publish_document' && a.payload) {
+          var docId = a.payload.documentId;
+          var artSlug = a.payload.slug || '';
+          var artTitle = a.payload.title || artSlug || docId;
+          var artUrl = a.payload.public_url || a.payload.target_path || null;
+          if (docId) {
+            registerArtifact({ id: docId, type: 'article', title: artTitle, slug: artSlug, url: artUrl, status: 'published', publishedAt: new Date().toISOString(), actionId: actionId, documentId: docId, source: a.created_by });
+            markArtifactPublished(docId, artUrl);
+          }
+        }
         _logAction('action-approved', { actionId: actionId, type: a.type, platform: a.platform });
         _logGovernance('ceo-approval', { actionId: actionId, type: a.type, platform: a.platform, context: 'action' });
         return a;
@@ -2593,6 +2608,35 @@ var AgentEngine = (function () {
       console.log('[AgentEngine] reconcileProposals:', fixed);
     }
     return fixed;
+  }
+
+  // Reconcile artifact registry from approved publish_document actions
+  function reconcileArtifacts() {
+    var actions = getActions();
+    var registered = 0;
+    for (var i = 0; i < actions.length; i++) {
+      var a = actions[i];
+      if (a.type === 'publish_document' && a.approval && a.approval.status === 'approved' && a.payload && a.payload.documentId) {
+        var existing = getArtifactById(a.payload.documentId);
+        if (!existing) {
+          registerArtifact({
+            id: a.payload.documentId,
+            type: 'article',
+            title: a.payload.title || a.payload.slug || a.payload.documentId,
+            slug: a.payload.slug || '',
+            url: a.payload.public_url || a.payload.target_path || null,
+            status: 'published',
+            publishedAt: a.approval.approved_at || new Date().toISOString(),
+            actionId: a.id,
+            documentId: a.payload.documentId,
+            source: a.created_by
+          });
+          registered++;
+        }
+      }
+    }
+    if (registered > 0) console.log('[AgentEngine] reconcileArtifacts: registered', registered, 'artifacts from approved publish actions');
+    return registered;
   }
 
   // Reconcile approvalQueue against actions store — remove orphans, sync status
@@ -3162,6 +3206,7 @@ var AgentEngine = (function () {
     resolveActionTokens: resolveActionTokens,
     checkActionDependencies: checkActionDependencies,
     reconcileApprovalQueue: reconcileApprovalQueue,
-    reconcileProposals: reconcileProposals
+    reconcileProposals: reconcileProposals,
+    reconcileArtifacts: reconcileArtifacts
   };
 })();
