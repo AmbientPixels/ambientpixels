@@ -2473,13 +2473,23 @@ var AgentEngine = (function () {
             markArtifactPublished(docId, artUrl);
           }
         }
-        // Auto-complete parent task when social action is approved
-        if (a._parentTaskId && (a.type === 'social_post.publish' || a.type === 'social_post.schedule')) {
+        // Auto-execute task_completion actions (no external API needed)
+        if (a.type === 'task_completion.approve') {
+          a.execution = a.execution || {};
+          a.execution.status = 'success';
+          a.execution.finished_at = new Date().toISOString();
+          a.execution_status = 'success';
+          _saveActions(list);
+        }
+        // Auto-complete parent task when linked action is approved
+        if (a._parentTaskId && (a.type === 'social_post.publish' || a.type === 'social_post.schedule' || a.type === 'task_completion.approve')) {
           var parentTask = getTask(a._parentTaskId);
           if (parentTask && parentTask.status !== 'done') {
             updateTask(a._parentTaskId, { status: 'done' });
             addTaskComment(a._parentTaskId, {
-              text: 'Task auto-completed: CEO approved the linked social action (' + actionId + ').',
+              text: a.type === 'task_completion.approve'
+                ? 'Task completed: CEO signed off on deliverable and peer review (' + actionId + ').'
+                : 'Task auto-completed: CEO approved the linked social action (' + actionId + ').',
               author: 'system',
               type: 'system'
             });

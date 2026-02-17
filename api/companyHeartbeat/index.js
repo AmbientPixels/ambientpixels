@@ -356,6 +356,43 @@ module.exports = async function (context) {
             }
             const updatedTask = applyTaskUpdate(tasks, update, _pendingEscalations);
             if (update.action === 'create') newTasksCreated++;
+            // CEO task completion → create action for approval queue
+            if (update._ceoApprovalAction) {
+              const ceo = update._ceoApprovalAction;
+              const actionsStore = (await storage.getState('actions')) || [];
+              const completionAction = {
+                id: 'act_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+                created_at: new Date().toISOString(),
+                created_by: ceo.reviewerId || agentId,
+                type: 'task_completion.approve',
+                platform: 'internal',
+                payload: {
+                  text: '**Task:** ' + ceo.taskTitle + '\n\n**Deliverable:**\n' + (ceo.deliverable || '(no deliverable)').substring(0, 2000) + '\n\n**Peer Review (' + (ceo.reviewerId || 'agent') + '):** ' + (ceo.reviewFeedback || 'Approved'),
+                  taskId: ceo.taskId,
+                  taskTitle: ceo.taskTitle,
+                  assignee: ceo.assignee
+                },
+                classification: 'advisory',
+                requires_ceo_approval: true,
+                risk_level: 'low',
+                brand_impact: 'none',
+                budget_impact: 0,
+                approval: { status: 'pending', approved_by: null, approved_at: null, decision_note: null },
+                execution: { status: 'pending', started_at: null, finished_at: null, attempts: 0, last_error: null, receipt: null },
+                action_type: 'task_completion.approve',
+                action_category: 'task',
+                execution_status: 'pending',
+                origin_agent: ceo.reviewerId || agentId,
+                action_payload: { taskId: ceo.taskId, taskTitle: ceo.taskTitle },
+                requires_approval: true,
+                is_irreversible: false,
+                _parentTaskId: ceo.taskId,
+                source: 'heartbeat'
+              };
+              actionsStore.push(completionAction);
+              await storage.setState('actions', actionsStore);
+              context.log('[Heartbeat] Created task_completion.approve action for CEO task:', ceo.taskTitle, '→', completionAction.id);
+            }
             // Track tasks that just entered review — block same-cycle reviews
             if (updatedTask && updatedTask.status === 'review' && (update.action === 'execute' || update.action === 'move' || update.action === 'social-action-created')) {
               _reviewCooldownIds.add(updatedTask.id);
@@ -2078,10 +2115,21 @@ function applyTaskUpdate(tasks, update, _pendingEscalations) {
         });
         // Move based on verdict
         if (update.review.verdict === 'approved') {
-          // CEO TASK GATE: CEO-created tasks go to pending-approval so CEO can inspect
+          // CEO TASK GATE: CEO-created tasks create an action for the approval queue
           const isCeoTask = tasks[i].source !== 'heartbeat' && tasks[i].source !== undefined;
           if (isCeoTask) {
-            tasks[i].status = 'pending-approval';
+            tasks[i].status = 'review';  // stay in review until CEO approves
+            // Flag so heartbeat persists the action
+            if (!update._ceoApprovalAction) {
+              update._ceoApprovalAction = {
+                taskId: tasks[i].id,
+                taskTitle: tasks[i].title,
+                assignee: tasks[i].assignee,
+                reviewerId: update.agentId,
+                reviewFeedback: update.review.feedback,
+                deliverable: (tasks[i].comments || []).filter(c => c.type === 'deliverable').map(c => c.text).join('\n').substring(0, 2000)
+              };
+            }
           } else {
             tasks[i].status = 'done';
             tasks[i].completedAt = new Date().toISOString();
