@@ -41,7 +41,8 @@ var CompanyStore = (function () {
     'ap_documents':          'documents',
     'ap_published_docs':     'publishedDocs',
     'ap_artifacts':           'ap_artifacts',
-    'ap_meetings':            'meetings'
+    'ap_meetings':            'meetings',
+    'ap_tasks_archive':       'tasksArchive'
   };
 
   // Reverse map

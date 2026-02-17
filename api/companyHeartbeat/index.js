@@ -223,6 +223,53 @@ module.exports = async function (context) {
       }
     }
 
+    // ── Auto-archive done tasks (>7 days old) ──
+    const ARCHIVE_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+    const ARCHIVE_MAX = 2000;
+    const archiveNow = Date.now();
+    const toArchive = [];
+    const keepTasks = [];
+    for (const task of tasks) {
+      if (task.status === 'done') {
+        const completedMs = task.completedAt ? new Date(task.completedAt).getTime() : 0;
+        const updatedMs = task.updatedAt ? new Date(task.updatedAt).getTime() : 0;
+        const doneAt = completedMs || updatedMs;
+        if (doneAt && (archiveNow - doneAt) > ARCHIVE_AGE_MS) {
+          // Compact: strip full comments, keep summary
+          const lastComment = (task.comments && task.comments.length > 0) ? task.comments[task.comments.length - 1] : null;
+          toArchive.push({
+            id: task.id,
+            title: task.title,
+            description: (task.description || '').substring(0, 200),
+            status: 'done',
+            priority: task.priority,
+            assignee: task.assignee,
+            division: task.division || null,
+            dueDate: task.dueDate,
+            createdAt: task.createdAt,
+            completedAt: task.completedAt,
+            source: task.source,
+            commentCount: task.comments ? task.comments.length : 0,
+            lastComment: lastComment ? { author: lastComment.author, text: (lastComment.text || '').substring(0, 150), createdAt: lastComment.createdAt } : null,
+            archivedAt: new Date().toISOString()
+          });
+          continue;
+        }
+      }
+      keepTasks.push(task);
+    }
+    if (toArchive.length > 0) {
+      const archive = (await storage.getState('tasksArchive')) || [];
+      archive.push(...toArchive);
+      // Cap archive
+      if (archive.length > ARCHIVE_MAX) archive.splice(0, archive.length - ARCHIVE_MAX);
+      await storage.setState('tasksArchive', archive);
+      // Replace tasks array in-place (agents use this reference)
+      tasks.length = 0;
+      tasks.push(...keepTasks);
+      context.log('[Heartbeat] Archived', toArchive.length, 'done task(s) older than 7 days. Active tasks:', tasks.length);
+    }
+
     // ── Auto-triage CEO tasks ──
     // CEO-created tasks with assignee AND dueDate already set need no human triage.
     // Inject a system comment so the prompt-level triage gate is satisfied immediately.

@@ -51,6 +51,24 @@
     .priority-pill--high { background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.3); color:#fbbf24; }
     .priority-pill--critical { background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.35); color:#f87171; }
 
+    /* Archive tab */
+    .tm-tab-bar { display:flex; gap:0; margin-bottom:0.75rem; border-bottom:1px solid rgba(255,255,255,0.06); }
+    .tm-tab { padding:0.45rem 1rem; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.35); background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:all 0.15s; font-family:inherit; }
+    .tm-tab:hover { color:rgba(255,255,255,0.6); }
+    .tm-tab.active { color:rgba(255,165,0,0.9); border-bottom-color:rgba(255,165,0,0.6); }
+    .tm-tab .tm-tab-count { font-size:0.6rem; opacity:0.5; margin-left:0.3rem; }
+    .tm-archive-panel { display:none; }
+    .tm-archive-panel.active { display:block; }
+    .tm-archive-table { width:100%; border-collapse:collapse; font-size:0.7rem; }
+    .tm-archive-table th { text-align:left; padding:0.4rem 0.6rem; font-size:0.6rem; text-transform:uppercase; letter-spacing:0.04em; color:rgba(255,255,255,0.25); border-bottom:1px solid rgba(255,255,255,0.06); font-weight:500; }
+    .tm-archive-table td { padding:0.4rem 0.6rem; border-bottom:1px solid rgba(255,255,255,0.03); color:rgba(255,255,255,0.55); }
+    .tm-archive-table tr:hover td { background:rgba(255,255,255,0.02); }
+    .tm-archive-empty { text-align:center; padding:2rem; opacity:0.2; font-size:0.75rem; }
+    .tm-archive-load-btn { display:block; margin:1rem auto; padding:0.4rem 1.2rem; font-size:0.7rem; font-family:inherit; background:rgba(255,165,0,0.08); border:1px solid rgba(255,165,0,0.2); border-radius:6px; color:rgba(255,165,0,0.7); cursor:pointer; transition:all 0.15s; }
+    .tm-archive-load-btn:hover { background:rgba(255,165,0,0.15); color:rgba(255,165,0,0.9); }
+    .tm-archive-stats { display:flex; gap:1rem; margin-bottom:0.75rem; font-size:0.65rem; color:rgba(255,255,255,0.3); }
+    .tm-archive-stats span { background:rgba(255,255,255,0.03); padding:0.2rem 0.6rem; border-radius:4px; border:1px solid rgba(255,255,255,0.05); }
+
     /* Task search */
     .tm-search-wrap {
       position: relative; flex: 1; min-width: 160px; max-width: 320px;
@@ -95,6 +113,12 @@
 
     <!-- Stats -->
     <div class="tm-stats" id="tm-stats"></div>
+
+    <!-- Tab Bar: Active / Archive -->
+    <div class="tm-tab-bar">
+      <button class="tm-tab active" id="tab-active"><i class="fas fa-tasks" style="margin-right:4px;"></i>Active</button>
+      <button class="tm-tab" id="tab-archive"><i class="fas fa-archive" style="margin-right:4px;"></i>Archive <span class="tm-tab-count" id="archive-count"></span></button>
+    </div>
 
     <!-- Filters + View Toggle -->
     <div class="tm-filters">
@@ -213,6 +237,14 @@
         </thead>
         <tbody id="tm-list-body"></tbody>
       </table>
+    </div>
+
+    <!-- Archive Panel (lazy-loaded) -->
+    <div class="tm-archive-panel" id="tm-archive-panel">
+      <div class="tm-archive-stats" id="tm-archive-stats"></div>
+      <div id="tm-archive-content">
+        <button class="tm-archive-load-btn" id="btn-load-archive"><i class="fas fa-cloud-download-alt" style="margin-right:4px;"></i>Load Archive from Server</button>
+      </div>
     </div>
 
     <!-- Task Modal (Create / Edit) -->
@@ -1147,6 +1179,97 @@
         var div = document.createElement('div');
         div.textContent = str;
         return div.innerHTML;
+      }
+
+      // ── Tab Switching: Active / Archive ──
+      var _activeTab = 'active';
+      var _archiveData = null;
+      var tabActiveBtn = document.getElementById('tab-active');
+      var tabArchiveBtn = document.getElementById('tab-archive');
+      var archivePanel = document.getElementById('tm-archive-panel');
+      var archiveContent = document.getElementById('tm-archive-content');
+      var archiveStats = document.getElementById('tm-archive-stats');
+      var archiveCountEl = document.getElementById('archive-count');
+      var filtersEl = document.querySelector('.tm-filters');
+      var signalBar = document.getElementById('tm-signal-bar');
+      var intelAlerts = document.getElementById('tm-intel-alerts');
+
+      function _switchTab(tab) {
+        _activeTab = tab;
+        tabActiveBtn.classList.toggle('active', tab === 'active');
+        tabArchiveBtn.classList.toggle('active', tab === 'archive');
+        // Active tab elements
+        var showActive = tab === 'active';
+        board.style.display = showActive && currentView === 'board' ? '' : 'none';
+        listView.style.display = showActive && currentView === 'list' ? '' : 'none';
+        if (filtersEl) filtersEl.style.display = showActive ? '' : 'none';
+        if (signalBar) signalBar.style.display = showActive ? '' : 'none';
+        if (intelAlerts) intelAlerts.style.display = showActive ? '' : 'none';
+        // Archive panel
+        archivePanel.classList.toggle('active', tab === 'archive');
+        if (tab === 'active') {
+          board.classList.toggle('active', currentView === 'board');
+          listView.classList.toggle('active', currentView === 'list');
+        }
+      }
+
+      tabActiveBtn.addEventListener('click', function () { _switchTab('active'); });
+      tabArchiveBtn.addEventListener('click', function () { _switchTab('archive'); });
+
+      // Lazy-load archive
+      document.getElementById('btn-load-archive').addEventListener('click', function () {
+        var btn = this;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right:4px;"></i>Loading...';
+        CompanyStore.getState('ap_tasks_archive', []).then(function (data) {
+          _archiveData = Array.isArray(data) ? data : [];
+          _renderArchive();
+          if (archiveCountEl) archiveCountEl.textContent = _archiveData.length ? '(' + _archiveData.length + ')' : '';
+        }).catch(function (err) {
+          archiveContent.innerHTML = '<div class="tm-archive-empty">Failed to load archive: ' + (err.message || err) + '</div>';
+        });
+      });
+
+      function _renderArchive() {
+        if (!_archiveData || _archiveData.length === 0) {
+          archiveStats.innerHTML = '';
+          archiveContent.innerHTML = '<div class="tm-archive-empty">No archived tasks yet. Tasks completed more than 7 days ago will appear here.</div>';
+          return;
+        }
+        // Stats
+        var byAgent = {};
+        _archiveData.forEach(function (t) {
+          var a = t.assignee || 'unassigned';
+          byAgent[a] = (byAgent[a] || 0) + 1;
+        });
+        var statsHtml = '<span><i class="fas fa-archive" style="margin-right:3px;"></i>' + _archiveData.length + ' archived</span>';
+        Object.keys(byAgent).sort(function (a, b) { return byAgent[b] - byAgent[a]; }).slice(0, 4).forEach(function (agentId) {
+          var agent = getAgentById(agentId);
+          var name = agent ? agent.name : agentId;
+          statsHtml += '<span>' + escapeHtml(name) + ': ' + byAgent[agentId] + '</span>';
+        });
+        archiveStats.innerHTML = statsHtml;
+
+        // Table (newest first)
+        var sorted = _archiveData.slice().sort(function (a, b) {
+          return new Date(b.completedAt || b.archivedAt || 0).getTime() - new Date(a.completedAt || a.archivedAt || 0).getTime();
+        });
+        var html = '<table class="tm-archive-table"><thead><tr><th>Task</th><th>Assignee</th><th>Priority</th><th>Completed</th><th>Comments</th></tr></thead><tbody>';
+        sorted.forEach(function (t) {
+          var agent = t.assignee ? getAgentById(t.assignee) : null;
+          var agentHtml = agent ? '<span style="color:' + agent.color + ';">' + agent.name + '</span>' : (t.assignee || '<span style="opacity:0.2;">\u2014</span>');
+          var completedStr = t.completedAt ? formatDate(t.completedAt) : '\u2014';
+          var lastNote = t.lastComment ? escapeHtml((t.lastComment.author || '') + ': ' + (t.lastComment.text || '').substring(0, 60)) : '';
+          html += '<tr title="' + escapeHtml(t.description || '') + '">' +
+            '<td>' + escapeHtml(t.title) + '</td>' +
+            '<td>' + agentHtml + '</td>' +
+            '<td><span class="tm-card-priority tm-card-priority--' + (t.priority || 'medium') + '">' + (t.priority || 'medium') + '</span></td>' +
+            '<td style="font-size:0.65rem;opacity:0.5;">' + completedStr + '</td>' +
+            '<td style="font-size:0.6rem;opacity:0.35;">' + (t.commentCount || 0) + (lastNote ? ' \u2014 ' + lastNote : '') + '</td>' +
+            '</tr>';
+        });
+        html += '</tbody></table>';
+        archiveContent.innerHTML = html;
       }
     })();
   </script>
