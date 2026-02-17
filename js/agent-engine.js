@@ -2680,7 +2680,7 @@ var AgentEngine = (function () {
     return registered + recovered;
   }
 
-  // Reconcile approvalQueue against actions store — remove orphans, sync status
+  // Reconcile approvalQueue against actions store — remove orphans, sync status, backfill missing
   function reconcileApprovalQueue() {
     var queue = getApprovalQueue();
     var actions = getActions();
@@ -2688,9 +2688,14 @@ var AgentEngine = (function () {
     for (var i = 0; i < actions.length; i++) actionMap[actions[i].id] = actions[i];
     var changed = false;
     var cleaned = 0;
+    var backfilled = 0;
+
+    // 1. Clean orphans and sync status
+    var queueActionIds = {};
     for (var j = queue.length - 1; j >= 0; j--) {
       var entry = queue[j];
       if (entry.kind !== 'action' || !entry.action_id) continue;
+      queueActionIds[entry.action_id] = true;
       var action = actionMap[entry.action_id];
       if (!action) {
         // Orphan: approvalQueue entry with no matching action — remove it
@@ -2707,11 +2712,35 @@ var AgentEngine = (function () {
         cleaned++;
       }
     }
-    if (changed) {
-      _saveStorage(APPROVAL_KEY, queue);
-      console.log('[AgentEngine] Reconciled approvalQueue: cleaned ' + cleaned + ' entries');
+
+    // 2. Backfill: create approvalQueue entries for pending actions missing from queue
+    for (var k = 0; k < actions.length; k++) {
+      var act = actions[k];
+      var approvalStatus = (act.approval && act.approval.status) || '';
+      if ((approvalStatus === 'pending' || approvalStatus === 'revision_requested') && !queueActionIds[act.id]) {
+        queue.push({
+          id: 'aq-' + act.id,
+          kind: 'action',
+          action_id: act.id,
+          actionType: act.type || 'unknown',
+          taskTitle: (act.payload && (act.payload.text || act.payload.title || '').substring(0, 100)) || act.type || 'Action',
+          originAgent: act.created_by || 'unknown',
+          status: 'pending',
+          submittedAt: (act.approval && act.approval.submitted_at) || act.created_at || new Date().toISOString(),
+          classification: act.classification || 'advisory',
+          risk_level: act.risk_level || 'medium'
+        });
+        changed = true;
+        backfilled++;
+      }
     }
-    return cleaned;
+
+    if (changed) {
+      if (queue.length > 100) queue.splice(0, queue.length - 100);
+      _saveStorage(APPROVAL_KEY, queue);
+      console.log('[AgentEngine] Reconciled approvalQueue: cleaned ' + cleaned + ', backfilled ' + backfilled);
+    }
+    return cleaned + backfilled;
   }
 
   // Update matching approval queue entry status
