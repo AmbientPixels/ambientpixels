@@ -307,6 +307,23 @@
                 <div class="dash-empty">No actions yet.</div>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CEO: Cost Center Section -->
+      <div class="dash-section" id="section-costs" data-section="costs">
+        <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
+          <i class="fas fa-dollar-sign" style="color:#fbbf24;"></i>
+          <h2>Cost Center</h2>
+          <i class="fas fa-chevron-down dash-section-chevron"></i>
+        </div>
+        <div class="dash-section-body">
+          <!-- Combined Cost Summary -->
+          <div id="panel-cost-summary" style="padding:0.5rem 0.6rem; margin-bottom:0.6rem;">
+            <div class="dash-empty" style="font-size:0.6rem;">Loading cost summary...</div>
+          </div>
+          <div class="dash-grid">
             <!-- Gemini API Costs -->
             <div class="dash-panel dash-panel--full" id="panel-gemini-cost-wrap">
               <div class="dash-panel-header">
@@ -737,6 +754,7 @@
         renderActionSnap();
         renderGeminiCosts();
         renderAzureCosts();
+        renderCostSummary();
         renderDailyLogDrafts();
         renderBlogAdmin();
         renderGovernanceLog();
@@ -2263,6 +2281,51 @@
           ',0.1); color:' + color + '; font-weight:500;">' + count + ' ' + label + '</span>';
       }
 
+      // ── Cost Center Summary ──
+      var _costSummaryData = { gemini: null, azure: null };
+
+      function renderCostSummary() {
+        var el = document.getElementById('panel-cost-summary');
+        if (!el) return;
+        var g = _costSummaryData.gemini;
+        var a = _costSummaryData.azure;
+        if (!g && !a) {
+          el.innerHTML = '<div class="dash-empty" style="font-size:0.6rem;">Waiting for cost data...</div>';
+          return;
+        }
+
+        var geminiTotal = g ? g.totalCost : 0;
+        var azureTotal = a ? a.totalCost : 0;
+        var combined = geminiTotal + azureTotal;
+        var azureProjected = a ? a.projectedMonthly : 0;
+        var geminiAvgDay = g && g.totalCalls > 0 ? geminiTotal / Math.max(Object.keys(g.byDay || {}).length, 1) : 0;
+        var projectedMonthly = azureProjected + (geminiAvgDay * 30);
+
+        var html = '<div style="display:flex; gap:1rem; flex-wrap:wrap; align-items:stretch;">';
+        html += _costKpi('$' + combined.toFixed(2), 'Total Spend', '#fbbf24');
+        html += _costKpi('$' + geminiTotal.toFixed(2), 'Gemini API', '#fbbf24');
+        html += _costKpi('$' + azureTotal.toFixed(2), 'Azure Infra', '#0078D4');
+        html += _costKpi('$' + projectedMonthly.toFixed(2), 'Projected/Mo', '#34d399');
+        html += '</div>';
+
+        // Percentage breakdown bar
+        if (combined > 0) {
+          var gPct = Math.round((geminiTotal / combined) * 100);
+          var aPct = 100 - gPct;
+          html += '<div style="margin-top:0.5rem;">';
+          html += '<div style="display:flex; height:6px; border-radius:3px; overflow:hidden; background:rgba(255,255,255,0.03);">';
+          if (gPct > 0) html += '<div style="width:' + gPct + '%; background:#fbbf24;" title="Gemini: ' + gPct + '%"></div>';
+          if (aPct > 0) html += '<div style="width:' + aPct + '%; background:#0078D4;" title="Azure: ' + aPct + '%"></div>';
+          html += '</div>';
+          html += '<div style="display:flex; justify-content:space-between; font-size:0.5rem; opacity:0.35; margin-top:0.15rem;">';
+          html += '<span><i class="fas fa-coins" style="color:#fbbf24;margin-right:2px;"></i>Gemini ' + gPct + '%</span>';
+          html += '<span><i class="fab fa-microsoft" style="color:#0078D4;margin-right:2px;"></i>Azure ' + aPct + '%</span>';
+          html += '</div></div>';
+        }
+
+        el.innerHTML = html;
+      }
+
       // ── Gemini API Costs ──
       var _geminiCostDays = 30;
       var _geminiCostCache = null;
@@ -2283,7 +2346,9 @@
         .then(function (data) {
           if (!data) { el.innerHTML = '<div class="dash-empty">Could not load cost data.</div>'; return; }
           _geminiCostCache = data;
+          _costSummaryData.gemini = data;
           _renderGeminiCostPanel(el, data);
+          renderCostSummary();
         })
         .catch(function () { el.innerHTML = '<div class="dash-empty">Network error loading costs.</div>'; });
       }
@@ -2382,7 +2447,9 @@
           return r.json();
         })
         .then(function (data) {
+          _costSummaryData.azure = data;
           _renderAzureCostPanel(el, data);
+          renderCostSummary();
         })
         .catch(function (err) {
           el.innerHTML = '<div class="dash-empty" style="font-size:0.6rem;">' + escapeHtml(err.message || 'Could not load Azure cost data.') + '</div>';

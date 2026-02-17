@@ -4,6 +4,5 @@
   { "id": "kpi_cards_generated", "name": "Cards Generated", "unit": "count", "target": null, "owner": "pixel", "category": "Product" },
   { "id": "kpi_cards_published", "name": "Cards Published", "unit": "count", "target": null, "owner": "pixel", "category": "Activation" },
   { "id": "kpi_social_followers", "name": "Social Followers", "unit": "count", "target": null, "owner": "echo", "category": "Growth" },
-  { "id": "kpi_api_cost_monthly", "name": "Monthly API Cost", "unit": "usd", "target": null, "owner": "cipher", "category": "Cost" },
   { "id": "kpi_error_rate", "name": "Error Rate", "unit": "percent", "target": null, "owner": "forge", "category": "Reliability" }
 ]
