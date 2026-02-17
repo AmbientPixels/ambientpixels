@@ -11,7 +11,7 @@ const path = require('path');
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=';
 
-const AGENT_IDS = ['cipher', 'pixel', 'forge', 'echo', 'nova', 'scribe', 'quill', 'scout'];
+const AGENT_IDS = ['nova', 'cipher', 'pixel', 'forge', 'echo', 'scribe', 'quill', 'scout'];
 
 // Agent system prompts (abbreviated for heartbeat context)
 const AGENT_ROLES = {
@@ -1453,7 +1453,8 @@ function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirective
   workspaceDates = workspaceDates || [];
 
   const taskList = agentTasks.map(t => {
-    let line = '- [' + t.status + '] ' + t.title + ' (priority: ' + t.priority + ', id: ' + t.id;
+    const src = t.source === 'heartbeat' ? 'agent' : 'CEO';
+    let line = '- [' + t.status + '] ' + t.title + ' (priority: ' + t.priority + ', source: ' + src + ', id: ' + t.id;
     if (t.directive_id) line += ', directive: ' + t.directive_id;
     if (t.dueDate) line += ', due: ' + t.dueDate.substring(0, 10);
     line += ')';
@@ -1772,9 +1773,10 @@ TRIAGE GATE — ALL TASKS MUST BE TRIAGED BY NOVA FIRST:
 - Before you can execute, create-social-action, or create-doc on any task, it MUST have at least one comment from Nova (the Prime Operator). Nova's comment is the triage stamp.
 - If a task assigned to you has NO comment from Nova, do NOT execute it. Instead, wait — Nova will triage it in her heartbeat.
 - Exception: If YOU are Nova, you may triage AND execute in the same cycle.
+- Exception: CEO/manual tasks (source is NOT "heartbeat") that ALREADY have an assignee AND a dueDate set were personally configured by the CEO. You may execute these immediately without waiting for Nova's triage — the CEO's assignment IS the triage stamp.
 
 ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
-- CRITICAL RULE: If you have a TRIAGED task (has Nova comment) assigned to you that is in-progress OR todo with priority critical or high, your FIRST action MUST be to produce work on that task. Do NOT create sub-tasks, comment, or plan — produce the actual deliverable NOW.
+- CRITICAL RULE: If you have an ACTIONABLE task (has Nova comment OR is a CEO task with assignee+dueDate) assigned to you that is in-progress OR todo with priority critical or high, your FIRST action MUST be to produce work on that task. Do NOT create sub-tasks, comment, or plan — produce the actual deliverable NOW.
   - For content/analysis tasks: use execute-task to produce the deliverable.
   - For social media / LinkedIn / X / Bluesky post tasks: use create-social-action with the taskId to draft the post immediately.
   - For document tasks: use create-doc to produce the document directly.
