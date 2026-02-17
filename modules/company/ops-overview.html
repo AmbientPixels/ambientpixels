@@ -303,6 +303,7 @@
   <script src="/js/worker-runtime.js"></script>
   <script src="/js/worker-manager.js"></script>
   <script src="/js/company-store.js"></script>
+  <script src="/js/friendly-labels.js"></script>
   <script>
   (function () {
     CompanyStore.init().then(function () {
@@ -378,8 +379,8 @@
       var aEvents = ActionAudit.getRecent(6);
       feedHtml += aEvents.map(function (ev) {
         var time = ev.timestamp ? new Date(ev.timestamp).toLocaleString() : '?';
-        var label = ev.eventType.replace(/_/g, ' ');
-        if (ev.actionType) label += ' (' + ev.actionType + ')';
+        var label = typeof FriendlyLabels !== 'undefined' ? FriendlyLabels.auditEvent(ev.eventType) : ev.eventType.replace(/_/g, ' ');
+        if (ev.actionType) label += ' (' + (typeof FriendlyLabels !== 'undefined' ? FriendlyLabels.actionType(ev.actionType) : ev.actionType) + ')';
         if (ev.reason) label += ' \u2014 ' + ev.reason;
         return '<div class="ops-feed-row ops-feed-row--action">' +
           '<span class="ops-feed-time">' + time + '</span>' +
@@ -391,7 +392,7 @@
       var calEvents = CalibrationAudit.getRecent(3);
       feedHtml += calEvents.map(function (ev) {
         var time = ev.timestamp ? new Date(ev.timestamp).toLocaleString() : '?';
-        var label = ev.eventType.replace(/_/g, ' ');
+        var label = typeof FriendlyLabels !== 'undefined' ? FriendlyLabels.auditEvent(ev.eventType) : ev.eventType.replace(/_/g, ' ');
         if (ev.counts && ev.counts.enqueued) label += ' (' + ev.counts.enqueued + ' enqueued)';
         if (ev.reason) label += ' \u2014 ' + ev.reason;
         return '<div class="ops-feed-row ops-feed-row--calibration">' +
@@ -404,7 +405,7 @@
       var pEvents = PlannerAudit.getRecent(4);
       feedHtml += pEvents.map(function (ev) {
         var time = ev.timestamp ? new Date(ev.timestamp).toLocaleString() : '?';
-        var label = ev.eventType.replace(/_/g, ' ');
+        var label = typeof FriendlyLabels !== 'undefined' ? FriendlyLabels.auditEvent(ev.eventType) : ev.eventType.replace(/_/g, ' ');
         if (ev.counts && ev.counts.enqueued) label += ' (' + ev.counts.enqueued + ' enqueued)';
         if (ev.reason) label += ' \u2014 ' + ev.reason;
         return '<div class="ops-feed-row ops-feed-row--planner">' +

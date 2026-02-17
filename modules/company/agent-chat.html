@@ -57,6 +57,7 @@
   </main>
 
   <script src="/js/company-store.js"></script>
+  <script src="/js/friendly-labels.js"></script>
   <script src="/js/agent-engine.js"></script>
   <script>
     (function () {
@@ -274,7 +275,7 @@
             var action = AgentEngine.createAction({ action_type: actionType, action_payload: payload, origin_agent: 'pixelpusher' });
             if (action) {
               addMessage('user', text);
-              addMessage('agent', 'Action created: **' + actionType + '** (ID: ' + action.id + ', Status: ' + action.execution_status + '). View in [Actions](/modules/company/actions.html).');
+              addMessage('agent', 'Action created: **' + (typeof FriendlyLabels !== 'undefined' ? FriendlyLabels.actionType(actionType) : actionType) + '** — ' + (typeof FriendlyLabels !== 'undefined' ? FriendlyLabels.status(action.execution_status) : action.execution_status) + '. View in [Actions](/modules/company/actions.html).');
             } else {
               addMessage('user', text);
               addMessage('agent', 'Failed to create action. Check action type is valid.');
@@ -291,7 +292,7 @@
           var approved = AgentEngine.approveAction(targetId);
           if (approved) {
             addMessage('user', text);
-            addMessage('agent', 'Action **' + targetId + '** approved (' + approved.action_type + '). Ready for execution.');
+            addMessage('agent', 'Action approved: **' + (typeof FriendlyLabels !== 'undefined' ? FriendlyLabels.actionType(approved.action_type || approved.type) : (approved.action_type || approved.type)) + '**. Ready for execution.');
           } else {
             addMessage('user', text);
             addMessage('agent', 'Approve failed — action "' + targetId + '" not found or not pending.');
@@ -304,7 +305,7 @@
           var rejected = AgentEngine.rejectAction(rejectId);
           if (rejected) {
             addMessage('user', text);
-            addMessage('agent', 'Action **' + rejectId + '** rejected (' + rejected.action_type + ').');
+            addMessage('agent', 'Action rejected: **' + (typeof FriendlyLabels !== 'undefined' ? FriendlyLabels.actionType(rejected.action_type || rejected.type) : (rejected.action_type || rejected.type)) + '**.');
           } else {
             addMessage('user', text);
             addMessage('agent', 'Reject failed — action "' + rejectId + '" not found or not pending.');

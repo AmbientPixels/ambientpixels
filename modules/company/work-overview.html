@@ -374,6 +374,7 @@
   <script src="/js/worker-runtime.js"></script>
   <script src="/js/worker-manager.js"></script>
   <script src="/js/company-store.js"></script>
+  <script src="/js/friendly-labels.js"></script>
   <script>
   (function () {
     CompanyStore.init().then(function () {
@@ -499,13 +500,8 @@
       var body = document.getElementById('work-reports-body');
       if (!panel || !toggle || !body) return;
 
-      var _WORKER_LABELS = {
-        'triage_worker': 'Triage Worker', 'scribe_worker': 'Scribe Worker',
-        'research_worker': 'Research Worker', 'qa_worker': 'QA Worker'
-      };
       function _friendlyWorker(raw) {
-        if (_WORKER_LABELS[raw]) return _WORKER_LABELS[raw];
-        return (raw || '?').replace(/[_-]/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+        return typeof FriendlyLabels !== 'undefined' ? FriendlyLabels.workerType(raw) : (raw || '?').replace(/[_-]/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
       }
       var reports = WorkerManager.getLatestReports(5);
       if (reports.length === 0 && !WorkerManager.isEnabled()) {
@@ -556,21 +552,9 @@
       ActionRouter.loadRegistry();
       var _batchDebounce = null;
 
-      // Friendly action type names
-      var _ACTION_LABELS = {
-        'move_task': 'Move Task', 'move_task_lane': 'Move Task', 'update_task': 'Update Task',
-        'create_task': 'Create Task', 'execute_task': 'Execute Task', 'review_task': 'Review Task',
-        'comment_task': 'Comment', 'request_info': 'Request Info', 'assign_task': 'Assign Task',
-        'system_adjustment': 'System Adjustment', 'escalate': 'Escalate', 'delegate': 'Delegate',
-        'reassign': 'Reassign', 'close_task': 'Close Task', 'reopen_task': 'Reopen Task',
-        'schedule_post': 'Schedule Post', 'publish_document': 'Publish Document',
-        'create_social_action': 'Social Post', 'send_email': 'Send Email',
-        'create_document': 'Create Document', 'submit_for_publish': 'Submit for Publish',
-        'approve_task': 'Approve Task', 'reject_task': 'Reject Task', 'flag_task': 'Flag Task'
-      };
+      // Friendly action type names (uses shared FriendlyLabels utility)
       function _friendlyType(raw) {
-        if (_ACTION_LABELS[raw]) return _ACTION_LABELS[raw];
-        return (raw || '?').replace(/[_-]/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+        return typeof FriendlyLabels !== 'undefined' ? FriendlyLabels.actionType(raw) : (raw || '?').replace(/[_-]/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
       }
       function _resolveTarget(targetId) {
         if (!targetId) return '';

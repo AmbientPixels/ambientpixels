@@ -251,7 +251,8 @@ var ObservabilityUI = (function () {
         var total = t.succeeded + t.failed;
         var rate = total > 0 ? Math.round((t.succeeded / total) * 100) + '%' : 'n/a';
         var rateCls = total > 0 ? (t.succeeded / total >= 0.8 ? 'obs-rate--good' : (t.succeeded / total >= 0.5 ? 'obs-rate--warn' : 'obs-rate--bad')) : 'obs-rate--muted';
-        h += '<div class="obs-driver-table-row"><span>' + _esc(types[j].replace(/_/g, ' ')) + '</span><span class="obs-rate--good">' + t.succeeded + '</span><span class="obs-rate--bad">' + t.failed + '</span><span class="' + rateCls + '">' + rate + '</span></div>';
+        var friendlyType = typeof FriendlyLabels !== 'undefined' ? FriendlyLabels.actionType(types[j]) : types[j].replace(/_/g, ' ');
+        h += '<div class="obs-driver-table-row"><span>' + _esc(friendlyType) + '</span><span class="obs-rate--good">' + t.succeeded + '</span><span class="obs-rate--bad">' + t.failed + '</span><span class="' + rateCls + '">' + rate + '</span></div>';
       }
       h += '</div>';
     }
@@ -279,7 +280,7 @@ var ObservabilityUI = (function () {
         var evCls = _eventClass(a.eventType);
         h += '<div class="obs-recent-table-row"><span class="obs-recent-ts">' + _timeAgo(a.timestamp) + '</span>';
         h += '<span class="' + evCls + '">' + _esc((a.eventType || '').replace(/^action_/, '')) + '</span>';
-        h += '<span>' + _esc((a.actionType || '').replace(/_/g, ' ')) + '</span>';
+        h += '<span>' + _esc(typeof FriendlyLabels !== 'undefined' ? FriendlyLabels.actionType(a.actionType || '') : (a.actionType || '').replace(/_/g, ' ')) + '</span>';
         h += '<span>' + _esc(a.source || '') + '</span></div>';
       }
       h += '</div>';

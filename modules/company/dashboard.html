@@ -484,6 +484,7 @@
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
   <script src="/js/storage-manager.js"></script>
   <script src="/js/company-store.js"></script>
+  <script src="/js/friendly-labels.js"></script>
   <script src="/js/agent-engine.js"></script>
   <script src="/js/action-audit.js"></script>
   <script src="/js/worker-audit.js"></script>
@@ -2171,7 +2172,7 @@
         data.overdueTasks.slice(0, 2).forEach(function (t) { urgentItems.push({ title: t.title, reason: 'overdue', agent: t.assignee, color: '#ef4444' }); });
         data.stuckHighPrio.slice(0, 2).forEach(function (t) { urgentItems.push({ title: t.title, reason: t.priority + ' in backlog', agent: t.assignee, color: '#fbbf24' }); });
         data.blockedTasks.slice(0, 1).forEach(function (t) { urgentItems.push({ title: t.title, reason: 'blocked', agent: t.assignee, color: '#f87171' }); });
-        data.failedActions.slice(0, 1).forEach(function (a) { urgentItems.push({ title: (a.type || a.action_type || 'action'), reason: 'failed', agent: a.created_by, color: '#ef4444' }); });
+        data.failedActions.slice(0, 1).forEach(function (a) { urgentItems.push({ title: FriendlyLabels.actionType(a.type || a.action_type), reason: 'failed', agent: a.created_by, color: '#ef4444' }); });
         if (urgentItems.length > 0) {
           html += '<div style="margin-top:0.4rem;">';
           urgentItems.slice(0, 4).forEach(function (item) {
@@ -2220,7 +2221,7 @@
         if (pending.length > 0) {
           html += '<div style="font-size:0.6rem; opacity:0.4; margin-bottom:0.3rem;">Awaiting approval:</div>';
           pending.slice(0, 3).forEach(function (a) {
-            html += '<div style="font-size:0.65rem; padding:0.2rem 0; opacity:0.7;">• ' + escapeHtml(a.action_type) + ' <span style="opacity:0.5;">(' + a.origin_agent + ')</span></div>';
+            html += '<div style="font-size:0.65rem; padding:0.2rem 0; opacity:0.7;">• ' + escapeHtml(FriendlyLabels.actionType(a.action_type || a.type)) + ' <span style="opacity:0.5;">(' + escapeHtml(a.origin_agent || a.created_by || '?') + ')</span></div>';
           });
           if (pending.length > 3) html += '<div style="font-size:0.55rem; opacity:0.3;">+' + (pending.length - 3) + ' more</div>';
         }

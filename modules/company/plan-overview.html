@@ -288,6 +288,7 @@
   <script src="/js/calibration-audit.js"></script>
   <script src="/js/calibration-loop.js"></script>
   <script src="/js/company-store.js"></script>
+  <script src="/js/friendly-labels.js"></script>
   <script>
   (function () {
     CompanyStore.init().then(function () {
@@ -412,20 +413,9 @@
         }).join('');
       }
 
-      // Friendly action type labels
-      var _REC_LABELS = {
-        'move_task_lane': 'Move Task', 'move_task': 'Move Task', 'update_task': 'Update Task',
-        'create_task': 'Create Task', 'execute_task': 'Execute Task', 'review_task': 'Review Task',
-        'comment_task': 'Comment', 'request_info': 'Request Info', 'assign_task': 'Assign Task',
-        'reassign': 'Reassign', 'close_task': 'Close Task', 'reopen_task': 'Reopen Task',
-        'escalate': 'Escalate', 'delegate': 'Delegate', 'system_adjustment': 'System Adjustment',
-        'schedule_post': 'Schedule Post', 'publish_document': 'Publish Document',
-        'create_social_action': 'Social Post', 'send_email': 'Send Email',
-        'create_document': 'Create Document', 'flag_task': 'Flag Task'
-      };
+      // Friendly action type labels (uses shared FriendlyLabels utility)
       function _friendlyRecType(raw) {
-        if (_REC_LABELS[raw]) return _REC_LABELS[raw];
-        return (raw || '?').replace(/[_-]/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+        return typeof FriendlyLabels !== 'undefined' ? FriendlyLabels.actionType(raw) : (raw || '?').replace(/[_-]/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
       }
 
       // Recommendations

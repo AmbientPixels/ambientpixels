@@ -449,6 +449,7 @@
 
   <script src="/js/company-schemas.js"></script>
   <script src="/js/company-store.js"></script>
+  <script src="/js/friendly-labels.js"></script>
   <script src="/js/agent-engine.js"></script>
   <script src="/modules/company/js/quick-chat.js"></script>
   <script>
@@ -813,7 +814,7 @@
         var typeColor = getAuditColor(entry.type);
         return '<div class="act-audit-row">' +
           '<span class="act-audit-time">' + timeStr + '</span>' +
-          '<span class="act-audit-type" style="color:' + typeColor + ';">' + esc(entry.type) + '</span>' +
+          '<span class="act-audit-type" style="color:' + typeColor + ';">' + esc(typeof FriendlyLabels !== 'undefined' ? FriendlyLabels.auditEvent(entry.type) : entry.type) + '</span>' +
           '<span class="act-audit-detail">' + esc(detail) + '</span>' +
           '</div>';
       }).join('');
@@ -868,6 +869,7 @@
       if (preview.length > 80) preview = preview.substring(0, 80) + '…';
       var approvalStatus = (a.approval && a.approval.status) || '';
       var execStatus = a.execution_status || 'pending';
+      var friendlyExec = typeof FriendlyLabels !== 'undefined' ? FriendlyLabels.status(execStatus) : execStatus;
 
       var html = '<div class="act-row">';
       html += '<div class="act-row-icon" style="background:' + bg + ';color:' + tc + ';"><i class="fas ' + icon + '"></i></div>';
@@ -904,7 +906,7 @@
         html += '<div style="font-size:0.6rem;margin-top:3px;opacity:0.4;"><i class="fas fa-check-circle" style="margin-right:3px;color:#34d399;"></i>Dependencies satisfied</div>';
       }
       html += '</div>';
-      html += '<span class="act-badge act-badge--' + execStatus + '">' + execStatus.replace('_', ' ') + '</span>';
+      html += '<span class="act-badge act-badge--' + execStatus + '">' + friendlyExec + '</span>';
       html += '<div class="act-row-actions">';
       // Pending: approve, reject, revision, override
       if (context === 'pending' && execStatus === 'pending') {
@@ -1087,6 +1089,8 @@
       var statusColors = { pending: '#FFA500', approved: '#34d399', revision_requested: '#fbbf24', rejected: '#ef4444', failed: '#ef4444', success: '#34d399', running: '#3b82f6', overridden: '#FFD700' };
       var approvalStatus = (a.approval && a.approval.status) || 'pending';
       var execStatus = a.execution_status || 'pending';
+      var friendlyApproval = typeof FriendlyLabels !== 'undefined' ? FriendlyLabels.status(approvalStatus) : approvalStatus;
+      var friendlyExecD = typeof FriendlyLabels !== 'undefined' ? FriendlyLabels.status(execStatus) : execStatus;
       var statusColor = statusColors[approvalStatus] || '#888';
 
       var html = '<button class="act-drawer-close" onclick="closeDrawer()">&times;</button>';
@@ -1098,7 +1102,7 @@
 
       // Status bar
       html += '<div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:1rem;">';
-      html += '<span class="act-drawer-badge" style="background:' + statusColor + '20;color:' + statusColor + ';">' + approvalStatus.replace(/_/g, ' ') + '</span>';
+      html += '<span class="act-drawer-badge" style="background:' + statusColor + '20;color:' + statusColor + ';">' + friendlyApproval + '</span>';
       if (execStatus !== 'pending' && execStatus !== approvalStatus) {
         var execColor = statusColors[execStatus] || '#888';
         html += '<span class="act-drawer-badge" style="background:' + execColor + '20;color:' + execColor + ';">exec: ' + execStatus + '</span>';
