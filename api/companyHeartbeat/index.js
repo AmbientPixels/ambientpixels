@@ -820,32 +820,44 @@ Write the full deliverable first, then the structured JSON block.`;
       const socialPayload = action.social;
 
       // Server-side sanitizer: strip deliverable metadata that agents sometimes dump into post text
-      if (socialPayload.text) {
+      if (socialPayload.text && /\*\*(?:Task|Deliverable|LinkedIn Post Draft|Follow-up|Peer Review|Notes|Review).*?:\*\*/i.test(socialPayload.text)) {
         let raw = socialPayload.text;
-        // Remove known deliverable sections (everything from section header to next section or end)
-        raw = raw.replace(/\*\*(?:Task|Deliverable|Notes|Peer Review[^*]*|Follow-up Comment|Review)(?:\s*\([^)]*\))?:\*\*[^]*?(?=\*\*(?:Task|Deliverable|Notes|Peer Review|Follow-up Comment|LinkedIn Post Draft|Review):\*\*|$)/gi, function(match) {
-          // Keep only the LinkedIn Post Draft section content if that's what matched
-          return '';
-        });
-        // If we still have markdown headers or bold labels, try to extract just the post draft
-        const draftMatch = raw.match(/\*\*LinkedIn Post Draft:\*\*\s*([\s\S]*?)(?:\*\*(?:Follow-up|Notes|Peer Review)|\n\*\s|$)/i)
-          || raw.match(/\*\*(?:Post|Draft|Content):\*\*\s*([\s\S]*?)(?:\*\*(?:Follow-up|Notes|Peer Review)|\n\*\s|$)/i);
-        if (draftMatch) {
-          raw = draftMatch[1];
+        context.log('[Heartbeat] Sanitizing social post text — detected deliverable metadata');
+
+        // Strategy 1: Extract just the LinkedIn Post Draft section
+        const draftMatch = raw.match(/\*\*LinkedIn Post Draft:\*\*\s*([\s\S]*?)(?=\*\*(?:Follow-up|Notes|Peer Review|Review)[^*]*:\*\*)/i)
+          || raw.match(/\*\*(?:Post|Draft|Content):\*\*\s*([\s\S]*?)(?=\*\*(?:Follow-up|Notes|Peer Review|Review)[^*]*:\*\*)/i);
+        if (draftMatch && draftMatch[1].trim().length > 20) {
+          raw = draftMatch[1].trim();
+        } else {
+          // Strategy 2: Remove all known section headers and keep what's left
+          // Split by section headers and keep only content paragraphs
+          const sections = raw.split(/\*\*(?:Task|Deliverable|LinkedIn Post Draft|Follow-up Comment|Peer Review[^*]*|Notes|Review[^*]*):\*\*/i);
+          // Find the longest section that looks like actual post content (no markdown headers)
+          let best = '';
+          for (const section of sections) {
+            const cleaned = section.replace(/^#{1,4}\s+.*$/gm, '').replace(/^\s*[-–]\s+/gm, '').trim();
+            if (cleaned.length > best.length && !/^\s*\*\*/.test(cleaned) && cleaned.length > 20) {
+              best = cleaned;
+            }
+          }
+          if (best.length > 20) raw = best;
         }
+
         // Strip remaining markdown formatting
         raw = raw.replace(/^#{1,4}\s+.*$/gm, '');          // ## headings
         raw = raw.replace(/\*\*([^*]+)\*\*/g, '$1');        // **bold** → bold
         raw = raw.replace(/\*([^*]+)\*/g, '$1');             // *italic* → italic
         raw = raw.replace(/^\s*\*\s+/gm, '');               // bullet points
         raw = raw.replace(/\n{3,}/g, '\n\n').trim();         // collapse blank lines
+        context.log('[Heartbeat] Sanitized text:', raw.substring(0, 120));
         socialPayload.text = raw;
       }
 
       const postText = socialPayload.text || '';
 
       // Server-side enforcement: reject posts with unfilled template placeholders
-      if (/\[(?:mention|insert|add|include|TBD|link|your |e\.g\.|fill)[^\]]*\]/i.test(postText)) {
+      if (/\[(?:[^\]]*(?:mention|insert|add|include|TBD|link|placeholder|url|website|your |e\.g\.|fill))[^\]]*\]/i.test(postText)) {
         context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action — contains placeholder brackets:', postText.substring(0, 100));
         continue;
       }
@@ -958,12 +970,21 @@ Write the full deliverable first, then the structured JSON block.`;
     } else if (action.type === 'revise-action' && action.action_id && action.social) {
       // Agent revising a CEO-rejected action — update payload and re-submit for approval
       // Server-side sanitizer: strip deliverable metadata from revised text
-      if (action.social.text) {
+      if (action.social.text && /\*\*(?:Task|Deliverable|LinkedIn Post Draft|Follow-up|Peer Review|Notes|Review).*?:\*\*/i.test(action.social.text)) {
         let raw = action.social.text;
-        raw = raw.replace(/\*\*(?:Task|Deliverable|Notes|Peer Review[^*]*|Follow-up Comment|Review)(?:\s*\([^)]*\))?:\*\*[^]*?(?=\*\*(?:Task|Deliverable|Notes|Peer Review|Follow-up Comment|LinkedIn Post Draft|Review):\*\*|$)/gi, '');
-        const draftMatch = raw.match(/\*\*LinkedIn Post Draft:\*\*\s*([\s\S]*?)(?:\*\*(?:Follow-up|Notes|Peer Review)|\n\*\s|$)/i)
-          || raw.match(/\*\*(?:Post|Draft|Content):\*\*\s*([\s\S]*?)(?:\*\*(?:Follow-up|Notes|Peer Review)|\n\*\s|$)/i);
-        if (draftMatch) raw = draftMatch[1];
+        const draftMatch = raw.match(/\*\*LinkedIn Post Draft:\*\*\s*([\s\S]*?)(?=\*\*(?:Follow-up|Notes|Peer Review|Review)[^*]*:\*\*)/i)
+          || raw.match(/\*\*(?:Post|Draft|Content):\*\*\s*([\s\S]*?)(?=\*\*(?:Follow-up|Notes|Peer Review|Review)[^*]*:\*\*)/i);
+        if (draftMatch && draftMatch[1].trim().length > 20) {
+          raw = draftMatch[1].trim();
+        } else {
+          const sections = raw.split(/\*\*(?:Task|Deliverable|LinkedIn Post Draft|Follow-up Comment|Peer Review[^*]*|Notes|Review[^*]*):\*\*/i);
+          let best = '';
+          for (const section of sections) {
+            const cleaned = section.replace(/^#{1,4}\s+.*$/gm, '').replace(/^\s*[-–]\s+/gm, '').trim();
+            if (cleaned.length > best.length && !/^\s*\*\*/.test(cleaned) && cleaned.length > 20) best = cleaned;
+          }
+          if (best.length > 20) raw = best;
+        }
         raw = raw.replace(/^#{1,4}\s+.*$/gm, '');
         raw = raw.replace(/\*\*([^*]+)\*\*/g, '$1');
         raw = raw.replace(/\*([^*]+)\*/g, '$1');
@@ -974,7 +995,7 @@ Write the full deliverable first, then the structured JSON block.`;
       const revisedText = action.social.text || '';
 
       // Server-side enforcement: reject revised posts with placeholder brackets
-      if (/\[(?:mention|insert|add|include|TBD|link|your |e\.g\.|fill)[^\]]*\]/i.test(revisedText)) {
+      if (/\[(?:[^\]]*(?:mention|insert|add|include|TBD|link|placeholder|url|website|your |e\.g\.|fill))[^\]]*\]/i.test(revisedText)) {
         context.log('[Heartbeat]', agentId, 'BLOCKED revise-action — contains placeholder brackets:', revisedText.substring(0, 100));
         continue;
       }
