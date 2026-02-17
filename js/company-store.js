@@ -50,7 +50,11 @@ var CompanyStore = (function () {
 
   // ── Init / Probe ──
   function _resolveServerBase() {
-    // Always route through SWA proxy — it injects x-ms-client-principal for auth
+    // Direct to Functions App on production (SWA proxy rewrite returns 405 for POST)
+    // Auth handled by _fetchAuthPrincipal passing x-ms-client-principal explicitly
+    if (window.location.hostname.includes('ambientpixels.ai')) {
+      return 'https://ambientpixels-nova-api.azurewebsites.net/api';
+    }
     return '/api';
   }
 

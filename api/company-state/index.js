@@ -3,7 +3,7 @@ const storage = require('../_utils/companyStorage');
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, x-company-secret',
+  'Access-Control-Allow-Headers': 'Content-Type, x-company-secret, x-ms-client-principal',
   'Content-Type': 'application/json'
 };
 
