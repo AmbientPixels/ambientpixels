@@ -306,7 +306,9 @@ var CompanyStore = (function () {
                   if (sItem && sItem.id && localMap[sItem.id]) {
                     var lItem = localMap[sItem.id];
                     // Keep whichever was updated more recently
-                    if (lItem.updatedAt && sItem.updatedAt && lItem.updatedAt > sItem.updatedAt) {
+                    var lUp = lItem.updatedAt || '';
+                    var sUp = sItem.updatedAt || '';
+                    if (lUp && (!sUp || lUp > sUp)) {
                       merged.push(lItem);
                       changed = true;
                     } else {

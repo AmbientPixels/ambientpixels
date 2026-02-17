@@ -941,7 +941,21 @@
     }
 
     // ── CEO Actions ──
-    function doApprove(id) { AE.approveAction(id); renderAll(); }
+    function doApprove(id) {
+      var result = AE.approveAction(id);
+      renderAll();
+      if (result) {
+        if (result.type === 'task_completion.approve') {
+          _showExecNotice('success', 'Task completion approved — task moved to done.');
+        } else {
+          _showExecNotice('success', 'Action approved — moved to Approved / Scheduled section.');
+          var schEl = document.getElementById('scheduled-list');
+          if (schEl) setTimeout(function () { schEl.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 150);
+        }
+      } else {
+        _showExecNotice('warn', 'Action not found or already processed.');
+      }
+    }
     function doReject(id) { AE.rejectAction(id); renderAll(); }
     function doRevision(id, note) {
       // Sync version updates localStorage instantly — render UI immediately

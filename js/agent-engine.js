@@ -2458,6 +2458,7 @@ var AgentEngine = (function () {
         a.approval.approved_by = 'Pixelpusher';
         a.approval.approved_at = new Date().toISOString();
         a.approval.decision_note = note || null;
+        a.updatedAt = new Date().toISOString();
         // Auto-execute task_completion actions BEFORE _syncLegacy (no external API needed)
         if (a.type === 'task_completion.approve') {
           a.execution = a.execution || {};
@@ -2511,6 +2512,7 @@ var AgentEngine = (function () {
         var wasCancelled = a.approval.status === 'approved';
         a.approval.status = wasCancelled ? 'cancelled' : 'rejected';
         a.approval.decision_note = note || null;
+        a.updatedAt = new Date().toISOString();
         a.execution.status = 'failed';
         a.execution.finished_at = new Date().toISOString();
         a.execution_status = 'failed';
@@ -2533,6 +2535,7 @@ var AgentEngine = (function () {
       if (a.id === actionId && a.approval && (a.approval.status === 'pending' || a.approval.status === 'revision_requested')) {
         a.approval.status = 'revision_requested';
         a.approval.decision_note = note || null;
+        a.updatedAt = new Date().toISOString();
         _syncLegacy(a);
         _saveActions(list);
         _updateApprovalQueueForAction(actionId, 'revision_requested');
@@ -2570,6 +2573,7 @@ var AgentEngine = (function () {
         a.approval.status = 'overridden';
         a.approval.approved_by = 'Pixelpusher';
         a.approval.approved_at = new Date().toISOString();
+        a.updatedAt = new Date().toISOString();
         _syncLegacy(a);
         _saveActions(list);
         _updateApprovalQueueForAction(actionId, 'overridden');
