@@ -2614,12 +2614,16 @@ var AgentEngine = (function () {
   }
 
   // Reconcile artifact registry from approved publish_document actions
+  // Also recover failed actions that have valid receipts (e.g. RUN_STUCK with receipt)
   function reconcileArtifacts() {
-    var actions = getActions();
+    var list = _loadStorage(ACTIONS_KEY, []);
     var registered = 0;
-    for (var i = 0; i < actions.length; i++) {
-      var a = actions[i];
-      if (a.type === 'publish_document' && a.approval && a.approval.status === 'approved' && a.payload && a.payload.documentId) {
+    var recovered = 0;
+    var changed = false;
+    for (var i = 0; i < list.length; i++) {
+      var a = list[i];
+      // Register artifacts from approved publish_document actions
+      if (a.type === 'publish_document' && a.approval && (a.approval.status === 'approved' || a.approval.status === 'overridden') && a.payload && a.payload.documentId) {
         var existing = getArtifactById(a.payload.documentId);
         if (!existing) {
           registerArtifact({
@@ -2637,9 +2641,20 @@ var AgentEngine = (function () {
           registered++;
         }
       }
+      // Recover failed actions that actually have a valid receipt
+      if (a.execution && a.execution.status === 'failed' && a.execution.receipt) {
+        var r = a.execution.receipt;
+        if (r.post_id || r.post_url || r.public_url) {
+          a.execution.status = 'success';
+          a.execution.last_error = null;
+          changed = true;
+          recovered++;
+        }
+      }
     }
-    if (registered > 0) console.log('[AgentEngine] reconcileArtifacts: registered', registered, 'artifacts from approved publish actions');
-    return registered;
+    if (changed) _saveStorage(ACTIONS_KEY, list);
+    if (registered > 0 || recovered > 0) console.log('[AgentEngine] reconcileArtifacts:', registered, 'artifacts registered,', recovered, 'failed actions recovered via receipt');
+    return registered + recovered;
   }
 
   // Reconcile approvalQueue against actions store — remove orphans, sync status

@@ -38,18 +38,26 @@ module.exports = async function (context) {
       // Already succeeded — skip
       if (a.execution && a.execution.status === 'success') continue;
 
-      // Stuck-running escape hatch: if running for >15 min, mark failed
+      // Stuck-running escape hatch: if running for >15 min, check receipt then mark
       if (a.execution && a.execution.status === 'running' && a.execution.started_at) {
         const runningFor = now - new Date(a.execution.started_at).getTime();
         if (runningFor > STUCK_THRESHOLD_MS) {
-          context.log.warn('[Scheduler] Action', a.id, 'stuck running for', Math.round(runningFor / 60000), 'min — marking failed');
-          a.execution.status = 'failed';
-          a.execution.finished_at = new Date().toISOString();
-          a.execution.last_error = { code: 'RUN_STUCK', message: 'Execution stuck running for ' + Math.round(runningFor / 60000) + ' minutes' };
-          a.execution_status = 'failed';
+          // If action has a valid receipt, it actually succeeded — promote to success
+          if (a.execution.receipt && (a.execution.receipt.post_id || a.execution.receipt.post_url || a.execution.receipt.public_url)) {
+            context.log('[Scheduler] Action', a.id, 'was stuck but has valid receipt — marking success');
+            a.execution.status = 'success';
+            a.execution.finished_at = a.execution.receipt.published_at || new Date().toISOString();
+            a.execution_status = 'success';
+          } else {
+            context.log.warn('[Scheduler] Action', a.id, 'stuck running for', Math.round(runningFor / 60000), 'min — marking failed');
+            a.execution.status = 'failed';
+            a.execution.finished_at = new Date().toISOString();
+            a.execution.last_error = { code: 'RUN_STUCK', message: 'Execution stuck running for ' + Math.round(runningFor / 60000) + ' minutes' };
+            a.execution_status = 'failed';
+          }
           actions[i] = a;
         }
-        continue; // either just marked failed or still within threshold — skip
+        continue; // either just resolved or still within threshold — skip
       }
 
       // Max attempts cap
