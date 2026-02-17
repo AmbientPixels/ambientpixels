@@ -13,6 +13,8 @@ var CompanyStore = (function () {
   var _serverAvailable = null; // null = unchecked, true/false after probe
   var _probePromise = null;
   var _memCache = {};  // In-memory fallback when localStorage is full
+  var _writeFailCount = 0;
+  var _lastWriteError = '';
 
   // Key mapping: localStorage keys → server state keys
   var KEY_MAP = {
@@ -224,8 +226,13 @@ var CompanyStore = (function () {
     _localSet(localKey, value);
     // Fire-and-forget server write if available
     if (_mode === 'server' && KEY_MAP[localKey]) {
-      _serverSet(KEY_MAP[localKey], value).catch(function (err) {
-        console.warn('[CompanyStore] Server write failed for', localKey, ':', err.message || err);
+      _serverSet(KEY_MAP[localKey], value).then(function () {
+        _writeFailCount = 0;
+        _lastWriteError = '';
+      }).catch(function (err) {
+        _writeFailCount++;
+        _lastWriteError = err.message || String(err);
+        console.warn('[CompanyStore] Server write FAILED for', localKey, ':', _lastWriteError, '| failures:', _writeFailCount);
       });
     }
   }
@@ -295,9 +302,9 @@ var CompanyStore = (function () {
                 if (changed) {
                   val = merged;
                   // Push merged result back to server so local items persist
-                  if (_writeSecret) {
-                    _serverSet(serverKey, val).catch(function () {});
-                  }
+                  _serverSet(serverKey, val).catch(function (err) {
+                    console.warn('[CompanyStore] Merge push-back failed for', serverKey, ':', err.message || err);
+                  });
                 }
               }
             }
@@ -397,6 +404,22 @@ var CompanyStore = (function () {
     return Promise.resolve(_localGet('ap_morning_report', null));
   }
 
+  function setWriteKey(key) {
+    _writeSecret = key || '';
+    try { sessionStorage.setItem('ap_server_key', _writeSecret); } catch (e) {}
+    _writeFailCount = 0;
+    _lastWriteError = '';
+  }
+
+  function getWriteStatus() {
+    return {
+      hasKey: !!_writeSecret,
+      mode: _mode,
+      failCount: _writeFailCount,
+      lastError: _lastWriteError
+    };
+  }
+
   return {
     init: init,
     ready: ready,
@@ -413,6 +436,9 @@ var CompanyStore = (function () {
     getMorningReport: getMorningReport,
     getWriteHeaders: function () { return _serverHeaders(true); },
     getServerBase: function () { return _serverBase; },
+    setWriteKey: setWriteKey,
+    getWriteStatus: getWriteStatus,
+    get _writeSecret() { return _writeSecret; },
     KEY_MAP: KEY_MAP
   };
 })();

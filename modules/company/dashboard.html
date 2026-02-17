@@ -164,6 +164,16 @@
       </div>
     </div>
 
+    <!-- Server Write Status Banner -->
+    <div id="dash-write-banner" style="display:none; margin-bottom:0.75rem; padding:0.5rem 0.75rem; border-radius:6px; font-size:0.7rem; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); color:#f87171;">
+      <i class="fas fa-exclamation-triangle" style="margin-right:0.4rem;"></i>
+      <span id="dash-write-msg">Server writes failing — changes won't reach agents.</span>
+      <span style="margin-left:0.5rem;">
+        Key: <input id="dash-write-key" type="password" placeholder="write secret" style="width:140px; padding:0.2rem 0.4rem; font-size:0.65rem; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.15); border-radius:4px; color:#fff; margin:0 0.3rem;" />
+        <button id="dash-write-key-btn" style="padding:0.2rem 0.5rem; font-size:0.6rem; background:rgba(52,211,153,0.15); border:1px solid rgba(52,211,153,0.3); border-radius:4px; color:#34d399; cursor:pointer;">Set Key</button>
+      </span>
+    </div>
+
     <!-- ════════════════════════════════════════ -->
     <!-- CEO VIEW                                 -->
     <!-- ════════════════════════════════════════ -->
@@ -2732,6 +2742,58 @@
     setInterval(runWorkerEval, 300000);
     console.log('[WorkerLoop] Worker evaluation loop initialized (30s initial, 5min interval)');
   })();
+  </script>
+
+  <script>
+    // Write-status check: show banner if server writes are failing
+    (function () {
+      var banner = document.getElementById('dash-write-banner');
+      var msgEl = document.getElementById('dash-write-msg');
+      var keyInput = document.getElementById('dash-write-key');
+      var keyBtn = document.getElementById('dash-write-key-btn');
+      if (!banner || typeof CompanyStore === 'undefined' || !CompanyStore.getWriteStatus) return;
+
+      function checkWrite() {
+        var ws = CompanyStore.getWriteStatus();
+        if (ws.mode !== 'server') { banner.style.display = 'none'; return; }
+        if (ws.failCount > 0) {
+          banner.style.display = '';
+          banner.style.background = 'rgba(239,68,68,0.1)';
+          banner.style.borderColor = 'rgba(239,68,68,0.25)';
+          banner.style.color = '#f87171';
+          msgEl.textContent = 'Server writes failing (' + ws.lastError + ') \u2014 changes won\u0027t reach agents.';
+        } else if (!ws.hasKey) {
+          banner.style.display = '';
+          banner.style.background = 'rgba(251,191,36,0.1)';
+          banner.style.borderColor = 'rgba(251,191,36,0.25)';
+          banner.style.color = '#fbbf24';
+          msgEl.textContent = 'No write key set \u2014 if tasks aren\u0027t reaching agents, enter the server write key.';
+        } else {
+          banner.style.display = 'none';
+        }
+      }
+
+      keyBtn.addEventListener('click', function () {
+        var key = keyInput.value.trim();
+        if (!key) return;
+        CompanyStore.setWriteKey(key);
+        if (typeof CompanyStoreAdapter !== 'undefined' && CompanyStoreAdapter.setKey) CompanyStoreAdapter.setKey(key);
+        keyInput.value = '';
+        banner.style.display = 'none';
+        // Re-push local tasks to server with new key
+        var tasks = CompanyStore.getStateSync('ap_tasks', []);
+        if (tasks.length > 0) {
+          CompanyStore.setStateSync('ap_tasks', tasks);
+          console.log('[Dashboard] Re-pushed', tasks.length, 'tasks to server with new write key');
+        }
+        setTimeout(checkWrite, 3000);
+      });
+
+      keyInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') keyBtn.click(); });
+
+      setTimeout(checkWrite, 2000);
+      setInterval(checkWrite, 15000);
+    })();
   </script>
 
   <script src="/modules/company/js/sidebar.js"></script>
