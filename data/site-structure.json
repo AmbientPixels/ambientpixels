@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2026-02-16T14:05:56.215Z",
+  "updated": "2026-02-17T14:07:12.439Z",
   "root": [
     {
       "type": "folder",
@@ -140,6 +140,18 @@
           "type": "folder",
           "name": "agentchat",
           "path": "api/agentchat",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "api-health-check",
+          "path": "api/api-health-check",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "azureCosts",
+          "path": "api/azureCosts",
           "children": []
         },
         {
@@ -290,6 +302,12 @@
           "type": "folder",
           "name": "dreamLogWriter",
           "path": "api/dreamLogWriter",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "geminiCosts",
+          "path": "api/geminiCosts",
           "children": []
         },
         {

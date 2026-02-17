@@ -1,10 +1,10 @@
 {
-  "updated": "2026-02-16T14:05:56.341Z",
+  "updated": "2026-02-17T14:07:12.573Z",
   "entries": [
     {
-      "hash": "2617d5d",
-      "date": "2026-02-16 00:09:14 -0800",
-      "message": "COMPANY_SYSTEM_ARCHITECTURE.md"
+      "hash": "25ac16a",
+      "date": "2026-02-16 23:00:22 -0800",
+      "message": "fix: update LinkedIn API version from retired 202301 to 202402"
     }
   ]
 }
