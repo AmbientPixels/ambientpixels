@@ -906,7 +906,7 @@
 
         // 2. Overdue Tasks
         var tasks = allTasks;
-        var today = new Date().toISOString().split('T')[0];
+        var today = _localToday();
         var overdue = tasks.filter(function (t) {
           return t.dueDate && t.dueDate < today && t.status !== 'done';
         }).sort(function (a, b) { return a.dueDate.localeCompare(b.dueDate); });
@@ -1226,7 +1226,7 @@
 
           // ── Top 3 Risks ──
           var tasks = AgentEngine.getTasks();
-          var today = new Date().toISOString().split('T')[0];
+          var today = _localToday();
           var risks = [];
           // Overdue high/critical tasks
           tasks.forEach(function (t) {
@@ -2524,6 +2524,12 @@
         return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
       }
 
+      // Local date helper (avoids UTC timezone shift causing false overdue)
+      function _localToday() {
+        var d = new Date();
+        return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+      }
+
       function escapeHtml(str) {
         var div = document.createElement('div');
         div.textContent = str;
@@ -2567,7 +2573,7 @@
         var meetings = [];
         try { meetings = AgentEngine.getMeetings() || []; } catch (e) {}
 
-        var today = new Date().toISOString().split('T')[0];
+        var today = _localToday();
         var todayMeetings = meetings.filter(function (m) { return m.dateLabel === today; });
         var recent = meetings.slice().reverse().slice(0, 5); // CSS controls 3 vs 5 visibility
 
@@ -2630,7 +2636,7 @@
         }
 
         try {
-          var today = new Date().toISOString().split('T')[0];
+          var today = _localToday();
 
           // Pending approvals
           var queue = AgentEngine.getApprovalQueue();
