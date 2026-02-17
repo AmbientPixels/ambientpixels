@@ -50,6 +50,25 @@
     .priority-pill--medium { background:rgba(59,130,246,0.08); border:1px solid rgba(59,130,246,0.25); color:#60a5fa; }
     .priority-pill--high { background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.3); color:#fbbf24; }
     .priority-pill--critical { background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.35); color:#f87171; }
+
+    /* Task search */
+    .tm-search-wrap {
+      position: relative; flex: 1; min-width: 160px; max-width: 320px;
+    }
+    .tm-search-wrap input {
+      width: 100%; padding: 0.35rem 0.6rem 0.35rem 1.8rem;
+      font-size: 0.72rem; font-family: inherit; color: inherit;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 6px; outline: none;
+      transition: border-color 0.15s;
+    }
+    .tm-search-wrap input:focus { border-color: rgba(255,165,0,0.3); }
+    .tm-search-wrap input::placeholder { color: rgba(255,255,255,0.2); }
+    .tm-search-wrap .tm-search-icon {
+      position: absolute; left: 0.6rem; top: 50%; transform: translateY(-50%);
+      font-size: 0.6rem; opacity: 0.25; pointer-events: none;
+    }
   </style>
 </head>
 <body style="background:#071019" data-theme="dark">
@@ -83,6 +102,10 @@
       <select class="tm-filter-select" id="filter-division">
         <option value="">All Divisions</option>
       </select>
+      <div class="tm-search-wrap">
+        <i class="fas fa-search tm-search-icon"></i>
+        <input type="text" id="tm-search" placeholder="Search tasks..." />
+      </div>
       <div class="tm-view-toggle">
         <button class="tm-view-btn active" id="view-board" title="Board"><i class="fas fa-columns"></i></button>
         <button class="tm-view-btn" id="view-list" title="List"><i class="fas fa-list"></i></button>
@@ -285,6 +308,7 @@
       var filterAssignee = '';
       var filterPriority = '';
       var filterDivision = '';
+      var filterSearch = '';
 
       // Collapsed columns state
       var _defaultCollapsed = { 'pending-approval': false, backlog: false, todo: false, 'in-progress': false, review: false, done: true };
@@ -486,6 +510,13 @@
 
       function getFilteredTasks(applySignal) {
         var tasks = AgentEngine.getTasks();
+        if (filterSearch) {
+          var q = filterSearch.toLowerCase();
+          tasks = tasks.filter(function (t) {
+            var haystack = ((t.title || '') + ' ' + (t.description || '') + ' ' + (t.assignee || '') + ' ' + (t.priority || '') + ' ' + (t.status || '') + ' ' + (t.tags || []).join(' ')).toLowerCase();
+            return haystack.indexOf(q) !== -1;
+          });
+        }
         if (filterAssignee) {
           tasks = tasks.filter(function (t) { return t.assignee === filterAssignee; });
         }
@@ -883,6 +914,18 @@
         filterDivision = this.value;
         renderBoard();
         renderList();
+      });
+
+      // Text search with debounce
+      var _searchTimer;
+      document.getElementById('tm-search').addEventListener('input', function () {
+        var self = this;
+        clearTimeout(_searchTimer);
+        _searchTimer = setTimeout(function () {
+          filterSearch = self.value.trim();
+          renderBoard();
+          renderList();
+        }, 150);
       });
 
       // ── Modal ──
