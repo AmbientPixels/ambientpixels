@@ -2762,12 +2762,12 @@
           banner.style.borderColor = 'rgba(239,68,68,0.25)';
           banner.style.color = '#f87171';
           msgEl.textContent = 'Server writes failing (' + ws.lastError + ') \u2014 changes won\u0027t reach agents.';
-        } else if (!ws.hasKey) {
+        } else if (!ws.canWrite) {
           banner.style.display = '';
           banner.style.background = 'rgba(251,191,36,0.1)';
           banner.style.borderColor = 'rgba(251,191,36,0.25)';
           banner.style.color = '#fbbf24';
-          msgEl.textContent = 'No write key set \u2014 if tasks aren\u0027t reaching agents, enter the server write key.';
+          msgEl.textContent = 'Not authenticated \u2014 sign in so changes reach agents, or enter write key.';
         } else {
           banner.style.display = 'none';
         }

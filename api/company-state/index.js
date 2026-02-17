@@ -66,13 +66,15 @@ module.exports = async function (context, req) {
 
   // POST — write a state key
   if (req.method === 'POST') {
-    // Validate write secret
+    // Auth: accept write secret OR authenticated SWA user
     const secret = (req.headers && req.headers['x-company-secret']) || '';
-    if (!storage.validateSecret(secret)) {
+    const clientPrincipal = (req.headers && req.headers['x-ms-client-principal']) || '';
+    const isAuthenticated = !!clientPrincipal;
+    if (!storage.validateSecret(secret) && !isAuthenticated) {
       context.res = {
         status: 403,
         headers: corsHeaders,
-        body: { error: 'Invalid write secret' }
+        body: { error: 'Invalid write secret and no authenticated user' }
       };
       return;
     }

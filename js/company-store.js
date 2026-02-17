@@ -15,6 +15,7 @@ var CompanyStore = (function () {
   var _memCache = {};  // In-memory fallback when localStorage is full
   var _writeFailCount = 0;
   var _lastWriteError = '';
+  var _authPrincipal = '';  // base64 client principal from /.auth/me
 
   // Key mapping: localStorage keys → server state keys
   var KEY_MAP = {
@@ -49,9 +50,7 @@ var CompanyStore = (function () {
 
   // ── Init / Probe ──
   function _resolveServerBase() {
-    if (window.location.hostname.includes('ambientpixels.ai')) {
-      return 'https://ambientpixels-nova-api.azurewebsites.net/api';
-    }
+    // Always route through SWA proxy — it injects x-ms-client-principal for auth
     return '/api';
   }
 
@@ -64,9 +63,26 @@ var CompanyStore = (function () {
     }
     _serverBase = options.serverBase || _resolveServerBase();
 
+    // Auto-fetch auth principal from Azure SWA (non-blocking)
+    _fetchAuthPrincipal();
+
     // Probe server availability
     _probePromise = _probeServer();
     return _probePromise;
+  }
+
+  function _fetchAuthPrincipal() {
+    try {
+      fetch('/.auth/me').then(function (res) {
+        if (!res.ok) return;
+        return res.json();
+      }).then(function (data) {
+        if (data && data.clientPrincipal) {
+          _authPrincipal = btoa(JSON.stringify(data.clientPrincipal));
+          console.log('[CompanyStore] Authenticated as:', data.clientPrincipal.userDetails || 'user');
+        }
+      }).catch(function () { /* not authenticated or /.auth/me unavailable */ });
+    } catch (e) { /* ignore */ }
   }
 
   function _probeServer() {
@@ -144,6 +160,9 @@ var CompanyStore = (function () {
     var h = { 'Content-Type': 'application/json' };
     if (isWrite && _writeSecret) {
       h['x-company-secret'] = _writeSecret;
+    }
+    if (isWrite && _authPrincipal) {
+      h['x-ms-client-principal'] = _authPrincipal;
     }
     return h;
   }
@@ -414,6 +433,8 @@ var CompanyStore = (function () {
   function getWriteStatus() {
     return {
       hasKey: !!_writeSecret,
+      hasAuth: !!_authPrincipal,
+      canWrite: !!_writeSecret || !!_authPrincipal,
       mode: _mode,
       failCount: _writeFailCount,
       lastError: _lastWriteError

@@ -1165,14 +1165,16 @@
         if (ws.mode !== 'server') { banner.style.display = 'none'; return; }
         if (ws.failCount > 0) {
           banner.style.display = '';
-          msgEl.textContent = 'Server writes failing (' + ws.lastError + ') — tasks created here won\'t reach agents until this is fixed.';
-        } else if (!ws.hasKey) {
-          // Show a softer warning — writes may work if server has no secret configured
+          banner.style.background = 'rgba(239,68,68,0.1)';
+          banner.style.borderColor = 'rgba(239,68,68,0.25)';
+          banner.style.color = '#f87171';
+          msgEl.textContent = 'Server writes failing (' + ws.lastError + ') — tasks created here won\'t reach agents.';
+        } else if (!ws.canWrite) {
           banner.style.display = '';
           banner.style.background = 'rgba(251,191,36,0.1)';
           banner.style.borderColor = 'rgba(251,191,36,0.25)';
           banner.style.color = '#fbbf24';
-          msgEl.textContent = 'No write key set — if tasks aren\'t reaching agents, enter the server write key.';
+          msgEl.textContent = 'Not authenticated — sign in so tasks reach agents, or enter write key.';
         } else {
           banner.style.display = 'none';
         }
