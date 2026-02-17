@@ -360,6 +360,11 @@ module.exports = async function (context) {
             if (update._ceoApprovalAction) {
               const ceo = update._ceoApprovalAction;
               const actionsStore = (await storage.getState('actions')) || [];
+              // Dedupe: skip if a task_completion.approve already exists for this taskId
+              const existingApproval = actionsStore.find(a => a.type === 'task_completion.approve' && a.payload && a.payload.taskId === ceo.taskId);
+              if (existingApproval) {
+                context.log('[Heartbeat] Skipping duplicate task_completion.approve for task:', ceo.taskId, '(existing:', existingApproval.id + ')');
+              } else {
               const completionAction = {
                 id: 'act_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
                 created_at: new Date().toISOString(),
@@ -392,6 +397,7 @@ module.exports = async function (context) {
               actionsStore.push(completionAction);
               await storage.setState('actions', actionsStore);
               context.log('[Heartbeat] Created task_completion.approve action for CEO task:', ceo.taskTitle, '→', completionAction.id);
+              }
             }
             // Track tasks that just entered review — block same-cycle reviews
             if (updatedTask && updatedTask.status === 'review' && (update.action === 'execute' || update.action === 'move' || update.action === 'social-action-created')) {

@@ -2458,6 +2458,12 @@ var AgentEngine = (function () {
         a.approval.approved_by = 'Pixelpusher';
         a.approval.approved_at = new Date().toISOString();
         a.approval.decision_note = note || null;
+        // Auto-execute task_completion actions BEFORE _syncLegacy (no external API needed)
+        if (a.type === 'task_completion.approve') {
+          a.execution = a.execution || {};
+          a.execution.status = 'success';
+          a.execution.finished_at = new Date().toISOString();
+        }
         _syncLegacy(a);
         _saveActions(list);
         // Update approval queue entry
@@ -2472,14 +2478,6 @@ var AgentEngine = (function () {
             registerArtifact({ id: docId, type: 'article', title: artTitle, slug: artSlug, url: artUrl, status: 'published', publishedAt: new Date().toISOString(), actionId: actionId, documentId: docId, source: a.created_by });
             markArtifactPublished(docId, artUrl);
           }
-        }
-        // Auto-execute task_completion actions (no external API needed)
-        if (a.type === 'task_completion.approve') {
-          a.execution = a.execution || {};
-          a.execution.status = 'success';
-          a.execution.finished_at = new Date().toISOString();
-          a.execution_status = 'success';
-          _saveActions(list);
         }
         // Auto-complete parent task when linked action is approved
         if (a._parentTaskId && (a.type === 'social_post.publish' || a.type === 'social_post.schedule' || a.type === 'task_completion.approve')) {

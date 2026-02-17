@@ -98,6 +98,21 @@ module.exports = async function (context, req) {
       return;
     }
 
+    // 3a. task_completion.approve is internal-only — no external API needed
+    if (actionType === 'task_completion.approve') {
+      action.execution = action.execution || {};
+      action.execution.status = 'success';
+      action.execution.finished_at = new Date().toISOString();
+      action.execution.attempts = (action.execution.attempts || 0) + 1;
+      await storage.setState('actions', actions);
+      context.res = {
+        status: 200,
+        headers: corsHeaders,
+        body: JSON.stringify({ success: true, execution: { status: 'success', receipt: { type: 'task_completion', taskId: (action.payload && action.payload.taskId) || null } } })
+      };
+      return;
+    }
+
     // 3. Check action type is supported and has a platform adapter
     const platform = action.platform || 'unknown';
     if (!isExecutable(actionType, platform)) {
