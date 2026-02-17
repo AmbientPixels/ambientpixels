@@ -2641,12 +2641,24 @@ var AgentEngine = (function () {
           registered++;
         }
       }
-      // Recover failed actions that actually have a valid receipt
-      if (a.execution && a.execution.status === 'failed' && a.execution.receipt) {
+      // Recover failed or stuck-running actions that have a valid receipt
+      if (a.execution && (a.execution.status === 'failed' || a.execution.status === 'running') && a.execution.receipt) {
         var r = a.execution.receipt;
         if (r.post_id || r.post_url || r.public_url) {
           a.execution.status = 'success';
+          a.execution.finished_at = a.execution.finished_at || r.published_at || new Date().toISOString();
           a.execution.last_error = null;
+          changed = true;
+          recovered++;
+        }
+      }
+      // Unstick running actions with no receipt that have been running >30 min
+      if (a.execution && a.execution.status === 'running' && a.execution.started_at && !a.execution.receipt) {
+        var runAge = Date.now() - new Date(a.execution.started_at).getTime();
+        if (runAge > 30 * 60 * 1000) {
+          a.execution.status = 'failed';
+          a.execution.finished_at = new Date().toISOString();
+          a.execution.last_error = { code: 'RUN_STUCK', message: 'Stuck running for ' + Math.round(runAge / 60000) + ' minutes — auto-reset' };
           changed = true;
           recovered++;
         }
