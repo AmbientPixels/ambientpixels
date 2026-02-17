@@ -362,7 +362,11 @@ module.exports = async function (context) {
               const actionsStore = (await storage.getState('actions')) || [];
               // Dedupe: skip if a task_completion.approve already exists for this taskId
               const existingApproval = actionsStore.find(a => a.type === 'task_completion.approve' && a.payload && a.payload.taskId === ceo.taskId);
-              if (existingApproval) {
+              // Skip if a social post action is already linked to this task — social post approval auto-completes the task
+              const linkedSocialAction = actionsStore.find(a => a._parentTaskId === ceo.taskId && a.type && a.type.indexOf('social_post') === 0 && a.approval && a.approval.status !== 'rejected' && a.approval.status !== 'cancelled');
+              if (linkedSocialAction) {
+                context.log('[Heartbeat] Skipping task_completion.approve for task:', ceo.taskId, '— linked social action', linkedSocialAction.id, 'will auto-complete on CEO approval');
+              } else if (existingApproval) {
                 context.log('[Heartbeat] Skipping duplicate task_completion.approve for task:', ceo.taskId, '(existing:', existingApproval.id + ')');
               } else {
               const completionAction = {
