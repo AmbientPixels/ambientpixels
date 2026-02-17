@@ -2333,7 +2333,7 @@
       function renderGeminiCosts() {
         var el = document.getElementById('panel-gemini-cost');
         if (!el) return;
-        var key = sessionStorage.getItem('ap_server_key') || '';
+        var key = (typeof CompanyStore !== 'undefined' && CompanyStore._writeSecret) ? CompanyStore._writeSecret : '';
         if (!key) {
           el.innerHTML = '<div class="dash-empty" style="font-size:0.6rem;">Server key required for cost data. Set in Config → Server Persistence.</div>';
           return;
@@ -2433,7 +2433,7 @@
       function renderAzureCosts() {
         var el = document.getElementById('panel-azure-cost');
         if (!el) return;
-        var key = sessionStorage.getItem('ap_server_key') || '';
+        var key = (typeof CompanyStore !== 'undefined' && CompanyStore._writeSecret) ? CompanyStore._writeSecret : '';
         if (!key) {
           el.innerHTML = '<div class="dash-empty" style="font-size:0.6rem;">Server key required. Set in Config → Server Persistence.</div>';
           return;
