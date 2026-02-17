@@ -54,7 +54,8 @@ function validateToken() {
         } else if (res.statusCode === 401) {
           resolve({ valid: false, error: 'Access token expired or revoked (401). Generate a new token at https://www.linkedin.com/developers/apps' });
         } else if (res.statusCode === 403) {
-          resolve({ valid: false, error: 'Token lacks required scopes. Ensure r_liteprofile and w_member_social are granted.' });
+          // 403 on /v2/me means token is active but lacks profile scope — still valid for posting
+          resolve({ valid: true, limited: true });
         } else {
           resolve({ valid: false, error: 'LinkedIn /v2/me returned HTTP ' + res.statusCode });
         }
