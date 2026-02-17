@@ -172,6 +172,12 @@ module.exports = async function (context) {
     const workspaceDates = (await storage.getState('dates')) || [];
     const allActions = (await storage.getState('actions')) || [];
     const revisionActions = allActions.filter(a => a.approval && a.approval.status === 'revision_requested');
+    // Fetch cost data for Cipher (CFO) awareness
+    let costIntel = null;
+    try {
+      const geminiCosts = await storage.getGeminiCostSummary(30);
+      costIntel = { gemini: geminiCosts };
+    } catch (e) { context.log('[Heartbeat] Cost data fetch failed:', e.message); }
     // v2.3: Exclude pending-approval items from heartbeat processing
     const pendingTasks = tasks.filter(t => t.status === 'pending-approval');
     const pendingDirs = directives.filter(d => d.status === 'pending-approval');
@@ -251,7 +257,8 @@ module.exports = async function (context) {
           context, agentId, tasks, configs, recentSummaries, cycleId,
           agentId === 'nova' ? novaSkipTaskIds : null,
           activeDirectives, activeObjectives, documents,
-          workspaceMemory, workspaceDates, revisionActions
+          workspaceMemory, workspaceDates, revisionActions,
+          agentId === 'cipher' ? costIntel : null
         );
         geminiCalls += result.geminiCalls;
         agentActions[agentId] = result.actions;
@@ -358,7 +365,7 @@ module.exports = async function (context) {
 };
 
 // ── Run a single agent's heartbeat ──
-async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions) {
+async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel) {
   const result = { geminiCalls: 0, actions: 0, taskUpdates: [] };
   const agent = AGENT_ROLES[agentId];
   if (!agent) return result;
@@ -377,7 +384,7 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
   // Only show this agent their own revision-requested actions
   const agentRevisions = (revisionActions || []).filter(a => a.created_by === agentId || a.origin_agent === agentId);
 
-  const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions);
+  const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel);
 
   // Call Gemini
   const response = await callGemini(prompt, agentId);
@@ -1403,7 +1410,7 @@ function buildSiteContextBlock() {
 }
 
 // ── Build heartbeat prompt ──
-function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions) {
+function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel) {
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
   documents = documents || [];
@@ -1587,6 +1594,34 @@ ${docList}`;
     workspaceSection = '\n\nCEO WORKSPACE CONTEXT (strategic context from the CEO — factor into your decisions):\n' + wsParts.join('\n');
   }
 
+  // Cost intelligence — real spend data for Cipher (CFO)
+  let costSection = '';
+  if (costIntel && agent.name === 'Cipher') {
+    const g = costIntel.gemini;
+    if (g && g.totalCalls > 0) {
+      const topCallers = Object.entries(g.byCaller || {}).sort((a, b) => b[1].cost - a[1].cost).slice(0, 5);
+      const topAgents = Object.entries(g.byAgent || {}).sort((a, b) => b[1].cost - a[1].cost).slice(0, 5);
+      const dayEntries = Object.entries(g.byDay || {}).sort((a, b) => a[0].localeCompare(b[0]));
+      const recentDays = dayEntries.slice(-7);
+      const avgDailyCost = g.totalCost / Math.max(dayEntries.length, 1);
+
+      costSection = `\n\n💰 COST INTELLIGENCE (REAL DATA — 30-day window):
+Gemini API — Total: $${g.totalCost.toFixed(4)} | Calls: ${g.totalCalls} | Tokens: ${g.totalTokens.toLocaleString()}
+Avg daily spend: $${avgDailyCost.toFixed(4)}/day | Projected monthly: $${(avgDailyCost * 30).toFixed(2)}
+
+By Service (top spenders):
+${topCallers.map(([name, d]) => '- ' + name + ': $' + d.cost.toFixed(4) + ' (' + d.calls + ' calls)').join('\n') || '(none)'}
+
+By Agent (who is spending):
+${topAgents.map(([name, d]) => '- ' + name + ': $' + d.cost.toFixed(4) + ' (' + d.calls + ' calls)').join('\n') || '(none)'}
+
+Daily Trend (last 7 days):
+${recentDays.map(([day, d]) => '- ' + day + ': $' + d.cost.toFixed(4) + ' (' + d.calls + ' calls)').join('\n') || '(no data)'}
+
+These are REAL costs hitting the Azure subscription. Use this data in your CFO analyses, budget reports, and cost recommendations. Flag anomalies, suggest optimizations, and track burn rate against any budget thresholds.`;
+    }
+  }
+
   // Revision requests — actions the CEO sent back for changes
   agentRevisions = agentRevisions || [];
   let revisionSection = '';
@@ -1630,7 +1665,7 @@ ${otherTasks}
 
 TASKS AWAITING REVIEW (from other agents — you can review these):
 ${reviewableTasks}
-${triageSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${workspaceSection}${revisionSection}
+${triageSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${workspaceSection}${costSection}${revisionSection}
 ${buildSiteContextBlock()}
 CURRENT TIME: ${new Date().toISOString()}
 
