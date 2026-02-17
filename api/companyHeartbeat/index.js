@@ -636,10 +636,12 @@ Write the full deliverable first, then the structured JSON block.`;
       });
     } else if (action.type === 'execute-task' && action.taskId) {
       // TRIAGE GATE: block execution on truly untouched tasks (zero comments = never triaged)
+      // Exception: CEO-created tasks with assignee + dueDate are pre-triaged (CEO outranks Nova)
       if (agentId !== 'nova') {
         const targetTask = tasks.find(t => t.id === action.taskId);
         const hasAnyComment = targetTask && targetTask.comments && targetTask.comments.length > 0;
-        if (targetTask && !hasAnyComment) {
+        const isCeoTriaged = targetTask && targetTask.source !== 'heartbeat' && targetTask.assignee && targetTask.dueDate;
+        if (targetTask && !hasAnyComment && !isCeoTriaged) {
           context.log('[Heartbeat]', agentId, 'BLOCKED execute-task on', action.taskId, '— task has zero comments (needs Nova triage first)');
           continue;
         }
@@ -665,10 +667,12 @@ Write the full deliverable first, then the structured JSON block.`;
       }
     } else if (action.type === 'create-social-action' && action.social) {
       // TRIAGE GATE: if this social action is linked to a task, that task must be triaged first
+      // Exception: CEO-created tasks with assignee + dueDate are pre-triaged
       if (agentId !== 'nova' && action.taskId) {
         const socialTarget = tasks.find(t => t.id === action.taskId);
         const hasSocialTriage = socialTarget && socialTarget.comments && socialTarget.comments.length > 0;
-        if (socialTarget && !hasSocialTriage) {
+        const isCeoSocialTriaged = socialTarget && socialTarget.source !== 'heartbeat' && socialTarget.assignee && socialTarget.dueDate;
+        if (socialTarget && !hasSocialTriage && !isCeoSocialTriaged) {
           context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action on', action.taskId, '— task has zero comments (needs Nova triage first)');
           continue;
         }
