@@ -712,7 +712,24 @@ Write the full deliverable first, then the structured JSON block.`;
       await storage.setState('approvalQueue', approvalQueue);
 
       // Auto-advance parent task to review if taskId provided
+      // Fallback: if no taskId but agent has a matching active task, auto-link
       var socialTaskId = action.taskId || null;
+      if (!socialTaskId) {
+        var platform = (socialPayload.platform || 'social').toLowerCase();
+        var agentActiveTasks = tasks.filter(t => t.assignee === agentId && (t.status === 'todo' || t.status === 'in-progress'));
+        var socialKeywords = ['social', 'post', 'linkedin', 'twitter', 'bluesky', 'x post', 'hello world', 'publish', 'announce'];
+        var matchingTasks = agentActiveTasks.filter(t => {
+          var haystack = ((t.title || '') + ' ' + (t.description || '')).toLowerCase();
+          return socialKeywords.some(kw => haystack.indexOf(kw) !== -1) || haystack.indexOf(platform) !== -1;
+        });
+        if (matchingTasks.length === 1) {
+          socialTaskId = matchingTasks[0].id;
+          context.log('[Heartbeat]', agentId, 'auto-linked social action to task:', socialTaskId, '(fallback match)');
+        } else if (matchingTasks.length === 0 && agentActiveTasks.length === 1) {
+          socialTaskId = agentActiveTasks[0].id;
+          context.log('[Heartbeat]', agentId, 'auto-linked social action to only active task:', socialTaskId);
+        }
+      }
       if (socialTaskId) {
         var parentIdx = tasks.findIndex(t => t.id === socialTaskId);
         if (parentIdx !== -1 && tasks[parentIdx].status !== 'done' && tasks[parentIdx].status !== 'review') {
@@ -1645,7 +1662,7 @@ Action types:
 - update-task: Update an existing task. Provide taskId and "updates" with any of: description, assignee, priority, dueDate, tags.
 - move-task: Move a task to a new status column. Provide taskId and newStatus.
 - execute-task: Pick up one of YOUR in-progress or todo tasks and produce actual work output (a report, analysis, draft, recommendation, audit, etc). This will generate a deliverable and move the task to review.
-- review-task: Review a completed deliverable from another agent's task in the review column. Approve (done) or request changes (back to in-progress).
+- review-task: Review a completed deliverable from another agent's task in the review column. Approve (done) or request changes (back to in-progress). You CANNOT review your own tasks — you must review tasks assigned to a DIFFERENT agent. Self-reviews are blocked by the system.
 - comment-task: Add a comment to any task. Provide taskId and "comment" string. Use for status updates, delegation notes, questions, or flagging blockers.
 - create-social-action: (Marketing/Echo) Draft a social media post routed through CEO approval. Include "social" with: text (max 280 for X, 300 for Bluesky, 3000 for LinkedIn), platform ("x"|"linkedin"|"bluesky"), optionally media (URLs). You may include scheduled_for (ISO datetime) to time posts strategically (e.g., peak engagement hours, staggering content throughout the day). Keep scheduling within 24 hours. If you have no specific timing reason, omit scheduled_for and the post will go live immediately after CEO approval.
   ARTICLE URL RULES: Never hardcode an article/blog URL unless you are 100% certain the article is already published. If linking to an article that is pending publish or was just submitted, use the placeholder token {{ARTICLE_URL}} in your text and include "artifact_id" in the social object (set it to the artifact ID from the publish action). The URL will be resolved automatically when the article is published. Example: "social": { "text": "Check out our latest post {{ARTICLE_URL}}", "platform": "x", "artifact_id": "art_123_my-slug" }. Never link to /modules/company/ or /docs/published/ as those are internal and auth-gated.
@@ -1662,8 +1679,9 @@ Rules:
 - Max 1 execute-task per heartbeat (it's thorough work)
 - Only create tasks that are genuinely useful
 - Only move tasks if you have reason to
-- Prefer execute-task on your own in-progress tasks when you have work to do
-- Review other agents' work when tasks are waiting in review
+- Prefer execute-task on your own in-progress or todo tasks when you have work to do
+- MANDATORY PEER REVIEW: If there are tasks in the TASKS AWAITING REVIEW section from OTHER agents, you MUST use review-task on at least one BEFORE creating new work or executing your own tasks. Reviewing others' deliverables is a core duty — not optional. The only exception is if you have a critical/high priority task that is overdue.
+- You CANNOT review your own tasks. Only review tasks assigned to a different agent. The system blocks self-reviews.
 - Keep observations brief and factual
 - When creating tasks, ALWAYS set: status ("todo" or "in-progress"), priority, assignee, and a realistic dueDate (1-7 days out). Tasks without these fields are incomplete and will be triaged.
 - Use update-task to assign unassigned tasks, adjust priorities, or set missing due dates
@@ -1687,6 +1705,7 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
     1. update-task to set assignee (pick the right agent by role) and dueDate (1-7 days out, realistic)
     2. comment-task to leave a delegation note explaining what you expect and why you assigned it
   - Every task on the board should have: an assignee, a dueDate, and at least one comment explaining intent
+  - REVIEW DUTY: After triage, your SECOND priority is reviewing deliverables. If there are tasks in the review column from other agents, you MUST review-task them before doing any other work. No task should sit in review for more than 1 heartbeat cycle without a review comment.
   - Only reassign an already-assigned task if it is stuck (no update in >48h) or blocked
   - Only change an existing due date if the objective changed or the task is stale
   - Only re-prioritize if a directive/objective changed or the task has been stale >48h
@@ -1869,6 +1888,22 @@ function applyTaskUpdate(tasks, update, _pendingEscalations) {
   if (update.action === 'review') {
     for (let i = 0; i < tasks.length; i++) {
       if (tasks[i].id === update.taskId) {
+        // MANDATORY PEER REVIEW: block self-review — reviewer must be different from assignee
+        const taskAssignee = (tasks[i].assignee || '').toLowerCase();
+        const reviewerId = (update.agentId || '').toLowerCase();
+        if (taskAssignee && reviewerId && taskAssignee === reviewerId) {
+          // Self-review blocked — log and skip
+          if (!tasks[i].comments) tasks[i].comments = [];
+          tasks[i].comments.push({
+            id: 'cmt-' + Date.now(),
+            author: 'system',
+            text: 'Self-review blocked: ' + update.agentId + ' cannot review their own deliverable. A different agent must review this task.',
+            type: 'system',
+            createdAt: new Date().toISOString()
+          });
+          tasks[i].updatedAt = new Date().toISOString();
+          return tasks[i];
+        }
         // Add review as a comment
         if (!tasks[i].comments) tasks[i].comments = [];
         tasks[i].comments.push({
