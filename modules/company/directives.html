@@ -450,10 +450,10 @@
 
         card.innerHTML = html;
 
-        if (!isArchived) {
-          var btnWrap = document.createElement('div');
-          btnWrap.style.cssText = 'display:flex; gap:0.3rem; margin-top:0.5rem; padding-top:0.4rem; border-top:1px solid rgba(255,255,255,0.04);';
+        var btnWrap = document.createElement('div');
+        btnWrap.style.cssText = 'display:flex; gap:0.3rem; margin-top:0.5rem; padding-top:0.4rem; border-top:1px solid rgba(255,255,255,0.04);';
 
+        if (!isArchived) {
           var completeBtn = document.createElement('button');
           completeBtn.textContent = 'Complete';
           completeBtn.style.cssText = 'font-size:0.6rem; padding:0.2rem 0.5rem; border:1px solid rgba(52,211,153,0.3); background:rgba(52,211,153,0.05); color:#34d399; border-radius:4px; cursor:pointer;';
@@ -478,8 +478,25 @@
           btnWrap.appendChild(completeBtn);
           btnWrap.appendChild(pauseBtn);
           btnWrap.appendChild(editBtn);
-          card.appendChild(btnWrap);
+        } else {
+          // Archived: Resume button for paused, Reactivate for completed, Edit for all
+          var resumeBtn = document.createElement('button');
+          resumeBtn.textContent = dir.status === 'paused' ? '▶ Resume' : '↻ Reactivate';
+          resumeBtn.style.cssText = 'font-size:0.6rem; padding:0.2rem 0.5rem; border:1px solid rgba(52,211,153,0.3); background:rgba(52,211,153,0.05); color:#34d399; border-radius:4px; cursor:pointer;';
+          resumeBtn.addEventListener('click', function () {
+            AgentEngine.updateDirective(dir.id, { status: 'active' });
+            renderDirectives();
+          });
+
+          var archEditBtn = document.createElement('button');
+          archEditBtn.textContent = 'Edit';
+          archEditBtn.style.cssText = 'font-size:0.6rem; padding:0.2rem 0.5rem; border:1px solid rgba(138,43,226,0.3); background:rgba(138,43,226,0.05); color:#c084fc; border-radius:4px; cursor:pointer;';
+          archEditBtn.addEventListener('click', function () { openModal(dir); });
+
+          btnWrap.appendChild(resumeBtn);
+          btnWrap.appendChild(archEditBtn);
         }
+        card.appendChild(btnWrap);
 
         return card;
       }
