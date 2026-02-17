@@ -55,7 +55,11 @@ var CompanyStore = (function () {
 
   function init(options) {
     options = options || {};
+    // Auto-read writeSecret from sessionStorage if not explicitly provided
     _writeSecret = options.writeSecret || '';
+    if (!_writeSecret) {
+      try { _writeSecret = sessionStorage.getItem('ap_server_key') || ''; } catch (e) {}
+    }
     _serverBase = options.serverBase || _resolveServerBase();
 
     // Probe server availability
@@ -91,11 +95,12 @@ var CompanyStore = (function () {
 
   // ── Local storage helpers (same as agent-engine) ──
   function _localGet(key, fallback) {
+    // In server mode, prefer in-memory cache (has full untruncated data)
+    if (_mode === 'server' && _memCache[key] !== undefined) return _memCache[key];
     try {
       var raw = localStorage.getItem(key);
       if (raw) return JSON.parse(raw);
     } catch (e) { /* fall through */ }
-    // Fallback to in-memory cache if localStorage is empty or failed
     if (_memCache[key] !== undefined) return _memCache[key];
     return fallback;
   }
@@ -110,6 +115,8 @@ var CompanyStore = (function () {
   var _cacheFullLogged = {};  // Track which keys already logged quota warning
 
   function _localSet(key, data) {
+    // Always keep full data in memory (localStorage may be trimmed in server mode)
+    _memCache[key] = data;
     try {
       var toWrite = data;
       if (_mode === 'server' && Array.isArray(data) && LOCAL_CACHE_LIMITS[key] && data.length > LOCAL_CACHE_LIMITS[key]) {
@@ -117,7 +124,6 @@ var CompanyStore = (function () {
       }
       localStorage.setItem(key, JSON.stringify(toWrite));
     } catch (e) {
-      _memCache[key] = data;  // Always keep in memory even if localStorage fails
       if (e.name === 'QuotaExceededError' || (e.message && e.message.indexOf('quota') !== -1)) {
         try { localStorage.removeItem(key); } catch (ignore) {}
         if (_mode === 'server') {
@@ -218,7 +224,9 @@ var CompanyStore = (function () {
     _localSet(localKey, value);
     // Fire-and-forget server write if available
     if (_mode === 'server' && KEY_MAP[localKey]) {
-      _serverSet(KEY_MAP[localKey], value).catch(function () {});
+      _serverSet(KEY_MAP[localKey], value).catch(function (err) {
+        console.warn('[CompanyStore] Server write failed for', localKey, ':', err.message || err);
+      });
     }
   }
 
@@ -250,6 +258,49 @@ var CompanyStore = (function () {
       return _serverGet(serverKey)
         .then(function (val) {
           if (val !== undefined && val !== null) {
+            // Merge-safe: for array data, preserve local creations AND local edits
+            if (Array.isArray(val)) {
+              var localVal = _localGet(localKey, []);
+              if (Array.isArray(localVal) && localVal.length > 0) {
+                // Build server map by ID
+                var serverMap = {};
+                val.forEach(function (item) { if (item && item.id) serverMap[item.id] = item; });
+                // Build local map by ID
+                var localMap = {};
+                localVal.forEach(function (item) { if (item && item.id) localMap[item.id] = item; });
+                var merged = [];
+                var changed = false;
+                // Start with server items, but prefer local if locally newer
+                val.forEach(function (sItem) {
+                  if (sItem && sItem.id && localMap[sItem.id]) {
+                    var lItem = localMap[sItem.id];
+                    // Keep whichever was updated more recently
+                    if (lItem.updatedAt && sItem.updatedAt && lItem.updatedAt > sItem.updatedAt) {
+                      merged.push(lItem);
+                      changed = true;
+                    } else {
+                      merged.push(sItem);
+                    }
+                  } else {
+                    merged.push(sItem);
+                  }
+                });
+                // Add locally-created items not on server
+                localVal.forEach(function (lItem) {
+                  if (lItem && lItem.id && !serverMap[lItem.id]) {
+                    merged.push(lItem);
+                    changed = true;
+                  }
+                });
+                if (changed) {
+                  val = merged;
+                  // Push merged result back to server so local items persist
+                  if (_writeSecret) {
+                    _serverSet(serverKey, val).catch(function () {});
+                  }
+                }
+              }
+            }
             // Always keep full data in memory (no trimming)
             _memCache[localKey] = val;
             // Cache trimmed version to localStorage (may fail if quota full)
