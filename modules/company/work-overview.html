@@ -111,6 +111,29 @@
 
     .ov-section-title { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; opacity: 0.4; font-weight: 600; margin-top: 1.5rem; margin-bottom: 0.5rem; }
 
+    /* Search bar */
+    .work-search-bar {
+      display: flex; align-items: center; gap: 0.5rem;
+      margin-bottom: 0.6rem; position: relative;
+    }
+    .work-search-bar input {
+      flex: 1; padding: 0.45rem 0.7rem 0.45rem 2rem;
+      font-size: 0.72rem; font-family: inherit; color: inherit;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px; outline: none;
+      transition: border-color 0.15s;
+    }
+    .work-search-bar input:focus { border-color: rgba(255,165,0,0.3); }
+    .work-search-bar input::placeholder { color: rgba(255,255,255,0.2); }
+    .work-search-bar .work-search-icon {
+      position: absolute; left: 0.7rem; top: 50%; transform: translateY(-50%);
+      font-size: 0.65rem; opacity: 0.25; pointer-events: none;
+    }
+    .work-search-bar .work-search-count {
+      font-size: 0.55rem; opacity: 0.3; white-space: nowrap;
+    }
+
     /* Worker assist strip */
     .work-assist-strip {
       display: flex; align-items: center; gap: 0.6rem;
@@ -327,7 +350,12 @@
     </div>
 
     <!-- Recently Updated Tasks (promoted) -->
-    <div class="ov-section-title">Recently Updated Tasks</div>
+    <div class="ov-section-title">Tasks</div>
+    <div class="work-search-bar">
+      <i class="fas fa-search work-search-icon"></i>
+      <input type="text" id="work-task-search" placeholder="Search tasks by title, assignee, status..." />
+      <span class="work-search-count" id="work-task-search-count"></span>
+    </div>
     <div class="work-task-list" id="ov-tasks">Loading...</div>
 
     <!-- Recent Docs -->
@@ -425,19 +453,31 @@
         if (priCounts.critical > 0) critEl.closest('.work-attention-card').classList.add('work-attention-card--warn');
       }
 
-      // Recent tasks — sorted by priority score DESC, then by date
+      // Task rendering with search support
       var taskEl = document.getElementById('ov-tasks');
-      var recentTasks = tasks.filter(function (t) { return t.status !== 'done'; }).slice().sort(function (a, b) {
+      var taskSearchInput = document.getElementById('work-task-search');
+      var taskSearchCount = document.getElementById('work-task-search-count');
+      var statusColor = { 'backlog': '#666', 'todo': '#888', 'in-progress': '#4ECDC4', 'review': '#8A2BE2', 'done': '#34d399', 'blocked': '#ef4444', 'pending-approval': '#fbbf24' };
+      var priColor = { urgent: '#ef4444', high: '#f59e0b', medium: '#3b82f6', low: '#6b7280' };
+      var allSortedTasks = tasks.slice().sort(function (a, b) {
         var sa = (PriorityEngine.getCached(a.id) || {}).score || 0;
         var sb = (PriorityEngine.getCached(b.id) || {}).score || 0;
         if (sb !== sa) return sb - sa;
         return new Date(b.updatedAt || b.createdAt || 0) - new Date(a.updatedAt || a.createdAt || 0);
-      }).slice(0, 8);
-      if (recentTasks.length === 0) { taskEl.innerHTML = '<div style="opacity:0.35; font-size:0.68rem; padding:0.5rem 0;">No tasks yet.</div>'; }
-      else {
-        var statusColor = { 'backlog': '#666', 'todo': '#888', 'in-progress': '#4ECDC4', 'review': '#8A2BE2', 'done': '#34d399', 'blocked': '#ef4444', 'pending-approval': '#fbbf24' };
-        var priColor = { urgent: '#ef4444', high: '#f59e0b', medium: '#3b82f6', low: '#6b7280' };
-        taskEl.innerHTML = recentTasks.map(function (t) {
+      });
+
+      function renderTasks(query) {
+        var q = (query || '').toLowerCase().trim();
+        var filtered = allSortedTasks.filter(function (t) {
+          if (!q) return t.status !== 'done';
+          var haystack = ((t.title || '') + ' ' + (t.assignee || '') + ' ' + (t.status || '') + ' ' + (t.priority || '') + ' ' + (t.description || '')).toLowerCase();
+          return haystack.indexOf(q) !== -1;
+        });
+        var limit = q ? 50 : 8;
+        var shown = filtered.slice(0, limit);
+        if (taskSearchCount) taskSearchCount.textContent = q ? (filtered.length + ' result' + (filtered.length !== 1 ? 's' : '')) : (allSortedTasks.length + ' total');
+        if (shown.length === 0) { taskEl.innerHTML = '<div style="opacity:0.35; font-size:0.68rem; padding:0.5rem 0;">' + (q ? 'No tasks match "' + esc(q) + '"' : 'No tasks yet.') + '</div>'; return; }
+        taskEl.innerHTML = shown.map(function (t) {
           var sc = statusColor[t.status] || '#666';
           var pc = priColor[t.priority] || '#3b82f6';
           var age = '';
@@ -453,7 +493,15 @@
             '<span class="work-task-age">' + age + '</span>' +
             '<span class="work-task-badge" style="background:' + sc + '22; color:' + sc + ';">' + (t.status || '?') + '</span>' +
             '</div>';
-        }).join('');
+        }).join('') + (filtered.length > limit ? '<div style="opacity:0.3;font-size:0.6rem;padding:0.3rem 0;text-align:center;">Showing ' + limit + ' of ' + filtered.length + '</div>' : '');
+      }
+      renderTasks('');
+      var _taskSearchTimer;
+      if (taskSearchInput) {
+        taskSearchInput.addEventListener('input', function () {
+          clearTimeout(_taskSearchTimer);
+          _taskSearchTimer = setTimeout(function () { renderTasks(taskSearchInput.value); }, 150);
+        });
       }
 
       // Actions count

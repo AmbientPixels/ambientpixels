@@ -196,6 +196,46 @@
       text-align: center; font-size: 0.8rem; opacity: 0.2; padding: 3rem;
     }
 
+    /* Search bar */
+    .cal-search-bar {
+      display: flex; align-items: center; gap: 0.5rem;
+      margin-bottom: 0.8rem; position: relative;
+    }
+    .cal-search-bar input {
+      flex: 1; padding: 0.45rem 0.7rem 0.45rem 2rem;
+      font-size: 0.72rem; font-family: inherit; color: inherit;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 8px; outline: none;
+      transition: border-color 0.15s;
+    }
+    .cal-search-bar input:focus { border-color: rgba(59,130,246,0.3); }
+    .cal-search-bar input::placeholder { color: rgba(255,255,255,0.2); }
+    .cal-search-bar .cal-search-icon {
+      position: absolute; left: 0.7rem; top: 50%; transform: translateY(-50%);
+      font-size: 0.65rem; opacity: 0.25; pointer-events: none;
+    }
+    .cal-search-bar .cal-search-count {
+      font-size: 0.55rem; opacity: 0.3; white-space: nowrap;
+    }
+    .cal-search-results {
+      margin-bottom: 0.8rem; display: none;
+    }
+    .cal-search-results.active { display: block; }
+    .cal-search-result {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.35rem 0.6rem; margin-bottom: 0.2rem;
+      border-radius: 6px; font-size: 0.68rem;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.04);
+      cursor: pointer; transition: background 0.15s;
+    }
+    .cal-search-result:hover { background: rgba(59,130,246,0.06); border-color: rgba(59,130,246,0.15); }
+    .cal-search-result .cal-sr-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+    .cal-search-result .cal-sr-title { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .cal-search-result .cal-sr-date { font-size: 0.55rem; opacity: 0.35; flex-shrink: 0; }
+    .cal-search-result .cal-sr-type { font-size: 0.5rem; opacity: 0.4; flex-shrink: 0; }
+
     /* Stats bar */
     .cal-stats {
       display: flex; gap: 0.6rem; flex-wrap: wrap; margin-bottom: 0.8rem;
@@ -246,6 +286,14 @@
         <span class="cal-dot" style="background:#FFA500;"></span> Activity
       </button>
     </div>
+
+    <!-- Search -->
+    <div class="cal-search-bar">
+      <i class="fas fa-search cal-search-icon"></i>
+      <input type="text" id="cal-search-input" placeholder="Search tasks, posts, reminders, docs..." />
+      <span class="cal-search-count" id="cal-search-count"></span>
+    </div>
+    <div class="cal-search-results" id="cal-search-results"></div>
 
     <!-- Month Stats -->
     <div class="cal-stats" id="cal-stats"></div>
@@ -434,6 +482,81 @@
         if (!selectedDate) return;
         quickAddReminder(selectedDate);
       });
+
+      // ── Calendar Search ──
+      var calSearchInput = document.getElementById('cal-search-input');
+      var calSearchCount = document.getElementById('cal-search-count');
+      var calSearchResults = document.getElementById('cal-search-results');
+      var _calSearchTimer;
+
+      function calSearch(query) {
+        var q = (query || '').toLowerCase().trim();
+        if (!q) {
+          calSearchResults.classList.remove('active');
+          calSearchResults.innerHTML = '';
+          if (calSearchCount) calSearchCount.textContent = '';
+          return;
+        }
+        var results = [];
+        var dates = Object.keys(calData).sort();
+        for (var di = 0; di < dates.length; di++) {
+          var dateStr = dates[di];
+          var day = calData[dateStr];
+          var layers = ['tasks', 'content', 'social', 'reminders', 'activity'];
+          for (var li = 0; li < layers.length; li++) {
+            var layer = layers[li];
+            var items = day[layer] || [];
+            for (var ii = 0; ii < items.length; ii++) {
+              var item = items[ii];
+              var haystack = ((item.title || '') + ' ' + (item.status || '') + ' ' + (item.assignee || '') + ' ' + (item.platform || '') + ' ' + (item.type || '')).toLowerCase();
+              if (haystack.indexOf(q) !== -1) {
+                results.push({ date: dateStr, layer: layer, item: item });
+              }
+            }
+          }
+        }
+        if (calSearchCount) calSearchCount.textContent = results.length + ' result' + (results.length !== 1 ? 's' : '');
+        if (results.length === 0) {
+          calSearchResults.classList.add('active');
+          calSearchResults.innerHTML = '<div style="opacity:0.3;font-size:0.65rem;padding:0.4rem;">No items match "' + esc(q) + '"</div>';
+          return;
+        }
+        var shown = results.slice(0, 20);
+        calSearchResults.classList.add('active');
+        calSearchResults.innerHTML = shown.map(function (r) {
+          var color = LAYER_COLORS[r.layer] || '#888';
+          var d = new Date(r.date + 'T12:00:00');
+          var dateLabel = d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+          return '<div class="cal-search-result" data-date="' + r.date + '">' +
+            '<span class="cal-sr-dot" style="background:' + color + ';"></span>' +
+            '<span class="cal-sr-title">' + esc(r.item.title || '?') + '</span>' +
+            '<span class="cal-sr-type">' + r.layer + '</span>' +
+            '<span class="cal-sr-date">' + dateLabel + '</span>' +
+            '</div>';
+        }).join('') + (results.length > 20 ? '<div style="opacity:0.3;font-size:0.55rem;padding:0.3rem;text-align:center;">Showing 20 of ' + results.length + '</div>' : '');
+      }
+
+      if (calSearchInput) {
+        calSearchInput.addEventListener('input', function () {
+          clearTimeout(_calSearchTimer);
+          _calSearchTimer = setTimeout(function () { calSearch(calSearchInput.value); }, 150);
+        });
+      }
+      if (calSearchResults) {
+        calSearchResults.addEventListener('click', function (e) {
+          var row = e.target.closest('.cal-search-result');
+          if (!row || !row.dataset.date) return;
+          var targetDate = row.dataset.date;
+          var d = new Date(targetDate + 'T12:00:00');
+          currentYear = d.getFullYear();
+          currentMonth = d.getMonth();
+          selectedDate = targetDate;
+          if (currentView === 'week') weekStartDate = getWeekStart(d);
+          if (currentView === 'day') dayViewDate = new Date(d);
+          render();
+          if (currentView === 'month') selectDay(targetDate);
+        });
+      }
 
       // Re-render on sync
       AgentEngine.on('sync-complete', function () {
