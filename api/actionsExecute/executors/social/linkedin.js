@@ -6,7 +6,7 @@ const https = require('https');
 const crypto = require('crypto');
 
 const LINKEDIN_API_URL = 'https://api.linkedin.com/rest/posts';
-const LINKEDIN_API_VERSION = '202402';
+const LINKEDIN_API_VERSION = '202601';
 const MAX_CHARS = 3000;
 
 function getCredentials() {
@@ -56,18 +56,32 @@ async function publishToLinkedIn(action) {
       targetEntities: [],
       thirdPartyDistributionChannels: []
     },
-    lifecycleState: 'PUBLISHED'
+    lifecycleState: 'PUBLISHED',
+    isReshareDisabledByAuthor: false
   };
 
-  // If media URLs provided, attach as articles
+  // If media provided with URN IDs (uploaded via Images/Videos API), attach
   const media = (action.payload && action.payload.media) || [];
   if (media.length > 0) {
-    postPayload.content = {
-      article: {
-        source: typeof media[0] === 'string' ? media[0] : media[0].url,
-        title: (typeof media[0] === 'object' && media[0].title) || 'Shared content'
-      }
-    };
+    const firstMedia = typeof media[0] === 'string' ? media[0] : (media[0].id || media[0].url || '');
+    // URN-based media (urn:li:image:xxx or urn:li:video:xxx)
+    if (firstMedia.startsWith('urn:li:')) {
+      postPayload.content = {
+        media: {
+          id: firstMedia,
+          title: (typeof media[0] === 'object' && media[0].title) || ''
+        }
+      };
+    }
+    // URL-based article share (link preview)
+    else if (firstMedia.startsWith('http')) {
+      postPayload.content = {
+        article: {
+          source: firstMedia,
+          title: (typeof media[0] === 'object' && media[0].title) || 'Shared content'
+        }
+      };
+    }
   }
 
   const body = JSON.stringify(postPayload);
