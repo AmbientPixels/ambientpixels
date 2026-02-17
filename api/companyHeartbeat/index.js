@@ -795,6 +795,23 @@ Write the full deliverable first, then the structured JSON block.`;
           continue;
         }
       }
+      // DEDUPE GUARD: block duplicate social posts for same task or same agent+platform still pending
+      const existingActions = (await storage.getState('actions')) || [];
+      const isDupe = existingActions.some(function(ea) {
+        if (!ea.type || ea.type.indexOf('social_post') !== 0) return false;
+        var eaStatus = (ea.approval && ea.approval.status) || '';
+        if (eaStatus === 'rejected' || eaStatus === 'cancelled') return false; // allow retry after reject
+        // Same task already has a pending/approved social action
+        if (action.taskId && ea._parentTaskId === action.taskId) return true;
+        // Same agent+platform with ANY still-active action — prevents duplicate posts
+        if (ea.created_by === agentId && ea.platform === (action.social.platform || 'x')) return true;
+        return false;
+      });
+      if (isDupe) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action — duplicate: pending/approved social action already exists for task', action.taskId || '(no taskId, same agent+platform)');
+        continue;
+      }
+
       // Agent-initiated social post action — routes through action layer governance
       const socialPayload = action.social;
 
