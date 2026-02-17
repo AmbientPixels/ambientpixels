@@ -85,16 +85,21 @@ module.exports = async function (context) {
       const scheduledTime = new Date(scheduledFor).getTime();
       if (isNaN(scheduledTime) || scheduledTime > now) continue;
 
-      // Don't execute if scheduled time is more than 24h ago (stale)
-      if (now - scheduledTime > 24 * 60 * 60 * 1000) {
-        context.log('[Scheduler] Skipping stale scheduled action:', a.id, '(scheduled_for:', scheduledFor, ')');
+      // If scheduled time is past but within 7 days, post now (CEO already approved)
+      // Only fail if >7 days stale (content likely irrelevant)
+      const staleMs = now - scheduledTime;
+      if (staleMs > 7 * 24 * 60 * 60 * 1000) {
+        context.log('[Scheduler] Skipping stale scheduled action:', a.id, '(scheduled_for:', scheduledFor, ', stale:', Math.round(staleMs / 86400000), 'd)');
         a.execution = a.execution || {};
         a.execution.status = 'failed';
         a.execution.finished_at = new Date().toISOString();
-        a.execution.last_error = { code: 'STALE_SCHEDULE', message: 'Scheduled time is more than 24h ago' };
+        a.execution.last_error = { code: 'STALE_SCHEDULE', message: 'Scheduled time is more than 7 days ago' };
         a.execution_status = 'failed';
         actions[i] = a;
         continue;
+      }
+      if (staleMs > 24 * 60 * 60 * 1000) {
+        context.log('[Scheduler] Action', a.id, 'schedule was', Math.round(staleMs / 3600000), 'h ago — posting now (CEO approved)');
       }
 
       const platform = a.platform || 'unknown';
