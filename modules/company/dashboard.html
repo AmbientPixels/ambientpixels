@@ -2333,15 +2333,8 @@
       function renderGeminiCosts() {
         var el = document.getElementById('panel-gemini-cost');
         if (!el) return;
-        var key = (typeof CompanyStore !== 'undefined' && CompanyStore._writeSecret) ? CompanyStore._writeSecret : '';
-        if (!key) {
-          el.innerHTML = '<div class="dash-empty" style="font-size:0.6rem;">Server key required for cost data. Set in Config → Server Persistence.</div>';
-          return;
-        }
-        var apiBase = (typeof CompanyStore !== 'undefined' && CompanyStore.getApiBase) ? CompanyStore.getApiBase() : '/api';
-        fetch(apiBase + '/geminiCosts?days=' + _geminiCostDays, {
-          headers: { 'x-company-secret': key }
-        })
+        var apiBase = (typeof CompanyStore !== 'undefined' && CompanyStore.getServerBase) ? CompanyStore.getServerBase() : '/api';
+        fetch(apiBase + '/geminiCosts?days=' + _geminiCostDays)
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (data) {
           if (!data) { el.innerHTML = '<div class="dash-empty">Could not load cost data.</div>'; return; }
@@ -2433,15 +2426,8 @@
       function renderAzureCosts() {
         var el = document.getElementById('panel-azure-cost');
         if (!el) return;
-        var key = (typeof CompanyStore !== 'undefined' && CompanyStore._writeSecret) ? CompanyStore._writeSecret : '';
-        if (!key) {
-          el.innerHTML = '<div class="dash-empty" style="font-size:0.6rem;">Server key required. Set in Config → Server Persistence.</div>';
-          return;
-        }
-        var apiBase = (typeof CompanyStore !== 'undefined' && CompanyStore.getApiBase) ? CompanyStore.getApiBase() : '/api';
-        fetch(apiBase + '/azureCosts?days=' + _azureCostDays, {
-          headers: { 'x-company-secret': key }
-        })
+        var apiBase = (typeof CompanyStore !== 'undefined' && CompanyStore.getServerBase) ? CompanyStore.getServerBase() : '/api';
+        fetch(apiBase + '/azureCosts?days=' + _azureCostDays)
         .then(function (r) {
           if (!r.ok) return r.json().then(function (e) { throw new Error(e.error || 'HTTP ' + r.status); });
           return r.json();

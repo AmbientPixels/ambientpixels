@@ -18,13 +18,6 @@ module.exports = async function (context, req) {
   }
 
   try {
-    // Require auth
-    const secret = req.headers['x-company-secret'] || '';
-    if (!storage.validateSecret(secret)) {
-      context.res = { status: 401, headers: corsHeaders, body: { error: 'unauthorized' } };
-      return;
-    }
-
     const days = parseInt(req.query && req.query.days) || 30;
     const summary = await storage.getGeminiCostSummary(Math.min(days, 90));
 

@@ -19,13 +19,6 @@ module.exports = async function (context, req) {
   }
 
   try {
-    // Require auth
-    const secret = req.headers['x-company-secret'] || '';
-    if (!storage.validateSecret(secret)) {
-      context.res = { status: 401, headers: corsHeaders, body: { error: 'unauthorized' } };
-      return;
-    }
-
     const subscriptionId = process.env.AZURE_SUBSCRIPTION_ID;
     if (!subscriptionId) {
       context.res = { status: 500, headers: corsHeaders, body: { error: 'AZURE_SUBSCRIPTION_ID not configured' } };
