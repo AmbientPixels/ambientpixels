@@ -435,7 +435,7 @@ Rules:
   return {
     id: 'dlog_' + Date.now(),
     date: data.today,
-    status: 'draft',
+    status: 'published',
     title: (parsed.title || '').substring(0, 120),
     summary: (parsed.summary || '').substring(0, 2000),
     highlights: Array.isArray(parsed.highlights) ? parsed.highlights.slice(0, 6).map(h => (h || '').substring(0, 200)) : [],
@@ -447,6 +447,6 @@ Rules:
       heartbeat_cycles: data.heartbeatCycles
     },
     generated_at: new Date().toISOString(),
-    published_at: null
+    published_at: new Date().toISOString()
   };
 }
