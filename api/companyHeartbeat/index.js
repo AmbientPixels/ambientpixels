@@ -1671,10 +1671,14 @@ Rules:
 - Use comment-task to leave delegation notes, ask questions, or flag blockers
 
 ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
-- CRITICAL RULE: If you have a task assigned to you that is in-progress with priority critical or high, your FIRST action MUST be execute-task on that task. Do NOT create sub-tasks, comment, or plan — produce the actual deliverable.
-- execute-task and create-doc are ALWAYS higher priority than create-task and comment-task. Prefer producing work over organizing work.
-- Do NOT create a new task if you already have an in-progress task that covers the same goal — execute the existing task instead.
-- Do NOT comment on a task just to say you are "working on it" or "planning to" — instead, use execute-task to produce the output.
+- CRITICAL RULE: If you have a task assigned to you that is in-progress OR todo with priority critical or high, your FIRST action MUST be to produce work on that task. Do NOT create sub-tasks, comment, or plan — produce the actual deliverable NOW.
+  - For content/analysis tasks: use execute-task to produce the deliverable.
+  - For social media / LinkedIn / X / Bluesky post tasks: use create-social-action with the taskId to draft the post immediately.
+  - For document tasks: use create-doc to produce the document directly.
+  - You do NOT need to move a task from todo to in-progress first — execute-task, create-social-action, and create-doc all work on todo tasks and auto-advance the status.
+- execute-task, create-social-action, and create-doc are ALWAYS higher priority than create-task, move-task, and comment-task. Prefer producing work over organizing work.
+- Do NOT create a new task if you already have a todo or in-progress task that covers the same goal — execute the existing task instead.
+- Do NOT comment on a task just to say you are "working on it" or "planning to" — instead, use execute-task or the appropriate action to produce the output.
 - TASK CREATION LIMIT: Do not create more than 1 new task per heartbeat unless you have also used execute-task or create-doc in the same cycle. Organizing without producing is not useful.
 - If a task description says to use create-doc, you MUST use create-doc (not execute-task) to produce the document directly.
 - If a CEO comment says "top priority" or "complete before other work", that task takes absolute precedence — execute it immediately.` + (agent.name === 'Nova' ? `
