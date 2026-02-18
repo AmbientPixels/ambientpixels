@@ -1,12 +1,12 @@
 // linkedin.js — LinkedIn platform adapter for social_post.publish
-// OAuth 2.0 Bearer Token — LinkedIn Community Management Posts API (/rest/posts)
+// OAuth 2.0 Bearer Token — LinkedIn UGC Posts API (/v2/ugcPosts)
+// Requires "Share on LinkedIn" product (w_member_social scope)
 // Env vars: LINKEDIN_ACCESS_TOKEN, LINKEDIN_PERSON_URN
 
 const https = require('https');
 const crypto = require('crypto');
 
-const LINKEDIN_API_URL = 'https://api.linkedin.com/rest/posts';
-const LINKEDIN_API_VERSION = '202601';
+const LINKEDIN_API_URL = 'https://api.linkedin.com/v2/ugcPosts';
 const MAX_CHARS = 3000;
 
 function getCredentials() {
@@ -27,7 +27,7 @@ function contentHash(text) {
 }
 
 /**
- * Pre-flight token check — calls /v2/me to verify token validity
+ * Pre-flight token check — calls /v2/userinfo to verify token validity
  * @returns {Promise<{valid: boolean, name?: string, error?: string}>}
  */
 function validateToken() {
@@ -36,7 +36,7 @@ function validateToken() {
   return new Promise((resolve) => {
     const options = {
       hostname: 'api.linkedin.com',
-      path: '/v2/me',
+      path: '/v2/userinfo',
       method: 'GET',
       headers: {
         'Authorization': 'Bearer ' + creds.accessToken
@@ -49,15 +49,15 @@ function validateToken() {
         if (res.statusCode === 200) {
           try {
             const me = JSON.parse(data);
-            resolve({ valid: true, name: (me.localizedFirstName || '') + ' ' + (me.localizedLastName || ''), sub: me.id });
+            resolve({ valid: true, name: me.name || '', sub: me.sub });
           } catch (e) { resolve({ valid: true }); }
         } else if (res.statusCode === 401) {
           resolve({ valid: false, error: 'Access token expired or revoked (401). Generate a new token at https://www.linkedin.com/developers/apps' });
         } else if (res.statusCode === 403) {
-          // 403 on /v2/me means token is active but lacks profile scope — still valid for posting
+          // 403 on /v2/userinfo means token is active but lacks openid scope — still valid for posting
           resolve({ valid: true, limited: true });
         } else {
-          resolve({ valid: false, error: 'LinkedIn /v2/me returned HTTP ' + res.statusCode });
+          resolve({ valid: false, error: 'LinkedIn /v2/userinfo returned HTTP ' + res.statusCode });
         }
       });
     });
@@ -68,7 +68,7 @@ function validateToken() {
 }
 
 /**
- * Publish a post to LinkedIn
+ * Publish a post to LinkedIn using UGC Posts API
  * @param {Object} action - Full action object
  * @returns {Promise<{receipt: Object}>}
  */
@@ -93,43 +93,36 @@ async function publishToLinkedIn(action) {
     throw { code: 'TOKEN_INVALID', message: tokenCheck.error || 'LinkedIn access token is invalid or expired. Refresh it in Azure App Settings.' };
   }
 
-  // Build Posts API payload
-  const postPayload = {
-    author: creds.personUrn,
-    commentary: text,
-    visibility: 'PUBLIC',
-    distribution: {
-      feedDistribution: 'MAIN_FEED',
-      targetEntities: [],
-      thirdPartyDistributionChannels: []
-    },
-    lifecycleState: 'PUBLISHED',
-    isReshareDisabledByAuthor: false
+  // Build UGC Posts API payload
+  const shareContent = {
+    shareCommentary: { text: text },
+    shareMediaCategory: 'NONE'
   };
 
-  // If media provided with URN IDs (uploaded via Images/Videos API), attach
+  // If media provided as article URL, attach as ARTICLE share
   const media = (action.payload && action.payload.media) || [];
   if (media.length > 0) {
-    const firstMedia = typeof media[0] === 'string' ? media[0] : (media[0].id || media[0].url || '');
-    // URN-based media (urn:li:image:xxx or urn:li:video:xxx)
-    if (firstMedia.startsWith('urn:li:')) {
-      postPayload.content = {
-        media: {
-          id: firstMedia,
-          title: (typeof media[0] === 'object' && media[0].title) || ''
-        }
-      };
-    }
-    // URL-based article share (link preview)
-    else if (firstMedia.startsWith('http')) {
-      postPayload.content = {
-        article: {
-          source: firstMedia,
-          title: (typeof media[0] === 'object' && media[0].title) || 'Shared content'
-        }
-      };
+    const firstMedia = typeof media[0] === 'string' ? media[0] : (media[0].url || media[0].id || '');
+    if (firstMedia.startsWith('http')) {
+      shareContent.shareMediaCategory = 'ARTICLE';
+      shareContent.media = [{
+        status: 'READY',
+        originalUrl: firstMedia,
+        title: { text: (typeof media[0] === 'object' && media[0].title) || 'Shared content' }
+      }];
     }
   }
+
+  const postPayload = {
+    author: creds.personUrn,
+    lifecycleState: 'PUBLISHED',
+    specificContent: {
+      'com.linkedin.ugc.ShareContent': shareContent
+    },
+    visibility: {
+      'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC'
+    }
+  };
 
   const body = JSON.stringify(postPayload);
 
@@ -143,7 +136,6 @@ async function publishToLinkedIn(action) {
         'Authorization': 'Bearer ' + creds.accessToken,
         'Content-Type': 'application/json',
         'X-Restli-Protocol-Version': '2.0.0',
-        'LinkedIn-Version': LINKEDIN_API_VERSION,
         'Content-Length': Buffer.byteLength(body)
       }
     };
@@ -171,9 +163,8 @@ async function publishToLinkedIn(action) {
           });
         } else {
           let errMsg = (parsed && parsed.message) || (parsed && parsed.status) || data.substring(0, 300);
-          // Add diagnostic hints for common errors
           if (res.statusCode === 403) {
-            errMsg += ' | 403 Hint: Token may lack w_member_social scope, or person URN (' + creds.personUrn + ') does not match the token owner. Regenerate token with correct scopes.';
+            errMsg += ' | 403 Hint: Token may lack w_member_social scope, or person URN (' + creds.personUrn + ') does not match the token owner. Regenerate token with w_member_social scope.';
           } else if (res.statusCode === 401) {
             errMsg += ' | 401 Hint: Access token expired. LinkedIn tokens expire after 60 days. Refresh at https://www.linkedin.com/developers/apps';
           }
