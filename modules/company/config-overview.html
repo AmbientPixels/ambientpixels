@@ -1633,17 +1633,23 @@
     function renderStorePanel() {
       var s = CompanyStoreAdapter.getStatus();
       dot.className = 'cfg-store-dot ' + (s.enabled ? (s.hasKey ? 'cfg-store-dot--on' : 'cfg-store-dot--warn') : 'cfg-store-dot--off');
-      stateEl.textContent = s.enabled ? (s.hasKey ? 'Enabled' : 'Enabled (no key)') : 'Disabled';
-      stateEl.style.color = s.enabled ? '#34d399' : '#ef4444';
+      var stateLabel = 'Disabled';
+      if (s.enabled) {
+        if (s.hasSwaAuth) stateLabel = 'Enabled (SWA auth)';
+        else if (s.hasManualKey) stateLabel = 'Enabled (manual key)';
+        else stateLabel = 'Enabled (no auth)';
+      }
+      stateEl.textContent = stateLabel;
+      stateEl.style.color = s.enabled ? (s.hasKey ? '#34d399' : '#fbbf24') : '#ef4444';
       toggleBtn.textContent = s.enabled ? 'Disable' : 'Enable Server Persistence';
       toggleBtn.className = 'cfg-store-btn ' + (s.enabled ? 'cfg-store-btn--disable' : 'cfg-store-btn--enable');
-      pushBtn.disabled = !s.enabled;
-      pullBtn.disabled = !s.enabled;
-      flushBtn.disabled = !s.enabled || s.outboxSize === 0;
+      pushBtn.disabled = !s.enabled || !s.hasKey;
+      pullBtn.disabled = !s.enabled || !s.hasKey;
+      flushBtn.disabled = !s.enabled || s.outboxSize === 0 || !s.hasKey;
       var lines = [];
       if (s.lastSync) lines.push('Last sync: ' + new Date(s.lastSync).toLocaleString());
       if (s.outboxSize > 0) lines.push('Outbox: ' + s.outboxSize + ' pending batch(es)');
-      if (!s.hasKey && s.enabled) lines.push('Enter key in dev console: CompanyStoreAdapter.setKey("...")'); 
+      if (!s.hasKey && s.enabled) lines.push('Not authenticated. Log in via Azure SWA or set key: CompanyStoreAdapter.setKey("...")'); 
       infoEl.innerHTML = lines.join('<br>') || (s.enabled ? 'Ready to sync.' : 'Enable to sync state to server.');
     }
 

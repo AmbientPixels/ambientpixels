@@ -17,6 +17,7 @@ var CompanyStoreAdapter = (function () {
   var _flushTimer = null;
   var _flushing = false;
   var _queueDirty = false;
+  var _authPrincipal = ''; // base64 client principal from /.auth/me
 
   // ── Toggle ──
   function isEnabled() {
@@ -36,11 +37,38 @@ var CompanyStoreAdapter = (function () {
     try { sessionStorage.setItem('ap_server_key', key || ''); } catch (e) { /* ignore */ }
   }
 
+  // ── Azure SWA auth (auto-fetch on init) ──
+  function _fetchAuthPrincipal() {
+    try {
+      fetch('/.auth/me').then(function (res) {
+        if (!res.ok) return;
+        return res.json();
+      }).then(function (data) {
+        if (data && data.clientPrincipal) {
+          _authPrincipal = btoa(JSON.stringify(data.clientPrincipal));
+        }
+      }).catch(function () { /* not authenticated or /.auth/me unavailable */ });
+    } catch (e) { /* ignore */ }
+  }
+
+  function _hasAuth() { return !!_getKey() || !!_authPrincipal; }
+
+  function _buildHeaders() {
+    var h = { 'Content-Type': 'application/json' };
+    var key = _getKey();
+    if (key) h['x-company-secret'] = key;
+    if (_authPrincipal) h['x-ms-client-principal'] = _authPrincipal;
+    return h;
+  }
+
+  // Auto-fetch auth on load
+  _fetchAuthPrincipal();
+
   // ── HTTP helpers ──
   function _post(endpoint, body) {
     return fetch(API_BASE + endpoint, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-company-secret': _getKey() },
+      headers: _buildHeaders(),
       body: JSON.stringify(body)
     }).then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
@@ -57,7 +85,7 @@ var CompanyStoreAdapter = (function () {
     }
     return fetch(API_BASE + endpoint + qs, {
       method: 'GET',
-      headers: { 'Content-Type': 'application/json', 'x-company-secret': _getKey() }
+      headers: _buildHeaders()
     }).then(function (r) {
       if (!r.ok) throw new Error('HTTP ' + r.status);
       return r.json();
@@ -380,7 +408,9 @@ var CompanyStoreAdapter = (function () {
   function getStatus() {
     return {
       enabled: isEnabled(),
-      hasKey: !!_getKey(),
+      hasKey: _hasAuth(),
+      hasManualKey: !!_getKey(),
+      hasSwaAuth: !!_authPrincipal,
       outboxSize: getOutboxSize(),
       lastSync: getLastSync()
     };
