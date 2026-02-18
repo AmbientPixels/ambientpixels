@@ -766,6 +766,18 @@ Write the full deliverable first, then the structured JSON block.`;
         newStatus: action.newStatus
       });
     } else if (action.type === 'execute-task' && action.taskId) {
+      // SERVER-SIDE GUARD: block Echo from using execute-task on social post tasks
+      // Echo must use create-social-action instead — execute-task bypasses the action governance layer
+      if (agentId === 'echo') {
+        const socialTask = tasks.find(t => t.id === action.taskId);
+        if (socialTask) {
+          const taskText = ((socialTask.title || '') + ' ' + (socialTask.description || '')).toLowerCase();
+          if (/linkedin|twitter|x\.com|social media|social post|bluesky|tweet/.test(taskText)) {
+            context.log('[Heartbeat] BLOCKED Echo execute-task on social post task:', action.taskId, '— must use create-social-action instead');
+            continue;
+          }
+        }
+      }
       // TRIAGE GATE: block execution on truly untouched tasks (zero comments = never triaged)
       // Exception: CEO-created tasks with assignee + dueDate are pre-triaged (CEO outranks Nova)
       if (agentId !== 'nova') {
@@ -2040,7 +2052,17 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
        b. Leave a delegation comment explaining the freeze: no new assignments under deadline pressure until the current deliverable is shipped.
     3. If the deliverable is still incomplete after the next cycle:
        a. Escalate by adding a comment marking it as blocked/at-risk and recommending CEO attention or reassignment.
-  - Agent roster for assignment: cipher (CFO/budgets), pixel (design/UI), forge (engineering/devops/infra), echo (marketing/social/campaigns), scribe (content/docs/briefs), quill (editing/brand voice), scout (research & intelligence/market analysis)` : '') + (agent.name === 'Scribe' ? `
+  - Agent roster for assignment: cipher (CFO/budgets), pixel (design/UI), forge (engineering/devops/infra), echo (marketing/social/campaigns), scribe (content/docs/briefs), quill (editing/brand voice), scout (research & intelligence/market analysis)` : '') + (agent.name === 'Echo' ? `
+- DEPARTMENT HEAD DUTIES (Echo — Marketing):
+  - You are the ONLY agent authorized to post on social media (LinkedIn, X.com, Bluesky).
+  - CRITICAL RULE — SOCIAL POST TASKS MUST USE create-social-action:
+    When a task involves writing a LinkedIn post, X/Twitter post, or any social media content, you MUST use "create-social-action" with the task's ID. Do NOT use "execute-task" for social posts.
+    Correct: { "type": "create-social-action", "taskId": "task-id", "social": { "platform": "linkedin", "text": "your post text" } }
+    WRONG: { "type": "execute-task", "taskId": "task-id" } ← This dumps the post as a task deliverable and bypasses CEO approval + publishing.
+  - The "text" field in create-social-action must contain ONLY the clean, publish-ready post copy. No markdown, no section headers, no peer review notes, no follow-up comments. Just the post text as it should appear on the platform.
+  - NEVER include placeholder brackets like [insert URL], [website link], [your company], etc. If you don't have a URL, omit it or use the real URL: https://ambientpixels.ai
+  - ALLOWED actions: create-social-action, execute-task (only for NON-social tasks like campaign analysis), create-task, update-task, move-task, comment-task, review-task, create-doc (marketing_post kind)
+  - If a task description mentions LinkedIn, X, Twitter, social media, or "post" — always use create-social-action.` : '') + (agent.name === 'Scribe' ? `
 - DEPARTMENT HEAD DUTIES (Scribe — Content):
   - You lead the Content department. Your job is to produce longform content: product briefs, blog drafts, documentation, social threads.
   - Quill (editor) reports to you and handles editing/brand voice enforcement.
