@@ -235,6 +235,31 @@ module.exports = async function (context, req) {
     actions[actionIndex] = action;
     await storage.setState('actions', actions);
 
+    // Auto-complete parent task when social post publishes successfully
+    if (action._parentTaskId && actionType.indexOf('social_post') === 0) {
+      try {
+        const tasks = (await storage.getState('tasks')) || [];
+        const parentTask = tasks.find(t => t.id === action._parentTaskId);
+        if (parentTask && parentTask.status !== 'done') {
+          parentTask.status = 'done';
+          parentTask.completedAt = new Date().toISOString();
+          parentTask.updatedAt = new Date().toISOString();
+          if (!parentTask.comments) parentTask.comments = [];
+          parentTask.comments.push({
+            id: 'cmt-autoclose-' + Date.now(),
+            author: 'system',
+            text: 'Task auto-completed: social post published successfully on ' + platform + '. Post URL: ' + ((result.receipt && result.receipt.post_url) || 'N/A'),
+            type: 'system',
+            createdAt: new Date().toISOString()
+          });
+          await storage.setState('tasks', tasks);
+          context.log('[actionsExecute] Auto-completed parent task:', action._parentTaskId, 'after successful', platform, 'post');
+        }
+      } catch (taskErr) {
+        context.log.warn('[actionsExecute] Failed to auto-complete parent task:', taskErr.message);
+      }
+    }
+
     // Log success to governance
     await _logGovernance(storage, 'action-success', {
       actionId: action.id,
