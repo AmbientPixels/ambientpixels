@@ -144,13 +144,25 @@
       </div>
     </div>
 
-    <!-- Completed / Paused -->
+    <!-- Paused -->
     <div class="dash-panel dash-panel--full" style="margin-top:1rem;">
       <div class="dash-panel-header">
-        <span class="dash-panel-title"><i class="fas fa-archive" style="opacity:0.4;"></i> Completed / Paused</span>
+        <span class="dash-panel-title"><i class="fas fa-pause-circle" style="color:#fbbf24; opacity:0.6;"></i> Paused</span>
+        <span class="dash-panel-badge" id="paused-dir-count" style="background:rgba(251,191,36,0.1);color:#fbbf24;">0</span>
+      </div>
+      <div id="dir-paused-list">
+        <div class="dash-empty">No paused directives.</div>
+      </div>
+    </div>
+
+    <!-- Completed / Archived -->
+    <div class="dash-panel dash-panel--full" style="margin-top:1rem;">
+      <div class="dash-panel-header">
+        <span class="dash-panel-title"><i class="fas fa-trophy" style="color:#c084fc; opacity:0.6;"></i> Completed / Archived</span>
+        <span class="dash-panel-badge" id="archive-dir-count" style="background:rgba(138,43,226,0.1);color:#c084fc;">0</span>
       </div>
       <div id="dir-archive-list">
-        <div class="dash-empty">No archived directives.</div>
+        <div class="dash-empty">No completed or archived directives.</div>
       </div>
     </div>
 
@@ -179,6 +191,7 @@
         <option value="active">Active</option>
         <option value="paused">Paused</option>
         <option value="completed">Completed</option>
+        <option value="archived">Archived</option>
       </select>
 
       <label for="edit-kpis">Linked KPIs</label>
@@ -203,7 +216,10 @@
       var prioritySelect = document.getElementById('dir-priority');
       var createBtn = document.getElementById('dir-create-btn');
       var activeList = document.getElementById('dir-active-list');
+      var pausedList = document.getElementById('dir-paused-list');
+      var pausedCount = document.getElementById('paused-dir-count');
       var archiveList = document.getElementById('dir-archive-list');
+      var archiveCount = document.getElementById('archive-dir-count');
       var activeCount = document.getElementById('active-dir-count');
       var modal = document.getElementById('dir-edit-modal');
       var editTitle = document.getElementById('edit-title');
@@ -290,34 +306,44 @@
         var directives = AgentEngine.getDirectives();
         var pending = directives.filter(function (d) { return d.status === 'pending-approval'; });
         var active = directives.filter(function (d) { return d.status === 'active'; });
-        var archived = directives.filter(function (d) { return d.status !== 'active' && d.status !== 'pending-approval'; });
+        var paused = directives.filter(function (d) { return d.status === 'paused'; });
+        var completed = directives.filter(function (d) { return d.status === 'completed' || d.status === 'archived'; });
 
         // Pending Approval (v2.3)
         pendingCount.textContent = pending.length;
         if (pending.length > 0) {
           pendingPanel.style.display = '';
           pendingList.innerHTML = '';
-          pending.forEach(function (dir) { pendingList.appendChild(createDirectiveCard(dir)); });
+          pending.forEach(function (dir) { pendingList.appendChild(createDirectiveCard(dir, 'pending')); });
         } else {
           pendingPanel.style.display = 'none';
         }
 
-        activeCount.textContent = active.length;
-
         // Active
+        activeCount.textContent = active.length;
         if (active.length === 0) {
           activeList.innerHTML = '<div class="dash-empty">No active directives. Create one above.</div>';
         } else {
           activeList.innerHTML = '';
-          active.forEach(function (dir) { activeList.appendChild(createDirectiveCard(dir)); });
+          active.forEach(function (dir) { activeList.appendChild(createDirectiveCard(dir, 'active')); });
         }
 
-        // Archived
-        if (archived.length === 0) {
-          archiveList.innerHTML = '<div class="dash-empty">No archived directives.</div>';
+        // Paused
+        pausedCount.textContent = paused.length;
+        if (paused.length === 0) {
+          pausedList.innerHTML = '<div class="dash-empty">No paused directives.</div>';
+        } else {
+          pausedList.innerHTML = '';
+          paused.forEach(function (dir) { pausedList.appendChild(createDirectiveCard(dir, 'paused')); });
+        }
+
+        // Completed / Archived
+        archiveCount.textContent = completed.length;
+        if (completed.length === 0) {
+          archiveList.innerHTML = '<div class="dash-empty">No completed or archived directives.</div>';
         } else {
           archiveList.innerHTML = '';
-          archived.forEach(function (dir) { archiveList.appendChild(createDirectiveCard(dir, true)); });
+          completed.forEach(function (dir) { archiveList.appendChild(createDirectiveCard(dir, 'completed')); });
         }
       }
 
@@ -336,7 +362,7 @@
         stale: '#9ca3af', complete: '#c084fc', not_started: 'rgba(255,255,255,0.15)', no_tasks: '#FFA500'
       };
 
-      function createDirectiveCard(dir, isArchived) {
+      function createDirectiveCard(dir, bucket) {
         var card = document.createElement('div');
         card.className = 'dir-card';
 
@@ -453,59 +479,63 @@
         var btnWrap = document.createElement('div');
         btnWrap.style.cssText = 'display:flex; gap:0.3rem; margin-top:0.5rem; padding-top:0.4rem; border-top:1px solid rgba(255,255,255,0.04);';
 
-        if (!isArchived) {
-          var completeBtn = document.createElement('button');
-          completeBtn.textContent = 'Complete';
-          completeBtn.style.cssText = 'font-size:0.6rem; padding:0.2rem 0.5rem; border:1px solid rgba(52,211,153,0.3); background:rgba(52,211,153,0.05); color:#34d399; border-radius:4px; cursor:pointer;';
-          completeBtn.addEventListener('click', function () {
-            AgentEngine.updateDirective(dir.id, { status: 'completed' });
-            renderDirectives();
-          });
-
-          var pauseBtn = document.createElement('button');
-          pauseBtn.textContent = 'Pause';
-          pauseBtn.style.cssText = 'font-size:0.6rem; padding:0.2rem 0.5rem; border:1px solid rgba(251,191,36,0.3); background:rgba(251,191,36,0.05); color:#fbbf24; border-radius:4px; cursor:pointer;';
-          pauseBtn.addEventListener('click', function () {
-            AgentEngine.updateDirective(dir.id, { status: 'paused' });
-            renderDirectives();
-          });
-
-          var editBtn = document.createElement('button');
-          editBtn.textContent = 'Edit';
-          editBtn.style.cssText = 'font-size:0.6rem; padding:0.2rem 0.5rem; border:1px solid rgba(138,43,226,0.3); background:rgba(138,43,226,0.05); color:#c084fc; border-radius:4px; cursor:pointer;';
-          editBtn.addEventListener('click', function () { openModal(dir); });
-
-          btnWrap.appendChild(completeBtn);
-          btnWrap.appendChild(pauseBtn);
-          btnWrap.appendChild(editBtn);
-        } else {
-          // Archived: Resume button for paused, Reactivate for completed, Edit for all
-          var resumeBtn = document.createElement('button');
-          resumeBtn.textContent = dir.status === 'paused' ? '▶ Resume' : '↻ Reactivate';
-          resumeBtn.style.cssText = 'font-size:0.6rem; padding:0.2rem 0.5rem; border:1px solid rgba(52,211,153,0.3); background:rgba(52,211,153,0.05); color:#34d399; border-radius:4px; cursor:pointer;';
-          resumeBtn.addEventListener('click', function () {
-            AgentEngine.updateDirective(dir.id, { status: 'active' });
-            renderDirectives();
-          });
-
-          var archEditBtn = document.createElement('button');
-          archEditBtn.textContent = 'Edit';
-          archEditBtn.style.cssText = 'font-size:0.6rem; padding:0.2rem 0.5rem; border:1px solid rgba(138,43,226,0.3); background:rgba(138,43,226,0.05); color:#c084fc; border-radius:4px; cursor:pointer;';
-          archEditBtn.addEventListener('click', function () { openModal(dir); });
-
-          var deleteBtn = document.createElement('button');
-          deleteBtn.textContent = '🗑 Delete';
-          deleteBtn.style.cssText = 'font-size:0.6rem; padding:0.2rem 0.5rem; border:1px solid rgba(248,113,113,0.3); background:rgba(248,113,113,0.05); color:#f87171; border-radius:4px; cursor:pointer; margin-left:auto;';
-          deleteBtn.addEventListener('click', function () {
+        var _btn = function (label, border, bg, color, onClick) {
+          var b = document.createElement('button');
+          b.textContent = label;
+          b.style.cssText = 'font-size:0.6rem; padding:0.2rem 0.5rem; border:1px solid ' + border + '; background:' + bg + '; color:' + color + '; border-radius:4px; cursor:pointer;';
+          b.addEventListener('click', onClick);
+          return b;
+        };
+        var _editBtn = function () { return _btn('Edit', 'rgba(138,43,226,0.3)', 'rgba(138,43,226,0.05)', '#c084fc', function () { openModal(dir); }); };
+        var _deleteBtn = function () {
+          var b = _btn('🗑 Delete', 'rgba(248,113,113,0.3)', 'rgba(248,113,113,0.05)', '#f87171', function () {
             if (confirm('Permanently delete directive "' + dir.title + '"? This cannot be undone.')) {
               AgentEngine.deleteDirective(dir.id);
               renderDirectives();
             }
           });
+          b.style.marginLeft = 'auto';
+          return b;
+        };
+        var _archiveBtn = function () {
+          return _btn('📦 Archive', 'rgba(156,163,175,0.3)', 'rgba(156,163,175,0.05)', '#9ca3af', function () {
+            AgentEngine.updateDirective(dir.id, { status: 'archived' });
+            renderDirectives();
+          });
+        };
 
-          btnWrap.appendChild(resumeBtn);
-          btnWrap.appendChild(archEditBtn);
-          btnWrap.appendChild(deleteBtn);
+        if (bucket === 'active') {
+          btnWrap.appendChild(_btn('✓ Complete', 'rgba(52,211,153,0.3)', 'rgba(52,211,153,0.05)', '#34d399', function () {
+            AgentEngine.updateDirective(dir.id, { status: 'completed' });
+            renderDirectives();
+          }));
+          btnWrap.appendChild(_btn('⏸ Pause', 'rgba(251,191,36,0.3)', 'rgba(251,191,36,0.05)', '#fbbf24', function () {
+            AgentEngine.updateDirective(dir.id, { status: 'paused' });
+            renderDirectives();
+          }));
+          btnWrap.appendChild(_archiveBtn());
+          btnWrap.appendChild(_editBtn());
+        } else if (bucket === 'paused') {
+          btnWrap.appendChild(_btn('▶ Resume', 'rgba(52,211,153,0.3)', 'rgba(52,211,153,0.05)', '#34d399', function () {
+            AgentEngine.updateDirective(dir.id, { status: 'active' });
+            renderDirectives();
+          }));
+          btnWrap.appendChild(_archiveBtn());
+          btnWrap.appendChild(_editBtn());
+          btnWrap.appendChild(_deleteBtn());
+        } else if (bucket === 'completed') {
+          btnWrap.appendChild(_btn('↻ Reactivate', 'rgba(52,211,153,0.3)', 'rgba(52,211,153,0.05)', '#34d399', function () {
+            AgentEngine.updateDirective(dir.id, { status: 'active' });
+            renderDirectives();
+          }));
+          btnWrap.appendChild(_editBtn());
+          btnWrap.appendChild(_deleteBtn());
+        } else if (bucket === 'pending') {
+          btnWrap.appendChild(_btn('✓ Approve', 'rgba(52,211,153,0.3)', 'rgba(52,211,153,0.05)', '#34d399', function () {
+            AgentEngine.updateDirective(dir.id, { status: 'active' });
+            renderDirectives();
+          }));
+          btnWrap.appendChild(_editBtn());
         }
         card.appendChild(btnWrap);
 
