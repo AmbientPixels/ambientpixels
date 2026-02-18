@@ -51,10 +51,10 @@
       "id": "publish_social_draft",
       "name": "Queue social draft for approval",
       "riskLevel": "medium",
-      "requiresApproval": true,
+      "requiresApproval": false,
       "requiresVerification": false,
       "executor": "social",
-      "enabled": false
+      "enabled": true
     },
     {
       "id": "create_task",
@@ -78,16 +78,43 @@
       "id": "publish_social_live",
       "name": "Publish social post live",
       "riskLevel": "high",
-      "requiresApproval": true,
+      "requiresApproval": false,
       "requiresVerification": false,
       "executor": "social",
-      "enabled": false
+      "enabled": true
+    },
+    {
+      "id": "publish_content",
+      "name": "Publish content or article",
+      "riskLevel": "medium",
+      "requiresApproval": false,
+      "requiresVerification": false,
+      "executor": "content",
+      "enabled": true
+    },
+    {
+      "id": "publish_blog_draft",
+      "name": "Queue blog draft",
+      "riskLevel": "low",
+      "requiresApproval": false,
+      "requiresVerification": false,
+      "executor": "content",
+      "enabled": true
+    },
+    {
+      "id": "git_open_pr",
+      "name": "Open pull request",
+      "riskLevel": "medium",
+      "requiresApproval": false,
+      "requiresVerification": false,
+      "executor": "git",
+      "enabled": true
     },
     {
       "id": "system_adjustment",
       "name": "Apply system adjustment",
       "riskLevel": "medium",
-      "requiresApproval": true,
+      "requiresApproval": false,
       "requiresVerification": false,
       "executor": "system",
       "enabled": true

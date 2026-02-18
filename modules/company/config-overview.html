@@ -252,6 +252,9 @@
     .cfg-action-sub-toggle { font-size: 0.6rem; padding: 0.15rem 0.5rem; border-radius: 4px; cursor: pointer; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.03); color: inherit; font-family: inherit; }
     .cfg-action-sub-toggle.on { border-color: rgba(52,211,153,0.3); color: #34d399; }
     .cfg-action-sub-toggle.off { border-color: rgba(239,68,68,0.2); color: #ef4444; }
+    .cfg-autonomy-group-title { font-size: 0.55rem; opacity: 0.35; text-transform: uppercase; letter-spacing: 0.06em; margin: 0.6rem 0 0.3rem 0; }
+    .cfg-autonomy-group-title:first-child { margin-top: 0; }
+    .cfg-action-sub-mode { font-size: 0.5rem; opacity: 0.4; margin-left: auto; }
     .cfg-action-counts { margin-top: 0.6rem; font-size: 0.62rem; opacity: 0.35; }
     .cfg-action-audit { margin-top: 0.8rem; border-top: 1px solid rgba(255,255,255,0.04); padding-top: 0.6rem; }
     .cfg-action-audit-title { font-size: 0.6rem; opacity: 0.3; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.4rem; }
@@ -580,9 +583,9 @@
       </div>
     </div>
 
-    <!-- Action Automation -->
-    <div class="ov-section-title">Action Automation</div>
-    <div style="font-size:0.55rem; opacity:0.3; margin:-0.3rem 0 0.4rem 0;">Controls whether approved actions run automatically</div>
+    <!-- Autonomy Controls -->
+    <div class="ov-section-title">Autonomy Controls</div>
+    <div style="font-size:0.55rem; opacity:0.3; margin:-0.3rem 0 0.4rem 0;">How much freedom agents have per channel. OFF = CEO approval required. ON = agents act autonomously.</div>
     <div class="cfg-action-panel" id="cfg-action-panel">
       <div class="cfg-action-title"><i class="fas fa-bolt" style="opacity:0.5;"></i> Action Router</div>
       <div class="cfg-action-status">
@@ -592,27 +595,43 @@
       <div class="cfg-action-helper" id="cfg-action-helper"></div>
       <button class="cfg-action-toggle" id="cfg-action-toggle"></button>
       <div class="cfg-action-subs">
+        <div class="cfg-autonomy-group-title">Internal</div>
         <div class="cfg-action-sub-row">
           <span class="cfg-action-sub-label">Tasks</span>
           <button class="cfg-action-sub-toggle" id="cfg-action-sub-task"></button>
+          <span class="cfg-action-sub-mode" id="cfg-mode-task"></span>
         </div>
         <div class="cfg-action-sub-row">
-          <span class="cfg-action-sub-label">Social</span>
-          <button class="cfg-action-sub-toggle" id="cfg-action-sub-social"></button>
-        </div>
-        <div class="cfg-action-sub-row">
-          <span class="cfg-action-sub-label">Email</span>
-          <button class="cfg-action-sub-toggle" id="cfg-action-sub-email"></button>
-        </div>
-        <div class="cfg-action-sub-row">
-          <span class="cfg-action-sub-label">Config Changes</span>
+          <span class="cfg-action-sub-label">Config</span>
           <button class="cfg-action-sub-toggle" id="cfg-configchg-toggle"></button>
+          <span class="cfg-action-sub-mode" id="cfg-mode-config"></span>
         </div>
         <div id="cfg-configchg-info" style="font-size:0.55rem;opacity:0.3;padding:0.2rem 0 0 0.2rem;"></div>
         <div id="cfg-revert-panel" style="margin-top:0.4rem;padding:0.3rem 0.2rem 0 0.2rem;border-top:1px solid rgba(255,255,255,0.03);">
           <div id="cfg-revert-backup-info" style="font-size:0.52rem;opacity:0.25;margin-bottom:0.3rem;"></div>
           <button id="cfg-revert-btn" class="cfg-action-sub-toggle off" style="font-size:0.55rem;padding:0.25rem 0.6rem;cursor:pointer;">Revert Last Adjustment</button>
           <div id="cfg-revert-status" style="font-size:0.5rem;opacity:0.3;margin-top:0.2rem;"></div>
+        </div>
+        <div class="cfg-autonomy-group-title">External</div>
+        <div class="cfg-action-sub-row">
+          <span class="cfg-action-sub-label">Social</span>
+          <button class="cfg-action-sub-toggle" id="cfg-action-sub-social"></button>
+          <span class="cfg-action-sub-mode" id="cfg-mode-social"></span>
+        </div>
+        <div class="cfg-action-sub-row">
+          <span class="cfg-action-sub-label">Content</span>
+          <button class="cfg-action-sub-toggle" id="cfg-action-sub-content"></button>
+          <span class="cfg-action-sub-mode" id="cfg-mode-content"></span>
+        </div>
+        <div class="cfg-action-sub-row">
+          <span class="cfg-action-sub-label">Email</span>
+          <button class="cfg-action-sub-toggle" id="cfg-action-sub-email"></button>
+          <span class="cfg-action-sub-mode" id="cfg-mode-email"></span>
+        </div>
+        <div class="cfg-action-sub-row">
+          <span class="cfg-action-sub-label">Git</span>
+          <button class="cfg-action-sub-toggle" id="cfg-action-sub-git"></button>
+          <span class="cfg-action-sub-mode" id="cfg-mode-git"></span>
         </div>
       </div>
       <div class="cfg-action-counts" id="cfg-action-counts"></div>
@@ -1179,7 +1198,7 @@
   </script>
 
   <script>
-  // Action Automation panel
+  // Autonomy Controls panel
   (function () {
     var dot = document.getElementById('cfg-action-dot');
     var stateEl = document.getElementById('cfg-action-state');
@@ -1189,7 +1208,9 @@
     var auditFeed = document.getElementById('cfg-action-audit-feed');
     var subTask = document.getElementById('cfg-action-sub-task');
     var subSocial = document.getElementById('cfg-action-sub-social');
+    var subContent = document.getElementById('cfg-action-sub-content');
     var subEmail = document.getElementById('cfg-action-sub-email');
+    var subGit = document.getElementById('cfg-action-sub-git');
     var subConfigChg = document.getElementById('cfg-configchg-toggle');
     var configChgInfo = document.getElementById('cfg-configchg-info');
     var revertBackupInfo = document.getElementById('cfg-revert-backup-info');
@@ -1210,16 +1231,18 @@
       stateEl.textContent = enabled ? 'Enabled' : 'Disabled (safe default)';
       stateEl.style.color = enabled ? '#34d399' : '#ef4444';
       helperEl.textContent = enabled
-        ? 'Low-risk actions execute automatically. Medium/high require approval.'
-        : 'Action execution is paused. Proposals still queue for approval.';
+        ? 'Action pipeline active. Channel toggles control autonomy level.'
+        : 'Action pipeline paused. All actions queue for CEO approval.';
       toggleBtn.textContent = enabled ? '\u23F8 Disable Actions' : '\u25B6 Enable Actions';
       toggleBtn.className = 'cfg-action-toggle ' + (enabled ? 'cfg-action-toggle--disable' : 'cfg-action-toggle--enable');
 
-      // Sub toggles
-      renderSub(subTask, ActionRouter.isTaskEnabled(), 'task');
-      renderSub(subSocial, ActionRouter.isSocialEnabled(), 'social');
-      renderSub(subEmail, ActionRouter.isEmailEnabled(), 'email');
-      renderSub(subConfigChg, ActionRouter.isConfigChangesEnabled(), 'configChanges');
+      // Channel toggles with mode labels
+      renderSub(subTask, ActionRouter.isTaskEnabled(), 'task', 'cfg-mode-task');
+      renderSub(subConfigChg, ActionRouter.isConfigChangesEnabled(), 'configChanges', 'cfg-mode-config');
+      renderSub(subSocial, ActionRouter.isSocialEnabled(), 'social', 'cfg-mode-social');
+      renderSub(subContent, ActionRouter.isContentEnabled(), 'content', 'cfg-mode-content');
+      renderSub(subEmail, ActionRouter.isEmailEnabled(), 'email', 'cfg-mode-email');
+      renderSub(subGit, ActionRouter.isGitEnabled(), 'git', 'cfg-mode-git');
       renderConfigChgInfo();
       renderRevertPanel();
 
@@ -1230,14 +1253,19 @@
       renderAudit();
     }
 
-    function renderSub(btn, on, type) {
+    function renderSub(btn, on, type, modeId) {
       if (!btn) return;
       btn.textContent = on ? 'ON' : 'OFF';
       btn.className = 'cfg-action-sub-toggle ' + (on ? 'on' : 'off');
+      // Mode label
+      var modeEl = modeId ? document.getElementById(modeId) : null;
+      if (modeEl) modeEl.textContent = on ? 'Autonomous' : 'CEO Approval';
       btn.onclick = function () {
         if (type === 'task') ActionRouter.setTaskEnabled(!on);
         else if (type === 'social') ActionRouter.setSocialEnabled(!on);
+        else if (type === 'content') ActionRouter.setContentEnabled(!on);
         else if (type === 'email') ActionRouter.setEmailEnabled(!on);
+        else if (type === 'git') ActionRouter.setGitEnabled(!on);
         else if (type === 'configChanges') ActionRouter.setConfigChangesEnabled(!on, 'CEO');
         render();
       };

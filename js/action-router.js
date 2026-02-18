@@ -1,6 +1,7 @@
 // action-router.js — Action Router v1: Governed Execution Layer
 // Depends on: ActionAudit, ActionQueue, ActionExecutors, TaskVerifier (optional)
 // Safe-by-default: actionsEnabled defaults to FALSE.
+// Autonomy Controls: channel ON = autonomous, channel OFF = CEO approval required.
 
 var ActionRouter = (function () {
   'use strict';
@@ -10,12 +11,14 @@ var ActionRouter = (function () {
     global: 'ap_actions_enabled',
     task: 'ap_actions_task_enabled',
     social: 'ap_actions_social_enabled',
+    content: 'ap_actions_content_enabled',
     email: 'ap_actions_email_enabled',
+    git: 'ap_actions_git_enabled',
     configChanges: 'ap_config_changes_enabled'
   };
 
-  // ── Defaults (SAFE) ──
-  var DEFAULTS = { global: false, task: true, social: false, email: false, configChanges: false };
+  // ── Defaults (SAFE — all external channels OFF = CEO approval) ──
+  var DEFAULTS = { global: false, task: true, social: false, content: false, email: false, git: false, configChanges: false };
 
   // ── Execution caps ──
   var MAX_PER_CYCLE = 5;
@@ -47,7 +50,9 @@ var ActionRouter = (function () {
   function isEnabled() { return _getSetting(KEYS.global, DEFAULTS.global); }
   function isTaskEnabled() { return _getSetting(KEYS.task, DEFAULTS.task); }
   function isSocialEnabled() { return _getSetting(KEYS.social, DEFAULTS.social); }
+  function isContentEnabled() { return _getSetting(KEYS.content, DEFAULTS.content); }
   function isEmailEnabled() { return _getSetting(KEYS.email, DEFAULTS.email); }
+  function isGitEnabled() { return _getSetting(KEYS.git, DEFAULTS.git); }
   function isConfigChangesEnabled() { return _getSetting(KEYS.configChanges, DEFAULTS.configChanges); }
 
   function setEnabled(val, source) {
@@ -67,7 +72,9 @@ var ActionRouter = (function () {
 
   function setTaskEnabled(val) { _setSetting(KEYS.task, val); }
   function setSocialEnabled(val) { _setSetting(KEYS.social, val); }
+  function setContentEnabled(val) { _setSetting(KEYS.content, val); }
   function setEmailEnabled(val) { _setSetting(KEYS.email, val); }
+  function setGitEnabled(val) { _setSetting(KEYS.git, val); }
 
   function setConfigChangesEnabled(val, source) {
     var prev = isConfigChangesEnabled();
@@ -90,7 +97,9 @@ var ActionRouter = (function () {
     switch (executorType) {
       case 'task': return isTaskEnabled();
       case 'social': return isSocialEnabled();
+      case 'content': return isContentEnabled();
       case 'email': return isEmailEnabled();
+      case 'git': return isGitEnabled();
       case 'system': return isConfigChangesEnabled();
       default: return false;
     }
@@ -191,14 +200,14 @@ var ActionRouter = (function () {
       }
     }
 
-    // Determine initial status
-    if (def.requiresApproval) {
-      queueItem.requiresApproval = true;
-    } else if (isEnabled() && _isToolEnabled(def.executor)) {
-      queueItem.requiresApproval = false; // → approved_ready
+    // Autonomy Controls: channel ON = autonomous, channel OFF = CEO approval
+    // When channel is ON, use the registry's requiresApproval setting.
+    // When channel is OFF, force CEO approval regardless of registry.
+    var channelAutonomous = isEnabled() && _isToolEnabled(def.executor);
+    if (channelAutonomous && !def.requiresApproval) {
+      queueItem.requiresApproval = false; // → autonomous execution
     } else {
-      // Actions disabled globally or tool disabled: still queue as pending_approval
-      queueItem.requiresApproval = true;
+      queueItem.requiresApproval = true;  // → CEO approval queue
     }
 
     var enqueued = ActionQueue.enqueue(queueItem);
@@ -397,15 +406,19 @@ var ActionRouter = (function () {
   function getBlockedCount() { return ActionQueue.countByStatus('blocked'); }
 
   return {
-    // Kill switches
+    // Autonomy Controls
     isEnabled: isEnabled,
     setEnabled: setEnabled,
     isTaskEnabled: isTaskEnabled,
     setTaskEnabled: setTaskEnabled,
     isSocialEnabled: isSocialEnabled,
     setSocialEnabled: setSocialEnabled,
+    isContentEnabled: isContentEnabled,
+    setContentEnabled: setContentEnabled,
     isEmailEnabled: isEmailEnabled,
     setEmailEnabled: setEmailEnabled,
+    isGitEnabled: isGitEnabled,
+    setGitEnabled: setGitEnabled,
     isConfigChangesEnabled: isConfigChangesEnabled,
     setConfigChangesEnabled: setConfigChangesEnabled,
     // Registry
