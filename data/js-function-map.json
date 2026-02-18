@@ -1,5 +1,5 @@
 {
-  "scannedAt": "2026-02-17T14:07:16.918Z",
+  "scannedAt": "2026-02-18T14:07:38.224Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -87,6 +87,9 @@
       "deriveTrigger",
       "deriveInfluences",
       "generateMoodScan"
+    ],
+    "prefillAgentMemories.js": [
+      "prefill"
     ],
     "scanSiteStructure.js": [
       "scanDirectory",

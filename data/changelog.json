@@ -1,10 +1,10 @@
 {
-  "updated": "2026-02-17T14:07:12.573Z",
+  "updated": "2026-02-18T14:07:35.104Z",
   "entries": [
     {
-      "hash": "25ac16a",
-      "date": "2026-02-16 23:00:22 -0800",
-      "message": "fix: update LinkedIn API version from retired 202301 to 202402"
+      "hash": "2b83813",
+      "date": "2026-02-17 22:24:35 -0800",
+      "message": "fix: LinkedIn round 5 — try 3 APIs in order: /rest/posts, /v2/ugcPosts, /v2/shares with auto-fallback"
     }
   ]
 }

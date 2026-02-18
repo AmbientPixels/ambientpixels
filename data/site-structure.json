@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2026-02-17T14:07:12.439Z",
+  "updated": "2026-02-18T14:07:34.955Z",
   "root": [
     {
       "type": "folder",
@@ -914,6 +914,11 @@
               "path": "modules/company/config-overview.html"
             },
             {
+              "type": "page",
+              "name": "cost-overview.html",
+              "path": "modules/company/cost-overview.html"
+            },
+            {
               "type": "folder",
               "name": "css",
               "path": "modules/company/css",
@@ -954,6 +959,11 @@
               "type": "page",
               "name": "meetings.html",
               "path": "modules/company/meetings.html"
+            },
+            {
+              "type": "page",
+              "name": "memories.html",
+              "path": "modules/company/memories.html"
             },
             {
               "type": "page",

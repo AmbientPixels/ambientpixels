@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "179ba212-866a-485d-93f4-1a526589ca59",
-      "hash": "25ac16a9525834410b277079513903f135bee503",
-      "message": "fix: update LinkedIn API version from retired 202301 to 202402",
-      "timestamp": "2026-02-16 23:00:22 -0800",
+      "id": "659133a1-6a4c-4dfb-9a05-4b9ad82cee39",
+      "hash": "2b83813867f6ae15ff7fde517788c07690a1eaf1",
+      "message": "fix: LinkedIn round 5 — try 3 APIs in order: /rest/posts, /v2/ugcPosts, /v2/shares with auto-fallback",
+      "timestamp": "2026-02-17 22:24:35 -0800",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/25ac16a9525834410b277079513903f135bee503"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/2b83813867f6ae15ff7fde517788c07690a1eaf1"
     }
   ],
-  "timestamp": "2026-02-17T14:07:15.062Z",
+  "timestamp": "2026-02-18T14:07:36.360Z",
   "count": 1,
-  "scanId": 1771337235062
+  "scanId": 1771423656360
 }
