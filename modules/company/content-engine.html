@@ -157,6 +157,14 @@
   <script>
     var _briefId = null;
     var _packageId = null;
+    var API_BASE = 'https://ambientpixels-nova-api.azurewebsites.net';
+
+    // Safe JSON parse — avoids crash on empty/non-JSON responses
+    async function _safeJson(res) {
+      var text = await res.text();
+      if (!text) return { _empty: true, _status: res.status };
+      try { return JSON.parse(text); } catch (e) { return { error: 'HTTP ' + res.status + ': ' + text.substring(0, 200), _status: res.status }; }
+    }
 
     // Preset descriptions
     var PRESET_DESC = {
@@ -225,7 +233,7 @@
       _addLog('Creating brief: ' + topic);
 
       try {
-        var res = await fetch('/api/content-brief', {
+        var res = await fetch(API_BASE + '/api/content-brief', {
           method: 'POST',
           headers: _getAuthHeaders(),
           body: JSON.stringify({
@@ -238,10 +246,10 @@
           })
         });
 
-        var data = await res.json();
+        var data = await _safeJson(res);
         if (!res.ok || !data.ok) {
-          _setStatus('Failed: ' + (data.error || 'Unknown error'), 'error');
-          _addLog('ERROR: ' + (data.error || res.status));
+          _setStatus('Failed (HTTP ' + res.status + '): ' + (data.error || 'Unknown error'), 'error');
+          _addLog('ERROR: HTTP ' + res.status + ' — ' + (data.error || JSON.stringify(data).substring(0, 200)));
           createBtn.disabled = false;
           return;
         }
@@ -271,16 +279,16 @@
       _addLog('Starting generation for brief: ' + _briefId);
 
       try {
-        var res = await fetch('/api/content-generate', {
+        var res = await fetch(API_BASE + '/api/content-generate', {
           method: 'POST',
           headers: _getAuthHeaders(),
           body: JSON.stringify({ briefId: _briefId })
         });
 
-        var data = await res.json();
+        var data = await _safeJson(res);
         if (!res.ok || !data.ok) {
-          _setStatus('Generation failed: ' + (data.error || 'Unknown error'), 'error');
-          _addLog('ERROR: ' + (data.error || res.status));
+          _setStatus('Generation failed (HTTP ' + res.status + '): ' + (data.error || 'Unknown error'), 'error');
+          _addLog('ERROR: HTTP ' + res.status + ' — ' + (data.error || JSON.stringify(data).substring(0, 200)));
           if (data.details) {
             data.details.forEach(function (d) { _addLog('  ' + d.outputType + ': ' + d.error); });
           }
