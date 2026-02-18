@@ -353,6 +353,43 @@
     .cfg-store-btn:disabled { opacity: 0.3; cursor: default; }
     .cfg-store-toast { font-size: 0.58rem; opacity: 0.5; margin-top: 0.3rem; min-height: 1rem; }
 
+    /* Agent Memory Stack */
+    .cfg-memstack {
+      background: rgba(168,85,247,0.03);
+      border: 1px solid rgba(168,85,247,0.12);
+      border-radius: 10px; padding: 1rem 1.2rem;
+      margin-bottom: 1.4rem;
+    }
+    .cfg-memstack-title { font-size: 0.7rem; font-weight: 600; color: #a855f7; margin-bottom: 0.15rem; display: flex; align-items: center; gap: 0.4rem; }
+    .cfg-memstack-order { font-size: 0.5rem; opacity: 0.2; margin-bottom: 0.6rem; }
+    .cfg-memstack-layer {
+      display: flex; align-items: center; gap: 0.5rem;
+      padding: 0.4rem 0; border-bottom: 1px solid rgba(255,255,255,0.03);
+      font-size: 0.72rem;
+    }
+    .cfg-memstack-layer:last-child { border-bottom: none; }
+    .cfg-memstack-num { font-size: 0.5rem; opacity: 0.2; min-width: 16px; font-family: 'Courier New', monospace; }
+    .cfg-memstack-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .cfg-memstack-dot--ok { background: #34d399; box-shadow: 0 0 4px rgba(52,211,153,0.3); }
+    .cfg-memstack-dot--warn { background: #fbbf24; box-shadow: 0 0 4px rgba(251,191,36,0.3); }
+    .cfg-memstack-dot--err { background: #ef4444; box-shadow: 0 0 4px rgba(239,68,68,0.3); }
+    .cfg-memstack-dot--loading { background: #6b7280; }
+    .cfg-memstack-label { font-weight: 500; min-width: 130px; }
+    .cfg-memstack-tag { font-size: 0.45rem; padding: 1px 5px; border-radius: 3px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; margin-left: 2px; }
+    .cfg-memstack-tag--static { background: rgba(96,165,250,0.1); color: #60a5fa; }
+    .cfg-memstack-tag--blob { background: rgba(168,85,247,0.1); color: #a855f7; }
+    .cfg-memstack-tag--file { background: rgba(78,205,196,0.1); color: #4ECDC4; }
+    .cfg-memstack-value { font-size: 0.62rem; opacity: 0.45; font-family: 'Courier New', monospace; flex: 1; text-align: right; }
+    .cfg-memstack-edit { font-size: 0.55rem; color: #a855f7; text-decoration: none; opacity: 0.5; margin-left: 0.4rem; white-space: nowrap; }
+    .cfg-memstack-edit:hover { opacity: 1; text-decoration: underline; }
+    .cfg-memstack-expand { font-size: 0.55rem; color: rgba(255,255,255,0.25); background: none; border: none; cursor: pointer; padding: 0 0.3rem; font-family: inherit; }
+    .cfg-memstack-expand:hover { color: rgba(255,255,255,0.5); }
+    .cfg-memstack-detail { padding: 0.25rem 0 0.2rem 1.8rem; font-size: 0.58rem; opacity: 0.35; display: none; }
+    .cfg-memstack-detail.open { display: block; }
+    .cfg-memstack-detail-row { padding: 0.1rem 0; display: flex; gap: 0.4rem; }
+    .cfg-memstack-detail-agent { min-width: 60px; font-weight: 500; }
+    .cfg-memstack-detail-count { font-family: 'Courier New', monospace; }
+
     @media (prefers-reduced-motion: reduce) {
       .cfg-status-dot { animation: none; opacity: 1; }
     }
@@ -389,13 +426,6 @@
       <div class="cfg-check-row">
         <div class="cfg-check-label">
           <span class="cfg-check-icon cfg-check-icon--ok"><i class="fas fa-check"></i></span>
-          <span>Memory Active</span>
-        </div>
-        <span class="cfg-check-value" id="stat-memory">—</span>
-      </div>
-      <div class="cfg-check-row">
-        <div class="cfg-check-label">
-          <span class="cfg-check-icon cfg-check-icon--ok"><i class="fas fa-check"></i></span>
           <span>Store Mode</span>
         </div>
         <span class="cfg-check-value" id="stat-store">—</span>
@@ -406,6 +436,67 @@
           <span>Tools Registry</span>
         </div>
         <span class="cfg-check-value" id="stat-tools">—</span>
+      </div>
+    </div>
+
+    <!-- Agent Memory Stack -->
+    <div class="ov-section-title">Agent Memory Stack</div>
+    <div style="font-size:0.55rem; opacity:0.3; margin:-0.3rem 0 0.4rem 0;">Knowledge layers injected into every heartbeat prompt</div>
+    <div class="cfg-memstack" id="cfg-memstack">
+      <div class="cfg-memstack-title"><i class="fas fa-layer-group" style="opacity:0.5;"></i> Prompt Injection Order</div>
+      <div class="cfg-memstack-order">L1 → L2 → L3 → L4 → L5 → L6 &mdash; each layer adds context to every agent cycle</div>
+
+      <div class="cfg-memstack-layer" id="ms-layer-1">
+        <span class="cfg-memstack-num">L1</span>
+        <div class="cfg-memstack-dot cfg-memstack-dot--loading"></div>
+        <span class="cfg-memstack-label">Personality</span>
+        <span class="cfg-memstack-tag cfg-memstack-tag--static">static</span>
+        <span class="cfg-memstack-value" id="ms-val-1">loading…</span>
+      </div>
+
+      <div class="cfg-memstack-layer" id="ms-layer-2">
+        <span class="cfg-memstack-num">L2</span>
+        <div class="cfg-memstack-dot cfg-memstack-dot--loading"></div>
+        <span class="cfg-memstack-label">Operating Doctrine</span>
+        <span class="cfg-memstack-tag cfg-memstack-tag--static">static</span>
+        <span class="cfg-memstack-value" id="ms-val-2">loading…</span>
+      </div>
+
+      <div class="cfg-memstack-layer" id="ms-layer-3">
+        <span class="cfg-memstack-num">L3</span>
+        <div class="cfg-memstack-dot cfg-memstack-dot--loading"></div>
+        <span class="cfg-memstack-label">Seed Memories</span>
+        <span class="cfg-memstack-tag cfg-memstack-tag--blob">blob</span>
+        <span class="cfg-memstack-value" id="ms-val-3">loading…</span>
+        <a href="/modules/company/memories.html" class="cfg-memstack-edit">Edit →</a>
+      </div>
+      <div class="cfg-memstack-detail" id="ms-detail-3"></div>
+
+      <div class="cfg-memstack-layer" id="ms-layer-4">
+        <span class="cfg-memstack-num">L4</span>
+        <div class="cfg-memstack-dot cfg-memstack-dot--loading"></div>
+        <span class="cfg-memstack-label">Runtime Memories</span>
+        <span class="cfg-memstack-tag cfg-memstack-tag--blob">blob</span>
+        <span class="cfg-memstack-value" id="ms-val-4">loading…</span>
+        <button class="cfg-memstack-expand" id="ms-expand-4" title="Show per-agent breakdown"><i class="fas fa-chevron-down"></i></button>
+      </div>
+      <div class="cfg-memstack-detail" id="ms-detail-4"></div>
+
+      <div class="cfg-memstack-layer" id="ms-layer-5">
+        <span class="cfg-memstack-num">L5</span>
+        <div class="cfg-memstack-dot cfg-memstack-dot--loading"></div>
+        <span class="cfg-memstack-label">CEO Notes</span>
+        <span class="cfg-memstack-tag cfg-memstack-tag--blob">blob</span>
+        <span class="cfg-memstack-value" id="ms-val-5">loading…</span>
+        <a href="/modules/company/workspace.html" class="cfg-memstack-edit">Edit →</a>
+      </div>
+
+      <div class="cfg-memstack-layer" id="ms-layer-6">
+        <span class="cfg-memstack-num">L6</span>
+        <div class="cfg-memstack-dot cfg-memstack-dot--loading"></div>
+        <span class="cfg-memstack-label">Site Digest</span>
+        <span class="cfg-memstack-tag cfg-memstack-tag--file">file</span>
+        <span class="cfg-memstack-value" id="ms-val-6">loading…</span>
       </div>
     </div>
 
@@ -672,17 +763,13 @@
       _cfgSetStatus('stat-store', mode || 'unknown', mode ? 'ok' : 'warn');
 
       return Promise.all([
-        CompanyStore.getState('ap_workspace_memory', []),
         CompanyStore.getState('ap_workspace_tools', [])
       ]);
     }).then(function (results) {
-      var memories = results[0] || [];
-      var tools = results[1] || [];
-      _cfgSetStatus('stat-memory', memories.length + ' items', memories.length > 0 ? 'ok' : 'warn');
+      var tools = results[0] || [];
       _cfgSetStatus('stat-tools', tools.length + ' registered', tools.length > 0 ? 'ok' : 'warn');
     }).catch(function () {
       _cfgSetStatus('stat-store', '\u26A0 Store unavailable', 'err');
-      _cfgSetStatus('stat-memory', '\u26A0 Unable to read', 'err');
       _cfgSetStatus('stat-tools', '\u26A0 Unable to read', 'err');
     });
 
@@ -1422,6 +1509,153 @@
     });
 
     updateLabel();
+  })();
+  </script>
+
+  <script>
+  // Agent Memory Stack panel
+  (function () {
+    function setLayer(n, text, level) {
+      var val = document.getElementById('ms-val-' + n);
+      var layer = document.getElementById('ms-layer-' + n);
+      if (val) {
+        val.textContent = text;
+      }
+      if (layer) {
+        var dot = layer.querySelector('.cfg-memstack-dot');
+        if (dot) dot.className = 'cfg-memstack-dot cfg-memstack-dot--' + (level || 'ok');
+      }
+    }
+
+    // L1 Personality + L2 Doctrine — from company-agents.json (already fetched by agent grid)
+    fetch('/data/company-agents.json')
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
+      .then(function (data) {
+        var agents = Array.isArray(data) ? data : (data && Array.isArray(data.agents) ? data.agents : []);
+        var withPrompt = 0, withDoctrine = 0;
+        for (var i = 0; i < agents.length; i++) {
+          if (agents[i].systemPrompt) withPrompt++;
+          if (agents[i].operatingDoctrine) withDoctrine++;
+        }
+        setLayer(1, withPrompt + '/' + agents.length + ' agents', withPrompt === agents.length ? 'ok' : 'warn');
+        setLayer(2, withDoctrine + '/' + agents.length + ' agents', withDoctrine > 0 ? 'ok' : 'warn');
+      })
+      .catch(function () {
+        setLayer(1, '\u26A0 unavailable', 'err');
+        setLayer(2, '\u26A0 unavailable', 'err');
+      });
+
+    // L3 Seed Memories — from blob
+    CompanyStore.getState('ap_agent_seed_memories', {}).then(function (seeds) {
+      if (!seeds || typeof seeds !== 'object') seeds = {};
+      var globalLen = (seeds._global || '').trim().length;
+      var agentCount = 0;
+      var agentNames = [];
+      var keys = Object.keys(seeds);
+      for (var i = 0; i < keys.length; i++) {
+        if (keys[i] === '_global') continue;
+        if ((seeds[keys[i]] || '').trim().length > 0) {
+          agentCount++;
+          agentNames.push(keys[i]);
+        }
+      }
+      var parts = [];
+      if (globalLen > 0) parts.push('global');
+      if (agentCount > 0) parts.push(agentCount + ' agents');
+      var text = parts.length > 0 ? parts.join(' + ') : 'empty';
+      setLayer(3, text, parts.length > 0 ? 'ok' : 'warn');
+
+      // Detail
+      var detail = document.getElementById('ms-detail-3');
+      if (detail && (globalLen > 0 || agentCount > 0)) {
+        var html = '';
+        if (globalLen > 0) html += '<div class="cfg-memstack-detail-row"><span class="cfg-memstack-detail-agent">_global</span><span class="cfg-memstack-detail-count">' + globalLen + ' chars</span></div>';
+        for (var j = 0; j < agentNames.length; j++) {
+          html += '<div class="cfg-memstack-detail-row"><span class="cfg-memstack-detail-agent">' + agentNames[j] + '</span><span class="cfg-memstack-detail-count">' + (seeds[agentNames[j]] || '').trim().length + ' chars</span></div>';
+        }
+        detail.innerHTML = html;
+        // Make layer clickable to expand
+        var layer3 = document.getElementById('ms-layer-3');
+        if (layer3) {
+          layer3.style.cursor = 'pointer';
+          layer3.addEventListener('click', function (e) {
+            if (e.target.closest('.cfg-memstack-edit')) return;
+            detail.classList.toggle('open');
+          });
+        }
+      }
+    }).catch(function () {
+      setLayer(3, '\u26A0 unavailable', 'err');
+    });
+
+    // L4 Runtime Memories — from blob
+    CompanyStore.getState('ap_agent_memories', {}).then(function (mems) {
+      if (!mems || typeof mems !== 'object') mems = {};
+      var total = 0;
+      var agentBreakdown = [];
+      var keys = Object.keys(mems);
+      for (var i = 0; i < keys.length; i++) {
+        var arr = mems[keys[i]];
+        if (Array.isArray(arr) && arr.length > 0) {
+          total += arr.length;
+          agentBreakdown.push({ name: keys[i], count: arr.length });
+        }
+      }
+      var text = total > 0 ? total + ' total (' + agentBreakdown.length + ' agents)' : 'empty';
+      setLayer(4, text, total > 0 ? 'ok' : 'warn');
+
+      // Detail
+      var detail = document.getElementById('ms-detail-4');
+      if (detail && agentBreakdown.length > 0) {
+        agentBreakdown.sort(function (a, b) { return b.count - a.count; });
+        detail.innerHTML = agentBreakdown.map(function (ab) {
+          return '<div class="cfg-memstack-detail-row"><span class="cfg-memstack-detail-agent">' + ab.name + '</span><span class="cfg-memstack-detail-count">' + ab.count + ' memories</span></div>';
+        }).join('');
+      }
+    }).catch(function () {
+      setLayer(4, '\u26A0 unavailable', 'err');
+    });
+
+    // L4 expand toggle
+    var expandBtn = document.getElementById('ms-expand-4');
+    var detail4 = document.getElementById('ms-detail-4');
+    if (expandBtn && detail4) {
+      expandBtn.addEventListener('click', function () {
+        detail4.classList.toggle('open');
+        var icon = expandBtn.querySelector('i');
+        if (icon) icon.className = detail4.classList.contains('open') ? 'fas fa-chevron-up' : 'fas fa-chevron-down';
+      });
+    }
+
+    // L5 CEO Notes — from blob
+    CompanyStore.getState('ap_workspace_memory', []).then(function (notes) {
+      if (!Array.isArray(notes)) notes = [];
+      var pinned = 0;
+      for (var i = 0; i < notes.length; i++) {
+        if (notes[i].pinned) pinned++;
+      }
+      var text = notes.length > 0 ? notes.length + ' items' + (pinned > 0 ? ' (' + pinned + ' pinned)' : '') : 'empty';
+      setLayer(5, text, notes.length > 0 ? 'ok' : 'warn');
+    }).catch(function () {
+      setLayer(5, '\u26A0 unavailable', 'err');
+    });
+
+    // L6 Site Digest — from generated file
+    fetch('/data/site-manifest.digest.json')
+      .then(function (r) { return r.ok ? r.json() : Promise.reject(); })
+      .then(function (d) {
+        if (d && d.generatedAt) {
+          var ago = Math.round((Date.now() - new Date(d.generatedAt).getTime()) / 3600000);
+          var text = ago < 1 ? 'generated <1h ago' : 'generated ' + ago + 'h ago';
+          if (d.counts && d.counts.pages) text += ' \u00B7 ' + d.counts.pages + ' pages';
+          setLayer(6, text, ago < 168 ? 'ok' : 'warn');
+        } else {
+          setLayer(6, 'empty', 'warn');
+        }
+      })
+      .catch(function () {
+        setLayer(6, 'not generated', 'warn');
+      });
   })();
   </script>
 
