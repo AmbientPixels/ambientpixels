@@ -185,6 +185,8 @@ module.exports = async function (context) {
     const revisionActions = allActions.filter(a => a.approval && a.approval.status === 'revision_requested');
     // Load persistent agent memories
     _agentMemoryStore = (await storage.getState('agentMemories')) || {};
+    // Load CEO-curated seed memories (markdown per agent + global)
+    const _seedMemories = (await storage.getState('agentSeedMemories')) || {};
     // Fetch cost data for Cipher (CFO) awareness
     let costIntel = null;
     try {
@@ -350,7 +352,7 @@ module.exports = async function (context) {
           activeDirectives, activeObjectives, documents,
           workspaceMemory, workspaceDates, revisionActions,
           agentId === 'cipher' ? costIntel : null,
-          _reviewCooldownIds
+          _reviewCooldownIds, _seedMemories
         );
         geminiCalls += result.geminiCalls;
         agentActions[agentId] = result.actions;
@@ -523,7 +525,7 @@ module.exports = async function (context) {
 };
 
 // ── Run a single agent's heartbeat ──
-async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds) {
+async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories) {
   const result = { geminiCalls: 0, actions: 0, taskUpdates: [] };
   const agent = AGENT_ROLES[agentId];
   if (!agent) return result;
@@ -545,7 +547,7 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
   // Only show this agent their own revision-requested actions
   const agentRevisions = (revisionActions || []).filter(a => a.created_by === agentId || a.origin_agent === agentId);
 
-  const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds);
+  const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories);
 
   // Call Gemini
   const response = await callGemini(prompt, agentId);
@@ -1743,7 +1745,7 @@ function buildSiteContextBlock() {
 }
 
 // ── Build heartbeat prompt ──
-function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds) {
+function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories) {
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
   documents = documents || [];
@@ -2019,6 +2021,17 @@ You must remain within your assigned authority tier. Doctrine influences your st
   const personality = _agentPersonalities[agent.name.toLowerCase()] || '';
   const personalityBlock = personality ? '\nPERSONALITY: ' + personality + '\n' : '';
 
+  // Inject CEO-curated seed memories (global + per-agent)
+  seedMemories = seedMemories || {};
+  const globalSeed = (seedMemories._global || '').substring(0, 2000);
+  const agentSeed = (seedMemories[agent.name.toLowerCase()] || '').substring(0, 1500);
+  let seedBlock = '';
+  if (globalSeed || agentSeed) {
+    seedBlock = '\nCEO KNOWLEDGE BASE (curated by the CEO — always follow these instructions and context):\n';
+    if (globalSeed) seedBlock += globalSeed + '\n';
+    if (agentSeed) seedBlock += '\n--- Your specific knowledge ---\n' + agentSeed + '\n';
+  }
+
   // Inject agent memory (persistent across heartbeat cycles)
   const agentMem = (_agentMemoryStore[agent.name.toLowerCase()] || []).slice(-10);
   let memoryBlock = '';
@@ -2030,7 +2043,7 @@ You must remain within your assigned authority tier. Doctrine influences your st
   }
 
   return `You are ${agent.name}, ${agent.role} at AmbientPixels. Your focus: ${agent.focus}.
-${personalityBlock}${doctrineBlock}${memoryBlock}
+${personalityBlock}${doctrineBlock}${seedBlock}${memoryBlock}
 This is an automated heartbeat check. Review your current tasks and the company task board, then decide what actions to take (if any). Not every heartbeat needs action — only act if something is genuinely needed.
 
 YOUR TASKS:

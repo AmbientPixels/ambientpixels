@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Agent Memory Editor — CEO-curated seed memories for AI agents." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Agent Memory — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <style>
+    .mem-tabs { display:flex; gap:0; border-bottom:1px solid rgba(255,255,255,0.06); margin-bottom:1rem; flex-wrap:wrap; }
+    .mem-tab {
+      padding:0.5rem 1rem; font-size:0.75rem; font-weight:500; cursor:pointer;
+      color:rgba(255,255,255,0.4); border-bottom:2px solid transparent;
+      background:none; border-top:none; border-left:none; border-right:none;
+      font-family:inherit; transition:all 0.15s;
+    }
+    .mem-tab:hover { color:rgba(255,255,255,0.7); }
+    .mem-tab--active { color:#c084fc; border-bottom-color:#8A2BE2; }
+    .mem-tab .mem-tab-dot {
+      display:inline-block; width:6px; height:6px; border-radius:50%; margin-right:5px;
+    }
+    .mem-editor-wrap {
+      display:grid; grid-template-columns:1fr 1fr; gap:1rem; min-height:350px;
+    }
+    @media (max-width:768px) { .mem-editor-wrap { grid-template-columns:1fr; } }
+    .mem-textarea {
+      width:100%; min-height:320px; padding:0.8rem; border-radius:8px;
+      border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.03);
+      color:#e2e8f0; font-size:0.8rem; font-family:'Inter',monospace;
+      line-height:1.6; resize:vertical;
+    }
+    .mem-textarea:focus { outline:none; border-color:rgba(138,43,226,0.4); }
+    .mem-preview {
+      padding:0.8rem; border-radius:8px; border:1px solid rgba(255,255,255,0.05);
+      background:rgba(255,255,255,0.015); font-size:0.8rem; color:rgba(255,255,255,0.7);
+      overflow-y:auto; max-height:500px; line-height:1.6;
+    }
+    .mem-preview h1,.mem-preview h2,.mem-preview h3 { color:#c084fc; margin:0.6rem 0 0.3rem; }
+    .mem-preview h1 { font-size:1rem; } .mem-preview h2 { font-size:0.9rem; } .mem-preview h3 { font-size:0.85rem; }
+    .mem-preview ul,.mem-preview ol { padding-left:1.2rem; margin:0.3rem 0; }
+    .mem-preview li { margin-bottom:0.2rem; }
+    .mem-preview code { background:rgba(138,43,226,0.1); padding:0.1rem 0.3rem; border-radius:3px; font-size:0.75rem; }
+    .mem-preview p { margin:0.3rem 0; }
+    .mem-char-count {
+      font-size:0.65rem; opacity:0.4; margin-top:0.3rem; text-align:right;
+    }
+    .mem-char-count--warn { color:#fbbf24; opacity:1; }
+    .mem-char-count--over { color:#f87171; opacity:1; }
+    .mem-save-bar {
+      display:flex; align-items:center; gap:0.6rem; margin-top:0.8rem;
+    }
+    .mem-save-btn {
+      padding:0.4rem 1.2rem; border-radius:6px; font-size:0.75rem; font-weight:600;
+      border:1px solid #8A2BE2; background:rgba(138,43,226,0.2); color:#d8b4fe;
+      cursor:pointer; font-family:inherit;
+    }
+    .mem-save-btn:hover { background:rgba(138,43,226,0.35); }
+    .mem-save-btn:disabled { opacity:0.4; cursor:not-allowed; }
+    .mem-save-status { font-size:0.7rem; opacity:0.5; }
+    .mem-runtime-panel {
+      margin-top:1.5rem; padding:0.8rem; border-radius:8px;
+      border:1px solid rgba(255,255,255,0.05); background:rgba(255,255,255,0.015);
+    }
+    .mem-runtime-title { font-size:0.75rem; font-weight:600; color:rgba(255,255,255,0.5); margin-bottom:0.5rem; }
+    .mem-runtime-item {
+      font-size:0.7rem; padding:0.35rem 0.5rem; margin-bottom:0.25rem;
+      border-radius:4px; background:rgba(255,255,255,0.02);
+      display:flex; gap:0.4rem; align-items:flex-start;
+    }
+    .mem-runtime-type {
+      font-size:0.55rem; padding:0.1rem 0.35rem; border-radius:3px; font-weight:600;
+      flex-shrink:0; margin-top:0.1rem;
+    }
+    .mem-runtime-type--learning { background:rgba(52,211,153,0.12); color:#34d399; }
+    .mem-runtime-type--feedback { background:rgba(251,191,36,0.12); color:#fbbf24; }
+    .mem-runtime-type--preference { background:rgba(59,130,246,0.12); color:#3b82f6; }
+    .mem-runtime-type--context { background:rgba(138,43,226,0.12); color:#c084fc; }
+    .mem-runtime-text { color:rgba(255,255,255,0.6); }
+    .mem-runtime-time { font-size:0.55rem; opacity:0.3; margin-left:auto; flex-shrink:0; }
+    .mem-runtime-empty { font-size:0.7rem; opacity:0.3; padding:0.5rem; text-align:center; }
+  </style>
+</head>
+<body style="background:#071019" data-theme="dark">
+
+  <main class="content-section" style="max-width: 960px; margin: 0 auto; padding: 1rem;">
+
+    <div class="company-header">
+      <h1><i class="fas fa-brain" style="opacity:0.4; margin-right:8px; color:#8A2BE2;"></i>Agent Memory</h1>
+      <p>CEO-curated knowledge base for each agent. Write instructions, context, and preferences that agents follow every heartbeat.</p>
+    </div>
+
+    <!-- Tabs -->
+    <div class="mem-tabs" id="mem-tabs">
+      <button class="mem-tab mem-tab--active" data-agent="_global">
+        <span class="mem-tab-dot" style="background:#FFD700;"></span>Global
+      </button>
+      <button class="mem-tab" data-agent="nova">
+        <span class="mem-tab-dot" style="background:#8A2BE2;"></span>Nova
+      </button>
+      <button class="mem-tab" data-agent="cipher">
+        <span class="mem-tab-dot" style="background:#00C896;"></span>Cipher
+      </button>
+      <button class="mem-tab" data-agent="pixel">
+        <span class="mem-tab-dot" style="background:#FF6B9D;"></span>Pixel
+      </button>
+      <button class="mem-tab" data-agent="forge">
+        <span class="mem-tab-dot" style="background:#FF8C00;"></span>Forge
+      </button>
+      <button class="mem-tab" data-agent="echo">
+        <span class="mem-tab-dot" style="background:#4ECDC4;"></span>Echo
+      </button>
+      <button class="mem-tab" data-agent="scribe">
+        <span class="mem-tab-dot" style="background:#7ECFC0;"></span>Scribe
+      </button>
+      <button class="mem-tab" data-agent="quill">
+        <span class="mem-tab-dot" style="background:#5BB8A6;"></span>Quill
+      </button>
+      <button class="mem-tab" data-agent="scout">
+        <span class="mem-tab-dot" style="background:#E87CBB;"></span>Scout
+      </button>
+    </div>
+
+    <!-- Editor Panel -->
+    <div class="dash-panel dash-panel--full">
+      <div class="dash-panel-header">
+        <span class="dash-panel-title" id="editor-title"><i class="fas fa-globe" style="color:#FFD700; opacity:0.6;"></i> Global — Shared Knowledge</span>
+        <span class="dash-panel-badge" id="editor-badge" style="background:rgba(138,43,226,0.1);color:#c084fc;">Seed Memory</span>
+      </div>
+
+      <div class="mem-editor-wrap">
+        <div>
+          <textarea class="mem-textarea" id="seed-editor" placeholder="Write markdown here...&#10;&#10;# Company Context&#10;AmbientPixels is a creative-tech studio...&#10;&#10;## Rules&#10;- Always use hashtags on LinkedIn&#10;- Keep posts under 100 words"></textarea>
+          <div class="mem-char-count" id="char-count">0 / 2000</div>
+        </div>
+        <div class="mem-preview" id="seed-preview">
+          <span style="opacity:0.3;">Preview will appear here...</span>
+        </div>
+      </div>
+
+      <div class="mem-save-bar">
+        <button class="mem-save-btn" id="save-btn" onclick="saveSeed()">
+          <i class="fas fa-save"></i> Save
+        </button>
+        <span class="mem-save-status" id="save-status"></span>
+      </div>
+    </div>
+
+    <!-- Runtime Memories (read-only) -->
+    <div class="mem-runtime-panel" id="runtime-panel" style="display:none;">
+      <div class="mem-runtime-title"><i class="fas fa-sticky-note" style="margin-right:4px;"></i> Runtime Memories (auto-learned by agent)</div>
+      <div id="runtime-list">
+        <div class="mem-runtime-empty">No runtime memories yet.</div>
+      </div>
+    </div>
+
+  </main>
+
+  <script src="/js/company-store.js"></script>
+  <script>
+    var API_BASE = window.location.hostname === 'localhost'
+      ? 'http://localhost:7071/api'
+      : 'https://ambientpixels-nova-api.azurewebsites.net/api';
+
+    var currentAgent = '_global';
+    var seedData = {};
+    var runtimeData = {};
+    var dirty = false;
+
+    var CHAR_LIMITS = { _global: 2000 };
+    var DEFAULT_LIMIT = 1500;
+
+    var AGENT_META = {
+      _global: { label: 'Global — Shared Knowledge', icon: 'fa-globe', color: '#FFD700' },
+      nova: { label: 'Nova — Prime Operator', icon: 'fa-brain', color: '#8A2BE2' },
+      cipher: { label: 'Cipher — CFO', icon: 'fa-chart-line', color: '#00C896' },
+      pixel: { label: 'Pixel — Design & QC', icon: 'fa-palette', color: '#FF6B9D' },
+      forge: { label: 'Forge — DevOps', icon: 'fa-server', color: '#FF8C00' },
+      echo: { label: 'Echo — Marketing', icon: 'fa-bullhorn', color: '#4ECDC4' },
+      scribe: { label: 'Scribe — Content', icon: 'fa-pen-nib', color: '#7ECFC0' },
+      quill: { label: 'Quill — Editor', icon: 'fa-spell-check', color: '#5BB8A6' },
+      scout: { label: 'Scout — Research', icon: 'fa-magnifying-glass-chart', color: '#E87CBB' }
+    };
+
+    // DOM refs
+    var editor = document.getElementById('seed-editor');
+    var preview = document.getElementById('seed-preview');
+    var charCount = document.getElementById('char-count');
+    var saveBtn = document.getElementById('save-btn');
+    var saveStatus = document.getElementById('save-status');
+    var editorTitle = document.getElementById('editor-title');
+    var runtimePanel = document.getElementById('runtime-panel');
+    var runtimeList = document.getElementById('runtime-list');
+
+    // Tabs
+    document.getElementById('mem-tabs').addEventListener('click', function (e) {
+      var tab = e.target.closest('.mem-tab');
+      if (!tab) return;
+      if (dirty && !confirm('You have unsaved changes. Discard?')) return;
+
+      document.querySelectorAll('.mem-tab').forEach(function (t) { t.classList.remove('mem-tab--active'); });
+      tab.classList.add('mem-tab--active');
+      currentAgent = tab.dataset.agent;
+      dirty = false;
+      loadEditor();
+    });
+
+    // Editor input
+    editor.addEventListener('input', function () {
+      dirty = true;
+      updatePreview();
+      updateCharCount();
+    });
+
+    function getLimit() { return CHAR_LIMITS[currentAgent] || DEFAULT_LIMIT; }
+
+    function updateCharCount() {
+      var len = editor.value.length;
+      var limit = getLimit();
+      charCount.textContent = len + ' / ' + limit;
+      charCount.className = 'mem-char-count' + (len > limit ? ' mem-char-count--over' : len > limit * 0.85 ? ' mem-char-count--warn' : '');
+    }
+
+    function updatePreview() {
+      var md = editor.value;
+      if (!md.trim()) {
+        preview.innerHTML = '<span style="opacity:0.3;">Preview will appear here...</span>';
+        return;
+      }
+      // Simple markdown rendering (no external lib)
+      var html = md
+        .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+        .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+        .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+        .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')
+        .replace(/`(.+?)`/g, '<code>$1</code>')
+        .replace(/^- (.+)$/gm, '<li>$1</li>')
+        .replace(/(<li>.*<\/li>)/s, '<ul>$1</ul>')
+        .replace(/\n{2,}/g, '</p><p>')
+        .replace(/\n/g, '<br>');
+      // Wrap consecutive <li> in <ul>
+      html = html.replace(/(<li>[\s\S]*?<\/li>)(?=\s*(?:<li>|$))/g, function (match) {
+        return match;
+      });
+      preview.innerHTML = '<p>' + html + '</p>';
+    }
+
+    function loadEditor() {
+      var meta = AGENT_META[currentAgent] || AGENT_META._global;
+      editorTitle.innerHTML = '<i class="fas ' + meta.icon + '" style="color:' + meta.color + '; opacity:0.6;"></i> ' + meta.label;
+      editor.value = seedData[currentAgent] || '';
+      updatePreview();
+      updateCharCount();
+      renderRuntime();
+    }
+
+    function renderRuntime() {
+      if (currentAgent === '_global') {
+        runtimePanel.style.display = 'none';
+        return;
+      }
+      runtimePanel.style.display = '';
+      var mems = runtimeData[currentAgent] || [];
+      if (mems.length === 0) {
+        runtimeList.innerHTML = '<div class="mem-runtime-empty">No runtime memories yet. Agent will learn from heartbeat cycles.</div>';
+        return;
+      }
+      var html = '';
+      mems.slice().reverse().forEach(function (m) {
+        var typeClass = 'mem-runtime-type--' + (m.type || 'context');
+        var timeStr = m.timestamp ? new Date(m.timestamp).toLocaleString() : '';
+        html += '<div class="mem-runtime-item">' +
+          '<span class="mem-runtime-type ' + typeClass + '">' + (m.type || 'note') + '</span>' +
+          '<span class="mem-runtime-text">' + (m.text || '').replace(/</g, '&lt;') + '</span>' +
+          '<span class="mem-runtime-time">' + timeStr + '</span>' +
+          '</div>';
+      });
+      runtimeList.innerHTML = html;
+    }
+
+    async function saveSeed() {
+      var limit = getLimit();
+      if (editor.value.length > limit) {
+        alert('Content exceeds ' + limit + ' character limit. Please shorten it.');
+        return;
+      }
+      saveBtn.disabled = true;
+      saveStatus.textContent = 'Saving...';
+      seedData[currentAgent] = editor.value;
+      try {
+        var res = await fetch(API_BASE + '/company-state', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key: 'agentSeedMemories', value: seedData })
+        });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        dirty = false;
+        saveStatus.textContent = 'Saved ✓';
+        setTimeout(function () { saveStatus.textContent = ''; }, 3000);
+      } catch (err) {
+        saveStatus.textContent = 'Save failed: ' + err.message;
+      }
+      saveBtn.disabled = false;
+    }
+
+    // Initial load
+    async function init() {
+      try {
+        var seedRes = await fetch(API_BASE + '/company-state?key=agentSeedMemories');
+        if (seedRes.ok) {
+          var seedJson = await seedRes.json();
+          seedData = (seedJson && seedJson.value) || seedJson || {};
+          if (typeof seedData !== 'object' || Array.isArray(seedData)) seedData = {};
+        }
+      } catch (e) { console.warn('Failed to load seed memories:', e); }
+
+      try {
+        var rtRes = await fetch(API_BASE + '/company-state?key=agentMemories');
+        if (rtRes.ok) {
+          var rtJson = await rtRes.json();
+          runtimeData = (rtJson && rtJson.value) || rtJson || {};
+          if (typeof runtimeData !== 'object' || Array.isArray(runtimeData)) runtimeData = {};
+        }
+      } catch (e) { console.warn('Failed to load runtime memories:', e); }
+
+      loadEditor();
+    }
+
+    init();
+  </script>
+</body>
+</html>
