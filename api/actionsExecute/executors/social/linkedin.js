@@ -28,9 +28,9 @@ function contentHash(text) {
 
 /**
  * Resolve numeric member ID from LinkedIn /v2/me endpoint.
- * The UGC Posts API requires numeric IDs (urn:li:person:{numericId}).
- * The env var may contain an encoded hash ID which the API rejects.
- * @returns {Promise<{memberId: string|null, error?: string}>}
+ * The UGC Posts API requires urn:li:member:{NUMERIC_ID} format.
+ * The env var contains an encoded hash ID which the API rejects.
+ * @returns {Promise<{memberId: string|null, error?: string, raw?: string}>}
  */
 function resolveMemberId() {
   const creds = getCredentials();
@@ -38,10 +38,11 @@ function resolveMemberId() {
   return new Promise((resolve) => {
     const options = {
       hostname: 'api.linkedin.com',
-      path: '/v2/me',
+      path: '/v2/me?projection=(id)',
       method: 'GET',
       headers: {
-        'Authorization': 'Bearer ' + creds.accessToken
+        'Authorization': 'Bearer ' + creds.accessToken,
+        'X-Restli-Protocol-Version': '2.0.0'
       }
     };
     const req = https.request(options, (res) => {
@@ -51,10 +52,10 @@ function resolveMemberId() {
         if (res.statusCode === 200) {
           try {
             const me = JSON.parse(data);
-            resolve({ memberId: me.id || null });
-          } catch (e) { resolve({ memberId: null, error: 'Parse error' }); }
+            resolve({ memberId: me.id || null, raw: data.substring(0, 200) });
+          } catch (e) { resolve({ memberId: null, error: 'Parse error: ' + data.substring(0, 100) }); }
         } else {
-          resolve({ memberId: null, error: '/v2/me returned HTTP ' + res.statusCode });
+          resolve({ memberId: null, error: '/v2/me returned HTTP ' + res.statusCode + ': ' + data.substring(0, 200) });
         }
       });
     });
@@ -131,52 +132,91 @@ async function publishToLinkedIn(action) {
     throw { code: 'TOKEN_INVALID', message: tokenCheck.error || 'LinkedIn access token is invalid or expired. Refresh it in Azure App Settings.' };
   }
 
-  // Resolve numeric member ID — UGC Posts API requires urn:li:person:{NUMERIC_ID}
-  // The env var may contain an encoded hash (ACoAAA...) which the API rejects
-  let authorUrn = creds.personUrn;
+  // Resolve numeric member ID — UGC Posts API requires urn:li:member:{NUMERIC_ID}
+  // The env var contains an encoded hash (ACoAAA...) which the API rejects
   const meResult = await resolveMemberId();
-  if (meResult.memberId) {
-    authorUrn = 'urn:li:person:' + meResult.memberId;
+  let useSharesApi = false;
+
+  let authorUrn;
+  if (meResult.memberId && /^\d+$/.test(meResult.memberId)) {
+    // Got numeric ID — use UGC Posts API with urn:li:member: prefix
+    authorUrn = 'urn:li:member:' + meResult.memberId;
+  } else {
+    // /v2/me failed or returned non-numeric ID — fall back to Shares API
+    // Shares API accepts urn:li:person: with encoded IDs
+    authorUrn = creds.personUrn;
+    useSharesApi = true;
   }
 
-  // Build UGC Posts API payload
-  const shareContent = {
-    shareCommentary: { text: text },
-    shareMediaCategory: 'NONE'
-  };
-
-  // If media provided as article URL, attach as ARTICLE share
   const media = (action.payload && action.payload.media) || [];
-  if (media.length > 0) {
-    const firstMedia = typeof media[0] === 'string' ? media[0] : (media[0].url || media[0].id || '');
-    if (firstMedia.startsWith('http')) {
-      shareContent.shareMediaCategory = 'ARTICLE';
-      shareContent.media = [{
-        status: 'READY',
-        originalUrl: firstMedia,
-        title: { text: (typeof media[0] === 'object' && media[0].title) || 'Shared content' }
-      }];
+  let body, apiUrl;
+
+  if (useSharesApi) {
+    // ── Shares API fallback (/v2/shares) ──
+    // Works with w_member_social scope and accepts encoded person URNs
+    apiUrl = 'https://api.linkedin.com/v2/shares';
+    const sharesPayload = {
+      owner: authorUrn,
+      text: { text: text },
+      distribution: {
+        linkedInDistributionTarget: {}
+      }
+    };
+
+    // Attach article media if provided
+    if (media.length > 0) {
+      const firstMedia = typeof media[0] === 'string' ? media[0] : (media[0].url || media[0].id || '');
+      if (firstMedia.startsWith('http')) {
+        sharesPayload.content = {
+          contentEntities: [{
+            entityLocation: firstMedia,
+            entity: firstMedia
+          }],
+          title: (typeof media[0] === 'object' && media[0].title) || 'Shared content'
+        };
+      }
     }
+
+    body = JSON.stringify(sharesPayload);
+  } else {
+    // ── UGC Posts API (primary) ──
+    apiUrl = LINKEDIN_API_URL;
+    const shareContent = {
+      shareCommentary: { text: text },
+      shareMediaCategory: 'NONE'
+    };
+
+    if (media.length > 0) {
+      const firstMedia = typeof media[0] === 'string' ? media[0] : (media[0].url || media[0].id || '');
+      if (firstMedia.startsWith('http')) {
+        shareContent.shareMediaCategory = 'ARTICLE';
+        shareContent.media = [{
+          status: 'READY',
+          originalUrl: firstMedia,
+          title: { text: (typeof media[0] === 'object' && media[0].title) || 'Shared content' }
+        }];
+      }
+    }
+
+    const postPayload = {
+      author: authorUrn,
+      lifecycleState: 'PUBLISHED',
+      specificContent: {
+        'com.linkedin.ugc.ShareContent': shareContent
+      },
+      visibility: {
+        'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC'
+      }
+    };
+
+    body = JSON.stringify(postPayload);
   }
-
-  const postPayload = {
-    author: authorUrn,
-    lifecycleState: 'PUBLISHED',
-    specificContent: {
-      'com.linkedin.ugc.ShareContent': shareContent
-    },
-    visibility: {
-      'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC'
-    }
-  };
-
-  const body = JSON.stringify(postPayload);
 
   return new Promise((resolve, reject) => {
-    const url = new URL(LINKEDIN_API_URL);
+    const url = new URL(apiUrl);
     const options = {
       hostname: url.hostname,
-      path: url.pathname,
+      path: url.pathname + (url.search || ''),
       method: 'POST',
       headers: {
         'Authorization': 'Bearer ' + creds.accessToken,
@@ -209,10 +249,11 @@ async function publishToLinkedIn(action) {
           });
         } else {
           let errMsg = (parsed && parsed.message) || (parsed && parsed.status) || data.substring(0, 300);
+          errMsg += ' | DEBUG: api=' + apiUrl + ', author=' + authorUrn + ', /v2/me=' + (meResult.memberId || meResult.error || 'null');
           if (res.statusCode === 403) {
-            errMsg += ' | 403 Hint: Token may lack w_member_social scope, or person URN (' + creds.personUrn + ') does not match the token owner. Regenerate token with w_member_social scope.';
+            errMsg += ' | 403 Hint: Token may lack w_member_social scope, or URN does not match the token owner.';
           } else if (res.statusCode === 401) {
-            errMsg += ' | 401 Hint: Access token expired. LinkedIn tokens expire after 60 days. Refresh at https://www.linkedin.com/developers/apps';
+            errMsg += ' | 401 Hint: Access token expired. LinkedIn tokens expire after 60 days.';
           }
           reject({
             code: 'LINKEDIN_API_ERROR_' + res.statusCode,
