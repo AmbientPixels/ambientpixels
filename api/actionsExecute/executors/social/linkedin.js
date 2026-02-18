@@ -168,18 +168,17 @@ async function publishToLinkedIn(action) {
     throw { code: 'TOKEN_INVALID', message: tokenCheck.error || 'LinkedIn access token is invalid or expired. Refresh it in Azure App Settings.' };
   }
 
-  // Resolve numeric member ID — UGC Posts API requires urn:li:member:{NUMERIC_ID}
+  // Resolve numeric member ID — UGC Posts API requires urn:li:person:{NUMERIC_ID}
   // The env var contains an encoded hash (ACoAAA...) which the API rejects
   const meResult = await resolveMemberId();
   let useSharesApi = false;
 
   let authorUrn;
   if (meResult.memberId && /^\d+$/.test(meResult.memberId)) {
-    // Got numeric ID — use UGC Posts API with urn:li:member: prefix
-    authorUrn = 'urn:li:member:' + meResult.memberId;
+    // Got numeric ID — use UGC Posts API with urn:li:person:{numericId}
+    authorUrn = 'urn:li:person:' + meResult.memberId;
   } else {
-    // /v2/me failed or returned non-numeric ID — fall back to Shares API
-    // Shares API accepts urn:li:person: with encoded IDs
+    // Could not resolve numeric ID — fall back to Shares API
     authorUrn = creds.personUrn;
     useSharesApi = true;
   }
