@@ -40,7 +40,7 @@ const CFO_THRESHOLD = 100; // budget_impact above this requires CEO approval
 const GUARDRAILS = {
   maxActionsPerCyclePerAgent: 3,
   maxGeminiCallsPerCycle: 15, // Tier 4 sub-agents are gated; only consume calls when triggered
-  maxNewTasksPerCycle: 5,
+  maxNewTasksPerCycle: 2,
   maxExecutesPerCyclePerAgent: 1,
   maxEscalationsPerCycle: 3,
   dedupeWindowMs: 300000 // 5 min
@@ -737,6 +737,32 @@ Write the full deliverable first, then the structured JSON block.`;
     }
 
     if (action.type === 'create-task' && action.task) {
+      // SERVER-SIDE DEDUP: block if an active task with very similar title already exists
+      const proposedTitle = (action.task.title || '').toLowerCase().trim();
+      if (proposedTitle) {
+        const _normalize = (s) => s.toLowerCase().replace(/[^a-z0-9 ]/g, '').replace(/\s+/g, ' ').trim();
+        const normalizedNew = _normalize(proposedTitle);
+        const existingMatch = tasks.find(t => t.status !== 'done' && _normalize(t.title || '') === normalizedNew);
+        if (existingMatch) {
+          context.log('[Heartbeat]', agentId, 'BLOCKED duplicate task creation:', proposedTitle, '— matches existing:', existingMatch.id);
+          continue;
+        }
+        // Also check fuzzy: if 80%+ of words match
+        const newWords = normalizedNew.split(' ').filter(w => w.length > 2);
+        if (newWords.length >= 3) {
+          const fuzzyMatch = tasks.find(t => {
+            if (t.status === 'done') return false;
+            const existingWords = _normalize(t.title || '').split(' ').filter(w => w.length > 2);
+            if (existingWords.length === 0) return false;
+            const overlap = newWords.filter(w => existingWords.indexOf(w) !== -1).length;
+            return overlap / Math.max(newWords.length, existingWords.length) >= 0.8;
+          });
+          if (fuzzyMatch) {
+            context.log('[Heartbeat]', agentId, 'BLOCKED fuzzy-duplicate task:', proposedTitle, '— similar to:', fuzzyMatch.title, '(', fuzzyMatch.id, ')');
+            continue;
+          }
+        }
+      }
       // Log raw Gemini output for debugging task creation issues
       context.log('[Heartbeat]', agentId, 'create-task RAW:', JSON.stringify({
         assignee: action.task.assignee,
