@@ -524,7 +524,10 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
 
   // Build context for the agent
   const agentTasks = tasks.filter(t => t.assignee === agentId && t.status !== 'done');
-  const allActiveTasks = tasks.filter(t => t.status !== 'done' && t.status !== 'backlog');
+  // Nova sees backlog tasks so she can triage them; other agents only see active tasks
+  const allActiveTasks = agentId === 'nova'
+    ? tasks.filter(t => t.status !== 'done')
+    : tasks.filter(t => t.status !== 'done' && t.status !== 'backlog');
   // Only show this agent their own revision-requested actions
   const agentRevisions = (revisionActions || []).filter(a => a.created_by === agentId || a.origin_agent === agentId);
 
