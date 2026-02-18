@@ -1,6 +1,6 @@
 # AmbientPixels — Company Module System Architecture
 
-_Last updated: February 17, 2026_
+_Last updated: February 18, 2026_
 
 This document describes the full architecture of the AmbientPixels Company Module — an AI orchestration platform where autonomous agents run every department, governed by human approval workflows and audit trails.
 
@@ -17,8 +17,9 @@ This document describes the full architecture of the AmbientPixels Company Modul
 7. [Social Post Execution Pipeline](#social-post-execution-pipeline)
 8. [Server API Endpoints](#server-api-endpoints)
 9. [UI Pages](#ui-pages)
-10. [Safety Architecture](#safety-architecture)
-11. [Data Persistence v1](#data-persistence-v1)
+10. [Config Overview — Control Room](#config-overview--control-room)
+11. [Safety Architecture](#safety-architecture)
+12. [Data Persistence v1](#data-persistence-v1)
 
 ---
 
@@ -430,6 +431,101 @@ All pages live in `/modules/company/` and share a common sidebar navigation (`js
 
 ---
 
+## Config Overview — Control Room
+
+_Added February 18, 2026_
+
+`/modules/company/config-overview.html` — the central settings page for all workspace configuration. Every automation toggle, storage control, and system tool lives here.
+
+> Full per-panel documentation: [`docs/CONFIG_OVERVIEW_GUIDE.md`](./CONFIG_OVERVIEW_GUIDE.md)
+
+### Panel Layout
+
+```
+┌─────────────────────────────────────────────┐
+│  System Status Checklist                     │  ← Health at a glance
+│  (API, Agents, Store, Auth, Sync, Heartbeat)│
+├─────────────────────────────────────────────┤
+│  Agent Memory Stack                          │  ← 6 knowledge layers (L1–L6)
+├─────────────────────────────────────────────┤
+│  Agent Health Grid                           │  ← Per-agent status tiles
+├─────────────────────────────────────────────┤
+│  Worker Automation                           │  ← Background job framework
+│  Verification Engine                         │  ← Output quality gate
+│  Autonomy Controls                           │  ← Per-channel trust dials
+│  Planner Automation                          │  ← Strategic planning loop
+│  Calibration Automation                      │  ← Self-improvement loop
+├─────────────────────────────────────────────┤
+│  System Storage                              │  ← localStorage health
+│  Server Persistence                          │  ← Azure sync layer
+├─────────────────────────────────────────────┤
+│  System Tools                                │  ← Export, Sync, Kill switch
+│  Quick Access                                │  ← Navigation shortcuts
+│  Danger Zone                                 │  ← Destructive resets
+└─────────────────────────────────────────────┘
+```
+
+### Autonomy Controls
+
+The policy layer for agent freedom. Each channel can be independently toggled:
+
+- **OFF** = CEO Approval required (all actions enter approval queue)
+- **ON** = Autonomous (agents act freely, logged for visibility)
+
+| Group | Channel | Default | localStorage Key |
+|---|---|---|---|
+| Internal | Tasks | ON | `ap_actions_task_enabled` |
+| Internal | Config | OFF | `ap_config_changes_enabled` |
+| External | Social | OFF | `ap_actions_social_enabled` |
+| External | Content | OFF | `ap_actions_content_enabled` |
+| External | Email | OFF | `ap_actions_email_enabled` |
+| External | Git | OFF | `ap_actions_git_enabled` |
+
+Channel toggle overrides the registry's `requiresApproval` flag. When a channel is OFF, all actions are forced to CEO approval regardless of individual action settings.
+
+### Automation Loops
+
+| Loop | Purpose | Cadence Key | Default |
+|---|---|---|---|
+| **Planner** | Weekly strategic planning, recommendations, standup scheduling | `ap_planner_cadence_days` | 7 days |
+| **Calibration** | System health analysis, weight/threshold tuning proposals | `ap_calibration_cadence_days` | 7 days |
+| **Worker** | Pressure-based background job spawning | `ap_workers_enabled` | OFF |
+
+All loops are **propose-only** — they enqueue `pending_approval` items into the ActionQueue. They never execute directly.
+
+### Storage & Persistence
+
+| Layer | What | Key |
+|---|---|---|
+| **System Storage** | localStorage health monitoring, auto-prune at 80% capacity | Managed by `StorageManager` |
+| **Server Persistence** | Azure sync via `CompanyStoreAdapter` | `ap_server_persistence_enabled` |
+
+Server Persistence authenticates via two methods:
+1. **Azure SWA auth** — automatic when logged in (`/.auth/me` → `x-ms-client-principal`)
+2. **Manual key** — dev console: `CompanyStoreAdapter.setKey("...")`  → `x-company-secret`
+
+### System Tools
+
+| Tool | What it does |
+|---|---|
+| Memory Reset | Clears shared workspace memory (`ap_workspace_memory`) |
+| Kill All Automation | Emergency stop — disables Worker, Action Router, Planner, Calibration at once |
+| Export State | Downloads all `ap_*` keys as dated JSON backup |
+| Force Server Sync | Triggers `deltaSync()` to pull latest from Azure |
+| Flush Outbox | Retries pending sync batches |
+
+### Danger Zone
+
+All destructive actions require typing "DELETE" to confirm. Organized by severity:
+
+| Group | Actions |
+|---|---|
+| **Data Resets** | Tasks (+archive), Directives, Objectives, Action Queue (+rate counts) |
+| **Audit & Logs** | All audit logs (action, worker, planner, calibration, priority), Governance log |
+| **Nuclear** | Clear All Company Data — removes all `ap_*` keys (preserves Nova/browser state) |
+
+---
+
 ## Safety Architecture
 
 The system is **fail-closed** at every layer:
@@ -444,6 +540,8 @@ The system is **fail-closed** at every layer:
 8. **Server persistence defaults OFF** — Requires explicit enable + secret key. Outbox prevents data loss. Idempotent retries via eventId dedup.
 9. **Registry validation** — Action types must exist in `company-actions.json` and be marked enabled. Unknown types are rejected and audited.
 10. **Retry limits** — Max 2 attempts per action. After that, permanently failed.
+11. **Danger Zone type-to-confirm** — All destructive config actions require typing "DELETE" before execution. Scoped to `ap_*` keys only — Nova and browser state are never touched.
+12. **Auto-prune** — StorageManager triggers automatic pruning at 80% localStorage capacity with 5-minute cooldown.
 
 ---
 
