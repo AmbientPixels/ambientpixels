@@ -520,6 +520,9 @@
         var reg = AgentEngine.getRegistry();
         if (!reg || !reg.agents) return;
 
+        agentSelector.innerHTML = '';
+        agentConfigPanels.innerHTML = '';
+
         reg.agents.forEach(function (agent, idx) {
           // Selector tab
           var tab = document.createElement('button');
