@@ -297,7 +297,7 @@
 
   </main>
 
-  <script src="/js/company-schemas.js"></script>
+  <script src="/js/storage-manager.js"></script>
   <script src="/js/company-store.js"></script>
   <script src="/js/agent-engine.js"></script>
   <script>
@@ -327,15 +327,23 @@
     }
 
     // ── Init ──
-    CompanyStore.init().then(function () {
-      apiBase = (CompanyStore.getServerBase && CompanyStore.getServerBase()) || '/api';
-      AgentEngine.init();
+    AgentEngine.loadRegistry().then(function () {
+      apiBase = (typeof CompanyStore !== 'undefined' && CompanyStore.getServerBase) ? (CompanyStore.getServerBase() || '/api') : '/api';
       fetchGemini(30);
       fetchAzure(30);
       renderX(30);
       renderAgentCosts();
       renderROI();
     });
+
+    // Re-render when server sync pulls in fresh actions/tasks data
+    if (typeof AgentEngine !== 'undefined' && AgentEngine.on) {
+      AgentEngine.on('sync-complete', function () {
+        renderX(parseInt(document.getElementById('x-range').value) || 30);
+        renderAgentCosts();
+        renderROI();
+      });
+    }
 
     // ── Gemini ──
     function fetchGemini(days) {
