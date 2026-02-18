@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Cost Center — API spend, budget targets, cost-per-agent, ROI." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Cost Center — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <style>
+    /* ── Cost Center v1.0 ── */
+    .cost-hero {
+      position: relative;
+      background: linear-gradient(135deg, rgba(251,191,36,0.06) 0%, rgba(251,191,36,0.01) 100%);
+      border: 1px solid rgba(251,191,36,0.15);
+      border-radius: 14px;
+      padding: 1.6rem 1.8rem 1.2rem;
+      margin-bottom: 1.2rem;
+    }
+    .cost-hero h1 { margin: 0 0 0.25rem; font-size: 1.3rem; font-weight: 600; }
+    .cost-hero p { margin: 0; font-size: 0.72rem; opacity: 0.45; }
+    .cost-hero-summary { margin-top: 0.6rem; font-size: 0.68rem; color: #fbbf24; opacity: 0.8; }
+
+    /* Stat Cards */
+    .cost-stat-grid {
+      display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.8rem;
+      margin-bottom: 1.4rem;
+    }
+    @media (max-width: 768px) { .cost-stat-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 480px) { .cost-stat-grid { grid-template-columns: repeat(2, 1fr); } }
+    .cost-stat-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 0.9rem 1rem;
+      text-align: center;
+      transition: border-color 0.2s, transform 0.2s;
+    }
+    .cost-stat-card:hover { border-color: rgba(251,191,36,0.2); transform: translateY(-1px); }
+    .cost-stat-value { font-size: 1.6rem; font-weight: 600; line-height: 1.2; }
+    .cost-stat-label { font-size: 0.55rem; opacity: 0.35; text-transform: uppercase; letter-spacing: 0.06em; margin-top: 0.25rem; }
+    .cost-stat-sub { font-size: 0.5rem; opacity: 0.25; margin-top: 0.15rem; }
+
+    /* Breakdown bar */
+    .cost-breakdown-bar {
+      display: flex; height: 8px; border-radius: 4px; overflow: hidden;
+      background: rgba(255,255,255,0.03); margin-bottom: 0.3rem;
+    }
+    .cost-breakdown-legend {
+      display: flex; justify-content: center; gap: 1.2rem;
+      font-size: 0.55rem; opacity: 0.4; margin-bottom: 1.4rem;
+    }
+    .cost-breakdown-legend i { margin-right: 3px; }
+
+    /* Budget Targets */
+    .cost-budget-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 0.8rem;
+      margin-bottom: 1.4rem;
+    }
+    .cost-budget-card {
+      background: rgba(255,255,255,0.015);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 10px; padding: 0.8rem 1rem;
+    }
+    .cost-budget-card-header {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.65rem; margin-bottom: 0.5rem;
+    }
+    .cost-budget-card-name { font-weight: 600; }
+    .cost-budget-card-value { font-weight: 500; }
+    .cost-budget-bar-track {
+      height: 6px; border-radius: 3px; background: rgba(255,255,255,0.04); overflow: hidden;
+    }
+    .cost-budget-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s; }
+    .cost-budget-card-sub {
+      display: flex; justify-content: space-between;
+      font-size: 0.5rem; opacity: 0.3; margin-top: 0.3rem;
+    }
+
+    /* Section titles */
+    .cost-section-title {
+      font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em;
+      opacity: 0.3; font-weight: 500; margin-top: 1.8rem; margin-bottom: 0.6rem;
+    }
+
+    /* Panel grid */
+    .cost-panel-grid {
+      display: grid; grid-template-columns: 1fr; gap: 1rem; margin-bottom: 1.4rem;
+    }
+    .cost-panel {
+      background: rgba(255,255,255,0.015);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 10px; overflow: hidden;
+    }
+    .cost-panel-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.7rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .cost-panel-title { font-size: 0.72rem; font-weight: 600; }
+    .cost-panel-title i { margin-right: 6px; opacity: 0.5; }
+    .cost-panel-body { padding: 0.8rem 1rem; }
+
+    /* KPI row */
+    .cost-kpi-row { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 0.6rem; }
+    .cost-kpi {
+      flex: 1; min-width: 70px; text-align: center;
+      padding: 0.3rem 0.4rem;
+      background: rgba(255,255,255,0.015);
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 6px;
+    }
+    .cost-kpi-value { font-size: 1rem; font-weight: 600; line-height: 1.2; }
+    .cost-kpi-label { font-size: 0.5rem; opacity: 0.35; }
+
+    /* Tag chips */
+    .cost-chip {
+      display: inline-block; font-size: 0.55rem;
+      padding: 0.12rem 0.4rem; border-radius: 3px;
+      margin-right: 0.3rem; margin-bottom: 0.3rem;
+    }
+
+    /* Sparkline bars */
+    .cost-spark { display: flex; align-items: flex-end; gap: 2px; height: 40px; }
+    .cost-spark-bar {
+      flex: 1; min-width: 3px; max-width: 12px;
+      border-radius: 2px 2px 0 0; transition: height 0.3s;
+    }
+    .cost-spark-labels {
+      display: flex; justify-content: space-between;
+      font-size: 0.45rem; opacity: 0.2; margin-top: 0.15rem;
+    }
+
+    /* Bar rows for service/agent breakdown */
+    .cost-bar-row { margin-bottom: 0.35rem; }
+    .cost-bar-row-header {
+      display: flex; justify-content: space-between;
+      font-size: 0.55rem; margin-bottom: 0.1rem;
+    }
+    .cost-bar-row-name { opacity: 0.6; }
+    .cost-bar-row-value { font-weight: 500; }
+    .cost-bar-track { height: 4px; background: rgba(255,255,255,0.03); border-radius: 2px; overflow: hidden; }
+    .cost-bar-fill { height: 100%; border-radius: 2px; }
+
+    /* Agent cost table */
+    .cost-agent-table { width: 100%; border-collapse: collapse; font-size: 0.62rem; }
+    .cost-agent-table th {
+      text-align: left; font-weight: 500; opacity: 0.35;
+      text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.5rem;
+      padding: 0.4rem 0.6rem; border-bottom: 1px solid rgba(255,255,255,0.06);
+    }
+    .cost-agent-table td {
+      padding: 0.4rem 0.6rem;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+    }
+    .cost-agent-table tr:hover td { background: rgba(255,255,255,0.02); }
+    .cost-agent-dot {
+      display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px;
+    }
+
+    /* Social ROI */
+    .cost-roi-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.6rem;
+    }
+    .cost-roi-card {
+      text-align: center; padding: 0.6rem;
+      background: rgba(255,255,255,0.015);
+      border: 1px solid rgba(255,255,255,0.04);
+      border-radius: 8px;
+    }
+    .cost-roi-value { font-size: 1.2rem; font-weight: 600; line-height: 1.2; }
+    .cost-roi-label { font-size: 0.5rem; opacity: 0.35; margin-top: 0.15rem; }
+
+    .cost-empty { opacity: 0.35; font-size: 0.68rem; padding: 0.5rem 0; }
+    .cost-sub-label { font-size: 0.58rem; opacity: 0.4; margin-bottom: 0.25rem; font-weight: 600; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .cost-stat-card:hover { transform: none; }
+    }
+  </style>
+</head>
+<body style="background:#071019" data-theme="dark">
+
+  <main class="content-section" style="max-width: 900px; margin: 0 auto; padding: 1rem;">
+
+    <!-- Hero -->
+    <div class="cost-hero">
+      <h1><i class="fas fa-dollar-sign" style="opacity:0.4; margin-right:8px; color:#fbbf24;"></i>Cost Center</h1>
+      <p>API spend, budget targets, cost-per-agent, and platform ROI.</p>
+      <div class="cost-hero-summary" id="cost-summary-text">Loading cost data...</div>
+    </div>
+
+    <!-- Top-line Stat Cards -->
+    <div class="cost-stat-grid" id="cost-stats">
+      <div class="cost-stat-card">
+        <div class="cost-stat-value" style="color:#fbbf24;" id="cs-total">—</div>
+        <div class="cost-stat-label">Total Spend</div>
+        <div class="cost-stat-sub" id="cs-total-sub">30 days</div>
+      </div>
+      <div class="cost-stat-card">
+        <div class="cost-stat-value" style="color:#fbbf24;" id="cs-gemini">—</div>
+        <div class="cost-stat-label">Gemini API</div>
+        <div class="cost-stat-sub" id="cs-gemini-sub">—</div>
+      </div>
+      <div class="cost-stat-card">
+        <div class="cost-stat-value" style="color:#0078D4;" id="cs-azure">—</div>
+        <div class="cost-stat-label">Azure</div>
+        <div class="cost-stat-sub" id="cs-azure-sub">—</div>
+      </div>
+      <div class="cost-stat-card">
+        <div class="cost-stat-value" style="color:#1DA1F2;" id="cs-x">—</div>
+        <div class="cost-stat-label">X.com API</div>
+        <div class="cost-stat-sub" id="cs-x-sub">subscription</div>
+      </div>
+      <div class="cost-stat-card">
+        <div class="cost-stat-value" style="color:#34d399;" id="cs-projected">—</div>
+        <div class="cost-stat-label">Projected/Mo</div>
+        <div class="cost-stat-sub" id="cs-projected-sub">all sources</div>
+      </div>
+    </div>
+
+    <!-- Percentage Breakdown Bar -->
+    <div class="cost-breakdown-bar" id="cost-bar"></div>
+    <div class="cost-breakdown-legend" id="cost-bar-legend"></div>
+
+    <!-- Budget Targets -->
+    <div class="cost-section-title"><i class="fas fa-bullseye" style="margin-right:6px;"></i>Budget Targets</div>
+    <div class="cost-budget-grid" id="budget-targets"></div>
+
+    <!-- Gemini API Panel -->
+    <div class="cost-section-title"><i class="fas fa-coins" style="margin-right:6px; color:#fbbf24;"></i>Gemini API</div>
+    <div class="cost-panel">
+      <div class="cost-panel-header">
+        <span class="cost-panel-title"><i class="fas fa-coins" style="color:#fbbf24;"></i> Gemini API Costs</span>
+        <select id="gemini-range" style="font-size:0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:4px; color:inherit; padding:0.15rem 0.3rem;">
+          <option value="7">7 days</option>
+          <option value="14">14 days</option>
+          <option value="30" selected>30 days</option>
+        </select>
+      </div>
+      <div class="cost-panel-body" id="gemini-panel"><div class="cost-empty">Loading Gemini data...</div></div>
+    </div>
+
+    <!-- Azure Panel -->
+    <div class="cost-section-title"><i class="fab fa-microsoft" style="margin-right:6px; color:#0078D4;"></i>Azure Infrastructure</div>
+    <div class="cost-panel">
+      <div class="cost-panel-header">
+        <span class="cost-panel-title"><i class="fab fa-microsoft" style="color:#0078D4;"></i> Azure Costs</span>
+        <select id="azure-range" style="font-size:0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:4px; color:inherit; padding:0.15rem 0.3rem;">
+          <option value="7">7 days</option>
+          <option value="14">14 days</option>
+          <option value="30" selected>30 days</option>
+        </select>
+      </div>
+      <div class="cost-panel-body" id="azure-panel"><div class="cost-empty">Loading Azure data...</div></div>
+    </div>
+
+    <!-- X.com Panel -->
+    <div class="cost-section-title"><i class="fab fa-x-twitter" style="margin-right:6px; color:#1DA1F2;"></i>X.com (Twitter) API</div>
+    <div class="cost-panel">
+      <div class="cost-panel-header">
+        <span class="cost-panel-title"><i class="fab fa-x-twitter" style="color:#1DA1F2;"></i> X.com API Costs</span>
+        <select id="x-range" style="font-size:0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:4px; color:inherit; padding:0.15rem 0.3rem;">
+          <option value="7">7 days</option>
+          <option value="14">14 days</option>
+          <option value="30" selected>30 days</option>
+        </select>
+      </div>
+      <div class="cost-panel-body" id="x-panel"><div class="cost-empty">Loading X.com data...</div></div>
+    </div>
+
+    <!-- Cost per Agent -->
+    <div class="cost-section-title"><i class="fas fa-users" style="margin-right:6px;"></i>Cost by Agent</div>
+    <div class="cost-panel">
+      <div class="cost-panel-header">
+        <span class="cost-panel-title"><i class="fas fa-users"></i> Agent Cost Breakdown</span>
+      </div>
+      <div class="cost-panel-body" id="agent-cost-panel"><div class="cost-empty">Loading agent costs...</div></div>
+    </div>
+
+    <!-- Social ROI -->
+    <div class="cost-section-title"><i class="fas fa-chart-line" style="margin-right:6px;"></i>Social ROI</div>
+    <div class="cost-panel">
+      <div class="cost-panel-header">
+        <span class="cost-panel-title"><i class="fas fa-chart-line"></i> Return on Investment</span>
+      </div>
+      <div class="cost-panel-body" id="roi-panel"><div class="cost-empty">Loading ROI data...</div></div>
+    </div>
+
+  </main>
+
+  <script src="/js/company-schemas.js"></script>
+  <script src="/js/company-store.js"></script>
+  <script src="/js/agent-engine.js"></script>
+  <script>
+  (function () {
+    'use strict';
+
+    // ── Config ──
+    var X_MONTHLY = 100; // X API Basic tier
+    var BUDGETS = [
+      { id: 'gemini', label: 'Gemini API', target: 15, color: '#fbbf24', icon: 'fa-coins' },
+      { id: 'azure',  label: 'Azure Infra', target: 10, color: '#0078D4', icon: 'fa-microsoft' },
+      { id: 'x',      label: 'X.com API',   target: 100, color: '#1DA1F2', icon: 'fa-x-twitter' },
+      { id: 'total',  label: 'Total Monthly', target: 150, color: '#34d399', icon: 'fa-wallet' }
+    ];
+
+    var _data = { gemini: null, azure: null, x: null };
+    var apiBase = '/api';
+
+    function escapeHtml(s) {
+      var d = document.createElement('div'); d.textContent = s; return d.innerHTML;
+    }
+
+    function formatNum(n) {
+      if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+      if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+      return n.toString();
+    }
+
+    // ── Init ──
+    CompanyStore.init().then(function () {
+      apiBase = (CompanyStore.getServerBase && CompanyStore.getServerBase()) || '/api';
+      AgentEngine.init();
+      fetchGemini(30);
+      fetchAzure(30);
+      renderX(30);
+      renderAgentCosts();
+      renderROI();
+    });
+
+    // ── Gemini ──
+    function fetchGemini(days) {
+      var el = document.getElementById('gemini-panel');
+      fetch(apiBase + '/geminiCosts?days=' + days)
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (data) {
+          if (!data) { el.innerHTML = '<div class="cost-empty">Could not load Gemini data.</div>'; return; }
+          _data.gemini = data;
+          renderGeminiPanel(el, data);
+          updateSummary();
+        })
+        .catch(function () { el.innerHTML = '<div class="cost-empty">Network error.</div>'; });
+    }
+
+    function renderGeminiPanel(el, data) {
+      var html = '';
+      // KPIs
+      html += '<div class="cost-kpi-row">';
+      html += kpi('$' + data.totalCost.toFixed(2), 'Total Cost', '#fbbf24');
+      html += kpi(formatNum(data.totalCalls), 'API Calls', '#60a5fa');
+      html += kpi(formatNum(data.totalPromptTokens + data.totalCompletionTokens), 'Tokens', '#a855f7');
+      var avgCost = data.totalCalls > 0 ? (data.totalCost / data.totalCalls) : 0;
+      html += kpi('$' + avgCost.toFixed(4), 'Avg/Call', '#34d399');
+      html += '</div>';
+
+      // Cost by caller
+      var callers = Object.keys(data.byCaller).sort(function (a, b) { return data.byCaller[b].cost - data.byCaller[a].cost; });
+      if (callers.length > 0) {
+        html += '<div class="cost-sub-label">Cost by Service</div>';
+        var maxCaller = data.byCaller[callers[0]] ? data.byCaller[callers[0]].cost : 1;
+        callers.forEach(function (c) {
+          var d = data.byCaller[c];
+          var pct = maxCaller > 0 ? Math.max(3, (d.cost / maxCaller) * 100) : 3;
+          html += '<div class="cost-bar-row"><div class="cost-bar-row-header">';
+          html += '<span class="cost-bar-row-name">' + escapeHtml(c) + '</span>';
+          html += '<span class="cost-bar-row-value" style="color:#fbbf24;">$' + d.cost.toFixed(4) + ' <span style="opacity:0.4;">(' + d.calls + ')</span></span>';
+          html += '</div><div class="cost-bar-track"><div class="cost-bar-fill" style="width:' + pct + '%; background:linear-gradient(90deg,#fbbf24,#f59e0b);"></div></div></div>';
+        });
+      }
+
+      // Cost by agent
+      var agents = Object.keys(data.byAgent).sort(function (a, b) { return data.byAgent[b].cost - data.byAgent[a].cost; });
+      if (agents.length > 0) {
+        html += '<div class="cost-sub-label" style="margin-top:0.6rem;">Cost by Agent</div>';
+        var maxAgent = data.byAgent[agents[0]] ? data.byAgent[agents[0]].cost : 1;
+        agents.forEach(function (a) {
+          var d = data.byAgent[a];
+          var pct = maxAgent > 0 ? Math.max(3, (d.cost / maxAgent) * 100) : 3;
+          html += '<div class="cost-bar-row"><div class="cost-bar-row-header">';
+          html += '<span class="cost-bar-row-name">' + escapeHtml(a) + '</span>';
+          html += '<span class="cost-bar-row-value" style="color:#a855f7;">$' + d.cost.toFixed(4) + ' <span style="opacity:0.4;">(' + d.calls + ')</span></span>';
+          html += '</div><div class="cost-bar-track"><div class="cost-bar-fill" style="width:' + pct + '%; background:linear-gradient(90deg,#a855f7,#7c3aed);"></div></div></div>';
+        });
+      }
+
+      // Daily sparkline
+      var days = Object.keys(data.byDay).sort();
+      if (days.length > 1) {
+        var maxDay = 0;
+        days.forEach(function (d) { if (data.byDay[d].cost > maxDay) maxDay = data.byDay[d].cost; });
+        html += '<div class="cost-sub-label" style="margin-top:0.6rem;">Daily Spend</div>';
+        html += '<div class="cost-spark">';
+        days.forEach(function (d) {
+          var pct = maxDay > 0 ? Math.max(2, (data.byDay[d].cost / maxDay) * 100) : 2;
+          var today = new Date();
+          var isToday = d === today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+          html += '<div class="cost-spark-bar" title="' + d + ': $' + data.byDay[d].cost.toFixed(4) + ' (' + data.byDay[d].calls + ' calls)" style="height:' + pct + '%; background:' + (isToday ? '#fbbf24' : 'rgba(251,191,36,0.25)') + ';"></div>';
+        });
+        html += '</div>';
+        html += '<div class="cost-spark-labels"><span>' + days[0].substring(5) + '</span><span>' + days[days.length-1].substring(5) + '</span></div>';
+      }
+
+      if (data.totalCalls === 0) html = '<div class="cost-empty">No Gemini API usage tracked yet.</div>';
+      el.innerHTML = html;
+    }
+
+    // ── Azure ──
+    function fetchAzure(days) {
+      var el = document.getElementById('azure-panel');
+      fetch(apiBase + '/azureCosts?days=' + days)
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (data) {
+          if (!data) { el.innerHTML = '<div class="cost-empty">Could not load Azure data.</div>'; return; }
+          _data.azure = data;
+          renderAzurePanel(el, data);
+          updateSummary();
+        })
+        .catch(function (e) { el.innerHTML = '<div class="cost-empty">' + escapeHtml(e.message || 'Network error.') + '</div>'; });
+    }
+
+    function renderAzurePanel(el, data) {
+      var html = '';
+      var sym = data.currency === 'USD' ? '$' : data.currency + ' ';
+
+      html += '<div class="cost-kpi-row">';
+      html += kpi(sym + data.totalCost.toFixed(2), 'Total (' + data.period + ')', '#0078D4');
+      html += kpi(sym + data.avgPerDay.toFixed(4), 'Avg/Day', '#60a5fa');
+      html += kpi(sym + data.projectedMonthly.toFixed(2), 'Projected/Mo', '#34d399');
+      html += kpi(String(data.serviceCount), 'Services', '#a855f7');
+      html += '</div>';
+
+      // Services
+      var services = Object.keys(data.byService).sort(function (a, b) { return data.byService[b].cost - data.byService[a].cost; });
+      if (services.length > 0) {
+        html += '<div class="cost-sub-label">Cost by Service</div>';
+        var maxSvc = data.byService[services[0]] ? data.byService[services[0]].cost : 1;
+        services.forEach(function (s) {
+          var d = data.byService[s];
+          var pct = maxSvc > 0 ? Math.max(3, (d.cost / maxSvc) * 100) : 3;
+          html += '<div class="cost-bar-row"><div class="cost-bar-row-header">';
+          html += '<span class="cost-bar-row-name">' + escapeHtml(s) + '</span>';
+          html += '<span class="cost-bar-row-value" style="color:#0078D4;">' + sym + d.cost.toFixed(4) + '</span>';
+          html += '</div><div class="cost-bar-track"><div class="cost-bar-fill" style="width:' + pct + '%; background:linear-gradient(90deg,#0078D4,#00BCF2);"></div></div></div>';
+        });
+      }
+
+      // Daily sparkline
+      var days = Object.keys(data.byDay).sort();
+      if (days.length > 1) {
+        var maxDay = 0;
+        days.forEach(function (d) { if (data.byDay[d].cost > maxDay) maxDay = data.byDay[d].cost; });
+        html += '<div class="cost-sub-label" style="margin-top:0.6rem;">Daily Spend</div>';
+        html += '<div class="cost-spark">';
+        days.forEach(function (d) {
+          var pct = maxDay > 0 ? Math.max(2, (data.byDay[d].cost / maxDay) * 100) : 2;
+          var today = new Date();
+          var isToday = d === today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+          html += '<div class="cost-spark-bar" title="' + d + ': ' + sym + data.byDay[d].cost.toFixed(4) + '" style="height:' + pct + '%; background:' + (isToday ? '#0078D4' : 'rgba(0,120,212,0.25)') + ';"></div>';
+        });
+        html += '</div>';
+        html += '<div class="cost-spark-labels"><span>' + days[0].substring(5) + '</span><span>' + days[days.length-1].substring(5) + '</span></div>';
+      }
+
+      el.innerHTML = html;
+    }
+
+    // ── X.com ──
+    function renderX(days) {
+      var el = document.getElementById('x-panel');
+      try {
+        var actions = AgentEngine.getActions() || [];
+        var cutoff = Date.now() - (days * 24 * 60 * 60 * 1000);
+        var xActions = actions.filter(function (a) {
+          if (!a.platform || a.platform !== 'x') return false;
+          if (!a.type || a.type.indexOf('social_post') !== 0) return false;
+          return new Date(a.created_at || a.createdAt || 0).getTime() >= cutoff;
+        });
+
+        var posted = xActions.filter(function (a) { return a.execution && a.execution.status === 'success'; });
+        var pending = xActions.filter(function (a) { return a.approval && a.approval.status === 'pending'; });
+        var failed = xActions.filter(function (a) { return a.execution && a.execution.status === 'failed'; });
+
+        var totalLikes = 0, totalRetweets = 0, totalReplies = 0, totalQuotes = 0;
+        posted.forEach(function (a) {
+          var m = a.execution && a.execution.receipt && a.execution.receipt.metrics;
+          if (m) { totalLikes += m.likes || 0; totalRetweets += m.retweets || 0; totalReplies += m.replies || 0; totalQuotes += m.quotes || 0; }
+        });
+        var totalEngagement = totalLikes + totalRetweets + totalReplies + totalQuotes;
+
+        var dailyCost = X_MONTHLY / 30;
+        var windowCost = Math.round(dailyCost * days * 100) / 100;
+        var costPerPost = posted.length > 0 ? windowCost / posted.length : 0;
+
+        _data.x = { totalCost: windowCost, postsCount: posted.length };
+        updateSummary();
+
+        var html = '';
+        html += '<div class="cost-kpi-row">';
+        html += kpi('$' + windowCost.toFixed(2), 'Subscription (' + days + 'd)', '#1DA1F2');
+        html += kpi(String(posted.length), 'Published', '#34d399');
+        html += kpi(posted.length > 0 ? '$' + costPerPost.toFixed(2) : '—', 'Cost/Post', '#a855f7');
+        html += kpi(String(totalEngagement), 'Engagements', '#fbbf24');
+        html += '</div>';
+
+        // Activity
+        html += '<div class="cost-sub-label">Activity (' + days + ' days)</div><div style="margin-bottom:0.5rem;">';
+        html += chip('Published ' + posted.length, '#34d399');
+        html += chip('Pending ' + pending.length, '#fbbf24');
+        if (failed.length > 0) html += chip('Failed ' + failed.length, '#ef4444');
+        html += '</div>';
+
+        // Engagement
+        if (totalEngagement > 0) {
+          html += '<div class="cost-sub-label">Engagement</div><div style="margin-bottom:0.5rem;">';
+          html += chip(totalLikes + ' likes', '#ef4444');
+          html += chip(totalRetweets + ' retweets', '#1DA1F2');
+          html += chip(totalReplies + ' replies', '#60a5fa');
+          if (totalQuotes > 0) html += chip(totalQuotes + ' quotes', '#a855f7');
+          html += '</div>';
+        }
+
+        // Per-post breakdown
+        if (posted.length > 0) {
+          html += '<div class="cost-sub-label" style="margin-top:0.4rem;">Published Posts</div>';
+          posted.forEach(function (a) {
+            var text = (a.payload && a.payload.text) || '(no text)';
+            if (text.length > 80) text = text.substring(0, 80) + '...';
+            var ts = a.execution.finished_at || a.created_at || '';
+            var m = a.execution.receipt && a.execution.receipt.metrics;
+            var eng = m ? (m.likes || 0) + (m.retweets || 0) + (m.replies || 0) : 0;
+            html += '<div style="padding:0.35rem 0.5rem; margin-bottom:0.3rem; background:rgba(29,161,242,0.03); border:1px solid rgba(29,161,242,0.08); border-radius:6px; font-size:0.58rem;">';
+            html += '<div style="opacity:0.7; margin-bottom:0.2rem;">' + escapeHtml(text) + '</div>';
+            html += '<div style="display:flex; gap:0.6rem; opacity:0.35; font-size:0.5rem;">';
+            if (ts) html += '<span>' + new Date(ts).toLocaleDateString() + '</span>';
+            html += '<span>' + eng + ' engagements</span>';
+            if (a.execution.receipt && a.execution.receipt.post_url) html += '<a href="' + escapeHtml(a.execution.receipt.post_url) + '" target="_blank" style="color:#1DA1F2;">View →</a>';
+            html += '</div></div>';
+          });
+        }
+
+        html += '<div style="font-size:0.48rem; opacity:0.25; margin-top:0.4rem;">X API Basic tier · $' + X_MONTHLY + '/mo flat · Engagement pulled every 15min</div>';
+
+        if (xActions.length === 0) html = '<div class="cost-empty">No X.com posts in the last ' + days + ' days. Subscription: $' + X_MONTHLY + '/mo.</div>';
+        el.innerHTML = html;
+      } catch (e) {
+        el.innerHTML = '<div class="cost-empty">Error loading X.com data.</div>';
+      }
+    }
+
+    // ── Agent Cost Table ──
+    function renderAgentCosts() {
+      var el = document.getElementById('agent-cost-panel');
+      if (!_data.gemini || !_data.gemini.byAgent) {
+        // Retry after gemini loads
+        setTimeout(renderAgentCosts, 1500);
+        return;
+      }
+      var data = _data.gemini;
+      var agentColors = { nova: '#8A2BE2', forge: '#4ECDC4', pixel: '#FF6B9D', cipher: '#fbbf24', echo: '#1DA1F2', scribe: '#34d399', scout: '#f97316', quill: '#a78bfa' };
+      var agents = Object.keys(data.byAgent).sort(function (a, b) { return data.byAgent[b].cost - data.byAgent[a].cost; });
+
+      if (agents.length === 0) { el.innerHTML = '<div class="cost-empty">No agent cost data yet.</div>'; return; }
+
+      // Count tasks per agent
+      var tasks = AgentEngine.getTasks() || [];
+      var tasksByAgent = {};
+      tasks.forEach(function (t) {
+        var assignee = t.assignee || t.assigned_to || '';
+        if (assignee) { tasksByAgent[assignee] = (tasksByAgent[assignee] || 0) + 1; }
+      });
+      var doneByAgent = {};
+      tasks.filter(function (t) { return t.status === 'done'; }).forEach(function (t) {
+        var assignee = t.assignee || t.assigned_to || '';
+        if (assignee) { doneByAgent[assignee] = (doneByAgent[assignee] || 0) + 1; }
+      });
+
+      var html = '<table class="cost-agent-table"><thead><tr>';
+      html += '<th>Agent</th><th>API Cost</th><th>Calls</th><th>Tasks</th><th>Done</th><th>Cost/Task</th>';
+      html += '</tr></thead><tbody>';
+      agents.forEach(function (a) {
+        var d = data.byAgent[a];
+        var color = agentColors[a] || '#888';
+        var totalTasks = tasksByAgent[a] || 0;
+        var doneTasks = doneByAgent[a] || 0;
+        var costPerTask = doneTasks > 0 ? d.cost / doneTasks : 0;
+        html += '<tr>';
+        html += '<td><span class="cost-agent-dot" style="background:' + color + ';"></span>' + escapeHtml(a) + '</td>';
+        html += '<td style="color:' + color + '; font-weight:500;">$' + d.cost.toFixed(4) + '</td>';
+        html += '<td>' + d.calls + '</td>';
+        html += '<td>' + totalTasks + '</td>';
+        html += '<td>' + doneTasks + '</td>';
+        html += '<td>' + (costPerTask > 0 ? '$' + costPerTask.toFixed(4) : '—') + '</td>';
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+      el.innerHTML = html;
+    }
+
+    // ── Social ROI ──
+    function renderROI() {
+      var el = document.getElementById('roi-panel');
+      try {
+        var actions = AgentEngine.getActions() || [];
+        var tasks = AgentEngine.getTasks() || [];
+
+        // All-time social posts
+        var socialPosts = actions.filter(function (a) {
+          return a.type && a.type.indexOf('social_post') === 0 && a.execution && a.execution.status === 'success';
+        });
+
+        var totalLikes = 0, totalRetweets = 0, totalReplies = 0;
+        socialPosts.forEach(function (a) {
+          var m = a.execution && a.execution.receipt && a.execution.receipt.metrics;
+          if (m) { totalLikes += m.likes || 0; totalRetweets += m.retweets || 0; totalReplies += m.replies || 0; }
+        });
+        var totalEngagement = totalLikes + totalRetweets + totalReplies;
+        var engPerPost = socialPosts.length > 0 ? totalEngagement / socialPosts.length : 0;
+
+        // Task throughput
+        var doneTasks = tasks.filter(function (t) { return t.status === 'done'; }).length;
+        var geminiCost = _data.gemini ? _data.gemini.totalCost : 0;
+        var costPerDoneTask = doneTasks > 0 ? geminiCost / doneTasks : 0;
+
+        var html = '<div class="cost-roi-grid">';
+        html += roiCard(String(socialPosts.length), 'Posts Published', '#1DA1F2');
+        html += roiCard(String(totalEngagement), 'Total Engagements', '#fbbf24');
+        html += roiCard(engPerPost > 0 ? engPerPost.toFixed(1) : '—', 'Eng/Post', '#34d399');
+        html += roiCard(String(doneTasks), 'Tasks Completed', '#a855f7');
+        html += roiCard(costPerDoneTask > 0 ? '$' + costPerDoneTask.toFixed(4) : '—', 'Gemini $/Task', '#f97316');
+        html += roiCard('$' + X_MONTHLY + '/mo', 'X Subscription', '#1DA1F2');
+        html += '</div>';
+
+        if (socialPosts.length === 0 && doneTasks === 0) {
+          html = '<div class="cost-empty">No published social posts or completed tasks yet. ROI metrics will appear once execution begins.</div>';
+        }
+        el.innerHTML = html;
+      } catch (e) {
+        el.innerHTML = '<div class="cost-empty">Error computing ROI.</div>';
+      }
+    }
+
+    // ── Summary ──
+    function updateSummary() {
+      var g = _data.gemini;
+      var a = _data.azure;
+      var x = _data.x;
+
+      var geminiTotal = g ? g.totalCost : 0;
+      var azureTotal = a ? a.totalCost : 0;
+      var xTotal = x ? x.totalCost : 0;
+      var combined = geminiTotal + azureTotal + xTotal;
+
+      var azureProjected = a ? a.projectedMonthly : 0;
+      var geminiAvgDay = g && g.totalCalls > 0 ? geminiTotal / Math.max(Object.keys(g.byDay || {}).length, 1) : 0;
+      var projected = azureProjected + (geminiAvgDay * 30) + X_MONTHLY;
+
+      // Stat cards
+      document.getElementById('cs-total').textContent = '$' + combined.toFixed(2);
+      document.getElementById('cs-gemini').textContent = '$' + geminiTotal.toFixed(2);
+      document.getElementById('cs-gemini-sub').textContent = g ? g.totalCalls + ' calls' : '—';
+      document.getElementById('cs-azure').textContent = '$' + azureTotal.toFixed(2);
+      document.getElementById('cs-azure-sub').textContent = a ? a.serviceCount + ' services' : '—';
+      document.getElementById('cs-x').textContent = '$' + xTotal.toFixed(2);
+      document.getElementById('cs-x-sub').textContent = x ? x.postsCount + ' posts' : 'subscription';
+      document.getElementById('cs-projected').textContent = '$' + projected.toFixed(2);
+
+      // Hero summary
+      var parts = ['$' + combined.toFixed(2) + ' total spend (30d)'];
+      if (projected > 0) parts.push('$' + projected.toFixed(2) + '/mo projected');
+      if (g && g.totalCalls > 0) parts.push(formatNum(g.totalCalls) + ' API calls');
+      document.getElementById('cost-summary-text').textContent = parts.join(' · ');
+
+      // Breakdown bar
+      if (combined > 0) {
+        var gPct = Math.round((geminiTotal / combined) * 100);
+        var xPct = Math.round((xTotal / combined) * 100);
+        var aPct = 100 - gPct - xPct;
+        document.getElementById('cost-bar').innerHTML =
+          (gPct > 0 ? '<div style="width:' + gPct + '%; background:#fbbf24;" title="Gemini: ' + gPct + '%"></div>' : '') +
+          (xPct > 0 ? '<div style="width:' + xPct + '%; background:#1DA1F2;" title="X.com: ' + xPct + '%"></div>' : '') +
+          (aPct > 0 ? '<div style="width:' + aPct + '%; background:#0078D4;" title="Azure: ' + aPct + '%"></div>' : '');
+        document.getElementById('cost-bar-legend').innerHTML =
+          '<span><i class="fas fa-coins" style="color:#fbbf24;"></i> Gemini ' + gPct + '%</span>' +
+          '<span><i class="fab fa-x-twitter" style="color:#1DA1F2;"></i> X ' + xPct + '%</span>' +
+          '<span><i class="fab fa-microsoft" style="color:#0078D4;"></i> Azure ' + aPct + '%</span>';
+      }
+
+      // Budget targets
+      renderBudgets(projected, geminiTotal, azureTotal, xTotal);
+      // Update agent table once gemini data arrives
+      renderAgentCosts();
+    }
+
+    // ── Budget Targets ──
+    function renderBudgets(projected, gemini, azure, x) {
+      var el = document.getElementById('budget-targets');
+      var actuals = { gemini: gemini, azure: azure, x: x, total: projected };
+      var html = '';
+      BUDGETS.forEach(function (b) {
+        var actual = actuals[b.id] || 0;
+        var pct = b.target > 0 ? Math.min(100, Math.round((actual / b.target) * 100)) : 0;
+        var fillColor = pct < 70 ? '#34d399' : pct < 90 ? '#fbbf24' : '#ef4444';
+        html += '<div class="cost-budget-card">';
+        html += '<div class="cost-budget-card-header">';
+        html += '<span class="cost-budget-card-name"><i class="fa' + (b.icon.indexOf('fa-microsoft') !== -1 || b.icon.indexOf('fa-x-twitter') !== -1 ? 'b' : 's') + ' ' + b.icon + '" style="color:' + b.color + '; margin-right:5px;"></i>' + b.label + '</span>';
+        html += '<span class="cost-budget-card-value" style="color:' + fillColor + ';">$' + actual.toFixed(2) + ' / $' + b.target + '</span>';
+        html += '</div>';
+        html += '<div class="cost-budget-bar-track"><div class="cost-budget-bar-fill" style="width:' + pct + '%; background:' + fillColor + ';"></div></div>';
+        html += '<div class="cost-budget-card-sub"><span>' + pct + '% of budget</span><span>$' + Math.max(0, b.target - actual).toFixed(2) + ' remaining</span></div>';
+        html += '</div>';
+      });
+      el.innerHTML = html;
+    }
+
+    // ── Helpers ──
+    function kpi(value, label, color) {
+      return '<div class="cost-kpi"><div class="cost-kpi-value" style="color:' + color + ';">' + value + '</div><div class="cost-kpi-label">' + label + '</div></div>';
+    }
+    function chip(text, color) {
+      return '<span class="cost-chip" style="background:rgba(' + hexToRgb(color) + ',0.06); border:1px solid rgba(' + hexToRgb(color) + ',0.1); color:rgba(255,255,255,0.6);">' + text + '</span>';
+    }
+    function roiCard(value, label, color) {
+      return '<div class="cost-roi-card"><div class="cost-roi-value" style="color:' + color + ';">' + value + '</div><div class="cost-roi-label">' + label + '</div></div>';
+    }
+    function hexToRgb(hex) {
+      var r = parseInt(hex.slice(1,3), 16), g = parseInt(hex.slice(3,5), 16), b = parseInt(hex.slice(5,7), 16);
+      return r + ',' + g + ',' + b;
+    }
+
+    // ── Range selectors ──
+    document.getElementById('gemini-range').addEventListener('change', function () { fetchGemini(parseInt(this.value) || 30); });
+    document.getElementById('azure-range').addEventListener('change', function () { fetchAzure(parseInt(this.value) || 30); });
+    document.getElementById('x-range').addEventListener('change', function () { renderX(parseInt(this.value) || 30); });
+
+  })();
+  </script>
+
+  <script src="/modules/company/js/sidebar.js"></script>
+</body>
+</html>
