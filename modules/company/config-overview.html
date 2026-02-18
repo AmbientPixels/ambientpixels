@@ -101,9 +101,16 @@
       font-size: 0.72rem;
     }
     .cfg-agent-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-    .cfg-agent-name { font-weight: 500; flex: 1; }
-    .cfg-agent-status { font-size: 0.55rem; opacity: 0.4; text-transform: uppercase; }
-    .cfg-agent-role { font-size: 0.55rem; opacity: 0.25; }
+    .cfg-agent-info { flex: 1; min-width: 0; }
+    .cfg-agent-name { font-weight: 500; }
+    .cfg-agent-meta { display: flex; gap: 0.5rem; font-size: 0.5rem; opacity: 0.35; margin-top: 0.15rem; }
+    .cfg-agent-meta span { white-space: nowrap; }
+    .cfg-agent-right { text-align: right; flex-shrink: 0; }
+    .cfg-agent-status { font-size: 0.55rem; text-transform: uppercase; font-weight: 500; }
+    .cfg-agent-status--active { color: #4ECDC4; }
+    .cfg-agent-status--idle { color: #fbbf24; }
+    .cfg-agent-status--stale { color: #ef4444; }
+    .cfg-agent-role { font-size: 0.48rem; opacity: 0.25; margin-top: 0.1rem; }
 
     /* System Tools */
     .cfg-tools-grid {
@@ -927,37 +934,86 @@
       });
 
     // Agent roster — health grid tiles (with styled empty state)
+    var _agentRoster = null;
     fetch('/data/company-agents.json')
       .then(function (r) {
         if (!r.ok) throw new Error('HTTP ' + r.status);
         return r.json();
       })
       .then(function (data) {
-        var agents = Array.isArray(data) ? data : (data && Array.isArray(data.agents) ? data.agents : null);
-        if (!agents || agents.length === 0) {
+        _agentRoster = Array.isArray(data) ? data : (data && Array.isArray(data.agents) ? data.agents : null);
+        if (!_agentRoster || _agentRoster.length === 0) {
           _cfgRenderAgentEmpty();
           return;
         }
-        _cfgSetStatus('stat-agents', agents.length + ' active', 'ok');
+        _cfgSetStatus('stat-agents', _agentRoster.length + ' active', 'ok');
         var agentRow = document.getElementById('stat-agents');
-        if (agentRow) {
-          var row = agentRow.closest('.cfg-check-row');
-          _cfgSetIcon(row, 'ok');
-        }
-        var el = document.getElementById('ov-agents');
-        var tierColors = { 1: '#FFD700', 2: '#8A2BE2', 3: '#4ECDC4', 4: '#888' };
-        el.innerHTML = agents.map(function (a) {
-          var color = tierColors[a.tier] || '#666';
-          return '<div class="cfg-agent-tile">' +
-            '<div class="cfg-agent-dot" style="background:' + color + ';"></div>' +
-            '<span class="cfg-agent-name">' + (a.name || 'Unknown') + '</span>' +
-            '<span class="cfg-agent-role">' + (a.role || '') + '</span>' +
-            '<span class="cfg-agent-status" style="color:' + color + ';">Active</span>' +
-            '</div>';
-        }).join('');
+        if (agentRow) _cfgSetIcon(agentRow.closest('.cfg-check-row'), 'ok');
+        _cfgRenderAgentTiles();
       }).catch(function () {
         _cfgRenderAgentEmpty();
       });
+
+    // Re-render agent tiles once CompanyStore is ready (to get heartbeat + task data)
+    window.addEventListener('companystoreready', function () { _cfgRenderAgentTiles(); });
+
+    function _cfgRenderAgentTiles() {
+      if (!_agentRoster) return;
+      var el = document.getElementById('ov-agents');
+      var tierColors = { 1: '#FFD700', 2: '#8A2BE2', 3: '#4ECDC4', 4: '#888' };
+      var configs = (typeof AgentEngine !== 'undefined' && AgentEngine.getAgentConfigs) ? AgentEngine.getAgentConfigs() : {};
+      var tasks = (typeof AgentEngine !== 'undefined' && AgentEngine.getTasks) ? AgentEngine.getTasks() : [];
+      var now = Date.now();
+
+      el.innerHTML = _agentRoster.map(function (a) {
+        var color = tierColors[a.tier] || '#666';
+        var id = (a.id || a.name || '').toLowerCase();
+
+        // Heartbeat info
+        var hb = configs[id] && configs[id].heartbeat;
+        var lastBeat = hb && hb.lastBeat ? new Date(hb.lastBeat).getTime() : null;
+        var agoMin = lastBeat ? Math.round((now - lastBeat) / 60000) : null;
+        var hbLabel = '';
+        var statusClass = 'cfg-agent-status--idle';
+        var statusText = 'Idle';
+
+        if (a.tier === 1) {
+          statusClass = 'cfg-agent-status--active';
+          statusText = 'CEO';
+          hbLabel = 'human';
+        } else if (agoMin !== null) {
+          if (agoMin < 1) hbLabel = 'just now';
+          else if (agoMin < 60) hbLabel = agoMin + 'm ago';
+          else if (agoMin < 1440) hbLabel = Math.round(agoMin / 60) + 'h ago';
+          else hbLabel = Math.round(agoMin / 1440) + 'd ago';
+
+          if (agoMin < 120) { statusClass = 'cfg-agent-status--active'; statusText = 'Active'; }
+          else if (agoMin < 1440) { statusClass = 'cfg-agent-status--idle'; statusText = 'Idle'; }
+          else { statusClass = 'cfg-agent-status--stale'; statusText = 'Stale'; }
+        } else {
+          hbLabel = 'no heartbeat';
+        }
+
+        // Task count for this agent
+        var agentTasks = tasks.filter(function (t) { return t.assignee === id && t.status !== 'done'; });
+        var taskLabel = agentTasks.length > 0 ? agentTasks.length + ' task' + (agentTasks.length > 1 ? 's' : '') : '0 tasks';
+
+        return '<div class="cfg-agent-tile">' +
+          '<div class="cfg-agent-dot" style="background:' + color + ';"></div>' +
+          '<div class="cfg-agent-info">' +
+            '<div class="cfg-agent-name">' + (a.name || 'Unknown') + '</div>' +
+            '<div class="cfg-agent-meta">' +
+              '<span><i class="fas fa-heartbeat" style="margin-right:2px;"></i>' + hbLabel + '</span>' +
+              '<span><i class="fas fa-tasks" style="margin-right:2px;"></i>' + taskLabel + '</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="cfg-agent-right">' +
+            '<div class="cfg-agent-status ' + statusClass + '">' + statusText + '</div>' +
+            '<div class="cfg-agent-role">' + (a.role || '') + '</div>' +
+          '</div>' +
+          '</div>';
+      }).join('');
+    }
 
     // ── External API Health Panel ──
     (function () {
