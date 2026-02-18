@@ -1,13 +1,15 @@
 // imageEngine.js — Content Engine Image Generation Library
-// Generates images via Gemini / Imagen API, uploads to Azure Blob Storage.
-// Env vars: GEMINI_API_KEY, GEMINI_IMAGE_MODEL, AZURE_STORAGE_CONNECTION_STRING
+// Generates images via Google AI Studio (generativelanguage.googleapis.com)
+// Always uses :generateContent with responseModalities: ["TEXT","IMAGE"]
+// Env vars: GEMINI_API_KEY, GEMINI_IMAGE_MODEL, GEMINI_IMAGE_PROVIDER, AZURE_STORAGE_CONNECTION_STRING
 
 const https = require('https');
 const crypto = require('crypto');
 
 // ── Config ──
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
-const GEMINI_IMAGE_MODEL = process.env.GEMINI_IMAGE_MODEL || 'imagen-3.0-generate-002';
+const GEMINI_IMAGE_MODEL = process.env.GEMINI_IMAGE_MODEL || 'gemini-1.5-pro';
+const GEMINI_IMAGE_PROVIDER = process.env.GEMINI_IMAGE_PROVIDER || 'multimodal';
 const STORAGE_ACCOUNT = 'cardforgeblobdata';
 const IMAGES_CONTAINER = process.env.GENERATED_IMAGES_CONTAINER || 'generated-images';
 const STATE_CONTAINER = 'company-state';
@@ -130,43 +132,31 @@ function buildPrompt(opts) {
   return parts.join('\n');
 }
 
-// ── Gemini / Imagen API ──
+// ── Gemini Multimodal API (AI Studio) ──
 
 /**
- * Call Gemini image generation API.
- * Supports both Imagen models (:predict) and Gemini native (:generateContent).
+ * Call Gemini :generateContent with responseModalities: ["TEXT","IMAGE"].
+ * Provider is always multimodal (AI Studio). No Imagen :predict path.
  * @returns {Promise<{base64: string, mimeType: string}>}
  */
-function callImageGeneration(prompt, aspectRatio) {
+function callImageGeneration(prompt) {
   if (!GEMINI_API_KEY) return Promise.reject(new Error('GEMINI_API_KEY not set'));
 
-  var isImagen = GEMINI_IMAGE_MODEL.indexOf('imagen') !== -1;
-  var endpoint = isImagen ? ':predict' : ':generateContent';
-  var path = '/v1beta/models/' + GEMINI_IMAGE_MODEL + endpoint + '?key=' + GEMINI_API_KEY;
+  var apiPath = '/v1beta/models/' + GEMINI_IMAGE_MODEL + ':generateContent?key=' + GEMINI_API_KEY;
 
-  var body;
-  if (isImagen) {
-    body = JSON.stringify({
-      instances: [{ prompt: prompt }],
-      parameters: {
-        sampleCount: 1,
-        aspectRatio: aspectRatio || '16:9',
-        personGeneration: 'DONT_ALLOW'
-      }
-    });
-  } else {
-    body = JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: {
-        responseModalities: ['TEXT', 'IMAGE']
-      }
-    });
-  }
+  var body = JSON.stringify({
+    contents: [{ parts: [{ text: prompt }] }],
+    generationConfig: {
+      responseModalities: ['TEXT', 'IMAGE']
+    }
+  });
+
+  console.log('[ImageEngine] POST :generateContent model=' + GEMINI_IMAGE_MODEL + ' provider=' + GEMINI_IMAGE_PROVIDER + ' bodyLen=' + body.length);
 
   return new Promise(function (resolve, reject) {
     var options = {
       hostname: 'generativelanguage.googleapis.com',
-      path: path,
+      path: apiPath,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -188,7 +178,7 @@ function callImageGeneration(prompt, aspectRatio) {
 
         try {
           var parsed = JSON.parse(data);
-          var result = _extractImage(parsed, isImagen);
+          var result = _extractImage(parsed);
           resolve(result);
         } catch (e) {
           reject(new Error('Failed to parse Gemini response: ' + e.message));
@@ -204,32 +194,22 @@ function callImageGeneration(prompt, aspectRatio) {
 }
 
 /**
- * Extract base64 image data from API response.
+ * Extract base64 image data from generateContent response.
+ * Shape: { candidates: [{ content: { parts: [{ inlineData: { data, mimeType } }] } }] }
  */
-function _extractImage(parsed, isImagen) {
-  if (isImagen) {
-    // Imagen response: { predictions: [{ bytesBase64Encoded, mimeType }] }
-    var preds = parsed.predictions || parsed.generatedImages || [];
-    if (preds.length === 0) throw new Error('No predictions in Imagen response');
-    var pred = preds[0];
-    var b64 = pred.bytesBase64Encoded || (pred.image && pred.image.imageBytes) || '';
-    if (!b64) throw new Error('No image data in Imagen prediction');
-    return { base64: b64, mimeType: pred.mimeType || 'image/png' };
-  } else {
-    // Gemini generateContent response: { candidates: [{ content: { parts: [...] } }] }
-    var candidates = parsed.candidates || [];
-    if (candidates.length === 0) throw new Error('No candidates in Gemini response');
-    var parts = (candidates[0].content && candidates[0].content.parts) || [];
-    for (var i = 0; i < parts.length; i++) {
-      if (parts[i].inlineData && parts[i].inlineData.data) {
-        return {
-          base64: parts[i].inlineData.data,
-          mimeType: parts[i].inlineData.mimeType || 'image/png'
-        };
-      }
+function _extractImage(parsed) {
+  var candidates = parsed.candidates || [];
+  if (candidates.length === 0) throw new Error('No candidates in Gemini response');
+  var parts = (candidates[0].content && candidates[0].content.parts) || [];
+  for (var i = 0; i < parts.length; i++) {
+    if (parts[i].inlineData && parts[i].inlineData.data) {
+      return {
+        base64: parts[i].inlineData.data,
+        mimeType: parts[i].inlineData.mimeType || 'image/png'
+      };
     }
-    throw new Error('No inline image data found in Gemini response parts');
   }
+  throw new Error('No inline image data found in Gemini response parts. Model ' + GEMINI_IMAGE_MODEL + ' may not support image output via responseModalities.');
 }
 
 // ── Main: Generate Image ──
@@ -256,8 +236,8 @@ async function generateImage(opts) {
 
   console.log('[ImageEngine] Generating:', opts.outputType, 'preset:', opts.preset, 'model:', GEMINI_IMAGE_MODEL);
 
-  // Call Gemini
-  var result = await callImageGeneration(prompt, purpose.aspect);
+  // Call Gemini (multimodal :generateContent)
+  var result = await callImageGeneration(prompt);
   var imageBuffer = Buffer.from(result.base64, 'base64');
   var ext = result.mimeType === 'image/jpeg' ? '.jpg' : '.png';
 
