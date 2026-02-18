@@ -27,6 +27,44 @@ function contentHash(text) {
 }
 
 /**
+ * Resolve numeric member ID from LinkedIn /v2/me endpoint.
+ * The UGC Posts API requires numeric IDs (urn:li:person:{numericId}).
+ * The env var may contain an encoded hash ID which the API rejects.
+ * @returns {Promise<{memberId: string|null, error?: string}>}
+ */
+function resolveMemberId() {
+  const creds = getCredentials();
+  if (!creds.accessToken) return Promise.resolve({ memberId: null, error: 'No token' });
+  return new Promise((resolve) => {
+    const options = {
+      hostname: 'api.linkedin.com',
+      path: '/v2/me',
+      method: 'GET',
+      headers: {
+        'Authorization': 'Bearer ' + creds.accessToken
+      }
+    };
+    const req = https.request(options, (res) => {
+      let data = '';
+      res.on('data', chunk => { data += chunk; });
+      res.on('end', () => {
+        if (res.statusCode === 200) {
+          try {
+            const me = JSON.parse(data);
+            resolve({ memberId: me.id || null });
+          } catch (e) { resolve({ memberId: null, error: 'Parse error' }); }
+        } else {
+          resolve({ memberId: null, error: '/v2/me returned HTTP ' + res.statusCode });
+        }
+      });
+    });
+    req.on('error', (err) => resolve({ memberId: null, error: err.message }));
+    req.setTimeout(8000, () => { req.destroy(); resolve({ memberId: null, error: 'Timeout' }); });
+    req.end();
+  });
+}
+
+/**
  * Pre-flight token check — calls /v2/userinfo to verify token validity
  * @returns {Promise<{valid: boolean, name?: string, error?: string}>}
  */
@@ -93,6 +131,14 @@ async function publishToLinkedIn(action) {
     throw { code: 'TOKEN_INVALID', message: tokenCheck.error || 'LinkedIn access token is invalid or expired. Refresh it in Azure App Settings.' };
   }
 
+  // Resolve numeric member ID — UGC Posts API requires urn:li:person:{NUMERIC_ID}
+  // The env var may contain an encoded hash (ACoAAA...) which the API rejects
+  let authorUrn = creds.personUrn;
+  const meResult = await resolveMemberId();
+  if (meResult.memberId) {
+    authorUrn = 'urn:li:person:' + meResult.memberId;
+  }
+
   // Build UGC Posts API payload
   const shareContent = {
     shareCommentary: { text: text },
@@ -114,7 +160,7 @@ async function publishToLinkedIn(action) {
   }
 
   const postPayload = {
-    author: creds.personUrn,
+    author: authorUrn,
     lifecycleState: 'PUBLISHED',
     specificContent: {
       'com.linkedin.ugc.ShareContent': shareContent
