@@ -475,13 +475,8 @@
       }
 
       function _suProposalActionButtons(type, index, p) {
-        if (p._decision) return '';
-        return '<div class="su-proposal-actions">' +
-          '<button class="su-proposal-action su-proposal-action--activate" data-type="' + type + '" data-index="' + index + '" data-decision="activated"><i class="fas fa-rocket"></i> Approve + Activate</button>' +
-          '<button class="su-proposal-action su-proposal-action--approve" data-type="' + type + '" data-index="' + index + '" data-decision="approved"><i class="fas fa-check"></i> Approve</button>' +
-          '<button class="su-proposal-action su-proposal-action--reject" data-type="' + type + '" data-index="' + index + '" data-decision="rejected"><i class="fas fa-times"></i> Reject</button>' +
-          '<button class="su-proposal-action su-proposal-action--defer" data-type="' + type + '" data-index="' + index + '" data-decision="deferred"><i class="fas fa-clock"></i> Defer</button>' +
-          '</div>';
+        // Standups are informational — no approval buttons. Use Meetings for action decisions.
+        return '';
       }
 
       function renderProposalsPanel(standup) {

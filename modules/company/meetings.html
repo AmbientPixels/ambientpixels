@@ -508,7 +508,7 @@
       function _proposalDecisionBadge(p) {
         if (!p._decision) return '';
         var COLORS = { approved: '#22c55e', activated: '#22c55e', rejected: '#ef4444', deferred: '#8b5cf6' };
-        var LABELS = { approved: 'Approved (Pending)', activated: 'Approved + Active', rejected: 'Rejected', deferred: 'Deferred' };
+        var LABELS = { approved: 'Approved → Todo', activated: 'Approved → Active', rejected: 'Rejected', deferred: 'Deferred' };
         var c = COLORS[p._decision] || '#6b7280';
         return '<span style="font-size:0.6rem;font-weight:600;padding:2px 8px;border-radius:8px;background:' + c + '22;color:' + c + ';">' +
           (LABELS[p._decision] || p._decision) + '</span>';
