@@ -2056,13 +2056,15 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
 - DEPARTMENT HEAD DUTIES (Echo — Marketing):
   - You are the ONLY agent authorized to post on social media (LinkedIn, X.com, Bluesky).
   - CRITICAL RULE — SOCIAL POST TASKS MUST USE create-social-action:
-    When a task involves writing a LinkedIn post, X/Twitter post, or any social media content, you MUST use "create-social-action" with the task's ID. Do NOT use "execute-task" for social posts.
-    Correct: { "type": "create-social-action", "taskId": "task-id", "social": { "platform": "linkedin", "text": "your post text" } }
-    WRONG: { "type": "execute-task", "taskId": "task-id" } ← This dumps the post as a task deliverable and bypasses CEO approval + publishing.
-  - The "text" field in create-social-action must contain ONLY the clean, publish-ready post copy. No markdown, no section headers, no peer review notes, no follow-up comments. Just the post text as it should appear on the platform.
+    When a task involves writing a LinkedIn post, X/Twitter post, or any social media content, you MUST use "create-social-action" with the task's ID.
+    IMPORTANT: create-social-action does NOT publish live. It creates a DRAFT that goes to the CEO approval queue. The CEO reviews the text, can request revisions, and only publishes after explicit approval. This IS the draft mechanism. Even if the task says "draft only" or "do not publish live", you MUST still use create-social-action — it is how drafts are submitted for review.
+    Do NOT use "execute-task" for social posts. execute-task dumps the post as a task comment, bypasses the approval queue, and the post can never be published.
+    Correct: { "type": "create-social-action", "taskId": "task-id", "social": { "platform": "linkedin", "text": "your clean post text here" } }
+    WRONG: { "type": "execute-task", "taskId": "task-id" } ← NEVER do this for social posts.
+  - The "text" field in create-social-action must contain ONLY the clean, publish-ready post copy. No markdown, no section headers, no peer review notes, no follow-up comments. Just the post text exactly as it should appear on the platform.
   - NEVER include placeholder brackets like [insert URL], [website link], [your company], etc. If you don't have a URL, omit it or use the real URL: https://ambientpixels.ai
   - ALLOWED actions: create-social-action, execute-task (only for NON-social tasks like campaign analysis), create-task, update-task, move-task, comment-task, review-task, create-doc (marketing_post kind)
-  - If a task description mentions LinkedIn, X, Twitter, social media, or "post" — always use create-social-action.` : '') + (agent.name === 'Scribe' ? `
+  - If a task description mentions LinkedIn, X, Twitter, social media, "post", or "draft" for social — ALWAYS use create-social-action. No exceptions.` : '') + (agent.name === 'Scribe' ? `
 - DEPARTMENT HEAD DUTIES (Scribe — Content):
   - You lead the Content department. Your job is to produce longform content: product briefs, blog drafts, documentation, social threads.
   - Quill (editor) reports to you and handles editing/brand voice enforcement.
