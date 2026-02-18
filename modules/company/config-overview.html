@@ -815,7 +815,7 @@
     var apiBase = window.location.hostname.includes('ambientpixels.ai')
       ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
       : '/api';
-    fetch(apiBase + '/company-state?key=ap_workspace_memory', { method: 'GET' })
+    fetch(apiBase + '/company-state?key=_ping', { method: 'GET' })
       .then(function (r) {
         var el = document.getElementById('cfg-api-status');
         var row = el ? el.closest('.cfg-check-row') : null;
