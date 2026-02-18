@@ -2480,15 +2480,14 @@ var AgentEngine = (function () {
             markArtifactPublished(docId, artUrl);
           }
         }
-        // Auto-complete parent task when linked action is approved
-        if (a._parentTaskId && (a.type === 'social_post.publish' || a.type === 'social_post.schedule' || a.type === 'task_completion.approve')) {
+        // Auto-complete parent task for task_completion (CEO signs off on approval)
+        // Social posts: do NOT auto-complete here — task completes after successful EXECUTION
+        if (a._parentTaskId && a.type === 'task_completion.approve') {
           var parentTask = getTask(a._parentTaskId);
           if (parentTask && parentTask.status !== 'done') {
             updateTask(a._parentTaskId, { status: 'done' });
             addTaskComment(a._parentTaskId, {
-              text: a.type === 'task_completion.approve'
-                ? 'Task completed: CEO signed off on deliverable and peer review (' + actionId + ').'
-                : 'Task auto-completed: CEO approved the linked social action (' + actionId + ').',
+              text: 'Task completed: CEO signed off on deliverable and peer review (' + actionId + ').',
               author: 'system',
               type: 'system'
             });
@@ -2798,6 +2797,18 @@ var AgentEngine = (function () {
         _syncLegacy(a);
         _saveActions(list);
         _incrementRateCount(a.action_category);
+        // Auto-complete parent task after successful social post execution
+        if (a._parentTaskId && (a.type === 'social_post.publish' || a.type === 'social_post.schedule')) {
+          var parentTask = getTask(a._parentTaskId);
+          if (parentTask && parentTask.status !== 'done') {
+            updateTask(a._parentTaskId, { status: 'done' });
+            addTaskComment(a._parentTaskId, {
+              text: 'Task auto-completed: social post published successfully (' + actionId + ').',
+              author: 'system',
+              type: 'system'
+            });
+          }
+        }
         _logAction('action-success', { actionId: actionId, type: a.type, platform: a.platform, receipt: receipt });
         _logGovernance('action-success', { actionId: actionId, type: a.type, platform: a.platform });
         return a;
