@@ -761,15 +761,15 @@
       // Store mode
       var mode = CompanyStore.getMode();
       _cfgSetStatus('stat-store', mode || 'unknown', mode ? 'ok' : 'warn');
-
-      return Promise.all([
-        CompanyStore.getState('ap_workspace_tools', [])
-      ]);
-    }).then(function (results) {
-      var tools = results[0] || [];
-      _cfgSetStatus('stat-tools', tools.length + ' registered', tools.length > 0 ? 'ok' : 'warn');
     }).catch(function () {
       _cfgSetStatus('stat-store', '\u26A0 Store unavailable', 'err');
+    });
+
+    // Tools registry — read from AgentEngine (includes hardcoded defaults)
+    AgentEngine.loadRegistry().then(function () {
+      var tools = AgentEngine.getTools ? AgentEngine.getTools() : [];
+      _cfgSetStatus('stat-tools', tools.length + ' registered', tools.length > 0 ? 'ok' : 'warn');
+    }).catch(function () {
       _cfgSetStatus('stat-tools', '\u26A0 Unable to read', 'err');
     });
 
