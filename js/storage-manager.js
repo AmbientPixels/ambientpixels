@@ -32,6 +32,11 @@ var StorageManager = (function () {
     'ap_calibration_artifact_history'
   ];
 
+  // ── Auto-prune threshold ──
+  var AUTO_PRUNE_THRESHOLD = 0.8;
+  var _lastAutoPruneTs = 0;
+  var AUTO_PRUNE_COOLDOWN_MS = 300000; // 5 min cooldown between auto-prunes
+
   // ── storage_full debounce ──
   var _lastFullTs = 0;
   var FULL_DEBOUNCE_MS = 60000;
@@ -43,6 +48,7 @@ var StorageManager = (function () {
     var str = typeof value === 'string' ? value : JSON.stringify(value);
     try {
       localStorage.setItem(key, str);
+      checkAndAutoPrune();
       return true;
     } catch (e) {
       // Quota exceeded — attempt emergency prune + retry once
@@ -383,6 +389,32 @@ var StorageManager = (function () {
   }
 
   // ═══════════════════════════════════════════════════
+  // ── Auto-prune (proactive at 80% capacity) ──
+  // ═══════════════════════════════════════════════════
+  function checkAndAutoPrune() {
+    var now = Date.now();
+    if (now - _lastAutoPruneTs < AUTO_PRUNE_COOLDOWN_MS) return null;
+
+    var counts = getStoreCounts();
+    var triggered = false;
+
+    for (var i = 0; i < LOG_KEYS.length; i++) {
+      if ((counts[LOG_KEYS[i]] || 0) >= MAX_LOG_ITEMS * AUTO_PRUNE_THRESHOLD) {
+        triggered = true;
+        break;
+      }
+    }
+    if ((counts[QUEUE_KEY] || 0) >= MAX_QUEUE_HISTORY * AUTO_PRUNE_THRESHOLD) triggered = true;
+    if ((counts[CACHE_KEY] || 0) >= MAX_CACHE_ITEMS * AUTO_PRUNE_THRESHOLD) triggered = true;
+
+    if (!triggered) return null;
+
+    _lastAutoPruneTs = now;
+    console.log('[StorageManager] Auto-prune triggered (80% threshold reached)');
+    return pruneAll();
+  }
+
+  // ═══════════════════════════════════════════════════
   // ── Emergency prune (for quota exceeded) ──
   // ═══════════════════════════════════════════════════
   function _emergencyPrune() {
@@ -428,7 +460,9 @@ var StorageManager = (function () {
     getOldestEntry: getOldestEntry,
     exportDiagnostics: exportDiagnostics,
     resetCaches: resetCaches,
+    checkAndAutoPrune: checkAndAutoPrune,
     MAX_LOG_ITEMS: MAX_LOG_ITEMS,
+    AUTO_PRUNE_THRESHOLD: AUTO_PRUNE_THRESHOLD,
     MAX_QUEUE_HISTORY: MAX_QUEUE_HISTORY,
     MAX_CACHE_ITEMS: MAX_CACHE_ITEMS,
     MAX_AGE_DAYS: MAX_AGE_DAYS
