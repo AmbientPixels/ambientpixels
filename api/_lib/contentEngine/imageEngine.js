@@ -8,7 +8,7 @@ const crypto = require('crypto');
 
 // ── Config ──
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
-const GEMINI_IMAGE_MODEL = process.env.GEMINI_IMAGE_MODEL || 'gemini-1.5-pro';
+const GEMINI_IMAGE_MODEL = process.env.GEMINI_IMAGE_MODEL || 'gemini-2.5-flash-image';
 const GEMINI_IMAGE_PROVIDER = process.env.GEMINI_IMAGE_PROVIDER || 'multimodal';
 const STORAGE_ACCOUNT = 'cardforgeblobdata';
 const IMAGES_CONTAINER = process.env.GENERATED_IMAGES_CONTAINER || 'generated-images';
@@ -147,7 +147,7 @@ function callImageGeneration(prompt) {
   var body = JSON.stringify({
     contents: [{ parts: [{ text: prompt }] }],
     generationConfig: {
-      responseModalities: ['TEXT', 'IMAGE']
+      responseModalities: ['Image']
     }
   });
 
