@@ -207,6 +207,34 @@ module.exports = async function (context, req) {
       actions[actionIndex] = action;
       await storage.setState('actions', actions);
 
+      // Add failure comment to parent task so CEO can see what went wrong
+      if (action._parentTaskId && actionType.indexOf('social_post') === 0) {
+        try {
+          const tasks = (await storage.getState('tasks')) || [];
+          const parentTask = tasks.find(t => t.id === action._parentTaskId);
+          if (parentTask) {
+            if (!parentTask.comments) parentTask.comments = [];
+            const attempt = action.execution.attempts || 1;
+            const MAX_ATTEMPTS = 3;
+            parentTask.comments.push({
+              id: 'cmt-execfail-' + Date.now(),
+              author: 'system',
+              text: 'Execution failed (attempt ' + attempt + '/' + MAX_ATTEMPTS + '): ' + (action.execution.last_error.message || 'Unknown error').substring(0, 300) + (attempt >= MAX_ATTEMPTS ? ' — Max retries exhausted. Task moved to blocked.' : ' — Retryable from Actions page.'),
+              type: 'system',
+              createdAt: new Date().toISOString()
+            });
+            if (attempt >= MAX_ATTEMPTS && parentTask.status !== 'done') {
+              parentTask.status = 'blocked';
+            }
+            parentTask.updatedAt = new Date().toISOString();
+            await storage.setState('tasks', tasks);
+            context.log('[actionsExecute] Updated parent task:', action._parentTaskId, 'attempt', attempt + '/' + MAX_ATTEMPTS, attempt >= MAX_ATTEMPTS ? '→ BLOCKED' : '→ retryable');
+          }
+        } catch (taskErr) {
+          context.log.warn('[actionsExecute] Failed to update parent task on failure:', taskErr.message);
+        }
+      }
+
       // Log failure to governance
       await _logGovernance(storage, 'action-failed', {
         actionId: action.id,
