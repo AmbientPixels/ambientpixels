@@ -27,14 +27,50 @@ function contentHash(text) {
 }
 
 /**
- * Resolve numeric member ID from LinkedIn /v2/me endpoint.
- * The UGC Posts API requires urn:li:member:{NUMERIC_ID} format.
- * The env var contains an encoded hash ID which the API rejects.
- * @returns {Promise<{memberId: string|null, error?: string, raw?: string}>}
+ * Extract numeric member ID from a base64-encoded LinkedIn person URN.
+ * LinkedIn encodes the numeric ID inside the base64 bytes.
+ * Format: 2-byte type prefix + entity data. Numeric ID is typically at byte offset 4 as uint32 BE.
+ * @param {string} encodedId - The base64-encoded part of urn:li:person:{encodedId}
+ * @returns {string|null} Numeric member ID or null
+ */
+function decodeNumericIdFromUrn(encodedId) {
+  try {
+    const buf = Buffer.from(encodedId, 'base64');
+    if (buf.length < 8) return null;
+    // LinkedIn URN: bytes 0-1 = type prefix (0x00, 0x2A for member), bytes 4-7 = numeric member ID
+    const id = buf.readUInt32BE(4);
+    if (id > 10000 && id < 2000000000) return String(id);
+    // Fallback: try offset 0
+    const id0 = buf.readUInt32BE(0);
+    if (id0 > 10000 && id0 < 2000000000) return String(id0);
+  } catch (e) {}
+  return null;
+}
+
+/**
+ * Resolve numeric member ID. Tries in order:
+ * 1. /v2/me API call (requires r_liteprofile scope)
+ * 2. Decode from base64-encoded URN in env var
+ * @returns {Promise<{memberId: string|null, error?: string, method?: string}>}
  */
 function resolveMemberId() {
   const creds = getCredentials();
   if (!creds.accessToken) return Promise.resolve({ memberId: null, error: 'No token' });
+
+  // First: try to decode numeric ID directly from the encoded URN (no API call needed)
+  const urnParts = (creds.personUrn || '').split(':');
+  const encodedId = urnParts[urnParts.length - 1] || '';
+  if (encodedId && !/^\d+$/.test(encodedId)) {
+    const decoded = decodeNumericIdFromUrn(encodedId);
+    if (decoded) {
+      return Promise.resolve({ memberId: decoded, method: 'base64-decode' });
+    }
+  } else if (/^\d+$/.test(encodedId)) {
+    // URN already contains a numeric ID
+    return Promise.resolve({ memberId: encodedId, method: 'env-var-numeric' });
+  }
+
+  // Fallback: try /v2/me API
   return new Promise((resolve) => {
     const options = {
       hostname: 'api.linkedin.com',
@@ -52,10 +88,10 @@ function resolveMemberId() {
         if (res.statusCode === 200) {
           try {
             const me = JSON.parse(data);
-            resolve({ memberId: me.id || null, raw: data.substring(0, 200) });
-          } catch (e) { resolve({ memberId: null, error: 'Parse error: ' + data.substring(0, 100) }); }
+            resolve({ memberId: me.id || null, method: 'api-v2-me' });
+          } catch (e) { resolve({ memberId: null, error: 'Parse error' }); }
         } else {
-          resolve({ memberId: null, error: '/v2/me returned HTTP ' + res.statusCode + ': ' + data.substring(0, 200) });
+          resolve({ memberId: null, error: '/v2/me HTTP ' + res.statusCode });
         }
       });
     });
@@ -249,7 +285,7 @@ async function publishToLinkedIn(action) {
           });
         } else {
           let errMsg = (parsed && parsed.message) || (parsed && parsed.status) || data.substring(0, 300);
-          errMsg += ' | DEBUG: api=' + apiUrl + ', author=' + authorUrn + ', /v2/me=' + (meResult.memberId || meResult.error || 'null');
+          errMsg += ' | DEBUG: api=' + apiUrl + ', author=' + authorUrn + ', resolved=' + (meResult.memberId || 'null') + ' via ' + (meResult.method || meResult.error || 'unknown');
           if (res.statusCode === 403) {
             errMsg += ' | 403 Hint: Token may lack w_member_social scope, or URN does not match the token owner.';
           } else if (res.statusCode === 401) {
