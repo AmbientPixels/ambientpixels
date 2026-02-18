@@ -2509,7 +2509,7 @@
       }
 
       // ── X.com API Costs ──
-      var X_MONTHLY_SUBSCRIPTION = 100; // X API Basic tier ($100/mo)
+      var X_MONTHLY_SUBSCRIPTION = parseFloat(localStorage.getItem('ap_x_plan_cost')) || 0;
       var _xCostDays = 30;
 
       function renderXCosts() {
@@ -2591,10 +2591,11 @@
           }
 
           // Subscription note
-          html += '<div style="font-size:0.48rem; opacity:0.25; margin-top:0.3rem;">X API Basic tier · $' + X_MONTHLY_SUBSCRIPTION + '/mo flat · Engagement pulled every 15min</div>';
+          var _xPlanLabel = X_MONTHLY_SUBSCRIPTION === 0 ? 'Free tier' : (X_MONTHLY_SUBSCRIPTION === 100 ? 'Basic tier' : (X_MONTHLY_SUBSCRIPTION === 5000 ? 'Pro tier' : '$' + X_MONTHLY_SUBSCRIPTION + '/mo'));
+          html += '<div style="font-size:0.48rem; opacity:0.25; margin-top:0.3rem;">X API ' + _xPlanLabel + ' · $' + X_MONTHLY_SUBSCRIPTION + '/mo · Engagement pulled every 15min</div>';
 
           if (xActions.length === 0) {
-            html = '<div class="dash-empty">No X.com posts in the last ' + _xCostDays + ' days. Cost is subscription-based ($' + X_MONTHLY_SUBSCRIPTION + '/mo).</div>';
+            html = '<div class="dash-empty">No X.com posts in the last ' + _xCostDays + ' days.' + (X_MONTHLY_SUBSCRIPTION > 0 ? ' Subscription: $' + X_MONTHLY_SUBSCRIPTION + '/mo.' : ' Free tier.') + '</div>';
           }
           el.innerHTML = html;
         } catch (e) {

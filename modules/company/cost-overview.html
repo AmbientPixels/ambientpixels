@@ -217,8 +217,8 @@
       </div>
       <div class="cost-stat-card">
         <div class="cost-stat-value" style="color:#1DA1F2;" id="cs-x">—</div>
-        <div class="cost-stat-label">X.com API</div>
-        <div class="cost-stat-sub" id="cs-x-sub">subscription</div>
+        <div class="cost-stat-label">X.com Cost/Post</div>
+        <div class="cost-stat-sub" id="cs-x-sub">loading</div>
       </div>
       <div class="cost-stat-card">
         <div class="cost-stat-value" style="color:#34d399;" id="cs-projected">—</div>
@@ -268,11 +268,18 @@
     <div class="cost-panel">
       <div class="cost-panel-header">
         <span class="cost-panel-title"><i class="fab fa-x-twitter" style="color:#1DA1F2;"></i> X.com API Costs</span>
-        <select id="x-range" style="font-size:0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:4px; color:inherit; padding:0.15rem 0.3rem;">
-          <option value="7">7 days</option>
-          <option value="14">14 days</option>
-          <option value="30" selected>30 days</option>
-        </select>
+        <div style="display:flex;gap:0.4rem;align-items:center;">
+          <select id="x-plan" title="X API plan" style="font-size:0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:4px; color:inherit; padding:0.15rem 0.3rem;">
+            <option value="0">Free ($0/mo)</option>
+            <option value="100">Basic ($100/mo)</option>
+            <option value="5000">Pro ($5,000/mo)</option>
+          </select>
+          <select id="x-range" style="font-size:0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:4px; color:inherit; padding:0.15rem 0.3rem;">
+            <option value="7">7 days</option>
+            <option value="14">14 days</option>
+            <option value="30" selected>30 days</option>
+          </select>
+        </div>
       </div>
       <div class="cost-panel-body" id="x-panel"><div class="cost-empty">Loading X.com data...</div></div>
     </div>
@@ -305,13 +312,22 @@
     'use strict';
 
     // ── Config ──
-    var X_MONTHLY = 100; // X API Basic tier
-    var BUDGETS = [
-      { id: 'gemini', label: 'Gemini API', target: 15, color: '#fbbf24', icon: 'fa-coins' },
-      { id: 'azure',  label: 'Azure Infra', target: 10, color: '#0078D4', icon: 'fa-microsoft' },
-      { id: 'x',      label: 'X.com API',   target: 100, color: '#1DA1F2', icon: 'fa-x-twitter' },
-      { id: 'total',  label: 'Total Monthly', target: 150, color: '#34d399', icon: 'fa-wallet' }
-    ];
+    function getXMonthly() {
+      var v = localStorage.getItem('ap_x_plan_cost');
+      return v !== null ? parseFloat(v) : 0;
+    }
+    function setXMonthly(cost) {
+      localStorage.setItem('ap_x_plan_cost', String(cost));
+    }
+    function getBudgets() {
+      var xm = getXMonthly();
+      return [
+        { id: 'gemini', label: 'Gemini API', target: 15, color: '#fbbf24', icon: 'fa-coins' },
+        { id: 'azure',  label: 'Azure Infra', target: 10, color: '#0078D4', icon: 'fa-microsoft' },
+        { id: 'x',      label: 'X.com API',   target: Math.max(xm, 1), color: '#1DA1F2', icon: 'fa-x-twitter' },
+        { id: 'total',  label: 'Total Monthly', target: 25 + xm, color: '#34d399', icon: 'fa-wallet' }
+      ];
+    }
 
     var _data = { gemini: null, azure: null, x: null };
     var apiBase = '/api';
@@ -504,7 +520,8 @@
         });
         var totalEngagement = totalLikes + totalRetweets + totalReplies + totalQuotes;
 
-        var dailyCost = X_MONTHLY / 30;
+        var xMonthly = getXMonthly();
+        var dailyCost = xMonthly / 30;
         var windowCost = Math.round(dailyCost * days * 100) / 100;
         var costPerPost = posted.length > 0 ? windowCost / posted.length : 0;
 
@@ -555,9 +572,10 @@
           });
         }
 
-        html += '<div style="font-size:0.48rem; opacity:0.25; margin-top:0.4rem;">X API Basic tier · $' + X_MONTHLY + '/mo flat · Engagement pulled every 15min</div>';
+        var planLabel = xMonthly === 0 ? 'Free tier' : (xMonthly === 100 ? 'Basic tier' : (xMonthly === 5000 ? 'Pro tier' : '$' + xMonthly + '/mo'));
+        html += '<div style="font-size:0.48rem; opacity:0.25; margin-top:0.4rem;">X API ' + planLabel + ' · $' + xMonthly + '/mo · Engagement pulled every 15min</div>';
 
-        if (xActions.length === 0) html = '<div class="cost-empty">No X.com posts in the last ' + days + ' days. Subscription: $' + X_MONTHLY + '/mo.</div>';
+        if (xActions.length === 0) html = '<div class="cost-empty">No X.com posts in the last ' + days + ' days.' + (xMonthly > 0 ? ' Subscription: $' + xMonthly + '/mo.' : ' Free tier.') + '</div>';
         el.innerHTML = html;
       } catch (e) {
         el.innerHTML = '<div class="cost-empty">Error loading X.com data.</div>';
@@ -644,7 +662,7 @@
         html += roiCard(engPerPost > 0 ? engPerPost.toFixed(1) : '—', 'Eng/Post', '#34d399');
         html += roiCard(String(doneTasks), 'Tasks Completed', '#a855f7');
         html += roiCard(costPerDoneTask > 0 ? '$' + costPerDoneTask.toFixed(4) : '—', 'Gemini $/Task', '#f97316');
-        html += roiCard('$' + X_MONTHLY + '/mo', 'X Subscription', '#1DA1F2');
+        html += roiCard('$' + getXMonthly() + '/mo', 'X Subscription', '#1DA1F2');
         html += '</div>';
 
         if (socialPosts.length === 0 && doneTasks === 0) {
@@ -669,7 +687,7 @@
 
       var azureProjected = a ? a.projectedMonthly : 0;
       var geminiAvgDay = g && g.totalCalls > 0 ? geminiTotal / Math.max(Object.keys(g.byDay || {}).length, 1) : 0;
-      var projected = azureProjected + (geminiAvgDay * 30) + X_MONTHLY;
+      var projected = azureProjected + (geminiAvgDay * 30) + getXMonthly();
 
       // Stat cards
       document.getElementById('cs-total').textContent = '$' + combined.toFixed(2);
@@ -677,8 +695,11 @@
       document.getElementById('cs-gemini-sub').textContent = g ? g.totalCalls + ' calls' : '—';
       document.getElementById('cs-azure').textContent = '$' + azureTotal.toFixed(2);
       document.getElementById('cs-azure-sub').textContent = a ? a.serviceCount + ' services' : '—';
-      document.getElementById('cs-x').textContent = '$' + xTotal.toFixed(2);
-      document.getElementById('cs-x-sub').textContent = x ? x.postsCount + ' posts' : 'subscription';
+      var xCostPerPost = (x && x.postsCount > 0) ? xTotal / x.postsCount : 0;
+      document.getElementById('cs-x').textContent = (x && x.postsCount > 0) ? '$' + xCostPerPost.toFixed(2) : '$0.00';
+      var xPlan = getXMonthly();
+      var xPlanName = xPlan === 0 ? 'Free' : (xPlan === 100 ? 'Basic' : (xPlan === 5000 ? 'Pro' : '$' + xPlan));
+      document.getElementById('cs-x-sub').textContent = x ? x.postsCount + ' posts \u00B7 ' + xPlanName : xPlanName;
       document.getElementById('cs-projected').textContent = '$' + projected.toFixed(2);
 
       // Hero summary
@@ -703,17 +724,17 @@
       }
 
       // Budget targets
-      renderBudgets(projected, geminiTotal, azureTotal, xTotal);
+      renderBudgets(projected, geminiTotal, azureTotal, xTotal, getBudgets());
       // Update agent table once gemini data arrives
       renderAgentCosts();
     }
 
     // ── Budget Targets ──
-    function renderBudgets(projected, gemini, azure, x) {
+    function renderBudgets(projected, gemini, azure, x, budgets) {
       var el = document.getElementById('budget-targets');
       var actuals = { gemini: gemini, azure: azure, x: x, total: projected };
       var html = '';
-      BUDGETS.forEach(function (b) {
+      budgets.forEach(function (b) {
         var actual = actuals[b.id] || 0;
         var pct = b.target > 0 ? Math.min(100, Math.round((actual / b.target) * 100)) : 0;
         var fillColor = pct < 70 ? '#34d399' : pct < 90 ? '#fbbf24' : '#ef4444';
@@ -748,6 +769,20 @@
     document.getElementById('gemini-range').addEventListener('change', function () { fetchGemini(parseInt(this.value) || 30); });
     document.getElementById('azure-range').addEventListener('change', function () { fetchAzure(parseInt(this.value) || 30); });
     document.getElementById('x-range').addEventListener('change', function () { renderX(parseInt(this.value) || 30); });
+
+    // X plan selector — load saved plan and handle changes
+    (function () {
+      var planEl = document.getElementById('x-plan');
+      if (!planEl) return;
+      var saved = getXMonthly();
+      planEl.value = String(saved);
+      // If saved value doesn't match any option, select closest
+      if (planEl.selectedIndex === -1) planEl.value = '0';
+      planEl.addEventListener('change', function () {
+        setXMonthly(parseFloat(this.value) || 0);
+        renderX(parseInt(document.getElementById('x-range').value) || 30);
+      });
+    })();
 
   })();
   </script>
