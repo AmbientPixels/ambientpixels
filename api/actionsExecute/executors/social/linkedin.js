@@ -168,97 +168,128 @@ async function publishToLinkedIn(action) {
     throw { code: 'TOKEN_INVALID', message: tokenCheck.error || 'LinkedIn access token is invalid or expired. Refresh it in Azure App Settings.' };
   }
 
-  // Resolve numeric member ID — UGC Posts API requires urn:li:person:{NUMERIC_ID}
-  // The env var contains an encoded hash (ACoAAA...) which the API rejects
+  // Resolve numeric member ID from base64-encoded URN or env var
   const meResult = await resolveMemberId();
-  let useSharesApi = false;
-
-  let authorUrn;
-  if (meResult.memberId && /^\d+$/.test(meResult.memberId)) {
-    // Got numeric ID — use UGC Posts API with urn:li:person:{numericId}
-    authorUrn = 'urn:li:person:' + meResult.memberId;
-  } else {
-    // Could not resolve numeric ID — fall back to Shares API
-    authorUrn = creds.personUrn;
-    useSharesApi = true;
-  }
-
+  const numericId = (meResult.memberId && /^\d+$/.test(meResult.memberId)) ? meResult.memberId : null;
   const media = (action.payload && action.payload.media) || [];
-  let body, apiUrl;
 
-  if (useSharesApi) {
-    // ── Shares API fallback (/v2/shares) ──
-    // Works with w_member_social scope and accepts encoded person URNs
-    apiUrl = 'https://api.linkedin.com/v2/shares';
-    const sharesPayload = {
-      owner: authorUrn,
-      text: { text: text },
+  // Build API attempts in priority order:
+  // 1. New Posts API (/rest/posts) — replaces deprecated UGC, uses urn:li:person:{numericId}
+  // 2. UGC Posts API (/v2/ugcPosts) — legacy, uses urn:li:member:{numericId}
+  // 3. Shares API (/v2/shares) — oldest fallback
+  const attempts = [];
+
+  if (numericId) {
+    // ── Attempt 1: New Posts API (/rest/posts) ──
+    const postsPayload = {
+      author: 'urn:li:person:' + numericId,
+      commentary: text,
+      visibility: 'PUBLIC',
       distribution: {
-        linkedInDistributionTarget: {}
-      }
+        feedDistribution: 'MAIN_FEED',
+        targetEntities: [],
+        thirdPartyDistributionChannels: []
+      },
+      lifecycleState: 'PUBLISHED',
+      isReshareDisabledByAuthor: false
     };
 
-    // Attach article media if provided
     if (media.length > 0) {
       const firstMedia = typeof media[0] === 'string' ? media[0] : (media[0].url || media[0].id || '');
       if (firstMedia.startsWith('http')) {
-        sharesPayload.content = {
-          contentEntities: [{
-            entityLocation: firstMedia,
-            entity: firstMedia
-          }],
-          title: (typeof media[0] === 'object' && media[0].title) || 'Shared content'
+        postsPayload.content = {
+          article: {
+            source: firstMedia,
+            title: (typeof media[0] === 'object' && media[0].title) || 'Shared content'
+          }
         };
       }
     }
 
-    body = JSON.stringify(sharesPayload);
-  } else {
-    // ── UGC Posts API (primary) ──
-    apiUrl = LINKEDIN_API_URL;
-    const shareContent = {
-      shareCommentary: { text: text },
-      shareMediaCategory: 'NONE'
-    };
+    attempts.push({
+      label: 'Posts API',
+      url: 'https://api.linkedin.com/rest/posts',
+      body: JSON.stringify(postsPayload),
+      headers: {
+        'LinkedIn-Version': '202401',
+        'X-Restli-Protocol-Version': '2.0.0'
+      }
+    });
 
+    // ── Attempt 2: UGC Posts API (/v2/ugcPosts) ──
+    const shareContent = { shareCommentary: { text: text }, shareMediaCategory: 'NONE' };
     if (media.length > 0) {
       const firstMedia = typeof media[0] === 'string' ? media[0] : (media[0].url || media[0].id || '');
       if (firstMedia.startsWith('http')) {
         shareContent.shareMediaCategory = 'ARTICLE';
-        shareContent.media = [{
-          status: 'READY',
-          originalUrl: firstMedia,
-          title: { text: (typeof media[0] === 'object' && media[0].title) || 'Shared content' }
-        }];
+        shareContent.media = [{ status: 'READY', originalUrl: firstMedia, title: { text: (typeof media[0] === 'object' && media[0].title) || 'Shared content' } }];
       }
     }
-
-    const postPayload = {
-      author: authorUrn,
-      lifecycleState: 'PUBLISHED',
-      specificContent: {
-        'com.linkedin.ugc.ShareContent': shareContent
-      },
-      visibility: {
-        'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC'
-      }
-    };
-
-    body = JSON.stringify(postPayload);
+    attempts.push({
+      label: 'UGC Posts API',
+      url: LINKEDIN_API_URL,
+      body: JSON.stringify({
+        author: 'urn:li:member:' + numericId,
+        lifecycleState: 'PUBLISHED',
+        specificContent: { 'com.linkedin.ugc.ShareContent': shareContent },
+        visibility: { 'com.linkedin.ugc.MemberNetworkVisibility': 'PUBLIC' }
+      }),
+      headers: { 'X-Restli-Protocol-Version': '2.0.0' }
+    });
   }
 
+  // ── Attempt 3: Shares API (/v2/shares) — last resort ──
+  attempts.push({
+    label: 'Shares API',
+    url: 'https://api.linkedin.com/v2/shares',
+    body: JSON.stringify({
+      owner: creds.personUrn,
+      text: { text: text },
+      distribution: { linkedInDistributionTarget: {} }
+    }),
+    headers: { 'X-Restli-Protocol-Version': '2.0.0' }
+  });
+
+  // Try each API in order until one succeeds
+  const errors = [];
+  for (const attempt of attempts) {
+    try {
+      const result = await _linkedInPost(attempt, creds, text, meResult);
+      return result;
+    } catch (err) {
+      errors.push(attempt.label + ': ' + (err.message || err.code || JSON.stringify(err).substring(0, 200)));
+    }
+  }
+
+  // All attempts failed
+  throw {
+    code: 'LINKEDIN_ALL_APIS_FAILED',
+    message: errors.join(' → ') + ' | resolved=' + (numericId || 'null') + ' via ' + (meResult.method || meResult.error || 'unknown')
+  };
+}
+
+/**
+ * Execute a single LinkedIn POST attempt
+ * @param {Object} attempt - {label, url, body, headers}
+ * @param {Object} creds - Credentials
+ * @param {string} text - Original post text
+ * @param {Object} meResult - Member ID resolution result
+ * @returns {Promise<{receipt: Object}>}
+ */
+function _linkedInPost(attempt, creds, text, meResult) {
   return new Promise((resolve, reject) => {
-    const url = new URL(apiUrl);
+    const url = new URL(attempt.url);
+    const headers = Object.assign({
+      'Authorization': 'Bearer ' + creds.accessToken,
+      'Content-Type': 'application/json',
+      'Content-Length': Buffer.byteLength(attempt.body)
+    }, attempt.headers || {});
+
     const options = {
       hostname: url.hostname,
       path: url.pathname + (url.search || ''),
       method: 'POST',
-      headers: {
-        'Authorization': 'Bearer ' + creds.accessToken,
-        'Content-Type': 'application/json',
-        'X-Restli-Protocol-Version': '2.0.0',
-        'Content-Length': Buffer.byteLength(body)
-      }
+      headers: headers
     };
 
     const req = https.request(options, (res) => {
@@ -279,36 +310,23 @@ async function publishToLinkedIn(action) {
               post_urn: postUrn,
               post_url: postId ? 'https://www.linkedin.com/feed/update/' + postUrn : '',
               timestamp: new Date().toISOString(),
-              content_hash: contentHash(text)
+              content_hash: contentHash(text),
+              api: attempt.label
             }
           });
         } else {
           let errMsg = (parsed && parsed.message) || (parsed && parsed.status) || data.substring(0, 300);
-          errMsg += ' | DEBUG: api=' + apiUrl + ', author=' + authorUrn + ', resolved=' + (meResult.memberId || 'null') + ' via ' + (meResult.method || meResult.error || 'unknown');
-          if (res.statusCode === 403) {
-            errMsg += ' | 403 Hint: Token may lack w_member_social scope, or URN does not match the token owner.';
-          } else if (res.statusCode === 401) {
-            errMsg += ' | 401 Hint: Access token expired. LinkedIn tokens expire after 60 days.';
-          }
           reject({
             code: 'LINKEDIN_API_ERROR_' + res.statusCode,
-            message: errMsg,
-            raw: data.substring(0, 500)
+            message: errMsg
           });
         }
       });
     });
 
-    req.on('error', (err) => {
-      reject({ code: 'NETWORK_ERROR', message: err.message });
-    });
-
-    req.setTimeout(15000, () => {
-      req.destroy();
-      reject({ code: 'TIMEOUT', message: 'LinkedIn API request timed out after 15s' });
-    });
-
-    req.write(body);
+    req.on('error', (err) => reject({ code: 'NETWORK_ERROR', message: err.message }));
+    req.setTimeout(15000, () => { req.destroy(); reject({ code: 'TIMEOUT', message: 'Timeout' }); });
+    req.write(attempt.body);
     req.end();
   });
 }
