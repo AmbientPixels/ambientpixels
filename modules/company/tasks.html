@@ -263,38 +263,47 @@
           <label for="task-desc">Description</label>
           <textarea id="task-desc" placeholder="What needs to be done..."></textarea>
 
+          <label for="task-priority">Priority</label>
+          <select id="task-priority">
+            <option value="low">Low</option>
+            <option value="medium" selected>Medium</option>
+            <option value="high">High</option>
+            <option value="critical">Critical</option>
+          </select>
+
           <div class="tm-modal-row">
             <div>
-              <label for="task-status">Status</label>
-              <select id="task-status">
-                <option value="pending-approval">Pending Approval</option>
-                <option value="backlog">Backlog</option>
-                <option value="todo">To Do</option>
-                <option value="in-progress">In Progress</option>
-                <option value="review">Review</option>
-                <option value="done">Done</option>
-              </select>
+              <label for="task-due">Due Date</label>
+              <input type="date" id="task-due" />
             </div>
             <div>
-              <label for="task-priority">Priority</label>
-              <select id="task-priority">
+              <label for="task-risk">Risk Level</label>
+              <select id="task-risk">
+                <option value="none">None</option>
                 <option value="low">Low</option>
-                <option value="medium" selected>Medium</option>
+                <option value="medium">Medium</option>
                 <option value="high">High</option>
-                <option value="critical">Critical</option>
               </select>
             </div>
           </div>
 
           <div id="nova-triage-hint" style="padding:0.5rem 0.6rem; margin:0.3rem 0 0.5rem; border-radius:6px; background:rgba(78,205,196,0.06); border:1px solid rgba(78,205,196,0.15); font-size:0.62rem; color:rgba(255,255,255,0.5); display:none;">
             <i class="fas fa-robot" style="color:#4ecdc4; margin-right:4px;"></i>
-            <strong style="color:#4ecdc4;">Nova will triage this task</strong> — assign it to the right agent, set priority adjustments, and add delegation context.
+            <strong style="color:#4ecdc4;">Nova will triage this task</strong> — assign it to the right agent and add delegation context.
           </div>
 
-          <button type="button" id="btn-advanced-toggle" style="background:none; border:none; color:rgba(255,255,255,0.3); font-size:0.6rem; cursor:pointer; padding:0.3rem 0; margin:0.2rem 0; display:flex; align-items:center; gap:4px;">
-            <i class="fas fa-chevron-right" id="advanced-chevron" style="font-size:0.5rem; transition:transform 0.2s;"></i> Advanced (assign, due date, risk)
-          </button>
-          <div id="advanced-fields" style="display:none;">
+          <!-- Edit-only fields (hidden during creation, shown when editing) -->
+          <div id="edit-only-fields" style="display:none;">
+            <label for="task-status">Status</label>
+            <select id="task-status">
+              <option value="todo" selected>To Do</option>
+              <option value="backlog">Backlog</option>
+              <option value="pending-approval">Pending Approval</option>
+              <option value="in-progress">In Progress</option>
+              <option value="review">Review</option>
+              <option value="done">Done</option>
+            </select>
+
             <div class="tm-modal-row">
               <div>
                 <label for="task-assignee">Assignee</label>
@@ -309,17 +318,6 @@
                 </select>
               </div>
             </div>
-
-            <label for="task-due">Due Date</label>
-            <input type="date" id="task-due" />
-
-            <label for="task-risk">Risk Level</label>
-            <select id="task-risk">
-              <option value="none">None</option>
-              <option value="low">Low</option>
-              <option value="medium">Medium</option>
-              <option value="high">High</option>
-            </select>
           </div>
 
           <!-- Comments (only in edit mode) -->
@@ -1001,20 +999,8 @@
       var taskCommentInput = document.getElementById('task-comment-input');
       var deleteBtn = document.getElementById('btn-delete-task');
 
-      var advancedFields = document.getElementById('advanced-fields');
-      var advancedChevron = document.getElementById('advanced-chevron');
-      var advancedToggle = document.getElementById('btn-advanced-toggle');
+      var editOnlyFields = document.getElementById('edit-only-fields');
       var triageHint = document.getElementById('nova-triage-hint');
-
-      function setAdvancedOpen(open) {
-        advancedFields.style.display = open ? '' : 'none';
-        advancedChevron.style.transform = open ? 'rotate(90deg)' : '';
-      }
-
-      advancedToggle.addEventListener('click', function () {
-        var isHidden = advancedFields.style.display === 'none';
-        setAdvancedOpen(isHidden);
-      });
 
       function openNewModal() {
         modalTitle.textContent = 'New Task';
@@ -1028,10 +1014,9 @@
         taskDueField.value = '';
         taskCommentsSection.style.display = 'none';
         deleteBtn.style.display = 'none';
-        // Hide advanced fields, show Nova triage hint
-        setAdvancedOpen(false);
+        // Hide status/assignee/division — Nova handles these
+        editOnlyFields.style.display = 'none';
         triageHint.style.display = '';
-        advancedToggle.style.display = '';
         modal.classList.add('active');
         setTimeout(function () { taskTitleField.focus(); }, 100);
       }
@@ -1040,10 +1025,9 @@
         var task = AgentEngine.getTask(taskId);
         if (!task) return;
 
-        // Show all fields in edit mode
-        setAdvancedOpen(true);
+        // Show all fields in edit mode (status/assignee/division visible)
+        editOnlyFields.style.display = '';
         triageHint.style.display = 'none';
-        advancedToggle.style.display = 'none';
 
         modalTitle.textContent = 'Edit Task';
         taskIdField.value = task.id;
