@@ -1956,7 +1956,7 @@ ${docList}`;
   }
 
   if (wsParts.length > 0) {
-    workspaceSection = '\n\nCEO WORKSPACE CONTEXT (strategic context from the CEO — factor into your decisions):\n' + wsParts.join('\n');
+    workspaceSection = '\n\nCEO NOTES (pinned context from the CEO — factor into your decisions):\n' + wsParts.join('\n');
   }
 
   // Cost intelligence — real spend data for Cipher (CFO)
