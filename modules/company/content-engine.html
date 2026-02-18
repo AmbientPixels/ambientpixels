@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Content Engine — Generate branded image packages for approval" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Content Engine — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
+  <style>
+    .ce-panel { background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:1rem; margin-bottom:1rem; }
+    .ce-panel-title { font-size:0.8rem; font-weight:600; margin-bottom:0.7rem; display:flex; align-items:center; gap:0.4rem; }
+    .ce-panel-title i { opacity:0.5; font-size:0.7rem; }
+
+    .ce-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.6rem; margin-bottom:0.6rem; }
+    .ce-form-full { grid-column: 1 / -1; }
+    .ce-form label { font-size:0.62rem; opacity:0.5; display:block; margin-bottom:2px; text-transform:uppercase; letter-spacing:0.5px; }
+    .ce-form input, .ce-form select, .ce-form textarea {
+      width:100%; font-size:0.72rem; padding:7px 10px; background:rgba(255,255,255,0.04);
+      border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:#e0e0e0;
+      font-family:inherit; box-sizing:border-box;
+    }
+    .ce-form textarea { resize:vertical; min-height:52px; }
+
+    .ce-checkboxes { display:flex; gap:1rem; margin-top:4px; }
+    .ce-checkboxes label { display:flex; align-items:center; gap:0.3rem; font-size:0.7rem; opacity:0.85; cursor:pointer; text-transform:none; letter-spacing:0; }
+    .ce-checkboxes input[type="checkbox"] { width:auto; accent-color:#60a5fa; }
+
+    .ce-actions { display:flex; gap:0.5rem; margin-top:0.6rem; }
+    .ce-btn {
+      padding:8px 16px; border:none; border-radius:6px; font-size:0.7rem; font-weight:600;
+      cursor:pointer; font-family:inherit; display:inline-flex; align-items:center; gap:0.3rem;
+      transition: opacity 0.2s;
+    }
+    .ce-btn:disabled { opacity:0.3; cursor:not-allowed; }
+    .ce-btn--primary { background:#3b82f6; color:#fff; }
+    .ce-btn--primary:hover:not(:disabled) { background:#2563eb; }
+    .ce-btn--generate { background:#8b5cf6; color:#fff; }
+    .ce-btn--generate:hover:not(:disabled) { background:#7c3aed; }
+
+    .ce-status { margin-top:0.6rem; font-size:0.68rem; padding:0.4rem 0.6rem; border-radius:6px; display:none; }
+    .ce-status--info { background:rgba(96,165,250,0.1); color:#60a5fa; display:block; }
+    .ce-status--success { background:rgba(34,197,94,0.1); color:#22c55e; display:block; }
+    .ce-status--error { background:rgba(239,68,68,0.1); color:#ef4444; display:block; }
+    .ce-status--loading { background:rgba(251,191,36,0.08); color:#fbbf24; display:block; }
+    .ce-status i { margin-right:4px; }
+
+    .ce-results { display:none; }
+    .ce-results-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:0.8rem; margin-top:0.6rem; }
+    .ce-result-card {
+      background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08);
+      border-radius:8px; overflow:hidden;
+    }
+    .ce-result-img { width:100%; aspect-ratio:16/9; object-fit:cover; background:#111; display:block; }
+    .ce-result-img--hero { aspect-ratio:3/2; }
+    .ce-result-body { padding:0.6rem; }
+    .ce-result-label { font-size:0.6rem; opacity:0.4; text-transform:uppercase; margin-bottom:2px; }
+    .ce-result-size { font-size:0.68rem; font-weight:500; margin-bottom:0.3rem; }
+    .ce-result-links { display:flex; gap:0.5rem; }
+    .ce-result-links a { font-size:0.62rem; color:#60a5fa; text-decoration:none; }
+    .ce-result-links a:hover { text-decoration:underline; }
+
+    .ce-approval-badge {
+      display:inline-flex; align-items:center; gap:0.3rem; font-size:0.65rem;
+      padding:3px 10px; border-radius:12px; font-weight:600;
+      background:rgba(251,191,36,0.12); color:#fbbf24; margin-top:0.5rem;
+    }
+
+    .ce-log { margin-top:0.5rem; max-height:160px; overflow-y:auto; font-size:0.62rem; font-family:'Courier New',monospace; opacity:0.6; line-height:1.6; }
+    .ce-log-entry { padding:1px 0; }
+
+    .ce-preset-preview { font-size:0.6rem; opacity:0.4; margin-top:2px; font-style:italic; }
+  </style>
+</head>
+<body>
+  <h1 style="font-size:1.1rem; font-weight:600; margin-bottom:0.3rem;">
+    <i class="fas fa-images" style="opacity:0.5;"></i> Content Engine
+  </h1>
+  <p style="font-size:0.68rem; opacity:0.4; margin-bottom:1rem;">Generate branded image packages and submit for CEO approval.</p>
+
+  <!-- ── Brief Form ── -->
+  <div class="ce-panel ce-form" id="ce-brief-panel">
+    <div class="ce-panel-title"><i class="fas fa-file-alt"></i> Create Brief</div>
+    <div class="ce-form-grid">
+      <div>
+        <label for="ce-topic">Topic *</label>
+        <input type="text" id="ce-topic" placeholder="e.g. CardForge Launch Promo" maxlength="200" />
+      </div>
+      <div>
+        <label for="ce-preset">Preset *</label>
+        <select id="ce-preset">
+          <option value="ap-2d-flat">2D Flat</option>
+          <option value="ap-neon-glass">Neon Glass</option>
+          <option value="ap-ornate-frame">Ornate Frame</option>
+          <option value="ap-corporate-tech">Corporate Tech</option>
+        </select>
+        <div class="ce-preset-preview" id="ce-preset-preview"></div>
+      </div>
+      <div class="ce-form-full">
+        <label for="ce-goal">Goal *</label>
+        <textarea id="ce-goal" placeholder="e.g. Make an eye-catching promo image announcing the new deck editor feature" maxlength="500"></textarea>
+      </div>
+      <div>
+        <label for="ce-audience">Audience (optional)</label>
+        <input type="text" id="ce-audience" placeholder="e.g. Indie game developers" maxlength="200" />
+      </div>
+      <div>
+        <label for="ce-tone">Tone (optional)</label>
+        <input type="text" id="ce-tone" placeholder="e.g. Energetic, bold" maxlength="100" />
+      </div>
+      <div class="ce-form-full">
+        <label>Outputs *</label>
+        <div class="ce-checkboxes">
+          <label><input type="checkbox" id="ce-out-x" value="x_image" checked /> X / Twitter Image (1600×900)</label>
+          <label><input type="checkbox" id="ce-out-hero" value="hero_image" checked /> Hero Banner (1536×1024)</label>
+        </div>
+      </div>
+    </div>
+
+    <div class="ce-actions">
+      <button class="ce-btn ce-btn--primary" id="ce-create-btn" onclick="ceCreateBrief()">
+        <i class="fas fa-plus"></i> Create Brief
+      </button>
+      <button class="ce-btn ce-btn--generate" id="ce-generate-btn" onclick="ceGenerate()" disabled>
+        <i class="fas fa-wand-magic-sparkles"></i> Generate Package
+      </button>
+    </div>
+
+    <div class="ce-status" id="ce-status"></div>
+    <div class="ce-log" id="ce-log"></div>
+  </div>
+
+  <!-- ── Results ── -->
+  <div class="ce-panel ce-results" id="ce-results">
+    <div class="ce-panel-title"><i class="fas fa-box-open"></i> Generated Package</div>
+    <div id="ce-results-meta" style="font-size:0.65rem; opacity:0.5; margin-bottom:0.4rem;"></div>
+    <div class="ce-results-grid" id="ce-results-grid"></div>
+    <div id="ce-results-links" style="margin-top:0.5rem;"></div>
+    <div id="ce-approval-status"></div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/js/company-store-adapter.js"></script>
+  <script src="/js/company-store.js"></script>
+  <script src="/modules/company/js/sidebar.js"></script>
+  <script src="/modules/company/js/quick-chat.js"></script>
+  <script>
+    var _briefId = null;
+    var _packageId = null;
+
+    // Preset descriptions
+    var PRESET_DESC = {
+      'ap-2d-flat': 'Bold flat colors, minimal shadows, geometric vector-art.',
+      'ap-neon-glass': 'Dark bg, neon glow, glass-morphism, cyberpunk palette.',
+      'ap-ornate-frame': 'Art Nouveau borders, gold & jewel tones, vintage feel.',
+      'ap-corporate-tech': 'Navy-to-teal gradients, geometric patterns, sleek.'
+    };
+
+    function _updatePresetPreview() {
+      var sel = document.getElementById('ce-preset');
+      var preview = document.getElementById('ce-preset-preview');
+      preview.textContent = PRESET_DESC[sel.value] || '';
+    }
+    document.getElementById('ce-preset').addEventListener('change', _updatePresetPreview);
+    _updatePresetPreview();
+
+    function _getOutputs() {
+      var out = [];
+      if (document.getElementById('ce-out-x').checked) out.push('x_image');
+      if (document.getElementById('ce-out-hero').checked) out.push('hero_image');
+      return out;
+    }
+
+    function _setStatus(msg, type) {
+      var el = document.getElementById('ce-status');
+      el.className = 'ce-status ce-status--' + type;
+      var icon = type === 'loading' ? 'fa-spinner fa-spin' : type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
+      el.innerHTML = '<i class="fas ' + icon + '"></i> ' + msg;
+    }
+
+    function _addLog(msg) {
+      var log = document.getElementById('ce-log');
+      var entry = document.createElement('div');
+      entry.className = 'ce-log-entry';
+      entry.textContent = '[' + new Date().toLocaleTimeString() + '] ' + msg;
+      log.appendChild(entry);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    function _getAuthHeaders() {
+      var headers = { 'Content-Type': 'application/json' };
+      // Use SWA auth (cookie-based) — no extra header needed when logged in.
+      // If manual key is available, add it.
+      try {
+        var key = sessionStorage.getItem('ap_server_key');
+        if (key) headers['x-company-secret'] = key;
+      } catch (e) {}
+      return headers;
+    }
+
+    // ── Create Brief ──
+    async function ceCreateBrief() {
+      var topic = document.getElementById('ce-topic').value.trim();
+      var goal = document.getElementById('ce-goal').value.trim();
+      var preset = document.getElementById('ce-preset').value;
+      var outputs = _getOutputs();
+
+      if (!topic || topic.length < 3) { _setStatus('Topic is required (min 3 chars)', 'error'); return; }
+      if (!goal || goal.length < 3) { _setStatus('Goal is required (min 3 chars)', 'error'); return; }
+      if (outputs.length === 0) { _setStatus('Select at least one output type', 'error'); return; }
+
+      var createBtn = document.getElementById('ce-create-btn');
+      createBtn.disabled = true;
+      _setStatus('Creating brief...', 'loading');
+      _addLog('Creating brief: ' + topic);
+
+      try {
+        var res = await fetch('/api/content-brief', {
+          method: 'POST',
+          headers: _getAuthHeaders(),
+          body: JSON.stringify({
+            topic: topic,
+            goal: goal,
+            preset: preset,
+            outputs: outputs,
+            audience: document.getElementById('ce-audience').value.trim() || undefined,
+            tone: document.getElementById('ce-tone').value.trim() || undefined
+          })
+        });
+
+        var data = await res.json();
+        if (!res.ok || !data.ok) {
+          _setStatus('Failed: ' + (data.error || 'Unknown error'), 'error');
+          _addLog('ERROR: ' + (data.error || res.status));
+          createBtn.disabled = false;
+          return;
+        }
+
+        _briefId = data.briefId;
+        _setStatus('Brief created: ' + _briefId, 'success');
+        _addLog('Brief ID: ' + _briefId);
+
+        document.getElementById('ce-generate-btn').disabled = false;
+        createBtn.disabled = false;
+
+      } catch (err) {
+        _setStatus('Network error: ' + err.message, 'error');
+        _addLog('ERROR: ' + err.message);
+        createBtn.disabled = false;
+      }
+    }
+
+    // ── Generate Package ──
+    async function ceGenerate() {
+      if (!_briefId) { _setStatus('Create a brief first', 'error'); return; }
+
+      var genBtn = document.getElementById('ce-generate-btn');
+      genBtn.disabled = true;
+      document.getElementById('ce-create-btn').disabled = true;
+      _setStatus('Generating images... this may take 30-60 seconds per image.', 'loading');
+      _addLog('Starting generation for brief: ' + _briefId);
+
+      try {
+        var res = await fetch('/api/content-generate', {
+          method: 'POST',
+          headers: _getAuthHeaders(),
+          body: JSON.stringify({ briefId: _briefId })
+        });
+
+        var data = await res.json();
+        if (!res.ok || !data.ok) {
+          _setStatus('Generation failed: ' + (data.error || 'Unknown error'), 'error');
+          _addLog('ERROR: ' + (data.error || res.status));
+          if (data.details) {
+            data.details.forEach(function (d) { _addLog('  ' + d.outputType + ': ' + d.error); });
+          }
+          genBtn.disabled = false;
+          document.getElementById('ce-create-btn').disabled = false;
+          return;
+        }
+
+        _packageId = data.packageId;
+        _setStatus('Package generated! Submitted to Approval Queue.', 'success');
+        _addLog('Package ID: ' + _packageId);
+        if (data.errors) {
+          data.errors.forEach(function (e) { _addLog('WARN: ' + e.outputType + ' failed: ' + e.error); });
+        }
+
+        // Render results
+        _renderResults(data);
+
+        genBtn.disabled = false;
+        document.getElementById('ce-create-btn').disabled = false;
+
+      } catch (err) {
+        _setStatus('Network error: ' + err.message, 'error');
+        _addLog('ERROR: ' + err.message);
+        genBtn.disabled = false;
+        document.getElementById('ce-create-btn').disabled = false;
+      }
+    }
+
+    function _renderResults(data) {
+      var panel = document.getElementById('ce-results');
+      panel.style.display = 'block';
+
+      document.getElementById('ce-results-meta').textContent =
+        'Package: ' + data.packageId + ' | Brief: ' + data.briefId;
+
+      var grid = document.getElementById('ce-results-grid');
+      grid.innerHTML = '';
+
+      var outputLabels = {
+        'x_image': { label: 'X / Twitter Image', aspect: '16/9', cls: '' },
+        'hero_image': { label: 'Hero Banner', aspect: '3/2', cls: 'ce-result-img--hero' }
+      };
+
+      var outputs = data.outputs || {};
+      Object.keys(outputs).forEach(function (key) {
+        var out = outputs[key];
+        var info = outputLabels[key] || { label: key, aspect: '16/9', cls: '' };
+
+        var card = document.createElement('div');
+        card.className = 'ce-result-card';
+        card.innerHTML =
+          '<img src="' + out.imageUrl + '" alt="' + info.label + '" class="ce-result-img ' + info.cls + '" loading="lazy" />' +
+          '<div class="ce-result-body">' +
+            '<div class="ce-result-label">' + info.label + '</div>' +
+            '<div class="ce-result-size">' + out.size + ' &middot; ' + _formatBytes(out.bytes) + '</div>' +
+            '<div class="ce-result-links">' +
+              '<a href="' + out.imageUrl + '" target="_blank"><i class="fas fa-external-link-alt"></i> Open Image</a>' +
+              '<a href="' + out.metaUrl + '" target="_blank"><i class="fas fa-code"></i> Metadata</a>' +
+            '</div>' +
+          '</div>';
+        grid.appendChild(card);
+      });
+
+      // Package link
+      var linksEl = document.getElementById('ce-results-links');
+      linksEl.innerHTML =
+        '<a href="' + (data.packageUrl || '#') + '" target="_blank" style="font-size:0.65rem; color:#60a5fa;">' +
+          '<i class="fas fa-box"></i> Open Package JSON' +
+        '</a>';
+
+      // Approval badge
+      var approvalEl = document.getElementById('ce-approval-status');
+      approvalEl.innerHTML =
+        '<div class="ce-approval-badge"><i class="fas fa-clock"></i> Submitted to Approval Queue (' + (data.approvalItemId || '') + ')</div>';
+    }
+
+    function _formatBytes(bytes) {
+      if (!bytes) return '—';
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / 1048576).toFixed(2) + ' MB';
+    }
+  </script>
+</body>
+</html>
