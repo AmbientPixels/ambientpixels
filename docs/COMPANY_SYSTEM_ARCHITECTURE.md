@@ -1,6 +1,6 @@
 # AmbientPixels — Company Module System Architecture
 
-_Last updated: February 16, 2026_
+_Last updated: February 17, 2026_
 
 This document describes the full architecture of the AmbientPixels Company Module — an AI orchestration platform where autonomous agents run every department, governed by human approval workflows and audit trails.
 
@@ -13,10 +13,12 @@ This document describes the full architecture of the AmbientPixels Company Modul
 3. [Data & Persistence](#data--persistence)
 4. [Governance & Automation Engine](#governance--automation-engine)
 5. [AI Agents](#ai-agents)
-6. [Server API Endpoints](#server-api-endpoints)
-7. [UI Pages](#ui-pages)
-8. [Safety Architecture](#safety-architecture)
-9. [Data Persistence v1](#data-persistence-v1)
+6. [Agent Memory & Personality System](#agent-memory--personality-system)
+7. [Social Post Execution Pipeline](#social-post-execution-pipeline)
+8. [Server API Endpoints](#server-api-endpoints)
+9. [UI Pages](#ui-pages)
+10. [Safety Architecture](#safety-architecture)
+11. [Data Persistence v1](#data-persistence-v1)
 
 ---
 
@@ -49,7 +51,7 @@ Agents Propose → Queue for Approval → Human Approves → System Executes →
 
 The hybrid persistence layer. Probes for server availability at init, uses Azure Blob via API when online, falls back to localStorage.
 
-Key collections: tasks, workspace memory, agent configs, identity, tools, directives, objectives, metrics, session logs, standup logs, governance logs, documents, artifacts.
+Key collections: tasks, workspace memory (CEO Notes), agent configs, identity, tools, directives, objectives, metrics, session logs, standup logs, governance logs, documents, artifacts, agent memories, agent seed memories.
 
 ### CompanyStoreAdapter (`js/company-store-adapter.js`)
 
@@ -214,6 +216,141 @@ Multi-agent client engine. Manages conversation history (max 30 per agent), agen
 | `/api/company-standup-run`     | Automated daily standups               |
 | `/api/companyHeartbeat`        | System heartbeat + automation trigger  |
 | `/api/companyMorningReport`    | Daily morning report generation        |
+| `/api/actionsExecute`          | Server-side action execution (social posts, etc.) |
+
+---
+
+## Agent Memory & Personality System
+
+_Added February 17, 2026_
+
+Agents operate with a 4-layer context stack, injected into every heartbeat prompt in order:
+
+```
+┌─────────────────────────────────────────────┐
+│  Layer 3: PERSONALITY (systemPrompt)        │  ← WHO they are
+│  Source: data/company-agents.json           │
+│  Editable: JSON file (requires deploy)      │
+├─────────────────────────────────────────────┤
+│  Layer 2: CEO KNOWLEDGE BASE (seed memory)  │  ← WHAT the CEO teaches them
+│  Source: Azure Table (agentSeedMemories)    │
+│  Editable: /modules/company/memories.html   │
+│  Char limits: 2000 global, 1500 per agent   │
+├─────────────────────────────────────────────┤
+│  Layer 1: YOUR MEMORY (runtime memory)      │  ← WHAT they learn on their own
+│  Source: Azure Table (agentMemories)        │
+│  Written by: agents via 'remember' action   │
+│  Auto-written: CEO rejection feedback       │
+│  Cap: 20 memories/agent, last 10 shown      │
+├─────────────────────────────────────────────┤
+│  Layer 0: TASK BOARD (shared context)       │  ← WHAT's happening now
+│  Tasks, directives, objectives, dates       │
+│  Always present in every heartbeat          │
+└─────────────────────────────────────────────┘
+```
+
+### Layer 3 — Personality
+
+- Loaded from `data/company-agents.json` at module init (`_agentPersonalities`)
+- Each agent's `systemPrompt` injected as `PERSONALITY:` block
+- Defines voice, tone, and role identity
+
+### Layer 2 — Seed Memory (CEO Knowledge Base)
+
+- Stored in Azure Table under key `agentSeedMemories`
+- Structure: `{ _global: "markdown...", nova: "markdown...", echo: "...", ... }`
+- `_global` shown to ALL agents (company context, org chart, decision flow)
+- Per-agent entries shown only to that agent (role-specific rules)
+- Editable from browser at `/modules/company/memories.html` — no git/deploy needed
+- Injected as `CEO KNOWLEDGE BASE:` block in prompt
+
+### Layer 1 — Runtime Memory
+
+- Stored in Azure Table under key `agentMemories`
+- Structure: `{ agentId: [{ id, type, text, source, timestamp }] }`
+- Types: `learning`, `feedback`, `preference`, `context`
+- Written two ways:
+  1. **Manual** — Agent uses `remember` action (max 300 chars per memory)
+  2. **Auto** — CEO revision feedback saved when agent processes `revise-action`
+- Cap: 20 memories per agent (`MAX_MEMORIES_PER_AGENT`), FIFO eviction
+- Last 10 shown in prompt as `YOUR MEMORY:` block
+- Persisted to Azure at end of each heartbeat cycle
+
+### Memory Editor UI
+
+- Page: `/modules/company/memories.html`
+- Global tab + per-agent tabs (Nova, Cipher, Pixel, Forge, Echo, Scribe, Quill, Scout)
+- Markdown textarea with live preview + character counter
+- Read-only runtime memory viewer per agent
+- Saves directly to Azure via `company-state` API
+- Accessible from sidebar: Config → Memory
+
+### Heartbeat Prompt Order
+
+```
+You are {Name}, {Role} at AmbientPixels. Your focus: {Focus}.
+{PERSONALITY block}
+{OPERATING DOCTRINE block}
+{CEO KNOWLEDGE BASE block — global + per-agent}
+{YOUR MEMORY block — last 10 runtime memories}
+This is an automated heartbeat check...
+{YOUR TASKS}
+{OTHER ACTIVE TASKS}
+{TASKS AWAITING REVIEW}
+{CEO DIRECTIVES}
+{CEO NOTES — pinned workspace context}
+{REVISION REQUESTS}
+{SITE CONTEXT}
+CURRENT TIME: ...
+{JSON response schema + action type docs + rules}
+```
+
+---
+
+## Social Post Execution Pipeline
+
+_Added February 17, 2026_
+
+### Flow
+
+```
+CEO creates task → Nova triages → Echo drafts social post
+→ create-social-action → CEO approval queue → CEO approves
+→ Execute button → api/actionsExecute → Platform adapter
+→ Success: task auto-completes | Failure: comment + retry (max 3)
+```
+
+### LinkedIn Adapter (`api/actionsExecute/executors/social/linkedin.js`)
+
+- **API**: LinkedIn UGC Posts API (`/v2/ugcPosts`)
+- **Auth**: OAuth 2.0 Bearer Token, requires `w_member_social` scope ("Share on LinkedIn" product)
+- **URN Resolution**: Auto-resolves numeric member ID via `/v2/me` — env var may contain encoded hash URN which the API rejects
+- **Pre-flight**: Token validation via `/v2/userinfo` before every publish attempt
+- **Media**: Supports article URL attachments
+- **Char limit**: 3000 chars
+
+### Env Vars
+
+- `LINKEDIN_ACCESS_TOKEN` — OAuth 2.0 token (expires ~60 days)
+- `LINKEDIN_PERSON_URN` — Fallback URN (adapter auto-resolves numeric ID)
+
+### Success Handling (`api/actionsExecute/index.js`)
+
+- Action marked `success` with receipt (post URL, URN, timestamp)
+- Parent task auto-completed with system comment including post URL
+- Governance log entry: `action-executed`
+
+### Failure Handling
+
+- System comment added to parent task: attempt N/3, error message, retryable flag
+- After 3 failed attempts: parent task status → `blocked`
+- Governance log entry: `action-failed`
+
+### Dedupe Guard (companyHeartbeat)
+
+- Per-task: only blocks duplicate social actions for the same `_parentTaskId`
+- Completed, rejected, and cancelled actions don't block new ones
+- Only Echo may use `create-social-action`
 
 ---
 
@@ -276,7 +413,8 @@ All pages live in `/modules/company/` and share a common sidebar navigation (`js
 | `actions.html`        | Action queue — approve/reject/execute             |
 | `governance.html`     | Governance log and approval history               |
 | `config-overview.html`| System control room — all settings, kill switches, storage, server persistence |
-| `workspace.html`      | Identity, memory, agent configs                   |
+| `workspace.html`      | Identity, CEO Notes, agent configs, tools, dates  |
+| `memories.html`       | Agent Memory Editor — seed memories per agent     |
 | `agent-chat.html`     | Direct conversation with agents                   |
 | `standup.html`        | Daily standups                                    |
 | `meetings.html`       | Meeting management                                |
@@ -285,6 +423,7 @@ All pages live in `/modules/company/` and share a common sidebar navigation (`js
 | `objectives.html`     | OKRs / objectives                                 |
 | `board.html`          | Quarterly board review                            |
 | `documents.html`      | Document management                               |
+| `cost-overview.html`  | Cost analysis and budget tracking                 |
 | `plan-overview.html`  | Planner output viewer                             |
 | `ops-overview.html`   | Operations overview                               |
 | `work-overview.html`  | Work summary                                      |
