@@ -362,6 +362,20 @@
                 <div class="dash-empty">Loading Azure cost data...</div>
               </div>
             </div>
+            <!-- X.com API Costs -->
+            <div class="dash-panel dash-panel--full" id="panel-x-cost-wrap">
+              <div class="dash-panel-header">
+                <span class="dash-panel-title"><i class="fab fa-x-twitter" style="color:#1DA1F2;"></i> X.com API Costs</span>
+                <select id="x-cost-range" style="font-size:0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:4px; color:inherit; padding:0.15rem 0.3rem;">
+                  <option value="7">7 days</option>
+                  <option value="14">14 days</option>
+                  <option value="30" selected>30 days</option>
+                </select>
+              </div>
+              <div id="panel-x-cost" style="padding:0.4rem 0.5rem;">
+                <div class="dash-empty">Loading X.com cost data...</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -765,6 +779,7 @@
         renderActionSnap();
         renderGeminiCosts();
         renderAzureCosts();
+        renderXCosts();
         renderCostSummary();
         renderDailyLogDrafts();
         renderBlogAdmin();
@@ -2293,43 +2308,49 @@
       }
 
       // ── Cost Center Summary ──
-      var _costSummaryData = { gemini: null, azure: null };
+      var _costSummaryData = { gemini: null, azure: null, x: null };
 
       function renderCostSummary() {
         var el = document.getElementById('panel-cost-summary');
         if (!el) return;
         var g = _costSummaryData.gemini;
         var a = _costSummaryData.azure;
-        if (!g && !a) {
+        var x = _costSummaryData.x;
+        if (!g && !a && !x) {
           el.innerHTML = '<div class="dash-empty" style="font-size:0.6rem;">Waiting for cost data...</div>';
           return;
         }
 
         var geminiTotal = g ? g.totalCost : 0;
         var azureTotal = a ? a.totalCost : 0;
-        var combined = geminiTotal + azureTotal;
+        var xTotal = x ? x.totalCost : 0;
+        var combined = geminiTotal + azureTotal + xTotal;
         var azureProjected = a ? a.projectedMonthly : 0;
         var geminiAvgDay = g && g.totalCalls > 0 ? geminiTotal / Math.max(Object.keys(g.byDay || {}).length, 1) : 0;
-        var projectedMonthly = azureProjected + (geminiAvgDay * 30);
+        var projectedMonthly = azureProjected + (geminiAvgDay * 30) + X_MONTHLY_SUBSCRIPTION;
 
         var html = '<div style="display:flex; gap:1rem; flex-wrap:wrap; align-items:stretch;">';
         html += _costKpi('$' + combined.toFixed(2), 'Total Spend', '#fbbf24');
         html += _costKpi('$' + geminiTotal.toFixed(2), 'Gemini API', '#fbbf24');
         html += _costKpi('$' + azureTotal.toFixed(2), 'Azure Infra', '#0078D4');
+        html += _costKpi('$' + xTotal.toFixed(2), 'X.com API', '#1DA1F2');
         html += _costKpi('$' + projectedMonthly.toFixed(2), 'Projected/Mo', '#34d399');
         html += '</div>';
 
         // Percentage breakdown bar
         if (combined > 0) {
           var gPct = Math.round((geminiTotal / combined) * 100);
-          var aPct = 100 - gPct;
+          var xPct = Math.round((xTotal / combined) * 100);
+          var aPct = 100 - gPct - xPct;
           html += '<div style="margin-top:0.5rem;">';
           html += '<div style="display:flex; height:6px; border-radius:3px; overflow:hidden; background:rgba(255,255,255,0.03);">';
           if (gPct > 0) html += '<div style="width:' + gPct + '%; background:#fbbf24;" title="Gemini: ' + gPct + '%"></div>';
+          if (xPct > 0) html += '<div style="width:' + xPct + '%; background:#1DA1F2;" title="X.com: ' + xPct + '%"></div>';
           if (aPct > 0) html += '<div style="width:' + aPct + '%; background:#0078D4;" title="Azure: ' + aPct + '%"></div>';
           html += '</div>';
           html += '<div style="display:flex; justify-content:space-between; font-size:0.5rem; opacity:0.35; margin-top:0.15rem;">';
           html += '<span><i class="fas fa-coins" style="color:#fbbf24;margin-right:2px;"></i>Gemini ' + gPct + '%</span>';
+          html += '<span><i class="fab fa-x-twitter" style="color:#1DA1F2;margin-right:2px;"></i>X ' + xPct + '%</span>';
           html += '<span><i class="fab fa-microsoft" style="color:#0078D4;margin-right:2px;"></i>Azure ' + aPct + '%</span>';
           html += '</div></div>';
         }
@@ -2510,6 +2531,108 @@
         _azureRangeEl.addEventListener('change', function () {
           _azureCostDays = parseInt(this.value) || 30;
           renderAzureCosts();
+        });
+      }
+
+      // ── X.com API Costs ──
+      var X_MONTHLY_SUBSCRIPTION = 100; // X API Basic tier ($100/mo)
+      var _xCostDays = 30;
+
+      function renderXCosts() {
+        var el = document.getElementById('panel-x-cost');
+        if (!el) return;
+        try {
+          var actions = (typeof AgentEngine !== 'undefined') ? AgentEngine.getActions() : [];
+          var cutoffMs = Date.now() - (_xCostDays * 24 * 60 * 60 * 1000);
+          var xActions = actions.filter(function (a) {
+            if (!a.platform || a.platform !== 'x') return false;
+            if (!a.type || a.type.indexOf('social_post') !== 0) return false;
+            var ts = new Date(a.created_at || a.createdAt || 0).getTime();
+            return ts >= cutoffMs;
+          });
+
+          var posted = xActions.filter(function (a) { return a.execution && a.execution.status === 'success'; });
+          var pending = xActions.filter(function (a) { return a.approval && a.approval.status === 'pending'; });
+          var failed = xActions.filter(function (a) { return a.execution && a.execution.status === 'failed'; });
+
+          // Engagement totals from metrics
+          var totalLikes = 0, totalRetweets = 0, totalReplies = 0, totalQuotes = 0;
+          posted.forEach(function (a) {
+            var m = a.execution && a.execution.receipt && a.execution.receipt.metrics;
+            if (m) {
+              totalLikes += m.likes || 0;
+              totalRetweets += m.retweets || 0;
+              totalReplies += m.replies || 0;
+              totalQuotes += m.quotes || 0;
+            }
+          });
+          var totalEngagement = totalLikes + totalRetweets + totalReplies + totalQuotes;
+
+          // Pro-rate subscription cost for the selected window
+          var dailyCost = X_MONTHLY_SUBSCRIPTION / 30;
+          var windowCost = Math.round(dailyCost * _xCostDays * 100) / 100;
+          var costPerPost = posted.length > 0 ? windowCost / posted.length : 0;
+
+          // Store for summary rollup
+          _costSummaryData.x = { totalCost: windowCost, postsCount: posted.length };
+          renderCostSummary();
+
+          var html = '';
+          // KPIs
+          html += '<div style="display:flex; gap:0.8rem; flex-wrap:wrap; margin-bottom:0.6rem;">';
+          html += _costKpi('$' + windowCost.toFixed(2), 'Subscription (' + _xCostDays + 'd)', '#1DA1F2');
+          html += _costKpi(String(posted.length), 'Posts Published', '#34d399');
+          html += _costKpi(posted.length > 0 ? '$' + costPerPost.toFixed(2) : '—', 'Cost/Post', '#a855f7');
+          html += _costKpi(String(totalEngagement), 'Engagements', '#fbbf24');
+          html += '</div>';
+
+          // Activity breakdown
+          html += '<div style="font-size:0.58rem; opacity:0.4; margin-bottom:0.25rem; font-weight:600;">Activity (' + _xCostDays + ' days)</div>';
+          html += '<div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.5rem;">';
+          html += '<span style="font-size:0.55rem; padding:0.12rem 0.4rem; border-radius:3px; background:rgba(29,161,242,0.06); border:1px solid rgba(29,161,242,0.1); color:rgba(255,255,255,0.6);">' +
+            '<i class="fas fa-check" style="color:#34d399;margin-right:3px;"></i>Published <span style="color:#34d399; font-weight:500;">' + posted.length + '</span></span>';
+          html += '<span style="font-size:0.55rem; padding:0.12rem 0.4rem; border-radius:3px; background:rgba(29,161,242,0.06); border:1px solid rgba(29,161,242,0.1); color:rgba(255,255,255,0.6);">' +
+            '<i class="fas fa-clock" style="color:#fbbf24;margin-right:3px;"></i>Pending <span style="color:#fbbf24; font-weight:500;">' + pending.length + '</span></span>';
+          if (failed.length > 0) {
+            html += '<span style="font-size:0.55rem; padding:0.12rem 0.4rem; border-radius:3px; background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.1); color:rgba(255,255,255,0.6);">' +
+              '<i class="fas fa-times" style="color:#ef4444;margin-right:3px;"></i>Failed <span style="color:#ef4444; font-weight:500;">' + failed.length + '</span></span>';
+          }
+          html += '</div>';
+
+          // Engagement breakdown
+          if (totalEngagement > 0) {
+            html += '<div style="font-size:0.58rem; opacity:0.4; margin-bottom:0.25rem; font-weight:600;">Engagement</div>';
+            html += '<div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.5rem;">';
+            html += '<span style="font-size:0.55rem; padding:0.12rem 0.4rem; border-radius:3px; background:rgba(239,68,68,0.06); border:1px solid rgba(239,68,68,0.1); color:rgba(255,255,255,0.6);">' +
+              '<i class="fas fa-heart" style="color:#ef4444;margin-right:3px;"></i>' + totalLikes + ' likes</span>';
+            html += '<span style="font-size:0.55rem; padding:0.12rem 0.4rem; border-radius:3px; background:rgba(29,161,242,0.06); border:1px solid rgba(29,161,242,0.1); color:rgba(255,255,255,0.6);">' +
+              '<i class="fas fa-retweet" style="color:#1DA1F2;margin-right:3px;"></i>' + totalRetweets + ' retweets</span>';
+            html += '<span style="font-size:0.55rem; padding:0.12rem 0.4rem; border-radius:3px; background:rgba(96,165,250,0.06); border:1px solid rgba(96,165,250,0.1); color:rgba(255,255,255,0.6);">' +
+              '<i class="fas fa-comment" style="color:#60a5fa;margin-right:3px;"></i>' + totalReplies + ' replies</span>';
+            if (totalQuotes > 0) {
+              html += '<span style="font-size:0.55rem; padding:0.12rem 0.4rem; border-radius:3px; background:rgba(168,85,247,0.06); border:1px solid rgba(168,85,247,0.1); color:rgba(255,255,255,0.6);">' +
+                '<i class="fas fa-quote-left" style="color:#a855f7;margin-right:3px;"></i>' + totalQuotes + ' quotes</span>';
+            }
+            html += '</div>';
+          }
+
+          // Subscription note
+          html += '<div style="font-size:0.48rem; opacity:0.25; margin-top:0.3rem;">X API Basic tier · $' + X_MONTHLY_SUBSCRIPTION + '/mo flat · Engagement pulled every 15min</div>';
+
+          if (xActions.length === 0) {
+            html = '<div class="dash-empty">No X.com posts in the last ' + _xCostDays + ' days. Cost is subscription-based ($' + X_MONTHLY_SUBSCRIPTION + '/mo).</div>';
+          }
+          el.innerHTML = html;
+        } catch (e) {
+          el.innerHTML = '<div class="dash-empty">Error loading X.com data.</div>';
+        }
+      }
+
+      var _xRangeEl = document.getElementById('x-cost-range');
+      if (_xRangeEl) {
+        _xRangeEl.addEventListener('change', function () {
+          _xCostDays = parseInt(this.value) || 30;
+          renderXCosts();
         });
       }
 
