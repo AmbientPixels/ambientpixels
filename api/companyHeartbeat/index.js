@@ -1716,28 +1716,47 @@ function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirective
     .join('\n') || '(none)';
 
   // Nova-only: surface untriaged tasks — ANY task without a Nova/system comment needs triage
-  // This ensures ALL tasks (CEO-created, standup, meeting, agent-created) go through Nova first
+  // CEO/manual tasks get a PRIORITY LANE — always shown first, never buried by agent-created noise
   let triageSection = '';
   if (agent.name === 'Nova') {
     const _hasNovaComment = (t) => t.comments && t.comments.some(c => c.author === 'nova' || c.author === 'system');
     const _prioOrder = { critical: 0, high: 1, medium: 2, low: 3 };
-    const needsTriage = allActiveTasks.filter(t =>
-      t.status !== 'done' && !_hasNovaComment(t)
-    ).sort((a, b) => (_prioOrder[a.priority] || 3) - (_prioOrder[b.priority] || 3))
-    .slice(0, 10);
+    const allUntriaged = allActiveTasks.filter(t => t.status !== 'done' && !_hasNovaComment(t));
+
+    // Split into CEO/manual tasks (priority lane) vs agent-created tasks
+    const ceoUntriaged = allUntriaged.filter(t => t.source !== 'heartbeat')
+      .sort((a, b) => (_prioOrder[a.priority] || 3) - (_prioOrder[b.priority] || 3));
+    const agentUntriaged = allUntriaged.filter(t => t.source === 'heartbeat')
+      .sort((a, b) => (_prioOrder[a.priority] || 3) - (_prioOrder[b.priority] || 3));
+
+    // CEO tasks always shown (up to 5), then fill remaining slots with agent tasks
+    const ceoSlice = ceoUntriaged.slice(0, 5);
+    const agentSlice = agentUntriaged.slice(0, Math.max(0, 10 - ceoSlice.length));
+    const needsTriage = ceoSlice.concat(agentSlice);
+
+    const _formatTriageItem = (t) => {
+      const missing = [];
+      if (!t.assignee) missing.push('NO ASSIGNEE');
+      if (!t.dueDate) missing.push('NO DUE DATE');
+      if (!(t.comments && t.comments.length)) missing.push('NO COMMENTS');
+      if (t.assignee && t.dueDate) missing.push('NEEDS TRIAGE COMMENT');
+      const src = t.source === 'heartbeat' ? 'agent-created' : 'CEO/manual';
+      return '- ' + t.title + ' [' + t.status + ', ' + src + '] ⚠ ' + missing.join(', ') + ' (assignee: ' + (t.assignee || 'none') + ', id: ' + t.id + ')';
+    };
+
     if (needsTriage.length > 0) {
-      const triageList = needsTriage.map(t => {
-        const missing = [];
-        if (!t.assignee) missing.push('NO ASSIGNEE');
-        if (!t.dueDate) missing.push('NO DUE DATE');
-        if (!(t.comments && t.comments.length)) missing.push('NO COMMENTS');
-        if (t.assignee && t.dueDate) missing.push('NEEDS TRIAGE COMMENT');
-        const src = t.source === 'heartbeat' ? 'agent-created' : 'CEO/manual';
-        return '- ' + t.title + ' [' + t.status + ', ' + src + '] ⚠ ' + missing.join(', ') + ' (assignee: ' + (t.assignee || 'none') + ', id: ' + t.id + ')';
-      }).join('\n');
+      let triageList = '';
+      if (ceoSlice.length > 0) {
+        triageList += '🔴 CEO/MANUAL TASKS (triage these FIRST — the CEO is waiting):\n' + ceoSlice.map(_formatTriageItem).join('\n');
+      }
+      if (agentSlice.length > 0) {
+        if (ceoSlice.length > 0) triageList += '\n\nAgent-created tasks (' + agentUntriaged.length + ' total untriaged):\n';
+        triageList += agentSlice.map(_formatTriageItem).join('\n');
+      }
       triageSection = `\n\n⚠ NEEDS TRIAGE (your #1 priority — every task MUST have your triage comment before agents can execute):
 ${triageList}
-For each task: verify assignee is correct for the task type, set dueDate if missing, and leave a delegation comment explaining what you expect. Your comment is the triage stamp that unlocks the task for execution.`;
+For each task: verify assignee is correct for the task type, set dueDate if missing, and leave a delegation comment explaining what you expect. Your comment is the triage stamp that unlocks the task for execution.
+IMPORTANT: CEO/manual tasks are the CEO's direct requests — triage them FIRST before any agent-created tasks. Total untriaged: ${allUntriaged.length} (${ceoUntriaged.length} CEO, ${agentUntriaged.length} agent-created).`;
     }
   }
 
