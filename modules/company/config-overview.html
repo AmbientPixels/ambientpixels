@@ -137,6 +137,8 @@
     }
     .cfg-danger-title { font-size: 0.7rem; font-weight: 600; color: #ef4444; margin-bottom: 0.6rem; }
     .cfg-danger-desc { font-size: 0.62rem; opacity: 0.4; margin-bottom: 0.6rem; }
+    .cfg-danger-group { margin-bottom: 0.8rem; }
+    .cfg-danger-group-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.35; margin-bottom: 0.4rem; font-weight: 500; }
     .cfg-danger-btn {
       display: inline-flex; align-items: center; gap: 0.4rem;
       padding: 0.5rem 1rem; border-radius: 6px;
@@ -145,6 +147,43 @@
       cursor: pointer; transition: all 0.15s; margin-right: 0.5rem; margin-bottom: 0.3rem;
     }
     .cfg-danger-btn:hover { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.4); }
+    .cfg-danger-btn--nuke { border-color: rgba(239,68,68,0.4); background: rgba(239,68,68,0.1); font-weight: 600; }
+    .cfg-danger-btn--nuke:hover { background: rgba(239,68,68,0.2); }
+
+    /* Type-to-confirm overlay */
+    .cfg-confirm-overlay {
+      display: none; position: fixed; inset: 0; z-index: 9999;
+      background: rgba(0,0,0,0.7); backdrop-filter: blur(4px);
+      align-items: center; justify-content: center;
+    }
+    .cfg-confirm-overlay.active { display: flex; }
+    .cfg-confirm-box {
+      background: #1a1a2e; border: 1px solid rgba(239,68,68,0.3);
+      border-radius: 12px; padding: 1.5rem 2rem; max-width: 400px; width: 90%;
+      text-align: center;
+    }
+    .cfg-confirm-box h3 { color: #ef4444; font-size: 0.85rem; margin: 0 0 0.5rem 0; }
+    .cfg-confirm-box p { font-size: 0.65rem; opacity: 0.5; margin: 0 0 1rem 0; line-height: 1.5; }
+    .cfg-confirm-box input {
+      width: 100%; padding: 0.6rem 0.8rem; border-radius: 6px;
+      border: 1px solid rgba(239,68,68,0.25); background: rgba(0,0,0,0.3);
+      color: #ef4444; font-size: 0.75rem; font-family: monospace;
+      text-align: center; outline: none; margin-bottom: 0.8rem; box-sizing: border-box;
+    }
+    .cfg-confirm-box input:focus { border-color: rgba(239,68,68,0.5); }
+    .cfg-confirm-actions { display: flex; gap: 0.6rem; justify-content: center; }
+    .cfg-confirm-actions button {
+      padding: 0.5rem 1.2rem; border-radius: 6px; font-size: 0.65rem; font-family: inherit; cursor: pointer;
+    }
+    .cfg-confirm-cancel {
+      border: 1px solid rgba(255,255,255,0.1); background: transparent; color: #888;
+    }
+    .cfg-confirm-cancel:hover { border-color: rgba(255,255,255,0.2); color: #ccc; }
+    .cfg-confirm-execute {
+      border: 1px solid rgba(239,68,68,0.3); background: rgba(239,68,68,0.1); color: #ef4444; opacity: 0.3; pointer-events: none;
+    }
+    .cfg-confirm-execute.ready { opacity: 1; pointer-events: auto; }
+    .cfg-confirm-execute.ready:hover { background: rgba(239,68,68,0.25); }
 
     /* Quick Access */
     .cfg-quick-grid {
@@ -759,6 +798,15 @@
       <button class="cfg-tool-btn" id="cfg-master-automation-toggle">
         <i class="fas fa-robot"></i> Automation Toggle
       </button>
+      <button class="cfg-tool-btn" id="cfg-tool-export">
+        <i class="fas fa-download"></i> Export State
+      </button>
+      <button class="cfg-tool-btn" id="cfg-tool-sync">
+        <i class="fas fa-sync-alt"></i> Force Server Sync
+      </button>
+      <button class="cfg-tool-btn" id="cfg-tool-flush">
+        <i class="fas fa-paper-plane"></i> Flush Outbox
+      </button>
     </div>
 
     <!-- Quick Access -->
@@ -778,21 +826,79 @@
           <div class="cfg-quick-desc">Direct conversation with agents</div>
         </div>
       </a>
+      <a href="/modules/company/dashboard.html" class="cfg-quick-card">
+        <div class="cfg-quick-icon" style="background:rgba(251,191,36,0.08); color:#fbbf24;"><i class="fas fa-tachometer-alt"></i></div>
+        <div>
+          <div class="cfg-quick-label">Dashboard</div>
+          <div class="cfg-quick-desc">CEO overview, approvals, reports</div>
+        </div>
+      </a>
+      <a href="/modules/company/memories.html" class="cfg-quick-card">
+        <div class="cfg-quick-icon" style="background:rgba(236,72,153,0.08); color:#ec4899;"><i class="fas fa-seedling"></i></div>
+        <div>
+          <div class="cfg-quick-label">Memories</div>
+          <div class="cfg-quick-desc">Seed memory editor for agents</div>
+        </div>
+      </a>
+      <a href="/modules/company/directives.html" class="cfg-quick-card">
+        <div class="cfg-quick-icon" style="background:rgba(99,102,241,0.08); color:#6366f1;"><i class="fas fa-bullseye"></i></div>
+        <div>
+          <div class="cfg-quick-label">Directives</div>
+          <div class="cfg-quick-desc">Strategic directives &amp; objectives</div>
+        </div>
+      </a>
     </div>
 
     <!-- Danger Zone -->
     <div class="cfg-danger">
       <div class="cfg-danger-title"><i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i> Danger Zone</div>
-      <div class="cfg-danger-desc">These actions are destructive and cannot be undone. Use with caution.</div>
-      <button class="cfg-danger-btn" onclick="if(confirm('Clear ALL company store data? This cannot be undone.')) { localStorage.clear(); location.reload(); }">
-        <i class="fas fa-trash"></i> Clear Store
-      </button>
-      <button class="cfg-danger-btn" onclick="if(confirm('Reset all tasks?')) { CompanyStore.setState('ap_tasks',[]); location.reload(); }">
-        <i class="fas fa-eraser"></i> Reset Tasks
-      </button>
-      <button class="cfg-danger-btn" onclick="if(confirm('Reset governance log?')) { CompanyStore.setState('ap_governance_log',[]); location.reload(); }">
-        <i class="fas fa-broom"></i> Reset Governance
-      </button>
+      <div class="cfg-danger-desc">These actions are destructive and cannot be undone. Type DELETE to confirm.</div>
+
+      <div class="cfg-danger-group">
+        <div class="cfg-danger-group-label">Data Resets</div>
+        <button class="cfg-danger-btn" data-danger="reset-tasks" data-label="Reset Tasks">
+          <i class="fas fa-eraser"></i> Reset Tasks
+        </button>
+        <button class="cfg-danger-btn" data-danger="reset-directives" data-label="Reset Directives">
+          <i class="fas fa-eraser"></i> Reset Directives
+        </button>
+        <button class="cfg-danger-btn" data-danger="reset-objectives" data-label="Reset Objectives">
+          <i class="fas fa-eraser"></i> Reset Objectives
+        </button>
+        <button class="cfg-danger-btn" data-danger="reset-action-queue" data-label="Reset Action Queue">
+          <i class="fas fa-eraser"></i> Reset Action Queue
+        </button>
+      </div>
+
+      <div class="cfg-danger-group">
+        <div class="cfg-danger-group-label">Audit &amp; Logs</div>
+        <button class="cfg-danger-btn" data-danger="reset-audit-logs" data-label="Reset All Audit Logs">
+          <i class="fas fa-broom"></i> Reset Audit Logs
+        </button>
+        <button class="cfg-danger-btn" data-danger="reset-governance" data-label="Reset Governance Log">
+          <i class="fas fa-broom"></i> Reset Governance
+        </button>
+      </div>
+
+      <div class="cfg-danger-group">
+        <div class="cfg-danger-group-label">Nuclear</div>
+        <button class="cfg-danger-btn cfg-danger-btn--nuke" data-danger="clear-company-data" data-label="Clear All Company Data">
+          <i class="fas fa-radiation"></i> Clear All Company Data
+        </button>
+      </div>
+    </div>
+
+    <!-- Type-to-confirm overlay -->
+    <div class="cfg-confirm-overlay" id="cfg-confirm-overlay">
+      <div class="cfg-confirm-box">
+        <h3 id="cfg-confirm-title">Confirm Action</h3>
+        <p id="cfg-confirm-desc">This action is destructive and cannot be undone.</p>
+        <input type="text" id="cfg-confirm-input" placeholder='Type "DELETE" to confirm' autocomplete="off" spellcheck="false">
+        <div class="cfg-confirm-actions">
+          <button class="cfg-confirm-cancel" id="cfg-confirm-cancel">Cancel</button>
+          <button class="cfg-confirm-execute" id="cfg-confirm-execute">Execute</button>
+        </div>
+      </div>
     </div>
 
   </main>
@@ -1901,6 +2007,222 @@
       .catch(function () {
         setLayer(6, 'not generated', 'warn');
       });
+  })();
+  </script>
+
+  <script>
+  // ── New System Tools: Export, Sync, Flush ──
+  (function () {
+    // Export State — download all ap_* keys as JSON
+    var exportBtn = document.getElementById('cfg-tool-export');
+    if (exportBtn) {
+      exportBtn.addEventListener('click', function () {
+        var state = {};
+        var count = 0;
+        for (var i = 0; i < localStorage.length; i++) {
+          var k = localStorage.key(i);
+          if (k && k.indexOf('ap_') === 0) {
+            try { state[k] = JSON.parse(localStorage.getItem(k)); } catch (e) { state[k] = localStorage.getItem(k); }
+            count++;
+          }
+        }
+        var blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'ambientpixels-state-' + new Date().toISOString().slice(0, 10) + '.json';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        exportBtn.textContent = '✓ Exported ' + count + ' keys';
+        setTimeout(function () { exportBtn.innerHTML = '<i class="fas fa-download"></i> Export State'; }, 2000);
+      });
+    }
+
+    // Force Server Sync
+    var syncBtn = document.getElementById('cfg-tool-sync');
+    if (syncBtn) {
+      syncBtn.addEventListener('click', function () {
+        if (typeof CompanyStoreAdapter === 'undefined' || !CompanyStoreAdapter.isEnabled()) {
+          alert('Server persistence is not enabled.');
+          return;
+        }
+        syncBtn.textContent = 'Syncing...';
+        syncBtn.disabled = true;
+        CompanyStoreAdapter.deltaSync().then(function (r) {
+          syncBtn.innerHTML = r && r.ok ? '<i class="fas fa-check"></i> Synced' : '<i class="fas fa-times"></i> ' + (r && r.reason || 'Failed');
+          syncBtn.disabled = false;
+          setTimeout(function () { syncBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Force Server Sync'; }, 2500);
+        }).catch(function () {
+          syncBtn.innerHTML = '<i class="fas fa-times"></i> Error';
+          syncBtn.disabled = false;
+          setTimeout(function () { syncBtn.innerHTML = '<i class="fas fa-sync-alt"></i> Force Server Sync'; }, 2500);
+        });
+      });
+    }
+
+    // Flush Outbox
+    var flushBtn = document.getElementById('cfg-tool-flush');
+    if (flushBtn) {
+      flushBtn.addEventListener('click', function () {
+        if (typeof CompanyStoreAdapter === 'undefined' || !CompanyStoreAdapter.isEnabled()) {
+          alert('Server persistence is not enabled.');
+          return;
+        }
+        var size = CompanyStoreAdapter.getOutboxSize();
+        if (size === 0) { alert('Outbox is empty.'); return; }
+        flushBtn.textContent = 'Flushing ' + size + '...';
+        flushBtn.disabled = true;
+        CompanyStoreAdapter.flushOutbox().then(function (r) {
+          flushBtn.innerHTML = '<i class="fas fa-check"></i> ' + r.flushed + ' flushed, ' + r.failed + ' failed';
+          flushBtn.disabled = false;
+          setTimeout(function () { flushBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Flush Outbox'; }, 3000);
+        }).catch(function () {
+          flushBtn.innerHTML = '<i class="fas fa-times"></i> Error';
+          flushBtn.disabled = false;
+          setTimeout(function () { flushBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Flush Outbox'; }, 2500);
+        });
+      });
+    }
+  })();
+  </script>
+
+  <script>
+  // ── Danger Zone: type-to-confirm ──
+  (function () {
+    var overlay = document.getElementById('cfg-confirm-overlay');
+    var titleEl = document.getElementById('cfg-confirm-title');
+    var descEl = document.getElementById('cfg-confirm-desc');
+    var inputEl = document.getElementById('cfg-confirm-input');
+    var cancelBtn = document.getElementById('cfg-confirm-cancel');
+    var execBtn = document.getElementById('cfg-confirm-execute');
+    if (!overlay || !inputEl || !execBtn) return;
+
+    var _pendingAction = null;
+
+    var DANGER_ACTIONS = {
+      'reset-tasks': {
+        title: 'Reset Tasks',
+        desc: 'This will permanently delete all tasks and the task archive.',
+        exec: function () {
+          CompanyStore.setState('ap_tasks', []);
+          CompanyStore.setState('ap_tasks_archive', []);
+          location.reload();
+        }
+      },
+      'reset-directives': {
+        title: 'Reset Directives',
+        desc: 'This will permanently delete all strategic directives.',
+        exec: function () {
+          CompanyStore.setState('ap_directives', []);
+          location.reload();
+        }
+      },
+      'reset-objectives': {
+        title: 'Reset Objectives',
+        desc: 'This will permanently delete all quarterly objectives.',
+        exec: function () {
+          CompanyStore.setState('ap_objectives', []);
+          location.reload();
+        }
+      },
+      'reset-action-queue': {
+        title: 'Reset Action Queue',
+        desc: 'This will clear all pending, approved, and executed actions plus rate counts.',
+        exec: function () {
+          CompanyStore.setState('ap_action_queue', []);
+          try { localStorage.removeItem('ap_action_rate_counts'); } catch (e) {}
+          location.reload();
+        }
+      },
+      'reset-audit-logs': {
+        title: 'Reset All Audit Logs',
+        desc: 'This will clear action, worker, planner, calibration, and priority audit logs.',
+        exec: function () {
+          var keys = ['ap_action_audit', 'ap_action_audit_log', 'ap_worker_audit', 'ap_planner_audit', 'ap_calibration_audit', 'ap_priority_audit'];
+          for (var i = 0; i < keys.length; i++) {
+            try { localStorage.removeItem(keys[i]); } catch (e) {}
+          }
+          location.reload();
+        }
+      },
+      'reset-governance': {
+        title: 'Reset Governance Log',
+        desc: 'This will clear the governance audit trail (approvals, rejections, escalations).',
+        exec: function () {
+          CompanyStore.setState('ap_governance_log', []);
+          location.reload();
+        }
+      },
+      'clear-company-data': {
+        title: 'Clear All Company Data',
+        desc: 'This will delete ALL ap_* keys from localStorage. Tasks, directives, objectives, configs, audit logs — everything. Nova and browser state will be preserved.',
+        exec: function () {
+          var toRemove = [];
+          for (var i = 0; i < localStorage.length; i++) {
+            var k = localStorage.key(i);
+            if (k && k.indexOf('ap_') === 0) toRemove.push(k);
+          }
+          for (var j = 0; j < toRemove.length; j++) {
+            try { localStorage.removeItem(toRemove[j]); } catch (e) {}
+          }
+          location.reload();
+        }
+      }
+    };
+
+    function openConfirm(actionKey) {
+      var action = DANGER_ACTIONS[actionKey];
+      if (!action) return;
+      _pendingAction = action;
+      titleEl.textContent = action.title;
+      descEl.textContent = action.desc;
+      inputEl.value = '';
+      execBtn.classList.remove('ready');
+      execBtn.textContent = 'Execute';
+      overlay.classList.add('active');
+      setTimeout(function () { inputEl.focus(); }, 100);
+    }
+
+    function closeConfirm() {
+      overlay.classList.remove('active');
+      _pendingAction = null;
+      inputEl.value = '';
+    }
+
+    // Wire up all danger buttons
+    var btns = document.querySelectorAll('[data-danger]');
+    for (var i = 0; i < btns.length; i++) {
+      btns[i].addEventListener('click', function () {
+        openConfirm(this.getAttribute('data-danger'));
+      });
+    }
+
+    // Input validation — enable execute only when "DELETE" is typed
+    inputEl.addEventListener('input', function () {
+      if (inputEl.value.trim().toUpperCase() === 'DELETE') {
+        execBtn.classList.add('ready');
+      } else {
+        execBtn.classList.remove('ready');
+      }
+    });
+
+    // Enter key shortcut
+    inputEl.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' && execBtn.classList.contains('ready') && _pendingAction) {
+        _pendingAction.exec();
+      }
+      if (e.key === 'Escape') closeConfirm();
+    });
+
+    cancelBtn.addEventListener('click', closeConfirm);
+    overlay.addEventListener('click', function (e) { if (e.target === overlay) closeConfirm(); });
+
+    execBtn.addEventListener('click', function () {
+      if (!execBtn.classList.contains('ready') || !_pendingAction) return;
+      _pendingAction.exec();
+    });
   })();
   </script>
 
