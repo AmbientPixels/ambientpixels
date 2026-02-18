@@ -437,6 +437,27 @@
         </div>
         <span class="cfg-check-value" id="stat-tools">—</span>
       </div>
+      <div class="cfg-check-row">
+        <div class="cfg-check-label">
+          <span class="cfg-check-icon cfg-check-icon--ok"><i class="fas fa-check"></i></span>
+          <span>Auth Status</span>
+        </div>
+        <span class="cfg-check-value" id="stat-auth">checking…</span>
+      </div>
+      <div class="cfg-check-row">
+        <div class="cfg-check-label">
+          <span class="cfg-check-icon cfg-check-icon--ok"><i class="fas fa-check"></i></span>
+          <span>Server Sync</span>
+        </div>
+        <span class="cfg-check-value" id="stat-sync">—</span>
+      </div>
+      <div class="cfg-check-row">
+        <div class="cfg-check-label">
+          <span class="cfg-check-icon cfg-check-icon--ok"><i class="fas fa-check"></i></span>
+          <span>Last Heartbeat</span>
+        </div>
+        <span class="cfg-check-value" id="stat-heartbeat">—</span>
+      </div>
     </div>
 
     <!-- Agent Memory Stack -->
@@ -742,6 +763,7 @@
   <script src="/js/worker-runtime.js"></script>
   <script src="/js/worker-manager.js"></script>
   <script src="/js/company-store.js"></script>
+  <script src="/js/agent-engine.js"></script>
   <script>
   (function () {
     // v3.1 — Defensive helpers
@@ -765,12 +787,83 @@
       _cfgSetStatus('stat-store', '\u26A0 Store unavailable', 'err');
     });
 
-    // Tools registry — read from AgentEngine (includes hardcoded defaults)
-    AgentEngine.loadRegistry().then(function () {
-      var tools = AgentEngine.getTools ? AgentEngine.getTools() : [];
-      _cfgSetStatus('stat-tools', tools.length + ' registered', tools.length > 0 ? 'ok' : 'warn');
-    }).catch(function () {
-      _cfgSetStatus('stat-tools', '\u26A0 Unable to read', 'err');
+    // Tools registry — read from AgentEngine after store is ready
+    window.addEventListener('companystoreready', function () {
+      try {
+        var tools = (typeof AgentEngine !== 'undefined' && AgentEngine.getTools) ? AgentEngine.getTools() : [];
+        _cfgSetStatus('stat-tools', tools.length + ' registered', tools.length > 0 ? 'ok' : 'warn');
+      } catch (e) {
+        _cfgSetStatus('stat-tools', '\u26A0 Unable to read', 'err');
+      }
+    });
+
+    // Auth Status — who is logged in
+    (function () {
+      fetch('/.auth/me').then(function (r) {
+        if (!r.ok) throw new Error('no auth');
+        return r.json();
+      }).then(function (data) {
+        if (data && data.clientPrincipal && data.clientPrincipal.userDetails) {
+          _cfgSetStatus('stat-auth', data.clientPrincipal.userDetails, 'ok');
+        } else {
+          _cfgSetStatus('stat-auth', 'Not authenticated', 'warn');
+          var row = document.getElementById('stat-auth');
+          if (row) _cfgSetIcon(row.closest('.cfg-check-row'), 'warn');
+        }
+      }).catch(function () {
+        _cfgSetStatus('stat-auth', 'Not authenticated', 'warn');
+        var row = document.getElementById('stat-auth');
+        if (row) _cfgSetIcon(row.closest('.cfg-check-row'), 'warn');
+      });
+    })();
+
+    // Server Sync — confirm data is flowing to/from Azure
+    window.addEventListener('companystoreready', function () {
+      var ws = CompanyStore.getWriteStatus ? CompanyStore.getWriteStatus() : {};
+      var mode = CompanyStore.getMode();
+      if (mode === 'server' && ws.canWrite) {
+        _cfgSetStatus('stat-sync', 'Active · ' + mode + ' · writes enabled', 'ok');
+      } else if (mode === 'server') {
+        _cfgSetStatus('stat-sync', 'Read-only · no write key', 'warn');
+        var row = document.getElementById('stat-sync');
+        if (row) _cfgSetIcon(row.closest('.cfg-check-row'), 'warn');
+      } else {
+        _cfgSetStatus('stat-sync', 'Local only · not syncing', 'warn');
+        var row2 = document.getElementById('stat-sync');
+        if (row2) _cfgSetIcon(row2.closest('.cfg-check-row'), 'warn');
+      }
+    });
+
+    // Last Heartbeat — most recent agent heartbeat timestamp
+    window.addEventListener('companystoreready', function () {
+      try {
+        var configs = AgentEngine.getAgentConfigs ? AgentEngine.getAgentConfigs() : {};
+        var latest = null;
+        var latestAgent = '';
+        Object.keys(configs).forEach(function (id) {
+          var hb = configs[id] && configs[id].heartbeat;
+          if (hb && hb.lastBeat) {
+            var ts = new Date(hb.lastBeat).getTime();
+            if (!latest || ts > latest) { latest = ts; latestAgent = id; }
+          }
+        });
+        if (latest) {
+          var ago = Math.round((Date.now() - latest) / 60000);
+          var label = ago < 1 ? 'just now' : (ago < 60 ? ago + 'm ago' : Math.round(ago / 60) + 'h ago');
+          var level = ago < 120 ? 'ok' : (ago < 1440 ? 'warn' : 'err');
+          _cfgSetStatus('stat-heartbeat', latestAgent + ' · ' + label, level);
+          if (level !== 'ok') {
+            var row = document.getElementById('stat-heartbeat');
+            if (row) _cfgSetIcon(row.closest('.cfg-check-row'), level);
+          }
+        } else {
+          _cfgSetStatus('stat-heartbeat', 'No heartbeats recorded', 'warn');
+          var row2 = document.getElementById('stat-heartbeat');
+          if (row2) _cfgSetIcon(row2.closest('.cfg-check-row'), 'warn');
+        }
+      } catch (e) {
+        _cfgSetStatus('stat-heartbeat', '\u26A0 Unable to read', 'err');
+      }
     });
 
     // ── Business Day Timezone Selector ──
