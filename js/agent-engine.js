@@ -2105,6 +2105,16 @@ var AgentEngine = (function () {
     }
     return null;
   }
+  function deleteDirective(id) {
+    var list = getDirectives();
+    var filtered = list.filter(function (d) { return d.id !== id; });
+    if (filtered.length < list.length) {
+      _saveStorage(DIRECTIVES_KEY, filtered);
+      _logGovernance('directive-deleted', { directiveId: id });
+      return true;
+    }
+    return false;
+  }
 
   // ── Governance: Directive Progress ──
   function getDirectiveProgress(directiveId) {
@@ -3238,6 +3248,7 @@ var AgentEngine = (function () {
     getDirectives: getDirectives,
     addDirective: addDirective,
     updateDirective: updateDirective,
+    deleteDirective: deleteDirective,
     getDirectiveProgress: getDirectiveProgress,
     getAllDirectiveProgress: getAllDirectiveProgress,
     getObjectives: getObjectives,
