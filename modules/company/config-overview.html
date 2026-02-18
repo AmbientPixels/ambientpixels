@@ -696,6 +696,18 @@
       <div class="cfg-cal-helper" id="cfg-cal-helper"></div>
       <button class="cfg-cal-toggle" id="cfg-cal-toggle"></button>
       <div class="cfg-cal-info" id="cfg-cal-info"></div>
+      <div style="display:flex; align-items:center; gap:0.5rem; margin-top:0.6rem; padding-top:0.5rem; border-top:1px solid rgba(52,211,153,0.08); flex-wrap:wrap;">
+        <span style="font-size:0.62rem; opacity:0.5;"><i class="fas fa-sync-alt" style="margin-right:3px;"></i> Cadence</span>
+        <select class="cfg-tz-select" id="cfg-cal-cadence" style="min-width:auto;">
+          <option value="3">Every 3 days</option>
+          <option value="5">Every 5 days</option>
+          <option value="7">Every 7 days</option>
+          <option value="14">Every 14 days</option>
+          <option value="21">Every 21 days</option>
+          <option value="30">Every 30 days</option>
+        </select>
+        <span class="cfg-tz-saved" id="cfg-cal-cadence-saved" style="display:none;">Saved</span>
+      </div>
     </div>
 
     <!-- System Storage -->
@@ -1464,6 +1476,8 @@
     if (!dot || !stateEl || !toggleBtn) return;
 
     var _debounceTimer = null;
+    var calCadenceSelect = document.getElementById('cfg-cal-cadence');
+    var calCadenceSaved = document.getElementById('cfg-cal-cadence-saved');
 
     function render() {
       var enabled = CalibrationLoop.isEnabled();
@@ -1476,10 +1490,26 @@
 
       var cadence = CalibrationLoop.getCadenceDays();
       var lastRun = CalibrationLoop.getLastRunTimestamp();
-      var infoParts = ['Cadence: every ' + cadence + ' days'];
+      var infoParts = [];
       if (lastRun) infoParts.push('Last run: ' + new Date(lastRun).toLocaleString());
       else infoParts.push('Never run');
       infoEl.textContent = infoParts.join(' \u2022 ');
+
+      if (calCadenceSelect) calCadenceSelect.value = String(cadence);
+    }
+
+    if (calCadenceSelect) {
+      calCadenceSelect.addEventListener('change', function () {
+        var days = parseInt(calCadenceSelect.value, 10);
+        if (!isNaN(days) && days > 0) {
+          try { localStorage.setItem('ap_calibration_cadence_days', String(days)); } catch (e) {}
+          if (calCadenceSaved) {
+            calCadenceSaved.style.display = 'inline';
+            setTimeout(function () { calCadenceSaved.style.display = 'none'; }, 2000);
+          }
+          render();
+        }
+      });
     }
 
     toggleBtn.addEventListener('click', function () {
