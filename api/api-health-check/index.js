@@ -18,7 +18,8 @@ const ENDPOINTS = [
   { id: 'deviantart',  name: 'DeviantArt',           url: 'https://www.deviantart.com/',                                       method: 'GET', expect: [200, 301, 302] },
   { id: 'huggingface', name: 'HuggingFace',          url: 'https://api-inference.huggingface.co/',                              method: 'GET', expect: [200, 401, 404] },
   { id: 'x_api',       name: 'X (Twitter) API',      url: 'https://api.x.com/2/openapi.json',                                  method: 'GET', expect: [200, 401, 403] },
-  { id: 'linkedin',    name: 'LinkedIn API',          url: 'https://api.linkedin.com/v2/me',                                    method: 'GET', expect: [200, 401, 403, 404] }
+  { id: 'linkedin',    name: 'LinkedIn API',          url: 'https://api.linkedin.com/v2/me',                                    method: 'GET', expect: [200, 401, 403, 404] },
+  { id: 'github',      name: 'GitHub API',            url: 'https://api.github.com/',                                           method: 'GET', expect: [200, 403] }
 ];
 
 const TIMEOUT_MS = 8000;
