@@ -369,9 +369,10 @@ module.exports = async function (context) {
               } else if (existingApproval) {
                 context.log('[Heartbeat] Skipping duplicate task_completion.approve for task:', ceo.taskId, '(existing:', existingApproval.id + ')');
               } else {
+              const nowIso = new Date().toISOString();
               const completionAction = {
                 id: 'act_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
-                created_at: new Date().toISOString(),
+                created_at: nowIso,
                 created_by: ceo.reviewerId || agentId,
                 type: 'task_completion.approve',
                 platform: 'internal',
@@ -381,26 +382,34 @@ module.exports = async function (context) {
                   taskTitle: ceo.taskTitle,
                   assignee: ceo.assignee
                 },
-                classification: 'advisory',
-                requires_ceo_approval: true,
+                classification: 'autonomous',
+                requires_ceo_approval: false,
                 risk_level: 'low',
                 brand_impact: 'none',
                 budget_impact: 0,
-                approval: { status: 'pending', approved_by: null, approved_at: null, decision_note: null },
-                execution: { status: 'pending', started_at: null, finished_at: null, attempts: 0, last_error: null, receipt: null },
+                // Auto-approved + auto-executed — internal actions bypass CEO queue
+                approval: { status: 'approved', approved_by: 'system', approved_at: nowIso, decision_note: 'Auto-approved: internal task completion (no external action)' },
+                execution: { status: 'success', started_at: nowIso, finished_at: nowIso, attempts: 1, last_error: null, receipt: null },
                 action_type: 'task_completion.approve',
                 action_category: 'task',
-                execution_status: 'pending',
+                execution_status: 'success',
                 origin_agent: ceo.reviewerId || agentId,
                 action_payload: { taskId: ceo.taskId, taskTitle: ceo.taskTitle },
-                requires_approval: true,
+                requires_approval: false,
                 is_irreversible: false,
                 _parentTaskId: ceo.taskId,
                 source: 'heartbeat'
               };
               actionsStore.push(completionAction);
+              // Auto-complete the parent task since internal completion is auto-approved
+              const parentTask = tasks.find(t => t.id === ceo.taskId);
+              if (parentTask && parentTask.status !== 'done') {
+                parentTask.status = 'done';
+                parentTask.updatedAt = nowIso;
+                context.log('[Heartbeat] Auto-completed task:', ceo.taskId, '(internal — no CEO approval needed)');
+              }
               await storage.setState('actions', actionsStore);
-              context.log('[Heartbeat] Created task_completion.approve action for CEO task:', ceo.taskTitle, '→', completionAction.id);
+              context.log('[Heartbeat] Auto-approved task_completion for:', ceo.taskTitle, '→', completionAction.id);
               }
             }
             // Track tasks that just entered review — block same-cycle reviews
