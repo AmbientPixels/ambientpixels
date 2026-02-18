@@ -1745,7 +1745,8 @@
           var aScore = auto.score || 0;
           var aColor = aScore >= 80 ? '#34d399' : aScore >= 50 ? '#fbbf24' : auto.total === 0 ? 'rgba(255,255,255,0.15)' : '#ef4444';
           var aLabel = auto.total === 0 ? '—' : aScore + '%';
-          segments.push({ label: 'Autonomy', value: aLabel, color: aColor, title: auto.autonomous + ' of ' + auto.total + ' tasks autonomous' });
+          var memPct = (auto.breakdown && auto.breakdown.memory) ? auto.breakdown.memory.score + '% learned' : '';
+          segments.push({ label: 'Autonomy', value: aLabel, color: aColor, title: aScore + '% composite · ' + memPct });
         } catch (e) {
           segments.push({ label: 'Autonomy', value: '—', color: 'rgba(255,255,255,0.15)', title: 'Data unavailable' });
         }
@@ -2172,10 +2173,12 @@
 
         var b = data.breakdown || {};
         var lines = [];
-        if (b.actions) lines.push(_autoBar('Actions', b.actions.score, b.actions.count, b.actions.total, b.actions.weight));
-        if (b.escalation) lines.push(_autoBar('Escalation', b.escalation.score, b.escalation.count, b.escalation.total, b.escalation.weight));
+        if (b.throughput) lines.push(_autoBar('Throughput', b.throughput.score, b.throughput.count, b.throughput.total, b.throughput.weight));
         if (b.delegation) lines.push(_autoBar('Delegation', b.delegation.score, b.delegation.count, b.delegation.total, b.delegation.weight));
         if (b.completion) lines.push(_autoBar('Completion', b.completion.score, b.completion.count, b.completion.total, b.completion.weight));
+        if (b.escalation) lines.push(_autoBar('Escalation', b.escalation.score, b.escalation.count, b.escalation.total, b.escalation.weight));
+        if (b.approval) lines.push(_autoBar('Approval', b.approval.score, b.approval.count, b.approval.total, b.approval.weight));
+        if (b.memory) lines.push(_autoBar('Memory', b.memory.score, b.memory.count, b.memory.total, b.memory.weight));
         detail.innerHTML = '<span style="opacity:0.5;font-size:0.55rem;">7-day window · ' + data.total + ' items</span>' + lines.join('');
       }
       function _autoBar(label, score, count, total, weight) {

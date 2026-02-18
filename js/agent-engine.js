@@ -2868,55 +2868,79 @@ var AgentEngine = (function () {
     return approved;
   }
 
-  // Autonomy Score — composite multi-signal, 7-day rolling window
+  // Autonomy Score — 6-signal composite, 7-day rolling window
+  // Measures: throughput, delegation, completion, escalation, CEO trust, agent learning
   function getAutonomyScore() {
     var now = Date.now();
     var cutoff = new Date(now - 7 * 86400000).toISOString();
     function inWindow(d) { return d && d >= cutoff; }
 
-    // 1) Action autonomy (40%): low-risk or auto-approved / total actions
-    var actions = getActions();
-    var recentActions = actions.filter(function (a) { return inWindow(a.created_at || a.createdAt); });
-    var actionsTotal = recentActions.length;
-    var actionsAuto = recentActions.filter(function (a) {
-      return !a.approval || a.approval.status === 'auto_approved' || a.riskLevel === 'low';
-    }).length;
-    var actionScore = actionsTotal > 0 ? actionsAuto / actionsTotal : 1;
-
-    // 2) Task escalation rate (30%): tasks NOT escalated or requiring approval
     var tasks = getTasks();
     var recentTasks = tasks.filter(function (t) { return inWindow(t.updatedAt || t.createdAt); });
     var tasksTotal = recentTasks.length;
-    var tasksAuto = recentTasks.filter(function (t) {
-      return !t.escalated && !t.requires_ceo_approval;
-    }).length;
-    var taskScore = tasksTotal > 0 ? tasksAuto / tasksTotal : 1;
 
-    // 3) Delegation rate (20%): tasks assigned by agents (not CEO)
-    var assigned = recentTasks.filter(function (t) {
+    // 1) Task Throughput (25%): tasks moved to done by agents / total tasks
+    var doneTasks = recentTasks.filter(function (t) { return t.status === 'done'; });
+    var agentDone = doneTasks.filter(function (t) {
+      return t.assignee && t.assignee !== 'ceo' && t.assignee !== 'pixelpusher';
+    }).length;
+    var throughputScore = tasksTotal > 0 ? agentDone / Math.max(tasksTotal, 1) : 0;
+
+    // 2) Delegation (20%): tasks assigned by agents (not CEO)
+    var delegated = recentTasks.filter(function (t) {
       return t.assignee && t.source && t.source !== 'ceo' && (typeof t.source !== 'object' || t.source.type !== 'ceo');
     }).length;
-    var delegationScore = tasksTotal > 0 ? assigned / tasksTotal : 1;
+    var delegationScore = tasksTotal > 0 ? delegated / tasksTotal : 0;
 
-    // 4) Completion autonomy (10%): done tasks without CEO intervention
-    var doneTasks = recentTasks.filter(function (t) { return t.status === 'done'; });
+    // 3) Completion (15%): done tasks without CEO intervention
     var doneAuto = doneTasks.filter(function (t) {
       return !t.escalated && !t.requires_ceo_approval;
     }).length;
-    var completionScore = doneTasks.length > 0 ? doneAuto / doneTasks.length : 1;
+    var completionScore = doneTasks.length > 0 ? doneAuto / doneTasks.length : 0;
 
-    var composite = (actionScore * 0.4) + (taskScore * 0.3) + (delegationScore * 0.2) + (completionScore * 0.1);
+    // 4) Escalation (15%): tasks NOT escalated / total tasks (inverse = good)
+    var notEscalated = recentTasks.filter(function (t) {
+      return !t.escalated && !t.requires_ceo_approval;
+    }).length;
+    var escalationScore = tasksTotal > 0 ? notEscalated / tasksTotal : 0;
+
+    // 5) Approval Rate (10%): CEO-approved actions / total decided actions
+    var actions = getActions();
+    var recentActions = actions.filter(function (a) { return inWindow(a.created_at || a.createdAt); });
+    var decided = recentActions.filter(function (a) {
+      return a.approval && (a.approval.status === 'approved' || a.approval.status === 'rejected' || a.approval.status === 'revision_requested');
+    });
+    var approved = decided.filter(function (a) { return a.approval.status === 'approved'; }).length;
+    var approvalScore = decided.length > 0 ? approved / decided.length : 0;
+
+    // 6) Memory Growth (15%): runtime memories accumulated / theoretical max
+    var AGENTS_COUNT = 8; // nova, cipher, pixel, forge, echo, scribe, quill, scout
+    var MAX_MEMORIES_PER_AGENT = 20;
+    var maxMemories = AGENTS_COUNT * MAX_MEMORIES_PER_AGENT; // 160
+    var totalMemories = 0;
+    var agentMemories = _loadStorage('ap_agent_memories', {});
+    if (agentMemories && typeof agentMemories === 'object' && !Array.isArray(agentMemories)) {
+      Object.keys(agentMemories).forEach(function (k) {
+        if (Array.isArray(agentMemories[k])) totalMemories += agentMemories[k].length;
+      });
+    }
+    var memoryScore = Math.min(totalMemories / maxMemories, 1);
+
+    // Composite
+    var composite = (throughputScore * 0.25) + (delegationScore * 0.20) + (completionScore * 0.15) +
+                    (escalationScore * 0.15) + (approvalScore * 0.10) + (memoryScore * 0.15);
     var score = Math.round(composite * 100);
-    var total = actionsTotal + tasksTotal;
-    var autonomous = actionsAuto + tasksAuto;
+    var total = tasksTotal + recentActions.length;
 
     return {
-      score: score, autonomous: autonomous, total: total,
+      score: score, total: total,
       breakdown: {
-        actions: { score: Math.round(actionScore * 100), count: actionsAuto, total: actionsTotal, weight: '40%' },
-        escalation: { score: Math.round(taskScore * 100), count: tasksAuto, total: tasksTotal, weight: '30%' },
-        delegation: { score: Math.round(delegationScore * 100), count: assigned, total: tasksTotal, weight: '20%' },
-        completion: { score: Math.round(completionScore * 100), count: doneAuto, total: doneTasks.length, weight: '10%' }
+        throughput: { score: Math.round(throughputScore * 100), count: agentDone, total: tasksTotal, weight: '25%' },
+        delegation: { score: Math.round(delegationScore * 100), count: delegated, total: tasksTotal, weight: '20%' },
+        completion: { score: Math.round(completionScore * 100), count: doneAuto, total: doneTasks.length, weight: '15%' },
+        escalation: { score: Math.round(escalationScore * 100), count: notEscalated, total: tasksTotal, weight: '15%' },
+        approval: { score: Math.round(approvalScore * 100), count: approved, total: decided.length, weight: '10%' },
+        memory: { score: Math.round(memoryScore * 100), count: totalMemories, total: maxMemories, weight: '15%' }
       },
       window: '7d'
     };
