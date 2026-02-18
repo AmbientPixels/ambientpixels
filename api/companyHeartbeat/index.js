@@ -13,6 +13,13 @@ const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemi
 
 const AGENT_IDS = ['nova', 'cipher', 'pixel', 'forge', 'echo', 'scribe', 'quill', 'scout'];
 
+// Load agent personalities from company-agents.json
+let _agentPersonalities = {};
+try {
+  const _agentsRaw = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../data/company-agents.json'), 'utf8'));
+  (_agentsRaw.agents || []).forEach(function (a) { if (a.id && a.systemPrompt) _agentPersonalities[a.id] = a.systemPrompt; });
+} catch (_e) { /* fallback: heartbeat works without personality injection */ }
+
 // Agent system prompts (abbreviated for heartbeat context)
 const AGENT_ROLES = {
   nova: { name: 'Nova', role: 'Prime Operator', tier: 2, focus: 'execution planning, delegation, progress monitoring, escalation to CEO',
@@ -45,6 +52,10 @@ const GUARDRAILS = {
   maxEscalationsPerCycle: 3,
   dedupeWindowMs: 300000 // 5 min
 };
+
+// ── Persistent Agent Memory ──
+let _agentMemoryStore = {}; // { agentId: [{ type, text, source, timestamp }] } — loaded from storage each cycle
+const MAX_MEMORIES_PER_AGENT = 20;
 
 // ── Tier 4 Sub-Agent Gating ──
 const TIER4_SUB_AGENTS = new Set(['quill']);
@@ -172,6 +183,8 @@ module.exports = async function (context) {
     const workspaceDates = (await storage.getState('dates')) || [];
     const allActions = (await storage.getState('actions')) || [];
     const revisionActions = allActions.filter(a => a.approval && a.approval.status === 'revision_requested');
+    // Load persistent agent memories
+    _agentMemoryStore = (await storage.getState('agentMemories')) || {};
     // Fetch cost data for Cipher (CFO) awareness
     let costIntel = null;
     try {
@@ -434,6 +447,7 @@ module.exports = async function (context) {
     // Persist updated state
     await storage.setState('tasks', tasks);
     await storage.setState('agentConfigs', configs);
+    await storage.setState('agentMemories', _agentMemoryStore);
 
     // Persist escalations to approval queue
     if (_pendingEscalations.length > 0) {
@@ -1082,6 +1096,22 @@ Write the full deliverable first, then the structured JSON block.`;
       actionsStore[origIdx] = orig;
       await storage.setState('actions', actionsStore);
 
+      // Auto-memory: remember CEO feedback so agent learns from rejections
+      const ceoFeedback = (orig.approval && orig.approval.decision_note) || '';
+      if (ceoFeedback.length > 5) {
+        if (!_agentMemoryStore[agentId]) _agentMemoryStore[agentId] = [];
+        _agentMemoryStore[agentId].push({
+          id: 'mem_' + Date.now() + '_auto',
+          type: 'feedback',
+          text: 'CEO rejected my ' + (orig.platform || '') + ' post and said: "' + ceoFeedback.substring(0, 200) + '"',
+          source: 'auto:ceo-revision',
+          timestamp: new Date().toISOString()
+        });
+        if (_agentMemoryStore[agentId].length > MAX_MEMORIES_PER_AGENT) {
+          _agentMemoryStore[agentId] = _agentMemoryStore[agentId].slice(-MAX_MEMORIES_PER_AGENT);
+        }
+      }
+
       // Update or re-add to approval queue
       const approvalQueue = (await storage.getState('approvalQueue')) || [];
       const aqIdx = approvalQueue.findIndex(q => q.action_id === orig.id);
@@ -1598,6 +1628,26 @@ Write the full deliverable first, then the structured JSON block.`;
           context.log('[Heartbeat]', agentId, 'cannot submit doc for publish — status is', doc.status);
         }
       }
+    } else if (action.type === 'remember' && action.memory) {
+      // Agent saves a persistent memory
+      const mem = action.memory;
+      if (mem.text && mem.text.trim().length > 0) {
+        if (!_agentMemoryStore[agentId]) _agentMemoryStore[agentId] = [];
+        const VALID_MEM_TYPES = ['learning', 'feedback', 'preference', 'context'];
+        _agentMemoryStore[agentId].push({
+          id: 'mem_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+          type: (mem.type && VALID_MEM_TYPES.indexOf(mem.type) !== -1) ? mem.type : 'context',
+          text: mem.text.substring(0, 300),
+          source: cycleId,
+          timestamp: new Date().toISOString()
+        });
+        // Cap per-agent memories
+        if (_agentMemoryStore[agentId].length > MAX_MEMORIES_PER_AGENT) {
+          _agentMemoryStore[agentId] = _agentMemoryStore[agentId].slice(-MAX_MEMORIES_PER_AGENT);
+        }
+        context.log('[Heartbeat]', agentId, 'saved memory:', mem.text.substring(0, 80));
+        result.taskUpdates.push({ action: 'memory-saved', agentId: agentId });
+      }
     } else if (action.type === 'create-reminder' && action.reminder) {
       // Agent sets a reminder/date in the workspace dates store
       const rem = action.reminder;
@@ -1966,8 +2016,21 @@ OPERATING DOCTRINE (apply with weight: ${dWeight} / ${Math.round(dWeight * 100)}
 You must remain within your assigned authority tier. Doctrine influences your strategic lens but does NOT override CEO authority or governance rules. Escalate when escalation triggers are met.
 ` : '';
 
+  const personality = _agentPersonalities[agent.name.toLowerCase()] || '';
+  const personalityBlock = personality ? '\nPERSONALITY: ' + personality + '\n' : '';
+
+  // Inject agent memory (persistent across heartbeat cycles)
+  const agentMem = (_agentMemoryStore[agent.name.toLowerCase()] || []).slice(-10);
+  let memoryBlock = '';
+  if (agentMem.length > 0) {
+    const memLines = agentMem.map(function (m) {
+      return '- [' + (m.type || 'note') + '] ' + (m.text || '').substring(0, 200) + (m.source ? ' (from: ' + m.source + ')' : '');
+    }).join('\n');
+    memoryBlock = '\nYOUR MEMORY (persistent notes from previous heartbeats — use these to avoid repeating yourself and to build on past work):\n' + memLines + '\n';
+  }
+
   return `You are ${agent.name}, ${agent.role} at AmbientPixels. Your focus: ${agent.focus}.
-${doctrineBlock}
+${personalityBlock}${doctrineBlock}${memoryBlock}
 This is an automated heartbeat check. Review your current tasks and the company task board, then decide what actions to take (if any). Not every heartbeat needs action — only act if something is genuinely needed.
 
 YOUR TASKS:
@@ -1987,7 +2050,7 @@ Respond with ONLY valid JSON in this exact format:
   "observation": "One sentence about what you notice or your current state",
   "actions": [
     {
-      "type": "create-task|update-task|move-task|execute-task|review-task|comment-task|create-social-action|revise-action|create-doc|submit-for-publish|create-reminder|web_search",
+      "type": "create-task|update-task|move-task|execute-task|review-task|comment-task|create-social-action|revise-action|create-doc|submit-for-publish|create-reminder|web_search|remember",
       "summary": "Brief description of what you're doing",
       "task": { "title": "", "description": "", "status": "todo|in-progress", "priority": "low|medium|high|critical", "assignee": "agentId", "dueDate": "2026-02-20T00:00:00Z", "directive_id": "optional-directive-id" },
       "taskId": "existing-task-id",
@@ -2000,7 +2063,8 @@ Respond with ONLY valid JSON in this exact format:
       "documentId": "existing-doc-id",
       "tool": "web_search",
       "args": { "q": "search query", "n": 5 },
-      "reminder": { "title": "Reminder title", "date": "2026-02-20", "type": "deadline|event|milestone|recurring", "description": "Optional details" }
+      "reminder": { "title": "Reminder title", "date": "2026-02-20", "type": "deadline|event|milestone|recurring", "description": "Optional details" },
+      "memory": { "text": "What to remember", "type": "learning|feedback|preference|context" }
     }
   ]
 }
@@ -2021,6 +2085,7 @@ Action types:
 - submit-for-publish: Submit a completed document for human/CEO approval to publish on the site. Include "documentId" (the ID of an existing draft or review document) and optionally "taskId" (the task that produced the doc). This creates a publish_document action in the approval queue. You CANNOT publish directly — only a human can approve publishing.
 - create-reminder: Set a reminder or important date in the CEO workspace. Include "reminder" with: title (string), date (YYYY-MM-DD), type ("deadline"|"event"|"milestone"|"recurring"), and optionally description. Use for tracking deadlines, renewals, milestones, or follow-ups. These appear in the CEO Morning Inbox and are injected into future heartbeat prompts.
 - web_search: (Scout/research agents only) Run a live web search. Include "tool": "web_search" and "args": { "q": "search query", "n": 5 }. Max 3 searches per heartbeat. Results are returned and you'll be asked to synthesize findings into a deliverable with cited sources.
+- remember: Save a persistent memory that survives across heartbeat cycles. Include "memory" with: text (what to remember, max 300 chars) and type ("learning"|"feedback"|"preference"|"context"). Use this to remember CEO feedback patterns, task outcomes, important decisions, or lessons learned. Your memories appear in YOUR MEMORY section of future heartbeats. Only save genuinely useful information — not status updates. Good memories: "CEO prefers concise LinkedIn posts under 100 words", "Blog posts need 400+ words minimum", "Scout found that competitor X launched feature Y". Bad memories: "I commented on task X", "Working on the LinkedIn post".
 
 Rules:
 - actions array can be empty if nothing needs doing
