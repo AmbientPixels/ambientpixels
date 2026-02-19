@@ -123,7 +123,7 @@ function _checkOrgAccess(creds) {
           try {
             const result = JSON.parse(data);
             const elements = (result && result.elements) || [];
-            const match = elements.some(e => e.organizationalTarget === orgUrn);
+            const match = elements.some(e => (e.organizationalTarget || e.organization) === orgUrn);
             _log('org-access-check', { status: 200, found: match, elementsCount: elements.length });
             resolve({ hasAccess: match });
           } catch (e) {
