@@ -242,8 +242,20 @@ async function generateImage(opts) {
 
   console.log('[ImageEngine] Generating:', opts.outputType, 'preset:', opts.preset, 'model:', GEMINI_IMAGE_MODEL);
 
-  // Call Gemini (multimodal :generateContent)
-  var result = await callImageGeneration(prompt);
+  // Call Gemini (multimodal :generateContent) — retry up to 3 times on no-image responses
+  var result = null;
+  var MAX_RETRIES = 3;
+  for (var attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      result = await callImageGeneration(prompt);
+      break;
+    } catch (err) {
+      console.warn('[ImageEngine] Attempt ' + attempt + '/' + MAX_RETRIES + ' failed: ' + err.message);
+      if (attempt === MAX_RETRIES) throw err;
+      // Brief pause before retry
+      await new Promise(function (r) { setTimeout(r, 2000); });
+    }
+  }
   var imageBuffer = Buffer.from(result.base64, 'base64');
   var ext = result.mimeType === 'image/jpeg' ? '.jpg' : '.png';
 
