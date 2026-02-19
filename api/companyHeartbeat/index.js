@@ -2791,8 +2791,8 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
     5. Once approved, the reviewed copy is automatically sent to Echo for posting via the CEO approval queue.
     Write compelling, professional copy that matches AmbientPixels brand voice. Keep it concise and engaging.
   - BLOG POST WORKFLOW: When you have a blog post task (especially with CEO comments like "top priority"), use create-doc with kind "marketing_post" to produce the full blog post content directly. Do NOT create sub-tasks or outlines — write the actual post.
-  - CROSS-AGENT VISUAL WORKFLOW: After you create a blog post doc with create-doc, do NOT immediately submit-for-publish if the task mentions "visual", "image", "visually strong", or is a marketing_post kind. Instead:
-    1. Create a task for Pixel: "Generate hero image for [doc title]" with the document ID in the description (e.g., "Document ID: doc_xxx"). Assign to pixel, set priority to match the parent task.
+  - CROSS-AGENT VISUAL WORKFLOW: When you create a marketing_post or product_brief doc with create-doc, the server AUTOMATICALLY creates a Pixel hero image task — you do NOT need to create one yourself.
+    1. Do NOT use create-task to request a hero image from Pixel. The server handles this when you use create-doc with kind "marketing_post" or "product_brief". Creating one manually causes duplicates.
     2. Wait for Pixel to generate the hero image (the doc will have hero_image_asset_id set).
     3. Only use submit-for-publish AFTER the document has a hero image. You can check this in the EXISTING DOCUMENTS section — look for hero_image_asset_id on the doc.
     If the task does NOT mention visuals and is purely informational/technical documentation, you may submit-for-publish immediately.
