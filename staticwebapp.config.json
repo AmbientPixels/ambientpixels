@@ -202,6 +202,11 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/api/content-package",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/content-package",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/api/*",
       "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/{path}"
     },

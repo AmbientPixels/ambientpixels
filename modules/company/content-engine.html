@@ -527,8 +527,55 @@
       }
     }
 
+    // ── Package View Mode ──
+    async function loadPackageView(packageId) {
+      document.getElementById('ce-form-panel').style.display = 'none';
+      document.getElementById('ce-results').style.display = 'block';
+      document.getElementById('ce-results-meta').textContent = 'Loading package ' + packageId + '...';
+      document.getElementById('ce-results-grid').innerHTML = '<div style="text-align:center;padding:2rem;opacity:0.3;"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+
+      try {
+        var res = await fetch(API_BASE + '/api/content-package?id=' + encodeURIComponent(packageId), { headers: _getAuthHeaders() });
+        var data = await _safeJson(res);
+        if (!res.ok || !data.ok || !data.package) {
+          document.getElementById('ce-results-grid').innerHTML = '<div style="padding:1rem;color:#ef4444;font-size:0.7rem;">Failed to load package: ' + (data.error || 'Unknown error') + '</div>';
+          return;
+        }
+        var pkg = data.package;
+        _renderResults({
+          packageId: pkg.id,
+          briefId: pkg.briefId,
+          outputs: pkg.outputs,
+          successCount: pkg.successCount || 0,
+          failedCount: pkg.failedCount || 0,
+          model: pkg.model,
+          provider: pkg.provider,
+          skippedApproval: pkg.status === 'approved'
+        });
+
+        // Add back link + package info header
+        var metaEl = document.getElementById('ce-results-meta');
+        var info = pkg.preset + ' \u00b7 ' + (pkg.variations || 1) + ' variation' + ((pkg.variations || 1) !== 1 ? 's' : '');
+        if (pkg.engineVersion) info += ' \u00b7 v' + pkg.engineVersion;
+        if (pkg.durationMs) info += ' \u00b7 ' + Math.round(pkg.durationMs / 1000) + 's';
+        if (pkg.estimatedCost) info += ' \u00b7 $' + pkg.estimatedCost.toFixed(4);
+        metaEl.innerHTML = '<a href="/modules/company/content-engine.html" style="color:#8b5cf6;font-size:0.62rem;text-decoration:none;margin-right:0.5rem;"><i class="fas fa-arrow-left"></i> Back to Generator</a>' +
+          '<a href="/modules/company/content-overview.html" style="color:#8b5cf6;font-size:0.62rem;text-decoration:none;margin-right:0.8rem;"><i class="fas fa-images"></i> Gallery</a>' +
+          '<span style="font-size:0.62rem;opacity:0.5;">' + pkg.id + ' \u00b7 ' + info + ' \u00b7 ' + new Date(pkg.createdAt).toLocaleString() + '</span>';
+      } catch (err) {
+        document.getElementById('ce-results-grid').innerHTML = '<div style="padding:1rem;color:#ef4444;font-size:0.7rem;">Error: ' + err.message + '</div>';
+      }
+    }
+
     // ── Init ──
     buildOutputChips();
+
+    // Check for ?pkg= query param
+    (function () {
+      var params = new URLSearchParams(window.location.search);
+      var pkgId = params.get('pkg');
+      if (pkgId) loadPackageView(pkgId);
+    })();
   </script>
 </body>
 </html>
