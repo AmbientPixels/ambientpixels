@@ -61,9 +61,14 @@
 
     .cg-card {
       background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06);
-      border-radius:10px; overflow:hidden; max-width:350px; transition:border-color 0.2s;
+      border-radius:10px; overflow:hidden; max-width:350px;
+      transition:border-color 0.18s, transform 0.18s, box-shadow 0.18s;
     }
-    .cg-card:hover { border-color:rgba(139,92,246,0.2); }
+    .cg-card:hover {
+      border-color:rgba(139,92,246,0.25);
+      transform:translateY(-2px);
+      box-shadow:0 4px 16px rgba(139,92,246,0.08), 0 1px 4px rgba(0,0,0,0.2);
+    }
 
     .cg-mosaic { display:grid; grid-template-columns:1fr 1fr; gap:2px; aspect-ratio:16/9; background:#0a0a0a; }
     .cg-mosaic img { width:100%; height:100%; object-fit:cover; }
@@ -74,7 +79,8 @@
 
     .cg-card-body { padding:0.7rem 0.8rem 0.6rem; }
     .cg-card-topic { font-size:0.72rem; font-weight:600; margin-bottom:0.2rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .cg-card-meta { font-size:0.58rem; opacity:0.35; margin-bottom:0.4rem; }
+    .cg-card-meta { font-size:0.58rem; opacity:0.35; margin-bottom:0.25rem; }
+    .cg-card-detail { font-size:0.56rem; opacity:0.3; margin-bottom:0.35rem; }
 
     .cg-card-badges { display:flex; gap:0.3rem; flex-wrap:wrap; margin-bottom:0.4rem; }
     .cg-badge {
@@ -276,11 +282,22 @@
       if (entry.failedCount > 0) {
         actionsHtml += ' <button class="cg-card-btn cg-card-btn--retry" onclick="cgRetry(\'' + (entry.packageId || '') + '\', this)"><i class="fas fa-rotate-right"></i> Retry</button>';
       }
+      // Detail meta line: presetLabel · variations · images
+      var presetLabels = { 'ap-2d-flat':'2D Flat', 'ap-neon-glass':'Neon Glass', 'ap-ornate-frame':'Ornate Frame', 'ap-corporate-tech':'Corporate Tech' };
+      var detailParts = [];
+      detailParts.push(presetLabels[entry.preset] || (entry.preset || '').replace('ap-',''));
+      var vCount = entry.variations || 1;
+      detailParts.push(vCount + ' variation' + (vCount !== 1 ? 's' : ''));
+      var imgCount = entry.successCount || 0;
+      detailParts.push(imgCount + ' image' + (imgCount !== 1 ? 's' : ''));
+      var detailStr = detailParts.join(' \u00b7 ');
+
       card.innerHTML = mosaicHtml +
         '<div class="cg-card-body">' +
           '<div class="cg-card-topic">' + (entry.topic || entry.packageId || 'Package') + '</div>' +
           '<div class="cg-card-meta">' + dateStr + (countStr ? ' \u00b7 ' + countStr : '') + '</div>' +
-          '<div class="cg-card-badges"><span class="cg-badge ' + statusClass + '">' + statusLabel + '</span><span class="cg-badge cg-badge--preset">' + (entry.preset || '').replace('ap-','') + '</span></div>' +
+          '<div class="cg-card-detail">' + detailStr + '</div>' +
+          '<div class="cg-card-badges"><span class="cg-badge ' + statusClass + '">' + statusLabel + '</span></div>' +
           '<div class="cg-card-outputs">' + outputStr + '</div>' +
           '<div class="cg-card-actions">' + actionsHtml + '</div>' +
         '</div>';

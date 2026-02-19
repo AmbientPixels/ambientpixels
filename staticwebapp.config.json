@@ -207,6 +207,11 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/api/agent-create-content",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/agent-create-content",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/api/*",
       "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/{path}"
     },
