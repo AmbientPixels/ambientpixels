@@ -952,6 +952,7 @@
       html += '<div class="act-row-title" style="display:flex;align-items:center;gap:0.3rem;flex-wrap:wrap;">';
       html += '<span>' + friendlyActionName(aType) + '</span>';
       if (aPlat) html += platformBadge(aPlat);
+      if (a.approval && a.approval.revision_count) html += '<span style="font-size:0.55rem;padding:0.1rem 0.35rem;border-radius:3px;background:rgba(251,191,36,0.12);color:#fbbf24;font-weight:600;">REV ' + a.approval.revision_count + '</span>';
       if (a.is_irreversible) html += '<span class="act-badge act-badge--irreversible">irreversible</span>';
       html += '</div>';
       if (actionTitle) html += '<div style="font-size:0.9rem;font-weight:600;margin-top:2px;">' + esc(actionTitle) + '</div>';

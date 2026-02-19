@@ -1239,6 +1239,13 @@ Write the full deliverable first, then the structured JSON block.`;
       // Update or re-add to approval queue
       const approvalQueue = (await storage.getState('approvalQueue')) || [];
       const aqIdx = approvalQueue.findIndex(q => q.action_id === orig.id);
+      // Extract media preview for revised social post
+      var _revisedPreviewImage = null;
+      if (orig.payload && Array.isArray(orig.payload.media) && orig.payload.media.length > 0) {
+        var _rm = orig.payload.media[0];
+        _revisedPreviewImage = (typeof _rm === 'string') ? _rm : (_rm && _rm.url) || null;
+      }
+
       const aqEntry = {
         id: aqIdx !== -1 ? approvalQueue[aqIdx].id : 'aq-' + orig.id,
         kind: 'action',
@@ -1252,7 +1259,9 @@ Write the full deliverable first, then the structured JSON block.`;
         brandImpact: 'medium',
         status: 'pending',
         submittedAt: new Date().toISOString(),
-        preview: revisedText.substring(0, 120)
+        preview: revisedText.substring(0, 120),
+        previewImageUrl: _revisedPreviewImage,
+        revisionCount: orig.approval.revision_count || 0
       };
       if (aqIdx !== -1) {
         approvalQueue[aqIdx] = aqEntry;

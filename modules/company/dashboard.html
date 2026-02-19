@@ -1655,7 +1655,9 @@
             '<div style="display:flex; gap:0.5rem; align-items:flex-start;">' +
               '<input type="checkbox" class="aq-item-cb" data-aq-id="' + item.id + '" style="margin-top:4px;cursor:pointer;accent-color:#FFD700;flex-shrink:0;"' + (_aqSelectedIds[item.id] ? ' checked' : '') + ' />' +
               '<div style="flex:1; min-width:0;">' +
-                '<div style="display:flex; align-items:center; gap:0.3rem; flex-wrap:wrap; margin-bottom:2px;">' + typeBadge + _aqBadges + bucketStyle.badge +
+                '<div style="display:flex; align-items:center; gap:0.3rem; flex-wrap:wrap; margin-bottom:2px;">' + typeBadge +
+                  (item.revisionCount ? '<span style="font-size:0.5rem;padding:0.1rem 0.35rem;border-radius:3px;background:rgba(251,191,36,0.12);color:#fbbf24;font-weight:600;">REV ' + item.revisionCount + '</span>' : '') +
+                  _aqBadges + bucketStyle.badge +
                   '<span title="' + escapeHtml(whyText) + '" style="cursor:help;font-size:0.55rem;width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.35);margin-left:auto;flex-shrink:0;">?</span>' +
                 '</div>' +
                 '<div style="font-size:0.9rem; font-weight:600;">' + (isAction ? friendlyTitle(_aqDisplayTitle) : escapeHtml(_aqDisplayTitle)) + '</div>' +

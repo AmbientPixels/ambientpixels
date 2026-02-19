@@ -375,6 +375,55 @@ async function handleDocPublish(context, req, body) {
     // Update approval queue
     await _updateApprovalQueue(actionId, 'rejected');
 
+    // ── Auto-route design feedback to Pixel ──
+    // If CEO's rejection note mentions anything visual/design-related, auto-create a Pixel task
+    const _designKeywords = /\b(image|hero|visual|design|graphic|photo|picture|thumbnail|banner|logo|layout|branding|square|landscape|portrait|aspect|dimension|resize|format|illustration|icon)\b/i;
+    if (decisionNote && _designKeywords.test(decisionNote)) {
+      try {
+        const _tasks = (await storage.getState('tasks')) || [];
+        // Dedup: check if an active Pixel design-revision task already exists for this doc
+        const _existingPixelTask = _tasks.find(t =>
+          t.assignee === 'pixel' && t.status !== 'done' &&
+          ((t.title || '').indexOf(documentId) !== -1 || (t.description || '').indexOf(documentId) !== -1) &&
+          (t.title || '').indexOf('Design revision') !== -1
+        );
+        if (!_existingPixelTask) {
+          const _pixelTask = {
+            id: 'task_' + Date.now() + '_designrev_' + Math.random().toString(36).substr(2, 4),
+            title: 'Design revision: ' + (title || 'Untitled').substring(0, 60),
+            description: 'CEO rejected a publish action and flagged a design issue.\n\n' +
+              'CEO feedback: "' + decisionNote + '"\n\n' +
+              'Document ID: ' + documentId + '\nDocument title: ' + (title || 'Untitled') + '\nSlug: ' + (slug || '') + '\n\n' +
+              'Review the CEO feedback and make the requested visual changes. ' +
+              'If a hero image needs regeneration, use generate-image with the correct purpose (blog_header for blog posts). ' +
+              'If other design work is needed, produce the deliverable and attach it to the document.',
+            status: 'todo',
+            priority: 'high',
+            assignee: 'pixel',
+            createdAt: now,
+            updatedAt: now,
+            createdBy: 'system',
+            source: 'auto:publish-rejection-design-feedback',
+            tags: ['design-revision', 'ceo-feedback'],
+            comments: [{
+              id: 'cmt-' + Date.now(),
+              author: 'system',
+              text: 'Auto-created from CEO publish rejection. Design feedback detected in rejection note.',
+              type: 'system',
+              createdAt: now
+            }]
+          };
+          _tasks.push(_pixelTask);
+          await storage.setState('tasks', _tasks);
+          context.log('[DocsExecute] Auto-created Pixel design-revision task:', _pixelTask.id, 'for doc:', documentId);
+        } else {
+          context.log('[DocsExecute] Pixel design-revision task already exists for doc:', documentId, '— skipping');
+        }
+      } catch (_pixelErr) {
+        context.log.warn('[DocsExecute] Failed to auto-create Pixel task (non-fatal):', _pixelErr.message);
+      }
+    }
+
     // Audit + governance
     await _logAudit('publish-rejected', { actionId, documentId, title, slug, decisionNote, rejectedBy: 'pixelpusher' });
     await _logGovernance(storage, 'publish-rejected', { actionId, documentId, title, rejectedBy: 'pixelpusher' });

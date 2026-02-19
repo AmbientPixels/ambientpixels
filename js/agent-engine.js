@@ -2251,6 +2251,36 @@ var AgentEngine = (function () {
     return null;
   }
 
+  // Auto-route design/visual feedback to Pixel when CEO rejects or requests revision
+  var _DESIGN_KEYWORDS = /\b(image|hero|visual|design|graphic|photo|picture|thumbnail|banner|logo|layout|branding|square|landscape|portrait|aspect|dimension|resize|format|illustration|icon)\b/i;
+  function _autoRouteDesignFeedback(queueItem, note) {
+    if (!note || !_DESIGN_KEYWORDS.test(note)) return;
+    var tasks = getTasks();
+    var actionId = queueItem.action_id || '';
+    var itemTitle = queueItem.taskTitle || queueItem.title || 'Untitled';
+    // Dedup: skip if active Pixel design-revision task already exists for this action
+    var existing = tasks.find(function (t) {
+      return t.assignee === 'pixel' && t.status !== 'done' &&
+        (t.title || '').indexOf('Design revision') !== -1 &&
+        ((t.description || '').indexOf(actionId) !== -1 || (t.title || '').indexOf(itemTitle.substring(0, 30)) !== -1);
+    });
+    if (existing) return;
+    addTask({
+      title: 'Design revision: ' + itemTitle.substring(0, 60),
+      description: 'CEO flagged a design issue during approval review.\n\n' +
+        'CEO feedback: "' + note + '"\n\n' +
+        'Action ID: ' + actionId + '\nItem: ' + itemTitle + '\n\n' +
+        'Review the CEO feedback and make the requested visual changes. ' +
+        'If a hero image needs regeneration, use generate-image with the correct purpose (blog_header for blog posts). ' +
+        'If other design work is needed, produce the deliverable accordingly.',
+      status: 'todo',
+      priority: 'high',
+      assignee: 'pixel',
+      tags: ['design-revision', 'ceo-feedback'],
+      source: { type: 'auto:ceo-design-feedback', actionId: actionId }
+    });
+  }
+
   function ceoReject(approvalId, note) {
     var queue = getApprovalQueue();
     for (var i = 0; i < queue.length; i++) {
@@ -2261,6 +2291,8 @@ var AgentEngine = (function () {
         if (note) queue[i].ceoNote = note;
         _saveApprovalQueue(queue);
         _logGovernance('ceo-reject', { taskId: queue[i].taskId, title: queue[i].taskTitle, note: note || '' });
+        // Auto-route design feedback to Pixel
+        _autoRouteDesignFeedback(queue[i], note);
         return queue[i];
       }
     }
@@ -2277,6 +2309,8 @@ var AgentEngine = (function () {
         if (note) queue[i].ceoNote = note;
         _saveApprovalQueue(queue);
         _logGovernance('ceo-revision', { taskId: queue[i].taskId, title: queue[i].taskTitle, note: note || '' });
+        // Auto-route design feedback to Pixel
+        _autoRouteDesignFeedback(queue[i], note);
         return queue[i];
       }
     }
