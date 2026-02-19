@@ -64,8 +64,10 @@ const MAX_MEMORIES_PER_AGENT = 20;
 // ── Tier 4 Sub-Agent Gating ──
 const TIER4_SUB_AGENTS = new Set(['quill']);
 const MAX_TOOL_CALLS_PER_AGENT = 2;
-const MAX_RESEARCH_INJECTIONS = 2;
-const MAX_RESEARCH_CHARS = 1500;
+const MAX_RESEARCH_INJECTIONS = 3;
+const MAX_RESEARCH_CHARS = 2000;
+const MAX_RESEARCH_STORE_ENTRIES = 20;
+const RESEARCH_MAX_AGE_DAYS = 30;
 const SUB_AGENT_MENTION_WINDOW_HOURS = 24;
 
 function _isActiveStatus(status) {
@@ -191,6 +193,8 @@ module.exports = async function (context) {
     _agentMemoryStore = (await storage.getState('agentMemories')) || {};
     // Load CEO-curated seed memories (markdown per agent + global)
     const _seedMemories = (await storage.getState('agentSeedMemories')) || {};
+    // Load persistent research intelligence store (survives beyond task completion)
+    let researchIntelStore = (await storage.getState('researchIntel')) || [];
     // Fetch cost data for Cipher (CFO) awareness
     let costIntel = null;
     try {
@@ -356,8 +360,15 @@ module.exports = async function (context) {
           activeDirectives, activeObjectives, documents,
           workspaceMemory, workspaceDates, revisionActions,
           agentId === 'cipher' ? costIntel : null,
-          _reviewCooldownIds, _seedMemories
+          _reviewCooldownIds, _seedMemories, researchIntelStore
         );
+        // Collect any new research intel from this agent's cycle
+        if (result.newResearchIntel) {
+          researchIntelStore.push(result.newResearchIntel);
+          if (researchIntelStore.length > MAX_RESEARCH_STORE_ENTRIES) {
+            researchIntelStore = researchIntelStore.slice(-MAX_RESEARCH_STORE_ENTRIES);
+          }
+        }
         geminiCalls += result.geminiCalls;
         agentActions[agentId] = result.actions;
 
@@ -454,6 +465,7 @@ module.exports = async function (context) {
     await storage.setState('tasks', tasks);
     await storage.setState('agentConfigs', configs);
     await storage.setState('agentMemories', _agentMemoryStore);
+    await storage.setState('researchIntel', researchIntelStore);
 
     // Persist escalations to approval queue
     if (_pendingEscalations.length > 0) {
@@ -529,8 +541,8 @@ module.exports = async function (context) {
 };
 
 // ── Run a single agent's heartbeat ──
-async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories) {
-  const result = { geminiCalls: 0, actions: 0, taskUpdates: [] };
+async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore) {
+  const result = { geminiCalls: 0, actions: 0, taskUpdates: [], newResearchIntel: null };
   const agent = AGENT_ROLES[agentId];
   if (!agent) return result;
 
@@ -551,7 +563,7 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
   // Only show this agent their own revision-requested actions
   const agentRevisions = (revisionActions || []).filter(a => a.created_by === agentId || a.origin_agent === agentId);
 
-  const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories);
+  const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore);
 
   // Call Gemini
   const response = await callGemini(prompt, agentId);
@@ -673,14 +685,19 @@ Write the full deliverable first, then the structured JSON block.`;
         deliverableText = synthesisResponse.replace(/<!--RESEARCH_INTEL_JSON[\s\S]*?RESEARCH_INTEL_JSON-->/, '').trim();
         try {
           const raw = JSON.parse(intelMatch[1].trim());
+          const _riId = 'ri_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
           researchIntel = {
+            id: _riId,
             title: String(raw.title || '').substring(0, 120),
             summary: String(raw.summary || '').substring(0, 600),
             key_findings: (raw.key_findings || []).slice(0, 5).map(f => String(f).substring(0, 200)),
             sources: (raw.sources || []).slice(0, 3).map(s => String(s)),
             impact_tags: (raw.impact_tags || []).filter(t => ['marketing','pricing','ux','infra','finance','strategy'].indexOf(t) !== -1),
-            created_at: new Date().toISOString()
+            timestamp: new Date().toISOString(),
+            created_by: agentId
           };
+          // Persist to research intel store so all agents see it even after task completion
+          result.newResearchIntel = researchIntel;
           context.log('[Heartbeat]', agentId, 'research_intel extracted:', researchIntel.title);
         } catch (e) {
           context.log('[Heartbeat]', agentId, 'research_intel JSON parse failed:', e.message);
@@ -2218,7 +2235,7 @@ function buildSiteContextBlock() {
 }
 
 // ── Build heartbeat prompt ──
-function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories) {
+function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore) {
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
   documents = documents || [];
@@ -2351,36 +2368,42 @@ ${objList}`;
 ${docList}`;
   }
 
-  // Recent research intelligence — structured summaries from Scout tasks (token-bounded)
+  // Recent research intelligence — from persistent store + active tasks (token-bounded)
+  // Primary source: researchIntelStore (persists beyond task completion)
+  // Secondary source: active Scout tasks with research_intel (catches fresh research not yet persisted)
   let researchSection = '';
-  const researchEntries = [];
+  const _researchCutoff = Date.now() - (RESEARCH_MAX_AGE_DAYS * 24 * 60 * 60 * 1000);
+  const persistedEntries = (researchIntelStore || [])
+    .filter(e => !e.timestamp || new Date(e.timestamp).getTime() > _researchCutoff)
+    .slice(-MAX_RESEARCH_INJECTIONS);
+  // Also check active tasks for fresh research not yet in the store
+  const persistedIds = new Set(persistedEntries.map(e => e.id).filter(Boolean));
+  const freshFromTasks = [];
   allActiveTasks.forEach(t => {
-    if (t.assignee === 'scout' && t.research_intel) {
-      researchEntries.push({ task: t.title, intel: t.research_intel });
+    if (t.assignee === 'scout' && t.research_intel && !persistedIds.has(t.research_intel.id)) {
+      freshFromTasks.push(t.research_intel);
     }
   });
-  if (researchEntries.length > 0) {
+  const allResearch = persistedEntries.concat(freshFromTasks).slice(-MAX_RESEARCH_INJECTIONS);
+  if (allResearch.length > 0) {
     let totalChars = 0;
     const injected = [];
-    // Take most recent entries, up to MAX_RESEARCH_INJECTIONS
-    const entries = researchEntries.slice(-MAX_RESEARCH_INJECTIONS);
-    for (const entry of entries) {
-      const ri = entry.intel;
+    for (const ri of allResearch) {
       const findings = (ri.key_findings || []).slice(0, 5).map(f => '  • ' + f).join('\n');
       const impact = (ri.impact_tags || []).join(', ');
       const sources = (ri.sources || []).slice(0, 3).join(', ');
+      const age = ri.timestamp ? ' (' + new Date(ri.timestamp).toLocaleDateString() + ')' : '';
       const block =
-        '- [' + (ri.title || entry.task) + '] — ' + (ri.summary || '').substring(0, 600) + '\n' +
+        '- [' + (ri.title || 'Research') + ']' + age + ' — ' + (ri.summary || '').substring(0, 600) + '\n' +
         (findings ? findings + '\n' : '') +
         (impact ? '  Impact: ' + impact + '\n' : '') +
         (sources ? '  Sources: ' + sources : '');
-      // Enforce character cap
       if (totalChars + block.length > MAX_RESEARCH_CHARS) break;
       totalChars += block.length;
       injected.push(block);
     }
     if (injected.length > 0) {
-      researchSection = '\n\nRECENT RESEARCH INTELLIGENCE (from Scout — Research & Intelligence dept):\n' +
+      researchSection = '\n\nRESEARCH INTELLIGENCE (from Scout — Research & Intelligence dept, persisted across cycles):\n' +
         injected.join('\n') +
         '\nUse these findings to inform your decisions and work when relevant.';
     }
