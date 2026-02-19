@@ -1678,7 +1678,13 @@ Write the full deliverable first, then the structured JSON block.`;
             } catch (_heroErr) { /* non-fatal */ }
           }
           // Backfill resolved URL into action payload so actions drawer can render it
-          if (_heroImageUrl) publishAction.payload.hero_image_url = _heroImageUrl;
+          if (_heroImageUrl) {
+            publishAction.payload.hero_image_url = _heroImageUrl;
+            // Re-save action with resolved hero image URL (action was persisted before URL resolution)
+            const _actStore2 = (await storage.getState('actions')) || [];
+            const _actIdx2 = _actStore2.findIndex(x => x.id === publishAction.id);
+            if (_actIdx2 !== -1) { _actStore2[_actIdx2] = publishAction; await storage.setState('actions', _actStore2); }
+          }
 
           // Add to CEO approval queue
           const approvalQueue = (await storage.getState('approvalQueue')) || [];
