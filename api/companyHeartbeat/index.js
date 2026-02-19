@@ -2254,7 +2254,7 @@ function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirective
   if (agent.name === 'Nova') {
     const _hasNovaComment = (t) => t.comments && t.comments.some(c => c.author === 'nova' || c.author === 'system');
     const _prioOrder = { critical: 0, high: 1, medium: 2, low: 3 };
-    const allUntriaged = allActiveTasks.filter(t => t.status !== 'done' && !_hasNovaComment(t));
+    const allUntriaged = allActiveTasks.filter(t => t.status !== 'done' && (!_hasNovaComment(t) || !t.assignee));
 
     // Split into CEO/manual tasks (priority lane) vs agent-created tasks
     const ceoUntriaged = allUntriaged.filter(t => t.source !== 'heartbeat')
