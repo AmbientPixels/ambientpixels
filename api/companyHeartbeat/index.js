@@ -737,6 +737,10 @@ Write the full deliverable first, then the structured JSON block.`;
   const actions = regularActions;
   let actionCount = 0;
 
+  // Track visual docs created this cycle — blocks same-cycle submit-for-publish
+  const _visualDocsCreatedThisCycle = new Set();
+  const _VISUAL_DOC_KINDS = ['marketing_post', 'product_brief'];
+
   // Tier 4 sub-agent action restrictions (server-side enforcement)
   const TIER4_FORBIDDEN = ['create-social-action', 'create-doc', 'submit-for-publish', 'create-task', 'create-content-package'];
   const isTier4 = agent.tier === 4;
@@ -1230,6 +1234,28 @@ Write the full deliverable first, then the structured JSON block.`;
       const kind = docPayload.kind || 'product_brief';
 
       if (docPayload.title && VALID_DOC_KINDS.indexOf(kind) !== -1) {
+        // Title-based dedup: skip if a doc with very similar title already exists
+        const _proposedDocTitle = (docPayload.title || '').toLowerCase().trim();
+        const existingDocs = (await storage.getState('documents')) || [];
+        const duplicateDoc = existingDocs.find(d => {
+          if (!d.title) return false;
+          const existTitle = d.title.toLowerCase().trim();
+          return existTitle === _proposedDocTitle || (existTitle.length > 15 && _proposedDocTitle.indexOf(existTitle) !== -1) || (existTitle.length > 15 && existTitle.indexOf(_proposedDocTitle) !== -1);
+        });
+        if (duplicateDoc) {
+          context.log('[Heartbeat]', agentId, 'BLOCKED duplicate doc creation:', _proposedDocTitle, '— matches existing doc:', duplicateDoc.id, duplicateDoc.title);
+          // Still link to the task if needed
+          if (action.taskId) {
+            result.taskUpdates.push({
+              action: 'comment',
+              taskId: action.taskId,
+              comment: 'Document already exists: "' + duplicateDoc.title + '" (id: ' + duplicateDoc.id + '). Skipping duplicate creation.',
+              agentId: agentId
+            });
+          }
+          break;
+        }
+
         const docId = 'doc_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
         const doc = {
           id: docId,
@@ -1253,151 +1279,80 @@ Write the full deliverable first, then the structured JSON block.`;
         result.taskUpdates.push({ action: 'doc-created', documentId: doc.id, agentId: agentId });
 
         // Link doc back to the originating task: add comment + move to review
+        const _isVisualKind = ['marketing_post', 'product_brief'].indexOf(kind) !== -1;
         if (action.taskId) {
           result.taskUpdates.push({
             action: 'comment',
             taskId: action.taskId,
-            comment: 'Document created: "' + doc.title + '" (id: ' + doc.id + ', kind: ' + kind + '). Submitting for CEO approval.',
+            comment: _isVisualKind
+              ? 'Document created: "' + doc.title + '" (id: ' + doc.id + ', kind: ' + kind + '). Awaiting hero image from Pixel before submitting for publish.'
+              : 'Document created: "' + doc.title + '" (id: ' + doc.id + ', kind: ' + kind + '). Submitting for CEO approval.',
             agentId: agentId
           });
           result.taskUpdates.push({
             action: 'move',
             taskId: action.taskId,
-            newStatus: 'review'
+            newStatus: _isVisualKind ? 'in-progress' : 'review'
           });
         }
 
-        // Auto-chain: submit for publish (agent can't know the doc ID, so we do it automatically)
-        const AUTO_PUBLISH_KINDS = ['marketing_post', 'product_brief'];
-        if (AUTO_PUBLISH_KINDS.indexOf(kind) !== -1) {
-          // Dedup: skip if a pending publish action already exists for this document
-          const existingActions = (await storage.getState('actions')) || [];
-          const hasPending = existingActions.some(a => a.type === 'publish_document' && a.payload && a.payload.documentId === doc.id && a.approval && a.approval.status === 'pending');
-          if (hasPending) {
-            context.log('[Heartbeat] Skipping duplicate publish action for doc:', doc.id, doc.title);
-            break;
+        // Visual doc kinds: auto-create Pixel hero image task instead of auto-submitting for publish
+        // Doc stays in draft until Pixel generates the hero image, then Scribe submits in a future heartbeat
+        const VISUAL_DOC_KINDS = ['marketing_post', 'product_brief'];
+        if (VISUAL_DOC_KINDS.indexOf(kind) !== -1) {
+          // Dedup: skip if a Pixel hero image task already exists for this doc
+          const _heroTaskTitle = 'Generate hero image for: ' + doc.title;
+          const _heroTaskExists = tasks.some(t =>
+            t.assignee === 'pixel' && t.status !== 'done' &&
+            (t.title === _heroTaskTitle || (t.description && t.description.indexOf(doc.id) !== -1))
+          );
+
+          if (!_heroTaskExists) {
+            // Create a task for Pixel to generate the hero image
+            const heroTask = {
+              id: 'task_' + Date.now() + '_hero_' + Math.random().toString(36).substr(2, 4),
+              title: _heroTaskTitle,
+              description: 'Generate a hero image for the blog post "' + doc.title + '".\nDocument ID: ' + doc.id + '\nUse generate-image with purpose "blog_header" and attachTo: { type: "document", id: "' + doc.id + '" }.\nChoose an appropriate preset based on the content tone.',
+              status: 'todo',
+              priority: action.task && action.task.priority ? action.task.priority : 'high',
+              assignee: 'pixel',
+              source: 'heartbeat',
+              created_by: 'system',
+              createdAt: new Date().toISOString(),
+              updatedAt: new Date().toISOString(),
+              directive_id: action.directive_id || null,
+              tags: ['hero-image', 'auto-created', 'visual-workflow'],
+              comments: [{
+                author: 'system',
+                text: 'Auto-created: ' + agentId + ' created doc "' + doc.title + '" (id: ' + doc.id + ', kind: ' + kind + '). Pixel needs to generate a hero image before this doc can be submitted for publish.',
+                timestamp: new Date().toISOString()
+              }]
+            };
+            tasks.push(heroTask);
+            result.taskUpdates.push({ action: 'create', task: heroTask });
+            context.log('[Heartbeat]', agentId, 'AUTO-CREATED Pixel hero image task:', heroTask.id, 'for doc:', doc.id);
+          } else {
+            context.log('[Heartbeat]', agentId, 'Pixel hero image task already exists for doc:', doc.id, '— skipping auto-create');
           }
 
-          const slug = doc.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-          const isPublicKind = kind === 'marketing_post' || kind === 'product_brief';
-          const targetPath = isPublicKind ? '/blog/' + slug : '/docs/published/' + slug;
-          const publicUrl = isPublicKind ? '/blog/' + slug : '/docs/published/' + slug;
-
-          // Update doc status
-          doc.status = 'ready_for_approval';
-          doc.submitted_by = agentId;
+          // Mark doc as awaiting hero image
+          doc.awaiting_hero_image = true;
           doc.updated_at = new Date().toISOString();
-          // Update in the store (we still have reference)
-          const idx = docsStore.findIndex(d => d.id === docId);
-          if (idx !== -1) docsStore[idx] = doc;
+          const _awIdx = docsStore.findIndex(d => d.id === docId);
+          if (_awIdx !== -1) docsStore[_awIdx] = doc;
           await storage.setState('documents', docsStore);
 
-          // Create publish action
-          const publishAction = {
-            id: 'act_pub_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
-            created_at: new Date().toISOString(),
-            created_by: agentId,
-            type: 'publish_document',
-            platform: 'site',
-            payload: {
-              documentId: doc.id,
-              title: doc.title,
-              slug: slug,
-              kind: doc.kind,
-              content_md: doc.content_md,
-              target_path: targetPath,
-              public_url: publicUrl
-            },
-            classification: 'executive_required',
-            requires_ceo_approval: true,
-            risk_level: 'medium',
-            brand_impact: 'medium',
-            budget_impact: 0,
-            approval: { status: 'pending', approved_by: null, approved_at: null, decision_note: null },
-            execution: { status: 'pending', started_at: null, finished_at: null, attempts: 0, last_error: null, receipt: null },
-            action_type: 'publish_document',
-            action_category: 'content',
-            execution_status: 'pending',
-            origin_agent: agentId,
-            action_payload: { documentId: doc.id, title: doc.title, slug: slug },
-            requires_approval: true,
-            is_irreversible: true,
-            bundle_id: null
-          };
+          // Comment on the originating task
+          if (action.taskId) {
+            result.taskUpdates.push({
+              action: 'comment',
+              taskId: action.taskId,
+              comment: 'Doc created but NOT submitted for publish yet — waiting for Pixel to generate a hero image (doc: ' + doc.id + '). Publish will happen after the hero image is attached.',
+              agentId: 'system'
+            });
+          }
 
-          const actionsStore = (await storage.getState('actions')) || [];
-          actionsStore.push(publishAction);
-          if (actionsStore.length > 500) actionsStore.splice(0, actionsStore.length - 500);
-          await storage.setState('actions', actionsStore);
-
-          // v2.4.4: Register draft artifact for URL resolution
-          const artifactId = 'art_' + Date.now() + '_' + slug;
-          const artifacts = (await storage.getState('ap_artifacts')) || [];
-          artifacts.push({
-            id: artifactId,
-            type: 'article',
-            title: doc.title,
-            slug: slug,
-            url: null,
-            status: 'draft',
-            createdAt: new Date().toISOString(),
-            publishedAt: null,
-            source: { type: 'heartbeat', agentId: agentId, taskId: action.taskId || null },
-            actionId: publishAction.id,
-            documentId: doc.id
-          });
-          if (artifacts.length > 200) artifacts.splice(0, artifacts.length - 200);
-          await storage.setState('ap_artifacts', artifacts);
-          context.log('[Heartbeat] Registered draft artifact:', artifactId, 'for publish action:', publishAction.id);
-
-          // Add to CEO approval queue
-          const approvalQueue = (await storage.getState('approvalQueue')) || [];
-          approvalQueue.push({
-            id: 'aq-' + publishAction.id,
-            kind: 'action',
-            actionType: 'publish_document',
-            action_id: publishAction.id,
-            taskId: action.taskId || null,
-            taskTitle: 'Publish: ' + doc.title,
-            originAgent: agentId,
-            classification: 'executive_required',
-            riskLevel: 'medium',
-            budgetImpact: 0,
-            brandImpact: 'medium',
-            status: 'pending',
-            timestamp: publishAction.created_at,
-            preview: (doc.content_md || '').substring(0, 120),
-            documentId: doc.id,
-            slug: slug,
-            docKind: doc.kind,
-            artifactId: artifactId
-          });
-          if (approvalQueue.length > 100) approvalQueue.splice(0, approvalQueue.length - 100);
-          await storage.setState('approvalQueue', approvalQueue);
-
-          // Audit + governance logs
-          const auditLog = (await storage.getState('actionAuditLog')) || [];
-          auditLog.push({
-            id: 'alog-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
-            type: 'publish-requested',
-            data: { actionId: publishAction.id, documentId: doc.id, title: doc.title, slug: slug, submittedBy: agentId, taskId: action.taskId || null },
-            timestamp: new Date().toISOString()
-          });
-          if (auditLog.length > 500) auditLog.splice(0, auditLog.length - 500);
-          await storage.setState('actionAuditLog', auditLog);
-
-          const govLog = (await storage.getState('governanceLog')) || [];
-          govLog.push({
-            id: 'gov-' + Date.now(),
-            type: 'publish-requested',
-            data: { actionId: publishAction.id, documentId: doc.id, title: doc.title, agent: agentId },
-            timestamp: new Date().toISOString()
-          });
-          if (govLog.length > 200) govLog.splice(0, govLog.length - 200);
-          await storage.setState('governanceLog', govLog);
-
-          context.log('[Heartbeat]', agentId, 'auto-submitted doc for publish:', doc.id, '→', publishAction.id, '(kind:', kind, ', target:', targetPath, ')');
-          result.taskUpdates.push({ action: 'publish-requested', actionId: publishAction.id, documentId: doc.id, agentId: agentId });
+          context.log('[Heartbeat]', agentId, 'visual doc created — deferred publish, awaiting Pixel hero image:', doc.id, doc.title);
         } else {
           // Internal doc kinds (spec, runbook, release_notes, governance) — auto-publish to /docs/published/ without CEO approval
           const slug = doc.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -1499,12 +1454,22 @@ Write the full deliverable first, then the structured JSON block.`;
             break;
           }
 
-          // Soft guardrail: warn if marketing_post/product_brief has no hero image
+          // Hard guardrail: BLOCK submit-for-publish on visual doc kinds without hero image
           const VISUAL_KINDS = ['marketing_post', 'product_brief'];
           if (VISUAL_KINDS.indexOf(doc.kind) !== -1 && !doc.hero_image_asset_id) {
-            context.log('[Heartbeat]', agentId, 'WARN: submit-for-publish on', doc.kind, 'doc without hero_image_asset_id:', doc.id, doc.title);
-            // Tag the doc so the approval UI can show a warning
+            context.log('[Heartbeat]', agentId, 'BLOCKED submit-for-publish on', doc.kind, 'doc without hero_image_asset_id:', doc.id, doc.title, '— waiting for Pixel hero image');
             docsStore[docIdx].missing_hero_image = true;
+            await storage.setState('documents', docsStore);
+            // Notify via task comment
+            if (action.taskId) {
+              result.taskUpdates.push({
+                action: 'comment',
+                taskId: action.taskId,
+                comment: 'Publish BLOCKED: doc "' + doc.title + '" (' + doc.id + ') is a ' + doc.kind + ' and has no hero image yet. Waiting for Pixel to generate one. Submit again after hero_image_asset_id is set.',
+                agentId: 'system'
+              });
+            }
+            break;
           }
 
           // Update doc status
