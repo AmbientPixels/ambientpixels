@@ -778,29 +778,42 @@
           var approvalHtml = '<div style="margin-bottom:0.8rem;">';
           approvalHtml += '<div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.4rem;"><i class="fas fa-gavel" style="color:#FFD700; font-size:0.7rem;"></i> <strong style="font-size:0.75rem; color:#FFD700;">Pending Approvals</strong> <span style="font-size:0.6rem; opacity:0.4;">(' + pending.length + ')</span></div>';
           sortedPending.slice(0, 5).forEach(function (item) {
-            var riskColor = item.riskLevel === 'high' ? '#f87171' : item.riskLevel === 'medium' ? '#fbbf24' : '#34d399';
+            var _isContent = item.kind === 'content.package' || item.type === 'content.package';
+            var riskColor = _isContent ? '#94a3b8' : (item.riskLevel === 'high' ? '#f87171' : item.riskLevel === 'medium' ? '#fbbf24' : '#34d399');
             var isExec = item.classification === 'executive_required';
             var _task = item.taskId ? AgentEngine.getTask(item.taskId) : null;
-            var _preview = item.preview || AgentEngine.buildPreview(_task ? _task.description : (item.recommendation || ''));
+            var _inboxTitle = item.title || item.taskTitle || 'Untitled';
+            var _preview = '';
+            if (_isContent) {
+              var _cpvI = (typeof item.preview === 'object' && item.preview) ? item.preview : {};
+              _preview = item.goal || _cpvI.goal || '';
+              var _cpMetaI = [];
+              if (item.preset || _cpvI.preset) _cpMetaI.push('Preset: ' + (item.preset || _cpvI.preset));
+              if (_cpvI.outputTypes && _cpvI.outputTypes.length) _cpMetaI.push(_cpvI.outputTypes.map(function (o) { return o.replace(/_/g, ' '); }).join(', '));
+              if (_cpMetaI.length) _preview = _cpMetaI.join(' \u00b7 ') + (_preview ? ' \u2014 ' + _preview : '');
+            } else {
+              _preview = (typeof item.preview === 'string' ? item.preview : '') || AgentEngine.buildPreview(_task ? _task.description : (item.recommendation || ''));
+            }
             var _inboxDate = _aqResolveDate(item);
             var _inboxAge = _aqFormatAge(_inboxDate);
             var _inboxBucket = _aqGetAgeBucket(_inboxDate);
             var _inboxBucketS = _aqBucketStyles[_inboxBucket] || _aqBucketStyles.fresh;
             var _inboxWhy = _aqBuildWhyTooltip(item, _task);
-            approvalHtml += '<div style="padding:0.5rem 0.6rem; border:1px solid ' + (isExec ? 'rgba(248,113,113,0.15)' : 'rgba(255,255,255,0.04)') + '; border-radius:6px; margin-bottom:0.3rem; background:' + (isExec ? 'rgba(248,113,113,0.03)' : 'rgba(255,255,255,0.01)') + ';' + _inboxBucketS.border + '">';
+            approvalHtml += '<div style="padding:0.5rem 0.6rem; border:1px solid ' + (_isContent ? 'rgba(139,92,246,0.15)' : isExec ? 'rgba(248,113,113,0.15)' : 'rgba(255,255,255,0.04)') + '; border-radius:6px; margin-bottom:0.3rem; background:' + (_isContent ? 'rgba(139,92,246,0.02)' : isExec ? 'rgba(248,113,113,0.03)' : 'rgba(255,255,255,0.01)') + ';' + _inboxBucketS.border + '">';
             approvalHtml += '<div style="display:flex; justify-content:space-between; align-items:flex-start;">';
             approvalHtml += '<div style="flex:1; min-width:0;">';
             approvalHtml += '<div style="display:flex;align-items:center;gap:0.3rem;flex-wrap:wrap;margin-bottom:2px;">';
             if (isExec) approvalHtml += '<span style="font-size:0.5rem; padding:0.1rem 0.3rem; border-radius:3px; background:rgba(248,113,113,0.15); color:#f87171;">EXEC REQUIRED</span>';
-            if (item.kind === 'action') approvalHtml += '<span style="font-size:0.5rem; padding:0.1rem 0.3rem; border-radius:3px; background:rgba(59,130,246,0.1); color:#3b82f6;">ACTION</span>';
+            if (_isContent) approvalHtml += '<span style="font-size:0.5rem; padding:0.1rem 0.3rem; border-radius:3px; background:rgba(139,92,246,0.12); color:#8b5cf6;"><i class="fas fa-image" style="font-size:0.4rem;margin-right:2px;"></i>CONTENT</span>';
+            else if (item.kind === 'action') approvalHtml += '<span style="font-size:0.5rem; padding:0.1rem 0.3rem; border-radius:3px; background:rgba(59,130,246,0.1); color:#3b82f6;">ACTION</span>';
             approvalHtml += _inboxBucketS.badge;
             approvalHtml += '<span title="' + escapeHtml(_inboxWhy) + '" style="cursor:help;font-size:0.55rem;width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.35);margin-left:auto;">?</span>';
             approvalHtml += '</div>';
-            approvalHtml += '<div style="font-size:0.9rem; font-weight:600;">' + (item.kind === 'action' ? friendlyTitle(item.taskTitle) : escapeHtml(item.taskTitle)) + '</div>';
+            approvalHtml += '<div style="font-size:0.9rem; font-weight:600;">' + (item.kind === 'action' ? friendlyTitle(_inboxTitle) : escapeHtml(_inboxTitle)) + '</div>';
             if (_preview) approvalHtml += '<div style="font-size:0.75rem; opacity:0.7; line-height:1.3; margin-top:4px;">' + escapeHtml(_preview) + '</div>';
             approvalHtml += '<div style="font-size:0.65rem; opacity:0.5; margin-top:4px; display:flex; gap:0.5rem; flex-wrap:wrap;">';
-            approvalHtml += '<span>' + (item.originAgent || '?') + '</span>';
-            approvalHtml += '<span style="color:' + riskColor + ';">risk: ' + item.riskLevel + '</span>';
+            approvalHtml += '<span>' + (item.originAgent || item.createdBy || '?') + '</span>';
+            if (!_isContent) approvalHtml += '<span style="color:' + riskColor + ';">risk: ' + (item.riskLevel || 'low') + '</span>';
             if (_inboxAge) approvalHtml += '<span>Age: ' + _inboxAge + '</span>';
             if (item.submittedAt) approvalHtml += '<span>' + new Date(item.submittedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + '</span>';
             approvalHtml += '</div>';
@@ -1425,6 +1438,7 @@
           { key: 'all', label: 'All' },
           { key: 'escalation', label: 'Escalations' },
           { key: 'action', label: 'Actions' },
+          { key: 'content', label: 'Content' },
           { key: 'stale', label: 'Stale (>48h)' },
           { key: 'overdue', label: 'Overdue (>7d)' }
         ];
@@ -1441,6 +1455,7 @@
         var filtered = pending;
         if (_aqActiveFilter === 'escalation') filtered = pending.filter(function (i) { return i.kind !== 'action'; });
         else if (_aqActiveFilter === 'action') filtered = pending.filter(function (i) { return i.kind === 'action'; });
+        else if (_aqActiveFilter === 'content') filtered = pending.filter(function (i) { return i.kind === 'content.package' || i.type === 'content.package'; });
         else if (_aqActiveFilter === 'stale') filtered = pending.filter(function (i) { var b = _aqGetAgeBucket(_aqResolveDate(i)); return b === 'stale' || b === 'overdue'; });
         else if (_aqActiveFilter === 'overdue') filtered = pending.filter(function (i) { return _aqGetAgeBucket(_aqResolveDate(i)) === 'overdue'; });
 
@@ -1543,11 +1558,15 @@
         filtered.forEach(function (item) {
           var isAction = item.kind === 'action';
           var isPublish = item.actionType === 'publish_document';
+          var isContent = item.kind === 'content.package' || item.type === 'content.package';
 
           // Type badge
           var typeBadge = '';
           var borderColor, bgColor;
-          if (isPublish) {
+          if (isContent) {
+            typeBadge = '<span style="display:inline-flex;align-items:center;gap:0.2rem;font-size:0.5rem;padding:0.1rem 0.4rem;border-radius:3px;background:rgba(139,92,246,0.12);color:#8b5cf6;margin-right:0.4rem;font-weight:600;"><i class="fas fa-image" style="font-size:0.45rem;"></i> CONTENT</span>';
+            borderColor = 'rgba(139,92,246,0.15)'; bgColor = 'rgba(139,92,246,0.02)';
+          } else if (isPublish) {
             typeBadge = '<span style="display:inline-flex;align-items:center;gap:0.2rem;font-size:0.5rem;padding:0.1rem 0.4rem;border-radius:3px;background:rgba(52,211,153,0.12);color:#34d399;margin-right:0.4rem;font-weight:600;"><i class="fas fa-globe" style="font-size:0.45rem;"></i> PUBLISH</span>';
             borderColor = 'rgba(52,211,153,0.15)'; bgColor = 'rgba(52,211,153,0.02)';
           } else if (isAction) {
@@ -1565,12 +1584,12 @@
             borderColor = 'rgba(255,215,0,0.12)'; bgColor = 'rgba(255,215,0,0.02)';
           }
 
-          // Agent name
-          var agentRaw = item.originAgent || '?';
+          // Agent name — content packages use createdBy, others use originAgent
+          var agentRaw = item.originAgent || item.createdBy || '?';
           var agentName = agentRaw.charAt(0).toUpperCase() + agentRaw.slice(1);
 
-          // Risk
-          var riskColor = item.riskLevel === 'high' ? '#f87171' : item.riskLevel === 'medium' ? '#fbbf24' : '#34d399';
+          // Risk — content packages don't have risk
+          var riskColor = isContent ? '#94a3b8' : (item.riskLevel === 'high' ? '#f87171' : item.riskLevel === 'medium' ? '#fbbf24' : '#34d399');
 
           // A) Aging
           var aqDate = _aqResolveDate(item);
@@ -1580,7 +1599,30 @@
 
           // Title + Preview
           var _aqTask = item.taskId ? AgentEngine.getTask(item.taskId) : null;
-          var _aqPreview = item.preview || AgentEngine.buildPreview(_aqTask ? _aqTask.description : (item.recommendation || ''));
+          var _aqDisplayTitle = item.title || item.taskTitle || 'Untitled';
+          var _aqPreview = '';
+          var _aqThumbsHtml = '';
+          if (isContent) {
+            var _cpv = (typeof item.preview === 'object' && item.preview) ? item.preview : {};
+            _aqPreview = item.goal || _cpv.goal || '';
+            // Preset + output types as meta line
+            var _cpMeta = [];
+            if (item.preset || _cpv.preset) _cpMeta.push('Preset: ' + (item.preset || _cpv.preset));
+            if (_cpv.outputTypes && _cpv.outputTypes.length) _cpMeta.push('Outputs: ' + _cpv.outputTypes.map(function (o) { return o.replace(/_/g, ' '); }).join(', '));
+            if (_cpMeta.length) _aqPreview = _cpMeta.join(' · ') + (_aqPreview ? ' — ' + _aqPreview : '');
+            // Thumbnail strip
+            var _thumbs = (_cpv.thumbs && _cpv.thumbs.length) ? _cpv.thumbs : ((item.links && item.links.imageUrls) || []);
+            if (_thumbs.length > 0) {
+              _aqThumbsHtml = '<div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap;">';
+              _thumbs.slice(0, 4).forEach(function (url) {
+                _aqThumbsHtml += '<img src="' + escapeHtml(url) + '" style="width:48px;height:48px;object-fit:cover;border-radius:4px;border:1px solid rgba(255,255,255,0.08);" loading="lazy" />';
+              });
+              if (_thumbs.length > 4) _aqThumbsHtml += '<span style="font-size:0.55rem;opacity:0.4;align-self:center;">+' + (_thumbs.length - 4) + '</span>';
+              _aqThumbsHtml += '</div>';
+            }
+          } else {
+            _aqPreview = (typeof item.preview === 'string' ? item.preview : '') || AgentEngine.buildPreview(_aqTask ? _aqTask.description : (item.recommendation || ''));
+          }
           var _aqFullDesc = _aqTask ? (_aqTask.description || '') : '';
           var _previewId = 'aq-prev-' + (item.id || Math.random()).toString().replace(/[^a-z0-9]/gi, '');
 
@@ -1590,7 +1632,8 @@
             if (_aqTask.impact) _aqBadges += '<span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(251,191,36,0.1);color:#fbbf24;">Impact: ' + _aqTask.impact + '</span>';
             if (_aqTask.effort) _aqBadges += '<span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(255,255,255,0.06);color:#ccc;">Effort: ' + _aqTask.effort + '</span>';
           }
-          if (item.classification) _aqBadges += '<span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(138,43,226,0.1);color:#c084fc;">' + item.classification.replace(/_/g, ' ') + '</span>';
+          if (isContent && item.preset) _aqBadges += '<span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(139,92,246,0.1);color:#a78bfa;">' + escapeHtml(item.preset) + '</span>';
+          else if (item.classification) _aqBadges += '<span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(138,43,226,0.1);color:#c084fc;">' + item.classification.replace(/_/g, ' ') + '</span>';
 
           // C) Tooltip
           var whyText = _aqBuildWhyTooltip(item, _aqTask);
@@ -1604,18 +1647,19 @@
                 '<div style="display:flex; align-items:center; gap:0.3rem; flex-wrap:wrap; margin-bottom:2px;">' + typeBadge + _aqBadges + bucketStyle.badge +
                   '<span title="' + escapeHtml(whyText) + '" style="cursor:help;font-size:0.55rem;width:14px;height:14px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.35);margin-left:auto;flex-shrink:0;">?</span>' +
                 '</div>' +
-                '<div style="font-size:0.9rem; font-weight:600;">' + (isAction ? friendlyTitle(item.taskTitle) : escapeHtml(item.taskTitle)) + '</div>' +
+                '<div style="font-size:0.9rem; font-weight:600;">' + (isAction ? friendlyTitle(_aqDisplayTitle) : escapeHtml(_aqDisplayTitle)) + '</div>' +
                 (_aqPreview ? '<div style="font-size:0.75rem; opacity:0.7; line-height:1.3; margin-top:4px;" id="' + _previewId + '">' + escapeHtml(_aqPreview) +
                   (_aqFullDesc.length > 160 ? ' <a href="#" style="font-size:0.6rem;color:#60a5fa;text-decoration:none;" onclick="var el=document.getElementById(\'' + _previewId + '\');if(el.dataset.expanded){el.textContent=\'' + escapeHtml(_aqPreview).replace(/'/g, "\\'") + '\';el.dataset.expanded=\'\';this.textContent=\'Expand\'}else{el.textContent=\'' + escapeHtml(_aqFullDesc).replace(/'/g, "\\'").replace(/\n/g, ' ') + '\';el.dataset.expanded=\'1\';this.textContent=\'Collapse\'};el.appendChild(this);return false">Expand</a>' : '') +
                 '</div>' : '') +
+                _aqThumbsHtml +
                 '<div style="display:flex; gap:0.5rem; font-size:0.65rem; opacity:0.5; margin-top:4px; flex-wrap:wrap;">' +
                   '<span>' + escapeHtml(agentName) + '</span>' +
-                  '<span style="color:' + riskColor + ';">' + (item.riskLevel || 'low') + ' risk</span>' +
+                  (isContent ? '' : '<span style="color:' + riskColor + ';">' + (item.riskLevel || 'low') + ' risk</span>') +
                   (ageStr ? '<span>Age: ' + ageStr + '</span>' : '') +
                   (_aqTask && _aqTask.source && _aqTask.source.title ? '<span>From: ' + escapeHtml(_aqTask.source.title) + '</span>' : '') +
                 '</div>' +
               '</div>' +
-              '<a href="/modules/company/actions.html" style="font-size:0.6rem; color:#60a5fa; text-decoration:none; white-space:nowrap; display:flex; align-items:center; gap:0.25rem; padding:0.25rem 0.5rem; border:1px solid rgba(96,165,250,0.2); border-radius:4px; background:rgba(96,165,250,0.05); align-self:center; flex-shrink:0;">Review <i class="fas fa-arrow-right" style="font-size:0.5rem;"></i></a>' +
+              '<a href="' + (isContent ? '/modules/company/content-gallery.html' : '/modules/company/actions.html') + '" style="font-size:0.6rem; color:' + (isContent ? '#8b5cf6' : '#60a5fa') + '; text-decoration:none; white-space:nowrap; display:flex; align-items:center; gap:0.25rem; padding:0.25rem 0.5rem; border:1px solid ' + (isContent ? 'rgba(139,92,246,0.2)' : 'rgba(96,165,250,0.2)') + '; border-radius:4px; background:' + (isContent ? 'rgba(139,92,246,0.05)' : 'rgba(96,165,250,0.05)') + '; align-self:center; flex-shrink:0;">' + (isContent ? 'Gallery' : 'Review') + ' <i class="fas fa-arrow-right" style="font-size:0.5rem;"></i></a>' +
             '</div>';
 
           // Checkbox event

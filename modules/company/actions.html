@@ -354,6 +354,24 @@
         </div>
       </div>
 
+      <!-- Content Packages Section -->
+      <div class="act-section" data-section="content-packages">
+        <div class="act-section-header" tabindex="0" role="button" aria-expanded="true">
+          <i class="fas fa-image" style="color:#8b5cf6;"></i>
+          <h2>Content Packages</h2>
+          <i class="fas fa-chevron-down act-section-chevron"></i>
+        </div>
+        <div class="act-section-body">
+          <div class="act-panel">
+            <div class="act-panel-head" style="border-color:rgba(139,92,246,0.15);">
+              <span style="color:#8b5cf6;"><i class="fas fa-image"></i> Pending Content Review</span>
+              <span id="content-pkg-count" style="font-size:0.6rem; opacity:0.4;"></span>
+            </div>
+            <div class="act-panel-body" id="content-pkg-list"></div>
+          </div>
+        </div>
+      </div>
+
       <!-- Failures Section (elevated: right after approvals) -->
       <div class="act-section" data-section="failures">
         <div class="act-section-header" tabindex="0" role="button" aria-expanded="true">
@@ -558,6 +576,7 @@
       renderExecutionPulse();
       renderRawStats();
       renderPending();
+      renderContentPackages();
       renderRevisions();
       renderScheduled();
       renderExecLog();
@@ -657,6 +676,53 @@
         rawCard(s.success, 'Success', '#34d399') +
         rawCard(s.failed, 'Failed', '#ef4444') +
         rawCard(s.rejected, 'Rejected', '#ef4444');
+    }
+
+    // ── Content Packages (from approval queue) ──
+    function renderContentPackages() {
+      var queue = AE.getApprovalQueue();
+      var pkgs = queue.filter(function (q) { return (q.kind === 'content.package' || q.type === 'content.package') && q.status === 'pending'; });
+      var el = document.getElementById('content-pkg-list');
+      var countEl = document.getElementById('content-pkg-count');
+      countEl.textContent = pkgs.length + ' pending';
+      if (pkgs.length === 0) { el.innerHTML = ''; return; }
+      var html = '';
+      pkgs.forEach(function (item) {
+        var title = item.title || 'Content Package';
+        var agent = item.createdBy || item.originAgent || '?';
+        var agentDisplay = agent.charAt(0).toUpperCase() + agent.slice(1);
+        var cpv = (typeof item.preview === 'object' && item.preview) ? item.preview : {};
+        var goalText = item.goal || cpv.goal || '';
+        var metaParts = [];
+        if (item.preset || cpv.preset) metaParts.push(item.preset || cpv.preset);
+        if (cpv.outputTypes && cpv.outputTypes.length) metaParts.push(cpv.outputTypes.map(function (o) { return o.replace(/_/g, ' '); }).join(', '));
+        var metaLine = metaParts.join(' \u00b7 ');
+        var thumbs = (cpv.thumbs && cpv.thumbs.length) ? cpv.thumbs : ((item.links && item.links.imageUrls) || []);
+        var age = item.createdAt ? timeAgo(item.createdAt) : '';
+
+        html += '<div class="act-row" style="flex-direction:column;align-items:stretch;gap:0.3rem;padding:0.5rem 0;">';
+        html += '<div style="display:flex;align-items:center;gap:0.5rem;">';
+        html += '<span style="display:inline-flex;align-items:center;gap:0.2rem;font-size:0.5rem;padding:0.1rem 0.4rem;border-radius:3px;background:rgba(139,92,246,0.12);color:#8b5cf6;font-weight:600;"><i class="fas fa-image" style="font-size:0.4rem;"></i> CONTENT</span>';
+        html += '<span style="font-size:0.75rem;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(title) + '</span>';
+        html += '<span style="font-size:0.55rem;opacity:0.4;flex-shrink:0;">' + esc(agentDisplay) + (age ? ' \u00b7 ' + age : '') + '</span>';
+        html += '</div>';
+        if (metaLine) html += '<div style="font-size:0.65rem;opacity:0.5;">' + esc(metaLine) + '</div>';
+        if (goalText) html += '<div style="font-size:0.65rem;opacity:0.6;line-height:1.3;">' + esc(goalText).substring(0, 200) + '</div>';
+        if (thumbs.length > 0) {
+          html += '<div style="display:flex;gap:4px;margin-top:2px;flex-wrap:wrap;">';
+          thumbs.slice(0, 6).forEach(function (url) {
+            html += '<img src="' + esc(url) + '" style="width:56px;height:56px;object-fit:cover;border-radius:4px;border:1px solid rgba(255,255,255,0.08);" loading="lazy" />';
+          });
+          if (thumbs.length > 6) html += '<span style="font-size:0.55rem;opacity:0.3;align-self:center;">+' + (thumbs.length - 6) + '</span>';
+          html += '</div>';
+        }
+        html += '<div style="display:flex;gap:0.3rem;margin-top:0.2rem;">';
+        html += '<a href="/modules/company/content-gallery.html" style="font-size:0.55rem;color:#8b5cf6;text-decoration:none;padding:0.2rem 0.4rem;border:1px solid rgba(139,92,246,0.2);border-radius:4px;background:rgba(139,92,246,0.05);"><i class="fas fa-images" style="margin-right:3px;"></i>View in Gallery</a>';
+        if (item.links && item.links.packageUrl) html += '<a href="' + esc(item.links.packageUrl) + '" target="_blank" style="font-size:0.55rem;color:#60a5fa;text-decoration:none;padding:0.2rem 0.4rem;border:1px solid rgba(96,165,250,0.2);border-radius:4px;background:rgba(96,165,250,0.05);"><i class="fas fa-box" style="margin-right:3px;"></i>Package JSON</a>';
+        html += '</div>';
+        html += '</div>';
+      });
+      el.innerHTML = html;
     }
 
     // ── Pending ──
