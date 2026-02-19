@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2026-02-18T14:07:34.955Z",
+  "updated": "2026-02-19T14:09:42.976Z",
   "root": [
     {
       "type": "folder",
@@ -94,6 +94,19 @@
         },
         {
           "type": "folder",
+          "name": "_lib",
+          "path": "api/_lib",
+          "children": [
+            {
+              "type": "folder",
+              "name": "contentEngine",
+              "path": "api/_lib/contentEngine",
+              "children": []
+            }
+          ]
+        },
+        {
+          "type": "folder",
           "name": "_utils",
           "path": "api/_utils",
           "children": []
@@ -134,6 +147,18 @@
           "type": "folder",
           "name": "actionsScheduler",
           "path": "api/actionsScheduler",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "agentCreateContent",
+          "path": "api/agentCreateContent",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "agentRunCampaign",
+          "path": "api/agentRunCampaign",
           "children": []
         },
         {
@@ -282,6 +307,42 @@
         },
         {
           "type": "folder",
+          "name": "contentBrief",
+          "path": "api/contentBrief",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "contentGenerate",
+          "path": "api/contentGenerate",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "contentIndex",
+          "path": "api/contentIndex",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "contentPackage",
+          "path": "api/contentPackage",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "contentQuickGenerate",
+          "path": "api/contentQuickGenerate",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "contentRetry",
+          "path": "api/contentRetry",
+          "children": []
+        },
+        {
+          "type": "folder",
           "name": "dailyLog",
           "path": "api/dailyLog",
           "children": []
@@ -326,6 +387,12 @@
           "type": "folder",
           "name": "getCardTemplate",
           "path": "api/getCardTemplate",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "linkedinTest",
+          "path": "api/linkedinTest",
           "children": []
         },
         {
@@ -912,6 +979,21 @@
               "type": "page",
               "name": "config-overview.html",
               "path": "modules/company/config-overview.html"
+            },
+            {
+              "type": "page",
+              "name": "content-engine.html",
+              "path": "modules/company/content-engine.html"
+            },
+            {
+              "type": "page",
+              "name": "content-gallery.html",
+              "path": "modules/company/content-gallery.html"
+            },
+            {
+              "type": "page",
+              "name": "content-overview.html",
+              "path": "modules/company/content-overview.html"
             },
             {
               "type": "page",

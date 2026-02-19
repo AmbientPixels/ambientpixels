@@ -1,10 +1,10 @@
 {
-  "updated": "2026-02-18T14:07:35.104Z",
+  "updated": "2026-02-19T14:09:43.104Z",
   "entries": [
     {
-      "hash": "2b83813",
-      "date": "2026-02-17 22:24:35 -0800",
-      "message": "fix: LinkedIn round 5 — try 3 APIs in order: /rest/posts, /v2/ugcPosts, /v2/shares with auto-fallback"
+      "hash": "ecd988a",
+      "date": "2026-02-18 22:39:06 -0800",
+      "message": "Wire create-content-package into heartbeat: Echo/Pixel can now generate images via tasks"
     }
   ]
 }

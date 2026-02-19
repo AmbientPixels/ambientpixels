@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "659133a1-6a4c-4dfb-9a05-4b9ad82cee39",
-      "hash": "2b83813867f6ae15ff7fde517788c07690a1eaf1",
-      "message": "fix: LinkedIn round 5 — try 3 APIs in order: /rest/posts, /v2/ugcPosts, /v2/shares with auto-fallback",
-      "timestamp": "2026-02-17 22:24:35 -0800",
+      "id": "c5b29080-47a7-4bfd-ac3d-648f6874e2aa",
+      "hash": "ecd988a31bedc2a5b223c160fc9d119f350aaf2f",
+      "message": "Wire create-content-package into heartbeat: Echo/Pixel can now generate images via tasks",
+      "timestamp": "2026-02-18 22:39:06 -0800",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/2b83813867f6ae15ff7fde517788c07690a1eaf1"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/ecd988a31bedc2a5b223c160fc9d119f350aaf2f"
     }
   ],
-  "timestamp": "2026-02-18T14:07:36.360Z",
+  "timestamp": "2026-02-19T14:09:45.853Z",
   "count": 1,
-  "scanId": 1771423656360
+  "scanId": 1771510185853
 }
