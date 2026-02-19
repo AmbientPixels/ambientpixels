@@ -716,7 +716,9 @@
           if (thumbs.length > 6) html += '<span style="font-size:0.55rem;opacity:0.3;align-self:center;">+' + (thumbs.length - 6) + '</span>';
           html += '</div>';
         }
-        html += '<div style="display:flex;gap:0.3rem;margin-top:0.2rem;">';
+        html += '<div style="display:flex;gap:0.3rem;margin-top:0.2rem;align-items:center;flex-wrap:wrap;">';
+        html += '<button class="act-btn act-btn--approve" onclick="doContentApprove(\'' + esc(item.id) + '\')"><i class="fas fa-check" style="margin-right:0.2rem;"></i>Approve</button>';
+        html += '<button class="act-btn act-btn--reject" onclick="doContentReject(\'' + esc(item.id) + '\')"><i class="fas fa-times" style="margin-right:0.2rem;"></i>Reject</button>';
         html += '<a href="/modules/company/content-gallery.html" style="font-size:0.55rem;color:#8b5cf6;text-decoration:none;padding:0.2rem 0.4rem;border:1px solid rgba(139,92,246,0.2);border-radius:4px;background:rgba(139,92,246,0.05);"><i class="fas fa-images" style="margin-right:3px;"></i>View in Gallery</a>';
         if (item.links && item.links.packageUrl) html += '<a href="' + esc(item.links.packageUrl) + '" target="_blank" style="font-size:0.55rem;color:#60a5fa;text-decoration:none;padding:0.2rem 0.4rem;border:1px solid rgba(96,165,250,0.2);border-radius:4px;background:rgba(96,165,250,0.05);"><i class="fas fa-box" style="margin-right:3px;"></i>Package JSON</a>';
         html += '</div>';
@@ -1006,6 +1008,33 @@
       html += '</div>';
       html += '</div>';
       return html;
+    }
+
+    // ── Content Package CEO Actions ──
+    function doContentApprove(id) {
+      try {
+        AE.ceoApprove(id, 'Approved from Action Center');
+        renderAll();
+        _showExecNotice('success', 'Content package approved.');
+      } catch (e) {
+        console.warn('[Content] Approve error:', e);
+        _showExecNotice('error', 'Approve failed — ' + (e.message || 'unknown error'));
+      }
+    }
+    function doContentReject(id) {
+      var reason = prompt('Reject reason (min 4 chars):');
+      if (!reason || reason.trim().length < 4) {
+        if (reason !== null) alert('Reason must be at least 4 characters.');
+        return;
+      }
+      try {
+        AE.ceoReject(id, reason.trim());
+        renderAll();
+        _showExecNotice('success', 'Content package rejected.');
+      } catch (e) {
+        console.warn('[Content] Reject error:', e);
+        _showExecNotice('error', 'Reject failed — ' + (e.message || 'unknown error'));
+      }
     }
 
     // ── CEO Actions ──
