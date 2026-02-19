@@ -455,18 +455,73 @@ function estimateCost(imagesGenerated) {
   return Math.round(imagesGenerated * IMAGE_COST_PER_IMAGE * 10000) / 10000;
 }
 
-// ── Soft Usage Limit Hook ──
+// ── Content Engine Config ──
+
+/**
+ * Load contentEngineConfig from company-state blob.
+ * Returns { defaultPreset, defaultOutputs, maxImagesPerDay } or defaults.
+ */
+async function loadContentEngineConfig() {
+  try {
+    var blobPath = 'contentEngineConfig.json';
+    var client = _getContainerClient(STATE_CONTAINER);
+    var blobClient = client.getBlobClient(blobPath);
+    var dl = await blobClient.download(0);
+    var raw = await _streamToString(dl.readableStreamBody);
+    var cfg = JSON.parse(raw);
+    return {
+      defaultPreset: cfg.defaultPreset || 'ap-neon-glass',
+      defaultOutputs: Array.isArray(cfg.defaultOutputs) ? cfg.defaultOutputs : ['x_image'],
+      maxImagesPerDay: parseInt(cfg.maxImagesPerDay) || 50
+    };
+  } catch (e) {
+    return { defaultPreset: 'ap-neon-glass', defaultOutputs: ['x_image'], maxImagesPerDay: 50 };
+  }
+}
+
+// ── Usage Limit Hook ──
 
 /**
  * Check whether an account is within usage limits.
- * Structural hook — always returns allowed:true for now.
- * Future: query usage records and enforce tier-based limits.
+ * Reads maxImagesPerDay from contentEngineConfig blob.
+ * Counts today's usage records to enforce.
  * @param {string} accountId
  * @returns {Promise<{allowed: boolean, remaining?: number, reason?: string}>}
  */
 async function checkUsageLimits(accountId) {
-  // Structural hook — no enforcement yet
-  return { allowed: true };
+  try {
+    var cfg = await loadContentEngineConfig();
+    var maxPerDay = cfg.maxImagesPerDay;
+    if (!maxPerDay || maxPerDay <= 0) return { allowed: true };
+
+    // Count today's usage
+    var now = new Date();
+    var yearMonth = now.getFullYear() + '/' + String(now.getMonth() + 1).padStart(2, '0');
+    var prefix = 'usage/' + yearMonth + '/usage_';
+    var todayStr = now.toISOString().slice(0, 10);
+    var client = _getContainerClient(USAGE_CONTAINER);
+    var count = 0;
+
+    for await (var blob of client.listBlobsFlat({ prefix: prefix })) {
+      // usage records have timestamp in filename; check if today
+      try {
+        var ts = blob.name.split('usage_')[1].split('_')[0];
+        var d = new Date(parseInt(ts));
+        if (d.toISOString().slice(0, 10) === todayStr) {
+          count++;
+        }
+      } catch (e) { /* skip malformed */ }
+    }
+
+    var remaining = Math.max(0, maxPerDay - count);
+    if (remaining <= 0) {
+      return { allowed: false, remaining: 0, reason: 'Daily limit of ' + maxPerDay + ' images reached' };
+    }
+    return { allowed: true, remaining: remaining };
+  } catch (e) {
+    // Fail open — if we can't check, allow generation
+    return { allowed: true };
+  }
 }
 
 /**
@@ -498,6 +553,7 @@ module.exports = {
   writeUsageRecord: writeUsageRecord,
   estimateCost: estimateCost,
   checkUsageLimits: checkUsageLimits,
+  loadContentEngineConfig: loadContentEngineConfig,
   getPresetVersion: getPresetVersion,
   PRESETS: PRESETS,
   VALID_PRESETS: VALID_PRESETS,

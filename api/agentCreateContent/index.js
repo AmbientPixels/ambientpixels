@@ -63,10 +63,14 @@ module.exports = async function (context, req) {
     delete body.engineVersion;
     delete body.presetVersion;
 
+    // Load config defaults
+    var _ceConfig = null;
+    try { _ceConfig = await imageEngine.loadContentEngineConfig(); } catch (e) { /* use hardcoded defaults */ }
+
     var topic = (body.topic || '').trim();
     var goal = (body.goal || '').trim();
-    var preset = (body.preset || '').trim();
-    var outputs = body.outputs;
+    var preset = (body.preset || (_ceConfig && _ceConfig.defaultPreset) || 'ap-neon-glass').trim();
+    var outputs = body.outputs || (_ceConfig && _ceConfig.defaultOutputs) || ['x_image'];
     var variations = Math.min(Math.max(parseInt(body.variations) || 1, 1), 4);
     var directiveId = (body.directiveId || '').trim() || null;
     var objectiveId = (body.objectiveId || '').trim() || null;

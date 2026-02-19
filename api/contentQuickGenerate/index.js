@@ -35,8 +35,11 @@ module.exports = async function (context, req) {
     var body = req.body || {};
     var topic = (body.topic || '').trim();
     var goal = (body.goal || '').trim();
-    var preset = (body.preset || 'ap-neon-glass').trim();
-    var outputs = body.outputs || ['x_image'];
+    // Load config defaults (non-blocking — use fallbacks if unavailable)
+    var _ceConfig = null;
+    try { _ceConfig = await imageEngine.loadContentEngineConfig(); } catch (e) { /* use hardcoded defaults */ }
+    var preset = (body.preset || (_ceConfig && _ceConfig.defaultPreset) || 'ap-neon-glass').trim();
+    var outputs = body.outputs || (_ceConfig && _ceConfig.defaultOutputs) || ['x_image'];
     var audience = (body.audience || '').trim() || undefined;
     var tone = (body.tone || '').trim() || undefined;
     var variations = Math.min(Math.max(parseInt(body.variations) || 1, 1), 4);

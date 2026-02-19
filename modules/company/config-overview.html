@@ -349,6 +349,42 @@
     .cfg-cal-toggle--enable { border-color: rgba(52,211,153,0.2); background: rgba(52,211,153,0.05); color: #34d399; }
     .cfg-cal-info { margin-top: 0.6rem; font-size: 0.62rem; opacity: 0.35; }
 
+    /* Content Engine Config panel */
+    .cfg-ce-panel {
+      background: rgba(139,92,246,0.03);
+      border: 1px solid rgba(139,92,246,0.12);
+      border-radius: 10px; padding: 1rem 1.2rem;
+      margin-bottom: 1.4rem;
+    }
+    .cfg-ce-title { font-size: 0.7rem; font-weight: 600; color: #8b5cf6; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.4rem; }
+    .cfg-ce-row {
+      display: flex; align-items: center; gap: 0.6rem; padding: 0.45rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.03); font-size: 0.72rem;
+    }
+    .cfg-ce-row:last-child { border-bottom: none; }
+    .cfg-ce-label { min-width: 130px; opacity: 0.6; font-size: 0.65rem; }
+    .cfg-ce-select {
+      font-size: 0.62rem; padding: 4px 8px; background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(139,92,246,0.15); border-radius: 5px;
+      color: #e0e0e0; font-family: inherit; cursor: pointer;
+    }
+    .cfg-ce-select:focus { outline: none; border-color: rgba(139,92,246,0.4); }
+    .cfg-ce-input {
+      font-size: 0.62rem; padding: 4px 8px; width: 70px; background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(139,92,246,0.15); border-radius: 5px;
+      color: #e0e0e0; font-family: inherit;
+    }
+    .cfg-ce-input:focus { outline: none; border-color: rgba(139,92,246,0.4); }
+    .cfg-ce-checks { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+    .cfg-ce-check {
+      font-size: 0.58rem; padding: 3px 8px; border-radius: 5px; cursor: pointer;
+      border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02);
+      color: rgba(255,255,255,0.5); transition: all 0.15s; user-select: none;
+    }
+    .cfg-ce-check.active { border-color: rgba(139,92,246,0.3); background: rgba(139,92,246,0.1); color: #8b5cf6; }
+    .cfg-ce-saved { font-size: 0.5rem; color: #34d399; opacity: 0; transition: opacity 0.3s; margin-left: 6px; }
+    .cfg-ce-version { font-size: 0.55rem; opacity: 0.25; margin-top: 0.4rem; }
+
     /* System Storage panel */
     .cfg-storage-panel {
       background: rgba(59,130,246,0.03);
@@ -747,6 +783,46 @@
         </select>
         <span class="cfg-tz-saved" id="cfg-cal-cadence-saved" style="display:none;">Saved</span>
       </div>
+    </div>
+
+    <!-- Content Engine Config -->
+    <div class="ov-section-title">Content Engine</div>
+    <div style="font-size:0.55rem; opacity:0.3; margin:-0.3rem 0 0.4rem 0;">Default generation settings for Image Engine and agent-driven content</div>
+    <div class="cfg-ce-panel" id="cfg-ce-panel">
+      <div class="cfg-ce-title"><i class="fas fa-wand-magic-sparkles" style="opacity:0.5;"></i> Generation Defaults</div>
+
+      <div class="cfg-ce-row">
+        <span class="cfg-ce-label">Default Preset</span>
+        <select class="cfg-ce-select" id="cfg-ce-preset">
+          <option value="ap-neon-glass">Neon Glass</option>
+          <option value="ap-2d-flat">2D Flat</option>
+          <option value="ap-ornate-frame">Ornate Frame</option>
+          <option value="ap-corporate-tech">Corporate Tech</option>
+        </select>
+        <span class="cfg-ce-saved" id="cfg-ce-preset-saved">Saved</span>
+      </div>
+
+      <div class="cfg-ce-row">
+        <span class="cfg-ce-label">Default Outputs</span>
+        <div class="cfg-ce-checks" id="cfg-ce-outputs">
+          <div class="cfg-ce-check active" data-output="x_image">X</div>
+          <div class="cfg-ce-check" data-output="hero_image">Hero</div>
+          <div class="cfg-ce-check" data-output="square_image">Square</div>
+          <div class="cfg-ce-check" data-output="story_image">Story</div>
+          <div class="cfg-ce-check" data-output="blog_image">Blog</div>
+          <div class="cfg-ce-check" data-output="linkedin_image">LinkedIn</div>
+        </div>
+        <span class="cfg-ce-saved" id="cfg-ce-outputs-saved">Saved</span>
+      </div>
+
+      <div class="cfg-ce-row">
+        <span class="cfg-ce-label">Usage Limit / Day</span>
+        <input class="cfg-ce-input" id="cfg-ce-limit" type="number" min="0" max="500" step="10" value="50" placeholder="50" />
+        <span style="font-size:0.55rem; opacity:0.3;">images</span>
+        <span class="cfg-ce-saved" id="cfg-ce-limit-saved">Saved</span>
+      </div>
+
+      <div class="cfg-ce-version" id="cfg-ce-version">Engine v—</div>
     </div>
 
     <!-- System Storage -->
@@ -2222,6 +2298,121 @@
     execBtn.addEventListener('click', function () {
       if (!execBtn.classList.contains('ready') || !_pendingAction) return;
       _pendingAction.exec();
+    });
+  })();
+  </script>
+
+  <script>
+  // Content Engine Config panel
+  (function () {
+    var presetSel = document.getElementById('cfg-ce-preset');
+    var outputsWrap = document.getElementById('cfg-ce-outputs');
+    var limitInput = document.getElementById('cfg-ce-limit');
+    var versionEl = document.getElementById('cfg-ce-version');
+    if (!presetSel || !outputsWrap || !limitInput) return;
+
+    var _apiBase = window.location.hostname.includes('ambientpixels.ai')
+      ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+      : '/api';
+
+    function _getHeaders() {
+      var h = { 'Content-Type': 'application/json' };
+      try { var k = sessionStorage.getItem('ap_server_key'); if (k) h['x-company-secret'] = k; } catch (e) {}
+      if (CompanyStore && CompanyStore.getWriteHeaders) {
+        var wh = CompanyStore.getWriteHeaders();
+        Object.keys(wh).forEach(function (k) { h[k] = wh[k]; });
+        h['Content-Type'] = 'application/json';
+      }
+      return h;
+    }
+
+    function _flashSaved(id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.style.opacity = '1';
+      setTimeout(function () { el.style.opacity = '0'; }, 1500);
+    }
+
+    function _getSelectedOutputs() {
+      var checks = outputsWrap.querySelectorAll('.cfg-ce-check.active');
+      var out = [];
+      for (var i = 0; i < checks.length; i++) out.push(checks[i].getAttribute('data-output'));
+      return out;
+    }
+
+    function _buildConfig() {
+      return {
+        defaultPreset: presetSel.value,
+        defaultOutputs: _getSelectedOutputs(),
+        maxImagesPerDay: parseInt(limitInput.value) || 50,
+        updatedAt: new Date().toISOString()
+      };
+    }
+
+    function _saveConfig(flashId) {
+      var cfg = _buildConfig();
+      fetch(_apiBase + '/company-state', {
+        method: 'POST',
+        headers: _getHeaders(),
+        body: JSON.stringify({ key: 'contentEngineConfig', value: cfg })
+      }).then(function (r) {
+        if (r.ok && flashId) _flashSaved(flashId);
+      }).catch(function () {});
+    }
+
+    // Load existing config
+    fetch(_apiBase + '/company-state?key=contentEngineConfig', { headers: _getHeaders() })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data || !data.value) return;
+        var cfg = data.value;
+        if (cfg.defaultPreset) presetSel.value = cfg.defaultPreset;
+        if (Array.isArray(cfg.defaultOutputs)) {
+          var checks = outputsWrap.querySelectorAll('.cfg-ce-check');
+          for (var i = 0; i < checks.length; i++) {
+            var out = checks[i].getAttribute('data-output');
+            if (cfg.defaultOutputs.indexOf(out) !== -1) {
+              checks[i].classList.add('active');
+            } else {
+              checks[i].classList.remove('active');
+            }
+          }
+        }
+        if (cfg.maxImagesPerDay != null) limitInput.value = cfg.maxImagesPerDay;
+      }).catch(function () {});
+
+    // Show engine version from content-index response
+    fetch(_apiBase + '/content-index?limit=1', { headers: _getHeaders() })
+      .then(function (r) { return r.json(); })
+      .then(function (d) {
+        if (d && d.results && d.results[0] && d.results[0].engineVersion) {
+          versionEl.textContent = 'Engine v' + d.results[0].engineVersion;
+        } else {
+          versionEl.textContent = 'Engine v1.8.1';
+        }
+      }).catch(function () { versionEl.textContent = 'Engine v1.8.1'; });
+
+    // Wire preset change
+    presetSel.addEventListener('change', function () { _saveConfig('cfg-ce-preset-saved'); });
+
+    // Wire output toggles
+    outputsWrap.addEventListener('click', function (e) {
+      var chip = e.target.closest('.cfg-ce-check');
+      if (!chip) return;
+      chip.classList.toggle('active');
+      // Ensure at least one output remains selected
+      if (_getSelectedOutputs().length === 0) {
+        chip.classList.add('active');
+        return;
+      }
+      _saveConfig('cfg-ce-outputs-saved');
+    });
+
+    // Wire limit change (debounced)
+    var _limitTimer = null;
+    limitInput.addEventListener('input', function () {
+      clearTimeout(_limitTimer);
+      _limitTimer = setTimeout(function () { _saveConfig('cfg-ce-limit-saved'); }, 800);
     });
   })();
   </script>
