@@ -1234,6 +1234,15 @@
         html += '<span style="color:' + charColor + ';">' + payload.text.length + '/' + charLimit + ' chars (' + charPct + '%)</span>';
         if (payload.media && payload.media.length) html += '<span><i class="fas fa-image" style="margin-right:0.2rem;"></i>' + payload.media.length + ' media</span>';
         html += '</div>';
+        // Media image previews
+        if (payload.media && payload.media.length) {
+          html += '<div style="display:flex;gap:6px;margin-top:0.5rem;flex-wrap:wrap;">';
+          payload.media.slice(0, 4).forEach(function (m) {
+            var mUrl = (typeof m === 'string') ? m : (m && m.url) || '';
+            if (mUrl) html += '<a href="' + esc(mUrl) + '" target="_blank" rel="noopener"><img src="' + esc(mUrl) + '" style="max-width:160px;max-height:100px;border-radius:6px;border:1px solid rgba(168,85,247,0.2);object-fit:cover;cursor:pointer;" onerror="this.parentElement.style.display=\'none\'" loading="lazy"></a>';
+          });
+          html += '</div>';
+        }
         html += '</div>';
         if (payload.scheduled_for) {
           html += '<div style="font-size:0.65rem;color:#fbbf24;margin-top:0.3rem;"><i class="fas fa-clock" style="margin-right:0.3rem;"></i>Scheduled: ' + fmtDate(payload.scheduled_for) + '</div>';
@@ -1250,6 +1259,12 @@
         if (payload.visibility) metaParts.push(payload.visibility === 'public' ? '<span style="color:#34d399;">public</span>' : '<span style="color:#fbbf24;">internal</span>');
         if (payload.slug) metaParts.push('<span style="opacity:0.4;">/' + esc(payload.slug) + '</span>');
         if (metaParts.length) html += '<div style="font-size:0.6rem;opacity:0.6;margin-bottom:0.6rem;display:flex;gap:0.5rem;align-items:center;">' + metaParts.join(' · ') + '</div>';
+        // Hero image between meta and content — matches blog layout (title → meta → hero → content)
+        if (payload.hero_image_url) {
+          html += '<a href="' + esc(payload.hero_image_url) + '" target="_blank" rel="noopener" style="display:block;margin-bottom:0.6rem;">' +
+            '<img src="' + esc(payload.hero_image_url) + '" alt="Hero image" style="width:100%;max-height:180px;object-fit:cover;border-radius:6px;border:1px solid rgba(52,211,153,0.15);" onerror="this.parentElement.style.display=\'none\'" loading="lazy">' +
+            '</a>';
+        }
         // Render markdown as styled HTML
         var articleHtml = esc(payload.content_md)
           .replace(/^### (.+)$/gm, '<h5 style="font-size:0.8rem;font-weight:600;color:#c4b5fd;margin:0.6rem 0 0.3rem;">$1</h5>')

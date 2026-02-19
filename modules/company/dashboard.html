@@ -1623,11 +1623,13 @@
           } else {
             _aqPreview = (typeof item.preview === 'string' ? item.preview : '') || AgentEngine.buildPreview(_aqTask ? _aqTask.description : (item.recommendation || ''));
           }
-          // Hero image thumbnail for publish_document items
-          if (isPublish && item.heroImageUrl) {
-            _aqThumbsHtml = '<a href="' + escapeHtml(item.heroImageUrl) + '" target="_blank" rel="noopener" style="display:block;margin-top:6px;">' +
-              '<img src="' + escapeHtml(item.heroImageUrl) + '" alt="Hero image" ' +
-              'style="max-width:180px;max-height:100px;border-radius:6px;border:1px solid rgba(52,211,153,0.2);cursor:pointer;object-fit:cover;transition:opacity 0.2s;" ' +
+          // Image preview for publish_document (hero image) and social posts (media)
+          var _aqImgUrl = (isPublish && item.heroImageUrl) ? item.heroImageUrl : (item.previewImageUrl || null);
+          if (_aqImgUrl) {
+            var _imgBorder = isPublish ? 'rgba(52,211,153,0.2)' : 'rgba(168,85,247,0.2)';
+            _aqThumbsHtml = '<a href="' + escapeHtml(_aqImgUrl) + '" target="_blank" rel="noopener" style="display:block;margin-top:6px;">' +
+              '<img src="' + escapeHtml(_aqImgUrl) + '" alt="Preview image" ' +
+              'style="max-width:180px;max-height:100px;border-radius:6px;border:1px solid ' + _imgBorder + ';cursor:pointer;object-fit:cover;transition:opacity 0.2s;" ' +
               'onmouseover="this.style.opacity=\'0.8\'" onmouseout="this.style.opacity=\'1\'" ' +
               'onerror="this.parentElement.style.display=\'none\'" loading="lazy">' +
               '</a>';

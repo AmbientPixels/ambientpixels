@@ -1088,6 +1088,13 @@ Write the full deliverable first, then the structured JSON block.`;
       actionsStore.push(newAction);
       await storage.setState('actions', actionsStore);
 
+      // Extract first media URL for approval queue preview (if any)
+      var _socialPreviewImage = null;
+      if (newAction.payload && Array.isArray(newAction.payload.media) && newAction.payload.media.length > 0) {
+        var _firstMedia = newAction.payload.media[0];
+        _socialPreviewImage = (typeof _firstMedia === 'string') ? _firstMedia : (_firstMedia && _firstMedia.url) || null;
+      }
+
       // Add to approval queue
       const approvalQueue = (await storage.getState('approvalQueue')) || [];
       approvalQueue.push({
@@ -1103,7 +1110,8 @@ Write the full deliverable first, then the structured JSON block.`;
         brandImpact: 'medium',
         status: 'pending',
         submittedAt: new Date().toISOString(),
-        preview: (newAction.payload && newAction.payload.text) ? newAction.payload.text.substring(0, 120) : ''
+        preview: (newAction.payload && newAction.payload.text) ? newAction.payload.text.substring(0, 120) : '',
+        previewImageUrl: _socialPreviewImage
       });
       if (approvalQueue.length > 100) approvalQueue.splice(0, approvalQueue.length - 100);
       await storage.setState('approvalQueue', approvalQueue);
@@ -1592,6 +1600,7 @@ Write the full deliverable first, then the structured JSON block.`;
               target_path: pubTargetPath,
               public_url: pubPublicUrl,
               hero_image_asset_id: doc.hero_image_asset_id || null,
+              hero_image_url: null, // resolved below after imageAssets lookup
               missing_hero_image: (!doc.hero_image_asset_id && VISUAL_KINDS.indexOf(doc.kind) !== -1) || false
             },
             classification: 'executive_required',
@@ -1650,7 +1659,7 @@ Write the full deliverable first, then the structured JSON block.`;
           await storage.setState('ap_artifacts', sfpArtifacts);
           context.log('[Heartbeat] Registered draft artifact:', sfpArtifactId, 'for submit-for-publish action:', publishAction.id);
 
-          // Resolve hero image URL from imageAssets store (for approval queue preview)
+          // Resolve hero image URL from imageAssets store (for approval queue + drawer preview)
           let _heroImageUrl = null;
           if (doc.hero_image_asset_id) {
             try {
@@ -1659,6 +1668,8 @@ Write the full deliverable first, then the structured JSON block.`;
               if (_heroAsset && _heroAsset.url) _heroImageUrl = _heroAsset.url;
             } catch (_heroErr) { /* non-fatal */ }
           }
+          // Backfill resolved URL into action payload so actions drawer can render it
+          if (_heroImageUrl) publishAction.payload.hero_image_url = _heroImageUrl;
 
           // Add to CEO approval queue
           const approvalQueue = (await storage.getState('approvalQueue')) || [];
