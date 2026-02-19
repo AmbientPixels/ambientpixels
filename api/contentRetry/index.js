@@ -53,6 +53,23 @@ module.exports = async function (context, req) {
       return;
     }
 
+    // Account context from existing package (or default)
+    var accountId = pkg.accountId || 'ambientpixels-internal';
+    var accountType = pkg.accountType || 'internal';
+
+    // Soft usage limit check
+    var limitCheck = await imageEngine.checkUsageLimits(accountId);
+    if (!limitCheck.allowed) {
+      context.res = {
+        status: 429,
+        headers: CORS,
+        body: JSON.stringify({ ok: false, error: 'USAGE_LIMIT_EXCEEDED', remaining: limitCheck.remaining || 0 })
+      };
+      return;
+    }
+
+    var retryStartMs = Date.now();
+
     // Find failed outputs
     var failedKeys = [];
     Object.keys(pkg.outputs).forEach(function (key) {
@@ -141,10 +158,14 @@ module.exports = async function (context, req) {
       else if (pkg.outputs[k].status === 'failed') failedCount++;
     });
 
+    var retryDurationMs = Date.now() - retryStartMs;
+
     pkg.successCount = successCount;
     pkg.failedCount = failedCount;
     pkg.status = failedCount === 0 ? 'pending_approval' : 'partial_success';
     pkg.lastRetryAt = new Date().toISOString();
+    pkg.engineVersion = pkg.engineVersion || imageEngine.ENGINE_VERSION;
+    pkg.estimatedCost = imageEngine.estimateCost(successCount);
 
     // Save updated package
     var packageUrl = await imageEngine.savePackage(pkg);
@@ -168,6 +189,30 @@ module.exports = async function (context, req) {
           retried: true
         });
       } catch (e) { /* non-fatal */ }
+    }
+
+    // Write usage record for retry
+    try {
+      await imageEngine.writeUsageRecord({
+        accountId: accountId,
+        accountType: accountType,
+        packageId: packageId,
+        timestamp: new Date().toISOString(),
+        engineVersion: imageEngine.ENGINE_VERSION,
+        preset: pkg.preset,
+        presetVersion: imageEngine.getPresetVersion(pkg.preset),
+        formatsRequested: failedKeys.map(function (k) { return (pkg.outputs[k] || {}).outputType || k; }),
+        variations: 1,
+        imagesGenerated: retriedCount,
+        model: imageEngine.GEMINI_IMAGE_MODEL,
+        durationMs: retryDurationMs,
+        estimatedCost: imageEngine.estimateCost(retriedCount),
+        status: stillFailed > 0 ? 'partial' : 'success',
+        isRetry: true
+      });
+      context.log('[contentRetry] Usage record written');
+    } catch (usageErr) {
+      context.log.warn('[contentRetry] Usage record write failed (non-fatal):', usageErr.message);
     }
 
     context.res = {

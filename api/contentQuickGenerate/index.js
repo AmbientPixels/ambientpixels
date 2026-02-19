@@ -42,6 +42,23 @@ module.exports = async function (context, req) {
     var variations = Math.min(Math.max(parseInt(body.variations) || 1, 1), 4);
     var skipApproval = body.skipApproval === true;
 
+    // Account context abstraction
+    var accountId = (body.accountId || 'ambientpixels-internal').trim();
+    var accountType = (body.accountType || 'internal').trim();
+
+    // Soft usage limit check
+    var limitCheck = await imageEngine.checkUsageLimits(accountId);
+    if (!limitCheck.allowed) {
+      context.res = {
+        status: 429,
+        headers: CORS,
+        body: JSON.stringify({ ok: false, error: 'USAGE_LIMIT_EXCEEDED', remaining: limitCheck.remaining || 0 })
+      };
+      return;
+    }
+
+    var generationStartMs = Date.now();
+
     // Validate
     if (!topic || topic.length < 3) {
       context.res = { status: 400, headers: CORS, body: JSON.stringify({ error: 'topic required (min 3 chars)' }) };
@@ -165,18 +182,26 @@ module.exports = async function (context, req) {
       ? (skipApproval ? 'approved' : 'pending_approval')
       : 'partial_success';
 
+    var durationMs = Date.now() - generationStartMs;
+
     var pkg = {
       id: packageId,
       briefId: briefId,
       createdAt: new Date().toISOString(),
       generatedBy: 'user',
+      accountId: accountId,
+      accountType: accountType,
+      engineVersion: imageEngine.ENGINE_VERSION,
       preset: preset,
+      presetVersion: imageEngine.getPresetVersion(preset),
       variations: variations,
       outputs: allOutputs,
       promptSummary: promptSummary,
       status: overallStatus,
       successCount: successCount,
       failedCount: failedCount,
+      durationMs: durationMs,
+      estimatedCost: imageEngine.estimateCost(successCount),
       model: imageEngine.GEMINI_IMAGE_MODEL,
       provider: imageEngine.GEMINI_IMAGE_PROVIDER
     };
@@ -236,7 +261,30 @@ module.exports = async function (context, req) {
       context.log('[quickGenerate] Approval queue item added:', approvalItemId);
     }
 
-    // ── Step 5: Append to gallery index ──
+    // ── Step 5: Write usage record ──
+    try {
+      var usagePath = await imageEngine.writeUsageRecord({
+        accountId: accountId,
+        accountType: accountType,
+        packageId: packageId,
+        timestamp: pkg.createdAt,
+        engineVersion: imageEngine.ENGINE_VERSION,
+        preset: preset,
+        presetVersion: imageEngine.getPresetVersion(preset),
+        formatsRequested: outputs,
+        variations: variations,
+        imagesGenerated: successCount,
+        model: imageEngine.GEMINI_IMAGE_MODEL,
+        durationMs: durationMs,
+        estimatedCost: imageEngine.estimateCost(successCount),
+        status: overallStatus === 'partial_success' ? 'partial' : (successCount > 0 ? 'success' : 'failed')
+      });
+      context.log('[quickGenerate] Usage record written:', usagePath);
+    } catch (usageErr) {
+      context.log.warn('[quickGenerate] Usage record write failed (non-fatal):', usageErr.message);
+    }
+
+    // ── Step 6: Append to gallery index ──
     try {
       await imageEngine.appendToIndex({
         packageId: packageId,

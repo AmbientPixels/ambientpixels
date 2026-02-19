@@ -7,29 +7,44 @@ const https = require('https');
 const crypto = require('crypto');
 
 // ── Config ──
+const ENGINE_VERSION = '1.6';
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const GEMINI_IMAGE_MODEL = process.env.GEMINI_IMAGE_MODEL || 'gemini-2.5-flash-image';
 const GEMINI_IMAGE_PROVIDER = process.env.GEMINI_IMAGE_PROVIDER || 'multimodal';
+const IMAGE_COST_PER_IMAGE = parseFloat(process.env.IMAGE_COST_ESTIMATE_PER_IMAGE) || 0.01;
 const STORAGE_ACCOUNT = 'cardforgeblobdata';
 const IMAGES_CONTAINER = process.env.GENERATED_IMAGES_CONTAINER || 'generated-images';
 const STATE_CONTAINER = 'company-state';
+const USAGE_CONTAINER = 'company-state';
 
 // ── Presets (server-side only — never accept arbitrary style text) ──
 var PRESETS = {
   'ap-2d-flat': {
     label: '2D Flat',
+    version: '1.0',
+    author: 'Pixel',
+    visibility: 'internal',
     style: 'Clean 2D flat illustration style with bold saturated colors, minimal shadows, geometric shapes, modern vector-art aesthetic.'
   },
   'ap-neon-glass': {
     label: 'Neon Glass',
+    version: '1.0',
+    author: 'Pixel',
+    visibility: 'internal',
     style: 'Dark background with vibrant neon glow effects, glass-morphism translucent panels, cyberpunk color palette of electric blue, hot pink, and purple.'
   },
   'ap-ornate-frame': {
     label: 'Ornate Frame',
+    version: '1.0',
+    author: 'Pixel',
+    visibility: 'internal',
     style: 'Ornate decorative frame with detailed Art Nouveau borders, rich gold and deep jewel tones, vintage illustration quality.'
   },
   'ap-corporate-tech': {
     label: 'Corporate Tech',
+    version: '1.0',
+    author: 'Pixel',
+    visibility: 'internal',
     style: 'Professional corporate technology aesthetic, clean gradients from dark navy to teal, abstract geometric patterns, sleek modern design.'
   }
 };
@@ -322,13 +337,16 @@ async function generateImage(opts) {
   var thumbUrl = imageUrl;
 
   // Upload per-image metadata
+  var presetDef = PRESETS[opts.preset] || {};
   var meta = {
     jobId: jobId,
     outputType: opts.outputType,
     preset: opts.preset,
+    presetVersion: presetDef.version || '1.0',
     topic: opts.topic,
     goal: opts.goal,
     model: GEMINI_IMAGE_MODEL,
+    engineVersion: ENGINE_VERSION,
     size: sizeStr,
     aspect: purpose.aspect,
     mimeType: result.mimeType,
@@ -416,6 +434,49 @@ async function appendToIndex(entry) {
   return index.length;
 }
 
+// ── Usage Logging ──
+
+/**
+ * Write a usage record to blob storage.
+ * Path: usage/YYYY/MM/usage_<timestamp>_<packageId>.json
+ */
+async function writeUsageRecord(record) {
+  var now = new Date();
+  var yearMonth = now.getFullYear() + '/' + String(now.getMonth() + 1).padStart(2, '0');
+  var blobPath = 'usage/' + yearMonth + '/usage_' + now.getTime() + '_' + record.packageId + '.json';
+  await _uploadJson(USAGE_CONTAINER, blobPath, record);
+  return blobPath;
+}
+
+/**
+ * Calculate estimated cost for a generation run.
+ */
+function estimateCost(imagesGenerated) {
+  return Math.round(imagesGenerated * IMAGE_COST_PER_IMAGE * 10000) / 10000;
+}
+
+// ── Soft Usage Limit Hook ──
+
+/**
+ * Check whether an account is within usage limits.
+ * Structural hook — always returns allowed:true for now.
+ * Future: query usage records and enforce tier-based limits.
+ * @param {string} accountId
+ * @returns {Promise<{allowed: boolean, remaining?: number, reason?: string}>}
+ */
+async function checkUsageLimits(accountId) {
+  // Structural hook — no enforcement yet
+  return { allowed: true };
+}
+
+/**
+ * Get preset version string for a given preset ID.
+ */
+function getPresetVersion(presetId) {
+  var p = PRESETS[presetId];
+  return p ? (p.version || '1.0') : '1.0';
+}
+
 function _streamToString(stream) {
   return new Promise(function (resolve, reject) {
     var chunks = [];
@@ -434,10 +495,16 @@ module.exports = {
   loadPackage: loadPackage,
   appendToIndex: appendToIndex,
   buildPrompt: buildPrompt,
+  writeUsageRecord: writeUsageRecord,
+  estimateCost: estimateCost,
+  checkUsageLimits: checkUsageLimits,
+  getPresetVersion: getPresetVersion,
   PRESETS: PRESETS,
   VALID_PRESETS: VALID_PRESETS,
   PURPOSES: PURPOSES,
   VALID_OUTPUTS: VALID_OUTPUTS,
+  ENGINE_VERSION: ENGINE_VERSION,
   GEMINI_IMAGE_MODEL: GEMINI_IMAGE_MODEL,
-  GEMINI_IMAGE_PROVIDER: GEMINI_IMAGE_PROVIDER
+  GEMINI_IMAGE_PROVIDER: GEMINI_IMAGE_PROVIDER,
+  IMAGE_COST_PER_IMAGE: IMAGE_COST_PER_IMAGE
 };

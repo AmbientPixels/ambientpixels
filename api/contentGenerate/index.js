@@ -53,6 +53,22 @@ module.exports = async function (context, req) {
       return;
     }
 
+    // Account context abstraction
+    var accountId = (body.accountId || 'ambientpixels-internal').trim();
+    var accountType = (body.accountType || 'internal').trim();
+
+    // Soft usage limit check
+    var limitCheck = await imageEngine.checkUsageLimits(accountId);
+    if (!limitCheck.allowed) {
+      context.res = {
+        status: 429,
+        headers: CORS,
+        body: JSON.stringify({ ok: false, error: 'USAGE_LIMIT_EXCEEDED', remaining: limitCheck.remaining || 0 })
+      };
+      return;
+    }
+
+    var generationStartMs = Date.now();
     var packageId = 'pkg_' + Date.now() + '_' + crypto.randomBytes(3).toString('hex');
     var outputs = {};
     var errors = [];
@@ -109,16 +125,29 @@ module.exports = async function (context, req) {
     var promptSummary = brief.topic + ' — ' + brief.goal + ' (' + brief.preset + ')';
     if (promptSummary.length > 120) promptSummary = promptSummary.substring(0, 117) + '...';
 
+    var durationMs = Date.now() - generationStartMs;
+    var successCount = Object.keys(outputs).length;
+
     // Build package JSON
     var pkg = {
       id: packageId,
       briefId: briefId,
       createdAt: new Date().toISOString(),
       generatedBy: 'Forge',
+      accountId: accountId,
+      accountType: accountType,
+      engineVersion: imageEngine.ENGINE_VERSION,
       preset: brief.preset,
+      presetVersion: imageEngine.getPresetVersion(brief.preset),
       outputs: outputs,
       promptSummary: promptSummary,
       status: 'pending_approval',
+      successCount: successCount,
+      failedCount: errors.length,
+      durationMs: durationMs,
+      estimatedCost: imageEngine.estimateCost(successCount),
+      model: imageEngine.GEMINI_IMAGE_MODEL,
+      provider: imageEngine.GEMINI_IMAGE_PROVIDER,
       errors: errors.length > 0 ? errors : undefined
     };
 
@@ -164,6 +193,29 @@ module.exports = async function (context, req) {
     if (queue.length > 200) queue = queue.slice(-200);
     await storage.setState('approvalQueue', queue);
     context.log('[contentGenerate] Approval queue item added:', approvalItem.id);
+
+    // Write usage record
+    try {
+      await imageEngine.writeUsageRecord({
+        accountId: accountId,
+        accountType: accountType,
+        packageId: packageId,
+        timestamp: pkg.createdAt,
+        engineVersion: imageEngine.ENGINE_VERSION,
+        preset: brief.preset,
+        presetVersion: imageEngine.getPresetVersion(brief.preset),
+        formatsRequested: brief.outputs,
+        variations: 1,
+        imagesGenerated: successCount,
+        model: imageEngine.GEMINI_IMAGE_MODEL,
+        durationMs: durationMs,
+        estimatedCost: imageEngine.estimateCost(successCount),
+        status: errors.length > 0 ? 'partial' : 'success'
+      });
+      context.log('[contentGenerate] Usage record written');
+    } catch (usageErr) {
+      context.log.warn('[contentGenerate] Usage record write failed (non-fatal):', usageErr.message);
+    }
 
     context.res = {
       status: 200,
