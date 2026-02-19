@@ -3210,8 +3210,9 @@ var AgentEngine = (function () {
       }
     }
 
-    // Also check for unresolved {{ARTICLE_URL}} in text
-    if (issues.length === 0 && action.payload && action.payload.text && /\{\{ARTICLE_URL/.test(action.payload.text)) {
+    // Also check for unresolved {{ARTICLE_URL}} in text (skip publish_document — it IS the article)
+    var _actionType = action.type || action.action_type || '';
+    if (issues.length === 0 && _actionType !== 'publish_document' && action.payload && action.payload.text && /\{\{ARTICLE_URL/.test(action.payload.text)) {
       var resolution = resolveActionTokens(action);
       if (!resolution.resolved) {
         resolution.missing.forEach(function (m) {
