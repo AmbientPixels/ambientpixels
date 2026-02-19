@@ -192,6 +192,11 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/api/content-retry",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/content-retry",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/api/*",
       "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/{path}"
     },

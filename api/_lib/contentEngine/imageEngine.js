@@ -136,6 +136,15 @@ async function _uploadJson(containerName, blobPath, data) {
 
 // ── Prompt Builder ──
 
+// Variation directives — ensure each variation produces a genuinely different composition
+var VARIATION_TWISTS = [
+  null,
+  'Use a dramatically different camera angle or viewpoint than typical for this subject.',
+  'Shift the color palette toward warmer or cooler tones and use an unusual lighting direction.',
+  'Adopt a more abstract or stylized interpretation — emphasize shapes and patterns over realism.',
+  'Create a sense of motion, energy, or dynamic tension in the composition.'
+];
+
 function buildPrompt(opts) {
   var preset = PRESETS[opts.preset];
   var purpose = PURPOSES[opts.outputType];
@@ -162,6 +171,13 @@ function buildPrompt(opts) {
 
   if (opts.audience) parts.push('- Target audience: ' + opts.audience);
   if (opts.tone) parts.push('- Tone: ' + opts.tone);
+
+  // Variation-unique twist
+  var vNum = parseInt(opts.variation) || 1;
+  if (vNum > 1 && vNum <= VARIATION_TWISTS.length && VARIATION_TWISTS[vNum - 1]) {
+    parts.push('');
+    parts.push('VARIATION DIRECTIVE (v' + vNum + '): ' + VARIATION_TWISTS[vNum - 1]);
+  }
 
   return parts.join('\n');
 }
@@ -364,6 +380,42 @@ async function savePackage(pkg) {
   return url;
 }
 
+async function loadPackage(packageId) {
+  var container = await _ensureContainer(STATE_CONTAINER);
+  var blobPath = 'content-engine/packages/' + packageId + '.json';
+  var blob = container.getBlockBlobClient(blobPath);
+  try {
+    var download = await blob.download(0);
+    var body = await _streamToString(download.readableStreamBody);
+    return JSON.parse(body);
+  } catch (err) {
+    if (err.statusCode === 404) return null;
+    throw err;
+  }
+}
+
+/**
+ * Append a summary entry to content-engine/index.json (gallery index).
+ * Append-only: loads existing array, pushes new entry, re-uploads.
+ */
+async function appendToIndex(entry) {
+  var container = await _ensureContainer(STATE_CONTAINER);
+  var blobPath = 'content-engine/index.json';
+  var blob = container.getBlockBlobClient(blobPath);
+  var index = [];
+  try {
+    var download = await blob.download(0);
+    var body = await _streamToString(download.readableStreamBody);
+    index = JSON.parse(body);
+    if (!Array.isArray(index)) index = [];
+  } catch (e) { /* first time — empty */ }
+  index.push(entry);
+  // Cap at 500 entries
+  if (index.length > 500) index = index.slice(-500);
+  await _uploadJson(STATE_CONTAINER, blobPath, index);
+  return index.length;
+}
+
 function _streamToString(stream) {
   return new Promise(function (resolve, reject) {
     var chunks = [];
@@ -379,9 +431,13 @@ module.exports = {
   saveBrief: saveBrief,
   loadBrief: loadBrief,
   savePackage: savePackage,
+  loadPackage: loadPackage,
+  appendToIndex: appendToIndex,
   buildPrompt: buildPrompt,
   PRESETS: PRESETS,
   VALID_PRESETS: VALID_PRESETS,
   PURPOSES: PURPOSES,
-  VALID_OUTPUTS: VALID_OUTPUTS
+  VALID_OUTPUTS: VALID_OUTPUTS,
+  GEMINI_IMAGE_MODEL: GEMINI_IMAGE_MODEL,
+  GEMINI_IMAGE_PROVIDER: GEMINI_IMAGE_PROVIDER
 };

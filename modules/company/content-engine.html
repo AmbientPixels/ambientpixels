@@ -101,6 +101,30 @@
       background:rgba(251,191,36,0.12); color:#fbbf24; margin-top:0.5rem;
     }
 
+    .ce-variant-badge {
+      display:inline-block; font-size:0.55rem; padding:2px 6px; border-radius:4px; font-weight:600; margin-left:0.3rem;
+    }
+    .ce-variant-badge--success { background:rgba(34,197,94,0.15); color:#22c55e; }
+    .ce-variant-badge--failed { background:rgba(239,68,68,0.15); color:#ef4444; }
+    .ce-variant-badge--retrying { background:rgba(251,191,36,0.15); color:#fbbf24; }
+    .ce-result-card--failed { border-color:rgba(239,68,68,0.3); opacity:0.7; }
+    .ce-result-card--failed .ce-result-img { display:none; }
+    .ce-failed-placeholder {
+      padding:2rem 1rem; text-align:center; font-size:0.65rem; color:#ef4444; opacity:0.6;
+      background:rgba(239,68,68,0.05);
+    }
+    .ce-retry-btn {
+      padding:6px 14px; border:1px solid rgba(251,191,36,0.3); border-radius:6px;
+      background:rgba(251,191,36,0.08); color:#fbbf24; font-size:0.65rem; font-weight:600;
+      cursor:pointer; margin-top:0.5rem; display:inline-flex; align-items:center; gap:0.3rem;
+    }
+    .ce-retry-btn:hover { background:rgba(251,191,36,0.15); }
+    .ce-retry-btn:disabled { opacity:0.3; cursor:not-allowed; }
+    .ce-partial-bar {
+      display:flex; gap:0.5rem; align-items:center; font-size:0.62rem; margin-top:0.4rem;
+    }
+    .ce-partial-bar span { opacity:0.5; }
+
     .ce-log { margin-top:0.5rem; max-height:160px; overflow-y:auto; font-size:0.62rem; font-family:'Courier New',monospace; opacity:0.6; line-height:1.6; }
     .ce-log-entry { padding:1px 0; }
 
@@ -289,16 +313,40 @@
     document.getElementById('ce-preset').addEventListener('change', _updatePresetPreview);
     _updatePresetPreview();
 
-    // ── Prompt Preview ──
+    // ── Prompt Preview (full composed prompt) ──
     function togglePromptPreview() {
       var el = document.getElementById('ce-prompt-preview');
       if (el.style.display === 'block') { el.style.display = 'none'; return; }
       var topic = document.getElementById('ce-topic').value.trim() || '(topic)';
       var goal = document.getElementById('ce-goal').value.trim() || '(goal)';
       var preset = document.getElementById('ce-preset').value;
-      var presetLabel = PRESET_DESC[preset] || preset;
-      var outputs = _selectedOutputs.map(function (k) { return OUTPUT_TYPES[k] ? OUTPUT_TYPES[k].label + ' (' + OUTPUT_TYPES[k].size + ')' : k; });
-      el.textContent = 'TOPIC: ' + topic + '\nGOAL: ' + goal + '\nVISUAL STYLE: ' + presetLabel + '\nFORMATS: ' + outputs.join(', ') + '\nVARIATIONS: ' + _variations;
+      var presetStyle = PRESET_DESC[preset] || preset;
+      var audience = document.getElementById('ce-audience').value.trim();
+      var tone = document.getElementById('ce-tone').value.trim();
+      // Build actual prompt like server does (first selected output)
+      var firstOutput = _selectedOutputs[0] || 'x_image';
+      var ot = OUTPUT_TYPES[firstOutput] || {};
+      var lines = [
+        'Generate a high-quality ' + (ot.aspect || '16:9') + ' image.',
+        '', 'TOPIC: ' + topic, 'GOAL: ' + goal,
+        '', 'VISUAL STYLE: ' + presetStyle,
+        '', 'PURPOSE: ' + (firstOutput) + ' (' + (ot.size || '') + ')',
+        '', 'DIMENSIONS: ' + (ot.size || '').replace('\u00d7','x') + ' pixels, ' + (ot.aspect || '') + ' aspect ratio.',
+        '', 'REQUIREMENTS:',
+        '- No text or watermarks in the image.',
+        '- Professional quality, suitable for brand use.',
+        '- High contrast and visual clarity.',
+        '- Do NOT include any human faces or identifiable people.'
+      ];
+      if (audience) lines.push('- Target audience: ' + audience);
+      if (tone) lines.push('- Tone: ' + tone);
+      if (_variations > 1) lines.push('', 'VARIATION DIRECTIVE (v2): Use a dramatically different camera angle...');
+      lines.push('', '--- Engine Info ---');
+      lines.push('Model: gemini-2.5-flash-image');
+      lines.push('Provider: multimodal (AI Studio)');
+      lines.push('Formats: ' + _selectedOutputs.map(function(k){ return (OUTPUT_TYPES[k]||{}).label + ' ' + (OUTPUT_TYPES[k]||{}).size; }).join(', '));
+      lines.push('Variations: ' + _variations);
+      el.textContent = lines.join('\n');
       el.style.display = 'block';
     }
 
@@ -342,9 +390,14 @@
           return;
         }
 
-        _setStatus('Package generated! Submitted to Approval Queue.', 'success');
-        _addLog('Package: ' + data.packageId + ' | Brief: ' + data.briefId);
-        if (data.errors) { data.errors.forEach(function (e) { _addLog('WARN: ' + (e.outputKey || e.outputType) + ' failed: ' + e.error); }); }
+        var sCount = data.successCount || 0;
+        var fCount = data.failedCount || 0;
+        if (fCount > 0) {
+          _setStatus(sCount + ' succeeded, ' + fCount + ' failed — use Retry to re-generate failed variants.', 'info');
+        } else {
+          _setStatus('Package generated! Submitted to Approval Queue.', 'success');
+        }
+        _addLog('Package: ' + data.packageId + ' | Brief: ' + data.briefId + ' | ' + sCount + ' ok, ' + fCount + ' failed');
 
         _renderResults(data);
         genBtn.disabled = false;
@@ -357,12 +410,19 @@
     }
 
     // ── Render Results ──
+    var _lastPackageId = null;
+
     function _renderResults(data) {
       var panel = document.getElementById('ce-results');
       panel.style.display = 'block';
+      _lastPackageId = data.packageId;
 
-      document.getElementById('ce-results-meta').textContent =
-        'Package: ' + data.packageId + ' | Brief: ' + data.briefId;
+      var sCount = data.successCount || 0;
+      var fCount = data.failedCount || 0;
+      var metaText = 'Package: ' + data.packageId + ' | Brief: ' + data.briefId;
+      if (data.model) metaText += ' | Model: ' + data.model;
+      if (data.provider) metaText += ' | Provider: ' + data.provider;
+      document.getElementById('ce-results-meta').textContent = metaText;
 
       var grid = document.getElementById('ce-results-grid');
       grid.innerHTML = '';
@@ -372,30 +432,98 @@
         var out = outputs[key];
         var baseType = out.outputType || key.replace(/_v\d+$/, '');
         var info = OUTPUT_TYPES[baseType] || { label: key, size: out.size };
+        var isFailed = out.status === 'failed';
 
         var card = document.createElement('div');
-        card.className = 'ce-result-card';
-        card.innerHTML =
-          '<img src="' + out.imageUrl + '" alt="' + info.label + '" class="ce-result-img" loading="lazy" />' +
-          '<div class="ce-result-body">' +
-            '<div class="ce-result-label">' + info.label + (out.variation > 1 ? ' (v' + out.variation + ')' : '') + '</div>' +
-            '<div class="ce-result-size">' + out.size + ' \u00b7 ' + _formatBytes(out.bytes) + '</div>' +
-            '<div class="ce-result-links">' +
-              '<a href="' + out.imageUrl + '" target="_blank"><i class="fas fa-external-link-alt"></i> Open</a>' +
-              '<a href="' + out.metaUrl + '" target="_blank"><i class="fas fa-code"></i> Meta</a>' +
-            '</div>' +
-          '</div>';
+        card.className = 'ce-result-card' + (isFailed ? ' ce-result-card--failed' : '');
+
+        var statusBadge = '<span class="ce-variant-badge ce-variant-badge--' + (out.status || 'success') + '">' + (out.status || 'success') + '</span>';
+        var varLabel = out.variation > 1 ? ' v' + out.variation : '';
+
+        if (isFailed) {
+          card.innerHTML =
+            '<div class="ce-failed-placeholder"><i class="fas fa-exclamation-triangle"></i> Generation failed</div>' +
+            '<div class="ce-result-body">' +
+              '<div class="ce-result-label">' + info.label + varLabel + ' ' + statusBadge + '</div>' +
+              '<div class="ce-result-size" style="color:#ef4444; font-size:0.6rem;">' + (out.error || 'Unknown error').substring(0, 100) + '</div>' +
+            '</div>';
+        } else {
+          card.innerHTML =
+            '<img src="' + out.imageUrl + '" alt="' + info.label + '" class="ce-result-img" loading="lazy" />' +
+            '<div class="ce-result-body">' +
+              '<div class="ce-result-label">' + info.label + varLabel + ' ' + statusBadge + '</div>' +
+              '<div class="ce-result-size">' + (out.size || '') + ' \u00b7 ' + _formatBytes(out.bytes) + '</div>' +
+              '<div class="ce-result-links">' +
+                '<a href="' + out.imageUrl + '" target="_blank"><i class="fas fa-external-link-alt"></i> Open</a>' +
+                '<a href="' + (out.metaUrl || '#') + '" target="_blank"><i class="fas fa-code"></i> Meta</a>' +
+              '</div>' +
+            '</div>';
+        }
         grid.appendChild(card);
       });
 
+      // Links + retry
       var linksEl = document.getElementById('ce-results-links');
-      linksEl.innerHTML = '<a href="' + (data.packageUrl || '#') + '" target="_blank" style="font-size:0.65rem; color:#60a5fa;"><i class="fas fa-box"></i> Open Package JSON</a>';
+      var linksHtml = '<a href="' + (data.packageUrl || '#') + '" target="_blank" style="font-size:0.65rem; color:#60a5fa;"><i class="fas fa-box"></i> Open Package JSON</a>';
+      if (fCount > 0) {
+        linksHtml += ' <button class="ce-retry-btn" id="ce-retry-btn" onclick="ceRetryFailed()"><i class="fas fa-rotate-right"></i> Retry ' + fCount + ' Failed</button>';
+      }
+      linksEl.innerHTML = linksHtml;
 
+      // Partial success bar
+      if (sCount > 0 && fCount > 0) {
+        linksEl.innerHTML += '<div class="ce-partial-bar"><span>' + sCount + ' succeeded</span> <span>' + fCount + ' failed</span></div>';
+      }
+
+      // Approval badge
       var approvalEl = document.getElementById('ce-approval-status');
       if (data.skippedApproval) {
         approvalEl.innerHTML = '<div class="ce-approval-badge" style="background:rgba(34,197,94,0.12); color:#22c55e;"><i class="fas fa-check"></i> Auto-approved</div>';
+      } else if (fCount > 0) {
+        approvalEl.innerHTML = '<div class="ce-approval-badge" style="background:rgba(251,191,36,0.12); color:#fbbf24;"><i class="fas fa-exclamation-triangle"></i> Partial — retry failed before approving</div>';
       } else {
         approvalEl.innerHTML = '<div class="ce-approval-badge"><i class="fas fa-clock"></i> Submitted to Approval Queue (' + (data.approvalItemId || '') + ')</div>';
+      }
+    }
+
+    // ── Retry Failed Variants ──
+    async function ceRetryFailed() {
+      if (!_lastPackageId) { _setStatus('No package to retry', 'error'); return; }
+      var btn = document.getElementById('ce-retry-btn');
+      if (btn) btn.disabled = true;
+      _setStatus('Retrying failed variants...', 'loading');
+      _addLog('Retrying failed variants for ' + _lastPackageId);
+
+      try {
+        var res = await fetch(API_BASE + '/api/content-retry', {
+          method: 'POST',
+          headers: _getAuthHeaders(),
+          body: JSON.stringify({ packageId: _lastPackageId })
+        });
+        var data = await _safeJson(res);
+        if (!res.ok || !data.ok) {
+          _setStatus('Retry failed: ' + (data.error || 'Unknown error'), 'error');
+          if (btn) btn.disabled = false;
+          return;
+        }
+        _addLog('Retry done: ' + data.retriedCount + ' retried, ' + data.stillFailed + ' still failed');
+        // Re-render with updated outputs
+        _renderResults({
+          packageId: data.packageId,
+          packageUrl: data.packageUrl,
+          briefId: _lastPackageId,
+          outputs: data.outputs,
+          successCount: data.successCount,
+          failedCount: data.failedCount
+        });
+        if (data.failedCount === 0) {
+          _setStatus('All variants succeeded! Package ready for approval.', 'success');
+        } else {
+          _setStatus(data.retriedCount + ' retried, ' + data.stillFailed + ' still failed.', 'info');
+        }
+      } catch (err) {
+        _setStatus('Retry error: ' + err.message, 'error');
+        if (btn) btn.disabled = false;
       }
     }
 

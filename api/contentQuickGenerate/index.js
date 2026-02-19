@@ -88,54 +88,71 @@ module.exports = async function (context, req) {
     // ── Step 2: Generate images ──
     var packageId = 'pkg_' + Date.now() + '_' + crypto.randomBytes(3).toString('hex');
     var allOutputs = {};
-    var errors = [];
     var thumbUrls = [];
+    var successCount = 0;
+    var failedCount = 0;
 
     // For each variation × output combination
     for (var v = 0; v < variations; v++) {
       for (var i = 0; i < outputs.length; i++) {
         var outputType = outputs[i];
         var outputKey = variations > 1 ? outputType + '_v' + (v + 1) : outputType;
+        var variationNum = v + 1;
+        // Build prompt with variation twist
+        var prompt = imageEngine.buildPrompt({
+          topic: topic, goal: goal, preset: preset,
+          outputType: outputType, audience: audience, tone: tone,
+          variation: variationNum
+        });
         try {
           context.log('[quickGenerate] Generating', outputKey, '...');
           var result = await imageEngine.generateImage({
-            topic: topic,
-            goal: goal,
-            preset: preset,
-            outputType: outputType,
-            audience: audience,
-            tone: tone,
+            topic: topic, goal: goal, preset: preset,
+            outputType: outputType, audience: audience, tone: tone,
+            variation: variationNum,
             jobId: packageId + '_' + outputKey
           });
 
           allOutputs[outputKey] = {
+            status: 'success',
             outputType: outputType,
-            variation: v + 1,
+            variation: variationNum,
             size: result.size,
             imageUrl: result.imageUrl,
             thumbUrl: result.thumbUrl,
             metaUrl: result.metaUrl,
             model: result.model,
-            bytes: result.bytes
+            bytes: result.bytes,
+            promptUsed: prompt
           };
           thumbUrls.push(result.thumbUrl);
+          successCount++;
           context.log('[quickGenerate]', outputKey, 'done:', result.size, result.bytes, 'bytes');
         } catch (genErr) {
           context.log.error('[quickGenerate] Failed:', outputKey, genErr.message);
-          errors.push({ outputKey: outputKey, outputType: outputType, variation: v + 1, error: genErr.message });
+          allOutputs[outputKey] = {
+            status: 'failed',
+            outputType: outputType,
+            variation: variationNum,
+            error: genErr.message,
+            promptUsed: prompt
+          };
+          failedCount++;
         }
       }
     }
 
-    // Must have at least one successful output
-    if (Object.keys(allOutputs).length === 0) {
+    // Total failure — nothing succeeded
+    if (successCount === 0) {
       brief.status = 'failed';
       brief.updatedAt = new Date().toISOString();
       await imageEngine.saveBrief(brief);
+      var failedDetails = [];
+      Object.keys(allOutputs).forEach(function (k) { if (allOutputs[k].status === 'failed') failedDetails.push({ outputKey: k, error: allOutputs[k].error }); });
       context.res = {
         status: 502,
         headers: CORS,
-        body: JSON.stringify({ error: 'All image generations failed', briefId: briefId, details: errors })
+        body: JSON.stringify({ error: 'All image generations failed', briefId: briefId, packageId: packageId, details: failedDetails })
       };
       return;
     }
@@ -143,6 +160,10 @@ module.exports = async function (context, req) {
     // ── Step 3: Save package ──
     var promptSummary = 'Topic: ' + topic + ' — ' + goal + ' (' + preset + ')';
     if (promptSummary.length > 140) promptSummary = promptSummary.substring(0, 137) + '...';
+
+    var overallStatus = failedCount === 0
+      ? (skipApproval ? 'approved' : 'pending_approval')
+      : 'partial_success';
 
     var pkg = {
       id: packageId,
@@ -153,12 +174,15 @@ module.exports = async function (context, req) {
       variations: variations,
       outputs: allOutputs,
       promptSummary: promptSummary,
-      status: skipApproval ? 'approved' : 'pending_approval',
-      errors: errors.length > 0 ? errors : undefined
+      status: overallStatus,
+      successCount: successCount,
+      failedCount: failedCount,
+      model: imageEngine.GEMINI_IMAGE_MODEL,
+      provider: imageEngine.GEMINI_IMAGE_PROVIDER
     };
 
     var packageUrl = await imageEngine.savePackage(pkg);
-    context.log('[quickGenerate] Package saved:', packageId);
+    context.log('[quickGenerate] Package saved:', packageId, 'success:', successCount, 'failed:', failedCount);
 
     // Update brief
     brief.status = skipApproval ? 'approved' : 'pending_approval';
@@ -169,11 +193,17 @@ module.exports = async function (context, req) {
     // ── Step 4: Approval Queue ──
     var approvalItemId = null;
     if (!skipApproval) {
+      var successImageUrls = [];
+      Object.keys(allOutputs).forEach(function (k) {
+        if (allOutputs[k].status === 'success' && allOutputs[k].imageUrl) successImageUrls.push(allOutputs[k].imageUrl);
+      });
+
       var approvalItem = {
         id: 'aq-' + packageId,
         kind: 'content.package',
         type: 'content.package',
         title: 'Content Package — ' + topic,
+        subtitle: successCount + ' image' + (successCount !== 1 ? 's' : '') + (failedCount > 0 ? ', ' + failedCount + ' failed' : '') + ' · ' + preset,
         status: 'pending',
         createdAt: new Date().toISOString(),
         createdBy: 'user',
@@ -181,15 +211,20 @@ module.exports = async function (context, req) {
         packageId: packageId,
         preset: preset,
         goal: goal,
+        successCount: successCount,
+        failedCount: failedCount,
         preview: {
           thumbs: thumbUrls.slice(0, 4),
           preset: preset,
           goal: goal,
-          outputTypes: outputs
+          outputTypes: outputs,
+          successCount: successCount,
+          failedCount: failedCount
         },
         links: {
           packageUrl: packageUrl,
-          imageUrls: Object.keys(allOutputs).map(function (k) { return allOutputs[k].imageUrl; })
+          packageViewUrl: '/modules/company/content-engine.html?pkg=' + packageId,
+          imageUrls: successImageUrls
         }
       };
 
@@ -201,6 +236,26 @@ module.exports = async function (context, req) {
       context.log('[quickGenerate] Approval queue item added:', approvalItemId);
     }
 
+    // ── Step 5: Append to gallery index ──
+    try {
+      await imageEngine.appendToIndex({
+        packageId: packageId,
+        briefId: briefId,
+        preset: preset,
+        topic: topic,
+        createdAt: pkg.createdAt,
+        status: overallStatus,
+        successCount: successCount,
+        failedCount: failedCount,
+        thumbs: thumbUrls.slice(0, 4),
+        outputTypes: outputs,
+        variations: variations
+      });
+      context.log('[quickGenerate] Gallery index updated');
+    } catch (idxErr) {
+      context.log.warn('[quickGenerate] Gallery index append failed (non-fatal):', idxErr.message);
+    }
+
     context.res = {
       status: 200,
       headers: CORS,
@@ -210,9 +265,12 @@ module.exports = async function (context, req) {
         packageId: packageId,
         packageUrl: packageUrl,
         outputs: allOutputs,
+        successCount: successCount,
+        failedCount: failedCount,
         approvalItemId: approvalItemId,
         skippedApproval: skipApproval,
-        errors: errors.length > 0 ? errors : undefined
+        model: imageEngine.GEMINI_IMAGE_MODEL,
+        provider: imageEngine.GEMINI_IMAGE_PROVIDER
       })
     };
 
