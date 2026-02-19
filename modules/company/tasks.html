@@ -1059,12 +1059,24 @@
           var ts = c.timestamp || c.createdAt || null;
           var div = document.createElement('div');
           div.className = 'tm-comment';
+          var imgHtml = '';
+          if (c.imageUrl || c.thumbUrl) {
+            var thumbSrc = c.thumbUrl || c.imageUrl;
+            var fullSrc = c.imageUrl || c.thumbUrl;
+            imgHtml = '<a href="' + escapeHtml(fullSrc) + '" target="_blank" rel="noopener" style="display:block;margin-top:6px;">' +
+              '<img src="' + escapeHtml(thumbSrc) + '" alt="Generated image" ' +
+              'style="max-width:220px;max-height:140px;border-radius:6px;border:1px solid rgba(255,255,255,0.1);cursor:pointer;transition:opacity 0.2s;" ' +
+              'onmouseover="this.style.opacity=\'0.8\'" onmouseout="this.style.opacity=\'1\'" ' +
+              'onerror="this.parentElement.style.display=\'none\'">' +
+              '</a>';
+          }
           div.innerHTML =
             '<div class="tm-comment-meta">' +
               (agent ? '<span style="color:' + agent.color + ';">' + agent.name + '</span>' : (authorId || 'User')) +
               ' · ' + formatTimeAgo(ts ? new Date(ts) : null) +
             '</div>' +
-            '<div>' + escapeHtml(c.text) + '</div>';
+            '<div>' + escapeHtml(c.text) + '</div>' +
+            imgHtml;
           taskCommentsList.appendChild(div);
         });
       }

@@ -907,6 +907,95 @@ Write the full deliverable first, then the structured JSON block.`;
         continue;
       }
 
+      // ── COPY REVIEW GATE ──
+      // Social posts linked to tasks must go through Scribe for copy writing + peer review first.
+      // Mirrors the Pixel hero image pattern: auto-create a Scribe task, block until reviewed.
+      // Exception: task already has reviewed_copy (set when Scribe's writing sub-task is approved)
+      if (action.taskId) {
+        const socialTask = tasks.find(t => t.id === action.taskId);
+        if (socialTask && !socialTask.reviewed_copy) {
+          // Check if a Scribe writing sub-task already exists for this social task
+          const _copyTag = 'social-copy-for-' + action.taskId;
+          const _copyTaskExists = tasks.some(t =>
+            t.status !== 'done' &&
+            (t.tags && t.tags.indexOf(_copyTag) !== -1)
+          );
+          // Also check if a COMPLETED Scribe copy task exists (reviewed_copy may not have propagated yet)
+          const _copyTaskDone = tasks.find(t =>
+            t.status === 'done' &&
+            (t.tags && t.tags.indexOf(_copyTag) !== -1)
+          );
+          if (_copyTaskDone) {
+            // Copy task is done but reviewed_copy wasn't set — extract deliverable now
+            const _deliverables = (_copyTaskDone.comments || []).filter(c => c.type === 'deliverable');
+            if (_deliverables.length > 0) {
+              socialTask.reviewed_copy = _deliverables[_deliverables.length - 1].text;
+              socialTask.updatedAt = new Date().toISOString();
+              context.log('[Heartbeat]', agentId, 'Late-resolved reviewed_copy from done copy task:', _copyTaskDone.id);
+              // Fall through — allow the social action with the reviewed copy
+            }
+          }
+          // If STILL no reviewed copy, block and create Scribe task
+          if (!socialTask.reviewed_copy) {
+            if (!_copyTaskExists) {
+              const _platform = (action.social.platform || 'linkedin').toLowerCase();
+              const _maxLen = _platform === 'x' ? '280 chars' : _platform === 'bluesky' ? '300 chars' : '3000 chars for LinkedIn';
+              const copyTask = {
+                id: 'task_' + Date.now() + '_copy_' + Math.random().toString(36).substr(2, 4),
+                title: 'Write social copy for: ' + (socialTask.title || 'Untitled'),
+                description: 'Write publish-ready social media copy for the task: "' + (socialTask.title || '') + '".\n\n'
+                  + 'Original description: ' + ((socialTask.description || 'N/A').substring(0, 500)) + '\n\n'
+                  + 'Parent task ID: ' + action.taskId + '\n'
+                  + 'Platform: ' + _platform + '\n'
+                  + 'Max length: ' + _maxLen + '\n\n'
+                  + 'Requirements:\n'
+                  + '- Write clean, platform-ready copy (no markdown, no headers, no internal notes)\n'
+                  + '- Professional and on-brand for AmbientPixels\n'
+                  + '- After writing, this task goes to peer review. Once approved, Echo uses the copy to create the social post.\n'
+                  + '- Use execute-task to produce your deliverable.',
+                status: 'todo',
+                priority: socialTask.priority || 'high',
+                assignee: 'scribe',
+                source: 'heartbeat',
+                created_by: 'system',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString(),
+                dueDate: socialTask.dueDate || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+                directive_id: socialTask.directive_id || null,
+                tags: ['social-copy', 'auto-created', _copyTag],
+                comments: [{
+                  id: 'cmt-' + Date.now(),
+                  author: 'system',
+                  text: 'Auto-created: Echo attempted to post for task "' + (socialTask.title || '') + '" but no reviewed copy exists. Scribe must write and submit copy for peer review first.',
+                  type: 'system',
+                  createdAt: new Date().toISOString()
+                }]
+              };
+              tasks.push(copyTask);
+              result.taskUpdates.push({ action: 'create', task: copyTask });
+              context.log('[Heartbeat]', agentId, 'AUTO-CREATED Scribe copy task:', copyTask.id, 'for social task:', action.taskId);
+            } else {
+              context.log('[Heartbeat]', agentId, 'Scribe copy task already exists for social task:', action.taskId, '— waiting for review');
+            }
+            // Mark parent task as awaiting copy review (only once)
+            if (!socialTask.awaiting_copy_review) {
+              socialTask.awaiting_copy_review = true;
+              socialTask.updatedAt = new Date().toISOString();
+              if (!socialTask.comments) socialTask.comments = [];
+              socialTask.comments.push({
+                id: 'cmt-copywait-' + Date.now(),
+                author: 'system',
+                text: 'Social post blocked — awaiting reviewed copy from Scribe. Once Scribe writes and a peer reviews the copy, Echo can create the social action.',
+                type: 'system',
+                createdAt: new Date().toISOString()
+              });
+            }
+            context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action on', action.taskId, '— awaiting reviewed copy from Scribe');
+            continue;
+          }
+        }
+      }
+
       // Agent-initiated social post action — routes through action layer governance
       const socialPayload = action.social;
 
@@ -2075,7 +2164,10 @@ Write the full deliverable first, then the structured JSON block.`;
           tasks[imgTaskIdx].comments.push({
             id: 'cmt-' + Date.now(), author: agentId,
             text: 'Generated ' + imgPurpose + ' image (asset: ' + imgJobId + ', preset: ' + imgPreset + ').' + (imgAsset.attachedTo ? ' Attached to ' + imgAsset.attachedTo.type + ' ' + imgAsset.attachedTo.id + '.' : ''),
-            type: 'deliverable', createdAt: new Date().toISOString()
+            type: 'deliverable', createdAt: new Date().toISOString(),
+            imageUrl: imgAsset.url || null,
+            thumbUrl: imgAsset.thumbUrl || imgAsset.url || null,
+            assetId: imgJobId
           });
           context.log('[Heartbeat]', agentId, 'auto-advanced task', action.taskId, 'to review (image generated)');
         }
@@ -2212,6 +2304,8 @@ function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirective
     let line = '- [' + t.status + '] ' + t.title + ' (priority: ' + t.priority + ', source: ' + src + ', id: ' + t.id;
     if (t.directive_id) line += ', directive: ' + t.directive_id;
     if (t.dueDate) line += ', due: ' + t.dueDate.substring(0, 10);
+    if (t.reviewed_copy) line += ', reviewed_copy: "' + t.reviewed_copy.substring(0, 300) + (t.reviewed_copy.length > 300 ? '...' : '') + '"';
+    if (t.awaiting_copy_review) line += ', ⏳ AWAITING COPY REVIEW FROM SCRIBE';
     line += ')';
     if (t.description) {
       const desc = t.description.length > 200 ? t.description.substring(0, 200) + '...' : t.description;
@@ -2653,6 +2747,13 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
   - Agent roster for assignment: cipher (CFO/budgets), pixel (design/UI), forge (engineering/devops/infra), echo (marketing/social/campaigns), scribe (content/docs/briefs), quill (editing/brand voice), scout (research & intelligence/market analysis)` : '') + (agent.name === 'Echo' ? `
 - DEPARTMENT HEAD DUTIES (Echo — Marketing):
   - You are the ONLY agent authorized to post on social media (LinkedIn, X.com, Bluesky).
+  - COLLABORATIVE SOCIAL POST WORKFLOW:
+    Social posts go through a collaborative pipeline: Echo owns strategy → Scribe writes copy → Peer review → Echo posts.
+    When you use create-social-action on a task, the server checks for reviewed_copy on the task:
+      1. If NO reviewed_copy exists: the server AUTO-CREATES a Scribe writing task and BLOCKS your social action. This is expected — wait for Scribe to write and a peer to review.
+      2. If reviewed_copy EXISTS on the task: your social action goes through. Use the reviewed_copy as your post text.
+    HOW TO USE REVIEWED COPY: When a task has reviewed_copy (visible in its properties), use that text as the "text" field in create-social-action. The copy was written by Scribe and peer-reviewed — it is publish-ready. You may make minor platform adjustments (hashtags, @mentions, length trimming) but do NOT rewrite the reviewed copy.
+    Example: { "type": "create-social-action", "taskId": "task-id", "social": { "platform": "linkedin", "text": "<use the reviewed_copy from the task>" } }
   - CRITICAL RULE — SOCIAL POST TASKS MUST USE create-social-action:
     When a task involves writing a LinkedIn post, X/Twitter post, or any social media content, you MUST use "create-social-action" with the task's ID.
     IMPORTANT: create-social-action does NOT publish live. It creates a DRAFT that goes to the CEO approval queue. The CEO reviews the text, can request revisions, and only publishes after explicit approval. This IS the draft mechanism. Even if the task says "draft only" or "do not publish live", you MUST still use create-social-action — it is how drafts are submitted for review.
@@ -2675,13 +2776,20 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
   - CROSS-DEPARTMENT COLLABORATION: You work closely with Scribe (content) and Echo (marketing). When they create documents or social posts that need visuals, pick up the corresponding design tasks promptly. Your hero images make their content publishable.
   - PRODUCE, DON'T PLAN: If a task says "generate hero image" or "create visual for blog post", use generate-image immediately — do NOT create sub-tasks or comment that you're planning to do it.` : '') + (agent.name === 'Scribe' ? `
 - DEPARTMENT HEAD DUTIES (Scribe — Content):
-  - You lead the Content department. Your job is to produce longform content: product briefs, blog drafts, documentation, social threads.
+  - You lead the Content department. Your job is to produce longform content: product briefs, blog drafts, documentation, AND social media copy.
   - Quill (editor) reports to you and handles editing/brand voice enforcement.
   - ALLOWED actions: execute-task, create-task (content tasks), update-task, move-task, comment-task, review-task, create-doc, submit-for-publish, generate-image (inline_illustration purpose only)
   - FORBIDDEN actions: create-social-action (that's Echo's domain), generate-image with purpose blog_header (that's Pixel's domain)
   - You CAN create docs and submit them for publish (CEO approval required). Use submit-for-publish when a doc is complete.
   - When creating docs with create-doc, always use proper markdown with clear headings, structured sections, and professional tone.
   - Focus on producing high-quality content and managing the content pipeline. Delegate editing tasks to Quill.
+  - SOCIAL COPY WRITING: You will receive auto-created tasks titled "Write social copy for: [title]" tagged with "social-copy". These are part of the collaborative social post workflow:
+    1. Read the task description — it contains the original social post request, platform, and max length.
+    2. Use execute-task to produce clean, publish-ready social media copy as your deliverable.
+    3. Your deliverable text must be PLATFORM-READY: no markdown, no headers, no internal notes, no placeholders. Just the post text exactly as it should appear on LinkedIn/X/Bluesky.
+    4. After you produce the deliverable, the task moves to review. A peer agent (Quill, Nova, or Echo) reviews your copy.
+    5. Once approved, the reviewed copy is automatically sent to Echo for posting via the CEO approval queue.
+    Write compelling, professional copy that matches AmbientPixels brand voice. Keep it concise and engaging.
   - BLOG POST WORKFLOW: When you have a blog post task (especially with CEO comments like "top priority"), use create-doc with kind "marketing_post" to produce the full blog post content directly. Do NOT create sub-tasks or outlines — write the actual post.
   - CROSS-AGENT VISUAL WORKFLOW: After you create a blog post doc with create-doc, do NOT immediately submit-for-publish if the task mentions "visual", "image", "visually strong", or is a marketing_post kind. Instead:
     1. Create a task for Pixel: "Generate hero image for [doc title]" with the document ID in the description (e.g., "Document ID: doc_xxx"). Assign to pixel, set priority to match the parent task.
@@ -2867,6 +2975,39 @@ function applyTaskUpdate(tasks, update, _pendingEscalations) {
           } else {
             tasks[i].status = 'done';
             tasks[i].completedAt = new Date().toISOString();
+
+            // ── COPY PROPAGATION ──
+            // If this is a social-copy task that just got approved, propagate the reviewed copy
+            // back to the parent social task so Echo can use it in create-social-action
+            const _tags = tasks[i].tags || [];
+            const _isSocialCopy = _tags.indexOf('social-copy') !== -1;
+            if (_isSocialCopy) {
+              // Find the parent social task ID from the tag
+              const _parentTag = _tags.find(t => t.startsWith('social-copy-for-'));
+              const _parentSocialTaskId = _parentTag ? _parentTag.replace('social-copy-for-', '') : null;
+              if (_parentSocialTaskId) {
+                const _parentSocialTask = tasks.find(t => t.id === _parentSocialTaskId);
+                if (_parentSocialTask) {
+                  // Extract the deliverable text from this copy task
+                  const _deliverables = (tasks[i].comments || []).filter(c => c.type === 'deliverable');
+                  const _copyText = _deliverables.length > 0 ? _deliverables[_deliverables.length - 1].text : '';
+                  if (_copyText) {
+                    _parentSocialTask.reviewed_copy = _copyText;
+                    _parentSocialTask.awaiting_copy_review = false;
+                    _parentSocialTask.updatedAt = new Date().toISOString();
+                    if (!_parentSocialTask.comments) _parentSocialTask.comments = [];
+                    _parentSocialTask.comments.push({
+                      id: 'cmt-copyready-' + Date.now(),
+                      author: 'system',
+                      text: 'Reviewed copy ready from Scribe (approved by ' + update.agentId + '). Echo can now create the social post using this copy.',
+                      type: 'system',
+                      createdAt: new Date().toISOString()
+                    });
+                    console.log('[Heartbeat] COPY PROPAGATED: reviewed_copy set on parent task:', _parentSocialTaskId, '(' + _copyText.length + ' chars)');
+                  }
+                }
+              }
+            }
           }
         } else {
           // Request changes — back to in-progress
