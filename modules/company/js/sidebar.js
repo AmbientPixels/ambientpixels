@@ -42,7 +42,8 @@
       overview: BASE + 'content-overview.html',
       links: [
         { href: BASE + 'content-overview.html', label: 'Overview', icon: 'fa-wand-magic-sparkles', match: ['content-overview.html'] },
-        { href: BASE + 'content-engine.html', label: 'Image Engine', icon: 'fa-images', match: ['content-engine.html'] }
+        { href: BASE + 'content-engine.html', label: 'Image Engine', icon: 'fa-images', match: ['content-engine.html'] },
+        { href: BASE + 'content-gallery.html', label: 'Gallery', icon: 'fa-photo-film', match: ['content-gallery.html'] }
       ]
     },
     {
