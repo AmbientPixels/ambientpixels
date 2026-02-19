@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="AmbientPixels Content Overview — Gallery and history of generated content packages." />
+  <meta name="description" content="AmbientPixels Content Overview — briefs, packages, and image generation pipeline." />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Content Gallery — AmbientPixels HQ</title>
+  <title>Content — AmbientPixels HQ</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/base.css" />
@@ -18,133 +18,174 @@
   <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
   <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
   <style>
-    .cg-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:0.8rem; flex-wrap:wrap; gap:0.5rem; }
-    .cg-header h1 { font-size:1.1rem; font-weight:600; margin:0; }
-    .cg-header h1 i { opacity:0.5; }
-    .cg-header-sub { font-size:0.65rem; opacity:0.4; }
-    .cg-new-btn {
-      padding:6px 14px; border:1px solid rgba(139,92,246,0.3); border-radius:6px;
-      background:rgba(139,92,246,0.08); color:#8b5cf6; font-size:0.65rem; font-weight:600;
-      cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:0.3rem;
+    .co-hero {
+      position: relative;
+      background: linear-gradient(135deg, rgba(139,92,246,0.06) 0%, rgba(139,92,246,0.01) 100%);
+      border: 1px solid rgba(139,92,246,0.15);
+      border-radius: 14px;
+      padding: 1.6rem 1.8rem 1.2rem;
+      margin-bottom: 1.2rem;
     }
-    .cg-new-btn:hover { background:rgba(139,92,246,0.15); }
-
-    .cg-filters {
-      display:flex; align-items:center; gap:0.6rem; margin-bottom:1rem; flex-wrap:wrap;
+    .co-hero h1 { margin: 0 0 0.25rem; font-size: 1.3rem; font-weight: 600; }
+    .co-hero p { margin: 0; font-size: 0.72rem; opacity: 0.45; }
+    .co-status-dot {
+      position: absolute; top: 1.4rem; right: 1.6rem;
+      width: 10px; height: 10px; border-radius: 50%;
+      background: #8b5cf6;
+      animation: coPulse 2s ease-in-out infinite;
     }
-    .cg-filter-select {
-      background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:6px;
-      color:inherit; font-size:0.65rem; padding:5px 10px; font-family:inherit;
+    @keyframes coPulse { 0%,100% { opacity: 1; box-shadow: 0 0 6px rgba(139,92,246,0.5); } 50% { opacity: 0.4; box-shadow: 0 0 2px rgba(139,92,246,0.2); } }
+
+    .co-stat-grid {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.8rem;
+      margin-bottom: 1.4rem;
     }
-    .cg-status-chips { display:flex; gap:0.3rem; }
-    .cg-chip {
-      padding:4px 10px; border-radius:12px; font-size:0.6rem; font-weight:600; cursor:pointer;
-      border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.02); transition:all 0.15s;
+    @media (max-width: 640px) { .co-stat-grid { grid-template-columns: repeat(2, 1fr); } }
+    .co-stat-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 1rem 1.2rem;
+      text-align: center;
+      transition: border-color 0.2s;
     }
-    .cg-chip:hover { background:rgba(255,255,255,0.06); }
-    .cg-chip--active { background:rgba(139,92,246,0.12); border-color:rgba(139,92,246,0.3); color:#8b5cf6; }
-    .cg-count { font-size:0.6rem; opacity:0.35; margin-left:auto; }
+    .co-stat-card:hover { border-color: rgba(139,92,246,0.2); }
+    .co-stat-num { font-size: 1.6rem; font-weight: 700; color: #8b5cf6; line-height: 1; }
+    .co-stat-label { font-size: 0.6rem; opacity: 0.4; margin-top: 0.3rem; text-transform: uppercase; letter-spacing: 0.5px; }
 
-    .cg-grid {
-      display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:0.8rem;
+    .co-section { margin-bottom: 1.4rem; }
+    .co-section-title { font-size: 0.8rem; font-weight: 600; margin-bottom: 0.6rem; display: flex; align-items: center; gap: 0.4rem; }
+    .co-section-title i { opacity: 0.4; font-size: 0.7rem; }
+
+    .co-tool-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 0.8rem;
     }
-    @media (min-width:1200px) { .cg-grid { grid-template-columns:repeat(4, 1fr); } }
-    @media (max-width:640px) { .cg-grid { grid-template-columns:1fr; } }
-
-    .cg-card {
-      background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06);
-      border-radius:10px; overflow:hidden; max-width:350px; transition:border-color 0.2s;
+    .co-tool-card {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 1rem 1.2rem;
+      display: flex; align-items: flex-start; gap: 0.8rem;
+      cursor: pointer; text-decoration: none; color: inherit;
+      transition: border-color 0.2s, background 0.2s;
     }
-    .cg-card:hover { border-color:rgba(139,92,246,0.2); }
-
-    .cg-mosaic { display:grid; grid-template-columns:1fr 1fr; gap:2px; aspect-ratio:16/9; background:#0a0a0a; }
-    .cg-mosaic img { width:100%; height:100%; object-fit:cover; }
-    .cg-mosaic-placeholder {
-      display:flex; align-items:center; justify-content:center;
-      background:rgba(255,255,255,0.02); color:rgba(255,255,255,0.1); font-size:0.8rem;
+    .co-tool-card:hover { border-color: rgba(139,92,246,0.25); background: rgba(139,92,246,0.03); }
+    .co-tool-icon {
+      width: 36px; height: 36px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      background: rgba(139,92,246,0.1); color: #8b5cf6; font-size: 0.9rem; flex-shrink: 0;
     }
-
-    .cg-card-body { padding:0.7rem 0.8rem 0.6rem; }
-    .cg-card-topic { font-size:0.72rem; font-weight:600; margin-bottom:0.2rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    .cg-card-meta { font-size:0.58rem; opacity:0.35; margin-bottom:0.4rem; }
-
-    .cg-card-badges { display:flex; gap:0.3rem; flex-wrap:wrap; margin-bottom:0.4rem; }
-    .cg-badge {
-      display:inline-block; font-size:0.5rem; padding:2px 6px; border-radius:6px;
-      font-weight:600; text-transform:uppercase;
+    .co-tool-icon--future { background: rgba(255,255,255,0.04); color: rgba(255,255,255,0.2); }
+    .co-tool-body { flex: 1; }
+    .co-tool-name { font-size: 0.75rem; font-weight: 600; margin-bottom: 2px; }
+    .co-tool-desc { font-size: 0.62rem; opacity: 0.4; line-height: 1.4; }
+    .co-tool-badge {
+      display: inline-block; font-size: 0.5rem; padding: 1px 6px; border-radius: 6px;
+      font-weight: 600; text-transform: uppercase; margin-left: 0.3rem;
     }
-    .cg-badge--success { background:rgba(34,197,94,0.12); color:#22c55e; }
-    .cg-badge--partial { background:rgba(251,191,36,0.12); color:#fbbf24; }
-    .cg-badge--failed { background:rgba(239,68,68,0.12); color:#ef4444; }
-    .cg-badge--pending { background:rgba(139,92,246,0.12); color:#8b5cf6; }
-    .cg-badge--preset { background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.45); }
+    .co-tool-badge--live { background: rgba(34,197,94,0.15); color: #22c55e; }
+    .co-tool-badge--soon { background: rgba(251,191,36,0.12); color: #fbbf24; }
 
-    .cg-card-outputs { font-size:0.55rem; opacity:0.3; margin-bottom:0.4rem; }
-
-    .cg-card-actions { display:flex; gap:0.4rem; }
-    .cg-card-btn {
-      padding:4px 10px; border-radius:5px; font-size:0.58rem; font-weight:600; cursor:pointer;
-      border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.03); color:inherit;
-      text-decoration:none; display:inline-flex; align-items:center; gap:0.25rem; transition:all 0.15s;
+    .co-recent-panel {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      padding: 0.8rem 1rem;
     }
-    .cg-card-btn:hover { background:rgba(255,255,255,0.08); }
-    .cg-card-btn--retry { border-color:rgba(251,191,36,0.2); color:#fbbf24; }
-    .cg-card-btn--retry:hover { background:rgba(251,191,36,0.08); }
-
-    .cg-skeleton {
-      background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.04);
-      border-radius:10px; overflow:hidden; max-width:350px;
+    .co-recent-empty { font-size: 0.65rem; opacity: 0.3; text-align: center; padding: 1.5rem 0; }
+    .co-recent-item {
+      display: flex; align-items: center; gap: 0.6rem; padding: 0.5rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
     }
-    .cg-skeleton-mosaic { aspect-ratio:16/9; background:linear-gradient(90deg,rgba(255,255,255,0.02) 25%,rgba(255,255,255,0.05) 50%,rgba(255,255,255,0.02) 75%); background-size:200% 100%; animation:cgShimmer 1.5s infinite; }
-    .cg-skeleton-body { padding:0.7rem 0.8rem; }
-    .cg-skeleton-line { height:10px; border-radius:4px; background:rgba(255,255,255,0.04); margin-bottom:0.4rem; }
-    .cg-skeleton-line--short { width:60%; }
-    .cg-skeleton-line--tiny { width:40%; height:8px; }
-    @keyframes cgShimmer { 0% { background-position:200% 0; } 100% { background-position:-200% 0; } }
-
-    .cg-empty { text-align:center; padding:3rem 1rem; opacity:0.3; font-size:0.7rem; }
-    .cg-empty i { font-size:1.5rem; display:block; margin-bottom:0.5rem; }
-    .cg-error { color:#ef4444; font-size:0.65rem; padding:1rem; text-align:center; }
+    .co-recent-item:last-child { border-bottom: none; }
+    .co-recent-thumb {
+      width: 48px; height: 32px; border-radius: 4px; object-fit: cover; background: #111;
+    }
+    .co-recent-info { flex: 1; }
+    .co-recent-topic { font-size: 0.7rem; font-weight: 500; }
+    .co-recent-meta { font-size: 0.58rem; opacity: 0.35; }
+    .co-recent-status {
+      font-size: 0.55rem; padding: 2px 7px; border-radius: 8px; font-weight: 600; text-transform: uppercase;
+    }
+    .co-recent-status--pending { background: rgba(139,92,246,0.12); color: #8b5cf6; }
+    .co-recent-status--pending_approval { background: rgba(139,92,246,0.12); color: #8b5cf6; }
+    .co-recent-status--partial_success { background: rgba(251,191,36,0.12); color: #fbbf24; }
+    .co-recent-status--approved { background: rgba(34,197,94,0.12); color: #22c55e; }
+    .co-recent-status--failed { background: rgba(239,68,68,0.12); color: #ef4444; }
   </style>
 </head>
 <body style="background:#071019" data-theme="dark">
-<main class="content-section" style="max-width: 1200px; margin: 0 auto; padding: 1rem;">
+<main class="content-section" style="max-width: 900px; margin: 0 auto; padding: 1rem;">
 
-  <!-- Header -->
-  <div class="cg-header">
-    <div>
-      <h1><i class="fas fa-images"></i> Content Gallery</h1>
-      <div class="cg-header-sub">Browse generated content packages</div>
-    </div>
-    <a class="cg-new-btn" href="/modules/company/content-engine.html"><i class="fas fa-plus"></i> New Image</a>
+  <!-- Hero -->
+  <div class="co-hero">
+    <div class="co-status-dot"></div>
+    <h1><i class="fas fa-wand-magic-sparkles" style="opacity:0.5;"></i> Content Engine</h1>
+    <p>Generate branded images, manage content briefs, and submit packages for CEO approval.</p>
   </div>
 
-  <!-- Filters -->
-  <div class="cg-filters">
-    <select class="cg-filter-select" id="cg-preset-filter" onchange="cgApplyFilters()">
-      <option value="">All Presets</option>
-      <option value="ap-neon-glass">Neon Glass</option>
-      <option value="ap-2d-flat">2D Flat</option>
-      <option value="ap-ornate-frame">Ornate Frame</option>
-      <option value="ap-corporate-tech">Corporate Tech</option>
-    </select>
-    <div class="cg-status-chips">
-      <div class="cg-chip cg-chip--active" data-status="" onclick="cgSetStatus(this,'')">All</div>
-      <div class="cg-chip" data-status="pending_approval" onclick="cgSetStatus(this,'pending_approval')">Pending</div>
-      <div class="cg-chip" data-status="partial_success" onclick="cgSetStatus(this,'partial_success')">Partial</div>
+  <!-- Stats -->
+  <div class="co-stat-grid">
+    <div class="co-stat-card">
+      <div class="co-stat-num" id="co-stat-packages">—</div>
+      <div class="co-stat-label">Packages</div>
     </div>
-    <select class="cg-filter-select" id="cg-limit" onchange="cgApplyFilters()">
-      <option value="100">100</option>
-      <option value="200" selected>200</option>
-      <option value="500">500</option>
-    </select>
-    <span class="cg-count" id="cg-count"></span>
+    <div class="co-stat-card">
+      <div class="co-stat-num" id="co-stat-images">—</div>
+      <div class="co-stat-label">Images Generated</div>
+    </div>
+    <div class="co-stat-card">
+      <div class="co-stat-num" id="co-stat-pending">—</div>
+      <div class="co-stat-label">Pending Approval</div>
+    </div>
+    <div class="co-stat-card">
+      <div class="co-stat-num" id="co-stat-presets">4</div>
+      <div class="co-stat-label">Visual Presets</div>
+    </div>
   </div>
 
-  <!-- Grid -->
-  <div class="cg-grid" id="cg-grid"></div>
-  <div class="cg-empty" id="cg-empty" style="display:none;"><i class="fas fa-box-open"></i>No packages found. Generate your first image in the <a href="/modules/company/content-engine.html" style="color:#8b5cf6;">Image Engine</a>.</div>
-  <div class="cg-error" id="cg-error" style="display:none;"></div>
+  <!-- Tools -->
+  <div class="co-section">
+    <div class="co-section-title"><i class="fas fa-toolbox"></i> Content Tools</div>
+    <div class="co-tool-grid">
+      <a class="co-tool-card" href="/modules/company/content-engine.html">
+        <div class="co-tool-icon"><i class="fas fa-images"></i></div>
+        <div class="co-tool-body">
+          <div class="co-tool-name">Image Engine <span class="co-tool-badge co-tool-badge--live">Live</span></div>
+          <div class="co-tool-desc">Generate branded images using Gemini. 6 output formats, 4 visual presets, up to 4 variations per run.</div>
+        </div>
+      </a>
+      <a class="co-tool-card" href="/modules/company/content-gallery.html">
+        <div class="co-tool-icon"><i class="fas fa-photo-film"></i></div>
+        <div class="co-tool-body">
+          <div class="co-tool-name">Gallery <span class="co-tool-badge co-tool-badge--live">Live</span></div>
+          <div class="co-tool-desc">Browse all generated content packages with filters, thumbnails, and quick retry for failed variants.</div>
+        </div>
+      </a>
+      <div class="co-tool-card" style="cursor:default; opacity:0.5;">
+        <div class="co-tool-icon co-tool-icon--future"><i class="fas fa-pen-nib"></i></div>
+        <div class="co-tool-body">
+          <div class="co-tool-name">Blog Engine <span class="co-tool-badge co-tool-badge--soon">Soon</span></div>
+          <div class="co-tool-desc">Generate blog articles from briefs with SEO optimization and hero images.</div>
+        </div>
+      </div>
+      <div class="co-tool-card" style="cursor:default; opacity:0.5;">
+        <div class="co-tool-icon co-tool-icon--future"><i class="fas fa-share-nodes"></i></div>
+        <div class="co-tool-body">
+          <div class="co-tool-name">Social Engine <span class="co-tool-badge co-tool-badge--soon">Soon</span></div>
+          <div class="co-tool-desc">Generate social media posts with images, captions, and hashtags for multiple platforms.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Packages -->
+  <div class="co-section">
+    <div class="co-section-title"><i class="fas fa-clock-rotate-left"></i> Recent Packages</div>
+    <div class="co-recent-panel" id="co-recent-panel">
+      <div class="co-recent-empty" id="co-recent-empty">No content packages yet. Head to <a href="/modules/company/content-engine.html" style="color:#8b5cf6;">Image Engine</a> to create your first.</div>
+    </div>
+  </div>
 
   <!-- Scripts -->
   <script src="/js/company-store-adapter.js"></script>
@@ -153,8 +194,6 @@
   <script src="/modules/company/js/quick-chat.js"></script>
   <script>
     var API_BASE = 'https://ambientpixels-nova-api.azurewebsites.net';
-    var _statusFilter = '';
-    var _allData = [];
 
     function _getAuthHeaders() {
       var headers = { 'Content-Type': 'application/json' };
@@ -162,166 +201,68 @@
       return headers;
     }
 
-    // Show skeletons
-    function showSkeletons() {
-      var grid = document.getElementById('cg-grid');
-      grid.innerHTML = '';
-      for (var i = 0; i < 8; i++) {
-        var sk = document.createElement('div');
-        sk.className = 'cg-skeleton';
-        sk.innerHTML = '<div class="cg-skeleton-mosaic"></div><div class="cg-skeleton-body"><div class="cg-skeleton-line"></div><div class="cg-skeleton-line cg-skeleton-line--short"></div><div class="cg-skeleton-line cg-skeleton-line--tiny"></div></div>';
-        grid.appendChild(sk);
-      }
-    }
-
-    // Fetch
-    async function cgFetch() {
-      showSkeletons();
-      document.getElementById('cg-empty').style.display = 'none';
-      document.getElementById('cg-error').style.display = 'none';
-
-      var preset = document.getElementById('cg-preset-filter').value;
-      var limit = document.getElementById('cg-limit').value;
-      var url = API_BASE + '/api/content-index?limit=' + limit;
-      if (preset) url += '&preset=' + encodeURIComponent(preset);
-      if (_statusFilter) url += '&status=' + encodeURIComponent(_statusFilter);
-
+    (async function () {
       try {
-        var res = await fetch(url, { headers: _getAuthHeaders() });
+        // Fetch gallery index for stats + recent
+        var res = await fetch(API_BASE + '/api/content-index?limit=10', { headers: _getAuthHeaders() });
         var data = await res.json();
-        if (!data.ok) throw new Error(data.error || 'Unknown error');
-        _allData = data.results || [];
-        cgRender(_allData);
-      } catch (err) {
-        document.getElementById('cg-grid').innerHTML = '';
-        document.getElementById('cg-error').style.display = 'block';
-        document.getElementById('cg-error').textContent = 'Failed to load gallery: ' + err.message;
-      }
-    }
+        if (!data.ok) return;
 
-    function cgSetStatus(el, status) {
-      _statusFilter = status;
-      document.querySelectorAll('.cg-chip').forEach(function (c) { c.classList.remove('cg-chip--active'); });
-      el.classList.add('cg-chip--active');
-      cgApplyFilters();
-    }
-
-    function cgApplyFilters() { cgFetch(); }
-
-    // Render
-    function cgRender(items) {
-      var grid = document.getElementById('cg-grid');
-      grid.innerHTML = '';
-
-      document.getElementById('cg-count').textContent = items.length + ' package' + (items.length !== 1 ? 's' : '');
-
-      if (items.length === 0) {
-        document.getElementById('cg-empty').style.display = 'block';
-        return;
-      }
-      document.getElementById('cg-empty').style.display = 'none';
-
-      // Batch render via rAF
-      var batchSize = 20;
-      var idx = 0;
-      function renderBatch() {
-        var frag = document.createDocumentFragment();
-        var end = Math.min(idx + batchSize, items.length);
-        for (; idx < end; idx++) {
-          frag.appendChild(buildCard(items[idx]));
-        }
-        grid.appendChild(frag);
-        if (idx < items.length) requestAnimationFrame(renderBatch);
-      }
-      requestAnimationFrame(renderBatch);
-    }
-
-    function buildCard(entry) {
-      var card = document.createElement('div');
-      card.className = 'cg-card';
-
-      // Mosaic
-      var thumbs = entry.thumbs || [];
-      var mosaicHtml = '';
-      var slots = Math.min(thumbs.length, 4);
-      if (slots === 0) {
-        mosaicHtml = '<div class="cg-mosaic" style="grid-template-columns:1fr;"><div class="cg-mosaic-placeholder"><i class="fas fa-image"></i></div></div>';
-      } else {
-        var cols = slots <= 1 ? '1fr' : '1fr 1fr';
-        mosaicHtml = '<div class="cg-mosaic" style="grid-template-columns:' + cols + ';">';
-        for (var t = 0; t < slots; t++) {
-          mosaicHtml += '<img src="' + thumbs[t] + '" alt="thumb" loading="lazy" />';
-        }
-        if (slots === 1) { /* single image fills grid */ }
-        else if (slots === 3) { mosaicHtml += '<div class="cg-mosaic-placeholder"><i class="fas fa-image"></i></div>'; }
-        mosaicHtml += '</div>';
-      }
-
-      // Status badge
-      var statusClass = 'cg-badge--pending';
-      var statusLabel = entry.status || 'unknown';
-      if (entry.status === 'pending_approval') { statusClass = 'cg-badge--pending'; statusLabel = 'pending'; }
-      else if (entry.status === 'partial_success') { statusClass = 'cg-badge--partial'; statusLabel = 'partial'; }
-      else if (entry.status === 'approved') { statusClass = 'cg-badge--success'; statusLabel = 'approved'; }
-      else if (entry.status === 'failed') { statusClass = 'cg-badge--failed'; statusLabel = 'failed'; }
-
-      // Output types
-      var outputLabels = { 'x_image':'X', 'hero_image':'Hero', 'square_image':'Square', 'story_image':'Story', 'blog_image':'Blog', 'linkedin_image':'LinkedIn' };
-      var outputStr = (entry.outputTypes || []).map(function (k) { return outputLabels[k] || k; }).join(', ');
-
-      // Counts
-      var countStr = '';
-      if (entry.successCount > 0) countStr += entry.successCount + ' ok';
-      if (entry.failedCount > 0) countStr += (countStr ? ', ' : '') + entry.failedCount + ' failed';
-      if (entry.variations > 1) countStr += ' \u00b7 ' + entry.variations + ' var';
-
-      // Date
-      var dateStr = entry.createdAt ? new Date(entry.createdAt).toLocaleDateString() : '';
-
-      // Actions
-      var actionsHtml = '<a class="cg-card-btn" href="/modules/company/content-engine.html?pkg=' + (entry.packageId || '') + '"><i class="fas fa-box-open"></i> Open</a>';
-      if (entry.failedCount > 0) {
-        actionsHtml += ' <button class="cg-card-btn cg-card-btn--retry" onclick="cgRetry(\'' + (entry.packageId || '') + '\', this)"><i class="fas fa-rotate-right"></i> Retry</button>';
-      }
-
-      card.innerHTML = mosaicHtml +
-        '<div class="cg-card-body">' +
-          '<div class="cg-card-topic">' + (entry.topic || entry.packageId || 'Package') + '</div>' +
-          '<div class="cg-card-meta">' + dateStr + (countStr ? ' \u00b7 ' + countStr : '') + '</div>' +
-          '<div class="cg-card-badges">' +
-            '<span class="cg-badge ' + statusClass + '">' + statusLabel + '</span>' +
-            '<span class="cg-badge cg-badge--preset">' + (entry.preset || '').replace('ap-','') + '</span>' +
-          '</div>' +
-          '<div class="cg-card-outputs">' + outputStr + '</div>' +
-          '<div class="cg-card-actions">' + actionsHtml + '</div>' +
-        '</div>';
-
-      return card;
-    }
-
-    // Retry
-    async function cgRetry(packageId, btn) {
-      if (!packageId) return;
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Retrying...';
-      try {
-        var res = await fetch(API_BASE + '/api/content-retry', {
-          method: 'POST',
-          headers: _getAuthHeaders(),
-          body: JSON.stringify({ packageId: packageId })
+        var items = data.results || [];
+        var totalPackages = items.length;
+        var totalImages = 0;
+        var pendingCount = 0;
+        items.forEach(function (item) {
+          totalImages += (item.successCount || 0);
+          if (item.status === 'pending_approval') pendingCount++;
         });
-        var data = await res.json();
-        if (!data.ok) { btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Failed'; return; }
-        btn.innerHTML = '<i class="fas fa-check"></i> ' + (data.stillFailed > 0 ? data.retriedCount + ' retried' : 'Done');
-        // Refresh grid after short delay
-        setTimeout(function () { cgFetch(); }, 1500);
-      } catch (err) {
-        btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error';
-      }
-    }
 
-    // Init
-    cgFetch();
+        document.getElementById('co-stat-packages').textContent = totalPackages;
+        document.getElementById('co-stat-images').textContent = totalImages;
+        document.getElementById('co-stat-pending').textContent = pendingCount;
+
+        // Render recent packages (up to 5)
+        if (items.length > 0) {
+          document.getElementById('co-recent-empty').style.display = 'none';
+          var panel = document.getElementById('co-recent-panel');
+          var recent = items.slice(0, 5);
+
+          recent.forEach(function (item) {
+            var row = document.createElement('a');
+            row.className = 'co-recent-item';
+            row.href = '/modules/company/content-engine.html?pkg=' + (item.packageId || '');
+            row.style.textDecoration = 'none';
+            row.style.color = 'inherit';
+
+            var thumb = '';
+            if (item.thumbs && item.thumbs[0]) {
+              thumb = '<img class="co-recent-thumb" src="' + item.thumbs[0] + '" alt="thumb" loading="lazy" />';
+            } else {
+              thumb = '<div class="co-recent-thumb" style="display:flex;align-items:center;justify-content:center;"><i class="fas fa-image" style="opacity:0.2;"></i></div>';
+            }
+
+            var statusClass = 'co-recent-status--' + (item.status || 'pending');
+            var statusLabel = item.status || 'pending';
+            if (statusLabel === 'pending_approval') statusLabel = 'pending';
+            if (statusLabel === 'partial_success') statusLabel = 'partial';
+
+            var countInfo = (item.successCount || 0) + ' image' + ((item.successCount || 0) !== 1 ? 's' : '');
+            if (item.failedCount > 0) countInfo += ', ' + item.failedCount + ' failed';
+
+            row.innerHTML = thumb +
+              '<div class="co-recent-info">' +
+                '<div class="co-recent-topic">' + (item.topic || item.packageId || 'Package') + '</div>' +
+                '<div class="co-recent-meta">' + (item.preset || '').replace('ap-','') + ' &middot; ' + countInfo + ' &middot; ' + (item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '') + '</div>' +
+              '</div>' +
+              '<span class="co-recent-status ' + statusClass + '">' + statusLabel + '</span>';
+
+            panel.appendChild(row);
+          });
+        }
+      } catch (err) {
+        console.warn('[Content Overview] Could not load stats:', err);
+      }
+    })();
   </script>
 </main>
 </body>
