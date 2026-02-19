@@ -541,6 +541,135 @@ function _streamToString(stream) {
   });
 }
 
+// ── Package Deletion ──
+
+var GENERATED_IMAGES_PREFIX = 'https://' + STORAGE_ACCOUNT + '.blob.core.windows.net/' + IMAGES_CONTAINER + '/';
+
+/**
+ * Soft delete: mark package + index entry as deleted. Images untouched.
+ * @param {string} packageId
+ * @param {string} actor - who performed the delete
+ * @returns {Promise<{ ok: boolean, packageId: string }>}
+ */
+async function softDeletePackage(packageId, actor) {
+  if (!packageId) throw new Error('packageId required');
+  var pkg = await loadPackage(packageId);
+  if (!pkg) throw { code: 'NOT_FOUND', message: 'Package not found: ' + packageId };
+  pkg.status = 'deleted';
+  pkg.deletedAt = new Date().toISOString();
+  pkg.deletedBy = actor || 'unknown';
+  await savePackage(pkg);
+  await _updateIndexEntry(packageId, function (entry) {
+    entry.status = 'deleted';
+    entry.deletedAt = pkg.deletedAt;
+    entry.deletedBy = pkg.deletedBy;
+    return entry;
+  });
+  return { ok: true, packageId: packageId };
+}
+
+/**
+ * Hard delete: remove package blob + index entry. Optionally purge image blobs.
+ * @param {string} packageId
+ * @param {string} actor
+ * @param {Object} [opts]
+ * @param {boolean} [opts.purgeImages=false] - also delete generated image blobs
+ * @param {boolean} [opts.purgeIndex=true] - remove from index (vs mark deleted)
+ * @returns {Promise<{ ok: boolean, packageId: string, blobsDeleted: number }>}
+ */
+async function hardDeletePackage(packageId, actor, opts) {
+  if (!packageId) throw new Error('packageId required');
+  var purgeImages = (opts && opts.purgeImages === true) || false;
+  var purgeIndex = (opts && opts.purgeIndex !== false); // default true
+  var blobsDeleted = 0;
+
+  var pkg = await loadPackage(packageId);
+
+  // Purge generated image blobs if requested
+  if (purgeImages && pkg && Array.isArray(pkg.outputs)) {
+    var imgContainer = await _ensureContainer(IMAGES_CONTAINER);
+    for (var i = 0; i < pkg.outputs.length; i++) {
+      var output = pkg.outputs[i];
+      if (!output) continue;
+      var urls = [output.url, output.thumbUrl, output.metaUrl].filter(Boolean);
+      for (var u = 0; u < urls.length; u++) {
+        if (urls[u].indexOf(GENERATED_IMAGES_PREFIX) !== 0) continue;
+        var blobName = urls[u].substring(GENERATED_IMAGES_PREFIX.length);
+        try {
+          await imgContainer.getBlockBlobClient(blobName).deleteIfExists();
+          blobsDeleted++;
+        } catch (e) { /* non-fatal */ }
+      }
+    }
+  }
+
+  // Delete package blob
+  if (pkg) {
+    var stateContainer = await _ensureContainer(STATE_CONTAINER);
+    try {
+      await stateContainer.getBlockBlobClient('content-engine/packages/' + packageId + '.json').deleteIfExists();
+    } catch (e) { /* non-fatal */ }
+  }
+
+  // Remove or mark in index
+  if (purgeIndex) {
+    await _removeIndexEntry(packageId);
+  } else {
+    await _updateIndexEntry(packageId, function (entry) {
+      entry.status = 'deleted';
+      entry.deletedAt = new Date().toISOString();
+      entry.deletedBy = actor || 'unknown';
+      return entry;
+    });
+  }
+
+  return { ok: true, packageId: packageId, blobsDeleted: blobsDeleted };
+}
+
+/**
+ * Update a single entry in the gallery index by packageId.
+ */
+async function _updateIndexEntry(packageId, mutator) {
+  var container = await _ensureContainer(STATE_CONTAINER);
+  var blobPath = 'content-engine/index.json';
+  var blob = container.getBlockBlobClient(blobPath);
+  var index = [];
+  try {
+    var download = await blob.download(0);
+    var body = await _streamToString(download.readableStreamBody);
+    index = JSON.parse(body);
+    if (!Array.isArray(index)) index = [];
+  } catch (e) { return; }
+  var changed = false;
+  for (var i = 0; i < index.length; i++) {
+    if (index[i].packageId === packageId) {
+      index[i] = mutator(index[i]);
+      changed = true;
+      break;
+    }
+  }
+  if (changed) await _uploadJson(STATE_CONTAINER, blobPath, index);
+}
+
+/**
+ * Remove an entry from the gallery index entirely.
+ */
+async function _removeIndexEntry(packageId) {
+  var container = await _ensureContainer(STATE_CONTAINER);
+  var blobPath = 'content-engine/index.json';
+  var blob = container.getBlockBlobClient(blobPath);
+  var index = [];
+  try {
+    var download = await blob.download(0);
+    var body = await _streamToString(download.readableStreamBody);
+    index = JSON.parse(body);
+    if (!Array.isArray(index)) index = [];
+  } catch (e) { return; }
+  var before = index.length;
+  index = index.filter(function (e) { return e.packageId !== packageId; });
+  if (index.length !== before) await _uploadJson(STATE_CONTAINER, blobPath, index);
+}
+
 // ── Exports ──
 module.exports = {
   generateImage: generateImage,
@@ -555,6 +684,8 @@ module.exports = {
   checkUsageLimits: checkUsageLimits,
   loadContentEngineConfig: loadContentEngineConfig,
   getPresetVersion: getPresetVersion,
+  softDeletePackage: softDeletePackage,
+  hardDeletePackage: hardDeletePackage,
   PRESETS: PRESETS,
   VALID_PRESETS: VALID_PRESETS,
   PURPOSES: PURPOSES,

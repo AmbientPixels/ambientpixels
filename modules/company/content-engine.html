@@ -95,6 +95,38 @@
     .ce-result-links a { font-size:0.62rem; color:#60a5fa; text-decoration:none; }
     .ce-result-links a:hover { text-decoration:underline; }
 
+    /* Danger Zone — Hard Delete */
+    .ce-danger-zone {
+      display:none; margin-top:1rem; border:1px solid rgba(239,68,68,0.2); border-radius:10px;
+      padding:1rem; background:rgba(239,68,68,0.03);
+    }
+    .ce-danger-title {
+      font-size:0.75rem; font-weight:600; color:#ef4444; margin-bottom:0.5rem;
+      display:flex; align-items:center; gap:0.4rem;
+    }
+    .ce-danger-desc { font-size:0.62rem; opacity:0.5; margin-bottom:0.7rem; line-height:1.5; }
+    .ce-danger-opts { display:flex; flex-direction:column; gap:0.4rem; margin-bottom:0.7rem; }
+    .ce-danger-opt { display:flex; align-items:center; gap:0.4rem; font-size:0.62rem; }
+    .ce-danger-opt input[type=checkbox] { accent-color:#ef4444; }
+    .ce-danger-confirm {
+      display:flex; align-items:center; gap:0.5rem; margin-bottom:0.6rem;
+    }
+    .ce-danger-input {
+      font-size:0.65rem; padding:6px 10px; background:rgba(255,255,255,0.04);
+      border:1px solid rgba(239,68,68,0.25); border-radius:6px; color:#e0e0e0;
+      font-family:inherit; width:180px;
+    }
+    .ce-danger-input:focus { outline:none; border-color:rgba(239,68,68,0.5); }
+    .ce-danger-input::placeholder { color:rgba(239,68,68,0.3); }
+    .ce-btn--danger {
+      padding:7px 14px; border:1px solid rgba(239,68,68,0.3); border-radius:6px;
+      background:rgba(239,68,68,0.1); color:#ef4444; font-size:0.65rem; font-weight:600;
+      cursor:pointer; font-family:inherit; display:inline-flex; align-items:center; gap:0.3rem;
+      transition:all 0.15s;
+    }
+    .ce-btn--danger:hover:not(:disabled) { background:rgba(239,68,68,0.2); }
+    .ce-btn--danger:disabled { opacity:0.3; cursor:not-allowed; }
+
     .ce-approval-badge {
       display:inline-flex; align-items:center; gap:0.3rem; font-size:0.65rem;
       padding:3px 10px; border-radius:12px; font-weight:600;
@@ -205,6 +237,26 @@
     <div class="ce-results-grid" id="ce-results-grid"></div>
     <div id="ce-results-links" style="margin-top:0.5rem;"></div>
     <div id="ce-approval-status"></div>
+
+    <!-- Danger Zone — Hard Delete (CEO only, shown when viewing existing package) -->
+    <div class="ce-danger-zone" id="ce-danger-zone">
+      <div class="ce-danger-title"><i class="fas fa-skull-crossbones"></i> Danger Zone</div>
+      <div class="ce-danger-desc">
+        Permanently delete this package from storage. This removes the package JSON and its gallery index entry.
+        Optionally purge the generated image blobs (only those hosted on our blob storage).
+        <strong>This cannot be undone.</strong>
+      </div>
+      <div class="ce-danger-opts">
+        <label class="ce-danger-opt">
+          <input type="checkbox" id="ce-purge-images" /> Also delete generated image files from blob storage
+        </label>
+      </div>
+      <div class="ce-danger-confirm">
+        <input class="ce-danger-input" id="ce-danger-confirm-input" type="text" placeholder="Type DELETE to confirm" autocomplete="off" />
+        <button class="ce-btn--danger" id="ce-hard-delete-btn" disabled onclick="ceHardDelete()"><i class="fas fa-trash"></i> Purge Package</button>
+      </div>
+      <div id="ce-danger-status" style="font-size:0.62rem;margin-top:0.3rem;"></div>
+    </div>
   </div>
 
   <!-- Scripts -->
@@ -571,11 +623,59 @@
     // ── Init ──
     buildOutputChips();
 
+    // ── Hard Delete (Danger Zone) ──
+    var _viewingPackageId = null;
+
+    // Enable purge button only when user types DELETE
+    document.getElementById('ce-danger-confirm-input').addEventListener('input', function () {
+      document.getElementById('ce-hard-delete-btn').disabled = this.value.trim() !== 'DELETE';
+    });
+
+    async function ceHardDelete() {
+      if (!_viewingPackageId) return;
+      var confirmInput = document.getElementById('ce-danger-confirm-input');
+      if (confirmInput.value.trim() !== 'DELETE') return;
+      var purgeImages = document.getElementById('ce-purge-images').checked;
+      var btn = document.getElementById('ce-hard-delete-btn');
+      var statusEl = document.getElementById('ce-danger-status');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Purging...';
+      statusEl.textContent = '';
+      try {
+        var res = await fetch(API_BASE + '/api/content-package-delete', {
+          method: 'POST',
+          headers: _getAuthHeaders(),
+          body: JSON.stringify({ id: _viewingPackageId, mode: 'hard', purgeImages: purgeImages })
+        });
+        var data = await _safeJson(res);
+        if (data.ok) {
+          statusEl.style.color = '#22c55e';
+          statusEl.textContent = 'Package purged.' + (data.blobsDeleted ? ' ' + data.blobsDeleted + ' blob(s) deleted.' : '');
+          btn.innerHTML = '<i class="fas fa-check"></i> Done';
+          setTimeout(function () { window.location.href = '/modules/company/content-gallery.html'; }, 1500);
+        } else {
+          statusEl.style.color = '#ef4444';
+          statusEl.textContent = 'Failed: ' + (data.error || 'Unknown error');
+          btn.innerHTML = '<i class="fas fa-trash"></i> Purge Package';
+          btn.disabled = false;
+        }
+      } catch (err) {
+        statusEl.style.color = '#ef4444';
+        statusEl.textContent = 'Error: ' + err.message;
+        btn.innerHTML = '<i class="fas fa-trash"></i> Purge Package';
+        btn.disabled = false;
+      }
+    }
+
     // Check for ?pkg= query param
     (function () {
       var params = new URLSearchParams(window.location.search);
       var pkgId = params.get('pkg');
-      if (pkgId) loadPackageView(pkgId);
+      if (pkgId) {
+        _viewingPackageId = pkgId;
+        loadPackageView(pkgId);
+        document.getElementById('ce-danger-zone').style.display = 'block';
+      }
     })();
   </script>
 </main>

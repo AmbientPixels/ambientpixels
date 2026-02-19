@@ -104,6 +104,10 @@
     .cg-card-btn:hover { background:rgba(255,255,255,0.08); }
     .cg-card-btn--retry { border-color:rgba(251,191,36,0.2); color:#fbbf24; }
     .cg-card-btn--retry:hover { background:rgba(251,191,36,0.08); }
+    .cg-card-btn--delete { border-color:rgba(239,68,68,0.2); color:#ef4444; }
+    .cg-card-btn--delete:hover { background:rgba(239,68,68,0.08); }
+    .cg-card--deleted { opacity:0.4; pointer-events:none; }
+    .cg-card--deleted .cg-card-actions { pointer-events:auto; opacity:1; }
 
     .cg-skeleton {
       background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.04);
@@ -146,6 +150,7 @@
       <div class="cg-chip cg-chip--active" data-status="" onclick="cgSetStatus(this,'')">All</div>
       <div class="cg-chip" data-status="pending_approval" onclick="cgSetStatus(this,'pending_approval')">Pending</div>
       <div class="cg-chip" data-status="partial_success" onclick="cgSetStatus(this,'partial_success')">Partial</div>
+      <div class="cg-chip" data-status="deleted" onclick="cgSetStatus(this,'deleted')">Deleted</div>
     </div>
     <select class="cg-filter-select" id="cg-limit" onchange="cgApplyFilters()">
       <option value="100">100</option>
@@ -237,9 +242,12 @@
     function cgRender(items) {
       var grid = document.getElementById('cg-grid');
       grid.innerHTML = '';
-      document.getElementById('cg-count').textContent = items.length + ' package' + (items.length !== 1 ? 's' : '');
-      if (items.length === 0) { document.getElementById('cg-empty').style.display = 'block'; return; }
+      // Hide deleted unless explicitly filtering for them
+      var showItems = _statusFilter === 'deleted' ? items : items.filter(function (e) { return e.status !== 'deleted'; });
+      document.getElementById('cg-count').textContent = showItems.length + ' package' + (showItems.length !== 1 ? 's' : '');
+      if (showItems.length === 0) { document.getElementById('cg-empty').style.display = 'block'; return; }
       document.getElementById('cg-empty').style.display = 'none';
+      items = showItems;
       var batchSize = 20; var idx = 0;
       function renderBatch() {
         var frag = document.createDocumentFragment();
@@ -278,9 +286,13 @@
       if (entry.failedCount > 0) countStr += (countStr ? ', ' : '') + entry.failedCount + ' failed';
       if (entry.variations > 1) countStr += ' \u00b7 ' + entry.variations + ' var';
       var dateStr = entry.createdAt ? new Date(entry.createdAt).toLocaleDateString() : '';
+      var isDeleted = entry.status === 'deleted';
       var actionsHtml = '<a class="cg-card-btn" href="/modules/company/content-engine.html?pkg=' + (entry.packageId || '') + '"><i class="fas fa-box-open"></i> Open</a>';
-      if (entry.failedCount > 0) {
+      if (entry.failedCount > 0 && !isDeleted) {
         actionsHtml += ' <button class="cg-card-btn cg-card-btn--retry" onclick="cgRetry(\'' + (entry.packageId || '') + '\', this)"><i class="fas fa-rotate-right"></i> Retry</button>';
+      }
+      if (!isDeleted) {
+        actionsHtml += ' <button class="cg-card-btn cg-card-btn--delete" onclick="cgSoftDelete(\'' + (entry.packageId || '') + '\', this)"><i class="fas fa-trash"></i> Delete</button>';
       }
       // Detail meta line: presetLabel · variations · images
       var presetLabels = { 'ap-2d-flat':'2D Flat', 'ap-neon-glass':'Neon Glass', 'ap-ornate-frame':'Ornate Frame', 'ap-corporate-tech':'Corporate Tech' };
@@ -292,6 +304,7 @@
       detailParts.push(imgCount + ' image' + (imgCount !== 1 ? 's' : ''));
       var detailStr = detailParts.join(' \u00b7 ');
 
+      if (isDeleted) card.className += ' cg-card--deleted';
       card.innerHTML = mosaicHtml +
         '<div class="cg-card-body">' +
           '<div class="cg-card-topic">' + (entry.topic || entry.packageId || 'Package') + '</div>' +
@@ -317,6 +330,25 @@
         if (!data.ok) { btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Failed'; return; }
         btn.innerHTML = '<i class="fas fa-check"></i> ' + (data.stillFailed > 0 ? data.retriedCount + ' retried' : 'Done');
         setTimeout(function () { cgFetch(); }, 1500);
+      } catch (err) {
+        btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error';
+      }
+    }
+
+    async function cgSoftDelete(packageId, btn) {
+      if (!packageId) return;
+      if (!confirm('Delete this package? It can be restored later.')) return;
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+      try {
+        var res = await fetch(API_BASE + '/api/content-package-delete', {
+          method: 'POST', headers: _getAuthHeaders(),
+          body: JSON.stringify({ id: packageId, mode: 'soft' })
+        });
+        var data = await res.json();
+        if (!data.ok) { btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Failed'; return; }
+        btn.innerHTML = '<i class="fas fa-check"></i> Deleted';
+        setTimeout(function () { cgFetch(); }, 800);
       } catch (err) {
         btn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Error';
       }
