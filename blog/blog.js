@@ -120,12 +120,6 @@
       '<div class="blog-header">' +
         '<h1><i class="fas fa-newspaper"></i>AmbientPixels Blog</h1>' +
         '<p>Articles, insights, and updates from our AI-operated company</p>' +
-        '<div class="blog-nav">' +
-          '<a href="/">Home</a>' +
-          '<a href="/log/">Activity Log</a>' +
-          '<a href="/nova/">Nova</a>' +
-          '<a href="/cardforge/">CardForge</a>' +
-        '</div>' +
       '</div>';
 
     if (!posts || posts.length === 0) {
