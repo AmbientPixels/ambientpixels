@@ -32,8 +32,17 @@
         { href: BASE + 'work-overview.html', label: 'Overview', icon: 'fa-list-check', match: ['work-overview.html'] },
         { href: BASE + 'tasks.html', label: 'Tasks', icon: 'fa-tasks', match: ['tasks.html'] },
         { href: BASE + 'actions.html', label: 'Actions', icon: 'fa-bolt', match: ['actions.html'] },
-        { href: BASE + 'documents.html', label: 'Docs', icon: 'fa-folder-open', match: ['documents.html'] },
-        { href: BASE + 'content-engine.html', label: 'Content', icon: 'fa-images', match: ['content-engine.html'] }
+        { href: BASE + 'documents.html', label: 'Docs', icon: 'fa-folder-open', match: ['documents.html'] }
+      ]
+    },
+    {
+      id: 'content',
+      label: 'Content',
+      icon: 'fa-wand-magic-sparkles',
+      overview: BASE + 'content-overview.html',
+      links: [
+        { href: BASE + 'content-overview.html', label: 'Overview', icon: 'fa-wand-magic-sparkles', match: ['content-overview.html'] },
+        { href: BASE + 'content-engine.html', label: 'Image Engine', icon: 'fa-images', match: ['content-engine.html'] }
       ]
     },
     {
