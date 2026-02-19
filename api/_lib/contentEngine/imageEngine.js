@@ -68,11 +68,17 @@ function _getBlobServiceClient() {
   return _blobServiceClient;
 }
 
+var _containerReady = {};
 async function _ensureContainer(containerName) {
   var client = _getBlobServiceClient();
   if (!client) throw new Error('AZURE_STORAGE_CONNECTION_STRING not configured');
   var container = client.getContainerClient(containerName);
-  await container.createIfNotExists();
+  if (!_containerReady[containerName]) {
+    await container.createIfNotExists({ access: 'blob' });
+    // Ensure public blob read access (createIfNotExists won't update existing containers)
+    try { await container.setAccessPolicy('blob'); } catch (e) { /* may fail if already set */ }
+    _containerReady[containerName] = true;
+  }
   return container;
 }
 
