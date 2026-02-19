@@ -187,6 +187,11 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/api/content-quick-generate",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/content-quick-generate",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/api/*",
       "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/{path}"
     },

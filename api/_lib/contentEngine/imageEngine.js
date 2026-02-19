@@ -51,6 +51,34 @@ var PURPOSES = {
     height: 1024,
     aspect: '3:2',
     context: 'Website hero banner image. Wide atmospheric composition with breathing room on the left or right side for overlay text and CTA buttons.'
+  },
+  'square_image': {
+    label: 'Square (Instagram)',
+    width: 1024,
+    height: 1024,
+    aspect: '1:1',
+    context: 'Square social media image for Instagram, LinkedIn, or profile cards. Centered composition with balanced visual weight.'
+  },
+  'story_image': {
+    label: 'Story / Vertical',
+    width: 1080,
+    height: 1920,
+    aspect: '9:16',
+    context: 'Vertical story image for Instagram Stories, TikTok, or mobile-first display. Strong vertical composition with focal point in the center third.'
+  },
+  'blog_image': {
+    label: 'Blog Header',
+    width: 1200,
+    height: 900,
+    aspect: '4:3',
+    context: 'Blog article header image. Clean composition with a clear subject and generous whitespace for readability alongside text content.'
+  },
+  'linkedin_image': {
+    label: 'LinkedIn Post',
+    width: 1200,
+    height: 627,
+    aspect: '1.91:1',
+    context: 'LinkedIn feed post image. Professional, polished composition. Clear focal point with subtle branding opportunity.'
   }
 };
 

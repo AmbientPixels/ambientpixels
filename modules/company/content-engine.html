@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="AmbientPixels Content Engine — Generate branded image packages for approval" />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Content Engine — AmbientPixels HQ</title>
+  <title>Image Engine — AmbientPixels HQ</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/base.css" />
@@ -32,9 +32,34 @@
     }
     .ce-form textarea { resize:vertical; min-height:52px; }
 
-    .ce-checkboxes { display:flex; gap:1rem; margin-top:4px; }
-    .ce-checkboxes label { display:flex; align-items:center; gap:0.3rem; font-size:0.7rem; opacity:0.85; cursor:pointer; text-transform:none; letter-spacing:0; }
-    .ce-checkboxes input[type="checkbox"] { width:auto; accent-color:#60a5fa; }
+    .ce-output-grid { display:flex; flex-wrap:wrap; gap:0.4rem; margin-top:4px; }
+    .ce-output-chip {
+      display:flex; align-items:center; gap:0.35rem; padding:6px 12px; border-radius:8px;
+      font-size:0.65rem; cursor:pointer; user-select:none; transition:all 0.15s;
+      background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); color:#aaa;
+    }
+    .ce-output-chip:hover { border-color:rgba(139,92,246,0.3); }
+    .ce-output-chip--active { background:rgba(139,92,246,0.12); border-color:rgba(139,92,246,0.4); color:#c4b5fd; }
+    .ce-output-chip i { font-size:0.6rem; }
+    .ce-output-chip .ce-chip-size { font-size:0.55rem; opacity:0.5; }
+
+    .ce-var-row { display:flex; align-items:center; gap:0.5rem; margin-top:4px; }
+    .ce-var-btn {
+      width:30px; height:30px; border-radius:6px; border:1px solid rgba(255,255,255,0.08);
+      background:rgba(255,255,255,0.03); color:#aaa; font-size:0.72rem; font-weight:600;
+      cursor:pointer; transition:all 0.15s;
+    }
+    .ce-var-btn:hover { border-color:rgba(139,92,246,0.3); }
+    .ce-var-btn--active { background:rgba(139,92,246,0.12); border-color:rgba(139,92,246,0.4); color:#c4b5fd; }
+
+    .ce-prompt-preview {
+      background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.06); border-radius:6px;
+      padding:0.6rem; font-size:0.6rem; font-family:'Courier New',monospace; line-height:1.5;
+      max-height:120px; overflow-y:auto; color:#888; display:none; margin-top:0.5rem;
+    }
+    .ce-prompt-toggle { font-size:0.6rem; color:#8b5cf6; cursor:pointer; opacity:0.7; margin-top:0.4rem; display:inline-block; }
+    .ce-prompt-toggle:hover { opacity:1; }
+    .ce-est { font-size:0.6rem; opacity:0.4; }
 
     .ce-actions { display:flex; gap:0.5rem; margin-top:0.6rem; }
     .ce-btn {
@@ -84,31 +109,31 @@
 </head>
 <body>
   <h1 style="font-size:1.1rem; font-weight:600; margin-bottom:0.3rem;">
-    <i class="fas fa-images" style="opacity:0.5;"></i> Content Engine
+    <i class="fas fa-images" style="opacity:0.5;"></i> Image Engine
   </h1>
-  <p style="font-size:0.68rem; opacity:0.4; margin-bottom:1rem;">Generate branded image packages and submit for CEO approval.</p>
+  <p style="font-size:0.68rem; opacity:0.4; margin-bottom:1rem;">Generate branded images with AI. One click — brief is auto-created behind the scenes.</p>
 
-  <!-- ── Brief Form ── -->
-  <div class="ce-panel ce-form" id="ce-brief-panel">
-    <div class="ce-panel-title"><i class="fas fa-file-alt"></i> Create Brief</div>
+  <!-- ── Generate Form ── -->
+  <div class="ce-panel ce-form" id="ce-form-panel">
+    <div class="ce-panel-title"><i class="fas fa-wand-magic-sparkles"></i> Generate Images</div>
     <div class="ce-form-grid">
       <div>
         <label for="ce-topic">Topic *</label>
         <input type="text" id="ce-topic" placeholder="e.g. CardForge Launch Promo" maxlength="200" />
       </div>
       <div>
-        <label for="ce-preset">Preset *</label>
+        <label for="ce-preset">Visual Style *</label>
         <select id="ce-preset">
-          <option value="ap-2d-flat">2D Flat</option>
           <option value="ap-neon-glass">Neon Glass</option>
+          <option value="ap-2d-flat">2D Flat</option>
           <option value="ap-ornate-frame">Ornate Frame</option>
           <option value="ap-corporate-tech">Corporate Tech</option>
         </select>
         <div class="ce-preset-preview" id="ce-preset-preview"></div>
       </div>
       <div class="ce-form-full">
-        <label for="ce-goal">Goal *</label>
-        <textarea id="ce-goal" placeholder="e.g. Make an eye-catching promo image announcing the new deck editor feature" maxlength="500"></textarea>
+        <label for="ce-goal">Describe what you want *</label>
+        <textarea id="ce-goal" placeholder="e.g. An eye-catching abstract promo with clean 2D borders and glowing badges" maxlength="500"></textarea>
       </div>
       <div>
         <label for="ce-audience">Audience (optional)</label>
@@ -119,21 +144,29 @@
         <input type="text" id="ce-tone" placeholder="e.g. Energetic, bold" maxlength="100" />
       </div>
       <div class="ce-form-full">
-        <label>Outputs *</label>
-        <div class="ce-checkboxes">
-          <label><input type="checkbox" id="ce-out-x" value="x_image" checked /> X / Twitter Image (1600×900)</label>
-          <label><input type="checkbox" id="ce-out-hero" value="hero_image" checked /> Hero Banner (1536×1024)</label>
+        <label>Image Formats</label>
+        <div class="ce-output-grid" id="ce-output-grid"></div>
+      </div>
+      <div>
+        <label>Variations per format</label>
+        <div class="ce-var-row">
+          <button class="ce-var-btn ce-var-btn--active" data-v="1" onclick="setVariations(1)">1</button>
+          <button class="ce-var-btn" data-v="2" onclick="setVariations(2)">2</button>
+          <button class="ce-var-btn" data-v="3" onclick="setVariations(3)">3</button>
+          <button class="ce-var-btn" data-v="4" onclick="setVariations(4)">4</button>
+          <span class="ce-est" id="ce-est-label"></span>
         </div>
       </div>
     </div>
 
+    <div class="ce-prompt-toggle" onclick="togglePromptPreview()"><i class="fas fa-eye"></i> Preview prompt</div>
+    <div class="ce-prompt-preview" id="ce-prompt-preview"></div>
+
     <div class="ce-actions">
-      <button class="ce-btn ce-btn--primary" id="ce-create-btn" onclick="ceCreateBrief()">
-        <i class="fas fa-plus"></i> Create Brief
+      <button class="ce-btn ce-btn--generate" id="ce-generate-btn" onclick="ceQuickGenerate()">
+        <i class="fas fa-bolt"></i> Generate
       </button>
-      <button class="ce-btn ce-btn--generate" id="ce-generate-btn" onclick="ceGenerate()" disabled>
-        <i class="fas fa-wand-magic-sparkles"></i> Generate Package
-      </button>
+      <span class="ce-est" id="ce-time-est"></span>
     </div>
 
     <div class="ce-status" id="ce-status"></div>
@@ -155,18 +188,19 @@
   <script src="/modules/company/js/sidebar.js"></script>
   <script src="/modules/company/js/quick-chat.js"></script>
   <script>
-    var _briefId = null;
-    var _packageId = null;
     var API_BASE = 'https://ambientpixels-nova-api.azurewebsites.net';
+    var _selectedOutputs = ['x_image'];
+    var _variations = 1;
 
-    // Safe JSON parse — avoids crash on empty/non-JSON responses
-    async function _safeJson(res) {
-      var text = await res.text();
-      if (!text) return { _empty: true, _status: res.status };
-      try { return JSON.parse(text); } catch (e) { return { error: 'HTTP ' + res.status + ': ' + text.substring(0, 200), _status: res.status }; }
-    }
+    var OUTPUT_TYPES = {
+      'x_image':        { label: 'X / Twitter',    icon: 'fa-brands fa-x-twitter', size: '1600\u00d7900',  aspect: '16:9' },
+      'hero_image':     { label: 'Hero Banner',    icon: 'fa-panorama',            size: '1536\u00d71024', aspect: '3:2' },
+      'square_image':   { label: 'Square',         icon: 'fa-square',              size: '1024\u00d71024', aspect: '1:1' },
+      'story_image':    { label: 'Story',          icon: 'fa-mobile-screen',       size: '1080\u00d71920', aspect: '9:16' },
+      'blog_image':     { label: 'Blog Header',    icon: 'fa-newspaper',           size: '1200\u00d7900',  aspect: '4:3' },
+      'linkedin_image': { label: 'LinkedIn',       icon: 'fa-brands fa-linkedin',  size: '1200\u00d7627',  aspect: '1.91:1' }
+    };
 
-    // Preset descriptions
     var PRESET_DESC = {
       'ap-2d-flat': 'Bold flat colors, minimal shadows, geometric vector-art.',
       'ap-neon-glass': 'Dark bg, neon glow, glass-morphism, cyberpunk palette.',
@@ -174,19 +208,17 @@
       'ap-corporate-tech': 'Navy-to-teal gradients, geometric patterns, sleek.'
     };
 
-    function _updatePresetPreview() {
-      var sel = document.getElementById('ce-preset');
-      var preview = document.getElementById('ce-preset-preview');
-      preview.textContent = PRESET_DESC[sel.value] || '';
+    // ── Helpers ──
+    async function _safeJson(res) {
+      var text = await res.text();
+      if (!text) return { _empty: true, _status: res.status };
+      try { return JSON.parse(text); } catch (e) { return { error: 'HTTP ' + res.status + ': ' + text.substring(0, 200), _status: res.status }; }
     }
-    document.getElementById('ce-preset').addEventListener('change', _updatePresetPreview);
-    _updatePresetPreview();
 
-    function _getOutputs() {
-      var out = [];
-      if (document.getElementById('ce-out-x').checked) out.push('x_image');
-      if (document.getElementById('ce-out-hero').checked) out.push('hero_image');
-      return out;
+    function _getAuthHeaders() {
+      var headers = { 'Content-Type': 'application/json' };
+      try { var key = sessionStorage.getItem('ap_server_key'); if (key) headers['x-company-secret'] = key; } catch (e) {}
+      return headers;
     }
 
     function _setStatus(msg, type) {
@@ -205,42 +237,97 @@
       log.scrollTop = log.scrollHeight;
     }
 
-    function _getAuthHeaders() {
-      var headers = { 'Content-Type': 'application/json' };
-      // Use SWA auth (cookie-based) — no extra header needed when logged in.
-      // If manual key is available, add it.
-      try {
-        var key = sessionStorage.getItem('ap_server_key');
-        if (key) headers['x-company-secret'] = key;
-      } catch (e) {}
-      return headers;
+    function _formatBytes(bytes) {
+      if (!bytes) return '\u2014';
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / 1048576).toFixed(2) + ' MB';
     }
 
-    // ── Create Brief ──
-    async function ceCreateBrief() {
+    // ── Output Chips ──
+    function buildOutputChips() {
+      var grid = document.getElementById('ce-output-grid');
+      grid.innerHTML = '';
+      Object.keys(OUTPUT_TYPES).forEach(function (key) {
+        var t = OUTPUT_TYPES[key];
+        var chip = document.createElement('div');
+        chip.className = 'ce-output-chip' + (_selectedOutputs.indexOf(key) !== -1 ? ' ce-output-chip--active' : '');
+        chip.setAttribute('data-key', key);
+        chip.innerHTML = '<i class="' + t.icon + '"></i> ' + t.label + ' <span class="ce-chip-size">' + t.size + '</span>';
+        chip.addEventListener('click', function () { toggleOutput(key); });
+        grid.appendChild(chip);
+      });
+      updateEstimate();
+    }
+
+    function toggleOutput(key) {
+      var idx = _selectedOutputs.indexOf(key);
+      if (idx !== -1) { _selectedOutputs.splice(idx, 1); } else { _selectedOutputs.push(key); }
+      buildOutputChips();
+    }
+
+    // ── Variations ──
+    function setVariations(n) {
+      _variations = n;
+      document.querySelectorAll('.ce-var-btn').forEach(function (btn) {
+        btn.classList.toggle('ce-var-btn--active', parseInt(btn.getAttribute('data-v')) === n);
+      });
+      updateEstimate();
+    }
+
+    function updateEstimate() {
+      var total = _selectedOutputs.length * _variations;
+      var estSec = total * 30;
+      document.getElementById('ce-est-label').textContent = total + ' image' + (total !== 1 ? 's' : '') + ' total';
+      document.getElementById('ce-time-est').textContent = total > 0 ? '~' + Math.ceil(estSec / 60) + ' min estimated' : '';
+    }
+
+    // ── Preset Preview ──
+    function _updatePresetPreview() {
+      document.getElementById('ce-preset-preview').textContent = PRESET_DESC[document.getElementById('ce-preset').value] || '';
+    }
+    document.getElementById('ce-preset').addEventListener('change', _updatePresetPreview);
+    _updatePresetPreview();
+
+    // ── Prompt Preview ──
+    function togglePromptPreview() {
+      var el = document.getElementById('ce-prompt-preview');
+      if (el.style.display === 'block') { el.style.display = 'none'; return; }
+      var topic = document.getElementById('ce-topic').value.trim() || '(topic)';
+      var goal = document.getElementById('ce-goal').value.trim() || '(goal)';
+      var preset = document.getElementById('ce-preset').value;
+      var presetLabel = PRESET_DESC[preset] || preset;
+      var outputs = _selectedOutputs.map(function (k) { return OUTPUT_TYPES[k] ? OUTPUT_TYPES[k].label + ' (' + OUTPUT_TYPES[k].size + ')' : k; });
+      el.textContent = 'TOPIC: ' + topic + '\nGOAL: ' + goal + '\nVISUAL STYLE: ' + presetLabel + '\nFORMATS: ' + outputs.join(', ') + '\nVARIATIONS: ' + _variations;
+      el.style.display = 'block';
+    }
+
+    // ── Quick Generate (one click) ──
+    async function ceQuickGenerate() {
       var topic = document.getElementById('ce-topic').value.trim();
       var goal = document.getElementById('ce-goal').value.trim();
       var preset = document.getElementById('ce-preset').value;
-      var outputs = _getOutputs();
 
-      if (!topic || topic.length < 3) { _setStatus('Topic is required (min 3 chars)', 'error'); return; }
-      if (!goal || goal.length < 3) { _setStatus('Goal is required (min 3 chars)', 'error'); return; }
-      if (outputs.length === 0) { _setStatus('Select at least one output type', 'error'); return; }
+      if (!topic || topic.length < 3) { _setStatus('Topic required (min 3 chars)', 'error'); return; }
+      if (!goal || goal.length < 3) { _setStatus('Description required (min 3 chars)', 'error'); return; }
+      if (_selectedOutputs.length === 0) { _setStatus('Select at least one image format', 'error'); return; }
 
-      var createBtn = document.getElementById('ce-create-btn');
-      createBtn.disabled = true;
-      _setStatus('Creating brief...', 'loading');
-      _addLog('Creating brief: ' + topic);
+      var genBtn = document.getElementById('ce-generate-btn');
+      genBtn.disabled = true;
+      var totalImages = _selectedOutputs.length * _variations;
+      _setStatus('Generating ' + totalImages + ' image' + (totalImages !== 1 ? 's' : '') + '... ~' + Math.ceil(totalImages * 30 / 60) + ' min', 'loading');
+      _addLog('Quick generate: ' + topic + ' (' + _selectedOutputs.join(', ') + ') x' + _variations);
 
       try {
-        var res = await fetch(API_BASE + '/api/content-brief', {
+        var res = await fetch(API_BASE + '/api/content-quick-generate', {
           method: 'POST',
           headers: _getAuthHeaders(),
           body: JSON.stringify({
             topic: topic,
             goal: goal,
             preset: preset,
-            outputs: outputs,
+            outputs: _selectedOutputs,
+            variations: _variations,
             audience: document.getElementById('ce-audience').value.trim() || undefined,
             tone: document.getElementById('ce-tone').value.trim() || undefined
           })
@@ -249,75 +336,27 @@
         var data = await _safeJson(res);
         if (!res.ok || !data.ok) {
           _setStatus('Failed (HTTP ' + res.status + '): ' + (data.error || 'Unknown error'), 'error');
-          _addLog('ERROR: HTTP ' + res.status + ' — ' + (data.error || JSON.stringify(data).substring(0, 200)));
-          createBtn.disabled = false;
-          return;
-        }
-
-        _briefId = data.briefId;
-        _setStatus('Brief created: ' + _briefId, 'success');
-        _addLog('Brief ID: ' + _briefId);
-
-        document.getElementById('ce-generate-btn').disabled = false;
-        createBtn.disabled = false;
-
-      } catch (err) {
-        _setStatus('Network error: ' + err.message, 'error');
-        _addLog('ERROR: ' + err.message);
-        createBtn.disabled = false;
-      }
-    }
-
-    // ── Generate Package ──
-    async function ceGenerate() {
-      if (!_briefId) { _setStatus('Create a brief first', 'error'); return; }
-
-      var genBtn = document.getElementById('ce-generate-btn');
-      genBtn.disabled = true;
-      document.getElementById('ce-create-btn').disabled = true;
-      _setStatus('Generating images... this may take 30-60 seconds per image.', 'loading');
-      _addLog('Starting generation for brief: ' + _briefId);
-
-      try {
-        var res = await fetch(API_BASE + '/api/content-generate', {
-          method: 'POST',
-          headers: _getAuthHeaders(),
-          body: JSON.stringify({ briefId: _briefId })
-        });
-
-        var data = await _safeJson(res);
-        if (!res.ok || !data.ok) {
-          _setStatus('Generation failed (HTTP ' + res.status + '): ' + (data.error || 'Unknown error'), 'error');
-          _addLog('ERROR: HTTP ' + res.status + ' — ' + (data.error || JSON.stringify(data).substring(0, 200)));
-          if (data.details) {
-            data.details.forEach(function (d) { _addLog('  ' + d.outputType + ': ' + d.error); });
-          }
+          _addLog('ERROR: ' + (data.error || JSON.stringify(data).substring(0, 200)));
+          if (data.details) { data.details.forEach(function (d) { _addLog('  ' + (d.outputKey || d.outputType) + ': ' + d.error); }); }
           genBtn.disabled = false;
-          document.getElementById('ce-create-btn').disabled = false;
           return;
         }
 
-        _packageId = data.packageId;
         _setStatus('Package generated! Submitted to Approval Queue.', 'success');
-        _addLog('Package ID: ' + _packageId);
-        if (data.errors) {
-          data.errors.forEach(function (e) { _addLog('WARN: ' + e.outputType + ' failed: ' + e.error); });
-        }
+        _addLog('Package: ' + data.packageId + ' | Brief: ' + data.briefId);
+        if (data.errors) { data.errors.forEach(function (e) { _addLog('WARN: ' + (e.outputKey || e.outputType) + ' failed: ' + e.error); }); }
 
-        // Render results
         _renderResults(data);
-
         genBtn.disabled = false;
-        document.getElementById('ce-create-btn').disabled = false;
 
       } catch (err) {
         _setStatus('Network error: ' + err.message, 'error');
         _addLog('ERROR: ' + err.message);
         genBtn.disabled = false;
-        document.getElementById('ce-create-btn').disabled = false;
       }
     }
 
+    // ── Render Results ──
     function _renderResults(data) {
       var panel = document.getElementById('ce-results');
       panel.style.display = 'block';
@@ -328,50 +367,40 @@
       var grid = document.getElementById('ce-results-grid');
       grid.innerHTML = '';
 
-      var outputLabels = {
-        'x_image': { label: 'X / Twitter Image', aspect: '16/9', cls: '' },
-        'hero_image': { label: 'Hero Banner', aspect: '3/2', cls: 'ce-result-img--hero' }
-      };
-
       var outputs = data.outputs || {};
       Object.keys(outputs).forEach(function (key) {
         var out = outputs[key];
-        var info = outputLabels[key] || { label: key, aspect: '16/9', cls: '' };
+        var baseType = out.outputType || key.replace(/_v\d+$/, '');
+        var info = OUTPUT_TYPES[baseType] || { label: key, size: out.size };
 
         var card = document.createElement('div');
         card.className = 'ce-result-card';
         card.innerHTML =
-          '<img src="' + out.imageUrl + '" alt="' + info.label + '" class="ce-result-img ' + info.cls + '" loading="lazy" />' +
+          '<img src="' + out.imageUrl + '" alt="' + info.label + '" class="ce-result-img" loading="lazy" />' +
           '<div class="ce-result-body">' +
-            '<div class="ce-result-label">' + info.label + '</div>' +
-            '<div class="ce-result-size">' + out.size + ' &middot; ' + _formatBytes(out.bytes) + '</div>' +
+            '<div class="ce-result-label">' + info.label + (out.variation > 1 ? ' (v' + out.variation + ')' : '') + '</div>' +
+            '<div class="ce-result-size">' + out.size + ' \u00b7 ' + _formatBytes(out.bytes) + '</div>' +
             '<div class="ce-result-links">' +
-              '<a href="' + out.imageUrl + '" target="_blank"><i class="fas fa-external-link-alt"></i> Open Image</a>' +
-              '<a href="' + out.metaUrl + '" target="_blank"><i class="fas fa-code"></i> Metadata</a>' +
+              '<a href="' + out.imageUrl + '" target="_blank"><i class="fas fa-external-link-alt"></i> Open</a>' +
+              '<a href="' + out.metaUrl + '" target="_blank"><i class="fas fa-code"></i> Meta</a>' +
             '</div>' +
           '</div>';
         grid.appendChild(card);
       });
 
-      // Package link
       var linksEl = document.getElementById('ce-results-links');
-      linksEl.innerHTML =
-        '<a href="' + (data.packageUrl || '#') + '" target="_blank" style="font-size:0.65rem; color:#60a5fa;">' +
-          '<i class="fas fa-box"></i> Open Package JSON' +
-        '</a>';
+      linksEl.innerHTML = '<a href="' + (data.packageUrl || '#') + '" target="_blank" style="font-size:0.65rem; color:#60a5fa;"><i class="fas fa-box"></i> Open Package JSON</a>';
 
-      // Approval badge
       var approvalEl = document.getElementById('ce-approval-status');
-      approvalEl.innerHTML =
-        '<div class="ce-approval-badge"><i class="fas fa-clock"></i> Submitted to Approval Queue (' + (data.approvalItemId || '') + ')</div>';
+      if (data.skippedApproval) {
+        approvalEl.innerHTML = '<div class="ce-approval-badge" style="background:rgba(34,197,94,0.12); color:#22c55e;"><i class="fas fa-check"></i> Auto-approved</div>';
+      } else {
+        approvalEl.innerHTML = '<div class="ce-approval-badge"><i class="fas fa-clock"></i> Submitted to Approval Queue (' + (data.approvalItemId || '') + ')</div>';
+      }
     }
 
-    function _formatBytes(bytes) {
-      if (!bytes) return '—';
-      if (bytes < 1024) return bytes + ' B';
-      if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
-      return (bytes / 1048576).toFixed(2) + ' MB';
-    }
+    // ── Init ──
+    buildOutputChips();
   </script>
 </body>
 </html>
