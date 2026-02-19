@@ -9,6 +9,8 @@ const crypto = require('crypto');
 
 const LINKEDIN_API_URL = 'https://api.linkedin.com/v2/ugcPosts';
 const MAX_CHARS = 3000;
+// NOTE: Native image upload deferred — LinkedIn org posting permissions differ from Ads access.
+// Media[] items are shared as article link cards for now.
 
 function getCredentials() {
   return {

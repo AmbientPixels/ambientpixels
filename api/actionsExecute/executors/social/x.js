@@ -4,6 +4,7 @@
 
 const crypto = require('crypto');
 const https = require('https');
+const media = require('./media');
 
 const X_API_URL = 'https://api.x.com/2/tweets';
 const X_UPLOAD_URL = 'https://upload.twitter.com/1.1/media/upload.json';
@@ -82,58 +83,7 @@ function contentHash(text) {
   return crypto.createHash('sha256').update(text, 'utf8').digest('hex');
 }
 
-const MAX_MEDIA_BYTES = 15 * 1024 * 1024; // 15 MB cap
-const ALLOWED_MEDIA_TYPES = Object.keys(SUPPORTED_MEDIA_TYPES); // image/jpeg, image/png, image/gif, image/webp, video/mp4
-
-/**
- * Download media from a URL and return { buffer, contentType }
- * Enforces: allowed content-type, max 15 MB, 30s timeout
- */
-function downloadMedia(url) {
-  return new Promise((resolve, reject) => {
-    const proto = url.startsWith('https') ? https : require('http');
-    proto.get(url, { timeout: 30000 }, (res) => {
-      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-        return downloadMedia(res.headers.location).then(resolve).catch(reject);
-      }
-      if (res.statusCode !== 200) {
-        return reject({ code: 'DOWNLOAD_ERROR', message: 'HTTP ' + res.statusCode + ' fetching media' });
-      }
-
-      // Validate content-type before downloading body
-      const ct = (res.headers['content-type'] || '').split(';')[0].trim().toLowerCase();
-      if (ct && ALLOWED_MEDIA_TYPES.indexOf(ct) === -1) {
-        res.destroy();
-        return reject({ code: 'UNSUPPORTED_MEDIA_TYPE', message: 'Media type "' + ct + '" not allowed. Supported: ' + ALLOWED_MEDIA_TYPES.join(', ') });
-      }
-
-      // Check content-length header if present
-      const declaredSize = parseInt(res.headers['content-length'], 10);
-      if (declaredSize && declaredSize > MAX_MEDIA_BYTES) {
-        res.destroy();
-        return reject({ code: 'MEDIA_TOO_LARGE', message: 'Media size ' + Math.round(declaredSize / 1024 / 1024) + 'MB exceeds ' + Math.round(MAX_MEDIA_BYTES / 1024 / 1024) + 'MB limit' });
-      }
-
-      const chunks = [];
-      let totalBytes = 0;
-      res.on('data', chunk => {
-        totalBytes += chunk.length;
-        if (totalBytes > MAX_MEDIA_BYTES) {
-          res.destroy();
-          return reject({ code: 'MEDIA_TOO_LARGE', message: 'Media download exceeded ' + Math.round(MAX_MEDIA_BYTES / 1024 / 1024) + 'MB limit during transfer' });
-        }
-        chunks.push(chunk);
-      });
-      res.on('end', () => {
-        resolve({
-          buffer: Buffer.concat(chunks),
-          contentType: ct || 'image/jpeg'
-        });
-      });
-      res.on('error', err => reject({ code: 'DOWNLOAD_ERROR', message: err.message }));
-    }).on('error', err => reject({ code: 'DOWNLOAD_ERROR', message: err.message }));
-  });
-}
+const X_MAX_MEDIA_BYTES = 15 * 1024 * 1024; // 15 MB cap for X
 
 /**
  * Upload media to X via v1.1 chunked upload (INIT → APPEND → FINALIZE)
@@ -375,22 +325,20 @@ async function publishToX(action) {
     throw { code: 'CONTENT_TOO_LONG', message: 'Tweet exceeds ' + MAX_CHARS + ' characters (' + text.length + ')' };
   }
 
-  // Upload media if provided (max 4)
-  const mediaUrls = (action.payload && Array.isArray(action.payload.media)) ? action.payload.media.slice(0, MAX_MEDIA) : [];
+  // Upload media if provided (max 4) — uses shared media module for host allowlist + download
+  const mediaItems = media.extractMediaItems(action.payload && action.payload.media, MAX_MEDIA);
   const uploadedMediaIds = [];
 
-  for (const mediaItem of mediaUrls) {
-    const mediaUrl = typeof mediaItem === 'string' ? mediaItem : (mediaItem && mediaItem.url);
-    if (!mediaUrl) continue;
+  for (const item of mediaItems) {
     try {
-      const downloaded = await downloadMedia(mediaUrl);
+      const downloaded = await media.downloadMedia(item.url, { maxBytes: X_MAX_MEDIA_BYTES });
       const mediaId = await uploadMediaToX(downloaded.buffer, downloaded.contentType, creds);
       uploadedMediaIds.push(mediaId);
     } catch (mediaErr) {
       // If media was explicitly provided and upload fails, abort the tweet
       throw {
         code: 'MEDIA_UPLOAD_FAILED',
-        message: 'Media upload failed for ' + mediaUrl + ': ' + (mediaErr.message || mediaErr.code) + '. Tweet not posted.'
+        message: 'Media upload failed for ' + item.url + ': ' + (mediaErr.message || mediaErr.code) + '. Tweet not posted.'
       };
     }
   }
@@ -487,7 +435,6 @@ async function publishToX(action) {
 module.exports = {
   publishToX,
   uploadMediaToX,
-  downloadMedia,
   getCredentials,
   validateCredentials,
   contentHash

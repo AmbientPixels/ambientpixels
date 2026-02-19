@@ -4,9 +4,12 @@
 
 const https = require('https');
 const crypto = require('crypto');
+const media = require('./media');
 
 const BLUESKY_PDS = 'https://bsky.social';
 const MAX_CHARS = 300; // Bluesky grapheme limit
+const MAX_MEDIA = 4; // Bluesky allows up to 4 images per post
+const BSKY_MAX_IMAGE_BYTES = 1000000; // Bluesky 1MB image limit
 
 let _sessionCache = null;
 
@@ -166,8 +169,31 @@ async function publishToBluesky(action) {
     record.facets = facets;
   }
 
-  // Embed external link if provided in payload
-  if (action.payload && action.payload.embed_url) {
+  // Upload images from media[] if present — uses shared media module for host allowlist + download
+  const mediaItems = media.extractMediaItems(action.payload && action.payload.media, MAX_MEDIA);
+  const uploadedBlobs = [];
+  for (const item of mediaItems) {
+    try {
+      const downloaded = await media.downloadMedia(item.url, { maxBytes: BSKY_MAX_IMAGE_BYTES });
+      const blobRef = await _uploadBlob(session, downloaded.buffer, downloaded.contentType);
+      uploadedBlobs.push({
+        alt: item.alt || '',
+        image: blobRef
+      });
+    } catch (blobErr) {
+      // Non-fatal: skip this image, continue with others or text-only
+      console.warn('[Bluesky] Image upload failed for', item.url, ':', blobErr.message || blobErr.code);
+    }
+  }
+
+  // Attach images embed if any were uploaded
+  if (uploadedBlobs.length > 0) {
+    record.embed = {
+      $type: 'app.bsky.embed.images',
+      images: uploadedBlobs
+    };
+  } else if (action.payload && action.payload.embed_url) {
+    // Fallback: embed external link if provided in payload
     record.embed = {
       $type: 'app.bsky.embed.external',
       external: {
@@ -222,6 +248,30 @@ async function publishToBluesky(action) {
       raw: (res.raw || '').substring(0, 500)
     };
   }
+}
+
+/**
+ * Upload a blob to Bluesky PDS. Returns the blob ref object for embedding.
+ */
+async function _uploadBlob(session, buffer, contentType) {
+  const res = await httpRequest(
+    BLUESKY_PDS + '/xrpc/com.atproto.repo.uploadBlob',
+    'POST',
+    {
+      'Authorization': 'Bearer ' + session.accessJwt,
+      'Content-Type': contentType || 'image/jpeg',
+      'Content-Length': buffer.length
+    },
+    buffer
+  );
+
+  if (res.status === 200 && res.data && res.data.blob) {
+    return res.data.blob;
+  }
+  throw {
+    code: 'BSKY_BLOB_UPLOAD_FAILED',
+    message: 'uploadBlob returned HTTP ' + res.status + ': ' + (res.raw || '').substring(0, 300)
+  };
 }
 
 module.exports = {
