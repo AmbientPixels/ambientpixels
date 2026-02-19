@@ -212,6 +212,11 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/api/agent-run-campaign",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/agent-run-campaign",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/api/*",
       "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/{path}"
     },
