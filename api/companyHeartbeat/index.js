@@ -210,6 +210,48 @@ module.exports = async function (context) {
     const activeDirectives = directives.filter(d => d.status === 'active');
     const activeObjectives = objectives.filter(o => o.status === 'active' || o.status === 'in_progress');
 
+    // ── Backfill: re-resolve hero image URLs for pending publish AQ entries ──
+    // Covers the case where Scribe submitted before Pixel generated the image
+    try {
+      const _aqBackfill = (await storage.getState('approvalQueue')) || [];
+      let _aqChanged = false;
+      for (let _bfi = 0; _bfi < _aqBackfill.length; _bfi++) {
+        const _bfItem = _aqBackfill[_bfi];
+        if (_bfItem.status !== 'pending') continue;
+        if (_bfItem.actionType !== 'publish_document') continue;
+        if (_bfItem.heroImageUrl) continue; // already resolved
+        const _bfAssetId = _bfItem.heroImageAssetId || null;
+        if (!_bfAssetId) {
+          // Check the document store for a newly attached hero_image_asset_id
+          if (_bfItem.documentId) {
+            const _bfDoc = documents.find(d => d.id === _bfItem.documentId);
+            if (_bfDoc && _bfDoc.hero_image_asset_id) {
+              _bfItem.heroImageAssetId = _bfDoc.hero_image_asset_id;
+            }
+          }
+        }
+        if (_bfItem.heroImageAssetId) {
+          const _bfImgAssets = (await storage.getState('imageAssets')) || [];
+          const _bfAsset = _bfImgAssets.find(a => a.id === _bfItem.heroImageAssetId);
+          if (_bfAsset && _bfAsset.url) {
+            _bfItem.heroImageUrl = _bfAsset.url;
+            _aqChanged = true;
+            // Also backfill the action payload
+            const _bfActIdx = allActions.findIndex(a => a.id === _bfItem.action_id);
+            if (_bfActIdx !== -1 && allActions[_bfActIdx].payload) {
+              allActions[_bfActIdx].payload.hero_image_url = _bfAsset.url;
+              allActions[_bfActIdx].payload.hero_image_asset_id = _bfItem.heroImageAssetId;
+            }
+            context.log('[Heartbeat] Backfilled hero image for AQ entry:', _bfItem.id, '→', _bfAsset.url);
+          }
+        }
+      }
+      if (_aqChanged) {
+        await storage.setState('approvalQueue', _aqBackfill);
+        await storage.setState('actions', allActions);
+      }
+    } catch (_bfErr) { context.log.warn('[Heartbeat] Hero image backfill failed (non-fatal):', _bfErr.message); }
+
     // Dedupe check: get recent log summaries to avoid repeats
     const recentSummaries = new Set();
     const dedupeAfter = Date.now() - GUARDRAILS.dedupeWindowMs;
@@ -1196,11 +1238,40 @@ Write the full deliverable first, then the structured JSON block.`;
       }
       const orig = actionsStore[origIdx];
 
+      // Detect if this is a publish_document action
+      const _isPublishRevision = (orig.type === 'publish_document' || orig.action_type === 'publish_document');
+
       // Update payload with revised content
       orig.payload = orig.payload || {};
-      orig.payload.text = revisedText;
+      if (_isPublishRevision) {
+        // For publish_document: update content_md, not payload.text
+        orig.payload.content_md = revisedText;
+      } else {
+        orig.payload.text = revisedText;
+      }
       if (action.social.media) orig.payload.media = action.social.media;
       if (action.social.scheduled_for) orig.payload.scheduled_for = action.social.scheduled_for;
+
+      // For publish_document revisions: re-resolve hero image URL from imageAssets
+      // (Pixel may have generated the image after the original submit-for-publish)
+      let _revHeroImageUrl = orig.payload.hero_image_url || null;
+      if (_isPublishRevision) {
+        try {
+          // Check if the document now has a hero_image_asset_id (Pixel may have updated it)
+          const _revDocs = (await storage.getState('documents')) || [];
+          const _revDoc = _revDocs.find(d => d.id === (orig.payload.documentId || ''));
+          const _revAssetId = (_revDoc && _revDoc.hero_image_asset_id) || orig.payload.hero_image_asset_id || null;
+          if (_revAssetId) {
+            orig.payload.hero_image_asset_id = _revAssetId;
+            const _revImgAssets = (await storage.getState('imageAssets')) || [];
+            const _revAsset = _revImgAssets.find(a => a.id === _revAssetId);
+            if (_revAsset && _revAsset.url) {
+              _revHeroImageUrl = _revAsset.url;
+              orig.payload.hero_image_url = _revHeroImageUrl;
+            }
+          }
+        } catch (_revImgErr) { /* non-fatal */ }
+      }
 
       // Reset approval to pending
       orig.approval = orig.approval || {};
@@ -1246,8 +1317,35 @@ Write the full deliverable first, then the structured JSON block.`;
         _revisedPreviewImage = (typeof _rm === 'string') ? _rm : (_rm && _rm.url) || null;
       }
 
-      const aqEntry = {
-        id: aqIdx !== -1 ? approvalQueue[aqIdx].id : 'aq-' + orig.id,
+      // Preserve existing AQ entry fields for publish_document revisions
+      const _prevAqEntry = aqIdx !== -1 ? approvalQueue[aqIdx] : {};
+
+      const aqEntry = _isPublishRevision ? {
+        // Publish-document-specific AQ entry
+        id: aqIdx !== -1 ? _prevAqEntry.id : 'aq-' + orig.id,
+        kind: 'action',
+        actionType: 'publish_document',
+        action_id: orig.id,
+        taskId: _prevAqEntry.taskId || null,
+        taskTitle: 'Publish: ' + (orig.payload.title || 'Untitled'),
+        originAgent: agentId,
+        classification: orig.classification || 'executive_required',
+        riskLevel: orig.risk_level || 'medium',
+        budgetImpact: 0,
+        brandImpact: 'medium',
+        status: 'pending',
+        submittedAt: new Date().toISOString(),
+        preview: (orig.payload.content_md || revisedText).substring(0, 120),
+        documentId: orig.payload.documentId || _prevAqEntry.documentId || null,
+        slug: orig.payload.slug || _prevAqEntry.slug || null,
+        docKind: orig.payload.kind || _prevAqEntry.docKind || null,
+        artifactId: _prevAqEntry.artifactId || null,
+        heroImageUrl: _revHeroImageUrl,
+        heroImageAssetId: orig.payload.hero_image_asset_id || _prevAqEntry.heroImageAssetId || null,
+        revisionCount: orig.approval.revision_count || 0
+      } : {
+        // Social post AQ entry (original behavior)
+        id: aqIdx !== -1 ? _prevAqEntry.id : 'aq-' + orig.id,
         kind: 'action',
         action_id: orig.id,
         taskId: null,

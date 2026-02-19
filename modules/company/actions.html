@@ -958,9 +958,18 @@
       if (actionTitle) html += '<div style="font-size:0.9rem;font-weight:600;margin-top:2px;">' + esc(actionTitle) + '</div>';
       if (previewLine) html += '<div style="font-size:0.75rem;opacity:0.7;line-height:1.3;margin-top:4px;">' + esc(previewLine) + '</div>';
       // Image thumbnail for publish_document (hero) and social posts (media)
+      // Fallback: check approval queue if payload.hero_image_url is missing
       var _listThumbUrl = null;
-      if (aType === 'publish_document' && payload.hero_image_url) {
-        _listThumbUrl = payload.hero_image_url;
+      if (aType === 'publish_document') {
+        _listThumbUrl = payload.hero_image_url || null;
+        if (!_listThumbUrl && payload.hero_image_asset_id) {
+          var _aqListItems = (typeof AE !== 'undefined') ? AE.getApprovalQueue() : [];
+          for (var _qli = 0; _qli < _aqListItems.length; _qli++) {
+            if (_aqListItems[_qli].action_id === a.id && _aqListItems[_qli].heroImageUrl) {
+              _listThumbUrl = _aqListItems[_qli].heroImageUrl; break;
+            }
+          }
+        }
       } else if (aType.indexOf('social') !== -1 && payload.media && payload.media.length) {
         var _lm = payload.media[0];
         _listThumbUrl = (typeof _lm === 'string') ? _lm : (_lm && _lm.url) || null;
@@ -1272,9 +1281,21 @@
         if (payload.slug) metaParts.push('<span style="opacity:0.4;">/' + esc(payload.slug) + '</span>');
         if (metaParts.length) html += '<div style="font-size:0.6rem;opacity:0.6;margin-bottom:0.6rem;display:flex;gap:0.5rem;align-items:center;">' + metaParts.join(' · ') + '</div>';
         // Hero image between meta and content — matches blog layout (title → meta → hero → content)
-        if (payload.hero_image_url) {
-          html += '<a href="' + esc(payload.hero_image_url) + '" target="_blank" rel="noopener" style="display:block;margin-bottom:0.6rem;">' +
-            '<img src="' + esc(payload.hero_image_url) + '" alt="Hero image" style="width:100%;max-height:180px;object-fit:cover;border-radius:6px;border:1px solid rgba(52,211,153,0.15);" onerror="this.parentElement.style.display=\'none\'" loading="lazy">' +
+        // Fallback: try approval queue heroImageUrl if payload doesn't have it
+        var _drawerHeroUrl = payload.hero_image_url || null;
+        if (!_drawerHeroUrl && payload.hero_image_asset_id) {
+          // Try to find from approval queue entry
+          var _aqItems = (typeof AgentEngine !== 'undefined') ? AgentEngine.getApprovalQueue() : [];
+          for (var _qi = 0; _qi < _aqItems.length; _qi++) {
+            if (_aqItems[_qi].action_id === a.id && _aqItems[_qi].heroImageUrl) {
+              _drawerHeroUrl = _aqItems[_qi].heroImageUrl;
+              break;
+            }
+          }
+        }
+        if (_drawerHeroUrl) {
+          html += '<a href="' + esc(_drawerHeroUrl) + '" target="_blank" rel="noopener" style="display:block;margin-bottom:0.6rem;">' +
+            '<img src="' + esc(_drawerHeroUrl) + '" alt="Hero image" style="width:100%;max-height:180px;object-fit:cover;border-radius:6px;border:1px solid rgba(52,211,153,0.15);" onerror="this.parentElement.style.display=\'none\'" loading="lazy">' +
             '</a>';
         }
         // Render markdown as styled HTML
