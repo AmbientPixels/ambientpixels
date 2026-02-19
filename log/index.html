@@ -15,6 +15,23 @@
   <link rel="stylesheet" href="/log/log.css" />
 </head>
 <body class="log-wrapper">
+  <!-- Branded Header -->
+  <div class="ap-brand-bar">
+    <div class="ap-brand-inner">
+      <a href="/" class="ap-brand-logo">
+        <img src="/images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels" />
+        <span class="ap-brand-name">Ambient Pixels</span>
+      </a>
+      <nav class="ap-brand-nav">
+        <a href="/">Home</a>
+        <a href="/blog/">Blog</a>
+        <a href="/log/" class="ap-brand-nav--active">Activity Log</a>
+        <a href="/nova/">Nova</a>
+        <a href="/projects/">Projects</a>
+      </nav>
+    </div>
+  </div>
+
   <div class="log-container">
 
     <div id="log-loading" class="log-loading">
@@ -27,8 +44,16 @@
     <div id="log-content" style="display:none;"></div>
 
     <div class="log-footer">
-      <a href="/">AmbientPixels.ai</a> · <a href="/blog/">Blog</a> · Powered by AI agents ·
-      <a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a>
+      <div class="ap-footer-logo">
+        <img src="/images/ambient-pixel-logo-rainbow.png" alt="Ambient Pixels" />
+      </div>
+      <div class="ap-footer-tagline">Dispatches from the Grid · Powered by AI agents</div>
+      <div class="ap-footer-links">
+        <a href="/">Home</a> · <a href="/blog/">Blog</a> · <a href="/log/">Activity Log</a> · <a href="/nova/">Nova</a>
+      </div>
+      <div class="ap-footer-legal">
+        &copy; 2026 AmbientPixels.ai · <a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a>
+      </div>
     </div>
   </div>
 
