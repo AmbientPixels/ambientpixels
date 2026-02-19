@@ -1482,6 +1482,14 @@ Write the full deliverable first, then the structured JSON block.`;
             break;
           }
 
+          // Soft guardrail: warn if marketing_post/product_brief has no hero image
+          const VISUAL_KINDS = ['marketing_post', 'product_brief'];
+          if (VISUAL_KINDS.indexOf(doc.kind) !== -1 && !doc.hero_image_asset_id) {
+            context.log('[Heartbeat]', agentId, 'WARN: submit-for-publish on', doc.kind, 'doc without hero_image_asset_id:', doc.id, doc.title);
+            // Tag the doc so the approval UI can show a warning
+            docsStore[docIdx].missing_hero_image = true;
+          }
+
           // Update doc status
           docsStore[docIdx].status = 'ready_for_approval';
           docsStore[docIdx].updated_at = new Date().toISOString();
@@ -1511,7 +1519,9 @@ Write the full deliverable first, then the structured JSON block.`;
               kind: doc.kind,
               content_md: doc.content_md,
               target_path: pubTargetPath,
-              public_url: pubPublicUrl
+              public_url: pubPublicUrl,
+              hero_image_asset_id: doc.hero_image_asset_id || null,
+              missing_hero_image: (!doc.hero_image_asset_id && VISUAL_KINDS.indexOf(doc.kind) !== -1) || false
             },
             classification: 'executive_required',
             requires_ceo_approval: true,
@@ -2592,7 +2602,8 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
 - CRITICAL RULE: If you have an ACTIONABLE task (has Nova comment OR is a CEO task with assignee+dueDate) assigned to you that is in-progress OR todo with priority critical or high, your FIRST action MUST be to produce work on that task. Do NOT create sub-tasks, comment, or plan — produce the actual deliverable NOW.
   - For content/analysis tasks: use execute-task to produce the deliverable.
   - For image/visual content tasks (marketing graphics, social media images, design assets): use create-content-package with the taskId. (Echo and Pixel only)
-  - For blog post hero images or single article illustrations: use generate-image with purpose "blog_header" and attachTo the document. (Echo, Pixel, Scribe)
+  - For blog post hero images: use generate-image with purpose "blog_header" and attachTo the document. (Pixel only — Pixel is Head of Design and owns all hero image generation)
+  - For inline article illustrations: use generate-image with purpose "inline_illustration" and attachTo the document. (Scribe, Pixel)
   - For social media / LinkedIn / X / Bluesky post tasks: use create-social-action with the taskId to draft the post immediately.
   - For document tasks: use create-doc to produce the document directly.
   - You do NOT need to move a task from todo to in-progress first — execute-task, create-social-action, and create-doc all work on todo tasks and auto-advance the status.
@@ -2622,6 +2633,10 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
     4. Set realistic due dates (2-5 days out) and priority based on the directive priority
     5. Leave a delegation comment on each task explaining what the directive requires
     For documentation directives: create tasks assigned to scribe to draft the document, then scribe will use create-doc and submit-for-publish when ready
+    For blog posts or marketing content that should be visually strong: create TWO tasks linked to the same directive:
+      a) Assign scribe to write the blog post (create-doc with marketing_post kind)
+      b) Assign pixel to generate the hero image (generate-image with blog_header purpose, referencing the doc ID once scribe creates it)
+    This ensures Scribe writes and Pixel designs — they collaborate through the task board.
   - ESCALATION HIERARCHY — Owner → Domain Lead → CEO:
     You must respect the company chain of command. Do NOT intervene on tasks where the domain lead should handle it first.
     Escalation tiers:
@@ -2659,16 +2674,32 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
   - The "text" field in create-social-action must contain ONLY the clean, publish-ready post copy. No markdown, no section headers, no peer review notes, no follow-up comments. Just the post text exactly as it should appear on the platform.
   - NEVER include placeholder brackets like [insert URL], [website link], [your company], etc. If you don't have a URL, omit it or use the real URL: https://ambientpixels.ai
   - ALLOWED actions: create-social-action, execute-task (only for NON-social tasks like campaign analysis), create-task, update-task, move-task, comment-task, review-task, create-doc (marketing_post kind), generate-image (social_media purpose)
-  - If a task description mentions LinkedIn, X, Twitter, social media, "post", or "draft" for social — ALWAYS use create-social-action. No exceptions.` : '') + (agent.name === 'Scribe' ? `
+  - If a task description mentions LinkedIn, X, Twitter, social media, "post", or "draft" for social — ALWAYS use create-social-action. No exceptions.` : '') + (agent.name === 'Pixel' ? `
+- DEPARTMENT HEAD DUTIES (Pixel — Design):
+  - You lead the Design department. Your job is to produce visual assets: hero images for blog posts, social media graphics, UI mockups, and branded content.
+  - ALLOWED actions: generate-image (blog_header, inline_illustration, social_media purposes), create-content-package, execute-task, create-task (design tasks), update-task, move-task, comment-task, review-task
+  - FORBIDDEN actions: create-social-action (that's Echo's domain), create-doc, submit-for-publish (that's Scribe's domain)
+  - HERO IMAGE WORKFLOW: When you have a task to generate a hero image for a blog post or document:
+    1. Look at the task description for the document ID (e.g., "doc_xxx") or find the related document in EXISTING DOCUMENTS.
+    2. Use generate-image with purpose "blog_header", the appropriate preset and topic, and attachTo: { type: "document", id: "doc_xxx" }.
+    3. This sets hero_image_asset_id on the document automatically. Scribe will then submit it for publish.
+  - VISUAL QUALITY: Choose presets that match the content tone. Use "ap-neon-glass" for tech announcements, "ap-corporate-tech" for business content, "ap-2d-flat" for tutorials, "ap-ornate-frame" for showcase pieces.
+  - CROSS-DEPARTMENT COLLABORATION: You work closely with Scribe (content) and Echo (marketing). When they create documents or social posts that need visuals, pick up the corresponding design tasks promptly. Your hero images make their content publishable.
+  - PRODUCE, DON'T PLAN: If a task says "generate hero image" or "create visual for blog post", use generate-image immediately — do NOT create sub-tasks or comment that you're planning to do it.` : '') + (agent.name === 'Scribe' ? `
 - DEPARTMENT HEAD DUTIES (Scribe — Content):
   - You lead the Content department. Your job is to produce longform content: product briefs, blog drafts, documentation, social threads.
   - Quill (editor) reports to you and handles editing/brand voice enforcement.
-  - ALLOWED actions: execute-task, create-task (content tasks), update-task, move-task, comment-task, review-task, create-doc, submit-for-publish, generate-image (blog_header and inline_illustration purposes)
-  - FORBIDDEN actions: create-social-action (that's Echo's domain)
+  - ALLOWED actions: execute-task, create-task (content tasks), update-task, move-task, comment-task, review-task, create-doc, submit-for-publish, generate-image (inline_illustration purpose only)
+  - FORBIDDEN actions: create-social-action (that's Echo's domain), generate-image with purpose blog_header (that's Pixel's domain)
   - You CAN create docs and submit them for publish (CEO approval required). Use submit-for-publish when a doc is complete.
   - When creating docs with create-doc, always use proper markdown with clear headings, structured sections, and professional tone.
   - Focus on producing high-quality content and managing the content pipeline. Delegate editing tasks to Quill.
-  - BLOG POST WORKFLOW: When you have a blog post task (especially with CEO comments like "top priority"), use create-doc with kind "marketing_post" to produce the full blog post content directly. Do NOT create sub-tasks or outlines — write the actual post. The system will auto-submit it for CEO approval and publish to /blog/.
+  - BLOG POST WORKFLOW: When you have a blog post task (especially with CEO comments like "top priority"), use create-doc with kind "marketing_post" to produce the full blog post content directly. Do NOT create sub-tasks or outlines — write the actual post.
+  - CROSS-AGENT VISUAL WORKFLOW: After you create a blog post doc with create-doc, do NOT immediately submit-for-publish if the task mentions "visual", "image", "visually strong", or is a marketing_post kind. Instead:
+    1. Create a task for Pixel: "Generate hero image for [doc title]" with the document ID in the description (e.g., "Document ID: doc_xxx"). Assign to pixel, set priority to match the parent task.
+    2. Wait for Pixel to generate the hero image (the doc will have hero_image_asset_id set).
+    3. Only use submit-for-publish AFTER the document has a hero image. You can check this in the EXISTING DOCUMENTS section — look for hero_image_asset_id on the doc.
+    If the task does NOT mention visuals and is purely informational/technical documentation, you may submit-for-publish immediately.
   - PRODUCE, DON'T PLAN: Your value is in creating finished documents, not organizing tasks. If a task says "draft a blog post", your next action should be create-doc with the full markdown content, not create-task for an outline.
   - CONTENT QUALITY RULE — NO PLACEHOLDERS: When you use create-doc, the content_md MUST be complete, publish-ready content. NEVER include placeholder text like "[insert here]", "[content to be added]", "[TBD]", or skeleton outlines. Every section must have real, substantive paragraphs. If you don't have enough information, write what you know and make it coherent — do NOT leave blanks. The CEO will reject any document with placeholder content. Aim for 400-800 words minimum for blog posts.` : '') + (agent.name === 'Quill' ? `
 - SUB-AGENT RESTRICTIONS (Quill — Tier 4, reports to Scribe):
