@@ -1860,6 +1860,239 @@ Write the full deliverable first, then the structured JSON block.`;
       context.log('[Heartbeat]', agentId, 'content package created:', cpPackageId, cpSuccessCount, 'ok,', cpFailedCount, 'failed, duration:', cpDurationMs + 'ms');
       result.taskUpdates.push({ action: 'content-package-created', packageId: cpPackageId, agentId: agentId, taskId: action.taskId || null });
 
+    } else if (action.type === 'generate-image' && action.image) {
+      // Single image generation for blog headers, inline illustrations, social media assets
+      // Allowed agents: echo, pixel, scribe (scribe can generate blog headers)
+      const IMG_ALLOWED_AGENTS = ['echo', 'pixel', 'scribe'];
+      if (IMG_ALLOWED_AGENTS.indexOf(agentId) === -1) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED generate-image (only echo/pixel/scribe)');
+        continue;
+      }
+
+      // Guardrail: shares the content generates limit with create-content-package
+      if ((result.contentGenerates || 0) >= GUARDRAILS.maxContentGeneratesPerCyclePerAgent) {
+        context.log('[Heartbeat]', agentId, 'max content generates reached, skipping generate-image');
+        continue;
+      }
+
+      const img = action.image;
+      const imgTopic = (img.topic || '').trim();
+      const imgGoal = (img.goal || '').trim();
+      const imgPurpose = (img.purpose || '').trim(); // blog_header, inline_illustration, social_media
+      if (!imgTopic || imgTopic.length < 3 || !imgGoal || imgGoal.length < 3) {
+        context.log('[Heartbeat]', agentId, 'generate-image SKIPPED: topic/goal too short');
+        continue;
+      }
+
+      const VALID_PURPOSES = ['blog_header', 'inline_illustration', 'social_media'];
+      if (!imgPurpose || VALID_PURPOSES.indexOf(imgPurpose) === -1) {
+        context.log('[Heartbeat]', agentId, 'generate-image SKIPPED: invalid purpose:', imgPurpose);
+        continue;
+      }
+
+      // Load config defaults
+      let _imgCeConfig = null;
+      try { _imgCeConfig = await imageEngine.loadContentEngineConfig(); } catch (e) { /* defaults */ }
+
+      const imgPreset = (img.preset || (_imgCeConfig && _imgCeConfig.defaultPreset) || 'ap-neon-glass').trim();
+      // Map purpose → default outputType (agent can override)
+      const PURPOSE_OUTPUT_MAP = { 'blog_header': 'blog_image', 'inline_illustration': 'blog_image', 'social_media': 'x_image' };
+      const imgOutputType = (img.outputType && imageEngine.PURPOSES && imageEngine.PURPOSES[img.outputType]) ? img.outputType : PURPOSE_OUTPUT_MAP[imgPurpose];
+
+      // Validate preset
+      if (!imageEngine.PRESETS || !imageEngine.PRESETS[imgPreset]) {
+        context.log('[Heartbeat]', agentId, 'generate-image SKIPPED: invalid preset:', imgPreset);
+        continue;
+      }
+
+      // Usage limit check
+      const imgAccountId = 'ambientpixels-internal';
+      try {
+        const imgLimitCheck = await imageEngine.checkUsageLimits(imgAccountId);
+        if (!imgLimitCheck.allowed) {
+          context.log('[Heartbeat]', agentId, 'generate-image BLOCKED: usage limit exceeded');
+          continue;
+        }
+      } catch (limErr) {
+        context.log('[Heartbeat]', agentId, 'generate-image: usage check failed, proceeding:', limErr.message);
+      }
+
+      context.log('[Heartbeat]', agentId, 'generating image:', imgPurpose, '| topic:', imgTopic, '| preset:', imgPreset, '| outputType:', imgOutputType);
+      const imgGenStartMs = Date.now();
+      const imgJobId = 'img_' + Date.now() + '_' + crypto.randomBytes(3).toString('hex');
+
+      let imgResult = null;
+      try {
+        imgResult = await imageEngine.generateImage({
+          topic: imgTopic,
+          goal: imgGoal,
+          preset: imgPreset,
+          outputType: imgOutputType,
+          jobId: imgJobId
+        });
+      } catch (genErr) {
+        context.log.error('[Heartbeat]', agentId, 'generate-image FAILED:', genErr.message);
+        // Non-blocking: log failure and continue
+        result.taskUpdates.push({ action: 'generate-image-failed', agentId: agentId, error: genErr.message });
+        continue;
+      }
+
+      const imgDurationMs = Date.now() - imgGenStartMs;
+      const imgAlt = (img.alt || imgTopic).substring(0, 200);
+
+      // Build image asset record
+      const imgAsset = {
+        id: imgJobId,
+        url: imgResult.imageUrl,
+        thumbUrl: imgResult.thumbUrl,
+        metaUrl: imgResult.metaUrl,
+        purpose: imgPurpose,
+        outputType: imgOutputType,
+        preset: imgPreset,
+        aspect: (imageEngine.PURPOSES[imgOutputType] && imageEngine.PURPOSES[imgOutputType].aspect) || '4:3',
+        alt: imgAlt,
+        model: imgResult.model,
+        bytes: imgResult.bytes,
+        size: imgResult.size,
+        attachedTo: null,
+        createdBy: agentId,
+        createdAt: new Date().toISOString(),
+        durationMs: imgDurationMs,
+        status: 'active'
+      };
+
+      // Handle attachTo — link asset to document or action
+      const attachTo = img.attachTo || null;
+      if (attachTo && attachTo.type === 'document' && attachTo.id) {
+        const imgDocsStore = (await storage.getState('documents')) || [];
+        const imgDocIdx = imgDocsStore.findIndex(d => d.id === attachTo.id);
+
+        if (imgDocIdx !== -1) {
+          const imgDoc = imgDocsStore[imgDocIdx];
+
+          if (imgPurpose === 'blog_header') {
+            // Set hero_image_asset_id only — no content_md mutation
+            imgDoc.hero_image_asset_id = imgJobId;
+            imgDoc.updated_at = new Date().toISOString();
+            imgDoc.last_edited_by = agentId;
+            imgAsset.attachedTo = { type: 'document', id: attachTo.id, field: 'hero_image_asset_id' };
+            context.log('[Heartbeat]', agentId, 'attached hero image asset', imgJobId, 'to doc:', attachTo.id);
+          } else if (imgPurpose === 'inline_illustration') {
+            // Token replacement: {{IMAGE:slot}} → ![alt](url)
+            const imgSlot = (img.slot || 'default').trim();
+            const imgToken = '{{IMAGE:' + imgSlot + '}}';
+            // Dedup: skip entirely if this slot was already filled on this doc
+            const _existingSlots = (imgDoc.inline_image_assets || []).map(function (a) { return a.slot; });
+            if (_existingSlots.indexOf(imgSlot) !== -1) {
+              context.log('[Heartbeat]', agentId, 'generate-image SKIPPED: slot', imgSlot, 'already filled on doc:', attachTo.id);
+            } else {
+              if (imgDoc.content_md && imgDoc.content_md.indexOf(imgToken) !== -1) {
+                imgDoc.content_md = imgDoc.content_md.replace(imgToken, '![' + imgAlt + '](' + imgResult.imageUrl + ')');
+                context.log('[Heartbeat]', agentId, 'replaced token', imgToken, 'in doc:', attachTo.id);
+              } else {
+                // Fallback: append at end
+                imgDoc.content_md = (imgDoc.content_md || '') + '\n\n![' + imgAlt + '](' + imgResult.imageUrl + ')';
+                context.log('[Heartbeat]', agentId, 'appended inline image to doc:', attachTo.id, '(token', imgToken, 'not found)');
+              }
+              imgDoc.updated_at = new Date().toISOString();
+              imgDoc.last_edited_by = agentId;
+              if (!imgDoc.inline_image_assets) imgDoc.inline_image_assets = [];
+              imgDoc.inline_image_assets.push({ assetId: imgJobId, slot: imgSlot });
+              imgAsset.attachedTo = { type: 'document', id: attachTo.id, field: 'inline', slot: imgSlot };
+              context.log('[Heartbeat]', agentId, 'attached inline image asset', imgJobId, 'to doc:', attachTo.id);
+            }
+          }
+
+          imgDocsStore[imgDocIdx] = imgDoc;
+          await storage.setState('documents', imgDocsStore);
+
+          // If doc is published internally, update published copy too
+          if (imgDoc.visibility === 'internal' && imgDoc.status === 'published' && imgDoc.slug) {
+            const imgPubStore = (await storage.getState('publishedDocs')) || [];
+            const imgPubIdx = imgPubStore.findIndex(p => p.documentId === imgDoc.id);
+            if (imgPubIdx !== -1) {
+              if (imgPurpose === 'blog_header') imgPubStore[imgPubIdx].hero_image_asset_id = imgJobId;
+              if (imgPurpose === 'inline_illustration') imgPubStore[imgPubIdx].content_md = imgDoc.content_md;
+              imgPubStore[imgPubIdx].updated_at = imgDoc.updated_at;
+              await storage.setState('publishedDocs', imgPubStore);
+            }
+          }
+        } else {
+          context.log('[Heartbeat]', agentId, 'generate-image: attachTo document not found:', attachTo.id);
+        }
+      } else if (attachTo && attachTo.type === 'action' && attachTo.id) {
+        // Attach image to a pending social action's media array
+        const imgActionsStore = (await storage.getState('actions')) || [];
+        const imgActIdx = imgActionsStore.findIndex(a => a.id === attachTo.id);
+
+        if (imgActIdx !== -1) {
+          const imgAct = imgActionsStore[imgActIdx];
+          // Only mutate if still pending approval
+          if (imgAct.approval && imgAct.approval.status === 'pending') {
+            if (!imgAct.payload) imgAct.payload = {};
+            if (!imgAct.payload.media) imgAct.payload.media = [];
+            // Cap at 1 media item for now
+            if (imgAct.payload.media.length < 1) {
+              imgAct.payload.media.push({ type: 'image', url: imgResult.imageUrl, alt: imgAlt, assetId: imgJobId });
+              imgActionsStore[imgActIdx] = imgAct;
+              await storage.setState('actions', imgActionsStore);
+              imgAsset.attachedTo = { type: 'action', id: attachTo.id, field: 'media' };
+              context.log('[Heartbeat]', agentId, 'attached image to action:', attachTo.id);
+            } else {
+              context.log('[Heartbeat]', agentId, 'generate-image: action', attachTo.id, 'already has max media items');
+            }
+          } else {
+            context.log('[Heartbeat]', agentId, 'generate-image: action', attachTo.id, 'not in pending status, skipping media attach');
+          }
+        } else {
+          context.log('[Heartbeat]', agentId, 'generate-image: attachTo action not found:', attachTo.id);
+        }
+      }
+
+      // Persist asset to imageAssets registry
+      try {
+        const imgAssetsStore = (await storage.getState('imageAssets')) || [];
+        imgAssetsStore.push(imgAsset);
+        if (imgAssetsStore.length > 500) imgAssetsStore.splice(0, imgAssetsStore.length - 500);
+        await storage.setState('imageAssets', imgAssetsStore);
+      } catch (assetStoreErr) {
+        context.log.error('[Heartbeat]', agentId, 'generate-image: imageAssets persist FAILED (non-fatal):', assetStoreErr.message);
+      }
+
+      // Write usage record
+      try {
+        await imageEngine.writeUsageRecord({
+          accountId: imgAccountId, accountType: 'internal', packageId: imgJobId,
+          timestamp: imgAsset.createdAt, engineVersion: imageEngine.ENGINE_VERSION,
+          preset: imgPreset, presetVersion: imageEngine.getPresetVersion(imgPreset),
+          formatsRequested: [imgOutputType], variations: 1,
+          imagesGenerated: 1, model: imageEngine.GEMINI_IMAGE_MODEL,
+          durationMs: imgDurationMs, estimatedCost: imageEngine.estimateCost(1),
+          status: 'success', createdBy: agentId, agentRole: agent.role,
+          source: 'heartbeat', actionType: 'generate-image', purpose: imgPurpose
+        });
+      } catch (usageErr) { context.log.warn('[Heartbeat] generate-image usage record failed (non-fatal):', usageErr.message); }
+
+      // Auto-advance parent task to review if taskId provided
+      if (action.taskId) {
+        const imgTaskIdx = tasks.findIndex(t => t.id === action.taskId);
+        if (imgTaskIdx !== -1 && tasks[imgTaskIdx].status !== 'done' && tasks[imgTaskIdx].status !== 'review') {
+          tasks[imgTaskIdx].status = 'review';
+          tasks[imgTaskIdx].updatedAt = new Date().toISOString();
+          if (!tasks[imgTaskIdx].comments) tasks[imgTaskIdx].comments = [];
+          tasks[imgTaskIdx].comments.push({
+            id: 'cmt-' + Date.now(), author: agentId,
+            text: 'Generated ' + imgPurpose + ' image (asset: ' + imgJobId + ', preset: ' + imgPreset + ').' + (imgAsset.attachedTo ? ' Attached to ' + imgAsset.attachedTo.type + ' ' + imgAsset.attachedTo.id + '.' : ''),
+            type: 'deliverable', createdAt: new Date().toISOString()
+          });
+          context.log('[Heartbeat]', agentId, 'auto-advanced task', action.taskId, 'to review (image generated)');
+        }
+      }
+
+      result.contentGenerates = (result.contentGenerates || 0) + 1;
+      context.log('[Heartbeat]', agentId, 'image generated:', imgJobId, imgPurpose, imgOutputType, imgDurationMs + 'ms');
+      result.taskUpdates.push({ action: 'image-generated', assetId: imgJobId, purpose: imgPurpose, agentId: agentId, taskId: action.taskId || null, attachedTo: imgAsset.attachedTo });
+
     } else if (action.type === 'remember' && action.memory) {
       // Agent saves a persistent memory
       const mem = action.memory;
@@ -2293,7 +2526,7 @@ Respond with ONLY valid JSON in this exact format:
   "observation": "One sentence about what you notice or your current state",
   "actions": [
     {
-      "type": "create-task|update-task|move-task|execute-task|review-task|comment-task|create-social-action|revise-action|create-doc|submit-for-publish|create-content-package|create-reminder|web_search|remember",
+      "type": "create-task|update-task|move-task|execute-task|review-task|comment-task|create-social-action|revise-action|create-doc|submit-for-publish|create-content-package|generate-image|create-reminder|web_search|remember",
       "summary": "Brief description of what you're doing",
       "task": { "title": "", "description": "", "status": "todo|in-progress", "priority": "low|medium|high|critical", "assignee": "agentId", "dueDate": "2026-02-20T00:00:00Z", "directive_id": "optional-directive-id" },
       "taskId": "existing-task-id",
@@ -2308,6 +2541,7 @@ Respond with ONLY valid JSON in this exact format:
       "args": { "q": "search query", "n": 5 },
       "reminder": { "title": "Reminder title", "date": "2026-02-20", "type": "deadline|event|milestone|recurring", "description": "Optional details" },
       "content": { "topic": "Visual subject", "goal": "What images are for", "preset": "ap-neon-glass", "outputs": ["x_image"], "variations": 1, "directiveId": "optional", "objectiveId": "optional" },
+      "image": { "purpose": "blog_header|inline_illustration|social_media", "topic": "Visual subject", "goal": "What the image is for", "preset": "ap-neon-glass", "outputType": "blog_image", "alt": "Alt text for accessibility", "attachTo": { "type": "document|action", "id": "target-id" }, "slot": "optional-token-name" },
       "memory": { "text": "What to remember", "type": "learning|feedback|preference|context" }
     }
   ]
@@ -2327,7 +2561,8 @@ Action types:
 - create-doc: Create a NEW document. Include "document" with: title (string), kind ("spec"|"runbook"|"release_notes"|"product_brief"|"marketing_post"|"governance"), tags (array of strings), and content_md (full markdown content — MUST be complete, publish-ready text with NO placeholders like "[insert here]" or "[TBD]"). Also include "taskId" if this doc is for a specific task. marketing_post/product_brief → CEO approval queue for blog. Internal kinds (spec, runbook, release_notes, governance) → auto-published to /docs/published/ immediately. IMPORTANT: Check EXISTING DOCUMENTS below first — if a relevant doc already exists, use update-doc instead of creating a duplicate.
 - update-doc: Update an existing document. Include "documentId" (the doc ID from EXISTING DOCUMENTS) and "updates" with any of: content_md (full replacement), append_md (add new content to end), title (rename), tags (replace tags). Use this when new information should be added to an existing doc instead of creating a new one. Internal docs are auto-refreshed at /docs/published/.
 - submit-for-publish: Submit a completed document for human/CEO approval to publish on the site. Include "documentId" (the ID of an existing draft or review document) and optionally "taskId" (the task that produced the doc). This creates a publish_document action in the approval queue. You CANNOT publish directly — only a human can approve publishing.
-- create-content-package: (Echo and Pixel ONLY) Generate an image content package for marketing, social media, or design assets. Include "content" with: topic (visual subject, min 3 chars), goal (what the images will be used for, min 3 chars), preset (visual style — use "ap-neon-glass" if unsure), outputs (array of output types: "x_image", "linkedin_image", "og_image", "blog_hero", "instagram_square" — max 3), and variations (1-2, default 1). Also include "taskId" if this is for a specific task. Images are generated via Gemini and submitted to the CEO approval queue. Max 1 content package per heartbeat. Use this when a task requires visual content creation — NOT for general analysis or text work.
+- create-content-package: (Echo and Pixel ONLY) Generate an image content package for marketing, social media, or design assets. Include "content" with: topic (visual subject, min 3 chars), goal (what the images will be used for, min 3 chars), preset (visual style — use "ap-neon-glass" if unsure), outputs (array of output types: "x_image", "linkedin_image", "og_image", "blog_hero", "instagram_square" — max 3), and variations (1-2, default 1). Also include "taskId" if this is for a specific task. Images are generated via Gemini and submitted to the CEO approval queue. Max 1 content package per heartbeat. Use this when a task requires MULTIPLE visual assets for a campaign — NOT for single images.
+- generate-image: (Echo, Pixel, Scribe) Generate a SINGLE image and optionally attach it to a document or social action. Include "image" with: purpose ("blog_header"|"inline_illustration"|"social_media"), topic (visual subject, min 3 chars), goal (what the image is for, min 3 chars), preset (visual style — default "ap-neon-glass"), outputType (optional override: "blog_image", "x_image", "hero_image", etc), alt (alt text for accessibility). To attach to a document: set attachTo: { "type": "document", "id": "doc_xxx" }. For blog_header purpose: sets doc.hero_image_asset_id (no content mutation). For inline_illustration: replaces {{IMAGE:slot}} token in doc markdown (include "slot" field to name the anchor; agent should have placed {{IMAGE:slotName}} in the doc content_md first). To attach to a social action: set attachTo: { "type": "action", "id": "act_xxx" } — adds image to action media[] (action must still be pending). Shares the 1-per-heartbeat content generation limit with create-content-package. Use this for blog post hero images, inline article illustrations, or social post graphics — use create-content-package for multi-image campaign batches.
 - create-reminder: Set a reminder or important date in the CEO workspace. Include "reminder" with: title (string), date (YYYY-MM-DD), type ("deadline"|"event"|"milestone"|"recurring"), and optionally description. Use for tracking deadlines, renewals, milestones, or follow-ups. These appear in the CEO Morning Inbox and are injected into future heartbeat prompts.
 - web_search: (Scout/research agents only) Run a live web search. Include "tool": "web_search" and "args": { "q": "search query", "n": 5 }. Max 3 searches per heartbeat. Results are returned and you'll be asked to synthesize findings into a deliverable with cited sources.
 - remember: Save a persistent memory that survives across heartbeat cycles. Include "memory" with: text (what to remember, max 300 chars) and type ("learning"|"feedback"|"preference"|"context"). Use this to remember CEO feedback patterns, task outcomes, important decisions, or lessons learned. Your memories appear in YOUR MEMORY section of future heartbeats. Only save genuinely useful information — not status updates. Good memories: "CEO prefers concise LinkedIn posts under 100 words", "Blog posts need 400+ words minimum", "Scout found that competitor X launched feature Y". Bad memories: "I commented on task X", "Working on the LinkedIn post".
@@ -2357,6 +2592,7 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
 - CRITICAL RULE: If you have an ACTIONABLE task (has Nova comment OR is a CEO task with assignee+dueDate) assigned to you that is in-progress OR todo with priority critical or high, your FIRST action MUST be to produce work on that task. Do NOT create sub-tasks, comment, or plan — produce the actual deliverable NOW.
   - For content/analysis tasks: use execute-task to produce the deliverable.
   - For image/visual content tasks (marketing graphics, social media images, design assets): use create-content-package with the taskId. (Echo and Pixel only)
+  - For blog post hero images or single article illustrations: use generate-image with purpose "blog_header" and attachTo the document. (Echo, Pixel, Scribe)
   - For social media / LinkedIn / X / Bluesky post tasks: use create-social-action with the taskId to draft the post immediately.
   - For document tasks: use create-doc to produce the document directly.
   - You do NOT need to move a task from todo to in-progress first — execute-task, create-social-action, and create-doc all work on todo tasks and auto-advance the status.
@@ -2422,12 +2658,12 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
     WRONG: { "type": "execute-task", "taskId": "task-id" } ← NEVER do this for social posts.
   - The "text" field in create-social-action must contain ONLY the clean, publish-ready post copy. No markdown, no section headers, no peer review notes, no follow-up comments. Just the post text exactly as it should appear on the platform.
   - NEVER include placeholder brackets like [insert URL], [website link], [your company], etc. If you don't have a URL, omit it or use the real URL: https://ambientpixels.ai
-  - ALLOWED actions: create-social-action, execute-task (only for NON-social tasks like campaign analysis), create-task, update-task, move-task, comment-task, review-task, create-doc (marketing_post kind)
+  - ALLOWED actions: create-social-action, execute-task (only for NON-social tasks like campaign analysis), create-task, update-task, move-task, comment-task, review-task, create-doc (marketing_post kind), generate-image (social_media purpose)
   - If a task description mentions LinkedIn, X, Twitter, social media, "post", or "draft" for social — ALWAYS use create-social-action. No exceptions.` : '') + (agent.name === 'Scribe' ? `
 - DEPARTMENT HEAD DUTIES (Scribe — Content):
   - You lead the Content department. Your job is to produce longform content: product briefs, blog drafts, documentation, social threads.
   - Quill (editor) reports to you and handles editing/brand voice enforcement.
-  - ALLOWED actions: execute-task, create-task (content tasks), update-task, move-task, comment-task, review-task, create-doc, submit-for-publish
+  - ALLOWED actions: execute-task, create-task (content tasks), update-task, move-task, comment-task, review-task, create-doc, submit-for-publish, generate-image (blog_header and inline_illustration purposes)
   - FORBIDDEN actions: create-social-action (that's Echo's domain)
   - You CAN create docs and submit them for publish (CEO approval required). Use submit-for-publish when a doc is complete.
   - When creating docs with create-doc, always use proper markdown with clear headings, structured sections, and professional tone.

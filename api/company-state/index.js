@@ -16,7 +16,7 @@ const VALID_KEYS = [
   'actionQueue', 'actionAuditLog', 'actionRateCounts', 'actions',
   'documents', 'publishedDocs', 'blogPosts', 'dailyLog', 'webSearchCache',
   'ap_artifacts', 'meetings', 'tasksArchive', 'agentMemories', 'agentSeedMemories',
-  'contentEngineConfig'
+  'contentEngineConfig', 'imageAssets'
 ];
 
 module.exports = async function (context, req) {
