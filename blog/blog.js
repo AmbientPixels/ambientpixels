@@ -66,10 +66,23 @@
     document.title = post.title + ' — AmbientPixels Blog';
 
     // Update OG meta tags for social sharing
+    var heroImg = post.hero_image || null;
+    var heroUrl = (heroImg && heroImg.url) || post.cover_image || '';
     setMeta('og:title', post.title + ' — AmbientPixels Blog');
     setMeta('og:description', post.excerpt || post.title);
     setMeta('og:url', window.location.href);
     setMeta('description', post.excerpt || post.title);
+    if (heroUrl) {
+      setMeta('og:image', heroUrl);
+      setMeta('og:type', 'article');
+    }
+
+    var heroHtml = '';
+    if (heroUrl) {
+      heroHtml = '<div class="blog-hero-image">' +
+        '<img src="' + esc(heroUrl) + '" alt="' + esc((heroImg && heroImg.alt) || post.title) + '" loading="eager">' +
+      '</div>';
+    }
 
     headerEl.innerHTML =
       '<div class="blog-post-header">' +
@@ -81,6 +94,7 @@
           (post.created_by ? '<span><i class="fas fa-user"></i> ' + esc(post.created_by) + '</span>' : '') +
           renderTags(post.tags) +
         '</div>' +
+        heroHtml +
       '</div>';
 
     // Render markdown
@@ -126,15 +140,22 @@
 
     var html = '<div class="blog-grid">';
     posts.forEach(function (p) {
+      var cardHero = (p.hero_image && p.hero_image.url) || p.cover_image || '';
+      var thumbHtml = cardHero
+        ? '<div class="blog-card-thumb"><img src="' + esc(cardHero) + '" alt="' + esc(p.title) + '" loading="lazy"></div>'
+        : '';
       html +=
-        '<a href="/blog/' + esc(p.slug) + '" class="blog-card">' +
-          '<div class="blog-card-title">' + esc(p.title) + '</div>' +
-          (p.excerpt ? '<div class="blog-card-excerpt">' + esc(p.excerpt) + '</div>' : '') +
-          '<div class="blog-card-meta">' +
-            '<span class="blog-kind-badge">' + esc(p.kind || 'article') + '</span>' +
-            (p.published_at ? '<span><i class="fas fa-calendar"></i> ' + formatDate(p.published_at) + '</span>' : '') +
-            (p.created_by ? '<span><i class="fas fa-user"></i> ' + esc(p.created_by) + '</span>' : '') +
-            renderTags(p.tags) +
+        '<a href="/blog/' + esc(p.slug) + '" class="blog-card' + (cardHero ? ' blog-card--has-thumb' : '') + '">' +
+          thumbHtml +
+          '<div class="blog-card-body">' +
+            '<div class="blog-card-title">' + esc(p.title) + '</div>' +
+            (p.excerpt ? '<div class="blog-card-excerpt">' + esc(p.excerpt) + '</div>' : '') +
+            '<div class="blog-card-meta">' +
+              '<span class="blog-kind-badge">' + esc(p.kind || 'article') + '</span>' +
+              (p.published_at ? '<span><i class="fas fa-calendar"></i> ' + formatDate(p.published_at) + '</span>' : '') +
+              (p.created_by ? '<span><i class="fas fa-user"></i> ' + esc(p.created_by) + '</span>' : '') +
+              renderTags(p.tags) +
+            '</div>' +
           '</div>' +
         '</a>';
     });

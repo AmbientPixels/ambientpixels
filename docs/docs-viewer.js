@@ -66,6 +66,14 @@
   function renderDoc(doc) {
     document.title = doc.title + ' — AmbientPixels Docs';
 
+    var heroImg = doc.hero_image || null;
+    var heroHtml = '';
+    if (heroImg && heroImg.url) {
+      heroHtml = '<div class="docs-hero-image">' +
+        '<img src="' + esc(heroImg.url) + '" alt="' + esc(heroImg.alt || doc.title) + '" loading="eager">' +
+      '</div>';
+    }
+
     headerEl.innerHTML =
       '<h1 class="docs-title">' + esc(doc.title) + '</h1>' +
       '<div class="docs-meta">' +
@@ -73,7 +81,8 @@
         (doc.published_at ? '<span><i class="fas fa-calendar"></i> ' + formatDate(doc.published_at) + '</span>' : '') +
         (doc.created_by ? '<span><i class="fas fa-user"></i> ' + esc(doc.created_by) + '</span>' : '') +
         (doc.tags && doc.tags.length ? '<span><i class="fas fa-tags"></i> ' + doc.tags.map(esc).join(', ') + '</span>' : '') +
-      '</div>';
+      '</div>' +
+      heroHtml;
 
     // Render markdown via marked.js + sanitize with DOMPurify
     var rawMd = doc.content_md || '';

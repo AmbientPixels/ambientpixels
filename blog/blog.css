@@ -204,6 +204,52 @@
   opacity: 0.6;
 }
 
+/* ── Hero Image ── */
+.blog-hero-image {
+  margin: 1.5rem 0 0;
+  border-radius: 12px;
+  overflow: hidden;
+  line-height: 0;
+}
+
+.blog-hero-image img {
+  width: 100%;
+  height: auto;
+  max-height: 420px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+/* ── Card Thumbnail ── */
+.blog-card--has-thumb {
+  padding: 0;
+  overflow: hidden;
+}
+
+.blog-card-thumb {
+  line-height: 0;
+  overflow: hidden;
+}
+
+.blog-card-thumb img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.blog-card--has-thumb:hover .blog-card-thumb img {
+  transform: scale(1.03);
+}
+
+.blog-card-body {
+  padding: 1.25rem 1.5rem 1.5rem;
+}
+
+.blog-card:not(.blog-card--has-thumb) .blog-card-body {
+  padding: 0;
+}
+
 /* ── Markdown Content ── */
 .blog-content {
   max-width: var(--blog-max-width);

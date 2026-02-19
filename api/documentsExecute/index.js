@@ -440,7 +440,9 @@ async function handleDocPublish(context, req, body) {
       published_by: 'pixelpusher',
       published_at: now,
       tags: doc.tags || [],
-      created_by: doc.created_by
+      created_by: doc.created_by,
+      hero_image_asset_id: doc.hero_image_asset_id || null,
+      inline_image_assets: doc.inline_image_assets || []
     };
     store.push(publishEntry);
     if (store.length > 200) store.splice(0, store.length - 200);

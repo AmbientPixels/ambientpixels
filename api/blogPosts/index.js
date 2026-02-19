@@ -21,6 +21,23 @@ module.exports = async function (context, req) {
     const slug = (req.query && req.query.slug) || '';
     const posts = (await storage.getState('blogPosts')) || [];
 
+    // Resolve hero_image_asset_id → URL if any posts have one
+    const _hasHeroAsset = posts.some(function (p) { return !!p.hero_image_asset_id; });
+    var _assetMap = {};
+    if (_hasHeroAsset) {
+      try {
+        var assets = (await storage.getState('imageAssets')) || [];
+        assets.forEach(function (a) { if (a.id && a.url) _assetMap[a.id] = a; });
+      } catch (e) { /* non-fatal — hero images just won't resolve */ }
+    }
+    function _resolveHero(post) {
+      if (post.hero_image_asset_id && _assetMap[post.hero_image_asset_id]) {
+        var a = _assetMap[post.hero_image_asset_id];
+        return { url: a.url, alt: a.alt || post.title, thumbUrl: a.thumbUrl || null };
+      }
+      return null;
+    }
+
     // Single post by slug
     if (slug) {
       const post = posts.find(function (p) { return p.slug === slug; });
@@ -33,6 +50,7 @@ module.exports = async function (context, req) {
         return;
       }
 
+      var heroData = _resolveHero(post);
       context.res = {
         status: 200,
         headers: corsHeaders,
@@ -46,7 +64,8 @@ module.exports = async function (context, req) {
           updated_at: post.updated_at || post.published_at,
           tags: post.tags || [],
           created_by: post.created_by,
-          cover_image: post.cover_image || null
+          cover_image: post.cover_image || (heroData && heroData.url) || null,
+          hero_image: heroData
         }
       };
       return;
@@ -54,6 +73,7 @@ module.exports = async function (context, req) {
 
     // Metadata list (no content_md), newest first
     var list = posts.map(function (p) {
+      var h = _resolveHero(p);
       return {
         slug: p.slug,
         title: p.title,
@@ -63,7 +83,8 @@ module.exports = async function (context, req) {
         updated_at: p.updated_at || p.published_at,
         tags: p.tags || [],
         created_by: p.created_by,
-        cover_image: p.cover_image || null
+        cover_image: p.cover_image || (h && h.url) || null,
+        hero_image: h
       };
     });
 
