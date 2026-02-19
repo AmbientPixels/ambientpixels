@@ -1650,6 +1650,16 @@ Write the full deliverable first, then the structured JSON block.`;
           await storage.setState('ap_artifacts', sfpArtifacts);
           context.log('[Heartbeat] Registered draft artifact:', sfpArtifactId, 'for submit-for-publish action:', publishAction.id);
 
+          // Resolve hero image URL from imageAssets store (for approval queue preview)
+          let _heroImageUrl = null;
+          if (doc.hero_image_asset_id) {
+            try {
+              const _imgAssets = (await storage.getState('imageAssets')) || [];
+              const _heroAsset = _imgAssets.find(a => a.id === doc.hero_image_asset_id);
+              if (_heroAsset && _heroAsset.url) _heroImageUrl = _heroAsset.url;
+            } catch (_heroErr) { /* non-fatal */ }
+          }
+
           // Add to CEO approval queue
           const approvalQueue = (await storage.getState('approvalQueue')) || [];
           approvalQueue.push({
@@ -1670,7 +1680,9 @@ Write the full deliverable first, then the structured JSON block.`;
             documentId: doc.id,
             slug: slug,
             docKind: doc.kind,
-            artifactId: sfpArtifactId
+            artifactId: sfpArtifactId,
+            heroImageUrl: _heroImageUrl,
+            heroImageAssetId: doc.hero_image_asset_id || null
           });
           if (approvalQueue.length > 100) approvalQueue.splice(0, approvalQueue.length - 100);
           await storage.setState('approvalQueue', approvalQueue);

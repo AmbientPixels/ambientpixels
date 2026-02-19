@@ -1623,6 +1623,15 @@
           } else {
             _aqPreview = (typeof item.preview === 'string' ? item.preview : '') || AgentEngine.buildPreview(_aqTask ? _aqTask.description : (item.recommendation || ''));
           }
+          // Hero image thumbnail for publish_document items
+          if (isPublish && item.heroImageUrl) {
+            _aqThumbsHtml = '<a href="' + escapeHtml(item.heroImageUrl) + '" target="_blank" rel="noopener" style="display:block;margin-top:6px;">' +
+              '<img src="' + escapeHtml(item.heroImageUrl) + '" alt="Hero image" ' +
+              'style="max-width:180px;max-height:100px;border-radius:6px;border:1px solid rgba(52,211,153,0.2);cursor:pointer;object-fit:cover;transition:opacity 0.2s;" ' +
+              'onmouseover="this.style.opacity=\'0.8\'" onmouseout="this.style.opacity=\'1\'" ' +
+              'onerror="this.parentElement.style.display=\'none\'" loading="lazy">' +
+              '</a>';
+          }
           var _aqFullDesc = _aqTask ? (_aqTask.description || '') : '';
           var _previewId = 'aq-prev-' + (item.id || Math.random()).toString().replace(/[^a-z0-9]/gi, '');
 
