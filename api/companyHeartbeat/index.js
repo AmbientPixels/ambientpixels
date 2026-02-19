@@ -8,6 +8,9 @@ const webSearch = require('../toolsWebSearch/index');
 const fs = require('fs');
 const path = require('path');
 
+const imageEngine = require('../_lib/contentEngine/imageEngine');
+const crypto = require('crypto');
+
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=';
 
@@ -49,6 +52,7 @@ const GUARDRAILS = {
   maxGeminiCallsPerCycle: 15, // Tier 4 sub-agents are gated; only consume calls when triggered
   maxNewTasksPerCycle: 2,
   maxExecutesPerCyclePerAgent: 1,
+  maxContentGeneratesPerCyclePerAgent: 1,
   maxEscalationsPerCycle: 3,
   dedupeWindowMs: 300000 // 5 min
 };
@@ -717,7 +721,7 @@ Write the full deliverable first, then the structured JSON block.`;
   let actionCount = 0;
 
   // Tier 4 sub-agent action restrictions (server-side enforcement)
-  const TIER4_FORBIDDEN = ['create-social-action', 'create-doc', 'submit-for-publish', 'create-task'];
+  const TIER4_FORBIDDEN = ['create-social-action', 'create-doc', 'submit-for-publish', 'create-task', 'create-content-package'];
   const isTier4 = agent.tier === 4;
 
   for (const action of actions) {
@@ -1630,6 +1634,232 @@ Write the full deliverable first, then the structured JSON block.`;
           context.log('[Heartbeat]', agentId, 'cannot submit doc for publish — status is', doc.status);
         }
       }
+    } else if (action.type === 'create-content-package' && action.content) {
+      // Agent-initiated image content generation — routes through approval queue
+      // GATE: only Echo (marketing visuals) and Pixel (design assets) can generate content
+      const CONTENT_ALLOWED_AGENTS = ['echo', 'pixel'];
+      if (CONTENT_ALLOWED_AGENTS.indexOf(agentId) === -1) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED create-content-package (only Echo/Pixel can generate images)');
+        continue;
+      }
+
+      // Guardrail: max 1 content generation per heartbeat per agent
+      if ((result.contentGenerates || 0) >= GUARDRAILS.maxContentGeneratesPerCyclePerAgent) {
+        context.log('[Heartbeat]', agentId, 'max content generates reached, skipping');
+        continue;
+      }
+
+      const cp = action.content;
+      const cpTopic = (cp.topic || '').trim();
+      const cpGoal = (cp.goal || '').trim();
+      if (!cpTopic || cpTopic.length < 3 || !cpGoal || cpGoal.length < 3) {
+        context.log('[Heartbeat]', agentId, 'create-content-package SKIPPED: topic/goal too short');
+        continue;
+      }
+
+      // Load config defaults
+      let _ceConfig = null;
+      try { _ceConfig = await imageEngine.loadContentEngineConfig(); } catch (e) { /* use hardcoded defaults */ }
+
+      const cpPreset = (cp.preset || (_ceConfig && _ceConfig.defaultPreset) || 'ap-neon-glass').trim();
+      let cpOutputs = cp.outputs || (_ceConfig && _ceConfig.defaultOutputs) || ['x_image'];
+      const cpVariations = Math.min(Math.max(parseInt(cp.variations) || 1, 1), 2); // agents capped at 2 variations
+
+      // Validate preset
+      if (!imageEngine.PRESETS || !imageEngine.PRESETS[cpPreset]) {
+        context.log('[Heartbeat]', agentId, 'create-content-package SKIPPED: invalid preset:', cpPreset);
+        continue;
+      }
+
+      // Validate & filter outputs
+      if (imageEngine.PURPOSES) {
+        cpOutputs = cpOutputs.filter(function (o) { return !!imageEngine.PURPOSES[o]; });
+      }
+      if (cpOutputs.length === 0) cpOutputs = ['x_image'];
+      // Cap agent output types to 3 max
+      if (cpOutputs.length > 3) cpOutputs = cpOutputs.slice(0, 3);
+
+      // Usage limit check
+      const accountId = 'ambientpixels-internal';
+      try {
+        const limitCheck = await imageEngine.checkUsageLimits(accountId);
+        if (!limitCheck.allowed) {
+          context.log('[Heartbeat]', agentId, 'create-content-package BLOCKED: usage limit exceeded');
+          continue;
+        }
+      } catch (limErr) {
+        context.log('[Heartbeat]', agentId, 'create-content-package: usage check failed, proceeding:', limErr.message);
+      }
+
+      context.log('[Heartbeat]', agentId, 'generating content package:', cpTopic, '| preset:', cpPreset, '| outputs:', cpOutputs.join(','), '| variations:', cpVariations);
+      const genStartMs = Date.now();
+
+      // Create brief
+      const cpBriefId = 'brief_' + Date.now() + '_' + crypto.randomBytes(3).toString('hex');
+      const cpBrief = {
+        id: cpBriefId,
+        createdAt: new Date().toISOString(),
+        createdBy: agentId,
+        source: 'heartbeat',
+        topic: cpTopic,
+        goal: cpGoal,
+        preset: cpPreset,
+        outputs: cpOutputs,
+        variations: cpVariations,
+        status: 'generating',
+        directiveId: (cp.directiveId || '').trim() || null,
+        objectiveId: (cp.objectiveId || '').trim() || null
+      };
+      await imageEngine.saveBrief(cpBrief);
+
+      // Generate images
+      const cpPackageId = 'pkg_' + Date.now() + '_' + crypto.randomBytes(3).toString('hex');
+      const cpAllOutputs = {};
+      const cpThumbUrls = [];
+      let cpSuccessCount = 0;
+      let cpFailedCount = 0;
+
+      for (let v = 0; v < cpVariations; v++) {
+        for (let i = 0; i < cpOutputs.length; i++) {
+          const outputType = cpOutputs[i];
+          const outputKey = cpVariations > 1 ? outputType + '_v' + (v + 1) : outputType;
+          const variationNum = v + 1;
+          const prompt = imageEngine.buildPrompt({
+            topic: cpTopic, goal: cpGoal, preset: cpPreset,
+            outputType: outputType, variation: variationNum
+          });
+          try {
+            context.log('[Heartbeat]', agentId, 'generating', outputKey);
+            const genResult = await imageEngine.generateImage({
+              topic: cpTopic, goal: cpGoal, preset: cpPreset,
+              outputType: outputType, variation: variationNum,
+              jobId: cpPackageId + '_' + outputKey
+            });
+            cpAllOutputs[outputKey] = {
+              status: 'success', outputType: outputType, variation: variationNum,
+              size: genResult.size, imageUrl: genResult.imageUrl, thumbUrl: genResult.thumbUrl,
+              metaUrl: genResult.metaUrl, model: genResult.model, bytes: genResult.bytes, promptUsed: prompt
+            };
+            cpThumbUrls.push(genResult.thumbUrl);
+            cpSuccessCount++;
+          } catch (genErr) {
+            context.log.error('[Heartbeat]', agentId, 'content gen failed:', outputKey, genErr.message);
+            cpAllOutputs[outputKey] = {
+              status: 'failed', outputType: outputType, variation: variationNum,
+              error: genErr.message, promptUsed: prompt
+            };
+            cpFailedCount++;
+          }
+        }
+      }
+
+      // Total failure
+      if (cpSuccessCount === 0) {
+        cpBrief.status = 'failed';
+        cpBrief.updatedAt = new Date().toISOString();
+        await imageEngine.saveBrief(cpBrief);
+        context.log('[Heartbeat]', agentId, 'content package generation FAILED (all images failed)');
+        continue;
+      }
+
+      // Save package
+      const cpDurationMs = Date.now() - genStartMs;
+      const cpOverallStatus = cpFailedCount === 0 ? 'pending_approval' : 'partial_success';
+      const cpPkg = {
+        id: cpPackageId, briefId: cpBriefId,
+        createdAt: new Date().toISOString(), generatedBy: agentId, createdBy: agentId,
+        agentRole: agent.role, source: 'heartbeat', createdVia: 'heartbeat',
+        directiveId: cpBrief.directiveId, objectiveId: cpBrief.objectiveId,
+        accountId: accountId, accountType: 'internal',
+        engineVersion: imageEngine.ENGINE_VERSION, preset: cpPreset,
+        presetVersion: imageEngine.getPresetVersion(cpPreset),
+        variations: cpVariations, outputs: cpAllOutputs,
+        promptSummary: ('Topic: ' + cpTopic + ' — ' + cpGoal + ' (' + cpPreset + ')').substring(0, 140),
+        status: cpOverallStatus, successCount: cpSuccessCount, failedCount: cpFailedCount,
+        durationMs: cpDurationMs, estimatedCost: imageEngine.estimateCost(cpSuccessCount),
+        model: imageEngine.GEMINI_IMAGE_MODEL, provider: imageEngine.GEMINI_IMAGE_PROVIDER
+      };
+      const cpPackageUrl = await imageEngine.savePackage(cpPkg);
+
+      // Update brief
+      cpBrief.status = cpOverallStatus;
+      cpBrief.packageId = cpPackageId;
+      cpBrief.updatedAt = new Date().toISOString();
+      await imageEngine.saveBrief(cpBrief);
+
+      // Submit to approval queue
+      const cpSuccessImageUrls = [];
+      Object.keys(cpAllOutputs).forEach(function (k) {
+        if (cpAllOutputs[k].status === 'success' && cpAllOutputs[k].imageUrl) cpSuccessImageUrls.push(cpAllOutputs[k].imageUrl);
+      });
+
+      const cpApprovalItem = {
+        id: 'aq-' + cpPackageId, kind: 'content.package', type: 'content.package',
+        title: 'Content Package — ' + cpTopic,
+        subtitle: cpSuccessCount + ' image' + (cpSuccessCount !== 1 ? 's' : '') + (cpFailedCount > 0 ? ', ' + cpFailedCount + ' failed' : '') + ' · ' + cpPreset + ' · by ' + agentId,
+        status: 'pending', createdAt: new Date().toISOString(), createdBy: agentId,
+        source: 'heartbeat', briefId: cpBriefId, packageId: cpPackageId,
+        preset: cpPreset, goal: cpGoal, successCount: cpSuccessCount, failedCount: cpFailedCount,
+        preview: {
+          thumbs: cpThumbUrls.slice(0, 4), preset: cpPreset, goal: cpGoal,
+          outputTypes: cpOutputs, successCount: cpSuccessCount, failedCount: cpFailedCount
+        },
+        links: {
+          packageUrl: cpPackageUrl, packageViewUrl: '/modules/company/content-engine.html?pkg=' + cpPackageId,
+          imageUrls: cpSuccessImageUrls
+        }
+      };
+
+      const cpQueue = (await storage.getState('approvalQueue')) || [];
+      cpQueue.push(cpApprovalItem);
+      if (cpQueue.length > 200) cpQueue = cpQueue.slice(-200);
+      await storage.setState('approvalQueue', cpQueue);
+
+      // Write usage record
+      try {
+        await imageEngine.writeUsageRecord({
+          accountId: accountId, accountType: 'internal', packageId: cpPackageId,
+          timestamp: cpPkg.createdAt, engineVersion: imageEngine.ENGINE_VERSION,
+          preset: cpPreset, presetVersion: imageEngine.getPresetVersion(cpPreset),
+          formatsRequested: cpOutputs, variations: cpVariations,
+          imagesGenerated: cpSuccessCount, model: imageEngine.GEMINI_IMAGE_MODEL,
+          durationMs: cpDurationMs, estimatedCost: imageEngine.estimateCost(cpSuccessCount),
+          status: cpOverallStatus === 'partial_success' ? 'partial' : 'success',
+          createdBy: agentId, agentRole: agent.role, source: 'heartbeat'
+        });
+      } catch (usageErr) { context.log.warn('[Heartbeat] Usage record write failed (non-fatal):', usageErr.message); }
+
+      // Append to gallery index
+      try {
+        await imageEngine.appendToIndex({
+          packageId: cpPackageId, briefId: cpBriefId, preset: cpPreset, topic: cpTopic,
+          createdAt: cpPkg.createdAt, status: cpOverallStatus,
+          successCount: cpSuccessCount, failedCount: cpFailedCount,
+          thumbs: cpThumbUrls.slice(0, 4), outputTypes: cpOutputs, variations: cpVariations,
+          createdBy: agentId, source: 'heartbeat'
+        });
+      } catch (idxErr) { context.log.warn('[Heartbeat] Gallery index append failed (non-fatal):', idxErr.message); }
+
+      // Auto-advance parent task to review if taskId provided
+      if (action.taskId) {
+        const taskIdx = tasks.findIndex(t => t.id === action.taskId);
+        if (taskIdx !== -1 && tasks[taskIdx].status !== 'done' && tasks[taskIdx].status !== 'review') {
+          tasks[taskIdx].status = 'review';
+          tasks[taskIdx].updatedAt = new Date().toISOString();
+          if (!tasks[taskIdx].comments) tasks[taskIdx].comments = [];
+          tasks[taskIdx].comments.push({
+            id: 'cmt-' + Date.now(), author: agentId,
+            text: 'Content package created (' + cpSuccessCount + ' images, preset: ' + cpPreset + '). Submitted for CEO approval (package: ' + cpPackageId + ').',
+            type: 'deliverable', createdAt: new Date().toISOString()
+          });
+          context.log('[Heartbeat]', agentId, 'auto-advanced task', action.taskId, 'to review (content package created)');
+        }
+      }
+
+      result.contentGenerates = (result.contentGenerates || 0) + 1;
+      context.log('[Heartbeat]', agentId, 'content package created:', cpPackageId, cpSuccessCount, 'ok,', cpFailedCount, 'failed, duration:', cpDurationMs + 'ms');
+      result.taskUpdates.push({ action: 'content-package-created', packageId: cpPackageId, agentId: agentId, taskId: action.taskId || null });
+
     } else if (action.type === 'remember' && action.memory) {
       // Agent saves a persistent memory
       const mem = action.memory;
@@ -2063,7 +2293,7 @@ Respond with ONLY valid JSON in this exact format:
   "observation": "One sentence about what you notice or your current state",
   "actions": [
     {
-      "type": "create-task|update-task|move-task|execute-task|review-task|comment-task|create-social-action|revise-action|create-doc|submit-for-publish|create-reminder|web_search|remember",
+      "type": "create-task|update-task|move-task|execute-task|review-task|comment-task|create-social-action|revise-action|create-doc|submit-for-publish|create-content-package|create-reminder|web_search|remember",
       "summary": "Brief description of what you're doing",
       "task": { "title": "", "description": "", "status": "todo|in-progress", "priority": "low|medium|high|critical", "assignee": "agentId", "dueDate": "2026-02-20T00:00:00Z", "directive_id": "optional-directive-id" },
       "taskId": "existing-task-id",
@@ -2077,6 +2307,7 @@ Respond with ONLY valid JSON in this exact format:
       "tool": "web_search",
       "args": { "q": "search query", "n": 5 },
       "reminder": { "title": "Reminder title", "date": "2026-02-20", "type": "deadline|event|milestone|recurring", "description": "Optional details" },
+      "content": { "topic": "Visual subject", "goal": "What images are for", "preset": "ap-neon-glass", "outputs": ["x_image"], "variations": 1, "directiveId": "optional", "objectiveId": "optional" },
       "memory": { "text": "What to remember", "type": "learning|feedback|preference|context" }
     }
   ]
@@ -2096,6 +2327,7 @@ Action types:
 - create-doc: Create a NEW document. Include "document" with: title (string), kind ("spec"|"runbook"|"release_notes"|"product_brief"|"marketing_post"|"governance"), tags (array of strings), and content_md (full markdown content — MUST be complete, publish-ready text with NO placeholders like "[insert here]" or "[TBD]"). Also include "taskId" if this doc is for a specific task. marketing_post/product_brief → CEO approval queue for blog. Internal kinds (spec, runbook, release_notes, governance) → auto-published to /docs/published/ immediately. IMPORTANT: Check EXISTING DOCUMENTS below first — if a relevant doc already exists, use update-doc instead of creating a duplicate.
 - update-doc: Update an existing document. Include "documentId" (the doc ID from EXISTING DOCUMENTS) and "updates" with any of: content_md (full replacement), append_md (add new content to end), title (rename), tags (replace tags). Use this when new information should be added to an existing doc instead of creating a new one. Internal docs are auto-refreshed at /docs/published/.
 - submit-for-publish: Submit a completed document for human/CEO approval to publish on the site. Include "documentId" (the ID of an existing draft or review document) and optionally "taskId" (the task that produced the doc). This creates a publish_document action in the approval queue. You CANNOT publish directly — only a human can approve publishing.
+- create-content-package: (Echo and Pixel ONLY) Generate an image content package for marketing, social media, or design assets. Include "content" with: topic (visual subject, min 3 chars), goal (what the images will be used for, min 3 chars), preset (visual style — use "ap-neon-glass" if unsure), outputs (array of output types: "x_image", "linkedin_image", "og_image", "blog_hero", "instagram_square" — max 3), and variations (1-2, default 1). Also include "taskId" if this is for a specific task. Images are generated via Gemini and submitted to the CEO approval queue. Max 1 content package per heartbeat. Use this when a task requires visual content creation — NOT for general analysis or text work.
 - create-reminder: Set a reminder or important date in the CEO workspace. Include "reminder" with: title (string), date (YYYY-MM-DD), type ("deadline"|"event"|"milestone"|"recurring"), and optionally description. Use for tracking deadlines, renewals, milestones, or follow-ups. These appear in the CEO Morning Inbox and are injected into future heartbeat prompts.
 - web_search: (Scout/research agents only) Run a live web search. Include "tool": "web_search" and "args": { "q": "search query", "n": 5 }. Max 3 searches per heartbeat. Results are returned and you'll be asked to synthesize findings into a deliverable with cited sources.
 - remember: Save a persistent memory that survives across heartbeat cycles. Include "memory" with: text (what to remember, max 300 chars) and type ("learning"|"feedback"|"preference"|"context"). Use this to remember CEO feedback patterns, task outcomes, important decisions, or lessons learned. Your memories appear in YOUR MEMORY section of future heartbeats. Only save genuinely useful information — not status updates. Good memories: "CEO prefers concise LinkedIn posts under 100 words", "Blog posts need 400+ words minimum", "Scout found that competitor X launched feature Y". Bad memories: "I commented on task X", "Working on the LinkedIn post".
@@ -2124,6 +2356,7 @@ TRIAGE GATE — ALL TASKS MUST BE TRIAGED BY NOVA FIRST:
 ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
 - CRITICAL RULE: If you have an ACTIONABLE task (has Nova comment OR is a CEO task with assignee+dueDate) assigned to you that is in-progress OR todo with priority critical or high, your FIRST action MUST be to produce work on that task. Do NOT create sub-tasks, comment, or plan — produce the actual deliverable NOW.
   - For content/analysis tasks: use execute-task to produce the deliverable.
+  - For image/visual content tasks (marketing graphics, social media images, design assets): use create-content-package with the taskId. (Echo and Pixel only)
   - For social media / LinkedIn / X / Bluesky post tasks: use create-social-action with the taskId to draft the post immediately.
   - For document tasks: use create-doc to produce the document directly.
   - You do NOT need to move a task from todo to in-progress first — execute-task, create-social-action, and create-doc all work on todo tasks and auto-advance the status.
