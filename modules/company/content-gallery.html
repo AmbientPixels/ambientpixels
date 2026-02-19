@@ -43,6 +43,14 @@
     }
     .cg-chip:hover { background:rgba(255,255,255,0.06); }
     .cg-chip--active { background:rgba(139,92,246,0.12); border-color:rgba(139,92,246,0.3); color:#8b5cf6; }
+    .cg-search {
+      background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:6px;
+      color:inherit; font-size:0.65rem; padding:5px 10px 5px 28px; font-family:inherit; width:180px;
+      outline:none; transition:border-color 0.15s;
+    }
+    .cg-search:focus { border-color:rgba(139,92,246,0.3); }
+    .cg-search-wrap { position:relative; display:inline-flex; align-items:center; }
+    .cg-search-icon { position:absolute; left:9px; font-size:0.55rem; opacity:0.3; pointer-events:none; }
     .cg-count { font-size:0.6rem; opacity:0.35; margin-left:auto; }
 
     .cg-grid {
@@ -138,6 +146,10 @@
       <option value="200" selected>200</option>
       <option value="500">500</option>
     </select>
+    <div class="cg-search-wrap">
+      <i class="fas fa-search cg-search-icon"></i>
+      <input class="cg-search" id="cg-search" type="text" placeholder="Search topic or ID..." oninput="cgLocalFilter()" />
+    </div>
     <span class="cg-count" id="cg-count"></span>
   </div>
 
@@ -205,6 +217,16 @@
     }
 
     function cgApplyFilters() { cgFetch(); }
+
+    function cgLocalFilter() {
+      var q = (document.getElementById('cg-search').value || '').trim().toLowerCase();
+      if (!q) { cgRender(_allData); return; }
+      var filtered = _allData.filter(function (e) {
+        return (e.topic && e.topic.toLowerCase().indexOf(q) !== -1) ||
+               (e.packageId && e.packageId.toLowerCase().indexOf(q) !== -1);
+      });
+      cgRender(filtered);
+    }
 
     function cgRender(items) {
       var grid = document.getElementById('cg-grid');
