@@ -11,12 +11,14 @@ const imageEngine = require('../_lib/contentEngine/imageEngine');
 
 const CORS = { 'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json' };
 
-// Load valid agent IDs from company-agents.json
-var VALID_AGENTS = [];
+// Load valid agent IDs + roles from company-agents.json
+var AGENT_MAP = {}; // { id: { role } }
 try {
   var _raw = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../data/company-agents.json'), 'utf8'));
-  VALID_AGENTS = (_raw.agents || []).map(function (a) { return a.id; }).filter(Boolean);
-} catch (_e) { /* fallback: empty list means all agents rejected */ }
+  (_raw.agents || []).forEach(function (a) {
+    if (a.id) AGENT_MAP[a.id.toLowerCase()] = { role: a.role || 'unknown' };
+  });
+} catch (_e) { /* fallback: empty map means all agents rejected */ }
 
 module.exports = async function (context, req) {
   // CORS preflight
@@ -39,19 +41,28 @@ module.exports = async function (context, req) {
     return;
   }
 
-  // Auth: require x-agent-name and validate against known agents
-  var agentName = (req.headers && req.headers['x-agent-name'] || '').trim().toLowerCase();
+  // Auth: require x-agent-name, normalize, validate against canonical agent.id
+  var agentName = ((req.headers && req.headers['x-agent-name']) || '').toLowerCase().trim();
   if (!agentName) {
-    context.res = { status: 403, headers: CORS, body: JSON.stringify({ error: 'x-agent-name header required' }) };
+    context.res = { status: 403, headers: CORS, body: JSON.stringify({ ok: false, error: 'INVALID_AGENT' }) };
     return;
   }
-  if (VALID_AGENTS.length > 0 && VALID_AGENTS.indexOf(agentName) === -1) {
-    context.res = { status: 403, headers: CORS, body: JSON.stringify({ error: 'Unknown agent: ' + agentName }) };
+  var agentEntry = AGENT_MAP[agentName];
+  if (!agentEntry) {
+    context.res = { status: 403, headers: CORS, body: JSON.stringify({ ok: false, error: 'INVALID_AGENT' }) };
     return;
   }
+  var agentRole = agentEntry.role;
 
   try {
     var body = req.body || {};
+
+    // Defensive: strip fields agent cannot override
+    delete body.accountId;
+    delete body.accountType;
+    delete body.engineVersion;
+    delete body.presetVersion;
+
     var topic = (body.topic || '').trim();
     var goal = (body.goal || '').trim();
     var preset = (body.preset || '').trim();
@@ -197,6 +208,7 @@ module.exports = async function (context, req) {
       createdAt: new Date().toISOString(),
       generatedBy: agentName,
       createdBy: agentName,
+      agentRole: agentRole,
       source: 'agent',
       createdVia: 'agent',
       directiveId: directiveId,
@@ -289,6 +301,7 @@ module.exports = async function (context, req) {
         estimatedCost: imageEngine.estimateCost(successCount),
         status: overallStatus === 'partial_success' ? 'partial' : 'success',
         createdBy: agentName,
+        agentRole: agentRole,
         source: 'agent',
         directiveId: directiveId,
         objectiveId: objectiveId

@@ -7,7 +7,7 @@ const https = require('https');
 const crypto = require('crypto');
 
 // ── Config ──
-const ENGINE_VERSION = '1.6';
+const ENGINE_VERSION = '1.8.1';
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
 const GEMINI_IMAGE_MODEL = process.env.GEMINI_IMAGE_MODEL || 'gemini-2.5-flash-image';
 const GEMINI_IMAGE_PROVIDER = process.env.GEMINI_IMAGE_PROVIDER || 'multimodal';
