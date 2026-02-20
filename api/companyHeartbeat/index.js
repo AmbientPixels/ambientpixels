@@ -1441,27 +1441,11 @@ Write the full deliverable first, then the structured JSON block.`;
         // Title-based dedup: skip if a doc with very similar title already exists
         const _proposedDocTitle = (docPayload.title || '').toLowerCase().trim();
         const existingDocs = (await storage.getState('documents')) || [];
-        // Also check actions + AQ store: if the existing doc's publish was rejected, allow re-creation
-        const _dedupActions = allActions || [];
-        const _dedupAq = (await storage.getState('approvalQueue')) || [];
         const duplicateDoc = existingDocs.find(d => {
           if (!d.title) return false;
-          // Allow re-creation if the existing doc was rejected or archived
           if (d.status === 'rejected' || d.status === 'archived') return false;
-          // Allow re-creation if the doc's publish action was rejected/revision_requested (CEO killed it)
-          const _docPubAction = _dedupActions.find(a =>
-            (a.type === 'publish_document' || a.action_type === 'publish_document') &&
-            a.payload && a.payload.documentId === d.id
-          );
-          if (_docPubAction && _docPubAction.approval) {
-            const _pubStatus = _docPubAction.approval.status;
-            if (_pubStatus === 'rejected' || _pubStatus === 'revision_requested') return false;
-          }
-          // Also check the approval queue for CEO rejections (ceoReject only updates AQ, not action)
-          const _aqForDoc = _dedupAq.find(q => q.action_id && q.documentId === d.id);
-          if (_aqForDoc && (_aqForDoc.status === 'rejected' || _aqForDoc.ceoDecision === 'rejected' || _aqForDoc.status === 'revision_requested')) return false;
           const existTitle = d.title.toLowerCase().trim();
-          return existTitle === _proposedDocTitle || (existTitle.length > 15 && _proposedDocTitle.indexOf(existTitle) !== -1) || (existTitle.length > 15 && existTitle.indexOf(_proposedDocTitle) !== -1);
+          return existTitle === _proposedDocTitle;
         });
         if (duplicateDoc) {
           context.log('[Heartbeat]', agentId, 'BLOCKED duplicate doc creation:', _proposedDocTitle, '— matches existing doc:', duplicateDoc.id, duplicateDoc.title);
