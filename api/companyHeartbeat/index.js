@@ -994,7 +994,19 @@ Write the full deliverable first, then the structured JSON block.`;
             const _isBlogTask = agentId === 'scribe' && /write.*blog|draft.*blog|blog\s*post.*write|first\s*blog|introductory\s*post|write.*article/.test(_etTaskText);
             if (_isBlogTask && deliverable.length > 200) {
               const _etDocsStore = (await storage.getState('documents')) || [];
-              const _etExistingDoc = _etDocsStore.find(d => d.taskId === action.taskId || (d.title && d.title === task.title));
+              const _etExistingDoc = _etDocsStore.find(d => {
+                if (d.status === 'rejected' || d.status === 'archived') return false;
+                // Check top-level taskId (set by execute-task fallback)
+                if (d.taskId && d.taskId === action.taskId) return true;
+                // Check source.task_id (set by create-doc handler)
+                if (d.source && d.source.task_id && d.source.task_id === action.taskId) return true;
+                // Exact title match (fallback)
+                if (d.title && d.title === task.title) return true;
+                return false;
+              });
+              if (_etExistingDoc) {
+                context.log('[Heartbeat]', agentId, 'AUTO-DOC fallback SKIPPED — doc already exists for task:', action.taskId, 'existing doc:', _etExistingDoc.id, _etExistingDoc.title);
+              }
               if (!_etExistingDoc) {
                 const _etDocId = 'doc_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
                 const _etDoc = {
@@ -1685,6 +1697,7 @@ Write the full deliverable first, then the structured JSON block.`;
           updated_at: new Date().toISOString(),
           content_md: docPayload.content_md || '',
           promote: false,
+          taskId: action.taskId || null,
           source: { action_id: null, task_id: action.taskId || null }
         };
 
