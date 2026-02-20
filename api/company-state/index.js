@@ -55,11 +55,11 @@ module.exports = async function (context, req) {
         body: { key: key, value: value }
       };
     } catch (err) {
-      context.log.error('[company-state] GET error:', err.message);
+      context.log.error('[company-state] GET error:', err.message, err.stack);
       context.res = {
         status: 500,
         headers: corsHeaders,
-        body: { error: 'Failed to read state', details: err.message }
+        body: { error: 'Failed to read state', details: err.message, stack: err.stack }
       };
     }
     return;
