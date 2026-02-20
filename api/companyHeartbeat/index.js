@@ -960,12 +960,14 @@ Write the full deliverable first, then the structured JSON block.`;
           const _copyTag = 'social-copy-for-' + action.taskId;
           const _copyTaskExists = tasks.some(t =>
             t.status !== 'done' &&
-            (t.tags && t.tags.indexOf(_copyTag) !== -1)
+            ((t.tags && t.tags.indexOf(_copyTag) !== -1) ||
+             (t.assignee === 'scribe' && t.parent_task_id === action.taskId && (t.title || '').indexOf('Write social copy') === 0))
           );
           // Also check if a COMPLETED Scribe copy task exists (reviewed_copy may not have propagated yet)
           const _copyTaskDone = tasks.find(t =>
             t.status === 'done' &&
-            (t.tags && t.tags.indexOf(_copyTag) !== -1)
+            ((t.tags && t.tags.indexOf(_copyTag) !== -1) ||
+             (t.assignee === 'scribe' && t.parent_task_id === action.taskId && (t.title || '').indexOf('Write social copy') === 0))
           );
           if (_copyTaskDone) {
             // Copy task is done but reviewed_copy wasn't set — extract deliverable now
