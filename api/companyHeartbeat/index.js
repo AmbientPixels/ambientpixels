@@ -2384,6 +2384,9 @@ Write the full deliverable first, then the structured JSON block.`;
         context.log('[Heartbeat]', agentId, 'generate-image: usage check failed, proceeding:', limErr.message);
       }
 
+      // Handle attachTo — declared early so early-guard can reference it
+      const attachTo = img.attachTo || null;
+
       // Early guard: skip blog_header generation if target document already has a hero image
       if (imgPurpose === 'blog_header' && attachTo && attachTo.type === 'document' && attachTo.id) {
         const _earlyDocCheck = (await storage.getState('documents')) || [];
@@ -2438,8 +2441,7 @@ Write the full deliverable first, then the structured JSON block.`;
         status: 'active'
       };
 
-      // Handle attachTo — link asset to document or action
-      const attachTo = img.attachTo || null;
+      // Link asset to document or action
       if (attachTo && attachTo.type === 'document' && attachTo.id) {
         const imgDocsStore = (await storage.getState('documents')) || [];
         const imgDocIdx = imgDocsStore.findIndex(d => d.id === attachTo.id);
