@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2026-02-19T14:09:42.976Z",
+  "updated": "2026-02-20T14:01:31.695Z",
   "root": [
     {
       "type": "folder",
@@ -327,6 +327,12 @@
           "type": "folder",
           "name": "contentPackage",
           "path": "api/contentPackage",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "contentPackageDelete",
+          "path": "api/contentPackageDelete",
           "children": []
         },
         {
