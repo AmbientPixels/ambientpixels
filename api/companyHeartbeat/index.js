@@ -1537,7 +1537,15 @@ Write the full deliverable first, then the structured JSON block.`;
           if (!d.title) return false;
           if (d.status === 'rejected' || d.status === 'archived') return false;
           const existTitle = d.title.toLowerCase().trim();
-          return existTitle === _proposedDocTitle;
+          if (existTitle !== _proposedDocTitle) return false;
+          // Allow same-title docs when linked to different tasks (new task = new doc)
+          if (action.taskId && d.taskId && action.taskId !== d.taskId) return false;
+          // Skip stale drafts older than 24h that were never published (abandoned tests)
+          if (d.status === 'draft' && d.created_at) {
+            const ageMs = Date.now() - new Date(d.created_at).getTime();
+            if (ageMs > 24 * 60 * 60 * 1000) return false;
+          }
+          return true;
         });
         if (duplicateDoc) {
           context.log('[Heartbeat]', agentId, 'BLOCKED duplicate doc creation:', _proposedDocTitle, '— matches existing doc:', duplicateDoc.id, duplicateDoc.title);
