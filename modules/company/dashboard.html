@@ -1688,6 +1688,11 @@
                   (ageStr ? '<span>Age: ' + ageStr + '</span>' : '') +
                   (_aqTask && _aqTask.source && _aqTask.source.title ? '<span>From: ' + escapeHtml(_aqTask.source.title) + '</span>' : '') +
                 '</div>' +
+                (isAction ? '<div class="aq-item-actions" style="display:flex;gap:0.3rem;margin-top:6px;flex-wrap:wrap;">' +
+                  '<button class="aq-act-approve" data-action-id="' + escapeHtml(item.action_id || '') + '" style="font-size:0.55rem;padding:0.2rem 0.5rem;border-radius:4px;cursor:pointer;border:1px solid rgba(52,211,153,0.25);background:rgba(52,211,153,0.06);color:#34d399;"><i class="fas fa-check" style="margin-right:0.2rem;"></i>Approve</button>' +
+                  '<button class="aq-act-reject" data-action-id="' + escapeHtml(item.action_id || '') + '" style="font-size:0.55rem;padding:0.2rem 0.5rem;border-radius:4px;cursor:pointer;border:1px solid rgba(248,113,113,0.25);background:rgba(248,113,113,0.06);color:#f87171;"><i class="fas fa-times" style="margin-right:0.2rem;"></i>Reject</button>' +
+                  '<button class="aq-act-revise" data-action-id="' + escapeHtml(item.action_id || '') + '" style="font-size:0.55rem;padding:0.2rem 0.5rem;border-radius:4px;cursor:pointer;border:1px solid rgba(251,191,36,0.25);background:rgba(251,191,36,0.06);color:#fbbf24;"><i class="fas fa-pen" style="margin-right:0.2rem;"></i>Revision</button>' +
+                '</div>' : '') +
               '</div>' +
               '<a href="' + (isContent ? '/modules/company/content-gallery.html' : '/modules/company/actions.html') + '" style="font-size:0.6rem; color:' + (isContent ? '#8b5cf6' : '#60a5fa') + '; text-decoration:none; white-space:nowrap; display:flex; align-items:center; gap:0.25rem; padding:0.25rem 0.5rem; border:1px solid ' + (isContent ? 'rgba(139,92,246,0.2)' : 'rgba(96,165,250,0.2)') + '; border-radius:4px; background:' + (isContent ? 'rgba(139,92,246,0.05)' : 'rgba(96,165,250,0.05)') + '; align-self:center; flex-shrink:0;">' + (isContent ? 'Gallery' : 'Review') + ' <i class="fas fa-arrow-right" style="font-size:0.5rem;"></i></a>' +
             '</div>';
@@ -1698,6 +1703,45 @@
             else delete _aqSelectedIds[this.dataset.aqId];
             updateBatchUI();
           });
+
+          // v2.6: Per-item action buttons (approve, reject, revision)
+          var _aqApproveBtn = div.querySelector('.aq-act-approve');
+          var _aqRejectBtn = div.querySelector('.aq-act-reject');
+          var _aqReviseBtn = div.querySelector('.aq-act-revise');
+          if (_aqApproveBtn) {
+            _aqApproveBtn.addEventListener('click', function () {
+              var aid = this.dataset.actionId;
+              if (!aid) return;
+              AgentEngine.approveAction(aid);
+              renderApprovalQueue(); renderAll();
+            });
+          }
+          if (_aqRejectBtn) {
+            _aqRejectBtn.addEventListener('click', function () {
+              var aid = this.dataset.actionId;
+              if (!aid) return;
+              if (!confirm('Reject this action? This will kill the action and close the parent task + all child tasks.')) return;
+              AgentEngine.rejectAction(aid);
+              renderApprovalQueue(); renderAll();
+            });
+          }
+          if (_aqReviseBtn) {
+            _aqReviseBtn.addEventListener('click', function () {
+              var aid = this.dataset.actionId;
+              if (!aid) return;
+              var feedback = prompt('Revision feedback for the agent (what should they fix?):');
+              if (!feedback || feedback.trim().length < 4) { if (feedback !== null) alert('Feedback must be at least 4 characters.'); return; }
+              AgentEngine.requestActionRevision(aid, feedback.trim());
+              if (AgentEngine.requestActionRevisionAsync) {
+                AgentEngine.requestActionRevisionAsync(aid, feedback.trim()).then(function () {
+                  console.log('[Dashboard] Revision synced to server');
+                }).catch(function () {
+                  console.warn('[Dashboard] Revision server sync may have failed');
+                });
+              }
+              renderApprovalQueue(); renderAll();
+            });
+          }
 
           // v2.5: Promote checkbox for publish_document items
           var _promoCb = div.querySelector('.aq-promote-cb');

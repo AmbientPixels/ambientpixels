@@ -2566,6 +2566,31 @@ var AgentEngine = (function () {
         _updateApprovalQueueForAction(actionId, a.approval.status);
         _logAction(wasCancelled ? 'action-cancelled' : 'action-rejected', { actionId: actionId, type: a.type });
         _logGovernance(wasCancelled ? 'ceo-cancel' : 'ceo-reject', { actionId: actionId, type: a.type, context: 'action' });
+
+        // Cascade: close parent task + all child tasks on reject (not cancel)
+        if (!wasCancelled && a._parentTaskId) {
+          var tasks = getTasks();
+          var nowIso = new Date().toISOString();
+          var parentTask = tasks.find(function (t) { return t.id === a._parentTaskId; });
+          if (parentTask && parentTask.status !== 'done') {
+            parentTask.status = 'done';
+            parentTask.completedAt = nowIso;
+            parentTask.updatedAt = nowIso;
+            if (!parentTask.comments) parentTask.comments = [];
+            parentTask.comments.push({ id: 'cmt-reject-' + Date.now(), author: 'system', text: 'CEO rejected the linked action — task closed.', type: 'system', createdAt: nowIso });
+          }
+          tasks.forEach(function (t) {
+            if (t.parent_task_id === a._parentTaskId && t.status !== 'done') {
+              t.status = 'done';
+              t.completedAt = nowIso;
+              t.updatedAt = nowIso;
+              if (!t.comments) t.comments = [];
+              t.comments.push({ id: 'cmt-reject-child-' + Date.now(), author: 'system', text: 'Parent task rejected by CEO — child task closed.', type: 'system', createdAt: nowIso });
+            }
+          });
+          _saveTasks(tasks);
+        }
+
         return a;
       }
     }
