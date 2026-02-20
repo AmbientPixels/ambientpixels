@@ -751,6 +751,15 @@
 .tm-preset-select option { background: #0d1520; color: #ccc; }
 
 /* ── Related Tasks (Modal) ── */
+#tm-modal-provenance {
+  margin: 0.5rem 0;
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.015);
+  overflow: hidden;
+}
+#tm-modal-provenance .tm-prov-row { padding: 0.4rem 0.6rem; }
+
 #tm-related-tasks {
   margin: 0.5rem 0;
   border: 1px solid rgba(255,255,255,0.05);

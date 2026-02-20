@@ -320,6 +320,9 @@
             </div>
           </div>
 
+          <!-- Provenance (only in edit mode) -->
+          <div id="tm-modal-provenance" style="display:none;"></div>
+
           <!-- Related Tasks (only in edit mode) -->
           <div id="tm-related-tasks" style="display:none;"></div>
 
@@ -1115,6 +1118,19 @@
         taskDivisionField.value = task.division || '';
         taskDueField.value = task.dueDate ? String(task.dueDate).split('T')[0] : '';
         deleteBtn.style.display = '';
+
+        // Render provenance badges in modal
+        var _modalProvEl = document.getElementById('tm-modal-provenance');
+        if (_modalProvEl) {
+          var _mpBadges = _provenanceBadge(task);
+          if (_mpBadges) {
+            _modalProvEl.style.display = '';
+            _modalProvEl.innerHTML = '<div class="tm-rel-header"><i class="fas fa-fingerprint"></i> Provenance</div><div style="padding:0.4rem 0.6rem;">' + _mpBadges + '</div>';
+          } else {
+            _modalProvEl.style.display = 'none';
+            _modalProvEl.innerHTML = '';
+          }
+        }
 
         // Render related tasks (parent + children)
         _renderRelatedTasks(task);
