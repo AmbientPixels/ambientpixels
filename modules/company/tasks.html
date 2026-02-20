@@ -320,6 +320,9 @@
             </div>
           </div>
 
+          <!-- Related Tasks (only in edit mode) -->
+          <div id="tm-related-tasks" style="display:none;"></div>
+
           <!-- Comments (only in edit mode) -->
           <div class="tm-comments" id="task-comments" style="display:none;">
             <h4><i class="fas fa-comments" style="margin-right:4px;"></i>Comments</h4>
@@ -656,6 +659,81 @@
         _toastTimer = setTimeout(function () { _toastEl.classList.remove('show'); }, 3500);
       }
 
+      // v2.5 Provenance badge — shows how each task was created
+      function _provenanceBadge(task) {
+        var src = task.source || '';
+        var srcType = (typeof src === 'object') ? (src.type || '') : String(src);
+        var tags = task.tags || [];
+        var createdBy = task.created_by || task.createdBy || '';
+        var badges = [];
+
+        // Auto-created: hero image task
+        if (tags.indexOf('hero-image') !== -1 && tags.indexOf('auto-created') !== -1) {
+          badges.push({ icon: 'fas fa-image', label: 'Auto: Hero Image', cls: 'prov--auto-hero' });
+        }
+        // Auto-created: social copy task
+        else if (tags.indexOf('social-copy') !== -1 && tags.indexOf('auto-created') !== -1) {
+          badges.push({ icon: 'fas fa-pen-fancy', label: 'Auto: Social Copy', cls: 'prov--auto-copy' });
+        }
+        // Auto-created: design revision from CEO rejection
+        else if (tags.indexOf('design-revision') !== -1 || srcType === 'auto:publish-rejection-design-feedback' || srcType === 'auto:ceo-design-feedback') {
+          badges.push({ icon: 'fas fa-palette', label: 'Auto: Design Fix', cls: 'prov--auto-design' });
+        }
+        // From standup
+        else if (srcType === 'standup') {
+          badges.push({ icon: 'fas fa-users', label: 'Standup', cls: 'prov--standup' });
+        }
+        // From meeting
+        else if (srcType === 'meeting') {
+          badges.push({ icon: 'fas fa-video', label: 'Meeting', cls: 'prov--meeting' });
+        }
+        // Agent via chat
+        else if (createdBy && createdBy.indexOf('(via chat)') !== -1) {
+          var chatAgent = createdBy.replace(' (via chat)', '').trim();
+          var _chatAg = getAgentById(chatAgent);
+          badges.push({ icon: 'fas fa-comment-dots', label: 'Chat: ' + (_chatAg ? _chatAg.name : chatAgent), cls: 'prov--chat', color: _chatAg ? _chatAg.color : null });
+        }
+        // Agent-created via heartbeat
+        else if (srcType === 'heartbeat' && createdBy && createdBy !== 'system') {
+          var _ag = getAgentById(createdBy);
+          badges.push({ icon: _ag ? _ag.icon : 'fas fa-robot', label: (_ag ? _ag.name : createdBy), cls: 'prov--agent', color: _ag ? _ag.color : null });
+        }
+        // CEO-created (no heartbeat source, not system)
+        else if (srcType !== 'heartbeat' && createdBy !== 'system') {
+          badges.push({ icon: 'fas fa-crown', label: 'CEO', cls: 'prov--ceo' });
+        }
+
+        // Additive: directive-linked
+        if (task.directive_id) {
+          badges.push({ icon: 'fas fa-bullhorn', label: 'Directive', cls: 'prov--directive' });
+        }
+        // Additive: objective-linked
+        if (task.objective_id) {
+          badges.push({ icon: 'fas fa-bullseye', label: 'Objective', cls: 'prov--objective' });
+        }
+
+        if (badges.length === 0) return '';
+        return '<div class="tm-prov-row">' + badges.map(function (b) {
+          var style = b.color ? ' style="border-color:' + b.color + '33; color:' + b.color + ';"' : '';
+          return '<span class="tm-prov ' + b.cls + '"' + style + ' title="' + escapeHtml(b.label) + '"><i class="' + b.icon + '"></i> ' + escapeHtml(b.label) + '</span>';
+        }).join('') + '</div>';
+      }
+
+      // v2.5 Related task badge — shows parent/children count on card
+      function _relatedBadge(task, allTasks) {
+        var parts = [];
+        if (task.parent_task_id) {
+          var parent = allTasks.find(function (t) { return t.id === task.parent_task_id; });
+          parts.push('<span class="tm-related tm-related--parent" title="Parent: ' + escapeHtml(parent ? parent.title : task.parent_task_id) + '"><i class="fas fa-arrow-up"></i> ' + escapeHtml(parent ? parent.title.substring(0, 25) : 'Parent') + '</span>');
+        }
+        var children = allTasks.filter(function (t) { return t.parent_task_id === task.id; });
+        if (children.length > 0) {
+          parts.push('<span class="tm-related tm-related--children" title="' + children.length + ' child task' + (children.length > 1 ? 's' : '') + '"><i class="fas fa-arrow-down"></i> ' + children.length + ' child' + (children.length > 1 ? 'ren' : '') + '</span>');
+        }
+        if (parts.length === 0) return '';
+        return '<div class="tm-related-row">' + parts.join('') + '</div>';
+      }
+
       // Priority Engine v1 — pill helper
       function _priorityPillHtml(task) {
         var cached = PriorityEngine.getCached(task.id);
@@ -718,12 +796,12 @@
           summaryEl.innerHTML = summaryHtml;
 
           colTasks.forEach(function (task) {
-            container.appendChild(createTaskCard(task, nowMs, dayMs));
+            container.appendChild(createTaskCard(task, nowMs, dayMs, tasks));
           });
         });
       }
 
-      function createTaskCard(task, nowMs, dayMs) {
+      function createTaskCard(task, nowMs, dayMs, allTasks) {
         var card = document.createElement('div');
         var agingClass = '';
         if (task.createdAt && nowMs && dayMs && task.status !== 'done') {
@@ -765,13 +843,11 @@
         var vBadge = _verifyBadgeHtml(task);
         var pPill = _priorityPillHtml(task);
 
-        // v2.3 D) Source traceability link
-        var sourceHtml = '';
-        if (task.source && task.source.type === 'standup') {
-          sourceHtml = '<div style="font-size:0.55rem;opacity:0.4;margin-top:0.2rem;"><i class="fas fa-link" style="margin-right:2px;"></i> From standup: <a href="/modules/company/standup.html" style="color:#fbbf24;text-decoration:none;">' + escapeHtml(task.source.title || 'Standup') + '</a></div>';
-        }
+        // v2.5 Provenance + related task badges
+        var provHtml = _provenanceBadge(task);
+        var relHtml = _relatedBadge(task, allTasks || []);
 
-        card.innerHTML = '<div class="tm-card-title">' + escapeHtml(task.title) + badge + vBadge + pPill + '</div>' + meta + sourceHtml;
+        card.innerHTML = '<div class="tm-card-title">' + escapeHtml(task.title) + badge + vBadge + pPill + '</div>' + meta + provHtml + relHtml;
 
         card.addEventListener('click', function () { openEditModal(task.id); });
 
@@ -813,7 +889,7 @@
 
           var tr = document.createElement('tr');
           tr.innerHTML =
-            '<td>' + escapeHtml(task.title) + '</td>' +
+            '<td>' + escapeHtml(task.title) + _provenanceBadge(task) + '</td>' +
             '<td><span class="tm-list-status tm-list-status--' + task.status + '">' + formatStatus(task.status) + '</span></td>' +
             '<td><span class="tm-card-priority tm-card-priority--' + task.priority + '">' + task.priority + '</span></td>' +
             '<td>' + (agent ? '<span style="color:' + agent.color + ';">' + agent.name + '</span>' : '<span style="opacity:0.2">—</span>') + '</td>' +
@@ -1040,11 +1116,70 @@
         taskDueField.value = task.dueDate ? String(task.dueDate).split('T')[0] : '';
         deleteBtn.style.display = '';
 
+        // Render related tasks (parent + children)
+        _renderRelatedTasks(task);
+
         // Render comments
         taskCommentsSection.style.display = '';
         renderComments(task);
 
         modal.classList.add('active');
+      }
+
+      // v2.5 Related Tasks panel in edit modal
+      function _renderRelatedTasks(task) {
+        var container = document.getElementById('tm-related-tasks');
+        if (!container) return;
+        var allTasks = AgentEngine.getTasks();
+        var parts = [];
+
+        // Parent
+        if (task.parent_task_id) {
+          var parent = allTasks.find(function (t) { return t.id === task.parent_task_id; });
+          if (parent) {
+            var pAgent = parent.assignee ? getAgentById(parent.assignee) : null;
+            parts.push('<div class="tm-rel-item tm-rel-item--parent" data-task-id="' + escapeHtml(parent.id) + '">' +
+              '<i class="fas fa-arrow-up" style="color:#fbbf24;font-size:0.5rem;"></i> ' +
+              '<span class="tm-rel-label">Parent:</span> ' +
+              '<span class="tm-rel-title">' + escapeHtml(parent.title) + '</span>' +
+              (pAgent ? ' <span style="color:' + pAgent.color + ';font-size:0.6rem;">(' + pAgent.name + ')</span>' : '') +
+              ' <span class="tm-rel-status tm-rel-status--' + parent.status + '">' + parent.status + '</span>' +
+              '</div>');
+          }
+        }
+
+        // Children
+        var children = allTasks.filter(function (t) { return t.parent_task_id === task.id; });
+        if (children.length > 0) {
+          children.forEach(function (child) {
+            var cAgent = child.assignee ? getAgentById(child.assignee) : null;
+            parts.push('<div class="tm-rel-item tm-rel-item--child" data-task-id="' + escapeHtml(child.id) + '">' +
+              '<i class="fas fa-arrow-down" style="color:#8b5cf6;font-size:0.5rem;"></i> ' +
+              '<span class="tm-rel-label">Child:</span> ' +
+              '<span class="tm-rel-title">' + escapeHtml(child.title) + '</span>' +
+              (cAgent ? ' <span style="color:' + cAgent.color + ';font-size:0.6rem;">(' + cAgent.name + ')</span>' : '') +
+              ' <span class="tm-rel-status tm-rel-status--' + child.status + '">' + child.status + '</span>' +
+              '</div>');
+          });
+        }
+
+        if (parts.length === 0) {
+          container.style.display = 'none';
+          container.innerHTML = '';
+          return;
+        }
+
+        container.style.display = '';
+        container.innerHTML = '<div class="tm-rel-header"><i class="fas fa-link"></i> Related Tasks</div>' + parts.join('');
+
+        // Clickable navigation — open the related task
+        container.querySelectorAll('.tm-rel-item').forEach(function (el) {
+          el.style.cursor = 'pointer';
+          el.addEventListener('click', function () {
+            var relId = el.getAttribute('data-task-id');
+            if (relId) openEditModal(relId);
+          });
+        });
       }
 
       function renderComments(task) {

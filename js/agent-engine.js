@@ -1824,6 +1824,7 @@ var AgentEngine = (function () {
       impact: entry.impact || null,            // Low/Medium/High (v2.2)
       effort: entry.effort || null,            // Low/Medium/High (v2.2)
       source: entry.source || null,            // { type, id, title, date } traceability (v2.2)
+      parent_task_id: entry.parent_task_id || null, // link to originating task (v2.5)
       directive_id: entry.directive_id || null, // link to parent directive
       objective_id: entry.objective_id || null, // link to parent objective
       createdAt: new Date().toISOString(),
@@ -2276,6 +2277,7 @@ var AgentEngine = (function () {
       status: 'todo',
       priority: 'high',
       assignee: 'pixel',
+      parent_task_id: queueItem.taskId || null,
       tags: ['design-revision', 'ceo-feedback'],
       source: { type: 'auto:ceo-design-feedback', actionId: actionId }
     });

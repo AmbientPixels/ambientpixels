@@ -1000,6 +1000,7 @@ Write the full deliverable first, then the structured JSON block.`;
                 assignee: 'scribe',
                 source: 'heartbeat',
                 created_by: 'system',
+                parent_task_id: action.taskId || null,
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
                 dueDate: socialTask.dueDate || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
@@ -1524,6 +1525,7 @@ Write the full deliverable first, then the structured JSON block.`;
               assignee: 'pixel',
               source: 'heartbeat',
               created_by: 'system',
+              parent_task_id: action.taskId || null,
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString(),
               directive_id: action.directive_id || null,
@@ -3056,6 +3058,7 @@ function applyTaskUpdate(tasks, update, _pendingEscalations) {
       completedAt: null,
       comments: [],
       source: 'heartbeat',
+      parent_task_id: update.task.parent_task_id || null,
       // Governance fields
       requires_ceo_approval: requiresApproval,
       risk_level: riskLevel,

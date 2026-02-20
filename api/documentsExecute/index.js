@@ -400,6 +400,7 @@ async function handleDocPublish(context, req, body) {
             status: 'todo',
             priority: 'high',
             assignee: 'pixel',
+            parent_task_id: (function() { var _pt = _tasks.find(function(t2) { return t2.status !== 'done' && t2.description && t2.description.indexOf(documentId) !== -1 && (t2.assignee === 'scribe' || t2.tags && t2.tags.indexOf('hero-image') !== -1); }); return _pt ? _pt.id : null; })(),
             createdAt: now,
             updatedAt: now,
             createdBy: 'system',
