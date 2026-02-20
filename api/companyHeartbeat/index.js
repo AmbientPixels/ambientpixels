@@ -1520,6 +1520,7 @@ Write the full deliverable first, then the structured JSON block.`;
               description: 'Generate a hero image for the blog post "' + doc.title + '".\nDocument ID: ' + doc.id + '\nUse generate-image with purpose "blog_header" and attachTo: { type: "document", id: "' + doc.id + '" }.\nChoose an appropriate preset based on the content tone.',
               status: 'todo',
               priority: action.task && action.task.priority ? action.task.priority : 'high',
+              dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
               assignee: 'pixel',
               source: 'heartbeat',
               created_by: 'system',
@@ -1528,9 +1529,11 @@ Write the full deliverable first, then the structured JSON block.`;
               directive_id: action.directive_id || null,
               tags: ['hero-image', 'auto-created', 'visual-workflow'],
               comments: [{
-                author: 'system',
-                text: 'Auto-created: ' + agentId + ' created doc "' + doc.title + '" (id: ' + doc.id + ', kind: ' + kind + '). Pixel needs to generate a hero image before this doc can be submitted for publish.',
-                timestamp: new Date().toISOString()
+                id: 'cmt-hero-' + Date.now(),
+                author: 'nova',
+                text: 'Pixel, generate a hero image for the blog post "' + doc.title + '" (doc: ' + doc.id + ', kind: ' + kind + '). Use generate-image with purpose blog_header and attachTo the document. Choose a preset that matches the content tone.',
+                type: 'system',
+                createdAt: new Date().toISOString()
               }]
             };
             tasks.push(heroTask);
