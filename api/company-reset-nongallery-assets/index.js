@@ -1,16 +1,15 @@
 const companyStorage = require('../_utils/companyStorage');
 
-const COMPANY_SECRET = process.env.COMPANY_WRITE_SECRET;
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, x-company-secret, x-ms-client-principal',
+  'Content-Type': 'application/json'
+};
 
 module.exports = async function (context, req) {
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-company-secret, x-ms-client-principal'
-  };
-
   if (req.method === 'OPTIONS') {
-    context.res = { status: 200, headers: corsHeaders, body: {} };
+    context.res = { status: 204, headers: corsHeaders, body: '' };
     return;
   }
 
@@ -19,13 +18,12 @@ module.exports = async function (context, req) {
     return;
   }
 
-  // Auth check
-  const authHeader = req.headers.authorization;
-  const secretHeader = req.headers['x-company-secret'];
-  const isCompanySecret = (secretHeader && secretHeader === COMPANY_SECRET) || authHeader === `Bearer ${COMPANY_SECRET}`;
-  const isAuthenticated = req.headers['x-ms-client-principal'];
-  if (!isCompanySecret && !isAuthenticated) {
-    context.res = { status: 401, headers: corsHeaders, body: { error: 'Unauthorized' } };
+  // Auth: accept write secret OR authenticated SWA user (same as company-state)
+  const secret = (req.headers && req.headers['x-company-secret']) || '';
+  const clientPrincipal = (req.headers && req.headers['x-ms-client-principal']) || '';
+  const isAuthenticated = !!clientPrincipal;
+  if (!companyStorage.validateSecret(secret) && !isAuthenticated) {
+    context.res = { status: 403, headers: corsHeaders, body: { error: 'Invalid write secret and no authenticated user' } };
     return;
   }
 
