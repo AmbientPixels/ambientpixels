@@ -2228,7 +2228,7 @@
                 try { localStorage.removeItem('approvalQueue'); } catch (e) {}
                 try { localStorage.removeItem('ap_action_audit_log'); } catch (e) {}
                 try { localStorage.removeItem('ap_action_rate_counts'); } catch (e) {}
-                location.reload();
+                window.location.reload(true);
               });
             });
           });
