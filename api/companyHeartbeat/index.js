@@ -2138,6 +2138,16 @@ Write the full deliverable first, then the structured JSON block.`;
         context.log('[Heartbeat]', agentId, 'generate-image: usage check failed, proceeding:', limErr.message);
       }
 
+      // Early guard: skip blog_header generation if target document already has a hero image
+      if (imgPurpose === 'blog_header' && attachTo && attachTo.type === 'document' && attachTo.id) {
+        const _earlyDocCheck = (await storage.getState('documents')) || [];
+        const _earlyDoc = _earlyDocCheck.find(d => d.id === attachTo.id);
+        if (_earlyDoc && _earlyDoc.hero_image_asset_id) {
+          context.log('[Heartbeat]', agentId, 'generate-image SKIPPED (early): doc', attachTo.id, 'already has hero_image_asset_id:', _earlyDoc.hero_image_asset_id);
+          continue;
+        }
+      }
+
       context.log('[Heartbeat]', agentId, 'generating image:', imgPurpose, '| topic:', imgTopic, '| preset:', imgPreset, '| outputType:', imgOutputType);
       const imgGenStartMs = Date.now();
       const imgJobId = 'img_' + Date.now() + '_' + crypto.randomBytes(3).toString('hex');
@@ -2192,6 +2202,10 @@ Write the full deliverable first, then the structured JSON block.`;
           const imgDoc = imgDocsStore[imgDocIdx];
 
           if (imgPurpose === 'blog_header') {
+            // Guard: skip if document already has a hero image attached
+            if (imgDoc.hero_image_asset_id) {
+              context.log('[Heartbeat]', agentId, 'generate-image SKIPPED: doc', attachTo.id, 'already has hero_image_asset_id:', imgDoc.hero_image_asset_id, '— not overwriting');
+            } else {
             // Set hero_image_asset_id only — no content_md mutation
             imgDoc.hero_image_asset_id = imgJobId;
             imgDoc.updated_at = new Date().toISOString();
@@ -2219,6 +2233,7 @@ Write the full deliverable first, then the structured JSON block.`;
               });
               context.log('[Heartbeat]', agentId, 'notified originating task', _originTask.id, 'that hero image is ready for doc:', _heroDocId);
             }
+            } // end of else (no existing hero image)
           } else if (imgPurpose === 'inline_illustration') {
             // Token replacement: {{IMAGE:slot}} → ![alt](url)
             const imgSlot = (img.slot || 'default').trim();
@@ -2315,11 +2330,13 @@ Write the full deliverable first, then the structured JSON block.`;
         });
       } catch (usageErr) { context.log.warn('[Heartbeat] generate-image usage record failed (non-fatal):', usageErr.message); }
 
-      // Auto-advance parent task to review if taskId provided
+      // Auto-advance parent task: auto-created hero image tasks → done (no peer review needed),
+      // all other image tasks → review
       if (action.taskId) {
         const imgTaskIdx = tasks.findIndex(t => t.id === action.taskId);
-        if (imgTaskIdx !== -1 && tasks[imgTaskIdx].status !== 'done' && tasks[imgTaskIdx].status !== 'review') {
-          tasks[imgTaskIdx].status = 'review';
+        if (imgTaskIdx !== -1 && tasks[imgTaskIdx].status !== 'done') {
+          const _isAutoHeroTask = (tasks[imgTaskIdx].tags || []).indexOf('hero-image') !== -1 && (tasks[imgTaskIdx].tags || []).indexOf('auto-created') !== -1;
+          tasks[imgTaskIdx].status = _isAutoHeroTask ? 'done' : 'review';
           tasks[imgTaskIdx].updatedAt = new Date().toISOString();
           if (!tasks[imgTaskIdx].comments) tasks[imgTaskIdx].comments = [];
           tasks[imgTaskIdx].comments.push({
