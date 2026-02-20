@@ -493,19 +493,25 @@ module.exports = async function (context) {
 
         // Nova auto-assign fallback: if Nova commented on unassigned tasks, detect agent name and auto-assign
         if (agentId === 'nova') {
-          const AGENT_NAME_MAP = { scribe: 'scribe', pixel: 'pixel', echo: 'echo', forge: 'forge', cipher: 'cipher', scout: 'scout', quill: 'quill' };
-          for (const task of tasks) {
-            if (task.assignee || task.status === 'done') continue;
-            const novaComment = (task.comments || []).find(c => c.author === 'nova' && c.createdAt && (Date.now() - new Date(c.createdAt).getTime()) < 5 * 60 * 1000);
-            if (!novaComment) continue;
-            const commentLower = novaComment.text.toLowerCase();
-            for (const [name, id] of Object.entries(AGENT_NAME_MAP)) {
-              if (commentLower.indexOf(name) !== -1) {
-                task.assignee = id;
-                task.updatedAt = new Date().toISOString();
-                if (!task.comments) task.comments = [];
-                task.comments.push({ id: 'cmt-autoassign-' + Date.now(), author: 'system', text: 'Auto-assigned to ' + name + ' based on Nova triage comment.', type: 'system', createdAt: new Date().toISOString() });
-                context.log('[Heartbeat] AUTO-ASSIGN:', task.id, '→', id, '(Nova mentioned', name, 'in triage comment)');
+          const _AGENT_NAMES = { scribe: 'scribe', pixel: 'pixel', echo: 'echo', forge: 'forge', cipher: 'cipher', scout: 'scout', quill: 'quill' };
+          for (let _ti = 0; _ti < tasks.length; _ti++) {
+            var _t = tasks[_ti];
+            if (_t.assignee || _t.status === 'done') continue;
+            // Find the MOST RECENT Nova comment (iterate backwards)
+            var _novaComments = (_t.comments || []).filter(function(c) { return c.author === 'nova'; });
+            if (_novaComments.length === 0) continue;
+            var _latestNova = _novaComments[_novaComments.length - 1];
+            var _cLower = (_latestNova.text || '').toLowerCase();
+            var _assigned = false;
+            var _agentKeys = Object.keys(_AGENT_NAMES);
+            for (var _ai = 0; _ai < _agentKeys.length; _ai++) {
+              if (_cLower.indexOf(_agentKeys[_ai]) !== -1) {
+                _t.assignee = _AGENT_NAMES[_agentKeys[_ai]];
+                _t.updatedAt = new Date().toISOString();
+                if (!_t.comments) _t.comments = [];
+                _t.comments.push({ id: 'cmt-autoassign-' + Date.now(), author: 'system', text: 'Auto-assigned to ' + _agentKeys[_ai] + ' based on Nova triage comment.', type: 'system', createdAt: new Date().toISOString() });
+                context.log('[Heartbeat] AUTO-ASSIGN:', _t.id, '→', _AGENT_NAMES[_agentKeys[_ai]], '(Nova mentioned', _agentKeys[_ai], 'in triage comment)');
+                _assigned = true;
                 break;
               }
             }
@@ -1561,6 +1567,8 @@ Write the full deliverable first, then the structured JSON block.`;
           if (existTitle !== _proposedDocTitle) return false;
           // Allow same-title docs when linked to different tasks (new task = new doc)
           if (action.taskId && d.taskId && action.taskId !== d.taskId) return false;
+          // Allow if new action has taskId but old doc doesn't (old doc is orphaned test data)
+          if (action.taskId && !d.taskId) return false;
           // Skip stale drafts older than 24h that were never published (abandoned tests)
           if (d.status === 'draft' && d.created_at) {
             const ageMs = Date.now() - new Date(d.created_at).getTime();
