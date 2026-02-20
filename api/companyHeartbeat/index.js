@@ -426,7 +426,7 @@ module.exports = async function (context) {
               context.log('[Heartbeat]', agentId, 'BLOCKED review on', update.taskId, '— task just entered review this cycle (cooldown)');
               continue;
             }
-            const updatedTask = applyTaskUpdate(tasks, update, _pendingEscalations);
+            const updatedTask = applyTaskUpdate(tasks, update, _pendingEscalations, agentId);
             if (update.action === 'create') newTasksCreated++;
             // CEO task completion → create action for approval queue
             if (update._ceoApprovalAction) {
@@ -3044,7 +3044,7 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
 }
 
 // ── Apply task mutation ──
-function applyTaskUpdate(tasks, update, _pendingEscalations) {
+function applyTaskUpdate(tasks, update, _pendingEscalations, _creatingAgentId) {
   if (update.action === 'create') {
     const riskLevel = update.task.risk_level || 'low';
     const budgetImpact = update.task.budget_impact || 0;
@@ -3083,6 +3083,7 @@ function applyTaskUpdate(tasks, update, _pendingEscalations) {
       completedAt: null,
       comments: [],
       source: 'heartbeat',
+      created_by: _creatingAgentId || 'system',
       parent_task_id: update.task.parent_task_id || null,
       // Governance fields
       requires_ceo_approval: requiresApproval,
