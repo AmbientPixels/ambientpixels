@@ -2267,6 +2267,32 @@
           }
           location.reload();
         }
+      },
+      'reset-documents': {
+        title: 'Reset Documents (Keep Content Gallery)',
+        desc: 'This will remove all non-published documents from the system, preserving gallery-visible content.',
+        exec: function () {
+          fetch('/api/company-reset-documents', {
+            method: 'POST',
+            headers: CompanyStore.getWriteHeaders()
+          }).then(r => r.json()).then(d => {
+            if (d.ok) window.location.reload(true);
+            else alert('Error: ' + JSON.stringify(d));
+          }).catch(e => alert('Error: ' + e.message));
+        }
+      },
+      'reset-nongallery-assets': {
+        title: 'Reset Non-Gallery Content Assets',
+        desc: 'This will remove all image assets not referenced by gallery-visible documents.',
+        exec: function () {
+          fetch('/api/company-reset-nongallery-assets', {
+            method: 'POST',
+            headers: CompanyStore.getWriteHeaders()
+          }).then(r => r.json()).then(d => {
+            if (d.ok) window.location.reload(true);
+            else alert('Error: ' + JSON.stringify(d));
+          }).catch(e => alert('Error: ' + e.message));
+        }
       }
     };
 
