@@ -2588,7 +2588,7 @@ var AgentEngine = (function () {
               t.comments.push({ id: 'cmt-reject-child-' + Date.now(), author: 'system', text: 'Parent task rejected by CEO — child task closed.', type: 'system', createdAt: nowIso });
             }
           });
-          _saveTasks(tasks);
+          _saveStorage(TASKS_KEY, tasks);
         }
 
         return a;
