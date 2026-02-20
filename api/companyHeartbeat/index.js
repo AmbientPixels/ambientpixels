@@ -1528,6 +1528,10 @@ Write the full deliverable first, then the structured JSON block.`;
         // Visual doc kinds: auto-create Pixel hero image task instead of auto-submitting for publish
         // Doc stays in draft until Pixel generates the hero image, then Scribe submits in a future heartbeat
         const VISUAL_DOC_KINDS = ['marketing_post', 'product_brief'];
+        context.log('[Heartbeat] HERO-DIAG:', agentId, 'doc kind:', kind, 'isVisual:', VISUAL_DOC_KINDS.indexOf(kind) !== -1, 'docId:', doc.id, 'taskId:', action.taskId || 'NONE');
+        if (action.taskId) {
+          result.taskUpdates.push({ action: 'comment', taskId: action.taskId, comment: '[DIAG] create-doc fired — kind: ' + kind + ', isVisual: ' + (VISUAL_DOC_KINDS.indexOf(kind) !== -1) + ', docId: ' + doc.id, agentId: 'system' });
+        }
         if (VISUAL_DOC_KINDS.indexOf(kind) !== -1) {
           // Dedup: skip if a Pixel hero image task already exists for this doc
           const _heroTaskTitle = 'Generate hero image for: ' + doc.title;
@@ -1536,6 +1540,10 @@ Write the full deliverable first, then the structured JSON block.`;
             (t.title === _heroTaskTitle || (t.description && t.description.indexOf(doc.id) !== -1))
           );
 
+          context.log('[Heartbeat] HERO-DIAG:', agentId, 'heroTaskExists:', _heroTaskExists, 'heroTitle:', _heroTaskTitle);
+          if (action.taskId) {
+            result.taskUpdates.push({ action: 'comment', taskId: action.taskId, comment: '[DIAG] hero dedup check — exists: ' + _heroTaskExists + ', looking for: ' + _heroTaskTitle, agentId: 'system' });
+          }
           if (!_heroTaskExists) {
             // Create a task for Pixel to generate the hero image
             const heroTask = {
