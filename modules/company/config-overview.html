@@ -2218,6 +2218,7 @@
         desc: 'This will clear all pending, approved, and executed actions plus rate counts.',
         exec: function () {
           CompanyStore.setState('ap_action_queue', []);
+          try { localStorage.removeItem('ap_action_queue'); } catch (e) {}
           try { localStorage.removeItem('ap_action_rate_counts'); } catch (e) {}
           location.reload();
         }
