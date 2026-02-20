@@ -2198,6 +2198,27 @@ Write the full deliverable first, then the structured JSON block.`;
             imgDoc.last_edited_by = agentId;
             imgAsset.attachedTo = { type: 'document', id: attachTo.id, field: 'hero_image_asset_id' };
             context.log('[Heartbeat]', agentId, 'attached hero image asset', imgJobId, 'to doc:', attachTo.id);
+
+            // Clear awaiting flag
+            imgDoc.awaiting_hero_image = false;
+
+            // Notify originating Scribe task that hero image is ready
+            const _heroDocId = attachTo.id;
+            const _originTask = tasks.find(t =>
+              t.assignee === 'scribe' && t.status !== 'done' &&
+              t.comments && t.comments.some(c => c.text && c.text.indexOf(_heroDocId) !== -1)
+            );
+            if (_originTask) {
+              if (!_originTask.comments) _originTask.comments = [];
+              _originTask.comments.push({
+                id: 'cmt-hero-ready-' + Date.now(),
+                author: 'system',
+                text: 'Hero image generated and attached to document ' + _heroDocId + ' (asset: ' + imgJobId + '). You can now submit this document for publish using submit-for-publish with documentId: ' + _heroDocId,
+                type: 'system',
+                createdAt: new Date().toISOString()
+              });
+              context.log('[Heartbeat]', agentId, 'notified originating task', _originTask.id, 'that hero image is ready for doc:', _heroDocId);
+            }
           } else if (imgPurpose === 'inline_illustration') {
             // Token replacement: {{IMAGE:slot}} → ![alt](url)
             const imgSlot = (img.slot || 'default').trim();
