@@ -50,7 +50,7 @@ const CFO_THRESHOLD = 100; // budget_impact above this requires CEO approval
 const GUARDRAILS = {
   maxActionsPerCyclePerAgent: 3,
   maxGeminiCallsPerCycle: 15, // Tier 4 sub-agents are gated; only consume calls when triggered
-  maxNewTasksPerCycle: 2,
+  maxNewTasksPerCycle: 1,
   maxExecutesPerCyclePerAgent: 1,
   maxContentGeneratesPerCyclePerAgent: 1,
   maxEscalationsPerCycle: 3,
@@ -816,7 +816,7 @@ Write the full deliverable first, then the structured JSON block.`;
     if (_pixelHeroTask) {
       const _pHeroAge = Date.now() - new Date(_pixelHeroTask.createdAt).getTime();
       const _hasGenerateImage = actions.some(a => a.type === 'generate-image');
-      if (_pHeroAge > 10 * 60 * 1000 && !_hasGenerateImage) {
+      if (!_hasGenerateImage) {
         const _pDocMatch = (_pixelHeroTask.description || '').match(/Document ID:\s*(doc_[a-z0-9_]+)/i);
         const _pDocId = _pDocMatch ? _pDocMatch[1] : null;
         const _pTitle = (_pixelHeroTask.title || '').replace('Generate hero image for: ', '');
@@ -1087,6 +1087,28 @@ Write the full deliverable first, then the structured JSON block.`;
       if (isDupe) {
         context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action — duplicate: pending social action already exists for task', action.taskId);
         continue;
+      }
+
+      // FIX 3: Block social actions that reference blog posts not yet published+promoted
+      // This prevents the entire cascade: social action → copy task → Scribe create-doc → hero image
+      if (action.taskId) {
+        const _saParentTask = tasks.find(t => t.id === action.taskId);
+        if (_saParentTask) {
+          const _saText = ((_saParentTask.title || '') + ' ' + (_saParentTask.description || '')).toLowerCase();
+          const _saRefsBlog = /blog\s*post|marketing_post|hello\s*world|write.*article|first\s*post/.test(_saText);
+          if (_saRefsBlog) {
+            // Check if the blog post is actually published + promoted
+            const _saDocs = (await storage.getState('documents')) || [];
+            const _saPublishedAndPromoted = _saDocs.some(d =>
+              d.status === 'published' && d.promote === true &&
+              d.kind === 'marketing_post'
+            );
+            if (!_saPublishedAndPromoted) {
+              context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action — blog not published+promoted yet. Social tasks auto-created after CEO approves publish with promote=true.');
+              continue;
+            }
+          }
+        }
       }
 
       // ── COPY REVIEW GATE ──
@@ -1601,6 +1623,23 @@ Write the full deliverable first, then the structured JSON block.`;
       const kind = docPayload.kind || 'product_brief';
 
       if (docPayload.title && VALID_DOC_KINDS.indexOf(kind) !== -1) {
+        // FIX: Block create-doc on social-copy tasks — Scribe must use execute-task for social copy, not create-doc
+        // Creating a marketing_post doc for social copy triggers hero image cascade (the entire bug chain)
+        if (action.taskId) {
+          const _originTask = tasks.find(t => t.id === action.taskId);
+          const _isSocialCopyTask = _originTask && (
+            (_originTask.tags && _originTask.tags.indexOf('social-copy') !== -1) ||
+            ((_originTask.title || '').indexOf('Write social copy for:') === 0)
+          );
+          if (_isSocialCopyTask) {
+            context.log('[Heartbeat]', agentId, 'BLOCKED create-doc on social-copy task:', action.taskId, '— use execute-task for social copy, not create-doc');
+            if (action.taskId) {
+              result.taskUpdates.push({ action: 'comment', taskId: action.taskId, comment: '[SYSTEM] create-doc blocked on social copy task. Use execute-task to produce your social copy deliverable, not create-doc.', agentId: 'system' });
+            }
+            break;
+          }
+        }
+
         // Title-based dedup: skip if a doc with very similar title already exists
         const _proposedDocTitle = (docPayload.title || '').toLowerCase().trim();
         const existingDocs = (await storage.getState('documents')) || [];
@@ -1684,12 +1723,23 @@ Write the full deliverable first, then the structured JSON block.`;
         }
         if (VISUAL_DOC_KINDS.indexOf(kind) !== -1 && agentId === 'scribe') {
           // Only Scribe-created visual docs trigger hero image tasks (prevents ops/engineering docs from spawning hero tasks)
-          // Dedup: skip if a Pixel hero image task already exists for this doc
+          // FIX 5: Stronger dedup — check by title substring match, not just exact title or doc ID
+          // Prevents multiple hero tasks when the same blog post has multiple doc records
           const _heroTaskTitle = 'Generate hero image for: ' + doc.title;
-          const _heroTaskExists = tasks.some(t =>
-            t.assignee === 'pixel' && t.status !== 'done' &&
-            (t.title === _heroTaskTitle || (t.description && t.description.indexOf(doc.id) !== -1))
-          );
+          const _heroNormTitle = doc.title.toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
+          const _heroTaskExists = tasks.some(t => {
+            if (t.assignee !== 'pixel' || t.status === 'done') return false;
+            if (t.title === _heroTaskTitle) return true;
+            if (t.description && t.description.indexOf(doc.id) !== -1) return true;
+            // Fuzzy: any active Pixel hero task whose title contains the same blog title words
+            if ((t.title || '').indexOf('Generate hero image for:') === 0) {
+              const _existHeroNorm = t.title.replace('Generate hero image for: ', '').toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
+              if (_existHeroNorm === _heroNormTitle) return true;
+              // Check if one contains the other (handles "Write our first blog post: Hello World" vs "Hello World")
+              if (_heroNormTitle.length > 10 && (_existHeroNorm.indexOf(_heroNormTitle) !== -1 || _heroNormTitle.indexOf(_existHeroNorm) !== -1)) return true;
+            }
+            return false;
+          });
 
           context.log('[Heartbeat] HERO-DIAG:', agentId, 'heroTaskExists:', _heroTaskExists, 'heroTitle:', _heroTaskTitle);
           if (action.taskId) {
@@ -3082,6 +3132,7 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
 - Do NOT create a new task if you already have a todo or in-progress task that covers the same goal — execute the existing task instead.
 - Do NOT comment on a task just to say you are "working on it" or "planning to" — instead, use execute-task or the appropriate action to produce the output.
 - TASK CREATION LIMIT: Do not create more than 1 new task per heartbeat unless you have also used execute-task or create-doc in the same cycle. Organizing without producing is not useful.
+- TASK CREATION SCOPE: Only create tasks that DIRECTLY serve an existing CEO task or active directive. Do NOT create speculative tasks about API costs, deployment monitoring, performance optimization, infrastructure audits, or other operational topics unless the CEO or a directive specifically requests it. The CEO sets the agenda — agents execute it.
 - If a task description says to use create-doc, you MUST use create-doc (not execute-task) to produce the document directly.
 - BLOG POST / MARKETING CONTENT RULE: When your task involves writing a blog post, article, or marketing content, you MUST use create-doc with kind "marketing_post" — NOT execute-task. execute-task only produces a deliverable comment — it does NOT create a publishable document, does NOT trigger automatic hero image generation by Pixel, and does NOT enter the publish pipeline. Always use create-doc for any content that should become a published article or blog post. Include the full markdown content in document.content_md and set document.kind to "marketing_post".
 - If a CEO comment says "top priority" or "complete before other work", that task takes absolute precedence — execute it immediately.` + (agent.name === 'Nova' ? `
