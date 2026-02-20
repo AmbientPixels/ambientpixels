@@ -1712,8 +1712,34 @@
             _aqApproveBtn.addEventListener('click', function () {
               var aid = this.dataset.actionId;
               if (!aid) return;
+              var action = AgentEngine.getAction(aid);
               AgentEngine.approveAction(aid);
               renderApprovalQueue(); renderAll();
+              // Auto-execute publish_document actions after approval
+              var aType = action && (action.type || action.action_type || '');
+              if (aType === 'publish_document') {
+                console.log('[Dashboard] Auto-executing publish_document action:', aid);
+                var _execApiBase = getApiBase();
+                fetch(_execApiBase + '/actions/execute', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ action_id: aid })
+                }).then(function (res) { return res.json(); })
+                .then(function (data) {
+                  if (data.success) {
+                    console.log('[Dashboard] Publish executed successfully:', data);
+                    if (AgentEngine.completeAction) AgentEngine.completeAction(aid, (data.execution && data.execution.receipt) || null);
+                    renderApprovalQueue(); renderAll();
+                    alert('Blog post published successfully!' + ((data.execution && data.execution.receipt && data.execution.receipt.public_url) ? '\n→ ' + data.execution.receipt.public_url : ''));
+                  } else {
+                    console.error('[Dashboard] Publish execution failed:', data);
+                    alert('Publish failed: ' + (data.error || 'Unknown error'));
+                  }
+                }).catch(function (err) {
+                  console.error('[Dashboard] Publish execution network error:', err);
+                  alert('Network error executing publish: ' + err.message);
+                });
+              }
             });
           }
           if (_aqRejectBtn) {
