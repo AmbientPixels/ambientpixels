@@ -2217,10 +2217,21 @@
         title: 'Reset Action Queue',
         desc: 'This will clear all pending, approved, and executed actions plus rate counts.',
         exec: function () {
-          CompanyStore.setState('ap_action_queue', []);
-          try { localStorage.removeItem('ap_action_queue'); } catch (e) {}
-          try { localStorage.removeItem('ap_action_rate_counts'); } catch (e) {}
-          location.reload();
+          CompanyStore.setState('ap_action_queue', []).then(() => {
+            CompanyStore.setState('ap_actions', []).then(() => {
+              CompanyStore.setState('ap_approval_queue', []).then(() => {
+                try { localStorage.removeItem('ap_action_queue'); } catch (e) {}
+                try { localStorage.removeItem('ap_actions'); } catch (e) {}
+                try { localStorage.removeItem('ap_approval_queue'); } catch (e) {}
+                try { localStorage.removeItem('actionQueue'); } catch (e) {}
+                try { localStorage.removeItem('actions'); } catch (e) {}
+                try { localStorage.removeItem('approvalQueue'); } catch (e) {}
+                try { localStorage.removeItem('ap_action_audit_log'); } catch (e) {}
+                try { localStorage.removeItem('ap_action_rate_counts'); } catch (e) {}
+                location.reload();
+              });
+            });
+          });
         }
       },
       'reset-audit-logs': {
