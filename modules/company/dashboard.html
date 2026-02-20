@@ -1748,11 +1748,24 @@
           if (_promoCb) {
             (function (cb, docId) {
               // Pre-check if document already has promote: true
+              var _autoPromo = (typeof ActionRouter !== 'undefined' && ActionRouter.isAutoPromoteEnabled) ? ActionRouter.isAutoPromoteEnabled() : false;
               try {
                 var docs = CompanyStore.getStateSync('ap_documents', []);
                 var d = (docs || []).find(function (x) { return x.id === docId; });
                 if (d && d.promote) cb.checked = true;
+                // Auto-promote override: if config toggle is ON, auto-check and write to doc
+                if (_autoPromo && d && !d.promote) {
+                  cb.checked = true;
+                  d.promote = true;
+                  d.updated_at = new Date().toISOString();
+                  CompanyStore.setState('ap_documents', docs);
+                  console.log('[Dashboard] Auto-promote ON — set promote=true on doc:', docId);
+                }
               } catch (e) { /* ignore */ }
+              if (_autoPromo) {
+                var lbl = cb.closest('.aq-promote-label');
+                if (lbl) lbl.innerHTML = cb.outerHTML + ' <i class="fas fa-bullhorn" style="font-size:0.5rem;color:#a855f7;"></i> Auto-promote <span style="color:#a855f7;font-size:0.5rem;">(config override)</span>';
+              }
               cb.addEventListener('change', function () {
                 var checked = cb.checked;
                 CompanyStore.getState('ap_documents', []).then(function (docs) {

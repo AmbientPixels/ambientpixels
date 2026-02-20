@@ -687,6 +687,13 @@
           <button id="cfg-revert-btn" class="cfg-action-sub-toggle off" style="font-size:0.55rem;padding:0.25rem 0.6rem;cursor:pointer;">Revert Last Adjustment</button>
           <div id="cfg-revert-status" style="font-size:0.5rem;opacity:0.3;margin-top:0.2rem;"></div>
         </div>
+        <div class="cfg-autonomy-group-title">Content Pipeline</div>
+        <div class="cfg-action-sub-row">
+          <span class="cfg-action-sub-label">Auto-Promote</span>
+          <button class="cfg-action-sub-toggle" id="cfg-autopromote-toggle"></button>
+          <span class="cfg-action-sub-mode" id="cfg-mode-autopromote"></span>
+        </div>
+        <div id="cfg-autopromote-info" style="font-size:0.55rem;opacity:0.3;padding:0.2rem 0 0 0.2rem;">When ON, all published blog posts automatically get social promotion (Echo tasks created for LinkedIn, X, Bluesky). When OFF, CEO must check "promote" per document.</div>
         <div class="cfg-autonomy-group-title">External</div>
         <div class="cfg-action-sub-row">
           <span class="cfg-action-sub-label">Social</span>
@@ -1419,6 +1426,7 @@
     var subGit = document.getElementById('cfg-action-sub-git');
     var subConfigChg = document.getElementById('cfg-configchg-toggle');
     var configChgInfo = document.getElementById('cfg-configchg-info');
+    var subAutoPromote = document.getElementById('cfg-autopromote-toggle');
     var revertBackupInfo = document.getElementById('cfg-revert-backup-info');
     var revertBtn = document.getElementById('cfg-revert-btn');
     var revertStatus = document.getElementById('cfg-revert-status');
@@ -1449,6 +1457,7 @@
       renderSub(subContent, ActionRouter.isContentEnabled(), 'content', 'cfg-mode-content');
       renderSub(subEmail, ActionRouter.isEmailEnabled(), 'email', 'cfg-mode-email');
       renderSub(subGit, ActionRouter.isGitEnabled(), 'git', 'cfg-mode-git');
+      renderSub(subAutoPromote, ActionRouter.isAutoPromoteEnabled(), 'autoPromote', 'cfg-mode-autopromote');
       renderConfigChgInfo();
       renderRevertPanel();
 
@@ -1473,6 +1482,7 @@
         else if (type === 'email') ActionRouter.setEmailEnabled(!on);
         else if (type === 'git') ActionRouter.setGitEnabled(!on);
         else if (type === 'configChanges') ActionRouter.setConfigChangesEnabled(!on, 'CEO');
+        else if (type === 'autoPromote') ActionRouter.setAutoPromoteEnabled(!on, 'CEO');
         render();
       };
     }

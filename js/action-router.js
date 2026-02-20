@@ -14,11 +14,12 @@ var ActionRouter = (function () {
     content: 'ap_actions_content_enabled',
     email: 'ap_actions_email_enabled',
     git: 'ap_actions_git_enabled',
-    configChanges: 'ap_config_changes_enabled'
+    configChanges: 'ap_config_changes_enabled',
+    autoPromote: 'ap_auto_promote_enabled'
   };
 
   // ── Defaults (SAFE — all external channels OFF = CEO approval) ──
-  var DEFAULTS = { global: false, task: true, social: false, content: false, email: false, git: false, configChanges: false };
+  var DEFAULTS = { global: false, task: true, social: false, content: false, email: false, git: false, configChanges: false, autoPromote: false };
 
   // ── Execution caps ──
   var MAX_PER_CYCLE = 5;
@@ -54,6 +55,7 @@ var ActionRouter = (function () {
   function isEmailEnabled() { return _getSetting(KEYS.email, DEFAULTS.email); }
   function isGitEnabled() { return _getSetting(KEYS.git, DEFAULTS.git); }
   function isConfigChangesEnabled() { return _getSetting(KEYS.configChanges, DEFAULTS.configChanges); }
+  function isAutoPromoteEnabled() { return _getSetting(KEYS.autoPromote, DEFAULTS.autoPromote); }
 
   function setEnabled(val, source) {
     var prev = isEnabled();
@@ -86,6 +88,22 @@ var ActionRouter = (function () {
         _lastKillAuditTs = now;
         if (typeof ActionAudit !== 'undefined') {
           ActionAudit.append({ eventType: next ? 'config_changes_enabled' : 'config_changes_disabled', source: source || 'CONFIG_UI' });
+        }
+      }
+    }
+    return next;
+  }
+
+  function setAutoPromoteEnabled(val, source) {
+    var prev = isAutoPromoteEnabled();
+    var next = !!val;
+    _setSetting(KEYS.autoPromote, next);
+    if (prev !== next) {
+      var now = Date.now();
+      if (now - _lastKillAuditTs > KILL_DEBOUNCE_MS) {
+        _lastKillAuditTs = now;
+        if (typeof ActionAudit !== 'undefined') {
+          ActionAudit.append({ eventType: next ? 'auto_promote_enabled' : 'auto_promote_disabled', source: source || 'CONFIG_UI' });
         }
       }
     }
@@ -421,6 +439,8 @@ var ActionRouter = (function () {
     setGitEnabled: setGitEnabled,
     isConfigChangesEnabled: isConfigChangesEnabled,
     setConfigChangesEnabled: setConfigChangesEnabled,
+    isAutoPromoteEnabled: isAutoPromoteEnabled,
+    setAutoPromoteEnabled: setAutoPromoteEnabled,
     // Registry
     loadRegistry: loadRegistry,
     getActionDef: getActionDef,
