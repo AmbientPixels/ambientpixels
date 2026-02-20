@@ -126,6 +126,53 @@ async function publishDocument(action) {
     await storage.setState('actionAuditLog', auditLog);
   } catch (e) { /* non-fatal */ }
 
+  // AUTO-CLOSE: Mark parent blog task + child hero image tasks as done after successful publish
+  try {
+    const tasks = (await storage.getState('tasks')) || [];
+    const parentTaskId = (doc.source && doc.source.task_id) || doc.taskId || null;
+    let tasksChanged = false;
+
+    if (parentTaskId) {
+      const parentIdx = tasks.findIndex(function(t) { return t.id === parentTaskId; });
+      if (parentIdx !== -1 && tasks[parentIdx].status !== 'done') {
+        tasks[parentIdx].status = 'done';
+        tasks[parentIdx].updatedAt = now;
+        if (!tasks[parentIdx].comments) tasks[parentIdx].comments = [];
+        tasks[parentIdx].comments.push({
+          id: 'cmt-pub-done-' + Date.now(),
+          author: 'system',
+          text: 'Blog post "' + (doc.title || slug) + '" published successfully. Task auto-closed.',
+          type: 'system',
+          createdAt: now
+        });
+        tasksChanged = true;
+      }
+
+      // Close child hero image tasks
+      for (var ti = 0; ti < tasks.length; ti++) {
+        if (tasks[ti].parent_task_id === parentTaskId &&
+            (tasks[ti].tags || []).indexOf('hero-image') !== -1 &&
+            tasks[ti].status !== 'done') {
+          tasks[ti].status = 'done';
+          tasks[ti].updatedAt = now;
+          if (!tasks[ti].comments) tasks[ti].comments = [];
+          tasks[ti].comments.push({
+            id: 'cmt-hero-done-' + Date.now(),
+            author: 'system',
+            text: 'Parent blog post published. Hero image task auto-closed.',
+            type: 'system',
+            createdAt: now
+          });
+          tasksChanged = true;
+        }
+      }
+
+      if (tasksChanged) {
+        await storage.setState('tasks', tasks);
+      }
+    }
+  } catch (e) { /* non-fatal — task auto-close failed */ }
+
   // AUTO-PROMOTE: When CEO publishes with promote=true, auto-create Echo social tasks
   if (isPublic && doc.promote) {
     try {
