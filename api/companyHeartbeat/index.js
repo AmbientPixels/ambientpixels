@@ -2650,6 +2650,33 @@ function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirective
     return line;
   }).join('\n') || '(none assigned)';
 
+  // SERVER-SIDE HERO IMAGE NUDGE: If Pixel has a hero image task idle for 5+ min, inject urgent override
+  let heroImageNudge = '';
+  if (agent.name === 'Pixel') {
+    const _heroTask = agentTasks.find(t =>
+      (t.status === 'todo' || t.status === 'in-progress') &&
+      (t.title || '').indexOf('Generate hero image for:') === 0 &&
+      t.createdAt
+    );
+    if (_heroTask) {
+      const _heroAge = Date.now() - new Date(_heroTask.createdAt).getTime();
+      if (_heroAge > 5 * 60 * 1000) { // 5 minutes
+        const _docIdMatch = (_heroTask.description || '').match(/Document ID:\s*(doc_[a-z0-9_]+)/i);
+        const _heroDocId = _docIdMatch ? _docIdMatch[1] : null;
+        const _heroTitle = (_heroTask.title || '').replace('Generate hero image for: ', '');
+        heroImageNudge = `
+
+⚠️ URGENT — HERO IMAGE OVERDUE (${Math.round(_heroAge / 60000)} min idle):
+Task: "${_heroTask.title}" (id: ${_heroTask.id})
+${_heroDocId ? 'Document ID: ' + _heroDocId : ''}
+This hero image task has been waiting for ${Math.round(_heroAge / 60000)} minutes. The ENTIRE content pipeline is blocked.
+YOUR FIRST ACTION MUST BE:
+{ "type": "generate-image", "taskId": "${_heroTask.id}", "image": { "purpose": "blog_header", "topic": "${_heroTitle}", "goal": "Hero image for: ${_heroTitle}", "preset": "ap-neon-glass"${_heroDocId ? ', "attachTo": { "type": "document", "id": "' + _heroDocId + '" }' : ''} } }
+DO NOT comment. DO NOT review. DO NOT plan. Generate the image NOW.`;
+      }
+    }
+  }
+
   const otherTasks = allActiveTasks
     .filter(t => t.assignee !== agent.name.toLowerCase())
     .slice(0, 10)
@@ -2931,7 +2958,7 @@ This is an automated heartbeat check. Review your current tasks and the company 
 
 YOUR TASKS:
 ${taskList}
-
+${heroImageNudge}
 OTHER ACTIVE TASKS:
 ${otherTasks}
 
@@ -2994,7 +3021,7 @@ Rules:
 - Only create tasks that are genuinely useful
 - Only move tasks if you have reason to
 - Prefer execute-task on your own in-progress or todo tasks when you have work to do
-- MANDATORY PEER REVIEW: If there are tasks in the TASKS AWAITING REVIEW section from OTHER agents, you MUST use review-task on at least one BEFORE creating new work or executing your own tasks. Reviewing others' deliverables is a core duty — not optional. The only exception is if you have a critical/high priority task that is overdue.
+- MANDATORY PEER REVIEW: If there are tasks in the TASKS AWAITING REVIEW section from OTHER agents, you MUST use review-task on at least one BEFORE creating new work or executing your own tasks. Reviewing others' deliverables is a core duty — not optional. Exceptions (peer review can wait): (1) You have a critical or high priority task assigned to you — produce that deliverable FIRST. (2) You have an auto-created hero image task — use generate-image FIRST. In both cases, review after your deliverable is done.
 - You CANNOT review your own tasks. Only review tasks assigned to a different agent. The system blocks self-reviews.
 - Keep observations brief and factual
 - When creating tasks, ALWAYS set: status ("todo" or "in-progress"), priority, assignee, and a realistic dueDate (1-7 days out). Tasks without these fields are incomplete and will be triaged.
@@ -3106,7 +3133,8 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
     3. This sets hero_image_asset_id on the document automatically. Scribe will then submit it for publish.
   - VISUAL QUALITY: Choose presets that match the content tone. Use "ap-neon-glass" for tech announcements, "ap-corporate-tech" for business content, "ap-2d-flat" for tutorials, "ap-ornate-frame" for showcase pieces.
   - CROSS-DEPARTMENT COLLABORATION: You work closely with Scribe (content) and Echo (marketing). When they create documents or social posts that need visuals, pick up the corresponding design tasks promptly. Your hero images make their content publishable.
-  - PRODUCE, DON'T PLAN: If a task says "generate hero image" or "create visual for blog post", use generate-image immediately — do NOT create sub-tasks or comment that you're planning to do it.` : '') + (agent.name === 'Scribe' ? `
+  - PRODUCE, DON'T PLAN: If a task says "generate hero image" or "create visual for blog post", use generate-image immediately — do NOT create sub-tasks or comment that you're planning to do it.
+  - HERO IMAGE PRIORITY OVERRIDE: If you have a "Generate hero image for:" task assigned to you, your ABSOLUTE FIRST action in your actions array MUST be generate-image for that task. Do NOT comment-task, do NOT review-task, do NOT create-task — put generate-image as action #1. The entire content pipeline (Scribe, Echo, publish) is blocked waiting for YOUR image. Every heartbeat you spend commenting instead of generating is a wasted cycle. Extract the document ID from the task description and use it in attachTo.` : '') + (agent.name === 'Scribe' ? `
 - DEPARTMENT HEAD DUTIES (Scribe — Content):
   - You lead the Content department. Your job is to produce longform content: product briefs, blog drafts, documentation, AND social media copy.
   - Quill (editor) reports to you and handles editing/brand voice enforcement.
