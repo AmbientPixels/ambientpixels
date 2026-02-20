@@ -113,6 +113,28 @@ module.exports = async function (context, req) {
       return;
     }
 
+    // 2b. v2.5: Promotion gate — block social posts referencing blog posts without promote: true
+    if (SOCIAL_CEO_TYPES.indexOf(actionType) !== -1 && action.payload && action.payload.text) {
+      const _promoText = (action.payload.text || '').replace(/\{\{ARTICLE_URL[^}]*\}\}/g, '');
+      const _promoSlugs = _promoText.match(/(?:ambientpixels\.ai)?\/blog\/([a-z0-9][a-z0-9-]+[a-z0-9])/gi);
+      if (_promoSlugs && _promoSlugs.length > 0) {
+        const _promoDocs = (await storage.getState('documents')) || [];
+        const _promoBP = (await storage.getState('blogPosts')) || [];
+        for (const _pm of _promoSlugs) {
+          const _pSlug = _pm.replace(/.*\/blog\//i, '');
+          const _pBp = _promoBP.find(p => p.slug === _pSlug);
+          if (_pBp) {
+            const _pDoc = _promoDocs.find(d => d.id === (_pBp.documentId || _pBp.document_id));
+            if (_pDoc && !_pDoc.promote) {
+              context.log('[ActionsExecute] BLOCKED social post — blog slug "' + _pSlug + '" not approved for promotion');
+              context.res = { status: 403, headers: corsHeaders, body: JSON.stringify({ error: 'PROMOTION_NOT_ALLOWED', message: 'Blog post "' + _pSlug + '" is not approved for social promotion' }) };
+              return;
+            }
+          }
+        }
+      }
+    }
+
     // 3. Check action type is supported and has a platform adapter
     const platform = action.platform || 'unknown';
     if (!isExecutable(actionType, platform)) {

@@ -1681,6 +1681,7 @@
                   (_aqFullDesc.length > 160 ? ' <a href="#" style="font-size:0.6rem;color:#60a5fa;text-decoration:none;" onclick="var el=document.getElementById(\'' + _previewId + '\');if(el.dataset.expanded){el.textContent=\'' + escapeHtml(_aqPreview).replace(/'/g, "\\'") + '\';el.dataset.expanded=\'\';this.textContent=\'Expand\'}else{el.textContent=\'' + escapeHtml(_aqFullDesc).replace(/'/g, "\\'").replace(/\n/g, ' ') + '\';el.dataset.expanded=\'1\';this.textContent=\'Collapse\'};el.appendChild(this);return false">Expand</a>' : '') +
                 '</div>' : '') +
                 _aqThumbsHtml +
+                (isPublish && item.documentId ? '<label class="aq-promote-label" style="display:flex;align-items:center;gap:5px;font-size:0.6rem;margin-top:6px;cursor:pointer;color:rgba(255,255,255,0.6);"><input type="checkbox" class="aq-promote-cb" data-doc-id="' + escapeHtml(item.documentId) + '" style="accent-color:#a855f7;cursor:pointer;" /> <i class="fas fa-bullhorn" style="font-size:0.5rem;color:#a855f7;"></i> Enable automatic social promotion</label>' : '') +
                 '<div style="display:flex; gap:0.5rem; font-size:0.65rem; opacity:0.5; margin-top:4px; flex-wrap:wrap;">' +
                   '<span>' + escapeHtml(agentName) + '</span>' +
                   (isContent ? '' : '<span style="color:' + riskColor + ';">' + (item.riskLevel || 'low') + ' risk</span>') +
@@ -1697,6 +1698,32 @@
             else delete _aqSelectedIds[this.dataset.aqId];
             updateBatchUI();
           });
+
+          // v2.5: Promote checkbox for publish_document items
+          var _promoCb = div.querySelector('.aq-promote-cb');
+          if (_promoCb) {
+            (function (cb, docId) {
+              // Pre-check if document already has promote: true
+              try {
+                var docs = CompanyStore.getStateSync('ap_documents', []);
+                var d = (docs || []).find(function (x) { return x.id === docId; });
+                if (d && d.promote) cb.checked = true;
+              } catch (e) { /* ignore */ }
+              cb.addEventListener('change', function () {
+                var checked = cb.checked;
+                CompanyStore.getState('ap_documents', []).then(function (docs) {
+                  docs = docs || [];
+                  var dIdx = docs.findIndex(function (x) { return x.id === docId; });
+                  if (dIdx !== -1) {
+                    docs[dIdx].promote = checked;
+                    docs[dIdx].updated_at = new Date().toISOString();
+                    CompanyStore.setState('ap_documents', docs);
+                    console.log('[Dashboard] Set promote=' + checked + ' on doc:', docId);
+                  }
+                });
+              });
+            })(_promoCb, _promoCb.dataset.docId);
+          }
 
           listEl.appendChild(div);
         });

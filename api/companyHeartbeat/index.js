@@ -1103,6 +1103,27 @@ Write the full deliverable first, then the structured JSON block.`;
         }
       }
 
+      // v2.5: Promotion gating — block social posts that reference blog posts without promote: true
+      if (blogSlugMatches && blogSlugMatches.length > 0) {
+        const _allDocs = (await storage.getState('documents')) || [];
+        const _blogPostsForPromo = (await storage.getState('blogPosts')) || [];
+        const unpromotedSlugs = [];
+        for (const match of blogSlugMatches) {
+          const slug = match.replace(/.*\/blog\//i, '');
+          // Find the published blog post, then its source document
+          const _bp = _blogPostsForPromo.find(p => p.slug === slug);
+          if (_bp) {
+            const _srcDoc = _allDocs.find(d => d.id === (_bp.documentId || _bp.document_id));
+            if (_srcDoc && !_srcDoc.promote) unpromotedSlugs.push(slug);
+            else if (!_srcDoc) unpromotedSlugs.push(slug); // no source doc = no promote flag
+          }
+        }
+        if (unpromotedSlugs.length > 0) {
+          context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action — blog slug(s) not approved for promotion:', unpromotedSlugs.join(', '));
+          continue;
+        }
+      }
+
       const actionRequest = {
         type: (socialPayload.scheduled_for || socialPayload.schedule_for) ? 'social_post.schedule' : 'social_post.publish',
         platform: socialPayload.platform || 'x',
@@ -1473,6 +1494,7 @@ Write the full deliverable first, then the structured JSON block.`;
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           content_md: docPayload.content_md || '',
+          promote: false,
           source: { action_id: null, task_id: action.taskId || null }
         };
 
@@ -2601,7 +2623,7 @@ ${objList}`;
   let docsSection = '';
   if (documents.length > 0) {
     const docList = documents.slice(-10).map(d =>
-      '- "' + d.title + '" [' + (d.status || 'draft') + '] (id: ' + d.id + ', slug: ' + (d.slug || '?') + ')'
+      '- "' + d.title + '" [' + (d.status || 'draft') + '] (id: ' + d.id + ', slug: ' + (d.slug || '?') + (d.promote ? ', promote: YES' : '') + ')'
     ).join('\n');
     docsSection = `\n\nEXISTING DOCUMENTS (already created — do NOT duplicate):
 ${docList}`;
@@ -2943,7 +2965,8 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
   - The "text" field in create-social-action must contain ONLY the clean, publish-ready post copy. No markdown, no section headers, no peer review notes, no follow-up comments. Just the post text exactly as it should appear on the platform.
   - NEVER include placeholder brackets like [insert URL], [website link], [your company], etc. If you don't have a URL, omit it or use the real URL: https://ambientpixels.ai
   - ALLOWED actions: create-social-action, execute-task (only for NON-social tasks like campaign analysis), create-task, update-task, move-task, comment-task, review-task, create-doc (marketing_post kind), generate-image (social_media purpose)
-  - If a task description mentions LinkedIn, X, Twitter, social media, "post", or "draft" for social — ALWAYS use create-social-action. No exceptions.` : '') + (agent.name === 'Pixel' ? `
+  - If a task description mentions LinkedIn, X, Twitter, social media, "post", or "draft" for social — ALWAYS use create-social-action. No exceptions.
+  - PROMOTION GATING: You may ONLY auto-generate social posts for published documents when "promote: YES" appears in the EXISTING DOCUMENTS list. If a document is published but does NOT show "promote: YES", do NOT create a social post for it. You may note in your reasoning that the document could benefit from promotion, but you MUST NOT create a social action for it. This is a CEO-controlled gate — only the CEO can enable promotion on a document.` : '') + (agent.name === 'Pixel' ? `
 - DEPARTMENT HEAD DUTIES (Pixel — Design):
   - You lead the Design department. Your job is to produce visual assets: hero images for blog posts, social media graphics, UI mockups, and branded content.
   - ALLOWED actions: generate-image (blog_header, inline_illustration, social_media purposes), create-content-package, execute-task, create-task (design tasks), update-task, move-task, comment-task, review-task

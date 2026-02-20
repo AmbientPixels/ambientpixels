@@ -66,7 +66,8 @@ async function publishDocument(action) {
     tags: doc.tags || [],
     created_by: doc.created_by,
     hero_image_asset_id: doc.hero_image_asset_id || null,
-    inline_image_assets: doc.inline_image_assets || []
+    inline_image_assets: doc.inline_image_assets || [],
+    promote: doc.promote || false
   };
   store.push(publishEntry);
   if (store.length > 200) store.splice(0, store.length - 200);
