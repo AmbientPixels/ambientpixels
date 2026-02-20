@@ -184,6 +184,28 @@
     }
     .cfg-confirm-execute.ready { opacity: 1; pointer-events: auto; }
     .cfg-confirm-execute.ready:hover { background: rgba(239,68,68,0.25); }
+    .cfg-danger-toast {
+      position: fixed;
+      right: 16px;
+      bottom: 16px;
+      z-index: 10001;
+      background: rgba(20, 24, 32, 0.95);
+      border: 1px solid rgba(52,211,153,0.35);
+      color: #d1fae5;
+      border-radius: 8px;
+      padding: 0.55rem 0.75rem;
+      font-size: 0.62rem;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(8px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      max-width: 320px;
+    }
+    .cfg-danger-toast.active { opacity: 1; transform: translateY(0); }
+    .cfg-danger-toast--error {
+      border-color: rgba(239,68,68,0.45);
+      color: #fecaca;
+    }
 
     /* Quick Access */
     .cfg-quick-grid {
@@ -993,6 +1015,7 @@
         </div>
       </div>
     </div>
+    <div class="cfg-danger-toast" id="cfg-danger-toast" role="status" aria-live="polite"></div>
 
   </main>
 
@@ -2193,43 +2216,82 @@
     var inputEl = document.getElementById('cfg-confirm-input');
     var cancelBtn = document.getElementById('cfg-confirm-cancel');
     var execBtn = document.getElementById('cfg-confirm-execute');
+    var toastEl = document.getElementById('cfg-danger-toast');
     if (!overlay || !inputEl || !execBtn) return;
 
     var _pendingAction = null;
+
+    var _dangerApiBase = window.location.hostname.includes('ambientpixels.ai')
+      ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+      : '/api';
+
+    function _dangerHeaders() {
+      var h = { 'Content-Type': 'application/json' };
+      if (CompanyStore && CompanyStore.getWriteHeaders) {
+        var wh = CompanyStore.getWriteHeaders();
+        Object.keys(wh || {}).forEach(function (k) { h[k] = wh[k]; });
+      }
+      return h;
+    }
+
+    function _dangerPost(path) {
+      return fetch(_dangerApiBase + path, {
+        method: 'POST',
+        headers: _dangerHeaders()
+      }).then(function (r) {
+        return r.text().then(function (t) {
+          var data = {};
+          if (t && t.trim()) {
+            try { data = JSON.parse(t); } catch (e) { data = { raw: t }; }
+          }
+          if (!r.ok) {
+            throw new Error((data && (data.error || data.details)) || ('HTTP ' + r.status));
+          }
+          return data;
+        });
+      });
+    }
+
+    function _dangerToast(message, isError) {
+      if (!toastEl) return;
+      toastEl.textContent = message || 'Done.';
+      if (isError) toastEl.classList.add('cfg-danger-toast--error');
+      else toastEl.classList.remove('cfg-danger-toast--error');
+      toastEl.classList.add('active');
+      setTimeout(function () { toastEl.classList.remove('active'); }, isError ? 3800 : 1800);
+    }
 
     var DANGER_ACTIONS = {
       'reset-tasks': {
         title: 'Reset Tasks',
         desc: 'This will permanently delete all tasks and the task archive.',
         exec: function () {
-          CompanyStore.setState('ap_tasks', []);
-          CompanyStore.setState('ap_tasks_archive', []);
-          location.reload();
+          return CompanyStore.setState('ap_tasks', []).then(function () {
+            return CompanyStore.setState('ap_tasks_archive', []);
+          });
         }
       },
       'reset-directives': {
         title: 'Reset Directives',
         desc: 'This will permanently delete all strategic directives.',
         exec: function () {
-          CompanyStore.setState('ap_directives', []);
-          location.reload();
+          return CompanyStore.setState('ap_directives', []);
         }
       },
       'reset-objectives': {
         title: 'Reset Objectives',
         desc: 'This will permanently delete all quarterly objectives.',
         exec: function () {
-          CompanyStore.setState('ap_objectives', []);
-          location.reload();
+          return CompanyStore.setState('ap_objectives', []);
         }
       },
       'reset-action-queue': {
         title: 'Reset Action Queue',
         desc: 'This will clear all pending, approved, and executed actions plus rate counts.',
         exec: function () {
-          CompanyStore.setState('ap_action_queue', []).then(() => {
-            CompanyStore.setState('ap_actions', []).then(() => {
-              CompanyStore.setState('ap_approval_queue', []).then(() => {
+          return CompanyStore.setState('ap_action_queue', []).then(() => {
+            return CompanyStore.setState('ap_actions', []).then(() => {
+              return CompanyStore.setState('ap_approval_queue', []).then(() => {
                 try { localStorage.removeItem('ap_action_queue'); } catch (e) {}
                 try { localStorage.removeItem('ap_actions'); } catch (e) {}
                 try { localStorage.removeItem('ap_approval_queue'); } catch (e) {}
@@ -2238,7 +2300,6 @@
                 try { localStorage.removeItem('approvalQueue'); } catch (e) {}
                 try { localStorage.removeItem('ap_action_audit_log'); } catch (e) {}
                 try { localStorage.removeItem('ap_action_rate_counts'); } catch (e) {}
-                window.location.reload(true);
               });
             });
           });
@@ -2252,15 +2313,13 @@
           for (var i = 0; i < keys.length; i++) {
             try { localStorage.removeItem(keys[i]); } catch (e) {}
           }
-          location.reload();
         }
       },
       'reset-governance': {
         title: 'Reset Governance Log',
         desc: 'This will clear the governance audit trail (approvals, rejections, escalations).',
         exec: function () {
-          CompanyStore.setState('ap_governance_log', []);
-          location.reload();
+          return CompanyStore.setState('ap_governance_log', []);
         }
       },
       'clear-company-data': {
@@ -2275,36 +2334,47 @@
           for (var j = 0; j < toRemove.length; j++) {
             try { localStorage.removeItem(toRemove[j]); } catch (e) {}
           }
-          location.reload();
         }
       },
       'reset-documents': {
         title: 'Reset Documents (Keep Content Gallery)',
         desc: 'This will remove all non-published documents from the system, preserving gallery-visible content.',
         exec: function () {
-          fetch('/api/company-reset-documents', {
-            method: 'POST',
-            headers: CompanyStore.getWriteHeaders()
-          }).then(r => r.json()).then(d => {
-            if (d.ok) window.location.reload(true);
-            else alert('Error: ' + JSON.stringify(d));
-          }).catch(e => alert('Error: ' + e.message));
+          return _dangerPost('/company-reset-documents').then(function (d) {
+            if (!d || !d.ok) throw new Error('Reset documents failed');
+            return d;
+          });
         }
       },
       'reset-nongallery-assets': {
         title: 'Reset Non-Gallery Content Assets',
         desc: 'This will remove all image assets not referenced by gallery-visible documents.',
         exec: function () {
-          fetch('/api/company-reset-nongallery-assets', {
-            method: 'POST',
-            headers: CompanyStore.getWriteHeaders()
-          }).then(r => r.json()).then(d => {
-            if (d.ok) window.location.reload(true);
-            else alert('Error: ' + JSON.stringify(d));
-          }).catch(e => alert('Error: ' + e.message));
+          return _dangerPost('/company-reset-nongallery-assets').then(function (d) {
+            if (!d || !d.ok) throw new Error('Reset non-gallery assets failed');
+            return d;
+          });
         }
       }
     };
+
+    function runPendingDangerAction() {
+      if (!_pendingAction) return;
+      var action = _pendingAction;
+      execBtn.disabled = true;
+      Promise.resolve().then(function () {
+        return action.exec();
+      }).then(function () {
+        closeConfirm();
+        _dangerToast(action.title + ' completed.', false);
+        setTimeout(function () { window.location.reload(true); }, 700);
+      }).catch(function (err) {
+        var msg = (err && err.message) ? err.message : String(err || 'Unknown error');
+        _dangerToast('Failed: ' + msg, true);
+      }).finally(function () {
+        execBtn.disabled = false;
+      });
+    }
 
     function openConfirm(actionKey) {
       var action = DANGER_ACTIONS[actionKey];
@@ -2345,7 +2415,7 @@
     // Enter key shortcut
     inputEl.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' && execBtn.classList.contains('ready') && _pendingAction) {
-        _pendingAction.exec();
+        runPendingDangerAction();
       }
       if (e.key === 'Escape') closeConfirm();
     });
@@ -2355,7 +2425,7 @@
 
     execBtn.addEventListener('click', function () {
       if (!execBtn.classList.contains('ready') || !_pendingAction) return;
-      _pendingAction.exec();
+      runPendingDangerAction();
     });
   })();
   </script>

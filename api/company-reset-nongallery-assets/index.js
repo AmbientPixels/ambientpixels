@@ -6,7 +6,7 @@ module.exports = async function (context, req) {
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization, x-company-secret, x-ms-client-principal'
   };
 
   if (req.method === 'OPTIONS') {
@@ -21,7 +21,8 @@ module.exports = async function (context, req) {
 
   // Auth check
   const authHeader = req.headers.authorization;
-  const isCompanySecret = authHeader === `Bearer ${COMPANY_SECRET}`;
+  const secretHeader = req.headers['x-company-secret'];
+  const isCompanySecret = (secretHeader && secretHeader === COMPANY_SECRET) || authHeader === `Bearer ${COMPANY_SECRET}`;
   const isAuthenticated = req.headers['x-ms-client-principal'];
   if (!isCompanySecret && !isAuthenticated) {
     context.res = { status: 401, headers: corsHeaders, body: { error: 'Unauthorized' } };
