@@ -753,6 +753,30 @@
       });
       unbundled.forEach(function (a) { html += actionRow(a, 'pending'); });
       el.innerHTML = html;
+
+      // Wire up promote checkboxes for publish_document items
+      el.querySelectorAll('.act-promote-cb').forEach(function (cb) {
+        var docId = cb.dataset.docId;
+        // Pre-check if document already has promote: true
+        try {
+          var docs = CompanyStore.getStateSync('ap_documents', []);
+          var d = (docs || []).find(function (x) { return x.id === docId; });
+          if (d && d.promote) cb.checked = true;
+        } catch (e) { /* ignore */ }
+        cb.addEventListener('change', function () {
+          var checked = cb.checked;
+          CompanyStore.getState('ap_documents', []).then(function (docs) {
+            docs = docs || [];
+            var dIdx = docs.findIndex(function (x) { return x.id === docId; });
+            if (dIdx !== -1) {
+              docs[dIdx].promote = checked;
+              docs[dIdx].updated_at = new Date().toISOString();
+              CompanyStore.setState('ap_documents', docs);
+              console.log('[Actions] Set promote=' + checked + ' on doc:', docId);
+            }
+          });
+        });
+      });
     }
 
     // ── Revision Requested ──
@@ -976,6 +1000,10 @@
       }
       if (_listThumbUrl) {
         html += '<div style="margin-top:4px;"><a href="' + esc(_listThumbUrl) + '" target="_blank" rel="noopener"><img src="' + esc(_listThumbUrl) + '" style="max-width:120px;max-height:68px;border-radius:4px;border:1px solid ' + (aType === 'publish_document' ? 'rgba(52,211,153,0.2)' : 'rgba(168,85,247,0.2)') + ';object-fit:cover;" onerror="this.parentElement.style.display=\'none\'" loading="lazy"></a></div>';
+      }
+      // Promote checkbox for publish_document actions (mirrors Dashboard CEO Queue)
+      if (aType === 'publish_document' && payload.documentId && context === 'pending') {
+        html += '<label class="act-promote-label" style="display:flex;align-items:center;gap:5px;font-size:0.6rem;margin-top:6px;cursor:pointer;color:rgba(255,255,255,0.6);" onclick="event.stopPropagation();"><input type="checkbox" class="act-promote-cb" data-doc-id="' + esc(payload.documentId) + '" style="accent-color:#a855f7;cursor:pointer;" /> <i class="fas fa-bullhorn" style="font-size:0.5rem;color:#a855f7;"></i> Enable automatic social promotion</label>';
       }
       var showTime = (approvalStatus === 'approved' && a.approval && a.approval.approved_at) ? a.approval.approved_at : a.created_at;
       var timePrefix = (approvalStatus === 'approved' && a.approval && a.approval.approved_at) ? 'approved ' : '';
