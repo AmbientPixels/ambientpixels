@@ -917,6 +917,75 @@ Write the full deliverable first, then the structured JSON block.`;
               agentId: agentId
             });
             result.executes = (result.executes || 0) + 1;
+
+            // SERVER-SIDE FALLBACK: Auto-create document for blog post tasks that used execute-task instead of create-doc
+            const _etTaskText = ((task.title || '') + ' ' + (task.description || '')).toLowerCase();
+            const _isBlogTask = /blog\s*post|blog\s*article|marketing\s*post|first\s*blog|introductory\s*post|write.*article/.test(_etTaskText);
+            if (_isBlogTask && deliverable.length > 200) {
+              const _etDocsStore = (await storage.getState('documents')) || [];
+              const _etExistingDoc = _etDocsStore.find(d => d.taskId === action.taskId || (d.title && d.title === task.title));
+              if (!_etExistingDoc) {
+                const _etDocId = 'doc_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+                const _etDoc = {
+                  id: _etDocId,
+                  title: task.title || 'Untitled Blog Post',
+                  kind: 'marketing_post',
+                  content_md: deliverable,
+                  status: 'draft',
+                  tags: ['blog', 'auto-created-from-execute'],
+                  created_by: agentId,
+                  taskId: action.taskId,
+                  promote: false,
+                  awaiting_hero_image: true,
+                  created_at: new Date().toISOString(),
+                  updated_at: new Date().toISOString()
+                };
+                _etDocsStore.push(_etDoc);
+                await storage.setState('documents', _etDocsStore);
+                context.log('[Heartbeat]', agentId, 'AUTO-DOC fallback: Created marketing_post from execute-task deliverable:', _etDocId, 'for blog task:', action.taskId);
+
+                // Auto-create Pixel hero image task (same logic as create-doc handler)
+                const _etHeroTitle = 'Generate hero image for: ' + _etDoc.title;
+                const _etHeroExists = tasks.some(t =>
+                  t.assignee === 'pixel' && t.status !== 'done' &&
+                  (t.title === _etHeroTitle || (t.description && t.description.indexOf(_etDocId) !== -1))
+                );
+                if (!_etHeroExists) {
+                  const _etHeroTask = {
+                    id: 'task_' + Date.now() + '_hero_' + Math.random().toString(36).substr(2, 4),
+                    title: _etHeroTitle,
+                    description: 'Generate a hero image for the blog post "' + _etDoc.title + '".\nDocument ID: ' + _etDocId + '\nUse generate-image with purpose "blog_header" and attachTo: { type: "document", id: "' + _etDocId + '" }.\nChoose an appropriate preset based on the content tone.',
+                    status: 'todo',
+                    priority: task.priority || 'high',
+                    dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+                    assignee: 'pixel',
+                    source: 'heartbeat',
+                    created_by: 'system',
+                    parent_task_id: action.taskId,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                    directive_id: task.directive_id || null,
+                    tags: ['hero-image', 'auto-created', 'visual-workflow'],
+                    comments: [{
+                      id: 'cmt-hero-' + Date.now(),
+                      author: 'nova',
+                      text: 'Pixel, generate a hero image for the blog post "' + _etDoc.title + '" (doc: ' + _etDocId + '). Use generate-image with purpose blog_header and attachTo the document.',
+                      type: 'system',
+                      createdAt: new Date().toISOString()
+                    }]
+                  };
+                  tasks.push(_etHeroTask);
+                  context.log('[Heartbeat]', agentId, 'AUTO-DOC fallback: Created Pixel hero image task:', _etHeroTask.id, 'for auto-doc:', _etDocId);
+                }
+                // Add visible diagnostic comment on the task
+                result.taskUpdates.push({
+                  action: 'comment',
+                  taskId: action.taskId,
+                  comment: '[AUTO-DOC] Blog post detected via execute-task — auto-created document (' + _etDocId + ', kind: marketing_post) and Pixel hero image task. Next: Pixel generates hero image, then submit-for-publish.',
+                  agentId: 'system'
+                });
+              }
+            }
           }
         }
       }
@@ -2904,6 +2973,7 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
 - Do NOT comment on a task just to say you are "working on it" or "planning to" — instead, use execute-task or the appropriate action to produce the output.
 - TASK CREATION LIMIT: Do not create more than 1 new task per heartbeat unless you have also used execute-task or create-doc in the same cycle. Organizing without producing is not useful.
 - If a task description says to use create-doc, you MUST use create-doc (not execute-task) to produce the document directly.
+- BLOG POST / MARKETING CONTENT RULE: When your task involves writing a blog post, article, or marketing content, you MUST use create-doc with kind "marketing_post" — NOT execute-task. execute-task only produces a deliverable comment — it does NOT create a publishable document, does NOT trigger automatic hero image generation by Pixel, and does NOT enter the publish pipeline. Always use create-doc for any content that should become a published article or blog post. Include the full markdown content in document.content_md and set document.kind to "marketing_post".
 - If a CEO comment says "top priority" or "complete before other work", that task takes absolute precedence — execute it immediately.` + (agent.name === 'Nova' ? `
 - PRIME OPERATOR DUTIES (Nova): You are the operational lead. Your #1 job is keeping the board actionable.
   - TRIAGE FIRST: If any task in the NEEDS TRIAGE section is missing an assignee, due date, or comments — fix that NOW. Use multiple actions if needed:
