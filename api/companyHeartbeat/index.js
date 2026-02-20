@@ -806,6 +806,37 @@ Write the full deliverable first, then the structured JSON block.`;
   const actions = regularActions;
   let actionCount = 0;
 
+  // SERVER-SIDE FORCED HERO IMAGE: If Pixel has a hero image task idle 10+ min and didn't produce generate-image, inject it
+  if (agentId === 'pixel') {
+    const _pixelHeroTask = agentTasks.find(t =>
+      (t.status === 'todo' || t.status === 'in-progress') &&
+      (t.title || '').indexOf('Generate hero image for:') === 0 &&
+      t.createdAt
+    );
+    if (_pixelHeroTask) {
+      const _pHeroAge = Date.now() - new Date(_pixelHeroTask.createdAt).getTime();
+      const _hasGenerateImage = actions.some(a => a.type === 'generate-image');
+      if (_pHeroAge > 10 * 60 * 1000 && !_hasGenerateImage) {
+        const _pDocMatch = (_pixelHeroTask.description || '').match(/Document ID:\s*(doc_[a-z0-9_]+)/i);
+        const _pDocId = _pDocMatch ? _pDocMatch[1] : null;
+        const _pTitle = (_pixelHeroTask.title || '').replace('Generate hero image for: ', '');
+        context.log('[Heartbeat] PIXEL FORCED HERO IMAGE: task', _pixelHeroTask.id, 'idle', Math.round(_pHeroAge / 60000), 'min — injecting generate-image action');
+        actions.unshift({
+          type: 'generate-image',
+          taskId: _pixelHeroTask.id,
+          summary: 'System-forced hero image generation for: ' + _pTitle,
+          image: {
+            purpose: 'blog_header',
+            topic: _pTitle,
+            goal: 'Hero image for: ' + _pTitle,
+            preset: 'ap-neon-glass',
+            attachTo: _pDocId ? { type: 'document', id: _pDocId } : undefined
+          }
+        });
+      }
+    }
+  }
+
   // Track visual docs created this cycle — blocks same-cycle submit-for-publish
   const _visualDocsCreatedThisCycle = new Set();
   const _VISUAL_DOC_KINDS = ['marketing_post', 'product_brief'];
@@ -958,8 +989,9 @@ Write the full deliverable first, then the structured JSON block.`;
             result.executes = (result.executes || 0) + 1;
 
             // SERVER-SIDE FALLBACK: Auto-create document for blog post tasks that used execute-task instead of create-doc
+            // Only Scribe should trigger this — other agents executing tasks that mention "blog post" shouldn't create docs
             const _etTaskText = ((task.title || '') + ' ' + (task.description || '')).toLowerCase();
-            const _isBlogTask = /blog\s*post|blog\s*article|marketing\s*post|first\s*blog|introductory\s*post|write.*article/.test(_etTaskText);
+            const _isBlogTask = agentId === 'scribe' && /write.*blog|draft.*blog|blog\s*post.*write|first\s*blog|introductory\s*post|write.*article/.test(_etTaskText);
             if (_isBlogTask && deliverable.length > 200) {
               const _etDocsStore = (await storage.getState('documents')) || [];
               const _etExistingDoc = _etDocsStore.find(d => d.taskId === action.taskId || (d.title && d.title === task.title));
@@ -1650,7 +1682,8 @@ Write the full deliverable first, then the structured JSON block.`;
         if (action.taskId) {
           result.taskUpdates.push({ action: 'comment', taskId: action.taskId, comment: '[DIAG] create-doc fired — kind: ' + kind + ', isVisual: ' + (VISUAL_DOC_KINDS.indexOf(kind) !== -1) + ', docId: ' + doc.id, agentId: 'system' });
         }
-        if (VISUAL_DOC_KINDS.indexOf(kind) !== -1) {
+        if (VISUAL_DOC_KINDS.indexOf(kind) !== -1 && agentId === 'scribe') {
+          // Only Scribe-created visual docs trigger hero image tasks (prevents ops/engineering docs from spawning hero tasks)
           // Dedup: skip if a Pixel hero image task already exists for this doc
           const _heroTaskTitle = 'Generate hero image for: ' + doc.title;
           const _heroTaskExists = tasks.some(t =>
