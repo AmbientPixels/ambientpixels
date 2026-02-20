@@ -943,7 +943,15 @@
     }
     function _apResolvePreviewText(a) {
       var p = a.payload || a.action_payload || {};
-      return a.preview || a.description || p.text || p.body || p.content || p.message || p.caption || p.summary || p.subject || '';
+      var raw = a.preview || a.description || p.text || p.body || p.content || p.message || p.caption || p.summary || p.subject || '';
+      return _resolveTokensForDisplay(a, raw);
+    }
+    function _resolveTokensForDisplay(action, text) {
+      if (!text || text.indexOf('{{') === -1) return text;
+      try {
+        var res = AE.resolveActionTokens({ payload: { text: text }, tokens: action && action.tokens, dependsOn: action && action.dependsOn });
+        return res.text || text;
+      } catch (e) { return text; }
     }
 
     // ── Row renderer ──
@@ -1275,12 +1283,13 @@
         html += '<div class="act-drawer-section">';
         html += '<h4>Post Content</h4>';
         html += '<div class="act-drawer-post">';
-        html += '<div class="act-drawer-post-text">' + esc(payload.text) + '</div>';
+        var _resolvedPostText = _resolveTokensForDisplay(a, payload.text);
+        html += '<div class="act-drawer-post-text">' + esc(_resolvedPostText) + '</div>';
         var charLimit = a.platform === 'linkedin' ? 3000 : a.platform === 'bluesky' ? 300 : 280;
-        var charPct = Math.round((payload.text.length / charLimit) * 100);
+        var charPct = Math.round((_resolvedPostText.length / charLimit) * 100);
         var charColor = charPct > 100 ? '#ef4444' : charPct > 90 ? '#fbbf24' : '#34d399';
         html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.5rem;font-size:0.6rem;opacity:0.5;">';
-        html += '<span style="color:' + charColor + ';">' + payload.text.length + '/' + charLimit + ' chars (' + charPct + '%)</span>';
+        html += '<span style="color:' + charColor + ';">' + _resolvedPostText.length + '/' + charLimit + ' chars (' + charPct + '%)</span>';
         if (payload.media && payload.media.length) html += '<span><i class="fas fa-image" style="margin-right:0.2rem;"></i>' + payload.media.length + ' media</span>';
         html += '</div>';
         // Media image previews
@@ -1342,7 +1351,7 @@
         html += '</div></div>';
       } else if (payload.text || payload.content) {
         html += '<div class="act-drawer-section"><h4>Content</h4>';
-        html += '<div class="act-drawer-post"><div class="act-drawer-post-text">' + esc(payload.text || payload.content) + '</div></div>';
+        html += '<div class="act-drawer-post"><div class="act-drawer-post-text">' + esc(_resolveTokensForDisplay(a, payload.text || payload.content)) + '</div></div>';
         html += '</div>';
       }
 
