@@ -20,6 +20,8 @@ const VALID_KEYS = [
 ];
 
 module.exports = async function (context, req) {
+  context.log('[company-state] Function called, req method:', req ? req.method : 'req is null', 'req query:', req ? JSON.stringify(req.query) : 'N/A');
+
   if (req.method === 'OPTIONS') {
     context.res = { status: 204, headers: corsHeaders, body: '' };
     return;
