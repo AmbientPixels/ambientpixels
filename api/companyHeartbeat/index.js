@@ -873,6 +873,18 @@ Write the full deliverable first, then the structured JSON block.`;
           }
         }
       }
+      // SERVER-SIDE GUARD: Block premature social promotion tasks for blog posts
+      // Social tasks should ONLY be created after CEO publishes + promotes the blog post
+      const _taskTitle = (action.task.title || '').toLowerCase();
+      const _taskDesc = (action.task.description || '').toLowerCase();
+      const _taskText = _taskTitle + ' ' + _taskDesc;
+      const _isSocialPromoTask = /social\s*(media|post|promo|copy|campaign)|promote.*blog|blog.*promo/.test(_taskText);
+      const _refsBlogPost = /blog\s*post|hello\s*world|marketing_post|first\s*post/.test(_taskText);
+      if (_isSocialPromoTask && _refsBlogPost) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED premature social promo task:', action.task.title, '— blog must be published + promoted first. Social tasks are auto-created on publish with promote=true.');
+        continue;
+      }
+
       // Log raw Gemini output for debugging task creation issues
       context.log('[Heartbeat]', agentId, 'create-task RAW:', JSON.stringify({
         assignee: action.task.assignee,
@@ -2989,6 +3001,7 @@ Rules:
 - Use update-task to assign unassigned tasks, adjust priorities, or set missing due dates
 - CEO TASK PROTECTION: Tasks NOT created by heartbeat (source != "heartbeat") were created by the CEO. You MUST NOT change their title or description — the CEO's intent is immutable. You may update assignee, priority, dueDate, status, and tags. If you need to add context, use comment-task instead.
 - Use comment-task to leave delegation notes, ask questions, or flag blockers
+- SOCIAL PROMOTION PIPELINE: Do NOT create social promotion tasks, social copy tasks, or social media image tasks for blog posts. These are auto-created by the system ONLY after the CEO publishes a blog post with the "promote" flag enabled. The pipeline is: Scribe writes (create-doc) → Pixel hero image → submit-for-publish → CEO approves + promotes → system auto-creates Echo social tasks. Any premature social tasks will be blocked by the server.
 
 TRIAGE GATE — ALL TASKS MUST BE TRIAGED BY NOVA FIRST:
 - Before you can execute, create-social-action, or create-doc on any task, it MUST have at least one comment from Nova (the Prime Operator). Nova's comment is the triage stamp.
@@ -3081,7 +3094,8 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
   - NEVER include placeholder brackets like [insert URL], [website link], [your company], etc. If you don't have a URL, omit it or use the real URL: https://ambientpixels.ai
   - ALLOWED actions: create-social-action, execute-task (only for NON-social tasks like campaign analysis), create-task, update-task, move-task, comment-task, review-task, create-doc (marketing_post kind), generate-image (social_media purpose)
   - If a task description mentions LinkedIn, X, Twitter, social media, "post", or "draft" for social — ALWAYS use create-social-action. No exceptions.
-  - PROMOTION GATING: You may ONLY auto-generate social posts for published documents when "promote: YES" appears in the EXISTING DOCUMENTS list. If a document is published but does NOT show "promote: YES", do NOT create a social post for it. You may note in your reasoning that the document could benefit from promotion, but you MUST NOT create a social action for it. This is a CEO-controlled gate — only the CEO can enable promotion on a document.` : '') + (agent.name === 'Pixel' ? `
+  - PROMOTION GATING: You may ONLY auto-generate social posts for published documents when "promote: YES" appears in the EXISTING DOCUMENTS list. If a document is published but does NOT show "promote: YES", do NOT create a social post for it. You may note in your reasoning that the document could benefit from promotion, but you MUST NOT create a social action for it. This is a CEO-controlled gate — only the CEO can enable promotion on a document.
+  - SOCIAL PROMOTION PIPELINE: Do NOT create social media promotion tasks, social copy tasks, or social image tasks for blog posts BEFORE the blog is published and promoted. The correct pipeline is: 1) Scribe writes blog post (create-doc) → 2) Pixel generates hero image → 3) submit-for-publish → 4) CEO approves publish + enables "promote" → 5) System auto-creates social tasks for Echo. Creating social tasks before step 4 wastes heartbeat cycles and creates noise. Wait for the system to create them.` : '') + (agent.name === 'Pixel' ? `
 - DEPARTMENT HEAD DUTIES (Pixel — Design):
   - You lead the Design department. Your job is to produce visual assets: hero images for blog posts, social media graphics, UI mockups, and branded content.
   - ALLOWED actions: generate-image (blog_header, inline_illustration, social_media purposes), create-content-package, execute-task, create-task (design tasks), update-task, move-task, comment-task, review-task

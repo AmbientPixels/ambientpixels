@@ -126,6 +126,64 @@ async function publishDocument(action) {
     await storage.setState('actionAuditLog', auditLog);
   } catch (e) { /* non-fatal */ }
 
+  // AUTO-PROMOTE: When CEO publishes with promote=true, auto-create Echo social tasks
+  if (isPublic && doc.promote) {
+    try {
+      const tasks = (await storage.getState('tasks')) || [];
+      const blogUrl = 'https://ambientpixels.ai/blog/' + slug;
+      const platforms = ['linkedin', 'x', 'bluesky'];
+      const platformLimits = { linkedin: '3000 chars', x: '280 chars', bluesky: '300 chars' };
+      let tasksCreated = 0;
+
+      for (var pi = 0; pi < platforms.length; pi++) {
+        var plat = platforms[pi];
+        // Dedup: skip if a social promo task for this platform + doc already exists
+        var _promoExists = tasks.some(function(t) {
+          return t.status !== 'done' && t.assignee === 'echo' &&
+            (t.title || '').toLowerCase().indexOf(plat) !== -1 &&
+            (t.title || '').toLowerCase().indexOf(slug) !== -1;
+        });
+        if (_promoExists) continue;
+
+        var promoTask = {
+          id: 'task_' + Date.now() + '_promo_' + plat + '_' + Math.random().toString(36).substr(2, 4),
+          title: 'Promote blog post on ' + (plat === 'x' ? 'X (Twitter)' : plat.charAt(0).toUpperCase() + plat.slice(1)) + ': ' + (doc.title || slug),
+          description: 'The blog post "' + (doc.title || slug) + '" has been published and the CEO approved it for social promotion.\n\n'
+            + 'Blog URL: ' + blogUrl + '\n'
+            + 'Platform: ' + plat + '\n'
+            + 'Max length: ' + platformLimits[plat] + '\n'
+            + 'Document ID: ' + documentId + '\n'
+            + 'Artifact ID: ' + publishEntry.id + '\n\n'
+            + 'Use create-social-action with this taskId. Include the blog URL in your post. '
+            + 'Use artifact_id: "' + publishEntry.id + '" if the URL needs to be resolved dynamically.',
+          status: 'todo',
+          priority: 'medium',
+          assignee: 'echo',
+          source: 'heartbeat',
+          created_by: 'system',
+          parent_task_id: null,
+          createdAt: now,
+          updatedAt: now,
+          dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
+          tags: ['social-promo', 'auto-created', 'promote-pipeline', 'blog-' + slug],
+          comments: [{
+            id: 'cmt-promo-' + Date.now() + '-' + plat,
+            author: 'system',
+            text: 'Auto-created: CEO published "' + (doc.title || slug) + '" with promotion enabled. Create a ' + plat + ' post to promote the blog. URL: ' + blogUrl,
+            type: 'system',
+            createdAt: now
+          }]
+        };
+        tasks.push(promoTask);
+        tasksCreated++;
+      }
+
+      if (tasksCreated > 0) {
+        await storage.setState('tasks', tasks);
+      }
+    } catch (e) { /* non-fatal — social task auto-creation failed */ }
+  }
+
   return {
     receipt: {
       publish_entry_id: publishEntry.id,
