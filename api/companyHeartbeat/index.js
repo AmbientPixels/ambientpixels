@@ -1017,7 +1017,6 @@ Write the full deliverable first, then the structured JSON block.`;
                 }]
               };
               tasks.push(copyTask);
-              result.taskUpdates.push({ action: 'create', task: copyTask });
               context.log('[Heartbeat]', agentId, 'AUTO-CREATED Scribe copy task:', copyTask.id, 'for social task:', action.taskId);
             } else {
               context.log('[Heartbeat]', agentId, 'Scribe copy task already exists for social task:', action.taskId, '— waiting for review');
@@ -1563,7 +1562,6 @@ Write the full deliverable first, then the structured JSON block.`;
               }]
             };
             tasks.push(heroTask);
-            result.taskUpdates.push({ action: 'create', task: heroTask });
             context.log('[Heartbeat]', agentId, 'AUTO-CREATED Pixel hero image task:', heroTask.id, 'for doc:', doc.id);
           } else {
             context.log('[Heartbeat]', agentId, 'Pixel hero image task already exists for doc:', doc.id, '— skipping auto-create');
