@@ -491,6 +491,27 @@ module.exports = async function (context) {
           }
         }
 
+        // Nova auto-assign fallback: if Nova commented on unassigned tasks, detect agent name and auto-assign
+        if (agentId === 'nova') {
+          const AGENT_NAME_MAP = { scribe: 'scribe', pixel: 'pixel', echo: 'echo', forge: 'forge', cipher: 'cipher', scout: 'scout', quill: 'quill' };
+          for (const task of tasks) {
+            if (task.assignee || task.status === 'done') continue;
+            const novaComment = (task.comments || []).find(c => c.author === 'nova' && c.createdAt && (Date.now() - new Date(c.createdAt).getTime()) < 5 * 60 * 1000);
+            if (!novaComment) continue;
+            const commentLower = novaComment.text.toLowerCase();
+            for (const [name, id] of Object.entries(AGENT_NAME_MAP)) {
+              if (commentLower.indexOf(name) !== -1) {
+                task.assignee = id;
+                task.updatedAt = new Date().toISOString();
+                if (!task.comments) task.comments = [];
+                task.comments.push({ id: 'cmt-autoassign-' + Date.now(), author: 'system', text: 'Auto-assigned to ' + name + ' based on Nova triage comment.', type: 'system', createdAt: new Date().toISOString() });
+                context.log('[Heartbeat] AUTO-ASSIGN:', task.id, '→', id, '(Nova mentioned', name, 'in triage comment)');
+                break;
+              }
+            }
+          }
+        }
+
         // Record heartbeat
         if (configs[agentId]) {
           configs[agentId].heartbeat = configs[agentId].heartbeat || {};
