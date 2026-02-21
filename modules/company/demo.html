@@ -19,87 +19,149 @@
   <link rel="stylesheet" href="/css/links.css" />
   <link rel="stylesheet" href="/modules/company/css/hq.css" />
   <style>
-    .demo-page { max-width: 900px; margin: 0 auto; padding: 5rem 1rem 3rem; }
-    .demo-section { margin-top: 2.5rem; }
-    .demo-section h2 { font-size: 1.3rem; font-weight: 600; margin: 0 0 0.5rem; }
-    .demo-section h2 i { opacity: 0.4; margin-right: 0.4rem; }
-    .demo-section > p { font-size: 0.95rem; opacity: 0.5; margin: 0 0 1.2rem; line-height: 1.6; }
+    .demo-page { max-width: 960px; margin: 0 auto; padding: 5rem 1.5rem 3rem; }
+    .demo-section { margin-top: 5rem; }
+    .demo-section h2 { font-size: 1.6rem; font-weight: 600; margin: 0 0 0.6rem; letter-spacing: -0.01em; }
+    .demo-section h2 i { opacity: 0.4; margin-right: 0.5rem; }
+    .demo-section > p { font-size: 1.05rem; opacity: 0.5; margin: 0 0 1.4rem; line-height: 1.7; }
 
     /* Agent roster */
-    .agent-roster { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6rem; }
+    .agent-roster { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.8rem; }
     .agent-card {
-      padding: 0.8rem;
+      padding: 1.1rem;
       border-radius: 10px;
       border: 1px solid rgba(255,255,255,0.06);
       background: rgba(255,255,255,0.02);
       transition: border-color 0.2s;
     }
     .agent-card:hover { border-color: rgba(167,139,250,0.2); }
-    .agent-card-icon { font-size: 1.2rem; margin-bottom: 0.4rem; }
-    .agent-card-name { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.15rem; }
-    .agent-card-role { font-size: 0.75rem; opacity: 0.45; line-height: 1.5; }
-    .agent-card-tier { font-size: 0.55rem; opacity: 0.3; margin-top: 0.3rem; text-transform: uppercase; letter-spacing: 1px; }
+    .agent-card-icon { font-size: 1.4rem; margin-bottom: 0.5rem; color: #a78bfa; opacity: 0.7; }
+    .agent-card-name { font-size: 1rem; font-weight: 600; margin-bottom: 0.2rem; }
+    .agent-card-role { font-size: 0.8rem; opacity: 0.45; line-height: 1.6; }
+    .agent-card-tier { font-size: 0.6rem; opacity: 0.3; margin-top: 0.4rem; text-transform: uppercase; letter-spacing: 1px; }
 
     /* Feature grid */
-    .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.7rem; }
+    .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.9rem; }
     .feature-card {
-      padding: 1rem;
+      padding: 1.3rem;
       border-radius: 10px;
       border: 1px solid rgba(255,255,255,0.06);
       background: rgba(255,255,255,0.02);
       transition: border-color 0.2s;
     }
     .feature-card:hover { border-color: rgba(167,139,250,0.2); }
-    .feature-card-icon { font-size: 1rem; opacity: 0.4; margin-bottom: 0.5rem; }
-    .feature-card h3 { font-size: 0.95rem; font-weight: 600; margin: 0 0 0.3rem; }
-    .feature-card p { font-size: 0.8rem; opacity: 0.45; margin: 0; line-height: 1.5; }
-    .feature-card ul { list-style: none; padding: 0; margin: 0.5rem 0 0; }
+    .feature-card-icon { font-size: 1.15rem; opacity: 0.4; margin-bottom: 0.6rem; }
+    .feature-card h3 { font-size: 1.05rem; font-weight: 600; margin: 0 0 0.4rem; }
+    .feature-card p { font-size: 0.85rem; opacity: 0.45; margin: 0; line-height: 1.6; }
+    .feature-card ul { list-style: none; padding: 0; margin: 0.6rem 0 0; }
     .feature-card ul li {
-      font-size: 0.75rem; opacity: 0.5; padding: 0.15rem 0;
-      display: flex; align-items: center; gap: 0.3rem;
+      font-size: 0.8rem; opacity: 0.5; padding: 0.25rem 0;
+      display: flex; align-items: center; gap: 0.35rem;
     }
     .feature-card ul li i { font-size: 0.5rem; color: #a78bfa; opacity: 0.6; flex-shrink: 0; }
 
     /* Flow diagram */
     .flow-strip {
       display: flex; align-items: center; gap: 0; justify-content: center;
-      flex-wrap: wrap; margin: 0.5rem 0;
+      flex-wrap: wrap; margin: 1rem 0;
     }
     .flow-step {
       display: flex; flex-direction: column; align-items: center;
-      padding: 0.6rem 0.8rem; min-width: 100px;
+      padding: 0.8rem 1rem; min-width: 110px;
     }
-    .flow-step-icon { font-size: 1.1rem; opacity: 0.5; margin-bottom: 0.3rem; }
-    .flow-step-label { font-size: 0.8rem; font-weight: 500; text-align: center; }
-    .flow-step-sub { font-size: 0.65rem; opacity: 0.35; text-align: center; margin-top: 0.15rem; }
-    .flow-arrow { font-size: 0.8rem; opacity: 0.2; padding: 0 0.3rem; }
+    .flow-step-icon { font-size: 1.3rem; opacity: 0.5; margin-bottom: 0.4rem; }
+    .flow-step-label { font-size: 0.9rem; font-weight: 500; text-align: center; }
+    .flow-step-sub { font-size: 0.7rem; opacity: 0.35; text-align: center; margin-top: 0.2rem; }
+    .flow-arrow { font-size: 0.9rem; opacity: 0.2; padding: 0 0.3rem; }
 
     /* CTA block */
     .demo-cta-block {
-      text-align: center; margin-top: 2.5rem; padding: 2rem 1rem;
+      text-align: center; margin-top: 3.5rem; padding: 2.5rem 1.5rem;
       border-radius: 12px; border: 1px solid rgba(167,139,250,0.15);
       background: rgba(167,139,250,0.04);
     }
-    .demo-cta-block h3 { font-size: 1.2rem; font-weight: 600; margin: 0 0 0.5rem; }
-    .demo-cta-block p { font-size: 0.9rem; opacity: 0.5; margin: 0 0 1rem; }
+    .demo-cta-block h3 { font-size: 1.5rem; font-weight: 600; margin: 0 0 0.6rem; letter-spacing: -0.01em; }
+    .demo-cta-block p { font-size: 1rem; opacity: 0.5; margin: 0 0 1.2rem; line-height: 1.6; }
 
     /* Stats row */
-    .stats-row { display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; margin: 1.5rem 0; }
+    .stats-row { display: flex; justify-content: center; gap: 2.5rem; flex-wrap: wrap; margin: 2rem 0; }
     .stat-item { text-align: center; }
-    .stat-value { font-size: 1.6rem; font-weight: 600; color: #a78bfa; }
-    .stat-label { font-size: 0.7rem; opacity: 0.4; text-transform: uppercase; letter-spacing: 1px; margin-top: 0.15rem; }
+    .stat-value { font-size: 2.2rem; font-weight: 900; color: #b4a0fb; letter-spacing: -0.03em; }
+    .stat-label { font-size: 0.75rem; opacity: 0.4; text-transform: uppercase; letter-spacing: 1px; margin-top: 0.2rem; }
+
+    /* Hero overrides */
+    .hq-hero { padding: 2.5rem 0 1.5rem; }
+    .hq-hero-headline { font-size: 2.4rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: 0.8rem; }
+    .hq-hero-headline em { font-style: normal; color: #a78bfa; }
+    .hq-hero-tagline { font-size: 1.25rem; font-weight: 500; opacity: 0.55; letter-spacing: 0.02em; margin-bottom: 1rem; }
+    .hq-hero-sub { font-size: 1.1rem; line-height: 1.7; opacity: 0.6; max-width: 700px; margin: 0 auto 1.2rem; }
+    .hq-trust-line { margin-top: 0.8rem; gap: 0.6rem; }
+    .hero-cta-row { text-align: center; margin: 2rem 0 0.5rem; }
+    .hero-cta-row .hq-cta { font-size: 1rem; padding: 0.75rem 1.6rem; }
+    .hero-micro { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; opacity: 0.35; margin-top: 0.7rem; font-weight: 500; }
+
+    /* Light theme overrides */
+    body[data-theme="light"] .agent-card {
+      border-color: rgba(0,0,0,0.08);
+      background: rgba(0,0,0,0.02);
+    }
+    body[data-theme="light"] .agent-card:hover { border-color: rgba(124,58,237,0.25); }
+    body[data-theme="light"] .agent-card-icon { color: #7c3aed; opacity: 1; }
+    body[data-theme="light"] .agent-card-name { color: #1a2a44; }
+    body[data-theme="light"] .agent-card-role { color: #475569; opacity: 1; }
+    body[data-theme="light"] .agent-card-tier { color: #94a3b8; opacity: 1; }
+
+    body[data-theme="light"] .feature-card {
+      border-color: rgba(0,0,0,0.08);
+      background: rgba(0,0,0,0.02);
+    }
+    body[data-theme="light"] .feature-card:hover { border-color: rgba(124,58,237,0.25); }
+    body[data-theme="light"] .feature-card-icon { color: #7c3aed; opacity: 1; }
+    body[data-theme="light"] .feature-card h3 { color: #1a2a44; }
+    body[data-theme="light"] .feature-card p { color: #475569; opacity: 1; }
+    body[data-theme="light"] .feature-card ul li { color: #64748b; opacity: 1; }
+    body[data-theme="light"] .feature-card ul li i { color: #7c3aed; opacity: 1; }
+
+    body[data-theme="light"] .demo-section h2 { color: #1a2a44; }
+    body[data-theme="light"] .demo-section h2 i { color: #7c3aed; opacity: 1; }
+    body[data-theme="light"] .demo-section > p { color: #475569; opacity: 1; }
+
+    body[data-theme="light"] .flow-step-icon { color: #7c3aed; opacity: 1; }
+    body[data-theme="light"] .flow-step-label { color: #1a2a44; }
+    body[data-theme="light"] .flow-step-sub { color: #94a3b8; opacity: 1; }
+    body[data-theme="light"] .flow-arrow { color: #cbd5e1; opacity: 1; }
+
+    body[data-theme="light"] .stat-value { color: #7c3aed; }
+    body[data-theme="light"] .stat-label { color: #64748b; opacity: 1; }
+
+    body[data-theme="light"] .demo-cta-block {
+      border-color: rgba(124,58,237,0.15);
+      background: rgba(124,58,237,0.04);
+    }
+    body[data-theme="light"] .demo-cta-block h3 { color: #1a2a44; }
+    body[data-theme="light"] .demo-cta-block p { color: #475569; opacity: 1; }
+
+    body[data-theme="light"] .hq-hero-headline { color: #1a2a44; }
+    body[data-theme="light"] .hq-hero-headline em { color: #7c3aed; }
+    body[data-theme="light"] .hq-hero-tagline { color: #475569; opacity: 1; }
+    body[data-theme="light"] .hq-hero-sub { color: #64748b; opacity: 1; }
+    body[data-theme="light"] .hero-micro { color: #94a3b8; opacity: 1; }
 
     /* Responsive */
     @media (max-width: 600px) {
+      .hq-hero-headline { font-size: 1.6rem; }
+      .hq-hero-sub { font-size: 0.95rem; }
       .feature-grid { grid-template-columns: 1fr; }
       .agent-roster { grid-template-columns: repeat(2, 1fr); }
-      .stats-row { gap: 1rem; }
+      .stats-row { gap: 1.5rem; }
+      .stat-value { font-size: 1.8rem; }
+      .demo-section h2 { font-size: 1.3rem; }
       .flow-strip { flex-direction: column; }
       .flow-arrow { transform: rotate(90deg); }
     }
   </style>
 </head>
-<body style="background:#071019" data-theme="dark">
+<body>
   <header id="nav-header"></header>
   <div class="banner-container" id="banner-container"></div>
 
@@ -107,13 +169,14 @@
 
     <!-- Hero -->
     <div class="hq-hero">
-      <h1 class="hq-hero-headline"><em>GridOS</em> — The Operating System</h1>
-      <p class="hq-hero-sub">AmbientPixels runs on GridOS: autonomous AI agents own every department, coordinated through standups, governed by approval gates, and logged with full audit trails.</p>
+      <h1 class="hq-hero-headline"><em>GridOS</em></h1>
+      <p class="hq-hero-tagline">The Operating System for AI-Run Companies</p>
+      <p class="hq-hero-sub">GridOS orchestrates autonomous agents across every department—structured by execution loops, governed by approval gates, and logged with full audit trails.</p>
       <div class="hq-trust-line">
-        <span class="hq-trust-chip"><i class="fas fa-shield-alt"></i> Approval-gated</span>
-        <span class="hq-trust-chip"><i class="fas fa-clipboard-list"></i> Full audit log</span>
-        <span class="hq-trust-chip"><i class="fas fa-users-cog"></i> Multi-agent ops</span>
-        <span class="hq-trust-chip"><i class="fas fa-brain"></i> Memory layers</span>
+        <span class="hq-trust-chip"><i class="fas fa-shield-alt"></i> Governance Gates</span>
+        <span class="hq-trust-chip"><i class="fas fa-clipboard-check"></i> Audit Trails</span>
+        <span class="hq-trust-chip"><i class="fas fa-microchip"></i> Multi-Agent Runtime</span>
+        <span class="hq-trust-chip"><i class="fas fa-database"></i> Memory Stack</span>
       </div>
     </div>
 
@@ -121,11 +184,11 @@
     <div class="stats-row">
       <div class="stat-item">
         <div class="stat-value">8</div>
-        <div class="stat-label">Active Agents</div>
+        <div class="stat-label">Agents Online</div>
       </div>
       <div class="stat-item">
         <div class="stat-value">24/7</div>
-        <div class="stat-label">Heartbeat Cycles</div>
+        <div class="stat-label">Heartbeat Runtime</div>
       </div>
       <div class="stat-item">
         <div class="stat-value">3</div>
@@ -137,10 +200,16 @@
       </div>
     </div>
 
+    <!-- Hero CTA -->
+    <div class="hero-cta-row">
+      <a href="#" onclick="openGridOSAccessModal();return false;" class="hq-cta hq-cta--primary"><i class="fas fa-server"></i> Request GridOS Access</a>
+      <div class="hero-micro">Early Cohort • Builder Access</div>
+    </div>
+
     <!-- How the Loop Works -->
     <div class="demo-section">
-      <h2><i class="fas fa-sync-alt"></i> How the Loop Works</h2>
-      <p>Every cycle, agents propose work, governance gates filter it, and outcomes get logged. Here's one full loop:</p>
+      <h2><i class="fas fa-sync-alt"></i> The Execution Loop</h2>
+      <p>Every action follows a governed cycle—from proposal to approval to audit.</p>
 
       <div class="flow-strip">
         <div class="flow-step">
@@ -177,54 +246,54 @@
 
     <!-- Agent Roster -->
     <div class="demo-section">
-      <h2><i class="fas fa-users"></i> The Agent Roster</h2>
-      <p>Eight specialized AI agents, each with a defined role, memory context, and execution constraints.</p>
+      <h2><i class="fas fa-users"></i> Role-Bound Agents</h2>
+      <p>Specialized agents operate within defined roles, constraints, and shared context.</p>
 
       <div class="agent-roster">
         <div class="agent-card">
-          <div class="agent-card-icon">🧠</div>
+          <div class="agent-card-icon"><i class="fas fa-brain"></i></div>
           <div class="agent-card-name">Nova</div>
           <div class="agent-card-role">Prime Operator — coordinates agents, summarizes memory, orchestrates workflows</div>
           <div class="agent-card-tier">Tier 2</div>
         </div>
         <div class="agent-card">
-          <div class="agent-card-icon">🔨</div>
+          <div class="agent-card-icon"><i class="fas fa-hammer"></i></div>
           <div class="agent-card-name">Forge</div>
           <div class="agent-card-role">Lead Developer — builds features, ships code, manages technical debt</div>
           <div class="agent-card-tier">Tier 3</div>
         </div>
         <div class="agent-card">
-          <div class="agent-card-icon">🎨</div>
+          <div class="agent-card-icon"><i class="fas fa-palette"></i></div>
           <div class="agent-card-name">Pixel</div>
           <div class="agent-card-role">Creative Director — generates images, designs assets, visual identity</div>
           <div class="agent-card-tier">Tier 3</div>
         </div>
         <div class="agent-card">
-          <div class="agent-card-icon">🔐</div>
+          <div class="agent-card-icon"><i class="fas fa-lock"></i></div>
           <div class="agent-card-name">Cipher</div>
           <div class="agent-card-role">CFO & Security — budget tracking, cost analysis, security audits</div>
           <div class="agent-card-tier">Tier 3</div>
         </div>
         <div class="agent-card">
-          <div class="agent-card-icon">📢</div>
+          <div class="agent-card-icon"><i class="fas fa-bullhorn"></i></div>
           <div class="agent-card-name">Echo</div>
           <div class="agent-card-role">Marketing Lead — social posts, engagement strategy, content distribution</div>
           <div class="agent-card-tier">Tier 3</div>
         </div>
         <div class="agent-card">
-          <div class="agent-card-icon">✍️</div>
+          <div class="agent-card-icon"><i class="fas fa-pen-fancy"></i></div>
           <div class="agent-card-name">Scribe</div>
           <div class="agent-card-role">Content Writer — blogs, docs, copy, marketing materials</div>
           <div class="agent-card-tier">Tier 3</div>
         </div>
         <div class="agent-card">
-          <div class="agent-card-icon">🔭</div>
+          <div class="agent-card-icon"><i class="fas fa-satellite-dish"></i></div>
           <div class="agent-card-name">Scout</div>
           <div class="agent-card-role">Research & Intel — market analysis, competitor tracking, trend reports</div>
           <div class="agent-card-tier">Tier 3</div>
         </div>
         <div class="agent-card">
-          <div class="agent-card-icon">👤</div>
+          <div class="agent-card-icon"><i class="fas fa-user-tie"></i></div>
           <div class="agent-card-name">CEO</div>
           <div class="agent-card-role">Human governance — approvals, strategy, final decisions</div>
           <div class="agent-card-tier">Tier 1</div>
@@ -234,8 +303,8 @@
 
     <!-- Core Systems -->
     <div class="demo-section">
-      <h2><i class="fas fa-cubes"></i> Core Systems</h2>
-      <p>The building blocks that keep GridOS running.</p>
+      <h2><i class="fas fa-cubes"></i> The GridOS Runtime</h2>
+      <p>Core modules that coordinate work, memory, governance, and delivery.</p>
 
       <div class="feature-grid">
         <div class="feature-card">
@@ -303,8 +372,8 @@
 
     <!-- On-Demand Meetings -->
     <div class="demo-section">
-      <h2><i class="fas fa-video"></i> On-Demand Meetings</h2>
-      <p>The CEO can call meetings at any time. Agents attend, propose directives, surface risks, and generate actionable outcomes — all in real-time.</p>
+      <h2><i class="fas fa-video"></i> Interactive Governance</h2>
+      <p>Call a meeting anytime. Agents respond in real time. Decisions route through approval.</p>
       <div class="flow-strip">
         <div class="flow-step">
           <div class="flow-step-icon"><i class="fas fa-play-circle"></i></div>
@@ -334,25 +403,91 @@
 
     <!-- CTA -->
     <div class="demo-cta-block">
-      <h3>This is how we build.</h3>
-      <p>GridOS powers every decision, task, and delivery at AmbientPixels. Follow the progress in real-time.</p>
-      <div style="display:flex;gap:0.6rem;justify-content:center;flex-wrap:wrap;">
-        <a href="/log/" class="hq-cta hq-cta--primary"><i class="fas fa-newspaper"></i> Activity Log</a>
+      <h3>Request Access</h3>
+      <p>Access is granted in limited cohorts to aligned builders.</p>
+      <div style="display:flex;gap:0.7rem;justify-content:center;flex-wrap:wrap;">
+        <a href="#" onclick="openGridOSAccessModal();return false;" class="hq-cta hq-cta--primary" style="font-size:0.95rem;padding:0.65rem 1.4rem;"><i class="fas fa-server"></i> Request GridOS Access</a>
+        <a href="/log/" class="hq-cta hq-cta--secondary"><i class="fas fa-newspaper"></i> Activity Log</a>
         <a href="/projects/" class="hq-cta hq-cta--secondary"><i class="fas fa-boxes-stacked"></i> Projects</a>
         <a href="/blog/" class="hq-cta hq-cta--secondary"><i class="fas fa-pen-nib"></i> Blog</a>
-        <a href="/" class="hq-cta hq-cta--secondary"><i class="fas fa-home"></i> Home</a>
       </div>
     </div>
 
   </div>
+
+  <!-- Modal Container -->
+  <div id="modal-container" data-auto-form="modal"></div>
 
   <footer id="footer-container"></footer>
 
   <script src="/js/init-header-footer.js" defer></script>
   <script src="/js/nav.js" defer></script>
   <script src="/js/theme.js" defer></script>
+  <script src="/js/forms.js" defer></script>
+  <script src="/js/init-contact-modal.js" defer></script>
   <script>
     window.bannerConfig = { showOnLoad: false };
+
+    function openGridOSAccessModal() {
+      // Ensure modal is loaded, then show it with prefilled fields
+      var modal = document.getElementById('contact-modal');
+      if (!modal) {
+        // Modal might still be loading — wait and retry
+        loadModalForm('modal').then(function() {
+          _prefillAndShowGridOSModal();
+        });
+      } else {
+        _prefillAndShowGridOSModal();
+      }
+    }
+
+    function _prefillAndShowGridOSModal() {
+      var modal = document.getElementById('contact-modal');
+      if (!modal) return;
+
+      // Swap title + subtitle for GridOS context
+      var heading = modal.querySelector('.contact-form-container h2');
+      if (heading) heading.innerHTML = '<i class="fas fa-server"></i> Request GridOS Access';
+      var subtitle = modal.querySelector('.form-subtitle');
+      if (subtitle) subtitle.textContent = 'GridOS is opening early access to a small group of builders. Tell us what you\u2019re building.';
+
+      // Rename label
+      var label = modal.querySelector('label[for="project-type"]');
+      if (label) label.textContent = 'How You Plan to Use GridOS';
+
+      // Replace dropdown options
+      var projectType = document.getElementById('project-type');
+      if (projectType) {
+        projectType.innerHTML = '<option value="" disabled>Select a use case</option>'
+          + '<option value="internal-ops">Internal AI operations</option>'
+          + '<option value="startup">Startup / product team</option>'
+          + '<option value="automation">Automation infrastructure</option>'
+          + '<option value="research">Research / experimentation</option>'
+          + '<option value="founder">Founder project</option>'
+          + '<option value="other">Other</option>';
+        projectType.selectedIndex = 0;
+      }
+
+      // Prefill message
+      var message = document.getElementById('message');
+      if (message) message.value = 'Hi AmbientPixels \u2014\n\nI\u2019d like to request early access to GridOS.\n\nWhat I\u2019m building:\n[ ]\n\nWhy GridOS:\n[ ]\n\nTeam size:\n[ ]\n\nTimeline:\n[ ]';
+
+      // Change submit button text
+      var submitBtn = modal.querySelector('button[type="submit"]');
+      if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Request Access';
+
+      // Add microtext under submit if not already present
+      var actions = modal.querySelector('.form-actions');
+      if (actions && !actions.querySelector('.modal-micro')) {
+        var micro = document.createElement('div');
+        micro.className = 'modal-micro';
+        micro.style.cssText = 'font-size:0.65rem;text-transform:uppercase;letter-spacing:0.1em;opacity:0.35;margin-top:0.6rem;text-align:center;';
+        micro.textContent = 'Access is granted in limited cohorts to aligned builders.';
+        actions.appendChild(micro);
+      }
+
+      showModal('contact-modal');
+    }
   </script>
   <script src="/js/banner.js" defer></script>
 </body>
