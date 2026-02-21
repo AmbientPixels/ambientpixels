@@ -2,9 +2,7 @@
 (function () {
   'use strict';
 
-  var API_BASE = (window.location.hostname.indexOf('ambientpixels.ai') !== -1)
-    ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
-    : '/api';
+  var feedApi = window.PublicLogFeed;
 
   var headerEl = document.getElementById('log-header');
   var contentEl = document.getElementById('log-content');
@@ -29,12 +27,11 @@
 
   function loadSingleDay(date) {
     show('loading');
-    fetch(API_BASE + '/dailyLog?date=' + encodeURIComponent(date))
-      .then(function (res) {
-        if (res.status === 404) throw { code: 'NOT_FOUND' };
-        if (!res.ok) throw { code: 'SERVER_ERROR' };
-        return res.json();
-      })
+    if (!feedApi || typeof feedApi.fetchDailyLogByDate !== 'function') {
+      showError('Could not load log', 'Daily log service is unavailable.');
+      return;
+    }
+    feedApi.fetchDailyLogByDate(date)
       .then(function (entry) {
         renderSingleDay(entry);
       })
@@ -49,11 +46,11 @@
 
   function loadFeed() {
     show('loading');
-    fetch(API_BASE + '/dailyLog')
-      .then(function (res) {
-        if (!res.ok) throw new Error('Server error');
-        return res.json();
-      })
+    if (!feedApi || typeof feedApi.fetchDailyLogFeed !== 'function') {
+      showError('Could not load activity log', 'Daily log service is unavailable.');
+      return;
+    }
+    feedApi.fetchDailyLogFeed()
       .then(function (entries) {
         renderFeed(entries);
       })
