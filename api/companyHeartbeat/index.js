@@ -123,7 +123,7 @@ function _socialIntelResolveMode(engagementMeta, snapshots) {
   return 'real';
 }
 
-function _socialIntelBuildDigest(existingDigest, socialEvents, engagementSnapshots, engagementMeta, nowMs) {
+function _socialIntelBuildDigest(existingDigest, socialEvents, engagementSnapshots, engagementMeta, nowMs, accountStats) {
   var now = Number.isFinite(nowMs) ? nowMs : Date.now();
   var existingAsOf = existingDigest && existingDigest.asOfUtc ? Date.parse(existingDigest.asOfUtc) : NaN;
   if (existingDigest && Number.isFinite(existingAsOf) && (now - existingAsOf) < SOCIAL_INTEL_FRESHNESS_MS) {
@@ -272,7 +272,41 @@ function _socialIntelBuildDigest(existingDigest, socialEvents, engagementSnapsho
     if (byPlatform[p].likes7d > byPlatform[topEngagementPlatform].likes7d) topEngagementPlatform = p;
   });
 
+  // Account-level stats (from socialAccountStats cache)
+  var acct = (accountStats && accountStats.platforms) ? accountStats : null;
+  var acctTotals = (accountStats && accountStats.totals) ? accountStats.totals : null;
+  var acctFollowers = { x: 0, linkedin: 0, bluesky: 0, total: 0 };
+  if (acct && acct.platforms) {
+    ['x', 'linkedin', 'bluesky'].forEach(function (p) {
+      var pl = acct.platforms[p];
+      if (pl && pl.ok !== false) acctFollowers[p] = pl.followers || 0;
+    });
+    acctFollowers.total = acctFollowers.x + acctFollowers.linkedin + acctFollowers.bluesky;
+  }
+  if (acctTotals && acctTotals.followers) acctFollowers.total = acctTotals.followers;
+
+  var acctTopPosts = [];
+  if (accountStats && Array.isArray(accountStats.recentPosts)) {
+    acctTopPosts = accountStats.recentPosts
+      .filter(function (p) { return (p.likes || 0) + (p.replies || 0) + (p.reposts || p.retweets || 0) > 0; })
+      .sort(function (a, b) { return ((b.likes || 0) + (b.replies || 0) + (b.reposts || b.retweets || 0)) - ((a.likes || 0) + (a.replies || 0) + (a.reposts || a.retweets || 0)); })
+      .slice(0, 5)
+      .map(function (p) {
+        return {
+          platform: p.platform || '',
+          text: (p.text || '').slice(0, 80),
+          likes: p.likes || 0,
+          replies: p.replies || p.comments || 0,
+          reposts: p.reposts || p.retweets || 0,
+          url: p.url || ''
+        };
+      });
+  }
+
   var signals = [];
+  if (acctFollowers.total > 0) {
+    signals.push('Account followers: ' + acctFollowers.total + ' total (x=' + acctFollowers.x + ', linkedin=' + acctFollowers.linkedin + ', bluesky=' + acctFollowers.bluesky + ').');
+  }
   signals.push('Delivery 7d: ' + execSuccess7d + '/' + execTotal7d + ' executions succeeded (' + successRate7d + '%).');
   signals.push('Failures 24h: ' + failures24h + (topIssue24h ? ' (top issue: ' + topIssue24h + ').' : '.'));
   signals.push('Top engagement platform (likes 7d): ' + topEngagementPlatform + ' (' + byPlatform[topEngagementPlatform].likes7d + ').');
@@ -312,8 +346,13 @@ function _socialIntelBuildDigest(existingDigest, socialEvents, engagementSnapsho
     engagement: {
       byPlatform: byPlatform
     },
+    account: {
+      followers: acctFollowers,
+      connectedPlatforms: acctTotals ? acctTotals.platforms_connected || 0 : 0,
+      topLivePosts: acctTopPosts
+    },
     topPosts7d: topPosts7d,
-    signals: signals.slice(0, 3),
+    signals: signals.slice(0, 4),
     recommendations: recommendations.slice(0, 3)
   };
 }
@@ -328,6 +367,22 @@ function _buildSocialIntelPromptBlock(agent, socialIntel) {
     ? '\n⚠ Metrics are mock/fallback; do not change strategy based solely on this.'
     : '';
 
+  var acct = socialIntel.account || {};
+  var followers = acct.followers || { x: 0, linkedin: 0, bluesky: 0, total: 0 };
+  var acctSection = '';
+  if (followers.total > 0) {
+    acctSection = '\n- Account followers: ' + followers.total + ' total (x=' + followers.x + ', linkedin=' + followers.linkedin + ', bluesky=' + followers.bluesky + '), connected=' + (acct.connectedPlatforms || 0) + '/3';
+  }
+
+  var livePostsSection = '';
+  var livePosts = (acct.topLivePosts || []).slice(0, 3);
+  if (livePosts.length) {
+    livePostsSection = '\n- Top recent posts (all account posts, ranked by engagement):';
+    livePosts.forEach(function (p) {
+      livePostsSection += '\n  - ' + p.platform + ': "' + (p.text || '').slice(0, 60) + '" — ' + p.likes + ' likes, ' + p.replies + ' replies, ' + p.reposts + ' reposts' + (p.url ? ' (' + p.url + ')' : '');
+    });
+  }
+
   if (agent.name === 'Echo') {
     var top3 = (socialIntel.topPosts7d || []).slice(0, 3);
     var top3Lines = top3.length
@@ -336,20 +391,23 @@ function _buildSocialIntelPromptBlock(agent, socialIntel) {
       }).join('\n')
       : '- (none)';
     var recLines = (socialIntel.recommendations || []).slice(0, 3).map(function (r) { return '- ' + r; }).join('\n') || '- (none)';
-    return '\n\nSOCIAL INTEL DIGEST (Echo — delivery + engagement, 7d UTC):' +
+    return '\n\nSOCIAL INTEL DIGEST (Echo — delivery + engagement + account, 7d UTC):' +
       '\n- As of: ' + (socialIntel.asOfUtc || '') +
+      acctSection +
       '\n- Delivery: successRate7d=' + (socialIntel.delivery && socialIntel.delivery.successRate7d || 0) + '%, publishedToday=' + (socialIntel.delivery && socialIntel.delivery.publishedToday || 0) + ', failures24h=' + (socialIntel.delivery && socialIntel.delivery.failures24h || 0) + ', avgLatencyMs7d=' + (socialIntel.delivery && socialIntel.delivery.avgExecutionLatencyMs7d || 0) + ', topIssue24h=' + ((socialIntel.delivery && socialIntel.delivery.topIssue24h) || 'null') +
-      '\n- Engagement by platform (7d):' +
+      '\n- Engagement by platform (agent posts, 7d):' +
       '\n  - x: likes=' + px.likes7d + ', comments=' + px.comments7d + ', reposts=' + px.reposts7d + ', posts=' + px.posts7d +
       '\n  - linkedin: likes=' + pl.likes7d + ', comments=' + pl.comments7d + ', reposts=' + pl.reposts7d + ', posts=' + pl.posts7d +
       '\n  - bluesky: likes=' + pb.likes7d + ', comments=' + pb.comments7d + ', reposts=' + pb.reposts7d + ', posts=' + pb.posts7d +
-      '\n- Top posts (max 3):\n' + top3Lines +
+      livePostsSection +
+      '\n- Agent top posts (max 3):\n' + top3Lines +
       '\n- Recommendations (max 3):\n' + recLines +
       warning;
   }
 
   var shortRecs = (socialIntel.recommendations || []).slice(0, 2).map(function (r) { return '- ' + r; }).join('\n') || '- (none)';
   return '\n\nSOCIAL INTEL DIGEST (Nova — concise, 7d UTC):' +
+    acctSection +
     '\n- Delivery: successRate7d=' + (socialIntel.delivery && socialIntel.delivery.successRate7d || 0) + '%, publishedToday=' + (socialIntel.delivery && socialIntel.delivery.publishedToday || 0) + ', failures24h=' + (socialIntel.delivery && socialIntel.delivery.failures24h || 0) +
     '\n- Engagement by platform (7d): x=' + px.likes7d + '/' + px.comments7d + '/' + px.reposts7d + ' (posts ' + px.posts7d + '), linkedin=' + pl.likes7d + '/' + pl.comments7d + '/' + pl.reposts7d + ' (posts ' + pl.posts7d + '), bluesky=' + pb.likes7d + '/' + pb.comments7d + '/' + pb.reposts7d + ' (posts ' + pb.posts7d + ')' +
     '\n- topIssue24h=' + ((socialIntel.delivery && socialIntel.delivery.topIssue24h) || 'null') + ', lastPulledAt=' + (socialIntel.lastPulledAt || 'null') +
@@ -447,12 +505,14 @@ module.exports = async function (context) {
     const socialEngagementSnapshots = (await storage.getState('socialEngagementSnapshots')) || [];
     const socialEngagementMeta = (await storage.getState('socialEngagementMeta')) || {};
     const runtimeMemory = (await storage.getState('runtimeMemory')) || {};
+    const socialAccountStats = (await storage.getState('socialAccountStats')) || null;
     const socialIntel = _socialIntelBuildDigest(
       runtimeMemory && runtimeMemory.socialIntel,
       socialMetricsEvents,
       socialEngagementSnapshots,
       socialEngagementMeta,
-      Date.now()
+      Date.now(),
+      socialAccountStats
     );
     runtimeMemory.socialIntel = socialIntel;
     const revisionActions = allActions.filter(a => a.approval && a.approval.status === 'revision_requested');
