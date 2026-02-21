@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const https = require('https');
 const storage = require('../_utils/companyStorage');
 
 const CORS = {
@@ -85,6 +86,35 @@ function readJsonFromCandidates(candidates) {
     } catch (_) { /* try next */ }
   }
   return { data: null, mtimeMs: null, path: '' };
+}
+
+function fetchJson(url) {
+  return new Promise((resolve) => {
+    try {
+      const req = https.get(url, (res) => {
+        let raw = '';
+        res.on('data', (chunk) => { raw += chunk; });
+        res.on('end', () => {
+          if (res.statusCode !== 200) {
+            resolve({ data: null, mtimeMs: null, path: '' });
+            return;
+          }
+          try {
+            resolve({ data: JSON.parse(raw), mtimeMs: null, path: url });
+          } catch (_) {
+            resolve({ data: null, mtimeMs: null, path: '' });
+          }
+        });
+      });
+      req.setTimeout(5000, () => {
+        req.destroy();
+        resolve({ data: null, mtimeMs: null, path: '' });
+      });
+      req.on('error', () => resolve({ data: null, mtimeMs: null, path: '' }));
+    } catch (_) {
+      resolve({ data: null, mtimeMs: null, path: '' });
+    }
+  });
 }
 
 function latestTsFromTextMap(mapObj) {
@@ -322,17 +352,25 @@ function buildSummaryPayload(layer, agentId) {
 }
 
 async function loadLayerSources() {
-  const agentsFile = readJsonFromCandidates([
+  let agentsFile = readJsonFromCandidates([
     path.resolve(__dirname, '../../data/company-agents.json'),
     path.resolve(__dirname, '../data/company-agents.json'),
     path.resolve(process.cwd(), 'data/company-agents.json')
   ]);
 
-  const digestFile = readJsonFromCandidates([
+  let digestFile = readJsonFromCandidates([
     path.resolve(__dirname, '../../data/site-manifest.digest.json'),
     path.resolve(__dirname, '../data/site-manifest.digest.json'),
     path.resolve(process.cwd(), 'data/site-manifest.digest.json')
   ]);
+
+  if (!agentsFile.data) {
+    agentsFile = await fetchJson('https://ambientpixels.ai/data/company-agents.json');
+  }
+
+  if (!digestFile.data) {
+    digestFile = await fetchJson('https://ambientpixels.ai/data/site-manifest.digest.json');
+  }
 
   const companyAgents = parseAgentConfigAgents(agentsFile.data || []);
   const companyAgentsMtime = agentsFile.mtimeMs || null;
