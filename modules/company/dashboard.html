@@ -150,6 +150,26 @@
     .spulse-trend-label { font-size:0.48rem; opacity:0.3; margin-top:2px; }
     .spulse-issue { display:flex; align-items:center; gap:0.4rem; font-size:0.62rem; }
     .spulse-issue-pill { font-size:0.52rem; background:rgba(239,68,68,0.12); color:#ef4444; border-radius:999px; padding:0.1rem 0.38rem; font-weight:600; }
+
+    /* Engagement Pulse */
+    .epulse-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:0.45rem; margin-bottom:0.6rem; }
+    .epulse-chip { border:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.015); border-radius:8px; padding:0.45rem 0.5rem; }
+    .epulse-chip-label { font-size:0.52rem; opacity:0.35; }
+    .epulse-chip-value { font-size:0.95rem; font-weight:700; margin-top:0.08rem; }
+    .epulse-meta { font-size:0.56rem; opacity:0.45; margin-bottom:0.45rem; display:flex; align-items:center; gap:0.45rem; }
+    .epulse-badge { font-size:0.48rem; font-weight:700; letter-spacing:0.03em; padding:0.08rem 0.36rem; border-radius:999px; text-transform:uppercase; }
+    .epulse-badge--live { background:rgba(52,211,153,0.12); color:#34d399; }
+    .epulse-badge--mock { background:rgba(251,191,36,0.12); color:#fbbf24; }
+    .epulse-split { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:0.45rem; margin-bottom:0.5rem; }
+    .epulse-card { border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:0.45rem; background:rgba(255,255,255,0.012); }
+    .epulse-card-title { font-size:0.56rem; opacity:0.45; text-transform:uppercase; margin-bottom:0.28rem; }
+    .epulse-row { display:flex; justify-content:space-between; font-size:0.58rem; padding:0.1rem 0; }
+    .epulse-trend-title { font-size:0.56rem; opacity:0.45; margin-bottom:0.25rem; text-transform:uppercase; letter-spacing:0.03em; }
+    .epulse-trend-row { display:flex; gap:4px; align-items:flex-end; min-height:56px; }
+    .epulse-trend-col { flex:1; min-width:0; text-align:center; }
+    .epulse-trend-bar { width:100%; min-height:4px; border-radius:3px 3px 0 0; background:rgba(52,211,153,0.72); }
+    .epulse-trend-label { font-size:0.48rem; opacity:0.3; margin-top:2px; }
+    @media (max-width: 760px) { .epulse-split { grid-template-columns:1fr; } }
   </style>
 </head>
 <body style="background:#071019" data-theme="dark">
@@ -344,6 +364,17 @@
               </div>
               <div id="panel-social-pulse" style="padding:0.5rem;">
                 <div class="dash-empty">Loading social pulse...</div>
+              </div>
+            </div>
+
+            <!-- Engagement Pulse -->
+            <div class="dash-panel dash-panel--full" id="panel-engagement-pulse-wrap">
+              <div class="dash-panel-header">
+                <span class="dash-panel-title"><i class="fas fa-heart" style="color:#34d399;"></i> Engagement Pulse</span>
+                <a href="/modules/company/social-analytics.html?section=engagement" style="font-size:0.65rem; opacity:0.45; text-decoration:none;">View Social Analytics →</a>
+              </div>
+              <div id="panel-engagement-pulse" style="padding:0.5rem;">
+                <div class="dash-empty">Loading engagement pulse...</div>
               </div>
             </div>
           </div>
@@ -568,6 +599,7 @@
   <script src="/js/observability-ui.js"></script>
   <script src="/modules/company/js/quick-chat.js"></script>
   <script src="/modules/company/js/social-pulse.js"></script>
+  <script src="/modules/company/js/engagement-pulse.js"></script>
 
   <script>
     (function () {

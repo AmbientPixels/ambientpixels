@@ -65,6 +65,28 @@
     </section>
 
     <section class="sa-panel">
+      <div class="sa-panel-title"><i class="fas fa-heart"></i> Engagement (Beta)</div>
+      <div class="sa-kpis" id="sa-engagement-kpis"></div>
+      <div class="sa-eng-trends" id="sa-engagement-trends"></div>
+      <div class="sa-table-wrap" style="margin-top:0.5rem;">
+        <table class="sa-table">
+          <thead>
+            <tr>
+              <th>Platform</th>
+              <th>Text Preview</th>
+              <th>Likes</th>
+              <th>Comments</th>
+              <th>Reposts</th>
+              <th>Link</th>
+            </tr>
+          </thead>
+          <tbody id="sa-engagement-top-posts"></tbody>
+        </table>
+        <div class="dash-empty" id="sa-engagement-empty">No engagement snapshots yet.</div>
+      </div>
+    </section>
+
+    <section class="sa-panel">
       <div class="sa-panel-title"><i class="fas fa-gauge"></i> KPI Summary</div>
       <div class="sa-kpis" id="sa-kpis"></div>
     </section>
@@ -104,27 +126,6 @@
       <div id="sa-diagnostics"></div>
     </section>
 
-    <section class="sa-panel">
-      <div class="sa-panel-title"><i class="fas fa-heart"></i> Engagement (Beta)</div>
-      <div class="sa-kpis" id="sa-engagement-kpis"></div>
-      <div class="sa-eng-trends" id="sa-engagement-trends"></div>
-      <div class="sa-table-wrap" style="margin-top:0.5rem;">
-        <table class="sa-table">
-          <thead>
-            <tr>
-              <th>Platform</th>
-              <th>Text Preview</th>
-              <th>Likes</th>
-              <th>Comments</th>
-              <th>Reposts</th>
-              <th>Link</th>
-            </tr>
-          </thead>
-          <tbody id="sa-engagement-top-posts"></tbody>
-        </table>
-        <div class="dash-empty" id="sa-engagement-empty">No engagement snapshots yet.</div>
-      </div>
-    </section>
   </main>
 
   <script src="/js/storage-manager.js"></script>

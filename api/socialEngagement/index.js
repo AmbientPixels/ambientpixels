@@ -138,6 +138,8 @@ function aggregateEngagement(rows, actionTextMap, offset, limit, nowTs) {
   let reposts7d = 0;
   let likesPrev7d = 0;
 
+  const latest7dByPost = {};
+
   const dayMap30 = {};
 
   for (let i = 0; i < rows.length; i++) {
@@ -153,6 +155,9 @@ function aggregateEngagement(rows, actionTextMap, offset, limit, nowTs) {
       likes7d += likes;
       comments7d += comments;
       reposts7d += reposts;
+
+      const postKey = r.post_platform + '|' + (r.post_id || r.post_url || r.action_id);
+      if (!latest7dByPost[postKey]) latest7dByPost[postKey] = r;
     } else if (ts >= prevCutoff && ts < sevenCutoff) {
       likesPrev7d += likes;
     }
@@ -189,6 +194,23 @@ function aggregateEngagement(rows, actionTextMap, offset, limit, nowTs) {
       link: r.post_url || ''
     }));
 
+  const engagementSplit = {
+    x: { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 },
+    linkedin: { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 },
+    bluesky: { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 }
+  };
+
+  const splitKeys = Object.keys(latest7dByPost);
+  for (let i = 0; i < splitKeys.length; i++) {
+    const r = latest7dByPost[splitKeys[i]];
+    const bucket = engagementSplit[r.post_platform];
+    if (!bucket) continue;
+    bucket.likes7d += Number.isFinite(r.metrics.likes) ? r.metrics.likes : 0;
+    bucket.comments7d += Number.isFinite(r.metrics.comments) ? r.metrics.comments : 0;
+    bucket.reposts7d += Number.isFinite(r.metrics.reposts) ? r.metrics.reposts : 0;
+    bucket.posts7d += 1;
+  }
+
   const rowsPaged = rows.slice(offset, offset + limit);
   const nextCursor = (offset + limit) < rows.length ? encodeCursor(offset + limit) : null;
 
@@ -204,7 +226,9 @@ function aggregateEngagement(rows, actionTextMap, offset, limit, nowTs) {
       likesDelta7d: likes7d - likesPrev7d
     },
     topPosts: topPosts,
+    engagementSplit: engagementSplit,
     trends: {
+      daily: last7,
       last7: last7,
       last30: last30
     },
@@ -261,6 +285,11 @@ module.exports = async function (context, req) {
       mode = forceMock ? 'mock_forced' : 'mock_fallback';
     }
 
+    const engagementMeta = (await storage.getState('socialEngagementMeta')) || {};
+    const lastPulledAt = (engagementMeta && typeof engagementMeta.lastPulledAt === 'string' && !Number.isNaN(Date.parse(engagementMeta.lastPulledAt)))
+      ? engagementMeta.lastPulledAt
+      : null;
+
     rows = rows
       .filter((r) => {
         const ts = Date.parse(r.captured_at || '');
@@ -287,10 +316,11 @@ module.exports = async function (context, req) {
       body: {
         summary: agg.summary,
         topPosts: agg.topPosts,
+        engagementSplit: agg.engagementSplit,
         trends: agg.trends,
         rows: agg.rows,
         nextCursor: agg.nextCursor,
-        meta: { mode: mode }
+        meta: { mode: mode, lastPulledAt: lastPulledAt }
       }
     };
   } catch (err) {

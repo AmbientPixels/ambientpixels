@@ -5,6 +5,7 @@ const socialTelemetry = require('../socialMetrics/telemetry');
 const LOOKBACK_DAYS = 30;
 const MAX_SNAPSHOTS = 50000;
 const MAX_POSTS_PER_CYCLE = 120;
+const SOCIAL_PLATFORMS = ['x', 'linkedin', 'bluesky'];
 
 function _id(prefix) {
   return prefix + '_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
@@ -102,6 +103,14 @@ async function _pullXMetrics(postId) {
     views: null,
     clicks: null
   };
+}
+
+async function _persistLastPulledAt() {
+  const meta = (await storage.getState('socialEngagementMeta')) || {};
+  const next = Object.assign({}, meta, {
+    lastPulledAt: _iso()
+  });
+  await storage.setState('socialEngagementMeta', next);
 }
 
 async function _pullLinkedInMetrics(postId) {
@@ -229,46 +238,46 @@ module.exports = async function (context) {
   try {
     const events = (await storage.getState('socialMetricsEvents')) || [];
     const targets = _extractRecentSuccessPosts(events);
-    if (!targets.length) {
-      context.log('[socialEngagementPull] No recent successful social posts found');
-      return;
-    }
-
     const snapshots = [];
-    for (let i = 0; i < targets.length; i++) {
-      const t = targets[i];
+    if (targets.length) {
+      for (let i = 0; i < targets.length; i++) {
+        const t = targets[i];
 
-      if (forceMock) {
-        snapshots.push(_buildSnapshot(t, mode, _mockMetrics(t, i), null));
-        continue;
-      }
-
-      try {
-        let metrics = null;
-        if (t.post_platform === 'x') {
-          metrics = await _pullXMetrics(t.post_id);
-        } else if (t.post_platform === 'linkedin') {
-          metrics = await _pullLinkedInMetrics(t.post_id);
-        } else if (t.post_platform === 'bluesky') {
-          metrics = await _pullBlueskyMetrics(t.post_url);
-          if (metrics && metrics.at_uri) t.post_id = metrics.at_uri;
+        if (forceMock) {
+          snapshots.push(_buildSnapshot(t, mode, _mockMetrics(t, i), null));
+          continue;
         }
 
-        snapshots.push(_buildSnapshot(t, mode, metrics, null));
-      } catch (err) {
-        const tax = socialTelemetry.mapErrorToTelemetry(err || {});
-        snapshots.push(_buildSnapshot(t, mode, null, tax));
+        try {
+          let metrics = null;
+          if (t.post_platform === 'x') {
+            metrics = await _pullXMetrics(t.post_id);
+          } else if (t.post_platform === 'linkedin') {
+            metrics = await _pullLinkedInMetrics(t.post_id);
+          } else if (t.post_platform === 'bluesky') {
+            metrics = await _pullBlueskyMetrics(t.post_url);
+            if (metrics && metrics.at_uri) t.post_id = metrics.at_uri;
+          }
+
+          snapshots.push(_buildSnapshot(t, mode, metrics, null));
+        } catch (err) {
+          const tax = socialTelemetry.mapErrorToTelemetry(err || {});
+          snapshots.push(_buildSnapshot(t, mode, null, tax));
+        }
       }
+    } else {
+      context.log('[socialEngagementPull] No recent successful social posts found');
     }
 
-    if (!snapshots.length) return;
+    if (snapshots.length) {
+      const existing = (await storage.getState('socialEngagementSnapshots')) || [];
+      const merged = existing.concat(snapshots);
+      const trimmed = merged.length > MAX_SNAPSHOTS ? merged.slice(-MAX_SNAPSHOTS) : merged;
+      await storage.setState('socialEngagementSnapshots', trimmed);
+      context.log('[socialEngagementPull] Appended snapshots:', snapshots.length, 'mode=', mode);
+    }
 
-    const existing = (await storage.getState('socialEngagementSnapshots')) || [];
-    const merged = existing.concat(snapshots);
-    const trimmed = merged.length > MAX_SNAPSHOTS ? merged.slice(-MAX_SNAPSHOTS) : merged;
-    await storage.setState('socialEngagementSnapshots', trimmed);
-
-    context.log('[socialEngagementPull] Appended snapshots:', snapshots.length, 'mode=', mode);
+    await _persistLastPulledAt();
   } catch (err) {
     context.log.error('[socialEngagementPull] Fatal:', err && err.message ? err.message : err);
   }
