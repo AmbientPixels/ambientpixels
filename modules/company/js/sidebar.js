@@ -21,7 +21,8 @@
         { href: BASE + 'standup.html', label: 'Standup', icon: 'fa-users', match: ['standup.html'] },
         { href: BASE + 'meetings.html', label: 'Meetings', icon: 'fa-video', match: ['meetings.html'] },
         { href: BASE + 'cost-overview.html', label: 'Costs', icon: 'fa-dollar-sign', match: ['cost-overview.html'] },
-        { href: BASE + 'social-analytics.html', label: 'Social Analytics', icon: 'fa-chart-simple', match: ['social-analytics.html'] }
+        { href: BASE + 'social-analytics.html', label: 'Social Analytics', icon: 'fa-chart-simple', match: ['social-analytics.html'] },
+        { href: BASE + 'memory-stack.html', label: 'Memory Stack', icon: 'fa-layer-group', match: ['memory-stack.html'] }
       ]
     },
     {

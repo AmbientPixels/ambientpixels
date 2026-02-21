@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Memory Stack Explorer — runtime memory layer diagnostics." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Memory Stack — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/memory-stack.css" />
+</head>
+<body style="background:#071019" data-theme="dark">
+  <main class="content-section" style="max-width: 1200px; margin: 0 auto; padding: 1rem;">
+    <div class="ms-hero">
+      <h1><i class="fas fa-layer-group" style="opacity:0.42; margin-right:8px;"></i>Memory Stack Explorer</h1>
+      <p>Read-only diagnostics for agent prompt memory layers (L1–L6), freshness, and payload previews.</p>
+      <div class="ms-meta" id="ms-meta">Loading memory stack...</div>
+    </div>
+
+    <div class="ms-layout">
+      <section class="ms-panel">
+        <div class="ms-panel-title">Layers</div>
+        <div id="ms-layers" class="ms-layers"></div>
+      </section>
+
+      <section class="ms-panel">
+        <div class="ms-panel-title">Layer Detail</div>
+        <div id="ms-detail" class="ms-detail"></div>
+      </section>
+
+      <section class="ms-panel">
+        <div class="ms-panel-title">Preview</div>
+        <div class="ms-preview-tools">
+          <input id="ms-search" type="text" placeholder="Search preview..." />
+          <button id="ms-copy" class="ms-btn" type="button"><i class="fas fa-copy"></i> Copy</button>
+        </div>
+        <div id="ms-preview-summary" class="ms-summary"></div>
+        <pre id="ms-preview" class="ms-preview"></pre>
+      </section>
+    </div>
+  </main>
+
+  <script src="/js/storage-manager.js"></script>
+  <script src="/js/company-store.js"></script>
+  <script src="/modules/company/js/memory-stack.js"></script>
+  <script src="/modules/company/js/sidebar.js"></script>
+</body>
+</html>
