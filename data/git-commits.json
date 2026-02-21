@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "d300b27b-9558-44dc-9725-9556bf2902e2",
-      "hash": "756a863a787f9526efb2812579742c728fff3d55",
-      "message": "fix: comprehensive pipeline overhaul — 5 root causes fixed in single commit",
-      "timestamp": "2026-02-20 00:07:06 -0800",
+      "id": "4704d38e-9fac-4d53-9463-b203efc4c7b7",
+      "hash": "bf5c3d6feead2655e5d2cf311c4628ecc98f6c04",
+      "message": "memory-stack phase 2",
+      "timestamp": "2026-02-20 22:21:50 -0800",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/756a863a787f9526efb2812579742c728fff3d55"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/bf5c3d6feead2655e5d2cf311c4628ecc98f6c04"
     }
   ],
-  "timestamp": "2026-02-20T14:01:34.950Z",
+  "timestamp": "2026-02-21T13:44:39.219Z",
   "count": 1,
-  "scanId": 1771596094950
+  "scanId": 1771681479219
 }

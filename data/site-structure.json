@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2026-02-20T14:01:31.695Z",
+  "updated": "2026-02-21T13:44:36.582Z",
   "root": [
     {
       "type": "folder",
@@ -259,6 +259,18 @@
         },
         {
           "type": "folder",
+          "name": "company-reset-documents",
+          "path": "api/company-reset-documents",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "company-reset-nongallery-assets",
+          "path": "api/company-reset-nongallery-assets",
+          "children": []
+        },
+        {
+          "type": "folder",
           "name": "company-standup-run",
           "path": "api/company-standup-run",
           "children": []
@@ -403,6 +415,12 @@
         },
         {
           "type": "folder",
+          "name": "memoryStack",
+          "path": "api/memoryStack",
+          "children": []
+        },
+        {
+          "type": "folder",
           "name": "novachat",
           "path": "api/novachat",
           "children": []
@@ -423,6 +441,36 @@
           "type": "folder",
           "name": "publishedDocs",
           "path": "api/publishedDocs",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "socialAccountStats",
+          "path": "api/socialAccountStats",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "socialEngagement",
+          "path": "api/socialEngagement",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "socialEngagementPull",
+          "path": "api/socialEngagementPull",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "socialEngagementPullNow",
+          "path": "api/socialEngagementPullNow",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "socialMetrics",
+          "path": "api/socialMetrics",
           "children": []
         },
         {
@@ -1055,6 +1103,11 @@
             },
             {
               "type": "page",
+              "name": "memory-stack.html",
+              "path": "modules/company/memory-stack.html"
+            },
+            {
+              "type": "page",
               "name": "objectives.html",
               "path": "modules/company/objectives.html"
             },
@@ -1067,6 +1120,11 @@
               "type": "page",
               "name": "plan-overview.html",
               "path": "modules/company/plan-overview.html"
+            },
+            {
+              "type": "page",
+              "name": "social-analytics.html",
+              "path": "modules/company/social-analytics.html"
             },
             {
               "type": "page",
