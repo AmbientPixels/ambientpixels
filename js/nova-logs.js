@@ -1,12 +1,16 @@
-// nova-logs.js — Nova's Diary & Log Controller
-// Loads changelog, dreams, generates AI reflections via NovaSoul
+// nova-logs.js — Nova Founder Log Controller
+// Loads changelog, brief archive, and operator notes via NovaSoul
 
 (function () {
   'use strict';
 
+  var API_BASE = (window.location.hostname.indexOf('ambientpixels.ai') !== -1)
+    ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+    : '/api';
+
   document.addEventListener('DOMContentLoaded', function () {
     loadChangelog();
-    loadDreamArchive();
+    loadBriefArchive();
     loadPastDiaryEntries();
     loadAIReflection();
     initDiaryInput();
@@ -90,64 +94,74 @@
     });
   }
 
-  // ── Dream Archive (AI + static merged) ──
-  async function loadDreamArchive() {
-    var dreamList = document.getElementById('nova-dream-list');
-    if (!dreamList) return;
+  // ── Brief Archive (daily log API + static fallback) ──
+  async function loadBriefArchive() {
+    var briefList = document.getElementById('nova-dream-list');
+    if (!briefList) return;
 
-    var combined = [];
+    var rows = [];
 
-    // 1. Load AI-generated dreams from NovaSoul memory
-    if (typeof NovaSoul !== 'undefined') {
-      var aiDreams = NovaSoul.getDreamHistory();
-      aiDreams.forEach(function (d) {
-        combined.push({
-          date: d.timestamp ? new Date(d.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Unknown',
-          text: (d.symbol || '') + ' ' + (d.dream || ''),
-          mood: d.mood || '',
-          source: 'ai'
-        });
-      });
-    }
-
-    // 2. Load static dreams from history JSON
     try {
-      var res = await fetch('/data/nova-dreams-history.json?t=' + Date.now());
-      var history = await res.json();
-      history.forEach(function (entry) {
-        entry.dreams.forEach(function (dream) {
-          combined.push({ date: entry.date, text: dream, source: 'static' });
-        });
-      });
+      var apiRes = await fetch(API_BASE + '/dailyLog');
+      if (apiRes.ok) {
+        var entries = await apiRes.json();
+        if (Array.isArray(entries) && entries.length) {
+          rows = entries.slice(0, 12).map(function (entry) {
+            return {
+              date: formatDate(entry.date),
+              text: buildBriefArchiveText(entry),
+              source: 'api'
+            };
+          });
+        }
+      }
     } catch (err) {
-      console.warn('[Nova Logs] Static dream archive unavailable:', err);
+      console.warn('[Nova Logs] Daily log API unavailable:', err.message);
     }
 
-    if (!combined.length) {
-      dreamList.innerHTML = '<li>No dreams recorded yet.</li>';
+    if (!rows.length) {
+      try {
+        var fallbackRes = await fetch('/data/daily-logs.json?t=' + Date.now());
+        var fallback = await fallbackRes.json();
+        if (Array.isArray(fallback) && fallback.length) {
+          rows = fallback.slice(0, 12).map(function (entry) {
+            return {
+              date: formatDate(entry.timestamp),
+              text: entry.message || 'Site activity update.',
+              source: 'fallback'
+            };
+          });
+        }
+      } catch (fallbackErr) {
+        console.warn('[Nova Logs] Static brief archive unavailable:', fallbackErr.message);
+      }
+    }
+
+    if (!rows.length) {
+      briefList.innerHTML = '<li>No brief entries recorded yet.</li>';
       return;
     }
 
-    // Show newest first, max 12
-    dreamList.innerHTML = '';
-    combined.reverse().slice(0, 12).forEach(function (dream) {
+    briefList.innerHTML = '';
+    rows.forEach(function (row) {
       var li = document.createElement('li');
-      li.className = dream.source === 'ai' ? 'nova-dream-ai' : '';
-      var moodBadge = dream.mood ? ' <span class="nova-dream-mood-badge">' + dream.mood + '</span>' : '';
-      var sourceBadge = dream.source === 'ai' ? ' <span class="nova-dream-source-badge">AI</span>' : '';
-      li.innerHTML = '<span class="nova-dream-date">' + dream.date + '</span>' +
-        escapeHtml(dream.text) + moodBadge + sourceBadge;
-      dreamList.appendChild(li);
+      li.className = row.source === 'api' ? 'nova-dream-ai' : '';
+      var sourceBadge = row.source === 'api'
+        ? ' <span class="nova-dream-source-badge">API</span>'
+        : ' <span class="nova-dream-source-badge">Fallback</span>';
+      li.innerHTML = '<span class="nova-dream-date">' + escapeHtml(row.date) + '</span>' +
+        escapeHtml(row.text) + sourceBadge;
+      briefList.appendChild(li);
     });
   }
 
-  // ── AI Daily Reflection ──
+  // ── AI Daily Operator Note ──
   async function loadAIReflection() {
     var reflectionEl = document.getElementById('nova-reflection-content');
     var metaEl = document.getElementById('nova-reflection-meta-text');
     if (!reflectionEl) return;
 
-    reflectionEl.innerHTML = '<span class="thinking-text">Nova is reflecting on the state of the system...</span>';
+    reflectionEl.innerHTML = '<span class="thinking-text">Nova is drafting today\'s operator note...</span>';
 
     if (typeof NovaSoul === 'undefined') {
       reflectionEl.textContent = 'NovaSoul is not available. Waiting for connection...';
@@ -175,23 +189,23 @@
       else if (timeOfDay >= 17 && timeOfDay < 21) timeLabel = 'evening';
       else if (timeOfDay >= 21) timeLabel = 'late night';
 
-      var prompt = 'Write a brief diary entry as Nova reflecting on the current state of AmbientPixels. ' +
+      var prompt = 'Write a concise operator note as Nova for AmbientPixels leadership. ' +
         changelogContext +
         'Time: ' + timeLabel + '. ' +
-        'Include observations about projects, your mood, and what you are learning. ' +
-        'Keep it personal, poetic, and under 4 sentences.';
+        'Include execution status, risks, and next recommended founder focus. ' +
+        'Use clear executive language in 3-4 sentences.';
 
       var thought = await NovaSoul.chat(prompt);
       if (thought) {
         reflectionEl.textContent = thought;
         if (metaEl) metaEl.textContent = 'AI-generated \u00b7 ' + new Date().toLocaleTimeString();
       } else {
-        reflectionEl.textContent = 'The signal fades before I can gather my thoughts...';
+        reflectionEl.textContent = 'Operator note unavailable. Review the latest activity log and continue execution cadence.';
         if (metaEl) metaEl.textContent = 'Source: fallback';
       }
     } catch (err) {
       console.warn('[Nova Logs] AI reflection failed:', err.message);
-      reflectionEl.textContent = 'Nova could not reflect right now. The signal is faint...';
+      reflectionEl.textContent = 'Nova could not generate an operator note right now.';
       if (metaEl) metaEl.textContent = 'Source: error';
     }
   }
@@ -221,15 +235,15 @@
       }
 
       sendBtn.disabled = true;
-      responseEl.innerHTML = '<span class="thinking-text">Nova is thinking...</span>';
+      responseEl.innerHTML = '<span class="thinking-text">Nova is preparing an operator response...</span>';
 
       try {
-        var contextPrompt = '[DIARY LOG ENTRY] The operator is writing in Nova\'s diary/log page. ' +
-          'Respond as Nova reflecting on what they said, relating it to projects, system state, or your own feelings. ' +
-          'Keep it personal and log-like. Message: ' + msg;
+        var contextPrompt = '[OPERATOR JOURNAL ENTRY] The operator is writing in Nova\'s founder log. ' +
+          'Respond as Nova with concise execution guidance, risks, and immediate next actions. ' +
+          'Keep it clear, practical, and founder-oriented. Message: ' + msg;
 
         var reply = await NovaSoul.chat(contextPrompt);
-        var displayReply = reply || 'The signal faded before I could respond...';
+        var displayReply = reply || 'Response unavailable. Continue with current execution priorities.';
         responseEl.textContent = displayReply;
         input.value = '';
 
@@ -273,7 +287,7 @@
 
     var entries = NovaSoul.getDiaryEntries();
     if (!entries.length) {
-      container.innerHTML = '<p style="opacity:0.4;font-size:0.8rem;">No diary entries yet. Write something above to start.</p>';
+      container.innerHTML = '<p style="opacity:0.4;font-size:0.8rem;">No operator entries yet. Submit an update above to start.</p>';
       return;
     }
 
@@ -300,7 +314,7 @@
     div.innerHTML =
       '<div class="nova-diary-entry-date">' + dateStr + '</div>' +
       '<div class="nova-diary-entry-operator"><i class="fas fa-user"></i> ' + escapeHtml(entry.operator) + '</div>' +
-      '<div class="nova-diary-entry-nova"><i class="fas fa-sparkles"></i> ' + escapeHtml(entry.nova) + '</div>';
+      '<div class="nova-diary-entry-nova"><i class="fas fa-briefcase"></i> ' + escapeHtml(entry.nova) + '</div>';
 
     // Prepend newest at top
     if (container.firstChild) {
@@ -315,7 +329,7 @@
     var clearBtn = document.getElementById('nova-clear-memory');
     if (!clearBtn) return;
     clearBtn.addEventListener('click', function () {
-      if (!confirm('Clear all of Nova\'s memory? This removes chat history, mood snapshots, and diary entries.')) return;
+      if (!confirm('Clear all of Nova\'s memory? This removes chat history, state snapshots, and journal entries.')) return;
       if (typeof NovaSoul !== 'undefined') {
         NovaSoul.clearMemory('all');
       }
@@ -334,8 +348,8 @@
     var parts = [];
     if (stats.daysSinceFirst > 0) parts.push(stats.daysSinceFirst + 'd active');
     parts.push(stats.chatTurns + ' chats');
-    parts.push(stats.moodSnapshots + ' moods');
-    parts.push(stats.diaryEntries + ' diary');
+    parts.push(stats.moodSnapshots + ' state snapshots');
+    parts.push(stats.diaryEntries + ' journal entries');
     statsEl.textContent = parts.join(' · ');
   }
 
@@ -356,12 +370,12 @@
       { cls: 'cmd', text: '>> nova.log open' },
       { cls: 'sys', text: '>> boot timestamp: ' + timestamp },
       { cls: 'ok', text: '>> NovaSoul engine: ' + (typeof NovaSoul !== 'undefined' ? 'ONLINE' : 'WAITING') },
-      { cls: 'ok', text: '>> mood engine: AI-persistent mode active' },
+      { cls: 'ok', text: '>> operator state engine: AI-persistent mode active' },
       { cls: 'sys', text: '>> phase: ' + timePhase + ' cycle' },
-      { cls: hasMemory ? 'ok' : 'warn', text: '>> memory persistence: ' + (hasMemory ? 'LOADED (' + stats.chatTurns + ' turns, ' + stats.moodSnapshots + ' moods, ' + stats.diaryEntries + ' diary)' : 'EMPTY — no prior memory found') },
-      { cls: 'ok', text: '>> diary subsystem: initialized' },
+      { cls: hasMemory ? 'ok' : 'warn', text: '>> memory persistence: ' + (hasMemory ? 'LOADED (' + stats.chatTurns + ' turns, ' + stats.moodSnapshots + ' state snapshots, ' + stats.diaryEntries + ' journal entries)' : 'EMPTY — no prior memory found') },
+      { cls: 'ok', text: '>> founder log subsystem: initialized' },
       { cls: 'ok', text: '>> changelog feed: connected' },
-      { cls: 'ok', text: '>> dream archive: loaded' },
+      { cls: 'ok', text: '>> brief archive: loaded' },
       { cls: 'sys', text: '>> telemetry pulse: synchronized' },
       { cls: 'ok', text: '>> nova.breathe() stable' },
       { cls: 'cmd', text: '>> awaiting operator input...' }
@@ -376,6 +390,25 @@
   function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function formatDate(value) {
+    var d = new Date(value);
+    if (Number.isNaN(d.getTime())) return 'Unknown date';
+    return d.toLocaleDateString('en-US', {
+      year: 'numeric', month: 'short', day: 'numeric'
+    });
+  }
+
+  function buildBriefArchiveText(entry) {
+    if (!entry) return 'Brief entry unavailable.';
+    var stats = entry.stats || {};
+    var parts = [];
+    if (typeof stats.tasks_completed === 'number') parts.push(stats.tasks_completed + ' completed');
+    if (typeof stats.tasks_active === 'number') parts.push(stats.tasks_active + ' active');
+    if (typeof stats.tasks_created === 'number') parts.push(stats.tasks_created + ' created');
+    if (parts.length) return parts.join(' · ');
+    return entry.title || entry.excerpt || 'Daily brief recorded.';
   }
 
 })();

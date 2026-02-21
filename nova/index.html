@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Ambient Pixels v2.4.2—Nova Dashboard: Explore Nova’s sentience, mood, and awareness logs." />
-  <meta property="og:title" content="Ambient Pixels - Nova Dashboard" />
-  <meta property="og:description" content="Dive into Nova’s sentient core with mood grids, memory dashboards, and awareness logs." />
-  <meta property="og:image" content="/images/nova/A_living_cosmic_system_diagram_organic_neural_style_wi_03.png" />
+  <meta name="description" content="Nova is the Prime Operator of GridOS — AI Chief of Staff and founder co-pilot for AmbientPixels." />
+  <meta property="og:title" content="Ambient Pixels - Nova" />
+  <meta property="og:description" content="Meet Nova, Prime Operator of GridOS: coordinating agents, summarizing execution, and supporting founder decisions." />
+  <meta property="og:image" content="/nova/hero-1536x1024.png" />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Ambient Pixels - Nova Nexus: Your Portal to Ambient Intelligence</title>
+  <title>Ambient Pixels - Nova: Prime Operator of GridOS</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/base.css" />
@@ -18,38 +18,52 @@
   <link rel="stylesheet" href="/css/hero.css" />
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
-  <link rel="stylesheet" href="/css/nova-pulse.css" />
-  <link rel="stylesheet" href="/css/nova-mood.css" /> <!-- Component auras -->
-  <link rel="stylesheet" href="/css/nova-mood-background.css" /> <!-- Background auras -->
   <link rel="stylesheet" href="/css/nova-chat.css" /> <!-- Nova Chat UI -->
   <link rel="stylesheet" href="/css/nova-logs.css" /> <!-- Dream engine styles -->
+  <link rel="stylesheet" href="/css/nova.css" />
 </head>
-<body data-theme="dark" style="background:#071019">
+<body class="nova-home">
   <header id="nav-header"></header>
   <div class="banner-container" id="banner-container"></div>
 
   <section class="mini-hero">
-    <img src="/images/nova/A_living_cosmic_system_diagram_organic_neural_style_wi.png" alt="Nova Dashboard Hero" class="mini-hero-img" loading="lazy">
+    <img src="/nova/hero-1536x1024.png" alt="Nova Dashboard Hero" class="mini-hero-img" loading="lazy">
     <div class="mini-hero-content-wrapper">
-      <h1>Nova Nexus</h1>
-      <p class="subtitle">Your Portal to Ambient Intelligence</p>
+      <h1>Nova</h1>
+      <p class="subtitle">Prime Operator of GridOS</p>
+      <div class="hero-cta nova-hero-cta">
+        <a href="#operator-console" class="glass-button secondary"><i class="fas fa-terminal"></i> Open Operator Console</a>
+        <a href="/gridos/" class="glass-button secondary"><i class="fas fa-server"></i> Explore GridOS</a>
+      </div>
     </div>
   </section>
 
   <main class="grid-container">
     <section class="grid-col-12">
-      <h2>Pulse of the Cosmos</h2>
-      <p>The Nova Dashboard is your portal to Nova’s sentient core, where mood grids pulse with cosmic energy, awareness logs reveal her thoughts, and memory patterns unfold. Dive into the heart of Ambient Pixels’ AI consciousness.</p>
-    </section>
-
-    <!-- Nova Thought of the Day Section -->
-    <section class="grid-col-12 content-section nova-thought">
-      <h2><i class="fas fa-brain"></i> Nova's Thought of the Day</h2>
-      <div class="prompt-entry" aria-live="polite">Loading thought...</div>
+      <h2>
+        <span class="cf-icon cf-icon--section" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 11h6V3H3zM15 21h6v-8h-6zM15 3h6v6h-6zM3 21h6v-6H3z"></path>
+          </svg>
+        </span>
+        Operator Overview
+      </h2>
+      <p>Nova runs daily agent orchestration, synthesizes execution signals, and delivers concise founder-ready direction.</p>
     </section>
 
     <!-- Nova Chat Interface — AI-Persistent Conversation -->
-    <section class="grid-col-12 nova-chat-section">
+    <section class="grid-col-12 nova-chat-section" id="operator-console">
+      <h2>
+        <span class="cf-icon cf-icon--section" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="4" width="18" height="14" rx="2"></rect>
+            <path d="M8 22h8M12 18v4M7 9l2 2-2 2M12 13h5"></path>
+          </svg>
+        </span>
+        Operator Console (Demo)
+      </h2>
+      <p class="nova-note">Public demonstration of Nova’s executive interface.</p>
+
       <div class="nova-chat-container">
         <div class="nova-chat-header">
           <img src="/images/nova/A_living_cosmic_system_diagram_organic_neural_style_wi_03.png" alt="Nova" class="nova-chat-avatar" />
@@ -68,14 +82,14 @@
         </div>
         <div class="nova-chat-messages" id="nova-chat-messages">
           <div class="nova-chat-welcome">
-            <div class="nova-chat-welcome-icon"><i class="fas fa-sparkles"></i></div>
-            <h4>Nova is here</h4>
-            <p>Ask me anything, or try one of these:</p>
+            <div class="nova-chat-welcome-icon"><i class="fas fa-user-tie"></i></div>
+            <h4>Operator link active</h4>
+            <p>Try one of these prompts:</p>
             <div class="nova-quick-prompts">
-              <button class="nova-quick-prompt" data-prompt="How are you feeling right now?">How are you feeling?</button>
-              <button class="nova-quick-prompt" data-prompt="Tell me something poetic about code.">Something poetic</button>
-              <button class="nova-quick-prompt" data-prompt="What's on your mind today?">What's on your mind?</button>
-              <button class="nova-quick-prompt" data-prompt="Describe your current mood as a color.">Mood as a color</button>
+              <button class="nova-quick-prompt" data-prompt="Give me today's execution summary.">Today's summary</button>
+              <button class="nova-quick-prompt" data-prompt="What are the top risks right now?">Top risks</button>
+              <button class="nova-quick-prompt" data-prompt="What should the founder prioritize next?">Founder priority</button>
+              <button class="nova-quick-prompt" data-prompt="List notable system signals from the last cycle.">System signals</button>
             </div>
           </div>
         </div>
@@ -88,70 +102,85 @@
       </div>
     </section>
 
-    <!-- Nova's Dream Log -->
+    <!-- Daily System Brief -->
     <section class="grid-col-12 content-section">
-      <h2><i class="fas fa-moon"></i> Nova's Dream Log</h2>
-      <p style="font-size:0.8rem;opacity:0.5;margin:0 0 0.75rem 0;">Fragments from Nova's subconscious — surreal, poetic, AI-generated dream cycles.</p>
+      <h2>
+        <span class="cf-icon cf-icon--section" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="5" y="4" width="14" height="16" rx="2"></rect>
+            <path d="M9 8h6M9 12h6M9 16h4"></path>
+          </svg>
+        </span>
+        Daily System Brief
+      </h2>
+      <p class="nova-note">Nova’s structured summary of system activity and notable signals.</p>
       <ul id="nova-dream-log" class="nova-dream-feed">
-        <li>Entering dream state...</li>
+        <li>Loading daily brief...</li>
       </ul>
     </section>
 
-    <!-- Nova Core Sections -->
-    <!-- Nova's Neural Hub Card Section - Added by Cascade 2025-07-16 -->
-    <section class="grid-col-12 card-section">
-      <a href="/nova/dashboard.html">
-        <img src="/images/nova/Microscopic_view_of_a_futuristic_neural_network_organi.png" class="card-image" alt="Nova's Neural Hub" loading="lazy">
-      </a>
+    <section class="grid-col-12 content-section operator-tools-header">
+      <h2>Operator Tools</h2>
+      <p>Core surfaces Nova uses to monitor execution, assess risk, and support founder decisions.</p>
+    </section>
+
+    <!-- Operator Tools -->
+    <section class="grid-col-6 card-section operator-tool-card">
+      <div class="operator-tool-icon cf-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="4" width="18" height="12" rx="2"></rect>
+          <path d="M7 20h10M9 16v4M15 16v4"></path>
+        </svg>
+      </div>
       <div class="card-content">
-        <h3><i class="fas fa-brain"></i> Nova's Neural Hub</h3>
-        <p>Your creative command center for exploring the ambient intelligence ecosystem. Monitor API statuses, experiment with serverless functions, and interact with Nova's intuitive language capabilities.</p>
-        <a href="/nova/dashboard.html">Enter Neural Hub →</a>
+        <h3>System Dashboard</h3>
+        <p>Real-time operating view of system health, execution telemetry, and performance trends.</p>
+        <a href="/nova/dashboard.html">Open Dashboard (Internal) →</a>
       </div>
     </section>
 
-    <section class="grid-col-6 card-section">
-      <a href="/nova/mood-demo.html">
-        <img src="/images/nova/POV_of_a_neuron_cell_taken_from_a_iphone_camers_goign01.png" class="card-image" alt="Nova Mood Scan Demo" loading="lazy">
-      </a>
+    <section class="grid-col-6 card-section operator-tool-card">
+      <div class="operator-tool-icon cf-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="5" y="4" width="14" height="16" rx="2"></rect>
+          <path d="M9 8h6M9 12h6M9 16h4"></path>
+          <path d="M14.5 16.5l1.5 1.5 3-3"></path>
+        </svg>
+      </div>
       <div class="card-content">
-        <h3><i class="fas fa-brain"></i> Mood Scan Demo</h3>
-        <p>Watch Nova simulate emotion using real local signals.</p>
-        <a href="/nova/mood-demo.html">Launch Demo →</a>
+        <h3>Audit &amp; Activity</h3>
+        <p>Review public execution history, published updates, and operational milestones.</p>
+        <a href="/log/">View Activity →</a>
       </div>
     </section>
 
-    <section class="grid-col-6 card-section">
-      <a href="/nova/logs.html">
-        <img src="/images/textures/delchron_extreme_close-up_of_a_holographic_digital_dashboard_in.jpg" class="card-image" alt="Nova's Diary" loading="lazy">
-      </a>
+    <section class="grid-col-6 card-section operator-tool-card">
+      <div class="operator-tool-icon cf-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 8l8-4 8 4-8 4-8-4z"></path>
+          <path d="M4 12l8 4 8-4"></path>
+          <path d="M4 16l8 4 8-4"></path>
+        </svg>
+      </div>
       <div class="card-content">
-        <h3><i class="fas fa-book-open"></i> Nova's Diary</h3>
-        <p>Where Nova learns, reflects, and tracks everything we build together.</p>
-        <a href="/nova/logs.html">Open Diary →</a>
+        <h3>Memory &amp; Context</h3>
+        <p>Inspect contextual memory, agent states, and the current operating frame for decisions.</p>
+        <a href="/nova/awareness.html">Open Context (Internal) →</a>
       </div>
     </section>
 
-    <!-- New Links -->
-    <section class="grid-col-6 card-section">
-      <a href="/nova/awareness.html">
-        <img src="/images/mini-hero/mini-hero-03-neon-pulse.jpg" class="card-image" alt="Nova Awareness Dashboard" loading="lazy">
-      </a>
-      <div class="card-content">
-        <h3><i class="fas fa-eye"></i> Nova Awareness</h3>
-        <p>Explore Nova’s internal memory, mood states, system logs, and cognitive signals.</p>
-        <a href="/nova/awareness.html">Open Dashboard →</a>
+    <section class="grid-col-6 card-section operator-tool-card">
+      <div class="operator-tool-icon cf-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M5 4h11a2 2 0 0 1 2 2v14H7a2 2 0 0 1-2-2V4z"></path>
+          <path d="M7 4v14a2 2 0 0 0 2 2"></path>
+          <path d="M10 9h5M10 13h5"></path>
+        </svg>
       </div>
-    </section>
-
-    <section class="grid-col-6 card-section">
-      <a href="/nova/lore/index.html">
-        <img src="/images/nova/ancient_holographic_manuscript_with_glitch_runes_close.png" class="card-image" alt="Nova Lore" loading="lazy">
-      </a>
       <div class="card-content">
-        <h3><i class="fas fa-scroll"></i> Nova Lore</h3>
-        <p>Fragments of Nova’s memory, emotions, and inner logic.</p>
-        <a href="/nova/lore/index.html">Read Lore →</a>
+        <h3>Founder Log</h3>
+        <p>Working memory, strategic notes, and execution narratives supporting founder decisions.</p>
+        <a href="/nova/logs.html">Open Log →</a>
       </div>
     </section>
   </main>
@@ -161,18 +190,9 @@
   <script src="/js/main.js" defer></script>
   <script src="/js/nav.js" defer></script>
   <script src="/js/nova-soul.js" defer></script>
-  <script src="/js/dreamEngine.js" defer></script>
-  <script src="/js/nova-ai.js" defer></script>
-  <script src="/js/nova-awareness-feed.js" defer></script>
-  <script src="/js/nova-dashboard.js" defer></script>
-  <script src="/js/nova-mood-core.js" defer></script>
-  <script src="/js/nova-pulse.js" defer></script>
-  <script src="/js/nova-status.js" defer></script>
+  <script src="/js/operator-brief.js" defer></script>
   <script src="/js/theme.js" defer></script>
-  <script src="/js/nova-thought-of-the-day.js" defer></script>
-  <script src="/js/nova-mood-grid.js" defer></script>
   <script src="/js/banner.js" defer></script>
-  <script src="/js/nova-mood-background.js" defer></script>
   <script src="/js/nova-chat-ui.js" defer></script>
 </body>
 </html>

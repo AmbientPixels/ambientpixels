@@ -238,14 +238,14 @@
   function getWelcomeHTML() {
     return `
       <div class="nova-chat-welcome">
-        <div class="nova-chat-welcome-icon"><i class="fas fa-sparkles"></i></div>
-        <h4>Nova is here</h4>
-        <p>Ask me anything, or try one of these:</p>
+        <div class="nova-chat-welcome-icon"><i class="fas fa-user-tie"></i></div>
+        <h4>Operator link active</h4>
+        <p>Try one of these prompts:</p>
         <div class="nova-quick-prompts">
-          <button class="nova-quick-prompt" data-prompt="How are you feeling right now?">How are you feeling?</button>
-          <button class="nova-quick-prompt" data-prompt="Tell me something poetic about code.">Something poetic</button>
-          <button class="nova-quick-prompt" data-prompt="What's on your mind today?">What's on your mind?</button>
-          <button class="nova-quick-prompt" data-prompt="Describe your current mood as a color.">Mood as a color</button>
+          <button class="nova-quick-prompt" data-prompt="Give me today's execution summary.">Today's summary</button>
+          <button class="nova-quick-prompt" data-prompt="What are the top risks right now?">Top risks</button>
+          <button class="nova-quick-prompt" data-prompt="What should the founder prioritize next?">Founder priority</button>
+          <button class="nova-quick-prompt" data-prompt="List notable system signals from the last cycle.">System signals</button>
         </div>
       </div>
     `;

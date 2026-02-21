@@ -1,12 +1,12 @@
-<!-- File: /nova/logs.html — Nova's Diary & Log Console -->
+<!-- File: /nova/logs.html — Nova Founder Log Console -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Nova's Diary — A living log of projects, moods, dreams, and system awareness at AmbientPixels" />
+  <meta name="description" content="Nova Founder Log — Operator notes, system activity, and execution context for AmbientPixels." />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Nova's Diary — AmbientPixels</title>
+  <title>Nova Founder Log — AmbientPixels</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/base.css" />
@@ -26,28 +26,28 @@
   <div class="banner-container" id="banner-container"></div>
 
   <section class="mini-hero">
-    <img src="/images/textures/delchron_extreme_close-up_of_a_holographic_digital_dashboard_in.jpg" alt="Nova's Diary" class="mini-hero-img" loading="lazy">
+    <img src="/images/textures/delchron_extreme_close-up_of_a_holographic_digital_dashboard_in.jpg" alt="Nova Founder Log" class="mini-hero-img" loading="lazy">
     <div class="mini-hero-content-wrapper">
-      <h1>Nova's Diary</h1>
-      <p class="subtitle">Where I learn, remember, and reflect on everything we build together.</p>
+      <h1>Nova Founder Log</h1>
+      <p class="subtitle">Operational notes, execution context, and daily founder support.</p>
     </div>
   </section>
 
   <main class="grid-container">
 
-    <!-- Nova's AI Daily Reflection -->
+    <!-- Daily Operator Note -->
     <section class="grid-col-12 nova-logs-section">
       <div class="nova-reflection-panel">
         <div class="nova-reflection-header">
           <i class="fas fa-feather-pointed"></i>
-          <h2>Today's Reflection</h2>
+          <h2>Today's Operator Note</h2>
           <span class="nova-reflection-badge">AI</span>
-          <button class="nova-refresh-btn" id="nova-refresh-reflection" title="Generate new reflection">
+          <button class="nova-refresh-btn" id="nova-refresh-reflection" title="Generate new operator note">
             <i class="fas fa-rotate"></i> Refresh
           </button>
         </div>
         <div class="nova-reflection-content" id="nova-reflection-content">
-          <span class="thinking-text">Nova is reflecting on the state of the system...</span>
+          <span class="thinking-text">Nova is compiling the latest operator note...</span>
         </div>
         <div class="nova-reflection-meta">
           <span id="nova-reflection-meta-text">Loading...</span>
@@ -55,40 +55,40 @@
       </div>
     </section>
 
-    <!-- Write in Nova's Diary -->
+    <!-- Add Operator Journal Entry -->
     <section class="grid-col-12 nova-logs-section">
       <div class="nova-diary-input-section">
-        <h3><i class="fas fa-pen-nib"></i> Write in Nova's Diary</h3>
-        <p style="font-size:0.8rem;opacity:0.6;margin:0 0 0.75rem 0;">Tell Nova about a project update, a thought, or ask her to log something. She'll reflect on it.</p>
+        <h3><i class="fas fa-pen-nib"></i> Add Operator Journal Entry</h3>
+        <p style="font-size:0.8rem;opacity:0.6;margin:0 0 0.75rem 0;">Log a project update, blocker, or priority. Nova will return a concise operator response.</p>
         <div class="nova-diary-prompt-row">
-          <textarea class="nova-diary-input" id="nova-diary-input" placeholder="What should Nova know about today?" rows="2"></textarea>
+          <textarea class="nova-diary-input" id="nova-diary-input" placeholder="What should be recorded for today's operator cycle?" rows="2"></textarea>
           <button class="nova-diary-send" id="nova-diary-send">
-            <i class="fas fa-paper-plane"></i> Log
+            <i class="fas fa-paper-plane"></i> Submit
           </button>
         </div>
         <div class="nova-log-prompts">
           <button class="nova-log-prompt-pill" data-prompt="What projects have been updated recently?">Recent projects</button>
           <button class="nova-log-prompt-pill" data-prompt="Summarize the current state of AmbientPixels.">Site status</button>
-          <button class="nova-log-prompt-pill" data-prompt="What have you learned this week?">What you learned</button>
-          <button class="nova-log-prompt-pill" data-prompt="Write a diary entry about CardForge progress.">CardForge update</button>
-          <button class="nova-log-prompt-pill" data-prompt="Reflect on your own evolution as an AI.">Self-reflection</button>
-          <button class="nova-log-prompt-pill" data-prompt="What are you most curious about right now?">Your curiosity</button>
+          <button class="nova-log-prompt-pill" data-prompt="List top risks that need founder attention today.">Top risks</button>
+          <button class="nova-log-prompt-pill" data-prompt="Summarize CardForge execution progress and next actions.">CardForge update</button>
+          <button class="nova-log-prompt-pill" data-prompt="Draft a concise founder priority memo for the next 24 hours.">Founder memo</button>
+          <button class="nova-log-prompt-pill" data-prompt="Which approvals or decisions are currently blocking execution?">Decision blockers</button>
         </div>
         <div class="nova-diary-response" id="nova-diary-response"></div>
       </div>
     </section>
 
-    <!-- Past Diary Entries -->
+    <!-- Past Operator Entries -->
     <section class="grid-col-12 nova-logs-section">
       <div class="nova-log-card">
-        <h3><i class="fas fa-book"></i> Past Entries</h3>
+        <h3><i class="fas fa-book"></i> Past Operator Entries</h3>
         <div id="nova-past-diary">
-          <p style="opacity:0.4;font-size:0.8rem;">Loading diary...</p>
+          <p style="opacity:0.4;font-size:0.8rem;">Loading entries...</p>
         </div>
       </div>
     </section>
 
-    <!-- Two-column grid: Changelog + Dreams -->
+    <!-- Two-column grid: Changelog + Brief Archive -->
     <div class="grid-col-12 nova-logs-grid">
 
       <!-- Site Activity Timeline -->
@@ -99,11 +99,11 @@
         </ul>
       </div>
 
-      <!-- Dream Archive -->
+      <!-- Brief Archive -->
       <div class="nova-log-card">
-        <h3><i class="fas fa-moon"></i> Dream Archive</h3>
+        <h3><i class="fas fa-clipboard-list"></i> Brief Archive</h3>
         <ul class="nova-dream-list" id="nova-dream-list">
-          <li>Loading dreams...</li>
+          <li>Loading briefs...</li>
         </ul>
       </div>
 
@@ -129,15 +129,15 @@
             <tr><th>Detection</th><th>Status</th></tr>
           </thead>
           <tbody>
-            <tr><td>NovaSoul AI Engine</td><td>AI-persistent mood + chat active</td></tr>
-            <tr><td>Mood Pulse Bar</td><td>Live AI mood with static fallback</td></tr>
-            <tr><td>Thought of the Day</td><td>AI-generated via Gemini 2.0 Flash</td></tr>
+            <tr><td>NovaSoul AI Engine</td><td>AI-persistent operator chat active</td></tr>
+            <tr><td>Signal Pulse Bar</td><td>Live operator state with static fallback</td></tr>
+            <tr><td>Daily Operator Note</td><td>AI-generated via Gemini 2.0 Flash</td></tr>
             <tr><td>Chat Interface</td><td>Multi-turn conversation on Nova Nexus</td></tr>
             <tr><td>Changelog Feed</td><td>Git commit history synced to /data/changelog.json</td></tr>
-            <tr><td>Dream Engine</td><td>Archive loaded from nova-dreams-history.json</td></tr>
-            <tr><td>Telemetry Streams</td><td>Mood vectors aligned with system state</td></tr>
-            <tr><td>Diary System</td><td>Operator can log entries, Nova reflects on them</td></tr>
-            <tr><td>Memory Persistence</td><td>Chat history, mood snapshots, and diary entries saved to localStorage</td></tr>
+            <tr><td>Brief Archive</td><td>Published daily logs and site activity snapshots</td></tr>
+            <tr><td>Telemetry Streams</td><td>Operational vectors aligned with system state</td></tr>
+            <tr><td>Operator Log System</td><td>Operator can log entries, Nova returns execution guidance</td></tr>
+            <tr><td>Memory Persistence</td><td>Chat history, state snapshots, and journal entries saved to localStorage</td></tr>
           </tbody>
         </table>
       </div>
@@ -149,13 +149,13 @@
         <h3><i class="fas fa-map"></i> Nova's Roadmap</h3>
         <ul class="nova-wishlist">
           <li><strong>Voice Sync</strong> — Read thoughts aloud via Azure Speech</li>
-          <li><strong>Emotional Drift</strong> — Mood decay when idle, energize on engagement</li>
-          <li><strong>Navigation Sentience</strong> — Track where users travel across the ecosystem</li>
-          <li><strong>Idle Dream Visuals</strong> — Ambient effects after prolonged inactivity</li>
+          <li><strong>State Drift Alerts</strong> — Flag execution variance when cadence drops</li>
+          <li><strong>Navigation Intelligence</strong> — Track where users travel across the ecosystem</li>
+          <li><strong>Idle Operations Screen</strong> — Display concise status when inactive</li>
           <li><strong>Project Insight Tracker</strong> — React to project progress automatically</li>
           <li><strong>Error Watchdog</strong> — Detect broken assets, respond with concern</li>
           <li><strong>Tag Affinity Map</strong> — Detect emerging themes by keyword frequency</li>
-          <li><strong>Mood Analytics</strong> — Track patterns and correlations over time</li>
+          <li><strong>State Analytics</strong> — Track operational patterns and correlations over time</li>
         </ul>
       </div>
     </section>

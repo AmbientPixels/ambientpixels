@@ -9,11 +9,11 @@ document.addEventListener("DOMContentLoaded", () => {
       fetch("/data/quote-of-the-day.json")
         .then((res) => res.json())
         .then((data) => {
-          quoteMomentEl.textContent = `💬 ${data.quote || "Nova is recharging her thoughts."}`;
+          quoteMomentEl.textContent = data.quote || "Operational intelligence in motion.";
         })
         .catch((err) => {
           console.error("[Nova Quote Moment] Failed to load:", err);
-          quoteMomentEl.textContent = "💬 Quote system offline.";
+          quoteMomentEl.textContent = "Quote system offline.";
         });
     }
   
@@ -28,13 +28,12 @@ document.addEventListener("DOMContentLoaded", () => {
         })
         .catch((err) => {
           console.error("[Nova Live Quote Feed] Failed to load:", err);
-          liveQuoteEl.textContent = "💭 Thoughts not found. Nova may be napping.";
+          liveQuoteEl.textContent = "Live quote feed unavailable.";
         });
     }
   
     function updateLiveQuote(quotes) {
       const quote = quotes[Math.floor(Math.random() * quotes.length)];
-      liveQuoteEl.textContent = `💭 ${quote}`;
+      liveQuoteEl.textContent = quote;
     }
   });
-  
