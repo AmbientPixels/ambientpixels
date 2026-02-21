@@ -3,11 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="GridOS Operations Preview — public-safe operational metrics and monitoring categories from Nova." />
+  <meta name="description" content="GridOS Operations Preview — live system status, recent activity, and agent roster from the AmbientPixels operating system." />
+  <meta property="og:title" content="GridOS Operations Preview" />
+  <meta property="og:description" content="Live operational snapshot from GridOS — the multi-agent OS running AmbientPixels." />
   <title>GridOS Operations Preview — Ambient Pixels</title>
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/base.css" />
   <link rel="stylesheet" href="/css/grid.css" />
   <link rel="stylesheet" href="/css/nav.css" />
@@ -15,78 +17,268 @@
   <link rel="stylesheet" href="/css/hero.css" />
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
-  <link rel="stylesheet" href="/css/nova.css" />
+  <style>
+    .gp { max-width: 900px; margin: 0 auto; padding: 0 1.5rem 3rem; }
+    .gp-section { margin-top: 2.5rem; }
+    .gp-section h2 { font-size: 1.15rem; font-weight: 600; margin: 0 0 0.8rem; display: flex; align-items: center; gap: 0.5rem; }
+    .gp-section h2 .cf-ico { opacity: 0.35; }
+    .cf-ico { display: inline-block; width: 1em; height: 1em; vertical-align: -0.125em; flex-shrink: 0; }
+    .cf-ico--chip { width: 0.85em; height: 0.85em; }
+
+    /* System status panel */
+    .gp-status {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+      padding: 1.2rem; border-radius: 12px;
+      border: 1px solid rgba(148,163,184,0.12);
+      background: rgba(15,23,42,0.5);
+    }
+    .gp-status-item { text-align: center; }
+    .gp-status-val { font-size: 1.1rem; font-weight: 600; color: #e2e8f0; display: block; }
+    .gp-status-lbl { font-size: 0.68rem; color: rgba(148,163,184,0.6); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 2px; display: block; }
+
+    /* Activity feed */
+    .gp-feed { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0; }
+    .gp-feed-item {
+      display: flex; gap: 14px; padding: 14px 12px;
+      border-bottom: 1px solid rgba(148,163,184,0.06);
+      transition: background 0.15s;
+    }
+    .gp-feed-item:last-child { border-bottom: none; }
+    .gp-feed-item:hover { background: rgba(148,163,184,0.03); }
+    .gp-feed-date {
+      flex-shrink: 0; width: 56px; text-align: right;
+      font-size: 0.72rem; color: rgba(148,163,184,0.5);
+      font-variant-numeric: tabular-nums; padding-top: 2px;
+    }
+    .gp-feed-body { flex: 1; min-width: 0; }
+    .gp-feed-title { font-size: 0.88rem; font-weight: 600; color: #e2e8f0; margin-bottom: 3px; }
+    .gp-feed-summary { font-size: 0.8rem; color: rgba(203,213,225,0.6); line-height: 1.5; }
+    .gp-feed-mood {
+      display: inline-block; font-size: 0.6rem; text-transform: uppercase;
+      letter-spacing: 0.06em; padding: 2px 8px; border-radius: 99px;
+      background: rgba(147,197,253,0.12); color: rgba(147,197,253,0.8);
+      margin-left: 6px; vertical-align: middle;
+    }
+    .gp-feed-empty { text-align: center; padding: 2rem; opacity: 0.35; font-size: 0.85rem; }
+
+    /* Org hierarchy */
+    .gp-org { display: flex; flex-direction: column; align-items: center; gap: 0; }
+    .gp-org-tier { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; position: relative; }
+    .gp-org-line {
+      width: 1px; height: 20px; background: rgba(148,163,184,0.15); margin: 0 auto;
+    }
+    .gp-org-branch {
+      display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;
+      position: relative; padding-top: 6px;
+    }
+    .gp-org-card {
+      display: flex; align-items: center; gap: 8px;
+      padding: 10px 14px; border-radius: 10px;
+      border: 1px solid rgba(148,163,184,0.1);
+      background: rgba(148,163,184,0.04);
+      transition: border-color 0.2s;
+      min-width: 0;
+    }
+    .gp-org-card:hover { border-color: rgba(147,197,253,0.2); }
+    .gp-org-card--ceo { border-color: rgba(255,215,0,0.2); background: rgba(255,215,0,0.04); }
+    .gp-org-card--nova { border-color: rgba(138,43,226,0.2); background: rgba(138,43,226,0.04); }
+    .gp-org-ico { flex-shrink: 0; width: 1.1em; height: 1.1em; }
+    .gp-org-info { min-width: 0; }
+    .gp-org-name { font-size: 0.85rem; font-weight: 600; color: #e2e8f0; }
+    .gp-org-role { font-size: 0.68rem; color: rgba(148,163,184,0.55); display: block; }
+    .gp-org-tier-lbl {
+      font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.08em;
+      color: rgba(148,163,184,0.3); text-align: center; margin: 2px 0 6px;
+    }
+    .gp-org-sub {
+      margin-left: 28px; padding-left: 12px;
+      border-left: 1px solid rgba(148,163,184,0.1);
+    }
+    .gp-org-sub .gp-org-card { padding: 6px 10px; }
+    .gp-org-sub .gp-org-name { font-size: 0.78rem; }
+    .gp-org-sub .gp-org-role { font-size: 0.62rem; }
+
+    /* Links row */
+    .gp-links {
+      display: flex; flex-wrap: wrap; justify-content: center; gap: 10px;
+      margin-top: 2.5rem; padding-top: 1.5rem;
+      border-top: 1px solid rgba(148,163,184,0.08);
+    }
+
+    /* Nav */
+    .gp-nav {
+      display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
+      gap: 6px 16px; padding: 1.5rem 0 1rem; margin-top: 1rem;
+    }
+    .gp-nav a { opacity: 0.45; font-size: 0.82rem; transition: opacity 0.2s; }
+    .gp-nav a:hover { opacity: 0.8; }
+
+    @media (max-width: 600px) {
+      .gp-status { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
 </head>
-<body class="nova-home">
+<body data-theme="dark" style="background:#071019">
   <header id="nav-header"></header>
-  <div class="banner-container" id="banner-container"></div>
 
   <section class="mini-hero">
     <img src="/nova/hero-1536x1024.png" alt="GridOS Operations Preview" class="mini-hero-img" loading="lazy">
     <div class="mini-hero-content-wrapper">
-      <h1>GridOS Operations Preview</h1>
-      <p class="subtitle">Public-safe operational snapshot for AmbientPixels execution.</p>
+      <h1>Operations Preview</h1>
+      <p class="subtitle">Live snapshot from the GridOS multi-agent operating system.</p>
     </div>
   </section>
 
-  <main class="grid-container">
-    <section class="grid-col-12 content-section">
-      <h2>Preview Scope</h2>
-      <p>This surface shows high-level metrics only. No private logs, memory contents, prompt data, or task-level details are exposed.</p>
-    </section>
+  <div class="gp">
 
-    <section class="grid-col-6 card-section operator-tool-card">
-      <div class="card-content">
-        <h3>Execution Metrics</h3>
-        <p><strong>Active Initiatives:</strong> 6</p>
-        <p><strong>Approvals Pending:</strong> 3</p>
-        <p><strong>Risk Flags:</strong> 1</p>
-        <p><strong>Signal Health:</strong> Normal</p>
+    <!-- System Status -->
+    <div class="gp-section">
+      <h2><svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"></path></svg> System Status</h2>
+      <div class="gp-status">
+        <div class="gp-status-item"><span class="gp-status-val" id="gp-version">--</span><span class="gp-status-lbl">Version</span></div>
+        <div class="gp-status-item"><span class="gp-status-val" id="gp-build">--</span><span class="gp-status-lbl">Build</span></div>
+        <div class="gp-status-item"><span class="gp-status-val" id="gp-state">--</span><span class="gp-status-lbl">Operator State</span></div>
+        <div class="gp-status-item"><span class="gp-status-val" id="gp-sync">--</span><span class="gp-status-lbl">Last Sync</span></div>
       </div>
-    </section>
+    </div>
 
-    <section class="grid-col-6 card-section operator-tool-card">
-      <div class="card-content">
-        <h3>Cadence Indicators</h3>
-        <p><strong>Last Standup:</strong> 08:30 AM PT</p>
-        <p><strong>Uptime:</strong> 99.8%</p>
-        <p><strong>Operator State:</strong> Monitoring</p>
-        <p><strong>Status:</strong> Preview Data</p>
+    <!-- Recent Activity -->
+    <div class="gp-section">
+      <h2><svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="16" rx="2"></rect><path d="M9 8h6M9 12h6M9 16h4"></path></svg> Recent Activity</h2>
+      <ul class="gp-feed" id="gp-feed">
+        <li class="gp-feed-empty">Loading activity log...</li>
+      </ul>
+    </div>
+
+    <!-- Org Hierarchy -->
+    <div class="gp-section">
+      <h2><svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><path d="M20 8v6M17 11h6"></path></svg> Company Hierarchy</h2>
+      <div class="gp-org">
+
+        <!-- Tier 1: CEO -->
+        <div class="gp-org-tier-lbl">Tier 1 · Executive</div>
+        <div class="gp-org-tier">
+          <div class="gp-org-card gp-org-card--ceo">
+            <svg class="gp-org-ico" viewBox="0 0 24 24" fill="none" stroke="#FFD700" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7z"></path><path d="M3 20h18"></path></svg>
+            <div class="gp-org-info"><span class="gp-org-name">Pixelpusher</span><span class="gp-org-role">CEO · Human Founder</span></div>
+          </div>
+        </div>
+
+        <div class="gp-org-line"></div>
+
+        <!-- Tier 2: Nova -->
+        <div class="gp-org-tier-lbl">Tier 2 · Operations</div>
+        <div class="gp-org-tier">
+          <div class="gp-org-card gp-org-card--nova">
+            <svg class="gp-org-ico" viewBox="0 0 24 24" fill="none" stroke="#8A2BE2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"></path><path d="M9 21h6M10 17v4M14 17v4"></path></svg>
+            <div class="gp-org-info"><span class="gp-org-name">Nova</span><span class="gp-org-role">Prime Operator</span></div>
+          </div>
+        </div>
+
+        <div class="gp-org-line"></div>
+
+        <!-- Tier 3: Department Heads -->
+        <div class="gp-org-tier-lbl">Tier 3 · Department Heads</div>
+        <div class="gp-org-branch">
+          <div class="gp-org-card">
+            <svg class="gp-org-ico" viewBox="0 0 24 24" fill="none" stroke="#FF8C00" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2"></rect><rect x="2" y="14" width="20" height="8" rx="2"></rect><path d="M6 6h.01M6 18h.01"></path></svg>
+            <div class="gp-org-info"><span class="gp-org-name">Forge</span><span class="gp-org-role">Engineering</span></div>
+          </div>
+          <div class="gp-org-card">
+            <svg class="gp-org-ico" viewBox="0 0 24 24" fill="none" stroke="#FF6B9D" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="0.5" fill="#FF6B9D"></circle><circle cx="17.5" cy="10.5" r="0.5" fill="#FF6B9D"></circle><circle cx="8.5" cy="7.5" r="0.5" fill="#FF6B9D"></circle><circle cx="6.5" cy="12.5" r="0.5" fill="#FF6B9D"></circle><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.555C21.965 6.012 17.461 2 12 2z"></path></svg>
+            <div class="gp-org-info"><span class="gp-org-name">Pixel</span><span class="gp-org-role">Design & QC</span></div>
+          </div>
+          <div class="gp-org-card">
+            <svg class="gp-org-ico" viewBox="0 0 24 24" fill="none" stroke="#00C896" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="M18 9l-5 5-2-2-4 4"></path></svg>
+            <div class="gp-org-info"><span class="gp-org-name">Cipher</span><span class="gp-org-role">Finance</span></div>
+          </div>
+          <div class="gp-org-card">
+            <svg class="gp-org-ico" viewBox="0 0 24 24" fill="none" stroke="#4ECDC4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            <div class="gp-org-info"><span class="gp-org-name">Echo</span><span class="gp-org-role">Marketing</span></div>
+          </div>
+          <div>
+            <div class="gp-org-card">
+              <svg class="gp-org-ico" viewBox="0 0 24 24" fill="none" stroke="#7ECFC0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path></svg>
+              <div class="gp-org-info"><span class="gp-org-name">Scribe</span><span class="gp-org-role">Content</span></div>
+            </div>
+            <div class="gp-org-sub">
+              <div class="gp-org-card">
+                <svg class="gp-org-ico" viewBox="0 0 24 24" fill="none" stroke="#5BB8A6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+                <div class="gp-org-info"><span class="gp-org-name">Quill</span><span class="gp-org-role">Editor · T4</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="gp-org-card">
+            <svg class="gp-org-ico" viewBox="0 0 24 24" fill="none" stroke="#E87CBB" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="M21 21l-4.35-4.35M8 11h6M11 8v6"></path></svg>
+            <div class="gp-org-info"><span class="gp-org-name">Scout</span><span class="gp-org-role">Research</span></div>
+          </div>
+        </div>
+
       </div>
-    </section>
+    </div>
 
-    <section class="grid-col-6 card-section operator-tool-card">
-      <div class="card-content">
-        <h3>Redacted Card — Delivery Pipeline</h3>
-        <p>Summary view only. Detailed work items are restricted to internal dashboard access.</p>
-      </div>
-    </section>
+    <!-- Deep Links -->
+    <div class="gp-links">
+      <a href="/gridos/" class="glass-button"><svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2"></rect><rect x="2" y="14" width="20" height="8" rx="2"></rect><path d="M6 6h.01M6 18h.01"></path></svg> GridOS Overview</a>
+      <a href="/log/" class="glass-button secondary"><svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="16" rx="2"></rect><path d="M9 8h6M9 12h6M9 16h4"></path></svg> Full Activity Log</a>
+      <a href="/nova/agents.html" class="glass-button secondary"><svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><path d="M20 8v6M17 11h6"></path></svg> Agent Roster</a>
+    </div>
 
-    <section class="grid-col-6 card-section operator-tool-card">
-      <div class="card-content">
-        <h3>Redacted Card — Governance</h3>
-        <p>Public visibility includes category-level status. Compliance and decision details remain restricted.</p>
-      </div>
-    </section>
-
-    <section class="grid-col-12 content-section">
-      <h2>What Nova Monitors</h2>
-      <p>Service availability, release cadence, execution throughput, escalation events, and cross-agent coordination health.</p>
-    </section>
-
-    <section class="grid-col-12 content-section" style="text-align:center;">
-      <div class="hero-cta nova-hero-cta" style="justify-content:center;">
-        <a href="/nova/agents.html" class="glass-button secondary"><i class="fas fa-users"></i> Agent Roster</a>
-        <a href="/support/" class="glass-button"><i class="fas fa-key"></i> Request Access</a>
-      </div>
-    </section>
-  </main>
+    <!-- Nav -->
+    <nav class="gp-nav">
+      <a href="/nova/"><svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"></path></svg> Prime Operator</a>
+      <a href="/nova/dashboard.html"><svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg> Dashboard</a>
+      <a href="/nova/awareness.html"><svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"></path><circle cx="12" cy="12" r="3"></circle></svg> System Context</a>
+      <a href="/nova/logs.html"><svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg> Founder Log</a>
+    </nav>
+  </div>
 
   <footer id="footer-container"></footer>
   <script src="/js/init-header-footer.js" defer></script>
   <script src="/js/main.js" defer></script>
   <script src="/js/nav.js" defer></script>
   <script src="/js/theme.js" defer></script>
-  <script src="/js/banner.js" defer></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // System status from version.json + mood-scan.json
+    Promise.all([
+      fetch('/data/version.json?t=' + Date.now()).then(function (r) { return r.json(); }),
+      fetch('/data/mood-scan.json?t=' + Date.now()).then(function (r) { return r.json(); })
+    ]).then(function (arr) {
+      var ver = arr[0], mood = arr[1];
+      var set = function (id, val) { var el = document.getElementById(id); if (el && val) el.textContent = val; };
+      set('gp-version', ver.version);
+      set('gp-build', 'b' + ver.build);
+      set('gp-state', mood.mood || mood.moodText || 'Active');
+      set('gp-sync', ver.updated ? new Date(ver.updated).toLocaleDateString([], { month: 'short', day: 'numeric' }) : '--');
+    }).catch(function () {});
+
+    // Recent activity from daily log API
+    fetch('/api/dailyLog').then(function (r) { return r.json(); }).then(function (data) {
+      var entries = Array.isArray(data) ? data : (data.entries || []);
+      var feed = document.getElementById('gp-feed');
+      if (!feed) return;
+      if (!entries.length) {
+        feed.innerHTML = '<li class="gp-feed-empty">No published activity yet.</li>';
+        return;
+      }
+      var recent = entries.slice(0, 5);
+      feed.innerHTML = recent.map(function (e) {
+        var d = e.date ? new Date(e.date) : null;
+        var dateStr = d ? d.toLocaleDateString([], { month: 'short', day: 'numeric' }) : '';
+        var mood = e.mood ? '<span class="gp-feed-mood">' + e.mood + '</span>' : '';
+        return '<li class="gp-feed-item">' +
+          '<div class="gp-feed-date">' + dateStr + '</div>' +
+          '<div class="gp-feed-body">' +
+            '<div class="gp-feed-title">' + (e.title || 'Untitled') + mood + '</div>' +
+            '<div class="gp-feed-summary">' + (e.summary || '') + '</div>' +
+          '</div></li>';
+      }).join('');
+    }).catch(function () {
+      var feed = document.getElementById('gp-feed');
+      if (feed) feed.innerHTML = '<li class="gp-feed-empty">Activity log unavailable.</li>';
+    });
+  });
+  </script>
 </body>
 </html>
