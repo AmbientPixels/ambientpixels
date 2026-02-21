@@ -269,21 +269,9 @@ module.exports = async function (context, req) {
     const fromMs = fromDate.getTime();
     const toMs = toDate.getTime();
 
-    const forceMock = String(q.mock || '').trim() === '1';
-    const raw = forceMock ? null : ((await storage.getState('socialEngagementSnapshots')) || []);
-
-    let mode = 'mock_fallback';
-    let rows = [];
-
-    if (!forceMock && Array.isArray(raw) && raw.length > 0) {
-      rows = raw.map(normalizeSnapshot).filter(Boolean);
-      mode = rows.length > 0 ? 'real' : 'mock_fallback';
-    }
-
-    if (forceMock || rows.length === 0) {
-      rows = buildMockSnapshots(fromDate, toDate).map(normalizeSnapshot).filter(Boolean);
-      mode = forceMock ? 'mock_forced' : 'mock_fallback';
-    }
+    const raw = (await storage.getState('socialEngagementSnapshots')) || [];
+    let rows = Array.isArray(raw) ? raw.map(normalizeSnapshot).filter(Boolean) : [];
+    const mode = 'real';
 
     const engagementMeta = (await storage.getState('socialEngagementMeta')) || {};
     const lastPulledAt = (engagementMeta && typeof engagementMeta.lastPulledAt === 'string' && !Number.isNaN(Date.parse(engagementMeta.lastPulledAt)))

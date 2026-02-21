@@ -219,21 +219,8 @@ function _extractRecentSuccessPosts(events) {
     });
 }
 
-function _mockMetrics(base, i) {
-  const seed = (i + 1) * (base.post_platform === 'x' ? 3 : base.post_platform === 'linkedin' ? 5 : 7);
-  return {
-    likes: 10 + seed,
-    comments: 2 + (seed % 6),
-    reposts: 1 + (seed % 4),
-    quotes: base.post_platform === 'x' ? (seed % 3) : null,
-    views: base.post_platform === 'x' ? (120 + seed * 9) : null,
-    clicks: null
-  };
-}
-
 module.exports = async function (context) {
-  const forceMock = String(process.env.SOCIAL_ENGAGEMENT_PULL_FORCE_MOCK || '').trim() === '1';
-  const mode = forceMock ? 'mock_forced' : 'real';
+  const mode = 'real';
 
   try {
     const events = (await storage.getState('socialMetricsEvents')) || [];
@@ -242,11 +229,6 @@ module.exports = async function (context) {
     if (targets.length) {
       for (let i = 0; i < targets.length; i++) {
         const t = targets[i];
-
-        if (forceMock) {
-          snapshots.push(_buildSnapshot(t, mode, _mockMetrics(t, i), null));
-          continue;
-        }
 
         try {
           let metrics = null;

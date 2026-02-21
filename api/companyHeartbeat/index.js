@@ -119,8 +119,8 @@ function _socialIntelEventTs(ev) {
 
 function _socialIntelResolveMode(engagementMeta, snapshots) {
   var mode = engagementMeta && typeof engagementMeta.mode === 'string' ? String(engagementMeta.mode).trim() : '';
-  if (mode === 'real' || mode === 'mock_fallback' || mode === 'mock_forced') return mode;
-  return Array.isArray(snapshots) && snapshots.length > 0 ? 'real' : 'mock_fallback';
+  if (mode === 'real') return 'real';
+  return 'real';
 }
 
 function _socialIntelBuildDigest(existingDigest, socialEvents, engagementSnapshots, engagementMeta, nowMs) {

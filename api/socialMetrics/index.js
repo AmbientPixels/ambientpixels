@@ -415,18 +415,9 @@ module.exports = async function (context, req) {
     const fromDate = parseDateOr(defaultFrom, q.from);
     const toDate = parseDateOr(now, q.to);
 
-    const forceMock = String(q.mock || '').trim() === '1';
-    const rawEvents = forceMock ? null : ((await storage.getState('socialMetricsEvents')) || []);
-
-    let events;
-    let mode = 'mock_fallback';
-    if (!forceMock && Array.isArray(rawEvents) && rawEvents.length > 0) {
-      events = rawEvents.filter(validateEventShape);
-      mode = 'real';
-    } else {
-      events = buildDeterministicMockEvents(fromDate, toDate);
-      mode = forceMock ? 'mock_forced' : 'mock_fallback';
-    }
+    const rawEvents = (await storage.getState('socialMetricsEvents')) || [];
+    const events = Array.isArray(rawEvents) ? rawEvents.filter(validateEventShape) : [];
+    const mode = 'real';
 
     const aggregated = aggregateSocialMetrics(events, {
       fromDate: fromDate,
