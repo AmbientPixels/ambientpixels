@@ -91,7 +91,37 @@
     return html;
   }
 
-  function renderPulse(data) {
+  function fmtNum(n) {
+    if (!Number.isFinite(n)) return '—';
+    if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+    if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+    return String(n);
+  }
+
+  function renderAccountBar(acctData) {
+    if (!acctData || !acctData.platforms) return '';
+    var order = ['x', 'linkedin', 'bluesky'];
+    var labels = { x: 'X', linkedin: 'LinkedIn', bluesky: 'Bluesky' };
+    var colors = { x: '#1d9bf0', linkedin: '#0a66c2', bluesky: '#0085ff' };
+    var html = '<div class="spulse-block"><div class="spulse-subtitle">Account Overview</div>';
+    html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.4rem;">';
+    for (var i = 0; i < order.length; i++) {
+      var pl = acctData.platforms[order[i]];
+      html += '<div style="border:1px solid rgba(255,255,255,0.06);border-left:2px solid ' + colors[order[i]] + ';border-radius:6px;padding:0.35rem 0.4rem;background:rgba(255,255,255,0.012);">';
+      html += '<div style="font-size:0.5rem;opacity:0.45;text-transform:uppercase;margin-bottom:0.15rem;">' + esc(labels[order[i]]) + '</div>';
+      if (pl && pl.ok !== false) {
+        html += '<div style="font-size:0.8rem;font-weight:700;">' + esc(fmtNum(pl.followers || 0)) + '</div>';
+        html += '<div style="font-size:0.42rem;opacity:0.38;">followers</div>';
+      } else {
+        html += '<div style="font-size:0.48rem;opacity:0.35;">Not connected</div>';
+      }
+      html += '</div>';
+    }
+    html += '</div></div>';
+    return html;
+  }
+
+  function renderPulse(data, acctData) {
     var root = document.getElementById('panel-social-pulse');
     if (!root) return;
 
@@ -101,30 +131,35 @@
     var issue = summary.topIssue || topIssue(recentFailures);
     var totalExec = (summary.published || 0) + (summary.failed || 0);
 
-    if (totalExec === 0) {
-      root.innerHTML = '<div class="dash-empty">No social executions yet.</div>';
-      return;
-    }
-
     var chips = '';
+    if (acctData && acctData.totals) {
+      chips += '<div class="spulse-chip"><div class="spulse-chip-label">Total Followers</div><div class="spulse-chip-value">' + esc(fmtNum(acctData.totals.followers || 0)) + '</div></div>';
+      chips += '<div class="spulse-chip"><div class="spulse-chip-label">Connected</div><div class="spulse-chip-value">' + esc(acctData.totals.platforms_connected || 0) + '/3</div></div>';
+    }
     chips += '<div class="spulse-chip"><div class="spulse-chip-label">Published Today</div><div class="spulse-chip-value">' + esc(summary.publishedToday || 0) + '</div></div>';
     chips += '<div class="spulse-chip"><div class="spulse-chip-label">Failures (24h)</div><div class="spulse-chip-value spulse-chip-value--bad">' + esc(summary.failures24h || 0) + '</div></div>';
     chips += '<div class="spulse-chip"><div class="spulse-chip-label">7d Success %</div><div class="spulse-chip-value">' + esc(summary.successRate || 0) + '%</div></div>';
-    chips += '<div class="spulse-chip"><div class="spulse-chip-label">Avg Execution Latency</div><div class="spulse-chip-value">' + esc(fmtMs(summary.avgLatency || 0)) + '</div></div>';
-    chips += '<div class="spulse-chip"><div class="spulse-chip-label">Fail Streak</div><div class="spulse-chip-value">' + esc(summary.failStreak || 0) + '</div></div>';
+
+    if (totalExec === 0 && (!acctData || !acctData.totals)) {
+      root.innerHTML = '<div class="dash-empty">No social data yet. Connect platforms in Azure env vars.</div>';
+      return;
+    }
 
     root.innerHTML = '' +
       '<div class="spulse-grid">' + chips + '</div>' +
-      '<div class="spulse-block">' +
-        '<div class="spulse-subtitle">Mini Trend (7d)</div>' +
-        renderTrendBars(trends.daily || []) +
-      '</div>' +
-      '<div class="spulse-block">' +
-        '<div class="spulse-subtitle">Top Issue</div>' +
-        (issue
-          ? '<div class="spulse-issue"><span class="spulse-issue-pill">' + esc(issue.error_class) + '</span><span>' + esc(issue.count) + ' in last 24h</span></div>'
-          : '<div class="dash-empty">No issues in last 24h.</div>') +
-      '</div>';
+      renderAccountBar(acctData) +
+      (totalExec > 0 ? (
+        '<div class="spulse-block">' +
+          '<div class="spulse-subtitle">Delivery Trend (7d)</div>' +
+          renderTrendBars(trends.daily || []) +
+        '</div>' +
+        '<div class="spulse-block">' +
+          '<div class="spulse-subtitle">Top Issue</div>' +
+          (issue
+            ? '<div class="spulse-issue"><span class="spulse-issue-pill">' + esc(issue.error_class) + '</span><span>' + esc(issue.count) + ' in last 24h</span></div>'
+            : '<div class="dash-empty">No issues in last 24h.</div>') +
+        '</div>'
+      ) : '<div class="dash-empty" style="margin-top:0.3rem;">No agent posts yet.</div>');
   }
 
   function loadPulse() {
@@ -132,20 +167,19 @@
     if (!root) return;
     root.innerHTML = '<div class="dash-empty">Loading social pulse...</div>';
 
-    var url = getApiBase() + '/social-metrics?limit=25';
-    fetch(url, { headers: getAuthHeaders() })
-      .then(function (res) {
-        return res.json().then(function (body) {
-          return { ok: res.ok, status: res.status, body: body };
-        });
-      })
-      .then(function (resp) {
-        if (!resp.ok) throw new Error((resp.body && resp.body.error) || ('HTTP ' + resp.status));
-        renderPulse(resp.body || {});
-      })
-      .catch(function (err) {
-        root.innerHTML = '<div class="dash-empty">Social Pulse unavailable: ' + esc(err.message || 'Unknown error') + '</div>';
-      });
+    var metricsUrl = getApiBase() + '/social-metrics?limit=25';
+    var acctUrl = getApiBase() + '/social-account-stats';
+
+    Promise.all([
+      fetch(metricsUrl, { headers: getAuthHeaders() }).then(function (res) { return res.json(); }).catch(function () { return null; }),
+      fetch(acctUrl, { headers: getAuthHeaders() }).then(function (res) { return res.json(); }).catch(function () { return null; })
+    ]).then(function (results) {
+      var metricsData = results[0] || {};
+      var acctData = results[1] || null;
+      renderPulse(metricsData, acctData);
+    }).catch(function (err) {
+      root.innerHTML = '<div class="dash-empty">Social Pulse unavailable: ' + esc(err.message || 'Unknown error') + '</div>';
+    });
   }
 
   function init() {
