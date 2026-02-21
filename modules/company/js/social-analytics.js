@@ -91,6 +91,15 @@
     return getApiBase() + '/social-metrics?' + p.toString();
   }
 
+  function buildEngagementUrl(filters) {
+    var p = new URLSearchParams();
+    if (filters.from) p.set('from', filters.from);
+    if (filters.to) p.set('to', filters.to);
+    if (filters.platform) p.set('platform', filters.platform);
+    p.set('limit', '50');
+    return getApiBase() + '/social-engagement?' + p.toString();
+  }
+
   function fmtLatency(ms) {
     if (!ms || !isFinite(ms) || ms < 1) return '—';
     var sec = Math.round(ms / 1000);
@@ -185,6 +194,102 @@
     root.innerHTML = html;
   }
 
+  function renderEngagementTrends(trends) {
+    var root = document.getElementById('sa-engagement-trends');
+    var rows = (trends && trends.last7) ? trends.last7 : [];
+    if (!rows.length) {
+      root.innerHTML = '<div class="dash-empty">No engagement snapshots yet.</div>';
+      return;
+    }
+
+    var max = 1;
+    rows.forEach(function (r) {
+      var t = (r.likes || 0) + (r.comments || 0) + (r.reposts || 0);
+      if (t > max) max = t;
+    });
+
+    var html = '<div class="sa-eng-trends-title">Daily Trend (7d)</div><div class="sa-eng-bars">';
+    rows.forEach(function (r) {
+      var total = (r.likes || 0) + (r.comments || 0) + (r.reposts || 0);
+      var h = Math.max(4, Math.round((total / max) * 42));
+      html += '<div class="sa-eng-col">';
+      html += '<div class="sa-eng-bar" style="height:' + h + 'px"></div>';
+      html += '<div class="sa-eng-label">' + esc((r.date || '').slice(5)) + '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+    root.innerHTML = html;
+  }
+
+  function renderEngagement(data) {
+    var kpis = document.getElementById('sa-engagement-kpis');
+    var tbody = document.getElementById('sa-engagement-top-posts');
+    var empty = document.getElementById('sa-engagement-empty');
+
+    var summary = (data && data.summary) || {};
+    var topPosts = (data && data.topPosts) || [];
+    var rows = (data && data.rows) || [];
+    var hasAny = rows.length > 0;
+
+    kpis.innerHTML = '' +
+      '<div class="sa-kpi"><div class="sa-kpi-label">Likes (7d)</div><div class="sa-kpi-value">' + esc(summary.likes7d || 0) + '</div></div>' +
+      '<div class="sa-kpi"><div class="sa-kpi-label">Comments (7d)</div><div class="sa-kpi-value">' + esc(summary.comments7d || 0) + '</div></div>' +
+      '<div class="sa-kpi"><div class="sa-kpi-label">Reposts (7d)</div><div class="sa-kpi-value">' + esc(summary.reposts7d || 0) + '</div></div>';
+
+    if (!hasAny) {
+      tbody.innerHTML = '';
+      empty.style.display = '';
+      empty.textContent = 'No engagement snapshots yet.';
+      renderEngagementTrends({ last7: [] });
+      return;
+    }
+
+    renderEngagementTrends(data.trends || {});
+
+    if (!topPosts.length) {
+      tbody.innerHTML = '';
+      empty.style.display = '';
+      empty.textContent = 'No top posts for selected filters.';
+      return;
+    }
+
+    empty.style.display = 'none';
+    var html = '';
+    topPosts.forEach(function (p) {
+      var linkCell = p.link ? '<a class="sa-link" href="' + esc(p.link) + '" target="_blank" rel="noopener noreferrer">Open</a>' : '—';
+      html += '<tr>' +
+        '<td>' + esc(p.platform || '') + '</td>' +
+        '<td>' + esc((p.text_preview || '').slice(0, 90) || '—') + '</td>' +
+        '<td>' + esc(p.likes || 0) + '</td>' +
+        '<td>' + esc(p.comments || 0) + '</td>' +
+        '<td>' + esc(p.reposts || 0) + '</td>' +
+        '<td>' + linkCell + '</td>' +
+      '</tr>';
+    });
+    tbody.innerHTML = html;
+  }
+
+  function loadEngagementData(filters) {
+    var url = buildEngagementUrl(filters);
+    fetch(url, { headers: getAuthHeaders() })
+      .then(function (res) {
+        return res.json().then(function (body) {
+          return { ok: res.ok, status: res.status, body: body };
+        });
+      })
+      .then(function (resp) {
+        if (!resp.ok) throw new Error((resp.body && resp.body.error) || ('HTTP ' + resp.status));
+        renderEngagement(resp.body || {});
+      })
+      .catch(function () {
+        document.getElementById('sa-engagement-kpis').innerHTML = '<div class="dash-empty">Engagement data unavailable.</div>';
+        document.getElementById('sa-engagement-top-posts').innerHTML = '';
+        document.getElementById('sa-engagement-empty').style.display = '';
+        document.getElementById('sa-engagement-empty').textContent = 'No engagement snapshots yet.';
+        document.getElementById('sa-engagement-trends').innerHTML = '<div class="dash-empty">No engagement snapshots yet.</div>';
+      });
+  }
+
   function updatePagerButtons() {
     document.getElementById('sa-prev').disabled = state.prevStack.length === 0;
     document.getElementById('sa-next').disabled = !state.nextCursor;
@@ -193,6 +298,7 @@
   function loadData() {
     var filters = readFilters();
     writeFiltersToQuery(filters);
+    loadEngagementData(filters);
 
     var url = buildUrl(filters);
     fetch(url, { headers: getAuthHeaders() })

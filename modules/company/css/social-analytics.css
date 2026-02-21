@@ -194,6 +194,48 @@
   font-weight: 600;
 }
 
+.sa-eng-trends {
+  margin-top: 0.45rem;
+  padding: 0.5rem;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.015);
+}
+
+.sa-eng-trends-title {
+  font-size: 0.56rem;
+  opacity: 0.45;
+  margin-bottom: 0.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.sa-eng-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  min-height: 56px;
+}
+
+.sa-eng-col {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+}
+
+.sa-eng-bar {
+  width: 100%;
+  min-height: 4px;
+  border-radius: 3px 3px 0 0;
+  background: rgba(52,211,153,0.75);
+}
+
+.sa-eng-label {
+  margin-top: 2px;
+  font-size: 0.48rem;
+  opacity: 0.3;
+}
+
 .sa-link {
   color: #60a5fa;
   text-decoration: none;
