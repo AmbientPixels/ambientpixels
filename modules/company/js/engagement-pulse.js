@@ -87,7 +87,35 @@
     return { badgeClass: 'epulse-badge epulse-badge--mock', badgeText: 'MOCK', text: 'Waiting for first engagement pull.' };
   }
 
-  function renderPulse(data) {
+  function fmtNum(n) {
+    if (!Number.isFinite(n)) return '—';
+    if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+    if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+    return String(n);
+  }
+
+  function renderAccountRow(acctData) {
+    if (!acctData || !acctData.platforms) return '';
+    var order = ['x', 'linkedin', 'bluesky'];
+    var labels = { x: 'X', linkedin: 'LinkedIn', bluesky: 'Bluesky' };
+    var html = '<div class="epulse-split" style="margin-bottom:0.5rem;">';
+    for (var i = 0; i < order.length; i++) {
+      var pl = acctData.platforms[order[i]];
+      html += '<div class="epulse-card">';
+      html += '<div class="epulse-card-title">' + esc(labels[order[i]]) + '</div>';
+      if (pl && pl.ok !== false) {
+        html += '<div class="epulse-row"><span>Followers</span><strong>' + esc(fmtNum(pl.followers || 0)) + '</strong></div>';
+        html += '<div class="epulse-row"><span>Posts</span><strong>' + esc(fmtNum(pl.tweets_count || pl.posts_count || 0)) + '</strong></div>';
+      } else {
+        html += '<div style="font-size:0.52rem;opacity:0.4;padding:0.2rem 0;">Not connected</div>';
+      }
+      html += '</div>';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  function renderPulse(data, acctData) {
     var root = document.getElementById('panel-engagement-pulse');
     if (!root) return;
 
@@ -103,25 +131,14 @@
     chips += '<div class="epulse-chip"><div class="epulse-chip-label">Comments (7d)</div><div class="epulse-chip-value">' + esc(summary.comments7d || 0) + '</div></div>';
     chips += '<div class="epulse-chip"><div class="epulse-chip-label">Reposts (7d)</div><div class="epulse-chip-value">' + esc(summary.reposts7d || 0) + '</div></div>';
 
-    function platformCard(key, label) {
-      var p = split[key] || { likes7d: 0, comments7d: 0, reposts7d: 0 };
-      var html = '<div class="epulse-card">';
-      html += '<div class="epulse-card-title">' + esc(label) + '</div>';
-      html += '<div class="epulse-row"><span>Likes</span><strong>' + esc(p.likes7d || 0) + '</strong></div>';
-      html += '<div class="epulse-row"><span>Comments</span><strong>' + esc(p.comments7d || 0) + '</strong></div>';
-      html += '<div class="epulse-row"><span>Reposts</span><strong>' + esc(p.reposts7d || 0) + '</strong></div>';
-      html += '</div>';
-      return html;
+    if (acctData && acctData.totals) {
+      chips += '<div class="epulse-chip"><div class="epulse-chip-label">Total Followers</div><div class="epulse-chip-value">' + esc(fmtNum(acctData.totals.followers || 0)) + '</div></div>';
     }
 
     root.innerHTML = '' +
       '<div class="epulse-grid">' + chips + '</div>' +
       '<div class="epulse-meta"><span class="' + modeMeta.badgeClass + '">' + esc(modeMeta.badgeText) + '</span><span>' + esc(modeMeta.text) + '</span></div>' +
-      '<div class="epulse-split">' +
-        platformCard('x', 'X') +
-        platformCard('linkedin', 'LinkedIn') +
-        platformCard('bluesky', 'Bluesky') +
-      '</div>' +
+      renderAccountRow(acctData) +
       renderTrendBars(trends.daily || trends.last7 || []);
   }
 
@@ -130,20 +147,19 @@
     if (!root) return;
     root.innerHTML = '<div class="dash-empty">Loading engagement pulse...</div>';
 
-    var url = getApiBase() + '/social-engagement?limit=50';
-    fetch(url, { headers: getAuthHeaders() })
-      .then(function (res) {
-        return res.json().then(function (body) {
-          return { ok: res.ok, status: res.status, body: body };
-        });
-      })
-      .then(function (resp) {
-        if (!resp.ok) throw new Error((resp.body && resp.body.error) || ('HTTP ' + resp.status));
-        renderPulse(resp.body || {});
-      })
-      .catch(function (err) {
-        root.innerHTML = '<div class="dash-empty">Engagement Pulse unavailable: ' + esc(err.message || 'Unknown error') + '</div>';
-      });
+    var engUrl = getApiBase() + '/social-engagement?limit=50';
+    var acctUrl = getApiBase() + '/social-account-stats';
+
+    Promise.all([
+      fetch(engUrl, { headers: getAuthHeaders() }).then(function (res) { return res.json(); }).catch(function () { return null; }),
+      fetch(acctUrl, { headers: getAuthHeaders() }).then(function (res) { return res.json(); }).catch(function () { return null; })
+    ]).then(function (results) {
+      var engData = results[0] || {};
+      var acctData = results[1] || null;
+      renderPulse(engData, acctData);
+    }).catch(function (err) {
+      root.innerHTML = '<div class="dash-empty">Engagement Pulse unavailable: ' + esc(err.message || 'Unknown error') + '</div>';
+    });
   }
 
   function init() {

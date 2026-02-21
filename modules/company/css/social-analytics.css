@@ -417,3 +417,159 @@
 .sa-link:hover {
   text-decoration: underline;
 }
+
+/* ═══ Account Overview ═══ */
+
+.sa-btn--xs {
+  font-size: 0.52rem;
+  padding: 0.18rem 0.32rem;
+  vertical-align: middle;
+  margin-left: 0.25rem;
+}
+
+.sa-acct-cache-hint {
+  font-size: 0.48rem;
+  opacity: 0.35;
+  font-weight: 400;
+  vertical-align: middle;
+  margin-left: 0.25rem;
+}
+
+.sa-acct-totals {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 0.45rem;
+  margin-bottom: 0.6rem;
+}
+
+.sa-acct-total {
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.015);
+  border-radius: 8px;
+  padding: 0.48rem 0.55rem;
+}
+
+.sa-acct-total-label {
+  font-size: 0.5rem;
+  opacity: 0.38;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.sa-acct-total-value {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-top: 0.06rem;
+}
+
+.sa-acct-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.55rem;
+}
+
+@media (max-width: 760px) {
+  .sa-acct-grid { grid-template-columns: 1fr; }
+}
+
+.sa-acct-card {
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.015);
+  border-radius: 10px;
+  padding: 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.sa-acct-card--x { border-left: 3px solid #1d9bf0; }
+.sa-acct-card--linkedin { border-left: 3px solid #0a66c2; }
+.sa-acct-card--bluesky { border-left: 3px solid #0085ff; }
+
+.sa-acct-card-head {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.sa-acct-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(255,255,255,0.08);
+}
+
+.sa-acct-card-name {
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.sa-acct-card-handle {
+  font-size: 0.52rem;
+  opacity: 0.45;
+}
+
+.sa-acct-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.3rem;
+  margin-top: 0.1rem;
+}
+
+.sa-acct-stat {
+  text-align: center;
+}
+
+.sa-acct-stat-value {
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+.sa-acct-stat-label {
+  font-size: 0.46rem;
+  opacity: 0.4;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.sa-acct-card-err {
+  font-size: 0.54rem;
+  color: #f87171;
+  opacity: 0.8;
+  padding: 0.3rem 0;
+}
+
+.sa-acct-errors {
+  margin-top: 0.35rem;
+}
+
+.sa-acct-err-line {
+  font-size: 0.52rem;
+  color: #fbbf24;
+  opacity: 0.7;
+  padding: 0.12rem 0;
+}
+
+/* Platform badge in tables */
+.sa-plat-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.18rem;
+  font-size: 0.52rem;
+  font-weight: 600;
+  padding: 0.1rem 0.32rem;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.sa-plat-badge--x { background: rgba(29,155,240,0.12); color: #1d9bf0; }
+.sa-plat-badge--linkedin { background: rgba(10,102,194,0.12); color: #4da3ff; }
+.sa-plat-badge--bluesky { background: rgba(0,133,255,0.12); color: #0085ff; }
+
+.sa-live-date {
+  font-size: 0.52rem;
+  opacity: 0.5;
+  white-space: nowrap;
+}
