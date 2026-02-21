@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Social Analytics — operational social metrics across X, LinkedIn, and Bluesky." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Social Analytics — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/social-analytics.css" />
+</head>
+<body style="background:#071019" data-theme="dark">
+  <main class="content-section" style="max-width: 960px; margin: 0 auto; padding: 1rem;">
+    <div class="company-header">
+      <h1><i class="fas fa-chart-network" style="opacity:0.4; margin-right:8px;"></i>Social Analytics</h1>
+      <p>Operations-level social monitoring with filters, platform diagnostics, and post-level results.</p>
+    </div>
+
+    <section class="sa-panel">
+      <div class="sa-panel-title"><i class="fas fa-filter"></i> Filters</div>
+      <div class="sa-filters" id="sa-filters">
+        <div class="sa-field">
+          <label for="sa-from">From</label>
+          <input type="date" id="sa-from" />
+        </div>
+        <div class="sa-field">
+          <label for="sa-to">To</label>
+          <input type="date" id="sa-to" />
+        </div>
+        <div class="sa-field">
+          <label for="sa-platform">Platform</label>
+          <select id="sa-platform">
+            <option value="">All</option>
+            <option value="x">X</option>
+            <option value="linkedin">LinkedIn</option>
+            <option value="bluesky">Bluesky</option>
+          </select>
+        </div>
+        <div class="sa-field">
+          <label for="sa-result">Result</label>
+          <select id="sa-result">
+            <option value="">All</option>
+            <option value="success">Success</option>
+            <option value="failure">Failure</option>
+          </select>
+        </div>
+        <div class="sa-field">
+          <label for="sa-campaign">Campaign</label>
+          <input type="text" id="sa-campaign" placeholder="optional campaign id" />
+        </div>
+        <div class="sa-actions">
+          <button class="sa-btn" id="sa-apply"><i class="fas fa-search"></i> Apply</button>
+          <button class="sa-btn sa-btn--ghost" id="sa-reset">Reset</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="sa-panel">
+      <div class="sa-panel-title"><i class="fas fa-gauge"></i> KPI Summary</div>
+      <div class="sa-kpis" id="sa-kpis"></div>
+    </section>
+
+    <section class="sa-panel">
+      <div class="sa-panel-title"><i class="fas fa-layer-group"></i> Platform Panels</div>
+      <div class="sa-platform-grid" id="sa-platform-grid"></div>
+    </section>
+
+    <section class="sa-panel">
+      <div class="sa-panel-title"><i class="fas fa-newspaper"></i> Recent Posts</div>
+      <div class="sa-table-wrap">
+        <table class="sa-table" id="sa-posts-table">
+          <thead>
+            <tr>
+              <th>Platform</th>
+              <th>Text Preview</th>
+              <th>Result</th>
+              <th>Timestamp (UTC)</th>
+              <th>Attempts</th>
+              <th>Error Class</th>
+              <th>Post URL</th>
+            </tr>
+          </thead>
+          <tbody id="sa-posts-body"></tbody>
+        </table>
+        <div class="dash-empty" id="sa-posts-empty">No posts found for selected filters.</div>
+      </div>
+      <div class="sa-pagination">
+        <button class="sa-btn sa-btn--ghost" id="sa-prev" disabled><i class="fas fa-arrow-left"></i> Prev</button>
+        <button class="sa-btn sa-btn--ghost" id="sa-next" disabled>Next <i class="fas fa-arrow-right"></i></button>
+      </div>
+    </section>
+
+    <section class="sa-panel">
+      <div class="sa-panel-title"><i class="fas fa-triangle-exclamation"></i> Failure Diagnostics</div>
+      <div id="sa-diagnostics"></div>
+    </section>
+  </main>
+
+  <script src="/js/storage-manager.js"></script>
+  <script src="/js/company-store.js"></script>
+  <script src="/modules/company/js/social-analytics.js"></script>
+  <script src="/modules/company/js/sidebar.js"></script>
+</body>
+</html>

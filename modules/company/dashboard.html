@@ -135,6 +135,21 @@
     .obs-storage-hint { opacity: 0.25; font-size: 0.5rem; margin-left: auto; }
     .obs-storage-hint a { color: #60a5fa; text-decoration: none; }
     .obs-empty { font-size: 0.58rem; opacity: 0.25; padding: 0.4rem 0; }
+
+    /* Social Pulse */
+    .spulse-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:0.45rem; margin-bottom:0.6rem; }
+    .spulse-chip { border:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.015); border-radius:8px; padding:0.45rem 0.5rem; }
+    .spulse-chip-label { font-size:0.52rem; opacity:0.35; }
+    .spulse-chip-value { font-size:0.95rem; font-weight:700; margin-top:0.08rem; }
+    .spulse-chip-value--bad { color:#ef4444; }
+    .spulse-block { margin-bottom:0.5rem; }
+    .spulse-subtitle { font-size:0.56rem; opacity:0.45; margin-bottom:0.25rem; text-transform:uppercase; letter-spacing:0.03em; }
+    .spulse-trend-row { display:flex; gap:4px; align-items:flex-end; min-height:56px; }
+    .spulse-trend-col { flex:1; min-width:0; text-align:center; }
+    .spulse-trend-bar { width:100%; min-height:4px; border-radius:3px 3px 0 0; background:rgba(96,165,250,0.75); }
+    .spulse-trend-label { font-size:0.48rem; opacity:0.3; margin-top:2px; }
+    .spulse-issue { display:flex; align-items:center; gap:0.4rem; font-size:0.62rem; }
+    .spulse-issue-pill { font-size:0.52rem; background:rgba(239,68,68,0.12); color:#ef4444; border-radius:999px; padding:0.1rem 0.38rem; font-weight:600; }
   </style>
 </head>
 <body style="background:#071019" data-theme="dark">
@@ -315,6 +330,20 @@
               </div>
               <div id="panel-action-snap" style="padding:0.3rem 0.5rem;">
                 <div class="dash-empty">No actions yet.</div>
+              </div>
+            </div>
+
+            <!-- Social Pulse -->
+            <div class="dash-panel dash-panel--full" id="panel-social-pulse-wrap">
+              <div class="dash-panel-header">
+                <span class="dash-panel-title"><i class="fas fa-hashtag" style="color:#60a5fa;"></i> Social Pulse</span>
+                <div style="display:flex; gap:0.5rem; align-items:center;">
+                  <a href="/modules/company/social-analytics.html" style="font-size:0.65rem; opacity:0.45; text-decoration:none;">View Social Analytics →</a>
+                  <a href="/modules/company/actions.html?type=social&status=pending" style="font-size:0.65rem; opacity:0.45; text-decoration:none;">Open Social Actions →</a>
+                </div>
+              </div>
+              <div id="panel-social-pulse" style="padding:0.5rem;">
+                <div class="dash-empty">Loading social pulse...</div>
               </div>
             </div>
           </div>
@@ -538,6 +567,7 @@
   <script src="/js/observability-metrics.js"></script>
   <script src="/js/observability-ui.js"></script>
   <script src="/modules/company/js/quick-chat.js"></script>
+  <script src="/modules/company/js/social-pulse.js"></script>
 
   <script>
     (function () {
