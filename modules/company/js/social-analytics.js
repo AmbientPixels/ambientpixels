@@ -194,6 +194,44 @@
     root.innerHTML = html;
   }
 
+  function metricOrZero(val) {
+    return Number.isFinite(val) ? val : 0;
+  }
+
+  function renderEngagementByPlatform(data) {
+    var split = (data && data.engagementSplit) || {};
+    var meta = (data && data.meta) || {};
+    var cards = document.querySelectorAll('.sa-platform-eng-card');
+    var metaRoot = document.getElementById('sa-platform-eng-meta');
+
+    cards.forEach(function (card) {
+      var platform = card.getAttribute('data-platform') || '';
+      var bucket = split[platform] || {};
+      card.querySelectorAll('[data-key]').forEach(function (node) {
+        var key = node.getAttribute('data-key') || '';
+        node.textContent = String(metricOrZero(bucket[key]));
+      });
+    });
+
+    if (!metaRoot) return;
+    if (meta.mode === 'real') {
+      metaRoot.innerHTML = '<span class="sa-mode-badge sa-mode-badge--live">LIVE</span>';
+      return;
+    }
+
+    if (meta.mode === 'mock_fallback' && !meta.lastPulledAt) {
+      metaRoot.innerHTML = '<span>Waiting for first engagement pull.</span>';
+      return;
+    }
+
+    if (meta.mode === 'mock_forced') {
+      metaRoot.innerHTML = '<span class="sa-mode-badge sa-mode-badge--mock">MOCK</span>';
+      return;
+    }
+
+    metaRoot.innerHTML = '';
+  }
+
   function renderEngagementTrends(trends) {
     var root = document.getElementById('sa-engagement-trends');
     var rows = (trends && trends.last7) ? trends.last7 : [];
@@ -279,15 +317,36 @@
       })
       .then(function (resp) {
         if (!resp.ok) throw new Error((resp.body && resp.body.error) || ('HTTP ' + resp.status));
+        renderEngagementByPlatform(resp.body || {});
         renderEngagement(resp.body || {});
       })
       .catch(function () {
+        renderEngagementByPlatform({
+          engagementSplit: {
+            x: { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 },
+            linkedin: { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 },
+            bluesky: { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 }
+          },
+          meta: {}
+        });
         document.getElementById('sa-engagement-kpis').innerHTML = '<div class="dash-empty">Engagement data unavailable.</div>';
         document.getElementById('sa-engagement-top-posts').innerHTML = '';
         document.getElementById('sa-engagement-empty').style.display = '';
         document.getElementById('sa-engagement-empty').textContent = 'No engagement snapshots yet.';
         document.getElementById('sa-engagement-trends').innerHTML = '<div class="dash-empty">No engagement snapshots yet.</div>';
       });
+  }
+
+  function bindEngagementPlatformCards() {
+    document.querySelectorAll('.sa-platform-eng-card').forEach(function (card) {
+      card.addEventListener('click', function () {
+        var platform = card.getAttribute('data-platform') || '';
+        document.getElementById('sa-platform').value = platform;
+        state.cursor = '';
+        state.prevStack = [];
+        loadData();
+      });
+    });
   }
 
   function updatePagerButtons() {
@@ -338,6 +397,8 @@
   }
 
   function bind() {
+    bindEngagementPlatformCards();
+
     document.getElementById('sa-apply').addEventListener('click', function () {
       state.cursor = '';
       state.prevStack = [];
