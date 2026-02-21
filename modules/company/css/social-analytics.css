@@ -47,7 +47,18 @@
   display: flex;
   gap: 0.35rem;
   align-items: flex-end;
+  flex-wrap: wrap;
 }
+
+.sa-inline-status {
+  font-size: 0.56rem;
+  opacity: 0.55;
+  align-self: center;
+  margin-left: 0.15rem;
+}
+
+.sa-inline-status--ok { color: #34d399; opacity: 0.85; }
+.sa-inline-status--err { color: #f87171; opacity: 0.9; }
 
 .sa-btn {
   border: 1px solid rgba(96,165,250,0.3);

@@ -307,6 +307,43 @@
     tbody.innerHTML = html;
   }
 
+  function setPullStatus(text, tone) {
+    var node = document.getElementById('sa-pull-status');
+    if (!node) return;
+    node.className = 'sa-inline-status';
+    if (tone === 'ok') node.className += ' sa-inline-status--ok';
+    if (tone === 'err') node.className += ' sa-inline-status--err';
+    node.textContent = text || '';
+  }
+
+  function triggerPullNow() {
+    var btn = document.getElementById('sa-pull-now');
+    if (!btn) return;
+    btn.disabled = true;
+    setPullStatus('Pulling latest engagement from platforms...', '');
+
+    fetch(getApiBase() + '/social-engagement-pull-now', {
+      method: 'POST',
+      headers: getAuthHeaders()
+    })
+      .then(function (res) {
+        return res.json().then(function (body) {
+          return { ok: res.ok, status: res.status, body: body };
+        });
+      })
+      .then(function (resp) {
+        if (!resp.ok) throw new Error((resp.body && resp.body.error) || ('HTTP ' + resp.status));
+        setPullStatus('Pull complete. Refreshing dashboard data...', 'ok');
+        loadData();
+      })
+      .catch(function (err) {
+        setPullStatus('Pull failed: ' + (err.message || 'Unknown error'), 'err');
+      })
+      .finally(function () {
+        btn.disabled = false;
+      });
+  }
+
   function loadEngagementData(filters) {
     var url = buildEngagementUrl(filters);
     fetch(url, { headers: getAuthHeaders() })
@@ -404,6 +441,13 @@
       state.prevStack = [];
       loadData();
     });
+
+    var pullBtn = document.getElementById('sa-pull-now');
+    if (pullBtn) {
+      pullBtn.addEventListener('click', function () {
+        triggerPullNow();
+      });
+    }
 
     document.getElementById('sa-reset').addEventListener('click', function () {
       var now = new Date();
