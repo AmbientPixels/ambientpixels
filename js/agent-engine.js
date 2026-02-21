@@ -3167,7 +3167,14 @@ var AgentEngine = (function () {
     var id = (typeof ref === 'object') ? ref.id : ref;
     var art = getArtifactById(id);
     if (!art) return null;
-    if (art.status === 'published' && art.url) return art.url;
+    if (art.status === 'published' && art.url) {
+      // Ensure full absolute URL — artifact.url may be stored as relative path
+      var url = art.url;
+      if (url.charAt(0) === '/' && url.indexOf('//') !== 0) {
+        url = 'https://ambientpixels.ai' + url;
+      }
+      return url;
+    }
     return null; // not yet published
   }
 

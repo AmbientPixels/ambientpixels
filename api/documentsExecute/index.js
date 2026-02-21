@@ -532,6 +532,24 @@ async function handleDocPublish(context, req, body) {
     await _logGovernance(storage, 'publish-approved', { actionId, documentId, title, slug, visibility, approvedBy: 'pixelpusher' });
     await _logGovernance(storage, 'publish-executed', { actionId, documentId, title, slug, visibility, publishEntryId: publishEntry.id });
 
+    // Mark artifact as published with canonical URL (matches publishDocument.js)
+    try {
+      var artifacts = (await storage.getState('ap_artifacts')) || [];
+      var artifactUpdated = false;
+      for (var ai = 0; ai < artifacts.length; ai++) {
+        if (artifacts[ai].actionId === actionId || (artifacts[ai].documentId === documentId && artifacts[ai].status === 'draft')) {
+          artifacts[ai].status = 'published';
+          artifacts[ai].url = isPublic ? 'https://ambientpixels.ai' + publicUrl : publicUrl;
+          artifacts[ai].publishedAt = now;
+          artifactUpdated = true;
+          break;
+        }
+      }
+      if (artifactUpdated) {
+        await storage.setState('ap_artifacts', artifacts);
+      }
+    } catch (artErr) { /* non-fatal — artifact registry update failed */ }
+
     context.log('[DocsExecute] Published (' + visibility + '):', actionId, title, '→', publicUrl);
 
     context.res = {

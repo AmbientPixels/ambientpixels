@@ -5,6 +5,7 @@ const xAdapter = require('./social/x');
 const linkedinAdapter = require('./social/linkedin');
 const blueskyAdapter = require('./social/bluesky');
 const contentAdapter = require('./content/publishDocument');
+const storage = require('../../_utils/companyStorage');
 
 // Map of action_type → platform → executor function
 const EXECUTORS = {
@@ -68,6 +69,30 @@ async function executeAction(action) {
       code: 'PLATFORM_NOT_SUPPORTED',
       message: 'Platform "' + platform + '" not supported for "' + actionType + '". Available: ' + Object.keys(typeExecutors).filter(k => typeExecutors[k]).join(', ')
     };
+  }
+
+  // Resolve {{ARTICLE_URL}} tokens in payload.text before execution
+  if (action.payload && action.payload.text && /\{\{ARTICLE_URL/.test(action.payload.text)) {
+    try {
+      var tokens = action.tokens || {};
+      var artifacts = (await storage.getState('ap_artifacts')) || [];
+      action.payload.text = action.payload.text.replace(/\{\{ARTICLE_URL(?::([^}]+))?\}\}/g, function(match, explicitId) {
+        var artId = null;
+        if (explicitId) {
+          artId = explicitId.trim();
+        } else if (tokens.ARTICLE_URL && tokens.ARTICLE_URL.id) {
+          artId = tokens.ARTICLE_URL.id;
+        }
+        if (!artId) return match;
+        var art = artifacts.find(function(a) { return a.id === artId; });
+        if (!art || art.status !== 'published' || !art.url) return match;
+        var url = art.url;
+        if (url.charAt(0) === '/' && url.indexOf('//') !== 0) {
+          url = 'https://ambientpixels.ai' + url;
+        }
+        return url;
+      });
+    } catch (e) { /* non-fatal — token resolution failed, post with raw tokens */ }
   }
 
   // Execute
