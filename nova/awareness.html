@@ -15,34 +15,36 @@
   <link rel="stylesheet" href="/css/components.css" />
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/css/nova-shared.css" />
   <link rel="stylesheet" href="/css/nova-awareness.css" />
 </head>
 <body class="aw-page" data-theme="dark">
   <header id="nav-header"></header>
 
-  <section class="aw-hero">
-    <div class="aw-hero-inner">
-      <h1 class="aw-title">
+  <section class="nv-hero">
+    <div class="nv-hero-inner">
+      <p class="nv-breadcrumb"><a href="/nova/">Nova</a> / System Context</p>
+      <h1 class="nv-title">
         <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>
         System Context
       </h1>
-      <p class="aw-subhead">Public-safe awareness layer. Signal → assessment → recommendation.</p>
-      <div class="aw-chip-row">
-        <span class="aw-chip">READ-ONLY</span>
-        <span class="aw-chip">REDACTED</span>
-        <span class="aw-chip">UPDATE CADENCE: PERIODIC</span>
+      <p class="nv-subtitle">Public-safe awareness layer. Signal &rarr; assessment &rarr; recommendation.</p>
+      <div class="nv-chip-row">
+        <span class="nv-chip">READ-ONLY</span>
+        <span class="nv-chip">REDACTED</span>
+        <span class="nv-chip">UPDATE CADENCE: PERIODIC</span>
         <span class="aw-fresh-pill aw-fresh--offline" id="aw-fresh">SNAPSHOT MODE</span>
       </div>
     </div>
   </section>
 
-  <main class="aw-shell" aria-label="System Context">
-    <nav class="aw-top-nav" aria-label="context shortcuts">
-      <a class="aw-top-link" href="/nova/">
+  <main class="nv-shell" aria-label="System Context">
+    <nav class="nv-top-nav" aria-label="context shortcuts">
+      <a class="nv-pill" href="/nova/">
         <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>
         Prime Operator
       </a>
-      <a class="aw-top-link" href="/nova/agents.html">
+      <a class="nv-pill" href="/nova/agents.html">
         <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><path d="M20 8v6M17 11h6"></path></svg>
         Agent Architecture
       </a>
@@ -112,33 +114,33 @@
       </div>
     </section>
 
-    <nav class="aw-surfaces" aria-label="Nova surfaces navigation">
-      <p class="aw-surfaces-label">Nova Surfaces</p>
-      <p class="aw-surfaces-sub">Navigate Nova's public and internal operator views.</p>
-      <div class="aw-surfaces-grid">
-        <a href="/nova/">
+    <nav class="nv-surfaces" aria-label="Nova surfaces navigation">
+      <p class="nv-surfaces-label">Nova Surfaces</p>
+      <p class="nv-surfaces-sub">Navigate Nova's public and internal operator views.</p>
+      <div class="nv-surfaces-grid">
+        <a class="nv-pill" href="/nova/">
           <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"></path><path d="M9 21h6"></path></svg>
           Prime Operator
         </a>
-        <a href="/nova/agents.html">
+        <a class="nv-pill" href="/nova/agents.html">
           <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><path d="M20 8v6M17 11h6"></path></svg>
           Agent Architecture
         </a>
-        <a href="/nova/preview.html">
+        <a class="nv-pill" href="/nova/preview.html">
           <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"></path></svg>
           Public Preview
         </a>
-        <a href="/nova/awareness.html" class="aw-surf-active">
+        <a class="nv-pill nv-pill--active" href="/nova/awareness.html">
           <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>
           System Context
         </a>
-        <a href="/nova/logs.html">
+        <a class="nv-pill" href="/nova/logs.html">
           <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
           Founder Log
         </a>
-        <a href="/nova/dashboard.html">
+        <a class="nv-pill" href="/nova/dashboard.html">
           <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg>
-          Dashboard <span class="aw-surf-pill">Internal</span>
+          Dashboard <span class="nv-pill-badge">Internal</span>
         </a>
       </div>
     </nav>

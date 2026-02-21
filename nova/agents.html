@@ -14,51 +14,26 @@
   <link rel="stylesheet" href="/css/components.css" />
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/css/nova-shared.css" />
   <style>
     .aa { max-width: 960px; margin: 0 auto; padding: 2.5rem 1.5rem 3rem; }
-    .cf-ico { display: inline-block; width: 1em; height: 1em; vertical-align: -0.125em; flex-shrink: 0; }
 
-    /* ── Hero Gradient ── */
-    .aa-hero {
-      padding: 7rem 1.5rem 2.5rem;
-      background: linear-gradient(180deg, rgba(167,139,250,0.08) 0%, rgba(15,20,35,0.0) 100%);
-      border-bottom: 1px solid rgba(148,163,184,0.06);
-      text-align: left;
-    }
-    .aa-hero-inner { max-width: 960px; margin: 0 auto; }
-    .aa-hero h1 {
-      font-size: 1.7rem; font-weight: 700; color: #e2e8f0;
-      margin: 0 0 0.45rem; display: flex; align-items: center; gap: 0.5rem;
-    }
-    .aa-hero h1 .cf-ico { opacity: 0.3; }
-    .aa-hero-sub {
-      font-size: 0.9rem; color: rgba(148,163,184,0.65); margin: 0 0 0.25rem;
-    }
     .aa-hero-micro {
-      font-size: 0.72rem; color: rgba(148,163,184,0.35); margin: 0 0 1.1rem;
+      font-size: 0.72rem; color: var(--nv-text-tertiary); margin: 0 0 1.1rem;
     }
     .aa-hero-cta { display: flex; gap: 8px; flex-wrap: wrap; }
-    .aa-hero-cta a {
-      font-size: 0.75rem; padding: 5px 14px; border-radius: 6px;
-      border: 1px solid rgba(167,139,250,0.18); color: rgba(167,139,250,0.8);
-      background: rgba(167,139,250,0.06); transition: all 0.2s;
-      display: inline-flex; align-items: center; gap: 5px; text-decoration: none;
-    }
-    .aa-hero-cta a:hover {
-      background: rgba(167,139,250,0.12); border-color: rgba(167,139,250,0.3);
-    }
 
     /* ── Tier Sections ── */
     .aa-tier { margin-bottom: 3rem; }
     .aa-tier-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 0.25rem; }
-    .aa-tier-head h2 { font-size: 1.15rem; font-weight: 700; color: #e2e8f0; margin: 0; }
+    .aa-tier-head h2 { font-size: 1.15rem; font-weight: 700; color: var(--nv-text); margin: 0; }
     .aa-tier-badge {
       font-size: 0.54rem; text-transform: uppercase; letter-spacing: 0.08em;
       padding: 2px 8px; border-radius: 4px;
       background: rgba(167,139,250,0.1); color: rgba(167,139,250,0.6);
       font-weight: 600;
     }
-    .aa-tier-desc { font-size: 0.8rem; color: rgba(148,163,184,0.45); margin: 0 0 0.85rem; font-style: italic; }
+    .aa-tier-desc { font-size: 0.8rem; color: var(--nv-text-tertiary); margin: 0 0 0.85rem; font-style: italic; }
 
     /* ── Centered Tier Layout (T1/T2) ── */
     .aa-tier--centered .aa-grid {
@@ -73,7 +48,7 @@
     /* ── Tier Connector Line ── */
     .aa-connector {
       width: 1px; height: 28px; margin: 0 auto;
-      background: rgba(148,163,184,0.12);
+      background: var(--nv-border);
     }
 
     /* ── Governance Info Panel ── */
@@ -112,16 +87,16 @@
     .aa-info-block {
       max-width: 600px; margin: 0 auto 3rem;
       padding: 14px 18px; border-radius: 10px;
-      border: 1px solid rgba(148,163,184,0.08);
-      background: rgba(15,20,35,0.3);
+      border: 1px solid var(--nv-border);
+      background: var(--nv-card-bg-alt);
       text-align: center;
     }
     .aa-info-block-title {
       font-size: 0.65rem; font-weight: 600; text-transform: uppercase;
-      letter-spacing: 0.08em; color: rgba(148,163,184,0.4); margin: 0 0 0.35rem;
+      letter-spacing: 0.08em; color: var(--nv-text-tertiary); margin: 0 0 0.35rem;
     }
     .aa-info-block p {
-      font-size: 0.76rem; color: rgba(148,163,184,0.45); margin: 0; line-height: 1.6;
+      font-size: 0.76rem; color: var(--nv-text-tertiary); margin: 0; line-height: 1.6;
     }
 
     /* ── Card Grid ── */
@@ -129,8 +104,8 @@
 
     .aa-card {
       padding: 14px 16px; border-radius: 10px;
-      border: 1px solid rgba(167,139,250,0.1);
-      background: rgba(15,20,35,0.45);
+      border: 1px solid var(--nv-border);
+      background: var(--nv-card-bg);
       transition: border-color 0.2s, transform 0.15s;
       display: flex; flex-direction: column;
     }
@@ -138,8 +113,8 @@
     .aa-card-top { display: flex; align-items: flex-start; gap: 10px; }
     .aa-card-ico { flex-shrink: 0; width: 1.3em; height: 1.3em; margin-top: 3px; opacity: 0.5; }
     .aa-card-identity { flex: 1; min-width: 0; }
-    .aa-card-name { font-size: 0.92rem; font-weight: 600; color: #e2e8f0; margin: 0; line-height: 1.3; }
-    .aa-card-role { font-size: 0.76rem; color: rgba(148,163,184,0.6); display: block; margin-bottom: 2px; }
+    .aa-card-name { font-size: 0.92rem; font-weight: 600; color: var(--nv-text); margin: 0; line-height: 1.3; }
+    .aa-card-role { font-size: 0.76rem; color: var(--nv-text-secondary); display: block; margin-bottom: 2px; }
     .aa-card-status {
       font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.05em;
       padding: 2px 8px; border-radius: 99px; font-weight: 500;
@@ -156,7 +131,7 @@
       margin: 8px 0 0; padding: 0; list-style: none; flex: 1;
     }
     .aa-card-owns li {
-      font-size: 0.75rem; color: rgba(148,163,184,0.55); line-height: 1.75;
+      font-size: 0.75rem; color: var(--nv-text-secondary); line-height: 1.75;
       padding-left: 12px; position: relative;
     }
     .aa-card-owns li::before {
@@ -167,73 +142,32 @@
 
     .aa-loading {
       text-align: center; padding: 2rem; font-size: 0.82rem;
-      color: rgba(148,163,184,0.35);
-    }
-
-    /* ── Nova Surfaces Navigation ── */
-    .aa-surfaces {
-      margin-top: 2.5rem; padding: 1.25rem 1.5rem;
-      border-radius: 12px;
-      border: 1px solid rgba(148,163,184,0.08);
-      background: rgba(15,20,35,0.35);
-    }
-    .aa-surfaces-label {
-      font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em;
-      color: rgba(148,163,184,0.35); font-weight: 600; margin: 0 0 0.15rem;
-    }
-    .aa-surfaces-sub {
-      font-size: 0.75rem; color: rgba(148,163,184,0.4); margin: 0 0 0.85rem;
-    }
-    .aa-surfaces-grid {
-      display: flex; flex-wrap: wrap; gap: 8px;
-    }
-    .aa-surfaces-grid a {
-      font-size: 0.76rem; padding: 6px 14px; border-radius: 8px;
-      border: 1px solid rgba(148,163,184,0.1);
-      background: rgba(15,20,35,0.4); color: rgba(203,213,225,0.6);
-      text-decoration: none; transition: all 0.2s;
-      display: inline-flex; align-items: center; gap: 5px;
-    }
-    .aa-surfaces-grid a:hover {
-      border-color: rgba(167,139,250,0.2); color: rgba(203,213,225,0.85);
-      background: rgba(167,139,250,0.06);
-    }
-    .aa-surfaces-grid a.aa-surf-active {
-      border-color: rgba(167,139,250,0.25); color: rgba(167,139,250,0.85);
-      background: rgba(167,139,250,0.08);
-    }
-    .aa-surf-pill {
-      font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;
-      padding: 1px 5px; border-radius: 3px;
-      background: rgba(148,163,184,0.1); color: rgba(148,163,184,0.5);
-      margin-left: 2px;
+      color: var(--nv-text-tertiary);
     }
 
     @media (max-width: 600px) {
       .aa-grid { grid-template-columns: 1fr; }
-      .aa-hero h1 { font-size: 1.3rem; }
-      .aa-hero { padding: 6rem 1.5rem 2rem; }
-      .aa-surfaces { padding: 1rem; }
     }
   </style>
 </head>
-<body data-theme="dark" style="background:#071019">
+<body data-theme="dark">
   <header id="nav-header"></header>
 
-  <section class="aa-hero">
-    <div class="aa-hero-inner">
-      <h1>
+  <section class="nv-hero">
+    <div class="nv-hero-inner">
+      <p class="nv-breadcrumb"><a href="/nova/">Nova</a> / Agent Architecture</p>
+      <h1 class="nv-title">
         <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><path d="M20 8v6M17 11h6"></path></svg>
         GridOS Agent Architecture
       </h1>
-      <p class="aa-hero-sub">Human governance &rarr; Nova orchestration &rarr; execution agents &rarr; sub-agents.</p>
+      <p class="nv-subtitle">Human governance &rarr; Nova orchestration &rarr; execution agents &rarr; sub-agents.</p>
       <p class="aa-hero-micro">Public-safe overview. No internal prompts or memory contents.</p>
       <div class="aa-hero-cta">
-        <a href="/nova/" aria-label="Back to Nova">
+        <a class="nv-pill" href="/nova/" aria-label="Back to Nova">
           <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"></path></svg>
           Back to Nova
         </a>
-        <a href="/nova/preview.html" aria-label="Explore GridOS">
+        <a class="nv-pill" href="/nova/preview.html" aria-label="Explore GridOS">
           <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"></path></svg>
           Explore GridOS
         </a>
@@ -303,33 +237,33 @@
       </div>
     </div>
 
-    <nav class="aa-surfaces" aria-label="Nova surfaces navigation">
-      <p class="aa-surfaces-label">Nova Surfaces</p>
-      <p class="aa-surfaces-sub">Navigate Nova's public and internal operator views.</p>
-      <div class="aa-surfaces-grid">
-        <a href="/nova/">
+    <nav class="nv-surfaces" aria-label="Nova surfaces navigation">
+      <p class="nv-surfaces-label">Nova Surfaces</p>
+      <p class="nv-surfaces-sub">Navigate Nova's public and internal operator views.</p>
+      <div class="nv-surfaces-grid">
+        <a class="nv-pill" href="/nova/">
           <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"></path><path d="M9 21h6"></path></svg>
           Prime Operator
         </a>
-        <a href="/nova/agents.html" class="aa-surf-active">
+        <a class="nv-pill nv-pill--active" href="/nova/agents.html">
           <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><path d="M20 8v6M17 11h6"></path></svg>
           Agent Architecture
         </a>
-        <a href="/nova/preview.html">
+        <a class="nv-pill" href="/nova/preview.html">
           <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"></path></svg>
           Public Preview
         </a>
-        <a href="/nova/awareness.html">
+        <a class="nv-pill" href="/nova/awareness.html">
           <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>
           System Context
         </a>
-        <a href="/nova/logs.html">
+        <a class="nv-pill" href="/nova/logs.html">
           <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
           Founder Log
         </a>
-        <a href="/nova/dashboard.html">
+        <a class="nv-pill" href="/nova/dashboard.html">
           <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg>
-          Dashboard <span class="aa-surf-pill">Internal</span>
+          Dashboard <span class="nv-pill-badge">Internal</span>
         </a>
       </div>
     </nav>

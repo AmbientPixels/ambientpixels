@@ -285,10 +285,10 @@ body[data-theme="light"].nova-home .mini-hero {
 body[data-theme="light"].nova-home .mini-hero::before {
   background: linear-gradient(
     to right,
-    rgba(245, 247, 250, 0.88) 0%,
-    rgba(245, 247, 250, 0.66) 33%,
-    rgba(245, 247, 250, 0.34) 64%,
-    rgba(245, 247, 250, 0.12) 86%
+    rgba(237, 238, 241, 0.88) 0%,
+    rgba(237, 238, 241, 0.66) 33%,
+    rgba(237, 238, 241, 0.34) 64%,
+    rgba(237, 238, 241, 0.12) 86%
   );
 }
 
@@ -368,7 +368,7 @@ body[data-theme="light"].nova-home .operator-tool-card .card-content a:hover {
   }
 
   body[data-theme="light"].nova-home .mini-hero::before {
-    background: linear-gradient(to bottom, rgba(245, 247, 250, 0.74), rgba(245, 247, 250, 0.38));
+    background: linear-gradient(to bottom, rgba(237, 238, 241, 0.74), rgba(237, 238, 241, 0.38));
   }
 
   .nova-home .operator-tool-card {

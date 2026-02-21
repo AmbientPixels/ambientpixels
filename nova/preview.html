@@ -16,48 +16,29 @@
   <link rel="stylesheet" href="/css/components.css" />
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/css/nova-shared.css" />
   <style>
-    .cf-ico { display: inline-block; width: 1em; height: 1em; vertical-align: -0.125em; flex-shrink: 0; }
     .gp { max-width: 900px; margin: 0 auto; padding: 2.5rem 1.5rem 3rem; }
+    .gp-page .nv-hero-inner { max-width: 900px; }
     .gp-section { margin-bottom: 3rem; }
     .gp-section h2 {
-      font-size: 1.32rem; font-weight: 700; color: #e2e8f0;
+      font-size: 1.32rem; font-weight: 700; color: var(--nv-text, #e2e8f0);
       margin: 0 0 0.8rem; display: flex; align-items: center; gap: 0.5rem;
     }
-    .gp-section h2 .cf-ico { opacity: 0.3; }
-
-    /* ── Hero ── */
-    .gp-hero {
-      padding: 7rem 1.5rem 2.5rem;
-      background: linear-gradient(180deg, rgba(167,139,250,0.08) 0%, rgba(15,20,35,0) 100%);
-      border-bottom: 1px solid rgba(148,163,184,0.06);
-    }
-    .gp-hero-inner { max-width: 900px; margin: 0 auto; }
-    .gp-hero h1 {
-      font-size: 1.7rem; font-weight: 700; color: #e2e8f0;
-      margin: 0 0 0.4rem; display: flex; align-items: center; gap: 0.5rem;
-    }
-    .gp-hero h1 .cf-ico { opacity: 0.3; }
-    .gp-hero-sub { font-size: 0.88rem; color: rgba(148,163,184,0.6); margin: 0 0 0.7rem; }
-    .gp-hero-badges { display: flex; gap: 6px; flex-wrap: wrap; }
-    .gp-badge {
-      font-size: 0.52rem; text-transform: uppercase; letter-spacing: 0.08em;
-      padding: 2px 8px; border-radius: 4px; font-weight: 600;
-      background: rgba(148,163,184,0.08); color: rgba(148,163,184,0.5);
-    }
+    .gp-section h2 .cf-ico { opacity: var(--nv-icon-dim, 0.3); }
 
     /* ── System Status ── */
     .gp-status {
       display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
       padding: 1.25rem; border-radius: 12px;
-      border: 1px solid rgba(148,163,184,0.1);
-      background: rgba(15,23,42,0.45);
+      border: 1px solid var(--nv-border);
+      background: var(--nv-card-bg);
     }
     .gp-status-item { text-align: center; }
-    .gp-status-val { font-size: 1.05rem; font-weight: 600; color: #a78bfa; display: block; }
-    .gp-status-lbl { font-size: 0.66rem; color: rgba(148,163,184,0.55); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 3px; display: block; }
+    .gp-status-val { font-size: 1.05rem; font-weight: 600; color: var(--nv-accent); display: block; }
+    .gp-status-lbl { font-size: 0.66rem; color: var(--nv-text-secondary); text-transform: uppercase; letter-spacing: 0.05em; margin-top: 3px; display: block; }
     .gp-status-head { display: flex; align-items: center; gap: 8px; margin-bottom: 0.8rem; flex-wrap: wrap; }
-    .gp-state-note { font-size: 0.66rem; color: rgba(148,163,184,0.45); letter-spacing: 0.02em; }
+    .gp-state-note { font-size: 0.66rem; color: var(--nv-text-tertiary); letter-spacing: 0.02em; }
     .gp-fresh-pill {
       font-size: 0.48rem; text-transform: uppercase; letter-spacing: 0.07em;
       padding: 2px 7px; border-radius: 4px; font-weight: 600;
@@ -71,13 +52,13 @@
     .gp-feed { list-style: none; padding: 0; margin: 0; }
     .gp-feed-item {
       display: flex; gap: 14px; padding: 14px 12px;
-      border-bottom: 1px solid rgba(148,163,184,0.06); transition: background 0.15s;
+      border-bottom: 1px solid var(--nv-border); transition: background 0.15s;
     }
     .gp-feed-item:last-child { border-bottom: none; }
     .gp-feed-item:hover { background: rgba(148,163,184,0.03); }
-    .gp-feed-date { flex-shrink: 0; width: 64px; text-align: right; font-size: 0.72rem; color: rgba(148,163,184,0.5); font-variant-numeric: tabular-nums; padding-top: 2px; }
+    .gp-feed-date { flex-shrink: 0; width: 64px; text-align: right; font-size: 0.72rem; color: var(--nv-text-secondary); font-variant-numeric: tabular-nums; padding-top: 2px; }
     .gp-feed-body { flex: 1; min-width: 0; }
-    .gp-feed-title { font-size: 0.88rem; font-weight: 600; color: #e2e8f0; margin-bottom: 3px; }
+    .gp-feed-title { font-size: 0.88rem; font-weight: 600; color: var(--nv-text); margin-bottom: 3px; }
     .gp-feed-meta { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
     .gp-feed-type { display: inline-flex; align-items: center; padding: 1px 8px; border-radius: 99px; font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.06em; }
     .gp-feed-type--deploy { background: rgba(96,165,250,0.12); color: rgba(96,165,250,0.75); }
@@ -89,11 +70,11 @@
     .gp-feed-type--system { background: rgba(148,163,184,0.1); color: rgba(148,163,184,0.7); }
     .gp-feed-empty {
       text-align: center; padding: 2.5rem 1rem;
-      border: 1px solid rgba(148,163,184,0.08); border-radius: 12px;
-      background: rgba(15,20,35,0.3);
+      border: 1px solid var(--nv-border); border-radius: 12px;
+      background: var(--nv-card-bg-alt);
     }
     .gp-feed-empty-title { font-size: 0.9rem; font-weight: 600; color: rgba(203,213,225,0.6); margin: 0 0 0.35rem; }
-    .gp-feed-empty-body { font-size: 0.78rem; color: rgba(148,163,184,0.4); margin: 0 0 1rem; line-height: 1.55; }
+    .gp-feed-empty-body { font-size: 0.78rem; color: var(--nv-text-tertiary); margin: 0 0 1rem; line-height: 1.55; }
     .gp-feed-empty-cta { display: flex; justify-content: center; gap: 8px; flex-wrap: wrap; }
     .gp-feed-empty-cta a {
       font-size: 0.74rem; padding: 5px 14px; border-radius: 6px;
@@ -120,8 +101,8 @@
     .gp-org-card--nova { border-color: rgba(167,139,250,0.2); background: rgba(167,139,250,0.04); }
     .gp-org-ico { flex-shrink: 0; width: 1.1em; height: 1.1em; }
     .gp-org-info { min-width: 0; }
-    .gp-org-name { font-size: 0.84rem; font-weight: 600; color: #e2e8f0; }
-    .gp-org-role { font-size: 0.68rem; color: rgba(148,163,184,0.55); display: block; }
+    .gp-org-name { font-size: 0.84rem; font-weight: 600; color: var(--nv-text); }
+    .gp-org-role { font-size: 0.68rem; color: var(--nv-text-secondary); display: block; }
     .gp-org-status {
       font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;
       padding: 1px 6px; border-radius: 99px; font-weight: 500;
@@ -134,7 +115,7 @@
     .gp-os--supporting { background: rgba(148,163,184,0.06); color: rgba(148,163,184,0.4); }
     .gp-org-tier-lbl {
       font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.08em;
-      color: rgba(148,163,184,0.35); text-align: center; margin: 2px 0 6px;
+      color: var(--nv-text-tertiary); text-align: center; margin: 2px 0 6px;
     }
     .gp-org-sub { margin-left: 28px; padding-left: 12px; border-left: 1px solid rgba(148,163,184,0.08); }
     .gp-org-sub .gp-org-card { padding: 7px 10px; }
@@ -147,7 +128,7 @@
       text-align: center;
       margin-bottom: 3rem;
       padding-top: 1.1rem;
-      border-top: 1px solid rgba(148,163,184,0.08);
+      border-top: 1px solid var(--nv-border);
     }
     .gp-cta-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-bottom: 0.5rem; }
     .gp-cta-row a {
@@ -157,49 +138,29 @@
       display: inline-flex; align-items: center; gap: 6px;
     }
     .gp-cta-row a:hover { background: rgba(167,139,250,0.12); border-color: rgba(167,139,250,0.3); }
-    .gp-cta-row .gp-cta-lock { color: rgba(148,163,184,0.5); border-color: rgba(148,163,184,0.1); background: rgba(15,20,35,0.3); }
-    .gp-cta-micro { font-size: 0.72rem; color: rgba(148,163,184,0.35); margin: 0; }
-
-    /* ── Nova Surfaces ── */
-    .gp-surfaces {
-      margin-top: 0.5rem; padding: 1.25rem 1.5rem; border-radius: 12px;
-      border: 1px solid rgba(148,163,184,0.08); background: rgba(15,20,35,0.35);
-    }
-    .gp-surfaces-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em; color: rgba(148,163,184,0.35); font-weight: 600; margin: 0 0 0.15rem; }
-    .gp-surfaces-sub { font-size: 0.75rem; color: rgba(148,163,184,0.4); margin: 0 0 0.85rem; }
-    .gp-surfaces-grid { display: flex; flex-wrap: wrap; gap: 8px; }
-    .gp-surfaces-grid a {
-      font-size: 0.76rem; padding: 6px 14px; border-radius: 8px;
-      border: 1px solid rgba(148,163,184,0.1); background: rgba(15,20,35,0.4);
-      color: rgba(203,213,225,0.6); text-decoration: none; transition: all 0.2s;
-      display: inline-flex; align-items: center; gap: 5px;
-    }
-    .gp-surfaces-grid a:hover { border-color: rgba(167,139,250,0.2); color: rgba(203,213,225,0.85); background: rgba(167,139,250,0.06); }
-    .gp-surfaces-grid a.gp-surf-active { border-color: rgba(167,139,250,0.25); color: rgba(167,139,250,0.85); background: rgba(167,139,250,0.08); }
-    .gp-surf-pill { font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; padding: 1px 5px; border-radius: 3px; background: rgba(148,163,184,0.1); color: rgba(148,163,184,0.5); margin-left: 2px; }
+    .gp-cta-row .gp-cta-lock { color: var(--nv-text-secondary); border-color: var(--nv-border); background: var(--nv-card-bg-alt); }
+    .gp-cta-micro { font-size: 0.72rem; color: var(--nv-text-tertiary); margin: 0; }
 
     @media (max-width: 600px) {
       .gp-status { grid-template-columns: repeat(2, 1fr); }
-      .gp-hero h1 { font-size: 1.3rem; }
-      .gp-hero { padding: 6rem 1.5rem 2rem; }
-      .gp-surfaces { padding: 1rem; }
     }
   </style>
 </head>
-<body data-theme="dark" style="background:#071019">
+<body class="gp-page" data-theme="dark">
   <header id="nav-header"></header>
 
-  <section class="gp-hero">
-    <div class="gp-hero-inner">
-      <h1>
+  <section class="nv-hero">
+    <div class="nv-hero-inner">
+      <p class="nv-breadcrumb"><a href="/nova/">Nova</a> / Operations Preview</p>
+      <h1 class="nv-title">
         <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"></path></svg>
         Operations Preview
       </h1>
-      <p class="gp-hero-sub">Public-safe snapshot from the GridOS multi-agent runtime. Redacted by design.</p>
-      <div class="gp-hero-badges">
-        <span class="gp-badge">Read-only</span>
-        <span class="gp-badge">Redacted</span>
-        <span class="gp-badge">Updated periodically</span>
+      <p class="nv-subtitle">Public-safe snapshot from the GridOS multi-agent runtime. Redacted by design.</p>
+      <div class="nv-chip-row">
+        <span class="nv-chip">READ-ONLY</span>
+        <span class="nv-chip">REDACTED</span>
+        <span class="nv-chip">UPDATED PERIODICALLY</span>
       </div>
     </div>
   </section>
@@ -324,33 +285,33 @@
     </div>
 
     <!-- Nova Surfaces -->
-    <nav class="gp-surfaces" aria-label="Nova surfaces navigation">
-      <p class="gp-surfaces-label">Nova Surfaces</p>
-      <p class="gp-surfaces-sub">Navigate Nova's public and internal operator views.</p>
-      <div class="gp-surfaces-grid">
-        <a href="/nova/">
+    <nav class="nv-surfaces" aria-label="Nova surfaces navigation">
+      <p class="nv-surfaces-label">Nova Surfaces</p>
+      <p class="nv-surfaces-sub">Navigate Nova's public and internal operator views.</p>
+      <div class="nv-surfaces-grid">
+        <a class="nv-pill" href="/nova/">
           <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"></path><path d="M9 21h6"></path></svg>
           Prime Operator
         </a>
-        <a href="/nova/agents.html">
+        <a class="nv-pill" href="/nova/agents.html">
           <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><path d="M20 8v6M17 11h6"></path></svg>
           Agent Architecture
         </a>
-        <a href="/nova/preview.html" class="gp-surf-active">
+        <a class="nv-pill nv-pill--active" href="/nova/preview.html">
           <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"></path></svg>
           Public Preview
         </a>
-        <a href="/nova/awareness.html">
+        <a class="nv-pill" href="/nova/awareness.html">
           <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>
           System Context
         </a>
-        <a href="/nova/logs.html">
+        <a class="nv-pill" href="/nova/logs.html">
           <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
           Founder Log
         </a>
-        <a href="/nova/dashboard.html">
+        <a class="nv-pill" href="/nova/dashboard.html">
           <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg>
-          Dashboard <span class="gp-surf-pill">Internal</span>
+          Dashboard <span class="nv-pill-badge">Internal</span>
         </a>
       </div>
     </nav>

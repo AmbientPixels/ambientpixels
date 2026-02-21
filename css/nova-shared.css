@@ -1,0 +1,272 @@
+/* /css/nova-shared.css — Shared tokens + components for Nova surfaces */
+
+/* ── Tokens (dark default) ── */
+:root {
+  --nv-bg: #071019;
+  --nv-text: #e2e8f0;
+  --nv-text-secondary: rgba(148, 163, 184, 0.65);
+  --nv-text-tertiary: rgba(148, 163, 184, 0.45);
+  --nv-accent: #a78bfa;
+  --nv-accent-deep: #7c3aed;
+  --nv-accent-muted: rgba(167, 139, 250, 0.8);
+  --nv-border: rgba(148, 163, 184, 0.1);
+  --nv-border-strong: rgba(148, 163, 184, 0.14);
+  --nv-border-hover: rgba(167, 139, 250, 0.24);
+  --nv-card-bg: rgba(15, 23, 42, 0.46);
+  --nv-card-bg-alt: rgba(15, 20, 35, 0.35);
+  --nv-hero-grad-from: rgba(167, 139, 250, 0.08);
+  --nv-hero-grad-to: rgba(15, 20, 35, 0);
+  --nv-hero-border: rgba(148, 163, 184, 0.06);
+  --nv-icon-dim: 0.3;
+  --nv-pill-bg: rgba(15, 20, 35, 0.35);
+  --nv-pill-text: rgba(203, 213, 225, 0.72);
+  --nv-pill-border: rgba(148, 163, 184, 0.14);
+  --nv-pill-hover-bg: rgba(167, 139, 250, 0.06);
+  --nv-pill-active-bg: rgba(167, 139, 250, 0.08);
+  --nv-pill-active-text: rgba(167, 139, 250, 0.9);
+  --nv-pill-active-border: rgba(167, 139, 250, 0.28);
+  --nv-chip-bg: rgba(148, 163, 184, 0.08);
+  --nv-chip-text: rgba(148, 163, 184, 0.7);
+}
+
+/* ── Light overrides ── */
+[data-theme="light"] {
+  --nv-bg: #EDEEF1;
+  --nv-text: #1a2a44;
+  --nv-text-secondary: #475569;
+  --nv-text-tertiary: #94a3b8;
+  --nv-accent: #7c3aed;
+  --nv-accent-deep: #5b21b6;
+  --nv-accent-muted: #6d28d9;
+  --nv-border: rgba(0, 0, 0, 0.08);
+  --nv-border-strong: rgba(0, 0, 0, 0.1);
+  --nv-border-hover: rgba(124, 58, 237, 0.25);
+  --nv-card-bg: rgba(255, 255, 255, 0.8);
+  --nv-card-bg-alt: rgba(255, 255, 255, 0.6);
+  --nv-hero-grad-from: rgba(124, 58, 237, 0.06);
+  --nv-hero-grad-to: rgba(237, 238, 241, 0);
+  --nv-hero-border: rgba(0, 0, 0, 0.06);
+  --nv-icon-dim: 0.5;
+  --nv-pill-bg: rgba(255, 255, 255, 0.7);
+  --nv-pill-text: #475569;
+  --nv-pill-border: rgba(0, 0, 0, 0.1);
+  --nv-pill-hover-bg: rgba(124, 58, 237, 0.06);
+  --nv-pill-active-bg: rgba(124, 58, 237, 0.08);
+  --nv-pill-active-text: #6d28d9;
+  --nv-pill-active-border: rgba(124, 58, 237, 0.25);
+  --nv-chip-bg: rgba(0, 0, 0, 0.06);
+  --nv-chip-text: #64748b;
+}
+
+/* ── Icon Utility ── */
+.cf-ico {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em;
+  flex-shrink: 0;
+}
+
+/* ── Breadcrumb ── */
+.nv-breadcrumb {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--nv-text-tertiary);
+  margin: 0 0 0.45rem;
+}
+
+.nv-breadcrumb a {
+  color: var(--nv-text-tertiary);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.nv-breadcrumb a:hover {
+  color: var(--nv-accent-muted);
+}
+
+/* ── Hero ── */
+.nv-hero {
+  padding: 7rem 1.5rem 2.15rem;
+  background: linear-gradient(180deg, var(--nv-hero-grad-from) 0%, var(--nv-hero-grad-to) 100%);
+  border-bottom: 1px solid var(--nv-hero-border);
+}
+
+.nv-hero-inner {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.nv-title {
+  margin: 0;
+  font-size: 1.72rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--nv-text);
+}
+
+.nv-title .cf-ico {
+  opacity: var(--nv-icon-dim);
+}
+
+.nv-subtitle {
+  margin: 0.45rem 0 0.8rem;
+  font-size: 0.9rem;
+  color: var(--nv-text-secondary);
+}
+
+/* ── Chips ── */
+.nv-chip-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.nv-chip {
+  font-size: 0.56rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 3px 8px;
+  border-radius: 5px;
+  font-weight: 600;
+  color: var(--nv-chip-text);
+  background: var(--nv-chip-bg);
+}
+
+/* ── Pill Link ── */
+.nv-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  font-size: 0.76rem;
+  color: var(--nv-pill-text);
+  border: 1px solid var(--nv-pill-border);
+  border-radius: 8px;
+  padding: 6px 12px;
+  background: var(--nv-pill-bg);
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+
+.nv-pill:hover {
+  border-color: var(--nv-border-hover);
+  color: var(--nv-text);
+  background: var(--nv-pill-hover-bg);
+}
+
+.nv-pill--active {
+  border-color: var(--nv-pill-active-border);
+  color: var(--nv-pill-active-text);
+  background: var(--nv-pill-active-bg);
+}
+
+.nv-pill--ghost {
+  color: var(--nv-text-tertiary);
+  border-color: var(--nv-border);
+  background: var(--nv-card-bg-alt);
+}
+
+.nv-pill-badge {
+  font-size: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: var(--nv-chip-bg);
+  color: var(--nv-text-tertiary);
+}
+
+/* ── Content Shell ── */
+.nv-shell {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem 3rem;
+}
+
+/* ── Top Nav ── */
+.nv-top-nav {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+/* ── Section ── */
+.nv-section {
+  margin-bottom: 2.5rem;
+}
+
+.nv-section-title {
+  margin: 0 0 0.8rem;
+  font-size: 1.32rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--nv-text);
+}
+
+.nv-section-title .cf-ico {
+  opacity: var(--nv-icon-dim);
+}
+
+/* ── Card ── */
+.nv-card {
+  border: 1px solid var(--nv-border);
+  border-radius: 12px;
+  background: var(--nv-card-bg);
+  padding: 1rem;
+}
+
+/* ── Surfaces Nav ── */
+.nv-surfaces {
+  margin-top: 0.5rem;
+  padding: 1.2rem 1.3rem;
+  border-radius: 12px;
+  border: 1px solid var(--nv-border);
+  background: var(--nv-card-bg-alt);
+}
+
+.nv-surfaces-label {
+  margin: 0 0 0.15rem;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--nv-text-tertiary);
+  font-weight: 600;
+}
+
+.nv-surfaces-sub {
+  margin: 0 0 0.85rem;
+  font-size: 0.75rem;
+  color: var(--nv-text-tertiary);
+}
+
+.nv-surfaces-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 760px) {
+  .nv-shell {
+    padding: 0.9rem 1rem 2.4rem;
+  }
+
+  .nv-hero {
+    padding: 6rem 1rem 1.8rem;
+  }
+
+  .nv-title {
+    font-size: 1.42rem;
+  }
+
+  .nv-surfaces {
+    padding: 1rem;
+  }
+}

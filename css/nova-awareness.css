@@ -1,66 +1,11 @@
-/* /css/nova-awareness.css */
+/* /css/nova-awareness.css — page-specific styles (shared in nova-shared.css) */
 .aw-page {
-  background: #071019;
-  color: var(--aura-text, #e2e8f0);
+  background: var(--nv-bg, #071019);
+  color: var(--nv-text, #e2e8f0);
 }
 
-.cf-ico {
-  display: inline-block;
-  width: 1em;
-  height: 1em;
-  vertical-align: -0.125em;
-  flex-shrink: 0;
-}
-
-.aw-hero {
-  padding: 7rem 1.5rem 2.15rem;
-  background: linear-gradient(180deg, rgba(167, 139, 250, 0.08) 0%, rgba(15, 20, 35, 0) 100%);
-  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
-}
-
-.aw-hero-inner,
-.aw-shell {
-  max-width: 980px;
-  margin: 0 auto;
-}
-
-.aw-title {
-  margin: 0;
-  font-size: 1.72rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  color: var(--aura-text, #e2e8f0);
-}
-
-.aw-title .cf-ico,
 .aw-section-title .cf-ico {
-  opacity: 0.34;
-}
-
-.aw-subhead {
-  margin: 0.45rem 0 0.8rem;
-  font-size: 0.9rem;
-  color: rgba(148, 163, 184, 0.68);
-}
-
-.aw-chip-row {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-
-.aw-chip {
-  font-size: 0.56rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  padding: 3px 8px;
-  border-radius: 5px;
-  font-weight: 600;
-  color: rgba(148, 163, 184, 0.7);
-  background: rgba(148, 163, 184, 0.08);
+  opacity: var(--nv-icon-dim, 0.34);
 }
 
 .aw-fresh-pill {
@@ -77,37 +22,6 @@
 .aw-fresh--recent { background: rgba(167, 139, 250, 0.12); color: rgba(167, 139, 250, 0.76); }
 .aw-fresh--stale { background: rgba(251, 191, 36, 0.12); color: rgba(251, 191, 36, 0.76); }
 .aw-fresh--offline { background: rgba(148, 163, 184, 0.1); color: rgba(148, 163, 184, 0.66); }
-
-.aw-shell {
-  padding: 1rem 1.5rem 3rem;
-}
-
-.aw-top-nav {
-  display: flex;
-  gap: 10px;
-  flex-wrap: wrap;
-  margin-bottom: 1rem;
-}
-
-.aw-top-link,
-.aw-surfaces-grid a {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  text-decoration: none;
-  font-size: 0.76rem;
-  color: rgba(203, 213, 225, 0.72);
-  border: 1px solid rgba(148, 163, 184, 0.14);
-  border-radius: 8px;
-  padding: 6px 12px;
-  background: rgba(15, 20, 35, 0.35);
-}
-
-.aw-top-link:hover,
-.aw-surfaces-grid a:hover {
-  border-color: rgba(167, 139, 250, 0.24);
-  color: rgba(226, 232, 240, 0.92);
-}
 
 .aw-section {
   margin-bottom: 2.2rem;
@@ -126,7 +40,7 @@
 
 .aw-table-count {
   font-size: 0.7rem;
-  color: rgba(148, 163, 184, 0.65);
+  color: var(--nv-text-secondary);
 }
 
 .aw-section-title {
@@ -139,9 +53,9 @@
 }
 
 .aw-card {
-  border: 1px solid rgba(148, 163, 184, 0.12);
+  border: 1px solid var(--nv-border-strong);
   border-radius: 12px;
-  background: rgba(15, 23, 42, 0.46);
+  background: var(--nv-card-bg);
   padding: 1rem;
 }
 
@@ -153,10 +67,10 @@
 }
 
 .aw-snapshot-item {
-  border: 1px solid rgba(148, 163, 184, 0.1);
+  border: 1px solid var(--nv-border);
   border-radius: 10px;
   padding: 0.72rem 0.8rem;
-  background: rgba(15, 20, 35, 0.34);
+  background: var(--nv-card-bg-alt);
 }
 
 .aw-snapshot-label {
@@ -165,33 +79,33 @@
   font-size: 0.66rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: rgba(148, 163, 184, 0.62);
+  color: var(--nv-text-secondary);
 }
 
 .aw-snapshot-value {
   display: block;
   font-size: 0.9rem;
-  color: rgba(226, 232, 240, 0.95);
+  color: var(--nv-text);
 }
 
 .aw-note,
 .aw-footnote {
   margin: 0.7rem 0 0;
   font-size: 0.74rem;
-  color: rgba(148, 163, 184, 0.56);
+  color: var(--nv-text-tertiary);
 }
 
 .aw-evaluated {
   margin: 0.68rem 0 0;
   font-size: 0.72rem;
-  color: rgba(148, 163, 184, 0.6);
+  color: var(--nv-text-secondary);
 }
 
 .aw-table-wrap {
   overflow-x: auto;
-  border: 1px solid rgba(148, 163, 184, 0.12);
+  border: 1px solid var(--nv-border-strong);
   border-radius: 12px;
-  background: rgba(15, 23, 42, 0.46);
+  background: var(--nv-card-bg);
 }
 
 .aw-table {
@@ -203,18 +117,18 @@
 .aw-table th {
   text-align: left;
   padding: 10px 12px;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.16);
+  border-bottom: 1px solid var(--nv-border-strong);
   font-size: 0.66rem;
   text-transform: uppercase;
   letter-spacing: 0.07em;
-  color: rgba(148, 163, 184, 0.68);
+  color: var(--nv-text-secondary);
 }
 
 .aw-table td {
   padding: 10px 12px;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+  border-bottom: 1px solid var(--nv-border);
   font-size: 0.82rem;
-  color: rgba(203, 213, 225, 0.94);
+  color: var(--nv-text);
 }
 
 .aw-table tbody tr {
@@ -279,7 +193,7 @@
 }
 
 .aw-empty-row td {
-  color: rgba(148, 163, 184, 0.72);
+  color: var(--nv-text-secondary);
   font-style: italic;
 }
 
@@ -292,72 +206,15 @@
 
 .aw-rec-list li {
   font-size: 0.86rem;
-  color: rgba(203, 213, 225, 0.92);
+  color: var(--nv-text);
   line-height: 1.5;
 }
 
 .aw-rec-label {
-  color: rgba(148, 163, 184, 0.8);
-}
-
-.aw-surfaces {
-  margin-top: 0.5rem;
-  padding: 1.2rem 1.3rem;
-  border-radius: 12px;
-  border: 1px solid rgba(148, 163, 184, 0.1);
-  background: rgba(15, 20, 35, 0.35);
-}
-
-.aw-surfaces-label {
-  margin: 0 0 0.15rem;
-  font-size: 0.6rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: rgba(148, 163, 184, 0.44);
-  font-weight: 600;
-}
-
-.aw-surfaces-sub {
-  margin: 0 0 0.85rem;
-  font-size: 0.75rem;
-  color: rgba(148, 163, 184, 0.5);
-}
-
-.aw-surfaces-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-
-.aw-surfaces-grid a.aw-surf-active {
-  border-color: rgba(167, 139, 250, 0.28);
-  color: rgba(167, 139, 250, 0.9);
-  background: rgba(167, 139, 250, 0.08);
-}
-
-.aw-surf-pill {
-  font-size: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  padding: 1px 5px;
-  border-radius: 3px;
-  background: rgba(148, 163, 184, 0.1);
-  color: rgba(148, 163, 184, 0.6);
+  color: var(--nv-text-secondary);
 }
 
 @media (max-width: 760px) {
-  .aw-shell {
-    padding: 0.9rem 1rem 2.4rem;
-  }
-
-  .aw-hero {
-    padding: 6rem 1rem 1.8rem;
-  }
-
-  .aw-title {
-    font-size: 1.42rem;
-  }
-
   .aw-snapshot-grid {
     grid-template-columns: 1fr;
   }

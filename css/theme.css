@@ -7,7 +7,7 @@
     --dark-purple: #4B3E8F;     /* Deeper, shadowy purple */
     --dark-shadow: rgba(0, 0, 0, 0.3); /* Stronger shadow for depth */
     --nebulight-accent: #6a11cb; /* Nebulight purple accent */
-    --light-bg: #F5F7FA;
+    --light-bg: #EDEEF1;
     --light-text: #1A2A44;
     --light-accent: #3B82F6;
     --light-shadow: rgba(0, 0, 0, 0.1);
@@ -94,7 +94,7 @@ body[data-theme="light"] {
     color: var(--light-text);
 }
 body[data-theme="light"] .nav {
-    background: rgba(245, 247, 250, 0.95);
+    background: rgba(237, 238, 241, 0.95);
     box-shadow: 0 2px 6px var(--light-shadow);
 }
 body[data-theme="light"] .nav-toggle,
@@ -103,11 +103,11 @@ body[data-theme="light"] #theme-toggle {
     color: var(--light-text);
 }
 body[data-theme="light"] .nav-links.active {
-    background: rgba(245, 247, 250, 0.95);
+    background: rgba(237, 238, 241, 0.95);
     box-shadow: 0 2px 6px var(--light-shadow);
 }
 body[data-theme="light"] .hero-loading {
-    background: rgba(245, 247, 250, 0.9);
+    background: rgba(237, 238, 241, 0.9);
 }
 body[data-theme="light"] .hero h1,
 body[data-theme="light"] .hero p {
@@ -122,6 +122,6 @@ body[data-theme="light"] .mini-hero {
     box-shadow: 0 2px 6px var(--light-shadow);
 }
 body[data-theme="light"] .footer {
-    background: rgba(245, 247, 250, 0.95);
+    background: rgba(237, 238, 241, 0.95);
     box-shadow: 0 -2px 6px var(--light-shadow);
 }
