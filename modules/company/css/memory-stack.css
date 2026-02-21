@@ -237,7 +237,189 @@
   opacity: 0.5;
 }
 
+/* Hero row layout */
+.ms-hero-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.ms-hero-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+.ms-auto-label {
+  font-size: 0.52rem;
+  opacity: 0.5;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.ms-auto-label input { width: 12px; height: 12px; cursor: pointer; }
+
+/* ═══ Stack Health Dashboard ═══ */
+.ms-health {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.45rem;
+  margin-bottom: 0.65rem;
+}
+.ms-health-chip {
+  border: 1px solid rgba(255,255,255,0.06);
+  background: rgba(255,255,255,0.015);
+  border-radius: 8px;
+  padding: 0.45rem 0.55rem;
+}
+.ms-health-chip-label {
+  font-size: 0.48rem;
+  opacity: 0.38;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.ms-health-chip-value {
+  font-size: 1rem;
+  font-weight: 700;
+  margin-top: 0.06rem;
+}
+.ms-health-chip-sub {
+  font-size: 0.46rem;
+  opacity: 0.4;
+  margin-top: 0.04rem;
+}
+.ms-health-dots {
+  display: flex;
+  gap: 0.2rem;
+  margin-top: 0.15rem;
+}
+.ms-health-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+.ms-health-dot--ok { background: #34d399; }
+.ms-health-dot--stale { background: #fbbf24; }
+.ms-health-dot--empty { background: #f87171; }
+
+.ms-health-alert {
+  font-size: 0.5rem;
+  padding: 0.3rem 0.45rem;
+  border-radius: 6px;
+  border: 1px solid rgba(251,191,36,0.2);
+  background: rgba(251,191,36,0.06);
+  color: #fbbf24;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+/* ═══ Injection Flow ═══ */
+.ms-flow {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-bottom: 0.65rem;
+  overflow-x: auto;
+  padding: 0.35rem 0;
+}
+.ms-flow-node {
+  appearance: none;
+  font-family: inherit;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.08rem;
+  padding: 0.35rem 0.55rem;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  background: rgba(255,255,255,0.015);
+  cursor: pointer;
+  color: rgba(255,255,255,0.85);
+  min-width: 72px;
+  transition: border-color 0.15s;
+}
+.ms-flow-node:hover { border-color: rgba(96,165,250,0.3); }
+.ms-flow-node--active { border-color: rgba(96,165,250,0.55); background: rgba(96,165,250,0.06); }
+.ms-flow-node--ok { border-bottom: 2px solid #34d399; }
+.ms-flow-node--stale { border-bottom: 2px solid #fbbf24; }
+.ms-flow-node--empty { border-bottom: 2px solid #f87171; }
+.ms-flow-id { font-size: 0.52rem; font-weight: 700; opacity: 0.7; }
+.ms-flow-name { font-size: 0.46rem; opacity: 0.5; }
+.ms-flow-tokens { font-size: 0.42rem; opacity: 0.38; }
+.ms-flow-arrow {
+  font-size: 0.6rem;
+  opacity: 0.2;
+  padding: 0 0.15rem;
+  flex-shrink: 0;
+}
+
+/* ═══ JSON Tree Viewer ═══ */
+.ms-tree {
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  background: rgba(0,0,0,0.24);
+  padding: 0.55rem;
+  min-height: 380px;
+  max-height: 560px;
+  overflow: auto;
+  font-size: 0.56rem;
+  line-height: 1.5;
+  font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace;
+}
+.ms-tree-node {
+  padding-left: 1rem;
+}
+.ms-tree-row {
+  display: flex;
+  align-items: baseline;
+  gap: 0.2rem;
+  padding: 0.04rem 0;
+  border-radius: 3px;
+}
+.ms-tree-row:hover { background: rgba(255,255,255,0.03); }
+.ms-tree-row--match { background: rgba(251,191,36,0.1); }
+.ms-tree-toggle {
+  cursor: pointer;
+  width: 12px;
+  text-align: center;
+  font-size: 0.48rem;
+  opacity: 0.4;
+  flex-shrink: 0;
+  user-select: none;
+}
+.ms-tree-toggle:hover { opacity: 0.8; }
+.ms-tree-key { color: #93c5fd; }
+.ms-tree-colon { opacity: 0.3; }
+.ms-tree-str { color: #86efac; }
+.ms-tree-num { color: #fbbf24; }
+.ms-tree-bool { color: #c084fc; }
+.ms-tree-null { color: #f87171; opacity: 0.6; }
+.ms-tree-bracket { opacity: 0.35; }
+.ms-tree-size {
+  font-size: 0.4rem;
+  opacity: 0.3;
+  margin-left: 0.3rem;
+}
+.ms-tree-ellipsis {
+  opacity: 0.3;
+  cursor: pointer;
+  font-style: italic;
+}
+.ms-tree-ellipsis:hover { opacity: 0.6; }
+
+/* Search count badge */
+.ms-search-count {
+  font-size: 0.48rem;
+  opacity: 0.45;
+  white-space: nowrap;
+  align-self: center;
+}
+
 @media (max-width: 1080px) {
   .ms-layout { grid-template-columns: 1fr; }
   .ms-panel { min-height: auto; }
+  .ms-flow { flex-wrap: wrap; gap: 0.25rem; }
 }
