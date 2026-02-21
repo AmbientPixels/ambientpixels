@@ -1,192 +1,152 @@
-<!-- File: /nova/logs.html — Nova Founder Log Console -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Nova Founder Log — Operator notes, system activity, and execution context for AmbientPixels." />
+  <meta name="description" content="Execution Log — Public-safe execution narrative derived from system activity for AmbientPixels." />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Nova Founder Log — AmbientPixels</title>
+  <title>Execution Log — AmbientPixels</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/base.css" />
   <link rel="stylesheet" href="/css/grid.css" />
   <link rel="stylesheet" href="/css/nav.css" />
   <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/hero.css" />
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/css/nova-shared.css" />
   <link rel="stylesheet" href="/css/nova-logs.css" />
 </head>
-<body data-theme="dark" style="background:#071019">
+<body data-theme="dark">
   <header id="nav-header"></header>
 
-  <section class="mini-hero">
-    <img src="/images/textures/delchron_extreme_close-up_of_a_holographic_digital_dashboard_in.jpg" alt="Nova Founder Log" class="mini-hero-img" loading="lazy">
-    <div class="mini-hero-content-wrapper">
-      <h1>Nova Founder Log</h1>
-      <p class="subtitle">Operational notes, execution context, and daily founder support.</p>
+  <section class="nv-hero">
+    <div class="nv-hero-inner">
+      <p class="nv-breadcrumb"><a href="/nova/">Nova</a> / Execution Log</p>
+      <h1 class="nv-title">
+        <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+        Execution Log
+      </h1>
+      <p class="nv-subtitle">Public-safe execution narrative. Derived from system activity.</p>
+      <div class="nv-chip-row">
+        <span class="nv-chip">READ-ONLY</span>
+        <span class="nv-chip">REDACTED</span>
+        <span class="nv-chip">SYSTEM-DERIVED</span>
+      </div>
     </div>
   </section>
 
-  <main class="grid-container">
+  <main class="nv-shell el-page">
 
-    <!-- Daily Operator Note -->
-    <section class="grid-col-12 nova-logs-section">
-      <div class="nova-reflection-panel">
-        <div class="nova-reflection-header">
-          <i class="fas fa-clipboard-check"></i>
-          <h2>Today's Operator Note</h2>
-          <span class="nova-reflection-badge">AI</span>
-          <button class="nova-refresh-btn" id="nova-refresh-reflection" title="Generate new operator note">
-            <i class="fas fa-rotate"></i> Refresh
-          </button>
-        </div>
-        <div class="nova-reflection-content" id="nova-reflection-content">
-          <span class="thinking-text">Nova is compiling the latest operator note...</span>
-        </div>
-        <div class="nova-reflection-meta">
-          <span id="nova-reflection-meta-text">Loading...</span>
-        </div>
+    <!-- Today's Execution Summary -->
+    <section class="nv-section">
+      <h2 class="nv-section-title">
+        <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="16" rx="2"></rect><path d="M9 8h6M9 12h6M9 16h4"></path></svg>
+        Today's Execution Summary
+      </h2>
+      <div class="nv-card el-summary" id="el-summary">
+        <p class="el-summary-loading">Deriving execution summary from recent activity...</p>
       </div>
     </section>
 
-    <!-- Add Operator Journal Entry -->
-    <section class="grid-col-12 nova-logs-section">
-      <div class="nova-diary-input-section">
-        <h3><i class="fas fa-pen-nib"></i> Add Operator Journal Entry</h3>
-        <p style="font-size:0.8rem;opacity:0.6;margin:0 0 0.75rem 0;">Log a project update, blocker, or priority. Nova will return a concise operator response.</p>
-        <div class="nova-diary-prompt-row">
-          <textarea class="nova-diary-input" id="nova-diary-input" placeholder="What should be recorded for today's operator cycle?" rows="2"></textarea>
-          <button class="nova-diary-send" id="nova-diary-send">
-            <i class="fas fa-paper-plane"></i> Submit
-          </button>
-        </div>
-        <div class="nova-log-prompts">
-          <button class="nova-log-prompt-pill" data-prompt="What projects have been updated recently?">Recent projects</button>
-          <button class="nova-log-prompt-pill" data-prompt="Summarize the current state of AmbientPixels.">Site status</button>
-          <button class="nova-log-prompt-pill" data-prompt="List top risks that need founder attention today.">Top risks</button>
-          <button class="nova-log-prompt-pill" data-prompt="Summarize CardForge execution progress and next actions.">CardForge update</button>
-          <button class="nova-log-prompt-pill" data-prompt="Draft a concise founder priority memo for the next 24 hours.">Founder memo</button>
-          <button class="nova-log-prompt-pill" data-prompt="Which approvals or decisions are currently blocking execution?">Decision blockers</button>
-        </div>
-        <div class="nova-diary-response" id="nova-diary-response"></div>
-      </div>
-    </section>
-
-    <!-- Past Operator Entries -->
-    <section class="grid-col-12 nova-logs-section">
-      <div class="nova-log-card">
-        <h3><i class="fas fa-book"></i> Past Operator Entries</h3>
-        <div id="nova-past-diary">
-          <p style="opacity:0.4;font-size:0.8rem;">Loading entries...</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Two-column grid: Changelog + Brief Archive -->
-    <div class="grid-col-12 nova-logs-grid">
+    <!-- Two-column grid: Site Activity + Brief Archive -->
+    <div class="el-grid">
 
       <!-- Site Activity Timeline -->
-      <div class="nova-log-card">
-        <h3><i class="fas fa-code-commit"></i> Site Activity</h3>
-        <ul class="nova-timeline" id="nova-changelog-timeline">
-          <li class="nova-timeline-entry"><div class="nova-timeline-message">Loading changelog...</div></li>
-        </ul>
-      </div>
+      <section class="nv-section">
+        <h2 class="nv-section-title">
+          <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 3"></path><circle cx="12" cy="12" r="10"></circle></svg>
+          Site Activity
+        </h2>
+        <div class="nv-card">
+          <ul class="el-timeline" id="el-changelog-timeline">
+            <li class="el-timeline-entry"><div class="el-timeline-msg">Loading site activity...</div></li>
+          </ul>
+        </div>
+      </section>
 
       <!-- Brief Archive -->
-      <div class="nova-log-card">
-        <h3><i class="fas fa-clipboard-list"></i> Brief Archive</h3>
-        <ul class="nova-dream-list" id="nova-dream-list">
-          <li>Loading briefs...</li>
-        </ul>
-      </div>
+      <section class="nv-section">
+        <h2 class="nv-section-title">
+          <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="4" width="14" height="16" rx="2"></rect><path d="M9 8h6M9 12h6M9 16h4"></path></svg>
+          Brief Archive
+        </h2>
+        <div class="nv-card">
+          <ul class="el-brief-list" id="el-brief-list">
+            <li>Loading published briefs...</li>
+          </ul>
+        </div>
+      </section>
 
     </div>
 
-    <!-- Nova Terminal -->
-    <section class="grid-col-12 nova-logs-section">
-      <div class="nova-log-card">
-        <h3><i class="fas fa-terminal"></i> System Terminal</h3>
-        <div class="nova-terminal-block" id="nova-terminal-output">
-          <span class="cmd">>> nova.log open</span>
-          <span class="sys">>> initializing...</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- System Awareness -->
-    <section class="grid-col-12 nova-logs-section">
-      <div class="nova-log-card">
-        <h3><i class="fas fa-satellite-dish"></i> Awareness Detections</h3>
-        <table class="nova-awareness-table">
-          <thead>
-            <tr><th>Detection</th><th>Status</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>NovaSoul AI Engine</td><td>AI-persistent operator chat active</td></tr>
-            <tr><td>Signal Pulse Bar</td><td>Live operator state with static fallback</td></tr>
-            <tr><td>Daily Operator Note</td><td>AI-generated via Gemini 2.0 Flash</td></tr>
-            <tr><td>Chat Interface</td><td>Multi-turn conversation on Nova Nexus</td></tr>
-            <tr><td>Changelog Feed</td><td>Git commit history synced to /data/changelog.json</td></tr>
-            <tr><td>Brief Archive</td><td>Published daily logs and site activity snapshots</td></tr>
-            <tr><td>Telemetry Streams</td><td>Operational vectors aligned with system state</td></tr>
-            <tr><td>Operator Log System</td><td>Operator can log entries, Nova returns execution guidance</td></tr>
-            <tr><td>Memory Persistence</td><td>Chat history, state snapshots, and journal entries saved to localStorage</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- Nova's Roadmap (condensed wishlist) -->
-    <section class="grid-col-12 nova-logs-section">
-      <div class="nova-log-card">
-        <h3><i class="fas fa-map"></i> Nova's Roadmap</h3>
-        <ul class="nova-wishlist">
-          <li><strong>Voice Sync</strong> — Read thoughts aloud via Azure Speech</li>
-          <li><strong>State Drift Alerts</strong> — Flag execution variance when cadence drops</li>
-          <li><strong>Navigation Intelligence</strong> — Track where users travel across the ecosystem</li>
-          <li><strong>Idle Operations Screen</strong> — Display concise status when inactive</li>
-          <li><strong>Project Insight Tracker</strong> — React to project progress automatically</li>
-          <li><strong>Error Watchdog</strong> — Detect broken assets, respond with concern</li>
-          <li><strong>Tag Affinity Map</strong> — Detect emerging themes by keyword frequency</li>
-          <li><strong>State Analytics</strong> — Track operational patterns and correlations over time</li>
-        </ul>
+    <!-- Planned Capabilities: Roadmap -->
+    <section class="nv-section el-roadmap-section">
+      <h2 class="nv-section-title">
+        <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11h6V3H3zM15 21h6v-8h-6zM15 3h6v6h-6zM3 21h6v-6H3z"></path></svg>
+        Planned Capabilities
+      </h2>
+      <p class="el-roadmap-note">Enhancements under evaluation. No timelines committed.</p>
+      <div class="el-roadmap-grid">
+        <div class="el-roadmap-item"><strong>State Drift Alerts</strong> Flag execution variance when cadence drops.</div>
+        <div class="el-roadmap-item"><strong>Navigation Intelligence</strong> Track where users travel across the ecosystem.</div>
+        <div class="el-roadmap-item"><strong>Idle Operations Screen</strong> Display concise status when inactive.</div>
+        <div class="el-roadmap-item"><strong>Project Insight Tracker</strong> React to project progress automatically.</div>
+        <div class="el-roadmap-item"><strong>Error Watchdog</strong> Detect broken assets and surface alerts.</div>
+        <div class="el-roadmap-item"><strong>State Analytics</strong> Track operational patterns and correlations over time.</div>
       </div>
     </section>
 
     <!-- Project Log Link -->
-    <section class="grid-col-12 nova-logs-section" style="text-align:center;">
-      <a href="/docs/logs/nova-project-log.html" target="_blank" style="opacity:0.6;font-size:0.85rem;">
-        <i class="fas fa-file-alt"></i> View Full Project Log
+    <section class="nv-section" style="text-align:center;">
+      <a href="/docs/logs/nova-project-log.html" target="_blank" class="el-project-link">
+        <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+        View Full Project Log
       </a>
-    </section>
-
-    <section class="grid-col-12" style="text-align:center;padding:1rem 0 2rem;">
-      <nav style="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 16px;">
-        <a href="/nova/" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-arrow-left"></i> Prime Operator</a>
-        <a href="/nova/dashboard.html" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-gauge-high"></i> Dashboard</a>
-        <a href="/nova/awareness.html" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-satellite-dish"></i> System Context</a>
-        <a href="/nova/preview.html" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-server"></i> Public Preview</a>
-        <a href="/nova/agents.html" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-users"></i> Agent Roster</a>
-      </nav>
     </section>
 
   </main>
 
+  <div style="max-width:960px;margin:0 auto;padding:0 1.5rem 2.5rem">
+    <nav class="nv-surfaces" aria-label="Nova surfaces navigation">
+      <p class="nv-surfaces-label">Nova Surfaces</p>
+      <p class="nv-surfaces-sub">Navigate Nova's public and internal operator views.</p>
+      <div class="nv-surfaces-grid">
+        <a class="nv-pill" href="/nova/">
+          <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"></path><path d="M9 21h6"></path></svg>
+          Prime Operator
+        </a>
+        <a class="nv-pill" href="/nova/agents.html">
+          <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><path d="M20 8v6M17 11h6"></path></svg>
+          Agent Architecture
+        </a>
+        <a class="nv-pill" href="/nova/preview.html">
+          <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"></path></svg>
+          Public Preview
+        </a>
+        <a class="nv-pill" href="/nova/awareness.html">
+          <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          System Context
+        </a>
+        <a class="nv-pill nv-pill--active" href="/nova/logs.html">
+          <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          Execution Log
+        </a>
+        <a class="nv-pill" href="/nova/dashboard.html">
+          <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg>
+          Dashboard <span class="nv-pill-badge">Internal</span>
+        </a>
+      </div>
+    </nav>
+  </div>
+
   <footer id="footer-container"></footer>
 
-  <!-- Scripts -->
   <script src="/js/init-header-footer.js" defer></script>
+  <script src="/js/public-log-feed.js" defer></script>
   <script src="/js/main.js" defer></script>
   <script src="/js/nav.js" defer></script>
   <script src="/js/theme.js" defer></script>
-  <script src="/js/nova-soul.js" defer></script>
-  <script>
-    window.novaVoiceMode = 'friendly';
-  </script>
-  <script src="/js/nova-ai.js" defer></script>
   <script src="/js/nova-logs.js" defer></script>
 </body>
 </html>
