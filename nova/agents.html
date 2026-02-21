@@ -15,11 +15,9 @@
   <link rel="stylesheet" href="/css/hero.css" />
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
-  <link rel="stylesheet" href="/css/nova.css" />
 </head>
-<body class="nova-home">
+<body data-theme="dark" style="background:#071019">
   <header id="nav-header"></header>
-  <div class="banner-container" id="banner-container"></div>
 
   <section class="mini-hero">
     <img src="/nova/hero-1536x1024.png" alt="GridOS Agent Roster" class="mini-hero-img" loading="lazy">
@@ -109,9 +107,19 @@
 
     <section class="grid-col-12 content-section" style="text-align:center;">
       <div class="hero-cta nova-hero-cta" style="justify-content:center;">
-        <a href="/nova/preview.html" class="glass-button secondary"><i class="fas fa-server"></i> Explore GridOS</a>
-        <a href="/support/" class="glass-button"><i class="fas fa-key"></i> Request Access</a>
+        <a href="/nova/preview.html" class="glass-button secondary"><i class="fas fa-server"></i> Operations Preview</a>
+        <a href="/gridos/" class="glass-button"><i class="fas fa-microchip"></i> GridOS Overview</a>
       </div>
+    </section>
+
+    <section class="grid-col-12" style="text-align:center;padding:1rem 0 2rem;">
+      <nav style="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 16px;">
+        <a href="/nova/" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-arrow-left"></i> Prime Operator</a>
+        <a href="/nova/dashboard.html" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-gauge-high"></i> Dashboard</a>
+        <a href="/nova/awareness.html" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-satellite-dish"></i> System Context</a>
+        <a href="/nova/logs.html" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-book"></i> Founder Log</a>
+        <a href="/nova/preview.html" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-server"></i> Public Preview</a>
+      </nav>
     </section>
   </main>
 
@@ -120,6 +128,5 @@
   <script src="/js/main.js" defer></script>
   <script src="/js/nav.js" defer></script>
   <script src="/js/theme.js" defer></script>
-  <script src="/js/banner.js" defer></script>
 </body>
 </html>

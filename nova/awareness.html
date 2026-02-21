@@ -20,6 +20,27 @@
   <link rel="stylesheet" href="/css/nova-dashboard.css" />
   <link rel="stylesheet" href="/css/nova-status.css" />
   <style>
+    /* Override aura variables for purple theme alignment */
+    body {
+      --aura-panel-bg: rgba(15, 20, 35, 0.65);
+      --aura-glow: rgba(167, 139, 250, 0.15);
+      --aura-text: #e2e8f0;
+      --aura-label: rgba(148, 163, 184, 0.7);
+    }
+    .dashboard-section {
+      background: rgba(15, 20, 35, 0.65);
+      border-color: rgba(167, 139, 250, 0.12);
+    }
+    .dashboard-title {
+      color: #e2e8f0;
+    }
+    .dashboard-title i { color: #a78bfa; opacity: 0.5; }
+    .stat-value { color: #a78bfa; }
+    .dashboard-stat-card {
+      background: rgba(15, 20, 35, 0.65);
+      border-color: rgba(167, 139, 250, 0.12);
+    }
+
     /* Tech ticker */
     .aw-ticker {
       margin: 0 auto;
@@ -39,7 +60,7 @@
       letter-spacing: 0.03em;
       animation: aw-scroll 26s linear infinite;
     }
-    .aw-ticker-track strong { color: #93c5fd; font-weight: 600; }
+    .aw-ticker-track strong { color: #a78bfa; font-weight: 600; }
     @keyframes aw-scroll {
       0% { transform: translateX(0); }
       100% { transform: translateX(-50%); }
@@ -62,7 +83,7 @@
       gap: 4px;
       transition: border-color 0.2s;
     }
-    .gd-metric:hover { border-color: rgba(147, 197, 253, 0.3); }
+    .gd-metric:hover { border-color: rgba(167, 139, 250, 0.3); }
     .gd-metric-val {
       font-size: 1.35rem;
       font-weight: 600;

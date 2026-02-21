@@ -23,6 +23,42 @@
   <link rel="stylesheet" href="/css/nova-status.css" /> <!-- Added for awareness integration -->
   
   <style>
+    /* Override aura variables for purple theme alignment */
+    body {
+      --aura-panel-bg: rgba(15, 20, 35, 0.65);
+      --aura-glow: rgba(167, 139, 250, 0.15);
+      --aura-text: #e2e8f0;
+      --aura-label: rgba(148, 163, 184, 0.7);
+    }
+    .dashboard-section {
+      background: rgba(15, 20, 35, 0.65);
+      border-color: rgba(167, 139, 250, 0.12);
+    }
+    .dashboard-title {
+      color: #e2e8f0;
+    }
+    .dashboard-title i { color: #a78bfa; opacity: 0.5; }
+    .nova-dashboard {
+      max-width: 1200px;
+      padding-left: 3vw;
+      padding-right: 3vw;
+    }
+    .stat-value { color: #a78bfa; }
+    .dashboard-stat-card {
+      background: rgba(15, 20, 35, 0.65);
+      border-color: rgba(167, 139, 250, 0.12);
+    }
+    .api-endpoint-select, .api-endpoint-input {
+      border-color: rgba(167, 139, 250, 0.2);
+    }
+    .nova-status-section {
+      background: rgba(15, 20, 35, 0.65);
+      border-color: rgba(167, 139, 250, 0.12);
+    }
+    .status-card {
+      background: rgba(15, 20, 35, 0.5);
+      border-color: rgba(167, 139, 250, 0.08);
+    }
     .dashboard-tech-ticker {
       margin: 96px auto 0;
       max-width: 1180px;
@@ -43,7 +79,7 @@
       animation: ticker-scroll 26s linear infinite;
     }
 
-    .dashboard-tech-ticker-track strong { color: #93c5fd; font-weight: 600; }
+    .dashboard-tech-ticker-track strong { color: #a78bfa; font-weight: 600; }
 
     @keyframes ticker-scroll {
       0% { transform: translateX(0); }
@@ -67,7 +103,7 @@
       gap: 4px;
       transition: border-color 0.2s;
     }
-    .gd-metric:hover { border-color: rgba(147, 197, 253, 0.3); }
+    .gd-metric:hover { border-color: rgba(167, 139, 250, 0.3); }
     .gd-metric-val {
       font-size: 1.35rem;
       font-weight: 600;
@@ -111,11 +147,18 @@
   </style>
   <!-- All styles moved to nova-dashboard.css by Cascade 2025-07-10 -->
 </head>
-<body class="pulse-page" data-theme="dark" style="background:#071019">
-  <!-- Header updated by Cascade 2025-07-10 -->
-  <!-- Header updated by Cascade 2025-07-12 -->
+<body data-theme="dark" style="background:#071019">
   <header id="nav-header"></header>
-  <section class="dashboard-tech-ticker" aria-label="Live system telemetry">
+
+  <section class="mini-hero">
+    <img src="/images/mini-hero/mini-hero-03-neon-pulse.jpg" alt="GridOS Dashboard" class="mini-hero-img" loading="lazy" />
+    <div class="mini-hero-content-wrapper">
+      <h1>Internal Dashboard</h1>
+      <p class="subtitle">Operational telemetry, system status, and execution tools.</p>
+    </div>
+  </section>
+
+  <section class="dashboard-tech-ticker" style="margin-top:0;" aria-label="Live system telemetry">
     <div class="dashboard-tech-ticker-track">
       <span><strong>GRIDOS</strong> internal mode active</span>
       <span>status feed: synchronized</span>
