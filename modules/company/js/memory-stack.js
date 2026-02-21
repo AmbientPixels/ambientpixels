@@ -315,10 +315,12 @@
     try { return JSON.stringify(val).length; } catch (_) { return 0; }
   }
 
-  function buildTreeHtml(value, key, depth, searchQ) {
+  function buildTreeHtml(value, key, depth, searchQ, pathParts) {
     if (depth > 12) return '<span class="ms-tree-ellipsis">[max depth]</span>';
     var html = '';
-    var keyHtml = key !== null ? '<span class="ms-tree-key">"' + esc(key) + '"</span><span class="ms-tree-colon">: </span>' : '';
+    var curPath = (pathParts || []).concat(key !== null ? [key] : []);
+    var pathStr = curPath.join('.');
+    var keyHtml = key !== null ? '<span class="ms-tree-key" data-path="' + esc(pathStr) + '">"' + esc(key) + '"</span><span class="ms-tree-colon">: </span>' : '';
     var matchClass = '';
     if (searchQ && key !== null && String(key).toLowerCase().indexOf(searchQ) !== -1) matchClass = ' ms-tree-row--match';
 
@@ -326,7 +328,10 @@
       html += '<div class="ms-tree-row' + matchClass + '">' + keyHtml + '<span class="ms-tree-null">null</span></div>';
     } else if (typeof value === 'string') {
       var valMatch = searchQ && value.toLowerCase().indexOf(searchQ) !== -1;
-      html += '<div class="ms-tree-row' + (matchClass || (valMatch ? ' ms-tree-row--match' : '')) + '">' + keyHtml + '<span class="ms-tree-str">"' + esc(value.length > 200 ? value.slice(0, 200) + '…' : value) + '"</span></div>';
+      var truncated = value.length > 200;
+      var display = truncated ? value.slice(0, 200) + '…' : value;
+      var moreTag = truncated ? '<span class="ms-tree-str-more" data-full="' + esc(value) + '">[+' + (value.length - 200) + ' chars]</span>' : '';
+      html += '<div class="ms-tree-row' + (matchClass || (valMatch ? ' ms-tree-row--match' : '')) + '">' + keyHtml + '<span class="ms-tree-str">"' + esc(display) + '"</span>' + moreTag + '</div>';
     } else if (typeof value === 'number') {
       html += '<div class="ms-tree-row' + matchClass + '">' + keyHtml + '<span class="ms-tree-num">' + esc(String(value)) + '</span></div>';
     } else if (typeof value === 'boolean') {
@@ -341,7 +346,7 @@
       html += '<div class="ms-tree-node" id="' + uid + '" style="display:none">';
       var limit = Math.min(value.length, 50);
       for (var i = 0; i < limit; i++) {
-        html += buildTreeHtml(value[i], String(i), depth + 1, searchQ);
+        html += buildTreeHtml(value[i], String(i), depth + 1, searchQ, curPath);
       }
       if (value.length > 50) html += '<div class="ms-tree-ellipsis">…' + (value.length - 50) + ' more items</div>';
       html += '</div>';
@@ -356,7 +361,7 @@
       html += '<div class="ms-tree-node" id="' + uid2 + '" style="display:none">';
       var limit2 = Math.min(keys.length, 100);
       for (var j = 0; j < limit2; j++) {
-        html += buildTreeHtml(value[keys[j]], keys[j], depth + 1, searchQ);
+        html += buildTreeHtml(value[keys[j]], keys[j], depth + 1, searchQ, curPath);
       }
       if (keys.length > 100) html += '<div class="ms-tree-ellipsis">…' + (keys.length - 100) + ' more keys</div>';
       html += '</div>';
@@ -364,6 +369,30 @@
       html += '<div class="ms-tree-row">' + keyHtml + '<span>' + esc(String(value)) + '</span></div>';
     }
     return html;
+  }
+
+  function showPathToast(path) {
+    var toast = document.getElementById('ms-path-toast');
+    if (!toast) return;
+    navigator.clipboard.writeText(path).catch(function () {});
+    toast.textContent = 'Copied: ' + path;
+    toast.classList.add('ms-path-toast--show');
+    clearTimeout(state._toastTimer);
+    state._toastTimer = setTimeout(function () { toast.classList.remove('ms-path-toast--show'); }, 1500);
+  }
+
+  function expandAllTree() {
+    var root = document.getElementById('ms-tree');
+    if (!root) return;
+    root.querySelectorAll('.ms-tree-node').forEach(function (n) { n.style.display = ''; });
+    root.querySelectorAll('.ms-tree-toggle').forEach(function (t) { t.textContent = '▼'; });
+  }
+
+  function collapseAllTree() {
+    var root = document.getElementById('ms-tree');
+    if (!root) return;
+    root.querySelectorAll('.ms-tree-node').forEach(function (n) { n.style.display = 'none'; });
+    root.querySelectorAll('.ms-tree-toggle').forEach(function (t) { t.textContent = '▶'; });
   }
 
   function renderTree() {
@@ -376,7 +405,7 @@
     }
 
     var q = (document.getElementById('ms-search').value || '').trim().toLowerCase();
-    var html = buildTreeHtml(data, null, 0, q || null);
+    var html = buildTreeHtml(data, null, 0, q || null, []);
     root.innerHTML = html;
 
     // Count matches
@@ -386,25 +415,41 @@
       countEl.textContent = q ? (matchCount + ' match' + (matchCount !== 1 ? 'es' : '')) : '';
     }
 
-    // Bind toggle clicks
+    // Delegated event handler
     root.addEventListener('click', function (evt) {
-      var toggle = evt.target.closest && evt.target.closest('.ms-tree-toggle');
-      if (!toggle) {
-        // check for ellipsis expand click on parent nodes
-        if (evt.target.classList && evt.target.classList.contains('ms-tree-toggle')) toggle = evt.target;
-        else return;
+      var el = evt.target;
+
+      // Toggle collapse/expand
+      var toggle = el.closest ? el.closest('.ms-tree-toggle') : null;
+      if (!toggle && el.classList && el.classList.contains('ms-tree-toggle')) toggle = el;
+      if (toggle) {
+        var treeId = toggle.getAttribute('data-tree-id');
+        if (treeId) {
+          var node = document.getElementById(treeId);
+          if (node) {
+            if (node.style.display === 'none') { node.style.display = ''; toggle.textContent = '▼'; }
+            else { node.style.display = 'none'; toggle.textContent = '▶'; }
+          }
+        }
+        return;
       }
-      if (!toggle) return;
-      var treeId = toggle.getAttribute('data-tree-id');
-      if (!treeId) return;
-      var node = document.getElementById(treeId);
-      if (!node) return;
-      if (node.style.display === 'none') {
-        node.style.display = '';
-        toggle.textContent = '▼';
-      } else {
-        node.style.display = 'none';
-        toggle.textContent = '▶';
+
+      // Copy path on key click
+      if (el.classList && el.classList.contains('ms-tree-key')) {
+        var path = el.getAttribute('data-path');
+        if (path) showPathToast(path);
+        return;
+      }
+
+      // Expand truncated string
+      if (el.classList && el.classList.contains('ms-tree-str-more')) {
+        var full = el.getAttribute('data-full') || '';
+        var strSpan = el.previousElementSibling;
+        if (strSpan && strSpan.classList.contains('ms-tree-str')) {
+          strSpan.textContent = '"' + full + '"';
+          el.remove();
+        }
+        return;
       }
     });
 
@@ -557,6 +602,175 @@
     });
   }
 
+  // ═══ Agent Comparison ═══
+
+  function loadingHtml() {
+    return '<div class="ms-loading"><span class="ms-loading-dot"></span><span class="ms-loading-dot"></span><span class="ms-loading-dot"></span> Loading…</div>';
+  }
+
+  function populateCompareDropdowns() {
+    var layerSel = document.getElementById('ms-cmp-layer');
+    var agentA = document.getElementById('ms-cmp-agent-a');
+    var agentB = document.getElementById('ms-cmp-agent-b');
+    if (!layerSel || !agentA || !agentB) return;
+
+    var layerHtml = '';
+    state.layers.forEach(function (l) {
+      if (layerSupportsAgent(l.id)) {
+        layerHtml += '<option value="' + esc(l.id) + '">' + esc(l.id + ' — ' + l.name) + '</option>';
+      }
+    });
+    layerSel.innerHTML = layerHtml;
+
+    var agentHtml = '';
+    (state.agents || []).forEach(function (name) {
+      var key = String(name || '').toLowerCase();
+      agentHtml += '<option value="' + esc(key) + '">' + esc(name) + '</option>';
+    });
+    agentA.innerHTML = agentHtml;
+    agentB.innerHTML = agentHtml;
+    // Pre-select different agents
+    if (agentB.options.length > 1) agentB.selectedIndex = 1;
+  }
+
+  function toggleCompare(show) {
+    var section = document.getElementById('ms-compare-section');
+    if (!section) return;
+    if (show === undefined) show = section.style.display === 'none';
+    section.style.display = show ? '' : 'none';
+    if (show) populateCompareDropdowns();
+  }
+
+  function diffKeys(objA, objB) {
+    var keysA = objA && typeof objA === 'object' ? Object.keys(objA) : [];
+    var keysB = objB && typeof objB === 'object' ? Object.keys(objB) : [];
+    var allKeys = {};
+    keysA.forEach(function (k) { allKeys[k] = 'a'; });
+    keysB.forEach(function (k) { allKeys[k] = allKeys[k] === 'a' ? 'both' : 'b'; });
+    return { all: Object.keys(allKeys), map: allKeys };
+  }
+
+  function renderCompareCol(label, data, otherData) {
+    var sz = jsonSize(data);
+    var html = '<div class="ms-compare-col">';
+    html += '<div class="ms-compare-col-head"><span>' + esc(label) + '</span><span class="ms-compare-col-size">' + esc(bytesToKb(sz)) + ' · ~' + esc(fmtTokens(sz)) + ' tok</span></div>';
+
+    if (!data || typeof data !== 'object') {
+      html += '<div class="ms-empty">No data</div>';
+      html += '</div>';
+      return html;
+    }
+
+    var diff = diffKeys(data, otherData);
+    diff.all.sort().forEach(function (key) {
+      var inA = data.hasOwnProperty(key);
+      var inB = otherData && otherData.hasOwnProperty(key);
+      var valA = inA ? data[key] : undefined;
+      var valB = inB ? otherData[key] : undefined;
+
+      var cls = '';
+      if (inA && !inB) cls = 'ms-compare-only-a';
+      else if (!inA && inB) cls = 'ms-compare-only-b';
+      else if (inA && inB && JSON.stringify(valA) !== JSON.stringify(valB)) cls = 'ms-compare-diff';
+
+      var preview = '';
+      if (inA) {
+        if (typeof valA === 'string') preview = '"' + esc(valA.length > 80 ? valA.slice(0, 80) + '…' : valA) + '"';
+        else if (typeof valA === 'object' && valA !== null) preview = Array.isArray(valA) ? '[' + valA.length + ']' : '{' + Object.keys(valA).length + '}';
+        else preview = esc(String(valA));
+      } else {
+        preview = '<span style="opacity:0.3">—</span>';
+      }
+
+      html += '<div' + (cls ? ' class="' + cls + '"' : '') + '>';
+      html += '<span class="ms-tree-key">"' + esc(key) + '"</span><span class="ms-tree-colon">: </span>' + preview;
+      html += '</div>';
+    });
+
+    html += '</div>';
+    return html;
+  }
+
+  function runCompare() {
+    var layerId = (document.getElementById('ms-cmp-layer') || {}).value || 'L1';
+    var agentA = (document.getElementById('ms-cmp-agent-a') || {}).value || '';
+    var agentB = (document.getElementById('ms-cmp-agent-b') || {}).value || '';
+    var grid = document.getElementById('ms-compare-grid');
+    if (!grid) return;
+
+    if (agentA === agentB) {
+      grid.innerHTML = '<div class="ms-compare-loading">Select two different agents to compare.</div>';
+      return;
+    }
+
+    grid.innerHTML = '<div class="ms-compare-loading">' + loadingHtml() + '</div>';
+
+    function fetchAgent(agent) {
+      var p = new URLSearchParams();
+      p.set('layer', layerId);
+      p.set('view', 'full');
+      p.set('redact', '0');
+      if (agent) p.set('agent_id', agent);
+      return fetch(getApiBase() + '/memory-stack?' + p.toString(), { headers: getAuthHeaders() })
+        .then(function (r) { return r.json(); })
+        .catch(function () { return null; });
+    }
+
+    Promise.all([fetchAgent(agentA), fetchAgent(agentB)]).then(function (results) {
+      var dataA = results[0] && results[0].payload ? results[0].payload : (results[0] || null);
+      var dataB = results[1] && results[1].payload ? results[1].payload : (results[1] || null);
+
+      var nameA = agentA || 'Global';
+      var nameB = agentB || 'Global';
+
+      grid.innerHTML = renderCompareCol(nameA, dataA, dataB) + renderCompareCol(nameB, dataB, dataA);
+    });
+  }
+
+  // ═══ Keyboard Shortcuts ═══
+
+  function handleKeyboard(evt) {
+    // Don't capture when typing in inputs
+    if (evt.target.tagName === 'INPUT' || evt.target.tagName === 'SELECT' || evt.target.tagName === 'TEXTAREA') return;
+
+    var key = evt.key;
+
+    // 1-6: select layer
+    if (key >= '1' && key <= '6') {
+      var idx = parseInt(key, 10) - 1;
+      if (state.layers[idx]) {
+        selectLayerById(state.layers[idx].id);
+      }
+      return;
+    }
+
+    // E: expand all
+    if (key === 'e' || key === 'E') {
+      expandAllTree();
+      return;
+    }
+
+    // C: collapse all
+    if (key === 'c' || key === 'C') {
+      collapseAllTree();
+      return;
+    }
+
+    // /: focus search
+    if (key === '/') {
+      evt.preventDefault();
+      var search = document.getElementById('ms-search');
+      if (search) search.focus();
+      return;
+    }
+
+    // D: toggle compare
+    if (key === 'd' || key === 'D') {
+      toggleCompare();
+      return;
+    }
+  }
+
   // ═══ Bindings ═══
 
   function bindGlobal() {
@@ -591,6 +805,23 @@
         }
       });
     }
+
+    // Expand / Collapse all
+    var expandBtn = document.getElementById('ms-expand-all');
+    if (expandBtn) expandBtn.addEventListener('click', expandAllTree);
+    var collapseBtn = document.getElementById('ms-collapse-all');
+    if (collapseBtn) collapseBtn.addEventListener('click', collapseAllTree);
+
+    // Agent comparison
+    var cmpToggle = document.getElementById('ms-compare-toggle');
+    if (cmpToggle) cmpToggle.addEventListener('click', function () { toggleCompare(); });
+    var cmpRun = document.getElementById('ms-cmp-run');
+    if (cmpRun) cmpRun.addEventListener('click', runCompare);
+    var cmpClose = document.getElementById('ms-compare-close');
+    if (cmpClose) cmpClose.addEventListener('click', function () { toggleCompare(false); });
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', handleKeyboard);
   }
 
   function init() {

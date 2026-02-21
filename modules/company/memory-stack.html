@@ -27,6 +27,7 @@
         <div class="ms-meta" id="ms-meta">Loading memory stack...</div>
         <div class="ms-hero-actions">
           <label class="ms-auto-label"><input type="checkbox" id="ms-auto-refresh" /> Auto-refresh (60s)</label>
+          <button id="ms-compare-toggle" class="ms-btn ms-btn--ghost ms-btn--sm" type="button"><i class="fas fa-arrows-left-right"></i> Compare</button>
           <button id="ms-download" class="ms-btn ms-btn--ghost ms-btn--sm" type="button"><i class="fas fa-download"></i> Export All</button>
         </div>
       </div>
@@ -37,6 +38,19 @@
 
     <!-- ═══ Injection Flow ═══ -->
     <div class="ms-flow" id="ms-flow"></div>
+
+    <!-- ═══ Agent Compare (hidden by default) ═══ -->
+    <section class="ms-compare-section" id="ms-compare-section" style="display:none">
+      <div class="ms-panel-title"><i class="fas fa-arrows-left-right" style="opacity:0.4;margin-right:4px;"></i> Agent Comparison <button class="ms-btn ms-btn--ghost ms-btn--sm" id="ms-compare-close" type="button"><i class="fas fa-xmark"></i></button></div>
+      <div class="ms-compare-controls">
+        <select id="ms-cmp-layer" class="ms-agent-select"></select>
+        <select id="ms-cmp-agent-a" class="ms-agent-select"></select>
+        <span class="ms-compare-vs">vs</span>
+        <select id="ms-cmp-agent-b" class="ms-agent-select"></select>
+        <button id="ms-cmp-run" class="ms-btn" type="button"><i class="fas fa-play"></i> Compare</button>
+      </div>
+      <div class="ms-compare-grid" id="ms-compare-grid"></div>
+    </section>
 
     <div class="ms-layout">
       <section class="ms-panel">
@@ -50,7 +64,12 @@
       </section>
 
       <section class="ms-panel">
-        <div class="ms-panel-title">Preview</div>
+        <div class="ms-panel-title">Preview
+          <span class="ms-tree-actions">
+            <button id="ms-expand-all" class="ms-btn ms-btn--ghost ms-btn--xs" type="button" title="Expand all (E)"><i class="fas fa-angles-down"></i></button>
+            <button id="ms-collapse-all" class="ms-btn ms-btn--ghost ms-btn--xs" type="button" title="Collapse all (C)"><i class="fas fa-angles-up"></i></button>
+          </span>
+        </div>
         <div class="ms-preview-tools">
           <input id="ms-search" type="text" placeholder="Search keys or values..." />
           <span class="ms-search-count" id="ms-search-count"></span>
@@ -60,8 +79,11 @@
         <div id="ms-preview-summary" class="ms-summary"></div>
         <div id="ms-tree" class="ms-tree"></div>
         <pre id="ms-preview" class="ms-preview" style="display:none"></pre>
+        <div class="ms-path-toast" id="ms-path-toast"></div>
       </section>
     </div>
+
+    <div class="ms-kbd-hint" id="ms-kbd-hint"><kbd>1</kbd>-<kbd>6</kbd> layers · <kbd>E</kbd> expand · <kbd>C</kbd> collapse · <kbd>/</kbd> search · <kbd>D</kbd> compare</div>
   </main>
 
   <script src="/js/storage-manager.js"></script>
