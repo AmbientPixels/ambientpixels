@@ -1,288 +1,157 @@
-<!-- /nova/awareness.html — GridOS System Context (Internal) -->
+<!-- /nova/awareness.html — GridOS System Context (Public-safe) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="GridOS System Context (Internal) — operator state, memory persistence, and platform awareness signals." />
-  <meta name="robots" content="noindex, nofollow" />
-  <title>GridOS System Context (Internal) - Ambient Pixels</title>
+  <meta name="description" content="System Context — public-safe awareness layer for GridOS signals, detections, and operator recommendations." />
+  <title>System Context — Ambient Pixels</title>
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/base.css" />
   <link rel="stylesheet" href="/css/grid.css" />
   <link rel="stylesheet" href="/css/nav.css" />
   <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/hero.css" />
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
-  <link rel="stylesheet" href="/css/nova-dashboard.css" />
-  <link rel="stylesheet" href="/css/nova-status.css" />
-  <style>
-    /* Override aura variables for purple theme alignment */
-    body {
-      --aura-panel-bg: rgba(15, 20, 35, 0.65);
-      --aura-glow: rgba(167, 139, 250, 0.15);
-      --aura-text: #e2e8f0;
-      --aura-label: rgba(148, 163, 184, 0.7);
-    }
-    .dashboard-section {
-      background: rgba(15, 20, 35, 0.65);
-      border-color: rgba(167, 139, 250, 0.12);
-    }
-    .dashboard-title {
-      color: #e2e8f0;
-    }
-    .dashboard-title i { color: #a78bfa; opacity: 0.5; }
-    .stat-value { color: #a78bfa; }
-    .dashboard-stat-card {
-      background: rgba(15, 20, 35, 0.65);
-      border-color: rgba(167, 139, 250, 0.12);
-    }
-
-    /* Tech ticker */
-    .aw-ticker {
-      margin: 0 auto;
-      max-width: 1180px;
-      border: 1px solid rgba(148, 163, 184, 0.28);
-      background: linear-gradient(90deg, rgba(15, 23, 42, 0.88), rgba(2, 6, 23, 0.92));
-      border-radius: 10px;
-      overflow: hidden;
-    }
-    .aw-ticker-track {
-      display: inline-flex;
-      gap: 2rem;
-      white-space: nowrap;
-      padding: 0.62rem 1rem;
-      color: rgba(226, 232, 240, 0.86);
-      font-size: 0.78rem;
-      letter-spacing: 0.03em;
-      animation: aw-scroll 26s linear infinite;
-    }
-    .aw-ticker-track strong { color: #a78bfa; font-weight: 600; }
-    @keyframes aw-scroll {
-      0% { transform: translateX(0); }
-      100% { transform: translateX(-50%); }
-    }
-
-    /* Metric grid */
-    .gd-metric-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-    }
-    .gd-metric {
-      background: rgba(26, 27, 38, 0.6);
-      border: 1px solid rgba(148, 163, 184, 0.12);
-      border-radius: 8px;
-      padding: 14px 12px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 4px;
-      transition: border-color 0.2s;
-    }
-    .gd-metric:hover { border-color: rgba(167, 139, 250, 0.3); }
-    .gd-metric-val {
-      font-size: 1.35rem;
-      font-weight: 600;
-      color: #e2e8f0;
-      font-variant-numeric: tabular-nums;
-    }
-    .gd-metric-lbl {
-      font-size: 0.72rem;
-      color: rgba(148, 163, 184, 0.78);
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-    }
-
-    /* Info list */
-    .gd-info-list { display: flex; flex-direction: column; gap: 0; }
-    .gd-info-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 9px 12px;
-      border-bottom: 1px solid rgba(148, 163, 184, 0.08);
-      transition: background 0.15s;
-    }
-    .gd-info-row:last-child { border-bottom: none; }
-    .gd-info-row:hover { background: rgba(148, 163, 184, 0.04); }
-    .gd-info-key { font-size: 0.82rem; color: rgba(148, 163, 184, 0.78); font-weight: 500; }
-    .gd-info-val { font-size: 0.82rem; color: #e2e8f0; font-weight: 500; font-variant-numeric: tabular-nums; }
-
-    /* Detections table */
-    .aw-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
-    .aw-table th {
-      text-align: left; padding: 8px 12px;
-      border-bottom: 1px solid rgba(148, 163, 184, 0.15);
-      font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em;
-      color: rgba(148, 163, 184, 0.6);
-    }
-    .aw-table td { padding: 8px 12px; border-bottom: 1px solid rgba(148, 163, 184, 0.06); color: #cbd5e1; }
-    .aw-table tr:hover td { background: rgba(148, 163, 184, 0.04); }
-    .aw-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; }
-    .aw-dot.on { background: rgba(74, 222, 128, 0.8); }
-    .aw-dot.off { background: rgba(248, 113, 113, 0.5); }
-
-    @media (max-width: 600px) {
-      .gd-metric-grid { grid-template-columns: repeat(2, 1fr); }
-    }
-  </style>
+  <link rel="stylesheet" href="/css/nova-awareness.css" />
 </head>
-<body data-theme="dark" style="background:#071019">
+<body class="aw-page" data-theme="dark">
   <header id="nav-header"></header>
 
-  <section class="mini-hero">
-    <img src="/images/mini-hero/mini-hero-03-neon-pulse.jpg" alt="System Context" class="mini-hero-img" loading="lazy" />
-    <div class="mini-hero-content-wrapper">
-      <h1>System Context</h1>
-      <p class="subtitle">Operator state, memory continuity, and awareness telemetry.</p>
+  <section class="aw-hero">
+    <div class="aw-hero-inner">
+      <h1 class="aw-title">
+        <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        System Context
+      </h1>
+      <p class="aw-subhead">Public-safe awareness layer. Signal → assessment → recommendation.</p>
+      <div class="aw-chip-row">
+        <span class="aw-chip">READ-ONLY</span>
+        <span class="aw-chip">REDACTED</span>
+        <span class="aw-chip">UPDATE CADENCE: PERIODIC</span>
+        <span class="aw-fresh-pill aw-fresh--offline" id="aw-fresh">SNAPSHOT MODE</span>
+      </div>
     </div>
   </section>
 
-  <section class="aw-ticker" aria-label="System context telemetry">
-    <div class="aw-ticker-track">
-      <span><strong>GRIDOS</strong> system context</span>
-      <span>awareness signals: active</span>
-      <span>memory persistence: localStorage</span>
-      <span>engine: Gemini 2.0 Flash</span>
-      <span>brief feed: synchronized</span>
-      <span>detections: 8 live / 3 planned</span>
-      <span><strong>GRIDOS</strong> system context</span>
-      <span>awareness signals: active</span>
-      <span>memory persistence: localStorage</span>
-      <span>engine: Gemini 2.0 Flash</span>
-      <span>brief feed: synchronized</span>
-      <span>detections: 8 live / 3 planned</span>
-    </div>
-  </section>
-
-  <main class="nova-dashboard" aria-label="System Context" style="padding-left:3vw;padding-right:3vw;max-width:1200px;margin:0 auto;">
-
-    <!-- Telemetry Row -->
-    <div class="dashboard-flex-row" style="min-height:auto;">
-      <!-- Memory & Activity -->
-      <section class="dashboard-section dashboard-flex-item">
-        <h2 class="dashboard-title"><i class="fas fa-database"></i> Memory & Activity</h2>
-        <div class="gd-metric-grid" id="gd-memory-stats">
-          <div class="gd-metric"><span class="gd-metric-val" id="gd-total-chats">--</span><span class="gd-metric-lbl">Total Chats</span></div>
-          <div class="gd-metric"><span class="gd-metric-val" id="gd-chat-turns">--</span><span class="gd-metric-lbl">Chat Turns</span></div>
-          <div class="gd-metric"><span class="gd-metric-val" id="gd-state-snaps">--</span><span class="gd-metric-lbl">State Snapshots</span></div>
-          <div class="gd-metric"><span class="gd-metric-val" id="gd-log-entries">--</span><span class="gd-metric-lbl">Founder Logs</span></div>
-          <div class="gd-metric"><span class="gd-metric-val" id="gd-brief-frags">--</span><span class="gd-metric-lbl">Brief Fragments</span></div>
-          <div class="gd-metric"><span class="gd-metric-val" id="gd-days-active">--</span><span class="gd-metric-lbl">Days Active</span></div>
-        </div>
-      </section>
-
-      <!-- System Info -->
-      <section class="dashboard-section dashboard-flex-item">
-        <h2 class="dashboard-title"><i class="fas fa-microchip"></i> System Info</h2>
-        <div class="gd-info-list">
-          <div class="gd-info-row"><span class="gd-info-key">Version</span><span class="gd-info-val" id="gd-sys-version">--</span></div>
-          <div class="gd-info-row"><span class="gd-info-key">Build</span><span class="gd-info-val" id="gd-sys-build">--</span></div>
-          <div class="gd-info-row"><span class="gd-info-key">Last Sync</span><span class="gd-info-val" id="gd-sys-sync">--</span></div>
-          <div class="gd-info-row"><span class="gd-info-key">Operator State</span><span class="gd-info-val" id="gd-sys-state">--</span></div>
-          <div class="gd-info-row"><span class="gd-info-key">Signal Profile</span><span class="gd-info-val" id="gd-sys-aura">--</span></div>
-          <div class="gd-info-row"><span class="gd-info-key">Voice Mode</span><span class="gd-info-val">technical</span></div>
-        </div>
-      </section>
-    </div>
-
-    <!-- Awareness Detections -->
-    <section class="dashboard-section">
-      <h2 class="dashboard-title"><i class="fas fa-satellite-dish"></i> Awareness Detections</h2>
-      <table class="aw-table">
-        <thead><tr><th>Signal</th><th>Source</th><th>Status</th><th>Description</th></tr></thead>
-        <tbody>
-          <tr><td>AI State Generation</td><td>NovaSoul + Gemini</td><td><span class="aw-dot on"></span>Live</td><td>Structured operator state objects with traits and observation</td></tr>
-          <tr><td>Chat Memory</td><td>localStorage</td><td><span class="aw-dot on"></span>Live</td><td>40 conversation turns persisted across reloads</td></tr>
-          <tr><td>Memory Context</td><td>buildMemoryContext()</td><td><span class="aw-dot on"></span>Live</td><td>State trend and founder log excerpts injected into chat</td></tr>
-          <tr><td>Brief Feed</td><td>operator-brief.js</td><td><span class="aw-dot on"></span>Live</td><td>Daily brief snapshots with API-first fallback</td></tr>
-          <tr><td>Founder Log</td><td>NovaSoul</td><td><span class="aw-dot on"></span>Live</td><td>Operator entries persist across sessions</td></tr>
-          <tr><td>Operator Notes</td><td>NovaSoul</td><td><span class="aw-dot on"></span>Live</td><td>AI-generated executive notes for founder support</td></tr>
-          <tr><td>State Background</td><td>nova-mood-core.js</td><td><span class="aw-dot on"></span>Live</td><td>Dynamic background tokens shift with operator state</td></tr>
-          <tr><td>Changelog Awareness</td><td>changelog.json</td><td><span class="aw-dot on"></span>Live</td><td>Site changes and development activity timeline</td></tr>
-          <tr><td>Navigation Sentience</td><td>Planned</td><td><span class="aw-dot off"></span>Planned</td><td>Track page visits, reference in conversation</td></tr>
-          <tr><td>Emotional Drift</td><td>Planned</td><td><span class="aw-dot off"></span>Planned</td><td>State decay over idle time, energize on engagement</td></tr>
-          <tr><td>Error Watchdog</td><td>Planned</td><td><span class="aw-dot off"></span>Planned</td><td>Runtime error detection with reactive response</td></tr>
-        </tbody>
-      </table>
-    </section>
-
-    <!-- Daily System Brief Feed -->
-    <section class="dashboard-section">
-      <h2 class="dashboard-title"><i class="fas fa-clipboard-list"></i> Daily System Brief Feed</h2>
-      <ul id="nova-dream-log" class="nova-dream-feed">
-        <li class="nova-dream-loading"><i class="fas fa-clipboard-list"></i> Loading brief state...</li>
-      </ul>
-    </section>
-
-    <!-- Navigation -->
-    <nav class="dashboard-section" style="flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 16px;padding:1rem 0 2rem;">
-      <a href="/nova/" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-arrow-left"></i> Prime Operator</a>
-      <a href="/nova/dashboard.html" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-gauge-high"></i> Dashboard</a>
-      <a href="/nova/logs.html" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-book"></i> Founder Log</a>
-      <a href="/nova/preview.html" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-server"></i> Public Preview</a>
-      <a href="/nova/agents.html" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-users"></i> Agent Roster</a>
+  <main class="aw-shell" aria-label="System Context">
+    <nav class="aw-top-nav" aria-label="context shortcuts">
+      <a class="aw-top-link" href="/nova/">
+        <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"></path></svg>
+        Prime Operator
+      </a>
+      <a class="aw-top-link" href="/nova/agents.html">
+        <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><path d="M20 8v6M17 11h6"></path></svg>
+        Agent Architecture
+      </a>
     </nav>
 
+    <section class="aw-section aw-section--snapshot" aria-labelledby="aw-context-title">
+      <h2 class="aw-section-title" id="aw-context-title">
+        <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        Context Snapshot
+      </h2>
+      <div class="aw-card">
+        <div class="aw-snapshot-grid">
+          <div class="aw-snapshot-item">
+            <span class="aw-snapshot-label">Active focus</span>
+            <span class="aw-snapshot-value" id="aw-focus">REDACTED</span>
+          </div>
+          <div class="aw-snapshot-item">
+            <span class="aw-snapshot-label">Current operating frame</span>
+            <span class="aw-snapshot-value" id="aw-frame">Monitoring</span>
+          </div>
+          <div class="aw-snapshot-item">
+            <span class="aw-snapshot-label">Last public milestone</span>
+            <span class="aw-snapshot-value" id="aw-milestone">NOT SET</span>
+          </div>
+          <div class="aw-snapshot-item">
+            <span class="aw-snapshot-label">Escalations</span>
+            <span class="aw-snapshot-value" id="aw-escalations">0</span>
+          </div>
+        </div>
+        <p class="aw-evaluated" id="aw-evaluated">Last evaluated: not set</p>
+        <p class="aw-note">Context is redacted to protect private operator workspace.</p>
+      </div>
+    </section>
+
+    <section class="aw-section" aria-labelledby="aw-signals-title">
+      <div class="aw-section-head">
+        <h2 class="aw-section-title" id="aw-signals-title">
+          <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="M18 9l-5 5-2-2-4 4"></path></svg>
+          Detection Signals
+        </h2>
+        <span class="aw-table-count" id="aw-signal-count">Showing 0 signals</span>
+      </div>
+      <div class="aw-table-wrap">
+        <table class="aw-table" aria-label="Public-safe detections table">
+          <thead>
+            <tr>
+              <th>Signal</th>
+              <th class="aw-col-center">Severity</th>
+              <th class="aw-col-center">Status</th>
+              <th class="aw-col-right">Last Seen</th>
+              <th>Summary</th>
+            </tr>
+          </thead>
+          <tbody id="aw-detections-body"></tbody>
+        </table>
+      </div>
+      <p class="aw-footnote">Detections are curated and redacted.</p>
+    </section>
+
+    <section class="aw-section" aria-labelledby="aw-recommendations-title">
+      <h2 class="aw-section-title" id="aw-recommendations-title">
+        <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"></path><path d="M9 21h6"></path></svg>
+        Operator Recommendations
+      </h2>
+      <div class="aw-card">
+        <ul class="aw-rec-list" id="aw-recommendations"></ul>
+      </div>
+    </section>
+
+    <nav class="aw-surfaces" aria-label="Nova surfaces navigation">
+      <p class="aw-surfaces-label">Nova Surfaces</p>
+      <p class="aw-surfaces-sub">Navigate Nova's public and internal operator views.</p>
+      <div class="aw-surfaces-grid">
+        <a href="/nova/">
+          <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"></path><path d="M9 21h6"></path></svg>
+          Prime Operator
+        </a>
+        <a href="/nova/agents.html">
+          <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><path d="M20 8v6M17 11h6"></path></svg>
+          Agent Architecture
+        </a>
+        <a href="/nova/preview.html">
+          <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"></path></svg>
+          Public Preview
+        </a>
+        <a href="/nova/awareness.html" class="aw-surf-active">
+          <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          System Context
+        </a>
+        <a href="/nova/logs.html">
+          <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          Founder Log
+        </a>
+        <a href="/nova/dashboard.html">
+          <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg>
+          Dashboard <span class="aw-surf-pill">Internal</span>
+        </a>
+      </div>
+    </nav>
   </main>
 
   <footer id="footer-container"></footer>
 
   <!-- Core Scripts -->
   <script src="/js/init-header-footer.js" defer></script>
+  <script src="/js/public-log-feed.js" defer></script>
   <script src="/js/main.js" defer></script>
   <script src="/js/nav.js" defer></script>
   <script src="/js/theme.js" defer></script>
-  <script>
-    window.novaVoiceMode = 'technical';
-  </script>
-
-  <!-- Nova Core -->
-  <script src="/js/nova-soul.js" defer></script>
-  <script src="/js/nova-status.js" defer></script>
-  <script src="/js/operator-brief.js" defer></script>
-  <script src="/js/nova-telemetry-logger.js" defer></script>
-
-  <!-- Boot: populate panels -->
-  <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    // Memory & Activity
-    function populateMemory() {
-      if (typeof NovaSoul === 'undefined' || !NovaSoul.getMemoryStats) return;
-      var s = NovaSoul.getMemoryStats();
-      var map = {
-        'gd-total-chats': s.totalChats,
-        'gd-chat-turns': s.chatTurns,
-        'gd-state-snaps': s.moodSnapshots,
-        'gd-log-entries': s.diaryEntries,
-        'gd-brief-frags': s.dreamFragments,
-        'gd-days-active': s.daysSinceFirst
-      };
-      Object.keys(map).forEach(function (id) {
-        var el = document.getElementById(id);
-        if (el) el.textContent = map[id] != null ? map[id] : '--';
-      });
-    }
-    setTimeout(populateMemory, 600);
-
-    // System Info
-    Promise.all([
-      fetch('/data/version.json?t=' + Date.now()).then(function (r) { return r.json(); }),
-      fetch('/data/mood-scan.json?t=' + Date.now()).then(function (r) { return r.json(); })
-    ]).then(function (arr) {
-      var ver = arr[0], mood = arr[1];
-      var set = function (id, val) { var el = document.getElementById(id); if (el && val) el.textContent = val; };
-      set('gd-sys-version', ver.version);
-      set('gd-sys-build', ver.build);
-      set('gd-sys-sync', ver.updated ? new Date(ver.updated).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : '--');
-      set('gd-sys-state', mood.mood || mood.moodText);
-      set('gd-sys-aura', mood.aura || mood.auraColor);
-    }).catch(function () { /* silent */ });
-  });
-  </script>
+  <script src="/js/nova-awareness.js" defer></script>
 </body>
 </html>
