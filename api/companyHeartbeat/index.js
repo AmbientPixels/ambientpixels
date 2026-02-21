@@ -69,6 +69,8 @@ const MAX_RESEARCH_CHARS = 2000;
 const MAX_RESEARCH_STORE_ENTRIES = 20;
 const RESEARCH_MAX_AGE_DAYS = 30;
 const SUB_AGENT_MENTION_WINDOW_HOURS = 24;
+const SOCIAL_INTEL_WINDOW_DAYS = 7;
+const SOCIAL_INTEL_FRESHNESS_MS = 30 * 60 * 1000;
 
 function _isActiveStatus(status) {
   return status === 'todo' || status === 'in-progress' || status === 'review';
@@ -100,6 +102,259 @@ function _hasRecentMention(tasks, agentId) {
       return text.indexOf(needle) !== -1 && _isRecent(ts, SUB_AGENT_MENTION_WINDOW_HOURS);
     });
   });
+}
+
+function _socialIntelIsoDayUTC(d) {
+  var y = d.getUTCFullYear();
+  var m = String(d.getUTCMonth() + 1).padStart(2, '0');
+  var day = String(d.getUTCDate()).padStart(2, '0');
+  return y + '-' + m + '-' + day;
+}
+
+function _socialIntelEventTs(ev) {
+  var iso = (ev && (ev.executed_at || ev.created_at)) || '';
+  var ts = Date.parse(iso);
+  return Number.isFinite(ts) ? ts : null;
+}
+
+function _socialIntelResolveMode(engagementMeta, snapshots) {
+  var mode = engagementMeta && typeof engagementMeta.mode === 'string' ? String(engagementMeta.mode).trim() : '';
+  if (mode === 'real' || mode === 'mock_fallback' || mode === 'mock_forced') return mode;
+  return Array.isArray(snapshots) && snapshots.length > 0 ? 'real' : 'mock_fallback';
+}
+
+function _socialIntelBuildDigest(existingDigest, socialEvents, engagementSnapshots, engagementMeta, nowMs) {
+  var now = Number.isFinite(nowMs) ? nowMs : Date.now();
+  var existingAsOf = existingDigest && existingDigest.asOfUtc ? Date.parse(existingDigest.asOfUtc) : NaN;
+  if (existingDigest && Number.isFinite(existingAsOf) && (now - existingAsOf) < SOCIAL_INTEL_FRESHNESS_MS) {
+    return existingDigest;
+  }
+
+  var events = Array.isArray(socialEvents) ? socialEvents : [];
+  var snapshots = Array.isArray(engagementSnapshots) ? engagementSnapshots : [];
+  var sevenCutoff = now - (SOCIAL_INTEL_WINDOW_DAYS * 24 * 60 * 60 * 1000);
+  var day24Cutoff = now - (24 * 60 * 60 * 1000);
+  var todayUtc = _socialIntelIsoDayUTC(new Date(now));
+
+  var execTotal7d = 0;
+  var execSuccess7d = 0;
+  var latencyTotal7d = 0;
+  var latencyCount7d = 0;
+  var publishedToday = 0;
+  var failures24h = 0;
+  var issueCount24h = {};
+  var issueLatest24h = {};
+
+  for (var i = 0; i < events.length; i++) {
+    var ev = events[i] || {};
+    if (ev.event_type !== 'execution') continue;
+    var ts = _socialIntelEventTs(ev);
+    if (!Number.isFinite(ts)) continue;
+    var isSuccess = ev.result === 'success';
+    var isFailure = ev.result === 'failure';
+
+    if (ts >= sevenCutoff) {
+      execTotal7d += 1;
+      if (isSuccess) execSuccess7d += 1;
+      if (Number.isFinite(ev.latency_ms) && ev.latency_ms >= 0) {
+        latencyTotal7d += ev.latency_ms;
+        latencyCount7d += 1;
+      }
+    }
+
+    if (isSuccess && _socialIntelIsoDayUTC(new Date(ts)) === todayUtc) {
+      publishedToday += 1;
+    }
+
+    if (isFailure && ts >= day24Cutoff) {
+      failures24h += 1;
+      var cls = ev.error_class || 'UNKNOWN';
+      issueCount24h[cls] = (issueCount24h[cls] || 0) + 1;
+      issueLatest24h[cls] = Math.max(issueLatest24h[cls] || 0, ts);
+    }
+  }
+
+  var topIssue24h = null;
+  var issueKeys = Object.keys(issueCount24h);
+  if (issueKeys.length > 0) {
+    issueKeys.sort(function (a, b) {
+      var countDiff = (issueCount24h[b] || 0) - (issueCount24h[a] || 0);
+      if (countDiff !== 0) return countDiff;
+      var recencyDiff = (issueLatest24h[b] || 0) - (issueLatest24h[a] || 0);
+      if (recencyDiff !== 0) return recencyDiff;
+      return a.localeCompare(b);
+    });
+    topIssue24h = issueKeys[0] || null;
+  }
+
+  var byPlatform = {
+    x: { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 },
+    linkedin: { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 },
+    bluesky: { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 }
+  };
+  var platformPostSets = { x: {}, linkedin: {}, bluesky: {} };
+  var postAgg = {};
+
+  for (var j = 0; j < snapshots.length; j++) {
+    var s = snapshots[j] || {};
+    var pts = Date.parse(s.captured_at || '');
+    if (!Number.isFinite(pts) || pts < sevenCutoff) continue;
+    var platform = String(s.post_platform || '').toLowerCase();
+    if (!byPlatform[platform]) continue;
+
+    var likes = Number.isFinite(s.metrics && s.metrics.likes) ? s.metrics.likes : 0;
+    var comments = Number.isFinite(s.metrics && s.metrics.comments) ? s.metrics.comments : 0;
+    var reposts = Number.isFinite(s.metrics && s.metrics.reposts) ? s.metrics.reposts : 0;
+
+    byPlatform[platform].likes7d += likes;
+    byPlatform[platform].comments7d += comments;
+    byPlatform[platform].reposts7d += reposts;
+
+    var postId = String(s.post_id || s.action_id || '').trim();
+    if (postId) {
+      platformPostSets[platform][postId] = true;
+    }
+
+    var postKey = platform + '|' + (postId || (s.post_url || '').trim());
+    if (!postKey || postKey === platform + '|') continue;
+    if (!postAgg[postKey]) {
+      postAgg[postKey] = {
+        platform: platform,
+        post_url: s.post_url || '',
+        likes: 0,
+        comments: 0,
+        reposts: 0,
+        latestTs: pts
+      };
+    }
+    postAgg[postKey].likes += likes;
+    postAgg[postKey].comments += comments;
+    postAgg[postKey].reposts += reposts;
+    if (pts > postAgg[postKey].latestTs) postAgg[postKey].latestTs = pts;
+    if (!postAgg[postKey].post_url && s.post_url) postAgg[postKey].post_url = s.post_url;
+  }
+
+  byPlatform.x.posts7d = Object.keys(platformPostSets.x).length;
+  byPlatform.linkedin.posts7d = Object.keys(platformPostSets.linkedin).length;
+  byPlatform.bluesky.posts7d = Object.keys(platformPostSets.bluesky).length;
+
+  var topPosts7d = Object.keys(postAgg)
+    .map(function (k) { return postAgg[k]; })
+    .sort(function (a, b) {
+      if (b.likes !== a.likes) return b.likes - a.likes;
+      if (b.latestTs !== a.latestTs) return b.latestTs - a.latestTs;
+      var ap = a.platform || '';
+      var bp = b.platform || '';
+      if (ap !== bp) return ap.localeCompare(bp);
+      return String(a.post_url || '').localeCompare(String(b.post_url || ''));
+    })
+    .slice(0, 5)
+    .map(function (p) {
+      return {
+        platform: p.platform,
+        post_url: p.post_url || '',
+        likes: p.likes,
+        comments: p.comments,
+        reposts: p.reposts
+      };
+    });
+
+  var mode = _socialIntelResolveMode(engagementMeta, snapshots);
+  var lastPulledAt = (engagementMeta && typeof engagementMeta.lastPulledAt === 'string' && !Number.isNaN(Date.parse(engagementMeta.lastPulledAt)))
+    ? engagementMeta.lastPulledAt
+    : null;
+
+  var successRate7d = execTotal7d > 0 ? Number(((execSuccess7d / execTotal7d) * 100).toFixed(2)) : 0;
+  var avgExecutionLatencyMs7d = latencyCount7d > 0 ? Math.round(latencyTotal7d / latencyCount7d) : 0;
+
+  var topEngagementPlatform = 'x';
+  ['x', 'linkedin', 'bluesky'].forEach(function (p) {
+    if (byPlatform[p].likes7d > byPlatform[topEngagementPlatform].likes7d) topEngagementPlatform = p;
+  });
+
+  var signals = [];
+  signals.push('Delivery 7d: ' + execSuccess7d + '/' + execTotal7d + ' executions succeeded (' + successRate7d + '%).');
+  signals.push('Failures 24h: ' + failures24h + (topIssue24h ? ' (top issue: ' + topIssue24h + ').' : '.'));
+  signals.push('Top engagement platform (likes 7d): ' + topEngagementPlatform + ' (' + byPlatform[topEngagementPlatform].likes7d + ').');
+
+  var recommendations = [];
+  if (mode !== 'real') {
+    recommendations.push('Validate live engagement pull path before making channel strategy changes.');
+  }
+  if (failures24h > 0 && topIssue24h) {
+    recommendations.push('Investigate ' + topIssue24h + ' failures in the last 24h and patch retry/content guardrails.');
+  }
+  if (successRate7d < 90) {
+    recommendations.push('Improve delivery reliability before increasing social posting cadence.');
+  }
+  ['x', 'linkedin', 'bluesky'].forEach(function (p) {
+    if (recommendations.length >= 3) return;
+    if (byPlatform[p].posts7d === 0) {
+      recommendations.push('Publish at least one ' + p + ' post this week to restore engagement signal coverage.');
+    }
+  });
+  if (recommendations.length === 0) {
+    recommendations.push('Maintain current cadence and monitor latency and issue drift daily.');
+  }
+
+  return {
+    asOfUtc: new Date(now).toISOString(),
+    windowDays: 7,
+    mode: mode,
+    lastPulledAt: lastPulledAt,
+    delivery: {
+      publishedToday: publishedToday,
+      failures24h: failures24h,
+      successRate7d: successRate7d,
+      avgExecutionLatencyMs7d: avgExecutionLatencyMs7d,
+      topIssue24h: topIssue24h
+    },
+    engagement: {
+      byPlatform: byPlatform
+    },
+    topPosts7d: topPosts7d,
+    signals: signals.slice(0, 3),
+    recommendations: recommendations.slice(0, 3)
+  };
+}
+
+function _buildSocialIntelPromptBlock(agent, socialIntel) {
+  if (!socialIntel || !agent || (agent.name !== 'Echo' && agent.name !== 'Nova')) return '';
+  var byPlatform = (socialIntel.engagement && socialIntel.engagement.byPlatform) || {};
+  var px = byPlatform.x || { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 };
+  var pl = byPlatform.linkedin || { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 };
+  var pb = byPlatform.bluesky || { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 };
+  var warning = socialIntel.mode !== 'real'
+    ? '\n⚠ Metrics are mock/fallback; do not change strategy based solely on this.'
+    : '';
+
+  if (agent.name === 'Echo') {
+    var top3 = (socialIntel.topPosts7d || []).slice(0, 3);
+    var top3Lines = top3.length
+      ? top3.map(function (p) {
+        return '- ' + p.platform + ': ' + (p.likes || 0) + ' likes, ' + (p.comments || 0) + ' comments, ' + (p.reposts || 0) + ' reposts' + (p.post_url ? ' (' + p.post_url + ')' : '');
+      }).join('\n')
+      : '- (none)';
+    var recLines = (socialIntel.recommendations || []).slice(0, 3).map(function (r) { return '- ' + r; }).join('\n') || '- (none)';
+    return '\n\nSOCIAL INTEL DIGEST (Echo — delivery + engagement, 7d UTC):' +
+      '\n- As of: ' + (socialIntel.asOfUtc || '') +
+      '\n- Delivery: successRate7d=' + (socialIntel.delivery && socialIntel.delivery.successRate7d || 0) + '%, publishedToday=' + (socialIntel.delivery && socialIntel.delivery.publishedToday || 0) + ', failures24h=' + (socialIntel.delivery && socialIntel.delivery.failures24h || 0) + ', avgLatencyMs7d=' + (socialIntel.delivery && socialIntel.delivery.avgExecutionLatencyMs7d || 0) + ', topIssue24h=' + ((socialIntel.delivery && socialIntel.delivery.topIssue24h) || 'null') +
+      '\n- Engagement by platform (7d):' +
+      '\n  - x: likes=' + px.likes7d + ', comments=' + px.comments7d + ', reposts=' + px.reposts7d + ', posts=' + px.posts7d +
+      '\n  - linkedin: likes=' + pl.likes7d + ', comments=' + pl.comments7d + ', reposts=' + pl.reposts7d + ', posts=' + pl.posts7d +
+      '\n  - bluesky: likes=' + pb.likes7d + ', comments=' + pb.comments7d + ', reposts=' + pb.reposts7d + ', posts=' + pb.posts7d +
+      '\n- Top posts (max 3):\n' + top3Lines +
+      '\n- Recommendations (max 3):\n' + recLines +
+      warning;
+  }
+
+  var shortRecs = (socialIntel.recommendations || []).slice(0, 2).map(function (r) { return '- ' + r; }).join('\n') || '- (none)';
+  return '\n\nSOCIAL INTEL DIGEST (Nova — concise, 7d UTC):' +
+    '\n- Delivery: successRate7d=' + (socialIntel.delivery && socialIntel.delivery.successRate7d || 0) + '%, publishedToday=' + (socialIntel.delivery && socialIntel.delivery.publishedToday || 0) + ', failures24h=' + (socialIntel.delivery && socialIntel.delivery.failures24h || 0) +
+    '\n- Engagement by platform (7d): x=' + px.likes7d + '/' + px.comments7d + '/' + px.reposts7d + ' (posts ' + px.posts7d + '), linkedin=' + pl.likes7d + '/' + pl.comments7d + '/' + pl.reposts7d + ' (posts ' + pl.posts7d + '), bluesky=' + pb.likes7d + '/' + pb.comments7d + '/' + pb.reposts7d + ' (posts ' + pb.posts7d + ')' +
+    '\n- topIssue24h=' + ((socialIntel.delivery && socialIntel.delivery.topIssue24h) || 'null') + ', lastPulledAt=' + (socialIntel.lastPulledAt || 'null') +
+    '\n- Recommendations (max 2):\n' + shortRecs +
+    warning;
 }
 
 // ── Escalation Hierarchy: Owner → Domain Lead → CEO (Nova) ──
@@ -188,6 +443,18 @@ module.exports = async function (context) {
     const workspaceMemory = (await storage.getState('workspaceMemory')) || [];
     const workspaceDates = (await storage.getState('dates')) || [];
     const allActions = (await storage.getState('actions')) || [];
+    const socialMetricsEvents = (await storage.getState('socialMetricsEvents')) || [];
+    const socialEngagementSnapshots = (await storage.getState('socialEngagementSnapshots')) || [];
+    const socialEngagementMeta = (await storage.getState('socialEngagementMeta')) || {};
+    const runtimeMemory = (await storage.getState('runtimeMemory')) || {};
+    const socialIntel = _socialIntelBuildDigest(
+      runtimeMemory && runtimeMemory.socialIntel,
+      socialMetricsEvents,
+      socialEngagementSnapshots,
+      socialEngagementMeta,
+      Date.now()
+    );
+    runtimeMemory.socialIntel = socialIntel;
     const revisionActions = allActions.filter(a => a.approval && a.approval.status === 'revision_requested');
     // Load persistent agent memories
     _agentMemoryStore = (await storage.getState('agentMemories')) || {};
@@ -402,7 +669,7 @@ module.exports = async function (context) {
           activeDirectives, activeObjectives, documents,
           workspaceMemory, workspaceDates, revisionActions,
           agentId === 'cipher' ? costIntel : null,
-          _reviewCooldownIds, _seedMemories, researchIntelStore
+          _reviewCooldownIds, _seedMemories, researchIntelStore, socialIntel
         );
         // Collect any new research intel from this agent's cycle
         if (result.newResearchIntel) {
@@ -535,6 +802,7 @@ module.exports = async function (context) {
     await storage.setState('agentConfigs', configs);
     await storage.setState('agentMemories', _agentMemoryStore);
     await storage.setState('researchIntel', researchIntelStore);
+    await storage.setState('runtimeMemory', runtimeMemory);
 
     // Persist escalations to approval queue
     if (_pendingEscalations.length > 0) {
@@ -610,7 +878,7 @@ module.exports = async function (context) {
 };
 
 // ── Run a single agent's heartbeat ──
-async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore) {
+async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel) {
   const result = { geminiCalls: 0, actions: 0, taskUpdates: [], newResearchIntel: null };
   const agent = AGENT_ROLES[agentId];
   if (!agent) return result;
@@ -632,7 +900,7 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
   // Only show this agent their own revision-requested actions
   const agentRevisions = (revisionActions || []).filter(a => a.created_by === agentId || a.origin_agent === agentId);
 
-  const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore);
+  const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel);
 
   // Call Gemini
   const response = await callGemini(prompt, agentId);
@@ -2718,7 +2986,7 @@ function buildSiteContextBlock() {
 }
 
 // ── Build heartbeat prompt ──
-function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore) {
+function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel) {
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
   documents = documents || [];
@@ -3050,6 +3318,8 @@ You must remain within your assigned authority tier. Doctrine influences your st
     memoryBlock = '\nYOUR MEMORY (persistent notes from previous heartbeats — use these to avoid repeating yourself and to build on past work):\n' + memLines + '\n';
   }
 
+  const socialIntelSection = _buildSocialIntelPromptBlock(agent, socialIntel);
+
   return `You are ${agent.name}, ${agent.role} at AmbientPixels. Your focus: ${agent.focus}.
 ${personalityBlock}${doctrineBlock}${seedBlock}${memoryBlock}
 This is an automated heartbeat check. Review your current tasks and the company task board, then decide what actions to take (if any). Not every heartbeat needs action — only act if something is genuinely needed.
@@ -3062,7 +3332,7 @@ ${otherTasks}
 
 TASKS AWAITING REVIEW (from other agents — you can review these):
 ${reviewableTasks}
-${triageSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${workspaceSection}${costSection}${revisionSection}
+${triageSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${workspaceSection}${costSection}${revisionSection}${socialIntelSection}
 ${buildSiteContextBlock()}
 CURRENT TIME: ${new Date().toISOString()}
 
