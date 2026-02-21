@@ -189,7 +189,8 @@ function buildLayerRecords(data) {
       status: 'ok',
       staleThresholdMs: null,
       description: 'Base agent voice/personality from company-agents.json',
-      order: '1/6'
+      order: '1/6',
+      sourcePath: data.agentsSourcePath || ''
     },
     L2: {
       id: 'L2',
@@ -211,7 +212,8 @@ function buildLayerRecords(data) {
       status: 'ok',
       staleThresholdMs: null,
       description: 'Strategic doctrine layer that biases decisions per agent',
-      order: '2/6'
+      order: '2/6',
+      sourcePath: data.agentsSourcePath || ''
     },
     L3: {
       id: 'L3',
@@ -226,7 +228,8 @@ function buildLayerRecords(data) {
       status: approxBytes(seedMem) > 2 ? 'ok' : 'empty',
       staleThresholdMs: null,
       description: 'CEO-curated seed memory (_global + per-agent)',
-      order: '3/6'
+      order: '3/6',
+      sourcePath: 'blob:agentSeedMemories'
     },
     L4: {
       id: 'L4',
@@ -244,7 +247,8 @@ function buildLayerRecords(data) {
       status: 'ok',
       staleThresholdMs: 2 * 60 * 60 * 1000,
       description: 'Live runtime memory buffers (agentMemories + runtimeMemory)',
-      order: '4/6'
+      order: '4/6',
+      sourcePath: 'blob:agentMemories+runtimeMemory'
     },
     L5: {
       id: 'L5',
@@ -259,7 +263,8 @@ function buildLayerRecords(data) {
       status: wsMem.length > 0 ? 'ok' : 'empty',
       staleThresholdMs: null,
       description: 'Workspace notes and pinned CEO context',
-      order: '5/6'
+      order: '5/6',
+      sourcePath: 'blob:workspaceMemory'
     },
     L6: {
       id: 'L6',
@@ -274,7 +279,8 @@ function buildLayerRecords(data) {
       status: digest ? 'ok' : 'empty',
       staleThresholdMs: 24 * 60 * 60 * 1000,
       description: 'Generated site manifest digest injected at tail of prompt',
-      order: '6/6'
+      order: '6/6',
+      sourcePath: data.digestSourcePath || ''
     }
   };
 
@@ -307,6 +313,15 @@ function buildLayerRecords(data) {
   return records;
 }
 
+function buildAgentSizes(layer) {
+  if (!layer.agentMap || typeof layer.agentMap !== 'object') return null;
+  var keys = Object.keys(layer.agentMap);
+  if (!keys.length) return null;
+  return keys.map(function (k) {
+    return { agent: k, bytes: approxBytes(layer.agentMap[k]) };
+  });
+}
+
 function buildLayerMeta(r) {
   return {
     id: r.id,
@@ -316,7 +331,10 @@ function buildLayerMeta(r) {
     agentsCovered: r.agentsCovered,
     lastUpdatedAt: r.lastUpdatedAt,
     sizeBytes: r.sizeBytes,
-    status: r.status
+    status: r.status,
+    staleThresholdMs: r.staleThresholdMs || null,
+    sourcePath: r.sourcePath || '',
+    agentSizes: buildAgentSizes(r)
   };
 }
 
@@ -385,8 +403,10 @@ async function loadLayerSources() {
   return {
     agentDefs: companyAgents,
     companyAgentsMtime,
+    agentsSourcePath: agentsFile.path || '',
     siteDigest,
     siteDigestMtime,
+    digestSourcePath: digestFile.path || '',
     agentSeedMemories,
     agentMemories,
     workspaceMemory,
@@ -474,7 +494,9 @@ module.exports = async function (context, req) {
           lastUpdatedAt: layer.lastUpdatedAt,
           sizeBytes: layer.sizeBytes,
           injectionOrder: layer.order,
-          description: layer.description
+          description: layer.description,
+          staleThresholdMs: layer.staleThresholdMs || null,
+          sourcePath: layer.sourcePath || ''
         },
         agent_id: agentId || null,
         view: view,

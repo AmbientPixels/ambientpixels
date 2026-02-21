@@ -133,6 +133,110 @@
 
 .ms-empty { font-size: 0.6rem; opacity: 0.45; }
 
+/* SLA freshness label */
+.ms-sla {
+  display: inline-block;
+  font-size: 0.44rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  padding: 0.04rem 0.28rem;
+  border-radius: 999px;
+  background: rgba(52,211,153,0.1);
+  color: #34d399;
+  vertical-align: middle;
+  margin-left: 0.2rem;
+}
+.ms-sla--warn {
+  background: rgba(251,191,36,0.12);
+  color: #fbbf24;
+}
+
+/* Source tags */
+.ms-source-tag {
+  display: inline-block;
+  font-size: 0.42rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.04rem 0.24rem;
+  border-radius: 999px;
+  background: rgba(96,165,250,0.08);
+  color: rgba(96,165,250,0.7);
+  margin-top: 0.14rem;
+}
+.ms-source-path {
+  font-size: 0.52rem;
+  opacity: 0.6;
+  word-break: break-all;
+}
+
+/* Small button variant */
+.ms-btn--sm {
+  font-size: 0.5rem;
+  padding: 0.22rem 0.38rem;
+}
+
+/* Agent heatmap */
+.ms-heatmap {
+  display: grid;
+  gap: 0.22rem;
+  margin-top: 0.22rem;
+}
+.ms-heat-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.28rem;
+  position: relative;
+  min-height: 1.1rem;
+}
+.ms-heat-bar {
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+  pointer-events: none;
+  z-index: 0;
+}
+.ms-heat-name {
+  position: relative;
+  z-index: 1;
+  font-size: 0.5rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.82);
+  padding-left: 0.28rem;
+}
+.ms-heat-size {
+  position: relative;
+  z-index: 1;
+  margin-left: auto;
+  font-size: 0.44rem;
+  opacity: 0.55;
+  padding-right: 0.28rem;
+}
+
+/* Key-size chips in summary */
+.ms-key-sizes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.24rem;
+  margin-top: 0.22rem;
+  align-items: center;
+}
+.ms-key-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.18rem;
+  font-size: 0.48rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 4px;
+  padding: 0.1rem 0.28rem;
+  color: rgba(255,255,255,0.72);
+}
+.ms-key-chip em {
+  font-style: normal;
+  opacity: 0.5;
+}
+
 @media (max-width: 1080px) {
   .ms-layout { grid-template-columns: 1fr; }
   .ms-panel { min-height: auto; }

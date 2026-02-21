@@ -6,7 +6,10 @@
     selectedLayer: null,
     selectedAgent: '',
     view: 'summary',
-    lastPayloadText: ''
+    redact: true,
+    lastPayloadText: '',
+    lastFullPayload: null,
+    lastLayerResp: null
   };
 
   function getApiBase() {
@@ -59,6 +62,21 @@
     return 'ms-badge--empty';
   }
 
+  function slaLabel(l) {
+    if (!l.staleThresholdMs) return '';
+    var hrs = Math.round(l.staleThresholdMs / (60 * 60 * 1000));
+    if (l.status === 'stale') return 'SLA >' + hrs + 'h breached';
+    if (l.status === 'ok' && l.lastUpdatedAt) return 'SLA <' + hrs + 'h';
+    return '';
+  }
+
+  function sourceTag(l) {
+    if (!l.sourcePath) return '';
+    if (l.sourcePath.indexOf('https://') === 0) return 'fallback URL';
+    if (l.sourcePath.indexOf('blob:') === 0) return 'blob';
+    return 'local file';
+  }
+
   function layerSupportsAgent(layerId) {
     return layerId === 'L1' || layerId === 'L2' || layerId === 'L3' || layerId === 'L4';
   }
@@ -86,6 +104,8 @@
     var html = '';
     state.layers.forEach(function (l) {
       var isActive = state.selectedLayer && state.selectedLayer.id === l.id;
+      var sla = slaLabel(l);
+      var src = sourceTag(l);
       html += '<button type="button" class="ms-layer' + (isActive ? ' ms-layer--active' : '') + '" data-layer="' + esc(l.id) + '">';
       html += '<div class="ms-layer-top">';
       html += '<span class="ms-layer-id">' + esc(l.id) + '</span>';
@@ -93,9 +113,11 @@
       html += '<span class="ms-badge ' + statusClass(l.status) + '">' + esc(l.status) + '</span>';
       html += '</div>';
       html += '<div class="ms-layer-meta">';
-      html += '<div>Scope: ' + esc(l.scope) + '</div>';
-      html += '<div>Size: ' + esc(bytesToKb(l.sizeBytes)) + '</div>';
-      html += '<div>Updated: ' + esc(relTime(l.lastUpdatedAt)) + '</div>';
+      html += '<div>Scope: ' + esc(l.scope) + ' · Size: ' + esc(bytesToKb(l.sizeBytes)) + '</div>';
+      html += '<div>Updated: ' + esc(relTime(l.lastUpdatedAt));
+      if (sla) html += ' <span class="ms-sla' + (l.status === 'stale' ? ' ms-sla--warn' : '') + '">' + esc(sla) + '</span>';
+      html += '</div>';
+      if (src) html += '<div class="ms-source-tag">' + esc(src) + '</div>';
       html += '</div></button>';
     });
     root.innerHTML = html;
@@ -108,11 +130,31 @@
         state.selectedLayer = found;
         state.selectedAgent = '';
         state.view = 'summary';
+        state.redact = true;
         renderLayers();
         renderDetail();
         loadLayerView();
       });
     });
+  }
+
+  function renderAgentHeatmap(l) {
+    if (!l.agentSizes || !l.agentSizes.length) return '';
+    var maxB = 1;
+    l.agentSizes.forEach(function (a) { if (a.bytes > maxB) maxB = a.bytes; });
+    var html = '<div class="ms-detail-row"><span class="ms-label">Agent Memory Map</span>';
+    html += '<div class="ms-heatmap">';
+    l.agentSizes.forEach(function (a) {
+      var pct = Math.max(4, Math.round((a.bytes / maxB) * 100));
+      var color = a.bytes === 0 ? 'rgba(255,255,255,0.04)' : 'rgba(96,165,250,' + (0.15 + 0.6 * (a.bytes / maxB)).toFixed(2) + ')';
+      html += '<div class="ms-heat-cell" title="' + esc(a.agent) + ': ' + esc(bytesToKb(a.bytes)) + '">';
+      html += '<div class="ms-heat-bar" style="width:' + pct + '%; background:' + color + ';"></div>';
+      html += '<span class="ms-heat-name">' + esc(a.agent) + '</span>';
+      html += '<span class="ms-heat-size">' + esc(bytesToKb(a.bytes)) + '</span>';
+      html += '</div>';
+    });
+    html += '</div></div>';
+    return html;
   }
 
   function renderDetail() {
@@ -133,16 +175,24 @@
       agentOptions += '<option value="' + esc(key) + '"' + (state.selectedAgent === key ? ' selected' : '') + '>' + esc(name) + '</option>';
     });
 
+    var sla = slaLabel(l);
+    var src = l.sourcePath || '';
+    var srcDisplay = src ? src : '—';
+
     root.innerHTML = '' +
       '<div class="ms-detail-row"><span class="ms-label">Layer</span><strong>' + esc(l.id + ' — ' + l.name) + '</strong></div>' +
       '<div class="ms-detail-row"><span class="ms-label">Description</span>' + esc(layerDescription(l.id)) + '</div>' +
       '<div class="ms-detail-row"><span class="ms-label">Injection order</span>' + esc(l.id + ' in heartbeat prompt sequence') + '</div>' +
       '<div class="ms-detail-row"><span class="ms-label">Scope</span>' + esc(l.scope) + '</div>' +
+      '<div class="ms-detail-row"><span class="ms-label">Source</span><span class="ms-source-path">' + esc(srcDisplay) + '</span></div>' +
+      (sla ? '<div class="ms-detail-row"><span class="ms-label">Freshness SLA</span><span class="ms-sla' + (l.status === 'stale' ? ' ms-sla--warn' : '') + '">' + esc(sla) + '</span></div>' : '') +
+      renderAgentHeatmap(l) +
       '<div class="ms-detail-row"><span class="ms-label">Agent</span>' +
       '<select id="ms-agent" class="ms-agent-select" ' + (canSelectAgent ? '' : 'disabled') + '>' + agentOptions + '</select></div>' +
       '<div class="ms-controls">' +
-        '<button id="ms-view-summary" class="ms-btn" type="button">View Summary</button>' +
-        '<button id="ms-view-full" class="ms-btn ms-btn--ghost" type="button">View Full</button>' +
+        '<button id="ms-view-summary" class="ms-btn' + (state.view === 'summary' ? '' : ' ms-btn--ghost') + '" type="button">Summary</button>' +
+        '<button id="ms-view-full" class="ms-btn' + (state.view === 'full' ? '' : ' ms-btn--ghost') + '" type="button">Full</button>' +
+        '<button id="ms-toggle-redact" class="ms-btn ms-btn--ghost ms-btn--sm" type="button">' + (state.redact ? 'Redacted' : 'Raw') + '</button>' +
       '</div>';
 
     var agentSel = document.getElementById('ms-agent');
@@ -154,10 +204,17 @@
     }
     document.getElementById('ms-view-summary').addEventListener('click', function () {
       state.view = 'summary';
+      renderDetail();
       loadLayerView();
     });
     document.getElementById('ms-view-full').addEventListener('click', function () {
       state.view = 'full';
+      renderDetail();
+      loadLayerView();
+    });
+    document.getElementById('ms-toggle-redact').addEventListener('click', function () {
+      state.redact = !state.redact;
+      renderDetail();
       loadLayerView();
     });
   }
@@ -175,6 +232,16 @@
     document.getElementById('ms-preview').textContent = out;
   }
 
+  function buildCurlCmd() {
+    if (!state.selectedLayer) return '';
+    var p = new URLSearchParams();
+    p.set('layer', state.selectedLayer.id);
+    p.set('view', state.view || 'summary');
+    p.set('redact', state.redact ? '1' : '0');
+    if (state.selectedAgent) p.set('agent_id', state.selectedAgent);
+    return 'curl -s "' + getApiBase() + '/memory-stack?' + p.toString() + '" -H "x-company-secret: $SECRET"';
+  }
+
   function renderPreview(data) {
     var summaryRoot = document.getElementById('ms-preview-summary');
     var summary = data && data.summary;
@@ -185,6 +252,13 @@
       html += '<div><strong>Approx bytes:</strong> ' + esc(summary.approxBytes || 0) + '</div>';
       if (summary.topLevelKeys) html += '<div><strong>Top keys:</strong> ' + esc((summary.topLevelKeys || []).join(', ') || '—') + '</div>';
       if (summary.length !== undefined) html += '<div><strong>Length:</strong> ' + esc(summary.length) + '</div>';
+      if (summary.keySizes && summary.keySizes.length) {
+        html += '<div class="ms-key-sizes"><strong>Key sizes:</strong>';
+        summary.keySizes.forEach(function (ks) {
+          html += '<span class="ms-key-chip">' + esc(ks.key) + ' <em>' + esc(bytesToKb(ks.approxBytes)) + '</em></span>';
+        });
+        html += '</div>';
+      }
       summaryRoot.innerHTML = html;
     } else {
       summaryRoot.innerHTML = '<div class="ms-empty">No summary available.</div>';
@@ -228,7 +302,7 @@
     var p = new URLSearchParams();
     p.set('layer', state.selectedLayer.id);
     p.set('view', state.view || 'summary');
-    p.set('redact', '1');
+    p.set('redact', state.redact ? '1' : '0');
     if (state.selectedAgent) p.set('agent_id', state.selectedAgent);
 
     var url = getApiBase() + '/memory-stack?' + p.toString();
@@ -238,12 +312,24 @@
       })
       .then(function (resp) {
         if (!resp.ok) throw new Error((resp.body && resp.body.error) || ('HTTP ' + resp.status));
+        state.lastLayerResp = resp.body || {};
         renderPreview(resp.body || {});
       })
       .catch(function (err) {
         state.lastPayloadText = 'Failed to load layer preview: ' + (err.message || 'Unknown error');
         applySearchFilter();
       });
+  }
+
+  function copyText(txt, btn, label) {
+    if (!txt) return;
+    navigator.clipboard.writeText(txt).then(function () {
+      btn.textContent = 'Copied';
+      setTimeout(function () { btn.innerHTML = label; }, 1200);
+    }).catch(function () {
+      btn.textContent = 'Failed';
+      setTimeout(function () { btn.innerHTML = label; }, 1200);
+    });
   }
 
   function bindGlobal() {
@@ -253,15 +339,14 @@
     var copyBtn = document.getElementById('ms-copy');
     if (copyBtn) {
       copyBtn.addEventListener('click', function () {
-        var txt = state.lastPayloadText || '';
-        if (!txt) return;
-        navigator.clipboard.writeText(txt).then(function () {
-          copyBtn.textContent = 'Copied';
-          setTimeout(function () { copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy'; }, 1200);
-        }).catch(function () {
-          copyBtn.textContent = 'Copy failed';
-          setTimeout(function () { copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy'; }, 1200);
-        });
+        copyText(state.lastPayloadText, copyBtn, '<i class="fas fa-copy"></i> Copy');
+      });
+    }
+
+    var curlBtn = document.getElementById('ms-curl');
+    if (curlBtn) {
+      curlBtn.addEventListener('click', function () {
+        copyText(buildCurlCmd(), curlBtn, '<i class="fas fa-terminal"></i> cURL');
       });
     }
   }
