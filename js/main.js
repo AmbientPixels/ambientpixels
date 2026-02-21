@@ -1,6 +1,7 @@
 // File: /js/main.js — Ambient Pixels v2.4 core
 
-const VERSION = 'v2.4';
+const VERSION = 'v2.5';
+const isHome = location.pathname === '/' || location.pathname === '/index.html' || location.pathname.endsWith('/index.html');
 
 /**
  * Detects the brightness of an image and applies appropriate text contrast
@@ -128,19 +129,20 @@ function initHero() {
     currentSlide = (currentSlide + 1) % slides.length;
     slides[currentSlide].classList.add('active');
 
-    // Select random headline + subheadline
-    const headlineIndex = Math.floor(Math.random() * headlines.length);
-    const subIndex = Math.floor(Math.random() * subheadlines.length);
+    // On home, keep headline/subheadline fixed; other pages randomize
+    if (!isHome) {
+      const headlineIndex = Math.floor(Math.random() * headlines.length);
+      const subIndex = Math.floor(Math.random() * subheadlines.length);
 
-    // Apply text with glitch effect
-    headlineEl.classList.remove('glitch-text');
-    subEl.classList.remove('glitch-text');
-    setTimeout(() => {
-      headlineEl.textContent = headlines[headlineIndex];
-      subEl.textContent = subheadlines[subIndex];
-      headlineEl.classList.add('glitch-text');
-      subEl.classList.add('glitch-text');
-    }, 500);
+      headlineEl.classList.remove('glitch-text');
+      subEl.classList.remove('glitch-text');
+      setTimeout(() => {
+        headlineEl.textContent = headlines[headlineIndex];
+        subEl.textContent = subheadlines[subIndex];
+        headlineEl.classList.add('glitch-text');
+        subEl.classList.add('glitch-text');
+      }, 500);
+    }
 
     // Add buttons animation
     const ctaButtons = document.querySelector('.hero-cta');
@@ -165,13 +167,18 @@ function initHero() {
     loading.style.transition = 'opacity 0.5s ease';
     setTimeout(() => {
       loading.style.display = 'none';
-      // Show random headline and subheadline
-      const headlineIndex = Math.floor(Math.random() * headlines.length);
-      const subIndex = Math.floor(Math.random() * subheadlines.length);
+      // On home: fixed headline; other pages: random
+      if (isHome) {
+        headlineEl.textContent = 'An AI-Orchestrated Company.';
+        subEl.textContent = 'Autonomous agents run operations. Human governance approves outcomes. Real products ship continuously.';
+      } else {
+        const headlineIndex = Math.floor(Math.random() * headlines.length);
+        const subIndex = Math.floor(Math.random() * subheadlines.length);
+        headlineEl.textContent = headlines[headlineIndex];
+        subEl.textContent = subheadlines[subIndex];
+      }
       headlineEl.classList.remove('glitch-text');
       subEl.classList.remove('glitch-text');
-      headlineEl.textContent = headlines[headlineIndex];
-      subEl.textContent = subheadlines[subIndex];
       headlineEl.classList.add('glitch-text');
       subEl.classList.add('glitch-text');
       // Make hero content visible

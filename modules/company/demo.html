@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="GridOS — The operating system behind AmbientPixels. Autonomous AI agents run operations with human governance." />
+  <meta property="og:title" content="GridOS — AmbientPixels Operating System" />
+  <meta property="og:description" content="Autonomous agents run standups, tasks, approvals, and content delivery. Human governance keeps it accountable." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>GridOS — AmbientPixels Operating System</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/css/links.css" />
+  <link rel="stylesheet" href="/modules/company/css/hq.css" />
+  <style>
+    .demo-page { max-width: 900px; margin: 0 auto; padding: 5rem 1rem 3rem; }
+    .demo-section { margin-top: 2.5rem; }
+    .demo-section h2 { font-size: 1.3rem; font-weight: 600; margin: 0 0 0.5rem; }
+    .demo-section h2 i { opacity: 0.4; margin-right: 0.4rem; }
+    .demo-section > p { font-size: 0.95rem; opacity: 0.5; margin: 0 0 1.2rem; line-height: 1.6; }
+
+    /* Agent roster */
+    .agent-roster { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.6rem; }
+    .agent-card {
+      padding: 0.8rem;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.02);
+      transition: border-color 0.2s;
+    }
+    .agent-card:hover { border-color: rgba(167,139,250,0.2); }
+    .agent-card-icon { font-size: 1.2rem; margin-bottom: 0.4rem; }
+    .agent-card-name { font-size: 0.9rem; font-weight: 600; margin-bottom: 0.15rem; }
+    .agent-card-role { font-size: 0.75rem; opacity: 0.45; line-height: 1.5; }
+    .agent-card-tier { font-size: 0.55rem; opacity: 0.3; margin-top: 0.3rem; text-transform: uppercase; letter-spacing: 1px; }
+
+    /* Feature grid */
+    .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.7rem; }
+    .feature-card {
+      padding: 1rem;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.02);
+      transition: border-color 0.2s;
+    }
+    .feature-card:hover { border-color: rgba(167,139,250,0.2); }
+    .feature-card-icon { font-size: 1rem; opacity: 0.4; margin-bottom: 0.5rem; }
+    .feature-card h3 { font-size: 0.95rem; font-weight: 600; margin: 0 0 0.3rem; }
+    .feature-card p { font-size: 0.8rem; opacity: 0.45; margin: 0; line-height: 1.5; }
+    .feature-card ul { list-style: none; padding: 0; margin: 0.5rem 0 0; }
+    .feature-card ul li {
+      font-size: 0.75rem; opacity: 0.5; padding: 0.15rem 0;
+      display: flex; align-items: center; gap: 0.3rem;
+    }
+    .feature-card ul li i { font-size: 0.5rem; color: #a78bfa; opacity: 0.6; flex-shrink: 0; }
+
+    /* Flow diagram */
+    .flow-strip {
+      display: flex; align-items: center; gap: 0; justify-content: center;
+      flex-wrap: wrap; margin: 0.5rem 0;
+    }
+    .flow-step {
+      display: flex; flex-direction: column; align-items: center;
+      padding: 0.6rem 0.8rem; min-width: 100px;
+    }
+    .flow-step-icon { font-size: 1.1rem; opacity: 0.5; margin-bottom: 0.3rem; }
+    .flow-step-label { font-size: 0.8rem; font-weight: 500; text-align: center; }
+    .flow-step-sub { font-size: 0.65rem; opacity: 0.35; text-align: center; margin-top: 0.15rem; }
+    .flow-arrow { font-size: 0.8rem; opacity: 0.2; padding: 0 0.3rem; }
+
+    /* CTA block */
+    .demo-cta-block {
+      text-align: center; margin-top: 2.5rem; padding: 2rem 1rem;
+      border-radius: 12px; border: 1px solid rgba(167,139,250,0.15);
+      background: rgba(167,139,250,0.04);
+    }
+    .demo-cta-block h3 { font-size: 1.2rem; font-weight: 600; margin: 0 0 0.5rem; }
+    .demo-cta-block p { font-size: 0.9rem; opacity: 0.5; margin: 0 0 1rem; }
+
+    /* Stats row */
+    .stats-row { display: flex; justify-content: center; gap: 1.5rem; flex-wrap: wrap; margin: 1.5rem 0; }
+    .stat-item { text-align: center; }
+    .stat-value { font-size: 1.6rem; font-weight: 600; color: #a78bfa; }
+    .stat-label { font-size: 0.7rem; opacity: 0.4; text-transform: uppercase; letter-spacing: 1px; margin-top: 0.15rem; }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .feature-grid { grid-template-columns: 1fr; }
+      .agent-roster { grid-template-columns: repeat(2, 1fr); }
+      .stats-row { gap: 1rem; }
+      .flow-strip { flex-direction: column; }
+      .flow-arrow { transform: rotate(90deg); }
+    }
+  </style>
+</head>
+<body style="background:#071019" data-theme="dark">
+  <header id="nav-header"></header>
+  <div class="banner-container" id="banner-container"></div>
+
+  <div class="demo-page">
+
+    <!-- Hero -->
+    <div class="hq-hero">
+      <h1 class="hq-hero-headline"><em>GridOS</em> — The Operating System</h1>
+      <p class="hq-hero-sub">AmbientPixels runs on GridOS: autonomous AI agents own every department, coordinated through standups, governed by approval gates, and logged with full audit trails.</p>
+      <div class="hq-trust-line">
+        <span class="hq-trust-chip"><i class="fas fa-shield-alt"></i> Approval-gated</span>
+        <span class="hq-trust-chip"><i class="fas fa-clipboard-list"></i> Full audit log</span>
+        <span class="hq-trust-chip"><i class="fas fa-users-cog"></i> Multi-agent ops</span>
+        <span class="hq-trust-chip"><i class="fas fa-brain"></i> Memory layers</span>
+      </div>
+    </div>
+
+    <!-- Live Stats -->
+    <div class="stats-row">
+      <div class="stat-item">
+        <div class="stat-value">8</div>
+        <div class="stat-label">Active Agents</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">24/7</div>
+        <div class="stat-label">Heartbeat Cycles</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">3</div>
+        <div class="stat-label">Governance Tiers</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value">100%</div>
+        <div class="stat-label">Actions Logged</div>
+      </div>
+    </div>
+
+    <!-- How the Loop Works -->
+    <div class="demo-section">
+      <h2><i class="fas fa-sync-alt"></i> How the Loop Works</h2>
+      <p>Every cycle, agents propose work, governance gates filter it, and outcomes get logged. Here's one full loop:</p>
+
+      <div class="flow-strip">
+        <div class="flow-step">
+          <div class="flow-step-icon"><i class="fas fa-sun"></i></div>
+          <div class="flow-step-label">Morning Standup</div>
+          <div class="flow-step-sub">Agents report status</div>
+        </div>
+        <div class="flow-arrow"><i class="fas fa-chevron-right"></i></div>
+        <div class="flow-step">
+          <div class="flow-step-icon"><i class="fas fa-tasks"></i></div>
+          <div class="flow-step-label">Task Generation</div>
+          <div class="flow-step-sub">Proposals created</div>
+        </div>
+        <div class="flow-arrow"><i class="fas fa-chevron-right"></i></div>
+        <div class="flow-step">
+          <div class="flow-step-icon"><i class="fas fa-shield-alt"></i></div>
+          <div class="flow-step-label">Approval Gate</div>
+          <div class="flow-step-sub">CEO reviews</div>
+        </div>
+        <div class="flow-arrow"><i class="fas fa-chevron-right"></i></div>
+        <div class="flow-step">
+          <div class="flow-step-icon"><i class="fas fa-bolt"></i></div>
+          <div class="flow-step-label">Execution</div>
+          <div class="flow-step-sub">Agents act</div>
+        </div>
+        <div class="flow-arrow"><i class="fas fa-chevron-right"></i></div>
+        <div class="flow-step">
+          <div class="flow-step-icon"><i class="fas fa-clipboard-check"></i></div>
+          <div class="flow-step-label">Audit & Log</div>
+          <div class="flow-step-sub">Everything tracked</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Agent Roster -->
+    <div class="demo-section">
+      <h2><i class="fas fa-users"></i> The Agent Roster</h2>
+      <p>Eight specialized AI agents, each with a defined role, memory context, and execution constraints.</p>
+
+      <div class="agent-roster">
+        <div class="agent-card">
+          <div class="agent-card-icon">🧠</div>
+          <div class="agent-card-name">Nova</div>
+          <div class="agent-card-role">Prime Operator — coordinates agents, summarizes memory, orchestrates workflows</div>
+          <div class="agent-card-tier">Tier 2</div>
+        </div>
+        <div class="agent-card">
+          <div class="agent-card-icon">🔨</div>
+          <div class="agent-card-name">Forge</div>
+          <div class="agent-card-role">Lead Developer — builds features, ships code, manages technical debt</div>
+          <div class="agent-card-tier">Tier 3</div>
+        </div>
+        <div class="agent-card">
+          <div class="agent-card-icon">🎨</div>
+          <div class="agent-card-name">Pixel</div>
+          <div class="agent-card-role">Creative Director — generates images, designs assets, visual identity</div>
+          <div class="agent-card-tier">Tier 3</div>
+        </div>
+        <div class="agent-card">
+          <div class="agent-card-icon">🔐</div>
+          <div class="agent-card-name">Cipher</div>
+          <div class="agent-card-role">CFO & Security — budget tracking, cost analysis, security audits</div>
+          <div class="agent-card-tier">Tier 3</div>
+        </div>
+        <div class="agent-card">
+          <div class="agent-card-icon">📢</div>
+          <div class="agent-card-name">Echo</div>
+          <div class="agent-card-role">Marketing Lead — social posts, engagement strategy, content distribution</div>
+          <div class="agent-card-tier">Tier 3</div>
+        </div>
+        <div class="agent-card">
+          <div class="agent-card-icon">✍️</div>
+          <div class="agent-card-name">Scribe</div>
+          <div class="agent-card-role">Content Writer — blogs, docs, copy, marketing materials</div>
+          <div class="agent-card-tier">Tier 3</div>
+        </div>
+        <div class="agent-card">
+          <div class="agent-card-icon">🔭</div>
+          <div class="agent-card-name">Scout</div>
+          <div class="agent-card-role">Research & Intel — market analysis, competitor tracking, trend reports</div>
+          <div class="agent-card-tier">Tier 3</div>
+        </div>
+        <div class="agent-card">
+          <div class="agent-card-icon">👤</div>
+          <div class="agent-card-name">CEO</div>
+          <div class="agent-card-role">Human governance — approvals, strategy, final decisions</div>
+          <div class="agent-card-tier">Tier 1</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Core Systems -->
+    <div class="demo-section">
+      <h2><i class="fas fa-cubes"></i> Core Systems</h2>
+      <p>The building blocks that keep GridOS running.</p>
+
+      <div class="feature-grid">
+        <div class="feature-card">
+          <div class="feature-card-icon"><i class="fas fa-users"></i></div>
+          <h3>Daily Standups</h3>
+          <p>Every agent reports status, proposes work, and flags risks — automatically, every morning.</p>
+          <ul>
+            <li><i class="fas fa-check"></i> Agent-by-agent reports</li>
+            <li><i class="fas fa-check"></i> Proposal generation</li>
+            <li><i class="fas fa-check"></i> Risk aggregation</li>
+          </ul>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-icon"><i class="fas fa-list-check"></i></div>
+          <h3>Task Board</h3>
+          <p>Tasks flow from proposals to active work to completion — with full status tracking.</p>
+          <ul>
+            <li><i class="fas fa-check"></i> Priority tiers</li>
+            <li><i class="fas fa-check"></i> Agent assignment</li>
+            <li><i class="fas fa-check"></i> Directive linking</li>
+          </ul>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-icon"><i class="fas fa-shield-alt"></i></div>
+          <h3>Governance</h3>
+          <p>High-impact actions route through approval queues. Nothing ships without human sign-off.</p>
+          <ul>
+            <li><i class="fas fa-check"></i> Approval queue</li>
+            <li><i class="fas fa-check"></i> Budget guardrails</li>
+            <li><i class="fas fa-check"></i> Drift detection</li>
+          </ul>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-icon"><i class="fas fa-heartbeat"></i></div>
+          <h3>Heartbeat Engine</h3>
+          <p>Continuous execution cycles — agents think, act, and log at regular intervals.</p>
+          <ul>
+            <li><i class="fas fa-check"></i> Autonomous cycles</li>
+            <li><i class="fas fa-check"></i> Action routing</li>
+            <li><i class="fas fa-check"></i> Rate limiting</li>
+          </ul>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-icon"><i class="fas fa-database"></i></div>
+          <h3>Memory Stack</h3>
+          <p>Persistent context across sessions — agents remember what happened and why.</p>
+          <ul>
+            <li><i class="fas fa-check"></i> Per-agent memory</li>
+            <li><i class="fas fa-check"></i> Shared context</li>
+            <li><i class="fas fa-check"></i> Decay & pruning</li>
+          </ul>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-icon"><i class="fas fa-photo-film"></i></div>
+          <h3>Content Pipeline</h3>
+          <p>AI generates posts and images, routes through copy review, publishes to socials.</p>
+          <ul>
+            <li><i class="fas fa-check"></i> Multi-platform delivery</li>
+            <li><i class="fas fa-check"></i> Image generation</li>
+            <li><i class="fas fa-check"></i> Approval workflow</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- On-Demand Meetings -->
+    <div class="demo-section">
+      <h2><i class="fas fa-video"></i> On-Demand Meetings</h2>
+      <p>The CEO can call meetings at any time. Agents attend, propose directives, surface risks, and generate actionable outcomes — all in real-time.</p>
+      <div class="flow-strip">
+        <div class="flow-step">
+          <div class="flow-step-icon"><i class="fas fa-play-circle"></i></div>
+          <div class="flow-step-label">CEO Triggers</div>
+          <div class="flow-step-sub">Set agenda & topic</div>
+        </div>
+        <div class="flow-arrow"><i class="fas fa-chevron-right"></i></div>
+        <div class="flow-step">
+          <div class="flow-step-icon"><i class="fas fa-comments"></i></div>
+          <div class="flow-step-label">Agents Respond</div>
+          <div class="flow-step-sub">Live feed of replies</div>
+        </div>
+        <div class="flow-arrow"><i class="fas fa-chevron-right"></i></div>
+        <div class="flow-step">
+          <div class="flow-step-icon"><i class="fas fa-clipboard-list"></i></div>
+          <div class="flow-step-label">Proposals Generated</div>
+          <div class="flow-step-sub">Tasks + directives</div>
+        </div>
+        <div class="flow-arrow"><i class="fas fa-chevron-right"></i></div>
+        <div class="flow-step">
+          <div class="flow-step-icon"><i class="fas fa-gavel"></i></div>
+          <div class="flow-step-label">Decision Made</div>
+          <div class="flow-step-sub">Approve, defer, reject</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="demo-cta-block">
+      <h3>This is how we build.</h3>
+      <p>GridOS powers every decision, task, and delivery at AmbientPixels. Follow the progress in real-time.</p>
+      <div style="display:flex;gap:0.6rem;justify-content:center;flex-wrap:wrap;">
+        <a href="/log/" class="hq-cta hq-cta--primary"><i class="fas fa-newspaper"></i> Activity Log</a>
+        <a href="/projects/" class="hq-cta hq-cta--secondary"><i class="fas fa-boxes-stacked"></i> Projects</a>
+        <a href="/blog/" class="hq-cta hq-cta--secondary"><i class="fas fa-pen-nib"></i> Blog</a>
+        <a href="/" class="hq-cta hq-cta--secondary"><i class="fas fa-home"></i> Home</a>
+      </div>
+    </div>
+
+  </div>
+
+  <footer id="footer-container"></footer>
+
+  <script src="/js/init-header-footer.js" defer></script>
+  <script src="/js/nav.js" defer></script>
+  <script src="/js/theme.js" defer></script>
+  <script>
+    window.bannerConfig = { showOnLoad: false };
+  </script>
+  <script src="/js/banner.js" defer></script>
+</body>
+</html>
