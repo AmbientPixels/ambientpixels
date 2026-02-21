@@ -6,7 +6,10 @@
     prevStack: [],
     nextCursor: null,
     limit: 25,
-    rows: []
+    rows: [],
+    metricsData: null,
+    engagementData: null,
+    pullRun: null
   };
 
   function getApiBase() {
@@ -109,15 +112,100 @@
     return (min / 60).toFixed(1) + 'h';
   }
 
+  function relativeFromIso(iso) {
+    if (!iso) return '—';
+    var ts = Date.parse(iso);
+    if (isNaN(ts)) return '—';
+    var mins = Math.max(0, Math.floor((Date.now() - ts) / 60000));
+    if (mins < 60) return mins + 'm ago';
+    var hrs = Math.floor(mins / 60);
+    if (hrs < 24) return hrs + 'h ago';
+    return Math.floor(hrs / 24) + 'd ago';
+  }
+
   function renderKpis(summary) {
     var root = document.getElementById('sa-kpis');
     root.innerHTML = '' +
-      '<div class="sa-kpi"><div class="sa-kpi-label">Published</div><div class="sa-kpi-value sa-kpi-value--good">' + esc(summary.published || 0) + '</div></div>' +
-      '<div class="sa-kpi"><div class="sa-kpi-label">Failed</div><div class="sa-kpi-value sa-kpi-value--bad">' + esc(summary.failed || 0) + '</div></div>' +
+      '<div class="sa-kpi" data-result-filter="success"><div class="sa-kpi-label">Published</div><div class="sa-kpi-value sa-kpi-value--good">' + esc(summary.published || 0) + '</div></div>' +
+      '<div class="sa-kpi" data-result-filter="failure"><div class="sa-kpi-label">Failed</div><div class="sa-kpi-value sa-kpi-value--bad">' + esc(summary.failed || 0) + '</div></div>' +
       '<div class="sa-kpi"><div class="sa-kpi-label">Success Rate</div><div class="sa-kpi-value">' + esc(summary.successRate || 0) + '%</div></div>' +
       '<div class="sa-kpi"><div class="sa-kpi-label">Avg Latency</div><div class="sa-kpi-value">' + esc(fmtLatency(summary.avgLatency || 0)) + '</div></div>' +
       '<div class="sa-kpi"><div class="sa-kpi-label">Fail Streak</div><div class="sa-kpi-value">' + esc(summary.failStreak || 0) + '</div></div>' +
       '<div class="sa-kpi"><div class="sa-kpi-label">Pending Approvals</div><div class="sa-kpi-value">' + esc(summary.pendingApprovals || 0) + '</div></div>';
+  }
+
+  function renderMiniBars(rootId, rows, valueFn, color) {
+    var root = document.getElementById(rootId);
+    if (!root) return;
+    var items = Array.isArray(rows) ? rows.slice(-7) : [];
+    if (!items.length) {
+      root.innerHTML = '<div class="dash-empty">No trend data.</div>';
+      return;
+    }
+    var max = 1;
+    items.forEach(function (r) {
+      var v = valueFn(r);
+      if (v > max) max = v;
+    });
+    var html = '<div class="sa-mini-bars">';
+    items.forEach(function (r) {
+      var v = valueFn(r);
+      var h = Math.max(3, Math.round((v / max) * 34));
+      html += '<div class="sa-mini-col">';
+      html += '<div class="sa-mini-bar" style="height:' + h + 'px; background:' + color + ';"></div>';
+      html += '<div class="sa-mini-label">' + esc((r.date || '').slice(5)) + '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+    root.innerHTML = html;
+  }
+
+  function renderHealthPanel() {
+    var root = document.getElementById('sa-health-chips');
+    if (!root) return;
+
+    var metrics = state.metricsData || {};
+    var engagement = state.engagementData || {};
+    var summary = metrics.summary || {};
+    var split = engagement.engagementSplit || {};
+    var meta = engagement.meta || {};
+    var recentPosts = metrics.recentPosts || [];
+
+    var trackedPosts = (split.x && split.x.posts7d || 0) + (split.linkedin && split.linkedin.posts7d || 0) + (split.bluesky && split.bluesky.posts7d || 0);
+    var withUrl = 0;
+    for (var i = 0; i < recentPosts.length; i++) {
+      if (recentPosts[i] && recentPosts[i].post_url) withUrl += 1;
+    }
+    var urlQuality = recentPosts.length ? Math.round((withUrl / recentPosts.length) * 100) + '%' : '—';
+    var pullState = state.pullRun
+      ? ('+' + (state.pullRun.snapshotsAdded || 0) + ' snapshots')
+      : 'Not run yet';
+
+    root.innerHTML = '' +
+      '<div class="sa-health-chip"><div class="sa-health-chip-label">Last Pull</div><div class="sa-health-chip-value">' + esc(relativeFromIso(meta.lastPulledAt || '')) + '</div></div>' +
+      '<div class="sa-health-chip"><div class="sa-health-chip-label">Pull Run</div><div class="sa-health-chip-value">' + esc(pullState) + '</div></div>' +
+      '<div class="sa-health-chip"><div class="sa-health-chip-label">Posts Tracked (7d)</div><div class="sa-health-chip-value">' + esc(trackedPosts) + '</div></div>' +
+      '<div class="sa-health-chip"><div class="sa-health-chip-label">Post URL Coverage</div><div class="sa-health-chip-value">' + esc(urlQuality) + '</div></div>' +
+      '<div class="sa-health-chip"><div class="sa-health-chip-label">Failures 24h</div><div class="sa-health-chip-value">' + esc(summary.failures24h || 0) + '</div></div>';
+
+    renderMiniBars('sa-delivery-mini', (metrics.trends && metrics.trends.daily) || [], function (r) {
+      return (r.published || 0) + (r.failed || 0);
+    }, 'rgba(96,165,250,0.78)');
+
+    renderMiniBars('sa-engagement-mini', (engagement.trends && engagement.trends.last7) || [], function (r) {
+      return (r.likes || 0) + (r.comments || 0) + (r.reposts || 0);
+    }, 'rgba(52,211,153,0.75)');
+
+    var pullFeedback = document.getElementById('sa-pull-feedback');
+    if (pullFeedback) {
+      if (state.pullRun) {
+        var e = state.pullRun.platformErrors || { x: 0, linkedin: 0, bluesky: 0 };
+        pullFeedback.textContent = 'Last manual pull: +' + (state.pullRun.snapshotsAdded || 0) +
+          ' snapshots · errors x:' + (e.x || 0) + ' linkedin:' + (e.linkedin || 0) + ' bluesky:' + (e.bluesky || 0);
+      } else {
+        pullFeedback.textContent = 'Manual pull status will appear here.';
+      }
+    }
   }
 
   function renderPlatforms(split) {
@@ -333,6 +421,7 @@
       })
       .then(function (resp) {
         if (!resp.ok) throw new Error((resp.body && resp.body.error) || ('HTTP ' + resp.status));
+        state.pullRun = (resp.body && resp.body.run) || null;
         setPullStatus('Pull complete. Refreshing dashboard data...', 'ok');
         loadData();
       })
@@ -354,10 +443,18 @@
       })
       .then(function (resp) {
         if (!resp.ok) throw new Error((resp.body && resp.body.error) || ('HTTP ' + resp.status));
+        state.engagementData = resp.body || {};
         renderEngagementByPlatform(resp.body || {});
         renderEngagement(resp.body || {});
+        renderHealthPanel();
       })
       .catch(function () {
+        state.engagementData = {
+          summary: {},
+          engagementSplit: {},
+          trends: { last7: [] },
+          meta: {}
+        };
         renderEngagementByPlatform({
           engagementSplit: {
             x: { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 },
@@ -371,6 +468,7 @@
         document.getElementById('sa-engagement-empty').style.display = '';
         document.getElementById('sa-engagement-empty').textContent = 'No engagement snapshots yet.';
         document.getElementById('sa-engagement-trends').innerHTML = '<div class="dash-empty">No engagement snapshots yet.</div>';
+        renderHealthPanel();
       });
   }
 
@@ -407,6 +505,7 @@
         if (!resp.ok) throw new Error((resp.body && resp.body.error) || ('HTTP ' + resp.status));
 
         var data = resp.body || {};
+        state.metricsData = data;
         var summary = data.summary || {};
         var totalExec = (summary.published || 0) + (summary.failed || 0);
         state.rows = data.recentPosts || [];
@@ -422,19 +521,43 @@
         } else {
           document.getElementById('sa-posts-empty').textContent = 'No posts found for selected filters.';
         }
+        renderHealthPanel();
         updatePagerButtons();
       })
       .catch(function (err) {
+        state.metricsData = {
+          summary: {},
+          trends: { daily: [] },
+          recentPosts: []
+        };
         document.getElementById('sa-kpis').innerHTML = '<div class="dash-empty">Failed to load metrics: ' + esc(err.message || 'Unknown error') + '</div>';
         document.getElementById('sa-platform-grid').innerHTML = '';
         document.getElementById('sa-posts-body').innerHTML = '';
         document.getElementById('sa-posts-empty').style.display = '';
         document.getElementById('sa-diagnostics').innerHTML = '<div class="dash-empty">Failed to load diagnostics.</div>';
+        renderHealthPanel();
       });
+  }
+
+  function bindKpiQuickFilters() {
+    var root = document.getElementById('sa-kpis');
+    if (!root) return;
+    root.addEventListener('click', function (evt) {
+      var node = evt.target;
+      while (node && node !== root && !node.getAttribute('data-result-filter')) node = node.parentNode;
+      if (!node || node === root) return;
+      var result = node.getAttribute('data-result-filter') || '';
+      if (!result) return;
+      document.getElementById('sa-result').value = result;
+      state.cursor = '';
+      state.prevStack = [];
+      loadData();
+    });
   }
 
   function bind() {
     bindEngagementPlatformCards();
+    bindKpiQuickFilters();
 
     document.getElementById('sa-apply').addEventListener('click', function () {
       state.cursor = '';

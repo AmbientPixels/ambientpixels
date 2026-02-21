@@ -27,10 +27,30 @@ module.exports = async function (context, req) {
   }
 
   try {
+    const beforeSnapshots = (await storage.getState('socialEngagementSnapshots')) || [];
+    const beforeCount = Array.isArray(beforeSnapshots) ? beforeSnapshots.length : 0;
+
     await runSocialEngagementPull(context);
 
     const meta = (await storage.getState('socialEngagementMeta')) || {};
     const snapshots = (await storage.getState('socialEngagementSnapshots')) || [];
+    const totalCount = Array.isArray(snapshots) ? snapshots.length : 0;
+    const added = Math.max(0, totalCount - beforeCount);
+    const newRows = added > 0 ? snapshots.slice(totalCount - added) : [];
+
+    const platformErrors = {
+      x: 0,
+      linkedin: 0,
+      bluesky: 0
+    };
+    for (let i = 0; i < newRows.length; i++) {
+      const row = newRows[i] || {};
+      const platform = String(row.post_platform || '').toLowerCase();
+      const hasError = !!(row.meta && row.meta.error_class);
+      if (hasError && platformErrors[platform] !== undefined) {
+        platformErrors[platform] += 1;
+      }
+    }
 
     context.res = {
       status: 200,
@@ -38,7 +58,12 @@ module.exports = async function (context, req) {
       body: {
         ok: true,
         lastPulledAt: (meta && meta.lastPulledAt) || null,
-        snapshotCount: Array.isArray(snapshots) ? snapshots.length : 0
+        snapshotCount: totalCount,
+        snapshotsAdded: added,
+        run: {
+          snapshotsAdded: added,
+          platformErrors: platformErrors
+        }
       }
     };
   } catch (err) {
