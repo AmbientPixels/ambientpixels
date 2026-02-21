@@ -4,6 +4,7 @@
 
 const storage = require('../_utils/companyStorage');
 const { executeAction, isExecutable } = require('./executors');
+const socialTelemetry = require('../socialMetrics/telemetry');
 
 // Simple in-memory rate limiter (per minute)
 const _rateBucket = {};
@@ -72,6 +73,7 @@ module.exports = async function (context, req) {
     }
 
     const action = actions[actionIndex];
+    const isSocialAction = socialTelemetry.isSocialAction(action);
 
     // ── GOVERNANCE ENFORCEMENT ──
 
@@ -170,6 +172,7 @@ module.exports = async function (context, req) {
     // 6. Max attempts cap
     const MAX_ATTEMPTS = 3;
     action.execution = action.execution || {};
+    action.telemetry = action.telemetry || {};
     if (action.execution.attempts >= MAX_ATTEMPTS) {
       context.res = {
         status: 429,
@@ -204,6 +207,44 @@ module.exports = async function (context, req) {
     }
 
     // ── MARK RUNNING ──
+    if (isSocialAction) {
+      if (!action.telemetry.trace_id) {
+        action.telemetry.trace_id = 'trace_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+      }
+      action.telemetry.attempt = (action.execution.attempts || 0) + 1;
+
+      // Log approval once when action reaches execution (source of truth is approval state transition)
+      if (!action.telemetry.approval_logged_at && action.approval && action.approval.status === 'approved') {
+        const approvalEvent = socialTelemetry.buildSocialTelemetryEvent(action, {
+          event_type: 'approval',
+          result: 'success',
+          trace_id: action.telemetry.trace_id,
+          attempt: action.telemetry.attempt,
+          created_at: action.approval.approved_at || new Date().toISOString(),
+          agent_id: action.created_by || ''
+        });
+        await socialTelemetry.appendSocialMetricEvent(approvalEvent);
+        action.telemetry.approval_logged_at = new Date().toISOString();
+      }
+
+      // Emit retry event when attempting again after previous failure
+      if ((action.execution.attempts || 0) > 0) {
+        const retryTax = socialTelemetry.mapErrorToTelemetry((action.execution && action.execution.last_error) || {});
+        const retryEvent = socialTelemetry.buildSocialTelemetryEvent(action, {
+          event_type: 'retry',
+          result: 'failure',
+          trace_id: action.telemetry.trace_id,
+          attempt: action.telemetry.attempt,
+          created_at: new Date().toISOString(),
+          error_class: retryTax.error_class,
+          error_code: retryTax.error_code,
+          error_message: retryTax.error_message,
+          agent_id: action.created_by || ''
+        });
+        await socialTelemetry.appendSocialMetricEvent(retryEvent);
+      }
+    }
+
     action.execution.status = 'running';
     action.execution.started_at = new Date().toISOString();
     action.execution.attempts = (action.execution.attempts || 0) + 1;
@@ -226,6 +267,28 @@ module.exports = async function (context, req) {
         raw: (execError && execError.raw) || null
       };
       action.execution_status = 'failed';
+
+      if (isSocialAction) {
+        const startMs = action.execution.started_at ? new Date(action.execution.started_at).getTime() : Date.now();
+        const finishMs = action.execution.finished_at ? new Date(action.execution.finished_at).getTime() : Date.now();
+        const latency = Math.max(0, finishMs - startMs);
+        const tax = socialTelemetry.mapErrorToTelemetry(action.execution.last_error || execError || {});
+        const failEvent = socialTelemetry.buildSocialTelemetryEvent(action, {
+          event_type: 'execution',
+          result: 'failure',
+          trace_id: action.telemetry.trace_id,
+          attempt: action.telemetry.attempt || action.execution.attempts || 1,
+          created_at: action.execution.started_at || new Date().toISOString(),
+          executed_at: action.execution.finished_at,
+          latency_ms: latency,
+          error_class: tax.error_class,
+          error_code: tax.error_code,
+          error_message: tax.error_message,
+          agent_id: action.created_by || ''
+        });
+        await socialTelemetry.appendSocialMetricEvent(failEvent);
+      }
+
       actions[actionIndex] = action;
       await storage.setState('actions', actions);
 
@@ -282,6 +345,25 @@ module.exports = async function (context, req) {
     action.execution.receipt = result.receipt || null;
     action.execution.last_error = null;
     action.execution_status = 'success';
+
+    if (isSocialAction) {
+      const startMs = action.execution.started_at ? new Date(action.execution.started_at).getTime() : Date.now();
+      const finishMs = action.execution.finished_at ? new Date(action.execution.finished_at).getTime() : Date.now();
+      const latency = Math.max(0, finishMs - startMs);
+      const successEvent = socialTelemetry.buildSocialTelemetryEvent(action, {
+        event_type: 'execution',
+        result: 'success',
+        trace_id: action.telemetry.trace_id,
+        attempt: action.telemetry.attempt || action.execution.attempts || 1,
+        created_at: action.execution.started_at || new Date().toISOString(),
+        executed_at: action.execution.finished_at,
+        latency_ms: latency,
+        post_url: (result.receipt && result.receipt.post_url) || '',
+        agent_id: action.created_by || ''
+      });
+      await socialTelemetry.appendSocialMetricEvent(successEvent);
+    }
+
     actions[actionIndex] = action;
     await storage.setState('actions', actions);
 
