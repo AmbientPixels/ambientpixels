@@ -75,6 +75,18 @@ function buildAgentsDisplay(agentDefs) {
     .filter(Boolean);
 }
 
+function readJsonFromCandidates(candidates) {
+  for (let i = 0; i < candidates.length; i++) {
+    const p = candidates[i];
+    try {
+      const stat = fs.statSync(p);
+      const data = JSON.parse(fs.readFileSync(p, 'utf8'));
+      return { data: data, mtimeMs: stat.mtimeMs, path: p };
+    } catch (_) { /* try next */ }
+  }
+  return { data: null, mtimeMs: null, path: '' };
+}
+
 function latestTsFromTextMap(mapObj) {
   if (!mapObj || typeof mapObj !== 'object') return null;
   let latest = 0;
@@ -310,28 +322,22 @@ function buildSummaryPayload(layer, agentId) {
 }
 
 async function loadLayerSources() {
-  const agentsPath = path.resolve(__dirname, '../../data/company-agents.json');
-  const digestPath = path.resolve(__dirname, '../../data/site-manifest.digest.json');
+  const agentsFile = readJsonFromCandidates([
+    path.resolve(__dirname, '../../data/company-agents.json'),
+    path.resolve(__dirname, '../data/company-agents.json'),
+    path.resolve(process.cwd(), 'data/company-agents.json')
+  ]);
 
-  let companyAgents = [];
-  let companyAgentsMtime = null;
-  try {
-    const stat = fs.statSync(agentsPath);
-    companyAgentsMtime = stat.mtimeMs;
-    companyAgents = parseAgentConfigAgents(JSON.parse(fs.readFileSync(agentsPath, 'utf8')));
-  } catch (_) {
-    companyAgents = [];
-  }
+  const digestFile = readJsonFromCandidates([
+    path.resolve(__dirname, '../../data/site-manifest.digest.json'),
+    path.resolve(__dirname, '../data/site-manifest.digest.json'),
+    path.resolve(process.cwd(), 'data/site-manifest.digest.json')
+  ]);
 
-  let siteDigest = null;
-  let siteDigestMtime = null;
-  try {
-    const stat = fs.statSync(digestPath);
-    siteDigestMtime = stat.mtimeMs;
-    siteDigest = JSON.parse(fs.readFileSync(digestPath, 'utf8'));
-  } catch (_) {
-    siteDigest = null;
-  }
+  const companyAgents = parseAgentConfigAgents(agentsFile.data || []);
+  const companyAgentsMtime = agentsFile.mtimeMs || null;
+  const siteDigest = digestFile.data || null;
+  const siteDigestMtime = digestFile.mtimeMs || null;
 
   const agentSeedMemories = (await storage.getState('agentSeedMemories')) || {};
   const agentMemories = (await storage.getState('agentMemories')) || {};

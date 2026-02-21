@@ -35,6 +35,9 @@
 
 .ms-layers { display: grid; gap: 0.45rem; }
 .ms-layer {
+  appearance: none;
+  font-family: inherit;
+  color: rgba(255,255,255,0.9);
   border: 1px solid rgba(255,255,255,0.06);
   border-radius: 8px;
   background: rgba(255,255,255,0.015);
@@ -44,9 +47,9 @@
 .ms-layer:hover { border-color: rgba(96,165,250,0.28); }
 .ms-layer--active { border-color: rgba(96,165,250,0.5); }
 .ms-layer-top { display: flex; align-items: center; gap: 0.35rem; }
-.ms-layer-id { font-size: 0.56rem; opacity: 0.45; font-weight: 700; }
+.ms-layer-id { font-size: 0.56rem; opacity: 0.65; font-weight: 700; }
 .ms-layer-name { font-size: 0.66rem; font-weight: 600; }
-.ms-layer-meta { margin-top: 0.28rem; font-size: 0.55rem; opacity: 0.42; display: grid; gap: 0.12rem; }
+.ms-layer-meta { margin-top: 0.28rem; font-size: 0.55rem; opacity: 0.65; display: grid; gap: 0.12rem; }
 
 .ms-badge {
   margin-left: auto;
@@ -63,7 +66,7 @@
 
 .ms-detail { font-size: 0.62rem; }
 .ms-detail-row { margin-bottom: 0.45rem; }
-.ms-label { opacity: 0.42; display: block; margin-bottom: 0.14rem; font-size: 0.54rem; }
+.ms-label { opacity: 0.62; display: block; margin-bottom: 0.14rem; font-size: 0.54rem; }
 .ms-detail strong { font-size: 0.66rem; }
 
 .ms-controls { display: flex; gap: 0.35rem; margin-top: 0.5rem; flex-wrap: wrap; }
