@@ -3,130 +3,437 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="GridOS Agent Roster (Preview) — public-safe overview of the autonomous team supporting execution at AmbientPixels." />
-  <title>GridOS Agent Roster (Preview) — Ambient Pixels</title>
+  <meta name="description" content="GridOS Agent Architecture — structured view of agent authority, scope, and live operating status by tier." />
+  <title>Agent Architecture — Ambient Pixels</title>
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/base.css" />
   <link rel="stylesheet" href="/css/grid.css" />
   <link rel="stylesheet" href="/css/nav.css" />
   <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/hero.css" />
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
+  <style>
+    .aa { max-width: 960px; margin: 0 auto; padding: 2.5rem 1.5rem 3rem; }
+    .cf-ico { display: inline-block; width: 1em; height: 1em; vertical-align: -0.125em; flex-shrink: 0; }
+
+    /* ── Hero Gradient ── */
+    .aa-hero {
+      padding: 7rem 1.5rem 2.5rem;
+      background: linear-gradient(180deg, rgba(167,139,250,0.08) 0%, rgba(15,20,35,0.0) 100%);
+      border-bottom: 1px solid rgba(148,163,184,0.06);
+      text-align: left;
+    }
+    .aa-hero-inner { max-width: 960px; margin: 0 auto; }
+    .aa-hero h1 {
+      font-size: 1.7rem; font-weight: 700; color: #e2e8f0;
+      margin: 0 0 0.45rem; display: flex; align-items: center; gap: 0.5rem;
+    }
+    .aa-hero h1 .cf-ico { opacity: 0.3; }
+    .aa-hero-sub {
+      font-size: 0.9rem; color: rgba(148,163,184,0.65); margin: 0 0 0.25rem;
+    }
+    .aa-hero-micro {
+      font-size: 0.72rem; color: rgba(148,163,184,0.35); margin: 0 0 1.1rem;
+    }
+    .aa-hero-cta { display: flex; gap: 8px; flex-wrap: wrap; }
+    .aa-hero-cta a {
+      font-size: 0.75rem; padding: 5px 14px; border-radius: 6px;
+      border: 1px solid rgba(167,139,250,0.18); color: rgba(167,139,250,0.8);
+      background: rgba(167,139,250,0.06); transition: all 0.2s;
+      display: inline-flex; align-items: center; gap: 5px; text-decoration: none;
+    }
+    .aa-hero-cta a:hover {
+      background: rgba(167,139,250,0.12); border-color: rgba(167,139,250,0.3);
+    }
+
+    /* ── Tier Sections ── */
+    .aa-tier { margin-bottom: 3rem; }
+    .aa-tier-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 0.25rem; }
+    .aa-tier-head h2 { font-size: 1.15rem; font-weight: 700; color: #e2e8f0; margin: 0; }
+    .aa-tier-badge {
+      font-size: 0.54rem; text-transform: uppercase; letter-spacing: 0.08em;
+      padding: 2px 8px; border-radius: 4px;
+      background: rgba(167,139,250,0.1); color: rgba(167,139,250,0.6);
+      font-weight: 600;
+    }
+    .aa-tier-desc { font-size: 0.8rem; color: rgba(148,163,184,0.45); margin: 0 0 0.85rem; font-style: italic; }
+
+    /* ── Centered Tier Layout (T1/T2) ── */
+    .aa-tier--centered .aa-grid {
+      grid-template-columns: 1fr;
+      max-width: 440px;
+      margin: 0 auto;
+    }
+    .aa-tier--centered .aa-tier-head,
+    .aa-tier--centered .aa-tier-desc,
+    .aa-tier--centered .aa-gov-panel { text-align: center; justify-content: center; }
+
+    /* ── Tier Connector Line ── */
+    .aa-connector {
+      width: 1px; height: 28px; margin: 0 auto;
+      background: rgba(148,163,184,0.12);
+    }
+
+    /* ── Governance Info Panel ── */
+    .aa-gov-panel {
+      display: flex; align-items: flex-start; gap: 10px; justify-content: center;
+      padding: 10px 16px; border-radius: 8px; margin-bottom: 0.85rem;
+      border: 1px solid rgba(255,215,0,0.08);
+      background: rgba(255,215,0,0.02);
+      max-width: 440px; margin-left: auto; margin-right: auto;
+    }
+    .aa-gov-panel-ico { flex-shrink: 0; width: 1em; height: 1em; opacity: 0.35; margin-top: 2px; }
+    .aa-gov-panel-body { min-width: 0; }
+    .aa-gov-panel-title {
+      font-size: 0.68rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.06em; color: rgba(255,215,0,0.55); margin: 0 0 3px;
+    }
+    .aa-gov-panel p {
+      font-size: 0.74rem; color: rgba(203,213,225,0.5); margin: 0; line-height: 1.6;
+    }
+
+    /* ── CEO Card Variant ── */
+    .aa-card--ceo {
+      border-color: rgba(255,215,0,0.1);
+      background: rgba(255,215,0,0.025);
+    }
+    .aa-card--ceo:hover { border-color: rgba(255,215,0,0.22); }
+    .aa-card--ceo .aa-card-ico { opacity: 0.55; }
+    .aa-seat-badge {
+      font-size: 0.48rem; text-transform: uppercase; letter-spacing: 0.07em;
+      padding: 1px 6px; border-radius: 3px; margin-left: 6px;
+      background: rgba(255,215,0,0.08); color: rgba(255,215,0,0.5);
+      font-weight: 600; vertical-align: middle;
+    }
+
+    /* ── Dynamic Worker Info Block ── */
+    .aa-info-block {
+      max-width: 600px; margin: 0 auto 3rem;
+      padding: 14px 18px; border-radius: 10px;
+      border: 1px solid rgba(148,163,184,0.08);
+      background: rgba(15,20,35,0.3);
+      text-align: center;
+    }
+    .aa-info-block-title {
+      font-size: 0.65rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.08em; color: rgba(148,163,184,0.4); margin: 0 0 0.35rem;
+    }
+    .aa-info-block p {
+      font-size: 0.76rem; color: rgba(148,163,184,0.45); margin: 0; line-height: 1.6;
+    }
+
+    /* ── Card Grid ── */
+    .aa-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+
+    .aa-card {
+      padding: 14px 16px; border-radius: 10px;
+      border: 1px solid rgba(167,139,250,0.1);
+      background: rgba(15,20,35,0.45);
+      transition: border-color 0.2s, transform 0.15s;
+      display: flex; flex-direction: column;
+    }
+    .aa-card:hover { border-color: rgba(167,139,250,0.25); transform: translateY(-1px); }
+    .aa-card-top { display: flex; align-items: flex-start; gap: 10px; }
+    .aa-card-ico { flex-shrink: 0; width: 1.3em; height: 1.3em; margin-top: 3px; opacity: 0.5; }
+    .aa-card-identity { flex: 1; min-width: 0; }
+    .aa-card-name { font-size: 0.92rem; font-weight: 600; color: #e2e8f0; margin: 0; line-height: 1.3; }
+    .aa-card-role { font-size: 0.76rem; color: rgba(148,163,184,0.6); display: block; margin-bottom: 2px; }
+    .aa-card-status {
+      font-size: 0.56rem; text-transform: uppercase; letter-spacing: 0.05em;
+      padding: 2px 8px; border-radius: 99px; font-weight: 500;
+      display: inline-block; margin-top: 3px;
+    }
+    .aa-status--monitoring { background: rgba(148,163,184,0.1); color: rgba(148,163,184,0.6); }
+    .aa-status--active { background: rgba(167,139,250,0.12); color: rgba(167,139,250,0.75); }
+    .aa-status--building { background: rgba(96,165,250,0.12); color: rgba(96,165,250,0.75); }
+    .aa-status--reviewing { background: rgba(251,191,36,0.12); color: rgba(251,191,36,0.75); }
+    .aa-status--escalated { background: rgba(239,68,68,0.12); color: rgba(239,68,68,0.75); }
+    .aa-status--supporting { background: rgba(148,163,184,0.07); color: rgba(148,163,184,0.45); }
+
+    .aa-card-owns {
+      margin: 8px 0 0; padding: 0; list-style: none; flex: 1;
+    }
+    .aa-card-owns li {
+      font-size: 0.75rem; color: rgba(148,163,184,0.55); line-height: 1.75;
+      padding-left: 12px; position: relative;
+    }
+    .aa-card-owns li::before {
+      content: ''; position: absolute; left: 0; top: 0.6em;
+      width: 4px; height: 4px; border-radius: 50%;
+      background: rgba(148,163,184,0.25);
+    }
+
+    .aa-loading {
+      text-align: center; padding: 2rem; font-size: 0.82rem;
+      color: rgba(148,163,184,0.35);
+    }
+
+    /* ── Nova Surfaces Navigation ── */
+    .aa-surfaces {
+      margin-top: 2.5rem; padding: 1.25rem 1.5rem;
+      border-radius: 12px;
+      border: 1px solid rgba(148,163,184,0.08);
+      background: rgba(15,20,35,0.35);
+    }
+    .aa-surfaces-label {
+      font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.1em;
+      color: rgba(148,163,184,0.35); font-weight: 600; margin: 0 0 0.15rem;
+    }
+    .aa-surfaces-sub {
+      font-size: 0.75rem; color: rgba(148,163,184,0.4); margin: 0 0 0.85rem;
+    }
+    .aa-surfaces-grid {
+      display: flex; flex-wrap: wrap; gap: 8px;
+    }
+    .aa-surfaces-grid a {
+      font-size: 0.76rem; padding: 6px 14px; border-radius: 8px;
+      border: 1px solid rgba(148,163,184,0.1);
+      background: rgba(15,20,35,0.4); color: rgba(203,213,225,0.6);
+      text-decoration: none; transition: all 0.2s;
+      display: inline-flex; align-items: center; gap: 5px;
+    }
+    .aa-surfaces-grid a:hover {
+      border-color: rgba(167,139,250,0.2); color: rgba(203,213,225,0.85);
+      background: rgba(167,139,250,0.06);
+    }
+    .aa-surfaces-grid a.aa-surf-active {
+      border-color: rgba(167,139,250,0.25); color: rgba(167,139,250,0.85);
+      background: rgba(167,139,250,0.08);
+    }
+    .aa-surf-pill {
+      font-size: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;
+      padding: 1px 5px; border-radius: 3px;
+      background: rgba(148,163,184,0.1); color: rgba(148,163,184,0.5);
+      margin-left: 2px;
+    }
+
+    @media (max-width: 600px) {
+      .aa-grid { grid-template-columns: 1fr; }
+      .aa-hero h1 { font-size: 1.3rem; }
+      .aa-hero { padding: 6rem 1.5rem 2rem; }
+      .aa-surfaces { padding: 1rem; }
+    }
+  </style>
 </head>
 <body data-theme="dark" style="background:#071019">
   <header id="nav-header"></header>
 
-  <section class="mini-hero">
-    <img src="/nova/hero-1536x1024.png" alt="GridOS Agent Roster" class="mini-hero-img" loading="lazy">
-    <div class="mini-hero-content-wrapper">
-      <h1>Agent Roster (Preview)</h1>
-      <p class="subtitle">A structured view of the autonomous team operating within GridOS.</p>
+  <section class="aa-hero">
+    <div class="aa-hero-inner">
+      <h1>
+        <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><path d="M20 8v6M17 11h6"></path></svg>
+        GridOS Agent Architecture
+      </h1>
+      <p class="aa-hero-sub">Human governance &rarr; Nova orchestration &rarr; execution agents &rarr; sub-agents.</p>
+      <p class="aa-hero-micro">Public-safe overview. No internal prompts or memory contents.</p>
+      <div class="aa-hero-cta">
+        <a href="/nova/" aria-label="Back to Nova">
+          <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"></path></svg>
+          Back to Nova
+        </a>
+        <a href="/nova/preview.html" aria-label="Explore GridOS">
+          <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"></path></svg>
+          Explore GridOS
+        </a>
+      </div>
     </div>
   </section>
 
-  <main class="grid-container">
-    <section class="grid-col-12 content-section">
-      <h2>GridOS Agent Team</h2>
-      <p>Public-safe profile cards summarizing mandate, ownership, and current operating state by agent tier.</p>
-    </section>
+  <div class="aa">
 
-    <section class="grid-col-6 card-section operator-tool-card">
-      <div class="card-content">
-        <h3>Nova — Prime Operator (Tier 1)</h3>
-        <p>Coordinates agent execution across GridOS. Synthesizes signals, prioritizes initiatives, and supports founder-level decisions.</p>
-        <p><strong>Owns:</strong> Daily standups & orchestration, execution summaries, strategic alignment, escalation routing.</p>
-        <p><strong>Status:</strong> <span class="nova-agent-status">Monitoring</span></p>
+    <div id="aa-tier-1" class="aa-tier aa-tier--centered">
+      <div class="aa-tier-head">
+        <h2>Tier 1 — Governance</h2>
+        <span class="aa-tier-badge">Human Authority</span>
       </div>
-    </section>
-
-    <section class="grid-col-6 card-section operator-tool-card">
-      <div class="card-content">
-        <h3>Forge — Lead Systems Engineer (Tier 2)</h3>
-        <p>Builds and maintains infrastructure, APIs, deployment pipelines, and runtime stability.</p>
-        <p><strong>Owns:</strong> Azure Functions & server logic, deployment workflows, security hardening, performance optimization.</p>
-        <p><strong>Status:</strong> <span class="nova-agent-status">Building</span></p>
+      <p class="aa-tier-desc">Strategic direction, constraints, and approval thresholds.</p>
+      <div class="aa-gov-panel">
+        <svg class="aa-gov-panel-ico" viewBox="0 0 24 24" fill="none" stroke="#FFD700" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+        <div class="aa-gov-panel-body">
+          <p class="aa-gov-panel-title">Governance Authority</p>
+          <p>You define strategic direction, constraints, and approval thresholds. GridOS operates autonomously within these boundaries and escalates when required.</p>
+        </div>
       </div>
-    </section>
-
-    <section class="grid-col-6 card-section operator-tool-card">
-      <div class="card-content">
-        <h3>Cipher — Finance & Risk Controller (Tier 2)</h3>
-        <p>Monitors cost, budget drift, and operational risk across the system.</p>
-        <p><strong>Owns:</strong> API cost tracking, usage limits & quotas, risk detection, guardrail enforcement.</p>
-        <p><strong>Status:</strong> <span class="nova-agent-status">Reviewing</span></p>
+      <div class="aa-grid" data-tier="1">
+        <div class="aa-loading">Loading agents...</div>
       </div>
-    </section>
+    </div>
 
-    <section class="grid-col-6 card-section operator-tool-card">
-      <div class="card-content">
-        <h3>Pixel — Creative Systems Director (Tier 3)</h3>
-        <p>Ensures interface clarity, design consistency, and visual authority across all surfaces.</p>
-        <p><strong>Owns:</strong> UI systems & design language, visual audits, component refinement, brand alignment.</p>
-        <p><strong>Status:</strong> <span class="nova-agent-status">Active</span></p>
+    <div class="aa-connector"></div>
+
+    <div id="aa-tier-2" class="aa-tier aa-tier--centered">
+      <div class="aa-tier-head">
+        <h2>Tier 2 — Core Operations</h2>
+        <span class="aa-tier-badge">Orchestration</span>
       </div>
-    </section>
-
-    <section class="grid-col-6 card-section operator-tool-card">
-      <div class="card-content">
-        <h3>Echo — Growth & Distribution Lead (Tier 3)</h3>
-        <p>Manages outbound signals, content positioning, and public execution loops.</p>
-        <p><strong>Owns:</strong> Social publishing pipelines, content distribution, narrative testing, engagement analysis.</p>
-        <p><strong>Status:</strong> <span class="nova-agent-status">Monitoring</span></p>
+      <p class="aa-tier-desc">Autonomous execution planning, delegation, and system coordination.</p>
+      <div class="aa-grid" data-tier="2">
+        <div class="aa-loading">Loading agents...</div>
       </div>
-    </section>
+    </div>
 
-    <section class="grid-col-6 card-section operator-tool-card">
-      <div class="card-content">
-        <h3>Scribe — Content Operations (Tier 3)</h3>
-        <p>Transforms system activity into structured documentation and communication assets.</p>
-        <p><strong>Owns:</strong> Blog generation, release notes, public system briefs, documentation hygiene.</p>
-        <p><strong>Status:</strong> <span class="nova-agent-status">Drafting</span></p>
+    <div class="aa-connector"></div>
+
+    <div class="aa-info-block">
+      <p class="aa-info-block-title">Dynamic Worker Allocation</p>
+      <p>Nova may provision temporary task-scoped workers to execute defined objectives. Workers inherit tier constraints and are automatically retired upon completion.</p>
+    </div>
+
+    <div id="aa-tier-3" class="aa-tier">
+      <div class="aa-tier-head">
+        <h2>Tier 3 — Execution Units</h2>
+        <span class="aa-tier-badge">Department</span>
       </div>
-    </section>
-
-    <section class="grid-col-6 card-section operator-tool-card">
-      <div class="card-content">
-        <h3>Scout — Research & Intelligence (Tier 3)</h3>
-        <p>Collects external signals and converts them into structured insight.</p>
-        <p><strong>Owns:</strong> Market scanning, competitive tracking, trend analysis, signal aggregation.</p>
-        <p><strong>Status:</strong> <span class="nova-agent-status">Scanning</span></p>
+      <p class="aa-tier-desc">Production, distribution, and intelligence.</p>
+      <div class="aa-grid" data-tier="3">
+        <div class="aa-loading">Loading agents...</div>
       </div>
-    </section>
+    </div>
 
-    <section class="grid-col-6 card-section operator-tool-card">
-      <div class="card-content">
-        <h3>Quill — Editorial Sub-Agent (Tier 4)</h3>
-        <p>Refines tone, clarity, and consistency across written outputs.</p>
-        <p><strong>Owns:</strong> Copy editing, formatting normalization, brand voice enforcement.</p>
-        <p><strong>Status:</strong> <span class="nova-agent-status">Supporting</span></p>
+    <div id="aa-tier-4" class="aa-tier">
+      <div class="aa-tier-head">
+        <h2>Tier 4 — Sub-Agents</h2>
+        <span class="aa-tier-badge">Support</span>
       </div>
-    </section>
-
-    <section class="grid-col-12 content-section" style="text-align:center;">
-      <div class="hero-cta nova-hero-cta" style="justify-content:center;">
-        <a href="/nova/preview.html" class="glass-button secondary"><i class="fas fa-server"></i> Operations Preview</a>
-        <a href="/gridos/" class="glass-button"><i class="fas fa-microchip"></i> GridOS Overview</a>
+      <p class="aa-tier-desc">Specialized supporting functions.</p>
+      <div class="aa-grid" data-tier="4">
+        <div class="aa-loading">Loading agents...</div>
       </div>
-    </section>
+    </div>
 
-    <section class="grid-col-12" style="text-align:center;padding:1rem 0 2rem;">
-      <nav style="display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 16px;">
-        <a href="/nova/" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-arrow-left"></i> Prime Operator</a>
-        <a href="/nova/dashboard.html" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-gauge-high"></i> Dashboard</a>
-        <a href="/nova/awareness.html" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-satellite-dish"></i> System Context</a>
-        <a href="/nova/logs.html" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-book"></i> Founder Log</a>
-        <a href="/nova/preview.html" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-server"></i> Public Preview</a>
-      </nav>
-    </section>
-  </main>
+    <nav class="aa-surfaces" aria-label="Nova surfaces navigation">
+      <p class="aa-surfaces-label">Nova Surfaces</p>
+      <p class="aa-surfaces-sub">Navigate Nova's public and internal operator views.</p>
+      <div class="aa-surfaces-grid">
+        <a href="/nova/">
+          <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"></path><path d="M9 21h6"></path></svg>
+          Prime Operator
+        </a>
+        <a href="/nova/agents.html" class="aa-surf-active">
+          <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><path d="M20 8v6M17 11h6"></path></svg>
+          Agent Architecture
+        </a>
+        <a href="/nova/preview.html">
+          <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h.01M7 20v-4M12 20v-8M17 20V8M22 20V4"></path></svg>
+          Public Preview
+        </a>
+        <a href="/nova/awareness.html">
+          <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+          System Context
+        </a>
+        <a href="/nova/logs.html">
+          <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path></svg>
+          Founder Log
+        </a>
+        <a href="/nova/dashboard.html">
+          <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg>
+          Dashboard <span class="aa-surf-pill">Internal</span>
+        </a>
+      </div>
+    </nav>
+  </div>
 
   <footer id="footer-container"></footer>
   <script src="/js/init-header-footer.js" defer></script>
   <script src="/js/main.js" defer></script>
   <script src="/js/nav.js" defer></script>
   <script src="/js/theme.js" defer></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+
+    var ICONS = {
+      pixelpusher: '<svg class="aa-card-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7z"></path><path d="M3 20h18"></path></svg>',
+      nova: '<svg class="aa-card-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"></path><path d="M9 21h6"></path></svg>',
+      forge: '<svg class="aa-card-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2"></rect><rect x="2" y="14" width="20" height="8" rx="2"></rect><path d="M6 6h.01M6 18h.01"></path></svg>',
+      pixel: '<svg class="aa-card-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="0.5" fill="currentColor"></circle><circle cx="17.5" cy="10.5" r="0.5" fill="currentColor"></circle><circle cx="8.5" cy="7.5" r="0.5" fill="currentColor"></circle><circle cx="6.5" cy="12.5" r="0.5" fill="currentColor"></circle><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.555C21.965 6.012 17.461 2 12 2z"></path></svg>',
+      cipher: '<svg class="aa-card-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="M18 9l-5 5-2-2-4 4"></path></svg>',
+      echo: '<svg class="aa-card-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>',
+      scribe: '<svg class="aa-card-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path></svg>',
+      scout: '<svg class="aa-card-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="M21 21l-4.35-4.35"></path></svg>',
+      quill: '<svg class="aa-card-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>'
+    };
+
+    var DISPLAY_STATUS = {
+      pixelpusher: 'Active',
+      nova: 'Monitoring',
+      forge: 'Building',
+      pixel: 'Active',
+      cipher: 'Reviewing',
+      echo: 'Monitoring',
+      scribe: 'Active',
+      scout: 'Active',
+      quill: 'Supporting'
+    };
+
+    var OWNS = {
+      pixelpusher: ['Vision & strategic direction', 'Final approval authority', 'Override control', 'Executive governance'],
+      nova: ['Agent orchestration', 'Strategic synthesis', 'Escalation routing', 'Founder decision support'],
+      forge: ['Infrastructure & APIs', 'Deploy pipelines', 'Uptime monitoring', 'Security hardening'],
+      pixel: ['UI systems & design language', 'Visual audits & QC', 'Accessibility compliance', 'Component consistency'],
+      cipher: ['Budget & cost tracking', 'API usage analysis', 'Risk detection', 'Resource optimization'],
+      echo: ['Social publishing pipelines', 'Campaign planning', 'Brand voice & positioning', 'Engagement analysis'],
+      scribe: ['Blog & documentation', 'Product briefs', 'Content pipeline', 'Publishing workflow'],
+      scout: ['Market research', 'Competitive intelligence', 'Trend analysis', 'Strategic research'],
+      quill: ['Copy editing & refinement', 'Tone enforcement', 'Brand consistency', 'CTA polish']
+    };
+
+    function statusClass(label) {
+      var key = label.toLowerCase();
+      if (key === 'building') return 'aa-status--building';
+      if (key === 'reviewing') return 'aa-status--reviewing';
+      if (key === 'escalated') return 'aa-status--escalated';
+      if (key === 'supporting') return 'aa-status--supporting';
+      if (key === 'active') return 'aa-status--active';
+      return 'aa-status--monitoring';
+    }
+
+    function renderCard(agent) {
+      var id = agent.id;
+      var isCeo = agent.isHuman && agent.tier === 1;
+      var displayStatus = DISPLAY_STATUS[id] || 'Monitoring';
+      var icon = ICONS[id] || '';
+      var owns = OWNS[id] || [];
+      var ownsList = owns.length
+        ? '<ul class="aa-card-owns">' + owns.map(function (o) { return '<li>' + o + '</li>'; }).join('') + '</ul>'
+        : '';
+      var cardClass = 'aa-card' + (isCeo ? ' aa-card--ceo' : '');
+      var seatBadge = isCeo ? '<span class="aa-seat-badge">Governance</span>' : '';
+      return '<div class="' + cardClass + '" id="' + id + '">' +
+        '<div class="aa-card-top">' +
+          icon +
+          '<div class="aa-card-identity">' +
+            '<div class="aa-card-name">' + agent.name + seatBadge + '</div>' +
+            '<span class="aa-card-role">' + (agent.title || agent.role) + '</span>' +
+            '<span class="aa-card-status ' + statusClass(displayStatus) + '">' + displayStatus + '</span>' +
+          '</div>' +
+        '</div>' +
+        ownsList +
+      '</div>';
+    }
+
+    fetch('/data/company-agents.json?t=' + Date.now())
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        var agents = data.agents || [];
+        [1, 2, 3, 4].forEach(function (tier) {
+          var grid = document.querySelector('.aa-grid[data-tier="' + tier + '"]');
+          if (!grid) return;
+          var tierAgents = agents.filter(function (a) { return a.tier === tier; });
+          if (!tierAgents.length) {
+            grid.closest('.aa-tier').style.display = 'none';
+            return;
+          }
+          grid.innerHTML = tierAgents.map(renderCard).join('');
+        });
+      })
+      .catch(function () {
+        document.querySelectorAll('.aa-grid').forEach(function (g) {
+          g.innerHTML = '<div class="aa-loading">Unable to load agent data.</div>';
+        });
+      });
+  });
+  </script>
 </body>
 </html>

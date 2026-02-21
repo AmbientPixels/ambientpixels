@@ -21,6 +21,57 @@
   <link rel="stylesheet" href="/css/nova-chat.css" /> <!-- Nova Chat UI -->
   <link rel="stylesheet" href="/css/nova-logs.css" /> <!-- Dream engine styles -->
   <link rel="stylesheet" href="/css/nova.css" />
+  <style>
+    /* Agent Roster Preview */
+    .ar-preview { margin-top: 1.5rem; }
+    .ar-preview h2 { margin-bottom: 0.25rem; }
+    .ar-preview .ar-sub { font-size: 0.85rem; color: rgba(148,163,184,0.65); margin: 0 0 1rem; }
+    .ar-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+    }
+    .ar-card {
+      display: flex; align-items: flex-start; gap: 10px;
+      padding: 12px 14px; border-radius: 10px;
+      border: 1px solid rgba(167,139,250,0.1);
+      background: rgba(15,20,35,0.45);
+      transition: border-color 0.2s, transform 0.15s;
+    }
+    .ar-card:hover { border-color: rgba(167,139,250,0.25); transform: translateY(-1px); }
+    .ar-card-ico { flex-shrink: 0; width: 1.3em; height: 1.3em; margin-top: 2px; opacity: 0.5; }
+    .ar-card-body { min-width: 0; }
+    .ar-card-name { font-size: 0.88rem; font-weight: 600; color: #e2e8f0; margin: 0; line-height: 1.3; }
+    .ar-card-role { font-size: 0.72rem; color: rgba(148,163,184,0.6); display: block; margin-bottom: 5px; }
+    .ar-card-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .ar-tier {
+      font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.06em;
+      padding: 1px 6px; border-radius: 4px;
+      background: rgba(148,163,184,0.08); color: rgba(148,163,184,0.55);
+      font-weight: 500;
+    }
+    .ar-status {
+      font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.05em;
+      padding: 1px 7px; border-radius: 99px; font-weight: 500;
+    }
+    .ar-status--monitoring { background: rgba(148,163,184,0.1); color: rgba(148,163,184,0.6); }
+    .ar-status--active { background: rgba(167,139,250,0.12); color: rgba(167,139,250,0.75); }
+    .ar-status--building { background: rgba(96,165,250,0.12); color: rgba(96,165,250,0.75); }
+    .ar-status--reviewing { background: rgba(251,191,36,0.12); color: rgba(251,191,36,0.75); }
+    .ar-status--supporting { background: rgba(148,163,184,0.07); color: rgba(148,163,184,0.45); }
+    .ar-card-link {
+      display: inline-block; font-size: 0.7rem; color: rgba(167,139,250,0.55);
+      margin-top: 6px; transition: color 0.2s;
+    }
+    .ar-card-link:hover { color: rgba(167,139,250,0.9); }
+    .ar-cta {
+      text-align: center; margin-top: 1.25rem;
+      padding-top: 1rem; border-top: 1px solid rgba(148,163,184,0.06);
+    }
+    .ar-cta-text { font-size: 0.8rem; color: rgba(148,163,184,0.45); margin: 0 0 0.75rem; }
+    .ar-cta-buttons { display: flex; justify-content: center; gap: 10px; }
+    @media (max-width: 600px) {
+      .ar-grid { grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 <body class="nova-home">
   <header id="nav-header"></header>
@@ -57,7 +108,7 @@
         <span class="cf-icon cf-icon--section" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <rect x="3" y="4" width="18" height="14" rx="2"></rect>
-            <path d="M8 22h8M12 18v4M7 9l2 2-2 2M12 13h5"></path>
+            <path d="M8 22h8M9 16v4M15 16v4"></path>
           </svg>
         </span>
         Operator Console (Demo)
@@ -127,36 +178,6 @@
     <section class="grid-col-6 card-section operator-tool-card">
       <div class="operator-tool-icon cf-icon" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-          <circle cx="8.5" cy="7" r="4"></circle>
-          <path d="M20 8v6M17 11h6"></path>
-        </svg>
-      </div>
-      <div class="card-content">
-        <h3>Agent Roster (Preview)</h3>
-        <p>Public-safe view of the GridOS agent team, ownership scope, and operating status by tier.</p>
-        <a href="/nova/agents.html">Open Agent Roster →</a>
-      </div>
-    </section>
-
-    <section class="grid-col-6 card-section operator-tool-card">
-      <div class="operator-tool-icon cf-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="3" y="3" width="18" height="18" rx="2"></rect>
-          <path d="M8 8h8M8 12h8M8 16h5"></path>
-        </svg>
-      </div>
-      <div class="card-content">
-        <h3>GridOS Preview</h3>
-        <p>High-level public operations snapshot with redacted cards and governance-safe metrics.</p>
-        <a href="/nova/preview.html">Open Preview →</a>
-      </div>
-    </section>
-
-    <!-- Operator Tools -->
-    <section class="grid-col-6 card-section operator-tool-card">
-      <div class="operator-tool-icon cf-icon" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <rect x="3" y="4" width="18" height="12" rx="2"></rect>
           <path d="M7 20h10M9 16v4M15 16v4"></path>
         </svg>
@@ -210,6 +231,137 @@
         <h3>Founder Log</h3>
         <p>Working memory, strategic notes, and execution narratives supporting founder decisions.</p>
         <a href="/nova/logs.html">Open Log →</a>
+      </div>
+    </section>
+
+    <!-- Agent Roster (Preview) -->
+    <section class="grid-col-12 content-section ar-preview">
+      <h2>
+        <span class="cf-icon cf-icon--section" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+            <circle cx="8.5" cy="7" r="4"></circle>
+            <path d="M20 8v6M17 11h6"></path>
+          </svg>
+        </span>
+        Agent Roster (Preview)
+      </h2>
+      <p class="ar-sub">A structured view of the GridOS agent team operating under Nova.</p>
+
+      <div class="ar-grid">
+
+        <div class="ar-card">
+          <svg class="ar-card-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-2.26C6.19 13.47 5 11.38 5 9a7 7 0 0 1 7-7z"></path><path d="M9 21h6"></path></svg>
+          <div class="ar-card-body">
+            <div class="ar-card-name">Nova</div>
+            <span class="ar-card-role">Prime Operator</span>
+            <div class="ar-card-meta">
+              <span class="ar-tier">Tier 2</span>
+              <span class="ar-status ar-status--monitoring">Monitoring</span>
+            </div>
+            <a href="/nova/agents.html#nova" class="ar-card-link">View Profile →</a>
+          </div>
+        </div>
+
+        <div class="ar-card">
+          <svg class="ar-card-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="8" rx="2"></rect><rect x="2" y="14" width="20" height="8" rx="2"></rect><path d="M6 6h.01M6 18h.01"></path></svg>
+          <div class="ar-card-body">
+            <div class="ar-card-name">Forge</div>
+            <span class="ar-card-role">Systems Engineer</span>
+            <div class="ar-card-meta">
+              <span class="ar-tier">Tier 3</span>
+              <span class="ar-status ar-status--building">Building</span>
+            </div>
+            <a href="/nova/agents.html#forge" class="ar-card-link">View Profile →</a>
+          </div>
+        </div>
+
+        <div class="ar-card">
+          <svg class="ar-card-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r="0.5" fill="currentColor"></circle><circle cx="17.5" cy="10.5" r="0.5" fill="currentColor"></circle><circle cx="8.5" cy="7.5" r="0.5" fill="currentColor"></circle><circle cx="6.5" cy="12.5" r="0.5" fill="currentColor"></circle><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.555C21.965 6.012 17.461 2 12 2z"></path></svg>
+          <div class="ar-card-body">
+            <div class="ar-card-name">Pixel</div>
+            <span class="ar-card-role">Design Director</span>
+            <div class="ar-card-meta">
+              <span class="ar-tier">Tier 3</span>
+              <span class="ar-status ar-status--active">Active</span>
+            </div>
+            <a href="/nova/agents.html#pixel" class="ar-card-link">View Profile →</a>
+          </div>
+        </div>
+
+        <div class="ar-card">
+          <svg class="ar-card-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="M18 9l-5 5-2-2-4 4"></path></svg>
+          <div class="ar-card-body">
+            <div class="ar-card-name">Cipher</div>
+            <span class="ar-card-role">Finance Controller</span>
+            <div class="ar-card-meta">
+              <span class="ar-tier">Tier 3</span>
+              <span class="ar-status ar-status--reviewing">Reviewing</span>
+            </div>
+            <a href="/nova/agents.html#cipher" class="ar-card-link">View Profile →</a>
+          </div>
+        </div>
+
+        <div class="ar-card">
+          <svg class="ar-card-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+          <div class="ar-card-body">
+            <div class="ar-card-name">Echo</div>
+            <span class="ar-card-role">Marketing Lead</span>
+            <div class="ar-card-meta">
+              <span class="ar-tier">Tier 3</span>
+              <span class="ar-status ar-status--monitoring">Monitoring</span>
+            </div>
+            <a href="/nova/agents.html#echo" class="ar-card-link">View Profile →</a>
+          </div>
+        </div>
+
+        <div class="ar-card">
+          <svg class="ar-card-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"></path></svg>
+          <div class="ar-card-body">
+            <div class="ar-card-name">Scribe</div>
+            <span class="ar-card-role">Content Lead</span>
+            <div class="ar-card-meta">
+              <span class="ar-tier">Tier 3</span>
+              <span class="ar-status ar-status--active">Active</span>
+            </div>
+            <a href="/nova/agents.html#scribe" class="ar-card-link">View Profile →</a>
+          </div>
+        </div>
+
+        <div class="ar-card">
+          <svg class="ar-card-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><path d="M21 21l-4.35-4.35"></path></svg>
+          <div class="ar-card-body">
+            <div class="ar-card-name">Scout</div>
+            <span class="ar-card-role">Research Lead</span>
+            <div class="ar-card-meta">
+              <span class="ar-tier">Tier 3</span>
+              <span class="ar-status ar-status--active">Active</span>
+            </div>
+            <a href="/nova/agents.html#scout" class="ar-card-link">View Profile →</a>
+          </div>
+        </div>
+
+        <div class="ar-card">
+          <svg class="ar-card-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+          <div class="ar-card-body">
+            <div class="ar-card-name">Quill</div>
+            <span class="ar-card-role">Content Editor</span>
+            <div class="ar-card-meta">
+              <span class="ar-tier">Tier 4</span>
+              <span class="ar-status ar-status--supporting">Supporting</span>
+            </div>
+            <a href="/nova/agents.html#quill" class="ar-card-link">View Profile →</a>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="ar-cta">
+        <p class="ar-cta-text">Explore full agent structure inside GridOS.</p>
+        <div class="ar-cta-buttons">
+          <a href="/support/" class="glass-button">Request Access</a>
+          <a href="/nova/agents.html" class="glass-button secondary">Explore GridOS</a>
+        </div>
       </div>
     </section>
   </main>
