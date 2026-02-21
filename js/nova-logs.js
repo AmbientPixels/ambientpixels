@@ -210,7 +210,7 @@
     }
   }
 
-  // ── Diary Input (Ask Nova) ──
+  // ── Founder Log Input (Ask Nova) ──
   function initDiaryInput() {
     var input = document.getElementById('nova-diary-input');
     var sendBtn = document.getElementById('nova-diary-send');
@@ -247,7 +247,7 @@
         responseEl.textContent = displayReply;
         input.value = '';
 
-        // Persist diary entry
+        // Persist founder log entry
         if (reply) {
           NovaSoul.saveDiaryEntry(msg, reply);
           // Append to past entries list live
@@ -276,7 +276,7 @@
     });
   }
 
-  // ── Past Diary Entries ──
+  // ── Past Founder Log Entries ──
   function loadPastDiaryEntries() {
     var container = document.getElementById('nova-past-diary');
     if (!container) return;
@@ -349,7 +349,7 @@
     if (stats.daysSinceFirst > 0) parts.push(stats.daysSinceFirst + 'd active');
     parts.push(stats.chatTurns + ' chats');
     parts.push(stats.moodSnapshots + ' state snapshots');
-    parts.push(stats.diaryEntries + ' journal entries');
+    parts.push(stats.diaryEntries + ' founder log entries');
     statsEl.textContent = parts.join(' · ');
   }
 

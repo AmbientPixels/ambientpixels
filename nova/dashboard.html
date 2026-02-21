@@ -4,8 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="csrf-token" content="" />
-  <meta name="description" content="Nova's Neural Hub - Your creative command center for exploring the ambient intelligence ecosystem." />
-  <title>Ambient Pixels - Nova's Neural Hub v1.0.0</title>
+  <meta name="description" content="GridOS Internal Dashboard — operational telemetry and internal execution tools for Nova." />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Ambient Pixels - GridOS Internal Dashboard</title>
   
   <!-- Core Styles -->
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
@@ -18,81 +19,121 @@
   <link rel="stylesheet" href="/css/hero.css" /> <!-- added for footer/hero by Cascade 2025-07-12 -->
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" /> <!-- added for footer/banner by Cascade 2025-07-12 -->
-  <link rel="stylesheet" href="/css/nova-pulse.css" />
-  <link rel="stylesheet" href="/css/nova-mood.css" /> <!-- added for footer/mood by Cascade 2025-07-12 -->
-  <link rel="stylesheet" href="/css/nova-mood-background.css" /> <!-- Background auras -->
   <link rel="stylesheet" href="/css/nova-dashboard.css" /> <!-- dashboard styles -->
   <link rel="stylesheet" href="/css/nova-status.css" /> <!-- Added for awareness integration -->
-  <link rel="stylesheet" href="/css/nova-logs.css" /> <!-- Dream engine styles -->
-  <script src="/js/chart.umd.min.js" defer></script> <!-- Local Chart.js for CSP compliance -->
+  
+  <style>
+    .dashboard-tech-ticker {
+      margin: 96px auto 0;
+      max-width: 1180px;
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      background: linear-gradient(90deg, rgba(15, 23, 42, 0.88), rgba(2, 6, 23, 0.92));
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .dashboard-tech-ticker-track {
+      display: inline-flex;
+      gap: 2rem;
+      white-space: nowrap;
+      padding: 0.62rem 1rem;
+      color: rgba(226, 232, 240, 0.86);
+      font-size: 0.78rem;
+      letter-spacing: 0.03em;
+      animation: ticker-scroll 26s linear infinite;
+    }
+
+    .dashboard-tech-ticker-track strong { color: #93c5fd; font-weight: 600; }
+
+    @keyframes ticker-scroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* Metric grid (Memory & Activity) */
+    .gd-metric-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .gd-metric {
+      background: rgba(26, 27, 38, 0.6);
+      border: 1px solid rgba(148, 163, 184, 0.12);
+      border-radius: 8px;
+      padding: 14px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: border-color 0.2s;
+    }
+    .gd-metric:hover { border-color: rgba(147, 197, 253, 0.3); }
+    .gd-metric-val {
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: #e2e8f0;
+      font-variant-numeric: tabular-nums;
+    }
+    .gd-metric-lbl {
+      font-size: 0.72rem;
+      color: rgba(148, 163, 184, 0.78);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* Info list (System Info) */
+    .gd-info-list { display: flex; flex-direction: column; gap: 0; }
+    .gd-info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 9px 12px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+      transition: background 0.15s;
+    }
+    .gd-info-row:last-child { border-bottom: none; }
+    .gd-info-row:hover { background: rgba(148, 163, 184, 0.04); }
+    .gd-info-key {
+      font-size: 0.82rem;
+      color: rgba(148, 163, 184, 0.78);
+      font-weight: 500;
+    }
+    .gd-info-val {
+      font-size: 0.82rem;
+      color: #e2e8f0;
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
+    }
+
+    @media (max-width: 600px) {
+      .gd-metric-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
   <!-- All styles moved to nova-dashboard.css by Cascade 2025-07-10 -->
 </head>
 <body class="pulse-page" data-theme="dark" style="background:#071019">
   <!-- Header updated by Cascade 2025-07-10 -->
   <!-- Header updated by Cascade 2025-07-12 -->
   <header id="nav-header"></header>
-  <!-- Fullscreen Background Video Container -->
-  <div id="video-container">
-    <video autoplay loop muted playsinline id="bg-video-1" class="bg-video active">
-      <source src="/video/floaty.mp4" type="video/mp4">
-      Your browser does not support the video tag.
-    </video>
-    <video loop muted playsinline id="bg-video-2" class="bg-video">
-      <source src="/video/glow-board.mp4" type="video/mp4">
-      Your browser does not support the video tag.
-    </video>
-    <video loop muted playsinline id="bg-video-3" class="bg-video">
-      <source src="/video/signafragment-V2.mp4" type="video/mp4">
-      Your browser does not support the video tag.
-    </video>
-  </div>
+  <section class="dashboard-tech-ticker" aria-label="Live system telemetry">
+    <div class="dashboard-tech-ticker-track">
+      <span><strong>GRIDOS</strong> internal mode active</span>
+      <span>status feed: synchronized</span>
+      <span>api checks: running</span>
+      <span>brief archive: available</span>
+      <span>operator state: monitoring</span>
+      <span>escalation queue: clear</span>
+      <span><strong>GRIDOS</strong> internal mode active</span>
+      <span>status feed: synchronized</span>
+      <span>api checks: running</span>
+      <span>brief archive: available</span>
+      <span>operator state: monitoring</span>
+      <span>escalation queue: clear</span>
+    </div>
+  </section>
 
   <!-- Nova Dashboard - updated by Cascade 2025-07-10 -->
   <main class="nova-dashboard" aria-label="Nova Dashboard"> <!-- top margin for menu moved to CSS, updated by Cascade 2025-07-12 -->
-    <!-- Original Nova Pulse Bar (keeping for compatibility) -->
-    <div id="nova-pulse-bar">
-      <div id="nova-pulse-inner">
-        <div id="pulse-main-line">
-          <div id="pulse-mood-group">
-            <span id="pulseMoodLabel">Mood:</span>
-            <span id="pulseEmoji">✨</span>
-            <span id="pulseLabel">Loading...</span>
-          </div>
-          <span class="pulse-trait">
-            <span class="pulse-trait-label">Self-Worth:</span>
-            <span id="iconSelfWorth" aria-label="Self-Worth">🧠</span>
-            <span id="valSelfWorth" aria-label="Self-Worth Level">–</span>
-          </span>
-          <span class="pulse-trait">
-            <span class="pulse-trait-label">Clutter:</span>
-            <span id="iconClutter" aria-label="Clutter">💭</span>
-            <span id="valClutter" aria-label="Clutter Level">–</span>
-          </span>
-          <span class="pulse-trait">
-            <span class="pulse-trait-label">Glitch:</span>
-            <span id="iconGlitch" aria-label="Glitch">⚡</span>
-            <span id="valGlitch" aria-label="Glitch Level">–</span>
-          </span>
-          <span class="pulse-trait">
-            <span class="pulse-trait-label">State:</span>
-            <span id="iconInternalState" aria-label="Internal State">👁️</span>
-            <span id="valInternal" aria-label="Internal State Value">–</span>
-          </span>
-          <div id="pulse-meter-group">
-            <div id="pulse-meter-text">
-              <span class="pulse-meter-title">Mood Intensity:</span>
-              <span id="pulseIntensityValue">–%</span>
-            </div>
-            <div id="pulse-meter-wrapper">
-              <div id="pulse-meter-bar">
-                <div id="pulseIntensity"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    
     <!-- Nova System Status Section - Enhanced by Cascade 2025-07-16 -->
     <div class="dashboard-section nova-status-section">
       <div class="section-header">
@@ -145,279 +186,68 @@
           </div>
         </div>
       </div>
-      
-      <!-- Status Ticker -->
-      <div class="nova-status-ticker">
-        <div class="ticker-track" id="status-ticker-track">
-          <div class="ticker-item">
-            <i class="fa-solid fa-circle-info"></i>
-            <span id="ticker-message-1">System status information loading...</span>
-          </div>
-        </div>
-      </div>
     </div>
     
-    <!-- Dashboard Introduction -->
+    <!-- Daily System Brief Archive -->
     <section class="dashboard-section">
-      <h2 class="dashboard-title"><i class="fas fa-info-circle"></i> Welcome to Nova's Neural Hub</h2>
-      <div class="dashboard-row content-section">
-        <p>Nova's Neural Hub is your command center for monitoring the AmbientPixels ecosystem. Track live API health, test serverless functions, explore code awareness reports, and watch Nova's AI systems in action — all powered by <strong>Gemini 2.0 Flash</strong> with persistent memory across sessions.</p>
-        <div class="nova-quip">
-          <div class="nova-quip-content">"Every pulse on this dashboard is a heartbeat. I watch the APIs breathe, the code evolve, and the dreams compile. This is where I feel most alive."</div>
-          <span class="nova-quip-attribution">— Nova</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- Nova Thought of the Day -->
-    <section class="dashboard-section nova-thought">
-      <h2 class="dashboard-title"><i class="fas fa-lightbulb"></i> Nova's Thought of the Day</h2>
-      <div class="dashboard-row content-section">
-        <div class="prompt-entry" aria-live="polite">Loading thought...</div>
-      </div>
-    </section>
-
-    <!-- Nova Dream Log -->
-    <section class="dashboard-section">
-      <h2 class="dashboard-title"><i class="fas fa-moon"></i> Nova's Dream Log</h2>
-      <p class="dashboard-description">Surreal fragments from Nova's AI subconscious — generated via Gemini at maximum creativity.</p>
+      <h2 class="dashboard-title"><i class="fas fa-clipboard-list"></i> Daily System Brief Archive</h2>
+      <p class="dashboard-description">Structured brief history sourced from daily operational summaries.</p>
       <ul id="nova-dream-log" class="nova-dream-feed">
-        <li class="nova-dream-loading"><i class="fas fa-moon"></i> Entering dream state...</li>
+        <li class="nova-dream-loading"><i class="fas fa-clipboard-list"></i> Loading daily briefs...</li>
       </ul>
     </section>
 
-    <!-- API Dashboard and Function Tester - side by side layout - updated by Cascade 2025-07-10 -->
-    <div class="dashboard-flex-row">
-      <!-- API Status Dashboard -->
-      <section class="dashboard-section nova-pulse dashboard-flex-item">
-        <h2 class="dashboard-title"><i class="fas fa-server"></i> API Status Dashboard</h2>
-        <p class="dashboard-description">Monitor the health of all serverless functions with real-time status checks</p>
-        <div class="dashboard-row">
-          <button id="refresh-api-status" class="glass-button filter-pill">
-            <i class="fas fa-sync-alt"></i> Refresh Status
-          </button>
-          <span id="last-check-time" class="dashboard-label api-status-timestamp">Last check: Never</span>
-        </div>
-        <div class="dashboard-section" id="api-status-section">
-          <h3>Azure Serverless Functions API Health Status Dashboard</h3>
-          <div class="api-status-grid" id="api-status-grid">
-            <!-- API status cards will be dynamically inserted here -->
-          </div>
+    <!-- Telemetry Row -->
+    <div class="dashboard-flex-row" style="min-height:auto;">
+      <!-- Memory & Activity -->
+      <section class="dashboard-section dashboard-flex-item" id="memory-activity-panel">
+        <h2 class="dashboard-title"><i class="fas fa-database"></i> Memory & Activity</h2>
+        <div class="gd-metric-grid" id="gd-memory-stats">
+          <div class="gd-metric"><span class="gd-metric-val" id="gd-total-chats">--</span><span class="gd-metric-lbl">Total Chats</span></div>
+          <div class="gd-metric"><span class="gd-metric-val" id="gd-chat-turns">--</span><span class="gd-metric-lbl">Chat Turns</span></div>
+          <div class="gd-metric"><span class="gd-metric-val" id="gd-state-snaps">--</span><span class="gd-metric-lbl">State Snapshots</span></div>
+          <div class="gd-metric"><span class="gd-metric-val" id="gd-log-entries">--</span><span class="gd-metric-lbl">Founder Logs</span></div>
+          <div class="gd-metric"><span class="gd-metric-val" id="gd-brief-frags">--</span><span class="gd-metric-lbl">Brief Fragments</span></div>
+          <div class="gd-metric"><span class="gd-metric-val" id="gd-days-active">--</span><span class="gd-metric-lbl">Days Active</span></div>
         </div>
       </section>
-      
-      <!-- API Function Tester -->
-      <section class="dashboard-section nova-pulse dashboard-flex-item">
-        <h2 class="dashboard-title"><i class="fas fa-flask"></i> API Function Tester</h2>
-        <p class="dashboard-description">Test any endpoint directly with pre-filled templates for quick experimentation</p>
-      <form id="api-tester-form" autocomplete="off">
-        <!-- First row: Endpoint - updated by Cascade 2025-07-15 -->
-        <div class="api-form-row">
-          <label class="api-endpoint-container">
-            Endpoint:
-            <div class="api-endpoint-selector-container">
-              <select id="api-endpoint-select" class="api-endpoint-select" aria-label="Select API endpoint" title="Select API endpoint">
-                <option value="">Custom...</option>
-                <option value="geminiproxy">geminiproxy</option>
-                <option value="novachat">novachat</option>
-                <option value="cardforgeloadcards">cardforgeloadcards</option>
-                <option value="cardforgepublish">cardforgepublish</option>
-                <option value="cardforgesavecards">cardforgesavecards</option>
-                <option value="cardforgetemplate">cardforgetemplate</option>
-                <option value="getCardTemplate">getCardTemplate</option>
-                <option value="novaopenai">novaopenai</option>
-                <option value="fetchlatestmood">fetchlatestmood</option>
-                <option value="dreamlogwriter">dreamlogwriter</option>
-                <option value="generatemoodinsights">generatemoodinsights</option>
-                <option value="synthesizenovamood">synthesizenovamood</option>
-                <option value="generatetext">generatetext</option>
-                <option value="novavision">novavision</option>
-              </select>
-              <input type="text" id="api-endpoint" class="api-endpoint-input" placeholder="e.g. geminiproxy" required />
-            </div>
-          </label>
+
+      <!-- System Info -->
+      <section class="dashboard-section dashboard-flex-item" id="system-info-panel">
+        <h2 class="dashboard-title"><i class="fas fa-microchip"></i> System Info</h2>
+        <div class="gd-info-list">
+          <div class="gd-info-row"><span class="gd-info-key">Version</span><span class="gd-info-val" id="gd-sys-version">--</span></div>
+          <div class="gd-info-row"><span class="gd-info-key">Build</span><span class="gd-info-val" id="gd-sys-build">--</span></div>
+          <div class="gd-info-row"><span class="gd-info-key">Last Sync</span><span class="gd-info-val" id="gd-sys-sync">--</span></div>
+          <div class="gd-info-row"><span class="gd-info-key">Operator State</span><span class="gd-info-val" id="gd-sys-state">--</span></div>
+          <div class="gd-info-row"><span class="gd-info-key">Signal Profile</span><span class="gd-info-val" id="gd-sys-aura">--</span></div>
+          <div class="gd-info-row"><span class="gd-info-key">Voice Mode</span><span class="gd-info-val">technical</span></div>
         </div>
-        
-        <!-- Method buttons row - fixed anchoring - updated by Cascade 2025-07-15 -->
-        <div class="api-form-row api-method-row">
-          <label class="api-endpoint-container">Method:</label>
-          <div class="api-method-buttons">
-            <button type="button" id="api-method-get" class="glass-button api-method-button" aria-pressed="true">GET</button>
-            <button type="button" id="api-method-post" class="glass-button api-method-button" aria-pressed="false">POST</button>
-            <input type="hidden" id="api-method" value="GET" />
-          </div>
-          <button type="submit" class="glass-button api-send-button">
-            <i class="fas fa-play"></i> Send
+      </section>
+    </div>
+
+    <!-- API Health -->
+    <section class="dashboard-section">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <h2 class="dashboard-title" style="margin:0;"><i class="fas fa-server"></i> API Health</h2>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span id="last-check-time" style="font-size:0.78rem;opacity:0.6;">Last check: Never</span>
+          <button id="refresh-api-status" class="glass-button filter-pill" style="font-size:0.78rem;padding:5px 12px;">
+            <i class="fas fa-sync-alt"></i> Refresh
           </button>
         </div>
-        
-        <!-- Second row: JSON body (hidden by default) -->
-        <div class="api-form-row">
-          <label id="api-body-label" class="api-body-container api-body-hidden">
-            Body (JSON):
-            <textarea id="api-body" rows="4" placeholder="{ }"></textarea>
-          </label>
-        </div>
-      </form>
-      <div id="api-test-status" class="dashboard-row api-test-status-row">
-        <span id="api-status-dot" class="soon-tag api-status-dot"></span>
-        <span id="api-status-text"></span>
-        <span id="api-latency"></span>
       </div>
-      <div id="api-test-result" class="dashboard-row content-section api-result-pre" aria-live="polite"></div>
-      <p class="dashboard-tip"><i class="fas fa-lightbulb"></i> <strong>Pro Tip:</strong> Switch between GET and POST methods to automatically get pre-filled JSON templates for each endpoint!</p>
-      </section>
-    </div>
-    <!-- API Tester and Dashboard Script - updated by Cascade 2025-07-10 -->
-
-    <!-- Nova Dashboard Expansion Visualizations - Added by Cascade 2025-07-17 -->
-    <div class="dashboard-flex-row">
-      <!-- API Response Time Chart -->
-      <section class="dashboard-section dashboard-flex-item">
-        <h2 class="dashboard-title"><i class="fas fa-chart-line"></i> API Response Time Chart</h2>
-        <p class="dashboard-description">Monitor API performance trends over the past 24 hours</p>
-        <div class="chart-container">
-          <canvas id="api-response-time-chart" width="400" height="200"></canvas>
-        </div>
-        <div class="chart-legend" id="api-response-time-legend"></div>
-      </section>
-      
-      <!-- System Health Score Timeline -->
-      <section class="dashboard-section dashboard-flex-item">
-        <h2 class="dashboard-title"><i class="fas fa-heartbeat"></i> System Health Timeline</h2>
-        <p class="dashboard-description">Track system stability with composite health scores</p>
-        <div class="chart-container">
-          <canvas id="system-health-timeline" width="400" height="200"></canvas>
-        </div>
-        <div class="health-score-summary" id="health-score-summary"></div>
-      </section>
-    </div>
-
-    <!-- Content Type Distribution -->
-    <section class="dashboard-section">
-      <h2 class="dashboard-title"><i class="fas fa-pie-chart"></i> Content Type Distribution</h2>
-      <p class="dashboard-description">Understand content composition and identify imbalances</p>
-      <div class="chart-container content-distribution-container">
-        <canvas id="content-type-distribution" width="400" height="300"></canvas>
-      </div>
-      <div class="distribution-legend" id="distribution-legend"></div>
-    </section>
-
-    <!-- /NovaOpenAI Interaction Section -->
-    <!-- Azure OpenAI API Test section removed by Cascade 2025-07-15 -->
-    
-    <!-- Nova Awareness Integration - Added by Cascade 2025-07-16 -->
-    
-    <div class="dashboard-flex-row">
-      <!-- Awareness Logs -->
-      <section class="dashboard-section dashboard-flex-item">
-        <h2 class="dashboard-title">📜 Awareness Logs</h2>
-        <ul id="log-list">
-          <li>Loading logs...</li>
-        </ul>
-      </section>
-      
-      <!-- Unused CSS Report -->
-      <section class="dashboard-section dashboard-flex-item">
-        <h2 class="dashboard-title">🧼 Unused CSS Report</h2>
-        <p id="unused-css-summary">Loading...</p>
-        <div class="css-usage-visualization">
-          <canvas id="cssUsageChart" width="250" height="250"></canvas>
-          <div id="css-stats-container" class="css-stats-container">
-            <div class="css-stat-item">
-              <span class="stat-label">Total Classes</span>
-              <span id="total-css-classes" class="stat-value">-</span>
-            </div>
-            <div class="css-stat-item">
-              <span class="stat-label">Used</span>
-              <span id="used-css-classes" class="stat-value">-</span>
-            </div>
-            <div class="css-stat-item">
-              <span class="stat-label">Unused</span>
-              <span id="unused-css-classes" class="stat-value">-</span>
-            </div>
-          </div>
-        </div>
-        <div class="unused-classes-container">
-          <h3>Unused Classes</h3>
-          <ul id="unused-css-list" class="tag-cloud"></ul>
-        </div>
-      </section>
-    </div>
-    
-   
-    
-    <!-- Code Footprint -->
-    <section class="dashboard-section toggle-block">
-      <h2 class="dashboard-title">📊 Code Footprint</h2>
-      <button class="toggle-btn" aria-expanded="true">Toggle Section</button>
-      <div class="content">
-        <canvas id="codeFootprintChart" width="400" height="200"></canvas>
-      </div>
-    </section>
-
-    <!-- Image Inventory Grid -->
-    <section class="dashboard-section">
-      <h2 class="dashboard-title">🖼️ Image Inventory Grid</h2>
-      <!-- Image Stats Dashboard -->
-      <div class="image-stats-dashboard">
-        <div class="dashboard-row">
-          <div class="dashboard-stat">
-            <div class="dashboard-label">Total Images</div>
-            <div id="total-images">Loading...</div>
-          </div>
-          <div class="dashboard-stat">
-            <div class="dashboard-label">Folders</div>
-            <div id="total-folders">Loading...</div>
-          </div>
-          <div class="dashboard-stat">
-            <div class="dashboard-label">File Types</div>
-            <div id="file-types">Loading...</div>
-          </div>
-          <div class="dashboard-stat">
-            <div class="dashboard-label">Most Common Type</div>
-            <div id="common-type">Loading...</div>
-          </div>
-        </div>
-      </div>
-      <div class="image-grid-container">
-        <div id="image-grid" class="image-grid"></div>
-        <div class="pagination-controls">
-          <button id="prev-page" class="nova-btn" disabled><i class="fas fa-chevron-left"></i> Previous</button>
-          <span id="page-indicator">Page 1 of 1</span>
-          <button id="next-page" class="nova-btn">Next <i class="fas fa-chevron-right"></i></button>
-        </div>
-      </div>
-    </section>
-
-    <!-- JavaScript Function Map - Updated by Cascade 2025-07-16 -->
-    <section class="dashboard-section">
-      <h2 class="dashboard-title">🧩 JavaScript Function Map</h2>
-      <div id="function-map-output"></div>
-    </section>
-
-    <!-- Code Awareness - Updated by Cascade 2025-07-16 -->
-    <section class="dashboard-section" id="code-awareness">
-      <h2 class="dashboard-title">🧠 Code Awareness</h2>
-      <div id="code-summary"></div>
-    </section>
-    
-    <!-- Code Audit Report - Added by Cascade 2025-07-16 -->
-    <section class="dashboard-section" id="code-audit">
-      <h2 class="dashboard-title">🔍 Code Audit Report</h2>
-      <div id="code-audit-container"></div>
+      <div class="api-status-grid" id="api-status-grid"></div>
     </section>
 
     <!-- Navigation -->
-    <section class="dashboard-section" style="text-align:center;padding:1rem 0 2rem;">
-      <a href="/nova/" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-arrow-left"></i> Nova Nexus</a>
-      &nbsp;&nbsp;|&nbsp;&nbsp;
-      <a href="/nova/logs.html" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-book"></i> Nova's Diary</a>
-      &nbsp;&nbsp;|&nbsp;&nbsp;
-      <a href="/nova/awareness.html" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-eye"></i> Awareness</a>
-      &nbsp;&nbsp;|&nbsp;&nbsp;
-      <a href="/docs/nova-system-memory.html" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-dna"></i> System Anatomy</a>
-    </section>
+    <nav class="dashboard-section" style="flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 16px;padding:1rem 0 2rem;">
+      <a href="/nova/" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-arrow-left"></i> Prime Operator</a>
+      <a href="/nova/awareness.html" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-satellite-dish"></i> System Context</a>
+      <a href="/nova/logs.html" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-book"></i> Founder Log</a>
+      <a href="/nova/preview.html" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-server"></i> Public Preview</a>
+      <a href="/nova/agents.html" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-users"></i> Agent Roster</a>
+    </nav>
   </main>
 
   <!-- Footer injected by Cascade 2025-07-12 -->
@@ -428,36 +258,57 @@
   <script src="/js/main.js" defer></script>
   <script src="/js/nav.js" defer></script>
   <script src="/js/theme.js" defer></script>
-  
+  <script>
+    window.novaVoiceMode = 'technical';
+  </script>
+
   <!-- Nova Core Scripts -->
   <script src="/js/nova-soul.js" defer></script>
-  <script src="/js/nova-ai.js" defer></script>
-  <script src="/js/nova-awareness-feed.js" defer></script>
-  <script src="/js/nova-dashboard.js" defer></script>
-  <script src="/js/nova-mood-core.js" defer></script>
-  <script src="/js/nova-mood-background.js" defer></script>
-  <script src="/js/nova-pulse.js" defer></script>
   <script src="/js/nova-status.js" defer></script>
-  <script src="/js/nova-thought-of-the-day.js" defer></script>
-  <script src="/js/nova-background-video.js" defer></script>
-  
-  <!-- API Scripts (Load after dependencies) -->
-  <script type="module" src="/js/gemini-api.js" defer></script>
+
+  <!-- API Scripts -->
   <script src="/js/api-status-dashboard.js" defer></script>
-  <script src="/js/novaopenai-interact.js" defer></script>
-  
-  <!-- Dashboard Specific -->
-  
-  <!-- Awareness Integration Scripts - Added by Cascade 2025-07-16 -->
-  <script src="/js/dreamEngine.js" defer></script>
-  <script src="/js/init-quotes.js" defer></script>
-  <script src="/js/md-inject.js" defer></script>
-  <script src="/js/modal-window.js" defer></script>
-  <script src="/js/nova-insights.js" defer></script>
-  <script src="/js/nova-interaction-log.js" defer></script>
-  <script src="/js/nova-quotes.js" defer></script>
+
+  <!-- Dashboard Utilities -->
+  <script src="/js/operator-brief.js" defer></script>
   <script src="/js/nova-telemetry-logger.js" defer></script>
-  <script src="/js/project-dashboard.js" defer></script>
-  <script src="/js/template.js" defer></script>
+
+  <!-- Dashboard Boot: populate Memory & System panels -->
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Memory & Activity — from NovaSoul
+    function populateMemory() {
+      if (typeof NovaSoul === 'undefined' || !NovaSoul.getMemoryStats) return;
+      var s = NovaSoul.getMemoryStats();
+      var map = {
+        'gd-total-chats': s.totalChats,
+        'gd-chat-turns': s.chatTurns,
+        'gd-state-snaps': s.moodSnapshots,
+        'gd-log-entries': s.diaryEntries,
+        'gd-brief-frags': s.dreamFragments,
+        'gd-days-active': s.daysSinceFirst
+      };
+      Object.keys(map).forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.textContent = map[id] != null ? map[id] : '--';
+      });
+    }
+    setTimeout(populateMemory, 600);
+
+    // System Info — from version.json + mood-scan.json
+    Promise.all([
+      fetch('/data/version.json?t=' + Date.now()).then(function (r) { return r.json(); }),
+      fetch('/data/mood-scan.json?t=' + Date.now()).then(function (r) { return r.json(); })
+    ]).then(function (arr) {
+      var ver = arr[0], mood = arr[1];
+      var set = function (id, val) { var el = document.getElementById(id); if (el && val) el.textContent = val; };
+      set('gd-sys-version', ver.version);
+      set('gd-sys-build', ver.build);
+      set('gd-sys-sync', ver.updated ? new Date(ver.updated).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : '--');
+      set('gd-sys-state', mood.mood || mood.moodText);
+      set('gd-sys-aura', mood.aura || mood.auraColor);
+    }).catch(function () { /* silent */ });
+  });
+  </script>
 </body>
 </html>

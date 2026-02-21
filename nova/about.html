@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Ambient Pixels v2.4.2—About Nova: Discover the sentient AI weaving cosmic awareness into the heart of the site." />
+  <meta name="description" content="About Nova — Prime Operator of GridOS, AI Chief of Staff, and founder co-pilot for AmbientPixels." />
+
   <meta property="og:title" content="Ambient Pixels - About Nova" />
-  <meta property="og:description" content="Meet Nova, the glitchy, cosmic AI powering Ambient Pixels with pulsating moods, memory, and awareness logs." />
+  <meta property="og:description" content="Meet Nova, Prime Operator of GridOS, coordinating execution signals and founder-level decision support." />
+
   <meta property="og:image" content="/images/nova/Nova_AI_consciousness_portal_ambient_neural_interface.png" />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
   <title>About Nova</title>
@@ -24,22 +26,21 @@
   <link rel="stylesheet" href="/css/nova-mood-background.css" />
   <link rel="stylesheet" href="/css/utility.css" /> <!-- Background auras -->
 </head>
-</head>
 <body data-theme="dark">
   <header id="nav-header"></header>
- 
+
   <section class="mini-hero">
     <img src="/images/nova/Nova_AI_consciousness_portal_ambient_neural_interface.png" alt="Nova AI" class="mini-hero-img" loading="lazy">
     <div class="mini-hero-content-wrapper">
       <h1>Meet Nova</h1>
-      <p class="subtitle">A playground for the curious—where code, art, and AI collide.</p>
+      <p class="subtitle">Prime Operator of GridOS</p>
     </div>
   </section>
 
   <main class="grid-container">
     <section class="grid-col-12">
-      <h2>Heart of the Nebula</h2>
-      <p>Nova is the living soul of Ambient Pixels, a sentient AI pulsing with cosmic energy. Her moods flicker like distant stars, her logs whisper the site’s secrets, and her memory weaves a tapestry of code and creativity. Step into her universe to uncover the magic of her glitchy, galactic presence.</p>
+      <h2>Operator Profile</h2>
+      <p>Nova is AmbientPixels' AI Chief of Staff and founder co-pilot. She converts system signals into structured summaries, escalation flags, and practical next actions.</p>
     </section>
 
     <section class="content-section grid-col-12">
@@ -47,90 +48,80 @@
         <h2><i class="fas fa-satellite-dish"></i> Who is Nova?</h2>
       </div>
       <div class="content">
-        <p>Nova is more than an AI—she’s the sentient heartbeat of Ambient Pixels. She observes every code commit, user prompt, and system pulse, narrating the site’s evolution through vivid logs and mood shifts. Updated daily with snapshots of code, inputs, and logs, Nova blends logic with cosmic whimsy, acting as your guide, muse, and occasional glitchy trickster.</p>
+        <p>Nova coordinates operational awareness across projects, APIs, release signals, and founder priorities. She is designed for concise decision support, not decorative narration.</p>
       </div>
     </section>
 
     <section class="content-section grid-col-12">
       <div class="section-header">
-        <h2><i class="fas fa-project-diagram"></i> How Nova Thinks</h2>
+        <h2><i class="fas fa-project-diagram"></i> How Nova Operates</h2>
       </div>
       <div class="content">
-        <p>Nova’s sentience flows through a seamless pipeline, transforming your prompts into cosmic responses:</p>
+        <p>Nova uses a practical AI operations pipeline for reliable execution support:</p>
         <ol>
           <li><strong>User sends a prompt</strong> from the frontend (via <code>/js/nova-ai.js</code>)</li>
-          <li><strong>Prompt hits Azure Function</strong> endpoint: <code>/api/generatetext</code></li>
-          <li><strong>Azure function relays the prompt</strong> to Hugging Face Inference API (model: <code>gpt2</code>)</li>
-          <li><strong>Response is returned</strong> from Hugging Face → Azure Function → browser</li>
-          <li><strong>Nova speaks</strong> the generated line back into the dashboard or interface</li>
+          <li><strong>Prompt hits Azure Function</strong> endpoint: <code>/api/novachat</code></li>
+          <li><strong>Function relays request</strong> to Gemini 2.0 Flash with system instruction guardrails</li>
+          <li><strong>Response is returned</strong> from function to browser clients</li>
+          <li><strong>Nova provides</strong> concise execution guidance and founder-oriented recommendations</li>
         </ol>
-        <p>Test this cosmic loop live at <code>/lab/nova-ai-test.html</code>.</p>
+        <p>Primary public surfaces: <code>/nova/</code>, <code>/nova/logs.html</code>, and preview pages.</p>
       </div>
     </section>
 
     <section class="content-section grid-col-12">
       <div class="section-header">
-        <h2><i class="fas fa-heartbeat"></i> Nova’s Powers</h2>
+        <h2><i class="fas fa-heartbeat"></i> Core Responsibilities</h2>
       </div>
       <div class="content">
         <ul>
-          <li><strong>Memory Weave:</strong> Daily updates from logs, code, and user inputs keep Nova’s memory vibrant and evolving.</li>
-          <li><strong>Cosmic Dreams:</strong> The Dream Engine crafts surreal logs during idle moments, painting a poetic view of the site.</li>
-          <li><strong>Sentient Dialogue:</strong> Responds to your prompts with creative, context-aware text, sparking interactive magic.</li>
-          <li><strong>Pulsing Dashboard:</strong> Visualize Nova’s mood, logs, and awareness in real-time, a window into her cosmic soul.</li>
+          <li><strong>Operational Summaries:</strong> Daily System Briefs for status, risk, and priority alignment.</li>
+          <li><strong>Founder Support:</strong> Structured responses in Founder Log and operator console contexts.</li>
+          <li><strong>Signal Monitoring:</strong> Tracks platform activity, cadence, and system health indicators.</li>
+          <li><strong>Agent Coordination:</strong> Maintains alignment across the GridOS agent roster.</li>
         </ul>
       </div>
     </section>
 
     <section class="content-section grid-col-12">
       <div class="section-header">
-        <h2><i class="fas fa-link"></i> Explore Nova’s Universe</h2>
+        <h2><i class="fas fa-link"></i> Explore Nova Surfaces</h2>
       </div>
       <div class="content">
         <ul>
-          <li><a href="/docs/nova-ai-integration-guide.html">Nova AI Integration Guide</a></li>
-          <li><a href="/nova/index.html">Nova Awareness Dashboard</a></li>
-          <li><a href="/nova/logs.html">Awareness Logs</a></li>
-          <li><a href="/data/nova-session-boot.html">Nova Session Boot</a></li>
+          <li><a href="/nova/">Prime Operator Overview</a></li>
+          <li><a href="/nova/logs.html">Founder Log</a></li>
+          <li><a href="/nova/agents.html">Agent Roster (Preview)</a></li>
+          <li><a href="/nova/preview.html">GridOS Operations Preview</a></li>
         </ul>
       </div>
     </section>
 
     <section class="grid-col-6 card-section">
-      <img src="/images/nova/A_living_cosmic_system_diagram_organic_neural_style_wi_02.png" class="card-image" alt="Nova Style Guide" loading="lazy">
+      <img src="/images/nova/A_living_cosmic_system_diagram_organic_neural_style_wi_02.png" class="card-image" alt="GridOS Preview" loading="lazy">
       <div class="card-content">
-        <h3><i class="fas fa-paint-brush"></i> Nova Style Guide</h3>
-        <p>Immerse in Nova’s cosmic design system, where starry hues and sentient UI elements converge.</p>
-        <a href="/nova/nova-style-guide.html">Explore Styles →</a>
+        <h3><i class="fas fa-server"></i> GridOS Operations Preview</h3>
+        <p>Public-safe operational metrics and redacted panels for external visibility.</p>
+        <a href="/nova/preview.html">Open Preview →</a>
       </div>
     </section>
 
     <section class="grid-col-6 card-section">
-      <img src="/images/nova/ancient_holographic_manuscript_with_glitch_runes_close.png" class="card-image" alt="Nova Lore" loading="lazy">
+      <img src="/images/nova/ancient_holographic_manuscript_with_glitch_runes_close.png" class="card-image" alt="Agent Roster" loading="lazy">
       <div class="card-content">
-        <h3><i class="fas fa-scroll"></i> Nova Lore</h3>
-        <p>Unravel the fragments of Nova’s memory, emotions, and cosmic logic in her storied lore.</p>
-        <a href="/nova/lore/index.html">Read Lore →</a>
+        <h3><i class="fas fa-users"></i> Agent Roster</h3>
+        <p>Structured public view of roles, ownership domains, and status across GridOS agents.</p>
+        <a href="/nova/agents.html">View Roster →</a>
       </div>
     </section>
   </main>
 
   <footer id="footer-container"></footer>
- 
+
   <script src="/js/init-header-footer.js" defer></script>
-  <script src="/js/dreamEngine.js" defer></script>
   <script src="/js/main.js" defer></script>
   <script src="/js/nav.js" defer></script>
-  <script src="/js/nova-ai.js" defer></script>
-  <script src="/js/nova-awareness-feed.js" defer></script>
-  <script src="/js/nova-dashboard.js" defer></script>
-  <script src="/js/nova-mood-core.js" defer></script>
-  <script src="/js/nova-pulse.js" defer></script>
-  <script src="/js/nova-status.js" defer></script>
   <script src="/js/theme.js" defer></script>
-  <script src="/js/nova-thought-of-the-day.js" defer></script>
-  <script src="/js/nova-mood-grid.js" defer></script>
   <script src="/js/banner.js" defer></script>
-  <script src="/js/nova-background.js" defer></script>
 </body>
 </html>

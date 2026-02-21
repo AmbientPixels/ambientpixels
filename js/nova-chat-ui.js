@@ -92,14 +92,14 @@
       if (mood) {
         if (hasMemory) {
           // Nova has memory — welcome back message
-          const wb = await NovaSoul.chat('The operator has returned. You remember previous conversations. Give a brief, warm welcome-back reflecting your mood. 1 sentence max.');
+          const wb = await NovaSoul.chat('The operator has returned. Provide a brief welcome-back and one concise readiness status line. 1 sentence max.');
           if (wb) {
             clearWelcome();
             addMessage('nova', wb);
           }
         } else {
           // First time — normal greeting
-          const greeting = await NovaSoul.chat("You just woke up. Greet the visitor with a brief, in-character message reflecting your current mood. Keep it to 1-2 sentences.");
+          const greeting = await NovaSoul.chat("You just initialized. Greet the operator with a brief readiness message and invite the next instruction. Keep it to 1-2 sentences.");
           if (greeting) {
             clearWelcome();
             addMessage('nova', greeting);
@@ -127,7 +127,7 @@
     if (reply) {
       addMessage('nova', reply);
     } else {
-      addMessage('nova', 'I felt a ripple in the signal... try again in a moment.');
+      addMessage('nova', 'Response unavailable right now. Please retry in a moment.');
     }
 
     chatSend.disabled = false;

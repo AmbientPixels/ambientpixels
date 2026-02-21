@@ -33,7 +33,7 @@
       <p class="subtitle">Prime Operator of GridOS</p>
       <div class="hero-cta nova-hero-cta">
         <a href="#operator-console" class="glass-button secondary"><i class="fas fa-terminal"></i> Open Operator Console</a>
-        <a href="/gridos/" class="glass-button secondary"><i class="fas fa-server"></i> Explore GridOS</a>
+        <a href="/nova/preview.html" class="glass-button secondary"><i class="fas fa-server"></i> Explore GridOS</a>
       </div>
     </div>
   </section>
@@ -124,6 +124,35 @@
       <p>Core surfaces Nova uses to monitor execution, assess risk, and support founder decisions.</p>
     </section>
 
+    <section class="grid-col-6 card-section operator-tool-card">
+      <div class="operator-tool-icon cf-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+          <circle cx="8.5" cy="7" r="4"></circle>
+          <path d="M20 8v6M17 11h6"></path>
+        </svg>
+      </div>
+      <div class="card-content">
+        <h3>Agent Roster (Preview)</h3>
+        <p>Public-safe view of the GridOS agent team, ownership scope, and operating status by tier.</p>
+        <a href="/nova/agents.html">Open Agent Roster →</a>
+      </div>
+    </section>
+
+    <section class="grid-col-6 card-section operator-tool-card">
+      <div class="operator-tool-icon cf-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+          <path d="M8 8h8M8 12h8M8 16h5"></path>
+        </svg>
+      </div>
+      <div class="card-content">
+        <h3>GridOS Preview</h3>
+        <p>High-level public operations snapshot with redacted cards and governance-safe metrics.</p>
+        <a href="/nova/preview.html">Open Preview →</a>
+      </div>
+    </section>
+
     <!-- Operator Tools -->
     <section class="grid-col-6 card-section operator-tool-card">
       <div class="operator-tool-icon cf-icon" aria-hidden="true">
@@ -164,7 +193,7 @@
       </div>
       <div class="card-content">
         <h3>Memory &amp; Context</h3>
-        <p>Inspect contextual memory, agent states, and the current operating frame for decisions.</p>
+        <p>Internal context surface for operator state diagnostics and telemetry interpretation.</p>
         <a href="/nova/awareness.html">Open Context (Internal) →</a>
       </div>
     </section>
@@ -193,6 +222,9 @@
   <script src="/js/operator-brief.js" defer></script>
   <script src="/js/theme.js" defer></script>
   <script src="/js/banner.js" defer></script>
+  <script>
+    window.novaVoiceMode = 'friendly';
+  </script>
   <script src="/js/nova-chat-ui.js" defer></script>
 </body>
 </html>

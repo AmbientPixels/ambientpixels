@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="NovaVision - Image generation powered by mood." />
+  <meta name="description" content="GridOS Vision Console (Internal) — image generation utility for internal workflows." />
+  <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Nova Vision</title>
+  <title>GridOS Vision Console (Internal)</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/base.css" />
@@ -18,7 +19,6 @@
   <link rel="stylesheet" href="/css/nova-styles.css" />
   <link rel="stylesheet" href="/css/nova-mood.css" /> <!-- Component auras -->
   <link rel="stylesheet" href="/css/nova-mood-background.css" /> <!-- Background auras -->
-</head>
 </head>
 <body data-theme="dark">
   <div class="banner-container" id="banner-container">
@@ -35,22 +35,22 @@
     <img src="/images/nova/A_microscopic_AI_core_cell_surrounded_by_floating_digf.png" alt="Nova Vision" class="mini-hero-img" loading="lazy">
     <div class="mini-hero-content-wrapper">
       <h1>Nova Vision</h1>
-      <p class="subtitle">A playground for the curious—where code, art, and AI collide.</p>
+      <p class="subtitle">Internal visual generation utility</p>
     </div>
   </section>
 
   <main class="grid-container">
     <section class="grid-col-12 nova-card">
       <h2><i class="fas fa-image"></i> Generate an Image</h2>
-      <p class="nova-voice">🤖 I’m ready to generate something beautiful. Describe it to me — or let me dream it myself.</p>
+      <p class="nova-voice">Describe the required visual output for internal prototyping or asset generation.</p>
 
       <form id="imagePromptForm">
         <textarea id="promptInput" placeholder="A glowing neural interface, sci-fi ambient, 16:9, cinematic lighting..."></textarea>
-        <button type="submit">🎨 Generate Image</button>
+        <button type="submit">Generate Image</button>
       </form>
 
       <div id="imageResult" class="nova-image-output hidden">
-        <p class="nova-quip">💬 Rendering your dream...</p>
+        <p class="nova-quip">Rendering preview...</p>
         <img id="generatedImage" src="" alt="Generated Visual" />
       </div>
     </section>
@@ -59,7 +59,7 @@
   <div id="footer-container"></div>
 
   <script src="/js/init-header-footer.js" defer></script>
-  <script src="/js/dreamEngine.js" defer></script>
+  <script src="/js/operator-brief.js" defer></script>
   <script src="/js/main.js" defer></script>
   <script src="/js/nav.js" defer></script>
   <script src="/js/nova-ai.js" defer></script>

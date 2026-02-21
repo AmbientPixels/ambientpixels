@@ -168,6 +168,20 @@
   color: #ddd6fe;
 }
 
+.nova-home .nova-agent-status {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.08rem 0.5rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  background: rgba(16, 185, 129, 0.16);
+  color: #a7f3d0;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
 .nova-home .cf-icon--section {
   width: 1.04em;
   height: 1.04em;

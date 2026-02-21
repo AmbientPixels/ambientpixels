@@ -17,8 +17,6 @@
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
   <link rel="stylesheet" href="/css/nova-pulse.css" />
-  <link rel="stylesheet" href="/css/nova-mood.css" />
-  <link rel="stylesheet" href="/css/nova-mood-background.css" />
   <link rel="stylesheet" href="/css/nova-logs.css" />
 </head>
 <body data-theme="dark" style="background:#071019">
@@ -39,7 +37,7 @@
     <section class="grid-col-12 nova-logs-section">
       <div class="nova-reflection-panel">
         <div class="nova-reflection-header">
-          <i class="fas fa-feather-pointed"></i>
+          <i class="fas fa-clipboard-check"></i>
           <h2>Today's Operator Note</h2>
           <span class="nova-reflection-badge">AI</span>
           <button class="nova-refresh-btn" id="nova-refresh-reflection" title="Generate new operator note">
@@ -177,10 +175,10 @@
   <script src="/js/nav.js" defer></script>
   <script src="/js/theme.js" defer></script>
   <script src="/js/nova-soul.js" defer></script>
+  <script>
+    window.novaVoiceMode = 'friendly';
+  </script>
   <script src="/js/nova-ai.js" defer></script>
-  <script src="/js/nova-mood-core.js" defer></script>
-  <script src="/js/nova-pulse.js" defer></script>
-  <script src="/js/nova-mood-background.js" defer></script>
   <script src="/js/banner.js" defer></script>
   <script src="/js/nova-logs.js" defer></script>
 </body>

@@ -293,13 +293,7 @@ function initBannerSystem() {
         await loadBanners();
       }
       
-      // Show banner on load if enabled
-      if (config.showOnLoad) {
-        // Force reflow before showing banner
-        document.body.offsetHeight;
-        const bannerKey = typeof config.showOnLoad === 'string' ? config.showOnLoad : 'default';
-        showBanner(bannerKey);
-      }
+      // Auto-show disabled: keep banner API available for explicit/manual usage only.
     } catch (error) {
       console.error('Error initializing banner system:', error);
     }

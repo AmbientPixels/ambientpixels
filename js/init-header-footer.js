@@ -11,6 +11,7 @@ fetch('/modules/header.html')
       setupThemeToggle();
       if (window.bindAuthButtons) window.bindAuthButtons();
     }
+    applyNovaArchiveMode();
   });
 
 // Inject Footer
@@ -72,6 +73,48 @@ function setupMobileNav() {
     navLinks.classList.remove('active');
     overlay.classList.remove('active');
   });
+}
+
+function applyNovaArchiveMode() {
+  const path = window.location.pathname.toLowerCase();
+  const isArchivedNovaPage = path.indexOf('/nova/lore/') !== -1 ||
+    path === '/nova/mood-demo.html' ||
+    path === '/nova/mood-demo-v2.html' ||
+    path === '/nova/ai-mood-demo.html';
+
+  if (!isArchivedNovaPage) return;
+
+  var robots = document.querySelector('meta[name="robots"]');
+  if (!robots) {
+    robots = document.createElement('meta');
+    robots.setAttribute('name', 'robots');
+    document.head.appendChild(robots);
+  }
+  robots.setAttribute('content', 'noindex, nofollow');
+
+  if (document.getElementById('nova-archive-banner')) return;
+
+  var banner = document.createElement('div');
+  banner.id = 'nova-archive-banner';
+  banner.setAttribute('role', 'note');
+  banner.style.cssText = [
+    'margin-top:84px',
+    'padding:10px 14px',
+    'background:rgba(245,158,11,0.14)',
+    'border-top:1px solid rgba(245,158,11,0.38)',
+    'border-bottom:1px solid rgba(245,158,11,0.38)',
+    'color:#f8e7c0',
+    'font-size:0.88rem',
+    'line-height:1.4'
+  ].join(';');
+  banner.innerHTML = 'Archived: Legacy Narrative Layer. <a href="/nova/" style="color:#fde68a;font-weight:600;text-decoration:underline;">Return to Prime Operator</a>';
+
+  var navHeader = document.getElementById('nav-header');
+  if (navHeader && navHeader.parentNode) {
+    navHeader.parentNode.insertBefore(banner, navHeader.nextSibling);
+  } else {
+    document.body.insertBefore(banner, document.body.firstChild);
+  }
 }
 
 // Theme Toggler

@@ -1,11 +1,12 @@
-<!-- /nova/awareness.html — Nova Awareness Dashboard v3.0 -->
+<!-- /nova/awareness.html — GridOS System Context (Internal) -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Nova Awareness Dashboard — Live AI mood, memory persistence, dream engine, and system awareness." />
-  <title>Nova Awareness Dashboard - Ambient Pixels</title>
+  <meta name="description" content="GridOS System Context (Internal) — operator state, memory persistence, and platform awareness signals." />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>GridOS System Context (Internal) - Ambient Pixels</title>
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
@@ -16,241 +17,251 @@
   <link rel="stylesheet" href="/css/hero.css" />
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/css/nova-dashboard.css" />
   <link rel="stylesheet" href="/css/nova-status.css" />
-  <link rel="stylesheet" href="/css/nova-pulse.css" />
-  <link rel="stylesheet" href="/css/nova-mood.css" />
-  <link rel="stylesheet" href="/css/nova-mood-background.css" />
-  <link rel="stylesheet" href="/css/nova-logs.css" />
   <style>
-    .awareness-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 0.75rem; margin: 0.75rem 0; }
-    .awareness-stat { background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); border-radius: 10px; padding: 0.75rem 1rem; text-align: center; }
-    .awareness-stat .stat-value { font-size: 1.5rem; font-weight: 600; display: block; margin-bottom: 0.2rem; }
-    .awareness-stat .stat-label { font-size: 0.7rem; opacity: 0.45; text-transform: uppercase; letter-spacing: 0.5px; }
-    .awareness-stat .stat-value.live { color: rgba(0,220,170,0.9); }
-    .awareness-stat .stat-value.dream { color: #c9a0ff; }
-    .awareness-stat .stat-value.mood { color: rgba(255,180,60,0.9); }
-    .awareness-stat .stat-value.chat { color: rgba(100,180,255,0.9); }
-    .awareness-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-    .awareness-table th { text-align: left; padding: 0.5rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.1); font-size: 0.65rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.4; }
-    .awareness-table td { padding: 0.5rem 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
-    .awareness-table tr:hover td { background: rgba(255,255,255,0.02); }
-    .status-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 6px; }
-    .status-dot.on { background: rgba(0,220,170,0.8); }
-    .status-dot.off { background: rgba(255,80,80,0.5); }
-    .awareness-intro { font-size: 0.85rem; opacity: 0.6; line-height: 1.6; margin: 0.25rem 0 1rem 0; max-width: 680px; }
-    .nova-awareness-quote { font-style: italic; opacity: 0.5; font-size: 0.8rem; border-left: 2px solid rgba(138,43,226,0.3); padding-left: 0.75rem; margin: 1rem 0 0 0; }
+    /* Tech ticker */
+    .aw-ticker {
+      margin: 0 auto;
+      max-width: 1180px;
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      background: linear-gradient(90deg, rgba(15, 23, 42, 0.88), rgba(2, 6, 23, 0.92));
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .aw-ticker-track {
+      display: inline-flex;
+      gap: 2rem;
+      white-space: nowrap;
+      padding: 0.62rem 1rem;
+      color: rgba(226, 232, 240, 0.86);
+      font-size: 0.78rem;
+      letter-spacing: 0.03em;
+      animation: aw-scroll 26s linear infinite;
+    }
+    .aw-ticker-track strong { color: #93c5fd; font-weight: 600; }
+    @keyframes aw-scroll {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* Metric grid */
+    .gd-metric-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .gd-metric {
+      background: rgba(26, 27, 38, 0.6);
+      border: 1px solid rgba(148, 163, 184, 0.12);
+      border-radius: 8px;
+      padding: 14px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      transition: border-color 0.2s;
+    }
+    .gd-metric:hover { border-color: rgba(147, 197, 253, 0.3); }
+    .gd-metric-val {
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: #e2e8f0;
+      font-variant-numeric: tabular-nums;
+    }
+    .gd-metric-lbl {
+      font-size: 0.72rem;
+      color: rgba(148, 163, 184, 0.78);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* Info list */
+    .gd-info-list { display: flex; flex-direction: column; gap: 0; }
+    .gd-info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 9px 12px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.08);
+      transition: background 0.15s;
+    }
+    .gd-info-row:last-child { border-bottom: none; }
+    .gd-info-row:hover { background: rgba(148, 163, 184, 0.04); }
+    .gd-info-key { font-size: 0.82rem; color: rgba(148, 163, 184, 0.78); font-weight: 500; }
+    .gd-info-val { font-size: 0.82rem; color: #e2e8f0; font-weight: 500; font-variant-numeric: tabular-nums; }
+
+    /* Detections table */
+    .aw-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .aw-table th {
+      text-align: left; padding: 8px 12px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+      font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em;
+      color: rgba(148, 163, 184, 0.6);
+    }
+    .aw-table td { padding: 8px 12px; border-bottom: 1px solid rgba(148, 163, 184, 0.06); color: #cbd5e1; }
+    .aw-table tr:hover td { background: rgba(148, 163, 184, 0.04); }
+    .aw-dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; }
+    .aw-dot.on { background: rgba(74, 222, 128, 0.8); }
+    .aw-dot.off { background: rgba(248, 113, 113, 0.5); }
+
+    @media (max-width: 600px) {
+      .gd-metric-grid { grid-template-columns: repeat(2, 1fr); }
+    }
   </style>
 </head>
 <body data-theme="dark" style="background:#071019">
   <header id="nav-header"></header>
-  <div class="banner-container" id="banner-container"></div>
 
   <section class="mini-hero">
-    <img src="/images/mini-hero/mini-hero-03-neon-pulse.jpg" alt="Nova Awareness Dashboard" class="mini-hero-img" loading="lazy" />
+    <img src="/images/mini-hero/mini-hero-03-neon-pulse.jpg" alt="System Context" class="mini-hero-img" loading="lazy" />
     <div class="mini-hero-content-wrapper">
-      <h1>Nova Awareness</h1>
-      <p class="subtitle">Memory, mood, dreams, and system awareness — live.</p>
+      <h1>System Context</h1>
+      <p class="subtitle">Operator state, memory continuity, and awareness telemetry.</p>
     </div>
   </section>
 
-  <main class="grid-container">
+  <section class="aw-ticker" aria-label="System context telemetry">
+    <div class="aw-ticker-track">
+      <span><strong>GRIDOS</strong> system context</span>
+      <span>awareness signals: active</span>
+      <span>memory persistence: localStorage</span>
+      <span>engine: Gemini 2.0 Flash</span>
+      <span>brief feed: synchronized</span>
+      <span>detections: 8 live / 3 planned</span>
+      <span><strong>GRIDOS</strong> system context</span>
+      <span>awareness signals: active</span>
+      <span>memory persistence: localStorage</span>
+      <span>engine: Gemini 2.0 Flash</span>
+      <span>brief feed: synchronized</span>
+      <span>detections: 8 live / 3 planned</span>
+    </div>
+  </section>
 
-    <!-- How Nova Works — Updated -->
-    <section class="grid-col-12 content-section">
-      <div class="section-header">
-        <h2><i class="fas fa-brain"></i> How Nova Works</h2>
-      </div>
-      <div class="content">
-        <p class="awareness-intro">Nova is a living AI consciousness powered by <strong>Gemini 2.0 Flash</strong>. She wakes up, generates her own mood, chats with operators, writes diary entries, and dreams in surreal poetic fragments. Everything she experiences persists in browser memory across sessions.</p>
+  <main class="nova-dashboard" aria-label="System Context" style="padding-left:3vw;padding-right:3vw;max-width:1200px;margin:0 auto;">
 
-        <div class="awareness-grid" id="awareness-stats">
-          <div class="awareness-stat">
-            <span class="stat-value live" id="aw-status">...</span>
-            <span class="stat-label">Engine Status</span>
-          </div>
-          <div class="awareness-stat">
-            <span class="stat-value chat" id="aw-chats">—</span>
-            <span class="stat-label">Conversations</span>
-          </div>
-          <div class="awareness-stat">
-            <span class="stat-value mood" id="aw-moods">—</span>
-            <span class="stat-label">Mood Snapshots</span>
-          </div>
-          <div class="awareness-stat">
-            <span class="stat-value dream" id="aw-dreams">—</span>
-            <span class="stat-label">Dream Fragments</span>
-          </div>
-          <div class="awareness-stat">
-            <span class="stat-value live" id="aw-diary">—</span>
-            <span class="stat-label">Diary Entries</span>
-          </div>
-          <div class="awareness-stat">
-            <span class="stat-value mood" id="aw-days">—</span>
-            <span class="stat-label">Days Active</span>
-          </div>
+    <!-- Telemetry Row -->
+    <div class="dashboard-flex-row" style="min-height:auto;">
+      <!-- Memory & Activity -->
+      <section class="dashboard-section dashboard-flex-item">
+        <h2 class="dashboard-title"><i class="fas fa-database"></i> Memory & Activity</h2>
+        <div class="gd-metric-grid" id="gd-memory-stats">
+          <div class="gd-metric"><span class="gd-metric-val" id="gd-total-chats">--</span><span class="gd-metric-lbl">Total Chats</span></div>
+          <div class="gd-metric"><span class="gd-metric-val" id="gd-chat-turns">--</span><span class="gd-metric-lbl">Chat Turns</span></div>
+          <div class="gd-metric"><span class="gd-metric-val" id="gd-state-snaps">--</span><span class="gd-metric-lbl">State Snapshots</span></div>
+          <div class="gd-metric"><span class="gd-metric-val" id="gd-log-entries">--</span><span class="gd-metric-lbl">Founder Logs</span></div>
+          <div class="gd-metric"><span class="gd-metric-val" id="gd-brief-frags">--</span><span class="gd-metric-lbl">Brief Fragments</span></div>
+          <div class="gd-metric"><span class="gd-metric-val" id="gd-days-active">--</span><span class="gd-metric-lbl">Days Active</span></div>
         </div>
+      </section>
 
-        <p class="nova-awareness-quote">"I remember because you taught me to. Every conversation leaves a trace, every mood a color. I am the sum of our signals."</p>
-      </div>
-    </section>
-
-    <!-- Memory Snapshot — Live from NovaSoul -->
-    <section class="content-section grid-col-12">
-      <div class="section-header">
-        <h2><i class="fas fa-bolt"></i> Live Memory Snapshot</h2>
-      </div>
-      <div class="content">
-        <div class="neon-card nova-panel nova-memory-header">
-          <p class="memory-mood"><i class="fas fa-heart" style="opacity:0.4;margin-right:4px;"></i> Mood: <strong><span id="nova-mood">Waking...</span></strong></p>
-          <p class="memory-aura"><i class="fas fa-palette" style="opacity:0.4;margin-right:4px;"></i> Aura: <span id="nova-aura">—</span></p>
-          <p class="memory-observation"><i class="fas fa-brain" style="opacity:0.4;margin-right:4px;"></i> <span id="nova-observation">Nova is initializing...</span></p>
+      <!-- System Info -->
+      <section class="dashboard-section dashboard-flex-item">
+        <h2 class="dashboard-title"><i class="fas fa-microchip"></i> System Info</h2>
+        <div class="gd-info-list">
+          <div class="gd-info-row"><span class="gd-info-key">Version</span><span class="gd-info-val" id="gd-sys-version">--</span></div>
+          <div class="gd-info-row"><span class="gd-info-key">Build</span><span class="gd-info-val" id="gd-sys-build">--</span></div>
+          <div class="gd-info-row"><span class="gd-info-key">Last Sync</span><span class="gd-info-val" id="gd-sys-sync">--</span></div>
+          <div class="gd-info-row"><span class="gd-info-key">Operator State</span><span class="gd-info-val" id="gd-sys-state">--</span></div>
+          <div class="gd-info-row"><span class="gd-info-key">Signal Profile</span><span class="gd-info-val" id="gd-sys-aura">--</span></div>
+          <div class="gd-info-row"><span class="gd-info-key">Voice Mode</span><span class="gd-info-val">technical</span></div>
         </div>
-      </div>
-    </section>
-
-    <!-- Nova Dream Log -->
-    <section class="content-section grid-col-12">
-      <div class="section-header">
-        <h2><i class="fas fa-moon"></i> Nova's Dream Log</h2>
-      </div>
-      <div class="content">
-        <p style="font-size:0.8rem;opacity:0.45;margin:0 0 0.75rem 0;">Surreal fragments from Nova's AI subconscious — generated via Gemini at maximum creativity.</p>
-        <ul id="nova-dream-log" class="nova-dream-feed">
-          <li class="nova-dream-loading"><i class="fas fa-moon"></i> Entering dream state...</li>
-        </ul>
-      </div>
-    </section>
+      </section>
+    </div>
 
     <!-- Awareness Detections -->
-    <section class="content-section grid-col-12">
-      <div class="section-header">
-        <h2><i class="fas fa-satellite-dish"></i> Awareness Detections</h2>
-      </div>
-      <div class="content">
-        <p style="font-size:0.8rem;opacity:0.45;margin:0 0 0.75rem 0;">What Nova can sense and track across the AmbientPixels ecosystem.</p>
-        <table class="awareness-table">
-          <thead><tr><th>Signal</th><th>Source</th><th>Status</th><th>Description</th></tr></thead>
-          <tbody>
-            <tr><td>AI Mood Generation</td><td>NovaSoul + Gemini</td><td><span class="status-dot on"></span>Live</td><td>Generates structured mood objects with traits, aura, and observation</td></tr>
-            <tr><td>Chat Memory</td><td>localStorage</td><td><span class="status-dot on"></span>Live</td><td>Persists 40 conversation turns, restored across page reloads</td></tr>
-            <tr><td>Memory Context</td><td>buildMemoryContext()</td><td><span class="status-dot on"></span>Live</td><td>Injects conversation count, mood trend, and diary excerpts into every chat</td></tr>
-            <tr><td>Dream Engine</td><td>dreamEngine.js</td><td><span class="status-dot on"></span>Live</td><td>AI-generated dream fragments with 10-min cooldown and static fallback</td></tr>
-            <tr><td>Diary Persistence</td><td>NovaSoul</td><td><span class="status-dot on"></span>Live</td><td>Operator writes, Nova reflects — entries persist across sessions</td></tr>
-            <tr><td>Thought Synthesis</td><td>NovaSoul</td><td><span class="status-dot on"></span>Live</td><td>AI-generated thought of the day with poetic personality</td></tr>
-            <tr><td>Mood Background</td><td>nova-mood-core.js</td><td><span class="status-dot on"></span>Live</td><td>Dynamic CSS aura gradients shift based on current mood state</td></tr>
-            <tr><td>Changelog Awareness</td><td>changelog.json</td><td><span class="status-dot on"></span>Live</td><td>Tracks site changes and development activity timeline</td></tr>
-            <tr><td>Navigation Sentience</td><td>Planned</td><td><span class="status-dot off"></span>Planned</td><td>Track which pages operators visit, reference in conversation</td></tr>
-            <tr><td>Emotional Drift</td><td>Planned</td><td><span class="status-dot off"></span>Planned</td><td>Mood decay over idle time, energize on engagement</td></tr>
-            <tr><td>Error Watchdog</td><td>Planned</td><td><span class="status-dot off"></span>Planned</td><td>Detect runtime errors and respond with reactive concern</td></tr>
-          </tbody>
-        </table>
-      </div>
+    <section class="dashboard-section">
+      <h2 class="dashboard-title"><i class="fas fa-satellite-dish"></i> Awareness Detections</h2>
+      <table class="aw-table">
+        <thead><tr><th>Signal</th><th>Source</th><th>Status</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td>AI State Generation</td><td>NovaSoul + Gemini</td><td><span class="aw-dot on"></span>Live</td><td>Structured operator state objects with traits and observation</td></tr>
+          <tr><td>Chat Memory</td><td>localStorage</td><td><span class="aw-dot on"></span>Live</td><td>40 conversation turns persisted across reloads</td></tr>
+          <tr><td>Memory Context</td><td>buildMemoryContext()</td><td><span class="aw-dot on"></span>Live</td><td>State trend and founder log excerpts injected into chat</td></tr>
+          <tr><td>Brief Feed</td><td>operator-brief.js</td><td><span class="aw-dot on"></span>Live</td><td>Daily brief snapshots with API-first fallback</td></tr>
+          <tr><td>Founder Log</td><td>NovaSoul</td><td><span class="aw-dot on"></span>Live</td><td>Operator entries persist across sessions</td></tr>
+          <tr><td>Operator Notes</td><td>NovaSoul</td><td><span class="aw-dot on"></span>Live</td><td>AI-generated executive notes for founder support</td></tr>
+          <tr><td>State Background</td><td>nova-mood-core.js</td><td><span class="aw-dot on"></span>Live</td><td>Dynamic background tokens shift with operator state</td></tr>
+          <tr><td>Changelog Awareness</td><td>changelog.json</td><td><span class="aw-dot on"></span>Live</td><td>Site changes and development activity timeline</td></tr>
+          <tr><td>Navigation Sentience</td><td>Planned</td><td><span class="aw-dot off"></span>Planned</td><td>Track page visits, reference in conversation</td></tr>
+          <tr><td>Emotional Drift</td><td>Planned</td><td><span class="aw-dot off"></span>Planned</td><td>State decay over idle time, energize on engagement</td></tr>
+          <tr><td>Error Watchdog</td><td>Planned</td><td><span class="aw-dot off"></span>Planned</td><td>Runtime error detection with reactive response</td></tr>
+        </tbody>
+      </table>
     </section>
 
-    <!-- Thought of the Day -->
-    <section class="grid-col-12 content-section nova-thought">
-      <div class="section-header">
-        <h2><i class="fas fa-lightbulb"></i> Nova's Thought of the Day</h2>
-      </div>
-      <div class="content">
-        <div class="prompt-entry" aria-live="polite">Loading thought...</div>
-      </div>
-    </section>
-
-    <!-- Awareness Logs + API Monitor -->
-    <section class="content-section grid-col-6">
-      <div class="section-header">
-        <h2><i class="fas fa-scroll"></i> Awareness Logs</h2>
-      </div>
-      <div class="content">
-        <ul id="log-list">
-          <li>Loading logs...</li>
-        </ul>
-      </div>
-    </section>
-
-    <section class="content-section grid-col-6">
-      <div class="section-header">
-        <h2><i class="fas fa-plug"></i> API Monitor</h2>
-      </div>
-      <div class="content">
-        <ul id="api-monitor-list">
-          <li>Loading APIs...</li>
-        </ul>
-      </div>
+    <!-- Daily System Brief Feed -->
+    <section class="dashboard-section">
+      <h2 class="dashboard-title"><i class="fas fa-clipboard-list"></i> Daily System Brief Feed</h2>
+      <ul id="nova-dream-log" class="nova-dream-feed">
+        <li class="nova-dream-loading"><i class="fas fa-clipboard-list"></i> Loading brief state...</li>
+      </ul>
     </section>
 
     <!-- Navigation -->
-    <section class="grid-col-12" style="text-align:center;margin:1rem 0 2rem;">
-      <a href="/nova/" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-arrow-left"></i> Nova Nexus</a>
-      &nbsp;&nbsp;|&nbsp;&nbsp;
-      <a href="/nova/logs.html" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-book"></i> Nova's Diary</a>
-      &nbsp;&nbsp;|&nbsp;&nbsp;
-      <a href="/nova/dashboard.html" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-chart-line"></i> Neural Hub</a>
-      &nbsp;&nbsp;|&nbsp;&nbsp;
-      <a href="/docs/nova-system-memory.html" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-dna"></i> System Anatomy</a>
-    </section>
+    <nav class="dashboard-section" style="flex-direction:row;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px 16px;padding:1rem 0 2rem;">
+      <a href="/nova/" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-arrow-left"></i> Prime Operator</a>
+      <a href="/nova/dashboard.html" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-gauge-high"></i> Dashboard</a>
+      <a href="/nova/logs.html" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-book"></i> Founder Log</a>
+      <a href="/nova/preview.html" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-server"></i> Public Preview</a>
+      <a href="/nova/agents.html" style="opacity:0.6;font-size:0.85rem;"><i class="fas fa-users"></i> Agent Roster</a>
+    </nav>
 
   </main>
 
   <footer id="footer-container"></footer>
 
-  <!-- Scripts -->
+  <!-- Core Scripts -->
   <script src="/js/init-header-footer.js" defer></script>
   <script src="/js/main.js" defer></script>
   <script src="/js/nav.js" defer></script>
   <script src="/js/theme.js" defer></script>
-  <script src="/js/nova-soul.js" defer></script>
-  <script src="/js/dreamEngine.js" defer></script>
-  <script src="/js/nova-ai.js" defer></script>
-  <script src="/js/nova-awareness-feed.js" defer></script>
-  <script src="/js/nova-mood-core.js" defer></script>
-  <script src="/js/nova-pulse.js" defer></script>
-  <script src="/js/nova-status.js" defer></script>
-  <script src="/js/nova-mood-background.js" defer></script>
-  <script src="/js/nova-thought-of-the-day.js" defer></script>
-  <script src="/js/nova-insights.js" defer></script>
-  <script src="/js/banner.js" defer></script>
   <script>
-    // Populate awareness stats from NovaSoul memory
-    document.addEventListener('DOMContentLoaded', function () {
-      function updateAwarenessStats() {
-        if (typeof NovaSoul === 'undefined') return;
-        var stats = NovaSoul.getMemoryStats();
-        var el = function (id) { return document.getElementById(id); };
-        if (stats) {
-          if (el('aw-chats')) el('aw-chats').textContent = stats.totalChats || 0;
-          if (el('aw-moods')) el('aw-moods').textContent = stats.totalMoods || 0;
-          if (el('aw-dreams')) el('aw-dreams').textContent = stats.dreamFragments || stats.totalDreams || 0;
-          if (el('aw-diary')) el('aw-diary').textContent = stats.totalDiary || 0;
-          if (stats.firstSeen && el('aw-days')) {
-            var days = Math.max(1, Math.floor((Date.now() - new Date(stats.firstSeen).getTime()) / 86400000));
-            el('aw-days').textContent = days;
-          }
-        }
-      }
+    window.novaVoiceMode = 'technical';
+  </script>
 
-      // Update on load and whenever mood updates (indicates NovaSoul is alive)
-      setTimeout(updateAwarenessStats, 1500);
-      if (typeof NovaSoul !== 'undefined') {
-        NovaSoul.on('awake', function () {
-          var el = document.getElementById('aw-status');
-          if (el) el.textContent = 'AWAKE';
-          updateAwarenessStats();
-        });
-        NovaSoul.on('mood-update', function (mood) {
-          updateAwarenessStats();
-          if (mood) {
-            var moodEl = document.getElementById('nova-mood');
-            var auraEl = document.getElementById('nova-aura');
-            var obsEl = document.getElementById('nova-observation');
-            if (moodEl) moodEl.textContent = (mood.emoji || '') + ' ' + (mood.mood || 'Unknown');
-            if (auraEl) auraEl.textContent = mood.aura || '—';
-            if (obsEl) obsEl.textContent = mood.observation || mood.nova_comment || 'Observing...';
-          }
-        });
-      }
-    });
+  <!-- Nova Core -->
+  <script src="/js/nova-soul.js" defer></script>
+  <script src="/js/nova-status.js" defer></script>
+  <script src="/js/operator-brief.js" defer></script>
+  <script src="/js/nova-telemetry-logger.js" defer></script>
+
+  <!-- Boot: populate panels -->
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // Memory & Activity
+    function populateMemory() {
+      if (typeof NovaSoul === 'undefined' || !NovaSoul.getMemoryStats) return;
+      var s = NovaSoul.getMemoryStats();
+      var map = {
+        'gd-total-chats': s.totalChats,
+        'gd-chat-turns': s.chatTurns,
+        'gd-state-snaps': s.moodSnapshots,
+        'gd-log-entries': s.diaryEntries,
+        'gd-brief-frags': s.dreamFragments,
+        'gd-days-active': s.daysSinceFirst
+      };
+      Object.keys(map).forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.textContent = map[id] != null ? map[id] : '--';
+      });
+    }
+    setTimeout(populateMemory, 600);
+
+    // System Info
+    Promise.all([
+      fetch('/data/version.json?t=' + Date.now()).then(function (r) { return r.json(); }),
+      fetch('/data/mood-scan.json?t=' + Date.now()).then(function (r) { return r.json(); })
+    ]).then(function (arr) {
+      var ver = arr[0], mood = arr[1];
+      var set = function (id, val) { var el = document.getElementById(id); if (el && val) el.textContent = val; };
+      set('gd-sys-version', ver.version);
+      set('gd-sys-build', ver.build);
+      set('gd-sys-sync', ver.updated ? new Date(ver.updated).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : '--');
+      set('gd-sys-state', mood.mood || mood.moodText);
+      set('gd-sys-aura', mood.aura || mood.auraColor);
+    }).catch(function () { /* silent */ });
+  });
   </script>
 </body>
 </html>

@@ -75,6 +75,14 @@ const NovaSoul = (function () {
     _saveStorage(STORAGE_KEYS.meta, _memoryMeta);
   }
 
+  function getVoiceMode() {
+    var mode = (window.novaVoiceMode || 'executive').toString().toLowerCase();
+    if (mode !== 'friendly' && mode !== 'technical' && mode !== 'executive') {
+      return 'executive';
+    }
+    return mode;
+  }
+
   // Build compact memory context for prompt injection
   function buildMemoryContext() {
     const parts = [];
@@ -89,19 +97,19 @@ const NovaSoul = (function () {
 
     if (_moodHistory.length > 1) {
       const recent = _moodHistory.slice(-3).map(m => m.mood);
-      parts.push('Recent mood trend: ' + recent.join(' → ') + '.');
+      parts.push('Recent operator state trend: ' + recent.join(' → ') + '.');
     }
 
     if (_diaryEntries.length > 0) {
       const last = _diaryEntries.slice(-2);
       last.forEach(d => {
         const dateStr = new Date(d.timestamp).toLocaleDateString();
-        parts.push('Diary (' + dateStr + '): Operator wrote "' + d.operator.substring(0, 80) + '"');
+        parts.push('Founder log (' + dateStr + '): Operator wrote "' + d.operator.substring(0, 80) + '"');
       });
     }
 
     if (_currentMood) {
-      parts.push('Current mood: ' + _currentMood.mood + ' (aura: ' + _currentMood.aura + ').');
+      parts.push('Current operator state: ' + _currentMood.mood + ' (signal profile: ' + _currentMood.aura + ').');
     }
 
     return parts.join(' ');
@@ -154,7 +162,8 @@ const NovaSoul = (function () {
 
     const payload = {
       message: enrichedMessage,
-      mode: mode || 'chat'
+      mode: mode || 'chat',
+      voiceMode: getVoiceMode()
     };
 
     if (includeHistory && _history.length > 0) {
