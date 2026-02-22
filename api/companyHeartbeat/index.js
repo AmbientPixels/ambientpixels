@@ -507,20 +507,64 @@ function _normalizeActivationMode(mode) {
 }
 
 function _buildBlockedProposal(agentId, runId, reasonBlocked, proposedAction, payload) {
-  return {
+  var p = payload || {};
+  var ac = Array.isArray(p.acceptanceCriteria) && p.acceptanceCriteria.length > 0
+    ? p.acceptanceCriteria : ['Define success criteria.'];
+  var ev = p.evidence && typeof p.evidence === 'object' ? Object.assign({}, p.evidence) : {};
+  if (!ev.runId) ev.runId = runId;
+  if (!ev.gate) ev.gate = reasonBlocked;
+  var result = {
     type: 'proposal',
     agentId: agentId,
     runId: runId,
     reasonBlocked: reasonBlocked,
     proposedAction: proposedAction,
     payload: {
-      title: payload.title || 'Untitled',
-      category: payload.category || null,
-      objective_id: payload.objective_id || null,
-      acceptanceCriteria: Array.isArray(payload.acceptanceCriteria) ? payload.acceptanceCriteria : [],
-      evidence: payload.evidence && typeof payload.evidence === 'object' ? payload.evidence : {}
+      title: String(p.title || 'Blocked ' + proposedAction + ' (' + reasonBlocked + ')').substring(0, 120),
+      category: String(p.category || 'maintenance'),
+      objective_id: p.objective_id || null,
+      objective_suggestion: p.objective_suggestion || (reasonBlocked === 'objective_gate' ? 'Assign an objective before this task can proceed.' : null),
+      acceptanceCriteria: ac.slice(0, 5),
+      evidence: ev
     }
   };
+  // Preserve extra payload fields from specialized gates (blockedKeys, cap, bucket, allowedKeys)
+  if (p.blockedKeys) result.payload.blockedKeys = p.blockedKeys;
+  if (p.allowedKeys) result.payload.allowedKeys = p.allowedKeys;
+  if (p.cap !== undefined) result.payload.cap = p.cap;
+  if (p.current !== undefined) result.payload.current = p.current;
+  if (p.bucket) result.payload.bucket = p.bucket;
+  if (p.taskId) result.payload.taskId = p.taskId;
+  return result;
+}
+
+function _normalizeProposal(p) {
+  if (!p || typeof p !== 'object') return p;
+  p.type = 'proposal';
+  if (p.payload) {
+    if (p.payload.title) p.payload.title = String(p.payload.title).substring(0, 120);
+    if (!p.payload.category) p.payload.category = 'maintenance';
+    p.payload.category = String(p.payload.category);
+    if (!Array.isArray(p.payload.acceptanceCriteria) || p.payload.acceptanceCriteria.length === 0) {
+      p.payload.acceptanceCriteria = ['Define success criteria.'];
+    }
+    if (p.payload.acceptanceCriteria.length > 5) p.payload.acceptanceCriteria = p.payload.acceptanceCriteria.slice(0, 5);
+    if (!p.payload.evidence || typeof p.payload.evidence !== 'object') p.payload.evidence = {};
+    if (!p.payload.evidence.runId && p.runId) p.payload.evidence.runId = p.runId;
+  }
+  return p;
+}
+
+function _isValidProposal(p) {
+  if (!p || p.type !== 'proposal') return false;
+  if (!p.agentId || !p.runId || !p.reasonBlocked || !p.proposedAction) return false;
+  if (!p.payload) return false;
+  if (!p.payload.title) return false;
+  if (!p.payload.category) return false;
+  if (!Array.isArray(p.payload.acceptanceCriteria) || p.payload.acceptanceCriteria.length < 1) return false;
+  if (!p.payload.evidence || typeof p.payload.evidence !== 'object' || !p.payload.evidence.runId) return false;
+  if (!p.payload.objective_id && !p.payload.objective_suggestion) return false;
+  return true;
 }
 
 module.exports = async function (context) {
@@ -855,19 +899,23 @@ module.exports = async function (context) {
                   ? { id: null, title: (update.task && update.task.title) || 'Untitled', category: (update.task && update.task.category) || null, objective_id: (update.task && update.task.objective_id) || null }
                   : tasks.find(t => t.id === update.taskId);
                 if (_canAddProposal(agentId)) {
-                  const modeProposal = _buildBlockedProposal(agentId, runId, 'mode_gate', mutationAction === 'create' ? 'create_task' : 'move_task', {
-                    title: (_modeTask && _modeTask.title) || (update.task && update.task.title) || 'Untitled',
+                  const modeProposal = _normalizeProposal(_buildBlockedProposal(agentId, runId, 'mode_gate', mutationAction === 'create' ? 'create_task' : 'move_task', {
+                    title: (_modeTask && _modeTask.title) || (update.task && update.task.title) || null,
                     category: (_modeTask && _modeTask.category) || (update.task && update.task.category) || null,
                     objective_id: (_modeTask && _modeTask.objective_id) || (update.task && update.task.objective_id) || null,
-                    acceptanceCriteria: [],
+                    objective_suggestion: 'Switch to supervised_autonomous or assign an objective to proceed.',
                     evidence: {
                       blockedAction: mutationAction,
                       taskId: update.taskId || null,
                       mode: normalizedActivationMode
                     }
-                  });
-                  result.proposals.push(modeProposal);
-                  _incProposal(agentId);
+                  }));
+                  if (_isValidProposal(modeProposal)) {
+                    result.proposals.push(modeProposal);
+                    _incProposal(agentId);
+                  } else {
+                    await logEvent('policy-violation', agentId, 'Invalid proposal rejected', runId, { gate: 'proposal_schema', reason: 'invalid_proposal', proposedAction: mutationAction });
+                  }
                 }
                 await logEvent('policy-violation', agentId, 'Task mutation blocked by activation mode', runId, {
                   runId: runId,
@@ -909,10 +957,11 @@ module.exports = async function (context) {
                   : ((update.updates && update.updates.objective_id) || gateTask.objective_id || null);
                 if (!_isObjectiveExemptCategory(category) && !objectiveId) {
                   const gateProposal = _buildBlockedProposal(agentId, runId, 'objective_gate', mutationAction === 'create' ? 'create_task' : 'move_task', {
-                    title: gateTask.title || (update.task && update.task.title) || 'Untitled',
+                    title: gateTask.title || (update.task && update.task.title) || null,
                     category: category || null,
                     objective_id: null,
-                    acceptanceCriteria: [],
+                    objective_suggestion: 'Assign an objective before this task can proceed.',
+                    acceptanceCriteria: ['Link task to an active objective.'],
                     evidence: {
                       blockedAction: mutationAction,
                       taskId: update.taskId || null,
@@ -921,8 +970,13 @@ module.exports = async function (context) {
                   });
                   _incBlocked(agentId);
                   if (_canAddProposal(agentId)) {
-                    result.proposals.push(gateProposal);
-                    _incProposal(agentId);
+                    const _normalizedObjProposal = _normalizeProposal(gateProposal);
+                    if (_isValidProposal(_normalizedObjProposal)) {
+                      result.proposals.push(_normalizedObjProposal);
+                      _incProposal(agentId);
+                    } else {
+                      await logEvent('policy-violation', agentId, 'Invalid proposal rejected', runId, { gate: 'proposal_schema', reason: 'invalid_proposal', proposedAction: mutationAction });
+                    }
                   }
                   await logEvent('policy-violation', agentId, 'Task mutation blocked by objective gate', runId, {
                     runId: runId,
@@ -950,20 +1004,28 @@ module.exports = async function (context) {
               if (_current >= _cap) {
                 _incBlocked(agentId);
                 if (_canAddProposal(agentId)) {
-                  result.proposals.push({
-                    type: 'proposal',
-                    agentId: agentId,
-                    runId: runId,
-                    reasonBlocked: 'rate_cap',
-                    proposedAction: mutationAction,
-                    payload: {
+                  const _rcProposal = _normalizeProposal(_buildBlockedProposal(agentId, runId, 'rate_cap', mutationAction, {
+                    title: 'Rate cap exceeded: ' + _bucket + ' (' + _current + '/' + _cap + ')',
+                    category: 'governance',
+                    taskId: update.taskId || null,
+                    cap: _cap,
+                    current: _current,
+                    bucket: _bucket,
+                    objective_suggestion: 'Reduce mutation volume or request cap increase.',
+                    acceptanceCriteria: ['Stay within per-agent per-run ' + _bucket + ' cap of ' + _cap + '.'],
+                    evidence: {
+                      blockedAction: mutationAction,
                       taskId: update.taskId || null,
                       cap: _cap,
-                      current: _current,
-                      bucket: _bucket
+                      current: _current
                     }
-                  });
-                  _incProposal(agentId);
+                  }));
+                  if (_isValidProposal(_rcProposal)) {
+                    result.proposals.push(_rcProposal);
+                    _incProposal(agentId);
+                  } else {
+                    await logEvent('policy-violation', agentId, 'Invalid proposal rejected', runId, { gate: 'proposal_schema', reason: 'invalid_proposal', proposedAction: mutationAction });
+                  }
                 }
                 await logEvent('policy-violation', agentId, 'Task mutation blocked by rate cap', runId, {
                   runId: runId,
@@ -984,22 +1046,29 @@ module.exports = async function (context) {
               const updateKeys = update.updates ? Object.keys(update.updates) : [];
               const blockedKeys = updateKeys.filter(k => !ALLOWED_UPDATE_KEYS.has(k));
               if (blockedKeys.length > 0) {
-                const allowlistProposal = {
-                  type: 'proposal',
-                  agentId: agentId,
-                  runId: runId,
-                  reasonBlocked: 'field_allowlist',
-                  proposedAction: mutationAction,
-                  payload: {
+                const allowlistProposal = _buildBlockedProposal(agentId, runId, 'field_allowlist', mutationAction, {
+                  title: 'Update blocked: disallowed fields [' + blockedKeys.join(', ') + ']',
+                  category: 'governance',
+                  taskId: update.taskId || null,
+                  blockedKeys: blockedKeys,
+                  allowedKeys: Array.from(ALLOWED_UPDATE_KEYS),
+                  objective_suggestion: 'Use only allowed update fields: ' + Array.from(ALLOWED_UPDATE_KEYS).join(', ') + '.',
+                  acceptanceCriteria: ['Remove disallowed fields: ' + blockedKeys.join(', ') + '.'],
+                  evidence: {
+                    blockedAction: mutationAction,
                     taskId: update.taskId || null,
-                    blockedKeys: blockedKeys,
-                    allowedKeys: Array.from(ALLOWED_UPDATE_KEYS)
+                    blockedKeys: blockedKeys
                   }
-                };
+                });
                 _incBlocked(agentId);
                 if (_canAddProposal(agentId)) {
-                  result.proposals.push(allowlistProposal);
-                  _incProposal(agentId);
+                  const _normalizedAlProposal = _normalizeProposal(allowlistProposal);
+                  if (_isValidProposal(_normalizedAlProposal)) {
+                    result.proposals.push(_normalizedAlProposal);
+                    _incProposal(agentId);
+                  } else {
+                    await logEvent('policy-violation', agentId, 'Invalid proposal rejected', runId, { gate: 'proposal_schema', reason: 'invalid_proposal', proposedAction: mutationAction });
+                  }
                 }
                 await logEvent('policy-violation', agentId, 'Task update blocked by field allowlist', runId, {
                   runId: runId,
