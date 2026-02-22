@@ -1,317 +1,530 @@
 <!DOCTYPE html>
-  <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="AmbientPixels.ai: An AI-orchestrated company. Autonomous agents run operations, human governance approves outcomes, real products ship continuously." />
-    <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-    <title>AmbientPixels.ai - AI-Orchestrated Company</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/css/base.css" />
-    <link rel="stylesheet" href="/css/grid.css" />
-    <link rel="stylesheet" href="/css/nav.css" />
-    <link rel="stylesheet" href="/css/components.css" />
-    <link rel="stylesheet" href="/css/hero.css" />
-    <link rel="stylesheet" href="/css/theme.css">
-    <link rel="stylesheet" href="/css/forms.css" />
-    <link rel="stylesheet" href="/css/banner.css" />
-    <link rel="stylesheet" href="/css/nova-pulse.css" />
-    <link rel="stylesheet" href="/css/nova-mood.css" /> <!-- Component auras -->
-    <link rel="stylesheet" href="/css/links.css" /> <!-- Link styles (must be last) -->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels — Structured AI systems, governed for production. Modular infrastructure for teams building at scale." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>AmbientPixels — Structured AI Systems</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/forms.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <style>
+    /* ── Home — Scoped Styles ── */
+    :root {
+      --h-accent: #4a7c9b;
+      --h-accent-light: #5b9fc2;
+      --h-accent-dim: rgba(74, 124, 155, 0.12);
+    }
 
+    /* ── Hero ── */
+    .h-hero {
+      position: relative;
+      min-height: 520px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 85px;
+      overflow: hidden;
+    }
+    .h-hero-grid {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      opacity: 0.12;
+      background-image:
+        linear-gradient(rgba(74,124,155,0.3) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(74,124,155,0.3) 1px, transparent 1px);
+      background-size: 60px 60px;
+      animation: gridDrift 30s linear infinite;
+    }
+    @keyframes gridDrift {
+      0%   { background-position: 0 0; }
+      100% { background-position: 60px 60px; }
+    }
+    .h-hero-content {
+      position: relative;
+      z-index: 1;
+      max-width: 860px;
+      padding: 4rem 1.5rem;
+      text-align: center;
+    }
+    .h-hero-content h1 {
+      font-size: 3.5rem;
+      font-weight: 700;
+      line-height: 1.1;
+      margin: 0 0 0.35rem;
+      letter-spacing: -0.02em;
+    }
+    .h-hero-content h1 span {
+      display: block;
+      color: var(--h-accent);
+      font-weight: 600;
+      margin-top: 0.35rem;
+      min-height: 1.15em;
+    }
+    .h-hero-content .h-subhead {
+      font-size: 1.15rem;
+      line-height: 1.6;
+      max-width: 740px;
+      margin: 1.6rem auto 0;
+      opacity: 0.6;
+    }
+    .h-hero-cta {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+    .h-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.7rem 1.4rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      font-family: inherit;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      letter-spacing: 0.01em;
+    }
+    .h-btn-primary {
+      background: var(--h-accent);
+      color: #fff;
+      border: 1px solid var(--h-accent);
+    }
+    .h-btn-primary:hover {
+      background: var(--h-accent-light);
+      border-color: var(--h-accent-light);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(74, 124, 155, 0.25);
+    }
+    .h-btn-secondary {
+      background: transparent;
+      color: inherit;
+      border: 1px solid rgba(128,128,128,0.25);
+    }
+    .h-btn-secondary:hover {
+      border-color: var(--h-accent);
+      color: var(--h-accent);
+      transform: translateY(-1px);
+    }
 
-  </head>
-  <body data-theme="dark" data-banner-source="/data/banners/banners-moods.json" style="background:#071019">
-    <header id="nav-header"></header>
-    <!-- Nova Banner Container - Appears below nav when messages are shown -->
-    <!-- Position: fixed, top: 75px (below nav), width: 100%, z-index: 1050 -->
-    <div class="banner-container" id="banner-container"></div>
-    
-    <!-- Hero Section - Main content area -->
-    <section class="hero">
-      <div class="hero-loading">
-        <p class="loading-text">Nova: Booting the glitch...</p>
-        <div class="loading-bar">
-          <div class="loading-progress"></div>
+    /* ── Shared Section Rhythm ── */
+    .h-section {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 4.75rem 1.5rem;
+    }
+    .h-section-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--h-accent);
+      margin: 0 0 0.5rem;
+      opacity: 0.85;
+    }
+    .h-section h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem;
+      letter-spacing: -0.01em;
+    }
+    .h-section > p {
+      font-size: 1rem;
+      line-height: 1.6;
+      opacity: 0.6;
+      max-width: 600px;
+      margin: 0 0 2rem;
+    }
+
+    /* ── What We Do — 3 cards ── */
+    .h-cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+    .h-card {
+      padding: 1.75rem 0;
+      border: none;
+      border-radius: 0;
+    }
+    .h-card i {
+      font-size: 1.25rem;
+      color: var(--h-accent);
+      margin-bottom: 0.75rem;
+      display: block;
+    }
+    .h-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0 0 0.4rem;
+    }
+    .h-card p {
+      font-size: 0.85rem;
+      line-height: 1.55;
+      margin: 0;
+      opacity: 0.6;
+    }
+
+    /* ── Proof — product tiles ── */
+    .h-proof-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+    .h-proof {
+      padding: 1.75rem;
+      border: 1px solid rgba(128,128,128,0.08);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      transition: border-color 0.2s;
+    }
+    .h-proof:hover { border-color: var(--h-accent); }
+    .h-proof-tag {
+      font-size: 0.55rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--h-accent);
+      background: var(--h-accent-dim);
+      padding: 2px 8px;
+      border-radius: 4px;
+      display: inline-block;
+      align-self: flex-start;
+      opacity: 0.85;
+    }
+    .h-proof h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0;
+    }
+    .h-proof p {
+      font-size: 0.82rem;
+      line-height: 1.5;
+      margin: 0;
+      opacity: 0.55;
+    }
+    .h-proof a {
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--h-accent);
+      text-decoration: none;
+      margin-top: auto;
+    }
+    .h-proof a:hover { text-decoration: underline; }
+
+    /* ── How It Works — horizontal flow ── */
+    .h-flow {
+      display: flex;
+      align-items: center;
+      gap: 0.15rem;
+      flex-wrap: wrap;
+    }
+    .h-flow-step {
+      flex: 1;
+      min-width: 130px;
+      text-align: center;
+      padding: 1.4rem 0.85rem;
+      border: 1px solid rgba(128,128,128,0.08);
+      border-radius: 6px;
+    }
+    .h-flow-step h4 {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin: 0 0 0.2rem;
+    }
+    .h-flow-step p {
+      font-size: 0.7rem;
+      margin: 0;
+      opacity: 0.45;
+      line-height: 1.4;
+    }
+    .h-flow-arrow {
+      font-size: 0.85rem;
+      opacity: 0.18;
+      padding: 0 0.5rem;
+      flex-shrink: 0;
+    }
+
+    /* ── Principles — 4 blocks ── */
+    .h-principles {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.5rem;
+    }
+    .h-principle {
+      padding: 1.4rem 1.1rem;
+      border-left: 2px solid rgba(74, 124, 155, 0.55);
+    }
+    .h-principle h3 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin: 0 0 0.3rem;
+    }
+    .h-principle p {
+      font-size: 0.8rem;
+      margin: 0;
+      opacity: 0.55;
+      line-height: 1.5;
+    }
+
+    /* ── Final CTA ── */
+    .h-cta-section {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 3.5rem 1.5rem 5rem;
+      text-align: center;
+    }
+    .h-cta-section h2 {
+      font-size: 2.15rem;
+      font-weight: 700;
+      margin: 0 0 0.5rem;
+    }
+    .h-cta-section p {
+      font-size: 0.95rem;
+      opacity: 0.55;
+      margin: 0 0 1.5rem;
+    }
+
+    /* ── Divider ── */
+    .h-divider {
+      max-width: 960px;
+      margin: 0 auto;
+      border: none;
+      border-top: 1px solid rgba(128,128,128,0.1);
+    }
+
+    /* ── Light theme ── */
+    [data-theme="light"] .h-hero-grid {
+      opacity: 0.08;
+    }
+    [data-theme="light"] .h-proof,
+    [data-theme="light"] .h-flow-step {
+      border-color: #e2e8f0;
+    }
+    [data-theme="light"] .h-proof:hover {
+      border-color: var(--h-accent);
+    }
+    [data-theme="light"] .h-principle {
+      border-left-color: rgba(74, 124, 155, 0.5);
+    }
+    [data-theme="light"] .h-btn-secondary {
+      border-color: #d1d5db;
+      color: #334155;
+    }
+    [data-theme="light"] .h-btn-secondary:hover {
+      border-color: var(--h-accent);
+      color: var(--h-accent);
+    }
+    [data-theme="light"] .h-divider {
+      border-top-color: #e2e8f0;
+    }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      .h-hero { min-height: 400px; margin-top: 70px; }
+      .h-hero-content h1 { font-size: 2.4rem; }
+      .h-hero-content .h-subhead { font-size: 1rem; }
+      .h-hero-cta { flex-direction: column; align-items: center; }
+      .h-cards { grid-template-columns: 1fr; }
+      .h-proof-grid { grid-template-columns: 1fr; }
+      .h-flow { flex-direction: column; }
+      .h-flow-arrow { transform: rotate(90deg); padding: 0.25rem 0; }
+      .h-principles { grid-template-columns: 1fr 1fr; }
+      .h-section h2 { font-size: 1.6rem; }
+    }
+    @media (max-width: 480px) {
+      .h-hero-content h1 { font-size: 2rem; }
+      .h-principles { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body data-theme="dark">
+  <header id="nav-header"></header>
+
+  <!-- Hero -->
+  <section class="h-hero">
+    <div class="h-hero-grid"></div>
+    <div class="h-hero-content">
+      <h1 id="h-headline">Structured AI Systems.<span>Governed for Production.</span></h1>
+      <p class="h-subhead">AmbientPixels designs and governs modular AI infrastructure for teams building at scale.</p>
+      <div class="h-hero-cta">
+        <button type="button" class="h-btn h-btn-primary" onclick="openProjectModal('home')">
+          <i class="fas fa-arrow-right"></i> Start Your System
+        </button>
+        <a href="/projects/" class="h-btn h-btn-secondary">
+          <i class="fas fa-boxes-stacked"></i> View Projects
+        </a>
+      </div>
+    </div>
+  </section>
+  <script>
+    (function(){
+      var h=[
+        'Structured AI Systems.<span>Governed for Production.</span>',
+        'Structured AI Systems.<span>AI, Engineered for Production.</span>',
+        'Structured AI Systems.<span>Governed AI Infrastructure.</span>',
+        'Structured AI Systems.<span>Built to Operate.</span>'
+      ];
+      var el=document.getElementById('h-headline');
+      if(el) el.innerHTML=h[Math.floor(Math.random()*h.length)];
+    })();
+  </script>
+
+  <main>
+    <!-- What We Do -->
+    <section class="h-section">
+      <p class="h-section-label">What We Do</p>
+      <h2>Infrastructure for Autonomous Systems</h2>
+      <p>We build the systems layer between AI capability and production-grade outcomes.</p>
+      <div class="h-cards">
+        <div class="h-card">
+          <i class="fas fa-microchip"></i>
+          <h3>AI-Native Infrastructure</h3>
+          <p>Multi-agent orchestration, memory persistence, and execution pipelines built for continuous operation.</p>
         </div>
-      </div>
-      <div class="hero-slides">
-        <img src="images/hero/hero-01.jpg" alt="Abstract digital art with vibrant colors" class="hero-slide" loading="lazy">
-        <img src="images/hero/hero-02.jpg" alt="Futuristic technology interface" class="hero-slide" loading="lazy">
-        <img src="images/hero/hero-04.jpg" alt="Modern digital design elements" class="hero-slide" loading="lazy">
-        <img src="images/hero/hero-06.jpg" alt="Creative digital composition" class="hero-slide" loading="lazy">
-        <img src="images/hero/hero-08.jpg" alt="Digital art with dynamic lighting" class="hero-slide" loading="lazy">
-        <img src="images/hero/hero-19.jpg" alt="Abstract geometric patterns" class="hero-slide" loading="lazy">
-        <img src="images/hero/hero-22.jpg" alt="Futuristic digital landscape" class="hero-slide" loading="lazy">
-        <img src="images/hero/hero-04.jpg" alt="Close-up of layered leaves with a gradient of colors" class="hero-slide" loading="lazy">
-        <img src="images/nova/delchron_colorful_luminous_arcs_of_light_on_a_dark_background.png" alt="Colorful luminous arcs of light" class="hero-slide" loading="lazy">
-        <img src="images/nova/A_living_cosmic_system_diagram_organic_neural_style_wi_02.png" alt="Living cosmic system diagram" class="hero-slide" loading="lazy">
-        <img src="images/nova/A_glowing_organic_seed_floating_in_a_cosmic_digital.png" alt="Glowing organic seed in cosmic space" class="hero-slide" loading="lazy">
-        <img src="images/nova/Microscopic_view_of_a_futuristic_neural_network_organi.png" alt="Microscopic view of futuristic neural network" class="hero-slide" loading="lazy">
-        <img src="images/textures/delchron_microscopic_ultra_close-up_of_futuristic_surface_textu.png" alt="Microscopic futuristic surface texture" class="hero-slide" loading="lazy">
-        <img src="images/textures/waves.png" alt="Abstract waves texture" class="hero-slide" loading="lazy">
-        <img src="images/textures/delchron_texture_in_the_style_of_graffiti_ultra_close-up_intric.jpg" alt="Graffiti-style intricate texture" class="hero-slide" loading="lazy">
-      </div>
-      <div class="hero-content">
-        <h1 class="hero-headline"></h1>
-        <p class="hero-subheadline"></p>
-        <div class="hero-cta">
-          <button type="button" class="glass-button" onclick="openProjectModal('home')">
-            <i class="fas fa-paper-plane"></i>
-            <span>Start a Project</span>
-          </button>
-          <a href="/gridos/" class="glass-button secondary">
-            <i class="fas fa-server"></i>
-            <span>Request GridOS Access</span>
-          </a>
-          <a href="/projects/" class="glass-button secondary">
-            <i class="fas fa-boxes-stacked"></i>
-            <span>See Products</span>
-          </a>
+        <div class="h-card">
+          <i class="fas fa-shield-halved"></i>
+          <h3>Governed Automation</h3>
+          <p>Approval gates, audit trails, and human oversight at every decision point.</p>
+        </div>
+        <div class="h-card">
+          <i class="fas fa-cubes"></i>
+          <h3>Modular Systems</h3>
+          <p>Composable pipelines, content engines, and deployment layers that scale with complexity.</p>
         </div>
       </div>
     </section>
-  <main class="grid-container">
-    <!-- How It Works -->
-<section class="content-section grid-col-12 services-overview hero-intro">
-  <h2>How It Works</h2>
-  <p class="lead">AmbientPixels operates as a virtual company powered by autonomous AI agents.</p>
-  <p class="lead">Each agent owns a function — strategy, development, marketing, finance — coordinated through standups, task boards, memory layers, and approval gates.</p>
-  <p style="margin-top:1rem;font-size:0.9rem;opacity:0.7;letter-spacing:0.3px;">Powered by <a href="/gridos/" class="text-link" style="color:#a78bfa;font-weight:500;">GridOS</a>.</p>
-</section>
 
-  <!-- 3 Pillars -->
-  <section class="grid-col-4 card-section">
-    <div class="card-content">
-      <div class="card-icon"><i class="fas fa-users-cog fa-2x"></i></div>
-      <h3>Agent Operations</h3>
-      <p>Daily standups, task generation, memory context, and governed execution.</p>
-    </div>
-  </section>
+    <hr class="h-divider" />
 
-  <section class="grid-col-4 card-section">
-    <div class="card-content">
-      <div class="card-icon"><i class="fas fa-hammer fa-2x"></i></div>
-      <h3>Product Studio</h3>
-      <p>We build tools like CardForge with iterative design and ship cycles.</p>
-    </div>
-  </section>
-
-  <section class="grid-col-4 card-section">
-    <div class="card-content">
-      <div class="card-icon"><i class="fas fa-image fa-2x"></i></div>
-      <h3>Content Engine</h3>
-      <p>AI-generated posts and images across socials, with human approval.</p>
-    </div>
-  </section>
-
-  <section class="content-section grid-col-12" style="text-align:center;padding:1rem 0 2rem;">
-    <p class="nova-voice-rainbow">"Autonomy with accountability. Creativity with receipts."</p>
-  </section>
-  <!-- Products & Systems -->
-  <section class="grid-col-12 content-section neon-card">
-    <h2><i class="fas fa-boxes-stacked"></i> Products & Systems</h2>
-    <p>What we build, ship, and operate.</p>
-  </section>
-
-  <!-- Row 1: Main Products -->
-  <!-- CardForge -->
-  <section class="grid-col-6 card-section">
-    <div class="card-content">
-      <a href="/cardforge/" class="text-link">
-        <img src="/images/hero-v2.jpg" class="card-image" alt="CardForge">
-      </a>
-      <h3><i class="fas fa-id-card fa-lg"></i> CardForge</h3>
-      <p>AI RPG identity card studio with layouts, frames, and shareable galleries.</p>
-      <a href="/cardforge/" class="text-link">Open CardForge →</a>
-    </div>
-  </section>
-
-  <!-- GridOS -->
-  <section class="grid-col-6 card-section">
-    <div class="card-content">
-      <a href="/gridos/" class="text-link">
-        <img src="/images/textures/delchron_extreme_close-up_of_a_holographic_digital_dashboard_in.jpg" class="card-image" alt="GridOS">
-      </a>
-      <span style="font-size:0.6rem;background:rgba(167,139,250,0.15);color:#a78bfa;padding:2px 8px;border-radius:4px;letter-spacing:0.5px;text-transform:uppercase;display:inline-block;margin-bottom:0.3rem;">Core Platform</span>
-      <h3><i class="fas fa-server fa-lg"></i> GridOS</h3>
-      <p>Operating system for AI-run companies. Multi-agent orchestration with memory, governance, and execution.</p>
-      <a href="/gridos/" class="text-link">Request Access →</a>
-    </div>
-  </section>
-
-  <!-- Row 2: Secondary Products -->
-  <!-- Content Engine -->
-  <section class="grid-col-6 card-section">
-    <div class="card-content">
-      <a href="/gridos/" class="text-link">
-        <img src="/images/textures/delchron_texture_in_the_style_of_graffiti_ultra_close-up_intric.jpg" class="card-image" alt="Content Engine">
-      </a>
-      <span style="font-size:0.6rem;background:rgba(167,139,250,0.15);color:#a78bfa;padding:2px 8px;border-radius:4px;letter-spacing:0.5px;text-transform:uppercase;display:inline-block;margin-bottom:0.3rem;">GridOS Module</span>
-      <h3><i class="fas fa-photo-film fa-lg"></i> Content Engine</h3>
-      <p>Generate posts and images, route through approvals, publish to socials.</p>
-      <a href="/gridos/" class="text-link">See Pipeline →</a>
-    </div>
-  </section>
-
-  <!-- Applied Research -->
-  <section class="grid-col-6 card-section">
-    <div class="card-content">
-      <a href="/lab/" class="text-link">
-        <img src="/images/textures/delchron_texture_in_the_style_of_Microbiology_and_futurism_ultr.jpg" class="card-image" alt="Applied Research">
-      </a>
-      <h3><i class="fas fa-flask fa-lg"></i> Applied Research</h3>
-      <p>System frameworks and infrastructure prototypes in active development.</p>
-      <a href="/lab/" class="text-link">View Research →</a>
-    </div>
-  </section>
-
-  <!-- Row 3: Utility tiles (icon-only) -->
-  <!-- Design Systems -->
-  <section class="grid-col-6 card-section">
-    <div class="card-content">
-      <div class="card-icon"><i class="fas fa-swatchbook fa-2x"></i></div>
-      <h3>Design Systems</h3>
-      <p>UI kits, borders and frames, tokens, and reusable components.</p>
-      <a href="/tools/" class="text-link">Explore →</a>
-    </div>
-  </section>
-
-  <!-- The Studio -->
-  <section class="grid-col-6 card-section">
-    <div class="card-content">
-      <div class="card-icon"><i class="fas fa-building fa-2x"></i></div>
-      <h3>The Studio</h3>
-      <p>AI-native systems design, principles, and production architecture.</p>
-      <a href="/about/" class="text-link">View Studio →</a>
-    </div>
-  </section>
-
-  <!-- Operating Principles -->
-  <section class="grid-col-12 content-section neon-card">
-    <h2><i class="fas fa-compass"></i> Operating Principles</h2>
-    <p>The rules that keep autonomy productive and outcomes accountable.</p>
-  </section>
-
-  <section class="grid-col-3 card-section">
-    <div class="card-content">
-      <div class="card-icon"><i class="fas fa-robot fa-2x"></i></div>
-      <h3>Structured Autonomy</h3>
-      <p>Agents propose and execute work within defined roles and constraints.</p>
-    </div>
-  </section>
-
-  <section class="grid-col-3 card-section">
-    <div class="card-content">
-      <div class="card-icon"><i class="fas fa-shield-alt fa-2x"></i></div>
-      <h3>Human Governance</h3>
-      <p>High-impact actions route to approval with logs and provenance.</p>
-    </div>
-  </section>
-
-  <section class="grid-col-3 card-section">
-    <div class="card-content">
-      <div class="card-icon"><i class="fas fa-cubes fa-2x"></i></div>
-      <h3>Modular Systems</h3>
-      <p>Composable tools: layouts, pipelines, memory layers, and APIs.</p>
-    </div>
-  </section>
-
-  <section class="grid-col-3 card-section">
-    <div class="card-content">
-      <div class="card-icon"><i class="fas fa-rocket fa-2x"></i></div>
-      <h3>Ship & Iterate</h3>
-      <p>Continuous improvement with visible change logs and measurable outcomes.</p>
-    </div>
-  </section>
-
-  <!-- Nova — Prime Operator -->
-  <section class="grid-col-12 content-section neon-card">
-    <h2><i class="fas fa-satellite-dish"></i> Nova — Prime Operator</h2>
-    <p>Nova is the interface layer of AmbientPixels: coordinating agents, summarizing memory, and guiding governed automation.</p>
-  </section>
-
-  <!-- Nova (Operator Interface) -->
-  <section class="grid-col-4 card-section">
-    <div class="card-content">
-      <div class="card-icon"><i class="fas fa-brain fa-2x"></i></div>
-      <h3>Nova</h3>
-      <ul>
-        <li><a href="/nova/" class="text-link"><i class="fas fa-comments"></i> Nova Chat (Demo)</a></li>
-        <li><a href="/gridos/" class="text-link"><i class="fas fa-microchip"></i> How Nova Works</a></li>
-      </ul>
-      <p class="nova-quip">"Interface layer of GridOS."</p>
-    </div>
-  </section>
-
-  <!-- GridOS (Operations) -->
-  <section class="grid-col-4 card-section">
-    <div class="card-content">
-      <div class="card-icon"><i class="fas fa-server fa-2x"></i></div>
-      <h3>GridOS</h3>
-      <ul>
-        <li><a href="/gridos/" class="text-link"><i class="fas fa-info-circle"></i> GridOS Overview</a></li>
-      </ul>
-      <p class="nova-quip" style="margin-top:0.5rem;">"The system that runs the company."</p>
-    </div>
-  </section>
-
-  <!-- Build in Public -->
-  <section class="grid-col-4 card-section">
-    <div class="card-content">
-      <div class="card-icon"><i class="fas fa-bullhorn fa-2x"></i></div>
-      <h3>Build in Public</h3>
-      <p class="nova-quip" style="margin-bottom:0.5rem;">"Transparent progress. Real systems."</p>
-      <ul>
-        <li><a href="/projects/" class="text-link"><i class="fas fa-boxes-stacked"></i> Projects</a></li>
-        <li><a href="/log/" class="text-link"><i class="fas fa-newspaper"></i> Activity Log</a></li>
-      </ul>
-      <div class="social-links" style="margin-top:0.75rem;display:flex;gap:0.75rem;">
-        <a href="https://x.com/AIAmbientPixels" target="_blank" rel="noopener" title="X"><i class="fab fa-x-twitter"></i></a>
-        <a href="https://bsky.app/profile/ambientpixels.bsky.social" target="_blank" rel="noopener" title="Bluesky"><i class="fab fa-bluesky"></i></a>
-        <a href="https://www.linkedin.com/company/107826087/" target="_blank" rel="noopener" title="LinkedIn"><i class="fab fa-linkedin"></i></a>
+    <!-- Proof -->
+    <section class="h-section">
+      <p class="h-section-label">What We Ship</p>
+      <h2>Production Systems</h2>
+      <p>Platforms built on our core infrastructure.</p>
+      <div class="h-proof-grid">
+        <div class="h-proof">
+          <span class="h-proof-tag">Core Platform</span>
+          <h3>GridOS</h3>
+          <p>Operating system for AI-run companies. Multi-agent orchestration with memory, governance, and execution.</p>
+          <a href="/gridos/">Learn more →</a>
+        </div>
+        <div class="h-proof">
+          <span class="h-proof-tag">Product</span>
+          <h3>CardForge</h3>
+          <p>Browser-based card creation platform with modular templates, real-time preview, and AI-assisted generation.</p>
+          <a href="/cardforge/">Open CardForge →</a>
+        </div>
+        <div class="h-proof">
+          <span class="h-proof-tag">Module</span>
+          <h3>Content Engine</h3>
+          <p>AI-generated posts and images, routed through approval pipelines, published across channels.</p>
+          <a href="/gridos/">See pipeline →</a>
+        </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-    </main>
-  
-    <footer id="footer-container"></footer>
-  
-  <!-- Scripts (Full Load for Dev Mode) -->
+    <hr class="h-divider" />
+
+    <!-- How It Works -->
+    <section class="h-section">
+      <p class="h-section-label">Process</p>
+      <h2>How We Build</h2>
+      <p>A defined workflow from strategy to production deployment.</p>
+      <div class="h-flow">
+        <div class="h-flow-step">
+          <h4>Strategy</h4>
+          <p>Requirements, scope, system goals</p>
+        </div>
+        <span class="h-flow-arrow"><i class="fas fa-chevron-right"></i></span>
+        <div class="h-flow-step">
+          <h4>Architecture</h4>
+          <p>Component design, data flows</p>
+        </div>
+        <span class="h-flow-arrow"><i class="fas fa-chevron-right"></i></span>
+        <div class="h-flow-step">
+          <h4>Automation</h4>
+          <p>Agent pipelines, execution layers</p>
+        </div>
+        <span class="h-flow-arrow"><i class="fas fa-chevron-right"></i></span>
+        <div class="h-flow-step">
+          <h4>Governance</h4>
+          <p>Approval flows, audit, oversight</p>
+        </div>
+        <span class="h-flow-arrow"><i class="fas fa-chevron-right"></i></span>
+        <div class="h-flow-step">
+          <h4>Deployment</h4>
+          <p>Production release, monitoring</p>
+        </div>
+      </div>
+    </section>
+
+    <hr class="h-divider" />
+
+    <!-- Principles -->
+    <section class="h-section">
+      <p class="h-section-label">Principles</p>
+      <h2>Operating Principles</h2>
+      <div class="h-principles">
+        <div class="h-principle">
+          <h3>Structured Autonomy</h3>
+          <p>Agents operate within defined roles, constraints, and approval boundaries.</p>
+        </div>
+        <div class="h-principle">
+          <h3>Human Governance</h3>
+          <p>Every high-impact action routes through human review with full provenance.</p>
+        </div>
+        <div class="h-principle">
+          <h3>Composable Design</h3>
+          <p>Systems built from reusable modules — pipelines, memory, execution, and UI.</p>
+        </div>
+        <div class="h-principle">
+          <h3>Ship Continuously</h3>
+          <p>Iterative delivery with visible changelogs and measurable outcomes.</p>
+        </div>
+      </div>
+    </section>
+
+    <hr class="h-divider" />
+
+    <!-- Final CTA -->
+    <section class="h-cta-section">
+      <h2>Start Your System</h2>
+      <p>Tell us what you're building. We'll design the system.</p>
+      <button type="button" class="h-btn h-btn-primary" onclick="openProjectModal('home')">
+        <i class="fas fa-arrow-right"></i> Start a Conversation
+      </button>
+    </section>
+  </main>
+
+  <footer id="footer-container"></footer>
+
   <script src="/js/init-header-footer.js" defer></script>
   <script src="/js/main.js" defer></script>
   <script src="/js/nav.js" defer></script>
-  <script src="/js/nova-ai.js" defer></script>
-  <script src="/js/nova-awareness-feed.js" defer></script>
-  <script src="/js/nova-dashboard.js" defer></script>
-  <script src="/js/nova-mood-core.js" defer></script>
-  <script src="/js/nova-status.js" defer></script>
   <script src="/js/theme.js" defer></script>
-  <script src="/js/nova-thought-of-the-day.js" defer></script>
-  <script src="/js/nova-mood-grid.js" defer></script>
-  <script src="/js/nova-mood-background.js" defer></script>
 
-  <!-- Banner System Scripts -->
-  <script>
-    // Disable default banner on home page
-    window.bannerConfig = {
-      showOnLoad: false // Override default banner behavior for home page
-    };
-  </script>
-  <script src="/js/banner.js"></script>
-  
-  <!-- Modal Container -->
   <div id="modal-container" data-auto-form="modal"></div>
-  
-  <!-- Modal and Form Scripts -->
   <script src="/js/forms.js" defer></script>
   <script src="/js/init-contact-modal.js" defer></script>
-  
+
   <script>
     function openProjectModal(source) {
-      // Modal already auto-loaded via data-auto-form="modal"
       var sel = document.getElementById('project-type');
       if (sel) sel.value = 'ai-systems';
       var msg = document.getElementById('message');
@@ -329,4 +542,3 @@
   </script>
 </body>
 </html>
-<!-- updated by Cascade: Auth scripts fixed to resolve CORS issues and duplicate script loading -->

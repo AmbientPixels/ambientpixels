@@ -4653,3 +4653,96 @@ body[data-theme="light"] .nova-quip {
     grid-template-columns: 1fr;
   }
 }
+
+/* ===== Light Theme — Homepage Components ===== */
+
+/* Content sections */
+body[data-theme="light"] .content-section {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: #e2e8f0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+body[data-theme="light"] .content-section:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Card sections */
+body[data-theme="light"] .card-section {
+  background: rgba(255, 255, 255, 0.8);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+body[data-theme="light"] .card-section:hover {
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.1);
+}
+
+/* Card content text */
+body[data-theme="light"] .card-content h3 {
+  color: #1a2a44;
+}
+body[data-theme="light"] .card-content p {
+  color: #475569;
+}
+
+/* Card icon */
+body[data-theme="light"] .card-icon {
+  color: #7c3aed;
+}
+
+/* Neon card */
+body[data-theme="light"] .neon-card {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: #e2e8f0;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+}
+body[data-theme="light"] .neon-card h2 {
+  color: #1a2a44;
+}
+body[data-theme="light"] .neon-card h2 i {
+  color: #7c3aed;
+}
+body[data-theme="light"] .neon-card h3 {
+  color: #7c3aed;
+}
+body[data-theme="light"] .neon-card li {
+  border-left-color: #7c3aed;
+}
+
+/* Nova quip */
+body[data-theme="light"] .nova-quip {
+  color: #64748b;
+}
+
+/* Nova voice rainbow */
+body[data-theme="light"] .nova-voice-rainbow {
+  color: #475569;
+}
+
+/* Social links */
+body[data-theme="light"] .social-links a {
+  color: #64748b;
+}
+body[data-theme="light"] .social-links a:hover {
+  color: #7c3aed;
+}
+
+/* Hero intro */
+body[data-theme="light"] .hero-intro h2 {
+  color: #1a2a44;
+}
+body[data-theme="light"] .hero-intro .lead {
+  color: #334155;
+}
+
+/* Related project cards */
+body[data-theme="light"] .related-project-card {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: #e2e8f0;
+}
+body[data-theme="light"] .related-project-card:hover {
+  border-color: #cbd5e1;
+}
+body[data-theme="light"] .related-project-card p {
+  color: #475569;
+}
+
+/* ===== End Light Theme — Homepage Components ===== */
