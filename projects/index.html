@@ -1,605 +1,37 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Ambient Pixels Projects — Experiments & Builds" />
+  <meta name="description" content="Selected systems, infrastructure, and production work from AmbientPixels." />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Ambient Pixels - Projects</title>
+  <title>Projects — AmbientPixels</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/base.css" />
   <link rel="stylesheet" href="/css/grid.css" />
   <link rel="stylesheet" href="/css/nav.css" />
   <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/hero.css" />
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/css/forms.css" />
+  <link rel="stylesheet" href="/css/nova-shared.css" />
   <link rel="stylesheet" href="/css/projects.css" />
-  <link rel="stylesheet" href="/modules/breadcrumb.css" />
-  <style>
-    /* AI Pipeline Styles */
-    .pipeline-container {
-      --pipeline-accent: var(--aura-accent, #8a63d2);
-      --pipeline-bg: rgba(20, 20, 30, 0.7);
-      --pipeline-border: rgba(255, 255, 255, 0.08);
-      --pipeline-text: rgba(255, 255, 255, 0.9);
-      --pipeline-text-muted: rgba(255, 255, 255, 0.6);
-      max-width: 1200px;
-      width: 100%;
-      margin: 2rem auto;
-      padding: 0 1rem;
-      position: relative;
-      box-sizing: border-box;
-    }
-    
-    .pipeline-controls {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 1.5rem;
-      margin: 0 0 2rem;
-      position: relative;
-      min-height: 60px; /* Ensure enough height for buttons */
-    }
-    
-    .pipeline-track {
-      flex: 1;
-      display: flex;
-      overflow-x: auto;
-      overflow-y: hidden;
-      scroll-behavior: smooth;
-      scroll-snap-type: x mandatory;
-      scrollbar-width: none;
-      -ms-overflow-style: none;
-      border-radius: 12px;
-      background: linear-gradient(145deg, rgba(40, 40, 55, 0.5), rgba(25, 25, 35, 0.5));
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-      backdrop-filter: blur(8px);
-      border: 1px solid var(--pipeline-border);
-      padding: 0;
-      margin: 0;
-    }
-    
-    .pipeline-track::-webkit-scrollbar {
-      display: none;
-    }
-    
-    .pipeline-stage {
-      flex: 0 0 100%;
-      width: 100%;
-      padding: 2.5rem;
-      background: transparent;
-      scroll-snap-align: start;
-      position: relative;
-      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-      border-right: 1px solid var(--pipeline-border);
-      box-sizing: border-box;
-    }
-    
-    .pipeline-stage:last-child {
-      border-right: none;
-    }
-    
-    .pipeline-stage h3 {
-      margin: 0 0 1rem;
-      color: var(--pipeline-accent);
-      font-size: 1.75rem;
-      font-weight: 600;
-      letter-spacing: -0.02em;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-    
-    .pipeline-stage h3 i {
-      font-size: 1.5rem;
-      color: var(--pipeline-accent);
-      background: rgba(138, 99, 210, 0.15);
-      width: 2.5rem;
-      height: 2.5rem;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: 12px;
-    }
-    
-    .pipeline-stage p {
-      color: var(--pipeline-text-muted);
-      font-size: 1.1rem;
-      line-height: 1.6;
-      margin: 0 0 1.5rem;
-      max-width: 600px;
-    }
-    
-    .pipeline-nav-btn {
-      background: var(--pipeline-bg);
-      border: 1px solid var(--pipeline-border);
-      color: var(--pipeline-text);
-      width: 3rem;
-      height: 3rem;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      backdrop-filter: blur(8px);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      z-index: 10;
-      overflow: hidden;
-    }
-    
-    #pipeline-prev {
-      left: 1rem;
-    }
-    
-    #pipeline-next {
-      right: 1rem;
-    }
-    
-    .pipeline-nav-btn::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, var(--pipeline-accent), #6a4aa5);
-      opacity: 0;
-      transition: opacity 0.3s ease;
-    }
-    
-    .pipeline-nav-btn:not(:disabled):hover {
-      transform: translateY(-50%) scale(1.05);
-      box-shadow: 0 6px 16px rgba(138, 99, 210, 0.3);
-      border-color: var(--pipeline-accent);
-    }
-    
-    .pipeline-nav-btn:not(:disabled):hover::before {
-      opacity: 0.2;
-    }
-    
-    .pipeline-nav-btn i {
-      position: relative;
-      z-index: 1;
-    }
-    
-    .pipeline-nav-btn:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-      transform: none !important;
-      box-shadow: none !important;
-    }
-    
-    .pipeline-progress {
-      margin: 2rem auto 1rem;
-      padding: 0 3rem;
-      max-width: 800px; /* Match the pipeline container width */
-    }
-    
-    .progress-container {
-      height: 4px;
-      background: rgba(255, 255, 255, 0.06);
-      border-radius: 2px;
-      overflow: hidden;
-      position: relative;
-    }
-    
-    .progress-bar {
-      height: 100%;
-      background: linear-gradient(90deg, var(--pipeline-accent), #b388ff);
-      width: 20%;
-      transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .progress-bar::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(90deg, 
-        transparent, 
-        rgba(255, 255, 255, 0.4), 
-        transparent);
-      animation: progress-shine 2s infinite;
-    }
-    
-    @keyframes progress-shine {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(100%); }
-    }
-    
-    .stage-indicators {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 0.75rem;
-      margin: 1.5rem auto 0;
-      padding: 0 1rem;
-      max-width: 800px; /* Match the pipeline container width */
-      position: relative;
-    }
-    
-    .stage-indicator {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: var(--pipeline-text-muted);
-      opacity: 0.3;
-      cursor: pointer;
-      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-      border: none;
-      padding: 0;
-      position: relative;
-      overflow: hidden;
-      flex-shrink: 0;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-    }
-    
-    .stage-indicator::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(0);
-      width: 24px;
-      height: 24px;
-      background: rgba(138, 99, 210, 0.2);
-      border-radius: 50%;
-      opacity: 0;
-      transition: all 0.3s ease;
-    }
-    
-    .stage-indicator:hover::before {
-      transform: translate(-50%, -50%) scale(1);
-      opacity: 1;
-    }
-    
-    .stage-indicator.active {
-      background: var(--pipeline-accent);
-      opacity: 1;
-      transform: scale(1.3);
-      box-shadow: 0 0 0 2px rgba(138, 99, 210, 0.5);
-    }
-    
-    .pipeline-status {
-      text-align: center;
-      margin-top: 1.5rem;
-      color: var(--pipeline-text-muted);
-      font-size: 0.95rem;
-      font-weight: 500;
-      letter-spacing: 0.02em;
-      text-transform: uppercase;
-    }
-    
-    .stage-tools {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-top: 1.5rem;
-    }
-    
-    .tool-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: var(--pipeline-text-muted);
-      padding: 0.35rem 0.75rem;
-      border-radius: 6px;
-      font-size: 0.85rem;
-      transition: all 0.2s ease;
-    }
-    
-    .tool-tag:hover {
-      background: rgba(138, 99, 210, 0.15);
-      color: var(--pipeline-text);
-      border-color: var(--pipeline-accent);
-    }
-    
-    .tool-tag i {
-      color: var(--pipeline-accent);
-      font-size: 0.9em;
-    }
-    
-    /* Responsive adjustments */
-    @media (max-width: 1200px) {
-      .pipeline-container {
-        max-width: 100%;
-        padding: 0 2rem;
-      }
-      
-      .pipeline-progress {
-        max-width: 100%;
-        padding: 0 2rem;
-      }
-      
-      .stage-indicators {
-        max-width: 100%;
-        padding: 0 2rem;
-      }
-    }
-    
-    @media (max-width: 768px) {
-      .pipeline-container {
-        padding: 0 1.5rem;
-      }
-      
-      .pipeline-stage {
-        padding: 2rem 1.5rem;
-      }
-      
-      .pipeline-progress {
-        padding: 0 1.5rem;
-      }
-      
-      .stage-indicators {
-        padding: 0 1.5rem;
-        gap: 0.5rem;
-      }
-      
-      .stage-indicator {
-        width: 10px;
-        height: 10px;
-      }
-      
-      .stage-indicator.active {
-        transform: scale(1.2);
-      }
-    }
-    
-    @media (max-width: 480px) {
-      .pipeline-container {
-        padding: 0 1rem;
-      }
-      
-      .pipeline-stage {
-        padding: 1.5rem 1rem;
-      }
-      
-      .pipeline-progress {
-        padding: 0 1rem;
-      }
-      
-      .stage-indicators {
-        padding: 0 1rem;
-        gap: 0.4rem;
-      }
-    }
-    
-    /* Responsive adjustments */
-    @media (max-width: 992px) {
-      .pipeline-stage {
-        padding: 2rem 1.5rem;
-      }
-      
-      .pipeline-stage h3 {
-        font-size: 1.5rem;
-      }
-      
-      .pipeline-stage p {
-        font-size: 1rem;
-      }
-    }
-    
-    @media (max-width: 768px) {
-      .pipeline-controls {
-        gap: 0.75rem;
-      }
-      
-      .pipeline-stage {
-        padding: 1.75rem 1.25rem;
-      }
-      
-      .pipeline-stage h3 {
-        font-size: 1.35rem;
-      }
-      
-      .pipeline-stage h3 i {
-        width: 2.25rem;
-        height: 2.25rem;
-        font-size: 1.25rem;
-      }
-      
-      .pipeline-nav-btn {
-        width: 2.75rem;
-        height: 2.75rem;
-        border-radius: 10px;
-      }
-      
-      .pipeline-progress {
-        padding: 0 1rem;
-      }
-    }
-    
-    @media (max-width: 480px) {
-      .pipeline-stage {
-        padding: 1.5rem 1.25rem;
-      }
-      
-      .pipeline-stage h3 {
-        font-size: 1.25rem;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-      }
-      
-      .pipeline-stage h3 i {
-        width: 2rem;
-        height: 2rem;
-        font-size: 1rem;
-      }
-      
-      .pipeline-stage p {
-        font-size: 0.95rem;
-        line-height: 1.5;
-      }
-      
-      .pipeline-nav-btn {
-        width: 2.5rem;
-        height: 2.5rem;
-      }
-      
-      .pipeline-status {
-        font-size: 0.85rem;
-      }
-    }
-  </style>
 </head>
 <body data-theme="dark">
   <header id="nav-header"></header>
 
-  <section class="mini-hero">
-    <img src="/images/hero-v2.jpg" alt="Mini Hero" class="mini-hero-img" loading="lazy">
-    <div class="mini-hero-content-wrapper">
-      <h1>Ambient projects</h1>
-      <p class="subtitle">Experiments, builds, and creative explorations from the studio</p>
+  <!-- Hero -->
+  <section class="prj-hero">
+    <div class="prj-hero-content">
+      <p class="nv-breadcrumb"><a href="/">Home</a> / Projects</p>
+      <h1>Projects</h1>
+      <h2>Selected systems, infrastructure, and production work.</h2>
+      <p>Systems and production work built for real-world scale.</p>
     </div>
   </section>
 
   <main class="grid-container">
-    <!-- Breadcrumb Navigation -->
-    <div class="breadcrumb-container grid-col-12"></div> <!-- updated by Cascade -->
-    
-    <!-- Main Header Section -->
-    <section class="xbox-section grid-col-12">
-      <div class="xbox-section-header">
-        <i class="fas fa-cube"></i>
-        <h1 class="xbox-section-title">Projects & Collaborations</h1>
-      </div>
-      <div class="section-content">
-        <p class="section-description">A curated collection of studio work, prototypes, and shipped solutions—spanning support systems, creative tools, and interactive experiences. Each project reflects a balance of technical execution, design clarity, and narrative thinking across platforms.</p>
-        <p class="nova-voice">// Browsing archives: shipped builds, studio artifacts, systems in motion.</p>
-      </div>
-    </section>
-
-    <!-- AI Pipeline Section -->
-    <section class="xbox-section grid-col-12 ai-pipeline-section">
-      <div class="xbox-section-header">
-        <i class="fas fa-robot"></i>
-        <h2 class="xbox-section-title">Our AI Pipeline</h2>
-      </div>
-      <div class="section-content">
-        <p class="section-description">Creative collaboration—powered by agents, automation, and intent.</p>
-        
-        <div class="pipeline-container">
-          <div class="pipeline-controls">
-            <button id="pipeline-prev" class="pipeline-nav-btn" aria-label="Previous stage">
-              <i class="fas fa-chevron-left"></i>
-            </button>
-            
-            <div class="pipeline-track" id="pipeline-track">
-              <!-- Pipeline Stage 1 -->
-              <div class="pipeline-stage" data-stage="1">
-                <h3><i class="fas fa-lightbulb"></i>Ideation & Concepts</h3>
-                <p>AI agents like ChatGPT and Claude help spark ideas, sketch flows, and co-author early scripts and strategies.</p>
-                <div class="stage-tools">
-                  <span class="tool-tag" title="ChatGPT"><i class="fas fa-robot"></i>ChatGPT</span>
-                  <span class="tool-tag" title="Claude"><i class="fas fa-brain"></i>Claude</span>
-                  <span class="tool-tag" title="MIcrosoft Copilot"><i class="fas fa-project-diagram"></i>MIcrosoft copilot</span>
-                </div>
-              </div>
-              
-              <!-- Pipeline Stage 2 -->
-              <div class="pipeline-stage" data-stage="2">
-                <h3><i class="fas fa-film"></i>Motion & Design</h3>
-                <p>We use After Effects and Runway ML to animate scenes, automate transitions, and maintain visual rhythm.</p>
-                <div class="stage-tools">
-                  <span class="tool-tag" title="After Effects"><i class="fas fa-film"></i>After Effects</span>
-                  <span class="tool-tag" title="Runway ML"><i class="fas fa-magic"></i>Runway ML</span>
-                  <span class="tool-tag" title="Blender"><i class="fas fa-cube"></i>Blender</span>
-                </div>
-              </div>
-              
-              <!-- Pipeline Stage 3 -->
-              <div class="pipeline-stage" data-stage="3">
-                <h3><i class="fas fa-image"></i>Asset Generation</h3>
-                <p>Midjourney, Firefly, and Photoshop AI generate textures, visuals, and composite layers tuned to narrative.</p>
-                <div class="stage-tools">
-                  <span class="tool-tag" title="Midjourney"><i class="fas fa-paint-brush"></i>Midjourney</span>
-                  <span class="tool-tag" title="Firefly"><i class="fas fa-fire"></i>Firefly</span>
-                  <span class="tool-tag" title="Photoshop AI"><i class="fas fa-wand-magic-sparkles"></i>Photoshop AI</span>
-                </div>
-              </div>
-              
-              <!-- Pipeline Stage 4 -->
-              <div class="pipeline-stage" data-stage="4">
-                <h3><i class="fas fa-comment-dots"></i>Voice & Tone</h3>
-                <p>Azure AI and SSML scripting shape the narration—custom-fit for clarity, emotion, and brand voice.</p>
-                <div class="stage-tools">
-                  <span class="tool-tag" title="Azure AI"><i class="fas fa-robot"></i>Azure AI</span>
-                  <span class="tool-tag" title="ElevenLabs"><i class="fas fa-robot"></i>ElevenLabs</span>
-                  <span class="tool-tag" title="Descript"><i class="fas fa-comment-dots"></i>Descript</span>
-                </div>
-              </div>
-              
-              <!-- Pipeline Stage 5 -->
-              <div class="pipeline-stage" data-stage="5">
-                <h3><i class="fas fa-tasks"></i>Project Management</h3>
-                <p>Nova, our custom GPT-powered assistant, helps track milestones, prioritize tasks, and offer creative check-ins.</p>
-                <div class="stage-tools">
-                  <span class="tool-tag" title="Nova AI"><i class="fas fa-robot"></i>Nova AI</span>
-                  <span class="tool-tag" title="Notion"><i class="fas fa-book"></i>Notion</span>
-                  <span class="tool-tag" title="Linear"><i class="fas fa-tasks"></i>Linear</span>
-                </div>
-              </div>
-              
-              <!-- Pipeline Stage 6 -->
-              <div class="pipeline-stage" data-stage="6">
-                <h3><i class="fas fa-search"></i>Review & Polish</h3>
-                <p>AI tools help us rate screenshots, improve accessibility, and optimize layouts for global delivery.</p>
-                <div class="stage-tools">
-                  <span class="tool-tag" title="Figma AI"><i class="fab fa-figma"></i>Figma AI</span>
-                  <span class="tool-tag" title="WebAIM"><i class="fas fa-universal-access"></i>WebAIM</span>
-                  <span class="tool-tag" title="Lighthouse"><i class="fas fa-search"></i>Lighthouse</span>
-                </div>
-              </div>
-              <!-- Pipeline Stage 7 -->
-              <div class="pipeline-stage" data-stage="7">
-                <h3><i class="fas fa-project-diagram"></i>The Triad Protocol</h3>
-                <p>The Triad Protocol is our hybrid creative system—bringing together human intent, Nova's AI personality, and fast modular tooling. This collaborative flow guides each project through context, continuity, and creation—shaping every deliverable with both technology and human insight. <a href="/docs/the-triad-protocol.html" class="primary-link" target="_blank" rel="noopener">Learn more</a></p>
-                <div class="stage-tools">
-                  <span class="tool-tag" title="Nova QA"><i class="fas fa-robot"></i>Nova QA</span>
-                  <span class="tool-tag" title="Context Sync"><i class="fas fa-sync-alt"></i>Context Sync</span>
-                  <span class="tool-tag" title="UserLoop"><i class="fas fa-users"></i>UserLoop</span>
-                </div>
-              </div>
-              <div class="pipeline-link-out" style="display:flex;justify-content:center;margin:1rem 0;">
-                <a href="/docs/the-triad-protocol.html" class="glass-button" target="_blank" rel="noopener">
-                  <i class="fas fa-link"></i> Learn more about The Triad Protocol
-                </a>
-              </div>
-            </div>
-            
-            <button id="pipeline-next" class="pipeline-nav-btn" aria-label="Next stage">
-              <i class="fas fa-chevron-right"></i>
-            </button>
-          </div>
-          
-          <div class="pipeline-progress">
-            <div class="progress-container">
-              <div class="progress-bar" id="pipeline-progress"></div>
-            </div>
-            <div class="stage-indicators" id="stage-indicators">
-              <!-- Indicators will be added by JavaScript -->
-            </div>
-            <p class="pipeline-status" id="pipeline-status">Stage 1 of 6: Ideation & Concepts</p>
-          </div>
-        </div>
-        
-        <p class="nova-voice" id="pipeline-status-voice">// Pipeline status: active. Agents syncing. Creative flow: optimal.</p>
-      </div>
-    </section>
-
     <!-- Featured Project -->
     <section class="xbox-section grid-col-12">
       <div class="xbox-section-header">
@@ -607,43 +39,23 @@
         <h2 class="xbox-section-title">Featured Project</h2>
       </div>
       <div class="section-content">
-        <p class="section-description">Highlighted work showcasing the breadth of my capabilities</p>
-        
-        <section class="card-section grid-col-12" style="display: flex; flex-wrap: wrap; gap: 2rem;">
-          <!-- Xbox Support Portfolio Card -->
-          <div class="card-section grid-col-6" style="min-width:320px;flex:1;">
-            <a href="/projects/xbox-support.html" class="card-image-link" style="display: flex; justify-content: center; align-items: center; min-height: 180px; background: linear-gradient(135deg, #107c10 0%, #0a4e0a 100%);">
-              <i class="fab fa-xbox" style="font-size: 6rem; color: white;"></i>
-            </a>
-            <div class="card-content">
-              <h3>Xbox Support Portfolio</h3>
-              <div class="role-tags">
-                <span class="role-tag role-producer"><i class="fas fa-user-tie"></i> Producer</span>
-                <span class="role-tag role-design"><i class="fas fa-paint-brush"></i> UI/UX</span>
-                <span class="role-tag role-content"><i class="fas fa-file-alt"></i> Content</span>
-              </div>
-              <p>My professional portfolio highlights my work in AI pipelines and prompt engineering, including the Copilot Playground—an advanced platform for prompt engineering, LLM evaluation, and agent workflow design. I also developed comprehensive support solutions for Xbox games and services, creating game support hubs, help centers, and player assistance systems for titles such as Gears of War, Hellblade, and South of Midnight. My portfolio features original video production and interactive Figma design prototypes to support both user education and stakeholder presentations.</p>
-              <a href="/projects/xbox-support.html" class="btn btn-primary">
-                <i class="fas fa-external-link-alt"></i> View Portfolio
-              </a>
+        <p class="section-description">Highlighted work showcasing production capabilities</p>
+
+        <section class="card-section grid-col-12">
+          <a href="/projects/xbox-support.html" class="card-image-link" style="display: flex; justify-content: center; align-items: center; min-height: 200px; background: linear-gradient(135deg, #107c10 0%, #0a4e0a 100%);">
+            <i class="fab fa-xbox" style="font-size: 6rem; color: white;"></i>
+          </a>
+          <div class="card-content">
+            <h3>Xbox Support Systems</h3>
+            <div class="role-tags">
+              <span class="role-tag role-producer"><i class="fas fa-user-tie"></i> Producer</span>
+              <span class="role-tag role-design"><i class="fas fa-paint-brush"></i> UI/UX</span>
+              <span class="role-tag role-content"><i class="fas fa-file-alt"></i> Content</span>
             </div>
-          </div>
-          <!-- Copilot Playground Card -->
-          <div class="card-section grid-col-6" style="min-width:320px;flex:1;">
-            <a href="/projects/copilotplayground.html" class="card-image-link" style="display: flex; justify-content: center; align-items: center; min-height: 180px; background: linear-gradient(135deg, #2b2d42 0%, #1a1b2f 100%);">
-              <i class="fas fa-robot" style="font-size: 6rem; color: #8be9fd;"></i>
+            <p>Support systems for Xbox games and services — game support hubs, help centers, and player assistance for Gears of War, Hellblade, and South of Midnight.</p>
+            <a href="/projects/xbox-support.html" class="btn btn-primary">
+              <i class="fas fa-external-link-alt"></i> View Project
             </a>
-            <div class="card-content">
-              <h3>Copilot Playground</h3>
-              <div class="role-tags">
-                <span class="role-tag role-design"><i class="fas fa-brain"></i> AI Pipelines</span>
-                <span class="role-tag role-content"><i class="fas fa-terminal"></i> Prompt Engineering</span>
-              </div>
-              <p>Dive in and explore Copilot Playground—an interactive environment for building, testing, and refining advanced AI pipelines. Experiment with prompt engineering, agent workflow design, and real-world LLM evaluation, all in one creative sandbox. Whether you're curious about AI or looking to optimize production workflows, this project showcases hands-on solutions and innovative tools.</p>
-              <a href="/projects/copilotplayground.html" class="btn btn-secondary">
-                <i class="fas fa-robot"></i> Explore Copilot Playground
-              </a>
-            </div>
           </div>
         </section>
       </div>
@@ -656,8 +68,7 @@
         <h2 class="xbox-section-title">Video Projects</h2>
       </div>
       <div class="section-content">
-        <p class="section-description">A showcase of our video production work, from concept to final edit</p>
-        <p class="nova-voice">// Rendering frame sequences: motion, light, and narrative in harmony.</p>
+        <p class="section-description">Video production work from concept to final edit</p>
 
         <div class="projects-grid">
           <!-- Ninja Theory Help Center -->
@@ -665,7 +76,6 @@
             <a href="/projects/video/ninja-theory-help-center.html" class="card-image-link">
               <div class="card-image featured-card" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); display: flex; justify-content: center; align-items: center; position: relative; overflow: hidden;">
                 <i class="fas fa-gamepad" style="font-size: 4rem; color: #8b5cf6; position: relative; z-index: 2; text-shadow: 0 0 15px rgba(139, 92, 246, 0.7);"></i>
-                <div class="ai-glow" style="position: absolute; width: 100%; height: 100%; background: radial-gradient(circle at center, rgba(139, 92, 246, 0.2) 0%, transparent 70%); animation: pulse 8s infinite alternate;"></div>
               </div>
             </a>
             <div class="card-content">
@@ -675,7 +85,7 @@
                 <span class="role-tag role-video"><i class="fas fa-video"></i> Motion Design</span>
                 <span class="role-tag role-voice"><i class="fas fa-microphone-alt"></i> AI Voice</span>
               </div>
-              <p>AI-powered video showcase for Ninja Theory's Help Center, featuring Azure AI voice synthesis, automated animation timing, and ML-driven asset optimization. A glimpse into the future of AI-assisted content creation.</p>
+              <p>AI-powered video showcase featuring Azure AI voice synthesis, automated animation timing, and ML-driven asset optimization.</p>
               <a href="/projects/video/ninja-theory-help-center.html" class="btn btn-primary">
                 <i class="fas fa-external-link-alt"></i> View Project
               </a>
@@ -695,7 +105,7 @@
                 <span class="role-tag role-design"><i class="fas fa-video"></i> Video</span>
                 <span class="role-tag role-creative"><i class="fas fa-lightbulb"></i> Creative</span>
               </div>
-              <p>Explore our video production work, including motion graphics, editing, and visual storytelling projects that bring ideas to life through the power of moving images.</p>
+              <p>Motion graphics, editing, and visual storytelling projects.</p>
               <a href="/projects/video/" class="btn btn-primary">
                 <i class="fas fa-external-link-alt"></i> View Projects
               </a>
@@ -712,180 +122,125 @@
         <h2 class="xbox-section-title">Game Support Hubs</h2>
       </div>
       <div class="section-content">
-        <p class="section-description">Comprehensive support solutions for game developers and publishers</p>
-                  <!-- Ninja Theory Support -->
-                  <section class="card-section grid-col-12">
-                    <a href="/projects/websites/ninja-theory-support.html" class="card-image-link">
-                      <img src="/images/projects/ninja-theroy/mini-hero-03.jpg" alt="Ninja Theory Support" class="card-image" loading="lazy">
-                    </a>
-                      <div class="card-content">
-                        <h3>Ninja Theory Support</h3>
-                        <div class="role-tags">
-                          <span class="role-tag role-producer"><i class="fas fa-user-tie"></i> Producer</span>
-                          <span class="role-tag role-design"><i class="fas fa-paint-brush"></i> Design</span>
-                          <span class="role-tag role-content"><i class="fas fa-file-alt"></i> Content</span>
-                        </div>
-                        <p>Producer-led project creating and managing Xbox Support pages for Ninja Theory's Hellblade series, including Senua's Sacrifice and Hellblade II.</p>
-                        <a href="/projects/websites/ninja-theory-support.html" class="btn btn-secondary">
-                          <i class="fas fa-external-link-alt"></i> View Project
-                        </a>
-                      </div>
-                  </section>
+        <p class="section-description">Production support systems for game developers and publishers</p>
+
+        <!-- Ninja Theory Support -->
+        <section class="card-section grid-col-12">
+          <a href="/projects/websites/ninja-theory-support.html" class="card-image-link">
+            <img src="/images/projects/ninja-theroy/mini-hero-03.jpg" alt="Ninja Theory Support" class="card-image" loading="lazy">
+          </a>
+          <div class="card-content">
+            <h3>Ninja Theory Support</h3>
+            <div class="role-tags">
+              <span class="role-tag role-producer"><i class="fas fa-user-tie"></i> Producer</span>
+              <span class="role-tag role-design"><i class="fas fa-paint-brush"></i> Design</span>
+              <span class="role-tag role-content"><i class="fas fa-file-alt"></i> Content</span>
+            </div>
+            <p>Xbox Support pages for Ninja Theory's Hellblade series, including Senua's Sacrifice and Hellblade II.</p>
+            <a href="/projects/websites/ninja-theory-support.html" class="btn btn-secondary">
+              <i class="fas fa-external-link-alt"></i> View Project
+            </a>
+          </div>
+        </section>
+
         <div class="projects-grid">
           <!-- Gears of War -->
           <section class="card-section grid-col-6">
             <a href="/projects/websites/gears-of-war-support.html" class="card-image-link">
               <img src="/images/projects/gow/logo.png" alt="Gears of War" class="card-image" loading="lazy">
             </a>
-              <div class="card-content">
-                <h3>Gears of War</h3>
-                <div class="role-tags">
-                  <span class="role-tag role-producer"><i class="fas fa-user-tie"></i> Producer</span>
-                  <span class="role-tag role-design"><i class="fas fa-paint-brush"></i> UI/UX</span>
-                </div>
-                <p>Support hub for The Coalition's Gears of War franchise, featuring troubleshooting guides, known issues, and player resources for Gears 5 and Gears Tactics.</p>
-                <a href="/projects/websites/gears-of-war-support.html" class="btn btn-secondary">
-                  <i class="fas fa-external-link-alt"></i> View Support Hub
-                </a>
+            <div class="card-content">
+              <h3>Gears of War</h3>
+              <div class="role-tags">
+                <span class="role-tag role-producer"><i class="fas fa-user-tie"></i> Producer</span>
+                <span class="role-tag role-design"><i class="fas fa-paint-brush"></i> UI/UX</span>
               </div>
+              <p>Support hub for The Coalition's Gears franchise — troubleshooting, known issues, and player resources.</p>
+              <a href="/projects/websites/gears-of-war-support.html" class="btn btn-secondary">
+                <i class="fas fa-external-link-alt"></i> View Support Hub
+              </a>
+            </div>
           </section>
 
-
-
-          <!-- South of Midnight Support -->
+          <!-- South of Midnight -->
           <section class="card-section grid-col-6">
             <a href="/projects/websites/ninja-theory-support.html" class="card-image-link">
-              <img src="/images/projects/SoM/hero-01.jpg" alt="Ninja Theory Support" class="card-image" loading="lazy">
+              <img src="/images/projects/SoM/hero-01.jpg" alt="South of Midnight Support" class="card-image" loading="lazy">
             </a>
-              <div class="card-content">
-                <h3>Ninja Theory Support</h3>
-                <div class="role-tags">
-                  <span class="role-tag role-producer"><i class="fas fa-user-tie"></i> Producer</span>
-                  <span class="role-tag role-design"><i class="fas fa-paint-brush"></i> Design</span>
-                  <span class="role-tag role-localization"><i class="fas fa-globe"></i> Localization</span>
-                </div>
-                <p>Producer-led project supporting Ninja Theory's titles with a fully localized Help Center, accessible reporting tools, and immersive support content.</p>
-                <a href="/projects/websites/ninja-theory-support.html" class="btn btn-secondary">
-                  <i class="fas fa-external-link-alt"></i> View Project
-                </a>
+            <div class="card-content">
+              <h3>South of Midnight</h3>
+              <div class="role-tags">
+                <span class="role-tag role-producer"><i class="fas fa-user-tie"></i> Producer</span>
+                <span class="role-tag role-design"><i class="fas fa-paint-brush"></i> Design</span>
+                <span class="role-tag role-localization"><i class="fas fa-globe"></i> Localization</span>
               </div>
-          </section>
-
-          <!-- Casual Games Support -->
-          <section class="card-section grid-col-12">
-            <a href="/projects/websites/microsoft-casual-games-support.html" class="card-image-link">
-              <img src="/images/projects/microsoft-casual-games/hero-card.png" alt="Microsoft Casual Games Support" class="card-image" loading="lazy">
-            </a>
-              <div class="card-content">
-                <h3>Microsoft Casual Games</h3>
-                <div class="role-tags">
-                  <span class="role-tag role-producer"><i class="fas fa-user-tie"></i> Producer</span>
-                  <span class="role-tag role-migration"><i class="fas fa-exchange-alt"></i> Migration</span>
-                </div>
-                <p>Producer-led migration of support content from Zendesk to Xbox Support for Microsoft's Casual Games portfolio, including Solitaire, Minesweeper, and more.</p>
-                <a href="/projects/websites/microsoft-casual-games-support.html" class="btn btn-secondary">
-                  <i class="fas fa-external-link-alt"></i> View Project
-                </a>
-              </div>
+              <p>Fully localized Help Center with accessible reporting tools and support content.</p>
+              <a href="/projects/websites/ninja-theory-support.html" class="btn btn-secondary">
+                <i class="fas fa-external-link-alt"></i> View Project
+              </a>
             </div>
           </section>
+
         </div>
       </div>
     </section>
 
-
-    <!-- Image Packs Section -->
-    <section class="xbox-section grid-col-12">
-      <div class="xbox-section-header">
-        <i class="fas fa-images"></i>
-        <h2 class="xbox-section-title">Image Packs Hub</h2>
-      </div>
-      <div class="section-content">
-        <p class="section-description">A curated collection of AI-generated visual assets for creators and developers</p>
-        
-        <div class="projects-grid">
-          <section class="card-section grid-col-12">
-            <a href="/projects/image-packs" class="card-image-link">
-              <div class="card-image featured-card" style="background-image: url('/images/image-packs/hero04.png');">
-              </div>
-            </a>
-              <div class="card-content">
-                <h3>Image Packs Collection</h3>
-                <div class="role-tags">
-                  <span class="role-tag role-design"><i class="fas fa-palette"></i> Design</span>
-                  <span class="role-tag role-community"><i class="fas fa-users"></i> Community</span>
-                </div>
-                <p>Explore our growing library of high-resolution, AI-generated images—cosmic interiors, character concepts, textures, and more. Perfect for game development, digital art, and creative projects.</p>
-                <a href="/projects/image-packs" class="btn btn-secondary">
-                  <i class="fas fa-external-link-alt"></i> Browse Packs
-                </a>
-              </div>
-            </div>
-          </section>
-        </div>
-      </div>
-    </section>
-
-    <!-- Creative Projects Section -->
+    <!-- Creative Extensions -->
     <section class="xbox-section grid-col-12">
       <div class="xbox-section-header">
         <i class="fas fa-palette"></i>
-        <h2 class="xbox-section-title">Creative Projects</h2>
+        <h2 class="xbox-section-title">Creative Extensions</h2>
       </div>
       <div class="section-content">
-        <p class="section-description">A showcase of our creative endeavors and tools</p>
-        
         <div class="projects-grid">
+          <!-- Image Packs -->
+          <section class="card-section grid-col-4">
+            <a href="/projects/image-packs" class="card-image-link">
+              <div class="card-image featured-card" style="background-image: url('/images/image-packs/hero04.png');"></div>
+            </a>
+            <div class="card-content">
+              <h3>Image Packs</h3>
+              <div class="role-tags">
+                <span class="role-tag role-design"><i class="fas fa-palette"></i> Design</span>
+              </div>
+              <p>AI-generated visual assets — characters, environments, and textures.</p>
+              <a href="/projects/image-packs" class="btn btn-secondary">
+                <i class="fas fa-external-link-alt"></i> Browse Packs
+              </a>
+            </div>
+          </section>
+
           <!-- AmbientPixels Merch -->
           <section class="card-section grid-col-4">
             <a href="/projects/merch/" class="card-image-link">
               <img src="/images/artwork/sine-wave.jpg" alt="AmbientPixels Merchandise" class="card-image" loading="lazy">
             </a>
-              <div class="card-content">
-                <h3>AmbientPixels Merch</h3>
-                <div class="role-tags">
-                  <span class="role-tag role-design"><i class="fas fa-palette"></i> Design</span>
-                  <span class="role-tag role-product"><i class="fas fa-shopping-cart"></i> Product</span>
-                </div>
-                <p>Explore our collection of cosmic-inspired merchandise. From posters and apparel to stickers and more, each piece features our signature glitch art and abstract designs.</p>
-                <a href="/projects/merch/" class="btn btn-secondary">
-                  <i class="fas fa-external-link-alt"></i> Shop Collection
-                </a>
+            <div class="card-content">
+              <h3>Merch</h3>
+              <div class="role-tags">
+                <span class="role-tag role-design"><i class="fas fa-palette"></i> Design</span>
+                <span class="role-tag role-product"><i class="fas fa-shopping-cart"></i> Product</span>
               </div>
+              <p>Original artwork on print-on-demand products.</p>
+              <a href="/projects/merch/" class="btn btn-secondary">
+                <i class="fas fa-external-link-alt"></i> Shop Collection
+              </a>
+            </div>
           </section>
 
           <!-- YouTube Channel -->
           <section class="card-section grid-col-4">
             <a href="/projects/youtube.html" class="card-image-link">
-              <img src="/images/nova/YouTube_banner_glowing_dreamlike_landscape.png" alt="YouTube Channel Banner" class="card-image" loading="lazy">
-            </a>
-              <div class="card-content">
-                <h3>YouTube Channel</h3>
-                <div class="role-tags">
-                  <span class="role-tag role-video"><i class="fas fa-video"></i> Video</span>
-                  <span class="role-tag role-community"><i class="fas fa-users"></i> Community</span>
-                </div>
-                <p>Explore our ambient environments through video. Subscribe for the latest updates and creative tech projects. From glitch aesthetics to system logs.</p>
-                <a href="/projects/youtube.html" class="btn btn-secondary">
-                  <i class="fas fa-external-link-alt"></i> View Channel
-                </a>
-              </div>
-          </section>
-
-          <!-- Nova's Tools Lab -->
-          <section class="card-section grid-col-4">
-            <a href="/lab/" class="card-image-link">
-              <img src="/images/textures/delchron_texture_in_the_style_of_Microbiology_and_futurism_ultr.jpg" alt="Nova's Tools Lab" class="card-image" loading="lazy">
+              <img src="/images/nova/YouTube_banner_glowing_dreamlike_landscape.png" alt="YouTube Channel" class="card-image" loading="lazy">
             </a>
             <div class="card-content">
-              <h3>Nova's Tools Lab</h3>
+              <h3>YouTube</h3>
               <div class="role-tags">
-                <span class="role-tag role-development"><i class="fas fa-code"></i> Development</span>
-                <span class="role-tag role-experimental"><i class="fas fa-flask"></i> Experimental</span>
+                <span class="role-tag role-video"><i class="fas fa-video"></i> Video</span>
               </div>
-              <p>Experimental tools, scripts, and utilities created for Nova. This section showcases the technical side of our creative process.</p>
-              <a href="/lab/" class="btn btn-secondary">
-                <i class="fas fa-external-link-alt"></i> Explore Tools
+              <p>Ambient environments and creative tech content.</p>
+              <a href="/projects/youtube.html" class="btn btn-secondary">
+                <i class="fas fa-external-link-alt"></i> View Channel
               </a>
             </div>
           </section>
@@ -900,186 +255,5 @@
   <script src="/js/theme.js" defer></script>
   <script src="/js/nav.js" defer></script>
   <script src="/js/main.js" defer></script>
-  <script src="/modules/breadcrumb.js" defer></script> <!-- updated by Cascade -->
-  
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      // Initialize the AI Pipeline
-      initAIPipeline();
-      
-      // Initialize collapsible sections
-      initCollapsibleSections();
-    });
-    
-    function initAIPipeline() {
-      const track = document.getElementById('pipeline-track');
-      const prevBtn = document.getElementById('pipeline-prev');
-      const nextBtn = document.getElementById('pipeline-next');
-      const progressBar = document.getElementById('pipeline-progress');
-      const statusText = document.getElementById('pipeline-status');
-      const statusVoice = document.getElementById('pipeline-status-voice');
-      const indicatorsContainer = document.getElementById('stage-indicators');
-      
-      if (!track || !prevBtn || !nextBtn || !progressBar || !statusText || !statusVoice || !indicatorsContainer) {
-        console.warn('AI Pipeline: Required elements not found');
-        return;
-      }
-      
-      const stages = Array.from(track.querySelectorAll('.pipeline-stage'));
-      const totalStages = stages.length;
-      let currentStage = 0;
-      let isAnimating = false;
-      
-      // Create stage indicators
-      stages.forEach((_, index) => {
-        const indicator = document.createElement('button');
-        indicator.className = 'stage-indicator';
-        indicator.setAttribute('aria-label', `Go to stage ${index + 1}`);
-        indicator.addEventListener('click', () => goToStage(index));
-        indicatorsContainer.appendChild(indicator);
-      });
-      
-      const indicators = Array.from(indicatorsContainer.querySelectorAll('.stage-indicator'));
-      
-      // Update the UI based on current stage
-      function updateUI() {
-        // Update progress bar
-        const progress = ((currentStage + 1) / totalStages) * 100;
-        progressBar.style.width = `${progress}%`;
-        
-        // Update buttons
-        prevBtn.disabled = currentStage === 0;
-        nextBtn.disabled = currentStage === totalStages - 1;
-        
-        // Update indicators
-        indicators.forEach((indicator, index) => {
-          if (index === currentStage) {
-            indicator.classList.add('active');
-            indicator.setAttribute('aria-current', 'true');
-          } else {
-            indicator.classList.remove('active');
-            indicator.removeAttribute('aria-current');
-          }
-        });
-        
-        // Update status text
-        const stageTitles = stages.map(stage => stage.querySelector('h3').textContent.trim());
-        statusText.textContent = `Stage ${currentStage + 1} of ${totalStages}: ${stageTitles[currentStage]}`;
-        
-        // Update status voice (Nova voice)
-        const statusMessages = [
-          '// Pipeline status: active. Ideation phase initiated. Creative flow: optimal.',
-          '// Motion design systems engaged. Visual rhythm: synchronized.',
-          '// Asset generation in progress. Creative parameters: within spec.',
-          '// Voice synthesis active. Tone matrix: calibrated.',
-          '// Project management systems online. Task completion: 87%.',
-          '// Review cycle complete. Quality assurance: passed.'
-        ];
-        statusVoice.textContent = statusMessages[currentStage] || '// Pipeline status: active. Systems nominal.';
-      }
-      
-      // Navigate to a specific stage
-      function goToStage(stageIndex) {
-        if (stageIndex < 0 || stageIndex >= totalStages || isAnimating) return;
-        
-        isAnimating = true;
-        currentStage = stageIndex;
-        
-        // Get the target stage and its position
-        const stageElement = stages[stageIndex];
-        const containerWidth = track.offsetWidth;
-        const targetScroll = stageElement.offsetLeft - ((containerWidth - stageElement.offsetWidth) / 2);
-        
-        // Smooth scroll to the stage
-        track.scrollTo({
-          left: targetScroll,
-          behavior: 'smooth'
-        });
-        
-        // Update UI after scroll
-        setTimeout(() => {
-          updateUI();
-          isAnimating = false;
-        }, 300);
-      }
-      
-      // Event listeners
-      prevBtn.addEventListener('click', () => goToStage(currentStage - 1));
-      nextBtn.addEventListener('click', () => goToStage(currentStage + 1));
-      
-      // Keyboard navigation
-      document.addEventListener('keydown', (e) => {
-        if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') {
-          return; // Don't interfere with form inputs
-        }
-        
-        switch (e.key) {
-          case 'ArrowLeft':
-            goToStage(currentStage - 1);
-            break;
-          case 'ArrowRight':
-            goToStage(currentStage + 1);
-            break;
-          case 'Home':
-            e.preventDefault();
-            goToStage(0);
-            break;
-          case 'End':
-            e.preventDefault();
-            goToStage(totalStages - 1);
-            break;
-        }
-      });
-      
-      // Touch/swipe support
-      let touchStartX = 0;
-      let touchEndX = 0;
-      
-      track.addEventListener('touchstart', (e) => {
-        touchStartX = e.touches[0].clientX;
-      }, { passive: true });
-      
-      track.addEventListener('touchend', (e) => {
-        if (!touchStartX) return;
-        
-        touchEndX = e.changedTouches[0].clientX;
-        const diff = touchStartX - touchEndX;
-        
-        // Minimum swipe distance (in pixels)
-        if (Math.abs(diff) > 50) {
-          if (diff > 0) {
-            // Swipe left - go to next
-            goToStage(Math.min(currentStage + 1, totalStages - 1));
-          } else {
-            // Swipe right - go to previous
-            goToStage(Math.max(currentStage - 1, 0));
-          }
-        }
-        
-        touchStartX = 0;
-        touchEndX = 0;
-      }, { passive: true });
-      
-      // Initial UI update
-      updateUI();
-    }
-    
-    function initCollapsibleSections() {
-      const collapsibleButtons = document.querySelectorAll('.collapsible-button');
-      
-      collapsibleButtons.forEach(button => {
-        button.addEventListener('click', () => {
-          const isExpanded = button.getAttribute('aria-expanded') === 'true';
-          button.setAttribute('aria-expanded', !isExpanded);
-          
-          // Toggle icon
-          const icon = button.querySelector('i');
-          if (icon) {
-            icon.className = isExpanded ? 'fas fa-chevron-down' : 'fas fa-chevron-up';
-          }
-        });
-      });
-    }
-  </script>
 </body>
 </html>

@@ -1,3 +1,84 @@
+/* ===== Projects Hub — Gradient Hero ===== */
+
+.prj-hero {
+  position: relative;
+  margin-top: 85px;
+  min-height: 280px;
+  display: flex;
+  align-items: center;
+  background:
+    linear-gradient(
+      to right,
+      var(--nv-bg) 0%,
+      rgba(0, 0, 0, 0.55) 50%,
+      transparent 100%
+    ),
+    url('/images/projects1.png') center right / cover no-repeat;
+  border-bottom: 1px solid var(--nv-border);
+}
+
+.prj-hero-content {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 3.5rem 1.5rem;
+  width: 100%;
+}
+
+.prj-hero-content h1 {
+  margin: 0 0 0.3rem;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--nv-text);
+}
+
+.prj-hero-content h2 {
+  margin: 0 0 0.8rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--nv-accent);
+}
+
+.prj-hero-content p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--nv-text-secondary);
+  max-width: 560px;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  .prj-hero { min-height: 220px; }
+  .prj-hero-content { padding: 2.5rem 1.2rem; }
+  .prj-hero-content h1 { font-size: 1.6rem; }
+}
+
+@media (max-width: 480px) {
+  .prj-hero { min-height: 180px; }
+  .prj-hero-content h1 { font-size: 1.4rem; }
+}
+
+/* ===== End Projects Hub Hero ===== */
+
+/* ===== Featured Section Emphasis ===== */
+.grid-container > .xbox-section:first-child {
+  padding-top: 0.5rem;
+  padding-bottom: 0.75rem;
+}
+.grid-container > .xbox-section:first-child .xbox-section-title {
+  font-size: 1.35rem;
+}
+/* ===== End Featured Section Emphasis ===== */
+
+/* ===== Case Study Role Line ===== */
+.cs-roleline {
+  margin: 0.4rem 0 0;
+  font-size: 0.85rem;
+  color: var(--nv-text-tertiary, rgba(255, 255, 255, 0.45));
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+}
+/* ===== End Case Study Role Line ===== */
+
 /* File: /css/projects.css - Ambient Pixels v2.4 - June 19, 2025 */
 
 /* --- Custom Bulleted List Fixes (2025-06-19) --- */
