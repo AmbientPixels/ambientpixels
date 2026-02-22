@@ -16,16 +16,17 @@
   <link rel="stylesheet" href="/css/banner.css" />
   <link rel="stylesheet" href="/css/projects.css" />
   <link rel="stylesheet" href="/css/forms.css" />
+  <link rel="stylesheet" href="/css/hero-base.css" />
   <style>
     /* Engage — Scoped Styles */
 
-    .prj-hero-content {
+    .eng-hero .hero-base-content {
       padding: 4.25rem 1.5rem;
     }
-    .prj-hero-content p {
+    .eng-hero .hero-base-content p {
       line-height: 1.75;
     }
-    .prj-hero-content h2 {
+    .eng-hero .hero-base-content h2 {
       font-weight: 500;
     }
 
@@ -207,7 +208,7 @@
     }
 
     @media (max-width: 600px) {
-      .prj-hero-content { padding: 3rem 1.2rem; }
+      .eng-hero .hero-base-content { padding: 3rem 1.2rem; }
       .eng-form-row { flex-direction: column; gap: 0; }
       .eng-process { grid-template-columns: 1fr 1fr; }
     }
@@ -217,8 +218,9 @@
   <header id="nav-header"></header>
 
   <!-- Hero -->
-  <section class="prj-hero" style="background: linear-gradient(135deg, rgba(7,16,25,0.9), rgba(7,16,25,0.7)), url('/images/textures/delchron_microscopic_ultra_close-up_of_futuristic_surface_textu.png') center/cover no-repeat;">
-    <div class="prj-hero-content">
+  <section class="hero-base eng-hero" data-hero="architect">
+    <div class="hero-base-layer"></div>
+    <div class="hero-base-content">
       <p class="nv-breadcrumb"><a href="/">Home</a> / Engage</p>
       <h1>Start Your System</h1>
       <h2>Structured AI-native infrastructure, built for production environments.</h2>

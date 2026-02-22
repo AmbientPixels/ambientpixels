@@ -15,17 +15,18 @@
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
   <link rel="stylesheet" href="/css/projects.css" />
+  <link rel="stylesheet" href="/css/hero-base.css" />
   <style>
     /* Studio — Scoped Styles */
 
     /* 1. Hero — increased vertical padding + paragraph rhythm */
-    .prj-hero-content {
+    .stu-hero .hero-base-content {
       padding: 4.25rem 1.5rem;
     }
-    .prj-hero-content p {
+    .stu-hero .hero-base-content p {
       line-height: 1.75;
     }
-    .prj-hero-content h2 {
+    .stu-hero .hero-base-content h2 {
       font-weight: 500;
     }
 
@@ -196,7 +197,7 @@
       .stu-flow { flex-direction: column; }
       .stu-flow-arrow { transform: rotate(90deg); padding: 0.25rem 0; }
       .stu-principles { grid-template-columns: 1fr; }
-      .prj-hero-content { padding: 3rem 1.2rem; }
+      .stu-hero .hero-base-content { padding: 3rem 1.2rem; }
     }
   </style>
 </head>
@@ -204,8 +205,9 @@
   <header id="nav-header"></header>
 
   <!-- Hero -->
-  <section class="prj-hero" style="background: linear-gradient(135deg, rgba(7,16,25,0.9), rgba(7,16,25,0.7)), url('/images/textures/delchron_extreme_close-up_of_a_holographic_digital_dashboard_in.jpg') center/cover no-repeat;">
-    <div class="prj-hero-content">
+  <section class="hero-base stu-hero" data-hero="architect">
+    <div class="hero-base-layer"></div>
+    <div class="hero-base-content">
       <p class="nv-breadcrumb"><a href="/">Home</a> / Studio</p>
       <h1>The Studio</h1>
       <h2>AI-native systems designed for production environments.</h2>

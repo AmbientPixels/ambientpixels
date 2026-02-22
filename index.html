@@ -15,70 +15,32 @@
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/forms.css" />
   <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/css/hero-base.css" />
   <style>
     /* ── Home — Scoped Styles ── */
     :root {
-      --h-accent: #4a7c9b;
-      --h-accent-light: #5b9fc2;
-      --h-accent-dim: rgba(74, 124, 155, 0.12);
+      --h-accent: var(--hero-accent);
+      --h-accent-light: var(--hero-accent-soft);
+      --h-accent-dim: hsla(var(--hero-accent-h), var(--hero-accent-s), var(--hero-accent-l), 0.12);
     }
 
-    /* ── Hero ── */
-    .h-hero {
-      position: relative;
-      min-height: 520px;
-      display: flex;
-      align-items: center;
+    /* ── Hero (Home overrides) ── */
+    .h-home-hero {
+      min-height: var(--hero-max-h);
       justify-content: center;
-      margin-top: 85px;
-      overflow: hidden;
     }
-    .h-hero-grid {
-      position: absolute;
-      inset: 0;
-      z-index: 0;
-      opacity: 0.12;
-      background-image:
-        linear-gradient(rgba(74,124,155,0.3) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(74,124,155,0.3) 1px, transparent 1px);
-      background-size: 60px 60px;
-      animation: gridDrift 30s linear infinite;
-    }
-    @keyframes gridDrift {
-      0%   { background-position: 0 0; }
-      100% { background-position: 60px 60px; }
-    }
-    .h-hero-content {
-      position: relative;
-      z-index: 1;
-      max-width: 860px;
-      padding: 4rem 1.5rem;
+    .h-home-hero .hero-base-content {
       text-align: center;
     }
-    .h-hero-content h1 {
-      font-size: 3.5rem;
-      font-weight: 700;
-      line-height: 1.1;
-      margin: 0 0 0.35rem;
-      letter-spacing: -0.02em;
-    }
-    .h-hero-content h1 span {
-      display: block;
-      color: var(--h-accent);
-      font-weight: 600;
-      margin-top: 0.35rem;
-      min-height: 1.15em;
-    }
-    .h-hero-content .h-subhead {
-      font-size: 1.15rem;
+    .h-home-hero .hero-base-content .h-subhead {
+      font-size: 1.05rem;
       line-height: 1.6;
-      max-width: 740px;
-      margin: 1.6rem auto 0;
+      margin: var(--hero-gap-3) auto 0;
       opacity: 0.6;
     }
     .h-hero-cta {
       display: flex;
-      gap: 0.75rem;
+      gap: var(--hero-cta-gap);
       justify-content: center;
       margin-top: 2rem;
     }
@@ -97,15 +59,15 @@
       letter-spacing: 0.01em;
     }
     .h-btn-primary {
-      background: var(--h-accent);
+      background: var(--hero-accent);
       color: #fff;
-      border: 1px solid var(--h-accent);
+      border: 1px solid var(--hero-accent);
     }
     .h-btn-primary:hover {
-      background: var(--h-accent-light);
-      border-color: var(--h-accent-light);
+      background: var(--hero-accent-soft);
+      border-color: var(--hero-accent-soft);
       transform: translateY(-1px);
-      box-shadow: 0 4px 14px rgba(74, 124, 155, 0.25);
+      box-shadow: 0 4px 14px hsla(var(--hero-accent-h), var(--hero-accent-s), var(--hero-accent-l), 0.25);
     }
     .h-btn-secondary {
       background: transparent;
@@ -113,8 +75,8 @@
       border: 1px solid rgba(128,128,128,0.25);
     }
     .h-btn-secondary:hover {
-      border-color: var(--h-accent);
-      color: var(--h-accent);
+      border-color: var(--hero-accent);
+      color: var(--hero-accent);
       transform: translateY(-1px);
     }
 
@@ -309,9 +271,6 @@
     }
 
     /* ── Light theme ── */
-    [data-theme="light"] .h-hero-grid {
-      opacity: 0.08;
-    }
     [data-theme="light"] .h-proof,
     [data-theme="light"] .h-flow-step {
       border-color: #e2e8f0;
@@ -322,13 +281,22 @@
     [data-theme="light"] .h-principle {
       border-left-color: rgba(74, 124, 155, 0.5);
     }
+    [data-theme="light"] .h-btn-primary {
+      background: var(--hero-accent);
+      border-color: var(--hero-accent);
+      color: #fff;
+    }
+    [data-theme="light"] .h-btn-primary:hover {
+      background: var(--hero-accent-soft);
+      border-color: var(--hero-accent-soft);
+    }
     [data-theme="light"] .h-btn-secondary {
       border-color: #d1d5db;
       color: #334155;
     }
     [data-theme="light"] .h-btn-secondary:hover {
-      border-color: var(--h-accent);
-      color: var(--h-accent);
+      border-color: var(--hero-accent);
+      color: var(--hero-accent);
     }
     [data-theme="light"] .h-divider {
       border-top-color: #e2e8f0;
@@ -336,9 +304,8 @@
 
     /* ── Responsive ── */
     @media (max-width: 768px) {
-      .h-hero { min-height: 400px; margin-top: 70px; }
-      .h-hero-content h1 { font-size: 2.4rem; }
-      .h-hero-content .h-subhead { font-size: 1rem; }
+      .h-home-hero { min-height: 360px; }
+      .h-home-hero .hero-base-content .h-subhead { font-size: 0.95rem; }
       .h-hero-cta { flex-direction: column; align-items: center; }
       .h-cards { grid-template-columns: 1fr; }
       .h-proof-grid { grid-template-columns: 1fr; }
@@ -348,7 +315,6 @@
       .h-section h2 { font-size: 1.6rem; }
     }
     @media (max-width: 480px) {
-      .h-hero-content h1 { font-size: 2rem; }
       .h-principles { grid-template-columns: 1fr; }
     }
   </style>
@@ -357,9 +323,9 @@
   <header id="nav-header"></header>
 
   <!-- Hero -->
-  <section class="h-hero">
-    <div class="h-hero-grid"></div>
-    <div class="h-hero-content">
+  <section class="hero-base h-home-hero" data-hero="infrastructure">
+    <div class="hero-base-layer"></div>
+    <div class="hero-base-content">
       <h1 id="h-headline">Structured AI Systems.<span>Governed for Production.</span></h1>
       <p class="h-subhead">AmbientPixels designs and governs modular AI infrastructure for teams building at scale.</p>
       <div class="h-hero-cta">

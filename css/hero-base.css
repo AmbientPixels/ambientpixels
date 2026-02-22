@@ -1,0 +1,361 @@
+/* ══════════════════════════════════════════════════
+   HeroBase — Unified Hero System
+   Token-driven layout + 3 data-hero variants
+   ══════════════════════════════════════════════════ */
+
+/* ── 1. Tokens ── */
+:root {
+  /* Layout */
+  --hero-min-h: 360px;
+  --hero-max-h: 520px;
+  --hero-pad-y: clamp(48px, 6vw, 84px);
+  --hero-pad-x: clamp(20px, 4vw, 48px);
+  --hero-content-max: 980px;
+
+  /* Typography */
+  --hero-h1-size: clamp(32px, 4.6vw, 56px);
+  --hero-h1-weight: 650;
+  --hero-h1-line: 1.05;
+  --hero-h2-size: clamp(22px, 3.4vw, 40px);
+  --hero-h2-weight: 600;
+  --hero-h2-line: 1.1;
+  --hero-sub-size: 14px;
+  --hero-sub-line: 1.55;
+  --hero-sub-max: 760px;
+
+  /* Spacing */
+  --hero-gap-1: 10px;
+  --hero-gap-2: 12px;
+  --hero-gap-3: 18px;
+  --hero-cta-gap: 10px;
+
+  /* Surface + Overlay Opacity */
+  --hero-vignette: 0.72;
+  --hero-noise: 0.05;
+  --hero-grid: 0.12;
+  --hero-overlay: 0.14;
+
+  /* Accent */
+  --hero-accent-h: 200;
+  --hero-accent-s: 50%;
+  --hero-accent-l: 62%;
+  --hero-accent: hsl(var(--hero-accent-h) var(--hero-accent-s) var(--hero-accent-l));
+  --hero-accent-soft: hsl(var(--hero-accent-h) var(--hero-accent-s) calc(var(--hero-accent-l) + 10%));
+
+  /* Background Base Colors */
+  --hero-bg-0: #070c12;
+  --hero-bg-1: #08111d;
+  --hero-bg-2: #0a1727;
+
+  /* Borders */
+  --panel-border: rgba(255,255,255,0.08);
+  --panel-border-soft: rgba(255,255,255,0.05);
+}
+
+/* ── 2. HeroBase Component ── */
+.hero-base {
+  position: relative;
+  margin-top: 85px;
+  min-height: var(--hero-min-h);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  isolation: isolate;
+  background:
+    linear-gradient(180deg, var(--hero-bg-2) 0%, var(--hero-bg-1) 45%, var(--hero-bg-0) 100%);
+}
+
+/* Content wrapper */
+.hero-base-content {
+  position: relative;
+  z-index: 3;
+  max-width: var(--hero-content-max);
+  margin: 0 auto;
+  padding: var(--hero-pad-y) var(--hero-pad-x);
+  width: 100%;
+}
+
+/* Typography */
+.hero-base-content h1 {
+  margin: 0 0 var(--hero-gap-1);
+  font-size: var(--hero-h1-size);
+  font-weight: var(--hero-h1-weight);
+  line-height: var(--hero-h1-line);
+  letter-spacing: -0.02em;
+  color: #ffffff;
+}
+
+.hero-base-content h1 span {
+  display: block;
+  color: var(--hero-accent);
+  font-weight: var(--hero-h2-weight);
+  line-height: var(--hero-h2-line);
+  margin-top: 0.2em;
+  min-height: 1.15em;
+}
+
+.hero-base-content h2 {
+  margin: 0 0 var(--hero-gap-2);
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--hero-accent);
+  line-height: var(--hero-h2-line);
+}
+
+.hero-base-content p {
+  margin: 0;
+  font-size: var(--hero-sub-size);
+  max-width: var(--hero-sub-max);
+  line-height: var(--hero-sub-line);
+  color: rgba(255,255,255,0.78);
+}
+
+.hero-base-content .nv-breadcrumb {
+  opacity: 1;
+  margin-bottom: 0.5rem;
+}
+
+.hero-base-content .subtitle {
+  margin-top: var(--hero-gap-2);
+}
+
+/* CTA row */
+.hero-base-content .hero-cta,
+.hero-base-content .h-hero-cta {
+  display: flex;
+  gap: var(--hero-cta-gap);
+  margin-top: var(--hero-gap-3);
+}
+
+/* ── Pseudo Layers ── */
+.hero-base::before,
+.hero-base::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Noise grain (::before) */
+.hero-base::before {
+  z-index: 1;
+  opacity: var(--hero-noise);
+  background-image:
+    repeating-radial-gradient(circle at 17% 32%, transparent 0, rgba(255,255,255,0.03) 1px, transparent 2px),
+    repeating-radial-gradient(circle at 62% 78%, transparent 0, rgba(255,255,255,0.02) 1px, transparent 3px),
+    repeating-radial-gradient(circle at 89% 14%, transparent 0, rgba(255,255,255,0.025) 1px, transparent 2px);
+  background-size: 180px 180px, 220px 220px, 160px 160px;
+}
+
+/* Micro-grid (::after) */
+.hero-base::after {
+  z-index: 1;
+  opacity: var(--hero-grid);
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.08) 0, rgba(255,255,255,0.08) 1px, transparent 1px, transparent 48px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.08) 0, rgba(255,255,255,0.08) 1px, transparent 1px, transparent 48px);
+}
+
+/* Overlay div — variant-specific layers */
+.hero-base-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: var(--hero-overlay);
+}
+
+/* ══════════════════════════════════════════════════
+   A) infrastructure (Home)
+   Brighter center illumination + stronger grid +
+   faint diagonal topology lines
+   ══════════════════════════════════════════════════ */
+[data-hero="infrastructure"] {
+  --hero-grid: 0.15;
+  --hero-overlay: 0.16;
+  background:
+    linear-gradient(180deg, var(--hero-bg-2) 0%, var(--hero-bg-1) 40%, var(--hero-bg-0) 100%);
+}
+
+[data-hero="infrastructure"] .hero-base-layer {
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.07) 0, rgba(255,255,255,0.07) 1px, transparent 1px, transparent 56px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.07) 0, rgba(255,255,255,0.07) 1px, transparent 1px, transparent 56px),
+    repeating-linear-gradient(135deg, rgba(255,255,255,0.03) 0, rgba(255,255,255,0.03) 1px, transparent 1px, transparent 80px);
+}
+
+/* ══════════════════════════════════════════════════
+   B) control (Nova)
+   Clean grid + faint horizontal rule under content
+   ══════════════════════════════════════════════════ */
+[data-hero="control"] .hero-base-layer {
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 48px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 48px);
+}
+
+[data-hero="control"] .hero-base-layer::before,
+[data-hero="control"] .hero-base-layer::after {
+  content: none;
+}
+
+/* Horizontal rule under subhead */
+.hero-rule {
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(255,255,255,0.18), transparent);
+  opacity: 0.4;
+  margin-top: 18px;
+  border: none;
+}
+
+/* Micro status row */
+.hero-status {
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.55);
+  margin-top: 14px;
+}
+
+/* ══════════════════════════════════════════════════
+   C) architect (Studio, Engage, Services, Projects)
+   Most restrained — flatter gradient, reduced overlays
+   ══════════════════════════════════════════════════ */
+[data-hero="architect"] {
+  --hero-grid: 0.10;
+  --hero-overlay: 0.10;
+  background:
+    linear-gradient(to bottom, rgba(255,255,255,0.03), transparent 40%),
+    linear-gradient(180deg, var(--hero-bg-2) 0%, var(--hero-bg-1) 40%, var(--hero-bg-0) 100%);
+}
+
+[data-hero="architect"] .hero-base-content h1 {
+  letter-spacing: -0.01em;
+}
+
+[data-hero="architect"] .hero-base-layer {
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.04) 0, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 48px),
+    repeating-linear-gradient(90deg, rgba(255,255,255,0.04) 0, rgba(255,255,255,0.04) 1px, transparent 1px, transparent 48px);
+}
+
+/* ══════════════════════════════════════════════════
+   Light Theme Overrides
+   ══════════════════════════════════════════════════ */
+
+/* Token overrides */
+[data-theme="light"] .hero-base {
+  --hero-bg-0: #f5f7fa;
+  --hero-bg-1: #edf0f5;
+  --hero-bg-2: #e4e9f0;
+  --hero-accent-l: 42%;
+  --panel-border: rgba(0,0,0,0.06);
+  --panel-border-soft: rgba(0,0,0,0.04);
+}
+
+/* Text colors */
+[data-theme="light"] .hero-base-content h1 {
+  color: #0f172a;
+}
+
+[data-theme="light"] .hero-base-content p {
+  color: rgba(15,23,42,0.65);
+}
+
+[data-theme="light"] .hero-base-content .nv-breadcrumb,
+[data-theme="light"] .hero-base-content .nv-breadcrumb a {
+  color: rgba(15,23,42,0.55);
+}
+
+/* Noise — reduce for light */
+[data-theme="light"] .hero-base::before {
+  opacity: 0.02;
+  background-image:
+    repeating-radial-gradient(circle at 17% 32%, transparent 0, rgba(0,0,0,0.02) 1px, transparent 2px),
+    repeating-radial-gradient(circle at 62% 78%, transparent 0, rgba(0,0,0,0.015) 1px, transparent 3px),
+    repeating-radial-gradient(circle at 89% 14%, transparent 0, rgba(0,0,0,0.02) 1px, transparent 2px);
+}
+
+/* Micro-grid — flip to dark lines */
+[data-theme="light"] .hero-base::after {
+  opacity: 0.18;
+  background-image:
+    repeating-linear-gradient(0deg, rgba(0,0,0,0.10) 0, rgba(0,0,0,0.10) 1px, transparent 1px, transparent 48px),
+    repeating-linear-gradient(90deg, rgba(0,0,0,0.10) 0, rgba(0,0,0,0.10) 1px, transparent 1px, transparent 48px);
+}
+
+/* Overlay layer */
+[data-theme="light"] .hero-base-layer {
+  opacity: calc(var(--hero-overlay) * 0.8);
+}
+
+/* Infrastructure variant — dark grid lines */
+[data-theme="light"] [data-hero="infrastructure"] .hero-base-layer {
+  background-image:
+    repeating-linear-gradient(0deg, rgba(0,0,0,0.12) 0, rgba(0,0,0,0.12) 1px, transparent 1px, transparent 56px),
+    repeating-linear-gradient(90deg, rgba(0,0,0,0.12) 0, rgba(0,0,0,0.12) 1px, transparent 1px, transparent 56px),
+    repeating-linear-gradient(135deg, rgba(0,0,0,0.04) 0, rgba(0,0,0,0.04) 1px, transparent 1px, transparent 80px);
+}
+
+/* Control variant — dark grid lines */
+[data-theme="light"] [data-hero="control"] .hero-base-layer {
+  background-image:
+    repeating-linear-gradient(0deg, rgba(0,0,0,0.10) 0, rgba(0,0,0,0.10) 1px, transparent 1px, transparent 48px),
+    repeating-linear-gradient(90deg, rgba(0,0,0,0.10) 0, rgba(0,0,0,0.10) 1px, transparent 1px, transparent 48px);
+}
+
+/* Architect variant — flip top fade + dark grid */
+[data-theme="light"] [data-hero="architect"] {
+  background:
+    linear-gradient(to bottom, rgba(0,0,0,0.02), transparent 40%),
+    linear-gradient(180deg, var(--hero-bg-2) 0%, var(--hero-bg-1) 40%, var(--hero-bg-0) 100%);
+}
+
+[data-theme="light"] [data-hero="architect"] .hero-base-layer {
+  background-image:
+    repeating-linear-gradient(0deg, rgba(0,0,0,0.08) 0, rgba(0,0,0,0.08) 1px, transparent 1px, transparent 48px),
+    repeating-linear-gradient(90deg, rgba(0,0,0,0.08) 0, rgba(0,0,0,0.08) 1px, transparent 1px, transparent 48px);
+}
+
+/* Hero rule — flip to dark */
+[data-theme="light"] .hero-rule {
+  background: linear-gradient(to right, transparent, rgba(0,0,0,0.15), transparent);
+}
+
+/* Hero status — dark text */
+[data-theme="light"] .hero-status {
+  color: rgba(15,23,42,0.45);
+}
+
+
+/* ══════════════════════════════════════════════════
+   Accessibility: Reduced Motion
+   ══════════════════════════════════════════════════ */
+@media (prefers-reduced-motion: reduce) {
+  .hero-base,
+  .hero-base::before,
+  .hero-base::after,
+  .hero-base-layer {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* ══════════════════════════════════════════════════
+   Responsive
+   ══════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  .hero-base {
+    min-height: 280px;
+    margin-top: 70px;
+  }
+  .hero-base-content h1 {
+    font-size: clamp(26px, 5.5vw, 36px);
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-base {
+    min-height: 240px;
+  }
+}
