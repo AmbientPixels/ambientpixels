@@ -113,6 +113,15 @@
   outline: none;
 }
 
+/* Light theme */
+[data-theme="light"] .nav-auth-btn {
+  color: #1a2a44 !important;
+}
+[data-theme="light"] .nav-auth-btn:hover,
+[data-theme="light"] .nav-auth-btn:focus {
+  background: rgba(0,0,0,0.06);
+  color: #1a2a44;
+}
 
 /* --- Mobile Toggle Button --- */
 .nav-toggle {
