@@ -1,9 +1,9 @@
 {
-  "scannedAt": "2026-02-21T13:44:36.659Z",
+  "scannedAt": "2026-02-22T13:45:58.775Z",
   "folders": [
     {
       "folder": "images",
-      "count": 32,
+      "count": 39,
       "files": [
         "images/ambient-pixel-logo-rainbow.png",
         "images/deviant-source.png",
@@ -33,9 +33,16 @@
         "images/hero-v7.jpg",
         "images/hero-v8.jpg",
         "images/hero-v9.jpg",
+        "images/lab1.png",
+        "images/lab2.png",
+        "images/lab3.png",
         "images/mini-hero-v1.jpg",
         "images/mini-hero-v2.jpg",
         "images/mini-hero-v3.jpg",
+        "images/projects1.png",
+        "images/projects2.png",
+        "images/services1.png",
+        "images/services2.png",
         "images/socials.png"
       ]
     },
@@ -604,5 +611,5 @@
       ]
     }
   ],
-  "totalImages": 398
+  "totalImages": 405
 }
