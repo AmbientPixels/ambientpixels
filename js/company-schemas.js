@@ -17,7 +17,7 @@ var CompanySchemas = (function () {
   var RISK_LEVELS = ['low', 'medium', 'high'];
   var BRAND_IMPACTS = ['low', 'medium', 'high'];
   var DIRECTIVE_STATUSES = ['pending-approval', 'active', 'completed', 'paused'];
-  var OBJECTIVE_STATUSES = ['on_track', 'at_risk', 'behind', 'complete'];
+  var OBJECTIVE_STATUSES = ['on_track', 'at_risk', 'behind', 'complete', 'canceled'];
   var QUARTERS = ['Q1', 'Q2', 'Q3', 'Q4'];
   var LOG_TYPES = ['heartbeat', 'standup', 'task-created', 'task-updated', 'task-moved', 'chat', 'cron', 'error', 'morning-report', 'agent-action', 'ceo-approval', 'ceo-reject', 'ceo-override', 'ceo-revision', 'escalation', 'directive-created', 'objective-created', 'action-created', 'action-approved', 'action-rejected', 'action-running', 'action-success', 'action-failed', 'publish-requested', 'publish-approved', 'publish-rejected', 'publish-executed', 'publish-failed'];
 

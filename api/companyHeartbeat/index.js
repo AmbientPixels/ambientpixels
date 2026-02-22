@@ -510,6 +510,11 @@ function _isInProgressStatus(status) {
   return normalized === 'in-progress' || normalized === 'in_progress';
 }
 
+function _isStartWorkStatus(status) {
+  const normalized = String(status || '').trim().toLowerCase();
+  return normalized === 'active' || _isInProgressStatus(normalized);
+}
+
 function _isTerminalTaskStatus(s) {
   return ['done', 'completed', 'closed'].includes(String(s || '').toLowerCase());
 }
@@ -857,6 +862,7 @@ module.exports = async function (context) {
       objective_status: 0,
       observation_clamp: 0
     };
+    const _objectiveStatusBlockDetails = [];
     function _incPolicyGate(gate) {
       if (Object.prototype.hasOwnProperty.call(_runGateCounts, gate)) {
         _runGateCounts[gate]++;
@@ -1147,7 +1153,7 @@ module.exports = async function (context) {
                 continue;
               }
 
-              // Objective gate: require objective_id for create and transitions into in-progress unless exempt category
+              // Objective gate: require objective_id for create and transitions into start-work statuses unless exempt category
               let requiresObjective = false;
               let targetTask = null;
               if (mutationAction === 'create') {
@@ -1155,14 +1161,14 @@ module.exports = async function (context) {
               } else if (mutationAction === 'move') {
                 targetTask = tasks.find(t => t.id === update.taskId);
                 const oldStatus = targetTask ? targetTask.status : null;
-                if (_isInProgressStatus(update.newStatus) && !_isInProgressStatus(oldStatus)) {
+                if (_isStartWorkStatus(update.newStatus) && !_isStartWorkStatus(oldStatus)) {
                   requiresObjective = true;
                 }
               } else if (mutationAction === 'update') {
                 targetTask = tasks.find(t => t.id === update.taskId);
                 const oldStatus = targetTask ? targetTask.status : null;
                 const nextStatus = update.updates ? update.updates.status : null;
-                if (_isInProgressStatus(nextStatus) && !_isInProgressStatus(oldStatus)) {
+                if (_isStartWorkStatus(nextStatus) && !_isStartWorkStatus(oldStatus)) {
                   requiresObjective = true;
                 }
               }
@@ -1210,15 +1216,15 @@ module.exports = async function (context) {
                 }
               }
 
-              // Objective status gate: move/update transitions into in-progress require active objective
+              // Objective status gate: move/update transitions into start-work statuses require active objective
               if (mutationAction === 'move' || mutationAction === 'update') {
                 const oldStatus = targetTask ? targetTask.status : null;
                 const nextStatus = mutationAction === 'move'
                   ? update.newStatus
                   : (update.updates ? update.updates.status : null);
-                const entersInProgress = _isInProgressStatus(nextStatus) && !_isInProgressStatus(oldStatus);
+                const entersStartWork = _isStartWorkStatus(nextStatus) && !_isStartWorkStatus(oldStatus);
 
-                if (entersInProgress) {
+                if (entersStartWork) {
                   const objectiveIdOnTask = targetTask ? (targetTask.objective_id || null) : null;
                   const linkedObjective = objectiveIdOnTask
                     ? objectives.find(o => o.id === objectiveIdOnTask)
@@ -1228,6 +1234,11 @@ module.exports = async function (context) {
 
                   if (missingOrNotActive) {
                     _incBlocked(agentId);
+                    const objectiveBlockReason = objectiveStatus === 'complete'
+                      ? 'objective_completed'
+                      : objectiveStatus === 'canceled'
+                        ? 'objective_canceled'
+                        : 'objective_missing_or_not_active';
 
                     if (_canAddProposal(agentId)) {
                       const suggestedFix = linkedObjective
@@ -1256,7 +1267,7 @@ module.exports = async function (context) {
                             taskId: update.taskId || null,
                             objective_id: objectiveIdOnTask,
                             objective_status: objectiveStatus || 'missing',
-                            reason: 'objective_missing_or_not_active'
+                            reason: objectiveBlockReason
                           }
                         }
                       });
@@ -1267,11 +1278,20 @@ module.exports = async function (context) {
                     }
 
                     _incPolicyGate('objective_status');
+                    if (objectiveBlockReason === 'objective_canceled') {
+                      _objectiveStatusBlockDetails.push({
+                        objectiveId: objectiveIdOnTask || null,
+                        objectiveStatus: 'canceled',
+                        reason: 'objective_canceled'
+                      });
+                    }
                     await logEvent('policy-violation', agentId, 'Task mutation blocked by objective status gate', runId, {
                       runId: runId,
                       agentId: agentId,
                       gate: 'objective_status',
-                      reason: 'objective_missing_or_not_active',
+                      reason: objectiveBlockReason,
+                      objectiveId: objectiveIdOnTask || null,
+                      objectiveStatus: objectiveStatus || 'missing',
                       objective_id: objectiveIdOnTask,
                       taskId: update.taskId || null
                     });
@@ -1678,13 +1698,17 @@ module.exports = async function (context) {
       .slice(0, 3)
       .map(function (a) { return { agentId: a.agentId, proposals: a.proposals }; });
 
-    await logEvent('run-digest', null, 'Heartbeat run digest', runId, {
+    const _runDigestDetails = {
       runId: runId,
       mode: normalizedActivationMode,
       totals: _runCounters.totals,
       topBlockedAgents: topBlockedAgents,
       topProposalAgents: topProposalAgents
-    });
+    };
+    if (_objectiveStatusBlockDetails.length > 0) {
+      _runDigestDetails.objectiveStatusBlocks = _objectiveStatusBlockDetails;
+    }
+    await logEvent('run-digest', null, 'Heartbeat run digest', runId, _runDigestDetails);
 
     const blockedTotal = _runCounters.totals.blocked || 0;
     const proposalsTotal = _runCounters.totals.proposals || 0;
@@ -1693,6 +1717,7 @@ module.exports = async function (context) {
     if ((_runGateCounts.output_envelope || 0) > 0) reasons.push('output_envelope_violations');
     if ((_runGateCounts.proposal_schema || 0) > 0) reasons.push('proposal_schema_violations');
     if ((_runGateCounts.objective_status || 0) > 3) reasons.push('objective_status_gt_3');
+    if (_objectiveStatusBlockDetails.length > 0) reasons.push('objective_canceled_blocked');
     const status = reasons.length === 0 ? 'ok' : 'warn';
 
     await logEvent('run-health', null, 'Heartbeat run health: ' + status, runId, {

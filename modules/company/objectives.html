@@ -77,6 +77,10 @@
           <div class="stat-value" id="obj-complete" style="color:#8A2BE2;">0</div>
           <div class="stat-label">Complete</div>
         </div>
+        <div class="stat-card" style="flex:1; min-width:120px;">
+          <div class="stat-value" id="obj-canceled" style="color:#9ca3af;">0</div>
+          <div class="stat-label">Canceled</div>
+        </div>
       </div>
     </div>
 
@@ -155,12 +159,14 @@
         var atRisk = objectives.filter(function (o) { return o.status === 'at_risk'; }).length;
         var behind = objectives.filter(function (o) { return o.status === 'behind'; }).length;
         var complete = objectives.filter(function (o) { return o.status === 'complete'; }).length;
+        var canceled = objectives.filter(function (o) { return o.status === 'canceled'; }).length;
 
         document.getElementById('obj-total').textContent = total;
         document.getElementById('obj-on-track').textContent = onTrack;
         document.getElementById('obj-at-risk').textContent = atRisk;
         document.getElementById('obj-behind').textContent = behind;
         document.getElementById('obj-complete').textContent = complete;
+        document.getElementById('obj-canceled').textContent = canceled;
 
         if (objectives.length === 0) {
           objList.innerHTML = '<div class="dash-empty">No objectives yet. Create one above.</div>';
@@ -177,7 +183,8 @@
         var card = document.createElement('div');
         card.style.cssText = 'padding:0.8rem; border:1px solid rgba(78,205,196,0.08); border-radius:8px; margin-bottom:0.5rem; background:rgba(78,205,196,0.02);';
 
-        var statusColor = obj.status === 'on_track' ? '#34d399' : obj.status === 'at_risk' ? '#fbbf24' : obj.status === 'behind' ? '#f87171' : '#8A2BE2';
+        var isCanceled = obj.status === 'canceled';
+        var statusColor = obj.status === 'on_track' ? '#34d399' : obj.status === 'at_risk' ? '#fbbf24' : obj.status === 'behind' ? '#f87171' : obj.status === 'canceled' ? '#9ca3af' : '#8A2BE2';
         var pct = obj.progressPercentage || 0;
 
         // Find linked directive title
@@ -213,7 +220,10 @@
         slider.max = '100';
         slider.value = pct;
         slider.style.cssText = 'flex:1; min-width:100px; accent-color:' + statusColor + ';';
+        slider.disabled = isCanceled;
+        if (isCanceled) slider.style.opacity = '0.45';
         slider.addEventListener('change', function () {
+          if (obj.status === 'canceled') return;
           var newPct = parseInt(slider.value, 10);
           var newStatus = newPct >= 100 ? 'complete' : obj.status;
           AgentEngine.updateObjective(obj.id, { progressPercentage: newPct, status: newStatus });
@@ -231,12 +241,30 @@
           btn.textContent = statusLabels[s];
           var isActive = obj.status === s;
           btn.style.cssText = 'font-size:0.55rem; padding:0.2rem 0.4rem; border:1px solid ' + (isActive ? statusColors[s] : 'rgba(255,255,255,0.08)') + '; background:' + (isActive ? 'rgba(255,255,255,0.05)' : 'transparent') + '; color:' + (isActive ? statusColors[s] : 'rgba(255,255,255,0.4)') + '; border-radius:3px; cursor:pointer;';
+          btn.disabled = isCanceled;
+          if (isCanceled) {
+            btn.style.opacity = '0.45';
+            btn.style.cursor = 'not-allowed';
+          }
           btn.addEventListener('click', function () {
+            if (obj.status === 'canceled') return;
             AgentEngine.updateObjective(obj.id, { status: s });
             renderObjectives();
           });
           controls.appendChild(btn);
         });
+
+        var cancelBtn = document.createElement('button');
+        cancelBtn.textContent = 'Cancel';
+        cancelBtn.style.cssText = 'font-size:0.55rem; padding:0.2rem 0.4rem; border:1px solid rgba(156,163,175,0.5); background:' + (isCanceled ? 'rgba(156,163,175,0.12)' : 'transparent') + '; color:#9ca3af; border-radius:3px; cursor:' + (isCanceled ? 'not-allowed' : 'pointer') + ';';
+        cancelBtn.disabled = isCanceled;
+        cancelBtn.addEventListener('click', function () {
+          if (obj.status === 'canceled') return;
+          if (!confirm('Cancel objective? This voids it and blocks all execution.')) return;
+          AgentEngine.updateObjective(obj.id, { status: 'canceled' });
+          renderObjectives();
+        });
+        controls.appendChild(cancelBtn);
 
         card.appendChild(controls);
         return card;
