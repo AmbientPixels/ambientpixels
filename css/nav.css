@@ -14,10 +14,10 @@
 /* Spectrum line — static rainbow stripe */
 .nav-spectrum-line {
   position: relative;
-  height: 2px;
+  height: 1px;
   width: 100%;
   background: linear-gradient(90deg, #8A2BE2, #60a5fa, #34d399, #fbbf24, #8A2BE2);
-  opacity: 0.80;
+  opacity: 0.55;
   overflow: hidden;
 }
 
