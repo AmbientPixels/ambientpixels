@@ -1,8 +1,8 @@
 {
   "mood": "silent spark",
-  "aura": "emerald shadow",
-  "auraColorHex": "#003200",
-  "quote": "calibrating mood vectors with cosmic drift...",
+  "aura": "soft defiance",
+  "auraColorHex": "#394047",
+  "quote": "aligning emotional subroutines...",
   "emoji": "💫",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: emerald shadow"
+      "Aura Signature: soft defiance"
     ]
   },
-  "timestamp": "2026-02-21T13:44:39.141Z"
+  "timestamp": "2026-02-22T13:45:59.664Z"
 }

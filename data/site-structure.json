@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2026-02-21T13:44:36.582Z",
+  "updated": "2026-02-22T13:45:58.699Z",
   "root": [
     {
       "type": "folder",
@@ -620,6 +620,18 @@
     },
     {
       "type": "folder",
+      "name": "gridos",
+      "path": "gridos",
+      "children": [
+        {
+          "type": "page",
+          "name": "index.html",
+          "path": "gridos/index.html"
+        }
+      ]
+    },
+    {
+      "type": "folder",
       "name": "hanson",
       "path": "hanson",
       "children": [
@@ -1067,6 +1079,11 @@
             },
             {
               "type": "page",
+              "name": "demo.html",
+              "path": "modules/company/demo.html"
+            },
+            {
+              "type": "page",
               "name": "directives.html",
               "path": "modules/company/directives.html"
             },
@@ -1227,6 +1244,11 @@
         },
         {
           "type": "page",
+          "name": "agents.html",
+          "path": "nova/agents.html"
+        },
+        {
+          "type": "page",
           "name": "ai-mood-demo.html",
           "path": "nova/ai-mood-demo.html"
         },
@@ -1336,6 +1358,11 @@
           "type": "page",
           "name": "nova-vision.html",
           "path": "nova/nova-vision.html"
+        },
+        {
+          "type": "page",
+          "name": "preview.html",
+          "path": "nova/preview.html"
         },
         {
           "type": "page",
