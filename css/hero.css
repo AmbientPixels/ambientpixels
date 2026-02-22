@@ -21,6 +21,43 @@
   margin: 0;
 }
 
+/* Hero CTA — Primary button (first child) */
+.hero-cta .glass-button:first-child {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.34), rgba(59, 130, 246, 0.26));
+  border-color: rgba(167, 139, 250, 0.55);
+  color: #efe9ff;
+  box-shadow: 0 8px 20px rgba(7, 16, 25, 0.3);
+}
+
+.hero-cta .glass-button:first-child:hover {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.48), rgba(59, 130, 246, 0.34)) !important;
+  border-color: rgba(196, 181, 253, 0.7) !important;
+  color: #fff !important;
+  text-shadow: 0 0 8px rgba(167, 139, 250, 0.5) !important;
+  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.3);
+  transform: translateY(-2px);
+}
+
+/* Hero CTA — Secondary buttons */
+.hero-cta .glass-button.secondary {
+  border-color: rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.hero-cta .glass-button.secondary:hover {
+  border-color: rgba(167, 139, 250, 0.5) !important;
+  background: rgba(167, 139, 250, 0.08) !important;
+  color: #c4b5fd !important;
+  text-shadow: none !important;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);
+  transform: translateY(-2px);
+}
+
+.hero-cta .glass-button.secondary:hover i,
+.hero-cta .glass-button.secondary:hover span {
+  color: #c4b5fd !important;
+}
+
 /* Hero Content - Consolidated Styles */
 .hero-content {
   position: relative;

@@ -1,13 +1,43 @@
 <!-- /modules/contact-cta.html -->
 <div class="content-section">
-  <div class="section-content">
+  <div class="section-content" style="padding-left: 1.5rem;">
     <h2><i class="fas fa-star"></i> Let's Create Together</h2>
     <p>Ready to bring your vision to life? Let's connect and create something extraordinary.</p>
     <div class="hero-buttons">
-      <button onclick="showModal('contact-modal')" class="glass-button" type="button">
+      <button onclick="showModal('contact-modal')" class="cta-btn" type="button">
         <i class="fas fa-envelope"></i>
         <span>Start Your Project →</span>
       </button>
     </div>
   </div>
 </div>
+<style>
+  .cta-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    font-family: inherit;
+    color: #efe9ff;
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.3), rgba(59, 130, 246, 0.22));
+    border: 1px solid rgba(167, 139, 250, 0.45);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+  }
+  .cta-btn:hover {
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.45), rgba(59, 130, 246, 0.32));
+    border-color: rgba(196, 181, 253, 0.7);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(124, 58, 237, 0.25);
+  }
+  .cta-btn i {
+    font-size: 1rem;
+    color: inherit;
+  }
+</style>

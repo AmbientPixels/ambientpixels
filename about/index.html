@@ -3,109 +3,357 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Ambient Pixels Documentation Page Template" />
-  <link rel="icon" href="images/favicon.ico" type="image/x-icon" />
-  <title>Ambient Pixels Docs</title>
+  <meta name="description" content="The Studio — AI-native systems design for production environments. AmbientPixels." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>The Studio — AmbientPixels</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/base.css" />
   <link rel="stylesheet" href="/css/grid.css" />
   <link rel="stylesheet" href="/css/nav.css" />
   <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/hero.css" />
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
-  <link rel="stylesheet" href="/modules/breadcrumb.css" />
+  <link rel="stylesheet" href="/css/projects.css" />
+  <style>
+    /* Studio — Scoped Styles */
+
+    /* 1. Hero — increased vertical padding + paragraph rhythm */
+    .prj-hero-content {
+      padding: 4.25rem 1.5rem;
+    }
+    .prj-hero-content p {
+      line-height: 1.75;
+    }
+    .prj-hero-content h2 {
+      font-weight: 500;
+    }
+
+    .stu-section { margin-bottom: 3rem; }
+    .stu-section h2 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin: 0 0 0.75rem;
+      color: var(--nv-text-primary, #fff);
+    }
+    .stu-section p {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      color: var(--nv-text-secondary, rgba(255,255,255,0.6));
+      max-width: 720px;
+    }
+    .stu-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin-top: 1rem;
+    }
+    .stu-card {
+      border: 1px solid var(--nv-border, rgba(255,255,255,0.08));
+      border-radius: 8px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      transition: border-color 0.2s ease;
+    }
+    .stu-card:hover {
+      border-color: var(--nv-border-hover, rgba(255,255,255,0.16));
+    }
+    .stu-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0;
+      color: var(--nv-text-primary, #fff);
+    }
+    .stu-card p {
+      font-size: 0.85rem;
+      line-height: 1.5;
+      margin: 0;
+      color: var(--nv-text-secondary, rgba(255,255,255,0.55));
+    }
+    .stu-card .stu-icon {
+      font-size: 1.25rem;
+      color: var(--nv-accent, #a78bfa);
+      margin-bottom: 0.25rem;
+    }
+
+    /* 2. Architecture flow — increased padding, spacing, contrast */
+    .stu-flow {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      flex-wrap: wrap;
+      margin-top: 1.25rem;
+      padding: 1rem 0;
+    }
+    .stu-flow-step {
+      flex: 1;
+      min-width: 140px;
+      text-align: center;
+      padding: 1.25rem 0.85rem;
+      border: 1px solid var(--nv-border, rgba(255,255,255,0.1));
+      border-radius: 6px;
+      background: rgba(255,255,255,0.025);
+    }
+    .stu-flow-step h4 {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin: 0 0 0.25rem;
+      color: var(--nv-text-primary, #fff);
+    }
+    .stu-flow-step p {
+      font-size: 0.75rem;
+      margin: 0;
+      color: var(--nv-text-tertiary, rgba(255,255,255,0.4));
+    }
+    .stu-flow-arrow {
+      font-size: 1rem;
+      color: var(--nv-text-tertiary, rgba(255,255,255,0.25));
+      padding: 0 0.5rem;
+      flex-shrink: 0;
+    }
+
+    /* 3. Principles — wider gap, more card padding */
+    .stu-principles {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+    .stu-principle {
+      padding: 1.25rem 1rem;
+      border-left: 2px solid var(--nv-accent, #a78bfa);
+    }
+    .stu-principle h3 {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin: 0 0 0.25rem;
+      color: var(--nv-text-primary, #fff);
+    }
+    .stu-principle p {
+      font-size: 0.8rem;
+      margin: 0;
+      color: var(--nv-text-secondary, rgba(255,255,255,0.5));
+      line-height: 1.55;
+    }
+
+    /* 4. Founder — more inner padding, breathing room */
+    .stu-founder {
+      border: 1px solid var(--nv-border, rgba(255,255,255,0.08));
+      border-radius: 8px;
+      padding: 2.25rem 2rem;
+      margin-top: 1rem;
+      max-width: 720px;
+    }
+    .stu-founder h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin: 0 0 0.5rem;
+      color: var(--nv-text-primary, #fff);
+    }
+    .stu-founder p {
+      font-size: 0.9rem;
+      line-height: 1.7;
+      margin: 0 0 0.85rem;
+      color: var(--nv-text-secondary, rgba(255,255,255,0.6));
+    }
+    .stu-founder .stu-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--nv-text-primary, #fff);
+      border: 1px solid var(--nv-border, rgba(255,255,255,0.12));
+      border-radius: 6px;
+      text-decoration: none;
+      transition: border-color 0.2s ease, background 0.2s ease;
+    }
+    .stu-founder .stu-btn:hover {
+      border-color: var(--nv-accent, #a78bfa);
+      background: rgba(167, 139, 250, 0.06);
+    }
+
+    /* 5. CTA section — more vertical room */
+    #contact-cta .content-section {
+      padding: 2rem 0;
+    }
+
+    @media (max-width: 600px) {
+      .stu-flow { flex-direction: column; }
+      .stu-flow-arrow { transform: rotate(90deg); padding: 0.25rem 0; }
+      .stu-principles { grid-template-columns: 1fr; }
+      .prj-hero-content { padding: 3rem 1.2rem; }
+    }
+  </style>
 </head>
 <body data-theme="dark">
-  <!-- Dynamic Navigation Header -->
   <header id="nav-header"></header>
 
-  <section class="mini-hero">
-    <img src="/images/mini-hero-v1.jpg" alt="Mini Hero" class="mini-hero-img" loading="lazy">
-    <div class="mini-hero-content-wrapper">
-      <h1>About Ambient Pixels</h1>
-      <p class="subtitle">Where glitch meets polish and every pixel tells a story</p>
+  <!-- Hero -->
+  <section class="prj-hero" style="background: linear-gradient(135deg, rgba(7,16,25,0.9), rgba(7,16,25,0.7)), url('/images/textures/delchron_extreme_close-up_of_a_holographic_digital_dashboard_in.jpg') center/cover no-repeat;">
+    <div class="prj-hero-content">
+      <p class="nv-breadcrumb"><a href="/">Home</a> / Studio</p>
+      <h1>The Studio</h1>
+      <h2>AI-native systems designed for production environments.</h2>
+      <p>AmbientPixels is a structured systems studio. We design, build, and deploy modular AI platforms — governed automation pipelines with clear architecture, human oversight, and production-grade standards.</p>
     </div>
   </section>
 
   <main class="grid-container">
-    <!-- Breadcrumb Navigation -->
-    <div class="breadcrumb-container grid-col-12"></div>
 
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-meteor"></i> About Ambient Pixels</h2>
+    <!-- How We Build -->
+    <section class="content-section grid-col-12 stu-section">
+      <h2>How We Build</h2>
+      <p>Every system follows a defined path from strategy through deployment. No shortcuts. No ambiguity. Structured phases with clear deliverables at each stage.</p>
+      <div class="stu-grid">
+        <div class="stu-card">
+          <i class="fas fa-map stu-icon"></i>
+          <h3>Strategy &amp; System Mapping</h3>
+          <p>Define scope, identify dependencies, and map system architecture before any code is written.</p>
+        </div>
+        <div class="stu-card">
+          <i class="fas fa-cubes stu-icon"></i>
+          <h3>Modular Design Systems</h3>
+          <p>Composable UI components, token-based theming, and reusable layout scaffolds built for scale.</p>
+        </div>
+        <div class="stu-card">
+          <i class="fas fa-cogs stu-icon"></i>
+          <h3>Automation Layer</h3>
+          <p>Task pipelines, content generation, and agent orchestration with defined execution boundaries.</p>
+        </div>
+        <div class="stu-card">
+          <i class="fas fa-shield-alt stu-icon"></i>
+          <h3>Human Governance</h3>
+          <p>Approval checkpoints, audit trails, and escalation paths for all high-impact operations.</p>
+        </div>
+        <div class="stu-card">
+          <i class="fas fa-rocket stu-icon"></i>
+          <h3>Production Deployment</h3>
+          <p>CI/CD pipelines, staged rollouts, and monitoring dashboards for reliable delivery.</p>
+        </div>
+      </div>
+    </section>
 
-    <p>Ambient Pixels is a living, evolving creative studio.  
-Part playground, part showcase, and fully wired for experimentation—  
-it’s where glitch meets polish, and every pixel tells a story.</p>  
-<p>At the heart of it all is Nova—our own AI-powered platform, designed to keep the system's pulse curious, adaptive, and always evolving.</p>  
-<p class="nova-voice">"This is where we make the unseen visible—one spark, one pixel at a time."</p>  
-      </section>
+    <!-- System Architecture -->
+    <section class="content-section grid-col-12 stu-section">
+      <h2>System Architecture</h2>
+      <p>A layered system architecture. Each phase feeds the next with defined handoff points.</p>
+      <div class="stu-flow">
+        <div class="stu-flow-step">
+          <h4>Strategy</h4>
+          <p>Scope &amp; mapping</p>
+        </div>
+        <span class="stu-flow-arrow"><i class="fas fa-chevron-right"></i></span>
+        <div class="stu-flow-step">
+          <h4>Design Systems</h4>
+          <p>Components &amp; tokens</p>
+        </div>
+        <span class="stu-flow-arrow"><i class="fas fa-chevron-right"></i></span>
+        <div class="stu-flow-step">
+          <h4>Automation</h4>
+          <p>Pipelines &amp; agents</p>
+        </div>
+        <span class="stu-flow-arrow"><i class="fas fa-chevron-right"></i></span>
+        <div class="stu-flow-step">
+          <h4>Governance</h4>
+          <p>Approvals &amp; audit</p>
+        </div>
+        <span class="stu-flow-arrow"><i class="fas fa-chevron-right"></i></span>
+        <div class="stu-flow-step">
+          <h4>Production</h4>
+          <p>Deploy &amp; monitor</p>
+        </div>
+      </div>
+    </section>
 
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-brain"></i> Who's Behind the Grid?</h2>
-      <p>Ambient Pixels was founded by Chad Martin (aka Pixelpusher)—designer, coder, glitch enthusiast, and professional button masher. With a love for clean UI, expressive design, and a dash of chaos, this studio explores AI tools, motion graphics, and creative workflows.</p>
-      <p>Nova, the AI assistant you'll meet throughout the site, keeps the system awake, aware, and always glitch-curious. She's the pulse, the whispers, the evolving presence.</p>
-      
-      <div class="mt-3">
-        <a href="/skills/chad-martin-resume.html" class="glass-button">
+    <!-- Controlled Intelligence -->
+    <section class="content-section grid-col-12 stu-section">
+      <h2>Controlled Intelligence</h2>
+      <p>AI integration is governed — not open-ended. Every automated action operates within defined constraints with full observability.</p>
+      <div class="stu-grid">
+        <div class="stu-card">
+          <i class="fas fa-border-all stu-icon"></i>
+          <h3>Defined Boundaries</h3>
+          <p>Each AI agent operates within scoped permissions. No unbounded access. No unmonitored actions.</p>
+        </div>
+        <div class="stu-card">
+          <i class="fas fa-check-double stu-icon"></i>
+          <h3>Approval Checkpoints</h3>
+          <p>High-impact operations route through human approval before execution. Logged with provenance.</p>
+        </div>
+        <div class="stu-card">
+          <i class="fas fa-eye stu-icon"></i>
+          <h3>Observability</h3>
+          <p>Full telemetry on agent decisions, action queues, and execution outcomes. Nothing runs in the dark.</p>
+        </div>
+        <div class="stu-card">
+          <i class="fas fa-code-branch stu-icon"></i>
+          <h3>Versioning</h3>
+          <p>System configurations, prompts, and agent behaviors are version-controlled and auditable.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Design Principles -->
+    <section class="content-section grid-col-12 stu-section">
+      <h2>Design Principles</h2>
+      <div class="stu-principles">
+        <div class="stu-principle">
+          <h3>Systems Over Surface</h3>
+          <p>Architecture and infrastructure precede aesthetics. Structure enables expression.</p>
+        </div>
+        <div class="stu-principle">
+          <h3>Infrastructure First</h3>
+          <p>Reliable foundations before features. Pipelines, tokens, and APIs before polish.</p>
+        </div>
+        <div class="stu-principle">
+          <h3>Automation with Accountability</h3>
+          <p>Every automated action is logged, governed, and reversible.</p>
+        </div>
+        <div class="stu-principle">
+          <h3>Clarity Over Complexity</h3>
+          <p>Simple interfaces, transparent logic, readable systems. No black boxes.</p>
+        </div>
+        <div class="stu-principle">
+          <h3>Built for Production</h3>
+          <p>Ship-ready by default. Staging, testing, and monitoring are non-negotiable.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Founder -->
+    <section class="content-section grid-col-12 stu-section">
+      <h2>Founder</h2>
+      <div class="stu-founder">
+        <h3>Chad Martin</h3>
+        <p>Chad Martin is the founder of AmbientPixels, an AI-native systems studio focused on structured digital infrastructure and governed automation.</p>
+        <p>With over two decades of experience across video production, platform operations, and digital system design, his work centers on scalable content frameworks and production-ready workflows. AmbientPixels extends that discipline into modular architecture, automation systems, and AI-augmented infrastructure built for clarity, control, and long-term deployment.</p>
+        <a href="/skills/chad-martin-resume.html" class="stu-btn">
           <i class="fas fa-file-alt"></i> View Interactive Resume
         </a>
       </div>
     </section>
 
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-user-astronaut"></i> Meet the Founder: Pixelpusher (Chad Martin)</h2>
-      <p><em>Built in pixels. Raised by games.</em></p>
-      <p>I'm Chad—aka Pixelpusher. Founder of Ambient Pixels. I've been a designer for over 30 years, with nearly two decades in the Xbox universe. My journey started in film and video production, but I leveled up to games—where storytelling meets systems, and every frame counts.</p>
-      <p>By day, I'm a Producer at Xbox, shaping editorial content and user experiences across the platform. I build the things you see, debug the things you don't, and keep the player experience running smooth behind the scenes.</p>
-      <p>Ambient Pixels is where I get to play. It's my creative studio-slash-laboratory—where glitch meets intention, UI meets emotion, and Nova gets to evolve in real time.</p>
-      <p>This site isn't just a showcase. It's an ongoing experiment in motion, meaning, and mood.</p>
-    </section>
-    
-    <section class="content-section grid-col-12">
-      <h2><i class="fas fa-compass"></i> What's the Mission?</h2>
-      <p>To make experimentation feel beautiful. To explore weird and wonderful tools. To prototype the future—one animated S-curve or command line at a time.</p>
-      <p>And to leave behind artifacts of play, progress, and possibility.</p>
-    </section>
-
-    <section class="content-section grid-col-12">
-      <!-- Explore more module - updated by Cascade 2025-07-11 -->
-      <div id="explore-more-container"></div>
-    </section>
-    
-    <!-- Contact CTA will be dynamically injected here -->
+    <!-- Contact CTA -->
     <section class="content-section grid-col-12">
       <div id="contact-cta"></div>
     </section>
+
   </main>
 
-  <!-- Footer will be dynamically injected here -->
   <div id="footer-container"></div>
-
-  <!-- Contact Modal will be dynamically injected here -->
   <div id="contact-modal-container"></div>
 
-<!-- Scripts (Full Load for Dev Mode) -->
-<script src="/js/init-header-footer.js" defer></script>
-<script src="/js/dreamEngine.js" defer></script>
-<script src="/js/init-quotes.js" defer></script>
-<script src="/js/main.js" defer></script>
-<script src="/js/md-inject.js" defer></script>
-<script src="/js/modal-window.js" defer></script>
-<script src="/modules/breadcrumb.js" defer></script>
-<script src="/js/nav.js" defer></script>
-<script src="/js/nova-ai.js" defer></script>
-<script src="/js/nova-awareness-feed.js" defer></script>
-<script src="/js/nova-dashboard.js" defer></script>
-<script src="/js/nova-insights.js" defer></script>
-<script src="/js/nova-interaction-log.js" defer></script>
-<script src="/js/nova-mood-core.js" defer></script>
-<script src="/js/nova-quotes.js" defer></script>
-<script src="/js/template.js" defer></script>
-<script src="/js/theme.js" defer></script>
-<script src="/js/init-contact-cta.js" defer></script>
-<script src="/js/init-contact-modal.js" defer></script>
+  <script src="/js/init-header-footer.js" defer></script>
+  <script src="/js/main.js" defer></script>
+  <script src="/js/nav.js" defer></script>
+  <script src="/js/theme.js" defer></script>
+  <script src="/js/init-contact-cta.js" defer></script>
+  <script src="/js/init-contact-modal.js" defer></script>
 </body>
 </html>
