@@ -85,6 +85,8 @@ const MAX_RESEARCH_INJECTIONS = 3;
 const MAX_RESEARCH_CHARS = 2000;
 const MAX_RESEARCH_STORE_ENTRIES = 20;
 const AGENT_COOLDOWN_VIOLATIONS_PER_RUN = 2;
+const MAX_OBSERVATIONS_PER_AGENT = 10;
+const MAX_OBSERVATION_CHARS = 180;
 
 // ── Phase 2B: Known action types for dual-envelope normalizer ──
 const KNOWN_ACTION_TYPES = [
@@ -682,6 +684,47 @@ function normalizeAgentResult(parsed) {
 
   // Fallback: unrecognized format
   return normalized;
+}
+
+// ── Phase 4A: Defensive envelope normalization ──
+async function _normalizeEnvelope(parsed, opts) {
+  const options = opts || {};
+  const agentId = options.agentId || null;
+  const runId = options.runId || null;
+  const envelope = { taskUpdates: [], proposals: [], remember: [], observations: [] };
+
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    await logEvent('policy-violation', agentId, 'Invalid agent output envelope', runId, {
+      runId: runId,
+      agentId: agentId,
+      gate: 'output_envelope',
+      reason: 'invalid_json_or_non_object'
+    });
+    envelope.observations.push('Invalid agent output envelope.');
+    return envelope;
+  }
+
+  const fields = ['taskUpdates', 'proposals', 'remember', 'observations'];
+  for (const field of fields) {
+    const value = parsed[field];
+    if (Array.isArray(value)) {
+      envelope[field] = value;
+      continue;
+    }
+    if (value === null || value === undefined) {
+      envelope[field] = [];
+      continue;
+    }
+    if (typeof value === 'string' || (typeof value === 'object' && !Array.isArray(value))) {
+      envelope[field] = [value];
+      envelope.observations.push('Normalized non-array field: ' + field);
+      continue;
+    }
+    envelope[field] = [];
+    envelope.observations.push('Normalized non-array field: ' + field);
+  }
+
+  return envelope;
 }
 
 module.exports = async function (context) {
@@ -1598,6 +1641,32 @@ module.exports = async function (context) {
       byAgent: _runCounters.byAgent
     });
 
+    const _agentsDigest = Object.keys(_runCounters.byAgent).map(function (aid) {
+      return {
+        agentId: aid,
+        blocked: _runCounters.byAgent[aid].blocked || 0,
+        proposals: _runCounters.byAgent[aid].proposals || 0
+      };
+    });
+    const topBlockedAgents = _agentsDigest
+      .filter(function (a) { return a.blocked > 0; })
+      .sort(function (a, b) { return b.blocked - a.blocked; })
+      .slice(0, 3)
+      .map(function (a) { return { agentId: a.agentId, blocked: a.blocked }; });
+    const topProposalAgents = _agentsDigest
+      .filter(function (a) { return a.proposals > 0; })
+      .sort(function (a, b) { return b.proposals - a.proposals; })
+      .slice(0, 3)
+      .map(function (a) { return { agentId: a.agentId, proposals: a.proposals }; });
+
+    await logEvent('run-digest', null, 'Heartbeat run digest', runId, {
+      runId: runId,
+      mode: normalizedActivationMode,
+      totals: _runCounters.totals,
+      topBlockedAgents: topBlockedAgents,
+      topProposalAgents: topProposalAgents
+    });
+
     context.log('[Heartbeat] Cycle complete:', cycleId, '| Gemini calls:', geminiCalls, '| New tasks:', newTasksCreated, '| Skipped:', skippedAgents.length, '| Tier4 ran:', ranTier4.join(', ') || 'none');
 
   } catch (err) {
@@ -1665,24 +1734,24 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
     }
   }
 
-  if (!parsed) {
-    // Log the raw response as activity even if not structured
-    const summary = agent.name + ' heartbeat: ' + (response || '').substring(0, 120);
-    if (!recentSummaries.has(summary)) {
-      await logEvent('agent-action', agentId, summary, cycleId);
-      result.actions = 1;
-    }
-    return result;
-  }
-
-  // ── Phase 2B: Normalize agent output (dual-envelope support) ──
-  const normalized = normalizeAgentResult(parsed);
+  // ── Phase 2B + 4A: Normalize output then defensively normalize envelope ──
+  const normalizedResult = normalizeAgentResult(parsed);
+  const normalized = await _normalizeEnvelope(
+    (!parsed || typeof parsed !== 'object' || Array.isArray(parsed))
+      ? parsed
+      : {
+        taskUpdates: normalizedResult.actions,
+        proposals: normalizedResult.proposals,
+        remember: normalizedResult.remember,
+        observations: normalizedResult.observations
+      },
+    { agentId: agentId, runId: cycleId }
+  );
 
   // Per-run cooldown (non-persistent): proposals/observations allowed, mutations + remember suppressed.
   if (typeof isAgentInCooldown === 'function' && isAgentInCooldown(agentId)) {
-    normalized.actions = normalized.actions.filter(function (a) {
+    normalized.taskUpdates = normalized.taskUpdates.filter(function (a) {
       const t = (a && a.type) || '';
-      if (t === 'remember') return false;
       return t !== 'create-task' && t !== 'update-task' && t !== 'move-task';
     });
     normalized.remember = [];
@@ -1693,7 +1762,9 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
 
   // Log unknown action types as warnings
   for (var _oi = 0; _oi < normalized.observations.length; _oi++) {
-    var _obsItem = normalized.observations[_oi];
+    var _obsItem = typeof normalized.observations[_oi] === 'string'
+      ? normalized.observations[_oi]
+      : JSON.stringify(normalized.observations[_oi] || '');
     if (_obsItem && _obsItem.indexOf('[unknown-action-type]') === 0) {
       context.log('[Heartbeat]', agentId, 'WARN:', _obsItem);
     }
@@ -1702,8 +1773,8 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
   // ── Tool-call interception: detect web_search tool calls and execute them ──
   let toolUsage = 0;
   const toolResults = [];
-  const toolActions = normalized.actions.filter(a => a.tool === 'web_search' || a.type === 'web_search');
-  const regularActions = normalized.actions.filter(a => a.tool !== 'web_search' && a.type !== 'web_search');
+  const toolActions = normalized.taskUpdates.filter(a => a.tool === 'web_search' || a.type === 'web_search');
+  const regularActions = normalized.taskUpdates.filter(a => a.tool !== 'web_search' && a.type !== 'web_search');
 
   // Scout recursion guard: skip search if task already has research_intel
   const scoutTargetTask = agentTasks.find(t => t.status === 'in-progress') || agentTasks[0];
@@ -3757,9 +3828,35 @@ Write the full deliverable first, then the structured JSON block.`;
   }
 
   // ── Phase 2B: Log normalized observations (replaces legacy parsed.observation) ──
-  for (var _obsIdx = 0; _obsIdx < normalized.observations.length; _obsIdx++) {
-    var _obs = normalized.observations[_obsIdx];
-    if (_obs && typeof _obs === 'string' && !recentSummaries.has(_obs)) {
+  let _obsClamped = false;
+  let _observationItems = normalized.observations.map(function (o) {
+    if (typeof o === 'string') return o;
+    if (o === null || o === undefined) return '';
+    return String(o);
+  }).filter(function (o) { return o.trim().length > 0; });
+  if (_observationItems.length > MAX_OBSERVATIONS_PER_AGENT) {
+    _observationItems = _observationItems.slice(0, MAX_OBSERVATIONS_PER_AGENT);
+    _obsClamped = true;
+  }
+  _observationItems = _observationItems.map(function (o) {
+    if (o.length > MAX_OBSERVATION_CHARS) {
+      _obsClamped = true;
+      return o.substring(0, MAX_OBSERVATION_CHARS);
+    }
+    return o;
+  });
+  if (_obsClamped) {
+    await logEvent('policy-violation', agentId, 'Observation clamp applied', cycleId, {
+      runId: cycleId,
+      agentId: agentId,
+      gate: 'observation_clamp',
+      reason: 'exceeded_limits'
+    });
+  }
+
+  for (var _obsIdx = 0; _obsIdx < _observationItems.length; _obsIdx++) {
+    var _obs = _observationItems[_obsIdx];
+    if (_obs && !recentSummaries.has(_obs)) {
       await logEvent('agent-action', agentId, agent.name + ': ' + _obs, cycleId);
     }
   }
