@@ -1,877 +1,316 @@
-/* nova-dashboard.css — updated by Cascade 2025-07-10 */
+/* nova-dashboard.css -- Operator Console */
 
-.nova-dashboard {
-  margin-top: 60px; /* top margin for menu, updated by Cascade 2025-07-12 */
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  width: 100%;
-  max-width: 100%;
-  margin: 0 auto;
-  padding: 18px 3vw 0 3vw;
-  box-sizing: border-box;
-}
+/* ---------- Page Shell ---------- */
+.oc-page { max-width: 960px; }
 
-/* Dashboard section styles - updated by Cascade 2025-07-15 */
-.dashboard-section {
-  background: var(--aura-panel-bg, #23243a);
-  border-radius: 14px;
-  box-shadow: 0 2px 16px 0 rgba(0,0,0,0.13);
-  padding: 12px 10px 10px 10px;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  border: 1.5px solid var(--aura-glow, #3af2ff20);
-  width: 100%;
-}
-
-/* Dashboard title styles - updated by Cascade 2025-07-15 */
-.dashboard-title {
-  font-size: 1.14rem;
-  font-weight: 600;
-  color: var(--aura-glow, #aaf6ff);
-  margin-bottom: 6px;
-  letter-spacing: 0.01em;
-  line-height: 1.13;
-}
-
-.dashboard-row {
+/* ---------- System Posture Strip ---------- */
+.oc-posture {
   display: flex;
   flex-wrap: wrap;
-  gap: 9px 18px;
-  align-items: flex-end;
+  gap: 8px 16px;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--nv-border);
+  background: var(--nv-card-bg-alt, rgba(15, 20, 35, 0.35));
+  margin-bottom: 1.8rem;
 }
 
-.dashboard-stat {
+.oc-posture-item {
   display: flex;
-  flex-direction: column;
-  min-width: 110px;
-  font-size: 1.07rem;
-  background: transparent;
-  color: var(--aura-text, #eaf6ff);
-  margin-bottom: 0;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
 }
 
-.dashboard-label {
-  font-size: 0.93rem;
-  color: var(--aura-label, #b6c9d8);
-  margin-bottom: 3px;
+.oc-posture-label {
+  color: var(--nv-text-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.62rem;
+  font-weight: 600;
+}
+
+.oc-posture-value {
+  color: var(--nv-text);
   font-weight: 500;
 }
 
-/* API Form Layout - updated by Cascade 2025-07-15 */
-#api-tester-form {
-  margin-bottom: 12px;
-}
-
-.api-form-row {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-bottom: 10px;
-  width: 100%;
-}
-
-/* API Method Row - updated by Cascade 2025-07-15 */
-.api-form-row.api-method-row {
-  flex-direction: row;
-  align-items: center;
+/* -- Status Cards Grid -- */
+.oc-status-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
   gap: 12px;
 }
 
-.api-endpoint-container {
+.oc-status-card {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  color: var(--aura-text, #eaf6ff);
-  font-weight: 500;
-  font-size: 0.9rem;
-  min-width: 180px;
-}
-
-.api-endpoint-selector-container {
-  display: flex;
   gap: 8px;
-  width: 100%;
 }
 
-/* API Method Buttons - updated by Cascade 2025-07-15 */
-.api-method-buttons {
+.oc-status-head {
   display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.api-endpoint-select {
-  min-width: 180px;
-  flex-shrink: 0;
-  padding: 8px 12px;
-  background: rgba(30, 32, 50, 0.8);
-  border: 1px solid rgba(90, 228, 255, 0.2);
-  border-radius: 6px;
-  color: #fff;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
-  font-family: 'Inter', sans-serif;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23e0e0e0' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 16px;
-  cursor: pointer;
-  padding-right: 40px;
-}
-
-/* Dropdown option styling */
-.api-endpoint-select option {
-  background-color: #1e2032;
-  color: #fff;
-  padding: 8px;
-}
-
-.api-endpoint-input {
-  flex-grow: 1;
-  padding: 8px 12px;
-  background: rgba(30, 32, 50, 0.8);
-  border: 1px solid rgba(90, 228, 255, 0.2);
-  border-radius: 6px;
-  color: #fff;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
-  font-family: 'Inter', sans-serif;
-}
-
-.api-send-button {
-  min-width: 80px;
-}
-
-.api-test-status-row {
   align-items: center;
   gap: 8px;
-  margin-top: 8px;
 }
 
-.api-result-pre {
-  max-height: 200px;
-  overflow: auto;
-  margin-top: 8px;
-}
+.oc-status-head .cf-ico { opacity: 0.45; }
 
-/* Background video styles - moved from inline by Cascade 2025-07-10 */
-body.pulse-page {
-  background-color: #1a1a1a; /* Dark grey background */
-}
-
-/* Ensure the pulse bar is visible and styled correctly at the bottom */
-#nova-pulse-bar {
-  position: relative; /* now in normal flow, updated by Cascade 2025-07-12 */
-  width: 100%;
-  z-index: 1;
-}
-
-.bg-video {
-  position: fixed;
-  right: 0;
-  bottom: 0;
-  min-width: 100%;
-  min-height: 100%;
-  width: auto;
-  height: auto;
-  z-index: -1;
-  background-size: cover;
-  opacity: 0; /* Start with opacity 0 */
-  transition: opacity 1.5s ease-in-out; /* Smooth transition for opacity */
-}
-
-.bg-video.active {
-  opacity: 0.7; /* Active video opacity */
-}
-
-#video-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: -1;
-  overflow: hidden;
-}
-
-/* Version number style - moved from inline by Cascade 2025-07-10 */
-.version-label {
-  font-size: 0.65em;
-  font-weight: 400;
-  opacity: 0.8;
-}
-
-.api-status-dot {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  display: none;
-}
-
-/* API Method Buttons - updated by Cascade 2025-07-10 */
-.api-method-buttons {
-  flex: 0 0 auto;
-  min-width: 130px;
-  display: flex;
-  gap: 8px;
-  margin-bottom: 10px;
-  position: relative;
-}
-
-/* Method buttons row spacing */
-.api-method-row {
-  margin-top: -5px;
-}
-
-/* dashboard styles */
-
-.nova-dashboard > #nova-pulse-bar {
-  margin-top: 60px;
-  width: 100vw;
-  position: relative;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
-  max-width: 100vw;
-  box-sizing: border-box;
-  /* space below nav/header, dashboard-only, full-bleed */
-}
-
-/* Dashboard Stats Styles - added by Cascade 2025-07-14 */
-.dashboard-all-up-stats {
-  margin-bottom: 20px;
-}
-
-.dashboard-stats-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  justify-content: space-between;
-}
-
-.dashboard-stat-card {
-  background: var(--aura-panel-bg, #23243a);
-  border-radius: 10px;
-  padding: 12px 16px;
-  min-width: 140px;
-  flex: 1 1 140px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  border: 1px solid var(--aura-glow, #3af2ff20);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.dashboard-stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-}
-
-.stat-label {
-  font-size: 0.85rem;
-  color: var(--aura-label, #b6c9d8);
-  font-weight: 500;
-}
-
-.stat-value {
-  font-size: 1.5rem;
+.oc-status-head h3 {
+  margin: 0;
+  font-size: 0.92rem;
   font-weight: 600;
-  color: var(--aura-glow, #aaf6ff);
+  color: var(--nv-text);
 }
 
-/* Dashboard Filter/Search Styles - added by Cascade 2025-07-14 */
-.dashboard-filter-bar {
-  background: var(--aura-panel-bg, #23243a);
-  border-radius: 10px;
-  padding: 15px;
-  margin: 20px 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-  border: 1px solid var(--aura-glow, #3af2ff20);
-}
-
-.dashboard-filter-section {
-  flex: 1 1 200px;
-}
-
-.dashboard-filter-section.filter-section-search {
-  flex: 2 1 300px;
-}
-
-.dashboard-filter-section.filter-section-tags {
-  flex: 1 1 250px;
-}
-
-.dashboard-filter-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  margin-bottom: 10px;
-}
-
-.dashboard-filter-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 15px;
-}
-
-.filter-label {
-  font-size: 0.85rem;
-  color: var(--aura-label, #b6c9d8);
-  font-weight: 500;
-}
-
-.dashboard-search-box {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid var(--aura-glow, #3af2ff30);
-  border-radius: 6px;
-  padding: 8px 12px;
-  color: var(--aura-text, #eaf6ff);
-  width: 100%;
-  transition: all 0.2s ease;
-}
-
-.dashboard-search-box:focus {
-  outline: none;
-  border-color: var(--mood-primary, #3af2ff);
-  box-shadow: 0 0 0 2px var(--mood-primary, #3af2ff20);
-}
-
-.input-wrapper {
-  position: relative;
-  width: 100%;
-}
-
-.styled-select {
-  appearance: none;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid var(--aura-glow, #3af2ff30);
-  border-radius: 6px;
-  padding: 8px 12px;
-  padding-right: 30px;
-  color: var(--aura-text, #eaf6ff);
-  width: 100%;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.styled-select:focus {
-  outline: none;
-  border-color: var(--mood-primary, #3af2ff);
-  box-shadow: 0 0 0 2px var(--mood-primary, #3af2ff20);
-}
-
-.input-wrapper::after {
-  content: '\f107';
-  font-family: 'Font Awesome 6 Free';
-  font-weight: 900;
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--aura-label, #b6c9d8);
-  pointer-events: none;
-}
-
-.filter-pill {
-  display: inline-flex;
-  align-items: center;
-  background: var(--mood-primary, #3af2ff20);
-  border: 1px solid var(--mood-primary, #3af2ff40);
-  color: var(--aura-glow, #aaf6ff);
-  border-radius: 999px;
-  padding: 6px 12px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.filter-pill:hover {
-  background: var(--mood-primary, #3af2ff30);
-  border-color: var(--mood-primary, #3af2ff);
-}
-
-
-/* Dashboard flex layout - updated by Cascade 2025-07-10 */
-.dashboard-flex-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  width: 100%;
-  min-height: 500px;
-}
-
-.dashboard-flex-item {
-  flex: 1 1 calc(50% - 10px);
-  min-width: 300px;
-}
-
-
-
-/* Header styling - updated by Cascade 2025-07-10 */
-.title-centered {
-  text-align: center;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8), 0 0 10px rgba(0, 0, 0, 0.5);
-}
-
-/* API Method Button Styling - updated by Cascade 2025-07-10 */
-.api-method-button {
+.oc-status-pill {
   display: inline-block;
-  padding: 0.4rem 1rem;
-  border-radius: 999px;
-  font-size: 0.8rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 3px 10px;
+  border-radius: 6px;
+  width: fit-content;
 }
 
-/* Active button is green */
-.api-method-button[aria-pressed="true"] {
-  background: rgba(16, 185, 129, 0.15);
-  border: 1px solid rgba(16, 185, 129, 0.3);
-  color: #10b981;
-  box-shadow: 0 0 8px rgba(16, 185, 129, 0.2);
-  font-weight: bold;
+.oc-status--ok { background: rgba(74, 222, 128, 0.12); color: #22c55e; }
+[data-theme="light"] .oc-status--ok { background: rgba(22, 163, 74, 0.1); color: #16a34a; }
+.oc-status--warn { background: rgba(251, 191, 36, 0.12); color: #f59e0b; }
+[data-theme="light"] .oc-status--warn { background: rgba(217, 119, 6, 0.1); color: #d97706; }
+.oc-status--checking { background: var(--nv-chip-bg); color: var(--nv-text-tertiary); }
+.oc-status--neutral { background: var(--nv-chip-bg); color: var(--nv-text-secondary); }
+
+.oc-status-meta {
+  font-size: 0.72rem;
+  color: var(--nv-text-tertiary);
 }
 
-/* Inactive button is red */
-.api-method-button[aria-pressed="false"] {
-  background: rgba(220, 38, 38, 0.15);
-  border: 1px solid rgba(220, 38, 38, 0.3);
-  color: #ef4444;
-  box-shadow: 0 0 8px rgba(220, 38, 38, 0.2);
+/* -- Brief Section -- */
+.oc-brief { padding: 0.8rem 1rem; }
+
+.oc-brief-loading {
+  font-size: 0.85rem;
+  color: var(--nv-text-tertiary);
+  list-style: none;
 }
 
-.api-body-container {
-  flex: 1 1 100%;
-  width: 100%;
-  margin-top: 8px;
+/* operator-brief.js renders into .nova-dream-feed */
+.nova-dream-feed { list-style: none; padding: 0; margin: 0; }
+
+.nova-dream-date-header {
+  list-style: none;
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--nv-text-tertiary);
+  padding: 0 0 0.4rem;
+}
+.nova-dream-date-header i { margin-right: 4px; }
+
+.nova-dream-entry.ai-dream {
+  list-style: none;
+  border-left: 2px solid var(--nv-accent, #a78bfa);
+  padding-left: 0.8rem;
+  margin-top: 0.3rem;
 }
 
-.api-body-hidden {
-  display: none;
+.nova-dream-loading {
+  list-style: none;
+  font-size: 0.85rem;
+  color: var(--nv-text-tertiary);
 }
+.nova-dream-loading i { margin-right: 4px; }
 
-/* Nova Quote Styling - updated by Cascade 2025-07-10 */
-.nova-quote {
-  padding: 10px 16px;
-  background: var(--aura-panel-bg, #23243a);
-  border-left: 3px solid var(--mood-primary, #3af2ff);
-  transition: all 0.3s ease;
-}
-
-/* Dashboard Introduction Styling - added by Cascade 2025-07-15 */
-.nova-intro {
-  padding: 16px 20px;
-  background: var(--aura-panel-bg, #23243a);
-  border-left: 3px solid var(--mood-secondary, #a0f0ff);
-  margin-bottom: 18px;
-}
-
-/* Nova Quip Styling - added by Cascade 2025-07-15 */
-
-
-
-
-
-
-
-.nova-intro-content {
+.nova-brief-text {
   display: flex;
   flex-direction: column;
-  gap: 16px;
-}
-
-.nova-intro-content p {
-  margin: 0;
-  line-height: 1.5;
-  color: var(--aura-text, #eaf6ff);
-}
-
-
-.testdupe{
-  margin-top: 8px;
-}
-
-.testdupe{
-  margin-top: 8px;
-}
-
-
-
-.dashboard-guide {
-  margin-top: 8px;
-}
-
-.dashboard-guide h3 {
-  font-size: 1.1rem;
-  margin: 0 0 10px 0;
-  color: var(--aura-glow, #aaf6ff);
-}
-
-.dashboard-guide ul {
-  margin: 0;
-  padding-left: 20px;
-}
-
-/* Code Audit Report Styles - Added by Cascade 2025-07-16 */
-.audit-category {
-  background: var(--nova-card-bg, rgba(35, 36, 58, 0.5));
-  border-radius: 8px;
-  margin-bottom: 12px;
-  overflow: hidden;
-  border-left: 3px solid var(--mood-primary, #3af2ff);
-}
-
-.audit-category .code-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 12px 16px;
-  cursor: pointer;
-  background: rgba(35, 36, 58, 0.7);
-}
-
-.audit-category h3 {
-  margin: 0;
-  font-size: 1rem;
-  color: var(--aura-glow, #aaf6ff);
-}
-
-/* Reusing existing code-count style from previous section */
-
-.duplicates-list {
-  max-height: 0;
-  overflow: hidden;
-  transition: max-height 0.3s ease-out;
-}
-
-.audit-category.expanded .duplicates-list {
-  max-height: 500px;
-  overflow-y: auto;
-  padding: 12px 16px;
-}
-
-.duplicate-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 6px 10px;
-  margin-bottom: 6px;
-  background: rgba(35, 36, 58, 0.4);
-  border-radius: 4px;
-  transition: background 0.2s;
-}
-
-.duplicate-item:hover {
-  background: rgba(58, 242, 255, 0.1);
-}
-
-.duplicate-name {
-  font-family: 'Fira Code', monospace;
-  color: var(--aura-text, #eaf6ff);
-  font-size: 0.9rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 85%;
-}
-
-/* Using existing tag styles instead of creating new ones */
-.more-duplicates {
-  text-align: center;
-  padding: 8px;
-  color: var(--aura-label, #b6c9d8);
-  font-style: italic;
-  font-size: 0.9rem;
-}
-
-.dashboard-guide li {
-  margin-bottom: 8px;
-  color: var(--aura-text, #eaf6ff);
-}
-
-.dashboard-tip {
-  margin-top: 12px;
-  padding: 8px 12px;
-  background: rgba(58, 242, 255, 0.1);
-  border-radius: 6px;
-  font-size: 0.95rem;
-  color: var(--aura-text, #eaf6ff);
-}
-
-.dashboard-tip i {
-  color: #ffcc00;
-  margin-right: 5px;
-}
-
-/* Nova System Status Section - Enhanced by Cascade 2025-07-16 */
-.nova-status-section {
-  margin-bottom: 20px;
-  background: var(--aura-panel-bg, #23243a);
-  border: 1px solid rgba(58, 242, 255, 0.15);
-  box-shadow: 0 0 20px rgba(58, 242, 255, 0.1);
-}
-
-.nova-status-section .section-header {
-  margin-bottom: 15px;
-}
-
-.nova-status-section .section-header h2 {
-  color: var(--aura-glow, #aaf6ff);
-  font-size: 1.2rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.nova-status-section .section-header h2 i {
-  color: var(--mood-primary, #3af2ff);
-  animation: pulse-glow 2s infinite;
-}
-
-.nova-status-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 15px;
-  margin-bottom: 15px;
-}
-
-@media (max-width: 768px) {
-  .nova-status-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-.status-card {
-  background: rgba(26, 27, 38, 0.6);
-  border-radius: 10px;
-  padding: 15px;
-  display: flex;
-  align-items: center;
-  gap: 15px;
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(58, 242, 255, 0.1);
-  transition: all 0.3s ease;
-}
-
-.status-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-  border-color: rgba(58, 242, 255, 0.3);
-}
-
-.status-card.main-status {
-  background: linear-gradient(135deg, rgba(26, 27, 38, 0.8), rgba(26, 27, 38, 0.6));
-  border-color: rgba(58, 242, 255, 0.2);
-}
-
-.status-icon-container {
-  position: relative;
-  width: 50px;
-  height: 50px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.status-icon {
-  font-size: 1.8rem;
-  color: var(--mood-primary, #3af2ff);
-  z-index: 2;
-}
-
-.status-pulse-ring {
-  position: absolute;
-  width: 100%;
-  height: 100%;
-  border-radius: 50%;
-  border: 2px solid var(--mood-primary, #3af2ff);
-  opacity: 0.8;
-  animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
-}
-
-@keyframes pulse-ring {
-  0% {
-    transform: scale(0.8);
-    opacity: 0.8;
-  }
-  50% {
-    transform: scale(1.1);
-    opacity: 0.3;
-  }
-  100% {
-    transform: scale(0.8);
-    opacity: 0.8;
-  }
-}
-
-.status-details {
-  flex: 1;
-}
-
-.status-title {
-  font-size: 1rem;
-  font-weight: 600;
-  margin: 0 0 8px 0;
-  color: var(--aura-text, #eaf6ff);
-}
-
-.status-indicator {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.9rem;
-  color: var(--aura-text-muted, #b6c9d8);
-  margin-bottom: 5px;
-}
-
-.status-indicator.active {
-  color: #4ade80;
-}
-
-.status-indicator.warning {
-  color: #fbbf24;
-}
-
-.status-indicator.error {
-  color: #f87171;
-}
-
-.status-timestamp, .api-count, .memory-stats {
-  font-size: 0.8rem;
-  color: var(--aura-text-muted, #b6c9d8);
-}
-
-/* Status Ticker */
-.nova-status-ticker {
-  background: rgba(26, 27, 38, 0.4);
-  border-radius: 6px;
-  padding: 8px 0;
-  overflow: hidden;
-  position: relative;
-  margin-top: 10px;
-  border-top: 1px solid rgba(58, 242, 255, 0.1);
-}
-
-.ticker-track {
-  display: flex;
-  animation: ticker 20s linear infinite;
-  white-space: nowrap;
-}
-
-@keyframes ticker {
-  0% {
-    transform: translateX(100%);
-  }
-  100% {
-    transform: translateX(-100%);
-  }
-}
-
-.ticker-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0 20px;
-  color: var(--aura-text, #eaf6ff);
-  font-size: 0.85rem;
-}
-
-.ticker-item i {
-  color: var(--mood-primary, #3af2ff);
-}
-
-.nova-quote.mood-loaded {
-  background: linear-gradient(135deg, var(--mood-primary, #3af2ff10), var(--mood-secondary, #3af2ff05));
-  border-left: 3px solid var(--mood-primary, #3af2ff);
-  border-bottom: 1px solid var(--mood-border, #3af2ff40);
-}
-
-.nova-quote .dashboard-title {
-  font-size: 1rem;
-  margin-bottom: 4px;
-  color: var(--aura-glow, #aaf6ff);
-}
-
-.nova-quote.light-mood .dashboard-title,
-.nova-quote.light-mood .quote-text {
-  color: var(--aura-dark-text, #333);
-}
-
-.nova-quote .fa-quote-left {
-  color: var(--mood-primary, #3af2ff);
-  opacity: 0.8;
-  margin-right: 6px;
-}
-
-.quote-text {
-  font-style: italic;
-  line-height: 1.4;
-  color: var(--aura-text, #eaf6ff);
-  padding-left: 8px;
-  font-size: 0.95rem;
-  position: relative;
-  margin-bottom: 0;
-}
-
-.quote-text::before {
-  content: '"';
-  position: absolute;
-  left: -2px;
-  top: -2px;
-  color: var(--mood-secondary, #a0f0ff);
-  opacity: 0.6;
-}
-
-.quote-text::after {
-  content: '"';
-  color: var(--mood-secondary, #a0f0ff);
-  opacity: 0.6;
-}
-
-.quote-date {
-  display: block;
-  font-size: 0.8rem;
-  margin-top: 6px;
-  color: var(--aura-label, #b6c9d8);
-  opacity: 0.9;
-  text-align: right;
+  gap: 0;
   font-style: normal;
 }
 
-/* API Status Dashboard - added by Cascade 2025-07-10 */
+.nova-brief-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--nv-text);
+  margin-bottom: 0.5rem;
+}
+
+.nova-brief-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 0;
+  border-bottom: 1px solid var(--nv-border);
+  font-size: 0.82rem;
+}
+.nova-brief-row:last-child { border-bottom: none; }
+.nova-brief-row--meta { border-bottom-color: transparent; }
+
+.nova-brief-label {
+  color: var(--nv-text-secondary);
+  font-weight: 500;
+}
+
+.nova-brief-value {
+  color: var(--nv-text);
+  font-weight: 500;
+  text-align: right;
+}
+
+.nova-brief-chip {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 8px;
+  border-radius: 5px;
+}
+.nova-brief-chip.is-operational { background: rgba(74, 222, 128, 0.12); color: #22c55e; }
+[data-theme="light"] .nova-brief-chip.is-operational { background: rgba(22, 163, 74, 0.1); color: #16a34a; }
+.nova-brief-chip.is-degraded { background: rgba(248, 113, 113, 0.12); color: #ef4444; }
+
+/* -- Two-Column Grid -- */
+.oc-grid-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+/* -- Runtime Metrics -- */
+.oc-metric-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.oc-metric {
+  background: var(--nv-card-bg-alt, rgba(15, 20, 35, 0.35));
+  border: 1px solid var(--nv-border);
+  border-radius: 8px;
+  padding: 12px 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  transition: border-color 0.2s;
+}
+.oc-metric:hover { border-color: var(--nv-border-hover, rgba(167, 139, 250, 0.3)); }
+
+.oc-metric-val {
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: var(--nv-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.oc-metric-lbl {
+  font-size: 0.68rem;
+  color: var(--nv-text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.oc-metric-helper {
+  font-size: 0.78rem;
+  color: var(--nv-text-tertiary);
+  font-style: italic;
+  margin: 0.6rem 0 0;
+  text-align: center;
+}
+
+/* -- System Info -- */
+.oc-info-list { display: flex; flex-direction: column; }
+
+.oc-info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 4px;
+  border-bottom: 1px solid var(--nv-border);
+}
+.oc-info-row:last-child { border-bottom: none; }
+
+.oc-info-key {
+  font-size: 0.82rem;
+  color: var(--nv-text-secondary);
+  font-weight: 500;
+}
+
+.oc-info-val {
+  font-size: 0.82rem;
+  color: var(--nv-text);
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* -- API Health Section -- */
+.oc-api-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.oc-api-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.oc-api-check-time {
+  font-size: 0.72rem;
+  color: var(--nv-text-tertiary);
+}
+
+.oc-api-refresh-btn {
+  font-size: 0.72rem;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--nv-border);
+  background: var(--nv-card-bg-alt, rgba(15, 20, 35, 0.35));
+  color: var(--nv-text-secondary);
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+.oc-api-refresh-btn:hover {
+  border-color: var(--nv-border-hover, rgba(167, 139, 250, 0.3));
+  color: var(--nv-text);
+}
+
+.oc-api-collapse-btn {
+  background: none;
+  border: none;
+  color: var(--nv-text-tertiary);
+  cursor: pointer;
+  padding: 2px;
+  transition: transform 0.2s, color 0.15s;
+}
+.oc-api-collapse-btn:hover { color: var(--nv-text); }
+
+/* ── API Status Cards (rendered by api-status-dashboard.js) ── */
 .api-status-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-  gap: 12px;
-  width: 100%;
-  margin-top: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(155px, 1fr));
+  gap: 10px;
+  margin-top: 8px;
 }
 
 .api-status-card {
-  background: rgba(35, 36, 58, 0.7);
+  background: var(--nv-card-bg-alt, rgba(15, 20, 35, 0.35));
+  border: 1px solid var(--nv-border);
   border-radius: 8px;
   padding: 10px 12px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  border: 1px solid var(--aura-glow, #3af2ff20);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  gap: 6px;
+  transition: border-color 0.2s;
 }
-
-.api-status-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-}
+.api-status-card:hover { border-color: var(--nv-border-hover, rgba(167, 139, 250, 0.3)); }
 
 .api-status-header {
   display: flex;
@@ -880,9 +319,9 @@ body.pulse-page {
 }
 
 .api-status-name {
-  font-size: 0.9rem;
+  font-size: 0.82rem;
   font-weight: 500;
-  color: var(--aura-text, #eaf6ff);
+  color: var(--nv-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -892,675 +331,41 @@ body.pulse-page {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 24px;
-  height: 24px;
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
 }
-
-.api-status-indicator i {
-  font-size: 16px;
-}
-
-.api-status-indicator.untested i { color: #888; }
-.api-status-indicator.ok i { color: #1ec773; }
-.api-status-indicator.fail i { color: #f44; }
+.api-status-indicator i { font-size: 14px; }
+.api-status-indicator.untested i { color: var(--nv-text-tertiary); }
+.api-status-indicator.ok i { color: #22c55e; }
+.api-status-indicator.fail i { color: #ef4444; }
 .api-status-indicator.loading i {
-  color: #3af;
-  animation: windsurf-spin 0.7s linear infinite;
+  color: var(--nv-accent, #a78bfa);
+  animation: oc-spin 0.7s linear infinite;
 }
 
-.api-status-details {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 0.8rem;
-}
-
-.api-status-latency {
-  color: var(--aura-label, #b6c9d8);
-}
-
-.api-status-timestamp {
-  margin-left: 8px;
-  align-self: center;
-}
-
-/* Image Inventory Grid - added by Cascade 2025-07-16 */
-.image-grid-container {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  width: 100%;
-}
-
-/* Image Stats Dashboard - added by Cascade 2025-07-16 */
-.image-stats-dashboard {
-  margin-bottom: 16px;
-  padding: 12px;
-  border-radius: 8px;
-  background: var(--aura-panel-bg-alt, #2a2c4a);
-  border: 1px solid var(--aura-glow, #3af2ff20);
-}
-
-.dashboard-row {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 16px;
-}
-
-.dashboard-stat {
-  padding: 10px;
-  border-radius: 6px;
-  background: var(--aura-panel-bg, #1e1f36);
-  text-align: center;
-}
-
-.dashboard-label {
-  font-size: 0.8rem;
-  color: var(--aura-label, #b6c9d8);
-  margin-bottom: 4px;
-}
-
-/* CSS Usage Visualization - added by Cascade 2025-07-16 */
-.css-usage-visualization {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 1rem 0;
-  background: var(--aura-panel-bg-alt, #2a2c4a);
-  border-radius: 8px;
-  padding: 1rem;
-  border: 1px solid var(--aura-glow, #3af2ff20);
-}
-
-/* JavaScript Function Map - added by Cascade 2025-07-16 */
-.function-map-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 16px;
-  margin-bottom: 16px;
-}
-
-.function-map-filter {
-  margin-bottom: 16px;
-}
-
-.filter-input {
-  width: 100%;
-  padding: 8px 12px;
-  border-radius: 6px;
-  border: 1px solid var(--aura-border, #3af2ff20);
-  background: var(--aura-panel-bg, #1e1f36);
-  color: var(--aura-text-primary, #ffffff);
-  font-size: 14px;
-}
-
-.function-map-accordion {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.script-block {
-  background: var(--aura-panel-bg, #1e1f36);
-  border-radius: 6px;
-  border: 1px solid var(--aura-border, #3af2ff20);
-  overflow: hidden;
-}
-
-.script-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 16px;
-  cursor: pointer;
-  background: var(--aura-panel-bg-alt, #2a2c4a);
-}
-
-.script-header h3 {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.function-count {
-  background: var(--aura-panel-bg, #1e1f36);
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  color: var(--aura-label, #b6c9d8);
-}
-
-.function-tags {
-  display: none;
-  padding: 12px;
-  flex-wrap: wrap;
-  gap: 6px;
-}
-
-.script-block.expanded .function-tags {
-  display: flex;
-}
-
-.function-tag {
-  display: inline-block;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  background: var(--aura-bg-subtle, rgba(58, 242, 255, 0.1));
-  color: var(--aura-text-secondary, #b6c9d8);
-  white-space: nowrap;
-}
-
-/* Code Awareness Section - added by Cascade 2025-07-16 */
-.code-stats-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.code-awareness-container {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  margin-top: 16px;
-}
-
-.code-category {
-  background: var(--aura-panel-bg, #1e1f36);
-  border-radius: 6px;
-  border: 1px solid var(--aura-border, #3af2ff20);
-  overflow: hidden;
-}
-
-.code-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 16px;
-  background: var(--aura-panel-bg-alt, #2a2c4a);
-}
-
-.code-header h3 {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.code-count {
-  background: var(--aura-panel-bg, #1e1f36);
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  color: var(--aura-label, #b6c9d8);
-}
-
-.dashboard-stat {
-  background: var(--aura-panel-bg-alt, #2a2c4a);
-  border-radius: 8px;
-  padding: 16px;
-  text-align: center;
-  border: 1px solid var(--aura-border, #3af2ff20);
-  transition: all 0.2s ease;
-}
-
-.dashboard-stat:hover {
-  border-color: var(--aura-glow, #3af2ff40);
-  box-shadow: 0 0 15px var(--aura-glow, #3af2ff20);
-}
-
-.dashboard-label {
-  font-size: 14px;
-  color: var(--aura-label, #b6c9d8);
-  margin-bottom: 8px;
-}
-
-.dashboard-value {
-  font-size: 24px;
-  font-weight: 600;
-  color: var(--aura-text-primary, #ffffff);
-  margin-bottom: 4px;
-}
-
-.dashboard-subtext {
-  font-size: 12px;
-  color: var(--aura-text-secondary, #b6c9d8);
-}
-
-.tag-cloud {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
-  padding: 16px;
-  background: var(--aura-panel-bg, #1e1f36);
-  border-radius: 8px;
-  border: 1px solid var(--aura-border, #3af2ff20);
-}
-
-.code-tag {
-  display: inline-block;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  background: var(--aura-bg-subtle, rgba(58, 242, 255, 0.1));
-  color: var(--aura-text-secondary, #b6c9d8);
-  white-space: nowrap;
-}
-
-.more-tag {
-  display: inline-block;
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 12px;
-  background: var(--aura-accent-bg, rgba(58, 242, 255, 0.2));
-  color: var(--aura-accent, #3af2ff);
-  white-space: nowrap;
-}
-
-.error-message {
-  padding: 16px;
-  background: var(--aura-error-bg, rgba(255, 87, 87, 0.2));
-  color: var(--aura-error, #ff5757);
-  border-radius: 8px;
-  margin: 16px 0;
-  text-align: center;
-}
-
-.css-stats-container {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-left: 1rem;
-  flex: 1;
-}
-
-.css-stat-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.5rem;
-  background: var(--aura-panel-bg, #1e1f36);
-  border-radius: 6px;
-}
-
-.stat-label {
-  font-size: 0.9rem;
-  color: var(--aura-label, #b6c9d8);
-}
-
-.stat-value {
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: var(--aura-text-primary, #ffffff);
-}
-
-.unused-classes-container {
-  margin-top: 1rem;
-}
-
-.unused-classes-container h3 {
-  font-size: 1rem;
-  color: var(--aura-label, #b6c9d8);
-  margin-bottom: 0.75rem;
-}
-
-.tag-cloud {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  list-style: none;
-  padding: 0;
-}
-
-.tag-cloud li {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 16px;
-  font-size: 0.9rem;
-  background: var(--aura-panel-bg, #1e1f36);
-  border: 1px solid var(--aura-border, #3af2ff20);
-  color: var(--aura-text-secondary, #b6c9d8);
-}
-
-#total-images, #total-folders, #file-types, #common-type {
-  font-size: 1rem;
-  font-weight: 500;
-  color: var(--aura-text, #eaf6ff);
-}
-
-.image-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 12px;
-  width: 100%;
-}
-
-.image-tile {
-  position: relative;
-  border-radius: 8px;
-  overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  aspect-ratio: 1/1;
-  background: var(--aura-panel-bg-alt, #2a2c4a);
-}
-
-.image-tile:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-}
-
-.image-tile img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: opacity 0.2s ease;
-}
-
-.image-tile:hover .image-caption {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-.image-caption {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(0, 0, 0, 0.7);
-  color: var(--aura-text, #eaf6ff);
-  padding: 6px;
-  font-size: 0.8rem;
-  text-align: center;
-  opacity: 0;
-  transform: translateY(100%);
-  transition: opacity 0.2s ease, transform 0.2s ease;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Pagination Controls - added by Cascade 2025-07-16 */
-.pagination-controls {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 16px;
-  margin-top: 8px;
-  padding: 8px 0;
-}
-
-.pagination-controls .nova-btn {
-  background: var(--aura-panel-bg-alt, #2a2c4a);
-  color: var(--aura-text, #eaf6ff);
-  border: 1px solid var(--aura-glow, #3af2ff20);
-  border-radius: 6px;
-  padding: 6px 12px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.pagination-controls .nova-btn:hover:not(:disabled) {
-  background: var(--aura-panel-highlight, #343760);
-  border-color: var(--aura-glow, #3af2ff40);
-}
-
-.pagination-controls .nova-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-#page-indicator {
-  color: var(--aura-label, #b6c9d8);
-  font-size: 0.9rem;
-}
-
-/* Error and empty state messages - added by Cascade 2025-07-16 */
-.error-message, .empty-message {
-  width: 100%;
-  padding: 16px;
-  text-align: center;
-  color: var(--aura-text, #eaf6ff);
-  background: var(--aura-panel-bg-alt, #2a2c4a);
-  border-radius: 8px;
-  margin: 16px 0;
-}
-
-.error-message {
-  border-left: 3px solid var(--mood-error, #ff5252);
-}
-
-.empty-message {
-  border-left: 3px solid var(--mood-secondary, #a0f0ff);
-}
-
-/* Sticky Pulse Bar (Mood Bar) — can be .sticky-top or .sticky-bottom */
-.sticky-top {
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: 0 2px 16px 0 rgba(0,0,0,0.13);
-}
-.sticky-bottom {
-  position: sticky;
-  bottom: 0;
-  z-index: 100;
-  box-shadow: 0 -2px 16px 0 rgba(0,0,0,0.13);
-}
-
-@keyframes windsurf-spin {
+@keyframes oc-spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
 }
 
-/* Side-by-side dashboard sections - added by Cascade 2025-07-10 */
-.dashboard-flex-row {
-  display: flex;
-  gap: 20px;
-  width: 100%;
+.api-status-details {
+  font-size: 0.75rem;
+  color: var(--nv-text-secondary);
 }
 
-.dashboard-flex-item {
-  flex: 1;
-  min-width: 0; /* Prevents flex items from overflowing */
+.api-status-latency {
+  color: var(--nv-text-tertiary);
+  font-size: 0.72rem;
 }
 
-@media (max-width: 900px) {
-  .nova-dashboard {
-    gap: 12px;
-    padding: 10px 2vw 0 2vw;
-  }
-  
-  /* Stack sections vertically on mobile */
-  .dashboard-flex-row {
-    flex-direction: column;
-  }
-  .novaopenai-col-form,
-  .novaopenai-col-request,
-  .novaopenai-col-response {
-    min-width: 0;
-    padding: 0;
-  }
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .oc-status-grid { grid-template-columns: 1fr; }
+  .oc-grid-2col { grid-template-columns: 1fr; }
 }
 
-/* NovaOpenAI 3-column layout styles - updated by Cascade 2025-07-12 */
-.novaopenai-col-form {
-  min-width: 270px;
-  max-width: 420px;
-  flex: 1.2 1 320px;
-  padding-right: 18px;
-  border-right: 1.5px solid var(--aura-glow, #3af2ff30);
+@media (max-width: 600px) {
+  .oc-metric-grid { grid-template-columns: repeat(2, 1fr); }
+  .oc-posture { gap: 6px 10px; padding: 8px 10px; }
 }
-.novaopenai-col-request {
-  min-width: 200px;
-  max-width: 420px;
-  flex: 1 1 280px;
-  padding: 0 16px;
-  border-right: 1.5px solid var(--aura-glow, #3af2ff20);
-}
-.novaopenai-col-response {
-  min-width: 200px;
-  max-width: 420px;
-  flex: 1 1 280px;
-  padding-left: 16px;
-}
-
-@media (max-width: 1100px) {
-  .novaopenai-col-form,
-  .novaopenai-col-request,
-  .novaopenai-col-response {
-    max-width: 100%;
-    padding: 0 !important;
-    border-right: none !important;
-  }
-}
-/* End NovaOpenAI 3-column layout styles */
-
-/* API Function Tester Form Styles - added by Cascade 2025-07-15 */
-#api-tester-form {
-  margin-bottom: 12px;
-}
-
-.api-form-row {
-  margin-bottom: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.api-endpoint-container {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  color: var(--aura-text, #eaf6ff);
-  font-weight: 500;
-  font-size: 0.9rem;
-}
-
-.api-endpoint-selector-container {
-  display: flex;
-  gap: 8px;
-}
-
-.api-endpoint-select {
-  min-width: 180px;
-  flex-shrink: 0;
-  padding: 8px 12px;
-  background: rgba(30, 32, 50, 0.8);
-  border: 1px solid rgba(90, 228, 255, 0.2);
-  border-radius: 6px;
-  color: #fff;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
-  font-family: 'Inter', sans-serif;
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23e0e0e0' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 16px;
-  cursor: pointer;
-  padding-right: 40px;
-}
-
-/* Dropdown option styling */
-.api-endpoint-select option {
-  background-color: #1e2032;
-  color: #fff;
-  padding: 8px;
-}
-
-.api-endpoint-input {
-  flex-grow: 1;
-  padding: 8px 12px;
-  background: rgba(30, 32, 50, 0.8);
-  border: 1px solid rgba(90, 228, 255, 0.2);
-  border-radius: 6px;
-  color: #fff;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
-  font-family: 'Inter', sans-serif;
-}
-
-.api-endpoint-select:focus,
-.api-endpoint-input:focus,
-#api-body:focus {
-  outline: none;
-  border-color: var(--aura-glow, #5ae4ff);
-  box-shadow: 0 0 0 2px rgba(90, 228, 255, 0.2);
-}
-
-#api-body-label {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  color: var(--aura-text, #eaf6ff);
-  font-weight: 500;
-  font-size: 0.9rem;
-}
-
-#api-body {
-  width: 100%;
-  padding: 8px 12px;
-  background: rgba(30, 32, 50, 0.8);
-  border: 1px solid rgba(90, 228, 255, 0.2);
-  border-radius: 6px;
-  color: #fff;
-  font-size: 0.9rem;
-  transition: all 0.3s ease;
-  font-family: 'Inter', sans-serif;
-  min-height: 80px;
-  resize: vertical;
-}
-
-.api-body-hidden {
-  display: none !important;
-}
-
-/* API Method Buttons */
-.api-method-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.api-method-buttons {
-  display: flex;
-  gap: 6px;
-}
-
-.api-method-button {
-  min-width: 60px;
-  text-align: center;
-  padding: 6px 10px;
-}
-
-.api-send-button {
-  padding: 6px 12px;
-}
-
-/* Dashboard Tip Styling */
-.dashboard-tip {
-  font-size: 0.85rem;
-  color: var(--aura-label, #b6c9d8);
-  background: rgba(90, 228, 255, 0.05);
-  border-radius: 6px;
-  padding: 6px 10px;
-  margin-bottom: 10px;
-  border-left: 3px solid var(--aura-glow, #5ae4ff);
-}
-
-.dashboard-description {
-  font-size: 0.9rem;
-  color: var(--aura-text, #eaf6ff);
-  margin-bottom: 8px;
-  opacity: 0.9;
-}
-
-/* End of API Function Tester styles */

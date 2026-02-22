@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function initApiTester() {
   // Elements
   const form = document.getElementById('api-tester-form');
+  if (!form) return;
   const endpointSelect = document.getElementById('api-endpoint-select');
   const endpointInput = document.getElementById('api-endpoint');
   const methodGetBtn = document.getElementById('api-method-get');
@@ -365,7 +366,7 @@ function initApiStatusDashboard() {
   
   // Check all API endpoints
   async function checkAllApiStatus() {
-    lastCheckTime.textContent = `Last check: ${new Date().toLocaleTimeString()}`;
+    lastCheckTime.textContent = `Last check: ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
     
     // Check each endpoint with a slight delay to avoid overwhelming the server
     for (const endpoint of apiEndpoints) {

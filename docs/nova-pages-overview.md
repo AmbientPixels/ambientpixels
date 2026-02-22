@@ -13,9 +13,9 @@
 /nova/                  ← Landing page (public)
 /nova/preview.html      ← Operations preview (public)
 /nova/agents.html       ← Agent roster (public)
-/nova/dashboard.html    ← Internal dashboard (noindex)
+/nova/dashboard.html    ← Operator Console (noindex)
 /nova/awareness.html    ← System context (noindex)
-/nova/logs.html         ← Founder log (noindex)
+/nova/logs.html         ← Execution Log (noindex)
 ```
 
 ### Secondary / Legacy (not in active nav)
@@ -125,35 +125,37 @@ None beyond core (init-header-footer, main, nav, theme)
 
 ---
 
-## 4. `/nova/dashboard.html` — Internal Dashboard
+## 4. `/nova/dashboard.html` — Operator Console
 
 **Audience:** Internal (noindex)  
-**Purpose:** Operational telemetry, system status, API health, memory stats.  
-**Hero:** "Internal Dashboard" — "Operational telemetry, system status, and execution tools."
+**Purpose:** Semi-public operator console with operational telemetry, system status, API health, and runtime metrics.  
+**Header:** Breadcrumb "Nova / Operator Console" with chips: INTERNAL MODE, REDACTED, SNAPSHOT MODE (upgrades to LIVE TELEMETRY when data available)
 
 ### Sections
 
 | Section | Description | Data Source |
 |---|---|---|
-| **Scrolling Ticker** | "GRIDOS internal mode active" + system labels | Static |
-| **Nova System Status** | 3 status cards: Nova Core, API Services, Memory Systems | `nova-status.js` + API health checks |
-| **Daily System Brief Archive** | Brief history feed | `operator-brief.js` |
-| **Memory & Activity** | 6-cell metric grid: chats, turns, snapshots, logs, briefs, days active | `NovaSoul.getMemoryStats()` |
-| **System Info** | Key-value list: version, build, sync, state, aura, voice mode | `version.json` + `mood-scan.json` |
-| **API Health** | Grid of API endpoint status dots with refresh button | `api-status-dashboard.js` |
-| **Nav Footer** | Horizontal links to sibling pages | Static |
+| **System Posture** | Compact strip: Mode, Status Feed, API Checks, Brief Archive, Escalations | Inline JS + `/api/dailyLog` |
+| **System Status** | 3 compact cards: Nova Core, API Services, Memory Systems with status pills | `NovaSoul`, `api-status-dashboard.js` |
+| **Daily System Brief** | Structured brief with label/value rows | `operator-brief.js` → `/api/dailyLog` |
+| **Runtime Metrics** | 6-cell grid: chats, turns, snapshots, logs, briefs, days active | `NovaSoul.getMemoryStats()` |
+| **System Info** | 4-row key-value list: Version, Build, Last Sync, Operator State (derived from recency) | `version.json` |
+| **API Health** | Collapsible (default collapsed) grid of endpoint status cards with refresh | `api-status-dashboard.js` |
+| **Nav Footer** | Nova Surfaces nav (consistent with all pages) | Static |
 
 ### Scripts
-`nova-soul.js`, `nova-status.js`, `api-status-dashboard.js`, `operator-brief.js`, `nova-telemetry-logger.js`
+`nova-soul.js`, `api-status-dashboard.js`, `operator-brief.js`
 
-### Issues / Recommendations
+### Design Notes
 
-- **Status section titles** still use `<h2>` without `dashboard-title` class — inconsistent font rendering with the other sections below
-- **"Nova System Status" section** has its own `nova-status-grid` layout that differs from the rest of the page's patterns
-- **Brief Archive section** reuses `nova-dream-feed` / `nova-dream-loading` class names from the legacy "dream" era — should be renamed for clarity
-- **Memory & Activity panel** data is localStorage-only — will show zeros for new visitors. Consider adding a "local session data" disclaimer
-- **API Health grid** renders dynamically and can look empty on first load — loading state could be improved
-- **Ticker sits between hero and content** — spacing works but the ticker's original `margin: 96px auto 0` was for when there was no hero. Now overridden with `margin-top:0` inline style which is fragile
+- Uses `nova-shared.css` + `nova-dashboard.css` (372 lines, all `--nv-` tokens)
+- No hero image — uses `nv-hero` breadcrumb header pattern
+- No ticker — replaced with compact System Posture strip
+- No personality artifacts — removed mood-scan.json, Signal Profile, Voice Mode
+- API Health section defaults to collapsed with localStorage persistence
+- Status cards derive state from live checks (NovaSoul availability, API results, memory stats)
+- Empty metrics show helper text: "Insufficient activity to display meaningful counters."
+- No mystical language, no internal IDs or secrets exposed
 
 ---
 

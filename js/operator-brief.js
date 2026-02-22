@@ -99,7 +99,7 @@
         '<span class="nova-brief-row"><span class="nova-brief-label">Approvals processed</span><span class="nova-brief-value">' + esc(String(data.approvalsProcessed)) + '</span></span>' +
         '<span class="nova-brief-row"><span class="nova-brief-label">Risks flagged</span><span class="nova-brief-value">' + esc(String(data.risksFlagged)) + '</span></span>' +
         '<span class="nova-brief-row"><span class="nova-brief-label">System status</span><span class="nova-brief-value nova-brief-chip ' + statusClass + '">' + esc(data.systemStatus) + '</span></span>' +
-        '<span class="nova-brief-row"><span class="nova-brief-label">Founder priority</span><span class="nova-brief-value">' + esc(data.founderPriority) + '</span></span>' +
+        '<span class="nova-brief-row"><span class="nova-brief-label">Operator Priority</span><span class="nova-brief-value">' + esc(data.founderPriority) + '</span></span>' +
         '<span class="nova-brief-row nova-brief-row--meta"><span class="nova-brief-label">Data source</span><span class="nova-brief-value">' + esc(data.sourceLabel) + '</span></span>' +
         '<span class="nova-brief-row nova-brief-row--meta"><span class="nova-brief-label">Last updated</span><span class="nova-brief-value">' + esc(data.updatedLabel) + '</span></span>' +
       '</span>';
