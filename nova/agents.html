@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="/css/components.css" />
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/css/hero-base.css" />
   <link rel="stylesheet" href="/css/nova-shared.css" />
   <style>
     .aa { max-width: 960px; margin: 0 auto; padding: 2.5rem 1.5rem 3rem; }
@@ -21,7 +22,7 @@
     .aa-hero-micro {
       font-size: 0.72rem; color: var(--nv-text-tertiary); margin: 0 0 1.1rem;
     }
-    .aa-hero-cta { display: flex; gap: 8px; flex-wrap: wrap; }
+    .aa-hero-cta { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 1rem; }
 
     /* ── Tier Sections ── */
     .aa-tier { margin-bottom: 3rem; }
@@ -153,14 +154,12 @@
 <body data-theme="dark">
   <header id="nav-header"></header>
 
-  <section class="nv-hero">
-    <div class="nv-hero-inner">
+  <section class="hero-base" data-hero="control">
+    <div class="hero-base-layer"></div>
+    <div class="hero-base-content">
       <p class="nv-breadcrumb"><a href="/nova/">Nova</a> / Agent Architecture</p>
-      <h1 class="nv-title">
-        <svg class="cf-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><path d="M20 8v6M17 11h6"></path></svg>
-        GridOS Agent Architecture
-      </h1>
-      <p class="nv-subtitle">Human governance &rarr; Nova orchestration &rarr; execution agents &rarr; sub-agents.</p>
+      <h1>GridOS Agent Architecture</h1>
+      <p>Human governance &rarr; Nova orchestration &rarr; execution agents &rarr; sub-agents.</p>
       <p class="aa-hero-micro">Public-safe overview. No internal prompts or memory contents.</p>
       <div class="aa-hero-cta">
         <a class="nv-pill" href="/nova/" aria-label="Back to Nova">

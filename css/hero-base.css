@@ -127,6 +127,11 @@
   margin-top: var(--hero-gap-3);
 }
 
+/* Chip row spacing */
+.hero-base-content .nv-chip-row {
+  margin-top: 0.75rem;
+}
+
 /* ── Pseudo Layers ── */
 .hero-base::before,
 .hero-base::after {

@@ -11,7 +11,7 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
-/* Spectrum line — static rainbow + telemetry sweep */
+/* Spectrum line — static rainbow stripe */
 .nav-spectrum-line {
   position: relative;
   height: 2px;
@@ -19,40 +19,6 @@
   background: linear-gradient(90deg, #8A2BE2, #60a5fa, #34d399, #fbbf24, #8A2BE2);
   opacity: 0.80;
   overflow: hidden;
-}
-
-.nav-spectrum-line::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 14vw;
-  min-width: 120px;
-  max-width: 200px;
-  opacity: 0.80;
-  background: linear-gradient(
-    90deg,
-    rgba(255,255,255,0) 0%,
-    rgba(255,255,255,1) 50%,
-    rgba(255,255,255,0) 100%
-  );
-  transform: translateX(-30%);
-  animation: navSpectrumSweep 14s linear infinite;
-  filter: blur(0.4px);
-  pointer-events: none;
-}
-
-@keyframes navSpectrumSweep {
-  0%   { transform: translateX(-30%); }
-  100% { transform: translateX(120vw); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .nav-spectrum-line::after {
-    animation: none;
-    opacity: 0;
-  }
 }
 
 .nav-container {
