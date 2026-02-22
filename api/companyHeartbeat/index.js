@@ -84,6 +84,7 @@ const MAX_TOOL_CALLS_PER_AGENT = 2;
 const MAX_RESEARCH_INJECTIONS = 3;
 const MAX_RESEARCH_CHARS = 2000;
 const MAX_RESEARCH_STORE_ENTRIES = 20;
+const AGENT_COOLDOWN_VIOLATIONS_PER_RUN = 2;
 
 // ── Phase 2B: Known action types for dual-envelope normalizer ──
 const KNOWN_ACTION_TYPES = [
@@ -805,6 +806,23 @@ module.exports = async function (context) {
       return _runCounters.byAgent[aid].proposals < _effectiveCaps.maxProposalsPerAgentPerRun;
     }
 
+    // Cooldown is per-run only (non-persistent): after repeated violations, force proposals-only path.
+    const _cooldownLogged = new Set();
+    function _isAgentInCooldown(aid) {
+      return (_runCounters?.byAgent?.[aid]?.blocked || 0) >= AGENT_COOLDOWN_VIOLATIONS_PER_RUN;
+    }
+    async function _logAgentCooldownOnce(aid) {
+      if (_cooldownLogged.has(aid)) return;
+      _cooldownLogged.add(aid);
+      await logEvent('policy-violation', aid, 'Agent forced into proposals-only cooldown for this run', runId, {
+        runId: runId,
+        agentId: aid,
+        gate: 'agent_cooldown',
+        reason: 'violations_in_run',
+        violations: (_runCounters?.byAgent?.[aid]?.blocked || 0)
+      });
+    }
+
     // ── Backfill: re-resolve hero image URLs for pending publish AQ entries ──
     // Covers the case where Scribe submitted before Pixel generated the image
     try {
@@ -998,7 +1016,7 @@ module.exports = async function (context) {
           workspaceMemory, workspaceDates, revisionActions,
           agentId === 'cipher' ? costIntel : null,
           _reviewCooldownIds, _seedMemories, researchIntelStore, socialIntel,
-          normalizedActivationMode
+          normalizedActivationMode, _isAgentInCooldown, _logAgentCooldownOnce
         );
         // Collect any new research intel from this agent's cycle
         if (result.newResearchIntel) {
@@ -1024,6 +1042,13 @@ module.exports = async function (context) {
             }
             const mutationAction = update.action;
             const isTaskMutation = mutationAction === 'create' || mutationAction === 'move' || mutationAction === 'update';
+
+            // Per-run cooldown: once threshold is reached, suppress further task mutations for this agent.
+            if (isTaskMutation && _isAgentInCooldown(agentId)) {
+              await _logAgentCooldownOnce(agentId);
+              continue;
+            }
+
             if (isTaskMutation) {
               if (!result.proposals) result.proposals = [];
 
@@ -1582,7 +1607,7 @@ module.exports = async function (context) {
 };
 
 // ── Run a single agent's heartbeat ──
-async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, normalizedActivationMode) {
+async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, normalizedActivationMode, isAgentInCooldown, logAgentCooldownOnce) {
   const result = { geminiCalls: 0, actions: 0, taskUpdates: [], proposals: [], newResearchIntel: null };
   const agent = AGENT_ROLES[agentId];
   if (!agent) return result;
@@ -1652,6 +1677,19 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
 
   // ── Phase 2B: Normalize agent output (dual-envelope support) ──
   const normalized = normalizeAgentResult(parsed);
+
+  // Per-run cooldown (non-persistent): proposals/observations allowed, mutations + remember suppressed.
+  if (typeof isAgentInCooldown === 'function' && isAgentInCooldown(agentId)) {
+    normalized.actions = normalized.actions.filter(function (a) {
+      const t = (a && a.type) || '';
+      if (t === 'remember') return false;
+      return t !== 'create-task' && t !== 'update-task' && t !== 'move-task';
+    });
+    normalized.remember = [];
+    if (typeof logAgentCooldownOnce === 'function') {
+      await logAgentCooldownOnce(agentId);
+    }
+  }
 
   // Log unknown action types as warnings
   for (var _oi = 0; _oi < normalized.observations.length; _oi++) {
