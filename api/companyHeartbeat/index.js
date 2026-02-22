@@ -63,6 +63,7 @@ const MAX_MEMORIES_PER_AGENT = 20;
 
 // ── Tier 4 Sub-Agent Gating ──
 const TIER4_SUB_AGENTS = new Set(['quill']);
+const OBJECTIVE_EXEMPT_CATEGORIES = new Set(['ops_breakfix', 'governance', 'maintenance']);
 const MAX_TOOL_CALLS_PER_AGENT = 2;
 const MAX_RESEARCH_INJECTIONS = 3;
 const MAX_RESEARCH_CHARS = 2000;
@@ -473,8 +474,47 @@ function shouldRunTier4Agent(tasks, agentId) {
   return { run: false, reason: 'no_assigned_tasks_or_mentions' };
 }
 
+function _normalizeCategory(category) {
+  return String(category || '').trim().toLowerCase();
+}
+
+function _isInProgressStatus(status) {
+  const normalized = String(status || '').trim().toLowerCase();
+  return normalized === 'in-progress' || normalized === 'in_progress';
+}
+
+function _isObjectiveExemptCategory(category) {
+  return OBJECTIVE_EXEMPT_CATEGORIES.has(_normalizeCategory(category));
+}
+
+function _normalizeActivationMode(mode) {
+  const normalized = String(mode || '').trim().toLowerCase();
+  if (normalized === 'manual') return 'manual';
+  if (normalized === 'experimental') return 'experimental';
+  if (normalized === 'supervised_autonomous' || normalized === 'auto') return 'supervised_autonomous';
+  return 'supervised_autonomous';
+}
+
+function _buildBlockedProposal(agentId, runId, reasonBlocked, proposedAction, payload) {
+  return {
+    type: 'proposal',
+    agentId: agentId,
+    runId: runId,
+    reasonBlocked: reasonBlocked,
+    proposedAction: proposedAction,
+    payload: {
+      title: payload.title || 'Untitled',
+      category: payload.category || null,
+      objective_id: payload.objective_id || null,
+      acceptanceCriteria: Array.isArray(payload.acceptanceCriteria) ? payload.acceptanceCriteria : [],
+      evidence: payload.evidence && typeof payload.evidence === 'object' ? payload.evidence : {}
+    }
+  };
+}
+
 module.exports = async function (context) {
   const cycleId = 'cycle-' + Date.now();
+  const runId = cycleId;
   const cycleStart = new Date().toISOString();
   let geminiCalls = 0;
   let newTasksCreated = 0;
@@ -536,6 +576,20 @@ module.exports = async function (context) {
     }
     const activeDirectives = directives.filter(d => d.status === 'active');
     const activeObjectives = objectives.filter(o => o.status === 'active' || o.status === 'in_progress');
+    const activationMode = String(
+      (await storage.getState('activationMode')) ||
+      (runtimeMemory && runtimeMemory.activationMode) ||
+      process.env.ACTIVATION_MODE ||
+      'auto'
+    ).toLowerCase();
+    const normalizedActivationMode = _normalizeActivationMode(activationMode);
+
+    await logEvent('run-start', null, 'Heartbeat run start', runId, {
+      runId: runId,
+      mode: normalizedActivationMode,
+      taskCount: tasks.length,
+      agentCount: AGENT_IDS.length
+    });
 
     // ── Backfill: re-resolve hero image URLs for pending publish AQ entries ──
     // Covers the case where Scribe submitted before Pixel generated the image
@@ -753,6 +807,93 @@ module.exports = async function (context) {
               context.log('[Heartbeat]', agentId, 'BLOCKED review on', update.taskId, '— task just entered review this cycle (cooldown)');
               continue;
             }
+            const mutationAction = update.action;
+            const isTaskMutation = mutationAction === 'create' || mutationAction === 'move' || mutationAction === 'update';
+            if (isTaskMutation) {
+              if (!result.proposals) result.proposals = [];
+
+              // Manual mode gate: proposal-only, no direct task mutations
+              if (normalizedActivationMode === 'manual') {
+                const _modeTask = mutationAction === 'create'
+                  ? { id: null, title: (update.task && update.task.title) || 'Untitled', category: (update.task && update.task.category) || null, objective_id: (update.task && update.task.objective_id) || null }
+                  : tasks.find(t => t.id === update.taskId);
+                const modeProposal = _buildBlockedProposal(agentId, runId, 'mode_gate', mutationAction === 'create' ? 'create_task' : 'move_task', {
+                  title: (_modeTask && _modeTask.title) || (update.task && update.task.title) || 'Untitled',
+                  category: (_modeTask && _modeTask.category) || (update.task && update.task.category) || null,
+                  objective_id: (_modeTask && _modeTask.objective_id) || (update.task && update.task.objective_id) || null,
+                  acceptanceCriteria: [],
+                  evidence: {
+                    blockedAction: mutationAction,
+                    taskId: update.taskId || null,
+                    mode: normalizedActivationMode
+                  }
+                });
+                result.proposals.push(modeProposal);
+                await logEvent('policy-violation', agentId, 'Task mutation blocked by activation mode', runId, {
+                  runId: runId,
+                  agentId: agentId,
+                  gate: 'mode_gate',
+                  action: mutationAction,
+                  reason: 'activationMode=manual blocks task mutations',
+                  taskId: update.taskId || null,
+                  category: (_modeTask && _modeTask.category) || (update.task && update.task.category) || null
+                });
+                continue;
+              }
+
+              // Objective gate: require objective_id for create and transitions into in-progress unless exempt category
+              let requiresObjective = false;
+              let targetTask = null;
+              if (mutationAction === 'create') {
+                requiresObjective = true;
+              } else if (mutationAction === 'move') {
+                targetTask = tasks.find(t => t.id === update.taskId);
+                const oldStatus = targetTask ? targetTask.status : null;
+                if (_isInProgressStatus(update.newStatus) && !_isInProgressStatus(oldStatus)) {
+                  requiresObjective = true;
+                }
+              } else if (mutationAction === 'update') {
+                targetTask = tasks.find(t => t.id === update.taskId);
+                const oldStatus = targetTask ? targetTask.status : null;
+                const nextStatus = update.updates ? update.updates.status : null;
+                if (_isInProgressStatus(nextStatus) && !_isInProgressStatus(oldStatus)) {
+                  requiresObjective = true;
+                }
+              }
+
+              if (requiresObjective) {
+                const gateTask = mutationAction === 'create' ? (update.task || {}) : (targetTask || {});
+                const category = _normalizeCategory(gateTask.category || gateTask.task_category || null);
+                const objectiveId = mutationAction === 'create'
+                  ? (update.task && update.task.objective_id)
+                  : ((update.updates && update.updates.objective_id) || gateTask.objective_id || null);
+                if (!_isObjectiveExemptCategory(category) && !objectiveId) {
+                  const gateProposal = _buildBlockedProposal(agentId, runId, 'objective_gate', mutationAction === 'create' ? 'create_task' : 'move_task', {
+                    title: gateTask.title || (update.task && update.task.title) || 'Untitled',
+                    category: category || null,
+                    objective_id: null,
+                    acceptanceCriteria: [],
+                    evidence: {
+                      blockedAction: mutationAction,
+                      taskId: update.taskId || null,
+                      targetStatus: update.newStatus || (update.updates && update.updates.status) || null
+                    }
+                  });
+                  result.proposals.push(gateProposal);
+                  await logEvent('policy-violation', agentId, 'Task mutation blocked by objective gate', runId, {
+                    runId: runId,
+                    agentId: agentId,
+                    gate: 'objective_gate',
+                    action: mutationAction,
+                    reason: 'objective_id required for task write',
+                    taskId: update.taskId || null,
+                    category: category || null
+                  });
+                  continue;
+                }
+              }
+            }
+
             const updatedTask = applyTaskUpdate(tasks, update, _pendingEscalations, agentId);
             if (update.action === 'create') newTasksCreated++;
             // CEO task completion → create action for approval queue
@@ -939,7 +1080,7 @@ module.exports = async function (context) {
 
 // ── Run a single agent's heartbeat ──
 async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel) {
-  const result = { geminiCalls: 0, actions: 0, taskUpdates: [], newResearchIntel: null };
+  const result = { geminiCalls: 0, actions: 0, taskUpdates: [], proposals: [], newResearchIntel: null };
   const agent = AGENT_ROLES[agentId];
   if (!agent) return result;
 
@@ -4143,13 +4284,15 @@ function _createActionFromHeartbeat(data, agentId) {
 }
 
 // ── Log helper ──
-async function logEvent(type, agentId, summary, cycleId) {
-  await storage.appendLog({
+async function logEvent(type, agentId, summary, cycleId, details) {
+  const event = {
     id: 'log-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
     type: type,
     agentId: agentId,
     summary: summary,
     cycle: cycleId,
     timestamp: new Date().toISOString()
-  });
+  };
+  if (details && typeof details === 'object') event.details = details;
+  await storage.appendLog(event);
 }
