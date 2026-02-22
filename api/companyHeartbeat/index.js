@@ -4160,10 +4160,11 @@ ${triageSection}${directivesSection}${objectivesSection}${docsSection}${research
 ${buildSiteContextBlock()}
 CURRENT TIME: ${new Date().toISOString()}
 
-${['Nova', 'Forge', 'Pixel', 'Cipher', 'Scout'].includes(agent.name) ? `
+${['Nova', 'Forge', 'Pixel', 'Cipher', 'Scout', 'Quill', 'Scribe', 'Echo'].includes(agent.name) ? `
 STRICT: Respond with ONLY valid JSON. No prose. No markdown. No explanation text outside JSON.
 
-GRIDOS CANARY OUTPUT ENVELOPE (REQUIRED for Nova, Forge, Pixel, Cipher, Scout):
+GRIDOS OUTPUT ENVELOPE (REQUIRED for all agents):
+Response format MUST be exactly:
 {
   "taskUpdates": [],
   "proposals": [],
@@ -4171,11 +4172,16 @@ GRIDOS CANARY OUTPUT ENVELOPE (REQUIRED for Nova, Forge, Pixel, Cipher, Scout):
   "observations": []
 }
 
-Mapping rules (Nova/Forge/Pixel/Cipher/Scout):
+Mapping rules:
 - taskUpdates: include ONLY create-task, update-task, move-task objects (same action object fields as legacy format); update-task may use only allowed update keys, and include objective_id for create/in-progress transitions unless objective-exempt category.
 - proposals: schema-v1 proposal objects when blocked by a gate or when external approval is needed; include objective_id OR objective_suggestion, acceptanceCriteria, and evidence.runId.
 - remember: memory entries with { "type", "text", "evidence", "expiresAt" } (only when allowed by activationMode), using only allowed L4 memory types; preferred types require evidence.runId.
 - observations: short warning/summary strings.
+
+Role-specific guidance:
+- Quill: validate allowed update keys before emitting taskUpdates; if any gate risk exists, prefer proposals over taskUpdates.
+- Scribe: docs/content changes should be proposals unless objective_id is explicit; keep outputs bounded and use observations for brief notes only.
+- Echo: never execute external actions directly; use proposals only for social/publishing work. Provide max 2-3 variants and ensure each proposal includes acceptanceCriteria and evidence.runId.
 
 Example payload:
 {
