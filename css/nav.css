@@ -94,6 +94,34 @@
   gap: 10px;
 }
 
+.nav-gridos-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.03);
+  color: rgba(255,255,255,0.78);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.nav-gridos-badge i {
+  font-size: 0.7rem;
+  opacity: 0.9;
+}
+
+.nav-gridos-badge:hover,
+.nav-gridos-badge:focus {
+  border-color: rgba(167,139,250,0.45);
+  color: #ffffff;
+  background: rgba(167,139,250,0.1);
+}
+
 #theme-toggle {
   background: none;
   border: none;
@@ -126,6 +154,17 @@
 /* Light theme */
 [data-theme="light"] .nav-auth-btn {
   color: #1a2a44 !important;
+}
+[data-theme="light"] .nav-gridos-badge {
+  border-color: rgba(0,0,0,0.12);
+  background: rgba(0,0,0,0.02);
+  color: #64748b;
+}
+[data-theme="light"] .nav-gridos-badge:hover,
+[data-theme="light"] .nav-gridos-badge:focus {
+  border-color: rgba(124,58,237,0.35);
+  color: #1e293b;
+  background: rgba(124,58,237,0.08);
 }
 [data-theme="light"] .nav-auth-btn:hover,
 [data-theme="light"] .nav-auth-btn:focus {
@@ -168,6 +207,15 @@
   .nav-content {
     flex-grow: 1;
     justify-content: flex-end;
+  }
+
+  .nav-gridos-badge {
+    font-size: 0.62rem;
+    padding: 4px 8px;
+  }
+
+  .nav-gridos-badge span {
+    display: none;
   }
 
   .nav-links {

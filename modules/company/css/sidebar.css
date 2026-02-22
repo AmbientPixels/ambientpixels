@@ -208,6 +208,35 @@
   color: #8A2BE2;
 }
 
+.sb-topbar-gridos {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.03);
+  color: rgba(255,255,255,0.72);
+  text-decoration: none;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+
+.sb-topbar-gridos:hover {
+  color: rgba(255,255,255,0.92);
+  border-color: rgba(138, 43, 226, 0.42);
+  background: rgba(138, 43, 226, 0.1);
+}
+
+.sb-topbar-gridos i {
+  font-size: 0.66rem;
+  opacity: 0.9;
+}
+
 /* ── Content area ── */
 .sb-content {
   flex: 1;
@@ -276,6 +305,15 @@
   .sb-sub {
     padding: 4px 8px;
     font-size: 0.64rem;
+  }
+
+  .sb-topbar-gridos {
+    padding: 4px 8px;
+    font-size: 0.58rem;
+  }
+
+  .sb-topbar-gridos span {
+    display: none;
   }
 
   .sb-topbar-label { display: none; }

@@ -192,6 +192,13 @@
       a.innerHTML = '<i class="fas ' + link.icon + '"></i>' + link.label;
       topbar.appendChild(a);
     });
+
+    var gridos = document.createElement('a');
+    gridos.href = '/gridos/';
+    gridos.className = 'sb-topbar-gridos';
+    gridos.setAttribute('aria-label', 'GridOS overview');
+    gridos.innerHTML = '<i class="fas fa-server" aria-hidden="true"></i><span>GridOS v1.0</span>';
+    topbar.appendChild(gridos);
   }
 
   function selectCategory(catId) {
