@@ -7,8 +7,8 @@
     </button>
     
     <div class="contact-form-container">
-      <h2><i class="fas fa-paper-plane"></i> Work With Us</h2>
-      <p class="form-subtitle">Let's create something amazing together. Share your project details below and we'll get back to you soon!</p>
+      <h2><i class="fas fa-paper-plane"></i> Start a Project</h2>
+      <p class="form-subtitle">Share your project details below and we'll get back to you.</p>
       
       <form id="contact-form" action="https://formspree.io/f/xanejjnz" method="POST" class="contact-form js-form-handler">
         <div class="form-group">
@@ -38,10 +38,11 @@
           </div>
           <div class="input-wrapper">
             <select id="project-type" name="project-type" class="styled-select" required>
-              <option value="" disabled selected>Select a project type</option>
+              <option value="" disabled selected>Select Project Type</option>
+              <option value="ai-systems">AI Systems / Automation</option>
               <option value="web">Website Development</option>
               <option value="design">UI/UX Design</option>
-              <option value="motion">Motion Graphics</option>
+              <option value="infrastructure">Infrastructure / APIs</option>
               <option value="consulting">Consulting</option>
               <option value="other">Something Else</option>
             </select>
@@ -62,6 +63,7 @@
           <button type="submit" class="glass-button btn-primary">
             <i class="fas fa-paper-plane"></i> Send Message
           </button>
+          <p class="form-helper" style="margin:0.6rem 0 0;font-size:0.78rem;color:rgba(148,163,184,0.6);text-align:center;">Include timeline + budget range if you have it.</p>
         </div>
         
         <!-- Form status message -->

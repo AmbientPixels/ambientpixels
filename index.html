@@ -57,6 +57,10 @@
         <h1 class="hero-headline"></h1>
         <p class="hero-subheadline"></p>
         <div class="hero-cta">
+          <button type="button" class="glass-button" onclick="openProjectModal('home')">
+            <i class="fas fa-paper-plane"></i>
+            <span>Start a Project</span>
+          </button>
           <a href="/gridos/" class="glass-button secondary">
             <i class="fas fa-server"></i>
             <span>Request GridOS Access</span>
@@ -306,11 +310,22 @@
   <script src="/js/init-contact-modal.js" defer></script>
   
   <script>
-    // Initialize modal form when the page loads
-    document.addEventListener('DOMContentLoaded', function() {
-      // The form will be auto-loaded by init-contact-modal.js
-      // using the data-auto-form attribute on the container
-    });
+    function openProjectModal(source) {
+      // Modal already auto-loaded via data-auto-form="modal"
+      var sel = document.getElementById('project-type');
+      if (sel) sel.value = 'ai-systems';
+      var msg = document.getElementById('message');
+      if (msg && !msg.value) msg.placeholder = 'Tell us about your project. Include timeline + budget range if you have it.';
+      var hidden = document.getElementById('contact-source');
+      if (!hidden) {
+        hidden = document.createElement('input');
+        hidden.type = 'hidden'; hidden.name = '_source'; hidden.id = 'contact-source';
+        var form = document.getElementById('contact-form');
+        if (form) form.appendChild(hidden);
+      }
+      hidden.value = source || 'home';
+      showModal('contact-modal');
+    }
   </script>
 </body>
 </html>

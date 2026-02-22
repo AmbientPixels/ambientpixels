@@ -1,0 +1,289 @@
+/* services.css -- Services Page (Pillar Layout) */
+
+/* -- Hero (background image variant) -- */
+.svc-hero {
+  position: relative;
+  margin-top: 85px;
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.svc-hero-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 0;
+}
+
+.svc-hero-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    to right,
+    rgba(7, 16, 25, 0.92) 0%,
+    rgba(7, 16, 25, 0.7) 45%,
+    rgba(7, 16, 25, 0.3) 100%
+  );
+}
+
+[data-theme="light"] .svc-hero-overlay {
+  background: linear-gradient(
+    to right,
+    rgba(237, 238, 241, 0.95) 0%,
+    rgba(237, 238, 241, 0.75) 45%,
+    rgba(237, 238, 241, 0.35) 100%
+  );
+}
+
+.svc-hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 3.5rem 1.5rem;
+  width: 100%;
+}
+
+.svc-hero-content h1 {
+  margin: 0 0 0.3rem;
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--nv-text);
+}
+
+.svc-hero-content h2 {
+  margin: 0 0 0.8rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--nv-accent);
+}
+
+.svc-hero-content p {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--nv-text-secondary);
+  max-width: 560px;
+  line-height: 1.6;
+}
+
+/* -- Page Shell -- */
+.svc-shell {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 3rem;
+}
+
+/* -- Section Title (AI-Native Services) -- */
+.svc-section-title {
+  margin: 0 0 2.5rem;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--nv-text);
+}
+
+/* -- Pillar -- */
+.svc-pillar {
+  margin-bottom: 3rem;
+}
+
+.svc-pillar-header {
+  margin-bottom: 1.2rem;
+}
+
+.svc-pillar-header h3 {
+  margin: 0 0 0.25rem;
+  font-size: 1.18rem;
+  font-weight: 700;
+  color: var(--nv-text);
+}
+
+.svc-pillar-header p {
+  margin: 0;
+  font-size: 0.88rem;
+  color: var(--nv-text-secondary);
+}
+
+/* -- Service Cards Grid -- */
+.svc-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 14px;
+}
+
+.svc-card {
+  border: 1px solid var(--nv-border);
+  border-radius: 10px;
+  background: var(--nv-card-bg);
+  padding: 1.1rem 1.2rem;
+  transition: border-color 0.2s;
+}
+
+.svc-card:hover {
+  border-color: var(--nv-border-hover);
+}
+
+.svc-card h4 {
+  margin: 0 0 0.4rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--nv-text);
+}
+
+.svc-card p {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--nv-text-secondary);
+  line-height: 1.55;
+}
+
+/* -- Card Span (desktop only) -- */
+@media (min-width: 769px) {
+  .svc-card--wide { grid-column: span 2; }
+}
+
+/* -- CTA Block -- */
+.svc-cta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.8rem;
+  flex-wrap: wrap;
+  padding: 3.5rem 1rem;
+  margin-bottom: 2rem;
+  border-radius: 12px;
+  border: 1px solid var(--nv-border);
+  background: var(--nv-card-bg-alt);
+}
+
+.svc-cta-headline {
+  margin: 0;
+  font-size: 1.12rem;
+  font-weight: 600;
+  color: var(--nv-text);
+  letter-spacing: -0.01em;
+}
+
+.svc-cta-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 0.4rem;
+}
+
+.svc-cta-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  text-decoration: none;
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 10px 22px;
+  border-radius: 8px;
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+  cursor: pointer;
+  border: none;
+}
+
+.svc-cta-btn--primary {
+  background: var(--nv-accent);
+  color: #fff;
+}
+.svc-cta-btn--primary:hover {
+  background: var(--nv-accent-deep);
+}
+
+.svc-cta-btn--secondary {
+  background: transparent;
+  color: var(--nv-text-secondary);
+  border: 1px solid var(--nv-border-strong);
+}
+.svc-cta-btn--secondary:hover {
+  border-color: var(--nv-border-hover);
+  color: var(--nv-text);
+}
+
+/* -- Labs Section -- */
+.svc-labs {
+  margin-top: 1rem;
+}
+
+.svc-labs-header {
+  margin-bottom: 1rem;
+}
+
+.svc-labs-header h3 {
+  margin: 0 0 0.2rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--nv-text-tertiary);
+}
+
+.svc-labs-header p {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--nv-text-tertiary);
+}
+
+.svc-labs .svc-card-grid {
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+  max-width: 90%;
+}
+
+.svc-labs .svc-card {
+  padding: 0.9rem 1rem;
+  background: var(--nv-card-bg-alt);
+}
+
+.svc-labs .svc-card h4 {
+  font-size: 0.88rem;
+}
+
+.svc-labs .svc-card p {
+  font-size: 0.8rem;
+}
+
+/* -- Responsive -- */
+@media (max-width: 768px) {
+  .svc-hero {
+    margin-top: 140px;
+    min-height: 260px;
+  }
+
+  .svc-hero-content {
+    padding: 2.5rem 1rem;
+  }
+
+  .svc-hero-content h1 {
+    font-size: 1.6rem;
+  }
+
+  .svc-hero-content h2 {
+    font-size: 0.95rem;
+  }
+
+  .svc-section-title {
+    font-size: 1.25rem;
+  }
+
+  .svc-card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .svc-cta {
+    padding: 2rem 1rem;
+  }
+
+  .svc-cta-actions {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+  }
+}

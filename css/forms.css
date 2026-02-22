@@ -180,18 +180,83 @@
 }
 
 /* Dark/Light Theme Support */
-[data-theme="light"] .input-wrapper input,
-[data-theme="light"] .input-wrapper textarea,
-[data-theme="light"] .input-wrapper select {
-  background: rgba(0, 0, 0, 0.05);
-  border-color: rgba(0, 0, 0, 0.1);
-  color: #333;
+
+/* Modal panel */
+[data-theme="light"] .modal-content.glass-panel {
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #1a1a2e;
 }
 
+[data-theme="light"] .modal-close {
+  color: #666;
+}
+[data-theme="light"] .modal-close:hover {
+  color: #1a1a2e;
+}
+
+/* Title + subtitle */
+[data-theme="light"] .contact-form-container h2 {
+  color: #1a1a2e;
+}
+
+[data-theme="light"] .form-subtitle {
+  color: #64748b;
+}
+
+/* Labels + icons */
 [data-theme="light"] .form-group label {
-  color: #444;
+  color: #334155;
 }
 
 [data-theme="light"] .form-group i {
   color: #3b82f6;
+}
+
+/* Inputs */
+[data-theme="light"] .input-wrapper input,
+[data-theme="light"] .input-wrapper textarea,
+[data-theme="light"] .input-wrapper select,
+[data-theme="light"] .input-wrapper .styled-select {
+  background: #f8fafc;
+  border-color: #d1d5db;
+  color: #1a1a2e;
+}
+
+[data-theme="light"] .input-wrapper input::placeholder,
+[data-theme="light"] .input-wrapper textarea::placeholder {
+  color: #94a3b8;
+}
+
+[data-theme="light"] .input-wrapper input:focus,
+[data-theme="light"] .input-wrapper textarea:focus,
+[data-theme="light"] .input-wrapper select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+}
+
+/* Select dropdown arrow */
+[data-theme="light"] .styled-select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23334155' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14L2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+}
+
+/* Select options */
+[data-theme="light"] .styled-select option {
+  background-color: #fff;
+  color: #1a1a2e;
+}
+[data-theme="light"] .styled-select option:checked {
+  background-color: #e0e7ff;
+  color: #1a1a2e;
+}
+
+/* Helper text */
+[data-theme="light"] .form-helper {
+  color: rgba(100, 116, 139, 0.7) !important;
+}
+
+/* Submit button */
+[data-theme="light"] .contact-form .glass-button.btn-primary {
+  background: #1a1a2e;
+  color: #fff;
 }
