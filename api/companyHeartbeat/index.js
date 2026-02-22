@@ -60,6 +60,11 @@ const GUARDRAILS = {
 // ── Persistent Agent Memory ──
 let _agentMemoryStore = {}; // { agentId: [{ type, text, source, timestamp }] } — loaded from storage each cycle
 const MAX_MEMORIES_PER_AGENT = 20;
+const MAX_L4_WRITES_PER_AGENT_PER_DAY = 5;
+const L4_PREFERRED_TYPES = new Set(['decision', 'constraint', 'resolved_incident', 'verified_fact', 'preference']);
+const L4_LEGACY_TYPES = new Set(['learning', 'feedback', 'context', 'preference']);
+const L4_ALLOWED_TYPES = new Set([...L4_PREFERRED_TYPES, ...L4_LEGACY_TYPES]);
+const L4_DEFAULT_TTL_DAYS = 14;
 
 // ── Tier 4 Sub-Agent Gating ──
 const TIER4_SUB_AGENTS = new Set(['quill']);
@@ -646,6 +651,17 @@ module.exports = async function (context) {
       agentCount: AGENT_IDS.length
     });
 
+    // ── Per-day memory write counter (Phase 1E) ──
+    const _memoryWriteCounters = {}; // keyed by agentId+YYYY-MM-DD
+    const _todayKey = new Date().toISOString().substring(0, 10);
+    function _getMemWriteCount(aid) {
+      return _memoryWriteCounters[aid + ':' + _todayKey] || 0;
+    }
+    function _incMemWrite(aid) {
+      var k = aid + ':' + _todayKey;
+      _memoryWriteCounters[k] = (_memoryWriteCounters[k] || 0) + 1;
+    }
+
     // ── Per-run counters (Phase 1C) ──
     const _runCounters = {
       runId: runId,
@@ -1192,6 +1208,28 @@ module.exports = async function (context) {
       } catch (err) {
         context.log.error('[Heartbeat] Agent', agentId, 'failed:', err.message);
         await logEvent('error', agentId, 'Heartbeat failed: ' + err.message, cycleId);
+      }
+    }
+
+    // TTL pruning of agent memories (Phase 1E)
+    const _pruneNow = Date.now();
+    const _ttlFallbackMs = L4_DEFAULT_TTL_DAYS * 24 * 60 * 60 * 1000;
+    for (const _pAid of Object.keys(_agentMemoryStore)) {
+      if (!Array.isArray(_agentMemoryStore[_pAid])) continue;
+      _agentMemoryStore[_pAid] = _agentMemoryStore[_pAid].filter(function (m) {
+        var expiry;
+        if (m.expiresAt) {
+          expiry = new Date(m.expiresAt).getTime();
+        } else if (m.timestamp) {
+          expiry = new Date(m.timestamp).getTime() + _ttlFallbackMs;
+        } else {
+          return true; // no date info, keep
+        }
+        return isNaN(expiry) || expiry > _pruneNow;
+      });
+      // Re-enforce store cap after pruning
+      if (_agentMemoryStore[_pAid].length > MAX_MEMORIES_PER_AGENT) {
+        _agentMemoryStore[_pAid] = _agentMemoryStore[_pAid].slice(-MAX_MEMORIES_PER_AGENT);
       }
     }
 
@@ -2165,12 +2203,14 @@ Write the full deliverable first, then the structured JSON block.`;
       const ceoFeedback = (orig.approval && orig.approval.decision_note) || '';
       if (ceoFeedback.length > 5) {
         if (!_agentMemoryStore[agentId]) _agentMemoryStore[agentId] = [];
+        var _autoMemNow = new Date();
         _agentMemoryStore[agentId].push({
           id: 'mem_' + Date.now() + '_auto',
           type: 'feedback',
           text: 'CEO rejected my ' + (orig.platform || '') + ' post and said: "' + ceoFeedback.substring(0, 200) + '"',
           source: 'auto:ceo-revision',
-          timestamp: new Date().toISOString()
+          timestamp: _autoMemNow.toISOString(),
+          expiresAt: new Date(_autoMemNow.getTime() + L4_DEFAULT_TTL_DAYS * 24 * 60 * 60 * 1000).toISOString()
         });
         if (_agentMemoryStore[agentId].length > MAX_MEMORIES_PER_AGENT) {
           _agentMemoryStore[agentId] = _agentMemoryStore[agentId].slice(-MAX_MEMORIES_PER_AGENT);
@@ -3277,25 +3317,67 @@ Write the full deliverable first, then the structured JSON block.`;
       result.taskUpdates.push({ action: 'image-generated', assetId: imgJobId, purpose: imgPurpose, agentId: agentId, taskId: action.taskId || null, attachedTo: imgAsset.attachedTo });
 
     } else if (action.type === 'remember' && action.memory) {
-      // Agent saves a persistent memory
+      // Agent saves a persistent memory (hardened Phase 1E)
       const mem = action.memory;
-      if (mem.text && mem.text.trim().length > 0) {
-        if (!_agentMemoryStore[agentId]) _agentMemoryStore[agentId] = [];
-        const VALID_MEM_TYPES = ['learning', 'feedback', 'preference', 'context'];
-        _agentMemoryStore[agentId].push({
-          id: 'mem_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
-          type: (mem.type && VALID_MEM_TYPES.indexOf(mem.type) !== -1) ? mem.type : 'context',
-          text: mem.text.substring(0, 300),
-          source: cycleId,
-          timestamp: new Date().toISOString()
-        });
-        // Cap per-agent memories
-        if (_agentMemoryStore[agentId].length > MAX_MEMORIES_PER_AGENT) {
-          _agentMemoryStore[agentId] = _agentMemoryStore[agentId].slice(-MAX_MEMORIES_PER_AGENT);
+      const _memNow = new Date();
+      const _memNowIso = _memNow.toISOString();
+      let _memOk = false;
+      let _memBlockedReason = null;
+
+      if (!mem.text || mem.text.trim().length === 0) {
+        _memBlockedReason = 'empty_text';
+      } else {
+        const _memType = (mem.type || '').trim().toLowerCase();
+
+        // Type validation
+        if (!_memType || !L4_ALLOWED_TYPES.has(_memType)) {
+          _memBlockedReason = 'invalid_type';
+          await logEvent('policy-violation', agentId, 'Memory write blocked: invalid type', runId, {
+            runId: runId, agentId: agentId, gate: 'memory_schema', reason: 'invalid_type', type: mem.type || null
+          });
         }
-        context.log('[Heartbeat]', agentId, 'saved memory:', mem.text.substring(0, 80));
-        result.taskUpdates.push({ action: 'memory-saved', agentId: agentId });
+        // Evidence requirement for preferred GridOS types
+        else if (L4_PREFERRED_TYPES.has(_memType) && (!mem.evidence || typeof mem.evidence !== 'object' || !mem.evidence.runId)) {
+          _memBlockedReason = 'missing_evidence';
+          await logEvent('policy-violation', agentId, 'Memory write blocked: preferred type requires evidence', runId, {
+            runId: runId, agentId: agentId, gate: 'memory_schema', reason: 'missing_evidence', type: _memType
+          });
+        }
+        // Daily rate-cap
+        else if (_getMemWriteCount(agentId) >= MAX_L4_WRITES_PER_AGENT_PER_DAY) {
+          _memBlockedReason = 'daily_cap_exceeded';
+          await logEvent('policy-violation', agentId, 'Memory write blocked: daily cap exceeded', runId, {
+            runId: runId, agentId: agentId, gate: 'memory_rate_cap', reason: 'daily_cap_exceeded',
+            cap: MAX_L4_WRITES_PER_AGENT_PER_DAY, current: _getMemWriteCount(agentId)
+          });
+        }
+        // All checks passed — store
+        else {
+          if (!_agentMemoryStore[agentId]) _agentMemoryStore[agentId] = [];
+          var _memExpiresAt = mem.expiresAt || new Date(_memNow.getTime() + L4_DEFAULT_TTL_DAYS * 24 * 60 * 60 * 1000).toISOString();
+          _agentMemoryStore[agentId].push({
+            id: 'mem_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+            type: _memType,
+            text: mem.text.trim().substring(0, 300),
+            source: cycleId,
+            timestamp: mem.ts || _memNowIso,
+            expiresAt: _memExpiresAt,
+            evidence: L4_PREFERRED_TYPES.has(_memType) ? mem.evidence : undefined
+          });
+          // Cap per-agent memories
+          if (_agentMemoryStore[agentId].length > MAX_MEMORIES_PER_AGENT) {
+            _agentMemoryStore[agentId] = _agentMemoryStore[agentId].slice(-MAX_MEMORIES_PER_AGENT);
+          }
+          _incMemWrite(agentId);
+          _memOk = true;
+          context.log('[Heartbeat]', agentId, 'saved memory:', mem.text.substring(0, 80));
+          result.taskUpdates.push({ action: 'memory-saved', agentId: agentId });
+        }
       }
+
+      await logEvent('memory-write-attempt', agentId, _memOk ? 'Memory saved' : 'Memory blocked: ' + _memBlockedReason, runId, {
+        runId: runId, agentId: agentId, ok: _memOk, type: (mem.type || null), blockedReason: _memBlockedReason
+      });
     } else if (action.type === 'create-reminder' && action.reminder) {
       // Agent sets a reminder/date in the workspace dates store
       const rem = action.reminder;
