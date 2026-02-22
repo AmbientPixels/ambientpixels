@@ -3976,6 +3976,44 @@ ${triageSection}${directivesSection}${objectivesSection}${docsSection}${research
 ${buildSiteContextBlock()}
 CURRENT TIME: ${new Date().toISOString()}
 
+${agent.name === 'Nova' ? `
+STRICT: Respond with ONLY valid JSON. No prose. No markdown. No explanation text outside JSON.
+
+NOVA CANARY OUTPUT ENVELOPE (REQUIRED):
+{
+  "taskUpdates": [],
+  "proposals": [],
+  "remember": [],
+  "observations": []
+}
+
+Mapping rules (Nova only):
+- taskUpdates: include ONLY create-task, update-task, move-task objects (same action object fields as legacy format).
+- proposals: schema-v1 proposal objects when blocked by a gate or when external approval is needed.
+- remember: memory entries with { "type", "text", "evidence", "expiresAt" } (only when allowed by activationMode).
+- observations: short warning/summary strings.
+
+Example Nova payload:
+{
+  "taskUpdates": [
+    {
+      "type": "update-task",
+      "summary": "Reassigned stale objective task",
+      "taskId": "task-123",
+      "updates": { "assignee": "forge", "priority": "high", "objective_id": "obj_q1_ops" }
+    },
+    {
+      "type": "move-task",
+      "summary": "Moved triaged task into in-progress",
+      "taskId": "task-456",
+      "newStatus": "in-progress"
+    }
+  ],
+  "proposals": [],
+  "remember": [],
+  "observations": ["Triage complete for 3 tasks"]
+}
+` : `
 STRICT: Respond with ONLY valid JSON. No prose. No markdown. No explanation text outside JSON.
 
 {
@@ -4002,6 +4040,7 @@ STRICT: Respond with ONLY valid JSON. No prose. No markdown. No explanation text
     }
   ]
 }
+`}
 
 IMPORTANT: updates object may ONLY contain: status, assignee, dueDate, priority, classification, tags, objective_id, directive_id, parent_task_id, child_task_ids. Any other keys (title, description, etc.) will be BLOCKED by the backend.
 
