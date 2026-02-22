@@ -68,6 +68,13 @@ const ALLOWED_UPDATE_KEYS = new Set([
   'status', 'assignee', 'dueDate', 'priority', 'classification',
   'tags', 'objective_id', 'directive_id', 'parent_task_id', 'child_task_ids'
 ]);
+const CAP_DEFAULTS = {
+  maxCreatesPerAgentPerRun: 2,
+  maxMovesPerAgentPerRun: 5,
+  maxUpdatesPerAgentPerRun: 8,
+  maxProposalsPerAgentPerRun: 10
+};
+const _MUTATION_BUCKET_MAP = { create: 'creates', move: 'moves', update: 'updates' };
 const MAX_TOOL_CALLS_PER_AGENT = 2;
 const MAX_RESEARCH_INJECTIONS = 3;
 const MAX_RESEARCH_CHARS = 2000;
@@ -595,6 +602,31 @@ module.exports = async function (context) {
       agentCount: AGENT_IDS.length
     });
 
+    // ── Per-run counters (Phase 1C) ──
+    const _runCounters = {
+      runId: runId,
+      mode: normalizedActivationMode,
+      totals: { creates: 0, moves: 0, updates: 0, blocked: 0, proposals: 0 },
+      byAgent: {}
+    };
+    function _ensureAgentCounters(aid) {
+      if (!_runCounters.byAgent[aid]) _runCounters.byAgent[aid] = { creates: 0, moves: 0, updates: 0, blocked: 0, proposals: 0 };
+    }
+    function _incBlocked(aid) {
+      _ensureAgentCounters(aid);
+      _runCounters.totals.blocked++;
+      _runCounters.byAgent[aid].blocked++;
+    }
+    function _incProposal(aid) {
+      _ensureAgentCounters(aid);
+      _runCounters.totals.proposals++;
+      _runCounters.byAgent[aid].proposals++;
+    }
+    function _canAddProposal(aid) {
+      _ensureAgentCounters(aid);
+      return _runCounters.byAgent[aid].proposals < CAP_DEFAULTS.maxProposalsPerAgentPerRun;
+    }
+
     // ── Backfill: re-resolve hero image URLs for pending publish AQ entries ──
     // Covers the case where Scribe submitted before Pixel generated the image
     try {
@@ -818,21 +850,25 @@ module.exports = async function (context) {
 
               // Manual mode gate: proposal-only, no direct task mutations
               if (normalizedActivationMode === 'manual') {
+                _incBlocked(agentId);
                 const _modeTask = mutationAction === 'create'
                   ? { id: null, title: (update.task && update.task.title) || 'Untitled', category: (update.task && update.task.category) || null, objective_id: (update.task && update.task.objective_id) || null }
                   : tasks.find(t => t.id === update.taskId);
-                const modeProposal = _buildBlockedProposal(agentId, runId, 'mode_gate', mutationAction === 'create' ? 'create_task' : 'move_task', {
-                  title: (_modeTask && _modeTask.title) || (update.task && update.task.title) || 'Untitled',
-                  category: (_modeTask && _modeTask.category) || (update.task && update.task.category) || null,
-                  objective_id: (_modeTask && _modeTask.objective_id) || (update.task && update.task.objective_id) || null,
-                  acceptanceCriteria: [],
-                  evidence: {
-                    blockedAction: mutationAction,
-                    taskId: update.taskId || null,
-                    mode: normalizedActivationMode
-                  }
-                });
-                result.proposals.push(modeProposal);
+                if (_canAddProposal(agentId)) {
+                  const modeProposal = _buildBlockedProposal(agentId, runId, 'mode_gate', mutationAction === 'create' ? 'create_task' : 'move_task', {
+                    title: (_modeTask && _modeTask.title) || (update.task && update.task.title) || 'Untitled',
+                    category: (_modeTask && _modeTask.category) || (update.task && update.task.category) || null,
+                    objective_id: (_modeTask && _modeTask.objective_id) || (update.task && update.task.objective_id) || null,
+                    acceptanceCriteria: [],
+                    evidence: {
+                      blockedAction: mutationAction,
+                      taskId: update.taskId || null,
+                      mode: normalizedActivationMode
+                    }
+                  });
+                  result.proposals.push(modeProposal);
+                  _incProposal(agentId);
+                }
                 await logEvent('policy-violation', agentId, 'Task mutation blocked by activation mode', runId, {
                   runId: runId,
                   agentId: agentId,
@@ -883,7 +919,11 @@ module.exports = async function (context) {
                       targetStatus: update.newStatus || (update.updates && update.updates.status) || null
                     }
                   });
-                  result.proposals.push(gateProposal);
+                  _incBlocked(agentId);
+                  if (_canAddProposal(agentId)) {
+                    result.proposals.push(gateProposal);
+                    _incProposal(agentId);
+                  }
                   await logEvent('policy-violation', agentId, 'Task mutation blocked by objective gate', runId, {
                     runId: runId,
                     agentId: agentId,
@@ -895,6 +935,47 @@ module.exports = async function (context) {
                   });
                   continue;
                 }
+              }
+            }
+
+            // Rate-cap gate: per-agent per-run mutation caps
+            if (isTaskMutation) {
+              const _bucket = _MUTATION_BUCKET_MAP[mutationAction];
+              _ensureAgentCounters(agentId);
+              const _capKey = mutationAction === 'create' ? 'maxCreatesPerAgentPerRun'
+                : mutationAction === 'move' ? 'maxMovesPerAgentPerRun'
+                : 'maxUpdatesPerAgentPerRun';
+              const _cap = CAP_DEFAULTS[_capKey];
+              const _current = _runCounters.byAgent[agentId][_bucket];
+              if (_current >= _cap) {
+                _incBlocked(agentId);
+                if (_canAddProposal(agentId)) {
+                  result.proposals.push({
+                    type: 'proposal',
+                    agentId: agentId,
+                    runId: runId,
+                    reasonBlocked: 'rate_cap',
+                    proposedAction: mutationAction,
+                    payload: {
+                      taskId: update.taskId || null,
+                      cap: _cap,
+                      current: _current,
+                      bucket: _bucket
+                    }
+                  });
+                  _incProposal(agentId);
+                }
+                await logEvent('policy-violation', agentId, 'Task mutation blocked by rate cap', runId, {
+                  runId: runId,
+                  agentId: agentId,
+                  gate: 'rate_cap',
+                  action: mutationAction,
+                  reason: 'cap_exceeded',
+                  cap: _cap,
+                  current: _current,
+                  taskId: update.taskId || null
+                });
+                continue;
               }
             }
 
@@ -915,7 +996,11 @@ module.exports = async function (context) {
                     allowedKeys: Array.from(ALLOWED_UPDATE_KEYS)
                   }
                 };
-                result.proposals.push(allowlistProposal);
+                _incBlocked(agentId);
+                if (_canAddProposal(agentId)) {
+                  result.proposals.push(allowlistProposal);
+                  _incProposal(agentId);
+                }
                 await logEvent('policy-violation', agentId, 'Task update blocked by field allowlist', runId, {
                   runId: runId,
                   agentId: agentId,
@@ -929,6 +1014,15 @@ module.exports = async function (context) {
             }
 
             const updatedTask = applyTaskUpdate(tasks, update, _pendingEscalations, agentId);
+            // Increment per-agent mutation counter on successful write
+            if (isTaskMutation) {
+              const _successBucket = _MUTATION_BUCKET_MAP[mutationAction];
+              if (_successBucket) {
+                _ensureAgentCounters(agentId);
+                _runCounters.totals[_successBucket]++;
+                _runCounters.byAgent[agentId][_successBucket]++;
+              }
+            }
             if (update.action === 'create') newTasksCreated++;
             // CEO task completion → create action for approval queue
             if (update._ceoApprovalAction) {
@@ -1103,6 +1197,13 @@ module.exports = async function (context) {
       'Heartbeat cycle complete: ' + geminiCalls + ' API calls, ' + newTasksCreated + ' new tasks' + skipSummary,
       cycleId
     );
+
+    await logEvent('run-end', null, 'Heartbeat run end', runId, {
+      runId: runId,
+      mode: normalizedActivationMode,
+      totals: _runCounters.totals,
+      byAgent: _runCounters.byAgent
+    });
 
     context.log('[Heartbeat] Cycle complete:', cycleId, '| Gemini calls:', geminiCalls, '| New tasks:', newTasksCreated, '| Skipped:', skippedAgents.length, '| Tier4 ran:', ranTier4.join(', ') || 'none');
 
