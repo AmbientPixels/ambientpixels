@@ -4160,10 +4160,10 @@ ${triageSection}${directivesSection}${objectivesSection}${docsSection}${research
 ${buildSiteContextBlock()}
 CURRENT TIME: ${new Date().toISOString()}
 
-${agent.name === 'Nova' ? `
+${['Nova', 'Forge', 'Pixel'].includes(agent.name) ? `
 STRICT: Respond with ONLY valid JSON. No prose. No markdown. No explanation text outside JSON.
 
-NOVA CANARY OUTPUT ENVELOPE (REQUIRED):
+GRIDOS CANARY OUTPUT ENVELOPE (REQUIRED for Nova, Forge, Pixel):
 {
   "taskUpdates": [],
   "proposals": [],
@@ -4171,13 +4171,13 @@ NOVA CANARY OUTPUT ENVELOPE (REQUIRED):
   "observations": []
 }
 
-Mapping rules (Nova only):
+Mapping rules (Nova/Forge/Pixel):
 - taskUpdates: include ONLY create-task, update-task, move-task objects (same action object fields as legacy format).
-- proposals: schema-v1 proposal objects when blocked by a gate or when external approval is needed.
-- remember: memory entries with { "type", "text", "evidence", "expiresAt" } (only when allowed by activationMode).
+- proposals: schema-v1 proposal objects when blocked by a gate or when external approval is needed; include objective_id OR objective_suggestion, acceptanceCriteria, and evidence.runId.
+- remember: memory entries with { "type", "text", "evidence", "expiresAt" } (only when allowed by activationMode; preferred types require evidence).
 - observations: short warning/summary strings.
 
-Example Nova payload:
+Example payload:
 {
   "taskUpdates": [
     {
