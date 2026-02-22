@@ -64,6 +64,10 @@ const MAX_MEMORIES_PER_AGENT = 20;
 // ── Tier 4 Sub-Agent Gating ──
 const TIER4_SUB_AGENTS = new Set(['quill']);
 const OBJECTIVE_EXEMPT_CATEGORIES = new Set(['ops_breakfix', 'governance', 'maintenance']);
+const ALLOWED_UPDATE_KEYS = new Set([
+  'status', 'assignee', 'dueDate', 'priority', 'classification',
+  'tags', 'objective_id', 'directive_id', 'parent_task_id', 'child_task_ids'
+]);
 const MAX_TOOL_CALLS_PER_AGENT = 2;
 const MAX_RESEARCH_INJECTIONS = 3;
 const MAX_RESEARCH_CHARS = 2000;
@@ -891,6 +895,36 @@ module.exports = async function (context) {
                   });
                   continue;
                 }
+              }
+            }
+
+            // Field allowlist gate: block updates containing disallowed keys
+            if (mutationAction === 'update' || (mutationAction === 'move' && update.updates)) {
+              const updateKeys = update.updates ? Object.keys(update.updates) : [];
+              const blockedKeys = updateKeys.filter(k => !ALLOWED_UPDATE_KEYS.has(k));
+              if (blockedKeys.length > 0) {
+                const allowlistProposal = {
+                  type: 'proposal',
+                  agentId: agentId,
+                  runId: runId,
+                  reasonBlocked: 'field_allowlist',
+                  proposedAction: mutationAction,
+                  payload: {
+                    taskId: update.taskId || null,
+                    blockedKeys: blockedKeys,
+                    allowedKeys: Array.from(ALLOWED_UPDATE_KEYS)
+                  }
+                };
+                result.proposals.push(allowlistProposal);
+                await logEvent('policy-violation', agentId, 'Task update blocked by field allowlist', runId, {
+                  runId: runId,
+                  agentId: agentId,
+                  gate: 'field_allowlist',
+                  action: mutationAction,
+                  taskId: update.taskId || null,
+                  blockedKeys: blockedKeys
+                });
+                continue;
               }
             }
 
