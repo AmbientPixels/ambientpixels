@@ -84,6 +84,14 @@ const MAX_TOOL_CALLS_PER_AGENT = 2;
 const MAX_RESEARCH_INJECTIONS = 3;
 const MAX_RESEARCH_CHARS = 2000;
 const MAX_RESEARCH_STORE_ENTRIES = 20;
+
+// ── Phase 2B: Known action types for dual-envelope normalizer ──
+const KNOWN_ACTION_TYPES = [
+  'create-task', 'update-task', 'move-task', 'execute-task', 'review-task',
+  'comment-task', 'create-social-action', 'revise-action', 'create-doc',
+  'update-doc', 'submit-for-publish', 'create-content-package', 'generate-image',
+  'create-reminder', 'web_search', 'remember'
+];
 const RESEARCH_MAX_AGE_DAYS = 30;
 const SUB_AGENT_MENTION_WINDOW_HOURS = 24;
 const SOCIAL_INTEL_WINDOW_DAYS = 7;
@@ -581,6 +589,94 @@ function _isValidProposal(p) {
   if (!p.payload.evidence || typeof p.payload.evidence !== 'object' || !p.payload.evidence.runId) return false;
   if (!p.payload.objective_id && !p.payload.objective_suggestion) return false;
   return true;
+}
+
+// ── Phase 2B: Dual-envelope agent output normalizer ──
+// Supports legacy { observation, actions } and new { taskUpdates, proposals, remember, observations }
+function normalizeAgentResult(parsed) {
+  const normalized = { actions: [], proposals: [], remember: [], observations: [] };
+  if (!parsed || typeof parsed !== 'object') return normalized;
+
+  // ── Legacy format: { observation, actions } ──
+  if (Array.isArray(parsed.actions)) {
+    if (typeof parsed.observation === 'string' && parsed.observation.trim()) {
+      normalized.observations.push(parsed.observation.trim());
+    }
+    for (var i = 0; i < parsed.actions.length; i++) {
+      var action = parsed.actions[i];
+      if (!action || typeof action !== 'object') continue;
+      var type = action.type || '';
+
+      if (type === 'remember' && action.memory) {
+        // Extract to normalized.remember AND keep in actions for existing processing loop
+        normalized.remember.push({
+          type: (action.memory.type || '').trim(),
+          text: (action.memory.text || '').trim(),
+          evidence: action.memory.evidence || undefined,
+          expiresAt: action.memory.expiresAt || undefined
+        });
+        normalized.actions.push(action);
+      } else if (type === 'proposal') {
+        // Agent explicitly emitted a proposal
+        normalized.proposals.push(action.proposal || action);
+      } else if (KNOWN_ACTION_TYPES.indexOf(type) !== -1) {
+        normalized.actions.push(action);
+      } else {
+        // Unknown type → observation warning, do not crash
+        normalized.observations.push('[unknown-action-type] ' + type + ': ' + (action.summary || '').substring(0, 200));
+      }
+    }
+    return normalized;
+  }
+
+  // ── New format: { taskUpdates, proposals, remember, observations } ──
+  if (parsed.taskUpdates || parsed.proposals || parsed.remember || parsed.observations) {
+    // taskUpdates → actions (same format the processing loop expects)
+    if (Array.isArray(parsed.taskUpdates)) {
+      for (var j = 0; j < parsed.taskUpdates.length; j++) {
+        var tu = parsed.taskUpdates[j];
+        if (tu && typeof tu === 'object') normalized.actions.push(tu);
+      }
+    }
+    // proposals
+    if (Array.isArray(parsed.proposals)) {
+      for (var k = 0; k < parsed.proposals.length; k++) {
+        if (parsed.proposals[k] && typeof parsed.proposals[k] === 'object') {
+          normalized.proposals.push(parsed.proposals[k]);
+        }
+      }
+    }
+    // remember → extract AND convert to action objects for existing processing loop
+    if (Array.isArray(parsed.remember)) {
+      for (var m = 0; m < parsed.remember.length; m++) {
+        var mem = parsed.remember[m];
+        if (mem && typeof mem === 'object') {
+          normalized.remember.push({
+            type: (mem.type || '').trim(),
+            text: (mem.text || '').trim(),
+            evidence: mem.evidence || undefined,
+            expiresAt: mem.expiresAt || undefined
+          });
+          // Convert to action object for existing processing loop
+          normalized.actions.push({ type: 'remember', memory: mem });
+        }
+      }
+    }
+    // observations
+    if (Array.isArray(parsed.observations)) {
+      for (var n = 0; n < parsed.observations.length; n++) {
+        if (typeof parsed.observations[n] === 'string') {
+          normalized.observations.push(parsed.observations[n]);
+        }
+      }
+    } else if (typeof parsed.observations === 'string' && parsed.observations.trim()) {
+      normalized.observations.push(parsed.observations.trim());
+    }
+    return normalized;
+  }
+
+  // Fallback: unrecognized format
+  return normalized;
 }
 
 module.exports = async function (context) {
@@ -1408,11 +1504,22 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
     return result;
   }
 
+  // ── Phase 2B: Normalize agent output (dual-envelope support) ──
+  const normalized = normalizeAgentResult(parsed);
+
+  // Log unknown action types as warnings
+  for (var _oi = 0; _oi < normalized.observations.length; _oi++) {
+    var _obsItem = normalized.observations[_oi];
+    if (_obsItem && _obsItem.indexOf('[unknown-action-type]') === 0) {
+      context.log('[Heartbeat]', agentId, 'WARN:', _obsItem);
+    }
+  }
+
   // ── Tool-call interception: detect web_search tool calls and execute them ──
   let toolUsage = 0;
   const toolResults = [];
-  const toolActions = (parsed.actions || []).filter(a => a.tool === 'web_search' || a.type === 'web_search');
-  const regularActions = (parsed.actions || []).filter(a => a.tool !== 'web_search' && a.type !== 'web_search');
+  const toolActions = normalized.actions.filter(a => a.tool === 'web_search' || a.type === 'web_search');
+  const regularActions = normalized.actions.filter(a => a.tool !== 'web_search' && a.type !== 'web_search');
 
   // Scout recursion guard: skip search if task already has research_intel
   const scoutTargetTask = agentTasks.find(t => t.status === 'in-progress') || agentTasks[0];
@@ -3447,9 +3554,30 @@ Write the full deliverable first, then the structured JSON block.`;
 
   result.actions = actionCount;
 
-  // Log agent observation if present
-  if (parsed.observation && !recentSummaries.has(parsed.observation)) {
-    await logEvent('agent-action', agentId, agent.name + ': ' + parsed.observation, cycleId);
+  // ── Phase 2B: Process normalized proposals from new-format or explicit agent proposals ──
+  for (var _pi = 0; _pi < normalized.proposals.length; _pi++) {
+    var _agentProp = normalized.proposals[_pi];
+    if (!_agentProp || typeof _agentProp !== 'object') continue;
+    // Ensure required fields for validation — fill agent context if missing
+    if (!_agentProp.agentId) _agentProp.agentId = agentId;
+    if (!_agentProp.runId) _agentProp.runId = cycleId;
+    if (!_agentProp.reasonBlocked) _agentProp.reasonBlocked = 'agent_proposed';
+    if (!_agentProp.proposedAction) _agentProp.proposedAction = 'agent_suggestion';
+    var _normProp = _normalizeProposal(_agentProp);
+    if (_isValidProposal(_normProp)) {
+      result.proposals.push(_normProp);
+      context.log('[Heartbeat]', agentId, 'accepted new-format proposal:', (_normProp.payload && _normProp.payload.title) || '(untitled)');
+    } else {
+      context.log('[Heartbeat]', agentId, 'rejected invalid new-format proposal');
+    }
+  }
+
+  // ── Phase 2B: Log normalized observations (replaces legacy parsed.observation) ──
+  for (var _obsIdx = 0; _obsIdx < normalized.observations.length; _obsIdx++) {
+    var _obs = normalized.observations[_obsIdx];
+    if (_obs && typeof _obs === 'string' && !recentSummaries.has(_obs)) {
+      await logEvent('agent-action', agentId, agent.name + ': ' + _obs, cycleId);
+    }
   }
 
   return result;
