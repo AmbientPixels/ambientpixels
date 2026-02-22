@@ -690,6 +690,25 @@
         <span class="cfg-action-state" id="cfg-action-state">—</span>
       </div>
       <div class="cfg-action-helper" id="cfg-action-helper"></div>
+      <div style="display:flex; align-items:center; gap:0.5rem; margin:0.45rem 0 0.55rem 0; padding:0.35rem 0.2rem 0.25rem 0.2rem; border-top:1px solid rgba(255,255,255,0.03); border-bottom:1px solid rgba(255,255,255,0.03); flex-wrap:wrap;">
+        <span style="font-size:0.6rem; opacity:0.55; min-width:110px;">Activation Mode</span>
+        <select id="cfg-activation-mode" style="font-size:0.58rem; background:rgba(20,24,32,0.85); color:#d9e2f7; border:1px solid rgba(255,255,255,0.12); border-radius:6px; padding:0.2rem 0.45rem;">
+          <option value="manual">manual</option>
+          <option value="supervised_autonomous">supervised_autonomous</option>
+          <option value="experimental">experimental</option>
+        </select>
+        <span id="cfg-activation-mode-status" style="font-size:0.52rem; opacity:0.35;"></span>
+      </div>
+      <div style="font-size:0.55rem; opacity:0.38; line-height:1.45; margin:-0.15rem 0 0.55rem 0; padding:0 0.25rem;">
+        <div style="font-size:0.58rem; opacity:0.58; margin-bottom:0.2rem;">What is Activation Mode?</div>
+        <div>Activation Mode controls how much authority agents have to change the system. It does not bypass approvals or safety gates—those still apply.</div>
+        <ul style="margin:0.32rem 0 0.32rem 1.05rem; padding:0;">
+          <li>manual — agents can analyze and propose changes, but cannot modify tasks or memory.</li>
+          <li>supervised_autonomous — normal operations: agents can update tasks under governance gates (objectives, caps, allowlists).</li>
+          <li>experimental — higher throughput testing: caps are increased, but governance gates still apply.</li>
+        </ul>
+        <div>Tip: Use manual when tuning prompts or investigating issues. Use supervised_autonomous for day-to-day runs.</div>
+      </div>
       <button class="cfg-action-toggle" id="cfg-action-toggle"></button>
       <div class="cfg-action-subs">
         <div class="cfg-autonomy-group-title">Internal</div>
@@ -1460,6 +1479,8 @@
     var subConfigChg = document.getElementById('cfg-configchg-toggle');
     var configChgInfo = document.getElementById('cfg-configchg-info');
     var subAutoPromote = document.getElementById('cfg-autopromote-toggle');
+    var activationModeSelect = document.getElementById('cfg-activation-mode');
+    var activationModeStatus = document.getElementById('cfg-activation-mode-status');
     var revertBackupInfo = document.getElementById('cfg-revert-backup-info');
     var revertBtn = document.getElementById('cfg-revert-btn');
     var revertStatus = document.getElementById('cfg-revert-status');
@@ -1468,9 +1489,56 @@
     var _debounceTimer = null;
 
     ActionRouter.loadRegistry().then(function () { render(); });
+    loadActivationMode();
 
     // Re-render after CompanyStore server sync
     window.addEventListener('companystoreready', function () { render(); });
+
+    function normalizeActivationMode(value) {
+      var v = String(value || '').trim().toLowerCase();
+      if (v === 'manual' || v === 'supervised_autonomous' || v === 'experimental') return v;
+      return 'supervised_autonomous';
+    }
+
+    function loadActivationMode() {
+      if (!activationModeSelect) return;
+      fetch('/api/company-state?key=activationMode', { method: 'GET' })
+        .then(function (res) { if (!res.ok) throw new Error('GET failed: ' + res.status); return res.json(); })
+        .then(function (data) {
+          var next = normalizeActivationMode(data && data.value);
+          activationModeSelect.value = next;
+          if (activationModeStatus) activationModeStatus.textContent = '';
+        })
+        .catch(function () {
+          activationModeSelect.value = 'supervised_autonomous';
+          if (activationModeStatus) activationModeStatus.textContent = 'Defaulting to supervised_autonomous';
+        });
+    }
+
+    if (activationModeSelect) {
+      activationModeSelect.addEventListener('change', function () {
+        var selected = normalizeActivationMode(activationModeSelect.value);
+        activationModeSelect.value = selected;
+        if (activationModeStatus) activationModeStatus.textContent = 'Saving...';
+        fetch('/api/company-state', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ key: 'activationMode', value: selected })
+        })
+        .then(function (res) { if (!res.ok) throw new Error('POST failed: ' + res.status); return res.json(); })
+        .then(function () {
+          if (activationModeStatus) {
+            activationModeStatus.textContent = 'Saved';
+            setTimeout(function () {
+              if (activationModeStatus && activationModeStatus.textContent === 'Saved') activationModeStatus.textContent = '';
+            }, 1500);
+          }
+        })
+        .catch(function () {
+          if (activationModeStatus) activationModeStatus.textContent = 'Save failed';
+        });
+      });
+    }
 
     function render() {
       var enabled = ActionRouter.isEnabled();
