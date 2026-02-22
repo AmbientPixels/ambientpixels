@@ -4160,10 +4160,10 @@ ${triageSection}${directivesSection}${objectivesSection}${docsSection}${research
 ${buildSiteContextBlock()}
 CURRENT TIME: ${new Date().toISOString()}
 
-${['Nova', 'Forge', 'Pixel'].includes(agent.name) ? `
+${['Nova', 'Forge', 'Pixel', 'Cipher', 'Scout'].includes(agent.name) ? `
 STRICT: Respond with ONLY valid JSON. No prose. No markdown. No explanation text outside JSON.
 
-GRIDOS CANARY OUTPUT ENVELOPE (REQUIRED for Nova, Forge, Pixel):
+GRIDOS CANARY OUTPUT ENVELOPE (REQUIRED for Nova, Forge, Pixel, Cipher, Scout):
 {
   "taskUpdates": [],
   "proposals": [],
@@ -4171,10 +4171,10 @@ GRIDOS CANARY OUTPUT ENVELOPE (REQUIRED for Nova, Forge, Pixel):
   "observations": []
 }
 
-Mapping rules (Nova/Forge/Pixel):
-- taskUpdates: include ONLY create-task, update-task, move-task objects (same action object fields as legacy format).
+Mapping rules (Nova/Forge/Pixel/Cipher/Scout):
+- taskUpdates: include ONLY create-task, update-task, move-task objects (same action object fields as legacy format); update-task may use only allowed update keys, and include objective_id for create/in-progress transitions unless objective-exempt category.
 - proposals: schema-v1 proposal objects when blocked by a gate or when external approval is needed; include objective_id OR objective_suggestion, acceptanceCriteria, and evidence.runId.
-- remember: memory entries with { "type", "text", "evidence", "expiresAt" } (only when allowed by activationMode; preferred types require evidence).
+- remember: memory entries with { "type", "text", "evidence", "expiresAt" } (only when allowed by activationMode), using only allowed L4 memory types; preferred types require evidence.runId.
 - observations: short warning/summary strings.
 
 Example payload:
