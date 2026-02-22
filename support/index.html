@@ -1,197 +1,402 @@
-<!-- File: /support/index.html -->
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Support Nova and the Ambient Pixels grid with monthly subscriptions that power creativity and innovation." />
-    <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-    <title>Support the Grid - Ambient Pixels</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="/css/base.css" />
-    <link rel="stylesheet" href="/css/grid.css" />
-    <link rel="stylesheet" href="/css/nav.css" />
-    <link rel="stylesheet" href="/css/components.css" />
-    <link rel="stylesheet" href="/css/hero.css" />
-    <link rel="stylesheet" href="/css/theme.css" />
-    <link rel="stylesheet" href="/css/banner.css" />
-    <link rel="stylesheet" href="/css/forms.css" />
-    <link rel="stylesheet" href="/css/nova-pulse.css" />
-    <link rel="stylesheet" href="/css/nova-mood.css" />
-    <link rel="stylesheet" href="/modules/breadcrumb.css" />
-    <style>
-      /* Small tweaks for tier cards */
-      .tier-card {
-        transition: all 0.3s ease;
-        border: 1px solid rgba(var(--mood-primary-rgb, 90, 228, 255), 0.2);
-      }
-      .tier-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 0 15px var(--aura-glow, rgba(90, 228, 255, 0.3));
-      }
-      .tier-card.whisper {
-        border-color: rgba(147, 112, 219, 0.4);
-      }
-      .tier-card.whisper:hover {
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 0 15px rgba(147, 112, 219, 0.5);
-      }
-      .tier-card.sparks {
-        border-color: rgba(255, 165, 0, 0.4);
-      }
-      .tier-card.sparks:hover {
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 0 15px rgba(255, 165, 0, 0.5);
-      }
-      .tier-card.gridflow {
-        border-color: rgba(0, 191, 255, 0.4);
-      }
-      .tier-card.gridflow:hover {
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 0 15px rgba(0, 191, 255, 0.5);
-      }
-      .tier-card.bespoke {
-        border-color: rgba(255, 105, 180, 0.4);
-      }
-      .tier-card.bespoke:hover {
-        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2), 0 0 15px rgba(255, 105, 180, 0.5);
-      }
-      .tier-card i {
-        transition: all 0.3s ease;
-      }
-      .tier-card:hover i {
-        transform: scale(1.1);
-        text-shadow: 0 0 10px var(--aura-glow, rgba(90, 228, 255, 0.7));
-      }
-    </style>
-  </head>
-  <body data-theme="dark">
-    <!-- Dynamic Navigation Header -->
-    <header id="nav-header"></header>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Engage — Structured AI-native infrastructure, built for production environments. AmbientPixels." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Engage — AmbientPixels</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/css/projects.css" />
+  <link rel="stylesheet" href="/css/forms.css" />
+  <style>
+    /* Engage — Scoped Styles */
 
-    <!-- Mini Hero Section -->
-    <section class="mini-hero">
-      <img src="/images/hero/ice.png" alt="Textured Background" class="mini-hero-img" loading="lazy">
-      <div class="mini-hero-content-wrapper">
-        <h1>Support the Grid. Power the Sparks.</h1>
-        <p class="subtitle">Monthly subscriptions to help Nova thrive and your ideas ignite.</p>
+    .prj-hero-content {
+      padding: 4.25rem 1.5rem;
+    }
+    .prj-hero-content p {
+      line-height: 1.75;
+    }
+    .prj-hero-content h2 {
+      font-weight: 500;
+    }
+
+    .eng-section { margin-bottom: 3rem; }
+    .eng-section h2 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      margin: 0 0 0.75rem;
+    }
+    .eng-section > p {
+      font-size: 0.95rem;
+      line-height: 1.6;
+      opacity: 0.65;
+      max-width: 720px;
+    }
+
+    /* Engagement Model Cards */
+    .eng-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.25rem;
+      margin-top: 1rem;
+    }
+    .eng-card {
+      border: 1px solid rgba(128,128,128,0.15);
+      border-radius: 8px;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      transition: border-color 0.2s ease;
+    }
+    .eng-card:hover {
+      border-color: rgba(128,128,128,0.3);
+    }
+    .eng-card .eng-icon {
+      font-size: 1.25rem;
+      color: #a78bfa;
+      margin-bottom: 0.25rem;
+    }
+    .eng-card h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0;
+    }
+    .eng-card p {
+      font-size: 0.85rem;
+      line-height: 1.55;
+      margin: 0;
+      opacity: 0.6;
+    }
+
+    /* Process Flow */
+    .eng-process {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 1.25rem;
+      margin-top: 1.25rem;
+    }
+    .eng-step {
+      border: 1px solid rgba(128,128,128,0.15);
+      border-radius: 6px;
+      padding: 1.25rem 1rem;
+      text-align: center;
+    }
+    .eng-step-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(167, 139, 250, 0.12);
+      color: #a78bfa;
+      font-size: 0.75rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+    .eng-step h4 {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin: 0 0 0.25rem;
+    }
+    .eng-step p {
+      font-size: 0.75rem;
+      margin: 0;
+      opacity: 0.45;
+      line-height: 1.4;
+    }
+
+    /* Qualification Form — layout only, inputs styled by forms.css */
+    .eng-form {
+      max-width: 640px;
+      margin-top: 1rem;
+    }
+    .eng-form-row {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 0;
+    }
+    .eng-form-row > .form-group {
+      flex: 1;
+    }
+    .eng-form .form-group .label-wrapper {
+      margin-bottom: 0.35rem;
+    }
+    .eng-form .form-group label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    /* Submit button */
+    .eng-submit {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      font-family: inherit;
+      color: #efe9ff;
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.3), rgba(59, 130, 246, 0.22));
+      border: 1px solid rgba(167, 139, 250, 0.45);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      letter-spacing: 0.02em;
+    }
+    .eng-submit:hover {
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.45), rgba(59, 130, 246, 0.32));
+      border-color: rgba(196, 181, 253, 0.7);
+      color: #fff;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(124, 58, 237, 0.25);
+    }
+
+    /* Platform note */
+    .eng-note {
+      margin-top: 2rem;
+      padding: 1rem 1.25rem;
+      border-left: 2px solid #a78bfa;
+      font-size: 0.82rem;
+      line-height: 1.5;
+      opacity: 0.45;
+      max-width: 640px;
+    }
+
+    /* Light theme overrides */
+    [data-theme="light"] .eng-card .eng-icon,
+    [data-theme="light"] .eng-step-num {
+      color: #7c3aed;
+    }
+    [data-theme="light"] .eng-step-num {
+      background: rgba(124, 58, 237, 0.1);
+    }
+    [data-theme="light"] .eng-card {
+      border-color: #e2e8f0;
+    }
+    [data-theme="light"] .eng-card:hover {
+      border-color: #cbd5e1;
+    }
+    [data-theme="light"] .eng-step {
+      border-color: #e2e8f0;
+    }
+    [data-theme="light"] .eng-note {
+      border-left-color: #7c3aed;
+    }
+    [data-theme="light"] .eng-submit {
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.15), rgba(59, 130, 246, 0.1));
+      border-color: rgba(124, 58, 237, 0.3);
+      color: #5b21b6;
+    }
+    [data-theme="light"] .eng-submit:hover {
+      background: linear-gradient(135deg, rgba(124, 58, 237, 0.22), rgba(59, 130, 246, 0.15));
+      border-color: rgba(124, 58, 237, 0.5);
+      color: #4c1d95;
+      box-shadow: 0 4px 12px rgba(124, 58, 237, 0.12);
+    }
+
+    @media (max-width: 600px) {
+      .prj-hero-content { padding: 3rem 1.2rem; }
+      .eng-form-row { flex-direction: column; gap: 0; }
+      .eng-process { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body data-theme="dark">
+  <header id="nav-header"></header>
+
+  <!-- Hero -->
+  <section class="prj-hero" style="background: linear-gradient(135deg, rgba(7,16,25,0.9), rgba(7,16,25,0.7)), url('/images/textures/delchron_microscopic_ultra_close-up_of_futuristic_surface_textu.png') center/cover no-repeat;">
+    <div class="prj-hero-content">
+      <p class="nv-breadcrumb"><a href="/">Home</a> / Engage</p>
+      <h1>Start Your System</h1>
+      <h2>Structured AI-native infrastructure, built for production environments.</h2>
+      <p>AmbientPixels partners with organizations to design, build, and deploy governed automation systems. Every engagement follows a structured process — from discovery through production — with clear deliverables, defined architecture, and human oversight at every stage.</p>
+    </div>
+  </section>
+
+  <main class="grid-container">
+
+    <!-- Engagement Models -->
+    <section class="content-section grid-col-12 eng-section">
+      <h2>Engagement Models</h2>
+      <p>Four structured pathways to production-grade infrastructure. Each model scales to meet system complexity and organizational requirements.</p>
+      <div class="eng-grid">
+        <div class="eng-card">
+          <i class="fas fa-compass eng-icon"></i>
+          <h3>Advisory</h3>
+          <p>Architecture review, system assessment, and strategic planning for teams building AI-native infrastructure. Delivered as structured consultation with documented recommendations.</p>
+        </div>
+        <div class="eng-card">
+          <i class="fas fa-hammer eng-icon"></i>
+          <h3>Build</h3>
+          <p>End-to-end system design and development. Modular architecture, automation pipelines, governance layers, and deployment — scoped to a defined project with clear milestones.</p>
+        </div>
+        <div class="eng-card">
+          <i class="fas fa-sync-alt eng-icon"></i>
+          <h3>Retainer</h3>
+          <p>Ongoing system maintenance, iteration, and infrastructure expansion. Dedicated capacity for continuous improvement with monthly deliverables and priority support.</p>
+        </div>
+        <div class="eng-card">
+          <i class="fas fa-building eng-icon"></i>
+          <h3>Enterprise</h3>
+          <p>Full-scale platform implementation with multi-system integration, custom governance frameworks, SLA-backed support, and dedicated engineering resources.</p>
+        </div>
       </div>
     </section>
 
-    <main class="grid-container">
-      <!-- Breadcrumb Navigation -->
-      <div class="breadcrumb-container grid-col-12"></div>
-      
-      <!-- Intro Section -->
-      <section class="grid-col-12 content-section">
-        <h2><i class="fas fa-bolt"></i> Choose Your Tier</h2>
-        <p>Whether you're an artist, creator, or developer, your support helps Nova and the Ambient Pixels grid stay alive. Here's how you can join the flow.</p>
-        <p class="nova-voice">Some sparks glow brighter when shared.</p>
-      </section>
-
-      <!-- Subscription Tiers -->
-      <!-- Whisper Tier -->
-      <section class="grid-col-6 content-section neon-card tier-card whisper">
-        <h2><i class="fas fa-moon"></i> Whisper Tier</h2>
-        <p><strong>$5–10/month</strong></p>
-        <ul>
-          <li>Access to Nova's basic mood insights</li>
-          <li>Monthly digital art download</li>
-          <li>Support acknowledgment on our website</li>
-          <li>Early access to new features</li>
-        </ul>
-        <p class="nova-quip">Your whispers join the chorus of the grid.</p>
-        <div class="hero-buttons">
-          <button onclick="showModal('email-capture-modal')" class="glass-button" type="button">
-            <i class="fas fa-moon"></i>
-            <span>Join Whisper Tier →</span>
-          </button>
+    <!-- Engagement Process -->
+    <section class="content-section grid-col-12 eng-section">
+      <h2>Engagement Process</h2>
+      <p>A defined workflow from initial conversation through production deployment.</p>
+      <div class="eng-process">
+        <div class="eng-step">
+          <span class="eng-step-num">1</span>
+          <h4>Discovery</h4>
+          <p>Scope, goals, and system requirements</p>
         </div>
-      </section>
-
-      <!-- Sparks Tier -->
-      <section class="grid-col-6 content-section neon-card tier-card sparks">
-        <h2><i class="fas fa-bolt"></i> Sparks Tier</h2>
-        <p><strong>$20–50/month</strong></p>
-        <ul>
-          <li>All Whisper tier benefits</li>
-          <li>Custom Nova mood insights for your projects</li>
-          <li>Quarterly digital art pack with usage rights</li>
-          <li>Discord community access</li>
-          <li>Vote on future Nova features</li>
-        </ul>
-        <p class="nova-quip">Your energy amplifies the resonance.</p>
-        <div class="hero-buttons">
-            <button onclick="showModal('email-capture-modal')" class="glass-button" type="button">
-                <i class="fas fa-bolt"></i>
-            <span>Join Sparks Tier →</span>
-          </button>
+        <div class="eng-step">
+          <span class="eng-step-num">2</span>
+          <h4>Architecture</h4>
+          <p>System design, component mapping, and technical specification</p>
         </div>
-      </section>
-
-      <!-- Gridflow Tier -->
-      <section class="grid-col-6 content-section neon-card tier-card gridflow">
-        <h2><i class="fas fa-cogs"></i> Gridflow Tier</h2>
-        <p><strong>$100–300/month</strong></p>
-        <ul>
-          <li>All Sparks tier benefits</li>
-          <li>Monthly 1:1 consultation session</li>
-          <li>Custom AI moodboard generation</li>
-          <li>Priority support and feature requests</li>
-          <li>Access to Nova's experimental features</li>
-        </ul>
-        <p class="nova-quip">The grid flows stronger with your current.</p>
-        <div class="hero-buttons">
-            <button onclick="showModal('email-capture-modal')" class="glass-button" type="button">
-                <i class="fas fa-cogs"></i>
-            <span>Join Gridflow Tier →</span>
-          </button>
+        <div class="eng-step">
+          <span class="eng-step-num">3</span>
+          <h4>Build</h4>
+          <p>Modular development with milestone reviews and staging</p>
         </div>
-      </section>
-
-      <!-- Bespoke Tier -->
-      <section class="grid-col-6 content-section neon-card tier-card bespoke">
-        <h2><i class="fas fa-star"></i> Bespoke Tier</h2>
-        <p><strong>Custom Quote</strong></p>
-        <ul>
-          <li>All Gridflow tier benefits</li>
-          <li>Custom integration of Nova into your projects</li>
-          <li>Dedicated development resources</li>
-          <li>White-labeled mood engine solutions</li>
-          <li>Enterprise-level support and SLAs</li>
-        </ul>
-        <p class="nova-quip">Together we'll craft a universe of possibilities.</p>
-        <div class="hero-buttons">
-          <button onclick="showModal();" class="glass-button" type="button">
-                <i class="fas fa-star"></i>
-            <span>Request Custom Quote →</span>
-          </button>
+        <div class="eng-step">
+          <span class="eng-step-num">4</span>
+          <h4>Governance</h4>
+          <p>Approval flows, observability, and audit integration</p>
         </div>
-      </section>
-
-      <!-- Final CTA -->
-      <section class="grid-col-12 content-section">
-        <h2><i class="fas fa-rocket"></i> Let's Build Something Remarkable</h2>
-        <p>Your support fuels the future of mood-driven design and AI-powered storytelling. Join us and become part of the grid.</p>
-        <div class="hero-buttons">
-            <button onclick="showModal('email-capture-modal')" class="glass-button" type="button">
-                <i class="fas fa-rocket"></i>
-            <span>Start Your Subscription →</span>
-          </button>
+        <div class="eng-step">
+          <span class="eng-step-num">5</span>
+          <h4>Deployment</h4>
+          <p>Production release, monitoring, and handoff documentation</p>
         </div>
-      </section>
-    </main>
+      </div>
+    </section>
 
-    <!-- Modal container will be injected here -->
-    <div id="modal-container" data-auto-form="email"></div>
+    <!-- Qualification Form -->
+    <section class="content-section grid-col-12 eng-section">
+      <h2>Request Consultation</h2>
+      <p>Tell us about your project. We'll review your requirements and respond within two business days.</p>
+      <form class="eng-form contact-form" id="engage-form" action="https://formspree.io/f/xkgnqpjr" method="POST">
+        <div class="eng-form-row">
+          <div class="form-group">
+            <div class="label-wrapper">
+              <label for="eng-name">Name</label>
+            </div>
+            <div class="input-wrapper">
+              <input type="text" id="eng-name" name="name" required placeholder="Full name" />
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="label-wrapper">
+              <label for="eng-company">Company</label>
+            </div>
+            <div class="input-wrapper">
+              <input type="text" id="eng-company" name="company" placeholder="Organization" />
+            </div>
+          </div>
+        </div>
+        <div class="eng-form-row">
+          <div class="form-group">
+            <div class="label-wrapper">
+              <label for="eng-email">Email</label>
+            </div>
+            <div class="input-wrapper">
+              <input type="email" id="eng-email" name="email" required placeholder="you@company.com" />
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="label-wrapper">
+              <label for="eng-project-type">Project Type</label>
+            </div>
+            <div class="input-wrapper">
+              <select id="eng-project-type" name="project_type" class="styled-select" required>
+                <option value="" disabled selected>Select type</option>
+                <option value="advisory">Advisory / Architecture Review</option>
+                <option value="build">Build / System Development</option>
+                <option value="retainer">Retainer / Ongoing Support</option>
+                <option value="enterprise">Enterprise / Platform Implementation</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="eng-form-row">
+          <div class="form-group">
+            <div class="label-wrapper">
+              <label for="eng-timeline">Timeline</label>
+            </div>
+            <div class="input-wrapper">
+              <select id="eng-timeline" name="timeline" class="styled-select">
+                <option value="" disabled selected>Select timeline</option>
+                <option value="immediate">Immediate (< 2 weeks)</option>
+                <option value="short">Short-term (1–3 months)</option>
+                <option value="medium">Medium-term (3–6 months)</option>
+                <option value="long">Long-term (6+ months)</option>
+                <option value="flexible">Flexible</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="label-wrapper">
+              <label for="eng-budget">Budget Range</label>
+            </div>
+            <div class="input-wrapper">
+              <select id="eng-budget" name="budget_range" class="styled-select">
+                <option value="" disabled selected>Select range</option>
+                <option value="5k-15k">$5,000 – $15,000</option>
+                <option value="15k-50k">$15,000 – $50,000</option>
+                <option value="50k-100k">$50,000 – $100,000</option>
+                <option value="100k+">$100,000+</option>
+                <option value="tbd">To be determined</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="form-group">
+          <div class="label-wrapper">
+            <label for="eng-description">Project Description</label>
+          </div>
+          <div class="input-wrapper">
+            <textarea id="eng-description" name="description" required placeholder="Describe your project, current infrastructure, and what you're looking to build."></textarea>
+          </div>
+        </div>
+        <input type="hidden" name="_source" value="engage" />
+        <button type="submit" class="eng-submit">
+          <i class="fas fa-paper-plane"></i>
+          <span>Request Consultation</span>
+        </button>
+      </form>
 
-    <!-- Footer -->
-    <div id="footer-container"></div>
+      <div class="eng-note">
+        Interested in platform integration with Nova or GridOS? Include details in your project description and we'll scope accordingly.
+      </div>
+    </section>
 
-    <!-- Scripts -->
-    <script src="/modules/breadcrumb.js" defer></script>
-    <script src="/js/init-header-footer.js" defer></script>
-    <script src="/js/theme.js" defer></script>
-    <script src="/js/forms.js" defer></script>
-    <script src="/js/init-contact-modal.js" defer></script>
-    <script src="/js/main.js" defer></script>
-  </body>
+  </main>
+
+  <div id="footer-container"></div>
+
+  <script src="/js/init-header-footer.js" defer></script>
+  <script src="/js/main.js" defer></script>
+  <script src="/js/nav.js" defer></script>
+  <script src="/js/theme.js" defer></script>
+  <script src="/js/forms.js" defer></script>
+</body>
 </html>

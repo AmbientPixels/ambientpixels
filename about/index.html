@@ -34,12 +34,11 @@
       font-size: 1.4rem;
       font-weight: 600;
       margin: 0 0 0.75rem;
-      color: var(--nv-text-primary, #fff);
     }
-    .stu-section p {
+    .stu-section > p {
       font-size: 0.95rem;
       line-height: 1.6;
-      color: var(--nv-text-secondary, rgba(255,255,255,0.6));
+      opacity: 0.65;
       max-width: 720px;
     }
     .stu-grid {
@@ -49,7 +48,7 @@
       margin-top: 1rem;
     }
     .stu-card {
-      border: 1px solid var(--nv-border, rgba(255,255,255,0.08));
+      border: 1px solid rgba(128,128,128,0.15);
       border-radius: 8px;
       padding: 1.25rem;
       display: flex;
@@ -58,23 +57,22 @@
       transition: border-color 0.2s ease;
     }
     .stu-card:hover {
-      border-color: var(--nv-border-hover, rgba(255,255,255,0.16));
+      border-color: rgba(128,128,128,0.3);
     }
     .stu-card h3 {
       font-size: 1rem;
       font-weight: 600;
       margin: 0;
-      color: var(--nv-text-primary, #fff);
     }
     .stu-card p {
       font-size: 0.85rem;
       line-height: 1.5;
       margin: 0;
-      color: var(--nv-text-secondary, rgba(255,255,255,0.55));
+      opacity: 0.6;
     }
     .stu-card .stu-icon {
       font-size: 1.25rem;
-      color: var(--nv-accent, #a78bfa);
+      color: #a78bfa;
       margin-bottom: 0.25rem;
     }
 
@@ -92,9 +90,8 @@
       min-width: 140px;
       text-align: center;
       padding: 1.25rem 0.85rem;
-      border: 1px solid var(--nv-border, rgba(255,255,255,0.1));
+      border: 1px solid rgba(128,128,128,0.15);
       border-radius: 6px;
-      background: rgba(255,255,255,0.025);
     }
     .stu-flow-step h4 {
       font-size: 0.8rem;
@@ -102,16 +99,15 @@
       text-transform: uppercase;
       letter-spacing: 0.04em;
       margin: 0 0 0.25rem;
-      color: var(--nv-text-primary, #fff);
     }
     .stu-flow-step p {
       font-size: 0.75rem;
       margin: 0;
-      color: var(--nv-text-tertiary, rgba(255,255,255,0.4));
+      opacity: 0.45;
     }
     .stu-flow-arrow {
       font-size: 1rem;
-      color: var(--nv-text-tertiary, rgba(255,255,255,0.25));
+      opacity: 0.3;
       padding: 0 0.5rem;
       flex-shrink: 0;
     }
@@ -125,24 +121,23 @@
     }
     .stu-principle {
       padding: 1.25rem 1rem;
-      border-left: 2px solid var(--nv-accent, #a78bfa);
+      border-left: 2px solid #a78bfa;
     }
     .stu-principle h3 {
       font-size: 0.9rem;
       font-weight: 600;
       margin: 0 0 0.25rem;
-      color: var(--nv-text-primary, #fff);
     }
     .stu-principle p {
       font-size: 0.8rem;
       margin: 0;
-      color: var(--nv-text-secondary, rgba(255,255,255,0.5));
+      opacity: 0.55;
       line-height: 1.55;
     }
 
     /* 4. Founder — more inner padding, breathing room */
     .stu-founder {
-      border: 1px solid var(--nv-border, rgba(255,255,255,0.08));
+      border: 1px solid rgba(128,128,128,0.15);
       border-radius: 8px;
       padding: 2.25rem 2rem;
       margin-top: 1rem;
@@ -152,13 +147,12 @@
       font-size: 1.1rem;
       font-weight: 600;
       margin: 0 0 0.5rem;
-      color: var(--nv-text-primary, #fff);
     }
     .stu-founder p {
       font-size: 0.9rem;
       line-height: 1.7;
       margin: 0 0 0.85rem;
-      color: var(--nv-text-secondary, rgba(255,255,255,0.6));
+      opacity: 0.65;
     }
     .stu-founder .stu-btn {
       display: inline-flex;
@@ -167,20 +161,35 @@
       padding: 0.5rem 1rem;
       font-size: 0.85rem;
       font-weight: 500;
-      color: var(--nv-text-primary, #fff);
-      border: 1px solid var(--nv-border, rgba(255,255,255,0.12));
+      border: 1px solid rgba(128,128,128,0.2);
       border-radius: 6px;
       text-decoration: none;
       transition: border-color 0.2s ease, background 0.2s ease;
     }
     .stu-founder .stu-btn:hover {
-      border-color: var(--nv-accent, #a78bfa);
+      border-color: #a78bfa;
       background: rgba(167, 139, 250, 0.06);
     }
 
     /* 5. CTA section — more vertical room */
     #contact-cta .content-section {
       padding: 2rem 0;
+    }
+
+    /* Light theme overrides */
+    [data-theme="light"] .stu-card .stu-icon { color: #7c3aed; }
+    [data-theme="light"] .stu-card { border-color: #e2e8f0; }
+    [data-theme="light"] .stu-card:hover { border-color: #cbd5e1; }
+    [data-theme="light"] .stu-flow-step { border-color: #e2e8f0; }
+    [data-theme="light"] .stu-principle { border-left-color: #7c3aed; }
+    [data-theme="light"] .stu-founder { border-color: #e2e8f0; }
+    [data-theme="light"] .stu-founder .stu-btn {
+      border-color: #d1d5db;
+      color: #334155;
+    }
+    [data-theme="light"] .stu-founder .stu-btn:hover {
+      border-color: #7c3aed;
+      background: rgba(124, 58, 237, 0.05);
     }
 
     @media (max-width: 600px) {

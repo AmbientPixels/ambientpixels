@@ -5773,3 +5773,113 @@ body[data-theme="light"] .project-section:hover {
     top: -0.5rem;
   }
 }
+
+/* ===== Light Theme — Projects Page ===== */
+
+/* Hero */
+[data-theme="light"] .prj-hero {
+  background:
+    linear-gradient(
+      to right,
+      var(--nv-bg) 0%,
+      rgba(237, 238, 241, 0.7) 50%,
+      transparent 100%
+    ),
+    url('/images/projects1.png') center right / cover no-repeat;
+  border-bottom-color: var(--nv-border);
+}
+
+/* Section containers */
+[data-theme="light"] .xbox-section {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: #e2e8f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+[data-theme="light"] .xbox-section:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Section header */
+[data-theme="light"] .xbox-section-header {
+  border-bottom-color: #e2e8f0;
+}
+[data-theme="light"] .xbox-section-header i {
+  color: #7c3aed;
+  background: rgba(124, 58, 237, 0.08);
+}
+[data-theme="light"] .xbox-section-title {
+  color: #1a2a44;
+  text-shadow: none;
+}
+
+/* Section description */
+[data-theme="light"] .section-description {
+  color: #475569;
+}
+[data-theme="light"] .content-section h2 {
+  color: #7c3aed;
+}
+
+/* Cards */
+[data-theme="light"] .card-section,
+[data-theme="light"] .card {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: #e2e8f0;
+}
+[data-theme="light"] .card-section:hover,
+[data-theme="light"] .card:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+[data-theme="light"] .card.featured-card {
+  border-color: rgba(124, 58, 237, 0.3);
+  box-shadow: 0 0 12px rgba(124, 58, 237, 0.06);
+}
+[data-theme="light"] .card-content h3,
+[data-theme="light"] .card h3 {
+  color: #1a2a44;
+}
+[data-theme="light"] .card-content h3 i {
+  color: #7c3aed;
+}
+[data-theme="light"] .card p {
+  color: #475569;
+}
+[data-theme="light"] .card-badge {
+  background: #7c3aed;
+  color: #fff;
+}
+
+/* Meta items */
+[data-theme="light"] .meta-item {
+  color: #64748b;
+}
+[data-theme="light"] .meta-item i {
+  color: #7c3aed;
+}
+
+/* Role tags */
+[data-theme="light"] .role-tag {
+  background: rgba(124, 58, 237, 0.06);
+  color: #7c3aed;
+  border-color: rgba(124, 58, 237, 0.2);
+}
+
+/* Primary button */
+[data-theme="light"] .btn-primary {
+  background: linear-gradient(135deg, #7c3aed, #3b82f6);
+  color: #fff;
+  border-color: rgba(124, 58, 237, 0.3);
+}
+[data-theme="light"] .btn-primary:hover {
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+  border-color: rgba(124, 58, 237, 0.5);
+}
+
+/* Role line */
+[data-theme="light"] .cs-roleline {
+  color: #94a3b8;
+}
+
+/* ===== End Light Theme — Projects Page ===== */
