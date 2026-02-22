@@ -964,18 +964,78 @@ module.exports = async function (context) {
       }
     }
 
-    // ── Auto-archive done tasks (>7 days old) ──
+    // ── Auto-archive tasks ──
+    // 1) Immediate archive for tasks linked to canceled objectives.
+    // 2) Done-task aging archive (>7 days old).
     const ARCHIVE_AGE_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
     const ARCHIVE_MAX = 2000;
     const archiveNow = Date.now();
+    const archive = (await storage.getState('tasksArchive')) || [];
+    const archivedTaskIds = new Set(archive.map(function (t) { return t && t.id; }).filter(Boolean));
+    const canceledObjectives = new Map();
+    for (const _obj of objectives) {
+      if (!_obj || !_obj.id) continue;
+      if (String(_obj.status || '').toLowerCase() === 'canceled') {
+        canceledObjectives.set(_obj.id, _obj);
+      }
+    }
+
+    const canceledArchiveCounts = new Map();
     const toArchive = [];
     const keepTasks = [];
     for (const task of tasks) {
+      const objectiveId = task && task.objective_id ? task.objective_id : null;
+      if (objectiveId && canceledObjectives.has(objectiveId)) {
+        const objective = canceledObjectives.get(objectiveId);
+        const nowIso = new Date().toISOString();
+        const archiveStamp = task.archivedAt || nowIso;
+        const cancelComment = 'Auto-archived: Objective canceled (objectiveId=' + objectiveId + ', title=' + (objective.title || objectiveId) + '). Execution blocked.';
+        if (!task.comments) task.comments = [];
+        const hasCancelComment = task.comments.some(function (c) {
+          return c && c.author === 'system' && c.text === cancelComment;
+        });
+        if (!hasCancelComment) {
+          task.comments.push({
+            id: 'cmt-archive-objective-canceled-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+            author: 'system',
+            text: cancelComment,
+            type: 'system',
+            createdAt: nowIso
+          });
+        }
+        const lastComment = (task.comments && task.comments.length > 0) ? task.comments[task.comments.length - 1] : null;
+
+        if (!archivedTaskIds.has(task.id)) {
+          toArchive.push({
+            id: task.id,
+            title: task.title,
+            description: (task.description || '').substring(0, 200),
+            status: task.status,
+            priority: task.priority,
+            assignee: task.assignee,
+            division: task.division || null,
+            dueDate: task.dueDate,
+            createdAt: task.createdAt,
+            completedAt: task.completedAt,
+            source: task.source,
+            commentCount: task.comments ? task.comments.length : 0,
+            lastComment: lastComment ? { author: lastComment.author, text: (lastComment.text || '').substring(0, 150), createdAt: lastComment.createdAt } : null,
+            archivedAt: archiveStamp,
+            archivedReason: 'objective_canceled',
+            objectiveId: objectiveId,
+            objectiveTitle: objective.title || null
+          });
+          archivedTaskIds.add(task.id);
+          canceledArchiveCounts.set(objectiveId, (canceledArchiveCounts.get(objectiveId) || 0) + 1);
+        }
+        continue;
+      }
+
       if (task.status === 'done') {
         const completedMs = task.completedAt ? new Date(task.completedAt).getTime() : 0;
         const updatedMs = task.updatedAt ? new Date(task.updatedAt).getTime() : 0;
         const doneAt = completedMs || updatedMs;
-        if (doneAt && (archiveNow - doneAt) > ARCHIVE_AGE_MS) {
+        if (doneAt && (archiveNow - doneAt) > ARCHIVE_AGE_MS && !archivedTaskIds.has(task.id)) {
           // Compact: strip full comments, keep summary
           const lastComment = (task.comments && task.comments.length > 0) ? task.comments[task.comments.length - 1] : null;
           toArchive.push({
@@ -992,15 +1052,17 @@ module.exports = async function (context) {
             source: task.source,
             commentCount: task.comments ? task.comments.length : 0,
             lastComment: lastComment ? { author: lastComment.author, text: (lastComment.text || '').substring(0, 150), createdAt: lastComment.createdAt } : null,
-            archivedAt: new Date().toISOString()
+            archivedAt: new Date().toISOString(),
+            archivedReason: 'done_aged_7d'
           });
+          archivedTaskIds.add(task.id);
           continue;
         }
       }
       keepTasks.push(task);
     }
+
     if (toArchive.length > 0) {
-      const archive = (await storage.getState('tasksArchive')) || [];
       archive.push(...toArchive);
       // Cap archive
       if (archive.length > ARCHIVE_MAX) archive.splice(0, archive.length - ARCHIVE_MAX);
@@ -1008,7 +1070,24 @@ module.exports = async function (context) {
       // Replace tasks array in-place (agents use this reference)
       tasks.length = 0;
       tasks.push(...keepTasks);
-      context.log('[Heartbeat] Archived', toArchive.length, 'done task(s) older than 7 days. Active tasks:', tasks.length);
+      context.log('[Heartbeat] Archived', toArchive.length, 'task(s). Active tasks:', tasks.length);
+    }
+
+    if (canceledArchiveCounts.size > 0) {
+      const byObjective = Array.from(canceledArchiveCounts.entries()).map(function (entry) {
+        return { objectiveId: entry[0], count: entry[1] };
+      });
+      const totalCanceledArchived = byObjective.reduce(function (sum, item) { return sum + item.count; }, 0);
+      const details = {
+        runId: runId,
+        reason: 'objective_canceled',
+        count: totalCanceledArchived,
+        byObjective: byObjective
+      };
+      if (byObjective.length === 1) {
+        details.objectiveId = byObjective[0].objectiveId;
+      }
+      await logEvent('auto-archive', null, 'Auto-archived tasks for canceled objective(s)', runId, details);
     }
 
     // ── Auto-triage CEO tasks ──
