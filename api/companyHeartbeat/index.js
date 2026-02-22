@@ -507,6 +507,10 @@ function _isInProgressStatus(status) {
   return normalized === 'in-progress' || normalized === 'in_progress';
 }
 
+function _isTerminalTaskStatus(s) {
+  return ['done', 'completed', 'closed'].includes(String(s || '').toLowerCase());
+}
+
 function _isObjectiveExemptCategory(category) {
   return OBJECTIVE_EXEMPT_CATEGORIES.has(_normalizeCategory(category));
 }
@@ -1121,6 +1125,75 @@ module.exports = async function (context) {
                   continue;
                 }
               }
+
+              // Objective status gate: move/update transitions into in-progress require active objective
+              if (mutationAction === 'move' || mutationAction === 'update') {
+                const oldStatus = targetTask ? targetTask.status : null;
+                const nextStatus = mutationAction === 'move'
+                  ? update.newStatus
+                  : (update.updates ? update.updates.status : null);
+                const entersInProgress = _isInProgressStatus(nextStatus) && !_isInProgressStatus(oldStatus);
+
+                if (entersInProgress) {
+                  const objectiveIdOnTask = targetTask ? (targetTask.objective_id || null) : null;
+                  const linkedObjective = objectiveIdOnTask
+                    ? objectives.find(o => o.id === objectiveIdOnTask)
+                    : null;
+                  const objectiveStatus = linkedObjective ? String(linkedObjective.status || '').toLowerCase() : null;
+                  const missingOrNotActive = !linkedObjective || objectiveStatus !== 'active';
+
+                  if (missingOrNotActive) {
+                    _incBlocked(agentId);
+
+                    if (_canAddProposal(agentId)) {
+                      const suggestedFix = linkedObjective
+                        ? 'activate objective'
+                        : 'reassign objective';
+                      const statusProposal = _normalizeProposal({
+                        type: 'proposal',
+                        agentId: agentId,
+                        runId: runId,
+                        reasonBlocked: 'objective_status',
+                        proposedAction: 'move_task',
+                        payload: {
+                          title: 'Task blocked: objective must be active before entering in-progress',
+                          category: 'governance',
+                          objective_id: objectiveIdOnTask,
+                          taskId: update.taskId || null,
+                          suggestedFix: suggestedFix,
+                          objective_suggestion: suggestedFix === 'activate objective'
+                            ? 'Activate objective before moving task to in-progress.'
+                            : 'Reassign task to an active objective before moving to in-progress.',
+                          acceptanceCriteria: ['Objective exists and has status active before task enters in-progress.'],
+                          evidence: {
+                            runId: runId,
+                            gate: 'objective_status',
+                            blockedAction: mutationAction,
+                            taskId: update.taskId || null,
+                            objective_id: objectiveIdOnTask,
+                            objective_status: objectiveStatus || 'missing',
+                            reason: 'objective_missing_or_not_active'
+                          }
+                        }
+                      });
+                      if (_isValidProposal(statusProposal)) {
+                        result.proposals.push(statusProposal);
+                        _incProposal(agentId);
+                      }
+                    }
+
+                    await logEvent('policy-violation', agentId, 'Task mutation blocked by objective status gate', runId, {
+                      runId: runId,
+                      agentId: agentId,
+                      gate: 'objective_status',
+                      reason: 'objective_missing_or_not_active',
+                      objective_id: objectiveIdOnTask,
+                      taskId: update.taskId || null
+                    });
+                    continue;
+                  }
+                }
+              }
             }
 
             // Rate-cap gate: per-agent per-run mutation caps
@@ -1345,6 +1418,79 @@ module.exports = async function (context) {
       // Re-enforce store cap after pruning
       if (_agentMemoryStore[_pAid].length > MAX_MEMORIES_PER_AGENT) {
         _agentMemoryStore[_pAid] = _agentMemoryStore[_pAid].slice(-MAX_MEMORIES_PER_AGENT);
+      }
+    }
+
+    // Objective lifecycle health proposals (non-destructive)
+    // Suggest status changes only; do not auto-modify objective records.
+    const _tasksByObjectiveId = new Map();
+    for (const _t of tasks) {
+      if (!_t || !_t.objective_id) continue;
+      if (!_tasksByObjectiveId.has(_t.objective_id)) _tasksByObjectiveId.set(_t.objective_id, []);
+      _tasksByObjectiveId.get(_t.objective_id).push(_t);
+    }
+
+    for (const _obj of objectives) {
+      if (!_obj || !_obj.id) continue;
+      const _linkedTasks = _tasksByObjectiveId.get(_obj.id) || [];
+      const _objStatus = String(_obj.status || '').toLowerCase();
+      const _allLinkedDone = _linkedTasks.length > 0 && _linkedTasks.every(t => _isTerminalTaskStatus(t.status));
+
+      // Active objective with all linked tasks complete -> suggest objective completion
+      if (_objStatus === 'active' && _allLinkedDone) {
+        const _completeProposal = _normalizeProposal({
+          type: 'proposal',
+          agentId: 'nova',
+          runId: runId,
+          reasonBlocked: 'objective_lifecycle',
+          proposedAction: 'complete_objective',
+          payload: {
+            title: 'Mark objective completed: ' + (_obj.title || _obj.id),
+            category: 'governance',
+            objective_id: _obj.id,
+            objective_suggestion: 'Mark objective as completed.',
+            acceptanceCriteria: ['Objective status is active.', 'All linked tasks are completed.'],
+            evidence: {
+              runId: runId,
+              gate: 'objective_lifecycle',
+              objective_id: _obj.id,
+              objective_status: _objStatus,
+              linked_task_count: _linkedTasks.length,
+              completed_task_count: _linkedTasks.length
+            }
+          }
+        });
+        if (_isValidProposal(_completeProposal)) {
+          await logEvent('proposal', 'nova', 'Objective lifecycle suggestion: mark completed (' + (_obj.title || _obj.id) + ')', runId, _completeProposal);
+        }
+      }
+
+      // Objective with no linked tasks -> suggest archive
+      if (_linkedTasks.length === 0) {
+        const _archiveProposal = _normalizeProposal({
+          type: 'proposal',
+          agentId: 'nova',
+          runId: runId,
+          reasonBlocked: 'objective_lifecycle',
+          proposedAction: 'archive_objective',
+          payload: {
+            title: 'Archive objective with no linked tasks: ' + (_obj.title || _obj.id),
+            category: 'governance',
+            objective_id: _obj.id,
+            objective_suggestion: 'Archive objective or link at least one active task.',
+            acceptanceCriteria: ['Objective has zero linked tasks.', 'Owner confirms objective should be archived or re-linked.'],
+            evidence: {
+              runId: runId,
+              gate: 'objective_lifecycle',
+              objective_id: _obj.id,
+              objective_status: _objStatus,
+              linked_task_count: 0
+            }
+          }
+        });
+        if (_isValidProposal(_archiveProposal)) {
+          await logEvent('proposal', 'nova', 'Objective lifecycle suggestion: archive (' + (_obj.title || _obj.id) + ')', runId, _archiveProposal);
+        }
       }
     }
 
