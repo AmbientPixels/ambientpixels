@@ -691,9 +691,11 @@ async function _normalizeEnvelope(parsed, opts) {
   const options = opts || {};
   const agentId = options.agentId || null;
   const runId = options.runId || null;
+  const onPolicyViolationGate = typeof options.onPolicyViolationGate === 'function' ? options.onPolicyViolationGate : null;
   const envelope = { taskUpdates: [], proposals: [], remember: [], observations: [] };
 
   if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    if (onPolicyViolationGate) onPolicyViolationGate('output_envelope');
     await logEvent('policy-violation', agentId, 'Invalid agent output envelope', runId, {
       runId: runId,
       agentId: agentId,
@@ -847,6 +849,18 @@ module.exports = async function (context) {
     function _canAddProposal(aid) {
       _ensureAgentCounters(aid);
       return _runCounters.byAgent[aid].proposals < _effectiveCaps.maxProposalsPerAgentPerRun;
+    }
+
+    const _runGateCounts = {
+      output_envelope: 0,
+      proposal_schema: 0,
+      objective_status: 0,
+      observation_clamp: 0
+    };
+    function _incPolicyGate(gate) {
+      if (Object.prototype.hasOwnProperty.call(_runGateCounts, gate)) {
+        _runGateCounts[gate]++;
+      }
     }
 
     // Cooldown is per-run only (non-persistent): after repeated violations, force proposals-only path.
@@ -1059,7 +1073,7 @@ module.exports = async function (context) {
           workspaceMemory, workspaceDates, revisionActions,
           agentId === 'cipher' ? costIntel : null,
           _reviewCooldownIds, _seedMemories, researchIntelStore, socialIntel,
-          normalizedActivationMode, _isAgentInCooldown, _logAgentCooldownOnce
+          normalizedActivationMode, _isAgentInCooldown, _logAgentCooldownOnce, _incPolicyGate
         );
         // Collect any new research intel from this agent's cycle
         if (result.newResearchIntel) {
@@ -1117,6 +1131,7 @@ module.exports = async function (context) {
                     result.proposals.push(modeProposal);
                     _incProposal(agentId);
                   } else {
+                    _incPolicyGate('proposal_schema');
                     await logEvent('policy-violation', agentId, 'Invalid proposal rejected', runId, { gate: 'proposal_schema', reason: 'invalid_proposal', proposedAction: mutationAction });
                   }
                 }
@@ -1178,6 +1193,7 @@ module.exports = async function (context) {
                       result.proposals.push(_normalizedObjProposal);
                       _incProposal(agentId);
                     } else {
+                      _incPolicyGate('proposal_schema');
                       await logEvent('policy-violation', agentId, 'Invalid proposal rejected', runId, { gate: 'proposal_schema', reason: 'invalid_proposal', proposedAction: mutationAction });
                     }
                   }
@@ -1250,6 +1266,7 @@ module.exports = async function (context) {
                       }
                     }
 
+                    _incPolicyGate('objective_status');
                     await logEvent('policy-violation', agentId, 'Task mutation blocked by objective status gate', runId, {
                       runId: runId,
                       agentId: agentId,
@@ -1296,6 +1313,7 @@ module.exports = async function (context) {
                     result.proposals.push(_rcProposal);
                     _incProposal(agentId);
                   } else {
+                    _incPolicyGate('proposal_schema');
                     await logEvent('policy-violation', agentId, 'Invalid proposal rejected', runId, { gate: 'proposal_schema', reason: 'invalid_proposal', proposedAction: mutationAction });
                   }
                 }
@@ -1339,6 +1357,7 @@ module.exports = async function (context) {
                     result.proposals.push(_normalizedAlProposal);
                     _incProposal(agentId);
                   } else {
+                    _incPolicyGate('proposal_schema');
                     await logEvent('policy-violation', agentId, 'Invalid proposal rejected', runId, { gate: 'proposal_schema', reason: 'invalid_proposal', proposedAction: mutationAction });
                   }
                 }
@@ -1667,6 +1686,27 @@ module.exports = async function (context) {
       topProposalAgents: topProposalAgents
     });
 
+    const blockedTotal = _runCounters.totals.blocked || 0;
+    const proposalsTotal = _runCounters.totals.proposals || 0;
+    const reasons = [];
+    if (blockedTotal > 10) reasons.push('blocked_total_gt_10');
+    if ((_runGateCounts.output_envelope || 0) > 0) reasons.push('output_envelope_violations');
+    if ((_runGateCounts.proposal_schema || 0) > 0) reasons.push('proposal_schema_violations');
+    if ((_runGateCounts.objective_status || 0) > 3) reasons.push('objective_status_gt_3');
+    const status = reasons.length === 0 ? 'ok' : 'warn';
+
+    await logEvent('run-health', null, 'Heartbeat run health: ' + status, runId, {
+      runId: runId,
+      mode: normalizedActivationMode,
+      status: status,
+      reasons: reasons,
+      stats: {
+        blockedTotal: blockedTotal,
+        proposalsTotal: proposalsTotal,
+        gateCounts: _runGateCounts
+      }
+    });
+
     context.log('[Heartbeat] Cycle complete:', cycleId, '| Gemini calls:', geminiCalls, '| New tasks:', newTasksCreated, '| Skipped:', skippedAgents.length, '| Tier4 ran:', ranTier4.join(', ') || 'none');
 
   } catch (err) {
@@ -1676,7 +1716,7 @@ module.exports = async function (context) {
 };
 
 // ── Run a single agent's heartbeat ──
-async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, normalizedActivationMode, isAgentInCooldown, logAgentCooldownOnce) {
+async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, normalizedActivationMode, isAgentInCooldown, logAgentCooldownOnce, incPolicyGate) {
   const result = { geminiCalls: 0, actions: 0, taskUpdates: [], proposals: [], newResearchIntel: null };
   const agent = AGENT_ROLES[agentId];
   if (!agent) return result;
@@ -1745,7 +1785,7 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
         remember: normalizedResult.remember,
         observations: normalizedResult.observations
       },
-    { agentId: agentId, runId: cycleId }
+    { agentId: agentId, runId: cycleId, onPolicyViolationGate: incPolicyGate }
   );
 
   // Per-run cooldown (non-persistent): proposals/observations allowed, mutations + remember suppressed.
@@ -3846,6 +3886,7 @@ Write the full deliverable first, then the structured JSON block.`;
     return o;
   });
   if (_obsClamped) {
+    if (typeof incPolicyGate === 'function') incPolicyGate('observation_clamp');
     await logEvent('policy-violation', agentId, 'Observation clamp applied', cycleId, {
       runId: cycleId,
       agentId: agentId,
