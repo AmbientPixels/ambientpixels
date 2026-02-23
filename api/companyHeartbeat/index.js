@@ -87,6 +87,7 @@ const MAX_RESEARCH_STORE_ENTRIES = 20;
 const AGENT_COOLDOWN_VIOLATIONS_PER_RUN = 2;
 const MAX_OBSERVATIONS_PER_AGENT = 10;
 const MAX_OBSERVATION_CHARS = 180;
+const VALID_TASK_STATUSES = ['pending-approval', 'backlog', 'todo', 'in-progress', 'review', 'done'];
 
 // ── Phase 2B: Known action types for dual-envelope normalizer ──
 const KNOWN_ACTION_TYPES = [
@@ -1039,6 +1040,32 @@ module.exports = async function (context) {
         continue;
       }
 
+      // Cleanup: agent hallucinated status 'archived' — archive properly and remove from active
+      if (task.status === 'archived' && !archivedTaskIds.has(task.id)) {
+        const lastComment = (task.comments && task.comments.length > 0) ? task.comments[task.comments.length - 1] : null;
+        toArchive.push({
+          id: task.id,
+          title: task.title,
+          description: (task.description || '').substring(0, 200),
+          status: 'archived',
+          priority: task.priority,
+          assignee: task.assignee,
+          division: task.division || null,
+          dueDate: task.dueDate,
+          createdAt: task.createdAt,
+          completedAt: task.completedAt,
+          source: task.source,
+          commentCount: task.comments ? task.comments.length : 0,
+          lastComment: lastComment ? { author: lastComment.author, text: (lastComment.text || '').substring(0, 150), createdAt: lastComment.createdAt } : null,
+          archivedAt: new Date().toISOString(),
+          archivedReason: 'invalid_status_cleanup'
+        });
+        archivedTaskIds.add(task.id);
+        _taskIdsArchived.add(task.id);
+        context.log('[Heartbeat] Cleanup: task', task.id, 'had invalid status "archived" — moved to archive store');
+        continue;
+      }
+
       if (task.status === 'done') {
         const completedMs = task.completedAt ? new Date(task.completedAt).getTime() : 0;
         const updatedMs = task.updatedAt ? new Date(task.updatedAt).getTime() : 0;
@@ -1478,6 +1505,24 @@ module.exports = async function (context) {
                   blockedKeys: blockedKeys
                 });
                 continue;
+              }
+            }
+
+            // Canceled-objective freeze: block ALL mutations on tasks linked to canceled objectives
+            if (mutationAction !== 'create') {
+              const _freezeTask = tasks.find(t => t.id === update.taskId);
+              if (_freezeTask && _freezeTask.objective_id) {
+                const _freezeObj = objectives.find(o => o.id === _freezeTask.objective_id);
+                if (_freezeObj && String(_freezeObj.status || '').toLowerCase() === 'canceled') {
+                  _incBlocked(agentId);
+                  _incPolicyGate('objective_canceled_freeze');
+                  await logEvent('policy-violation', agentId, 'Mutation blocked: task linked to canceled objective', runId, {
+                    runId: runId, agentId: agentId, gate: 'objective_canceled_freeze',
+                    action: mutationAction, taskId: update.taskId,
+                    objectiveId: _freezeTask.objective_id, reason: 'objective_canceled'
+                  });
+                  continue;
+                }
               }
             }
 
@@ -4823,7 +4868,7 @@ function applyTaskUpdate(tasks, update, _pendingEscalations, _creatingAgentId) {
       id: 'task-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
       title: update.task.title,
       description: update.task.description || '',
-      status: update.task.status || 'todo',
+      status: (update.task.status && VALID_TASK_STATUSES.indexOf(update.task.status) !== -1) ? update.task.status : 'todo',
       priority: update.task.priority || 'medium',
       assignee: validAssignee,
       division: update.task.division || null,
@@ -5027,11 +5072,20 @@ function applyTaskUpdate(tasks, update, _pendingEscalations, _creatingAgentId) {
           Object.keys(update.updates).forEach(k => {
             if (k !== 'id' && k !== 'createdAt' && k !== 'comments') {
               if (isCeoTask && PROTECTED_FIELDS.indexOf(k) !== -1) return; // skip — CEO intent is immutable
+              if (k === 'status' && VALID_TASK_STATUSES.indexOf(update.updates[k]) === -1) {
+                console.log('[applyTaskUpdate] BLOCKED invalid status in updates:', update.updates[k], 'for task:', tasks[i].id);
+                return; // skip invalid status
+              }
               tasks[i][k] = update.updates[k];
             }
           });
         }
         if (update.newStatus) {
+          if (VALID_TASK_STATUSES.indexOf(update.newStatus) === -1) {
+            console.log('[applyTaskUpdate] BLOCKED invalid status:', update.newStatus, 'for task:', tasks[i].id);
+            tasks[i].updatedAt = new Date().toISOString();
+            return tasks[i];
+          }
           const oldStatus = tasks[i].status;
           tasks[i].status = update.newStatus;
           if (update.newStatus === 'done' && oldStatus !== 'done') {

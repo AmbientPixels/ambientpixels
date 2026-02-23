@@ -1414,7 +1414,7 @@
       function _renderArchive() {
         if (!_archiveData || _archiveData.length === 0) {
           archiveStats.innerHTML = '';
-          archiveContent.innerHTML = '<div class="tm-archive-empty">No archived tasks yet. Tasks completed more than 7 days ago will appear here.</div>';
+          archiveContent.innerHTML = '<div class="tm-archive-empty">No archived tasks yet. Completed tasks (7+ days) and canceled-objective tasks appear here.</div>';
           return;
         }
         // Stats
@@ -1435,17 +1435,22 @@
         var sorted = _archiveData.slice().sort(function (a, b) {
           return new Date(b.completedAt || b.archivedAt || 0).getTime() - new Date(a.completedAt || a.archivedAt || 0).getTime();
         });
-        var html = '<table class="tm-archive-table"><thead><tr><th>Task</th><th>Assignee</th><th>Priority</th><th>Completed</th><th>Comments</th></tr></thead><tbody>';
+        var html = '<table class="tm-archive-table"><thead><tr><th>Task</th><th>Assignee</th><th>Priority</th><th>Archived</th><th>Reason</th><th>Comments</th></tr></thead><tbody>';
         sorted.forEach(function (t) {
           var agent = t.assignee ? getAgentById(t.assignee) : null;
           var agentHtml = agent ? '<span style="color:' + agent.color + ';">' + agent.name + '</span>' : (t.assignee || '<span style="opacity:0.2;">\u2014</span>');
-          var completedStr = t.completedAt ? formatDate(t.completedAt) : '\u2014';
+          var archivedStr = t.archivedAt ? formatDate(t.archivedAt) : (t.completedAt ? formatDate(t.completedAt) : '\u2014');
+          var reasonLabel = t.archivedReason === 'objective_canceled' ? '<span style="color:#f87171;">Obj Canceled</span>'
+            : t.archivedReason === 'done_aged_7d' ? '<span style="opacity:0.5;">Completed</span>'
+            : t.archivedReason === 'invalid_status_cleanup' ? '<span style="color:#fbbf24;">Cleanup</span>'
+            : '<span style="opacity:0.35;">' + escapeHtml(t.archivedReason || '\u2014') + '</span>';
           var lastNote = t.lastComment ? escapeHtml((t.lastComment.author || '') + ': ' + (t.lastComment.text || '').substring(0, 60)) : '';
           html += '<tr title="' + escapeHtml(t.description || '') + '">' +
             '<td>' + escapeHtml(t.title) + '</td>' +
             '<td>' + agentHtml + '</td>' +
             '<td><span class="tm-card-priority tm-card-priority--' + (t.priority || 'medium') + '">' + (t.priority || 'medium') + '</span></td>' +
-            '<td style="font-size:0.65rem;opacity:0.5;">' + completedStr + '</td>' +
+            '<td style="font-size:0.65rem;opacity:0.5;">' + archivedStr + '</td>' +
+            '<td style="font-size:0.65rem;">' + reasonLabel + '</td>' +
             '<td style="font-size:0.6rem;opacity:0.35;">' + (t.commentCount || 0) + (lastNote ? ' \u2014 ' + lastNote : '') + '</td>' +
             '</tr>';
         });
