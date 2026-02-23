@@ -73,7 +73,7 @@
             <option value="Q4">Q4</option>
           </select>
           <input type="number" id="obj-year" value="2026" min="2024" max="2030" style="width:80px; padding:0.35rem 0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.7rem;" />
-          <select id="obj-directive" multiple style="padding:0.35rem 0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.7rem; min-height:28px; max-height:60px;">
+          <select id="obj-directive" multiple style="padding:0.35rem 0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.7rem; overflow:auto; appearance:none; -webkit-appearance:none;">
           </select>
           <button id="obj-create-btn" style="padding:0.35rem 1rem; background:rgba(78,205,196,0.1); border:1px solid rgba(78,205,196,0.3); border-radius:6px; color:#4ECDC4; font-size:0.7rem; cursor:pointer; font-weight:500;">Create Goal</button>
         </div>
@@ -152,7 +152,7 @@
       </div>
 
       <label for="obj-edit-directive">Linked Projects <span style="opacity:0.35; font-weight:normal;">(Ctrl+click to multi-select)</span></label>
-      <select id="obj-edit-directive" multiple style="min-height:50px; max-height:90px;">
+      <select id="obj-edit-directive" multiple style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.75rem; padding:0.35rem 0.5rem; overflow:auto; appearance:none; -webkit-appearance:none;">
       </select>
 
       <div class="obj-modal-row">
@@ -256,9 +256,11 @@
           var opt = document.createElement('option');
           opt.value = dir.id;
           opt.textContent = dir.title + (dir.status !== 'active' ? ' [' + dir.status + ']' : '');
+          opt.style.cssText = 'padding:0.25rem 0.4rem; border-radius:4px;';
           if (ids.indexOf(dir.id) !== -1) opt.selected = true;
           sel.appendChild(opt);
         });
+        sel.size = Math.min(active.length, 5);
       }
 
       // ── Edit Modal ──
