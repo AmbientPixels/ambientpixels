@@ -2233,7 +2233,10 @@ Write the full deliverable first, then the structured JSON block.`;
           priority: action.task.priority || 'medium',
           assignee: action.task.assignee || agentId,
           division: action.task.division || null,
-          dueDate: action.task.dueDate || new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString()
+          dueDate: action.task.dueDate || new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
+          objective_id: action.task.objective_id || null,
+          directive_id: action.task.directive_id || null,
+          category: action.task.category || null
         }
       });
     } else if (action.type === 'update-task' && action.taskId) {
