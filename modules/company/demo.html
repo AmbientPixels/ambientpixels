@@ -147,6 +147,65 @@
     body[data-theme="light"] .hq-hero-sub { color: #64748b; opacity: 1; }
     body[data-theme="light"] .hero-micro { color: #94a3b8; opacity: 1; }
 
+    /* GridOS in Action — screenshot showcase */
+    .gia-header { text-align: center; margin-bottom: 3rem; }
+    .gia-header h2 { font-size: 1.6rem; font-weight: 600; margin: 0 0 0.6rem; letter-spacing: -0.01em; }
+    .gia-header h2 i { opacity: 0.4; margin-right: 0.5rem; }
+    .gia-header p { font-size: 1.05rem; opacity: 0.5; margin: 0; line-height: 1.7; max-width: 640px; margin: 0 auto; }
+
+    .gia-block {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem;
+      align-items: center;
+      margin-bottom: 4rem;
+    }
+    .gia-block--reverse .gia-image { order: 2; }
+    .gia-block--reverse .gia-text { order: 1; }
+
+    .gia-image img {
+      width: 100%;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.06);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.35), 0 0 60px rgba(167,139,250,0.06);
+      transition: box-shadow 0.3s;
+    }
+    .gia-image img:hover {
+      box-shadow: 0 12px 48px rgba(0,0,0,0.45), 0 0 80px rgba(167,139,250,0.1);
+    }
+
+    .gia-text h3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin: 0 0 0.6rem;
+    }
+    .gia-text p {
+      font-size: 0.95rem;
+      opacity: 0.5;
+      line-height: 1.7;
+      margin: 0;
+    }
+
+    .gia-fade {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.6s ease, transform 0.6s ease;
+    }
+    .gia-fade.gia-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    body[data-theme="light"] .gia-header h2 { color: #1a2a44; }
+    body[data-theme="light"] .gia-header h2 i { color: #7c3aed; opacity: 1; }
+    body[data-theme="light"] .gia-header p { color: #475569; opacity: 1; }
+    body[data-theme="light"] .gia-text h3 { color: #1a2a44; }
+    body[data-theme="light"] .gia-text p { color: #475569; opacity: 1; }
+    body[data-theme="light"] .gia-image img {
+      border-color: rgba(0,0,0,0.1);
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12), 0 0 60px rgba(124,58,237,0.06);
+    }
+
     /* Responsive */
     @media (max-width: 600px) {
       .hq-hero-headline { font-size: 1.6rem; }
@@ -158,6 +217,14 @@
       .demo-section h2 { font-size: 1.3rem; }
       .flow-strip { flex-direction: column; }
       .flow-arrow { transform: rotate(90deg); }
+      .gia-block { grid-template-columns: 1fr; gap: 1.5rem; }
+      .gia-block--reverse .gia-image { order: 0; }
+      .gia-block--reverse .gia-text { order: 0; }
+      .gia-block { margin-bottom: 2.5rem; }
+      .gia-header { margin-bottom: 2rem; }
+      .gia-header h2 { font-size: 1.3rem; }
+      .gia-text h3 { font-size: 1rem; }
+      .gia-text p { font-size: 0.88rem; }
     }
   </style>
 </head>
@@ -169,9 +236,9 @@
 
     <!-- Hero -->
     <div class="hq-hero">
-      <h1 class="hq-hero-headline"><em>GridOS</em></h1>
-      <p class="hq-hero-tagline">The Operating System for AI-Run Companies</p>
-      <p class="hq-hero-sub">GridOS orchestrates autonomous agents across every department—structured by execution loops, governed by approval gates, and logged with full audit trails.</p>
+      <h1 class="hq-hero-headline">Turn AI Chaos into <em>Governed Execution.</em></h1>
+      <p class="hq-hero-tagline">GridOS is the operating system for AI-run companies — structured execution loops, role-bound agents, financial discipline, and full auditability built in.</p>
+      <p class="hq-hero-sub">Run autonomous agents like a real company — with oversight, accountability, and control.</p>
       <div class="hq-trust-line">
         <span class="hq-trust-chip"><i class="fas fa-shield-alt"></i> Governance Gates</span>
         <span class="hq-trust-chip"><i class="fas fa-clipboard-check"></i> Audit Trails</span>
@@ -206,10 +273,24 @@
       <div class="hero-micro">Early Cohort • Builder Access</div>
     </div>
 
+    <!-- The Problem -->
+    <div class="demo-section">
+      <h2><i class="fas fa-exclamation-triangle"></i> AI Agents Without Structure Create Entropy</h2>
+      <p>Most AI automation systems:</p>
+      <ul style="list-style:none;padding:0;margin:0 0 1.2rem;">
+        <li style="font-size:0.95rem;opacity:0.5;padding:0.3rem 0;display:flex;align-items:center;gap:0.4rem;"><i class="fas fa-times" style="font-size:0.55rem;color:#f87171;opacity:0.7;flex-shrink:0;"></i> Generate tasks without ownership</li>
+        <li style="font-size:0.95rem;opacity:0.5;padding:0.3rem 0;display:flex;align-items:center;gap:0.4rem;"><i class="fas fa-times" style="font-size:0.55rem;color:#f87171;opacity:0.7;flex-shrink:0;"></i> Scale cost without visibility</li>
+        <li style="font-size:0.95rem;opacity:0.5;padding:0.3rem 0;display:flex;align-items:center;gap:0.4rem;"><i class="fas fa-times" style="font-size:0.55rem;color:#f87171;opacity:0.7;flex-shrink:0;"></i> Execute without governance</li>
+        <li style="font-size:0.95rem;opacity:0.5;padding:0.3rem 0;display:flex;align-items:center;gap:0.4rem;"><i class="fas fa-times" style="font-size:0.55rem;color:#f87171;opacity:0.7;flex-shrink:0;"></i> Produce output without accountability</li>
+      </ul>
+      <p style="font-size:1.05rem;opacity:0.6;line-height:1.8;">AI doesn't need more prompts.<br>It needs an operating system.</p>
+    </div>
+
     <!-- How the Loop Works -->
     <div class="demo-section">
       <h2><i class="fas fa-sync-alt"></i> The Execution Loop</h2>
-      <p>Every action follows a governed cycle—from proposal to approval to audit.</p>
+      <p>Every action flows through a governed lifecycle.</p>
+      <p style="font-size:0.95rem;opacity:0.45;line-height:1.7;margin-top:-0.5rem;">Proposal &rarr; Approval &rarr; Execution &rarr; Audit &rarr; Memory<br>Nothing mutates without context. Nothing executes without guardrails. Everything is logged.</p>
 
       <div class="flow-strip">
         <div class="flow-step">
@@ -247,7 +328,7 @@
     <!-- Agent Roster -->
     <div class="demo-section">
       <h2><i class="fas fa-users"></i> Role-Bound Agents</h2>
-      <p>Specialized agents operate within defined roles, constraints, and shared context.</p>
+      <p>No generalist chaos. Every agent operates within defined scope, memory boundaries, and authority gates.</p>
 
       <div class="agent-roster">
         <div class="agent-card">
@@ -370,6 +451,65 @@
       </div>
     </div>
 
+    <!-- GridOS in Action -->
+    <div class="demo-section">
+      <div class="gia-header">
+        <h2><i class="fas fa-desktop"></i> GridOS in Action</h2>
+        <p>Real dashboards from a live AI-run company — structured, governed, measured, and production-ready.</p>
+      </div>
+
+      <div class="gia-block gia-fade">
+        <div class="gia-image">
+          <img src="/images/GridOS/screens/agents.png" alt="Agent Hierarchy Dashboard" loading="lazy" />
+        </div>
+        <div class="gia-text">
+          <h3>Structured Role-Bound Agents</h3>
+          <p>Agents operate across defined tiers — reporting through a Prime Operator and routing high-impact decisions through human governance.</p>
+        </div>
+      </div>
+
+      <div class="gia-block gia-block--reverse gia-fade">
+        <div class="gia-image">
+          <img src="/images/GridOS/screens/system-pulse.png" alt="System Pulse Dashboard" loading="lazy" />
+        </div>
+        <div class="gia-text">
+          <h3>Measured Autonomy in Real Time</h3>
+          <p>Execution rate, autonomy score, cost impact, and risk signals tracked continuously across the organization.</p>
+        </div>
+      </div>
+
+      <div class="gia-block gia-fade">
+        <div class="gia-image">
+          <img src="/images/GridOS/screens/task-manager.png" alt="Task Manager Dashboard" loading="lazy" />
+        </div>
+        <div class="gia-text">
+          <h3>Governed Execution</h3>
+          <p>Every task flows through approval gates, priority tiers, and role-bound ownership. Nothing ships without accountability.</p>
+        </div>
+      </div>
+
+      <div class="gia-block gia-block--reverse gia-fade">
+        <div class="gia-image">
+          <img src="/images/GridOS/screens/cost-center.png" alt="Cost Center Dashboard" loading="lazy" />
+        </div>
+        <div class="gia-text">
+          <h3>Financial Discipline by Design</h3>
+          <p>AI systems scale cost faster than teams notice. GridOS enforces API usage tracking per agent, cost visibility across execution loops, and budget-aware task orchestration.</p>
+          <p style="font-size:0.85rem;opacity:0.4;margin-top:0.6rem;line-height:1.6;font-style:italic;">Autonomy without cost control isn't autonomy. It's liability.</p>
+        </div>
+      </div>
+
+      <div class="gia-block gia-fade">
+        <div class="gia-image">
+          <img src="/images/GridOS/screens/content-engine.png" alt="Content Engine Dashboard" loading="lazy" />
+        </div>
+        <div class="gia-text">
+          <h3>Production-Ready Output Pipelines</h3>
+          <p>AI-generated content routed through structured workflows, approval queues, and multi-platform publishing controls.</p>
+        </div>
+      </div>
+    </div>
+
     <!-- On-Demand Meetings -->
     <div class="demo-section">
       <h2><i class="fas fa-video"></i> Interactive Governance</h2>
@@ -399,6 +539,46 @@
           <div class="flow-step-sub">Approve, defer, reject</div>
         </div>
       </div>
+    </div>
+
+    <!-- Category Statement -->
+    <div style="text-align:center;padding:2rem 0 0;margin-top:2rem;">
+      <p style="font-size:1.1rem;font-weight:500;opacity:0.45;letter-spacing:0.01em;line-height:1.8;font-style:italic;color:#a78bfa;">AI without governance isn't autonomy.<br>It's entropy.</p>
+    </div>
+
+    <!-- Access Tiers -->
+    <div class="demo-section">
+      <h2><i class="fas fa-layer-group"></i> Access Tiers</h2>
+      <p>Structured access for every stage of AI operations maturity.</p>
+      <div class="feature-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="feature-card">
+          <div class="feature-card-icon"><i class="fas fa-rocket"></i></div>
+          <h3>Founder</h3>
+          <p>Run a governed AI team for a single product or company.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-icon"><i class="fas fa-users-cog"></i></div>
+          <h3>Team</h3>
+          <p>Multi-department orchestration with role-bound agents and approval workflows.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-icon"><i class="fas fa-building"></i></div>
+          <h3>Enterprise</h3>
+          <p>Full governance controls, financial tracking, audit exports, and multi-environment execution modes.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Built For -->
+    <div class="demo-section">
+      <h2><i class="fas fa-bullseye"></i> Built For</h2>
+      <ul style="list-style:none;padding:0;margin:0 0 1rem;">
+        <li style="font-size:0.95rem;opacity:0.55;padding:0.35rem 0;display:flex;align-items:center;gap:0.45rem;"><i class="fas fa-check" style="font-size:0.5rem;color:#a78bfa;opacity:0.6;flex-shrink:0;"></i> Founders building with AI agents</li>
+        <li style="font-size:0.95rem;opacity:0.55;padding:0.35rem 0;display:flex;align-items:center;gap:0.45rem;"><i class="fas fa-check" style="font-size:0.5rem;color:#a78bfa;opacity:0.6;flex-shrink:0;"></i> Operators who need oversight</li>
+        <li style="font-size:0.95rem;opacity:0.55;padding:0.35rem 0;display:flex;align-items:center;gap:0.45rem;"><i class="fas fa-check" style="font-size:0.5rem;color:#a78bfa;opacity:0.6;flex-shrink:0;"></i> Teams replacing manual workflows</li>
+        <li style="font-size:0.95rem;opacity:0.55;padding:0.35rem 0;display:flex;align-items:center;gap:0.45rem;"><i class="fas fa-check" style="font-size:0.5rem;color:#a78bfa;opacity:0.6;flex-shrink:0;"></i> Enterprises experimenting with autonomous systems</li>
+      </ul>
+      <p style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;opacity:0.3;margin-top:0.5rem;">Not built for unstructured automation.</p>
     </div>
 
     <!-- CTA -->
@@ -488,6 +668,25 @@
 
       showModal('contact-modal');
     }
+  </script>
+  <script>
+    // Scroll fade-in for GridOS in Action blocks
+    (function () {
+      var fades = document.querySelectorAll('.gia-fade');
+      if (!fades.length || !('IntersectionObserver' in window)) {
+        for (var i = 0; i < fades.length; i++) fades[i].classList.add('gia-visible');
+        return;
+      }
+      var observer = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('gia-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.15 });
+      fades.forEach(function (el) { observer.observe(el); });
+    })();
   </script>
   <script src="/js/banner.js" defer></script>
 </body>
