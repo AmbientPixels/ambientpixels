@@ -227,6 +227,56 @@ async function _appendTaskComment(taskId, comment) {
   return false;
 }
 
+function _extractLogText(entry) {
+  if (typeof entry === 'string') return entry;
+  if (!entry || typeof entry !== 'object') return '';
+  if (typeof entry.text === 'string') return entry.text;
+  if (typeof entry.body === 'string') return entry.body;
+  if (typeof entry.message === 'string') return entry.message;
+  return '';
+}
+
+function _extractIsoFromReplyMarker(text) {
+  if (!text || typeof text !== 'string') return null;
+  var m = text.match(/\[REPLY_SENT\].*?(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z)/);
+  return m && m[1] ? m[1] : null;
+}
+
+function _taskReplyMarkerTimestamp(task) {
+  if (!task || typeof task !== 'object') return null;
+  var buckets = [task.comments, task.activity, task.log];
+  for (var bi = 0; bi < buckets.length; bi++) {
+    var arr = buckets[bi];
+    if (!Array.isArray(arr)) continue;
+    for (var i = arr.length - 1; i >= 0; i--) {
+      var text = _extractLogText(arr[i]);
+      if (text.indexOf('[REPLY_SENT]') === -1) continue;
+      var parsed = _extractIsoFromReplyMarker(text);
+      if (parsed) return parsed;
+      if (arr[i] && typeof arr[i] === 'object') {
+        if (typeof arr[i].createdAt === 'string') return arr[i].createdAt;
+        if (typeof arr[i].timestamp === 'string') return arr[i].timestamp;
+      }
+      return null;
+    }
+  }
+  return null;
+}
+
+function _taskHasReplyMarker(task) {
+  if (!task || typeof task !== 'object') return false;
+  var buckets = [task.comments, task.activity, task.log];
+  for (var bi = 0; bi < buckets.length; bi++) {
+    var arr = buckets[bi];
+    if (!Array.isArray(arr)) continue;
+    for (var i = 0; i < arr.length; i++) {
+      var text = _extractLogText(arr[i]);
+      if (text.indexOf('[REPLY_SENT]') !== -1) return true;
+    }
+  }
+  return false;
+}
+
 // ══════════════════════════════════════════════════════
 // ── ID Generation ──
 // ══════════════════════════════════════════════════════
@@ -561,9 +611,11 @@ module.exports = async function (context, req) {
             r.computedStatusReason = 'no task spawned';
           } else {
             var linkedTask = taskMap[r.taskId];
-            if (linkedTask && linkedTask.repliedAt) {
+            var markerReplyAt = linkedTask ? _taskReplyMarkerTimestamp(linkedTask) : null;
+            if (linkedTask && (linkedTask.repliedAt || _taskHasReplyMarker(linkedTask))) {
+              var derivedReplyAt = linkedTask.repliedAt || markerReplyAt;
               r.computedStatus = 'replied';
-              r.computedStatusReason = 'replied ' + linkedTask.repliedAt;
+              r.computedStatusReason = 'replied ' + (derivedReplyAt || 'marker');
             } else if (linkedTask && (linkedTask.status === 'completed' || linkedTask.status === 'done')) {
               r.computedStatus = 'closed';
               r.computedStatusReason = 'task ' + linkedTask.status;
@@ -582,6 +634,7 @@ module.exports = async function (context, req) {
           var item = results[li];
           var inbTask = item.taskId ? taskMap[item.taskId] : null;
           var draftTask = item.draftTaskId ? taskMap[item.draftTaskId] : null;
+          var markerReplyAt = inbTask ? _taskReplyMarkerTimestamp(inbTask) : null;
 
           var closedAt = null;
           if (inbTask && (inbTask.status === 'completed' || inbTask.status === 'done')) {
@@ -592,7 +645,7 @@ module.exports = async function (context, req) {
             submittedAt: item.receivedAt || null,
             taskCreatedAt: inbTask ? (inbTask.createdAt || inbTask.created_at || inbTask.created || null) : null,
             draftCreatedAt: draftTask ? (draftTask.createdAt || draftTask.created_at || draftTask.created || null) : null,
-            repliedAt: inbTask ? (inbTask.repliedAt || null) : null,
+            repliedAt: inbTask ? (inbTask.repliedAt || markerReplyAt || null) : null,
             closedAt: closedAt
           };
 
