@@ -209,6 +209,9 @@
       <label for="edit-kpis">Linked KPIs</label>
       <select id="edit-kpis" multiple style="min-height:60px; font-size:0.7rem;"></select>
 
+      <label for="edit-goals">Linked Goals <span style="opacity:0.35; font-weight:normal;">(Ctrl+click to multi-select)</span></label>
+      <select id="edit-goals" multiple style="font-size:0.7rem; overflow:auto; appearance:none; -webkit-appearance:none;"></select>
+
       <div class="dir-modal-actions">
         <button class="dir-btn" id="edit-cancel">Cancel</button>
         <button class="dir-btn dir-btn--primary" id="edit-save">Save</button>
@@ -285,6 +288,33 @@
           kpiLinks: ekpis
         };
         AgentEngine.updateDirective(editingId, payload);
+
+        // Sync linked goals: update each goal's linkedDirectives array
+        var goalsSel = document.getElementById('edit-goals');
+        var selectedGoalIds = [];
+        for (var g = 0; g < goalsSel.options.length; g++) {
+          if (goalsSel.options[g].selected) selectedGoalIds.push(goalsSel.options[g].value);
+        }
+        var allGoals = AgentEngine.getObjectives();
+        var goalsChanged = false;
+        allGoals.forEach(function (goal) {
+          var lds = Array.isArray(goal.linkedDirectives) ? goal.linkedDirectives : (goal.linkedDirective ? [goal.linkedDirective] : []);
+          var hasThis = lds.indexOf(editingId) !== -1;
+          var shouldHave = selectedGoalIds.indexOf(goal.id) !== -1;
+          if (shouldHave && !hasThis) {
+            lds.push(editingId);
+            AgentEngine.updateObjective(goal.id, { linkedDirectives: lds });
+            goalsChanged = true;
+          } else if (!shouldHave && hasThis) {
+            lds = lds.filter(function (id) { return id !== editingId; });
+            AgentEngine.updateObjective(goal.id, { linkedDirectives: lds });
+            goalsChanged = true;
+          }
+        });
+        if (goalsChanged && typeof CompanyStore !== 'undefined' && CompanyStore.setState) {
+          CompanyStore.setState('ap_objectives', AgentEngine.getObjectives());
+        }
+
         closeModal();
         renderDirectives();
       });
@@ -464,8 +494,14 @@
         if (p.staleDays > 0 && p.total > 0 && p.signal !== 'complete') {
           html += '<span style="font-size:0.55rem; opacity:0.35;">Last activity: ' + p.staleDays + 'd ago</span>';
         }
-        if (dir.linkedObjectives && dir.linkedObjectives.length > 0) {
-          html += '<span style="font-size:0.6rem; opacity:0.5;"><i class="fas fa-bullseye"></i> ' + dir.linkedObjectives.length + ' objectives</span>';
+        // Reverse-lookup: find goals that link to this project via linkedDirectives
+        var _allGoals = AgentEngine.getObjectives();
+        var _linkedGoals = _allGoals.filter(function (o) {
+          var lds = o.linkedDirectives || (o.linkedDirective ? [o.linkedDirective] : []);
+          return lds.indexOf(dir.id) !== -1;
+        });
+        if (_linkedGoals.length > 0) {
+          html += '<span style="font-size:0.6rem; opacity:0.5;"><i class="fas fa-bullseye"></i> ' + _linkedGoals.map(function (g) { return escapeHtml(g.title); }).join(', ') + '</span>';
         }
         html += '</div>';
 
@@ -605,6 +641,36 @@
         var linked = dir.kpiLinks || [];
         for (var i = 0; i < ekSel.options.length; i++) {
           ekSel.options[i].selected = linked.indexOf(ekSel.options[i].value) !== -1;
+        }
+        // Populate Linked Goals multi-select
+        var goalsSel = document.getElementById('edit-goals');
+        var allGoals = AgentEngine.getObjectives();
+        var activeGoals = allGoals.filter(function (o) { return o.status !== 'canceled'; });
+        goalsSel.innerHTML = '';
+        if (activeGoals.length === 0) {
+          goalsSel.style.display = 'none';
+          var emptyLabel = goalsSel.parentElement.querySelector('#edit-goals-empty');
+          if (!emptyLabel) {
+            emptyLabel = document.createElement('span');
+            emptyLabel.id = 'edit-goals-empty';
+            emptyLabel.style.cssText = 'font-size:0.65rem; opacity:0.3; display:block; margin-top:0.2rem;';
+            emptyLabel.textContent = 'No goals yet';
+            goalsSel.parentElement.insertBefore(emptyLabel, goalsSel.nextSibling);
+          }
+        } else {
+          goalsSel.style.display = '';
+          var emptyEl = goalsSel.parentElement.querySelector('#edit-goals-empty');
+          if (emptyEl) emptyEl.remove();
+          activeGoals.forEach(function (g) {
+            var opt = document.createElement('option');
+            opt.value = g.id;
+            opt.textContent = g.title + ' (' + (g.quarter || '?') + ' ' + (g.year || '') + ')';
+            opt.style.cssText = 'padding:0.25rem 0.4rem; border-radius:4px;';
+            var gDirs = g.linkedDirectives || (g.linkedDirective ? [g.linkedDirective] : []);
+            if (gDirs.indexOf(dir.id) !== -1) opt.selected = true;
+            goalsSel.appendChild(opt);
+          });
+          goalsSel.size = Math.min(activeGoals.length, 5);
         }
         modal.style.display = 'flex';
       }
