@@ -1334,7 +1334,8 @@ module.exports = async function (context) {
                     ? objectives.find(o => o.id === objectiveIdOnTask)
                     : null;
                   const objectiveStatus = linkedObjective ? String(linkedObjective.status || '').toLowerCase() : null;
-                  const missingOrNotActive = !linkedObjective || objectiveStatus !== 'active';
+                  const _terminalObjStatuses = ['complete', 'completed', 'canceled'];
+                  const missingOrNotActive = !linkedObjective || _terminalObjStatuses.indexOf(objectiveStatus) !== -1;
 
                   if (missingOrNotActive) {
                     _incBlocked(agentId);
