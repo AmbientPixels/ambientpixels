@@ -311,6 +311,11 @@
           linkedDirective: directiveSelect.value || null
         });
 
+        // Push to server so heartbeat can see the objective
+        if (typeof CompanyStore !== 'undefined' && CompanyStore.setState) {
+          CompanyStore.setState('ap_objectives', AgentEngine.getObjectives());
+        }
+
         titleInput.value = '';
         renderObjectives();
       });

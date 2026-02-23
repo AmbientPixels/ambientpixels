@@ -291,6 +291,11 @@
           kpiLinks: selectedKpis
         });
 
+        // Push to server so heartbeat can see the directive
+        if (typeof CompanyStore !== 'undefined' && CompanyStore.setState) {
+          CompanyStore.setState('ap_directives', AgentEngine.getDirectives());
+        }
+
         titleInput.value = '';
         descInput.value = '';
         prioritySelect.value = 'medium';

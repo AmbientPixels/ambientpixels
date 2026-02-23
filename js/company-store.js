@@ -291,6 +291,18 @@ var CompanyStore = (function () {
 
       return _serverGet(serverKey)
         .then(function (val) {
+          if (val === undefined || val === null) {
+            // Server has no data for this key — push local data if any exists
+            var localOnly = _localGet(localKey, []);
+            if (Array.isArray(localOnly) && localOnly.length > 0) {
+              _serverSet(serverKey, localOnly).then(function () {
+                console.log('[CompanyStore] syncFromServer: pushed local→server (new blob):', serverKey, localOnly.length, 'items');
+              }).catch(function (err) {
+                console.warn('[CompanyStore] syncFromServer: local→server push failed for', serverKey, ':', err.message || err);
+              });
+            }
+            return;
+          }
           if (val !== undefined && val !== null) {
             // Merge-safe: for array data, preserve local creations AND local edits
             if (Array.isArray(val)) {
