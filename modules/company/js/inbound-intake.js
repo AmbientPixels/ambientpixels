@@ -9,6 +9,9 @@
  * - v1.1: Duplicate status display — 'Duplicate (linked)' pill,
  *   drawer shows duplicateOf field, unique task count in stats
  * - v1.2: Draft reply link in detail drawer (draftTaskId field)
+ * - v1.5: Inbound status sync — prefer computedStatus from backend for pills,
+ *   new statuses: stored_only, draft_ready, closed. Detail drawer shows
+ *   computed status label. Stats use computedStatus for task counting.
  */
 
 (function () {
@@ -63,7 +66,8 @@
     var seenTaskIds = {};
     _items.forEach(function (item) {
       if (item.receivedAt && item.receivedAt.substring(0, 10) === todayStr) todayCount++;
-      if (item.taskId && item.status !== 'duplicate' && !seenTaskIds[item.taskId]) {
+      var cs = item.computedStatus || item.status;
+      if (item.taskId && cs !== 'duplicate' && cs !== 'stored_only' && !seenTaskIds[item.taskId]) {
         taskCount++;
         seenTaskIds[item.taskId] = true;
       }
@@ -118,10 +122,24 @@
     });
   }
 
+  var STATUS_PILL_MAP = {
+    duplicate:    { css: 'inb-status--duplicate', icon: 'fa-clone',         label: 'Duplicate (linked)' },
+    stored_only:  { css: 'inb-status--stored',    icon: 'fa-box-archive',   label: 'Stored Only' },
+    task_created: { css: 'inb-status--task',       icon: 'fa-check-circle',  label: 'Task Created' },
+    draft_ready:  { css: 'inb-status--draft',      icon: 'fa-envelope-open-text', label: 'Draft Ready' },
+    closed:       { css: 'inb-status--closed',     icon: 'fa-circle-check',  label: 'Closed' }
+  };
+
   function getStatus(item) {
     if (item.spamFlags && item.spamFlags.length > 0) {
       return '<span class="inb-status inb-status--filtered"><i class="fas fa-shield-halved"></i> Filtered</span>';
     }
+    var key = item.computedStatus;
+    if (key && STATUS_PILL_MAP[key]) {
+      var p = STATUS_PILL_MAP[key];
+      return '<span class="inb-status ' + p.css + '"><i class="fas ' + p.icon + '"></i> ' + p.label + '</span>';
+    }
+    // Fallback for older responses without computedStatus
     if (item.status === 'duplicate' || item.duplicateOf) {
       return '<span class="inb-status inb-status--duplicate"><i class="fas fa-clone"></i> Duplicate (linked)</span>';
     }
@@ -129,7 +147,7 @@
       return '<span class="inb-status inb-status--task"><i class="fas fa-check-circle"></i> Task Created</span>';
     }
     if (item.type === 'newsletter' || item.status === 'stored') {
-      return '<span class="inb-status">Stored Only</span>';
+      return '<span class="inb-status inb-status--stored"><i class="fas fa-box-archive"></i> Stored Only</span>';
     }
     return '<span class="inb-status" style="color:#fbbf24;">New</span>';
   }
@@ -189,7 +207,21 @@
     html += field('ID', item.id);
     html += field('Received', item.receivedAt);
     html += field('Type', item.type);
-    if (item.status) html += field('Status', item.status);
+    if (item.computedStatus) {
+      var csKey = item.computedStatus;
+      var csPill = STATUS_PILL_MAP[csKey];
+      if (csPill) {
+        html += '<div class="inb-drawer-field">'
+          + '<div class="inb-drawer-label">Status</div>'
+          + '<div class="inb-drawer-value"><span class="inb-status ' + csPill.css + '"><i class="fas ' + csPill.icon + '"></i> ' + csPill.label + '</span>'
+          + (item.computedStatusReason ? ' <span style="opacity:0.35;font-size:0.6rem;">(' + escHtml(item.computedStatusReason) + ')</span>' : '')
+          + '</div></div>';
+      } else {
+        html += field('Status', item.computedStatus);
+      }
+    } else if (item.status) {
+      html += field('Status', item.status);
+    }
 
     if (item.duplicateOf) {
       html += '<div class="inb-drawer-field">'

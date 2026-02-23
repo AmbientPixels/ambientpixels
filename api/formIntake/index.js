@@ -14,6 +14,9 @@
  * - v1.2: Echo auto-draft replies — template-based reply drafts for new
  *   inbound tasks (contact/demo), created as child tasks assigned to Echo,
  *   skipped for duplicates and newsletters
+ * - v1.5: Inbound status sync — computedStatus added to GET /recent response,
+ *   derived from task state at read-time (stored_only, task_created, draft_ready,
+ *   closed, duplicate). Batch task lookup for efficiency.
  */
 
 const crypto = require('crypto');
@@ -525,6 +528,49 @@ module.exports = async function (context, req) {
 
       // Apply limit
       if (results.length > limit) results = results.slice(0, limit);
+
+      // ── Compute lifecycle status from task state ──
+      try {
+        var taskIdSet = {};
+        for (var ti = 0; ti < results.length; ti++) {
+          if (results[ti].taskId) taskIdSet[results[ti].taskId] = true;
+        }
+        var taskMap = {};
+        var uniqueIds = Object.keys(taskIdSet);
+        if (uniqueIds.length > 0) {
+          var allTasks = (await storage.getState('tasks')) || [];
+          for (var tt = 0; tt < allTasks.length; tt++) {
+            if (taskIdSet[allTasks[tt].id]) {
+              taskMap[allTasks[tt].id] = allTasks[tt];
+            }
+          }
+        }
+
+        for (var ci = 0; ci < results.length; ci++) {
+          var r = results[ci];
+          if (r.status === 'duplicate' || r.duplicateOf) {
+            r.computedStatus = 'duplicate';
+            r.computedStatusReason = 'duplicate record';
+          } else if (!r.taskId) {
+            r.computedStatus = 'stored_only';
+            r.computedStatusReason = 'no task spawned';
+          } else {
+            var linkedTask = taskMap[r.taskId];
+            if (linkedTask && (linkedTask.status === 'completed' || linkedTask.status === 'done')) {
+              r.computedStatus = 'closed';
+              r.computedStatusReason = 'task ' + linkedTask.status;
+            } else if (r.draftTaskId) {
+              r.computedStatus = 'draft_ready';
+              r.computedStatusReason = 'draft reply created';
+            } else {
+              r.computedStatus = 'task_created';
+              r.computedStatusReason = 'task open';
+            }
+          }
+        }
+      } catch (statusErr) {
+        context.log.warn('[formIntake] computedStatus enrichment failed (non-fatal):', statusErr.message);
+      }
 
       context.res = { status: 200, headers: headers, body: { ok: true, count: results.length, items: results } };
     } catch (err) {

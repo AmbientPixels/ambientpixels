@@ -1,4 +1,4 @@
-# GridOS Form Intake v1.4
+# GridOS Form Intake v1.5
 
 ## Endpoints
 
@@ -134,6 +134,13 @@ For new inbound tasks (`status === "task_created"`), the system automatically ge
 [ ] TIMER: Timer fires at 17:00 UTC (9:00 AM PT), generates yesterday's digest
 [ ] TIMER: If digest already exists for yesterday, timer logs skip and exits cleanly
 [ ] TIMER: No force regeneration — timer never overwrites existing digest
+[ ] STATUS: Newsletter row → Stored Only (gray pill)
+[ ] STATUS: Contact row with task + draft → Draft Ready (purple pill)
+[ ] STATUS: Mark inbound task done → row shows Closed (muted green pill)
+[ ] STATUS: Duplicate row → Duplicate (linked) (orange pill)
+[ ] STATUS: Contact row with task, no draft → Task Created (blue pill)
+[ ] STATUS: Detail drawer shows computed status pill + reason
+[ ] STATUS: Stats count excludes stored_only and duplicate from task total
 ```
 
 ## Files Created
@@ -222,3 +229,21 @@ GET /api/formIntakeDigest?date=2026-02-23&force=true  (regenerate)
 | `companyMorningReport` (ref) | `0 30 15 * * *` | 15:30 daily | 7:30 AM daily |
 
 The digest timer runs 90 minutes after the morning report, ensuring overnight submissions are captured before the digest is generated.
+
+## v1.5 Changes (Inbound Status Sync)
+
+- **Modified** `api/formIntake/index.js` — GET `/recent` endpoint now computes lifecycle `computedStatus` per item at read-time by batch-fetching tasks and checking their state. Single `getState('tasks')` call for all items. Fail-soft: if enrichment fails, items returned without `computedStatus`.
+- **Modified** `modules/company/js/inbound-intake.js` — `getStatus()` prefers `computedStatus` from backend, with fallback to legacy `status` field. New `STATUS_PILL_MAP` drives all pill rendering. Detail drawer shows computed status pill with reason tooltip. Stats exclude `stored_only` and `duplicate` from task count.
+- **Modified** `modules/company/inbound.html` — Added `.inb-status--stored` (gray), `.inb-status--draft` (purple), `.inb-status--closed` (muted green) CSS classes.
+
+### Computed Statuses
+
+| `computedStatus` | Condition | Pill Color |
+|---|---|---|
+| `stored_only` | No task spawned (newsletter, etc.) | Gray |
+| `task_created` | Task exists, open, no draft | Blue |
+| `draft_ready` | Task exists + `draftTaskId` present | Purple |
+| `closed` | Linked task status is `completed` or `done` | Muted green |
+| `duplicate` | Record has `duplicateOf` or `status === 'duplicate'` | Orange |
+
+Statuses are computed at read-time from live task state — no blob rewrites needed. Backward compatible: older clients ignore `computedStatus` fields.
