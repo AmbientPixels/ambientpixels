@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="AmbientPixels Strategic Directives — CEO-defined high-level direction for the company." />
+  <meta name="description" content="AmbientPixels Projects — CEO-defined high-level direction for the company." />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Strategic Directives — AmbientPixels HQ</title>
+  <title>Projects — AmbientPixels HQ</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/base.css" />
@@ -96,17 +96,17 @@
   <main class="content-section" style="max-width: 900px; margin: 0 auto; padding: 1rem;">
 
     <div class="company-header">
-      <h1><i class="fas fa-compass" style="opacity:0.4; margin-right:8px; color:#8A2BE2;"></i>Strategic Directives</h1>
-      <p>CEO-defined high-level direction. Prime Operator translates directives into objectives and tasks.</p>
+      <h1><i class="fas fa-compass" style="opacity:0.4; margin-right:8px; color:#8A2BE2;"></i>Projects</h1>
+      <p>CEO-defined high-level direction. Prime Operator translates projects into goals and tasks.</p>
     </div>
 
     <!-- Create Directive Form -->
     <div class="dash-panel" style="margin-bottom:1.5rem;">
       <div class="dash-panel-header">
-        <span class="dash-panel-title"><i class="fas fa-plus-circle" style="color:#FFD700;"></i> New Directive</span>
+        <span class="dash-panel-title"><i class="fas fa-plus-circle" style="color:#FFD700;"></i> New Project</span>
       </div>
       <div style="padding:0.5rem 0;">
-        <input type="text" id="dir-title" placeholder="Directive title..." style="width:100%; padding:0.5rem 0.7rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.8rem; margin-bottom:0.5rem;" />
+        <input type="text" id="dir-title" placeholder="Project title..." style="width:100%; padding:0.5rem 0.7rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.8rem; margin-bottom:0.5rem;" />
         <textarea id="dir-desc" placeholder="Description — what should the team achieve?" rows="3" style="width:100%; padding:0.5rem 0.7rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.75rem; resize:vertical; margin-bottom:0.5rem;"></textarea>
         <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
           <select id="dir-priority" style="padding:0.35rem 0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.7rem;">
@@ -115,7 +115,7 @@
             <option value="high">High</option>
             <option value="critical">Critical</option>
           </select>
-          <button id="dir-create-btn" style="padding:0.35rem 1rem; background:rgba(138,43,226,0.1); border:1px solid rgba(138,43,226,0.3); border-radius:6px; color:#8A2BE2; font-size:0.7rem; cursor:pointer; font-weight:500;">Create Directive</button>
+          <button id="dir-create-btn" style="padding:0.35rem 1rem; background:rgba(138,43,226,0.1); border:1px solid rgba(138,43,226,0.3); border-radius:6px; color:#8A2BE2; font-size:0.7rem; cursor:pointer; font-weight:500;">Create Project</button>
         </div>
         <div style="margin-top:0.5rem;">
           <label style="font-size:0.65rem; opacity:0.5;">Linked KPIs</label>
@@ -136,11 +136,11 @@
     <!-- Active Directives -->
     <div class="dash-panel dash-panel--full">
       <div class="dash-panel-header">
-        <span class="dash-panel-title"><i class="fas fa-fire" style="color:#FF8C00;"></i> Active Directives</span>
+        <span class="dash-panel-title"><i class="fas fa-fire" style="color:#FF8C00;"></i> Active Projects</span>
         <span class="dash-panel-badge" id="active-dir-count">0</span>
       </div>
       <div id="dir-active-list">
-        <div class="dash-empty">No active directives. Create one above.</div>
+        <div class="dash-empty">No active projects. Create one above.</div>
       </div>
     </div>
 
@@ -151,7 +151,7 @@
         <span class="dash-panel-badge" id="paused-dir-count" style="background:rgba(251,191,36,0.1);color:#fbbf24;">0</span>
       </div>
       <div id="dir-paused-list">
-        <div class="dash-empty">No paused directives.</div>
+        <div class="dash-empty">No paused projects.</div>
       </div>
     </div>
 
@@ -162,7 +162,7 @@
         <span class="dash-panel-badge" id="canceled-dir-count" style="background:rgba(248,113,113,0.1);color:#f87171;">0</span>
       </div>
       <div id="dir-canceled-list">
-        <div class="dash-empty">No canceled directives.</div>
+        <div class="dash-empty">No canceled projects.</div>
       </div>
     </div>
 
@@ -173,7 +173,7 @@
         <span class="dash-panel-badge" id="archive-dir-count" style="background:rgba(138,43,226,0.1);color:#c084fc;">0</span>
       </div>
       <div id="dir-archive-list">
-        <div class="dash-empty">No completed or archived directives.</div>
+        <div class="dash-empty">No completed or archived projects.</div>
       </div>
     </div>
 
@@ -181,7 +181,7 @@
 
   <div class="dir-modal-backdrop" id="dir-edit-modal">
     <div class="dir-modal">
-      <h3>Edit Directive</h3>
+      <h3>Edit Project</h3>
       <label for="edit-title">Title</label>
       <input type="text" id="edit-title" />
 
@@ -535,7 +535,7 @@
 
         var _cancelBtn = function () {
           return _btn('✕ Cancel', 'rgba(248,113,113,0.3)', 'rgba(248,113,113,0.05)', '#f87171', function () {
-            if (!confirm('Cancel this directive? Linked tasks will be archived and all execution blocked.')) return;
+            if (!confirm('Cancel this project? Linked tasks will be archived and all execution blocked.')) return;
             AgentEngine.updateDirective(dir.id, { status: 'canceled' });
             if (typeof CompanyStore !== 'undefined' && CompanyStore.setState) {
               CompanyStore.setState('ap_directives', AgentEngine.getDirectives());

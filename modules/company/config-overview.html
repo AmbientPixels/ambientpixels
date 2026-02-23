@@ -967,8 +967,8 @@
       <a href="/modules/company/directives.html" class="cfg-quick-card">
         <div class="cfg-quick-icon" style="background:rgba(99,102,241,0.08); color:#6366f1;"><i class="fas fa-bullseye"></i></div>
         <div>
-          <div class="cfg-quick-label">Directives</div>
-          <div class="cfg-quick-desc">Strategic directives &amp; objectives</div>
+          <div class="cfg-quick-label">Projects</div>
+          <div class="cfg-quick-desc">Strategic projects &amp; goals</div>
         </div>
       </a>
     </div>
@@ -983,11 +983,11 @@
         <button class="cfg-danger-btn" data-danger="reset-tasks" data-label="Reset Tasks">
           <i class="fas fa-eraser"></i> Reset Tasks
         </button>
-        <button class="cfg-danger-btn" data-danger="reset-directives" data-label="Reset Directives">
-          <i class="fas fa-eraser"></i> Reset Directives
+        <button class="cfg-danger-btn" data-danger="reset-directives" data-label="Reset Projects">
+          <i class="fas fa-eraser"></i> Reset Projects
         </button>
-        <button class="cfg-danger-btn" data-danger="reset-objectives" data-label="Reset Objectives">
-          <i class="fas fa-eraser"></i> Reset Objectives
+        <button class="cfg-danger-btn" data-danger="reset-objectives" data-label="Reset Goals">
+          <i class="fas fa-eraser"></i> Reset Goals
         </button>
         <button class="cfg-danger-btn" data-danger="reset-action-queue" data-label="Reset Action Queue">
           <i class="fas fa-eraser"></i> Reset Action Queue
@@ -2340,15 +2340,15 @@
         }
       },
       'reset-directives': {
-        title: 'Reset Directives',
-        desc: 'This will permanently delete all strategic directives.',
+        title: 'Reset Projects',
+        desc: 'This will permanently delete all strategic projects.',
         exec: function () {
           return CompanyStore.setState('ap_directives', []);
         }
       },
       'reset-objectives': {
-        title: 'Reset Objectives',
-        desc: 'This will permanently delete all quarterly objectives.',
+        title: 'Reset Goals',
+        desc: 'This will permanently delete all quarterly goals.',
         exec: function () {
           return CompanyStore.setState('ap_objectives', []);
         }
@@ -2392,7 +2392,7 @@
       },
       'clear-company-data': {
         title: 'Clear All Company Data',
-        desc: 'This will delete ALL ap_* keys from localStorage. Tasks, directives, objectives, configs, audit logs — everything. Nova and browser state will be preserved.',
+        desc: 'This will delete ALL ap_* keys from localStorage. Tasks, projects, goals, configs, audit logs — everything. Nova and browser state will be preserved.',
         exec: function () {
           var toRemove = [];
           for (var i = 0; i < localStorage.length; i++) {

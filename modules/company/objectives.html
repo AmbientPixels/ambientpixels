@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="AmbientPixels Quarterly Objectives — track progress on company goals." />
+  <meta name="description" content="AmbientPixels Goals — track progress on quarterly targets." />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Quarterly Objectives — AmbientPixels HQ</title>
+  <title>Goals — AmbientPixels HQ</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/base.css" />
@@ -54,17 +54,17 @@
   <main class="content-section" style="max-width: 900px; margin: 0 auto; padding: 1rem;">
 
     <div class="company-header">
-      <h1><i class="fas fa-bullseye" style="opacity:0.4; margin-right:8px; color:#4ECDC4;"></i>Quarterly Objectives</h1>
-      <p>Track progress on company goals. Prime Operator owns execution and updates weekly.</p>
+      <h1><i class="fas fa-bullseye" style="opacity:0.4; margin-right:8px; color:#4ECDC4;"></i>Goals</h1>
+      <p>Track progress on quarterly targets. Prime Operator owns execution and updates weekly.</p>
     </div>
 
     <!-- Create Objective Form -->
     <div class="dash-panel" style="margin-bottom:1.5rem;">
       <div class="dash-panel-header">
-        <span class="dash-panel-title"><i class="fas fa-plus-circle" style="color:#FFD700;"></i> New Objective</span>
+        <span class="dash-panel-title"><i class="fas fa-plus-circle" style="color:#FFD700;"></i> New Goal</span>
       </div>
       <div style="padding:0.5rem 0;">
-        <input type="text" id="obj-title" placeholder="Objective title..." style="width:100%; padding:0.5rem 0.7rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.8rem; margin-bottom:0.5rem;" />
+        <input type="text" id="obj-title" placeholder="Goal title..." style="width:100%; padding:0.5rem 0.7rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.8rem; margin-bottom:0.5rem;" />
         <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
           <select id="obj-quarter" style="padding:0.35rem 0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.7rem;">
             <option value="Q1">Q1</option>
@@ -74,9 +74,9 @@
           </select>
           <input type="number" id="obj-year" value="2026" min="2024" max="2030" style="width:80px; padding:0.35rem 0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.7rem;" />
           <select id="obj-directive" style="padding:0.35rem 0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.7rem;">
-            <option value="">No linked directive</option>
+            <option value="">No linked project</option>
           </select>
-          <button id="obj-create-btn" style="padding:0.35rem 1rem; background:rgba(78,205,196,0.1); border:1px solid rgba(78,205,196,0.3); border-radius:6px; color:#4ECDC4; font-size:0.7rem; cursor:pointer; font-weight:500;">Create Objective</button>
+          <button id="obj-create-btn" style="padding:0.35rem 1rem; background:rgba(78,205,196,0.1); border:1px solid rgba(78,205,196,0.3); border-radius:6px; color:#4ECDC4; font-size:0.7rem; cursor:pointer; font-weight:500;">Create Goal</button>
         </div>
       </div>
     </div>
@@ -117,10 +117,10 @@
     <!-- Objectives List -->
     <div class="dash-panel dash-panel--full">
       <div class="dash-panel-header">
-        <span class="dash-panel-title"><i class="fas fa-list-check" style="color:#4ECDC4;"></i> All Objectives</span>
+        <span class="dash-panel-title"><i class="fas fa-list-check" style="color:#4ECDC4;"></i> All Goals</span>
       </div>
       <div id="obj-list">
-        <div class="dash-empty">No objectives yet. Create one above.</div>
+        <div class="dash-empty">No goals yet. Create one above.</div>
       </div>
     </div>
 
@@ -129,12 +129,12 @@
   <!-- Edit Objective Modal -->
   <div class="obj-modal-backdrop" id="obj-edit-modal">
     <div class="obj-modal">
-      <h3 id="obj-modal-title">Edit Objective</h3>
+      <h3 id="obj-modal-title">Edit Goal</h3>
       <label for="obj-edit-title">Title</label>
       <input type="text" id="obj-edit-title" />
 
       <label for="obj-edit-desc">Description</label>
-      <textarea id="obj-edit-desc" placeholder="Describe the objective..."></textarea>
+      <textarea id="obj-edit-desc" placeholder="Describe the goal..."></textarea>
 
       <div class="obj-modal-row">
         <div>
@@ -152,9 +152,9 @@
         </div>
       </div>
 
-      <label for="obj-edit-directive">Linked Directive</label>
+      <label for="obj-edit-directive">Linked Project</label>
       <select id="obj-edit-directive">
-        <option value="">No linked directive</option>
+        <option value="">No linked project</option>
       </select>
 
       <div class="obj-modal-row">
@@ -236,7 +236,7 @@
         var directives = AgentEngine.getDirectives();
         var active = directives.filter(function (d) { return d.status === 'active' || d.status === 'completed'; });
         var sel = targetSelect || directiveSelect;
-        sel.innerHTML = '<option value="">No linked directive</option>';
+        sel.innerHTML = '<option value="">No linked project</option>';
         active.forEach(function (dir) {
           var opt = document.createElement('option');
           opt.value = dir.id;
@@ -289,7 +289,7 @@
 
       editDelete.addEventListener('click', function () {
         if (!editingId) return;
-        if (!confirm('Permanently delete this objective? This cannot be undone.')) return;
+        if (!confirm('Permanently delete this goal? This cannot be undone.')) return;
         var objectives = AgentEngine.getObjectives().filter(function (o) { return o.id !== editingId; });
         if (typeof CompanyStore !== 'undefined' && CompanyStore.setState) {
           CompanyStore.setState('ap_objectives', objectives);
@@ -357,7 +357,7 @@
         var statusColor = obj.status === 'on_track' ? '#34d399' : obj.status === 'at_risk' ? '#fbbf24' : obj.status === 'behind' ? '#f87171' : obj.status === 'canceled' ? '#9ca3af' : '#8A2BE2';
         var pct = obj.progressPercentage || 0;
 
-        // Find linked directive title
+        // Find linked project title
         var dirTitle = '';
         if (obj.linkedDirective) {
           var directives = AgentEngine.getDirectives();
@@ -431,7 +431,7 @@
         cancelBtn.disabled = isCanceled;
         cancelBtn.addEventListener('click', function () {
           if (obj.status === 'canceled') return;
-          if (!confirm('Cancel objective? This voids it and blocks all execution.')) return;
+          if (!confirm('Cancel this goal? This voids it and blocks all execution.')) return;
           AgentEngine.updateObjective(obj.id, { status: 'canceled' });
           // Push to server immediately so heartbeat sees canceled status on next run
           if (typeof CompanyStore !== 'undefined' && CompanyStore.setState) {

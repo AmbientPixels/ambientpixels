@@ -359,7 +359,7 @@
           html += '</div>';
         }
         if (dirIds.length > 0) {
-          html += '<div><strong>Directives (' + dirIds.length + '):</strong> ';
+          html += '<div><strong>Projects (' + dirIds.length + '):</strong> ';
           html += dirIds.map(function (id) {
             var d = null;
             AgentEngine.getDirectives().forEach(function (dir) { if (dir.id === id) d = dir; });
@@ -474,7 +474,7 @@
         // ── 2) Directives ──
         if (summary.directives.length > 0) {
           html += '<div style="margin-bottom:0.5rem;">';
-          html += '<div style="font-size:0.65rem;font-weight:600;color:#a855f7;margin-bottom:0.3rem;"><i class="fas fa-compass" style="font-size:0.55rem;margin-right:3px;"></i>Directives (' + summary.directives.length + ')</div>';
+          html += '<div style="font-size:0.65rem;font-weight:600;color:#a855f7;margin-bottom:0.3rem;"><i class="fas fa-compass" style="font-size:0.55rem;margin-right:3px;"></i>Projects (' + summary.directives.length + ')</div>';
           summary.directives.forEach(function (d) {
             var status = d.status || d.approval || 'pending-approval';
             var sColor = STATUS_COLORS[status] || '#6b7280';
@@ -585,7 +585,7 @@
 
         // ── 6) Net Changes Snapshot ──
         html += '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;padding-top:0.3rem;border-top:1px solid rgba(255,255,255,0.04);font-size:0.6rem;">';
-        if (summary.counts.directives > 0) html += '<span style="color:#a855f7;font-weight:500;">+' + summary.counts.directives + ' Directive' + (summary.counts.directives > 1 ? 's' : '') + '</span>';
+        if (summary.counts.directives > 0) html += '<span style="color:#a855f7;font-weight:500;">+' + summary.counts.directives + ' Project' + (summary.counts.directives > 1 ? 's' : '') + '</span>';
         if (summary.counts.tasks > 0) html += '<span style="color:#3b82f6;font-weight:500;">+' + summary.counts.tasks + ' Task' + (summary.counts.tasks > 1 ? 's' : '') + '</span>';
         if (summary.counts.risks > 0) html += '<span style="color:#ef4444;font-weight:500;">+' + summary.counts.risks + ' Risk' + (summary.counts.risks > 1 ? 's' : '') + '</span>';
         if (summary.counts.uniqueKpis > 0) html += '<span style="color:#FFD700;">KPI links: ' + summary.counts.uniqueKpis + ' unique</span>';

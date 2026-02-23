@@ -283,20 +283,20 @@
             <!-- Directives -->
             <div class="dash-panel">
               <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-compass" style="color:#8A2BE2;"></i> Directives</span>
+                <span class="dash-panel-title"><i class="fas fa-compass" style="color:#8A2BE2;"></i> Projects</span>
                 <a href="/modules/company/directives.html" style="font-size:0.65rem; opacity:0.4; text-decoration:none;">View All →</a>
               </div>
               <ul class="log-list" id="panel-directives-snap"></ul>
-              <div class="dash-empty" id="directives-snap-empty">No active directives.</div>
+              <div class="dash-empty" id="directives-snap-empty">No active projects.</div>
             </div>
             <!-- Objectives -->
             <div class="dash-panel">
               <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-bullseye" style="color:#4ECDC4;"></i> Objectives</span>
+                <span class="dash-panel-title"><i class="fas fa-bullseye" style="color:#4ECDC4;"></i> Goals</span>
                 <a href="/modules/company/objectives.html" style="font-size:0.65rem; opacity:0.4; text-decoration:none;">View All →</a>
               </div>
               <ul class="log-list" id="panel-objectives-snap"></ul>
-              <div class="dash-empty" id="objectives-snap-empty">No active objectives.</div>
+              <div class="dash-empty" id="objectives-snap-empty">No active goals.</div>
             </div>
           </div>
         </div>
@@ -1311,7 +1311,7 @@
           // At-risk objectives
           var objectives = AgentEngine.getObjectives();
           objectives.forEach(function (o) {
-            if (o.status === 'at_risk' || o.status === 'behind') risks.push({ title: o.title, reason: 'objective ' + (o.status || 'at_risk').replace(/_/g, ' '), agent: '' });
+            if (o.status === 'at_risk' || o.status === 'behind') risks.push({ title: o.title, reason: 'goal ' + (o.status || 'at_risk').replace(/_/g, ' '), agent: '' });
           });
           if (risks.length > 0) {
             html += '<div style="margin-bottom:0.7rem;">';
@@ -1349,8 +1349,8 @@
           html += '<div style="display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:0.5rem; padding-top:0.5rem; border-top:1px solid rgba(255,255,255,0.04);">';
           html += '<a href="/modules/company/tasks.html" style="font-size:0.6rem; color:#4ECDC4; text-decoration:none;"><i class="fas fa-tasks"></i> Task Board</a>';
           html += '<a href="/modules/company/actions.html" style="font-size:0.6rem; color:#FFA500; text-decoration:none;"><i class="fas fa-bolt"></i> Actions</a>';
-          html += '<a href="/modules/company/directives.html" style="font-size:0.6rem; color:#8A2BE2; text-decoration:none;"><i class="fas fa-compass"></i> Directives</a>';
-          html += '<a href="/modules/company/objectives.html" style="font-size:0.6rem; color:#4ECDC4; text-decoration:none;"><i class="fas fa-bullseye"></i> Objectives</a>';
+          html += '<a href="/modules/company/directives.html" style="font-size:0.6rem; color:#8A2BE2; text-decoration:none;"><i class="fas fa-compass"></i> Projects</a>';
+          html += '<a href="/modules/company/objectives.html" style="font-size:0.6rem; color:#4ECDC4; text-decoration:none;"><i class="fas fa-bullseye"></i> Goals</a>';
           html += '<a href="/modules/company/workspace.html" style="font-size:0.6rem; color:#FF6B9D; text-decoration:none;"><i class="fas fa-brain"></i> Workspace</a>';
           html += '<a href="/modules/company/memories.html" style="font-size:0.6rem; color:#c084fc; text-decoration:none;"><i class="fas fa-memory"></i> Agent Memory</a>';
           html += '</div>';

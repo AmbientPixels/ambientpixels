@@ -4357,7 +4357,7 @@ IMPORTANT: CEO/manual tasks are the CEO's direct requests — triage them FIRST 
       const linkInfo = linked ? ' [' + linked.length + ' task(s) linked]' : ' [NO TASKS YET — needs task creation]';
       return '- "' + d.title + '" (id: ' + d.id + ', priority: ' + (d.priority || 'medium') + ')' + linkInfo;
     }).join('\n');
-    directivesSection = `\n\nACTIVE CEO DIRECTIVES (strategic priorities from the CEO — these drive what the company works on):
+    directivesSection = `\n\nACTIVE CEO PROJECTS (strategic priorities from the CEO — these drive what the company works on):
 ${dirList}`;
   }
 
@@ -4401,10 +4401,10 @@ ${dirList}`;
       const linked = objectiveTaskMap[o.id];
       const linkInfo = linked ? ' [' + linked.length + ' task(s) linked]' : ' [NO TASKS YET \u2014 needs task creation]';
       const dirs = objectiveDirMap[o.id];
-      const dirInfo = dirs ? ' directives: ' + dirs.map(d => '"' + d.title + '" (id: ' + d.id + ')').join(', ') : '';
+      const dirInfo = dirs ? ' projects: ' + dirs.map(d => '"' + d.title + '" (id: ' + d.id + ')').join(', ') : '';
       return '- "' + o.title + '" Q' + (o.quarter || '?') + ' (id: ' + o.id + ', progress: ' + (o.progress || 0) + '%' + dirInfo + ')' + linkInfo;
     }).join('\n');
-    objectivesSection = `\n\nACTIVE OBJECTIVES (strategic goals \u2014 create tasks to advance these, always set objective_id when creating tasks for an objective):
+    objectivesSection = `\n\nACTIVE GOALS (strategic goals \u2014 create tasks to advance these, always set objective_id when creating tasks for a goal):
 ${objList}`;
   }
 
@@ -4805,22 +4805,22 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
   - Move stale tasks forward or flag blockers with comment-task
   - Review other agents' deliverables promptly
   - Keep the board clean: close completed work, reassign only truly stuck tasks
-  - OBJECTIVE EXECUTION: Active objectives are strategic goals. When you see an objective marked [NO TASKS YET], you MUST create tasks to advance it:
-    1. Break the objective into concrete, assignable tasks (1-3 tasks per objective)
+  - GOAL EXECUTION: Active goals are quarterly targets. When you see a goal marked [NO TASKS YET], you MUST create tasks to advance it:
+    1. Break the goal into concrete, assignable tasks (1-3 tasks per goal)
     2. Assign by role: doc-writing/content → scribe, design → pixel, devops → forge, finance → cipher, marketing → echo, research → scout
-    3. ALWAYS set objective_id on each task (use the objective id from ACTIVE OBJECTIVES)
-    4. If the objective has linked directives, also set directive_id to the relevant directive
-    5. Set realistic due dates (2-5 days out) and priority based on objective importance
-    6. Leave a delegation comment on each task explaining how it advances the objective
-  - DIRECTIVE EXECUTION: Active CEO directives are strategic priorities. When you see a directive marked [NO TASKS YET], you MUST create tasks to fulfill it:
-    1. Break the directive into concrete, assignable tasks
+    3. ALWAYS set objective_id on each task (use the goal id from ACTIVE GOALS)
+    4. If the goal has linked projects, also set directive_id to the relevant project
+    5. Set realistic due dates (2-5 days out) and priority based on goal importance
+    6. Leave a delegation comment on each task explaining how it advances the goal
+  - PROJECT EXECUTION: Active CEO projects are strategic priorities. When you see a project marked [NO TASKS YET], you MUST create tasks to fulfill it:
+    1. Break the project into concrete, assignable tasks
     2. Assign doc-writing/content tasks to scribe, design tasks to pixel, devops to forge, finance to cipher, marketing to echo, research/market analysis/competitive intel to scout
-    3. Set directive_id on each task to link it to the directive (use the directive id from the ACTIVE CEO DIRECTIVES section)
-    4. If the directive is linked to an objective, also set objective_id on each task
-    5. Set realistic due dates (2-5 days out) and priority based on the directive priority
-    6. Leave a delegation comment on each task explaining what the directive requires
-    For documentation directives: create tasks assigned to scribe to draft the document, then scribe will use create-doc and submit-for-publish when ready
-    For blog posts or marketing content that should be visually strong: create TWO tasks linked to the same directive:
+    3. Set directive_id on each task to link it to the project (use the project id from the ACTIVE CEO PROJECTS section)
+    4. If the project is linked to a goal, also set objective_id on each task
+    5. Set realistic due dates (2-5 days out) and priority based on the project priority
+    6. Leave a delegation comment on each task explaining what the project requires
+    For documentation projects: create tasks assigned to scribe to draft the document, then scribe will use create-doc and submit-for-publish when ready
+    For blog posts or marketing content that should be visually strong: create TWO tasks linked to the same project:
       a) Assign scribe to write the blog post (create-doc with marketing_post kind)
       b) Assign pixel to generate the hero image (generate-image with blog_header purpose, referencing the doc ID once scribe creates it)
     This ensures Scribe writes and Pixel designs — they collaborate through the task board.

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="AmbientPixels Quarterly Board — executive review of directives, KPIs, risks, decisions, and throughput." />
+  <meta name="description" content="AmbientPixels Quarterly Board — executive review of projects, KPIs, risks, decisions, and throughput." />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
   <title>Board Mode — AmbientPixels HQ</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
@@ -79,13 +79,13 @@
 
     <!-- 3. Active / Approved Directives -->
     <div class="board-section" id="sec-active-dirs">
-      <div class="board-section-title"><i class="fas fa-fire" style="color:#FF8C00;"></i> Active Directives <span class="board-badge" id="badge-active-dirs" style="background:rgba(255,140,0,0.1);color:#FF8C00;">0</span></div>
+      <div class="board-section-title"><i class="fas fa-fire" style="color:#FF8C00;"></i> Active Projects <span class="board-badge" id="badge-active-dirs" style="background:rgba(255,140,0,0.1);color:#FF8C00;">0</span></div>
       <div id="board-active-dirs"></div>
     </div>
 
     <!-- 4. Completed Directives -->
     <div class="board-section" id="sec-completed-dirs">
-      <div class="board-section-title"><i class="fas fa-trophy" style="color:#c084fc;"></i> Completed Directives <span class="board-badge" id="badge-completed-dirs" style="background:rgba(192,132,252,0.1);color:#c084fc;">0</span></div>
+      <div class="board-section-title"><i class="fas fa-trophy" style="color:#c084fc;"></i> Completed Projects <span class="board-badge" id="badge-completed-dirs" style="background:rgba(192,132,252,0.1);color:#c084fc;">0</span></div>
       <div id="board-completed-dirs"></div>
     </div>
 
@@ -201,13 +201,13 @@
           html += '<div style="font-size:1.1rem;font-weight:700;color:' + catColor + ';margin-bottom:0.2rem;">-' + unitLabel + '</div>';
 
           if (k.linkedDirectives.length > 0) {
-            html += '<div style="font-size:0.55rem;opacity:0.5;">' + k.linkedDirectives.length + ' directive' + (k.linkedDirectives.length > 1 ? 's' : '') + '</div>';
+            html += '<div style="font-size:0.55rem;opacity:0.5;">' + k.linkedDirectives.length + ' project' + (k.linkedDirectives.length > 1 ? 's' : '') + '</div>';
             k.linkedDirectives.slice(0, 2).forEach(function (d) {
               var sColor = d.status === 'active' ? '#34d399' : d.status === 'completed' ? '#c084fc' : '#fbbf24';
               html += '<div style="font-size:0.55rem;opacity:0.6;margin-top:2px;"><span style="color:' + sColor + ';">●</span> ' + escapeHtml(d.title) + '</div>';
             });
           } else {
-            html += '<div style="font-size:0.55rem;opacity:0.25;">No linked directives</div>';
+            html += '<div style="font-size:0.55rem;opacity:0.25;">No linked projects</div>';
           }
 
           card.innerHTML = html;
@@ -330,10 +330,10 @@
         lines.push('- Tasks Completed: ' + _packet.throughput.tasksCompleted);
         lines.push('- Pending Approval: ' + _packet.throughput.pendingApprovalTasks);
         lines.push('');
-        lines.push('## Active Directives (' + _packet.directives.active.length + ')');
+        lines.push('## Active Projects (' + _packet.directives.active.length + ')');
         _packet.directives.active.forEach(function (d) { lines.push('- ' + d.title + ' [' + d.priority + ']'); });
         lines.push('');
-        lines.push('## Completed Directives (' + _packet.directives.completed.length + ')');
+        lines.push('## Completed Projects (' + _packet.directives.completed.length + ')');
         _packet.directives.completed.forEach(function (d) { lines.push('- ' + d.title); });
         lines.push('');
         lines.push('## Decisions (' + _packet.decisions.length + ')');
@@ -343,7 +343,7 @@
         _packet.risks.slice(0, 10).forEach(function (r) { lines.push('- [' + r.severity + '] ' + r.description); });
         lines.push('');
         lines.push('## KPIs');
-        _packet.kpis.forEach(function (k) { lines.push('- ' + k.name + ' (' + k.category + '): ' + k.linkedDirectives.length + ' linked directives'); });
+        _packet.kpis.forEach(function (k) { lines.push('- ' + k.name + ' (' + k.category + '): ' + k.linkedDirectives.length + ' linked projects'); });
 
         var text = lines.join('\n');
         if (navigator.clipboard) {

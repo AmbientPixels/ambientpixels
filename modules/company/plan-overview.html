@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="AmbientPixels Strategy Overview — directives, objectives, and governance at a glance." />
+  <meta name="description" content="AmbientPixels Strategy Overview — projects, goals, and governance at a glance." />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
   <title>Strategy — AmbientPixels HQ</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
@@ -191,19 +191,19 @@
     <!-- Hero -->
     <div class="plan-hero">
       <h1><i class="fas fa-compass" style="opacity:0.4; margin-right:8px; color:#8A2BE2;"></i>Strategy</h1>
-      <p>Strategic direction, quarterly objectives, and governance protocols.</p>
+      <p>Strategic direction, quarterly goals, and governance protocols.</p>
       <div class="plan-hero-summary" id="plan-summary">Loading strategic overview...</div>
     </div>
 
     <!-- Strategic Directives Panel -->
     <div class="plan-panel">
-      <div class="plan-panel-title"><i class="fas fa-compass"></i> Strategic Directives <span style="opacity:0.4; font-size:0.6rem; margin-left:auto;" id="stat-directives">—</span></div>
+      <div class="plan-panel-title"><i class="fas fa-compass"></i> Strategic Projects <span style="opacity:0.4; font-size:0.6rem; margin-left:auto;" id="stat-directives">—</span></div>
       <div id="ov-directives">Loading...</div>
     </div>
 
     <!-- Quarterly Objectives Panel -->
     <div class="plan-panel">
-      <div class="plan-panel-title"><i class="fas fa-bullseye"></i> Quarterly Objectives <span style="opacity:0.4; font-size:0.6rem; margin-left:auto;" id="stat-objectives">—</span></div>
+      <div class="plan-panel-title"><i class="fas fa-bullseye"></i> Quarterly Goals <span style="opacity:0.4; font-size:0.6rem; margin-left:auto;" id="stat-objectives">—</span></div>
       <div id="ov-objectives">Loading...</div>
     </div>
 
@@ -269,8 +269,8 @@
     <!-- Quick Nav -->
     <div class="ov-section-title">Navigate</div>
     <div class="plan-nav">
-      <a href="/modules/company/directives.html" class="plan-nav-link"><i class="fas fa-compass"></i> Directives</a>
-      <a href="/modules/company/objectives.html" class="plan-nav-link"><i class="fas fa-bullseye"></i> Objectives</a>
+      <a href="/modules/company/directives.html" class="plan-nav-link"><i class="fas fa-compass"></i> Projects</a>
+      <a href="/modules/company/objectives.html" class="plan-nav-link"><i class="fas fa-bullseye"></i> Goals</a>
       <a href="/modules/company/governance.html" class="plan-nav-link"><i class="fas fa-scroll"></i> Governance</a>
     </div>
 
@@ -308,7 +308,7 @@
       var activeDirs = dirs.filter(function (d) { return d.status === 'active'; });
       document.getElementById('stat-directives').textContent = activeDirs.length + ' active';
       var dirEl = document.getElementById('ov-directives');
-      if (activeDirs.length === 0) { dirEl.innerHTML = '<div style="opacity:0.35; font-size:0.68rem;">No active directives.</div>'; }
+      if (activeDirs.length === 0) { dirEl.innerHTML = '<div style="opacity:0.35; font-size:0.68rem;">No active projects.</div>'; }
       else {
         dirEl.innerHTML = activeDirs.slice(0, 8).map(function (d) {
           return '<div class="plan-dir-row">' +
@@ -322,7 +322,7 @@
       var activeObjs = objs.filter(function (o) { return o.status === 'on_track' || o.status === 'at_risk' || o.status === 'behind'; });
       document.getElementById('stat-objectives').textContent = activeObjs.length + ' active';
       var objEl = document.getElementById('ov-objectives');
-      if (activeObjs.length === 0) { objEl.innerHTML = '<div style="opacity:0.35; font-size:0.68rem;">No active objectives.</div>'; }
+      if (activeObjs.length === 0) { objEl.innerHTML = '<div style="opacity:0.35; font-size:0.68rem;">No active goals.</div>'; }
       else {
         var statusColor = { on_track: '#34d399', at_risk: '#fbbf24', behind: '#f87171', complete: '#8A2BE2' };
         var statusLabel = { on_track: 'On Track', at_risk: 'At Risk', behind: 'Behind', complete: 'Complete' };
@@ -351,9 +351,9 @@
       // Hero dynamic summary
       var topObj = activeObjs.length > 0 ? activeObjs[0] : null;
       var summaryParts = [];
-      if (topObj) summaryParts.push('Q1 objective at ' + (topObj.progressPercentage || 0) + '%');
+      if (topObj) summaryParts.push('Q1 goal at ' + (topObj.progressPercentage || 0) + '%');
       if (pending.length > 0) summaryParts.push(pending.length + ' approval' + (pending.length > 1 ? 's' : '') + ' pending');
-      summaryParts.push(activeDirs.length + ' active directive' + (activeDirs.length !== 1 ? 's' : ''));
+      summaryParts.push(activeDirs.length + ' active project' + (activeDirs.length !== 1 ? 's' : ''));
       document.getElementById('plan-summary').textContent = summaryParts.join('. ') + '.';
     });
 

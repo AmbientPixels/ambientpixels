@@ -289,15 +289,15 @@
 
           <div class="tm-modal-row">
             <div>
-              <label for="task-objective">Objective <span style="opacity:0.35; font-weight:normal;">(optional)</span></label>
+              <label for="task-objective">Goal <span style="opacity:0.35; font-weight:normal;">(optional)</span></label>
               <select id="task-objective">
-                <option value="">No objective</option>
+                <option value="">No goal</option>
               </select>
             </div>
             <div>
-              <label for="task-directive">Directive <span style="opacity:0.35; font-weight:normal;">(optional)</span></label>
+              <label for="task-directive">Project <span style="opacity:0.35; font-weight:normal;">(optional)</span></label>
               <select id="task-directive">
-                <option value="">No directive</option>
+                <option value="">No project</option>
               </select>
             </div>
           </div>
@@ -601,7 +601,7 @@
             if (newestMs === 0) return;
             var staleDays = Math.floor((nowMs - newestMs) / dayMs);
             if (staleDays >= 4) {
-              alerts.push('<div class="tm-intel-alert tm-intel-alert--amber"><i class="fas fa-bullseye"></i><span>' + escapeHtml(obj.title || obj.id) + ' objective shows no progress in ' + staleDays + ' days</span></div>');
+              alerts.push('<div class="tm-intel-alert tm-intel-alert--amber"><i class="fas fa-bullseye"></i><span>' + escapeHtml(obj.title || obj.id) + ' goal shows no progress in ' + staleDays + ' days</span></div>');
             }
           });
         } catch (e) {}
@@ -759,11 +759,11 @@
 
         // Additive: directive-linked
         if (task.directive_id) {
-          badges.push({ icon: 'fas fa-bullhorn', label: 'Directive', cls: 'prov--directive' });
+          badges.push({ icon: 'fas fa-bullhorn', label: 'Project', cls: 'prov--directive' });
         }
         // Additive: objective-linked
         if (task.objective_id) {
-          badges.push({ icon: 'fas fa-bullseye', label: 'Objective', cls: 'prov--objective' });
+          badges.push({ icon: 'fas fa-bullseye', label: 'Goal', cls: 'prov--objective' });
         }
 
         if (badges.length === 0) return '';
@@ -1136,7 +1136,7 @@
 
       // Populate objective dropdown from live objectives
       function _populateObjectiveDropdown(selectedId) {
-        var opts = '<option value="">No objective</option>';
+        var opts = '<option value="">No goal</option>';
         try {
           var objectives = typeof AgentEngine.getObjectives === 'function' ? AgentEngine.getObjectives() : [];
           objectives.forEach(function (obj) {
@@ -1152,7 +1152,7 @@
 
       // Populate directive dropdown from live directives (optionally filtered by objective)
       function _populateDirectiveDropdown(selectedId, objectiveFilter) {
-        var opts = '<option value="">No directive</option>';
+        var opts = '<option value="">No project</option>';
         try {
           var directives = typeof AgentEngine.getDirectives === 'function' ? AgentEngine.getDirectives() : [];
           directives.forEach(function (dir) {
@@ -1512,7 +1512,7 @@
       function _renderArchive() {
         if (!_archiveData || _archiveData.length === 0) {
           archiveStats.innerHTML = '';
-          archiveContent.innerHTML = '<div class="tm-archive-empty">No archived tasks yet. Completed tasks (7+ days) and canceled-objective tasks appear here.</div>';
+          archiveContent.innerHTML = '<div class="tm-archive-empty">No archived tasks yet. Completed tasks (7+ days) and canceled goal/project tasks appear here.</div>';
           return;
         }
         // Stats
@@ -1538,8 +1538,8 @@
           var agent = t.assignee ? getAgentById(t.assignee) : null;
           var agentHtml = agent ? '<span style="color:' + agent.color + ';">' + agent.name + '</span>' : (t.assignee || '<span style="opacity:0.2;">\u2014</span>');
           var archivedStr = t.archivedAt ? formatDate(t.archivedAt) : (t.completedAt ? formatDate(t.completedAt) : '\u2014');
-          var reasonLabel = t.archivedReason === 'objective_canceled' ? '<span style="color:#f87171;">Obj Canceled</span>'
-            : t.archivedReason === 'directive_canceled' ? '<span style="color:#f87171;">Dir Canceled</span>'
+          var reasonLabel = t.archivedReason === 'objective_canceled' ? '<span style="color:#f87171;">Goal Canceled</span>'
+            : t.archivedReason === 'directive_canceled' ? '<span style="color:#f87171;">Project Canceled</span>'
             : t.archivedReason === 'done_aged_7d' ? '<span style="opacity:0.5;">Completed</span>'
             : t.archivedReason === 'invalid_status_cleanup' ? '<span style="color:#fbbf24;">Cleanup</span>'
             : '<span style="opacity:0.35;">' + escapeHtml(t.archivedReason || '\u2014') + '</span>';

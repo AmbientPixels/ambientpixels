@@ -257,7 +257,7 @@
               year: parseInt(match[3], 10) || new Date().getFullYear()
             });
             addMessage('user', text);
-            addMessage('agent', 'Objective created: **' + match[1] + '** (' + (match[2] || 'Q1') + ' ' + (match[3] || new Date().getFullYear()) + ', ID: ' + obj.id + '). Navigate to [Objectives](/modules/company/objectives.html) to track progress.');
+            addMessage('agent', 'Goal created: **' + match[1] + '** (' + (match[2] || 'Q1') + ' ' + (match[3] || new Date().getFullYear()) + ', ID: ' + obj.id + '). Navigate to [Goals](/modules/company/objectives.html) to track progress.');
           } else {
             addMessage('user', text);
             addMessage('agent', 'Usage: `/objective create "Title" Q1 2026`');
