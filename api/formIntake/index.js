@@ -11,6 +11,9 @@
  * - v1.1: Duplicate suppression — dedupe index blob per email+type key,
  *   60-min rolling window, always stores record but skips task if duplicate,
  *   appends comment to existing task on duplicate detection
+ * - v1.2: Echo auto-draft replies — template-based reply drafts for new
+ *   inbound tasks (contact/demo), created as child tasks assigned to Echo,
+ *   skipped for duplicates and newsletters
  */
 
 const crypto = require('crypto');
@@ -331,6 +334,123 @@ async function _spawnTask(record) {
 }
 
 // ══════════════════════════════════════════════════════
+// ── Echo Auto-Draft Reply ──
+// ══════════════════════════════════════════════════════
+
+/**
+ * Generate a template-based draft reply for an inbound submission.
+ * Returns plain-text email-style body suitable for copy/paste.
+ * Kept under ~160 words, professional, brand-level signature.
+ */
+function _generateDraftReply(record) {
+  var name = (record.contact && record.contact.name) ? record.contact.name.split(' ')[0] : '';
+  var greeting = name ? ('Hi ' + name + ',') : 'Hello,';
+  var hasSubject = record.message && record.message.subject;
+  var hasBody = record.message && record.message.body && record.message.body.length > 10;
+
+  if (record.type === 'demo') {
+    var lines = [
+      greeting,
+      '',
+      'Thank you for your interest in working with AmbientPixels. We appreciate you reaching out' + (hasSubject ? (' regarding ' + record.message.subject) : '') + '.',
+      '',
+      'To help us prepare the best overview for you, it would be great to learn a bit more:',
+      '- What problem or workflow are you looking to improve?',
+      '- Do you have a timeline or launch window in mind?',
+      '',
+      'In the meantime, you can explore our project portfolio at https://ambientpixels.ai/projects/ to see examples of what we build.',
+      '',
+      'We\'ll follow up within two business days to schedule a walkthrough.',
+      '',
+      '— AmbientPixels / GridOS'
+    ];
+    return lines.join('\n');
+  }
+
+  // Default: contact
+  var lines = [
+    greeting,
+    '',
+    'Thank you for reaching out to AmbientPixels.' + (hasSubject ? (' We received your message regarding ' + record.message.subject + '.') : ' We received your message and appreciate you getting in touch.'),
+    ''
+  ];
+
+  if (hasBody) {
+    lines.push('We\'ve reviewed the details you shared and have a couple of quick questions to make sure we point you in the right direction:');
+  } else {
+    lines.push('To help us assist you effectively, could you share a bit more about:');
+  }
+
+  lines.push('- What\'s the primary goal or challenge you\'re looking to address?');
+  lines.push('- Is there a particular timeline or urgency?');
+  lines.push('');
+  lines.push('We typically respond within two business days. If this is urgent, please note that in your reply and we\'ll prioritize accordingly.');
+  lines.push('');
+  lines.push('— AmbientPixels / GridOS');
+
+  return lines.join('\n');
+}
+
+/**
+ * Create a draft-reply child task assigned to Echo.
+ * Returns the child task ID, or null on failure.
+ * Non-fatal — intake proceeds regardless.
+ */
+async function _createReplyDraft(parentTaskId, parentTitle, record) {
+  try {
+    var draftBody = _generateDraftReply(record);
+    var typeLabel = record.type.charAt(0).toUpperCase() + record.type.slice(1);
+
+    var childTask = {
+      id: 'task-' + Date.now() + '-draft-' + Math.random().toString(36).substring(2, 6),
+      title: 'Draft reply — ' + parentTitle,
+      description: [
+        '[AUTO_DRAFT_REPLY]',
+        'Submission ID: ' + record.id,
+        'Type: ' + typeLabel,
+        'Parent Task: ' + parentTaskId,
+        '',
+        '───── DRAFT REPLY ─────',
+        '',
+        draftBody,
+        '',
+        '───── END DRAFT ─────',
+        '',
+        'Review and send manually via email or direct message.',
+        'Do NOT auto-send — this is a draft for CEO review.'
+      ].join('\n'),
+      assignee: 'echo',
+      status: 'open',
+      priority: 'low',
+      classification: 'autonomous',
+      risk_level: 'low',
+      budget_impact: 'none',
+      brand_impact: 'low',
+      requires_ceo_approval: false,
+      escalated: false,
+      directive_id: null,
+      objective_id: null,
+      origin: 'form_intake_auto_draft',
+      badge: '✉️ Draft Reply',
+      sourceType: record.type,
+      sourceId: record.id,
+      parentTaskId: parentTaskId,
+      comments: [],
+      createdAt: new Date().toISOString()
+    };
+
+    var tasks = (await storage.getState('tasks')) || [];
+    tasks.push(childTask);
+    if (tasks.length > 500) tasks.splice(0, tasks.length - 500);
+    await storage.setState('tasks', tasks);
+    return childTask.id;
+  } catch (err) {
+    console.error('[formIntake] Draft reply creation failed:', err.message);
+    return null;
+  }
+}
+
+// ══════════════════════════════════════════════════════
 // ── Parse body (JSON or URL-encoded) ──
 // ══════════════════════════════════════════════════════
 
@@ -606,6 +726,20 @@ module.exports = async function (context, req) {
       record.duplicateOf = duplicateOf;
       record.status = status;
 
+      // ── Echo auto-draft reply (only for newly created tasks) ──
+      var draftTaskId = null;
+      if (status === 'task_created' && taskId) {
+        var nameOrEmail = (data.contact && data.contact.name) ? data.contact.name : (data.contact ? data.contact.email : 'Unknown');
+        var typeLabel = data.type.charAt(0).toUpperCase() + data.type.slice(1);
+        var parentTitle = 'Inbound: ' + typeLabel + ' — ' + nameOrEmail;
+        draftTaskId = await _createReplyDraft(taskId, parentTitle, record);
+        if (draftTaskId) {
+          context.log('[formIntake] Draft reply created:', draftTaskId, 'for task:', taskId);
+        }
+      }
+      record.draftReplyCreated = !!draftTaskId;
+      record.draftTaskId = draftTaskId;
+
       // Store canonical record
       await _storeCanonical(record);
 
@@ -621,6 +755,7 @@ module.exports = async function (context, req) {
         taskId: taskId,
         duplicateOf: duplicateOf,
         status: status,
+        draftTaskId: draftTaskId,
         spamFlags: spamFlags
       };
       await _appendIndex(dateStr, indexEntry);
@@ -628,7 +763,7 @@ module.exports = async function (context, req) {
       // Increment rate limiter
       await _incrementRateLimit(ipHash);
 
-      context.log('[formIntake] Stored:', id, 'type:', data.type, 'status:', status, 'taskId:', taskId || 'none');
+      context.log('[formIntake] Stored:', id, 'type:', data.type, 'status:', status, 'taskId:', taskId || 'none', 'draftTaskId:', draftTaskId || 'none');
 
       context.res = {
         status: 200,
@@ -639,7 +774,8 @@ module.exports = async function (context, req) {
           type: data.type,
           status: status,
           duplicateOf: duplicateOf,
-          taskCreated: status === 'task_created'
+          taskCreated: status === 'task_created',
+          draftTaskId: draftTaskId
         }
       };
     } catch (err) {

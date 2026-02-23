@@ -1,4 +1,4 @@
-# GridOS Form Intake v1.1
+# GridOS Form Intake v1.2
 
 ## Endpoints
 
@@ -65,6 +65,37 @@
 - `status`: `"task_created"` | `"duplicate"` | `"stored"` | `"new"`
 - `duplicateOf`: submission ID of the original (null if not duplicate)
 
+## Echo Auto-Draft Reply (v1.2)
+
+For new inbound tasks (`status === "task_created"`), the system automatically generates a template-based reply draft and creates it as a **child task assigned to Echo**.
+
+**Trigger conditions:**
+- Only when `status === "task_created"` AND `taskId` exists
+- Skipped for `duplicate`, `stored` (newsletter), and `new` statuses
+- No duplicate drafts — guard via `status` check (drafts only fire on first task creation)
+
+**Draft templates (v1 — deterministic, no LLM):**
+- **contact**: Acknowledgement + 2 clarifying questions + response window promise
+- **demo**: Thank you + suggest next steps (portfolio link) + ask for use case + schedule promise
+- Incorporates `message.subject` if present
+- Personalizes greeting with first name if available
+- Signed: `— AmbientPixels / GridOS`
+- Target: ~120–160 words
+
+**Child task schema:**
+- Title: `"Draft reply — <Inbound Task Title>"`
+- Description starts with `[AUTO_DRAFT_REPLY]` marker
+- `assignee: "echo"`
+- `origin: "form_intake_auto_draft"`
+- `badge: "✉️ Draft Reply"`
+- `parentTaskId: <inbound taskId>`
+- Includes submission ID, type, and clearly labeled draft block
+- Footer: "Review and send manually. Do NOT auto-send."
+
+**Record fields added:**
+- `draftReplyCreated`: boolean
+- `draftTaskId`: child task ID (null if no draft)
+
 ## Manual Test Checklist
 
 ```
@@ -82,6 +113,13 @@
     duplicateOf populated, same taskId, NO new task, comment on existing task
 [ ] DEDUPE: submit after 61min → new task created normally
 [ ] DEDUPE: Inbound UI shows 'Duplicate (linked)' pill for duplicates
+[ ] DRAFT: contact submit → inbound task + draft reply child task created
+[ ] DRAFT: demo submit → inbound task + draft reply child task created
+[ ] DRAFT: newsletter submit → NO draft (no task at all)
+[ ] DRAFT: duplicate submit → NO new draft, original draft untouched
+[ ] DRAFT: canonical record has draftReplyCreated:true + draftTaskId
+[ ] DRAFT: child task has [AUTO_DRAFT_REPLY] marker, assignee=echo, parentTaskId set
+[ ] DRAFT: Inbound drawer shows 'Draft Reply' link when draftTaskId present
 ```
 
 ## Files Created
@@ -105,3 +143,8 @@
 - `api/formIntake/index.js` — Added dedupe section: `_dedupeHash`, `_readDedupe`, `_writeDedupe`, `_checkDedupe`, `_appendTaskComment`. POST handler checks dedupe before task spawn, marks duplicates, appends task comments.
 - `modules/company/js/inbound-intake.js` — `getStatus()` shows 'Duplicate (linked)' pill, drawer shows `duplicateOf` field, stats count unique tasks only.
 - `modules/company/inbound.html` — Added `.inb-status--duplicate` CSS.
+
+## v1.2 Changes (Echo Auto-Draft Reply)
+
+- `api/formIntake/index.js` — Added `_generateDraftReply(record)` (template engine for contact/demo), `_createReplyDraft(parentTaskId, parentTitle, record)` (child task creator assigned to Echo). POST handler creates draft after task spawn when `status === 'task_created'`. Stores `draftReplyCreated` + `draftTaskId` on canonical record and index entry.
+- `modules/company/js/inbound-intake.js` — Detail drawer shows 'Draft Reply' link when `draftTaskId` present, shows 'Draft exists on original' note for duplicates.

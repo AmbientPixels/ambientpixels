@@ -8,6 +8,7 @@
  * - Client-side filtering by type + hide-filtered toggle
  * - v1.1: Duplicate status display — 'Duplicate (linked)' pill,
  *   drawer shows duplicateOf field, unique task count in stats
+ * - v1.2: Draft reply link in detail drawer (draftTaskId field)
  */
 
 (function () {
@@ -237,6 +238,18 @@
       html += '<div class="inb-drawer-field">'
         + '<div class="inb-drawer-label">Task</div>'
         + '<div class="inb-drawer-value"><a href="/modules/company/tasks.html#' + escHtml(item.taskId) + '"><i class="fas fa-external-link-alt"></i> View Task ' + escHtml(item.taskId.substring(0, 16)) + '</a></div>'
+        + '</div>';
+    }
+
+    if (item.draftTaskId) {
+      html += '<div class="inb-drawer-field">'
+        + '<div class="inb-drawer-label">Draft Reply</div>'
+        + '<div class="inb-drawer-value"><a href="/modules/company/tasks.html#' + escHtml(item.draftTaskId) + '" style="color:#a78bfa;"><i class="fas fa-envelope-open-text"></i> View Draft ' + escHtml(item.draftTaskId.substring(0, 16)) + '</a></div>'
+        + '</div>';
+    } else if (item.draftReplyCreated === false && item.status === 'duplicate') {
+      html += '<div class="inb-drawer-field">'
+        + '<div class="inb-drawer-label">Draft Reply</div>'
+        + '<div class="inb-drawer-value" style="opacity:0.4;">Draft exists on original submission</div>'
         + '</div>';
     }
 
