@@ -295,7 +295,10 @@
     <section class="content-section grid-col-12 eng-section">
       <h2>Request Consultation</h2>
       <p>Tell us about your project. We'll review your requirements and respond within two business days.</p>
-      <form class="eng-form contact-form" id="engage-form" action="https://formspree.io/f/xkgnqpjr" method="POST">
+      <form class="eng-form contact-form" id="engage-form" method="POST" data-gridos-intake="true">
+        <input type="hidden" name="type" value="demo">
+        <input type="hidden" name="form_started_at_ms" value="">
+        <input type="text" name="hp" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px;top:-9999px;width:1px;height:1px;opacity:0;pointer-events:none;">
         <div class="eng-form-row">
           <div class="form-group">
             <div class="label-wrapper">
@@ -380,6 +383,13 @@
           </div>
         </div>
         <input type="hidden" name="_source" value="engage" />
+        <div class="form-group" style="margin-top:0.5rem;">
+          <label style="display:flex;align-items:center;gap:0.4rem;font-size:0.78rem;opacity:0.6;cursor:pointer;">
+            <input type="checkbox" name="privacyAccepted" required>
+            I agree to the <a href="/privacy.html" target="_blank" style="color:inherit;text-decoration:underline;">privacy policy</a>
+          </label>
+        </div>
+        <div class="form-status"></div>
         <button type="submit" class="eng-submit">
           <i class="fas fa-paper-plane"></i>
           <span>Request Consultation</span>
@@ -400,5 +410,6 @@
   <script src="/js/nav.js" defer></script>
   <script src="/js/theme.js" defer></script>
   <script src="/js/forms.js" defer></script>
+  <script src="/js/form-intake.js" defer></script>
 </body>
 </html>

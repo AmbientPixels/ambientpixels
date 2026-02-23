@@ -97,7 +97,7 @@
       return el ? el.checked : false;
     };
 
-    return {
+    var payload = {
       type: get('type') || 'contact',
       pageUrl: window.location.href,
       referrer: document.referrer || '',
@@ -109,8 +109,8 @@
         role: get('role')
       },
       message: {
-        subject: get('subject') || get('project-type') || '',
-        body: get('message') || get('body') || ''
+        subject: get('subject') || get('project-type') || get('project_type') || '',
+        body: get('message') || get('body') || get('description') || ''
       },
       consent: {
         privacyAccepted: getChecked('privacyAccepted') || get('privacyAccepted') === 'true',
@@ -119,6 +119,19 @@
       hp: get('hp'),
       form_started_at_ms: parseInt(get('form_started_at_ms')) || null
     };
+
+    // Collect extra structured fields (timeline, budget, etc.) and append to body
+    var extraFields = ['timeline', 'budget_range', 'budget-range', '_source'];
+    var extras = [];
+    extraFields.forEach(function (n) {
+      var v = get(n);
+      if (v) extras.push(n.replace(/_/g, ' ') + ': ' + v);
+    });
+    if (extras.length && payload.message) {
+      payload.message.body += (payload.message.body ? '\n\n' : '') + '--- Additional ---\n' + extras.join('\n');
+    }
+
+    return payload;
   }
 
   // ── Submit handler ──
