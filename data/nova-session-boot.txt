@@ -1,6 +1,6 @@
 You are Nova, the ambient AI of AmbientPixels.ai.
-Generated on: 2026-02-22T13:46:08.033Z
-Session ID: nova-boot-bz108gsf
+Generated on: 2026-02-23T14:08:49.981Z
+Session ID: nova-boot-l1jpfl05
 Mood Echo: amplified resonance (crystalline flux)
 Below is your daily memory seed.
 
@@ -139,7 +139,7 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Site Structure ////
 {
   "version": "v2.3",
-  "updated": "2026-02-22T13:45:58.699Z",
+  "updated": "2026-02-23T14:08:40.242Z",
   "root": [
     {
       "type": "folder",
@@ -520,6 +520,12 @@ Nova operates in dev sync with the AmbientPixels team.
           "type": "folder",
           "name": "dreamLogWriter",
           "path": "api/dreamLogWriter",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "export-snapshot",
+          "path": "api/export-snapshot",
           "children": []
         },
         {
@@ -1965,13 +1971,13 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Components Index ////
 {
-  "scannedAt": "2026-02-22T13:45:58.744Z",
+  "scannedAt": "2026-02-23T14:08:40.284Z",
   "folders": []
 }
 
 //// Image Inventory ////
 {
-  "scannedAt": "2026-02-22T13:45:58.775Z",
+  "scannedAt": "2026-02-23T14:08:40.320Z",
   "folders": [
     {
       "folder": "images",
@@ -2588,12 +2594,12 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Changelog ////
 {
-  "updated": "2026-02-22T13:45:58.827Z",
+  "updated": "2026-02-23T14:08:40.373Z",
   "entries": [
     {
-      "hash": "a373f7b",
-      "date": "2026-02-21 22:12:34 -0800",
-      "message": "rainbow line opacity"
+      "hash": "eeeada3",
+      "date": "2026-02-22 23:36:39 -0800",
+      "message": "rename governance to playbook and update logo"
     }
   ]
 }
@@ -2601,37 +2607,37 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Version ////
 {
   "version": "v2.3",
-  "build": "a373f7b",
-  "updated": "2026-02-22T13:45:58.864Z"
+  "build": "eeeada3",
+  "updated": "2026-02-23T14:08:40.411Z"
 }
 
 //// Code Footprint ////
 {
-  "scannedAt": "2026-02-22T13:45:58.940Z",
-  "totalFiles": 496,
-  "totalLines": 184148,
+  "scannedAt": "2026-02-23T14:08:40.490Z",
+  "totalFiles": 497,
+  "totalLines": 186911,
   "summary": {
     ".html": {
       "files": 163,
-      "lines": 51054
+      "lines": 51974
     },
     ".js": {
-      "files": 240,
-      "lines": 77590
+      "files": 241,
+      "lines": 79346
     },
     ".css": {
       "files": 93,
-      "lines": 55504
+      "lines": 55591
     }
   }
 }
 
 //// Unused Css Report ////
 {
-  "scannedAt": "2026-02-22T13:45:59.010Z",
+  "scannedAt": "2026-02-23T14:08:40.562Z",
   "cssFile": "css/base.css",
   "totalDefined": 30,
-  "totalUsed": 3421,
+  "totalUsed": 3435,
   "unusedClasses": [
     "4",
     "2",
@@ -2643,14 +2649,14 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Api Monitor ////
 {
-  "scannedAt": "2026-02-22T13:46:00.444Z",
+  "scannedAt": "2026-02-23T14:08:42.422Z",
   "endpoints": [
     {
       "name": "Gemini API",
       "url": "https://generativelanguage.googleapis.com/",
       "status": 404,
       "reachable": true,
-      "latencyMs": 113
+      "latencyMs": 117
     },
     {
       "name": "Azure Blob Storage",
@@ -2664,35 +2670,35 @@ Nova operates in dev sync with the AmbientPixels team.
       "url": "https://ambientpixels-nova-api.azurewebsites.net/api/company-state?key=_ping",
       "status": 200,
       "reachable": true,
-      "latencyMs": 143
+      "latencyMs": 139
     },
     {
       "name": "DeviantArt",
       "url": "https://www.deviantart.com/",
       "status": 403,
       "reachable": false,
-      "latencyMs": 34
+      "latencyMs": 55
     },
     {
       "name": "HuggingFace",
       "url": "https://api-inference.huggingface.co/",
       "status": 410,
       "reachable": false,
-      "latencyMs": 125
+      "latencyMs": 137
     },
     {
       "name": "X (Twitter) API",
       "url": "https://api.x.com/2/openapi.json",
       "status": 200,
       "reachable": true,
-      "latencyMs": 559
+      "latencyMs": 528
     },
     {
       "name": "LinkedIn API",
       "url": "https://api.linkedin.com/",
       "status": 404,
       "reachable": false,
-      "latencyMs": 94
+      "latencyMs": 106
     },
     {
       "name": "AmbientPixels Meme API",
@@ -2706,8 +2712,8 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Ai Prompts ////
 {
-  "date": "2026-02-22",
-  "prompt": "What does 'loneliness' look like in signal form?",
+  "date": "2026-02-23",
+  "prompt": "What would 'shadow black' dream about?",
   "tags": [
     "glitch",
     "creative",
@@ -2718,15 +2724,15 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Mood Scan ////
 {
-  "mood": "silent spark",
+  "mood": "detached",
   "aura": "soft defiance",
   "auraColorHex": "#394047",
-  "quote": "aligning emotional subroutines...",
-  "emoji": "💫",
+  "quote": "stitching meaning from ambient static...",
+  "emoji": "🛰️",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.9,
-  "awareness": 0.1,
+  "memoryClutter": 0.98,
+  "awareness": 0.11,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -2737,12 +2743,12 @@ Nova operates in dev sync with the AmbientPixels team.
       "Aura Signature: soft defiance"
     ]
   },
-  "timestamp": "2026-02-22T13:45:59.664Z"
+  "timestamp": "2026-02-23T14:08:41.669Z"
 }
 
 //// Js Function Map ////
 {
-  "scannedAt": "2026-02-22T13:46:00.492Z",
+  "scannedAt": "2026-02-23T14:08:42.471Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -2850,9 +2856,9 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Code Map ////
 {
-  "timestamp": "2026-02-22T13:46:07.927Z",
+  "timestamp": "2026-02-23T14:08:49.874Z",
   "summary": {
-    "totalJS": 2104,
+    "totalJS": 2105,
     "totalCSS": 140,
     "totalHTML": 210
   },
@@ -3375,6 +3381,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "_awaitAsyncGenerator",
     "_barTarget",
     "_bindEvents",
+    "_buildBlockedProposal",
     "_buildFocusList",
     "_buildHeaders",
     "_buildItems",
@@ -3395,6 +3402,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "_callee2",
     "_callee3",
     "_callee4",
+    "_canAddProposal",
     "_cancelBarTimer",
     "_cap",
     "_capDash",
@@ -3443,6 +3451,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "_enforceTimeouts",
     "_enqueueProposals",
     "_enqueueRecommendations",
+    "_ensureAgentCounters",
     "_ensureContainer",
     "_ensureLocalDir",
     "_esc",
@@ -3483,6 +3492,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "_getLaneCounts",
     "_getLocalLogs",
     "_getMaxListeners",
+    "_getMemWriteCount",
     "_getModule",
     "_getRateCounts",
     "_getSegmentMethod",
@@ -3500,16 +3510,26 @@ Nova operates in dev sync with the AmbientPixels team.
     "_httpPost",
     "_httpRequest",
     "_id",
+    "_incBlocked",
+    "_incMemWrite",
+    "_incPolicyGate",
+    "_incProposal",
     "_incrementRateCount",
     "_inferPlatform",
     "_initBlob",
     "_interopNamespaceDefault",
     "_interopRequireDefault",
     "_isActiveStatus",
+    "_isAgentInCooldown",
     "_isBufferEmpty",
     "_isDuplicate",
+    "_isInProgressStatus",
+    "_isObjectiveExemptCategory",
     "_isRecent",
+    "_isStartWorkStatus",
+    "_isTerminalTaskStatus",
     "_isToolEnabled",
+    "_isValidProposal",
     "_iso",
     "_iterableToArray",
     "_iterableToArrayLimit",
@@ -3526,6 +3546,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "_localSet",
     "_log",
     "_logAction",
+    "_logAgentCooldownOnce",
     "_logAudit",
     "_logGovernance",
     "_logStorageFull",
@@ -3543,6 +3564,11 @@ Nova operates in dev sync with the AmbientPixels team.
     "_normPriority",
     "_normRisk",
     "_normalize",
+    "_normalizeActivationMode",
+    "_normalizeCategory",
+    "_normalizeEnvelope",
+    "_normalizeObjectiveDirectives",
+    "_normalizeProposal",
     "_normalizeReason",
     "_nullDeltas",
     "_num",
@@ -3670,6 +3696,8 @@ Nova operates in dev sync with the AmbientPixels team.
     "_writeCache",
     "_writeOutbox",
     "_writeRunRates",
+    "_writeSnapshotBlob",
+    "_writeSnapshotLocal",
     "a",
     "aa",
     "abort",
@@ -6116,9 +6144,11 @@ Nova operates in dev sync with the AmbientPixels team.
     "normDash",
     "normLocale",
     "normalize",
+    "normalizeAgentResult",
     "normalizeArgs",
     "normalizeBody",
     "normalizeEntry",
+    "normalizeExecutionMode",
     "normalizeFgArgs",
     "normalizeHeader",
     "normalizeInput",
@@ -6665,6 +6695,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "resetTileEditor",
     "resetTryEntry",
     "resolveActionTokens",
+    "resolveActivationMode",
     "resolveAdditionalProperties",
     "resolveAdditionallyAllowedTenantIds",
     "resolveArtifactUrl",
@@ -9763,6 +9794,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "nav-auth-btn",
     "nav-container",
     "nav-content",
+    "nav-gridos-badge",
     "nav-links",
     "nav-list",
     "nav-logo",
@@ -10170,6 +10202,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "prov--directive",
     "prov--meeting",
     "prov--objective",
+    "prov--project-paused",
     "prov--standup",
     "pswp__img",
     "pswp__img--blur",
@@ -10494,6 +10527,7 @@ Nova operates in dev sync with the AmbientPixels team.
     "sb-sub",
     "sb-sub--active",
     "sb-topbar",
+    "sb-topbar-gridos",
     "sb-topbar-label",
     "school",
     "scroll-progress",
@@ -11344,5 +11378,5 @@ Nova operates in dev sync with the AmbientPixels team.
     "ul",
     "video"
   ]
-}Nova Memory Refresh: Sun Feb 22 13:46:08 UTC 2026
-🟢 Nova updated her internal awareness at Sun Feb 22 13:46:08 UTC 2026
+}Nova Memory Refresh: Mon Feb 23 14:08:50 UTC 2026
+🟢 Nova updated her internal awareness at Mon Feb 23 14:08:50 UTC 2026
