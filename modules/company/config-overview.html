@@ -1029,6 +1029,18 @@
       </div>
 
       <div class="cfg-maint-group">
+        <div class="cfg-maint-group-label">Snapshots</div>
+        <p class="section-desc">Save or download a full system state backup before making changes.</p>
+        <button class="cfg-maint-btn" id="cfg-export-snapshot" style="border-color:rgba(78,205,196,0.2); color:#4ecdc4;">
+          <i class="fas fa-camera"></i> Export Snapshot
+        </button>
+        <button class="cfg-maint-btn" id="cfg-download-snapshot" style="border-color:rgba(78,205,196,0.2); color:#4ecdc4;" disabled>
+          <i class="fas fa-download"></i> Download Snapshot
+        </button>
+        <span id="cfg-snapshot-status" style="font-size:0.52rem; opacity:0.4; margin-left:0.3rem;"></span>
+      </div>
+
+      <div class="cfg-maint-group">
         <div class="cfg-maint-group-label">Operational Resets</div>
         <p class="section-desc">Clears operational data while preserving governance configuration and system safeguards.</p>
         <button class="cfg-maint-btn" data-danger="reset-tasks" data-label="Reset Tasks">
@@ -2600,6 +2612,104 @@
     }
     _updateMaintSummary();
     window.addEventListener('companystoreready', _updateMaintSummary);
+
+    // ── Snapshot Export + Download ──
+    var _snapExportBtn = document.getElementById('cfg-export-snapshot');
+    var _snapDownloadBtn = document.getElementById('cfg-download-snapshot');
+    var _snapStatus = document.getElementById('cfg-snapshot-status');
+    var _lastSnapshotData = null;
+    var _snapRunning = false;
+    var _snapApiBase = window.location.hostname.includes('ambientpixels.ai')
+      ? 'https://ambientpixels-nova-api.azurewebsites.net/api' : '/api';
+
+    if (_snapExportBtn) {
+      _snapExportBtn.addEventListener('click', function () {
+        if (_snapRunning) return;
+        _snapRunning = true;
+        _snapExportBtn.disabled = true;
+        _snapExportBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting...';
+        if (_snapStatus) _snapStatus.textContent = '';
+        fetch(_snapApiBase + '/export-snapshot', {
+          method: 'POST',
+          headers: (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) ? CompanyStore.getWriteHeaders() : { 'Content-Type': 'application/json' }
+        })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          if (data.ok) {
+            _lastSnapshotData = data;
+            _snapExportBtn.innerHTML = '<i class="fas fa-check"></i> Snapshot saved';
+            _snapExportBtn.style.color = '#34d399';
+            if (_snapStatus) _snapStatus.textContent = data.snapshotFile || 'Saved';
+            if (_snapDownloadBtn) _snapDownloadBtn.disabled = false;
+          } else {
+            _snapExportBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Failed';
+            _snapExportBtn.style.color = '#f87171';
+            if (_snapStatus) _snapStatus.textContent = data.error || 'Export failed';
+          }
+          setTimeout(function () {
+            _snapExportBtn.innerHTML = '<i class="fas fa-camera"></i> Export Snapshot';
+            _snapExportBtn.style.color = '#4ecdc4';
+            _snapExportBtn.disabled = false;
+            _snapRunning = false;
+          }, 3000);
+        })
+        .catch(function (err) {
+          _snapExportBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Failed';
+          _snapExportBtn.style.color = '#f87171';
+          if (_snapStatus) _snapStatus.textContent = String(err.message || err);
+          setTimeout(function () {
+            _snapExportBtn.innerHTML = '<i class="fas fa-camera"></i> Export Snapshot';
+            _snapExportBtn.style.color = '#4ecdc4';
+            _snapExportBtn.disabled = false;
+            _snapRunning = false;
+          }, 3000);
+        });
+      });
+    }
+
+    if (_snapDownloadBtn) {
+      _snapDownloadBtn.addEventListener('click', function () {
+        if (!_lastSnapshotData || !_lastSnapshotData.snapshotFile) return;
+        // Fetch the snapshot blob and trigger download
+        var blobKey = _lastSnapshotData.snapshotFile.replace('company-state/', '');
+        if (_snapStatus) _snapStatus.textContent = 'Downloading...';
+        _snapDownloadBtn.disabled = true;
+        fetch(_snapApiBase + '/company-state?key=' + encodeURIComponent(blobKey), { method: 'GET' })
+          .then(function (res) {
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.json();
+          })
+          .then(function (data) {
+            var json = JSON.stringify(data.value || data, null, 2);
+            var blob = new Blob([json], { type: 'application/json' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = blobKey.split('/').pop() || 'snapshot.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            if (_snapStatus) _snapStatus.textContent = 'Downloaded';
+            _snapDownloadBtn.disabled = false;
+          })
+          .catch(function () {
+            // Fallback: download the counts/meta we already have
+            var json = JSON.stringify(_lastSnapshotData, null, 2);
+            var blob = new Blob([json], { type: 'application/json' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = 'snapshot-meta.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            if (_snapStatus) _snapStatus.textContent = 'Downloaded (meta only)';
+            _snapDownloadBtn.disabled = false;
+          });
+      });
+    }
 
     // Input validation — enable execute only when "DELETE" is typed
     inputEl.addEventListener('input', function () {
