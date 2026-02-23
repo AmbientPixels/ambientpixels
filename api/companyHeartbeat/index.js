@@ -982,11 +982,70 @@ module.exports = async function (context) {
         canceledObjectives.set(_obj.id, _obj);
       }
     }
+    const canceledDirectives = new Map();
+    for (const _dir of directives) {
+      if (!_dir || !_dir.id) continue;
+      if (String(_dir.status || '').toLowerCase() === 'canceled') {
+        canceledDirectives.set(_dir.id, _dir);
+      }
+    }
 
     const canceledArchiveCounts = new Map();
     const toArchive = [];
     const keepTasks = [];
     for (const task of tasks) {
+      // Canceled-directive archive: archive tasks linked to canceled directives
+      const directiveId = task && task.directive_id ? task.directive_id : null;
+      if (directiveId && canceledDirectives.has(directiveId)) {
+        const directive = canceledDirectives.get(directiveId);
+        const nowIso = new Date().toISOString();
+        const archiveStamp = task.archivedAt || nowIso;
+        const cancelComment = 'Auto-archived: Directive canceled (directiveId=' + directiveId + ', title=' + (directive.title || directiveId) + '). Execution blocked.';
+        if (!task.comments) task.comments = [];
+        const hasCancelComment = task.comments.some(function (c) {
+          return c && c.author === 'system' && c.text === cancelComment;
+        });
+        if (!hasCancelComment) {
+          task.comments.push({
+            id: 'cmt-archive-directive-canceled-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+            author: 'system',
+            text: cancelComment,
+            type: 'system',
+            createdAt: nowIso
+          });
+        }
+        const lastComment = (task.comments && task.comments.length > 0) ? task.comments[task.comments.length - 1] : null;
+        if (!archivedTaskIds.has(task.id)) {
+          toArchive.push({
+            id: task.id,
+            title: task.title,
+            description: (task.description || '').substring(0, 200),
+            status: task.status,
+            priority: task.priority,
+            assignee: task.assignee,
+            division: task.division || null,
+            dueDate: task.dueDate,
+            createdAt: task.createdAt,
+            completedAt: task.completedAt,
+            source: task.source,
+            commentCount: task.comments ? task.comments.length : 0,
+            lastComment: lastComment ? { author: lastComment.author, text: (lastComment.text || '').substring(0, 150), createdAt: lastComment.createdAt } : null,
+            archivedAt: archiveStamp,
+            archivedReason: 'directive_canceled',
+            directiveId: directiveId,
+            directiveTitle: directive.title || null
+          });
+          archivedTaskIds.add(task.id);
+          _taskIdsArchived.add(task.id);
+          canceledArchiveCounts.set('dir:' + directiveId, (canceledArchiveCounts.get('dir:' + directiveId) || 0) + 1);
+        }
+        task._archived = true;
+        task.updatedAt = new Date().toISOString();
+        keepTasks.push(task);
+        continue;
+      }
+
+      // Canceled-objective archive
       const objectiveId = task && task.objective_id ? task.objective_id : null;
       if (objectiveId && canceledObjectives.has(objectiveId)) {
         const objective = canceledObjectives.get(objectiveId);
@@ -1512,6 +1571,46 @@ module.exports = async function (context) {
                     objectiveId: _freezeTask.objective_id, reason: 'objective_canceled'
                   });
                   continue;
+                }
+              }
+            }
+
+            // Canceled-directive freeze: block ALL mutations on tasks linked to canceled directives
+            if (mutationAction !== 'create') {
+              const _dirCancelTask = tasks.find(t => t.id === update.taskId);
+              if (_dirCancelTask && _dirCancelTask.directive_id) {
+                const _dirCancel = directives.find(d => d.id === _dirCancelTask.directive_id);
+                if (_dirCancel && String(_dirCancel.status || '').toLowerCase() === 'canceled') {
+                  _incBlocked(agentId);
+                  await logEvent('policy-violation', agentId, 'Mutation blocked: task linked to canceled directive', runId, {
+                    runId: runId, agentId: agentId, gate: 'directive_canceled_freeze',
+                    action: mutationAction, taskId: update.taskId,
+                    directiveId: _dirCancelTask.directive_id, reason: 'directive_canceled'
+                  });
+                  continue;
+                }
+              }
+            }
+
+            // Paused-directive freeze: block start-work transitions on tasks linked to paused directives
+            if (mutationAction !== 'create') {
+              const _dirPauseTask = tasks.find(t => t.id === update.taskId);
+              if (_dirPauseTask && _dirPauseTask.directive_id) {
+                const _dirPause = directives.find(d => d.id === _dirPauseTask.directive_id);
+                if (_dirPause && String(_dirPause.status || '').toLowerCase() === 'paused') {
+                  const _dpOldStatus = _dirPauseTask.status || null;
+                  const _dpNextStatus = mutationAction === 'move'
+                    ? update.newStatus
+                    : (update.updates ? update.updates.status : null);
+                  if (_isStartWorkStatus(_dpNextStatus) && !_isStartWorkStatus(_dpOldStatus)) {
+                    _incBlocked(agentId);
+                    await logEvent('policy-violation', agentId, 'Mutation blocked: directive paused — cannot start work', runId, {
+                      runId: runId, agentId: agentId, gate: 'directive_paused_freeze',
+                      action: mutationAction, taskId: update.taskId,
+                      directiveId: _dirPauseTask.directive_id, reason: 'directive_paused'
+                    });
+                    continue;
+                  }
                 }
               }
             }

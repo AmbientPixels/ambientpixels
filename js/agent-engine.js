@@ -2100,6 +2100,7 @@ var AgentEngine = (function () {
     for (var i = 0; i < list.length; i++) {
       if (list[i].id === id) {
         Object.keys(updates).forEach(function (k) { if (k !== 'id') list[i][k] = updates[k]; });
+        list[i].updatedAt = new Date().toISOString();
         _saveStorage(DIRECTIVES_KEY, list);
         return list[i];
       }

@@ -155,6 +155,17 @@
       </div>
     </div>
 
+    <!-- Canceled -->
+    <div class="dash-panel dash-panel--full" style="margin-top:1rem;" id="panel-canceled-dirs">
+      <div class="dash-panel-header">
+        <span class="dash-panel-title"><i class="fas fa-ban" style="color:#f87171; opacity:0.6;"></i> Canceled</span>
+        <span class="dash-panel-badge" id="canceled-dir-count" style="background:rgba(248,113,113,0.1);color:#f87171;">0</span>
+      </div>
+      <div id="dir-canceled-list">
+        <div class="dash-empty">No canceled directives.</div>
+      </div>
+    </div>
+
     <!-- Completed / Archived -->
     <div class="dash-panel dash-panel--full" style="margin-top:1rem;">
       <div class="dash-panel-header">
@@ -191,6 +202,7 @@
         <option value="active">Active</option>
         <option value="paused">Paused</option>
         <option value="completed">Completed</option>
+        <option value="canceled">Canceled</option>
         <option value="archived">Archived</option>
       </select>
 
@@ -221,6 +233,9 @@
       var archiveList = document.getElementById('dir-archive-list');
       var archiveCount = document.getElementById('archive-dir-count');
       var activeCount = document.getElementById('active-dir-count');
+      var canceledList = document.getElementById('dir-canceled-list');
+      var canceledCount = document.getElementById('canceled-dir-count');
+      var canceledPanel = document.getElementById('panel-canceled-dirs');
       var modal = document.getElementById('dir-edit-modal');
       var editTitle = document.getElementById('edit-title');
       var editDesc = document.getElementById('edit-desc');
@@ -312,6 +327,7 @@
         var pending = directives.filter(function (d) { return d.status === 'pending-approval'; });
         var active = directives.filter(function (d) { return d.status === 'active'; });
         var paused = directives.filter(function (d) { return d.status === 'paused'; });
+        var canceled = directives.filter(function (d) { return d.status === 'canceled'; });
         var completed = directives.filter(function (d) { return d.status === 'completed' || d.status === 'archived'; });
 
         // Pending Approval (v2.3)
@@ -340,6 +356,14 @@
         } else {
           pausedList.innerHTML = '';
           paused.forEach(function (dir) { pausedList.appendChild(createDirectiveCard(dir, 'paused')); });
+        }
+
+        // Canceled
+        canceledCount.textContent = canceled.length;
+        canceledPanel.style.display = canceled.length > 0 ? '' : 'none';
+        if (canceled.length > 0) {
+          canceledList.innerHTML = '';
+          canceled.forEach(function (dir) { canceledList.appendChild(createDirectiveCard(dir, 'canceled')); });
         }
 
         // Completed / Archived
@@ -509,6 +533,17 @@
           });
         };
 
+        var _cancelBtn = function () {
+          return _btn('✕ Cancel', 'rgba(248,113,113,0.3)', 'rgba(248,113,113,0.05)', '#f87171', function () {
+            if (!confirm('Cancel this directive? Linked tasks will be archived and all execution blocked.')) return;
+            AgentEngine.updateDirective(dir.id, { status: 'canceled' });
+            if (typeof CompanyStore !== 'undefined' && CompanyStore.setState) {
+              CompanyStore.setState('ap_directives', AgentEngine.getDirectives());
+            }
+            renderDirectives();
+          });
+        };
+
         if (bucket === 'active') {
           btnWrap.appendChild(_btn('✓ Complete', 'rgba(52,211,153,0.3)', 'rgba(52,211,153,0.05)', '#34d399', function () {
             AgentEngine.updateDirective(dir.id, { status: 'completed' });
@@ -516,16 +551,22 @@
           }));
           btnWrap.appendChild(_btn('⏸ Pause', 'rgba(251,191,36,0.3)', 'rgba(251,191,36,0.05)', '#fbbf24', function () {
             AgentEngine.updateDirective(dir.id, { status: 'paused' });
+            if (typeof CompanyStore !== 'undefined' && CompanyStore.setState) {
+              CompanyStore.setState('ap_directives', AgentEngine.getDirectives());
+            }
             renderDirectives();
           }));
-          btnWrap.appendChild(_archiveBtn());
+          btnWrap.appendChild(_cancelBtn());
           btnWrap.appendChild(_editBtn());
         } else if (bucket === 'paused') {
           btnWrap.appendChild(_btn('▶ Resume', 'rgba(52,211,153,0.3)', 'rgba(52,211,153,0.05)', '#34d399', function () {
             AgentEngine.updateDirective(dir.id, { status: 'active' });
+            if (typeof CompanyStore !== 'undefined' && CompanyStore.setState) {
+              CompanyStore.setState('ap_directives', AgentEngine.getDirectives());
+            }
             renderDirectives();
           }));
-          btnWrap.appendChild(_archiveBtn());
+          btnWrap.appendChild(_cancelBtn());
           btnWrap.appendChild(_editBtn());
           btnWrap.appendChild(_deleteBtn());
         } else if (bucket === 'completed') {

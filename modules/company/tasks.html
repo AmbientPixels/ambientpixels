@@ -1539,6 +1539,7 @@
           var agentHtml = agent ? '<span style="color:' + agent.color + ';">' + agent.name + '</span>' : (t.assignee || '<span style="opacity:0.2;">\u2014</span>');
           var archivedStr = t.archivedAt ? formatDate(t.archivedAt) : (t.completedAt ? formatDate(t.completedAt) : '\u2014');
           var reasonLabel = t.archivedReason === 'objective_canceled' ? '<span style="color:#f87171;">Obj Canceled</span>'
+            : t.archivedReason === 'directive_canceled' ? '<span style="color:#f87171;">Dir Canceled</span>'
             : t.archivedReason === 'done_aged_7d' ? '<span style="opacity:0.5;">Completed</span>'
             : t.archivedReason === 'invalid_status_cleanup' ? '<span style="color:#fbbf24;">Cleanup</span>'
             : '<span style="opacity:0.35;">' + escapeHtml(t.archivedReason || '\u2014') + '</span>';
