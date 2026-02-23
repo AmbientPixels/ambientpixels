@@ -1,4 +1,4 @@
-# GridOS Form Intake v1.6
+# GridOS Form Intake v1.7
 
 ## Endpoints
 
@@ -148,6 +148,16 @@ For new inbound tasks (`status === "task_created"`), the system automatically ge
 [ ] REPLIED: Click again → no duplicate comment, returns already:true
 [ ] REPLIED: Task completed + replied → shows Replied (priority above Closed)
 [ ] REPLIED: Button disabled with 'Replied \u2713' after marking
+[ ] TIMELINE: Contact submission → drawer shows Submitted + Task Created + Draft Created complete
+[ ] TIMELINE: Newsletter → only Submitted complete, others pending, no task links
+[ ] TIMELINE: Mark Replied → Replied step shows complete with timestamp
+[ ] TIMELINE: Complete task → Closed step shows complete
+[ ] TIMELINE: Duplicate → shows "Duplicate of <id>" note instead of steps
+[ ] TIMELINE: Timestamps show relative time with absolute tooltip on hover
+[ ] DEEPLINK: Table task column links to tasks.html?task=<id>
+[ ] DEEPLINK: Drawer task/draft links open correct task in Task Manager
+[ ] DEEPLINK: tasks.html?task=<id> auto-opens task modal on load
+[ ] DEEPLINK: If task fetch fails, timeline still renders from IDs (fail-soft)
 ```
 
 ## Files Created
@@ -290,3 +300,30 @@ Content-Type: application/json
 - **Field**: `task.repliedAt` — ISO timestamp, set once
 - **Audit**: `[REPLY_SENT] <ISO> via Inbound UI (submission: fi_...)` comment appended to task
 - Append-only: no deletion, no overwrite
+
+## v1.7 Changes (Inbound Timeline + Deep Links)
+
+- **Modified** `api/formIntake/index.js` — GET `/recent` enrichment now also batch-fetches draft tasks (draftTaskId added to taskIdSet). Each item gets `lifecycle` object (submittedAt, taskCreatedAt, draftCreatedAt, repliedAt, closedAt) and `links` object (inboundTask, draftTask) with deep link URLs. Fail-soft: if enrichment fails, items returned without lifecycle/links.
+- **Modified** `modules/company/js/inbound-intake.js` — Table task column now renders clickable deep links (`inb-task-link`). Detail drawer merges enrichment from `_items` into fetched item. New `renderTimeline()` renders 5-step vertical timeline (Submitted → Task Created → Draft Created → Replied → Closed). Duplicates show note instead of steps. `formatAbsTime()` for tooltip timestamps. Drawer task/draft links use `links.inboundTask` / `links.draftTask` with fallback.
+- **Modified** `modules/company/inbound.html` — Added `.inb-task-link` styles, timeline CSS (`.inb-timeline`, `.inb-tl-item`, `.inb-tl-dot`, `.inb-tl-dot--done`, `.inb-tl-has-line`, `.inb-tl-content`, `.inb-tl-label`, `.inb-tl-time`).
+- **Modified** `modules/company/tasks.html` — Added deep link handler: reads `?task=<id>` from URL and auto-opens `openEditModal()` after data sync.
+
+### Lifecycle Object
+
+```json
+{
+  "lifecycle": {
+    "submittedAt": "2026-02-23T22:00:00.000Z",
+    "taskCreatedAt": "2026-02-23T22:00:01.000Z",
+    "draftCreatedAt": "2026-02-23T22:00:02.000Z",
+    "repliedAt": null,
+    "closedAt": null
+  },
+  "links": {
+    "inboundTask": "/modules/company/tasks.html?task=task-123",
+    "draftTask": "/modules/company/tasks.html?task=task-456"
+  }
+}
+```
+
+Timestamps derived from task `createdAt` / `repliedAt` / `completedAt` fields. Null if field missing or task not found. Links use `?task=<id>` pattern matching tasks.html deep link handler.

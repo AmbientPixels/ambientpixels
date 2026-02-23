@@ -422,11 +422,25 @@
       var modal = document.getElementById('task-modal');
 
       // ── Init ──
+      // Deep link: ?task=<id> opens task modal after data loads
+      var _deepLinkHandled = false;
+      function _handleDeepLink() {
+        if (_deepLinkHandled) return;
+        try {
+          var params = new URLSearchParams(window.location.search);
+          var dlTaskId = params.get('task');
+          if (dlTaskId) {
+            _deepLinkHandled = true;
+            setTimeout(function () { openEditModal(dlTaskId); }, 200);
+          }
+        } catch (e) {}
+      }
+
       // Re-render when server sync pulls in agent-created tasks
-      AgentEngine.on('sync-complete', function () { renderAll(); });
+      AgentEngine.on('sync-complete', function () { renderAll(); _handleDeepLink(); });
 
       // Re-render after CompanyStore server sync
-      window.addEventListener('companystoreready', function () { renderAll(); });
+      window.addEventListener('companystoreready', function () { renderAll(); _handleDeepLink(); });
 
       AgentEngine.loadRegistry().then(function (data) {
         if (!data || !data.agents) return;

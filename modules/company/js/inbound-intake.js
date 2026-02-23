@@ -14,6 +14,9 @@
  *   computed status label. Stats use computedStatus for task counting.
  * - v1.6: Replied loop closure — 'replied' pill (teal), Mark Replied button
  *   in detail drawer, optimistic update + toast, idempotent.
+ * - v1.7: Inbound timeline + deep links — compact lifecycle timeline in drawer,
+ *   clickable deep links for inbound task and draft task, table task column
+ *   links to tasks.html?task=<id>. Merges enrichment from _items into detail.
  */
 
 (function () {
@@ -100,7 +103,10 @@
       var nameEmail = item.name || item.email || '—';
       var source = item.pageUrl ? extractSource(item.pageUrl) : '—';
       var status = getStatus(item);
-      var taskCell = item.taskId ? '<span style="font-size:0.6rem;opacity:0.5;">' + item.taskId.substring(0, 12) + '…</span>' : '—';
+      var taskLink = (item.links && item.links.inboundTask) ? item.links.inboundTask : (item.taskId ? '/modules/company/tasks.html?task=' + item.taskId : null);
+      var taskCell = item.taskId
+        ? '<a href="' + escHtml(taskLink) + '" class="inb-task-link" title="Open task" onclick="event.stopPropagation();"><i class="fas fa-external-link-alt"></i> ' + item.taskId.substring(0, 12) + '…</a>'
+        : '—';
 
       html += '<tr data-id="' + (item.id || '') + '">'
         + '<td>' + time + '</td>'
@@ -183,6 +189,14 @@
     tbody.innerHTML = '<tr><td colspan="6" class="inb-empty" style="color:#f87171;">' + escHtml(msg) + '</td></tr>';
   }
 
+  // Find enriched item from _items by ID (has lifecycle, links, computedStatus)
+  function _findEnriched(id) {
+    for (var i = 0; i < _items.length; i++) {
+      if (_items[i].id === id) return _items[i];
+    }
+    return null;
+  }
+
   // ── Detail drawer ──
   async function openDetail(id) {
     drawerContent.innerHTML = '<p style="opacity:0.3;"><i class="fas fa-spinner fa-spin"></i> Loading…</p>';
@@ -195,6 +209,14 @@
       });
       var data = await resp.json();
       if (data.ok && data.item) {
+        // Merge enrichment from _items (lifecycle, links, computedStatus)
+        var enriched = _findEnriched(id);
+        if (enriched) {
+          if (enriched.lifecycle) data.item.lifecycle = enriched.lifecycle;
+          if (enriched.links) data.item.links = enriched.links;
+          if (enriched.computedStatus) data.item.computedStatus = enriched.computedStatus;
+          if (enriched.computedStatusReason) data.item.computedStatusReason = enriched.computedStatusReason;
+        }
         renderDetail(data.item);
       } else {
         drawerContent.innerHTML = '<p style="color:#f87171;">Record not found.</p>';
@@ -269,17 +291,21 @@
       if (asParts.length > 0) html += field('Anti-Spam', asParts.join(' · '));
     }
 
+    // ── Deep linked Task + Draft ──
+    var taskUrl = (item.links && item.links.inboundTask) ? item.links.inboundTask : (item.taskId ? '/modules/company/tasks.html?task=' + item.taskId : null);
+    var draftUrl = (item.links && item.links.draftTask) ? item.links.draftTask : (item.draftTaskId ? '/modules/company/tasks.html?task=' + item.draftTaskId : null);
+
     if (item.taskId) {
       html += '<div class="inb-drawer-field">'
         + '<div class="inb-drawer-label">Task</div>'
-        + '<div class="inb-drawer-value"><a href="/modules/company/tasks.html#' + escHtml(item.taskId) + '"><i class="fas fa-external-link-alt"></i> View Task ' + escHtml(item.taskId.substring(0, 16)) + '</a></div>'
+        + '<div class="inb-drawer-value"><a href="' + escHtml(taskUrl) + '" title="Open in Task Manager"><i class="fas fa-external-link-alt"></i> View Task ' + escHtml(item.taskId.substring(0, 16)) + '</a></div>'
         + '</div>';
     }
 
     if (item.draftTaskId) {
       html += '<div class="inb-drawer-field">'
         + '<div class="inb-drawer-label">Draft Reply</div>'
-        + '<div class="inb-drawer-value"><a href="/modules/company/tasks.html#' + escHtml(item.draftTaskId) + '" style="color:#a78bfa;"><i class="fas fa-envelope-open-text"></i> View Draft ' + escHtml(item.draftTaskId.substring(0, 16)) + '</a></div>'
+        + '<div class="inb-drawer-value"><a href="' + escHtml(draftUrl) + '" style="color:#a78bfa;" title="Open draft in Task Manager"><i class="fas fa-envelope-open-text"></i> View Draft ' + escHtml(item.draftTaskId.substring(0, 16)) + '</a></div>'
         + '</div>';
     } else if (item.draftReplyCreated === false && item.status === 'duplicate') {
       html += '<div class="inb-drawer-field">'
@@ -287,6 +313,9 @@
         + '<div class="inb-drawer-value" style="opacity:0.4;">Draft exists on original submission</div>'
         + '</div>';
     }
+
+    // ── Lifecycle Timeline ──
+    html += renderTimeline(item);
 
     // ── Mark Replied button ──
     if (item.taskId && item.computedStatus !== 'stored_only' && item.computedStatus !== 'duplicate') {
@@ -361,6 +390,70 @@
       toast.classList.remove('inb-toast--visible');
       setTimeout(function () { toast.remove(); }, 300);
     }, 2500);
+  }
+
+  // ── Timeline rendering (v1.7) ──
+  function formatAbsTime(iso) {
+    if (!iso) return '';
+    try {
+      var d = new Date(iso);
+      return d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+    } catch (e) { return iso; }
+  }
+
+  function renderTimeline(item) {
+    var lc = item.lifecycle || {};
+    var cs = item.computedStatus || '';
+    var isDuplicate = (cs === 'duplicate' || item.duplicateOf);
+
+    if (isDuplicate) {
+      var subTs = lc.submittedAt || item.receivedAt || null;
+      var subTime = subTs ? formatTime(subTs) : '';
+      var subAbs = subTs ? formatAbsTime(subTs) : '';
+      return '<div class="inb-timeline" style="margin-top:0.75rem;">'
+        + '<div class="inb-timeline-title"><i class="fas fa-stream" style="margin-right:4px;opacity:0.4;"></i>Timeline</div>'
+        + '<div class="inb-tl-item inb-tl-has-line">'
+        + '<div class="inb-tl-dot inb-tl-dot--done"></div>'
+        + '<div class="inb-tl-content"><span class="inb-tl-label">Submitted</span>'
+        + (subTime ? ' <span class="inb-tl-time" title="' + escHtml(subAbs) + '">' + escHtml(subTime) + '</span>' : '')
+        + '</div></div>'
+        + '<div class="inb-tl-item">'
+        + '<div class="inb-tl-dot" style="border-color:#fb923c;background:#fb923c;"></div>'
+        + '<div class="inb-tl-content"><span class="inb-tl-label" style="opacity:1;color:#fb923c;"><i class="fas fa-clone" style="margin-right:3px;"></i>Duplicate of '
+        + '<span style="color:#38bdf8;">' + escHtml(item.duplicateOf || 'original') + '</span></span></div>'
+        + '</div></div>';
+    }
+
+    var steps = [
+      { key: 'submitted',    label: 'Submitted',     ts: lc.submittedAt,    done: true },
+      { key: 'taskCreated',  label: 'Task Created',  ts: lc.taskCreatedAt,  done: !!item.taskId },
+      { key: 'draftCreated', label: 'Draft Created',  ts: lc.draftCreatedAt, done: !!item.draftTaskId },
+      { key: 'replied',      label: 'Replied',        ts: lc.repliedAt,      done: !!(lc.repliedAt || cs === 'replied') },
+      { key: 'closed',       label: 'Closed',         ts: lc.closedAt,       done: !!(lc.closedAt || cs === 'closed') }
+    ];
+
+    var html = '<div class="inb-timeline" style="margin-top:0.75rem;">'
+      + '<div class="inb-timeline-title"><i class="fas fa-stream" style="margin-right:4px;opacity:0.4;"></i>Timeline</div>';
+
+    for (var i = 0; i < steps.length; i++) {
+      var s = steps[i];
+      var dotClass = s.done ? 'inb-tl-dot inb-tl-dot--done' : 'inb-tl-dot';
+      var lineClass = (i < steps.length - 1) ? ' inb-tl-has-line' : '';
+      var timeStr = s.ts ? formatTime(s.ts) : '';
+      var absStr = s.ts ? formatAbsTime(s.ts) : '';
+
+      html += '<div class="inb-tl-item' + lineClass + '">'
+        + '<div class="' + dotClass + '"></div>'
+        + '<div class="inb-tl-content">'
+        + '<span class="inb-tl-label"' + (s.done ? '' : ' style="opacity:0.35;"') + '>' + s.label + '</span>';
+      if (timeStr) {
+        html += ' <span class="inb-tl-time" title="' + escHtml(absStr) + '">' + escHtml(timeStr) + '</span>';
+      }
+      html += '</div></div>';
+    }
+
+    html += '</div>';
+    return html;
   }
 
   function field(label, value) {

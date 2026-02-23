@@ -196,6 +196,68 @@
     .inb-toast--visible { opacity: 1; transform: translateX(-50%) translateY(0); }
     .inb-toast--error { border-color: rgba(248,113,113,0.3); color: #fca5a5; }
 
+    /* Table task link */
+    .inb-task-link {
+      font-size: 0.6rem;
+      color: rgba(255,255,255,0.4);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .inb-task-link:hover, .inb-task-link:focus { color: #38bdf8; }
+    .inb-task-link i { margin-right: 2px; font-size: 0.5rem; }
+
+    /* Timeline */
+    .inb-timeline { border-top: 1px solid rgba(255,255,255,0.04); padding-top: 0.5rem; }
+    .inb-timeline-title {
+      font-size: 0.6rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 0.5rem;
+    }
+    .inb-timeline-note { font-size: 0.65rem; color: rgba(255,255,255,0.5); }
+
+    .inb-tl-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      position: relative;
+      padding-bottom: 0.4rem;
+    }
+    .inb-tl-has-line { padding-bottom: 0.6rem; }
+    .inb-tl-has-line::before {
+      content: '';
+      position: absolute;
+      left: 4px;
+      top: 10px;
+      bottom: 0;
+      width: 1px;
+      background: rgba(255,255,255,0.06);
+    }
+
+    .inb-tl-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,0.12);
+      background: transparent;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .inb-tl-dot--done {
+      background: #2dd4bf;
+      border-color: #2dd4bf;
+    }
+
+    .inb-tl-content { font-size: 0.62rem; line-height: 1.3; }
+    .inb-tl-label { color: rgba(255,255,255,0.7); }
+    .inb-tl-time {
+      color: rgba(255,255,255,0.25);
+      margin-left: 0.3rem;
+      cursor: default;
+    }
+
     /* Detail drawer */
     .inb-drawer-overlay {
       display: none;

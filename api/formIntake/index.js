@@ -19,6 +19,8 @@
  *   closed, duplicate). Batch task lookup for efficiency.
  * - v1.6: Replied loop closure — computedStatus 'replied' added (priority above
  *   closed), derived from task.repliedAt field set by POST /api/tasks/mark-replied.
+ * - v1.7: Inbound timeline + deep links — lifecycle timestamps and deep link URLs
+ *   added to GET /recent items. Draft tasks also batch-fetched for draftCreatedAt.
  */
 
 const crypto = require('crypto');
@@ -536,6 +538,7 @@ module.exports = async function (context, req) {
         var taskIdSet = {};
         for (var ti = 0; ti < results.length; ti++) {
           if (results[ti].taskId) taskIdSet[results[ti].taskId] = true;
+          if (results[ti].draftTaskId) taskIdSet[results[ti].draftTaskId] = true;
         }
         var taskMap = {};
         var uniqueIds = Object.keys(taskIdSet);
@@ -572,6 +575,31 @@ module.exports = async function (context, req) {
               r.computedStatusReason = 'task open';
             }
           }
+        }
+        // ── Lifecycle timestamps + deep links (v1.7) ──
+        var TASK_BASE = '/modules/company/tasks.html?task=';
+        for (var li = 0; li < results.length; li++) {
+          var item = results[li];
+          var inbTask = item.taskId ? taskMap[item.taskId] : null;
+          var draftTask = item.draftTaskId ? taskMap[item.draftTaskId] : null;
+
+          var closedAt = null;
+          if (inbTask && (inbTask.status === 'completed' || inbTask.status === 'done')) {
+            closedAt = inbTask.completedAt || inbTask.closedAt || inbTask.statusChangedAt || inbTask.lastStatusAt || null;
+          }
+
+          item.lifecycle = {
+            submittedAt: item.receivedAt || null,
+            taskCreatedAt: inbTask ? (inbTask.createdAt || inbTask.created_at || inbTask.created || null) : null,
+            draftCreatedAt: draftTask ? (draftTask.createdAt || draftTask.created_at || draftTask.created || null) : null,
+            repliedAt: inbTask ? (inbTask.repliedAt || null) : null,
+            closedAt: closedAt
+          };
+
+          item.links = {
+            inboundTask: item.taskId ? (TASK_BASE + item.taskId) : null,
+            draftTask: item.draftTaskId ? (TASK_BASE + item.draftTaskId) : null
+          };
         }
       } catch (statusErr) {
         context.log.warn('[formIntake] computedStatus enrichment failed (non-fatal):', statusErr.message);
