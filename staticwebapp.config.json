@@ -64,6 +64,10 @@
       "rewrite": "/log/index.html"
     },
     {
+      "route": "/modules/company/css/*",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/modules/company/demo.html",
       "allowedRoles": ["anonymous"]
     },
