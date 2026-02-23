@@ -350,6 +350,7 @@
 .prov--chat { border-color: rgba(52,211,153,0.2); color: #34d399; }
 .prov--directive { border-color: rgba(52,211,153,0.2); color: #34d399; }
 .prov--objective { border-color: rgba(34,211,238,0.2); color: #22d3ee; }
+.prov--project-paused { border-color: rgba(239,68,68,0.3); color: #f87171; background: rgba(239,68,68,0.08); }
 
 /* ── Related Task Badges ── */
 .tm-related-row {
