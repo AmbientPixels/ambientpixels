@@ -1,4 +1,4 @@
-# GridOS Form Intake v1.2
+# GridOS Form Intake v1.3
 
 ## Endpoints
 
@@ -7,6 +7,7 @@
 | POST | `/api/formIntake` | Submit form (contact/demo/newsletter) |
 | GET | `/api/formIntake/recent?days=7&limit=50` | Recent submissions from daily index |
 | GET | `/api/formIntake/item?id=fi_...` | Single canonical record |
+| GET | `/api/formIntakeDigest?date=YYYY-MM-DD` | Generate daily intake digest (on-demand) |
 
 ## Environment Variables
 
@@ -120,12 +121,23 @@ For new inbound tasks (`status === "task_created"`), the system automatically ge
 [ ] DRAFT: canonical record has draftReplyCreated:true + draftTaskId
 [ ] DRAFT: child task has [AUTO_DRAFT_REPLY] marker, assignee=echo, parentTaskId set
 [ ] DRAFT: Inbound drawer shows 'Draft Reply' link when draftTaskId present
+[ ] DIGEST: GET /api/formIntakeDigest?date=<today> after 3+ submissions → task created
+[ ] DIGEST: Nova task has correct counts (total, byType, uniqueTasks, duplicates, filtered)
+[ ] DIGEST: Notables list shows @domain.com only (no full emails)
+[ ] DIGEST: Notables intent summaries do not contain verbatim message bodies
+[ ] DIGEST: Task links present in notable items
+[ ] DIGEST: Runtime memory entry (intake_digest_<date>) has no full emails or bodies
+[ ] DIGEST: Calling digest twice for same date returns alreadyExists:true (idempotent)
+[ ] DIGEST: ?force=true regenerates even if existing digest found
+[ ] DIGEST: Empty day → task created with "No inbound" action suggestion
 ```
 
 ## Files Created
 
 - `api/formIntake/function.json` — HTTP trigger config
 - `api/formIntake/index.js` — Backend function (write + read endpoints)
+- `api/formIntakeDigest/function.json` — Digest HTTP trigger config
+- `api/formIntakeDigest/index.js` — Daily digest generator (stats, notables, task, memory)
 - `js/form-intake.js` — Frontend submit helper (binds to `data-gridos-intake`)
 - `modules/company/inbound.html` — Inbound viewer page
 - `modules/company/js/inbound-intake.js` — Viewer client logic
@@ -135,7 +147,7 @@ For new inbound tasks (`status === "task_created"`), the system automatically ge
 - `modules/contact-modal.html` — Removed Formspree, added `data-gridos-intake`
 - `js/init-contact-modal.js` — Dynamic `form-intake.js` loader after modal inject
 - `modules/company/js/sidebar.js` — Added Inbound nav item
-- `staticwebapp.config.json` — Added formIntake route rewrites
+- `staticwebapp.config.json` — Added formIntake + formIntakeDigest route rewrites
 - `support/index.html` — Migrated engage form from Formspree to GridOS intake
 
 ## v1.1 Changes (Dedupe)
@@ -148,3 +160,44 @@ For new inbound tasks (`status === "task_created"`), the system automatically ge
 
 - `api/formIntake/index.js` — Added `_generateDraftReply(record)` (template engine for contact/demo), `_createReplyDraft(parentTaskId, parentTitle, record)` (child task creator assigned to Echo). POST handler creates draft after task spawn when `status === 'task_created'`. Stores `draftReplyCreated` + `draftTaskId` on canonical record and index entry.
 - `modules/company/js/inbound-intake.js` — Detail drawer shows 'Draft Reply' link when `draftTaskId` present, shows 'Draft exists on original' note for duplicates.
+
+## v1.3 Changes (Daily Intake Digest)
+
+- **Created** `api/formIntakeDigest/function.json` + `index.js` — On-demand GET endpoint that reads daily index, computes stats (total, byType, uniqueTasks, duplicates, filtered), selects top 3 notable items with PII redaction, creates a Nova digest task, and appends a redacted L4 runtime memory entry.
+- `staticwebapp.config.json` — Added `/api/formIntakeDigest` SWA route rewrite.
+
+### Digest Endpoint
+
+```
+GET /api/formIntakeDigest?date=2026-02-23
+GET /api/formIntakeDigest              (defaults to yesterday)
+GET /api/formIntakeDigest?date=2026-02-23&force=true  (regenerate)
+```
+
+**Response:**
+```json
+{
+  "ok": true,
+  "date": "2026-02-23",
+  "stats": { "total": 5, "byType": {...}, "uniqueTasks": 3, "duplicates": 1, "filtered": 0 },
+  "notables": [ { "type": "demo", "name": "Jane", "emailDomain": "@acme.com", "intent": "..." } ],
+  "taskId": "task-...-digest-...",
+  "memoryKey": "intake_digest_2026-02-23",
+  "alreadyExists": false
+}
+```
+
+### Redaction Rules
+
+- Email → domain only (`jane@acme.com` → `@acme.com`)
+- Name → first name only
+- Message body → 1-line intent summary (never verbatim)
+- Phone numbers → stripped
+- Runtime memory entry marked `_redacted: true`
+
+### Digest Task (Nova)
+
+- Title: `"Daily Intake Digest — YYYY-MM-DD"`
+- Assignee: `nova`, Origin: `form_intake_digest`, Badge: `🧾 Intake Digest`
+- Description: stats bullets, notable items (redacted), suggested actions, PII notice
+- Idempotent: one digest per date (unless `?force=true`)
