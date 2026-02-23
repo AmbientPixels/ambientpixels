@@ -532,3 +532,13 @@ module.exports = async function (context, req) {
 
   context.res = { status: 405, headers: headers, body: { ok: false, error: 'method_not_allowed' } };
 };
+
+// ══════════════════════════════════════════════════════
+// ── Exported helpers (for timer trigger reuse) ──
+// ══════════════════════════════════════════════════════
+
+module.exports._readIndex = _readIndex;
+module.exports._buildDigest = _buildDigest;
+module.exports._createDigestTask = _createDigestTask;
+module.exports._appendRuntimeMemory = _appendRuntimeMemory;
+module.exports._digestTaskExists = _digestTaskExists;

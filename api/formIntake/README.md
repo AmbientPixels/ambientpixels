@@ -1,4 +1,4 @@
-# GridOS Form Intake v1.3
+# GridOS Form Intake v1.4
 
 ## Endpoints
 
@@ -8,6 +8,7 @@
 | GET | `/api/formIntake/recent?days=7&limit=50` | Recent submissions from daily index |
 | GET | `/api/formIntake/item?id=fi_...` | Single canonical record |
 | GET | `/api/formIntakeDigest?date=YYYY-MM-DD` | Generate daily intake digest (on-demand) |
+| Timer | `formIntakeDigestTimer` (daily 9:00 AM PT / 17:00 UTC) | Auto-generate yesterday's digest |
 
 ## Environment Variables
 
@@ -130,6 +131,9 @@ For new inbound tasks (`status === "task_created"`), the system automatically ge
 [ ] DIGEST: Calling digest twice for same date returns alreadyExists:true (idempotent)
 [ ] DIGEST: ?force=true regenerates even if existing digest found
 [ ] DIGEST: Empty day → task created with "No inbound" action suggestion
+[ ] TIMER: Timer fires at 17:00 UTC (9:00 AM PT), generates yesterday's digest
+[ ] TIMER: If digest already exists for yesterday, timer logs skip and exits cleanly
+[ ] TIMER: No force regeneration — timer never overwrites existing digest
 ```
 
 ## Files Created
@@ -138,6 +142,8 @@ For new inbound tasks (`status === "task_created"`), the system automatically ge
 - `api/formIntake/index.js` — Backend function (write + read endpoints)
 - `api/formIntakeDigest/function.json` — Digest HTTP trigger config
 - `api/formIntakeDigest/index.js` — Daily digest generator (stats, notables, task, memory)
+- `api/formIntakeDigestTimer/function.json` — Timer trigger config (daily 9 AM PT)
+- `api/formIntakeDigestTimer/index.js` — Timer wrapper calling shared digest logic
 - `js/form-intake.js` — Frontend submit helper (binds to `data-gridos-intake`)
 - `modules/company/inbound.html` — Inbound viewer page
 - `modules/company/js/inbound-intake.js` — Viewer client logic
@@ -201,3 +207,18 @@ GET /api/formIntakeDigest?date=2026-02-23&force=true  (regenerate)
 - Assignee: `nova`, Origin: `form_intake_digest`, Badge: `🧾 Intake Digest`
 - Description: stats bullets, notable items (redacted), suggested actions, PII notice
 - Idempotent: one digest per date (unless `?force=true`)
+
+## v1.4 Changes (Scheduled Timer)
+
+- **Created** `api/formIntakeDigestTimer/function.json` — Timer trigger at `0 0 17 * * *` (17:00 UTC = 9:00 AM America/Los_Angeles).
+- **Created** `api/formIntakeDigestTimer/index.js` — Lightweight timer that calls shared digest logic from `formIntakeDigest`. Date = yesterday, force = false. Idempotency guard prevents duplicates if timer reruns or if on-demand digest was already generated. Logs run start, skip (if exists), or completion with taskId + memKey.
+- **Modified** `api/formIntakeDigest/index.js` — Exported core functions (`_readIndex`, `_buildDigest`, `_createDigestTask`, `_appendRuntimeMemory`, `_digestTaskExists`) for timer reuse.
+
+### Schedule Details
+
+| Timer | CRON | UTC | PT (America/Los_Angeles) |
+|---|---|---|---|
+| `formIntakeDigestTimer` | `0 0 17 * * *` | 17:00 daily | 9:00 AM daily |
+| `companyMorningReport` (ref) | `0 30 15 * * *` | 15:30 daily | 7:30 AM daily |
+
+The digest timer runs 90 minutes after the morning report, ensuring overnight submissions are captured before the digest is generated.
