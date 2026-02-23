@@ -755,6 +755,8 @@ module.exports = async function (context) {
 
     // Load current state
     const tasks = (await storage.getState('tasks')) || [];
+    const _taskIdsAtLoad = new Set(tasks.map(function (t) { return t && t.id; }).filter(Boolean));
+    const _taskIdsArchived = new Set(); // populated by archive block
     const configs = (await storage.getState('agentConfigs')) || {};
     const recentLogs = await storage.getLogs({ limit: 50 });
     const directives = (await storage.getState('directives')) || [];
@@ -1026,8 +1028,14 @@ module.exports = async function (context) {
             objectiveTitle: objective.title || null
           });
           archivedTaskIds.add(task.id);
+          _taskIdsArchived.add(task.id);
           canceledArchiveCounts.set(objectiveId, (canceledArchiveCounts.get(objectiveId) || 0) + 1);
+          continue; // freshly archived — remove from active
         }
+        // Already archived but re-appeared in tasks (e.g. CompanyStore merge).
+        // Keep in active list so it persists — heartbeat skips it during agent processing
+        // via the objective gate. It will be cleaned up on next archive cycle.
+        keepTasks.push(task);
         continue;
       }
 
@@ -1056,6 +1064,7 @@ module.exports = async function (context) {
             archivedReason: 'done_aged_7d'
           });
           archivedTaskIds.add(task.id);
+          _taskIdsArchived.add(task.id);
           continue;
         }
       }
@@ -1678,6 +1687,27 @@ module.exports = async function (context) {
           await logEvent('proposal', 'nova', 'Objective lifecycle suggestion: archive (' + (_obj.title || _obj.id) + ')', runId, _archiveProposal);
         }
       }
+    }
+
+    // ── Task Integrity Guard (permanent) ──
+    const _taskIdsAtPersist = new Set(tasks.map(function (t) { return t && t.id; }).filter(Boolean));
+    const _unexpectedRemoved = [];
+    _taskIdsAtLoad.forEach(function (tid) {
+      if (!_taskIdsAtPersist.has(tid) && !_taskIdsArchived.has(tid)) {
+        _unexpectedRemoved.push(tid);
+      }
+    });
+    if (_unexpectedRemoved.length > 0) {
+      context.log.warn('[Heartbeat] TASK INTEGRITY VIOLATION:', _unexpectedRemoved.length, 'task(s) removed without archive. IDs:', _unexpectedRemoved.slice(0, 5).join(', '));
+      await logEvent('task-integrity-violation', null, 'Tasks removed from active without archive record', runId, {
+        runId: runId,
+        removedCount: _unexpectedRemoved.length,
+        removedSample: _unexpectedRemoved.slice(0, 10),
+        tasksLoadedCount: _taskIdsAtLoad.size,
+        tasksPersistedCount: _taskIdsAtPersist.size,
+        archivedCount: _taskIdsArchived.size,
+        mode: normalizedActivationMode
+      });
     }
 
     // Persist updated state

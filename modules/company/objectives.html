@@ -262,6 +262,10 @@
           if (obj.status === 'canceled') return;
           if (!confirm('Cancel objective? This voids it and blocks all execution.')) return;
           AgentEngine.updateObjective(obj.id, { status: 'canceled' });
+          // Push to server immediately so heartbeat sees canceled status on next run
+          if (typeof CompanyStore !== 'undefined' && CompanyStore.setState) {
+            CompanyStore.setState('ap_objectives', AgentEngine.getObjectives());
+          }
           renderObjectives();
         });
         controls.appendChild(cancelBtn);
