@@ -800,7 +800,7 @@ module.exports = async function (context) {
       context.log('[Heartbeat] Pending approval items detected: ' + pendingTasks.length + ' tasks, ' + pendingDirs.length + ' directives — skipping until approved.');
     }
     const activeDirectives = directives.filter(d => d.status === 'active');
-    const activeObjectives = objectives.filter(o => o.status === 'active' || o.status === 'in_progress');
+    const activeObjectives = objectives.filter(o => o.status && o.status !== 'complete' && o.status !== 'canceled');
     const normalizedActivationMode = await resolveActivationMode(storage, runId);
 
     await logEvent('mode-resolved', null, 'Activation mode resolved: ' + normalizedActivationMode, runId, {
