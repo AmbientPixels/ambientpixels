@@ -6,6 +6,8 @@
  * - Renders filterable table with type chips
  * - Row click fetches /api/formIntake/item and opens detail drawer
  * - Client-side filtering by type + hide-filtered toggle
+ * - v1.1: Duplicate status display — 'Duplicate (linked)' pill,
+ *   drawer shows duplicateOf field, unique task count in stats
  */
 
 (function () {
@@ -57,9 +59,13 @@
     var todayCount = 0;
     var taskCount = 0;
 
+    var seenTaskIds = {};
     _items.forEach(function (item) {
       if (item.receivedAt && item.receivedAt.substring(0, 10) === todayStr) todayCount++;
-      if (item.taskId) taskCount++;
+      if (item.taskId && item.status !== 'duplicate' && !seenTaskIds[item.taskId]) {
+        taskCount++;
+        seenTaskIds[item.taskId] = true;
+      }
     });
 
     statToday.textContent = todayCount;
@@ -115,10 +121,13 @@
     if (item.spamFlags && item.spamFlags.length > 0) {
       return '<span class="inb-status inb-status--filtered"><i class="fas fa-shield-halved"></i> Filtered</span>';
     }
-    if (item.taskId) {
+    if (item.status === 'duplicate' || item.duplicateOf) {
+      return '<span class="inb-status inb-status--duplicate"><i class="fas fa-clone"></i> Duplicate (linked)</span>';
+    }
+    if (item.status === 'task_created' || item.taskId) {
       return '<span class="inb-status inb-status--task"><i class="fas fa-check-circle"></i> Task Created</span>';
     }
-    if (item.type === 'newsletter') {
+    if (item.type === 'newsletter' || item.status === 'stored') {
       return '<span class="inb-status">Stored Only</span>';
     }
     return '<span class="inb-status" style="color:#fbbf24;">New</span>';
@@ -179,6 +188,14 @@
     html += field('ID', item.id);
     html += field('Received', item.receivedAt);
     html += field('Type', item.type);
+    if (item.status) html += field('Status', item.status);
+
+    if (item.duplicateOf) {
+      html += '<div class="inb-drawer-field">'
+        + '<div class="inb-drawer-label">Duplicate Of</div>'
+        + '<div class="inb-drawer-value"><a href="#" onclick="event.preventDefault();" data-open-id="' + escHtml(item.duplicateOf) + '" style="color:#38bdf8;cursor:pointer;"><i class="fas fa-link"></i> ' + escHtml(item.duplicateOf) + '</a></div>'
+        + '</div>';
+    }
 
     if (item.contact) {
       if (item.contact.name) html += field('Name', item.contact.name);

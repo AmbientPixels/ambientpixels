@@ -8,6 +8,9 @@
  * - Anti-spam: honeypot, min-time-to-submit, IP rate limiting via blob counters
  * - Storage: canonical JSON per submission + daily JSON index
  * - Task spawning: contact/demo types create GridOS tasks; newsletter = store-only
+ * - v1.1: Duplicate suppression — dedupe index blob per email+type key,
+ *   60-min rolling window, always stores record but skips task if duplicate,
+ *   appends comment to existing task on duplicate detection
  */
 
 const crypto = require('crypto');
@@ -135,6 +138,83 @@ async function _incrementRateLimit(ipHash) {
   } catch (err) {
     console.error('[formIntake] Rate limit increment failed:', err.message);
   }
+}
+
+// ══════════════════════════════════════════════════════
+// ── Dedupe ──
+// ══════════════════════════════════════════════════════
+
+var DEDUPE_WINDOW_MS = 60 * 60 * 1000; // 60 minutes
+
+function _dedupeHash(email, type) {
+  var key = (email || '').toLowerCase().trim() + '|' + (type || '');
+  return crypto.createHash('sha256').update(key).digest('hex').substring(0, 20);
+}
+
+function _dedupeKey(hash) {
+  return 'formIntake-dedupe-' + hash;
+}
+
+async function _readDedupe(hash) {
+  try {
+    return await storage.getState(_dedupeKey(hash));
+  } catch (e) { return null; }
+}
+
+async function _writeDedupe(hash, doc) {
+  try {
+    await storage.setState(_dedupeKey(hash), doc);
+  } catch (err) {
+    console.error('[formIntake] Dedupe write failed:', err.message);
+  }
+}
+
+/**
+ * Check if a submission is a duplicate.
+ * Returns { isDuplicate, existingSubmissionId, existingTaskId } or { isDuplicate: false }.
+ */
+async function _checkDedupe(email, type) {
+  var hash = _dedupeHash(email, type);
+  var doc = await _readDedupe(hash);
+  if (!doc || !doc.lastReceivedAt || !doc.lastTaskId) {
+    return { isDuplicate: false, hash: hash, doc: doc };
+  }
+  var elapsed = Date.now() - new Date(doc.lastReceivedAt).getTime();
+  if (elapsed < DEDUPE_WINDOW_MS) {
+    return {
+      isDuplicate: true,
+      hash: hash,
+      doc: doc,
+      existingSubmissionId: doc.lastSubmissionId,
+      existingTaskId: doc.lastTaskId
+    };
+  }
+  return { isDuplicate: false, hash: hash, doc: doc };
+}
+
+/**
+ * Append a comment to an existing task (best-effort, non-fatal).
+ */
+async function _appendTaskComment(taskId, comment) {
+  try {
+    var tasks = (await storage.getState('tasks')) || [];
+    for (var i = 0; i < tasks.length; i++) {
+      if (tasks[i].id === taskId) {
+        if (!Array.isArray(tasks[i].comments)) tasks[i].comments = [];
+        tasks[i].comments.push({
+          id: 'cmt-' + Date.now(),
+          author: 'system',
+          text: comment,
+          createdAt: new Date().toISOString()
+        });
+        await storage.setState('tasks', tasks);
+        return true;
+      }
+    }
+  } catch (err) {
+    console.error('[formIntake] Task comment append failed:', err.message);
+  }
+  return false;
 }
 
 // ══════════════════════════════════════════════════════
@@ -476,9 +556,55 @@ module.exports = async function (context, req) {
         raw: body
       };
 
-      // Spawn task for contact/demo
-      var taskId = await _spawnTask(record);
+      // ── Dedupe check ──
+      var email = data.contact ? data.contact.email : '';
+      var dedupeResult = await _checkDedupe(email, data.type);
+      var taskId = null;
+      var duplicateOf = null;
+      var status = 'new';
+
+      if (dedupeResult.isDuplicate) {
+        // Duplicate: reuse existing task, do NOT create a new one
+        taskId = dedupeResult.existingTaskId;
+        duplicateOf = dedupeResult.existingSubmissionId;
+        status = 'duplicate';
+        context.log('[formIntake] Duplicate detected for', email, data.type, '— linked to', duplicateOf);
+
+        // Append note to existing task
+        await _appendTaskComment(taskId,
+          'Duplicate submission received at ' + receivedAt + ' from ' + (data.pageUrl || 'unknown') + ' (submissionId ' + id + ').'
+        );
+
+        // Update dedupe doc (bump count, keep lastTaskId)
+        await _writeDedupe(dedupeResult.hash, {
+          key: email.toLowerCase().trim() + '|' + data.type,
+          hash: dedupeResult.hash,
+          lastSubmissionId: id,
+          lastTaskId: taskId,
+          lastReceivedAt: receivedAt,
+          lastPageUrl: data.pageUrl,
+          countInWindow: ((dedupeResult.doc && dedupeResult.doc.countInWindow) || 1) + 1
+        });
+      } else {
+        // Not a duplicate: spawn task normally
+        taskId = await _spawnTask(record);
+        status = taskId ? 'task_created' : (data.type === 'newsletter' ? 'stored' : 'new');
+
+        // Write/update dedupe doc
+        await _writeDedupe(dedupeResult.hash, {
+          key: email.toLowerCase().trim() + '|' + data.type,
+          hash: dedupeResult.hash,
+          lastSubmissionId: id,
+          lastTaskId: taskId,
+          lastReceivedAt: receivedAt,
+          lastPageUrl: data.pageUrl,
+          countInWindow: 1
+        });
+      }
+
       record.taskId = taskId;
+      record.duplicateOf = duplicateOf;
+      record.status = status;
 
       // Store canonical record
       await _storeCanonical(record);
@@ -493,6 +619,8 @@ module.exports = async function (context, req) {
         pageUrl: data.pageUrl,
         utm: data.utm,
         taskId: taskId,
+        duplicateOf: duplicateOf,
+        status: status,
         spamFlags: spamFlags
       };
       await _appendIndex(dateStr, indexEntry);
@@ -500,7 +628,7 @@ module.exports = async function (context, req) {
       // Increment rate limiter
       await _incrementRateLimit(ipHash);
 
-      context.log('[formIntake] Stored:', id, 'type:', data.type, 'taskId:', taskId || 'none');
+      context.log('[formIntake] Stored:', id, 'type:', data.type, 'status:', status, 'taskId:', taskId || 'none');
 
       context.res = {
         status: 200,
@@ -509,7 +637,9 @@ module.exports = async function (context, req) {
           ok: true,
           id: id,
           type: data.type,
-          taskCreated: !!taskId
+          status: status,
+          duplicateOf: duplicateOf,
+          taskCreated: status === 'task_created'
         }
       };
     } catch (err) {
