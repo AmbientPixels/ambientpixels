@@ -327,3 +327,11 @@ Content-Type: application/json
 ```
 
 Timestamps derived from task `createdAt` / `repliedAt` / `completedAt` fields. Null if field missing or task not found. Links use `?task=<id>` pattern matching tasks.html deep link handler.
+
+### Task Modal Timeline (Simple v1)
+
+- The Task Manager edit modal timeline is **derived-only** (no schema migration, no state rewrites).
+- Marker fallbacks used:
+  - `Replied` via `task.repliedAt` or comment marker `[REPLY_SENT]`
+  - `Draft Created` via detected child draft task or `[AUTO_DRAFT_REPLY]` marker
+- Fail-soft behavior: if timestamps or related tasks are missing, timeline still renders with pending/hollow steps.

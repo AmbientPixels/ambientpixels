@@ -87,6 +87,48 @@
       position: absolute; left: 0.6rem; top: 50%; transform: translateY(-50%);
       font-size: 0.6rem; opacity: 0.25; pointer-events: none;
     }
+
+    /* Task Timeline v1 (matches inbound timeline look) */
+    .inb-timeline { border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.5rem; }
+    .inb-timeline-title {
+      font-size: 0.6rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: rgba(255,255,255,0.35);
+      margin-bottom: 0.5rem;
+    }
+    .inb-tl-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.5rem;
+      position: relative;
+      padding-bottom: 0.4rem;
+    }
+    .inb-tl-has-line { padding-bottom: 0.6rem; }
+    .inb-tl-has-line::before {
+      content: '';
+      position: absolute;
+      left: 4px;
+      top: 10px;
+      bottom: 0;
+      width: 1px;
+      background: rgba(255,255,255,0.06);
+    }
+    .inb-tl-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,0.12);
+      background: transparent;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .inb-tl-dot--done { background: #2dd4bf; border-color: #2dd4bf; }
+    .inb-tl-content { font-size: 0.62rem; line-height: 1.3; }
+    .inb-tl-label { color: rgba(255,255,255,0.7); }
+    .inb-tl-time { color: rgba(255,255,255,0.28); margin-left: 0.3rem; cursor: default; }
+    #taskTimelineSection { margin-top: 0.55rem; }
   </style>
 </head>
 <body style="background:#071019" data-theme="dark">
@@ -340,6 +382,11 @@
 
           <!-- Related Tasks (only in edit mode) -->
           <div id="tm-related-tasks" style="display:none;"></div>
+
+          <!-- Timeline (only in edit mode) -->
+          <div id="taskTimelineSection" style="display:none;">
+            <div id="taskTimeline"></div>
+          </div>
 
           <!-- Comments (only in edit mode) -->
           <div class="tm-comments" id="task-comments" style="display:none;">
@@ -1160,6 +1207,8 @@
       var taskDirectiveField = document.getElementById('task-directive');
       var taskCommentsSection = document.getElementById('task-comments');
       var taskCommentsList = document.getElementById('task-comments-list');
+      var taskTimelineSection = document.getElementById('taskTimelineSection');
+      var taskTimelineEl = document.getElementById('taskTimeline');
       var taskCommentInput = document.getElementById('task-comment-input');
       var deleteBtn = document.getElementById('btn-delete-task');
 
@@ -1222,6 +1271,8 @@
         // Hide status/assignee/division — Nova handles these
         editOnlyFields.style.display = 'none';
         triageHint.style.display = '';
+        if (taskTimelineSection) taskTimelineSection.style.display = 'none';
+        if (taskTimelineEl) taskTimelineEl.innerHTML = '';
         modal.classList.add('active');
         setTimeout(function () { taskTitleField.focus(); }, 100);
       }
@@ -1262,6 +1313,10 @@
 
         // Render related tasks (parent + children)
         _renderRelatedTasks(task);
+
+        // Render derived timeline
+        if (taskTimelineSection) taskTimelineSection.style.display = '';
+        renderTaskTimeline(task, AgentEngine.getTasks());
 
         // Render comments
         taskCommentsSection.style.display = '';
@@ -1360,6 +1415,110 @@
         });
       }
 
+      function _timelineEntryText(entry) {
+        if (typeof entry === 'string') return entry;
+        if (!entry || typeof entry !== 'object') return '';
+        if (typeof entry.text === 'string') return entry.text;
+        if (typeof entry.body === 'string') return entry.body;
+        if (typeof entry.message === 'string') return entry.message;
+        if (typeof entry.content === 'string') return entry.content;
+        return '';
+      }
+
+      function _taskHasMarker(task, marker) {
+        if (!task || !Array.isArray(task.comments)) return false;
+        for (var i = 0; i < task.comments.length; i++) {
+          var txt = _timelineEntryText(task.comments[i]);
+          if (txt.indexOf(marker) !== -1) return true;
+        }
+        return false;
+      }
+
+      function _taskIsoFromMarker(task, marker) {
+        if (!task || !Array.isArray(task.comments)) return null;
+        for (var i = task.comments.length - 1; i >= 0; i--) {
+          var txt = _timelineEntryText(task.comments[i]);
+          if (txt.indexOf(marker) === -1) continue;
+          var markerIdx = txt.indexOf(marker);
+          var tail = txt.substring(markerIdx + marker.length).trim();
+          var token = tail.split(/\s+/)[0] || '';
+          if (/^\d{4}-\d{2}-\d{2}T/.test(token)) return token;
+          if (task.comments[i] && typeof task.comments[i] === 'object') {
+            if (typeof task.comments[i].createdAt === 'string') return task.comments[i].createdAt;
+            if (typeof task.comments[i].timestamp === 'string') return task.comments[i].timestamp;
+          }
+        }
+        return null;
+      }
+
+      function _isDraftTask(t) {
+        if (!t) return false;
+        var title = String(t.title || '');
+        return title.indexOf('Draft reply —') === 0 || t.badge === '✉️ Draft Reply' || t.origin === 'form_intake_auto_draft';
+      }
+
+      function _findDraftTask(task, allTasks) {
+        if (!task || !Array.isArray(allTasks)) return null;
+        var draftTaskId = task.draftTaskId || task.draft_task_id || null;
+        if (draftTaskId) {
+          var byId = allTasks.find(function (t) { return t && t.id === draftTaskId; });
+          if (byId) return byId;
+        }
+        var child = allTasks.find(function (t) {
+          if (!t || !t.id) return false;
+          var isChild = (t.parent_task_id === task.id || t.parentTaskId === task.id);
+          return isChild && _isDraftTask(t);
+        });
+        return child || null;
+      }
+
+      function computeTaskTimeline(task, allTasks) {
+        var createdTs = task.createdAt || task.created_at || task.created || null;
+        var draftTask = _findDraftTask(task, allTasks);
+        var hasDraftMarker = _taskHasMarker(task, '[AUTO_DRAFT_REPLY]');
+        var draftDone = !!(draftTask || hasDraftMarker);
+        var draftTs = draftTask ? (draftTask.createdAt || draftTask.created_at || draftTask.created || null) : null;
+
+        var repliedMarkerTs = _taskIsoFromMarker(task, '[REPLY_SENT]');
+        var repliedDone = !!(task.repliedAt || _taskHasMarker(task, '[REPLY_SENT]'));
+        var repliedTs = task.repliedAt || repliedMarkerTs || null;
+
+        var doneState = !!(task.completed === true || task.status === 'done' || task.status === 'completed');
+        var completedTs = doneState ? (task.completedAt || task.closedAt || task.updatedAt || null) : null;
+
+        return [
+          { key: 'created', label: 'Created', ts: createdTs, done: true },
+          { key: 'draft', label: 'Draft Created', ts: draftTs, done: draftDone },
+          { key: 'replied', label: 'Replied', ts: repliedTs, done: repliedDone },
+          { key: 'completed', label: 'Completed', ts: completedTs, done: doneState }
+        ];
+      }
+
+      function renderTaskTimeline(task, allTasks) {
+        if (!taskTimelineEl || !task) return;
+        var steps = computeTaskTimeline(task, allTasks || []);
+        var html = '<div class="inb-timeline">'
+          + '<div class="inb-timeline-title"><i class="fas fa-stream" style="margin-right:4px;opacity:0.4;"></i>Timeline</div>';
+        for (var i = 0; i < steps.length; i++) {
+          var s = steps[i];
+          var dotClass = s.done ? 'inb-tl-dot inb-tl-dot--done' : 'inb-tl-dot';
+          var rowClass = 'inb-tl-item' + (i < steps.length - 1 ? ' inb-tl-has-line' : '');
+          var dt = s.ts ? new Date(s.ts) : null;
+          var rel = (dt && !isNaN(dt.getTime())) ? formatTimeAgo(dt) : '';
+          var abs = (dt && !isNaN(dt.getTime())) ? dt.toISOString() : '';
+          var doneNoTs = s.done && !rel;
+          html += '<div class="' + rowClass + '">'
+            + '<div class="' + dotClass + '"></div>'
+            + '<div class="inb-tl-content">'
+            + '<span class="inb-tl-label"' + (s.done ? '' : ' style="opacity:0.35;"') + '>' + escapeHtml(s.label) + '</span>';
+          if (rel) html += ' <span class="inb-tl-time" title="' + escapeHtml(abs) + '">' + escapeHtml(rel) + '</span>';
+          else if (doneNoTs) html += ' <span class="inb-tl-time" title="Timestamp unavailable">—</span>';
+          html += '</div></div>';
+        }
+        html += '</div>';
+        taskTimelineEl.innerHTML = html;
+      }
+
       function closeModal() {
         modal.classList.remove('active');
       }
@@ -1427,7 +1586,10 @@
         if (!text || !taskIdField.value) return;
         var task = AgentEngine.addTaskComment(taskIdField.value, { text: text });
         taskCommentInput.value = '';
-        if (task) renderComments(task);
+        if (task) {
+          renderComments(task);
+          renderTaskTimeline(task, AgentEngine.getTasks());
+        }
       });
 
       taskCommentInput.addEventListener('keydown', function (e) {
