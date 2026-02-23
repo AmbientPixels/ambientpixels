@@ -2175,7 +2175,22 @@ var AgentEngine = (function () {
 
   // ── Governance: Objectives ──
   var OBJECTIVES_KEY = 'ap_objectives';
-  function getObjectives() { return _loadStorage(OBJECTIVES_KEY, []); }
+  function _normalizeObjectiveDirectives(obj) {
+    if (!obj) return obj;
+    if (!Array.isArray(obj.linkedDirectives)) {
+      if (obj.linkedDirective) {
+        obj.linkedDirectives = [obj.linkedDirective];
+      } else {
+        obj.linkedDirectives = [];
+      }
+    }
+    return obj;
+  }
+  function getObjectives() {
+    var list = _loadStorage(OBJECTIVES_KEY, []);
+    for (var i = 0; i < list.length; i++) { _normalizeObjectiveDirectives(list[i]); }
+    return list;
+  }
   function addObjective(obj) {
     var list = getObjectives();
     if (!obj.id) obj.id = 'obj-' + Date.now();
@@ -2183,6 +2198,7 @@ var AgentEngine = (function () {
     if (!obj.progressPercentage) obj.progressPercentage = 0;
     if (!obj.owner) obj.owner = 'nova';
     if (!obj.linkedTasks) obj.linkedTasks = [];
+    _normalizeObjectiveDirectives(obj);
     list.push(obj);
     _saveStorage(OBJECTIVES_KEY, list);
     _logGovernance('objective-created', { objectiveId: obj.id, title: obj.title });

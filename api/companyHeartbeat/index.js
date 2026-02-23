@@ -762,6 +762,13 @@ module.exports = async function (context) {
     const recentLogs = await storage.getLogs({ limit: 50 });
     const directives = (await storage.getState('directives')) || [];
     const objectives = (await storage.getState('objectives')) || [];
+    // Normalize linkedDirective (string) → linkedDirectives (array) for backward compat
+    for (const _normObj of objectives) {
+      if (!_normObj) continue;
+      if (!Array.isArray(_normObj.linkedDirectives)) {
+        _normObj.linkedDirectives = _normObj.linkedDirective ? [_normObj.linkedDirective] : [];
+      }
+    }
     const documents = (await storage.getState('documents')) || [];
     const workspaceMemory = (await storage.getState('workspaceMemory')) || [];
     const workspaceDates = (await storage.getState('dates')) || [];
@@ -965,6 +972,31 @@ module.exports = async function (context) {
         context.log('[Heartbeat] Escalation:', task.title,
           '→ Owner →', esc.domainLead, '| Nova skipped (' + esc.reason + ')');
       }
+    }
+
+    // ── Goal cancel → cascade pause to linked Projects ──
+    let _directivesPushed = false;
+    for (const _obj of objectives) {
+      if (!_obj || !_obj.id) continue;
+      if (String(_obj.status || '').toLowerCase() !== 'canceled') continue;
+      const linkedDirIds = Array.isArray(_obj.linkedDirectives) ? _obj.linkedDirectives : [];
+      for (const dirId of linkedDirIds) {
+        const dir = directives.find(d => d && d.id === dirId);
+        if (dir && String(dir.status || '').toLowerCase() === 'active') {
+          dir.status = 'paused';
+          dir.updatedAt = new Date().toISOString();
+          dir._pausedByGoalCancel = _obj.id;
+          _directivesPushed = true;
+          context.log('[Heartbeat] Cascade: Goal canceled (' + _obj.id + ' "' + (_obj.title || '') + '") → paused linked Project (' + dirId + ' "' + (dir.title || '') + '")');
+          await logEvent('goal-cancel-cascade', null, 'Project paused by goal cancel cascade', runId, {
+            runId, objectiveId: _obj.id, objectiveTitle: _obj.title, directiveId: dirId, directiveTitle: dir.title
+          });
+        }
+      }
+    }
+    if (_directivesPushed) {
+      await storage.setState('directives', directives);
+      context.log('[Heartbeat] Cascade: pushed updated directives to server after goal-cancel pause');
     }
 
     // ── Auto-archive tasks ──
@@ -4374,7 +4406,7 @@ ${dirList}`;
     });
     // Build objective → directive map from BOTH directions:
     // 1) directive.linkedObjectives (array on directive)
-    // 2) objective.linkedDirective (single ID set from objectives page)
+    // 2) objective.linkedDirectives (array set from goals page, normalized from old linkedDirective)
     const objectiveDirMap = {};
     const _allDirectives = activeDirectives.length > 0 ? activeDirectives : [];
     const _dirById = {};
@@ -4387,15 +4419,18 @@ ${dirList}`;
         }
       });
     });
-    // Also check objective.linkedDirective (set from objectives UI)
+    // Also check objective.linkedDirectives (array, set from goals UI)
     activeObjectives.forEach(o => {
-      if (o.linkedDirective && _dirById[o.linkedDirective]) {
-        if (!objectiveDirMap[o.id]) objectiveDirMap[o.id] = [];
-        if (!objectiveDirMap[o.id].some(x => x.id === o.linkedDirective)) {
-          const d = _dirById[o.linkedDirective];
-          objectiveDirMap[o.id].push({ id: d.id, title: d.title });
+      const _lds = Array.isArray(o.linkedDirectives) ? o.linkedDirectives : (o.linkedDirective ? [o.linkedDirective] : []);
+      _lds.forEach(dirId => {
+        if (dirId && _dirById[dirId]) {
+          if (!objectiveDirMap[o.id]) objectiveDirMap[o.id] = [];
+          if (!objectiveDirMap[o.id].some(x => x.id === dirId)) {
+            const d = _dirById[dirId];
+            objectiveDirMap[o.id].push({ id: d.id, title: d.title });
+          }
         }
-      }
+      });
     });
     const objList = activeObjectives.map(o => {
       const linked = objectiveTaskMap[o.id];

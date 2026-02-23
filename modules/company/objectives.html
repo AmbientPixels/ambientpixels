@@ -73,8 +73,7 @@
             <option value="Q4">Q4</option>
           </select>
           <input type="number" id="obj-year" value="2026" min="2024" max="2030" style="width:80px; padding:0.35rem 0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.7rem;" />
-          <select id="obj-directive" style="padding:0.35rem 0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.7rem;">
-            <option value="">No linked project</option>
+          <select id="obj-directive" multiple style="padding:0.35rem 0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.7rem; min-height:28px; max-height:60px;">
           </select>
           <button id="obj-create-btn" style="padding:0.35rem 1rem; background:rgba(78,205,196,0.1); border:1px solid rgba(78,205,196,0.3); border-radius:6px; color:#4ECDC4; font-size:0.7rem; cursor:pointer; font-weight:500;">Create Goal</button>
         </div>
@@ -152,9 +151,8 @@
         </div>
       </div>
 
-      <label for="obj-edit-directive">Linked Project</label>
-      <select id="obj-edit-directive">
-        <option value="">No linked project</option>
+      <label for="obj-edit-directive">Linked Projects <span style="opacity:0.35; font-weight:normal;">(Ctrl+click to multi-select)</span></label>
+      <select id="obj-edit-directive" multiple style="min-height:50px; max-height:90px;">
       </select>
 
       <div class="obj-modal-row">
@@ -232,16 +230,17 @@
         renderObjectives();
       });
 
-      function populateDirectiveSelect(targetSelect, selectedId) {
+      function populateDirectiveSelect(targetSelect, selectedIds) {
         var directives = AgentEngine.getDirectives();
         var active = directives.filter(function (d) { return d.status === 'active' || d.status === 'completed'; });
         var sel = targetSelect || directiveSelect;
-        sel.innerHTML = '<option value="">No linked project</option>';
+        var ids = Array.isArray(selectedIds) ? selectedIds : (selectedIds ? [selectedIds] : []);
+        sel.innerHTML = '';
         active.forEach(function (dir) {
           var opt = document.createElement('option');
           opt.value = dir.id;
           opt.textContent = dir.title + (dir.status !== 'active' ? ' [' + dir.status + ']' : '');
-          if (selectedId && dir.id === selectedId) opt.selected = true;
+          if (ids.indexOf(dir.id) !== -1) opt.selected = true;
           sel.appendChild(opt);
         });
       }
@@ -255,7 +254,7 @@
         editYear.value = obj.year || 2026;
         editOwner.value = obj.owner || 'nova';
         editStatus.value = obj.status || 'on_track';
-        populateDirectiveSelect(editDirective, obj.linkedDirective || '');
+        populateDirectiveSelect(editDirective, obj.linkedDirectives || (obj.linkedDirective ? [obj.linkedDirective] : []));
         editModal.style.display = 'flex';
       }
 
@@ -269,12 +268,16 @@
 
       editSave.addEventListener('click', function () {
         if (!editingId) return;
+        var selectedDirs = [];
+        for (var i = 0; i < editDirective.options.length; i++) {
+          if (editDirective.options[i].selected && editDirective.options[i].value) selectedDirs.push(editDirective.options[i].value);
+        }
         var payload = {
           title: editTitle.value.trim(),
           description: editDesc.value.trim(),
           quarter: editQuarter.value,
           year: parseInt(editYear.value, 10),
-          linkedDirective: editDirective.value || null,
+          linkedDirectives: selectedDirs,
           owner: editOwner.value || 'nova',
           status: editStatus.value
         };
@@ -304,11 +307,15 @@
         var title = titleInput.value.trim();
         if (!title) return;
 
+        var selectedDirs = [];
+        for (var i = 0; i < directiveSelect.options.length; i++) {
+          if (directiveSelect.options[i].selected && directiveSelect.options[i].value) selectedDirs.push(directiveSelect.options[i].value);
+        }
         AgentEngine.addObjective({
           title: title,
           quarter: quarterSelect.value,
           year: parseInt(yearInput.value, 10),
-          linkedDirective: directiveSelect.value || null
+          linkedDirectives: selectedDirs
         });
 
         // Push to server so heartbeat can see the objective
@@ -357,12 +364,15 @@
         var statusColor = obj.status === 'on_track' ? '#34d399' : obj.status === 'at_risk' ? '#fbbf24' : obj.status === 'behind' ? '#f87171' : obj.status === 'canceled' ? '#9ca3af' : '#8A2BE2';
         var pct = obj.progressPercentage || 0;
 
-        // Find linked project title
-        var dirTitle = '';
-        if (obj.linkedDirective) {
+        // Find linked project titles
+        var dirTitles = [];
+        var linkedIds = obj.linkedDirectives || (obj.linkedDirective ? [obj.linkedDirective] : []);
+        if (linkedIds.length > 0) {
           var directives = AgentEngine.getDirectives();
-          var linked = directives.find(function (d) { return d.id === obj.linkedDirective; });
-          if (linked) dirTitle = linked.title;
+          linkedIds.forEach(function (did) {
+            var linked = directives.find(function (d) { return d.id === did; });
+            if (linked) dirTitles.push(linked.title);
+          });
         }
 
         card.innerHTML =
@@ -370,7 +380,7 @@
             '<strong style="font-size:0.85rem;">' + escapeHtml(obj.title) + '</strong>' +
             '<span style="font-size:0.65rem; opacity:0.5;">' + (obj.quarter || '') + ' ' + (obj.year || '') + '</span>' +
           '</div>' +
-          (dirTitle ? '<div style="font-size:0.6rem; opacity:0.4; margin-bottom:0.4rem;"><i class="fas fa-compass"></i> ' + escapeHtml(dirTitle) + '</div>' : '') +
+          (dirTitles.length > 0 ? '<div style="font-size:0.6rem; opacity:0.4; margin-bottom:0.4rem;"><i class="fas fa-compass"></i> ' + dirTitles.map(function (t) { return escapeHtml(t); }).join(', ') + '</div>' : '') +
           (obj.description ? '<div style="font-size:0.7rem; opacity:0.5; margin-bottom:0.4rem; line-height:1.3;">' + escapeHtml(obj.description) + '</div>' : '') +
           '<div style="margin:0.4rem 0; height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden;">' +
             '<div style="height:100%; width:' + pct + '%; background:' + statusColor + '; border-radius:3px; transition:width 0.3s;"></div>' +
