@@ -769,6 +769,9 @@ module.exports = async function (context) {
         _normObj.linkedDirectives = _normObj.linkedDirective ? [_normObj.linkedDirective] : [];
       }
     }
+    // Build projectById map once for O(1) lookups in freeze gates
+    const projectById = {};
+    for (const _d of directives) { if (_d && _d.id) projectById[_d.id] = _d; }
     const documents = (await storage.getState('documents')) || [];
     const workspaceMemory = (await storage.getState('workspaceMemory')) || [];
     const workspaceDates = (await storage.getState('dates')) || [];
@@ -870,9 +873,11 @@ module.exports = async function (context) {
       output_envelope: 0,
       proposal_schema: 0,
       objective_status: 0,
-      observation_clamp: 0
+      observation_clamp: 0,
+      project_status: 0
     };
     const _objectiveStatusBlockDetails = [];
+    const _projectStatusBlockDetails = [];
     function _incPolicyGate(gate) {
       if (Object.prototype.hasOwnProperty.call(_runGateCounts, gate)) {
         _runGateCounts[gate]++;
@@ -1624,25 +1629,41 @@ module.exports = async function (context) {
               }
             }
 
-            // Paused-directive freeze: block start-work transitions on tasks linked to paused directives
+            // Project status freeze gate: block ALL mutations on tasks linked to paused (or not-found) projects
             if (mutationAction !== 'create') {
-              const _dirPauseTask = tasks.find(t => t.id === update.taskId);
-              if (_dirPauseTask && _dirPauseTask.directive_id) {
-                const _dirPause = directives.find(d => d.id === _dirPauseTask.directive_id);
-                if (_dirPause && String(_dirPause.status || '').toLowerCase() === 'paused') {
-                  const _dpOldStatus = _dirPauseTask.status || null;
-                  const _dpNextStatus = mutationAction === 'move'
-                    ? update.newStatus
-                    : (update.updates ? update.updates.status : null);
-                  if (_isStartWorkStatus(_dpNextStatus) && !_isStartWorkStatus(_dpOldStatus)) {
-                    _incBlocked(agentId);
-                    await logEvent('policy-violation', agentId, 'Mutation blocked: directive paused — cannot start work', runId, {
-                      runId: runId, agentId: agentId, gate: 'directive_paused_freeze',
-                      action: mutationAction, taskId: update.taskId,
-                      directiveId: _dirPauseTask.directive_id, reason: 'directive_paused'
-                    });
-                    continue;
-                  }
+              const _psTask = tasks.find(t => t.id === update.taskId);
+              const _psProjectId = _psTask ? (_psTask.directive_id || null) : null;
+              if (_psProjectId) {
+                const _psProject = projectById[_psProjectId] || null;
+                const _psOldStatus = _psTask ? (_psTask.status || null) : null;
+                const _psNextStatus = mutationAction === 'move'
+                  ? update.newStatus
+                  : (update.updates ? update.updates.status : null);
+                const _psFieldsChanged = update.updates ? Object.keys(update.updates) : (mutationAction === 'move' ? ['status'] : []);
+
+                if (!_psProject) {
+                  // Edge case: task references a project that doesn't exist — block (safer than mutating against unknown parent)
+                  _incBlocked(agentId);
+                  _incPolicyGate('project_status');
+                  _projectStatusBlockDetails.push({ projectId: _psProjectId, taskId: update.taskId, reason: 'project_not_found' });
+                  await logEvent('policy-violation', agentId, 'Mutation blocked: task references non-existent project', runId, {
+                    type: 'policy-violation', gate: 'project_link', reason: 'project_not_found',
+                    projectId: _psProjectId, taskId: update.taskId,
+                    attempted: { fieldsChanged: _psFieldsChanged, statusFrom: _psOldStatus, statusTo: _psNextStatus }
+                  });
+                  continue;
+                }
+
+                if (String(_psProject.status || '').toLowerCase() === 'paused') {
+                  _incBlocked(agentId);
+                  _incPolicyGate('project_status');
+                  _projectStatusBlockDetails.push({ projectId: _psProjectId, taskId: update.taskId, reason: 'project_paused' });
+                  await logEvent('policy-violation', agentId, 'Mutation blocked: project paused — all task mutations frozen', runId, {
+                    type: 'policy-violation', gate: 'project_status', reason: 'project_paused',
+                    projectId: _psProjectId, projectStatus: 'paused', taskId: update.taskId,
+                    attempted: { fieldsChanged: _psFieldsChanged, statusFrom: _psOldStatus, statusTo: _psNextStatus }
+                  });
+                  continue;
                 }
               }
             }
@@ -1983,6 +2004,9 @@ module.exports = async function (context) {
     if (_objectiveStatusBlockDetails.length > 0) {
       _runDigestDetails.objectiveStatusBlocks = _objectiveStatusBlockDetails;
     }
+    if (_projectStatusBlockDetails.length > 0) {
+      _runDigestDetails.projectStatusBlocks = _projectStatusBlockDetails;
+    }
     await logEvent('run-digest', null, 'Heartbeat run digest', runId, _runDigestDetails);
 
     const blockedTotal = _runCounters.totals.blocked || 0;
@@ -1993,6 +2017,7 @@ module.exports = async function (context) {
     if ((_runGateCounts.proposal_schema || 0) > 0) reasons.push('proposal_schema_violations');
     if ((_runGateCounts.objective_status || 0) > 3) reasons.push('objective_status_gt_3');
     if (_objectiveStatusBlockDetails.length > 0) reasons.push('objective_canceled_blocked');
+    if (_projectStatusBlockDetails.length > 0) reasons.push('project_paused_blocked');
     const status = reasons.length === 0 ? 'ok' : 'warn';
 
     await logEvent('run-health', null, 'Heartbeat run health: ' + status, runId, {
