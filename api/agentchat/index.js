@@ -331,11 +331,53 @@ async function executeChatActions(context, actions, agentId) {
   const results = [];
   const validActions = actions.slice(0, 3);
 
+  // Build projectById map once for freeze gate lookups
+  const _chatDirectives = (await storage.getState('directives')) || [];
+  const _chatProjectById = {};
+  for (const _d of _chatDirectives) { if (_d && _d.id) _chatProjectById[_d.id] = _d; }
+
+  const TASK_MUTATION_TYPES = ['update-task', 'move-task'];
+
   for (const action of validActions) {
     try {
       if (agentId === 'quill' && QUILL_FORBIDDEN_CHAT.includes(action.type)) {
         results.push({ type: action.type, success: false, summary: 'Quill cannot perform ' + action.type });
         continue;
+      }
+
+      // Project status freeze gate: block task mutations on paused/not-found projects
+      if (TASK_MUTATION_TYPES.includes(action.type) && action.taskId) {
+        const _gtTasks = (await storage.getState('tasks')) || [];
+        const _gtTask = _gtTasks.find(t => t.id === action.taskId);
+        const _gtProjectId = _gtTask ? (_gtTask.directive_id || null) : null;
+        if (_gtProjectId) {
+          const _gtProject = _chatProjectById[_gtProjectId] || null;
+          const _gtOldStatus = _gtTask ? (_gtTask.status || null) : null;
+          const _gtNextStatus = action.type === 'move-task' ? action.newStatus : (action.updates ? action.updates.status : null);
+          const _gtFieldsChanged = action.updates ? Object.keys(action.updates) : (action.type === 'move-task' ? ['status'] : []);
+
+          if (!_gtProject) {
+            results.push({ type: action.type, success: false, summary: 'Blocked: project_not_found (project ' + _gtProjectId + ' does not exist).' });
+            try {
+              const _pvLog = (await storage.getState('actionAuditLog')) || [];
+              _pvLog.push({ id: 'alog-pv-' + Date.now(), type: 'policy-violation', data: { gate: 'project_link', reason: 'project_not_found', projectId: _gtProjectId, taskId: action.taskId, agentId: agentId, attempted: { actionType: action.type, fieldsChanged: _gtFieldsChanged, statusFrom: _gtOldStatus, statusTo: _gtNextStatus } }, timestamp: new Date().toISOString() });
+              await storage.setState('actionAuditLog', _pvLog);
+            } catch (_e) { /* non-fatal */ }
+            context.log('[AgentChat]', agentId, 'BLOCKED', action.type, 'on', action.taskId, '— project_not_found:', _gtProjectId);
+            continue;
+          }
+
+          if (String(_gtProject.status || '').toLowerCase() === 'paused') {
+            results.push({ type: action.type, success: false, summary: 'Blocked: project_paused (project ' + _gtProjectId + ' is paused).' });
+            try {
+              const _pvLog = (await storage.getState('actionAuditLog')) || [];
+              _pvLog.push({ id: 'alog-pv-' + Date.now(), type: 'policy-violation', data: { gate: 'project_status', reason: 'project_paused', projectId: _gtProjectId, projectStatus: 'paused', taskId: action.taskId, agentId: agentId, attempted: { actionType: action.type, fieldsChanged: _gtFieldsChanged, statusFrom: _gtOldStatus, statusTo: _gtNextStatus } }, timestamp: new Date().toISOString() });
+              await storage.setState('actionAuditLog', _pvLog);
+            } catch (_e) { /* non-fatal */ }
+            context.log('[AgentChat]', agentId, 'BLOCKED', action.type, 'on', action.taskId, '— project_paused:', _gtProjectId);
+            continue;
+          }
+        }
       }
 
       switch (action.type) {
