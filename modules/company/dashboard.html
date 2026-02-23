@@ -183,6 +183,7 @@
         <i class="fas fa-tachometer-alt"></i> Dashboard
         <span class="dash-action-badge" id="dash-action-badge" data-count="0"></span>
         <span id="store-mode-badge" style="font-size:0.5rem; padding:2px 8px; border-radius:6px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.25); font-weight:400; vertical-align:middle; margin-left:6px;">local</span>
+        <span id="exec-mode-pill" style="font-size:0.5rem; padding:2px 8px; border-radius:6px; background:rgba(52,211,153,0.1); color:#34d399; font-weight:500; vertical-align:middle; margin-left:4px; cursor:default;" title="Automation enabled. Agents may create and update tasks.">🟢 Live</span>
         <span class="dash-view-toggle" id="dash-view-toggle" role="tablist">
           <button role="tab" data-view="ceo" class="active" aria-selected="true">CEO View</button>
           <button role="tab" data-view="dev" aria-selected="false">Dev View</button>
@@ -208,6 +209,9 @@
         <button id="dash-write-key-btn" style="padding:0.2rem 0.5rem; font-size:0.6rem; background:rgba(52,211,153,0.15); border:1px solid rgba(52,211,153,0.3); border-radius:4px; color:#34d399; cursor:pointer;">Set Key</button>
       </span>
     </div>
+
+    <!-- Execution Mode Banner (non-live modes) -->
+    <div id="exec-mode-banner" style="display:none; margin-bottom:0.75rem; padding:0.45rem 0.75rem; border-radius:6px; font-size:0.7rem; text-align:center; font-weight:500;"></div>
 
     <!-- ════════════════════════════════════════ -->
     <!-- CEO VIEW                                 -->
@@ -710,6 +714,51 @@
         }
       }
 
+      // ── Execution Mode pill + banner ──
+      var execModePill = document.getElementById('exec-mode-pill');
+      var execModeBanner = document.getElementById('exec-mode-banner');
+      var _execModeMap = {
+        active:  { label: '🟢 Live',      bg: 'rgba(52,211,153,0.1)',  color: '#34d399', tip: 'Automation enabled. Agents may create and update tasks.' },
+        observe: { label: '🟡 Safe Mode',  bg: 'rgba(251,191,36,0.1)',  color: '#fbbf24', tip: 'Simulation mode. Agents may propose changes, but no task updates are applied.' },
+        frozen:  { label: '🔴 Locked',     bg: 'rgba(239,68,68,0.1)',   color: '#f87171', tip: 'Automation disabled. Only manual CEO edits are allowed.' }
+      };
+      function updateExecModePill(mode) {
+        var m = _execModeMap[mode] || _execModeMap.active;
+        if (execModePill) {
+          execModePill.textContent = m.label;
+          execModePill.style.background = m.bg;
+          execModePill.style.color = m.color;
+          execModePill.title = m.tip;
+        }
+        if (execModeBanner) {
+          if (mode === 'observe') {
+            execModeBanner.style.display = '';
+            execModeBanner.style.background = 'rgba(251,191,36,0.08)';
+            execModeBanner.style.border = '1px solid rgba(251,191,36,0.2)';
+            execModeBanner.style.color = '#fbbf24';
+            execModeBanner.textContent = '🟡 SAFE MODE — Automation changes are disabled';
+          } else if (mode === 'frozen') {
+            execModeBanner.style.display = '';
+            execModeBanner.style.background = 'rgba(239,68,68,0.08)';
+            execModeBanner.style.border = '1px solid rgba(239,68,68,0.2)';
+            execModeBanner.style.color = '#f87171';
+            execModeBanner.textContent = '🔴 LOCKED — Automation is disabled';
+          } else {
+            execModeBanner.style.display = 'none';
+          }
+        }
+      }
+      function loadExecMode() {
+        fetch(getApiBase() + '/company-state?key=execution_mode', { method: 'GET' })
+          .then(function (res) { if (!res.ok) throw new Error('fail'); return res.json(); })
+          .then(function (data) {
+            var v = String(data && data.value || '').trim().toLowerCase();
+            if (v !== 'active' && v !== 'observe' && v !== 'frozen') v = 'active';
+            updateExecModePill(v);
+          })
+          .catch(function () { updateExecModePill('active'); });
+      }
+
       // ── Heartbeat trigger ──
       function getApiBase() {
         return window.location.hostname.includes('ambientpixels.ai')
@@ -769,21 +818,24 @@
         }
       });
 
-      AgentEngine.on('store-ready', updateStoreModeBadge);
+      AgentEngine.on('store-ready', function () { updateStoreModeBadge(); loadExecMode(); });
 
       // Re-render when server sync pulls in heartbeat/agent data
       AgentEngine.on('sync-complete', function () {
         renderAll();
         updateStoreModeBadge();
+        loadExecMode();
       });
 
       // Re-render after CompanyStore server sync
       window.addEventListener('companystoreready', function () {
         renderAll();
         updateStoreModeBadge();
+        loadExecMode();
       });
 
-      document.getElementById('dash-refresh').addEventListener('click', renderAll);
+      document.getElementById('dash-refresh').addEventListener('click', function () { renderAll(); loadExecMode(); });
+      loadExecMode();
 
       // Live updates
       AgentEngine.on('metrics-update', renderAll);

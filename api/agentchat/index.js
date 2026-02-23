@@ -326,10 +326,34 @@ function parseActionResponse(text) {
   return { reply: text, actions: [] };
 }
 
+// GridOS execution_mode normalization
+const ALLOWED_EXEC_MODES = new Set(['active', 'observe', 'frozen']);
+function normalizeExecutionMode(v) {
+  var s = String(v || '').trim().toLowerCase();
+  return ALLOWED_EXEC_MODES.has(s) ? s : 'active';
+}
+
 // Execute actions from chat and return results
 async function executeChatActions(context, actions, agentId) {
   const results = [];
   const validActions = actions.slice(0, 3);
+
+  // Load execution_mode (GridOS automation posture)
+  const _execMode = normalizeExecutionMode(await storage.getState('execution_mode'));
+
+  // Frozen: block ALL structured mutations
+  if (_execMode === 'frozen' && validActions.length > 0) {
+    context.log('[AgentChat]', agentId, 'execution_mode=frozen — blocking all', validActions.length, 'actions');
+    try {
+      const _pvLog = (await storage.getState('actionAuditLog')) || [];
+      _pvLog.push({ id: 'alog-exec-' + Date.now(), type: 'policy-violation', data: { mode: _execMode, channel: 'agentchat', violation: 'mutation_blocked', reason: 'execution_mode_frozen', agentId: agentId, actionCount: validActions.length, actionTypes: validActions.map(a => a.type) }, timestamp: new Date().toISOString() });
+      await storage.setState('actionAuditLog', _pvLog);
+    } catch (_e) { /* non-fatal */ }
+    validActions.forEach(function (a) {
+      results.push({ type: a.type, success: false, summary: 'Automation locked. Manual edits only.' });
+    });
+    return results;
+  }
 
   // Build projectById map once for freeze gate lookups
   const _chatDirectives = (await storage.getState('directives')) || [];
@@ -337,11 +361,24 @@ async function executeChatActions(context, actions, agentId) {
   for (const _d of _chatDirectives) { if (_d && _d.id) _chatProjectById[_d.id] = _d; }
 
   const TASK_MUTATION_TYPES = ['update-task', 'move-task'];
+  const TASK_ACTION_TYPES = ['create-task', 'update-task', 'move-task'];
 
   for (const action of validActions) {
     try {
       if (agentId === 'quill' && QUILL_FORBIDDEN_CHAT.includes(action.type)) {
         results.push({ type: action.type, success: false, summary: 'Quill cannot perform ' + action.type });
+        continue;
+      }
+
+      // Observe mode: block task mutations, allow docs + comments
+      if (_execMode === 'observe' && TASK_ACTION_TYPES.includes(action.type)) {
+        results.push({ type: action.type, success: false, summary: 'Safe Mode: suggestions captured, no task mutations applied.' });
+        context.log('[AgentChat]', agentId, 'observe mode — blocking', action.type);
+        try {
+          const _obLog = (await storage.getState('actionAuditLog')) || [];
+          _obLog.push({ id: 'alog-obs-' + Date.now(), type: 'run-digest', data: { mode: _execMode, channel: 'agentchat', agentId: agentId, taskUpdatesBlocked: 1, actionType: action.type }, timestamp: new Date().toISOString() });
+          await storage.setState('actionAuditLog', _obLog);
+        } catch (_e) { /* non-fatal */ }
         continue;
       }
 

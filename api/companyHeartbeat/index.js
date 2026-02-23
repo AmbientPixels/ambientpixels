@@ -543,6 +543,12 @@ async function resolveActivationMode(storage, runId) {
   return 'supervised_autonomous';
 }
 
+const ALLOWED_EXEC_MODES = new Set(['active', 'observe', 'frozen']);
+function normalizeExecutionMode(v) {
+  var s = String(v || '').trim().toLowerCase();
+  return ALLOWED_EXEC_MODES.has(s) ? s : 'active';
+}
+
 function _buildBlockedProposal(agentId, runId, reasonBlocked, proposedAction, payload) {
   var p = payload || {};
   var ac = Array.isArray(p.acceptanceCriteria) && p.acceptanceCriteria.length > 0
@@ -813,9 +819,22 @@ module.exports = async function (context) {
     const activeObjectives = objectives.filter(o => o.status && o.status !== 'complete' && o.status !== 'canceled');
     const normalizedActivationMode = await resolveActivationMode(storage, runId);
 
-    await logEvent('mode-resolved', null, 'Activation mode resolved: ' + normalizedActivationMode, runId, {
-      runId: runId, activationMode: normalizedActivationMode
+    // Load execution_mode (GridOS automation posture)
+    const _rawExecMode = await storage.getState('execution_mode');
+    const executionMode = normalizeExecutionMode(_rawExecMode);
+
+    await logEvent('mode-resolved', null, 'Activation mode resolved: ' + normalizedActivationMode + ', execution_mode: ' + executionMode, runId, {
+      runId: runId, activationMode: normalizedActivationMode, executionMode: executionMode
     });
+
+    // Frozen: block all automation, exit early
+    if (executionMode === 'frozen') {
+      await logEvent('run-health', null, 'Heartbeat blocked: execution_mode frozen', runId, {
+        runId: runId, mode: executionMode, channel: 'heartbeat', result: 'blocked', reason: 'execution_mode_frozen'
+      });
+      context.log('[Heartbeat] execution_mode=frozen — automation locked, exiting early');
+      return;
+    }
 
     // Compute effective rate caps (Phase 1F: experimental mode gets 1.5x)
     const _capMultiplier = normalizedActivationMode === 'experimental' ? 1.5 : 1;
@@ -1290,6 +1309,21 @@ module.exports = async function (context) {
         }
         geminiCalls += result.geminiCalls;
         agentActions[agentId] = result.actions;
+
+        // Observe mode: discard taskUpdates before mutation stage
+        if (executionMode === 'observe' && result.taskUpdates && result.taskUpdates.length > 0) {
+          const _observeBlocked = result.taskUpdates.length;
+          context.log('[Heartbeat]', agentId, 'observe mode — discarding', _observeBlocked, 'taskUpdates');
+          result.taskUpdates = [];
+          _incBlocked(agentId);
+          await logEvent('run-digest', agentId, 'Observe mode: taskUpdates discarded', runId, {
+            mode: executionMode, channel: 'heartbeat', agentId: agentId,
+            taskUpdatesBlocked: _observeBlocked, taskUpdatesApplied: 0,
+            proposalsCount: (result.proposals || []).length,
+            observationsCount: (result.observations || []).length,
+            rememberCount: (result.remember || []).length
+          });
+        }
 
         // Apply task mutations
         if (result.taskUpdates && result.taskUpdates.length > 0) {
