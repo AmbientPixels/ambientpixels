@@ -364,6 +364,9 @@
         return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
       }
 
+      // ── DEBUG: expose tasks to window for inspection (set false to disable) ──
+      var DEBUG_TASK_EXPOSE = true;
+
       var agents = [];
       var allDivisions = [];
       var currentView = 'board';
@@ -440,11 +443,32 @@
       // ── Render ──
       function renderAll() {
         // Priority Engine v1 — recalculate before render
-        try { PriorityEngine.recalculateAll(AgentEngine.getTasks()); } catch (e) { /* fail closed */ }
+        var _allTasks = AgentEngine.getTasks();
+        try { PriorityEngine.recalculateAll(_allTasks); } catch (e) { /* fail closed */ }
+        if (DEBUG_TASK_EXPOSE) {
+          window.__AP_TASKS_ALL__ = _allTasks;
+          window.__AP_TASKS_META__ = {
+            loadedAt: new Date().toISOString(),
+            total: _allTasks.length,
+            archived: _allTasks.filter(function (t) { return t && t._archived; }).length,
+            reasons: (function () {
+              var m = {};
+              _allTasks.forEach(function (t) {
+                if (t && t._archived) {
+                  var r = t.archivedReason || t._archiveReason || 'none';
+                  m[r] = (m[r] || 0) + 1;
+                }
+              });
+              return m;
+            })()
+          };
+          console.log('[DEBUG] __AP_TASKS_META__', window.__AP_TASKS_META__);
+        }
         renderTaskIntel();
         renderStats();
         renderBoard();
         renderList();
+        if (DEBUG_TASK_EXPOSE) window.__AP_TASKS_ACTIVE__ = getFilteredTasks();
       }
 
       // ── Task Intelligence ──
