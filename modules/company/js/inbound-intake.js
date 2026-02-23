@@ -12,6 +12,8 @@
  * - v1.5: Inbound status sync — prefer computedStatus from backend for pills,
  *   new statuses: stored_only, draft_ready, closed. Detail drawer shows
  *   computed status label. Stats use computedStatus for task counting.
+ * - v1.6: Replied loop closure — 'replied' pill (teal), Mark Replied button
+ *   in detail drawer, optimistic update + toast, idempotent.
  */
 
 (function () {
@@ -127,7 +129,8 @@
     stored_only:  { css: 'inb-status--stored',    icon: 'fa-box-archive',   label: 'Stored Only' },
     task_created: { css: 'inb-status--task',       icon: 'fa-check-circle',  label: 'Task Created' },
     draft_ready:  { css: 'inb-status--draft',      icon: 'fa-envelope-open-text', label: 'Draft Ready' },
-    closed:       { css: 'inb-status--closed',     icon: 'fa-circle-check',  label: 'Closed' }
+    closed:       { css: 'inb-status--closed',     icon: 'fa-circle-check',  label: 'Closed' },
+    replied:      { css: 'inb-status--replied',    icon: 'fa-reply',          label: 'Replied' }
   };
 
   function getStatus(item) {
@@ -285,7 +288,79 @@
         + '</div>';
     }
 
+    // ── Mark Replied button ──
+    if (item.taskId && item.computedStatus !== 'stored_only' && item.computedStatus !== 'duplicate') {
+      var isReplied = (item.computedStatus === 'replied');
+      html += '<div class="inb-drawer-field" style="margin-top:0.75rem;">';
+      if (isReplied) {
+        html += '<button class="inb-btn inb-btn--replied" disabled><i class="fas fa-check"></i> Replied \u2713</button>';
+      } else {
+        html += '<button class="inb-btn inb-btn--mark-replied" id="inb-mark-replied-btn" data-task-id="' + escHtml(item.taskId) + '" data-submission-id="' + escHtml(item.id || '') + '"><i class="fas fa-reply"></i> Mark Replied</button>';
+      }
+      html += '</div>';
+    }
+
     drawerContent.innerHTML = html;
+
+    // Bind mark-replied button
+    var replyBtn = document.getElementById('inb-mark-replied-btn');
+    if (replyBtn) {
+      replyBtn.addEventListener('click', function () {
+        var taskId = replyBtn.getAttribute('data-task-id');
+        var subId = replyBtn.getAttribute('data-submission-id');
+        markReplied(taskId, subId, replyBtn, item);
+      });
+    }
+  }
+
+  // ── Mark Replied action ──
+  async function markReplied(taskId, submissionId, btn, item) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending…';
+    try {
+      var resp = await fetch(API_BASE + '/tasks/mark-replied', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ taskId: taskId, source: 'inbound', submissionId: submissionId })
+      });
+      var data = await resp.json();
+      if (data.ok) {
+        // Optimistic update
+        item.computedStatus = 'replied';
+        item.computedStatusReason = 'replied ' + (data.repliedAt || '');
+        // Update button
+        btn.className = 'inb-btn inb-btn--replied';
+        btn.innerHTML = '<i class="fas fa-check"></i> Replied \u2713';
+        btn.disabled = true;
+        // Refresh table row
+        renderTable();
+        // Toast
+        showToast(data.already ? 'Already marked as replied.' : 'Marked as replied.');
+      } else {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-reply"></i> Mark Replied';
+        showToast('Error: ' + (data.error || 'unknown'), true);
+      }
+    } catch (err) {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-reply"></i> Mark Replied';
+      showToast('Connection error.', true);
+    }
+  }
+
+  function showToast(msg, isError) {
+    var existing = document.getElementById('inb-toast');
+    if (existing) existing.remove();
+    var toast = document.createElement('div');
+    toast.id = 'inb-toast';
+    toast.className = 'inb-toast' + (isError ? ' inb-toast--error' : '');
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    setTimeout(function () { toast.classList.add('inb-toast--visible'); }, 10);
+    setTimeout(function () {
+      toast.classList.remove('inb-toast--visible');
+      setTimeout(function () { toast.remove(); }, 300);
+    }, 2500);
   }
 
   function field(label, value) {

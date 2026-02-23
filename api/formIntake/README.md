@@ -1,4 +1,4 @@
-# GridOS Form Intake v1.5
+# GridOS Form Intake v1.6
 
 ## Endpoints
 
@@ -8,6 +8,7 @@
 | GET | `/api/formIntake/recent?days=7&limit=50` | Recent submissions from daily index |
 | GET | `/api/formIntake/item?id=fi_...` | Single canonical record |
 | GET | `/api/formIntakeDigest?date=YYYY-MM-DD` | Generate daily intake digest (on-demand) |
+| POST | `/api/tasks/mark-replied` | Mark inbound task as replied (manual loop closure) |
 | Timer | `formIntakeDigestTimer` (daily 9:00 AM PT / 17:00 UTC) | Auto-generate yesterday's digest |
 
 ## Environment Variables
@@ -141,6 +142,12 @@ For new inbound tasks (`status === "task_created"`), the system automatically ge
 [ ] STATUS: Contact row with task, no draft → Task Created (blue pill)
 [ ] STATUS: Detail drawer shows computed status pill + reason
 [ ] STATUS: Stats count excludes stored_only and duplicate from task total
+[ ] REPLIED: Click Mark Replied in drawer → task.repliedAt set + [REPLY_SENT] comment
+[ ] REPLIED: Inbound /recent shows computedStatus=replied (teal pill)
+[ ] REPLIED: Reload page → still shows Replied (derived from task state)
+[ ] REPLIED: Click again → no duplicate comment, returns already:true
+[ ] REPLIED: Task completed + replied → shows Replied (priority above Closed)
+[ ] REPLIED: Button disabled with 'Replied \u2713' after marking
 ```
 
 ## Files Created
@@ -240,10 +247,46 @@ The digest timer runs 90 minutes after the morning report, ensuring overnight su
 
 | `computedStatus` | Condition | Pill Color |
 |---|---|---|
-| `stored_only` | No task spawned (newsletter, etc.) | Gray |
-| `task_created` | Task exists, open, no draft | Blue |
-| `draft_ready` | Task exists + `draftTaskId` present | Purple |
-| `closed` | Linked task status is `completed` or `done` | Muted green |
 | `duplicate` | Record has `duplicateOf` or `status === 'duplicate'` | Orange |
+| `stored_only` | No task spawned (newsletter, etc.) | Gray |
+| `replied` | Task has `repliedAt` set | Teal |
+| `closed` | Linked task status is `completed` or `done` | Muted green |
+| `draft_ready` | Task exists + `draftTaskId` present | Purple |
+| `task_created` | Task exists, open, no draft | Blue |
+
+_Priority order: duplicate > stored_only > replied > closed > draft_ready > task_created_
 
 Statuses are computed at read-time from live task state — no blob rewrites needed. Backward compatible: older clients ignore `computedStatus` fields.
+
+## v1.6 Changes (Replied Loop Closure)
+
+- **Created** `api/tasksMarkReplied/function.json` + `index.js` — POST `/api/tasks/mark-replied` endpoint. Sets `task.repliedAt` (ISO timestamp) and appends `[REPLY_SENT]` audit comment to the task. Idempotent: re-calls return `already: true` without duplicate comments. Body: `{ taskId, source: "inbound", submissionId? }`.
+- **Modified** `api/formIntake/index.js` — computedStatus priority updated: `replied` checks `task.repliedAt` and takes priority over `closed`, `draft_ready`, and `task_created`.
+- **Modified** `modules/company/js/inbound-intake.js` — Added `replied` to `STATUS_PILL_MAP` (teal, fa-reply icon). Detail drawer shows "Mark Replied" button (or disabled "Replied ✓" if already replied). `markReplied()` POSTs to endpoint, optimistically updates item, refreshes table row, shows toast. `showToast()` utility for inline confirmation.
+- **Modified** `modules/company/inbound.html` — Added `.inb-status--replied` (teal `#2dd4bf`), `.inb-btn` / `.inb-btn--mark-replied` / `.inb-btn--replied` button styles, `.inb-toast` notification styles.
+- **Modified** `staticwebapp.config.json` — Added `/api/tasks/mark-replied` SWA route rewrite.
+
+### Mark Replied Endpoint
+
+```
+POST /api/tasks/mark-replied
+Content-Type: application/json
+
+{ "taskId": "task-...", "source": "inbound", "submissionId": "fi_..." }
+```
+
+**Response (first call):**
+```json
+{ "ok": true, "repliedAt": "2026-02-23T22:50:00.000Z" }
+```
+
+**Response (repeat call):**
+```json
+{ "ok": true, "already": true, "repliedAt": "2026-02-23T22:50:00.000Z" }
+```
+
+### Reply Marker (task-level)
+
+- **Field**: `task.repliedAt` — ISO timestamp, set once
+- **Audit**: `[REPLY_SENT] <ISO> via Inbound UI (submission: fi_...)` comment appended to task
+- Append-only: no deletion, no overwrite

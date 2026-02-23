@@ -17,6 +17,8 @@
  * - v1.5: Inbound status sync — computedStatus added to GET /recent response,
  *   derived from task state at read-time (stored_only, task_created, draft_ready,
  *   closed, duplicate). Batch task lookup for efficiency.
+ * - v1.6: Replied loop closure — computedStatus 'replied' added (priority above
+ *   closed), derived from task.repliedAt field set by POST /api/tasks/mark-replied.
  */
 
 const crypto = require('crypto');
@@ -556,7 +558,10 @@ module.exports = async function (context, req) {
             r.computedStatusReason = 'no task spawned';
           } else {
             var linkedTask = taskMap[r.taskId];
-            if (linkedTask && (linkedTask.status === 'completed' || linkedTask.status === 'done')) {
+            if (linkedTask && linkedTask.repliedAt) {
+              r.computedStatus = 'replied';
+              r.computedStatusReason = 'replied ' + linkedTask.repliedAt;
+            } else if (linkedTask && (linkedTask.status === 'completed' || linkedTask.status === 'done')) {
               r.computedStatus = 'closed';
               r.computedStatusReason = 'task ' + linkedTask.status;
             } else if (r.draftTaskId) {

@@ -147,7 +147,54 @@
     .inb-status--duplicate { color: #fb923c; opacity: 0.8; }
     .inb-status--draft { color: #a78bfa; opacity: 1; }
     .inb-status--closed { color: #6ee7b7; opacity: 0.65; }
+    .inb-status--replied { color: #2dd4bf; opacity: 1; }
     .inb-status--filtered { color: #f87171; opacity: 0.6; }
+
+    /* Mark Replied button */
+    .inb-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.68rem;
+      font-weight: 500;
+      padding: 0.35rem 0.75rem;
+      border-radius: 4px;
+      border: 1px solid rgba(255,255,255,0.08);
+      cursor: pointer;
+      transition: background 0.15s, opacity 0.15s;
+    }
+    .inb-btn--mark-replied {
+      background: rgba(45,212,191,0.1);
+      color: #2dd4bf;
+      border-color: rgba(45,212,191,0.2);
+    }
+    .inb-btn--mark-replied:hover { background: rgba(45,212,191,0.2); }
+    .inb-btn--replied {
+      background: rgba(45,212,191,0.08);
+      color: #5eead4;
+      opacity: 0.6;
+      cursor: default;
+    }
+
+    /* Toast */
+    .inb-toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(1rem);
+      background: #1e293b;
+      color: #e2e8f0;
+      font-size: 0.72rem;
+      padding: 0.5rem 1.2rem;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.06);
+      opacity: 0;
+      transition: opacity 0.25s, transform 0.25s;
+      z-index: 1100;
+      pointer-events: none;
+    }
+    .inb-toast--visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .inb-toast--error { border-color: rgba(248,113,113,0.3); color: #fca5a5; }
 
     /* Detail drawer */
     .inb-drawer-overlay {
