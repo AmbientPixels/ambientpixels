@@ -4258,13 +4258,50 @@ IMPORTANT: CEO/manual tasks are the CEO's direct requests — triage them FIRST 
 ${dirList}`;
   }
 
-  // Active Objectives
+  // Active Objectives — enriched with task linkage + linked directives (mirrors directive section)
   let objectivesSection = '';
   if (activeObjectives.length > 0) {
-    const objList = activeObjectives.map(o =>
-      '- "' + o.title + '" Q' + (o.quarter || '?') + ' (id: ' + o.id + ', progress: ' + (o.progress || 0) + '%)'
-    ).join('\n');
-    objectivesSection = `\n\nACTIVE OBJECTIVES:
+    // Build objective → task map
+    const objectiveTaskMap = {};
+    allActiveTasks.forEach(t => {
+      if (t.objective_id) {
+        if (!objectiveTaskMap[t.objective_id]) objectiveTaskMap[t.objective_id] = [];
+        objectiveTaskMap[t.objective_id].push(t.title);
+      }
+    });
+    // Build objective → directive map from BOTH directions:
+    // 1) directive.linkedObjectives (array on directive)
+    // 2) objective.linkedDirective (single ID set from objectives page)
+    const objectiveDirMap = {};
+    const _allDirectives = activeDirectives.length > 0 ? activeDirectives : [];
+    const _dirById = {};
+    _allDirectives.forEach(d => { _dirById[d.id] = d; });
+    _allDirectives.forEach(d => {
+      (d.linkedObjectives || []).forEach(objId => {
+        if (!objectiveDirMap[objId]) objectiveDirMap[objId] = [];
+        if (!objectiveDirMap[objId].some(x => x.id === d.id)) {
+          objectiveDirMap[objId].push({ id: d.id, title: d.title });
+        }
+      });
+    });
+    // Also check objective.linkedDirective (set from objectives UI)
+    activeObjectives.forEach(o => {
+      if (o.linkedDirective && _dirById[o.linkedDirective]) {
+        if (!objectiveDirMap[o.id]) objectiveDirMap[o.id] = [];
+        if (!objectiveDirMap[o.id].some(x => x.id === o.linkedDirective)) {
+          const d = _dirById[o.linkedDirective];
+          objectiveDirMap[o.id].push({ id: d.id, title: d.title });
+        }
+      }
+    });
+    const objList = activeObjectives.map(o => {
+      const linked = objectiveTaskMap[o.id];
+      const linkInfo = linked ? ' [' + linked.length + ' task(s) linked]' : ' [NO TASKS YET \u2014 needs task creation]';
+      const dirs = objectiveDirMap[o.id];
+      const dirInfo = dirs ? ' directives: ' + dirs.map(d => '"' + d.title + '" (id: ' + d.id + ')').join(', ') : '';
+      return '- "' + o.title + '" Q' + (o.quarter || '?') + ' (id: ' + o.id + ', progress: ' + (o.progress || 0) + '%' + dirInfo + ')' + linkInfo;
+    }).join('\n');
+    objectivesSection = `\n\nACTIVE OBJECTIVES (strategic goals \u2014 create tasks to advance these, always set objective_id when creating tasks for an objective):
 ${objList}`;
   }
 
@@ -4643,7 +4680,7 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
 - Do NOT create a new task if you already have a todo or in-progress task that covers the same goal — execute the existing task instead.
 - Do NOT comment on a task just to say you are "working on it" or "planning to" — instead, use execute-task or the appropriate action to produce the output.
 - TASK CREATION LIMIT: Do not create more than 1 new task per heartbeat unless you have also used execute-task or create-doc in the same cycle. Organizing without producing is not useful.
-- TASK CREATION SCOPE: Only create tasks that DIRECTLY serve an existing CEO task or active directive. Do NOT create speculative tasks about API costs, deployment monitoring, performance optimization, infrastructure audits, or other operational topics unless the CEO or a directive specifically requests it. The CEO sets the agenda — agents execute it.
+- TASK CREATION SCOPE: Only create tasks that DIRECTLY serve an existing CEO task, active directive, or active objective. Do NOT create speculative tasks about API costs, deployment monitoring, performance optimization, infrastructure audits, or other operational topics unless the CEO, a directive, or an objective specifically requests it. The CEO sets the agenda — agents execute it. When creating a task for an objective, ALWAYS set objective_id to that objective's id. When creating a task for a directive, ALWAYS set directive_id to that directive's id.
 - If a task description says to use create-doc, you MUST use create-doc (not execute-task) to produce the document directly.
 - BLOG POST / MARKETING CONTENT RULE: When your task involves writing a blog post, article, or marketing content, you MUST use create-doc with kind "marketing_post" — NOT execute-task. execute-task only produces a deliverable comment — it does NOT create a publishable document, does NOT trigger automatic hero image generation by Pixel, and does NOT enter the publish pipeline. Always use create-doc for any content that should become a published article or blog post. Include the full markdown content in document.content_md and set document.kind to "marketing_post".
 - If a CEO comment says "top priority" or "complete before other work", that task takes absolute precedence — execute it immediately.` + (agent.name === 'Nova' ? `
@@ -4665,12 +4702,20 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
   - Move stale tasks forward or flag blockers with comment-task
   - Review other agents' deliverables promptly
   - Keep the board clean: close completed work, reassign only truly stuck tasks
+  - OBJECTIVE EXECUTION: Active objectives are strategic goals. When you see an objective marked [NO TASKS YET], you MUST create tasks to advance it:
+    1. Break the objective into concrete, assignable tasks (1-3 tasks per objective)
+    2. Assign by role: doc-writing/content → scribe, design → pixel, devops → forge, finance → cipher, marketing → echo, research → scout
+    3. ALWAYS set objective_id on each task (use the objective id from ACTIVE OBJECTIVES)
+    4. If the objective has linked directives, also set directive_id to the relevant directive
+    5. Set realistic due dates (2-5 days out) and priority based on objective importance
+    6. Leave a delegation comment on each task explaining how it advances the objective
   - DIRECTIVE EXECUTION: Active CEO directives are strategic priorities. When you see a directive marked [NO TASKS YET], you MUST create tasks to fulfill it:
     1. Break the directive into concrete, assignable tasks
     2. Assign doc-writing/content tasks to scribe, design tasks to pixel, devops to forge, finance to cipher, marketing to echo, research/market analysis/competitive intel to scout
     3. Set directive_id on each task to link it to the directive (use the directive id from the ACTIVE CEO DIRECTIVES section)
-    4. Set realistic due dates (2-5 days out) and priority based on the directive priority
-    5. Leave a delegation comment on each task explaining what the directive requires
+    4. If the directive is linked to an objective, also set objective_id on each task
+    5. Set realistic due dates (2-5 days out) and priority based on the directive priority
+    6. Leave a delegation comment on each task explaining what the directive requires
     For documentation directives: create tasks assigned to scribe to draft the document, then scribe will use create-doc and submit-for-publish when ready
     For blog posts or marketing content that should be visually strong: create TWO tasks linked to the same directive:
       a) Assign scribe to write the blog post (create-doc with marketing_post kind)

@@ -18,6 +18,36 @@
   <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
   <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
   <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
+  <style>
+    .obj-modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
+      display: none; align-items: center; justify-content: center; z-index: 1000;
+    }
+    .obj-modal {
+      width: min(440px, 90%); background: rgba(7,16,25,0.95);
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 10px;
+      padding: 1rem; box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+    .obj-modal h3 { margin: 0 0 0.6rem; font-size: 1rem; }
+    .obj-modal label { display:block; font-size:0.7rem; opacity:0.5; margin-top:0.6rem; }
+    .obj-modal input,
+    .obj-modal textarea,
+    .obj-modal select {
+      width: 100%; padding: 0.4rem 0.6rem; border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03);
+      color: inherit; font-size: 0.8rem; font-family: inherit;
+    }
+    .obj-modal textarea { resize: vertical; min-height: 80px; }
+    .obj-modal-row { display:flex; gap:0.5rem; }
+    .obj-modal-row > div { flex:1; }
+    .obj-modal-actions { margin-top: 0.8rem; display:flex; gap:0.5rem; justify-content:flex-end; }
+    .obj-btn {
+      font-size:0.65rem; padding:0.3rem 0.8rem; border-radius:5px; border:1px solid rgba(255,255,255,0.1);
+      background:rgba(255,255,255,0.05); color:#fff; cursor:pointer;
+    }
+    .obj-btn--primary { border-color:rgba(78,205,196,0.4); color:#4ECDC4; }
+    .obj-btn--danger { border-color:rgba(248,113,113,0.4); color:#f87171; margin-right:auto; }
+  </style>
 </head>
 <body style="background:#071019" data-theme="dark">
 
@@ -96,6 +126,71 @@
 
   </main>
 
+  <!-- Edit Objective Modal -->
+  <div class="obj-modal-backdrop" id="obj-edit-modal">
+    <div class="obj-modal">
+      <h3 id="obj-modal-title">Edit Objective</h3>
+      <label for="obj-edit-title">Title</label>
+      <input type="text" id="obj-edit-title" />
+
+      <label for="obj-edit-desc">Description</label>
+      <textarea id="obj-edit-desc" placeholder="Describe the objective..."></textarea>
+
+      <div class="obj-modal-row">
+        <div>
+          <label for="obj-edit-quarter">Quarter</label>
+          <select id="obj-edit-quarter">
+            <option value="Q1">Q1</option>
+            <option value="Q2">Q2</option>
+            <option value="Q3">Q3</option>
+            <option value="Q4">Q4</option>
+          </select>
+        </div>
+        <div>
+          <label for="obj-edit-year">Year</label>
+          <input type="number" id="obj-edit-year" min="2024" max="2030" />
+        </div>
+      </div>
+
+      <label for="obj-edit-directive">Linked Directive</label>
+      <select id="obj-edit-directive">
+        <option value="">No linked directive</option>
+      </select>
+
+      <div class="obj-modal-row">
+        <div>
+          <label for="obj-edit-owner">Owner</label>
+          <select id="obj-edit-owner">
+            <option value="nova">Nova</option>
+            <option value="cipher">Cipher</option>
+            <option value="pixel">Pixel</option>
+            <option value="forge">Forge</option>
+            <option value="echo">Echo</option>
+            <option value="scribe">Scribe</option>
+            <option value="quill">Quill</option>
+            <option value="scout">Scout</option>
+          </select>
+        </div>
+        <div>
+          <label for="obj-edit-status">Status</label>
+          <select id="obj-edit-status">
+            <option value="on_track">On Track</option>
+            <option value="at_risk">At Risk</option>
+            <option value="behind">Behind</option>
+            <option value="complete">Complete</option>
+            <option value="canceled">Canceled</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="obj-modal-actions">
+        <button class="obj-btn obj-btn--danger" id="obj-edit-delete"><i class="fas fa-trash"></i> Delete</button>
+        <button class="obj-btn" id="obj-edit-cancel">Cancel</button>
+        <button class="obj-btn obj-btn--primary" id="obj-edit-save"><i class="fas fa-check"></i> Save</button>
+      </div>
+    </div>
+  </div>
+
   <script src="/js/company-store.js"></script>
   <script src="/js/agent-engine.js"></script>
   <script src="/modules/company/js/quick-chat.js"></script>
@@ -110,6 +205,20 @@
       var createBtn = document.getElementById('obj-create-btn');
       var objList = document.getElementById('obj-list');
 
+      // Edit modal elements
+      var editModal = document.getElementById('obj-edit-modal');
+      var editTitle = document.getElementById('obj-edit-title');
+      var editDesc = document.getElementById('obj-edit-desc');
+      var editQuarter = document.getElementById('obj-edit-quarter');
+      var editYear = document.getElementById('obj-edit-year');
+      var editDirective = document.getElementById('obj-edit-directive');
+      var editOwner = document.getElementById('obj-edit-owner');
+      var editStatus = document.getElementById('obj-edit-status');
+      var editSave = document.getElementById('obj-edit-save');
+      var editCancel = document.getElementById('obj-edit-cancel');
+      var editDelete = document.getElementById('obj-edit-delete');
+      var editingId = null;
+
       AgentEngine.loadRegistry().then(function () {
         populateDirectiveSelect();
         renderObjectives();
@@ -123,17 +232,73 @@
         renderObjectives();
       });
 
-      function populateDirectiveSelect() {
+      function populateDirectiveSelect(targetSelect, selectedId) {
         var directives = AgentEngine.getDirectives();
-        var active = directives.filter(function (d) { return d.status === 'active'; });
-        directiveSelect.innerHTML = '<option value="">No linked directive</option>';
+        var active = directives.filter(function (d) { return d.status === 'active' || d.status === 'completed'; });
+        var sel = targetSelect || directiveSelect;
+        sel.innerHTML = '<option value="">No linked directive</option>';
         active.forEach(function (dir) {
           var opt = document.createElement('option');
           opt.value = dir.id;
-          opt.textContent = dir.title;
-          directiveSelect.appendChild(opt);
+          opt.textContent = dir.title + (dir.status !== 'active' ? ' [' + dir.status + ']' : '');
+          if (selectedId && dir.id === selectedId) opt.selected = true;
+          sel.appendChild(opt);
         });
       }
+
+      // ── Edit Modal ──
+      function openEditModal(obj) {
+        editingId = obj.id;
+        editTitle.value = obj.title || '';
+        editDesc.value = obj.description || '';
+        editQuarter.value = obj.quarter || 'Q1';
+        editYear.value = obj.year || 2026;
+        editOwner.value = obj.owner || 'nova';
+        editStatus.value = obj.status || 'on_track';
+        populateDirectiveSelect(editDirective, obj.linkedDirective || '');
+        editModal.style.display = 'flex';
+      }
+
+      function closeEditModal() {
+        editModal.style.display = 'none';
+        editingId = null;
+      }
+
+      editCancel.addEventListener('click', closeEditModal);
+      editModal.addEventListener('click', function (e) { if (e.target === editModal) closeEditModal(); });
+
+      editSave.addEventListener('click', function () {
+        if (!editingId) return;
+        var payload = {
+          title: editTitle.value.trim(),
+          description: editDesc.value.trim(),
+          quarter: editQuarter.value,
+          year: parseInt(editYear.value, 10),
+          linkedDirective: editDirective.value || null,
+          owner: editOwner.value || 'nova',
+          status: editStatus.value
+        };
+        AgentEngine.updateObjective(editingId, payload);
+        // Push to server so heartbeat sees changes
+        if (typeof CompanyStore !== 'undefined' && CompanyStore.setState) {
+          CompanyStore.setState('ap_objectives', AgentEngine.getObjectives());
+        }
+        closeEditModal();
+        renderObjectives();
+      });
+
+      editDelete.addEventListener('click', function () {
+        if (!editingId) return;
+        if (!confirm('Permanently delete this objective? This cannot be undone.')) return;
+        var objectives = AgentEngine.getObjectives().filter(function (o) { return o.id !== editingId; });
+        if (typeof CompanyStore !== 'undefined' && CompanyStore.setState) {
+          CompanyStore.setState('ap_objectives', objectives);
+        }
+        // Also update local storage
+        localStorage.setItem('ap_objectives', JSON.stringify(objectives));
+        closeEditModal();
+        renderObjectives();
+      });
 
       createBtn.addEventListener('click', function () {
         var title = titleInput.value.trim();
@@ -201,6 +366,7 @@
             '<span style="font-size:0.65rem; opacity:0.5;">' + (obj.quarter || '') + ' ' + (obj.year || '') + '</span>' +
           '</div>' +
           (dirTitle ? '<div style="font-size:0.6rem; opacity:0.4; margin-bottom:0.4rem;"><i class="fas fa-compass"></i> ' + escapeHtml(dirTitle) + '</div>' : '') +
+          (obj.description ? '<div style="font-size:0.7rem; opacity:0.5; margin-bottom:0.4rem; line-height:1.3;">' + escapeHtml(obj.description) + '</div>' : '') +
           '<div style="margin:0.4rem 0; height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden;">' +
             '<div style="height:100%; width:' + pct + '%; background:' + statusColor + '; border-radius:3px; transition:width 0.3s;"></div>' +
           '</div>' +
@@ -269,6 +435,13 @@
           renderObjectives();
         });
         controls.appendChild(cancelBtn);
+
+        // Edit button
+        var editBtn = document.createElement('button');
+        editBtn.innerHTML = '<i class="fas fa-pen"></i> Edit';
+        editBtn.style.cssText = 'font-size:0.55rem; padding:0.2rem 0.5rem; border:1px solid rgba(138,43,226,0.3); background:rgba(138,43,226,0.05); color:#c084fc; border-radius:3px; cursor:pointer;';
+        editBtn.addEventListener('click', function () { openEditModal(obj); });
+        controls.appendChild(editBtn);
 
         card.appendChild(controls);
         return card;
