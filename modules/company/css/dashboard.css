@@ -35,6 +35,7 @@
   font-size: 0.7rem;
   font-family: inherit;
   transition: all 0.2s;
+  white-space: nowrap;
 }
 
 .dash-refresh-btn:hover {
