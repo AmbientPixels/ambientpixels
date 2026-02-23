@@ -127,28 +127,47 @@
     .cfg-tool-btn:hover { border-color: rgba(78,205,196,0.25); background: rgba(78,205,196,0.07); }
     .cfg-tool-btn i { opacity: 0.5; font-size: 0.65rem; color: #4ECDC4; }
 
-    /* Danger Zone */
-    .cfg-danger {
-      background: rgba(239,68,68,0.03);
-      border: 1px solid rgba(239,68,68,0.15);
+    /* System Maintenance */
+    .cfg-maintenance {
+      background: rgba(255,255,255,0.015);
+      border: 1px solid rgba(255,255,255,0.06);
       border-radius: 10px;
-      padding: 1rem 1.2rem;
+      padding: 1.2rem 1.4rem;
       margin-top: 2rem;
     }
-    .cfg-danger-title { font-size: 0.7rem; font-weight: 600; color: #ef4444; margin-bottom: 0.6rem; }
-    .cfg-danger-desc { font-size: 0.62rem; opacity: 0.4; margin-bottom: 0.6rem; }
-    .cfg-danger-group { margin-bottom: 0.8rem; }
-    .cfg-danger-group-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.35; margin-bottom: 0.4rem; font-weight: 500; }
-    .cfg-danger-btn {
+    .cfg-maintenance-title { font-size: 0.72rem; font-weight: 600; color: rgba(255,255,255,0.7); margin-bottom: 0.5rem; }
+    .cfg-maintenance-title i { color: rgba(251,191,36,0.6); margin-right: 4px; }
+    .maintenance-intro { font-size: 0.6rem; opacity: 0.4; line-height: 1.5; margin-bottom: 1rem; }
+    .maintenance-intro p { margin: 0 0 0.2rem 0; }
+    .maintenance-summary { font-size: 0.58rem; opacity: 0.35; margin-bottom: 1rem; padding: 0.5rem 0.6rem; background: rgba(255,255,255,0.02); border-radius: 6px; border: 1px solid rgba(255,255,255,0.04); }
+    .maintenance-summary ul { margin: 0.25rem 0 0 1rem; padding: 0; list-style: disc; }
+    .maintenance-summary li { margin-bottom: 0.15rem; }
+    .cfg-maint-group { margin-bottom: 1.1rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .cfg-maint-group:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .cfg-maint-group-label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.4; margin-bottom: 0.25rem; font-weight: 500; }
+    .cfg-maint-group .section-desc { font-size: 0.55rem; opacity: 0.3; margin: 0 0 0.5rem 0; line-height: 1.4; }
+    .cfg-maint-btn {
       display: inline-flex; align-items: center; gap: 0.4rem;
       padding: 0.5rem 1rem; border-radius: 6px;
-      border: 1px solid rgba(239,68,68,0.25); background: rgba(239,68,68,0.06);
-      color: #ef4444; font-size: 0.65rem; font-family: inherit;
+      border: 1px solid rgba(251,191,36,0.2); background: rgba(251,191,36,0.04);
+      color: #fbbf24; font-size: 0.65rem; font-family: inherit;
       cursor: pointer; transition: all 0.15s; margin-right: 0.5rem; margin-bottom: 0.3rem;
     }
-    .cfg-danger-btn:hover { background: rgba(239,68,68,0.12); border-color: rgba(239,68,68,0.4); }
-    .cfg-danger-btn--nuke { border-color: rgba(239,68,68,0.4); background: rgba(239,68,68,0.1); font-weight: 600; }
-    .cfg-danger-btn--nuke:hover { background: rgba(239,68,68,0.2); }
+    .cfg-maint-btn:hover { background: rgba(251,191,36,0.1); border-color: rgba(251,191,36,0.35); }
+    .cfg-maint-btn i { opacity: 0.6; }
+    .cfg-maint-btn--nuke {
+      border: 1px solid rgba(239,68,68,0.4); background: rgba(239,68,68,0.1);
+      color: #ef4444; font-weight: 600;
+    }
+    .cfg-maint-btn--nuke:hover { background: rgba(239,68,68,0.2); }
+    .advanced-reset { margin-top: 0.2rem; }
+    .advanced-reset summary {
+      font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.06em;
+      opacity: 0.4; font-weight: 500; cursor: pointer; padding: 0.3rem 0;
+    }
+    .advanced-reset summary:hover { opacity: 0.6; }
+    .advanced-warning { font-size: 0.58rem; opacity: 0.4; line-height: 1.5; margin: 0.5rem 0 0.6rem 0; }
+    .advanced-warning p { margin: 0 0 0.2rem 0; }
 
     /* Type-to-confirm overlay */
     .cfg-confirm-overlay {
@@ -991,52 +1010,72 @@
       </a>
     </div>
 
-    <!-- Danger Zone -->
-    <div class="cfg-danger">
-      <div class="cfg-danger-title"><i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i> Danger Zone</div>
-      <div class="cfg-danger-desc">These actions are destructive and cannot be undone. Type DELETE to confirm.</div>
+    <!-- System Maintenance -->
+    <div class="cfg-maintenance">
+      <div class="cfg-maintenance-title"><i class="fas fa-tools"></i> System Maintenance</div>
+      <div class="maintenance-intro">
+        <p><strong>Administrative tools for controlled resets and cleanup.</strong></p>
+        <p>These actions affect operational data but do not modify governance or system safeguards.</p>
+      </div>
 
-      <div class="cfg-danger-group">
-        <div class="cfg-danger-group-label">Data Resets</div>
-        <button class="cfg-danger-btn" data-danger="reset-tasks" data-label="Reset Tasks">
+      <div class="maintenance-summary" id="maint-summary">
+        <p style="margin:0 0 0.2rem 0;"><strong>Current State:</strong></p>
+        <ul>
+          <li>Goals: <span id="maint-goal-count">—</span></li>
+          <li>Projects: <span id="maint-project-count">—</span></li>
+          <li>Tasks: <span id="maint-task-count">—</span></li>
+          <li>Execution Mode: <span id="maint-exec-mode">—</span></li>
+        </ul>
+      </div>
+
+      <div class="cfg-maint-group">
+        <div class="cfg-maint-group-label">Operational Resets</div>
+        <p class="section-desc">Clears operational data while preserving governance configuration and system safeguards.</p>
+        <button class="cfg-maint-btn" data-danger="reset-tasks" data-label="Reset Tasks">
           <i class="fas fa-eraser"></i> Reset Tasks
         </button>
-        <button class="cfg-danger-btn" data-danger="reset-directives" data-label="Reset Projects">
+        <button class="cfg-maint-btn" data-danger="reset-directives" data-label="Reset Projects">
           <i class="fas fa-eraser"></i> Reset Projects
         </button>
-        <button class="cfg-danger-btn" data-danger="reset-objectives" data-label="Reset Goals">
+        <button class="cfg-maint-btn" data-danger="reset-objectives" data-label="Reset Goals">
           <i class="fas fa-eraser"></i> Reset Goals
         </button>
-        <button class="cfg-danger-btn" data-danger="reset-action-queue" data-label="Reset Action Queue">
+        <button class="cfg-maint-btn" data-danger="reset-action-queue" data-label="Reset Action Queue">
           <i class="fas fa-eraser"></i> Reset Action Queue
         </button>
       </div>
 
-      <div class="cfg-danger-group">
-        <div class="cfg-danger-group-label">Audit &amp; Logs</div>
-        <button class="cfg-danger-btn" data-danger="reset-audit-logs" data-label="Reset All Audit Logs">
+      <div class="cfg-maint-group">
+        <div class="cfg-maint-group-label">Logs &amp; History</div>
+        <p class="section-desc">Clears historical telemetry and audit logs. Does not affect active system state.</p>
+        <button class="cfg-maint-btn" data-danger="reset-audit-logs" data-label="Reset All Audit Logs">
           <i class="fas fa-broom"></i> Reset Audit Logs
-        </button>
-        <button class="cfg-danger-btn" data-danger="reset-governance" data-label="Reset Governance Log">
-          <i class="fas fa-broom"></i> Reset Governance
         </button>
       </div>
 
-      <div class="cfg-danger-group">
-        <div class="cfg-danger-group-label">Content Resets</div>
-        <button class="cfg-danger-btn" data-danger="reset-documents" data-label="Reset Documents (Keep Content Gallery)">
+      <div class="cfg-maint-group">
+        <div class="cfg-maint-group-label">Content Maintenance</div>
+        <p class="section-desc">Removes generated content while preserving gallery assets.</p>
+        <button class="cfg-maint-btn" data-danger="reset-documents" data-label="Reset Documents (Keep Content Gallery)">
           <i class="fas fa-images"></i> Reset Documents (Keep Content Gallery)
         </button>
-        <button class="cfg-danger-btn" data-danger="reset-nongallery-assets" data-label="Reset Non-Gallery Content Assets">
+        <button class="cfg-maint-btn" data-danger="reset-nongallery-assets" data-label="Reset Non-Gallery Content Assets">
           <i class="fas fa-image"></i> Reset Non-Gallery Content Assets
         </button>
       </div>
 
-      <div class="cfg-danger-group">
-        <div class="cfg-danger-group-label">Nuclear</div>
-        <button class="cfg-danger-btn cfg-danger-btn--nuke" data-danger="clear-company-data" data-label="Clear All Company Data">
-          <i class="fas fa-radiation"></i> Clear All Company Data
-        </button>
+      <div class="cfg-maint-group">
+        <details class="advanced-reset">
+          <summary>Advanced</summary>
+          <div class="advanced-warning">
+            <p><strong>Clear All Company Data</strong></p>
+            <p>This permanently removes all operational and content data.</p>
+            <p>Governance configuration remains intact.</p>
+          </div>
+          <button class="cfg-maint-btn cfg-maint-btn--nuke" data-danger="clear-company-data" data-label="Clear All Company Data">
+            <i class="fas fa-radiation"></i> Clear All Company Data
+          </button>
+        </details>
       </div>
     </div>
 
@@ -2344,7 +2383,7 @@
   </script>
 
   <script>
-  // ── Danger Zone: type-to-confirm ──
+  // ── System Maintenance: type-to-confirm ──
   (function () {
     var overlay = document.getElementById('cfg-confirm-overlay');
     var titleEl = document.getElementById('cfg-confirm-title');
@@ -2451,13 +2490,6 @@
           }
         }
       },
-      'reset-governance': {
-        title: 'Reset Governance Log',
-        desc: 'This will clear the governance audit trail (approvals, rejections, escalations).',
-        exec: function () {
-          return CompanyStore.setState('ap_governance_log', []);
-        }
-      },
       'clear-company-data': {
         title: 'Clear All Company Data',
         desc: 'This will delete ALL ap_* keys from localStorage. Tasks, projects, goals, configs, audit logs — everything. Nova and browser state will be preserved.',
@@ -2538,6 +2570,36 @@
         openConfirm(this.getAttribute('data-danger'));
       });
     }
+
+    // Populate maintenance summary counts
+    function _updateMaintSummary() {
+      try {
+        var tasks = (typeof AgentEngine !== 'undefined' && AgentEngine.getTasks) ? AgentEngine.getTasks() : [];
+        var dirs = (typeof AgentEngine !== 'undefined' && AgentEngine.getDirectives) ? AgentEngine.getDirectives() : [];
+        var objs = (typeof AgentEngine !== 'undefined' && AgentEngine.getObjectives) ? AgentEngine.getObjectives() : [];
+        var gc = document.getElementById('maint-goal-count');
+        var pc = document.getElementById('maint-project-count');
+        var tc = document.getElementById('maint-task-count');
+        var em = document.getElementById('maint-exec-mode');
+        if (gc) gc.textContent = objs.length;
+        if (pc) pc.textContent = dirs.length;
+        if (tc) tc.textContent = tasks.length;
+        if (em) {
+          var _mApiBase = window.location.hostname.includes('ambientpixels.ai')
+            ? 'https://ambientpixels-nova-api.azurewebsites.net/api' : '/api';
+          fetch(_mApiBase + '/company-state?key=execution_mode', { method: 'GET' })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (d) {
+              var v = (d && d.value) ? String(d.value).trim().toLowerCase() : 'active';
+              var labels = { active: '🟢 Live', observe: '🟡 Safe Mode', frozen: '🔴 Locked' };
+              em.textContent = labels[v] || labels.active;
+            })
+            .catch(function () { em.textContent = '🟢 Live'; });
+        }
+      } catch (_e) { /* fail closed */ }
+    }
+    _updateMaintSummary();
+    window.addEventListener('companystoreready', _updateMaintSummary);
 
     // Input validation — enable execute only when "DELETE" is typed
     inputEl.addEventListener('input', function () {

@@ -197,6 +197,7 @@
         <a href="/modules/company/board.html" class="dash-refresh-btn" style="border-color:rgba(138,43,226,0.2); color:#c084fc;"><i class="fas fa-columns"></i> Board Mode</a>
         <a href="/modules/company/" class="dash-refresh-btn"><i class="fas fa-arrow-left"></i> Back to HQ</a>
         <button class="dash-refresh-btn" id="dash-refresh"><i class="fas fa-sync-alt"></i> Refresh</button>
+        <button class="dash-refresh-btn" id="dash-export-snapshot" title="Export full GridOS state snapshot" style="border-color:rgba(251,191,36,0.2); color:#fbbf24;"><i class="fas fa-download"></i> Export Snapshot</button>
       </div>
     </div>
 
@@ -807,6 +808,54 @@
           }, 3000);
         });
       });
+
+      // ── Export Snapshot ──
+      var _snapshotBtn = document.getElementById('dash-export-snapshot');
+      var _snapshotRunning = false;
+      if (_snapshotBtn) {
+        _snapshotBtn.addEventListener('click', function () {
+          if (_snapshotRunning) return;
+          _snapshotRunning = true;
+          _snapshotBtn.disabled = true;
+          _snapshotBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Exporting...';
+          fetch(getApiBase() + '/export-snapshot', {
+            method: 'POST',
+            headers: (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) ? CompanyStore.getWriteHeaders() : { 'Content-Type': 'application/json' }
+          })
+          .then(function (res) { return res.json(); })
+          .then(function (data) {
+            if (data.ok) {
+              _snapshotBtn.innerHTML = '<i class="fas fa-check"></i> Snapshot saved';
+              _snapshotBtn.style.borderColor = 'rgba(52,211,153,0.3)';
+              _snapshotBtn.style.color = '#34d399';
+              console.log('[Dashboard] Snapshot exported:', data.snapshotFile, data.counts);
+            } else {
+              _snapshotBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Failed';
+              _snapshotBtn.style.color = '#f87171';
+              console.error('[Dashboard] Snapshot failed:', data.error);
+            }
+            setTimeout(function () {
+              _snapshotBtn.innerHTML = '<i class="fas fa-download"></i> Export Snapshot';
+              _snapshotBtn.style.borderColor = 'rgba(251,191,36,0.2)';
+              _snapshotBtn.style.color = '#fbbf24';
+              _snapshotBtn.disabled = false;
+              _snapshotRunning = false;
+            }, 3000);
+          })
+          .catch(function (err) {
+            _snapshotBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Failed';
+            _snapshotBtn.style.color = '#f87171';
+            console.error('[Dashboard] Snapshot error:', err);
+            setTimeout(function () {
+              _snapshotBtn.innerHTML = '<i class="fas fa-download"></i> Export Snapshot';
+              _snapshotBtn.style.borderColor = 'rgba(251,191,36,0.2)';
+              _snapshotBtn.style.color = '#fbbf24';
+              _snapshotBtn.disabled = false;
+              _snapshotRunning = false;
+            }, 3000);
+          });
+        });
+      }
 
       // ── Init ──
       AgentEngine.loadRegistry().then(function () {
