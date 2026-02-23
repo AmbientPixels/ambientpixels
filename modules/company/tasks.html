@@ -287,6 +287,21 @@
             </div>
           </div>
 
+          <div class="tm-modal-row">
+            <div>
+              <label for="task-objective">Objective <span style="opacity:0.35; font-weight:normal;">(optional)</span></label>
+              <select id="task-objective">
+                <option value="">No objective</option>
+              </select>
+            </div>
+            <div>
+              <label for="task-directive">Directive <span style="opacity:0.35; font-weight:normal;">(optional)</span></label>
+              <select id="task-directive">
+                <option value="">No directive</option>
+              </select>
+            </div>
+          </div>
+
           <div id="nova-triage-hint" style="padding:0.5rem 0.6rem; margin:0.3rem 0 0.5rem; border-radius:6px; background:rgba(78,205,196,0.06); border:1px solid rgba(78,205,196,0.15); font-size:0.62rem; color:rgba(255,255,255,0.5); display:none;">
             <i class="fas fa-robot" style="color:#4ecdc4; margin-right:4px;"></i>
             <strong style="color:#4ecdc4;">Nova will triage this task</strong> — assign it to the right agent and add delegation context.
@@ -1109,6 +1124,8 @@
       var taskAssigneeField = document.getElementById('task-assignee');
       var taskDivisionField = document.getElementById('task-division');
       var taskDueField = document.getElementById('task-due');
+      var taskObjectiveField = document.getElementById('task-objective');
+      var taskDirectiveField = document.getElementById('task-directive');
       var taskCommentsSection = document.getElementById('task-comments');
       var taskCommentsList = document.getElementById('task-comments-list');
       var taskCommentInput = document.getElementById('task-comment-input');
@@ -1116,6 +1133,45 @@
 
       var editOnlyFields = document.getElementById('edit-only-fields');
       var triageHint = document.getElementById('nova-triage-hint');
+
+      // Populate objective dropdown from live objectives
+      function _populateObjectiveDropdown(selectedId) {
+        var opts = '<option value="">No objective</option>';
+        try {
+          var objectives = typeof AgentEngine.getObjectives === 'function' ? AgentEngine.getObjectives() : [];
+          objectives.forEach(function (obj) {
+            if (!obj || !obj.id) return;
+            var label = escapeHtml((obj.title || obj.id).substring(0, 60));
+            var statusTag = obj.status ? ' [' + obj.status + ']' : '';
+            var sel = (selectedId && obj.id === selectedId) ? ' selected' : '';
+            opts += '<option value="' + escapeHtml(obj.id) + '"' + sel + '>' + label + statusTag + '</option>';
+          });
+        } catch (e) {}
+        taskObjectiveField.innerHTML = opts;
+      }
+
+      // Populate directive dropdown from live directives (optionally filtered by objective)
+      function _populateDirectiveDropdown(selectedId, objectiveFilter) {
+        var opts = '<option value="">No directive</option>';
+        try {
+          var directives = typeof AgentEngine.getDirectives === 'function' ? AgentEngine.getDirectives() : [];
+          directives.forEach(function (dir) {
+            if (!dir || !dir.id) return;
+            // If filtering by objective, only show directives linked to that objective
+            if (objectiveFilter && dir.objective_id && dir.objective_id !== objectiveFilter) return;
+            var label = escapeHtml((dir.title || dir.id).substring(0, 60));
+            var statusTag = dir.status ? ' [' + dir.status + ']' : '';
+            var sel = (selectedId && dir.id === selectedId) ? ' selected' : '';
+            opts += '<option value="' + escapeHtml(dir.id) + '"' + sel + '>' + label + statusTag + '</option>';
+          });
+        } catch (e) {}
+        taskDirectiveField.innerHTML = opts;
+      }
+
+      // Re-filter directives when objective changes
+      taskObjectiveField.addEventListener('change', function () {
+        _populateDirectiveDropdown(taskDirectiveField.value, taskObjectiveField.value);
+      });
 
       function openNewModal() {
         modalTitle.textContent = 'New Task';
@@ -1127,6 +1183,8 @@
         taskAssigneeField.value = '';
         taskDivisionField.value = '';
         taskDueField.value = '';
+        _populateObjectiveDropdown('');
+        _populateDirectiveDropdown('', '');
         taskCommentsSection.style.display = 'none';
         deleteBtn.style.display = 'none';
         // Hide status/assignee/division — Nova handles these
@@ -1153,6 +1211,8 @@
         taskAssigneeField.value = task.assignee || '';
         taskDivisionField.value = task.division || '';
         taskDueField.value = task.dueDate ? String(task.dueDate).split('T')[0] : '';
+        _populateObjectiveDropdown(task.objective_id || '');
+        _populateDirectiveDropdown(task.directive_id || '', task.objective_id || '');
         deleteBtn.style.display = '';
 
         // Render provenance badges in modal
@@ -1292,7 +1352,9 @@
           priority: taskPriorityField.value,
           assignee: taskAssigneeField.value || null,
           division: taskDivisionField.value || null,
-          dueDate: taskDueField.value || null
+          dueDate: taskDueField.value || null,
+          objective_id: taskObjectiveField.value || null,
+          directive_id: taskDirectiveField.value || null
         };
 
         if (taskIdField.value) {
