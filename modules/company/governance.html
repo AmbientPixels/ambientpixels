@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="AmbientPixels Governance Document v2.1 — organizational hierarchy, authority levels, doctrine governance, and operational protocols." />
+  <meta name="description" content="GridOS Playbook v2.2 — governance, authority, doctrine, execution modes, and operational protocol for AmbientPixels HQ." />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>Governance — AmbientPixels HQ</title>
+  <title>GridOS Playbook — AmbientPixels HQ</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/base.css" />
@@ -37,8 +37,8 @@
   <main class="content-section" style="max-width: 800px; margin: 0 auto; padding: 1rem;">
 
     <div class="company-header">
-      <h1><i class="fas fa-scroll" style="opacity:0.4; margin-right:8px; color:#FFD700;"></i>Governance Document</h1>
-      <p>Version 2.1 — AmbientPixels Organizational Protocol · Feb 2026</p>
+      <h1><i class="fas fa-scroll" style="opacity:0.4; margin-right:8px; color:#FFD700;"></i>GridOS Playbook</h1>
+      <p>Governance, Authority & Operational Protocol — v2.2 · Feb 2026</p>
     </div>
 
     <!-- Table of Contents -->
@@ -59,6 +59,8 @@
         <a href="#doctrine-governance" style="color:rgba(168,85,247,0.6);">10. Doctrine Governance Layer <span style="font-size:0.6rem; opacity:0.5;">(v2.1)</span></a>
         <a href="#escalation-routing" style="color:rgba(168,85,247,0.6);">11. Escalation Routing Matrix <span style="font-size:0.6rem; opacity:0.5;">(v2.1)</span></a>
         <a href="#conflict-resolution" style="color:rgba(168,85,247,0.6);">12. Conflict Resolution Order <span style="font-size:0.6rem; opacity:0.5;">(v2.1)</span></a>
+        <a href="#execution-mode" style="color:rgba(78,205,196,0.6);">13. Execution Mode Protocol <span style="font-size:0.6rem; opacity:0.5;">(v2.2)</span></a>
+        <a href="#project-freeze-gate" style="color:rgba(78,205,196,0.6);">14. Project Status Freeze Gate <span style="font-size:0.6rem; opacity:0.5;">(v2.2)</span></a>
       </div>
     </div>
 
@@ -424,8 +426,81 @@
       <p><strong>Doctrine is explicitly subordinate to governance.</strong> An agent's strategic bias may inform how they approach a task, but it cannot cause them to bypass approval gates, exceed budget thresholds, ignore security requirements, or override CEO decisions. Governance always wins.</p>
     </div>
 
+    <!-- Section 13: Execution Mode Protocol (v2.2) -->
+    <div class="gov-section" id="execution-mode">
+      <h2><i class="fas fa-traffic-light" style="color:#4ecdc4; margin-right:6px;"></i>13. Execution Mode Protocol <span style="font-size:0.6rem; opacity:0.4; font-weight:400;">(v2.2)</span></h2>
+      <p>The system operates under one of three <strong>Execution Modes</strong>, configured by CEO via the Config Panel. This mode acts as a global automation posture that gates all agent task mutations system-wide.</p>
+
+      <div style="margin:0.8rem 0;">
+        <div class="gov-class-card" style="background:rgba(52,211,153,0.08); border:1px solid rgba(52,211,153,0.2); color:#34d399;">
+          <i class="fas fa-circle"></i> <strong>Live</strong> (<code>active</code>) — Full automation. Agents create, update, and move tasks freely.
+        </div>
+        <div class="gov-class-card" style="background:rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.2); color:#fbbf24;">
+          <i class="fas fa-circle"></i> <strong>Safe Mode</strong> (<code>observe</code>) — Read-only for task mutations. Agents can produce documents and comments but cannot create, update, or move tasks.
+        </div>
+        <div class="gov-class-card" style="background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.2); color:#f87171;">
+          <i class="fas fa-circle"></i> <strong>Locked</strong> (<code>frozen</code>) — All agent actions blocked. No mutations of any kind.
+        </div>
+      </div>
+
+      <h3>Enforcement Points</h3>
+      <ul>
+        <li><strong>companyHeartbeat</strong> — Reads <code>execution_mode</code> from blob state at the start of each cycle. Frozen mode exits immediately. Observe mode discards all <code>taskUpdates</code> but allows document and comment actions.</li>
+        <li><strong>agentchat</strong> — Reads <code>execution_mode</code> before executing chat actions. Frozen mode blocks all actions with a deterministic refusal. Observe mode blocks <code>update-task</code> and <code>move-task</code> but allows <code>create-document</code> and <code>add-comment</code>.</li>
+      </ul>
+
+      <h3>Telemetry</h3>
+      <ul>
+        <li>Every blocked action emits a telemetry event: <code>execution_mode_block</code> with the mode, agent ID, and action type</li>
+        <li>Blocked actions are logged in the heartbeat run digest under <code>executionModeBlocks</code></li>
+      </ul>
+
+      <h3>Authority</h3>
+      <ul>
+        <li>Only the <strong>CEO (Tier 1)</strong> can change the execution mode via the Config Panel</li>
+        <li>Agents cannot self-modify or override the execution mode</li>
+        <li>Execution mode is stored as a blob state key (<code>execution_mode</code>) — not in localStorage</li>
+        <li>Default is <code>active</code> (Live) if no value is set</li>
+      </ul>
+    </div>
+
+    <!-- Section 14: Project Status Freeze Gate (v2.2) -->
+    <div class="gov-section" id="project-freeze-gate">
+      <h2><i class="fas fa-snowflake" style="color:#4ecdc4; margin-right:6px;"></i>14. Project Status Freeze Gate <span style="font-size:0.6rem; opacity:0.4; font-weight:400;">(v2.2)</span></h2>
+      <p>Tasks linked to <strong>paused</strong> or <strong>missing</strong> projects are automatically blocked from mutation. This prevents agents from advancing work on suspended initiatives.</p>
+
+      <h3>Gate Behavior</h3>
+      <ul>
+        <li>Before any task mutation (<code>update-task</code>, <code>move-task</code>), the system resolves the task's parent project via <code>directive_id</code></li>
+        <li>If the parent project has <code>status: 'paused'</code>, the mutation is <strong>blocked</strong></li>
+        <li>If the parent project is <strong>not found</strong> (orphaned task), the mutation is <strong>blocked</strong></li>
+        <li>Task creation is exempt — new tasks can still be created under any project</li>
+      </ul>
+
+      <h3>Enforcement Points</h3>
+      <ul>
+        <li><strong>companyHeartbeat</strong> — Builds a <code>projectById</code> map at cycle start. Every task mutation is checked against parent project status before execution.</li>
+        <li><strong>agentchat</strong> — Same <code>projectById</code> map pattern. Blocked mutations return a deterministic refusal message to the agent.</li>
+      </ul>
+
+      <h3>Telemetry</h3>
+      <ul>
+        <li>Blocked mutations emit: <code>project_status_freeze</code> (paused) or <code>project_not_found_freeze</code> (missing)</li>
+        <li>Events include: task ID, project ID, agent ID, attempted action</li>
+        <li>Blocks are accumulated in the heartbeat run digest</li>
+      </ul>
+
+      <h3>Governance Implications</h3>
+      <ul>
+        <li>CEO pausing a project immediately freezes all task mutations under it — no heartbeat cycle needed</li>
+        <li>Agents are informed via refusal messages; they cannot override the freeze</li>
+        <li>Resuming a project (setting status back to <code>active</code>) immediately unblocks task mutations</li>
+        <li>This gate is <strong>subordinate to Execution Mode</strong> — if mode is <code>frozen</code>, all mutations are blocked regardless of project status</li>
+      </ul>
+    </div>
+
     <div style="text-align:center; padding:2rem 0; opacity:0.3; font-size:0.65rem;">
-      AmbientPixels Governance Document v2.1 — Updated Feb 2026
+      GridOS Playbook v2.2 — Updated Feb 2026
     </div>
 
   </main>

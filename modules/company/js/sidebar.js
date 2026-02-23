@@ -58,7 +58,7 @@
         { href: BASE + 'directives.html', label: 'Projects', icon: 'fa-compass', match: ['directives.html'] },
         { href: BASE + 'objectives.html', label: 'Goals', icon: 'fa-bullseye', match: ['objectives.html'] },
         { href: BASE + 'calendar.html', label: 'Calendar', icon: 'fa-calendar-alt', match: ['calendar.html'] },
-        { href: BASE + 'governance.html', label: 'Governance', icon: 'fa-scroll', match: ['governance.html'] }
+        { href: BASE + 'governance.html', label: 'Playbook', icon: 'fa-scroll', match: ['governance.html'] }
       ]
     },
     {
