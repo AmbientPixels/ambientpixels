@@ -1619,9 +1619,11 @@
       return 'active';
     }
 
+    var _emLoadApiBase = window.location.hostname.includes('ambientpixels.ai')
+      ? 'https://ambientpixels-nova-api.azurewebsites.net/api' : '/api';
     function loadExecutionMode() {
       if (!executionModeSelect) return;
-      fetch('/api/company-state?key=execution_mode', { method: 'GET' })
+      fetch(_emLoadApiBase + '/company-state?key=execution_mode', { method: 'GET' })
         .then(function (res) { if (!res.ok) throw new Error('GET failed'); return res.json(); })
         .then(function (data) {
           executionModeSelect.value = normalizeExecMode(data && data.value);
@@ -1639,9 +1641,16 @@
         var selected = normalizeExecMode(executionModeSelect.value);
         executionModeSelect.value = selected;
         if (executionModeStatus) executionModeStatus.textContent = 'Saving...';
-        fetch('/api/company-state', {
+        var _emApiBase = window.location.hostname.includes('ambientpixels.ai')
+          ? 'https://ambientpixels-nova-api.azurewebsites.net/api' : '/api';
+        var _emHeaders = { 'Content-Type': 'application/json' };
+        if (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) {
+          var _wh = CompanyStore.getWriteHeaders();
+          Object.keys(_wh || {}).forEach(function (k) { _emHeaders[k] = _wh[k]; });
+        }
+        fetch(_emApiBase + '/company-state', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: _emHeaders,
           body: JSON.stringify({ key: 'execution_mode', value: selected })
         })
         .then(function (res) { if (!res.ok) throw new Error('POST failed'); return res.json(); })
