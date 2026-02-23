@@ -236,6 +236,22 @@
         var sel = targetSelect || directiveSelect;
         var ids = Array.isArray(selectedIds) ? selectedIds : (selectedIds ? [selectedIds] : []);
         sel.innerHTML = '';
+        // Handle empty state: hide select and show placeholder
+        var emptyId = sel.id + '-empty';
+        var existingEmpty = sel.parentElement.querySelector('#' + emptyId);
+        if (active.length === 0) {
+          sel.style.display = 'none';
+          if (!existingEmpty) {
+            var emptyLabel = document.createElement('span');
+            emptyLabel.id = emptyId;
+            emptyLabel.style.cssText = 'font-size:0.65rem; opacity:0.3; padding:0.35rem 0.6rem;';
+            emptyLabel.textContent = 'No projects yet';
+            sel.parentElement.insertBefore(emptyLabel, sel.nextSibling);
+          }
+          return;
+        }
+        sel.style.display = '';
+        if (existingEmpty) existingEmpty.remove();
         active.forEach(function (dir) {
           var opt = document.createElement('option');
           opt.value = dir.id;
