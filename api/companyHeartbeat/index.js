@@ -1031,39 +1031,26 @@ module.exports = async function (context) {
           archivedTaskIds.add(task.id);
           _taskIdsArchived.add(task.id);
           canceledArchiveCounts.set(objectiveId, (canceledArchiveCounts.get(objectiveId) || 0) + 1);
-          continue; // freshly archived — remove from active
         }
-        // Already archived but re-appeared in tasks (e.g. CompanyStore merge).
-        // Keep in active list so it persists — heartbeat skips it during agent processing
-        // via the objective gate. It will be cleaned up on next archive cycle.
+        // Mark as archived and KEEP in active. Do NOT use `continue` to remove —
+        // CompanyStore sync always re-adds items from localStorage that are missing
+        // from server, causing infinite oscillation. Frontend filters _archived tasks.
+        task._archived = true;
+        task.updatedAt = new Date().toISOString();
         keepTasks.push(task);
         continue;
       }
 
-      // Cleanup: agent hallucinated status 'archived' — archive properly and remove from active
-      if (task.status === 'archived' && !archivedTaskIds.has(task.id)) {
-        const lastComment = (task.comments && task.comments.length > 0) ? task.comments[task.comments.length - 1] : null;
-        toArchive.push({
-          id: task.id,
-          title: task.title,
-          description: (task.description || '').substring(0, 200),
-          status: 'archived',
-          priority: task.priority,
-          assignee: task.assignee,
-          division: task.division || null,
-          dueDate: task.dueDate,
-          createdAt: task.createdAt,
-          completedAt: task.completedAt,
-          source: task.source,
-          commentCount: task.comments ? task.comments.length : 0,
-          lastComment: lastComment ? { author: lastComment.author, text: (lastComment.text || '').substring(0, 150), createdAt: lastComment.createdAt } : null,
-          archivedAt: new Date().toISOString(),
-          archivedReason: 'invalid_status_cleanup'
-        });
-        archivedTaskIds.add(task.id);
-        _taskIdsArchived.add(task.id);
-        context.log('[Heartbeat] Cleanup: task', task.id, 'had invalid status "archived" — moved to archive store');
-        continue;
+      // Cleanup: agent hallucinated status 'archived' — fix to valid status.
+      // Do NOT remove from active (continue) — CompanyStore sync re-adds from localStorage,
+      // causing infinite oscillation. Instead, repair status in-place so the canceled-objective
+      // or done-aged archive path handles it on subsequent runs.
+      if (task.status === 'archived') {
+        task.status = 'done';
+        task.completedAt = task.completedAt || new Date().toISOString();
+        task.updatedAt = new Date().toISOString();
+        context.log('[Heartbeat] Cleanup: task', task.id, 'had invalid status "archived" — repaired to "done"');
+        // Fall through to normal archive checks below (done-aged, canceled-objective already handled above)
       }
 
       if (task.status === 'done') {
@@ -1092,7 +1079,9 @@ module.exports = async function (context) {
           });
           archivedTaskIds.add(task.id);
           _taskIdsArchived.add(task.id);
-          continue;
+          task._archived = true;
+          task.updatedAt = new Date().toISOString();
+          // Fall through to keepTasks — same anti-oscillation pattern
         }
       }
       keepTasks.push(task);

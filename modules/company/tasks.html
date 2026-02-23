@@ -571,7 +571,7 @@
       }
 
       function getFilteredTasks(applySignal) {
-        var tasks = AgentEngine.getTasks();
+        var tasks = AgentEngine.getTasks().filter(function (t) { return !t._archived; });
         if (filterSearch) {
           var q = filterSearch.toLowerCase();
           tasks = tasks.filter(function (t) {
@@ -613,17 +613,29 @@
       }
 
       function renderStats() {
-        var stats = AgentEngine.getTaskStats();
-        var pendingCount = AgentEngine.getTasks().filter(function(t){ return t.status === 'pending-approval'; }).length;
+        var liveTasks = AgentEngine.getTasks().filter(function (t) { return !t._archived; });
+        var today = _localToday();
+        var total = liveTasks.length;
+        var backlog = 0, todo = 0, inProgress = 0, review = 0, done = 0, overdue = 0, unassigned = 0, pending = 0;
+        liveTasks.forEach(function (t) {
+          if (t.status === 'backlog') backlog++;
+          else if (t.status === 'todo') todo++;
+          else if (t.status === 'in-progress') inProgress++;
+          else if (t.status === 'review') review++;
+          else if (t.status === 'done') done++;
+          else if (t.status === 'pending-approval') pending++;
+          if (t.dueDate && t.dueDate.substring(0,10) < today && t.status !== 'done') overdue++;
+          if (!t.assignee) unassigned++;
+        });
         statsBar.innerHTML =
-          statCard(stats.total, 'Total', '') +
-          (pendingCount > 0 ? statCard(pendingCount, 'Pending', 'tm-stat--pending') : '') +
-          statCard(stats.backlog, 'Backlog', '') +
-          statCard(stats.todo + stats['in-progress'], 'Active', 'tm-stat--active') +
-          statCard(stats.review, 'Review', '') +
-          statCard(stats.done, 'Done', '') +
-          statCard(stats.overdue, 'Overdue', 'tm-stat--overdue') +
-          statCard(stats.unassigned, 'Unassigned', '');
+          statCard(total, 'Total', '') +
+          (pending > 0 ? statCard(pending, 'Pending', 'tm-stat--pending') : '') +
+          statCard(backlog, 'Backlog', '') +
+          statCard(todo + inProgress, 'Active', 'tm-stat--active') +
+          statCard(review, 'Review', '') +
+          statCard(done, 'Done', '') +
+          statCard(overdue, 'Overdue', 'tm-stat--overdue') +
+          statCard(unassigned, 'Unassigned', '');
       }
 
       function statCard(val, label, cls) {
