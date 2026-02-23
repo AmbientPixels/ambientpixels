@@ -225,6 +225,16 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/api/formIntake",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/formIntake",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/formIntake/*",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/formIntake/{path}",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/api/*",
       "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/{path}"
     },

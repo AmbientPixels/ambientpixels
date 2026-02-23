@@ -26,6 +26,15 @@
       ]
     },
     {
+      id: 'inbound',
+      label: 'Inbound',
+      icon: 'fa-satellite-dish',
+      overview: BASE + 'inbound.html',
+      links: [
+        { href: BASE + 'inbound.html', label: 'Inbound', icon: 'fa-satellite-dish', match: ['inbound.html'] }
+      ]
+    },
+    {
       id: 'work',
       label: 'Work',
       icon: 'fa-list-check',

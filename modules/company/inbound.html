@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Inbound — External signals captured by GridOS (forms, requests, signups)." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Inbound — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <style>
+    /* ── Inbound v1.0 ── */
+
+    .inb-hero {
+      position: relative;
+      background: linear-gradient(135deg, rgba(56,189,248,0.06) 0%, rgba(56,189,248,0.01) 100%);
+      border: 1px solid rgba(56,189,248,0.15);
+      border-radius: 14px;
+      padding: 1.6rem 1.8rem 1.2rem;
+      margin-bottom: 1.2rem;
+    }
+    .inb-hero h1 { margin: 0 0 0.25rem; font-size: 1.3rem; font-weight: 600; }
+    .inb-hero p { margin: 0; font-size: 0.72rem; opacity: 0.45; }
+
+    /* Stat cards */
+    .inb-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.8rem;
+      margin-bottom: 1.4rem;
+    }
+    .inb-stat {
+      padding: 1rem 1.2rem;
+      border-radius: 10px;
+      border: 1px solid rgba(56,189,248,0.1);
+      background: rgba(56,189,248,0.03);
+      text-align: center;
+    }
+    .inb-stat-value {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #38bdf8;
+      letter-spacing: -0.02em;
+    }
+    .inb-stat-label {
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      opacity: 0.4;
+      margin-top: 0.15rem;
+    }
+
+    /* Filter chips */
+    .inb-filters {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .inb-chip {
+      font-size: 0.68rem;
+      font-weight: 500;
+      padding: 0.3rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: transparent;
+      color: rgba(255,255,255,0.5);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .inb-chip:hover { border-color: rgba(56,189,248,0.3); color: rgba(255,255,255,0.7); }
+    .inb-chip--active {
+      background: rgba(56,189,248,0.12);
+      border-color: rgba(56,189,248,0.3);
+      color: #38bdf8;
+    }
+    .inb-toggle {
+      margin-left: auto;
+      font-size: 0.65rem;
+      opacity: 0.4;
+      display: flex;
+      align-items: center;
+      gap: 0.3rem;
+      cursor: pointer;
+    }
+    .inb-toggle input { cursor: pointer; }
+
+    /* Table */
+    .inb-table-wrap {
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .inb-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.75rem;
+    }
+    .inb-table thead th {
+      text-align: left;
+      padding: 0.6rem 0.8rem;
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      opacity: 0.35;
+      font-weight: 500;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      background: rgba(255,255,255,0.02);
+    }
+    .inb-table tbody tr {
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+    .inb-table tbody tr:hover { background: rgba(56,189,248,0.04); }
+    .inb-table td {
+      padding: 0.55rem 0.8rem;
+      border-bottom: 1px solid rgba(255,255,255,0.03);
+      vertical-align: middle;
+    }
+
+    /* Type badges */
+    .inb-type {
+      font-size: 0.6rem;
+      font-weight: 500;
+      padding: 0.15rem 0.45rem;
+      border-radius: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .inb-type--contact { background: rgba(167,139,250,0.1); color: #a78bfa; border: 1px solid rgba(167,139,250,0.15); }
+    .inb-type--demo { background: rgba(251,191,36,0.1); color: #fbbf24; border: 1px solid rgba(251,191,36,0.15); }
+    .inb-type--newsletter { background: rgba(52,211,153,0.1); color: #34d399; border: 1px solid rgba(52,211,153,0.15); }
+
+    /* Status */
+    .inb-status { font-size: 0.62rem; opacity: 0.5; }
+    .inb-status--task { color: #38bdf8; opacity: 1; }
+    .inb-status--filtered { color: #f87171; opacity: 0.6; }
+
+    /* Detail drawer */
+    .inb-drawer-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 900;
+    }
+    .inb-drawer-overlay.open { display: block; }
+    .inb-drawer {
+      position: fixed;
+      top: 0; right: 0; bottom: 0;
+      width: min(480px, 90vw);
+      background: #0d1520;
+      border-left: 1px solid rgba(56,189,248,0.12);
+      z-index: 901;
+      transform: translateX(100%);
+      transition: transform 0.2s ease;
+      overflow-y: auto;
+      padding: 1.5rem;
+    }
+    .inb-drawer.open { transform: translateX(0); }
+    .inb-drawer-close {
+      position: absolute; top: 1rem; right: 1rem;
+      background: none; border: none; color: inherit;
+      font-size: 1rem; cursor: pointer; opacity: 0.4;
+    }
+    .inb-drawer-close:hover { opacity: 1; }
+    .inb-drawer h3 { font-size: 1rem; font-weight: 600; margin: 0 0 0.8rem; }
+    .inb-drawer-field { margin-bottom: 0.7rem; }
+    .inb-drawer-label {
+      font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.06em;
+      opacity: 0.35; margin-bottom: 0.15rem;
+    }
+    .inb-drawer-value { font-size: 0.8rem; line-height: 1.5; word-break: break-word; }
+    .inb-drawer-value a { color: #38bdf8; text-decoration: none; }
+    .inb-drawer-value a:hover { text-decoration: underline; }
+
+    /* Empty + loading */
+    .inb-empty {
+      text-align: center;
+      padding: 3rem 1rem;
+      opacity: 0.3;
+      font-size: 0.85rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .inb-stats { grid-template-columns: 1fr; }
+      .inb-table { font-size: 0.68rem; }
+      .inb-table td, .inb-table th { padding: 0.4rem 0.5rem; }
+    }
+  </style>
+</head>
+<body style="background:#071019" data-theme="dark">
+
+  <main class="content-section" style="max-width: 960px; margin: 0 auto; padding: 1rem;">
+
+    <!-- Hero -->
+    <div class="inb-hero">
+      <h1><i class="fas fa-satellite-dish" style="opacity:0.4; margin-right:0.4rem;"></i> Inbound</h1>
+      <p>External signals captured by GridOS (forms, requests, signups).</p>
+    </div>
+
+    <!-- Stats -->
+    <div class="inb-stats">
+      <div class="inb-stat">
+        <div class="inb-stat-value" id="inb-stat-today">–</div>
+        <div class="inb-stat-label">Today</div>
+      </div>
+      <div class="inb-stat">
+        <div class="inb-stat-value" id="inb-stat-week">–</div>
+        <div class="inb-stat-label">Last 7 Days</div>
+      </div>
+      <div class="inb-stat">
+        <div class="inb-stat-value" id="inb-stat-tasks">–</div>
+        <div class="inb-stat-label">Tasks Spawned (7d)</div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="inb-filters">
+      <button class="inb-chip inb-chip--active" data-filter="all">All</button>
+      <button class="inb-chip" data-filter="contact">Contact</button>
+      <button class="inb-chip" data-filter="demo">Demo</button>
+      <button class="inb-chip" data-filter="newsletter">Newsletter</button>
+      <label class="inb-toggle">
+        <input type="checkbox" id="inb-hide-filtered" checked> Hide filtered
+      </label>
+    </div>
+
+    <!-- Table -->
+    <div class="inb-table-wrap">
+      <table class="inb-table">
+        <thead>
+          <tr>
+            <th>Time</th>
+            <th>Type</th>
+            <th>Name / Email</th>
+            <th>Source</th>
+            <th>Status</th>
+            <th>Task</th>
+          </tr>
+        </thead>
+        <tbody id="inb-tbody">
+          <tr><td colspan="6" class="inb-empty"><i class="fas fa-spinner fa-spin"></i> Loading submissions...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </main>
+
+  <!-- Detail Drawer -->
+  <div class="inb-drawer-overlay" id="inb-drawer-overlay"></div>
+  <div class="inb-drawer" id="inb-drawer">
+    <button class="inb-drawer-close" id="inb-drawer-close"><i class="fas fa-times"></i></button>
+    <div id="inb-drawer-content"></div>
+  </div>
+
+  <script src="/js/ap-config.js"></script>
+  <script src="/js/company-store.js"></script>
+  <script src="/modules/company/js/sidebar.js"></script>
+  <script src="/modules/company/js/inbound-intake.js"></script>
+</body>
+</html>

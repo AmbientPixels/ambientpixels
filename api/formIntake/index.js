@@ -1,0 +1,524 @@
+/**
+ * CHANGE SUMMARY
+ * - New file: Azure Function for GridOS Form Intake v1
+ * - POST /api/formIntake — write endpoint: validate, spam gates, blob storage, task spawning
+ * - GET  /api/formIntake/recent — read recent submissions from daily index blobs
+ * - GET  /api/formIntake/item   — read single canonical record by id
+ * - CORS: origin allowlist (ambientpixels.ai + localhost dev)
+ * - Anti-spam: honeypot, min-time-to-submit, IP rate limiting via blob counters
+ * - Storage: canonical JSON per submission + daily JSON index
+ * - Task spawning: contact/demo types create GridOS tasks; newsletter = store-only
+ */
+
+const crypto = require('crypto');
+const storage = require('../_utils/companyStorage');
+
+// ══════════════════════════════════════════════════════
+// ── CORS ──
+// ══════════════════════════════════════════════════════
+
+const ALLOWED_ORIGINS = [
+  'https://ambientpixels.ai',
+  'https://www.ambientpixels.ai'
+];
+
+function _isAllowedOrigin(origin) {
+  if (!origin) return true; // no origin = same-origin or non-browser
+  if (ALLOWED_ORIGINS.indexOf(origin) !== -1) return true;
+  if (/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) return true;
+  return false;
+}
+
+function _isLocalOrigin(origin) {
+  if (!origin) return false;
+  return /^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin);
+}
+
+function _corsHeaders(origin) {
+  var matched = _isAllowedOrigin(origin) ? (origin || ALLOWED_ORIGINS[0]) : ALLOWED_ORIGINS[0];
+  return {
+    'Access-Control-Allow-Origin': matched,
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Accept',
+    'Access-Control-Max-Age': '86400',
+    'Content-Type': 'application/json'
+  };
+}
+
+// ══════════════════════════════════════════════════════
+// ── Validation + Normalization ──
+// ══════════════════════════════════════════════════════
+
+var VALID_TYPES = ['contact', 'demo', 'newsletter'];
+var LIMITS = { name: 120, email: 200, company: 200, role: 200, subject: 200, body: 8000 };
+var MAX_BODY_BYTES = 32 * 1024;
+
+function _trunc(str, max) {
+  if (!str || typeof str !== 'string') return '';
+  return str.substring(0, max).trim();
+}
+
+function _validatePayload(body) {
+  var errors = [];
+  if (!body || typeof body !== 'object') return { valid: false, errors: ['Invalid request body'] };
+  if (!body.type || VALID_TYPES.indexOf(body.type) === -1) errors.push('type required: contact|demo|newsletter');
+  if (!body.pageUrl || typeof body.pageUrl !== 'string') errors.push('pageUrl required');
+  if (!body.contact || !body.contact.email || typeof body.contact.email !== 'string') errors.push('contact.email required');
+  if (body.contact && body.contact.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(body.contact.email)) errors.push('contact.email invalid');
+  if (body.type !== 'newsletter') {
+    if (!body.consent || !body.consent.privacyAccepted) errors.push('consent.privacyAccepted required');
+  }
+  return { valid: errors.length === 0, errors: errors };
+}
+
+function _normalizePayload(body) {
+  return {
+    type: body.type,
+    pageUrl: _trunc(body.pageUrl, 2000),
+    referrer: _trunc(body.referrer, 2000),
+    utm: (body.utm && typeof body.utm === 'object') ? {
+      source: _trunc(body.utm.source, 200),
+      medium: _trunc(body.utm.medium, 200),
+      campaign: _trunc(body.utm.campaign, 200),
+      content: _trunc(body.utm.content, 200),
+      term: _trunc(body.utm.term, 200)
+    } : null,
+    contact: (body.contact && typeof body.contact === 'object') ? {
+      name: _trunc(body.contact.name, LIMITS.name),
+      email: _trunc(body.contact.email, LIMITS.email),
+      company: _trunc(body.contact.company, LIMITS.company),
+      role: _trunc(body.contact.role, LIMITS.role)
+    } : null,
+    message: (body.message && typeof body.message === 'object') ? {
+      subject: _trunc(body.message.subject, LIMITS.subject),
+      body: _trunc(body.message.body, LIMITS.body)
+    } : null,
+    consent: (body.consent && typeof body.consent === 'object') ? {
+      privacyAccepted: !!body.consent.privacyAccepted,
+      newsletterOptIn: !!body.consent.newsletterOptIn
+    } : { privacyAccepted: false, newsletterOptIn: false },
+    hp: typeof body.hp === 'string' ? body.hp : '',
+    form_started_at_ms: typeof body.form_started_at_ms === 'number' ? body.form_started_at_ms : null
+  };
+}
+
+// ══════════════════════════════════════════════════════
+// ── Anti-spam ──
+// ══════════════════════════════════════════════════════
+
+var FORM_INTAKE_SALT = process.env.FORM_INTAKE_SALT || 'gridos-intake-v1-default';
+var RATE_LIMIT_MAX = 10;
+var RATE_LIMIT_WINDOW_MIN = 15;
+var MIN_SUBMIT_MS = 2500;
+
+function _hashIp(ip) {
+  return crypto.createHash('sha256').update((ip || 'unknown') + FORM_INTAKE_SALT).digest('hex').substring(0, 16);
+}
+
+function _rateBucketKey(ipHash) {
+  var bucket = Math.floor(Date.now() / (RATE_LIMIT_WINDOW_MIN * 60 * 1000));
+  return 'formIntake-ratelimit-' + ipHash + '-' + bucket;
+}
+
+async function _checkRateLimit(ipHash) {
+  try {
+    var count = await storage.getState(_rateBucketKey(ipHash));
+    return (count && typeof count === 'number') ? count : 0;
+  } catch (e) { return 0; }
+}
+
+async function _incrementRateLimit(ipHash) {
+  try {
+    var key = _rateBucketKey(ipHash);
+    var current = (await storage.getState(key)) || 0;
+    await storage.setState(key, current + 1);
+  } catch (err) {
+    console.error('[formIntake] Rate limit increment failed:', err.message);
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// ── ID Generation ──
+// ══════════════════════════════════════════════════════
+
+function _generateId() {
+  var now = new Date();
+  var dateStr = now.toISOString().substring(0, 10); // YYYY-MM-DD
+  var rand = Math.random().toString(36).substring(2, 9); // 7 chars
+  return 'fi_' + dateStr + '_' + rand;
+}
+
+// ══════════════════════════════════════════════════════
+// ── Blob Storage Helpers ──
+// ══════════════════════════════════════════════════════
+
+function _canonicalKey(id) {
+  // formIntake/2026-02/fi_2026-02-23_abc1234
+  var month = id.substring(3, 10); // YYYY-MM from fi_YYYY-MM-DD_xxx
+  return 'formIntake-' + month + '-' + id;
+}
+
+function _indexKey(dateStr) {
+  // formIntake-index-2026-02-23
+  return 'formIntake-index-' + dateStr;
+}
+
+async function _storeCanonical(record) {
+  await storage.setState(_canonicalKey(record.id), record);
+}
+
+async function _appendIndex(dateStr, indexEntry) {
+  var key = _indexKey(dateStr);
+  var existing = (await storage.getState(key)) || [];
+  existing.push(indexEntry);
+  // Cap at 500 per day
+  if (existing.length > 500) existing = existing.slice(-500);
+  await storage.setState(key, existing);
+}
+
+async function _readIndex(dateStr) {
+  return (await storage.getState(_indexKey(dateStr))) || [];
+}
+
+async function _readCanonical(id) {
+  return await storage.getState(_canonicalKey(id));
+}
+
+// ══════════════════════════════════════════════════════
+// ── Task Spawning ──
+// ══════════════════════════════════════════════════════
+
+async function _spawnTask(record) {
+  if (record.type === 'newsletter') return null;
+
+  var nameOrEmail = (record.contact && record.contact.name) ? record.contact.name : (record.contact ? record.contact.email : 'Unknown');
+  var typeLabel = record.type.charAt(0).toUpperCase() + record.type.slice(1);
+
+  var descParts = [
+    '**Source:** Form Intake — ' + typeLabel,
+    '**ID:** ' + record.id,
+    '**Received:** ' + record.receivedAt,
+    '**Page:** ' + (record.pageUrl || 'N/A')
+  ];
+  if (record.referrer) descParts.push('**Referrer:** ' + record.referrer);
+  if (record.utm && record.utm.source) {
+    descParts.push('**UTM:** ' + [record.utm.source, record.utm.medium, record.utm.campaign].filter(Boolean).join(' / '));
+  }
+  if (record.contact) {
+    descParts.push('**Contact:** ' + [record.contact.name, record.contact.email, record.contact.company, record.contact.role].filter(Boolean).join(' · '));
+  }
+  if (record.message) {
+    if (record.message.subject) descParts.push('**Subject:** ' + record.message.subject);
+    if (record.message.body) descParts.push('**Message:**\n' + record.message.body);
+  }
+
+  var priority = record.type === 'demo' ? 'medium' : 'low';
+  var assignee = record.type === 'demo' ? 'scout' : 'nova';
+
+  var task = {
+    id: 'task-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7),
+    title: 'Inbound: ' + typeLabel + ' — ' + nameOrEmail,
+    description: descParts.join('\n'),
+    assignee: assignee,
+    status: 'open',
+    priority: priority,
+    classification: 'advisory',
+    risk_level: 'low',
+    budget_impact: 'none',
+    brand_impact: 'low',
+    requires_ceo_approval: false,
+    escalated: false,
+    directive_id: null,
+    objective_id: null,
+    origin: 'form_intake',
+    badge: '🌐 Form Intake',
+    sourceType: record.type,
+    sourceId: record.id,
+    comments: [],
+    createdAt: new Date().toISOString()
+  };
+
+  try {
+    var tasks = (await storage.getState('tasks')) || [];
+    tasks.push(task);
+    if (tasks.length > 500) tasks.splice(0, tasks.length - 500);
+    await storage.setState('tasks', tasks);
+    return task.id;
+  } catch (err) {
+    console.error('[formIntake] Task creation failed:', err.message);
+    return null;
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// ── Parse body (JSON or URL-encoded) ──
+// ══════════════════════════════════════════════════════
+
+function _parseBody(req) {
+  if (req.body && typeof req.body === 'object') return req.body;
+  if (typeof req.body === 'string') {
+    try { return JSON.parse(req.body); } catch (e) { /* fall through */ }
+    // Try URL-encoded
+    try {
+      var params = {};
+      req.body.split('&').forEach(function (pair) {
+        var parts = pair.split('=');
+        if (parts.length === 2) params[decodeURIComponent(parts[0])] = decodeURIComponent(parts[1].replace(/\+/g, ' '));
+      });
+      return params;
+    } catch (e) { return null; }
+  }
+  return null;
+}
+
+// ══════════════════════════════════════════════════════
+// ── Main Handler ──
+// ══════════════════════════════════════════════════════
+
+module.exports = async function (context, req) {
+  var origin = (req.headers && req.headers.origin) || '';
+  var headers = _corsHeaders(origin);
+
+  // ── OPTIONS preflight ──
+  if (req.method === 'OPTIONS') {
+    context.res = { status: 204, headers: headers, body: '' };
+    return;
+  }
+
+  // ── CORS origin check ──
+  if (origin && !_isAllowedOrigin(origin)) {
+    context.res = { status: 403, headers: headers, body: { ok: false, error: 'origin_not_allowed' } };
+    return;
+  }
+
+  var action = (req.params && req.params.action) || '';
+
+  // ══════════════════════════════════════════════════
+  // ── GET /api/formIntake/recent ──
+  // ══════════════════════════════════════════════════
+  if (req.method === 'GET' && action === 'recent') {
+    try {
+      var days = parseInt(req.query && req.query.days) || 7;
+      var limit = parseInt(req.query && req.query.limit) || 50;
+      if (days > 30) days = 30;
+      if (limit > 200) limit = 200;
+
+      var results = [];
+      var now = new Date();
+      for (var d = 0; d < days; d++) {
+        var date = new Date(now);
+        date.setDate(date.getDate() - d);
+        var dateStr = date.toISOString().substring(0, 10);
+        var dayEntries = await _readIndex(dateStr);
+        for (var i = 0; i < dayEntries.length; i++) {
+          var entry = dayEntries[i];
+          // Redact ipHash from output
+          if (entry.ipHash) delete entry.ipHash;
+          results.push(entry);
+        }
+      }
+
+      // Sort newest first
+      results.sort(function (a, b) {
+        return (b.receivedAt || '').localeCompare(a.receivedAt || '');
+      });
+
+      // Apply limit
+      if (results.length > limit) results = results.slice(0, limit);
+
+      context.res = { status: 200, headers: headers, body: { ok: true, count: results.length, items: results } };
+    } catch (err) {
+      context.log.error('[formIntake] GET recent error:', err.message);
+      context.res = { status: 500, headers: headers, body: { ok: false, error: 'internal_error' } };
+    }
+    return;
+  }
+
+  // ══════════════════════════════════════════════════
+  // ── GET /api/formIntake/item?id=... ──
+  // ══════════════════════════════════════════════════
+  if (req.method === 'GET' && action === 'item') {
+    try {
+      var id = (req.query && req.query.id) || '';
+      if (!id || !id.startsWith('fi_')) {
+        context.res = { status: 400, headers: headers, body: { ok: false, error: 'id required (fi_...)' } };
+        return;
+      }
+
+      var record = await _readCanonical(id);
+      if (!record) {
+        context.res = { status: 404, headers: headers, body: { ok: false, error: 'not_found' } };
+        return;
+      }
+
+      // Redact sensitive fields
+      if (record.antiSpam && record.antiSpam.ipHash) delete record.antiSpam.ipHash;
+      if (record.raw && record.raw.ip) delete record.raw.ip;
+
+      context.res = { status: 200, headers: headers, body: { ok: true, item: record } };
+    } catch (err) {
+      context.log.error('[formIntake] GET item error:', err.message);
+      context.res = { status: 500, headers: headers, body: { ok: false, error: 'internal_error' } };
+    }
+    return;
+  }
+
+  // ══════════════════════════════════════════════════
+  // ── POST /api/formIntake — Write endpoint ──
+  // ══════════════════════════════════════════════════
+  if (req.method === 'POST' && !action) {
+    try {
+      // Size check
+      var rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body || {});
+      if (Buffer.byteLength(rawBody, 'utf8') > MAX_BODY_BYTES) {
+        context.res = { status: 413, headers: headers, body: { ok: false, error: 'payload_too_large' } };
+        return;
+      }
+
+      var body = _parseBody(req);
+      if (!body) {
+        context.res = { status: 400, headers: headers, body: { ok: false, error: 'invalid_body' } };
+        return;
+      }
+
+      // Normalize nested fields from flat form-encoded
+      if (body['contact.name'] || body['contact.email']) {
+        body.contact = {
+          name: body['contact.name'] || body.name || '',
+          email: body['contact.email'] || body.email || '',
+          company: body['contact.company'] || body.company || '',
+          role: body['contact.role'] || body.role || ''
+        };
+      }
+      if (!body.contact && body.email) {
+        body.contact = { name: body.name || '', email: body.email, company: body.company || '', role: body.role || '' };
+      }
+      if (body['message.body'] || body['message.subject']) {
+        body.message = { subject: body['message.subject'] || body.subject || '', body: body['message.body'] || '' };
+      }
+      if (!body.message && body.body) {
+        body.message = { subject: body.subject || '', body: body.body };
+      }
+      if (body.privacyAccepted !== undefined && !body.consent) {
+        body.consent = { privacyAccepted: body.privacyAccepted === 'true' || body.privacyAccepted === true, newsletterOptIn: body.newsletterOptIn === 'true' || body.newsletterOptIn === true };
+      }
+      if (body.form_started_at_ms && typeof body.form_started_at_ms === 'string') {
+        body.form_started_at_ms = parseInt(body.form_started_at_ms) || null;
+      }
+
+      // Validate
+      var validation = _validatePayload(body);
+      if (!validation.valid) {
+        context.res = { status: 400, headers: headers, body: { ok: false, error: 'validation_failed', details: validation.errors } };
+        return;
+      }
+
+      // Normalize
+      var data = _normalizePayload(body);
+      var now = new Date();
+      var receivedAt = now.toISOString();
+      var dateStr = receivedAt.substring(0, 10);
+
+      // ── Anti-spam checks ──
+      var spamFlags = [];
+      var isLocal = _isLocalOrigin(origin);
+
+      // Honeypot
+      if (data.hp && data.hp.trim().length > 0) {
+        context.log('[formIntake] Honeypot triggered — silent drop');
+        context.res = { status: 200, headers: headers, body: { ok: true } };
+        return;
+      }
+
+      // Min time-to-submit
+      if (data.form_started_at_ms && !isLocal) {
+        var dt = now.getTime() - data.form_started_at_ms;
+        if (dt < MIN_SUBMIT_MS) {
+          spamFlags.push('too_fast_' + dt + 'ms');
+          context.res = { status: 400, headers: headers, body: { ok: false, error: 'invalid_request' } };
+          return;
+        }
+      }
+
+      // Rate limit
+      var clientIp = (req.headers && (req.headers['x-forwarded-for'] || req.headers['x-real-ip'])) || 'unknown';
+      if (clientIp.indexOf(',') !== -1) clientIp = clientIp.split(',')[0].trim();
+      var ipHash = _hashIp(clientIp);
+
+      var currentCount = await _checkRateLimit(ipHash);
+      if (currentCount >= RATE_LIMIT_MAX) {
+        context.log('[formIntake] Rate limit exceeded for ipHash:', ipHash);
+        context.res = { status: 429, headers: headers, body: { ok: false, error: 'rate_limited' } };
+        return;
+      }
+
+      // ── Store ──
+      var id = _generateId();
+
+      var record = {
+        id: id,
+        receivedAt: receivedAt,
+        type: data.type,
+        pageUrl: data.pageUrl,
+        referrer: data.referrer,
+        utm: data.utm,
+        contact: data.contact,
+        message: data.message,
+        consent: data.consent,
+        antiSpam: {
+          ipHash: ipHash,
+          formStartedAtMs: data.form_started_at_ms,
+          submitDeltaMs: data.form_started_at_ms ? (now.getTime() - data.form_started_at_ms) : null,
+          spamFlags: spamFlags,
+          origin: origin || null
+        },
+        taskId: null,
+        raw: body
+      };
+
+      // Spawn task for contact/demo
+      var taskId = await _spawnTask(record);
+      record.taskId = taskId;
+
+      // Store canonical record
+      await _storeCanonical(record);
+
+      // Append to daily index
+      var indexEntry = {
+        id: id,
+        receivedAt: receivedAt,
+        type: data.type,
+        name: data.contact ? data.contact.name : '',
+        email: data.contact ? data.contact.email : '',
+        pageUrl: data.pageUrl,
+        utm: data.utm,
+        taskId: taskId,
+        spamFlags: spamFlags
+      };
+      await _appendIndex(dateStr, indexEntry);
+
+      // Increment rate limiter
+      await _incrementRateLimit(ipHash);
+
+      context.log('[formIntake] Stored:', id, 'type:', data.type, 'taskId:', taskId || 'none');
+
+      context.res = {
+        status: 200,
+        headers: headers,
+        body: {
+          ok: true,
+          id: id,
+          type: data.type,
+          taskCreated: !!taskId
+        }
+      };
+    } catch (err) {
+      context.log.error('[formIntake] POST error:', err.message, err.stack);
+      context.res = { status: 500, headers: headers, body: { ok: false, error: 'internal_error' } };
+    }
+    return;
+  }
+
+  // ── Fallback ──
+  context.res = { status: 404, headers: headers, body: { ok: false, error: 'not_found' } };
+};
