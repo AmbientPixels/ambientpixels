@@ -3341,7 +3341,7 @@
       var headers = {};
       var key = _getGridOSKey();
       if (key) headers['X-GridOS-Key'] = key;
-      fetch('/api/telemetry/summary?range=' + range, { headers: headers })
+      fetch('https://ambientpixels-nova-api.azurewebsites.net/api/telemetry/summary?range=' + range, { headers: headers })
         .then(function (r) { return r.json(); })
         .then(function (data) { _render(data); })
         .catch(function (err) {
