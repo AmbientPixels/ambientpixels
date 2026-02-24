@@ -1,5 +1,5 @@
 {
-  "scannedAt": "2026-02-23T14:08:40.320Z",
+  "scannedAt": "2026-02-24T14:11:47.743Z",
   "folders": [
     {
       "folder": "images",
@@ -44,6 +44,38 @@
         "images/services1.png",
         "images/services2.png",
         "images/socials.png"
+      ]
+    },
+    {
+      "folder": "images/GridOS",
+      "count": 14,
+      "files": [
+        "images/GridOS/CEO-Plan.png",
+        "images/GridOS/GridOS-screen1.png",
+        "images/GridOS/calendear.png",
+        "images/GridOS/content-engine.jpeg",
+        "images/GridOS/content-engine.png",
+        "images/GridOS/contentengine.png",
+        "images/GridOS/cost.png",
+        "images/GridOS/dash.png",
+        "images/GridOS/memory-stack.png",
+        "images/GridOS/ops.png",
+        "images/GridOS/ovserve.png",
+        "images/GridOS/social.png",
+        "images/GridOS/ssocial-small.png",
+        "images/GridOS/work overview.png"
+      ]
+    },
+    {
+      "folder": "images/GridOS/screens",
+      "count": 6,
+      "files": [
+        "images/GridOS/screens/agents.png",
+        "images/GridOS/screens/content-engine.png",
+        "images/GridOS/screens/cost-center.png",
+        "images/GridOS/screens/system-pulse.png",
+        "images/GridOS/screens/task-manager.png",
+        "images/GridOS/screens/work-cropped.png"
       ]
     },
     {
@@ -611,5 +643,5 @@
       ]
     }
   ],
-  "totalImages": 405
+  "totalImages": 425
 }
