@@ -1058,6 +1058,9 @@
         <button class="cfg-maint-btn" data-danger="reset-campaigns" data-label="Reset Campaigns">
           <i class="fas fa-eraser"></i> Reset Campaigns
         </button>
+        <button class="cfg-maint-btn" data-danger="reset-calendar" data-label="Reset Calendar">
+          <i class="fas fa-eraser"></i> Reset Calendar
+        </button>
       </div>
 
       <div class="cfg-maint-group">
@@ -2489,6 +2492,13 @@
         desc: 'This will permanently delete all campaigns.',
         exec: function () {
           return CompanyStore.setState('ap_campaigns', []);
+        }
+      },
+      'reset-calendar': {
+        title: 'Reset Calendar',
+        desc: 'This will permanently delete all workspace dates and calendar entries.',
+        exec: function () {
+          return CompanyStore.setState('ap_workspace_dates', []);
         }
       },
       'reset-action-queue': {
