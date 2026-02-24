@@ -3266,8 +3266,14 @@
 
     function _render(data) {
       _lastData = data;
-      if (data.warning && (!data.topPages || data.topPages.length === 0)) {
+      var isRealError = data.warning && data.warning.indexOf('telemetry_unavailable') === 0;
+      if (isRealError) {
         _renderWarning(data.warning);
+        return;
+      }
+      var hasAnyData = (data.topPages && data.topPages.length > 0) || (data.topReferrers && data.topReferrers.length > 0);
+      if (!hasAnyData) {
+        _renderWarning('No traffic data yet — telemetry is connected and collecting. Check back in a few hours.');
         return;
       }
       var rangeText = data.rangeLabel || data.range || '7d';

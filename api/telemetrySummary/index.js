@@ -99,7 +99,7 @@ module.exports = async function (context, req) {
   // Check cache
   if (_cache[range] && _cache[range].data && (Date.now() - _cache[range].ts < CACHE_TTL_MS)) {
     var cached = _cache[range].data;
-    context.res = { status: 200, headers: RES_HEADERS, body: isInternal ? cached : _publicView(cached) };
+    context.res = { status: 200, headers: RES_HEADERS, body: cached };
     return;
   }
 
@@ -183,7 +183,7 @@ module.exports = async function (context, req) {
     context.res = {
       status: 200,
       headers: RES_HEADERS,
-      body: isInternal ? body : _publicView(body)
+      body: body
     };
   } catch (err) {
     context.log('[telemetrySummary] Error:', err.message);
