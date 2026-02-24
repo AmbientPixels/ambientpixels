@@ -51,11 +51,17 @@
       width:100%; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); color:inherit; border-radius:6px;
       padding:0.4rem 0.5rem; font-size:0.68rem; margin-bottom:0.35rem;
     }
-    .cmp-modal-backdrop { position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,0.65); z-index:2500; }
-    .cmp-modal { width:min(520px, calc(100vw - 2rem)); background:#0b1522; border:1px solid rgba(255,255,255,0.14); border-radius:10px; padding:0.8rem; }
-    .cmp-modal input, .cmp-modal textarea { width:100%; margin-bottom:0.45rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.12); color:inherit; border-radius:6px; padding:0.42rem 0.55rem; font-size:0.72rem; }
-    .cmp-modal textarea { min-height:80px; resize:vertical; }
-    .cmp-modal-actions { display:flex; justify-content:flex-end; gap:0.4rem; }
+    .cmp-card.is-editing { border-color:rgba(138,43,226,0.5); background:rgba(138,43,226,0.04); box-shadow:0 0 12px rgba(138,43,226,0.15); }
+    .cmp-inline-editor { overflow:hidden; max-height:0; opacity:0; transition:max-height 0.3s ease, opacity 0.25s ease, margin 0.3s ease; margin-bottom:0; }
+    .cmp-inline-editor.is-open { max-height:320px; opacity:1; margin-bottom:0.45rem; }
+    .cmp-inline-editor-inner { border:1px solid rgba(138,43,226,0.25); background:rgba(138,43,226,0.05); border-radius:8px; padding:0.65rem 0.7rem; }
+    .cmp-inline-editor-inner h4 { margin:0 0 0.4rem; font-size:0.72rem; font-weight:600; color:#c084fc; display:flex; align-items:center; gap:0.3rem; }
+    .cmp-inline-editor-inner input, .cmp-inline-editor-inner textarea { width:100%; margin-bottom:0.4rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.12); color:inherit; border-radius:6px; padding:0.42rem 0.55rem; font-size:0.72rem; box-sizing:border-box; }
+    .cmp-inline-editor-inner textarea { min-height:68px; resize:vertical; }
+    .cmp-inline-editor-actions { display:flex; justify-content:flex-end; gap:0.35rem; }
+    .cmp-inline-editor-actions button { font-size:0.62rem; padding:0.25rem 0.6rem; border-radius:5px; cursor:pointer; }
+    .cmp-inline-editor-actions .cmp-ie-cancel { border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.05); color:inherit; }
+    .cmp-inline-editor-actions .cmp-ie-save { border:1px solid rgba(138,43,226,0.32); background:rgba(138,43,226,0.15); color:#c084fc; }
   </style>
 </head>
 <body style="background:#071019" data-theme="dark">
@@ -94,18 +100,6 @@
     </div>
   </main>
 
-  <div class="cmp-modal-backdrop" id="cmp-edit-backdrop">
-    <div class="cmp-modal">
-      <h3 style="margin:0 0 0.5rem; font-size:0.78rem;">Edit Campaign</h3>
-      <input id="cmp-edit-title" type="text" />
-      <textarea id="cmp-edit-desc"></textarea>
-      <div class="cmp-modal-actions">
-        <button id="cmp-edit-cancel" class="cmp-actions">Cancel</button>
-        <button id="cmp-edit-save" class="cmp-btn">Save</button>
-      </div>
-    </div>
-  </div>
-
   <script src="/js/company-store.js"></script>
   <script src="/js/agent-engine.js"></script>
   <script src="/modules/company/js/quick-chat.js"></script>
@@ -125,9 +119,6 @@
       var descEl = document.getElementById('cmp-desc');
       var objectiveEl = document.getElementById('cmp-objective');
 
-      var editBackdrop = document.getElementById('cmp-edit-backdrop');
-      var editTitleEl = document.getElementById('cmp-edit-title');
-      var editDescEl = document.getElementById('cmp-edit-desc');
 
       function esc(str) {
         var d = document.createElement('div');
@@ -273,7 +264,10 @@
         detailEl.innerHTML = html;
 
         var eb = document.getElementById('cmp-edit-btn');
-        if (eb) eb.addEventListener('click', openEditModal);
+        if (eb) eb.addEventListener('click', function (e) {
+          e.stopPropagation();
+          openInlineEditor(c.id);
+        });
 
         var ab = document.getElementById('cmp-archive-btn');
         if (ab) ab.addEventListener('click', function () {
@@ -320,18 +314,78 @@
         });
       }
 
-      function openEditModal() {
-        var c = AgentEngine.getCampaigns().find(function (x) { return x.id === selectedCampaignId && !x.deletedAt; });
-        if (!c) return;
-        editingCampaignId = c.id;
-        editTitleEl.value = c.title || '';
-        editDescEl.value = c.description || '';
-        editBackdrop.style.display = 'flex';
+      function closeInlineEditor() {
+        var existing = document.querySelector('.cmp-inline-editor');
+        if (existing) {
+          existing.classList.remove('is-open');
+          var card = document.querySelector('.cmp-card.is-editing');
+          if (card) card.classList.remove('is-editing');
+          setTimeout(function () { if (existing.parentNode) existing.parentNode.removeChild(existing); }, 300);
+        }
+        editingCampaignId = null;
       }
 
-      function closeEditModal() {
-        editBackdrop.style.display = 'none';
-        editingCampaignId = null;
+      function openInlineEditor(campaignId) {
+        // Close any existing editor first
+        var wasEditing = editingCampaignId;
+        closeInlineEditor();
+        // If clicking the same campaign, just toggle off
+        if (wasEditing === campaignId) return;
+
+        var c = AgentEngine.getCampaigns().find(function (x) { return x.id === campaignId && !x.deletedAt; });
+        if (!c) return;
+        editingCampaignId = campaignId;
+
+        // Find the card element and add .is-editing
+        var cardEl = listEl.querySelector('.cmp-card[data-id="' + campaignId + '"]');
+        if (!cardEl) return;
+        cardEl.classList.add('is-editing');
+
+        // Build inline editor DOM
+        var editorEl = document.createElement('div');
+        editorEl.className = 'cmp-inline-editor';
+        editorEl.innerHTML = '<div class="cmp-inline-editor-inner">'
+          + '<h4><i class="fas fa-pen" style="font-size:0.6rem;"></i> Edit Campaign</h4>'
+          + '<input type="text" class="cmp-ie-title" value="' + esc(c.title || '') + '" placeholder="Campaign title..." />'
+          + '<textarea class="cmp-ie-desc" placeholder="Description (optional)...">' + esc(c.description || '') + '</textarea>'
+          + '<div class="cmp-inline-editor-actions">'
+          + '<button class="cmp-ie-cancel">Cancel</button>'
+          + '<button class="cmp-ie-save"><i class="fas fa-check" style="margin-right:3px;"></i>Save</button>'
+          + '</div></div>';
+
+        // Insert after the card
+        cardEl.insertAdjacentElement('afterend', editorEl);
+
+        // Trigger expand animation on next frame
+        requestAnimationFrame(function () {
+          editorEl.classList.add('is-open');
+        });
+
+        // Scroll into view if needed
+        setTimeout(function () {
+          editorEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 50);
+
+        // Wire cancel
+        editorEl.querySelector('.cmp-ie-cancel').addEventListener('click', function (e) {
+          e.stopPropagation();
+          closeInlineEditor();
+        });
+
+        // Wire save
+        editorEl.querySelector('.cmp-ie-save').addEventListener('click', function (e) {
+          e.stopPropagation();
+          var newTitle = (editorEl.querySelector('.cmp-ie-title').value || '').trim() || 'Untitled Campaign';
+          var newDesc = (editorEl.querySelector('.cmp-ie-desc').value || '').trim();
+          AgentEngine.updateCampaign(campaignId, { title: newTitle, description: newDesc });
+          persistCampaigns();
+          closeInlineEditor();
+          renderAll();
+        });
+
+        // Focus title input
+        var titleInput = editorEl.querySelector('.cmp-ie-title');
+        if (titleInput) titleInput.focus();
       }
 
       function persistCampaigns() {
@@ -381,19 +435,6 @@
 
       searchEl.addEventListener('input', renderList);
       archivedToggleEl.addEventListener('change', renderList);
-
-      document.getElementById('cmp-edit-cancel').addEventListener('click', closeEditModal);
-      document.getElementById('cmp-edit-save').addEventListener('click', function () {
-        if (!editingCampaignId) return;
-        AgentEngine.updateCampaign(editingCampaignId, {
-          title: (editTitleEl.value || '').trim() || 'Untitled Campaign',
-          description: (editDescEl.value || '').trim()
-        });
-        persistCampaigns();
-        closeEditModal();
-        renderAll();
-      });
-      editBackdrop.addEventListener('click', function (e) { if (e.target === editBackdrop) closeEditModal(); });
 
       AgentEngine.loadRegistry().then(function () {
         populateObjectiveSelect();
