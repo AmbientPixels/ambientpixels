@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2026-02-23T14:08:40.242Z",
+  "updated": "2026-02-24T14:11:47.666Z",
   "root": [
     {
       "type": "folder",
@@ -104,6 +104,12 @@
               "children": []
             }
           ]
+        },
+        {
+          "type": "folder",
+          "name": "_shared",
+          "path": "api/_shared",
+          "children": []
         },
         {
           "type": "folder",
@@ -391,6 +397,24 @@
         },
         {
           "type": "folder",
+          "name": "formIntake",
+          "path": "api/formIntake",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "formIntakeDigest",
+          "path": "api/formIntakeDigest",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "formIntakeDigestTimer",
+          "path": "api/formIntakeDigestTimer",
+          "children": []
+        },
+        {
+          "type": "folder",
           "name": "geminiCosts",
           "path": "api/geminiCosts",
           "children": []
@@ -483,6 +507,18 @@
           "type": "folder",
           "name": "synthesizeNovaMood",
           "path": "api/synthesizeNovaMood",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "tasksMarkReplied",
+          "path": "api/tasksMarkReplied",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "telemetrySummary",
+          "path": "api/telemetrySummary",
           "children": []
         },
         {
@@ -717,6 +753,19 @@
       "name": "images",
       "path": "images",
       "children": [
+        {
+          "type": "folder",
+          "name": "GridOS",
+          "path": "images/GridOS",
+          "children": [
+            {
+              "type": "folder",
+              "name": "screens",
+              "path": "images/GridOS/screens",
+              "children": []
+            }
+          ]
+        },
         {
           "type": "folder",
           "name": "artwork",
@@ -1049,6 +1098,11 @@
             },
             {
               "type": "page",
+              "name": "campaigns.html",
+              "path": "modules/company/campaigns.html"
+            },
+            {
+              "type": "page",
               "name": "config-overview.html",
               "path": "modules/company/config-overview.html"
             },
@@ -1102,6 +1156,11 @@
               "type": "page",
               "name": "governance.html",
               "path": "modules/company/governance.html"
+            },
+            {
+              "type": "page",
+              "name": "inbound.html",
+              "path": "modules/company/inbound.html"
             },
             {
               "type": "page",

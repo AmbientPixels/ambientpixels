@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "ca9dd1ff-fe1c-4036-af53-3e05ca3ee514",
-      "hash": "eeeada3b0c3454e520917a9e0d1b1fd5a43436cf",
-      "message": "rename governance to playbook and update logo",
-      "timestamp": "2026-02-22 23:36:39 -0800",
+      "id": "1e5a8f96-8ce9-40af-8af6-88cd1b725b40",
+      "hash": "7100eb4bc423ec419bb367a4ab9d08efe58e5c00",
+      "message": "return full telemetry payload to all callers, improve empty state UX",
+      "timestamp": "2026-02-23 21:32:35 -0800",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/eeeada3b0c3454e520917a9e0d1b1fd5a43436cf"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/7100eb4bc423ec419bb367a4ab9d08efe58e5c00"
     }
   ],
-  "timestamp": "2026-02-23T14:08:41.746Z",
+  "timestamp": "2026-02-24T14:11:49.168Z",
   "count": 1,
-  "scanId": 1771855721746
+  "scanId": 1771942309168
 }
