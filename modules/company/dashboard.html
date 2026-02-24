@@ -475,11 +475,11 @@
             <!-- Daily Log Review -->
             <div class="dash-panel dash-panel--full">
               <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-stream" style="color:#34d399;"></i> Daily Log Drafts</span>
+                <span class="dash-panel-title"><i class="fas fa-stream" style="color:#34d399;"></i> Daily Logs</span>
                 <a href="/log/" target="_blank" style="font-size:0.65rem; opacity:0.4; text-decoration:none;">Public Log →</a>
               </div>
               <div id="panel-daily-log-drafts"></div>
-              <div class="dash-empty" id="daily-log-empty">No daily log drafts pending review.</div>
+              <div class="dash-empty" id="daily-log-empty">No daily log entries yet.</div>
             </div>
             <!-- Blog Admin -->
             <div class="dash-panel dash-panel--full">
@@ -2232,10 +2232,8 @@
           headers: { 'x-company-secret': (typeof CompanyStore !== 'undefined' && CompanyStore._writeSecret) ? CompanyStore._writeSecret : '' }
         }).then(function (r) { return r.json(); }).then(function (entries) {
           if (!Array.isArray(entries)) entries = [];
-          var drafts = entries.filter(function (e) { return e.status === 'draft'; });
-          var published = entries.filter(function (e) { return e.status === 'published'; });
-          var showDrafts = drafts.length > 0;
-          var rows = showDrafts ? drafts : published;
+          // Show all entries (published + drafts), newest first
+          var rows = entries.filter(function (e) { return e.status === 'published' || e.status === 'draft'; });
 
           if (rows.length === 0) {
             listEl.innerHTML = '';
@@ -2244,10 +2242,9 @@
           }
           emptyEl.style.display = 'none';
 
-          // Sort newest first
           rows.sort(function (a, b) {
-            var aKey = showDrafts ? (a.date || '') : (a.published_at || a.date || '');
-            var bKey = showDrafts ? (b.date || '') : (b.published_at || b.date || '');
+            var aKey = a.published_at || a.date || '';
+            var bKey = b.published_at || b.date || '';
             return bKey.localeCompare(aKey);
           });
 
@@ -2272,14 +2269,14 @@
               '<div style="padding:0.6rem 0.75rem; border-bottom:1px solid rgba(255,255,255,0.05);" data-dlog-id="' + d.id + '" data-dlog-date="' + d.date + '">' +
                 '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.3rem;">' +
                   '<span style="font-size:0.65rem; color:rgba(255,255,255,0.4);">' + (d.date || '') + '</span>' +
-                  '<span style="font-size:0.6rem; padding:0.1rem 0.35rem; border-radius:3px; background:rgba(255,255,255,0.05); color:' + moodColor + ';">' + (showDrafts ? (d.mood || 'steady') : 'published') + '</span>' +
+                  '<span style="font-size:0.6rem; padding:0.1rem 0.35rem; border-radius:3px; background:rgba(255,255,255,0.05); color:' + (d.status === 'draft' ? '#fbbf24' : moodColor) + ';">' + (d.status === 'draft' ? 'draft' : (d.mood || 'published')) + '</span>' +
                 '</div>' +
                 '<div style="font-size:0.8rem; font-weight:600; color:#fff; margin-bottom:0.25rem;">' + escapeHtml(d.title || 'Untitled') + '</div>' +
                 '<div style="font-size:0.7rem; color:rgba(255,255,255,0.6); margin-bottom:0.3rem; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;">' + escapeHtml((d.summary || '').substring(0, 200)) + '</div>' +
                 highlights +
                 (statsText ? '<div style="font-size:0.6rem; color:rgba(255,255,255,0.35); margin-top:0.3rem;">' + statsText + '</div>' : '') +
                 '<div style="display:flex; gap:0.3rem; margin-top:0.5rem;">' +
-                  (showDrafts
+                  (d.status === 'draft'
                     ? '<button class="dlog-approve-btn" data-id="' + d.id + '" data-date="' + d.date + '" style="font-size:0.6rem; padding:0.2rem 0.5rem; border-radius:4px; border:1px solid rgba(52,211,153,0.3); background:rgba(52,211,153,0.05); color:#34d399; cursor:pointer;">Publish</button>' +
                       '<button class="dlog-reject-btn" data-id="' + d.id + '" data-date="' + d.date + '" style="font-size:0.6rem; padding:0.2rem 0.5rem; border-radius:4px; border:1px solid rgba(248,113,113,0.3); background:rgba(248,113,113,0.05); color:#f87171; cursor:pointer;">Discard</button>' +
                       '<a href="/log/' + d.date + '" target="_blank" style="font-size:0.6rem; padding:0.2rem 0.5rem; border-radius:4px; border:1px solid rgba(138,43,226,0.3); background:rgba(138,43,226,0.05); color:#8A2BE2; text-decoration:none; display:inline-flex; align-items:center; gap:0.2rem;"><i class="fas fa-external-link-alt" style="font-size:0.5rem;"></i> Preview</a>'
@@ -2290,7 +2287,7 @@
 
           listEl.innerHTML = html;
 
-          if (showDrafts) {
+          if (rows.some(function (r) { return r.status === 'draft'; })) {
             // Bind approve buttons
             listEl.querySelectorAll('.dlog-approve-btn').forEach(function (btn) {
               btn.addEventListener('click', function () {
