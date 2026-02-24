@@ -1104,8 +1104,9 @@
         var relHtml = _relatedBadge(task, allTasks || []);
 
         var campaignChip = campaign ? '<div class="tm-campaign-chip" title="Campaign: ' + escapeHtml(campaign.title || campaign.id) + '"><i class="fas fa-layer-group" style="margin-right:3px;opacity:0.7;"></i>' + escapeHtml(campaign.title || campaign.id) + '</div>' : '';
+        var taskNumChip = task.taskNumber ? '<span style="opacity:0.35;font-size:0.55rem;margin-right:4px;">#' + task.taskNumber + '</span>' : '';
         card.innerHTML = '<span class="tm-division-bar" style="background:' + escapeHtml(divisionColor) + ';"></span>'
-          + '<div class="tm-card-title">' + escapeHtml(task.title) + badge + vBadge + pPill + pausedHtml + '</div>'
+          + '<div class="tm-card-title">' + taskNumChip + escapeHtml(task.title) + badge + vBadge + pPill + pausedHtml + '</div>'
           + campaignChip + meta + provHtml + relHtml;
 
         card.addEventListener('click', function () { openEditModal(task.id); });
@@ -1174,7 +1175,8 @@
           var tr = document.createElement('tr');
           tr.className = 'tm-list-row--with-division';
           tr.style.setProperty('--tm-division-color', divisionColor);
-          var titleCell = escapeHtml(task.title)
+          var listNumChip = task.taskNumber ? '<span style="opacity:0.35;font-size:0.58rem;margin-right:4px;">#' + task.taskNumber + '</span>' : '';
+          var titleCell = listNumChip + escapeHtml(task.title)
             + (campaign ? '<div class="tm-campaign-chip" style="margin-top:0.2rem;" title="Campaign: ' + escapeHtml(campaign.title || campaign.id) + '"><i class="fas fa-layer-group" style="margin-right:3px;opacity:0.7;"></i>' + escapeHtml(campaign.title || campaign.id) + '</div>' : '')
             + _pausedProjectBadge(task) + _provenanceBadge(task);
           tr.innerHTML =
@@ -1487,7 +1489,7 @@
         editOnlyFields.style.display = '';
         triageHint.style.display = 'none';
 
-        modalTitle.textContent = 'Edit Task';
+        modalTitle.textContent = 'Edit Task' + (task.taskNumber ? ' #' + task.taskNumber : '');
         taskIdField.value = task.id;
         taskTitleField.value = task.title;
         taskDescField.value = task.description || '';

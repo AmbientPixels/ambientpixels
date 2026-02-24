@@ -2048,9 +2048,31 @@ var AgentEngine = (function () {
     return matched ? matched.id : null;
   }
 
+  function _normalizeTaskNumbers(list) {
+    var maxNum = 0;
+    var needsBackfill = false;
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].taskNumber && list[i].taskNumber > maxNum) maxNum = list[i].taskNumber;
+      if (!list[i].taskNumber) needsBackfill = true;
+    }
+    if (needsBackfill) {
+      var unnumbered = [];
+      for (var j = 0; j < list.length; j++) {
+        if (!list[j].taskNumber) unnumbered.push(list[j]);
+      }
+      unnumbered.sort(function (a, b) { return (a.createdAt || '').localeCompare(b.createdAt || ''); });
+      for (var k = 0; k < unnumbered.length; k++) {
+        unnumbered[k].taskNumber = ++maxNum;
+      }
+      _saveStorage(TASKS_KEY, list);
+    }
+    return maxNum;
+  }
+
   function getTasks() {
     var list = _loadStorage(TASKS_KEY, []);
     for (var i = 0; i < list.length; i++) { _normalizeCampaignRef(list[i]); }
+    _normalizeTaskNumbers(list);
     return list;
   }
 
@@ -2064,9 +2086,14 @@ var AgentEngine = (function () {
 
   function addTask(entry) {
     var tasks = getTasks();
+    var maxNum = 0;
+    for (var n = 0; n < tasks.length; n++) {
+      if (tasks[n].taskNumber && tasks[n].taskNumber > maxNum) maxNum = tasks[n].taskNumber;
+    }
     var campaignId = _ensureCampaignForTask(entry || {});
     var task = {
       id: 'task-' + Date.now(),
+      taskNumber: maxNum + 1,
       title: entry.title || 'Untitled Task',
       description: entry.description || '',
       status: entry.status || 'backlog',
