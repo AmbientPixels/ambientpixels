@@ -2218,7 +2218,7 @@
         });
       }
 
-      // ── Daily Log Drafts (fallback to Published) ──
+      // ── Daily Logs ──
       function renderDailyLogDrafts() {
         var listEl = document.getElementById('panel-daily-log-drafts');
         var emptyEl = document.getElementById('daily-log-empty');
@@ -2230,7 +2230,8 @@
 
         fetch(apiBase + '/company-state?key=dailyLog', {
           headers: { 'x-company-secret': (typeof CompanyStore !== 'undefined' && CompanyStore._writeSecret) ? CompanyStore._writeSecret : '' }
-        }).then(function (r) { return r.json(); }).then(function (entries) {
+        }).then(function (r) { return r.ok ? r.json() : {}; }).then(function (resp) {
+          var entries = (resp && resp.value) || [];
           if (!Array.isArray(entries)) entries = [];
           // Show all entries (published + drafts), newest first
           var rows = entries.filter(function (e) { return e.status === 'published' || e.status === 'draft'; });
@@ -2318,7 +2319,8 @@
         // Fetch current dailyLog, update the entry, write back
         fetch(apiBase + '/company-state?key=dailyLog', {
           headers: { 'x-company-secret': (typeof CompanyStore !== 'undefined' && CompanyStore._writeSecret) ? CompanyStore._writeSecret : '' }
-        }).then(function (r) { return r.json(); }).then(function (entries) {
+        }).then(function (r) { return r.ok ? r.json() : {}; }).then(function (resp) {
+          var entries = (resp && resp.value) || [];
           if (!Array.isArray(entries)) entries = [];
 
           for (var i = 0; i < entries.length; i++) {
@@ -2339,7 +2341,7 @@
               'Content-Type': 'application/json',
               'x-company-secret': (typeof CompanyStore !== 'undefined' && CompanyStore._writeSecret) ? CompanyStore._writeSecret : ''
             },
-            body: JSON.stringify(entries)
+            body: JSON.stringify({ key: 'dailyLog', value: entries })
           });
         }).then(function () {
           console.log('[Dashboard] Daily log ' + decision + ':', entryId);
