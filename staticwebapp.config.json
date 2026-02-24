@@ -246,7 +246,6 @@
     },
     {
       "route": "/api/telemetry/summary",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/telemetry/summary",
       "allowedRoles": ["anonymous"]
     },
     {
