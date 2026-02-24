@@ -3329,10 +3329,19 @@
       tbBody.innerHTML = html;
     }
 
+    function _getGridOSKey() {
+      if (window._config && window._config.gridosInternalKey) return window._config.gridosInternalKey;
+      if (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteKey) return CompanyStore.getWriteKey() || '';
+      return '';
+    }
+
     function _fetchBrief() {
       var range = tbRange ? tbRange.value : '7d';
       _renderSkeleton();
-      fetch('/api/telemetry/summary?range=' + range)
+      var headers = {};
+      var key = _getGridOSKey();
+      if (key) headers['X-GridOS-Key'] = key;
+      fetch('/api/telemetry/summary?range=' + range, { headers: headers })
         .then(function (r) { return r.json(); })
         .then(function (data) { _render(data); })
         .catch(function (err) {
@@ -3348,8 +3357,27 @@
       tbScoutBtn.addEventListener('click', function () {
         if (!_lastData) { alert('No traffic data loaded yet. Refresh first.'); return; }
         var briefJson = JSON.stringify(_lastData, null, 2);
-        var title = 'Scout: Review Traffic Brief (' + (_lastData.rangeLabel || _lastData.range || 'Last 7 Days') + ')';
-        var desc = 'Traffic Brief Summary\n\nGenerated: ' + (_lastData.generatedAt || new Date().toISOString()) + '\n\n' + briefJson;
+        // Build date range title: "MMM DD–MMM DD, YYYY"
+        var rl = _lastData.rangeLabel || '';
+        var titleRange = rl;
+        if (rl && rl.indexOf(' to ') !== -1) {
+          var parts = rl.split(' to ');
+          var fmt = function (iso) {
+            var d = new Date(iso + 'T00:00:00');
+            return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+          };
+          var endD = new Date(parts[1] + 'T00:00:00');
+          titleRange = fmt(parts[0]) + '\u2013' + fmt(parts[1]) + ', ' + endD.getFullYear();
+        }
+        var title = 'Scout: Review Traffic Brief (' + (titleRange || _lastData.range || 'Last 7 Days') + ')';
+        var desc = '## Traffic Summary (Range: ' + (_lastData.range || '7d') + ')\n\n'
+          + '```json\n' + briefJson + '\n```\n\n'
+          + '## Required Output\n'
+          + '- Key Findings\n'
+          + '- Hypotheses\n'
+          + '- Recommended Actions (Echo / Scribe / Pixel / Nova)\n'
+          + '- Proposed Directives\n'
+          + '- Proposed Tasks\n';
 
         // Try creating a task via AgentEngine if available
         if (typeof AgentEngine !== 'undefined' && typeof AgentEngine.addTask === 'function') {

@@ -12,6 +12,10 @@ const RANGE_MAP = { '1d': 'P1D', '7d': 'P7D', '30d': 'P30D' };
 const VALID_RANGES = ['1d', '7d', '30d'];
 const UTM_PARAMS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content'];
 
+// 10-minute in-memory cache per range
+var _cache = { '1d': { ts: 0, data: null }, '7d': { ts: 0, data: null }, '30d': { ts: 0, data: null } };
+var CACHE_TTL_MS = 10 * 60 * 1000;
+
 function _rangeLabel(range) {
   var now = new Date();
   var days = range === '1d' ? 1 : range === '30d' ? 30 : 7;
@@ -66,9 +70,11 @@ function _parseRows(result, tableIdx) {
 }
 
 module.exports = async function (context, req) {
+  var RES_HEADERS = { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' };
+
   // CORS preflight
   if (req.method === 'OPTIONS') {
-    context.res = { status: 204, headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type' } };
+    context.res = { status: 204, headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type, X-GridOS-Key' } };
     return;
   }
 
@@ -76,12 +82,24 @@ module.exports = async function (context, req) {
   if (VALID_RANGES.indexOf(range) === -1) range = '7d';
   var timespan = RANGE_MAP[range];
 
+  // Light access guard: internal dashboard vs public
+  var gridosKey = process.env.GRIDOS_INTERNAL_KEY || '';
+  var reqKey = (req.headers && req.headers['x-gridos-key']) || '';
+  var isInternal = gridosKey && reqKey === gridosKey;
+
   if (!APP_ID || !API_KEY) {
     context.res = {
       status: 200,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      headers: RES_HEADERS,
       body: _emptyResponse(range, 'telemetry_unavailable: APPINSIGHTS_APP_ID or APPINSIGHTS_API_KEY not configured')
     };
+    return;
+  }
+
+  // Check cache
+  if (_cache[range] && _cache[range].data && (Date.now() - _cache[range].ts < CACHE_TTL_MS)) {
+    var cached = _cache[range].data;
+    context.res = { status: 200, headers: RES_HEADERS, body: isInternal ? cached : _publicView(cached) };
     return;
   }
 
@@ -159,17 +177,31 @@ module.exports = async function (context, req) {
       errors: errors
     };
 
+    // Cache successful result (do not cache failures)
+    _cache[range] = { ts: Date.now(), data: body };
+
     context.res = {
       status: 200,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
-      body: body
+      headers: RES_HEADERS,
+      body: isInternal ? body : _publicView(body)
     };
   } catch (err) {
     context.log('[telemetrySummary] Error:', err.message);
     context.res = {
       status: 200,
-      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+      headers: RES_HEADERS,
       body: _emptyResponse(range, 'telemetry_unavailable: ' + (err.message || 'query error'))
     };
   }
 };
+
+// Public view: limited payload (topPages only, no referrers/campaigns/perf/errors)
+function _publicView(full) {
+  return {
+    range: full.range,
+    rangeLabel: full.rangeLabel,
+    generatedAt: full.generatedAt,
+    warning: 'public_limited_view',
+    topPages: full.topPages
+  };
+}
