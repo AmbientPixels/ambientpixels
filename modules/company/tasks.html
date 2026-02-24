@@ -1481,10 +1481,33 @@
               (agent ? '<span style="color:' + agent.color + ';">' + agent.name + '</span>' : (authorId || 'User')) +
               ' · ' + formatTimeAgo(ts ? new Date(ts) : null) +
             '</div>' +
-            '<div>' + escapeHtml(c.text) + '</div>' +
+            '<div class="tm-comment-body">' + _formatCommentText(c) + '</div>' +
             imgHtml;
           taskCommentsList.appendChild(div);
         });
+      }
+
+      function _commentTextRaw(c) {
+        if (typeof c === 'string') return c;
+        if (!c || typeof c !== 'object') return '';
+        if (typeof c.text === 'string') return c.text;
+        if (typeof c.body === 'string') return c.body;
+        if (typeof c.message === 'string') return c.message;
+        if (typeof c.content === 'string') return c.content;
+        return '';
+      }
+
+      function _formatCommentText(commentEntry) {
+        var raw = _commentTextRaw(commentEntry);
+        if (!raw) return '';
+
+        var html = escapeHtml(String(raw).replace(/\r\n?/g, '\n'));
+        // basic markdown-lite support
+        html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+        html = html.replace(/`([^`]+)`/g, '<code>$1</code>');
+        html = html.replace(/(^|\n)\s*[-*]\s+/g, '$1• ');
+        html = html.replace(/\n/g, '<br>');
+        return html;
       }
 
       function _timelineEntryText(entry) {
