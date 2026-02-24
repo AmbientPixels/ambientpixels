@@ -169,6 +169,8 @@
     .epulse-trend-col { flex:1; min-width:0; text-align:center; }
     .epulse-trend-bar { width:100%; min-height:4px; border-radius:3px 3px 0 0; background:rgba(52,211,153,0.72); }
     .epulse-trend-label { font-size:0.48rem; opacity:0.3; margin-top:2px; }
+    .dev-log-split { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:0.5rem; }
+    @media (max-width: 760px) { .dev-log-split { grid-template-columns:1fr; } }
     @media (max-width: 760px) { .epulse-split { grid-template-columns:1fr; } }
   </style>
 </head>
@@ -579,7 +581,7 @@
               </div>
             </div>
             <!-- Cron Log + Governance Log (Dev) — side by side -->
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
+            <div class="dash-panel--full dev-log-split">
               <div class="dash-panel">
                 <div class="dash-panel-header">
                   <span class="dash-panel-title"><i class="fas fa-clock"></i> Cron Log</span>
