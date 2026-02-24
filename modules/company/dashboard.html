@@ -430,6 +430,37 @@
         </div>
       </div>
 
+      <!-- CEO: Traffic Brief Section -->
+      <div class="dash-section" id="section-traffic" data-section="traffic">
+        <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
+          <i class="fas fa-signal" style="color:#38bdf8;"></i>
+          <h2>Traffic Brief</h2>
+          <i class="fas fa-chevron-down dash-section-chevron"></i>
+        </div>
+        <div class="dash-section-body">
+          <div class="dash-panel dash-panel--full" style="border:1px solid rgba(56,189,248,0.1); background:rgba(56,189,248,0.015);">
+            <div class="dash-panel-header" style="border-bottom:none; padding-bottom:0;">
+              <span class="dash-panel-title"><i class="fas fa-chart-area" style="color:#38bdf8;"></i> Traffic Brief</span>
+              <span id="tb-range-label" style="font-size:0.52rem; opacity:0.35;">Last 7 days · powered by Application Insights</span>
+            </div>
+            <div id="traffic-brief-root" style="padding:0.5rem 0.6rem;">
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:0.6rem;">
+                <select id="tb-range" style="font-size:0.6rem; padding:0.2rem 0.4rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:5px; color:inherit;">
+                  <option value="7d" selected>Last 7 days</option>
+                  <option value="1d">Last 24 hours</option>
+                  <option value="30d">Last 30 days</option>
+                </select>
+                <button id="tb-refresh" style="font-size:0.55rem; padding:0.2rem 0.5rem; border-radius:5px; cursor:pointer; border:1px solid rgba(56,189,248,0.2); background:rgba(56,189,248,0.04); color:#38bdf8; font-family:inherit;"><i class="fas fa-sync-alt" style="margin-right:3px;"></i>Refresh</button>
+                <button id="tb-scout-btn" style="font-size:0.55rem; padding:0.2rem 0.5rem; border-radius:5px; cursor:pointer; border:1px solid rgba(52,211,153,0.2); background:rgba(52,211,153,0.04); color:#34d399; font-family:inherit; margin-left:auto;"><i class="fas fa-binoculars" style="margin-right:3px;"></i>Generate Scout Brief</button>
+              </div>
+              <div id="tb-body">
+                <div class="dash-empty" style="font-size:0.6rem;">Loading traffic data...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- CEO: Content Section -->
       <div class="dash-section" id="section-content" data-section="content">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
@@ -3189,6 +3220,177 @@
       setTimeout(checkWrite, 2000);
       setInterval(checkWrite, 15000);
     })();
+  </script>
+
+  <!-- Traffic Brief Logic -->
+  <script>
+  (function () {
+    'use strict';
+    var tbBody = document.getElementById('tb-body');
+    var tbRange = document.getElementById('tb-range');
+    var tbRefresh = document.getElementById('tb-refresh');
+    var tbScoutBtn = document.getElementById('tb-scout-btn');
+    var tbRangeLabel = document.getElementById('tb-range-label');
+    if (!tbBody) return;
+
+    var _lastData = null;
+
+    function _esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+    function _renderSkeleton() {
+      tbBody.innerHTML = '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;">' +
+        '<div style="flex:1;min-width:180px;height:80px;background:rgba(255,255,255,0.02);border-radius:6px;"></div>'.repeat(3) +
+        '</div>';
+    }
+
+    function _renderWarning(msg) {
+      tbBody.innerHTML = '<div style="font-size:0.6rem;padding:0.5rem;border:1px solid rgba(251,191,36,0.2);border-radius:6px;background:rgba(251,191,36,0.04);color:#fbbf24;">' +
+        '<i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i>' + _esc(msg) + '</div>';
+    }
+
+    function _renderTable(title, icon, rows, keyField, valField) {
+      if (!rows || rows.length === 0) return '<div style="font-size:0.52rem;opacity:0.25;padding:0.2rem 0;">No data</div>';
+      var h = '<div style="font-size:0.56rem;font-weight:600;opacity:0.45;margin-bottom:0.25rem;text-transform:uppercase;letter-spacing:0.03em;">' +
+        '<i class="fas fa-' + icon + '" style="margin-right:4px;opacity:0.5;"></i>' + _esc(title) + '</div>';
+      h += '<div style="font-size:0.55rem;">';
+      rows.forEach(function (r) {
+        var key = r[keyField] || '—';
+        var val = r[valField] || 0;
+        h += '<div style="display:flex;justify-content:space-between;padding:0.1rem 0;border-bottom:1px solid rgba(255,255,255,0.02);">' +
+          '<span style="font-family:monospace;opacity:0.6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:75%;">' + _esc(key) + '</span>' +
+          '<span style="font-weight:600;color:#38bdf8;">' + val + '</span></div>';
+      });
+      h += '</div>';
+      return h;
+    }
+
+    function _render(data) {
+      _lastData = data;
+      if (data.warning && (!data.topPages || data.topPages.length === 0)) {
+        _renderWarning(data.warning);
+        return;
+      }
+      var rangeText = data.rangeLabel || data.range || '7d';
+      tbRangeLabel.textContent = rangeText + ' · powered by Application Insights';
+      if (data.warning) {
+        tbRangeLabel.textContent += ' (partial data)';
+      }
+
+      var html = '<div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:0.6rem;">';
+
+      // Top Pages
+      html += '<div style="background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.04);border-radius:8px;padding:0.5rem 0.6rem;">';
+      html += _renderTable('Top Pages', 'file-alt', data.topPages, 'path', 'views');
+      html += '</div>';
+
+      // Top Referrers
+      html += '<div style="background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.04);border-radius:8px;padding:0.5rem 0.6rem;">';
+      html += _renderTable('Top Referrers', 'external-link-alt', data.topReferrers, 'referrer', 'sessions');
+      html += '</div>';
+
+      // Top Campaigns
+      html += '<div style="background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.04);border-radius:8px;padding:0.5rem 0.6rem;">';
+      if (data.topCampaigns && data.topCampaigns.length > 0) {
+        html += '<div style="font-size:0.56rem;font-weight:600;opacity:0.45;margin-bottom:0.25rem;text-transform:uppercase;letter-spacing:0.03em;">' +
+          '<i class="fas fa-bullhorn" style="margin-right:4px;opacity:0.5;"></i>Top Campaigns</div>';
+        html += '<div style="font-size:0.55rem;">';
+        data.topCampaigns.forEach(function (c) {
+          html += '<div style="display:flex;justify-content:space-between;padding:0.1rem 0;border-bottom:1px solid rgba(255,255,255,0.02);">' +
+            '<span style="opacity:0.6;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70%;">' +
+            _esc(c.campaign) + ' <span style="opacity:0.4;font-size:0.48rem;">' + _esc((c.source || '') + '/' + (c.medium || '')) + '</span></span>' +
+            '<span style="font-weight:600;color:#34d399;">' + (c.sessions || 0) + '</span></div>';
+        });
+        html += '</div>';
+      } else {
+        html += '<div style="font-size:0.56rem;font-weight:600;opacity:0.45;margin-bottom:0.25rem;text-transform:uppercase;letter-spacing:0.03em;">' +
+          '<i class="fas fa-bullhorn" style="margin-right:4px;opacity:0.5;"></i>Top Campaigns</div>';
+        html += '<div style="font-size:0.52rem;opacity:0.25;padding:0.2rem 0;">No campaign data</div>';
+      }
+      html += '</div>';
+
+      html += '</div>';
+
+      // Performance + Errors row
+      html += '<div style="display:flex;gap:0.6rem;margin-top:0.5rem;flex-wrap:wrap;">';
+      if (data.performance) {
+        html += '<div style="font-size:0.55rem;opacity:0.5;"><i class="fas fa-tachometer-alt" style="margin-right:3px;"></i>p50: <strong style="color:#38bdf8;">' +
+          (data.performance.pageLoadMs_p50 || 0) + 'ms</strong> · p95: <strong style="color:#fbbf24;">' +
+          (data.performance.pageLoadMs_p95 || 0) + 'ms</strong></div>';
+      }
+      if (data.errors && data.errors.length > 0) {
+        html += '<div style="font-size:0.55rem;opacity:0.5;margin-left:auto;"><i class="fas fa-bug" style="margin-right:3px;color:#ef4444;"></i>Errors: ';
+        data.errors.slice(0, 3).forEach(function (e) {
+          html += '<span style="margin-right:0.4rem;">' + _esc(e.name) + ' <strong style="color:#ef4444;">(' + e.count + ')</strong></span>';
+        });
+        html += '</div>';
+      }
+      html += '</div>';
+
+      tbBody.innerHTML = html;
+    }
+
+    function _fetchBrief() {
+      var range = tbRange ? tbRange.value : '7d';
+      _renderSkeleton();
+      fetch('/api/telemetry/summary?range=' + range)
+        .then(function (r) { return r.json(); })
+        .then(function (data) { _render(data); })
+        .catch(function (err) {
+          _renderWarning('Telemetry unavailable: ' + (err.message || 'fetch error'));
+        });
+    }
+
+    if (tbRefresh) tbRefresh.addEventListener('click', _fetchBrief);
+    if (tbRange) tbRange.addEventListener('change', _fetchBrief);
+
+    // Scout Brief — create task or fallback copy modal
+    if (tbScoutBtn) {
+      tbScoutBtn.addEventListener('click', function () {
+        if (!_lastData) { alert('No traffic data loaded yet. Refresh first.'); return; }
+        var briefJson = JSON.stringify(_lastData, null, 2);
+        var title = 'Scout: Review Traffic Brief (' + (_lastData.rangeLabel || _lastData.range || 'Last 7 Days') + ')';
+        var desc = 'Traffic Brief Summary\n\nGenerated: ' + (_lastData.generatedAt || new Date().toISOString()) + '\n\n' + briefJson;
+
+        // Try creating a task via AgentEngine if available
+        if (typeof AgentEngine !== 'undefined' && typeof AgentEngine.addTask === 'function') {
+          AgentEngine.addTask({
+            title: title,
+            description: desc,
+            status: 'todo',
+            priority: 'low',
+            assignee: 'scout',
+            tags: ['Scout', 'Analytics', 'Weekly Brief'],
+            category: 'analytics'
+          });
+          if (typeof CompanyStore !== 'undefined' && CompanyStore.setState) {
+            CompanyStore.setState('ap_tasks', AgentEngine.getTasks());
+          }
+          tbScoutBtn.textContent = '✓ Task Created';
+          tbScoutBtn.disabled = true;
+          setTimeout(function () {
+            tbScoutBtn.innerHTML = '<i class="fas fa-binoculars" style="margin-right:3px;"></i>Generate Scout Brief';
+            tbScoutBtn.disabled = false;
+          }, 3000);
+          return;
+        }
+
+        // Fallback: copy to clipboard
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(title + '\n\n' + desc).then(function () {
+            tbScoutBtn.textContent = '✓ Copied to Clipboard';
+            setTimeout(function () {
+              tbScoutBtn.innerHTML = '<i class="fas fa-binoculars" style="margin-right:3px;"></i>Generate Scout Brief';
+            }, 2500);
+          });
+        } else {
+          prompt('Copy this Scout Brief:', title + '\n\n' + desc);
+        }
+      });
+    }
+
+    // Auto-fetch on load after a short delay
+    setTimeout(_fetchBrief, 2000);
+  })();
   </script>
 
   <script src="/modules/company/js/sidebar.js"></script>
