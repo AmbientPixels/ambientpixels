@@ -47,6 +47,36 @@
     }
     .obj-btn--primary { border-color:rgba(78,205,196,0.4); color:#4ECDC4; }
     .obj-btn--danger { border-color:rgba(248,113,113,0.4); color:#f87171; margin-right:auto; }
+
+    /* Campaign multi-select widget */
+    .cmp-select-wrap { position:relative; }
+    .cmp-select-trigger {
+      width:100%; padding:0.35rem 0.55rem; border-radius:6px;
+      border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.03);
+      color:inherit; font-size:0.72rem; cursor:pointer; display:flex; align-items:center; justify-content:space-between;
+    }
+    .cmp-select-trigger:hover { border-color:rgba(255,255,255,0.15); }
+    .cmp-select-dropdown {
+      display:none; position:absolute; left:0; right:0; top:100%; margin-top:2px; z-index:100;
+      background:rgba(7,16,25,0.97); border:1px solid rgba(255,255,255,0.12); border-radius:6px;
+      max-height:180px; overflow-y:auto; padding:0.2rem 0;
+    }
+    .cmp-select-dropdown.open { display:block; }
+    .cmp-select-option {
+      display:flex; align-items:center; gap:0.4rem; padding:0.3rem 0.55rem; cursor:pointer;
+      font-size:0.68rem; color:rgba(255,255,255,0.75); transition:background 0.1s;
+    }
+    .cmp-select-option:hover { background:rgba(255,255,255,0.04); }
+    .cmp-select-option input[type="checkbox"] { accent-color:#a78bfa; margin:0; cursor:pointer; }
+    .cmp-select-empty { padding:0.5rem; font-size:0.65rem; opacity:0.3; text-align:center; }
+    .cmp-chips { display:flex; flex-wrap:wrap; gap:0.25rem; margin-top:0.3rem; }
+    .cmp-chip {
+      display:inline-flex; align-items:center; gap:3px; font-size:0.56rem; padding:0.1rem 0.38rem;
+      border-radius:4px; background:rgba(167,139,250,0.1); border:1px solid rgba(167,139,250,0.25); color:#a78bfa;
+    }
+    .cmp-chip-x { cursor:pointer; opacity:0.6; font-size:0.6rem; margin-left:2px; }
+    .cmp-chip-x:hover { opacity:1; color:#f87171; }
+    .cmp-count { font-size:0.58rem; opacity:0.4; margin-top:0.2rem; }
   </style>
 </head>
 <body style="background:#071019" data-theme="dark">
@@ -73,8 +103,16 @@
             <option value="Q4">Q4</option>
           </select>
           <input type="number" id="obj-year" value="2026" min="2024" max="2030" style="width:80px; padding:0.35rem 0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.7rem;" />
-          <select id="obj-directive" multiple style="padding:0.35rem 0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.7rem; overflow:auto; appearance:none; -webkit-appearance:none;">
-          </select>
+          <div class="cmp-select-wrap" id="create-cmp-wrap" style="min-width:200px; flex:1;">
+            <div class="cmp-select-trigger" id="create-cmp-trigger">
+              <span><i class="fas fa-layer-group" style="margin-right:4px; opacity:0.5;"></i>Linked Campaigns</span>
+              <i class="fas fa-chevron-down" style="font-size:0.5rem; opacity:0.4;"></i>
+            </div>
+            <div class="cmp-select-dropdown" id="create-cmp-dropdown"></div>
+            <div class="cmp-chips" id="create-cmp-chips"></div>
+            <div class="cmp-count" id="create-cmp-count">0 linked campaigns</div>
+            <a href="/modules/company/campaigns.html" style="font-size:0.55rem; opacity:0.45; text-decoration:none; color:#a78bfa; margin-top:0.15rem; display:inline-block;"><i class="fas fa-external-link-alt" style="margin-right:2px;"></i>Manage campaigns</a>
+          </div>
           <button id="obj-create-btn" style="padding:0.35rem 1rem; background:rgba(78,205,196,0.1); border:1px solid rgba(78,205,196,0.3); border-radius:6px; color:#4ECDC4; font-size:0.7rem; cursor:pointer; font-weight:500;">Create Goal</button>
         </div>
       </div>
@@ -151,9 +189,19 @@
         </div>
       </div>
 
-      <label for="obj-edit-directive">Linked Projects <span style="opacity:0.35; font-weight:normal;">(Ctrl+click to multi-select)</span></label>
-      <select id="obj-edit-directive" multiple style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.75rem; padding:0.35rem 0.5rem; overflow:auto; appearance:none; -webkit-appearance:none;">
-      </select>
+      <label>Linked Campaigns <span style="opacity:0.35; font-weight:normal;">(multi-select)</span></label>
+      <span style="display:block; font-size:0.58rem; opacity:0.35; margin-bottom:0.25rem;">Select one or more campaigns under this goal.</span>
+      <div class="cmp-select-wrap" id="edit-cmp-wrap">
+        <div class="cmp-select-trigger" id="edit-cmp-trigger">
+          <span><i class="fas fa-layer-group" style="margin-right:4px; opacity:0.5;"></i>Select campaigns...</span>
+          <i class="fas fa-chevron-down" style="font-size:0.5rem; opacity:0.4;"></i>
+        </div>
+        <div class="cmp-select-dropdown" id="edit-cmp-dropdown"></div>
+        <div class="cmp-chips" id="edit-cmp-chips"></div>
+        <div class="cmp-count" id="edit-cmp-count">0 linked campaigns</div>
+        <a href="/modules/company/campaigns.html" style="font-size:0.55rem; opacity:0.45; text-decoration:none; color:#a78bfa; margin-top:0.15rem; display:inline-block;"><i class="fas fa-external-link-alt" style="margin-right:2px;"></i>Manage campaigns</a>
+        <div id="edit-cmp-legacy-note" style="display:none; font-size:0.54rem; opacity:0.4; color:#94a3b8; margin-top:0.2rem;"><i class="fas fa-info-circle" style="margin-right:3px;"></i>Derived from linked projects (legacy). Save to convert.</div>
+      </div>
 
       <div class="obj-modal-row">
         <div>
@@ -199,7 +247,6 @@
       var titleInput = document.getElementById('obj-title');
       var quarterSelect = document.getElementById('obj-quarter');
       var yearInput = document.getElementById('obj-year');
-      var directiveSelect = document.getElementById('obj-directive');
       var createBtn = document.getElementById('obj-create-btn');
       var objList = document.getElementById('obj-list');
 
@@ -209,7 +256,6 @@
       var editDesc = document.getElementById('obj-edit-desc');
       var editQuarter = document.getElementById('obj-edit-quarter');
       var editYear = document.getElementById('obj-edit-year');
-      var editDirective = document.getElementById('obj-edit-directive');
       var editOwner = document.getElementById('obj-edit-owner');
       var editStatus = document.getElementById('obj-edit-status');
       var editSave = document.getElementById('obj-edit-save');
@@ -217,8 +263,134 @@
       var editDelete = document.getElementById('obj-edit-delete');
       var editingId = null;
 
+      // ── Campaign Multi-Select Widget ──
+      // State per widget instance: { selected: Set of campaign IDs }
+      var _createCmpState = { selected: new Set() };
+      var _editCmpState = { selected: new Set() };
+
+      function _getCampaigns() {
+        return (typeof AgentEngine.getCampaigns === 'function' ? AgentEngine.getCampaigns() : [])
+          .filter(function (c) { return c && !c.deletedAt && c.status !== 'archived'; });
+      }
+
+      function _campaignById(id) {
+        var all = typeof AgentEngine.getCampaigns === 'function' ? AgentEngine.getCampaigns() : [];
+        return all.find(function (c) { return c && c.id === id; }) || null;
+      }
+
+      // Back-compat: derive campaign IDs from linkedDirectives if linkedCampaigns missing
+      // Returns { ids: [...], derived: bool }
+      function resolveCampaignIds(obj, meta) {
+        if (Array.isArray(obj.linkedCampaigns) && obj.linkedCampaigns.length > 0) {
+          if (meta) { meta.derived = false; }
+          return obj.linkedCampaigns.slice();
+        }
+        var linkedDirs = obj.linkedDirectives || (obj.linkedDirective ? [obj.linkedDirective] : []);
+        if (linkedDirs.length === 0) {
+          if (meta) { meta.derived = false; }
+          return [];
+        }
+        var directives = AgentEngine.getDirectives();
+        var ids = {};
+        linkedDirs.forEach(function (did) {
+          var dir = directives.find(function (d) { return d.id === did; });
+          if (dir && dir.campaign_id) ids[dir.campaign_id] = true;
+        });
+        var result = Object.keys(ids);
+        if (meta) { meta.derived = result.length > 0; }
+        return result;
+      }
+
+      function _buildDropdown(dropdownEl, state, onChange) {
+        var campaigns = _getCampaigns();
+        dropdownEl.innerHTML = '';
+        if (campaigns.length === 0) {
+          dropdownEl.innerHTML = '<div class="cmp-select-empty">No campaigns available</div>';
+          return;
+        }
+        campaigns.forEach(function (c) {
+          var row = document.createElement('label');
+          row.className = 'cmp-select-option';
+          var cb = document.createElement('input');
+          cb.type = 'checkbox';
+          cb.value = c.id;
+          cb.checked = state.selected.has(c.id);
+          cb.addEventListener('change', function () {
+            if (cb.checked) state.selected.add(c.id); else state.selected.delete(c.id);
+            if (onChange) onChange();
+          });
+          var icon = document.createElement('i');
+          icon.className = 'fas fa-layer-group';
+          icon.style.cssText = 'font-size:0.55rem; opacity:0.45;';
+          var label = document.createElement('span');
+          label.textContent = c.title || c.id;
+          row.appendChild(cb);
+          row.appendChild(icon);
+          row.appendChild(label);
+          dropdownEl.appendChild(row);
+        });
+      }
+
+      function _renderChips(chipsEl, countEl, state, onChange) {
+        chipsEl.innerHTML = '';
+        state.selected.forEach(function (id) {
+          var c = _campaignById(id);
+          var chip = document.createElement('span');
+          chip.className = 'cmp-chip';
+          chip.innerHTML = '<i class="fas fa-layer-group" style="font-size:0.45rem;"></i>' + escapeHtml(c ? (c.title || c.id) : id);
+          var x = document.createElement('span');
+          x.className = 'cmp-chip-x';
+          x.innerHTML = '&times;';
+          x.addEventListener('click', function () {
+            state.selected.delete(id);
+            // Also uncheck in dropdown
+            var cb = chipsEl.parentElement.querySelector('input[value="' + id + '"]');
+            if (cb) cb.checked = false;
+            if (onChange) onChange();
+          });
+          chip.appendChild(x);
+          chipsEl.appendChild(chip);
+        });
+        var n = state.selected.size;
+        countEl.textContent = n + ' linked campaign' + (n !== 1 ? 's' : '');
+      }
+
+      function _initWidget(prefix, state) {
+        var trigger = document.getElementById(prefix + '-cmp-trigger');
+        var dropdown = document.getElementById(prefix + '-cmp-dropdown');
+        var chipsEl = document.getElementById(prefix + '-cmp-chips');
+        var countEl = document.getElementById(prefix + '-cmp-count');
+
+        function refresh() {
+          _renderChips(chipsEl, countEl, state, refresh);
+        }
+
+        trigger.addEventListener('click', function (e) {
+          e.stopPropagation();
+          var isOpen = dropdown.classList.contains('open');
+          // Close all other dropdowns first
+          document.querySelectorAll('.cmp-select-dropdown.open').forEach(function (d) { d.classList.remove('open'); });
+          if (!isOpen) {
+            _buildDropdown(dropdown, state, refresh);
+            dropdown.classList.add('open');
+          }
+        });
+
+        // Close on outside click
+        document.addEventListener('click', function (e) {
+          if (!trigger.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.classList.remove('open');
+          }
+        });
+
+        return { refresh: refresh };
+      }
+
+      var createWidget = _initWidget('create', _createCmpState);
+      var editWidget = _initWidget('edit', _editCmpState);
+
       AgentEngine.loadRegistry().then(function () {
-        populateDirectiveSelect();
+        createWidget.refresh();
         renderObjectives();
       });
 
@@ -226,42 +398,9 @@
       window.addEventListener('companystoreready', function () { renderObjectives(); });
 
       AgentEngine.on('sync-complete', function () {
-        populateDirectiveSelect();
+        createWidget.refresh();
         renderObjectives();
       });
-
-      function populateDirectiveSelect(targetSelect, selectedIds) {
-        var directives = AgentEngine.getDirectives();
-        var active = directives.filter(function (d) { return d.status === 'active' || d.status === 'completed'; });
-        var sel = targetSelect || directiveSelect;
-        var ids = Array.isArray(selectedIds) ? selectedIds : (selectedIds ? [selectedIds] : []);
-        sel.innerHTML = '';
-        // Handle empty state: hide select and show placeholder
-        var emptyId = sel.id + '-empty';
-        var existingEmpty = sel.parentElement.querySelector('#' + emptyId);
-        if (active.length === 0) {
-          sel.style.display = 'none';
-          if (!existingEmpty) {
-            var emptyLabel = document.createElement('span');
-            emptyLabel.id = emptyId;
-            emptyLabel.style.cssText = 'font-size:0.65rem; opacity:0.3; padding:0.35rem 0.6rem;';
-            emptyLabel.textContent = 'No projects yet';
-            sel.parentElement.insertBefore(emptyLabel, sel.nextSibling);
-          }
-          return;
-        }
-        sel.style.display = '';
-        if (existingEmpty) existingEmpty.remove();
-        active.forEach(function (dir) {
-          var opt = document.createElement('option');
-          opt.value = dir.id;
-          opt.textContent = dir.title + (dir.status !== 'active' ? ' [' + dir.status + ']' : '');
-          opt.style.cssText = 'padding:0.25rem 0.4rem; border-radius:4px;';
-          if (ids.indexOf(dir.id) !== -1) opt.selected = true;
-          sel.appendChild(opt);
-        });
-        sel.size = Math.min(active.length, 5);
-      }
 
       // ── Edit Modal ──
       function openEditModal(obj) {
@@ -272,7 +411,12 @@
         editYear.value = obj.year || 2026;
         editOwner.value = obj.owner || 'nova';
         editStatus.value = obj.status || 'on_track';
-        populateDirectiveSelect(editDirective, obj.linkedDirectives || (obj.linkedDirective ? [obj.linkedDirective] : []));
+        // Populate edit campaign widget with resolved campaign IDs
+        var _meta = {};
+        _editCmpState.selected = new Set(resolveCampaignIds(obj, _meta));
+        editWidget.refresh();
+        var legacyNote = document.getElementById('edit-cmp-legacy-note');
+        if (legacyNote) legacyNote.style.display = _meta.derived ? '' : 'none';
         editModal.style.display = 'flex';
       }
 
@@ -286,16 +430,13 @@
 
       editSave.addEventListener('click', function () {
         if (!editingId) return;
-        var selectedDirs = [];
-        for (var i = 0; i < editDirective.options.length; i++) {
-          if (editDirective.options[i].selected && editDirective.options[i].value) selectedDirs.push(editDirective.options[i].value);
-        }
+        var selectedCampaigns = Array.from(_editCmpState.selected);
         var payload = {
           title: editTitle.value.trim(),
           description: editDesc.value.trim(),
           quarter: editQuarter.value,
           year: parseInt(editYear.value, 10),
-          linkedDirectives: selectedDirs,
+          linkedCampaigns: selectedCampaigns,
           owner: editOwner.value || 'nova',
           status: editStatus.value
         };
@@ -325,15 +466,12 @@
         var title = titleInput.value.trim();
         if (!title) return;
 
-        var selectedDirs = [];
-        for (var i = 0; i < directiveSelect.options.length; i++) {
-          if (directiveSelect.options[i].selected && directiveSelect.options[i].value) selectedDirs.push(directiveSelect.options[i].value);
-        }
+        var selectedCampaigns = Array.from(_createCmpState.selected);
         AgentEngine.addObjective({
           title: title,
           quarter: quarterSelect.value,
           year: parseInt(yearInput.value, 10),
-          linkedDirectives: selectedDirs
+          linkedCampaigns: selectedCampaigns
         });
 
         // Push to server so heartbeat can see the objective
@@ -342,6 +480,8 @@
         }
 
         titleInput.value = '';
+        _createCmpState.selected = new Set();
+        createWidget.refresh();
         renderObjectives();
       });
 
@@ -382,14 +522,13 @@
         var statusColor = obj.status === 'on_track' ? '#34d399' : obj.status === 'at_risk' ? '#fbbf24' : obj.status === 'behind' ? '#f87171' : obj.status === 'canceled' ? '#9ca3af' : '#8A2BE2';
         var pct = obj.progressPercentage || 0;
 
-        // Find linked project titles
-        var dirTitles = [];
-        var linkedIds = obj.linkedDirectives || (obj.linkedDirective ? [obj.linkedDirective] : []);
-        if (linkedIds.length > 0) {
-          var directives = AgentEngine.getDirectives();
-          linkedIds.forEach(function (did) {
-            var linked = directives.find(function (d) { return d.id === did; });
-            if (linked) dirTitles.push(linked.title);
+        // Find linked campaign titles (back-compat aware)
+        var cmpTitles = [];
+        var linkedCmpIds = resolveCampaignIds(obj);
+        if (linkedCmpIds.length > 0) {
+          linkedCmpIds.forEach(function (cid) {
+            var cmp = _campaignById(cid);
+            if (cmp) cmpTitles.push(cmp.title || cmp.id);
           });
         }
 
@@ -398,7 +537,7 @@
             '<strong style="font-size:0.85rem;">' + escapeHtml(obj.title) + '</strong>' +
             '<span style="font-size:0.65rem; opacity:0.5;">' + (obj.quarter || '') + ' ' + (obj.year || '') + '</span>' +
           '</div>' +
-          (dirTitles.length > 0 ? '<div style="font-size:0.6rem; opacity:0.4; margin-bottom:0.4rem;"><i class="fas fa-compass"></i> ' + dirTitles.map(function (t) { return escapeHtml(t); }).join(', ') + '</div>' : '') +
+          (cmpTitles.length > 0 ? '<div style="font-size:0.6rem; opacity:0.4; margin-bottom:0.4rem;"><i class="fas fa-layer-group" style="margin-right:3px;"></i>' + cmpTitles.map(function (t) { return escapeHtml(t); }).join(', ') + '</div>' : '') +
           (obj.description ? '<div style="font-size:0.7rem; opacity:0.5; margin-bottom:0.4rem; line-height:1.3;">' + escapeHtml(obj.description) + '</div>' : '') +
           '<div style="margin:0.4rem 0; height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden;">' +
             '<div style="height:100%; width:' + pct + '%; background:' + statusColor + '; border-radius:3px; transition:width 0.3s;"></div>' +
