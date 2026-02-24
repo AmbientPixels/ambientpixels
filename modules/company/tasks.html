@@ -624,10 +624,10 @@
           filterAssigneeEl.innerHTML += '<option value="' + a.id + '">' + a.name + ' (' + a.role + ')</option>';
           taskAssigneeEl.innerHTML += '<option value="' + a.id + '">' + a.name + ' — ' + a.role + '</option>';
 
-          // Collect divisions
+          // Collect divisions (include agent color for palette consistency)
           if (a.divisions) {
             a.divisions.forEach(function (d) {
-              allDivisions.push({ id: d.id, name: d.name, icon: d.icon, agentId: a.id, agentName: a.name });
+              allDivisions.push({ id: d.id, name: d.name, icon: d.icon, color: a.color, agentId: a.id, agentName: a.name });
               filterDivisionEl.innerHTML += '<option value="' + d.id + '">' + d.name + ' (' + a.name + ')</option>';
               taskDivisionEl.innerHTML += '<option value="' + d.id + '">' + d.name + ' — ' + a.name + '</option>';
             });
@@ -1067,7 +1067,7 @@
         card.setAttribute('data-task-id', task.id);
 
         var agent = task.assignee ? getAgentById(task.assignee) : null;
-        var div = task.division ? getDivisionById(task.division) : null;
+        var div = resolveDivision(task);
         var divisionColor = (div && div.color) ? div.color : (agent && agent.color ? agent.color : '#64748b');
         var campaign = (typeof AgentEngine.getCampaigns === 'function' && task.campaign_id)
           ? AgentEngine.getCampaigns().find(function (c) { return c && c.id === task.campaign_id && !c.deletedAt; })
@@ -1092,9 +1092,7 @@
 
         meta += '</div>';
 
-        if (div) {
-          meta += '<div class="tm-card-division"><i class="' + div.icon + '"></i> ' + div.name + '</div>';
-        }
+        meta += '<div class="tm-card-division">' + divisionChipHtml(div) + '</div>';
 
         var badge = riskPill(task);
         var vBadge = _verifyBadgeHtml(task);
@@ -1165,7 +1163,7 @@
             }
           }
           var agent = task.assignee ? getAgentById(task.assignee) : null;
-          var div = task.division ? getDivisionById(task.division) : null;
+          var div = resolveDivision(task);
           var divisionColor = (div && div.color) ? div.color : (agent && agent.color ? agent.color : '#64748b');
           var campaign = (typeof AgentEngine.getCampaigns === 'function' && task.campaign_id)
             ? AgentEngine.getCampaigns().find(function (c) { return c && c.id === task.campaign_id && !c.deletedAt; })
@@ -1183,9 +1181,9 @@
             '<td>' + titleCell + '</td>' +
             '<td><span class="tm-list-status tm-list-status--' + task.status + '">' + formatStatus(task.status) + '</span></td>' +
             '<td><span class="tm-card-priority tm-card-priority--' + task.priority + '">' + task.priority + '</span></td>' +
-            '<td>' + (agent ? '<span style="color:' + agent.color + ';">' + agent.name + '</span>' : '<span style="opacity:0.2">—</span>') + '</td>' +
-            '<td>' + (div ? '<span style="opacity:0.4;">' + div.name + '</span>' : '<span style="opacity:0.2">—</span>') + '</td>' +
-            '<td>' + (task.dueDate ? '<span class="' + (isOverdue ? 'overdue' : '') + '" style="font-size:0.7rem;' + (isOverdue ? 'color:#f87171;' : 'opacity:0.4;') + '">' + formatDate(task.dueDate) + '</span>' : '<span style="opacity:0.2">—</span>') + '</td>';
+            '<td>' + (agent ? '<span style="color:' + agent.color + ';">' + agent.name + '</span>' : '<span style="opacity:0.2">&mdash;</span>') + '</td>' +
+            '<td>' + divisionChipHtml(div) + '</td>' +
+            '<td>' + (task.dueDate ? '<span class="' + (isOverdue ? 'overdue' : '') + '" style="font-size:0.7rem;' + (isOverdue ? 'color:#f87171;' : 'opacity:0.4;') + '">' + formatDate(task.dueDate) + '</span>' : '<span style="opacity:0.2">&mdash;</span>') + '</td>';
 
           tr.addEventListener('click', function () { openEditModal(task.id); });
           listBody.appendChild(tr);
@@ -1906,6 +1904,33 @@
           if (allDivisions[i].id === id) return allDivisions[i];
         }
         return null;
+      }
+
+      // Unified division resolution: task.division → assignee's first division → null
+      function resolveDivision(task) {
+        if (task.division) {
+          var d = getDivisionById(task.division);
+          if (d) return d;
+        }
+        if (task.assignee) {
+          var agent = getAgentById(task.assignee);
+          if (agent && agent.divisions && agent.divisions.length > 0) {
+            var fallback = getDivisionById(agent.divisions[0].id);
+            if (fallback) return fallback;
+            // Division not yet collected (edge case) — build inline
+            return { id: agent.divisions[0].id, name: agent.divisions[0].name, icon: agent.divisions[0].icon, color: agent.color, agentId: agent.id, agentName: agent.name };
+          }
+        }
+        return null;
+      }
+
+      // Render a colored division chip HTML string
+      function divisionChipHtml(div) {
+        if (!div) return '<span style="opacity:0.2">&mdash;</span>';
+        var c = div.color || '#64748b';
+        return '<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.6rem;padding:0.1rem 0.4rem;border-radius:4px;' +
+          'background:' + c + '1a;border:1px solid ' + c + '33;color:' + c + ';font-weight:500;white-space:nowrap;">' +
+          '<i class="' + (div.icon || 'fas fa-circle') + '" style="font-size:0.5rem;"></i>' + escapeHtml(div.name) + '</span>';
       }
 
       function formatStatus(s) {

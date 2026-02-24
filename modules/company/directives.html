@@ -390,8 +390,34 @@
       var pendingCount = document.getElementById('pending-dir-count');
       var pendingPanel = document.getElementById('panel-pending-dirs');
 
+      // Campaign context filter from ?campaign= query param
+      var _campaignFilter = (new URLSearchParams(window.location.search)).get('campaign') || '';
+      function _applyCampaignFilter(list) {
+        if (!_campaignFilter) return list;
+        return list.filter(function (d) { return d.campaign_id === _campaignFilter; });
+      }
+      function _renderCampaignBanner() {
+        var existing = document.getElementById('dir-campaign-filter-banner');
+        if (existing) existing.remove();
+        if (!_campaignFilter) return;
+        var cmpName = _campaignFilter;
+        if (typeof AgentEngine.getCampaigns === 'function') {
+          var cmp = AgentEngine.getCampaigns().find(function (c) { return c && c.id === _campaignFilter && !c.deletedAt; });
+          if (cmp) cmpName = cmp.title || cmp.id;
+        }
+        var banner = document.createElement('div');
+        banner.id = 'dir-campaign-filter-banner';
+        banner.style.cssText = 'margin-bottom:0.75rem;padding:0.45rem 0.7rem;border-radius:6px;font-size:0.7rem;background:rgba(96,165,250,0.08);border:1px solid rgba(96,165,250,0.2);color:#60a5fa;display:flex;align-items:center;gap:0.5rem;';
+        banner.innerHTML = '<i class="fas fa-filter"></i> Filtered by campaign: <strong>' + (cmpName.replace(/</g, '&lt;')) + '</strong>' +
+          '<a href="/modules/company/directives.html" style="margin-left:auto;font-size:0.6rem;color:#f87171;text-decoration:none;opacity:0.8;"><i class="fas fa-times"></i> Clear filter</a>';
+        var main = document.querySelector('.content-section');
+        if (main && main.children.length > 1) main.insertBefore(banner, main.children[1]);
+      }
+
       function renderDirectives() {
+        _renderCampaignBanner();
         var directives = AgentEngine.getDirectives();
+        directives = _applyCampaignFilter(directives);
         var pending = directives.filter(function (d) { return d.status === 'pending-approval'; });
         var active = directives.filter(function (d) { return d.status === 'active'; });
         var paused = directives.filter(function (d) { return d.status === 'paused'; });
