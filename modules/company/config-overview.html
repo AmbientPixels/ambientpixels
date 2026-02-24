@@ -1055,6 +1055,9 @@
         <button class="cfg-maint-btn" data-danger="reset-action-queue" data-label="Reset Action Queue">
           <i class="fas fa-eraser"></i> Reset Action Queue
         </button>
+        <button class="cfg-maint-btn" data-danger="reset-campaigns" data-label="Reset Campaigns">
+          <i class="fas fa-eraser"></i> Reset Campaigns
+        </button>
       </div>
 
       <div class="cfg-maint-group">
@@ -2479,6 +2482,13 @@
         desc: 'This will permanently delete all quarterly goals.',
         exec: function () {
           return CompanyStore.setState('ap_objectives', []);
+        }
+      },
+      'reset-campaigns': {
+        title: 'Reset Campaigns',
+        desc: 'This will permanently delete all campaigns.',
+        exec: function () {
+          return CompanyStore.setState('ap_campaigns', []);
         }
       },
       'reset-action-queue': {

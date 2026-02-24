@@ -1818,6 +1818,14 @@
         var title = taskTitleField.value.trim();
         if (!title) { taskTitleField.focus(); return; }
 
+        // UI gate: new tasks require a project (directive_id)
+        if (!taskIdField.value && !taskDirectiveField.value) {
+          taskDirectiveField.style.borderColor = 'rgba(248,113,113,0.6)';
+          taskDirectiveField.focus();
+          setTimeout(function () { taskDirectiveField.style.borderColor = ''; }, 2000);
+          return;
+        }
+
         var data = {
           title: title,
           description: taskDescField.value.trim(),

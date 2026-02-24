@@ -116,7 +116,7 @@
             <option value="critical">Critical</option>
           </select>
           <select id="dir-campaign" style="padding:0.35rem 0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.7rem;">
-            <option value="">Auto campaign</option>
+            <option value="">Select campaign...</option>
           </select>
           <button id="dir-create-btn" style="padding:0.35rem 1rem; background:rgba(138,43,226,0.1); border:1px solid rgba(138,43,226,0.3); border-radius:6px; color:#8A2BE2; font-size:0.7rem; cursor:pointer; font-weight:500;">Create Project</button>
         </div>
@@ -274,7 +274,7 @@
 
       function populateCampaignSelect(sel, selectedId, includeAuto) {
         if (!sel) return;
-        var opts = includeAuto ? '<option value="">Auto campaign</option>' : '<option value="">No campaign</option>';
+        var opts = includeAuto ? '<option value="">Select campaign...</option>' : '<option value="">No campaign</option>';
         var campaigns = (typeof AgentEngine.getCampaigns === 'function') ? AgentEngine.getCampaigns() : [];
         campaigns.forEach(function (c) {
           if (!c || !c.id || c.deletedAt) return;
@@ -358,6 +358,12 @@
       createBtn.addEventListener('click', function () {
         var title = titleInput.value.trim();
         if (!title) return;
+        if (!campaignSelect.value) {
+          campaignSelect.style.borderColor = 'rgba(248,113,113,0.6)';
+          campaignSelect.focus();
+          setTimeout(function () { campaignSelect.style.borderColor = ''; }, 2000);
+          return;
+        }
 
         var kpiSel = document.getElementById('dir-kpi-select');
         var selectedKpis = [];
@@ -437,7 +443,7 @@
         // Active
         activeCount.textContent = active.length;
         if (active.length === 0) {
-          activeList.innerHTML = '<div class="dash-empty">No active directives. Create one above.</div>';
+          activeList.innerHTML = '<div class="dash-empty">No active projects. Create one above.</div>';
         } else {
           activeList.innerHTML = '';
           active.forEach(function (dir) { activeList.appendChild(createDirectiveCard(dir, 'active')); });
@@ -446,7 +452,7 @@
         // Paused
         pausedCount.textContent = paused.length;
         if (paused.length === 0) {
-          pausedList.innerHTML = '<div class="dash-empty">No paused directives.</div>';
+          pausedList.innerHTML = '<div class="dash-empty">No paused projects.</div>';
         } else {
           pausedList.innerHTML = '';
           paused.forEach(function (dir) { pausedList.appendChild(createDirectiveCard(dir, 'paused')); });
@@ -463,7 +469,7 @@
         // Completed / Archived
         archiveCount.textContent = completed.length;
         if (completed.length === 0) {
-          archiveList.innerHTML = '<div class="dash-empty">No completed or archived directives.</div>';
+          archiveList.innerHTML = '<div class="dash-empty">No completed or archived projects.</div>';
         } else {
           archiveList.innerHTML = '';
           completed.forEach(function (dir) { archiveList.appendChild(createDirectiveCard(dir, 'completed')); });
