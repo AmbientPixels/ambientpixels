@@ -822,6 +822,50 @@ module.exports = async function (context) {
       }
     }
 
+    // ── Goal → auto-create Project + Campaign for goals with no linked projects ──
+    let objectivesChanged = false;
+    for (const _goalObj of objectives) {
+      if (!_goalObj || !_goalObj.id) continue;
+      const _goalStatus = String(_goalObj.status || '').toLowerCase();
+      if (_goalStatus === 'complete' || _goalStatus === 'canceled') continue;
+
+      const _goalDirIds = Array.isArray(_goalObj.linkedDirectives) ? _goalObj.linkedDirectives : [];
+      const _hasActiveProject = _goalDirIds.some(function (dirId) {
+        const dir = directives.find(function (d) { return d && d.id === dirId && !d.deletedAt; });
+        return dir && String(dir.status || '').toLowerCase() !== 'canceled';
+      });
+      if (_hasActiveProject) continue;
+
+      const _newDirId = 'dir-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6);
+      const _newDir = {
+        id: _newDirId,
+        title: _goalObj.title || 'Untitled Project',
+        description: _goalObj.description || '',
+        status: 'active',
+        priority: _goalObj.priority || 'medium',
+        objective_id: _goalObj.id,
+        campaign_id: null,
+        createdDate: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        provenance: 'Auto: Goal → Project'
+      };
+      directives.push(_newDir);
+
+      if (!Array.isArray(_goalObj.linkedDirectives)) _goalObj.linkedDirectives = [];
+      _goalObj.linkedDirectives.push(_newDirId);
+      objectivesChanged = true;
+      directivesCampaignChanged = true;
+
+      context.log('[Heartbeat] Auto-created Project "' + _newDir.title + '" (' + _newDirId + ') for Goal "' + (_goalObj.title || _goalObj.id) + '" (' + _goalObj.id + ')');
+      await logEvent('goal-auto-project', null, 'Auto-created project for goal', runId, {
+        runId, objectiveId: _goalObj.id, objectiveTitle: _goalObj.title, directiveId: _newDirId, directiveTitle: _newDir.title
+      });
+    }
+    if (objectivesChanged) {
+      await storage.setState('objectives', objectives);
+      context.log('[Heartbeat] Pushed updated objectives after goal→project auto-creation');
+    }
+
     for (const d of directives) {
       if (!d) continue;
       normalizeCampaignRef(d);
