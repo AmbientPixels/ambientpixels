@@ -51,11 +51,12 @@ const CFO_THRESHOLD = 100; // budget_impact above this requires CEO approval
 const GUARDRAILS = {
   maxActionsPerCyclePerAgent: 3,
   maxGeminiCallsPerCycle: 15, // Tier 4 sub-agents are gated; only consume calls when triggered
-  maxNewTasksPerCycle: 1,
+  maxNewTasksPerCycle: 3,
   maxExecutesPerCyclePerAgent: 1,
   maxContentGeneratesPerCyclePerAgent: 1,
   maxEscalationsPerCycle: 3,
-  dedupeWindowMs: 300000 // 5 min
+  maxActiveTasks: 50,
+  dedupeWindowMs: 1800000 // 30 min
 };
 
 // ── Persistent Agent Memory ──
@@ -839,7 +840,7 @@ module.exports = async function (context) {
       const _newDirId = 'dir-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6);
       const _newDir = {
         id: _newDirId,
-        title: _goalObj.title || 'Untitled Project',
+        title: (_goalObj.quarter ? '[Q' + _goalObj.quarter + '] ' : '') + (_goalObj.title || 'Untitled Project'),
         description: _goalObj.description || '',
         status: 'active',
         priority: _goalObj.priority || 'medium',
@@ -2564,6 +2565,21 @@ Write the full deliverable first, then the structured JSON block.`;
     }
 
     if (action.type === 'create-task' && action.task) {
+      // SERVER-SIDE GUARD: active task ceiling — prevent unbounded task growth
+      const _activeTaskCount = tasks.filter(t => t.status !== 'done' && t.status !== 'archived').length;
+      if (_activeTaskCount >= GUARDRAILS.maxActiveTasks) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED create-task: active task ceiling reached (' + _activeTaskCount + '/' + GUARDRAILS.maxActiveTasks + ')');
+        continue;
+      }
+
+      // SERVER-SIDE GUARD: agent-created tasks must link to a goal or project
+      const _hasObjective = action.task.objective_id || (action.task.source && action.task.source.type === 'ceo');
+      const _hasDirective = action.task.directive_id;
+      if (!_hasObjective && !_hasDirective) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED orphan task creation: "' + (action.task.title || '') + '" — must set objective_id or directive_id');
+        continue;
+      }
+
       // SERVER-SIDE DEDUP: block if an active task with very similar title already exists
       const proposedTitle = (action.task.title || '').toLowerCase().trim();
       if (proposedTitle) {
