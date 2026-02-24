@@ -265,6 +265,37 @@
         </div>
       </div>
 
+      <!-- CEO: Traffic Brief Section -->
+      <div class="dash-section" id="section-traffic" data-section="traffic">
+        <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
+          <i class="fas fa-signal" style="color:#38bdf8;"></i>
+          <h2>Traffic Brief</h2>
+          <i class="fas fa-chevron-down dash-section-chevron"></i>
+        </div>
+        <div class="dash-section-body">
+          <div class="dash-panel dash-panel--full" style="border:1px solid rgba(56,189,248,0.1); background:rgba(56,189,248,0.015);">
+            <div class="dash-panel-header" style="border-bottom:none; padding-bottom:0;">
+              <span class="dash-panel-title"><i class="fas fa-chart-area" style="color:#38bdf8;"></i> Traffic Brief</span>
+              <span id="tb-range-label" style="font-size:0.52rem; opacity:0.35;">Last 7 days · powered by Application Insights</span>
+            </div>
+            <div id="traffic-brief-root" style="padding:0.5rem 0.6rem;">
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:0.6rem;">
+                <select id="tb-range" style="font-size:0.6rem; padding:0.2rem 0.4rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:5px; color:inherit;">
+                  <option value="7d" selected>Last 7 days</option>
+                  <option value="1d">Last 24 hours</option>
+                  <option value="30d">Last 30 days</option>
+                </select>
+                <button id="tb-refresh" style="font-size:0.55rem; padding:0.2rem 0.5rem; border-radius:5px; cursor:pointer; border:1px solid rgba(56,189,248,0.2); background:rgba(56,189,248,0.04); color:#38bdf8; font-family:inherit;"><i class="fas fa-sync-alt" style="margin-right:3px;"></i>Refresh</button>
+                <button id="tb-scout-btn" style="font-size:0.55rem; padding:0.2rem 0.5rem; border-radius:5px; cursor:pointer; border:1px solid rgba(52,211,153,0.2); background:rgba(52,211,153,0.04); color:#34d399; font-family:inherit; margin-left:auto;"><i class="fas fa-binoculars" style="margin-right:3px;"></i>Generate Scout Brief</button>
+              </div>
+              <div id="tb-body">
+                <div class="dash-empty" style="font-size:0.6rem;">Loading traffic data...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- CEO: Decisions Section -->
       <div class="dash-section" id="section-decisions" data-section="decisions">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
@@ -425,37 +456,6 @@
           <div class="dash-panel dash-panel--full" style="border:1px solid rgba(96,165,250,0.08); background:rgba(96,165,250,0.01);">
             <div id="obs-dashboard-root">
               <div class="dash-empty">Loading observability data...</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- CEO: Traffic Brief Section -->
-      <div class="dash-section" id="section-traffic" data-section="traffic">
-        <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-signal" style="color:#38bdf8;"></i>
-          <h2>Traffic Brief</h2>
-          <i class="fas fa-chevron-down dash-section-chevron"></i>
-        </div>
-        <div class="dash-section-body">
-          <div class="dash-panel dash-panel--full" style="border:1px solid rgba(56,189,248,0.1); background:rgba(56,189,248,0.015);">
-            <div class="dash-panel-header" style="border-bottom:none; padding-bottom:0;">
-              <span class="dash-panel-title"><i class="fas fa-chart-area" style="color:#38bdf8;"></i> Traffic Brief</span>
-              <span id="tb-range-label" style="font-size:0.52rem; opacity:0.35;">Last 7 days · powered by Application Insights</span>
-            </div>
-            <div id="traffic-brief-root" style="padding:0.5rem 0.6rem;">
-              <div style="display:flex; align-items:center; gap:6px; margin-bottom:0.6rem;">
-                <select id="tb-range" style="font-size:0.6rem; padding:0.2rem 0.4rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:5px; color:inherit;">
-                  <option value="7d" selected>Last 7 days</option>
-                  <option value="1d">Last 24 hours</option>
-                  <option value="30d">Last 30 days</option>
-                </select>
-                <button id="tb-refresh" style="font-size:0.55rem; padding:0.2rem 0.5rem; border-radius:5px; cursor:pointer; border:1px solid rgba(56,189,248,0.2); background:rgba(56,189,248,0.04); color:#38bdf8; font-family:inherit;"><i class="fas fa-sync-alt" style="margin-right:3px;"></i>Refresh</button>
-                <button id="tb-scout-btn" style="font-size:0.55rem; padding:0.2rem 0.5rem; border-radius:5px; cursor:pointer; border:1px solid rgba(52,211,153,0.2); background:rgba(52,211,153,0.04); color:#34d399; font-family:inherit; margin-left:auto;"><i class="fas fa-binoculars" style="margin-right:3px;"></i>Generate Scout Brief</button>
-              </div>
-              <div id="tb-body">
-                <div class="dash-empty" style="font-size:0.6rem;">Loading traffic data...</div>
-              </div>
             </div>
           </div>
         </div>
