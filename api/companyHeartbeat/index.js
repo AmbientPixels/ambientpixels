@@ -104,6 +104,33 @@ const SOCIAL_INTEL_FRESHNESS_MS = 30 * 60 * 1000;
 
 // Campaign matching/creation now delegated to shared module: api/_shared/campaignMatcher.js
 
+// Strip repeated auto-generated prefixes from task titles (prevents recursive nesting)
+const _TASK_PREFIXES = [
+  /^Write social copy for:\s*/i,
+  /^Social Copy\s*[—–-]\s*/i,
+  /^Generate hero image for:\s*/i,
+  /^Hero Image\s*[—–-]\s*/i,
+  /^Content Brief\s*[—–-]\s*/i,
+  /^Draft:\s*/i,
+  /^Auto:\s*/i,
+  /^Calendar Update\s*[—–-]\s*/i
+];
+function stripTaskPrefixes(title) {
+  if (!title) return title || '';
+  var changed = true;
+  var maxPasses = 5;
+  while (changed && maxPasses-- > 0) {
+    changed = false;
+    for (var i = 0; i < _TASK_PREFIXES.length; i++) {
+      if (_TASK_PREFIXES[i].test(title)) {
+        title = title.replace(_TASK_PREFIXES[i], '');
+        changed = true;
+      }
+    }
+  }
+  return title.trim();
+}
+
 function _isActiveStatus(status) {
   return status === 'todo' || status === 'in-progress' || status === 'review';
 }
@@ -2679,12 +2706,14 @@ Write the full deliverable first, then the structured JSON block.`;
                 context.log('[Heartbeat]', agentId, 'AUTO-DOC fallback: Created marketing_post from execute-task deliverable:', _etDocId, 'for blog task:', action.taskId);
 
                 // Auto-create Pixel hero image task (same logic as create-doc handler)
-                const _etHeroTitle = 'Generate hero image for: ' + _etDoc.title;
+                // SPAWN GUARD: do not spawn child tasks from auto-created tasks (prevents auto→auto chains)
+                const _etSourceAutoCreated = task.tags && task.tags.indexOf('auto-created') !== -1;
+                const _etHeroTitle = 'Generate hero image for: ' + stripTaskPrefixes(_etDoc.title);
                 const _etHeroExists = tasks.some(t =>
                   t.assignee === 'pixel' && t.status !== 'done' &&
                   (t.title === _etHeroTitle || (t.description && t.description.indexOf(_etDocId) !== -1))
                 );
-                if (!_etHeroExists) {
+                if (!_etHeroExists && !_etSourceAutoCreated) {
                   const _etHeroTask = {
                     id: 'task_' + Date.now() + '_hero_' + Math.random().toString(36).substr(2, 4),
                     title: _etHeroTitle,
@@ -2805,14 +2834,16 @@ Write the full deliverable first, then the structured JSON block.`;
             }
           }
           // If STILL no reviewed copy, block and create Scribe task
-          if (!socialTask.reviewed_copy) {
+          // SPAWN GUARD: do not spawn child tasks from auto-created tasks (prevents auto→auto chains)
+          const _isAutoCreatedSource = socialTask.tags && socialTask.tags.indexOf('auto-created') !== -1;
+          if (!socialTask.reviewed_copy && !_isAutoCreatedSource) {
             if (!_copyTaskExists) {
               const _platform = (action.social.platform || 'linkedin').toLowerCase();
               const _maxLen = _platform === 'x' ? '280 chars' : _platform === 'bluesky' ? '300 chars' : '3000 chars for LinkedIn';
               const copyTask = {
                 id: 'task_' + Date.now() + '_copy_' + Math.random().toString(36).substr(2, 4),
-                title: 'Write social copy for: ' + (socialTask.title || 'Untitled'),
-                description: 'Write publish-ready social media copy for the task: "' + (socialTask.title || '') + '".\n\n'
+                title: 'Write social copy for: ' + stripTaskPrefixes(socialTask.title || 'Untitled'),
+                description: 'Write publish-ready social media copy for the task: "' + stripTaskPrefixes(socialTask.title || '') + '".\n\n'
                   + 'Original description: ' + ((socialTask.description || 'N/A').substring(0, 500)) + '\n\n'
                   + 'Parent task ID: ' + action.taskId + '\n'
                   + 'Platform: ' + _platform + '\n'
@@ -3387,11 +3418,14 @@ Write the full deliverable first, then the structured JSON block.`;
         if (action.taskId) {
           result.taskUpdates.push({ action: 'comment', taskId: action.taskId, comment: '[DIAG] create-doc fired — kind: ' + kind + ', isVisual: ' + (VISUAL_DOC_KINDS.indexOf(kind) !== -1) + ', docId: ' + doc.id, agentId: 'system' });
         }
-        if (VISUAL_DOC_KINDS.indexOf(kind) !== -1 && agentId === 'scribe') {
+        // SPAWN GUARD: do not spawn hero tasks from auto-created source tasks (prevents auto→auto chains)
+        const _cdSourceTask = action.taskId ? tasks.find(t => t.id === action.taskId) : null;
+        const _cdSourceAutoCreated = _cdSourceTask && _cdSourceTask.tags && _cdSourceTask.tags.indexOf('auto-created') !== -1;
+        if (VISUAL_DOC_KINDS.indexOf(kind) !== -1 && agentId === 'scribe' && !_cdSourceAutoCreated) {
           // Only Scribe-created visual docs trigger hero image tasks (prevents ops/engineering docs from spawning hero tasks)
           // FIX 5: Stronger dedup — check by title substring match, not just exact title or doc ID
           // Prevents multiple hero tasks when the same blog post has multiple doc records
-          const _heroTaskTitle = 'Generate hero image for: ' + doc.title;
+          const _heroTaskTitle = 'Generate hero image for: ' + stripTaskPrefixes(doc.title);
           const _heroNormTitle = doc.title.toLowerCase().replace(/[^a-z0-9 ]/g, '').trim();
           const _heroTaskExists = tasks.some(t => {
             if (t.assignee !== 'pixel' || t.status === 'done') return false;
@@ -4606,7 +4640,8 @@ IMPORTANT: CEO/manual tasks are the CEO's direct requests — triage them FIRST 
       return '- "' + d.title + '" (id: ' + d.id + ', priority: ' + (d.priority || 'medium') + ')' + linkInfo;
     }).join('\n');
     directivesSection = `\n\nACTIVE CEO PROJECTS (strategic priorities from the CEO — these drive what the company works on):
-${dirList}`;
+${dirList}
+IMPORTANT: Create specific leaf tasks for each directive directly (e.g. "Draft Q1 marketing brief", "Audit API cost dashboard"). NEVER create meta-tasks like "Create Tasks for CEO Directives" or "Create Individual Tasks for..." — those are wasted actions. If a directive needs multiple tasks, create each one individually in this heartbeat cycle.`;
   }
 
   // Active Objectives — enriched with task linkage + linked directives (mirrors directive section)
