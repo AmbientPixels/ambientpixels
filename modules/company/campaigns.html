@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Campaigns — AmbientPixels HQ" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Campaigns — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
+  <style>
+    .cmp-grid { display:grid; grid-template-columns: 1fr; gap: 0.8rem; }
+    .cmp-create, .cmp-panel { border:1px solid rgba(255,255,255,0.08); border-radius:10px; background:rgba(255,255,255,0.02); padding:0.75rem; }
+    .cmp-title { font-size:0.78rem; font-weight:600; opacity:0.82; margin-bottom:0.55rem; }
+    .cmp-create input, .cmp-create textarea, .cmp-create select {
+      width:100%; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); color:inherit; border-radius:6px;
+      padding:0.45rem 0.55rem; font-size:0.72rem; margin-bottom:0.45rem;
+    }
+    .cmp-create textarea { min-height:72px; resize:vertical; }
+    .cmp-btn { border:1px solid rgba(138,43,226,0.32); background:rgba(138,43,226,0.1); color:#c084fc; border-radius:6px; padding:0.35rem 0.75rem; font-size:0.68rem; cursor:pointer; }
+    .cmp-list-row { display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap; margin-bottom:0.5rem; }
+    .cmp-list-row input { flex:1; min-width:200px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; padding:0.38rem 0.55rem; font-size:0.72rem; }
+    .cmp-pill { font-size:0.58rem; padding:0.12rem 0.38rem; border-radius:999px; border:1px solid rgba(255,255,255,0.1); opacity:0.85; }
+    .cmp-pill--active { color:#34d399; border-color:rgba(52,211,153,0.35); background:rgba(52,211,153,0.08); }
+    .cmp-pill--archived { color:#94a3b8; border-color:rgba(148,163,184,0.35); background:rgba(148,163,184,0.08); }
+    .cmp-card { border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.02); border-radius:8px; padding:0.6rem; margin-bottom:0.45rem; cursor:pointer; }
+    .cmp-card:hover { border-color:rgba(138,43,226,0.35); }
+    .cmp-card h4 { margin:0 0 0.25rem; font-size:0.76rem; display:flex; align-items:center; justify-content:space-between; gap:0.5rem; }
+    .cmp-card p { margin:0 0 0.35rem; font-size:0.67rem; opacity:0.58; line-height:1.35; }
+    .cmp-meta { font-size:0.58rem; opacity:0.45; display:flex; gap:0.4rem; flex-wrap:wrap; }
+    .cmp-empty { font-size:0.7rem; opacity:0.3; padding:0.8rem 0.25rem; }
+    .cmp-detail { border:1px solid rgba(138,43,226,0.2); background:rgba(138,43,226,0.05); border-radius:10px; padding:0.75rem; }
+    .cmp-detail-head { display:flex; justify-content:space-between; align-items:center; gap:0.5rem; margin-bottom:0.5rem; }
+    .cmp-detail h3 { margin:0; font-size:0.82rem; }
+    .cmp-actions { display:flex; gap:0.3rem; flex-wrap:wrap; }
+    .cmp-actions button { font-size:0.6rem; padding:0.22rem 0.5rem; border-radius:5px; border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.05); color:inherit; cursor:pointer; }
+    .cmp-actions .danger { border-color:rgba(248,113,113,0.4); color:#f87171; }
+    .cmp-detail-list li { list-style:none; margin:0 0 0.25rem; padding:0.38rem 0.5rem; border:1px solid rgba(255,255,255,0.08); border-radius:6px; font-size:0.66rem; display:flex; justify-content:space-between; gap:0.4rem; }
+    .cmp-mini-create { margin-top:0.6rem; border-top:1px solid rgba(255,255,255,0.08); padding-top:0.6rem; }
+    .cmp-mini-create input, .cmp-mini-create textarea, .cmp-mini-create select {
+      width:100%; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); color:inherit; border-radius:6px;
+      padding:0.4rem 0.5rem; font-size:0.68rem; margin-bottom:0.35rem;
+    }
+    .cmp-modal-backdrop { position:fixed; inset:0; display:none; align-items:center; justify-content:center; background:rgba(0,0,0,0.65); z-index:2500; }
+    .cmp-modal { width:min(520px, calc(100vw - 2rem)); background:#0b1522; border:1px solid rgba(255,255,255,0.14); border-radius:10px; padding:0.8rem; }
+    .cmp-modal input, .cmp-modal textarea { width:100%; margin-bottom:0.45rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.12); color:inherit; border-radius:6px; padding:0.42rem 0.55rem; font-size:0.72rem; }
+    .cmp-modal textarea { min-height:80px; resize:vertical; }
+    .cmp-modal-actions { display:flex; justify-content:flex-end; gap:0.4rem; }
+  </style>
+</head>
+<body style="background:#071019" data-theme="dark">
+  <main class="content-section" style="max-width:980px; margin:0 auto; padding:1rem;">
+    <div class="company-header" style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; flex-wrap:wrap;">
+      <div>
+        <h1 style="display:flex; align-items:center; gap:0.45rem;"><i class="fas fa-layer-group" style="color:#a78bfa; opacity:0.8;"></i>Campaigns</h1>
+        <p style="font-size:0.72rem; opacity:0.5; margin-top:0.2rem;">Goal → Campaign → Project → Task</p>
+      </div>
+      <div style="display:flex; gap:0.35rem;">
+        <span class="cmp-pill cmp-pill--active" id="cmp-active-count">0 active</span>
+        <span class="cmp-pill cmp-pill--archived" id="cmp-archived-count">0 archived</span>
+      </div>
+    </div>
+
+    <div class="cmp-grid">
+      <section class="cmp-create">
+        <div class="cmp-title"><i class="fas fa-plus-circle" style="margin-right:4px;"></i>New Campaign</div>
+        <input id="cmp-title" type="text" placeholder="Campaign title..." />
+        <textarea id="cmp-desc" placeholder="Description (optional)..."></textarea>
+        <select id="cmp-objective"><option value="">No goal</option></select>
+        <button class="cmp-btn" id="cmp-create-btn">Create Campaign</button>
+      </section>
+
+      <section class="cmp-panel">
+        <div class="cmp-list-row">
+          <input id="cmp-search" type="text" placeholder="Search campaigns..." />
+          <label style="font-size:0.66rem; opacity:0.6; display:flex; align-items:center; gap:0.25rem;">
+            <input type="checkbox" id="cmp-show-archived" /> Show archived
+          </label>
+        </div>
+        <div id="cmp-list"></div>
+      </section>
+
+      <section class="cmp-detail" id="cmp-detail" style="display:none;"></section>
+    </div>
+  </main>
+
+  <div class="cmp-modal-backdrop" id="cmp-edit-backdrop">
+    <div class="cmp-modal">
+      <h3 style="margin:0 0 0.5rem; font-size:0.78rem;">Edit Campaign</h3>
+      <input id="cmp-edit-title" type="text" />
+      <textarea id="cmp-edit-desc"></textarea>
+      <div class="cmp-modal-actions">
+        <button id="cmp-edit-cancel" class="cmp-actions">Cancel</button>
+        <button id="cmp-edit-save" class="cmp-btn">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/company-store.js"></script>
+  <script src="/js/agent-engine.js"></script>
+  <script src="/modules/company/js/quick-chat.js"></script>
+  <script>
+    (function () {
+      'use strict';
+
+      var selectedCampaignId = null;
+      var editingCampaignId = null;
+
+      var listEl = document.getElementById('cmp-list');
+      var detailEl = document.getElementById('cmp-detail');
+      var searchEl = document.getElementById('cmp-search');
+      var archivedToggleEl = document.getElementById('cmp-show-archived');
+
+      var titleEl = document.getElementById('cmp-title');
+      var descEl = document.getElementById('cmp-desc');
+      var objectiveEl = document.getElementById('cmp-objective');
+
+      var editBackdrop = document.getElementById('cmp-edit-backdrop');
+      var editTitleEl = document.getElementById('cmp-edit-title');
+      var editDescEl = document.getElementById('cmp-edit-desc');
+
+      function esc(str) {
+        var d = document.createElement('div');
+        d.textContent = str == null ? '' : String(str);
+        return d.innerHTML;
+      }
+
+      function getVisibleCampaigns() {
+        var q = (searchEl.value || '').trim().toLowerCase();
+        var showArchived = !!archivedToggleEl.checked;
+        var all = (typeof AgentEngine.getCampaigns === 'function' ? AgentEngine.getCampaigns() : []).filter(function (c) {
+          return c && !c.deletedAt;
+        });
+        return all.filter(function (c) {
+          if (!showArchived && c.status === 'archived') return false;
+          if (!q) return true;
+          var hay = ((c.title || '') + ' ' + (c.description || '') + ' ' + (c.id || '')).toLowerCase();
+          return hay.indexOf(q) !== -1;
+        }).sort(function (a, b) {
+          return (b.updatedAt || b.createdAt || '').localeCompare(a.updatedAt || a.createdAt || '');
+        });
+      }
+
+      function objectiveTitle(id) {
+        if (!id || typeof AgentEngine.getObjectives !== 'function') return null;
+        var obj = AgentEngine.getObjectives().find(function (o) { return o.id === id; });
+        return obj ? obj.title : null;
+      }
+
+      function renderCounts() {
+        var all = (typeof AgentEngine.getCampaigns === 'function' ? AgentEngine.getCampaigns() : []).filter(function (c) { return c && !c.deletedAt; });
+        var active = all.filter(function (c) { return c.status === 'active'; }).length;
+        var archived = all.filter(function (c) { return c.status === 'archived'; }).length;
+        document.getElementById('cmp-active-count').textContent = active + ' active';
+        document.getElementById('cmp-archived-count').textContent = archived + ' archived';
+      }
+
+      function renderList() {
+        var campaigns = getVisibleCampaigns();
+        renderCounts();
+        if (campaigns.length === 0) {
+          listEl.innerHTML = '<div class="cmp-empty">No campaigns found.</div>';
+          return;
+        }
+        var html = '';
+        campaigns.forEach(function (c) {
+          var objTitle = objectiveTitle(c.objective_id);
+          html += '<div class="cmp-card" data-id="' + esc(c.id) + '">'
+            + '<h4>' + esc(c.title) + '<span class="cmp-pill ' + (c.status === 'archived' ? 'cmp-pill--archived' : 'cmp-pill--active') + '">' + esc(c.status) + '</span></h4>'
+            + (c.description ? '<p>' + esc(c.description) + '</p>' : '')
+            + '<div class="cmp-meta">'
+            + '<span>ID: ' + esc(c.id) + '</span>'
+            + (objTitle ? '<span><i class="fas fa-bullseye"></i> ' + esc(objTitle) + '</span>' : '')
+            + '<span>Updated: ' + esc((c.updatedAt || '').split('T')[0] || '—') + '</span>'
+            + '</div></div>';
+        });
+        listEl.innerHTML = html;
+        listEl.querySelectorAll('.cmp-card').forEach(function (el) {
+          el.addEventListener('click', function () {
+            selectedCampaignId = el.getAttribute('data-id');
+            renderDetail();
+          });
+        });
+      }
+
+      function renderDetail() {
+        if (!selectedCampaignId) {
+          detailEl.style.display = 'none';
+          detailEl.innerHTML = '';
+          return;
+        }
+        var campaigns = AgentEngine.getCampaigns();
+        var c = campaigns.find(function (x) { return x.id === selectedCampaignId && !x.deletedAt; });
+        if (!c) {
+          detailEl.style.display = 'none';
+          detailEl.innerHTML = '';
+          return;
+        }
+
+        var dirs = AgentEngine.getDirectives().filter(function (d) { return d && d.campaign_id === c.id; });
+        var doneEnough = dirs.filter(function (d) {
+          var s = String(d.status || '').toLowerCase();
+          return s === 'completed' || s === 'archived';
+        }).length;
+        var health = dirs.length > 0 ? Math.round((doneEnough / dirs.length) * 100) : 0;
+
+        var html = '<div class="cmp-detail-head">'
+          + '<h3>' + esc(c.title) + '</h3>'
+          + '<div class="cmp-actions">'
+          + '<button id="cmp-edit-btn"><i class="fas fa-pen"></i> Edit</button>'
+          + (c.status === 'archived' ? '<button id="cmp-unarchive-btn"><i class="fas fa-box-open"></i> Unarchive</button>' : '<button id="cmp-archive-btn"><i class="fas fa-box"></i> Archive</button>')
+          + '<button class="danger" id="cmp-delete-btn"><i class="fas fa-trash"></i> Delete</button>'
+          + '</div></div>'
+          + (c.description ? '<div style="font-size:0.69rem; opacity:0.65; margin-bottom:0.45rem;">' + esc(c.description) + '</div>' : '')
+          + '<div class="cmp-meta" style="margin-bottom:0.45rem;">'
+          + '<span><i class="fas fa-tasks"></i> ' + dirs.length + ' projects</span>'
+          + '<span><i class="fas fa-heartbeat"></i> health ' + health + '%</span>'
+          + '<span>Created: ' + esc((c.createdAt || '').split('T')[0] || '—') + '</span>'
+          + '</div>'
+          + '<ul class="cmp-detail-list">';
+
+        if (dirs.length === 0) {
+          html += '<li><span style="opacity:0.4;">No projects in this campaign yet.</span></li>';
+        } else {
+          dirs.forEach(function (d) {
+            html += '<li><span>' + esc(d.title || d.id) + '</span><span style="opacity:0.55;">' + esc(d.status || 'active') + '</span></li>';
+          });
+        }
+        html += '</ul>'
+          + '<div class="cmp-mini-create">'
+          + '<div class="cmp-title" style="margin-bottom:0.35rem;">Create Project in Campaign</div>'
+          + '<input id="cmp-dir-title" type="text" placeholder="Project title..." />'
+          + '<textarea id="cmp-dir-desc" placeholder="Project description..."></textarea>'
+          + '<select id="cmp-dir-priority"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option><option value="critical">Critical</option></select>'
+          + '<button class="cmp-btn" id="cmp-dir-create-btn">Create Project</button>'
+          + '</div>';
+
+        detailEl.style.display = '';
+        detailEl.innerHTML = html;
+
+        var eb = document.getElementById('cmp-edit-btn');
+        if (eb) eb.addEventListener('click', openEditModal);
+
+        var ab = document.getElementById('cmp-archive-btn');
+        if (ab) ab.addEventListener('click', function () {
+          AgentEngine.archiveCampaign(c.id);
+          persistCampaigns();
+          renderAll();
+        });
+
+        var ub = document.getElementById('cmp-unarchive-btn');
+        if (ub) ub.addEventListener('click', function () {
+          AgentEngine.unarchiveCampaign(c.id);
+          persistCampaigns();
+          renderAll();
+        });
+
+        var db = document.getElementById('cmp-delete-btn');
+        if (db) db.addEventListener('click', function () {
+          if (!confirm('Soft-delete this campaign? Active children will block deletion.')) return;
+          var r = AgentEngine.deleteCampaign(c.id);
+          if (!r || !r.ok) {
+            alert('Delete blocked. Archive child projects/tasks first.');
+            return;
+          }
+          persistCampaigns();
+          selectedCampaignId = null;
+          renderAll();
+        });
+
+        var cpb = document.getElementById('cmp-dir-create-btn');
+        if (cpb) cpb.addEventListener('click', function () {
+          var t = (document.getElementById('cmp-dir-title').value || '').trim();
+          var d = (document.getElementById('cmp-dir-desc').value || '').trim();
+          var p = document.getElementById('cmp-dir-priority').value || 'medium';
+          if (!t) return;
+          AgentEngine.addDirective({
+            title: t,
+            description: d,
+            priority: p,
+            campaign_id: c.id,
+            objective_id: c.objective_id || null
+          });
+          persistDirectives();
+          renderDetail();
+        });
+      }
+
+      function openEditModal() {
+        var c = AgentEngine.getCampaigns().find(function (x) { return x.id === selectedCampaignId && !x.deletedAt; });
+        if (!c) return;
+        editingCampaignId = c.id;
+        editTitleEl.value = c.title || '';
+        editDescEl.value = c.description || '';
+        editBackdrop.style.display = 'flex';
+      }
+
+      function closeEditModal() {
+        editBackdrop.style.display = 'none';
+        editingCampaignId = null;
+      }
+
+      function persistCampaigns() {
+        if (typeof CompanyStore !== 'undefined' && CompanyStore.setState) {
+          CompanyStore.setState('ap_campaigns', AgentEngine.getCampaigns());
+        }
+      }
+
+      function persistDirectives() {
+        if (typeof CompanyStore !== 'undefined' && CompanyStore.setState) {
+          CompanyStore.setState('ap_directives', AgentEngine.getDirectives());
+        }
+      }
+
+      function populateObjectiveSelect() {
+        var opts = '<option value="">No goal</option>';
+        var objectives = typeof AgentEngine.getObjectives === 'function' ? AgentEngine.getObjectives() : [];
+        objectives.forEach(function (o) {
+          if (!o || !o.id || o.status === 'canceled') return;
+          opts += '<option value="' + esc(o.id) + '">' + esc(o.title || o.id) + '</option>';
+        });
+        objectiveEl.innerHTML = opts;
+      }
+
+      function renderAll() {
+        renderList();
+        renderDetail();
+      }
+
+      document.getElementById('cmp-create-btn').addEventListener('click', function () {
+        var t = (titleEl.value || '').trim();
+        var d = (descEl.value || '').trim();
+        if (!t) return;
+        var c = AgentEngine.addCampaign({
+          title: t,
+          description: d,
+          objective_id: objectiveEl.value || null,
+          provenance: 'Manual: Campaign UI'
+        });
+        persistCampaigns();
+        titleEl.value = '';
+        descEl.value = '';
+        objectiveEl.value = '';
+        selectedCampaignId = c.id;
+        renderAll();
+      });
+
+      searchEl.addEventListener('input', renderList);
+      archivedToggleEl.addEventListener('change', renderList);
+
+      document.getElementById('cmp-edit-cancel').addEventListener('click', closeEditModal);
+      document.getElementById('cmp-edit-save').addEventListener('click', function () {
+        if (!editingCampaignId) return;
+        AgentEngine.updateCampaign(editingCampaignId, {
+          title: (editTitleEl.value || '').trim() || 'Untitled Campaign',
+          description: (editDescEl.value || '').trim()
+        });
+        persistCampaigns();
+        closeEditModal();
+        renderAll();
+      });
+      editBackdrop.addEventListener('click', function (e) { if (e.target === editBackdrop) closeEditModal(); });
+
+      AgentEngine.loadRegistry().then(function () {
+        populateObjectiveSelect();
+        renderAll();
+      });
+      AgentEngine.on('sync-complete', function () { populateObjectiveSelect(); renderAll(); });
+      window.addEventListener('companystoreready', function () { populateObjectiveSelect(); renderAll(); });
+    })();
+  </script>
+
+  <script src="/modules/company/js/sidebar.js"></script>
+</body>
+</html>

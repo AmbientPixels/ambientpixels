@@ -10,6 +10,7 @@ const path = require('path');
 
 const imageEngine = require('../_lib/contentEngine/imageEngine');
 const crypto = require('crypto');
+const { normalizeCampaignRef, ensureCampaign } = require('../_shared/campaignMatcher');
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=';
@@ -71,7 +72,7 @@ const TIER4_SUB_AGENTS = new Set(['quill']);
 const OBJECTIVE_EXEMPT_CATEGORIES = new Set(['ops_breakfix', 'governance', 'maintenance']);
 const ALLOWED_UPDATE_KEYS = new Set([
   'status', 'assignee', 'dueDate', 'priority', 'classification',
-  'tags', 'objective_id', 'directive_id', 'parent_task_id', 'child_task_ids'
+  'tags', 'objective_id', 'directive_id', 'campaign_id', 'parent_task_id', 'child_task_ids'
 ]);
 const CAP_DEFAULTS = {
   maxCreatesPerAgentPerRun: 2,
@@ -100,6 +101,8 @@ const RESEARCH_MAX_AGE_DAYS = 30;
 const SUB_AGENT_MENTION_WINDOW_HOURS = 24;
 const SOCIAL_INTEL_WINDOW_DAYS = 7;
 const SOCIAL_INTEL_FRESHNESS_MS = 30 * 60 * 1000;
+
+// Campaign matching/creation now delegated to shared module: api/_shared/campaignMatcher.js
 
 function _isActiveStatus(status) {
   return status === 'todo' || status === 'in-progress' || status === 'review';
@@ -767,7 +770,23 @@ module.exports = async function (context) {
     const configs = (await storage.getState('agentConfigs')) || {};
     const recentLogs = await storage.getLogs({ limit: 50 });
     const directives = (await storage.getState('directives')) || [];
+    const campaigns = (await storage.getState('campaigns')) || [];
     const objectives = (await storage.getState('objectives')) || [];
+    let campaignsChanged = false;
+    let directivesCampaignChanged = false;
+    let tasksCampaignChanged = false;
+    const campaignGovEvents = [];
+
+    for (const c of campaigns) {
+      if (!c || typeof c !== 'object') continue;
+      if (!c.id) { c.id = 'cmp-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6); campaignsChanged = true; }
+      if (!c.status) { c.status = 'active'; campaignsChanged = true; }
+      if (!c.createdAt) { c.createdAt = new Date().toISOString(); campaignsChanged = true; }
+      if (!c.updatedAt) { c.updatedAt = c.createdAt; campaignsChanged = true; }
+      if (!c.title) { c.title = 'Untitled Campaign'; campaignsChanged = true; }
+      if (c.description === undefined || c.description === null) { c.description = ''; campaignsChanged = true; }
+    }
+
     // Normalize linkedDirective (string) → linkedDirectives (array) for backward compat
     for (const _normObj of objectives) {
       if (!_normObj) continue;
@@ -775,9 +794,106 @@ module.exports = async function (context) {
         _normObj.linkedDirectives = _normObj.linkedDirective ? [_normObj.linkedDirective] : [];
       }
     }
+
+    for (const d of directives) {
+      if (!d) continue;
+      normalizeCampaignRef(d);
+      if (d.campaign_id) continue;
+      const _dResult = await ensureCampaign({
+        campaign_id: d.campaign_id,
+        title: d.title || '',
+        description: d.description || '',
+        goalId: d.objective_id || null,
+        division: d.division || null,
+        provenance: 'Auto: Campaign ' + (d.owner || 'nova'),
+        campaigns: campaigns,
+        entrypoint: 'heartbeat_directive',
+        debug: true,
+        logger: context.log
+      });
+      d.campaign_id = _dResult.campaignId;
+      if (_dResult.created) {
+        campaignsChanged = true;
+        campaignGovEvents.push({
+          id: 'gov-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+          type: 'campaign-created',
+          data: { campaignId: _dResult.campaignId, title: _dResult.campaign.title, provenance: _dResult.campaign.provenance || null, source: 'directive_auto_attach' },
+          timestamp: new Date().toISOString()
+        });
+      }
+      d.updatedAt = new Date().toISOString();
+      directivesCampaignChanged = true;
+    }
+
     // Build projectById map once for O(1) lookups in freeze gates
     const projectById = {};
     for (const _d of directives) { if (_d && _d.id) projectById[_d.id] = _d; }
+
+    for (const t of tasks) {
+      if (!t) continue;
+      normalizeCampaignRef(t);
+
+      // Inherit campaign from parent directive if available
+      if (t.directive_id && projectById[t.directive_id]) {
+        const dir = projectById[t.directive_id];
+        normalizeCampaignRef(dir);
+        if (dir.campaign_id && t.campaign_id !== dir.campaign_id) {
+          t.campaign_id = dir.campaign_id;
+          t.updatedAt = new Date().toISOString();
+          tasksCampaignChanged = true;
+          continue;
+        }
+      }
+
+      if (t.campaign_id) continue;
+
+      const _tResult = await ensureCampaign({
+        campaign_id: t.campaign_id,
+        title: t.title || '',
+        description: t.description || '',
+        goalId: t.objective_id || null,
+        division: t.division || null,
+        provenance: 'Auto: Campaign ' + (t.assignee || 'nova'),
+        campaigns: campaigns,
+        entrypoint: 'heartbeat_task',
+        debug: true,
+        logger: context.log
+      });
+      t.campaign_id = _tResult.campaignId;
+      if (_tResult.created) {
+        campaignsChanged = true;
+        campaignGovEvents.push({
+          id: 'gov-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+          type: 'campaign-created',
+          data: { campaignId: _tResult.campaignId, title: _tResult.campaign.title, provenance: _tResult.campaign.provenance || null, source: 'task_auto_attach' },
+          timestamp: new Date().toISOString()
+        });
+      }
+      t.updatedAt = new Date().toISOString();
+      tasksCampaignChanged = true;
+    }
+
+    for (const c of campaigns) {
+      if (!c || c.deletedAt || String(c.status || '').toLowerCase() !== 'active') continue;
+      const children = directives.filter(function (d) {
+        return d && !d.deletedAt && d.campaign_id === c.id;
+      });
+      if (children.length === 0) continue;
+      const allTerminal = children.every(function (d) {
+        const s = String(d.status || '').toLowerCase();
+        return s === 'completed' || s === 'archived';
+      });
+      if (!allTerminal) continue;
+      c.status = 'archived';
+      c.updatedAt = new Date().toISOString();
+      campaignsChanged = true;
+      campaignGovEvents.push({
+        id: 'gov-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+        type: 'campaign_auto_archive',
+        data: { campaignId: c.id, title: c.title, directiveCount: children.length },
+        timestamp: new Date().toISOString()
+      });
+    }
     const documents = (await storage.getState('documents')) || [];
     const workspaceMemory = (await storage.getState('workspaceMemory')) || [];
     const workspaceDates = (await storage.getState('dates')) || [];
@@ -1933,6 +2049,14 @@ module.exports = async function (context) {
 
     // Persist updated state
     await storage.setState('tasks', tasks);
+    if (directivesCampaignChanged) await storage.setState('directives', directives);
+    if (campaignsChanged) await storage.setState('campaigns', campaigns);
+    if (campaignGovEvents.length > 0) {
+      const govLog = (await storage.getState('governanceLog')) || [];
+      for (const evt of campaignGovEvents) govLog.push(evt);
+      if (govLog.length > 300) govLog.splice(0, govLog.length - 300);
+      await storage.setState('governanceLog', govLog);
+    }
     await storage.setState('agentConfigs', configs);
     await storage.setState('agentMemories', _agentMemoryStore);
     await storage.setState('researchIntel', researchIntelStore);
@@ -2414,6 +2538,38 @@ Write the full deliverable first, then the structured JSON block.`;
         status: action.task.status,
         priority: action.task.priority
       }));
+
+      // Resolve campaign: inherit from directive first, else match/create via shared module
+      var _taskCampaignId = null;
+      if (action.task.directive_id && projectById[action.task.directive_id]) {
+        normalizeCampaignRef(projectById[action.task.directive_id]);
+        _taskCampaignId = projectById[action.task.directive_id].campaign_id || null;
+      }
+      if (!_taskCampaignId) {
+        const _ctResult = await ensureCampaign({
+          campaign_id: action.task.campaign_id || null,
+          title: action.task.title || '',
+          description: action.task.description || '',
+          goalId: action.task.objective_id || null,
+          division: action.task.division || null,
+          provenance: 'Auto: Campaign ' + agentId,
+          campaigns: campaigns,
+          entrypoint: 'heartbeat_create_task',
+          debug: true,
+          logger: context.log
+        });
+        _taskCampaignId = _ctResult.campaignId;
+        if (_ctResult.created) {
+          campaignsChanged = true;
+          campaignGovEvents.push({
+            id: 'gov-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+            type: 'campaign-created',
+            data: { campaignId: _ctResult.campaignId, title: _ctResult.campaign.title, provenance: _ctResult.campaign.provenance || null, source: 'heartbeat_create_task' },
+            timestamp: new Date().toISOString()
+          });
+        }
+      }
+
       result.taskUpdates.push({
         action: 'create',
         task: {
@@ -2426,6 +2582,7 @@ Write the full deliverable first, then the structured JSON block.`;
           dueDate: action.task.dueDate || new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
           objective_id: action.task.objective_id || null,
           directive_id: action.task.directive_id || null,
+          campaign_id: _taskCampaignId || null,
           category: action.task.category || null
         }
       });

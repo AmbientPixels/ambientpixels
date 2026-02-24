@@ -1,5 +1,6 @@
 const fetch = require('node-fetch');
 const storage = require('../_utils/companyStorage');
+const { normalizeCampaignRef, ensureCampaign } = require('../_shared/campaignMatcher');
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=';
@@ -359,6 +360,33 @@ async function executeChatActions(context, actions, agentId) {
   const _chatDirectives = (await storage.getState('directives')) || [];
   const _chatProjectById = {};
   for (const _d of _chatDirectives) { if (_d && _d.id) _chatProjectById[_d.id] = _d; }
+  const _chatCampaigns = (await storage.getState('campaigns')) || [];
+
+  // Campaign matching/creation delegated to shared module: api/_shared/campaignMatcher.js
+  async function _resolveCampaignId(taskDraft) {
+    normalizeCampaignRef(taskDraft);
+    // Inherit from parent directive first
+    if (taskDraft.directive_id && _chatProjectById[taskDraft.directive_id]) {
+      normalizeCampaignRef(_chatProjectById[taskDraft.directive_id]);
+      if (_chatProjectById[taskDraft.directive_id].campaign_id) return _chatProjectById[taskDraft.directive_id].campaign_id;
+    }
+    const result = await ensureCampaign({
+      campaign_id: taskDraft.campaign_id || null,
+      title: taskDraft.title || '',
+      description: taskDraft.description || '',
+      goalId: taskDraft.objective_id || null,
+      division: taskDraft.division || null,
+      provenance: 'Auto: Campaign ' + agentId,
+      campaigns: _chatCampaigns,
+      entrypoint: 'agentchat',
+      debug: true,
+      logger: context.log
+    });
+    if (result.created) {
+      await storage.setState('campaigns', _chatCampaigns);
+    }
+    return result.campaignId;
+  }
 
   const TASK_MUTATION_TYPES = ['update-task', 'move-task'];
   const TASK_ACTION_TYPES = ['create-task', 'update-task', 'move-task'];
@@ -421,6 +449,7 @@ async function executeChatActions(context, actions, agentId) {
         case 'create-task': {
           const t = action.task || {};
           const tasks = (await storage.getState('tasks')) || [];
+          const campaignId = await _resolveCampaignId(t);
           const newTask = {
             id: 'task-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
             title: t.title || 'Untitled Task',
@@ -430,6 +459,7 @@ async function executeChatActions(context, actions, agentId) {
             assignee: t.assignee || null,
             dueDate: t.dueDate || null,
             directive_id: t.directive_id || null,
+            campaign_id: campaignId || null,
             tags: t.tags || [],
             comments: [],
             createdAt: new Date().toISOString(),
@@ -450,6 +480,19 @@ async function executeChatActions(context, actions, agentId) {
           const updates = action.updates || {};
           for (const key of ['description', 'priority', 'assignee', 'dueDate', 'tags']) {
             if (updates[key] !== undefined) tasks[idx][key] = updates[key];
+          }
+          if (updates.directive_id !== undefined) tasks[idx].directive_id = updates.directive_id || null;
+          if (updates.objective_id !== undefined) tasks[idx].objective_id = updates.objective_id || null;
+          if (updates.campaign_id !== undefined || updates.campaignId !== undefined || updates.directive_id !== undefined) {
+            const draft = {
+              title: tasks[idx].title,
+              description: tasks[idx].description,
+              objective_id: tasks[idx].objective_id || null,
+              division: tasks[idx].division || null,
+              directive_id: tasks[idx].directive_id || null,
+              campaign_id: updates.campaign_id || updates.campaignId || tasks[idx].campaign_id || null
+            };
+            tasks[idx].campaign_id = await _resolveCampaignId(draft);
           }
           tasks[idx].updatedAt = new Date().toISOString();
           await storage.setState('tasks', tasks);

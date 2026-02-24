@@ -115,6 +115,9 @@
             <option value="high">High</option>
             <option value="critical">Critical</option>
           </select>
+          <select id="dir-campaign" style="padding:0.35rem 0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.7rem;">
+            <option value="">Auto campaign</option>
+          </select>
           <button id="dir-create-btn" style="padding:0.35rem 1rem; background:rgba(138,43,226,0.1); border:1px solid rgba(138,43,226,0.3); border-radius:6px; color:#8A2BE2; font-size:0.7rem; cursor:pointer; font-weight:500;">Create Project</button>
         </div>
         <div style="margin-top:0.5rem;">
@@ -206,6 +209,9 @@
         <option value="archived">Archived</option>
       </select>
 
+      <label for="edit-campaign">Campaign</label>
+      <select id="edit-campaign" style="font-size:0.7rem;"></select>
+
       <label for="edit-kpis">Linked KPIs</label>
       <select id="edit-kpis" multiple style="min-height:60px; font-size:0.7rem;"></select>
 
@@ -229,6 +235,7 @@
       var titleInput = document.getElementById('dir-title');
       var descInput = document.getElementById('dir-desc');
       var prioritySelect = document.getElementById('dir-priority');
+      var campaignSelect = document.getElementById('dir-campaign');
       var createBtn = document.getElementById('dir-create-btn');
       var activeList = document.getElementById('dir-active-list');
       var pausedList = document.getElementById('dir-paused-list');
@@ -244,6 +251,7 @@
       var editDesc = document.getElementById('edit-desc');
       var editPriority = document.getElementById('edit-priority');
       var editStatus = document.getElementById('edit-status');
+      var editCampaign = document.getElementById('edit-campaign');
       var editSave = document.getElementById('edit-save');
       var editCancel = document.getElementById('edit-cancel');
       var editingId = null;
@@ -264,12 +272,39 @@
         });
       }
 
-      AgentEngine.loadRegistry().then(function () { populateKpiSelects(); renderDirectives(); });
+      function populateCampaignSelect(sel, selectedId, includeAuto) {
+        if (!sel) return;
+        var opts = includeAuto ? '<option value="">Auto campaign</option>' : '<option value="">No campaign</option>';
+        var campaigns = (typeof AgentEngine.getCampaigns === 'function') ? AgentEngine.getCampaigns() : [];
+        campaigns.forEach(function (c) {
+          if (!c || !c.id || c.deletedAt) return;
+          if (String(c.status || '').toLowerCase() !== 'active' && c.id !== selectedId) return;
+          var selAttr = (selectedId && c.id === selectedId) ? ' selected' : '';
+          var statusTag = c.status && c.status !== 'active' ? ' [' + c.status + ']' : '';
+          opts += '<option value="' + escapeHtml(c.id) + '"' + selAttr + '>' + escapeHtml((c.title || c.id) + statusTag) + '</option>';
+        });
+        sel.innerHTML = opts;
+      }
 
-      AgentEngine.on('sync-complete', function () { renderDirectives(); });
+      AgentEngine.loadRegistry().then(function () {
+        populateKpiSelects();
+        populateCampaignSelect(campaignSelect, '', true);
+        populateCampaignSelect(editCampaign, '', false);
+        renderDirectives();
+      });
+
+      AgentEngine.on('sync-complete', function () {
+        populateCampaignSelect(campaignSelect, campaignSelect.value || '', true);
+        populateCampaignSelect(editCampaign, editCampaign.value || '', false);
+        renderDirectives();
+      });
 
       // Re-render after CompanyStore server sync
-      window.addEventListener('companystoreready', function () { renderDirectives(); });
+      window.addEventListener('companystoreready', function () {
+        populateCampaignSelect(campaignSelect, campaignSelect.value || '', true);
+        populateCampaignSelect(editCampaign, editCampaign.value || '', false);
+        renderDirectives();
+      });
 
       editCancel.addEventListener('click', closeModal);
       modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
@@ -285,6 +320,7 @@
           description: editDesc.value.trim(),
           priority: editPriority.value,
           status: editStatus.value,
+          campaign_id: editCampaign.value || null,
           kpiLinks: ekpis
         };
         AgentEngine.updateDirective(editingId, payload);
@@ -333,6 +369,7 @@
           title: title,
           description: descInput.value.trim(),
           priority: prioritySelect.value,
+          campaign_id: campaignSelect.value || null,
           kpiLinks: selectedKpis
         });
 
@@ -344,6 +381,7 @@
         titleInput.value = '';
         descInput.value = '';
         prioritySelect.value = 'medium';
+        campaignSelect.value = '';
         kpiSel.selectedIndex = -1;
         renderDirectives();
       });
@@ -491,6 +529,10 @@
         // Meta row
         html += '<div style="display:flex; gap:0.6rem; align-items:center; margin:0.3rem 0;">' +
           '<span style="font-size:0.6rem; opacity:0.4;">Created: ' + new Date(dir.createdDate).toLocaleDateString() + '</span>';
+        if (dir.campaign_id && typeof AgentEngine.getCampaigns === 'function') {
+          var _c = AgentEngine.getCampaigns().find(function (x) { return x && x.id === dir.campaign_id && !x.deletedAt; });
+          if (_c) html += '<span style="font-size:0.58rem; padding:1px 6px; border-radius:999px; border:1px solid rgba(148,163,184,0.3); color:rgba(226,232,240,0.75); background:rgba(148,163,184,0.08);"><i class="fas fa-layer-group" style="margin-right:3px; opacity:0.7;"></i>' + escapeHtml(_c.title || _c.id) + '</span>';
+        }
         if (p.staleDays > 0 && p.total > 0 && p.signal !== 'complete') {
           html += '<span style="font-size:0.55rem; opacity:0.35;">Last activity: ' + p.staleDays + 'd ago</span>';
         }
@@ -636,6 +678,7 @@
         editDesc.value = dir.description || '';
         editPriority.value = dir.priority || 'medium';
         editStatus.value = dir.status || 'active';
+        populateCampaignSelect(editCampaign, dir.campaign_id || '', false);
         // v2.5: pre-select linked KPIs
         var ekSel = document.getElementById('edit-kpis');
         var linked = dir.kpiLinks || [];

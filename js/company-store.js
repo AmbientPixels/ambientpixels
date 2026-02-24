@@ -31,6 +31,7 @@ var CompanyStore = (function () {
     'ap_standup_log':        'standupLog',
     'ap_morning_report':     'morningReport',
     'ap_directives':         'directives',
+    'ap_campaigns':          'campaigns',
     'ap_objectives':         'objectives',
     'ap_approval_queue':     'approvalQueue',
     'ap_governance_log':     'governanceLog',
@@ -284,7 +285,7 @@ var CompanyStore = (function () {
     }
 
     // Pull the critical state keys that agents write to
-    var keysToSync = ['ap_tasks', 'ap_cron_log', 'ap_standup_log', 'ap_agent_configs', 'ap_morning_report', 'ap_directives', 'ap_objectives', 'ap_approval_queue', 'ap_governance_log', 'ap_action_queue', 'ap_action_audit_log', 'ap_actions', 'ap_documents', 'ap_published_docs', 'ap_workspace_dates', 'ap_workspace_memory', 'ap_artifacts', 'ap_meetings', 'ap_agent_memories'];
+    var keysToSync = ['ap_tasks', 'ap_cron_log', 'ap_standup_log', 'ap_agent_configs', 'ap_morning_report', 'ap_directives', 'ap_campaigns', 'ap_objectives', 'ap_approval_queue', 'ap_governance_log', 'ap_action_queue', 'ap_action_audit_log', 'ap_actions', 'ap_documents', 'ap_published_docs', 'ap_workspace_dates', 'ap_workspace_memory', 'ap_artifacts', 'ap_meetings', 'ap_agent_memories'];
     var promises = keysToSync.map(function (localKey) {
       var serverKey = KEY_MAP[localKey];
       if (!serverKey) return Promise.resolve();

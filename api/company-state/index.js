@@ -12,7 +12,7 @@ const VALID_KEYS = [
   'tasks', 'workspaceMemory', 'agentConfigs', 'identity',
   'tools', 'dates', 'metrics', 'sessionLog', 'cronLog',
   'standupLog', 'morningReport', 'logs', '_ping',
-  'directives', 'objectives', 'approvalQueue', 'governanceLog',
+  'directives', 'campaigns', 'objectives', 'approvalQueue', 'governanceLog',
   'actionQueue', 'actionAuditLog', 'actionRateCounts', 'actions',
   'documents', 'publishedDocs', 'blogPosts', 'dailyLog', 'webSearchCache',
   'ap_artifacts', 'meetings', 'tasksArchive', 'agentMemories', 'agentSeedMemories',

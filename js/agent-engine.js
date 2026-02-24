@@ -1796,9 +1796,262 @@ var AgentEngine = (function () {
   var MAX_TASKS = 500;
   var TASK_STATUSES = ['backlog', 'todo', 'in-progress', 'review', 'done'];
   var TASK_PRIORITIES = ['low', 'medium', 'high', 'critical'];
+  var CAMPAIGNS_KEY = 'ap_campaigns';
+
+  var CAMPAIGN_STOPWORDS = {
+    'the': true, 'a': true, 'an': true, 'and': true, 'for': true,
+    'to': true, 'of': true, 'in': true, 'on': true, 'with': true, '&': true
+  };
+
+  function _normalizeCampaignRef(obj) {
+    if (!obj || typeof obj !== 'object') return obj;
+    if (!obj.campaign_id && obj.campaignId) obj.campaign_id = obj.campaignId;
+    if (obj.campaign_id === '') obj.campaign_id = null;
+    return obj;
+  }
+
+  function _normalizeCampaignRecord(c) {
+    if (!c || typeof c !== 'object') return c;
+    if (!c.id) c.id = 'cmp-' + Date.now();
+    if (!c.status) c.status = 'active';
+    if (!c.createdAt) c.createdAt = new Date().toISOString();
+    if (!c.updatedAt) c.updatedAt = c.createdAt;
+    if (!c.title) c.title = 'Untitled Campaign';
+    if (!c.description) c.description = '';
+    return c;
+  }
+
+  function _tokenizeCampaignText(text) {
+    var src = String(text || '').toLowerCase().replace(/[^a-z0-9\s]/g, ' ');
+    var raw = src.split(/\s+/).filter(Boolean);
+    var out = [];
+    for (var i = 0; i < raw.length; i++) {
+      var t = raw[i];
+      if (t.length < 3) continue;
+      if (CAMPAIGN_STOPWORDS[t]) continue;
+      if (out.indexOf(t) === -1) out.push(t);
+    }
+    return out;
+  }
+
+  function _tokenSet(arr) {
+    var s = {};
+    for (var i = 0; i < arr.length; i++) s[arr[i]] = true;
+    return s;
+  }
+
+  function _campaignMatchTrace(trace) {
+    try {
+      console.log('[CampaignMatch]', JSON.stringify(trace));
+    } catch (e) {}
+  }
+
+  function _matchActiveCampaign(opts) {
+    opts = opts || {};
+    var campaigns = getCampaigns().filter(function (c) {
+      return c && c.status === 'active' && !c.deletedAt;
+    });
+    if (campaigns.length === 0) return null;
+
+    var inputTokens = _tokenizeCampaignText((opts.title || '') + ' ' + (opts.description || ''));
+    if (inputTokens.length === 0) return null;
+    var inputSet = _tokenSet(inputTokens);
+
+    var best = null;
+    var bestScore = 0;
+    var candidates = [];
+
+    for (var i = 0; i < campaigns.length; i++) {
+      var c = campaigns[i];
+      var cTokens = _tokenizeCampaignText((c.title || '') + ' ' + (c.description || ''));
+      if (cTokens.length === 0) continue;
+      var cSet = _tokenSet(cTokens);
+      var overlap = [];
+      var union = {};
+      Object.keys(inputSet).forEach(function (k) { union[k] = true; if (cSet[k]) overlap.push(k); });
+      Object.keys(cSet).forEach(function (k) { union[k] = true; });
+
+      var interCount = overlap.length;
+      var unionCount = Object.keys(union).length || 1;
+      var score = interCount / unionCount;
+      var sameObjective = !!(opts.objective_id && c.objective_id && opts.objective_id === c.objective_id);
+      if (sameObjective) score += 0.08;
+      if (opts.division && c.division && opts.division === c.division) score += 0.04;
+
+      var threshold = sameObjective ? 0.18 : 0.30;
+      candidates.push({ id: c.id, baseScore: interCount / unionCount, score: score, overlap: overlap, threshold: threshold });
+
+      if (interCount < 2) continue;
+      if (score < threshold) continue;
+
+      if (!best || score > bestScore) {
+        best = c;
+        bestScore = score;
+      } else if (best && Math.abs(score - bestScore) < 0.0001) {
+        var cUpdated = c.updatedAt || c.createdAt || '';
+        var bUpdated = best.updatedAt || best.createdAt || '';
+        if (cUpdated > bUpdated) {
+          best = c;
+          bestScore = score;
+        }
+      }
+    }
+
+    _campaignMatchTrace({
+      objective_id: opts.objective_id || null,
+      division: opts.division || null,
+      inputTokens: inputTokens,
+      candidates: candidates,
+      matched: best ? best.id : null
+    });
+
+    return best;
+  }
+
+  function getCampaigns() {
+    var list = _loadStorage(CAMPAIGNS_KEY, []);
+    for (var i = 0; i < list.length; i++) { _normalizeCampaignRecord(list[i]); }
+    return list;
+  }
+
+  function addCampaign(c) {
+    var list = getCampaigns();
+    var item = {
+      id: (c && c.id) || ('cmp-' + Date.now()),
+      title: (c && c.title) || 'Untitled Campaign',
+      description: (c && c.description) || '',
+      status: (c && c.status) || 'active',
+      objective_id: (c && c.objective_id) || null,
+      division: (c && c.division) || null,
+      provenance: (c && c.provenance) || null,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      deletedAt: null
+    };
+    _normalizeCampaignRecord(item);
+    list.push(item);
+    _saveStorage(CAMPAIGNS_KEY, list);
+    _logGovernance('campaign-created', { campaignId: item.id, title: item.title, provenance: item.provenance || null });
+    return item;
+  }
+
+  function updateCampaign(id, updates) {
+    var list = getCampaigns();
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id !== id) continue;
+      Object.keys(updates || {}).forEach(function (k) {
+        if (k === 'id' || k === 'deletedAt') return;
+        list[i][k] = updates[k];
+      });
+      list[i].updatedAt = new Date().toISOString();
+      _normalizeCampaignRecord(list[i]);
+      _saveStorage(CAMPAIGNS_KEY, list);
+      _logGovernance('campaign-updated', { campaignId: id, fields: Object.keys(updates || {}) });
+      return list[i];
+    }
+    return null;
+  }
+
+  function archiveCampaign(id) {
+    var c = updateCampaign(id, { status: 'archived' });
+    if (c) _logGovernance('campaign-archived', { campaignId: id, title: c.title });
+    return c;
+  }
+
+  function unarchiveCampaign(id) {
+    var c = updateCampaign(id, { status: 'active' });
+    if (c) _logGovernance('campaign-unarchived', { campaignId: id, title: c.title });
+    return c;
+  }
+
+  function deleteCampaign(id) {
+    var campaigns = getCampaigns();
+    var target = null;
+    for (var i = 0; i < campaigns.length; i++) {
+      if (campaigns[i].id === id) { target = campaigns[i]; break; }
+    }
+    if (!target) return { ok: false, error: 'not_found' };
+
+    var directives = getDirectives().filter(function (d) {
+      return d && d.campaign_id === id && !d.deletedAt;
+    });
+    var activeDirective = directives.some(function (d) {
+      var s = String(d.status || '').toLowerCase();
+      return s !== 'completed' && s !== 'archived';
+    });
+
+    var tasks = getTasks().filter(function (t) {
+      return t && t.campaign_id === id && !t._archived;
+    });
+    var activeTask = tasks.some(function (t) {
+      var s = String(t.status || '').toLowerCase();
+      return s !== 'done' && s !== 'completed' && s !== 'archived';
+    });
+
+    if (activeDirective || activeTask) {
+      return {
+        ok: false,
+        error: 'active_children',
+        activeDirectives: directives.length,
+        activeTasks: tasks.length
+      };
+    }
+
+    var now = new Date().toISOString();
+    target.deletedAt = now;
+    target.updatedAt = now;
+    _saveStorage(CAMPAIGNS_KEY, campaigns);
+    _logGovernance('campaign-deleted', { campaignId: id, title: target.title });
+    return { ok: true, campaign: target };
+  }
+
+  // Non-authoritative: suggest campaign_id via local matching only.
+  // Server (heartbeat/agentchat) is the authority for campaign creation.
+  function _ensureCampaignForDirective(entry) {
+    if (!entry || typeof entry !== 'object') return null;
+    _normalizeCampaignRef(entry);
+    if (entry.campaign_id) return entry.campaign_id;
+
+    var matched = _matchActiveCampaign({
+      title: entry.title || '',
+      description: entry.description || '',
+      objective_id: entry.objective_id || null,
+      division: entry.division || null
+    });
+    return matched ? matched.id : null;
+  }
+
+  // Non-authoritative: suggest campaign_id via local matching only.
+  // Server (heartbeat/agentchat) is the authority for campaign creation.
+  function _ensureCampaignForTask(entry) {
+    if (!entry || typeof entry !== 'object') return null;
+    _normalizeCampaignRef(entry);
+
+    if (entry.directive_id) {
+      var dirs = getDirectives();
+      for (var i = 0; i < dirs.length; i++) {
+        if (dirs[i].id === entry.directive_id) {
+          _normalizeCampaignRef(dirs[i]);
+          if (dirs[i].campaign_id) return dirs[i].campaign_id;
+        }
+      }
+    }
+
+    if (entry.campaign_id) return entry.campaign_id;
+
+    var matched = _matchActiveCampaign({
+      title: entry.title || '',
+      description: entry.description || '',
+      objective_id: entry.objective_id || null,
+      division: entry.division || null
+    });
+    return matched ? matched.id : null;
+  }
 
   function getTasks() {
-    return _loadStorage(TASKS_KEY, []);
+    var list = _loadStorage(TASKS_KEY, []);
+    for (var i = 0; i < list.length; i++) { _normalizeCampaignRef(list[i]); }
+    return list;
   }
 
   function getTask(id) {
@@ -1811,6 +2064,7 @@ var AgentEngine = (function () {
 
   function addTask(entry) {
     var tasks = getTasks();
+    var campaignId = _ensureCampaignForTask(entry || {});
     var task = {
       id: 'task-' + Date.now(),
       title: entry.title || 'Untitled Task',
@@ -1826,6 +2080,7 @@ var AgentEngine = (function () {
       source: entry.source || null,            // { type, id, title, date } traceability (v2.2)
       parent_task_id: entry.parent_task_id || null, // link to originating task (v2.5)
       directive_id: entry.directive_id || null, // link to parent directive
+      campaign_id: campaignId || null,
       objective_id: entry.objective_id || null, // link to parent objective
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -1851,6 +2106,11 @@ var AgentEngine = (function () {
       if (k === 'comments' || k === 'tags') return; // handled separately
       tasks[idx][k] = updates[k];
     });
+    _normalizeCampaignRef(tasks[idx]);
+    if (updates.campaignId && !updates.campaign_id) tasks[idx].campaign_id = updates.campaignId;
+    if (!tasks[idx].campaign_id) {
+      tasks[idx].campaign_id = _ensureCampaignForTask(tasks[idx]) || null;
+    }
     tasks[idx].updatedAt = new Date().toISOString();
     // Auto-set completedAt
     if (updates.status === 'done' && oldStatus !== 'done') {
@@ -2071,9 +2331,15 @@ var AgentEngine = (function () {
 
   // ── Governance: Directives ──
   var DIRECTIVES_KEY = 'ap_directives';
-  function getDirectives() { return _loadStorage(DIRECTIVES_KEY, []); }
+  function getDirectives() {
+    var list = _loadStorage(DIRECTIVES_KEY, []);
+    for (var i = 0; i < list.length; i++) { _normalizeCampaignRef(list[i]); }
+    return list;
+  }
   function addDirective(dir) {
     var list = getDirectives();
+    _normalizeCampaignRef(dir);
+    if (!dir.campaign_id) dir.campaign_id = _ensureCampaignForDirective(dir);
     if (!dir.id) dir.id = 'dir-' + Date.now();
     if (!dir.createdDate) dir.createdDate = new Date().toISOString();
     if (!dir.status) dir.status = 'active';
@@ -2087,6 +2353,7 @@ var AgentEngine = (function () {
     if (!dir.source) dir.source = null;
     if (!dir.approval) dir.approval = { status: 'none', approvedBy: null, approvedAt: null };
     if (!dir.owner) dir.owner = null;
+    if (!dir.campaign_id) dir.campaign_id = null;
     // v2.5: KPI linking
     dir.kpiLinks = _validateKpiIds(dir.kpiLinks);
     if (!dir.kpiImpactNotes) dir.kpiImpactNotes = '';
@@ -2100,6 +2367,8 @@ var AgentEngine = (function () {
     for (var i = 0; i < list.length; i++) {
       if (list[i].id === id) {
         Object.keys(updates).forEach(function (k) { if (k !== 'id') list[i][k] = updates[k]; });
+        _normalizeCampaignRef(list[i]);
+        if (!list[i].campaign_id) list[i].campaign_id = _ensureCampaignForDirective(list[i]);
         list[i].updatedAt = new Date().toISOString();
         _saveStorage(DIRECTIVES_KEY, list);
         return list[i];
@@ -3342,6 +3611,13 @@ var AgentEngine = (function () {
     getTasksByStatus: getTasksByStatus,
     getTasksByAssignee: getTasksByAssignee,
     getTaskStats: getTaskStats,
+    // Campaigns
+    getCampaigns: getCampaigns,
+    addCampaign: addCampaign,
+    updateCampaign: updateCampaign,
+    archiveCampaign: archiveCampaign,
+    unarchiveCampaign: unarchiveCampaign,
+    deleteCampaign: deleteCampaign,
     // Store
     getMorningReport: function () {
       if (typeof CompanyStore !== 'undefined') return CompanyStore.getMorningReport();
