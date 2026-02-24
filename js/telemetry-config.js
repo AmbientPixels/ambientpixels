@@ -9,6 +9,6 @@
     window.__AI_CONNECTION_STRING = window._config.appInsightsConnectionString;
     return;
   }
-  // Default: empty string (telemetry disabled until configured)
-  window.__AI_CONNECTION_STRING = '';
+  // Default connection string for ambientpixels-nova-api App Insights
+  window.__AI_CONNECTION_STRING = 'InstrumentationKey=f650ea01-7514-47d5-b825-c6c95b2d6a07;IngestionEndpoint=https://westus2-2.in.applicationinsights.azure.com/;LiveEndpoint=https://westus2.livediagnostics.monitor.azure.com/;ApplicationId=a99b7174-9be0-4845-aa1f-097ed739752a';
 })();
