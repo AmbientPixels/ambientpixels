@@ -220,6 +220,30 @@
     <!-- ════════════════════════════════════════ -->
     <div id="view-ceo">
 
+      <!-- CEO: Stat Cards -->
+      <div class="ceo-stats" id="ceo-stats" style="margin-bottom:1rem;">
+        <div class="ceo-stat" style="--cstat-color:#ef4444;">
+          <div class="ceo-stat-label">Needs Action</div>
+          <div class="ceo-stat-value" id="cstat-action">0</div>
+          <div class="ceo-stat-sub" id="cstat-action-sub">pending approvals</div>
+        </div>
+        <div class="ceo-stat" style="--cstat-color:#34d399;">
+          <div class="ceo-stat-label">Autonomy</div>
+          <div class="ceo-stat-value" id="cstat-autonomy">—</div>
+          <div class="ceo-stat-sub" id="cstat-autonomy-sub">agent self-sufficiency</div>
+        </div>
+        <div class="ceo-stat" style="--cstat-color:#fbbf24;">
+          <div class="ceo-stat-label">Daily Burn</div>
+          <div class="ceo-stat-value" id="cstat-burn">$0</div>
+          <div class="ceo-stat-sub" id="cstat-burn-sub">est. cost today</div>
+        </div>
+        <div class="ceo-stat" style="--cstat-color:#60a5fa;">
+          <div class="ceo-stat-label">Task Pipeline</div>
+          <div class="ceo-stat-value" id="cstat-pipeline">0</div>
+          <div class="ceo-stat-sub" id="cstat-pipeline-sub">in-progress / review / done</div>
+        </div>
+      </div>
+
       <!-- Command Center (Tabbed) -->
       <div class="dash-panel dash-panel--full" style="border:1px solid rgba(255,215,0,0.12); background:linear-gradient(135deg, rgba(255,215,0,0.03) 0%, rgba(138,43,226,0.03) 100%); margin-bottom:1rem;">
         <div class="dash-panel-header" style="border-bottom:none; margin-bottom:0; padding-bottom:0;">
@@ -264,30 +288,6 @@
               <div class="dash-empty" id="governance-log-empty">No governance events yet.</div>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- CEO: Stat Cards -->
-      <div class="ceo-stats" id="ceo-stats">
-        <div class="ceo-stat" style="--cstat-color:#ef4444;">
-          <div class="ceo-stat-label">Needs Action</div>
-          <div class="ceo-stat-value" id="cstat-action">0</div>
-          <div class="ceo-stat-sub" id="cstat-action-sub">pending approvals</div>
-        </div>
-        <div class="ceo-stat" style="--cstat-color:#34d399;">
-          <div class="ceo-stat-label">Autonomy</div>
-          <div class="ceo-stat-value" id="cstat-autonomy">—</div>
-          <div class="ceo-stat-sub" id="cstat-autonomy-sub">agent self-sufficiency</div>
-        </div>
-        <div class="ceo-stat" style="--cstat-color:#fbbf24;">
-          <div class="ceo-stat-label">Daily Burn</div>
-          <div class="ceo-stat-value" id="cstat-burn">$0</div>
-          <div class="ceo-stat-sub" id="cstat-burn-sub">est. cost today</div>
-        </div>
-        <div class="ceo-stat" style="--cstat-color:#60a5fa;">
-          <div class="ceo-stat-label">Task Pipeline</div>
-          <div class="ceo-stat-value" id="cstat-pipeline">0</div>
-          <div class="ceo-stat-sub" id="cstat-pipeline-sub">in-progress / review / done</div>
         </div>
       </div>
 
@@ -1138,9 +1138,16 @@
 
         allEntries.forEach(function (e) {
           var dotClass = e.isActive ? 'agent-grid-dot--active' : 'agent-grid-dot--idle';
+          var dotTitle = e.isActive ? 'Active — has tasks in progress or recent API activity' : 'Idle — no active tasks or recent activity';
           var name = e.agent.name || e.agent.id || '?';
           var role = e.agent.role || '';
-          var taskText = e.currentTask ? e.currentTask.title : (e.tasks.length > 0 ? e.tasks.length + ' tasks' : 'No active tasks');
+
+          // Count tasks by status
+          var agentId = e.agent.id || e.agent.name;
+          var doneTasks = allTasks.filter(function (t) { return (t.assignee === agentId || t.assignee === (e.agent.name || '').toLowerCase()) && t.status === 'done'; }).length;
+          var activeTasks = e.tasks.length;
+          var taskText = doneTasks + ' done · ' + activeTasks + ' active';
+
           var metaText = '';
           if (e.lastLog && e.lastLog.timestamp) {
             var ago = Date.now() - new Date(e.lastLog.timestamp).getTime();
@@ -1152,7 +1159,7 @@
           }
 
           html += '<div class="agent-grid-card">';
-          html += '<div class="agent-grid-dot ' + dotClass + '"></div>';
+          html += '<div class="agent-grid-dot ' + dotClass + '" title="' + dotTitle + '"></div>';
           html += '<div class="agent-grid-info">';
           html += '<div class="agent-grid-name">' + escapeHtml(name) + '</div>';
           html += '<div class="agent-grid-role">' + escapeHtml(role) + '</div>';
@@ -1165,37 +1172,56 @@
       }
 
       // ── CEO Social Growth (simplified) ──
+      var _ceoSocialCache = null;
       function renderCeoSocialGrowth() {
         var root = document.getElementById('panel-ceo-social');
         if (!root) return;
 
-        // Pull data from social metrics events
-        var events = [];
-        try { events = CompanyStore.getState('socialMetricsEvents') || []; } catch (e) {}
-        var engagement = [];
-        try { engagement = CompanyStore.getState('socialEngagementSnapshots') || []; } catch (e) {}
-        var accountStats = null;
-        try { accountStats = CompanyStore.getState('socialAccountStats') || null; } catch (e) {}
+        // If we already have cached data, render immediately
+        if (_ceoSocialCache) { _renderCeoSocialHtml(root, _ceoSocialCache); return; }
+
+        // Fetch from same APIs as social-pulse.js
+        var apiBase = (typeof CompanyStore !== 'undefined' && CompanyStore.getServerBase) ? CompanyStore.getServerBase() : '/api';
+        var headers = {};
+        try { if (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) headers = CompanyStore.getWriteHeaders() || {}; } catch (e) {}
+        try { if (!headers['x-company-secret']) { var k = sessionStorage.getItem('ap_server_key') || ''; if (k) headers['x-company-secret'] = k; } } catch (e) {}
+
+        Promise.all([
+          fetch(apiBase + '/social-metrics?limit=50', { headers: headers }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
+          fetch(apiBase + '/social-account-stats', { headers: headers }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
+        ]).then(function (results) {
+          var metricsData = results[0] || {};
+          var acctData = results[1] || {};
+          _ceoSocialCache = { metrics: metricsData, acct: acctData };
+          _renderCeoSocialHtml(root, _ceoSocialCache);
+        }).catch(function () {
+          root.innerHTML = '<div class="dash-empty">Could not load social data.</div>';
+        });
+      }
+
+      function _renderCeoSocialHtml(root, cache) {
+        var metricsData = cache.metrics || {};
+        var acctData = cache.acct || {};
+        var summary = metricsData.summary || {};
+        var events = metricsData.events || metricsData.metrics || [];
 
         // Calculate headline numbers
         var totalFollowers = 0;
-        if (accountStats && accountStats.followers) {
-          totalFollowers = accountStats.followers.total || ((accountStats.followers.x || 0) + (accountStats.followers.linkedin || 0) + (accountStats.followers.bluesky || 0));
+        if (acctData && acctData.totals && acctData.totals.followers) {
+          totalFollowers = acctData.totals.followers;
         }
 
         // Posts this week
         var weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-        var postsThisWeek = events.filter(function (e) {
-          return e.timestamp && new Date(e.timestamp).getTime() > weekAgo && e.status === 'success';
-        }).length;
+        var postsThisWeek = summary.published || 0;
+        if (!postsThisWeek && events.length > 0) {
+          postsThisWeek = events.filter(function (e) {
+            return e.timestamp && new Date(e.timestamp).getTime() > weekAgo && e.status === 'success';
+          }).length;
+        }
 
-        // Total engagement (likes + comments + reposts from snapshots, last 7 days)
-        var totalEngagement = 0;
-        engagement.forEach(function (snap) {
-          if (snap.timestamp && new Date(snap.timestamp).getTime() > weekAgo) {
-            totalEngagement += (snap.likes || 0) + (snap.comments || 0) + (snap.reposts || 0);
-          }
-        });
+        // Total engagement
+        var totalEngagement = summary.totalEngagement || 0;
 
         var html = '<div class="ceo-social-summary">';
         html += '<div class="ceo-social-num"><div class="ceo-social-num-value" style="color:#60a5fa;">' + (totalFollowers > 0 ? totalFollowers.toLocaleString() : '—') + '</div><div class="ceo-social-num-label">Followers</div></div>';
@@ -3164,17 +3190,24 @@
 
       // ── Cost Center Summary ──
       var _costSummaryData = { gemini: null, azure: null, x: null };
+      var _costSummaryRendered = false;
 
-      function renderCostSummary() {
+      // Fallback: if no cost data after 8s, show $0 instead of forever-loading
+      setTimeout(function () {
+        if (!_costSummaryRendered) renderCostSummary(true);
+      }, 8000);
+
+      function renderCostSummary(force) {
         var el = document.getElementById('panel-cost-summary');
         if (!el) return;
         var g = _costSummaryData.gemini;
         var a = _costSummaryData.azure;
         var x = _costSummaryData.x;
-        if (!g && !a && !x) {
-          el.innerHTML = '<div class="dash-empty" style="font-size:0.6rem;">Waiting for cost data...</div>';
+        if (!g && !a && !x && !force) {
+          el.innerHTML = '<div class="dash-empty" style="font-size:0.6rem;">Loading cost data...</div>';
           return;
         }
+        _costSummaryRendered = true;
 
         var geminiTotal = g ? g.totalCost : 0;
         var azureTotal = a ? a.totalCost : 0;
