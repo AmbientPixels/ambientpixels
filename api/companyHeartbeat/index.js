@@ -4794,13 +4794,11 @@ Write the full deliverable first, then the structured JSON block.`;
         });
       } catch (usageErr) { context.log.warn('[Heartbeat] generate-image usage record failed (non-fatal):', usageErr.message); }
 
-      // Auto-advance parent task: auto-created hero image tasks → done (no peer review needed),
-      // all other image tasks → review
+      // Auto-advance parent task: all image tasks → review (hero images stay in review until attached to blog)
       if (action.taskId) {
         const imgTaskIdx = tasks.findIndex(t => t.id === action.taskId);
         if (imgTaskIdx !== -1 && tasks[imgTaskIdx].status !== 'done') {
-          const _isAutoHeroTask = (tasks[imgTaskIdx].tags || []).indexOf('hero-image') !== -1 && (tasks[imgTaskIdx].tags || []).indexOf('auto-created') !== -1;
-          tasks[imgTaskIdx].status = _isAutoHeroTask ? 'done' : 'review';
+          tasks[imgTaskIdx].status = 'review';
           tasks[imgTaskIdx].updatedAt = new Date().toISOString();
           if (!tasks[imgTaskIdx].comments) tasks[imgTaskIdx].comments = [];
           tasks[imgTaskIdx].comments.push({
