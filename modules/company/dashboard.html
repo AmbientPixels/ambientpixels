@@ -267,36 +267,44 @@
         </div>
       </div>
 
-      <!-- CEO: Traffic Brief Section -->
-      <div class="dash-section" id="section-traffic" data-section="traffic">
+      <!-- CEO: Stat Cards -->
+      <div class="ceo-stats" id="ceo-stats">
+        <div class="ceo-stat" style="--cstat-color:#ef4444;">
+          <div class="ceo-stat-label">Needs Action</div>
+          <div class="ceo-stat-value" id="cstat-action">0</div>
+          <div class="ceo-stat-sub" id="cstat-action-sub">pending approvals</div>
+        </div>
+        <div class="ceo-stat" style="--cstat-color:#34d399;">
+          <div class="ceo-stat-label">Autonomy</div>
+          <div class="ceo-stat-value" id="cstat-autonomy">—</div>
+          <div class="ceo-stat-sub" id="cstat-autonomy-sub">agent self-sufficiency</div>
+        </div>
+        <div class="ceo-stat" style="--cstat-color:#fbbf24;">
+          <div class="ceo-stat-label">Daily Burn</div>
+          <div class="ceo-stat-value" id="cstat-burn">$0</div>
+          <div class="ceo-stat-sub" id="cstat-burn-sub">est. cost today</div>
+        </div>
+        <div class="ceo-stat" style="--cstat-color:#60a5fa;">
+          <div class="ceo-stat-label">Task Pipeline</div>
+          <div class="ceo-stat-value" id="cstat-pipeline">0</div>
+          <div class="ceo-stat-sub" id="cstat-pipeline-sub">in-progress / review / done</div>
+        </div>
+      </div>
+
+      <!-- CEO: Agent Grid -->
+      <div class="dash-section" id="section-agent-grid" data-section="agent-grid">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-signal" style="color:#38bdf8;"></i>
-          <h2>Traffic Brief</h2>
+          <i class="fas fa-users" style="color:#4ECDC4;"></i>
+          <h2>Team</h2>
           <i class="fas fa-chevron-down dash-section-chevron"></i>
         </div>
         <div class="dash-section-body">
-          <div class="dash-panel dash-panel--full" style="border:1px solid rgba(56,189,248,0.1); background:rgba(56,189,248,0.015);">
-            <div class="dash-panel-header" style="border-bottom:none; padding-bottom:0;">
-              <span class="dash-panel-title"><i class="fas fa-chart-area" style="color:#38bdf8;"></i> Traffic Brief</span>
-              <span id="tb-range-label" style="font-size:0.52rem; opacity:0.35;">Last 7 days · powered by Application Insights</span>
-            </div>
-            <div id="traffic-brief-root" style="padding:0.5rem 0.6rem;">
-              <div style="display:flex; align-items:center; gap:6px; margin-bottom:0.6rem;">
-                <select id="tb-range" style="font-size:0.6rem; padding:0.2rem 0.4rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:5px; color:inherit;">
-                  <option value="7d" selected>Last 7 days</option>
-                  <option value="1d">Last 24 hours</option>
-                  <option value="30d">Last 30 days</option>
-                </select>
-                <button id="tb-refresh" style="font-size:0.55rem; padding:0.2rem 0.5rem; border-radius:5px; cursor:pointer; border:1px solid rgba(56,189,248,0.2); background:rgba(56,189,248,0.04); color:#38bdf8; font-family:inherit;"><i class="fas fa-sync-alt" style="margin-right:3px;"></i>Refresh</button>
-                <button id="tb-scout-btn" style="font-size:0.55rem; padding:0.2rem 0.5rem; border-radius:5px; cursor:pointer; border:1px solid rgba(52,211,153,0.2); background:rgba(52,211,153,0.04); color:#34d399; font-family:inherit; margin-left:auto;"><i class="fas fa-binoculars" style="margin-right:3px;"></i>Generate Scout Brief</button>
-              </div>
-              <div id="tb-body">
-                <div class="dash-empty" style="font-size:0.6rem;">Loading traffic data...</div>
-              </div>
-            </div>
-          </div>
+          <div class="agent-grid" id="ceo-agent-grid"></div>
         </div>
       </div>
+
+      <!-- CEO: Traffic Brief (hidden — moved to DEV view) -->
+      <div style="display:none;" id="section-traffic"></div>
 
       <!-- CEO: Decisions Section -->
       <div class="dash-section" id="section-decisions" data-section="decisions">
@@ -390,29 +398,21 @@
               </div>
             </div>
 
-            <!-- Social Pulse -->
-            <div class="dash-panel dash-panel--full" id="panel-social-pulse-wrap">
+            <!-- CEO Social Growth (simplified) -->
+            <div class="dash-panel dash-panel--full" id="panel-ceo-social-wrap">
               <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-hashtag" style="color:#60a5fa;"></i> Social Pulse</span>
-                <div style="display:flex; gap:0.5rem; align-items:center;">
-                  <a href="/modules/company/social-analytics.html" style="font-size:0.65rem; opacity:0.45; text-decoration:none;">View Social Analytics →</a>
-                  <a href="/modules/company/actions.html?type=social&status=pending" style="font-size:0.65rem; opacity:0.45; text-decoration:none;">Open Social Actions →</a>
-                </div>
+                <span class="dash-panel-title"><i class="fas fa-chart-line" style="color:#60a5fa;"></i> Social Growth</span>
+                <a href="/modules/company/social-analytics.html" style="font-size:0.65rem; opacity:0.45; text-decoration:none;">Detailed Analytics →</a>
               </div>
-              <div id="panel-social-pulse" style="padding:0.5rem;">
-                <div class="dash-empty">Loading social pulse...</div>
+              <div id="panel-ceo-social" style="padding:0.5rem;">
+                <div class="dash-empty">Loading social data...</div>
               </div>
             </div>
 
-            <!-- Engagement Pulse -->
-            <div class="dash-panel dash-panel--full" id="panel-engagement-pulse-wrap">
-              <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-heart" style="color:#34d399;"></i> Engagement Pulse</span>
-                <a href="/modules/company/social-analytics.html?section=engagement" style="font-size:0.65rem; opacity:0.45; text-decoration:none;">View Social Analytics →</a>
-              </div>
-              <div id="panel-engagement-pulse" style="padding:0.5rem;">
-                <div class="dash-empty">Loading engagement pulse...</div>
-              </div>
+            <!-- Hidden targets so existing social-pulse.js and engagement-pulse.js don't error -->
+            <div style="display:none;">
+              <div id="panel-social-pulse-wrap"><div id="panel-social-pulse"></div></div>
+              <div id="panel-engagement-pulse-wrap"><div id="panel-engagement-pulse"></div></div>
             </div>
           </div>
         </div>
@@ -447,18 +447,37 @@
         </div>
       </div>
 
-      <!-- CEO: Observability Section -->
+      <!-- CEO: Observability (simplified) -->
       <div class="dash-section" id="obs-section" data-section="observability">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
           <i class="fas fa-binoculars" style="color:#60a5fa;"></i>
-          <h2>Observability</h2>
+          <h2>System Health</h2>
           <i class="fas fa-chevron-down dash-section-chevron"></i>
         </div>
         <div class="dash-section-body">
-          <div class="dash-panel dash-panel--full" style="border:1px solid rgba(96,165,250,0.08); background:rgba(96,165,250,0.01);">
-            <div id="obs-dashboard-root">
-              <div class="dash-empty">Loading observability data...</div>
+          <div id="ceo-obs-root" style="padding:0.3rem 0;">
+            <div class="ceo-obs-lights" id="ceo-obs-lights">
+              <div class="ceo-obs-light">
+                <div class="ceo-obs-light-dot ceo-obs-light-dot--unknown" id="ceo-obs-dot-hb"></div>
+                <div class="ceo-obs-light-label">Heartbeat</div>
+                <div class="ceo-obs-light-value" id="ceo-obs-val-hb">—</div>
+              </div>
+              <div class="ceo-obs-light">
+                <div class="ceo-obs-light-dot ceo-obs-light-dot--unknown" id="ceo-obs-dot-api"></div>
+                <div class="ceo-obs-light-label">API</div>
+                <div class="ceo-obs-light-value" id="ceo-obs-val-api">—</div>
+              </div>
+              <div class="ceo-obs-light">
+                <div class="ceo-obs-light-dot ceo-obs-light-dot--unknown" id="ceo-obs-dot-deploy"></div>
+                <div class="ceo-obs-light-label">Deploy</div>
+                <div class="ceo-obs-light-value" id="ceo-obs-val-deploy">—</div>
+              </div>
             </div>
+            <div id="ceo-obs-alert-row"></div>
+          </div>
+          <!-- Full observability dashboard hidden — still rendered by ObservabilityUI.init() -->
+          <div style="display:none;">
+            <div id="obs-dashboard-root"></div>
           </div>
         </div>
       </div>
@@ -548,14 +567,10 @@
               </div>
               <ul class="agent-status-list" id="panel-agent-status"></ul>
             </div>
-            <!-- KPI Scoreboard (Dev) -->
-            <div class="dash-panel dash-panel--full" id="panel-kpi-wrap">
-              <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-chart-line" style="color:#4ECDC4;"></i> KPI Scoreboard</span>
-                <a href="/modules/company/board.html" style="font-size:0.65rem; opacity:0.4; text-decoration:none;">Board Mode →</a>
-              </div>
-              <div id="panel-kpi-list" style="display:flex; gap:0.5rem; flex-wrap:wrap; padding:0.3rem 0;"></div>
-              <div class="dash-empty" id="kpi-empty">No KPIs registered.</div>
+            <!-- KPI Scoreboard (hidden — no real data feeding in) -->
+            <div style="display:none;" id="panel-kpi-wrap">
+              <div id="panel-kpi-list"></div>
+              <div id="kpi-empty"></div>
             </div>
             <!-- Session Log -->
             <div class="dash-panel dash-panel--full">
@@ -605,6 +620,86 @@
                 <ul class="log-list" id="panel-governance-log-dev"></ul>
                 <div class="dash-empty" id="governance-log-dev-empty">No governance events yet.</div>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dev: Traffic Brief (moved from CEO) -->
+      <div class="dash-section" id="section-traffic-dev" data-section="traffic-dev">
+        <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
+          <i class="fas fa-signal" style="color:#38bdf8;"></i>
+          <h2>Traffic Brief</h2>
+          <i class="fas fa-chevron-down dash-section-chevron"></i>
+        </div>
+        <div class="dash-section-body">
+          <div class="dash-panel dash-panel--full" style="border:1px solid rgba(56,189,248,0.1); background:rgba(56,189,248,0.015);">
+            <div class="dash-panel-header" style="border-bottom:none; padding-bottom:0;">
+              <span class="dash-panel-title"><i class="fas fa-chart-area" style="color:#38bdf8;"></i> Traffic Brief</span>
+              <span id="tb-range-label" style="font-size:0.52rem; opacity:0.35;">Last 7 days · powered by Application Insights</span>
+            </div>
+            <div id="traffic-brief-root" style="padding:0.5rem 0.6rem;">
+              <div style="display:flex; align-items:center; gap:6px; margin-bottom:0.6rem;">
+                <select id="tb-range" style="font-size:0.6rem; padding:0.2rem 0.4rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:5px; color:inherit;">
+                  <option value="7d" selected>Last 7 days</option>
+                  <option value="1d">Last 24 hours</option>
+                  <option value="30d">Last 30 days</option>
+                </select>
+                <button id="tb-refresh" style="font-size:0.55rem; padding:0.2rem 0.5rem; border-radius:5px; cursor:pointer; border:1px solid rgba(56,189,248,0.2); background:rgba(56,189,248,0.04); color:#38bdf8; font-family:inherit;"><i class="fas fa-sync-alt" style="margin-right:3px;"></i>Refresh</button>
+                <button id="tb-scout-btn" style="font-size:0.55rem; padding:0.2rem 0.5rem; border-radius:5px; cursor:pointer; border:1px solid rgba(52,211,153,0.2); background:rgba(52,211,153,0.04); color:#34d399; font-family:inherit; margin-left:auto;"><i class="fas fa-binoculars" style="margin-right:3px;"></i>Generate Scout Brief</button>
+              </div>
+              <div id="tb-body">
+                <div class="dash-empty" style="font-size:0.6rem;">Loading traffic data...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dev: Social Ops (detailed — moved from CEO) -->
+      <div class="dash-section" id="section-social-dev" data-section="social-dev">
+        <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
+          <i class="fas fa-hashtag" style="color:#60a5fa;"></i>
+          <h2>Social Ops</h2>
+          <i class="fas fa-chevron-down dash-section-chevron"></i>
+        </div>
+        <div class="dash-section-body">
+          <div class="dash-grid">
+            <!-- Social Pulse (detailed) -->
+            <div class="dash-panel dash-panel--full" id="panel-social-pulse-dev-wrap">
+              <div class="dash-panel-header">
+                <span class="dash-panel-title"><i class="fas fa-hashtag" style="color:#60a5fa;"></i> Social Delivery</span>
+                <a href="/modules/company/social-analytics.html" style="font-size:0.65rem; opacity:0.45; text-decoration:none;">Full Analytics →</a>
+              </div>
+              <div id="panel-social-pulse-dev" style="padding:0.5rem;">
+                <div class="dash-empty">Loading social delivery data...</div>
+              </div>
+            </div>
+            <!-- Engagement Pulse (detailed) -->
+            <div class="dash-panel dash-panel--full" id="panel-engagement-pulse-dev-wrap">
+              <div class="dash-panel-header">
+                <span class="dash-panel-title"><i class="fas fa-heart" style="color:#34d399;"></i> Engagement Details</span>
+                <a href="/modules/company/social-analytics.html?section=engagement" style="font-size:0.65rem; opacity:0.45; text-decoration:none;">Full Analytics →</a>
+              </div>
+              <div id="panel-engagement-pulse-dev" style="padding:0.5rem;">
+                <div class="dash-empty">Loading engagement data...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Dev: Full Observability -->
+      <div class="dash-section" id="section-obs-dev" data-section="obs-dev">
+        <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
+          <i class="fas fa-binoculars" style="color:#60a5fa;"></i>
+          <h2>Observability</h2>
+          <i class="fas fa-chevron-down dash-section-chevron"></i>
+        </div>
+        <div class="dash-section-body">
+          <div class="dash-panel dash-panel--full" style="border:1px solid rgba(96,165,250,0.08); background:rgba(96,165,250,0.01);">
+            <div id="obs-dashboard-root-dev">
+              <div class="dash-empty">Loading observability data...</div>
             </div>
           </div>
         </div>
@@ -857,9 +952,12 @@
       AgentEngine.loadRegistry().then(function () {
         renderAll();
         updateStoreModeBadge();
-        // Init Observability Dashboard
+        // Init Observability Dashboard (hidden in CEO, visible in DEV)
         if (typeof ObservabilityUI !== 'undefined') {
           ObservabilityUI.init(document.getElementById('obs-dashboard-root'));
+          // Also init in DEV view
+          var obsDevRoot = document.getElementById('obs-dashboard-root-dev');
+          if (obsDevRoot) ObservabilityUI.init(obsDevRoot);
         }
       });
 
@@ -872,11 +970,29 @@
         loadExecMode();
       });
 
+      // Sync social pulse content from hidden CEO panels → DEV panels
+      function syncSocialToDev() {
+        var src1 = document.getElementById('panel-social-pulse');
+        var dst1 = document.getElementById('panel-social-pulse-dev');
+        if (src1 && dst1 && src1.innerHTML && !src1.innerHTML.includes('Loading')) {
+          dst1.innerHTML = src1.innerHTML;
+        }
+        var src2 = document.getElementById('panel-engagement-pulse');
+        var dst2 = document.getElementById('panel-engagement-pulse-dev');
+        if (src2 && dst2 && src2.innerHTML && !src2.innerHTML.includes('Loading')) {
+          dst2.innerHTML = src2.innerHTML;
+        }
+      }
+      // Run sync after social scripts have had time to load
+      setTimeout(syncSocialToDev, 3000);
+      setTimeout(syncSocialToDev, 8000);
+
       // Re-render after CompanyStore server sync
       window.addEventListener('companystoreready', function () {
         renderAll();
         updateStoreModeBadge();
         loadExecMode();
+        setTimeout(syncSocialToDev, 2000);
       });
 
       document.getElementById('dash-refresh').addEventListener('click', function () { renderAll(); loadExecMode(); });
@@ -890,6 +1006,10 @@
         if (AgentEngine.reconcileProposals) AgentEngine.reconcileProposals();
         if (AgentEngine.reconcileApprovalQueue) AgentEngine.reconcileApprovalQueue();
         renderCeoInbox();
+        renderCeoStatCards();
+        renderCeoAgentGrid();
+        renderCeoSocialGrowth();
+        renderCeoObsHealth();
         renderStats();
         renderFleet();
         renderAgentStatus();
@@ -917,6 +1037,291 @@
         renderGovernanceLogDev();
         renderMeetingsWidget();
         updateActionBadge();
+      }
+
+      // ── CEO Stat Cards ──
+      function renderCeoStatCards() {
+        // Needs Action
+        var queue = AgentEngine.getApprovalQueue();
+        var pending = queue.filter(function (q) { return q.status === 'pending'; });
+        var allTasks = AgentEngine.getTasks();
+        var sdePending = allTasks.filter(function (t) { return t.status === 'pending-approval'; });
+        var actionCount = pending.length + sdePending.length;
+        var cstatAction = document.getElementById('cstat-action');
+        var cstatActionSub = document.getElementById('cstat-action-sub');
+        if (cstatAction) {
+          cstatAction.textContent = actionCount;
+          cstatAction.parentElement.style.setProperty('--cstat-color', actionCount > 0 ? '#ef4444' : '#34d399');
+          cstatActionSub.textContent = pending.length + ' approvals' + (sdePending.length > 0 ? ', ' + sdePending.length + ' proposals' : '');
+        }
+
+        // Autonomy
+        var cstatAutonomy = document.getElementById('cstat-autonomy');
+        var cstatAutonomySub = document.getElementById('cstat-autonomy-sub');
+        if (cstatAutonomy) {
+          var doneTasks = allTasks.filter(function (t) { return t.status === 'done'; });
+          var autoCompleted = doneTasks.filter(function (t) { return !t.manuallyCompleted; }).length;
+          var pct = doneTasks.length > 0 ? Math.round((autoCompleted / doneTasks.length) * 100) : 0;
+          cstatAutonomy.textContent = pct + '%';
+          cstatAutonomy.parentElement.style.setProperty('--cstat-color', pct >= 70 ? '#34d399' : pct >= 40 ? '#fbbf24' : '#ef4444');
+          cstatAutonomySub.textContent = autoCompleted + '/' + doneTasks.length + ' auto-completed';
+        }
+
+        // Daily Burn
+        var cstatBurn = document.getElementById('cstat-burn');
+        var cstatBurnSub = document.getElementById('cstat-burn-sub');
+        if (cstatBurn) {
+          var sessions = AgentEngine.getSessionLog ? AgentEngine.getSessionLog() : [];
+          var today = new Date().toISOString().split('T')[0];
+          var todayCost = 0;
+          sessions.forEach(function (s) {
+            if (s.timestamp && s.timestamp.startsWith(today) && s.cost) todayCost += s.cost;
+          });
+          cstatBurn.textContent = '$' + todayCost.toFixed(todayCost < 1 ? 4 : 2);
+          cstatBurnSub.textContent = 'est. cost today';
+        }
+
+        // Task Pipeline
+        var cstatPipeline = document.getElementById('cstat-pipeline');
+        var cstatPipelineSub = document.getElementById('cstat-pipeline-sub');
+        if (cstatPipeline) {
+          var inProgress = allTasks.filter(function (t) { return t.status === 'in-progress'; }).length;
+          var inReview = allTasks.filter(function (t) { return t.status === 'review'; }).length;
+          var done = allTasks.filter(function (t) { return t.status === 'done'; }).length;
+          var active = allTasks.filter(function (t) { return t.status !== 'done' && t.status !== 'backlog'; }).length;
+          cstatPipeline.textContent = active;
+          cstatPipelineSub.textContent = inProgress + ' active · ' + inReview + ' review · ' + done + ' done';
+        }
+      }
+
+      // ── CEO Agent Grid ──
+      function renderCeoAgentGrid() {
+        var gridEl = document.getElementById('ceo-agent-grid');
+        if (!gridEl) return;
+        var allTasks = AgentEngine.getTasks();
+        var reg = AgentEngine.getRegistry ? AgentEngine.getRegistry() : null;
+        var agents = (reg && reg.agents) ? reg.agents : [];
+        if (!agents || agents.length === 0) {
+          gridEl.innerHTML = '<div class="dash-empty" style="padding:0.5rem;">No agents loaded.</div>';
+          return;
+        }
+
+        var activeAgents = [];
+        var idleAgents = [];
+        var logs = AgentEngine.getSessionLog ? AgentEngine.getSessionLog() : [];
+
+        agents.forEach(function (a) {
+          var agentId = a.id || a.name;
+          var agentTasks = allTasks.filter(function (t) {
+            return (t.assignee === agentId || t.assignee === (a.name || '').toLowerCase()) && t.status !== 'done' && t.status !== 'backlog';
+          });
+          var currentTask = agentTasks.length > 0 ? agentTasks[0] : null;
+
+          // Find last session from session log
+          var lastLog = null;
+          for (var i = logs.length - 1; i >= 0; i--) {
+            if (logs[i] && logs[i].agentId === agentId) {
+              lastLog = logs[i];
+              break;
+            }
+          }
+
+          var isActive = agentTasks.length > 0 || (lastLog && lastLog.timestamp && (Date.now() - new Date(lastLog.timestamp).getTime()) < 3600000);
+          var entry = { agent: a, tasks: agentTasks, currentTask: currentTask, lastLog: lastLog, isActive: isActive };
+          if (isActive) activeAgents.push(entry);
+          else idleAgents.push(entry);
+        });
+
+        var html = '';
+        var allEntries = activeAgents.concat(idleAgents);
+        var shownActive = 0;
+
+        allEntries.forEach(function (e) {
+          var dotClass = e.isActive ? 'agent-grid-dot--active' : 'agent-grid-dot--idle';
+          var name = e.agent.name || e.agent.id || '?';
+          var role = e.agent.role || '';
+          var taskText = e.currentTask ? e.currentTask.title : (e.tasks.length > 0 ? e.tasks.length + ' tasks' : 'No active tasks');
+          var metaText = '';
+          if (e.lastLog && e.lastLog.timestamp) {
+            var ago = Date.now() - new Date(e.lastLog.timestamp).getTime();
+            if (ago < 60000) metaText = 'just now';
+            else if (ago < 3600000) metaText = Math.floor(ago / 60000) + 'm ago';
+            else if (ago < 86400000) metaText = Math.floor(ago / 3600000) + 'h ago';
+            else metaText = Math.floor(ago / 86400000) + 'd ago';
+            if (e.lastLog.mode) metaText = e.lastLog.mode + ' · ' + metaText;
+          }
+
+          html += '<div class="agent-grid-card">';
+          html += '<div class="agent-grid-dot ' + dotClass + '"></div>';
+          html += '<div class="agent-grid-info">';
+          html += '<div class="agent-grid-name">' + escapeHtml(name) + '</div>';
+          html += '<div class="agent-grid-role">' + escapeHtml(role) + '</div>';
+          html += '<div class="agent-grid-task">' + escapeHtml(taskText) + '</div>';
+          if (metaText) html += '<div class="agent-grid-meta">' + escapeHtml(metaText) + '</div>';
+          html += '</div></div>';
+        });
+
+        gridEl.innerHTML = html || '<div class="dash-empty" style="padding:0.5rem;">No agents loaded.</div>';
+      }
+
+      // ── CEO Social Growth (simplified) ──
+      function renderCeoSocialGrowth() {
+        var root = document.getElementById('panel-ceo-social');
+        if (!root) return;
+
+        // Pull data from social metrics events
+        var events = [];
+        try { events = CompanyStore.getState('socialMetricsEvents') || []; } catch (e) {}
+        var engagement = [];
+        try { engagement = CompanyStore.getState('socialEngagementSnapshots') || []; } catch (e) {}
+        var accountStats = null;
+        try { accountStats = CompanyStore.getState('socialAccountStats') || null; } catch (e) {}
+
+        // Calculate headline numbers
+        var totalFollowers = 0;
+        if (accountStats && accountStats.followers) {
+          totalFollowers = accountStats.followers.total || ((accountStats.followers.x || 0) + (accountStats.followers.linkedin || 0) + (accountStats.followers.bluesky || 0));
+        }
+
+        // Posts this week
+        var weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+        var postsThisWeek = events.filter(function (e) {
+          return e.timestamp && new Date(e.timestamp).getTime() > weekAgo && e.status === 'success';
+        }).length;
+
+        // Total engagement (likes + comments + reposts from snapshots, last 7 days)
+        var totalEngagement = 0;
+        engagement.forEach(function (snap) {
+          if (snap.timestamp && new Date(snap.timestamp).getTime() > weekAgo) {
+            totalEngagement += (snap.likes || 0) + (snap.comments || 0) + (snap.reposts || 0);
+          }
+        });
+
+        var html = '<div class="ceo-social-summary">';
+        html += '<div class="ceo-social-num"><div class="ceo-social-num-value" style="color:#60a5fa;">' + (totalFollowers > 0 ? totalFollowers.toLocaleString() : '—') + '</div><div class="ceo-social-num-label">Followers</div></div>';
+        html += '<div class="ceo-social-num"><div class="ceo-social-num-value" style="color:#34d399;">' + postsThisWeek + '</div><div class="ceo-social-num-label">Posts This Week</div></div>';
+        html += '<div class="ceo-social-num"><div class="ceo-social-num-value" style="color:#a78bfa;">' + (totalEngagement > 0 ? totalEngagement.toLocaleString() : '—') + '</div><div class="ceo-social-num-label">Engagements (7d)</div></div>';
+        html += '</div>';
+
+        // Growth chart — posts per day (last 14 days)
+        var dayBuckets = {};
+        var now = new Date();
+        for (var d = 13; d >= 0; d--) {
+          var day = new Date(now.getTime() - d * 86400000);
+          var key = day.toISOString().split('T')[0];
+          dayBuckets[key] = 0;
+        }
+        events.forEach(function (e) {
+          if (e.timestamp && e.status === 'success') {
+            var dk = e.timestamp.substring(0, 10);
+            if (dayBuckets.hasOwnProperty(dk)) dayBuckets[dk]++;
+          }
+        });
+        var dayKeys = Object.keys(dayBuckets).sort();
+        var maxPosts = Math.max.apply(null, dayKeys.map(function (k) { return dayBuckets[k]; })) || 1;
+
+        html += '<div class="ceo-social-chart">';
+        html += '<div class="ceo-social-chart-title">Posts per day (14d)</div>';
+        html += '<div class="ceo-social-chart-row">';
+        dayKeys.forEach(function (k) {
+          var h = Math.max(3, Math.round((dayBuckets[k] / maxPosts) * 60));
+          var label = k.substring(5); // MM-DD
+          html += '<div style="flex:1;min-width:0;text-align:center;">';
+          html += '<div class="ceo-social-chart-bar" style="height:' + h + 'px;"></div>';
+          html += '<div style="font-size:0.4rem;opacity:0.2;margin-top:2px;">' + label + '</div>';
+          html += '</div>';
+        });
+        html += '</div></div>';
+
+        root.innerHTML = html;
+      }
+
+      // ── CEO Observability Health (simplified) ──
+      function renderCeoObsHealth() {
+        var dotHb = document.getElementById('ceo-obs-dot-hb');
+        var valHb = document.getElementById('ceo-obs-val-hb');
+        var dotApi = document.getElementById('ceo-obs-dot-api');
+        var valApi = document.getElementById('ceo-obs-val-api');
+        var dotDeploy = document.getElementById('ceo-obs-dot-deploy');
+        var valDeploy = document.getElementById('ceo-obs-val-deploy');
+        var alertRow = document.getElementById('ceo-obs-alert-row');
+        if (!dotHb) return;
+
+        var alerts = [];
+
+        // Deploy / store mode
+        var storeMode = AgentEngine.getStoreMode ? AgentEngine.getStoreMode() : 'local';
+        if (storeMode === 'server') {
+          dotDeploy.className = 'ceo-obs-light-dot ceo-obs-light-dot--ok';
+          valDeploy.textContent = 'server connected';
+        } else {
+          dotDeploy.className = 'ceo-obs-light-dot ceo-obs-light-dot--warn';
+          valDeploy.textContent = 'local mode';
+        }
+
+        // API + Heartbeat — fetch real heartbeat run data from server
+        if (storeMode !== 'server') {
+          dotHb.className = 'ceo-obs-light-dot ceo-obs-light-dot--unknown';
+          valHb.textContent = 'local mode';
+          dotApi.className = 'ceo-obs-light-dot ceo-obs-light-dot--unknown';
+          valApi.textContent = 'local mode';
+          alertRow.innerHTML = '';
+          return;
+        }
+
+        fetch(getApiBase() + '/company-state?key=heartbeatRuns', {
+          headers: (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) ? CompanyStore.getWriteHeaders() : {}
+        }).then(function (r) {
+          if (!r.ok) throw new Error('fetch failed');
+          // API is reachable
+          dotApi.className = 'ceo-obs-light-dot ceo-obs-light-dot--ok';
+          valApi.textContent = 'reachable';
+          return r.json();
+        }).then(function (resp) {
+          var runs = (resp && resp.value) || [];
+          if (!Array.isArray(runs) || runs.length === 0) {
+            dotHb.className = 'ceo-obs-light-dot ceo-obs-light-dot--unknown';
+            valHb.textContent = 'no runs';
+            return;
+          }
+          runs.sort(function (a, b) {
+            return new Date(a.finishedAt || a.startedAt || 0).getTime() - new Date(b.finishedAt || b.startedAt || 0).getTime();
+          });
+          var last = runs[runs.length - 1] || {};
+          var lastTs = new Date(last.finishedAt || last.startedAt || 0).getTime();
+          var ageMin = isNaN(lastTs) ? 9999 : Math.floor((Date.now() - lastTs) / 60000);
+          var status = String(last.status || 'ok').toLowerCase();
+          if (status !== 'error' && ageMin > 90) status = 'warn';
+
+          var ageText = ageMin < 60 ? ageMin + 'm ago' : Math.floor(ageMin / 60) + 'h ago';
+          if (status === 'error') {
+            dotHb.className = 'ceo-obs-light-dot ceo-obs-light-dot--bad';
+            valHb.textContent = 'error · ' + ageText;
+            alerts.push('Last heartbeat errored (' + ageText + ')');
+          } else if (status === 'warn') {
+            dotHb.className = 'ceo-obs-light-dot ceo-obs-light-dot--warn';
+            valHb.textContent = 'stale · ' + ageText;
+            alerts.push('Heartbeat is stale (' + ageText + ')');
+          } else {
+            dotHb.className = 'ceo-obs-light-dot ceo-obs-light-dot--ok';
+            valHb.textContent = ageText;
+          }
+
+          // Render alerts
+          if (alerts.length > 0) {
+            alertRow.innerHTML = alerts.map(function (a) {
+              return '<div class="ceo-obs-alert"><i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i>' + escapeHtml(a) + '</div>';
+            }).join('');
+          } else {
+            alertRow.innerHTML = '';
+          }
+        }).catch(function () {
+          dotApi.className = 'ceo-obs-light-dot ceo-obs-light-dot--bad';
+          valApi.textContent = 'unreachable';
+          dotHb.className = 'ceo-obs-light-dot ceo-obs-light-dot--unknown';
+          valHb.textContent = '—';
+          alertRow.innerHTML = '<div class="ceo-obs-alert"><i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i>API unreachable — cannot fetch health data</div>';
+        });
       }
 
       // ── CEO Morning Inbox ──

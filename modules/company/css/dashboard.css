@@ -995,6 +995,227 @@
 }
 .dash-chat-overlay.open { display: block; }
 
+/* ── CEO Stat Cards ── */
+.ceo-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+.ceo-stat {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 10px;
+  padding: 0.7rem 0.8rem;
+  position: relative;
+  overflow: hidden;
+  cursor: default;
+}
+.ceo-stat::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--cstat-color, rgba(255,255,255,0.1));
+}
+.ceo-stat-label {
+  font-size: 0.52rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.35;
+  margin-bottom: 0.25rem;
+}
+.ceo-stat-value {
+  font-size: 1.4rem;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--cstat-color, #94a3b8);
+}
+.ceo-stat-sub {
+  font-size: 0.55rem;
+  opacity: 0.35;
+  margin-top: 0.2rem;
+}
+.ceo-stat-trend {
+  font-size: 0.5rem;
+  font-weight: 600;
+  margin-left: 0.25rem;
+  vertical-align: middle;
+}
+.ceo-stat-trend--up { color: #34d399; }
+.ceo-stat-trend--down { color: #ef4444; }
+
+/* ── Agent Grid (CEO) ── */
+.agent-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.5rem;
+}
+.agent-grid-card {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 8px;
+  padding: 0.55rem 0.65rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  transition: border-color 0.15s;
+}
+.agent-grid-card:hover {
+  border-color: rgba(255,255,255,0.1);
+}
+.agent-grid-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  margin-top: 3px;
+}
+.agent-grid-dot--active {
+  background: #34d399;
+  box-shadow: 0 0 6px rgba(52,211,153,0.4);
+}
+.agent-grid-dot--idle {
+  background: rgba(255,255,255,0.15);
+}
+.agent-grid-info {
+  flex: 1;
+  min-width: 0;
+}
+.agent-grid-name {
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1;
+}
+.agent-grid-role {
+  font-size: 0.52rem;
+  opacity: 0.35;
+  margin-top: 2px;
+}
+.agent-grid-task {
+  font-size: 0.58rem;
+  opacity: 0.6;
+  margin-top: 0.3rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.agent-grid-meta {
+  font-size: 0.48rem;
+  opacity: 0.25;
+  margin-top: 2px;
+}
+.agent-grid-idle-row {
+  grid-column: 1 / -1;
+  font-size: 0.58rem;
+  opacity: 0.3;
+  padding: 0.25rem 0;
+}
+
+/* ── CEO Social Summary (simplified) ── */
+.ceo-social-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 0.6rem;
+}
+.ceo-social-num {
+  text-align: center;
+  padding: 0.5rem;
+  background: rgba(255,255,255,0.015);
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 8px;
+}
+.ceo-social-num-value {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.ceo-social-num-label {
+  font-size: 0.5rem;
+  opacity: 0.35;
+  margin-top: 0.1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.ceo-social-chart {
+  background: rgba(255,255,255,0.015);
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 8px;
+  padding: 0.5rem 0.6rem;
+}
+.ceo-social-chart-title {
+  font-size: 0.52rem;
+  opacity: 0.35;
+  text-transform: uppercase;
+  margin-bottom: 0.3rem;
+}
+.ceo-social-chart-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 60px;
+}
+.ceo-social-chart-bar {
+  flex: 1;
+  min-height: 3px;
+  border-radius: 2px 2px 0 0;
+  background: rgba(96,165,250,0.65);
+  transition: height 0.2s;
+}
+.ceo-social-chart-bar--accent { background: rgba(52,211,153,0.65); }
+
+/* ── CEO Observability (simplified) ── */
+.ceo-obs-lights {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+.ceo-obs-light {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.7rem;
+  background: rgba(255,255,255,0.015);
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 8px;
+  flex: 1;
+  min-width: 140px;
+}
+.ceo-obs-light-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.ceo-obs-light-dot--ok { background: #34d399; box-shadow: 0 0 6px rgba(52,211,153,0.4); }
+.ceo-obs-light-dot--warn { background: #fbbf24; box-shadow: 0 0 6px rgba(251,191,36,0.4); }
+.ceo-obs-light-dot--bad { background: #ef4444; box-shadow: 0 0 6px rgba(239,68,68,0.4); }
+.ceo-obs-light-dot--unknown { background: rgba(255,255,255,0.15); }
+.ceo-obs-light-label {
+  font-size: 0.6rem;
+  font-weight: 500;
+  opacity: 0.6;
+}
+.ceo-obs-light-value {
+  font-size: 0.55rem;
+  opacity: 0.35;
+  margin-left: auto;
+}
+.ceo-obs-alert {
+  margin-top: 0.4rem;
+  padding: 0.35rem 0.6rem;
+  border-radius: 6px;
+  font-size: 0.6rem;
+  background: rgba(239,68,68,0.06);
+  border: 1px solid rgba(239,68,68,0.15);
+  color: #f87171;
+}
+
+@media (max-width: 960px) {
+  .ceo-stats { grid-template-columns: repeat(2, 1fr); }
+  .ceo-social-summary { grid-template-columns: 1fr; }
+}
+
 /* ── Responsive ── */
 @media (max-width: 768px) {
   .dash-grid {
