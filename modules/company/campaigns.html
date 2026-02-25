@@ -199,7 +199,7 @@
           var hay = ((c.title || '') + ' ' + (c.description || '') + ' ' + (c.id || '')).toLowerCase();
           return hay.indexOf(q) !== -1;
         }).sort(function (a, b) {
-          return (b.updatedAt || b.createdAt || '').localeCompare(a.updatedAt || a.createdAt || '');
+          return (b.createdAt || '').localeCompare(a.createdAt || '');
         });
       }
 

@@ -293,6 +293,9 @@
       <select class="tm-filter-select" id="filter-campaign">
         <option value="">All Campaigns</option>
       </select>
+      <select class="tm-filter-select" id="filter-goal">
+        <option value="">All Goals</option>
+      </select>
       <select class="tm-filter-select" id="filter-division">
         <option value="">All Divisions</option>
       </select>
@@ -582,6 +585,7 @@
       var filterPriority = '';
       var filterDivision = '';
       var filterCampaign = '';
+      var filterGoal = '';
       var filterGroup = '';
       var filterSearch = '';
 
@@ -675,6 +679,17 @@
           cmps.forEach(function (c) {
             if (c && c.id && c.status !== 'archived' && !c.deletedAt) {
               filterCampaignEl.innerHTML += '<option value="' + c.id + '">' + escapeHtml((c.title || c.id).substring(0, 50)) + '</option>';
+            }
+          });
+        } catch (e) {}
+
+        // Populate goal filter dropdown
+        var filterGoalEl = document.getElementById('filter-goal');
+        try {
+          var objs = typeof AgentEngine.getObjectives === 'function' ? AgentEngine.getObjectives() : [];
+          objs.forEach(function (o) {
+            if (o && o.id && o.status !== 'archived' && !o.deletedAt) {
+              filterGoalEl.innerHTML += '<option value="' + o.id + '">' + escapeHtml((o.title || o.id).substring(0, 50)) + '</option>';
             }
           });
         } catch (e) {}
@@ -872,6 +887,9 @@
         }
         if (filterCampaign) {
           tasks = tasks.filter(function (t) { return (t.campaign_id || t.directive_id) === filterCampaign; });
+        }
+        if (filterGoal) {
+          tasks = tasks.filter(function (t) { return t.objective_id === filterGoal; });
         }
         // Signal filters
         if (applySignal && _signalFilter !== 'all') {
@@ -1594,6 +1612,12 @@
 
       document.getElementById('filter-campaign').addEventListener('change', function () {
         filterCampaign = this.value;
+        renderBoard();
+        renderList();
+      });
+
+      document.getElementById('filter-goal').addEventListener('change', function () {
+        filterGoal = this.value;
         renderBoard();
         renderList();
       });
