@@ -3828,6 +3828,20 @@ Write the full deliverable first, then the structured JSON block.`;
           }
         }
 
+        // GUARD: Require task linkage — no orphan doc creation
+        if (!action.taskId) {
+          context.log('[Heartbeat]', agentId, 'BLOCKED create-doc without task linkage — orphan docs not allowed. Title:', docPayload.title);
+          break;
+        }
+
+        // GUARD: Max 1 doc per agent per heartbeat cycle
+        const _docsCreatedThisCycle = result.taskUpdates.filter(u => u.action === 'doc-created' && u.agentId === agentId).length;
+        if (_docsCreatedThisCycle >= 1) {
+          context.log('[Heartbeat]', agentId, 'BLOCKED create-doc — already created', _docsCreatedThisCycle, 'doc(s) this cycle. Title:', docPayload.title);
+          result.taskUpdates.push({ action: 'comment', taskId: action.taskId, comment: '[SYSTEM] Doc creation limit reached (1 per heartbeat cycle). Try again next cycle.', agentId: 'system' });
+          break;
+        }
+
         // Title-based dedup: skip if a doc with very similar title already exists
         const _proposedDocTitle = (docPayload.title || '').toLowerCase().trim();
         const existingDocs = (await storage.getState('documents')) || [];
@@ -3987,38 +4001,86 @@ Write the full deliverable first, then the structured JSON block.`;
 
           context.log('[Heartbeat]', agentId, 'visual doc created — deferred publish, awaiting Pixel hero image:', doc.id, doc.title);
         } else {
-          // Internal doc kinds (spec, runbook, release_notes, governance) — auto-publish to /docs/published/ without CEO approval
+          // Internal doc kinds (spec, runbook, release_notes, governance) — require CEO approval before publish
           const slug = doc.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-          doc.status = 'published';
+          doc.status = 'ready_for_approval';
           doc.slug = slug;
-          doc.published_at = new Date().toISOString();
-          doc.published_by = agentId + ' (auto)';
           doc.visibility = 'internal';
-          doc.public_url = '/docs/published/' + slug;
           doc.updated_at = new Date().toISOString();
+          doc.submitted_by = agentId;
           const dIdx = docsStore.findIndex(d => d.id === docId);
           if (dIdx !== -1) docsStore[dIdx] = doc;
           await storage.setState('documents', docsStore);
 
-          const pubStore = (await storage.getState('publishedDocs')) || [];
-          pubStore.push({
-            id: 'pub_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
-            documentId: doc.id, title: doc.title, slug: slug, kind: doc.kind,
-            content_md: doc.content_md, target_path: '/docs/published/' + slug,
-            public_url: '/docs/published/' + slug, visibility: 'internal',
-            published_by: agentId + ' (auto)', published_at: new Date().toISOString(),
-            tags: doc.tags || [], created_by: doc.created_by
-          });
-          if (pubStore.length > 200) pubStore.splice(0, pubStore.length - 200);
-          await storage.setState('publishedDocs', pubStore);
+          // Create publish_document action (requires CEO approval)
+          const internalPubAction = {
+            id: 'act_pub_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+            created_at: new Date().toISOString(),
+            created_by: agentId,
+            type: 'publish_document',
+            platform: 'site',
+            payload: {
+              documentId: doc.id,
+              title: doc.title,
+              slug: slug,
+              kind: doc.kind,
+              content_md: doc.content_md,
+              target_path: '/docs/published/' + slug,
+              public_url: '/docs/published/' + slug,
+              hero_image_asset_id: null,
+              hero_image_url: null,
+              missing_hero_image: false
+            },
+            classification: 'advisory',
+            requires_ceo_approval: true,
+            risk_level: 'low',
+            brand_impact: 'low',
+            budget_impact: 0,
+            approval: {
+              status: 'pending',
+              approved_by: null,
+              approved_at: null,
+              decision_note: null
+            },
+            execution: {
+              status: 'pending',
+              started_at: null,
+              finished_at: null,
+              attempts: 0,
+              last_error: null,
+              receipt: null
+            },
+            action_type: 'publish_document',
+            action_category: 'content',
+            execution_status: 'pending',
+            origin_agent: agentId,
+            action_payload: { documentId: doc.id, title: doc.title, slug: slug },
+            requires_approval: true,
+            is_irreversible: false,
+            bundle_id: null
+          };
 
-          const auditLog2 = (await storage.getState('actionAuditLog')) || [];
-          auditLog2.push({ id: 'alog-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4), type: 'internal-doc-published', data: { documentId: doc.id, title: doc.title, slug: slug, kind: kind, publishedBy: agentId }, timestamp: new Date().toISOString() });
-          if (auditLog2.length > 500) auditLog2.splice(0, auditLog2.length - 500);
-          await storage.setState('actionAuditLog', auditLog2);
+          const internalActionsStore = (await storage.getState('actions')) || [];
+          internalActionsStore.push(internalPubAction);
+          if (internalActionsStore.length > 500) internalActionsStore.splice(0, internalActionsStore.length - 500);
+          await storage.setState('actions', internalActionsStore);
 
-          context.log('[Heartbeat]', agentId, 'auto-published internal doc:', doc.id, doc.title, '→ /docs/published/' + slug);
-          result.taskUpdates.push({ action: 'internal-doc-published', documentId: doc.id, agentId: agentId, url: '/docs/published/' + slug });
+          context.log('[Heartbeat]', agentId, 'internal doc submitted for CEO approval:', doc.id, doc.title, '→ action:', internalPubAction.id);
+          result.taskUpdates.push({ action: 'doc-pending-approval', documentId: doc.id, agentId: agentId, actionId: internalPubAction.id });
+
+          if (action.taskId) {
+            result.taskUpdates.push({
+              action: 'comment',
+              taskId: action.taskId,
+              comment: 'Document "' + doc.title + '" (id: ' + doc.id + ', kind: ' + kind + ') submitted for CEO approval before publishing to /docs/published/' + slug,
+              agentId: agentId
+            });
+            result.taskUpdates.push({
+              action: 'move',
+              taskId: action.taskId,
+              newStatus: 'review'
+            });
+          }
         }
       }
     } else if (action.type === 'update-doc' && action.documentId) {
@@ -5225,6 +5287,42 @@ ${objList}`;
     ).join('\n');
     docsSection = `\n\nEXISTING DOCUMENTS (already created — do NOT duplicate):
 ${docList}`;
+
+    // KNOWLEDGE BASE: inject content excerpts from published/approved docs so agents can reference and learn
+    const knowledgeDocs = documents.filter(d =>
+      d && d.content_md && d.content_md.length > 50 &&
+      (d.status === 'published' || d.status === 'final' || d.status === 'ready_for_approval')
+    );
+    if (knowledgeDocs.length > 0) {
+      // Prioritize docs relevant to this agent's role, then most recent
+      const _agentName = (agent.name || '').toLowerCase();
+      const _roleKeywords = {
+        scribe: ['blog', 'content', 'marketing', 'copy', 'editorial', 'writing'],
+        pixel: ['design', 'image', 'visual', 'brand', 'ui', 'ux', 'hero'],
+        forge: ['devops', 'infrastructure', 'deployment', 'api', 'architecture', 'pipeline'],
+        cipher: ['finance', 'budget', 'cost', 'revenue', 'metrics', 'kpi'],
+        echo: ['social', 'marketing', 'engagement', 'community', 'platform', 'audience'],
+        scout: ['research', 'market', 'competitive', 'intelligence', 'analysis', 'trends'],
+        nova: ['governance', 'operations', 'strategy', 'delegation', 'playbook'],
+        quill: ['audit', 'compliance', 'quality', 'validation', 'review']
+      };
+      const myKeywords = _roleKeywords[_agentName] || [];
+      const scored = knowledgeDocs.map(d => {
+        const haystack = ((d.title || '') + ' ' + (d.kind || '') + ' ' + (d.tags || []).join(' ')).toLowerCase();
+        const relevance = myKeywords.filter(k => haystack.indexOf(k) !== -1).length;
+        return { doc: d, relevance: relevance };
+      });
+      scored.sort((a, b) => b.relevance - a.relevance || new Date(b.doc.updated_at || 0) - new Date(a.doc.updated_at || 0));
+      const topDocs = scored.slice(0, 5);
+      const kbLines = topDocs.map(s => {
+        const d = s.doc;
+        const excerpt = d.content_md.replace(/#{1,6}\s+/g, '').replace(/[*_`~\[\]()>]/g, '').replace(/\n+/g, ' ').trim().substring(0, 300);
+        return '- "' + d.title + '" (' + (d.kind || '?') + ', by ' + (d.created_by || '?') + '): ' + excerpt + (d.content_md.length > 300 ? '...' : '');
+      }).join('\n');
+      docsSection += `\n\nKNOWLEDGE BASE (published documentation — reference these for context, procedures, and decisions):
+${kbLines}
+Use this knowledge to inform your work. Do not re-create documents that already cover these topics.`;
+    }
   }
 
   // Recent research intelligence — from persistent store + active tasks (token-bounded)
