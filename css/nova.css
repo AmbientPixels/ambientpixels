@@ -375,3 +375,110 @@ body[data-theme="light"].nova-home .operator-tool-card .card-content a:hover {
     min-height: 188px;
   }
 }
+
+/* ── Agent Roster Preview ── */
+.ar-preview { margin-top: 1.5rem; }
+.ar-preview h2 { margin-bottom: 0.25rem; }
+.ar-preview .ar-sub { font-size: 0.85rem; color: var(--nv-text-secondary); margin: 0 0 1rem; }
+.ar-grid {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+}
+.ar-card {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 12px 14px; border-radius: 10px;
+  border: 1px solid var(--nv-border);
+  background: var(--nv-card-bg);
+  transition: border-color 0.2s, transform 0.15s;
+}
+.ar-card:hover { border-color: var(--ar-color, rgba(167,139,250,0.25)); transform: translateY(-1px); }
+.ar-card-ico {
+  flex-shrink: 0; font-size: 1.1rem; margin-top: 2px;
+  color: var(--ar-color, rgba(167,139,250,0.5));
+  opacity: 0.7;
+}
+.ar-card-body { min-width: 0; }
+.ar-card-name { font-size: 0.88rem; font-weight: 600; color: var(--nv-text); margin: 0; line-height: 1.3; }
+.ar-card-role { font-size: 0.72rem; color: var(--nv-text-secondary); display: block; margin-bottom: 5px; }
+.ar-card-meta { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.ar-tier {
+  font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.06em;
+  padding: 1px 6px; border-radius: 4px;
+  background: rgba(148,163,184,0.08); color: rgba(148,163,184,0.55);
+  font-weight: 500;
+}
+.ar-status {
+  font-size: 0.58rem; text-transform: uppercase; letter-spacing: 0.05em;
+  padding: 1px 7px; border-radius: 99px; font-weight: 500;
+}
+.ar-status--monitoring { background: rgba(148,163,184,0.1); color: rgba(148,163,184,0.6); }
+.ar-status--active { background: rgba(167,139,250,0.12); color: rgba(167,139,250,0.75); }
+.ar-status--building { background: rgba(96,165,250,0.12); color: rgba(96,165,250,0.75); }
+.ar-status--reviewing { background: rgba(251,191,36,0.12); color: rgba(251,191,36,0.75); }
+.ar-status--supporting { background: rgba(148,163,184,0.07); color: rgba(148,163,184,0.45); }
+.ar-card-link {
+  display: inline-block; font-size: 0.7rem; color: var(--ar-color, rgba(167,139,250,0.55));
+  margin-top: 6px; transition: color 0.2s;
+}
+.ar-card-link:hover { color: var(--ar-color, rgba(167,139,250,0.9)); filter: brightness(1.3); }
+.ar-cta {
+  text-align: center; margin-top: 1.25rem;
+  padding-top: 1rem; border-top: 1px solid var(--nv-border);
+}
+.ar-cta-text { font-size: 0.8rem; color: var(--nv-text-tertiary); margin: 0 0 0.75rem; }
+.ar-cta-buttons { display: flex; justify-content: center; gap: 10px; }
+
+/* Agent brand colors */
+.ar-card--nova { --ar-color: #8A2BE2; }
+.ar-card--forge { --ar-color: #FF8C00; }
+.ar-card--pixel { --ar-color: #FF6B9D; }
+.ar-card--cipher { --ar-color: #00C896; }
+.ar-card--echo { --ar-color: #4ECDC4; }
+.ar-card--scribe { --ar-color: #7ECFC0; }
+.ar-card--scout { --ar-color: #E87CBB; }
+.ar-card--quill { --ar-color: #5BB8A6; }
+
+@media (max-width: 600px) {
+  .ar-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Operator Tool Card Colors ── */
+.nova-home .operator-tool-card {
+  --ot-accent: #b4a0fb;
+  border-left: 3px solid var(--ot-accent);
+}
+.nova-home .operator-tool-card:hover {
+  border-left-color: var(--ot-accent);
+  box-shadow: 0 10px 28px rgba(21, 30, 48, 0.36), inset 3px 0 0 var(--ot-accent);
+}
+.nova-home .ot-card--console { --ot-accent: #8A2BE2; }
+.nova-home .ot-card--activity { --ot-accent: #4ECDC4; }
+.nova-home .ot-card--memory { --ot-accent: #60a5fa; }
+.nova-home .ot-card--log { --ot-accent: #34d399; }
+
+.nova-home .operator-tool-card .ot-icon {
+  font-size: 1.4rem;
+  color: var(--ot-accent, #b4a0fb);
+  margin-bottom: 0.65rem;
+  opacity: 0.8;
+}
+body[data-theme="light"].nova-home .operator-tool-card .ot-icon {
+  color: var(--ot-accent, #7c3aed);
+  opacity: 0.9;
+}
+body[data-theme="light"].nova-home .operator-tool-card {
+  border-left: 3px solid var(--ot-accent);
+}
+
+/* ── Section Header Icon Tinting ── */
+.nova-home .section-icon--brief { color: #4ECDC4 !important; }
+.nova-home .section-icon--tools { color: #60a5fa !important; }
+.nova-home .section-icon--roster { color: #FF6B9D !important; }
+
+/* ── Nova Surfaces — FA icon version ── */
+.nv-surfaces-grid .nv-pill i {
+  font-size: 0.82rem;
+  opacity: 0.5;
+}
+.nv-surfaces-grid .nv-pill--active i {
+  opacity: 0.8;
+}
