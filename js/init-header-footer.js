@@ -9,6 +9,7 @@ fetch('/modules/header.html')
       header.innerHTML = html;
       setupMobileNav();
       setupThemeToggle();
+      markActiveNavLink();
       if (window.bindAuthButtons) window.bindAuthButtons();
     }
     applyNovaArchiveMode();
@@ -114,6 +115,20 @@ function applyNovaArchiveMode() {
     navHeader.parentNode.insertBefore(banner, navHeader.nextSibling);
   } else {
     document.body.insertBefore(banner, document.body.firstChild);
+  }
+}
+
+// Active Nav Link
+function markActiveNavLink() {
+  var path = window.location.pathname.toLowerCase().replace(/\/index\.html$/, '/');
+  var links = document.querySelectorAll('.nav-links a');
+  for (var i = 0; i < links.length; i++) {
+    var href = links[i].getAttribute('href');
+    if (!href) continue;
+    var linkPath = href.toLowerCase().replace(/\/index\.html$/, '/');
+    if (path === linkPath || (linkPath !== '/' && path.indexOf(linkPath) === 0)) {
+      links[i].classList.add('nav-link-active');
+    }
   }
 }
 
