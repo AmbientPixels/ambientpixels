@@ -33,11 +33,18 @@
     .cmp-pill { font-size:0.58rem; padding:0.12rem 0.38rem; border-radius:999px; border:1px solid rgba(255,255,255,0.1); opacity:0.85; }
     .cmp-pill--active { color:#34d399; border-color:rgba(52,211,153,0.35); background:rgba(52,211,153,0.08); }
     .cmp-pill--archived { color:#94a3b8; border-color:rgba(148,163,184,0.35); background:rgba(148,163,184,0.08); }
-    .cmp-card { border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.02); border-radius:8px; padding:0.6rem; margin-bottom:0.45rem; cursor:pointer; }
+    .cmp-card { border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.02); border-radius:8px; padding:0.6rem; margin-bottom:0.45rem; }
     .cmp-card:hover { border-color:rgba(138,43,226,0.35); }
     .cmp-card h4 { margin:0 0 0.25rem; font-size:0.76rem; display:flex; align-items:center; justify-content:space-between; gap:0.5rem; }
     .cmp-card p { margin:0 0 0.35rem; font-size:0.67rem; opacity:0.58; line-height:1.35; }
     .cmp-meta { font-size:0.58rem; opacity:0.45; display:flex; gap:0.4rem; flex-wrap:wrap; }
+    .cmp-card-actions { display:flex; gap:0.3rem; flex-wrap:wrap; margin-top:0.45rem; }
+    .cmp-card-actions button, .cmp-card-actions a {
+      font-size:0.6rem; padding:0.22rem 0.5rem; border-radius:5px;
+      border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.05);
+      color:inherit; cursor:pointer; text-decoration:none;
+    }
+    .cmp-card-actions .danger { border-color:rgba(248,113,113,0.4); color:#f87171; }
     .cmp-empty { font-size:0.7rem; opacity:0.3; padding:0.8rem 0.25rem; }
     .cmp-detail { border:1px solid rgba(138,43,226,0.2); background:rgba(138,43,226,0.05); border-radius:10px; padding:0.75rem; }
     .cmp-detail-head { display:flex; justify-content:space-between; align-items:center; gap:0.5rem; margin-bottom:0.5rem; }
@@ -110,7 +117,6 @@
         <div id="cmp-list"></div>
       </section>
 
-      <section class="cmp-detail" id="cmp-detail" style="display:none;"></section>
     </div>
   </main>
 
@@ -146,11 +152,9 @@
     (function () {
       'use strict';
 
-      var selectedCampaignId = null;
       var editingCampaignId = null;
 
       var listEl = document.getElementById('cmp-list');
-      var detailEl = document.getElementById('cmp-detail');
       var searchEl = document.getElementById('cmp-search');
       var archivedToggleEl = document.getElementById('cmp-show-archived');
 
@@ -233,6 +237,7 @@
         campaigns.forEach(function (c) {
           var objTitle = objectiveTitle(c.objective_id);
           var m = campaignMetrics(c);
+          var viewProjectsHref = '/modules/company/directives.html?campaign=' + encodeURIComponent(c.id);
           html += '<div class="cmp-card" data-id="' + esc(c.id) + '">'
             + '<h4>' + esc(c.title) + '<span class="cmp-pill ' + (c.status === 'archived' ? 'cmp-pill--archived' : 'cmp-pill--active') + '">' + esc(c.status) + '</span></h4>'
             + (c.description ? '<p>' + esc(c.description) + '</p>' : '')
@@ -242,121 +247,55 @@
             + '<span>' + m.pctComplete + '% complete</span>'
             + healthChip(m.health)
             + (objTitle ? '<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.54rem;padding:0.08rem 0.35rem;border-radius:4px;background:rgba(78,205,196,0.1);border:1px solid rgba(78,205,196,0.25);color:#4ECDC4;"><i class="fas fa-bullseye" style="font-size:0.48rem;"></i>' + esc(objTitle) + '</span>' : '')
-            + '</div></div>';
+            + '</div>'
+            + '<div class="cmp-card-actions">'
+            + '<button class="cmp-edit-btn" data-id="' + esc(c.id) + '"><i class="fas fa-pen"></i> Edit</button>'
+            + '<a href="' + viewProjectsHref + '"><i class="fas fa-compass"></i> View Projects</a>'
+            + (c.status === 'archived'
+                ? '<button class="cmp-unarchive-btn" data-id="' + esc(c.id) + '"><i class="fas fa-box-open"></i> Unarchive</button>'
+                : '<button class="cmp-archive-btn" data-id="' + esc(c.id) + '"><i class="fas fa-box"></i> Archive</button>')
+            + '<button class="cmp-delete-btn danger" data-id="' + esc(c.id) + '"><i class="fas fa-trash"></i> Delete</button>'
+            + '</div>'
+            + '</div>';
         });
         listEl.innerHTML = html;
-        listEl.querySelectorAll('.cmp-card').forEach(function (el) {
-          el.addEventListener('click', function () {
-            selectedCampaignId = el.getAttribute('data-id');
-            renderDetail();
+
+        listEl.querySelectorAll('.cmp-edit-btn').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            openEditModal(btn.getAttribute('data-id'));
           });
         });
-      }
 
-      function renderDetail() {
-        if (!selectedCampaignId) {
-          detailEl.style.display = 'none';
-          detailEl.innerHTML = '';
-          return;
-        }
-        var campaigns = AgentEngine.getCampaigns();
-        var c = campaigns.find(function (x) { return x.id === selectedCampaignId && !x.deletedAt; });
-        if (!c) {
-          detailEl.style.display = 'none';
-          detailEl.innerHTML = '';
-          return;
-        }
-
-        var m = campaignMetrics(c);
-        var dirs = AgentEngine.getDirectives().filter(function (d) { return d && d.campaign_id === c.id; });
-        var objTitle = objectiveTitle(c.objective_id);
-
-        var html = '<div class="cmp-detail-head">'
-          + '<h3>' + esc(c.title) + '</h3>'
-          + '<div class="cmp-actions">'
-          + '<button id="cmp-edit-btn"><i class="fas fa-pen"></i> Edit</button>'
-          + '<a href="/modules/company/directives.html?campaign=' + encodeURIComponent(c.id) + '" style="font-size:0.6rem;padding:0.22rem 0.5rem;border-radius:5px;border:1px solid rgba(96,165,250,0.3);background:rgba(96,165,250,0.06);color:#60a5fa;text-decoration:none;"><i class="fas fa-compass" style="margin-right:3px;"></i>View Projects</a>'
-          + (c.status === 'archived' ? '<button id="cmp-unarchive-btn"><i class="fas fa-box-open"></i> Unarchive</button>' : '<button id="cmp-archive-btn"><i class="fas fa-box"></i> Archive</button>')
-          + '<button class="danger" id="cmp-delete-btn"><i class="fas fa-trash"></i> Delete</button>'
-          + '</div></div>'
-          + (c.description ? '<div style="font-size:0.69rem; opacity:0.65; margin-bottom:0.45rem;">' + esc(c.description) + '</div>' : '')
-          + '<div class="cmp-meta" style="margin-bottom:0.45rem; gap:0.55rem;">'
-          + '<span><i class="fas fa-compass" style="margin-right:2px;"></i>' + m.projectCount + ' projects</span>'
-          + '<span><i class="fas fa-tasks" style="margin-right:2px;"></i>' + m.taskCount + ' tasks</span>'
-          + '<span>' + m.pctComplete + '% complete</span>'
-          + healthChip(m.health)
-          + (objTitle ? '<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.54rem;padding:0.08rem 0.35rem;border-radius:4px;background:rgba(78,205,196,0.1);border:1px solid rgba(78,205,196,0.25);color:#4ECDC4;"><i class="fas fa-bullseye" style="font-size:0.48rem;"></i>' + esc(objTitle) + '</span>' : '')
-          + '<span style="opacity:0.4;">Created: ' + esc((c.createdAt || '').split('T')[0] || '\u2014') + '</span>'
-          + '</div>'
-          + '<ul class="cmp-detail-list">';
-
-        if (dirs.length === 0) {
-          html += '<li><span style="opacity:0.4;">No projects in this campaign yet.</span></li>';
-        } else {
-          dirs.forEach(function (d) {
-            html += '<li><span>' + esc(d.title || d.id) + '</span><span style="opacity:0.55;">' + esc(d.status || 'active') + '</span></li>';
+        listEl.querySelectorAll('.cmp-archive-btn').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var id = btn.getAttribute('data-id');
+            AgentEngine.archiveCampaign(id);
+            persistCampaigns();
+            renderAll();
           });
-        }
-        html += '</ul>'
-          + '<div class="cmp-mini-create">'
-          + '<div class="cmp-title" style="margin-bottom:0.35rem;">Create Project in Campaign</div>'
-          + '<input id="cmp-dir-title" type="text" placeholder="Project title..." />'
-          + '<textarea id="cmp-dir-desc" placeholder="Project description..."></textarea>'
-          + '<select id="cmp-dir-priority"><option value="low">Low</option><option value="medium" selected>Medium</option><option value="high">High</option><option value="critical">Critical</option></select>'
-          + '<button class="cmp-btn" id="cmp-dir-create-btn">Create Project</button>'
-          + '</div>';
-
-        detailEl.style.display = '';
-        detailEl.innerHTML = html;
-
-        var eb = document.getElementById('cmp-edit-btn');
-        if (eb) eb.addEventListener('click', function (e) {
-          e.stopPropagation();
-          openEditModal(c.id);
         });
 
-        var ab = document.getElementById('cmp-archive-btn');
-        if (ab) ab.addEventListener('click', function () {
-          AgentEngine.archiveCampaign(c.id);
-          persistCampaigns();
-          renderAll();
-        });
-
-        var ub = document.getElementById('cmp-unarchive-btn');
-        if (ub) ub.addEventListener('click', function () {
-          AgentEngine.unarchiveCampaign(c.id);
-          persistCampaigns();
-          renderAll();
-        });
-
-        var db = document.getElementById('cmp-delete-btn');
-        if (db) db.addEventListener('click', function () {
-          if (!confirm('Soft-delete this campaign? Active children will block deletion.')) return;
-          var r = AgentEngine.deleteCampaign(c.id);
-          if (!r || !r.ok) {
-            alert('Delete blocked. Archive child projects/tasks first.');
-            return;
-          }
-          persistCampaigns();
-          selectedCampaignId = null;
-          renderAll();
-        });
-
-        var cpb = document.getElementById('cmp-dir-create-btn');
-        if (cpb) cpb.addEventListener('click', function () {
-          var t = (document.getElementById('cmp-dir-title').value || '').trim();
-          var d = (document.getElementById('cmp-dir-desc').value || '').trim();
-          var p = document.getElementById('cmp-dir-priority').value || 'medium';
-          if (!t) return;
-          AgentEngine.addDirective({
-            title: t,
-            description: d,
-            priority: p,
-            campaign_id: c.id,
-            objective_id: c.objective_id || null
+        listEl.querySelectorAll('.cmp-unarchive-btn').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var id = btn.getAttribute('data-id');
+            AgentEngine.unarchiveCampaign(id);
+            persistCampaigns();
+            renderAll();
           });
-          persistDirectives();
-          renderDetail();
+        });
+
+        listEl.querySelectorAll('.cmp-delete-btn').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var id = btn.getAttribute('data-id');
+            if (!confirm('Soft-delete this campaign? Active children will block deletion.')) return;
+            var r = AgentEngine.deleteCampaign(id);
+            if (!r || !r.ok) {
+              alert('Delete blocked. Archive child projects/tasks first.');
+              return;
+            }
+            persistCampaigns();
+            renderAll();
+          });
         });
       }
 
@@ -412,7 +351,6 @@
 
       function renderAll() {
         renderList();
-        renderDetail();
       }
 
       editCancelBtn.addEventListener('click', closeEditModal);
@@ -447,7 +385,6 @@
         titleEl.value = '';
         descEl.value = '';
         objectiveEl.value = '';
-        selectedCampaignId = c.id;
         renderAll();
       });
 
