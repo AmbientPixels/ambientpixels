@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="AmbientPixels — Structured AI systems, governed for production. Modular infrastructure for teams building at scale." />
+  <meta name="description" content="AmbientPixels — Creative-tech studio building AI systems, digital products, and production infrastructure. From governed automation to video production." />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
-  <title>AmbientPixels — Structured AI Systems</title>
+  <title>AmbientPixels — Creative Systems Studio</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/base.css" />
@@ -22,6 +22,21 @@
       --h-accent: var(--hero-accent);
       --h-accent-light: var(--hero-accent-soft);
       --h-accent-dim: hsla(var(--hero-accent-h), var(--hero-accent-s), var(--hero-accent-l), 0.12);
+
+      /* Per-pillar accent colors */
+      --h-ai: #4ecdc4;
+      --h-creative: #ff6b9d;
+      --h-infra: #ff8c00;
+
+      /* Product brand colors */
+      --h-gridos: #ff8c00;
+      --h-cardforge: #ff6b9d;
+      --h-nova: #8a2be2;
+
+      /* Work accent colors */
+      --h-xbox: #107c10;
+      --h-video: #e74c3c;
+      --h-log: #4ecdc4;
     }
 
     /* ── Hero (Home overrides) ── */
@@ -109,20 +124,30 @@
       margin: 0 0 2rem;
     }
 
-    /* ── What We Do — 3 cards ── */
+    /* ── What We Do — 3 service pillar cards ── */
     .h-cards {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 1.25rem;
     }
     .h-card {
-      padding: 1.75rem 0;
-      border: none;
-      border-radius: 0;
+      padding: 1.75rem;
+      border: 1px solid rgba(128,128,128,0.08);
+      border-radius: 8px;
+      border-top: 3px solid var(--card-accent, var(--h-accent));
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
+    .h-card:hover {
+      border-color: rgba(128,128,128,0.15);
+      border-top-color: var(--card-accent, var(--h-accent));
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+    .h-card--ai { --card-accent: var(--h-ai); }
+    .h-card--creative { --card-accent: var(--h-creative); }
+    .h-card--infra { --card-accent: var(--h-infra); }
     .h-card i {
       font-size: 1.25rem;
-      color: var(--h-accent);
+      color: var(--card-accent, var(--h-accent));
       margin-bottom: 0.75rem;
       display: block;
     }
@@ -134,11 +159,18 @@
     .h-card p {
       font-size: 0.85rem;
       line-height: 1.55;
-      margin: 0;
+      margin: 0 0 0.75rem;
       opacity: 0.6;
     }
+    .h-card a {
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--card-accent, var(--h-accent));
+      text-decoration: none;
+    }
+    .h-card a:hover { text-decoration: underline; }
 
-    /* ── Proof — product tiles ── */
+    /* ── Products — equal-weight tiles ── */
     .h-proof-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -151,16 +183,26 @@
       display: flex;
       flex-direction: column;
       gap: 0.5rem;
-      transition: border-color 0.2s;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
-    .h-proof:hover { border-color: var(--h-accent); }
+    .h-proof:hover {
+      border-color: var(--proof-accent, var(--h-accent));
+      box-shadow: 0 4px 24px color-mix(in srgb, var(--proof-accent, var(--h-accent)) 15%, transparent);
+    }
+    .h-proof--gridos { --proof-accent: var(--h-gridos); }
+    .h-proof--cardforge { --proof-accent: var(--h-cardforge); }
+    .h-proof--nova { --proof-accent: var(--h-nova); }
+    .h-proof-icon {
+      font-size: 1.4rem;
+      color: var(--proof-accent, var(--h-accent));
+    }
     .h-proof-tag {
       font-size: 0.55rem;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 0.08em;
-      color: var(--h-accent);
-      background: var(--h-accent-dim);
+      color: var(--proof-accent, var(--h-accent));
+      background: color-mix(in srgb, var(--proof-accent, var(--h-accent)) 12%, transparent);
       padding: 2px 8px;
       border-radius: 4px;
       display: inline-block;
@@ -181,13 +223,73 @@
     .h-proof a {
       font-size: 0.82rem;
       font-weight: 500;
-      color: var(--h-accent);
+      color: var(--proof-accent, var(--h-accent));
       text-decoration: none;
       margin-top: auto;
     }
     .h-proof a:hover { text-decoration: underline; }
 
-    /* ── How It Works — horizontal flow ── */
+    /* ── Featured Work — portfolio highlights ── */
+    .h-work-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
+    }
+    .h-work-item {
+      padding: 1.75rem;
+      border: 1px solid rgba(128,128,128,0.08);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .h-work-item:hover {
+      border-color: var(--work-accent, var(--h-accent));
+      box-shadow: 0 4px 20px rgba(0,0,0,0.12);
+    }
+    .h-work--xbox { --work-accent: var(--h-xbox); }
+    .h-work--video { --work-accent: var(--h-video); }
+    .h-work--log { --work-accent: var(--h-log); }
+    .h-work-item i.h-work-icon {
+      font-size: 1.1rem;
+      color: var(--work-accent, var(--h-accent));
+      width: 2.2rem;
+      height: 2.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      background: color-mix(in srgb, var(--work-accent, var(--h-accent)) 12%, transparent);
+    }
+    .h-work-item h3 {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0;
+    }
+    .h-work-meta {
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      opacity: 0.4;
+    }
+    .h-work-item p {
+      font-size: 0.82rem;
+      line-height: 1.5;
+      margin: 0;
+      opacity: 0.55;
+    }
+    .h-work-item a {
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--work-accent, var(--h-accent));
+      text-decoration: none;
+      margin-top: auto;
+    }
+    .h-work-item a:hover { text-decoration: underline; }
+
+    /* ── How We Work — horizontal flow ── */
     .h-flow {
       display: flex;
       align-items: center;
@@ -201,6 +303,11 @@
       padding: 1.4rem 0.85rem;
       border: 1px solid rgba(128,128,128,0.08);
       border-radius: 6px;
+      border-bottom: 2px solid var(--h-accent-dim);
+      transition: border-color 0.2s;
+    }
+    .h-flow-step:hover {
+      border-bottom-color: var(--h-accent);
     }
     .h-flow-step h4 {
       font-size: 0.8rem;
@@ -208,6 +315,7 @@
       text-transform: uppercase;
       letter-spacing: 0.04em;
       margin: 0 0 0.2rem;
+      color: var(--h-accent);
     }
     .h-flow-step p {
       font-size: 0.7rem;
@@ -230,8 +338,12 @@
     }
     .h-principle {
       padding: 1.4rem 1.1rem;
-      border-left: 2px solid rgba(74, 124, 155, 0.55);
+      border-left: 2px solid var(--prin-accent, rgba(74, 124, 155, 0.55));
     }
+    .h-principle--autonomy { --prin-accent: var(--h-ai); }
+    .h-principle--governance { --prin-accent: var(--h-gridos); }
+    .h-principle--creative { --prin-accent: var(--h-creative); }
+    .h-principle--ship { --prin-accent: var(--h-nova); }
     .h-principle h3 {
       font-size: 0.9rem;
       font-weight: 600;
@@ -261,6 +373,12 @@
       opacity: 0.55;
       margin: 0 0 1.5rem;
     }
+    .h-cta-links {
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
 
     /* ── Divider ── */
     .h-divider {
@@ -271,11 +389,15 @@
     }
 
     /* ── Light theme ── */
+    [data-theme="light"] .h-card,
     [data-theme="light"] .h-proof,
+    [data-theme="light"] .h-work-item,
     [data-theme="light"] .h-flow-step {
       border-color: #e2e8f0;
     }
-    [data-theme="light"] .h-proof:hover {
+    [data-theme="light"] .h-card:hover,
+    [data-theme="light"] .h-proof:hover,
+    [data-theme="light"] .h-work-item:hover {
       border-color: var(--h-accent);
     }
     [data-theme="light"] .h-principle {
@@ -309,6 +431,7 @@
       .h-hero-cta { flex-direction: column; align-items: center; }
       .h-cards { grid-template-columns: 1fr; }
       .h-proof-grid { grid-template-columns: 1fr; }
+      .h-work-grid { grid-template-columns: 1fr; }
       .h-flow { flex-direction: column; }
       .h-flow-arrow { transform: rotate(90deg); padding: 0.25rem 0; }
       .h-principles { grid-template-columns: 1fr 1fr; }
@@ -326,14 +449,14 @@
   <section class="hero-base h-home-hero" data-hero="infrastructure">
     <div class="hero-base-layer"></div>
     <div class="hero-base-content">
-      <h1 id="h-headline">Structured AI Systems.<span>Governed for Production.</span></h1>
-      <p class="h-subhead">AmbientPixels designs and governs modular AI infrastructure for teams building at scale.</p>
+      <h1 id="h-headline">Creative Systems Studio.<span>AI-Native by Design.</span></h1>
+      <p class="h-subhead">AmbientPixels builds AI systems, digital products, and production infrastructure — from governed automation to video production.</p>
       <div class="h-hero-cta">
-        <button type="button" class="h-btn h-btn-primary" onclick="openProjectModal('home')">
-          <i class="fas fa-arrow-right"></i> Start Your System
-        </button>
+        <a href="/services/" class="h-btn h-btn-primary">
+          <i class="fas fa-arrow-right"></i> View Services
+        </a>
         <a href="/projects/" class="h-btn h-btn-secondary">
-          <i class="fas fa-boxes-stacked"></i> View Projects
+          <i class="fas fa-boxes-stacked"></i> Explore Projects
         </a>
       </div>
     </div>
@@ -341,10 +464,10 @@
   <script>
     (function(){
       var h=[
-        'Structured AI Systems.<span>Governed for Production.</span>',
-        'Structured AI Systems.<span>AI, Engineered for Production.</span>',
-        'Structured AI Systems.<span>Governed AI Infrastructure.</span>',
-        'Structured AI Systems.<span>Built to Operate.</span>'
+        'Creative Systems Studio.<span>AI-Native by Design.</span>',
+        'Creative Systems Studio.<span>Built to Operate.</span>',
+        'Creative Systems Studio.<span>Systems. Products. Content.</span>',
+        'Creative Systems Studio.<span>From Concept to Production.</span>'
       ];
       var el=document.getElementById('h-headline');
       if(el) el.innerHTML=h[Math.floor(Math.random()*h.length)];
@@ -352,90 +475,128 @@
   </script>
 
   <main>
-    <!-- What We Do -->
+    <!-- What We Do — 3 Service Pillars -->
     <section class="h-section">
       <p class="h-section-label">What We Do</p>
-      <h2>Infrastructure for Autonomous Systems</h2>
-      <p>We build the systems layer between AI capability and production-grade outcomes.</p>
+      <h2>Systems, Creative, and Infrastructure</h2>
+      <p>Three disciplines, one studio. We design and ship across the full stack — from AI agents to video production.</p>
       <div class="h-cards">
-        <div class="h-card">
-          <i class="fas fa-microchip"></i>
-          <h3>AI-Native Infrastructure</h3>
-          <p>Multi-agent orchestration, memory persistence, and execution pipelines built for continuous operation.</p>
+        <div class="h-card h-card--ai">
+          <i class="fas fa-robot"></i>
+          <h3>AI Systems &amp; Automation</h3>
+          <p>Multi-agent orchestration, workflow automation, content pipelines, knowledge systems, and custom AI integrations.</p>
+          <a href="/services/#ai-systems">View AI Services →</a>
         </div>
-        <div class="h-card">
-          <i class="fas fa-shield-halved"></i>
-          <h3>Governed Automation</h3>
-          <p>Approval gates, audit trails, and human oversight at every decision point.</p>
+        <div class="h-card h-card--creative">
+          <i class="fas fa-palette"></i>
+          <h3>Product &amp; Creative</h3>
+          <p>Web design and development, AI video and media, voice narration, motion graphics, and narrative architecture.</p>
+          <a href="/services/#creative">View Creative Services →</a>
         </div>
-        <div class="h-card">
-          <i class="fas fa-cubes"></i>
-          <h3>Modular Systems</h3>
-          <p>Composable pipelines, content engines, and deployment layers that scale with complexity.</p>
+        <div class="h-card h-card--infra">
+          <i class="fas fa-server"></i>
+          <h3>Infrastructure &amp; Architecture</h3>
+          <p>System architecture, API development, hosting and deployment, data pipelines, and observability.</p>
+          <a href="/services/#infrastructure">View Infrastructure →</a>
         </div>
       </div>
     </section>
 
     <hr class="h-divider" />
 
-    <!-- Proof -->
+    <!-- Products — Equal Weight -->
     <section class="h-section">
-      <p class="h-section-label">What We Ship</p>
-      <h2>Production Systems</h2>
-      <p>Platforms built on our core infrastructure.</p>
+      <p class="h-section-label">Products</p>
+      <h2>What We've Built</h2>
+      <p>Platforms and tools we design, ship, and operate.</p>
       <div class="h-proof-grid">
-        <div class="h-proof">
-          <span class="h-proof-tag">Core Platform</span>
+        <div class="h-proof h-proof--gridos">
+          <i class="fas fa-server h-proof-icon"></i>
+          <span class="h-proof-tag">Platform</span>
           <h3>GridOS</h3>
-          <p>Operating system for AI-run companies. Multi-agent orchestration with structured memory, governance, and controlled execution.</p>
-          <a href="/modules/company/demo.html">Explore GridOS →</a>
+          <p>Operating system for AI-run companies. Multi-agent orchestration, governance, memory, and execution pipelines.</p>
+          <a href="/gridos/">Explore GridOS →</a>
         </div>
-        <div class="h-proof">
+        <div class="h-proof h-proof--cardforge">
+          <i class="fas fa-layer-group h-proof-icon"></i>
           <span class="h-proof-tag">Product</span>
           <h3>CardForge</h3>
           <p>Browser-based card creation platform with modular templates, real-time preview, and AI-assisted generation.</p>
           <a href="/cardforge/">Open CardForge →</a>
         </div>
-        <div class="h-proof">
-          <span class="h-proof-tag">Projects</span>
-          <h3>Projects</h3>
-          <p>Selected systems built on governed autonomy infrastructure. Production-ready applications structured for accountability and scale.</p>
-          <a href="/projects/">Explore Projects →</a>
+        <div class="h-proof h-proof--nova">
+          <i class="fas fa-brain h-proof-icon"></i>
+          <span class="h-proof-tag">AI Operator</span>
+          <h3>Nova</h3>
+          <p>AI Prime Operator with persistent memory, live chat, dream engine, and daily system briefs. The mind behind GridOS.</p>
+          <a href="/nova/">Meet Nova →</a>
         </div>
       </div>
     </section>
 
     <hr class="h-divider" />
 
-    <!-- How It Works -->
+    <!-- Featured Work -->
+    <section class="h-section">
+      <p class="h-section-label">Featured Work</p>
+      <h2>Shipped Projects</h2>
+      <p>Real client work and internal systems in production.</p>
+      <div class="h-work-grid">
+        <div class="h-work-item h-work--xbox">
+          <i class="fas fa-gamepad h-work-icon"></i>
+          <h3>Xbox Support Systems</h3>
+          <span class="h-work-meta">Client — Web &amp; Localization</span>
+          <p>Help centers and support hubs for Gears of War, Hellblade, and South of Midnight with accessible reporting tools.</p>
+          <a href="/projects/">View Project →</a>
+        </div>
+        <div class="h-work-item h-work--video">
+          <i class="fas fa-video h-work-icon"></i>
+          <h3>Video Production</h3>
+          <span class="h-work-meta">Studio — Media</span>
+          <p>Ambient environments, creative tech content, and AI-driven video pipelines published to YouTube and client channels.</p>
+          <a href="/projects/youtube.html">View Channel →</a>
+        </div>
+        <div class="h-work-item h-work--log">
+          <i class="fas fa-clock-rotate-left h-work-icon"></i>
+          <h3>Activity Log</h3>
+          <span class="h-work-meta">Internal — Transparency</span>
+          <p>Daily public dispatches from an AI-operated company. Auto-generated, CEO-reviewed, and published to the open web.</p>
+          <a href="/log/">View Log →</a>
+        </div>
+      </div>
+    </section>
+
+    <hr class="h-divider" />
+
+    <!-- How We Work -->
     <section class="h-section">
       <p class="h-section-label">Process</p>
-      <h2>How We Build</h2>
-      <p>A defined workflow from strategy to production deployment.</p>
+      <h2>How We Work</h2>
+      <p>A structured workflow from discovery to production deployment.</p>
       <div class="h-flow">
         <div class="h-flow-step">
-          <h4>Strategy</h4>
-          <p>Requirements, scope, system goals</p>
+          <h4>Discovery</h4>
+          <p>Requirements, goals, constraints</p>
         </div>
         <span class="h-flow-arrow"><i class="fas fa-chevron-right"></i></span>
         <div class="h-flow-step">
           <h4>Architecture</h4>
-          <p>Component design, data flows</p>
+          <p>System design, data flows</p>
         </div>
         <span class="h-flow-arrow"><i class="fas fa-chevron-right"></i></span>
         <div class="h-flow-step">
-          <h4>Automation</h4>
-          <p>Agent pipelines, execution layers</p>
+          <h4>Build</h4>
+          <p>Development, automation, content</p>
         </div>
         <span class="h-flow-arrow"><i class="fas fa-chevron-right"></i></span>
         <div class="h-flow-step">
-          <h4>Governance</h4>
-          <p>Approval flows, audit, oversight</p>
+          <h4>Review</h4>
+          <p>QA, governance, client approval</p>
         </div>
         <span class="h-flow-arrow"><i class="fas fa-chevron-right"></i></span>
         <div class="h-flow-step">
-          <h4>Deployment</h4>
-          <p>Production release, monitoring</p>
+          <h4>Ship</h4>
+          <p>Deploy, monitor, iterate</p>
         </div>
       </div>
     </section>
@@ -445,21 +606,21 @@
     <!-- Principles -->
     <section class="h-section">
       <p class="h-section-label">Principles</p>
-      <h2>Operating Principles</h2>
+      <h2>How We Think</h2>
       <div class="h-principles">
-        <div class="h-principle">
+        <div class="h-principle h-principle--autonomy">
           <h3>Structured Autonomy</h3>
-          <p>Agents operate within defined roles, constraints, and approval boundaries.</p>
+          <p>AI operates within defined roles, constraints, and approval boundaries.</p>
         </div>
-        <div class="h-principle">
+        <div class="h-principle h-principle--governance">
           <h3>Human Governance</h3>
           <p>Every high-impact action routes through human review with full provenance.</p>
         </div>
-        <div class="h-principle">
-          <h3>Composable Design</h3>
-          <p>Systems built from reusable modules — pipelines, memory, execution, and UI.</p>
+        <div class="h-principle h-principle--creative">
+          <h3>Creative + Technical</h3>
+          <p>Design, video, and content live alongside infrastructure, APIs, and automation.</p>
         </div>
-        <div class="h-principle">
+        <div class="h-principle h-principle--ship">
           <h3>Ship Continuously</h3>
           <p>Iterative delivery with visible changelogs and measurable outcomes.</p>
         </div>
@@ -470,11 +631,16 @@
 
     <!-- Final CTA -->
     <section class="h-cta-section">
-      <h2>Start Your System</h2>
-      <p>Tell us what you're building. We'll design the system.</p>
-      <button type="button" class="h-btn h-btn-primary" onclick="openProjectModal('home')">
-        <i class="fas fa-arrow-right"></i> Start a Conversation
-      </button>
+      <h2>Start a Project</h2>
+      <p>Tell us what you're building. We'll scope the system, creative, or both.</p>
+      <div class="h-cta-links">
+        <button type="button" class="h-btn h-btn-primary" onclick="openProjectModal('home')">
+          <i class="fas fa-arrow-right"></i> Start a Conversation
+        </button>
+        <a href="/services/" class="h-btn h-btn-secondary">
+          <i class="fas fa-list"></i> View All Services
+        </a>
+      </div>
     </section>
   </main>
 
