@@ -2102,6 +2102,42 @@ module.exports = async function (context) {
               }
             }
 
+            // ── CONTENT PUBLISH GUARD: blog/content tasks stay in 'review' until submit-for-publish ──
+            // Prevents content tasks from going to 'done' before the document is submitted for publish
+            {
+              const _cpgNextStatus = update.newStatus || (update.updates && update.updates.status) || null;
+              if (_cpgNextStatus === 'done') {
+                const _cpgTask = tasks.find(t => t.id === update.taskId);
+                if (_cpgTask) {
+                  const _cpgTitle = (_cpgTask.title || '').toLowerCase();
+                  const _cpgTags = _cpgTask.tags || [];
+                  const _isContentTask = /draft blog|blog post|draft.*article|content brief/i.test(_cpgTask.title || '') ||
+                    _cpgTags.indexOf('content') !== -1 || _cpgTags.indexOf('blog') !== -1;
+                  if (_isContentTask) {
+                    // Find linked document ID from task comments
+                    let _cpgDocId = null;
+                    const _cpgComments = _cpgTask.comments || [];
+                    for (let _ci = _cpgComments.length - 1; _ci >= 0; _ci--) {
+                      const _cmMatch = (_cpgComments[_ci].text || '').match(/doc_[a-z0-9_]+/i);
+                      if (_cmMatch) { _cpgDocId = _cmMatch[0]; break; }
+                    }
+                    if (_cpgDocId) {
+                      // Check if a publish_document action exists for this document
+                      const _cpgHasPublish = allActions.some(a =>
+                        a.type === 'publish_document' && a.payload && a.payload.documentId === _cpgDocId
+                      );
+                      if (!_cpgHasPublish) {
+                        // Cap at review — agent needs to run submit-for-publish first
+                        if (update.newStatus) update.newStatus = 'review';
+                        if (update.updates && update.updates.status) update.updates.status = 'review';
+                        context.log('[Heartbeat]', agentId, 'CONTENT PUBLISH GUARD: capped task', update.taskId, 'to review — doc', _cpgDocId, 'has no publish action yet');
+                      }
+                    }
+                  }
+                }
+              }
+            }
+
             const updatedTask = applyTaskUpdate(tasks, update, _pendingEscalations, agentId);
             if (updatedTask && updatedTask.id) _tasksTouched.add(updatedTask.id);
             // Increment per-agent mutation counter on successful write
