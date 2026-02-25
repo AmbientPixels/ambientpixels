@@ -90,8 +90,8 @@ const CFO_THRESHOLD = 100; // budget_impact above this requires CEO approval
 const GUARDRAILS = {
   maxActionsPerCyclePerAgent: 3,
   maxGeminiCallsPerCycle: 15, // Tier 4 sub-agents are gated; only consume calls when triggered
-  maxNewTasksPerCycle: 3,
-  maxExecutesPerCyclePerAgent: 1,
+  maxNewTasksPerCycle: 6,
+  maxExecutesPerCyclePerAgent: 2,
   maxContentGeneratesPerCyclePerAgent: 1,
   maxEscalationsPerCycle: 3,
   maxActiveTasks: 50,
