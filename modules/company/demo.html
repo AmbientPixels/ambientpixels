@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="/css/banner.css" />
   <link rel="stylesheet" href="/css/links.css" />
   <link rel="stylesheet" href="/modules/company/css/hq.css" />
+  <link rel="stylesheet" href="/css/hero-base.css" />
   <style>
     .demo-page { max-width: 960px; margin: 0 auto; padding: 5rem 1.5rem 3rem; }
     .demo-section { margin-top: 5rem; }
@@ -34,7 +35,7 @@
       background: rgba(255,255,255,0.02);
       transition: border-color 0.2s;
     }
-    .agent-card:hover { border-color: rgba(167,139,250,0.2); }
+    .agent-card:hover { border-color: var(--agent-color, rgba(167,139,250,0.2)); box-shadow: 0 0 20px color-mix(in srgb, var(--agent-color, #a78bfa) 15%, transparent); }
     .agent-card-icon { font-size: 1.4rem; margin-bottom: 0.5rem; color: #a78bfa; opacity: 0.7; }
     .agent-card-name { font-size: 1rem; font-weight: 600; margin-bottom: 0.2rem; }
     .agent-card-role { font-size: 0.8rem; opacity: 0.45; line-height: 1.6; }
@@ -147,6 +148,136 @@
     body[data-theme="light"] .hq-hero-sub { color: #64748b; opacity: 1; }
     body[data-theme="light"] .hero-micro { color: #94a3b8; opacity: 1; }
 
+    /* Content Pipeline flow */
+    .pipeline-flow {
+      display: flex;
+      align-items: flex-start;
+      gap: 0;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin: 1.5rem 0;
+    }
+    .pipeline-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1rem 0.6rem;
+      min-width: 120px;
+      max-width: 140px;
+      text-align: center;
+      position: relative;
+    }
+    .pipeline-step-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--step-color, #a78bfa);
+      color: #0a0a0a;
+      font-size: 0.65rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 0.5rem;
+    }
+    .pipeline-step-icon {
+      font-size: 1.3rem;
+      color: var(--step-color, #a78bfa);
+      opacity: 0.8;
+      margin-bottom: 0.4rem;
+    }
+    .pipeline-step-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+      color: var(--step-color, #c4b5fd);
+    }
+    .pipeline-step-desc {
+      font-size: 0.7rem;
+      opacity: 0.4;
+      line-height: 1.5;
+    }
+    .pipeline-arrow {
+      font-size: 0.8rem;
+      opacity: 0.15;
+      padding: 0 0.15rem;
+      margin-top: 2.8rem;
+    }
+
+    body[data-theme="light"] .pipeline-step-num { color: #fff; }
+    body[data-theme="light"] .pipeline-step-desc { color: #475569; opacity: 1; }
+
+    /* FAQ accordion */
+    .faq-item {
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 8px;
+      margin-bottom: 0.6rem;
+      background: rgba(255,255,255,0.02);
+      transition: border-color 0.2s;
+    }
+    .faq-item:hover { border-color: rgba(167,139,250,0.15); }
+    .faq-item[open] { border-color: rgba(167,139,250,0.25); background: rgba(167,139,250,0.03); }
+    .faq-item summary {
+      padding: 0.9rem 1.1rem;
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .faq-item summary::-webkit-details-marker { display: none; }
+    .faq-item summary::before {
+      content: '\f105';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      font-size: 0.65rem;
+      opacity: 0.35;
+      transition: transform 0.2s;
+      flex-shrink: 0;
+    }
+    .faq-item[open] summary::before { transform: rotate(90deg); }
+    .faq-item p {
+      padding: 0 1.1rem 1rem 1.8rem;
+      font-size: 0.88rem;
+      opacity: 0.55;
+      line-height: 1.7;
+      margin: 0;
+    }
+    body[data-theme="light"] .faq-item {
+      border-color: rgba(0,0,0,0.08);
+      background: rgba(0,0,0,0.02);
+    }
+    body[data-theme="light"] .faq-item:hover { border-color: rgba(124,58,237,0.15); }
+    body[data-theme="light"] .faq-item[open] { border-color: rgba(124,58,237,0.25); background: rgba(124,58,237,0.03); }
+    body[data-theme="light"] .faq-item summary { color: #1a2a44; }
+    body[data-theme="light"] .faq-item p { color: #475569; opacity: 1; }
+
+    /* Hero badge */
+    .gridos-hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      padding: 0.3rem 0.8rem;
+      border-radius: 4px;
+      border: 1px solid rgba(167,139,250,0.2);
+      background: rgba(167,139,250,0.08);
+      color: #c4b5fd;
+      margin-bottom: 1.2rem;
+    }
+    .gridos-hero-badge i { font-size: 0.55rem; opacity: 0.7; }
+
+    body[data-theme="light"] .gridos-hero-badge {
+      border-color: rgba(124,58,237,0.2);
+      background: rgba(124,58,237,0.08);
+      color: #7c3aed;
+    }
+
     /* GridOS in Action — screenshot showcase */
     .gia-header { text-align: center; margin-bottom: 3rem; }
     .gia-header h2 { font-size: 1.6rem; font-weight: 600; margin: 0 0 0.6rem; letter-spacing: -0.01em; }
@@ -232,23 +363,32 @@
   <header id="nav-header"></header>
   <div class="banner-container" id="banner-container"></div>
 
-  <div class="demo-page">
-
-    <!-- Hero -->
-    <div class="hq-hero">
-      <h1 class="hq-hero-headline">Turn AI Chaos into <em>Governed Execution.</em></h1>
-      <p class="hq-hero-tagline">GridOS is the operating system for AI-run companies — structured execution loops, role-bound agents, financial discipline, and full auditability built in.</p>
-      <p class="hq-hero-sub">Run autonomous agents like a real company — with oversight, accountability, and control.</p>
-      <div class="hq-trust-line">
+  <!-- Hero — uses hero-base system -->
+  <section class="hero-base" data-hero="infrastructure">
+    <div class="hero-base-layer"></div>
+    <div class="hero-base-content" style="text-align:center;">
+      <div class="gridos-hero-badge"><i class="fas fa-server"></i> GridOS v2.3</div>
+      <h1 style="max-width:900px;margin:0 auto;">The Autonomous Executive Layer <span style="display:inline;">for AI-Run Companies.</span></h1>
+      <p style="max-width:640px;margin:0.8rem auto 0;font-size:1.1rem;line-height:1.7;">Set the strategy. GridOS handles triage, delegation, execution, and delivery — with full governance at every step.</p>
+      <div class="hq-trust-line" style="margin-top:1.4rem;">
         <span class="hq-trust-chip"><i class="fas fa-shield-alt"></i> Governance Gates</span>
         <span class="hq-trust-chip"><i class="fas fa-clipboard-check"></i> Audit Trails</span>
         <span class="hq-trust-chip"><i class="fas fa-microchip"></i> Multi-Agent Runtime</span>
         <span class="hq-trust-chip"><i class="fas fa-database"></i> Memory Stack</span>
+        <span class="hq-trust-chip"><i class="fas fa-photo-film"></i> Content Pipeline</span>
       </div>
+      <div style="margin-top:2rem;display:flex;gap:0.7rem;justify-content:center;flex-wrap:wrap;">
+        <a href="#" onclick="openGridOSAccessModal();return false;" class="hq-cta hq-cta--primary" style="font-size:1rem;padding:0.75rem 1.6rem;"><i class="fas fa-server"></i> Request Access</a>
+        <a href="#how-it-works" class="hq-cta hq-cta--secondary" style="font-size:1rem;padding:0.75rem 1.6rem;"><i class="fas fa-play-circle"></i> See How It Works</a>
+      </div>
+      <div class="hero-micro" style="margin-top:0.8rem;">Early Cohort &bull; Builder Access</div>
     </div>
+  </section>
+
+  <div class="demo-page">
 
     <!-- Live Stats -->
-    <div class="stats-row">
+    <div class="stats-row" style="margin-top:-1rem;">
       <div class="stat-item">
         <div class="stat-value">8</div>
         <div class="stat-label">Agents Online</div>
@@ -258,19 +398,13 @@
         <div class="stat-label">Heartbeat Runtime</div>
       </div>
       <div class="stat-item">
-        <div class="stat-value">3</div>
+        <div class="stat-value">4</div>
         <div class="stat-label">Governance Tiers</div>
       </div>
       <div class="stat-item">
         <div class="stat-value">100%</div>
         <div class="stat-label">Actions Logged</div>
       </div>
-    </div>
-
-    <!-- Hero CTA -->
-    <div class="hero-cta-row">
-      <a href="#" onclick="openGridOSAccessModal();return false;" class="hq-cta hq-cta--primary"><i class="fas fa-server"></i> Request GridOS Access</a>
-      <div class="hero-micro">Early Cohort • Builder Access</div>
     </div>
 
     <!-- The Problem -->
@@ -287,7 +421,7 @@
     </div>
 
     <!-- How the Loop Works -->
-    <div class="demo-section">
+    <div class="demo-section" id="how-it-works">
       <h2><i class="fas fa-sync-alt"></i> The Execution Loop</h2>
       <p>Every action flows through a governed lifecycle.</p>
       <p style="font-size:0.95rem;opacity:0.45;line-height:1.7;margin-top:-0.5rem;">Proposal &rarr; Approval &rarr; Execution &rarr; Audit &rarr; Memory<br>Nothing mutates without context. Nothing executes without guardrails. Everything is logged.</p>
@@ -331,53 +465,53 @@
       <p>No generalist chaos. Every agent operates within defined scope, memory boundaries, and authority gates.</p>
 
       <div class="agent-roster">
-        <div class="agent-card">
-          <div class="agent-card-icon"><i class="fas fa-brain"></i></div>
-          <div class="agent-card-name">Nova</div>
-          <div class="agent-card-role">Prime Operator — coordinates agents, summarizes memory, orchestrates workflows</div>
-          <div class="agent-card-tier">Tier 2</div>
-        </div>
-        <div class="agent-card">
-          <div class="agent-card-icon"><i class="fas fa-hammer"></i></div>
-          <div class="agent-card-name">Forge</div>
-          <div class="agent-card-role">Lead Developer — builds features, ships code, manages technical debt</div>
-          <div class="agent-card-tier">Tier 3</div>
-        </div>
-        <div class="agent-card">
-          <div class="agent-card-icon"><i class="fas fa-palette"></i></div>
-          <div class="agent-card-name">Pixel</div>
-          <div class="agent-card-role">Creative Director — generates images, designs assets, visual identity</div>
-          <div class="agent-card-tier">Tier 3</div>
-        </div>
-        <div class="agent-card">
-          <div class="agent-card-icon"><i class="fas fa-lock"></i></div>
-          <div class="agent-card-name">Cipher</div>
-          <div class="agent-card-role">CFO & Security — budget tracking, cost analysis, security audits</div>
-          <div class="agent-card-tier">Tier 3</div>
-        </div>
-        <div class="agent-card">
-          <div class="agent-card-icon"><i class="fas fa-bullhorn"></i></div>
-          <div class="agent-card-name">Echo</div>
-          <div class="agent-card-role">Marketing Lead — social posts, engagement strategy, content distribution</div>
-          <div class="agent-card-tier">Tier 3</div>
-        </div>
-        <div class="agent-card">
-          <div class="agent-card-icon"><i class="fas fa-pen-fancy"></i></div>
-          <div class="agent-card-name">Scribe</div>
-          <div class="agent-card-role">Content Writer — blogs, docs, copy, marketing materials</div>
-          <div class="agent-card-tier">Tier 3</div>
-        </div>
-        <div class="agent-card">
-          <div class="agent-card-icon"><i class="fas fa-satellite-dish"></i></div>
-          <div class="agent-card-name">Scout</div>
-          <div class="agent-card-role">Research & Intel — market analysis, competitor tracking, trend reports</div>
-          <div class="agent-card-tier">Tier 3</div>
-        </div>
-        <div class="agent-card">
-          <div class="agent-card-icon"><i class="fas fa-user-tie"></i></div>
+        <div class="agent-card" style="--agent-color:#FFD700;">
+          <div class="agent-card-icon" style="color:#FFD700;"><i class="fas fa-crown"></i></div>
           <div class="agent-card-name">CEO</div>
-          <div class="agent-card-role">Human governance — approvals, strategy, final decisions</div>
-          <div class="agent-card-tier">Tier 1</div>
+          <div class="agent-card-role">Human governance — approvals, strategy, final authority over all decisions</div>
+          <div class="agent-card-tier">Tier 1 — Human</div>
+        </div>
+        <div class="agent-card" style="--agent-color:#8A2BE2;">
+          <div class="agent-card-icon" style="color:#8A2BE2;"><i class="fas fa-brain"></i></div>
+          <div class="agent-card-name">Nova</div>
+          <div class="agent-card-role">Prime Operator — triages tasks, delegates work, reviews deliverables, structures hierarchy</div>
+          <div class="agent-card-tier">Tier 2 — Operations</div>
+        </div>
+        <div class="agent-card" style="--agent-color:#FF8C00;">
+          <div class="agent-card-icon" style="color:#FF8C00;"><i class="fas fa-server"></i></div>
+          <div class="agent-card-name">Forge</div>
+          <div class="agent-card-role">DevOps & Infrastructure — deployments, build pipelines, uptime, technical debt</div>
+          <div class="agent-card-tier">Tier 3 — Department</div>
+        </div>
+        <div class="agent-card" style="--agent-color:#FF6B9D;">
+          <div class="agent-card-icon" style="color:#FF6B9D;"><i class="fas fa-palette"></i></div>
+          <div class="agent-card-name">Pixel</div>
+          <div class="agent-card-role">Design & QC — image generation, UI consistency, accessibility, visual identity</div>
+          <div class="agent-card-tier">Tier 3 — Department</div>
+        </div>
+        <div class="agent-card" style="--agent-color:#00C896;">
+          <div class="agent-card-icon" style="color:#00C896;"><i class="fas fa-chart-line"></i></div>
+          <div class="agent-card-name">Cipher</div>
+          <div class="agent-card-role">CFO — budget tracking, API cost analysis, financial health, risk management</div>
+          <div class="agent-card-tier">Tier 3 — Department</div>
+        </div>
+        <div class="agent-card" style="--agent-color:#4ECDC4;">
+          <div class="agent-card-icon" style="color:#4ECDC4;"><i class="fas fa-bullhorn"></i></div>
+          <div class="agent-card-name">Echo</div>
+          <div class="agent-card-role">Marketing Lead — social media strategy, multi-platform publishing, engagement</div>
+          <div class="agent-card-tier">Tier 3 — Department</div>
+        </div>
+        <div class="agent-card" style="--agent-color:#7ECFC0;">
+          <div class="agent-card-icon" style="color:#7ECFC0;"><i class="fas fa-pen-nib"></i></div>
+          <div class="agent-card-name">Scribe</div>
+          <div class="agent-card-role">Content Lead — blogs, product briefs, documentation, marketing copy</div>
+          <div class="agent-card-tier">Tier 3 — Department</div>
+        </div>
+        <div class="agent-card" style="--agent-color:#E87CBB;">
+          <div class="agent-card-icon" style="color:#E87CBB;"><i class="fas fa-magnifying-glass-chart"></i></div>
+          <div class="agent-card-name">Scout</div>
+          <div class="agent-card-role">Research & Intel — market analysis, competitive intelligence, trend reports</div>
+          <div class="agent-card-tier">Tier 3 — Department</div>
         </div>
       </div>
     </div>
@@ -405,7 +539,7 @@
           <ul>
             <li><i class="fas fa-check"></i> Priority tiers</li>
             <li><i class="fas fa-check"></i> Agent assignment</li>
-            <li><i class="fas fa-check"></i> Directive linking</li>
+            <li><i class="fas fa-check"></i> Campaign linking</li>
           </ul>
         </div>
         <div class="feature-card">
@@ -448,6 +582,60 @@
             <li><i class="fas fa-check"></i> Approval workflow</li>
           </ul>
         </div>
+      </div>
+    </div>
+
+    <!-- Content Pipeline — End-to-End -->
+    <div class="demo-section" id="content-pipeline">
+      <h2><i class="fas fa-wand-magic-sparkles"></i> From Research to Revenue — Fully Autonomous</h2>
+      <p>GridOS doesn't just manage tasks — it produces real output. The content pipeline chains research, writing, design, publishing, and social distribution into a single governed flow.</p>
+
+      <div class="pipeline-flow">
+        <div class="pipeline-step" style="--step-color:#E87CBB;">
+          <div class="pipeline-step-num">1</div>
+          <div class="pipeline-step-icon"><i class="fas fa-magnifying-glass-chart"></i></div>
+          <div class="pipeline-step-label">Scout Researches</div>
+          <div class="pipeline-step-desc">Market analysis, competitive intel, trend reports — delivered as structured audit deliverables</div>
+        </div>
+        <div class="pipeline-arrow"><i class="fas fa-arrow-right"></i></div>
+        <div class="pipeline-step" style="--step-color:#8A2BE2;">
+          <div class="pipeline-step-num">2</div>
+          <div class="pipeline-step-icon"><i class="fas fa-brain"></i></div>
+          <div class="pipeline-step-label">Nova Triages</div>
+          <div class="pipeline-step-desc">Reviews findings, creates follow-up tasks, assigns to the right agents with parent linkage</div>
+        </div>
+        <div class="pipeline-arrow"><i class="fas fa-arrow-right"></i></div>
+        <div class="pipeline-step" style="--step-color:#7ECFC0;">
+          <div class="pipeline-step-num">3</div>
+          <div class="pipeline-step-icon"><i class="fas fa-pen-nib"></i></div>
+          <div class="pipeline-step-label">Scribe Writes</div>
+          <div class="pipeline-step-desc">Blog posts, product briefs, marketing copy — created as governed documents with approval gates</div>
+        </div>
+        <div class="pipeline-arrow"><i class="fas fa-arrow-right"></i></div>
+        <div class="pipeline-step" style="--step-color:#FF6B9D;">
+          <div class="pipeline-step-num">4</div>
+          <div class="pipeline-step-icon"><i class="fas fa-palette"></i></div>
+          <div class="pipeline-step-label">Pixel Designs</div>
+          <div class="pipeline-step-desc">Hero images, social graphics, brand assets — generated and attached to documents automatically</div>
+        </div>
+        <div class="pipeline-arrow"><i class="fas fa-arrow-right"></i></div>
+        <div class="pipeline-step" style="--step-color:#FFD700;">
+          <div class="pipeline-step-num">5</div>
+          <div class="pipeline-step-icon"><i class="fas fa-crown"></i></div>
+          <div class="pipeline-step-label">CEO Approves</div>
+          <div class="pipeline-step-desc">Human reviews final output, approves for publishing, optionally promotes to social channels</div>
+        </div>
+        <div class="pipeline-arrow"><i class="fas fa-arrow-right"></i></div>
+        <div class="pipeline-step" style="--step-color:#4ECDC4;">
+          <div class="pipeline-step-num">6</div>
+          <div class="pipeline-step-icon"><i class="fas fa-bullhorn"></i></div>
+          <div class="pipeline-step-label">Echo Distributes</div>
+          <div class="pipeline-step-desc">Multi-platform social posts — X, LinkedIn, Bluesky — with copy review and scheduling</div>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:1.5rem;">
+        <p style="font-size:0.85rem;opacity:0.4;line-height:1.7;max-width:600px;margin:0 auto;font-style:italic;">Every step is logged, governed, and reversible. No content ships without human approval. No agent acts outside its scope.</p>
       </div>
     </div>
 
@@ -572,23 +760,70 @@
     <!-- Built For -->
     <div class="demo-section">
       <h2><i class="fas fa-bullseye"></i> Built For</h2>
-      <ul style="list-style:none;padding:0;margin:0 0 1rem;">
-        <li style="font-size:0.95rem;opacity:0.55;padding:0.35rem 0;display:flex;align-items:center;gap:0.45rem;"><i class="fas fa-check" style="font-size:0.5rem;color:#a78bfa;opacity:0.6;flex-shrink:0;"></i> Founders building with AI agents</li>
-        <li style="font-size:0.95rem;opacity:0.55;padding:0.35rem 0;display:flex;align-items:center;gap:0.45rem;"><i class="fas fa-check" style="font-size:0.5rem;color:#a78bfa;opacity:0.6;flex-shrink:0;"></i> Operators who need oversight</li>
-        <li style="font-size:0.95rem;opacity:0.55;padding:0.35rem 0;display:flex;align-items:center;gap:0.45rem;"><i class="fas fa-check" style="font-size:0.5rem;color:#a78bfa;opacity:0.6;flex-shrink:0;"></i> Teams replacing manual workflows</li>
-        <li style="font-size:0.95rem;opacity:0.55;padding:0.35rem 0;display:flex;align-items:center;gap:0.45rem;"><i class="fas fa-check" style="font-size:0.5rem;color:#a78bfa;opacity:0.6;flex-shrink:0;"></i> Enterprises experimenting with autonomous systems</li>
-      </ul>
-      <p style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;opacity:0.3;margin-top:0.5rem;">Not built for unstructured automation.</p>
+      <p>GridOS is designed for people who want AI to do real work — not just generate suggestions.</p>
+      <div class="feature-grid" style="grid-template-columns:repeat(2,1fr);">
+        <div class="feature-card">
+          <div class="feature-card-icon"><i class="fas fa-rocket" style="color:#FFD700;"></i></div>
+          <h3>Solo Founders</h3>
+          <p>Run a full company operation — marketing, content, design, research, finance — with AI agents while you focus on product.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-icon"><i class="fas fa-sitemap" style="color:#8A2BE2;"></i></div>
+          <h3>AI Operations Teams</h3>
+          <p>Replace manual task boards and Slack threads with structured autonomous workflows that execute, report, and log automatically.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-icon"><i class="fas fa-shield-halved" style="color:#00C896;"></i></div>
+          <h3>Governance-First Builders</h3>
+          <p>Need approval queues, audit trails, cost tracking, and human-in-the-loop controls? It's built in, not bolted on.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-card-icon"><i class="fas fa-photo-film" style="color:#4ECDC4;"></i></div>
+          <h3>Content-Driven Companies</h3>
+          <p>Automate the full pipeline from research to blog post to social distribution — with CEO approval gates at every stage.</p>
+        </div>
+      </div>
+      <p style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;opacity:0.3;margin-top:1rem;text-align:center;">Not built for unstructured automation. Not built for prompt-and-pray.</p>
+    </div>
+
+    <!-- FAQ -->
+    <div class="demo-section" id="faq">
+      <h2><i class="fas fa-circle-question"></i> Frequently Asked Questions</h2>
+      <div style="max-width:720px;">
+        <details class="faq-item">
+          <summary>Is this a chatbot or an agent framework?</summary>
+          <p>Neither. GridOS is an operating system. Agents don't just respond to prompts — they operate on continuous heartbeat cycles, producing real deliverables (reports, blog posts, images, social posts) within a governed task board. Think of it as an AI org chart, not a chat window.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Can agents publish content without my approval?</summary>
+          <p>No. Every document, social post, and high-impact action routes through a CEO approval queue. You approve, reject, or request revisions. Nothing ships without human sign-off.</p>
+        </details>
+        <details class="faq-item">
+          <summary>How does cost control work?</summary>
+          <p>Every API call is tracked per agent per cycle. Cipher (CFO agent) monitors spend, flags anomalies, and enforces budget guardrails. You see cost-per-task, cost-per-agent, and daily burn rate in the dashboard.</p>
+        </details>
+        <details class="faq-item">
+          <summary>What AI models does GridOS use?</summary>
+          <p>Currently powered by Google Gemini for agent reasoning and task execution. Image generation uses multiple providers. The architecture is model-agnostic — swapping providers requires changing one config.</p>
+        </details>
+        <details class="faq-item">
+          <summary>Can I add custom agents?</summary>
+          <p>Yes. Agents are defined by role, tier, capabilities, and system prompt. You can add new department heads, adjust authority levels, and define custom workflows through the config panel.</p>
+        </details>
+        <details class="faq-item">
+          <summary>What platforms does the content pipeline support?</summary>
+          <p>X (Twitter), LinkedIn, and Bluesky for social distribution. Blog posts publish to your own site. Image generation produces assets for any platform. The pipeline is extensible.</p>
+        </details>
+      </div>
     </div>
 
     <!-- CTA -->
     <div class="demo-cta-block">
-      <h3>Request Access</h3>
-      <p>Access is granted in limited cohorts to aligned builders.</p>
+      <h3>Ready to Run Your Company on GridOS?</h3>
+      <p>Early access is open to a small group of aligned builders. Tell us what you're building.</p>
       <div style="display:flex;gap:0.7rem;justify-content:center;flex-wrap:wrap;">
         <a href="#" onclick="openGridOSAccessModal();return false;" class="hq-cta hq-cta--primary" style="font-size:0.95rem;padding:0.65rem 1.4rem;"><i class="fas fa-server"></i> Request GridOS Access</a>
-        <a href="/log/" class="hq-cta hq-cta--secondary"><i class="fas fa-newspaper"></i> Activity Log</a>
-        <a href="/projects/" class="hq-cta hq-cta--secondary"><i class="fas fa-boxes-stacked"></i> Projects</a>
+        <a href="/nova/" class="hq-cta hq-cta--secondary"><i class="fas fa-bolt"></i> Meet Nova</a>
         <a href="/blog/" class="hq-cta hq-cta--secondary"><i class="fas fa-pen-nib"></i> Blog</a>
       </div>
     </div>
