@@ -41,10 +41,16 @@
     .cmp-card-actions { display:flex; gap:0.3rem; flex-wrap:wrap; margin-top:0.45rem; }
     .cmp-card-actions button, .cmp-card-actions a {
       font-size:0.6rem; padding:0.22rem 0.5rem; border-radius:5px;
-      border:1px solid rgba(138,43,226,0.3); background:rgba(138,43,226,0.05);
-      color:#c084fc; cursor:pointer; text-decoration:none;
+      border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05);
+      color:#fff; cursor:pointer; text-decoration:none;
     }
-    .cmp-card-actions .danger { border-color:rgba(248,113,113,0.4); color:#f87171; }
+    .cmp-card-actions .cmp-edit-btn {
+      border-color:rgba(138,43,226,0.3); background:rgba(138,43,226,0.05); color:#c084fc;
+    }
+    .cmp-card-actions .danger { border-color:rgba(248,113,113,0.4); background:rgba(248,113,113,0.05); color:#f87171; }
+    .cmp-progress-bar { height:4px; border-radius:2px; background:rgba(255,255,255,0.06); margin:0.35rem 0 0.25rem; overflow:hidden; }
+    .cmp-progress-fill { height:100%; border-radius:2px; transition:width 0.3s; }
+    .cmp-task-breakdown { font-size:0.6rem; font-weight:500; margin-bottom:0.15rem; }
     .cmp-empty { font-size:0.7rem; opacity:0.3; padding:0.8rem 0.25rem; }
     .cmp-detail { border:1px solid rgba(138,43,226,0.2); background:rgba(138,43,226,0.05); border-radius:10px; padding:0.75rem; }
     .cmp-detail-head { display:flex; justify-content:space-between; align-items:center; gap:0.5rem; margin-bottom:0.5rem; }
@@ -244,13 +250,25 @@
           var objTitle = objectiveTitle(c.objective_id);
           var m = campaignMetrics(c);
           var viewProjectsHref = '/modules/company/directives.html?campaign=' + encodeURIComponent(c.id);
+          // Build progress bar color
+          var barColor = m.health === 'good' ? '#34d399' : m.health === 'warn' ? '#fbbf24' : m.health === 'bad' ? '#ef4444' : '#64748b';
+          var progress = (typeof AgentEngine.getCampaignProgress === 'function') ? AgentEngine.getCampaignProgress(c.id) : null;
+          var breakdownParts = [];
+          if (progress && progress.total > 0) {
+            breakdownParts.push(progress.done + '/' + progress.total + ' done');
+            if (progress.inProgress > 0) breakdownParts.push(progress.inProgress + ' active');
+            if (progress.review > 0) breakdownParts.push(progress.review + ' in review');
+          }
           html += '<div class="cmp-card" data-id="' + esc(c.id) + '">'
             + '<h4>' + esc(c.title) + '<span class="cmp-pill ' + (c.status === 'archived' ? 'cmp-pill--archived' : 'cmp-pill--active') + '">' + esc(c.status) + '</span></h4>'
             + (c.description ? '<p>' + esc(c.description) + '</p>' : '')
+            + '<div class="cmp-progress-bar"><div class="cmp-progress-fill" style="width:' + m.pctComplete + '%; background:' + barColor + ';"></div></div>'
+            + '<div class="cmp-task-breakdown" style="color:' + barColor + ';">'
+            + '<span style="font-weight:700;">' + m.pctComplete + '%</span> '
+            + (breakdownParts.length > 0 ? breakdownParts.join('  ') : (m.taskCount === 0 ? 'No tasks yet' : m.taskCount + ' tasks'))
+            + '</div>'
             + '<div class="cmp-meta" style="gap:0.55rem;">'
             + '<span><i class="fas fa-compass" style="margin-right:2px;"></i>' + m.projectCount + ' projects</span>'
-            + '<span><i class="fas fa-tasks" style="margin-right:2px;"></i>' + m.taskCount + ' tasks</span>'
-            + '<span>' + m.pctComplete + '% complete</span>'
             + healthChip(m.health)
             + (objTitle ? '<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.54rem;padding:0.08rem 0.35rem;border-radius:4px;background:rgba(78,205,196,0.1);border:1px solid rgba(78,205,196,0.25);color:#4ECDC4;"><i class="fas fa-bullseye" style="font-size:0.48rem;"></i>' + esc(objTitle) + '</span>' : '')
             + '</div>'
