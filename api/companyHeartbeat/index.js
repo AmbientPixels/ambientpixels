@@ -800,19 +800,37 @@ module.exports = async function (context) {
     const directives = (await storage.getState('directives')) || [];
     const campaigns = (await storage.getState('campaigns')) || [];
     const objectives = (await storage.getState('objectives')) || [];
+    const _documentsAtLoad = (await storage.getState('documents')) || [];
+    const _documentIdsAtLoad = new Set(_documentsAtLoad.map(function (d) { return d && d.id; }).filter(Boolean));
     let campaignsChanged = false;
     let directivesCampaignChanged = false;
     let tasksCampaignChanged = false;
     const campaignGovEvents = [];
+    let autoFixCount = 0;
+    let createdProjectCount = 0;
+    const _guardrailCounts = {
+      orphanBlocked: 0,
+      exactDupBlocked: 0,
+      fuzzyDupBlocked: 0,
+      taskCeilingBlocked: 0,
+      socialPromoGateBlocked: 0,
+      ceoApprovalsTriggered: 0,
+      pausedProjectAutomationBlocked: 0
+    };
+    const _campaignsTouched = new Set();
+    const _directivesTouched = new Set();
+    const _createdDirectiveIds = new Set();
+    const _tasksTouched = new Set();
+    const _agentRunStats = {};
 
     for (const c of campaigns) {
       if (!c || typeof c !== 'object') continue;
-      if (!c.id) { c.id = 'cmp-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6); campaignsChanged = true; }
-      if (!c.status) { c.status = 'active'; campaignsChanged = true; }
-      if (!c.createdAt) { c.createdAt = new Date().toISOString(); campaignsChanged = true; }
-      if (!c.updatedAt) { c.updatedAt = c.createdAt; campaignsChanged = true; }
-      if (!c.title) { c.title = 'Untitled Campaign'; campaignsChanged = true; }
-      if (c.description === undefined || c.description === null) { c.description = ''; campaignsChanged = true; }
+      if (!c.id) { c.id = 'cmp-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6); campaignsChanged = true; autoFixCount++; _campaignsTouched.add(c.id); }
+      if (!c.status) { c.status = 'active'; campaignsChanged = true; autoFixCount++; if (c.id) _campaignsTouched.add(c.id); }
+      if (!c.createdAt) { c.createdAt = new Date().toISOString(); campaignsChanged = true; autoFixCount++; if (c.id) _campaignsTouched.add(c.id); }
+      if (!c.updatedAt) { c.updatedAt = c.createdAt; campaignsChanged = true; autoFixCount++; if (c.id) _campaignsTouched.add(c.id); }
+      if (!c.title) { c.title = 'Untitled Campaign'; campaignsChanged = true; autoFixCount++; if (c.id) _campaignsTouched.add(c.id); }
+      if (c.description === undefined || c.description === null) { c.description = ''; campaignsChanged = true; autoFixCount++; if (c.id) _campaignsTouched.add(c.id); }
     }
 
     // Normalize linkedDirective (string) → linkedDirectives (array) for backward compat
@@ -820,6 +838,7 @@ module.exports = async function (context) {
       if (!_normObj) continue;
       if (!Array.isArray(_normObj.linkedDirectives)) {
         _normObj.linkedDirectives = _normObj.linkedDirective ? [_normObj.linkedDirective] : [];
+        autoFixCount++;
       }
     }
 
@@ -851,6 +870,9 @@ module.exports = async function (context) {
         provenance: 'Auto: Goal → Project'
       };
       directives.push(_newDir);
+      createdProjectCount++;
+      _directivesTouched.add(_newDirId);
+      _createdDirectiveIds.add(_newDirId);
 
       if (!Array.isArray(_goalObj.linkedDirectives)) _goalObj.linkedDirectives = [];
       _goalObj.linkedDirectives.push(_newDirId);
@@ -895,6 +917,7 @@ module.exports = async function (context) {
       }
       d.updatedAt = new Date().toISOString();
       directivesCampaignChanged = true;
+      if (d.id) _directivesTouched.add(d.id);
     }
 
     // Build projectById map once for O(1) lookups in freeze gates
@@ -913,6 +936,8 @@ module.exports = async function (context) {
           t.campaign_id = dir.campaign_id;
           t.updatedAt = new Date().toISOString();
           tasksCampaignChanged = true;
+          autoFixCount++;
+          if (t.id) _tasksTouched.add(t.id);
           continue;
         }
       }
@@ -943,6 +968,8 @@ module.exports = async function (context) {
       }
       t.updatedAt = new Date().toISOString();
       tasksCampaignChanged = true;
+      autoFixCount++;
+      if (t.id) _tasksTouched.add(t.id);
     }
 
     for (const c of campaigns) {
@@ -959,6 +986,8 @@ module.exports = async function (context) {
       c.status = 'archived';
       c.updatedAt = new Date().toISOString();
       campaignsChanged = true;
+      autoFixCount++;
+      if (c.id) _campaignsTouched.add(c.id);
       campaignGovEvents.push({
         id: 'gov-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
         type: 'campaign_auto_archive',
@@ -1199,6 +1228,7 @@ module.exports = async function (context) {
           dir.updatedAt = new Date().toISOString();
           dir._pausedByGoalCancel = _obj.id;
           _directivesPushed = true;
+          if (dir.id) _directivesTouched.add(dir.id);
           context.log('[Heartbeat] Cascade: Goal canceled (' + _obj.id + ' "' + (_obj.title || '') + '") → paused linked Project (' + dirId + ' "' + (dir.title || '') + '")');
           await logEvent('goal-cancel-cascade', null, 'Project paused by goal cancel cascade', runId, {
             runId, objectiveId: _obj.id, objectiveTitle: _obj.title, directiveId: dirId, directiveTitle: dir.title
@@ -1448,6 +1478,12 @@ module.exports = async function (context) {
 
     // Review cooldown: track tasks that enter review THIS cycle — cannot be reviewed in same cycle
     const _reviewCooldownIds = new Set();
+    const _agentCampaignCtx = {
+      projectById: projectById,
+      campaigns: campaigns,
+      campaignGovEvents: campaignGovEvents,
+      campaignsChanged: false
+    };
 
     // Process each agent
     for (const agentId of AGENT_IDS) {
@@ -1486,7 +1522,8 @@ module.exports = async function (context) {
           workspaceMemory, workspaceDates, revisionActions,
           agentId === 'cipher' ? costIntel : null,
           _reviewCooldownIds, _seedMemories, researchIntelStore, socialIntel,
-          normalizedActivationMode, _isAgentInCooldown, _logAgentCooldownOnce, _incPolicyGate
+          normalizedActivationMode, _isAgentInCooldown, _logAgentCooldownOnce, _incPolicyGate,
+          _agentCampaignCtx
         );
         // Collect any new research intel from this agent's cycle
         if (result.newResearchIntel) {
@@ -1497,6 +1534,29 @@ module.exports = async function (context) {
         }
         geminiCalls += result.geminiCalls;
         agentActions[agentId] = result.actions;
+        _agentRunStats[agentId] = {
+          attempted: result.actionAttempts || 0,
+          executed: result.actions || 0,
+          blocked: 0,
+          newTasksCreated: 0,
+          avgLatencyMs: result.durationMs || 0,
+          guardrailBlocked: ((result.guardrails && result.guardrails.orphanBlocked) || 0)
+            + ((result.guardrails && result.guardrails.exactDupBlocked) || 0)
+            + ((result.guardrails && result.guardrails.fuzzyDupBlocked) || 0)
+            + ((result.guardrails && result.guardrails.taskCeilingBlocked) || 0)
+            + ((result.guardrails && result.guardrails.socialPromoGateBlocked) || 0)
+        };
+        if (result.guardrails) {
+          _guardrailCounts.orphanBlocked += result.guardrails.orphanBlocked || 0;
+          _guardrailCounts.exactDupBlocked += result.guardrails.exactDupBlocked || 0;
+          _guardrailCounts.fuzzyDupBlocked += result.guardrails.fuzzyDupBlocked || 0;
+          _guardrailCounts.taskCeilingBlocked += result.guardrails.taskCeilingBlocked || 0;
+          _guardrailCounts.socialPromoGateBlocked += result.guardrails.socialPromoGateBlocked || 0;
+        }
+        if (_agentCampaignCtx.campaignsChanged) {
+          campaignsChanged = true;
+          _agentCampaignCtx.campaignsChanged = false;
+        }
 
         // Observe mode: discard taskUpdates before mutation stage
         if (executionMode === 'observe' && result.taskUpdates && result.taskUpdates.length > 0) {
@@ -1879,6 +1939,7 @@ module.exports = async function (context) {
                 if (String(_psProject.status || '').toLowerCase() === 'paused') {
                   _incBlocked(agentId);
                   _incPolicyGate('project_status');
+                  _guardrailCounts.pausedProjectAutomationBlocked++;
                   _projectStatusBlockDetails.push({ projectId: _psProjectId, taskId: update.taskId, reason: 'project_paused' });
                   await logEvent('policy-violation', agentId, 'Mutation blocked: project paused — all task mutations frozen', runId, {
                     type: 'policy-violation', gate: 'project_status', reason: 'project_paused',
@@ -1891,6 +1952,7 @@ module.exports = async function (context) {
             }
 
             const updatedTask = applyTaskUpdate(tasks, update, _pendingEscalations, agentId);
+            if (updatedTask && updatedTask.id) _tasksTouched.add(updatedTask.id);
             // Increment per-agent mutation counter on successful write
             if (isTaskMutation) {
               const _successBucket = _MUTATION_BUCKET_MAP[mutationAction];
@@ -1946,6 +2008,7 @@ module.exports = async function (context) {
                 source: 'heartbeat'
               };
               actionsStore.push(completionAction);
+              _guardrailCounts.ceoApprovalsTriggered++;
               // Auto-complete the parent task since internal completion is auto-approved
               const parentTask = tasks.find(t => t.id === ceo.taskId);
               if (parentTask && parentTask.status !== 'done') {
@@ -1981,6 +2044,7 @@ module.exports = async function (context) {
               if (_cLower.indexOf(_agentKeys[_ai]) !== -1) {
                 _t.assignee = _AGENT_NAMES[_agentKeys[_ai]];
                 _t.updatedAt = new Date().toISOString();
+                if (_t.id) _tasksTouched.add(_t.id);
                 if (!_t.comments) _t.comments = [];
                 _t.comments.push({ id: 'cmt-autoassign-' + Date.now(), author: 'system', text: 'Auto-assigned to ' + _agentKeys[_ai] + ' based on Nova triage comment.', type: 'system', createdAt: new Date().toISOString() });
                 context.log('[Heartbeat] AUTO-ASSIGN:', _t.id, '→', _AGENT_NAMES[_agentKeys[_ai]], '(Nova mentioned', _agentKeys[_ai], 'in triage comment)');
@@ -1999,6 +2063,14 @@ module.exports = async function (context) {
         }
       } catch (err) {
         context.log.error('[Heartbeat] Agent', agentId, 'failed:', err.message);
+        _agentRunStats[agentId] = _agentRunStats[agentId] || {
+          attempted: 0,
+          executed: 0,
+          blocked: 0,
+          newTasksCreated: 0,
+          avgLatencyMs: 0,
+          error: err.message
+        };
         await logEvent('error', agentId, 'Heartbeat failed: ' + err.message, cycleId);
       }
     }
@@ -2262,17 +2334,197 @@ module.exports = async function (context) {
       }
     });
 
+    // ── Persist compact heartbeat run summary (for dashboard health panel) ──
+    const finishedAt = new Date().toISOString();
+    const startedAtMs = new Date(cycleStart).getTime();
+    const finishedAtMs = new Date(finishedAt).getTime();
+    const durationMs = (isNaN(startedAtMs) || isNaN(finishedAtMs)) ? 0 : Math.max(0, finishedAtMs - startedAtMs);
+
+    const createdTaskIds = Array.from(_taskIdsAtPersist).filter(function (tid) { return !_taskIdsAtLoad.has(tid); });
+    const createdTaskIdSet = new Set(createdTaskIds);
+
+    const createdCampaignIdSet = new Set(campaignGovEvents
+      .filter(function (evt) { return evt && evt.type === 'campaign-created' && evt.data && evt.data.campaignId; })
+      .map(function (evt) { return evt.data.campaignId; }));
+
+    const updatedDirectiveCount = Array.from(_directivesTouched).filter(function (id) { return !_createdDirectiveIds.has(id); }).length;
+    const updatedCampaignCount = Array.from(_campaignsTouched).filter(function (id) { return !createdCampaignIdSet.has(id); }).length;
+    const updatedTaskCount = Array.from(_tasksTouched).filter(function (id) { return !createdTaskIdSet.has(id); }).length;
+
+    const docsAtPersist = (await storage.getState('documents')) || [];
+    const createdDocsCount = docsAtPersist.filter(function (d) { return d && d.id && !_documentIdsAtLoad.has(d.id); }).length;
+
+    const activeTasksNow = tasks.filter(function (t) {
+      var st = String((t && t.status) || '').toLowerCase();
+      return st !== 'done' && st !== 'archived';
+    });
+    const overdueTasks = activeTasksNow.filter(function (t) {
+      if (!t || !t.dueDate) return false;
+      var due = new Date(t.dueDate).getTime();
+      return !isNaN(due) && due < Date.now();
+    }).length;
+    const blockedTasks = activeTasksNow.filter(function (t) { return String((t && t.status) || '').toLowerCase() === 'blocked'; }).length;
+    const oldestActiveTaskAgeHours = activeTasksNow.reduce(function (maxHrs, t) {
+      var created = new Date((t && t.createdAt) || 0).getTime();
+      if (isNaN(created) || created <= 0) return maxHrs;
+      var ageHrs = (Date.now() - created) / 3600000;
+      return ageHrs > maxHrs ? ageHrs : maxHrs;
+    }, 0);
+
+    const perAgent = {};
+    Object.keys(_agentRunStats).forEach(function (aid) {
+      var rs = _agentRunStats[aid] || {};
+      var rc = (_runCounters.byAgent && _runCounters.byAgent[aid]) || {};
+      perAgent[aid] = {
+        actionsAttempted: rs.attempted || 0,
+        actionsExecuted: rs.executed || 0,
+        actionsBlocked: (rc.blocked || 0) + (rs.guardrailBlocked || 0),
+        newTasksCreated: rc.creates || 0,
+        avgLatencyMs: rs.avgLatencyMs || 0,
+        error: rs.error || null
+      };
+    });
+
+    const guardrailTotal = (_guardrailCounts.orphanBlocked || 0)
+      + (_guardrailCounts.exactDupBlocked || 0)
+      + (_guardrailCounts.fuzzyDupBlocked || 0)
+      + (_guardrailCounts.taskCeilingBlocked || 0)
+      + (_guardrailCounts.socialPromoGateBlocked || 0)
+      + (_guardrailCounts.pausedProjectAutomationBlocked || 0);
+
+    const heartbeatSummary = {
+      runId: runId,
+      startedAt: cycleStart,
+      finishedAt: finishedAt,
+      durationMs: durationMs,
+      mode: normalizedActivationMode,
+      executionMode: executionMode,
+      status: status,
+      errorSummary: null,
+      created: {
+        goals: 0,
+        campaigns: createdCampaignIdSet.size,
+        projects: createdProjectCount,
+        tasks: createdTaskIds.length,
+        docs: createdDocsCount
+      },
+      updated: {
+        tasks: updatedTaskCount,
+        directives: updatedDirectiveCount,
+        campaigns: updatedCampaignCount
+      },
+      autoFixes: autoFixCount,
+      agentActions: {
+        proposed: proposalsTotal,
+        executed: Object.keys(agentActions).reduce(function (sum, aid) { return sum + (agentActions[aid] || 0); }, 0),
+        blocked: blockedTotal + guardrailTotal,
+        escalated: _pendingEscalations.length
+      },
+      guardrails: {
+        orphanBlocked: _guardrailCounts.orphanBlocked || 0,
+        exactDupBlocked: _guardrailCounts.exactDupBlocked || 0,
+        fuzzyDupBlocked: _guardrailCounts.fuzzyDupBlocked || 0,
+        taskCeilingBlocked: _guardrailCounts.taskCeilingBlocked || 0,
+        socialPromoGateBlocked: _guardrailCounts.socialPromoGateBlocked || 0,
+        ceoApprovalsTriggered: _guardrailCounts.ceoApprovalsTriggered || 0,
+        pausedProjectAutomationBlocked: _guardrailCounts.pausedProjectAutomationBlocked || 0
+      },
+      backlogPressure: {
+        activeTasks: activeTasksNow.length,
+        activeTasksCap: GUARDRAILS.maxActiveTasks,
+        newTasksThisCycle: newTasksCreated,
+        newTasksCap: GUARDRAILS.maxNewTasksPerCycle,
+        overdueTasks: overdueTasks,
+        blockedTasks: blockedTasks,
+        oldestActiveTaskAgeHours: Math.round(oldestActiveTaskAgeHours)
+      },
+      perAgent: perAgent,
+      skippedAgents: skippedAgents
+    };
+
+    const heartbeatRuns = (await storage.getState('heartbeatRuns')) || [];
+    heartbeatRuns.push(heartbeatSummary);
+    if (heartbeatRuns.length > 100) heartbeatRuns.splice(0, heartbeatRuns.length - 100);
+    await storage.setState('heartbeatRuns', heartbeatRuns);
+    await logEvent('heartbeat-summary', null, 'Heartbeat summary persisted', runId, {
+      runId: runId,
+      status: status,
+      durationMs: durationMs,
+      newTasks: newTasksCreated
+    });
+
     context.log('[Heartbeat] Cycle complete:', cycleId, '| Gemini calls:', geminiCalls, '| New tasks:', newTasksCreated, '| Skipped:', skippedAgents.length, '| Tier4 ran:', ranTier4.join(', ') || 'none');
 
   } catch (err) {
     context.log.error('[Heartbeat] Fatal error:', err.message);
     await logEvent('error', null, 'Heartbeat fatal: ' + err.message, cycleId);
+    try {
+      const finishedAt = new Date().toISOString();
+      const startedAtMs = new Date(cycleStart).getTime();
+      const finishedAtMs = new Date(finishedAt).getTime();
+      const durationMs = (isNaN(startedAtMs) || isNaN(finishedAtMs)) ? 0 : Math.max(0, finishedAtMs - startedAtMs);
+      const heartbeatRuns = (await storage.getState('heartbeatRuns')) || [];
+      heartbeatRuns.push({
+        runId: runId,
+        startedAt: cycleStart,
+        finishedAt: finishedAt,
+        durationMs: durationMs,
+        mode: 'unknown',
+        executionMode: 'unknown',
+        status: 'error',
+        errorSummary: String(err && err.message ? err.message : err),
+        created: { goals: 0, campaigns: 0, projects: 0, tasks: 0, docs: 0 },
+        updated: { tasks: 0, directives: 0, campaigns: 0 },
+        autoFixes: 0,
+        agentActions: { proposed: 0, executed: 0, blocked: 0, escalated: 0 },
+        guardrails: {
+          orphanBlocked: 0,
+          exactDupBlocked: 0,
+          fuzzyDupBlocked: 0,
+          taskCeilingBlocked: 0,
+          socialPromoGateBlocked: 0,
+          ceoApprovalsTriggered: 0,
+          pausedProjectAutomationBlocked: 0
+        },
+        backlogPressure: {
+          activeTasks: 0,
+          activeTasksCap: GUARDRAILS.maxActiveTasks,
+          newTasksThisCycle: 0,
+          newTasksCap: GUARDRAILS.maxNewTasksPerCycle,
+          overdueTasks: 0,
+          blockedTasks: 0,
+          oldestActiveTaskAgeHours: 0
+        },
+        perAgent: {},
+        skippedAgents: []
+      });
+      if (heartbeatRuns.length > 100) heartbeatRuns.splice(0, heartbeatRuns.length - 100);
+      await storage.setState('heartbeatRuns', heartbeatRuns);
+    } catch (_persistErr) {
+      context.log.warn('[Heartbeat] Failed to persist fatal heartbeat summary:', _persistErr.message || _persistErr);
+    }
   }
 };
 
 // ── Run a single agent's heartbeat ──
-async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, normalizedActivationMode, isAgentInCooldown, logAgentCooldownOnce, incPolicyGate) {
-  const result = { geminiCalls: 0, actions: 0, taskUpdates: [], proposals: [], newResearchIntel: null };
+async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, normalizedActivationMode, isAgentInCooldown, logAgentCooldownOnce, incPolicyGate, campaignCtx) {
+  const _agentRunStartMs = Date.now();
+  const result = {
+    geminiCalls: 0,
+    actions: 0,
+    actionAttempts: 0,
+    durationMs: 0,
+    taskUpdates: [],
+    proposals: [],
+    newResearchIntel: null,
+    guardrails: {
+      orphanBlocked: 0,
+      exactDupBlocked: 0,
+      fuzzyDupBlocked: 0,
+      taskCeilingBlocked: 0,
+      socialPromoGateBlocked: 0
+    }
+  };
   const agent = AGENT_ROLES[agentId];
   if (!agent) return result;
 
@@ -2301,6 +2553,7 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
 
   if (!response) {
     context.log('[Heartbeat]', agentId, 'got no response');
+    result.durationMs = Date.now() - _agentRunStartMs;
     return result;
   }
 
@@ -2491,6 +2744,7 @@ Write the full deliverable first, then the structured JSON block.`;
 
   // Process structured actions (non-tool actions)
   const actions = regularActions;
+  result.actionAttempts = Array.isArray(actions) ? actions.length : 0;
   let actionCount = 0;
 
   // SERVER-SIDE FORCED HERO IMAGE: If Pixel has a hero image task idle 10+ min and didn't produce generate-image, inject it
@@ -2568,6 +2822,7 @@ Write the full deliverable first, then the structured JSON block.`;
       // SERVER-SIDE GUARD: active task ceiling — prevent unbounded task growth
       const _activeTaskCount = tasks.filter(t => t.status !== 'done' && t.status !== 'archived').length;
       if (_activeTaskCount >= GUARDRAILS.maxActiveTasks) {
+        result.guardrails.taskCeilingBlocked++;
         context.log('[Heartbeat]', agentId, 'BLOCKED create-task: active task ceiling reached (' + _activeTaskCount + '/' + GUARDRAILS.maxActiveTasks + ')');
         continue;
       }
@@ -2576,6 +2831,7 @@ Write the full deliverable first, then the structured JSON block.`;
       const _hasObjective = action.task.objective_id || (action.task.source && action.task.source.type === 'ceo');
       const _hasDirective = action.task.directive_id;
       if (!_hasObjective && !_hasDirective) {
+        result.guardrails.orphanBlocked++;
         context.log('[Heartbeat]', agentId, 'BLOCKED orphan task creation: "' + (action.task.title || '') + '" — must set objective_id or directive_id');
         continue;
       }
@@ -2587,6 +2843,7 @@ Write the full deliverable first, then the structured JSON block.`;
         const normalizedNew = _normalize(proposedTitle);
         const existingMatch = tasks.find(t => t.status !== 'done' && _normalize(t.title || '') === normalizedNew);
         if (existingMatch) {
+          result.guardrails.exactDupBlocked++;
           context.log('[Heartbeat]', agentId, 'BLOCKED duplicate task creation:', proposedTitle, '— matches existing:', existingMatch.id);
           continue;
         }
@@ -2601,6 +2858,7 @@ Write the full deliverable first, then the structured JSON block.`;
             return overlap / Math.max(newWords.length, existingWords.length) >= 0.8;
           });
           if (fuzzyMatch) {
+            result.guardrails.fuzzyDupBlocked++;
             context.log('[Heartbeat]', agentId, 'BLOCKED fuzzy-duplicate task:', proposedTitle, '— similar to:', fuzzyMatch.title, '(', fuzzyMatch.id, ')');
             continue;
           }
@@ -2614,6 +2872,7 @@ Write the full deliverable first, then the structured JSON block.`;
       const _isSocialPromoTask = /social\s*(media|post|promo|copy|campaign)|promote.*blog|blog.*promo/.test(_taskText);
       const _refsBlogPost = /blog\s*post|hello\s*world|marketing_post|first\s*post/.test(_taskText);
       if (_isSocialPromoTask && _refsBlogPost) {
+        result.guardrails.socialPromoGateBlocked++;
         context.log('[Heartbeat]', agentId, 'BLOCKED premature social promo task:', action.task.title, '— blog must be published + promoted first. Social tasks are auto-created on publish with promote=true.');
         continue;
       }
@@ -2628,9 +2887,9 @@ Write the full deliverable first, then the structured JSON block.`;
 
       // Resolve campaign: inherit from directive first, else match/create via shared module
       var _taskCampaignId = null;
-      if (action.task.directive_id && projectById[action.task.directive_id]) {
-        normalizeCampaignRef(projectById[action.task.directive_id]);
-        _taskCampaignId = projectById[action.task.directive_id].campaign_id || null;
+      if (action.task.directive_id && campaignCtx && campaignCtx.projectById && campaignCtx.projectById[action.task.directive_id]) {
+        normalizeCampaignRef(campaignCtx.projectById[action.task.directive_id]);
+        _taskCampaignId = campaignCtx.projectById[action.task.directive_id].campaign_id || null;
       }
       if (!_taskCampaignId) {
         const _ctResult = await ensureCampaign({
@@ -2640,15 +2899,15 @@ Write the full deliverable first, then the structured JSON block.`;
           goalId: action.task.objective_id || null,
           division: action.task.division || null,
           provenance: 'Auto: Campaign ' + agentId,
-          campaigns: campaigns,
+          campaigns: (campaignCtx && campaignCtx.campaigns) ? campaignCtx.campaigns : [],
           entrypoint: 'heartbeat_create_task',
           debug: true,
           logger: context.log
         });
         _taskCampaignId = _ctResult.campaignId;
         if (_ctResult.created) {
-          campaignsChanged = true;
-          campaignGovEvents.push({
+          if (campaignCtx) campaignCtx.campaignsChanged = true;
+          if (campaignCtx && Array.isArray(campaignCtx.campaignGovEvents)) campaignCtx.campaignGovEvents.push({
             id: 'gov-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
             type: 'campaign-created',
             data: { campaignId: _ctResult.campaignId, title: _ctResult.campaign.title, provenance: _ctResult.campaign.provenance || null, source: 'heartbeat_create_task' },
@@ -4515,6 +4774,7 @@ Write the full deliverable first, then the structured JSON block.`;
     }
   }
 
+  result.durationMs = Date.now() - _agentRunStartMs;
   return result;
 }
 

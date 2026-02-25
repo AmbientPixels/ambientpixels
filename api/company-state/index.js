@@ -15,7 +15,7 @@ const VALID_KEYS = [
   'directives', 'campaigns', 'objectives', 'approvalQueue', 'governanceLog',
   'actionQueue', 'actionAuditLog', 'actionRateCounts', 'actions',
   'documents', 'publishedDocs', 'blogPosts', 'dailyLog', 'webSearchCache',
-  'ap_artifacts', 'meetings', 'tasksArchive', 'agentMemories', 'agentSeedMemories',
+  'ap_artifacts', 'meetings', 'tasksArchive', 'agentMemories', 'agentSeedMemories', 'heartbeatRuns',
   'contentEngineConfig', 'imageAssets', 'runtimeMemory',
   'execution_mode'
 ];

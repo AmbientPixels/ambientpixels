@@ -580,6 +580,15 @@
                 <div class="dash-empty" id="session-empty">No sessions recorded yet. Chat with an agent to see data here.</div>
               </div>
             </div>
+            <!-- Heartbeat Health -->
+            <div class="dash-panel dash-panel--full">
+              <div class="dash-panel-header">
+                <span class="dash-panel-title"><i class="fas fa-heart-pulse" style="color:#4ecdc4;"></i> Heartbeat Health</span>
+                <span class="dash-panel-badge" id="heartbeat-health-badge">Loading...</span>
+              </div>
+              <div id="panel-heartbeat-health"></div>
+              <div class="dash-empty" id="heartbeat-health-empty">No heartbeat telemetry yet.</div>
+            </div>
             <!-- Cron Log + Governance Log (Dev) — side by side -->
             <div class="dash-panel--full dev-log-split">
               <div class="dash-panel">
@@ -658,6 +667,9 @@
       var sessionCountBadge = document.getElementById('session-count-badge');
       var panelCron = document.getElementById('panel-cron');
       var cronEmpty = document.getElementById('cron-empty');
+      var panelHeartbeatHealth = document.getElementById('panel-heartbeat-health');
+      var heartbeatHealthEmpty = document.getElementById('heartbeat-health-empty');
+      var heartbeatHealthBadge = document.getElementById('heartbeat-health-badge');
       var panelOvernight = document.getElementById('panel-overnight');
       var overnightEmpty = document.getElementById('overnight-empty');
       var transcriptOverlay = document.getElementById('transcript-overlay');
@@ -886,6 +898,7 @@
         renderOvernightLog();
         renderMorningReport();
         renderServerLogs();
+        renderHeartbeatHealth();
         renderApprovalQueue();
         renderDirectivesSnap();
         renderSystemPulse();
@@ -1441,6 +1454,161 @@
           html += '</div>';
 
           panelReport.innerHTML = html || '<div class="dash-empty">Report generated but no summary available.</div>';
+        });
+      }
+
+      // ── Heartbeat Health ──
+      function renderHeartbeatHealth() {
+        if (!panelHeartbeatHealth || !heartbeatHealthEmpty || !heartbeatHealthBadge) return;
+
+        function _setBadge(status, text) {
+          var color = status === 'red' ? '#f87171' : (status === 'yellow' ? '#fbbf24' : '#34d399');
+          heartbeatHealthBadge.style.color = color;
+          heartbeatHealthBadge.style.borderColor = 'rgba(255,255,255,0.12)';
+          heartbeatHealthBadge.textContent = text;
+        }
+
+        function _safeNum(v) {
+          var n = Number(v);
+          return isNaN(n) ? 0 : n;
+        }
+
+        function _spark(values, max, color) {
+          if (!Array.isArray(values) || values.length === 0) return '<span style="opacity:0.35;">n/a</span>';
+          var m = Math.max(max || 1, 1);
+          return '<span style="display:inline-flex; gap:2px; align-items:flex-end; height:12px;">' + values.map(function (v) {
+            var n = _safeNum(v);
+            var h = Math.max(2, Math.min(12, Math.round((n / m) * 12)));
+            return '<span style="display:inline-block; width:4px; height:' + h + 'px; border-radius:2px; background:' + color + '; opacity:0.9;"></span>';
+          }).join('') + '</span>';
+        }
+
+        if (AgentEngine.getStoreMode() !== 'server') {
+          panelHeartbeatHealth.innerHTML = '<div style="font-size:0.7rem; opacity:0.65;">Heartbeat Health is available in server mode only.</div>';
+          heartbeatHealthEmpty.style.display = 'none';
+          _setBadge('yellow', 'Local Mode');
+          return;
+        }
+
+        fetch(getApiBase() + '/company-state?key=heartbeatRuns', {
+          headers: (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) ? CompanyStore.getWriteHeaders() : {}
+        }).then(function (r) { return r.ok ? r.json() : {}; }).then(function (resp) {
+          var runs = (resp && resp.value) || [];
+          if (!Array.isArray(runs) || runs.length === 0) {
+            panelHeartbeatHealth.innerHTML = '';
+            heartbeatHealthEmpty.style.display = '';
+            _setBadge('yellow', 'No Data');
+            return;
+          }
+
+          runs = runs.slice().sort(function (a, b) {
+            return new Date(a.finishedAt || a.startedAt || 0).getTime() - new Date(b.finishedAt || b.startedAt || 0).getTime();
+          });
+          var last = runs[runs.length - 1] || {};
+          var lastTs = new Date(last.finishedAt || last.startedAt || 0).getTime();
+          var ageMin = isNaN(lastTs) ? 9999 : Math.floor((Date.now() - lastTs) / 60000);
+          var status = String(last.status || 'ok').toLowerCase();
+          if (status !== 'error' && ageMin > 90) status = 'warn';
+          var uiStatus = status === 'error' ? 'red' : (status === 'warn' ? 'yellow' : 'green');
+          _setBadge(uiStatus, uiStatus === 'green' ? 'Healthy' : (uiStatus === 'yellow' ? 'Watch' : 'Alert'));
+
+          heartbeatHealthEmpty.style.display = 'none';
+
+          var created = last.created || {};
+          var updated = last.updated || {};
+          var ga = last.guardrails || {};
+          var actions = last.agentActions || {};
+          var backlog = last.backlogPressure || {};
+          var perAgent = last.perAgent || {};
+
+          var recent10 = runs.slice(-10);
+          var durVals = recent10.map(function (r) { return Math.round(_safeNum(r.durationMs) / 1000); });
+          var blockVals = recent10.map(function (r) {
+            var gr = r.guardrails || {};
+            return _safeNum(gr.orphanBlocked) + _safeNum(gr.exactDupBlocked) + _safeNum(gr.fuzzyDupBlocked) + _safeNum(gr.taskCeilingBlocked) + _safeNum(gr.socialPromoGateBlocked) + _safeNum(gr.pausedProjectAutomationBlocked);
+          });
+          var taskVals = recent10.map(function (r) { return _safeNum((r.created || {}).tasks); });
+          var failVals = recent10.map(function (r) { return String(r.status || '').toLowerCase() === 'error' ? 1 : 0; });
+
+          var maxDur = Math.max.apply(null, durVals.concat([1]));
+          var maxBlocks = Math.max.apply(null, blockVals.concat([1]));
+          var maxTasks = Math.max.apply(null, taskVals.concat([1]));
+
+          var html = '';
+
+          // 2) Cycle summary cards
+          html += '<div style="font-size:0.62rem; opacity:0.55; margin-bottom:0.25rem;">Cycle summary (last run)</div>';
+          html += '<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:0.45rem; margin-bottom:0.65rem;">';
+          html += '<div style="padding:0.45rem 0.55rem; border:1px solid rgba(255,255,255,0.08); border-radius:8px;"><div style="font-size:0.58rem; opacity:0.5;">Created</div><div style="font-size:0.75rem; line-height:1.35;">Goals ' + _safeNum(created.goals) + ' · Camp ' + _safeNum(created.campaigns) + ' · Proj ' + _safeNum(created.projects) + ' · Tasks ' + _safeNum(created.tasks) + ' · Docs ' + _safeNum(created.docs) + '</div></div>';
+          html += '<div style="padding:0.45rem 0.55rem; border:1px solid rgba(255,255,255,0.08); border-radius:8px;"><div style="font-size:0.58rem; opacity:0.5;">Updated</div><div style="font-size:0.75rem; line-height:1.35;">Tasks ' + _safeNum(updated.tasks) + ' · Directives ' + _safeNum(updated.directives) + ' · Campaigns ' + _safeNum(updated.campaigns) + '</div></div>';
+          html += '<div style="padding:0.45rem 0.55rem; border:1px solid rgba(255,255,255,0.08); border-radius:8px;"><div style="font-size:0.58rem; opacity:0.5;">Auto-fixes</div><div style="font-size:0.9rem; font-weight:600;">' + _safeNum(last.autoFixes) + '</div></div>';
+          html += '<div style="padding:0.45rem 0.55rem; border:1px solid rgba(255,255,255,0.08); border-radius:8px;"><div style="font-size:0.58rem; opacity:0.5;">Agent actions</div><div style="font-size:0.75rem; line-height:1.35;">Proposed ' + _safeNum(actions.proposed) + ' · Executed ' + _safeNum(actions.executed) + ' · Blocked ' + _safeNum(actions.blocked) + ' · Escalated ' + _safeNum(actions.escalated) + '</div></div>';
+          html += '</div>';
+
+          // 3) Guardrail heatmap
+          html += '<div style="font-size:0.62rem; opacity:0.55; margin-bottom:0.25rem;">Guardrail heatmap (last run)</div>';
+          var guardItems = [
+            { key: 'orphanBlocked', label: 'Orphan blocked' },
+            { key: 'exactDupBlocked', label: 'Exact dup blocked' },
+            { key: 'fuzzyDupBlocked', label: 'Fuzzy dup blocked' },
+            { key: 'taskCeilingBlocked', label: 'Task ceiling blocked' },
+            { key: 'socialPromoGateBlocked', label: 'Social promo gate blocked' },
+            { key: 'ceoApprovalsTriggered', label: 'CEO approvals triggered' },
+            { key: 'pausedProjectAutomationBlocked', label: 'Paused project automation blocked' }
+          ];
+          html += '<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:0.35rem; margin-bottom:0.65rem;">';
+          guardItems.forEach(function (g) {
+            var val = _safeNum(ga[g.key]);
+            var bg = val >= 3 ? 'rgba(248,113,113,0.12)' : (val > 0 ? 'rgba(251,191,36,0.12)' : 'rgba(52,211,153,0.08)');
+            var border = val >= 3 ? 'rgba(248,113,113,0.35)' : (val > 0 ? 'rgba(251,191,36,0.35)' : 'rgba(52,211,153,0.25)');
+            html += '<div style="padding:0.4rem 0.5rem; border:1px solid ' + border + '; border-radius:7px; background:' + bg + '; font-size:0.66rem; display:flex; justify-content:space-between; gap:0.45rem;">'
+              + '<span style="opacity:0.8;">' + g.label + '</span><strong>' + val + '</strong></div>';
+          });
+          html += '</div>';
+
+          // 4) Agent contribution strip
+          html += '<div style="font-size:0.62rem; opacity:0.55; margin-bottom:0.25rem;">Agent contribution (last run)</div>';
+          html += '<div style="display:flex; flex-wrap:wrap; gap:0.35rem; margin-bottom:0.65rem;">';
+          Object.keys(perAgent).sort().forEach(function (aid) {
+            var a = perAgent[aid] || {};
+            var agent = AgentEngine.getAgent ? AgentEngine.getAgent(aid) : null;
+            var color = (agent && agent.color) ? agent.color : '#94a3b8';
+            html += '<div style="padding:0.4rem 0.5rem; min-width:190px; border:1px solid rgba(255,255,255,0.08); border-radius:7px; background:rgba(255,255,255,0.02);">'
+              + '<div style="font-size:0.64rem; margin-bottom:0.2rem;"><strong style="color:' + color + ';">' + escapeHtml(agent ? agent.name : aid) + '</strong></div>'
+              + '<div style="font-size:0.6rem; opacity:0.8; line-height:1.35;">att ' + _safeNum(a.actionsAttempted) + ' · exe ' + _safeNum(a.actionsExecuted) + ' · blk ' + _safeNum(a.actionsBlocked) + ' · new ' + _safeNum(a.newTasksCreated) + ' · ' + Math.round(_safeNum(a.avgLatencyMs) / 1000) + 's</div>'
+              + '</div>';
+          });
+          if (Object.keys(perAgent).length === 0) {
+            html += '<div style="font-size:0.66rem; opacity:0.5;">No per-agent activity in last run.</div>';
+          }
+          html += '</div>';
+
+          // 5) Backlog pressure
+          html += '<div style="font-size:0.62rem; opacity:0.55; margin-bottom:0.25rem;">Backlog pressure</div>';
+          html += '<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:0.35rem; margin-bottom:0.65rem;">';
+          html += '<div style="padding:0.4rem 0.5rem; border:1px solid rgba(255,255,255,0.08); border-radius:7px;">Active tasks: <strong>' + _safeNum(backlog.activeTasks) + '/' + _safeNum(backlog.activeTasksCap) + '</strong></div>';
+          html += '<div style="padding:0.4rem 0.5rem; border:1px solid rgba(255,255,255,0.08); border-radius:7px;">New tasks: <strong>' + _safeNum(backlog.newTasksThisCycle) + '/' + _safeNum(backlog.newTasksCap) + '</strong></div>';
+          html += '<div style="padding:0.4rem 0.5rem; border:1px solid rgba(255,255,255,0.08); border-radius:7px;">Overdue: <strong>' + _safeNum(backlog.overdueTasks) + '</strong></div>';
+          html += '<div style="padding:0.4rem 0.5rem; border:1px solid rgba(255,255,255,0.08); border-radius:7px;">Blocked: <strong>' + _safeNum(backlog.blockedTasks) + '</strong></div>';
+          html += '<div style="padding:0.4rem 0.5rem; border:1px solid rgba(255,255,255,0.08); border-radius:7px;">Oldest active age: <strong>' + _safeNum(backlog.oldestActiveTaskAgeHours) + 'h</strong></div>';
+          html += '<div style="padding:0.4rem 0.5rem; border:1px solid rgba(255,255,255,0.08); border-radius:7px;">Last run: <strong>' + (last.finishedAt ? formatTime(last.finishedAt) : 'N/A') + '</strong> (' + ageMin + 'm ago)</div>';
+          html += '</div>';
+
+          // 6) Timeline
+          html += '<div style="font-size:0.62rem; opacity:0.55; margin-bottom:0.25rem;">Timeline (last 10 heartbeats)</div>';
+          html += '<div style="display:grid; grid-template-columns:1fr; gap:0.2rem; font-size:0.62rem;">';
+          html += '<div>Duration: ' + _spark(durVals, maxDur, '#60a5fa') + ' <span style="opacity:0.45;">(s)</span></div>';
+          html += '<div>Blocks: ' + _spark(blockVals, maxBlocks, '#fbbf24') + '</div>';
+          html += '<div>Created tasks: ' + _spark(taskVals, maxTasks, '#34d399') + '</div>';
+          html += '<div>Failures: ' + _spark(failVals, 1, '#f87171') + '</div>';
+          html += '</div>';
+
+          panelHeartbeatHealth.innerHTML = html;
+        }).catch(function (err) {
+          console.warn('[Dashboard] Heartbeat health fetch failed:', err);
+          panelHeartbeatHealth.innerHTML = '';
+          heartbeatHealthEmpty.style.display = '';
+          _setBadge('red', 'Error');
         });
       }
 
