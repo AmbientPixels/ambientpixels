@@ -1330,6 +1330,44 @@ module.exports = async function (context) {
       }
     } catch (_bfErr) { context.log.warn('[Heartbeat] Hero image backfill failed (non-fatal):', _bfErr.message); }
 
+    // ── RECONCILIATION: Notify Scribe tasks when hero image is ready but comment was missed ──
+    try {
+      let _heroNotifyChanged = false;
+      const _heroReadyDocs = documents.filter(d => d && d.hero_image_asset_id && !d.awaiting_hero_image && d.kind === 'marketing_post');
+      for (const _hrd of _heroReadyDocs) {
+        // Find active Scribe task referencing this document
+        const _hrdOriginTask = tasks.find(t =>
+          t.assignee === 'scribe' && t.status !== 'done' && t.status !== 'archived' &&
+          t.comments && t.comments.some(c => c.text && c.text.indexOf(_hrd.id) !== -1)
+        );
+        if (!_hrdOriginTask) continue;
+        // Check if already notified
+        const _hrdAlreadyNotified = _hrdOriginTask.comments.some(c =>
+          c.text && c.text.indexOf('You can now submit this document for publish') !== -1
+        );
+        if (_hrdAlreadyNotified) continue;
+        // Check if publish action already exists (no need to notify)
+        const _hrdHasPublish = allActions.some(a =>
+          a.type === 'publish_document' && a.payload && a.payload.documentId === _hrd.id
+        );
+        if (_hrdHasPublish) continue;
+        // Add notification comment
+        if (!_hrdOriginTask.comments) _hrdOriginTask.comments = [];
+        _hrdOriginTask.comments.push({
+          id: 'cmt-hero-ready-recon-' + Date.now(),
+          author: 'system',
+          text: 'Hero image generated and attached to document ' + _hrd.id + ' (asset: ' + _hrd.hero_image_asset_id + '). You can now submit this document for publish using submit-for-publish with documentId: ' + _hrd.id,
+          type: 'system',
+          createdAt: new Date().toISOString()
+        });
+        _heroNotifyChanged = true;
+        context.log('[Heartbeat] RECONCILIATION: notified Scribe task', _hrdOriginTask.id, 'that hero image is ready for doc:', _hrd.id);
+      }
+      if (_heroNotifyChanged) {
+        await storage.setState('tasks', tasks);
+      }
+    } catch (_hnErr) { context.log.warn('[Heartbeat] Hero notify reconciliation failed (non-fatal):', _hnErr.message); }
+
     // Dedupe check: get recent log summaries to avoid repeats
     const recentSummaries = new Set();
     const dedupeAfter = Date.now() - GUARDRAILS.dedupeWindowMs;
