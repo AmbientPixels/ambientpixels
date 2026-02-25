@@ -14,7 +14,6 @@
   <link rel="stylesheet" href="/css/components.css" />
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
-  <link rel="stylesheet" href="/css/projects.css" />
   <link rel="stylesheet" href="/css/forms.css" />
   <link rel="stylesheet" href="/css/hero-base.css" />
   <style>
@@ -64,9 +63,16 @@
     }
     .eng-card .eng-icon {
       font-size: 1.25rem;
-      color: #a78bfa;
+      color: var(--eng-accent, #a78bfa);
       margin-bottom: 0.25rem;
     }
+    .eng-card {
+      border-top: 3px solid var(--eng-accent, rgba(128,128,128,0.15));
+    }
+    .eng-card--advisory  { --eng-accent: #4ECDC4; }
+    .eng-card--build     { --eng-accent: #60a5fa; }
+    .eng-card--retainer  { --eng-accent: #f59e0b; }
+    .eng-card--enterprise{ --eng-accent: #FF6B9D; }
     .eng-card h3 {
       font-size: 1rem;
       font-weight: 600;
@@ -100,11 +106,19 @@
       height: 28px;
       border-radius: 50%;
       background: rgba(167, 139, 250, 0.12);
-      color: #a78bfa;
+      color: var(--step-accent, #a78bfa);
       font-size: 0.75rem;
       font-weight: 700;
       margin-bottom: 0.5rem;
     }
+    .eng-step {
+      border-top: 2px solid var(--step-accent, rgba(128,128,128,0.15));
+    }
+    .eng-step--discover    { --step-accent: #4ECDC4; }
+    .eng-step--architecture{ --step-accent: #60a5fa; }
+    .eng-step--build       { --step-accent: #a78bfa; }
+    .eng-step--governance  { --step-accent: #f59e0b; }
+    .eng-step--deploy      { --step-accent: #34d399; }
     .eng-step h4 {
       font-size: 0.85rem;
       font-weight: 600;
@@ -176,11 +190,11 @@
     }
 
     /* Light theme overrides */
-    [data-theme="light"] .eng-card .eng-icon,
-    [data-theme="light"] .eng-step-num {
-      color: #7c3aed;
+    [data-theme="light"] .eng-card .eng-icon {
+      color: var(--eng-accent, #7c3aed);
     }
     [data-theme="light"] .eng-step-num {
+      color: var(--step-accent, #7c3aed);
       background: rgba(124, 58, 237, 0.1);
     }
     [data-theme="light"] .eng-card {
@@ -221,9 +235,8 @@
   <section class="hero-base eng-hero" data-hero="architect">
     <div class="hero-base-layer"></div>
     <div class="hero-base-content">
-      <p class="nv-breadcrumb"><a href="/">Home</a> / Engage</p>
       <h1>Start Your System</h1>
-      <h2>Structured AI-native infrastructure, built for production environments.</h2>
+      <p class="subtitle">Structured AI-native infrastructure, built for production environments.</p>
       <p>AmbientPixels partners with organizations to design, build, and deploy governed automation systems. Every engagement follows a structured process — from discovery through production — with clear deliverables, defined architecture, and human oversight at every stage.</p>
     </div>
   </section>
@@ -235,22 +248,22 @@
       <h2>Engagement Models</h2>
       <p>Four structured pathways to production-grade infrastructure. Each model scales to meet system complexity and organizational requirements.</p>
       <div class="eng-grid">
-        <div class="eng-card">
+        <div class="eng-card eng-card--advisory">
           <i class="fas fa-compass eng-icon"></i>
           <h3>Advisory</h3>
           <p>Architecture review, system assessment, and strategic planning for teams building AI-native infrastructure. Delivered as structured consultation with documented recommendations.</p>
         </div>
-        <div class="eng-card">
+        <div class="eng-card eng-card--build">
           <i class="fas fa-hammer eng-icon"></i>
           <h3>Build</h3>
           <p>End-to-end system design and development. Modular architecture, automation pipelines, governance layers, and deployment — scoped to a defined project with clear milestones.</p>
         </div>
-        <div class="eng-card">
+        <div class="eng-card eng-card--retainer">
           <i class="fas fa-sync-alt eng-icon"></i>
           <h3>Retainer</h3>
           <p>Ongoing system maintenance, iteration, and infrastructure expansion. Dedicated capacity for continuous improvement with monthly deliverables and priority support.</p>
         </div>
-        <div class="eng-card">
+        <div class="eng-card eng-card--enterprise">
           <i class="fas fa-building eng-icon"></i>
           <h3>Enterprise</h3>
           <p>Full-scale platform implementation with multi-system integration, custom governance frameworks, SLA-backed support, and dedicated engineering resources.</p>
@@ -263,27 +276,27 @@
       <h2>Engagement Process</h2>
       <p>A defined workflow from initial conversation through production deployment.</p>
       <div class="eng-process">
-        <div class="eng-step">
+        <div class="eng-step eng-step--discover">
           <span class="eng-step-num">1</span>
           <h4>Discovery</h4>
           <p>Scope, goals, and system requirements</p>
         </div>
-        <div class="eng-step">
+        <div class="eng-step eng-step--architecture">
           <span class="eng-step-num">2</span>
           <h4>Architecture</h4>
           <p>System design, component mapping, and technical specification</p>
         </div>
-        <div class="eng-step">
+        <div class="eng-step eng-step--build">
           <span class="eng-step-num">3</span>
           <h4>Build</h4>
           <p>Modular development with milestone reviews and staging</p>
         </div>
-        <div class="eng-step">
+        <div class="eng-step eng-step--governance">
           <span class="eng-step-num">4</span>
           <h4>Governance</h4>
           <p>Approval flows, observability, and audit integration</p>
         </div>
-        <div class="eng-step">
+        <div class="eng-step eng-step--deploy">
           <span class="eng-step-num">5</span>
           <h4>Deployment</h4>
           <p>Production release, monitoring, and handoff documentation</p>
