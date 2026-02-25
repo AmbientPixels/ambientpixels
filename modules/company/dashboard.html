@@ -2738,7 +2738,7 @@
       // ── Objectives Snapshot ──
       function renderObjectivesSnap() {
         var objectives = AgentEngine.getObjectives();
-        var active = objectives.filter(function (o) { return o.status !== 'complete'; });
+        var active = objectives.filter(function (o) { return o.status !== 'complete' && o.status !== 'canceled'; });
         var listEl = document.getElementById('panel-objectives-snap');
         var empty = document.getElementById('objectives-snap-empty');
 
@@ -2751,7 +2751,19 @@
         listEl.innerHTML = '';
 
         active.slice(0, 5).forEach(function (obj) {
+          // Auto-calculated progress
+          var progress = (typeof AgentEngine.getObjectiveProgress === 'function') ? AgentEngine.getObjectiveProgress(obj.id) : null;
+          var pct = progress ? progress.pct : (obj.progressPercentage || 0);
+          var autoHealth = progress ? progress.health : 'neutral';
+          var barColor = autoHealth === 'good' ? '#34d399' : autoHealth === 'warn' ? '#fbbf24' : autoHealth === 'bad' ? '#ef4444' : '#64748b';
           var statusColor = obj.status === 'on_track' ? '#34d399' : obj.status === 'at_risk' ? '#fbbf24' : '#f87171';
+
+          // Breakdown meta
+          var metaParts = [];
+          if (progress && progress.campaigns > 0) metaParts.push(progress.campaigns + ' campaign' + (progress.campaigns !== 1 ? 's' : ''));
+          if (progress && progress.totalTasks > 0) metaParts.push(progress.doneTasks + '/' + progress.totalTasks + ' tasks done');
+          var metaHtml = metaParts.length > 0 ? '<span style="font-size:0.55rem; opacity:0.35; margin-left:0.3rem;">' + metaParts.join(' · ') + '</span>' : '';
+
           var li = document.createElement('li');
           li.className = 'log-item';
           li.innerHTML =
@@ -2759,9 +2771,9 @@
             '<div class="log-body" style="flex:1;">' +
               '<div class="log-text"><strong>' + escapeHtml(obj.title) + '</strong> <span style="font-size:0.6rem; opacity:0.4;">' + (obj.quarter || '') + ' ' + (obj.year || '') + '</span></div>' +
               '<div style="margin-top:0.3rem; height:4px; background:rgba(255,255,255,0.05); border-radius:2px; overflow:hidden;">' +
-                '<div style="height:100%; width:' + (obj.progressPercentage || 0) + '%; background:' + statusColor + '; border-radius:2px;"></div>' +
+                '<div style="height:100%; width:' + pct + '%; background:' + barColor + '; border-radius:2px;"></div>' +
               '</div>' +
-              '<div class="log-time" style="color:' + statusColor + ';">' + (obj.progressPercentage || 0) + '% · ' + (obj.status || 'on_track').replace(/_/g, ' ') + '</div>' +
+              '<div class="log-time" style="color:' + statusColor + ';">' + pct + '% · ' + (obj.status || 'on_track').replace(/_/g, ' ') + metaHtml + '</div>' +
             '</div>';
           listEl.appendChild(li);
         });

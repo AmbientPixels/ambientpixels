@@ -488,6 +488,27 @@
       function renderObjectives() {
         var objectives = AgentEngine.getObjectives();
 
+        // Auto-sync: update progressPercentage and auto-complete from campaign progress
+        var _needsSave = false;
+        objectives.forEach(function (o) {
+          if (o.status === 'canceled') return;
+          var p = (typeof AgentEngine.getObjectiveProgress === 'function') ? AgentEngine.getObjectiveProgress(o.id) : null;
+          if (!p || p.campaigns === 0) return;
+          // Sync progress percentage
+          if (o.progressPercentage !== p.pct) {
+            o.progressPercentage = p.pct;
+            _needsSave = true;
+          }
+          // Auto-complete: all campaigns done → mark goal complete
+          if (p.signal === 'complete' && o.status !== 'complete') {
+            o.status = 'complete';
+            _needsSave = true;
+          }
+        });
+        if (_needsSave) {
+          localStorage.setItem('ap_objectives', JSON.stringify(objectives));
+        }
+
         // Summary stats
         var total = objectives.length;
         var onTrack = objectives.filter(function (o) { return o.status === 'on_track'; }).length;
@@ -519,17 +540,53 @@
         card.style.cssText = 'padding:0.8rem; border:1px solid rgba(78,205,196,0.08); border-radius:8px; margin-bottom:0.5rem; background:rgba(78,205,196,0.02);';
 
         var isCanceled = obj.status === 'canceled';
-        var statusColor = obj.status === 'on_track' ? '#34d399' : obj.status === 'at_risk' ? '#fbbf24' : obj.status === 'behind' ? '#f87171' : obj.status === 'canceled' ? '#9ca3af' : '#8A2BE2';
-        var pct = obj.progressPercentage || 0;
 
-        // Find linked campaign titles (back-compat aware)
-        var cmpTitles = [];
-        var linkedCmpIds = resolveCampaignIds(obj);
-        if (linkedCmpIds.length > 0) {
-          linkedCmpIds.forEach(function (cid) {
-            var cmp = _campaignById(cid);
-            if (cmp) cmpTitles.push(cmp.title || cmp.id);
+        // Auto-calculated progress from linked campaigns
+        var progress = (typeof AgentEngine.getObjectiveProgress === 'function') ? AgentEngine.getObjectiveProgress(obj.id) : null;
+        var pct = progress ? progress.pct : 0;
+        var donePct = progress ? progress.donePct : 0;
+        var autoSignal = progress ? progress.signal : 'no_campaigns';
+        var autoHealth = progress ? progress.health : 'neutral';
+
+        // Use auto-derived status unless manually overridden
+        // If status was never manually set or still matches what auto would suggest, use auto
+        var effectiveStatus = obj.status || 'on_track';
+        var statusColor = effectiveStatus === 'on_track' ? '#34d399' : effectiveStatus === 'at_risk' ? '#fbbf24' : effectiveStatus === 'behind' ? '#f87171' : effectiveStatus === 'canceled' ? '#9ca3af' : '#8A2BE2';
+
+        // Bar color based on auto health (independent of manual status override)
+        var barColor = autoHealth === 'good' ? '#34d399' : autoHealth === 'warn' ? '#fbbf24' : autoHealth === 'bad' ? '#ef4444' : '#64748b';
+
+        // Task breakdown text
+        var breakdownParts = [];
+        if (progress && progress.totalTasks > 0) {
+          breakdownParts.push(progress.doneTasks + '/' + progress.totalTasks + ' done');
+          if (progress.inProgress > 0) breakdownParts.push(progress.inProgress + ' active');
+          if (progress.review > 0) breakdownParts.push(progress.review + ' in review');
+          if (progress.blocked > 0) breakdownParts.push(progress.blocked + ' blocked');
+        }
+
+        // Campaign breakdown chips
+        var cmpChipsHtml = '';
+        if (progress && progress.campaignDetails && progress.campaignDetails.length > 0) {
+          var chips = progress.campaignDetails.map(function (cd) {
+            var chipColor = cd.signal === 'complete' ? '#8A2BE2' : cd.signal === 'on_track' ? '#34d399' : cd.signal === 'at_risk' || cd.signal === 'stale' ? '#fbbf24' : cd.signal === 'blocked' ? '#ef4444' : '#64748b';
+            var pauseIcon = cd.status === 'paused' ? '<i class="fas fa-pause-circle" style="font-size:0.45rem; color:#fbbf24; margin-right:2px;"></i>' : '';
+            return '<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.54rem;padding:0.08rem 0.38rem;border-radius:4px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);color:' + chipColor + ';">' +
+              pauseIcon + '<i class="fas fa-layer-group" style="font-size:0.42rem; opacity:0.6;"></i>' +
+              escapeHtml(cd.title || cd.id) + ' <span style="opacity:0.6;">' + cd.pct + '%</span></span>';
           });
+          cmpChipsHtml = '<div style="display:flex; flex-wrap:wrap; gap:0.25rem; margin:0.3rem 0 0.15rem;">' + chips.join('') + '</div>';
+        }
+
+        // Auto-signal hint (shown if different from manual status)
+        var signalLabels = { on_track: 'On Track', at_risk: 'At Risk', blocked: 'Blocked', stale: 'Stale', complete: 'Complete', not_started: 'Not Started', no_campaigns: 'No Campaigns', no_tasks: 'No Tasks' };
+        var autoLabel = signalLabels[autoSignal] || autoSignal;
+        var signalHintHtml = '';
+        // Show auto-signal hint if it differs from manual status
+        var signalStatusMap = { on_track: 'on_track', at_risk: 'at_risk', blocked: 'behind', stale: 'at_risk', complete: 'complete', not_started: 'on_track', no_campaigns: 'on_track', no_tasks: 'on_track' };
+        var suggestedStatus = signalStatusMap[autoSignal] || 'on_track';
+        if (suggestedStatus !== effectiveStatus && !isCanceled && progress && progress.campaigns > 0) {
+          signalHintHtml = '<span style="font-size:0.52rem; opacity:0.45; margin-left:0.4rem;"><i class="fas fa-robot" style="margin-right:2px;"></i>Auto: ' + autoLabel + '</span>';
         }
 
         card.innerHTML =
@@ -537,13 +594,17 @@
             '<strong style="font-size:0.85rem;">' + escapeHtml(obj.title) + '</strong>' +
             '<span style="font-size:0.65rem; opacity:0.5;">' + (obj.quarter || '') + ' ' + (obj.year || '') + '</span>' +
           '</div>' +
-          (cmpTitles.length > 0 ? '<div style="font-size:0.6rem; opacity:0.4; margin-bottom:0.4rem;"><i class="fas fa-layer-group" style="margin-right:3px;"></i>' + cmpTitles.map(function (t) { return escapeHtml(t); }).join(', ') + '</div>' : '') +
           (obj.description ? '<div style="font-size:0.7rem; opacity:0.5; margin-bottom:0.4rem; line-height:1.3;">' + escapeHtml(obj.description) + '</div>' : '') +
-          '<div style="margin:0.4rem 0; height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden;">' +
-            '<div style="height:100%; width:' + pct + '%; background:' + statusColor + '; border-radius:3px; transition:width 0.3s;"></div>' +
+          cmpChipsHtml +
+          '<div style="margin:0.4rem 0 0.15rem; height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden;">' +
+            '<div style="height:100%; width:' + pct + '%; background:' + barColor + '; border-radius:3px; transition:width 0.3s;"></div>' +
+          '</div>' +
+          '<div style="font-size:0.6rem; font-weight:500; color:' + barColor + '; margin-bottom:0.15rem;">' +
+            '<span style="font-weight:700;">' + pct + '%</span> ' +
+            (breakdownParts.length > 0 ? breakdownParts.join('  ') : (progress && progress.campaigns > 0 ? progress.totalTasks + ' tasks across ' + progress.campaigns + ' campaigns' : 'No campaigns linked')) +
           '</div>' +
           '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">' +
-            '<span style="font-size:0.7rem; color:' + statusColor + '; font-weight:500;">' + pct + '% — ' + (obj.status || 'on_track').replace(/_/g, ' ') + '</span>' +
+            '<span style="font-size:0.7rem; color:' + statusColor + '; font-weight:500;">' + (effectiveStatus).replace(/_/g, ' ') + signalHintHtml + '</span>' +
             '<span style="font-size:0.6rem; opacity:0.4;">Owner: ' + (obj.owner || 'nova') + '</span>' +
           '</div>';
 
@@ -551,25 +612,7 @@
         var controls = document.createElement('div');
         controls.style.cssText = 'display:flex; gap:0.3rem; flex-wrap:wrap; align-items:center;';
 
-        // Progress slider
-        var slider = document.createElement('input');
-        slider.type = 'range';
-        slider.min = '0';
-        slider.max = '100';
-        slider.value = pct;
-        slider.style.cssText = 'flex:1; min-width:100px; accent-color:' + statusColor + ';';
-        slider.disabled = isCanceled;
-        if (isCanceled) slider.style.opacity = '0.45';
-        slider.addEventListener('change', function () {
-          if (obj.status === 'canceled') return;
-          var newPct = parseInt(slider.value, 10);
-          var newStatus = newPct >= 100 ? 'complete' : obj.status;
-          AgentEngine.updateObjective(obj.id, { progressPercentage: newPct, status: newStatus });
-          renderObjectives();
-        });
-        controls.appendChild(slider);
-
-        // Status buttons
+        // Status override buttons
         var statuses = ['on_track', 'at_risk', 'behind', 'complete'];
         var statusLabels = { on_track: 'On Track', at_risk: 'At Risk', behind: 'Behind', complete: 'Complete' };
         var statusColors = { on_track: '#34d399', at_risk: '#fbbf24', behind: '#f87171', complete: '#8A2BE2' };
@@ -577,7 +620,7 @@
         statuses.forEach(function (s) {
           var btn = document.createElement('button');
           btn.textContent = statusLabels[s];
-          var isActive = obj.status === s;
+          var isActive = effectiveStatus === s;
           btn.style.cssText = 'font-size:0.55rem; padding:0.2rem 0.4rem; border:1px solid ' + (isActive ? statusColors[s] : 'rgba(255,255,255,0.08)') + '; background:' + (isActive ? 'rgba(255,255,255,0.05)' : 'transparent') + '; color:' + (isActive ? statusColors[s] : 'rgba(255,255,255,0.4)') + '; border-radius:3px; cursor:pointer;';
           btn.disabled = isCanceled;
           if (isCanceled) {
@@ -600,7 +643,6 @@
           if (obj.status === 'canceled') return;
           if (!confirm('Cancel this goal? This voids it and blocks all execution.')) return;
           AgentEngine.updateObjective(obj.id, { status: 'canceled' });
-          // Push to server immediately so heartbeat sees canceled status on next run
           if (typeof CompanyStore !== 'undefined' && CompanyStore.setState) {
             CompanyStore.setState('ap_objectives', AgentEngine.getObjectives());
           }

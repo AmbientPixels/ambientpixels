@@ -2454,6 +2454,74 @@ var AgentEngine = (function () {
     });
   }
 
+  // ── Objective Progress (auto-calculated from linked campaigns) ──
+  function getObjectiveProgress(objectiveId) {
+    var campaigns = getCampaigns().filter(function (c) {
+      return c && !c.deletedAt && c.objective_id === objectiveId;
+    });
+    if (campaigns.length === 0) return { campaigns: 0, totalTasks: 0, doneTasks: 0, inProgress: 0, review: 0, todo: 0, backlog: 0, blocked: 0, overdue: 0, pct: 0, donePct: 0, signal: 'no_campaigns', health: 'neutral', campaignDetails: [] };
+
+    var totalTasks = 0, doneTasks = 0, inProgressTasks = 0, reviewTasks = 0, todoTasks = 0, backlogTasks = 0, blockedTasks = 0, overdueTasks = 0;
+    var campaignDetails = [];
+    var worstSignal = 'on_track';
+    var signalPriority = { blocked: 5, at_risk: 4, stale: 3, not_started: 2, on_track: 1, complete: 0, no_tasks: 1 };
+
+    campaigns.forEach(function (c) {
+      var cp = getCampaignProgress(c.id);
+      totalTasks += cp.total;
+      doneTasks += cp.done;
+      inProgressTasks += cp.inProgress;
+      reviewTasks += cp.review;
+      todoTasks += cp.todo;
+      backlogTasks += cp.backlog;
+      blockedTasks += cp.blocked;
+      overdueTasks += cp.overdue;
+      campaignDetails.push({ id: c.id, title: c.title, status: c.status, pct: cp.pct, signal: cp.signal });
+      if ((signalPriority[cp.signal] || 0) > (signalPriority[worstSignal] || 0)) {
+        worstSignal = cp.signal;
+      }
+    });
+
+    // Weighted progress across all tasks in all linked campaigns
+    var pct = 0;
+    var donePct = 0;
+    if (totalTasks > 0) {
+      var weighted = (doneTasks * 1.0) + (reviewTasks * 0.75) + (inProgressTasks * 0.5) + (todoTasks * 0.25);
+      pct = Math.round((weighted / totalTasks) * 100);
+      donePct = Math.round((doneTasks / totalTasks) * 100);
+    }
+
+    // If all campaigns are complete, goal signal is complete
+    var allComplete = campaigns.length > 0 && campaignDetails.every(function (cd) { return cd.signal === 'complete'; });
+    if (allComplete) worstSignal = 'complete';
+
+    // Paused campaigns count as at_risk
+    var pausedCount = campaigns.filter(function (c) { return c.status === 'paused'; }).length;
+    if (pausedCount > 0 && (signalPriority[worstSignal] || 0) < signalPriority['at_risk']) {
+      worstSignal = 'at_risk';
+    }
+
+    // Health mapping
+    var health = 'neutral';
+    if (worstSignal === 'complete' || worstSignal === 'on_track') health = 'good';
+    else if (worstSignal === 'at_risk' || worstSignal === 'stale') health = 'warn';
+    else if (worstSignal === 'blocked') health = 'bad';
+
+    return {
+      campaigns: campaigns.length, totalTasks: totalTasks, doneTasks: doneTasks,
+      inProgress: inProgressTasks, review: reviewTasks, todo: todoTasks, backlog: backlogTasks,
+      blocked: blockedTasks, overdue: overdueTasks, pct: pct, donePct: donePct,
+      signal: worstSignal, health: health, campaignDetails: campaignDetails
+    };
+  }
+
+  function getAllObjectiveProgress() {
+    var objectives = getObjectives();
+    return objectives.filter(function (o) { return o && !o.deletedAt; }).map(function (o) {
+      return { objective: o, progress: getObjectiveProgress(o.id) };
+    });
+  }
+
   // ── Governance: Objectives ──
   var OBJECTIVES_KEY = 'ap_objectives';
   function _normalizeObjectiveDirectives(obj) {
@@ -3661,6 +3729,8 @@ var AgentEngine = (function () {
     getObjectives: getObjectives,
     addObjective: addObjective,
     updateObjective: updateObjective,
+    getObjectiveProgress: getObjectiveProgress,
+    getAllObjectiveProgress: getAllObjectiveProgress,
     getApprovalQueue: getApprovalQueue,
     submitForApproval: submitForApproval,
     ceoApprove: ceoApprove,
