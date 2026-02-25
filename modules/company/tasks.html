@@ -283,12 +283,21 @@
         <option value="medium">Medium</option>
         <option value="low">Low</option>
       </select>
+      <select class="tm-filter-select" id="filter-project">
+        <option value="">All Projects</option>
+      </select>
+      <select class="tm-filter-select" id="filter-campaign">
+        <option value="">All Campaigns</option>
+      </select>
       <select class="tm-filter-select" id="filter-division">
         <option value="">All Divisions</option>
       </select>
       <select class="tm-filter-select" id="filter-group">
         <option value="">No Grouping</option>
+        <option value="status">Group by Status</option>
+        <option value="project">Group by Project</option>
         <option value="campaign">Group by Campaign</option>
+        <option value="assignee">Group by Assignee</option>
       </select>
       <div class="tm-search-wrap">
         <i class="fas fa-search tm-search-icon"></i>
@@ -378,15 +387,34 @@
 
     <!-- List View -->
     <div class="tm-list" id="tm-list">
+      <div class="tm-bulk-bar" id="tm-bulk-bar">
+        <span class="tm-bulk-count" id="tm-bulk-count">0</span> selected
+        <select id="tm-bulk-status">
+          <option value="">Move to...</option>
+          <option value="backlog">Backlog</option>
+          <option value="todo">To Do</option>
+          <option value="in-progress">In Progress</option>
+          <option value="review">Review</option>
+          <option value="done">Done</option>
+        </select>
+        <select id="tm-bulk-assignee">
+          <option value="">Assign to...</option>
+        </select>
+        <button id="tm-bulk-apply"><i class="fas fa-check"></i> Apply</button>
+        <button id="tm-bulk-clear" style="margin-left:auto; opacity:0.5;"><i class="fas fa-times"></i> Clear</button>
+      </div>
       <table class="tm-list-table">
         <thead>
           <tr>
-            <th>Task</th>
-            <th>Status</th>
-            <th>Priority</th>
-            <th>Assignee</th>
-            <th>Division</th>
-            <th>Due</th>
+            <th style="width:28px; cursor:default; opacity:1;" data-sort=""><input type="checkbox" class="tm-bulk-check" id="tm-check-all" title="Select all" /></th>
+            <th data-sort="title">Task <span class="sort-arrow"></span></th>
+            <th data-sort="status">Status <span class="sort-arrow"></span></th>
+            <th data-sort="priority">Priority <span class="sort-arrow"></span></th>
+            <th data-sort="assignee">Assignee <span class="sort-arrow"></span></th>
+            <th data-sort="project">Project <span class="sort-arrow"></span></th>
+            <th data-sort="campaign">Campaign <span class="sort-arrow"></span></th>
+            <th data-sort="division">Division <span class="sort-arrow"></span></th>
+            <th data-sort="due">Due <span class="sort-arrow"></span></th>
           </tr>
         </thead>
         <tbody id="tm-list-body"></tbody>
@@ -551,12 +579,21 @@
 
       var agents = [];
       var allDivisions = [];
-      var currentView = 'board';
+      var currentView = localStorage.getItem('ap_tasks_view') || 'board';
       var filterAssignee = '';
       var filterPriority = '';
       var filterDivision = '';
+      var filterProject = '';
+      var filterCampaign = '';
       var filterGroup = '';
       var filterSearch = '';
+
+      // Column sort state
+      var _sortColumn = '';
+      var _sortDir = 'asc'; // 'asc' or 'desc'
+
+      // Bulk selection
+      var _bulkSelected = {};
 
       // Collapsed columns state
       var _defaultCollapsed = { 'pending-approval': false, backlog: false, todo: false, 'in-progress': false, review: false, done: true };
@@ -633,6 +670,42 @@
             });
           }
         });
+
+        // Populate project filter dropdown
+        var filterProjectEl = document.getElementById('filter-project');
+        try {
+          var dirs = typeof AgentEngine.getDirectives === 'function' ? AgentEngine.getDirectives() : [];
+          dirs.forEach(function (d) {
+            if (d && d.id && d.status !== 'archived') {
+              filterProjectEl.innerHTML += '<option value="' + d.id + '">' + escapeHtml((d.title || d.id).substring(0, 50)) + '</option>';
+            }
+          });
+        } catch (e) {}
+
+        // Populate campaign filter dropdown
+        var filterCampaignEl = document.getElementById('filter-campaign');
+        try {
+          var camps = typeof AgentEngine.getCampaigns === 'function' ? AgentEngine.getCampaigns() : [];
+          camps.forEach(function (c) {
+            if (c && c.id && !c.deletedAt) {
+              filterCampaignEl.innerHTML += '<option value="' + c.id + '">' + escapeHtml((c.title || c.id).substring(0, 50)) + '</option>';
+            }
+          });
+        } catch (e) {}
+
+        // Populate bulk assignee dropdown
+        var bulkAssigneeEl = document.getElementById('tm-bulk-assignee');
+        agents.forEach(function (a) {
+          bulkAssigneeEl.innerHTML += '<option value="' + a.id + '">' + a.name + '</option>';
+        });
+
+        // Apply persisted view preference
+        if (currentView === 'list') {
+          board.classList.remove('active');
+          listView.classList.add('active');
+          document.getElementById('view-board').classList.remove('active');
+          document.getElementById('view-list').classList.add('active');
+        }
 
         renderAll();
       });
@@ -810,7 +883,13 @@
         if (filterDivision) {
           tasks = tasks.filter(function (t) { return t.division === filterDivision; });
         }
-        // Signal filters (board view only)
+        if (filterProject) {
+          tasks = tasks.filter(function (t) { return t.directive_id === filterProject; });
+        }
+        if (filterCampaign) {
+          tasks = tasks.filter(function (t) { return t.campaign_id === filterCampaign; });
+        }
+        // Signal filters
         if (applySignal && _signalFilter !== 'all') {
           var nowMs = Date.now();
           var dayMs = 86400000;
@@ -940,14 +1019,7 @@
           badges.push({ icon: 'fas fa-crown', label: 'CEO', cls: 'prov--ceo' });
         }
 
-        // Additive: directive-linked
-        if (task.directive_id) {
-          badges.push({ icon: 'fas fa-bullhorn', label: 'Project', cls: 'prov--directive' });
-        }
-        // Additive: objective-linked
-        if (task.objective_id) {
-          badges.push({ icon: 'fas fa-bullseye', label: 'Goal', cls: 'prov--objective' });
-        }
+        // Project/Goal badges removed — now shown as dedicated columns in list view
 
         if (badges.length === 0) return '';
         return '<div class="tm-prov-row">' + badges.map(function (b) {
@@ -1069,9 +1141,6 @@
         var agent = task.assignee ? getAgentById(task.assignee) : null;
         var div = resolveDivision(task);
         var divisionColor = (div && div.color) ? div.color : (agent && agent.color ? agent.color : '#64748b');
-        var campaign = (typeof AgentEngine.getCampaigns === 'function' && task.campaign_id)
-          ? AgentEngine.getCampaigns().find(function (c) { return c && c.id === task.campaign_id && !c.deletedAt; })
-          : null;
         var today = _localToday();
         var isOverdue = task.dueDate && task.dueDate.substring(0,10) < today && task.status !== 'done';
 
@@ -1103,11 +1172,10 @@
         var pausedHtml = _pausedProjectBadge(task);
         var relHtml = _relatedBadge(task, allTasks || []);
 
-        var campaignChip = campaign ? '<div class="tm-campaign-chip" title="Campaign: ' + escapeHtml(campaign.title || campaign.id) + '"><i class="fas fa-layer-group" style="margin-right:3px;opacity:0.7;"></i>' + escapeHtml(campaign.title || campaign.id) + '</div>' : '';
         var taskNumChip = task.taskNumber ? '<span style="opacity:0.35;font-size:0.55rem;margin-right:4px;">#' + task.taskNumber + '</span>' : '';
         card.innerHTML = '<span class="tm-division-bar" style="background:' + escapeHtml(divisionColor) + ';"></span>'
           + '<div class="tm-card-title">' + taskNumChip + escapeHtml(task.title) + badge + vBadge + pPill + pausedHtml + '</div>'
-          + campaignChip + meta + provHtml + relHtml;
+          + meta + provHtml + relHtml;
 
         card.addEventListener('click', function () { openEditModal(task.id); });
 
@@ -1124,72 +1192,200 @@
       }
 
       function renderList() {
-        var tasks = getFilteredTasks();
+        var tasks = getFilteredTasks(true);
 
+        // Lookup helpers
+        var _dirCache = {};
+        var _campCache = {};
+        function _resolveDirective(task) {
+          if (!task.directive_id) return null;
+          if (_dirCache[task.directive_id] !== undefined) return _dirCache[task.directive_id];
+          try {
+            var dirs = typeof AgentEngine.getDirectives === 'function' ? AgentEngine.getDirectives() : [];
+            var d = dirs.find(function (x) { return x && x.id === task.directive_id; });
+            _dirCache[task.directive_id] = d || null;
+            return _dirCache[task.directive_id];
+          } catch (e) { return null; }
+        }
+        function _resolveCampaign(task) {
+          if (!task.campaign_id) return null;
+          if (_campCache[task.campaign_id] !== undefined) return _campCache[task.campaign_id];
+          try {
+            var camps = typeof AgentEngine.getCampaigns === 'function' ? AgentEngine.getCampaigns() : [];
+            var c = camps.find(function (x) { return x && x.id === task.campaign_id && !x.deletedAt; });
+            _campCache[task.campaign_id] = c || null;
+            return _campCache[task.campaign_id];
+          } catch (e) { return null; }
+        }
+        function _projectTitle(task) {
+          var d = _resolveDirective(task);
+          return d ? (d.title || d.id) : '';
+        }
         function _campaignTitle(task) {
-          if (!task || !task.campaign_id || typeof AgentEngine.getCampaigns !== 'function') return 'No Campaign';
-          var c = AgentEngine.getCampaigns().find(function (x) { return x && x.id === task.campaign_id && !x.deletedAt; });
-          return c ? (c.title || c.id) : 'No Campaign';
+          var c = _resolveCampaign(task);
+          return c ? (c.title || c.id) : '';
+        }
+        function _divisionName(task) {
+          var d = resolveDivision(task);
+          return d ? (d.name || d.id) : '';
+        }
+        function _assigneeName(task) {
+          var ag = task.assignee ? getAgentById(task.assignee) : null;
+          return ag ? ag.name : '';
         }
 
-        // Sort: status order, then priority
+        // Grouping key
+        function _groupKey(task) {
+          if (filterGroup === 'status') return formatStatus(task.status || 'backlog');
+          if (filterGroup === 'project') return _projectTitle(task) || 'No Project';
+          if (filterGroup === 'campaign') return _campaignTitle(task) || 'No Campaign';
+          if (filterGroup === 'assignee') return _assigneeName(task) || 'Unassigned';
+          return '';
+        }
+        var _groupIcons = { status: 'fa-columns', project: 'fa-bullhorn', campaign: 'fa-layer-group', assignee: 'fa-user' };
+
+        // Sort value resolver for column sorting
         var statusOrder = { 'pending-approval': -1, 'in-progress': 0, 'review': 1, 'todo': 2, 'backlog': 3, 'done': 4 };
         var prioOrder = { critical: 0, high: 1, medium: 2, low: 3 };
+        function _sortVal(task, col) {
+          if (col === 'title') return (task.title || '').toLowerCase();
+          if (col === 'status') return statusOrder[task.status] !== undefined ? statusOrder[task.status] : 3;
+          if (col === 'priority') return prioOrder[task.priority] !== undefined ? prioOrder[task.priority] : 2;
+          if (col === 'assignee') return _assigneeName(task).toLowerCase();
+          if (col === 'project') return _projectTitle(task).toLowerCase();
+          if (col === 'campaign') return _campaignTitle(task).toLowerCase();
+          if (col === 'division') return _divisionName(task).toLowerCase();
+          if (col === 'due') return task.dueDate || 'zzzz';
+          return '';
+        }
+
+        // Sort: group first, then column sort or default (status → priority)
         tasks.sort(function (a, b) {
-          if (filterGroup === 'campaign') {
-            var ca = _campaignTitle(a).toLowerCase();
-            var cb = _campaignTitle(b).toLowerCase();
-            if (ca !== cb) return ca.localeCompare(cb);
+          if (filterGroup) {
+            var ga = _groupKey(a).toLowerCase();
+            var gb = _groupKey(b).toLowerCase();
+            if (ga !== gb) return ga.localeCompare(gb);
+          }
+          if (_sortColumn) {
+            var va = _sortVal(a, _sortColumn);
+            var vb = _sortVal(b, _sortColumn);
+            var cmp = 0;
+            if (typeof va === 'number' && typeof vb === 'number') cmp = va - vb;
+            else cmp = String(va).localeCompare(String(vb));
+            return _sortDir === 'desc' ? -cmp : cmp;
           }
           var s = (statusOrder[a.status] || 3) - (statusOrder[b.status] || 3);
           if (s !== 0) return s;
           return (prioOrder[a.priority] || 2) - (prioOrder[b.priority] || 2);
         });
 
+        // Update sort arrow UI
+        document.querySelectorAll('.tm-list-table th[data-sort]').forEach(function (th) {
+          var col = th.getAttribute('data-sort');
+          if (!col) return;
+          var arrow = th.querySelector('.sort-arrow');
+          if (col === _sortColumn) {
+            th.classList.add('sort-active');
+            if (arrow) arrow.textContent = _sortDir === 'asc' ? '▲' : '▼';
+          } else {
+            th.classList.remove('sort-active');
+            if (arrow) arrow.textContent = '';
+          }
+        });
+
         listBody.innerHTML = '';
         if (tasks.length === 0) {
-          listBody.innerHTML = '<tr><td colspan="6" style="text-align:center; opacity:0.2; padding:2rem;">No tasks</td></tr>';
+          listBody.innerHTML = '<tr><td colspan="9" style="text-align:center; opacity:0.2; padding:2rem;">No tasks</td></tr>';
           return;
         }
 
-        var _lastCampaignHeader = null;
+        // Pre-calculate group counts
+        var _groupCounts = {};
+        if (filterGroup) {
+          tasks.forEach(function (t) {
+            var k = _groupKey(t);
+            _groupCounts[k] = (_groupCounts[k] || 0) + 1;
+          });
+        }
+
+        var _lastGroupHeader = null;
+        var groupIcon = _groupIcons[filterGroup] || 'fa-layer-group';
+        var nowMs = Date.now();
+        var dayMs = 86400000;
         tasks.forEach(function (task) {
-          if (filterGroup === 'campaign') {
-            var _campaignLabel = _campaignTitle(task);
-            if (_campaignLabel !== _lastCampaignHeader) {
-              _lastCampaignHeader = _campaignLabel;
+          // Group headers with count
+          if (filterGroup) {
+            var _groupLabel = _groupKey(task);
+            if (_groupLabel !== _lastGroupHeader) {
+              _lastGroupHeader = _groupLabel;
+              var count = _groupCounts[_groupLabel] || 0;
               var hr = document.createElement('tr');
-              hr.innerHTML = '<td colspan="6" style="font-size:0.62rem; opacity:0.55; padding:0.35rem 0.45rem; border-top:1px solid rgba(255,255,255,0.08);"><i class="fas fa-layer-group" style="margin-right:4px; opacity:0.55;"></i>' + escapeHtml(_campaignLabel) + '</td>';
+              hr.innerHTML = '<td colspan="9" style="font-size:0.62rem; opacity:0.55; padding:0.35rem 0.45rem; border-top:1px solid rgba(255,255,255,0.08);"><i class="fas ' + groupIcon + '" style="margin-right:4px; opacity:0.55;"></i>' + escapeHtml(_groupLabel) + ' <span style="opacity:0.4;">(' + count + ')</span></td>';
               listBody.appendChild(hr);
             }
           }
           var agent = task.assignee ? getAgentById(task.assignee) : null;
           var div = resolveDivision(task);
           var divisionColor = (div && div.color) ? div.color : (agent && agent.color ? agent.color : '#64748b');
-          var campaign = (typeof AgentEngine.getCampaigns === 'function' && task.campaign_id)
-            ? AgentEngine.getCampaigns().find(function (c) { return c && c.id === task.campaign_id && !c.deletedAt; })
-            : null;
+          var proj = _resolveDirective(task);
+          var camp = _resolveCampaign(task);
           var today = _localToday();
           var isOverdue = task.dueDate && task.dueDate.substring(0,10) < today && task.status !== 'done';
 
+          // Stale/aging class
+          var agingClass = '';
+          if (task.createdAt && task.status !== 'done') {
+            var ageDays = (nowMs - new Date(task.createdAt).getTime()) / dayMs;
+            if (ageDays > 10) agingClass = ' tm-list-row--age-critical';
+            else if (ageDays > 5) agingClass = ' tm-list-row--age-warn';
+          }
+
           var tr = document.createElement('tr');
-          tr.className = 'tm-list-row--with-division';
+          tr.className = 'tm-list-row--with-division' + agingClass;
           tr.style.setProperty('--tm-division-color', divisionColor);
           var listNumChip = task.taskNumber ? '<span style="opacity:0.35;font-size:0.58rem;margin-right:4px;">#' + task.taskNumber + '</span>' : '';
-          var titleCell = listNumChip + escapeHtml(task.title)
-            + (campaign ? '<div class="tm-campaign-chip" style="margin-top:0.2rem;" title="Campaign: ' + escapeHtml(campaign.title || campaign.id) + '"><i class="fas fa-layer-group" style="margin-right:3px;opacity:0.7;"></i>' + escapeHtml(campaign.title || campaign.id) + '</div>' : '')
-            + _pausedProjectBadge(task) + _provenanceBadge(task);
+          var titleCell = listNumChip + escapeHtml(task.title) + _pausedProjectBadge(task);
+          var projCell = proj ? '<span style="font-size:0.65rem;">' + escapeHtml(proj.title || proj.id) + '</span>' : '<span style="opacity:0.15">&mdash;</span>';
+          var campCell = camp ? '<span style="font-size:0.65rem;">' + escapeHtml(camp.title || camp.id) + '</span>' : '<span style="opacity:0.15">&mdash;</span>';
+          var checked = _bulkSelected[task.id] ? ' checked' : '';
           tr.innerHTML =
+            '<td style="width:28px;" onclick="event.stopPropagation();"><input type="checkbox" class="tm-bulk-check" data-task-id="' + task.id + '"' + checked + ' /></td>' +
             '<td>' + titleCell + '</td>' +
             '<td><span class="tm-list-status tm-list-status--' + task.status + '">' + formatStatus(task.status) + '</span></td>' +
             '<td><span class="tm-card-priority tm-card-priority--' + task.priority + '">' + task.priority + '</span></td>' +
             '<td>' + (agent ? '<span style="color:' + agent.color + ';">' + agent.name + '</span>' : '<span style="opacity:0.2">&mdash;</span>') + '</td>' +
+            '<td>' + projCell + '</td>' +
+            '<td>' + campCell + '</td>' +
             '<td>' + divisionChipHtml(div) + '</td>' +
             '<td>' + (task.dueDate ? '<span class="' + (isOverdue ? 'overdue' : '') + '" style="font-size:0.7rem;' + (isOverdue ? 'color:#f87171;' : 'opacity:0.4;') + '">' + formatDate(task.dueDate) + '</span>' : '<span style="opacity:0.2">&mdash;</span>') + '</td>';
 
           tr.addEventListener('click', function () { openEditModal(task.id); });
+
+          // Checkbox change handler
+          var cb = tr.querySelector('.tm-bulk-check');
+          if (cb) {
+            cb.addEventListener('change', function (e) {
+              e.stopPropagation();
+              if (this.checked) _bulkSelected[task.id] = true;
+              else delete _bulkSelected[task.id];
+              _updateBulkBar();
+            });
+          }
+
           listBody.appendChild(tr);
         });
+      }
+
+      function _updateBulkBar() {
+        var count = Object.keys(_bulkSelected).length;
+        var bar = document.getElementById('tm-bulk-bar');
+        var countEl = document.getElementById('tm-bulk-count');
+        if (count > 0) {
+          bar.classList.add('active');
+          countEl.textContent = count;
+        } else {
+          bar.classList.remove('active');
+        }
       }
 
       // ── Drag & Drop ──
@@ -1264,6 +1460,7 @@
           chip.setAttribute('aria-pressed', chip.dataset.signal === mode ? 'true' : 'false');
         });
         renderBoard();
+        renderList();
       }
       // Init chip state
       document.querySelectorAll('.tm-signal-chip').forEach(function (chip) {
@@ -1306,6 +1503,7 @@
 
       viewBoardBtn.addEventListener('click', function () {
         currentView = 'board';
+        localStorage.setItem('ap_tasks_view', 'board');
         board.classList.add('active');
         listView.classList.remove('active');
         viewBoardBtn.classList.add('active');
@@ -1314,10 +1512,63 @@
 
       viewListBtn.addEventListener('click', function () {
         currentView = 'list';
+        localStorage.setItem('ap_tasks_view', 'list');
         board.classList.remove('active');
         listView.classList.add('active');
         viewListBtn.classList.add('active');
         viewBoardBtn.classList.remove('active');
+      });
+
+      // ── Column Sort (list view) ──
+      document.querySelectorAll('.tm-list-table th[data-sort]').forEach(function (th) {
+        var col = th.getAttribute('data-sort');
+        if (!col) return;
+        th.addEventListener('click', function () {
+          if (_sortColumn === col) {
+            _sortDir = _sortDir === 'asc' ? 'desc' : 'asc';
+          } else {
+            _sortColumn = col;
+            _sortDir = 'asc';
+          }
+          renderList();
+        });
+      });
+
+      // ── Select All checkbox ──
+      document.getElementById('tm-check-all').addEventListener('change', function () {
+        var checked = this.checked;
+        _bulkSelected = {};
+        if (checked) {
+          getFilteredTasks(true).forEach(function (t) { _bulkSelected[t.id] = true; });
+        }
+        renderList();
+        _updateBulkBar();
+      });
+
+      // ── Bulk Actions ──
+      document.getElementById('tm-bulk-apply').addEventListener('click', function () {
+        var ids = Object.keys(_bulkSelected);
+        if (ids.length === 0) return;
+        var newStatus = document.getElementById('tm-bulk-status').value;
+        var newAssignee = document.getElementById('tm-bulk-assignee').value;
+        if (!newStatus && !newAssignee) return;
+        ids.forEach(function (id) {
+          var updates = {};
+          if (newStatus) updates.status = newStatus;
+          if (newAssignee) updates.assignee = newAssignee;
+          AgentEngine.updateTask(id, updates);
+        });
+        _bulkSelected = {};
+        document.getElementById('tm-bulk-status').value = '';
+        document.getElementById('tm-bulk-assignee').value = '';
+        _updateBulkBar();
+        renderAll();
+      });
+
+      document.getElementById('tm-bulk-clear').addEventListener('click', function () {
+        _bulkSelected = {};
+        _updateBulkBar();
+        renderList();
       });
 
       // ── Filters ──
@@ -1339,8 +1590,21 @@
         renderList();
       });
 
+      document.getElementById('filter-project').addEventListener('change', function () {
+        filterProject = this.value;
+        renderBoard();
+        renderList();
+      });
+
+      document.getElementById('filter-campaign').addEventListener('change', function () {
+        filterCampaign = this.value;
+        renderBoard();
+        renderList();
+      });
+
       document.getElementById('filter-group').addEventListener('change', function () {
         filterGroup = this.value || '';
+        renderBoard();
         renderList();
       });
 
