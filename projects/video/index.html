@@ -12,39 +12,25 @@
   <link rel="stylesheet" href="/css/grid.css" />
   <link rel="stylesheet" href="/css/nav.css" />
   <link rel="stylesheet" href="/css/components.css" />
-  <link rel="stylesheet" href="/css/hero.css" />
+  <link rel="stylesheet" href="/css/hero-base.css" />
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
-  <link rel="stylesheet" href="/css/projects.css">
-  <link rel="stylesheet" href="/css/portfolio.css">
-  <link rel="stylesheet" href="/projects/css/theme-variables.css" />
+  <link rel="stylesheet" href="/css/projects.css" />
   <link rel="stylesheet" href="/css/projects/xbox-video.css" />
   <link rel="stylesheet" href="/modules/breadcrumb.css" />
-  <!-- Project-specific styles are in global CSS files -->
 </head>
 <body data-theme="dark"><header id="nav-header"></header>
 
-  <section class="hero-card hero-card-video hero-card-video-container">
-    <div class="hero-card-image video-gradient-7 card-image-container hero-particles-container">
-      <div id="hero-particles" class="hero-particles"></div>
-      <div class="hero-video-icon-container xbox-video-icon-wrapper">
-        <i class="fas fa-play-circle hero-video-icon xbox-video-icon" aria-hidden="true"></i>
-      </div>
+  <section class="hero-base" data-hero="architect">
+    <div class="hero-base-layer"></div>
+    <div class="hero-base-content">
+      <h1>Video Portfolio</h1>
+      <p class="subtitle">Telling stories through motion, interaction, and visual rhythm.</p>
     </div>
-    <div class="hero-card-content">
-      <div class="hero-card-badge badge-starlight"><i class="fas fa-play-circle"></i> Play Reel</div>
-      <h1>Video <span class="video-glow">Portfolio</span></h1>
-      <p class="hero-card-description">Telling stories through motion, interaction, and visual rhythm</p>
-      <div class="project-tags">
-        <span class="project-tag"><i class="fas fa-film" aria-hidden="true"></i> Motion Design</span>
-        <span class="project-tag"><i class="fas fa-gamepad" aria-hidden="true"></i> Game UI/UX</span>
-        <span class="project-tag"><i class="fas fa-code" aria-hidden="true"></i> Interactive</span>
-      </div>
-    </div>
-
   </section>
 
 <main class="grid-container">
+    
     <!-- Breadcrumb Navigation -->
     <div class="breadcrumb-container"></div>
     
@@ -162,31 +148,6 @@
       </div>
     </section>
 
-    <!-- Related Projects Section -->
-    <section class="content-section project-section grid-col-12">
-      <h2><i class="fas fa-link"></i> Related Projects</h2>
-      <div class="related-projects">
-        <div class="related-project-card">
-          <a href="/projects/websites/xbox-support.html">
-            <i class="fas fa-headset"></i> Xbox Support
-          </a>
-          <p>Comprehensive support portal for Xbox users and developers</p>
-        </div>
-        <div class="related-project-card">
-          <a href="/projects/websites/gears-of-war-support.html">
-            <i class="fas fa-gamepad"></i> Gears of War Support
-          </a>
-          <p>Dedicated support site for the Gears of War franchise</p>
-        </div>
-        <div class="related-project-card">
-          <a href="/projects/websites/ninja-theory-support.html">
-            <i class="fas fa-headset"></i> Ninja Theory Support
-          </a>
-          <p>Support hub for Ninja Theory's game titles and resources</p>
-        </div>
-      </div>
-    </section>
-
     <!-- AI Workflow Section -->
     <section class="grid-col-12 ai-workflow-section">
       <!-- AI Pipeline Section -->
@@ -268,91 +229,42 @@
           <span class="tech-tag"><i class="fas fa-magic"></i> Midjourney</span>
         </div>
       </div>
-      
-      <!-- Nova Thought Quote -->
-      <div class="content-section nova-quote-section">
-        <div class="nova-quote-content">
-          <p class="nova-quote-text">
-            In motion, we find truth. Every frame, every transition, every interaction—each is a conversation between creator and viewer, a dance of intention and perception.
-          </p>
-          <p class="nova-signature">
-            <i class="fas fa-robot nova-robot-icon"></i> Nova, Ambient Intelligence
-          </p>
-        </div>
-        <div class="nova-aura-overlay"></div>
-      </div>
     </section>
     
     <!-- Project Hubs Section -->
-      <section class="content-section project-section grid-col-12">
-        <h2><i class="fas fa-sitemap"></i> Project Hubs</h2>
-        <div class="related-projects">
-          <div class="related-project-card">
-            <a href="/projects/index.html">
-              <i class="fas fa-home"></i> Main Projects Hub
-            </a>
-            <p>Explore all projects and experiments from the studio</p>
-          </div>
-          <div class="related-project-card">
-            <a href="/projects/xbox-support.html">
-              <i class="fab fa-xbox"></i> Xbox Support Hub
-            </a>
-            <p>All Xbox-related support projects and resources</p>
-          </div>
-          <div class="related-project-card">
-            <a href="/about/index.html">
-              <i class="fas fa-user"></i> About Me
-            </a>
-            <p>Learn more about my background and experience</p>
-          </div>
+    <section class="content-section project-section grid-col-12">
+      <h2><i class="fas fa-sitemap"></i> Project Hubs</h2>
+      <div class="related-projects">
+        <div class="related-project-card">
+          <a href="/projects/index.html">
+            <i class="fas fa-home"></i> Main Projects Hub
+          </a>
+          <p>Explore all projects and experiments from the studio</p>
         </div>
-      </section>
+        <div class="related-project-card">
+          <a href="/projects/xbox-support.html">
+            <i class="fab fa-xbox"></i> Xbox Support Hub
+          </a>
+          <p>All Xbox-related support projects and resources</p>
+        </div>
+        <div class="related-project-card">
+          <a href="/about/index.html">
+            <i class="fas fa-user"></i> About Me
+          </a>
+          <p>Learn more about my background and experience</p>
+        </div>
+      </div>
+    </section>
       
   </main>
 
   <div id="footer-container"></div>
   
-  <!-- Breadcrumb Script -->
-  <script src="/modules/breadcrumb.js"></script>
-  
-  <!-- Contact Modal Container -->
-  <!-- Modal Container -->
-  <div id="contact-modal-container">
-    <!-- Contact modal will be loaded here by init-contact-modal.js -->
-  </div>
-
-  <!-- Theme Manager -->
-  <script src="/js/hero-particles.js"></script>
-  <script type="module" src="/projects/js/theme-manager.js"></script>
   <script src="/js/init-header-footer.js" defer></script>
   <script src="/js/animate-pipeline.js" defer></script>
-  <script src="/js/dreamEngine.js" defer></script>
-  <script src="/js/init-quotes.js" defer></script>
-  <script src="/js/modal-window.js" defer></script>
-  <script src="/js/init-contact-modal.js" defer></script>
   <script src="/js/video-modal.js" defer></script>
-  <script>
-    // Initialize any additional event listeners after DOM is loaded
-    document.addEventListener('DOMContentLoaded', function() {
-      // Handle contact modal trigger
-      const suggestBtn = document.querySelector('a[onclick*="showModal"]');
-      if (suggestBtn) {
-        suggestBtn.addEventListener('click', function(e) {
-          e.preventDefault();
-          showModal('contact-modal');
-        });
-      }
-
-      // Add ARIA attributes to all buttons with icons
-      document.querySelectorAll('button, a.btn').forEach(btn => {
-        const icon = btn.querySelector('i[class^="fas"]');
-        if (icon && !btn.getAttribute('aria-label')) {
-          const text = btn.textContent.trim();
-          btn.setAttribute('aria-label', text);
-        }
-      });
-    });
-  </script>
   <script src="/js/main.js" defer></script>
+  <script src="/js/nav.js" defer></script>
+  <script src="/js/theme.js" defer></script>
 </body>
 </html>
