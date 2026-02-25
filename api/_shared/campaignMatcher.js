@@ -184,10 +184,12 @@ async function ensureCampaign(params) {
   }
 
   const now = new Date().toISOString();
+  const baseDescription = String(params.description || '').trim();
+  const contextLine = 'I created this campaign to group related work and keep planning/execution aligned under one objective.';
   const created = {
     id: 'cmp-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
     title: title || 'Campaign',
-    description: params.description || '',
+    description: baseDescription ? (baseDescription + '\n\n' + contextLine) : contextLine,
     status: 'active',
     objective_id: goalId || null,
     division: division || null,

@@ -857,10 +857,12 @@ module.exports = async function (context) {
       if (_hasActiveProject) continue;
 
       const _newDirId = 'dir-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6);
+      const _goalDescBase = String(_goalObj.description || '').trim();
+      const _goalContextLine = 'I created this project from the goal "' + (_goalObj.title || _goalObj.id) + '" so the team has a clear execution container to work from.';
       const _newDir = {
         id: _newDirId,
         title: (_goalObj.quarter ? '[Q' + _goalObj.quarter + '] ' : '') + (_goalObj.title || 'Untitled Project'),
-        description: _goalObj.description || '',
+        description: _goalDescBase ? (_goalDescBase + '\n\n' + _goalContextLine) : _goalContextLine,
         status: 'active',
         priority: _goalObj.priority || 'medium',
         objective_id: _goalObj.id,
