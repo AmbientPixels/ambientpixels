@@ -24,6 +24,45 @@ try {
   (_agentsRaw.agents || []).forEach(function (a) { if (a.id && a.systemPrompt) _agentPersonalities[a.id] = a.systemPrompt; });
 } catch (_e) { /* fallback: heartbeat works without personality injection */ }
 
+function _sanitizeSingleComment(text, fallbackText) {
+  const fallback = String(fallbackText || '').trim() || 'I created this item to keep execution aligned and moving forward.';
+  if (!text) return fallback;
+  let s = String(text).replace(/\s+/g, ' ').trim();
+  s = s.replace(/^['"`]+|['"`]+$/g, '').trim();
+  if (!s) return fallback;
+  if (s.length > 220) s = s.substring(0, 220).trim();
+  if (!/[.!?]$/.test(s)) s += '.';
+  return s;
+}
+
+async function generateConversationalEntityComment(kind, options) {
+  options = options || {};
+  const k = String(kind || 'item').toLowerCase();
+  const title = String(options.title || '').trim();
+  const goal = String(options.goalTitle || options.goalId || '').trim();
+  const seed = String(options.seedText || '').trim();
+  const fallback = _sanitizeSingleComment(options.fallbackText || '',
+    k === 'campaign'
+      ? 'I created this campaign to group related work and keep planning/execution aligned under one objective.'
+      : 'I created this project from the goal so the team has a clear execution container to work from.'
+  );
+
+  const prompt = [
+    'Write exactly ONE conversational first-person sentence for a newly created ' + k + '.',
+    'Rules:',
+    '- Max 180 characters',
+    '- Plain human language',
+    '- No lists, no labels, no metadata, no markdown',
+    '- Return only the sentence',
+    title ? ('Title: ' + title) : '',
+    goal ? ('Goal: ' + goal) : '',
+    seed ? ('Context: ' + seed.substring(0, 500)) : ''
+  ].filter(Boolean).join('\n');
+
+  const raw = await callGemini(prompt, options.agentId || 'nova');
+  return _sanitizeSingleComment(raw, fallback);
+}
+
 // Agent system prompts (abbreviated for heartbeat context)
 const AGENT_ROLES = {
   nova: { name: 'Nova', role: 'Prime Operator', tier: 2, focus: 'execution planning, delegation, progress monitoring, escalation to CEO',
@@ -89,6 +128,7 @@ const MAX_RESEARCH_STORE_ENTRIES = 20;
 const AGENT_COOLDOWN_VIOLATIONS_PER_RUN = 2;
 const MAX_OBSERVATIONS_PER_AGENT = 10;
 const MAX_OBSERVATION_CHARS = 180;
+const MAX_ENTITY_COMMENT_CALLS_PER_RUN = 6;
 const VALID_TASK_STATUSES = ['pending-approval', 'backlog', 'todo', 'in-progress', 'review', 'done'];
 
 // ── Phase 2B: Known action types for dual-envelope normalizer ──
@@ -822,6 +862,15 @@ module.exports = async function (context) {
     const _createdDirectiveIds = new Set();
     const _tasksTouched = new Set();
     const _agentRunStats = {};
+    let _entityCommentCalls = 0;
+    async function _commentForEntity(kind, opts) {
+      opts = opts || {};
+      if (_entityCommentCalls >= MAX_ENTITY_COMMENT_CALLS_PER_RUN) {
+        return _sanitizeSingleComment('', opts.fallbackText || 'I created this item to keep execution aligned.');
+      }
+      _entityCommentCalls++;
+      return generateConversationalEntityComment(kind, opts);
+    }
 
     for (const c of campaigns) {
       if (!c || typeof c !== 'object') continue;
@@ -858,11 +907,18 @@ module.exports = async function (context) {
 
       const _newDirId = 'dir-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6);
       const _goalDescBase = String(_goalObj.description || '').trim();
-      const _goalContextLine = 'I created this project from the goal "' + (_goalObj.title || _goalObj.id) + '" so the team has a clear execution container to work from.';
+      const _goalContextLine = await _commentForEntity('project', {
+        agentId: 'nova',
+        title: (_goalObj.quarter ? '[Q' + _goalObj.quarter + '] ' : '') + (_goalObj.title || 'Untitled Project'),
+        goalTitle: _goalObj.title || _goalObj.id,
+        goalId: _goalObj.id,
+        seedText: _goalDescBase,
+        fallbackText: 'I created this project from the goal "' + (_goalObj.title || _goalObj.id) + '" so the team has a clear execution container to work from.'
+      });
       const _newDir = {
         id: _newDirId,
         title: (_goalObj.quarter ? '[Q' + _goalObj.quarter + '] ' : '') + (_goalObj.title || 'Untitled Project'),
-        description: _goalDescBase ? (_goalDescBase + '\n\n' + _goalContextLine) : _goalContextLine,
+        description: _goalContextLine,
         status: 'active',
         priority: _goalObj.priority || 'medium',
         objective_id: _goalObj.id,
@@ -909,6 +965,14 @@ module.exports = async function (context) {
       });
       d.campaign_id = _dResult.campaignId;
       if (_dResult.created) {
+        _dResult.campaign.description = await _commentForEntity('campaign', {
+          agentId: d.owner || 'nova',
+          title: _dResult.campaign.title || d.title || 'Campaign',
+          goalId: d.objective_id || null,
+          seedText: d.description || '',
+          fallbackText: 'I created this campaign to group related work and keep planning/execution aligned under one objective.'
+        });
+        _dResult.campaign.updatedAt = new Date().toISOString();
         campaignsChanged = true;
         campaignGovEvents.push({
           id: 'gov-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
@@ -960,6 +1024,14 @@ module.exports = async function (context) {
       });
       t.campaign_id = _tResult.campaignId;
       if (_tResult.created) {
+        _tResult.campaign.description = await _commentForEntity('campaign', {
+          agentId: t.assignee || 'nova',
+          title: _tResult.campaign.title || t.title || 'Campaign',
+          goalId: t.objective_id || null,
+          seedText: t.description || '',
+          fallbackText: 'I created this campaign to group related work and keep planning/execution aligned under one objective.'
+        });
+        _tResult.campaign.updatedAt = new Date().toISOString();
         campaignsChanged = true;
         campaignGovEvents.push({
           id: 'gov-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
@@ -2919,6 +2991,14 @@ Write the full deliverable first, then the structured JSON block.`;
         });
         _taskCampaignId = _ctResult.campaignId;
         if (_ctResult.created) {
+          _ctResult.campaign.description = await generateConversationalEntityComment('campaign', {
+            agentId: agentId,
+            title: _ctResult.campaign.title || action.task.title || 'Campaign',
+            goalId: _taskObjectiveId || null,
+            seedText: action.task.description || '',
+            fallbackText: 'I created this campaign to group related work and keep planning/execution aligned under one objective.'
+          });
+          _ctResult.campaign.updatedAt = new Date().toISOString();
           if (campaignCtx) campaignCtx.campaignsChanged = true;
           if (campaignCtx && Array.isArray(campaignCtx.campaignGovEvents)) campaignCtx.campaignGovEvents.push({
             id: 'gov-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
