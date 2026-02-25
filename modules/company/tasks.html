@@ -290,6 +290,15 @@
         <option value="medium">Medium</option>
         <option value="low">Low</option>
       </select>
+      <select class="tm-filter-select" id="filter-status">
+        <option value="">All Statuses</option>
+        <option value="pending-approval">Pending Approval</option>
+        <option value="backlog">Backlog</option>
+        <option value="todo">To Do</option>
+        <option value="in-progress">In Progress</option>
+        <option value="review">Review</option>
+        <option value="done">Done</option>
+      </select>
       <select class="tm-filter-select" id="filter-campaign">
         <option value="">All Campaigns</option>
       </select>
@@ -583,6 +592,7 @@
       var currentView = localStorage.getItem('ap_tasks_view') || 'board';
       var filterAssignee = '';
       var filterPriority = '';
+      var filterStatus = '';
       var filterDivision = '';
       var filterCampaign = '';
       var filterGoal = '';
@@ -881,6 +891,9 @@
         }
         if (filterPriority) {
           tasks = tasks.filter(function (t) { return t.priority === filterPriority; });
+        }
+        if (filterStatus) {
+          tasks = tasks.filter(function (t) { return t.status === filterStatus; });
         }
         if (filterDivision) {
           tasks = tasks.filter(function (t) { return t.division === filterDivision; });
@@ -1600,6 +1613,12 @@
 
       document.getElementById('filter-priority').addEventListener('change', function () {
         filterPriority = this.value;
+        renderBoard();
+        renderList();
+      });
+
+      document.getElementById('filter-status').addEventListener('change', function () {
+        filterStatus = this.value;
         renderBoard();
         renderList();
       });
