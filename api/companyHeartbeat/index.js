@@ -4705,6 +4705,26 @@ Write the full deliverable first, then the structured JSON block.`;
             // Guard: skip if document already has a hero image attached
             if (imgDoc.hero_image_asset_id) {
               context.log('[Heartbeat]', agentId, 'generate-image SKIPPED: doc', attachTo.id, 'already has hero_image_asset_id:', imgDoc.hero_image_asset_id, '— not overwriting');
+              // Still notify Scribe that hero image is available (may have been missed on prior cycle)
+              const _heroDocIdExisting = attachTo.id;
+              const _originTaskExisting = tasks.find(t =>
+                t.assignee === 'scribe' && t.status !== 'done' &&
+                t.comments && t.comments.some(c => c.text && c.text.indexOf(_heroDocIdExisting) !== -1)
+              );
+              if (_originTaskExisting) {
+                const _alreadyNotified = _originTaskExisting.comments.some(c => c.text && c.text.indexOf('You can now submit this document for publish') !== -1);
+                if (!_alreadyNotified) {
+                  if (!_originTaskExisting.comments) _originTaskExisting.comments = [];
+                  _originTaskExisting.comments.push({
+                    id: 'cmt-hero-ready-' + Date.now(),
+                    author: 'system',
+                    text: 'Hero image generated and attached to document ' + _heroDocIdExisting + ' (asset: ' + imgDoc.hero_image_asset_id + '). You can now submit this document for publish using submit-for-publish with documentId: ' + _heroDocIdExisting,
+                    type: 'system',
+                    createdAt: new Date().toISOString()
+                  });
+                  context.log('[Heartbeat]', agentId, 'notified originating task', _originTaskExisting.id, 'that hero image is already attached for doc:', _heroDocIdExisting);
+                }
+              }
             } else {
             // Set hero_image_asset_id only — no content_md mutation
             imgDoc.hero_image_asset_id = imgJobId;
