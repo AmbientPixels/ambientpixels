@@ -95,7 +95,7 @@ const GUARDRAILS = {
   maxContentGeneratesPerCyclePerAgent: 1,
   maxEscalationsPerCycle: 3,
   maxActiveTasks: 50,
-  dedupeWindowMs: 1800000 // 30 min
+  dedupeWindowMs: 600000 // 10 min
 };
 
 // ── Persistent Agent Memory ──
@@ -2852,6 +2852,32 @@ Write the full deliverable first, then the structured JSON block.`;
     }
   }
 
+  // ANTI-STALL: if agent has triaged idle tasks but produced no execute/create-doc/create-social-action, inject forced execute
+  if (agentId !== 'nova') {
+    const _hasWorkAction = actions.some(a =>
+      a.type === 'execute-task' || a.type === 'create-doc' || a.type === 'create-social-action'
+    );
+    if (!_hasWorkAction) {
+      const _prioOrder = { critical: 0, high: 1, medium: 2, low: 3 };
+      const _triagedIdle = agentTasks
+        .filter(t =>
+          (t.status === 'todo' || t.status === 'in-progress') &&
+          t.comments && t.comments.some(c => c.author === 'nova' || c.author === 'system')
+        )
+        .sort((a, b) => (_prioOrder[a.priority] || 3) - (_prioOrder[b.priority] || 3));
+      if (_triagedIdle.length > 0) {
+        const _stallTask = _triagedIdle[0];
+        context.log('[Heartbeat] ANTI-STALL:', agentId, 'has', _triagedIdle.length,
+          'triaged idle task(s) but produced 0 work actions — injecting execute-task for:', _stallTask.id, '"' + (_stallTask.title || '') + '"');
+        actions.unshift({
+          type: 'execute-task',
+          taskId: _stallTask.id,
+          summary: 'Anti-stall forced execution: ' + (_stallTask.title || _stallTask.id)
+        });
+      }
+    }
+  }
+
   // Track visual docs created this cycle — blocks same-cycle submit-for-publish
   const _visualDocsCreatedThisCycle = new Set();
   const _VISUAL_DOC_KINDS = ['marketing_post', 'product_brief'];
@@ -2859,6 +2885,9 @@ Write the full deliverable first, then the structured JSON block.`;
   // Tier 4 sub-agent action restrictions (server-side enforcement)
   const TIER4_FORBIDDEN = ['create-social-action', 'create-doc', 'submit-for-publish', 'create-task', 'create-content-package'];
   const isTier4 = agent.tier === 4;
+
+  // Work-producing actions bypass dedup entirely — deliverables are always unique
+  const _DEDUP_EXEMPT = new Set(['execute-task', 'create-doc', 'create-social-action', 'generate-image', 'create-content-package', 'review-task']);
 
   for (const action of actions) {
     if (actionCount >= GUARDRAILS.maxActionsPerCyclePerAgent) break;
@@ -2884,10 +2913,11 @@ Write the full deliverable first, then the structured JSON block.`;
       continue;
     }
 
-    const summary = agent.name + ': ' + (action.summary || action.type || 'action');
+    const _isDedupeExempt = _DEDUP_EXEMPT.has(action.type);
+    const summary = agent.name + ': ' + (action.summary || action.type || 'action') + (action.taskId ? ' [' + action.taskId + ']' : '');
 
-    // Dedupe
-    if (recentSummaries.has(summary)) {
+    // Dedupe (skipped for work-producing actions)
+    if (!_isDedupeExempt && recentSummaries.has(summary)) {
       context.log('[Heartbeat]', agentId, 'skipping duplicate:', summary);
       continue;
     }
@@ -4813,6 +4843,18 @@ Write the full deliverable first, then the structured JSON block.`;
   }
 
   result.actions = actionCount;
+
+  // 0-action diagnostic: log why agent did nothing
+  if (actionCount === 0 && agentTasks.length > 0) {
+    const _idleTodo = agentTasks.filter(t => t.status === 'todo' || t.status === 'in-progress');
+    const _triagedCount = _idleTodo.filter(t => t.comments && t.comments.some(c => c.author === 'nova' || c.author === 'system')).length;
+    context.log('[Heartbeat] ZERO-ACTION DIAGNOSTIC:', agentId,
+      '| assigned:', agentTasks.length,
+      '| todo/in-progress:', _idleTodo.length,
+      '| triaged:', _triagedCount,
+      '| rawActionsFromLLM:', result.actionAttempts,
+      '| dedupeExemptTypes: execute-task,create-doc,create-social-action,generate-image,create-content-package,review-task');
+  }
 
   // ── Phase 2B: Process normalized proposals from new-format or explicit agent proposals ──
   for (var _pi = 0; _pi < normalized.proposals.length; _pi++) {
