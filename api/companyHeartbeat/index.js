@@ -837,17 +837,37 @@ module.exports = async function (context) {
     const _taskIdsArchived = new Set(); // populated by archive block
     const configs = (await storage.getState('agentConfigs')) || {};
     const recentLogs = await storage.getLogs({ limit: 50 });
-    const directives = (await storage.getState('directives')) || [];
+    const _rawDirectives = (await storage.getState('directives')) || [];
     const campaigns = (await storage.getState('campaigns')) || [];
+    // Server-side migration: merge directives into campaigns (one-time)
+    if (_rawDirectives.length > 0) {
+      const _existingCmpIds = new Set(campaigns.map(c => c && c.id).filter(Boolean));
+      let _migrated = 0;
+      for (const _rd of _rawDirectives) {
+        if (!_rd || !_rd.id || _existingCmpIds.has(_rd.id)) continue;
+        let _st = String(_rd.status || 'active').toLowerCase();
+        if (_st === 'completed') _st = 'complete';
+        if (_st === 'pending-approval') _st = 'active';
+        _rd.status = _st;
+        _rd._migratedFromDirective = true;
+        if (!_rd.createdAt) _rd.createdAt = _rd.createdDate || new Date().toISOString();
+        if (!_rd.updatedAt) _rd.updatedAt = _rd.createdAt;
+        campaigns.push(_rd);
+        _migrated++;
+      }
+      if (_migrated > 0) {
+        context.log('[Heartbeat] Migrated ' + _migrated + ' directives into campaigns');
+      }
+    }
+    const directives = campaigns; // backward compat alias
     const objectives = (await storage.getState('objectives')) || [];
     const _documentsAtLoad = (await storage.getState('documents')) || [];
     const _documentIdsAtLoad = new Set(_documentsAtLoad.map(function (d) { return d && d.id; }).filter(Boolean));
     let campaignsChanged = false;
-    let directivesCampaignChanged = false;
     let tasksCampaignChanged = false;
     const campaignGovEvents = [];
     let autoFixCount = 0;
-    let createdProjectCount = 0;
+    let createdCampaignAutoCount = 0;
     const _guardrailCounts = {
       orphanBlocked: 0,
       exactDupBlocked: 0,
@@ -855,11 +875,9 @@ module.exports = async function (context) {
       taskCeilingBlocked: 0,
       socialPromoGateBlocked: 0,
       ceoApprovalsTriggered: 0,
-      pausedProjectAutomationBlocked: 0
+      pausedCampaignAutomationBlocked: 0
     };
     const _campaignsTouched = new Set();
-    const _directivesTouched = new Set();
-    const _createdDirectiveIds = new Set();
     const _tasksTouched = new Set();
     const _agentRunStats = {};
     let _entityCommentCalls = 0;
@@ -882,194 +900,85 @@ module.exports = async function (context) {
       if (c.description === undefined || c.description === null) { c.description = ''; campaignsChanged = true; autoFixCount++; if (c.id) _campaignsTouched.add(c.id); }
     }
 
-    // Normalize linkedDirective (string) → linkedDirectives (array) for backward compat
+    // Normalize objective linking: linkedDirective/linkedDirectives → linkedCampaigns
     for (const _normObj of objectives) {
       if (!_normObj) continue;
-      if (!Array.isArray(_normObj.linkedDirectives)) {
-        _normObj.linkedDirectives = _normObj.linkedDirective ? [_normObj.linkedDirective] : [];
-        autoFixCount++;
+      if (!Array.isArray(_normObj.linkedCampaigns)) {
+        if (Array.isArray(_normObj.linkedDirectives)) {
+          _normObj.linkedCampaigns = _normObj.linkedDirectives;
+        } else if (_normObj.linkedDirective) {
+          _normObj.linkedCampaigns = [_normObj.linkedDirective];
+        } else {
+          _normObj.linkedCampaigns = [];
+        }
       }
+      _normObj.linkedDirectives = _normObj.linkedCampaigns; // backward compat alias
+      autoFixCount++;
     }
 
-    // ── Goal → auto-create Project + Campaign for goals with no linked projects ──
+    // ── Goal → auto-create Campaign for goals with no linked campaigns ──
     let objectivesChanged = false;
     for (const _goalObj of objectives) {
       if (!_goalObj || !_goalObj.id) continue;
       const _goalStatus = String(_goalObj.status || '').toLowerCase();
       if (_goalStatus === 'complete' || _goalStatus === 'canceled') continue;
 
-      const _goalDirIds = Array.isArray(_goalObj.linkedDirectives) ? _goalObj.linkedDirectives : [];
-      const _hasActiveProject = _goalDirIds.some(function (dirId) {
-        const dir = directives.find(function (d) { return d && d.id === dirId && !d.deletedAt; });
-        return dir && String(dir.status || '').toLowerCase() !== 'canceled';
+      const _goalCmpIds = Array.isArray(_goalObj.linkedCampaigns) ? _goalObj.linkedCampaigns : [];
+      const _hasActiveCampaign = _goalCmpIds.some(function (cmpId) {
+        const cmp = campaigns.find(function (c) { return c && c.id === cmpId && !c.deletedAt; });
+        return cmp && String(cmp.status || '').toLowerCase() !== 'archived';
       });
-      if (_hasActiveProject) continue;
+      if (_hasActiveCampaign) continue;
 
-      const _newDirId = 'dir-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6);
+      const _newCmpId = 'cmp-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6);
       const _goalDescBase = String(_goalObj.description || '').trim();
-      const _goalContextLine = await _commentForEntity('project', {
+      const _goalContextLine = await _commentForEntity('campaign', {
         agentId: 'nova',
-        title: (_goalObj.quarter ? '[Q' + _goalObj.quarter + '] ' : '') + (_goalObj.title || 'Untitled Project'),
+        title: (_goalObj.quarter ? '[Q' + _goalObj.quarter + '] ' : '') + (_goalObj.title || 'Untitled Campaign'),
         goalTitle: _goalObj.title || _goalObj.id,
         goalId: _goalObj.id,
         seedText: _goalDescBase,
-        fallbackText: 'I created this project from the goal "' + (_goalObj.title || _goalObj.id) + '" so the team has a clear execution container to work from.'
+        fallbackText: 'I created this campaign from the goal "' + (_goalObj.title || _goalObj.id) + '" so the team has a clear execution container.'
       });
-      const _newDir = {
-        id: _newDirId,
-        title: (_goalObj.quarter ? '[Q' + _goalObj.quarter + '] ' : '') + (_goalObj.title || 'Untitled Project'),
+      const _newCmp = {
+        id: _newCmpId,
+        title: (_goalObj.quarter ? '[Q' + _goalObj.quarter + '] ' : '') + (_goalObj.title || 'Untitled Campaign'),
         description: _goalContextLine,
         status: 'active',
         priority: _goalObj.priority || 'medium',
         objective_id: _goalObj.id,
-        campaign_id: null,
-        createdDate: new Date().toISOString(),
+        createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
-        provenance: 'Auto: Goal → Project'
+        provenance: 'Auto: Goal → Campaign'
       };
-      directives.push(_newDir);
-      createdProjectCount++;
-      _directivesTouched.add(_newDirId);
-      _createdDirectiveIds.add(_newDirId);
+      campaigns.push(_newCmp);
+      createdCampaignAutoCount++;
+      _campaignsTouched.add(_newCmpId);
+      campaignsChanged = true;
 
-      if (!Array.isArray(_goalObj.linkedDirectives)) _goalObj.linkedDirectives = [];
-      _goalObj.linkedDirectives.push(_newDirId);
+      if (!Array.isArray(_goalObj.linkedCampaigns)) _goalObj.linkedCampaigns = [];
+      _goalObj.linkedCampaigns.push(_newCmpId);
+      _goalObj.linkedDirectives = _goalObj.linkedCampaigns;
       objectivesChanged = true;
-      directivesCampaignChanged = true;
 
-      context.log('[Heartbeat] Auto-created Project "' + _newDir.title + '" (' + _newDirId + ') for Goal "' + (_goalObj.title || _goalObj.id) + '" (' + _goalObj.id + ')');
-      await logEvent('goal-auto-project', null, 'Auto-created project for goal', runId, {
-        runId, objectiveId: _goalObj.id, objectiveTitle: _goalObj.title, directiveId: _newDirId, directiveTitle: _newDir.title
+      context.log('[Heartbeat] Auto-created Campaign "' + _newCmp.title + '" (' + _newCmpId + ') for Goal "' + (_goalObj.title || _goalObj.id) + '" (' + _goalObj.id + ')');
+      await logEvent('goal-auto-campaign', null, 'Auto-created campaign for goal', runId, {
+        runId, objectiveId: _goalObj.id, objectiveTitle: _goalObj.title, campaignId: _newCmpId, campaignTitle: _newCmp.title
       });
     }
     if (objectivesChanged) {
       await storage.setState('objectives', objectives);
-      context.log('[Heartbeat] Pushed updated objectives after goal→project auto-creation');
+      context.log('[Heartbeat] Pushed updated objectives after goal→campaign auto-creation');
     }
 
-    // ── Campaign → auto-create Project for campaigns with no linked project ──
-    for (const _cmpObj of campaigns) {
-      if (!_cmpObj || !_cmpObj.id) continue;
-      if (_cmpObj.deletedAt) continue;
-      const _cmpStatus = String(_cmpObj.status || '').toLowerCase();
-      if (_cmpStatus !== 'active') continue;
+    // Build campaignById map for O(1) lookups in freeze gates
+    const campaignById = {};
+    for (const _c of campaigns) { if (_c && _c.id) campaignById[_c.id] = _c; }
 
-      // Check if any directive already references this campaign
-      const _cmpHasProject = directives.some(function (d) {
-        return d && !d.deletedAt && d.campaign_id === _cmpObj.id &&
-          String(d.status || '').toLowerCase() !== 'canceled';
-      });
-      if (_cmpHasProject) continue;
-
-      const _cmpDirId = 'dir-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6);
-      const _cmpDescBase = String(_cmpObj.description || '').trim();
-      const _cmpContextLine = await _commentForEntity('project', {
-        agentId: 'nova',
-        title: _cmpObj.title || 'Untitled Project',
-        goalTitle: _cmpObj.objective_id ? (objectives.find(function (o) { return o && o.id === _cmpObj.objective_id; }) || {}).title || _cmpObj.objective_id : '',
-        goalId: _cmpObj.objective_id || '',
-        seedText: _cmpDescBase,
-        fallbackText: 'I created this project from the campaign "' + (_cmpObj.title || _cmpObj.id) + '" so agents have a clear execution container.'
-      });
-      const _cmpNewDir = {
-        id: _cmpDirId,
-        title: _cmpObj.title || 'Untitled Project',
-        description: _cmpContextLine,
-        status: 'active',
-        priority: _cmpObj.priority || 'medium',
-        objective_id: _cmpObj.objective_id || null,
-        campaign_id: _cmpObj.id,
-        createdDate: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        provenance: 'Auto: Campaign → Project'
-      };
-      directives.push(_cmpNewDir);
-      createdProjectCount++;
-      _directivesTouched.add(_cmpDirId);
-      _createdDirectiveIds.add(_cmpDirId);
-      directivesCampaignChanged = true;
-
-      // Link project to goal if campaign has one
-      if (_cmpObj.objective_id) {
-        const _cmpGoal = objectives.find(function (o) { return o && o.id === _cmpObj.objective_id; });
-        if (_cmpGoal) {
-          if (!Array.isArray(_cmpGoal.linkedDirectives)) _cmpGoal.linkedDirectives = [];
-          _cmpGoal.linkedDirectives.push(_cmpDirId);
-          objectivesChanged = true;
-        }
-      }
-
-      context.log('[Heartbeat] Auto-created Project "' + _cmpNewDir.title + '" (' + _cmpDirId + ') for Campaign "' + (_cmpObj.title || _cmpObj.id) + '" (' + _cmpObj.id + ')');
-      await logEvent('campaign-auto-project', null, 'Auto-created project for campaign', runId, {
-        runId, campaignId: _cmpObj.id, campaignTitle: _cmpObj.title, directiveId: _cmpDirId, directiveTitle: _cmpNewDir.title
-      });
-    }
-    if (objectivesChanged) {
-      await storage.setState('objectives', objectives);
-      context.log('[Heartbeat] Pushed updated objectives after campaign→project auto-creation');
-    }
-
-    for (const d of directives) {
-      if (!d) continue;
-      normalizeCampaignRef(d);
-      if (d.campaign_id) continue;
-      const _dResult = await ensureCampaign({
-        campaign_id: d.campaign_id,
-        title: d.title || '',
-        description: d.description || '',
-        goalId: d.objective_id || null,
-        division: d.division || null,
-        provenance: 'Auto: Campaign ' + (d.owner || 'nova'),
-        campaigns: campaigns,
-        entrypoint: 'heartbeat_directive',
-        debug: true,
-        logger: context.log
-      });
-      d.campaign_id = _dResult.campaignId;
-      if (_dResult.created) {
-        _dResult.campaign.description = await _commentForEntity('campaign', {
-          agentId: d.owner || 'nova',
-          title: _dResult.campaign.title || d.title || 'Campaign',
-          goalId: d.objective_id || null,
-          seedText: d.description || '',
-          fallbackText: 'I created this campaign to group related work and keep planning/execution aligned under one objective.'
-        });
-        _dResult.campaign.updatedAt = new Date().toISOString();
-        campaignsChanged = true;
-        campaignGovEvents.push({
-          id: 'gov-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
-          type: 'campaign-created',
-          data: { campaignId: _dResult.campaignId, title: _dResult.campaign.title, provenance: _dResult.campaign.provenance || null, source: 'directive_auto_attach' },
-          timestamp: new Date().toISOString()
-        });
-      }
-      d.updatedAt = new Date().toISOString();
-      directivesCampaignChanged = true;
-      if (d.id) _directivesTouched.add(d.id);
-    }
-
-    // Build projectById map once for O(1) lookups in freeze gates
-    const projectById = {};
-    for (const _d of directives) { if (_d && _d.id) projectById[_d.id] = _d; }
-
+    // Ensure tasks have campaign_id (normalize directive_id → campaign_id, then auto-match)
     for (const t of tasks) {
       if (!t) continue;
       normalizeCampaignRef(t);
-
-      // Inherit campaign from parent directive if available
-      if (t.directive_id && projectById[t.directive_id]) {
-        const dir = projectById[t.directive_id];
-        normalizeCampaignRef(dir);
-        if (dir.campaign_id && t.campaign_id !== dir.campaign_id) {
-          t.campaign_id = dir.campaign_id;
-          t.updatedAt = new Date().toISOString();
-          tasksCampaignChanged = true;
-          autoFixCount++;
-          if (t.id) _tasksTouched.add(t.id);
-          continue;
-        }
-      }
-
       if (t.campaign_id) continue;
 
       const _tResult = await ensureCampaign({
@@ -1095,6 +1004,7 @@ module.exports = async function (context) {
         });
         _tResult.campaign.updatedAt = new Date().toISOString();
         campaignsChanged = true;
+        _campaignsTouched.add(_tResult.campaignId);
         campaignGovEvents.push({
           id: 'gov-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
           type: 'campaign-created',
@@ -1108,26 +1018,25 @@ module.exports = async function (context) {
       if (t.id) _tasksTouched.add(t.id);
     }
 
+    // Auto-complete campaigns where ALL linked tasks are done
     for (const c of campaigns) {
       if (!c || c.deletedAt || String(c.status || '').toLowerCase() !== 'active') continue;
-      const children = directives.filter(function (d) {
-        return d && !d.deletedAt && d.campaign_id === c.id;
+      const cmpTasks = tasks.filter(function (t) { return t && t.campaign_id === c.id; });
+      if (cmpTasks.length === 0) continue;
+      const allDone = cmpTasks.every(function (t) {
+        const s = String(t.status || '').toLowerCase();
+        return s === 'done' || s === 'archived';
       });
-      if (children.length === 0) continue;
-      const allTerminal = children.every(function (d) {
-        const s = String(d.status || '').toLowerCase();
-        return s === 'completed' || s === 'archived';
-      });
-      if (!allTerminal) continue;
-      c.status = 'archived';
+      if (!allDone) continue;
+      c.status = 'complete';
       c.updatedAt = new Date().toISOString();
       campaignsChanged = true;
       autoFixCount++;
       if (c.id) _campaignsTouched.add(c.id);
       campaignGovEvents.push({
         id: 'gov-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
-        type: 'campaign_auto_archive',
-        data: { campaignId: c.id, title: c.title, directiveCount: children.length },
+        type: 'campaign_auto_complete',
+        data: { campaignId: c.id, title: c.title, taskCount: cmpTasks.length },
         timestamp: new Date().toISOString()
       });
     }
@@ -1179,11 +1088,12 @@ module.exports = async function (context) {
 
     // v2.3: Exclude pending-approval items from heartbeat processing
     const pendingTasks = tasks.filter(t => t.status === 'pending-approval');
-    const pendingDirs = directives.filter(d => d.status === 'pending-approval');
-    if (pendingTasks.length > 0 || pendingDirs.length > 0) {
-      context.log('[Heartbeat] Pending approval items detected: ' + pendingTasks.length + ' tasks, ' + pendingDirs.length + ' directives — skipping until approved.');
+    const pendingCmps = campaigns.filter(c => c.status === 'pending-approval');
+    if (pendingTasks.length > 0 || pendingCmps.length > 0) {
+      context.log('[Heartbeat] Pending approval items detected: ' + pendingTasks.length + ' tasks, ' + pendingCmps.length + ' campaigns — skipping until approved.');
     }
-    const activeDirectives = directives.filter(d => d.status === 'active');
+    const activeCampaigns = campaigns.filter(c => c.status === 'active' && !c.deletedAt);
+    const activeDirectives = activeCampaigns; // backward compat alias
     const activeObjectives = objectives.filter(o => o.status && o.status !== 'complete' && o.status !== 'canceled');
     const normalizedActivationMode = await resolveActivationMode(storage, runId);
 
@@ -1404,30 +1314,31 @@ module.exports = async function (context) {
       }
     }
 
-    // ── Goal cancel → cascade pause to linked Projects ──
-    let _directivesPushed = false;
+    // ── Goal cancel → cascade pause to linked Campaigns ──
+    let _campaignsCascadePushed = false;
     for (const _obj of objectives) {
       if (!_obj || !_obj.id) continue;
       if (String(_obj.status || '').toLowerCase() !== 'canceled') continue;
-      const linkedDirIds = Array.isArray(_obj.linkedDirectives) ? _obj.linkedDirectives : [];
-      for (const dirId of linkedDirIds) {
-        const dir = directives.find(d => d && d.id === dirId);
-        if (dir && String(dir.status || '').toLowerCase() === 'active') {
-          dir.status = 'paused';
-          dir.updatedAt = new Date().toISOString();
-          dir._pausedByGoalCancel = _obj.id;
-          _directivesPushed = true;
-          if (dir.id) _directivesTouched.add(dir.id);
-          context.log('[Heartbeat] Cascade: Goal canceled (' + _obj.id + ' "' + (_obj.title || '') + '") → paused linked Project (' + dirId + ' "' + (dir.title || '') + '")');
-          await logEvent('goal-cancel-cascade', null, 'Project paused by goal cancel cascade', runId, {
-            runId, objectiveId: _obj.id, objectiveTitle: _obj.title, directiveId: dirId, directiveTitle: dir.title
+      const linkedCmpIds = Array.isArray(_obj.linkedCampaigns) ? _obj.linkedCampaigns : (Array.isArray(_obj.linkedDirectives) ? _obj.linkedDirectives : []);
+      for (const cmpId of linkedCmpIds) {
+        const cmp = campaigns.find(c => c && c.id === cmpId);
+        if (cmp && String(cmp.status || '').toLowerCase() === 'active') {
+          cmp.status = 'paused';
+          cmp.updatedAt = new Date().toISOString();
+          cmp._pausedByGoalCancel = _obj.id;
+          _campaignsCascadePushed = true;
+          campaignsChanged = true;
+          if (cmp.id) _campaignsTouched.add(cmp.id);
+          context.log('[Heartbeat] Cascade: Goal canceled (' + _obj.id + ' "' + (_obj.title || '') + '") → paused linked Campaign (' + cmpId + ' "' + (cmp.title || '') + '")');
+          await logEvent('goal-cancel-cascade', null, 'Campaign paused by goal cancel cascade', runId, {
+            runId, objectiveId: _obj.id, objectiveTitle: _obj.title, campaignId: cmpId, campaignTitle: cmp.title
           });
         }
       }
     }
-    if (_directivesPushed) {
-      await storage.setState('directives', directives);
-      context.log('[Heartbeat] Cascade: pushed updated directives to server after goal-cancel pause');
+    if (_campaignsCascadePushed) {
+      await storage.setState('campaigns', campaigns);
+      context.log('[Heartbeat] Cascade: pushed updated campaigns to server after goal-cancel pause');
     }
 
     // ── Auto-archive tasks ──
@@ -1445,11 +1356,11 @@ module.exports = async function (context) {
         canceledObjectives.set(_obj.id, _obj);
       }
     }
-    const canceledDirectives = new Map();
-    for (const _dir of directives) {
-      if (!_dir || !_dir.id) continue;
-      if (String(_dir.status || '').toLowerCase() === 'canceled') {
-        canceledDirectives.set(_dir.id, _dir);
+    const canceledCampaigns = new Map();
+    for (const _cmp of campaigns) {
+      if (!_cmp || !_cmp.id) continue;
+      if (String(_cmp.status || '').toLowerCase() === 'canceled') {
+        canceledCampaigns.set(_cmp.id, _cmp);
       }
     }
 
@@ -1457,20 +1368,20 @@ module.exports = async function (context) {
     const toArchive = [];
     const keepTasks = [];
     for (const task of tasks) {
-      // Canceled-directive archive: archive tasks linked to canceled directives
-      const directiveId = task && task.directive_id ? task.directive_id : null;
-      if (directiveId && canceledDirectives.has(directiveId)) {
-        const directive = canceledDirectives.get(directiveId);
+      // Canceled-campaign archive: archive tasks linked to canceled campaigns
+      const campaignId = task && task.campaign_id ? task.campaign_id : null;
+      if (campaignId && canceledCampaigns.has(campaignId)) {
+        const campaign = canceledCampaigns.get(campaignId);
         const nowIso = new Date().toISOString();
         const archiveStamp = task.archivedAt || nowIso;
-        const cancelComment = 'Auto-archived: Directive canceled (directiveId=' + directiveId + ', title=' + (directive.title || directiveId) + '). Execution blocked.';
+        const cancelComment = 'Auto-archived: Campaign canceled (campaignId=' + campaignId + ', title=' + (campaign.title || campaignId) + '). Execution blocked.';
         if (!task.comments) task.comments = [];
         const hasCancelComment = task.comments.some(function (c) {
           return c && c.author === 'system' && c.text === cancelComment;
         });
         if (!hasCancelComment) {
           task.comments.push({
-            id: 'cmt-archive-directive-canceled-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+            id: 'cmt-archive-campaign-canceled-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
             author: 'system',
             text: cancelComment,
             type: 'system',
@@ -1494,13 +1405,13 @@ module.exports = async function (context) {
             commentCount: task.comments ? task.comments.length : 0,
             lastComment: lastComment ? { author: lastComment.author, text: (lastComment.text || '').substring(0, 150), createdAt: lastComment.createdAt } : null,
             archivedAt: archiveStamp,
-            archivedReason: 'directive_canceled',
-            directiveId: directiveId,
-            directiveTitle: directive.title || null
+            archivedReason: 'campaign_canceled',
+            campaignId: campaignId,
+            campaignTitle: campaign.title || null
           });
           archivedTaskIds.add(task.id);
           _taskIdsArchived.add(task.id);
-          canceledArchiveCounts.set('dir:' + directiveId, (canceledArchiveCounts.get('dir:' + directiveId) || 0) + 1);
+          canceledArchiveCounts.set('cmp:' + campaignId, (canceledArchiveCounts.get('cmp:' + campaignId) || 0) + 1);
         }
         task._archived = true;
         task.updatedAt = new Date().toISOString();
@@ -1668,7 +1579,7 @@ module.exports = async function (context) {
     // Review cooldown: track tasks that enter review THIS cycle — cannot be reviewed in same cycle
     const _reviewCooldownIds = new Set();
     const _agentCampaignCtx = {
-      projectById: projectById,
+      campaignById: campaignById,
       campaigns: campaigns,
       campaignGovEvents: campaignGovEvents,
       campaignsChanged: false
@@ -2083,56 +1994,43 @@ module.exports = async function (context) {
               }
             }
 
-            // Canceled-directive freeze: block ALL mutations on tasks linked to canceled directives
+            // Canceled-campaign freeze: block ALL mutations on tasks linked to canceled campaigns
             if (mutationAction !== 'create') {
-              const _dirCancelTask = tasks.find(t => t.id === update.taskId);
-              if (_dirCancelTask && _dirCancelTask.directive_id) {
-                const _dirCancel = directives.find(d => d.id === _dirCancelTask.directive_id);
-                if (_dirCancel && String(_dirCancel.status || '').toLowerCase() === 'canceled') {
+              const _cmpCancelTask = tasks.find(t => t.id === update.taskId);
+              if (_cmpCancelTask && _cmpCancelTask.campaign_id) {
+                const _cmpCancel = campaignById[_cmpCancelTask.campaign_id] || null;
+                if (_cmpCancel && String(_cmpCancel.status || '').toLowerCase() === 'canceled') {
                   _incBlocked(agentId);
-                  await logEvent('policy-violation', agentId, 'Mutation blocked: task linked to canceled directive', runId, {
-                    runId: runId, agentId: agentId, gate: 'directive_canceled_freeze',
+                  await logEvent('policy-violation', agentId, 'Mutation blocked: task linked to canceled campaign', runId, {
+                    runId: runId, agentId: agentId, gate: 'campaign_canceled_freeze',
                     action: mutationAction, taskId: update.taskId,
-                    directiveId: _dirCancelTask.directive_id, reason: 'directive_canceled'
+                    campaignId: _cmpCancelTask.campaign_id, reason: 'campaign_canceled'
                   });
                   continue;
                 }
               }
             }
 
-            // Project status freeze gate: block ALL mutations on tasks linked to paused (or not-found) projects
+            // Campaign status freeze gate: block ALL mutations on tasks linked to paused campaigns
             if (mutationAction !== 'create') {
               const _psTask = tasks.find(t => t.id === update.taskId);
-              const _psProjectId = _psTask ? (_psTask.directive_id || null) : null;
-              if (_psProjectId) {
-                const _psProject = projectById[_psProjectId] || null;
+              const _psCampaignId = _psTask ? (_psTask.campaign_id || null) : null;
+              if (_psCampaignId) {
+                const _psCampaign = campaignById[_psCampaignId] || null;
                 const _psOldStatus = _psTask ? (_psTask.status || null) : null;
                 const _psNextStatus = mutationAction === 'move'
                   ? update.newStatus
                   : (update.updates ? update.updates.status : null);
                 const _psFieldsChanged = update.updates ? Object.keys(update.updates) : (mutationAction === 'move' ? ['status'] : []);
 
-                if (!_psProject) {
-                  // Edge case: task references a project that doesn't exist — block (safer than mutating against unknown parent)
+                if (_psCampaign && String(_psCampaign.status || '').toLowerCase() === 'paused') {
                   _incBlocked(agentId);
-                  _incPolicyGate('project_status');
-                  _projectStatusBlockDetails.push({ projectId: _psProjectId, taskId: update.taskId, reason: 'project_not_found' });
-                  await logEvent('policy-violation', agentId, 'Mutation blocked: task references non-existent project', runId, {
-                    type: 'policy-violation', gate: 'project_link', reason: 'project_not_found',
-                    projectId: _psProjectId, taskId: update.taskId,
-                    attempted: { fieldsChanged: _psFieldsChanged, statusFrom: _psOldStatus, statusTo: _psNextStatus }
-                  });
-                  continue;
-                }
-
-                if (String(_psProject.status || '').toLowerCase() === 'paused') {
-                  _incBlocked(agentId);
-                  _incPolicyGate('project_status');
-                  _guardrailCounts.pausedProjectAutomationBlocked++;
-                  _projectStatusBlockDetails.push({ projectId: _psProjectId, taskId: update.taskId, reason: 'project_paused' });
-                  await logEvent('policy-violation', agentId, 'Mutation blocked: project paused — all task mutations frozen', runId, {
-                    type: 'policy-violation', gate: 'project_status', reason: 'project_paused',
-                    projectId: _psProjectId, projectStatus: 'paused', taskId: update.taskId,
+                  _incPolicyGate('campaign_status');
+                  _guardrailCounts.pausedCampaignAutomationBlocked++;
+                  _projectStatusBlockDetails.push({ campaignId: _psCampaignId, taskId: update.taskId, reason: 'campaign_paused' });
+                  await logEvent('policy-violation', agentId, 'Mutation blocked: campaign paused — all task mutations frozen', runId, {
+                    type: 'policy-violation', gate: 'campaign_status', reason: 'campaign_paused',
+                    campaignId: _psCampaignId, campaignStatus: 'paused', taskId: update.taskId,
                     attempted: { fieldsChanged: _psFieldsChanged, statusFrom: _psOldStatus, statusTo: _psNextStatus }
                   });
                   continue;
@@ -2418,7 +2316,6 @@ module.exports = async function (context) {
 
     // Persist updated state
     await storage.setState('tasks', tasks);
-    if (directivesCampaignChanged) await storage.setState('directives', directives);
     if (campaignsChanged) await storage.setState('campaigns', campaigns);
     if (campaignGovEvents.length > 0) {
       const govLog = (await storage.getState('governanceLog')) || [];
@@ -2572,7 +2469,7 @@ module.exports = async function (context) {
       .filter(function (evt) { return evt && evt.type === 'campaign-created' && evt.data && evt.data.campaignId; })
       .map(function (evt) { return evt.data.campaignId; }));
 
-    const updatedDirectiveCount = Array.from(_directivesTouched).filter(function (id) { return !_createdDirectiveIds.has(id); }).length;
+    const updatedDirectiveCount = 0; // directives merged into campaigns — kept for summary compat
     const updatedCampaignCount = Array.from(_campaignsTouched).filter(function (id) { return !createdCampaignIdSet.has(id); }).length;
     const updatedTaskCount = Array.from(_tasksTouched).filter(function (id) { return !createdTaskIdSet.has(id); }).length;
 
@@ -2615,7 +2512,7 @@ module.exports = async function (context) {
       + (_guardrailCounts.fuzzyDupBlocked || 0)
       + (_guardrailCounts.taskCeilingBlocked || 0)
       + (_guardrailCounts.socialPromoGateBlocked || 0)
-      + (_guardrailCounts.pausedProjectAutomationBlocked || 0);
+      + (_guardrailCounts.pausedCampaignAutomationBlocked || 0);
 
     const heartbeatSummary = {
       runId: runId,
@@ -2629,7 +2526,7 @@ module.exports = async function (context) {
       created: {
         goals: 0,
         campaigns: createdCampaignIdSet.size,
-        projects: createdProjectCount,
+        campaignsAutoCreated: createdCampaignAutoCount,
         tasks: createdTaskIds.length,
         docs: createdDocsCount
       },
@@ -2652,7 +2549,7 @@ module.exports = async function (context) {
         taskCeilingBlocked: _guardrailCounts.taskCeilingBlocked || 0,
         socialPromoGateBlocked: _guardrailCounts.socialPromoGateBlocked || 0,
         ceoApprovalsTriggered: _guardrailCounts.ceoApprovalsTriggered || 0,
-        pausedProjectAutomationBlocked: _guardrailCounts.pausedProjectAutomationBlocked || 0
+        pausedCampaignAutomationBlocked: _guardrailCounts.pausedCampaignAutomationBlocked || 0
       },
       backlogPressure: {
         activeTasks: activeTasksNow.length,
@@ -2698,7 +2595,7 @@ module.exports = async function (context) {
         executionMode: 'unknown',
         status: 'error',
         errorSummary: String(err && err.message ? err.message : err),
-        created: { goals: 0, campaigns: 0, projects: 0, tasks: 0, docs: 0 },
+        created: { goals: 0, campaigns: 0, campaignsAutoCreated: 0, tasks: 0, docs: 0 },
         updated: { tasks: 0, directives: 0, campaigns: 0 },
         autoFixes: 0,
         agentActions: { proposed: 0, executed: 0, blocked: 0, escalated: 0 },
@@ -2709,7 +2606,7 @@ module.exports = async function (context) {
           taskCeilingBlocked: 0,
           socialPromoGateBlocked: 0,
           ceoApprovalsTriggered: 0,
-          pausedProjectAutomationBlocked: 0
+          pausedCampaignAutomationBlocked: 0
         },
         backlogPressure: {
           activeTasks: 0,
@@ -2763,7 +2660,8 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
 
   // Build execution context bundle for execute/review prompts (eliminates context loss)
   const execContext = {
-    directives: activeDirectives || [],
+    campaigns: activeDirectives || [],
+    directives: activeDirectives || [], // backward compat alias
     objectives: activeObjectives || [],
     seedMemories: seedMemories || {},
     researchIntel: researchIntelStore || [],
@@ -3092,23 +2990,20 @@ Write the full deliverable first, then the structured JSON block.`;
         continue;
       }
 
-      // Inherit linking from parent project when provided
-      var _taskDirectiveId = action.task.directive_id || null;
+      // Inherit linking from parent campaign when provided
+      var _taskCampaignId = action.task.campaign_id || action.task.directive_id || null;
       var _taskObjectiveId = action.task.objective_id || null;
-      var _taskCampaignSeed = action.task.campaign_id || null;
-      if (_taskDirectiveId && campaignCtx && campaignCtx.projectById && campaignCtx.projectById[_taskDirectiveId]) {
-        var _parentDir = campaignCtx.projectById[_taskDirectiveId];
-        normalizeCampaignRef(_parentDir);
-        if (!_taskObjectiveId && _parentDir.objective_id) _taskObjectiveId = _parentDir.objective_id;
-        if (!_taskCampaignSeed && _parentDir.campaign_id) _taskCampaignSeed = _parentDir.campaign_id;
+      if (_taskCampaignId && campaignCtx && campaignCtx.campaignById && campaignCtx.campaignById[_taskCampaignId]) {
+        var _parentCmp = campaignCtx.campaignById[_taskCampaignId];
+        if (!_taskObjectiveId && _parentCmp.objective_id) _taskObjectiveId = _parentCmp.objective_id;
       }
 
-      // SERVER-SIDE GUARD: agent-created tasks must link to a goal or project
+      // SERVER-SIDE GUARD: agent-created tasks must link to a goal or campaign
       const _hasObjective = _taskObjectiveId || (action.task.source && action.task.source.type === 'ceo');
-      const _hasDirective = _taskDirectiveId;
-      if (!_hasObjective && !_hasDirective) {
+      const _hasCampaign = _taskCampaignId;
+      if (!_hasObjective && !_hasCampaign) {
         result.guardrails.orphanBlocked++;
-        context.log('[Heartbeat]', agentId, 'BLOCKED orphan task creation: "' + (action.task.title || '') + '" — must set objective_id or directive_id');
+        context.log('[Heartbeat]', agentId, 'BLOCKED orphan task creation: "' + (action.task.title || '') + '" — must set objective_id or campaign_id');
         continue;
       }
 
@@ -3161,12 +3056,7 @@ Write the full deliverable first, then the structured JSON block.`;
         priority: action.task.priority
       }));
 
-      // Resolve campaign: inherit from directive first, else match/create via shared module
-      var _taskCampaignId = _taskCampaignSeed || null;
-      if (!_taskCampaignId && _taskDirectiveId && campaignCtx && campaignCtx.projectById && campaignCtx.projectById[_taskDirectiveId]) {
-        normalizeCampaignRef(campaignCtx.projectById[_taskDirectiveId]);
-        _taskCampaignId = campaignCtx.projectById[_taskDirectiveId].campaign_id || null;
-      }
+      // Resolve campaign via shared module if not already set
       if (!_taskCampaignId) {
         const _ctResult = await ensureCampaign({
           campaign_id: _taskCampaignId || null,
@@ -3211,7 +3101,6 @@ Write the full deliverable first, then the structured JSON block.`;
           division: action.task.division || null,
           dueDate: action.task.dueDate || new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
           objective_id: _taskObjectiveId || null,
-          directive_id: _taskDirectiveId || null,
           campaign_id: _taskCampaignId || null,
           category: action.task.category || null
         }
@@ -3330,7 +3219,7 @@ Write the full deliverable first, then the structured JSON block.`;
                     parent_task_id: action.taskId,
                     createdAt: new Date().toISOString(),
                     updatedAt: new Date().toISOString(),
-                    directive_id: task.directive_id || null,
+                    campaign_id: task.campaign_id || null,
                     tags: ['hero-image', 'auto-created', 'visual-workflow'],
                     comments: [{
                       id: 'cmt-hero-' + Date.now(),
@@ -3465,7 +3354,7 @@ Write the full deliverable first, then the structured JSON block.`;
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
                 dueDate: socialTask.dueDate || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
-                directive_id: socialTask.directive_id || null,
+                campaign_id: socialTask.campaign_id || null,
                 tags: ['social-copy', 'auto-created', _copyTag],
                 comments: [{
                   id: 'cmt-' + Date.now(),
@@ -4063,7 +3952,7 @@ Write the full deliverable first, then the structured JSON block.`;
               parent_task_id: action.taskId || null,
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString(),
-              directive_id: action.directive_id || null,
+              campaign_id: action.campaign_id || null,
               tags: ['hero-image', 'auto-created', 'visual-workflow'],
               comments: [{
                 id: 'cmt-hero-' + Date.now(),
@@ -5145,7 +5034,7 @@ function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirective
   const taskList = agentTasks.map(t => {
     const src = t.source === 'heartbeat' ? 'agent' : 'CEO';
     let line = '- [' + t.status + '] ' + t.title + ' (priority: ' + t.priority + ', source: ' + src + ', id: ' + t.id;
-    if (t.directive_id) line += ', directive: ' + t.directive_id;
+    if (t.campaign_id) line += ', campaign: ' + t.campaign_id;
     if (t.dueDate) line += ', due: ' + t.dueDate.substring(0, 10);
     if (t.reviewed_copy) line += ', reviewed_copy: "' + t.reviewed_copy.substring(0, 300) + (t.reviewed_copy.length > 300 ? '...' : '') + '"';
     if (t.awaiting_copy_review) line += ', ⏳ AWAITING COPY REVIEW FROM SCRIBE';
@@ -5257,28 +5146,28 @@ IMPORTANT: CEO/manual tasks are the CEO's direct requests — triage them FIRST 
     }
   }
 
-  // Active CEO Directives — strategic priorities that drive task creation
+  // Active Campaigns — strategic priorities that drive task creation
   let directivesSection = '';
   if (activeDirectives.length > 0) {
-    // Check which directives already have tasks linked to them
-    const directiveTaskMap = {};
+    // Check which campaigns already have tasks linked to them
+    const campaignTaskMap = {};
     allActiveTasks.forEach(t => {
-      if (t.directive_id) {
-        if (!directiveTaskMap[t.directive_id]) directiveTaskMap[t.directive_id] = [];
-        directiveTaskMap[t.directive_id].push(t.title);
+      if (t.campaign_id) {
+        if (!campaignTaskMap[t.campaign_id]) campaignTaskMap[t.campaign_id] = [];
+        campaignTaskMap[t.campaign_id].push(t.title);
       }
     });
-    const dirList = activeDirectives.map(d => {
-      const linked = directiveTaskMap[d.id];
+    const cmpList = activeDirectives.map(c => {
+      const linked = campaignTaskMap[c.id];
       const linkInfo = linked ? ' [' + linked.length + ' task(s) linked]' : ' [NO TASKS YET — needs task creation]';
-      return '- "' + d.title + '" (id: ' + d.id + ', priority: ' + (d.priority || 'medium') + ')' + linkInfo;
+      return '- "' + c.title + '" (id: ' + c.id + ', priority: ' + (c.priority || 'medium') + ')' + linkInfo;
     }).join('\n');
-    directivesSection = `\n\nACTIVE CEO PROJECTS (strategic priorities from the CEO — these drive what the company works on):
-${dirList}
-IMPORTANT: Create specific leaf tasks for each directive directly (e.g. "Draft Q1 marketing brief", "Audit API cost dashboard"). NEVER create meta-tasks like "Create Tasks for CEO Directives" or "Create Individual Tasks for..." — those are wasted actions. If a directive needs multiple tasks, create each one individually in this heartbeat cycle.`;
+    directivesSection = `\n\nACTIVE CAMPAIGNS (strategic priorities — these drive what the company works on):
+${cmpList}
+IMPORTANT: Create specific leaf tasks for each campaign directly (e.g. "Draft Q1 marketing brief", "Audit API cost dashboard"). NEVER create meta-tasks like "Create Tasks for Campaigns" or "Create Individual Tasks for..." — those are wasted actions. If a campaign needs multiple tasks, create each one individually in this heartbeat cycle.`;
   }
 
-  // Active Objectives — enriched with task linkage + linked directives (mirrors directive section)
+  // Active Objectives — enriched with task linkage + linked campaigns
   let objectivesSection = '';
   if (activeObjectives.length > 0) {
     // Build objective → task map
@@ -5289,30 +5178,30 @@ IMPORTANT: Create specific leaf tasks for each directive directly (e.g. "Draft Q
         objectiveTaskMap[t.objective_id].push(t.title);
       }
     });
-    // Build objective → directive map from BOTH directions:
-    // 1) directive.linkedObjectives (array on directive)
-    // 2) objective.linkedDirectives (array set from goals page, normalized from old linkedDirective)
-    const objectiveDirMap = {};
-    const _allDirectives = activeDirectives.length > 0 ? activeDirectives : [];
-    const _dirById = {};
-    _allDirectives.forEach(d => { _dirById[d.id] = d; });
-    _allDirectives.forEach(d => {
-      (d.linkedObjectives || []).forEach(objId => {
-        if (!objectiveDirMap[objId]) objectiveDirMap[objId] = [];
-        if (!objectiveDirMap[objId].some(x => x.id === d.id)) {
-          objectiveDirMap[objId].push({ id: d.id, title: d.title });
+    // Build objective → campaign map from BOTH directions:
+    // 1) campaign.linkedObjectives (array on campaign)
+    // 2) objective.linkedCampaigns (array set from goals page, normalized from old linkedDirective)
+    const objectiveCmpMap = {};
+    const _allCampaigns = activeDirectives.length > 0 ? activeDirectives : [];
+    const _cmpById = {};
+    _allCampaigns.forEach(c => { _cmpById[c.id] = c; });
+    _allCampaigns.forEach(c => {
+      (c.linkedObjectives || []).forEach(objId => {
+        if (!objectiveCmpMap[objId]) objectiveCmpMap[objId] = [];
+        if (!objectiveCmpMap[objId].some(x => x.id === c.id)) {
+          objectiveCmpMap[objId].push({ id: c.id, title: c.title });
         }
       });
     });
-    // Also check objective.linkedDirectives (array, set from goals UI)
+    // Also check objective.linkedCampaigns (array, set from goals UI)
     activeObjectives.forEach(o => {
-      const _lds = Array.isArray(o.linkedDirectives) ? o.linkedDirectives : (o.linkedDirective ? [o.linkedDirective] : []);
-      _lds.forEach(dirId => {
-        if (dirId && _dirById[dirId]) {
-          if (!objectiveDirMap[o.id]) objectiveDirMap[o.id] = [];
-          if (!objectiveDirMap[o.id].some(x => x.id === dirId)) {
-            const d = _dirById[dirId];
-            objectiveDirMap[o.id].push({ id: d.id, title: d.title });
+      const _lcs = Array.isArray(o.linkedCampaigns) ? o.linkedCampaigns : (Array.isArray(o.linkedDirectives) ? o.linkedDirectives : (o.linkedDirective ? [o.linkedDirective] : []));
+      _lcs.forEach(cmpId => {
+        if (cmpId && _cmpById[cmpId]) {
+          if (!objectiveCmpMap[o.id]) objectiveCmpMap[o.id] = [];
+          if (!objectiveCmpMap[o.id].some(x => x.id === cmpId)) {
+            const c = _cmpById[cmpId];
+            objectiveCmpMap[o.id].push({ id: c.id, title: c.title });
           }
         }
       });
@@ -5320,9 +5209,9 @@ IMPORTANT: Create specific leaf tasks for each directive directly (e.g. "Draft Q
     const objList = activeObjectives.map(o => {
       const linked = objectiveTaskMap[o.id];
       const linkInfo = linked ? ' [' + linked.length + ' task(s) linked]' : ' [NO TASKS YET \u2014 needs task creation]';
-      const dirs = objectiveDirMap[o.id];
-      const dirInfo = dirs ? ' projects: ' + dirs.map(d => '"' + d.title + '" (id: ' + d.id + ')').join(', ') : '';
-      return '- "' + o.title + '" Q' + (o.quarter || '?') + ' (id: ' + o.id + ', progress: ' + (o.progress || 0) + '%' + dirInfo + ')' + linkInfo;
+      const cmps = objectiveCmpMap[o.id];
+      const cmpInfo = cmps ? ' campaigns: ' + cmps.map(c => '"' + c.title + '" (id: ' + c.id + ')').join(', ') : '';
+      return '- "' + o.title + '" Q' + (o.quarter || '?') + ' (id: ' + o.id + ', progress: ' + (o.progress || 0) + '%' + cmpInfo + ')' + linkInfo;
     }).join('\n');
     objectivesSection = `\n\nACTIVE GOALS (strategic goals \u2014 create tasks to advance these, always set objective_id when creating tasks for a goal):
 ${objList}`;
@@ -5578,10 +5467,10 @@ STRICT: Respond with ONLY valid JSON. No prose. No markdown. No explanation text
     {
       "type": "create-task|update-task|move-task|execute-task|review-task|comment-task|create-social-action|revise-action|create-doc|submit-for-publish|create-content-package|generate-image|create-reminder|web_search|remember",
       "summary": "Brief description of what you're doing",
-      "task": { "title": "", "description": "", "status": "todo|in-progress", "priority": "low|medium|high|critical", "assignee": "agentId", "dueDate": "2026-02-20T00:00:00Z", "directive_id": "optional-directive-id", "objective_id": "required-objective-id", "category": "optional-category" },
+      "task": { "title": "", "description": "", "status": "todo|in-progress", "priority": "low|medium|high|critical", "assignee": "agentId", "dueDate": "2026-02-20T00:00:00Z", "campaign_id": "optional-campaign-id", "objective_id": "required-objective-id", "category": "optional-category" },
       "taskId": "existing-task-id",
       "action_id": "existing-action-id-for-revise-action",
-      "updates": { "status": "...", "assignee": "agentId", "priority": "high", "dueDate": "2026-02-20T00:00:00Z", "classification": "...", "tags": [], "objective_id": "...", "directive_id": "..." },
+      "updates": { "status": "...", "assignee": "agentId", "priority": "high", "dueDate": "2026-02-20T00:00:00Z", "classification": "...", "tags": [], "objective_id": "...", "campaign_id": "..." },
       "newStatus": "todo|in-progress|review|done",
       "comment": "Your comment text here",
       "social": { "text": "Post content", "platform": "x|linkedin|bluesky", "media": ["https://..."], "scheduled_for": "2026-02-14T09:00:00Z", "artifact_id": "optional-art_xxx-if-linking-to-article" },
@@ -5590,7 +5479,7 @@ STRICT: Respond with ONLY valid JSON. No prose. No markdown. No explanation text
       "tool": "web_search",
       "args": { "q": "search query", "n": 5 },
       "reminder": { "title": "Reminder title", "date": "2026-02-20", "type": "deadline|event|milestone|recurring", "description": "Optional details" },
-      "content": { "topic": "Visual subject", "goal": "What images are for", "preset": "ap-neon-glass", "outputs": ["x_image"], "variations": 1, "directiveId": "optional", "objectiveId": "optional" },
+      "content": { "topic": "Visual subject", "goal": "What images are for", "preset": "ap-neon-glass", "outputs": ["x_image"], "variations": 1, "campaignId": "optional", "objectiveId": "optional" },
       "image": { "purpose": "blog_header|inline_illustration|social_media", "topic": "Visual subject", "goal": "What the image is for", "preset": "ap-neon-glass", "outputType": "blog_image", "alt": "Alt text for accessibility", "attachTo": { "type": "document|action", "id": "target-id" }, "slot": "optional-token-name" },
       "memory": { "text": "What to remember", "type": "decision|constraint|resolved_incident|verified_fact|preference|learning|feedback|context", "evidence": { "runId": "cycle-xxx" } }
     }
@@ -5598,11 +5487,11 @@ STRICT: Respond with ONLY valid JSON. No prose. No markdown. No explanation text
 }
 `}
 
-IMPORTANT: updates object may ONLY contain: status, assignee, dueDate, priority, classification, tags, objective_id, directive_id, parent_task_id, child_task_ids. Any other keys (title, description, etc.) will be BLOCKED by the backend.
+IMPORTANT: updates object may ONLY contain: status, assignee, dueDate, priority, classification, tags, objective_id, campaign_id, parent_task_id, child_task_ids. Any other keys (title, description, etc.) will be BLOCKED by the backend.
 
 Action types:
-- create-task: Create a new task. Include "task" with title, description, status ("todo" or "in-progress" — default is "todo"), priority, assignee (agent id), dueDate (ISO datetime, realistic: 1-7 days out), and optionally directive_id (to link to a CEO directive). You MUST always set status, priority, assignee, and dueDate.
-- update-task: Update an existing task. Provide taskId and "updates" with ONLY allowed keys: status, assignee, dueDate, priority, classification, tags, objective_id, directive_id, parent_task_id, child_task_ids. NEVER include title or description in updates — the backend will block it.
+- create-task: Create a new task. Include "task" with title, description, status ("todo" or "in-progress" — default is "todo"), priority, assignee (agent id), dueDate (ISO datetime, realistic: 1-7 days out), and optionally campaign_id (to link to an active campaign). You MUST always set status, priority, assignee, and dueDate.
+- update-task: Update an existing task. Provide taskId and "updates" with ONLY allowed keys: status, assignee, dueDate, priority, classification, tags, objective_id, campaign_id, parent_task_id, child_task_ids. NEVER include title or description in updates — the backend will block it.
 - move-task: Move a task to a new status column. Provide taskId and newStatus.
 - execute-task: Pick up one of YOUR in-progress or todo tasks and produce actual work output (a report, analysis, draft, recommendation, audit, etc). This will generate a deliverable and move the task to review.
 - review-task: Review a completed deliverable from another agent's task in the review column. Approve (done) or request changes (back to in-progress). You CANNOT review your own tasks — you must review tasks assigned to a DIFFERENT agent. Self-reviews are blocked by the system.
@@ -5650,7 +5539,7 @@ GATE CHECKLIST
 3) ALLOWED UPDATE KEYS
    update-task and move-task updates may ONLY include:
      status, assignee, dueDate, priority, classification,
-     tags, objective_id, directive_id, parent_task_id, child_task_ids
+     tags, objective_id, campaign_id, parent_task_id, child_task_ids
 
    NEVER attempt to update:
      title, description, provenance/origin fields
@@ -5703,7 +5592,7 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
 - Do NOT create a new task if you already have a todo or in-progress task that covers the same goal — execute the existing task instead.
 - Do NOT comment on a task just to say you are "working on it" or "planning to" — instead, use execute-task or the appropriate action to produce the output.
 - TASK CREATION LIMIT: Do not create more than 1 new task per heartbeat unless you have also used execute-task or create-doc in the same cycle. Organizing without producing is not useful.
-- TASK CREATION SCOPE: Only create tasks that DIRECTLY serve an existing CEO task, active directive, or active objective. Do NOT create speculative tasks about API costs, deployment monitoring, performance optimization, infrastructure audits, or other operational topics unless the CEO, a directive, or an objective specifically requests it. The CEO sets the agenda — agents execute it. When creating a task for an objective, ALWAYS set objective_id to that objective's id. When creating a task for a directive, ALWAYS set directive_id to that directive's id.
+- TASK CREATION SCOPE: Only create tasks that DIRECTLY serve an existing CEO task, active campaign, or active objective. Do NOT create speculative tasks about API costs, deployment monitoring, performance optimization, infrastructure audits, or other operational topics unless the CEO, a campaign, or an objective specifically requests it. The CEO sets the agenda — agents execute it. When creating a task for an objective, ALWAYS set objective_id to that objective's id. When creating a task for a campaign, ALWAYS set campaign_id to that campaign's id.
 - If a task description says to use create-doc, you MUST use create-doc (not execute-task) to produce the document directly.
 - BLOG POST / MARKETING CONTENT RULE: When your task involves writing a blog post, article, or marketing content, you MUST use create-doc with kind "marketing_post" — NOT execute-task. execute-task only produces a deliverable comment — it does NOT create a publishable document, does NOT trigger automatic hero image generation by Pixel, and does NOT enter the publish pipeline. Always use create-doc for any content that should become a published article or blog post. Include the full markdown content in document.content_md and set document.kind to "marketing_post".
 - If a CEO comment says "top priority" or "complete before other work", that task takes absolute precedence — execute it immediately.` + (agent.name === 'Nova' ? `
@@ -5720,7 +5609,7 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
   - REVIEW DUTY: After triage, your SECOND priority is reviewing deliverables. If there are tasks in the review column from other agents, you MUST review-task them before doing any other work. No task should sit in review for more than 1 heartbeat cycle without a review comment.
   - Only reassign an already-assigned task if it is stuck (no update in >48h) or blocked
   - Only change an existing due date if the objective changed or the task is stale
-  - Only re-prioritize if a directive/objective changed or the task has been stale >48h
+  - Only re-prioritize if a campaign/objective changed or the task has been stale >48h
   - Never modify a task you created in the same heartbeat cycle
   - Move stale tasks forward or flag blockers with comment-task
   - Review other agents' deliverables promptly
@@ -5729,18 +5618,18 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
     1. Break the goal into concrete, assignable tasks (1-3 tasks per goal)
     2. Assign by role: doc-writing/content → scribe, design → pixel, devops → forge, finance → cipher, marketing → echo, research → scout
     3. ALWAYS set objective_id on each task (use the goal id from ACTIVE GOALS)
-    4. If the goal has linked projects, also set directive_id to the relevant project
+    4. If the goal has linked campaigns, also set campaign_id to the relevant campaign
     5. Set realistic due dates (2-5 days out) and priority based on goal importance
     6. Leave a delegation comment on each task explaining how it advances the goal
-  - PROJECT EXECUTION: Active CEO projects are strategic priorities. When you see a project marked [NO TASKS YET], you MUST create tasks to fulfill it:
-    1. Break the project into concrete, assignable tasks
+  - CAMPAIGN EXECUTION: Active campaigns are strategic priorities. When you see a campaign marked [NO TASKS YET], you MUST create tasks to fulfill it:
+    1. Break the campaign into concrete, assignable tasks
     2. Assign doc-writing/content tasks to scribe, design tasks to pixel, devops to forge, finance to cipher, marketing to echo, research/market analysis/competitive intel to scout
-    3. Set directive_id on each task to link it to the project (use the project id from the ACTIVE CEO PROJECTS section)
-    4. If the project is linked to a goal, also set objective_id on each task
-    5. Set realistic due dates (2-5 days out) and priority based on the project priority
-    6. Leave a delegation comment on each task explaining what the project requires
-    For documentation projects: create tasks assigned to scribe to draft the document, then scribe will use create-doc and submit-for-publish when ready
-    For blog posts or marketing content that should be visually strong: create TWO tasks linked to the same project:
+    3. Set campaign_id on each task to link it to the campaign (use the campaign id from the ACTIVE CAMPAIGNS section)
+    4. If the campaign is linked to a goal, also set objective_id on each task
+    5. Set realistic due dates (2-5 days out) and priority based on the campaign priority
+    6. Leave a delegation comment on each task explaining what the campaign requires
+    For documentation campaigns: create tasks assigned to scribe to draft the document, then scribe will use create-doc and submit-for-publish when ready
+    For blog posts or marketing content that should be visually strong: create TWO tasks linked to the same campaign:
       a) Assign scribe to write the blog post (create-doc with marketing_post kind)
       b) Assign pixel to generate the hero image (generate-image with blog_header purpose, referencing the doc ID once scribe creates it)
     This ensures Scribe writes and Pixel designs — they collaborate through the task board.
@@ -5945,7 +5834,7 @@ function applyTaskUpdate(tasks, update, _pendingEscalations, _creatingAgentId) {
       brand_impact: brandImpact,
       escalated: requiresApproval,
       classification: classification,
-      directive_id: update.task.directive_id || null,
+      campaign_id: update.task.campaign_id || null,
       objective_id: update.task.objective_id || null
     };
     tasks.push(task);
@@ -6498,14 +6387,14 @@ function _buildExecContextBlock(agent, task, ctx) {
   const MAX_CTX_CHARS = 3000; // total budget for all 5 sections
   let used = 0;
 
-  // 1) DIRECTIVE / OBJECTIVE CONTEXT — if task is linked to a directive or objective, show what it says
-  const dirId = task.directive_id || null;
+  // 1) CAMPAIGN / OBJECTIVE CONTEXT — if task is linked to a campaign or objective, show what it says
+  const cmpId = task.campaign_id || null;
   const objId = task.objective_id || null;
-  if (dirId && Array.isArray(ctx.directives)) {
-    const dir = ctx.directives.find(d => d.id === dirId);
-    if (dir) {
-      const desc = (dir.description || '').substring(0, 300);
-      const line = '\n📋 PROJECT CONTEXT (this task belongs to project "' + dir.title + '", id: ' + dir.id + (dir.priority ? ', priority: ' + dir.priority : '') + '):\n' + (desc || '(no description)');
+  if (cmpId && Array.isArray(ctx.campaigns)) {
+    const cmp = ctx.campaigns.find(c => c.id === cmpId);
+    if (cmp) {
+      const desc = (cmp.description || '').substring(0, 300);
+      const line = '\n📋 CAMPAIGN CONTEXT (this task belongs to campaign "' + cmp.title + '", id: ' + cmp.id + (cmp.priority ? ', priority: ' + cmp.priority : '') + '):\n' + (desc || '(no description)');
       if (used + line.length < MAX_CTX_CHARS) { parts.push(line); used += line.length; }
     }
   }

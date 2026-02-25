@@ -176,7 +176,7 @@ module.exports = async function (context, req) {
     }
 
     var reasoningSummary = (body.reasoningSummary || '').trim() || null;
-    var directiveId = (body.directiveId || '').trim() || null;
+    var directiveId = (body.campaignId || body.directiveId || '').trim() || null;
     var objectiveId = (body.objectiveId || '').trim() || null;
 
     // ── Account ID resolved server-side ──

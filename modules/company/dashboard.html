@@ -325,15 +325,6 @@
                 <div class="dash-empty">No items awaiting CEO approval.</div>
               </div>
             </div>
-            <!-- Directives -->
-            <div class="dash-panel">
-              <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-compass" style="color:#8A2BE2;"></i> Projects</span>
-                <a href="/modules/company/directives.html" style="font-size:0.65rem; opacity:0.4; text-decoration:none;">View All →</a>
-              </div>
-              <ul class="log-list" id="panel-directives-snap"></ul>
-              <div class="dash-empty" id="directives-snap-empty">No active projects.</div>
-            </div>
             <!-- Campaigns -->
             <div class="dash-panel">
               <div class="dash-panel-header">
@@ -343,8 +334,8 @@
               <ul class="log-list" id="panel-campaigns-snap"></ul>
               <div class="dash-empty" id="campaigns-snap-empty">No active campaigns.</div>
             </div>
-            <!-- Objectives -->
-            <div class="dash-panel dash-panel--full">
+            <!-- Objectives (50/50 with Campaigns) -->
+            <div class="dash-panel">
               <div class="dash-panel-header">
                 <span class="dash-panel-title"><i class="fas fa-bullseye" style="color:#4ECDC4;"></i> Goals</span>
                 <a href="/modules/company/objectives.html" style="font-size:0.65rem; opacity:0.4; text-decoration:none;">View All →</a>
@@ -1029,7 +1020,6 @@
         renderServerLogs();
         renderHeartbeatHealth();
         renderApprovalQueue();
-        renderDirectivesSnap();
         renderCampaignsSnap();
         renderSystemPulse();
         renderKpiScoreboard();
@@ -1427,10 +1417,10 @@
           sections.push(approvalHtml);
         }
 
-        // 1b. SDE Pending Approval (standup-generated tasks+directives awaiting CEO)
+        // 1b. SDE Pending Approval (standup-generated tasks+campaigns awaiting CEO)
         var allTasks = AgentEngine.getTasks();
         var sdePendingTasks = allTasks.filter(function (t) { return t.status === 'pending-approval'; });
-        var sdePendingDirs = AgentEngine.getDirectives().filter(function (d) { return d.status === 'pending-approval'; });
+        var sdePendingDirs = AgentEngine.getCampaigns().filter(function (d) { return d.status === 'pending-approval'; });
         var sdePendingTotal = sdePendingTasks.length + sdePendingDirs.length;
         totalItems += sdePendingTotal;
 
@@ -1462,7 +1452,7 @@
             sdeHtml += '<div style="padding:0.5rem 0.6rem; border:1px solid rgba(138,43,226,0.1); border-radius:6px; margin-bottom:0.3rem; background:rgba(138,43,226,0.02);">';
             sdeHtml += '<div style="display:flex; justify-content:space-between; align-items:flex-start;">';
             sdeHtml += '<div style="flex:1; min-width:0;">';
-            sdeHtml += '<span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(138,43,226,0.1);color:#a855f7;margin-right:0.3rem;">DIRECTIVE</span>';
+            sdeHtml += '<span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(138,43,226,0.1);color:#a855f7;margin-right:0.3rem;">CAMPAIGN</span>';
             if (d.classification) sdeHtml += '<span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(138,43,226,0.06);color:#c084fc;margin-left:0.2rem;">' + escapeHtml(d.classification) + '</span>';
             sdeHtml += '<div style="font-size:0.9rem; font-weight:600; margin-top:2px;">' + escapeHtml(d.title) + '</div>';
             if (dPreview) sdeHtml += '<div style="font-size:0.75rem; opacity:0.7; line-height:1.3; margin-top:4px;">' + escapeHtml(dPreview) + '</div>';
@@ -1472,7 +1462,7 @@
             if (d.effort) sdeHtml += '<span>Effort: ' + d.effort + '</span>';
             if (d.source && d.source.title) sdeHtml += '<span>From: ' + escapeHtml(d.source.title) + '</span>';
             sdeHtml += '</div></div>';
-            sdeHtml += '<a href="/modules/company/directives.html" style="font-size:0.55rem; color:#a855f7; text-decoration:none; white-space:nowrap; align-self:center; margin-left:0.5rem;">View →</a>';
+            sdeHtml += '<a href="/modules/company/campaigns.html" style="font-size:0.55rem; color:#a855f7; text-decoration:none; white-space:nowrap; align-self:center; margin-left:0.5rem;">View →</a>';
             sdeHtml += '</div></div>';
           });
           if (sdePendingTotal > 6) sdeHtml += '<div style="font-size:0.55rem; opacity:0.3; padding-left:0.6rem;">+' + (sdePendingTotal - 6) + ' more pending</div>';
@@ -1888,7 +1878,7 @@
           html += '<div style="display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:0.5rem; padding-top:0.5rem; border-top:1px solid rgba(255,255,255,0.04);">';
           html += '<a href="/modules/company/tasks.html" style="font-size:0.6rem; color:#4ECDC4; text-decoration:none;"><i class="fas fa-tasks"></i> Task Board</a>';
           html += '<a href="/modules/company/actions.html" style="font-size:0.6rem; color:#FFA500; text-decoration:none;"><i class="fas fa-bolt"></i> Actions</a>';
-          html += '<a href="/modules/company/directives.html" style="font-size:0.6rem; color:#8A2BE2; text-decoration:none;"><i class="fas fa-compass"></i> Projects</a>';
+          html += '<a href="/modules/company/campaigns.html" style="font-size:0.6rem; color:#FFA500; text-decoration:none;"><i class="fas fa-flag"></i> Campaigns</a>';
           html += '<a href="/modules/company/objectives.html" style="font-size:0.6rem; color:#4ECDC4; text-decoration:none;"><i class="fas fa-bullseye"></i> Goals</a>';
           html += '<a href="/modules/company/workspace.html" style="font-size:0.6rem; color:#FF6B9D; text-decoration:none;"><i class="fas fa-brain"></i> Workspace</a>';
           html += '<a href="/modules/company/memories.html" style="font-size:0.6rem; color:#c084fc; text-decoration:none;"><i class="fas fa-memory"></i> Agent Memory</a>';
@@ -2538,7 +2528,7 @@
         updateBatchUI();
       }
 
-      // ── Directives Snapshot ──
+      // ── Campaigns Snapshot ──
       var _dirSignalMeta = {
         on_track: { label: 'On Track', icon: 'fa-check-circle', color: '#34d399' },
         at_risk: { label: 'At Risk', icon: 'fa-exclamation-triangle', color: '#fbbf24' },
@@ -2548,85 +2538,6 @@
         not_started: { label: 'Not Started', icon: 'fa-hourglass-start', color: 'rgba(255,255,255,0.4)' },
         no_tasks: { label: 'No Tasks', icon: 'fa-exclamation-circle', color: '#FFA500' }
       };
-      function renderDirectivesSnap() {
-        var directives = AgentEngine.getDirectives();
-        var pendingDirs = directives.filter(function (d) { return d.status === 'pending-approval'; });
-        var active = directives.filter(function (d) { return d.status === 'active'; });
-        var listEl = document.getElementById('panel-directives-snap');
-        var empty = document.getElementById('directives-snap-empty');
-
-        if (active.length === 0 && pendingDirs.length === 0) {
-          listEl.innerHTML = '';
-          empty.style.display = '';
-          return;
-        }
-        empty.style.display = 'none';
-        listEl.innerHTML = '';
-
-        // v2.3: Show pending-approval directives at top
-        pendingDirs.slice(0, 3).forEach(function (dir) {
-          var li = document.createElement('li');
-          li.className = 'log-item';
-          li.innerHTML =
-            '<div class="log-icon" style="background:rgba(251,191,36,0.1); color:#fbbf24;"><i class="fas fa-hourglass-half"></i></div>' +
-            '<div class="log-body" style="flex:1;">' +
-              '<div class="log-text" style="display:flex;justify-content:space-between;align-items:center;">' +
-                '<strong>' + escapeHtml(dir.title) + '</strong>' +
-                '<span style="font-size:0.5rem;padding:0.1rem 0.35rem;border-radius:3px;background:rgba(251,191,36,0.12);color:#fbbf24;font-weight:600;">Pending</span>' +
-              '</div>' +
-              (dir.source && dir.source.title ? '<div class="log-time">From: ' + escapeHtml(dir.source.title) + '</div>' : '<div class="log-time">Awaiting CEO approval</div>') +
-            '</div>';
-          listEl.appendChild(li);
-        });
-
-        active.slice(0, 5).forEach(function (dir) {
-          var p = AgentEngine.getDirectiveProgress(dir.id);
-          var sig = _dirSignalMeta[p.signal] || _dirSignalMeta.no_tasks;
-          var priorityColor = dir.priority === 'critical' ? '#f87171' : dir.priority === 'high' ? '#fbbf24' : dir.priority === 'medium' ? '#8A2BE2' : '#34d399';
-
-          var agentChips = '';
-          var agentIds = Object.keys(p.agents);
-          if (agentIds.length > 0) {
-            agentChips = agentIds.map(function (aid) {
-              var ag = p.agents[aid];
-              return '<span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);">' +
-                aid.charAt(0).toUpperCase() + aid.slice(1) +
-                ' <span style="color:#34d399;">' + ag.done + '✓</span>' +
-                (ag.active > 0 ? ' <span style="color:#FFA500;">' + ag.active + '⟳</span>' : '') +
-              '</span>';
-            }).join(' ');
-          }
-
-          var warnings = '';
-          if (p.overdue) warnings += '<span style="font-size:0.5rem;color:#fbbf24;"><i class="fas fa-clock"></i> ' + p.overdue + ' overdue</span> ';
-          if (p.blocked) warnings += '<span style="font-size:0.5rem;color:#ef4444;"><i class="fas fa-ban"></i> ' + p.blocked + ' blocked</span>';
-
-          var li = document.createElement('li');
-          li.className = 'log-item';
-          li.style.cssText = 'align-items:flex-start;';
-          li.innerHTML =
-            '<div class="log-icon" style="background:' + sig.color + '15; color:' + sig.color + ';"><i class="fas ' + sig.icon + '"></i></div>' +
-            '<div class="log-body" style="flex:1;">' +
-              '<div class="log-text" style="display:flex;justify-content:space-between;align-items:center;">' +
-                '<strong>' + escapeHtml(dir.title) + '</strong>' +
-                '<span style="font-size:0.5rem;padding:0.1rem 0.35rem;border-radius:3px;background:' + sig.color + '18;color:' + sig.color + ';font-weight:600;">' + sig.label + '</span>' +
-              '</div>' +
-              '<div style="height:6px;border-radius:3px;background:rgba(255,255,255,0.15);margin:0.25rem 0;overflow:hidden;">' +
-                '<div style="height:100%;width:' + p.pct + '%;background:' + sig.color + ';border-radius:3px;min-width:' + (p.pct > 0 ? '2px' : '0') + ';"></div>' +
-              '</div>' +
-              '<div class="log-time" style="display:flex;gap:0.4rem;align-items:center;flex-wrap:wrap;">' +
-                '<span style="color:' + sig.color + ';font-weight:600;">' + p.pct + '%</span>' +
-                '<span>' + p.done + '/' + p.total + ' done' + (p.inProgress ? ', ' + p.inProgress + ' active' : '') + '</span>' +
-                '<span style="color:' + priorityColor + ';">' + dir.priority + '</span>' +
-                warnings +
-              '</div>' +
-              (agentChips ? '<div style="display:flex;gap:0.2rem;flex-wrap:wrap;margin-top:0.25rem;">' + agentChips + '</div>' : '') +
-            '</div>';
-          listEl.appendChild(li);
-        });
-      }
-
-      // ── Campaigns Snapshot ──
       function renderCampaignsSnap() {
         var campaigns = AgentEngine.getCampaigns();
         var active = campaigns.filter(function (c) { return c && c.status === 'active' && !c.deletedAt; });
@@ -2733,7 +2644,7 @@
         // 4. Risk: derive from risk heatmap total signals
         try {
           var risk = AgentEngine.getRiskHeatmap();
-          var totalRisk = risk.overdueTasks.length + risk.stuckHighPrio.length + risk.blockedTasks.length + risk.atRiskObjectives.length + risk.atRiskDirectives.length + risk.failedActions.length;
+          var totalRisk = risk.overdueTasks.length + risk.stuckHighPrio.length + risk.blockedTasks.length + risk.atRiskObjectives.length + (risk.atRiskCampaigns || risk.atRiskDirectives || []).length + risk.failedActions.length;
           var rColor = totalRisk === 0 ? '#34d399' : totalRisk <= 2 ? '#fbbf24' : '#ef4444';
           var rLabel = totalRisk === 0 ? 'Clear' : totalRisk + ' signal' + (totalRisk !== 1 ? 's' : '');
           segments.push({ label: 'Risk', value: rLabel, color: rColor, title: totalRisk + ' risk signals detected' });
@@ -2760,7 +2671,7 @@
         var index = AgentEngine.getDirectiveKpiIndex();
         var listEl = document.getElementById('panel-kpi-list');
         var emptyEl = document.getElementById('kpi-empty');
-        var directives = AgentEngine.getDirectives();
+        var directives = AgentEngine.getCampaigns();
 
         if (!kpis || kpis.length === 0) {
           listEl.innerHTML = '';
@@ -2773,7 +2684,7 @@
         var catColors = { Growth: '#34d399', Engagement: '#60a5fa', Product: '#a78bfa', Activation: '#fbbf24', Cost: '#f87171', Reliability: '#4ECDC4' };
 
         kpis.forEach(function (k) {
-          var linkedDirIds = index.kpiToDirectives[k.id] || [];
+          var linkedDirIds = (index.kpiToCampaigns || index.kpiToDirectives || {})[k.id] || [];
           var linkedDirs = linkedDirIds.map(function (did) {
             var d = null;
             directives.forEach(function (dir) { if (dir.id === did) d = dir; });
@@ -2798,7 +2709,7 @@
           html += '</div>';
 
           if (linkedDirs.length > 0) {
-            html += '<div style="font-size:0.6rem;opacity:0.5;margin-bottom:0.2rem;"><i class="fas fa-compass" style="margin-right:2px;"></i>' + linkedDirs.length + ' linked directive' + (linkedDirs.length > 1 ? 's' : '') + '</div>';
+            html += '<div style="font-size:0.6rem;opacity:0.5;margin-bottom:0.2rem;"><i class="fas fa-flag" style="margin-right:2px;"></i>' + linkedDirs.length + ' linked campaign' + (linkedDirs.length > 1 ? 's' : '') + '</div>';
             var showDirs = linkedDirs.slice(0, 3);
             showDirs.forEach(function (d) {
               var sColor = d.status === 'active' ? '#34d399' : d.status === 'completed' ? '#c084fc' : d.status === 'pending-approval' ? '#fbbf24' : '#6b7280';
@@ -2811,7 +2722,7 @@
               html += '<div style="font-size:0.55rem;opacity:0.3;">+' + (linkedDirs.length - 3) + ' more</div>';
             }
           } else {
-            html += '<div style="font-size:0.6rem;opacity:0.3;">No linked directives</div>';
+            html += '<div style="font-size:0.6rem;opacity:0.3;">No linked campaigns</div>';
           }
 
           var owner = k.owner ? AgentEngine.getAgent(k.owner) : null;

@@ -784,12 +784,13 @@
             agentLoad[t.assignee] = (agentLoad[t.assignee] || 0) + 1;
           }
 
-          // Objective stagnation via directive linkage (skip done + pending-approval)
-          if (t.directive_id && t.updatedAt && t.status !== 'done' && t.status !== 'pending-approval') {
+          // Objective stagnation via campaign linkage (skip done + pending-approval)
+          var _stagnId = t.campaign_id || t.directive_id;
+          if (_stagnId && t.updatedAt && t.status !== 'done' && t.status !== 'pending-approval') {
             var ts = new Date(t.updatedAt).getTime();
             if (!isNaN(ts)) {
-              if (!objLastActivity[t.directive_id] || ts > objLastActivity[t.directive_id]) {
-                objLastActivity[t.directive_id] = ts;
+              if (!objLastActivity[_stagnId] || ts > objLastActivity[_stagnId]) {
+                objLastActivity[_stagnId] = ts;
               }
             }
           }
@@ -892,7 +893,7 @@
           tasks = tasks.filter(function (t) { return t.division === filterDivision; });
         }
         if (filterProject) {
-          tasks = tasks.filter(function (t) { return t.directive_id === filterProject; });
+          tasks = tasks.filter(function (t) { return (t.campaign_id || t.directive_id) === filterProject; });
         }
         if (filterCampaign) {
           tasks = tasks.filter(function (t) { return t.campaign_id === filterCampaign; });
@@ -1039,17 +1040,18 @@
       // Paused Project badge — shows when task's project is paused
       var _pausedProjectMap = null;
       function _pausedProjectBadge(task) {
-        if (!task.directive_id) return '';
+        var cmpId = task.campaign_id || task.directive_id;
+        if (!cmpId) return '';
         if (!_pausedProjectMap) {
           _pausedProjectMap = {};
           try {
-            var dirs = typeof AgentEngine.getDirectives === 'function' ? AgentEngine.getDirectives() : [];
-            dirs.forEach(function (d) { if (d && d.id) _pausedProjectMap[d.id] = d; });
+            var cmps = typeof AgentEngine.getCampaigns === 'function' ? AgentEngine.getCampaigns() : [];
+            cmps.forEach(function (c) { if (c && c.id) _pausedProjectMap[c.id] = c; });
           } catch (_e) { /* fail closed */ }
         }
-        var proj = _pausedProjectMap[task.directive_id];
-        if (!proj || String(proj.status || '').toLowerCase() !== 'paused') return '';
-        return '<span class="tm-prov prov--project-paused" title="Automation blocked: project_paused"><i class="fas fa-pause-circle"></i> Paused Project</span>';
+        var cmp = _pausedProjectMap[cmpId];
+        if (!cmp || String(cmp.status || '').toLowerCase() !== 'paused') return '';
+        return '<span class="tm-prov prov--project-paused" title="Automation blocked: campaign_paused"><i class="fas fa-pause-circle"></i> Paused Campaign</span>';
       }
 
       // v2.5 Related task badge — shows parent/children count on card
@@ -1206,13 +1208,14 @@
         var _dirCache = {};
         var _campCache = {};
         function _resolveDirective(task) {
-          if (!task.directive_id) return null;
-          if (_dirCache[task.directive_id] !== undefined) return _dirCache[task.directive_id];
+          var cmpId = task.campaign_id || task.directive_id;
+          if (!cmpId) return null;
+          if (_dirCache[cmpId] !== undefined) return _dirCache[cmpId];
           try {
-            var dirs = typeof AgentEngine.getDirectives === 'function' ? AgentEngine.getDirectives() : [];
-            var d = dirs.find(function (x) { return x && x.id === task.directive_id; });
-            _dirCache[task.directive_id] = d || null;
-            return _dirCache[task.directive_id];
+            var cmps = typeof AgentEngine.getCampaigns === 'function' ? AgentEngine.getCampaigns() : [];
+            var c = cmps.find(function (x) { return x && x.id === cmpId; });
+            _dirCache[cmpId] = c || null;
+            return _dirCache[cmpId];
           } catch (e) { return null; }
         }
         function _resolveCampaign(task) {
@@ -1694,9 +1697,9 @@
         taskCampaignField.innerHTML = opts;
       }
 
-      // Populate directive dropdown from live directives (optionally filtered by objective)
+      // Populate directive dropdown from campaigns (optionally filtered by objective)
       function _populateDirectiveDropdown(selectedId, objectiveFilter, campaignFilter) {
-        var opts = '<option value="">No project</option>';
+        var opts = '<option value="">No campaign</option>';
         try {
           var directives = typeof AgentEngine.getDirectives === 'function' ? AgentEngine.getDirectives() : [];
           directives.forEach(function (dir) {
@@ -1720,12 +1723,12 @@
       });
 
       taskDirectiveField.addEventListener('change', function () {
-        var did = this.value;
-        if (!did || typeof AgentEngine.getDirectives !== 'function') return;
-        var dir = AgentEngine.getDirectives().find(function (d) { return d && d.id === did; });
-        if (dir && dir.campaign_id) {
-          _populateCampaignDropdown(dir.campaign_id);
-          taskCampaignField.value = dir.campaign_id;
+        var cid = this.value;
+        if (!cid || typeof AgentEngine.getCampaigns !== 'function') return;
+        var cmp = AgentEngine.getCampaigns().find(function (c) { return c && c.id === cid; });
+        if (cmp) {
+          _populateCampaignDropdown(cmp.id);
+          taskCampaignField.value = cmp.id;
         }
       });
 
@@ -1782,7 +1785,7 @@
         taskDueField.value = task.dueDate ? String(task.dueDate).split('T')[0] : '';
         _populateCampaignDropdown(task.campaign_id || task.campaignId || '');
         _populateObjectiveDropdown(task.objective_id || '');
-        _populateDirectiveDropdown(task.directive_id || '', task.objective_id || '', task.campaign_id || task.campaignId || '');
+        _populateDirectiveDropdown(task.campaign_id || task.directive_id || '', task.objective_id || '', task.campaign_id || task.campaignId || '');
         deleteBtn.style.display = '';
 
         // Render provenance badges in modal
@@ -2102,7 +2105,7 @@
         var title = taskTitleField.value.trim();
         if (!title) { taskTitleField.focus(); return; }
 
-        // UI gate: new tasks require a project (directive_id)
+        // UI gate: new tasks require a campaign (was directive_id)
         if (!taskIdField.value && !taskDirectiveField.value) {
           taskDirectiveField.style.borderColor = 'rgba(248,113,113,0.6)';
           taskDirectiveField.focus();
@@ -2118,9 +2121,8 @@
           assignee: taskAssigneeField.value || null,
           division: taskDivisionField.value || null,
           dueDate: taskDueField.value || null,
-          campaign_id: taskCampaignField.value || null,
-          objective_id: taskObjectiveField.value || null,
-          directive_id: taskDirectiveField.value || null
+          campaign_id: taskCampaignField.value || taskDirectiveField.value || null,
+          objective_id: taskObjectiveField.value || null
         };
 
         if (taskIdField.value) {

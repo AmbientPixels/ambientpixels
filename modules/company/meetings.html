@@ -609,7 +609,7 @@
             var d = null;
             AE.getDirectives().forEach(function (dir) { if (dir.id === id) d = dir; });
             var label = d ? esc(d.title) + ' <span style="opacity:0.4;">(' + d.status + ')</span>' : id;
-            return '<a href="/modules/company/directives.html" style="color:#a855f7;text-decoration:none;">' + label + '</a>';
+            return '<a href="/modules/company/campaigns.html" style="color:#a855f7;text-decoration:none;">' + label + '</a>';
           }).join(', ');
           html += '</div>';
         }

@@ -342,7 +342,8 @@ var WorkerManager = (function () {
           laneCounts: snapshot.laneCounts || {},
           overdueCount: snapshot.overdueCount || 0,
           pendingApprovalsCount: snapshot.pendingApprovalsCount || 0,
-          directives: snapshot.directives || [],
+          campaigns: snapshot.campaigns || snapshot.directives || [],
+          directives: snapshot.campaigns || snapshot.directives || [], // backward compat
           objectives: snapshot.objectives || []
         };
 

@@ -72,11 +72,12 @@ module.exports = async function (context) {
     const latestStandup = standupLog.length > 0 ? standupLog[standupLog.length - 1] : null;
 
     // Governance data
-    const directives = (await storage.getState('directives')) || [];
+    const campaigns = (await storage.getState('campaigns')) || [];
     const objectives = (await storage.getState('objectives')) || [];
     const approvalQueue = (await storage.getState('approvalQueue')) || [];
     const pendingApprovals = approvalQueue.filter(q => q.status === 'pending');
-    const activeDirectives = directives.filter(d => d.status === 'active');
+    const activeCampaigns = campaigns.filter(c => c.status === 'active' && !c.deletedAt);
+    const activeDirectives = activeCampaigns; // backward compat alias
     const activeObjectives = objectives.filter(o => o.status !== 'complete');
     const highRiskTasks = tasks.filter(t => t.risk_level === 'high' && t.status !== 'done');
     const escalations = logs.filter(l => l.type === 'escalation');
@@ -124,7 +125,8 @@ module.exports = async function (context) {
       ],
       ideas: [],
       governance: {
-        activeDirectives: activeDirectives.length,
+        activeCampaigns: activeCampaigns.length,
+        activeDirectives: activeDirectives.length, // backward compat alias
         activeObjectives: activeObjectives.length,
         pendingApprovals: pendingApprovals.length,
         highRiskTasks: highRiskTasks.length,
@@ -246,7 +248,7 @@ function buildSummaryPrompt(data) {
 
   // Governance context
   const directivesCtx = data.activeDirectives && data.activeDirectives.length > 0
-    ? data.activeDirectives.map(d => '- ' + d.title + ' [' + d.priority + ']').join('\n')
+    ? data.activeDirectives.map(c => '- ' + c.title + ' [' + (c.priority || 'medium') + ']').join('\n')
     : '(none)';
 
   const objectivesCtx = data.activeObjectives && data.activeObjectives.length > 0
@@ -268,7 +270,7 @@ HEARTBEAT CYCLES RUN: ${data.heartbeatCycles}
 ERRORS: ${data.errors}
 ESCALATIONS (24h): ${data.escalations || 0}
 
-ACTIVE DIRECTIVES:
+ACTIVE CAMPAIGNS:
 ${directivesCtx}
 
 OBJECTIVE STATUS:
@@ -297,7 +299,7 @@ ${agentActivity || '(none)'}
 
 Write a concise CEO executive summary (4-6 sentences). Structure:
 1. Top-line status — are we on track?
-2. Directive/objective progress highlights
+2. Campaign/objective progress highlights
 3. Items requiring CEO attention (approval queue, high-risk)
 4. Budget alerts (if any from Cipher's activity)
 5. Tone for the day

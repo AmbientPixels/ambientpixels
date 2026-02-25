@@ -191,7 +191,7 @@ const AGENT_INFO = {
 async function loadCompanyContext(agentId) {
   try {
     const tasks = (await storage.getState('tasks')) || [];
-    const directives = (await storage.getState('directives')) || [];
+    const campaigns = (await storage.getState('campaigns')) || [];
     const objectives = (await storage.getState('objectives')) || [];
 
     const agentTasks = tasks.filter(t => t.assignee === agentId && t.status !== 'done');
@@ -207,9 +207,9 @@ async function loadCompanyContext(agentId) {
       '- [' + t.status + '] ' + t.title + ' → ' + (t.assignee || 'unassigned') + ' (due: ' + (t.dueDate ? t.dueDate.substring(0, 10) : '?') + ')'
     ).join('\n') || '(none)';
 
-    const activeDirectives = directives.filter(d => d.status === 'active').slice(0, 5);
-    const directiveSummary = activeDirectives.map(d =>
-      '- ' + d.title + ' (priority: ' + (d.priority || 'medium') + ')'
+    const activeCampaigns = campaigns.filter(c => c.status === 'active' && !c.deletedAt).slice(0, 5);
+    const campaignSummary = activeCampaigns.map(c =>
+      '- ' + c.title + ' (priority: ' + (c.priority || 'medium') + ')'
     ).join('\n') || '(none)';
 
     const activeObjectives = objectives.filter(o => o.status === 'active' || !o.status).slice(0, 5);
@@ -219,7 +219,7 @@ async function loadCompanyContext(agentId) {
 
     let ctx = '\n\nCOMPANY CONTEXT (live board state):\nYour tasks:\n' + taskSummary +
       '\n\nAll active tasks:\n' + allTasksSummary +
-      '\n\nActive CEO directives:\n' + directiveSummary +
+      '\n\nActive campaigns:\n' + campaignSummary +
       '\n\nActive objectives:\n' + objectivesSummary;
 
     // Cipher-only: inject real cost intelligence for standup

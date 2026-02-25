@@ -17,6 +17,7 @@ var CompanySchemas = (function () {
   var RISK_LEVELS = ['low', 'medium', 'high'];
   var BRAND_IMPACTS = ['low', 'medium', 'high'];
   var DIRECTIVE_STATUSES = ['pending-approval', 'active', 'completed', 'paused'];
+  var CAMPAIGN_STATUSES = ['pending-approval', 'active', 'complete', 'paused', 'canceled', 'archived'];
   var OBJECTIVE_STATUSES = ['on_track', 'at_risk', 'behind', 'complete', 'canceled'];
   var QUARTERS = ['Q1', 'Q2', 'Q3', 'Q4'];
   var LOG_TYPES = ['heartbeat', 'standup', 'task-created', 'task-updated', 'task-moved', 'chat', 'cron', 'error', 'morning-report', 'agent-action', 'ceo-approval', 'ceo-reject', 'ceo-override', 'ceo-revision', 'escalation', 'directive-created', 'objective-created', 'action-created', 'action-approved', 'action-rejected', 'action-running', 'action-success', 'action-failed', 'publish-requested', 'publish-approved', 'publish-rejected', 'publish-executed', 'publish-failed'];
@@ -132,29 +133,33 @@ var CompanySchemas = (function () {
     };
   }
 
-  // ── Directive ──
+  // ── Directive / Campaign (directives merged into campaigns) ──
   function validateDirective(d) {
-    if (!d || typeof d !== 'object') return { valid: false, error: 'Directive must be an object' };
-    if (!isString(d.id)) return { valid: false, error: 'Directive.id required' };
-    if (!isString(d.title) || d.title.length === 0) return { valid: false, error: 'Directive.title required' };
-    if (!isOneOf(d.status, DIRECTIVE_STATUSES)) return { valid: false, error: 'Directive.status invalid' };
+    if (!d || typeof d !== 'object') return { valid: false, error: 'Campaign must be an object' };
+    if (!isString(d.id)) return { valid: false, error: 'Campaign.id required' };
+    if (!isString(d.title) || d.title.length === 0) return { valid: false, error: 'Campaign.title required' };
+    if (!isOneOf(d.status, DIRECTIVE_STATUSES) && !isOneOf(d.status, CAMPAIGN_STATUSES)) return { valid: false, error: 'Campaign.status invalid' };
     return { valid: true };
   }
+  var validateCampaign = validateDirective; // alias
 
   function createDirective(data) {
+    var now = new Date().toISOString();
     return {
-      id: 'dir-' + Date.now(),
+      id: 'cmp-' + Date.now(),
       title: (data && data.title) || '',
       description: (data && data.description) || '',
-      createdDate: new Date().toISOString(),
+      createdAt: now,
+      updatedAt: now,
       priority: (data && data.priority) || 'medium',
       status: 'active',
       linkedObjectives: [],
-      linkedTasks: [],
       kpiLinks: (data && isArray(data.kpiLinks)) ? data.kpiLinks : [],
-      kpiImpactNotes: (data && data.kpiImpactNotes) || ''
+      kpiImpactNotes: (data && data.kpiImpactNotes) || '',
+      _migratedFromDirective: true
     };
   }
+  var createCampaign = createDirective; // alias
 
   // ── Objective ──
   function validateObjective(o) {
@@ -166,17 +171,19 @@ var CompanySchemas = (function () {
   }
 
   function createObjective(data) {
-    return {
+    var obj = {
       id: 'obj-' + Date.now(),
       title: (data && data.title) || '',
       quarter: (data && data.quarter) || 'Q1',
       year: (data && data.year) || new Date().getFullYear(),
-      linkedDirectives: (data && Array.isArray(data.linkedDirectives)) ? data.linkedDirectives : (data && data.linkedDirective ? [data.linkedDirective] : []),
+      linkedCampaigns: (data && Array.isArray(data.linkedCampaigns)) ? data.linkedCampaigns : (data && Array.isArray(data.linkedDirectives) ? data.linkedDirectives : (data && data.linkedDirective ? [data.linkedDirective] : [])),
       progressPercentage: 0,
       status: 'on_track',
       owner: 'nova',
       linkedTasks: []
     };
+    obj.linkedDirectives = obj.linkedCampaigns; // backward compat alias
+    return obj;
   }
 
   // ── Action Request (v1 — nested model) ──
@@ -304,6 +311,7 @@ var CompanySchemas = (function () {
     RISK_LEVELS: RISK_LEVELS,
     BRAND_IMPACTS: BRAND_IMPACTS,
     DIRECTIVE_STATUSES: DIRECTIVE_STATUSES,
+    CAMPAIGN_STATUSES: CAMPAIGN_STATUSES,
     OBJECTIVE_STATUSES: OBJECTIVE_STATUSES,
     QUARTERS: QUARTERS,
     LOG_TYPES: LOG_TYPES,

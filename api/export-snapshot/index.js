@@ -70,7 +70,7 @@ module.exports = async function (context, req) {
     // Load all operational state (read-only)
     const [
       tasks,
-      directives,
+      campaigns,
       objectives,
       runtimeMemory,
       standupLog,
@@ -83,7 +83,7 @@ module.exports = async function (context, req) {
       actionAuditLog
     ] = await Promise.all([
       storage.getState('tasks').catch(function () { return null; }),
-      storage.getState('directives').catch(function () { return null; }),
+      storage.getState('campaigns').catch(function () { return null; }),
       storage.getState('objectives').catch(function () { return null; }),
       storage.getState('runtimeMemory').catch(function () { return null; }),
       storage.getState('standupLog').catch(function () { return null; }),
@@ -97,7 +97,7 @@ module.exports = async function (context, req) {
     ]);
 
     var goalsArr = Array.isArray(objectives) ? objectives : [];
-    var projectsArr = Array.isArray(directives) ? directives : [];
+    var projectsArr = Array.isArray(campaigns) ? campaigns : [];
     var tasksArr = Array.isArray(tasks) ? tasks : [];
 
     // Build snapshot
@@ -108,7 +108,8 @@ module.exports = async function (context, req) {
         execution_mode: executionMode || 'active'
       },
       goals: goalsArr,
-      projects: projectsArr,
+      campaigns: projectsArr,
+      projects: projectsArr, // backward compat alias
       tasks: tasksArr,
       runtimeMemory: runtimeMemory || null,
       standups: standupLog || [],

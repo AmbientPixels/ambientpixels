@@ -260,13 +260,13 @@ var PriorityEngine = (function () {
   }
 
   function _calcAlignment(task) {
-    // If task has directives or objective links → higher alignment
-    if (task.directiveId || task.objectiveId || (task.kpiLinks && task.kpiLinks.length > 0)) {
+    // If task has campaign or objective links → higher alignment
+    if (task.campaign_id || task.directiveId || task.objectiveId || (task.kpiLinks && task.kpiLinks.length > 0)) {
       return 4;
     }
     // Tags that suggest strategic alignment
     if (task.tags && Array.isArray(task.tags)) {
-      if (task.tags.indexOf('strategic') !== -1 || task.tags.indexOf('directive') !== -1) return 3;
+      if (task.tags.indexOf('strategic') !== -1 || task.tags.indexOf('campaign') !== -1 || task.tags.indexOf('directive') !== -1) return 3;
     }
     return 1;
   }

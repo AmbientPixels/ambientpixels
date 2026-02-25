@@ -175,7 +175,7 @@ You MUST respond with valid JSON in this exact format:
 The "reply" field is your normal text response. The "actions" array contains 0-3 actions to execute.
 
 Available action types:
-- create-task: {"type":"create-task","task":{"title":"...","description":"...","status":"todo","priority":"high|medium|low|critical","assignee":"agent_id","dueDate":"ISO datetime","directive_id":"optional"}}
+- create-task: {"type":"create-task","task":{"title":"...","description":"...","status":"todo","priority":"high|medium|low|critical","assignee":"agent_id","dueDate":"ISO datetime","campaign_id":"optional"}}
 - update-task: {"type":"update-task","taskId":"...","updates":{"description":"...","priority":"...","assignee":"...","dueDate":"..."}}
 - move-task: {"type":"move-task","taskId":"...","newStatus":"backlog|todo|in-progress|review|done"}
 - comment-task: {"type":"comment-task","taskId":"...","comment":"..."}
@@ -199,7 +199,7 @@ const QUILL_FORBIDDEN_CHAT = ['create-task', 'create-doc', 'move-task', 'update-
 async function loadCompanyContext(agentId) {
   try {
     const tasks = (await storage.getState('tasks')) || [];
-    const directives = (await storage.getState('directives')) || [];
+    const campaigns = (await storage.getState('campaigns')) || [];
     const objectives = (await storage.getState('objectives')) || [];
     const documents = (await storage.getState('documents')) || [];
     const workspaceMemory = (await storage.getState('workspaceMemory')) || [];
@@ -228,10 +228,10 @@ async function loadCompanyContext(agentId) {
       '- [' + t.status + '] ' + t.title + ' → ' + (t.assignee || 'unassigned') + ' (due: ' + (t.dueDate ? t.dueDate.substring(0, 10) : '?') + ', id: ' + t.id + ')'
     ).join('\n') || '(none)';
 
-    // Directives
-    const activeDirectives = directives.filter(d => d.status === 'active').slice(0, 5);
-    const directiveSummary = activeDirectives.map(d =>
-      '- ' + d.title + ' (priority: ' + (d.priority || 'medium') + ', id: ' + d.id + ')'
+    // Campaigns (was Directives)
+    const activeCampaigns = campaigns.filter(c => c.status === 'active' && !c.deletedAt).slice(0, 5);
+    const campaignSummary = activeCampaigns.map(c =>
+      '- ' + c.title + ' (priority: ' + (c.priority || 'medium') + ', id: ' + c.id + ')'
     ).join('\n') || '(none)';
 
     // Objectives
@@ -260,7 +260,7 @@ async function loadCompanyContext(agentId) {
 
     let ctx = '\n\nCOMPANY CONTEXT (live board state):\nYour tasks:\n' + taskSummary +
       '\n\nAll active tasks:\n' + allTasksSummary +
-      '\n\nActive CEO directives:\n' + directiveSummary +
+      '\n\nActive campaigns:\n' + campaignSummary +
       '\n\nActive objectives:\n' + objectivesSummary +
       '\n\nRecent documents:\n' + recentDocs;
     if (memorySummary) ctx += '\n\nWorkspace notes:\n' + memorySummary;
@@ -356,20 +356,14 @@ async function executeChatActions(context, actions, agentId) {
     return results;
   }
 
-  // Build projectById map once for freeze gate lookups
-  const _chatDirectives = (await storage.getState('directives')) || [];
-  const _chatProjectById = {};
-  for (const _d of _chatDirectives) { if (_d && _d.id) _chatProjectById[_d.id] = _d; }
+  // Build campaignById map once for freeze gate lookups
   const _chatCampaigns = (await storage.getState('campaigns')) || [];
+  const _chatCampaignById = {};
+  for (const _c of _chatCampaigns) { if (_c && _c.id) _chatCampaignById[_c.id] = _c; }
 
   // Campaign matching/creation delegated to shared module: api/_shared/campaignMatcher.js
   async function _resolveCampaignId(taskDraft) {
     normalizeCampaignRef(taskDraft);
-    // Inherit from parent directive first
-    if (taskDraft.directive_id && _chatProjectById[taskDraft.directive_id]) {
-      normalizeCampaignRef(_chatProjectById[taskDraft.directive_id]);
-      if (_chatProjectById[taskDraft.directive_id].campaign_id) return _chatProjectById[taskDraft.directive_id].campaign_id;
-    }
     const result = await ensureCampaign({
       campaign_id: taskDraft.campaign_id || null,
       title: taskDraft.title || '',
@@ -410,36 +404,36 @@ async function executeChatActions(context, actions, agentId) {
         continue;
       }
 
-      // Project status freeze gate: block task mutations on paused/not-found projects
+      // Campaign status freeze gate: block task mutations on paused/canceled campaigns
       if (TASK_MUTATION_TYPES.includes(action.type) && action.taskId) {
         const _gtTasks = (await storage.getState('tasks')) || [];
         const _gtTask = _gtTasks.find(t => t.id === action.taskId);
-        const _gtProjectId = _gtTask ? (_gtTask.directive_id || null) : null;
-        if (_gtProjectId) {
-          const _gtProject = _chatProjectById[_gtProjectId] || null;
+        const _gtCampaignId = _gtTask ? (_gtTask.campaign_id || null) : null;
+        if (_gtCampaignId) {
+          const _gtCampaign = _chatCampaignById[_gtCampaignId] || null;
           const _gtOldStatus = _gtTask ? (_gtTask.status || null) : null;
           const _gtNextStatus = action.type === 'move-task' ? action.newStatus : (action.updates ? action.updates.status : null);
           const _gtFieldsChanged = action.updates ? Object.keys(action.updates) : (action.type === 'move-task' ? ['status'] : []);
 
-          if (!_gtProject) {
-            results.push({ type: action.type, success: false, summary: 'Blocked: project_not_found (project ' + _gtProjectId + ' does not exist).' });
+          if (_gtCampaign && String(_gtCampaign.status || '').toLowerCase() === 'paused') {
+            results.push({ type: action.type, success: false, summary: 'Blocked: campaign_paused (campaign ' + _gtCampaignId + ' is paused).' });
             try {
               const _pvLog = (await storage.getState('actionAuditLog')) || [];
-              _pvLog.push({ id: 'alog-pv-' + Date.now(), type: 'policy-violation', data: { gate: 'project_link', reason: 'project_not_found', projectId: _gtProjectId, taskId: action.taskId, agentId: agentId, attempted: { actionType: action.type, fieldsChanged: _gtFieldsChanged, statusFrom: _gtOldStatus, statusTo: _gtNextStatus } }, timestamp: new Date().toISOString() });
+              _pvLog.push({ id: 'alog-pv-' + Date.now(), type: 'policy-violation', data: { gate: 'campaign_status', reason: 'campaign_paused', campaignId: _gtCampaignId, campaignStatus: 'paused', taskId: action.taskId, agentId: agentId, attempted: { actionType: action.type, fieldsChanged: _gtFieldsChanged, statusFrom: _gtOldStatus, statusTo: _gtNextStatus } }, timestamp: new Date().toISOString() });
               await storage.setState('actionAuditLog', _pvLog);
             } catch (_e) { /* non-fatal */ }
-            context.log('[AgentChat]', agentId, 'BLOCKED', action.type, 'on', action.taskId, '— project_not_found:', _gtProjectId);
+            context.log('[AgentChat]', agentId, 'BLOCKED', action.type, 'on', action.taskId, '— campaign_paused:', _gtCampaignId);
             continue;
           }
 
-          if (String(_gtProject.status || '').toLowerCase() === 'paused') {
-            results.push({ type: action.type, success: false, summary: 'Blocked: project_paused (project ' + _gtProjectId + ' is paused).' });
+          if (_gtCampaign && String(_gtCampaign.status || '').toLowerCase() === 'canceled') {
+            results.push({ type: action.type, success: false, summary: 'Blocked: campaign_canceled (campaign ' + _gtCampaignId + ' is canceled).' });
             try {
               const _pvLog = (await storage.getState('actionAuditLog')) || [];
-              _pvLog.push({ id: 'alog-pv-' + Date.now(), type: 'policy-violation', data: { gate: 'project_status', reason: 'project_paused', projectId: _gtProjectId, projectStatus: 'paused', taskId: action.taskId, agentId: agentId, attempted: { actionType: action.type, fieldsChanged: _gtFieldsChanged, statusFrom: _gtOldStatus, statusTo: _gtNextStatus } }, timestamp: new Date().toISOString() });
+              _pvLog.push({ id: 'alog-pv-' + Date.now(), type: 'policy-violation', data: { gate: 'campaign_canceled_freeze', reason: 'campaign_canceled', campaignId: _gtCampaignId, taskId: action.taskId, agentId: agentId, attempted: { actionType: action.type, fieldsChanged: _gtFieldsChanged, statusFrom: _gtOldStatus, statusTo: _gtNextStatus } }, timestamp: new Date().toISOString() });
               await storage.setState('actionAuditLog', _pvLog);
             } catch (_e) { /* non-fatal */ }
-            context.log('[AgentChat]', agentId, 'BLOCKED', action.type, 'on', action.taskId, '— project_paused:', _gtProjectId);
+            context.log('[AgentChat]', agentId, 'BLOCKED', action.type, 'on', action.taskId, '— campaign_canceled:', _gtCampaignId);
             continue;
           }
         }
@@ -458,7 +452,6 @@ async function executeChatActions(context, actions, agentId) {
             priority: t.priority || 'medium',
             assignee: t.assignee || null,
             dueDate: t.dueDate || null,
-            directive_id: t.directive_id || null,
             campaign_id: campaignId || null,
             tags: t.tags || [],
             comments: [],
@@ -481,7 +474,6 @@ async function executeChatActions(context, actions, agentId) {
           for (const key of ['description', 'priority', 'assignee', 'dueDate', 'tags']) {
             if (updates[key] !== undefined) tasks[idx][key] = updates[key];
           }
-          if (updates.directive_id !== undefined) tasks[idx].directive_id = updates.directive_id || null;
           if (updates.objective_id !== undefined) tasks[idx].objective_id = updates.objective_id || null;
           if (updates.campaign_id !== undefined || updates.campaignId !== undefined || updates.directive_id !== undefined) {
             const draft = {
@@ -489,8 +481,7 @@ async function executeChatActions(context, actions, agentId) {
               description: tasks[idx].description,
               objective_id: tasks[idx].objective_id || null,
               division: tasks[idx].division || null,
-              directive_id: tasks[idx].directive_id || null,
-              campaign_id: updates.campaign_id || updates.campaignId || tasks[idx].campaign_id || null
+              campaign_id: updates.campaign_id || updates.campaignId || updates.directive_id || tasks[idx].campaign_id || null
             };
             tasks[idx].campaign_id = await _resolveCampaignId(draft);
           }

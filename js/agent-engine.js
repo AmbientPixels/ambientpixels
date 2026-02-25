@@ -762,53 +762,48 @@ var AgentEngine = (function () {
     return overlap / Math.max(wa.length, wb.length);
   }
 
-  // Auto-link tasks to directives from the same meeting/standup
-  // Matches by title similarity; if only one directive, all tasks link to it
+  // Auto-link tasks to campaigns from the same meeting/standup
+  // Matches by title similarity; if only one campaign, all tasks link to it
   function _autoLinkTasksToDirectives(source) {
     var taskIds = source._createdTaskIds || [];
-    var dirIds = source._createdDirectiveIds || [];
-    if (taskIds.length === 0 || dirIds.length === 0) return;
+    var cmpIds = source._createdDirectiveIds || source._createdCampaignIds || [];
+    if (taskIds.length === 0 || cmpIds.length === 0) return;
 
-    // Load created directives
-    var directives = getDirectives();
-    var createdDirs = dirIds.map(function (did) {
-      for (var i = 0; i < directives.length; i++) {
-        if (directives[i].id === did && directives[i].status === 'active') return directives[i];
+    var campaigns = getCampaigns();
+    var createdCmps = cmpIds.map(function (cid) {
+      for (var i = 0; i < campaigns.length; i++) {
+        if (campaigns[i].id === cid && campaigns[i].status === 'active') return campaigns[i];
       }
       return null;
     }).filter(Boolean);
-    if (createdDirs.length === 0) return;
+    if (createdCmps.length === 0) return;
 
     var linked = 0;
     taskIds.forEach(function (tid) {
       var task = getTask(tid);
-      if (!task || task.directive_id) return; // skip if already linked
+      if (!task || task.campaign_id) return; // skip if already linked
 
-      var bestDir = null;
+      var bestCmp = null;
       var bestScore = 0;
 
-      if (createdDirs.length === 1) {
-        // Only one directive — link all tasks to it
-        bestDir = createdDirs[0];
+      if (createdCmps.length === 1) {
+        bestCmp = createdCmps[0];
       } else {
-        // Multiple directives — find best match by title similarity
-        createdDirs.forEach(function (dir) {
-          var score = _stringSimilarity(task.title.toLowerCase(), dir.title.toLowerCase());
-          // Also check description overlap
-          var descScore = _stringSimilarity((task.description || '').toLowerCase(), dir.title.toLowerCase());
+        createdCmps.forEach(function (cmp) {
+          var score = _stringSimilarity(task.title.toLowerCase(), cmp.title.toLowerCase());
+          var descScore = _stringSimilarity((task.description || '').toLowerCase(), cmp.title.toLowerCase());
           var combined = Math.max(score, descScore);
-          if (combined > bestScore) { bestScore = combined; bestDir = dir; }
+          if (combined > bestScore) { bestScore = combined; bestCmp = cmp; }
         });
-        // Require minimum similarity threshold
-        if (bestScore < 0.15) bestDir = null;
+        if (bestScore < 0.15) bestCmp = null;
       }
 
-      if (bestDir) {
-        updateTask(tid, { directive_id: bestDir.id });
+      if (bestCmp) {
+        updateTask(tid, { campaign_id: bestCmp.id });
         linked++;
       }
     });
-    if (linked > 0) console.log('[AgentEngine] Auto-linked ' + linked + ' tasks to directives');
+    if (linked > 0) console.log('[AgentEngine] Auto-linked ' + linked + ' tasks to campaigns');
   }
 
   // Deduplicate proposals: merge similar titles, combine rationales, keep highest priority/impact
@@ -920,7 +915,7 @@ var AgentEngine = (function () {
     if (!standup) { console.warn('[AgentEngine] Standup not found:', standupId); return null; }
 
     var createdTasks = [];
-    var createdDirectives = [];
+    var createdCampaigns = [];
     var source = { type: 'standup', id: standupId, title: standup.title, date: standup.date };
 
     // Create tasks as pending-approval
@@ -940,9 +935,9 @@ var AgentEngine = (function () {
       createdTasks.push(task);
     });
 
-    // Create directives as pending-approval
+    // Create campaigns as pending-approval (was directives)
     (standup.proposals.directives || []).forEach(function (p) {
-      var dir = addDirective({
+      var cmp = addDirective({
         title: p.title,
         description: (p.rationale || '') + (p._proposers ? '\n[Proposed by: ' + p._proposers.join(', ') + ']' : ''),
         status: 'pending-approval',
@@ -955,7 +950,7 @@ var AgentEngine = (function () {
         source: source,
         approval: { status: 'pending', approvedBy: null, approvedAt: null }
       });
-      createdDirectives.push(dir);
+      createdCampaigns.push(cmp);
     });
 
     // Update standup with created artifact IDs
@@ -963,14 +958,15 @@ var AgentEngine = (function () {
     for (var i = 0; i < log.length; i++) {
       if (log[i].id === standupId) {
         log[i]._createdTaskIds = createdTasks.map(function (t) { return t.id; });
-        log[i]._createdDirectiveIds = createdDirectives.map(function (d) { return d.id; });
+        log[i]._createdCampaignIds = createdCampaigns.map(function (c) { return c.id; });
+        log[i]._createdDirectiveIds = log[i]._createdCampaignIds; // backward compat
         _saveStandupLog(log);
         break;
       }
     }
 
-    emit('standup-proposals-created', { standupId: standupId, tasks: createdTasks, directives: createdDirectives });
-    return { tasks: createdTasks, directives: createdDirectives };
+    emit('standup-proposals-created', { standupId: standupId, tasks: createdTasks, campaigns: createdCampaigns, directives: createdCampaigns });
+    return { tasks: createdTasks, campaigns: createdCampaigns, directives: createdCampaigns };
   }
 
   // Per-proposal standup decision (v2.7)
@@ -2255,7 +2251,7 @@ var AgentEngine = (function () {
         kpiToDirectives[kId].push(d.id);
       });
     });
-    return { kpiToDirectives: kpiToDirectives, directiveToKpis: directiveToKpis };
+    return { kpiToDirectives: kpiToDirectives, directiveToKpis: directiveToKpis, kpiToCampaigns: kpiToDirectives, campaignToKpis: directiveToKpis };
   }
 
   // ── v2.5: Quarterly Board Helpers ──
@@ -2356,23 +2352,18 @@ var AgentEngine = (function () {
     };
   }
 
-  // ── Governance: Directives ──
-  var DIRECTIVES_KEY = 'ap_directives';
+  // ── Governance: Directives (merged into Campaigns) ──
+  var DIRECTIVES_KEY = 'ap_directives'; // kept for one-time migration read
   function getDirectives() {
-    var list = _loadStorage(DIRECTIVES_KEY, []);
-    for (var i = 0; i < list.length; i++) { _normalizeCampaignRef(list[i]); }
-    return list;
+    return getCampaigns(); // directives merged into campaigns
   }
   function addDirective(dir) {
-    var list = getDirectives();
-    _normalizeCampaignRef(dir);
-    if (!dir.campaign_id) dir.campaign_id = _ensureCampaignForDirective(dir);
-    if (!dir.id) dir.id = 'dir-' + Date.now();
-    if (!dir.createdDate) dir.createdDate = new Date().toISOString();
+    // Directives now create campaigns directly
+    if (!dir.id) dir.id = 'cmp-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6);
+    if (!dir.createdAt) dir.createdAt = dir.createdDate || new Date().toISOString();
+    if (!dir.updatedAt) dir.updatedAt = dir.createdAt;
     if (!dir.status) dir.status = 'active';
     if (!dir.linkedObjectives) dir.linkedObjectives = [];
-    if (!dir.linkedTasks) dir.linkedTasks = [];
-    // v2.2 extended fields
     if (!dir.classification) dir.classification = 'Operational';
     if (!dir.impact) dir.impact = null;
     if (!dir.effort) dir.effort = null;
@@ -2380,92 +2371,32 @@ var AgentEngine = (function () {
     if (!dir.source) dir.source = null;
     if (!dir.approval) dir.approval = { status: 'none', approvedBy: null, approvedAt: null };
     if (!dir.owner) dir.owner = null;
-    if (!dir.campaign_id) dir.campaign_id = null;
-    // v2.5: KPI linking
     dir.kpiLinks = _validateKpiIds(dir.kpiLinks);
     if (!dir.kpiImpactNotes) dir.kpiImpactNotes = '';
+    dir._migratedFromDirective = true;
+    var list = getCampaigns();
+    _normalizeCampaignRecord(dir);
     list.push(dir);
-    _saveStorage(DIRECTIVES_KEY, list);
-    _logGovernance('directive-created', { directiveId: dir.id, title: dir.title });
+    _saveStorage(CAMPAIGNS_KEY, list);
+    _logGovernance('campaign-created', { campaignId: dir.id, title: dir.title, provenance: 'addDirective' });
     return dir;
   }
   function updateDirective(id, updates) {
-    var list = getDirectives();
-    for (var i = 0; i < list.length; i++) {
-      if (list[i].id === id) {
-        Object.keys(updates).forEach(function (k) { if (k !== 'id') list[i][k] = updates[k]; });
-        _normalizeCampaignRef(list[i]);
-        if (!list[i].campaign_id) list[i].campaign_id = _ensureCampaignForDirective(list[i]);
-        list[i].updatedAt = new Date().toISOString();
-        _saveStorage(DIRECTIVES_KEY, list);
-        return list[i];
-      }
-    }
-    return null;
+    return updateCampaign(id, updates); // delegate to campaigns
   }
   function deleteDirective(id) {
-    var list = getDirectives();
-    var filtered = list.filter(function (d) { return d.id !== id; });
-    if (filtered.length < list.length) {
-      _saveStorage(DIRECTIVES_KEY, filtered);
-      _logGovernance('directive-deleted', { directiveId: id });
-      return true;
-    }
-    return false;
+    var result = deleteCampaign(id);
+    return result && result.ok;
   }
 
-  // ── Governance: Directive Progress ──
+  // ── Governance: Directive Progress (delegates to Campaign Progress) ──
   function getDirectiveProgress(directiveId) {
-    var tasks = getTasks();
-    var linked = tasks.filter(function (t) { return t.directive_id === directiveId; });
-    var total = linked.length;
-    if (total === 0) return { total: 0, done: 0, inProgress: 0, review: 0, todo: 0, backlog: 0, blocked: 0, overdue: 0, pct: 0, signal: 'no_tasks', agents: {}, tasks: linked, staleDays: 0 };
-
-    var done = 0, inProgress = 0, review = 0, todo = 0, backlog = 0, blocked = 0, overdue = 0;
-    var agents = {};
-    var now = new Date();
-    var latestUpdate = null;
-
-    linked.forEach(function (t) {
-      var s = t.status || 'backlog';
-      if (s === 'done') done++;
-      else if (s === 'in-progress') inProgress++;
-      else if (s === 'review') review++;
-      else if (s === 'todo') todo++;
-      else backlog++;
-      if (t.blocked) blocked++;
-      if (t.dueDate && new Date(t.dueDate) < now && s !== 'done') overdue++;
-
-      var agent = t.assignee || 'unassigned';
-      if (!agents[agent]) agents[agent] = { total: 0, done: 0, active: 0 };
-      agents[agent].total++;
-      if (s === 'done') agents[agent].done++;
-      else agents[agent].active++;
-
-      var updated = t.updatedAt || t.createdAt;
-      if (updated && (!latestUpdate || updated > latestUpdate)) latestUpdate = updated;
-    });
-
-    // Weighted progress: done=100%, review=75%, in-progress=50%, todo=25%, backlog=0%
-    var weightedDone = (done * 1.0) + (review * 0.75) + (inProgress * 0.5) + (todo * 0.25);
-    var pct = total > 0 ? Math.round((weightedDone / total) * 100) : 0;
-    var donePct = total > 0 ? Math.round((done / total) * 100) : 0;
-    var staleDays = latestUpdate ? Math.floor((now - new Date(latestUpdate)) / 86400000) : 999;
-
-    var signal = 'on_track';
-    if (blocked > 0) signal = 'blocked';
-    else if (overdue > 0) signal = 'at_risk';
-    else if (staleDays >= 3 && donePct < 100) signal = 'stale';
-    else if (donePct === 100) signal = 'complete';
-    else if (inProgress === 0 && review === 0 && done === 0 && todo === 0) signal = 'not_started';
-
-    return { total: total, done: done, inProgress: inProgress, review: review, todo: todo, backlog: backlog, blocked: blocked, overdue: overdue, pct: pct, donePct: donePct, signal: signal, agents: agents, tasks: linked, staleDays: staleDays };
+    return getCampaignProgress(directiveId); // directives merged into campaigns
   }
 
   function getAllDirectiveProgress() {
-    var directives = getDirectives();
-    return directives.map(function (d) {
-      return { directive: d, progress: getDirectiveProgress(d.id) };
+    return getAllCampaignProgress().map(function (item) {
+      return { directive: item.campaign, progress: item.progress };
     });
   }
 
@@ -2527,13 +2458,17 @@ var AgentEngine = (function () {
   var OBJECTIVES_KEY = 'ap_objectives';
   function _normalizeObjectiveDirectives(obj) {
     if (!obj) return obj;
-    if (!Array.isArray(obj.linkedDirectives)) {
-      if (obj.linkedDirective) {
-        obj.linkedDirectives = [obj.linkedDirective];
+    // Normalize to linkedCampaigns as canonical, keep linkedDirectives as alias
+    if (!Array.isArray(obj.linkedCampaigns)) {
+      if (Array.isArray(obj.linkedDirectives)) {
+        obj.linkedCampaigns = obj.linkedDirectives;
+      } else if (obj.linkedDirective) {
+        obj.linkedCampaigns = [obj.linkedDirective];
       } else {
-        obj.linkedDirectives = [];
+        obj.linkedCampaigns = [];
       }
     }
+    obj.linkedDirectives = obj.linkedCampaigns; // backward compat alias
     return obj;
   }
   function getObjectives() {
@@ -3406,12 +3341,13 @@ var AgentEngine = (function () {
       return o.status === 'at_risk' || o.status === 'behind';
     });
 
-    // At-risk directives (from progress tracker)
-    var atRiskDirectives = directives.filter(function (d) {
+    // At-risk campaigns (from progress tracker)
+    var atRiskCampaigns = directives.filter(function (d) {
       if (d.status !== 'active') return false;
-      var p = getDirectiveProgress(d.id);
+      var p = getCampaignProgress(d.id);
       return p.signal === 'at_risk' || p.signal === 'blocked' || p.signal === 'stale';
     });
+    var atRiskDirectives = atRiskCampaigns; // backward compat alias
 
     // Failed actions (last 7 days)
     var failedActions = actions.filter(function (a) {
@@ -3432,7 +3368,8 @@ var AgentEngine = (function () {
       stuckHighPrio: stuckHighPrio,
       blockedTasks: blockedTasks,
       atRiskObjectives: atRiskObjectives,
-      atRiskDirectives: atRiskDirectives,
+      atRiskCampaigns: atRiskCampaigns,
+      atRiskDirectives: atRiskDirectives, // backward compat alias
       failedActions: failedActions,
       escalationFrequency: recentEscalations.length,
       highRiskTasks: explicitHigh,

@@ -39,8 +39,8 @@ var WorkerRuntime = (function () {
     // Context snapshot
     if (context) {
       sections.push('== Context Snapshot ==');
-      if (context.directives && context.directives.length > 0) {
-        sections.push('Active directives: ' + context.directives.join(', '));
+      if ((context.campaigns || context.directives) && (context.campaigns || context.directives).length > 0) {
+        sections.push('Active campaigns: ' + (context.campaigns || context.directives).join(', '));
       }
       if (context.objectives && context.objectives.length > 0) {
         sections.push('Active objectives: ' + context.objectives.join(', '));

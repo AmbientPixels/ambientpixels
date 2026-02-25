@@ -249,7 +249,7 @@
         campaigns.forEach(function (c) {
           var objTitle = objectiveTitle(c.objective_id);
           var m = campaignMetrics(c);
-          var viewProjectsHref = '/modules/company/directives.html?campaign=' + encodeURIComponent(c.id);
+          var viewProjectsHref = '/modules/company/campaigns.html?campaign=' + encodeURIComponent(c.id);
           // Build progress bar color
           var barColor = m.health === 'good' ? '#34d399' : m.health === 'warn' ? '#fbbf24' : m.health === 'bad' ? '#ef4444' : '#64748b';
           var progress = (typeof AgentEngine.getCampaignProgress === 'function') ? AgentEngine.getCampaignProgress(c.id) : null;

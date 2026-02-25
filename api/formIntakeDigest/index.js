@@ -314,7 +314,7 @@ async function _createDigestTask(digest) {
     brand_impact: 'low',
     requires_ceo_approval: false,
     escalated: false,
-    directive_id: null,
+    campaign_id: null,
     objective_id: null,
     origin: 'form_intake_digest',
     badge: '🧾 Intake Digest',

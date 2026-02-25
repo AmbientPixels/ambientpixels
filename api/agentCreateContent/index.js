@@ -72,7 +72,7 @@ module.exports = async function (context, req) {
     var preset = (body.preset || (_ceConfig && _ceConfig.defaultPreset) || 'ap-neon-glass').trim();
     var outputs = body.outputs || (_ceConfig && _ceConfig.defaultOutputs) || ['x_image'];
     var variations = Math.min(Math.max(parseInt(body.variations) || 1, 1), 4);
-    var directiveId = (body.directiveId || '').trim() || null;
+    var directiveId = (body.campaignId || body.directiveId || '').trim() || null;
     var objectiveId = (body.objectiveId || '').trim() || null;
     var reasoningSummary = (body.reasoningSummary || '').trim() || null;
 
