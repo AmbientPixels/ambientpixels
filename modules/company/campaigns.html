@@ -89,6 +89,11 @@
     .cmp-modal-actions button { font-size:0.62rem; padding:0.25rem 0.62rem; border-radius:5px; cursor:pointer; }
     .cmp-modal-cancel { border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.05); color:inherit; }
     .cmp-modal-save { border:1px solid rgba(138,43,226,0.32); background:rgba(138,43,226,0.15); color:#c084fc; }
+    .cmp-pill--paused { background:rgba(251,191,36,0.12); color:#fbbf24; border-color:rgba(251,191,36,0.3); }
+    .cmp-card--paused { border-color:rgba(251,191,36,0.2); opacity:0.85; }
+    .cmp-card--paused .cmp-progress-fill { opacity:0.4; }
+    .cmp-pause-btn { background:rgba(251,191,36,0.1) !important; border-color:rgba(251,191,36,0.3) !important; color:#fbbf24 !important; }
+    .cmp-resume-btn { background:rgba(52,211,153,0.1) !important; border-color:rgba(52,211,153,0.3) !important; color:#34d399 !important; }
   </style>
 </head>
 <body style="background:#071019" data-theme="dark">
@@ -96,7 +101,7 @@
     <div class="company-header" style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; flex-wrap:wrap;">
       <div>
         <h1 style="display:flex; align-items:center; gap:0.45rem;"><i class="fas fa-layer-group" style="color:#a78bfa; opacity:0.8;"></i>Campaigns</h1>
-        <p style="font-size:0.72rem; opacity:0.5; margin-top:0.2rem;">Goal → Campaign → Project → Task</p>
+        <p style="font-size:0.72rem; opacity:0.5; margin-top:0.2rem;">Goal → Campaign → Task</p>
       </div>
       <div style="display:flex; gap:0.35rem;">
         <span class="cmp-pill cmp-pill--active" id="cmp-active-count">0 active</span>
@@ -214,7 +219,6 @@
 
       // Compute campaign container metrics
       function campaignMetrics(c) {
-        var dirs = (typeof AgentEngine.getDirectives === 'function' ? AgentEngine.getDirectives() : []).filter(function (d) { return d && d.campaign_id === c.id; });
         var progress = (typeof AgentEngine.getCampaignProgress === 'function') ? AgentEngine.getCampaignProgress(c.id) : null;
         var taskCount = progress ? progress.total : 0;
         var pctComplete = progress ? progress.pct : 0;
@@ -226,7 +230,7 @@
         else if (progress && (progress.signal === 'at_risk' || progress.signal === 'stale')) health = 'warn';
         else if (progress && progress.signal === 'blocked') health = 'bad';
         else if (taskCount > 0) health = pctComplete >= 75 ? 'good' : pctComplete >= 40 ? 'warn' : 'bad';
-        return { projectCount: dirs.length, taskCount: taskCount, pctComplete: pctComplete, donePct: donePct, health: health, signal: progress ? progress.signal : 'no_tasks' };
+        return { taskCount: taskCount, pctComplete: pctComplete, donePct: donePct, health: health, signal: progress ? progress.signal : 'no_tasks' };
       }
 
       function healthChip(health) {
@@ -249,7 +253,6 @@
         campaigns.forEach(function (c) {
           var objTitle = objectiveTitle(c.objective_id);
           var m = campaignMetrics(c);
-          var viewProjectsHref = '/modules/company/campaigns.html?campaign=' + encodeURIComponent(c.id);
           // Build progress bar color
           var barColor = m.health === 'good' ? '#34d399' : m.health === 'warn' ? '#fbbf24' : m.health === 'bad' ? '#ef4444' : '#64748b';
           var progress = (typeof AgentEngine.getCampaignProgress === 'function') ? AgentEngine.getCampaignProgress(c.id) : null;
@@ -259,8 +262,13 @@
             if (progress.inProgress > 0) breakdownParts.push(progress.inProgress + ' active');
             if (progress.review > 0) breakdownParts.push(progress.review + ' in review');
           }
-          html += '<div class="cmp-card" data-id="' + esc(c.id) + '">'
-            + '<h4>' + esc(c.title) + '<span class="cmp-pill ' + (c.status === 'archived' ? 'cmp-pill--archived' : 'cmp-pill--active') + '">' + esc(c.status) + '</span></h4>'
+          // Status pill class
+          var pillCls = 'cmp-pill--active';
+          if (c.status === 'archived') pillCls = 'cmp-pill--archived';
+          else if (c.status === 'paused') pillCls = 'cmp-pill--paused';
+
+          html += '<div class="cmp-card' + (c.status === 'paused' ? ' cmp-card--paused' : '') + '" data-id="' + esc(c.id) + '">'
+            + '<h4>' + esc(c.title) + '<span class="cmp-pill ' + pillCls + '">' + esc(c.status) + '</span></h4>'
             + (c.description ? '<p>' + esc(c.description) + '</p>' : '')
             + '<div class="cmp-progress-bar"><div class="cmp-progress-fill" style="width:' + m.pctComplete + '%; background:' + barColor + ';"></div></div>'
             + '<div class="cmp-task-breakdown" style="color:' + barColor + ';">'
@@ -268,13 +276,16 @@
             + (breakdownParts.length > 0 ? breakdownParts.join('  ') : (m.taskCount === 0 ? 'No tasks yet' : m.taskCount + ' tasks'))
             + '</div>'
             + '<div class="cmp-meta" style="gap:0.55rem;">'
-            + '<span><i class="fas fa-compass" style="margin-right:2px;"></i>' + m.projectCount + ' projects</span>'
+            + '<span><i class="fas fa-tasks" style="margin-right:2px;"></i>' + m.taskCount + ' tasks</span>'
             + healthChip(m.health)
             + (objTitle ? '<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.54rem;padding:0.08rem 0.35rem;border-radius:4px;background:rgba(78,205,196,0.1);border:1px solid rgba(78,205,196,0.25);color:#4ECDC4;"><i class="fas fa-bullseye" style="font-size:0.48rem;"></i>' + esc(objTitle) + '</span>' : '')
             + '</div>'
             + '<div class="cmp-card-actions">'
             + '<button class="cmp-edit-btn" data-id="' + esc(c.id) + '"><i class="fas fa-pen"></i> Edit</button>'
-            + '<a href="' + viewProjectsHref + '"><i class="fas fa-compass"></i> View Projects</a>'
+            + '<a href="/modules/company/tasks.html?campaign=' + encodeURIComponent(c.id) + '"><i class="fas fa-tasks"></i> View Tasks</a>'
+            + (c.status === 'paused'
+                ? '<button class="cmp-resume-btn" data-id="' + esc(c.id) + '"><i class="fas fa-play"></i> Resume</button>'
+                : (c.status !== 'archived' ? '<button class="cmp-pause-btn" data-id="' + esc(c.id) + '"><i class="fas fa-pause"></i> Pause</button>' : ''))
             + (c.status === 'archived'
                 ? '<button class="cmp-unarchive-btn" data-id="' + esc(c.id) + '"><i class="fas fa-box-open"></i> Unarchive</button>'
                 : '<button class="cmp-archive-btn" data-id="' + esc(c.id) + '"><i class="fas fa-box"></i> Archive</button>')
@@ -308,13 +319,32 @@
           });
         });
 
+        listEl.querySelectorAll('.cmp-pause-btn').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var id = btn.getAttribute('data-id');
+            if (!confirm('Pause this campaign? All task mutations will be frozen until resumed.')) return;
+            AgentEngine.updateCampaign(id, { status: 'paused' });
+            persistCampaigns();
+            renderAll();
+          });
+        });
+
+        listEl.querySelectorAll('.cmp-resume-btn').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var id = btn.getAttribute('data-id');
+            AgentEngine.updateCampaign(id, { status: 'active' });
+            persistCampaigns();
+            renderAll();
+          });
+        });
+
         listEl.querySelectorAll('.cmp-delete-btn').forEach(function (btn) {
           btn.addEventListener('click', function () {
             var id = btn.getAttribute('data-id');
             if (!confirm('Soft-delete this campaign? Active children will block deletion.')) return;
             var r = AgentEngine.deleteCampaign(id);
             if (!r || !r.ok) {
-              alert('Delete blocked. Archive child projects/tasks first.');
+              alert('Delete blocked. Archive child tasks first.');
               return;
             }
             persistCampaigns();

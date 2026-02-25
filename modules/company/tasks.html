@@ -290,9 +290,6 @@
         <option value="medium">Medium</option>
         <option value="low">Low</option>
       </select>
-      <select class="tm-filter-select" id="filter-project">
-        <option value="">All Projects</option>
-      </select>
       <select class="tm-filter-select" id="filter-campaign">
         <option value="">All Campaigns</option>
       </select>
@@ -302,7 +299,6 @@
       <select class="tm-filter-select" id="filter-group">
         <option value="">No Grouping</option>
         <option value="status">Group by Status</option>
-        <option value="project">Group by Project</option>
         <option value="campaign">Group by Campaign</option>
         <option value="assignee">Group by Assignee</option>
       </select>
@@ -419,8 +415,8 @@
             <th data-sort="status">Status <span class="sort-arrow"></span></th>
             <th data-sort="priority">Priority <span class="sort-arrow"></span></th>
             <th data-sort="assignee">Assignee <span class="sort-arrow"></span></th>
-            <th data-sort="project">Project <span class="sort-arrow"></span></th>
             <th data-sort="campaign">Campaign <span class="sort-arrow"></span></th>
+            <th data-sort="goal">Goal <span class="sort-arrow"></span></th>
             <th data-sort="division">Division <span class="sort-arrow"></span></th>
             <th data-sort="due">Due <span class="sort-arrow"></span></th>
           </tr>
@@ -488,12 +484,6 @@
               <label for="task-objective">Goal <span style="opacity:0.35; font-weight:normal;">(optional)</span></label>
               <select id="task-objective">
                 <option value="">No goal</option>
-              </select>
-            </div>
-            <div>
-              <label for="task-directive">Project <span style="opacity:0.35; font-weight:normal;">(optional)</span></label>
-              <select id="task-directive">
-                <option value="">No project</option>
               </select>
             </div>
           </div>
@@ -591,7 +581,6 @@
       var filterAssignee = '';
       var filterPriority = '';
       var filterDivision = '';
-      var filterProject = '';
       var filterCampaign = '';
       var filterGroup = '';
       var filterSearch = '';
@@ -679,23 +668,12 @@
           }
         });
 
-        // Populate project filter dropdown
-        var filterProjectEl = document.getElementById('filter-project');
-        try {
-          var dirs = typeof AgentEngine.getDirectives === 'function' ? AgentEngine.getDirectives() : [];
-          dirs.forEach(function (d) {
-            if (d && d.id && d.status !== 'archived') {
-              filterProjectEl.innerHTML += '<option value="' + d.id + '">' + escapeHtml((d.title || d.id).substring(0, 50)) + '</option>';
-            }
-          });
-        } catch (e) {}
-
         // Populate campaign filter dropdown
         var filterCampaignEl = document.getElementById('filter-campaign');
         try {
-          var camps = typeof AgentEngine.getCampaigns === 'function' ? AgentEngine.getCampaigns() : [];
-          camps.forEach(function (c) {
-            if (c && c.id && !c.deletedAt) {
+          var cmps = typeof AgentEngine.getCampaigns === 'function' ? AgentEngine.getCampaigns() : [];
+          cmps.forEach(function (c) {
+            if (c && c.id && c.status !== 'archived' && !c.deletedAt) {
               filterCampaignEl.innerHTML += '<option value="' + c.id + '">' + escapeHtml((c.title || c.id).substring(0, 50)) + '</option>';
             }
           });
@@ -720,7 +698,7 @@
 
       // ── Render ──
       function renderAll() {
-        _pausedProjectMap = null; // invalidate project cache each render
+        _pausedProjectMap = null; // invalidate campaign cache each render
         // Priority Engine v1 — recalculate before render
         var _allTasks = AgentEngine.getTasks();
         try { PriorityEngine.recalculateAll(_allTasks); } catch (e) { /* fail closed */ }
@@ -892,11 +870,8 @@
         if (filterDivision) {
           tasks = tasks.filter(function (t) { return t.division === filterDivision; });
         }
-        if (filterProject) {
-          tasks = tasks.filter(function (t) { return (t.campaign_id || t.directive_id) === filterProject; });
-        }
         if (filterCampaign) {
-          tasks = tasks.filter(function (t) { return t.campaign_id === filterCampaign; });
+          tasks = tasks.filter(function (t) { return (t.campaign_id || t.directive_id) === filterCampaign; });
         }
         // Signal filters
         if (applySignal && _signalFilter !== 'all') {
@@ -1037,7 +1012,7 @@
         }).join('') + '</div>';
       }
 
-      // Paused Project badge — shows when task's project is paused
+      // Paused Campaign badge — shows when task's campaign is paused
       var _pausedProjectMap = null;
       function _pausedProjectBadge(task) {
         var cmpId = task.campaign_id || task.directive_id;
@@ -1244,16 +1219,31 @@
           var ag = task.assignee ? getAgentById(task.assignee) : null;
           return ag ? ag.name : '';
         }
+        var _goalCache = {};
+        function _resolveGoal(task) {
+          var oid = task.objective_id;
+          if (!oid) return null;
+          if (_goalCache[oid] !== undefined) return _goalCache[oid];
+          try {
+            var objs = typeof AgentEngine.getObjectives === 'function' ? AgentEngine.getObjectives() : [];
+            var o = objs.find(function (x) { return x && x.id === oid; });
+            _goalCache[oid] = o || null;
+            return _goalCache[oid];
+          } catch (e) { return null; }
+        }
+        function _goalTitle(task) {
+          var g = _resolveGoal(task);
+          return g ? (g.title || g.id) : '';
+        }
 
         // Grouping key
         function _groupKey(task) {
           if (filterGroup === 'status') return formatStatus(task.status || 'backlog');
-          if (filterGroup === 'project') return _projectTitle(task) || 'No Project';
           if (filterGroup === 'campaign') return _campaignTitle(task) || 'No Campaign';
           if (filterGroup === 'assignee') return _assigneeName(task) || 'Unassigned';
           return '';
         }
-        var _groupIcons = { status: 'fa-columns', project: 'fa-bullhorn', campaign: 'fa-layer-group', assignee: 'fa-user' };
+        var _groupIcons = { status: 'fa-columns', campaign: 'fa-layer-group', assignee: 'fa-user' };
 
         // Sort value resolver for column sorting
         var statusOrder = { 'pending-approval': -1, 'in-progress': 0, 'review': 1, 'todo': 2, 'backlog': 3, 'done': 4 };
@@ -1263,8 +1253,8 @@
           if (col === 'status') return statusOrder[task.status] !== undefined ? statusOrder[task.status] : 3;
           if (col === 'priority') return prioOrder[task.priority] !== undefined ? prioOrder[task.priority] : 2;
           if (col === 'assignee') return _assigneeName(task).toLowerCase();
-          if (col === 'project') return _projectTitle(task).toLowerCase();
           if (col === 'campaign') return _campaignTitle(task).toLowerCase();
+          if (col === 'goal') return _goalTitle(task).toLowerCase();
           if (col === 'division') return _divisionName(task).toLowerCase();
           if (col === 'due') return task.dueDate || 'zzzz';
           return '';
@@ -1338,8 +1328,7 @@
           var agent = task.assignee ? getAgentById(task.assignee) : null;
           var div = resolveDivision(task);
           var divisionColor = (div && div.color) ? div.color : (agent && agent.color ? agent.color : '#64748b');
-          var proj = _resolveDirective(task);
-          var camp = _resolveCampaign(task);
+          var camp = _resolveCampaign(task) || _resolveDirective(task);
           var today = _localToday();
           var isOverdue = task.dueDate && task.dueDate.substring(0,10) < today && task.status !== 'done';
 
@@ -1356,8 +1345,9 @@
           tr.style.setProperty('--tm-division-color', divisionColor);
           var listNumChip = task.taskNumber ? '<span style="opacity:0.35;font-size:0.58rem;margin-right:4px;">#' + task.taskNumber + '</span>' : '';
           var titleCell = listNumChip + escapeHtml(task.title) + _pausedProjectBadge(task);
-          var projCell = proj ? '<span style="font-size:0.65rem;">' + escapeHtml(proj.title || proj.id) + '</span>' : '<span style="opacity:0.15">&mdash;</span>';
           var campCell = camp ? '<span style="font-size:0.65rem;">' + escapeHtml(camp.title || camp.id) + '</span>' : '<span style="opacity:0.15">&mdash;</span>';
+          var goal = _resolveGoal(task);
+          var goalCell = goal ? '<span style="font-size:0.65rem; color:#4ECDC4;">' + escapeHtml(goal.title || goal.id) + '</span>' : '<span style="opacity:0.15">&mdash;</span>';
           var checked = _bulkSelected[task.id] ? ' checked' : '';
           tr.innerHTML =
             '<td style="width:28px;" onclick="event.stopPropagation();"><input type="checkbox" class="tm-bulk-check" data-task-id="' + task.id + '"' + checked + ' /></td>' +
@@ -1365,8 +1355,8 @@
             '<td><span class="tm-list-status tm-list-status--' + task.status + '">' + formatStatus(task.status) + '</span></td>' +
             '<td><span class="tm-card-priority tm-card-priority--' + task.priority + '">' + task.priority + '</span></td>' +
             '<td>' + (agent ? '<span style="color:' + agent.color + ';">' + agent.name + '</span>' : '<span style="opacity:0.2">&mdash;</span>') + '</td>' +
-            '<td>' + projCell + '</td>' +
             '<td>' + campCell + '</td>' +
+            '<td>' + goalCell + '</td>' +
             '<td>' + divisionChipHtml(div) + '</td>' +
             '<td>' + (task.dueDate ? '<span class="' + (isOverdue ? 'overdue' : '') + '" style="font-size:0.7rem;' + (isOverdue ? 'color:#f87171;' : 'opacity:0.4;') + '">' + formatDate(task.dueDate) + '</span>' : '<span style="opacity:0.2">&mdash;</span>') + '</td>';
 
@@ -1601,11 +1591,6 @@
         renderList();
       });
 
-      document.getElementById('filter-project').addEventListener('change', function () {
-        filterProject = this.value;
-        renderBoard();
-        renderList();
-      });
 
       document.getElementById('filter-campaign').addEventListener('change', function () {
         filterCampaign = this.value;
@@ -1653,7 +1638,6 @@
       var taskDueField = document.getElementById('task-due');
       var taskCampaignField = document.getElementById('task-campaign');
       var taskObjectiveField = document.getElementById('task-objective');
-      var taskDirectiveField = document.getElementById('task-directive');
       var taskCommentsSection = document.getElementById('task-comments');
       var taskCommentsList = document.getElementById('task-comments-list');
       var taskLifecycleSection = document.getElementById('taskLifecycleSection');
@@ -1697,48 +1681,9 @@
         taskCampaignField.innerHTML = opts;
       }
 
-      // Populate directive dropdown from campaigns (optionally filtered by objective)
-      function _populateDirectiveDropdown(selectedId, objectiveFilter, campaignFilter) {
-        var opts = '<option value="">No campaign</option>';
-        try {
-          var directives = typeof AgentEngine.getDirectives === 'function' ? AgentEngine.getDirectives() : [];
-          directives.forEach(function (dir) {
-            if (!dir || !dir.id) return;
-            // If filtering by objective, only show directives linked to that objective
-            if (objectiveFilter && dir.objective_id && dir.objective_id !== objectiveFilter) return;
-            if (campaignFilter && dir.campaign_id && dir.campaign_id !== campaignFilter) return;
-            if (campaignFilter && !dir.campaign_id) return;
-            var label = escapeHtml((dir.title || dir.id).substring(0, 60));
-            var statusTag = dir.status ? ' [' + dir.status + ']' : '';
-            var sel = (selectedId && dir.id === selectedId) ? ' selected' : '';
-            opts += '<option value="' + escapeHtml(dir.id) + '"' + sel + '>' + label + statusTag + '</option>';
-          });
-        } catch (e) {}
-        taskDirectiveField.innerHTML = opts;
-      }
-
-      // Re-filter directives when objective changes
+      // Re-filter campaign dropdown when objective changes
       taskObjectiveField.addEventListener('change', function () {
-        _populateDirectiveDropdown(taskDirectiveField.value, taskObjectiveField.value, taskCampaignField.value || '');
-      });
-
-      taskDirectiveField.addEventListener('change', function () {
-        var cid = this.value;
-        if (!cid || typeof AgentEngine.getCampaigns !== 'function') return;
-        var cmp = AgentEngine.getCampaigns().find(function (c) { return c && c.id === cid; });
-        if (cmp) {
-          _populateCampaignDropdown(cmp.id);
-          taskCampaignField.value = cmp.id;
-        }
-      });
-
-      taskCampaignField.addEventListener('change', function () {
-        var selectedCampaign = this.value || '';
-        var selectedDirective = taskDirectiveField.value || '';
-        _populateDirectiveDropdown(selectedDirective, taskObjectiveField.value || '', selectedCampaign);
-        if (selectedDirective && taskDirectiveField.value !== selectedDirective) {
-          taskDirectiveField.value = '';
-        }
+        _populateCampaignDropdown(taskCampaignField.value || '');
       });
 
       function openNewModal() {
@@ -1753,7 +1698,6 @@
         taskDueField.value = '';
         _populateCampaignDropdown('');
         _populateObjectiveDropdown('');
-        _populateDirectiveDropdown('', '', '');
         taskCommentsSection.style.display = 'none';
         deleteBtn.style.display = 'none';
         // Hide status/assignee/division — Nova handles these
@@ -1783,9 +1727,8 @@
         taskAssigneeField.value = task.assignee || '';
         taskDivisionField.value = task.division || '';
         taskDueField.value = task.dueDate ? String(task.dueDate).split('T')[0] : '';
-        _populateCampaignDropdown(task.campaign_id || task.campaignId || '');
+        _populateCampaignDropdown(task.campaign_id || task.campaignId || task.directive_id || '');
         _populateObjectiveDropdown(task.objective_id || '');
-        _populateDirectiveDropdown(task.campaign_id || task.directive_id || '', task.objective_id || '', task.campaign_id || task.campaignId || '');
         deleteBtn.style.display = '';
 
         // Render provenance badges in modal
@@ -2105,11 +2048,11 @@
         var title = taskTitleField.value.trim();
         if (!title) { taskTitleField.focus(); return; }
 
-        // UI gate: new tasks require a campaign (was directive_id)
-        if (!taskIdField.value && !taskDirectiveField.value) {
-          taskDirectiveField.style.borderColor = 'rgba(248,113,113,0.6)';
-          taskDirectiveField.focus();
-          setTimeout(function () { taskDirectiveField.style.borderColor = ''; }, 2000);
+        // UI gate: new tasks require a campaign
+        if (!taskIdField.value && !taskCampaignField.value) {
+          taskCampaignField.style.borderColor = 'rgba(248,113,113,0.6)';
+          taskCampaignField.focus();
+          setTimeout(function () { taskCampaignField.style.borderColor = ''; }, 2000);
           return;
         }
 
@@ -2121,7 +2064,7 @@
           assignee: taskAssigneeField.value || null,
           division: taskDivisionField.value || null,
           dueDate: taskDueField.value || null,
-          campaign_id: taskCampaignField.value || taskDirectiveField.value || null,
+          campaign_id: taskCampaignField.value || null,
           objective_id: taskObjectiveField.value || null
         };
 
@@ -2310,7 +2253,7 @@
       function _renderArchive() {
         if (!_archiveData || _archiveData.length === 0) {
           archiveStats.innerHTML = '';
-          archiveContent.innerHTML = '<div class="tm-archive-empty">No archived tasks yet. Completed tasks (7+ days) and canceled goal/project tasks appear here.</div>';
+          archiveContent.innerHTML = '<div class="tm-archive-empty">No archived tasks yet. Completed tasks (7+ days) and canceled goal/campaign tasks appear here.</div>';
           return;
         }
         // Stats
@@ -2337,7 +2280,8 @@
           var agentHtml = agent ? '<span style="color:' + agent.color + ';">' + agent.name + '</span>' : (t.assignee || '<span style="opacity:0.2;">\u2014</span>');
           var archivedStr = t.archivedAt ? formatDate(t.archivedAt) : (t.completedAt ? formatDate(t.completedAt) : '\u2014');
           var reasonLabel = t.archivedReason === 'objective_canceled' ? '<span style="color:#f87171;">Goal Canceled</span>'
-            : t.archivedReason === 'directive_canceled' ? '<span style="color:#f87171;">Project Canceled</span>'
+            : t.archivedReason === 'directive_canceled' ? '<span style="color:#f87171;">Campaign Canceled</span>'
+            : t.archivedReason === 'campaign_canceled' ? '<span style="color:#f87171;">Campaign Canceled</span>'
             : t.archivedReason === 'done_aged_7d' ? '<span style="opacity:0.5;">Completed</span>'
             : t.archivedReason === 'invalid_status_cleanup' ? '<span style="color:#fbbf24;">Cleanup</span>'
             : '<span style="opacity:0.35;">' + escapeHtml(t.archivedReason || '\u2014') + '</span>';
