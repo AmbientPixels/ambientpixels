@@ -1100,6 +1100,21 @@ module.exports = async function (context) {
       const geminiCosts = await storage.getGeminiCostSummary(30);
       costIntel = { gemini: geminiCosts };
     } catch (e) { context.log('[Heartbeat] Cost data fetch failed:', e.message); }
+
+    // Fetch site intelligence: real telemetry, social metrics, deployment config
+    let siteIntel = null;
+    try {
+      siteIntel = await _fetchSiteIntel(context, storage);
+      const _siParts = [];
+      if (siteIntel.telemetry) _siParts.push('telemetry');
+      if (siteIntel.socialMetrics) _siParts.push('social');
+      if (siteIntel.deployConfig) _siParts.push('deploy');
+      if (_siParts.length > 0) context.log('[Heartbeat] Site intel loaded:', _siParts.join(', '));
+    } catch (siErr) {
+      context.log('[Heartbeat] Site intel fetch failed (non-fatal):', siErr.message);
+      siteIntel = null;
+    }
+
     // v2.3: Exclude pending-approval items from heartbeat processing
     const pendingTasks = tasks.filter(t => t.status === 'pending-approval');
     const pendingDirs = directives.filter(d => d.status === 'pending-approval');
@@ -1597,7 +1612,7 @@ module.exports = async function (context) {
           agentId === 'cipher' ? costIntel : null,
           _reviewCooldownIds, _seedMemories, researchIntelStore, socialIntel,
           normalizedActivationMode, _isAgentInCooldown, _logAgentCooldownOnce, _incPolicyGate,
-          _agentCampaignCtx
+          _agentCampaignCtx, siteIntel
         );
         // Collect any new research intel from this agent's cycle
         if (result.newResearchIntel) {
@@ -2581,7 +2596,7 @@ module.exports = async function (context) {
 };
 
 // ── Run a single agent's heartbeat ──
-async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, normalizedActivationMode, isAgentInCooldown, logAgentCooldownOnce, incPolicyGate, campaignCtx) {
+async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, normalizedActivationMode, isAgentInCooldown, logAgentCooldownOnce, incPolicyGate, campaignCtx, siteIntel) {
   const _agentRunStartMs = Date.now();
   const result = {
     geminiCalls: 0,
@@ -2609,6 +2624,16 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
   if (dw > 0.6) dw = 0.6;
   if (dw < 0) dw = 0;
   agent._doctrineWeight = Math.round(dw * 100) / 100;
+
+  // Build execution context bundle for execute/review prompts (eliminates context loss)
+  const execContext = {
+    directives: activeDirectives || [],
+    objectives: activeObjectives || [],
+    seedMemories: seedMemories || {},
+    researchIntel: researchIntelStore || [],
+    documents: documents || [],
+    agentId: agentId
+  };
 
   // Build context for the agent
   const agentTasks = tasks.filter(t => t.assignee === agentId && t.status !== 'done');
@@ -3097,7 +3122,7 @@ Write the full deliverable first, then the structured JSON block.`;
       } else {
         const task = tasks.find(t => t.id === action.taskId);
         if (task) {
-          const deliverable = await executeTask(context, agent, task);
+          const deliverable = await executeTask(context, agent, task, costIntel, siteIntel, socialIntel, execContext);
           result.geminiCalls++;
           if (deliverable) {
             result.taskUpdates.push({
@@ -3743,7 +3768,7 @@ Write the full deliverable first, then the structured JSON block.`;
       // Review: agent reviews another agent's deliverable (costs 1 extra Gemini call)
       const task = tasks.find(t => t.id === action.taskId && t.status === 'review');
       if (task) {
-        const review = await reviewTask(context, agent, task);
+        const review = await reviewTask(context, agent, task, costIntel, siteIntel, socialIntel, execContext);
         result.geminiCalls++;
         if (review) {
           result.taskUpdates.push({
@@ -5980,9 +6005,447 @@ function applyTaskUpdate(tasks, update, _pendingEscalations, _creatingAgentId) {
   return null;
 }
 
+// ── Workspace file resolver: inject real code into execution prompts ──
+const MAX_WORKSPACE_INJECT_CHARS = 6000;
+const WORKSPACE_ROOT = path.resolve(__dirname, '../..');
+const WORKSPACE_SCAN_EXTENSIONS = new Set(['.html', '.css', '.js', '.md', '.json']);
+const WORKSPACE_SKIP_DIRS = new Set(['node_modules', '.git', 'build', 'package-lock.json']);
+
+function _resolveWorkspaceFiles(agent, task) {
+  const results = [];
+  const titleLower = (task.title || '').toLowerCase();
+  const descLower = (task.description || '').toLowerCase();
+  const combined = titleLower + ' ' + descLower;
+
+  // Role-based scan directories
+  const roleDirs = {
+    'Design & QC': ['.', 'css', 'modules'],
+    'DevOps': ['api', 'scripts', '.github'],
+    'Marketing': ['blog', 'modules/company'],
+    'Head of Content': ['blog', 'docs'],
+    'Content — Editor & Brand Voice': ['blog', 'docs'],
+    'Head of Research & Intelligence': ['data', 'docs']
+  };
+  const scanDirs = (roleDirs[agent.role] || ['.']).slice(0);
+
+  // Detect file paths explicitly mentioned in task description
+  const pathMatches = combined.match(/[\/\w-]+\.(?:html|css|js|md|json)/gi) || [];
+  for (const p of pathMatches) {
+    try {
+      const full = path.resolve(WORKSPACE_ROOT, p.replace(/^[\/]+/, ''));
+      if (full.startsWith(WORKSPACE_ROOT) && fs.existsSync(full)) {
+        const stat = fs.statSync(full);
+        if (stat.isFile() && stat.size < 50000) {
+          results.push({ path: p, content: fs.readFileSync(full, 'utf8') });
+        }
+      }
+    } catch (_e) { /* skip */ }
+  }
+
+  // Keyword-based file detection
+  const keywords = {
+    'website': ['index.html'],
+    'homepage': ['index.html'],
+    'landing': ['index.html'],
+    'mockup': ['index.html', 'css/base.css', 'css/theme.css'],
+    'design': ['index.html', 'css/base.css', 'css/theme.css', 'css/components.css'],
+    'dashboard': ['modules/company/dashboard.html'],
+    'config': ['modules/company/config-overview.html'],
+    'blog': ['blog/index.html'],
+    'support': ['support/index.html'],
+    'nav': ['css/nav.css'],
+    'accessibility': ['index.html', 'css/base.css'],
+    'deploy': ['staticwebapp.config.json', 'package.json'],
+    'infrastructure': ['staticwebapp.config.json', 'package.json']
+  };
+  for (const [kw, files] of Object.entries(keywords)) {
+    if (combined.indexOf(kw) !== -1) {
+      for (const f of files) {
+        if (results.some(r => r.path === f)) continue;
+        try {
+          const full = path.resolve(WORKSPACE_ROOT, f);
+          if (full.startsWith(WORKSPACE_ROOT) && fs.existsSync(full)) {
+            const stat = fs.statSync(full);
+            if (stat.isFile() && stat.size < 50000) {
+              results.push({ path: f, content: fs.readFileSync(full, 'utf8') });
+            }
+          }
+        } catch (_e) { /* skip */ }
+      }
+    }
+  }
+
+  // If no matches found, fall back to role-dir scan for top-level HTML/CSS
+  if (results.length === 0) {
+    for (const dir of scanDirs) {
+      try {
+        const absDir = path.resolve(WORKSPACE_ROOT, dir);
+        if (!absDir.startsWith(WORKSPACE_ROOT)) continue;
+        const entries = fs.readdirSync(absDir).slice(0, 20);
+        for (const entry of entries) {
+          if (WORKSPACE_SKIP_DIRS.has(entry)) continue;
+          const ext = path.extname(entry).toLowerCase();
+          if (!WORKSPACE_SCAN_EXTENSIONS.has(ext)) continue;
+          const full = path.join(absDir, entry);
+          try {
+            const stat = fs.statSync(full);
+            if (stat.isFile() && stat.size < 50000) {
+              results.push({ path: path.relative(WORKSPACE_ROOT, full).replace(/\\/g, '/'), content: fs.readFileSync(full, 'utf8') });
+            }
+          } catch (_e2) { /* skip */ }
+          if (results.length >= 5) break;
+        }
+      } catch (_e3) { /* skip */ }
+      if (results.length >= 5) break;
+    }
+  }
+
+  // Trim to fit char budget
+  let totalChars = 0;
+  const trimmed = [];
+  for (const r of results) {
+    const maxPerFile = Math.min(2000, MAX_WORKSPACE_INJECT_CHARS - totalChars);
+    if (maxPerFile <= 200) break;
+    const content = r.content.length > maxPerFile
+      ? r.content.substring(0, maxPerFile) + '\n... (trimmed, ' + r.content.length + ' chars total)'
+      : r.content;
+    totalChars += content.length;
+    trimmed.push({ path: r.path, content: content });
+    if (totalChars >= MAX_WORKSPACE_INJECT_CHARS) break;
+  }
+  return trimmed;
+}
+
+// ── Site Intelligence: fetch real telemetry, social metrics, deploy config ──
+async function _fetchSiteIntel(context, storage) {
+  const si = { telemetry: null, socialMetrics: null, deployConfig: null };
+
+  // 1) Application Insights telemetry (same source as telemetrySummary API)
+  const aiAppId = process.env.APPINSIGHTS_APP_ID || '';
+  const aiKey = process.env.APPINSIGHTS_API_KEY || '';
+  if (aiAppId && aiKey) {
+    try {
+      const kustoUrl = 'https://api.applicationinsights.io/v1/apps/' + aiAppId + '/query';
+      const timespan = 'P7D';
+      const queries = [
+        // Top pages
+        'pageViews | extend cleanUrl = tostring(split(url, "?")[0]) | summarize views = count() by path = cleanUrl | top 10 by views desc',
+        // Top referrers
+        'pageViews | extend ref = tostring(customDimensions["refUri"]) | where isnotempty(ref) | extend refHost = tostring(parse_url(ref).Host) | where refHost != "ambientpixels.ai" and refHost != "www.ambientpixels.ai" and refHost != "" | summarize sessions = dcount(session_Id) by referrer = refHost | top 10 by sessions desc',
+        // Performance
+        'pageViews | summarize p50 = percentile(duration, 50), p95 = percentile(duration, 95)',
+        // Errors
+        'exceptions | summarize count_ = count() by name = type | top 5 by count_ desc'
+      ];
+      const results = await Promise.all(queries.map(q =>
+        fetch(kustoUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-api-key': aiKey },
+          body: JSON.stringify({ query: q, timespan: timespan })
+        }).then(r => r.ok ? r.json() : null).catch(() => null)
+      ));
+      const _parseKusto = (result) => {
+        if (!result || !result.tables || !result.tables[0]) return [];
+        const cols = (result.tables[0].columns || []).map(c => c.name);
+        return (result.tables[0].rows || []).map(row => {
+          const obj = {};
+          cols.forEach((name, i) => { obj[name] = row[i]; });
+          return obj;
+        });
+      };
+      const pages = _parseKusto(results[0]).map(r => ({ path: r.path || '/', views: r.views || 0 }));
+      const referrers = _parseKusto(results[1]).map(r => ({ referrer: r.referrer || '', sessions: r.sessions || 0 }));
+      const perfRows = _parseKusto(results[2]);
+      const perf = perfRows.length > 0 ? { p50: Math.round(perfRows[0].p50 || 0), p95: Math.round(perfRows[0].p95 || 0) } : null;
+      const errors = _parseKusto(results[3]).map(r => ({ name: r.name || 'Unknown', count: r.count_ || 0 }));
+
+      si.telemetry = { range: '7d', topPages: pages, topReferrers: referrers, performance: perf, errors: errors };
+    } catch (telErr) {
+      context.log('[Heartbeat] Telemetry fetch failed (non-fatal):', telErr.message);
+    }
+  }
+
+  // 2) Social metrics from storage
+  try {
+    const rawEvents = (await storage.getState('socialMetricsEvents')) || [];
+    if (Array.isArray(rawEvents) && rawEvents.length > 0) {
+      const now = Date.now();
+      const weekAgo = now - 7 * 86400000;
+      const recent = rawEvents.filter(e => e.timestamp && new Date(e.timestamp).getTime() > weekAgo);
+      const byPlatform = {};
+      for (const e of recent) {
+        const p = e.platform || 'unknown';
+        if (!byPlatform[p]) byPlatform[p] = { posted: 0, failed: 0 };
+        if (e.status === 'success' || e.status === 'posted') byPlatform[p].posted++;
+        else if (e.status === 'error' || e.status === 'failed') byPlatform[p].failed++;
+      }
+      if (Object.keys(byPlatform).length > 0) {
+        si.socialMetrics = { range: '7d', total: recent.length, byPlatform: byPlatform };
+      }
+    }
+  } catch (smErr) {
+    context.log('[Heartbeat] Social metrics fetch failed (non-fatal):', smErr.message);
+  }
+
+  // 3) Deployment config from filesystem
+  try {
+    const swaPath = path.resolve(WORKSPACE_ROOT, 'staticwebapp.config.json');
+    if (fs.existsSync(swaPath)) {
+      const raw = JSON.parse(fs.readFileSync(swaPath, 'utf8'));
+      si.deployConfig = {
+        routeCount: Array.isArray(raw.routes) ? raw.routes.length : 0,
+        hasAuth: !!(raw.auth),
+        hasHeaders: !!(raw.globalHeaders || raw.responseOverrides),
+        platform: raw.platform || 'Azure Static Web Apps',
+        navigationFallback: raw.navigationFallback || null,
+        apiRoutes: Array.isArray(raw.routes) ? raw.routes.filter(r => r.route && r.route.startsWith('/api')).map(r => r.route).slice(0, 15) : []
+      };
+    }
+  } catch (dcErr) {
+    context.log('[Heartbeat] Deploy config read failed (non-fatal):', dcErr.message);
+  }
+
+  return si;
+}
+
+// ── Format site intel into prompt section based on agent role + task keywords ──
+function _buildSiteIntelSection(agent, task, siteIntel) {
+  if (!siteIntel) return '';
+  const combined = ((task.title || '') + ' ' + (task.description || '')).toLowerCase();
+  const sections = [];
+
+  // Telemetry: inject for analytics/traffic/performance tasks, or for Forge/Scout/Echo/Nova
+  const _wantsTelemetry = siteIntel.telemetry && (
+    agent.name === 'Forge' || agent.name === 'Scout' || agent.name === 'Echo' || agent.name === 'Nova' ||
+    /traffic|analytics|performance|seo|page.?load|error|monitor|audit|metric/.test(combined)
+  );
+  if (_wantsTelemetry) {
+    const t = siteIntel.telemetry;
+    let s = '\n📊 REAL SITE ANALYTICS (Application Insights, last 7 days — do NOT fabricate traffic numbers):';
+    if (t.topPages && t.topPages.length > 0) {
+      s += '\nTop Pages: ' + t.topPages.slice(0, 7).map(p => p.path + ' (' + p.views + ' views)').join(' | ');
+    }
+    if (t.topReferrers && t.topReferrers.length > 0) {
+      s += '\nTop Referrers: ' + t.topReferrers.slice(0, 5).map(r => r.referrer + ' (' + r.sessions + ' sessions)').join(' | ');
+    }
+    if (t.performance) {
+      s += '\nPage Load: p50=' + t.performance.p50 + 'ms, p95=' + t.performance.p95 + 'ms';
+    }
+    if (t.errors && t.errors.length > 0) {
+      s += '\nTop Errors: ' + t.errors.map(e => e.name + ' (' + e.count + 'x)').join(' | ');
+    }
+    sections.push(s);
+  }
+
+  // Social metrics: inject for Echo (Marketing) or social-related tasks
+  const _wantsSocial = siteIntel.socialMetrics && (
+    agent.name === 'Echo' ||
+    /social|linkedin|twitter|bluesky|post|campaign|engagement/.test(combined)
+  );
+  if (_wantsSocial) {
+    const sm = siteIntel.socialMetrics;
+    let s = '\n📱 REAL SOCIAL METRICS (last 7 days — do NOT fabricate engagement numbers):';
+    s += '\nTotal events: ' + sm.total;
+    for (const [platform, counts] of Object.entries(sm.byPlatform)) {
+      s += '\n- ' + platform + ': ' + counts.posted + ' posted, ' + counts.failed + ' failed';
+    }
+    sections.push(s);
+  }
+
+  // Deploy config: inject for Forge or deployment/infrastructure tasks
+  const _wantsDeploy = siteIntel.deployConfig && (
+    agent.name === 'Forge' ||
+    /deploy|infra|config|route|azure|hosting|security|header|auth/.test(combined)
+  );
+  if (_wantsDeploy) {
+    const dc = siteIntel.deployConfig;
+    let s = '\n🚀 REAL DEPLOYMENT CONFIG (staticwebapp.config.json):';
+    s += '\nPlatform: ' + dc.platform + ' | Routes: ' + dc.routeCount + ' | Auth: ' + (dc.hasAuth ? 'Yes' : 'No') + ' | Custom headers: ' + (dc.hasHeaders ? 'Yes' : 'No');
+    if (dc.navigationFallback) {
+      s += '\nSPA fallback: ' + (dc.navigationFallback.rewrite || 'none');
+    }
+    if (dc.apiRoutes.length > 0) {
+      s += '\nAPI routes: ' + dc.apiRoutes.join(', ');
+    }
+    sections.push(s);
+  }
+
+  return sections.length > 0 ? sections.join('\n') + '\n' : '';
+}
+
+// ── Format rich social intel digest for execute/review prompts ──
+function _buildSocialIntelExecSection(agent, task, socialIntel) {
+  if (!socialIntel) return '';
+  const combined = ((task.title || '') + ' ' + (task.description || '')).toLowerCase();
+
+  // Determine if this agent/task needs social intel
+  const alwaysShow = agent.name === 'Echo' || agent.name === 'Nova' || agent.name === 'Scout';
+  const taskWants = /social|linkedin|twitter|bluesky|post|campaign|engagement|audience|content|brand/.test(combined);
+  if (!alwaysShow && !taskWants) return '';
+
+  const parts = [];
+  parts.push('\n📱 REAL SOCIAL MEDIA DATA (live from platform APIs — do NOT fabricate engagement numbers):');
+
+  // Account / followers
+  const acct = socialIntel.account || {};
+  const followers = acct.followers || {};
+  if (followers.total > 0) {
+    parts.push('Followers: X=' + (followers.x || 0) + ', LinkedIn=' + (followers.linkedin || 0) + ', Bluesky=' + (followers.bluesky || 0) + ' (total: ' + followers.total + ')');
+  }
+
+  // Delivery stats
+  const del = socialIntel.delivery || {};
+  if (del.successRate7d !== undefined) {
+    parts.push('Delivery (7d): ' + del.successRate7d + '% success rate, ' + (del.publishedToday || 0) + ' posted today, ' + (del.failures24h || 0) + ' failures last 24h' + (del.topIssue24h ? ', top issue: ' + del.topIssue24h : ''));
+  }
+
+  // Engagement by platform
+  const byPlatform = (socialIntel.engagement && socialIntel.engagement.byPlatform) || {};
+  const platformNames = Object.keys(byPlatform);
+  if (platformNames.length > 0) {
+    parts.push('Engagement (7d):');
+    for (const pName of platformNames) {
+      const p = byPlatform[pName] || {};
+      parts.push('  ' + pName + ': ' + (p.likes7d || 0) + ' likes, ' + (p.comments7d || 0) + ' comments, ' + (p.reposts7d || 0) + ' reposts (' + (p.posts7d || 0) + ' posts)');
+    }
+  }
+
+  // Top performing posts
+  const topPosts = (socialIntel.topPosts7d || []).slice(0, 3);
+  if (topPosts.length > 0) {
+    parts.push('Top Posts (7d):');
+    for (const tp of topPosts) {
+      parts.push('  - ' + (tp.platform || '?') + ': ' + (tp.likes || 0) + ' likes, ' + (tp.comments || 0) + ' comments, ' + (tp.reposts || 0) + ' reposts' + (tp.post_url ? ' (' + tp.post_url + ')' : ''));
+    }
+  }
+
+  // Recommendations
+  const recs = (socialIntel.recommendations || []).slice(0, 3);
+  if (recs.length > 0 && (agent.name === 'Echo' || agent.name === 'Nova')) {
+    parts.push('Recommendations: ' + recs.join(' | '));
+  }
+
+  // Mode warning
+  if (socialIntel.mode && socialIntel.mode !== 'real') {
+    parts.push('⚠ Data is mock/fallback — do not base strategy solely on these numbers.');
+  }
+
+  if (socialIntel.lastPulledAt) {
+    parts.push('Last pulled: ' + socialIntel.lastPulledAt);
+  }
+
+  return parts.join('\n') + '\n';
+}
+
+// ── Build exec context block: fills the 5 context gaps between heartbeat→execute ──
+function _buildExecContextBlock(agent, task, ctx) {
+  if (!ctx) return '';
+  const parts = [];
+  const MAX_CTX_CHARS = 3000; // total budget for all 5 sections
+  let used = 0;
+
+  // 1) DIRECTIVE / OBJECTIVE CONTEXT — if task is linked to a directive or objective, show what it says
+  const dirId = task.directive_id || null;
+  const objId = task.objective_id || null;
+  if (dirId && Array.isArray(ctx.directives)) {
+    const dir = ctx.directives.find(d => d.id === dirId);
+    if (dir) {
+      const desc = (dir.description || '').substring(0, 300);
+      const line = '\n📋 PROJECT CONTEXT (this task belongs to project "' + dir.title + '", id: ' + dir.id + (dir.priority ? ', priority: ' + dir.priority : '') + '):\n' + (desc || '(no description)');
+      if (used + line.length < MAX_CTX_CHARS) { parts.push(line); used += line.length; }
+    }
+  }
+  if (objId && Array.isArray(ctx.objectives)) {
+    const obj = ctx.objectives.find(o => o.id === objId);
+    if (obj) {
+      const line = '🎯 GOAL: "' + obj.title + '" (Q' + (obj.quarter || '?') + ', progress: ' + (obj.progress || 0) + '%) — align your deliverable to advance this goal.';
+      if (used + line.length < MAX_CTX_CHARS) { parts.push(line); used += line.length; }
+    }
+  }
+
+  // 2) CEO SEED MEMORIES — curated instructions the CEO wrote for this agent
+  if (ctx.seedMemories) {
+    const globalSeed = (ctx.seedMemories._global || '').substring(0, 600);
+    const agentSeed = (ctx.seedMemories[ctx.agentId] || '').substring(0, 400);
+    if (globalSeed || agentSeed) {
+      let seedBlock = '\n📝 CEO INSTRUCTIONS (follow these during execution):';
+      if (globalSeed) seedBlock += '\n' + globalSeed;
+      if (agentSeed) seedBlock += '\n--- Your specific instructions ---\n' + agentSeed;
+      if (used + seedBlock.length < MAX_CTX_CHARS) { parts.push(seedBlock); used += seedBlock.length; }
+    }
+  }
+
+  // 3) RESEARCH INTEL — Scout's findings, useful for content/strategy tasks
+  if (Array.isArray(ctx.researchIntel) && ctx.researchIntel.length > 0) {
+    const combined = ((task.title || '') + ' ' + (task.description || '')).toLowerCase();
+    const wantsResearch = agent.name === 'Scout' || agent.name === 'Nova' || agent.name === 'Scribe' ||
+      /research|market|competitor|trend|benchmark|strateg|analys|intel|brief/.test(combined);
+    if (wantsResearch) {
+      const cutoff = Date.now() - (30 * 24 * 60 * 60 * 1000);
+      const recent = ctx.researchIntel
+        .filter(r => !r.timestamp || new Date(r.timestamp).getTime() > cutoff)
+        .slice(-3);
+      if (recent.length > 0) {
+        let rBlock = '\n🔍 RESEARCH INTEL (from Scout — real findings, cite these):';
+        for (const ri of recent) {
+          const entry = '\n- ' + (ri.title || 'Research') + ': ' + (ri.summary || '').substring(0, 200);
+          if (used + rBlock.length + entry.length > MAX_CTX_CHARS) break;
+          rBlock += entry;
+          const findings = (ri.key_findings || []).slice(0, 3).map(f => '  • ' + f).join('\n');
+          if (findings) rBlock += '\n' + findings;
+          const sources = (ri.sources || []).slice(0, 2).join(', ');
+          if (sources) rBlock += '\n  Sources: ' + sources;
+        }
+        parts.push(rBlock);
+        used += rBlock.length;
+      }
+    }
+  }
+
+  // 4) SITE CONTEXT — page inventory, recent changes, build info
+  try {
+    const combined = ((task.title || '') + ' ' + (task.description || '')).toLowerCase();
+    const wantsSite = agent.name === 'Scribe' || agent.name === 'Pixel' || agent.name === 'Forge' || agent.name === 'Scout' ||
+      /site|page|content|blog|seo|design|audit|layout|navigation|url/.test(combined);
+    if (wantsSite) {
+      const siteBlock = buildSiteContextBlock();
+      if (siteBlock && used + siteBlock.length < MAX_CTX_CHARS) {
+        parts.push(siteBlock);
+        used += siteBlock.length;
+      }
+    }
+  } catch (e) { /* non-fatal */ }
+
+  // 5) EXISTING DOCUMENTS — prevent duplicate creation, know what's published
+  if (Array.isArray(ctx.documents) && ctx.documents.length > 0) {
+    const combined = ((task.title || '') + ' ' + (task.description || '')).toLowerCase();
+    const wantsDocs = agent.name === 'Scribe' || agent.name === 'Nova' || agent.name === 'Quill' ||
+      /doc|blog|article|publish|draft|content|write|brief|spec/.test(combined);
+    if (wantsDocs) {
+      const docList = ctx.documents.slice(-8).map(d =>
+        '- "' + d.title + '" [' + (d.status || 'draft') + '] (id: ' + d.id + (d.promote ? ', promote: YES' : '') + ')'
+      ).join('\n');
+      const dBlock = '\n📄 EXISTING DOCUMENTS (do NOT duplicate these):\n' + docList;
+      if (used + dBlock.length < MAX_CTX_CHARS) { parts.push(dBlock); used += dBlock.length; }
+    }
+  }
+
+  return parts.length > 0 ? parts.join('\n') + '\n' : '';
+}
+
 // ── Execute a task: agent produces actual work output ──
-async function executeTask(context, agent, task) {
-  const prompt = buildExecutePrompt(agent, task);
+async function executeTask(context, agent, task, costIntel, siteIntel, socialIntel, execContext) {
+  // Resolve workspace files for real code context
+  let workspaceFiles = [];
+  try {
+    workspaceFiles = _resolveWorkspaceFiles(agent, task);
+    if (workspaceFiles.length > 0) {
+      context.log('[Heartbeat]', agent.name, 'workspace context injected:', workspaceFiles.length, 'file(s) for:', task.title);
+    }
+  } catch (wsErr) {
+    context.log.warn('[Heartbeat]', agent.name, 'workspace file resolve failed (non-fatal):', wsErr.message);
+  }
+  const prompt = buildExecutePrompt(agent, task, workspaceFiles, costIntel, siteIntel, socialIntel, execContext);
   const output = await callGeminiExecute(prompt, agent.name.toLowerCase());
   if (!output) {
     context.log('[Heartbeat]', agent.name, 'execute-task returned empty for:', task.title);
@@ -5992,7 +6455,12 @@ async function executeTask(context, agent, task) {
   return output;
 }
 
-function buildExecutePrompt(agent, task) {
+function buildExecutePrompt(agent, task, workspaceFiles, costIntel, siteIntel, socialIntel, execContext) {
+  workspaceFiles = workspaceFiles || [];
+  costIntel = costIntel || null;
+  siteIntel = siteIntel || {};
+  socialIntel = socialIntel || null;
+  execContext = execContext || {};
   // Gather existing comments for context
   const existingComments = (task.comments || [])
     .filter(c => c.text)
@@ -6020,7 +6488,7 @@ STATUS: ${task.status}
 
 EXISTING COMMENTS/HISTORY:
 ${existingComments}
-
+${workspaceFiles.length > 0 ? '\nWORKSPACE FILES (actual source code from the AmbientPixels repo — review these, do NOT roleplay):\n' + workspaceFiles.map(f => '--- ' + f.path + ' ---\n' + f.content).join('\n\n') + '\n' : ''}${costIntel && costIntel.gemini && costIntel.gemini.totalCalls > 0 && agent.name === 'Cipher' ? '\n💰 REAL COST DATA (30-day window — use these numbers, do NOT fabricate financial data):\nGemini API — Total: $' + costIntel.gemini.totalCost.toFixed(4) + ' | Calls: ' + costIntel.gemini.totalCalls + ' | Tokens: ' + costIntel.gemini.totalTokens.toLocaleString() + '\nAvg daily: $' + (costIntel.gemini.totalCost / Math.max(Object.keys(costIntel.gemini.byDay || {}).length, 1)).toFixed(4) + '/day | Projected monthly: $' + ((costIntel.gemini.totalCost / Math.max(Object.keys(costIntel.gemini.byDay || {}).length, 1)) * 30).toFixed(2) + '\nBy Agent: ' + Object.entries(costIntel.gemini.byAgent || {}).sort((a, b) => b[1].cost - a[1].cost).slice(0, 5).map(([n, d]) => n + ': $' + d.cost.toFixed(4) + ' (' + d.calls + ' calls)').join(', ') + '\nBy Service: ' + Object.entries(costIntel.gemini.byCaller || {}).sort((a, b) => b[1].cost - a[1].cost).slice(0, 5).map(([n, d]) => n + ': $' + d.cost.toFixed(4)).join(', ') + '\n' : ''}${_buildSiteIntelSection(agent, task, siteIntel)}${_buildSocialIntelExecSection(agent, task, socialIntel)}${_buildExecContextBlock(agent, task, execContext)}
 Based on your role as ${agent.role}, produce the appropriate deliverable for this task. Examples of what you should produce:
 ${agent.role === 'CEO' ? '- Strategic analysis, priority decisions, team directives, product direction memos' : ''}${agent.role === 'CFO' ? '- Budget reports, cost analyses, spending recommendations, ROI assessments' : ''}${agent.role === 'Design & QC' ? '- Design reviews, UI audit notes, accessibility recommendations, UX improvement plans' : ''}${agent.role === 'DevOps' ? '- Deployment plans, infrastructure audits, security checklists, performance reports' : ''}${agent.role === 'Marketing' ? '- Content drafts, social media copy, campaign briefs, brand messaging guides' : ''}${agent.name === 'Scribe' ? '- Longform drafts, product briefs, blog posts, documentation, social threads' : ''}${agent.name === 'Quill' ? '- Editing feedback, tone corrections, brand voice enforcement, CTA improvements' : ''}${agent.name === 'Scout' ? '- Market research briefs, competitive intelligence reports, trend analyses, strategic research, business benchmarks. Always include a ## Sources section with cited URLs.' : ''}
 
@@ -6035,8 +6503,18 @@ CRITICAL RULES — READ CAREFULLY:
 }
 
 // ── Review a task: agent evaluates another agent's deliverable ──
-async function reviewTask(context, agent, task) {
-  const prompt = buildReviewPrompt(agent, task);
+async function reviewTask(context, agent, task, costIntel, siteIntel, socialIntel, execContext) {
+  // Resolve workspace files for real code context during review
+  let workspaceFiles = [];
+  try {
+    workspaceFiles = _resolveWorkspaceFiles(agent, task);
+    if (workspaceFiles.length > 0) {
+      context.log('[Heartbeat]', agent.name, 'review workspace context injected:', workspaceFiles.length, 'file(s) for:', task.title);
+    }
+  } catch (wsErr) {
+    context.log.warn('[Heartbeat]', agent.name, 'review workspace file resolve failed (non-fatal):', wsErr.message);
+  }
+  const prompt = buildReviewPrompt(agent, task, workspaceFiles, costIntel, siteIntel, socialIntel, execContext);
   const response = await callGeminiExecute(prompt, agent.name.toLowerCase());
   if (!response) {
     context.log('[Heartbeat]', agent.name, 'review-task returned empty for:', task.title);
@@ -6067,7 +6545,12 @@ async function reviewTask(context, agent, task) {
   return { verdict, feedback };
 }
 
-function buildReviewPrompt(agent, task) {
+function buildReviewPrompt(agent, task, workspaceFiles, costIntel, siteIntel, socialIntel, execContext) {
+  workspaceFiles = workspaceFiles || [];
+  costIntel = costIntel || null;
+  siteIntel = siteIntel || {};
+  socialIntel = socialIntel || null;
+  execContext = execContext || {};
   // Find the deliverable comment(s)
   const deliverables = (task.comments || [])
     .filter(c => c.type === 'deliverable')
@@ -6101,7 +6584,7 @@ PRIORITY: ${task.priority}
 DELIVERABLE(S):
 ${deliverables}
 ${previousReviews ? '\nPREVIOUS REVIEWS:\n' + previousReviews : ''}
-
+${workspaceFiles.length > 0 ? '\nWORKSPACE FILES (actual source code — compare the deliverable against these real files, do NOT roleplay):\n' + workspaceFiles.map(f => '--- ' + f.path + ' ---\n' + f.content).join('\n\n') + '\n' : ''}${costIntel && costIntel.gemini && costIntel.gemini.totalCalls > 0 && agent.name === 'Cipher' ? '\n💰 REAL COST DATA for verification:\nGemini API Total: $' + costIntel.gemini.totalCost.toFixed(4) + ' | Calls: ' + costIntel.gemini.totalCalls + ' | Tokens: ' + costIntel.gemini.totalTokens.toLocaleString() + '\n' : ''}${_buildSiteIntelSection(agent, task, siteIntel)}${_buildSocialIntelExecSection(agent, task, socialIntel)}${_buildExecContextBlock(agent, task, execContext)}
 Review this deliverable from your perspective as ${agent.role}. Then respond with ONLY valid JSON:
 {
   "verdict": "approved" or "changes-requested",
