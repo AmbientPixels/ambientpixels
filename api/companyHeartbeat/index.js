@@ -3090,6 +3090,11 @@ Write the full deliverable first, then the structured JSON block.`;
         }
       }
 
+      // Only Nova can set parent_task_id — strip from other agents to keep hierarchy clean
+      var _parentTaskId = (agentId === 'nova' && action.task.parent_task_id) ? action.task.parent_task_id : null;
+      if (action.task.parent_task_id && agentId !== 'nova') {
+        context.log('[Heartbeat]', agentId, 'STRIPPED parent_task_id from create-task — only Nova can set task hierarchy');
+      }
       result.taskUpdates.push({
         action: 'create',
         task: {
@@ -3102,14 +3107,25 @@ Write the full deliverable first, then the structured JSON block.`;
           dueDate: action.task.dueDate || new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
           objective_id: _taskObjectiveId || null,
           campaign_id: _taskCampaignId || null,
-          category: action.task.category || null
+          category: action.task.category || null,
+          parent_task_id: _parentTaskId
         }
       });
     } else if (action.type === 'update-task' && action.taskId) {
+      // Strip parent_task_id from non-Nova agents
+      var _updates = action.updates || {};
+      if (_updates.parent_task_id && agentId !== 'nova') {
+        context.log('[Heartbeat]', agentId, 'STRIPPED parent_task_id from update-task — only Nova can set task hierarchy');
+        delete _updates.parent_task_id;
+      }
+      if (_updates.child_task_ids && agentId !== 'nova') {
+        context.log('[Heartbeat]', agentId, 'STRIPPED child_task_ids from update-task — only Nova can set task hierarchy');
+        delete _updates.child_task_ids;
+      }
       result.taskUpdates.push({
         action: 'update',
         taskId: action.taskId,
-        updates: action.updates || {}
+        updates: _updates
       });
     } else if (action.type === 'move-task' && action.taskId && action.newStatus) {
       result.taskUpdates.push({
@@ -5734,6 +5750,7 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
   - Move stale tasks forward or flag blockers with comment-task
   - Review other agents' deliverables promptly
   - Keep the board clean: close completed work, reassign only truly stuck tasks
+  - TASK HIERARCHY: You are the ONLY agent who can set parent_task_id. When creating sub-tasks that depend on or derive from another task, set parent_task_id to the parent task's id. This creates visible parent/child linkage on the board. Example: if Scout produced an audit and you create follow-up tasks from it, set parent_task_id to the audit task's id.
   - GOAL EXECUTION: Active goals are quarterly targets. When you see a goal marked [NO TASKS YET], you MUST create tasks to advance it:
     1. Break the goal into concrete, assignable tasks (1-3 tasks per goal)
     2. Assign by role: doc-writing/content → scribe, design → pixel, devops → forge, finance → cipher, marketing → echo, research → scout

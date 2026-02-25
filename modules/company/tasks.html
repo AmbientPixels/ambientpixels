@@ -1362,7 +1362,8 @@
           tr.className = 'tm-list-row--with-division' + agingClass;
           tr.style.setProperty('--tm-division-color', divisionColor);
           var listNumChip = task.taskNumber ? '<span style="opacity:0.35;font-size:0.58rem;margin-right:4px;">#' + task.taskNumber + '</span>' : '';
-          var titleCell = listNumChip + escapeHtml(task.title) + _pausedProjectBadge(task);
+          var listRelBadge = _relatedBadge(task, tasks);
+          var titleCell = listNumChip + escapeHtml(task.title) + _pausedProjectBadge(task) + listRelBadge;
           var campCell = camp ? '<span style="font-size:0.65rem;">' + escapeHtml(camp.title || camp.id) + '</span>' : '<span style="opacity:0.15">&mdash;</span>';
           var goal = _resolveGoal(task);
           var goalCell = goal ? '<span style="font-size:0.65rem; color:#4ECDC4;">' + escapeHtml(goal.title || goal.id) + '</span>' : '<span style="opacity:0.15">&mdash;</span>';
@@ -1817,6 +1818,28 @@
               ' <span class="tm-rel-status tm-rel-status--' + child.status + '">' + child.status + '</span>' +
               '</div>');
           });
+        }
+
+        // Campaign siblings — other tasks in the same campaign (excludes self + already-shown parent/children)
+        var shownIds = new Set();
+        if (task.parent_task_id) shownIds.add(task.parent_task_id);
+        children.forEach(function (c) { shownIds.add(c.id); });
+        if (task.campaign_id) {
+          var siblings = allTasks.filter(function (t) {
+            return t.id !== task.id && !shownIds.has(t.id) && t.campaign_id === task.campaign_id && !t.deletedAt;
+          });
+          if (siblings.length > 0) {
+            siblings.slice(0, 8).forEach(function (sib) {
+              var sAgent = sib.assignee ? getAgentById(sib.assignee) : null;
+              parts.push('<div class="tm-rel-item tm-rel-item--sibling" data-task-id="' + escapeHtml(sib.id) + '">' +
+                '<i class="fas fa-link" style="color:#64748b;font-size:0.5rem;"></i> ' +
+                '<span class="tm-rel-label">Campaign:</span> ' +
+                '<span class="tm-rel-title">' + escapeHtml(sib.title) + '</span>' +
+                (sAgent ? ' <span style="color:' + sAgent.color + ';font-size:0.6rem;">(' + sAgent.name + ')</span>' : '') +
+                ' <span class="tm-rel-status tm-rel-status--' + sib.status + '">' + sib.status + '</span>' +
+                '</div>');
+            });
+          }
         }
 
         if (parts.length === 0) {
