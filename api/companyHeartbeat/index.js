@@ -2827,9 +2827,20 @@ Write the full deliverable first, then the structured JSON block.`;
         continue;
       }
 
+      // Inherit linking from parent project when provided
+      var _taskDirectiveId = action.task.directive_id || null;
+      var _taskObjectiveId = action.task.objective_id || null;
+      var _taskCampaignSeed = action.task.campaign_id || null;
+      if (_taskDirectiveId && campaignCtx && campaignCtx.projectById && campaignCtx.projectById[_taskDirectiveId]) {
+        var _parentDir = campaignCtx.projectById[_taskDirectiveId];
+        normalizeCampaignRef(_parentDir);
+        if (!_taskObjectiveId && _parentDir.objective_id) _taskObjectiveId = _parentDir.objective_id;
+        if (!_taskCampaignSeed && _parentDir.campaign_id) _taskCampaignSeed = _parentDir.campaign_id;
+      }
+
       // SERVER-SIDE GUARD: agent-created tasks must link to a goal or project
-      const _hasObjective = action.task.objective_id || (action.task.source && action.task.source.type === 'ceo');
-      const _hasDirective = action.task.directive_id;
+      const _hasObjective = _taskObjectiveId || (action.task.source && action.task.source.type === 'ceo');
+      const _hasDirective = _taskDirectiveId;
       if (!_hasObjective && !_hasDirective) {
         result.guardrails.orphanBlocked++;
         context.log('[Heartbeat]', agentId, 'BLOCKED orphan task creation: "' + (action.task.title || '') + '" — must set objective_id or directive_id');
@@ -2886,17 +2897,17 @@ Write the full deliverable first, then the structured JSON block.`;
       }));
 
       // Resolve campaign: inherit from directive first, else match/create via shared module
-      var _taskCampaignId = null;
-      if (action.task.directive_id && campaignCtx && campaignCtx.projectById && campaignCtx.projectById[action.task.directive_id]) {
-        normalizeCampaignRef(campaignCtx.projectById[action.task.directive_id]);
-        _taskCampaignId = campaignCtx.projectById[action.task.directive_id].campaign_id || null;
+      var _taskCampaignId = _taskCampaignSeed || null;
+      if (!_taskCampaignId && _taskDirectiveId && campaignCtx && campaignCtx.projectById && campaignCtx.projectById[_taskDirectiveId]) {
+        normalizeCampaignRef(campaignCtx.projectById[_taskDirectiveId]);
+        _taskCampaignId = campaignCtx.projectById[_taskDirectiveId].campaign_id || null;
       }
       if (!_taskCampaignId) {
         const _ctResult = await ensureCampaign({
-          campaign_id: action.task.campaign_id || null,
+          campaign_id: _taskCampaignId || null,
           title: action.task.title || '',
           description: action.task.description || '',
-          goalId: action.task.objective_id || null,
+          goalId: _taskObjectiveId || null,
           division: action.task.division || null,
           provenance: 'Auto: Campaign ' + agentId,
           campaigns: (campaignCtx && campaignCtx.campaigns) ? campaignCtx.campaigns : [],
@@ -2926,8 +2937,8 @@ Write the full deliverable first, then the structured JSON block.`;
           assignee: action.task.assignee || agentId,
           division: action.task.division || null,
           dueDate: action.task.dueDate || new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString(),
-          objective_id: action.task.objective_id || null,
-          directive_id: action.task.directive_id || null,
+          objective_id: _taskObjectiveId || null,
+          directive_id: _taskDirectiveId || null,
           campaign_id: _taskCampaignId || null,
           category: action.task.category || null
         }
