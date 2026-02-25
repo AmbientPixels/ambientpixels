@@ -3141,6 +3141,21 @@ Write the full deliverable first, then the structured JSON block.`;
           continue;
         }
       }
+      // DELIVERABLE GUARD: block re-execution if task already has a deliverable or is in review/done
+      {
+        const _exTask = tasks.find(t => t.id === action.taskId);
+        if (_exTask) {
+          if (_exTask.status === 'review' || _exTask.status === 'done') {
+            context.log('[Heartbeat]', agentId, 'BLOCKED execute-task on', action.taskId, '— task already in', _exTask.status);
+            continue;
+          }
+          const _hasDeliverable = _exTask.comments && _exTask.comments.some(c => c.type === 'deliverable');
+          if (_hasDeliverable) {
+            context.log('[Heartbeat]', agentId, 'BLOCKED execute-task on', action.taskId, '— task already has a deliverable. Use review-task or comment-task instead.');
+            continue;
+          }
+        }
+      }
       // Execute: agent produces actual work on a task (costs 1 extra Gemini call)
       if (result.executes >= GUARDRAILS.maxExecutesPerCyclePerAgent) {
         context.log('[Heartbeat]', agentId, 'max executes reached, skipping');
@@ -3779,8 +3794,15 @@ Write the full deliverable first, then the structured JSON block.`;
           return /\b(waiting|awaiting|checking|following|update|appendix)\b/.test(existing);
         });
 
-      if (isDuplicate || isFollowUpLoop) {
-        context.log('[Heartbeat]', agentId, 'comment-task SKIPPED (' + (isFollowUpLoop ? 'follow-up loop' : 'duplicate') + ' comment) on task:', action.taskId);
+      // Guard 4: Block Nova re-delegation spam — if Nova already delegated this task (has a comment)
+      // and the task is assigned to another agent with active status, no need to re-delegate
+      const isDelegationSpam = agentId === 'nova' && targetTask &&
+        targetTask.assignee && targetTask.assignee !== 'nova' &&
+        (targetTask.status === 'todo' || targetTask.status === 'in-progress' || targetTask.status === 'review') &&
+        recentComments.some(c => (c.user || c.author || '') === 'nova' && c.type !== 'system');
+
+      if (isDuplicate || isFollowUpLoop || isDelegationSpam) {
+        context.log('[Heartbeat]', agentId, 'comment-task SKIPPED (' + (isDelegationSpam ? 'delegation-spam' : isFollowUpLoop ? 'follow-up loop' : 'duplicate') + ' comment) on task:', action.taskId);
       } else {
         result.taskUpdates.push({
           action: 'comment',
