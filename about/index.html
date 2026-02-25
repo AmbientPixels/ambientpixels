@@ -14,7 +14,6 @@
   <link rel="stylesheet" href="/css/components.css" />
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
-  <link rel="stylesheet" href="/css/projects.css" />
   <link rel="stylesheet" href="/css/hero-base.css" />
   <style>
     /* Studio — Scoped Styles */
@@ -73,9 +72,23 @@
     }
     .stu-card .stu-icon {
       font-size: 1.25rem;
-      color: #a78bfa;
+      color: var(--stu-accent, #a78bfa);
       margin-bottom: 0.25rem;
     }
+    .stu-card {
+      border-top: 3px solid var(--stu-accent, rgba(128,128,128,0.15));
+    }
+    /* How We Build colors */
+    .stu-card--strategy   { --stu-accent: #4ECDC4; }
+    .stu-card--design     { --stu-accent: #60a5fa; }
+    .stu-card--automation { --stu-accent: #a78bfa; }
+    .stu-card--governance { --stu-accent: #f59e0b; }
+    .stu-card--deploy     { --stu-accent: #34d399; }
+    /* Controlled Intelligence colors */
+    .stu-card--boundaries { --stu-accent: #FF6B9D; }
+    .stu-card--approvals  { --stu-accent: #f59e0b; }
+    .stu-card--observe    { --stu-accent: #4ECDC4; }
+    .stu-card--versioning { --stu-accent: #60a5fa; }
 
     /* 2. Architecture flow — increased padding, spacing, contrast */
     .stu-flow {
@@ -94,6 +107,14 @@
       border: 1px solid rgba(128,128,128,0.15);
       border-radius: 6px;
     }
+    .stu-flow-step {
+      border-top: 2px solid var(--flow-accent, rgba(128,128,128,0.15));
+    }
+    .stu-flow--strategy  { --flow-accent: #4ECDC4; }
+    .stu-flow--design    { --flow-accent: #60a5fa; }
+    .stu-flow--automation{ --flow-accent: #a78bfa; }
+    .stu-flow--governance{ --flow-accent: #f59e0b; }
+    .stu-flow--production{ --flow-accent: #34d399; }
     .stu-flow-step h4 {
       font-size: 0.8rem;
       font-weight: 600;
@@ -122,8 +143,13 @@
     }
     .stu-principle {
       padding: 1.25rem 1rem;
-      border-left: 2px solid #a78bfa;
+      border-left: 2px solid var(--prin-accent, #a78bfa);
     }
+    .stu-prin--systems  { --prin-accent: #4ECDC4; }
+    .stu-prin--infra    { --prin-accent: #60a5fa; }
+    .stu-prin--account  { --prin-accent: #f59e0b; }
+    .stu-prin--clarity  { --prin-accent: #FF6B9D; }
+    .stu-prin--prod     { --prin-accent: #34d399; }
     .stu-principle h3 {
       font-size: 0.9rem;
       font-weight: 600;
@@ -178,11 +204,11 @@
     }
 
     /* Light theme overrides */
-    [data-theme="light"] .stu-card .stu-icon { color: #7c3aed; }
+    [data-theme="light"] .stu-card .stu-icon { color: var(--stu-accent, #7c3aed); }
     [data-theme="light"] .stu-card { border-color: #e2e8f0; }
     [data-theme="light"] .stu-card:hover { border-color: #cbd5e1; }
     [data-theme="light"] .stu-flow-step { border-color: #e2e8f0; }
-    [data-theme="light"] .stu-principle { border-left-color: #7c3aed; }
+    [data-theme="light"] .stu-principle { border-left-color: var(--prin-accent, #7c3aed); }
     [data-theme="light"] .stu-founder { border-color: #e2e8f0; }
     [data-theme="light"] .stu-founder .stu-btn {
       border-color: #d1d5db;
@@ -208,9 +234,8 @@
   <section class="hero-base stu-hero" data-hero="architect">
     <div class="hero-base-layer"></div>
     <div class="hero-base-content">
-      <p class="nv-breadcrumb"><a href="/">Home</a> / Studio</p>
       <h1>The Studio</h1>
-      <h2>AI-native systems designed for production environments.</h2>
+      <p class="subtitle">AI-native systems designed for production environments.</p>
       <p>AmbientPixels is a structured systems studio. We design, build, and deploy modular AI platforms — governed automation pipelines with clear architecture, human oversight, and production-grade standards.</p>
     </div>
   </section>
@@ -222,27 +247,27 @@
       <h2>How We Build</h2>
       <p>Every system follows a defined path from strategy through deployment. No shortcuts. No ambiguity. Structured phases with clear deliverables at each stage.</p>
       <div class="stu-grid">
-        <div class="stu-card">
+        <div class="stu-card stu-card--strategy">
           <i class="fas fa-map stu-icon"></i>
           <h3>Strategy &amp; System Mapping</h3>
           <p>Define scope, identify dependencies, and map system architecture before any code is written.</p>
         </div>
-        <div class="stu-card">
+        <div class="stu-card stu-card--design">
           <i class="fas fa-cubes stu-icon"></i>
           <h3>Modular Design Systems</h3>
           <p>Composable UI components, token-based theming, and reusable layout scaffolds built for scale.</p>
         </div>
-        <div class="stu-card">
+        <div class="stu-card stu-card--automation">
           <i class="fas fa-cogs stu-icon"></i>
           <h3>Automation Layer</h3>
           <p>Task pipelines, content generation, and agent orchestration with defined execution boundaries.</p>
         </div>
-        <div class="stu-card">
+        <div class="stu-card stu-card--governance">
           <i class="fas fa-shield-alt stu-icon"></i>
           <h3>Human Governance</h3>
           <p>Approval checkpoints, audit trails, and escalation paths for all high-impact operations.</p>
         </div>
-        <div class="stu-card">
+        <div class="stu-card stu-card--deploy">
           <i class="fas fa-rocket stu-icon"></i>
           <h3>Production Deployment</h3>
           <p>CI/CD pipelines, staged rollouts, and monitoring dashboards for reliable delivery.</p>
@@ -255,27 +280,27 @@
       <h2>System Architecture</h2>
       <p>A layered system architecture. Each phase feeds the next with defined handoff points.</p>
       <div class="stu-flow">
-        <div class="stu-flow-step">
+        <div class="stu-flow-step stu-flow--strategy">
           <h4>Strategy</h4>
           <p>Scope &amp; mapping</p>
         </div>
         <span class="stu-flow-arrow"><i class="fas fa-chevron-right"></i></span>
-        <div class="stu-flow-step">
+        <div class="stu-flow-step stu-flow--design">
           <h4>Design Systems</h4>
           <p>Components &amp; tokens</p>
         </div>
         <span class="stu-flow-arrow"><i class="fas fa-chevron-right"></i></span>
-        <div class="stu-flow-step">
+        <div class="stu-flow-step stu-flow--automation">
           <h4>Automation</h4>
           <p>Pipelines &amp; agents</p>
         </div>
         <span class="stu-flow-arrow"><i class="fas fa-chevron-right"></i></span>
-        <div class="stu-flow-step">
+        <div class="stu-flow-step stu-flow--governance">
           <h4>Governance</h4>
           <p>Approvals &amp; audit</p>
         </div>
         <span class="stu-flow-arrow"><i class="fas fa-chevron-right"></i></span>
-        <div class="stu-flow-step">
+        <div class="stu-flow-step stu-flow--production">
           <h4>Production</h4>
           <p>Deploy &amp; monitor</p>
         </div>
@@ -287,22 +312,22 @@
       <h2>Controlled Intelligence</h2>
       <p>AI integration is governed — not open-ended. Every automated action operates within defined constraints with full observability.</p>
       <div class="stu-grid">
-        <div class="stu-card">
+        <div class="stu-card stu-card--boundaries">
           <i class="fas fa-border-all stu-icon"></i>
           <h3>Defined Boundaries</h3>
           <p>Each AI agent operates within scoped permissions. No unbounded access. No unmonitored actions.</p>
         </div>
-        <div class="stu-card">
+        <div class="stu-card stu-card--approvals">
           <i class="fas fa-check-double stu-icon"></i>
           <h3>Approval Checkpoints</h3>
           <p>High-impact operations route through human approval before execution. Logged with provenance.</p>
         </div>
-        <div class="stu-card">
+        <div class="stu-card stu-card--observe">
           <i class="fas fa-eye stu-icon"></i>
           <h3>Observability</h3>
           <p>Full telemetry on agent decisions, action queues, and execution outcomes. Nothing runs in the dark.</p>
         </div>
-        <div class="stu-card">
+        <div class="stu-card stu-card--versioning">
           <i class="fas fa-code-branch stu-icon"></i>
           <h3>Versioning</h3>
           <p>System configurations, prompts, and agent behaviors are version-controlled and auditable.</p>
@@ -314,23 +339,23 @@
     <section class="content-section grid-col-12 stu-section">
       <h2>Design Principles</h2>
       <div class="stu-principles">
-        <div class="stu-principle">
+        <div class="stu-principle stu-prin--systems">
           <h3>Systems Over Surface</h3>
           <p>Architecture and infrastructure precede aesthetics. Structure enables expression.</p>
         </div>
-        <div class="stu-principle">
+        <div class="stu-principle stu-prin--infra">
           <h3>Infrastructure First</h3>
           <p>Reliable foundations before features. Pipelines, tokens, and APIs before polish.</p>
         </div>
-        <div class="stu-principle">
+        <div class="stu-principle stu-prin--account">
           <h3>Automation with Accountability</h3>
           <p>Every automated action is logged, governed, and reversible.</p>
         </div>
-        <div class="stu-principle">
+        <div class="stu-principle stu-prin--clarity">
           <h3>Clarity Over Complexity</h3>
           <p>Simple interfaces, transparent logic, readable systems. No black boxes.</p>
         </div>
-        <div class="stu-principle">
+        <div class="stu-principle stu-prin--prod">
           <h3>Built for Production</h3>
           <p>Ship-ready by default. Staging, testing, and monitoring are non-negotiable.</p>
         </div>
