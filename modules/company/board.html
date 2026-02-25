@@ -39,6 +39,26 @@
     .board-empty { font-size:0.7rem; opacity:0.3; padding:0.5rem 0; }
     .board-copy-btn { border-color:rgba(52,211,153,0.2) !important; color:#34d399 !important; }
     .board-copy-btn:hover { background:rgba(52,211,153,0.06) !important; }
+    .board-two-col { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    @media (max-width:700px) { .board-two-col { grid-template-columns:1fr; } }
+    .board-goal-card { padding:0.45rem 0.6rem; border:1px solid rgba(255,255,255,0.04); border-radius:6px; margin-bottom:0.35rem; background:rgba(255,255,255,0.01); }
+    .board-goal-title { font-size:0.8rem; font-weight:600; margin-bottom:0.2rem; }
+    .board-goal-meta { font-size:0.55rem; opacity:0.45; display:flex; gap:0.4rem; flex-wrap:wrap; }
+    .board-progress-bar { height:6px; border-radius:3px; background:rgba(255,255,255,0.06); overflow:hidden; margin-top:0.3rem; }
+    .board-progress-fill { height:100%; border-radius:3px; transition:width 0.3s; }
+    .board-agent-card { padding:0.4rem 0.55rem; border:1px solid rgba(255,255,255,0.04); border-radius:6px; background:rgba(255,255,255,0.01); display:flex; align-items:center; gap:0.5rem; }
+    .board-agent-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+    .board-agent-name { font-size:0.72rem; font-weight:600; }
+    .board-agent-role { font-size:0.5rem; opacity:0.35; }
+    .board-agent-stat { font-size:0.6rem; margin-left:auto; opacity:0.5; }
+    .board-cost-row { display:flex; gap:0.4rem; flex-wrap:wrap; }
+    .board-cost-item { flex:1; min-width:80px; text-align:center; padding:0.3rem 0.4rem; border:1px solid rgba(255,255,255,0.04); border-radius:6px; background:rgba(255,255,255,0.01); }
+    .board-cost-val { font-size:0.9rem; font-weight:700; }
+    .board-cost-label { font-size:0.48rem; opacity:0.35; margin-top:0.1rem; }
+    .board-content-row { display:flex; gap:0.5rem; flex-wrap:wrap; }
+    .board-content-pill { flex:1; min-width:80px; text-align:center; padding:0.5rem; border:1px solid rgba(255,255,255,0.05); border-radius:8px; background:rgba(255,255,255,0.015); }
+    .board-content-pill-val { font-size:1.1rem; font-weight:700; }
+    .board-content-pill-label { font-size:0.5rem; opacity:0.4; margin-top:0.1rem; }
   </style>
 </head>
 <body style="background:#071019" data-theme="dark">
@@ -65,49 +85,83 @@
       </div>
     </div>
 
-    <!-- 1. Executive Summary -->
+    <!-- 1. Headline Stats -->
+    <div class="board-stat-row" id="board-headline-stats"></div>
+
+    <!-- 2. Executive Summary -->
     <div class="board-section" id="sec-exec">
       <div class="board-section-title"><i class="fas fa-briefcase" style="color:#FFD700;"></i> Executive Summary</div>
       <div class="board-card" id="board-exec-summary" style="font-size:0.8rem; line-height:1.5; border-color:rgba(255,215,0,0.1); background:rgba(255,215,0,0.02);"></div>
     </div>
 
-    <!-- 2. KPI Scoreboard -->
-    <div class="board-section" id="sec-kpis">
-      <div class="board-section-title"><i class="fas fa-chart-line" style="color:#4ECDC4;"></i> KPI Scoreboard</div>
-      <div class="board-kpi-grid" id="board-kpi-grid"></div>
+    <!-- 3. Goals -->
+    <div class="board-section" id="sec-goals">
+      <div class="board-section-title"><i class="fas fa-bullseye" style="color:#4ECDC4;"></i> Goals <span class="board-badge" id="badge-goals" style="background:rgba(78,205,196,0.1);color:#4ECDC4;">0</span></div>
+      <div id="board-goals"></div>
     </div>
 
-    <!-- 3. Active / Approved Directives -->
-    <div class="board-section" id="sec-active-dirs">
-      <div class="board-section-title"><i class="fas fa-fire" style="color:#FF8C00;"></i> Active Projects <span class="board-badge" id="badge-active-dirs" style="background:rgba(255,140,0,0.1);color:#FF8C00;">0</span></div>
-      <div id="board-active-dirs"></div>
+    <!-- 4–5. Projects + Team (two-column) -->
+    <div class="board-two-col">
+      <div>
+        <!-- Active Projects -->
+        <div class="board-section" id="sec-active-dirs">
+          <div class="board-section-title"><i class="fas fa-fire" style="color:#FF8C00;"></i> Active Projects <span class="board-badge" id="badge-active-dirs" style="background:rgba(255,140,0,0.1);color:#FF8C00;">0</span></div>
+          <div id="board-active-dirs"></div>
+        </div>
+        <!-- Completed Projects -->
+        <div class="board-section" id="sec-completed-dirs">
+          <div class="board-section-title"><i class="fas fa-trophy" style="color:#c084fc;"></i> Completed <span class="board-badge" id="badge-completed-dirs" style="background:rgba(192,132,252,0.1);color:#c084fc;">0</span></div>
+          <div id="board-completed-dirs"></div>
+        </div>
+        <!-- Pending Approval -->
+        <div class="board-section" id="sec-pending-dirs">
+          <div class="board-section-title"><i class="fas fa-hourglass-half" style="color:#fbbf24;"></i> Pending Approval <span class="board-badge" id="badge-pending-dirs" style="background:rgba(251,191,36,0.1);color:#fbbf24;">0</span></div>
+          <div id="board-pending-dirs"></div>
+        </div>
+      </div>
+      <div>
+        <!-- Agent Team -->
+        <div class="board-section" id="sec-team">
+          <div class="board-section-title"><i class="fas fa-users" style="color:#4ECDC4;"></i> Agent Team</div>
+          <div id="board-team" style="display:flex; flex-direction:column; gap:0.35rem;"></div>
+        </div>
+        <!-- Approval Backlog -->
+        <div class="board-section" id="sec-backlog">
+          <div class="board-section-title"><i class="fas fa-inbox" style="color:#fbbf24;"></i> Approval Backlog <span class="board-badge" id="badge-backlog" style="background:rgba(251,191,36,0.1);color:#fbbf24;">0</span></div>
+          <div id="board-backlog"></div>
+        </div>
+      </div>
     </div>
 
-    <!-- 4. Completed Directives -->
-    <div class="board-section" id="sec-completed-dirs">
-      <div class="board-section-title"><i class="fas fa-trophy" style="color:#c084fc;"></i> Completed Projects <span class="board-badge" id="badge-completed-dirs" style="background:rgba(192,132,252,0.1);color:#c084fc;">0</span></div>
-      <div id="board-completed-dirs"></div>
+    <!-- 6–7. Cost + Content Pipeline (two-column) -->
+    <div class="board-two-col">
+      <div>
+        <div class="board-section" id="sec-cost">
+          <div class="board-section-title"><i class="fas fa-dollar-sign" style="color:#fbbf24;"></i> Cost Summary</div>
+          <div id="board-cost"></div>
+        </div>
+      </div>
+      <div>
+        <div class="board-section" id="sec-content">
+          <div class="board-section-title"><i class="fas fa-newspaper" style="color:#a78bfa;"></i> Content Pipeline</div>
+          <div id="board-content"></div>
+        </div>
+      </div>
     </div>
 
-    <!-- 5. Pending Approval -->
-    <div class="board-section" id="sec-pending-dirs">
-      <div class="board-section-title"><i class="fas fa-hourglass-half" style="color:#fbbf24;"></i> Pending Approval <span class="board-badge" id="badge-pending-dirs" style="background:rgba(251,191,36,0.1);color:#fbbf24;">0</span></div>
-      <div id="board-pending-dirs"></div>
-    </div>
-
-    <!-- 6. Decisions Log -->
+    <!-- 8. Decisions Log -->
     <div class="board-section" id="sec-decisions">
       <div class="board-section-title"><i class="fas fa-gavel" style="color:#60a5fa;"></i> Decisions <span class="board-badge" id="badge-decisions" style="background:rgba(96,165,250,0.1);color:#60a5fa;">0</span></div>
       <div id="board-decisions"></div>
     </div>
 
-    <!-- 7. Risk Register -->
+    <!-- 9. Risk Register -->
     <div class="board-section" id="sec-risks">
       <div class="board-section-title"><i class="fas fa-exclamation-triangle" style="color:#f87171;"></i> Risk Register <span class="board-badge" id="badge-risks" style="background:rgba(248,113,113,0.1);color:#f87171;">0</span></div>
       <div id="board-risks"></div>
     </div>
 
-    <!-- 8. Throughput -->
+    <!-- 10. Throughput -->
     <div class="board-section" id="sec-throughput">
       <div class="board-section-title"><i class="fas fa-tachometer-alt" style="color:#34d399;"></i> Delivery / Throughput</div>
       <div class="board-stat-row" id="board-throughput"></div>
@@ -166,11 +220,16 @@
         var e = new Date(_packet.dateRange.endISO);
         rangeEl.textContent = _packet.quarterKey + '  ·  ' + s.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) + ' – ' + e.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
+        renderHeadlineStats();
         renderExecSummary();
-        renderKpis();
+        renderGoals();
         renderDirectiveSection('board-active-dirs', 'badge-active-dirs', _packet.directives.active);
         renderDirectiveSection('board-completed-dirs', 'badge-completed-dirs', _packet.directives.completed);
         renderDirectiveSection('board-pending-dirs', 'badge-pending-dirs', _packet.directives.pendingApproval);
+        renderTeam();
+        renderBacklog();
+        renderCostSummary();
+        renderContentPipeline();
         renderDecisions();
         renderRisks();
         renderThroughput();
@@ -181,38 +240,198 @@
         el.textContent = _packet.execSummary || 'No data available for this quarter.';
       }
 
-      function renderKpis() {
-        var grid = document.getElementById('board-kpi-grid');
-        grid.innerHTML = '';
-        var catColors = { Growth: '#34d399', Engagement: '#60a5fa', Product: '#a78bfa', Activation: '#fbbf24', Cost: '#f87171', Reliability: '#4ECDC4' };
+      function renderHeadlineStats() {
+        var el = document.getElementById('board-headline-stats');
+        var objectives = AgentEngine.getObjectives ? AgentEngine.getObjectives() : [];
+        var queue = AgentEngine.getApprovalQueue ? AgentEngine.getApprovalQueue() : [];
+        var pending = queue.filter(function (q) { return q.status === 'pending'; });
+        var reg = AgentEngine.getRegistry ? AgentEngine.getRegistry() : null;
+        var agentCount = (reg && reg.agents) ? reg.agents.length : 0;
+        var tasks = AgentEngine.getTasks ? AgentEngine.getTasks() : [];
+        var doneTasks = tasks.filter(function (t) { return t.status === 'done'; });
+        var autoCompleted = doneTasks.filter(function (t) { return !t.manuallyCompleted; }).length;
+        var autonomyPct = doneTasks.length > 0 ? Math.round((autoCompleted / doneTasks.length) * 100) : 0;
 
-        _packet.kpis.forEach(function (k) {
-          var catColor = catColors[k.category] || '#8A2BE2';
-          var unitLabel = k.unit === 'usd' ? '$' : k.unit === 'percent' ? '%' : '';
-          var card = document.createElement('div');
-          card.className = 'board-kpi-card';
-          card.style.cssText = 'border:1px solid ' + catColor + '18; background:' + catColor + '06;';
+        var sessions = AgentEngine.getSessionLog ? AgentEngine.getSessionLog() : [];
+        var totalCost = 0;
+        sessions.forEach(function (s) { if (s.cost) totalCost += s.cost; });
 
-          var html = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.2rem;">';
-          html += '<span style="font-size:0.7rem;font-weight:600;">' + escapeHtml(k.name) + '</span>';
-          html += '<span style="font-size:0.5rem;padding:1px 5px;border-radius:3px;background:' + catColor + '15;color:' + catColor + ';">' + k.category + '</span>';
+        el.innerHTML =
+          '<div class="board-stat"><div class="board-stat-val" style="color:#4ECDC4;">' + objectives.length + '</div><div class="board-stat-label">Goals</div></div>' +
+          '<div class="board-stat"><div class="board-stat-val" style="color:#FF8C00;">' + _packet.directives.active.length + '</div><div class="board-stat-label">Active Projects</div></div>' +
+          '<div class="board-stat"><div class="board-stat-val" style="color:#60a5fa;">' + _packet.throughput.tasksCreated + ' / ' + _packet.throughput.tasksCompleted + '</div><div class="board-stat-label">Tasks Created / Done</div></div>' +
+          '<div class="board-stat"><div class="board-stat-val" style="color:#34d399;">' + autonomyPct + '%</div><div class="board-stat-label">Autonomy</div></div>' +
+          '<div class="board-stat"><div class="board-stat-val" style="color:#fbbf24;">$' + totalCost.toFixed(2) + '</div><div class="board-stat-label">Total Spend</div></div>' +
+          '<div class="board-stat"><div class="board-stat-val" style="color:#ef4444;">' + pending.length + '</div><div class="board-stat-label">Pending Approvals</div></div>';
+      }
+
+      function renderGoals() {
+        var el = document.getElementById('board-goals');
+        var badge = document.getElementById('badge-goals');
+        var objectives = AgentEngine.getObjectives ? AgentEngine.getObjectives() : [];
+        badge.textContent = objectives.length;
+
+        if (objectives.length === 0) {
+          el.innerHTML = '<div class="board-empty">No goals defined yet.</div>';
+          return;
+        }
+
+        var html = '';
+        objectives.forEach(function (o) {
+          var pct = o.progressPercentage || 0;
+          var statusColors = { on_track: '#34d399', at_risk: '#fbbf24', behind: '#ef4444', completed: '#c084fc' };
+          var sColor = statusColors[o.status] || '#60a5fa';
+          var barColor = pct >= 75 ? '#34d399' : pct >= 40 ? '#fbbf24' : '#60a5fa';
+
+          html += '<div class="board-goal-card">';
+          html += '<div class="board-goal-title">' + escapeHtml(o.title || 'Untitled') + '</div>';
+          html += '<div class="board-goal-meta">';
+          if (o.quarter) html += '<span>Q' + o.quarter + '</span>';
+          html += '<span style="color:' + sColor + ';">' + (o.status || 'active').replace(/_/g, ' ') + '</span>';
+          html += '<span>' + pct + '% complete</span>';
+          if (o.linkedDirectives && o.linkedDirectives.length > 0) html += '<span>' + o.linkedDirectives.length + ' project' + (o.linkedDirectives.length > 1 ? 's' : '') + '</span>';
           html += '</div>';
-
-          html += '<div style="font-size:1.1rem;font-weight:700;color:' + catColor + ';margin-bottom:0.2rem;">-' + unitLabel + '</div>';
-
-          if (k.linkedDirectives.length > 0) {
-            html += '<div style="font-size:0.55rem;opacity:0.5;">' + k.linkedDirectives.length + ' project' + (k.linkedDirectives.length > 1 ? 's' : '') + '</div>';
-            k.linkedDirectives.slice(0, 2).forEach(function (d) {
-              var sColor = d.status === 'active' ? '#34d399' : d.status === 'completed' ? '#c084fc' : '#fbbf24';
-              html += '<div style="font-size:0.55rem;opacity:0.6;margin-top:2px;"><span style="color:' + sColor + ';">●</span> ' + escapeHtml(d.title) + '</div>';
-            });
-          } else {
-            html += '<div style="font-size:0.55rem;opacity:0.25;">No linked projects</div>';
-          }
-
-          card.innerHTML = html;
-          grid.appendChild(card);
+          html += '<div class="board-progress-bar"><div class="board-progress-fill" style="width:' + pct + '%;background:' + barColor + ';"></div></div>';
+          html += '</div>';
         });
+        el.innerHTML = html;
+      }
+
+      function renderTeam() {
+        var el = document.getElementById('board-team');
+        var reg = AgentEngine.getRegistry ? AgentEngine.getRegistry() : null;
+        var agents = (reg && reg.agents) ? reg.agents : [];
+        if (agents.length === 0) {
+          el.innerHTML = '<div class="board-empty">No agents loaded.</div>';
+          return;
+        }
+
+        var tasks = AgentEngine.getTasks ? AgentEngine.getTasks() : [];
+        var sessions = AgentEngine.getSessionLog ? AgentEngine.getSessionLog() : [];
+        var agentStats = AgentEngine.getAgentSessionStats ? AgentEngine.getAgentSessionStats() : {};
+
+        var html = '';
+        agents.forEach(function (a) {
+          var agentId = a.id || a.name;
+          var doneTasks = tasks.filter(function (t) { return (t.assignee === agentId || t.assignee === (a.name || '').toLowerCase()) && t.status === 'done'; }).length;
+          var activeTasks = tasks.filter(function (t) { return (t.assignee === agentId || t.assignee === (a.name || '').toLowerCase()) && t.status !== 'done' && t.status !== 'backlog'; }).length;
+          var stat = agentStats[agentId];
+          var calls = stat ? stat.calls : 0;
+
+          html += '<div class="board-agent-card">';
+          html += '<div class="board-agent-dot" style="background:' + (a.color || '#8A2BE2') + ';"></div>';
+          html += '<div>';
+          html += '<div class="board-agent-name">' + escapeHtml(a.name || agentId) + '</div>';
+          html += '<div class="board-agent-role">' + escapeHtml(a.role || '') + '</div>';
+          html += '</div>';
+          html += '<div class="board-agent-stat">' + doneTasks + ' done · ' + activeTasks + ' active · ' + calls + ' calls</div>';
+          html += '</div>';
+        });
+        el.innerHTML = html;
+      }
+
+      function renderBacklog() {
+        var el = document.getElementById('board-backlog');
+        var badge = document.getElementById('badge-backlog');
+        var queue = AgentEngine.getApprovalQueue ? AgentEngine.getApprovalQueue() : [];
+        var pending = queue.filter(function (q) { return q.status === 'pending'; });
+        badge.textContent = pending.length;
+
+        if (pending.length === 0) {
+          el.innerHTML = '<div class="board-empty">No pending approvals.</div>';
+          return;
+        }
+
+        // Avg wait time
+        var totalWaitMs = 0;
+        var now = Date.now();
+        pending.forEach(function (p) {
+          if (p.submittedAt) totalWaitMs += now - new Date(p.submittedAt).getTime();
+        });
+        var avgWaitH = pending.length > 0 ? Math.round(totalWaitMs / pending.length / 3600000) : 0;
+
+        var html = '<div class="board-cost-row" style="margin-bottom:0.5rem;">';
+        html += '<div class="board-cost-item"><div class="board-cost-val" style="color:#fbbf24;">' + pending.length + '</div><div class="board-cost-label">Pending</div></div>';
+        html += '<div class="board-cost-item"><div class="board-cost-val" style="color:#ef4444;">' + avgWaitH + 'h</div><div class="board-cost-label">Avg Wait</div></div>';
+        html += '</div>';
+
+        // List first 5
+        pending.slice(0, 5).forEach(function (p) {
+          html += '<div class="board-dir-card" style="font-size:0.7rem;">';
+          html += '<div style="flex:1;min-width:0;"><span style="font-weight:600;">' + escapeHtml(p.taskTitle || p.title || p.taskId || '?') + '</span>';
+          if (p.submittedAt) html += '<span style="opacity:0.35;font-size:0.55rem;margin-left:0.4rem;">' + new Date(p.submittedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + '</span>';
+          html += '</div>';
+          html += '<span style="font-size:0.5rem;color:#fbbf24;">pending</span>';
+          html += '</div>';
+        });
+        if (pending.length > 5) html += '<div style="font-size:0.55rem;opacity:0.3;padding:0.2rem 0;">+' + (pending.length - 5) + ' more</div>';
+        el.innerHTML = html;
+      }
+
+      function renderCostSummary() {
+        var el = document.getElementById('board-cost');
+        var sessions = AgentEngine.getSessionLog ? AgentEngine.getSessionLog() : [];
+
+        var totalCost = 0, totalTokensIn = 0, totalTokensOut = 0, totalCalls = 0;
+        var perAgent = {};
+        sessions.forEach(function (s) {
+          totalCost += s.cost || 0;
+          totalTokensIn += s.inputTokens || 0;
+          totalTokensOut += s.outputTokens || 0;
+          totalCalls++;
+          var aid = s.agentId || 'unknown';
+          if (!perAgent[aid]) perAgent[aid] = { cost: 0, calls: 0 };
+          perAgent[aid].cost += s.cost || 0;
+          perAgent[aid].calls++;
+        });
+
+        var html = '<div class="board-cost-row" style="margin-bottom:0.5rem;">';
+        html += '<div class="board-cost-item"><div class="board-cost-val" style="color:#fbbf24;">$' + totalCost.toFixed(2) + '</div><div class="board-cost-label">Total Spend</div></div>';
+        html += '<div class="board-cost-item"><div class="board-cost-val" style="color:#60a5fa;">' + totalCalls + '</div><div class="board-cost-label">API Calls</div></div>';
+        html += '<div class="board-cost-item"><div class="board-cost-val" style="color:#34d399;">' + Math.round((totalTokensIn + totalTokensOut) / 1000) + 'k</div><div class="board-cost-label">Total Tokens</div></div>';
+        html += '</div>';
+
+        // Per-agent breakdown
+        var agentKeys = Object.keys(perAgent).sort(function (a, b) { return perAgent[b].cost - perAgent[a].cost; });
+        if (agentKeys.length > 0) {
+          html += '<div style="font-size:0.55rem;opacity:0.4;margin-bottom:0.25rem;">Per Agent</div>';
+          agentKeys.slice(0, 6).forEach(function (aid) {
+            var agent = AgentEngine.getAgent ? AgentEngine.getAgent(aid) : null;
+            var name = agent ? agent.name : aid;
+            var c = perAgent[aid];
+            html += '<div style="display:flex;justify-content:space-between;font-size:0.65rem;padding:0.15rem 0;border-bottom:1px solid rgba(255,255,255,0.03);">';
+            html += '<span>' + escapeHtml(name) + '</span>';
+            html += '<span style="opacity:0.5;">$' + c.cost.toFixed(3) + ' · ' + c.calls + ' calls</span>';
+            html += '</div>';
+          });
+        }
+        el.innerHTML = html || '<div class="board-empty">No cost data available.</div>';
+      }
+
+      function renderContentPipeline() {
+        var el = document.getElementById('board-content');
+        var docs = [];
+        try { docs = CompanyStore.getState('documents') || []; } catch (e) {}
+
+        var published = docs.filter(function (d) { return d.status === 'published'; }).length;
+        var draft = docs.filter(function (d) { return d.status === 'draft'; }).length;
+        var review = docs.filter(function (d) { return d.status === 'review'; }).length;
+        var promote = docs.filter(function (d) { return d.promote; }).length;
+        var total = docs.length;
+
+        if (total === 0) {
+          el.innerHTML = '<div class="board-empty">No content in pipeline.</div>';
+          return;
+        }
+
+        var html = '<div class="board-content-row">';
+        html += '<div class="board-content-pill"><div class="board-content-pill-val" style="color:#34d399;">' + published + '</div><div class="board-content-pill-label">Published</div></div>';
+        html += '<div class="board-content-pill"><div class="board-content-pill-val" style="color:#60a5fa;">' + draft + '</div><div class="board-content-pill-label">Drafts</div></div>';
+        html += '<div class="board-content-pill"><div class="board-content-pill-val" style="color:#fbbf24;">' + review + '</div><div class="board-content-pill-label">In Review</div></div>';
+        if (promote > 0) html += '<div class="board-content-pill"><div class="board-content-pill-val" style="color:#c084fc;">' + promote + '</div><div class="board-content-pill-label">Promoted</div></div>';
+        html += '</div>';
+
+        el.innerHTML = html;
       }
 
       function renderDirectiveSection(listId, badgeId, dirs) {
@@ -325,25 +544,76 @@
         lines.push('## Executive Summary');
         lines.push(_packet.execSummary);
         lines.push('');
-        lines.push('## Throughput');
-        lines.push('- Tasks Created: ' + _packet.throughput.tasksCreated);
-        lines.push('- Tasks Completed: ' + _packet.throughput.tasksCompleted);
-        lines.push('- Pending Approval: ' + _packet.throughput.pendingApprovalTasks);
+
+        // Headline stats
+        var objectives = AgentEngine.getObjectives ? AgentEngine.getObjectives() : [];
+        var tasks = AgentEngine.getTasks ? AgentEngine.getTasks() : [];
+        var doneTasks = tasks.filter(function (t) { return t.status === 'done'; });
+        var autoCompleted = doneTasks.filter(function (t) { return !t.manuallyCompleted; }).length;
+        var autonomyPct = doneTasks.length > 0 ? Math.round((autoCompleted / doneTasks.length) * 100) : 0;
+        var sessions = AgentEngine.getSessionLog ? AgentEngine.getSessionLog() : [];
+        var totalCost = 0;
+        sessions.forEach(function (s) { if (s.cost) totalCost += s.cost; });
+
+        lines.push('## Key Metrics');
+        lines.push('- Goals: ' + objectives.length);
+        lines.push('- Active Projects: ' + _packet.directives.active.length);
+        lines.push('- Tasks Created / Completed: ' + _packet.throughput.tasksCreated + ' / ' + _packet.throughput.tasksCompleted);
+        lines.push('- Autonomy: ' + autonomyPct + '%');
+        lines.push('- Total Spend: $' + totalCost.toFixed(2));
         lines.push('');
+
+        // Goals
+        if (objectives.length > 0) {
+          lines.push('## Goals (' + objectives.length + ')');
+          objectives.forEach(function (o) {
+            lines.push('- ' + o.title + ' [' + (o.status || 'active').replace(/_/g, ' ') + '] ' + (o.progressPercentage || 0) + '%');
+          });
+          lines.push('');
+        }
+
         lines.push('## Active Projects (' + _packet.directives.active.length + ')');
         _packet.directives.active.forEach(function (d) { lines.push('- ' + d.title + ' [' + d.priority + ']'); });
         lines.push('');
         lines.push('## Completed Projects (' + _packet.directives.completed.length + ')');
         _packet.directives.completed.forEach(function (d) { lines.push('- ' + d.title); });
         lines.push('');
+
+        // Team
+        var reg = AgentEngine.getRegistry ? AgentEngine.getRegistry() : null;
+        var agents = (reg && reg.agents) ? reg.agents : [];
+        if (agents.length > 0) {
+          lines.push('## Agent Team');
+          agents.forEach(function (a) {
+            var aid = a.id || a.name;
+            var done = tasks.filter(function (t) { return (t.assignee === aid || t.assignee === (a.name || '').toLowerCase()) && t.status === 'done'; }).length;
+            lines.push('- ' + a.name + ' (' + a.role + '): ' + done + ' tasks done');
+          });
+          lines.push('');
+        }
+
+        // Cost
+        lines.push('## Cost');
+        lines.push('- Total Spend: $' + totalCost.toFixed(2));
+        lines.push('- API Calls: ' + sessions.length);
+        lines.push('');
+
+        // Content
+        var docs = [];
+        try { docs = CompanyStore.getState('documents') || []; } catch (e) {}
+        if (docs.length > 0) {
+          var published = docs.filter(function (d) { return d.status === 'published'; }).length;
+          var draft = docs.filter(function (d) { return d.status === 'draft'; }).length;
+          lines.push('## Content Pipeline');
+          lines.push('- Published: ' + published + ', Drafts: ' + draft + ', Total: ' + docs.length);
+          lines.push('');
+        }
+
         lines.push('## Decisions (' + _packet.decisions.length + ')');
         _packet.decisions.forEach(function (d) { lines.push('- ' + d.title + ' → ' + d.decisionStatus); });
         lines.push('');
         lines.push('## Risks (' + _packet.risks.length + ')');
         _packet.risks.slice(0, 10).forEach(function (r) { lines.push('- [' + r.severity + '] ' + r.description); });
-        lines.push('');
-        lines.push('## KPIs');
-        _packet.kpis.forEach(function (k) { lines.push('- ' + k.name + ' (' + k.category + '): ' + k.linkedDirectives.length + ' linked projects'); });
 
         var text = lines.join('\n');
         if (navigator.clipboard) {
