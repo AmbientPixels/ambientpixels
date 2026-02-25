@@ -1514,94 +1514,62 @@
 
           heartbeatHealthEmpty.style.display = 'none';
 
-          var created = last.created || {};
-          var updated = last.updated || {};
-          var ga = last.guardrails || {};
           var actions = last.agentActions || {};
           var backlog = last.backlogPressure || {};
           var perAgent = last.perAgent || {};
 
           var recent10 = runs.slice(-10);
-          var durVals = recent10.map(function (r) { return Math.round(_safeNum(r.durationMs) / 1000); });
-          var blockVals = recent10.map(function (r) {
-            var gr = r.guardrails || {};
-            return _safeNum(gr.orphanBlocked) + _safeNum(gr.exactDupBlocked) + _safeNum(gr.fuzzyDupBlocked) + _safeNum(gr.taskCeilingBlocked) + _safeNum(gr.socialPromoGateBlocked) + _safeNum(gr.pausedProjectAutomationBlocked);
-          });
-          var taskVals = recent10.map(function (r) { return _safeNum((r.created || {}).tasks); });
-          var failVals = recent10.map(function (r) { return String(r.status || '').toLowerCase() === 'error' ? 1 : 0; });
-
-          var maxDur = Math.max.apply(null, durVals.concat([1]));
-          var maxBlocks = Math.max.apply(null, blockVals.concat([1]));
-          var maxTasks = Math.max.apply(null, taskVals.concat([1]));
+          var execVals = recent10.map(function (r) { return _safeNum((r.agentActions || {}).executed); });
+          var maxExec = Math.max.apply(null, execVals.concat([1]));
 
           var html = '';
 
-          // 2) Cycle summary cards
-          html += '<div style="font-size:0.62rem; opacity:0.55; margin-bottom:0.25rem;">Cycle summary (last run)</div>';
-          html += '<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:0.45rem; margin-bottom:0.65rem;">';
-          html += '<div style="padding:0.45rem 0.55rem; border:1px solid rgba(255,255,255,0.08); border-radius:8px;"><div style="font-size:0.58rem; opacity:0.5;">Created</div><div style="font-size:0.75rem; line-height:1.35;">Goals ' + _safeNum(created.goals) + ' · Camp ' + _safeNum(created.campaigns) + ' · Proj ' + _safeNum(created.projects) + ' · Tasks ' + _safeNum(created.tasks) + ' · Docs ' + _safeNum(created.docs) + '</div></div>';
-          html += '<div style="padding:0.45rem 0.55rem; border:1px solid rgba(255,255,255,0.08); border-radius:8px;"><div style="font-size:0.58rem; opacity:0.5;">Updated</div><div style="font-size:0.75rem; line-height:1.35;">Tasks ' + _safeNum(updated.tasks) + ' · Directives ' + _safeNum(updated.directives) + ' · Campaigns ' + _safeNum(updated.campaigns) + '</div></div>';
-          html += '<div style="padding:0.45rem 0.55rem; border:1px solid rgba(255,255,255,0.08); border-radius:8px;"><div style="font-size:0.58rem; opacity:0.5;">Auto-fixes</div><div style="font-size:0.9rem; font-weight:600;">' + _safeNum(last.autoFixes) + '</div></div>';
-          html += '<div style="padding:0.45rem 0.55rem; border:1px solid rgba(255,255,255,0.08); border-radius:8px;"><div style="font-size:0.58rem; opacity:0.5;">Agent actions</div><div style="font-size:0.75rem; line-height:1.35;">Proposed ' + _safeNum(actions.proposed) + ' · Executed ' + _safeNum(actions.executed) + ' · Blocked ' + _safeNum(actions.blocked) + ' · Escalated ' + _safeNum(actions.escalated) + '</div></div>';
+          // 1) Status row — last run + actions
+          var statusDot = uiStatus === 'green' ? '#34d399' : (uiStatus === 'yellow' ? '#fbbf24' : '#f87171');
+          html += '<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.55rem; flex-wrap:wrap;">';
+          html += '<span style="width:8px; height:8px; border-radius:50%; background:' + statusDot + '; display:inline-block;"></span>';
+          html += '<span style="font-size:0.72rem;">Last run <strong>' + (last.finishedAt ? formatTime(last.finishedAt) : 'N/A') + '</strong> <span style="opacity:0.45;">(' + ageMin + 'm ago)</span></span>';
+          html += '<span style="font-size:0.72rem; margin-left:auto;">';
+          html += '<strong>' + _safeNum(actions.executed) + '</strong> executed';
+          if (_safeNum(actions.blocked) > 0) html += ' · <span style="color:#fbbf24;">' + _safeNum(actions.blocked) + ' blocked</span>';
+          html += '</span>';
           html += '</div>';
 
-          // 3) Guardrail heatmap
-          html += '<div style="font-size:0.62rem; opacity:0.55; margin-bottom:0.25rem;">Guardrail heatmap (last run)</div>';
-          var guardItems = [
-            { key: 'orphanBlocked', label: 'Orphan blocked' },
-            { key: 'exactDupBlocked', label: 'Exact dup blocked' },
-            { key: 'fuzzyDupBlocked', label: 'Fuzzy dup blocked' },
-            { key: 'taskCeilingBlocked', label: 'Task ceiling blocked' },
-            { key: 'socialPromoGateBlocked', label: 'Social promo gate blocked' },
-            { key: 'ceoApprovalsTriggered', label: 'CEO approvals triggered' },
-            { key: 'pausedProjectAutomationBlocked', label: 'Paused project automation blocked' }
-          ];
-          html += '<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:0.35rem; margin-bottom:0.65rem;">';
-          guardItems.forEach(function (g) {
-            var val = _safeNum(ga[g.key]);
-            var bg = val >= 3 ? 'rgba(248,113,113,0.12)' : (val > 0 ? 'rgba(251,191,36,0.12)' : 'rgba(52,211,153,0.08)');
-            var border = val >= 3 ? 'rgba(248,113,113,0.35)' : (val > 0 ? 'rgba(251,191,36,0.35)' : 'rgba(52,211,153,0.25)');
-            html += '<div style="padding:0.4rem 0.5rem; border:1px solid ' + border + '; border-radius:7px; background:' + bg + '; font-size:0.66rem; display:flex; justify-content:space-between; gap:0.45rem;">'
-              + '<span style="opacity:0.8;">' + g.label + '</span><strong>' + val + '</strong></div>';
-          });
-          html += '</div>';
-
-          // 4) Agent contribution strip
-          html += '<div style="font-size:0.62rem; opacity:0.55; margin-bottom:0.25rem;">Agent contribution (last run)</div>';
-          html += '<div style="display:flex; flex-wrap:wrap; gap:0.35rem; margin-bottom:0.65rem;">';
-          Object.keys(perAgent).sort().forEach(function (aid) {
-            var a = perAgent[aid] || {};
-            var agent = AgentEngine.getAgent ? AgentEngine.getAgent(aid) : null;
-            var color = (agent && agent.color) ? agent.color : '#94a3b8';
-            html += '<div style="padding:0.4rem 0.5rem; min-width:190px; border:1px solid rgba(255,255,255,0.08); border-radius:7px; background:rgba(255,255,255,0.02);">'
-              + '<div style="font-size:0.64rem; margin-bottom:0.2rem;"><strong style="color:' + color + ';">' + escapeHtml(agent ? agent.name : aid) + '</strong></div>'
-              + '<div style="font-size:0.6rem; opacity:0.8; line-height:1.35;">att ' + _safeNum(a.actionsAttempted) + ' · exe ' + _safeNum(a.actionsExecuted) + ' · blk ' + _safeNum(a.actionsBlocked) + ' · new ' + _safeNum(a.newTasksCreated) + ' · ' + Math.round(_safeNum(a.avgLatencyMs) / 1000) + 's</div>'
-              + '</div>';
-          });
-          if (Object.keys(perAgent).length === 0) {
-            html += '<div style="font-size:0.66rem; opacity:0.5;">No per-agent activity in last run.</div>';
+          // 2) Attention alerts — only show if problems exist
+          var overdue = _safeNum(backlog.overdueTasks);
+          var blocked = _safeNum(backlog.blockedTasks);
+          if (overdue > 0 || blocked > 0) {
+            html += '<div style="display:flex; gap:0.4rem; margin-bottom:0.55rem; flex-wrap:wrap;">';
+            if (overdue > 0) {
+              html += '<div style="padding:0.3rem 0.55rem; border-radius:6px; background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); font-size:0.68rem; color:#f87171;">'
+                + '<i class="fas fa-clock" style="margin-right:0.3rem;"></i>' + overdue + ' overdue</div>';
+            }
+            if (blocked > 0) {
+              html += '<div style="padding:0.3rem 0.55rem; border-radius:6px; background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.3); font-size:0.68rem; color:#fbbf24;">'
+                + '<i class="fas fa-ban" style="margin-right:0.3rem;"></i>' + blocked + ' blocked</div>';
+            }
+            html += '</div>';
           }
-          html += '</div>';
 
-          // 5) Backlog pressure
-          html += '<div style="font-size:0.62rem; opacity:0.55; margin-bottom:0.25rem;">Backlog pressure</div>';
-          html += '<div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:0.35rem; margin-bottom:0.65rem;">';
-          html += '<div style="padding:0.4rem 0.5rem; border:1px solid rgba(255,255,255,0.08); border-radius:7px;">Active tasks: <strong>' + _safeNum(backlog.activeTasks) + '/' + _safeNum(backlog.activeTasksCap) + '</strong></div>';
-          html += '<div style="padding:0.4rem 0.5rem; border:1px solid rgba(255,255,255,0.08); border-radius:7px;">New tasks: <strong>' + _safeNum(backlog.newTasksThisCycle) + '/' + _safeNum(backlog.newTasksCap) + '</strong></div>';
-          html += '<div style="padding:0.4rem 0.5rem; border:1px solid rgba(255,255,255,0.08); border-radius:7px;">Overdue: <strong>' + _safeNum(backlog.overdueTasks) + '</strong></div>';
-          html += '<div style="padding:0.4rem 0.5rem; border:1px solid rgba(255,255,255,0.08); border-radius:7px;">Blocked: <strong>' + _safeNum(backlog.blockedTasks) + '</strong></div>';
-          html += '<div style="padding:0.4rem 0.5rem; border:1px solid rgba(255,255,255,0.08); border-radius:7px;">Oldest active age: <strong>' + _safeNum(backlog.oldestActiveTaskAgeHours) + 'h</strong></div>';
-          html += '<div style="padding:0.4rem 0.5rem; border:1px solid rgba(255,255,255,0.08); border-radius:7px;">Last run: <strong>' + (last.finishedAt ? formatTime(last.finishedAt) : 'N/A') + '</strong> (' + ageMin + 'm ago)</div>';
-          html += '</div>';
+          // 3) Compact agent strip — name + executed count
+          var agentKeys = Object.keys(perAgent).sort();
+          if (agentKeys.length > 0) {
+            html += '<div style="display:flex; flex-wrap:wrap; gap:0.3rem; margin-bottom:0.55rem;">';
+            agentKeys.forEach(function (aid) {
+              var a = perAgent[aid] || {};
+              var agent = AgentEngine.getAgent ? AgentEngine.getAgent(aid) : null;
+              var color = (agent && agent.color) ? agent.color : '#94a3b8';
+              var exe = _safeNum(a.actionsExecuted);
+              var opacity = exe > 0 ? '1' : '0.45';
+              html += '<div style="padding:0.25rem 0.45rem; border:1px solid rgba(255,255,255,0.08); border-radius:6px; font-size:0.64rem; opacity:' + opacity + ';">'
+                + '<span style="color:' + color + '; font-weight:600;">' + escapeHtml(agent ? agent.name : aid) + '</span>'
+                + ' <span style="opacity:0.7;">' + exe + '</span></div>';
+            });
+            html += '</div>';
+          }
 
-          // 6) Timeline
-          html += '<div style="font-size:0.62rem; opacity:0.55; margin-bottom:0.25rem;">Timeline (last 10 heartbeats)</div>';
-          html += '<div style="display:grid; grid-template-columns:1fr; gap:0.2rem; font-size:0.62rem;">';
-          html += '<div>Duration: ' + _spark(durVals, maxDur, '#60a5fa') + ' <span style="opacity:0.45;">(s)</span></div>';
-          html += '<div>Blocks: ' + _spark(blockVals, maxBlocks, '#fbbf24') + '</div>';
-          html += '<div>Created tasks: ' + _spark(taskVals, maxTasks, '#34d399') + '</div>';
-          html += '<div>Failures: ' + _spark(failVals, 1, '#f87171') + '</div>';
-          html += '</div>';
+          // 4) Action trend sparkline (last 10 heartbeats)
+          html += '<div style="font-size:0.6rem; opacity:0.5;">Actions trend ' + _spark(execVals, maxExec, '#4ecdc4') + '</div>';
 
           panelHeartbeatHealth.innerHTML = html;
         }).catch(function (err) {
