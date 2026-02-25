@@ -2469,6 +2469,60 @@ var AgentEngine = (function () {
     });
   }
 
+  // ── Campaign Progress ──
+  function getCampaignProgress(campaignId) {
+    var tasks = getTasks();
+    var linked = tasks.filter(function (t) { return t.campaign_id === campaignId; });
+    var total = linked.length;
+    if (total === 0) return { total: 0, done: 0, inProgress: 0, review: 0, todo: 0, backlog: 0, blocked: 0, overdue: 0, pct: 0, donePct: 0, signal: 'no_tasks', agents: {}, tasks: linked, staleDays: 0 };
+
+    var done = 0, inProgress = 0, review = 0, todo = 0, backlog = 0, blocked = 0, overdue = 0;
+    var agents = {};
+    var now = new Date();
+    var latestUpdate = null;
+
+    linked.forEach(function (t) {
+      var s = t.status || 'backlog';
+      if (s === 'done') done++;
+      else if (s === 'in-progress') inProgress++;
+      else if (s === 'review') review++;
+      else if (s === 'todo') todo++;
+      else backlog++;
+      if (t.blocked) blocked++;
+      if (t.dueDate && new Date(t.dueDate) < now && s !== 'done') overdue++;
+
+      var agent = t.assignee || 'unassigned';
+      if (!agents[agent]) agents[agent] = { total: 0, done: 0, active: 0 };
+      agents[agent].total++;
+      if (s === 'done') agents[agent].done++;
+      else agents[agent].active++;
+
+      var updated = t.updatedAt || t.createdAt;
+      if (updated && (!latestUpdate || updated > latestUpdate)) latestUpdate = updated;
+    });
+
+    var weightedDone = (done * 1.0) + (review * 0.75) + (inProgress * 0.5) + (todo * 0.25);
+    var pct = total > 0 ? Math.round((weightedDone / total) * 100) : 0;
+    var donePct = total > 0 ? Math.round((done / total) * 100) : 0;
+    var staleDays = latestUpdate ? Math.floor((now - new Date(latestUpdate)) / 86400000) : 999;
+
+    var signal = 'on_track';
+    if (blocked > 0) signal = 'blocked';
+    else if (overdue > 0) signal = 'at_risk';
+    else if (staleDays >= 3 && donePct < 100) signal = 'stale';
+    else if (donePct === 100) signal = 'complete';
+    else if (inProgress === 0 && review === 0 && done === 0 && todo === 0) signal = 'not_started';
+
+    return { total: total, done: done, inProgress: inProgress, review: review, todo: todo, backlog: backlog, blocked: blocked, overdue: overdue, pct: pct, donePct: donePct, signal: signal, agents: agents, tasks: linked, staleDays: staleDays };
+  }
+
+  function getAllCampaignProgress() {
+    var campaigns = getCampaigns();
+    return campaigns.filter(function (c) { return c && !c.deletedAt; }).map(function (c) {
+      return { campaign: c, progress: getCampaignProgress(c.id) };
+    });
+  }
+
   // ── Governance: Objectives ──
   var OBJECTIVES_KEY = 'ap_objectives';
   function _normalizeObjectiveDirectives(obj) {
@@ -3665,6 +3719,8 @@ var AgentEngine = (function () {
     deleteDirective: deleteDirective,
     getDirectiveProgress: getDirectiveProgress,
     getAllDirectiveProgress: getAllDirectiveProgress,
+    getCampaignProgress: getCampaignProgress,
+    getAllCampaignProgress: getAllCampaignProgress,
     getObjectives: getObjectives,
     addObjective: addObjective,
     updateObjective: updateObjective,

@@ -947,6 +947,68 @@ module.exports = async function (context) {
       context.log('[Heartbeat] Pushed updated objectives after goal→project auto-creation');
     }
 
+    // ── Campaign → auto-create Project for campaigns with no linked project ──
+    for (const _cmpObj of campaigns) {
+      if (!_cmpObj || !_cmpObj.id) continue;
+      if (_cmpObj.deletedAt) continue;
+      const _cmpStatus = String(_cmpObj.status || '').toLowerCase();
+      if (_cmpStatus !== 'active') continue;
+
+      // Check if any directive already references this campaign
+      const _cmpHasProject = directives.some(function (d) {
+        return d && !d.deletedAt && d.campaign_id === _cmpObj.id &&
+          String(d.status || '').toLowerCase() !== 'canceled';
+      });
+      if (_cmpHasProject) continue;
+
+      const _cmpDirId = 'dir-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6);
+      const _cmpDescBase = String(_cmpObj.description || '').trim();
+      const _cmpContextLine = await _commentForEntity('project', {
+        agentId: 'nova',
+        title: _cmpObj.title || 'Untitled Project',
+        goalTitle: _cmpObj.objective_id ? (objectives.find(function (o) { return o && o.id === _cmpObj.objective_id; }) || {}).title || _cmpObj.objective_id : '',
+        goalId: _cmpObj.objective_id || '',
+        seedText: _cmpDescBase,
+        fallbackText: 'I created this project from the campaign "' + (_cmpObj.title || _cmpObj.id) + '" so agents have a clear execution container.'
+      });
+      const _cmpNewDir = {
+        id: _cmpDirId,
+        title: _cmpObj.title || 'Untitled Project',
+        description: _cmpContextLine,
+        status: 'active',
+        priority: _cmpObj.priority || 'medium',
+        objective_id: _cmpObj.objective_id || null,
+        campaign_id: _cmpObj.id,
+        createdDate: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        provenance: 'Auto: Campaign → Project'
+      };
+      directives.push(_cmpNewDir);
+      createdProjectCount++;
+      _directivesTouched.add(_cmpDirId);
+      _createdDirectiveIds.add(_cmpDirId);
+      directivesCampaignChanged = true;
+
+      // Link project to goal if campaign has one
+      if (_cmpObj.objective_id) {
+        const _cmpGoal = objectives.find(function (o) { return o && o.id === _cmpObj.objective_id; });
+        if (_cmpGoal) {
+          if (!Array.isArray(_cmpGoal.linkedDirectives)) _cmpGoal.linkedDirectives = [];
+          _cmpGoal.linkedDirectives.push(_cmpDirId);
+          objectivesChanged = true;
+        }
+      }
+
+      context.log('[Heartbeat] Auto-created Project "' + _cmpNewDir.title + '" (' + _cmpDirId + ') for Campaign "' + (_cmpObj.title || _cmpObj.id) + '" (' + _cmpObj.id + ')');
+      await logEvent('campaign-auto-project', null, 'Auto-created project for campaign', runId, {
+        runId, campaignId: _cmpObj.id, campaignTitle: _cmpObj.title, directiveId: _cmpDirId, directiveTitle: _cmpNewDir.title
+      });
+    }
+    if (objectivesChanged) {
+      await storage.setState('objectives', objectives);
+      context.log('[Heartbeat] Pushed updated objectives after campaign→project auto-creation');
+    }
+
     for (const d of directives) {
       if (!d) continue;
       normalizeCampaignRef(d);
