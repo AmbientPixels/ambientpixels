@@ -3165,7 +3165,28 @@ Write the full deliverable first, then the structured JSON block.`;
             context.log('[Heartbeat]', agentId, 'BLOCKED execute-task on', action.taskId, '— task already in', _exTask.status);
             continue;
           }
-          const _hasDeliverable = _exTask.comments && _exTask.comments.some(c => c.type === 'deliverable');
+          // CONVERGENCE GUARD: if 3+ deliverables already exist, the task is looping — block and escalate
+          const _deliverableCount = (_exTask.comments || []).filter(c => c.type === 'deliverable').length;
+          if (_deliverableCount >= 3) {
+            context.log('[Heartbeat]', agentId, 'CONVERGENCE BLOCKED execute-task on', action.taskId,
+              '— task has', _deliverableCount, 'deliverables already (revision loop detected). Escalating to CEO.');
+            result.taskUpdates.push({
+              action: 'comment',
+              taskId: action.taskId,
+              comment: '[SYSTEM] Revision loop detected: ' + _deliverableCount + ' deliverables on this task without convergence. Task needs CEO review to break the cycle — either approve the latest draft, provide specific direction, or close the task.',
+              agentId: 'system'
+            });
+            // Move to review so CEO sees it
+            if (_exTask.status !== 'review') {
+              result.taskUpdates.push({
+                action: 'status',
+                taskId: action.taskId,
+                newStatus: 'review'
+              });
+            }
+            continue;
+          }
+          const _hasDeliverable = _deliverableCount > 0;
           if (_hasDeliverable) {
             context.log('[Heartbeat]', agentId, 'BLOCKED execute-task on', action.taskId, '— task already has a deliverable. Use review-task or comment-task instead.');
             continue;
@@ -5571,7 +5592,7 @@ Mapping rules:
 
 Role-specific guidance:
 - Quill: validate allowed update keys before emitting taskUpdates; if any gate risk exists, prefer proposals over taskUpdates.
-- Scribe: docs/content changes should be proposals unless objective_id is explicit; keep outputs bounded and use observations for brief notes only.
+- Scribe: docs/content changes should be proposals unless objective_id is explicit; keep outputs bounded and use observations for brief notes only. When feedback is given on a deliverable, REVISE the existing draft — do NOT produce an entirely new document. Address each feedback point specifically and preserve sections that were not flagged.
 - Echo: never execute external actions directly; use proposals only for social/publishing work. Provide max 2-3 variants and ensure each proposal includes acceptanceCriteria and evidence.runId.
 
 Example payload:
@@ -6647,6 +6668,32 @@ function buildExecutePrompt(agent, task, workspaceFiles, costIntel, siteIntel, s
     .map(c => '- [' + (c.type || 'comment') + ' by ' + (c.author || 'unknown') + '] ' + c.text.substring(0, 200))
     .join('\n') || '(none)';
 
+  // Revision-awareness: count prior deliverables and feedback to prevent re-draft loops
+  const _deliverableComments = (task.comments || []).filter(c => c.type === 'deliverable');
+  const _feedbackComments = (task.comments || []).filter(c =>
+    c.type === 'review' || c.type === 'feedback' ||
+    (c.text && /please\s+(incorporate|add|revise|update|fix|address|action)/i.test(c.text))
+  );
+  const _revisionCycle = _deliverableComments.length;
+  let _revisionBlock = '';
+  if (_revisionCycle >= 1 && _feedbackComments.length > 0) {
+    const latestFeedback = _feedbackComments.slice(-3).map(c =>
+      '- ' + (c.author || 'unknown') + ': ' + (c.text || '').substring(0, 300)
+    ).join('\n');
+    _revisionBlock = `
+⚠️ REVISION MODE (cycle ${_revisionCycle + 1}) — This task already has ${_revisionCycle} prior deliverable(s) and ${_feedbackComments.length} feedback comment(s).
+DO NOT write a new document from scratch. Instead:
+1. Start from your most recent deliverable
+2. Address EACH specific feedback point listed below
+3. Mark addressed items with [ADDRESSED] in your revision notes
+4. Only change sections that were flagged — preserve everything else
+
+FEEDBACK TO ADDRESS:
+${latestFeedback}
+
+If you cannot address a feedback point, explain why in a brief note. Do NOT re-draft the entire document.`;
+  }
+
   const todayStr = new Date().toISOString().split('T')[0];
   const eDW = agent._doctrineWeight != null ? agent._doctrineWeight : 0.4;
   const execDoctrine = (agent.doctrine && eDW > 0) ? `
@@ -6668,6 +6715,7 @@ STATUS: ${task.status}
 
 EXISTING COMMENTS/HISTORY:
 ${existingComments}
+${_revisionBlock}
 ${workspaceFiles.length > 0 ? '\nWORKSPACE FILES (actual source code from the AmbientPixels repo — review these, do NOT roleplay):\n' + workspaceFiles.map(f => '--- ' + f.path + ' ---\n' + f.content).join('\n\n') + '\n' : ''}${costIntel && costIntel.gemini && costIntel.gemini.totalCalls > 0 && agent.name === 'Cipher' ? '\n💰 REAL COST DATA (30-day window — use these numbers, do NOT fabricate financial data):\nGemini API — Total: $' + costIntel.gemini.totalCost.toFixed(4) + ' | Calls: ' + costIntel.gemini.totalCalls + ' | Tokens: ' + costIntel.gemini.totalTokens.toLocaleString() + '\nAvg daily: $' + (costIntel.gemini.totalCost / Math.max(Object.keys(costIntel.gemini.byDay || {}).length, 1)).toFixed(4) + '/day | Projected monthly: $' + ((costIntel.gemini.totalCost / Math.max(Object.keys(costIntel.gemini.byDay || {}).length, 1)) * 30).toFixed(2) + '\nBy Agent: ' + Object.entries(costIntel.gemini.byAgent || {}).sort((a, b) => b[1].cost - a[1].cost).slice(0, 5).map(([n, d]) => n + ': $' + d.cost.toFixed(4) + ' (' + d.calls + ' calls)').join(', ') + '\nBy Service: ' + Object.entries(costIntel.gemini.byCaller || {}).sort((a, b) => b[1].cost - a[1].cost).slice(0, 5).map(([n, d]) => n + ': $' + d.cost.toFixed(4)).join(', ') + '\n' : ''}${_buildSiteIntelSection(agent, task, siteIntel)}${_buildSocialIntelExecSection(agent, task, socialIntel)}${_buildExecContextBlock(agent, task, execContext)}
 Based on your role as ${agent.role}, produce the appropriate deliverable for this task. Examples of what you should produce:
 ${agent.role === 'CEO' ? '- Strategic analysis, priority decisions, team directives, product direction memos' : ''}${agent.role === 'CFO' ? '- Budget reports, cost analyses, spending recommendations, ROI assessments' : ''}${agent.role === 'Design & QC' ? '- Design reviews, UI audit notes, accessibility recommendations, UX improvement plans' : ''}${agent.role === 'DevOps' ? '- Deployment plans, infrastructure audits, security checklists, performance reports' : ''}${agent.role === 'Marketing' ? '- Content drafts, social media copy, campaign briefs, brand messaging guides' : ''}${agent.name === 'Scribe' ? '- Longform drafts, product briefs, blog posts, documentation, social threads' : ''}${agent.name === 'Quill' ? '- Editing feedback, tone corrections, brand voice enforcement, CTA improvements' : ''}${agent.name === 'Scout' ? '- Market research briefs, competitive intelligence reports, trend analyses, strategic research, business benchmarks. Always include a ## Sources section with cited URLs.' : ''}
