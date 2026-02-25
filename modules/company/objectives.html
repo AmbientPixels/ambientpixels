@@ -95,6 +95,7 @@
       </div>
       <div style="padding:0.5rem 0;">
         <input type="text" id="obj-title" placeholder="Goal title..." style="width:100%; padding:0.5rem 0.7rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.8rem; margin-bottom:0.5rem;" />
+        <textarea id="obj-desc" placeholder="Describe the goal..." style="width:100%; padding:0.5rem 0.7rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.8rem; font-family:inherit; margin-bottom:0.5rem; resize:vertical; min-height:60px;"></textarea>
         <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
           <select id="obj-quarter" style="padding:0.35rem 0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.7rem;">
             <option value="Q1">Q1</option>
@@ -467,8 +468,10 @@
         if (!title) return;
 
         var selectedCampaigns = Array.from(_createCmpState.selected);
+        var descInput = document.getElementById('obj-desc');
         AgentEngine.addObjective({
           title: title,
+          description: (descInput.value || '').trim(),
           quarter: quarterSelect.value,
           year: parseInt(yearInput.value, 10),
           linkedCampaigns: selectedCampaigns
@@ -480,6 +483,7 @@
         }
 
         titleInput.value = '';
+        descInput.value = '';
         _createCmpState.selected = new Set();
         createWidget.refresh();
         renderObjectives();
