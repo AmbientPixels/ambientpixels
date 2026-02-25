@@ -205,9 +205,21 @@
 
     /* Light theme overrides */
     [data-theme="light"] .stu-card .stu-icon { color: var(--stu-accent, #7c3aed); }
-    [data-theme="light"] .stu-card { border-color: #e2e8f0; }
-    [data-theme="light"] .stu-card:hover { border-color: #cbd5e1; }
-    [data-theme="light"] .stu-flow-step { border-color: #e2e8f0; }
+    [data-theme="light"] .stu-card {
+      border-left-color: #e2e8f0;
+      border-right-color: #e2e8f0;
+      border-bottom-color: #e2e8f0;
+    }
+    [data-theme="light"] .stu-card:hover {
+      border-left-color: #cbd5e1;
+      border-right-color: #cbd5e1;
+      border-bottom-color: #cbd5e1;
+    }
+    [data-theme="light"] .stu-flow-step {
+      border-left-color: #e2e8f0;
+      border-right-color: #e2e8f0;
+      border-bottom-color: #e2e8f0;
+    }
     [data-theme="light"] .stu-principle { border-left-color: var(--prin-accent, #7c3aed); }
     [data-theme="light"] .stu-founder { border-color: #e2e8f0; }
     [data-theme="light"] .stu-founder .stu-btn {
