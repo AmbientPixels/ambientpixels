@@ -154,16 +154,17 @@
       align-items: flex-start;
       gap: 0;
       justify-content: center;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       margin: 1.5rem 0;
     }
     .pipeline-step {
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 1rem 0.6rem;
-      min-width: 120px;
+      padding: 1rem 0.4rem;
+      min-width: 0;
       max-width: 140px;
+      flex: 1;
       text-align: center;
       position: relative;
     }
@@ -566,6 +567,8 @@
       .demo-section h2 { font-size: 1.3rem; }
       .flow-strip { flex-direction: column; }
       .flow-arrow { transform: rotate(90deg); }
+      .pipeline-flow { flex-wrap: wrap; }
+      .pipeline-step { min-width: 110px; }
       .problem-compare { grid-template-columns: 1fr; }
       .problem-compare-col--bad { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); }
       .logic-cascade { flex-direction: column; align-items: center; }
@@ -591,7 +594,7 @@
   <section class="hero-base" data-hero="infrastructure">
     <div class="hero-base-layer"></div>
     <div class="hero-base-content" style="text-align:center;">
-      <div class="gridos-hero-badge"><i class="fas fa-server"></i> GridOS v2.3</div>
+      <div class="gridos-hero-badge"><i class="fas fa-server"></i> GridOS v1.0</div>
       <h1 style="max-width:900px;margin:0 auto;">The Autonomous Executive Layer <span style="display:inline;">for AI-Run Companies.</span></h1>
       <p style="max-width:640px;margin:0.8rem auto 0;font-size:1.1rem;line-height:1.7;">Set the strategy. GridOS handles triage, delegation, execution, and delivery — with full governance at every step.</p>
       <div class="hq-trust-line" style="margin-top:1.4rem;">
