@@ -26,15 +26,6 @@
       ]
     },
     {
-      id: 'inbound',
-      label: 'Inbound',
-      icon: 'fa-satellite-dish',
-      overview: BASE + 'inbound.html',
-      links: [
-        { href: BASE + 'inbound.html', label: 'Inbound', icon: 'fa-satellite-dish', match: ['inbound.html'] }
-      ]
-    },
-    {
       id: 'work',
       label: 'Work',
       icon: 'fa-list-check',
@@ -44,6 +35,15 @@
         { href: BASE + 'tasks.html', label: 'Tasks', icon: 'fa-tasks', match: ['tasks.html'] },
         { href: BASE + 'actions.html', label: 'Actions', icon: 'fa-bolt', match: ['actions.html'] },
         { href: BASE + 'documents.html', label: 'Docs', icon: 'fa-folder-open', match: ['documents.html'] }
+      ]
+    },
+    {
+      id: 'inbound',
+      label: 'Inbound',
+      icon: 'fa-satellite-dish',
+      overview: BASE + 'inbound.html',
+      links: [
+        { href: BASE + 'inbound.html', label: 'Inbound', icon: 'fa-satellite-dish', match: ['inbound.html'] }
       ]
     },
     {
