@@ -1,5 +1,13 @@
 /* services.css -- Services Page (Pillar Layout) */
 
+/* -- Pillar accent colors (matches homepage) -- */
+:root {
+  --svc-ai: #4ecdc4;
+  --svc-creative: #ff6b9d;
+  --svc-infra: #ff8c00;
+  --svc-labs: #8a2be2;
+}
+
 /* -- Hero (background image variant) -- */
 .svc-hero {
   position: relative;
@@ -89,17 +97,32 @@
 /* -- Pillar -- */
 .svc-pillar {
   margin-bottom: 3rem;
+  --pillar-accent: var(--nv-accent);
 }
+.svc-pillar--ai { --pillar-accent: var(--svc-ai); }
+.svc-pillar--creative { --pillar-accent: var(--svc-creative); }
+.svc-pillar--infra { --pillar-accent: var(--svc-infra); }
 
 .svc-pillar-header {
   margin-bottom: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }
 
 .svc-pillar-header h3 {
-  margin: 0 0 0.25rem;
+  margin: 0;
   font-size: 1.18rem;
   font-weight: 700;
   color: var(--nv-text);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.svc-pillar-header h3 i {
+  font-size: 1rem;
+  color: var(--pillar-accent);
 }
 
 .svc-pillar-header p {
@@ -117,14 +140,17 @@
 
 .svc-card {
   border: 1px solid var(--nv-border);
+  border-top: 2px solid var(--pillar-accent, var(--nv-border));
   border-radius: 10px;
   background: var(--nv-card-bg);
   padding: 1.1rem 1.2rem;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .svc-card:hover {
   border-color: var(--nv-border-hover);
+  border-top-color: var(--pillar-accent, var(--nv-border-hover));
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
 }
 
 .svc-card h4 {
@@ -132,6 +158,15 @@
   font-size: 0.95rem;
   font-weight: 600;
   color: var(--nv-text);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.svc-card h4 i {
+  font-size: 0.85rem;
+  color: var(--pillar-accent, var(--nv-accent));
+  opacity: 0.8;
 }
 
 .svc-card p {
@@ -212,6 +247,7 @@
 /* -- Labs Section -- */
 .svc-labs {
   margin-top: 1rem;
+  --pillar-accent: var(--svc-labs);
 }
 
 .svc-labs-header {
