@@ -87,6 +87,13 @@
       position: absolute; left: 0.6rem; top: 50%; transform: translateY(-50%);
       font-size: 0.6rem; opacity: 0.25; pointer-events: none;
     }
+    .tm-search-clear {
+      position: absolute; right: 0.5rem; top: 50%; transform: translateY(-50%);
+      font-size: 0.65rem; opacity: 0; cursor: pointer; color: rgba(255,255,255,0.4);
+      transition: opacity 0.15s; pointer-events: none;
+    }
+    .tm-search-clear.visible { opacity: 1; pointer-events: auto; }
+    .tm-search-clear:hover { color: #f87171; }
 
     /* Task Lifecycle vB stepper */
     #taskLifecycleSection {
@@ -302,6 +309,7 @@
       <div class="tm-search-wrap">
         <i class="fas fa-search tm-search-icon"></i>
         <input type="text" id="tm-search" placeholder="Search tasks..." />
+        <i class="fas fa-times tm-search-clear" id="tm-search-clear" title="Clear search"></i>
       </div>
       <div class="tm-view-toggle">
         <button class="tm-view-btn active" id="view-board" title="Board"><i class="fas fa-columns"></i></button>
@@ -1610,7 +1618,17 @@
 
       // Text search with debounce
       var _searchTimer;
+      document.getElementById('tm-search-clear').addEventListener('click', function () {
+        var input = document.getElementById('tm-search');
+        input.value = '';
+        this.classList.remove('visible');
+        input.dispatchEvent(new Event('input'));
+        input.focus();
+      });
       document.getElementById('tm-search').addEventListener('input', function () {
+        var clearBtn = document.getElementById('tm-search-clear');
+        if (this.value.length > 0) clearBtn.classList.add('visible');
+        else clearBtn.classList.remove('visible');
         var self = this;
         clearTimeout(_searchTimer);
         _searchTimer = setTimeout(function () {
