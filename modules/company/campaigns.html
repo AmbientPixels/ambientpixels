@@ -51,17 +51,31 @@
       width:100%; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); color:inherit; border-radius:6px;
       padding:0.4rem 0.5rem; font-size:0.68rem; margin-bottom:0.35rem;
     }
-    .cmp-card.is-editing { border-color:rgba(138,43,226,0.5); background:rgba(138,43,226,0.04); box-shadow:0 0 12px rgba(138,43,226,0.15); }
-    .cmp-inline-editor { overflow:hidden; max-height:0; opacity:0; transition:max-height 0.3s ease, opacity 0.25s ease, margin 0.3s ease; margin-bottom:0; }
-    .cmp-inline-editor.is-open { max-height:320px; opacity:1; margin-bottom:0.45rem; }
-    .cmp-inline-editor-inner { border:1px solid rgba(138,43,226,0.25); background:rgba(138,43,226,0.05); border-radius:8px; padding:0.65rem 0.7rem; }
-    .cmp-inline-editor-inner h4 { margin:0 0 0.4rem; font-size:0.72rem; font-weight:600; color:#c084fc; display:flex; align-items:center; gap:0.3rem; }
-    .cmp-inline-editor-inner input, .cmp-inline-editor-inner textarea { width:100%; margin-bottom:0.4rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.12); color:inherit; border-radius:6px; padding:0.42rem 0.55rem; font-size:0.72rem; box-sizing:border-box; }
-    .cmp-inline-editor-inner textarea { min-height:68px; resize:vertical; }
-    .cmp-inline-editor-actions { display:flex; justify-content:flex-end; gap:0.35rem; }
-    .cmp-inline-editor-actions button { font-size:0.62rem; padding:0.25rem 0.6rem; border-radius:5px; cursor:pointer; }
-    .cmp-inline-editor-actions .cmp-ie-cancel { border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.05); color:inherit; }
-    .cmp-inline-editor-actions .cmp-ie-save { border:1px solid rgba(138,43,226,0.32); background:rgba(138,43,226,0.15); color:#c084fc; }
+    .cmp-modal-backdrop {
+      position: fixed; inset: 0; background: rgba(0, 0, 0, 0.55);
+      display: none; align-items: center; justify-content: center; z-index: 1200;
+      padding: 1rem;
+    }
+    .cmp-modal-backdrop.visible { display: flex; }
+    .cmp-modal {
+      width: min(560px, 100%);
+      border: 1px solid rgba(138,43,226,0.35);
+      border-radius: 10px;
+      background: #0b1422;
+      padding: 0.9rem;
+      box-shadow: 0 18px 50px rgba(0,0,0,0.45);
+    }
+    .cmp-modal h3 { margin: 0 0 0.65rem; font-size: 0.82rem; color:#c084fc; }
+    .cmp-modal label { display:block; font-size:0.66rem; opacity:0.72; margin-bottom:0.25rem; }
+    .cmp-modal input, .cmp-modal textarea, .cmp-modal select {
+      width:100%; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.12);
+      color:inherit; border-radius:6px; padding:0.45rem 0.55rem; font-size:0.72rem; margin-bottom:0.45rem; box-sizing:border-box;
+    }
+    .cmp-modal textarea { min-height:76px; resize:vertical; }
+    .cmp-modal-actions { display:flex; justify-content:flex-end; gap:0.35rem; margin-top:0.35rem; }
+    .cmp-modal-actions button { font-size:0.62rem; padding:0.25rem 0.62rem; border-radius:5px; cursor:pointer; }
+    .cmp-modal-cancel { border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.05); color:inherit; }
+    .cmp-modal-save { border:1px solid rgba(138,43,226,0.32); background:rgba(138,43,226,0.15); color:#c084fc; }
   </style>
 </head>
 <body style="background:#071019" data-theme="dark">
@@ -100,6 +114,31 @@
     </div>
   </main>
 
+  <div class="cmp-modal-backdrop" id="cmp-edit-modal">
+    <div class="cmp-modal">
+      <h3>Edit Campaign</h3>
+      <label for="cmp-edit-title">Title</label>
+      <input type="text" id="cmp-edit-title" />
+
+      <label for="cmp-edit-desc">Description</label>
+      <textarea id="cmp-edit-desc"></textarea>
+
+      <label for="cmp-edit-objective">Linked Goal</label>
+      <select id="cmp-edit-objective"></select>
+
+      <label for="cmp-edit-status">Status</label>
+      <select id="cmp-edit-status">
+        <option value="active">Active</option>
+        <option value="archived">Archived</option>
+      </select>
+
+      <div class="cmp-modal-actions">
+        <button class="cmp-modal-cancel" id="cmp-edit-cancel">Cancel</button>
+        <button class="cmp-modal-save" id="cmp-edit-save">Save</button>
+      </div>
+    </div>
+  </div>
+
   <script src="/js/company-store.js"></script>
   <script src="/js/agent-engine.js"></script>
   <script src="/modules/company/js/quick-chat.js"></script>
@@ -118,6 +157,13 @@
       var titleEl = document.getElementById('cmp-title');
       var descEl = document.getElementById('cmp-desc');
       var objectiveEl = document.getElementById('cmp-objective');
+      var editModal = document.getElementById('cmp-edit-modal');
+      var editTitleEl = document.getElementById('cmp-edit-title');
+      var editDescEl = document.getElementById('cmp-edit-desc');
+      var editObjectiveEl = document.getElementById('cmp-edit-objective');
+      var editStatusEl = document.getElementById('cmp-edit-status');
+      var editCancelBtn = document.getElementById('cmp-edit-cancel');
+      var editSaveBtn = document.getElementById('cmp-edit-save');
 
 
       function esc(str) {
@@ -266,7 +312,7 @@
         var eb = document.getElementById('cmp-edit-btn');
         if (eb) eb.addEventListener('click', function (e) {
           e.stopPropagation();
-          openInlineEditor(c.id);
+          openEditModal(c.id);
         });
 
         var ab = document.getElementById('cmp-archive-btn');
@@ -314,78 +360,32 @@
         });
       }
 
-      function closeInlineEditor() {
-        var existing = document.querySelector('.cmp-inline-editor');
-        if (existing) {
-          existing.classList.remove('is-open');
-          var card = document.querySelector('.cmp-card.is-editing');
-          if (card) card.classList.remove('is-editing');
-          setTimeout(function () { if (existing.parentNode) existing.parentNode.removeChild(existing); }, 300);
-        }
+      function closeEditModal() {
+        editModal.classList.remove('visible');
         editingCampaignId = null;
       }
 
-      function openInlineEditor(campaignId) {
-        // Close any existing editor first
-        var wasEditing = editingCampaignId;
-        closeInlineEditor();
-        // If clicking the same campaign, just toggle off
-        if (wasEditing === campaignId) return;
+      function populateModalObjectiveSelect(selectedId) {
+        var opts = '<option value="">No goal</option>';
+        var objectives = typeof AgentEngine.getObjectives === 'function' ? AgentEngine.getObjectives() : [];
+        objectives.forEach(function (o) {
+          if (!o || !o.id || o.status === 'canceled') return;
+          var sel = selectedId && selectedId === o.id ? ' selected' : '';
+          opts += '<option value="' + esc(o.id) + '"' + sel + '>' + esc(o.title || o.id) + '</option>';
+        });
+        editObjectiveEl.innerHTML = opts;
+      }
 
+      function openEditModal(campaignId) {
         var c = AgentEngine.getCampaigns().find(function (x) { return x.id === campaignId && !x.deletedAt; });
         if (!c) return;
         editingCampaignId = campaignId;
-
-        // Find the card element and add .is-editing
-        var cardEl = listEl.querySelector('.cmp-card[data-id="' + campaignId + '"]');
-        if (!cardEl) return;
-        cardEl.classList.add('is-editing');
-
-        // Build inline editor DOM
-        var editorEl = document.createElement('div');
-        editorEl.className = 'cmp-inline-editor';
-        editorEl.innerHTML = '<div class="cmp-inline-editor-inner">'
-          + '<h4><i class="fas fa-pen" style="font-size:0.6rem;"></i> Edit Campaign</h4>'
-          + '<input type="text" class="cmp-ie-title" value="' + esc(c.title || '') + '" placeholder="Campaign title..." />'
-          + '<textarea class="cmp-ie-desc" placeholder="Description (optional)...">' + esc(c.description || '') + '</textarea>'
-          + '<div class="cmp-inline-editor-actions">'
-          + '<button class="cmp-ie-cancel">Cancel</button>'
-          + '<button class="cmp-ie-save"><i class="fas fa-check" style="margin-right:3px;"></i>Save</button>'
-          + '</div></div>';
-
-        // Insert after the card
-        cardEl.insertAdjacentElement('afterend', editorEl);
-
-        // Trigger expand animation on next frame
-        requestAnimationFrame(function () {
-          editorEl.classList.add('is-open');
-        });
-
-        // Scroll into view if needed
-        setTimeout(function () {
-          editorEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }, 50);
-
-        // Wire cancel
-        editorEl.querySelector('.cmp-ie-cancel').addEventListener('click', function (e) {
-          e.stopPropagation();
-          closeInlineEditor();
-        });
-
-        // Wire save
-        editorEl.querySelector('.cmp-ie-save').addEventListener('click', function (e) {
-          e.stopPropagation();
-          var newTitle = (editorEl.querySelector('.cmp-ie-title').value || '').trim() || 'Untitled Campaign';
-          var newDesc = (editorEl.querySelector('.cmp-ie-desc').value || '').trim();
-          AgentEngine.updateCampaign(campaignId, { title: newTitle, description: newDesc });
-          persistCampaigns();
-          closeInlineEditor();
-          renderAll();
-        });
-
-        // Focus title input
-        var titleInput = editorEl.querySelector('.cmp-ie-title');
-        if (titleInput) titleInput.focus();
+        editTitleEl.value = c.title || '';
+        editDescEl.value = c.description || '';
+        editStatusEl.value = c.status || 'active';
+        populateModalObjectiveSelect(c.objective_id || '');
+        editModal.classList.add('visible');
+        editTitleEl.focus();
       }
 
       function persistCampaigns() {
@@ -414,6 +414,24 @@
         renderList();
         renderDetail();
       }
+
+      editCancelBtn.addEventListener('click', closeEditModal);
+      editModal.addEventListener('click', function (e) {
+        if (e.target === editModal) closeEditModal();
+      });
+      editSaveBtn.addEventListener('click', function () {
+        if (!editingCampaignId) return;
+        var payload = {
+          title: (editTitleEl.value || '').trim() || 'Untitled Campaign',
+          description: (editDescEl.value || '').trim(),
+          objective_id: editObjectiveEl.value || null,
+          status: editStatusEl.value || 'active'
+        };
+        AgentEngine.updateCampaign(editingCampaignId, payload);
+        persistCampaigns();
+        closeEditModal();
+        renderAll();
+      });
 
       document.getElementById('cmp-create-btn').addEventListener('click', function () {
         var t = (titleEl.value || '').trim();
