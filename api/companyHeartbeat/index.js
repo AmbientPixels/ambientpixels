@@ -3613,6 +3613,28 @@ Write the full deliverable first, then the structured JSON block.`;
       // Agent-initiated social post action — routes through action layer governance
       const socialPayload = action.social;
 
+      // Fix 10: Strip alternative draft options that Scribe includes in deliverables
+      // Scribe often writes multiple options (main + "Alternative Option" sections separated by ---)
+      if (socialPayload.text && /\*\*Alternative\s+Option/i.test(socialPayload.text)) {
+        let _cleaned = socialPayload.text;
+        // Cut at first --- followed by **Alternative Option or just **Alternative Option
+        _cleaned = _cleaned.split(/\n-{2,}\s*\n(?=\s*\*\*Alternative)/i)[0]
+          || _cleaned.split(/\*\*Alternative\s+Option[^*]*\*\*/i)[0]
+          || _cleaned;
+        _cleaned = _cleaned.replace(/\n-{2,}\s*$/, '').trim(); // trailing ---
+        if (_cleaned.length > 20) {
+          context.log('[Heartbeat] Fix 10: Stripped alternative draft options — kept', _cleaned.length, 'of', socialPayload.text.length, 'chars');
+          socialPayload.text = _cleaned;
+        }
+      }
+
+      // Fix 10b: Strip remaining markdown bold/italic from social post text
+      if (socialPayload.text && /\*\*/.test(socialPayload.text)) {
+        socialPayload.text = socialPayload.text
+          .replace(/\*\*([^*]+)\*\*/g, '$1')   // **bold** → bold
+          .replace(/\*([^*]+)\*/g, '$1');        // *italic* → italic
+      }
+
       // Server-side sanitizer: strip deliverable metadata that agents sometimes dump into post text
       if (socialPayload.text && /\*\*(?:Task|Deliverable|LinkedIn Post Draft|Follow-up|Peer Review|Notes|Review).*?:\*\*/i.test(socialPayload.text)) {
         let raw = socialPayload.text;
