@@ -5676,7 +5676,7 @@ STRICT: Respond with ONLY valid JSON. No prose. No markdown. No explanation text
     {
       "type": "create-task|update-task|move-task|execute-task|review-task|comment-task|create-social-action|revise-action|create-doc|submit-for-publish|create-content-package|generate-image|create-reminder|web_search|remember",
       "summary": "Brief description of what you're doing",
-      "task": { "title": "", "description": "", "status": "todo|in-progress", "priority": "low|medium|high|critical", "assignee": "agentId", "dueDate": "2026-02-20T00:00:00Z", "campaign_id": "optional-campaign-id", "objective_id": "required-objective-id", "category": "optional-category" },
+      "task": { "title": "", "description": "", "taskType": "general|blog_post|article|social_x|social_linkedin|social_bluesky|internal_doc|design_asset|research|ops|finance|editorial|bug_fix|newsletter|intake|support", "status": "todo|in-progress", "priority": "low|medium|high|critical", "assignee": "agentId", "dueDate": "2026-02-20T00:00:00Z", "campaign_id": "optional-campaign-id", "objective_id": "required-objective-id", "category": "optional-category" },
       "taskId": "existing-task-id",
       "action_id": "existing-action-id-for-revise-action",
       "updates": { "status": "...", "assignee": "agentId", "priority": "high", "dueDate": "2026-02-20T00:00:00Z", "classification": "...", "tags": [], "objective_id": "...", "campaign_id": "..." },
@@ -5699,7 +5699,7 @@ STRICT: Respond with ONLY valid JSON. No prose. No markdown. No explanation text
 IMPORTANT: updates object may ONLY contain: status, assignee, dueDate, priority, classification, tags, objective_id, campaign_id, parent_task_id, child_task_ids. Any other keys (title, description, etc.) will be BLOCKED by the backend.
 
 Action types:
-- create-task: Create a new task. Include "task" with title, description, status ("todo" or "in-progress" — default is "todo"), priority, assignee (agent id), dueDate (ISO datetime, realistic: 1-7 days out), and optionally campaign_id (to link to an active campaign). You MUST always set status, priority, assignee, and dueDate.
+- create-task: Create a new task. Include "task" with title, description, taskType, status ("todo" or "in-progress" — default is "todo"), priority, assignee (agent id), dueDate (ISO datetime, realistic: 1-7 days out), and optionally campaign_id (to link to an active campaign). You MUST always set status, priority, assignee, dueDate, and taskType. Valid taskType values: "general", "blog_post", "article", "social_x", "social_linkedin", "social_bluesky", "internal_doc", "design_asset", "research", "ops", "finance", "editorial", "bug_fix", "newsletter", "intake", "support". Choose the type that best matches the task's purpose — this determines which pipeline processes it.
 - update-task: Update an existing task. Provide taskId and "updates" with ONLY allowed keys: status, assignee, dueDate, priority, classification, tags, objective_id, campaign_id, parent_task_id, child_task_ids. NEVER include title or description in updates — the backend will block it.
 - move-task: Move a task to a new status column. Provide taskId and newStatus.
 - execute-task: Pick up one of YOUR in-progress or todo tasks and produce actual work output (a report, analysis, draft, recommendation, audit, etc). This will generate a deliverable and move the task to review.
