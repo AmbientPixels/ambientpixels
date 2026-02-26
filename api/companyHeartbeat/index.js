@@ -2113,34 +2113,28 @@ module.exports = async function (context) {
                   assignee: ceo.assignee
                 },
                 classification: 'autonomous',
-                requires_ceo_approval: false,
+                requires_ceo_approval: true,
                 risk_level: 'low',
                 brand_impact: 'none',
                 budget_impact: 0,
-                // Auto-approved + auto-executed — internal actions bypass CEO queue
-                approval: { status: 'approved', approved_by: 'system', approved_at: nowIso, decision_note: 'Auto-approved: internal task completion (no external action)' },
-                execution: { status: 'success', started_at: nowIso, finished_at: nowIso, attempts: 1, last_error: null, receipt: null },
+                // Pending CEO approval — task stays in review until CEO signs off on the deliverable
+                approval: { status: 'pending' },
+                execution: { status: 'pending', started_at: null, finished_at: null, attempts: 0, last_error: null, receipt: null },
                 action_type: 'task_completion.approve',
                 action_category: 'task',
-                execution_status: 'success',
+                execution_status: 'pending',
                 origin_agent: ceo.reviewerId || agentId,
                 action_payload: { taskId: ceo.taskId, taskTitle: ceo.taskTitle },
-                requires_approval: false,
+                requires_approval: true,
                 is_irreversible: false,
                 _parentTaskId: ceo.taskId,
                 source: 'heartbeat'
               };
               actionsStore.push(completionAction);
               _guardrailCounts.ceoApprovalsTriggered++;
-              // Auto-complete the parent task since internal completion is auto-approved
-              const parentTask = tasks.find(t => t.id === ceo.taskId);
-              if (parentTask && parentTask.status !== 'done') {
-                parentTask.status = 'done';
-                parentTask.updatedAt = nowIso;
-                context.log('[Heartbeat] Auto-completed task:', ceo.taskId, '(internal — no CEO approval needed)');
-              }
+              // Task stays in review — CEO approves via actions tab, client-side handler moves task to done
               await storage.setState('actions', actionsStore);
-              context.log('[Heartbeat] Auto-approved task_completion for:', ceo.taskTitle, '→', completionAction.id);
+              context.log('[Heartbeat] Created pending task_completion.approve for CEO review:', ceo.taskTitle, '→', completionAction.id);
               }
             }
             // Track tasks that just entered review — block same-cycle reviews
@@ -6064,11 +6058,42 @@ function applyTaskUpdate(tasks, update, _pendingEscalations, _creatingAgentId) {
         });
         // Move based on verdict
         if (update.review.verdict === 'approved') {
-          // CEO TASK GATE: CEO-created tasks create an action for the approval queue
-          const isCeoTask = tasks[i].source !== 'heartbeat' && tasks[i].source !== undefined;
-          if (isCeoTask) {
-            tasks[i].status = 'review';  // stay in review until CEO approves
-            // Flag so heartbeat persists the action
+          // DELIVERABLE GATE: tasks with deliverables require CEO approval before moving to done
+          const _hasDeliverable = (tasks[i].comments || []).some(c => c.type === 'deliverable');
+
+          // ── COPY PROPAGATION (special case — auto-completes, feeds into social pipeline) ──
+          const _tags = tasks[i].tags || [];
+          const _isSocialCopy = _tags.indexOf('social-copy') !== -1;
+          if (_isSocialCopy) {
+            // Social-copy tasks auto-complete: the parent social post has its own approval gate
+            tasks[i].status = 'done';
+            tasks[i].completedAt = new Date().toISOString();
+            const _parentTag = _tags.find(t => t.startsWith('social-copy-for-'));
+            const _parentSocialTaskId = _parentTag ? _parentTag.replace('social-copy-for-', '') : null;
+            if (_parentSocialTaskId) {
+              const _parentSocialTask = tasks.find(t => t.id === _parentSocialTaskId);
+              if (_parentSocialTask) {
+                const _deliverables = (tasks[i].comments || []).filter(c => c.type === 'deliverable');
+                const _copyText = _deliverables.length > 0 ? _deliverables[_deliverables.length - 1].text : '';
+                if (_copyText) {
+                  _parentSocialTask.reviewed_copy = _copyText;
+                  _parentSocialTask.awaiting_copy_review = false;
+                  _parentSocialTask.updatedAt = new Date().toISOString();
+                  if (!_parentSocialTask.comments) _parentSocialTask.comments = [];
+                  _parentSocialTask.comments.push({
+                    id: 'cmt-copyready-' + Date.now(),
+                    author: 'system',
+                    text: 'Reviewed copy ready from Scribe (approved by ' + update.agentId + '). Echo can now create the social post using this copy.',
+                    type: 'system',
+                    createdAt: new Date().toISOString()
+                  });
+                  console.log('[Heartbeat] COPY PROPAGATED: reviewed_copy set on parent task:', _parentSocialTaskId, '(' + _copyText.length + ' chars)');
+                }
+              }
+            }
+          } else if (_hasDeliverable) {
+            // Deliverable tasks stay in review — CEO must approve before done
+            tasks[i].status = 'review';
             if (!update._ceoApprovalAction) {
               update._ceoApprovalAction = {
                 taskId: tasks[i].id,
@@ -6080,41 +6105,9 @@ function applyTaskUpdate(tasks, update, _pendingEscalations, _creatingAgentId) {
               };
             }
           } else {
+            // No deliverable — auto-complete (simple status transitions, etc.)
             tasks[i].status = 'done';
             tasks[i].completedAt = new Date().toISOString();
-
-            // ── COPY PROPAGATION ──
-            // If this is a social-copy task that just got approved, propagate the reviewed copy
-            // back to the parent social task so Echo can use it in create-social-action
-            const _tags = tasks[i].tags || [];
-            const _isSocialCopy = _tags.indexOf('social-copy') !== -1;
-            if (_isSocialCopy) {
-              // Find the parent social task ID from the tag
-              const _parentTag = _tags.find(t => t.startsWith('social-copy-for-'));
-              const _parentSocialTaskId = _parentTag ? _parentTag.replace('social-copy-for-', '') : null;
-              if (_parentSocialTaskId) {
-                const _parentSocialTask = tasks.find(t => t.id === _parentSocialTaskId);
-                if (_parentSocialTask) {
-                  // Extract the deliverable text from this copy task
-                  const _deliverables = (tasks[i].comments || []).filter(c => c.type === 'deliverable');
-                  const _copyText = _deliverables.length > 0 ? _deliverables[_deliverables.length - 1].text : '';
-                  if (_copyText) {
-                    _parentSocialTask.reviewed_copy = _copyText;
-                    _parentSocialTask.awaiting_copy_review = false;
-                    _parentSocialTask.updatedAt = new Date().toISOString();
-                    if (!_parentSocialTask.comments) _parentSocialTask.comments = [];
-                    _parentSocialTask.comments.push({
-                      id: 'cmt-copyready-' + Date.now(),
-                      author: 'system',
-                      text: 'Reviewed copy ready from Scribe (approved by ' + update.agentId + '). Echo can now create the social post using this copy.',
-                      type: 'system',
-                      createdAt: new Date().toISOString()
-                    });
-                    console.log('[Heartbeat] COPY PROPAGATED: reviewed_copy set on parent task:', _parentSocialTaskId, '(' + _copyText.length + ' chars)');
-                  }
-                }
-              }
-            }
           }
         } else {
           // Request changes — back to in-progress
