@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Ambient Pixels v2.1.10—Uber Prompt Codex v2.3">
+    <meta name="description" content="Ambient Pixels Uber Prompt Codex v2.3 — architecture, design tokens, and system blueprint.">
     <link rel="icon" type="image/x-icon" href="images/favicon.ico">
-    <title>Ambient Pixels - Uber Prompt</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap" rel="stylesheet">
+    <title>Uber Prompt — Ambient Pixels</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/base.css">
-    <link rel="stylesheet" href="css/layout.css">
     <link rel="stylesheet" href="css/components.css">
     <link rel="stylesheet" href="css/hero.css">
     <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/uberprompt.css">
 </head>
 <body data-theme="dark">
     <div id="header-placeholder"></div>
+
     <div class="hero" id="hero">
         <div class="loading-overlay" id="loading">
             <i class="fas fa-robot fa-3x"></i>
@@ -25,38 +26,225 @@
             </div>
         </div>
         <h1 id="hero-headline">Uber Prompt</h1>
-        <p id="hero-subheading">The v2.3 Codex—Etched in Neon</p>
+        <p id="hero-subheading">The v2.3 Codex — Etched in Neon</p>
     </div>
-    <div class="grid-container">
-        <section class="grid-col-12">
-            <h2><span class="small-caps">Project</span> Overview</h2>
-            <blockquote>“A lightweight grid hums—future-proofed and neon-lit.”</blockquote>
-            <p>Our mission—<code>scope: v2.3;</code>—is to forge a modular, cyberpunk-inspired site at <a href="https://ambientpixels.ai/test">ambientpixels.ai/test</a>. Starting at v0.17.8+, it’s a scalable testbed for core features—portfolio-ready, CI/CD-aligned, balancing minimal flair with maximum potential. Crafted with PixelPulse & Grok on April 1, 2025, this codex is our eternal blueprint—every detail unfolds below in neon brilliance.</p>
+
+    <!-- Tab bar -->
+    <nav class="up-tabs" role="tablist" aria-label="Codex sections">
+        <button class="up-tab" role="tab" data-tab="overview" aria-controls="panel-overview">
+            <i class="fas fa-satellite-dish"></i>Overview
+        </button>
+        <button class="up-tab" role="tab" data-tab="navigation" aria-controls="panel-navigation">
+            <i class="fas fa-compass"></i>Navigation
+        </button>
+        <button class="up-tab" role="tab" data-tab="grid" aria-controls="panel-grid">
+            <i class="fas fa-th"></i>Grid &amp; Layout
+        </button>
+        <button class="up-tab" role="tab" data-tab="theming" aria-controls="panel-theming">
+            <i class="fas fa-palette"></i>Theming
+        </button>
+        <button class="up-tab" role="tab" data-tab="stack" aria-controls="panel-stack">
+            <i class="fas fa-layer-group"></i>Tech Stack
+        </button>
+    </nav>
+
+    <!-- Tab panels -->
+    <div class="up-panels">
+
+        <!-- OVERVIEW -->
+        <section class="up-panel" id="panel-overview" role="tabpanel">
+            <div class="up-card">
+                <h3><i class="fas fa-bullseye"></i> Project Mission <span class="up-version">v2.3</span></h3>
+                <blockquote>"A lightweight grid hums — future-proofed and neon-lit."</blockquote>
+                <p>Our mission — <code>scope: v2.3;</code> — is to forge a modular, cyberpunk-inspired site at <a href="https://ambientpixels.ai">ambientpixels.ai</a>. Starting at v0.17.8+, it's a scalable testbed for core features — portfolio-ready, CI/CD-aligned, balancing minimal flair with maximum potential.</p>
+                <p>Crafted with PixelPulse &amp; Grok on April 1, 2025, this codex is our eternal blueprint — every detail unfolds below in neon brilliance.</p>
+            </div>
+            <div class="up-grid">
+                <div class="up-card">
+                    <h3><i class="fas fa-crosshairs"></i> Design Principles</h3>
+                    <ul>
+                        <li><strong>Modular first</strong> — every feature lives in its own module folder with <code>index.html</code> entry point</li>
+                        <li><strong>Neon minimal</strong> — cyberpunk aesthetic without bloat; dark by default, theme-aware</li>
+                        <li><strong>Progressive enhancement</strong> — works without JS, then layers on interactivity</li>
+                        <li><strong>Accessibility</strong> — ARIA labels, semantic HTML, WCAG-ready contrast</li>
+                    </ul>
+                </div>
+                <div class="up-card">
+                    <h3><i class="fas fa-folder-tree"></i> File Architecture</h3>
+                    <ul>
+                        <li><strong><code>/css/</code></strong> — Global styles: base, theme, components, hero, grid, nav</li>
+                        <li><strong><code>/js/</code></strong> — Shared scripts: main, telemetry, nova-soul, workers</li>
+                        <li><strong><code>/modules/</code></strong> — Feature modules (company/, nova/, etc.) with scoped CSS/JS</li>
+                        <li><strong><code>/api/</code></strong> — Azure Functions: serverless endpoints</li>
+                        <li><strong><code>/images/</code></strong> — Static assets, favicons, logos</li>
+                    </ul>
+                </div>
+            </div>
         </section>
-        <section class="grid-col-6">
-            <h3><span class="small-caps">Top Frosty</span> Menu</h3>
-            <p>A sticky, frosted-glass navigation bar crowns the site—minimalist, icon-driven, and ever-present.</p>
-            <ul>
-                <li><strong>Logo</strong>: <code>images/ambient-pixel-logo-rainbow.png</code>—Left-aligned, 40px height, a rainbow glow symbolizing our cyberpunk ethos.</li>
-                <li><strong>Links</strong>: Icon-only for sleekness—Home (<i class="fas fa-home"></i>), Test (<i class="fas fa-flask"></i>), Projects (<i class="fas fa-code"></i>), Art (<i class="fas fa-paint-brush"></i>), Tools (<i class="fas fa-tools"></i>)—portals to our grid.</li>
-                <li><strong>Theme Toggle</strong>: Moon icon (<i class="fas fa-moon"></i>)—Switches light/dark modes, stored in localStorage for persistence.</li>
-            </ul>
-            <p><strong>Responsive</strong>: Below 768px, a hamburger toggle (<i class="fas fa-bars"></i>) expands <code>.nav-links</code> into a full-width dropdown—20px padding, frosted backdrop. <strong>Style</strong>: Frosted effect via <code>backdrop-filter: blur(5px)</code>, light/dark theme support—<code>box-shadow: 0 0 15px rgba(0, 212, 255, 0.3)</code> casts a cyan glow. <strong>Accessibility</strong>: ARIA labels (e.g., <code>aria-label="Toggle Navigation"</code>) ensure WCAG compliance—low-risk, user-friendly.</p>
+
+        <!-- NAVIGATION -->
+        <section class="up-panel" id="panel-navigation" role="tabpanel">
+            <div class="up-card">
+                <h3><i class="fas fa-ice-cream"></i> Top Frosty Menu</h3>
+                <p>A sticky, frosted-glass navigation bar crowns the site — minimalist, icon-driven, and ever-present.</p>
+                <ul>
+                    <li><strong>Logo</strong>: <code>images/ambient-pixel-logo-rainbow.png</code> — Left-aligned, 40px height, a rainbow glow symbolizing our cyberpunk ethos.</li>
+                    <li><strong>Links</strong>: Icon-only for sleekness — Home (<i class="fas fa-home"></i>), Test (<i class="fas fa-flask"></i>), Projects (<i class="fas fa-code"></i>), Art (<i class="fas fa-paint-brush"></i>), Tools (<i class="fas fa-tools"></i>) — portals to our grid.</li>
+                    <li><strong>Theme Toggle</strong>: Moon icon (<i class="fas fa-moon"></i>) — switches light/dark modes, stored in localStorage for persistence.</li>
+                </ul>
+            </div>
+            <div class="up-grid">
+                <div class="up-card">
+                    <h3><i class="fas fa-mobile-alt"></i> Responsive Behavior</h3>
+                    <p>Below 768px, a hamburger toggle (<i class="fas fa-bars"></i>) expands <code>.nav-links</code> into a full-width dropdown — 20px padding, frosted backdrop.</p>
+                    <ul>
+                        <li><strong>Frosted effect</strong>: <code>backdrop-filter: blur(5px)</code></li>
+                        <li><strong>Cyan glow</strong>: <code>box-shadow: 0 0 15px rgba(0, 212, 255, 0.3)</code></li>
+                        <li><strong>Dark/light support</strong>: Theme-aware background opacity</li>
+                    </ul>
+                </div>
+                <div class="up-card">
+                    <h3><i class="fas fa-universal-access"></i> Accessibility</h3>
+                    <p>ARIA labels ensure WCAG compliance throughout navigation.</p>
+                    <ul>
+                        <li><code>aria-label="Toggle Navigation"</code> on hamburger</li>
+                        <li><code>aria-expanded</code> state tracking on toggles</li>
+                        <li>Keyboard-navigable focus rings</li>
+                        <li>Semantic <code>&lt;nav&gt;</code> landmark</li>
+                    </ul>
+                </div>
+            </div>
         </section>
-        <section class="grid-col-6">
-            <h3><span class="small-caps">Grid</span> System</h3>
-            <blockquote>“Columns flex—content breathes.”</blockquote>
-            <p>A modular 12-column grid forms the backbone, paired with a sleek footer—responsive, toggle-ready, and built for chaos.</p>
-            <ul>
-                <li><strong>Breakpoints</strong>: Mobile (<768px)—stacks to 100%; Tablet (768-1024px)—48% cols; Desktop (>1024px)—flexible 48% or 100%—fluid adaptation.</li>
-                <li><strong>Toggleable Sections</strong>: Planned—Video Projects, Art Gallery, Client Work, Dev Tools—each a <code><section></code> with child <code>.content</code>, hidden by default, toggled via <code>data-toggle</code> buttons—future interactivity hub.</li>
-                <li><strong>Base Content</strong>: Title, subheading, quote, list, toggle button—lightweight, extensible, ready for neon flair.</li>
-            </ul>
-            <p><strong>Footer</strong>: Links—Contact (<code>#contact</code>), Copyright 2025 (<code><i class="fas fa-copyright"></i></code>), Back-to-Top (<code>#</code>). Social icons—DeviantArt, X, YouTube, Facebook—hover glows pink (<code>text-shadow: 0 0 10px var(--highlight-dark)</code>). Tagline: “Built in the dark, glowing by starlight”—our creed. <strong>Style</strong>: Clean, modern—light/dark themes, subtle shadows (<code>box-shadow: 0 2px 5px rgba(0,0,0,0.1)</code>). <strong>Accessibility</strong>: ARIA for toggles (<code>aria-expanded="false"</code>)—low-risk, WCAG-ready.</p>
+
+        <!-- GRID & LAYOUT -->
+        <section class="up-panel" id="panel-grid" role="tabpanel">
+            <div class="up-card">
+                <h3><i class="fas fa-border-all"></i> 12-Column Grid</h3>
+                <blockquote>"Columns flex — content breathes."</blockquote>
+                <p>A modular 12-column grid forms the backbone, paired with a sleek footer — responsive, toggle-ready, and built for chaos.</p>
+                <ul>
+                    <li><strong>Mobile</strong> (&lt;768px) — stacks to 100% width</li>
+                    <li><strong>Tablet</strong> (768-1024px) — 48% columns</li>
+                    <li><strong>Desktop</strong> (&gt;1024px) — flexible 48% or 100%, fluid adaptation</li>
+                </ul>
+            </div>
+            <div class="up-grid">
+                <div class="up-card">
+                    <h3><i class="fas fa-toggle-on"></i> Toggleable Sections</h3>
+                    <p>Planned interactive zones — each a <code>&lt;section&gt;</code> with child <code>.content</code>, hidden by default, toggled via <code>data-toggle</code> buttons.</p>
+                    <ul>
+                        <li><strong>Video Projects</strong> — media showcase</li>
+                        <li><strong>Art Gallery</strong> — visual portfolio</li>
+                        <li><strong>Client Work</strong> — case studies</li>
+                        <li><strong>Dev Tools</strong> — internal utilities</li>
+                    </ul>
+                </div>
+                <div class="up-card">
+                    <h3><i class="fas fa-shoe-prints"></i> Footer</h3>
+                    <p>Links: Contact, Copyright 2025, Back-to-Top. Social icons — DeviantArt, X, YouTube, Facebook — hover glows pink.</p>
+                    <ul>
+                        <li><strong>Glow</strong>: <code>text-shadow: 0 0 10px var(--highlight-dark)</code></li>
+                        <li><strong>Shadow</strong>: <code>box-shadow: 0 2px 5px rgba(0,0,0,0.1)</code></li>
+                        <li><strong>Tagline</strong>: "Built in the dark, glowing by starlight"</li>
+                    </ul>
+                </div>
+            </div>
         </section>
-        <!-- Rest of content unchanged -->
+
+        <!-- THEMING -->
+        <section class="up-panel" id="panel-theming" role="tabpanel">
+            <div class="up-card">
+                <h3><i class="fas fa-swatchbook"></i> Theme System</h3>
+                <p>Three themes controlled via <code>data-theme</code> on <code>&lt;body&gt;</code>, persisted to localStorage. All color values flow through CSS custom properties.</p>
+            </div>
+            <div class="up-grid">
+                <div class="up-card">
+                    <h3><i class="fas fa-moon"></i> Dark (default)</h3>
+                    <ul>
+                        <li><strong>Background</strong>: <code>--dark-bg: #071019</code></li>
+                        <li><strong>Text</strong>: <code>--dark-text: #D8E0E5</code></li>
+                        <li><strong>Accent</strong>: <code>--dark-accent: #2A577A</code></li>
+                        <li><strong>Shadow</strong>: <code>rgba(0, 0, 0, 0.3)</code></li>
+                    </ul>
+                </div>
+                <div class="up-card">
+                    <h3><i class="fas fa-sun"></i> Light</h3>
+                    <ul>
+                        <li><strong>Background</strong>: <code>--light-bg: #EDEEF1</code></li>
+                        <li><strong>Text</strong>: <code>--light-text: #1A2A44</code></li>
+                        <li><strong>Accent</strong>: <code>--light-accent: #3B82F6</code></li>
+                        <li><strong>Shadow</strong>: <code>rgba(0, 0, 0, 0.1)</code></li>
+                    </ul>
+                </div>
+                <div class="up-card">
+                    <h3><i class="fas fa-adjust"></i> Dim</h3>
+                    <ul>
+                        <li><strong>Background</strong>: <code>--dim-bg: #232840</code></li>
+                        <li><strong>Text</strong>: <code>--dim-text: #D4D8E8</code></li>
+                        <li><strong>Accent</strong>: <code>--dim-accent: #7B8FE0</code></li>
+                        <li><strong>Shadow</strong>: <code>rgba(0, 0, 0, 0.2)</code></li>
+                    </ul>
+                </div>
+                <div class="up-card">
+                    <h3><i class="fas fa-magic"></i> Signature Effects</h3>
+                    <ul>
+                        <li><strong>Frosted glass</strong>: <code>backdrop-filter: blur(5px)</code></li>
+                        <li><strong>Cyan glow</strong>: <code>#5ae4ff</code> accents</li>
+                        <li><strong>Nebulight purple</strong>: <code>#6a11cb</code> accent variant</li>
+                        <li><strong>Pink hover</strong>: <code>var(--highlight-dark)</code> on social icons</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- TECH STACK -->
+        <section class="up-panel" id="panel-stack" role="tabpanel">
+            <div class="up-grid">
+                <div class="up-card">
+                    <h3><i class="fas fa-server"></i> Infrastructure</h3>
+                    <ul>
+                        <li><strong>Hosting</strong>: Azure Static Web Apps</li>
+                        <li><strong>API</strong>: Azure Functions (Node.js)</li>
+                        <li><strong>Storage</strong>: Azure Blob (Managed Identity)</li>
+                        <li><strong>AI</strong>: Gemini 2.0 Flash via REST</li>
+                        <li><strong>Analytics</strong>: Application Insights</li>
+                    </ul>
+                </div>
+                <div class="up-card">
+                    <h3><i class="fas fa-paint-roller"></i> Frontend</h3>
+                    <ul>
+                        <li><strong>Framework</strong>: Vanilla HTML/CSS/JS — no build step</li>
+                        <li><strong>Fonts</strong>: Inter (Google Fonts)</li>
+                        <li><strong>Icons</strong>: Font Awesome 6.5</li>
+                        <li><strong>Layout</strong>: CSS Grid + Flexbox</li>
+                        <li><strong>Themes</strong>: CSS custom properties + <code>data-theme</code></li>
+                    </ul>
+                </div>
+                <div class="up-card">
+                    <h3><i class="fas fa-robot"></i> Nova AI System</h3>
+                    <ul>
+                        <li><strong>Chat</strong>: <code>nova-soul.js</code> — persistent AI engine (localStorage)</li>
+                        <li><strong>Dreams</strong>: <code>dreamEngine.js</code> — AI-generated dream cycles</li>
+                        <li><strong>Agents</strong>: 5-agent runtime (Nova, Cipher, Pixel, Forge, Echo)</li>
+                        <li><strong>Heartbeat</strong>: Autonomous task creation, execution, review</li>
+                    </ul>
+                </div>
+                <div class="up-card">
+                    <h3><i class="fas fa-shield-alt"></i> CI/CD &amp; Security</h3>
+                    <ul>
+                        <li><strong>Deploy</strong>: GitHub Actions &rarr; Azure SWA</li>
+                        <li><strong>Auth</strong>: Azure AD B2C (company modules)</li>
+                        <li><strong>Secrets</strong>: Function App env vars, no hardcoded keys</li>
+                        <li><strong>CORS</strong>: Scoped to <code>ambientpixels.ai</code></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
     </div>
+
     <div id="footer-placeholder"></div>
     <script src="js/main.js" defer></script>
+    <script src="js/uberprompt.js" defer></script>
 </body>
 </html>

@@ -1,0 +1,241 @@
+/* /css/uberprompt.css — Uber Prompt Codex tab layout */
+
+/* Tab bar */
+.up-tabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid rgba(90, 228, 255, 0.15);
+  margin: 0 auto;
+  padding: 0 20px;
+  max-width: 1200px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.up-tab {
+  padding: 0.7rem 1.4rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: rgba(216, 224, 229, 0.5);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.25s, border-color 0.25s, background 0.25s;
+  position: relative;
+}
+
+.up-tab:hover {
+  color: rgba(216, 224, 229, 0.85);
+  background: rgba(90, 228, 255, 0.04);
+}
+
+.up-tab.active {
+  color: #5ae4ff;
+  border-bottom-color: #5ae4ff;
+}
+
+.up-tab i {
+  margin-right: 0.45rem;
+  font-size: 0.85rem;
+}
+
+/* Tab panels wrapper */
+.up-panels {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px 20px 40px;
+}
+
+.up-panel {
+  display: none;
+  animation: upFadeIn 0.3s ease;
+}
+
+.up-panel.active {
+  display: block;
+}
+
+@keyframes upFadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Content cards inside panels */
+.up-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(90, 228, 255, 0.08);
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.25rem;
+  transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.up-card:hover {
+  border-color: rgba(90, 228, 255, 0.2);
+  box-shadow: 0 0 16px rgba(90, 228, 255, 0.06);
+}
+
+.up-card h3 {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  font-size: 1.15rem;
+  color: #5ae4ff;
+}
+
+.up-card blockquote {
+  border-left: 3px solid rgba(90, 228, 255, 0.3);
+  padding-left: 1rem;
+  margin: 0.75rem 0 1rem;
+  font-style: italic;
+  color: rgba(216, 224, 229, 0.7);
+}
+
+.up-card ul {
+  list-style: none;
+  padding-left: 0;
+  margin: 0.75rem 0;
+}
+
+.up-card li {
+  position: relative;
+  padding-left: 1.2rem;
+  margin-bottom: 0.6rem;
+  line-height: 1.6;
+}
+
+.up-card li::before {
+  content: '\f0da';
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  position: absolute;
+  left: 0;
+  color: rgba(90, 228, 255, 0.5);
+  font-size: 0.75rem;
+  top: 0.3rem;
+}
+
+.up-card code {
+  background: rgba(90, 228, 255, 0.08);
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 0.88em;
+}
+
+/* Two-column grid inside a panel */
+.up-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+
+@media (max-width: 768px) {
+  .up-grid {
+    grid-template-columns: 1fr;
+  }
+  .up-tabs {
+    padding: 0 12px;
+  }
+  .up-tab {
+    padding: 0.6rem 1rem;
+    font-size: 0.82rem;
+  }
+  .up-panels {
+    padding: 16px 12px 32px;
+  }
+}
+
+/* Version badge */
+.up-version {
+  display: inline-block;
+  background: rgba(90, 228, 255, 0.12);
+  color: #5ae4ff;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 10px;
+  margin-left: 0.5rem;
+  vertical-align: middle;
+  letter-spacing: 0.03em;
+}
+
+/* Light theme overrides */
+body[data-theme="light"] .up-tabs {
+  border-bottom-color: rgba(59, 130, 246, 0.2);
+}
+
+body[data-theme="light"] .up-tab {
+  color: rgba(26, 42, 68, 0.45);
+}
+
+body[data-theme="light"] .up-tab:hover {
+  color: rgba(26, 42, 68, 0.75);
+  background: rgba(59, 130, 246, 0.04);
+}
+
+body[data-theme="light"] .up-tab.active {
+  color: #3b82f6;
+  border-bottom-color: #3b82f6;
+}
+
+body[data-theme="light"] .up-card {
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(59, 130, 246, 0.12);
+}
+
+body[data-theme="light"] .up-card:hover {
+  border-color: rgba(59, 130, 246, 0.25);
+  box-shadow: 0 0 16px rgba(59, 130, 246, 0.08);
+}
+
+body[data-theme="light"] .up-card h3 {
+  color: #3b82f6;
+}
+
+body[data-theme="light"] .up-card blockquote {
+  border-left-color: rgba(59, 130, 246, 0.35);
+  color: rgba(26, 42, 68, 0.65);
+}
+
+body[data-theme="light"] .up-card li::before {
+  color: rgba(59, 130, 246, 0.5);
+}
+
+body[data-theme="light"] .up-card code {
+  background: rgba(59, 130, 246, 0.08);
+}
+
+body[data-theme="light"] .up-version {
+  background: rgba(59, 130, 246, 0.12);
+  color: #3b82f6;
+}
+
+/* Dim theme overrides */
+body[data-theme="dim"] .up-tabs {
+  border-bottom-color: rgba(123, 143, 224, 0.2);
+}
+
+body[data-theme="dim"] .up-tab {
+  color: rgba(212, 216, 232, 0.45);
+}
+
+body[data-theme="dim"] .up-tab:hover {
+  color: rgba(212, 216, 232, 0.8);
+  background: rgba(123, 143, 224, 0.06);
+}
+
+body[data-theme="dim"] .up-tab.active {
+  color: #7B8FE0;
+  border-bottom-color: #7B8FE0;
+}
+
+body[data-theme="dim"] .up-card {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(123, 143, 224, 0.1);
+}
+
+body[data-theme="dim"] .up-card h3 {
+  color: #7B8FE0;
+}
