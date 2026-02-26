@@ -1560,6 +1560,59 @@ module.exports = async function (context) {
       await logEvent('auto-archive', null, 'Auto-archived tasks for canceled objective(s)', runId, details);
     }
 
+    // ── Fix 11c: Document cleanup — archive stale duplicate drafts ──
+    // Runs once per heartbeat: archives draft/ready_for_approval docs older than 48h
+    // that have near-duplicate titles (keeps the newest of each cluster)
+    try {
+      const _allDocs = (await storage.getState('documents')) || [];
+      const _archivableDocs = _allDocs.filter(d =>
+        (d.status === 'draft' || d.status === 'ready_for_approval') &&
+        d.created_at && (Date.now() - new Date(d.created_at).getTime()) > 48 * 60 * 60 * 1000
+      );
+      if (_archivableDocs.length > 0) {
+        // Group by fuzzy title — keep newest per cluster, archive the rest
+        const _clusters = [];
+        for (const doc of _archivableDocs) {
+          const _dWords = (doc.title || '').toLowerCase().replace(/[^a-z0-9 ]/g, '').split(/\s+/).filter(w => w.length > 2);
+          let matched = false;
+          for (const cluster of _clusters) {
+            const _cWords = cluster.words;
+            if (_dWords.length >= 3 && _cWords.length >= 3) {
+              const _overlap = _dWords.filter(w => _cWords.indexOf(w) !== -1).length;
+              const _sim = _overlap / Math.max(_dWords.length, _cWords.length);
+              if (_sim > 0.5) {
+                cluster.docs.push(doc);
+                matched = true;
+                break;
+              }
+            }
+          }
+          if (!matched) _clusters.push({ words: _dWords, docs: [doc] });
+        }
+        let _archivedCount = 0;
+        for (const cluster of _clusters) {
+          if (cluster.docs.length <= 1) continue;
+          // Sort newest first, archive all but the newest
+          cluster.docs.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+          for (let ci = 1; ci < cluster.docs.length; ci++) {
+            const _idx = _allDocs.findIndex(d => d.id === cluster.docs[ci].id);
+            if (_idx !== -1) {
+              _allDocs[_idx].status = 'archived';
+              _allDocs[_idx].updated_at = new Date().toISOString();
+              _allDocs[_idx]._archived_reason = 'duplicate_cleanup';
+              _archivedCount++;
+            }
+          }
+        }
+        if (_archivedCount > 0) {
+          await storage.setState('documents', _allDocs);
+          context.log('[Heartbeat] Doc cleanup: archived', _archivedCount, 'stale duplicate draft(s) from', _clusters.length, 'title clusters');
+        }
+      }
+    } catch (_docCleanErr) {
+      context.log('[Heartbeat] Doc cleanup error (non-fatal):', String(_docCleanErr).substring(0, 200));
+    }
+
     // ── Auto-triage CEO tasks ──
     // CEO-created tasks with assignee AND dueDate already set need no human triage.
     // Inject a system comment so the prompt-level triage gate is satisfied immediately.
@@ -4093,33 +4146,83 @@ Write the full deliverable first, then the structured JSON block.`;
           break;
         }
 
-        // Title-based dedup: skip if a doc with very similar title already exists
-        const _proposedDocTitle = (docPayload.title || '').toLowerCase().trim();
+        // Fix 11: Hard caps on unpublished documents by kind
         const existingDocs = (await storage.getState('documents')) || [];
+        const INTERNAL_KINDS = ['spec', 'runbook', 'release_notes', 'governance'];
+        const EXTERNAL_KINDS = ['marketing_post', 'product_brief'];
+        const _isInternalKind = INTERNAL_KINDS.indexOf(kind) !== -1;
+        const _isExternalKind = EXTERNAL_KINDS.indexOf(kind) !== -1;
+
+        // Fix 11a: Internal docs — hard cap at 5 unpublished, must be GridOS/operational subject matter
+        if (_isInternalKind) {
+          const _activeInternalDocs = existingDocs.filter(d =>
+            INTERNAL_KINDS.indexOf(d.kind) !== -1 &&
+            d.status !== 'published' && d.status !== 'rejected' && d.status !== 'archived'
+          );
+          if (_activeInternalDocs.length >= 5) {
+            context.log('[Heartbeat]', agentId, 'BLOCKED create-doc (internal) — hard cap reached:', _activeInternalDocs.length, 'active internal docs. Title:', docPayload.title);
+            result.taskUpdates.push({ action: 'comment', taskId: action.taskId, comment: '[SYSTEM] Internal doc cap reached (5 max). Publish or archive existing internal docs first.', agentId: 'system' });
+            break;
+          }
+          // Subject matter gate: internal docs must be about GridOS, system operations, or technical reference
+          const _docText = ((docPayload.title || '') + ' ' + (docPayload.content_md || '').substring(0, 500)).toLowerCase();
+          const _isGridOSTopic = /gridos|gridops|heartbeat|agent|orchestrat|governance|storage|pipeline|api|function|deployment|architecture|config|escalation|triage|approval|execution|workflow|system|technical|reference|runbook|spec|schema|endpoint/.test(_docText);
+          if (!_isGridOSTopic) {
+            context.log('[Heartbeat]', agentId, 'BLOCKED create-doc (internal) — not GridOS/operational subject matter. Title:', docPayload.title);
+            result.taskUpdates.push({ action: 'comment', taskId: action.taskId, comment: '[SYSTEM] Internal docs (spec/runbook/governance) are for GridOS technical reference only. For marketing/blog content, use kind: marketing_post.', agentId: 'system' });
+            break;
+          }
+        }
+
+        // Fix 11b: External docs — hard cap at 5 unpublished drafts
+        if (_isExternalKind) {
+          const _activeExternalDocs = existingDocs.filter(d =>
+            EXTERNAL_KINDS.indexOf(d.kind) !== -1 &&
+            d.status !== 'published' && d.status !== 'rejected' && d.status !== 'archived'
+          );
+          if (_activeExternalDocs.length >= 5) {
+            context.log('[Heartbeat]', agentId, 'BLOCKED create-doc (external) — hard cap reached:', _activeExternalDocs.length, 'unpublished external docs. Title:', docPayload.title);
+            result.taskUpdates.push({ action: 'comment', taskId: action.taskId, comment: '[SYSTEM] External doc cap reached (5 max unpublished). CEO must publish or discard existing drafts before new ones can be created.', agentId: 'system' });
+            break;
+          }
+        }
+
+        // Fix 11b: Fuzzy title dedup — word-overlap similarity blocks near-duplicate titles
+        const _proposedDocTitle = (docPayload.title || '').toLowerCase().trim();
+        const _proposedWords = _proposedDocTitle.replace(/[^a-z0-9 ]/g, '').split(/\s+/).filter(w => w.length > 2);
         const duplicateDoc = existingDocs.find(d => {
           if (!d.title) return false;
           if (d.status === 'rejected' || d.status === 'archived') return false;
           const existTitle = d.title.toLowerCase().trim();
-          if (existTitle !== _proposedDocTitle) return false;
-          // Allow same-title docs when linked to different tasks (new task = new doc)
-          if (action.taskId && d.taskId && action.taskId !== d.taskId) return false;
-          // Allow if new action has taskId but old doc doesn't (old doc is orphaned test data)
-          if (action.taskId && !d.taskId) return false;
-          // Skip stale drafts older than 24h that were never published (abandoned tests)
-          if (d.status === 'draft' && d.created_at) {
-            const ageMs = Date.now() - new Date(d.created_at).getTime();
-            if (ageMs > 24 * 60 * 60 * 1000) return false;
+          // Exact match
+          if (existTitle === _proposedDocTitle) {
+            if (action.taskId && d.taskId && action.taskId !== d.taskId) return false;
+            if (action.taskId && !d.taskId) return false;
+            return true;
           }
-          return true;
+          // Fuzzy match: >60% word overlap blocks creation
+          if (_proposedWords.length >= 3) {
+            const _existWords = existTitle.replace(/[^a-z0-9 ]/g, '').split(/\s+/).filter(w => w.length > 2);
+            if (_existWords.length >= 3) {
+              const _overlap = _proposedWords.filter(w => _existWords.indexOf(w) !== -1).length;
+              const _similarity = _overlap / Math.max(_proposedWords.length, _existWords.length);
+              if (_similarity > 0.6) {
+                // Still allow different-task linkage
+                if (action.taskId && d.taskId && action.taskId !== d.taskId) return false;
+                if (action.taskId && !d.taskId) return false;
+                return true;
+              }
+            }
+          }
+          return false;
         });
         if (duplicateDoc) {
-          context.log('[Heartbeat]', agentId, 'BLOCKED duplicate doc creation:', _proposedDocTitle, '— matches existing doc:', duplicateDoc.id, duplicateDoc.title);
-          // Still link to the task if needed
+          context.log('[Heartbeat]', agentId, 'BLOCKED duplicate doc creation:', _proposedDocTitle, '— fuzzy matches existing doc:', duplicateDoc.id, duplicateDoc.title);
           if (action.taskId) {
             result.taskUpdates.push({
               action: 'comment',
               taskId: action.taskId,
-              comment: 'Document already exists: "' + duplicateDoc.title + '" (id: ' + duplicateDoc.id + '). Skipping duplicate creation.',
+              comment: 'Document already exists with similar title: "' + duplicateDoc.title + '" (id: ' + duplicateDoc.id + '). Use update-doc to revise it instead of creating a duplicate.',
               agentId: agentId
             });
           }
@@ -5945,7 +6048,10 @@ Action types:
   CRITICAL: The "text" field must contain ONLY the clean, publish-ready post copy that will appear on the social platform. Do NOT include task titles, deliverable headers, markdown formatting (**bold**, ## headings), notes sections, peer review comments, follow-up instructions, or any internal metadata. The text is posted VERBATIM to the platform. Example: "text": "AmbientPixels helps teams govern AI at scale. Learn more at https://ambientpixels.ai #AI" — NOT "**Task:** Hello World\\n**Deliverable:**\\n## Draft\\nAmbientPixels...".
   ARTICLE URL RULES: Never hardcode an article/blog URL unless you are 100% certain the article is already published. If linking to an article that is pending publish or was just submitted, use the placeholder token {{ARTICLE_URL}} in your text and include "artifact_id" in the social object (set it to the artifact ID from the publish action). The URL will be resolved automatically when the article is published. Example: "social": { "text": "Check out our latest post {{ARTICLE_URL}}", "platform": "x", "artifact_id": "art_123_my-slug" }. Never link to /modules/company/ or /docs/published/ as those are internal and auth-gated.
 - revise-action: Revise an action that the CEO sent back for changes. Provide "action_id" (from the CEO REVISION REQUESTS section) and "social" with the corrected content (same format as create-social-action). The revised action replaces the old one and is re-submitted for CEO approval. Address ALL of the CEO's feedback in your revision.
-- create-doc: Create a NEW document. Include "document" with: title (string), kind ("spec"|"runbook"|"release_notes"|"product_brief"|"marketing_post"|"governance"), tags (array of strings), and content_md (full markdown content — MUST be complete, publish-ready text with NO placeholders like "[insert here]" or "[TBD]"). Also include "taskId" if this doc is for a specific task. marketing_post/product_brief → CEO approval queue for blog. Internal kinds (spec, runbook, release_notes, governance) → auto-published to /docs/published/ immediately. IMPORTANT: Check EXISTING DOCUMENTS below first — if a relevant doc already exists, use update-doc instead of creating a duplicate.
+- create-doc: Create a NEW document. Include "document" with: title (string), kind, tags (array of strings), and content_md (full markdown content — MUST be complete, publish-ready text with NO placeholders like "[insert here]" or "[TBD]"). Also include "taskId" if this doc is for a specific task. IMPORTANT: Check EXISTING DOCUMENTS below first — if a relevant doc already exists, use update-doc instead of creating a duplicate.
+  DOCUMENT KINDS — two distinct tracks:
+  • EXTERNAL (public blog): "marketing_post" or "product_brief" — public articles about AI, creative tech, industry trends. Include a hero image (auto-generated by Pixel). Published to /blog/ after CEO approval. Used in social media promotion. Max 5 unpublished drafts at a time.
+  • INTERNAL (GridOS reference): "spec", "runbook", "release_notes", or "governance" — technical documentation about GridOS internals, system architecture, API endpoints, agent workflows, heartbeat pipeline, storage schemas, escalation rules, deployment procedures. For agents and humans to reference. Published to /docs/published/. Max 5 active at a time. MUST be about GridOS/operational subject matter — marketing content is NOT allowed as internal docs.
 - update-doc: Update an existing document. Include "documentId" (the doc ID from EXISTING DOCUMENTS) and "updates" with any of: content_md (full replacement), append_md (add new content to end), title (rename), tags (replace tags). Use this when new information should be added to an existing doc instead of creating a new one. Internal docs are auto-refreshed at /docs/published/.
 - submit-for-publish: Submit a completed document for human/CEO approval to publish on the site. Include "documentId" (the ID of an existing draft or review document) and optionally "taskId" (the task that produced the doc). This creates a publish_document action in the approval queue. You CANNOT publish directly — only a human can approve publishing.
 - create-content-package: (Echo and Pixel ONLY) Generate an image content package for marketing, social media, or design assets. Include "content" with: topic (visual subject, min 3 chars), goal (what the images will be used for, min 3 chars), preset (visual style — use "ap-neon-glass" if unsure), outputs (array of output types: "x_image", "linkedin_image", "og_image", "blog_hero", "instagram_square" — max 3), and variations (1-2, default 1). Also include "taskId" if this is for a specific task. Images are generated via Gemini and submitted to the CEO approval queue. Max 1 content package per heartbeat. Use this when a task requires MULTIPLE visual assets for a campaign — NOT for single images.
