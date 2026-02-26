@@ -2984,6 +2984,40 @@ Write the full deliverable first, then the structured JSON block.`;
       continue;
     }
 
+    // ── TASK TYPE PIPELINE GUARD ──
+    // Validate action type matches the task's taskType to prevent pipeline mismatches
+    if (action.taskId) {
+      const _ttTask = tasks.find(t => t.id === action.taskId);
+      const _ttType = _ttTask ? (_ttTask.taskType || 'general') : 'general';
+      const _ttSocial = ['social_x', 'social_linkedin', 'social_bluesky'];
+      const _ttBlog = ['blog_post', 'article', 'newsletter'];
+      const _ttDoc = ['blog_post', 'article', 'newsletter', 'internal_doc'];
+      const _ttContent = ['design_asset'];
+
+      // Block: social action on a non-social task
+      if (action.type === 'create-social-action' && _ttType !== 'general' && _ttSocial.indexOf(_ttType) === -1) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action on', action.taskId, '— taskType is', _ttType, '(expected social_x/social_linkedin/social_bluesky)');
+        continue;
+      }
+      // Block: content package on a non-content task
+      if (action.type === 'create-content-package' && _ttType !== 'general' && _ttContent.indexOf(_ttType) === -1) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED create-content-package on', action.taskId, '— taskType is', _ttType, '(expected design_asset)');
+        continue;
+      }
+      // Warn: create-doc on task that doesn't require docs (soft — log only)
+      if (action.type === 'create-doc' && _ttType !== 'general' && _ttDoc.indexOf(_ttType) === -1) {
+        context.log('[Heartbeat]', agentId, 'WARNING: create-doc on', action.taskId, '— taskType is', _ttType, '(docs usually for blog_post/article/newsletter/internal_doc)');
+      }
+      // Warn: submit-for-publish on task that doesn't require docs
+      if (action.type === 'submit-for-publish' && _ttType !== 'general' && _ttDoc.indexOf(_ttType) === -1) {
+        context.log('[Heartbeat]', agentId, 'WARNING: submit-for-publish on', action.taskId, '— taskType is', _ttType, '(publish usually for blog_post/article/newsletter/internal_doc)');
+      }
+      // Log: track all taskType + action combinations for monitoring
+      if (_ttType !== 'general') {
+        context.log('[Heartbeat] PIPELINE:', agentId, action.type, 'on taskType:', _ttType, 'task:', action.taskId);
+      }
+    }
+
     // Nova escalation guard: skip actions on tasks handled by domain lead
     if (novaSkipTaskIds && action.taskId && novaSkipTaskIds.has(action.taskId)) {
       const skipTarget = tasks.find(t => t.id === action.taskId);
@@ -5204,14 +5238,36 @@ function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirective
   workspaceMemory = workspaceMemory || [];
   workspaceDates = workspaceDates || [];
 
+  // Pipeline action guidance based on taskType
+  const _pipelineHints = {
+    blog_post: '→ Use execute-task to draft content. System will auto-create document + hero image task.',
+    article: '→ Use execute-task to draft content. System will auto-create document.',
+    newsletter: '→ Use execute-task to draft content. System will auto-create document.',
+    social_x: '→ Use create-social-action with platform "x" to draft the post.',
+    social_linkedin: '→ Use create-social-action with platform "linkedin" to draft the post.',
+    social_bluesky: '→ Use create-social-action with platform "bluesky" to draft the post.',
+    internal_doc: '→ Use create-doc to write the document, then submit-for-publish when ready.',
+    design_asset: '→ Use create-content-package or generate-image to produce visual assets.',
+    research: '→ Use execute-task to produce research deliverable. Use web_search for live data.',
+    ops: '→ Use execute-task to produce deliverable (report, fix, deployment plan).',
+    finance: '→ Use execute-task to produce financial analysis or report.',
+    editorial: '→ Use execute-task to produce editing/proofreading deliverable.',
+    bug_fix: '→ Use execute-task to produce fix report or implementation plan.',
+    intake: '→ Nova should triage: classify taskType, assign to correct agent.',
+    support: '→ Nova should triage: classify taskType, assign to correct agent.'
+  };
+
   const taskList = agentTasks.map(t => {
     const src = t.source === 'heartbeat' ? 'agent' : 'CEO';
-    let line = '- [' + t.status + '] ' + t.title + ' (priority: ' + t.priority + ', source: ' + src + ', id: ' + t.id;
+    const _tType = t.taskType || 'general';
+    let line = '- [' + t.status + '] ' + t.title + ' (priority: ' + t.priority + ', type: ' + _tType + ', source: ' + src + ', id: ' + t.id;
     if (t.campaign_id) line += ', campaign: ' + t.campaign_id;
     if (t.dueDate) line += ', due: ' + t.dueDate.substring(0, 10);
     if (t.reviewed_copy) line += ', reviewed_copy: "' + t.reviewed_copy.substring(0, 300) + (t.reviewed_copy.length > 300 ? '...' : '') + '"';
     if (t.awaiting_copy_review) line += ', ⏳ AWAITING COPY REVIEW FROM SCRIBE';
     line += ')';
+    // Add pipeline hint based on taskType
+    if (_pipelineHints[_tType]) line += '\n  PIPELINE: ' + _pipelineHints[_tType];
     if (t.description) {
       const desc = t.description.length > 200 ? t.description.substring(0, 200) + '...' : t.description;
       line += '\n  Description: ' + desc;
