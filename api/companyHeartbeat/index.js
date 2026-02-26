@@ -111,7 +111,7 @@ const L4_DEFAULT_TTL_DAYS = 14;
 const TIER4_SUB_AGENTS = new Set(['quill']);
 const OBJECTIVE_EXEMPT_CATEGORIES = new Set(['ops_breakfix', 'governance', 'maintenance']);
 const ALLOWED_UPDATE_KEYS = new Set([
-  'status', 'assignee', 'dueDate', 'priority', 'classification',
+  'status', 'assignee', 'dueDate', 'priority', 'classification', 'taskType',
   'tags', 'objective_id', 'directive_id', 'campaign_id', 'parent_task_id', 'child_task_ids'
 ]);
 const CAP_DEFAULTS = {
@@ -3337,6 +3337,7 @@ Write the full deliverable first, then the structured JSON block.`;
                     id: 'task_' + Date.now() + '_hero_' + Math.random().toString(36).substr(2, 4),
                     title: _etHeroTitle,
                     description: 'Generate a hero image for the blog post "' + _etDoc.title + '".\nDocument ID: ' + _etDocId + '\nUse generate-image with purpose "blog_header" and attachTo: { type: "document", id: "' + _etDocId + '" }.\nChoose an appropriate preset based on the content tone.',
+                    taskType: 'design_asset',
                     status: 'todo',
                     priority: task.priority || 'high',
                     dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
@@ -4101,6 +4102,7 @@ Write the full deliverable first, then the structured JSON block.`;
               id: 'task_' + Date.now() + '_hero_' + Math.random().toString(36).substr(2, 4),
               title: _heroTaskTitle,
               description: 'Generate a hero image for the blog post "' + doc.title + '".\nDocument ID: ' + doc.id + '\nUse generate-image with purpose "blog_header" and attachTo: { type: "document", id: "' + doc.id + '" }.\nChoose an appropriate preset based on the content tone.',
+              taskType: 'design_asset',
               status: 'todo',
               priority: action.task && action.task.priority ? action.task.priority : 'high',
               dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
@@ -5752,11 +5754,11 @@ STRICT: Respond with ONLY valid JSON. No prose. No markdown. No explanation text
 }
 `}
 
-IMPORTANT: updates object may ONLY contain: status, assignee, dueDate, priority, classification, tags, objective_id, campaign_id, parent_task_id, child_task_ids. Any other keys (title, description, etc.) will be BLOCKED by the backend.
+IMPORTANT: updates object may ONLY contain: status, assignee, dueDate, priority, classification, taskType, tags, objective_id, campaign_id, parent_task_id, child_task_ids. Any other keys (title, description, etc.) will be BLOCKED by the backend. Use taskType in updates to reclassify intake/support tasks to the correct pipeline type (e.g., taskType: "blog_post").
 
 Action types:
 - create-task: Create a new task. Include "task" with title, description, taskType, status ("todo" or "in-progress" — default is "todo"), priority, assignee (agent id), dueDate (ISO datetime, realistic: 1-7 days out), and optionally campaign_id (to link to an active campaign). You MUST always set status, priority, assignee, dueDate, and taskType. Valid taskType values: "general", "blog_post", "article", "social_x", "social_linkedin", "social_bluesky", "internal_doc", "design_asset", "research", "ops", "finance", "editorial", "bug_fix", "newsletter", "intake", "support". Choose the type that best matches the task's purpose — this determines which pipeline processes it.
-- update-task: Update an existing task. Provide taskId and "updates" with ONLY allowed keys: status, assignee, dueDate, priority, classification, tags, objective_id, campaign_id, parent_task_id, child_task_ids. NEVER include title or description in updates — the backend will block it.
+- update-task: Update an existing task. Provide taskId and "updates" with ONLY allowed keys: status, assignee, dueDate, priority, classification, taskType, tags, objective_id, campaign_id, parent_task_id, child_task_ids. NEVER include title or description in updates — the backend will block it. To reclassify an intake/support task, set taskType to the correct pipeline type (e.g., "blog_post", "social_x", "ops").
 - move-task: Move a task to a new status column. Provide taskId and newStatus.
 - execute-task: Pick up one of YOUR in-progress or todo tasks and produce actual work output (a report, analysis, draft, recommendation, audit, etc). This will generate a deliverable and move the task to review.
 - review-task: Review a completed deliverable from another agent's task in the review column. Approve (done) or request changes (back to in-progress). You CANNOT review your own tasks — you must review tasks assigned to a DIFFERENT agent. Self-reviews are blocked by the system.

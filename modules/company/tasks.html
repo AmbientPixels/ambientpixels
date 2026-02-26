@@ -1184,8 +1184,14 @@
         var today = _localToday();
         var isOverdue = task.dueDate && task.dueDate.substring(0,10) < today && task.status !== 'done';
 
+        var _cardType = task.taskType || 'general';
+        var _cardTypeLabel = (typeof CompanySchemas !== 'undefined' && CompanySchemas.TASK_TYPES && CompanySchemas.TASK_TYPES[_cardType]) ? CompanySchemas.TASK_TYPES[_cardType].label : _cardType;
+
         var meta = '<div class="tm-card-meta">';
         meta += '<span class="tm-card-priority tm-card-priority--' + task.priority + '">' + task.priority + '</span>';
+        if (_cardType !== 'general') {
+          meta += '<span style="font-size:0.55rem; opacity:0.5; background:rgba(255,255,255,0.04); padding:1px 5px; border-radius:3px; margin-left:2px;">' + escapeHtml(_cardTypeLabel) + '</span>';
+        }
 
         if (agent) {
           meta += '<span class="tm-card-assignee" style="--agent-color:' + agent.color + '"><i class="' + agent.icon + '"></i> ' + agent.name + '</span>';
