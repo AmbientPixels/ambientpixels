@@ -3201,9 +3201,12 @@ Write the full deliverable first, then the structured JSON block.`;
             continue;
           }
           const _hasDeliverable = _deliverableCount > 0;
-          if (_hasDeliverable) {
-            context.log('[Heartbeat]', agentId, 'BLOCKED execute-task on', action.taskId, '— task already has a deliverable. Use review-task or comment-task instead.');
+          if (_hasDeliverable && _exTask.status !== 'in-progress') {
+            context.log('[Heartbeat]', agentId, 'BLOCKED execute-task on', action.taskId, '— task already has a deliverable and is not in-progress (revision). Use review-task or comment-task instead.');
             continue;
+          }
+          if (_hasDeliverable && _exTask.status === 'in-progress') {
+            context.log('[Heartbeat]', agentId, 'REVISION ALLOWED: re-executing task', action.taskId, '— has', _deliverableCount, 'prior deliverable(s), status is in-progress (changes-requested)');
           }
         }
       }
@@ -3984,11 +3987,20 @@ Write the full deliverable first, then the structured JSON block.`;
               : 'Document created: "' + doc.title + '" (id: ' + doc.id + ', kind: ' + kind + '). Submitting for CEO approval.',
             agentId: agentId
           });
-          result.taskUpdates.push({
-            action: 'move',
-            taskId: action.taskId,
-            newStatus: _isVisualKind ? 'in-progress' : 'review'
-          });
+          // Only move if task isn't already in a later stage (prevents race: execute→review then create-doc→in-progress)
+          const _cdCurrentTask = tasks.find(t => t.id === action.taskId);
+          const _cdCurrentStatus = _cdCurrentTask ? _cdCurrentTask.status : '';
+          const _cdTargetStatus = _isVisualKind ? 'in-progress' : 'review';
+          const _cdAlreadyAdvanced = (_cdCurrentStatus === 'review' || _cdCurrentStatus === 'done');
+          if (!_cdAlreadyAdvanced) {
+            result.taskUpdates.push({
+              action: 'move',
+              taskId: action.taskId,
+              newStatus: _cdTargetStatus
+            });
+          } else {
+            context.log('[Heartbeat]', agentId, 'create-doc: skipping status move — task', action.taskId, 'already in', _cdCurrentStatus, '(would have moved to', _cdTargetStatus + ')');
+          }
         }
 
         // Visual doc kinds: auto-create Pixel hero image task instead of auto-submitting for publish
@@ -6114,7 +6126,36 @@ function applyTaskUpdate(tasks, update, _pendingEscalations, _creatingAgentId) {
               }
             }
           } else if (_hasDeliverable) {
-            // Deliverable tasks stay in review — CEO must approve before done
+            // ── HERO IMAGE AUTO-COMPLETE: hero tasks skip CEO approval — publish_document is the gate ──
+            const _isHeroTask = _tags.indexOf('hero-image') !== -1;
+            if (_isHeroTask) {
+              tasks[i].status = 'done';
+              tasks[i].completedAt = new Date().toISOString();
+              tasks[i].comments.push({
+                id: 'cmt-heroclose-' + Date.now(),
+                author: 'system',
+                text: 'Hero image task auto-completed after peer review approval. The publish_document action is the CEO gate for the final article + image.',
+                type: 'system',
+                createdAt: new Date().toISOString()
+              });
+              console.log('[Heartbeat] HERO AUTO-COMPLETE: task', tasks[i].id, 'auto-completed — publish_document is the CEO gate');
+              // Notify parent blog task that hero image is ready for submit-for-publish
+              if (tasks[i].parent_task_id) {
+                const _parentBlogTask = tasks.find(t => t.id === tasks[i].parent_task_id);
+                if (_parentBlogTask) {
+                  if (!_parentBlogTask.comments) _parentBlogTask.comments = [];
+                  _parentBlogTask.comments.push({
+                    id: 'cmt-heroready-' + Date.now(),
+                    author: 'system',
+                    text: 'Hero image approved and attached. Document is ready for submit-for-publish. Scribe, use submit-for-publish to send the article + hero image for CEO approval.',
+                    type: 'system',
+                    createdAt: new Date().toISOString()
+                  });
+                  _parentBlogTask.updatedAt = new Date().toISOString();
+                }
+              }
+            } else {
+            // Non-hero deliverable tasks stay in review — CEO must approve before done
             tasks[i].status = 'review';
             if (!update._ceoApprovalAction) {
               update._ceoApprovalAction = {
@@ -6125,6 +6166,7 @@ function applyTaskUpdate(tasks, update, _pendingEscalations, _creatingAgentId) {
                 reviewFeedback: update.review.feedback,
                 deliverable: (tasks[i].comments || []).filter(c => c.type === 'deliverable').map(c => c.text).join('\n').substring(0, 2000)
               };
+            }
             }
           } else {
             // No deliverable — auto-complete (simple status transitions, etc.)
