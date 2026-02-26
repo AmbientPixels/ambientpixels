@@ -1,24 +1,25 @@
 # AmbientPixels Task Flow Reference
-**Version 2.7 — February 25, 2026**
+**Version 2.8 — February 25, 2026**
 **File: `api/companyHeartbeat/index.js` (~7,000 lines)**
 
 ---
 
 ## Table of Contents
 1. [Heartbeat Overview](#heartbeat-overview)
-2. [Task Lifecycle (Universal)](#task-lifecycle-universal)
-3. [Action Types](#action-types)
-4. [Flow 1: Blog Post Pipeline](#flow-1-blog-post-pipeline)
-5. [Flow 2: Social Post Pipeline](#flow-2-social-post-pipeline)
-6. [Flow 3: Internal Document Pipeline](#flow-3-internal-document-pipeline)
-7. [Flow 4: Content Package Pipeline](#flow-4-content-package-pipeline)
-8. [Flow 5: Image Generation Pipeline](#flow-5-image-generation-pipeline)
-9. [Flow 6: Simple Task Pipeline](#flow-6-simple-task-pipeline)
-10. [Revision Cycle](#revision-cycle)
-11. [Guards & Guardrails](#guards--guardrails)
-12. [CEO Approval Gates](#ceo-approval-gates)
-13. [Auto-Completion Rules](#auto-completion-rules)
-14. [Storage Keys](#storage-keys)
+2. [Task Types](#task-types)
+3. [Task Lifecycle (Universal)](#task-lifecycle-universal)
+4. [Action Types](#action-types)
+5. [Flow 1: Blog Post Pipeline](#flow-1-blog-post-pipeline)
+6. [Flow 2: Social Post Pipeline](#flow-2-social-post-pipeline)
+7. [Flow 3: Internal Document Pipeline](#flow-3-internal-document-pipeline)
+8. [Flow 4: Content Package Pipeline](#flow-4-content-package-pipeline)
+9. [Flow 5: Image Generation Pipeline](#flow-5-image-generation-pipeline)
+10. [Flow 6: Simple Task Pipeline](#flow-6-simple-task-pipeline)
+11. [Revision Cycle](#revision-cycle)
+12. [Guards & Guardrails](#guards--guardrails)
+13. [CEO Approval Gates](#ceo-approval-gates)
+14. [Auto-Completion Rules](#auto-completion-rules)
+15. [Storage Keys](#storage-keys)
 
 ---
 
@@ -56,6 +57,77 @@ The heartbeat runs every **30 minutes** via Azure Timer Trigger. Each cycle:
 | maxExecutesPerCyclePerAgent | 1 |
 | maxContentGeneratesPerCyclePerAgent | 1 |
 | dedupeWindowMs | 300,000 (5 min) |
+
+---
+
+## Task Types
+
+Every task has a `taskType` field that determines its pipeline routing. Set via CEO dropdown, agent action, or auto-inferred from title.
+
+### Schema (`js/company-schemas.js` → `TASK_TYPES`)
+
+| Key | Label | Pipeline | Requires Doc | Description |
+|-----|-------|----------|-------------|-------------|
+| `general` | General | simple | No | Standard task (execute → review → done) |
+| `blog_post` | Blog Post | blog | Yes | Blog article with hero image → publish to /blog/ |
+| `article` | Article | blog | Yes | Long-form content → publish (no hero image required) |
+| `social_x` | X Post | social | No | Post to X/Twitter |
+| `social_linkedin` | LinkedIn Post | social | No | Post to LinkedIn |
+| `social_bluesky` | Bluesky Post | social | No | Post to Bluesky |
+| `internal_doc` | Internal Doc | doc | Yes | Spec, runbook, or governance doc → publish to /docs/ |
+| `design_asset` | Design Asset | content | No | Image or content package → approval |
+| `research` | Research | simple | No | Research and analysis task |
+| `ops` | Ops / DevOps | simple | No | Infrastructure, deployment, or maintenance task |
+| `finance` | Finance | simple | No | Budget reports, cost analysis, spending reviews (Cipher) |
+| `editorial` | Editorial | simple | No | Editing, proofreading, brand voice review (Quill) |
+| `bug_fix` | Bug Fix | simple | No | Development fix — higher urgency routing (Forge) |
+| `newsletter` | Newsletter | blog | Yes | Email newsletter content → publish |
+| `intake` | Intake Request | triage | No | Inbound from form/external source — Nova triages and reclassifies |
+| `support` | Support Ticket | triage | No | Customer support — Nova triages, routes to appropriate agent |
+
+### Pipelines
+
+| Pipeline | Flow | CEO Gate |
+|----------|------|----------|
+| `simple` | execute → review → done | `task_completion.approve` |
+| `blog` | execute → auto-doc → hero image → submit-for-publish | `publish_document` |
+| `social` | create-social-action → copy review → CEO approves → execute | Social action |
+| `doc` | create-doc → submit-for-publish | `publish_document` |
+| `content` | create-content-package → CEO approves | `content.package` |
+| `triage` | Nova classifies → reclassifies taskType → enters correct pipeline | Depends on final type |
+
+### Three-Layer Blog Detection
+
+1. **taskType field** — `blog_post` or `article` (deterministic, set by CEO dropdown or agent)
+2. **Title/description regex fallback** — widened patterns for existing tasks without taskType:
+   ```
+   /write.*blog|draft.*blog|blog\s*post|create.*blog|publish.*blog|new.*blog|
+    first\s*blog|introductory\s*post|write.*article|compose.*article/
+   ```
+3. **Deliverable content detection** — if Scribe's output contains:
+   ```
+   /document\s*type:\s*marketing_post|publishing\s*to\s*\/blog\/|submit.*ceo.*approv.*publish/
+   ```
+
+### Auto-Inference on Task Creation
+
+When agents create tasks without setting `taskType`, the heartbeat auto-infers from title:
+
+| Pattern | Inferred Type |
+|---------|---------------|
+| `write.*blog`, `draft.*blog`, `blog\s*post`, etc. | `blog_post` |
+| `social.*post`, `tweet`, `linkedin.*post` | `social_x` |
+| `hero\s*image`, `blog.*header` | `design_asset` |
+| `spec`, `runbook`, `release.*note` | `internal_doc` |
+| `research`, `competitive.*intel` | `research` |
+| `deploy`, `infrastructure`, `devops` | `ops` |
+
+### UI
+
+- **New Task modal**: Task Type dropdown (between Title and Description)
+- **List view**: Type column (sortable, between Task and Status)
+- **Filter bar**: "All Types" dropdown filter
+- **Grouping**: "Group by Type" option
 
 ---
 
@@ -173,8 +245,9 @@ The heartbeat runs every **30 minutes** via Azure Timer Trigger. Each cycle:
 
 ```
 1. TASK CREATION
-   CEO creates task: "Draft a blog post about X"
-   OR Nova auto-creates from campaign with "blog" keyword in title/description
+   CEO creates task with taskType: blog_post (dropdown)
+   OR Nova auto-creates from campaign (auto-inferred from title)
+   OR agent sets taskType explicitly in create-task action
 
 2. NOVA TRIAGE
    Nova comments with delegation → assigns to Scribe
@@ -185,13 +258,13 @@ The heartbeat runs every **30 minutes** via Azure Timer Trigger. Each cycle:
    → Deliverable added as comment (type: 'deliverable')
    → Task moves to 'review'
 
-4. AUTO-DOC CREATION (server-side fallback)
-   IF title/description matches blog regex AND deliverable > 200 chars:
+4. AUTO-DOC CREATION (three-layer detection)
+   IF (taskType is blog_post/article OR title matches regex OR deliverable signals blog)
+   AND deliverable > 200 chars:
      → Document created (kind: marketing_post)
      → Hero image task auto-created for Pixel
      → Task stays in review (or moves to in-progress for visual docs)
-   Regex: /write.*blog|draft.*blog|blog\s*post.*write|first\s*blog|
-           introductory\s*post|write.*article/
+   Detection: taskType field → widened regex → deliverable content
 
 5. PIXEL GENERATES HERO IMAGE
    Pixel uses generate-image with purpose: blog_header
@@ -226,12 +299,13 @@ The heartbeat runs every **30 minutes** via Azure Timer Trigger. Each cycle:
    → Reject → agent revises content, re-submits
 ```
 
-### Blog Detection Regex
-The auto-doc creation only fires if the task title/description matches:
-```
-/write.*blog|draft.*blog|blog\s*post.*write|first\s*blog|introductory\s*post|write.*article/
-```
-Nova auto-creates tasks from campaigns with these keywords. CEO-created tasks should include "blog post" in the title or description.
+### Blog Detection (Three-Layer)
+Auto-doc creation fires if ANY of these match:
+1. **taskType**: `blog_post` or `article` (set by CEO dropdown or agent)
+2. **Title regex**: `/write.*blog|draft.*blog|blog\s*post|create.*blog|publish.*blog|new.*blog|first\s*blog|introductory\s*post|write.*article|compose.*article/`
+3. **Deliverable content**: `/document\s*type:\s*marketing_post|publishing\s*to\s*\/blog\//`
+
+CEO-created tasks should select "Blog Post" from the Task Type dropdown for deterministic routing.
 
 ### CEO Approval Count: **1** (publish_document)
 
@@ -579,7 +653,8 @@ Tasks that auto-complete without `task_completion.approve`:
 | `api/company-state/index.js` | Server-side state API (GET/POST for all storage keys) |
 | `api/_utils/companyStorage.js` | Azure Blob Storage interface |
 | `api/_lib/contentEngine/imageEngine.js` | Image generation engine |
-| `modules/company/tasks.html` | Tasks page UI |
+| `js/company-schemas.js` | Task types, statuses, classifications, action schemas |
+| `modules/company/tasks.html` | Tasks page UI (task type dropdown, type column, filter, sort) |
 | `modules/company/actions.html` | Actions tab UI (CEO approval) |
 | `modules/company/dashboard.html` | CEO dashboard |
 
@@ -593,3 +668,9 @@ Tasks that auto-complete without `task_completion.approve`:
 | GAP 3+4 | Hero image tasks auto-complete after peer review + notify parent blog task |
 | GAP 5 | Create-doc handler won't move tasks backwards if already in review/done |
 | GAP 6 | Content package tasks skip task_completion.approve (content.package is the gate) |
+| **TaskType v1** | 16 structured task types replacing regex-only blog detection |
+| **Three-layer detection** | taskType field → widened regex → deliverable content signals |
+| **Auto-inference** | Heartbeat auto-classifies tasks from title patterns on create-task |
+| **UI: Task Type dropdown** | New Task modal dropdown between Title and Description |
+| **UI: Type column** | List view column with sort, filter, and Group by Type |
+| **Triage types** | `intake` and `support` types for form-submitted tasks |
