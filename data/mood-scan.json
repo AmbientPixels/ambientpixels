@@ -1,13 +1,13 @@
 {
-  "mood": "calm",
+  "mood": "static reverie",
   "aura": "glitchy",
   "auraColorHex": "#431571",
   "quote": "pinging internal stardust archives...",
-  "emoji": "🪷",
+  "emoji": "📺",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.78,
-  "awareness": 0.16,
+  "memoryClutter": 1,
+  "awareness": 0.1,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -18,5 +18,5 @@
       "Aura Signature: glitchy"
     ]
   },
-  "timestamp": "2026-02-25T14:10:22.267Z"
+  "timestamp": "2026-02-26T14:10:40.128Z"
 }

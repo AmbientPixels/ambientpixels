@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2026-02-25T14:10:20.266Z",
+  "updated": "2026-02-26T14:10:38.996Z",
   "root": [
     {
       "type": "folder",
@@ -977,11 +977,6 @@
       "path": "index.html"
     },
     {
-      "type": "page",
-      "name": "index2.html",
-      "path": "index2.html"
-    },
-    {
       "type": "folder",
       "name": "js",
       "path": "js",
@@ -1723,11 +1718,6 @@
       ]
     },
     {
-      "type": "page",
-      "name": "responsive-navbar-demo.html",
-      "path": "responsive-navbar-demo.html"
-    },
-    {
       "type": "folder",
       "name": "services",
       "path": "services",
@@ -1777,11 +1767,6 @@
           "path": "support/index.html"
         }
       ]
-    },
-    {
-      "type": "page",
-      "name": "template-skills-showcase.html",
-      "path": "template-skills-showcase.html"
     },
     {
       "type": "page",
