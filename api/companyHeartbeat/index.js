@@ -558,9 +558,13 @@ function evaluateEscalationPath(task, now) {
   }
 
   // Medium priority due within 24h → domain lead only, Nova skips
-  // Exception: if task has been stuck 8+ hours (updatedAt age), escalate to Nova too
+  // Exception 1: if assignee IS nova, never skip (circular — nova is its own domain lead)
+  // Exception 2: if task has been stuck 8+ hours (updatedAt age), escalate to Nova too
   const _taskAge = task.updatedAt ? (now - new Date(task.updatedAt).getTime()) / (1000 * 60 * 60) : 0;
   if (priority === 'medium' && hoursUntilDue <= 24) {
+    if (assignee === 'nova') {
+      return { handler: 'owner', domainLead, reason: 'medium_due_24h_nova_is_owner', novaSkip: false };
+    }
     if (_taskAge >= 8) {
       return { handler: 'both', domainLead, reason: 'medium_due_24h_stale_8h', novaSkip: false };
     }
@@ -2962,13 +2966,33 @@ Write the full deliverable first, then the structured JSON block.`;
       });
       if (_executableIdle.length > 0) {
         const _stallTask = _executableIdle[0];
-        context.log('[Heartbeat] ANTI-STALL:', agentId, 'has', _triagedIdle.length,
-          'triaged idle task(s) (' + (_triagedIdle.length - _executableIdle.length) + ' convergence-blocked) — injecting execute-task for:', _stallTask.id, '"' + (_stallTask.title || '') + '"');
-        actions.unshift({
-          type: 'execute-task',
-          taskId: _stallTask.id,
-          summary: 'Anti-stall forced execution: ' + (_stallTask.title || _stallTask.id)
-        });
+        // Detect social tasks for Echo — must use create-social-action, not execute-task
+        const _stallText = ((_stallTask.title || '') + ' ' + (_stallTask.description || '')).toLowerCase();
+        const _isSocialTask = /linkedin|twitter|x\.com|social media|social post|bluesky|tweet|social_linkedin|social_x|social_bluesky/.test(_stallText) ||
+          /^social_/.test(_stallTask.taskType || '');
+        if (agentId === 'echo' && _isSocialTask) {
+          // Determine platform from task metadata
+          const _platform = (_stallTask.taskType === 'social_linkedin' || /linkedin/.test(_stallText)) ? 'linkedin'
+            : (_stallTask.taskType === 'social_x' || /twitter|x\.com|tweet/.test(_stallText)) ? 'x'
+            : (_stallTask.taskType === 'social_bluesky' || /bluesky/.test(_stallText)) ? 'bluesky'
+            : 'linkedin';
+          context.log('[Heartbeat] ANTI-STALL:', agentId, 'has', _triagedIdle.length,
+            'triaged idle task(s) (' + (_triagedIdle.length - _executableIdle.length) + ' convergence-blocked) — injecting create-social-action (social task) for:', _stallTask.id, '"' + (_stallTask.title || '') + '"', 'platform:', _platform);
+          actions.unshift({
+            type: 'create-social-action',
+            taskId: _stallTask.id,
+            social: { platform: _platform, text: '' },
+            summary: 'Anti-stall social action: ' + (_stallTask.title || _stallTask.id)
+          });
+        } else {
+          context.log('[Heartbeat] ANTI-STALL:', agentId, 'has', _triagedIdle.length,
+            'triaged idle task(s) (' + (_triagedIdle.length - _executableIdle.length) + ' convergence-blocked) — injecting execute-task for:', _stallTask.id, '"' + (_stallTask.title || '') + '"');
+          actions.unshift({
+            type: 'execute-task',
+            taskId: _stallTask.id,
+            summary: 'Anti-stall forced execution: ' + (_stallTask.title || _stallTask.id)
+          });
+        }
       } else if (_triagedIdle.length > 0) {
         // ALL idle tasks are convergence-blocked — try review-task on another agent's task instead
         const _reviewCandidates = allActiveTasks.filter(t =>
@@ -5176,6 +5200,15 @@ Write the full deliverable first, then the structured JSON block.`;
     if (!_agentProp.runId) _agentProp.runId = cycleId;
     if (!_agentProp.reasonBlocked) _agentProp.reasonBlocked = 'agent_proposed';
     if (!_agentProp.proposedAction) _agentProp.proposedAction = 'agent_suggestion';
+    // Fix 7: Auto-wrap proposals missing payload — LLM sometimes returns flat proposals without nested payload
+    if (!_agentProp.payload) {
+      _agentProp.payload = {
+        title: _agentProp.title || _agentProp.summary || _agentProp.proposedAction || 'Agent suggestion',
+        category: _agentProp.category || 'maintenance',
+        acceptanceCriteria: _agentProp.acceptanceCriteria || ['Define success criteria.'],
+        evidence: { runId: _agentProp.runId, agentId: _agentProp.agentId, autoWrapped: true }
+      };
+    }
     var _normProp = _normalizeProposal(_agentProp);
     if (_isValidProposal(_normProp)) {
       result.proposals.push(_normProp);
