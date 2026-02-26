@@ -1,6 +1,37 @@
 // ── Config Overview v3.1 ──
 // Extracted from config-overview.html
 
+// ── Tab Controller ──
+(function () {
+  var tabs = document.querySelectorAll('.cfg-tab');
+  var panels = document.querySelectorAll('.cfg-tab-panel');
+  if (!tabs.length || !panels.length) return;
+
+  function activate(id) {
+    tabs.forEach(function (t) {
+      var isActive = t.getAttribute('data-tab') === id;
+      t.classList.toggle('active', isActive);
+      t.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+    panels.forEach(function (p) {
+      p.classList.toggle('active', p.id === 'cfg-panel-' + id);
+    });
+    try { history.replaceState(null, '', '#' + id); } catch (e) {}
+  }
+
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () {
+      activate(this.getAttribute('data-tab'));
+    });
+  });
+
+  var hash = location.hash.replace('#', '');
+  var valid = Array.prototype.some.call(tabs, function (t) {
+    return t.getAttribute('data-tab') === hash;
+  });
+  activate(valid ? hash : tabs[0].getAttribute('data-tab'));
+})();
+
 (function () {
   // v3.1 — Defensive helpers
   function _cfgSetStatus(id, text, level) {

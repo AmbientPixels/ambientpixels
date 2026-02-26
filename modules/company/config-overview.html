@@ -29,6 +29,25 @@
       <p>Workspace settings, agent configuration, and system tools.</p>
     </div>
 
+    <!-- Tab Bar -->
+    <nav class="cfg-tabs" role="tablist" aria-label="Config sections">
+      <button class="cfg-tab" role="tab" data-tab="health" aria-controls="cfg-panel-health">
+        <i class="fas fa-heartbeat"></i>System Health
+      </button>
+      <button class="cfg-tab" role="tab" data-tab="automation" aria-controls="cfg-panel-automation">
+        <i class="fas fa-robot"></i>Automation
+      </button>
+      <button class="cfg-tab" role="tab" data-tab="storage" aria-controls="cfg-panel-storage">
+        <i class="fas fa-database"></i>Storage &amp; Sync
+      </button>
+      <button class="cfg-tab" role="tab" data-tab="maintenance" aria-controls="cfg-panel-maintenance">
+        <i class="fas fa-tools"></i>Maintenance
+      </button>
+    </nav>
+
+    <!-- ═══ TAB: System Health ═══ -->
+    <div class="cfg-tab-panel" id="cfg-panel-health" role="tabpanel">
+
     <!-- System Status Checklist -->
     <div class="cfg-checklist">
       <div class="cfg-checklist-title"><i class="fas fa-server" style="margin-right:4px;"></i> System Status</div>
@@ -162,6 +181,11 @@
     <!-- Agent Health Grid -->
     <div class="ov-section-title">Agent Health</div>
     <div class="cfg-agent-grid" id="ov-agents">Loading...</div>
+
+    </div><!-- /cfg-panel-health -->
+
+    <!-- ═══ TAB: Automation ═══ -->
+    <div class="cfg-tab-panel" id="cfg-panel-automation" role="tabpanel">
 
     <!-- Worker Automation -->
     <div class="ov-section-title">Worker Automation</div>
@@ -350,6 +374,11 @@
       <div class="cfg-ce-version" id="cfg-ce-version">Engine v—</div>
     </div>
 
+    </div><!-- /cfg-panel-automation -->
+
+    <!-- ═══ TAB: Storage & Sync ═══ -->
+    <div class="cfg-tab-panel" id="cfg-panel-storage" role="tabpanel">
+
     <!-- System Storage -->
     <div class="ov-section-title">System Storage</div>
     <div style="font-size:0.55rem; opacity:0.3; margin:-0.3rem 0 0.4rem 0;">Browser-side data cache and cleanup tools</div>
@@ -450,6 +479,11 @@
       </a>
     </div>
 
+    </div><!-- /cfg-panel-storage -->
+
+    <!-- ═══ TAB: Maintenance ═══ -->
+    <div class="cfg-tab-panel" id="cfg-panel-maintenance" role="tabpanel">
+
     <!-- System Maintenance -->
     <div class="cfg-maintenance">
       <div class="cfg-maintenance-title"><i class="fas fa-tools"></i> System Maintenance</div>
@@ -536,6 +570,8 @@
         </details>
       </div>
     </div>
+
+    </div><!-- /cfg-panel-maintenance -->
 
     <!-- Type-to-confirm overlay -->
     <div class="cfg-confirm-overlay" id="cfg-confirm-overlay">
