@@ -2960,10 +2960,36 @@ Write the full deliverable first, then the structured JSON block.`;
         )
         .sort((a, b) => (_prioOrder[a.priority] || 3) - (_prioOrder[b.priority] || 3));
       // Filter out convergence-blocked tasks (3+ deliverables — would just get blocked again)
-      const _executableIdle = _triagedIdle.filter(t => {
+      let _executableIdle = _triagedIdle.filter(t => {
         const _delCount = (t.comments || []).filter(c => c.type === 'deliverable').length;
         return _delCount < 3;
       });
+      // Fix 8: For Echo, filter out tasks that already have pending social actions (avoids dedup loop)
+      if (agentId === 'echo' && _executableIdle.length > 0) {
+        try {
+          const _existingActions = (await storage.getState('actions')) || [];
+          const _pendingSocialTaskIds = new Set();
+          for (let _eai = 0; _eai < _existingActions.length; _eai++) {
+            const _ea = _existingActions[_eai];
+            if (!_ea || !_ea.type || _ea.type.indexOf('social_post') !== 0) continue;
+            const _eaStatus = (_ea.approval && _ea.approval.status) || '';
+            if (_eaStatus === 'rejected' || _eaStatus === 'cancelled') continue;
+            const _eaExecStatus = (_ea.execution && _ea.execution.status) || '';
+            if (_eaExecStatus === 'success') continue;
+            if (_ea._parentTaskId) _pendingSocialTaskIds.add(_ea._parentTaskId);
+          }
+          if (_pendingSocialTaskIds.size > 0) {
+            const _beforeCount = _executableIdle.length;
+            _executableIdle = _executableIdle.filter(t => !_pendingSocialTaskIds.has(t.id));
+            if (_executableIdle.length < _beforeCount) {
+              context.log('[Heartbeat] ANTI-STALL: echo filtered out', (_beforeCount - _executableIdle.length),
+                'task(s) with pending social actions — remaining:', _executableIdle.length);
+            }
+          }
+        } catch (_pendErr) {
+          context.log('[Heartbeat] ANTI-STALL: echo pending social filter error (non-fatal):', String(_pendErr).substring(0, 200));
+        }
+      }
       if (_executableIdle.length > 0) {
         const _stallTask = _executableIdle[0];
         // Detect social tasks for Echo — must use create-social-action, not execute-task
