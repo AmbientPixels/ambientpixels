@@ -558,7 +558,12 @@ function evaluateEscalationPath(task, now) {
   }
 
   // Medium priority due within 24h → domain lead only, Nova skips
+  // Exception: if task has been stuck 8+ hours (updatedAt age), escalate to Nova too
+  const _taskAge = task.updatedAt ? (now - new Date(task.updatedAt).getTime()) / (1000 * 60 * 60) : 0;
   if (priority === 'medium' && hoursUntilDue <= 24) {
+    if (_taskAge >= 8) {
+      return { handler: 'both', domainLead, reason: 'medium_due_24h_stale_8h', novaSkip: false };
+    }
     return { handler: 'domainLead', domainLead, reason: 'medium_due_24h_domain_lead_handles', novaSkip: true };
   }
 
@@ -2937,9 +2942,10 @@ Write the full deliverable first, then the structured JSON block.`;
   }
 
   // ANTI-STALL: if agent has triaged idle tasks but produced no execute/create-doc/create-social-action, inject forced execute
+  // v2: Skip convergence-blocked tasks (3+ deliverables) — try a different task or review-task instead
   if (agentId !== 'nova') {
     const _hasWorkAction = actions.some(a =>
-      a.type === 'execute-task' || a.type === 'create-doc' || a.type === 'create-social-action'
+      a.type === 'execute-task' || a.type === 'create-doc' || a.type === 'create-social-action' || a.type === 'review-task'
     );
     if (!_hasWorkAction) {
       const _prioOrder = { critical: 0, high: 1, medium: 2, low: 3 };
@@ -2949,15 +2955,39 @@ Write the full deliverable first, then the structured JSON block.`;
           t.comments && t.comments.some(c => c.author === 'nova' || c.author === 'system')
         )
         .sort((a, b) => (_prioOrder[a.priority] || 3) - (_prioOrder[b.priority] || 3));
-      if (_triagedIdle.length > 0) {
-        const _stallTask = _triagedIdle[0];
+      // Filter out convergence-blocked tasks (3+ deliverables — would just get blocked again)
+      const _executableIdle = _triagedIdle.filter(t => {
+        const _delCount = (t.comments || []).filter(c => c.type === 'deliverable').length;
+        return _delCount < 3;
+      });
+      if (_executableIdle.length > 0) {
+        const _stallTask = _executableIdle[0];
         context.log('[Heartbeat] ANTI-STALL:', agentId, 'has', _triagedIdle.length,
-          'triaged idle task(s) but produced 0 work actions — injecting execute-task for:', _stallTask.id, '"' + (_stallTask.title || '') + '"');
+          'triaged idle task(s) (' + (_triagedIdle.length - _executableIdle.length) + ' convergence-blocked) — injecting execute-task for:', _stallTask.id, '"' + (_stallTask.title || '') + '"');
         actions.unshift({
           type: 'execute-task',
           taskId: _stallTask.id,
           summary: 'Anti-stall forced execution: ' + (_stallTask.title || _stallTask.id)
         });
+      } else if (_triagedIdle.length > 0) {
+        // ALL idle tasks are convergence-blocked — try review-task on another agent's task instead
+        const _reviewCandidates = allActiveTasks.filter(t =>
+          t.status === 'review' && t.assignee !== agentId &&
+          t.comments && t.comments.length > 0
+        );
+        if (_reviewCandidates.length > 0) {
+          const _reviewTarget = _reviewCandidates[0];
+          context.log('[Heartbeat] ANTI-STALL:', agentId, 'all', _triagedIdle.length,
+            'idle tasks convergence-blocked — injecting review-task for:', _reviewTarget.id, '"' + (_reviewTarget.title || '') + '"');
+          actions.unshift({
+            type: 'review-task',
+            taskId: _reviewTarget.id,
+            summary: 'Anti-stall review (all own tasks convergence-blocked): ' + (_reviewTarget.title || _reviewTarget.id)
+          });
+        } else {
+          context.log('[Heartbeat] ANTI-STALL:', agentId, 'all', _triagedIdle.length,
+            'idle tasks convergence-blocked and no reviewable tasks from other agents — agent fully stalled');
+        }
       }
     }
   }
@@ -3250,7 +3280,7 @@ Write the full deliverable first, then the structured JSON block.`;
             // Move to review so CEO sees it
             if (_exTask.status !== 'review') {
               result.taskUpdates.push({
-                action: 'status',
+                action: 'move',
                 taskId: action.taskId,
                 newStatus: 'review'
               });
@@ -5151,7 +5181,7 @@ Write the full deliverable first, then the structured JSON block.`;
       result.proposals.push(_normProp);
       context.log('[Heartbeat]', agentId, 'accepted new-format proposal:', (_normProp.payload && _normProp.payload.title) || '(untitled)');
     } else {
-      context.log('[Heartbeat]', agentId, 'rejected invalid new-format proposal');
+      context.log('[Heartbeat]', agentId, 'rejected invalid new-format proposal:', JSON.stringify({ type: _normProp && _normProp.type, agentId: _normProp && _normProp.agentId, runId: _normProp && _normProp.runId, hasPayload: !!(_normProp && _normProp.payload), reasonBlocked: _normProp && _normProp.reasonBlocked, proposedAction: _normProp && _normProp.proposedAction }).substring(0, 300));
     }
   }
 
@@ -5332,14 +5362,17 @@ DO NOT comment. DO NOT review. DO NOT plan. Generate the image NOW.`;
   const _cooldownSet = reviewCooldownIds || new Set();
   const _nowMs = Date.now();
   const _reviewableRaw = allActiveTasks
-    .filter(t => t.status === 'review' && t.assignee !== agent.name.toLowerCase() && !_cooldownSet.has(t.id) && t.comments && t.comments.some(c => c.type === 'deliverable'));
+    .filter(t => t.status === 'review' && t.assignee !== agent.name.toLowerCase() && !_cooldownSet.has(t.id) && t.comments && t.comments.length > 0);
   // Sort stale reviews first (oldest updatedAt)
   _reviewableRaw.sort((a, b) => new Date(a.updatedAt || a.createdAt || 0).getTime() - new Date(b.updatedAt || b.createdAt || 0).getTime());
   const reviewableTasks = _reviewableRaw
     .map(t => {
       const _ageMin = Math.round((_nowMs - new Date(t.updatedAt || t.createdAt || _nowMs).getTime()) / 60000);
       const _urgent = _ageMin >= 60 ? ' ⚠️ STALE ' + _ageMin + 'min — REVIEW NOW' : _ageMin >= 30 ? ' (waiting ' + _ageMin + 'min)' : '';
-      return '- [review] ' + t.title + ' (by ' + (t.assignee || 'unassigned') + ', type: ' + (t.taskType || 'general') + ', id: ' + t.id + ')' + _urgent;
+      const _delCount = (t.comments || []).filter(c => c.type === 'deliverable').length;
+      const _convergence = _delCount >= 3 ? ' 🔴 CONVERGENCE LOOP (' + _delCount + ' drafts — CEO needs to break the cycle)' : '';
+      const _delTag = _delCount > 0 ? ', deliverables: ' + _delCount : ', no deliverable yet';
+      return '- [review] ' + t.title + ' (by ' + (t.assignee || 'unassigned') + ', type: ' + (t.taskType || 'general') + _delTag + ', id: ' + t.id + ')' + _urgent + _convergence;
     })
     .join('\n') || '(none)';
   // Review urgency override: if 2+ tasks stale 60+ min, inject priority instruction
