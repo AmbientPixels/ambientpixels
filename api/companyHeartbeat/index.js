@@ -2100,23 +2100,25 @@ module.exports = async function (context) {
                 context.log('[Heartbeat] Skipping duplicate task_completion.approve for task:', ceo.taskId, '(existing:', existingApproval.id + ')');
               } else {
               const nowIso = new Date().toISOString();
-              // Resolve linked document + hero image for the approval view
-              let _tcHeroUrl = null;
-              let _tcHeroAssetId = null;
+              // Check for linked document — if one exists, publish_document is the real CEO gate
               let _tcDocId = null;
               try {
                 const _tcDocs = (await storage.getState('documents')) || [];
                 const _tcDoc = _tcDocs.find(d => d.taskId === ceo.taskId);
-                if (_tcDoc) {
-                  _tcDocId = _tcDoc.id;
-                  _tcHeroAssetId = _tcDoc.hero_image_asset_id || null;
-                  if (_tcHeroAssetId) {
-                    const _tcAssets = (await storage.getState('imageAssets')) || [];
-                    const _tcAsset = _tcAssets.find(a => a.id === _tcHeroAssetId);
-                    if (_tcAsset && _tcAsset.url) _tcHeroUrl = _tcAsset.url;
-                  }
-                }
+                if (_tcDoc) _tcDocId = _tcDoc.id;
               } catch (_tcErr) { /* non-fatal */ }
+
+              if (_tcDocId) {
+                // Task has a linked document — auto-complete, publish_document is the CEO gate
+                const _docParent = tasks.find(t => t.id === ceo.taskId);
+                if (_docParent && _docParent.status !== 'done') {
+                  _docParent.status = 'done';
+                  _docParent.completedAt = nowIso;
+                  _docParent.updatedAt = nowIso;
+                }
+                context.log('[Heartbeat] Auto-completed task with linked doc:', ceo.taskId, '(doc:', _tcDocId, ') — publish_document is the CEO gate');
+              } else {
+              // No linked document — create task_completion.approve for CEO review
               const completionAction = {
                 id: 'act_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
                 created_at: nowIso,
@@ -2127,10 +2129,7 @@ module.exports = async function (context) {
                   text: '**Task:** ' + ceo.taskTitle + '\n\n**Deliverable:**\n' + (ceo.deliverable || '(no deliverable)').substring(0, 2000) + '\n\n**Peer Review (' + (ceo.reviewerId || 'agent') + '):** ' + (ceo.reviewFeedback || 'Approved'),
                   taskId: ceo.taskId,
                   taskTitle: ceo.taskTitle,
-                  assignee: ceo.assignee,
-                  documentId: _tcDocId,
-                  hero_image_asset_id: _tcHeroAssetId,
-                  hero_image_url: _tcHeroUrl
+                  assignee: ceo.assignee
                 },
                 classification: 'autonomous',
                 requires_ceo_approval: true,
@@ -2155,7 +2154,8 @@ module.exports = async function (context) {
               // Task stays in review — CEO approves via actions tab, client-side handler moves task to done
               await storage.setState('actions', actionsStore);
               context.log('[Heartbeat] Created pending task_completion.approve for CEO review:', ceo.taskTitle, '→', completionAction.id);
-              }
+              } // end action creation
+              } // end if(_tcDocId) else
             }
             // Track tasks that just entered review — block same-cycle reviews
             if (updatedTask && updatedTask.status === 'review' && (update.action === 'execute' || update.action === 'move' || update.action === 'social-action-created')) {
