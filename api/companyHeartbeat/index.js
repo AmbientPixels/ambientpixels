@@ -2094,8 +2094,15 @@ module.exports = async function (context) {
               const existingApproval = actionsStore.find(a => a.type === 'task_completion.approve' && a.payload && a.payload.taskId === ceo.taskId);
               // Skip if ANY social post action was ever linked to this task — social post approval is the gate, not task_completion
               const linkedSocialAction = actionsStore.find(a => a._parentTaskId === ceo.taskId && a.type && a.type.indexOf('social_post') === 0);
+              // Skip if a content package approval exists for this task — content.package approval is the gate
+              const linkedContentPkg = actionsStore.find(a => a._parentTaskId === ceo.taskId && a.type === 'content.package');
+              // Also check approvalQueue for content.package items linked to this task
+              const approvalQueueStore = linkedContentPkg ? null : (await storage.getState('approvalQueue')) || [];
+              const linkedContentPkgAQ = !linkedContentPkg && approvalQueueStore ? approvalQueueStore.find(q => q.taskId === ceo.taskId && (q.kind === 'content.package' || q.type === 'content.package')) : null;
               if (linkedSocialAction) {
                 context.log('[Heartbeat] Skipping task_completion.approve for task:', ceo.taskId, '— linked social action', linkedSocialAction.id, 'will auto-complete on CEO approval');
+              } else if (linkedContentPkg || linkedContentPkgAQ) {
+                context.log('[Heartbeat] Skipping task_completion.approve for task:', ceo.taskId, '— linked content package in approval queue');
               } else if (existingApproval) {
                 context.log('[Heartbeat] Skipping duplicate task_completion.approve for task:', ceo.taskId, '(existing:', existingApproval.id + ')');
               } else {
