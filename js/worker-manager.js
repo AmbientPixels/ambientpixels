@@ -219,6 +219,44 @@ var WorkerManager = (function () {
       if (reports.length > MAX_REPORTS) reports = reports.slice(-MAX_REPORTS);
       localStorage.setItem(REPORTS_KEY, JSON.stringify(reports));
     } catch (e) { /* ignore */ }
+    // Sync to server so heartbeat (Nova) can read worker intel
+    _syncToServer(report);
+  }
+
+  // ── Sync report to company-state API (non-blocking, best-effort) ──
+  var SERVER_REPORTS_KEY = 'workerReports';
+  var SERVER_MAX_REPORTS = 20;
+  function _syncToServer(report) {
+    try {
+      // Compact the report for server storage (strip verbose items, keep intel)
+      var compact = {
+        type: report.type || 'unknown',
+        owner: report.owner || 'unknown',
+        correlationId: report.correlationId || null,
+        startedAt: report.startedAt || null,
+        finishedAt: report.finishedAt || null,
+        itemsProcessed: report.itemsProcessed || 0,
+        summary: (report.summary || '').substring(0, 500),
+        findings: (report.findings || []).slice(0, 5).map(function (f) { return String(f).substring(0, 200); }),
+        proposed_actions: (report.proposed_actions || []).slice(0, 5),
+        risks: (report.risks || []).slice(0, 3).map(function (r) { return String(r).substring(0, 200); }),
+        next_steps: (report.next_steps || []).slice(0, 3).map(function (s) { return String(s).substring(0, 200); })
+      };
+      // Read current server reports, append, trim, write back
+      fetch('/api/company-state?key=' + SERVER_REPORTS_KEY)
+        .then(function (res) { return res.ok ? res.json() : []; })
+        .then(function (existing) {
+          var reports = Array.isArray(existing) ? existing : [];
+          reports.push(compact);
+          if (reports.length > SERVER_MAX_REPORTS) reports = reports.slice(-SERVER_MAX_REPORTS);
+          return fetch('/api/company-state', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ key: SERVER_REPORTS_KEY, value: reports })
+          });
+        })
+        .catch(function () { /* non-fatal — localStorage is primary */ });
+    } catch (e) { /* non-fatal */ }
   }
 
   function getLatestReports(limit) {

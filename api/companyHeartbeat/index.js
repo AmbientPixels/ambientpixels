@@ -1065,6 +1065,9 @@ module.exports = async function (context) {
     const _seedMemories = (await storage.getState('agentSeedMemories')) || {};
     // Load persistent research intelligence store (survives beyond task completion)
     let researchIntelStore = (await storage.getState('researchIntel')) || [];
+    // Load worker reports (client-side workers sync intel here for Nova to read)
+    let workerReports = [];
+    try { workerReports = (await storage.getState('workerReports')) || []; } catch (_wrErr) { /* non-fatal */ }
     // Fetch cost data for Cipher (CFO) awareness
     let costIntel = null;
     try {
@@ -1623,7 +1626,8 @@ module.exports = async function (context) {
           agentId === 'cipher' ? costIntel : null,
           _reviewCooldownIds, _seedMemories, researchIntelStore, socialIntel,
           normalizedActivationMode, _isAgentInCooldown, _logAgentCooldownOnce, _incPolicyGate,
-          _agentCampaignCtx, siteIntel
+          _agentCampaignCtx, siteIntel,
+          agentId === 'nova' ? workerReports : null
         );
         // Collect any new research intel from this agent's cycle
         if (result.newResearchIntel) {
@@ -2650,7 +2654,7 @@ module.exports = async function (context) {
 };
 
 // ── Run a single agent's heartbeat ──
-async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, normalizedActivationMode, isAgentInCooldown, logAgentCooldownOnce, incPolicyGate, campaignCtx, siteIntel) {
+async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, normalizedActivationMode, isAgentInCooldown, logAgentCooldownOnce, incPolicyGate, campaignCtx, siteIntel, workerReports) {
   const _agentRunStartMs = Date.now();
   const result = {
     geminiCalls: 0,
@@ -2699,7 +2703,7 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
   // Only show this agent their own revision-requested actions
   const agentRevisions = (revisionActions || []).filter(a => a.created_by === agentId || a.origin_agent === agentId);
 
-  const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel);
+  const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports);
 
   // Call Gemini
   const response = await callGemini(prompt, agentId);
@@ -5233,7 +5237,7 @@ function buildSiteContextBlock() {
 }
 
 // ── Build heartbeat prompt ──
-function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel) {
+function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports) {
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
   documents = documents || [];
@@ -5388,6 +5392,38 @@ DO NOT comment. DO NOT review. DO NOT plan. Generate the image NOW.`;
 ${triageList}
 For each task: verify assignee is correct for the task type, set dueDate if missing, and leave a delegation comment explaining what you expect. Your comment is the triage stamp that unlocks the task for execution.
 IMPORTANT: CEO/manual tasks are the CEO's direct requests — triage them FIRST before any agent-created tasks. Total untriaged: ${allUntriaged.length} (${ceoUntriaged.length} CEO, ${agentUntriaged.length} agent-created).`;
+    }
+  }
+
+  // Nova-only: Worker intel — surface recent worker reports so Nova can act on their findings
+  let workerIntelSection = '';
+  if (agent.name === 'Nova' && workerReports && workerReports.length > 0) {
+    // Only show reports from the last 2 hours
+    const _wrCutoff = Date.now() - 2 * 60 * 60 * 1000;
+    const recentReports = workerReports
+      .filter(r => r.finishedAt && new Date(r.finishedAt).getTime() > _wrCutoff)
+      .slice(-5); // max 5 most recent
+    if (recentReports.length > 0) {
+      const wrLines = recentReports.map(r => {
+        const age = Math.round((Date.now() - new Date(r.finishedAt).getTime()) / 60000);
+        let line = '- ' + (r.type || 'worker') + ' (' + age + 'min ago, ' + (r.itemsProcessed || 0) + ' items): ' + (r.summary || 'No summary');
+        if (r.findings && r.findings.length > 0) {
+          line += '\n  Findings: ' + r.findings.slice(0, 3).join('; ');
+        }
+        if (r.proposed_actions && r.proposed_actions.length > 0) {
+          const actions = r.proposed_actions.slice(0, 3).map(a =>
+            (a.actionType || 'action') + ' on ' + (a.itemId || '?') + ' (' + (a.priority || 'medium') + ' priority, ' + (a.riskLevel || 'low') + ' risk): ' + (a.rationale || '')
+          );
+          line += '\n  Recommended: ' + actions.join('; ');
+        }
+        if (r.risks && r.risks.length > 0) {
+          line += '\n  Risks: ' + r.risks.slice(0, 2).join('; ');
+        }
+        return line;
+      }).join('\n');
+      workerIntelSection = `\n\nWORKER INTEL (from pressure-triggered analysis — act on these findings):
+${wrLines}
+Workers are read-only analysts that spawn during pressure spikes. Use their findings and proposed_actions to prioritize your triage and delegation decisions. If a worker recommends assigning a reviewer or escalating a task, act on it.`;
     }
   }
 
@@ -5692,7 +5728,7 @@ ${otherTasks}
 
 TASKS AWAITING REVIEW (from other agents — you can review these):
 ${reviewableTasks}${_reviewUrgencyNudge}
-${triageSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${workspaceSection}${costSection}${revisionSection}${socialIntelSection}
+${triageSection}${workerIntelSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${workspaceSection}${costSection}${revisionSection}${socialIntelSection}
 ${buildSiteContextBlock()}
 CURRENT TIME: ${new Date().toISOString()}
 
