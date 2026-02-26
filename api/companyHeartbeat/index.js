@@ -3601,6 +3601,15 @@ Write the full deliverable first, then the structured JSON block.`;
         }
       }
 
+      // Fix 9: If the social task has reviewed_copy but the action text is empty, inject the copy
+      if (action.taskId) {
+        const _rcTask = tasks.find(t => t.id === action.taskId);
+        if (_rcTask && _rcTask.reviewed_copy && (!action.social.text || action.social.text.trim() === '')) {
+          action.social.text = _rcTask.reviewed_copy;
+          context.log('[Heartbeat]', agentId, 'Injected reviewed_copy into social action text (' + action.social.text.length + ' chars)');
+        }
+      }
+
       // Agent-initiated social post action — routes through action layer governance
       const socialPayload = action.social;
 
