@@ -308,11 +308,15 @@
       <select class="tm-filter-select" id="filter-division">
         <option value="">All Divisions</option>
       </select>
+      <select class="tm-filter-select" id="filter-type">
+        <option value="">All Types</option>
+      </select>
       <select class="tm-filter-select" id="filter-group">
         <option value="">No Grouping</option>
         <option value="status">Group by Status</option>
         <option value="campaign">Group by Campaign</option>
         <option value="assignee">Group by Assignee</option>
+        <option value="taskType">Group by Type</option>
       </select>
       <div class="tm-search-wrap">
         <i class="fas fa-search tm-search-icon"></i>
@@ -424,6 +428,7 @@
           <tr>
             <th style="width:28px; cursor:default; opacity:1;" data-sort=""><input type="checkbox" class="tm-bulk-check" id="tm-check-all" title="Select all" /></th>
             <th data-sort="title">Task <span class="sort-arrow"></span></th>
+            <th data-sort="taskType">Type <span class="sort-arrow"></span></th>
             <th data-sort="status">Status <span class="sort-arrow"></span></th>
             <th data-sort="priority">Priority <span class="sort-arrow"></span></th>
             <th data-sort="assignee">Assignee <span class="sort-arrow"></span></th>
@@ -457,6 +462,11 @@
 
           <label for="task-title">Title</label>
           <input type="text" id="task-title" placeholder="Task title..." />
+
+          <label for="task-type">Task Type</label>
+          <select id="task-type">
+            <option value="general">General</option>
+          </select>
 
           <label for="task-desc">Description</label>
           <textarea id="task-desc" placeholder="What needs to be done..."></textarea>
@@ -594,6 +604,7 @@
       var filterPriority = '';
       var filterStatus = '';
       var filterDivision = '';
+      var filterType = '';
       var filterCampaign = '';
       var filterGoal = '';
       var filterGroup = '';
@@ -681,6 +692,15 @@
             });
           }
         });
+
+        // Populate task type filter dropdown
+        var filterTypeEl = document.getElementById('filter-type');
+        if (typeof CompanySchemas !== 'undefined' && CompanySchemas.TASK_TYPES) {
+          Object.keys(CompanySchemas.TASK_TYPES).forEach(function (key) {
+            var t = CompanySchemas.TASK_TYPES[key];
+            filterTypeEl.innerHTML += '<option value="' + key + '">' + t.label + '</option>';
+          });
+        }
 
         // Populate campaign filter dropdown
         var filterCampaignEl = document.getElementById('filter-campaign');
@@ -897,6 +917,9 @@
         }
         if (filterDivision) {
           tasks = tasks.filter(function (t) { return t.division === filterDivision; });
+        }
+        if (filterType) {
+          tasks = tasks.filter(function (t) { return (t.taskType || 'general') === filterType; });
         }
         if (filterCampaign) {
           tasks = tasks.filter(function (t) { return (t.campaign_id || t.directive_id) === filterCampaign; });
@@ -1268,13 +1291,21 @@
         }
 
         // Grouping key
+        function _taskTypeLabel(task) {
+          var key = task.taskType || 'general';
+          if (typeof CompanySchemas !== 'undefined' && CompanySchemas.TASK_TYPES && CompanySchemas.TASK_TYPES[key]) {
+            return CompanySchemas.TASK_TYPES[key].label;
+          }
+          return key.replace(/_/g, ' ').replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+        }
         function _groupKey(task) {
           if (filterGroup === 'status') return formatStatus(task.status || 'backlog');
           if (filterGroup === 'campaign') return _campaignTitle(task) || 'No Campaign';
           if (filterGroup === 'assignee') return _assigneeName(task) || 'Unassigned';
+          if (filterGroup === 'taskType') return _taskTypeLabel(task);
           return '';
         }
-        var _groupIcons = { status: 'fa-columns', campaign: 'fa-layer-group', assignee: 'fa-user' };
+        var _groupIcons = { status: 'fa-columns', campaign: 'fa-layer-group', assignee: 'fa-user', taskType: 'fa-tag' };
 
         // Sort value resolver for column sorting
         var statusOrder = { 'pending-approval': -1, 'in-progress': 0, 'review': 1, 'todo': 2, 'backlog': 3, 'done': 4 };
@@ -1287,6 +1318,7 @@
           if (col === 'campaign') return _campaignTitle(task).toLowerCase();
           if (col === 'goal') return _goalTitle(task).toLowerCase();
           if (col === 'division') return _divisionName(task).toLowerCase();
+          if (col === 'taskType') return _taskTypeLabel(task).toLowerCase();
           if (col === 'due') return task.dueDate || 'zzzz';
           return '';
         }
@@ -1327,7 +1359,7 @@
 
         listBody.innerHTML = '';
         if (tasks.length === 0) {
-          listBody.innerHTML = '<tr><td colspan="9" style="text-align:center; opacity:0.2; padding:2rem;">No tasks</td></tr>';
+          listBody.innerHTML = '<tr><td colspan="10" style="text-align:center; opacity:0.2; padding:2rem;">No tasks</td></tr>';
           return;
         }
 
@@ -1352,7 +1384,7 @@
               _lastGroupHeader = _groupLabel;
               var count = _groupCounts[_groupLabel] || 0;
               var hr = document.createElement('tr');
-              hr.innerHTML = '<td colspan="9" style="font-size:0.62rem; opacity:0.55; padding:0.35rem 0.45rem; border-top:1px solid rgba(255,255,255,0.08);"><i class="fas ' + groupIcon + '" style="margin-right:4px; opacity:0.55;"></i>' + escapeHtml(_groupLabel) + ' <span style="opacity:0.4;">(' + count + ')</span></td>';
+              hr.innerHTML = '<td colspan="10" style="font-size:0.62rem; opacity:0.55; padding:0.35rem 0.45rem; border-top:1px solid rgba(255,255,255,0.08);"><i class="fas ' + groupIcon + '" style="margin-right:4px; opacity:0.55;"></i>' + escapeHtml(_groupLabel) + ' <span style="opacity:0.4;">(' + count + ')</span></td>';
               listBody.appendChild(hr);
             }
           }
@@ -1384,6 +1416,7 @@
           tr.innerHTML =
             '<td style="width:28px;" onclick="event.stopPropagation();"><input type="checkbox" class="tm-bulk-check" data-task-id="' + task.id + '"' + checked + ' /></td>' +
             '<td>' + titleCell + '</td>' +
+            '<td><span style="font-size:0.62rem; opacity:0.55; background:rgba(255,255,255,0.04); padding:2px 6px; border-radius:3px;">' + _taskTypeLabel(task) + '</span></td>' +
             '<td><span class="tm-list-status tm-list-status--' + task.status + '">' + formatStatus(task.status) + '</span></td>' +
             '<td><span class="tm-card-priority tm-card-priority--' + task.priority + '">' + task.priority + '</span></td>' +
             '<td>' + (agent ? '<span style="color:' + agent.color + ';">' + agent.name + '</span>' : '<span style="opacity:0.2">&mdash;</span>') + '</td>' +
@@ -1629,6 +1662,11 @@
         renderList();
       });
 
+      document.getElementById('filter-type').addEventListener('change', function () {
+        filterType = this.value;
+        renderBoard();
+        renderList();
+      });
 
       document.getElementById('filter-campaign').addEventListener('change', function () {
         filterCampaign = this.value;
@@ -1680,7 +1718,20 @@
       var taskAssigneeField = document.getElementById('task-assignee');
       var taskDivisionField = document.getElementById('task-division');
       var taskDueField = document.getElementById('task-due');
+      var taskTypeField = document.getElementById('task-type');
       var taskCampaignField = document.getElementById('task-campaign');
+
+      // Populate task type dropdown from schema
+      (function _populateTaskTypes() {
+        if (typeof CompanySchemas !== 'undefined' && CompanySchemas.TASK_TYPES) {
+          var html = '';
+          Object.keys(CompanySchemas.TASK_TYPES).forEach(function (key) {
+            var t = CompanySchemas.TASK_TYPES[key];
+            html += '<option value="' + key + '">' + t.label + '</option>';
+          });
+          taskTypeField.innerHTML = html;
+        }
+      })();
       var taskObjectiveField = document.getElementById('task-objective');
       var taskCommentsSection = document.getElementById('task-comments');
       var taskCommentsList = document.getElementById('task-comments-list');
@@ -1734,6 +1785,7 @@
         modalTitle.textContent = 'New Task';
         taskIdField.value = '';
         taskTitleField.value = '';
+        taskTypeField.value = 'general';
         taskDescField.value = '';
         taskStatusField.value = 'todo';
         taskPriorityField.value = 'medium';
@@ -1768,6 +1820,7 @@
         modalTitle.textContent = 'Edit Task' + (task.taskNumber ? ' #' + task.taskNumber : '');
         taskIdField.value = task.id;
         taskTitleField.value = task.title;
+        taskTypeField.value = task.taskType || 'general';
         taskDescField.value = task.description || '';
         taskStatusField.value = task.status;
         taskPriorityField.value = task.priority;
@@ -2127,6 +2180,7 @@
 
         var data = {
           title: title,
+          taskType: taskTypeField.value || 'general',
           description: taskDescField.value.trim(),
           status: taskStatusField.value,
           priority: taskPriorityField.value,

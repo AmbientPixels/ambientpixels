@@ -3116,11 +3116,23 @@ Write the full deliverable first, then the structured JSON block.`;
       if (action.task.parent_task_id && agentId !== 'nova') {
         context.log('[Heartbeat]', agentId, 'STRIPPED parent_task_id from create-task — only Nova can set task hierarchy');
       }
+      // Pass through taskType if agent provides it; auto-infer from title if not set
+      let _taskType = action.task.taskType || null;
+      if (!_taskType) {
+        const _ctTitle = ((action.task.title || '') + ' ' + (action.task.description || '')).toLowerCase();
+        if (/write.*blog|draft.*blog|blog\s*post|create.*blog|publish.*blog|new.*blog|first\s*blog|write.*article/.test(_ctTitle)) _taskType = 'blog_post';
+        else if (/social.*post|post.*to.*x\b|tweet|linkedin.*post|bluesky.*post/.test(_ctTitle)) _taskType = 'social_x';
+        else if (/hero\s*image|generate.*image.*blog|blog.*header/.test(_ctTitle)) _taskType = 'design_asset';
+        else if (/spec\b|runbook|release.*note|governance.*doc|internal.*doc/.test(_ctTitle)) _taskType = 'internal_doc';
+        else if (/research|competitive.*intel|market.*analysis/.test(_ctTitle)) _taskType = 'research';
+        else if (/deploy|infrastructure|ci.*cd|pipeline|devops/.test(_ctTitle)) _taskType = 'ops';
+      }
       result.taskUpdates.push({
         action: 'create',
         task: {
           title: action.task.title || 'Untitled',
           description: action.task.description || '',
+          taskType: _taskType || 'general',
           status: action.task.status || 'todo',
           priority: action.task.priority || 'medium',
           assignee: action.task.assignee || agentId,
@@ -3235,9 +3247,14 @@ Write the full deliverable first, then the structured JSON block.`;
             result.executes = (result.executes || 0) + 1;
 
             // SERVER-SIDE FALLBACK: Auto-create document for blog post tasks that used execute-task instead of create-doc
-            // Only Scribe should trigger this — other agents executing tasks that mention "blog post" shouldn't create docs
+            // Three-layer detection: (1) taskType field, (2) title/desc regex fallback, (3) deliverable content signals
             const _etTaskText = ((task.title || '') + ' ' + (task.description || '')).toLowerCase();
-            const _isBlogTask = agentId === 'scribe' && /write.*blog|draft.*blog|blog\s*post.*write|first\s*blog|introductory\s*post|write.*article/.test(_etTaskText);
+            const _etDeliverableLower = (deliverable || '').toLowerCase();
+            const _isBlogByType = (task.taskType === 'blog_post' || task.taskType === 'article');
+            const _isBlogByTitle = /write.*blog|draft.*blog|blog\s*post|create.*blog|publish.*blog|new.*blog|first\s*blog|introductory\s*post|write.*article|compose.*article/.test(_etTaskText);
+            const _isBlogByContent = /document\s*type:\s*marketing_post|publishing\s*to\s*\/blog\/|submit.*ceo.*approv.*publish/.test(_etDeliverableLower);
+            const _isBlogTask = agentId === 'scribe' && (_isBlogByType || _isBlogByTitle || _isBlogByContent);
+            if (_isBlogTask) context.log('[Heartbeat] BLOG DETECTED:', agentId, 'task:', action.taskId, 'byType:', _isBlogByType, 'byTitle:', _isBlogByTitle, 'byContent:', _isBlogByContent);
             if (_isBlogTask && deliverable.length > 200) {
               const _etDocsStore = (await storage.getState('documents')) || [];
               const _etExistingDoc = _etDocsStore.find(d => {

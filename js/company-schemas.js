@@ -11,6 +11,27 @@ var CompanySchemas = (function () {
   function isArray(v) { return Array.isArray(v); }
   function isOneOf(v, list) { return list.indexOf(v) !== -1; }
 
+  // ── Task Types — structured routing for content pipelines ──
+  var TASK_TYPES = {
+    general:          { label: 'General',          pipeline: 'simple',  requiresDoc: false, description: 'Standard task (execute → review → done)' },
+    blog_post:        { label: 'Blog Post',        pipeline: 'blog',    requiresDoc: true,  description: 'Blog article with hero image → publish to /blog/' },
+    article:          { label: 'Article',           pipeline: 'blog',    requiresDoc: true,  description: 'Long-form content → publish (no hero image required)' },
+    social_x:         { label: 'X Post',            pipeline: 'social',  requiresDoc: false, description: 'Post to X/Twitter' },
+    social_linkedin:  { label: 'LinkedIn Post',     pipeline: 'social',  requiresDoc: false, description: 'Post to LinkedIn' },
+    social_bluesky:   { label: 'Bluesky Post',      pipeline: 'social',  requiresDoc: false, description: 'Post to Bluesky' },
+    internal_doc:     { label: 'Internal Doc',      pipeline: 'doc',     requiresDoc: true,  description: 'Spec, runbook, or governance doc → publish to /docs/' },
+    design_asset:     { label: 'Design Asset',      pipeline: 'content', requiresDoc: false, description: 'Image or content package → approval' },
+    research:         { label: 'Research',           pipeline: 'simple',  requiresDoc: false, description: 'Research and analysis task' },
+    ops:              { label: 'Ops / DevOps',       pipeline: 'simple',  requiresDoc: false, description: 'Infrastructure, deployment, or maintenance task' },
+    finance:          { label: 'Finance',             pipeline: 'simple',  requiresDoc: false, description: 'Budget reports, cost analysis, spending reviews (Cipher)' },
+    editorial:        { label: 'Editorial',           pipeline: 'simple',  requiresDoc: false, description: 'Editing, proofreading, brand voice review (Quill)' },
+    bug_fix:          { label: 'Bug Fix',             pipeline: 'simple',  requiresDoc: false, description: 'Development fix — higher urgency routing (Forge)' },
+    newsletter:       { label: 'Newsletter',          pipeline: 'blog',    requiresDoc: true,  description: 'Email newsletter content → publish' },
+    intake:           { label: 'Intake Request',      pipeline: 'triage',  requiresDoc: false, description: 'Inbound request from form or external source — Nova triages and reclassifies' },
+    support:          { label: 'Support Ticket',      pipeline: 'triage',  requiresDoc: false, description: 'Customer support request — Nova triages, routes to appropriate agent' }
+  };
+  var TASK_TYPE_KEYS = Object.keys(TASK_TYPES);
+
   var TASK_STATUSES = ['pending-approval', 'backlog', 'todo', 'in-progress', 'review', 'done'];
   var TASK_PRIORITIES = ['low', 'medium', 'high', 'critical'];
   var TASK_CLASSIFICATIONS = ['autonomous', 'advisory', 'executive_required'];
@@ -305,6 +326,8 @@ var CompanySchemas = (function () {
   }
 
   return {
+    TASK_TYPES: TASK_TYPES,
+    TASK_TYPE_KEYS: TASK_TYPE_KEYS,
     TASK_STATUSES: TASK_STATUSES,
     TASK_PRIORITIES: TASK_PRIORITIES,
     TASK_CLASSIFICATIONS: TASK_CLASSIFICATIONS,
