@@ -5326,11 +5326,25 @@ DO NOT comment. DO NOT review. DO NOT plan. Generate the image NOW.`;
   // Find tasks in review from other agents (for potential review action)
   // Exclude tasks that entered review THIS heartbeat cycle (review cooldown)
   const _cooldownSet = reviewCooldownIds || new Set();
-  const reviewableTasks = allActiveTasks
-    .filter(t => t.status === 'review' && t.assignee !== agent.name.toLowerCase() && !_cooldownSet.has(t.id) && t.comments && t.comments.some(c => c.type === 'deliverable'))
-    .slice(0, 3)
-    .map(t => '- [review] ' + t.title + ' (by ' + (t.assignee || 'unassigned') + ', id: ' + t.id + ')')
+  const _nowMs = Date.now();
+  const _reviewableRaw = allActiveTasks
+    .filter(t => t.status === 'review' && t.assignee !== agent.name.toLowerCase() && !_cooldownSet.has(t.id) && t.comments && t.comments.some(c => c.type === 'deliverable'));
+  // Sort stale reviews first (oldest updatedAt)
+  _reviewableRaw.sort((a, b) => new Date(a.updatedAt || a.createdAt || 0).getTime() - new Date(b.updatedAt || b.createdAt || 0).getTime());
+  const reviewableTasks = _reviewableRaw
+    .map(t => {
+      const _ageMin = Math.round((_nowMs - new Date(t.updatedAt || t.createdAt || _nowMs).getTime()) / 60000);
+      const _urgent = _ageMin >= 60 ? ' ⚠️ STALE ' + _ageMin + 'min — REVIEW NOW' : _ageMin >= 30 ? ' (waiting ' + _ageMin + 'min)' : '';
+      return '- [review] ' + t.title + ' (by ' + (t.assignee || 'unassigned') + ', type: ' + (t.taskType || 'general') + ', id: ' + t.id + ')' + _urgent;
+    })
     .join('\n') || '(none)';
+  // Review urgency override: if 2+ tasks stale 60+ min, inject priority instruction
+  const _staleReviewCount = _reviewableRaw.filter(t => (_nowMs - new Date(t.updatedAt || t.createdAt || _nowMs).getTime()) >= 60 * 60000).length;
+  const _reviewUrgencyNudge = _staleReviewCount >= 2
+    ? '\n\n🚨 REVIEW BOTTLENECK: ' + _staleReviewCount + ' tasks have been waiting for review 60+ minutes. YOUR FIRST ACTION THIS CYCLE MUST BE review-task on one of the stale tasks above. Do NOT execute your own tasks until you have reviewed at least one stale task.\n'
+    : _staleReviewCount === 1
+    ? '\n\n⚠️ REVIEW NEEDED: 1 task has been waiting for review 60+ minutes. Prioritize reviewing it before executing your own work.\n'
+    : '';
 
   // Nova-only: surface untriaged tasks — ANY task without a Nova/system comment needs triage
   // CEO/manual tasks get a PRIORITY LANE — always shown first, never buried by agent-created noise
@@ -5677,7 +5691,7 @@ OTHER ACTIVE TASKS:
 ${otherTasks}
 
 TASKS AWAITING REVIEW (from other agents — you can review these):
-${reviewableTasks}
+${reviewableTasks}${_reviewUrgencyNudge}
 ${triageSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${workspaceSection}${costSection}${revisionSection}${socialIntelSection}
 ${buildSiteContextBlock()}
 CURRENT TIME: ${new Date().toISOString()}
