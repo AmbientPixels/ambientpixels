@@ -2100,6 +2100,23 @@ module.exports = async function (context) {
                 context.log('[Heartbeat] Skipping duplicate task_completion.approve for task:', ceo.taskId, '(existing:', existingApproval.id + ')');
               } else {
               const nowIso = new Date().toISOString();
+              // Resolve linked document + hero image for the approval view
+              let _tcHeroUrl = null;
+              let _tcHeroAssetId = null;
+              let _tcDocId = null;
+              try {
+                const _tcDocs = (await storage.getState('documents')) || [];
+                const _tcDoc = _tcDocs.find(d => d.taskId === ceo.taskId);
+                if (_tcDoc) {
+                  _tcDocId = _tcDoc.id;
+                  _tcHeroAssetId = _tcDoc.hero_image_asset_id || null;
+                  if (_tcHeroAssetId) {
+                    const _tcAssets = (await storage.getState('imageAssets')) || [];
+                    const _tcAsset = _tcAssets.find(a => a.id === _tcHeroAssetId);
+                    if (_tcAsset && _tcAsset.url) _tcHeroUrl = _tcAsset.url;
+                  }
+                }
+              } catch (_tcErr) { /* non-fatal */ }
               const completionAction = {
                 id: 'act_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
                 created_at: nowIso,
@@ -2110,7 +2127,10 @@ module.exports = async function (context) {
                   text: '**Task:** ' + ceo.taskTitle + '\n\n**Deliverable:**\n' + (ceo.deliverable || '(no deliverable)').substring(0, 2000) + '\n\n**Peer Review (' + (ceo.reviewerId || 'agent') + '):** ' + (ceo.reviewFeedback || 'Approved'),
                   taskId: ceo.taskId,
                   taskTitle: ceo.taskTitle,
-                  assignee: ceo.assignee
+                  assignee: ceo.assignee,
+                  documentId: _tcDocId,
+                  hero_image_asset_id: _tcHeroAssetId,
+                  hero_image_url: _tcHeroUrl
                 },
                 classification: 'autonomous',
                 requires_ceo_approval: true,
@@ -3266,6 +3286,7 @@ Write the full deliverable first, then the structured JSON block.`;
                     createdAt: new Date().toISOString(),
                     updatedAt: new Date().toISOString(),
                     campaign_id: task.campaign_id || null,
+                    objective_id: task.objective_id || null,
                     tags: ['hero-image', 'auto-created', 'visual-workflow'],
                     comments: [{
                       id: 'cmt-hero-' + Date.now(),
@@ -4020,6 +4041,7 @@ Write the full deliverable first, then the structured JSON block.`;
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString(),
               campaign_id: action.campaign_id || null,
+              objective_id: action.objective_id || (action.task && action.task.objective_id) || null,
               tags: ['hero-image', 'auto-created', 'visual-workflow'],
               comments: [{
                 id: 'cmt-hero-' + Date.now(),
