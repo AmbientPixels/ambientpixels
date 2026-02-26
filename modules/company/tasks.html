@@ -1750,6 +1750,9 @@
         if (taskLifecycleSection) taskLifecycleSection.style.display = 'none';
         if (taskLifecycleEl) taskLifecycleEl.innerHTML = '';
         if (taskLifecycleBadgesEl) taskLifecycleBadgesEl.innerHTML = '';
+        // Clear edit-mode sections so stale data doesn't leak into new task form
+        document.getElementById('tm-modal-provenance').style.display = 'none';
+        document.getElementById('tm-related-tasks').style.display = 'none';
         modal.classList.add('active');
         setTimeout(function () { taskTitleField.focus(); }, 100);
       }
