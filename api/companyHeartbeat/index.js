@@ -5206,15 +5206,20 @@ Write the full deliverable first, then the structured JSON block.`;
         title: _agentProp.title || _agentProp.summary || _agentProp.proposedAction || 'Agent suggestion',
         category: _agentProp.category || 'maintenance',
         acceptanceCriteria: _agentProp.acceptanceCriteria || ['Define success criteria.'],
-        evidence: { runId: _agentProp.runId, agentId: _agentProp.agentId, autoWrapped: true }
+        evidence: { runId: _agentProp.runId, agentId: _agentProp.agentId, autoWrapped: true },
+        objective_suggestion: _agentProp.objective_suggestion || _agentProp.objective_id || 'Agent-proposed improvement'
       };
+    }
+    // Fix 7b: Ensure objective linkage even if payload existed but lacked it
+    if (_agentProp.payload && !_agentProp.payload.objective_id && !_agentProp.payload.objective_suggestion) {
+      _agentProp.payload.objective_suggestion = _agentProp.objective_suggestion || _agentProp.objective_id || 'Agent-proposed improvement';
     }
     var _normProp = _normalizeProposal(_agentProp);
     if (_isValidProposal(_normProp)) {
       result.proposals.push(_normProp);
       context.log('[Heartbeat]', agentId, 'accepted new-format proposal:', (_normProp.payload && _normProp.payload.title) || '(untitled)');
     } else {
-      context.log('[Heartbeat]', agentId, 'rejected invalid new-format proposal:', JSON.stringify({ type: _normProp && _normProp.type, agentId: _normProp && _normProp.agentId, runId: _normProp && _normProp.runId, hasPayload: !!(_normProp && _normProp.payload), reasonBlocked: _normProp && _normProp.reasonBlocked, proposedAction: _normProp && _normProp.proposedAction }).substring(0, 300));
+      context.log('[Heartbeat]', agentId, 'rejected invalid new-format proposal:', JSON.stringify({ type: _normProp && _normProp.type, agentId: _normProp && _normProp.agentId, runId: _normProp && _normProp.runId, hasPayload: !!(_normProp && _normProp.payload), hasTitle: !!(_normProp && _normProp.payload && _normProp.payload.title), hasCategory: !!(_normProp && _normProp.payload && _normProp.payload.category), hasAC: !!(_normProp && _normProp.payload && Array.isArray(_normProp.payload.acceptanceCriteria) && _normProp.payload.acceptanceCriteria.length > 0), hasEvidence: !!(_normProp && _normProp.payload && _normProp.payload.evidence && _normProp.payload.evidence.runId), hasObjective: !!(_normProp && _normProp.payload && (_normProp.payload.objective_id || _normProp.payload.objective_suggestion)), reasonBlocked: _normProp && _normProp.reasonBlocked, proposedAction: _normProp && _normProp.proposedAction }).substring(0, 500));
     }
   }
 
