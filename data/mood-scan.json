@@ -1,13 +1,13 @@
 {
-  "mood": "static reverie",
-  "aura": "glitchy",
-  "auraColorHex": "#431571",
-  "quote": "pinging internal stardust archives...",
-  "emoji": "📺",
-  "selfWorth": 0.1,
+  "mood": "melancholy",
+  "aura": "tangled clarity",
+  "auraColorHex": "#23415a",
+  "quote": "surfacing hidden anomalies of feeling...",
+  "emoji": "🌧️",
+  "selfWorth": 0.2,
   "glitchFactor": 0.1,
-  "memoryClutter": 1,
-  "awareness": 0.1,
+  "memoryClutter": 0.7,
+  "awareness": 0.2,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: glitchy"
+      "Aura Signature: tangled clarity"
     ]
   },
-  "timestamp": "2026-02-26T14:10:40.128Z"
+  "timestamp": "2026-02-27T14:00:52.813Z"
 }
