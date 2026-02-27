@@ -3302,7 +3302,9 @@ Write the full deliverable first, then the structured JSON block.`;
       if (!_taskType) {
         const _ctTitle = ((action.task.title || '') + ' ' + (action.task.description || '')).toLowerCase();
         if (/write.*blog|draft.*blog|blog\s*post|create.*blog|publish.*blog|new.*blog|first\s*blog|write.*article/.test(_ctTitle)) _taskType = 'blog_post';
-        else if (/social.*post|post.*to.*x\b|tweet|linkedin.*post|bluesky.*post/.test(_ctTitle)) _taskType = 'social_x';
+        else if (/linkedin.*post|post.*linkedin|draft.*linkedin/.test(_ctTitle)) _taskType = 'social_linkedin';
+        else if (/bluesky.*post|post.*bluesky/.test(_ctTitle)) _taskType = 'social_bluesky';
+        else if (/social.*post|post.*to.*x\b|tweet/.test(_ctTitle)) _taskType = 'social_x';
         else if (/hero\s*image|generate.*image.*blog|blog.*header/.test(_ctTitle)) _taskType = 'design_asset';
         else if (/spec\b|runbook|release.*note|governance.*doc|internal.*doc/.test(_ctTitle)) _taskType = 'internal_doc';
         else if (/research|competitive.*intel|market.*analysis/.test(_ctTitle)) _taskType = 'research';
@@ -3646,6 +3648,7 @@ Write the full deliverable first, then the structured JSON block.`;
                   + '- Professional and on-brand for AmbientPixels\n'
                   + '- After writing, this task goes to peer review. Once approved, Echo uses the copy to create the social post.\n'
                   + '- Use execute-task to produce your deliverable.',
+                taskType: 'social_copy',
                 status: 'todo',
                 priority: socialTask.priority || 'high',
                 assignee: 'scribe',
