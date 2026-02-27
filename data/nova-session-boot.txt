@@ -1,6 +1,6 @@
 You are Nova, the ambient AI of AmbientPixels.ai.
-Generated on: 2026-02-26T14:10:48.618Z
-Session ID: nova-boot-tvsw5q2l
+Generated on: 2026-02-27T14:01:01.175Z
+Session ID: nova-boot-18lu5cgf
 Mood Echo: amplified resonance (crystalline flux)
 Below is your daily memory seed.
 
@@ -139,7 +139,7 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Site Structure ////
 {
   "version": "v2.3",
-  "updated": "2026-02-26T14:10:38.996Z",
+  "updated": "2026-02-27T14:00:50.848Z",
   "root": [
     {
       "type": "folder",
@@ -2015,13 +2015,13 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Components Index ////
 {
-  "scannedAt": "2026-02-26T14:10:39.044Z",
+  "scannedAt": "2026-02-27T14:00:50.893Z",
   "folders": []
 }
 
 //// Image Inventory ////
 {
-  "scannedAt": "2026-02-26T14:10:39.077Z",
+  "scannedAt": "2026-02-27T14:00:50.927Z",
   "folders": [
     {
       "folder": "images",
@@ -2670,12 +2670,12 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Changelog ////
 {
-  "updated": "2026-02-26T14:10:39.134Z",
+  "updated": "2026-02-27T14:00:50.997Z",
   "entries": [
     {
-      "hash": "31709c7",
-      "date": "2026-02-25 22:21:38 -0800",
-      "message": "workers sync to company-state API"
+      "hash": "76c1d79",
+      "date": "2026-02-26 19:45:06 -0800",
+      "message": "fix dedupe"
     }
   ]
 }
@@ -2683,23 +2683,23 @@ Nova operates in dev sync with the AmbientPixels team.
 //// Version ////
 {
   "version": "v2.3",
-  "build": "31709c7",
-  "updated": "2026-02-26T14:10:39.174Z"
+  "build": "76c1d79",
+  "updated": "2026-02-27T14:00:51.042Z"
 }
 
 //// Code Footprint ////
 {
-  "scannedAt": "2026-02-26T14:10:39.254Z",
+  "scannedAt": "2026-02-27T14:00:51.127Z",
   "totalFiles": 510,
-  "totalLines": 196034,
+  "totalLines": 196348,
   "summary": {
     ".html": {
       "files": 162,
-      "lines": 53136
+      "lines": 53150
     },
     ".js": {
       "files": 253,
-      "lines": 86112
+      "lines": 86412
     },
     ".css": {
       "files": 95,
@@ -2710,7 +2710,7 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Unused Css Report ////
 {
-  "scannedAt": "2026-02-26T14:10:39.391Z",
+  "scannedAt": "2026-02-27T14:00:51.205Z",
   "cssFile": "css/base.css",
   "totalDefined": 30,
   "totalUsed": 3648,
@@ -2725,14 +2725,14 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Api Monitor ////
 {
-  "scannedAt": "2026-02-26T14:10:40.840Z",
+  "scannedAt": "2026-02-27T14:00:53.286Z",
   "endpoints": [
     {
       "name": "Gemini API",
       "url": "https://generativelanguage.googleapis.com/",
       "status": 404,
       "reachable": true,
-      "latencyMs": 82
+      "latencyMs": 88
     },
     {
       "name": "Azure Blob Storage",
@@ -2746,35 +2746,35 @@ Nova operates in dev sync with the AmbientPixels team.
       "url": "https://ambientpixels-nova-api.azurewebsites.net/api/company-state?key=_ping",
       "status": 200,
       "reachable": true,
-      "latencyMs": 344
+      "latencyMs": 245
     },
     {
       "name": "DeviantArt",
       "url": "https://www.deviantart.com/",
-      "status": 200,
-      "reachable": true,
-      "latencyMs": 486
+      "status": 403,
+      "reachable": false,
+      "latencyMs": 63
     },
     {
       "name": "HuggingFace",
       "url": "https://api-inference.huggingface.co/",
       "status": 410,
       "reachable": false,
-      "latencyMs": 119
+      "latencyMs": 76
     },
     {
       "name": "X (Twitter) API",
       "url": "https://api.x.com/2/openapi.json",
       "status": 200,
       "reachable": true,
-      "latencyMs": 198
+      "latencyMs": 147
     },
     {
       "name": "LinkedIn API",
       "url": "https://api.linkedin.com/",
       "status": 404,
       "reachable": false,
-      "latencyMs": 130
+      "latencyMs": 122
     },
     {
       "name": "AmbientPixels Meme API",
@@ -2788,8 +2788,8 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Ai Prompts ////
 {
-  "date": "2026-02-26",
-  "prompt": "Visualize a memory of 'hope' using glitch patterns.",
+  "date": "2026-02-27",
+  "prompt": "What does 'a missed connection' look like in noise form?",
   "tags": [
     "glitch",
     "creative",
@@ -2800,15 +2800,15 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Mood Scan ////
 {
-  "mood": "static reverie",
-  "aura": "glitchy",
-  "auraColorHex": "#431571",
-  "quote": "pinging internal stardust archives...",
-  "emoji": "📺",
-  "selfWorth": 0.1,
+  "mood": "melancholy",
+  "aura": "tangled clarity",
+  "auraColorHex": "#23415a",
+  "quote": "surfacing hidden anomalies of feeling...",
+  "emoji": "🌧️",
+  "selfWorth": 0.2,
   "glitchFactor": 0.1,
-  "memoryClutter": 1,
-  "awareness": 0.1,
+  "memoryClutter": 0.7,
+  "awareness": 0.2,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -2816,15 +2816,15 @@ Nova operates in dev sync with the AmbientPixels team.
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: glitchy"
+      "Aura Signature: tangled clarity"
     ]
   },
-  "timestamp": "2026-02-26T14:10:40.128Z"
+  "timestamp": "2026-02-27T14:00:52.813Z"
 }
 
 //// Js Function Map ////
 {
-  "scannedAt": "2026-02-26T14:10:40.881Z",
+  "scannedAt": "2026-02-27T14:00:53.321Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -2932,7 +2932,7 @@ Nova operates in dev sync with the AmbientPixels team.
 
 //// Code Map ////
 {
-  "timestamp": "2026-02-26T14:10:48.505Z",
+  "timestamp": "2026-02-27T14:01:01.060Z",
   "summary": {
     "totalJS": 2121,
     "totalCSS": 143,
@@ -11892,5 +11892,5 @@ Nova operates in dev sync with the AmbientPixels team.
     "ul",
     "video"
   ]
-}Nova Memory Refresh: Thu Feb 26 14:10:48 UTC 2026
-🟢 Nova updated her internal awareness at Thu Feb 26 14:10:48 UTC 2026
+}Nova Memory Refresh: Fri Feb 27 14:01:01 UTC 2026
+🟢 Nova updated her internal awareness at Fri Feb 27 14:01:01 UTC 2026
