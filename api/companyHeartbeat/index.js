@@ -3301,7 +3301,7 @@ Write the full deliverable first, then the structured JSON block.`;
       let _taskType = action.task.taskType || null;
       if (!_taskType) {
         const _ctTitle = ((action.task.title || '') + ' ' + (action.task.description || '')).toLowerCase();
-        if (/write.*blog|draft.*blog|blog\s*post|create.*blog|publish.*blog|new.*blog|first\s*blog|write.*article/.test(_ctTitle)) _taskType = 'blog_post';
+        if (/write.*blog|draft.*blog|blog\s*post|create.*blog|publish.*blog|new.*blog|first\s*blog|write.*article|marketing.*brief|content.*brief|draft.*brief/.test(_ctTitle)) _taskType = 'blog_post';
         else if (/linkedin.*post|post.*linkedin|draft.*linkedin/.test(_ctTitle)) _taskType = 'social_linkedin';
         else if (/bluesky.*post|post.*bluesky/.test(_ctTitle)) _taskType = 'social_bluesky';
         else if (/social.*post|post.*to.*x\b|tweet/.test(_ctTitle)) _taskType = 'social_x';
@@ -3459,7 +3459,7 @@ Write the full deliverable first, then the structured JSON block.`;
             const _etTaskText = ((task.title || '') + ' ' + (task.description || '')).toLowerCase();
             const _etDeliverableLower = (deliverable || '').toLowerCase();
             const _isBlogByType = (task.taskType === 'blog_post' || task.taskType === 'article');
-            const _isBlogByTitle = /write.*blog|draft.*blog|blog\s*post|create.*blog|publish.*blog|new.*blog|first\s*blog|introductory\s*post|write.*article|compose.*article/.test(_etTaskText);
+            const _isBlogByTitle = /write.*blog|draft.*blog|blog\s*post|create.*blog|publish.*blog|new.*blog|first\s*blog|introductory\s*post|write.*article|compose.*article|marketing.*brief|content.*brief|draft.*brief/.test(_etTaskText);
             const _isBlogByContent = /document\s*type:\s*marketing_post|publishing\s*to\s*\/blog\/|submit.*ceo.*approv.*publish/.test(_etDeliverableLower);
             const _isBlogTask = agentId === 'scribe' && (_isBlogByType || _isBlogByTitle || _isBlogByContent);
             if (_isBlogTask) context.log('[Heartbeat] BLOG DETECTED:', agentId, 'task:', action.taskId, 'byType:', _isBlogByType, 'byTitle:', _isBlogByTitle, 'byContent:', _isBlogByContent);
@@ -3608,7 +3608,6 @@ Write the full deliverable first, then the structured JSON block.`;
           // Check if a Scribe writing sub-task already exists for this social task
           const _copyTag = 'social-copy-for-' + action.taskId;
           const _copyTaskExists = tasks.some(t =>
-            t.status !== 'done' &&
             ((t.tags && t.tags.indexOf(_copyTag) !== -1) ||
              (t.assignee === 'scribe' && t.parent_task_id === action.taskId && (t.title || '').indexOf('Write social copy') === 0))
           );
