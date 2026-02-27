@@ -1002,6 +1002,13 @@
             }
           }
         }
+        if (!_listThumbUrl && payload.hero_image_asset_id) {
+          try {
+            var _liImgAssets = JSON.parse(localStorage.getItem('ap_image_assets') || '[]');
+            var _liAsset = _liImgAssets.find(function(x) { return x.id === payload.hero_image_asset_id; });
+            if (_liAsset && _liAsset.url) _listThumbUrl = _liAsset.url;
+          } catch(e) {}
+        }
       } else if (aType.indexOf('social') !== -1 && payload.media && payload.media.length) {
         var _lm = payload.media[0];
         _listThumbUrl = (typeof _lm === 'string') ? _lm : (_lm && _lm.url) || null;
@@ -1318,17 +1325,24 @@
         if (payload.slug) metaParts.push('<span style="opacity:0.4;">/' + esc(payload.slug) + '</span>');
         if (metaParts.length) html += '<div style="font-size:0.6rem;opacity:0.6;margin-bottom:0.6rem;display:flex;gap:0.5rem;align-items:center;">' + metaParts.join(' · ') + '</div>';
         // Hero image between meta and content — matches blog layout (title → meta → hero → content)
-        // Fallback: try approval queue heroImageUrl if payload doesn't have it
+        // Fallback chain: payload URL → approval queue entry → imageAssets localStorage
         var _drawerHeroUrl = payload.hero_image_url || null;
         if (!_drawerHeroUrl && payload.hero_image_asset_id) {
           // Try to find from approval queue entry
-          var _aqItems = (typeof AgentEngine !== 'undefined') ? AgentEngine.getApprovalQueue() : [];
+          var _aqItems = (typeof AE !== 'undefined') ? AE.getApprovalQueue() : [];
           for (var _qi = 0; _qi < _aqItems.length; _qi++) {
             if (_aqItems[_qi].action_id === a.id && _aqItems[_qi].heroImageUrl) {
               _drawerHeroUrl = _aqItems[_qi].heroImageUrl;
               break;
             }
           }
+        }
+        if (!_drawerHeroUrl && payload.hero_image_asset_id) {
+          try {
+            var _drImgAssets = JSON.parse(localStorage.getItem('ap_image_assets') || '[]');
+            var _drAsset = _drImgAssets.find(function(x) { return x.id === payload.hero_image_asset_id; });
+            if (_drAsset && _drAsset.url) _drawerHeroUrl = _drAsset.url;
+          } catch(e) {}
         }
         if (_drawerHeroUrl) {
           html += '<a href="' + esc(_drawerHeroUrl) + '" target="_blank" rel="noopener" style="display:block;margin-bottom:0.6rem;">' +

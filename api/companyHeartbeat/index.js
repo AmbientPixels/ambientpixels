@@ -1219,7 +1219,17 @@ module.exports = async function (context) {
         const _bfItem = _aqBackfill[_bfi];
         if (_bfItem.status !== 'pending') continue;
         if (_bfItem.actionType !== 'publish_document') continue;
-        if (_bfItem.heroImageUrl) continue; // already resolved
+        if (_bfItem.heroImageUrl) {
+          // AQ already has URL — but ensure the action payload is also patched if it's missing it
+          const _bfActIdxQ = allActions.findIndex(a => a.id === _bfItem.action_id);
+          if (_bfActIdxQ !== -1 && allActions[_bfActIdxQ].payload && !allActions[_bfActIdxQ].payload.hero_image_url) {
+            allActions[_bfActIdxQ].payload.hero_image_url = _bfItem.heroImageUrl;
+            allActions[_bfActIdxQ].payload.hero_image_asset_id = allActions[_bfActIdxQ].payload.hero_image_asset_id || _bfItem.heroImageAssetId || null;
+            _aqChanged = true;
+            context.log('[Heartbeat] Backfilled hero_image_url into action payload from AQ entry:', _bfItem.id);
+          }
+          continue;
+        }
         const _bfAssetId = _bfItem.heroImageAssetId || null;
         if (!_bfAssetId) {
           // Check the document store for a newly attached hero_image_asset_id
