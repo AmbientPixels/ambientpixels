@@ -2456,8 +2456,10 @@ var AgentEngine = (function () {
 
   // ── Objective Progress (auto-calculated from linked campaigns) ──
   function getObjectiveProgress(objectiveId) {
+    var obj = getObjectives().find(function (o) { return o.id === objectiveId; });
+    var linked = (obj && Array.isArray(obj.linkedCampaigns)) ? obj.linkedCampaigns : [];
     var campaigns = getCampaigns().filter(function (c) {
-      return c && !c.deletedAt && c.objective_id === objectiveId;
+      return c && !c.deletedAt && (c.objective_id === objectiveId || linked.indexOf(c.id) !== -1);
     });
     if (campaigns.length === 0) return { campaigns: 0, totalTasks: 0, doneTasks: 0, inProgress: 0, review: 0, todo: 0, backlog: 0, blocked: 0, overdue: 0, pct: 0, donePct: 0, signal: 'no_campaigns', health: 'neutral', campaignDetails: [] };
 
