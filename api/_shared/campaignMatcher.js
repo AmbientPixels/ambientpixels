@@ -183,6 +183,22 @@ async function ensureCampaign(params) {
     };
   }
 
+  // Same-goal fallback: if this task belongs to a goal that already has active campaigns,
+  // reuse the most recently updated one instead of creating a new campaign per task.
+  // This prevents campaign explosion when agents create diverse tasks under one objective.
+  if (goalId) {
+    const sameGoalCampaigns = _activeCampaigns(campaigns)
+      .filter(function(c) { return c.objective_id === goalId; })
+      .sort(function(a, b) {
+        return String(b.updatedAt || b.createdAt || '').localeCompare(String(a.updatedAt || a.createdAt || ''));
+      });
+    if (sameGoalCampaigns.length > 0) {
+      const chosen = sameGoalCampaigns[0];
+      if (debug && logger) logger('[CampaignMatcher]', JSON.stringify(Object.assign({}, debugRecord, { chosenCampaignId: chosen.id, mode: 'same_goal_fallback', matchKey: matchKey, overlapTokens: tokens })));
+      return { campaignId: chosen.id, campaign: chosen, created: false, mode: 'same_goal_fallback', overlapTokens: tokens, score: 0, matchKey: matchKey, changed: false };
+    }
+  }
+
   const now = new Date().toISOString();
   const baseDescription = String(params.description || '').trim();
   const contextLine = 'I created this campaign to group related work and keep planning/execution aligned under one objective.';
