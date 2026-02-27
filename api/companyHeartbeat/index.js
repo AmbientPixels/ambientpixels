@@ -3384,12 +3384,17 @@ Write the full deliverable first, then the structured JSON block.`;
           if (_deliverableCount >= 3) {
             context.log('[Heartbeat]', agentId, 'CONVERGENCE BLOCKED execute-task on', action.taskId,
               '— task has', _deliverableCount, 'deliverables already (revision loop detected). Escalating to CEO.');
-            result.taskUpdates.push({
-              action: 'comment',
-              taskId: action.taskId,
-              comment: '[SYSTEM] Revision loop detected: ' + _deliverableCount + ' deliverables on this task without convergence. Task needs CEO review to break the cycle — either approve the latest draft, provide specific direction, or close the task.',
-              agentId: 'system'
-            });
+            // Only add the loop-detected comment once — don't spam every heartbeat cycle
+            const _lastSysCmt = (_exTask.comments || []).slice().reverse().find(c => c.author === 'system' || c.agentId === 'system');
+            const _alreadyLoopWarned = _lastSysCmt && _lastSysCmt.text && _lastSysCmt.text.indexOf('Revision loop detected') !== -1;
+            if (!_alreadyLoopWarned) {
+              result.taskUpdates.push({
+                action: 'comment',
+                taskId: action.taskId,
+                comment: '[SYSTEM] Revision loop detected: ' + _deliverableCount + ' deliverables on this task without convergence. Task needs CEO review to break the cycle — either approve the latest draft, provide specific direction, or close the task.',
+                agentId: 'system'
+              });
+            }
             // Move to review so CEO sees it
             if (_exTask.status !== 'review') {
               result.taskUpdates.push({
@@ -3397,6 +3402,25 @@ Write the full deliverable first, then the structured JSON block.`;
                 taskId: action.taskId,
                 newStatus: 'review'
               });
+            }
+            // Convergence recovery: if a ready document exists, auto-trigger submit-for-publish
+            // rather than waiting for the agent to do it (they're blocked from executing)
+            const _convDoc = documents.find(function(d) {
+              if (!d || d.deletedAt || d.status === 'published' || d.status === 'rejected' || d.status === 'archived') return false;
+              return (d.taskId === action.taskId) || (d.source && d.source.task_id === action.taskId);
+            });
+            if (_convDoc && _convDoc.hero_image_asset_id && !_convDoc.awaiting_hero_image) {
+              context.log('[Heartbeat] CONVERGENCE RECOVERY: auto-submitting doc', _convDoc.id, 'for publish (task', action.taskId, 'is convergence-locked)');
+              if (!_alreadyLoopWarned) {
+                result.taskUpdates.push({
+                  action: 'comment',
+                  taskId: action.taskId,
+                  comment: '[SYSTEM] Convergence recovery: document "' + (_convDoc.title || _convDoc.id) + '" is ready (hero image attached). Auto-submitting for publish so the CEO can approve.',
+                  agentId: 'system'
+                });
+              }
+              // Inject into the running actions array — submit-for-publish handler deduplicates on its own
+              actions.push({ type: 'submit-for-publish', documentId: _convDoc.id, taskId: action.taskId, _systemInjected: true });
             }
             continue;
           }
@@ -4107,15 +4131,31 @@ Write the full deliverable first, then the structured JSON block.`;
       // Review: agent reviews another agent's deliverable (costs 1 extra Gemini call)
       const task = tasks.find(t => t.id === action.taskId && t.status === 'review');
       if (task) {
-        const review = await reviewTask(context, agent, task, costIntel, siteIntel, socialIntel, execContext);
-        result.geminiCalls++;
-        if (review) {
-          result.taskUpdates.push({
-            action: 'review',
-            taskId: action.taskId,
-            review: review,
-            agentId: agentId
-          });
+        // CONVERGENCE GUARD: block review if task already has 3+ deliverables — it's looping
+        const _rvDelCount = (task.comments || []).filter(c => c.type === 'deliverable').length;
+        if (_rvDelCount >= 3) {
+          const _lastRvSys = (task.comments || []).slice().reverse().find(c => c.author === 'system' || c.agentId === 'system');
+          const _rvAlreadyWarned = _lastRvSys && _lastRvSys.text && _lastRvSys.text.indexOf('Revision loop') !== -1;
+          if (!_rvAlreadyWarned) {
+            result.taskUpdates.push({
+              action: 'comment',
+              taskId: action.taskId,
+              comment: '[SYSTEM] Review blocked: task is convergence-locked (' + _rvDelCount + ' deliverables). CEO must approve or close this task before further review can proceed.',
+              agentId: 'system'
+            });
+          }
+          context.log('[Heartbeat]', agentId, 'CONVERGENCE BLOCKED review-task on', action.taskId, '—', _rvDelCount, 'deliverables already.');
+        } else {
+          const review = await reviewTask(context, agent, task, costIntel, siteIntel, socialIntel, execContext);
+          result.geminiCalls++;
+          if (review) {
+            result.taskUpdates.push({
+              action: 'review',
+              taskId: action.taskId,
+              review: review,
+              agentId: agentId
+            });
+          }
         }
       }
     } else if (action.type === 'create-doc' && action.document) {
