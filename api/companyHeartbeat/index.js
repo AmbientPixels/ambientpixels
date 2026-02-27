@@ -3436,7 +3436,8 @@ Write the full deliverable first, then the structured JSON block.`;
       }
       // Execute: agent produces actual work on a task (costs 1 extra Gemini call)
       if (result.executes >= GUARDRAILS.maxExecutesPerCyclePerAgent) {
-        context.log('[Heartbeat]', agentId, 'max executes reached, skipping');
+        context.log('[Heartbeat]', agentId, 'max executes reached — skipping execute-task, freeing action slot for other actions');
+        continue;
       } else {
         const task = tasks.find(t => t.id === action.taskId);
         if (task) {
@@ -4178,14 +4179,14 @@ Write the full deliverable first, then the structured JSON block.`;
             if (action.taskId) {
               result.taskUpdates.push({ action: 'comment', taskId: action.taskId, comment: '[SYSTEM] create-doc blocked on social copy task. Use execute-task to produce your social copy deliverable, not create-doc.', agentId: 'system' });
             }
-            break;
+            continue;
           }
         }
 
         // GUARD: Require task linkage — no orphan doc creation
         if (!action.taskId) {
           context.log('[Heartbeat]', agentId, 'BLOCKED create-doc without task linkage — orphan docs not allowed. Title:', docPayload.title);
-          break;
+          continue;
         }
 
         // GUARD: Max 1 doc per agent per heartbeat cycle
@@ -4193,7 +4194,7 @@ Write the full deliverable first, then the structured JSON block.`;
         if (_docsCreatedThisCycle >= 1) {
           context.log('[Heartbeat]', agentId, 'BLOCKED create-doc — already created', _docsCreatedThisCycle, 'doc(s) this cycle. Title:', docPayload.title);
           result.taskUpdates.push({ action: 'comment', taskId: action.taskId, comment: '[SYSTEM] Doc creation limit reached (1 per heartbeat cycle). Try again next cycle.', agentId: 'system' });
-          break;
+          continue;
         }
 
         // Fix 11: Hard caps on unpublished documents by kind
@@ -4212,7 +4213,7 @@ Write the full deliverable first, then the structured JSON block.`;
           if (_activeInternalDocs.length >= 5) {
             context.log('[Heartbeat]', agentId, 'BLOCKED create-doc (internal) — hard cap reached:', _activeInternalDocs.length, 'active internal docs. Title:', docPayload.title);
             result.taskUpdates.push({ action: 'comment', taskId: action.taskId, comment: '[SYSTEM] Internal doc cap reached (5 max). Publish or archive existing internal docs first.', agentId: 'system' });
-            break;
+            continue;
           }
           // Subject matter gate: internal docs must be about GridOS, system operations, or technical reference
           const _docText = ((docPayload.title || '') + ' ' + (docPayload.content_md || '').substring(0, 500)).toLowerCase();
@@ -4220,7 +4221,7 @@ Write the full deliverable first, then the structured JSON block.`;
           if (!_isGridOSTopic) {
             context.log('[Heartbeat]', agentId, 'BLOCKED create-doc (internal) — not GridOS/operational subject matter. Title:', docPayload.title);
             result.taskUpdates.push({ action: 'comment', taskId: action.taskId, comment: '[SYSTEM] Internal docs (spec/runbook/governance) are for GridOS technical reference only. For marketing/blog content, use kind: marketing_post.', agentId: 'system' });
-            break;
+            continue;
           }
         }
 
@@ -4233,7 +4234,7 @@ Write the full deliverable first, then the structured JSON block.`;
           if (_activeExternalDocs.length >= 5) {
             context.log('[Heartbeat]', agentId, 'BLOCKED create-doc (external) — hard cap reached:', _activeExternalDocs.length, 'unpublished external docs. Title:', docPayload.title);
             result.taskUpdates.push({ action: 'comment', taskId: action.taskId, comment: '[SYSTEM] External doc cap reached (5 max unpublished). CEO must publish or discard existing drafts before new ones can be created.', agentId: 'system' });
-            break;
+            continue;
           }
         }
 
@@ -4250,13 +4251,13 @@ Write the full deliverable first, then the structured JSON block.`;
             if (action.taskId && !d.taskId) return false;
             return true;
           }
-          // Fuzzy match: >60% word overlap blocks creation
+          // Fuzzy match: >75% word overlap blocks creation (raised from 60% to reduce false-positive dedup)
           if (_proposedWords.length >= 3) {
             const _existWords = existTitle.replace(/[^a-z0-9 ]/g, '').split(/\s+/).filter(w => w.length > 2);
             if (_existWords.length >= 3) {
               const _overlap = _proposedWords.filter(w => _existWords.indexOf(w) !== -1).length;
               const _similarity = _overlap / Math.max(_proposedWords.length, _existWords.length);
-              if (_similarity > 0.6) {
+              if (_similarity > 0.75) {
                 // Still allow different-task linkage
                 if (action.taskId && d.taskId && action.taskId !== d.taskId) return false;
                 if (action.taskId && !d.taskId) return false;
@@ -4276,7 +4277,7 @@ Write the full deliverable first, then the structured JSON block.`;
               agentId: agentId
             });
           }
-          break;
+          continue;
         }
 
         const docId = 'doc_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
@@ -4551,6 +4552,11 @@ Write the full deliverable first, then the structured JSON block.`;
       const docsStore = (await storage.getState('documents')) || [];
       const docIdx = docsStore.findIndex(d => d.id === action.documentId);
 
+      if (docIdx === -1) {
+        context.log('[Heartbeat]', agentId, 'WARN: submit-for-publish skipped — doc not found:', action.documentId);
+        continue;
+      }
+
       if (docIdx !== -1) {
         const doc = docsStore[docIdx];
 
@@ -4561,7 +4567,7 @@ Write the full deliverable first, then the structured JSON block.`;
           const hasPendingPub = existingActs.some(a => a.type === 'publish_document' && a.payload && a.payload.documentId === doc.id && a.approval && a.approval.status === 'pending');
           if (hasPendingPub) {
             context.log('[Heartbeat] Skipping duplicate submit-for-publish for doc:', doc.id, doc.title);
-            break;
+            continue;
           }
 
           // Hard guardrail: BLOCK submit-for-publish on visual doc kinds without hero image
@@ -4579,7 +4585,7 @@ Write the full deliverable first, then the structured JSON block.`;
                 agentId: 'system'
               });
             }
-            break;
+            continue;
           }
 
           // Update doc status
