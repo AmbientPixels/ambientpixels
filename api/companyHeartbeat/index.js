@@ -3366,7 +3366,8 @@ Write the full deliverable first, then the structured JSON block.`;
         else if (/hero\s*image|generate.*image.*blog|blog.*header/.test(_ctTitle)) _taskType = 'design_asset';
         else if (/spec\b|runbook|release.*note|governance.*doc|internal.*doc/.test(_ctTitle)) _taskType = 'internal_doc';
         else if (/research|competitive.*intel|market.*analysis/.test(_ctTitle)) _taskType = 'research';
-        else if (/deploy|infrastructure|ci.*cd|pipeline|devops/.test(_ctTitle)) _taskType = 'ops';
+        else if (/deploy|infrastructure|ci.*cd|pipeline|devops|scaling|azure.*function/.test(_ctTitle)) _taskType = 'ops';
+        else if (/cost.*audit|budget.*review|api.*cost|cost.*project|financial.*review|spend.*analysis|cost.*analysis|audit.*cost/.test(_ctTitle)) _taskType = 'financial';
       }
       result.taskUpdates.push({
         action: 'create',
@@ -6435,6 +6436,7 @@ function applyTaskUpdate(tasks, update, _pendingEscalations, _creatingAgentId) {
       id: 'task-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
       title: update.task.title,
       description: update.task.description || '',
+      taskType: update.task.taskType || 'general',
       status: (update.task.status && VALID_TASK_STATUSES.indexOf(update.task.status) !== -1) ? update.task.status : 'todo',
       priority: update.task.priority || 'medium',
       assignee: validAssignee,
