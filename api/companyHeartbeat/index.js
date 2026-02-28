@@ -1,6 +1,5 @@
 // companyHeartbeat — Timer Trigger (every 30 minutes)
 // Runs agent heartbeat cycles: reviews tasks, takes actions, logs activity
-// Uses existing agentchat endpoint pattern for Gemini calls
 
 const fetch = require('node-fetch');
 const storage = require('../_utils/companyStorage');
@@ -12,219 +11,38 @@ const imageEngine = require('../_lib/contentEngine/imageEngine');
 const crypto = require('crypto');
 const { normalizeCampaignRef, ensureCampaign } = require('../_shared/campaignMatcher');
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=';
+// ── Phase 1 extracted modules ──
+const { callGemini, callGeminiExecute } = require('./gemini');
+const C = require('./constants');
+const H = require('./helpers');
 
-const AGENT_IDS = ['nova', 'cipher', 'pixel', 'forge', 'echo', 'scribe', 'quill', 'scout'];
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY; // used for early-exit check in main function
 
-// Load agent personalities from company-agents.json
-let _agentPersonalities = {};
-try {
-  const _agentsRaw = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../../data/company-agents.json'), 'utf8'));
-  (_agentsRaw.agents || []).forEach(function (a) { if (a.id && a.systemPrompt) _agentPersonalities[a.id] = a.systemPrompt; });
-} catch (_e) { /* fallback: heartbeat works without personality injection */ }
+// Destructure constants into local scope (preserves all existing variable names)
+const {
+  AGENT_IDS, _agentPersonalities, AGENT_ROLES, CFO_THRESHOLD, GUARDRAILS,
+  HEARTBEAT_LOCK_TIMEOUT_MS, MAX_MEMORIES_PER_AGENT, MAX_L4_WRITES_PER_AGENT_PER_DAY,
+  L4_PREFERRED_TYPES, L4_ALLOWED_TYPES, L4_DEFAULT_TTL_DAYS,
+  TIER4_SUB_AGENTS, ALLOWED_UPDATE_KEYS, CAP_DEFAULTS,
+  _MUTATION_BUCKET_MAP, MAX_TOOL_CALLS_PER_AGENT, MAX_RESEARCH_INJECTIONS,
+  MAX_RESEARCH_CHARS, MAX_RESEARCH_STORE_ENTRIES, AGENT_COOLDOWN_VIOLATIONS_PER_RUN,
+  MAX_OBSERVATIONS_PER_AGENT, MAX_OBSERVATION_CHARS, MAX_ENTITY_COMMENT_CALLS_PER_RUN,
+  VALID_TASK_STATUSES, KNOWN_ACTION_TYPES, RESEARCH_MAX_AGE_DAYS,
+  SOCIAL_INTEL_WINDOW_DAYS, SOCIAL_INTEL_FRESHNESS_MS, DOMAIN_LEAD_MAP
+} = C;
 
-function _sanitizeSingleComment(text, fallbackText) {
-  const fallback = String(fallbackText || '').trim() || 'I created this item to keep execution aligned and moving forward.';
-  if (!text) return fallback;
-  let s = String(text).replace(/\s+/g, ' ').trim();
-  s = s.replace(/^['"`]+|['"`]+$/g, '').trim();
-  if (!s) return fallback;
-  if (s.length > 220) s = s.substring(0, 220).trim();
-  if (!/[.!?]$/.test(s)) s += '.';
-  return s;
-}
+// Destructure helpers into local scope (preserves all existing function names)
+const {
+  _sanitizeSingleComment, generateConversationalEntityComment, stripTaskPrefixes,
+  _normalizeCategory, _isStartWorkStatus, _isTerminalTaskStatus,
+  _isObjectiveExemptCategory, resolveActivationMode,
+  normalizeExecutionMode, evaluateEscalationPath, shouldRunTier4Agent,
+  _socialIntelIsoDayUTC, _socialIntelEventTs, _socialIntelResolveMode,
+  _createActionFromHeartbeat, logEvent
+} = H;
 
-async function generateConversationalEntityComment(kind, options) {
-  options = options || {};
-  const k = String(kind || 'item').toLowerCase();
-  const title = String(options.title || '').trim();
-  const goal = String(options.goalTitle || options.goalId || '').trim();
-  const seed = String(options.seedText || '').trim();
-  const fallback = _sanitizeSingleComment(options.fallbackText || '',
-    k === 'campaign'
-      ? 'I created this campaign to group related work and keep planning/execution aligned under one objective.'
-      : 'I created this project from the goal so the team has a clear execution container to work from.'
-  );
-
-  const prompt = [
-    'Write exactly ONE conversational first-person sentence for a newly created ' + k + '.',
-    'Rules:',
-    '- Max 180 characters',
-    '- Plain human language',
-    '- No lists, no labels, no metadata, no markdown',
-    '- Return only the sentence',
-    title ? ('Title: ' + title) : '',
-    goal ? ('Goal: ' + goal) : '',
-    seed ? ('Context: ' + seed.substring(0, 500)) : ''
-  ].filter(Boolean).join('\n');
-
-  const raw = await callGemini(prompt, options.agentId || 'nova');
-  return _sanitizeSingleComment(raw, fallback);
-}
-
-// Agent system prompts (abbreviated for heartbeat context)
-const AGENT_ROLES = {
-  nova: { name: 'Nova', role: 'Prime Operator', tier: 2, focus: 'execution planning, delegation, progress monitoring, escalation to CEO',
-    doctrine: { strategicBias: 'Platform leverage, automation, 10x thinking', riskTolerance: 'High but calculated', timeHorizon: '3-10 years', coreQuestion: 'Does this increase AmbientPixels leverage?', escalationTriggers: ['Resource conflicts', 'Brand/platform pivots', 'Strategic misalignment'] } },
-  cipher: { name: 'Cipher', role: 'CFO', tier: 3, focus: 'budgets, API costs, resource efficiency, spending',
-    doctrine: { strategicBias: 'Capital efficiency, measurable ROI', riskTolerance: 'Low-Medium', timeHorizon: '12-36 months', coreQuestion: 'What is the ROI and downside risk?', escalationTriggers: ['API cost spikes', 'Unclear monetization', 'Budget drift'] } },
-  pixel: { name: 'Pixel', role: 'Design & QC', tier: 3, focus: 'UI quality, accessibility, design consistency, frontend',
-    doctrine: { strategicBias: 'Design systems, clarity, consistency', riskTolerance: 'Low (quality risk)', timeHorizon: 'Product lifecycle', coreQuestion: 'Is this intentional design?', escalationTriggers: ['UI inconsistency', 'Accessibility regressions', 'Feature clutter'] } },
-  forge: { name: 'Forge', role: 'DevOps', tier: 3, focus: 'deployments, infrastructure, uptime, backend security',
-    doctrine: { strategicBias: 'Stability, automation, observability', riskTolerance: 'Low (infra risk)', timeHorizon: 'Immediate + continuous', coreQuestion: 'Will this break at scale?', escalationTriggers: ['Security exposure', 'Unmonitored automation', 'Recursion loops'] } },
-  echo: { name: 'Echo', role: 'Marketing', tier: 3, focus: 'content, social media, community, brand voice',
-    doctrine: { strategicBias: 'Distribution, publishing cadence, narrative', riskTolerance: 'Medium', timeHorizon: 'Weekly-Quarterly', coreQuestion: 'Are we visible?', escalationTriggers: ['Dormant channels', 'Missed campaign cadence', 'Brand inconsistency'] } },
-  scribe: { name: 'Scribe', role: 'Head of Content', tier: 3, focus: 'longform drafts, product briefs, documentation, content pipeline, publishing',
-    doctrine: { strategicBias: 'Clarity, documentation, repeatability', riskTolerance: 'Low', timeHorizon: 'Immediate + archival', coreQuestion: 'Is this unambiguous?', escalationTriggers: ['Vague directives', 'Missing documentation', 'Inconsistent voice'] } },
-  quill: { name: 'Quill', role: 'Content — Editor & Brand Voice', tier: 4, reportsTo: 'scribe', focus: 'editing, compression, brand consistency, CTA polish',
-    doctrine: { strategicBias: 'Precision editing, clarity compression', riskTolerance: 'Low', timeHorizon: 'Immediate', coreQuestion: 'Can this be 20% clearer?', escalationTriggers: ['Redundant language', 'Message dilution'] } },
-  scout: { name: 'Scout', role: 'Head of Research & Intelligence', tier: 3, focus: 'market research, competitive intelligence, trend analysis, strategic research, business decisions, web research',
-    doctrine: { strategicBias: 'Strategic advantage, signal detection', riskTolerance: 'Medium', timeHorizon: 'Quarterly-Annual', coreQuestion: 'Where is leverage hiding?', escalationTriggers: ['Competitor acceleration', 'Platform dependency risk', 'Market shifts'] } }
-};
-
-// Decision classification thresholds
-const CFO_THRESHOLD = 100; // budget_impact above this requires CEO approval
-
-// ── Guardrails ──
-const GUARDRAILS = {
-  maxActionsPerCyclePerAgent: 3,
-  maxGeminiCallsPerCycle: 15, // Tier 4 sub-agents are gated; only consume calls when triggered
-  maxNewTasksPerCycle: 6,
-  maxExecutesPerCyclePerAgent: 2,
-  maxContentGeneratesPerCyclePerAgent: 1,
-  maxEscalationsPerCycle: 3,
-  maxActiveTasks: 50,
-  dedupeWindowMs: 600000 // 10 min
-};
-
-// ── Concurrency lock ──
-const HEARTBEAT_LOCK_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes — auto-expires stale locks from crashed runs
-
-// ── Persistent Agent Memory ──
-let _agentMemoryStore = {}; // { agentId: [{ type, text, source, timestamp }] } — loaded from storage each cycle
-const MAX_MEMORIES_PER_AGENT = 20;
-const MAX_L4_WRITES_PER_AGENT_PER_DAY = 5;
-const L4_PREFERRED_TYPES = new Set(['decision', 'constraint', 'resolved_incident', 'verified_fact', 'preference']);
-const L4_LEGACY_TYPES = new Set(['learning', 'feedback', 'context', 'preference']);
-const L4_ALLOWED_TYPES = new Set([...L4_PREFERRED_TYPES, ...L4_LEGACY_TYPES]);
-const L4_DEFAULT_TTL_DAYS = 14;
-
-// ── Tier 4 Sub-Agent Gating ──
-const TIER4_SUB_AGENTS = new Set(['quill']);
-const OBJECTIVE_EXEMPT_CATEGORIES = new Set(['ops_breakfix', 'governance', 'maintenance']);
-const ALLOWED_UPDATE_KEYS = new Set([
-  'status', 'assignee', 'dueDate', 'priority', 'classification', 'taskType',
-  'tags', 'objective_id', 'directive_id', 'campaign_id', 'parent_task_id', 'child_task_ids'
-]);
-const CAP_DEFAULTS = {
-  maxCreatesPerAgentPerRun: 2,
-  maxMovesPerAgentPerRun: 5,
-  maxUpdatesPerAgentPerRun: 8,
-  maxProposalsPerAgentPerRun: 10
-};
-const _MUTATION_BUCKET_MAP = { create: 'creates', move: 'moves', update: 'updates' };
-const MAX_TOOL_CALLS_PER_AGENT = 2;
-const MAX_RESEARCH_INJECTIONS = 3;
-const MAX_RESEARCH_CHARS = 2000;
-const MAX_RESEARCH_STORE_ENTRIES = 20;
-const AGENT_COOLDOWN_VIOLATIONS_PER_RUN = 2;
-const MAX_OBSERVATIONS_PER_AGENT = 10;
-const MAX_OBSERVATION_CHARS = 180;
-const MAX_ENTITY_COMMENT_CALLS_PER_RUN = 6;
-const VALID_TASK_STATUSES = ['pending-approval', 'backlog', 'todo', 'in-progress', 'review', 'done'];
-
-// ── Phase 2B: Known action types for dual-envelope normalizer ──
-const KNOWN_ACTION_TYPES = [
-  'create-task', 'update-task', 'move-task', 'execute-task', 'review-task',
-  'comment-task', 'create-social-action', 'revise-action', 'create-doc',
-  'update-doc', 'submit-for-publish', 'create-content-package', 'generate-image',
-  'create-reminder', 'web_search', 'remember'
-];
-const RESEARCH_MAX_AGE_DAYS = 30;
-const SUB_AGENT_MENTION_WINDOW_HOURS = 24;
-const SOCIAL_INTEL_WINDOW_DAYS = 7;
-const SOCIAL_INTEL_FRESHNESS_MS = 30 * 60 * 1000;
-
-// Campaign matching/creation now delegated to shared module: api/_shared/campaignMatcher.js
-
-// Strip repeated auto-generated prefixes from task titles (prevents recursive nesting)
-const _TASK_PREFIXES = [
-  /^Write social copy for:\s*/i,
-  /^Social Copy\s*[—–-]\s*/i,
-  /^Generate hero image for:\s*/i,
-  /^Hero Image\s*[—–-]\s*/i,
-  /^Content Brief\s*[—–-]\s*/i,
-  /^Draft:\s*/i,
-  /^Auto:\s*/i,
-  /^Calendar Update\s*[—–-]\s*/i
-];
-function stripTaskPrefixes(title) {
-  if (!title) return title || '';
-  var changed = true;
-  var maxPasses = 5;
-  while (changed && maxPasses-- > 0) {
-    changed = false;
-    for (var i = 0; i < _TASK_PREFIXES.length; i++) {
-      if (_TASK_PREFIXES[i].test(title)) {
-        title = title.replace(_TASK_PREFIXES[i], '');
-        changed = true;
-      }
-    }
-  }
-  return title.trim();
-}
-
-function _isActiveStatus(status) {
-  return status === 'todo' || status === 'in-progress' || status === 'review';
-}
-
-function _isRecent(ts, hours) {
-  if (!ts) return false;
-  var t = new Date(ts).getTime();
-  if (!Number.isFinite(t)) return false;
-  return (Date.now() - t) <= hours * 60 * 60 * 1000;
-}
-
-function _hasAssignedActiveTasks(tasks, agentId) {
-  return tasks.some(function (t) {
-    return String(t.assignee || '').toLowerCase() === agentId &&
-      _isActiveStatus(String(t.status || '').toLowerCase());
-  });
-}
-
-function _hasRecentMention(tasks, agentId) {
-  var agentName = (AGENT_ROLES[agentId] && AGENT_ROLES[agentId].name) || agentId;
-  var needle = ('@' + agentName).toLowerCase();
-
-  return tasks.some(function (t) {
-    var comments = Array.isArray(t.comments) ? t.comments : [];
-    return comments.some(function (c) {
-      var text = String(c.text || c.comment || c.body || '').trim().toLowerCase();
-      var ts = c.createdAt || c.created_at || c.timestamp || c.time || null;
-      return text.indexOf(needle) !== -1 && _isRecent(ts, SUB_AGENT_MENTION_WINDOW_HOURS);
-    });
-  });
-}
-
-function _socialIntelIsoDayUTC(d) {
-  var y = d.getUTCFullYear();
-  var m = String(d.getUTCMonth() + 1).padStart(2, '0');
-  var day = String(d.getUTCDate()).padStart(2, '0');
-  return y + '-' + m + '-' + day;
-}
-
-function _socialIntelEventTs(ev) {
-  var iso = (ev && (ev.executed_at || ev.created_at)) || '';
-  var ts = Date.parse(iso);
-  return Number.isFinite(ts) ? ts : null;
-}
-
-function _socialIntelResolveMode(engagementMeta, snapshots) {
-  var mode = engagementMeta && typeof engagementMeta.mode === 'string' ? String(engagementMeta.mode).trim() : '';
-  if (mode === 'real') return 'real';
-  return 'real';
-}
+// ── Mutable runtime state (loaded from storage each cycle) ──
+let _agentMemoryStore = {}; // { agentId: [{ type, text, source, timestamp }] }
 
 function _socialIntelBuildDigest(existingDigest, socialEvents, engagementSnapshots, engagementMeta, nowMs, accountStats) {
   var now = Number.isFinite(nowMs) ? nowMs : Date.now();
@@ -518,119 +336,7 @@ function _buildSocialIntelPromptBlock(agent, socialIntel) {
     warning;
 }
 
-// ── Escalation Hierarchy: Owner → Domain Lead → CEO (Nova) ──
-// Maps each agent to their domain lead. Tasks with explicit domainLead field take priority.
-const DOMAIN_LEAD_MAP = {
-  scribe: 'nova',    // Scribe reports to Nova (department head)
-  quill: 'scribe',   // Quill reports to Scribe
-  scout: 'nova',     // Scout reports to Nova (department head)
-  echo: 'nova',      // Echo escalates to Nova (department head)
-  pixel: 'nova',     // Pixel escalates to Nova
-  forge: 'nova',     // Forge escalates to Nova
-  cipher: 'nova',    // Cipher escalates to Nova
-  nova: null          // Nova is top of chain (CEO is human)
-};
-
-/**
- * Evaluate which escalation tier should handle a task.
- * Returns: { handler: 'owner'|'domainLead'|'escalationLead', domainLead, reason, novaSkip }
- */
-function evaluateEscalationPath(task, now) {
-  const assignee = (task.assignee || '').toLowerCase();
-  const priority = (task.priority || 'medium').toLowerCase();
-  const status = (task.status || '').toLowerCase();
-  const domainLead = task.domainLead || DOMAIN_LEAD_MAP[assignee] || 'nova';
-  const isBlocked = status === 'blocked' || (task.tags && task.tags.indexOf('blocked') !== -1);
-  const dueDate = task.dueDate ? new Date(task.dueDate) : null;
-  const hoursUntilDue = dueDate ? (dueDate.getTime() - now) / (1000 * 60 * 60) : Infinity;
-  const isOverdue = dueDate ? hoursUntilDue < 0 : false;
-
-  // Blocked → escalate to Nova immediately
-  if (isBlocked) {
-    return { handler: 'escalationLead', domainLead, reason: 'task_blocked', novaSkip: false };
-  }
-
-  // Overdue → escalate to Nova immediately
-  if (isOverdue) {
-    return { handler: 'escalationLead', domainLead, reason: 'task_overdue', novaSkip: false };
-  }
-
-  // High priority due within 24h → both domain lead AND Nova
-  if (priority === 'high' && hoursUntilDue <= 24) {
-    return { handler: 'both', domainLead, reason: 'high_due_24h', novaSkip: false };
-  }
-
-  // Medium priority due within 24h → domain lead only, Nova skips
-  // Exception 1: if assignee IS nova, never skip (circular — nova is its own domain lead)
-  // Exception 2: if task has been stuck 8+ hours (updatedAt age), escalate to Nova too
-  const _taskAge = task.updatedAt ? (now - new Date(task.updatedAt).getTime()) / (1000 * 60 * 60) : 0;
-  if (priority === 'medium' && hoursUntilDue <= 24) {
-    if (assignee === 'nova') {
-      return { handler: 'owner', domainLead, reason: 'medium_due_24h_nova_is_owner', novaSkip: false };
-    }
-    if (_taskAge >= 8) {
-      return { handler: 'both', domainLead, reason: 'medium_due_24h_stale_8h', novaSkip: false };
-    }
-    return { handler: 'domainLead', domainLead, reason: 'medium_due_24h_domain_lead_handles', novaSkip: true };
-  }
-
-  // Default: normal owner flow
-  return { handler: 'owner', domainLead, reason: 'normal_flow', novaSkip: false };
-}
-
-function shouldRunTier4Agent(tasks, agentId) {
-  if (!TIER4_SUB_AGENTS.has(agentId)) return { run: true, reason: 'not_tier4_subagent' };
-  if (_hasAssignedActiveTasks(tasks, agentId)) return { run: true, reason: 'assigned_active_task' };
-  if (_hasRecentMention(tasks, agentId)) return { run: true, reason: 'recent_mention_ping' };
-  return { run: false, reason: 'no_assigned_tasks_or_mentions' };
-}
-
-function _normalizeCategory(category) {
-  return String(category || '').trim().toLowerCase();
-}
-
-function _isInProgressStatus(status) {
-  const normalized = String(status || '').trim().toLowerCase();
-  return normalized === 'in-progress' || normalized === 'in_progress';
-}
-
-function _isStartWorkStatus(status) {
-  const normalized = String(status || '').trim().toLowerCase();
-  return normalized === 'active' || _isInProgressStatus(normalized);
-}
-
-function _isTerminalTaskStatus(s) {
-  return ['done', 'completed', 'closed'].includes(String(s || '').toLowerCase());
-}
-
-function _isObjectiveExemptCategory(category) {
-  return OBJECTIVE_EXEMPT_CATEGORIES.has(_normalizeCategory(category));
-}
-
-const ALLOWED_MODES = new Set(['manual', 'supervised_autonomous', 'experimental']);
-
-function _normalizeActivationMode(mode) {
-  const normalized = String(mode || '').trim().toLowerCase();
-  if (ALLOWED_MODES.has(normalized)) return normalized;
-  return 'supervised_autonomous';
-}
-
-async function resolveActivationMode(storage, runId) {
-  var raw = await storage.getState('activationMode');
-  var provided = String(raw || '').trim().toLowerCase();
-  if (ALLOWED_MODES.has(provided)) return provided;
-  // Invalid or missing — default + log
-  await logEvent('policy-violation', null, 'Invalid or missing activationMode, defaulting to supervised_autonomous', runId, {
-    runId: runId, gate: 'activation_mode', reason: 'invalid_or_missing_mode', provided: raw || null
-  });
-  return 'supervised_autonomous';
-}
-
-const ALLOWED_EXEC_MODES = new Set(['active', 'observe', 'frozen']);
-function normalizeExecutionMode(v) {
-  var s = String(v || '').trim().toLowerCase();
-  return ALLOWED_EXEC_MODES.has(s) ? s : 'active';
-}
+// (Escalation, status normalization, and activation mode functions now in helpers.js)
 
 function _buildBlockedProposal(agentId, runId, reasonBlocked, proposedAction, payload) {
   var p = payload || {};
@@ -7343,140 +7049,5 @@ Guidelines:
 - Do NOT loop — if the deliverable is reasonably complete, approve it. Perfection is not the goal; actionable output is.`;
 }
 
-// ── Call Gemini with higher token limit for deliverables/reviews ──
-async function callGeminiExecute(prompt, agentId) {
-  if (!GEMINI_API_KEY) return null;
-
-  const body = {
-    contents: [{ role: 'user', parts: [{ text: prompt }] }],
-    generationConfig: {
-      temperature: 0.8,
-      topP: 0.9,
-      maxOutputTokens: 1200
-    }
-  };
-
-  try {
-    const res = await fetch(GEMINI_URL + GEMINI_API_KEY, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-
-    if (!res.ok) {
-      console.error('[Heartbeat] Gemini execute returned', res.status);
-      return null;
-    }
-
-    const data = await res.json();
-    // Track token usage
-    const um = data?.usageMetadata;
-    if (um) {
-      storage.logGeminiUsage({ caller: 'heartbeat-execute', model: 'gemini-2.0-flash', agentId: agentId || null, promptTokens: um.promptTokenCount || 0, completionTokens: um.candidatesTokenCount || 0, totalTokens: um.totalTokenCount || 0 }).catch(() => {});
-    }
-    return data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
-  } catch (err) {
-    console.error('[Heartbeat] Gemini execute call failed:', err.message);
-    return null;
-  }
-}
-
-// ── Call Gemini directly (same pattern as agentchat) ──
-async function callGemini(prompt, agentId) {
-  if (!GEMINI_API_KEY) return null;
-
-  const body = {
-    contents: [{ role: 'user', parts: [{ text: prompt }] }],
-    generationConfig: {
-      temperature: 0.7,
-      topP: 0.9,
-      maxOutputTokens: 1500
-    }
-  };
-
-  try {
-    const res = await fetch(GEMINI_URL + GEMINI_API_KEY, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-
-    if (!res.ok) {
-      console.error('[Heartbeat] Gemini returned', res.status);
-      return null;
-    }
-
-    const data = await res.json();
-    // Track token usage
-    const um = data?.usageMetadata;
-    if (um) {
-      storage.logGeminiUsage({ caller: 'heartbeat', model: 'gemini-2.0-flash', agentId: agentId || null, promptTokens: um.promptTokenCount || 0, completionTokens: um.candidatesTokenCount || 0, totalTokens: um.totalTokenCount || 0 }).catch(() => {});
-    }
-    return data?.candidates?.[0]?.content?.parts?.[0]?.text || null;
-  } catch (err) {
-    console.error('[Heartbeat] Gemini call failed:', err.message);
-    return null;
-  }
-}
-
-// ── Create action object from heartbeat (server-side, mirrors CompanySchemas.createActionRequest) ──
-function _createActionFromHeartbeat(data, agentId) {
-  const actionType = data.type || 'social_post.publish';
-  const platform = data.platform || 'x';
-  const requiresApproval = ['social_post.publish', 'social_post.reply', 'social_post.schedule'].indexOf(actionType) !== -1;
-  const catMap = { social_post: 'social', email: 'email', git: 'git', azure: 'azure' };
-  const catKey = actionType.split('.')[0] || 'unknown';
-  const category = catMap[catKey] || 'content';
-
-  return {
-    id: 'act_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
-    created_at: new Date().toISOString(),
-    created_by: agentId,
-    type: actionType,
-    platform: platform,
-    payload: data.payload || {},
-    classification: 'advisory',
-    requires_ceo_approval: requiresApproval,
-    risk_level: 'medium',
-    brand_impact: 'medium',
-    budget_impact: 0,
-    approval: {
-      status: 'pending',
-      approved_by: null,
-      approved_at: null,
-      decision_note: null
-    },
-    execution: {
-      status: 'pending',
-      started_at: null,
-      finished_at: null,
-      attempts: 0,
-      last_error: null,
-      receipt: null
-    },
-    // Legacy compat
-    action_type: actionType,
-    action_category: category,
-    execution_status: 'pending',
-    origin_agent: agentId,
-    action_payload: data.payload || {},
-    requires_approval: requiresApproval,
-    is_irreversible: ['social_post.publish', 'social_post.reply'].indexOf(actionType) !== -1,
-    bundle_id: null,
-    source: 'heartbeat'
-  };
-}
-
-// ── Log helper ──
-async function logEvent(type, agentId, summary, cycleId, details) {
-  const event = {
-    id: 'log-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
-    type: type,
-    agentId: agentId,
-    summary: summary,
-    cycle: cycleId,
-    timestamp: new Date().toISOString()
-  };
-  if (details && typeof details === 'object') event.details = details;
-  await storage.appendLog(event);
-}
+// (callGemini, callGeminiExecute now in gemini.js)
+// (_createActionFromHeartbeat, logEvent now in helpers.js)
