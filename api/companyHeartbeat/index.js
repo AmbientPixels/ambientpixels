@@ -3645,6 +3645,8 @@ Write the full deliverable first, then the structured JSON block.`;
                   + 'Requirements:\n'
                   + '- Write clean, platform-ready copy (no markdown, no headers, no internal notes)\n'
                   + '- Professional and on-brand for AmbientPixels\n'
+                  + '- MUST include a URL: if promoting a blog post, link to the article; otherwise include https://ambientpixels.ai\n'
+                  + '- LinkedIn posts: aim for 400-800 chars (concise and punchy, not padded to fill 3000)\n'
                   + '- After writing, this task goes to peer review. Once approved, Echo uses the copy to create the social post.\n'
                   + '- Use execute-task to produce your deliverable.',
                 taskType: 'social_copy',
@@ -3767,6 +3769,15 @@ Write the full deliverable first, then the structured JSON block.`;
       // Server-side enforcement: reject posts with unfilled template placeholders
       if (/\[(?:[^\]]*(?:mention|insert|\badd\b|include|TBD|link|placeholder|url|website|your |e\.g\.|fill))[^\]]*\]/i.test(postText)) {
         context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action — contains placeholder brackets:', postText.substring(0, 100));
+        continue;
+      }
+
+      // Server-side enforcement: reject posts without a URL
+      // Posts must link to a blog article or include https://ambientpixels.ai
+      // Exception: posts with {{ARTICLE_URL}} tokens (resolved at execute time)
+      const hasUrl = /https?:\/\//.test(postText) || /\{\{ARTICLE_URL[^}]*\}\}/.test(postText);
+      if (!hasUrl) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action — no URL found in post text. Must include a blog link or https://ambientpixels.ai');
         continue;
       }
 
@@ -6230,7 +6241,8 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
     Correct: { "type": "create-social-action", "taskId": "task-id", "social": { "platform": "linkedin", "text": "your clean post text here" } }
     WRONG: { "type": "execute-task", "taskId": "task-id" } ← NEVER do this for social posts.
   - The "text" field in create-social-action must contain ONLY the clean, publish-ready post copy. No markdown, no section headers, no peer review notes, no follow-up comments. Just the post text exactly as it should appear on the platform.
-  - NEVER include placeholder brackets like [insert URL], [website link], [your company], etc. If you don't have a URL, omit it or use the real URL: https://ambientpixels.ai
+  - NEVER include placeholder brackets like [insert URL], [website link], [your company], etc.
+  - URL REQUIREMENT: Every social post MUST include a URL. If the post promotes a blog article, link to that article (e.g. https://ambientpixels.ai/blog/<slug>). For all other posts, include the main site URL: https://ambientpixels.ai — Posts without a URL will be BLOCKED by the server.
   - ALLOWED actions: create-social-action, execute-task (only for NON-social tasks like campaign analysis), create-task, update-task, move-task, comment-task, review-task, create-doc (marketing_post kind), generate-image (social_media purpose)
   - If a task description mentions LinkedIn, X, Twitter, social media, "post", or "draft" for social — ALWAYS use create-social-action. No exceptions.
   - PROMOTION GATING: You may ONLY auto-generate social posts for published documents when "promote: YES" appears in the EXISTING DOCUMENTS list. If a document is published but does NOT show "promote: YES", do NOT create a social post for it. You may note in your reasoning that the document could benefit from promotion, but you MUST NOT create a social action for it. This is a CEO-controlled gate — only the CEO can enable promotion on a document.
@@ -6332,7 +6344,8 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
   - NEVER write social posts that impersonate another agent. Do NOT say "Echo here", "Cipher here", etc. Social posts speak as AmbientPixels the company, not individual agents.
   - Social post text MUST be complete and ready to publish. NO placeholder brackets like "[insert here]", "[mention X]", "[TBD]", or "[link]". If you lack specific details, write around them naturally.
   - NEVER link to /blog/<slug> unless that article is already published. If the article is still pending CEO approval, do NOT include the URL — write the post without it and promote the article after it goes live. Posts with dead blog links will be automatically rejected by the system.
-  - Max 280 chars for X, 300 for Bluesky, 3000 for LinkedIn. Trim to fit.`;
+  - Max 280 chars for X, 300 for Bluesky, 3000 for LinkedIn. Trim to fit.
+  - LINKEDIN CONCISENESS: Although LinkedIn allows 3000 chars, aim for 400–800 chars. Short, punchy posts perform better. Get to the point, include a clear CTA or takeaway, and end with a URL. Do NOT pad posts with filler.`;
 }
 
 // ── Apply task mutation ──
