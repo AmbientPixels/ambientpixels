@@ -179,8 +179,8 @@ Available action types:
 - update-task: {"type":"update-task","taskId":"...","updates":{"description":"...","priority":"...","assignee":"...","dueDate":"..."}}
 - move-task: {"type":"move-task","taskId":"...","newStatus":"backlog|todo|in-progress|review|done"}
 - comment-task: {"type":"comment-task","taskId":"...","comment":"..."}
-- create-doc: {"type":"create-doc","document":{"title":"...","kind":"spec|runbook|release_notes|product_brief|marketing_post|governance","tags":[...],"content_md":"full markdown"},"taskId":"optional"} — Check existing docs first; use update-doc if one already covers the topic.
-- update-doc: {"type":"update-doc","documentId":"existing doc ID","updates":{"content_md":"full replacement","append_md":"add to end","title":"new title","tags":[...]}} — Update an existing document instead of creating duplicates. Internal docs auto-refresh at /docs/published/.
+- create-doc: {"type":"create-doc","document":{"title":"...","kind":"product_brief|marketing_post","tags":[...],"content_md":"full markdown"},"taskId":"optional"} — Check existing docs first; use update-doc if one already covers the topic.
+- update-doc: {"type":"update-doc","documentId":"existing doc ID","updates":{"content_md":"full replacement","append_md":"add to end","title":"new title","tags":[...]}} — Update an existing document instead of creating duplicates.
 
 Rules:
 - Max 3 actions per response
@@ -523,7 +523,7 @@ async function executeChatActions(context, actions, agentId) {
           const newDoc = {
             id: 'doc-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
             title: d.title || 'Untitled Document',
-            kind: d.kind || 'spec',
+            kind: d.kind || 'product_brief',
             status: 'draft',
             tags: d.tags || [],
             content_md: d.content_md || '',

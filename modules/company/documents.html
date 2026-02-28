@@ -117,7 +117,7 @@
       </div>
       <div>
         <label>Kind</label>
-        <select id="filter-kind"><option value="all">All</option><option value="spec">Spec</option><option value="runbook">Runbook</option><option value="release_notes">Release Notes</option><option value="product_brief">Product Brief</option><option value="marketing_post">Marketing Post</option><option value="governance">Governance</option></select>
+        <select id="filter-kind"><option value="all">All</option><option value="product_brief">Product Brief</option><option value="marketing_post">Marketing Post</option></select>
       </div>
       <div>
         <label>Author</label>
@@ -128,20 +128,6 @@
       </div>
     </div>
 
-    <!-- Pinned: Governance Doc -->
-    <div class="doc-section-title">Pinned</div>
-    <div class="doc-grid">
-      <a href="/modules/company/governance.html" class="doc-card" style="text-decoration:none;">
-        <div class="doc-card-icon" style="background:rgba(255,215,0,0.08); color:#FFD700;"><i class="fas fa-scroll"></i></div>
-        <div class="doc-card-title">GridOS Playbook v2.2</div>
-        <div class="doc-card-desc">Governance, authority, doctrine, execution modes, and operational protocol.</div>
-        <div class="doc-card-meta">
-          <span class="doc-badge doc-badge--final">Final</span>
-          <span class="doc-badge doc-badge--kind">Governance</span>
-          <span class="doc-card-date">Feb 2026</span>
-        </div>
-      </a>
-    </div>
 
     <!-- Dynamic Docs -->
     <div class="doc-section-title">All Documents</div>
@@ -163,11 +149,7 @@
         <label>Kind</label>
         <select id="create-kind">
           <option value="product_brief">Product Brief</option>
-          <option value="spec">Spec</option>
-          <option value="runbook">Runbook</option>
-          <option value="release_notes">Release Notes</option>
           <option value="marketing_post">Marketing Post</option>
-          <option value="governance">Governance</option>
         </select>
       </div>
       <div class="doc-form-row">
@@ -299,9 +281,9 @@
 
         var kindLabel = (doc.kind || 'unknown').replace(/_/g, ' ');
         var statusClass = 'doc-badge--' + (doc.status || 'draft');
-        var iconMap = { spec: 'fa-file-code', runbook: 'fa-book', release_notes: 'fa-tag', product_brief: 'fa-file-lines', marketing_post: 'fa-bullhorn', governance: 'fa-scroll' };
+        var iconMap = { product_brief: 'fa-file-lines', marketing_post: 'fa-bullhorn' };
         var icon = iconMap[doc.kind] || 'fa-file';
-        var colorMap = { spec: '#4ECDC4', runbook: '#FF8C00', release_notes: '#00C896', product_brief: '#8A2BE2', marketing_post: '#4ECDC4', governance: '#FFD700' };
+        var colorMap = { product_brief: '#8A2BE2', marketing_post: '#4ECDC4' };
         var color = colorMap[doc.kind] || '#888';
         var preview = (doc.content_md || '').replace(/[#*_`>\-]/g, '').substring(0, 100);
         var date = doc.created_at ? new Date(doc.created_at).toLocaleDateString() : '';
