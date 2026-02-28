@@ -310,7 +310,6 @@ IMPORTANT: Create specific leaf tasks for each campaign directly (e.g. "Draft Q1
     }).join('\n');
     objectivesSection = `\n\nACTIVE GOALS (strategic goals \u2014 create tasks to advance these, always set objective_id when creating tasks for a goal):
 ${objList}
-IMPORTANT: Create tasks that DIRECTLY deliver the goal's stated outcome. If the goal says "publish a blog post", create a blog_post task for Scribe — do NOT create preparatory tasks like marketing briefs or audits first. Read the goal description and match tasks to it.
 NEVER create hero image tasks for Pixel — the system auto-creates them when Scribe finishes a blog post. Creating them manually causes duplicates.`;
   }
 
