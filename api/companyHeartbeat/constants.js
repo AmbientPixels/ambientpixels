@@ -123,6 +123,12 @@ const DOMAIN_LEAD_MAP = {
 const ALLOWED_MODES = new Set(['manual', 'supervised_autonomous', 'experimental']);
 const ALLOWED_EXEC_MODES = new Set(['active', 'observe', 'frozen']);
 
+// ── Workspace context ──
+const WORKSPACE_ROOT = path.resolve(__dirname, '../..');
+const MAX_WORKSPACE_INJECT_CHARS = 6000;
+const WORKSPACE_SCAN_EXTENSIONS = new Set(['.html', '.css', '.js', '.md', '.json']);
+const WORKSPACE_SKIP_DIRS = new Set(['node_modules', '.git', 'build', 'package-lock.json']);
+
 module.exports = {
   DOMAIN_LEAD_MAP,
   AGENT_IDS,
@@ -158,5 +164,9 @@ module.exports = {
   SOCIAL_INTEL_FRESHNESS_MS,
   _TASK_PREFIXES,
   ALLOWED_MODES,
-  ALLOWED_EXEC_MODES
+  ALLOWED_EXEC_MODES,
+  WORKSPACE_ROOT,
+  MAX_WORKSPACE_INJECT_CHARS,
+  WORKSPACE_SCAN_EXTENSIONS,
+  WORKSPACE_SKIP_DIRS
 };
