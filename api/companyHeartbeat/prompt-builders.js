@@ -3,7 +3,7 @@
 
 const fs = require("fs");
 const path = require("path");
-const { AGENT_IDS, _agentPersonalities, CFO_THRESHOLD, RESEARCH_MAX_AGE_DAYS } = require("./constants");
+const { AGENT_IDS, _agentPersonalities, CFO_THRESHOLD, RESEARCH_MAX_AGE_DAYS, MAX_RESEARCH_INJECTIONS, MAX_RESEARCH_CHARS } = require("./constants");
 const { _buildSocialIntelPromptBlock } = require('./social-intel');
 function buildSiteContextBlock() {
   try {
