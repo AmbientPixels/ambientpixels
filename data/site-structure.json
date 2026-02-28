@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2026-02-27T14:00:50.848Z",
+  "updated": "2026-02-28T13:38:21.262Z",
   "root": [
     {
       "type": "folder",
@@ -72,6 +72,18 @@
           "type": "page",
           "name": "index.html",
           "path": "account/index.html"
+        }
+      ]
+    },
+    {
+      "type": "folder",
+      "name": "ambientcore",
+      "path": "ambientcore",
+      "children": [
+        {
+          "type": "page",
+          "name": "index.html",
+          "path": "ambientcore/index.html"
         }
       ]
     },
@@ -659,18 +671,6 @@
       "type": "page",
       "name": "glitchlab.html",
       "path": "glitchlab.html"
-    },
-    {
-      "type": "folder",
-      "name": "ambientcore",
-      "path": "ambientcore",
-      "children": [
-        {
-          "type": "page",
-          "name": "index.html",
-          "path": "ambientcore/index.html"
-        }
-      ]
     },
     {
       "type": "folder",

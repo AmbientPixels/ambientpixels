@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-02-27T14:01:01.060Z",
+  "timestamp": "2026-02-28T13:38:33.657Z",
   "summary": {
     "totalJS": 2121,
     "totalCSS": 143,
@@ -7344,10 +7344,10 @@
     "mythic",
     "narrow-style-preview",
     "nav",
+    "nav-ambientcore-badge",
     "nav-auth-btn",
     "nav-container",
     "nav-content",
-    "nav-ambientcore-badge",
     "nav-link-active",
     "nav-links",
     "nav-list",

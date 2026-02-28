@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "090abf78-1045-4cff-940e-67b434e9a270",
-      "hash": "76c1d79a0cc6e6c0e7f5b752875494d4f573603e",
-      "message": "fix dedupe",
-      "timestamp": "2026-02-26 19:45:06 -0800",
+      "id": "ccf9b5d1-2606-49be-bdfb-b7db530b52aa",
+      "hash": "991220da8c683c069ab6161e21e505343d835e51",
+      "message": "fix scribe task reconciliation for submit-for-publish step",
+      "timestamp": "2026-02-28 00:14:46 -0800",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/76c1d79a0cc6e6c0e7f5b752875494d4f573603e"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/991220da8c683c069ab6161e21e505343d835e51"
     }
   ],
-  "timestamp": "2026-02-27T14:00:52.892Z",
+  "timestamp": "2026-02-28T13:38:23.880Z",
   "count": 1,
-  "scanId": 1772200852892
+  "scanId": 1772285903880
 }
