@@ -789,9 +789,12 @@ Write the full deliverable first, then the structured JSON block.`;
               }
               if (!_etExistingDoc) {
                 const _etDocId = 'doc_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+                // Extract article title from first H1 heading in markdown (not task title)
+                const _h1Match = (deliverable || '').match(/^#\s+(.+)$/m);
+                const _articleTitle = _h1Match ? _h1Match[1].replace(/\*\*/g, '').trim() : null;
                 const _etDoc = {
                   id: _etDocId,
-                  title: task.title || 'Untitled Blog Post',
+                  title: _articleTitle || task.title || 'Untitled Blog Post',
                   kind: 'marketing_post',
                   content_md: deliverable,
                   status: 'draft',
@@ -1605,9 +1608,15 @@ Write the full deliverable first, then the structured JSON block.`;
         }
 
         const docId = 'doc_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+        // If agent title looks like a task name, extract real title from H1 heading
+        const _h1FromContent = (docPayload.content_md || '').match(/^#\s+(.+)$/m);
+        const _isTaskName = /^(draft|write|create|compose|update)\s/i.test(docPayload.title || '');
+        const _docTitle = (_isTaskName && _h1FromContent)
+          ? _h1FromContent[1].replace(/\*\*/g, '').trim()
+          : docPayload.title;
         const doc = {
           id: docId,
-          title: docPayload.title,
+          title: _docTitle,
           kind: kind,
           status: 'draft',
           tags: Array.isArray(docPayload.tags) ? docPayload.tags : [],
