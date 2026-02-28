@@ -4,6 +4,7 @@
 const fs = require("fs");
 const path = require("path");
 const { AGENT_IDS, _agentPersonalities, CFO_THRESHOLD } = require("./constants");
+const { _buildSocialIntelPromptBlock } = require('./social-intel');
 function buildSiteContextBlock() {
   try {
     const digestPath = path.join(__dirname, '..', '..', 'data', 'site-manifest.digest.json');
@@ -46,12 +47,13 @@ function buildSiteContextBlock() {
 }
 
 // ── Build heartbeat prompt ──
-function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports) {
+function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore) {
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
   documents = documents || [];
   workspaceMemory = workspaceMemory || [];
   workspaceDates = workspaceDates || [];
+  _agentMemoryStore = _agentMemoryStore || {};
 
   // Pipeline action guidance based on taskType
   const _pipelineHints = {
