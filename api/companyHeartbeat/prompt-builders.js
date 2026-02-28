@@ -309,7 +309,8 @@ IMPORTANT: Create specific leaf tasks for each campaign directly (e.g. "Draft Q1
       return '- "' + o.title + '" Q' + (o.quarter || '?') + ' (id: ' + o.id + ', progress: ' + (o.progress || 0) + '%' + cmpInfo + ')' + linkInfo;
     }).join('\n');
     objectivesSection = `\n\nACTIVE GOALS (strategic goals \u2014 create tasks to advance these, always set objective_id when creating tasks for a goal):
-${objList}`;
+${objList}
+IMPORTANT: Create tasks that DIRECTLY deliver the goal's stated outcome. If the goal says "publish a blog post", create a blog_post task for Scribe — do NOT create preparatory tasks like marketing briefs or audits first. Read the goal description and match tasks to it.`;
   }
 
   // Existing documents — so agents know what's already drafted/published
