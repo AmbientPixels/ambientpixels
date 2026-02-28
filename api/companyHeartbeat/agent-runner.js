@@ -357,31 +357,49 @@ Write the full deliverable first, then the structured JSON block.`;
         }
       }
       if (_executableIdle.length > 0) {
-        const _stallTask = _executableIdle[0];
-        // Detect social tasks for Echo — must use create-social-action, not execute-task
-        const _stallText = ((_stallTask.title || '') + ' ' + (_stallTask.description || '')).toLowerCase();
-        const _isSocialTask = /linkedin|twitter|x\.com|social media|social post|bluesky|tweet|social_linkedin|social_x|social_bluesky/.test(_stallText) ||
-          /^social_/.test(_stallTask.taskType || '');
-        if (agentId === 'echo' && _isSocialTask) {
-          // Determine platform from task metadata
-          const _platform = (_stallTask.taskType === 'social_linkedin' || /linkedin/.test(_stallText)) ? 'linkedin'
-            : (_stallTask.taskType === 'social_x' || /twitter|x\.com|tweet/.test(_stallText)) ? 'x'
-            : (_stallTask.taskType === 'social_bluesky' || /bluesky/.test(_stallText)) ? 'bluesky'
-            : 'linkedin';
-          // Extract blog URL from task description for the social post text
-          const _urlMatch = (_stallTask.description || '').match(/https?:\/\/ambientpixels\.ai\/blog\/[a-z0-9-]+/i);
-          const _blogUrl = _urlMatch ? _urlMatch[0] : 'https://ambientpixels.ai';
-          const _stallTitle = (_stallTask.title || '').replace(/^Promote blog post on [^:]+:\s*/i, '');
-          const _defaultText = _stallTitle + '\n\n' + _blogUrl;
-          context.log('[Heartbeat] ANTI-STALL:', agentId, 'has', _triagedIdle.length,
-            'triaged idle task(s) (' + (_triagedIdle.length - _executableIdle.length) + ' convergence-blocked) — injecting create-social-action (social task) for:', _stallTask.id, '"' + (_stallTask.title || '') + '"', 'platform:', _platform);
-          actions.unshift({
-            type: 'create-social-action',
-            taskId: _stallTask.id,
-            social: { platform: _platform, text: _defaultText },
-            summary: 'Anti-stall social action: ' + (_stallTask.title || _stallTask.id)
+        // For Echo social tasks: batch ALL social promo tasks in one cycle (they're created together)
+        if (agentId === 'echo') {
+          const _socialIdle = _executableIdle.filter(function (t) {
+            var txt = ((t.title || '') + ' ' + (t.description || '')).toLowerCase();
+            return /^social_/.test(t.taskType || '') || /linkedin|twitter|x\.com|social media|social post|bluesky|tweet/.test(txt);
           });
+          if (_socialIdle.length > 0) {
+            for (var _si = 0; _si < _socialIdle.length; _si++) {
+              var _sTask = _socialIdle[_si];
+              var _sText = ((_sTask.title || '') + ' ' + (_sTask.description || '')).toLowerCase();
+              var _sPlatform = (_sTask.taskType === 'social_linkedin' || /linkedin/.test(_sText)) ? 'linkedin'
+                : (_sTask.taskType === 'social_x' || /twitter|x\.com|tweet/.test(_sText)) ? 'x'
+                : (_sTask.taskType === 'social_bluesky' || /bluesky/.test(_sText)) ? 'bluesky'
+                : 'linkedin';
+              var _sUrlMatch = (_sTask.description || '').match(/https?:\/\/ambientpixels\.ai\/blog\/[a-z0-9-]+/i);
+              var _sBlogUrl = _sUrlMatch ? _sUrlMatch[0] : 'https://ambientpixels.ai';
+              var _sTitle = (_sTask.title || '').replace(/^Promote blog post on [^:]+:\s*/i, '');
+              var _sDefaultText = _sTitle + '\n\n' + _sBlogUrl;
+              context.log('[Heartbeat] ANTI-STALL:', agentId, 'batch social (' + (_si + 1) + '/' + _socialIdle.length + ') — injecting create-social-action for:', _sTask.id, 'platform:', _sPlatform);
+              actions.push({
+                type: 'create-social-action',
+                taskId: _sTask.id,
+                social: { platform: _sPlatform, text: _sDefaultText },
+                summary: 'Anti-stall social action: ' + (_sTask.title || _sTask.id)
+              });
+            }
+          }
+          // If there are also non-social idle tasks, inject execute-task for the first one
+          var _nonSocialIdle = _executableIdle.filter(function (t) {
+            return !/^social_/.test(t.taskType || '');
+          });
+          if (_socialIdle.length === 0 && _nonSocialIdle.length > 0) {
+            var _nsTask = _nonSocialIdle[0];
+            context.log('[Heartbeat] ANTI-STALL:', agentId, 'has', _triagedIdle.length,
+              'triaged idle task(s) — injecting execute-task for:', _nsTask.id, '"' + (_nsTask.title || '') + '"');
+            actions.unshift({
+              type: 'execute-task',
+              taskId: _nsTask.id,
+              summary: 'Anti-stall forced execution: ' + (_nsTask.title || _nsTask.id)
+            });
+          }
         } else {
+          var _stallTask = _executableIdle[0];
           context.log('[Heartbeat] ANTI-STALL:', agentId, 'has', _triagedIdle.length,
             'triaged idle task(s) (' + (_triagedIdle.length - _executableIdle.length) + ' convergence-blocked) — injecting execute-task for:', _stallTask.id, '"' + (_stallTask.title || '') + '"');
           actions.unshift({
