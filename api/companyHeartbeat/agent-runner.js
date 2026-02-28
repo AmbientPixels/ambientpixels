@@ -359,10 +359,18 @@ Write the full deliverable first, then the structured JSON block.`;
       if (_executableIdle.length > 0) {
         // For Echo social tasks: batch ALL social promo tasks in one cycle (they're created together)
         if (agentId === 'echo') {
-          const _socialIdle = _executableIdle.filter(function (t) {
+          const _allSocialIdle = _executableIdle.filter(function (t) {
             var txt = ((t.title || '') + ' ' + (t.description || '')).toLowerCase();
             return /^social_/.test(t.taskType || '') || /linkedin|twitter|x\.com|social media|social post|bluesky|tweet/.test(txt);
           });
+          // Split: done tasks get create-social-action, non-done get execute-task (peer review first)
+          const _socialNeedDraft = _allSocialIdle.filter(function (t) { return t.status !== 'done'; });
+          const _socialIdle = _allSocialIdle.filter(function (t) { return t.status === 'done'; });
+          // Inject execute-task for social tasks that need drafting first
+          for (var _sdi = 0; _sdi < _socialNeedDraft.length; _sdi++) {
+            context.log('[Heartbeat] ANTI-STALL:', agentId, 'injecting execute-task for social task needing draft:', _socialNeedDraft[_sdi].id);
+            actions.push({ type: 'execute-task', taskId: _socialNeedDraft[_sdi].id, summary: 'Anti-stall: draft social copy for peer review' });
+          }
           if (_socialIdle.length > 0) {
             // Fetch blog post content to build proper social copy
             var _blogContent = null;
@@ -728,18 +736,7 @@ Write the full deliverable first, then the structured JSON block.`;
         newStatus: action.newStatus
       });
     } else if (action.type === 'execute-task' && action.taskId) {
-      // SERVER-SIDE GUARD: block Echo from using execute-task on social post tasks
-      // Echo must use create-social-action instead — execute-task bypasses the action governance layer
-      if (agentId === 'echo') {
-        const socialTask = tasks.find(t => t.id === action.taskId);
-        if (socialTask) {
-          const taskText = ((socialTask.title || '') + ' ' + (socialTask.description || '')).toLowerCase();
-          if (/linkedin|twitter|x\.com|social media|social post|bluesky|tweet/.test(taskText)) {
-            context.log('[Heartbeat] BLOCKED Echo execute-task on social post task:', action.taskId, '— must use create-social-action instead');
-            continue;
-          }
-        }
-      }
+      // Echo uses execute-task to draft social copy — peer review happens before create-social-action
       // TRIAGE GATE: block execution on truly untouched tasks (zero comments = never triaged)
       // Exception: CEO-created tasks with assignee + dueDate are pre-triaged (CEO outranks Nova)
       if (agentId !== 'nova') {
@@ -944,6 +941,15 @@ Write the full deliverable first, then the structured JSON block.`;
         }
       }
     } else if (action.type === 'create-social-action' && action.social) {
+      // PEER REVIEW GATE: social actions require the linked task to be peer-reviewed (done) first
+      // Echo must use execute-task to draft copy → peer reviews → task moves to done → then create-social-action
+      if (action.taskId) {
+        const _socialTaskForReview = tasks.find(t => t.id === action.taskId);
+        if (_socialTaskForReview && _socialTaskForReview.status !== 'done') {
+          context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action on', action.taskId, '— task not yet peer-reviewed (status:', _socialTaskForReview.status + '). Use execute-task to draft copy first, then wait for peer review.');
+          continue;
+        }
+      }
       // TRIAGE GATE: if this social action is linked to a task, that task must be triaged first
       // Exception: CEO-created tasks with assignee + dueDate are pre-triaged
       if (agentId !== 'nova' && action.taskId) {
