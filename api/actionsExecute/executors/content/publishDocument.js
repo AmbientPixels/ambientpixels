@@ -203,12 +203,15 @@ async function publishDocument(action) {
             + 'Artifact ID: ' + publishEntry.id + '\n\n'
             + 'Use create-social-action with this taskId. Include the blog URL in your post. '
             + 'Use artifact_id: "' + publishEntry.id + '" if the URL needs to be resolved dynamically.',
+          taskType: 'social_' + plat,
           status: 'todo',
           priority: 'medium',
           assignee: 'echo',
           source: 'heartbeat',
           created_by: 'system',
           parent_task_id: null,
+          objective_id: doc.objective_id || null,
+          campaign_id: doc.campaign_id || null,
           createdAt: now,
           updatedAt: now,
           dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
