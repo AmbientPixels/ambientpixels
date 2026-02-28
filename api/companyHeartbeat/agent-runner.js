@@ -2489,10 +2489,10 @@ Write the full deliverable first, then the structured JSON block.`;
             // Notify originating Scribe task that hero image is ready
             const _heroDocId = attachTo.id;
             const _originTask = tasks.find(t =>
-              t.assignee === 'scribe' && t.status !== 'done' &&
+              t.assignee === 'scribe' &&
               t.comments && t.comments.some(c => c.text && c.text.indexOf(_heroDocId) !== -1)
             );
-            if (_originTask) {
+            if (_originTask && _originTask.status !== 'done') {
               if (!_originTask.comments) _originTask.comments = [];
               _originTask.comments.push({
                 id: 'cmt-hero-ready-' + Date.now(),
@@ -2508,6 +2508,13 @@ Write the full deliverable first, then the structured JSON block.`;
                 context.log('[Heartbeat]', agentId, 'moved Scribe task', _originTask.id, 'from review → in-progress for submit-for-publish step');
               }
               context.log('[Heartbeat]', agentId, 'notified originating task', _originTask.id, 'that hero image is ready for doc:', _heroDocId);
+            } else {
+              // Scribe task already done — auto-submit for publish since no agent will do it
+              var _heroDoc = imgDoc;
+              if (_heroDoc && _heroDoc.kind && ['marketing_post', 'product_brief'].indexOf(_heroDoc.kind) !== -1 && _heroDoc.status !== 'published') {
+                context.log('[Heartbeat]', agentId, 'Scribe task already done — auto-injecting submit-for-publish for doc:', _heroDocId);
+                actions.push({ type: 'submit-for-publish', documentId: _heroDocId, taskId: _originTask ? _originTask.id : null, _systemInjected: true });
+              }
             }
             } // end of else (no existing hero image)
           } else if (imgPurpose === 'inline_illustration') {
