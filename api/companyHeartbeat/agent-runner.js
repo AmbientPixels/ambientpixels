@@ -751,6 +751,19 @@ Write the full deliverable first, then the structured JSON block.`;
         if (_exTask) {
           if (_exTask.status === 'review' || _exTask.status === 'done') {
             context.log('[Heartbeat]', agentId, 'BLOCKED execute-task on', action.taskId, '— task already in', _exTask.status);
+            // Convergence recovery for blocked hero image tasks: auto-submit parent doc for publish
+            if (_exTask.status === 'done' || ((_exTask.comments || []).filter(c => c.type === 'deliverable').length >= 3)) {
+              var _blkParent = _exTask.parent_task_id || null;
+              var _blkDoc = documents.find(function(d) {
+                if (!d || d.deletedAt || d.status === 'published' || d.status === 'rejected' || d.status === 'archived') return false;
+                return (d.taskId === action.taskId) || (_blkParent && d.taskId === _blkParent);
+              });
+              if (_blkDoc && _blkDoc.hero_image_asset_id && !_blkDoc.awaiting_hero_image
+                  && _blkDoc.kind && ['marketing_post', 'product_brief'].indexOf(_blkDoc.kind) !== -1) {
+                context.log('[Heartbeat] CONVERGENCE RECOVERY (blocked execute-task): auto-submitting doc', _blkDoc.id, 'for publish');
+                actions.push({ type: 'submit-for-publish', documentId: _blkDoc.id, taskId: _blkParent || action.taskId, _systemInjected: true });
+              }
+            }
             continue;
           }
           // CONVERGENCE GUARD: if 3+ deliverables already exist, the task is looping — block and escalate
