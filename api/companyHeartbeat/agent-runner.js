@@ -1538,6 +1538,17 @@ Write the full deliverable first, then the structured JSON block.`;
             });
           }
           context.log('[Heartbeat]', agentId, 'CONVERGENCE BLOCKED review-task on', action.taskId, '—', _rvDelCount, 'deliverables already.');
+          // Convergence recovery: auto-submit for publish if document is ready
+          var _rvParentTaskId = task.parent_task_id || null;
+          var _rvConvDoc = documents.find(function(d) {
+            if (!d || d.deletedAt || d.status === 'published' || d.status === 'rejected' || d.status === 'archived') return false;
+            return (d.taskId === action.taskId) || (_rvParentTaskId && d.taskId === _rvParentTaskId);
+          });
+          if (_rvConvDoc && _rvConvDoc.hero_image_asset_id && !_rvConvDoc.awaiting_hero_image
+              && _rvConvDoc.kind && ['marketing_post', 'product_brief'].indexOf(_rvConvDoc.kind) !== -1) {
+            context.log('[Heartbeat] CONVERGENCE RECOVERY (review-task): auto-submitting doc', _rvConvDoc.id, 'for publish');
+            actions.push({ type: 'submit-for-publish', documentId: _rvConvDoc.id, taskId: _rvParentTaskId || action.taskId, _systemInjected: true });
+          }
         } else {
           const review = await reviewTask(context, agent, task, costIntel, siteIntel, socialIntel, execContext);
           result.geminiCalls++;
