@@ -3760,10 +3760,12 @@ Write the full deliverable first, then the structured JSON block.`;
         socialPayload.text = raw;
       }
 
+      // Strip meta-comments agents leave in copy (e.g. [ADDRESSED], [NOTE], [REVISED])
+      socialPayload.text = (socialPayload.text || '').replace(/\n*\[(?:ADDRESSED|NOTE|REVISED|FEEDBACK|CHANGED|UPDATED)[^\]]*\].*$/gis, '').trim();
       const postText = socialPayload.text || '';
 
       // Server-side enforcement: reject posts with unfilled template placeholders
-      if (/\[(?:[^\]]*(?:mention|insert|add|include|TBD|link|placeholder|url|website|your |e\.g\.|fill))[^\]]*\]/i.test(postText)) {
+      if (/\[(?:[^\]]*(?:mention|insert|\badd\b|include|TBD|link|placeholder|url|website|your |e\.g\.|fill))[^\]]*\]/i.test(postText)) {
         context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action — contains placeholder brackets:', postText.substring(0, 100));
         continue;
       }
@@ -3930,7 +3932,7 @@ Write the full deliverable first, then the structured JSON block.`;
       const revisedText = action.social.text || '';
 
       // Server-side enforcement: reject revised posts with placeholder brackets
-      if (/\[(?:[^\]]*(?:mention|insert|add|include|TBD|link|placeholder|url|website|your |e\.g\.|fill))[^\]]*\]/i.test(revisedText)) {
+      if (/\[(?:[^\]]*(?:mention|insert|\badd\b|include|TBD|link|placeholder|url|website|your |e\.g\.|fill))[^\]]*\]/i.test(revisedText)) {
         context.log('[Heartbeat]', agentId, 'BLOCKED revise-action — contains placeholder brackets:', revisedText.substring(0, 100));
         continue;
       }
