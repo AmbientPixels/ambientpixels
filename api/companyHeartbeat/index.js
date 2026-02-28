@@ -678,12 +678,26 @@ module.exports = async function (context) {
           var _spUrlMatch = (_spTask.description || '').match(/https?:\/\/ambientpixels\.ai\/blog\/[a-z0-9-]+/i);
           var _spBlogUrl = _spUrlMatch ? _spUrlMatch[0] : 'https://ambientpixels.ai';
 
-          // Clean deliverable: strip markdown headers, bold markers, meta text
-          var _spText = _spDeliverable
-            .replace(/^#+\s+.*$/gm, '')           // remove headings
-            .replace(/\*\*([^*]+)\*\*/g, '$1')     // **bold** → bold
-            .replace(/^(Here's|Okay|Draft|Post)[^\n]*\n/i, '')  // strip preamble
-            .trim();
+          // Extract just the social post text from the deliverable
+          // Deliverables typically have: preamble → actual post → reasoning/notes
+          var _spText = _spDeliverable;
+
+          // Strip everything from "Reasoning:" or "---" onwards (agent's internal notes)
+          _spText = _spText.replace(/\n\s*(Reasoning|Notes|Rationale|Analysis|Strategy|Why this works|Character Count)[:\s].*/si, '');
+          _spText = _spText.replace(/\n---\s*\n.*/s, '');
+
+          // Strip markdown headings and bold markers
+          _spText = _spText.replace(/^#+\s+.*$/gm, '');
+          _spText = _spText.replace(/\*\*([^*]+)\*\*/g, '$1');
+
+          // Strip preamble lines (agent explaining what they're about to post)
+          _spText = _spText.replace(/^.*(?:Here's|Okay|Draft|I've drafted|I've created|Below is|This is my|Post Draft)[^\n]*\n/gi, '');
+
+          // Strip lines like "LinkedIn Post", "X Post", "Bluesky Post Draft (date)"
+          _spText = _spText.replace(/^.*(?:LinkedIn|Bluesky|Twitter|X)\s*(?:Post|Draft).*$/gim, '');
+
+          // Clean up whitespace
+          _spText = _spText.replace(/^\s*\n/gm, '\n').replace(/\n{3,}/g, '\n\n').trim();
 
           // Ensure URL is in the text
           if (_spText.indexOf('ambientpixels.ai') === -1) {
