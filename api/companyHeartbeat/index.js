@@ -2825,7 +2825,8 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
   };
 
   // Build context for the agent
-  const agentTasks = tasks.filter(t => t.assignee === agentId && t.status !== 'done');
+  // Exclude 'done' and 'review' — review means awaiting another agent's review, not further action by the assignee
+  const agentTasks = tasks.filter(t => t.assignee === agentId && t.status !== 'done' && t.status !== 'review');
   // Nova sees backlog tasks so she can triage them; other agents only see active tasks
   const allActiveTasks = agentId === 'nova'
     ? tasks.filter(t => t.status !== 'done')
