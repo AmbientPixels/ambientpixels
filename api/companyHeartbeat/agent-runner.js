@@ -779,9 +779,11 @@ Write the full deliverable first, then the structured JSON block.`;
             }
             // Convergence recovery: if a ready document exists, auto-trigger submit-for-publish
             // rather than waiting for the agent to do it (they're blocked from executing)
+            const _convParentTaskId = _exTask && _exTask.parent_task_id ? _exTask.parent_task_id : null;
             const _convDoc = documents.find(function(d) {
               if (!d || d.deletedAt || d.status === 'published' || d.status === 'rejected' || d.status === 'archived') return false;
-              return (d.taskId === action.taskId) || (d.source && d.source.task_id === action.taskId);
+              return (d.taskId === action.taskId) || (d.source && d.source.task_id === action.taskId)
+                || (_convParentTaskId && d.taskId === _convParentTaskId);
             });
             if (_convDoc && _convDoc.hero_image_asset_id && !_convDoc.awaiting_hero_image) {
               context.log('[Heartbeat] CONVERGENCE RECOVERY: auto-submitting doc', _convDoc.id, 'for publish (task', action.taskId, 'is convergence-locked)');
