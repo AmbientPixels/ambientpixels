@@ -565,6 +565,81 @@ module.exports = async function (context) {
       }
     } catch (_hnErr) { context.log.warn('[Heartbeat] Hero notify reconciliation failed (non-fatal):', _hnErr.message); }
 
+    // ── PROACTIVE PUBLISH: auto-submit marketing docs that are ready but have no publish action ──
+    try {
+      const _pubReadyDocs = documents.filter(function(d) {
+        if (!d || d.deletedAt || d.status === 'published' || d.status === 'rejected' || d.status === 'archived') return false;
+        if (d.status === 'ready_for_approval') return false;
+        if (!d.hero_image_asset_id || d.awaiting_hero_image) return false;
+        if (!d.kind || ['marketing_post', 'product_brief'].indexOf(d.kind) === -1) return false;
+        var hasPublish = allActions.some(function(a) {
+          return a.type === 'publish_document' && a.payload && a.payload.documentId === d.id;
+        });
+        return !hasPublish;
+      });
+      if (_pubReadyDocs.length > 0) {
+        let _prDocsChanged = false;
+        for (var _pri = 0; _pri < _pubReadyDocs.length; _pri++) {
+          var _prDoc = _pubReadyDocs[_pri];
+          var _prSlug = _prDoc.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+          var _prIsPublic = ['marketing_post', 'product_brief'].indexOf(_prDoc.kind) !== -1;
+          var _prTarget = _prIsPublic ? '/blog/' + _prSlug : '/docs/published/' + _prSlug;
+          var _prHeroUrl = null;
+          try {
+            var _prImgAssets = (await storage.getState('imageAssets')) || [];
+            var _prHeroAsset = _prImgAssets.find(function(a) { return a.id === _prDoc.hero_image_asset_id; });
+            if (_prHeroAsset && _prHeroAsset.url) _prHeroUrl = _prHeroAsset.url;
+          } catch (_e) {}
+          var _prAction = {
+            id: 'act_pub_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+            created_at: new Date().toISOString(),
+            created_by: 'system',
+            type: 'publish_document',
+            platform: 'site',
+            payload: {
+              documentId: _prDoc.id,
+              title: _prDoc.title,
+              slug: _prSlug,
+              kind: _prDoc.kind,
+              content_md: _prDoc.content_md,
+              target_path: _prTarget,
+              public_url: _prTarget,
+              hero_image_asset_id: _prDoc.hero_image_asset_id || null,
+              hero_image_url: _prHeroUrl,
+              missing_hero_image: false
+            },
+            classification: 'executive_required',
+            requires_ceo_approval: true,
+            risk_level: 'medium',
+            brand_impact: 'medium',
+            budget_impact: 0,
+            approval: { status: 'pending', approved_by: null, approved_at: null, decision_note: null },
+            execution: { status: 'pending', started_at: null, finished_at: null, attempts: 0, last_error: null, receipt: null },
+            action_type: 'publish_document',
+            action_category: 'content',
+            execution_status: 'pending',
+            origin_agent: 'system',
+            action_payload: { documentId: _prDoc.id, title: _prDoc.title, slug: _prSlug },
+            requires_approval: true,
+            is_irreversible: true,
+            bundle_id: null
+          };
+          allActions.push(_prAction);
+          // Update doc status
+          var _prDocIdx = documents.findIndex(function(d) { return d.id === _prDoc.id; });
+          if (_prDocIdx !== -1) {
+            documents[_prDocIdx].status = 'ready_for_approval';
+            documents[_prDocIdx].updated_at = new Date().toISOString();
+            documents[_prDocIdx].submitted_by = 'system';
+            _prDocsChanged = true;
+          }
+          context.log('[Heartbeat] PROACTIVE PUBLISH: auto-submitted doc', _prDoc.id, '"' + (_prDoc.title || '') + '" for CEO approval');
+        }
+        await storage.setState('actions', allActions);
+        if (_prDocsChanged) await storage.setState('documents', documents);
+      }
+    } catch (_prErr) { context.log.warn('[Heartbeat] Proactive publish check failed (non-fatal):', _prErr.message); }
+
     // Dedupe check: get recent log summaries to avoid repeats
     const recentSummaries = new Set();
     const dedupeAfter = Date.now() - GUARDRAILS.dedupeWindowMs;
