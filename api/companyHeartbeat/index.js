@@ -4421,84 +4421,22 @@ Write the full deliverable first, then the structured JSON block.`;
 
           context.log('[Heartbeat]', agentId, 'visual doc created — deferred publish, awaiting Pixel hero image:', doc.id, doc.title);
         } else {
-          // Internal doc kinds (spec, runbook, release_notes, governance) — require CEO approval before publish
-          const slug = doc.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-          doc.status = 'ready_for_approval';
-          doc.slug = slug;
+          // Internal doc kinds (spec, runbook, release_notes, governance) — wiki-style, immediately available
           doc.visibility = 'internal';
           doc.updated_at = new Date().toISOString();
-          doc.submitted_by = agentId;
           const dIdx = docsStore.findIndex(d => d.id === docId);
           if (dIdx !== -1) docsStore[dIdx] = doc;
           await storage.setState('documents', docsStore);
 
-          // Create publish_document action (requires CEO approval)
-          const internalPubAction = {
-            id: 'act_pub_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
-            created_at: new Date().toISOString(),
-            created_by: agentId,
-            type: 'publish_document',
-            platform: 'site',
-            payload: {
-              documentId: doc.id,
-              title: doc.title,
-              slug: slug,
-              kind: doc.kind,
-              content_md: doc.content_md,
-              target_path: '/docs/published/' + slug,
-              public_url: '/docs/published/' + slug,
-              hero_image_asset_id: null,
-              hero_image_url: null,
-              missing_hero_image: false
-            },
-            classification: 'advisory',
-            requires_ceo_approval: true,
-            risk_level: 'low',
-            brand_impact: 'low',
-            budget_impact: 0,
-            approval: {
-              status: 'pending',
-              approved_by: null,
-              approved_at: null,
-              decision_note: null
-            },
-            execution: {
-              status: 'pending',
-              started_at: null,
-              finished_at: null,
-              attempts: 0,
-              last_error: null,
-              receipt: null
-            },
-            action_type: 'publish_document',
-            action_category: 'content',
-            execution_status: 'pending',
-            origin_agent: agentId,
-            action_payload: { documentId: doc.id, title: doc.title, slug: slug },
-            requires_approval: true,
-            is_irreversible: false,
-            bundle_id: null
-          };
-
-          const internalActionsStore = (await storage.getState('actions')) || [];
-          internalActionsStore.push(internalPubAction);
-          if (internalActionsStore.length > 500) internalActionsStore.splice(0, internalActionsStore.length - 500);
-          await storage.setState('actions', internalActionsStore);
-
-          context.log('[Heartbeat]', agentId, 'internal doc submitted for CEO approval:', doc.id, doc.title, '→ action:', internalPubAction.id);
-          result.taskUpdates.push({ action: 'doc-pending-approval', documentId: doc.id, agentId: agentId, actionId: internalPubAction.id });
+          context.log('[Heartbeat]', agentId, 'internal doc saved to wiki:', doc.id, doc.title);
+          result.taskUpdates.push({ action: 'doc-created', documentId: doc.id, agentId: agentId });
 
           if (action.taskId) {
             result.taskUpdates.push({
               action: 'comment',
               taskId: action.taskId,
-              comment: 'Document "' + doc.title + '" (id: ' + doc.id + ', kind: ' + kind + ') submitted for CEO approval before publishing to /docs/published/' + slug,
+              comment: 'Document "' + doc.title + '" (id: ' + doc.id + ', kind: ' + kind + ') added to the Document Center wiki.',
               agentId: agentId
-            });
-            result.taskUpdates.push({
-              action: 'move',
-              taskId: action.taskId,
-              newStatus: 'review'
             });
           }
         }
@@ -5540,7 +5478,7 @@ function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirective
     social_x: '→ Use create-social-action with platform "x" to draft the post.',
     social_linkedin: '→ Use create-social-action with platform "linkedin" to draft the post.',
     social_bluesky: '→ Use create-social-action with platform "bluesky" to draft the post.',
-    internal_doc: '→ Use create-doc to write the document, then submit-for-publish when ready.',
+    internal_doc: '→ Use create-doc to write the document. Internal docs are saved to the wiki immediately (no approval needed).',
     design_asset: '→ Use create-content-package or generate-image to produce visual assets.',
     research: '→ Use execute-task to produce research deliverable. Use web_search for live data.',
     ops: '→ Use execute-task to produce deliverable (report, fix, deployment plan).',
@@ -6111,9 +6049,9 @@ Action types:
 - create-doc: Create a NEW document. Include "document" with: title (string), kind, tags (array of strings), and content_md (full markdown content — MUST be complete, publish-ready text with NO placeholders like "[insert here]" or "[TBD]"). Also include "taskId" if this doc is for a specific task. IMPORTANT: Check EXISTING DOCUMENTS below first — if a relevant doc already exists, use update-doc instead of creating a duplicate.
   DOCUMENT KINDS — two distinct tracks:
   • EXTERNAL (public blog): "marketing_post" or "product_brief" — public articles about AI, creative tech, industry trends. Include a hero image (auto-generated by Pixel). Published to /blog/ after CEO approval. Used in social media promotion. Max 5 unpublished drafts at a time.
-  • INTERNAL (GridOS reference): "spec", "runbook", "release_notes", or "governance" — technical documentation about GridOS internals, system architecture, API endpoints, agent workflows, heartbeat pipeline, storage schemas, escalation rules, deployment procedures. For agents and humans to reference. Published to /docs/published/. Max 5 active at a time. MUST be about GridOS/operational subject matter — marketing content is NOT allowed as internal docs.
-- update-doc: Update an existing document. Include "documentId" (the doc ID from EXISTING DOCUMENTS) and "updates" with any of: content_md (full replacement), append_md (add new content to end), title (rename), tags (replace tags). Use this when new information should be added to an existing doc instead of creating a new one. Internal docs are auto-refreshed at /docs/published/.
-- submit-for-publish: Submit a completed document for human/CEO approval to publish on the site. Include "documentId" (the ID of an existing draft or review document) and optionally "taskId" (the task that produced the doc). This creates a publish_document action in the approval queue. You CANNOT publish directly — only a human can approve publishing.
+  • INTERNAL (wiki): "spec", "runbook", "release_notes", or "governance" — technical documentation about GridOS internals, system architecture, API endpoints, agent workflows, heartbeat pipeline, storage schemas, escalation rules, deployment procedures. For agents and humans to reference. Saved to the Document Center wiki immediately — NO approval needed. Max 5 active at a time. MUST be about GridOS/operational subject matter — marketing content is NOT allowed as internal docs.
+- update-doc: Update an existing document. Include "documentId" (the doc ID from EXISTING DOCUMENTS) and "updates" with any of: content_md (full replacement), append_md (add new content to end), title (rename), tags (replace tags). Use this when new information should be added to an existing doc instead of creating a new one.
+- submit-for-publish: Submit a completed EXTERNAL document for human/CEO approval to publish on the blog. Include "documentId" (the ID of an existing marketing_post or product_brief) and optionally "taskId". This creates a publish_document action in the approval queue. Do NOT use this for internal docs — they are saved to the wiki automatically.
 - create-content-package: (Echo and Pixel ONLY) Generate an image content package for marketing, social media, or design assets. Include "content" with: topic (visual subject, min 3 chars), goal (what the images will be used for, min 3 chars), preset (visual style — use "ap-neon-glass" if unsure), outputs (array of output types: "x_image", "linkedin_image", "og_image", "blog_hero", "instagram_square" — max 3), and variations (1-2, default 1). Also include "taskId" if this is for a specific task. Images are generated via Gemini and submitted to the CEO approval queue. Max 1 content package per heartbeat. Use this when a task requires MULTIPLE visual assets for a campaign — NOT for single images.
 - generate-image: (Echo, Pixel, Scribe) Generate a SINGLE image and optionally attach it to a document or social action. Include "image" with: purpose ("blog_header"|"inline_illustration"|"social_media"), topic (visual subject, min 3 chars), goal (what the image is for, min 3 chars), preset (visual style — default "ap-neon-glass"), outputType (optional override: "blog_image", "x_image", "hero_image", etc), alt (alt text for accessibility). To attach to a document: set attachTo: { "type": "document", "id": "doc_xxx" }. For blog_header purpose: sets doc.hero_image_asset_id (no content mutation). For inline_illustration: replaces {{IMAGE:slot}} token in doc markdown (include "slot" field to name the anchor; agent should have placed {{IMAGE:slotName}} in the doc content_md first). To attach to a social action: set attachTo: { "type": "action", "id": "act_xxx" } — adds image to action media[] (action must still be pending). Shares the 1-per-heartbeat content generation limit with create-content-package. Use this for blog post hero images, inline article illustrations, or social post graphics — use create-content-package for multi-image campaign batches.
 - create-reminder: Set a reminder or important date in the CEO workspace. Include "reminder" with: title (string), date (YYYY-MM-DD), type ("deadline"|"event"|"milestone"|"recurring"), and optionally description. Use for tracking deadlines, renewals, milestones, or follow-ups. These appear in the CEO Morning Inbox and are injected into future heartbeat prompts.

@@ -169,23 +169,14 @@ async function handleDocUpdate(context, body) {
 
   const doc = docs[idx];
 
-  // Only drafts and review docs can be updated
-  if (doc.status === 'final') {
-    context.res = {
-      status: 403,
-      headers: corsHeaders,
-      body: { error: 'Cannot update a finalized document' }
-    };
-    return;
-  }
-
   const payload = body.payload || body;
   if (payload.content_md !== undefined) doc.content_md = payload.content_md;
   if (payload.title !== undefined) doc.title = payload.title;
   if (payload.kind !== undefined && VALID_DOC_KINDS.indexOf(payload.kind) !== -1) doc.kind = payload.kind;
   if (Array.isArray(payload.tags)) doc.tags = payload.tags;
-  if (payload.status === 'review' && doc.status === 'draft') doc.status = 'review';
+  if (payload.append_md) doc.content_md = (doc.content_md || '') + '\n\n' + payload.append_md;
   doc.updated_at = new Date().toISOString();
+  if (payload.updated_by) doc.last_edited_by = payload.updated_by;
 
   docs[idx] = doc;
   await storage.setState('documents', docs);

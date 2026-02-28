@@ -37,20 +37,12 @@
     .doc-card-desc { font-size: 0.68rem; opacity: 0.45; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .doc-card-meta { display: flex; gap: 0.5rem; align-items: center; margin-top: auto; flex-wrap: wrap; }
     .doc-badge { font-size: 0.52rem; padding: 0.15rem 0.45rem; border-radius: 3px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.03em; }
-    .doc-badge--draft { background: rgba(255,165,0,0.12); color: #FFA500; }
-    .doc-badge--review { background: rgba(138,43,226,0.12); color: #8A2BE2; }
-    .doc-badge--final { background: rgba(52,211,153,0.12); color: #34d399; }
     .doc-badge--kind { background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.5); }
     .doc-card-date { font-size: 0.58rem; opacity: 0.25; }
 
     .doc-filters { display: flex; gap: 0.8rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; }
     .doc-filters select { font-size: 0.72rem; padding: 0.3rem 0.6rem; border-radius: 5px; }
     .doc-filters label { font-size: 0.6rem; opacity: 0.4; text-transform: uppercase; letter-spacing: 0.05em; }
-
-    .doc-stats { display: flex; gap: 1.5rem; flex-wrap: wrap; padding: 0.8rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); margin-bottom: 1rem; }
-    .doc-stat { text-align: center; }
-    .doc-stat-value { font-size: 1.3rem; font-weight: 600; }
-    .doc-stat-label { font-size: 0.58rem; opacity: 0.4; text-transform: uppercase; letter-spacing: 0.05em; }
 
     .doc-viewer { display: none; margin-top: 1.5rem; border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; background: rgba(255,255,255,0.015); padding: 1.5rem; }
     .doc-viewer.active { display: block; }
@@ -97,34 +89,22 @@
   <main class="content-section" style="max-width: 900px; margin: 0 auto; padding: 1rem;">
 
     <div class="company-header">
-      <h1><i class="fas fa-folder-open" style="opacity:0.4; margin-right:8px; color:#FFD700;"></i>Document Center</h1>
-      <p>Central repository for all AmbientPixels documentation — drafts, specs, briefs, and finalized docs.</p>
-    </div>
-
-    <!-- Stats -->
-    <div class="doc-stats" id="doc-stats">
-      <div class="doc-stat"><div class="doc-stat-value" id="stat-total">0</div><div class="doc-stat-label">Total</div></div>
-      <div class="doc-stat"><div class="doc-stat-value" style="color:#FFA500;" id="stat-draft">0</div><div class="doc-stat-label">Drafts</div></div>
-      <div class="doc-stat"><div class="doc-stat-value" style="color:#8A2BE2;" id="stat-review">0</div><div class="doc-stat-label">In Review</div></div>
-      <div class="doc-stat"><div class="doc-stat-value" style="color:#34d399;" id="stat-final">0</div><div class="doc-stat-label">Final</div></div>
+      <h1><i class="fas fa-book" style="opacity:0.4; margin-right:8px; color:#FFD700;"></i>Document Center</h1>
+      <p>Internal system wiki — architecture, governance, runbooks, and operational reference.</p>
     </div>
 
     <!-- Filters -->
     <div class="doc-filters">
       <div>
-        <label>Status</label>
-        <select id="filter-status"><option value="all">All</option><option value="draft">Draft</option><option value="review">Review</option><option value="final">Final</option></select>
-      </div>
-      <div>
         <label>Kind</label>
-        <select id="filter-kind"><option value="all">All</option><option value="spec">Spec</option><option value="runbook">Runbook</option><option value="release_notes">Release Notes</option><option value="product_brief">Product Brief</option><option value="marketing_post">Marketing Post</option><option value="governance">Governance</option></select>
+        <select id="filter-kind"><option value="all">All</option><option value="spec">Spec</option><option value="runbook">Runbook</option><option value="release_notes">Release Notes</option><option value="governance">Governance</option></select>
       </div>
       <div>
         <label>Author</label>
         <select id="filter-author"><option value="all">All</option></select>
       </div>
       <div style="margin-left:auto;">
-        <button class="doc-viewer-btn" id="btn-toggle-create" type="button"><i class="fas fa-plus"></i> Create Draft</button>
+        <button class="doc-viewer-btn" id="btn-toggle-create" type="button"><i class="fas fa-plus"></i> New Document</button>
       </div>
     </div>
 
@@ -136,7 +116,6 @@
         <div class="doc-card-title">GridOS Playbook v2.2</div>
         <div class="doc-card-desc">Governance, authority, doctrine, execution modes, and operational protocol.</div>
         <div class="doc-card-meta">
-          <span class="doc-badge doc-badge--final">Final</span>
           <span class="doc-badge doc-badge--kind">Governance</span>
           <span class="doc-card-date">Feb 2026</span>
         </div>
@@ -152,9 +131,9 @@
     <!-- Doc Viewer -->
     <div class="doc-viewer" id="doc-viewer"></div>
 
-    <!-- Create Draft Form -->
+    <!-- Create Document Form -->
     <div class="doc-create-form" id="doc-create-form">
-      <h3><i class="fas fa-pen-nib" style="margin-right:6px; opacity:0.4;"></i>Create Document Draft</h3>
+      <h3><i class="fas fa-pen-nib" style="margin-right:6px; opacity:0.4;"></i>New Document</h3>
       <div class="doc-form-row">
         <label>Title</label>
         <input type="text" id="create-title" placeholder="Document title..." />
@@ -162,24 +141,22 @@
       <div class="doc-form-row">
         <label>Kind</label>
         <select id="create-kind">
-          <option value="product_brief">Product Brief</option>
           <option value="spec">Spec</option>
           <option value="runbook">Runbook</option>
           <option value="release_notes">Release Notes</option>
-          <option value="marketing_post">Marketing Post</option>
           <option value="governance">Governance</option>
         </select>
       </div>
       <div class="doc-form-row">
         <label>Tags (comma-separated)</label>
-        <input type="text" id="create-tags" placeholder="e.g. launch, v2, marketing" />
+        <input type="text" id="create-tags" placeholder="e.g. gridos, pipeline, architecture" />
       </div>
       <div class="doc-form-row">
         <label>Content (Markdown)</label>
         <textarea id="create-content" placeholder="# Title&#10;&#10;Write your document content in markdown..."></textarea>
       </div>
       <div class="doc-form-actions">
-        <button class="doc-viewer-btn" id="btn-save-draft" type="button"><i class="fas fa-save"></i> Save Draft</button>
+        <button class="doc-viewer-btn" id="btn-save-draft" type="button"><i class="fas fa-save"></i> Save</button>
         <button class="doc-viewer-btn" id="btn-cancel-create" type="button"><i class="fas fa-times"></i> Cancel</button>
       </div>
     </div>
@@ -213,8 +190,9 @@
 
     loadDocs();
 
+    var INTERNAL_KINDS = { spec: true, runbook: true, release_notes: true, governance: true };
+
     // ── Filters ──
-    document.getElementById('filter-status').addEventListener('change', renderDocs);
     document.getElementById('filter-kind').addEventListener('change', renderDocs);
     document.getElementById('filter-author').addEventListener('change', renderDocs);
 
@@ -233,23 +211,15 @@
       fetch(API_BASE + '/company-state?key=documents')
         .then(function (r) { return r.json(); })
         .then(function (data) {
-          docs = (data && data.value) ? data.value : [];
+          var allDocs = (data && data.value) ? data.value : [];
+          docs = allDocs.filter(function (d) { return INTERNAL_KINDS[d.kind]; });
           renderDocs();
-          renderStats();
           populateAuthorFilter();
         })
         .catch(function () {
           docs = [];
           renderDocs();
         });
-    }
-
-    // ── Render stats ──
-    function renderStats() {
-      document.getElementById('stat-total').textContent = docs.length;
-      document.getElementById('stat-draft').textContent = docs.filter(function (d) { return d.status === 'draft'; }).length;
-      document.getElementById('stat-review').textContent = docs.filter(function (d) { return d.status === 'review'; }).length;
-      document.getElementById('stat-final').textContent = docs.filter(function (d) { return d.status === 'final'; }).length;
     }
 
     // ── Populate author filter ──
@@ -267,24 +237,18 @@
 
     // ── Render doc grid ──
     function renderDocs() {
-      var statusFilter = document.getElementById('filter-status').value;
       var kindFilter = document.getElementById('filter-kind').value;
       var authorFilter = document.getElementById('filter-author').value;
 
       var filtered = docs.filter(function (d) {
-        if (statusFilter !== 'all' && d.status !== statusFilter) return false;
         if (kindFilter !== 'all' && d.kind !== kindFilter) return false;
         if (authorFilter !== 'all' && d.created_by !== authorFilter) return false;
         return true;
       });
 
-      // Sort: drafts first, then review, then final; newest first within each
+      // Sort newest first
       filtered.sort(function (a, b) {
-        var order = { draft: 0, review: 1, final: 2 };
-        var sa = order[a.status] !== undefined ? order[a.status] : 1;
-        var sb = order[b.status] !== undefined ? order[b.status] : 1;
-        if (sa !== sb) return sa - sb;
-        return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+        return new Date(b.updated_at || b.created_at || 0) - new Date(a.updated_at || a.created_at || 0);
       });
 
       if (filtered.length === 0) {
@@ -298,20 +262,18 @@
         card.className = 'doc-card' + (selectedDoc && selectedDoc.id === doc.id ? ' doc-card--active' : '');
 
         var kindLabel = (doc.kind || 'unknown').replace(/_/g, ' ');
-        var statusClass = 'doc-badge--' + (doc.status || 'draft');
-        var iconMap = { spec: 'fa-file-code', runbook: 'fa-book', release_notes: 'fa-tag', product_brief: 'fa-file-lines', marketing_post: 'fa-bullhorn', governance: 'fa-scroll' };
+        var iconMap = { spec: 'fa-file-code', runbook: 'fa-book', release_notes: 'fa-tag', governance: 'fa-scroll' };
         var icon = iconMap[doc.kind] || 'fa-file';
-        var colorMap = { spec: '#4ECDC4', runbook: '#FF8C00', release_notes: '#00C896', product_brief: '#8A2BE2', marketing_post: '#4ECDC4', governance: '#FFD700' };
+        var colorMap = { spec: '#4ECDC4', runbook: '#FF8C00', release_notes: '#00C896', governance: '#FFD700' };
         var color = colorMap[doc.kind] || '#888';
         var preview = (doc.content_md || '').replace(/[#*_`>\-]/g, '').substring(0, 100);
-        var date = doc.created_at ? new Date(doc.created_at).toLocaleDateString() : '';
+        var date = doc.updated_at ? new Date(doc.updated_at).toLocaleDateString() : (doc.created_at ? new Date(doc.created_at).toLocaleDateString() : '');
 
         card.innerHTML =
           '<div class="doc-card-icon" style="background:' + color + '12; color:' + color + ';"><i class="fas ' + icon + '"></i></div>' +
           '<div class="doc-card-title">' + esc(doc.title) + '</div>' +
           '<div class="doc-card-desc">' + esc(preview) + '</div>' +
           '<div class="doc-card-meta">' +
-            '<span class="doc-badge ' + statusClass + '">' + esc(doc.status) + '</span>' +
             '<span class="doc-badge doc-badge--kind">' + esc(kindLabel) + '</span>' +
             '<span class="doc-card-date">' + esc(doc.created_by || '?') + ' · ' + date + '</span>' +
           '</div>';
@@ -327,23 +289,9 @@
       createForm.classList.remove('active');
       renderDocs(); // update active card highlight
 
-      var statusClass = 'doc-badge--' + (doc.status || 'draft');
       var kindLabel = (doc.kind || 'unknown').replace(/_/g, ' ');
       var date = doc.created_at ? new Date(doc.created_at).toLocaleDateString() : '';
       var updDate = doc.updated_at ? new Date(doc.updated_at).toLocaleDateString() : '';
-
-      var sourceHtml = '';
-      if (doc.source) {
-        if (doc.source.action_id) sourceHtml = '<div class="doc-viewer-source"><i class="fas fa-bolt"></i> From Action ' + esc(doc.source.action_id) + '</div>';
-        else if (doc.source.task_id) sourceHtml = '<div class="doc-viewer-source"><i class="fas fa-tasks"></i> From Task ' + esc(doc.source.task_id) + '</div>';
-      }
-
-      var promoteBtn = doc.status !== 'final'
-        ? '<button class="doc-viewer-btn doc-viewer-btn--promote" id="btn-promote" type="button"><i class="fas fa-check-circle"></i> Promote to Final</button>'
-        : '';
-      var reviewBtn = doc.status === 'draft'
-        ? '<button class="doc-viewer-btn" id="btn-to-review" type="button"><i class="fas fa-eye"></i> Move to Review</button>'
-        : '';
 
       var tagsHtml = (doc.tags || []).map(function (t) { return '<span class="doc-badge doc-badge--kind">' + esc(t) + '</span>'; }).join(' ');
 
@@ -352,85 +300,85 @@
           '<div>' +
             '<div class="doc-viewer-title">' + esc(doc.title) + '</div>' +
             '<div class="doc-viewer-meta">' +
-              '<span class="doc-badge ' + statusClass + '">' + esc(doc.status) + '</span> ' +
               '<span class="doc-badge doc-badge--kind">' + esc(kindLabel) + '</span> ' +
               (tagsHtml ? tagsHtml + ' ' : '') +
               'by ' + esc(doc.created_by || '?') + ' · Created: ' + date + ' · Updated: ' + updDate +
             '</div>' +
           '</div>' +
           '<div class="doc-viewer-actions">' +
-            reviewBtn +
-            promoteBtn +
+            '<button class="doc-viewer-btn" id="btn-edit-doc" type="button"><i class="fas fa-edit"></i> Edit</button>' +
             '<button class="doc-viewer-btn" id="btn-copy-md" type="button"><i class="fas fa-copy"></i> Copy Markdown</button>' +
             '<button class="doc-viewer-btn" id="btn-close-viewer" type="button"><i class="fas fa-times"></i></button>' +
           '</div>' +
         '</div>' +
-        sourceHtml +
         '<div class="doc-viewer-content">' + renderMarkdown(doc.content_md || '*(empty document)*') + '</div>';
 
       docViewer.className = 'doc-viewer active';
 
-      // Bind buttons
-      var closeBtn = document.getElementById('btn-close-viewer');
-      if (closeBtn) closeBtn.addEventListener('click', function () { selectedDoc = null; docViewer.className = 'doc-viewer'; renderDocs(); });
+      document.getElementById('btn-close-viewer').addEventListener('click', function () { selectedDoc = null; docViewer.className = 'doc-viewer'; renderDocs(); });
 
-      var copyBtn = document.getElementById('btn-copy-md');
-      if (copyBtn) copyBtn.addEventListener('click', function () {
-        navigator.clipboard.writeText(doc.content_md || '').then(function () { copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!'; });
+      document.getElementById('btn-copy-md').addEventListener('click', function () {
+        var btn = this;
+        navigator.clipboard.writeText(doc.content_md || '').then(function () { btn.innerHTML = '<i class="fas fa-check"></i> Copied!'; });
       });
 
-      var promBtn = document.getElementById('btn-promote');
-      if (promBtn) promBtn.addEventListener('click', function () { promoteDoc(doc); });
-
-      var revBtn = document.getElementById('btn-to-review');
-      if (revBtn) revBtn.addEventListener('click', function () { moveToReview(doc); });
+      document.getElementById('btn-edit-doc').addEventListener('click', function () { editDoc(doc); });
 
       docViewer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
-    // ── Promote to Final (CEO-only) ──
-    function promoteDoc(doc) {
+    // ── Edit doc inline ──
+    function editDoc(doc) {
+      var kindLabel = (doc.kind || 'unknown').replace(/_/g, ' ');
+
+      docViewer.innerHTML =
+        '<div class="doc-viewer-header">' +
+          '<div style="flex:1;">' +
+            '<div class="doc-form-row"><label>Title</label><input type="text" id="edit-title" value="' + esc(doc.title).replace(/"/g, '&quot;') + '" /></div>' +
+            '<div class="doc-form-row"><label>Tags (comma-separated)</label><input type="text" id="edit-tags" value="' + esc((doc.tags || []).join(', ')) + '" /></div>' +
+          '</div>' +
+          '<div class="doc-viewer-actions">' +
+            '<button class="doc-viewer-btn doc-viewer-btn--promote" id="btn-save-edit" type="button"><i class="fas fa-save"></i> Save</button>' +
+            '<button class="doc-viewer-btn" id="btn-cancel-edit" type="button"><i class="fas fa-times"></i> Cancel</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="doc-form-row"><label>Content (Markdown)</label><textarea id="edit-content" style="min-height:400px; width:100%; font-family:Consolas,Monaco,monospace; font-size:0.72rem; line-height:1.6; padding:0.8rem; border-radius:6px; border:1px solid rgba(255,255,255,0.08); background:rgba(0,0,0,0.2); color:inherit; resize:vertical;">' + esc(doc.content_md || '') + '</textarea></div>';
+
+      document.getElementById('btn-cancel-edit').addEventListener('click', function () { showDoc(doc); });
+      document.getElementById('btn-save-edit').addEventListener('click', function () { saveEdit(doc); });
+    }
+
+    // ── Save edit ──
+    function saveEdit(doc) {
+      var title = document.getElementById('edit-title').value.trim();
+      var tagsRaw = document.getElementById('edit-tags').value.trim();
+      var content = document.getElementById('edit-content').value;
+      var tags = tagsRaw ? tagsRaw.split(',').map(function (t) { return t.trim(); }).filter(Boolean) : [];
+
+      if (!title) { alert('Title is required'); return; }
+
       var headers = (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) ? CompanyStore.getWriteHeaders() : { 'Content-Type': 'application/json' };
       if (!headers['Content-Type']) headers['Content-Type'] = 'application/json';
 
       fetch(API_BASE + '/documents/execute', {
         method: 'POST',
         headers: headers,
-        body: JSON.stringify({ action: 'document.promote', document_id: doc.id })
+        body: JSON.stringify({ action: 'document.update', document_id: doc.id, payload: { title: title, tags: tags, content_md: content } })
       })
       .then(function (r) { return r.json(); })
       .then(function (data) {
         if (data.success) {
-          doc.status = 'final';
+          doc.title = title;
+          doc.tags = tags;
+          doc.content_md = content;
           doc.updated_at = new Date().toISOString();
           showDoc(doc);
-          renderStats();
           renderDocs();
         } else {
-          alert('Promote failed: ' + (data.error || 'Unknown error'));
+          alert('Save failed: ' + (data.error || 'Unknown'));
         }
       })
       .catch(function (err) { alert('Network error: ' + err.message); });
-    }
-
-    // ── Move to Review ──
-    function moveToReview(doc) {
-      fetch(API_BASE + '/documents/execute', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'document.update', document_id: doc.id, payload: { status: 'review' } })
-      })
-      .then(function (r) { return r.json(); })
-      .then(function (data) {
-        if (data.success) {
-          doc.status = 'review';
-          doc.updated_at = new Date().toISOString();
-          showDoc(doc);
-          renderStats();
-          renderDocs();
-        }
-      })
-      .catch(function () {});
     }
 
     // ── Save Draft ──
