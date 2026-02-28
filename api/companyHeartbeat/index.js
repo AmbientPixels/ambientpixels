@@ -640,6 +640,92 @@ module.exports = async function (context) {
       }
     } catch (_prErr) { context.log.warn('[Heartbeat] Proactive publish check failed (non-fatal):', _prErr.message); }
 
+    // ── AUTO SOCIAL ACTION: when peer-reviewed social promo tasks reach done, create the social action ──
+    try {
+      var _socialPromoTasks = tasks.filter(function(t) {
+        if (!t || t.status !== 'done' || t.assignee !== 'echo') return false;
+        if (!/^social_/.test(t.taskType || '')) return false;
+        if (!/promote/i.test(t.title || '')) return false;
+        return true;
+      });
+      if (_socialPromoTasks.length > 0) {
+        var _existingActions = allActions || [];
+        var _socialCreated = 0;
+        for (var _spi = 0; _spi < _socialPromoTasks.length; _spi++) {
+          var _spTask = _socialPromoTasks[_spi];
+          // Check if social action already exists for this task
+          var _spHasAction = _existingActions.some(function(a) {
+            return a.type === 'social_post.publish' && a._parentTaskId === _spTask.id;
+          });
+          if (_spHasAction) continue;
+
+          // Extract platform from taskType
+          var _spPlatform = (_spTask.taskType || '').replace('social_', '');
+          if (!_spPlatform) continue;
+
+          // Extract deliverable text from comments
+          var _spDeliverable = null;
+          var _spComments = _spTask.comments || [];
+          for (var _sci = _spComments.length - 1; _sci >= 0; _sci--) {
+            if (_spComments[_sci].type === 'deliverable') {
+              _spDeliverable = _spComments[_sci].text || _spComments[_sci].comment || '';
+              break;
+            }
+          }
+          if (!_spDeliverable) continue;
+
+          // Extract blog URL from task description
+          var _spUrlMatch = (_spTask.description || '').match(/https?:\/\/ambientpixels\.ai\/blog\/[a-z0-9-]+/i);
+          var _spBlogUrl = _spUrlMatch ? _spUrlMatch[0] : 'https://ambientpixels.ai';
+
+          // Clean deliverable: strip markdown headers, bold markers, meta text
+          var _spText = _spDeliverable
+            .replace(/^#+\s+.*$/gm, '')           // remove headings
+            .replace(/\*\*([^*]+)\*\*/g, '$1')     // **bold** → bold
+            .replace(/^(Here's|Okay|Draft|Post)[^\n]*\n/i, '')  // strip preamble
+            .trim();
+
+          // Ensure URL is in the text
+          if (_spText.indexOf('ambientpixels.ai') === -1) {
+            _spText += '\n\n' + _spBlogUrl;
+          }
+
+          var _spAction = {
+            id: 'act_social_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+            created_at: new Date().toISOString(),
+            created_by: 'system',
+            type: 'social_post.publish',
+            platform: _spPlatform,
+            payload: {
+              text: _spText,
+              platform: _spPlatform,
+              media: [],
+              scheduled_for: null
+            },
+            _parentTaskId: _spTask.id,
+            classification: 'executive_required',
+            requires_ceo_approval: true,
+            approval: { status: 'pending', approved_by: null, approved_at: null, decision_note: null },
+            execution: { status: 'pending', started_at: null, finished_at: null, attempts: 0, last_error: null },
+            action_type: 'social_post',
+            action_category: 'social',
+            execution_status: 'pending',
+            origin_agent: 'echo',
+            requires_approval: true,
+            is_irreversible: false,
+            bundle_id: null
+          };
+          _existingActions.push(_spAction);
+          _socialCreated++;
+          context.log('[Heartbeat] AUTO SOCIAL ACTION: created', _spPlatform, 'post from peer-reviewed task:', _spTask.id);
+        }
+        if (_socialCreated > 0) {
+          await storage.setState('actions', _existingActions);
+          allActions = _existingActions;
+        }
+      }
+    } catch (_spErr) { context.log.warn('[Heartbeat] Auto social action check failed (non-fatal):', _spErr.message); }
+
     // Dedupe check: get recent log summaries to avoid repeats
     const recentSummaries = new Set();
     const dedupeAfter = Date.now() - GUARDRAILS.dedupeWindowMs;
