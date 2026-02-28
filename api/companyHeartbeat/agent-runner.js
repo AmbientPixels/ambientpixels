@@ -882,6 +882,8 @@ Write the full deliverable first, then the structured JSON block.`;
                   tags: ['blog', 'auto-created-from-execute'],
                   created_by: agentId,
                   taskId: action.taskId,
+                  objective_id: task.objective_id || null,
+                  campaign_id: task.campaign_id || null,
                   promote: false,
                   awaiting_hero_image: true,
                   created_at: new Date().toISOString(),
@@ -1715,6 +1717,8 @@ Write the full deliverable first, then the structured JSON block.`;
         const _docTitle = (_isTaskName && _h1FromContent)
           ? _h1FromContent[1].replace(/\*\*/g, '').trim()
           : docPayload.title;
+        // Inherit objective_id and campaign_id from the linked task
+        var _docLinkedTask = action.taskId ? tasks.find(function(t) { return t.id === action.taskId; }) : null;
         const doc = {
           id: docId,
           title: _docTitle,
@@ -1727,6 +1731,8 @@ Write the full deliverable first, then the structured JSON block.`;
           content_md: docPayload.content_md || '',
           promote: false,
           taskId: action.taskId || null,
+          objective_id: _docLinkedTask ? _docLinkedTask.objective_id || null : null,
+          campaign_id: _docLinkedTask ? _docLinkedTask.campaign_id || null : null,
           source: { action_id: null, task_id: action.taskId || null }
         };
 

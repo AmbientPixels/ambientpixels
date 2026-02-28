@@ -186,6 +186,17 @@ async function publishDocument(action) {
       const platformLimits = { linkedin: '3000 chars', x: '280 chars', bluesky: '300 chars' };
       let tasksCreated = 0;
 
+      // Resolve objective_id and campaign_id from parent task if doc doesn't have them
+      var _promoObjectiveId = doc.objective_id || null;
+      var _promoCampaignId = doc.campaign_id || null;
+      if ((!_promoObjectiveId || !_promoCampaignId) && doc.taskId) {
+        var _parentTask = tasks.find(function(t) { return t.id === doc.taskId; });
+        if (_parentTask) {
+          if (!_promoObjectiveId) _promoObjectiveId = _parentTask.objective_id || null;
+          if (!_promoCampaignId) _promoCampaignId = _parentTask.campaign_id || null;
+        }
+      }
+
       for (var pi = 0; pi < platforms.length; pi++) {
         var plat = platforms[pi];
         // Dedup: skip if a social promo task for this platform + doc already exists
@@ -214,8 +225,8 @@ async function publishDocument(action) {
           source: 'heartbeat',
           created_by: 'system',
           parent_task_id: null,
-          objective_id: doc.objective_id || null,
-          campaign_id: doc.campaign_id || null,
+          objective_id: _promoObjectiveId,
+          campaign_id: _promoCampaignId,
           createdAt: now,
           updatedAt: now,
           dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000).toISOString(),
