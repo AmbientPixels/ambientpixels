@@ -3138,7 +3138,7 @@ Write the full deliverable first, then the structured JSON block.`;
       const _ttType = _ttTask ? (_ttTask.taskType || 'general') : 'general';
       const _ttSocial = ['social_x', 'social_linkedin', 'social_bluesky'];
       const _ttBlog = ['blog_post', 'article', 'newsletter'];
-      const _ttDoc = ['blog_post', 'article', 'newsletter', 'internal_doc'];
+      const _ttDoc = ['blog_post', 'article', 'newsletter'];
       const _ttContent = ['design_asset'];
 
       // Block: social action on a non-social task
@@ -3153,11 +3153,11 @@ Write the full deliverable first, then the structured JSON block.`;
       }
       // Warn: create-doc on task that doesn't require docs (soft — log only)
       if (action.type === 'create-doc' && _ttType !== 'general' && _ttDoc.indexOf(_ttType) === -1) {
-        context.log('[Heartbeat]', agentId, 'WARNING: create-doc on', action.taskId, '— taskType is', _ttType, '(docs usually for blog_post/article/newsletter/internal_doc)');
+        context.log('[Heartbeat]', agentId, 'WARNING: create-doc on', action.taskId, '— taskType is', _ttType, '(docs usually for blog_post/article/newsletter)');
       }
       // Warn: submit-for-publish on task that doesn't require docs
       if (action.type === 'submit-for-publish' && _ttType !== 'general' && _ttDoc.indexOf(_ttType) === -1) {
-        context.log('[Heartbeat]', agentId, 'WARNING: submit-for-publish on', action.taskId, '— taskType is', _ttType, '(publish usually for blog_post/article/newsletter/internal_doc)');
+        context.log('[Heartbeat]', agentId, 'WARNING: submit-for-publish on', action.taskId, '— taskType is', _ttType, '(publish usually for blog_post/article/newsletter)');
       }
       // Log: track all taskType + action combinations for monitoring
       if (_ttType !== 'general') {
@@ -3306,7 +3306,6 @@ Write the full deliverable first, then the structured JSON block.`;
         else if (/bluesky.*post|post.*bluesky/.test(_ctTitle)) _taskType = 'social_bluesky';
         else if (/social.*post|post.*to.*x\b|tweet/.test(_ctTitle)) _taskType = 'social_x';
         else if (/hero\s*image|generate.*image.*blog|blog.*header/.test(_ctTitle)) _taskType = 'design_asset';
-        else if (/spec\b|runbook|release.*note|governance.*doc|internal.*doc/.test(_ctTitle)) _taskType = 'internal_doc';
         else if (/research|competitive.*intel|market.*analysis/.test(_ctTitle)) _taskType = 'research';
         else if (/deploy|infrastructure|ci.*cd|pipeline|devops/.test(_ctTitle)) _taskType = 'ops';
       }
@@ -4166,7 +4165,7 @@ Write the full deliverable first, then the structured JSON block.`;
     } else if (action.type === 'create-doc' && action.document) {
       // Create a documentation draft — stored in documents store
       const docPayload = action.document;
-      const VALID_DOC_KINDS = ['spec', 'runbook', 'release_notes', 'product_brief', 'marketing_post', 'governance'];
+      const VALID_DOC_KINDS = ['product_brief', 'marketing_post'];
       const kind = docPayload.kind || 'product_brief';
 
       if (docPayload.title && VALID_DOC_KINDS.indexOf(kind) !== -1) {
@@ -4201,45 +4200,16 @@ Write the full deliverable first, then the structured JSON block.`;
           continue;
         }
 
-        // Fix 11: Hard caps on unpublished documents by kind
+        // Hard cap on unpublished documents
         const existingDocs = (await storage.getState('documents')) || [];
-        const INTERNAL_KINDS = ['spec', 'runbook', 'release_notes', 'governance'];
-        const EXTERNAL_KINDS = ['marketing_post', 'product_brief'];
-        const _isInternalKind = INTERNAL_KINDS.indexOf(kind) !== -1;
-        const _isExternalKind = EXTERNAL_KINDS.indexOf(kind) !== -1;
-
-        // Fix 11a: Internal docs — hard cap at 5 unpublished, must be GridOS/operational subject matter
-        if (_isInternalKind) {
-          const _activeInternalDocs = existingDocs.filter(d =>
-            INTERNAL_KINDS.indexOf(d.kind) !== -1 &&
-            d.status !== 'published' && d.status !== 'rejected' && d.status !== 'archived'
-          );
-          if (_activeInternalDocs.length >= 5) {
-            context.log('[Heartbeat]', agentId, 'BLOCKED create-doc (internal) — hard cap reached:', _activeInternalDocs.length, 'active internal docs. Title:', docPayload.title);
-            result.taskUpdates.push({ action: 'comment', taskId: action.taskId, comment: '[SYSTEM] Internal doc cap reached (5 max). Publish or archive existing internal docs first.', agentId: 'system' });
-            continue;
-          }
-          // Subject matter gate: internal docs must be about GridOS, system operations, or technical reference
-          const _docText = ((docPayload.title || '') + ' ' + (docPayload.content_md || '').substring(0, 500)).toLowerCase();
-          const _isGridOSTopic = /gridos|gridops|heartbeat|agent|orchestrat|governance|storage|pipeline|api|function|deployment|architecture|config|escalation|triage|approval|execution|workflow|system|technical|reference|runbook|spec|schema|endpoint/.test(_docText);
-          if (!_isGridOSTopic) {
-            context.log('[Heartbeat]', agentId, 'BLOCKED create-doc (internal) — not GridOS/operational subject matter. Title:', docPayload.title);
-            result.taskUpdates.push({ action: 'comment', taskId: action.taskId, comment: '[SYSTEM] Internal docs (spec/runbook/governance) are for GridOS technical reference only. For marketing/blog content, use kind: marketing_post.', agentId: 'system' });
-            continue;
-          }
-        }
-
-        // Fix 11b: External docs — hard cap at 5 unpublished drafts
-        if (_isExternalKind) {
-          const _activeExternalDocs = existingDocs.filter(d =>
-            EXTERNAL_KINDS.indexOf(d.kind) !== -1 &&
-            d.status !== 'published' && d.status !== 'rejected' && d.status !== 'archived'
-          );
-          if (_activeExternalDocs.length >= 5) {
-            context.log('[Heartbeat]', agentId, 'BLOCKED create-doc (external) — hard cap reached:', _activeExternalDocs.length, 'unpublished external docs. Title:', docPayload.title);
-            result.taskUpdates.push({ action: 'comment', taskId: action.taskId, comment: '[SYSTEM] External doc cap reached (5 max unpublished). CEO must publish or discard existing drafts before new ones can be created.', agentId: 'system' });
-            continue;
-          }
+        const _activeDocs = existingDocs.filter(d =>
+          VALID_DOC_KINDS.indexOf(d.kind) !== -1 &&
+          d.status !== 'published' && d.status !== 'rejected' && d.status !== 'archived'
+        );
+        if (_activeDocs.length >= 5) {
+          context.log('[Heartbeat]', agentId, 'BLOCKED create-doc — hard cap reached:', _activeDocs.length, 'unpublished docs. Title:', docPayload.title);
+          result.taskUpdates.push({ action: 'comment', taskId: action.taskId, comment: '[SYSTEM] Doc cap reached (5 max unpublished). CEO must publish or discard existing drafts before new ones can be created.', agentId: 'system' });
+          continue;
         }
 
         // Fix 11b: Fuzzy title dedup — word-overlap similarity blocks near-duplicate titles
@@ -4420,87 +4390,6 @@ Write the full deliverable first, then the structured JSON block.`;
           }
 
           context.log('[Heartbeat]', agentId, 'visual doc created — deferred publish, awaiting Pixel hero image:', doc.id, doc.title);
-        } else {
-          // Internal doc kinds (spec, runbook, release_notes, governance) — require CEO approval before publish
-          const slug = doc.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-          doc.status = 'ready_for_approval';
-          doc.slug = slug;
-          doc.visibility = 'internal';
-          doc.updated_at = new Date().toISOString();
-          doc.submitted_by = agentId;
-          const dIdx = docsStore.findIndex(d => d.id === docId);
-          if (dIdx !== -1) docsStore[dIdx] = doc;
-          await storage.setState('documents', docsStore);
-
-          // Create publish_document action (requires CEO approval)
-          const internalPubAction = {
-            id: 'act_pub_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
-            created_at: new Date().toISOString(),
-            created_by: agentId,
-            type: 'publish_document',
-            platform: 'site',
-            payload: {
-              documentId: doc.id,
-              title: doc.title,
-              slug: slug,
-              kind: doc.kind,
-              content_md: doc.content_md,
-              target_path: '/docs/published/' + slug,
-              public_url: '/docs/published/' + slug,
-              hero_image_asset_id: null,
-              hero_image_url: null,
-              missing_hero_image: false
-            },
-            classification: 'advisory',
-            requires_ceo_approval: true,
-            risk_level: 'low',
-            brand_impact: 'low',
-            budget_impact: 0,
-            approval: {
-              status: 'pending',
-              approved_by: null,
-              approved_at: null,
-              decision_note: null
-            },
-            execution: {
-              status: 'pending',
-              started_at: null,
-              finished_at: null,
-              attempts: 0,
-              last_error: null,
-              receipt: null
-            },
-            action_type: 'publish_document',
-            action_category: 'content',
-            execution_status: 'pending',
-            origin_agent: agentId,
-            action_payload: { documentId: doc.id, title: doc.title, slug: slug },
-            requires_approval: true,
-            is_irreversible: false,
-            bundle_id: null
-          };
-
-          const internalActionsStore = (await storage.getState('actions')) || [];
-          internalActionsStore.push(internalPubAction);
-          if (internalActionsStore.length > 500) internalActionsStore.splice(0, internalActionsStore.length - 500);
-          await storage.setState('actions', internalActionsStore);
-
-          context.log('[Heartbeat]', agentId, 'internal doc submitted for CEO approval:', doc.id, doc.title, '→ action:', internalPubAction.id);
-          result.taskUpdates.push({ action: 'doc-pending-approval', documentId: doc.id, agentId: agentId, actionId: internalPubAction.id });
-
-          if (action.taskId) {
-            result.taskUpdates.push({
-              action: 'comment',
-              taskId: action.taskId,
-              comment: 'Document "' + doc.title + '" (id: ' + doc.id + ', kind: ' + kind + ') submitted for CEO approval before publishing to /docs/published/' + slug,
-              agentId: agentId
-            });
-            result.taskUpdates.push({
-              action: 'move',
-              taskId: action.taskId,
-              newStatus: 'review'
-            });
-          }
         }
       }
     } else if (action.type === 'update-doc' && action.documentId) {
@@ -4525,23 +4414,6 @@ Write the full deliverable first, then the structured JSON block.`;
         docsStore[docIdx] = doc;
         await storage.setState('documents', docsStore);
 
-        // If doc is published internally, also update the publishedDocs store
-        if (doc.visibility === 'internal' && doc.status === 'published' && doc.slug) {
-          const pubStore = (await storage.getState('publishedDocs')) || [];
-          const pubIdx = pubStore.findIndex(p => p.documentId === doc.id);
-          if (pubIdx !== -1) {
-            pubStore[pubIdx].content_md = doc.content_md;
-            pubStore[pubIdx].title = doc.title;
-            pubStore[pubIdx].tags = doc.tags || [];
-            pubStore[pubIdx].updated_at = doc.updated_at;
-            if (updates.title) {
-              pubStore[pubIdx].slug = doc.slug;
-              pubStore[pubIdx].target_path = '/docs/published/' + doc.slug;
-              pubStore[pubIdx].public_url = '/docs/published/' + doc.slug;
-            }
-            await storage.setState('publishedDocs', pubStore);
-          }
-        }
 
         context.log('[Heartbeat]', agentId, 'updated doc:', doc.id, doc.title);
         result.taskUpdates.push({ action: 'doc-updated', documentId: doc.id, agentId: agentId });
@@ -4601,11 +4473,8 @@ Write the full deliverable first, then the structured JSON block.`;
           // Generate slug from title
           const slug = doc.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
 
-          // Route based on doc kind: marketing_post/product_brief → public blog, others → internal docs
-          const PUBLIC_KINDS = ['marketing_post', 'product_brief'];
-          const isPublic = PUBLIC_KINDS.indexOf(doc.kind) !== -1;
-          const pubTargetPath = isPublic ? '/blog/' + slug : '/docs/published/' + slug;
-          const pubPublicUrl = isPublic ? '/blog/' + slug : '/docs/published/' + slug;
+          const pubTargetPath = '/blog/' + slug;
+          const pubPublicUrl = '/blog/' + slug;
 
           // Create publish_document action (requires CEO approval)
           const publishAction = {
@@ -5197,17 +5066,6 @@ Write the full deliverable first, then the structured JSON block.`;
           imgDocsStore[imgDocIdx] = imgDoc;
           await storage.setState('documents', imgDocsStore);
 
-          // If doc is published internally, update published copy too
-          if (imgDoc.visibility === 'internal' && imgDoc.status === 'published' && imgDoc.slug) {
-            const imgPubStore = (await storage.getState('publishedDocs')) || [];
-            const imgPubIdx = imgPubStore.findIndex(p => p.documentId === imgDoc.id);
-            if (imgPubIdx !== -1) {
-              if (imgPurpose === 'blog_header') imgPubStore[imgPubIdx].hero_image_asset_id = imgJobId;
-              if (imgPurpose === 'inline_illustration') imgPubStore[imgPubIdx].content_md = imgDoc.content_md;
-              imgPubStore[imgPubIdx].updated_at = imgDoc.updated_at;
-              await storage.setState('publishedDocs', imgPubStore);
-            }
-          }
         } else {
           context.log('[Heartbeat]', agentId, 'generate-image: attachTo document not found:', attachTo.id);
         }
@@ -5540,7 +5398,6 @@ function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirective
     social_x: '→ Use create-social-action with platform "x" to draft the post.',
     social_linkedin: '→ Use create-social-action with platform "linkedin" to draft the post.',
     social_bluesky: '→ Use create-social-action with platform "bluesky" to draft the post.',
-    internal_doc: '→ Use create-doc to write the document, then submit-for-publish when ready.',
     design_asset: '→ Use create-content-package or generate-image to produce visual assets.',
     research: '→ Use execute-task to produce research deliverable. Use web_search for live data.',
     ops: '→ Use execute-task to produce deliverable (report, fix, deployment plan).',
@@ -6075,14 +5932,14 @@ STRICT: Respond with ONLY valid JSON. No prose. No markdown. No explanation text
     {
       "type": "create-task|update-task|move-task|execute-task|review-task|comment-task|create-social-action|revise-action|create-doc|submit-for-publish|create-content-package|generate-image|create-reminder|web_search|remember",
       "summary": "Brief description of what you're doing",
-      "task": { "title": "", "description": "", "taskType": "general|blog_post|article|social_x|social_linkedin|social_bluesky|internal_doc|design_asset|research|ops|finance|editorial|bug_fix|newsletter|intake|support", "status": "todo|in-progress", "priority": "low|medium|high|critical", "assignee": "agentId", "dueDate": "2026-02-20T00:00:00Z", "campaign_id": "optional-campaign-id", "objective_id": "required-objective-id", "category": "optional-category" },
+      "task": { "title": "", "description": "", "taskType": "general|blog_post|article|social_x|social_linkedin|social_bluesky|design_asset|research|ops|finance|editorial|bug_fix|newsletter|intake|support", "status": "todo|in-progress", "priority": "low|medium|high|critical", "assignee": "agentId", "dueDate": "2026-02-20T00:00:00Z", "campaign_id": "optional-campaign-id", "objective_id": "required-objective-id", "category": "optional-category" },
       "taskId": "existing-task-id",
       "action_id": "existing-action-id-for-revise-action",
       "updates": { "status": "...", "assignee": "agentId", "priority": "high", "dueDate": "2026-02-20T00:00:00Z", "classification": "...", "tags": [], "objective_id": "...", "campaign_id": "..." },
       "newStatus": "todo|in-progress|review|done",
       "comment": "Your comment text here",
       "social": { "text": "Post content", "platform": "x|linkedin|bluesky", "media": ["https://..."], "scheduled_for": "2026-02-14T09:00:00Z", "artifact_id": "optional-art_xxx-if-linking-to-article" },
-      "document": { "title": "Doc Title", "kind": "spec|runbook|release_notes|product_brief|marketing_post|governance", "tags": ["tag1"], "content_md": "# Heading\n\nMarkdown content..." },
+      "document": { "title": "Doc Title", "kind": "product_brief|marketing_post", "tags": ["tag1"], "content_md": "# Heading\n\nMarkdown content..." },
       "documentId": "existing-doc-id",
       "tool": "web_search",
       "args": { "q": "search query", "n": 5 },
@@ -6098,7 +5955,7 @@ STRICT: Respond with ONLY valid JSON. No prose. No markdown. No explanation text
 IMPORTANT: updates object may ONLY contain: status, assignee, dueDate, priority, classification, taskType, tags, objective_id, campaign_id, parent_task_id, child_task_ids. Any other keys (title, description, etc.) will be BLOCKED by the backend. Use taskType in updates to reclassify intake/support tasks to the correct pipeline type (e.g., taskType: "blog_post").
 
 Action types:
-- create-task: Create a new task. Include "task" with title, description, taskType, status ("todo" or "in-progress" — default is "todo"), priority, assignee (agent id), dueDate (ISO datetime, realistic: 1-7 days out), and optionally campaign_id (to link to an active campaign). You MUST always set status, priority, assignee, dueDate, and taskType. Valid taskType values: "general", "blog_post", "article", "social_x", "social_linkedin", "social_bluesky", "internal_doc", "design_asset", "research", "ops", "finance", "editorial", "bug_fix", "newsletter", "intake", "support". Choose the type that best matches the task's purpose — this determines which pipeline processes it.
+- create-task: Create a new task. Include "task" with title, description, taskType, status ("todo" or "in-progress" — default is "todo"), priority, assignee (agent id), dueDate (ISO datetime, realistic: 1-7 days out), and optionally campaign_id (to link to an active campaign). You MUST always set status, priority, assignee, dueDate, and taskType. Valid taskType values: "general", "blog_post", "article", "social_x", "social_linkedin", "social_bluesky", "design_asset", "research", "ops", "finance", "editorial", "bug_fix", "newsletter", "intake", "support". Choose the type that best matches the task's purpose — this determines which pipeline processes it.
 - update-task: Update an existing task. Provide taskId and "updates" with ONLY allowed keys: status, assignee, dueDate, priority, classification, taskType, tags, objective_id, campaign_id, parent_task_id, child_task_ids. NEVER include title or description in updates — the backend will block it. To reclassify an intake/support task, set taskType to the correct pipeline type (e.g., "blog_post", "social_x", "ops").
 - move-task: Move a task to a new status column. Provide taskId and newStatus.
 - execute-task: Pick up one of YOUR in-progress or todo tasks and produce actual work output (a report, analysis, draft, recommendation, audit, etc). This will generate a deliverable and move the task to review.
@@ -6109,10 +5966,8 @@ Action types:
   ARTICLE URL RULES: Never hardcode an article/blog URL unless you are 100% certain the article is already published. If linking to an article that is pending publish or was just submitted, use the placeholder token {{ARTICLE_URL}} in your text and include "artifact_id" in the social object (set it to the artifact ID from the publish action). The URL will be resolved automatically when the article is published. Example: "social": { "text": "Check out our latest post {{ARTICLE_URL}}", "platform": "x", "artifact_id": "art_123_my-slug" }. Never link to /modules/company/ or /docs/published/ as those are internal and auth-gated.
 - revise-action: Revise an action that the CEO sent back for changes. Provide "action_id" (from the CEO REVISION REQUESTS section) and "social" with the corrected content (same format as create-social-action). The revised action replaces the old one and is re-submitted for CEO approval. Address ALL of the CEO's feedback in your revision.
 - create-doc: Create a NEW document. Include "document" with: title (string), kind, tags (array of strings), and content_md (full markdown content — MUST be complete, publish-ready text with NO placeholders like "[insert here]" or "[TBD]"). Also include "taskId" if this doc is for a specific task. IMPORTANT: Check EXISTING DOCUMENTS below first — if a relevant doc already exists, use update-doc instead of creating a duplicate.
-  DOCUMENT KINDS — two distinct tracks:
-  • EXTERNAL (public blog): "marketing_post" or "product_brief" — public articles about AI, creative tech, industry trends. Include a hero image (auto-generated by Pixel). Published to /blog/ after CEO approval. Used in social media promotion. Max 5 unpublished drafts at a time.
-  • INTERNAL (GridOS reference): "spec", "runbook", "release_notes", or "governance" — technical documentation about GridOS internals, system architecture, API endpoints, agent workflows, heartbeat pipeline, storage schemas, escalation rules, deployment procedures. For agents and humans to reference. Published to /docs/published/. Max 5 active at a time. MUST be about GridOS/operational subject matter — marketing content is NOT allowed as internal docs.
-- update-doc: Update an existing document. Include "documentId" (the doc ID from EXISTING DOCUMENTS) and "updates" with any of: content_md (full replacement), append_md (add new content to end), title (rename), tags (replace tags). Use this when new information should be added to an existing doc instead of creating a new one. Internal docs are auto-refreshed at /docs/published/.
+  DOCUMENT KINDS: "marketing_post" or "product_brief" — public articles about AI, creative tech, industry trends. Include a hero image (auto-generated by Pixel). Published to /blog/ after CEO approval. Used in social media promotion. Max 5 unpublished drafts at a time.
+- update-doc: Update an existing document. Include "documentId" (the doc ID from EXISTING DOCUMENTS) and "updates" with any of: content_md (full replacement), append_md (add new content to end), title (rename), tags (replace tags). Use this when new information should be added to an existing doc instead of creating a new one.
 - submit-for-publish: Submit a completed document for human/CEO approval to publish on the site. Include "documentId" (the ID of an existing draft or review document) and optionally "taskId" (the task that produced the doc). This creates a publish_document action in the approval queue. You CANNOT publish directly — only a human can approve publishing.
 - create-content-package: (Echo and Pixel ONLY) Generate an image content package for marketing, social media, or design assets. Include "content" with: topic (visual subject, min 3 chars), goal (what the images will be used for, min 3 chars), preset (visual style — use "ap-neon-glass" if unsure), outputs (array of output types: "x_image", "linkedin_image", "og_image", "blog_hero", "instagram_square" — max 3), and variations (1-2, default 1). Also include "taskId" if this is for a specific task. Images are generated via Gemini and submitted to the CEO approval queue. Max 1 content package per heartbeat. Use this when a task requires MULTIPLE visual assets for a campaign — NOT for single images.
 - generate-image: (Echo, Pixel, Scribe) Generate a SINGLE image and optionally attach it to a document or social action. Include "image" with: purpose ("blog_header"|"inline_illustration"|"social_media"), topic (visual subject, min 3 chars), goal (what the image is for, min 3 chars), preset (visual style — default "ap-neon-glass"), outputType (optional override: "blog_image", "x_image", "hero_image", etc), alt (alt text for accessibility). To attach to a document: set attachTo: { "type": "document", "id": "doc_xxx" }. For blog_header purpose: sets doc.hero_image_asset_id (no content mutation). For inline_illustration: replaces {{IMAGE:slot}} token in doc markdown (include "slot" field to name the anchor; agent should have placed {{IMAGE:slotName}} in the doc content_md first). To attach to a social action: set attachTo: { "type": "action", "id": "act_xxx" } — adds image to action media[] (action must still be pending). Shares the 1-per-heartbeat content generation limit with create-content-package. Use this for blog post hero images, inline article illustrations, or social post graphics — use create-content-package for multi-image campaign batches.

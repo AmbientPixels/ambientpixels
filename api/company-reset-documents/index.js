@@ -29,7 +29,6 @@ module.exports = async function (context, req) {
 
   try {
     const documents = await companyStorage.getState('documents') || [];
-    const publishedDocs = await companyStorage.getState('publishedDocs') || [];
 
     // Gallery-visible docs: status 'published'
     const galleryDocs = documents.filter(d => d.status === 'published');
@@ -38,12 +37,7 @@ module.exports = async function (context, req) {
     // Remove non-gallery docs
     const newDocuments = galleryDocs;
 
-    // Remove non-gallery IDs from publishedDocs (though published should be gallery)
-    const galleryDocIds = new Set(galleryDocs.map(d => d.id));
-    const newPublishedDocs = publishedDocs.filter(id => galleryDocIds.has(id));
-
     await companyStorage.setState('documents', newDocuments);
-    await companyStorage.setState('publishedDocs', newPublishedDocs);
 
     // Log audit
     const audit = await companyStorage.getState('governanceLog') || [];

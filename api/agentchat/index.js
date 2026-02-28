@@ -604,19 +604,6 @@ async function executeChatActions(context, actions, agentId) {
           documents[dIdx] = doc;
           await storage.setState('documents', documents);
 
-          // Refresh publishedDocs if internal
-          if (doc.visibility === 'internal' && doc.status === 'published' && doc.slug) {
-            const pubStore = (await storage.getState('publishedDocs')) || [];
-            const pIdx = pubStore.findIndex(p => p.documentId === doc.id);
-            if (pIdx !== -1) {
-              pubStore[pIdx].content_md = doc.content_md;
-              pubStore[pIdx].title = doc.title;
-              pubStore[pIdx].tags = doc.tags || [];
-              pubStore[pIdx].updated_at = doc.updated_at;
-              if (upd.title) { pubStore[pIdx].slug = doc.slug; pubStore[pIdx].target_path = '/docs/published/' + doc.slug; pubStore[pIdx].public_url = '/docs/published/' + doc.slug; }
-              await storage.setState('publishedDocs', pubStore);
-            }
-          }
           results.push({ type: 'update-doc', success: true, summary: 'Updated doc: "' + doc.title + '"' });
           break;
         }

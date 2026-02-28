@@ -40,7 +40,6 @@ var CompanyStore = (function () {
     'ap_action_rate_counts': 'actionRateCounts',
     'ap_actions':            'actions',
     'ap_documents':          'documents',
-    'ap_published_docs':     'publishedDocs',
     'ap_artifacts':           'ap_artifacts',
     'ap_meetings':            'meetings',
     'ap_tasks_archive':       'tasksArchive',
@@ -137,7 +136,7 @@ var CompanyStore = (function () {
     'ap_tasks': 80, 'ap_actions': 60, 'ap_action_audit_log': 40,
     'ap_action_queue': 40, 'ap_approval_queue': 40, 'ap_governance_log': 40,
     'ap_cron_log': 30, 'ap_standup_log': 20, 'ap_documents': 40,
-    'ap_published_docs': 30, 'ap_workspace_dates': 30, 'ap_workspace_memory': 30
+    'ap_workspace_dates': 30, 'ap_workspace_memory': 30
   };
   var _cacheFullLogged = {};  // Track which keys already logged quota warning
 
@@ -285,7 +284,7 @@ var CompanyStore = (function () {
     }
 
     // Pull the critical state keys that agents write to
-    var keysToSync = ['ap_tasks', 'ap_cron_log', 'ap_standup_log', 'ap_agent_configs', 'ap_morning_report', 'ap_directives', 'ap_campaigns', 'ap_objectives', 'ap_approval_queue', 'ap_governance_log', 'ap_action_queue', 'ap_action_audit_log', 'ap_actions', 'ap_documents', 'ap_published_docs', 'ap_workspace_dates', 'ap_workspace_memory', 'ap_artifacts', 'ap_meetings', 'ap_agent_memories', 'ap_image_assets'];
+    var keysToSync = ['ap_tasks', 'ap_cron_log', 'ap_standup_log', 'ap_agent_configs', 'ap_morning_report', 'ap_directives', 'ap_campaigns', 'ap_objectives', 'ap_approval_queue', 'ap_governance_log', 'ap_action_queue', 'ap_action_audit_log', 'ap_actions', 'ap_documents', 'ap_workspace_dates', 'ap_workspace_memory', 'ap_artifacts', 'ap_meetings', 'ap_agent_memories', 'ap_image_assets'];
     var promises = keysToSync.map(function (localKey) {
       var serverKey = KEY_MAP[localKey];
       if (!serverKey) return Promise.resolve();

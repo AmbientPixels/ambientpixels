@@ -829,7 +829,7 @@
           if (receipt.post_url) parts.push('<a href="' + esc(receipt.post_url) + '" target="_blank" style="color:#3b82f6;">' + esc(receipt.post_url) + '</a>');
           if (receipt.public_url) {
             var fullUrl = receipt.public_url.indexOf('http') === 0 ? receipt.public_url : 'https://ambientpixels.ai' + receipt.public_url;
-            var visLabel = receipt.visibility === 'public' ? '<span style="color:#34d399;">public</span>' : '<span style="color:#fbbf24;">internal</span>';
+            var visLabel = '<span style="color:#34d399;">public</span>';
             parts.push(visLabel);
             parts.push('<a href="' + esc(fullUrl) + '" target="_blank" style="color:#3b82f6;"><i class="fas fa-external-link-alt" style="margin-right:3px;font-size:0.5rem;"></i>' + esc(receipt.public_url) + '</a>');
           }
@@ -1321,7 +1321,7 @@
         if (payload.title) html += '<div style="font-size:1rem;font-weight:700;margin-bottom:0.4rem;color:#e2e8f0;">' + esc(payload.title) + '</div>';
         var metaParts = [];
         if (payload.kind) metaParts.push(esc(payload.kind).replace(/_/g, ' '));
-        if (payload.visibility) metaParts.push(payload.visibility === 'public' ? '<span style="color:#34d399;">public</span>' : '<span style="color:#fbbf24;">internal</span>');
+        if (payload.visibility) metaParts.push('<span style="color:#34d399;">public</span>');
         if (payload.slug) metaParts.push('<span style="opacity:0.4;">/' + esc(payload.slug) + '</span>');
         if (metaParts.length) html += '<div style="font-size:0.6rem;opacity:0.6;margin-bottom:0.6rem;display:flex;gap:0.5rem;align-items:center;">' + metaParts.join(' · ') + '</div>';
         // Hero image between meta and content — matches blog layout (title → meta → hero → content)
