@@ -1336,6 +1336,12 @@ module.exports = async function (context) {
           type: 'system',
           createdAt: new Date().toISOString()
         });
+        // Move task back to in-progress so Scribe acts on the submit-for-publish step
+        if (_hrdOriginTask.status === 'review') {
+          _hrdOriginTask.status = 'in-progress';
+          _hrdOriginTask.updatedAt = new Date().toISOString();
+          context.log('[Heartbeat] RECONCILIATION: moved Scribe task', _hrdOriginTask.id, 'from review → in-progress for submit-for-publish step');
+        }
         _heroNotifyChanged = true;
         context.log('[Heartbeat] RECONCILIATION: notified Scribe task', _hrdOriginTask.id, 'that hero image is ready for doc:', _hrd.id);
       }
@@ -5147,6 +5153,12 @@ Write the full deliverable first, then the structured JSON block.`;
                     type: 'system',
                     createdAt: new Date().toISOString()
                   });
+                  // Move task back to in-progress so Scribe acts on the submit-for-publish step
+                  if (_originTaskExisting.status === 'review') {
+                    _originTaskExisting.status = 'in-progress';
+                    _originTaskExisting.updatedAt = new Date().toISOString();
+                    context.log('[Heartbeat]', agentId, 'moved Scribe task', _originTaskExisting.id, 'from review → in-progress for submit-for-publish step');
+                  }
                   context.log('[Heartbeat]', agentId, 'notified originating task', _originTaskExisting.id, 'that hero image is already attached for doc:', _heroDocIdExisting);
                 }
               }
@@ -5176,6 +5188,12 @@ Write the full deliverable first, then the structured JSON block.`;
                 type: 'system',
                 createdAt: new Date().toISOString()
               });
+              // Move task back to in-progress so Scribe acts on the submit-for-publish step
+              if (_originTask.status === 'review') {
+                _originTask.status = 'in-progress';
+                _originTask.updatedAt = new Date().toISOString();
+                context.log('[Heartbeat]', agentId, 'moved Scribe task', _originTask.id, 'from review → in-progress for submit-for-publish step');
+              }
               context.log('[Heartbeat]', agentId, 'notified originating task', _originTask.id, 'that hero image is ready for doc:', _heroDocId);
             }
             } // end of else (no existing hero image)
