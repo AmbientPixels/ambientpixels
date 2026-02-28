@@ -2825,8 +2825,10 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
   };
 
   // Build context for the agent
-  // Exclude 'done' and 'review' — review means awaiting another agent's review, not further action by the assignee
-  const agentTasks = tasks.filter(t => t.assignee === agentId && t.status !== 'done' && t.status !== 'review');
+  // Pixel: exclude 'review' tasks — once Pixel delivers an image the task awaits review, not further Pixel action
+  // Other agents: keep 'review' visible (e.g. Scribe needs to submit-for-publish after hero image attached)
+  const agentTasks = tasks.filter(t => t.assignee === agentId && t.status !== 'done'
+    && !(agentId === 'pixel' && t.status === 'review'));
   // Nova sees backlog tasks so she can triage them; other agents only see active tasks
   const allActiveTasks = agentId === 'nova'
     ? tasks.filter(t => t.status !== 'done')
