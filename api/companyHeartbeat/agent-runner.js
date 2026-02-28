@@ -364,6 +364,31 @@ Write the full deliverable first, then the structured JSON block.`;
             return /^social_/.test(t.taskType || '') || /linkedin|twitter|x\.com|social media|social post|bluesky|tweet/.test(txt);
           });
           if (_socialIdle.length > 0) {
+            // Fetch blog post content to build proper social copy
+            var _blogContent = null;
+            var _blogTitle = null;
+            try {
+              var _firstDesc = _socialIdle[0].description || '';
+              var _docIdMatch = _firstDesc.match(/Document ID:\s*(doc_[a-z0-9_]+)/i);
+              if (_docIdMatch) {
+                var _allDocs = (await storage.getState('documents')) || [];
+                var _srcDoc = _allDocs.find(function (d) { return d.id === _docIdMatch[1]; });
+                if (_srcDoc) {
+                  _blogTitle = _srcDoc.title || '';
+                  // Strip markdown formatting to get clean text for social
+                  _blogContent = (_srcDoc.content_md || '')
+                    .replace(/^#[^\n]*/m, '')           // remove H1 heading
+                    .replace(/#{1,6}\s+/g, '')           // remove other headings
+                    .replace(/\*\*([^*]+)\*\*/g, '$1')   // **bold** → bold
+                    .replace(/\*([^*]+)\*/g, '$1')        // *italic* → italic
+                    .replace(/^\s*[-*]\s+/gm, '')         // bullet points
+                    .replace(/\n{2,}/g, '\n').trim();
+                }
+              }
+            } catch (_bcErr) {
+              context.log('[Heartbeat] ANTI-STALL: blog content fetch error (non-fatal):', String(_bcErr).substring(0, 200));
+            }
+
             for (var _si = 0; _si < _socialIdle.length; _si++) {
               var _sTask = _socialIdle[_si];
               var _sText = ((_sTask.title || '') + ' ' + (_sTask.description || '')).toLowerCase();
@@ -373,13 +398,33 @@ Write the full deliverable first, then the structured JSON block.`;
                 : 'linkedin';
               var _sUrlMatch = (_sTask.description || '').match(/https?:\/\/ambientpixels\.ai\/blog\/[a-z0-9-]+/i);
               var _sBlogUrl = _sUrlMatch ? _sUrlMatch[0] : 'https://ambientpixels.ai';
-              var _sTitle = (_sTask.title || '').replace(/^Promote blog post on [^:]+:\s*/i, '');
-              var _sDefaultText = _sTitle + '\n\n' + _sBlogUrl;
-              context.log('[Heartbeat] ANTI-STALL:', agentId, 'batch social (' + (_si + 1) + '/' + _socialIdle.length + ') — injecting create-social-action for:', _sTask.id, 'platform:', _sPlatform);
+              var _sArticleTitle = _blogTitle || (_sTask.title || '').replace(/^Promote blog post on [^:]+:\s*/i, '');
+
+              // Build platform-appropriate social copy from blog content
+              var _sPostText = '';
+              var _sExcerpt = _blogContent ? _blogContent.substring(0, 300).replace(/\n/g, ' ').trim() : '';
+              if (_sPlatform === 'x') {
+                // X: 280 char limit — title + short excerpt + URL
+                var _xBody = _sArticleTitle;
+                if (_sExcerpt) _xBody += ' — ' + _sExcerpt.substring(0, 180 - _sArticleTitle.length);
+                _sPostText = _xBody.substring(0, 250).trim() + '\n\n' + _sBlogUrl;
+              } else if (_sPlatform === 'bluesky') {
+                // Bluesky: 300 char limit
+                var _bBody = _sArticleTitle;
+                if (_sExcerpt) _bBody += '\n\n' + _sExcerpt.substring(0, 200 - _sArticleTitle.length);
+                _sPostText = _bBody.substring(0, 270).trim() + '\n\n' + _sBlogUrl;
+              } else {
+                // LinkedIn: longer form (aim 400-800 chars)
+                _sPostText = _sArticleTitle + '\n\n';
+                if (_sExcerpt) _sPostText += _sExcerpt.substring(0, 500) + '\n\n';
+                _sPostText += 'Read more: ' + _sBlogUrl;
+              }
+
+              context.log('[Heartbeat] ANTI-STALL:', agentId, 'batch social (' + (_si + 1) + '/' + _socialIdle.length + ') — injecting create-social-action for:', _sTask.id, 'platform:', _sPlatform, 'text length:', _sPostText.length);
               actions.push({
                 type: 'create-social-action',
                 taskId: _sTask.id,
-                social: { platform: _sPlatform, text: _sDefaultText },
+                social: { platform: _sPlatform, text: _sPostText },
                 summary: 'Anti-stall social action: ' + (_sTask.title || _sTask.id)
               });
             }
