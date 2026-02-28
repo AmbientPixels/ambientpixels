@@ -2955,6 +2955,7 @@
               '</div>' +
               '<div style="display:flex; gap:0.3rem; flex-shrink:0; margin-left:0.5rem;">' +
                 '<a href="/blog/' + escapeHtml(post.slug) + '" target="_blank" style="font-size:0.55rem; padding:0.2rem 0.5rem; border-radius:4px; border:1px solid rgba(167,139,250,0.3); background:rgba(167,139,250,0.05); color:#a78bfa; text-decoration:none; cursor:pointer;"><i class="fas fa-external-link-alt"></i> View</a>' +
+                '<button class="blog-admin-edit" data-slug="' + escapeHtml(post.slug) + '" style="font-size:0.55rem; padding:0.2rem 0.5rem; border-radius:4px; border:1px solid rgba(251,191,36,0.3); background:rgba(251,191,36,0.05); color:#fbbf24; cursor:pointer;"><i class="fas fa-edit"></i> Edit</button>' +
                 '<button class="blog-admin-delete" data-slug="' + escapeHtml(post.slug) + '" style="font-size:0.55rem; padding:0.2rem 0.5rem; border-radius:4px; border:1px solid rgba(248,113,113,0.3); background:rgba(248,113,113,0.05); color:#f87171; cursor:pointer;"><i class="fas fa-trash"></i> Delete</button>' +
               '</div>' +
             '</div>';
@@ -2964,6 +2965,15 @@
           }
           html += '</div>';
           listEl.innerHTML = html;
+
+          // Bind edit buttons
+          listEl.querySelectorAll('.blog-admin-edit').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+              var slug = btn.dataset.slug;
+              var post = posts.find(function (p) { return p.slug === slug; });
+              if (post) _openBlogEditor(post, listEl);
+            });
+          });
 
           // Bind delete buttons
           listEl.querySelectorAll('.blog-admin-delete').forEach(function (btn) {
@@ -3009,6 +3019,66 @@
           }).then(function (r) { return r.ok; });
         })
         .catch(function () { return false; });
+      }
+
+      function _openBlogEditor(post, containerEl) {
+        containerEl.innerHTML =
+          '<div style="padding:0.6rem; display:flex; flex-direction:column; gap:0.5rem;">' +
+            '<div style="display:flex; justify-content:space-between; align-items:center;">' +
+              '<span style="font-size:0.7rem; font-weight:600; color:#fbbf24;"><i class="fas fa-edit"></i> Editing: /blog/' + escapeHtml(post.slug) + '</span>' +
+              '<div style="display:flex; gap:0.3rem;">' +
+                '<button id="blog-edit-save" style="font-size:0.55rem; padding:0.25rem 0.6rem; border-radius:4px; border:1px solid rgba(52,211,153,0.4); background:rgba(52,211,153,0.1); color:#34d399; cursor:pointer; font-weight:600;"><i class="fas fa-save"></i> Save</button>' +
+                '<button id="blog-edit-cancel" style="font-size:0.55rem; padding:0.25rem 0.6rem; border-radius:4px; border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.03); color:rgba(255,255,255,0.6); cursor:pointer;"><i class="fas fa-times"></i> Cancel</button>' +
+              '</div>' +
+            '</div>' +
+            '<div style="display:flex; gap:0.4rem;">' +
+              '<div style="flex:1;"><label style="font-size:0.55rem; opacity:0.5; display:block; margin-bottom:0.15rem;">Title</label>' +
+                '<input type="text" id="blog-edit-title" value="' + escapeHtml(post.title).replace(/"/g, '&quot;') + '" style="width:100%; font-size:0.7rem; padding:0.3rem 0.5rem; border-radius:4px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.25); color:inherit; box-sizing:border-box;" />' +
+              '</div>' +
+            '</div>' +
+            '<div><label style="font-size:0.55rem; opacity:0.5; display:block; margin-bottom:0.15rem;">Content (Markdown)</label>' +
+              '<textarea id="blog-edit-content" style="width:100%; min-height:350px; font-family:Consolas,Monaco,monospace; font-size:0.65rem; line-height:1.5; padding:0.5rem; border-radius:4px; border:1px solid rgba(255,255,255,0.1); background:rgba(0,0,0,0.25); color:inherit; resize:vertical; box-sizing:border-box;">' + escapeHtml(post.content_md || '') + '</textarea>' +
+            '</div>' +
+          '</div>';
+
+        document.getElementById('blog-edit-cancel').addEventListener('click', function () { renderBlogAdmin(); });
+        document.getElementById('blog-edit-save').addEventListener('click', function () {
+          var newTitle = document.getElementById('blog-edit-title').value.trim();
+          var newContent = document.getElementById('blog-edit-content').value;
+          if (!newTitle) { alert('Title is required.'); return; }
+          var btn = document.getElementById('blog-edit-save');
+          btn.disabled = true;
+          btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving…';
+          _saveBlogPost(post.slug, newTitle, newContent).then(function (ok) {
+            if (ok) { renderBlogAdmin(); }
+            else { btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> Save'; alert('Failed to save.'); }
+          });
+        });
+      }
+
+      function _saveBlogPost(slug, newTitle, newContent) {
+        var apiBase = (window.location.hostname.indexOf('ambientpixels.ai') !== -1)
+          ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+          : '/api';
+        var headers = { 'x-company-secret': (typeof CompanyStore !== 'undefined' && CompanyStore._writeSecret) ? CompanyStore._writeSecret : '' };
+        return fetch(apiBase + '/company-state?key=blogPosts', { headers: headers })
+          .then(function (r) { return r.ok ? r.json() : {}; })
+          .then(function (resp) {
+            var posts = (resp && resp.value) || [];
+            if (!Array.isArray(posts)) return false;
+            var idx = posts.findIndex(function (p) { return p.slug === slug; });
+            if (idx === -1) return false;
+            posts[idx].title = newTitle;
+            posts[idx].content_md = newContent;
+            posts[idx].excerpt = newContent.replace(/#{1,6}\s+/g, '').replace(/[*_`~\[\]()>]/g, '').replace(/\n+/g, ' ').trim().substring(0, 200);
+            posts[idx].updated_at = new Date().toISOString();
+            return fetch(apiBase + '/company-state', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', 'x-company-secret': headers['x-company-secret'] },
+              body: JSON.stringify({ key: 'blogPosts', value: posts })
+            }).then(function (r) { return r.ok; });
+          })
+          .catch(function () { return false; });
       }
 
       // ── Governance Log (shared renderer for CEO + Dev) ──
