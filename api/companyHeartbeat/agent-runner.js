@@ -563,6 +563,12 @@ Write the full deliverable first, then the structured JSON block.`;
         continue;
       }
 
+      // SERVER-SIDE GUARD: block agents from creating hero image tasks — system auto-creates them
+      if ((action.task.assignee || '').toLowerCase() === 'pixel' && /hero\s*image/i.test(action.task.title || '')) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED create-task: hero image tasks are auto-created by the system, not agents. Title:', action.task.title);
+        continue;
+      }
+
       // Inherit linking from parent campaign when provided
       var _taskCampaignId = action.task.campaign_id || action.task.directive_id || null;
       var _taskObjectiveId = action.task.objective_id || null;
