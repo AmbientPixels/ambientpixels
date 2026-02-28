@@ -202,12 +202,12 @@
       topbar.appendChild(a);
     });
 
-    var gridos = document.createElement('a');
-    gridos.href = '/gridos/';
-    gridos.className = 'sb-topbar-gridos';
-    gridos.setAttribute('aria-label', 'GridOS overview');
-    gridos.innerHTML = '<i class="fas fa-server" aria-hidden="true"></i><span>GridOS v1.0</span>';
-    topbar.appendChild(gridos);
+    var ambientcore = document.createElement('a');
+    ambientcore.href = '/ambientcore/';
+    ambientcore.className = 'sb-topbar-ambientcore';
+    ambientcore.setAttribute('aria-label', 'AmbientCore overview');
+    ambientcore.innerHTML = '<i class="fas fa-server" aria-hidden="true"></i><span>AmbientCore v1.0</span>';
+    topbar.appendChild(ambientcore);
   }
 
   function selectCategory(catId) {

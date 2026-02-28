@@ -509,7 +509,7 @@
     });
   }
 
-  // — Execution Mode (GridOS automation posture) —
+  // — Execution Mode (AmbientCore automation posture) —
   var executionModeSelect = document.getElementById('cfg-execution-mode');
   var executionModeStatus = document.getElementById('cfg-execution-mode-status');
 

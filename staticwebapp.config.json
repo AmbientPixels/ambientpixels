@@ -44,6 +44,11 @@
   },
   "routes": [
     {
+      "route": "/gridos/*",
+      "redirect": "/ambientcore/",
+      "statusCode": 301
+    },
+    {
       "route": "/blog/*.css"
     },
     {

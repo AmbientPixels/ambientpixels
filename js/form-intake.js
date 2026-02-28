@@ -1,7 +1,7 @@
 /**
  * CHANGE SUMMARY
- * - New file: GridOS Form Intake client-side submit helper v1
- * - Binds to forms with data-gridos-intake="true"
+ * - New file: AmbientCore Form Intake client-side submit helper v1
+ * - Binds to forms with data-ambientcore-intake="true"
  * - Tracks form_started_at_ms on first focus/input
  * - Builds structured payload and POSTs JSON to /api/formIntake
  * - Inline status feedback (success / error / rate limited)
@@ -35,10 +35,10 @@
 
   // ── Init forms ──
   function initIntakeForms() {
-    var forms = document.querySelectorAll('[data-gridos-intake="true"]');
+    var forms = document.querySelectorAll('[data-ambientcore-intake="true"]');
     forms.forEach(function (form) {
-      if (form._gridosIntakeInit) return;
-      form._gridosIntakeInit = true;
+      if (form._ambientcoreIntakeInit) return;
+      form._ambientcoreIntakeInit = true;
 
       // Track form_started_at_ms on first interaction
       var startedInput = form.querySelector('input[name="form_started_at_ms"]');

@@ -208,7 +208,7 @@
   color: #8A2BE2;
 }
 
-.sb-topbar-gridos {
+.sb-topbar-ambientcore {
   margin-left: auto;
   display: inline-flex;
   align-items: center;
@@ -225,13 +225,13 @@
   transition: all 0.15s;
 }
 
-.sb-topbar-gridos:hover {
+.sb-topbar-ambientcore:hover {
   color: rgba(255,255,255,0.92);
   border-color: rgba(138, 43, 226, 0.42);
   background: rgba(138, 43, 226, 0.1);
 }
 
-.sb-topbar-gridos i {
+.sb-topbar-ambientcore i {
   font-size: 0.66rem;
   opacity: 0.9;
 }
@@ -306,12 +306,12 @@
     font-size: 0.64rem;
   }
 
-  .sb-topbar-gridos {
+  .sb-topbar-ambientcore {
     padding: 4px 8px;
     font-size: 0.58rem;
   }
 
-  .sb-topbar-gridos span {
+  .sb-topbar-ambientcore span {
     display: none;
   }
 

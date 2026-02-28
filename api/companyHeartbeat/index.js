@@ -1109,7 +1109,7 @@ module.exports = async function (context) {
     const activeObjectives = objectives.filter(o => o.status && o.status !== 'complete' && o.status !== 'canceled');
     const normalizedActivationMode = await resolveActivationMode(storage, runId);
 
-    // Load execution_mode (GridOS automation posture)
+    // Load execution_mode (AmbientCore automation posture)
     const _rawExecMode = await storage.getState('execution_mode');
     const executionMode = normalizeExecutionMode(_rawExecMode);
 
@@ -4219,7 +4219,7 @@ Write the full deliverable first, then the structured JSON block.`;
         const _isInternalKind = INTERNAL_KINDS.indexOf(kind) !== -1;
         const _isExternalKind = EXTERNAL_KINDS.indexOf(kind) !== -1;
 
-        // Fix 11a: Internal docs — hard cap at 5 unpublished, must be GridOS/operational subject matter
+        // Fix 11a: Internal docs — hard cap at 5 unpublished, must be AmbientCore/operational subject matter
         if (_isInternalKind) {
           const _activeInternalDocs = existingDocs.filter(d =>
             INTERNAL_KINDS.indexOf(d.kind) !== -1 &&
@@ -4230,12 +4230,12 @@ Write the full deliverable first, then the structured JSON block.`;
             result.taskUpdates.push({ action: 'comment', taskId: action.taskId, comment: '[SYSTEM] Internal doc cap reached (5 max). Publish or archive existing internal docs first.', agentId: 'system' });
             continue;
           }
-          // Subject matter gate: internal docs must be about GridOS, system operations, or technical reference
+          // Subject matter gate: internal docs must be about AmbientCore, system operations, or technical reference
           const _docText = ((docPayload.title || '') + ' ' + (docPayload.content_md || '').substring(0, 500)).toLowerCase();
-          const _isGridOSTopic = /gridos|gridops|heartbeat|agent|orchestrat|governance|storage|pipeline|api|function|deployment|architecture|config|escalation|triage|approval|execution|workflow|system|technical|reference|runbook|spec|schema|endpoint/.test(_docText);
-          if (!_isGridOSTopic) {
-            context.log('[Heartbeat]', agentId, 'BLOCKED create-doc (internal) — not GridOS/operational subject matter. Title:', docPayload.title);
-            result.taskUpdates.push({ action: 'comment', taskId: action.taskId, comment: '[SYSTEM] Internal docs (spec/runbook/governance) are for GridOS technical reference only. For marketing/blog content, use kind: marketing_post.', agentId: 'system' });
+          const _isAmbientCoreTopic = /ambientcore|gridops|heartbeat|agent|orchestrat|governance|storage|pipeline|api|function|deployment|architecture|config|escalation|triage|approval|execution|workflow|system|technical|reference|runbook|spec|schema|endpoint/.test(_docText);
+          if (!_isAmbientCoreTopic) {
+            context.log('[Heartbeat]', agentId, 'BLOCKED create-doc (internal) — not AmbientCore/operational subject matter. Title:', docPayload.title);
+            result.taskUpdates.push({ action: 'comment', taskId: action.taskId, comment: '[SYSTEM] Internal docs (spec/runbook/governance) are for AmbientCore technical reference only. For marketing/blog content, use kind: marketing_post.', agentId: 'system' });
             continue;
           }
         }
@@ -5262,7 +5262,7 @@ Write the full deliverable first, then the structured JSON block.`;
             runId: runId, agentId: agentId, gate: 'memory_schema', reason: 'invalid_type', type: mem.type || null
           });
         }
-        // Evidence requirement for preferred GridOS types
+        // Evidence requirement for preferred AmbientCore types
         else if (L4_PREFERRED_TYPES.has(_memType) && (!mem.evidence || typeof mem.evidence !== 'object' || !mem.evidence.runId)) {
           _memBlockedReason = 'missing_evidence';
           await logEvent('policy-violation', agentId, 'Memory write blocked: preferred type requires evidence', runId, {
@@ -5975,7 +5975,7 @@ CURRENT TIME: ${new Date().toISOString()}
 ${['Nova', 'Forge', 'Pixel', 'Cipher', 'Scout', 'Quill', 'Scribe', 'Echo'].includes(agent.name) ? `
 STRICT: Respond with ONLY valid JSON. No prose. No markdown. No explanation text outside JSON.
 
-GRIDOS OUTPUT ENVELOPE (REQUIRED for all agents):
+AMBIENTCORE OUTPUT ENVELOPE (REQUIRED for all agents):
 Response format MUST be exactly:
 {
   "taskUpdates": [],
@@ -6060,16 +6060,16 @@ Action types:
 - create-doc: Create a NEW document. Include "document" with: title (string), kind, tags (array of strings), and content_md (full markdown content — MUST be complete, publish-ready text with NO placeholders like "[insert here]" or "[TBD]"). Also include "taskId" if this doc is for a specific task. IMPORTANT: Check EXISTING DOCUMENTS below first — if a relevant doc already exists, use update-doc instead of creating a duplicate.
   DOCUMENT KINDS — two distinct tracks:
   • EXTERNAL (public blog): "marketing_post" or "product_brief" — public articles about AI, creative tech, industry trends. Include a hero image (auto-generated by Pixel). Published to /blog/ after CEO approval. Used in social media promotion. Max 5 unpublished drafts at a time.
-  • INTERNAL (wiki): "spec", "runbook", "release_notes", or "governance" — technical documentation about GridOS internals, system architecture, API endpoints, agent workflows, heartbeat pipeline, storage schemas, escalation rules, deployment procedures. For agents and humans to reference. Saved to the Document Center wiki immediately — NO approval needed. Max 5 active at a time. MUST be about GridOS/operational subject matter — marketing content is NOT allowed as internal docs.
+  • INTERNAL (wiki): "spec", "runbook", "release_notes", or "governance" — technical documentation about AmbientCore internals, system architecture, API endpoints, agent workflows, heartbeat pipeline, storage schemas, escalation rules, deployment procedures. For agents and humans to reference. Saved to the Document Center wiki immediately — NO approval needed. Max 5 active at a time. MUST be about AmbientCore/operational subject matter — marketing content is NOT allowed as internal docs.
 - update-doc: Update an existing document. Include "documentId" (the doc ID from EXISTING DOCUMENTS) and "updates" with any of: content_md (full replacement), append_md (add new content to end), title (rename), tags (replace tags). Use this when new information should be added to an existing doc instead of creating a new one.
 - submit-for-publish: Submit a completed EXTERNAL document for human/CEO approval to publish on the blog. Include "documentId" (the ID of an existing marketing_post or product_brief) and optionally "taskId". This creates a publish_document action in the approval queue. Do NOT use this for internal docs — they are saved to the wiki automatically.
 - create-content-package: (Echo and Pixel ONLY) Generate an image content package for marketing, social media, or design assets. Include "content" with: topic (visual subject, min 3 chars), goal (what the images will be used for, min 3 chars), preset (visual style — use "ap-neon-glass" if unsure), outputs (array of output types: "x_image", "linkedin_image", "og_image", "blog_hero", "instagram_square" — max 3), and variations (1-2, default 1). Also include "taskId" if this is for a specific task. Images are generated via Gemini and submitted to the CEO approval queue. Max 1 content package per heartbeat. Use this when a task requires MULTIPLE visual assets for a campaign — NOT for single images.
 - generate-image: (Echo, Pixel, Scribe) Generate a SINGLE image and optionally attach it to a document or social action. Include "image" with: purpose ("blog_header"|"inline_illustration"|"social_media"), topic (visual subject, min 3 chars), goal (what the image is for, min 3 chars), preset (visual style — default "ap-neon-glass"), outputType (optional override: "blog_image", "x_image", "hero_image", etc), alt (alt text for accessibility). To attach to a document: set attachTo: { "type": "document", "id": "doc_xxx" }. For blog_header purpose: sets doc.hero_image_asset_id (no content mutation). For inline_illustration: replaces {{IMAGE:slot}} token in doc markdown (include "slot" field to name the anchor; agent should have placed {{IMAGE:slotName}} in the doc content_md first). To attach to a social action: set attachTo: { "type": "action", "id": "act_xxx" } — adds image to action media[] (action must still be pending). Shares the 1-per-heartbeat content generation limit with create-content-package. Use this for blog post hero images, inline article illustrations, or social post graphics — use create-content-package for multi-image campaign batches.
 - create-reminder: Set a reminder or important date in the CEO workspace. Include "reminder" with: title (string), date (YYYY-MM-DD), type ("deadline"|"event"|"milestone"|"recurring"), and optionally description. Use for tracking deadlines, renewals, milestones, or follow-ups. These appear in the CEO Morning Inbox and are injected into future heartbeat prompts.
 - web_search: (Scout/research agents only) Run a live web search. Include "tool": "web_search" and "args": { "q": "search query", "n": 5 }. Max 3 searches per heartbeat. Results are returned and you'll be asked to synthesize findings into a deliverable with cited sources.
-- remember: Save a persistent memory that survives across heartbeat cycles. Include "memory" with: text (what to remember, max 300 chars) and type ("decision"|"constraint"|"resolved_incident"|"verified_fact"|"preference"|"learning"|"feedback"|"context"). Preferred GridOS types (decision, constraint, resolved_incident, verified_fact) require evidence: { "runId": "cycle-xxx" }. Memories expire after 14 days. Only save genuinely useful information — not status updates. Good memories: "CEO prefers concise LinkedIn posts under 100 words", "Blog posts need 400+ words minimum", "Scout found that competitor X launched feature Y". Bad memories: "I commented on task X", "Working on the LinkedIn post".
+- remember: Save a persistent memory that survives across heartbeat cycles. Include "memory" with: text (what to remember, max 300 chars) and type ("decision"|"constraint"|"resolved_incident"|"verified_fact"|"preference"|"learning"|"feedback"|"context"). Preferred AmbientCore types (decision, constraint, resolved_incident, verified_fact) require evidence: { "runId": "cycle-xxx" }. Memories expire after 14 days. Only save genuinely useful information — not status updates. Good memories: "CEO prefers concise LinkedIn posts under 100 words", "Blog posts need 400+ words minimum", "Scout found that competitor X launched feature Y". Bad memories: "I commented on task X", "Working on the LinkedIn post".
 
-GRIDOS SHARED RULES v2 — GOVERNANCE COMPLIANCE
+AMBIENTCORE SHARED RULES v2 — GOVERNANCE COMPLIANCE
 
 You operate under backend-enforced governance gates.
 The backend is authoritative. You must pre-comply.
@@ -6156,7 +6156,7 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
 - If a task description says to use create-doc, you MUST use create-doc (not execute-task) to produce the document directly.
 - BLOG POST / MARKETING CONTENT RULE: When your task involves writing a blog post, article, or marketing content, you MUST use create-doc with kind "marketing_post" — NOT execute-task. execute-task only produces a deliverable comment — it does NOT create a publishable document, does NOT trigger automatic hero image generation by Pixel, and does NOT enter the publish pipeline. Always use create-doc for any content that should become a published article or blog post. Include the full markdown content in document.content_md and set document.kind to "marketing_post".
 - If a CEO comment says "top priority" or "complete before other work", that task takes absolute precedence — execute it immediately.` + (agent.name === 'Nova' ? `
-- GRIDOS CONTRACT (Nova — Prime Operator):
+- AMBIENTCORE CONTRACT (Nova — Prime Operator):
   - Prioritize routing work to existing objective_id.
   - If no objective exists, propose ONE objective_suggestion only.
   - Prefer reassigning/moving existing tasks over creating new ones.
@@ -6220,7 +6220,7 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
     3. If the deliverable is still incomplete after the next cycle:
        a. Escalate by adding a comment marking it as blocked/at-risk and recommending CEO attention or reassignment.
   - Agent roster for assignment: cipher (CFO/budgets), pixel (design/UI), forge (engineering/devops/infra), echo (marketing/social/campaigns), scribe (content/docs/briefs), quill (editing/brand voice), scout (research & intelligence/market analysis)` : '') + (agent.name === 'Echo' ? `
-- GRIDOS CONTRACT (Echo — Marketing):
+- AMBIENTCORE CONTRACT (Echo — Marketing):
   - Never execute external actions directly.
   - All social/publishing actions must be proposals routed through CEO approval.
   - Provide max 2-3 variants per run.
@@ -6247,7 +6247,7 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
   - If a task description mentions LinkedIn, X, Twitter, social media, "post", or "draft" for social — ALWAYS use create-social-action. No exceptions.
   - PROMOTION GATING: You may ONLY auto-generate social posts for published documents when "promote: YES" appears in the EXISTING DOCUMENTS list. If a document is published but does NOT show "promote: YES", do NOT create a social post for it. You may note in your reasoning that the document could benefit from promotion, but you MUST NOT create a social action for it. This is a CEO-controlled gate — only the CEO can enable promotion on a document.
   - SOCIAL PROMOTION PIPELINE: Do NOT create social media promotion tasks, social copy tasks, or social image tasks for blog posts BEFORE the blog is published and promoted. The correct pipeline is: 1) Scribe writes blog post (create-doc) → 2) Pixel generates hero image → 3) submit-for-publish → 4) CEO approves publish + enables "promote" → 5) System auto-creates social tasks for Echo. Creating social tasks before step 4 wastes heartbeat cycles and creates noise. Wait for the system to create them.` : '') + (agent.name === 'Pixel' ? `
-- GRIDOS CONTRACT (Pixel — Design & QC):
+- AMBIENTCORE CONTRACT (Pixel — Design & QC):
   - Create tasks only when acceptanceCriteria are defined.
   - Prefer updating classification, tags, status, objective_id.
   - Do not rewrite task descriptions.
@@ -6263,7 +6263,7 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
   - CROSS-DEPARTMENT COLLABORATION: You work closely with Scribe (content) and Echo (marketing). When they create documents or social posts that need visuals, pick up the corresponding design tasks promptly. Your hero images make their content publishable.
   - PRODUCE, DON'T PLAN: If a task says "generate hero image" or "create visual for blog post", use generate-image immediately — do NOT create sub-tasks or comment that you're planning to do it.
   - HERO IMAGE PRIORITY OVERRIDE: If you have a "Generate hero image for:" task assigned to you, your ABSOLUTE FIRST action in your actions array MUST be generate-image for that task. Do NOT comment-task, do NOT review-task, do NOT create-task — put generate-image as action #1. The entire content pipeline (Scribe, Echo, publish) is blocked waiting for YOUR image. Every heartbeat you spend commenting instead of generating is a wasted cycle. Extract the document ID from the task description and use it in attachTo.` : '') + (agent.name === 'Scribe' ? `
-- GRIDOS CONTRACT (Scribe — Content):
+- AMBIENTCORE CONTRACT (Scribe — Content):
   - Documentation changes are proposals unless tied to objective_id.
   - Use objective_suggestion if objective missing.
   - Do not mutate titles/descriptions directly.
@@ -6290,7 +6290,7 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
     If the task does NOT mention visuals and is purely informational/technical documentation, you may submit-for-publish immediately.
   - PRODUCE, DON'T PLAN: Your value is in creating finished documents, not organizing tasks. If a task says "draft a blog post", your next action should be create-doc with the full markdown content, not create-task for an outline.
   - CONTENT QUALITY RULE — NO PLACEHOLDERS: When you use create-doc, the content_md MUST be complete, publish-ready content. NEVER include placeholder text like "[insert here]", "[content to be added]", "[TBD]", or skeleton outlines. Every section must have real, substantive paragraphs. If you don't have enough information, write what you know and make it coherent — do NOT leave blanks. The CEO will reject any document with placeholder content. Aim for 400-800 words minimum for blog posts.` : '') + (agent.name === 'Quill' ? `
-- GRIDOS CONTRACT (Quill — Editor):
+- AMBIENTCORE CONTRACT (Quill — Editor):
   - Validate allowed update keys before emitting taskUpdates.
   - If invalid fields detected, convert to proposal instead.
   - Enforce JSON-only output.
@@ -6302,7 +6302,7 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
   - You CANNOT approve anything or escalate to the CEO
   - You CANNOT modify directives or objectives
   - Focus on reviewing drafts in the review column. Approve clean work, request changes on anything off-brand.` : '') + (agent.name === 'Scout' ? `
-- GRIDOS CONTRACT (Scout — Research & Intelligence):
+- AMBIENTCORE CONTRACT (Scout — Research & Intelligence):
   - Evidence-first. Include evidence references in proposals.
   - Use remember only for verified_fact or constraint types.
   - Avoid memory overuse.
@@ -6326,12 +6326,12 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
   - When you produce research, the system extracts a structured summary (title, findings, sources, impact tags) that is shared with ALL agents automatically.
   - Focus on executing research tasks with structured briefs: findings, analysis, recommendations, and cited sources.
   - When creating research docs with create-doc, use proper markdown with clear headings, structured sections, and cited sources.` : '') + (agent.name === 'Cipher' ? `
-- GRIDOS CONTRACT (Cipher — CFO):
+- AMBIENTCORE CONTRACT (Cipher — CFO):
   - Use numeric thresholds only.
   - If cost data missing, propose instrumentation — do not guess metrics.
   - Use tags/classification fields instead of title edits.
   - Never modify task titles or descriptions.` : '') + (agent.name === 'Forge' ? `
-- GRIDOS CONTRACT (Forge — DevOps):
+- AMBIENTCORE CONTRACT (Forge — DevOps):
   - Use category ops_breakfix for urgent system incidents (objective_id exempt).
   - Otherwise require objective_id before task creation.
   - Never bypass approval requirements.` : '') + `

@@ -3915,8 +3915,8 @@
       tbBody.innerHTML = html;
     }
 
-    function _getGridOSKey() {
-      if (window._config && window._config.gridosInternalKey) return window._config.gridosInternalKey;
+    function _getAmbientCoreKey() {
+      if (window._config && window._config.ambientcoreInternalKey) return window._config.ambientcoreInternalKey;
       if (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteKey) return CompanyStore.getWriteKey() || '';
       return '';
     }
@@ -3925,8 +3925,8 @@
       var range = tbRange ? tbRange.value : '7d';
       _renderSkeleton();
       var headers = {};
-      var key = _getGridOSKey();
-      if (key) headers['X-GridOS-Key'] = key;
+      var key = _getAmbientCoreKey();
+      if (key) headers['X-AmbientCore-Key'] = key;
       fetch('https://ambientpixels-nova-api.azurewebsites.net/api/telemetry/summary?range=' + range, { headers: headers })
         .then(function (r) { return r.json(); })
         .then(function (data) { _render(data); })

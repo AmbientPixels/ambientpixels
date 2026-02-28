@@ -47,35 +47,35 @@
       ]
     },
     {
-      "folder": "images/GridOS",
+      "folder": "images/AmbientCore",
       "count": 14,
       "files": [
-        "images/GridOS/CEO-Plan.png",
-        "images/GridOS/GridOS-screen1.png",
-        "images/GridOS/calendear.png",
-        "images/GridOS/content-engine.jpeg",
-        "images/GridOS/content-engine.png",
-        "images/GridOS/contentengine.png",
-        "images/GridOS/cost.png",
-        "images/GridOS/dash.png",
-        "images/GridOS/memory-stack.png",
-        "images/GridOS/ops.png",
-        "images/GridOS/ovserve.png",
-        "images/GridOS/social.png",
-        "images/GridOS/ssocial-small.png",
-        "images/GridOS/work overview.png"
+        "images/AmbientCore/CEO-Plan.png",
+        "images/AmbientCore/AmbientCore-screen1.png",
+        "images/AmbientCore/calendear.png",
+        "images/AmbientCore/content-engine.jpeg",
+        "images/AmbientCore/content-engine.png",
+        "images/AmbientCore/contentengine.png",
+        "images/AmbientCore/cost.png",
+        "images/AmbientCore/dash.png",
+        "images/AmbientCore/memory-stack.png",
+        "images/AmbientCore/ops.png",
+        "images/AmbientCore/ovserve.png",
+        "images/AmbientCore/social.png",
+        "images/AmbientCore/ssocial-small.png",
+        "images/AmbientCore/work overview.png"
       ]
     },
     {
-      "folder": "images/GridOS/screens",
+      "folder": "images/AmbientCore/screens",
       "count": 6,
       "files": [
-        "images/GridOS/screens/agents.png",
-        "images/GridOS/screens/content-engine.png",
-        "images/GridOS/screens/cost-center.png",
-        "images/GridOS/screens/system-pulse.png",
-        "images/GridOS/screens/task-manager.png",
-        "images/GridOS/screens/work-cropped.png"
+        "images/AmbientCore/screens/agents.png",
+        "images/AmbientCore/screens/content-engine.png",
+        "images/AmbientCore/screens/cost-center.png",
+        "images/AmbientCore/screens/system-pulse.png",
+        "images/AmbientCore/screens/task-manager.png",
+        "images/AmbientCore/screens/work-cropped.png"
       ]
     },
     {

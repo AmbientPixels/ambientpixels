@@ -662,13 +662,13 @@
     },
     {
       "type": "folder",
-      "name": "gridos",
-      "path": "gridos",
+      "name": "ambientcore",
+      "path": "ambientcore",
       "children": [
         {
           "type": "page",
           "name": "index.html",
-          "path": "gridos/index.html"
+          "path": "ambientcore/index.html"
         }
       ]
     },
@@ -755,13 +755,13 @@
       "children": [
         {
           "type": "folder",
-          "name": "GridOS",
-          "path": "images/GridOS",
+          "name": "AmbientCore",
+          "path": "images/AmbientCore",
           "children": [
             {
               "type": "folder",
               "name": "screens",
-              "path": "images/GridOS/screens",
+              "path": "images/AmbientCore/screens",
               "children": []
             }
           ]

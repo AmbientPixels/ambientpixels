@@ -1,13 +1,13 @@
 /**
  * CHANGE SUMMARY
- * - New file: Azure Function for GridOS Form Intake v1
+ * - New file: Azure Function for AmbientCore Form Intake v1
  * - POST /api/formIntake — write endpoint: validate, spam gates, blob storage, task spawning
  * - GET  /api/formIntake/recent — read recent submissions from daily index blobs
  * - GET  /api/formIntake/item   — read single canonical record by id
  * - CORS: origin allowlist (ambientpixels.ai + localhost dev)
  * - Anti-spam: honeypot, min-time-to-submit, IP rate limiting via blob counters
  * - Storage: canonical JSON per submission + daily JSON index
- * - Task spawning: contact/demo types create GridOS tasks; newsletter = store-only
+ * - Task spawning: contact/demo types create AmbientCore tasks; newsletter = store-only
  * - v1.1: Duplicate suppression — dedupe index blob per email+type key,
  *   60-min rolling window, always stores record but skips task if duplicate,
  *   appends comment to existing task on duplicate detection
@@ -119,7 +119,7 @@ function _normalizePayload(body) {
 // ── Anti-spam ──
 // ══════════════════════════════════════════════════════
 
-var FORM_INTAKE_SALT = process.env.FORM_INTAKE_SALT || 'gridos-intake-v1-default';
+var FORM_INTAKE_SALT = process.env.FORM_INTAKE_SALT || 'ambientcore-intake-v1-default';
 var RATE_LIMIT_MAX = 10;
 var RATE_LIMIT_WINDOW_MIN = 15;
 var MIN_SUBMIT_MS = 2500;
@@ -419,7 +419,7 @@ function _generateDraftReply(record) {
       '',
       'We\'ll follow up within two business days to schedule a walkthrough.',
       '',
-      '— AmbientPixels / GridOS'
+      '— AmbientPixels / AmbientCore'
     ];
     return lines.join('\n');
   }
@@ -443,7 +443,7 @@ function _generateDraftReply(record) {
   lines.push('');
   lines.push('We typically respond within two business days. If this is urgent, please note that in your reply and we\'ll prioritize accordingly.');
   lines.push('');
-  lines.push('— AmbientPixels / GridOS');
+  lines.push('— AmbientPixels / AmbientCore');
 
   return lines.join('\n');
 }

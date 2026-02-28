@@ -1,4 +1,4 @@
-# GridOS Form Intake v1.7
+# AmbientCore Form Intake v1.7
 
 ## Endpoints
 
@@ -82,7 +82,7 @@ For new inbound tasks (`status === "task_created"`), the system automatically ge
 - **demo**: Thank you + suggest next steps (portfolio link) + ask for use case + schedule promise
 - Incorporates `message.subject` if present
 - Personalizes greeting with first name if available
-- Signed: `— AmbientPixels / GridOS`
+- Signed: `— AmbientPixels / AmbientCore`
 - Target: ~120–160 words
 
 **Child task schema:**
@@ -111,7 +111,7 @@ For new inbound tasks (`status === "task_created"`), the system automatically ge
 [ ] missing email     → 400 validation_failed
 [ ] missing privacy   → 400 validation_failed (contact/demo types)
 [ ] Inbound page      → loads, shows table, filters work, drawer opens
-[ ] Contact modal     → submits to GridOS (not Formspree), shows success
+[ ] Contact modal     → submits to AmbientCore (not Formspree), shows success
 [ ] DEDUPE: 2nd contact submit within 60min → record stored, status=duplicate,
     duplicateOf populated, same taskId, NO new task, comment on existing task
 [ ] DEDUPE: submit after 61min → new task created normally
@@ -168,17 +168,17 @@ For new inbound tasks (`status === "task_created"`), the system automatically ge
 - `api/formIntakeDigest/index.js` — Daily digest generator (stats, notables, task, memory)
 - `api/formIntakeDigestTimer/function.json` — Timer trigger config (daily 9 AM PT)
 - `api/formIntakeDigestTimer/index.js` — Timer wrapper calling shared digest logic
-- `js/form-intake.js` — Frontend submit helper (binds to `data-gridos-intake`)
+- `js/form-intake.js` — Frontend submit helper (binds to `data-ambientcore-intake`)
 - `modules/company/inbound.html` — Inbound viewer page
 - `modules/company/js/inbound-intake.js` — Viewer client logic
 
 ## Files Modified
 
-- `modules/contact-modal.html` — Removed Formspree, added `data-gridos-intake`
+- `modules/contact-modal.html` — Removed Formspree, added `data-ambientcore-intake`
 - `js/init-contact-modal.js` — Dynamic `form-intake.js` loader after modal inject
 - `modules/company/js/sidebar.js` — Added Inbound nav item
 - `staticwebapp.config.json` — Added formIntake + formIntakeDigest route rewrites
-- `support/index.html` — Migrated engage form from Formspree to GridOS intake
+- `support/index.html` — Migrated engage form from Formspree to AmbientCore intake
 
 ## v1.1 Changes (Dedupe)
 
