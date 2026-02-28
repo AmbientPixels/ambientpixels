@@ -368,12 +368,17 @@ Write the full deliverable first, then the structured JSON block.`;
             : (_stallTask.taskType === 'social_x' || /twitter|x\.com|tweet/.test(_stallText)) ? 'x'
             : (_stallTask.taskType === 'social_bluesky' || /bluesky/.test(_stallText)) ? 'bluesky'
             : 'linkedin';
+          // Extract blog URL from task description for the social post text
+          const _urlMatch = (_stallTask.description || '').match(/https?:\/\/ambientpixels\.ai\/blog\/[a-z0-9-]+/i);
+          const _blogUrl = _urlMatch ? _urlMatch[0] : 'https://ambientpixels.ai';
+          const _stallTitle = (_stallTask.title || '').replace(/^Promote blog post on [^:]+:\s*/i, '');
+          const _defaultText = _stallTitle + '\n\n' + _blogUrl;
           context.log('[Heartbeat] ANTI-STALL:', agentId, 'has', _triagedIdle.length,
             'triaged idle task(s) (' + (_triagedIdle.length - _executableIdle.length) + ' convergence-blocked) — injecting create-social-action (social task) for:', _stallTask.id, '"' + (_stallTask.title || '') + '"', 'platform:', _platform);
           actions.unshift({
             type: 'create-social-action',
             taskId: _stallTask.id,
-            social: { platform: _platform, text: '' },
+            social: { platform: _platform, text: _defaultText },
             summary: 'Anti-stall social action: ' + (_stallTask.title || _stallTask.id)
           });
         } else {
