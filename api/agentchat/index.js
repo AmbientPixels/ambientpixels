@@ -179,8 +179,8 @@ Available action types:
 - update-task: {"type":"update-task","taskId":"...","updates":{"description":"...","priority":"...","assignee":"...","dueDate":"..."}}
 - move-task: {"type":"move-task","taskId":"...","newStatus":"backlog|todo|in-progress|review|done"}
 - comment-task: {"type":"comment-task","taskId":"...","comment":"..."}
-- create-doc: {"type":"create-doc","document":{"title":"...","kind":"product_brief|marketing_post","tags":[...],"content_md":"full markdown"},"taskId":"optional"} — Check existing docs first; use update-doc if one already covers the topic.
-- update-doc: {"type":"update-doc","documentId":"existing doc ID","updates":{"content_md":"full replacement","append_md":"add to end","title":"new title","tags":[...]}} — Update an existing document instead of creating duplicates.
+- create-doc: {"type":"create-doc","document":{"title":"...","kind":"spec|runbook|release_notes|product_brief|marketing_post|governance","tags":[...],"content_md":"full markdown"},"taskId":"optional"} — Check existing docs first; use update-doc if one already covers the topic.
+- update-doc: {"type":"update-doc","documentId":"existing doc ID","updates":{"content_md":"full replacement","append_md":"add to end","title":"new title","tags":[...]}} — Update an existing document instead of creating duplicates. Internal docs auto-refresh at /docs/published/.
 
 Rules:
 - Max 3 actions per response
@@ -523,7 +523,7 @@ async function executeChatActions(context, actions, agentId) {
           const newDoc = {
             id: 'doc-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
             title: d.title || 'Untitled Document',
-            kind: d.kind || 'product_brief',
+            kind: d.kind || 'spec',
             status: 'draft',
             tags: d.tags || [],
             content_md: d.content_md || '',
@@ -604,6 +604,19 @@ async function executeChatActions(context, actions, agentId) {
           documents[dIdx] = doc;
           await storage.setState('documents', documents);
 
+          // Refresh publishedDocs if internal
+          if (doc.visibility === 'internal' && doc.status === 'published' && doc.slug) {
+            const pubStore = (await storage.getState('publishedDocs')) || [];
+            const pIdx = pubStore.findIndex(p => p.documentId === doc.id);
+            if (pIdx !== -1) {
+              pubStore[pIdx].content_md = doc.content_md;
+              pubStore[pIdx].title = doc.title;
+              pubStore[pIdx].tags = doc.tags || [];
+              pubStore[pIdx].updated_at = doc.updated_at;
+              if (upd.title) { pubStore[pIdx].slug = doc.slug; pubStore[pIdx].target_path = '/docs/published/' + doc.slug; pubStore[pIdx].public_url = '/docs/published/' + doc.slug; }
+              await storage.setState('publishedDocs', pubStore);
+            }
+          }
           results.push({ type: 'update-doc', success: true, summary: 'Updated doc: "' + doc.title + '"' });
           break;
         }

@@ -22,11 +22,46 @@
     }
   }
 
-  // Internal docs pipeline removed — redirect to blog
-  showError('Internal docs retired', 'All documents are now published to the blog.');
+  if (slug && slug !== 'index.html') {
+    loadSingleDoc(slug);
+  } else {
+    loadDocIndex();
+  }
 
-  function loadSingleDoc() {}
-  function loadDocIndex() {}
+  function loadSingleDoc(slug) {
+    show('loading');
+    fetch(API_BASE + '/publishedDocs?slug=' + encodeURIComponent(slug))
+      .then(function (res) {
+        if (res.status === 404) throw { code: 'NOT_FOUND' };
+        if (!res.ok) throw { code: 'SERVER_ERROR', status: res.status };
+        return res.json();
+      })
+      .then(function (doc) {
+        renderDoc(doc);
+      })
+      .catch(function (err) {
+        if (err && err.code === 'NOT_FOUND') {
+          showError('Document not found', 'No published document with slug "' + esc(slug) + '".');
+        } else {
+          showError('Could not load document', 'A network or server error occurred. Please try again.');
+        }
+      });
+  }
+
+  function loadDocIndex() {
+    show('loading');
+    fetch(API_BASE + '/publishedDocs')
+      .then(function (res) {
+        if (!res.ok) throw new Error('Server error');
+        return res.json();
+      })
+      .then(function (docs) {
+        renderIndex(docs);
+      })
+      .catch(function () {
+        showError('Could not load documents', 'A network or server error occurred.');
+      });
+  }
 
   function renderDoc(doc) {
     document.title = doc.title + ' — AmbientPixels Docs';

@@ -1,8 +1,11 @@
 // content/publishDocument.js — Executor for publish_document actions
 // Called by the Action Center's Execute button via actionsExecute router.
-// Reads the document from storage, writes to blogPosts, and updates doc status.
+// Reads the document from storage, determines visibility, writes to
+// blogPosts (public) or publishedDocs (internal), and updates doc status.
 
 const storage = require('../../../_utils/companyStorage');
+
+const PUBLIC_KINDS = ['marketing_post', 'product_brief'];
 
 async function publishDocument(action) {
   const payload = action.payload || action.action_payload || {};
@@ -28,15 +31,23 @@ async function publishDocument(action) {
     throw { code: 'EMPTY_CONTENT', message: 'Document content is empty or too short (' + contentMd.length + ' chars)' };
   }
 
-  const publicUrl = '/blog/' + slug;
+  // Determine visibility
+  const docKind = doc.kind || payload.kind || '';
+  const visibility = payload.visibility || (PUBLIC_KINDS.indexOf(docKind) !== -1 ? 'public' : 'internal');
+  const isPublic = visibility === 'public';
+  const publicUrl = isPublic ? '/blog/' + slug : '/docs/published/' + slug;
   const now = new Date().toISOString();
 
-  // Generate excerpt
-  let excerpt = contentMd.replace(/#{1,6}\s+/g, '').replace(/[*_`~\[\]()>]/g, '').replace(/\n+/g, ' ').trim().substring(0, 200);
-  if (contentMd.length > 200) excerpt += '...';
+  // Generate excerpt for blog posts
+  let excerpt = '';
+  if (isPublic) {
+    excerpt = contentMd.replace(/#{1,6}\s+/g, '').replace(/[*_`~\[\]()>]/g, '').replace(/\n+/g, ' ').trim().substring(0, 200);
+    if (contentMd.length > 200) excerpt += '...';
+  }
 
-  // All docs publish to blogPosts
-  const store = (await storage.getState('blogPosts')) || [];
+  // Write to appropriate store
+  const storageKey = isPublic ? 'blogPosts' : 'publishedDocs';
+  const store = (await storage.getState(storageKey)) || [];
 
   const publishEntry = {
     id: 'pub_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
@@ -46,9 +57,9 @@ async function publishDocument(action) {
     slug: slug,
     kind: doc.kind,
     content_md: contentMd,
-    target_path: publicUrl,
+    target_path: isPublic ? '/blog/' + slug : '/docs/published/' + slug,
     public_url: publicUrl,
-    visibility: 'public',
+    visibility: visibility,
     excerpt: excerpt,
     published_by: (action.approval && action.approval.approved_by) || 'pixelpusher',
     published_at: now,
@@ -60,7 +71,7 @@ async function publishDocument(action) {
   };
   store.push(publishEntry);
   if (store.length > 200) store.splice(0, store.length - 200);
-  await storage.setState('blogPosts', store);
+  await storage.setState(storageKey, store);
 
   // Update document status
   docs[docIdx].status = 'published';
@@ -68,7 +79,7 @@ async function publishDocument(action) {
   docs[docIdx].published_at = now;
   docs[docIdx].published_by = publishEntry.published_by;
   docs[docIdx].publish_entry_id = publishEntry.id;
-  docs[docIdx].visibility = 'public';
+  docs[docIdx].visibility = visibility;
   docs[docIdx].public_url = publicUrl;
   await storage.setState('documents', docs);
 
@@ -91,7 +102,7 @@ async function publishDocument(action) {
     for (let i = 0; i < artifacts.length; i++) {
       if (artifacts[i].actionId === action.id || (artifacts[i].documentId === documentId && artifacts[i].status === 'draft')) {
         artifacts[i].status = 'published';
-        artifacts[i].url = 'https://ambientpixels.ai' + publicUrl;
+        artifacts[i].url = isPublic ? 'https://ambientpixels.ai' + publicUrl : publicUrl;
         artifacts[i].publishedAt = now;
         artifactUpdated = true;
         break;
@@ -108,7 +119,7 @@ async function publishDocument(action) {
     auditLog.push({
       id: 'alog-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
       type: 'publish-executed-via-action-center',
-      data: { actionId: action.id, documentId, title: doc.title, slug, visibility: 'public', publishEntryId: publishEntry.id },
+      data: { actionId: action.id, documentId, title: doc.title, slug, visibility, publishEntryId: publishEntry.id },
       timestamp: now
     });
     if (auditLog.length > 500) auditLog.splice(0, auditLog.length - 500);
@@ -163,7 +174,7 @@ async function publishDocument(action) {
   } catch (e) { /* non-fatal — task auto-close failed */ }
 
   // AUTO-PROMOTE: When CEO publishes with promote=true, auto-create Echo social tasks
-  if (doc.promote) {
+  if (isPublic && doc.promote) {
     try {
       const tasks = (await storage.getState('tasks')) || [];
       const blogUrl = 'https://ambientpixels.ai/blog/' + slug;
@@ -225,7 +236,7 @@ async function publishDocument(action) {
       publish_entry_id: publishEntry.id,
       target_path: publishEntry.target_path,
       public_url: publicUrl,
-      visibility: 'public',
+      visibility: visibility,
       slug: slug,
       published_at: now
     }

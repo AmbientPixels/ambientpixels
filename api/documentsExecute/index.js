@@ -12,7 +12,7 @@ const corsHeaders = {
   'Content-Type': 'application/json'
 };
 
-const VALID_DOC_KINDS = ['product_brief', 'marketing_post'];
+const VALID_DOC_KINDS = ['spec', 'runbook', 'release_notes', 'product_brief', 'marketing_post', 'governance'];
 const MAX_DOCS = 500;
 
 module.exports = async function (context, req) {
@@ -344,9 +344,13 @@ async function handleDocPublish(context, req, body) {
   const slug = action.payload && action.payload.slug;
   const title = action.payload && action.payload.title;
 
-  // All docs are public blog posts
-  const visibility = 'public';
-  const isPublic = true;
+  // Visibility: public → /blog/<slug>, internal → /docs/published/<slug>
+  // Can be set in request body, action payload, or defaults by doc kind
+  const PUBLIC_KINDS = ['marketing_post', 'product_brief'];
+  const requestVisibility = body.visibility || (action.payload && action.payload.visibility);
+  const docKind = (action.payload && action.payload.kind) || '';
+  const visibility = requestVisibility || (PUBLIC_KINDS.indexOf(docKind) !== -1 ? 'public' : 'internal');
+  const isPublic = visibility === 'public';
 
   // ── REJECT path ──
   if (decision === 'reject') {
@@ -459,13 +463,16 @@ async function handleDocPublish(context, req, body) {
       throw new Error('Document content is empty or too short');
     }
 
-    // Generate excerpt (first ~200 chars of plain text)
-    var excerpt = contentMd.replace(/#{1,6}\s+/g, '').replace(/[*_`~\[\]()>]/g, '').replace(/\n+/g, ' ').trim().substring(0, 200);
-    if (contentMd.length > 200) excerpt += '...';
+    // Generate excerpt for blog posts (first ~200 chars of plain text)
+    var excerpt = '';
+    if (isPublic) {
+      excerpt = contentMd.replace(/#{1,6}\s+/g, '').replace(/[*_`~\[\]()>]/g, '').replace(/\n+/g, ' ').trim().substring(0, 200);
+      if (contentMd.length > 200) excerpt += '...';
+    }
 
-    // Step 3: Write to blogPosts
-    const storageKey = 'blogPosts';
-    const publicUrl = '/blog/' + slug;
+    // Step 3: Write to appropriate storage (blogPosts for public, publishedDocs for internal)
+    const storageKey = isPublic ? 'blogPosts' : 'publishedDocs';
+    const publicUrl = isPublic ? '/blog/' + slug : '/docs/published/' + slug;
     const store = (await storage.getState(storageKey)) || [];
 
     const publishEntry = {
@@ -476,7 +483,7 @@ async function handleDocPublish(context, req, body) {
       slug: slug,
       kind: doc.kind,
       content_md: contentMd,
-      target_path: '/blog/' + slug,
+      target_path: isPublic ? '/blog/' + slug : 'content/docs/' + slug + '.md',
       public_url: publicUrl,
       visibility: visibility,
       excerpt: excerpt,
@@ -532,7 +539,7 @@ async function handleDocPublish(context, req, body) {
       for (var ai = 0; ai < artifacts.length; ai++) {
         if (artifacts[ai].actionId === actionId || (artifacts[ai].documentId === documentId && artifacts[ai].status === 'draft')) {
           artifacts[ai].status = 'published';
-          artifacts[ai].url = 'https://ambientpixels.ai' + publicUrl;
+          artifacts[ai].url = isPublic ? 'https://ambientpixels.ai' + publicUrl : publicUrl;
           artifacts[ai].publishedAt = now;
           artifactUpdated = true;
           break;
@@ -555,7 +562,7 @@ async function handleDocPublish(context, req, body) {
         actionId,
         documentId,
         publishEntry,
-        message: 'Document published successfully to blog'
+        message: 'Document published successfully to ' + (isPublic ? 'blog' : 'internal docs')
       }
     };
 
