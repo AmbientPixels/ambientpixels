@@ -33,13 +33,28 @@ module.exports = async function (context, req) {
     // Import and run the heartbeat logic
     const heartbeat = require('../companyHeartbeat/index');
 
-    // Create a mock timer context
-    await heartbeat(context, null);
+    // Run the heartbeat — returns { skipped, reason, runId } or undefined
+    const result = await heartbeat(context, null);
+
+    if (result && result.skipped) {
+      context.res = {
+        status: 409,
+        headers: corsHeaders,
+        body: {
+          status: 'skipped',
+          reason: result.reason,
+          message: result.reason === 'lock'
+            ? 'Heartbeat skipped: another run is active (holder: ' + result.holderRunId + ')'
+            : 'Heartbeat skipped: ' + result.reason
+        }
+      };
+      return;
+    }
 
     context.res = {
       status: 200,
       headers: corsHeaders,
-      body: { status: 'ok', message: 'Heartbeat cycle completed' }
+      body: { status: 'ok', message: 'Heartbeat cycle completed', runId: result && result.runId }
     };
   } catch (err) {
     context.log.error('[HeartbeatTrigger] Error:', err.message);

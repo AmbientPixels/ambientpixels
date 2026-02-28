@@ -98,6 +98,9 @@ const GUARDRAILS = {
   dedupeWindowMs: 600000 // 10 min
 };
 
+// ── Concurrency lock ──
+const HEARTBEAT_LOCK_TIMEOUT_MS = 5 * 60 * 1000; // 5 minutes — auto-expires stale locks from crashed runs
+
 // ── Persistent Agent Memory ──
 let _agentMemoryStore = {}; // { agentId: [{ type, text, source, timestamp }] } — loaded from storage each cycle
 const MAX_MEMORIES_PER_AGENT = 20;
@@ -830,14 +833,55 @@ module.exports = async function (context) {
   const agentActions = {};
   const _pendingEscalations = [];
   const skippedAgents = [];
+  const trigger = (context.bindings && context.bindings.heartbeatTimer) ? 'cron' : 'http';
 
-  context.log('[Heartbeat] Starting cycle:', cycleId);
+  context.log('[Heartbeat] Starting cycle:', cycleId, '| trigger:', trigger);
+
+  // ── Concurrency lock: prevent overlapping heartbeat runs ──
+  const existingLock = await storage.getState('heartbeatLock');
+  if (existingLock && existingLock.locked) {
+    const acquiredMs = new Date(existingLock.acquiredAt).getTime();
+    const nowMs = Date.now();
+    if (!isNaN(acquiredMs) && (nowMs - acquiredMs) < HEARTBEAT_LOCK_TIMEOUT_MS) {
+      context.log.warn(
+        '[Heartbeat] SKIPPED — another run is active.',
+        'Holder:', existingLock.runId,
+        '| Acquired:', existingLock.acquiredAt,
+        '| Age:', Math.round((nowMs - acquiredMs) / 1000) + 's',
+        '| This run:', cycleId
+      );
+      await logEvent('heartbeat-lock-skipped', null,
+        'Heartbeat skipped: concurrency lock held by ' + existingLock.runId, cycleId, {
+          runId: cycleId, trigger: trigger,
+          holderRunId: existingLock.runId,
+          holderAcquiredAt: existingLock.acquiredAt,
+          lockAgeMs: nowMs - acquiredMs
+        });
+      return { skipped: true, reason: 'lock', holderRunId: existingLock.runId };
+    }
+    // Lock expired — override
+    context.log.warn(
+      '[Heartbeat] Stale lock detected from', existingLock.runId,
+      '| Acquired:', existingLock.acquiredAt,
+      '| Expired', Math.round((nowMs - acquiredMs) / 1000) + 's ago. Overriding.'
+    );
+  }
+
+  // Acquire lock
+  await storage.setState('heartbeatLock', {
+    locked: true,
+    runId: runId,
+    acquiredAt: cycleStart,
+    expiresAt: new Date(new Date(cycleStart).getTime() + HEARTBEAT_LOCK_TIMEOUT_MS).toISOString(),
+    trigger: trigger
+  });
+  context.log('[Heartbeat] Lock acquired:', runId);
 
   try {
     if (!GEMINI_API_KEY) {
       context.log.warn('[Heartbeat] No GEMINI_API_KEY — skipping');
       await logEvent('heartbeat', null, 'Heartbeat skipped: no API key', cycleId);
-      return;
+      return { skipped: true, reason: 'no_api_key' };
     }
 
     // Load current state
@@ -1123,7 +1167,7 @@ module.exports = async function (context) {
         runId: runId, mode: executionMode, channel: 'heartbeat', result: 'blocked', reason: 'execution_mode_frozen'
       });
       context.log('[Heartbeat] execution_mode=frozen — automation locked, exiting early');
-      return;
+      return { skipped: true, reason: 'frozen' };
     }
 
     // Compute effective rate caps (Phase 1F: experimental mode gets 1.5x)
@@ -2673,6 +2717,7 @@ module.exports = async function (context) {
     });
 
     context.log('[Heartbeat] Cycle complete:', cycleId, '| Gemini calls:', geminiCalls, '| New tasks:', newTasksCreated, '| Skipped:', skippedAgents.length, '| Tier4 ran:', ranTier4.join(', ') || 'none');
+    return { skipped: false, runId: runId };
 
   } catch (err) {
     context.log.error('[Heartbeat] Fatal error:', err.message);
@@ -2721,6 +2766,19 @@ module.exports = async function (context) {
       await storage.setState('heartbeatRuns', heartbeatRuns);
     } catch (_persistErr) {
       context.log.warn('[Heartbeat] Failed to persist fatal heartbeat summary:', _persistErr.message || _persistErr);
+    }
+  } finally {
+    // ── Release concurrency lock ──
+    try {
+      await storage.setState('heartbeatLock', {
+        locked: false,
+        runId: runId,
+        releasedAt: new Date().toISOString(),
+        trigger: trigger
+      });
+      context.log('[Heartbeat] Lock released:', runId);
+    } catch (_lockReleaseErr) {
+      context.log.warn('[Heartbeat] Failed to release lock:', _lockReleaseErr.message || _lockReleaseErr);
     }
   }
 };
