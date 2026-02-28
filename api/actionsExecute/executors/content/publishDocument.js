@@ -69,9 +69,13 @@ async function publishDocument(action) {
     inline_image_assets: doc.inline_image_assets || [],
     promote: doc.promote || false
   };
-  store.push(publishEntry);
-  if (store.length > 200) store.splice(0, store.length - 200);
-  await storage.setState(storageKey, store);
+  // Dedup: skip if slug already published
+  const _existingIdx = store.findIndex(function(e) { return e.slug === slug; });
+  if (_existingIdx === -1) {
+    store.push(publishEntry);
+    if (store.length > 200) store.splice(0, store.length - 200);
+    await storage.setState(storageKey, store);
+  }
 
   // Update document status
   docs[docIdx].status = 'published';
