@@ -34,7 +34,7 @@
         { href: BASE + 'work-overview.html', label: 'Overview', icon: 'fa-list-check', match: ['work-overview.html'] },
         { href: BASE + 'tasks.html', label: 'Tasks', icon: 'fa-tasks', match: ['tasks.html'] },
         { href: BASE + 'actions.html', label: 'Actions', icon: 'fa-bolt', match: ['actions.html'] },
-        { href: BASE + 'documents.html', label: 'Docs', icon: 'fa-folder-open', match: ['documents.html'] }
+        { href: BASE + 'documents.html', label: 'Wiki', icon: 'fa-book', match: ['documents.html'] }
       ]
     },
     {

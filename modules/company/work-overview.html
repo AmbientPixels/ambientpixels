@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="AmbientPixels Work Overview — tasks, actions, and documents at a glance." />
+  <meta name="description" content="AmbientPixels Work Overview — tasks, actions, and wiki at a glance." />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
   <title>Work — AmbientPixels HQ</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
@@ -271,7 +271,7 @@
     <!-- Hero -->
     <div class="work-hero">
       <h1><i class="fas fa-list-check" style="opacity:0.4; margin-right:8px; color:#FFA500;"></i>Work</h1>
-      <p>Tasks, actions, and documents — everything the team is building and shipping.</p>
+      <p>Tasks, actions, and wiki — everything the team is building and shipping.</p>
     </div>
 
     <!-- Pipeline Summary Bar -->
@@ -321,7 +321,7 @@
       </div>
       <div class="work-attention-card">
         <div class="work-attention-value" id="stat-docs">—</div>
-        <div class="work-attention-label">Docs</div>
+        <div class="work-attention-label">Wiki</div>
       </div>
     </div>
 
@@ -360,7 +360,7 @@
     <div class="work-task-list" id="ov-tasks">Loading...</div>
 
     <!-- Recent Docs -->
-    <div class="ov-section-title">Latest Documents</div>
+    <div class="ov-section-title">Latest Wiki Pages</div>
     <div id="ov-docs" style="font-size:0.7rem; opacity:0.5; padding:0.5rem 0;">Loading...</div>
 
     <!-- Quick Access (demoted, below content) -->
@@ -381,9 +381,9 @@
         </div>
       </a>
       <a href="/modules/company/documents.html" class="work-quick-card">
-        <div class="work-quick-icon" style="background:rgba(255,215,0,0.08); color:#FFD700;"><i class="fas fa-folder-open"></i></div>
+        <div class="work-quick-icon" style="background:rgba(255,215,0,0.08); color:#FFD700;"><i class="fas fa-book"></i></div>
         <div>
-          <div class="work-quick-label">Document Center</div>
+          <div class="work-quick-label">Wiki</div>
           <div class="work-quick-desc">Specs, briefs, runbooks</div>
         </div>
       </a>
@@ -512,7 +512,7 @@
       document.getElementById('stat-docs').textContent = docs.length;
       var docEl = document.getElementById('ov-docs');
       var recentDocs = docs.slice().sort(function (a, b) { return new Date(b.created_at || 0) - new Date(a.created_at || 0); }).slice(0, 5);
-      if (recentDocs.length === 0) { docEl.textContent = 'No documents yet.'; }
+      if (recentDocs.length === 0) { docEl.textContent = 'No wiki pages yet.'; }
       else {
         var docStatusColor = { draft: '#FFA500', review: '#8A2BE2', final: '#34d399' };
         docEl.innerHTML = recentDocs.map(function (d) {

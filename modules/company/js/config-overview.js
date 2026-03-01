@@ -1427,8 +1427,8 @@
       }
     },
     'reset-documents': {
-      title: 'Reset Documents (Keep Content Gallery)',
-      desc: 'This will remove all non-published documents from the system, preserving gallery-visible content.',
+      title: 'Reset Wiki (Keep Content Gallery)',
+      desc: 'This will remove all non-published wiki pages from the system, preserving gallery-visible content.',
       exec: function () {
         return _dangerPost('/company-reset-documents').then(function (d) {
           if (!d || !d.ok) throw new Error('Reset documents failed');
