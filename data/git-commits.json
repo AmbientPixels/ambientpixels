@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "ccf9b5d1-2606-49be-bdfb-b7db530b52aa",
-      "hash": "991220da8c683c069ab6161e21e505343d835e51",
-      "message": "fix scribe task reconciliation for submit-for-publish step",
-      "timestamp": "2026-02-28 00:14:46 -0800",
+      "id": "be70ad08-9aa7-45e3-a243-9a750c7d1327",
+      "hash": "7af3d567e5954c1187be67d4be2a9a654d2bd13e",
+      "message": "Swap Goal and Campaign columns in task list view — Goal first",
+      "timestamp": "2026-02-28 21:10:53 -0800",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/991220da8c683c069ab6161e21e505343d835e51"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/7af3d567e5954c1187be67d4be2a9a654d2bd13e"
     }
   ],
-  "timestamp": "2026-02-28T13:38:23.880Z",
+  "timestamp": "2026-03-01T13:40:37.599Z",
   "count": 1,
-  "scanId": 1772285903880
+  "scanId": 1772372437599
 }
