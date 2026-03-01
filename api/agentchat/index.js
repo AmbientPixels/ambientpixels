@@ -668,8 +668,8 @@ module.exports = async function (context, req) {
   if (demoGuard.isDemoMode() && req.method === 'POST') {
     var demoMsgCount = 0;
     try { demoMsgCount = (await storage.getState('demoChatCount')) || 0; } catch (e) {}
-    if (demoMsgCount >= 25) {
-      context.res = { status: 429, headers: corsHeaders, body: { error: 'Demo limit reached — max 25 chat messages.', reply: 'Sorry, the demo chat limit has been reached. Thanks for trying it out!' } };
+    if (demoMsgCount >= 40) {
+      context.res = { status: 429, headers: corsHeaders, body: { error: 'Demo limit reached — max 40 chat messages.', reply: 'Sorry, the demo chat limit has been reached. Thanks for trying it out!' } };
       return;
     }
   }
