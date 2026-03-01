@@ -3999,7 +3999,8 @@
       var headers = {};
       var key = _getAmbientCoreKey();
       if (key) headers['X-AmbientCore-Key'] = key;
-      fetch('https://ambientpixels-nova-api.azurewebsites.net/api/telemetry/summary?range=' + range, { headers: headers })
+      var apiBase = window.location.hostname.includes('ambientpixels.ai') ? 'https://ambientpixels-nova-api.azurewebsites.net' : '';
+      fetch(apiBase + '/api/telemetry/summary?range=' + range, { headers: headers })
         .then(function (r) { return r.json(); })
         .then(function (data) { _render(data); })
         .catch(function (err) {
