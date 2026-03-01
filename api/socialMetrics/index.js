@@ -395,11 +395,14 @@ module.exports = async function (context, req) {
     return;
   }
 
-  const secret = (req.headers && req.headers['x-company-secret']) || '';
-  const clientPrincipal = (req.headers && req.headers['x-ms-client-principal']) || '';
-  if (!storage.validateSecret(secret) && !clientPrincipal) {
-    context.res = { status: 403, headers: CORS, body: { error: 'Unauthorized' } };
-    return;
+  // Demo mode: skip auth
+  if (process.env.DEMO_MODE !== 'true') {
+    const secret = (req.headers && req.headers['x-company-secret']) || '';
+    const clientPrincipal = (req.headers && req.headers['x-ms-client-principal']) || '';
+    if (!storage.validateSecret(secret) && !clientPrincipal) {
+      context.res = { status: 403, headers: CORS, body: { error: 'Unauthorized' } };
+      return;
+    }
   }
 
   try {
@@ -415,9 +418,16 @@ module.exports = async function (context, req) {
     const fromDate = parseDateOr(defaultFrom, q.from);
     const toDate = parseDateOr(now, q.to);
 
-    const rawEvents = (await storage.getState('socialMetricsEvents')) || [];
-    const events = Array.isArray(rawEvents) ? rawEvents.filter(validateEventShape) : [];
-    const mode = 'real';
+    // Demo mode: use deterministic mock events
+    let events, mode;
+    if (process.env.DEMO_MODE === 'true') {
+      events = buildDeterministicMockEvents(fromDate, toDate);
+      mode = 'demo';
+    } else {
+      const rawEvents = (await storage.getState('socialMetricsEvents')) || [];
+      events = Array.isArray(rawEvents) ? rawEvents.filter(validateEventShape) : [];
+      mode = 'real';
+    }
 
     const aggregated = aggregateSocialMetrics(events, {
       fromDate: fromDate,

@@ -248,11 +248,14 @@ module.exports = async function (context, req) {
     return;
   }
 
-  const secret = (req.headers && req.headers['x-company-secret']) || '';
-  const principal = (req.headers && req.headers['x-ms-client-principal']) || '';
-  if (!storage.validateSecret(secret) && !principal) {
-    context.res = { status: 403, headers: CORS, body: { error: 'Unauthorized' } };
-    return;
+  // Demo mode: skip auth
+  if (process.env.DEMO_MODE !== 'true') {
+    const secret = (req.headers && req.headers['x-company-secret']) || '';
+    const principal = (req.headers && req.headers['x-ms-client-principal']) || '';
+    if (!storage.validateSecret(secret) && !principal) {
+      context.res = { status: 403, headers: CORS, body: { error: 'Unauthorized' } };
+      return;
+    }
   }
 
   try {
@@ -269,9 +272,16 @@ module.exports = async function (context, req) {
     const fromMs = fromDate.getTime();
     const toMs = toDate.getTime();
 
-    const raw = (await storage.getState('socialEngagementSnapshots')) || [];
-    let rows = Array.isArray(raw) ? raw.map(normalizeSnapshot).filter(Boolean) : [];
-    const mode = 'real';
+    // Demo mode: use mock snapshots
+    let rows, mode;
+    if (process.env.DEMO_MODE === 'true') {
+      rows = buildMockSnapshots(fromDate, toDate).map(normalizeSnapshot).filter(Boolean);
+      mode = 'demo';
+    } else {
+      const raw = (await storage.getState('socialEngagementSnapshots')) || [];
+      rows = Array.isArray(raw) ? raw.map(normalizeSnapshot).filter(Boolean) : [];
+      mode = 'real';
+    }
 
     const engagementMeta = (await storage.getState('socialEngagementMeta')) || {};
     const lastPulledAt = (engagementMeta && typeof engagementMeta.lastPulledAt === 'string' && !Number.isNaN(Date.parse(engagementMeta.lastPulledAt)))
