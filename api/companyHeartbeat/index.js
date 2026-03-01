@@ -683,7 +683,7 @@ module.exports = async function (context) {
           var _spText = _spDeliverable;
 
           // Strip everything from "Reasoning:" / "Rationale:" / "Notes:" / "Next Steps:" onwards
-          _spText = _spText.replace(/\n\s*(Reasoning|Notes|Rationale|Analysis|Strategy|Why this works|Character Count|Next Steps|Artifact ID)[:\s][\s\S]*/i, '');
+          _spText = _spText.replace(/\n[\s*]*(Reasoning|Notes|Rationale|Analysis|Strategy|Why this works|Character Count|Next Steps|Artifact ID)[:\s*][\s\S]*/i, '');
           _spText = _spText.replace(/\n---\s*\n[\s\S]*/, '');
 
           // Strip code fences (```...```)
