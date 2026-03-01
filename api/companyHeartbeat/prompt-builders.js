@@ -254,8 +254,28 @@ Workers are read-only analysts that spawn during pressure spikes. Use their find
     });
     const cmpList = activeDirectives.map(c => {
       const linked = campaignTaskMap[c.id];
-      const linkInfo = linked ? ' [' + linked.length + ' task(s) linked]' : ' [NO TASKS YET — needs task creation]';
-      return '- "' + c.title + '" (id: ' + c.id + ', priority: ' + (c.priority || 'medium') + ')' + linkInfo;
+      const taskCount = linked ? linked.length : 0;
+      let linkInfo = linked ? ' [' + taskCount + ' task(s) linked]' : ' [NO TASKS YET — needs task creation]';
+      // Surface campaign limits so agents self-limit before server gate blocks them
+      let limitsInfo = '';
+      if (c.maxTasks) {
+        linkInfo = ' [' + taskCount + '/' + c.maxTasks + ' tasks]';
+        if (taskCount >= c.maxTasks) linkInfo += ' FULL — do NOT create more tasks';
+      }
+      if (c.cadence) {
+        const _cadenceMs = { daily: 86400000, weekly: 604800000, biweekly: 1209600000 };
+        const _window = _cadenceMs[c.cadence] || 0;
+        if (_window > 0 && linked) {
+          const _now = Date.now();
+          const _recentExists = allActiveTasks.some(t => t.campaign_id === c.id && t.status !== 'archived' && (new Date(t.createdAt).getTime() > (_now - _window)));
+          if (_recentExists) limitsInfo += ', next slot: after ' + c.cadence + ' window';
+          else limitsInfo += ', cadence: ' + c.cadence + ' — 1 task slot available';
+        } else {
+          limitsInfo += ', cadence: ' + c.cadence;
+        }
+      }
+      if (c.endDate) limitsInfo += ', ends: ' + c.endDate.substring(0, 10);
+      return '- "' + c.title + '" (id: ' + c.id + ', priority: ' + (c.priority || 'medium') + limitsInfo + ')' + linkInfo;
     }).join('\n');
     directivesSection = `\n\nACTIVE CAMPAIGNS (strategic priorities — these drive what the company works on):
 ${cmpList}

@@ -166,6 +166,12 @@ module.exports = async function (context) {
       if (!c.updatedAt) { c.updatedAt = c.createdAt; campaignsChanged = true; autoFixCount++; if (c.id) _campaignsTouched.add(c.id); }
       if (!c.title) { c.title = 'Untitled Campaign'; campaignsChanged = true; autoFixCount++; if (c.id) _campaignsTouched.add(c.id); }
       if (c.description === undefined || c.description === null) { c.description = ''; campaignsChanged = true; autoFixCount++; if (c.id) _campaignsTouched.add(c.id); }
+      // Normalize campaign lifecycle fields (no-op if already set or intentionally absent)
+      if (c.maxTasks !== undefined && c.maxTasks !== null && typeof c.maxTasks !== 'number') { c.maxTasks = parseInt(c.maxTasks, 10) || null; campaignsChanged = true; if (c.id) _campaignsTouched.add(c.id); }
+      if (c.cadence && ['daily', 'weekly', 'biweekly'].indexOf(c.cadence) === -1) { c.cadence = null; campaignsChanged = true; if (c.id) _campaignsTouched.add(c.id); }
+      if (c.endDate && isNaN(new Date(c.endDate).getTime())) { c.endDate = null; campaignsChanged = true; if (c.id) _campaignsTouched.add(c.id); }
+      if (c.startDate && isNaN(new Date(c.startDate).getTime())) { c.startDate = null; campaignsChanged = true; if (c.id) _campaignsTouched.add(c.id); }
+      if (c.autoComplete !== undefined && typeof c.autoComplete !== 'boolean') { c.autoComplete = c.autoComplete !== false && c.autoComplete !== 'false'; campaignsChanged = true; if (c.id) _campaignsTouched.add(c.id); }
     }
 
     // Normalize objective linking: linkedDirective/linkedDirectives → linkedCampaigns
@@ -286,11 +292,14 @@ module.exports = async function (context) {
       if (t.id) _tasksTouched.add(t.id);
     }
 
-    // Auto-complete campaigns where ALL linked tasks are done
+    // Auto-complete campaigns where ALL linked tasks are done (skip if autoComplete === false)
     for (const c of campaigns) {
       if (!c || c.deletedAt || String(c.status || '').toLowerCase() !== 'active') continue;
+      if (c.autoComplete === false) continue; // ongoing campaigns opt out
       const cmpTasks = tasks.filter(function (t) { return t && t.campaign_id === c.id; });
       if (cmpTasks.length === 0) continue;
+      // For campaigns with maxTasks, also require that the cap is reached before auto-completing
+      if (c.maxTasks && typeof c.maxTasks === 'number' && cmpTasks.length < c.maxTasks) continue;
       const allDone = cmpTasks.every(function (t) {
         const s = String(t.status || '').toLowerCase();
         return s === 'done' || s === 'archived';

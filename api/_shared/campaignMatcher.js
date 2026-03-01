@@ -215,6 +215,12 @@ async function ensureCampaign(params) {
     updatedAt: now,
     deletedAt: null
   };
+  // Preserve campaign lifecycle fields if provided
+  if (params.maxTasks) created.maxTasks = parseInt(params.maxTasks, 10) || null;
+  if (params.cadence) created.cadence = params.cadence;
+  if (params.startDate) created.startDate = params.startDate;
+  if (params.endDate) created.endDate = params.endDate;
+  if (params.autoComplete !== undefined) created.autoComplete = params.autoComplete !== false && params.autoComplete !== 'false';
   campaigns.push(created);
 
   if (debug && logger) {

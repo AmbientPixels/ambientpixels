@@ -583,6 +583,37 @@ Write the full deliverable first, then the structured JSON block.`;
       if (_taskCampaignId && campaignCtx && campaignCtx.campaignById && campaignCtx.campaignById[_taskCampaignId]) {
         var _parentCmp = campaignCtx.campaignById[_taskCampaignId];
         if (!_taskObjectiveId && _parentCmp.objective_id) _taskObjectiveId = _parentCmp.objective_id;
+
+        // SERVER-SIDE GUARD: campaign maxTasks cap — hard limit on tasks per campaign
+        if (_parentCmp.maxTasks && typeof _parentCmp.maxTasks === 'number') {
+          var _cmpTaskCount = tasks.filter(function (t) { return t.campaign_id === _taskCampaignId && t.status !== 'archived'; }).length;
+          if (_cmpTaskCount >= _parentCmp.maxTasks) {
+            context.log('[Heartbeat]', agentId, 'BLOCKED create-task: campaign "' + (_parentCmp.title || _taskCampaignId) + '" maxTasks reached (' + _cmpTaskCount + '/' + _parentCmp.maxTasks + ')');
+            continue;
+          }
+        }
+
+        // SERVER-SIDE GUARD: campaign cadence — only one task created per cadence period
+        if (_parentCmp.cadence) {
+          var _cadenceMs = { daily: 86400000, weekly: 604800000, biweekly: 1209600000 };
+          var _cadenceWindow = _cadenceMs[_parentCmp.cadence] || 0;
+          if (_cadenceWindow > 0) {
+            var _cadenceStart = Date.now() - _cadenceWindow;
+            var _recentCmpTask = tasks.find(function (t) {
+              return t.campaign_id === _taskCampaignId && t.status !== 'archived' && new Date(t.createdAt).getTime() > _cadenceStart;
+            });
+            if (_recentCmpTask) {
+              context.log('[Heartbeat]', agentId, 'BLOCKED create-task: campaign "' + (_parentCmp.title || _taskCampaignId) + '" cadence=' + _parentCmp.cadence + ' — task "' + _recentCmpTask.title + '" created within window');
+              continue;
+            }
+          }
+        }
+
+        // SERVER-SIDE GUARD: campaign endDate — no new tasks after campaign deadline
+        if (_parentCmp.endDate && new Date(_parentCmp.endDate).getTime() < Date.now()) {
+          context.log('[Heartbeat]', agentId, 'BLOCKED create-task: campaign "' + (_parentCmp.title || _taskCampaignId) + '" endDate passed (' + _parentCmp.endDate + ')');
+          continue;
+        }
       }
 
       // SERVER-SIDE GUARD: agent-created tasks must link to a goal or campaign
