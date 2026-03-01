@@ -609,6 +609,12 @@ Write the full deliverable first, then the structured JSON block.`;
           }
         }
 
+        // SERVER-SIDE GUARD: campaign startDate — no tasks before campaign begins
+        if (_parentCmp.startDate && new Date(_parentCmp.startDate).getTime() > Date.now()) {
+          context.log('[Heartbeat]', agentId, 'BLOCKED create-task: campaign "' + (_parentCmp.title || _taskCampaignId) + '" startDate not reached (' + _parentCmp.startDate + ')');
+          continue;
+        }
+
         // SERVER-SIDE GUARD: campaign endDate — no new tasks after campaign deadline
         if (_parentCmp.endDate && new Date(_parentCmp.endDate).getTime() < Date.now()) {
           context.log('[Heartbeat]', agentId, 'BLOCKED create-task: campaign "' + (_parentCmp.title || _taskCampaignId) + '" endDate passed (' + _parentCmp.endDate + ')');

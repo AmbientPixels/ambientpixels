@@ -304,6 +304,26 @@
           'background:' + c + '1a;border:1px solid ' + c + '33;color:' + c + ';font-weight:500;"><i class="fas ' + icons[health] + '" style="font-size:0.48rem;"></i>' + labels[health] + '</span>';
       }
 
+      function lifecycleBadges(c, m) {
+        var badges = [];
+        var bStyle = 'display:inline-flex;align-items:center;gap:3px;font-size:0.52rem;padding:0.08rem 0.35rem;border-radius:4px;font-weight:500;';
+        var dimStyle = bStyle + 'background:rgba(148,163,184,0.1);border:1px solid rgba(148,163,184,0.2);color:#94a3b8;';
+        if (c.maxTasks) {
+          var used = m ? m.taskCount : 0;
+          var full = used >= c.maxTasks;
+          var s = full ? bStyle + 'background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#ef4444;' : dimStyle;
+          badges.push('<span style="' + s + '"><i class="fas fa-layer-group" style="font-size:0.44rem;"></i>' + used + '/' + c.maxTasks + (full ? ' FULL' : '') + '</span>');
+        }
+        if (c.cadence) badges.push('<span style="' + dimStyle + '"><i class="fas fa-clock" style="font-size:0.44rem;"></i>' + c.cadence + '</span>');
+        var _types = Array.isArray(c.allowedTaskTypes) && c.allowedTaskTypes.length > 0 ? c.allowedTaskTypes : (c.taskType ? [c.taskType] : []);
+        if (_types.length > 0) badges.push('<span style="' + dimStyle + '"><i class="fas fa-filter" style="font-size:0.44rem;"></i>' + _types.join(', ') + '</span>');
+        if (c.startDate) badges.push('<span style="' + dimStyle + '"><i class="fas fa-calendar-plus" style="font-size:0.44rem;"></i>' + c.startDate.substring(0, 10) + '</span>');
+        if (c.endDate) badges.push('<span style="' + dimStyle + '"><i class="fas fa-calendar-times" style="font-size:0.44rem;"></i>' + c.endDate.substring(0, 10) + '</span>');
+        if (c.autoComplete === false) badges.push('<span style="' + dimStyle + '"><i class="fas fa-infinity" style="font-size:0.44rem;"></i>Ongoing</span>');
+        if (badges.length === 0) return '';
+        return '<div style="display:flex;gap:0.3rem;flex-wrap:wrap;margin-top:0.25rem;">' + badges.join('') + '</div>';
+      }
+
       function renderList() {
         var campaigns = getVisibleCampaigns();
         renderCounts();
@@ -342,6 +362,7 @@
             + healthChip(m.health)
             + (objTitle ? '<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.54rem;padding:0.08rem 0.35rem;border-radius:4px;background:rgba(78,205,196,0.1);border:1px solid rgba(78,205,196,0.25);color:#4ECDC4;"><i class="fas fa-bullseye" style="font-size:0.48rem;"></i>' + esc(objTitle) + '</span>' : '')
             + '</div>'
+            + lifecycleBadges(c, m)
             + '<div class="cmp-card-actions">'
             + '<button class="cmp-edit-btn" data-id="' + esc(c.id) + '"><i class="fas fa-pen"></i> Edit</button>'
             + '<a href="/modules/company/tasks.html?campaign=' + encodeURIComponent(c.id) + '"><i class="fas fa-tasks"></i> View Tasks</a>'

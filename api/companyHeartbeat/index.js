@@ -320,6 +320,23 @@ module.exports = async function (context) {
         timestamp: new Date().toISOString()
       });
     }
+    // Auto-pause campaigns past their endDate
+    for (const c of campaigns) {
+      if (!c || c.deletedAt || String(c.status || '').toLowerCase() !== 'active') continue;
+      if (c.endDate && new Date(c.endDate).getTime() < Date.now()) {
+        c.status = 'complete';
+        c.updatedAt = new Date().toISOString();
+        campaignsChanged = true;
+        if (c.id) _campaignsTouched.add(c.id);
+        campaignGovEvents.push({
+          id: 'gov-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+          type: 'campaign_enddate_complete',
+          data: { campaignId: c.id, title: c.title, endDate: c.endDate },
+          timestamp: new Date().toISOString()
+        });
+      }
+    }
+
     const documents = (await storage.getState('documents')) || [];
     const workspaceMemory = (await storage.getState('workspaceMemory')) || [];
     const workspaceDates = (await storage.getState('dates')) || [];
