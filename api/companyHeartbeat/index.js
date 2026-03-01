@@ -682,9 +682,12 @@ module.exports = async function (context) {
           // Deliverables typically have: preamble → actual post → reasoning/notes
           var _spText = _spDeliverable;
 
-          // Strip everything from "Reasoning:" or "---" onwards (agent's internal notes)
-          _spText = _spText.replace(/\n\s*(Reasoning|Notes|Rationale|Analysis|Strategy|Why this works|Character Count)[:\s].*/si, '');
-          _spText = _spText.replace(/\n---\s*\n.*/s, '');
+          // Strip everything from "Reasoning:" / "Rationale:" / "Notes:" / "Next Steps:" onwards
+          _spText = _spText.replace(/\n\s*(Reasoning|Notes|Rationale|Analysis|Strategy|Why this works|Character Count|Next Steps|Artifact ID)[:\s][\s\S]*/i, '');
+          _spText = _spText.replace(/\n---\s*\n[\s\S]*/, '');
+
+          // Strip code fences (```...```)
+          _spText = _spText.replace(/```/g, '');
 
           // Strip markdown headings and bold markers
           _spText = _spText.replace(/^#+\s+.*$/gm, '');
@@ -695,6 +698,9 @@ module.exports = async function (context) {
 
           // Strip lines like "LinkedIn Post", "X Post", "Bluesky Post Draft (date)"
           _spText = _spText.replace(/^.*(?:LinkedIn|Bluesky|Twitter|X)\s*(?:Post|Draft).*$/gim, '');
+
+          // Strip markdown link syntax [text](url) → url
+          _spText = _spText.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$2');
 
           // Clean up whitespace
           _spText = _spText.replace(/^\s*\n/gm, '\n').replace(/\n{3,}/g, '\n\n').trim();
