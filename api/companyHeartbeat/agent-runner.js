@@ -727,11 +727,13 @@ Write the full deliverable first, then the structured JSON block.`;
         else if (/deploy|infrastructure|ci.*cd|pipeline|devops|scaling|azure.*function/.test(_ctTitle)) _taskType = 'ops';
         else if (/cost.*audit|budget.*review|api.*cost|cost.*project|financial.*review|spend.*analysis|cost.*analysis|audit.*cost/.test(_ctTitle)) _taskType = 'financial';
       }
-      // SERVER-SIDE GUARD: campaign taskType restriction — reject mismatched task types
+      // SERVER-SIDE GUARD: campaign allowedTaskTypes restriction — reject mismatched task types
       if (_taskCampaignId && campaignCtx && campaignCtx.campaignById && campaignCtx.campaignById[_taskCampaignId]) {
-        var _cmpTaskType = campaignCtx.campaignById[_taskCampaignId].taskType;
-        if (_cmpTaskType && (_taskType || 'general') !== _cmpTaskType) {
-          context.log('[Heartbeat]', agentId, 'BLOCKED create-task: campaign "' + (campaignCtx.campaignById[_taskCampaignId].title || _taskCampaignId) + '" requires taskType=' + _cmpTaskType + ' but got ' + (_taskType || 'general'));
+        var _cmpAllowed = campaignCtx.campaignById[_taskCampaignId].allowedTaskTypes;
+        // Support legacy single taskType field too
+        if (!_cmpAllowed && campaignCtx.campaignById[_taskCampaignId].taskType) _cmpAllowed = [campaignCtx.campaignById[_taskCampaignId].taskType];
+        if (Array.isArray(_cmpAllowed) && _cmpAllowed.length > 0 && _cmpAllowed.indexOf(_taskType || 'general') === -1) {
+          context.log('[Heartbeat]', agentId, 'BLOCKED create-task: campaign "' + (campaignCtx.campaignById[_taskCampaignId].title || _taskCampaignId) + '" allows [' + _cmpAllowed.join(', ') + '] but got ' + (_taskType || 'general'));
           continue;
         }
       }

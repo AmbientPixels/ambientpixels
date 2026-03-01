@@ -169,6 +169,7 @@ module.exports = async function (context) {
       // Normalize campaign lifecycle fields (no-op if already set or intentionally absent)
       var _validTaskTypes = ['blog_post', 'social_linkedin', 'social_bluesky', 'social_x', 'design_asset', 'internal_doc', 'research', 'ops', 'financial', 'general'];
       if (c.taskType && _validTaskTypes.indexOf(c.taskType) === -1) { c.taskType = null; campaignsChanged = true; if (c.id) _campaignsTouched.add(c.id); }
+      if (Array.isArray(c.allowedTaskTypes)) { c.allowedTaskTypes = c.allowedTaskTypes.filter(function (t) { return _validTaskTypes.indexOf(t) !== -1; }); if (c.allowedTaskTypes.length === 0) { c.allowedTaskTypes = null; campaignsChanged = true; if (c.id) _campaignsTouched.add(c.id); } }
       if (c.maxTasks !== undefined && c.maxTasks !== null && typeof c.maxTasks !== 'number') { c.maxTasks = parseInt(c.maxTasks, 10) || null; campaignsChanged = true; if (c.id) _campaignsTouched.add(c.id); }
       if (c.cadence && ['daily', 'weekly', 'biweekly'].indexOf(c.cadence) === -1) { c.cadence = null; campaignsChanged = true; if (c.id) _campaignsTouched.add(c.id); }
       if (c.endDate && isNaN(new Date(c.endDate).getTime())) { c.endDate = null; campaignsChanged = true; if (c.id) _campaignsTouched.add(c.id); }
