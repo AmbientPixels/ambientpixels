@@ -710,12 +710,14 @@ module.exports = async function (context) {
             _spText += '\n\n' + _spBlogUrl;
           }
 
+          context.log('[Heartbeat] AUTO SOCIAL TEXT CLEAN v2: platform=' + _spPlatform + ' original=' + _spDeliverable.length + ' cleaned=' + _spText.length);
           var _spAction = {
             id: 'act_social_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
             created_at: new Date().toISOString(),
             created_by: 'system',
             type: 'social_post.publish',
             platform: _spPlatform,
+            _codeVersion: 'v2',
             payload: {
               text: _spText,
               platform: _spPlatform,
