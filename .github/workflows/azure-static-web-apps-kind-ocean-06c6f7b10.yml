@@ -79,6 +79,10 @@ jobs:
               -e "s/created_by: 'pixelpusher'/created_by: 'will'/g" \
               {} +
 
+          # Remove Nova Nexus and CardForge tools from demo
+          sed -i '/nova-nexus/d' demo_build/js/agent-engine.js
+          sed -i '/cardforge/d' demo_build/js/agent-engine.js
+
           # Prepare API: remove timer-triggered functions (SWA only supports HTTP triggers)
           rm -rf api/companyHeartbeat
           rm -rf api/companyMorningReport
