@@ -22,23 +22,27 @@ jobs:
 
       - name: Prepare demo build
         run: |
-          # Remove timer-triggered functions (SWA managed functions only support HTTP triggers)
+          # Build lean static output (same approach as prod workflow)
+          mkdir -p demo_build
+          rsync -av --exclude='api' --exclude='node_modules' --exclude='.git' --exclude='.github' --exclude='.windsurf' ./ demo_build/
+
+          # Strip external API rewrites from staticwebapp.config.json
+          # so API calls go to SWA managed functions (with demo env vars), not prod
+          node -e "
+            const fs = require('fs');
+            const cfg = JSON.parse(fs.readFileSync('demo_build/staticwebapp.config.json', 'utf8'));
+            cfg.routes = cfg.routes.filter(r => !r.rewrite || !r.rewrite.includes('ambientpixels-nova-api'));
+            cfg.allowedForwardedHosts = [];
+            fs.writeFileSync('demo_build/staticwebapp.config.json', JSON.stringify(cfg, null, 2));
+          "
+
+          # Prepare API: remove timer-triggered functions (SWA only supports HTTP triggers)
           rm -rf api/companyHeartbeat
           rm -rf api/companyMorningReport
           rm -rf api/actionsScheduler
           rm -rf api/actionsMetricsPull
           rm -rf api/socialEngagementPull
           rm -rf api/formIntakeDigestTimer
-
-          # Strip external API rewrites from staticwebapp.config.json
-          # so API calls go to SWA managed functions (with demo env vars), not prod
-          node -e "
-            const fs = require('fs');
-            const cfg = JSON.parse(fs.readFileSync('staticwebapp.config.json', 'utf8'));
-            cfg.routes = cfg.routes.filter(r => !r.rewrite || !r.rewrite.includes('ambientpixels-nova-api'));
-            cfg.allowedForwardedHosts = [];
-            fs.writeFileSync('staticwebapp.config.json', JSON.stringify(cfg, null, 2));
-          "
 
       - name: Build And Deploy
         id: builddeploy
@@ -47,7 +51,7 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_KIND_OCEAN_06C6F7B10 }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          app_location: "."
+          app_location: "demo_build"
           api_location: "api"
           output_location: "."
           skip_app_build: true
