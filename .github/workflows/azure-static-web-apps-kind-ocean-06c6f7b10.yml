@@ -66,6 +66,19 @@ jobs:
           find demo_build -type f \( -name '*.html' -o -name '*.js' -o -name '*.css' -o -name '*.json' \) \
             -exec sed -i 's/AmbientPixels/Story Stream/g' {} +
 
+          # Rebrand CEO agent: Pixelpusher → Will (display names only, not the API secret)
+          find demo_build -type f \( -name '*.html' -o -name '*.js' -o -name '*.json' \) \
+            -exec sed -i \
+              -e "s/Pixelpusher (Chad)/Will Frasier/g" \
+              -e "s/Chad (Pixelpusher)/Will Frasier/g" \
+              -e "s/Chad Martin (Pixelpusher)/Will Frasier/g" \
+              -e "s/\"name\": \"Pixelpusher\"/\"name\": \"Will\"/g" \
+              -e "s/\"ceo\": \"Pixelpusher.*\"/\"ceo\": \"Will Frasier\"/g" \
+              -e "s/approved_by = 'Pixelpusher'/approved_by = 'Will'/g" \
+              -e "s/origin_agent: 'pixelpusher'/origin_agent: 'will'/g" \
+              -e "s/created_by: 'pixelpusher'/created_by: 'will'/g" \
+              {} +
+
           # Prepare API: remove timer-triggered functions (SWA only supports HTTP triggers)
           rm -rf api/companyHeartbeat
           rm -rf api/companyMorningReport
