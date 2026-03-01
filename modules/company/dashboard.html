@@ -1126,7 +1126,7 @@
             }
           }
 
-          var isActive = agentTasks.length > 0 || (lastLog && lastLog.timestamp && (Date.now() - new Date(lastLog.timestamp).getTime()) < 3600000);
+          var isActive = a.id === 'pixelpusher' || agentTasks.length > 0 || (lastLog && lastLog.timestamp && (Date.now() - new Date(lastLog.timestamp).getTime()) < 3600000);
           var entry = { agent: a, tasks: agentTasks, currentTask: currentTask, lastLog: lastLog, isActive: isActive };
           if (isActive) activeAgents.push(entry);
           else idleAgents.push(entry);
