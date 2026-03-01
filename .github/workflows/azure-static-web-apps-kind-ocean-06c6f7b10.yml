@@ -19,20 +19,38 @@ jobs:
         with:
           submodules: true
           lfs: false
+
+      - name: Prepare demo build
+        run: |
+          # Remove timer-triggered functions (SWA managed functions only support HTTP triggers)
+          rm -rf api/companyHeartbeat
+          rm -rf api/companyMorningReport
+          rm -rf api/actionsScheduler
+          rm -rf api/actionsMetricsPull
+          rm -rf api/socialEngagementPull
+          rm -rf api/formIntakeDigestTimer
+
+          # Strip external API rewrites from staticwebapp.config.json
+          # so API calls go to SWA managed functions (with demo env vars), not prod
+          node -e "
+            const fs = require('fs');
+            const cfg = JSON.parse(fs.readFileSync('staticwebapp.config.json', 'utf8'));
+            cfg.routes = cfg.routes.filter(r => !r.rewrite || !r.rewrite.includes('ambientpixels-nova-api'));
+            cfg.allowedForwardedHosts = [];
+            fs.writeFileSync('staticwebapp.config.json', JSON.stringify(cfg, null, 2));
+          "
+
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_KIND_OCEAN_06C6F7B10 }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
           action: "upload"
-          ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
-          # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
-          app_location: "." # App source code path
-          api_location: "api" # Api source code path - optional
-          output_location: "." # Built app content directory - optional
+          app_location: "."
+          api_location: "api"
+          output_location: "."
           skip_app_build: true
-          ###### End of Repository/Build Configurations ######
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
