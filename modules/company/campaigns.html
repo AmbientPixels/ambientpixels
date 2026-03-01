@@ -115,6 +115,17 @@
         <input id="cmp-title" type="text" placeholder="Campaign title..." />
         <textarea id="cmp-desc" placeholder="Description (optional)..."></textarea>
         <select id="cmp-objective"><option value="">No goal</option></select>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.25rem;">
+          <input id="cmp-max-tasks" type="number" min="1" placeholder="Max tasks" style="width:5.5rem;" title="Hard cap on total tasks (optional)" />
+          <select id="cmp-cadence" style="width:6rem;" title="Task creation pace (optional)">
+            <option value="">No cadence</option>
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="biweekly">Biweekly</option>
+          </select>
+          <input id="cmp-start-date" type="date" style="width:7.5rem;" title="Start date (optional)" />
+          <input id="cmp-end-date" type="date" style="width:7.5rem;" title="End date (optional)" />
+        </div>
         <button class="cmp-btn" id="cmp-create-btn">Create Campaign</button>
       </section>
 
@@ -148,6 +159,34 @@
         <option value="active">Active</option>
         <option value="archived">Archived</option>
       </select>
+
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;">
+        <div style="display:flex;flex-direction:column;gap:0.15rem;">
+          <label for="cmp-edit-max-tasks" style="font-size:0.65rem;opacity:0.7;">Max Tasks</label>
+          <input type="number" id="cmp-edit-max-tasks" min="1" style="width:5.5rem;" />
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.15rem;">
+          <label for="cmp-edit-cadence" style="font-size:0.65rem;opacity:0.7;">Cadence</label>
+          <select id="cmp-edit-cadence" style="width:6rem;">
+            <option value="">None</option>
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="biweekly">Biweekly</option>
+          </select>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.15rem;">
+          <label for="cmp-edit-start-date" style="font-size:0.65rem;opacity:0.7;">Start Date</label>
+          <input type="date" id="cmp-edit-start-date" style="width:7.5rem;" />
+        </div>
+        <div style="display:flex;flex-direction:column;gap:0.15rem;">
+          <label for="cmp-edit-end-date" style="font-size:0.65rem;opacity:0.7;">End Date</label>
+          <input type="date" id="cmp-edit-end-date" style="width:7.5rem;" />
+        </div>
+        <div style="display:flex;align-items:center;gap:0.25rem;margin-top:0.85rem;">
+          <input type="checkbox" id="cmp-edit-auto-complete" checked />
+          <label for="cmp-edit-auto-complete" style="font-size:0.65rem;opacity:0.7;">Auto-complete</label>
+        </div>
+      </div>
 
       <div class="cmp-modal-actions">
         <button class="cmp-modal-cancel" id="cmp-edit-cancel">Cancel</button>
@@ -377,6 +416,11 @@
         editDescEl.value = c.description || '';
         editStatusEl.value = c.status || 'active';
         populateModalObjectiveSelect(c.objective_id || '');
+        document.getElementById('cmp-edit-max-tasks').value = c.maxTasks || '';
+        document.getElementById('cmp-edit-cadence').value = c.cadence || '';
+        document.getElementById('cmp-edit-start-date').value = c.startDate ? c.startDate.substring(0, 10) : '';
+        document.getElementById('cmp-edit-end-date').value = c.endDate ? c.endDate.substring(0, 10) : '';
+        document.getElementById('cmp-edit-auto-complete').checked = c.autoComplete !== false;
         editModal.classList.add('visible');
         editTitleEl.focus();
       }
@@ -413,11 +457,21 @@
       });
       editSaveBtn.addEventListener('click', function () {
         if (!editingCampaignId) return;
+        var _editMaxTasks = document.getElementById('cmp-edit-max-tasks').value;
+        var _editCadence = document.getElementById('cmp-edit-cadence').value;
+        var _editStartDate = document.getElementById('cmp-edit-start-date').value;
+        var _editEndDate = document.getElementById('cmp-edit-end-date').value;
+        var _editAutoComplete = document.getElementById('cmp-edit-auto-complete').checked;
         var payload = {
           title: (editTitleEl.value || '').trim() || 'Untitled Campaign',
           description: (editDescEl.value || '').trim(),
           objective_id: editObjectiveEl.value || null,
-          status: editStatusEl.value || 'active'
+          status: editStatusEl.value || 'active',
+          maxTasks: _editMaxTasks ? parseInt(_editMaxTasks, 10) : null,
+          cadence: _editCadence || null,
+          startDate: _editStartDate || null,
+          endDate: _editEndDate || null,
+          autoComplete: _editAutoComplete
         };
         AgentEngine.updateCampaign(editingCampaignId, payload);
         persistCampaigns();
@@ -429,16 +483,28 @@
         var t = (titleEl.value || '').trim();
         var d = (descEl.value || '').trim();
         if (!t) return;
+        var _maxTasks = document.getElementById('cmp-max-tasks').value;
+        var _cadence = document.getElementById('cmp-cadence').value;
+        var _startDate = document.getElementById('cmp-start-date').value;
+        var _endDate = document.getElementById('cmp-end-date').value;
         var c = AgentEngine.addCampaign({
           title: t,
           description: d,
           objective_id: objectiveEl.value || null,
-          provenance: 'Manual: Campaign UI'
+          provenance: 'Manual: Campaign UI',
+          maxTasks: _maxTasks ? parseInt(_maxTasks, 10) : null,
+          cadence: _cadence || null,
+          startDate: _startDate || null,
+          endDate: _endDate || null
         });
         persistCampaigns();
         titleEl.value = '';
         descEl.value = '';
         objectiveEl.value = '';
+        document.getElementById('cmp-max-tasks').value = '';
+        document.getElementById('cmp-cadence').value = '';
+        document.getElementById('cmp-start-date').value = '';
+        document.getElementById('cmp-end-date').value = '';
         renderAll();
       });
 

@@ -1924,6 +1924,11 @@ var AgentEngine = (function () {
       updatedAt: new Date().toISOString(),
       deletedAt: null
     };
+    if (c && c.maxTasks) item.maxTasks = parseInt(c.maxTasks, 10) || null;
+    if (c && c.cadence) item.cadence = c.cadence;
+    if (c && c.startDate) item.startDate = c.startDate;
+    if (c && c.endDate) item.endDate = c.endDate;
+    if (c && c.autoComplete !== undefined) item.autoComplete = c.autoComplete;
     _normalizeCampaignRecord(item);
     list.push(item);
     _saveStorage(CAMPAIGNS_KEY, list);
