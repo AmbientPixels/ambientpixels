@@ -293,7 +293,7 @@
   (function () {
     CompanyStore.init().then(function () {
       return Promise.all([
-        CompanyStore.getState('ap_directives', []),
+        CompanyStore.getState('ap_campaigns', []),
         CompanyStore.getState('ap_objectives', []),
         CompanyStore.getState('ap_approval_queue', []),
         CompanyStore.getState('ap_governance_log', [])
@@ -319,15 +319,15 @@
       }
 
       // Objectives — wide progress bars
-      var activeObjs = objs.filter(function (o) { return o.status === 'on_track' || o.status === 'at_risk' || o.status === 'behind'; });
+      var activeObjs = objs.filter(function (o) { return o.status === 'active' || o.status === 'on_track' || o.status === 'at_risk' || o.status === 'behind'; });
       document.getElementById('stat-objectives').textContent = activeObjs.length + ' active';
       var objEl = document.getElementById('ov-objectives');
       if (activeObjs.length === 0) { objEl.innerHTML = '<div style="opacity:0.35; font-size:0.68rem;">No active goals.</div>'; }
       else {
-        var statusColor = { on_track: '#34d399', at_risk: '#fbbf24', behind: '#f87171', complete: '#8A2BE2' };
-        var statusLabel = { on_track: 'On Track', at_risk: 'At Risk', behind: 'Behind', complete: 'Complete' };
+        var statusColor = { active: '#34d399', on_track: '#34d399', at_risk: '#fbbf24', behind: '#f87171', complete: '#8A2BE2' };
+        var statusLabel = { active: 'Active', on_track: 'On Track', at_risk: 'At Risk', behind: 'Behind', complete: 'Complete' };
         objEl.innerHTML = activeObjs.slice(0, 6).map(function (o) {
-          var pct = o.progressPercentage || 0;
+          var pct = o.progressPercentage || o.progress || 0;
           var color = statusColor[o.status] || '#888';
           var label = statusLabel[o.status] || o.status;
           return '<div class="plan-obj-row">' +
