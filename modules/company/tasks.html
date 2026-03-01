@@ -2440,6 +2440,7 @@
       var keyInput = document.getElementById('write-key-input');
       var keyBtn = document.getElementById('write-key-save');
       if (!banner || typeof CompanyStore === 'undefined' || !CompanyStore.getWriteStatus) return;
+      if (window.__DEMO_MODE) { banner.style.display = 'none'; return; }
 
       function checkWrite() {
         var ws = CompanyStore.getWriteStatus();

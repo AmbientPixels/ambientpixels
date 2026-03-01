@@ -3829,8 +3829,7 @@
       var keyInput = document.getElementById('dash-write-key');
       var keyBtn = document.getElementById('dash-write-key-btn');
       if (!banner || typeof CompanyStore === 'undefined' || !CompanyStore.getWriteStatus) return;
-      // Hide write-status banner on demo (no auth, read-only — banner is misleading)
-      if (window.location.hostname.indexOf('azurestaticapps.net') !== -1) { banner.style.display = 'none'; return; }
+      if (window.__DEMO_MODE) { banner.style.display = 'none'; return; }
 
       function checkWrite() {
         var ws = CompanyStore.getWriteStatus();
