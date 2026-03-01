@@ -62,6 +62,10 @@ jobs:
             fs.writeFileSync('demo_build/staticwebapp.config.json', JSON.stringify(cfg, null, 2));
           "
 
+          # Rebrand for demo: AmbientPixels → Story Stream
+          find demo_build -type f \( -name '*.html' -o -name '*.js' -o -name '*.css' -o -name '*.json' \) \
+            -exec sed -i 's/AmbientPixels/Story Stream/g' {} +
+
           # Prepare API: remove timer-triggered functions (SWA only supports HTTP triggers)
           rm -rf api/companyHeartbeat
           rm -rf api/companyMorningReport
