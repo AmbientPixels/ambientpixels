@@ -299,11 +299,11 @@
         <option value="review">Review</option>
         <option value="done">Done</option>
       </select>
-      <select class="tm-filter-select" id="filter-campaign">
-        <option value="">All Campaigns</option>
-      </select>
       <select class="tm-filter-select" id="filter-goal">
         <option value="">All Goals</option>
+      </select>
+      <select class="tm-filter-select" id="filter-campaign">
+        <option value="">All Campaigns</option>
       </select>
       <select class="tm-filter-select" id="filter-division">
         <option value="">All Divisions</option>
@@ -432,8 +432,8 @@
             <th data-sort="status">Status <span class="sort-arrow"></span></th>
             <th data-sort="priority">Priority <span class="sort-arrow"></span></th>
             <th data-sort="assignee">Assignee <span class="sort-arrow"></span></th>
-            <th data-sort="campaign">Campaign <span class="sort-arrow"></span></th>
             <th data-sort="goal">Goal <span class="sort-arrow"></span></th>
+            <th data-sort="campaign">Campaign <span class="sort-arrow"></span></th>
             <th data-sort="division">Division <span class="sort-arrow"></span></th>
             <th data-sort="due">Due <span class="sort-arrow"></span></th>
           </tr>
@@ -1427,8 +1427,8 @@
             '<td><span class="tm-list-status tm-list-status--' + task.status + '">' + formatStatus(task.status) + '</span></td>' +
             '<td><span class="tm-card-priority tm-card-priority--' + task.priority + '">' + task.priority + '</span></td>' +
             '<td>' + (agent ? '<span style="color:' + agent.color + ';">' + agent.name + '</span>' : '<span style="opacity:0.2">&mdash;</span>') + '</td>' +
-            '<td>' + campCell + '</td>' +
             '<td>' + goalCell + '</td>' +
+            '<td>' + campCell + '</td>' +
             '<td>' + divisionChipHtml(div) + '</td>' +
             '<td>' + (task.dueDate ? '<span class="' + (isOverdue ? 'overdue' : '') + '" style="font-size:0.7rem;' + (isOverdue ? 'color:#f87171;' : 'opacity:0.4;') + '">' + formatDate(task.dueDate) + '</span>' : '<span style="opacity:0.2">&mdash;</span>') + '</td>';
 
