@@ -278,6 +278,59 @@ function _taskHasReplyMarker(task) {
 }
 
 // ══════════════════════════════════════════════════════
+// ── Demo Data Generator ──
+// ══════════════════════════════════════════════════════
+
+function _generateDemoInbound() {
+  var submissions = [
+    { type: 'demo', name: 'Sarah Chen', email: 'sarah.chen@gmail.com', company: '', role: 'Author', subject: 'Demo request — literary fiction manuscript', body: 'Hi, I just finished my second novel (literary fiction, ~85K words) and I\'m looking for structural feedback before querying agents. Can you tell me more about the Masterpiece tier and what the scene-by-scene heat-map looks like?', page: '/pricing', utm: { source: 'google', medium: 'cpc', campaign: 'dev_editing_2026' }, status: 'draft_ready', daysAgo: 1 },
+    { type: 'contact', name: 'James Whitfield', email: 'j.whitfield@penguinrandom.com', company: 'Penguin Random House', role: 'Associate Editor', subject: 'Partnership inquiry', body: 'We\'re exploring AI-assisted tools for our debut author program. Would love to schedule a call to discuss how Story Stream could complement our editorial workflow. Is there an enterprise tier?', page: '/contact', utm: null, status: 'task_created', daysAgo: 1 },
+    { type: 'newsletter', name: 'Maria Lopez', email: 'mariawritesbooks@yahoo.com', company: '', role: '', subject: '', body: '', page: '/blog/more-than-grammar-check', utm: { source: 'twitter', medium: 'social', campaign: 'blog_promo' }, status: 'stored_only', daysAgo: 2 },
+    { type: 'demo', name: 'David Park', email: 'dpark.author@outlook.com', company: '', role: 'Author', subject: 'Sci-fi manuscript — 120K words', body: 'I have a completed sci-fi manuscript (120K words) and I\'m worried the middle section drags. Does your pacing analysis work well for genre fiction? Also, is 120K too long for the free Blueprint tier?', page: '/pricing', utm: { source: 'reddit', medium: 'social', campaign: '' }, status: 'replied', daysAgo: 2 },
+    { type: 'contact', name: 'Angela Torres', email: 'angela@writersworkshopnyc.org', company: 'Writers Workshop NYC', role: 'Program Director', subject: 'Group pricing for writing workshop', body: 'We run a 12-week fiction workshop with 20 participants each cohort. Would love to explore bulk pricing for First Edition reports as part of our curriculum. Our next cohort starts in April.', page: '/contact', utm: null, status: 'task_created', daysAgo: 3 },
+    { type: 'newsletter', name: 'Tyler Brooks', email: 'tbrooks.writes@gmail.com', company: '', role: '', subject: '', body: '', page: '/', utm: { source: 'linkedin', medium: 'social', campaign: 'founder_post' }, status: 'stored_only', daysAgo: 3 },
+    { type: 'demo', name: 'Priya Sharma', email: 'priya.s@mfa.columbia.edu', company: 'Columbia MFA', role: 'MFA Candidate', subject: 'Student discount?', body: 'I\'m in my second year of Columbia\'s MFA program working on a novel. A classmate recommended Story Stream. Do you offer any academic pricing? My manuscript is about 60K words (YA contemporary).', page: '/pricing', utm: { source: 'referral', medium: '', campaign: '' }, status: 'draft_ready', daysAgo: 4 },
+    { type: 'contact', name: 'Robert Kim', email: 'rkim@literaryagent.com', company: 'Kim Literary Agency', role: 'Literary Agent', subject: 'Recommending to clients?', body: 'I represent mostly debut novelists and I\'m always looking for ways to help them strengthen manuscripts before submission. Could I get a sample report to evaluate whether this is something I\'d recommend to my clients?', page: '/contact', utm: { source: 'google', medium: 'organic', campaign: '' }, status: 'closed', daysAgo: 5 },
+    { type: 'newsletter', name: 'Emma Davis', email: 'emma.d.writes@gmail.com', company: '', role: '', subject: '', body: '', page: '/blog/what-is-developmental-editing', utm: { source: 'google', medium: 'organic', campaign: '' }, status: 'stored_only', daysAgo: 5 },
+    { type: 'demo', name: 'Michael Foster', email: 'mfoster.thriller@gmail.com', company: '', role: 'Author', subject: 'Thriller manuscript ready for feedback', body: 'Just finished draft 3 of my thriller (92K words). Beta readers say the pacing is off in act two but I can\'t figure out where. The scene heat-map sounds like exactly what I need. Going to try the Blueprint first.', page: '/', utm: { source: 'twitter', medium: 'social', campaign: 'writing_community' }, status: 'replied', daysAgo: 6 }
+  ];
+
+  var items = [];
+  for (var i = 0; i < submissions.length; i++) {
+    var s = submissions[i];
+    var receivedDate = new Date();
+    receivedDate.setDate(receivedDate.getDate() - s.daysAgo);
+    receivedDate.setHours(9 + Math.floor(Math.random() * 10), Math.floor(Math.random() * 60));
+    var receivedAt = receivedDate.toISOString();
+    var id = 'fi_' + receivedAt.substring(0, 10) + '_demo' + (i + 1);
+    var taskId = (s.type !== 'newsletter') ? ('task-demo-inbound-' + (i + 1)) : null;
+    var draftTaskId = (s.status === 'draft_ready' && taskId) ? (taskId + '-draft') : null;
+
+    items.push({
+      id: id, receivedAt: receivedAt, type: s.type,
+      name: s.name, email: s.email, pageUrl: s.page,
+      utm: s.utm,
+      taskId: taskId, draftTaskId: draftTaskId,
+      duplicateOf: null, status: s.type === 'newsletter' ? 'stored' : 'task_created',
+      computedStatus: s.status,
+      computedStatusReason: s.status === 'stored_only' ? 'no task spawned' : s.status === 'replied' ? 'replied' : s.status === 'closed' ? 'task done' : s.status === 'draft_ready' ? 'draft reply created' : 'task open',
+      lifecycle: {
+        submittedAt: receivedAt,
+        taskCreatedAt: taskId ? receivedAt : null,
+        draftCreatedAt: draftTaskId ? receivedAt : null,
+        repliedAt: s.status === 'replied' ? new Date(receivedDate.getTime() + 3600000).toISOString() : null,
+        closedAt: s.status === 'closed' ? new Date(receivedDate.getTime() + 7200000).toISOString() : null
+      },
+      links: {
+        inboundTask: taskId ? ('/modules/company/tasks.html?task=' + taskId) : null,
+        draftTask: draftTaskId ? ('/modules/company/tasks.html?task=' + draftTaskId) : null
+      }
+    });
+  }
+  return items;
+}
+
+// ══════════════════════════════════════════════════════
 // ── ID Generation ──
 // ══════════════════════════════════════════════════════
 
@@ -549,6 +602,20 @@ module.exports = async function (context, req) {
   }
 
   var action = (req.params && req.params.action) || '';
+
+  // ══════════════════════════════════════════════════
+  // ── Demo mode: return generated inbound data ──
+  // ══════════════════════════════════════════════════
+  if (process.env.DEMO_MODE === 'true' && req.method === 'GET' && action === 'recent') {
+    var demoItems = _generateDemoInbound();
+    context.res = { status: 200, headers: headers, body: { ok: true, count: demoItems.length, items: demoItems } };
+    return;
+  }
+
+  if (process.env.DEMO_MODE === 'true' && req.method === 'GET' && action === 'item') {
+    context.res = { status: 200, headers: headers, body: { ok: true, item: { id: (req.query && req.query.id) || 'fi_demo', type: 'contact', message: { subject: 'Demo inquiry', body: 'This is a demo submission.' } } } };
+    return;
+  }
 
   // ══════════════════════════════════════════════════
   // ── GET /api/formIntake/recent ──

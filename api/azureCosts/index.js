@@ -12,6 +12,52 @@ const corsHeaders = {
   'Content-Type': 'application/json'
 };
 
+function generateDemoAzureData(days) {
+  const services = {
+    'Azure Functions': { share: 0.35, label: 'Azure Functions' },
+    'Storage': { share: 0.25, label: 'Storage' },
+    'Azure Static Web Apps': { share: 0.15, label: 'Azure Static Web Apps' },
+    'Bandwidth': { share: 0.12, label: 'Bandwidth' },
+    'Azure Active Directory': { share: 0.08, label: 'Azure Active Directory' },
+    'Azure Monitor': { share: 0.05, label: 'Azure Monitor' }
+  };
+  var now = new Date();
+  var startDate = new Date(now.getTime() - days * 86400000);
+  var byDay = {};
+  var byService = {};
+  var totalCost = 0;
+
+  for (var i = days; i >= 0; i--) {
+    var d = new Date(); d.setDate(d.getDate() - i);
+    var dateStr = d.toISOString().substring(0, 10);
+    var dayCost = 0.20 + Math.random() * 0.25;
+    byDay[dateStr] = { cost: Math.round(dayCost * 10000) / 10000, costUSD: Math.round(dayCost * 10000) / 10000 };
+    totalCost += dayCost;
+  }
+
+  Object.keys(services).forEach(function (s) {
+    var svc = services[s];
+    byService[s] = { cost: Math.round(totalCost * svc.share * 10000) / 10000, costUSD: Math.round(totalCost * svc.share * 10000) / 10000 };
+  });
+
+  var dayCount = Object.keys(byDay).length;
+  var avgPerDay = dayCount > 0 ? Math.round((totalCost / dayCount) * 10000) / 10000 : 0;
+
+  return {
+    period: days + 'd',
+    startDate: startDate.toISOString().substring(0, 10),
+    endDate: now.toISOString().substring(0, 10),
+    currency: 'USD',
+    totalCost: Math.round(totalCost * 100) / 100,
+    totalCostUSD: Math.round(totalCost * 100) / 100,
+    avgPerDay: avgPerDay,
+    projectedMonthly: Math.round(avgPerDay * 30 * 100) / 100,
+    serviceCount: Object.keys(byService).length,
+    byDay: byDay,
+    byService: byService
+  };
+}
+
 module.exports = async function (context, req) {
   if (req.method === 'OPTIONS') {
     context.res = { status: 204, headers: corsHeaders, body: '' };
@@ -19,13 +65,20 @@ module.exports = async function (context, req) {
   }
 
   try {
+    const days = Math.min(parseInt(req.query && req.query.days) || 30, 90);
+
+    // Demo mode: return generated data (no Azure Cost Management API access in demo)
+    if (process.env.DEMO_MODE === 'true') {
+      context.res = { status: 200, headers: corsHeaders, body: generateDemoAzureData(days) };
+      return;
+    }
+
     const subscriptionId = process.env.AZURE_SUBSCRIPTION_ID;
     if (!subscriptionId) {
       context.res = { status: 500, headers: corsHeaders, body: { error: 'AZURE_SUBSCRIPTION_ID not configured' } };
       return;
     }
 
-    const days = Math.min(parseInt(req.query && req.query.days) || 30, 90);
     const now = new Date();
     const startDate = new Date(now.getTime() - days * 86400000);
     const startStr = startDate.toISOString().substring(0, 10);
