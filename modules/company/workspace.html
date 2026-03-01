@@ -758,6 +758,12 @@
           var card = document.createElement('a');
           card.className = 'ws-tool-card';
           card.href = tool.url;
+          if (tool.url === '#quick-chat') {
+            card.addEventListener('click', function (e) {
+              e.preventDefault();
+              if (window.QuickChat) { window.QuickChat.open(); }
+            });
+          }
           card.innerHTML =
             '<div class="ws-tool-header">' +
               '<div class="ws-tool-icon"><i class="' + tool.icon + '"></i></div>' +
