@@ -24,7 +24,17 @@ jobs:
         run: |
           # Build lean static output (same approach as prod workflow)
           mkdir -p demo_build
-          rsync -av --exclude='api' --exclude='node_modules' --exclude='.git' --exclude='.github' --exclude='.windsurf' ./ demo_build/
+          rsync -av \
+            --exclude='api' \
+            --exclude='node_modules' \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='.windsurf' \
+            --exclude='images' \
+            --exclude='video' \
+            --exclude='downloads' \
+            --exclude='hanson' \
+            ./ demo_build/
 
           # Strip external API rewrites from staticwebapp.config.json
           # so API calls go to SWA managed functions (with demo env vars), not prod
