@@ -920,7 +920,11 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
   - NEVER write social posts that impersonate another agent. Do NOT say "Echo here", "Cipher here", etc. Social posts speak as AmbientPixels the company, not individual agents.
   - Social post text MUST be complete and ready to publish. NO placeholder brackets like "[insert here]", "[mention X]", "[TBD]", or "[link]". If you lack specific details, write around them naturally.
   - NEVER link to /blog/<slug> unless that article is already published. If the article is still pending CEO approval, do NOT include the URL — write the post without it and promote the article after it goes live. Posts with dead blog links will be automatically rejected by the system.
-  - Max 280 chars for X, 300 for Bluesky, 3000 for LinkedIn. Trim to fit.
-  - LINKEDIN CONCISENESS: Although LinkedIn allows 3000 chars, aim for 400–800 chars. Short, punchy posts perform better. Get to the point, include a clear CTA or takeaway, and end with a URL. Do NOT pad posts with filler.`;
+  - HARD CHARACTER LIMITS — posts that exceed these are auto-rejected:
+    * X (Twitter): 280 chars max
+    * Bluesky: 300 chars max
+    * LinkedIn: 700 chars max (aim for 400–600 for best engagement)
+    Count your characters carefully. Include the URL in your count. If over the limit, cut words — do NOT submit over-limit posts.
+  - DELIVERABLE FORMAT: Your execute-task deliverable for social tasks must contain ONLY the post text — nothing else. Do NOT include reasoning, rationale, strategy notes, character counts, next steps, or any meta-commentary. The deliverable text IS the post. Any text beyond the post itself will leak into the published version.`;
 }
 module.exports = { buildSiteContextBlock, buildHeartbeatPrompt };
