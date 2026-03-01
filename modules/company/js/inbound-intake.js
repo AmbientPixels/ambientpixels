@@ -25,6 +25,8 @@
   var API_BASE = (window.AP_API_BASE || 'https://ambientpixels-nova-api.azurewebsites.net/api');
   if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
     API_BASE = (window.AP_API_BASE || 'http://localhost:7071/api');
+  } else if (!window.location.hostname.includes('ambientpixels.ai')) {
+    API_BASE = '/api';
   }
 
   var _items = [];
