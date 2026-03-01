@@ -41,8 +41,24 @@ jobs:
           node -e "
             const fs = require('fs');
             const cfg = JSON.parse(fs.readFileSync('demo_build/staticwebapp.config.json', 'utf8'));
+
+            // Strip external API rewrites — use SWA managed functions instead
             cfg.routes = cfg.routes.filter(r => !r.rewrite || !r.rewrite.includes('ambientpixels-nova-api'));
             cfg.allowedForwardedHosts = [];
+
+            // Redirect root to company dashboard
+            cfg.routes.unshift({ route: '/', redirect: '/modules/company/', statusCode: 302 });
+
+            // Open company module to anonymous (no auth in demo)
+            cfg.routes.forEach(r => {
+              if (r.route && r.route.startsWith('/modules/company/') && r.allowedRoles) {
+                r.allowedRoles = ['anonymous'];
+              }
+            });
+
+            // Remove auth provider config (not needed for demo)
+            delete cfg.auth;
+
             fs.writeFileSync('demo_build/staticwebapp.config.json', JSON.stringify(cfg, null, 2));
           "
 
