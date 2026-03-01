@@ -300,14 +300,14 @@
     if (item.taskId) {
       html += '<div class="inb-drawer-field">'
         + '<div class="inb-drawer-label">Task</div>'
-        + '<div class="inb-drawer-value"><a href="' + escHtml(taskUrl) + '" title="Open in Task Manager"><i class="fas fa-external-link-alt"></i> View Task ' + escHtml(item.taskId.substring(0, 16)) + '</a></div>'
+        + '<div class="inb-drawer-value"><a href="' + escHtml(taskUrl) + '" title="Open in DevOps Dash"><i class="fas fa-external-link-alt"></i> View Task ' + escHtml(item.taskId.substring(0, 16)) + '</a></div>'
         + '</div>';
     }
 
     if (item.draftTaskId) {
       html += '<div class="inb-drawer-field">'
         + '<div class="inb-drawer-label">Draft Reply</div>'
-        + '<div class="inb-drawer-value"><a href="' + escHtml(draftUrl) + '" style="color:#a78bfa;" title="Open draft in Task Manager"><i class="fas fa-envelope-open-text"></i> View Draft ' + escHtml(item.draftTaskId.substring(0, 16)) + '</a></div>'
+        + '<div class="inb-drawer-value"><a href="' + escHtml(draftUrl) + '" style="color:#a78bfa;" title="Open draft in DevOps Dash"><i class="fas fa-envelope-open-text"></i> View Draft ' + escHtml(item.draftTaskId.substring(0, 16)) + '</a></div>'
         + '</div>';
     } else if (item.draftReplyCreated === false && item.status === 'duplicate') {
       html += '<div class="inb-drawer-field">'
