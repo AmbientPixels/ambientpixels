@@ -171,7 +171,9 @@
   <script>
     var API_BASE = window.location.hostname === 'localhost'
       ? 'http://localhost:7071/api'
-      : 'https://ambientpixels-nova-api.azurewebsites.net/api';
+      : window.location.hostname.includes('ambientpixels.ai')
+        ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+        : '/api';
 
     var currentAgent = '_global';
     var seedData = {};
@@ -281,7 +283,7 @@
       var html = '';
       mems.slice().reverse().forEach(function (m) {
         var typeClass = 'mem-runtime-type--' + (m.type || 'context');
-        var timeStr = m.timestamp ? new Date(m.timestamp).toLocaleString() : '';
+        var timeStr = (m.timestamp || m.ts) ? new Date(m.timestamp || m.ts).toLocaleString() : '';
         html += '<div class="mem-runtime-item">' +
           '<span class="mem-runtime-type ' + typeClass + '">' + (m.type || 'note') + '</span>' +
           '<span class="mem-runtime-text">' + (m.text || '').replace(/</g, '&lt;') + '</span>' +
