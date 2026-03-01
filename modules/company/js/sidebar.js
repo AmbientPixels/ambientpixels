@@ -78,8 +78,7 @@
       links: [
         { href: BASE + 'config-overview.html', label: 'Overview', icon: 'fa-sliders', match: ['config-overview.html'] },
         { href: BASE + 'workspace.html', label: 'Workspace', icon: 'fa-layer-group', match: ['workspace.html'] },
-        { href: BASE + 'memories.html', label: 'Memory', icon: 'fa-brain', match: ['memories.html'] },
-        { href: BASE + 'agent-chat.html', label: 'Agent Chat', icon: 'fa-comments', match: ['agent-chat.html'] }
+        { href: BASE + 'memories.html', label: 'Memory', icon: 'fa-brain', match: ['memories.html'] }
       ]
     }
   ];
