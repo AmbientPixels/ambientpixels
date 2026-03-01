@@ -22,21 +22,8 @@
     'font-size:0.8rem;font-weight:500;z-index:99999;pointer-events:none;opacity:0;' +
     'transition:opacity 0.3s,transform 0.3s;box-shadow:0 4px 20px rgba(0,0,0,0.3);' +
     'max-width:90vw;text-align:center;}' +
-    '.demo-toast--show{opacity:1;transform:translateX(-50%) translateY(0);}' +
-    '.demo-banner{position:fixed;top:0;left:0;right:0;background:linear-gradient(90deg,#6366f1,#8b5cf6);' +
-    'color:#fff;text-align:center;padding:6px 12px;font-size:0.75rem;font-weight:500;z-index:99998;' +
-    'letter-spacing:0.02em;}' +
-    '.demo-banner a{color:#e0e7ff;margin-left:8px;}';
+    '.demo-toast--show{opacity:1;transform:translateX(-50%) translateY(0);}';
   document.head.appendChild(style);
-
-  // ── Inject persistent banner ──
-  var banner = document.createElement('div');
-  banner.className = 'demo-banner';
-  banner.innerHTML = 'You are viewing a read-only demo — changes will not be saved.';
-  document.body.appendChild(banner);
-
-  // Shift body down to make room for banner
-  document.body.style.paddingTop = (banner.offsetHeight) + 'px';
 
   // ── Toast element ──
   var toast = document.createElement('div');
