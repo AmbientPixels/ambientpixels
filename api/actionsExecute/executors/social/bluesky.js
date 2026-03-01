@@ -143,12 +143,13 @@ async function publishToBluesky(action) {
     throw { code: 'MISSING_CREDENTIALS', message: credError };
   }
 
-  const text = (action.payload && action.payload.text) || '';
+  let text = (action.payload && action.payload.text) || '';
   if (!text || text.trim().length === 0) {
     throw { code: 'EMPTY_CONTENT', message: 'Post text is empty' };
   }
   if (text.length > MAX_CHARS) {
-    throw { code: 'CONTENT_TOO_LONG', message: 'Post exceeds ' + MAX_CHARS + ' characters (' + text.length + ')' };
+    _log('truncating', { original: text.length, limit: MAX_CHARS });
+    text = text.substring(0, MAX_CHARS - 1).replace(/\s+\S*$/, '') + '\u2026';
   }
 
   // Authenticate

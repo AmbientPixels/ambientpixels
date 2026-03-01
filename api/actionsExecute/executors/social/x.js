@@ -317,12 +317,13 @@ async function publishToX(action) {
     throw { code: 'MISSING_CREDENTIALS', message: credError };
   }
 
-  const text = (action.payload && action.payload.text) || '';
+  let text = (action.payload && action.payload.text) || '';
   if (!text || text.trim().length === 0) {
     throw { code: 'EMPTY_CONTENT', message: 'Tweet text is empty' };
   }
   if (text.length > MAX_CHARS) {
-    throw { code: 'CONTENT_TOO_LONG', message: 'Tweet exceeds ' + MAX_CHARS + ' characters (' + text.length + ')' };
+    _log('truncating', { original: text.length, limit: MAX_CHARS });
+    text = text.substring(0, MAX_CHARS - 1).replace(/\s+\S*$/, '') + '\u2026';
   }
 
   // Upload media if provided (max 4) — uses shared media module for host allowlist + download

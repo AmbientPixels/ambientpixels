@@ -161,12 +161,13 @@ async function publishToLinkedIn(action) {
   }
 
   const authorUrn = getAuthorUrn(creds);
-  const text = (action.payload && action.payload.text) || '';
+  let text = (action.payload && action.payload.text) || '';
   if (!text || text.trim().length === 0) {
     throw { code: 'EMPTY_CONTENT', message: 'Post text is empty' };
   }
   if (text.length > MAX_CHARS) {
-    throw { code: 'CONTENT_TOO_LONG', message: 'Post exceeds ' + MAX_CHARS + ' chars (' + text.length + ')' };
+    _log('truncating', { original: text.length, limit: MAX_CHARS });
+    text = text.substring(0, MAX_CHARS - 1).replace(/\s+\S*$/, '') + '\u2026';
   }
 
   // Pre-flight: verify token is still valid + check org access
