@@ -115,26 +115,43 @@
         <input id="cmp-title" type="text" placeholder="Campaign title..." />
         <textarea id="cmp-desc" placeholder="Description (optional)..."></textarea>
         <select id="cmp-objective"><option value="">No goal</option></select>
-        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.25rem;">
-          <div id="cmp-task-types" style="display:flex;gap:0.35rem;flex-wrap:wrap;font-size:0.65rem;" title="Allowed task types (optional — restricts what agents can create)">
-            <label style="display:flex;align-items:center;gap:2px;"><input type="checkbox" value="blog_post" />Blog</label>
-            <label style="display:flex;align-items:center;gap:2px;"><input type="checkbox" value="research" />Research</label>
-            <label style="display:flex;align-items:center;gap:2px;"><input type="checkbox" value="social_linkedin" />LinkedIn</label>
-            <label style="display:flex;align-items:center;gap:2px;"><input type="checkbox" value="social_x" />X</label>
-            <label style="display:flex;align-items:center;gap:2px;"><input type="checkbox" value="social_bluesky" />Bluesky</label>
-            <label style="display:flex;align-items:center;gap:2px;"><input type="checkbox" value="internal_doc" />Doc</label>
-            <label style="display:flex;align-items:center;gap:2px;"><input type="checkbox" value="ops" />Ops</label>
-            <label style="display:flex;align-items:center;gap:2px;"><input type="checkbox" value="financial" />Financial</label>
+        <div style="display:flex;gap:0.5rem;margin-top:0.35rem;">
+          <div style="flex:1;display:flex;flex-direction:column;gap:0.15rem;">
+            <span style="font-size:0.6rem;opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;">Allowed Types</span>
+            <div id="cmp-task-types" style="display:flex;gap:0.4rem 0.6rem;flex-wrap:wrap;font-size:0.65rem;">
+              <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="blog_post" />Blog</label>
+              <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="research" />Research</label>
+              <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="social_linkedin" />LinkedIn</label>
+              <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="social_x" />X</label>
+              <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="social_bluesky" />Bluesky</label>
+              <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="internal_doc" />Doc</label>
+              <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="ops" />Ops</label>
+              <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="financial" />Financial</label>
+            </div>
           </div>
-          <input id="cmp-max-tasks" type="number" min="1" placeholder="Max tasks" style="width:5.5rem;" title="Hard cap on total tasks (optional)" />
-          <select id="cmp-cadence" style="width:6rem;" title="Task creation pace (optional)">
-            <option value="">No cadence</option>
-            <option value="daily">Daily</option>
-            <option value="weekly">Weekly</option>
-            <option value="biweekly">Biweekly</option>
-          </select>
-          <input id="cmp-start-date" type="date" style="width:7.5rem;" title="Start date (optional)" />
-          <input id="cmp-end-date" type="date" style="width:7.5rem;" title="End date (optional)" />
+        </div>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.3rem;">
+          <div style="display:flex;flex-direction:column;gap:0.15rem;">
+            <span style="font-size:0.6rem;opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;">Max Tasks</span>
+            <input id="cmp-max-tasks" type="number" min="1" placeholder="No limit" style="width:5.5rem;" />
+          </div>
+          <div style="display:flex;flex-direction:column;gap:0.15rem;">
+            <span style="font-size:0.6rem;opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;">Cadence</span>
+            <select id="cmp-cadence" style="width:6.5rem;">
+              <option value="">None</option>
+              <option value="daily">Daily</option>
+              <option value="weekly">Weekly</option>
+              <option value="biweekly">Biweekly</option>
+            </select>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:0.15rem;">
+            <span style="font-size:0.6rem;opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;">Start Date</span>
+            <input id="cmp-start-date" type="date" style="width:8rem;" />
+          </div>
+          <div style="display:flex;flex-direction:column;gap:0.15rem;">
+            <span style="font-size:0.6rem;opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;">End Date</span>
+            <input id="cmp-end-date" type="date" style="width:8rem;" />
+          </div>
         </div>
         <button class="cmp-btn" id="cmp-create-btn">Create Campaign</button>
       </section>
@@ -170,27 +187,27 @@
         <option value="archived">Archived</option>
       </select>
 
-      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;">
-        <div style="display:flex;flex-direction:column;gap:0.15rem;width:100%;">
-          <label style="font-size:0.65rem;opacity:0.7;">Allowed Task Types</label>
-          <div id="cmp-edit-task-types" style="display:flex;gap:0.35rem;flex-wrap:wrap;font-size:0.65rem;">
-            <label style="display:flex;align-items:center;gap:2px;"><input type="checkbox" value="blog_post" />Blog</label>
-            <label style="display:flex;align-items:center;gap:2px;"><input type="checkbox" value="research" />Research</label>
-            <label style="display:flex;align-items:center;gap:2px;"><input type="checkbox" value="social_linkedin" />LinkedIn</label>
-            <label style="display:flex;align-items:center;gap:2px;"><input type="checkbox" value="social_x" />X</label>
-            <label style="display:flex;align-items:center;gap:2px;"><input type="checkbox" value="social_bluesky" />Bluesky</label>
-            <label style="display:flex;align-items:center;gap:2px;"><input type="checkbox" value="internal_doc" />Doc</label>
-            <label style="display:flex;align-items:center;gap:2px;"><input type="checkbox" value="ops" />Ops</label>
-            <label style="display:flex;align-items:center;gap:2px;"><input type="checkbox" value="financial" />Financial</label>
-          </div>
+      <div style="margin-top:0.5rem;">
+        <span style="font-size:0.6rem;opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;">Allowed Types</span>
+        <div id="cmp-edit-task-types" style="display:flex;gap:0.4rem 0.6rem;flex-wrap:wrap;font-size:0.65rem;margin-top:0.15rem;">
+          <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="blog_post" />Blog</label>
+          <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="research" />Research</label>
+          <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="social_linkedin" />LinkedIn</label>
+          <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="social_x" />X</label>
+          <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="social_bluesky" />Bluesky</label>
+          <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="internal_doc" />Doc</label>
+          <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="ops" />Ops</label>
+          <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="financial" />Financial</label>
+        </div>
+      </div>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.4rem;">
+        <div style="display:flex;flex-direction:column;gap:0.15rem;">
+          <span style="font-size:0.6rem;opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;">Max Tasks</span>
+          <input type="number" id="cmp-edit-max-tasks" min="1" placeholder="No limit" style="width:5.5rem;" />
         </div>
         <div style="display:flex;flex-direction:column;gap:0.15rem;">
-          <label for="cmp-edit-max-tasks" style="font-size:0.65rem;opacity:0.7;">Max Tasks</label>
-          <input type="number" id="cmp-edit-max-tasks" min="1" style="width:5.5rem;" />
-        </div>
-        <div style="display:flex;flex-direction:column;gap:0.15rem;">
-          <label for="cmp-edit-cadence" style="font-size:0.65rem;opacity:0.7;">Cadence</label>
-          <select id="cmp-edit-cadence" style="width:6rem;">
+          <span style="font-size:0.6rem;opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;">Cadence</span>
+          <select id="cmp-edit-cadence" style="width:6.5rem;">
             <option value="">None</option>
             <option value="daily">Daily</option>
             <option value="weekly">Weekly</option>
@@ -198,14 +215,14 @@
           </select>
         </div>
         <div style="display:flex;flex-direction:column;gap:0.15rem;">
-          <label for="cmp-edit-start-date" style="font-size:0.65rem;opacity:0.7;">Start Date</label>
-          <input type="date" id="cmp-edit-start-date" style="width:7.5rem;" />
+          <span style="font-size:0.6rem;opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;">Start Date</span>
+          <input type="date" id="cmp-edit-start-date" style="width:8rem;" />
         </div>
         <div style="display:flex;flex-direction:column;gap:0.15rem;">
-          <label for="cmp-edit-end-date" style="font-size:0.65rem;opacity:0.7;">End Date</label>
-          <input type="date" id="cmp-edit-end-date" style="width:7.5rem;" />
+          <span style="font-size:0.6rem;opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;">End Date</span>
+          <input type="date" id="cmp-edit-end-date" style="width:8rem;" />
         </div>
-        <div style="display:flex;align-items:center;gap:0.25rem;margin-top:0.85rem;">
+        <div style="display:flex;align-items:center;gap:0.25rem;margin-top:1.1rem;">
           <input type="checkbox" id="cmp-edit-auto-complete" checked />
           <label for="cmp-edit-auto-complete" style="font-size:0.65rem;opacity:0.7;">Auto-complete</label>
         </div>
