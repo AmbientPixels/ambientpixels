@@ -371,7 +371,7 @@ var AgentEngine = (function () {
       var stat = agentStats[agent.id];
       var lastActive = stat && stat.lastCall ? new Date(stat.lastCall).getTime() : 0;
 
-      if (lastActive > fiveMinAgo || (_standupRunning && true)) {
+      if (agent.id === 'pixelpusher' || lastActive > fiveMinAgo || (_standupRunning && true)) {
         result.active.push({ agent: agent, stat: stat });
       } else {
         result.idle.push({ agent: agent, stat: stat });
