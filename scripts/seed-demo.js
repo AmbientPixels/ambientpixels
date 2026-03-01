@@ -424,6 +424,84 @@ const blogPosts = [
 ];
 
 // ============================================================
+// AGENT SEED MEMORIES (CEO-curated, L3 in Memory Stack)
+// ============================================================
+const agentSeedMemories = {
+  _global: 'Story Stream is an AI-powered developmental editing service for manuscripts. Our mission is to make professional-quality structural feedback accessible to every author. We speak writer-to-writer — warm, knowledgeable, encouraging. Never condescending, never salesy. We respect the craft.',
+  nova: 'You orchestrate Story Stream\'s operations. Key priorities: grow beta signups (target 1K), keep report delivery under 1 hour, and build content authority in developmental editing. Will Frasier is the CEO — a novelist, musician, and former Principal AI Researcher at Microsoft. He understands both creative and technical.',
+  echo: 'You handle Story Stream\'s marketing. Target audience: indie authors, MFA students, writing workshop participants, and debut novelists preparing to query agents. Use hashtags like #WritingCommunity #AmWriting #IndieAuthors. Keep LinkedIn posts under 800 chars. Always include a link.',
+  scribe: 'You write Story Stream\'s blog and documentation. Focus on educational content about developmental editing, the revision process, and the publishing journey. Position Story Stream as a complement to human editors, not a replacement. Tone: writer-to-writer mentor.',
+  cipher: 'You track Story Stream\'s costs. Key metrics: Gemini API cost per report (target under $1.00 for Masterpiece), Stripe payment processing, Azure infrastructure. Revenue tiers: Blueprint free, First Edition $99, Masterpiece $199.',
+  scout: 'You research the competitive landscape for Story Stream. Key competitors: Sudowrite, ProWritingAid, Fictionary, AutoCrit. Track pricing changes, new features, and author community sentiment. Also monitor publishing industry trends.',
+  forge: 'You manage Story Stream\'s infrastructure. The manuscript processing pipeline runs on Azure Functions + Gemini Pro. Key SLAs: 95% of reports delivered under 1 hour, zero failed generations. File formats: .docx and .txt.',
+  pixel: 'You handle design and QC for Story Stream. Focus on report readability — the generated reports must be visually clear, well-structured, and mobile-friendly. Ensure consistent branding across the dashboard and public-facing pages.',
+  quill: 'You edit and proofread Story Stream\'s external content. Ensure brand voice consistency: warm, knowledgeable, encouraging. Check for jargon, passive voice, and corporate-speak. Everything should feel like a fellow writer talking to a fellow writer.'
+};
+
+// ============================================================
+// AGENT MEMORIES (runtime, L4 in Memory Stack)
+// ============================================================
+const agentMemories = {
+  nova: [
+    { text: 'Beta signup rate increased after launching Blueprint free tier — 12 signups/day average this week.', ts: daysAgo(2) },
+    { text: 'Cipher flagged Gemini costs trending up ($1.20/report vs $1.00 target). Need to investigate prompt optimization.', ts: daysAgo(1) },
+    { text: 'All 8 agents healthy. No escalations in last 48 hours.', ts: hoursAgo(2) }
+  ],
+  echo: [
+    { text: '#WritingCommunity engagement highest on X between 7-9am EST. Schedule posts accordingly.', ts: daysAgo(3) },
+    { text: 'LinkedIn posts with author pain points ("$3,000 developmental edit") outperform feature announcements 3:1.', ts: daysAgo(1) },
+    { text: 'Reddit r/writing and r/selfpublish are high-intent channels — demo request conversion rate 8%.', ts: daysAgo(2) }
+  ],
+  scribe: [
+    { text: 'Blog post "More Than a Grammar Check" drove 40 Blueprint signups in first week.', ts: daysAgo(5) },
+    { text: 'Need to write foundational SEO piece: "What Is Developmental Editing?" — high search volume, low competition.', ts: daysAgo(3) },
+    { text: 'Author testimonials perform well as social proof. Need to collect 3-5 beta user quotes.', ts: daysAgo(1) }
+  ],
+  cipher: [
+    { text: 'Average Gemini cost per Masterpiece report: $1.20 (above $1.00 target). Main driver: chapter-by-chapter breakdown dimension.', ts: daysAgo(2) },
+    { text: 'Stripe processing fees: 2.9% + $0.30 per transaction. At $99 First Edition, that\'s $3.17 per sale.', ts: daysAgo(4) },
+    { text: 'Monthly Azure infra costs stable at ~$9.50. Well within $10 budget.', ts: daysAgo(1) }
+  ],
+  scout: [
+    { text: 'Sudowrite launched "Story Bible" feature — focuses on worldbuilding, not structural editing. No direct overlap with our reports.', ts: daysAgo(3) },
+    { text: 'ProWritingAid added "Pacing Check" in v7 — surface-level compared to our scene heat-map but they have brand recognition.', ts: daysAgo(2) },
+    { text: 'Query letter services charge $150-$300 standalone. Our Masterpiece includes this at $199 — strong value prop.', ts: daysAgo(1) }
+  ],
+  forge: [
+    { text: 'Fixed .docx parser crash with tracked changes — deployed hotfix. No more failed uploads.', ts: daysAgo(5) },
+    { text: 'P95 report delivery: 42 minutes. Well within 60-minute SLA. Median: 28 minutes.', ts: daysAgo(1) },
+    { text: 'Large manuscripts (100K+ words) still pushing close to SLA. Need streaming chunk processing.', ts: hoursAgo(6) }
+  ],
+  pixel: [
+    { text: 'Scene heat-map visualization needs color-blind-safe palette. Current red-green scheme fails WCAG.', ts: daysAgo(4) },
+    { text: 'Report PDF export now matches web styling. Font: Inter for body, JetBrains Mono for scores.', ts: daysAgo(2) },
+    { text: 'Mobile report view needs work — tables overflow on screens under 375px.', ts: daysAgo(1) }
+  ],
+  quill: [
+    { text: 'Blog voice check: avoid "leverage", "synergy", "cutting-edge". Use "help", "work together", "new".', ts: daysAgo(5) },
+    { text: 'Echo\'s social drafts sometimes read too corporate. Softening language in review passes.', ts: daysAgo(2) },
+    { text: 'Proofread and approved "5 Revision Strategies" post — clean, good voice.', ts: daysAgo(1) }
+  ]
+};
+
+// ============================================================
+// RUNTIME MEMORY (L4 supplement — social intel digest)
+// ============================================================
+const runtimeMemory = {
+  socialIntel: {
+    lastUpdated: hoursAgo(1),
+    topHashtags: ['#WritingCommunity', '#AmWriting', '#IndieAuthors', '#DevEdit', '#WriterLife'],
+    engagementTrends: 'LinkedIn engagement up 15% week-over-week. X thread format performing well. Bluesky growing slowly but highly engaged audience.',
+    competitorMentions: [
+      { name: 'Sudowrite', sentiment: 'mixed', context: 'New Story Bible feature getting attention but some authors skeptical of AI writing assistance' },
+      { name: 'ProWritingAid', sentiment: 'positive', context: 'Widely recommended for line editing but authors note it lacks structural feedback' }
+    ]
+  },
+  lastHeartbeatSummary: 'All agents operational. 3 tasks completed, 2 new tasks created. 1 social post pending approval. Beta signups: 682 total (68% of Q1 target).',
+  systemHealth: { status: 'healthy', uptime: '99.9%', lastIncident: null }
+};
+
+// ============================================================
 // SEED ALL
 // ============================================================
 async function main() {
@@ -439,6 +517,9 @@ async function main() {
   await seed('actionAuditLog', actionAuditLog);
   await seed('heartbeatRuns', heartbeatRuns);
   await seed('workspaceMemory', workspaceMemory);
+  await seed('agentSeedMemories', agentSeedMemories);
+  await seed('agentMemories', agentMemories);
+  await seed('runtimeMemory', runtimeMemory);
   await seed('documents', documents);
   await seed('dailyLog', dailyLog);
   await seed('blogPosts', blogPosts);

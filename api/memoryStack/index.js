@@ -425,11 +425,14 @@ module.exports = async function (context, req) {
     return;
   }
 
-  const secret = (req.headers && req.headers['x-company-secret']) || '';
-  const principal = (req.headers && req.headers['x-ms-client-principal']) || '';
-  if (!storage.validateSecret(secret) && !principal) {
-    context.res = { status: 403, headers: CORS, body: { error: 'Unauthorized' } };
-    return;
+  // Demo mode: skip auth (no SWA auth or secret in demo)
+  if (process.env.DEMO_MODE !== 'true') {
+    const secret = (req.headers && req.headers['x-company-secret']) || '';
+    const principal = (req.headers && req.headers['x-ms-client-principal']) || '';
+    if (!storage.validateSecret(secret) && !principal) {
+      context.res = { status: 403, headers: CORS, body: { error: 'Unauthorized' } };
+      return;
+    }
   }
 
   try {
