@@ -727,6 +727,14 @@ Write the full deliverable first, then the structured JSON block.`;
         else if (/deploy|infrastructure|ci.*cd|pipeline|devops|scaling|azure.*function/.test(_ctTitle)) _taskType = 'ops';
         else if (/cost.*audit|budget.*review|api.*cost|cost.*project|financial.*review|spend.*analysis|cost.*analysis|audit.*cost/.test(_ctTitle)) _taskType = 'financial';
       }
+      // SERVER-SIDE GUARD: campaign taskType restriction — reject mismatched task types
+      if (_taskCampaignId && campaignCtx && campaignCtx.campaignById && campaignCtx.campaignById[_taskCampaignId]) {
+        var _cmpTaskType = campaignCtx.campaignById[_taskCampaignId].taskType;
+        if (_cmpTaskType && (_taskType || 'general') !== _cmpTaskType) {
+          context.log('[Heartbeat]', agentId, 'BLOCKED create-task: campaign "' + (campaignCtx.campaignById[_taskCampaignId].title || _taskCampaignId) + '" requires taskType=' + _cmpTaskType + ' but got ' + (_taskType || 'general'));
+          continue;
+        }
+      }
       result.taskUpdates.push({
         action: 'create',
         task: {

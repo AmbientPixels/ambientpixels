@@ -216,6 +216,7 @@ async function ensureCampaign(params) {
     deletedAt: null
   };
   // Preserve campaign lifecycle fields if provided
+  if (params.taskType) created.taskType = params.taskType;
   if (params.maxTasks) created.maxTasks = parseInt(params.maxTasks, 10) || null;
   if (params.cadence) created.cadence = params.cadence;
   if (params.startDate) created.startDate = params.startDate;

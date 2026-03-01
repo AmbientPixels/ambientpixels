@@ -1924,6 +1924,7 @@ var AgentEngine = (function () {
       updatedAt: new Date().toISOString(),
       deletedAt: null
     };
+    if (c && c.taskType) item.taskType = c.taskType;
     if (c && c.maxTasks) item.maxTasks = parseInt(c.maxTasks, 10) || null;
     if (c && c.cadence) item.cadence = c.cadence;
     if (c && c.startDate) item.startDate = c.startDate;

@@ -274,6 +274,7 @@ Workers are read-only analysts that spawn during pressure spikes. Use their find
           limitsInfo += ', cadence: ' + c.cadence;
         }
       }
+      if (c.taskType) limitsInfo += ', type: ' + c.taskType + ' ONLY';
       if (c.endDate) limitsInfo += ', ends: ' + c.endDate.substring(0, 10);
       return '- "' + c.title + '" (id: ' + c.id + ', priority: ' + (c.priority || 'medium') + limitsInfo + ')' + linkInfo;
     }).join('\n');

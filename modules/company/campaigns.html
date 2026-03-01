@@ -116,6 +116,18 @@
         <textarea id="cmp-desc" placeholder="Description (optional)..."></textarea>
         <select id="cmp-objective"><option value="">No goal</option></select>
         <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.25rem;">
+          <select id="cmp-task-type" style="width:7rem;" title="Task type (optional — restricts what kind of tasks agents create)">
+            <option value="">Any type</option>
+            <option value="blog_post">Blog Post</option>
+            <option value="research">Research</option>
+            <option value="social_linkedin">Social: LinkedIn</option>
+            <option value="social_x">Social: X</option>
+            <option value="social_bluesky">Social: Bluesky</option>
+            <option value="internal_doc">Internal Doc</option>
+            <option value="ops">Ops</option>
+            <option value="financial">Financial</option>
+            <option value="design_asset">Design Asset</option>
+          </select>
           <input id="cmp-max-tasks" type="number" min="1" placeholder="Max tasks" style="width:5.5rem;" title="Hard cap on total tasks (optional)" />
           <select id="cmp-cadence" style="width:6rem;" title="Task creation pace (optional)">
             <option value="">No cadence</option>
@@ -161,6 +173,21 @@
       </select>
 
       <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.5rem;">
+        <div style="display:flex;flex-direction:column;gap:0.15rem;">
+          <label for="cmp-edit-task-type" style="font-size:0.65rem;opacity:0.7;">Task Type</label>
+          <select id="cmp-edit-task-type" style="width:7rem;">
+            <option value="">Any type</option>
+            <option value="blog_post">Blog Post</option>
+            <option value="research">Research</option>
+            <option value="social_linkedin">Social: LinkedIn</option>
+            <option value="social_x">Social: X</option>
+            <option value="social_bluesky">Social: Bluesky</option>
+            <option value="internal_doc">Internal Doc</option>
+            <option value="ops">Ops</option>
+            <option value="financial">Financial</option>
+            <option value="design_asset">Design Asset</option>
+          </select>
+        </div>
         <div style="display:flex;flex-direction:column;gap:0.15rem;">
           <label for="cmp-edit-max-tasks" style="font-size:0.65rem;opacity:0.7;">Max Tasks</label>
           <input type="number" id="cmp-edit-max-tasks" min="1" style="width:5.5rem;" />
@@ -416,6 +443,7 @@
         editDescEl.value = c.description || '';
         editStatusEl.value = c.status || 'active';
         populateModalObjectiveSelect(c.objective_id || '');
+        document.getElementById('cmp-edit-task-type').value = c.taskType || '';
         document.getElementById('cmp-edit-max-tasks').value = c.maxTasks || '';
         document.getElementById('cmp-edit-cadence').value = c.cadence || '';
         document.getElementById('cmp-edit-start-date').value = c.startDate ? c.startDate.substring(0, 10) : '';
@@ -457,6 +485,7 @@
       });
       editSaveBtn.addEventListener('click', function () {
         if (!editingCampaignId) return;
+        var _editTaskType = document.getElementById('cmp-edit-task-type').value;
         var _editMaxTasks = document.getElementById('cmp-edit-max-tasks').value;
         var _editCadence = document.getElementById('cmp-edit-cadence').value;
         var _editStartDate = document.getElementById('cmp-edit-start-date').value;
@@ -467,6 +496,7 @@
           description: (editDescEl.value || '').trim(),
           objective_id: editObjectiveEl.value || null,
           status: editStatusEl.value || 'active',
+          taskType: _editTaskType || null,
           maxTasks: _editMaxTasks ? parseInt(_editMaxTasks, 10) : null,
           cadence: _editCadence || null,
           startDate: _editStartDate || null,
@@ -483,6 +513,7 @@
         var t = (titleEl.value || '').trim();
         var d = (descEl.value || '').trim();
         if (!t) return;
+        var _taskType = document.getElementById('cmp-task-type').value;
         var _maxTasks = document.getElementById('cmp-max-tasks').value;
         var _cadence = document.getElementById('cmp-cadence').value;
         var _startDate = document.getElementById('cmp-start-date').value;
@@ -492,6 +523,7 @@
           description: d,
           objective_id: objectiveEl.value || null,
           provenance: 'Manual: Campaign UI',
+          taskType: _taskType || null,
           maxTasks: _maxTasks ? parseInt(_maxTasks, 10) : null,
           cadence: _cadence || null,
           startDate: _startDate || null,
@@ -501,6 +533,7 @@
         titleEl.value = '';
         descEl.value = '';
         objectiveEl.value = '';
+        document.getElementById('cmp-task-type').value = '';
         document.getElementById('cmp-max-tasks').value = '';
         document.getElementById('cmp-cadence').value = '';
         document.getElementById('cmp-start-date').value = '';
