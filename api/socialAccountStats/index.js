@@ -1,5 +1,6 @@
 const https = require('https');
 const storage = require('../_utils/companyStorage');
+const demoGuard = require('../_utils/demoGuard');
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -239,6 +240,91 @@ async function pullBlueskyAccountStats() {
   }
 }
 
+// ── Demo mock data ──
+
+function buildDemoAccountStats() {
+  var now = new Date();
+  var day = 86400000;
+
+  // Helper: deterministic recent posts
+  var xPosts = [
+    { id: 'd1', text: 'Excited to announce Story Stream v2 — our AI-powered content engine is now live!', likes: 47, retweets: 12, replies: 8, quotes: 3, impressions: 2340, bookmarks: 15 },
+    { id: 'd2', text: 'How we use autonomous agents to keep our marketing pipeline running 24/7. Thread below.', likes: 83, retweets: 31, replies: 14, quotes: 7, impressions: 5120, bookmarks: 42 },
+    { id: 'd3', text: 'New blog: "The Future of AI-Driven Brand Storytelling" — link in bio.', likes: 29, retweets: 8, replies: 3, quotes: 1, impressions: 1580, bookmarks: 9 },
+    { id: 'd4', text: 'Our agent Echo just autonomously drafted 5 social posts while we slept. The future is here.', likes: 112, retweets: 45, replies: 22, quotes: 11, impressions: 8900, bookmarks: 67 },
+    { id: 'd5', text: 'Story Stream tip: Use the Campaigns view to track multi-channel content across platforms.', likes: 18, retweets: 4, replies: 2, quotes: 0, impressions: 920, bookmarks: 6 }
+  ].map(function (p, i) {
+    return Object.assign(p, {
+      created_at: new Date(now.getTime() - (i + 1) * day).toISOString(),
+      url: 'https://x.com/StoryStreamAI/status/' + p.id
+    });
+  });
+
+  var liPosts = [
+    { id: 'li1', text: 'We just crossed 500 autonomous content cycles. Here\'s what we learned about AI governance.', likes: 34, comments: 11, reposts: 8 },
+    { id: 'li2', text: 'Introducing our 8-agent crew: Nova, Scribe, Echo, Cipher, Pixel, Scout, Forge, and Quill.', likes: 56, comments: 19, reposts: 14 },
+    { id: 'li3', text: 'AI content at scale requires guardrails. Our tiered approval system ensures quality.', likes: 22, comments: 7, reposts: 3 },
+    { id: 'li4', text: 'Looking for an AI-first content ops platform? Story Stream handles strategy to publish.', likes: 41, comments: 15, reposts: 9 }
+  ].map(function (p, i) {
+    return Object.assign(p, {
+      created_at: new Date(now.getTime() - (i + 1) * day * 1.5).toISOString(),
+      url: 'https://www.linkedin.com/feed/update/' + p.id
+    });
+  });
+
+  var bskyPosts = [
+    { id: 'bs1', text: 'Story Stream is now on Bluesky! Follow us for AI content ops insights.', likes: 15, replies: 4, reposts: 6, quotes: 2 },
+    { id: 'bs2', text: 'Our agents just finished a full heartbeat cycle — 8 departments, 30 minutes, zero humans.', likes: 28, replies: 9, reposts: 11, quotes: 4 },
+    { id: 'bs3', text: 'Content governance isn\'t optional when AI writes your copy. Here\'s our approach.', likes: 19, replies: 6, reposts: 3, quotes: 1 }
+  ].map(function (p, i) {
+    return Object.assign(p, {
+      created_at: new Date(now.getTime() - (i + 1) * day * 2).toISOString(),
+      url: 'https://bsky.app/profile/storystream.bsky.social/post/' + p.id
+    });
+  });
+
+  var platforms = {
+    x: {
+      ok: true, platform: 'x', handle: '@StoryStreamAI', name: 'Story Stream',
+      description: 'AI-powered content operations platform. 8 autonomous agents, one unified pipeline.',
+      avatar: '', followers: 1247, following: 312, tweets_count: 89, listed: 14,
+      recentPosts: xPosts
+    },
+    linkedin: {
+      ok: true, platform: 'linkedin', handle: 'story-stream-ai', name: 'Story Stream',
+      description: '', avatar: '', followers: 843, following: null, posts_count: 4,
+      recentPosts: liPosts
+    },
+    bluesky: {
+      ok: true, platform: 'bluesky', handle: '@storystream.bsky.social', name: 'Story Stream',
+      description: 'AI content ops — strategy to publish, fully autonomous.', avatar: '',
+      followers: 389, following: 127, posts_count: 23,
+      recentPosts: bskyPosts
+    }
+  };
+
+  // Aggregate
+  var totalFollowers = 1247 + 843 + 389;
+  var totalPosts = 89 + 4 + 23;
+  var allRecent = [];
+  ['x', 'linkedin', 'bluesky'].forEach(function (key) {
+    platforms[key].recentPosts.forEach(function (post) {
+      allRecent.push(Object.assign({ platform: key }, post));
+    });
+  });
+  allRecent.sort(function (a, b) {
+    return Date.parse(b.created_at || '') - Date.parse(a.created_at || '');
+  });
+
+  return {
+    _cachedAt: now.toISOString(),
+    totals: { followers: totalFollowers, posts: totalPosts, platforms_connected: 3, platforms_errored: 0 },
+    platforms: platforms,
+    recentPosts: allRecent.slice(0, 20),
+    errors: []
+  };
+}
+
 // ── Main handler ──
 
 module.exports = async function (context, req) {
@@ -252,10 +338,24 @@ module.exports = async function (context, req) {
     return;
   }
 
-  var secret = (req.headers && req.headers['x-company-secret']) || '';
-  var principal = (req.headers && req.headers['x-ms-client-principal']) || '';
-  if (!storage.validateSecret(secret) && !principal) {
-    context.res = { status: 403, headers: CORS, body: { error: 'Unauthorized' } };
+  // Auth — bypass in demo mode
+  if (process.env.DEMO_MODE !== 'true') {
+    var secret = (req.headers && req.headers['x-company-secret']) || '';
+    var principal = (req.headers && req.headers['x-ms-client-principal']) || '';
+    if (!storage.validateSecret(secret) && !principal) {
+      context.res = { status: 403, headers: CORS, body: { error: 'Unauthorized' } };
+      return;
+    }
+  }
+
+  // Demo mode — return mock data
+  if (demoGuard.isDemoMode()) {
+    var demoPayload = buildDemoAccountStats();
+    context.res = {
+      status: 200,
+      headers: CORS,
+      body: Object.assign({}, demoPayload, { meta: { cached: false, ttlMs: CACHE_TTL_MS, mode: 'demo' } })
+    };
     return;
   }
 
