@@ -699,6 +699,9 @@ module.exports = async function (context, req) {
   // ── POST /api/formIntake — Write endpoint ──
   // ══════════════════════════════════════════════════
   if (req.method === 'POST' && !action) {
+    var blocked = require('../_utils/demoGuard').httpGuard(req);
+    if (blocked) { context.res = blocked; return; }
+
     try {
       // Size check
       var rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body || {});

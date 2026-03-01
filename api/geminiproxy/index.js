@@ -25,7 +25,10 @@ module.exports = async function (context, req) {
     };
     return;
   }
-  
+
+  var blocked = require('../_utils/demoGuard').httpGuard(req);
+  if (blocked) { context.res = blocked; return; }
+
   // Handle GET requests for API status checks
   /* updated by Cascade 2025-07-15 */
   if (req.method === 'GET') {
@@ -36,7 +39,7 @@ module.exports = async function (context, req) {
     };
     return;
   }
-  
+
   // Only allow POST for actual API requests
   if (req.method !== 'POST') {
     context.res = {

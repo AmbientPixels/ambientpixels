@@ -122,6 +122,8 @@ function fetchTweetMetrics(postId, creds) {
 }
 
 module.exports = async function (context) {
+  var demoGuard = require('../_utils/demoGuard');
+  if (demoGuard.timerSkip(context)) return;
   context.log('[MetricsPull] Starting metrics pull cycle');
 
   const creds = getCredentials();

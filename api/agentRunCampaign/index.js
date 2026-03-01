@@ -51,6 +51,9 @@ module.exports = async function (context, req) {
     return;
   }
 
+  var blocked = require('../_utils/demoGuard').httpGuard(req);
+  if (blocked) { context.res = blocked; return; }
+
   // Auth: x-company-secret
   var secret = (req.headers && req.headers['x-company-secret']) || '';
   if (!storage.validateSecret(secret)) {

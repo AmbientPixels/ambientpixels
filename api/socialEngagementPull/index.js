@@ -220,6 +220,8 @@ function _extractRecentSuccessPosts(events) {
 }
 
 module.exports = async function (context) {
+  var demoGuard = require('../_utils/demoGuard');
+  if (demoGuard.timerSkip(context)) return;
   const mode = 'real';
 
   try {

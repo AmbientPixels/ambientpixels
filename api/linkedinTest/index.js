@@ -74,6 +74,9 @@ module.exports = async function (context, req) {
     return;
   }
 
+  var blocked = require('../_utils/demoGuard').httpGuard(req);
+  if (blocked) { context.res = blocked; return; }
+
   const dryRun = body.dryRun !== false; // default: true (safe)
   const testText = body.text || 'Test post from AmbientPixels API integration. [' + new Date().toISOString() + ']';
   const token = process.env.LINKEDIN_ACCESS_TOKEN || '';

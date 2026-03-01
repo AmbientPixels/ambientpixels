@@ -4,6 +4,7 @@
 
 const path = require('path');
 const fs = require('fs');
+const { prefixBlobKey, getBlobPrefix } = require('./demoGuard');
 
 const STORAGE_ACCOUNT_NAME = 'cardforgeblobdata';
 const CONTAINER_NAME = 'company-state';
@@ -51,7 +52,9 @@ function _ensureLocalDir() {
 
 function _localPath(key) {
   // Sanitize key for filesystem
-  return path.join(LOCAL_DIR, key.replace(/[^a-zA-Z0-9_-]/g, '_') + '.json');
+  var prefix = getBlobPrefix();
+  var sanitized = key.replace(/[^a-zA-Z0-9_-]/g, '_') + '.json';
+  return prefix ? path.join(LOCAL_DIR, prefix, sanitized) : path.join(LOCAL_DIR, sanitized);
 }
 
 // ── Public API ──
@@ -61,7 +64,7 @@ async function getState(key) {
 
   if (container) {
     try {
-      const blob = container.getBlockBlobClient(key + '.json');
+      const blob = container.getBlockBlobClient(prefixBlobKey(key + '.json'));
       const download = await blob.download(0);
       const body = await streamToString(download.readableStreamBody);
       return JSON.parse(body);
@@ -89,7 +92,7 @@ async function setState(key, value) {
 
   if (container) {
     try {
-      const blob = container.getBlockBlobClient(key + '.json');
+      const blob = container.getBlockBlobClient(prefixBlobKey(key + '.json'));
       const content = JSON.stringify(value, null, 2);
       await blob.upload(content, Buffer.byteLength(content), {
         blobHTTPHeaders: { blobContentType: 'application/json' },

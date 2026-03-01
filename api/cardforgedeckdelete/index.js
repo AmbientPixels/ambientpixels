@@ -75,6 +75,9 @@ module.exports = async function (context, req) {
     return;
   }
 
+  var blocked = require('../_utils/demoGuard').httpGuard(req);
+  if (blocked) { context.res = blocked; return; }
+
   // Health check
   if (req.method === 'GET') {
     context.res = { status: 200, headers: CORS_HEADERS, body: { status: 'ok', message: 'CardForge Deck Delete service is online' } };

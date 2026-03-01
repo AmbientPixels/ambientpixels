@@ -18,6 +18,9 @@ module.exports = async function (context, req) {
     return;
   }
 
+  var blocked = require('../_utils/demoGuard').httpGuard(req);
+  if (blocked) { context.res = blocked; return; }
+
   // Auth: accept write secret OR authenticated SWA user (same as company-state)
   const secret = (req.headers && req.headers['x-company-secret']) || '';
   const clientPrincipal = (req.headers && req.headers['x-ms-client-principal']) || '';

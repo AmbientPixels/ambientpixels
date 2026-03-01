@@ -161,7 +161,10 @@ module.exports = async function (context, req) {
     };
     return;
   }
-  
+
+  var blocked = require('../_utils/demoGuard').httpGuard(req);
+  if (blocked) { context.res = blocked; return; }
+
   /* updated by Cascade 2025-07-14 - added health check for GET requests */
   // Handle GET requests
   if (req.method === 'GET' && req.query && req.query.health === '1') {

@@ -40,6 +40,9 @@ module.exports = async function (context, req) {
 
   // POST — append a log event
   if (req.method === 'POST') {
+    var blocked = require('../_utils/demoGuard').httpGuard(req);
+    if (blocked) { context.res = blocked; return; }
+
     const secret = (req.headers && req.headers['x-company-secret']) || '';
     if (!storage.validateSecret(secret)) {
       context.res = {

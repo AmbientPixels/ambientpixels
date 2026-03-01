@@ -22,6 +22,9 @@ module.exports = async function (context, req) {
     return;
   }
 
+  var blocked = require('../_utils/demoGuard').httpGuard(req);
+  if (blocked) { context.res = blocked; return; }
+
   // Kill switch
   if (process.env.DOCS_EXECUTION_ENABLED === 'false') {
     context.res = {

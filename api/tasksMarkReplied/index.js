@@ -57,6 +57,9 @@ module.exports = async function (context, req) {
 
   // ── POST /api/tasks/mark-replied ──
   if (req.method === 'POST') {
+    var blocked = require('../_utils/demoGuard').httpGuard(req);
+    if (blocked) { context.res = blocked; return; }
+
     try {
       var body = req.body || {};
       var taskId = body.taskId;

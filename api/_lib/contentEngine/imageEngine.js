@@ -5,6 +5,7 @@
 
 const https = require('https');
 const crypto = require('crypto');
+const { prefixBlobKey } = require('../../_utils/demoGuard');
 
 // ── Config ──
 const ENGINE_VERSION = '1.8.1';
@@ -131,7 +132,7 @@ async function _ensureContainer(containerName) {
  */
 async function _uploadBlob(containerName, blobPath, buffer, contentType) {
   var container = await _ensureContainer(containerName);
-  var blob = container.getBlockBlobClient(blobPath);
+  var blob = container.getBlockBlobClient(prefixBlobKey(blobPath));
   await blob.upload(buffer, buffer.length, {
     blobHTTPHeaders: { blobContentType: contentType },
     overwrite: true
@@ -381,7 +382,7 @@ async function saveBrief(brief) {
 async function loadBrief(briefId) {
   var container = await _ensureContainer(STATE_CONTAINER);
   var blobPath = 'content-engine/briefs/' + briefId + '.json';
-  var blob = container.getBlockBlobClient(blobPath);
+  var blob = container.getBlockBlobClient(prefixBlobKey(blobPath));
   try {
     var download = await blob.download(0);
     var body = await _streamToString(download.readableStreamBody);
@@ -401,7 +402,7 @@ async function savePackage(pkg) {
 async function loadPackage(packageId) {
   var container = await _ensureContainer(STATE_CONTAINER);
   var blobPath = 'content-engine/packages/' + packageId + '.json';
-  var blob = container.getBlockBlobClient(blobPath);
+  var blob = container.getBlockBlobClient(prefixBlobKey(blobPath));
   try {
     var download = await blob.download(0);
     var body = await _streamToString(download.readableStreamBody);
@@ -419,7 +420,7 @@ async function loadPackage(packageId) {
 async function appendToIndex(entry) {
   var container = await _ensureContainer(STATE_CONTAINER);
   var blobPath = 'content-engine/index.json';
-  var blob = container.getBlockBlobClient(blobPath);
+  var blob = container.getBlockBlobClient(prefixBlobKey(blobPath));
   var index = [];
   try {
     var download = await blob.download(0);
@@ -607,7 +608,7 @@ async function hardDeletePackage(packageId, actor, opts) {
   if (pkg) {
     var stateContainer = await _ensureContainer(STATE_CONTAINER);
     try {
-      await stateContainer.getBlockBlobClient('content-engine/packages/' + packageId + '.json').deleteIfExists();
+      await stateContainer.getBlockBlobClient(prefixBlobKey('content-engine/packages/' + packageId + '.json')).deleteIfExists();
     } catch (e) { /* non-fatal */ }
   }
 
@@ -632,7 +633,7 @@ async function hardDeletePackage(packageId, actor, opts) {
 async function _updateIndexEntry(packageId, mutator) {
   var container = await _ensureContainer(STATE_CONTAINER);
   var blobPath = 'content-engine/index.json';
-  var blob = container.getBlockBlobClient(blobPath);
+  var blob = container.getBlockBlobClient(prefixBlobKey(blobPath));
   var index = [];
   try {
     var download = await blob.download(0);
@@ -657,7 +658,7 @@ async function _updateIndexEntry(packageId, mutator) {
 async function _removeIndexEntry(packageId) {
   var container = await _ensureContainer(STATE_CONTAINER);
   var blobPath = 'content-engine/index.json';
-  var blob = container.getBlockBlobClient(blobPath);
+  var blob = container.getBlockBlobClient(prefixBlobKey(blobPath));
   var index = [];
   try {
     var download = await blob.download(0);

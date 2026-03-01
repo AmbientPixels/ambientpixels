@@ -445,6 +445,9 @@ module.exports = async function (context, req) {
     return;
   }
 
+  var blocked = require('../_utils/demoGuard').httpGuard(req);
+  if (blocked) { context.res = blocked; return; }
+
   // ── Auth check ──
   if (STANDUP_API_KEY) {
     const provided = (req.headers || {})['x-standup-key'] || '';

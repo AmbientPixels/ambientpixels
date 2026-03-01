@@ -6,6 +6,8 @@ const storage = require('../_utils/companyStorage');
 const { executeAction, isExecutable } = require('../actionsExecute/executors');
 
 module.exports = async function (context) {
+  var demoGuard = require('../_utils/demoGuard');
+  if (demoGuard.timerSkip(context)) return;
   // Kill switch
   if (process.env.ACTIONS_EXECUTION_ENABLED === 'false') {
     context.log.warn('[Scheduler] Execution disabled via ACTIONS_EXECUTION_ENABLED=false');

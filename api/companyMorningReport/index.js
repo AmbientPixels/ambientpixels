@@ -8,6 +8,8 @@ const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=';
 
 module.exports = async function (context) {
+  const demoGuard = require('../_utils/demoGuard');
+  if (demoGuard.timerSkip(context)) return;
   const reportId = 'report-' + Date.now();
   const today = new Date().toISOString().split('T')[0];
 

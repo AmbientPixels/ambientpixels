@@ -18,6 +18,10 @@ module.exports = async function (context, req) {
     };
     return;
   }
+
+  var blocked = require('../_utils/demoGuard').httpGuard(req);
+  if (blocked) { context.res = blocked; return; }
+
   const timestamp = new Date().toISOString();
   context.log(`[Nova Mood Engine] Mood generation started at ${timestamp}`);
 

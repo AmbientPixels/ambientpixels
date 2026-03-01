@@ -70,6 +70,9 @@ module.exports = async function (context, req) {
 
   // POST — write a state key
   if (req.method === 'POST') {
+    var blocked = require('../_utils/demoGuard').httpGuard(req);
+    if (blocked) { context.res = blocked; return; }
+
     // Auth: accept write secret OR authenticated SWA user
     const secret = (req.headers && req.headers['x-company-secret']) || '';
     const clientPrincipal = (req.headers && req.headers['x-ms-client-principal']) || '';

@@ -85,6 +85,9 @@ module.exports = async function (context, req) {
     return;
   }
 
+  var blocked = require('../_utils/demoGuard').httpGuard(req);
+  if (blocked) { context.res = blocked; return; }
+
   // Health-check for DELETE API
   /* updated by Cascade 2025-07-19 */
   if (req.method === 'GET') {

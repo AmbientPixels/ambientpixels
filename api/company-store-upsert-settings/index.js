@@ -14,6 +14,9 @@ module.exports = async function (context, req) {
     return;
   }
 
+  var blocked = require('../_utils/demoGuard').httpGuard(req);
+  if (blocked) { context.res = blocked; return; }
+
   const secret = (req.headers && req.headers['x-company-secret']) || '';
   if (!storage.validateSecret(secret)) {
     context.res = { status: 401, headers: corsHeaders, body: { error: 'Unauthorized' } };

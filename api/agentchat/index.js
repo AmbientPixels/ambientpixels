@@ -659,6 +659,9 @@ module.exports = async function (context, req) {
     return;
   }
 
+  var blocked = require('../_utils/demoGuard').httpGuard(req);
+  if (blocked) { context.res = blocked; return; }
+
   if (req.method === 'GET') {
     context.res = {
       status: 200,

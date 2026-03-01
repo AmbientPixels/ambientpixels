@@ -40,6 +40,8 @@ let _agentMemoryStore = {}; // { agentId: [{ type, text, source, timestamp }] }
 // (Social intel functions now in social-intel.js)
 
 module.exports = async function (context) {
+  const demoGuard = require('../_utils/demoGuard');
+  if (demoGuard.timerSkip(context)) return;
   const cycleId = 'cycle-' + Date.now();
   const runId = cycleId;
   const cycleStart = new Date().toISOString();

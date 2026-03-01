@@ -9,6 +9,8 @@
 const digest = require('../formIntakeDigest');
 
 module.exports = async function (context) {
+  var demoGuard = require('../_utils/demoGuard');
+  if (demoGuard.timerSkip(context)) return;
   var yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   var dateStr = yesterday.toISOString().substring(0, 10);
