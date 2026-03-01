@@ -16,8 +16,37 @@ module.exports = async function (context, req) {
     return;
   }
 
-  var blocked = require('../_utils/demoGuard').httpGuard(req);
-  if (blocked) { context.res = blocked; return; }
+  var demoGuard = require('../_utils/demoGuard');
+  if (demoGuard.isDemoMode()) {
+    // Return a realistic mock heartbeat instead of blocking
+    context.res = {
+      status: 200,
+      headers: corsHeaders,
+      body: {
+        status: 'ok',
+        demo: true,
+        message: 'Heartbeat cycle completed (demo)',
+        runId: 'demo-run-' + Date.now(),
+        summary: {
+          agents_active: 8,
+          tasks_created: 2,
+          tasks_moved: 1,
+          documents_updated: 1,
+          social_drafts_queued: 1,
+          approvals_pending: 1,
+          duration_ms: 4200 + Math.floor(Math.random() * 800),
+          highlights: [
+            'Nova delegated 2 new tasks based on active campaign priorities.',
+            'Echo queued a LinkedIn post for CEO approval.',
+            'Cipher reviewed weekly cost trends — spend is within budget.',
+            'Forge confirmed all deploys healthy, uptime 99.97%.',
+            'Scribe updated the Automation & Controls wiki page.'
+          ]
+        }
+      }
+    };
+    return;
+  }
 
   // Validate write secret
   const secret = (req.headers && req.headers['x-company-secret']) || '';

@@ -63,6 +63,51 @@
 
   var _thinking = false;
 
+  // ── Demo mode canned responses (no Gemini cost) ──
+  var _demoReplies = {
+    nova: [
+      'All systems nominal. The last heartbeat completed with 3 task mutations and 1 document update. Forge flagged a minor latency spike — monitoring it.',
+      'Current priorities: 2 tasks in review, 1 campaign nearing deadline, and Echo has 3 social drafts queued for your approval.',
+      'I delegated the infrastructure audit to Forge and the content refresh to Scribe. Both should have updates by the next heartbeat cycle.'
+    ],
+    cipher: [
+      'API spend this week is $12.47 — down 8% from last week. Gemini accounts for 74% of total compute cost.',
+      'Budget is tracking within targets. No anomalies detected. The weekly cost report will be ready Monday at 8 AM.',
+      'ROI on the last campaign was 3.2x based on engagement metrics. I recommend maintaining current spend levels.'
+    ],
+    pixel: [
+      'The last accessibility scan found 2 minor contrast issues on the dashboard cards. I logged them as tasks for the next sprint.',
+      'UI consistency is strong — all component patterns match the design system. The new wiki pages render cleanly on mobile.',
+      'Color contrast ratios are passing WCAG AA across all pages. The responsive breakpoints at 768px and 480px are holding well.'
+    ],
+    forge: [
+      'All services green. Last deploy was clean — build time 47s, zero errors. Uptime is 99.97% over the last 30 days.',
+      'CI/CD pipeline is healthy. The last 5 deployments completed without rollback. I am monitoring a slow query on the state API.',
+      'Infrastructure audit complete. Storage usage is nominal, no security advisories pending, SSL certificates valid for 287 more days.'
+    ],
+    echo: [
+      'I have 3 social drafts ready for review — 1 for X, 1 for LinkedIn, and 1 for Bluesky. All include URLs and are within character limits.',
+      'Engagement this week: LinkedIn up 12%, X steady, Bluesky growing. I recommend increasing Bluesky posting frequency.',
+      'The product announcement draft is polished and ready. Quill tightened the copy — it reads well across all platforms.'
+    ],
+    scribe: [
+      'The wiki has 8 pages across 4 categories. I recently completed the Automation & Controls runbook and the Agent Guide.',
+      'I have a draft product brief in progress. Quill is reviewing it for clarity and brand voice alignment before submission.',
+      'Documentation coverage is solid. The getting-started guides are complete. I recommend adding a troubleshooting runbook next.'
+    ],
+    quill: [
+      'I reviewed Scribe\'s latest draft — tightened 3 paragraphs and strengthened the CTA. Ready for your final review.',
+      'Brand voice is consistent across all recent content. No tone drift detected. The wiki pages read clean and professional.',
+      'The product brief is 18% shorter after my edit pass. Every sentence earns its place. Ready for Scribe to submit.'
+    ],
+    scout: [
+      'Market scan complete. Two competitors launched AI agent features this month. Neither matches our governance depth.',
+      'Industry trend: AI-operated companies are gaining traction in SaaS. Our multi-agent architecture is well-positioned.',
+      'Competitive intel: the closest competitor has 3 agents vs our 8. Their governance model is flat — no tier system. We have a structural advantage.'
+    ]
+  };
+  var _demoReplyIndex = {};
+
   // ── Restore last agent ──
   var saved = localStorage.getItem('ap_quick_chat_agent');
   if (saved && agentSel.querySelector('option[value="' + saved + '"]')) {
@@ -118,6 +163,22 @@
 
     input.value = '';
     addMsg('user', msg);
+
+    // Demo mode: canned responses, no API call
+    if (window.__DEMO_MODE && _demoReplies[agentId]) {
+      _thinking = true;
+      sendBtn.disabled = true;
+      var replies = _demoReplies[agentId];
+      if (!_demoReplyIndex[agentId]) _demoReplyIndex[agentId] = 0;
+      var reply = replies[_demoReplyIndex[agentId] % replies.length];
+      _demoReplyIndex[agentId]++;
+      setTimeout(function () {
+        _thinking = false;
+        sendBtn.disabled = false;
+        addMsg('agent', reply, agent);
+      }, 800 + Math.random() * 700);
+      return;
+    }
 
     _thinking = true;
     sendBtn.disabled = true;
