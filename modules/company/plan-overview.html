@@ -197,7 +197,7 @@
 
     <!-- Strategic Directives Panel -->
     <div class="plan-panel">
-      <div class="plan-panel-title"><i class="fas fa-compass"></i> Strategic Projects <span style="opacity:0.4; font-size:0.6rem; margin-left:auto;" id="stat-directives">—</span></div>
+      <div class="plan-panel-title"><i class="fas fa-compass"></i> Campaigns <span style="opacity:0.4; font-size:0.6rem; margin-left:auto;" id="stat-directives">—</span></div>
       <div id="ov-directives">Loading...</div>
     </div>
 
@@ -308,7 +308,7 @@
       var activeDirs = dirs.filter(function (d) { return d.status === 'active'; });
       document.getElementById('stat-directives').textContent = activeDirs.length + ' active';
       var dirEl = document.getElementById('ov-directives');
-      if (activeDirs.length === 0) { dirEl.innerHTML = '<div style="opacity:0.35; font-size:0.68rem;">No active projects.</div>'; }
+      if (activeDirs.length === 0) { dirEl.innerHTML = '<div style="opacity:0.35; font-size:0.68rem;">No active campaigns.</div>'; }
       else {
         dirEl.innerHTML = activeDirs.slice(0, 8).map(function (d) {
           return '<div class="plan-dir-row">' +

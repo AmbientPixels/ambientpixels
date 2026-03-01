@@ -1355,8 +1355,8 @@
       }
     },
     'reset-directives': {
-      title: 'Reset Projects',
-      desc: 'This will permanently delete all strategic projects.',
+      title: 'Reset Campaigns',
+      desc: 'This will permanently delete all campaigns.',
       exec: function () {
         return CompanyStore.setState('ap_directives', []);
       }

@@ -97,17 +97,17 @@
   <main class="content-section" style="max-width: 900px; margin: 0 auto; padding: 1rem;">
 
     <div class="company-header">
-      <h1><i class="fas fa-compass" style="opacity:0.4; margin-right:8px; color:#8A2BE2;"></i>Projects</h1>
-      <p>CEO-defined high-level direction. Prime Operator translates projects into goals and tasks.</p>
+      <h1><i class="fas fa-compass" style="opacity:0.4; margin-right:8px; color:#8A2BE2;"></i>Campaigns</h1>
+      <p>CEO-defined high-level direction. Prime Operator translates campaigns into goals and tasks.</p>
     </div>
 
     <!-- Create Directive Form -->
     <div class="dash-panel" style="margin-bottom:1.5rem;">
       <div class="dash-panel-header">
-        <span class="dash-panel-title"><i class="fas fa-plus-circle" style="color:#FFD700;"></i> New Project</span>
+        <span class="dash-panel-title"><i class="fas fa-plus-circle" style="color:#FFD700;"></i> New Campaign</span>
       </div>
       <div style="padding:0.5rem 0;">
-        <input type="text" id="dir-title" placeholder="Project title..." style="width:100%; padding:0.5rem 0.7rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.8rem; margin-bottom:0.5rem;" />
+        <input type="text" id="dir-title" placeholder="Campaign title..." style="width:100%; padding:0.5rem 0.7rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.8rem; margin-bottom:0.5rem;" />
         <textarea id="dir-desc" placeholder="Description — what should the team achieve?" rows="3" style="width:100%; padding:0.5rem 0.7rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.75rem; resize:vertical; margin-bottom:0.5rem;"></textarea>
         <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
           <select id="dir-priority" style="padding:0.35rem 0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.7rem;">
@@ -119,7 +119,7 @@
           <select id="dir-campaign" style="padding:0.35rem 0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.7rem;">
             <option value="">Select campaign...</option>
           </select>
-          <button id="dir-create-btn" style="padding:0.35rem 1rem; background:rgba(138,43,226,0.1); border:1px solid rgba(138,43,226,0.3); border-radius:6px; color:#8A2BE2; font-size:0.7rem; cursor:pointer; font-weight:500;">Create Project</button>
+          <button id="dir-create-btn" style="padding:0.35rem 1rem; background:rgba(138,43,226,0.1); border:1px solid rgba(138,43,226,0.3); border-radius:6px; color:#8A2BE2; font-size:0.7rem; cursor:pointer; font-weight:500;">Create Campaign</button>
         </div>
         <div style="margin-top:0.5rem;">
           <label style="font-size:0.65rem; opacity:0.5;">Linked KPIs</label>
@@ -140,11 +140,11 @@
     <!-- Active Directives -->
     <div class="dash-panel dash-panel--full">
       <div class="dash-panel-header">
-        <span class="dash-panel-title"><i class="fas fa-fire" style="color:#FF8C00;"></i> Active Projects</span>
+        <span class="dash-panel-title"><i class="fas fa-fire" style="color:#FF8C00;"></i> Active Campaigns</span>
         <span class="dash-panel-badge" id="active-dir-count">0</span>
       </div>
       <div id="dir-active-list">
-        <div class="dash-empty">No active projects. Create one above.</div>
+        <div class="dash-empty">No active campaigns. Create one above.</div>
       </div>
     </div>
 
@@ -155,7 +155,7 @@
         <span class="dash-panel-badge" id="paused-dir-count" style="background:rgba(251,191,36,0.1);color:#fbbf24;">0</span>
       </div>
       <div id="dir-paused-list">
-        <div class="dash-empty">No paused projects.</div>
+        <div class="dash-empty">No paused campaigns.</div>
       </div>
     </div>
 
@@ -166,7 +166,7 @@
         <span class="dash-panel-badge" id="canceled-dir-count" style="background:rgba(248,113,113,0.1);color:#f87171;">0</span>
       </div>
       <div id="dir-canceled-list">
-        <div class="dash-empty">No canceled projects.</div>
+        <div class="dash-empty">No canceled campaigns.</div>
       </div>
     </div>
 
@@ -177,7 +177,7 @@
         <span class="dash-panel-badge" id="archive-dir-count" style="background:rgba(138,43,226,0.1);color:#c084fc;">0</span>
       </div>
       <div id="dir-archive-list">
-        <div class="dash-empty">No completed or archived projects.</div>
+        <div class="dash-empty">No completed or archived campaigns.</div>
       </div>
     </div>
 
@@ -185,7 +185,7 @@
 
   <div class="dir-modal-backdrop" id="dir-edit-modal">
     <div class="dir-modal">
-      <h3>Edit Project</h3>
+      <h3>Edit Campaign</h3>
       <label for="edit-title">Title</label>
       <input type="text" id="edit-title" />
 
@@ -444,7 +444,7 @@
         // Active
         activeCount.textContent = active.length;
         if (active.length === 0) {
-          activeList.innerHTML = '<div class="dash-empty">No active projects. Create one above.</div>';
+          activeList.innerHTML = '<div class="dash-empty">No active campaigns. Create one above.</div>';
         } else {
           activeList.innerHTML = '';
           active.forEach(function (dir) { activeList.appendChild(createDirectiveCard(dir, 'active')); });
@@ -453,7 +453,7 @@
         // Paused
         pausedCount.textContent = paused.length;
         if (paused.length === 0) {
-          pausedList.innerHTML = '<div class="dash-empty">No paused projects.</div>';
+          pausedList.innerHTML = '<div class="dash-empty">No paused campaigns.</div>';
         } else {
           pausedList.innerHTML = '';
           paused.forEach(function (dir) { pausedList.appendChild(createDirectiveCard(dir, 'paused')); });
@@ -470,7 +470,7 @@
         // Completed / Archived
         archiveCount.textContent = completed.length;
         if (completed.length === 0) {
-          archiveList.innerHTML = '<div class="dash-empty">No completed or archived projects.</div>';
+          archiveList.innerHTML = '<div class="dash-empty">No completed or archived campaigns.</div>';
         } else {
           archiveList.innerHTML = '';
           completed.forEach(function (dir) { archiveList.appendChild(createDirectiveCard(dir, 'completed')); });
@@ -646,7 +646,7 @@
 
         var _cancelBtn = function () {
           return _btn('✕ Cancel', 'rgba(248,113,113,0.3)', 'rgba(248,113,113,0.05)', '#f87171', function () {
-            if (!confirm('Cancel this project? Linked tasks will be archived and all execution blocked.')) return;
+            if (!confirm('Cancel this campaign? Linked tasks will be archived and all execution blocked.')) return;
             AgentEngine.updateDirective(dir.id, { status: 'canceled' });
             if (typeof CompanyStore !== 'undefined' && CompanyStore.setState) {
               CompanyStore.setState('ap_directives', AgentEngine.getDirectives());
