@@ -265,7 +265,9 @@
   <script src="/modules/company/js/sidebar.js"></script>
   <script src="/modules/company/js/quick-chat.js"></script>
   <script>
-    var API_BASE = 'https://ambientpixels-nova-api.azurewebsites.net';
+    var API_BASE = window.location.hostname.includes('ambientpixels.ai')
+      ? 'https://ambientpixels-nova-api.azurewebsites.net'
+      : '';
     var _selectedOutputs = ['x_image'];
     var _variations = 1;
 

@@ -23,8 +23,20 @@ module.exports = async function (context, req) {
     return;
   }
 
-  var blocked = require('../_utils/demoGuard').httpGuard(req);
-  if (blocked) { context.res = blocked; return; }
+  // Demo mode: allow up to 5 image generations instead of blocking all POSTs
+  var demoGuard = require('../_utils/demoGuard');
+  if (demoGuard.isDemoExpired()) {
+    context.res = { status: 403, headers: CORS, body: JSON.stringify({ error: 'DEMO_EXPIRED', message: 'This demo environment has expired.' }) };
+    return;
+  }
+  if (demoGuard.isDemoMode()) {
+    var demoCount = 0;
+    try { demoCount = (await storage.getState('demoImageCount')) || 0; } catch (e) {}
+    if (demoCount >= 5) {
+      context.res = { status: 429, headers: CORS, body: JSON.stringify({ ok: false, error: 'Demo limit reached — maximum 5 image generations allowed.', remaining: 0 }) };
+      return;
+    }
+  }
 
   // Auth
   var secret = (req.headers && req.headers['x-company-secret']) || '';
@@ -214,6 +226,14 @@ module.exports = async function (context, req) {
 
     var packageUrl = await imageEngine.savePackage(pkg);
     context.log('[quickGenerate] Package saved:', packageId, 'success:', successCount, 'failed:', failedCount);
+
+    // Demo mode: increment image counter
+    if (demoGuard.isDemoMode() && successCount > 0) {
+      try {
+        var prev = (await storage.getState('demoImageCount')) || 0;
+        await storage.setState('demoImageCount', prev + successCount);
+      } catch (e) { context.log.warn('[quickGenerate] Demo counter update failed:', e.message); }
+    }
 
     // Update brief
     brief.status = skipApproval ? 'approved' : 'pending_approval';
