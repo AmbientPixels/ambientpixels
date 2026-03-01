@@ -659,8 +659,20 @@ module.exports = async function (context, req) {
     return;
   }
 
-  var blocked = require('../_utils/demoGuard').httpGuard(req);
-  if (blocked) { context.res = blocked; return; }
+  // Demo mode: allow chat with a message limit instead of blocking all POSTs
+  var demoGuard = require('../_utils/demoGuard');
+  if (demoGuard.isDemoExpired()) {
+    context.res = { status: 403, headers: corsHeaders, body: { error: 'Demo expired.' } };
+    return;
+  }
+  if (demoGuard.isDemoMode() && req.method === 'POST') {
+    var demoMsgCount = 0;
+    try { demoMsgCount = (await storage.getState('demoChatCount')) || 0; } catch (e) {}
+    if (demoMsgCount >= 25) {
+      context.res = { status: 429, headers: corsHeaders, body: { error: 'Demo limit reached — max 25 chat messages.', reply: 'Sorry, the demo chat limit has been reached. Thanks for trying it out!' } };
+      return;
+    }
+  }
 
   if (req.method === 'GET') {
     context.res = {
@@ -840,6 +852,11 @@ ${message}`;
         actionResults = await executeChatActions(context, parsed.actions, agentId);
         context.log('[AgentChat] Actions executed:', actionResults.map(r => (r.success ? '✓' : '✗') + ' ' + r.summary).join(' | '));
       }
+    }
+
+    // Demo mode: increment chat counter
+    if (demoGuard.isDemoMode()) {
+      try { var c = (await storage.getState('demoChatCount')) || 0; await storage.setState('demoChatCount', c + 1); } catch (e) {}
     }
 
     context.res = {
