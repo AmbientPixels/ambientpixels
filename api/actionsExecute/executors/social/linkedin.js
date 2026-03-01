@@ -3,20 +3,129 @@
 // Posts as AmbientPixels ORGANIZATION page (urn:li:organization:{orgId})
 // Requires w_organization_social scope on the OAuth token
 // Env vars: LINKEDIN_ACCESS_TOKEN, LINKEDIN_ORG_ID
+// Auto-refresh: stores tokens in blob (socialCredentials) and refreshes via refresh_token grant
 
 const https = require('https');
+const querystring = require('querystring');
 const crypto = require('crypto');
+const storage = require('../../../_utils/companyStorage');
 
 const LINKEDIN_API_URL = 'https://api.linkedin.com/v2/ugcPosts';
 const MAX_CHARS = 3000;
 // NOTE: Native image upload deferred — LinkedIn org posting permissions differ from Ads access.
 // Media[] items are shared as article link cards for now.
 
-function getCredentials() {
-  return {
-    accessToken: process.env.LINKEDIN_ACCESS_TOKEN || '',
-    orgId: process.env.LINKEDIN_ORG_ID || '107826087'
-  };
+// In-memory cache so we don't hit blob on every call within the same function invocation
+var _cachedCreds = null;
+var _cachedCredsAt = 0;
+var CACHE_TTL = 5 * 60 * 1000; // 5 min
+
+/**
+ * Load credentials: blob (socialCredentials.linkedin) first, env vars as fallback.
+ */
+async function getCredentials() {
+  // Return in-memory cache if fresh
+  if (_cachedCreds && (Date.now() - _cachedCredsAt) < CACHE_TTL) {
+    return _cachedCreds;
+  }
+
+  var creds = { accessToken: '', orgId: process.env.LINKEDIN_ORG_ID || '107826087', refreshToken: '', clientId: '', clientSecret: '', expiresAt: '' };
+
+  try {
+    var blob = await storage.getState('socialCredentials');
+    if (blob && blob.linkedin && blob.linkedin.accessToken) {
+      creds.accessToken = blob.linkedin.accessToken;
+      creds.refreshToken = blob.linkedin.refreshToken || '';
+      creds.clientId = blob.linkedin.clientId || process.env.LINKEDIN_CLIENT_ID || '';
+      creds.clientSecret = blob.linkedin.clientSecret || process.env.LINKEDIN_CLIENT_SECRET || '';
+      creds.expiresAt = blob.linkedin.expiresAt || '';
+      if (blob.linkedin.orgId) creds.orgId = blob.linkedin.orgId;
+      _cachedCreds = creds;
+      _cachedCredsAt = Date.now();
+      return creds;
+    }
+  } catch (e) {
+    console.warn('[LinkedIn] blob read failed, falling back to env vars:', e.message);
+  }
+
+  // Fallback to env vars
+  creds.accessToken = process.env.LINKEDIN_ACCESS_TOKEN || '';
+  creds.refreshToken = process.env.LINKEDIN_REFRESH_TOKEN || '';
+  creds.clientId = process.env.LINKEDIN_CLIENT_ID || '';
+  creds.clientSecret = process.env.LINKEDIN_CLIENT_SECRET || '';
+  _cachedCreds = creds;
+  _cachedCredsAt = Date.now();
+  return creds;
+}
+
+/**
+ * Refresh the access token using the refresh_token grant.
+ * Writes updated tokens back to blob storage.
+ * @returns {Promise<{ok: boolean, accessToken?: string, error?: string}>}
+ */
+function _refreshAccessToken(creds) {
+  return new Promise(function (resolve) {
+    if (!creds.refreshToken || !creds.clientId || !creds.clientSecret) {
+      return resolve({ ok: false, error: 'Missing refresh credentials (refreshToken, clientId, or clientSecret)' });
+    }
+
+    var postData = querystring.stringify({
+      grant_type: 'refresh_token',
+      refresh_token: creds.refreshToken,
+      client_id: creds.clientId,
+      client_secret: creds.clientSecret
+    });
+
+    var options = {
+      hostname: 'www.linkedin.com',
+      path: '/oauth/v2/accessToken',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(postData)
+      }
+    };
+
+    var req = https.request(options, function (res) {
+      var data = '';
+      res.on('data', function (chunk) { data += chunk; });
+      res.on('end', function () {
+        try {
+          var parsed = JSON.parse(data);
+          if (res.statusCode === 200 && parsed.access_token) {
+            var now = new Date();
+            var expiresAt = new Date(now.getTime() + (parsed.expires_in || 5184000) * 1000).toISOString();
+            // Write to blob
+            storage.getState('socialCredentials').then(function (blob) {
+              blob = blob || {};
+              blob.linkedin = Object.assign(blob.linkedin || {}, {
+                accessToken: parsed.access_token,
+                refreshToken: parsed.refresh_token || creds.refreshToken,
+                expiresAt: expiresAt,
+                refreshedAt: now.toISOString()
+              });
+              storage.setState('socialCredentials', blob).then(function () {
+                _log('token-refreshed', { expiresAt: expiresAt });
+              });
+            });
+            // Invalidate in-memory cache
+            _cachedCreds = null;
+            _cachedCredsAt = 0;
+            resolve({ ok: true, accessToken: parsed.access_token, expiresAt: expiresAt });
+          } else {
+            _log('refresh-failed', { status: res.statusCode, body: data.substring(0, 300) });
+            resolve({ ok: false, error: 'Refresh returned ' + res.statusCode + ': ' + (parsed.error_description || parsed.error || data.substring(0, 200)) });
+          }
+        } catch (e) {
+          resolve({ ok: false, error: 'Parse error: ' + e.message });
+        }
+      });
+    });
+    req.on('error', function (err) { resolve({ ok: false, error: 'Network error: ' + err.message }); });
+    req.setTimeout(10000, function () { req.destroy(); resolve({ ok: false, error: 'Refresh request timed out' }); });
+    req.write(postData);
+    req.end();
+  });
 }
 
 function getAuthorUrn(creds) {
@@ -39,13 +148,12 @@ function contentHash(text) {
  * @param {Object} data - Log payload
  */
 function _log(event, data) {
-  const creds = getCredentials();
-  const entry = Object.assign({
+  var orgId = process.env.LINKEDIN_ORG_ID || '107826087';
+  var entry = Object.assign({
     _source: 'linkedin-adapter',
     event: event,
     target: 'organization',
-    orgId: creds.orgId,
-    author: getAuthorUrn(creds),
+    orgId: orgId,
     ts: new Date().toISOString()
   }, data || {});
   console.log('[LinkedIn]', JSON.stringify(entry));
@@ -56,9 +164,9 @@ function _log(event, data) {
  * Also checks /v2/organizationAcls to verify org posting permission.
  * @returns {Promise<{valid: boolean, name?: string, error?: string, orgAccess?: boolean}>}
  */
-function validateToken() {
-  const creds = getCredentials();
-  if (!creds.accessToken) return Promise.resolve({ valid: false, error: 'LINKEDIN_ACCESS_TOKEN not set' });
+async function validateToken() {
+  var creds = await getCredentials();
+  if (!creds.accessToken) return { valid: false, error: 'LINKEDIN_ACCESS_TOKEN not set' };
 
   return new Promise((resolve) => {
     // Step 1: Basic token validity via /v2/userinfo
@@ -153,14 +261,14 @@ function _checkOrgAccess(creds) {
  * @returns {Promise<{receipt: Object}>}
  */
 async function publishToLinkedIn(action) {
-  const creds = getCredentials();
-  const credError = validateCredentials(creds);
+  var creds = await getCredentials();
+  var credError = validateCredentials(creds);
   if (credError) {
     _log('credential-error', { error: credError });
     throw { code: 'MISSING_CREDENTIALS', message: credError };
   }
 
-  const authorUrn = getAuthorUrn(creds);
+  var authorUrn = getAuthorUrn(creds);
   let text = (action.payload && action.payload.text) || '';
   if (!text || text.trim().length === 0) {
     throw { code: 'EMPTY_CONTENT', message: 'Post text is empty' };
@@ -171,24 +279,64 @@ async function publishToLinkedIn(action) {
   }
 
   // Pre-flight: verify token is still valid + check org access
-  const tokenCheck = await validateToken();
+  var tokenCheck = await validateToken();
   if (!tokenCheck.valid) {
-    _log('token-rejected', { error: tokenCheck.error });
-    throw { code: 'TOKEN_INVALID', message: tokenCheck.error || 'LinkedIn access token is invalid or expired. Refresh it in Azure App Settings.' };
+    // Try refresh before giving up
+    _log('token-expired-attempting-refresh', {});
+    var refreshResult = await _refreshAccessToken(creds);
+    if (refreshResult.ok) {
+      creds = await getCredentials();
+      authorUrn = getAuthorUrn(creds);
+      tokenCheck = await validateToken();
+      if (!tokenCheck.valid) {
+        _log('token-rejected-after-refresh', { error: tokenCheck.error });
+        throw { code: 'TOKEN_INVALID', message: 'Token still invalid after refresh: ' + (tokenCheck.error || '') };
+      }
+    } else {
+      _log('refresh-failed-giving-up', { error: refreshResult.error });
+      throw { code: 'TOKEN_INVALID', message: (tokenCheck.error || 'Token expired') + ' | Refresh failed: ' + refreshResult.error };
+    }
   }
   if (tokenCheck.orgAccess === false) {
     _log('org-access-denied', { error: tokenCheck.orgError });
-    // Warn but don't block — the actual post call is the definitive check
     console.warn('[LinkedIn] WARNING: org access check failed:', tokenCheck.orgError, '— proceeding with post attempt');
   }
 
   _log('publish-start', { textLength: text.length, author: authorUrn });
 
-  const media = (action.payload && action.payload.media) || [];
-  const attempts = [];
+  var media = (action.payload && action.payload.media) || [];
+
+  // Build attempts list using current creds
+  var result = await _tryAllApis(creds, authorUrn, text, media);
+  if (result.ok) return result.value;
+
+  // If all failed with 401/403, try one refresh + retry
+  var has401 = result.errors.some(function (e) { return e.statusCode === 401 || e.statusCode === 403; });
+  if (has401 && creds.refreshToken) {
+    _log('post-failed-401-attempting-refresh', {});
+    var refresh = await _refreshAccessToken(creds);
+    if (refresh.ok) {
+      creds = await getCredentials();
+      authorUrn = getAuthorUrn(creds);
+      var retry = await _tryAllApis(creds, authorUrn, text, media);
+      if (retry.ok) return retry.value;
+      result = retry; // use retry errors for final message
+    }
+  }
+
+  var finalMsg = result.errors.map(function (e) { return e.label + ': ' + e.message; }).join(' → ') + ' | author=' + authorUrn;
+  _log('publish-all-failed', { errors: result.errors });
+  throw { code: 'LINKEDIN_ALL_APIS_FAILED', message: finalMsg };
+}
+
+/**
+ * Try all 3 LinkedIn APIs in order. Returns {ok, value, errors}.
+ */
+async function _tryAllApis(creds, authorUrn, text, media) {
+  var attempts = [];
 
   // ── Attempt 1: New Posts API (/rest/posts) — org author ──
-  const postsPayload = {
+  var postsPayload = {
     author: authorUrn,
     commentary: text,
     visibility: 'PUBLIC',
@@ -202,11 +350,11 @@ async function publishToLinkedIn(action) {
   };
 
   if (media.length > 0) {
-    const firstMedia = typeof media[0] === 'string' ? media[0] : (media[0].url || media[0].id || '');
-    if (firstMedia.startsWith('http')) {
+    var firstMedia1 = typeof media[0] === 'string' ? media[0] : (media[0].url || media[0].id || '');
+    if (firstMedia1.startsWith('http')) {
       postsPayload.content = {
         article: {
-          source: firstMedia,
+          source: firstMedia1,
           title: (typeof media[0] === 'object' && media[0].title) || 'Shared content'
         }
       };
@@ -224,12 +372,12 @@ async function publishToLinkedIn(action) {
   });
 
   // ── Attempt 2: UGC Posts API (/v2/ugcPosts) — org author ──
-  const shareContent = { shareCommentary: { text: text }, shareMediaCategory: 'NONE' };
+  var shareContent = { shareCommentary: { text: text }, shareMediaCategory: 'NONE' };
   if (media.length > 0) {
-    const firstMedia = typeof media[0] === 'string' ? media[0] : (media[0].url || media[0].id || '');
-    if (firstMedia.startsWith('http')) {
+    var firstMedia2 = typeof media[0] === 'string' ? media[0] : (media[0].url || media[0].id || '');
+    if (firstMedia2.startsWith('http')) {
       shareContent.shareMediaCategory = 'ARTICLE';
-      shareContent.media = [{ status: 'READY', originalUrl: firstMedia, title: { text: (typeof media[0] === 'object' && media[0].title) || 'Shared content' } }];
+      shareContent.media = [{ status: 'READY', originalUrl: firstMedia2, title: { text: (typeof media[0] === 'object' && media[0].title) || 'Shared content' } }];
     }
   }
   attempts.push({
@@ -256,27 +404,21 @@ async function publishToLinkedIn(action) {
     headers: { 'X-Restli-Protocol-Version': '2.0.0' }
   });
 
-  // Try each API in order until one succeeds
-  const errors = [];
-  for (const attempt of attempts) {
+  var errors = [];
+  for (var i = 0; i < attempts.length; i++) {
+    var attempt = attempts[i];
     try {
-      const result = await _linkedInPost(attempt, creds, text);
+      var result = await _linkedInPost(attempt, creds, text);
       _log('publish-success', { api: attempt.label, postId: result.receipt.post_id });
-      return result;
+      return { ok: true, value: result };
     } catch (err) {
-      const errMsg = err.message || err.code || JSON.stringify(err).substring(0, 200);
+      var errMsg = err.message || err.code || JSON.stringify(err).substring(0, 200);
       _log('publish-attempt-failed', { api: attempt.label, error: errMsg, statusCode: err.statusCode });
-      errors.push(attempt.label + ': ' + errMsg);
+      errors.push({ label: attempt.label, message: errMsg, statusCode: err.statusCode });
     }
   }
 
-  // All attempts failed
-  const finalMsg = errors.join(' → ') + ' | author=' + authorUrn;
-  _log('publish-all-failed', { errors: errors });
-  throw {
-    code: 'LINKEDIN_ALL_APIS_FAILED',
-    message: finalMsg
-  };
+  return { ok: false, errors: errors };
 }
 
 /**
@@ -360,5 +502,6 @@ module.exports = {
   getAuthorUrn,
   validateCredentials,
   validateToken,
-  contentHash
+  contentHash,
+  _refreshAccessToken
 };

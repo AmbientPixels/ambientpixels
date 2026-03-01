@@ -34,6 +34,46 @@ module.exports = async function (context, req) {
   }
 
   const body = req.body || {};
+  const queryAction = (req.query && req.query.action) || '';
+
+  // ─── Seed Credentials: write env vars into blob for auto-refresh ───
+  if (queryAction === 'seed-credentials') {
+    var seedResult = { seeded: false };
+    try {
+      var existing = (await storage.getState('socialCredentials')) || {};
+      var accessToken = process.env.LINKEDIN_ACCESS_TOKEN || '';
+      var refreshToken = process.env.LINKEDIN_REFRESH_TOKEN || '';
+      var clientId = process.env.LINKEDIN_CLIENT_ID || '';
+      var clientSecret = process.env.LINKEDIN_CLIENT_SECRET || '';
+      if (!accessToken) {
+        context.res = { status: 400, headers: CORS, body: JSON.stringify({ error: 'LINKEDIN_ACCESS_TOKEN env var not set' }) };
+        return;
+      }
+      existing.linkedin = {
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+        clientId: clientId,
+        clientSecret: clientSecret,
+        orgId: ORG_ID,
+        expiresAt: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000).toISOString(), // ~60 days from now
+        seededAt: new Date().toISOString()
+      };
+      await storage.setState('socialCredentials', existing);
+      seedResult = {
+        seeded: true,
+        hasAccessToken: !!accessToken,
+        hasRefreshToken: !!refreshToken,
+        hasClientId: !!clientId,
+        hasClientSecret: !!clientSecret,
+        expiresAt: existing.linkedin.expiresAt
+      };
+    } catch (err) {
+      seedResult = { seeded: false, error: err.message };
+    }
+    context.res = { status: 200, headers: CORS, body: JSON.stringify(seedResult, null, 2) };
+    return;
+  }
+
   const dryRun = body.dryRun !== false; // default: true (safe)
   const testText = body.text || 'Test post from AmbientPixels API integration. [' + new Date().toISOString() + ']';
   const token = process.env.LINKEDIN_ACCESS_TOKEN || '';

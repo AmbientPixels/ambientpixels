@@ -640,6 +640,28 @@ module.exports = async function (context) {
       }
     } catch (_prErr) { context.log.warn('[Heartbeat] Proactive publish check failed (non-fatal):', _prErr.message); }
 
+    // ── PROACTIVE LINKEDIN TOKEN REFRESH: refresh if expiring within 7 days ──
+    try {
+      var _socialCreds = await storage.getState('socialCredentials');
+      if (_socialCreds && _socialCreds.linkedin && _socialCreds.linkedin.expiresAt) {
+        var _liExpiry = new Date(_socialCreds.linkedin.expiresAt).getTime();
+        var _liNow = Date.now();
+        var _liDaysLeft = (_liExpiry - _liNow) / (24 * 60 * 60 * 1000);
+        if (_liDaysLeft < 7 && _socialCreds.linkedin.refreshToken && _socialCreds.linkedin.clientId && _socialCreds.linkedin.clientSecret) {
+          context.log('[Heartbeat] LinkedIn token expires in', Math.round(_liDaysLeft * 10) / 10, 'days — refreshing proactively');
+          var _liAdapter = require('./../../actionsExecute/executors/social/linkedin');
+          var _liRefresh = await _liAdapter._refreshAccessToken(_socialCreds.linkedin);
+          if (_liRefresh.ok) {
+            context.log('[Heartbeat] LinkedIn token refreshed successfully, new expiry:', _liRefresh.expiresAt);
+          } else {
+            context.log.warn('[Heartbeat] LinkedIn token refresh failed:', _liRefresh.error);
+          }
+        } else if (_liDaysLeft < 7) {
+          context.log.warn('[Heartbeat] LinkedIn token expires in', Math.round(_liDaysLeft * 10) / 10, 'days but missing refresh credentials');
+        }
+      }
+    } catch (_liErr) { context.log.warn('[Heartbeat] LinkedIn token refresh check failed (non-fatal):', _liErr.message); }
+
     // ── AUTO SOCIAL ACTION: when peer-reviewed social promo tasks reach done, create the social action ──
     try {
       var _socialPromoTasks = tasks.filter(function(t) {
