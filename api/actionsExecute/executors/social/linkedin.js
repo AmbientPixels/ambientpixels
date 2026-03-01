@@ -218,7 +218,7 @@ async function publishToLinkedIn(action) {
     url: 'https://api.linkedin.com/rest/posts',
     body: JSON.stringify(postsPayload),
     headers: {
-      'LinkedIn-Version': '202401',
+      'LinkedIn-Version': '202502',
       'X-Restli-Protocol-Version': '2.0.0'
     }
   });
