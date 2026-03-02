@@ -1234,13 +1234,33 @@ Write the full deliverable first, then the structured JSON block.`;
       socialPayload.text = (socialPayload.text || '').replace(/\n*\[(?:ADDRESSED|NOTE|REVISED|FEEDBACK|CHANGED|UPDATED)[^\]]*\].*$/gis, '').trim();
       const postText = socialPayload.text || '';
 
-      // Server-side enforcement: platform character limits
+      // Server-side enforcement: platform character limits — auto-trim to fit
       const PLATFORM_CHAR_LIMITS = { x: 280, bluesky: 300, linkedin: 3000 };
       const platformKey = (socialPayload.platform || 'x').toLowerCase();
       const charLimit = PLATFORM_CHAR_LIMITS[platformKey] || 280;
       if (postText.length > charLimit) {
-        context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action —', platformKey, 'post is', postText.length, 'chars, limit is', charLimit);
-        continue;
+        context.log('[Heartbeat]', agentId, 'Trimming', platformKey, 'post from', postText.length, 'to', charLimit, 'chars');
+        // Preserve URL and hashtags at the end, trim the body text
+        const urlMatch = postText.match(/((?:\n\n|\n)https?:\/\/\S+(?:\n\n|\n)#[\s\S]*$)/);
+        const hashtagMatch = postText.match(/((?:\n\n|\n)#[A-Za-z][\s\S]*$)/);
+        const suffix = urlMatch ? urlMatch[1] : (hashtagMatch ? hashtagMatch[1] : '');
+        const body = suffix ? postText.substring(0, postText.length - suffix.length) : postText;
+        const maxBody = charLimit - suffix.length;
+        if (maxBody > 40) {
+          // Trim body at last sentence or word boundary
+          let trimmed = body.substring(0, maxBody);
+          const lastSentence = trimmed.match(/^([\s\S]*[.!?])\s/);
+          if (lastSentence && lastSentence[1].length > maxBody * 0.5) {
+            trimmed = lastSentence[1];
+          } else {
+            trimmed = trimmed.substring(0, trimmed.lastIndexOf(' ')) || trimmed;
+          }
+          socialPayload.text = (trimmed.trim() + suffix).trim();
+        } else {
+          // Suffix alone is too long, just hard-cut
+          socialPayload.text = postText.substring(0, charLimit - 1).trim() + '…';
+        }
+        context.log('[Heartbeat] Trimmed result:', socialPayload.text.length, 'chars');
       }
 
       // Server-side enforcement: reject posts with unfilled template placeholders
