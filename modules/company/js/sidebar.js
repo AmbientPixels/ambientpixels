@@ -33,8 +33,7 @@
       links: [
         { href: BASE + 'work-overview.html', label: 'Overview', icon: 'fa-list-check', match: ['work-overview.html'] },
         { href: BASE + 'tasks.html', label: 'Tasks', icon: 'fa-tasks', match: ['tasks.html'] },
-        { href: BASE + 'actions.html', label: 'Actions', icon: 'fa-bolt', match: ['actions.html'] },
-        { href: BASE + 'documents.html', label: 'Wiki', icon: 'fa-book', match: ['documents.html'] }
+        { href: BASE + 'actions.html', label: 'Actions', icon: 'fa-bolt', match: ['actions.html'] }
       ]
     },
     {
@@ -147,7 +146,8 @@
   // Footer: Globe + Auth
   var footer = document.createElement('div');
   footer.className = 'sb-rail-footer';
-  footer.innerHTML = '<a href="/" class="sb-rail-globe" title="Main Site"><i class="fas fa-globe"></i></a>' +
+  footer.innerHTML = '<a href="' + BASE + 'documents.html" class="sb-rail-globe" title="Wiki"><i class="fas fa-book"></i></a>' +
+    '<a href="/" class="sb-rail-globe" title="Main Site"><i class="fas fa-globe"></i></a>' +
     '<a href="/blog/" class="sb-rail-globe" title="Public Blog" style="opacity:0.5;"><i class="fas fa-newspaper"></i></a>' +
     '<button type="button" id="sb-auth-btn" class="sb-rail-globe" title="Loading..." style="opacity:0.4; background:none; border:none; cursor:pointer; color:inherit; font-size:inherit; padding:0;"><i class="fas fa-spinner fa-spin"></i></button>';
   rail.appendChild(footer);
