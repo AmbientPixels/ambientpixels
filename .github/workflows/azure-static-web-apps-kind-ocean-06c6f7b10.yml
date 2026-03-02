@@ -49,15 +49,20 @@ jobs:
             // Redirect root to company dashboard
             cfg.routes.unshift({ route: '/', redirect: '/modules/company/', statusCode: 302 });
 
-            // Open company module to anonymous (no auth in demo)
+            // Open ALL routes to anonymous (no auth in demo)
             cfg.routes.forEach(r => {
-              if (r.route && r.route.startsWith('/modules/company/') && r.allowedRoles) {
+              if (r.allowedRoles) {
                 r.allowedRoles = ['anonymous'];
               }
             });
 
             // Remove auth provider config (not needed for demo)
             delete cfg.auth;
+
+            // Remove 401 response override (no login page in demo)
+            if (cfg.responseOverrides) {
+              delete cfg.responseOverrides['401'];
+            }
 
             fs.writeFileSync('demo_build/staticwebapp.config.json', JSON.stringify(cfg, null, 2));
           "
