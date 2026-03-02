@@ -37,6 +37,19 @@
       ]
     },
     {
+      id: 'strategy',
+      label: 'Plan',
+      icon: 'fa-compass',
+      overview: BASE + 'plan-overview.html',
+      links: [
+        { href: BASE + 'plan-overview.html', label: 'Overview', icon: 'fa-compass', match: ['plan-overview.html'] },
+        { href: BASE + 'objectives.html', label: 'Goals', icon: 'fa-bullseye', match: ['objectives.html'] },
+        { href: BASE + 'campaigns.html', label: 'Campaigns', icon: 'fa-layer-group', match: ['campaigns.html', 'directives.html'] },
+        { href: BASE + 'calendar.html', label: 'Calendar', icon: 'fa-calendar-alt', match: ['calendar.html'] },
+        { href: BASE + 'governance.html', label: 'Playbook', icon: 'fa-scroll', match: ['governance.html'] }
+      ]
+    },
+    {
       id: 'inbound',
       label: 'Inbound',
       icon: 'fa-satellite-dish',
@@ -54,19 +67,6 @@
         { href: BASE + 'content-overview.html', label: 'Overview', icon: 'fa-wand-magic-sparkles', match: ['content-overview.html'] },
         { href: BASE + 'content-engine.html', label: 'Image Engine', icon: 'fa-images', match: ['content-engine.html'] },
         { href: BASE + 'content-gallery.html', label: 'Gallery', icon: 'fa-photo-film', match: ['content-gallery.html'] }
-      ]
-    },
-    {
-      id: 'strategy',
-      label: 'Plan',
-      icon: 'fa-compass',
-      overview: BASE + 'plan-overview.html',
-      links: [
-        { href: BASE + 'plan-overview.html', label: 'Overview', icon: 'fa-compass', match: ['plan-overview.html'] },
-        { href: BASE + 'objectives.html', label: 'Goals', icon: 'fa-bullseye', match: ['objectives.html'] },
-        { href: BASE + 'campaigns.html', label: 'Campaigns', icon: 'fa-layer-group', match: ['campaigns.html', 'directives.html'] },
-        { href: BASE + 'calendar.html', label: 'Calendar', icon: 'fa-calendar-alt', match: ['calendar.html'] },
-        { href: BASE + 'governance.html', label: 'Playbook', icon: 'fa-scroll', match: ['governance.html'] }
       ]
     },
     {
