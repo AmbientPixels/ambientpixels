@@ -129,43 +129,71 @@ async function pullLinkedInAccountStats() {
       followers = followerRes.data.firstDegreeSize || 0;
     }
 
-    // 3. Recent posts via /v2/ugcPosts (org author)
-    var postsUrl = 'https://api.linkedin.com/v2/ugcPosts?q=authors&authors=List(urn:li:organization:' + orgId + ')&sortBy=LAST_MODIFIED&count=10';
-    var postsRes = await _httpGet(postsUrl, {
+    // 3. Recent posts — try /rest/posts (new API) first, fall back to /v2/ugcPosts
+    var posts = [];
+    var authorUrn = 'urn:li:organization:' + orgId;
+
+    // Attempt A: /rest/posts (current LinkedIn API)
+    var restPostsUrl = 'https://api.linkedin.com/rest/posts?author=' + encodeURIComponent(authorUrn) + '&q=author&count=10&sortBy=LAST_MODIFIED';
+    var restRes = await _httpGet(restPostsUrl, {
       'Authorization': 'Bearer ' + token,
+      'LinkedIn-Version': '202502',
       'X-Restli-Protocol-Version': '2.0.0'
     });
-    var posts = [];
-    if (postsRes.status === 200 && postsRes.data && Array.isArray(postsRes.data.elements)) {
-      posts = postsRes.data.elements.slice(0, 10).map(function (p) {
-        var sc = (p.specificContent && p.specificContent['com.linkedin.ugc.ShareContent']) || {};
-        var text = (sc.shareCommentary && sc.shareCommentary.text) || '';
+    if (restRes.status === 200 && restRes.data && Array.isArray(restRes.data.elements)) {
+      posts = restRes.data.elements.slice(0, 10).map(function (p) {
+        var text = p.commentary || '';
         var postUrn = p.id || '';
         return {
           id: postUrn,
           text: text.slice(0, 140),
-          created_at: p.created && p.created.time ? new Date(p.created.time).toISOString() : '',
+          created_at: p.createdAt ? new Date(p.createdAt).toISOString() : '',
           url: postUrn ? 'https://www.linkedin.com/feed/update/' + postUrn : '',
           likes: null,
           comments: null,
           reposts: null
         };
       });
+    }
 
-      // 4. Get social actions for each post (likes/comments)
-      for (var i = 0; i < posts.length && i < 5; i++) {
-        try {
-          var actionsUrl = 'https://api.linkedin.com/v2/socialActions/' + encodeURIComponent(posts[i].id) + '?projection=(likesSummary,commentsSummary)';
-          var actRes = await _httpGet(actionsUrl, {
-            'Authorization': 'Bearer ' + token,
-            'X-Restli-Protocol-Version': '2.0.0'
-          });
-          if (actRes.status === 200 && actRes.data) {
-            posts[i].likes = (actRes.data.likesSummary && actRes.data.likesSummary.totalLikes) || 0;
-            posts[i].comments = (actRes.data.commentsSummary && actRes.data.commentsSummary.totalFirstLevelComments) || 0;
-          }
-        } catch (_) { /* skip */ }
+    // Attempt B: /v2/ugcPosts (legacy fallback)
+    if (posts.length === 0) {
+      var postsUrl = 'https://api.linkedin.com/v2/ugcPosts?q=authors&authors=List(' + authorUrn + ')&sortBy=LAST_MODIFIED&count=10';
+      var postsRes = await _httpGet(postsUrl, {
+        'Authorization': 'Bearer ' + token,
+        'X-Restli-Protocol-Version': '2.0.0'
+      });
+      if (postsRes.status === 200 && postsRes.data && Array.isArray(postsRes.data.elements)) {
+        posts = postsRes.data.elements.slice(0, 10).map(function (p) {
+          var sc = (p.specificContent && p.specificContent['com.linkedin.ugc.ShareContent']) || {};
+          var text = (sc.shareCommentary && sc.shareCommentary.text) || '';
+          var postUrn = p.id || '';
+          return {
+            id: postUrn,
+            text: text.slice(0, 140),
+            created_at: p.created && p.created.time ? new Date(p.created.time).toISOString() : '',
+            url: postUrn ? 'https://www.linkedin.com/feed/update/' + postUrn : '',
+            likes: null,
+            comments: null,
+            reposts: null
+          };
+        });
       }
+    }
+
+    // 4. Get social actions for each post (likes/comments)
+    for (var i = 0; i < posts.length && i < 5; i++) {
+      try {
+        var actionsUrl = 'https://api.linkedin.com/v2/socialActions/' + encodeURIComponent(posts[i].id) + '?projection=(likesSummary,commentsSummary)';
+        var actRes = await _httpGet(actionsUrl, {
+          'Authorization': 'Bearer ' + token,
+          'X-Restli-Protocol-Version': '2.0.0'
+        });
+        if (actRes.status === 200 && actRes.data) {
+          posts[i].likes = (actRes.data.likesSummary && actRes.data.likesSummary.totalLikes) || 0;
+          posts[i].comments = (actRes.data.commentsSummary && actRes.data.commentsSummary.totalFirstLevelComments) || 0;
+        }
+      } catch (_) { /* skip */ }
     }
 
     return {
