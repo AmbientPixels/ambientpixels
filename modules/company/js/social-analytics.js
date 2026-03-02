@@ -349,8 +349,10 @@
         continue;
       }
       var avatarHtml = pl.avatar ? '<img class="sa-acct-avatar" src="' + esc(pl.avatar) + '" alt="" onerror="this.style.display=\'none\'" />' : '';
+      var badgeIcons = { x: 'fa-x-twitter', linkedin: 'fa-linkedin', bluesky: 'fa-bluesky' };
+      var badgeIcon = badgeIcons[key] || 'fa-globe';
       cardsHtml += '<div class="sa-acct-card sa-acct-card--' + key + '">';
-      cardsHtml += '<div class="sa-acct-card-head">' + avatarHtml + '<div><div class="sa-acct-card-name">' + esc(pl.name || '') + '</div><div class="sa-acct-card-handle">' + esc(pl.handle || '') + '</div></div></div>';
+      cardsHtml += '<div class="sa-acct-card-head">' + avatarHtml + '<div><div class="sa-acct-card-name">' + esc(pl.name || '') + '</div><div class="sa-acct-card-handle">' + esc(pl.handle || '') + '</div></div><span class="sa-acct-badge sa-acct-badge--' + key + '"><i class="fa-brands ' + badgeIcon + '"></i></span></div>';
       cardsHtml += '<div class="sa-acct-stats">';
       cardsHtml += '<div class="sa-acct-stat"><div class="sa-acct-stat-value">' + esc(fmtNum(pl.followers || 0)) + '</div><div class="sa-acct-stat-label">Followers</div></div>';
       cardsHtml += '<div class="sa-acct-stat"><div class="sa-acct-stat-value">' + esc(fmtNum(pl.following != null ? pl.following : 0)) + '</div><div class="sa-acct-stat-label">Following</div></div>';

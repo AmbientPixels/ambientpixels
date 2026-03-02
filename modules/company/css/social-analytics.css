@@ -492,6 +492,15 @@
   gap: 0.45rem;
 }
 
+.sa-acct-badge {
+  margin-left: auto;
+  font-size: 1.25rem;
+  opacity: 0.85;
+}
+.sa-acct-badge--x { color: #1d9bf0; }
+.sa-acct-badge--linkedin { color: #0a66c2; }
+.sa-acct-badge--bluesky { color: #0085ff; }
+
 .sa-acct-avatar {
   width: 32px;
   height: 32px;
