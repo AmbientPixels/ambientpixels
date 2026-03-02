@@ -1,5 +1,5 @@
 {
-  "scannedAt": "2026-03-01T13:40:38.415Z",
+  "scannedAt": "2026-03-02T14:01:26.194Z",
   "scripts": {
     "aiPromptGenerator.js": [
       "fillTemplate",
@@ -94,6 +94,12 @@
     "scanSiteStructure.js": [
       "scanDirectory",
       "buildStructure"
+    ],
+    "seed-demo.js": [
+      "seed",
+      "daysAgo",
+      "hoursAgo",
+      "main"
     ],
     "unusedCSS.js": [
       "extractClassNamesFromCSS",

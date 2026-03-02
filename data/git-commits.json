@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "be70ad08-9aa7-45e3-a243-9a750c7d1327",
-      "hash": "7af3d567e5954c1187be67d4be2a9a654d2bd13e",
-      "message": "Swap Goal and Campaign columns in task list view — Goal first",
-      "timestamp": "2026-02-28 21:10:53 -0800",
+      "id": "d52028d7-fd5a-4802-be70-b4d8cda2b87e",
+      "hash": "8c576973234fc9fce6142bd2cacb699a71742e95",
+      "message": "Move the company sidebar to the left side of the screen, and make it collapsible.",
+      "timestamp": "2026-03-01 16:23:45 -0800",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/7af3d567e5954c1187be67d4be2a9a654d2bd13e"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/8c576973234fc9fce6142bd2cacb699a71742e95"
     }
   ],
-  "timestamp": "2026-03-01T13:40:37.599Z",
+  "timestamp": "2026-03-02T14:01:25.688Z",
   "count": 1,
-  "scanId": 1772372437599
+  "scanId": 1772460085688
 }
