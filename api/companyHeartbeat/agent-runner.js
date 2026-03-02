@@ -1234,6 +1234,15 @@ Write the full deliverable first, then the structured JSON block.`;
       socialPayload.text = (socialPayload.text || '').replace(/\n*\[(?:ADDRESSED|NOTE|REVISED|FEEDBACK|CHANGED|UPDATED)[^\]]*\].*$/gis, '').trim();
       const postText = socialPayload.text || '';
 
+      // Server-side enforcement: platform character limits
+      const PLATFORM_CHAR_LIMITS = { x: 280, bluesky: 300, linkedin: 3000 };
+      const platformKey = (socialPayload.platform || 'x').toLowerCase();
+      const charLimit = PLATFORM_CHAR_LIMITS[platformKey] || 280;
+      if (postText.length > charLimit) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action —', platformKey, 'post is', postText.length, 'chars, limit is', charLimit);
+        continue;
+      }
+
       // Server-side enforcement: reject posts with unfilled template placeholders
       if (/\[(?:[^\]]*(?:mention|insert|\badd\b|include|TBD|link|placeholder|url|website|your |e\.g\.|fill))[^\]]*\]/i.test(postText)) {
         context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action — contains placeholder brackets:', postText.substring(0, 100));
