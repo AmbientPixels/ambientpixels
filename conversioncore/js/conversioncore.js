@@ -118,6 +118,12 @@
     scoreGauge.className = 'cc-score-gauge ' + (score >= 65 ? 'score-high' : score >= 50 ? 'score-mid' : 'score-low');
     gradeEl.textContent = 'Grade: ' + (data.grade || '--');
 
+    // Score interpretation
+    var interpEl = document.getElementById('cc-score-interpretation');
+    if (interpEl) {
+      interpEl.textContent = scoreInterpretation(score);
+    }
+
     // JS warning
     if (data.jsRenderedWarning) {
       jsWarning.style.display = 'block';
@@ -155,12 +161,31 @@
 
     // Scroll to results
     resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // Gentle auto-scroll toward unlock section after 4s
+    if (blurred > 0) {
+      setTimeout(function () {
+        upgradeSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 4000);
+    }
+  }
+
+  function scoreInterpretation(score) {
+    if (score >= 80) return 'Strong conversion fundamentals. Minor optimizations could still unlock additional revenue.';
+    if (score >= 65) return 'Solid foundation with clear optimization opportunities. Targeted fixes can meaningfully increase conversions.';
+    if (score >= 50) return 'Significant revenue leakage detected. Visitors are likely dropping off before reaching your conversion action.';
+    return 'High revenue leakage risk. Qualified visitors are leaving before they convert. Immediate optimization recommended.';
   }
 
   function buildFindingCard(f, isBlurred) {
+    var impactClass = f.estimatedImpact === 'high' ? 'cc-impact-high' : f.estimatedImpact === 'low' ? 'cc-impact-low' : 'cc-impact-med';
     return '<div class="cc-finding-card' + (isBlurred ? ' blurred' : '') + '">' +
+      '<div class="cc-finding-badges">' +
       '<span class="cc-finding-severity ' + (f.severity || 'minor') + '">' + escapeHtml(f.severity || 'minor') + '</span>' +
+      (!isBlurred && f.estimatedImpact ? '<span class="cc-finding-impact ' + impactClass + '">Impact: ' + escapeHtml(f.estimatedImpact) + '</span>' : '') +
+      '</div>' +
       '<div class="cc-finding-dim">' + escapeHtml(f.dimensionLabel || '') + '</div>' +
+      (f.evidence && !isBlurred ? '<div class="cc-finding-evidence">' + escapeHtml(f.evidence) + '</div>' : '') +
       '<div class="cc-finding-text">' + escapeHtml(f.finding || '') + '</div>' +
       (f.recommendation ? '<div class="cc-finding-rec">' + escapeHtml(f.recommendation) + '</div>' : '') +
       '</div>';

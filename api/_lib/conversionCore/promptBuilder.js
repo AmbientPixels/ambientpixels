@@ -113,6 +113,7 @@ IMPORTANT RULES:
 - If no evidence exists for a criterion, note its absence and score accordingly.
 - Do not inflate scores. A generic page should score 4-6, not 7-8.
 - Each finding must include a concrete, actionable recommendation.
+- CRITICAL: Every finding MUST include an "evidence" field that quotes the EXACT text, element, or absence from the page being critiqued. Example: 'Current headline: "AI, Engineered for Production." — this does not state a specific outcome or measurable benefit.' This makes findings feel forensic and premium.
 
 ${rubricBlock}
 
@@ -127,7 +128,7 @@ ${dimIds.map(dimId => {
 ${dim.subCriteria.map(sc => `      "${sc.id}": { "score": 0, "reasoning": "cite evidence then explain score" }`).join(',\n')}
     },
     "findings": [
-      { "severity": "critical|important|minor", "finding": "what is wrong", "recommendation": "specific fix", "estimatedImpact": "high|medium|low" }
+      { "severity": "critical|important|minor", "evidence": "quote or cite the specific element from the page", "finding": "what is wrong based on the evidence", "recommendation": "specific fix", "estimatedImpact": "high|medium|low" }
     ],
     "summary": "2-sentence summary of this dimension"
   }`;

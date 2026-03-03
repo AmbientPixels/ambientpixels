@@ -74,6 +74,7 @@ function computeScore(evaluations) {
           dimension: dimId,
           dimensionLabel: dim.label,
           severity: f.severity || 'minor',
+          evidence: f.evidence || '',
           finding: f.finding || '',
           recommendation: f.recommendation || '',
           estimatedImpact: f.estimatedImpact || 'medium'

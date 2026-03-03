@@ -210,7 +210,7 @@
         html += '<tr>';
         html += '<td style="color:' + severityColor(f.severity) + ';font-weight:600;text-transform:uppercase;font-size:11px;">' + esc(f.severity) + '</td>';
         html += '<td style="color:var(--cc-text-muted);">' + esc(f.dimensionLabel) + '</td>';
-        html += '<td style="color:var(--cc-text);">' + esc(f.finding) + '</td>';
+        html += '<td style="color:var(--cc-text);">' + (f.evidence ? '<div style="font-size:11px;color:var(--cc-text-muted);font-style:italic;margin-bottom:4px;padding:4px 8px;background:rgba(255,255,255,0.03);border-left:2px solid var(--cc-border);border-radius:0 4px 4px 0;">' + esc(f.evidence) + '</div>' : '') + esc(f.finding) + '</td>';
         html += '<td style="color:var(--cc-text-secondary);">' + esc(f.recommendation) + '</td>';
         html += '</tr>';
       });
