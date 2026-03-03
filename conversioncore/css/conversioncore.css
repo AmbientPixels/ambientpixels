@@ -425,7 +425,7 @@ a:hover { color: var(--cc-accent-hover); }
   transition: background 0.2s;
 }
 
-.cc-buy-btn:hover { background: var(--cc-accent-hover); }
+.cc-buy-btn:hover { background: var(--cc-accent-hover); color: #fff; }
 
 .cc-pack-btn {
   padding: 14px 32px;
