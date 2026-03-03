@@ -411,7 +411,7 @@
     html += '<p>AmbientPixels implements messaging rewrites, funnel restructuring, CTA optimization, and AI-driven content integration \u2014 so you capture the revenue this report identified.</p>';
     html += '<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">';
     html += '<a href="' + strategyUrl + '" class="cc-buy-btn" style="text-decoration:none;">Book a Strategy Call</a>';
-    html += '<a href="mailto:hello@ambientpixels.ai?subject=ConversionCore%20Audit%20%E2%80%94%20' + encodeURIComponent(report.url || '') + '" class="cc-buy-btn" style="text-decoration:none;background:transparent;color:var(--cc-accent);border:1px solid var(--cc-accent);">Email Us</a>';
+    html += '<a href="mailto:ambientpixels2022@gmail.com?subject=ConversionCore%20Audit%20%E2%80%94%20' + encodeURIComponent(report.url || '') + '" class="cc-buy-btn" style="text-decoration:none;background:transparent;color:var(--cc-accent);border:1px solid var(--cc-accent);">Email Us</a>';
     html += '</div>';
     html += '</div>';
 
