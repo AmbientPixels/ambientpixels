@@ -4,7 +4,9 @@
 (function () {
   'use strict';
 
-  var API = '/api';
+  var API = window.location.hostname === 'localhost'
+    ? '/api'
+    : 'https://ambientpixels-nova-api.azurewebsites.net/api';
   var params = new URLSearchParams(window.location.search);
   var reportId = params.get('id');
   var sessionId = params.get('session_id');
