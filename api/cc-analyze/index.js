@@ -219,9 +219,17 @@ module.exports = async function (context, req) {
 
   } catch (err) {
     context.log.error('[cc-analyze] Error:', err.message || err);
-    const status = err.message && (err.message.includes('Blocked') || err.message.includes('not allowed') || err.message.includes('Invalid URL'))
-      ? 400 : 500;
-    const msg = status === 400 ? err.message : 'Analysis failed: ' + (err.message || 'unknown error').substring(0, 200);
-    context.res = { status: status, headers: CORS, body: JSON.stringify({ error: msg }) };
+    const errMsg = err.message || '';
+
+    // Client-friendly error codes
+    if (errMsg.includes('Blocked') || errMsg.includes('not allowed') || errMsg.includes('Invalid URL')) {
+      context.res = { status: 400, headers: CORS, body: JSON.stringify({ error: errMsg }) };
+    } else if (errMsg.includes('status code 403') || errMsg.includes('status code 429')) {
+      context.res = { status: 403, headers: CORS, body: JSON.stringify({ error: 'SITE_BLOCKED', detail: 'This site has bot protection that blocked our scan.' }) };
+    } else if (errMsg.includes('timeout') || errMsg.includes('ETIMEDOUT') || errMsg.includes('ECONNREFUSED')) {
+      context.res = { status: 504, headers: CORS, body: JSON.stringify({ error: 'SITE_TIMEOUT', detail: 'The site took too long to respond.' }) };
+    } else {
+      context.res = { status: 500, headers: CORS, body: JSON.stringify({ error: 'ANALYSIS_FAILED', detail: errMsg.substring(0, 200) }) };
+    }
   }
 };

@@ -93,6 +93,42 @@
     stopLoadingSteps();
   }
 
+  var ERROR_MESSAGES = {
+    SITE_BLOCKED: [
+      "This site has a bouncer and we're not on the list. Try a different URL!",
+      "Fort Knox called — they want their security back. This site blocked our scan.",
+      "This site's firewall said 'nah.' Try another URL and we'll score that one instead.",
+      "Looks like this site is wearing armor. Our scanner couldn't get past the bot protection."
+    ],
+    SITE_TIMEOUT: [
+      "This site is taking a really long nap. We couldn't get a response in time.",
+      "We waited. And waited. And... nothing. The site didn't respond.",
+      "Either this site is running on a toaster, or it really doesn't want to talk to us."
+    ],
+    ANALYSIS_FAILED: [
+      "Something tripped up our analysis engine. Mind giving it another shot?",
+      "Our scoring brain had a hiccup. Try again — it usually works on the second go.",
+      "Well, that didn't go as planned. Give it another try!"
+    ]
+  };
+
+  function friendlyError(raw) {
+    // Try to parse structured error from API
+    try {
+      var parsed = JSON.parse(raw);
+      var code = parsed.error || '';
+      var pool = ERROR_MESSAGES[code];
+      if (pool) return pool[Math.floor(Math.random() * pool.length)];
+    } catch (e) { /* not JSON, check string */ }
+    // Match on raw string
+    if (raw.indexOf('SITE_BLOCKED') !== -1) return ERROR_MESSAGES.SITE_BLOCKED[Math.floor(Math.random() * ERROR_MESSAGES.SITE_BLOCKED.length)];
+    if (raw.indexOf('SITE_TIMEOUT') !== -1) return ERROR_MESSAGES.SITE_TIMEOUT[Math.floor(Math.random() * ERROR_MESSAGES.SITE_TIMEOUT.length)];
+    if (raw.indexOf('403') !== -1) return ERROR_MESSAGES.SITE_BLOCKED[Math.floor(Math.random() * ERROR_MESSAGES.SITE_BLOCKED.length)];
+    if (raw.indexOf('timeout') !== -1) return ERROR_MESSAGES.SITE_TIMEOUT[Math.floor(Math.random() * ERROR_MESSAGES.SITE_TIMEOUT.length)];
+    if (raw.indexOf('ANALYSIS_FAILED') !== -1 || raw.indexOf('Analysis failed') !== -1) return ERROR_MESSAGES.ANALYSIS_FAILED[Math.floor(Math.random() * ERROR_MESSAGES.ANALYSIS_FAILED.length)];
+    return raw || "Something went sideways. Try again!";
+  }
+
   function showError(msg) {
     hideLoading();
     errorSection.style.display = 'block';
@@ -229,7 +265,7 @@
       })
       .then(renderResults)
       .catch(function (err) {
-        showError(err.message || 'Something went wrong. Please try again.');
+        showError(friendlyError(err.message || ''));
       });
   });
 
