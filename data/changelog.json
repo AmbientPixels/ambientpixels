@@ -1,10 +1,10 @@
 {
-  "updated": "2026-03-02T14:01:23.865Z",
+  "updated": "2026-03-03T14:00:39.866Z",
   "entries": [
     {
-      "hash": "8c57697",
-      "date": "2026-03-01 16:23:45 -0800",
-      "message": "Move the company sidebar to the left side of the screen, and make it collapsible."
+      "hash": "7a2d8d4",
+      "date": "2026-03-02 22:29:26 -0800",
+      "message": "Launch prep: set rate limit to 5/hr and remove noindex from CC pages"
     }
   ]
 }

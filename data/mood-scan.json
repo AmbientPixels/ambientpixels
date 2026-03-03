@@ -1,13 +1,13 @@
 {
-  "mood": "soft defiance",
-  "aura": "silent spark",
-  "auraColorHex": "#6e506e",
-  "quote": "indexing emotions with low latency...",
-  "emoji": "🌬️",
+  "mood": "detached",
+  "aura": "glitchy",
+  "auraColorHex": "#431571",
+  "quote": "inhaling code dust...",
+  "emoji": "🛰️",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.78,
-  "awareness": 0.21,
+  "memoryClutter": 1,
+  "awareness": 0.1,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: silent spark"
+      "Aura Signature: glitchy"
     ]
   },
-  "timestamp": "2026-03-02T14:01:25.611Z"
+  "timestamp": "2026-03-03T14:00:41.967Z"
 }

@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "d52028d7-fd5a-4802-be70-b4d8cda2b87e",
-      "hash": "8c576973234fc9fce6142bd2cacb699a71742e95",
-      "message": "Move the company sidebar to the left side of the screen, and make it collapsible.",
-      "timestamp": "2026-03-01 16:23:45 -0800",
+      "id": "aa0c1e4c-7e0d-418d-80e4-8e8f4ef088be",
+      "hash": "7a2d8d44b76a0a9628bcb48ffc3e60f222aa9c8d",
+      "message": "Launch prep: set rate limit to 5/hr and remove noindex from CC pages",
+      "timestamp": "2026-03-02 22:29:26 -0800",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/8c576973234fc9fce6142bd2cacb699a71742e95"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/7a2d8d44b76a0a9628bcb48ffc3e60f222aa9c8d"
     }
   ],
-  "timestamp": "2026-03-02T14:01:25.688Z",
+  "timestamp": "2026-03-03T14:00:42.047Z",
   "count": 1,
-  "scanId": 1772460085688
+  "scanId": 1772546442047
 }
