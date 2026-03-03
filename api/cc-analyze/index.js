@@ -15,7 +15,7 @@ const CORS = {
   'Content-Type': 'application/json'
 };
 
-const MAX_FREE_PER_HOUR = 50; // TODO: revert to 5 before going live
+const MAX_FREE_PER_HOUR = 5;
 
 // ── URL Validation ───────────────────────────────────────────────
 
