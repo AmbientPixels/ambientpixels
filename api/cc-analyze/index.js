@@ -92,17 +92,22 @@ module.exports = async function (context, req) {
           existing.unlocked = true;
           existing.paidAt = new Date().toISOString();
           existing.customerEmail = payment.customerEmail || null;
+          existing.priceType = payment.metadata.priceType || 'single';
           await storage.setState('cc_report_' + existingId, existing);
 
           // Grant pack credits if this was a 3-pack purchase (idempotent with webhook)
+          var packCreditsRemaining = null;
           if (payment.metadata.priceType === 'pack' && payment.customerEmail) {
             try {
               const creditUtils = require('../_lib/conversionCore/creditUtils');
-              await creditUtils.grantPackCredits({
+              var creditResult = await creditUtils.grantPackCredits({
                 email: payment.customerEmail,
                 stripeSessionId: sessionId,
                 reportId: existingId
               });
+              if (creditResult) {
+                packCreditsRemaining = creditResult.credits;
+              }
             } catch (creditErr) {
               context.log.warn('[cc-analyze] Credit creation failed (non-fatal):', creditErr.message);
             }
@@ -117,7 +122,9 @@ module.exports = async function (context, req) {
               score: existing.score,
               grade: existing.grade,
               isPaid: true,
-              reportUrl: '/conversioncore/report.html?id=' + existingId
+              reportUrl: '/conversioncore/report.html?id=' + existingId,
+              priceType: payment.metadata.priceType || 'single',
+              packCreditsRemaining: packCreditsRemaining
             })
           };
           return;

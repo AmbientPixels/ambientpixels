@@ -37,6 +37,7 @@ module.exports = async function (context, req) {
           report.paidAt = new Date().toISOString();
           report.customerEmail = email || null;
           report.stripeSessionId = session.id;
+          report.priceType = (session.metadata && session.metadata.priceType) || 'single';
           await storage.setState('cc_report_' + reportId, report);
           context.log('[cc-webhook] Report unlocked: ' + reportId);
 

@@ -35,7 +35,11 @@
       body: JSON.stringify({ sessionId: sessionId })
     })
       .then(function (res) { return res.json(); })
-      .then(function () {
+      .then(function (data) {
+        // Store pack info for banner display
+        if (data.priceType === 'pack' && data.packCreditsRemaining != null) {
+          sessionStorage.setItem('cc_pack_credits', data.packCreditsRemaining);
+        }
         // Clean URL params
         window.history.replaceState({}, '', window.location.pathname + '?id=' + reportId);
         loadReport();
@@ -176,6 +180,17 @@
     var dims = report.dimensions || {};
     var findings = report.findings || [];
     var html = '';
+
+    // Pack banner
+    if (report.priceType === 'pack') {
+      var creditsLeft = sessionStorage.getItem('cc_pack_credits');
+      html += '<div style="text-align:center;padding:12px 16px;margin-bottom:24px;background:var(--cc-accent-soft);border:1px solid var(--cc-accent);border-radius:var(--cc-radius-sm);font-size:14px;color:var(--cc-accent);">';
+      html += 'This report was unlocked with your 3-Pack.';
+      if (creditsLeft != null) {
+        html += ' Pack credits remaining: <strong>' + creditsLeft + '</strong>';
+      }
+      html += '</div>';
+    }
 
     // Header
     html += '<div class="cc-report-header">';
