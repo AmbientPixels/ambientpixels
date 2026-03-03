@@ -130,9 +130,35 @@
             header.querySelector('h1').textContent = 'Request Received';
             header.querySelector('p').textContent = '';
           }
-          var msg = 'Thanks \u2014 we\'re reviewing your audit and will email proposed times within 24 hours.';
+
+          // Score-aware confirmation
+          var scoreNum = parseFloat(qScore);
+          var hasScore = !isNaN(scoreNum);
+          var msg = 'Thanks \u2014 we\'re reviewing your audit';
+          if (hasScore) msg += ' (Score: ' + Math.round(scoreNum) + ')';
+          msg += ' and will propose strategy times within 24 hours.';
+
+          // Dynamic messaging based on score
+          if (hasScore) {
+            if (scoreNum < 60) {
+              msg += '<p style="margin-top:16px;font-size:13px;color:var(--cc-text-secondary);">Based on your audit, there are high-impact improvements available.</p>';
+            } else if (scoreNum >= 70) {
+              msg += '<p style="margin-top:16px;font-size:13px;color:var(--cc-text-secondary);">Strong foundation \u2014 we\'ll focus on optimization and lift.</p>';
+            }
+          }
+
+          // What happens next
+          msg += '<div style="margin-top:24px;text-align:left;max-width:400px;margin-left:auto;margin-right:auto;font-size:13px;color:var(--cc-text-secondary);line-height:1.8;">';
+          msg += '<strong style="color:var(--cc-text);">What happens next:</strong><br>';
+          msg += '\u2022 We review your report in detail<br>';
+          msg += '\u2022 We outline a focused improvement roadmap<br>';
+          msg += '\u2022 We propose 2\u20133 time options<br>';
+          msg += '\u2022 You confirm and we finalize';
+          msg += '</div>';
+
+          // CTA back to report
           if (qReportId) {
-            msg += '<br><br><a href="/conversioncore/report.html?id=' + encodeURIComponent(qReportId) + '" class="cc-buy-btn" style="display:inline-block;margin-top:8px;text-decoration:none;">View Your Audit Report</a>';
+            msg += '<br><a href="/conversioncore/report.html?id=' + encodeURIComponent(qReportId) + '" class="cc-buy-btn" style="display:inline-block;margin-top:8px;text-decoration:none;">View Your Audit Report</a>';
           }
           statusEl.innerHTML = msg;
           statusEl.className = 'cc-form-status cc-success';
