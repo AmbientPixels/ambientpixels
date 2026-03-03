@@ -312,28 +312,57 @@ async function scrapeUrl(urlStr) {
   const startTime = Date.now();
 
   // Fetch HTML
-  const response = await axios.get(parsed.href, {
-    timeout: 15000,
-    maxRedirects: 5,
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
-      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
-      'Accept-Language': 'en-US,en;q=0.9',
-      'Accept-Encoding': 'gzip, deflate, br',
-      'Cache-Control': 'no-cache',
-      'Sec-Fetch-Dest': 'document',
-      'Sec-Fetch-Mode': 'navigate',
-      'Sec-Fetch-Site': 'none',
-      'Sec-Fetch-User': '?1',
-      'Upgrade-Insecure-Requests': '1'
-    },
-    responseType: 'text',
-    // Limit response size to 5MB
-    maxContentLength: 5 * 1024 * 1024
-  });
+  let response;
+  try {
+    response = await axios.get(parsed.href, {
+      timeout: 15000,
+      maxRedirects: 5,
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Cache-Control': 'no-cache',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': 'none',
+        'Sec-Fetch-User': '?1',
+        'Upgrade-Insecure-Requests': '1'
+      },
+      responseType: 'text',
+      // Limit response size to 5MB
+      maxContentLength: 5 * 1024 * 1024,
+      // Don't throw on 4xx so we can inspect the body for Cloudflare signatures
+      validateStatus: function (s) { return s < 500; }
+    });
+  } catch (fetchErr) {
+    // Network-level errors (timeout, DNS, connection refused)
+    const msg = fetchErr.message || '';
+    if (msg.includes('timeout') || msg.includes('ETIMEDOUT')) throw new Error('SITE_TIMEOUT: ' + parsed.hostname);
+    if (msg.includes('ECONNREFUSED') || msg.includes('ENOTFOUND')) throw new Error('SITE_UNREACHABLE: ' + parsed.hostname);
+    throw fetchErr;
+  }
 
+  // Detect bot-protection pages (Cloudflare, Akamai, etc.) even on 200s
   const fetchTimeMs = Date.now() - startTime;
-  const html = response.data;
+  const html = typeof response.data === 'string' ? response.data : '';
+  const cfRay = response.headers['cf-ray'] || '';
+  const server = (response.headers['server'] || '').toLowerCase();
+  const htmlLower = html.substring(0, 5000).toLowerCase();
+
+  if (response.status === 403 || response.status === 401) {
+    const isCf = cfRay || server.includes('cloudflare') || htmlLower.includes('cf-ray') ||
+      htmlLower.includes('cloudflare') || htmlLower.includes('attention required') ||
+      htmlLower.includes('just a moment') || htmlLower.includes('challenge-platform');
+    throw new Error(isCf
+      ? 'SITE_BLOCKED_CLOUDFLARE: ' + parsed.hostname + ' is protected by Cloudflare'
+      : 'SITE_BLOCKED: ' + parsed.hostname + ' returned ' + response.status);
+  }
+
+  // Catch challenge pages that return 200 (Cloudflare "Just a moment..." interstitials)
+  if (htmlLower.includes('just a moment') && (htmlLower.includes('cloudflare') || cfRay)) {
+    throw new Error('SITE_BLOCKED_CLOUDFLARE: ' + parsed.hostname + ' served a Cloudflare challenge page');
+  }
 
   // Check content type
   const contentType = (response.headers['content-type'] || '').toLowerCase();

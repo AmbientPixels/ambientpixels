@@ -95,20 +95,20 @@
 
   var ERROR_MESSAGES = {
     SITE_BLOCKED: [
-      "This site has a bouncer and we're not on the list. Try a different URL!",
-      "Fort Knox called — they want their security back. This site blocked our scan.",
-      "This site's firewall said 'nah.' Try another URL and we'll score that one instead.",
-      "Looks like this site is wearing armor. Our scanner couldn't get past the bot protection."
+      "This site requires browser verification (bot protection), so we couldn't fetch the page content. Try a different URL.",
+      "We couldn't scan this site because it blocks automated requests. Try the homepage URL or a different page (like /pricing).",
+      "This site's security settings prevented our scan. If you control the site, allowlist our scanner — or try another URL for now.",
+      "Blocked by bot protection. We're working on improved coverage, but this URL can't be scanned right now."
     ],
     SITE_TIMEOUT: [
-      "This site is taking a really long nap. We couldn't get a response in time.",
-      "We waited. And waited. And... nothing. The site didn't respond.",
-      "Either this site is running on a toaster, or it really doesn't want to talk to us."
+      "The site didn't respond before our timeout. Try again, or try the homepage URL.",
+      "We couldn't get a response in time. The site may be slow or temporarily unavailable.",
+      "Timed out waiting for the site to respond. Try again in a minute."
     ],
     ANALYSIS_FAILED: [
-      "Something tripped up our analysis engine. Mind giving it another shot?",
-      "Our scoring brain had a hiccup. Try again — it usually works on the second go.",
-      "Well, that didn't go as planned. Give it another try!"
+      "Something tripped up our analysis engine. Please try again.",
+      "We hit an error while scoring this page. Try again — if it repeats, try a different URL.",
+      "We couldn't complete the analysis this time. Please retry."
     ]
   };
 

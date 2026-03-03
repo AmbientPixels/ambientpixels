@@ -221,13 +221,18 @@ module.exports = async function (context, req) {
     context.log.error('[cc-analyze] Error:', err.message || err);
     const errMsg = err.message || '';
 
-    // Client-friendly error codes
-    if (errMsg.includes('Blocked') || errMsg.includes('not allowed') || errMsg.includes('Invalid URL')) {
-      context.res = { status: 400, headers: CORS, body: JSON.stringify({ error: errMsg }) };
+    // Client-friendly error codes — order matters (most specific first)
+    if (errMsg.includes('SITE_BLOCKED') || errMsg.includes('SITE_BLOCKED_CLOUDFLARE')) {
+      const isCf = errMsg.includes('CLOUDFLARE');
+      context.res = { status: 403, headers: CORS, body: JSON.stringify({ error: 'SITE_BLOCKED', provider: isCf ? 'cloudflare' : 'unknown', detail: errMsg }) };
+    } else if (errMsg.includes('SITE_TIMEOUT') || errMsg.includes('ETIMEDOUT')) {
+      context.res = { status: 504, headers: CORS, body: JSON.stringify({ error: 'SITE_TIMEOUT', detail: errMsg }) };
+    } else if (errMsg.includes('SITE_UNREACHABLE') || errMsg.includes('ENOTFOUND') || errMsg.includes('ECONNREFUSED')) {
+      context.res = { status: 502, headers: CORS, body: JSON.stringify({ error: 'SITE_TIMEOUT', detail: errMsg }) };
     } else if (errMsg.includes('status code 403') || errMsg.includes('status code 429')) {
-      context.res = { status: 403, headers: CORS, body: JSON.stringify({ error: 'SITE_BLOCKED', detail: 'This site has bot protection that blocked our scan.' }) };
-    } else if (errMsg.includes('timeout') || errMsg.includes('ETIMEDOUT') || errMsg.includes('ECONNREFUSED')) {
-      context.res = { status: 504, headers: CORS, body: JSON.stringify({ error: 'SITE_TIMEOUT', detail: 'The site took too long to respond.' }) };
+      context.res = { status: 403, headers: CORS, body: JSON.stringify({ error: 'SITE_BLOCKED', detail: errMsg }) };
+    } else if (errMsg.includes('Blocked') || errMsg.includes('not allowed') || errMsg.includes('Invalid URL')) {
+      context.res = { status: 400, headers: CORS, body: JSON.stringify({ error: errMsg }) };
     } else {
       context.res = { status: 500, headers: CORS, body: JSON.stringify({ error: 'ANALYSIS_FAILED', detail: errMsg.substring(0, 200) }) };
     }
