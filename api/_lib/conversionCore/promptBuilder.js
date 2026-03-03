@@ -145,31 +145,43 @@ ${JSON.stringify(extractionResult, null, 2)}
 === SCORING RUBRIC ===
 For each dimension, score every sub-criterion on a 1–10 scale.
 
-Scoring guide — USE THE FULL RANGE:
-- 1-2: Actively harmful or fundamentally broken. Evidence shows the element HURTS conversions.
-- 3-4: Present but poorly executed. Clear deficiencies with evidence of specific problems.
-- 5: Neutral/generic. Present but unoptimized. No evidence of deliberate CRO effort.
-- 6: Competent. Follows standard practices. Functional but not optimized.
-- 7: Good. Above-average implementation with clear intent. Minor improvements possible.
-- 8: Strong. Deliberately optimized. Evidence of strategic CRO thinking. Would be hard to improve meaningfully.
-- 9: Excellent. Top-tier execution. Would serve as a positive example for this site type.
-- 10: World-class. Among the best implementations you've seen. Reserve for truly exceptional execution.
+Scoring guide — USE THE FULL RANGE (most scores should NOT be 5-6):
+- 1-2: Actively harmful or fundamentally broken. Reserve for elements that HURT conversions.
+- 3-4: Present but poorly executed. You can point to specific, concrete problems.
+- 5: ONLY for genuinely mediocre elements — exists but shows zero CRO effort. This is NOT the default score.
+- 6: Competent baseline. Follows standard practices without optimization. Most amateur sites land here.
+- 7: GOOD — the expected score for any professionally built commercial website. Clear intent, functional conversion path. This is where most established company pages should START.
+- 8: STRONG — deliberately optimized. Strategic CRO decisions visible. This is where well-known companies with polished sites land.
+- 9: Excellent. Top-tier execution that would serve as a best-practice example.
+- 10: World-class. Truly exceptional — reserve for the very best.
 
-CALIBRATION ANCHORS (use these to calibrate your scores):
+CRITICAL CALIBRATION RULES:
+- The AVERAGE score for a professionally designed commercial website should be 7.0-7.5. If your average is below 6.5, you are scoring too conservatively.
+- A well-known company (e.g. Stripe, Apple, Shopify, HubSpot, Airbnb) with a polished, professionally designed site should average 7.5-8.5 across sub-criteria. These companies invest millions in conversion optimization.
+- A competent small business site with clear messaging and working CTAs should average 6.5-7.5.
+- Only poorly built, amateur, or placeholder sites should average below 6.0.
+- The 5-6 range is for genuinely mediocre elements ONLY. Do not use 5-6 as a "safe default."
+
+CALIBRATION ANCHORS:
 - A specific, benefit-driven headline ("Save 10 hours/week on invoicing") = 8-9 on headline_clarity
-- A vague headline ("The future of work") = 4-5 on headline_clarity
+- A clear but generic headline ("The platform for modern teams") = 7 on headline_clarity (clear intent, could be more specific)
+- A vague headline ("The future of work") with no supporting context = 4-5 on headline_clarity
+- "Start free trial" or "Get started free" = 8 on cta_action_language (clear value, low friction)
 - "Contact Sales" on an enterprise site = 7 on cta_action_language (appropriate for site type)
-- "Submit" on a form = 3 on cta_action_language (generic, zero value language)
+- "Submit" or "Click here" = 3 on cta_action_language (generic, zero value language)
 - Named testimonials with specific outcomes = 8-9 on social_proof_quality
-- Zero testimonials or social proof = ${isJsRendered ? '5 (may be JS-rendered)' : '1-2 (genuinely absent)'}
+- Logo bar with recognizable brands = 7-8 on social_proof_quality
+- Zero testimonials or social proof = ${isJsRendered ? '5 (may be JS-rendered)' : '2-3 (genuinely absent)'}
 - Clean visual hierarchy with clear focal points = 7-8 on visual_hierarchy
-- Cluttered page with competing elements = 3-4 on visual_hierarchy
+- Cluttered page with competing elements everywhere = 3-4 on visual_hierarchy
+- Single clear CTA above fold with supporting copy = 8 on cta_placement
+- No CTA visible without scrolling = 3-4 on cta_placement
 
-ANTI-COMPRESSION RULES:
-- Your scores MUST span at least a 4-point range within each dimension. If all sub-criteria score 5-6, you are compressing.
-- Well-executed elements score 7-9. Poorly executed elements score 1-4. The 5-6 range is NARROW — only for "present but mediocre."
-- If you recognize a well-known company with professional design and clear messaging, their baseline starts at 6-7, not 4-5.
-- Ask yourself: "Would I hire someone to fix this specific thing?" If no → 7+. If yes → below 6.
+ANTI-COMPRESSION RULES (MANDATORY):
+- If ALL your sub-criteria scores within a dimension fall between 5-7, you are compressing. Spread them out.
+- Your scores across ALL dimensions MUST include at least some 8s or 9s for well-executed elements. If your highest score is 7, you are being too conservative.
+- Before finalizing, check: is your average score across all sub-criteria above 6.5? If not, you are likely under-scoring. Re-evaluate upward.
+- Ask yourself for each score: "Is this element actually bad, or am I just being cautious?" If cautious → score 7+.
 
 IMPORTANT RULES:
 - You MUST cite specific evidence from the extracted data before giving a score.

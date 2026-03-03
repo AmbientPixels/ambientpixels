@@ -11,12 +11,12 @@ const { DIMENSIONS, WEIGHT_PROFILES, scoreToGrade } = require('./dimensions');
  * This curve stretches the mid-range so competent execution (6-7) maps to
  * passing grades, and strong execution (8-9) maps to B/A.
  *
- * Mapping: 1→0, 3→35, 5→57, 6→66, 7→75, 8→84, 9→92, 10→100
+ * Mapping: 1→0, 3→41, 5→62, 6→72, 7→80, 8→88, 9→94, 10→100
  */
 function decompressScore(raw1to10) {
   const clamped = Math.max(1, Math.min(10, raw1to10));
   const normalized = (clamped - 1) / 9; // 0 to 1 range
-  return Math.round(Math.pow(normalized, 0.7) * 100);
+  return Math.round(Math.pow(normalized, 0.55) * 100);
 }
 
 /**
