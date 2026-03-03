@@ -1,7 +1,33 @@
 // promptBuilder.js — ConversionCore LLM prompt templates
 // 4-stage pipeline: extraction → 2 grouped evaluations → synthesis
 
-const { getDimensionsForGroup } = require('./dimensions');
+const { getDimensionsForGroup, WEIGHT_PROFILES } = require('./dimensions');
+
+// ── Stage 0: Site-Type Classification ────────────────────────────
+
+function buildClassificationPrompt(extractionResult) {
+  return `You are a website categorization expert. Based on the extracted conversion data below, classify this website into EXACTLY ONE of these site types:
+
+- **direct_response_saas**: SaaS products with self-serve signup/trial (e.g. Basecamp, Calendly, Notion). Conversion = sign-up or free trial.
+- **enterprise_platform**: Enterprise/infrastructure products where the buyer journey is long and complex (e.g. Stripe, AWS, Snowflake). Conversion = demo request or contact sales.
+- **ecommerce**: Online stores selling physical or digital products (e.g. Shopify stores, Amazon). Conversion = add-to-cart or purchase.
+- **content_publisher**: Media, blogs, news sites where conversion = subscription, newsletter, or engagement (e.g. Substack, Medium, NYT).
+- **media_entertainment**: Streaming, gaming, entertainment platforms (e.g. Netflix, Spotify, Twitch). Conversion = subscription or engagement.
+- **local_service**: Local businesses, service providers, restaurants, clinics (e.g. a dentist's website, a local plumber). Conversion = booking, phone call, or form submission.
+- **agency_consulting**: Professional services, agencies, consultancies (e.g. McKinsey, a web design agency). Conversion = contact form or consultation booking.
+
+=== EXTRACTED DATA ===
+${JSON.stringify(extractionResult, null, 2)}
+
+=== TASK ===
+Return ONLY valid JSON, no markdown formatting, no code blocks:
+
+{
+  "siteType": "one_of_the_types_above",
+  "confidence": "high|moderate|low",
+  "reasoning": "1-2 sentences explaining why this classification fits"
+}`;
+}
 
 // ── Stage 1: Extraction ──────────────────────────────────────────
 
@@ -77,9 +103,13 @@ Extract and categorize the conversion elements you find. Return ONLY valid JSON,
 
 // ── Stage 2: Grouped Evaluation ──────────────────────────────────
 
-function buildGroupEvalPrompt(groupId, extractionResult) {
+function buildGroupEvalPrompt(groupId, extractionResult, siteType) {
   const dims = getDimensionsForGroup(groupId);
   const dimIds = Object.keys(dims);
+
+  // Get site-type-specific scoring context
+  const profile = WEIGHT_PROFILES[siteType] || WEIGHT_PROFILES['direct_response_saas'];
+  const siteContext = profile.scoringContext || '';
 
   let rubricBlock = '';
   for (const [dimId, dim] of Object.entries(dims)) {
@@ -95,25 +125,38 @@ function buildGroupEvalPrompt(groupId, extractionResult) {
 You are evaluating GROUP ${groupId} which contains these 4 dimensions:
 ${dimIds.map(id => '- ' + dims[id].label).join('\n')}
 
+=== SITE TYPE: ${siteType || 'unknown'} ===
+${siteContext}
+
 === EXTRACTED CONVERSION DATA ===
 ${JSON.stringify(extractionResult, null, 2)}
 
 === SCORING RUBRIC ===
 For each dimension, score every sub-criterion on a 1–10 scale.
 
-Scoring guide:
-- 1-3: Critical issues. Likely losing significant conversions. Evidence of clear problems.
-- 4-5: Below average. Notable improvement opportunities. Common mistakes present.
-- 6-7: Acceptable. Functional but room for optimization. Standard implementation.
-- 8-9: Strong. Well-executed with only minor refinements possible.
-- 10: Exceptional. Best-in-class implementation. Hard to improve.
+Scoring guide — USE THE FULL RANGE:
+- 1-2: Fundamentally broken or completely absent. The site actively drives visitors away in this area.
+- 3-4: Significant deficiencies. Common for sites that never had CRO attention. Clear, fixable problems.
+- 5: Mediocre. Present but generic, unoptimized. The default for sites that tried but didn't execute well.
+- 6-7: Competent. Functional implementation that follows standard practices. Room for optimization but not broken.
+- 8: Strong. Deliberately optimized with clear strategic intent. Minor refinements only.
+- 9: Excellent. Top 10% execution. Sophisticated, polished, and effective.
+- 10: World-class. Best-in-class implementation that could serve as a case study. Reserve for genuinely exceptional execution.
+
+ANTI-COMPRESSION RULES:
+- DO NOT cluster scores in the 4-6 range. A site that does something well should score 7-9. A site that does something poorly should score 1-3.
+- If a well-known company (e.g., Stripe, Apple, Shopify) has a clearly optimized element, score it 8-9. Do not downgrade strong execution because it is "expected."
+- If a sub-criterion is genuinely absent (e.g., no testimonials at all), score it 1-2, not 4.
+- If a sub-criterion is present and well-executed, score it 7+, not 6.
+- The average score across all sites should be approximately 5.5, NOT 4.5. Spread your scores.
+- Ask yourself: "Would I hire someone to fix this specific thing?" If no, it should score 7+. If yes, it should score below 6.
 
 IMPORTANT RULES:
 - You MUST cite specific evidence from the extracted data before giving a score.
 - If no evidence exists for a criterion, note its absence and score accordingly.
-- Do not inflate scores. A generic page should score 4-6, not 7-8.
 - Each finding must include a concrete, actionable recommendation.
 - CRITICAL: Every finding MUST include an "evidence" field that quotes the EXACT text, element, or absence from the page being critiqued. Example: 'Current headline: "AI, Engineered for Production." — this does not state a specific outcome or measurable benefit.' This makes findings feel forensic and premium.
+- Score relative to the site type. ${siteContext ? siteContext : 'An enterprise platform has different conversion expectations than a direct-response SaaS landing page.'}
 
 ${rubricBlock}
 
@@ -138,7 +181,7 @@ ${dim.subCriteria.map(sc => `      "${sc.id}": { "score": 0, "reasoning": "cite 
 
 // ── Stage 3: Synthesis ───────────────────────────────────────────
 
-function buildSynthesisPrompt(scoreResult, evaluations) {
+function buildSynthesisPrompt(scoreResult, evaluations, siteType) {
   const dimSummary = Object.entries(scoreResult.dimensions)
     .map(([id, d]) => `- ${d.label}: ${d.score}/100 (${d.grade})`)
     .join('\n');
@@ -161,8 +204,11 @@ function buildSynthesisPrompt(scoreResult, evaluations) {
     }
   } catch { /* extraction data not available */ }
 
+  const siteTypeLabel = (siteType || 'unknown').replace(/_/g, ' ');
+
   return `You are writing the executive summary and strategic recommendations for a website conversion audit report.
 
+=== SITE TYPE: ${siteTypeLabel} ===
 === CONVERSION HEALTH SCORE: ${scoreResult.score}/100 (${scoreResult.grade}) ===
 
 === DIMENSION SCORES ===
@@ -252,6 +298,7 @@ Return ONLY valid JSON, no markdown formatting, no code blocks:
 }
 
 module.exports = {
+  buildClassificationPrompt,
   buildExtractionPrompt,
   buildGroupEvalPrompt,
   buildSynthesisPrompt

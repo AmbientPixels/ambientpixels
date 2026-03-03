@@ -108,6 +108,9 @@
     html += '<h1 style="font-size:24px;color:var(--cc-accent);margin-bottom:4px;">Conversion Audit Report</h1>';
     html += '<div class="cc-report-url">' + esc(report.url) + '</div>';
     html += '<div class="cc-report-date">' + new Date(report.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }) + '</div>';
+    if (report.siteTypeLabel) {
+      html += '<div class="cc-site-type">Site Type: <span class="cc-site-type-value">' + esc(report.siteTypeLabel) + '</span></div>';
+    }
     html += '</div>';
 
     // Actions bar
@@ -342,21 +345,21 @@
 
   function scoreContext(score) {
     if (score >= 80) return 'Strong conversion fundamentals with minor optimization opportunities remaining.';
-    if (score >= 65) return 'Solid foundation with clear optimization opportunities. Sites in this range often see quick wins from CTA and messaging changes.';
-    if (score >= 50) return 'Sites in the 50\u201364 range typically have foundational messaging clarity but weak conversion execution. Targeted fixes can meaningfully close this gap.';
-    return 'Sites scoring below 50 typically convert 30\u201350% below potential due to messaging and CTA friction. Immediate optimization recommended.';
+    if (score >= 70) return 'Solid foundation with clear room for improvement. Sites in this range often see measurable gains from targeted CTA and messaging changes.';
+    if (score >= 60) return 'Functional but underoptimized. Sites in this range typically have standard implementations that would benefit from deliberate conversion attention.';
+    return 'Below industry baseline. Structural gaps in messaging, trust signals, or conversion flow are likely creating unnecessary friction for motivated visitors.';
   }
 
   function scoreClass(score) {
-    if (score >= 65) return 'score-high';
-    if (score >= 50) return 'score-mid';
+    if (score >= 70) return 'score-high';
+    if (score >= 60) return 'score-mid';
     return 'score-low';
   }
 
   function scoreColor(score) {
     if (score >= 80) return '#10b981';
-    if (score >= 65) return '#22c55e';
-    if (score >= 50) return '#f59e0b';
+    if (score >= 70) return '#22c55e';
+    if (score >= 60) return '#f59e0b';
     return '#ef4444';
   }
 

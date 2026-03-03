@@ -563,6 +563,8 @@ a:hover { color: var(--cc-accent-hover); }
 .cc-report-header { text-align: center; margin-bottom: 32px; }
 .cc-report-url { font-size: 14px; color: var(--cc-text-secondary); margin-top: 4px; }
 .cc-report-date { font-size: 12px; color: var(--cc-text-muted); margin-top: 4px; }
+.cc-site-type { font-size: 12px; color: var(--cc-text-muted); margin-top: 6px; }
+.cc-site-type-value { color: var(--cc-accent); font-weight: 600; }
 
 .cc-actions { display: flex; justify-content: center; gap: 12px; margin-bottom: 32px; }
 .cc-action-btn {

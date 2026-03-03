@@ -115,7 +115,7 @@
     // Score gauge
     var score = data.score || 0;
     scoreGauge.textContent = score;
-    scoreGauge.className = 'cc-score-gauge ' + (score >= 65 ? 'score-high' : score >= 50 ? 'score-mid' : 'score-low');
+    scoreGauge.className = 'cc-score-gauge ' + (score >= 70 ? 'score-high' : score >= 60 ? 'score-mid' : 'score-low');
     gradeEl.textContent = 'Grade: ' + (data.grade || '--');
 
     // Score interpretation
@@ -171,10 +171,10 @@
   }
 
   function scoreInterpretation(score) {
-    if (score >= 80) return 'Strong conversion fundamentals. Minor optimizations could still unlock additional revenue. Sites in this range typically convert at above-average rates.';
-    if (score >= 65) return 'Solid foundation with clear optimization opportunities. Targeted fixes can meaningfully increase conversions. Sites scoring 65\u201379 often see quick wins from CTA and messaging changes.';
-    if (score >= 50) return 'Significant revenue leakage detected. Visitors are likely dropping off before reaching your conversion action. Sites scoring below 60 typically experience significant drop-off before their primary CTA.';
-    return 'High revenue leakage risk. Qualified visitors are leaving before they convert. Immediate optimization recommended. Sites scoring below 50 are losing the majority of qualified traffic to friction and messaging gaps.';
+    if (score >= 80) return 'Strong conversion fundamentals with minor optimization opportunities remaining. Sites in this range typically outperform industry averages.';
+    if (score >= 70) return 'Solid foundation with clear room for improvement. Targeted messaging and CTA changes often yield measurable gains for sites in this range.';
+    if (score >= 60) return 'Functional but underoptimized. Sites in this range typically have standard implementations that would benefit from deliberate CRO attention across messaging, trust, and funnel clarity.';
+    return 'Below industry baseline. Sites in this range often have structural gaps in messaging, trust signals, or conversion flow that create unnecessary friction for motivated visitors.';
   }
 
   function buildFindingCard(f, isBlurred) {

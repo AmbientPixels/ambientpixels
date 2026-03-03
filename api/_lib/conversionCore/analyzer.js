@@ -4,9 +4,9 @@
 const fetch = require('node-fetch');
 const storage = require('../../_utils/companyStorage');
 const { scrapeUrl } = require('./scraper');
-const { buildExtractionPrompt, buildGroupEvalPrompt, buildSynthesisPrompt } = require('./promptBuilder');
+const { buildClassificationPrompt, buildExtractionPrompt, buildGroupEvalPrompt, buildSynthesisPrompt } = require('./promptBuilder');
 const { computeScore } = require('./scorer');
-const { GROUPS } = require('./dimensions');
+const { GROUPS, WEIGHT_PROFILES } = require('./dimensions');
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=';
@@ -92,11 +92,32 @@ async function analyze(url) {
     throw new Error('Extraction failed: ' + err.message);
   }
 
-  // Step 3: Two grouped evaluations (Stage 2, parallel)
+  // Step 2.5: Site-Type Classification (Stage 0 — after extraction, before eval)
+  let siteType = 'direct_response_saas'; // fallback default
+  let siteTypeConfidence = 'low';
+  let siteTypeReasoning = 'Classification failed, using default';
+  try {
+    const classPrompt = buildClassificationPrompt(extraction);
+    const rawClass = await callGemini(classPrompt, {
+      temperature: 0.2,
+      maxOutputTokens: 300,
+      caller: 'cc-classification'
+    });
+    const classification = parseJsonResponse(rawClass);
+    if (classification.siteType && WEIGHT_PROFILES[classification.siteType]) {
+      siteType = classification.siteType;
+      siteTypeConfidence = classification.confidence || 'moderate';
+      siteTypeReasoning = classification.reasoning || '';
+    }
+  } catch (err) {
+    errors.push('Classification failed (using default): ' + err.message);
+  }
+
+  // Step 3: Two grouped evaluations (Stage 2, parallel) — now site-type-aware
   const evalStartTime = Date.now();
   const evalPromises = Object.keys(GROUPS).map(async (groupId) => {
     try {
-      const prompt = buildGroupEvalPrompt(groupId, extraction);
+      const prompt = buildGroupEvalPrompt(groupId, extraction, siteType);
       const raw = await callGemini(prompt, {
         temperature: 0.2,
         maxOutputTokens: 2500,
@@ -130,13 +151,13 @@ async function analyze(url) {
     throw new Error('Analysis failed: both evaluation groups returned errors');
   }
 
-  // Step 4: Compute deterministic score
-  const scoreResult = computeScore(evaluations);
+  // Step 4: Compute deterministic score (site-type-aware weights)
+  const scoreResult = computeScore(evaluations, siteType);
 
   // Step 5: Synthesis (Stage 3 LLM call)
   let synthesis = null;
   try {
-    const synthPrompt = buildSynthesisPrompt(scoreResult, { _extraction: extraction, ...evaluations });
+    const synthPrompt = buildSynthesisPrompt(scoreResult, { _extraction: extraction, ...evaluations }, siteType);
     const rawSynthesis = await callGemini(synthPrompt, {
       temperature: 0.5,
       maxOutputTokens: 1500,
@@ -164,6 +185,9 @@ async function analyze(url) {
       unlocked: false,
       score: scoreResult.score,
       grade: scoreResult.grade,
+      siteType: siteType,
+      siteTypeLabel: WEIGHT_PROFILES[siteType] ? WEIGHT_PROFILES[siteType].label : siteType,
+      siteTypeConfidence: siteTypeConfidence,
       dimensions: scoreResult.dimensions,
       findings: scoreResult.findings,
       teaserFindings: scoreResult.teaserFindings,
@@ -176,9 +200,10 @@ async function analyze(url) {
         scrapeTimeMs: scrapeTimeMs,
         evalTimeMs: evalTimeMs,
         totalTimeMs: totalTimeMs,
-        geminiCalls: 4 - failedGroups,
+        geminiCalls: 5 - failedGroups,
         wordCount: scraped.wordCount,
-        analyzedUrl: scraped.finalUrl || url
+        analyzedUrl: scraped.finalUrl || url,
+        siteTypeReasoning: siteTypeReasoning
       }
     }
   };

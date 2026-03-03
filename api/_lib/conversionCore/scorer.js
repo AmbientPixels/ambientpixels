@@ -2,37 +2,43 @@
 // Computes Conversion Health Score from LLM evaluation results
 // No LLM calls — pure math on structured evaluation data
 
-const { DIMENSIONS, scoreToGrade } = require('./dimensions');
+const { DIMENSIONS, WEIGHT_PROFILES, scoreToGrade } = require('./dimensions');
 
 /**
  * Compute the overall Conversion Health Score from dimension evaluations.
  *
  * @param {Object} evaluations — keyed by dimension ID, each containing:
  *   { scores: { subCriterionId: { score: 1-10, reasoning: "..." } }, findings: [...] }
+ * @param {string} [siteType] — site type for dynamic weight selection
  * @returns {Object} { score: 0-100, grade: A-F, dimensions: { ... }, findings: [...] }
  */
-function computeScore(evaluations) {
+function computeScore(evaluations, siteType) {
   let totalWeightedScore = 0;
   let totalWeight = 0;
   const dimensionResults = {};
   const allFindings = [];
 
+  // Get dynamic weights for this site type (fall back to defaults)
+  const profile = siteType && WEIGHT_PROFILES[siteType] ? WEIGHT_PROFILES[siteType] : null;
+
   for (const [dimId, dim] of Object.entries(DIMENSIONS)) {
     const evalResult = evaluations[dimId];
+    // Use site-type-specific weight if available, otherwise use default
+    const weight = profile && profile.weights[dimId] != null ? profile.weights[dimId] : dim.weight;
 
     if (!evalResult || !evalResult.scores) {
       // Missing evaluation — use default mid-range
       dimensionResults[dimId] = {
         label: dim.label,
-        weight: dim.weight,
+        weight: weight,
         score: 50,
         grade: 'D',
         subScores: {},
         findings: [],
         partial: true
       };
-      totalWeightedScore += 5 * dim.weight; // 5/10 default
-      totalWeight += dim.weight;
+      totalWeightedScore += 5 * weight; // 5/10 default
+      totalWeight += weight;
       continue;
     }
 
@@ -59,7 +65,7 @@ function computeScore(evaluations) {
 
     dimensionResults[dimId] = {
       label: dim.label,
-      weight: dim.weight,
+      weight: weight,
       score: dimScore100,
       grade: scoreToGrade(dimScore100),
       subScores: subScores,
@@ -82,8 +88,8 @@ function computeScore(evaluations) {
       }
     }
 
-    totalWeightedScore += dimRawScore * dim.weight;
-    totalWeight += dim.weight;
+    totalWeightedScore += dimRawScore * weight;
+    totalWeight += weight;
   }
 
   // Final score: weighted average on 0-100 scale

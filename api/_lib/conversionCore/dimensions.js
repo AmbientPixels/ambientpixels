@@ -109,12 +109,117 @@ const GROUPS = {
   B: ['trust_signals', 'differentiation', 'audience_alignment', 'quick_wins']
 };
 
-// Grade mapping
+// ── Dynamic Weight Profiles by Site Type ─────────────────────────
+// Each profile overrides default dimension weights and provides scoring context
+// Weights MUST sum to 1.0
+
+const WEIGHT_PROFILES = {
+  direct_response_saas: {
+    label: 'Direct-Response SaaS',
+    weights: {
+      messaging_clarity: 0.18,
+      cta_strength: 0.18,
+      funnel_friction: 0.15,
+      conversion_hierarchy: 0.10,
+      trust_signals: 0.12,
+      differentiation: 0.10,
+      audience_alignment: 0.10,
+      quick_wins: 0.07
+    },
+    scoringContext: 'This is a self-serve SaaS product. Primary conversion is sign-up or free trial. CTA clarity and messaging directness are critical. Users expect to understand the value prop and start using the product immediately.'
+  },
+  enterprise_platform: {
+    label: 'Enterprise Platform',
+    weights: {
+      messaging_clarity: 0.12,
+      cta_strength: 0.08,
+      funnel_friction: 0.08,
+      conversion_hierarchy: 0.10,
+      trust_signals: 0.22,
+      differentiation: 0.15,
+      audience_alignment: 0.15,
+      quick_wins: 0.10
+    },
+    scoringContext: 'This is an enterprise/infrastructure product with a long, complex buyer journey. Trust, credibility, and differentiation matter more than direct CTA urgency. A "Contact Sales" CTA is standard and appropriate — do not penalize it. Documentation quality and social proof from known brands carry significant weight.'
+  },
+  ecommerce: {
+    label: 'E-Commerce',
+    weights: {
+      messaging_clarity: 0.12,
+      cta_strength: 0.15,
+      funnel_friction: 0.20,
+      conversion_hierarchy: 0.12,
+      trust_signals: 0.18,
+      differentiation: 0.08,
+      audience_alignment: 0.08,
+      quick_wins: 0.07
+    },
+    scoringContext: 'This is an e-commerce site. Funnel friction (checkout flow, cart experience) and trust signals (reviews, shipping info, return policy) are paramount. Product imagery and pricing clarity drive conversion.'
+  },
+  content_publisher: {
+    label: 'Content Publisher',
+    weights: {
+      messaging_clarity: 0.15,
+      cta_strength: 0.12,
+      funnel_friction: 0.10,
+      conversion_hierarchy: 0.12,
+      trust_signals: 0.10,
+      differentiation: 0.15,
+      audience_alignment: 0.18,
+      quick_wins: 0.08
+    },
+    scoringContext: 'This is a content/media site. Conversion is subscription, newsletter signup, or engagement. Audience alignment and differentiation matter most — readers need to understand why this publication vs alternatives. CTA friction is typically low (email input).'
+  },
+  media_entertainment: {
+    label: 'Media & Entertainment',
+    weights: {
+      messaging_clarity: 0.12,
+      cta_strength: 0.15,
+      funnel_friction: 0.15,
+      conversion_hierarchy: 0.15,
+      trust_signals: 0.08,
+      differentiation: 0.12,
+      audience_alignment: 0.15,
+      quick_wins: 0.08
+    },
+    scoringContext: 'This is a media/entertainment platform. Visual hierarchy and conversion flow matter most. Users expect low friction to start consuming content. Trust signals matter less since the product speaks for itself.'
+  },
+  local_service: {
+    label: 'Local Service',
+    weights: {
+      messaging_clarity: 0.15,
+      cta_strength: 0.15,
+      funnel_friction: 0.12,
+      conversion_hierarchy: 0.08,
+      trust_signals: 0.22,
+      differentiation: 0.08,
+      audience_alignment: 0.12,
+      quick_wins: 0.08
+    },
+    scoringContext: 'This is a local service business. Trust signals (reviews, years in business, certifications) and clear CTAs (call, book, get quote) are critical. Visitors are often comparing 3-4 local options — social proof and transparent pricing drive the decision.'
+  },
+  agency_consulting: {
+    label: 'Agency / Consulting',
+    weights: {
+      messaging_clarity: 0.15,
+      cta_strength: 0.10,
+      funnel_friction: 0.08,
+      conversion_hierarchy: 0.10,
+      trust_signals: 0.18,
+      differentiation: 0.18,
+      audience_alignment: 0.13,
+      quick_wins: 0.08
+    },
+    scoringContext: 'This is a professional services / agency site. Differentiation and trust signals are paramount — clients need to understand the unique methodology and see proof of results. Case studies and client logos carry heavy weight. A "Book a call" CTA is standard.'
+  }
+};
+
+// Grade mapping — recalibrated to reduce false-fail grades
 function scoreToGrade(score) {
   if (score >= 90) return 'A';
   if (score >= 80) return 'B';
-  if (score >= 65) return 'C';
-  if (score >= 50) return 'D';
+  if (score >= 70) return 'C';
+  if (score >= 60) return 'D';
   return 'F';
 }
 
@@ -128,4 +233,4 @@ function getDimensionsForGroup(groupId) {
   return result;
 }
 
-module.exports = { DIMENSIONS, GROUPS, scoreToGrade, getDimensionsForGroup };
+module.exports = { DIMENSIONS, GROUPS, WEIGHT_PROFILES, scoreToGrade, getDimensionsForGroup };
