@@ -410,7 +410,7 @@
       + '&score=' + (report.score || '')
       + '&siteType=' + encodeURIComponent(report.siteType || report.siteTypeLabel || '');
     html += '<div class="cc-report-upsell">';
-    html += '<h3>Turn This Audit Into Growth</h3>';
+    html += '<h3>Want These Fixes Implemented?</h3>';
     html += '<p>AmbientPixels implements messaging rewrites, funnel restructuring, CTA optimization, and AI-driven content integration \u2014 so you capture the revenue this report identified.</p>';
     html += '<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">';
     html += '<a href="' + strategyUrl + '" class="cc-buy-btn" style="text-decoration:none;">Book a Strategy Call</a>';
