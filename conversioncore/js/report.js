@@ -136,6 +136,17 @@
       if (synth.conversionHealthAssessment) {
         html += '<div class="cc-health-assessment">' + esc(synth.conversionHealthAssessment) + '</div>';
       }
+      if (synth.analysisConfidence) {
+        var confLevel = (synth.analysisConfidence.level || 'moderate').toLowerCase();
+        var confColor = confLevel === 'high' ? 'var(--cc-accent)' : confLevel === 'low' ? 'var(--cc-danger)' : 'var(--cc-warning)';
+        html += '<div class="cc-confidence">';
+        html += '<span class="cc-confidence-label">Analysis Confidence:</span> ';
+        html += '<span class="cc-confidence-level" style="color:' + confColor + ';">' + esc(confLevel.charAt(0).toUpperCase() + confLevel.slice(1)) + '</span>';
+        if (synth.analysisConfidence.reason) {
+          html += '<span class="cc-confidence-reason"> — ' + esc(synth.analysisConfidence.reason) + '</span>';
+        }
+        html += '</div>';
+      }
       html += '</div>';
     }
 
@@ -298,9 +309,9 @@
 
     // Upsell
     html += '<div class="cc-report-upsell">';
-    html += '<h3>Want these fixes implemented?</h3>';
-    html += '<p>AmbientPixels offers messaging rewrites, funnel restructuring, CTA optimization, and AI-driven content integration.</p>';
-    html += '<a href="https://ambientpixels.ai/contact">Book a Strategy Call</a>';
+    html += '<h3>Turn This Audit Into Growth</h3>';
+    html += '<p>AmbientPixels implements messaging rewrites, funnel restructuring, CTA optimization, and AI-driven content integration — so you capture the revenue this report identified.</p>';
+    html += '<a href="https://ambientpixels.ai/contact">Implement These Fixes With Expert Support</a>';
     html += '</div>';
 
     // Methodology

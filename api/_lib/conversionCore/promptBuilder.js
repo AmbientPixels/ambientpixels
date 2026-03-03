@@ -181,11 +181,13 @@ ${ctaTexts || '(not available)'}
 Write the following sections. Be specific, not generic. Reference actual content from the site.
 
 TONE RULES:
-- Confident and direct, never insulting
-- Say "currently underperforms in" NOT "fails at"
+- Confident and direct, never insulting or defensive-triggering
+- Say "currently underperforms in" NOT "fails at" or "performs poorly"
 - Say "opportunity to strengthen" NOT "weakness in"
 - Frame problems as revenue opportunity cost, not criticism
-- Include directional financial framing where possible (e.g. "sites in this range typically experience 25-40% drop-off before primary conversion action")
+- Include directional financial framing where possible (e.g. "sites in this range typically convert 30-50% below potential based on messaging and CTA friction")
+- For impact estimates, use ranges not precise numbers (e.g. "15-30%" not "20%"). Ranges feel more credible.
+- Phrase impact as: "Expected Impact: Moderate to High — improved clarity typically increases engagement by 15-30%."
 
 Return ONLY valid JSON, no markdown formatting, no code blocks:
 
@@ -197,7 +199,7 @@ Return ONLY valid JSON, no markdown formatting, no code blocks:
       "rank": 1,
       "title": "short title of the fix",
       "description": "what to change and why it matters for conversion",
-      "estimatedImpact": "specific expected improvement (e.g. 'Increase visitor engagement by 20% and improve lead generation by 15%')",
+      "estimatedImpact": "Expected Impact: [Low|Moderate|High] — concise improvement statement with range (e.g. 'Moderate to High — improved clarity typically increases engagement by 15-30%')",
       "effort": "quick|medium|rebuild",
       "phase": "1-quick-wins|2-structural|3-strategic"
     },
@@ -239,6 +241,10 @@ Return ONLY valid JSON, no markdown formatting, no code blocks:
       "improvements": ["why the new CTA converts better"]
     }
   ],
+  "analysisConfidence": {
+    "level": "high|moderate|low",
+    "reason": "brief explanation (e.g. 'Based on visible static content, clear CTAs, and structured page layout' or 'Dynamic content detected — some elements may not be captured')"
+  },
   "strategicOpportunities": [
     "1-2 sentence description of a bigger strategic move that could significantly improve conversions"
   ]

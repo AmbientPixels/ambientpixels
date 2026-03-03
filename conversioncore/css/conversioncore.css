@@ -582,6 +582,16 @@ a:hover { color: var(--cc-accent-hover); }
   border-left: 3px solid var(--cc-accent);
 }
 
+/* Confidence Indicator */
+.cc-confidence {
+  margin-top: 16px; font-size: 13px; color: var(--cc-text-muted);
+  padding: 10px 16px; background: var(--cc-surface); border: 1px solid var(--cc-border);
+  border-radius: var(--cc-radius-sm);
+}
+.cc-confidence-label { font-weight: 600; color: var(--cc-text-secondary); }
+.cc-confidence-level { font-weight: 700; }
+.cc-confidence-reason { color: var(--cc-text-muted); }
+
 /* Dimension Bars */
 .cc-dim-bar { margin-bottom: 12px; }
 .cc-dim-bar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; }
