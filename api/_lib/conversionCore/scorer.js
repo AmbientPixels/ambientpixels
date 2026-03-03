@@ -82,6 +82,7 @@ function computeScore(evaluations, siteType) {
       label: dim.label,
       weight: weight,
       score: dimScore100,
+      rawScore: Math.round(dimRawScore * 100) / 100, // LLM average 1-10, for audit
       grade: scoreToGrade(dimScore100),
       subScores: subScores,
       findings: evalResult.findings || [],
@@ -122,6 +123,7 @@ function computeScore(evaluations, siteType) {
 
   return {
     score: finalScore,
+    rawScoreAvg: Math.round(rawFinalAvg * 100) / 100, // LLM weighted average 1-10, for audit
     grade: scoreToGrade(finalScore),
     dimensions: dimensionResults,
     findings: allFindings,

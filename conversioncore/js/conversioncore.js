@@ -171,10 +171,10 @@
   }
 
   function scoreInterpretation(score) {
-    if (score >= 80) return 'Strong conversion fundamentals with minor optimization opportunities remaining. Sites in this range typically outperform industry averages.';
-    if (score >= 70) return 'Solid foundation with clear room for improvement. Targeted messaging and CTA changes often yield measurable gains for sites in this range.';
-    if (score >= 60) return 'Functional but underoptimized. Sites in this range typically have standard implementations that would benefit from deliberate CRO attention across messaging, trust, and funnel clarity.';
-    return 'Below industry baseline. Sites in this range often have structural gaps in messaging, trust signals, or conversion flow that create unnecessary friction for motivated visitors.';
+    if (score >= 80) return 'Strong conversion health. Your site demonstrates deliberate optimization across key dimensions. Remaining opportunities are refinements, not structural gaps.';
+    if (score >= 70) return 'Good foundation with clear upside. Core conversion elements are in place — targeted improvements to messaging, CTAs, or trust signals can move the needle meaningfully.';
+    if (score >= 60) return 'Workable but underoptimized. The conversion path functions, but several dimensions show room for deliberate CRO attention that could improve visitor-to-customer flow.';
+    return 'Needs attention. Multiple conversion dimensions show structural gaps — addressing messaging clarity, trust signals, or funnel friction would likely improve conversion rates.';
   }
 
   function buildFindingCard(f, isBlurred) {

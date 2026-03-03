@@ -203,7 +203,8 @@ async function analyze(url) {
         geminiCalls: 5 - failedGroups,
         wordCount: scraped.wordCount,
         analyzedUrl: scraped.finalUrl || url,
-        siteTypeReasoning: siteTypeReasoning
+        siteTypeReasoning: siteTypeReasoning,
+        rawScoreAvg: scoreResult.rawScoreAvg // LLM 1-10 weighted avg, for audit
       }
     }
   };
@@ -213,23 +214,32 @@ async function analyze(url) {
 
 function buildFallbackSynthesis(scoreResult) {
   const weakDims = Object.entries(scoreResult.dimensions)
-    .filter(([, d]) => d.score < 50)
+    .filter(([, d]) => d.score < 60)
     .sort((a, b) => a[1].score - b[1].score)
     .slice(0, 3);
 
   const strongDims = Object.entries(scoreResult.dimensions)
-    .filter(([, d]) => d.score >= 65)
+    .filter(([, d]) => d.score >= 70)
     .sort((a, b) => b[1].score - a[1].score)
     .slice(0, 2);
 
   const weakList = weakDims.map(([, d]) => d.label.toLowerCase()).join(', ') || 'several areas';
   const strongList = strongDims.map(([, d]) => d.label.toLowerCase()).join(' and ') || 'some areas';
 
+  let assessmentCopy;
+  if (scoreResult.score >= 80) {
+    assessmentCopy = 'Strong conversion health. Core elements are well-optimized with refinement opportunities remaining.';
+  } else if (scoreResult.score >= 70) {
+    assessmentCopy = 'Good foundation with clear upside. Targeted improvements to specific dimensions can yield measurable gains.';
+  } else if (scoreResult.score >= 60) {
+    assessmentCopy = 'Workable but underoptimized. Several conversion dimensions would benefit from deliberate CRO attention.';
+  } else {
+    assessmentCopy = 'Needs attention. Structural gaps across multiple dimensions are likely reducing conversion rates.';
+  }
+
   return {
-    executiveSummary: `This site scores ${scoreResult.score}/100 on conversion health. Key weaknesses include ${weakList}. ${strongList.charAt(0).toUpperCase() + strongList.slice(1)} show relative strength. Addressing the critical findings below could meaningfully improve conversion performance.`,
-    conversionHealthAssessment: scoreResult.score >= 65
-      ? 'A score in this range indicates a functional site with optimization opportunities. Most sites can improve 15-30% with targeted fixes.'
-      : 'A score below 65 indicates significant conversion barriers. Visitors are likely leaving before converting due to clarity, trust, or friction issues.',
+    executiveSummary: `This site scores ${scoreResult.score}/100 on conversion health. Areas for improvement include ${weakList}. ${strongList.charAt(0).toUpperCase() + strongList.slice(1)} show relative strength. Addressing the findings below could meaningfully improve conversion performance.`,
+    conversionHealthAssessment: assessmentCopy,
     topPriorities: scoreResult.findings.slice(0, 3).map((f, i) => ({
       rank: i + 1,
       title: f.finding.substring(0, 60),

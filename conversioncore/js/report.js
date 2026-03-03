@@ -344,10 +344,10 @@
   // ── Helpers ────────────────────────────────────
 
   function scoreContext(score) {
-    if (score >= 80) return 'Strong conversion fundamentals with minor optimization opportunities remaining.';
-    if (score >= 70) return 'Solid foundation with clear room for improvement. Sites in this range often see measurable gains from targeted CTA and messaging changes.';
-    if (score >= 60) return 'Functional but underoptimized. Sites in this range typically have standard implementations that would benefit from deliberate conversion attention.';
-    return 'Below industry baseline. Structural gaps in messaging, trust signals, or conversion flow are likely creating unnecessary friction for motivated visitors.';
+    if (score >= 80) return 'Strong conversion health. Your site demonstrates deliberate optimization across key dimensions.';
+    if (score >= 70) return 'Good foundation with clear upside. Core conversion elements are in place — targeted improvements can move the needle.';
+    if (score >= 60) return 'Workable but underoptimized. The conversion path functions, but several dimensions show room for deliberate CRO attention.';
+    return 'Needs attention. Multiple conversion dimensions show structural gaps that are likely reducing conversion rates.';
   }
 
   function scoreClass(score) {
