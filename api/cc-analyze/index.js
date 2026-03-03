@@ -80,6 +80,36 @@ module.exports = async function (context, req) {
   try {
     const body = req.body || {};
     const url = (body.url || '').trim();
+    const sessionId = body.sessionId || null;
+
+    // If sessionId provided, verify payment and unlock existing report (no URL needed)
+    if (sessionId) {
+      const payment = await stripeClient.verifySession(sessionId);
+      if (payment.valid && payment.metadata && payment.metadata.reportId) {
+        const existingId = payment.metadata.reportId;
+        const existing = await storage.getState('cc_report_' + existingId);
+        if (existing) {
+          existing.unlocked = true;
+          existing.paidAt = new Date().toISOString();
+          existing.customerEmail = payment.customerEmail || null;
+          await storage.setState('cc_report_' + existingId, existing);
+          context.res = {
+            status: 200,
+            headers: CORS,
+            body: JSON.stringify({
+              ok: true,
+              reportId: existingId,
+              score: existing.score,
+              grade: existing.grade,
+              isPaid: true,
+              reportUrl: '/conversioncore/report.html?id=' + existingId
+            })
+          };
+          return;
+        }
+      }
+      // If verification failed, fall through to normal flow
+    }
 
     // Validate URL
     if (!url || !isValidUrl(url)) {
@@ -87,8 +117,7 @@ module.exports = async function (context, req) {
       return;
     }
 
-    // Rate limit check (skip for paid requests)
-    const sessionId = body.sessionId || null;
+    // Rate limit check
     if (!sessionId) {
       const clientIp = (req.headers['x-forwarded-for'] || req.headers['x-client-ip'] || 'unknown').split(',')[0].trim();
       const limited = await checkRateLimit(clientIp);
@@ -132,32 +161,6 @@ module.exports = async function (context, req) {
         })
       };
       return;
-    }
-
-    // If sessionId provided, verify payment and unlock existing report
-    if (sessionId) {
-      const payment = await stripeClient.verifySession(sessionId);
-      if (payment.valid && payment.metadata && payment.metadata.reportId) {
-        const existingId = payment.metadata.reportId;
-        const existing = await storage.getState('cc_report_' + existingId);
-        if (existing) {
-          existing.unlocked = true;
-          await storage.setState('cc_report_' + existingId, existing);
-          context.res = {
-            status: 200,
-            headers: CORS,
-            body: JSON.stringify({
-              ok: true,
-              reportId: existingId,
-              score: existing.score,
-              grade: existing.grade,
-              isPaid: true,
-              reportUrl: '/conversioncore/report.html?id=' + existingId
-            })
-          };
-          return;
-        }
-      }
     }
 
     // Free scan — run full pipeline, store report (locked)
