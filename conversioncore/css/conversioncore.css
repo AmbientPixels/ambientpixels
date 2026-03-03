@@ -141,6 +141,12 @@ a:hover { color: var(--cc-accent-hover); }
 .cc-scan-btn:hover:not(:disabled) { background: var(--cc-accent-hover); }
 .cc-scan-btn:disabled { opacity: 0.6; cursor: not-allowed; }
 
+.cc-trust-line {
+  margin-top: 16px;
+  font-size: 13px;
+  color: var(--cc-text-muted);
+}
+
 /* ── Loading State ────────────────────────────── */
 
 .cc-loading {

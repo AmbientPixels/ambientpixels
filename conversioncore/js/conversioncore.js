@@ -89,7 +89,7 @@
   function hideLoading() {
     loadingSection.style.display = 'none';
     scanBtn.disabled = false;
-    scanBtn.textContent = 'Scan My Site';
+    scanBtn.textContent = 'Get My Score';
     stopLoadingSteps();
   }
 
