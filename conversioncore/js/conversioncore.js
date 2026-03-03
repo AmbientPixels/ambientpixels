@@ -171,10 +171,10 @@
   }
 
   function scoreInterpretation(score) {
-    if (score >= 80) return 'Strong conversion fundamentals. Minor optimizations could still unlock additional revenue.';
-    if (score >= 65) return 'Solid foundation with clear optimization opportunities. Targeted fixes can meaningfully increase conversions.';
-    if (score >= 50) return 'Significant revenue leakage detected. Visitors are likely dropping off before reaching your conversion action.';
-    return 'High revenue leakage risk. Qualified visitors are leaving before they convert. Immediate optimization recommended.';
+    if (score >= 80) return 'Strong conversion fundamentals. Minor optimizations could still unlock additional revenue. Sites in this range typically convert at above-average rates.';
+    if (score >= 65) return 'Solid foundation with clear optimization opportunities. Targeted fixes can meaningfully increase conversions. Sites scoring 65\u201379 often see quick wins from CTA and messaging changes.';
+    if (score >= 50) return 'Significant revenue leakage detected. Visitors are likely dropping off before reaching your conversion action. Sites scoring below 60 typically experience significant drop-off before their primary CTA.';
+    return 'High revenue leakage risk. Qualified visitors are leaving before they convert. Immediate optimization recommended. Sites scoring below 50 are losing the majority of qualified traffic to friction and messaging gaps.';
   }
 
   function buildFindingCard(f, isBlurred) {
@@ -261,7 +261,7 @@
         showError(err.message);
         buySingle.disabled = false;
         buyPack.disabled = false;
-        buySingle.textContent = 'Get Full Report \u2014 $49';
+        buySingle.textContent = 'Unlock Full Breakdown \u2014 $49';
       });
   }
 
