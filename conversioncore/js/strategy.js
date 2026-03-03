@@ -130,7 +130,11 @@
             header.querySelector('h1').textContent = 'Request Received';
             header.querySelector('p').textContent = '';
           }
-          statusEl.textContent = 'Thanks \u2014 we\'re reviewing your audit and will email proposed times within 24 hours.';
+          var msg = 'Thanks \u2014 we\'re reviewing your audit and will email proposed times within 24 hours.';
+          if (qReportId) {
+            msg += '<br><br><a href="/conversioncore/report.html?id=' + encodeURIComponent(qReportId) + '" class="cc-buy-btn" style="display:inline-block;margin-top:8px;text-decoration:none;">View Your Audit Report</a>';
+          }
+          statusEl.innerHTML = msg;
           statusEl.className = 'cc-form-status cc-success';
         } else {
           throw new Error(data.error || 'unknown');
