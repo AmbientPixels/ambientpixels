@@ -125,6 +125,11 @@
       .then(function (data) {
         if (data.ok) {
           form.style.display = 'none';
+          var header = document.querySelector('.cc-strategy-header');
+          if (header) {
+            header.querySelector('h1').textContent = 'Request Received';
+            header.querySelector('p').textContent = '';
+          }
           statusEl.textContent = 'Thanks \u2014 we\'re reviewing your audit and will email proposed times within 24 hours.';
           statusEl.className = 'cc-form-status cc-success';
         } else {
