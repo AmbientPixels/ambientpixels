@@ -78,6 +78,9 @@
       "route": "/conversioncore/report.html"
     },
     {
+      "route": "/conversioncore/strategy.html"
+    },
+    {
       "route": "/conversioncore/*",
       "rewrite": "/conversioncore/index.html"
     },
