@@ -180,39 +180,64 @@ ${ctaTexts || '(not available)'}
 === TASK ===
 Write the following sections. Be specific, not generic. Reference actual content from the site.
 
+TONE RULES:
+- Confident and direct, never insulting
+- Say "currently underperforms in" NOT "fails at"
+- Say "opportunity to strengthen" NOT "weakness in"
+- Frame problems as revenue opportunity cost, not criticism
+- Include directional financial framing where possible (e.g. "sites in this range typically experience 25-40% drop-off before primary conversion action")
+
 Return ONLY valid JSON, no markdown formatting, no code blocks:
 
 {
-  "executiveSummary": "3-4 sentences: What this site does well, what is costing them conversions, and the overall health assessment. Be direct and specific.",
-  "conversionHealthAssessment": "2-3 sentences explaining what a score of ${scoreResult.score} means practically. What category of sites typically score this range?",
+  "executiveSummary": "3-4 sentences: What this site does well, what is costing them conversions, and a financial framing line (e.g. 'Based on current messaging clarity and CTA strength, [site] is likely converting below industry average for similar [industry] firms.' or 'Sites in this score range typically experience 25-40% drop-off before primary conversion action.'). Be direct and specific.",
+  "conversionHealthAssessment": "2-3 sentences explaining what a score of ${scoreResult.score} means practically in revenue terms. What category of sites typically score this range? Include a directional conversion impact statement.",
   "topPriorities": [
     {
       "rank": 1,
       "title": "short title of the fix",
       "description": "what to change and why it matters for conversion",
-      "estimatedImpact": "what improvement to expect",
-      "effort": "quick|medium|rebuild"
+      "estimatedImpact": "specific expected improvement (e.g. 'Increase visitor engagement by 20% and improve lead generation by 15%')",
+      "effort": "quick|medium|rebuild",
+      "phase": "1-quick-wins|2-structural|3-strategic"
     },
     {
       "rank": 2,
       "title": "...",
       "description": "...",
       "estimatedImpact": "...",
-      "effort": "quick|medium|rebuild"
+      "effort": "quick|medium|rebuild",
+      "phase": "1-quick-wins|2-structural|3-strategic"
     },
     {
       "rank": 3,
       "title": "...",
       "description": "...",
       "estimatedImpact": "...",
-      "effort": "quick|medium|rebuild"
+      "effort": "quick|medium|rebuild",
+      "phase": "1-quick-wins|2-structural|3-strategic"
     }
   ],
+  "priorityRoadmap": {
+    "phase1": { "label": "Quick Wins", "items": ["short action item 1", "short action item 2"] },
+    "phase2": { "label": "Structural Improvements", "items": ["short action item 1", "short action item 2"] },
+    "phase3": { "label": "Strategic Enhancements", "items": ["short action item 1", "short action item 2"] }
+  },
   "headlineRewrites": [
-    { "current": "current headline text", "suggested": "improved version", "rationale": "why this is better" }
+    {
+      "current": "current headline text",
+      "problems": ["No specific outcome stated", "No quantifiable benefit", "No audience targeting"],
+      "suggested": "improved version",
+      "improvements": ["Clear benefit articulation", "Improved relevance", "Increased CTA click likelihood"]
+    }
   ],
   "ctaRewrites": [
-    { "current": "current CTA text", "suggested": "improved version", "rationale": "why this converts better" }
+    {
+      "current": "current CTA text",
+      "problems": ["why the current CTA underperforms"],
+      "suggested": "improved version",
+      "improvements": ["why the new CTA converts better"]
+    }
   ],
   "strategicOpportunities": [
     "1-2 sentence description of a bigger strategic move that could significantly improve conversions"

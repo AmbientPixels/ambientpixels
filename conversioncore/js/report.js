@@ -166,12 +166,44 @@
         html += '<div class="cc-priority">';
         html += '<div class="cc-priority-header">';
         html += '<h4>#' + p.rank + ' ' + esc(p.title) + '</h4>';
+        html += '<div class="cc-priority-badges">';
         html += '<span class="cc-effort-badge ' + effortClass + '">' + esc(p.effort || 'medium') + '</span>';
         html += '</div>';
+        html += '</div>';
         html += '<p class="cc-priority-desc">' + esc(p.description) + '</p>';
-        html += '<span class="cc-priority-impact">Expected impact: ' + esc(p.estimatedImpact) + '</span>';
+        html += '<div class="cc-priority-impact">' + esc(p.estimatedImpact) + '</div>';
         html += '</div>';
       });
+      html += '</div>';
+    }
+
+    // Priority Roadmap
+    if (synth.priorityRoadmap) {
+      html += '<div class="cc-section">';
+      html += '<h2>Implementation Roadmap</h2>';
+      html += '<div class="cc-roadmap">';
+      var phases = [
+        { key: 'phase1', icon: '1', accent: 'var(--cc-accent)' },
+        { key: 'phase2', icon: '2', accent: 'var(--cc-warning)' },
+        { key: 'phase3', icon: '3', accent: '#8b5cf6' }
+      ];
+      phases.forEach(function (ph) {
+        var phase = synth.priorityRoadmap[ph.key];
+        if (phase && phase.items && phase.items.length > 0) {
+          html += '<div class="cc-roadmap-phase">';
+          html += '<div class="cc-roadmap-phase-header">';
+          html += '<span class="cc-roadmap-num" style="background:' + ph.accent + '20;color:' + ph.accent + ';">' + ph.icon + '</span>';
+          html += '<span class="cc-roadmap-label">' + esc(phase.label) + '</span>';
+          html += '</div>';
+          html += '<ul class="cc-roadmap-items">';
+          phase.items.forEach(function (item) {
+            html += '<li>' + esc(item) + '</li>';
+          });
+          html += '</ul>';
+          html += '</div>';
+        }
+      });
+      html += '</div>';
       html += '</div>';
     }
 
@@ -180,12 +212,27 @@
       html += '<div class="cc-section">';
       html += '<h2>Headline Rewrites</h2>';
       synth.headlineRewrites.forEach(function (r) {
-        html += '<div class="cc-rewrite">';
-        html += '<div class="cc-rewrite-label">Current:</div>';
-        html += '<div class="cc-rewrite-current">' + esc(r.current) + '</div>';
-        html += '<div class="cc-rewrite-label">Suggested:</div>';
-        html += '<div class="cc-rewrite-suggested">' + esc(r.suggested) + '</div>';
-        html += '<div class="cc-rewrite-rationale">' + esc(r.rationale) + '</div>';
+        html += '<div class="cc-rewrite-card">';
+        html += '<div class="cc-rewrite-block cc-rewrite-before">';
+        html += '<div class="cc-rewrite-block-label">Current</div>';
+        html += '<div class="cc-rewrite-block-text">' + esc(r.current) + '</div>';
+        if (r.problems && r.problems.length > 0) {
+          html += '<div class="cc-rewrite-block-label" style="margin-top:8px;">Why It Underperforms</div>';
+          html += '<ul class="cc-rewrite-issues">';
+          r.problems.forEach(function (p) { html += '<li>' + esc(p) + '</li>'; });
+          html += '</ul>';
+        }
+        html += '</div>';
+        html += '<div class="cc-rewrite-block cc-rewrite-after">';
+        html += '<div class="cc-rewrite-block-label">Suggested Rewrite</div>';
+        html += '<div class="cc-rewrite-block-text">' + esc(r.suggested) + '</div>';
+        if (r.improvements && r.improvements.length > 0) {
+          html += '<div class="cc-rewrite-block-label" style="margin-top:8px;">Expected Impact</div>';
+          html += '<ul class="cc-rewrite-wins">';
+          r.improvements.forEach(function (p) { html += '<li>' + esc(p) + '</li>'; });
+          html += '</ul>';
+        }
+        html += '</div>';
         html += '</div>';
       });
       html += '</div>';
@@ -196,11 +243,25 @@
       html += '<div class="cc-section">';
       html += '<h2>CTA Improvements</h2>';
       synth.ctaRewrites.forEach(function (r) {
-        html += '<div class="cc-rewrite" style="border-left-color:var(--cc-warning);">';
-        html += '<span style="display:inline-block;padding:6px 14px;background:#374151;color:#f87171;border-radius:6px;font-size:13px;text-decoration:line-through;">' + esc(r.current) + '</span>';
-        html += ' <span style="color:var(--cc-text-muted);margin:0 8px;">→</span> ';
-        html += '<span style="display:inline-block;padding:6px 14px;background:var(--cc-accent);color:#fff;border-radius:6px;font-size:13px;font-weight:600;">' + esc(r.suggested) + '</span>';
-        html += '<div class="cc-rewrite-rationale" style="margin-top:8px;">' + esc(r.rationale) + '</div>';
+        html += '<div class="cc-rewrite-card">';
+        html += '<div class="cc-rewrite-block cc-rewrite-before">';
+        html += '<div class="cc-rewrite-block-label">Current</div>';
+        html += '<span class="cc-cta-pill cc-cta-old">' + esc(r.current) + '</span>';
+        if (r.problems && r.problems.length > 0) {
+          html += '<ul class="cc-rewrite-issues" style="margin-top:8px;">';
+          r.problems.forEach(function (p) { html += '<li>' + esc(p) + '</li>'; });
+          html += '</ul>';
+        }
+        html += '</div>';
+        html += '<div class="cc-rewrite-block cc-rewrite-after">';
+        html += '<div class="cc-rewrite-block-label">Suggested</div>';
+        html += '<span class="cc-cta-pill cc-cta-new">' + esc(r.suggested) + '</span>';
+        if (r.improvements && r.improvements.length > 0) {
+          html += '<ul class="cc-rewrite-wins" style="margin-top:8px;">';
+          r.improvements.forEach(function (p) { html += '<li>' + esc(p) + '</li>'; });
+          html += '</ul>';
+        }
+        html += '</div>';
         html += '</div>';
       });
       html += '</div>';
