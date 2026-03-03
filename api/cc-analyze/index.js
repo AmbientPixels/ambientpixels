@@ -107,6 +107,11 @@ module.exports = async function (context, req) {
               });
               if (creditResult) {
                 packCreditsRemaining = creditResult.credits;
+              } else {
+                // Webhook already processed — read existing record
+                var creditsKey = creditUtils.emailToCreditsKey(payment.customerEmail);
+                var existingCredits = await storage.getState(creditsKey);
+                if (existingCredits) packCreditsRemaining = existingCredits.credits;
               }
             } catch (creditErr) {
               context.log.warn('[cc-analyze] Credit creation failed (non-fatal):', creditErr.message);
