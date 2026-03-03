@@ -127,11 +127,10 @@ module.exports = async function (context, req) {
       }
     }
 
-    // Generate report ID
-    const reportId = 'ccr_' + Date.now() + '_' + crypto.randomBytes(4).toString('hex');
-
     // If createCheckout requested, create Stripe session and return URL
+    // Reuse existing reportId from free scan if provided (report already in blob)
     if (body.createCheckout) {
+      const reportId = body.reportId || ('ccr_' + Date.now() + '_' + crypto.randomBytes(4).toString('hex'));
       const priceType = body.priceType === 'pack' ? 'pack' : 'single';
       const checkout = await stripeClient.createCheckoutSession({
         reportId: reportId,
@@ -140,15 +139,16 @@ module.exports = async function (context, req) {
         priceType: priceType
       });
 
-      // Run analysis in the background while user pays
-      // Store pre-generated report so it's ready when they return
-      analyze(url).then(async (result) => {
-        result.fullReport.id = reportId;
-        await storage.setState('cc_report_' + reportId, result.fullReport);
-        await logScan({ reportId, url, tier: 'paid-' + priceType, score: result.score, timestamp: new Date().toISOString() });
-      }).catch(err => {
-        context.log.error('[cc-analyze] Background analysis failed for ' + reportId + ':', err.message);
-      });
+      // Only run analysis if no existing report (i.e. no reportId was provided)
+      if (!body.reportId) {
+        analyze(url).then(async (result) => {
+          result.fullReport.id = reportId;
+          await storage.setState('cc_report_' + reportId, result.fullReport);
+          await logScan({ reportId, url, tier: 'paid-' + priceType, score: result.score, timestamp: new Date().toISOString() });
+        }).catch(err => {
+          context.log.error('[cc-analyze] Background analysis failed for ' + reportId + ':', err.message);
+        });
+      }
 
       context.res = {
         status: 200,
@@ -162,6 +162,9 @@ module.exports = async function (context, req) {
       };
       return;
     }
+
+    // Generate report ID for free scan
+    const reportId = 'ccr_' + Date.now() + '_' + crypto.randomBytes(4).toString('hex');
 
     // Free scan — run full pipeline, store report (locked)
     const result = await analyze(url);

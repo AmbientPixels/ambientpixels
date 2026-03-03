@@ -48,6 +48,9 @@
 
   // ── Load Report ────────────────────────────────
 
+  var loadRetries = 0;
+  var MAX_RETRIES = 5;
+
   function loadReport() {
     fetch(API + '/cc-report?id=' + reportId)
       .then(function (res) {
@@ -62,8 +65,13 @@
         }
       })
       .catch(function (err) {
-        if (err.message === 'not_found') {
-          showMessage('Report not found. It may still be generating — please refresh in a few seconds.', false);
+        if (err.message === 'not_found' && loadRetries < MAX_RETRIES) {
+          loadRetries++;
+          loadingEl.style.display = 'block';
+          loadingEl.innerHTML = '<div class="cc-container" style="text-align:center;padding:60px 0;"><div class="cc-spinner"></div><p style="margin-top:16px;color:var(--cc-text-secondary);">Loading your report... (' + loadRetries + '/' + MAX_RETRIES + ')</p></div>';
+          setTimeout(loadReport, 3000);
+        } else if (err.message === 'not_found') {
+          showMessage('Report not found. Please try scanning again.', true);
         } else {
           showMessage('Failed to load report. Please try again.', true);
         }

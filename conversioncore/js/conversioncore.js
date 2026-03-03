@@ -245,6 +245,7 @@
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         url: currentUrl,
+        reportId: currentReportId,
         createCheckout: true,
         priceType: priceType
       })
