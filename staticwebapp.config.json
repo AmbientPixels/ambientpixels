@@ -265,6 +265,21 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/api/cc-analyze",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cc-analyze",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/cc-report",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cc-report",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/cc-webhook",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cc-webhook",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/api/*",
       "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/{path}"
     },
