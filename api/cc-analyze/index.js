@@ -221,7 +221,7 @@ module.exports = async function (context, req) {
     context.log.error('[cc-analyze] Error:', err.message || err);
     const status = err.message && (err.message.includes('Blocked') || err.message.includes('not allowed') || err.message.includes('Invalid URL'))
       ? 400 : 500;
-    const msg = status === 400 ? err.message : 'Analysis failed. Please try again.';
+    const msg = status === 400 ? err.message : 'Analysis failed: ' + (err.message || 'unknown error').substring(0, 200);
     context.res = { status: status, headers: CORS, body: JSON.stringify({ error: msg }) };
   }
 };
