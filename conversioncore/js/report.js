@@ -161,6 +161,9 @@
       .then(function (res) { return res.json(); })
       .then(function (data) {
         if (data.ok && data.reportUrl) {
+          if (data.credits != null) {
+            sessionStorage.setItem('cc_pack_credits', String(data.credits));
+          }
           window.location.href = data.reportUrl;
         } else {
           creditsStatus.innerHTML = '<p class="cc-credits-error">' + esc(data.error || 'Redemption failed.') + '</p>';

@@ -96,6 +96,7 @@ module.exports = async function (context, req) {
       report.paidAt = new Date().toISOString();
       report.customerEmail = email;
       report.redeemedViaCredit = true;
+      report.priceType = 'pack';
       await storage.setState('cc_report_' + reportId, report);
 
       // Deduct credit
