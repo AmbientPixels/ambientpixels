@@ -62,7 +62,7 @@ function _corsHeaders(origin) {
 // ── Validation + Normalization ──
 // ══════════════════════════════════════════════════════
 
-var VALID_TYPES = ['contact', 'demo', 'newsletter'];
+var VALID_TYPES = ['contact', 'demo', 'newsletter', 'conversioncore_strategy'];
 var LIMITS = { name: 120, email: 200, company: 200, role: 200, subject: 200, body: 8000 };
 var MAX_BODY_BYTES = 32 * 1024;
 
@@ -113,6 +113,22 @@ function _normalizePayload(body) {
     hp: typeof body.hp === 'string' ? body.hp : '',
     form_started_at_ms: typeof body.form_started_at_ms === 'number' ? body.form_started_at_ms : null
   };
+
+  // ConversionCore strategy — carry CC-specific metadata
+  if (body.type === 'conversioncore_strategy' && body.conversioncore && typeof body.conversioncore === 'object') {
+    normalized.conversioncore = {
+      reportId: _trunc(body.conversioncore.reportId, 100),
+      score: typeof body.conversioncore.score === 'number' ? body.conversioncore.score : null,
+      siteType: _trunc(body.conversioncore.siteType, 50),
+      url: _trunc(body.conversioncore.url, 2000),
+      primaryGoal: _trunc(body.conversioncore.primaryGoal, 200),
+      monthlyTraffic: _trunc(body.conversioncore.monthlyTraffic, 100),
+      budgetRange: _trunc(body.conversioncore.budgetRange, 100),
+      timeline: _trunc(body.conversioncore.timeline, 100)
+    };
+  }
+
+  return normalized;
 }
 
 // ══════════════════════════════════════════════════════
@@ -378,6 +394,100 @@ async function _readCanonical(id) {
 }
 
 // ══════════════════════════════════════════════════════
+// ── Time Slot Proposal (ConversionCore strategy) ──
+// ══════════════════════════════════════════════════════
+
+/**
+ * Propose N available 30-min meeting slots within the next 14 business days.
+ * Reads the dates blob for conflict checking via Intl timezone America/Los_Angeles.
+ * Preferred times: 10:00 AM, 1:00 PM, 3:00 PM PT.
+ *
+ * Conflict logic:
+ * - If a dates entry has a time field, compare at slot-level (same date+hour)
+ * - Otherwise, compare at day-level (skip the entire day)
+ * - Limitation: day-level entries without time block the whole day
+ *
+ * Returns array of { label, date, hour }
+ */
+async function _proposeTimeSlots(count) {
+  var existingEntries = [];
+  try {
+    var datesState = await storage.getState('dates');
+    if (Array.isArray(datesState)) {
+      existingEntries = datesState.map(function (d) {
+        return { date: d.date || '', time: d.time || null };
+      });
+    }
+  } catch (e) { /* non-critical — propose without conflict data */ }
+
+  // Build conflict lookup: { "YYYY-MM-DD": [hourInt, ...] | "all" }
+  var conflicts = {};
+  existingEntries.forEach(function (e) {
+    if (!e.date) return;
+    if (e.time) {
+      var h = parseInt(e.time.split(':')[0], 10);
+      if (!conflicts[e.date]) conflicts[e.date] = [];
+      if (Array.isArray(conflicts[e.date])) conflicts[e.date].push(h);
+    } else {
+      conflicts[e.date] = 'all';
+    }
+  });
+
+  function isConflict(dateStr, hour) {
+    var c = conflicts[dateStr];
+    if (!c) return false;
+    if (c === 'all') return true;
+    return c.indexOf(hour) !== -1;
+  }
+
+  var ptFormatter = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Los_Angeles',
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+  });
+  var ptParts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'America/Los_Angeles',
+    year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short'
+  });
+
+  var slots = [];
+  var now = new Date();
+  var preferredHours = [10, 13, 15]; // 10am, 1pm, 3pm PT
+
+  for (var d = 1; d <= 14 && slots.length < count; d++) {
+    var candidate = new Date(now.getTime() + d * 86400000);
+
+    var parts = ptParts.formatToParts(candidate);
+    var weekday = '';
+    parts.forEach(function (p) { if (p.type === 'weekday') weekday = p.value; });
+    if (weekday === 'Sun' || weekday === 'Sat') continue;
+
+    var yPart = '', mPart = '', dPart = '';
+    parts.forEach(function (p) {
+      if (p.type === 'year') yPart = p.value;
+      if (p.type === 'month') mPart = p.value;
+      if (p.type === 'day') dPart = p.value;
+    });
+    var ptDateStr = yPart + '-' + mPart + '-' + dPart;
+
+    if (conflicts[ptDateStr] === 'all') continue;
+
+    var hour = preferredHours[slots.length % preferredHours.length];
+    if (isConflict(ptDateStr, hour)) continue;
+
+    var ampm = hour < 12 ? 'AM' : 'PM';
+    var displayHour = hour > 12 ? hour - 12 : hour;
+    var formattedDate = ptFormatter.format(candidate);
+
+    slots.push({
+      label: formattedDate + ' at ' + displayHour + ':00 ' + ampm + ' PT',
+      date: ptDateStr,
+      hour: hour
+    });
+  }
+  return slots;
+}
+
+// ══════════════════════════════════════════════════════
 // ── Task Spawning ──
 // ══════════════════════════════════════════════════════
 
@@ -407,6 +517,28 @@ async function _spawnTask(record) {
 
   var priority = record.type === 'demo' ? 'medium' : 'low';
   var assignee = record.type === 'demo' ? 'scout' : 'nova';
+
+  // ConversionCore strategy — enrich description, route to Nova
+  if (record.type === 'conversioncore_strategy') {
+    var cc = record.conversioncore || {};
+    typeLabel = 'Conversioncore Strategy';
+    descParts.push('**Report ID:** ' + (cc.reportId || 'N/A'));
+    descParts.push('**Score:** ' + (cc.score != null ? cc.score : 'N/A') + ' | **Site Type:** ' + (cc.siteType || 'N/A'));
+    descParts.push('**Website:** ' + (cc.url || 'N/A'));
+    descParts.push('**Goal:** ' + (cc.primaryGoal || 'N/A'));
+    descParts.push('**Traffic:** ' + (cc.monthlyTraffic || 'N/A'));
+    if (cc.budgetRange) descParts.push('**Budget:** ' + cc.budgetRange);
+    if (cc.timeline) descParts.push('**Timeline:** ' + cc.timeline);
+    if (record.scheduling && record.scheduling.proposedSlots && record.scheduling.proposedSlots.length > 0) {
+      descParts.push('');
+      descParts.push('**Proposed Meeting Slots:**');
+      record.scheduling.proposedSlots.forEach(function (s, i) {
+        descParts.push('  ' + (i + 1) + '. ' + s.label);
+      });
+    }
+    assignee = 'nova';
+    priority = 'medium';
+  }
 
   var task = {
     id: 'task-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7),
@@ -457,6 +589,36 @@ function _generateDraftReply(record) {
   var greeting = name ? ('Hi ' + name + ',') : 'Hello,';
   var hasSubject = record.message && record.message.subject;
   var hasBody = record.message && record.message.body && record.message.body.length > 10;
+
+  // ConversionCore strategy — scheduling-aware draft
+  if (record.type === 'conversioncore_strategy') {
+    var cc = record.conversioncore || {};
+    var slots = (record.scheduling && record.scheduling.proposedSlots) || [];
+    var ccLines = [
+      greeting,
+      '',
+      'Thank you for requesting a strategy session based on your ConversionCore audit' +
+        (cc.score != null ? ' (Score: ' + cc.score + '/100)' : '') + '.',
+      '',
+      'We\'ve reviewed the findings for ' + (cc.url || 'your site') +
+        ' and have some initial thoughts on quick wins and structural improvements.',
+      '',
+      'Here are a few times we can connect for a 30-minute strategy call:',
+      ''
+    ];
+    if (slots.length > 0) {
+      slots.forEach(function (s, i) {
+        ccLines.push('  ' + (i + 1) + '. ' + s.label);
+      });
+    } else {
+      ccLines.push('  (We\'ll follow up with specific times shortly.)');
+    }
+    ccLines.push('');
+    ccLines.push('Reply with your preferred slot (or suggest an alternative) and we\'ll confirm.');
+    ccLines.push('');
+    ccLines.push('— AmbientPixels / ConversionCore');
+    return ccLines.join('\n');
+  }
 
   if (record.type === 'demo') {
     var lines = [
@@ -877,6 +1039,20 @@ module.exports = async function (context, req) {
         taskId: null,
         raw: body
       };
+
+      // ── ConversionCore strategy metadata + proposed time slots ──
+      if (data.type === 'conversioncore_strategy' && data.conversioncore) {
+        record.conversioncore = data.conversioncore;
+        var proposedSlots = await _proposeTimeSlots(3);
+        record.scheduling = {
+          mode: 'agent_propose',
+          timezone: 'America/Los_Angeles',
+          durationMinutes: 30,
+          businessHours: { start: '09:00', end: '17:00', days: ['MO','TU','WE','TH','FR'] },
+          bufferMinutes: 15,
+          proposedSlots: proposedSlots
+        };
+      }
 
       // ── Dedupe check ──
       var email = data.contact ? data.contact.email : '';

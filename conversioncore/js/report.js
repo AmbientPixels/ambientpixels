@@ -312,10 +312,14 @@
     }
 
     // Upsell
+    var strategyUrl = '/conversioncore/strategy.html?reportId=' + encodeURIComponent(reportId)
+      + '&url=' + encodeURIComponent(report.url || '')
+      + '&score=' + (report.score || '')
+      + '&siteType=' + encodeURIComponent(report.siteType || report.siteTypeLabel || '');
     html += '<div class="cc-report-upsell">';
     html += '<h3>Turn This Audit Into Growth</h3>';
     html += '<p>AmbientPixels implements messaging rewrites, funnel restructuring, CTA optimization, and AI-driven content integration — so you capture the revenue this report identified.</p>';
-    html += '<a href="https://ambientpixels.ai/contact">Implement These Fixes With Expert Support</a>';
+    html += '<a href="' + strategyUrl + '">Turn This Audit Into Growth</a>';
     html += '</div>';
 
     // Methodology
