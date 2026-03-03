@@ -37,8 +37,9 @@
       .then(function (res) { return res.json(); })
       .then(function (data) {
         // Store pack info for banner display
-        if (data.priceType === 'pack' && data.packCreditsRemaining != null) {
-          sessionStorage.setItem('cc_pack_credits', data.packCreditsRemaining);
+        if (data.priceType === 'pack') {
+          // Fresh pack purchase always yields 2 remaining (3 bought, 1 auto-redeemed)
+          sessionStorage.setItem('cc_pack_credits', '2');
         }
         // Clean URL params
         window.history.replaceState({}, '', window.location.pathname + '?id=' + reportId);
