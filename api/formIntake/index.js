@@ -85,7 +85,7 @@ function _validatePayload(body) {
 }
 
 function _normalizePayload(body) {
-  return {
+  var normalized = {
     type: body.type,
     pageUrl: _trunc(body.pageUrl, 2000),
     referrer: _trunc(body.referrer, 2000),
