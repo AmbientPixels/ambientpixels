@@ -7,16 +7,18 @@ const { DIMENSIONS, WEIGHT_PROFILES, scoreToGrade } = require('./dimensions');
 /**
  * Decompression curve: converts LLM 1-10 scores to calibrated 0-100 scale.
  *
- * LLMs compress scores toward the 4-6 range despite anti-compression prompts.
- * This curve stretches the mid-range so competent execution (6-7) maps to
- * passing grades, and strong execution (8-9) maps to B/A.
+ * LLMs compress scores toward the 5-6.5 range despite anti-compression prompts.
+ * A sigmoid centered at 5.0 creates steep differentiation in this narrow range,
+ * punishing mediocre scores (4-5 → F) while rewarding good execution (6.5+ → B).
  *
- * Mapping: 1→0, 3→41, 5→62, 6→72, 7→80, 8→88, 9→94, 10→100
+ * Mapping: 1→0, 3→12, 4→27, 5→50, 6→73, 6.5→82, 7→88, 8→95, 10→100
  */
 function decompressScore(raw1to10) {
   const clamped = Math.max(1, Math.min(10, raw1to10));
-  const normalized = (clamped - 1) / 9; // 0 to 1 range
-  return Math.round(Math.pow(normalized, 0.55) * 100);
+  if (clamped <= 1) return 0;
+  if (clamped >= 10) return 100;
+  // Sigmoid: center=5.0, steepness=1.0
+  return Math.round(100 / (1 + Math.exp(-(clamped - 5.0))));
 }
 
 /**
@@ -42,12 +44,12 @@ function computeScore(evaluations, siteType) {
     const weight = profile && profile.weights[dimId] != null ? profile.weights[dimId] : dim.weight;
 
     if (!evalResult || !evalResult.scores) {
-      // Missing evaluation — use default mid-range
+      // Missing evaluation — use default mid-range (raw 5 → sigmoid 50 → F)
       dimensionResults[dimId] = {
         label: dim.label,
         weight: weight,
         score: 50,
-        grade: 'D',
+        grade: 'F',
         subScores: {},
         findings: [],
         partial: true
