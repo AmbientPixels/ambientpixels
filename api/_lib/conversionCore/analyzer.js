@@ -117,7 +117,7 @@ async function analyze(url) {
   const evalStartTime = Date.now();
   const evalPromises = Object.keys(GROUPS).map(async (groupId) => {
     try {
-      const prompt = buildGroupEvalPrompt(groupId, extraction, siteType);
+      const prompt = buildGroupEvalPrompt(groupId, extraction, siteType, !!scraped.jsRenderedWarning);
       const raw = await callGemini(prompt, {
         temperature: 0.2,
         maxOutputTokens: 2500,

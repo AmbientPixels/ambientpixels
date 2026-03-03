@@ -5,6 +5,21 @@
 const { DIMENSIONS, WEIGHT_PROFILES, scoreToGrade } = require('./dimensions');
 
 /**
+ * Decompression curve: converts LLM 1-10 scores to calibrated 0-100 scale.
+ *
+ * LLMs compress scores toward the 4-6 range despite anti-compression prompts.
+ * This curve stretches the mid-range so competent execution (6-7) maps to
+ * passing grades, and strong execution (8-9) maps to B/A.
+ *
+ * Mapping: 1→0, 3→35, 5→57, 6→66, 7→75, 8→84, 9→92, 10→100
+ */
+function decompressScore(raw1to10) {
+  const clamped = Math.max(1, Math.min(10, raw1to10));
+  const normalized = (clamped - 1) / 9; // 0 to 1 range
+  return Math.round(Math.pow(normalized, 0.7) * 100);
+}
+
+/**
  * Compute the overall Conversion Health Score from dimension evaluations.
  *
  * @param {Object} evaluations — keyed by dimension ID, each containing:
@@ -60,8 +75,8 @@ function computeScore(evaluations, siteType) {
       dimRawScore += score * criterion.weight;
     }
 
-    // Convert 1-10 to 0-100
-    const dimScore100 = Math.round((dimRawScore / 10) * 100);
+    // Convert 1-10 to 0-100 using decompression curve
+    const dimScore100 = decompressScore(dimRawScore);
 
     dimensionResults[dimId] = {
       label: dim.label,
@@ -92,10 +107,11 @@ function computeScore(evaluations, siteType) {
     totalWeight += weight;
   }
 
-  // Final score: weighted average on 0-100 scale
-  const finalScore = totalWeight > 0
-    ? Math.round((totalWeightedScore / totalWeight / 10) * 100)
-    : 50;
+  // Final score: weighted average on 1-10, then decompressed to 0-100
+  const rawFinalAvg = totalWeight > 0
+    ? totalWeightedScore / totalWeight
+    : 5;
+  const finalScore = decompressScore(rawFinalAvg);
 
   // Sort findings by severity: critical > important > minor
   const severityOrder = { critical: 0, important: 1, minor: 2 };

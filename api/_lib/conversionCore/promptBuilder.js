@@ -103,7 +103,7 @@ Extract and categorize the conversion elements you find. Return ONLY valid JSON,
 
 // ── Stage 2: Grouped Evaluation ──────────────────────────────────
 
-function buildGroupEvalPrompt(groupId, extractionResult, siteType) {
+function buildGroupEvalPrompt(groupId, extractionResult, siteType, isJsRendered) {
   const dims = getDimensionsForGroup(groupId);
   const dimIds = Object.keys(dims);
 
@@ -120,6 +120,17 @@ function buildGroupEvalPrompt(groupId, extractionResult, siteType) {
     rubricBlock += '\n';
   }
 
+  const jsRenderedNote = isJsRendered ? `
+=== IMPORTANT: LIMITED CONTENT WARNING ===
+This page appears to use client-side JavaScript rendering. The extracted data below may be INCOMPLETE — many page elements (testimonials, CTAs, pricing, imagery) may exist on the live page but are not captured in static analysis.
+
+SCORING ADJUSTMENT FOR JS-RENDERED PAGES:
+- When a sub-criterion has NO evidence in the data, score it 5 (neutral/unknown) — NOT 1-2.
+- Only score 1-2 when you can see evidence that something is actively BAD, not merely absent.
+- Score what IS present at its actual quality level (7-9 if well-executed).
+- The missing data is a scraping limitation, not a site deficiency.
+` : '';
+
   return `You are a senior CRO (conversion rate optimization) consultant scoring a website audit.
 
 You are evaluating GROUP ${groupId} which contains these 4 dimensions:
@@ -127,7 +138,7 @@ ${dimIds.map(id => '- ' + dims[id].label).join('\n')}
 
 === SITE TYPE: ${siteType || 'unknown'} ===
 ${siteContext}
-
+${jsRenderedNote}
 === EXTRACTED CONVERSION DATA ===
 ${JSON.stringify(extractionResult, null, 2)}
 
@@ -135,27 +146,35 @@ ${JSON.stringify(extractionResult, null, 2)}
 For each dimension, score every sub-criterion on a 1–10 scale.
 
 Scoring guide — USE THE FULL RANGE:
-- 1-2: Fundamentally broken or completely absent. The site actively drives visitors away in this area.
-- 3-4: Significant deficiencies. Common for sites that never had CRO attention. Clear, fixable problems.
-- 5: Mediocre. Present but generic, unoptimized. The default for sites that tried but didn't execute well.
-- 6-7: Competent. Functional implementation that follows standard practices. Room for optimization but not broken.
-- 8: Strong. Deliberately optimized with clear strategic intent. Minor refinements only.
-- 9: Excellent. Top 10% execution. Sophisticated, polished, and effective.
-- 10: World-class. Best-in-class implementation that could serve as a case study. Reserve for genuinely exceptional execution.
+- 1-2: Actively harmful or fundamentally broken. Evidence shows the element HURTS conversions.
+- 3-4: Present but poorly executed. Clear deficiencies with evidence of specific problems.
+- 5: Neutral/generic. Present but unoptimized. No evidence of deliberate CRO effort.
+- 6: Competent. Follows standard practices. Functional but not optimized.
+- 7: Good. Above-average implementation with clear intent. Minor improvements possible.
+- 8: Strong. Deliberately optimized. Evidence of strategic CRO thinking. Would be hard to improve meaningfully.
+- 9: Excellent. Top-tier execution. Would serve as a positive example for this site type.
+- 10: World-class. Among the best implementations you've seen. Reserve for truly exceptional execution.
+
+CALIBRATION ANCHORS (use these to calibrate your scores):
+- A specific, benefit-driven headline ("Save 10 hours/week on invoicing") = 8-9 on headline_clarity
+- A vague headline ("The future of work") = 4-5 on headline_clarity
+- "Contact Sales" on an enterprise site = 7 on cta_action_language (appropriate for site type)
+- "Submit" on a form = 3 on cta_action_language (generic, zero value language)
+- Named testimonials with specific outcomes = 8-9 on social_proof_quality
+- Zero testimonials or social proof = ${isJsRendered ? '5 (may be JS-rendered)' : '1-2 (genuinely absent)'}
+- Clean visual hierarchy with clear focal points = 7-8 on visual_hierarchy
+- Cluttered page with competing elements = 3-4 on visual_hierarchy
 
 ANTI-COMPRESSION RULES:
-- DO NOT cluster scores in the 4-6 range. A site that does something well should score 7-9. A site that does something poorly should score 1-3.
-- If a well-known company (e.g., Stripe, Apple, Shopify) has a clearly optimized element, score it 8-9. Do not downgrade strong execution because it is "expected."
-- If a sub-criterion is genuinely absent (e.g., no testimonials at all), score it 1-2, not 4.
-- If a sub-criterion is present and well-executed, score it 7+, not 6.
-- The average score across all sites should be approximately 5.5, NOT 4.5. Spread your scores.
-- Ask yourself: "Would I hire someone to fix this specific thing?" If no, it should score 7+. If yes, it should score below 6.
+- Your scores MUST span at least a 4-point range within each dimension. If all sub-criteria score 5-6, you are compressing.
+- Well-executed elements score 7-9. Poorly executed elements score 1-4. The 5-6 range is NARROW — only for "present but mediocre."
+- If you recognize a well-known company with professional design and clear messaging, their baseline starts at 6-7, not 4-5.
+- Ask yourself: "Would I hire someone to fix this specific thing?" If no → 7+. If yes → below 6.
 
 IMPORTANT RULES:
 - You MUST cite specific evidence from the extracted data before giving a score.
-- If no evidence exists for a criterion, note its absence and score accordingly.
 - Each finding must include a concrete, actionable recommendation.
-- CRITICAL: Every finding MUST include an "evidence" field that quotes the EXACT text, element, or absence from the page being critiqued. Example: 'Current headline: "AI, Engineered for Production." — this does not state a specific outcome or measurable benefit.' This makes findings feel forensic and premium.
+- CRITICAL: Every finding MUST include an "evidence" field that quotes the EXACT text, element, or absence from the page being critiqued.
 - Score relative to the site type. ${siteContext ? siteContext : 'An enterprise platform has different conversion expectations than a direct-response SaaS landing page.'}
 
 ${rubricBlock}
