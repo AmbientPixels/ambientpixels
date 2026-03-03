@@ -8,17 +8,27 @@ const { DIMENSIONS, WEIGHT_PROFILES, scoreToGrade } = require('./dimensions');
  * Decompression curve: converts LLM 1-10 scores to calibrated 0-100 scale.
  *
  * LLMs compress scores toward the 5-6.5 range despite anti-compression prompts.
- * A sigmoid centered at 5.0 creates steep differentiation in this narrow range,
- * punishing mediocre scores (4-5 → F) while rewarding good execution (6.5+ → B).
+ * Piecewise linear mapping gives exact control: steep differentiation in the
+ * compressed 5-6.5 range while properly punishing low scores and rewarding high.
  *
- * Mapping: 1→0, 3→12, 4→27, 5→50, 6→73, 6.5→82, 7→88, 8→95, 10→100
+ * Mapping: 1→0, 3→15, 4→35, 5→60, 5.5→68, 6→76, 6.5→83, 7→89, 8→95, 10→100
  */
+const SCORE_BREAKPOINTS = [
+  [1, 0], [3, 15], [4, 35], [5, 60],
+  [5.5, 68], [6, 76], [6.5, 83], [7, 89], [8, 95], [10, 100]
+];
+
 function decompressScore(raw1to10) {
   const clamped = Math.max(1, Math.min(10, raw1to10));
-  if (clamped <= 1) return 0;
-  if (clamped >= 10) return 100;
-  // Sigmoid: center=5.0, steepness=1.0
-  return Math.round(100 / (1 + Math.exp(-(clamped - 5.0))));
+  // Find surrounding breakpoints and interpolate
+  for (let i = 0; i < SCORE_BREAKPOINTS.length - 1; i++) {
+    if (clamped <= SCORE_BREAKPOINTS[i + 1][0]) {
+      const [x0, y0] = SCORE_BREAKPOINTS[i];
+      const [x1, y1] = SCORE_BREAKPOINTS[i + 1];
+      return Math.round(y0 + (clamped - x0) * (y1 - y0) / (x1 - x0));
+    }
+  }
+  return 100;
 }
 
 /**
@@ -44,12 +54,12 @@ function computeScore(evaluations, siteType) {
     const weight = profile && profile.weights[dimId] != null ? profile.weights[dimId] : dim.weight;
 
     if (!evalResult || !evalResult.scores) {
-      // Missing evaluation — use default mid-range (raw 5 → sigmoid 50 → F)
+      // Missing evaluation — use default mid-range (raw 5 → 60 → D)
       dimensionResults[dimId] = {
         label: dim.label,
         weight: weight,
-        score: 50,
-        grade: 'F',
+        score: 60,
+        grade: 'D',
         subScores: {},
         findings: [],
         partial: true
