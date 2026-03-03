@@ -411,7 +411,14 @@
     html += '<p>AmbientPixels implements messaging rewrites, funnel restructuring, CTA optimization, and AI-driven content integration \u2014 so you capture the revenue this report identified.</p>';
     html += '<div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">';
     html += '<a href="' + strategyUrl + '" class="cc-buy-btn" style="text-decoration:none;">Book a Strategy Call</a>';
-    html += '<a href="mailto:ambientpixels2022@gmail.com?subject=ConversionCore%20Audit%20%E2%80%94%20' + encodeURIComponent(report.url || '') + '" class="cc-buy-btn" style="text-decoration:none;background:transparent;color:var(--cc-accent);border:1px solid var(--cc-accent);">Email Us</a>';
+    var mailSubject = 'ConversionCore Strategy Inquiry \u2013 ' + (report.url || 'My Website');
+    var mailBody = 'I just ran a ConversionCore audit.\n\n' +
+      'Report ID: ' + (report.id || 'N/A') + '\n' +
+      'Score: ' + (report.score != null ? report.score + '/100' : 'N/A') + '\n' +
+      'Website: ' + (report.url || 'N/A') + '\n\n' +
+      'I\u2019d like to discuss implementation.';
+    var mailHref = 'mailto:ambientpixels2022@gmail.com?subject=' + encodeURIComponent(mailSubject) + '&body=' + encodeURIComponent(mailBody);
+    html += '<a href="' + mailHref + '" class="cc-buy-btn" style="text-decoration:none;background:transparent;color:var(--cc-accent);border:1px solid var(--cc-accent);">Email Us Directly</a>';
     html += '</div>';
     html += '</div>';
 
