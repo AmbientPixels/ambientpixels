@@ -218,23 +218,56 @@ module.exports = async function (context, req) {
     };
 
   } catch (err) {
-    context.log.error('[cc-analyze] Error:', err.message || err);
     const errMsg = err.message || '';
+    const blockMeta = err.blockMeta || null;
+
+    // Structured failure logging — captures provider, status, body preview for calibration
+    const failureLog = {
+      timestamp: new Date().toISOString(),
+      url: (req.body && req.body.url) || '',
+      errorCode: '',
+      provider: blockMeta ? blockMeta.provider : null,
+      httpStatus: blockMeta ? blockMeta.status : null,
+      hostname: blockMeta ? blockMeta.hostname : null,
+      cfRay: blockMeta ? blockMeta.cfRay : null,
+      server: blockMeta ? blockMeta.server : null,
+      bodyPreview: blockMeta ? blockMeta.bodyPreview : null,
+      cfSignals: blockMeta ? blockMeta.cfSignals : null,
+      errMsg: errMsg.substring(0, 200)
+    };
 
     // Client-friendly error codes — order matters (most specific first)
     if (errMsg.includes('SITE_BLOCKED') || errMsg.includes('SITE_BLOCKED_CLOUDFLARE')) {
       const isCf = errMsg.includes('CLOUDFLARE');
-      context.res = { status: 403, headers: CORS, body: JSON.stringify({ error: 'SITE_BLOCKED', provider: isCf ? 'cloudflare' : 'unknown', detail: errMsg }) };
+      failureLog.errorCode = 'SITE_BLOCKED';
+      failureLog.provider = isCf ? 'cloudflare' : (blockMeta ? blockMeta.provider : 'unknown');
+      context.res = { status: 403, headers: CORS, body: JSON.stringify({ error: 'SITE_BLOCKED', provider: failureLog.provider }) };
     } else if (errMsg.includes('SITE_TIMEOUT') || errMsg.includes('ETIMEDOUT')) {
-      context.res = { status: 504, headers: CORS, body: JSON.stringify({ error: 'SITE_TIMEOUT', detail: errMsg }) };
+      failureLog.errorCode = 'SITE_TIMEOUT';
+      context.res = { status: 504, headers: CORS, body: JSON.stringify({ error: 'SITE_TIMEOUT' }) };
     } else if (errMsg.includes('SITE_UNREACHABLE') || errMsg.includes('ENOTFOUND') || errMsg.includes('ECONNREFUSED')) {
-      context.res = { status: 502, headers: CORS, body: JSON.stringify({ error: 'SITE_TIMEOUT', detail: errMsg }) };
+      failureLog.errorCode = 'SITE_UNREACHABLE';
+      context.res = { status: 502, headers: CORS, body: JSON.stringify({ error: 'SITE_TIMEOUT' }) };
     } else if (errMsg.includes('status code 403') || errMsg.includes('status code 429')) {
-      context.res = { status: 403, headers: CORS, body: JSON.stringify({ error: 'SITE_BLOCKED', detail: errMsg }) };
+      failureLog.errorCode = 'SITE_BLOCKED';
+      context.res = { status: 403, headers: CORS, body: JSON.stringify({ error: 'SITE_BLOCKED', provider: 'unknown' }) };
     } else if (errMsg.includes('Blocked') || errMsg.includes('not allowed') || errMsg.includes('Invalid URL')) {
+      failureLog.errorCode = 'VALIDATION';
       context.res = { status: 400, headers: CORS, body: JSON.stringify({ error: errMsg }) };
     } else {
+      failureLog.errorCode = 'ANALYSIS_FAILED';
       context.res = { status: 500, headers: CORS, body: JSON.stringify({ error: 'ANALYSIS_FAILED', detail: errMsg.substring(0, 200) }) };
     }
+
+    // Log for calibration (non-blocking)
+    context.log.warn('[cc-analyze] Scan failure:', JSON.stringify(failureLog));
+    logScan({
+      url: failureLog.url,
+      tier: 'failed',
+      errorCode: failureLog.errorCode,
+      provider: failureLog.provider,
+      httpStatus: failureLog.httpStatus,
+      timestamp: failureLog.timestamp
+    }).catch(function () {});
   }
 };

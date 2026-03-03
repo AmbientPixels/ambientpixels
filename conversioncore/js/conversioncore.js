@@ -112,27 +112,51 @@
     ]
   };
 
-  function friendlyError(raw) {
+  function _pick(pool) { return pool[Math.floor(Math.random() * pool.length)]; }
+
+  function _baseUrl(url) {
+    try { var u = new URL(url); return u.origin + '/'; } catch (e) { return ''; }
+  }
+
+  function friendlyError(raw, scannedUrl) {
+    var code = '';
     // Try to parse structured error from API
     try {
       var parsed = JSON.parse(raw);
-      var code = parsed.error || '';
-      var pool = ERROR_MESSAGES[code];
-      if (pool) return pool[Math.floor(Math.random() * pool.length)];
-    } catch (e) { /* not JSON, check string */ }
-    // Match on raw string
-    if (raw.indexOf('SITE_BLOCKED') !== -1) return ERROR_MESSAGES.SITE_BLOCKED[Math.floor(Math.random() * ERROR_MESSAGES.SITE_BLOCKED.length)];
-    if (raw.indexOf('SITE_TIMEOUT') !== -1) return ERROR_MESSAGES.SITE_TIMEOUT[Math.floor(Math.random() * ERROR_MESSAGES.SITE_TIMEOUT.length)];
-    if (raw.indexOf('403') !== -1) return ERROR_MESSAGES.SITE_BLOCKED[Math.floor(Math.random() * ERROR_MESSAGES.SITE_BLOCKED.length)];
-    if (raw.indexOf('timeout') !== -1) return ERROR_MESSAGES.SITE_TIMEOUT[Math.floor(Math.random() * ERROR_MESSAGES.SITE_TIMEOUT.length)];
-    if (raw.indexOf('ANALYSIS_FAILED') !== -1 || raw.indexOf('Analysis failed') !== -1) return ERROR_MESSAGES.ANALYSIS_FAILED[Math.floor(Math.random() * ERROR_MESSAGES.ANALYSIS_FAILED.length)];
-    return raw || "Something went sideways. Try again!";
+      code = parsed.error || '';
+    } catch (e) { code = raw; }
+
+    var msg = '';
+    if (code.indexOf('SITE_BLOCKED') !== -1 || code.indexOf('403') !== -1) {
+      msg = _pick(ERROR_MESSAGES.SITE_BLOCKED);
+    } else if (code.indexOf('SITE_TIMEOUT') !== -1 || code.indexOf('timeout') !== -1) {
+      msg = _pick(ERROR_MESSAGES.SITE_TIMEOUT);
+    } else if (code.indexOf('ANALYSIS_FAILED') !== -1 || code.indexOf('Analysis failed') !== -1) {
+      msg = _pick(ERROR_MESSAGES.ANALYSIS_FAILED);
+    } else {
+      msg = raw || "Something went wrong. Please try again.";
+    }
+
+    // Append homepage suggestion for blocked/timeout errors
+    if (scannedUrl && (code.indexOf('SITE_BLOCKED') !== -1 || code.indexOf('403') !== -1)) {
+      var base = _baseUrl(scannedUrl);
+      if (base && base !== scannedUrl && base !== scannedUrl + '/') {
+        msg += '\n\nTry scanning: ' + base;
+      }
+    }
+    return msg;
   }
 
   function showError(msg) {
     hideLoading();
     errorSection.style.display = 'block';
-    errorText.textContent = msg;
+    // Support newline-separated suggestion line
+    var parts = msg.split('\n\n');
+    if (parts.length > 1) {
+      errorText.innerHTML = escapeHtml(parts[0]) + '<br><small style="opacity:0.7;font-size:0.85em;">' + escapeHtml(parts[1]) + '</small>';
+    } else {
+      errorText.textContent = msg;
+    }
   }
 
   function hideError() {
@@ -265,7 +289,7 @@
       })
       .then(renderResults)
       .catch(function (err) {
-        showError(friendlyError(err.message || ''));
+        showError(friendlyError(err.message || '', url));
       });
   });
 

@@ -343,29 +343,68 @@ async function scrapeUrl(urlStr) {
     throw fetchErr;
   }
 
-  // Detect bot-protection pages (Cloudflare, Akamai, etc.) even on 200s
+  // ── Bot-protection detection ────────────────────────────────────
   const fetchTimeMs = Date.now() - startTime;
   const html = typeof response.data === 'string' ? response.data : '';
   const cfRay = response.headers['cf-ray'] || '';
   const server = (response.headers['server'] || '').toLowerCase();
-  const htmlLower = html.substring(0, 5000).toLowerCase();
+  const contentType = (response.headers['content-type'] || '').toLowerCase();
+  const isHtmlIsh = contentType.includes('html') || contentType.includes('text') || html.trimStart().startsWith('<');
+
+  // Only inspect body for WAF fingerprints if the response looks like HTML
+  const htmlLower = isHtmlIsh ? html.substring(0, 5000).toLowerCase() : '';
+  const titleMatch = htmlLower.match(/<title[^>]*>(.*?)<\/title>/);
+  const pageTitle = titleMatch ? titleMatch[1] : '';
+
+  // Cloudflare fingerprint: need 2+ signals to confirm (avoids false positives)
+  const cfSignals = [
+    cfRay ? 1 : 0,
+    server.includes('cloudflare') ? 1 : 0,
+    htmlLower.includes('cf-ray') ? 1 : 0,
+    htmlLower.includes('cloudflare') ? 1 : 0,
+    htmlLower.includes('cf-challenge') || htmlLower.includes('cf_turnstile') || htmlLower.includes('cf_clearance') ? 1 : 0,
+    htmlLower.includes('challenge-platform') ? 1 : 0,
+    htmlLower.includes('attention required') ? 1 : 0,
+    htmlLower.includes('just a moment') ? 1 : 0,
+    htmlLower.includes('checking your browser') ? 1 : 0,
+    pageTitle.includes('just a moment') || pageTitle.includes('attention required') ? 1 : 0
+  ].reduce(function (a, b) { return a + b; }, 0);
+  const isCloudflare = cfSignals >= 2;
+
+  // Build block metadata for logging
+  const blockMeta = {
+    status: response.status,
+    provider: isCloudflare ? 'cloudflare' : (server.includes('akamai') ? 'akamai' : 'unknown'),
+    hostname: parsed.hostname,
+    finalUrl: response.request?.res?.responseUrl || parsed.href,
+    cfRay: cfRay || null,
+    server: server || null,
+    contentType: contentType || null,
+    bodyPreview: html.substring(0, 120),
+    cfSignals: cfSignals
+  };
 
   if (response.status === 403 || response.status === 401) {
-    const isCf = cfRay || server.includes('cloudflare') || htmlLower.includes('cf-ray') ||
-      htmlLower.includes('cloudflare') || htmlLower.includes('attention required') ||
-      htmlLower.includes('just a moment') || htmlLower.includes('challenge-platform');
-    throw new Error(isCf
+    const err = new Error(isCloudflare
       ? 'SITE_BLOCKED_CLOUDFLARE: ' + parsed.hostname + ' is protected by Cloudflare'
       : 'SITE_BLOCKED: ' + parsed.hostname + ' returned ' + response.status);
+    err.blockMeta = blockMeta;
+    throw err;
   }
 
-  // Catch challenge pages that return 200 (Cloudflare "Just a moment..." interstitials)
-  if (htmlLower.includes('just a moment') && (htmlLower.includes('cloudflare') || cfRay)) {
-    throw new Error('SITE_BLOCKED_CLOUDFLARE: ' + parsed.hostname + ' served a Cloudflare challenge page');
+  // Catch challenge pages that return 200 (Cloudflare interstitials)
+  if (isHtmlIsh && isCloudflare && html.length < 50000) {
+    // Challenge pages are small + have CF fingerprints — real pages are larger
+    const hasRealContent = htmlLower.includes('<article') || htmlLower.includes('<main') ||
+      htmlLower.includes('</p>') || html.length > 20000;
+    if (!hasRealContent) {
+      const err = new Error('SITE_BLOCKED_CLOUDFLARE: ' + parsed.hostname + ' served a Cloudflare challenge page');
+      err.blockMeta = blockMeta;
+      throw err;
+    }
   }
 
-  // Check content type
-  const contentType = (response.headers['content-type'] || '').toLowerCase();
+  // Check content type (contentType already extracted above for WAF detection)
   if (!contentType.includes('html') && !contentType.includes('text')) {
     throw new Error('URL did not return HTML content (got: ' + contentType.split(';')[0] + ')');
   }
