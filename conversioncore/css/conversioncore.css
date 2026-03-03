@@ -704,6 +704,31 @@ a:hover { color: var(--cc-accent-hover); }
   .cc-rewrite-before { border-right: none; border-bottom: 1px solid var(--cc-border); }
 }
 
+/* ── Credits Redemption ──────────────────────── */
+.cc-credits-redeem { margin-top: 24px; text-align: center; }
+.cc-credits-divider { font-size: 13px; color: var(--cc-text-muted); margin-bottom: 12px; }
+.cc-credits-form { display: flex; justify-content: center; gap: 8px; max-width: 400px; margin: 0 auto; }
+.cc-credits-email-input {
+  flex: 1; padding: 10px 14px; font-size: 14px; font-family: var(--cc-font);
+  background: var(--cc-bg); border: 1px solid var(--cc-border);
+  border-radius: var(--cc-radius-sm); color: var(--cc-text); outline: none;
+}
+.cc-credits-email-input:focus { border-color: var(--cc-accent); }
+.cc-credits-btn {
+  padding: 10px 20px; font-size: 13px; font-weight: 600; font-family: var(--cc-font);
+  background: transparent; color: var(--cc-accent); border: 1px solid var(--cc-accent);
+  border-radius: var(--cc-radius-sm); cursor: pointer; white-space: nowrap;
+}
+.cc-credits-btn:hover { background: var(--cc-accent-soft); }
+.cc-credits-status { margin-top: 12px; }
+.cc-credits-balance { font-size: 15px; color: var(--cc-accent); margin-bottom: 12px; }
+.cc-credits-none { font-size: 13px; color: var(--cc-text-muted); }
+.cc-credits-error { font-size: 13px; color: var(--cc-danger); }
+
+@media (max-width: 480px) {
+  .cc-credits-form { flex-direction: column; }
+}
+
 /* ── Print ────────────────────────────────────── */
 
 @media print {

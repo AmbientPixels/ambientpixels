@@ -155,6 +155,8 @@
       }
       blurredCount.textContent = blurred;
       upgradeSection.style.display = 'block';
+      var creditsRedeem = document.getElementById('cc-credits-redeem');
+      if (creditsRedeem) creditsRedeem.style.display = 'block';
     } else {
       upgradeSection.style.display = 'none';
     }
@@ -268,6 +270,72 @@
 
   buySingle.addEventListener('click', function () { handleBuy('single'); });
   buyPack.addEventListener('click', function () { handleBuy('pack'); });
+
+  // ── Credit Redemption ──────────────────────────
+
+  var creditsCheckBtn = document.getElementById('cc-credits-check-btn');
+  var creditsEmailInput = document.getElementById('cc-credits-email');
+  var creditsStatus = document.getElementById('cc-credits-status');
+
+  if (creditsCheckBtn) {
+    creditsCheckBtn.addEventListener('click', function () {
+      var email = creditsEmailInput.value.trim();
+      if (!email) return;
+
+      creditsCheckBtn.disabled = true;
+      creditsCheckBtn.textContent = 'Checking...';
+      creditsStatus.innerHTML = '';
+
+      fetch(API + '/cc-credits', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'check', email: email })
+      })
+        .then(function (res) { return res.json(); })
+        .then(function (data) {
+          creditsCheckBtn.disabled = false;
+          creditsCheckBtn.textContent = 'Use Credits';
+
+          if (data.credits > 0) {
+            creditsStatus.innerHTML =
+              '<p class="cc-credits-balance">You have <strong>' + data.credits + '</strong> credit' + (data.credits > 1 ? 's' : '') + ' remaining.</p>' +
+              '<button class="cc-buy-btn" id="cc-credits-confirm" style="margin-top:8px;">Use 1 Credit to Unlock</button>';
+
+            document.getElementById('cc-credits-confirm').addEventListener('click', function () {
+              this.disabled = true;
+              this.textContent = 'Unlocking...';
+              redeemCredit(email);
+            });
+          } else {
+            creditsStatus.innerHTML = '<p class="cc-credits-none">No credits found for this email.</p>';
+          }
+        })
+        .catch(function () {
+          creditsCheckBtn.disabled = false;
+          creditsCheckBtn.textContent = 'Use Credits';
+          creditsStatus.innerHTML = '<p class="cc-credits-error">Could not check credits. Please try again.</p>';
+        });
+    });
+  }
+
+  function redeemCredit(email) {
+    fetch(API + '/cc-credits', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'redeem', email: email, reportId: currentReportId })
+    })
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (data.ok && data.reportUrl) {
+          window.location.href = data.reportUrl;
+        } else {
+          creditsStatus.innerHTML = '<p class="cc-credits-error">' + escapeHtml(data.error || 'Redemption failed.') + '</p>';
+        }
+      })
+      .catch(function () {
+        creditsStatus.innerHTML = '<p class="cc-credits-error">Something went wrong. Please try again.</p>';
+      });
+  }
 
   // ── Handle cancelled return from Stripe ────────
 

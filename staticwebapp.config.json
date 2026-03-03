@@ -283,6 +283,11 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/api/cc-credits",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cc-credits",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/api/*",
       "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/{path}"
     },

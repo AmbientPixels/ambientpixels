@@ -89,7 +89,81 @@
       '<div class="cc-score-label" style="margin-bottom:24px;">Conversion Health Score</div>' +
       '<p style="color:var(--cc-text-secondary);margin-bottom:32px;">Your report has been generated. Unlock the full 8-dimension analysis with detailed findings, headline rewrites, and CTA improvements.</p>' +
       '<a href="/conversioncore/?url=' + encodeURIComponent(report.url || '') + '" class="cc-buy-btn" style="text-decoration:none;">Unlock Full Report — $49</a>' +
+      '<div class="cc-credits-redeem" style="margin-top:24px;">' +
+      '<p class="cc-credits-divider">Have a pack?</p>' +
+      '<div class="cc-credits-form">' +
+      '<input type="email" id="cc-credits-email" class="cc-credits-email-input" placeholder="Enter your pack email" />' +
+      '<button type="button" class="cc-credits-btn" id="cc-credits-check-btn">Use Credits</button>' +
+      '</div>' +
+      '<div id="cc-credits-status" class="cc-credits-status"></div>' +
+      '</div>' +
       '</div>';
+
+    // Wire up credit check/redeem
+    var creditsCheckBtn = document.getElementById('cc-credits-check-btn');
+    var creditsEmailInput = document.getElementById('cc-credits-email');
+    var creditsStatus = document.getElementById('cc-credits-status');
+
+    if (creditsCheckBtn) {
+      creditsCheckBtn.addEventListener('click', function () {
+        var email = creditsEmailInput.value.trim();
+        if (!email) return;
+
+        creditsCheckBtn.disabled = true;
+        creditsCheckBtn.textContent = 'Checking...';
+        creditsStatus.innerHTML = '';
+
+        fetch(API + '/cc-credits', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'check', email: email })
+        })
+          .then(function (res) { return res.json(); })
+          .then(function (data) {
+            creditsCheckBtn.disabled = false;
+            creditsCheckBtn.textContent = 'Use Credits';
+
+            if (data.credits > 0) {
+              creditsStatus.innerHTML =
+                '<p class="cc-credits-balance">You have <strong>' + data.credits + '</strong> credit' + (data.credits > 1 ? 's' : '') + ' remaining.</p>' +
+                '<button class="cc-buy-btn" id="cc-credits-confirm" style="margin-top:8px;">Use 1 Credit to Unlock</button>';
+
+              document.getElementById('cc-credits-confirm').addEventListener('click', function () {
+                this.disabled = true;
+                this.textContent = 'Unlocking...';
+                redeemCredit(email);
+              });
+            } else {
+              creditsStatus.innerHTML = '<p class="cc-credits-none">No credits found for this email.</p>';
+            }
+          })
+          .catch(function () {
+            creditsCheckBtn.disabled = false;
+            creditsCheckBtn.textContent = 'Use Credits';
+            creditsStatus.innerHTML = '<p class="cc-credits-error">Could not check credits. Please try again.</p>';
+          });
+      });
+    }
+  }
+
+  function redeemCredit(email) {
+    var creditsStatus = document.getElementById('cc-credits-status');
+    fetch(API + '/cc-credits', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'redeem', email: email, reportId: reportId })
+    })
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        if (data.ok && data.reportUrl) {
+          window.location.href = data.reportUrl;
+        } else {
+          creditsStatus.innerHTML = '<p class="cc-credits-error">' + esc(data.error || 'Redemption failed.') + '</p>';
+        }
+      })
+      .catch(function () {
+        creditsStatus.innerHTML = '<p class="cc-credits-error">Something went wrong. Please try again.</p>';
+      });
   }
 
   // ── Full Report ────────────────────────────────

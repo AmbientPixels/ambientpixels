@@ -40,6 +40,24 @@ module.exports = async function (context, req) {
           await storage.setState('cc_report_' + reportId, report);
           context.log('[cc-webhook] Report unlocked: ' + reportId);
 
+          // Grant pack credits if this was a 3-pack purchase
+          var priceType = session.metadata && session.metadata.priceType;
+          if (priceType === 'pack' && email) {
+            try {
+              var creditUtils = require('../_lib/conversionCore/creditUtils');
+              var creditResult = await creditUtils.grantPackCredits({
+                email: email,
+                stripeSessionId: session.id,
+                reportId: reportId
+              });
+              if (creditResult) {
+                context.log('[cc-webhook] Pack credits created for ' + email + ': ' + creditResult.credits + ' remaining');
+              }
+            } catch (creditErr) {
+              context.log.warn('[cc-webhook] Credit creation failed (non-fatal):', creditErr.message);
+            }
+          }
+
           // Send email if available (non-blocking)
           if (email) {
             try {
