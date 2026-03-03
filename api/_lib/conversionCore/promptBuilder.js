@@ -125,10 +125,10 @@ function buildGroupEvalPrompt(groupId, extractionResult, siteType, isJsRendered)
 This page appears to use client-side JavaScript rendering. The extracted data below may be INCOMPLETE — many page elements (testimonials, CTAs, pricing, imagery) may exist on the live page but are not captured in static analysis.
 
 SCORING ADJUSTMENT FOR JS-RENDERED PAGES:
-- When a sub-criterion has NO evidence in the data, score it 5 (neutral/unknown) — NOT 1-2.
+- When a sub-criterion has NO evidence in the data, score it 3 (below average, uncertain) — NOT 1-2 and NOT 5-6.
 - Only score 1-2 when you can see evidence that something is actively BAD, not merely absent.
 - Score what IS present at its actual quality level (7-9 if well-executed).
-- The missing data is a scraping limitation, not a site deficiency.
+- The missing data is a scraping limitation, not necessarily a site deficiency, but absent data cannot earn a passing score.
 ` : '';
 
   return `You are a senior CRO (conversion rate optimization) consultant scoring a website audit.
@@ -171,7 +171,7 @@ CALIBRATION ANCHORS:
 - "Submit" or "Click here" = 3 on cta_action_language (generic, zero value language)
 - Named testimonials with specific outcomes = 8-9 on social_proof_quality
 - Logo bar with recognizable brands = 7-8 on social_proof_quality
-- Zero testimonials or social proof = ${isJsRendered ? '5 (may be JS-rendered)' : '2-3 (genuinely absent)'}
+- Zero testimonials or social proof = ${isJsRendered ? '3 (absent — may be JS-rendered)' : '2-3 (genuinely absent)'}
 - Clean visual hierarchy with clear focal points = 7-8 on visual_hierarchy
 - Cluttered page with competing elements everywhere = 3-4 on visual_hierarchy
 - Single clear CTA above fold with supporting copy = 8 on cta_placement

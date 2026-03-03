@@ -119,7 +119,7 @@ async function analyze(url) {
     try {
       const prompt = buildGroupEvalPrompt(groupId, extraction, siteType, !!scraped.jsRenderedWarning);
       const raw = await callGemini(prompt, {
-        temperature: 0.2,
+        temperature: 0.1,
         maxOutputTokens: 2500,
         caller: 'cc-eval-group-' + groupId
       });
