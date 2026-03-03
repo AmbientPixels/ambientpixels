@@ -121,6 +121,7 @@
     html += '<div class="cc-score-gauge ' + scoreClass(report.score) + '">' + report.score + '</div>';
     html += '<div class="cc-grade">Grade: ' + esc(report.grade) + '</div>';
     html += '<div class="cc-score-label">Conversion Health Score</div>';
+    html += '<div class="cc-score-context">' + scoreContext(report.score) + '</div>';
     html += '</div>';
 
     // JS warning
@@ -338,6 +339,13 @@
   }
 
   // ── Helpers ────────────────────────────────────
+
+  function scoreContext(score) {
+    if (score >= 80) return 'Strong conversion fundamentals with minor optimization opportunities remaining.';
+    if (score >= 65) return 'Solid foundation with clear optimization opportunities. Sites in this range often see quick wins from CTA and messaging changes.';
+    if (score >= 50) return 'Sites in the 50\u201364 range typically have foundational messaging clarity but weak conversion execution. Targeted fixes can meaningfully close this gap.';
+    return 'Sites scoring below 50 typically convert 30\u201350% below potential due to messaging and CTA friction. Immediate optimization recommended.';
+  }
 
   function scoreClass(score) {
     if (score >= 65) return 'score-high';
