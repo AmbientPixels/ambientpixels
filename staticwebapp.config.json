@@ -81,6 +81,9 @@
       "route": "/conversioncore/strategy.html"
     },
     {
+      "route": "/conversioncore/confirm.html"
+    },
+    {
       "route": "/conversioncore/*",
       "rewrite": "/conversioncore/index.html"
     },
@@ -288,6 +291,11 @@
     {
       "route": "/api/cc-credits",
       "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cc-credits",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/cc-confirm",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cc-confirm",
       "allowedRoles": ["anonymous"]
     },
     {

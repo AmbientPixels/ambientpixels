@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirm Strategy Session — ConversionCore</title>
+  <meta name="robots" content="noindex">
+  <link rel="icon" href="/images/favicon.ico">
+  <link rel="stylesheet" href="/conversioncore/css/conversioncore.css">
+  <style>
+    .cc-confirm-header { text-align: center; padding: 64px 0 32px; }
+    .cc-confirm-header h1 { font-size: 24px; color: var(--cc-accent); margin-bottom: 8px; }
+    .cc-confirm-header p { font-size: 15px; color: var(--cc-text-secondary); max-width: 540px; margin: 0 auto; }
+
+    .cc-confirm-card {
+      max-width: 480px; margin: 0 auto 48px;
+      background: var(--cc-surface); border: 1px solid var(--cc-border);
+      border-radius: var(--cc-radius); padding: 32px; text-align: center;
+    }
+
+    .cc-confirm-slot { font-size: 20px; font-weight: 600; color: var(--cc-text); margin-bottom: 8px; line-height: 1.4; }
+    .cc-confirm-duration { font-size: 14px; color: var(--cc-text-muted); margin-bottom: 24px; }
+
+    .cc-confirm-card .cc-buy-btn { width: 100%; text-align: center; }
+    .cc-confirm-card .cc-buy-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .cc-confirm-status { margin-top: 16px; font-size: 14px; }
+    .cc-confirm-status.cc-error { color: var(--cc-danger); }
+    .cc-confirm-status.cc-success { color: var(--cc-accent); }
+    .cc-confirm-status.cc-warning { color: var(--cc-warning, #d4a017); }
+
+    .cc-confirmed-check {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 64px; height: 64px; border-radius: 50%;
+      background: var(--cc-accent-soft); color: var(--cc-accent);
+      font-size: 32px; margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Brand Bar -->
+  <header class="cc-brand-bar">
+    <div class="cc-container">
+      <a href="/conversioncore/" class="cc-brand-name" style="text-decoration:none;">ConversionCore</a>
+      <a href="https://ambientpixels.ai" class="cc-brand-link">by AmbientPixels</a>
+    </div>
+  </header>
+
+  <div class="cc-container">
+    <div class="cc-confirm-header">
+      <h1>Confirm Your Strategy Session</h1>
+      <p>Review the time below and click "Confirm" to book your 30-minute call.</p>
+    </div>
+
+    <div id="cc-confirm-card" class="cc-confirm-card">
+      <div id="cc-slot-label" class="cc-confirm-slot">Loading...</div>
+      <div class="cc-confirm-duration">30-minute strategy call</div>
+      <button id="cc-confirm-btn" class="cc-buy-btn" disabled>Confirm This Time</button>
+      <div id="cc-confirm-status" class="cc-confirm-status"></div>
+    </div>
+
+    <!-- Shown after successful confirmation -->
+    <div id="cc-success-card" class="cc-confirm-card" style="display:none;">
+      <div class="cc-confirmed-check">&#10003;</div>
+      <div class="cc-confirm-slot" id="cc-confirmed-label"></div>
+      <div class="cc-confirm-duration">30-minute strategy call</div>
+      <p style="color:var(--cc-text-secondary);font-size:14px;margin-top:16px;">
+        Your session is confirmed. We'll send a calendar invite shortly.
+      </p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="cc-footer">
+    <div class="cc-container">
+      <p>&copy; 2026 ConversionCore by <a href="https://ambientpixels.ai">AmbientPixels</a></p>
+    </div>
+  </footer>
+
+  <script>
+  (function () {
+    'use strict';
+
+    var API = window.location.hostname === 'localhost'
+      ? '/api/cc-confirm'
+      : 'https://ambientpixels-nova-api.azurewebsites.net/api/cc-confirm';
+
+    var params = new URLSearchParams(window.location.search);
+    var submissionId = params.get('id') || '';
+    var slotIndex = params.get('slot') || '';
+    var token = params.get('token') || '';
+    var label = params.get('label') || '';
+
+    var slotLabelEl = document.getElementById('cc-slot-label');
+    var confirmBtn = document.getElementById('cc-confirm-btn');
+    var statusEl = document.getElementById('cc-confirm-status');
+    var confirmCard = document.getElementById('cc-confirm-card');
+    var successCard = document.getElementById('cc-success-card');
+    var confirmedLabel = document.getElementById('cc-confirmed-label');
+
+    // Validate params
+    if (!submissionId || slotIndex === '' || !token) {
+      slotLabelEl.textContent = 'Invalid Link';
+      statusEl.textContent = 'This confirmation link is missing required information. Please use the link from your email.';
+      statusEl.className = 'cc-confirm-status cc-error';
+      return;
+    }
+
+    // Display slot from URL params (no API call on load — pre-fetcher safe)
+    slotLabelEl.textContent = label || ('Slot ' + (parseInt(slotIndex, 10) + 1));
+    confirmBtn.disabled = false;
+
+    confirmBtn.addEventListener('click', function () {
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = 'Confirming...';
+      statusEl.textContent = '';
+      statusEl.className = 'cc-confirm-status';
+
+      fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: submissionId,
+          slot: parseInt(slotIndex, 10),
+          token: token
+        })
+      })
+        .then(function (res) {
+          return res.json().then(function (data) {
+            return { status: res.status, data: data };
+          });
+        })
+        .then(function (result) {
+          var data = result.data;
+
+          if (result.status === 200 && data.ok) {
+            confirmCard.style.display = 'none';
+            confirmedLabel.textContent = data.confirmedSlot || label;
+            successCard.style.display = '';
+            return;
+          }
+
+          if (result.status === 409 && data.error === 'already_confirmed') {
+            slotLabelEl.textContent = data.confirmedSlot || label;
+            statusEl.textContent = 'This session has already been confirmed.';
+            statusEl.className = 'cc-confirm-status cc-warning';
+            confirmBtn.style.display = 'none';
+            return;
+          }
+
+          if (result.status === 403) {
+            statusEl.textContent = 'This confirmation link is invalid. Please use the link from your email.';
+            statusEl.className = 'cc-confirm-status cc-error';
+            confirmBtn.style.display = 'none';
+            return;
+          }
+
+          statusEl.textContent = data.message || 'Something went wrong. Please try again.';
+          statusEl.className = 'cc-confirm-status cc-error';
+          confirmBtn.disabled = false;
+          confirmBtn.textContent = 'Confirm This Time';
+        })
+        .catch(function () {
+          statusEl.textContent = 'Network error. Please check your connection and try again.';
+          statusEl.className = 'cc-confirm-status cc-error';
+          confirmBtn.disabled = false;
+          confirmBtn.textContent = 'Confirm This Time';
+        });
+    });
+  })();
+  </script>
+</body>
+</html>

@@ -487,6 +487,15 @@ async function _proposeTimeSlots(count) {
   return slots;
 }
 
+// ── Slot Confirmation Token ──
+function _generateSlotToken(submissionId, slotIndex) {
+  var message = 'confirm|' + submissionId + '|' + slotIndex;
+  return crypto.createHmac('sha256', FORM_INTAKE_SALT)
+    .update(message)
+    .digest('hex')
+    .substring(0, 40);
+}
+
 // ══════════════════════════════════════════════════════
 // ── Task Spawning ──
 // ══════════════════════════════════════════════════════
@@ -607,14 +616,24 @@ function _generateDraftReply(record) {
       ''
     ];
     if (slots.length > 0) {
+      var BASE_CONFIRM = 'https://ambientpixels.ai/conversioncore/confirm.html';
       slots.forEach(function (s, i) {
         ccLines.push('  ' + (i + 1) + '. ' + s.label);
+        if (s.token && record.id) {
+          var confirmUrl = BASE_CONFIRM +
+            '?id=' + encodeURIComponent(record.id) +
+            '&slot=' + i +
+            '&token=' + s.token +
+            '&label=' + encodeURIComponent(s.label);
+          ccLines.push('     Confirm: ' + confirmUrl);
+          ccLines.push('');
+        }
       });
     } else {
       ccLines.push('  (We\'ll follow up with specific times shortly.)');
     }
     ccLines.push('');
-    ccLines.push('Reply with your preferred slot (or suggest an alternative) and we\'ll confirm.');
+    ccLines.push('Click a link above to confirm your preferred time, or reply with an alternative.');
     ccLines.push('');
     ccLines.push('— AmbientPixels / ConversionCore');
     return ccLines.join('\n');
@@ -1044,6 +1063,10 @@ module.exports = async function (context, req) {
       if (data.type === 'conversioncore_strategy' && data.conversioncore) {
         record.conversioncore = data.conversioncore;
         var proposedSlots = await _proposeTimeSlots(3);
+        proposedSlots.forEach(function (slot, i) {
+          slot.token = _generateSlotToken(id, i);
+          slot.index = i;
+        });
         record.scheduling = {
           mode: 'agent_propose',
           timezone: 'America/Los_Angeles',
