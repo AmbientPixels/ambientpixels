@@ -1,6 +1,6 @@
 /**
  * Arena App — main page controller
- * Init, screen navigation, state management
+ * Init, screen navigation, state management, demo mode
  */
 window.ArenaApp = (function () {
   'use strict';
@@ -13,10 +13,56 @@ window.ArenaApp = (function () {
     activeBattle: null,
     bosses: [],
     lastBattleType: 'pve',
-    lastOpponentId: null
+    lastOpponentId: null,
+    isDemo: false
   };
 
   const state = window._arenaState;
+
+  // --- Demo sample cards ---
+  function getDemoCards() {
+    return [
+      {
+        id: 'demo-knight',
+        name: 'Demo Knight',
+        class: 'Warrior',
+        avatar: '',
+        quote: 'Steel meets fate.',
+        combatStats: { str: 80, agi: 50, int: 30, end: 90, lck: 50 },
+        stats: [
+          { name: 'Strength', value: 80 }, { name: 'Agility', value: 50 },
+          { name: 'Intelligence', value: 30 }, { name: 'Endurance', value: 90 }, { name: 'Luck', value: 50 }
+        ],
+        badges: [{ category: 'courage', icon: 'bolt', quantity: 2, description: 'Brave warrior' }]
+      },
+      {
+        id: 'demo-mage',
+        name: 'Demo Mage',
+        class: 'Sorcerer',
+        avatar: '',
+        quote: 'Knowledge is the ultimate weapon.',
+        combatStats: { str: 30, agi: 50, int: 90, end: 50, lck: 80 },
+        stats: [
+          { name: 'Strength', value: 30 }, { name: 'Agility', value: 50 },
+          { name: 'Intelligence', value: 90 }, { name: 'Endurance', value: 50 }, { name: 'Luck', value: 80 }
+        ],
+        badges: [{ category: 'wisdom', icon: 'book', quantity: 2, description: 'Arcane scholar' }]
+      },
+      {
+        id: 'demo-rogue',
+        name: 'Demo Rogue',
+        class: 'Assassin',
+        avatar: '',
+        quote: 'Shadows never miss.',
+        combatStats: { str: 50, agi: 90, int: 50, end: 40, lck: 70 },
+        stats: [
+          { name: 'Strength', value: 50 }, { name: 'Agility', value: 90 },
+          { name: 'Intelligence', value: 50 }, { name: 'Endurance', value: 40 }, { name: 'Luck', value: 70 }
+        ],
+        badges: [{ category: 'champion', icon: 'trophy', quantity: 2, description: 'Silent striker' }]
+      }
+    ];
+  }
 
   function showScreen(screenId) {
     document.querySelectorAll('.arena-screen').forEach(s => s.classList.remove('active'));
@@ -32,9 +78,6 @@ window.ArenaApp = (function () {
 
     // Check hash for initial screen
     const hash = window.location.hash.replace('#', '');
-    if (hash && document.getElementById('arena-screen-' + hash)) {
-      // We'll navigate after loading
-    }
 
     // Load profile + cards
     try {
@@ -44,18 +87,29 @@ window.ArenaApp = (function () {
       ]);
 
       if (!profileData || !profileData.profile) {
-        // Not authenticated
+        // API completely failed — show error gate
         document.getElementById('arena-auth-gate').style.display = 'flex';
         document.getElementById('arena-lobby-main').style.display = 'none';
         return;
       }
 
-      // Authenticated
+      // Track demo mode
+      state.isDemo = profileData.isDemo || false;
+
+      // Show lobby
       document.getElementById('arena-auth-gate').style.display = 'none';
       document.getElementById('arena-lobby-main').style.display = 'block';
 
       state.profile = profileData.profile;
-      state.userCards = cardsData.userCards || [];
+
+      // Cards: use user's cards if available, else demo cards
+      if (state.isDemo) {
+        state.userCards = getDemoCards();
+        showDemoBanner();
+        disablePvP();
+      } else {
+        state.userCards = cardsData.userCards || [];
+      }
 
       // Render profile
       window.ArenaResults.updateRankDisplay(state.profile);
@@ -63,14 +117,18 @@ window.ArenaApp = (function () {
       // Render card strip
       window.ArenaCardSelect.renderCardStrip(state.userCards, 'arena-card-strip', onCardSelected);
 
-      // Pre-select card if saved
-      if (state.profile.selectedCardId) {
+      // Pre-select card if saved (or first demo card)
+      if (state.isDemo && state.userCards.length > 0) {
+        onCardSelected(state.userCards[0], true);
+      } else if (state.profile.selectedCardId) {
         const saved = state.userCards.find(c => c.id === state.profile.selectedCardId);
         if (saved) onCardSelected(saved, true);
       }
 
-      // Load recent matches
-      loadRecentMatches();
+      // Load recent matches (skip for demo — no history)
+      if (!state.isDemo) {
+        loadRecentMatches();
+      }
 
       // Navigate to hash screen if specified
       if (hash && hash !== 'lobby') {
@@ -83,17 +141,38 @@ window.ArenaApp = (function () {
     }
   }
 
+  function showDemoBanner() {
+    var banner = document.getElementById('arena-demo-banner');
+    if (banner) banner.style.display = 'flex';
+
+    // Show login button in top bar
+    var loginBtn = document.getElementById('arena-login-btn');
+    if (loginBtn) loginBtn.style.display = 'inline-flex';
+  }
+
+  function disablePvP() {
+    var pvpBtn = document.getElementById('arena-btn-pvp');
+    if (pvpBtn) {
+      pvpBtn.disabled = true;
+      pvpBtn.title = 'Sign in to challenge other players';
+      pvpBtn.style.opacity = '0.5';
+      pvpBtn.style.cursor = 'not-allowed';
+    }
+  }
+
   function onCardSelected(card, skipSave) {
     state.selectedCard = card;
     window.ArenaCardSelect.renderChampionDisplay(card, 'arena-champion-display');
     window.ArenaCardSelect.highlightCard('arena-card-strip', card.id);
 
-    // Enable mode buttons
+    // Enable PvE button (PvP only if not demo)
     document.getElementById('arena-btn-pve').disabled = false;
-    document.getElementById('arena-btn-pvp').disabled = false;
+    if (!state.isDemo) {
+      document.getElementById('arena-btn-pvp').disabled = false;
+    }
 
-    // Save selection (fire and forget)
-    if (!skipSave) {
+    // Save selection (fire and forget) — skip for demo
+    if (!skipSave && !state.isDemo) {
       window.ArenaAPI.selectCard(card.id).catch(e => console.warn('Failed to save card selection:', e));
     }
   }
@@ -174,7 +253,9 @@ window.ArenaApp = (function () {
     window.ArenaBattleUI.enableMoves(false);
 
     try {
-      const battleData = await window.ArenaAPI.startBattle('pve', state.selectedCard.id, bossId);
+      // Demo mode: pass card data to server (no blob lookup)
+      const extra = state.isDemo ? { cardData: state.selectedCard } : {};
+      const battleData = await window.ArenaAPI.startBattle('pve', state.selectedCard.id, bossId, extra);
       state.activeBattle = battleData;
       window.ArenaBattleUI.initBattle(battleData);
     } catch (err) {
@@ -288,7 +369,9 @@ window.ArenaApp = (function () {
         state.profile = profileData.profile;
         window.ArenaResults.updateRankDisplay(state.profile);
       }
-      loadRecentMatches();
+      if (!state.isDemo) {
+        loadRecentMatches();
+      }
     } catch (err) {
       console.warn('[Arena] Refresh error:', err);
     }

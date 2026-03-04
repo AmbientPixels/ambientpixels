@@ -107,7 +107,8 @@ module.exports = async function (context, req) {
       }
     }
 
-    // Return bosses with locked/unlocked status
+    // Demo users get first 3 bosses unlocked; authenticated users use their progress
+    const isDemo = !isAuthenticated;
     const bosses = bossData.bosses.map(boss => ({
       id: boss.id,
       bossLevel: boss.bossLevel,
@@ -118,7 +119,7 @@ module.exports = async function (context, req) {
       bio: boss.bio,
       stats: boss.stats,
       badges: boss.badges,
-      locked: boss.bossLevel > highestBossDefeated + 1
+      locked: isDemo ? boss.bossLevel > 3 : boss.bossLevel > highestBossDefeated + 1
     }));
 
     context.res = {

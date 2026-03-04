@@ -107,12 +107,22 @@ module.exports = async function (context, req) {
   try {
     const { userId, isAuthenticated } = extractUserInfo(req, context);
 
+    // Demo mode for anonymous users
     if (!isAuthenticated) {
-      context.res = {
-        status: 401,
-        headers: CORS_HEADERS,
-        body: { error: 'Authentication required to access arena profile' }
-      };
+      if (req.method === 'GET') {
+        context.res = {
+          status: 200,
+          headers: CORS_HEADERS,
+          body: { profile: createDefaultProfile('demo-guest'), isDemo: true }
+        };
+      } else {
+        // POST (selectCard etc.) — acknowledge but don't persist
+        context.res = {
+          status: 200,
+          headers: CORS_HEADERS,
+          body: { success: true, isDemo: true }
+        };
+      }
       return;
     }
 

@@ -703,4 +703,53 @@
   .arena-move-btn__label { font-size: 0.75rem; }
   .arena-results__banner h1 { font-size: 1.5rem; }
   .arena-gallery-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+  .arena-demo-banner { font-size: 0.78rem; padding: 0.5rem 1rem; }
+}
+
+/* --- Demo Mode Banner --- */
+
+.arena-demo-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1.2rem;
+  margin-bottom: 1rem;
+  background: rgba(255, 180, 50, 0.12);
+  border: 1px solid rgba(255, 180, 50, 0.25);
+  border-radius: 8px;
+  color: #ffc966;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+.arena-demo-banner i {
+  font-size: 1rem;
+  color: #ffb432;
+}
+.arena-demo-banner a {
+  color: #00d4ff;
+  text-decoration: underline;
+  font-weight: 600;
+}
+.arena-demo-banner a:hover {
+  color: #33e0ff;
+}
+
+/* --- Arena Auth Link (top bar login) --- */
+
+.arena-auth-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #00d4ff;
+  text-decoration: none;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 6px;
+  transition: background 0.2s, border-color 0.2s;
+}
+.arena-auth-link:hover {
+  background: rgba(0, 212, 255, 0.1);
+  border-color: rgba(0, 212, 255, 0.5);
 }

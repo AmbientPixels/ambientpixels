@@ -1117,3 +1117,65 @@
   background: var(--aura-bg-color, #1a1a2e);
   color: var(--mood-primary-color, #e1e1ff);
 }
+
+/* ===== Auth UI in Header ===== */
+
+.cf-auth-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #00d4ff;
+  text-decoration: none;
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  transition: background 0.2s ease, border-color 0.2s ease;
+  white-space: nowrap;
+}
+
+.cf-auth-link:hover {
+  background: rgba(0, 212, 255, 0.1);
+  border-color: rgba(0, 212, 255, 0.5);
+}
+
+.cf-auth-link--logout {
+  border: none;
+  padding: 4px 6px;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.cf-auth-link--logout:hover {
+  color: #ff5252;
+  background: rgba(255, 82, 82, 0.1);
+}
+
+.cf-user-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.78rem;
+  color: var(--mood-primary-color, #e1e1ff);
+  white-space: nowrap;
+}
+
+.cf-user-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #00e676;
+  flex-shrink: 0;
+}
+
+#cf-user-name {
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+@media (max-width: 600px) {
+  .cf-auth-link__text {
+    display: none;
+  }
+}

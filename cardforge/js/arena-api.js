@@ -54,10 +54,10 @@ window.ArenaAPI = (function () {
     },
 
     // Battle
-    startBattle(type, cardId, opponentId) {
+    startBattle(type, cardId, opponentId, extra) {
       return apiFetch('arenaBattle', {
         method: 'POST',
-        body: { action: 'start', type, cardId, opponentId }
+        body: { action: 'start', type, cardId, opponentId, ...(extra || {}) }
       });
     },
 

@@ -330,19 +330,24 @@ module.exports = async function (context, req) {
   if (blocked) { context.res = blocked; return; }
 
   try {
-    const { userId, isAuthenticated } = extractUserInfo(req, context);
-    if (!isAuthenticated) {
-      context.res = { status: 401, headers: CORS_HEADERS, body: { error: 'Authentication required' } };
-      return;
-    }
+    const { userId: rawUserId, isAuthenticated } = extractUserInfo(req, context);
+    const isDemo = !isAuthenticated;
+    const userId = isDemo ? 'demo-guest' : rawUserId;
 
     const body = req.body || {};
     const { action } = body;
+
+    // Block demo users from PvP
+    if (isDemo && action === 'start' && body.type === 'pvp') {
+      context.res = { status: 401, headers: CORS_HEADERS, body: { error: 'Sign in to challenge other players' } };
+      return;
+    }
+
     const blobServiceClient = await createBlobServiceClient();
     const containerClient = blobServiceClient.getContainerClient(CONTAINER_NAME);
 
     if (action === 'start') {
-      await handleStart(context, containerClient, userId, body);
+      await handleStart(context, containerClient, userId, body, isDemo);
     } else if (action === 'move') {
       await handleMove(context, containerClient, userId, body);
     } else if (action === 'forfeit') {
@@ -358,7 +363,7 @@ module.exports = async function (context, req) {
 
 // --- Action: start ---
 
-async function handleStart(context, containerClient, userId, body) {
+async function handleStart(context, containerClient, userId, body, isDemo = false) {
   const { type, cardId, opponentId } = body;
   const config = loadArenaConfig();
 
@@ -371,13 +376,19 @@ async function handleStart(context, containerClient, userId, body) {
     return;
   }
 
-  // Load player's card
-  const userCardsData = await downloadJsonBlob(containerClient, `user/${userId}/cards.json`);
-  const userCards = userCardsData?.cards || [];
-  const playerCard = userCards.find(c => c.id === cardId);
-  if (!playerCard) {
-    context.res = { status: 404, headers: CORS_HEADERS, body: { error: 'Card not found in your collection' } };
-    return;
+  // Load player's card — demo users pass card data in request body
+  let playerCard;
+  if (isDemo && body.cardData) {
+    playerCard = body.cardData;
+    if (!playerCard.id) playerCard.id = cardId;
+  } else {
+    const userCardsData = await downloadJsonBlob(containerClient, `user/${userId}/cards.json`);
+    const userCards = userCardsData?.cards || [];
+    playerCard = userCards.find(c => c.id === cardId);
+    if (!playerCard) {
+      context.res = { status: 404, headers: CORS_HEADERS, body: { error: 'Card not found in your collection' } };
+      return;
+    }
   }
 
   // Load opponent card
@@ -392,12 +403,19 @@ async function handleStart(context, containerClient, userId, body) {
     }
     bossLevel = opponentCard.bossLevel;
 
-    // Check if boss is unlocked
-    const profile = await downloadJsonBlob(containerClient, `arena/profiles/${userId}.json`);
-    const highestDefeated = profile?.pveProgress?.highestBossDefeated || 0;
-    if (bossLevel > highestDefeated + 1) {
-      context.res = { status: 403, headers: CORS_HEADERS, body: { error: 'This boss is still locked. Defeat the previous boss first.' } };
-      return;
+    // Check if boss is unlocked (demo users: first 3 bosses unlocked)
+    if (isDemo) {
+      if (bossLevel > 3) {
+        context.res = { status: 403, headers: CORS_HEADERS, body: { error: 'Sign in to unlock more bosses' } };
+        return;
+      }
+    } else {
+      const profile = await downloadJsonBlob(containerClient, `arena/profiles/${userId}.json`);
+      const highestDefeated = profile?.pveProgress?.highestBossDefeated || 0;
+      if (bossLevel > highestDefeated + 1) {
+        context.res = { status: 403, headers: CORS_HEADERS, body: { error: 'This boss is still locked. Defeat the previous boss first.' } };
+        return;
+      }
     }
   } else {
     // PvP: load from published cards
@@ -461,6 +479,7 @@ async function handleStart(context, containerClient, userId, body) {
     },
     roundLog: [],
     winner: null,
+    isDemo: isDemo,
     createdAt: new Date().toISOString()
   };
 
@@ -518,7 +537,8 @@ async function handleMove(context, containerClient, userId, body) {
     context.res = { status: 404, headers: CORS_HEADERS, body: { error: 'Battle not found' } };
     return;
   }
-  if (battle.player1.userId !== userId) {
+  // Ownership check: allow demo battles for anonymous users
+  if (!battle.isDemo && battle.player1.userId !== userId) {
     context.res = { status: 403, headers: CORS_HEADERS, body: { error: 'This is not your battle' } };
     return;
   }
@@ -616,7 +636,8 @@ async function handleForfeit(context, containerClient, userId, body) {
     context.res = { status: 404, headers: CORS_HEADERS, body: { error: 'Battle not found' } };
     return;
   }
-  if (battle.player1.userId !== userId) {
+  // Ownership check: allow demo battles for anonymous users
+  if (!battle.isDemo && battle.player1.userId !== userId) {
     context.res = { status: 403, headers: CORS_HEADERS, body: { error: 'This is not your battle' } };
     return;
   }
@@ -650,6 +671,22 @@ async function finalizeBattle(context, containerClient, userId, battle, result) 
   // XP bonus from badges
   const xpBonus = getPassiveValue(battle.player1.passives, 'xp_bonus');
   const totalXp = Math.round(xpEarned * (1 + xpBonus / 100));
+
+  // Demo mode: skip all persistence, just clean up and return result
+  if (battle.isDemo) {
+    await deleteBlob(containerClient, `arena/battles/${battle.battleId}.json`);
+    context.log(`[Arena] Demo battle ${battle.battleId} complete: ${result}, +${totalXp} XP (not saved)`);
+    return {
+      winner: result === 'win' ? 'player' : result === 'loss' ? 'opponent' : 'draw',
+      xpEarned: totalXp,
+      newXp: totalXp,
+      newLevel: 1,
+      newRank: 'bronze',
+      rankUp: false,
+      record: { wins: result === 'win' ? 1 : 0, losses: result === 'loss' ? 1 : 0, draws: result === 'draw' ? 1 : 0 },
+      isDemo: true
+    };
+  }
 
   // Update profile
   const profilePath = `arena/profiles/${userId}.json`;

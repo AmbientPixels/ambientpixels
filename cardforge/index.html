@@ -124,6 +124,14 @@
       <span class="cf-status-pill__dot"></span>
       <span class="cf-status-pill__label">Ready</span>
     </span>
+    <a id="cf-login-btn" class="cf-auth-link" href="/.auth/login/aad?post_login_redirect_uri=/cardforge/">
+      <i class="fas fa-sign-in-alt"></i> <span class="cf-auth-link__text">Sign In</span>
+    </a>
+    <span id="cf-user-status" class="cf-user-status" style="display:none;">
+      <span class="cf-user-dot"></span>
+      <span id="cf-user-name"></span>
+      <a id="cf-logout-btn" class="cf-auth-link cf-auth-link--logout" href="#"><i class="fas fa-sign-out-alt"></i></a>
+    </span>
     <div class="cf-page-bar__icon-buttons">
       <button class="cf-icon-btn" onclick="showInfoPopup()" title="Info &amp; Help" aria-label="Info &amp; Help">
         <i class="fas fa-info-circle"></i>
@@ -1670,5 +1678,45 @@
       </div>
     </div>
   </div>
+
+<script>
+(function() {
+  async function checkAuth() {
+    try {
+      const resp = await fetch('/.auth/me');
+      if (!resp.ok) return;
+      const { clientPrincipal } = await resp.json();
+      if (!clientPrincipal) return;
+
+      const name = (clientPrincipal.userDetails || '').split('@')[0] || 'User';
+      sessionStorage.setItem('isAuthenticated', 'true');
+      sessionStorage.setItem('userInfo', JSON.stringify({
+        userId: clientPrincipal.userId, name: name,
+        email: clientPrincipal.userDetails
+      }));
+      document.body.setAttribute('data-auth-state', 'signed-in');
+
+      var loginBtn = document.getElementById('cf-login-btn');
+      var userStatus = document.getElementById('cf-user-status');
+      var userName = document.getElementById('cf-user-name');
+      if (loginBtn) loginBtn.style.display = 'none';
+      if (userStatus) userStatus.style.display = 'inline-flex';
+      if (userName) userName.textContent = name;
+    } catch (e) { /* not authenticated */ }
+  }
+
+  var logoutBtn = document.getElementById('cf-logout-btn');
+  if (logoutBtn) {
+    logoutBtn.addEventListener('click', function(e) {
+      e.preventDefault();
+      sessionStorage.removeItem('isAuthenticated');
+      sessionStorage.removeItem('userInfo');
+      window.location.href = '/.auth/logout?post_logout_redirect_uri=/cardforge/';
+    });
+  }
+
+  checkAuth();
+})();
+</script>
 </body>
 </html>

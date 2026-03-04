@@ -29,6 +29,9 @@
         <i class="fas fa-shield-halved"></i>
       </span>
       <span class="arena-record" id="arena-record">0W / 0L</span>
+      <a id="arena-login-btn" class="arena-auth-link" href="/.auth/login/aad?post_login_redirect_uri=/cardforge/arena.html" style="display:none;">
+        <i class="fas fa-sign-in-alt"></i> Sign In
+      </a>
     </div>
   </header>
 
@@ -36,15 +39,21 @@
   <div id="arena-screen-lobby" class="arena-screen active">
     <div class="arena-lobby">
 
-      <!-- Auth gate message (shown when not logged in) -->
-      <div class="arena-auth-gate" id="arena-auth-gate" style="display:none;">
-        <div class="arena-auth-gate__icon"><i class="fas fa-lock"></i></div>
-        <h2>Sign In to Enter the Arena</h2>
-        <p>You need to be logged in with a Card Forge account to battle.</p>
-        <a href="/.auth/login/aadB2C" class="arena-btn arena-btn--primary">Sign In</a>
+      <!-- Demo mode banner (shown by JS for anonymous users) -->
+      <div id="arena-demo-banner" class="arena-demo-banner" style="display:none;">
+        <i class="fas fa-flask"></i>
+        <span>Demo Mode — <a href="/.auth/login/aad?post_login_redirect_uri=/cardforge/arena.html">Sign in</a> to save your progress</span>
       </div>
 
-      <!-- Main lobby (shown when logged in) -->
+      <!-- Auth gate message (fallback for API errors) -->
+      <div class="arena-auth-gate" id="arena-auth-gate" style="display:none;">
+        <div class="arena-auth-gate__icon"><i class="fas fa-exclamation-triangle"></i></div>
+        <h2>Could Not Connect</h2>
+        <p>Unable to load the Arena. Try signing in or refreshing the page.</p>
+        <a href="/.auth/login/aad?post_login_redirect_uri=/cardforge/arena.html" class="arena-btn arena-btn--primary">Sign In</a>
+      </div>
+
+      <!-- Main lobby (shown when logged in or demo) -->
       <div id="arena-lobby-main" style="display:none;">
         <!-- Champion Card Selector -->
         <section class="arena-section">
