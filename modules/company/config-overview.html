@@ -389,8 +389,8 @@
       <div class="cfg-storage-counts" id="cfg-storage-counts"></div>
       <div class="cfg-storage-oldest" id="cfg-storage-oldest"></div>
       <div class="cfg-storage-btns">
-        <button class="cfg-storage-btn cfg-storage-btn--prune" id="cfg-storage-prune"><i class="fas fa-broom"></i> Prune Now</button>
-        <button class="cfg-storage-btn cfg-storage-btn--export" id="cfg-storage-export"><i class="fas fa-download"></i> Export Diagnostics</button>
+        <button class="cfg-storage-btn cfg-storage-btn--prune operator-only" id="cfg-storage-prune"><i class="fas fa-broom"></i> Prune Now</button>
+        <button class="cfg-storage-btn cfg-storage-btn--export operator-only" id="cfg-storage-export"><i class="fas fa-download"></i> Export Diagnostics</button>
         <button class="cfg-storage-btn cfg-storage-btn--reset admin-only" id="cfg-storage-reset"><i class="fas fa-eraser"></i> Reset Non-Critical</button>
       </div>
       <div style="display:flex; gap:0.8rem; margin-top:0.3rem; font-size:0.48rem; opacity:0.25;">
@@ -413,9 +413,9 @@
       <div class="cfg-store-info" id="cfg-store-info"></div>
       <div class="cfg-store-btns">
         <button class="cfg-store-btn cfg-store-btn--enable" id="cfg-store-toggle"></button>
-        <button class="cfg-store-btn cfg-store-btn--push" id="cfg-store-push" disabled><i class="fas fa-upload"></i> Push Local → Server</button>
-        <button class="cfg-store-btn cfg-store-btn--pull" id="cfg-store-pull" disabled><i class="fas fa-download"></i> Pull Server → Local</button>
-        <button class="cfg-store-btn cfg-store-btn--flush" id="cfg-store-flush" disabled><i class="fas fa-sync"></i> Flush Outbox</button>
+        <button class="cfg-store-btn cfg-store-btn--push operator-only" id="cfg-store-push" disabled><i class="fas fa-upload"></i> Push Local → Server</button>
+        <button class="cfg-store-btn cfg-store-btn--pull operator-only" id="cfg-store-pull" disabled><i class="fas fa-download"></i> Pull Server → Local</button>
+        <button class="cfg-store-btn cfg-store-btn--flush operator-only" id="cfg-store-flush" disabled><i class="fas fa-sync"></i> Flush Outbox</button>
       </div>
       <div class="cfg-store-toast" id="cfg-store-toast"></div>
     </div>
@@ -432,7 +432,7 @@
       <button class="cfg-tool-btn" id="cfg-tool-export">
         <i class="fas fa-download"></i> Export State
       </button>
-      <button class="cfg-tool-btn" id="cfg-tool-sync">
+      <button class="cfg-tool-btn operator-only" id="cfg-tool-sync">
         <i class="fas fa-sync-alt"></i> Force Server Sync
       </button>
       <button class="cfg-tool-btn" id="cfg-tool-flush">
@@ -558,7 +558,7 @@
             <p>This permanently removes all operational and content data.</p>
             <p>Governance configuration remains intact.</p>
           </div>
-          <button class="cfg-maint-btn cfg-maint-btn--nuke" data-danger="clear-company-data" data-label="Clear All Company Data">
+          <button class="cfg-maint-btn cfg-maint-btn--nuke admin-only" data-danger="clear-company-data" data-label="Clear All Company Data">
             <i class="fas fa-radiation"></i> Clear All Company Data
           </button>
         </details>
@@ -606,17 +606,19 @@
   <script src="/modules/company/js/quick-chat.js"></script>
   <script src="/modules/company/js/sidebar.js"></script>
   <script>
-  // Gate admin-only elements behind APMode 'admin'
+  // Gate elements by UI mode (operator-only, admin-only)
   (function () {
-    function applyAdminGate() {
-      var isAdmin = window.APMode && window.APMode.atLeast('admin');
-      var els = document.querySelectorAll('.admin-only');
-      for (var i = 0; i < els.length; i++) {
-        els[i].style.display = isAdmin ? '' : 'none';
-      }
+    function applyModeGates() {
+      var mode = window.APMode ? window.APMode.get() : 'executive';
+      var isOperator = mode === 'operator' || mode === 'admin';
+      var isAdmin = mode === 'admin';
+      var ops = document.querySelectorAll('.operator-only');
+      for (var i = 0; i < ops.length; i++) ops[i].style.display = isOperator ? '' : 'none';
+      var adm = document.querySelectorAll('.admin-only');
+      for (var j = 0; j < adm.length; j++) adm[j].style.display = isAdmin ? '' : 'none';
     }
-    applyAdminGate();
-    window.addEventListener('ap-mode-change', applyAdminGate);
+    applyModeGates();
+    window.addEventListener('ap-mode-change', applyModeGates);
   })();
   </script>
 </body>

@@ -191,15 +191,15 @@
         <span class="dash-view-toggle" id="dash-view-toggle" role="tablist">
           <button role="tab" data-view="ceo" class="active" aria-selected="true">CEO View</button>
           <button role="tab" data-view="board" aria-selected="false">Board View</button>
-          <button role="tab" data-view="dev" aria-selected="false">Dev View</button>
+          <button role="tab" data-view="dev" aria-selected="false" class="operator-only">Dev View</button>
         </span>
       </h1>
       <div class="dash-header-actions">
-        <button class="dash-refresh-btn" id="dash-heartbeat" title="Run agent heartbeat cycle manually" style="border-color:rgba(78,205,196,0.2); color:#4ecdc4;">
+        <button class="dash-refresh-btn operator-only" id="dash-heartbeat" title="Run agent heartbeat cycle manually" style="border-color:rgba(78,205,196,0.2); color:#4ecdc4;">
           <i class="fas fa-heartbeat"></i> Run Heartbeat
         </button>
         <a href="/modules/company/meetings.html" class="dash-refresh-btn" style="border-color:rgba(78,205,196,0.2); color:#4ecdc4;"><i class="fas fa-video"></i> Call Meeting</a>
-        <button class="dash-refresh-btn" id="dash-board-btn" style="border-color:rgba(138,43,226,0.2); color:#c084fc;"><i class="fas fa-columns"></i> Board Mode</button>
+        <button class="dash-refresh-btn operator-only" id="dash-board-btn" style="border-color:rgba(138,43,226,0.2); color:#c084fc;"><i class="fas fa-columns"></i> Board Mode</button>
         <a href="/modules/company/" class="dash-refresh-btn"><i class="fas fa-arrow-left"></i> Back to HQ</a>
         <button class="dash-refresh-btn" id="dash-refresh"><i class="fas fa-sync-alt"></i> Refresh</button>
       </div>
@@ -4334,5 +4334,21 @@
   </script>
 
   <script src="/modules/company/js/sidebar.js"></script>
+  <script>
+  // Gate elements by UI mode (operator-only, admin-only)
+  (function () {
+    function applyModeGates() {
+      var mode = window.APMode ? window.APMode.get() : 'executive';
+      var isOperator = mode === 'operator' || mode === 'admin';
+      var isAdmin = mode === 'admin';
+      var ops = document.querySelectorAll('.operator-only');
+      for (var i = 0; i < ops.length; i++) ops[i].style.display = isOperator ? '' : 'none';
+      var adm = document.querySelectorAll('.admin-only');
+      for (var j = 0; j < adm.length; j++) adm[j].style.display = isAdmin ? '' : 'none';
+    }
+    applyModeGates();
+    window.addEventListener('ap-mode-change', applyModeGates);
+  })();
+  </script>
 </body>
 </html>
