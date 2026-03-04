@@ -1702,6 +1702,22 @@ module.exports = async function (context) {
             // CEO task completion → create action for approval queue
             if (update._ceoApprovalAction) {
               const ceo = update._ceoApprovalAction;
+              // Auto-complete internal/operational tasks — no CEO approval needed
+              const _tcTask = tasks.find(t => t.id === ceo.taskId);
+              const _tcTaskType = _tcTask && _tcTask.taskType || '';
+              const _tcTitle = (ceo.taskTitle || '').toLowerCase();
+              const _INTERNAL_TASK_TYPES = ['research', 'general'];
+              const _INTERNAL_TITLE_PATTERNS = /\b(traffic brief|review brief|research|analysis|audit|report|internal|ops)\b/i;
+              const _isInternal = _INTERNAL_TASK_TYPES.indexOf(_tcTaskType) !== -1 || _INTERNAL_TITLE_PATTERNS.test(_tcTitle);
+              if (_isInternal) {
+                // Internal task — auto-complete, no CEO gate needed
+                if (_tcTask && _tcTask.status !== 'done') {
+                  _tcTask.status = 'done';
+                  _tcTask.completedAt = new Date().toISOString();
+                  _tcTask.updatedAt = new Date().toISOString();
+                }
+                context.log('[Heartbeat] Auto-completed internal task (no CEO approval needed):', ceo.taskId, '| type:', _tcTaskType, '| title:', ceo.taskTitle);
+              } else {
               const actionsStore = (await storage.getState('actions')) || [];
               // Dedupe: skip if a task_completion.approve already exists for this taskId
               const existingApproval = actionsStore.find(a => a.type === 'task_completion.approve' && a.payload && a.payload.taskId === ceo.taskId);
@@ -1777,6 +1793,7 @@ module.exports = async function (context) {
               } // end action creation
               } // end if(_tcDocId) else
             }
+            } // end if(_isInternal) else
             // Track tasks that just entered review — block same-cycle reviews
             if (updatedTask && updatedTask.status === 'review' && (update.action === 'execute' || update.action === 'move' || update.action === 'social-action-created')) {
               _reviewCooldownIds.add(updatedTask.id);

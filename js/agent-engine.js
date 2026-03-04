@@ -3196,6 +3196,13 @@ var AgentEngine = (function () {
         cleaned++;
         continue;
       }
+      // Remove cancelled/rejected items immediately
+      if (staleEntry.status === 'cancelled' || staleEntry.status === 'rejected') {
+        queue.splice(s, 1);
+        changed = true;
+        cleaned++;
+        continue;
+      }
     }
 
     // 3. Backfill: create approvalQueue entries for pending actions missing from queue
