@@ -4152,10 +4152,10 @@
 
         function _bRenderContent() {
           var el = document.getElementById('board-content-pipeline');
-          var docs=[]; try{docs=CompanyStore.getState('documents')||[];}catch(e){}
+          var docs=[]; try{docs=CompanyStore.getStateSync('ap_documents',[])||[];}catch(e){}
           var published=docs.filter(function(d){return d.status==='published';}).length;
           var draft=docs.filter(function(d){return d.status==='draft';}).length;
-          var review=docs.filter(function(d){return d.status==='review';}).length;
+          var review=docs.filter(function(d){return d.status==='ready_for_approval'||d.status==='review';}).length;
           if(docs.length===0){el.innerHTML='<div class="board-empty">No content in pipeline.</div>';return;}
           var html='<div class="board-content-row">';
           html+='<div class="board-content-pill"><div class="board-content-pill-val" style="color:#34d399;">'+published+'</div><div class="board-content-pill-label">Published</div></div>';
