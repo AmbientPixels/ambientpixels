@@ -4028,12 +4028,14 @@
           _bPacket = AgentEngine.getBoardPacket({ year: year, quarter: quarter });
           var s = new Date(_bPacket.dateRange.startISO), e = new Date(_bPacket.dateRange.endISO);
           rangeEl.textContent = _bPacket.quarterKey + '  ·  ' + s.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) + ' – ' + e.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
-          _bRenderHeadline(); _bRenderExecSummary(); _bRenderGoals();
-          _bRenderDirSection('board-active-dirs','badge-active-dirs',_bPacket.directives.active);
-          _bRenderDirSection('board-completed-dirs','badge-completed-dirs',_bPacket.directives.completed);
-          _bRenderDirSection('board-pending-dirs','badge-pending-dirs',_bPacket.directives.pendingApproval);
-          _bRenderTeam(); _bRenderBacklog(); _bRenderCost(); _bRenderContent();
-          _bRenderDecisions(); _bRenderRisks(); _bRenderThroughput();
+          [_bRenderHeadline, _bRenderExecSummary, _bRenderGoals,
+           function(){_bRenderDirSection('board-active-dirs','badge-active-dirs',_bPacket.directives.active);},
+           function(){_bRenderDirSection('board-completed-dirs','badge-completed-dirs',_bPacket.directives.completed);},
+           function(){_bRenderDirSection('board-pending-dirs','badge-pending-dirs',_bPacket.directives.pendingApproval);},
+           _bRenderTeam, _bRenderBacklog, _bRenderCost, _bRenderContent,
+           _bRenderDecisions, _bRenderRisks, _bRenderThroughput].forEach(function(fn){
+            try { fn(); } catch(e) { console.warn('[Board] ' + (fn.name||'anon') + ' error:', e); }
+          });
         }
 
         function _bRenderExecSummary() {
