@@ -40,6 +40,22 @@
   color: rgba(255, 255, 255, 0.8);
 }
 
+/* Minimal footer */
+.cf-footer {
+  padding: 24px;
+  text-align: center;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.35);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+.cf-footer a {
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+}
+.cf-footer a:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
 .cf-page-bar__titles {
   display: flex;
   flex-direction: column;

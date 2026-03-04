@@ -14,8 +14,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Montserrat:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Rajdhani:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Cinzel:wght@400;600;700&family=Orbitron:wght@400;500;600;700&family=MedievalSharp&family=Pirata+One&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/base.css">
-  <link rel="stylesheet" href="/css/grid.css"> <!-- Restored for footer compatibility -->
-  <!-- nav.css removed — using simple brand bar -->
+  <link rel="stylesheet" href="/css/grid.css">
   <link rel="stylesheet" href="/css/components.css">
   <link rel="stylesheet" href="/css/theme.css">
   <link rel="stylesheet" href="/cardforge/css/card-forge.css">
@@ -193,23 +192,6 @@
       </div>
     </div>
   </div>
-
-<!--
-  AmbientPixels Template Reference
-  --------------------------------
-  CardForge WindSurf Template Reference
-  -------------------------------------
-    📄 CardForge Starter Template for WindSurf
-  -------------------------------------
-  This HTML file is your CardForge scaffolding template.
-
-
-  
-
-
-
-
-<!-- Usage: Place at the top of your page for alerts or system messages -->
 
 <!-- Top Bar (brand + controls) -->
 <header class="cf-page-bar" role="banner">
@@ -1738,13 +1720,10 @@
   <!-- Confirmation Dialog (removed duplicate) -->
 </main>
 
-  <div id="footer-container"></div>
+  <footer class="cf-footer">
+    <p>&copy; 2026 CardForge by <a href="https://ambientpixels.ai">AmbientPixels</a></p>
+  </footer>
 
-  <!-- Core Framework -->
-  <script src="/js/init-header-footer.js" defer></script>
-  <script src="/js/theme.js" defer></script>
-  <!-- nav.js removed — no longer using site nav -->
-  
   <!-- CardForge Core -->
   <script src="/cardforge/js/config.js"></script>
   <script src="/cardforge/js/csrf-protection.js"></script>
@@ -1759,14 +1738,6 @@
 
   
 
-  <!-- Other Scripts -->
-  <script src="/js/init-quotes.js" defer></script>
-  <script src="/js/md-inject.js" defer></script>
-  <script src="/js/template.js" defer></script>
-  <script src="/js/main.js" defer></script>
-
-  <!-- === Authentication Scripts === -->
-  <!-- Auth scripts are loaded via the footer module -->
 
   <!-- === Application Insights (Production Only) === -->
   <script src="https://js.monitor.azure.com/scripts/b/ai.2.min.js" crossorigin="anonymous"></script>
