@@ -635,7 +635,7 @@ module.exports = async function (context) {
           var _prAction = {
             id: 'act_pub_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
             created_at: new Date().toISOString(),
-            created_by: 'system',
+            created_by: 'scribe',
             type: 'publish_document',
             platform: 'site',
             payload: {
@@ -660,7 +660,7 @@ module.exports = async function (context) {
             action_type: 'publish_document',
             action_category: 'content',
             execution_status: 'pending',
-            origin_agent: 'system',
+            origin_agent: 'scribe',
             action_payload: { documentId: _prDoc.id, title: _prDoc.title, slug: _prSlug },
             requires_approval: true,
             is_irreversible: true,
@@ -675,7 +675,7 @@ module.exports = async function (context) {
             action_id: _prAction.id,
             taskId: null,
             taskTitle: _prDoc.title,
-            originAgent: 'system',
+            originAgent: 'scribe',
             classification: 'executive_required',
             riskLevel: 'medium',
             budgetImpact: 0,
