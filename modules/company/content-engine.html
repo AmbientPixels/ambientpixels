@@ -616,7 +616,7 @@
         if (pkg.durationMs) info += ' \u00b7 ' + Math.round(pkg.durationMs / 1000) + 's';
         if (pkg.estimatedCost) info += ' \u00b7 $' + pkg.estimatedCost.toFixed(4);
         metaEl.innerHTML = '<a href="/modules/company/content-engine.html" style="color:#8b5cf6;font-size:0.62rem;text-decoration:none;margin-right:0.5rem;"><i class="fas fa-arrow-left"></i> Back to Generator</a>' +
-          '<a href="/modules/company/content-overview.html" style="color:#8b5cf6;font-size:0.62rem;text-decoration:none;margin-right:0.8rem;"><i class="fas fa-images"></i> Gallery</a>' +
+          '<a href="/modules/company/content-gallery.html" style="color:#8b5cf6;font-size:0.62rem;text-decoration:none;margin-right:0.8rem;"><i class="fas fa-images"></i> Gallery</a>' +
           '<span style="font-size:0.62rem;opacity:0.5;">' + pkg.id + ' \u00b7 ' + info + ' \u00b7 ' + new Date(pkg.createdAt).toLocaleString() + '</span>';
       } catch (err) {
         document.getElementById('ce-results-grid').innerHTML = '<div style="padding:1rem;color:#ef4444;font-size:0.7rem;">Error: ' + err.message + '</div>';

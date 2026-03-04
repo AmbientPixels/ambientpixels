@@ -188,6 +188,7 @@
         <span id="exec-mode-pill" style="font-size:0.5rem; padding:2px 8px; border-radius:6px; background:rgba(52,211,153,0.1); color:#34d399; font-weight:500; vertical-align:middle; margin-left:4px; cursor:default;" title="Automation enabled. Agents may create and update tasks.">🟢 Live</span>
         <span class="dash-view-toggle" id="dash-view-toggle" role="tablist">
           <button role="tab" data-view="ceo" class="active" aria-selected="true">CEO View</button>
+          <button role="tab" data-view="board" aria-selected="false">Board View</button>
           <button role="tab" data-view="dev" aria-selected="false">Dev View</button>
         </span>
       </h1>
@@ -196,7 +197,7 @@
           <i class="fas fa-heartbeat"></i> Run Heartbeat
         </button>
         <a href="/modules/company/meetings.html" class="dash-refresh-btn" style="border-color:rgba(78,205,196,0.2); color:#4ecdc4;"><i class="fas fa-video"></i> Call Meeting</a>
-        <a href="/modules/company/board.html" class="dash-refresh-btn" style="border-color:rgba(138,43,226,0.2); color:#c084fc;"><i class="fas fa-columns"></i> Board Mode</a>
+        <button class="dash-refresh-btn" id="dash-board-btn" style="border-color:rgba(138,43,226,0.2); color:#c084fc;"><i class="fas fa-columns"></i> Board Mode</button>
         <a href="/modules/company/" class="dash-refresh-btn"><i class="fas fa-arrow-left"></i> Back to HQ</a>
         <button class="dash-refresh-btn" id="dash-refresh"><i class="fas fa-sync-alt"></i> Refresh</button>
       </div>
@@ -241,6 +242,11 @@
           <div class="ceo-stat-label">Task Pipeline</div>
           <div class="ceo-stat-value" id="cstat-pipeline">0</div>
           <div class="ceo-stat-sub" id="cstat-pipeline-sub">in-progress / review / done</div>
+        </div>
+        <div class="ceo-stat" style="--cstat-color:#a78bfa;">
+          <div class="ceo-stat-label">Inbound</div>
+          <div class="ceo-stat-value" id="cstat-inbound">0</div>
+          <div class="ceo-stat-sub"><a href="/modules/company/inbound.html" style="color:inherit; text-decoration:none; opacity:0.7;">unprocessed signals</a></div>
         </div>
       </div>
 
@@ -360,7 +366,7 @@
             <div class="dash-panel dash-panel--full" id="panel-system-pulse-wrap" style="min-height:auto;">
               <div class="dash-panel-header">
                 <span class="dash-panel-title"><i class="fas fa-wave-square" style="color:#4ECDC4;"></i> System Pulse</span>
-                <a href="/modules/company/board.html" style="font-size:0.65rem; opacity:0.4; text-decoration:none;">Board Mode →</a>
+                <a href="#" id="dash-board-link" style="font-size:0.65rem; opacity:0.4; text-decoration:none;">Board View →</a>
               </div>
               <div id="panel-system-pulse" class="system-pulse"></div>
             </div>
@@ -512,6 +518,33 @@
           </div>
         </div>
       </div>
+
+      <!-- CEO: Organization -->
+      <div class="dash-section collapsed" id="section-org-chart" data-section="org-chart">
+        <div class="dash-section-header" tabindex="0" role="button" aria-expanded="false">
+          <i class="fas fa-sitemap" style="color:#c084fc;"></i>
+          <h2>Organization</h2>
+          <i class="fas fa-chevron-down dash-section-chevron"></i>
+        </div>
+        <div class="dash-section-body">
+          <div id="ceo-org-chart" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:0.5rem; padding:0.3rem 0;"></div>
+        </div>
+      </div>
+
+      <!-- CEO: Executive Plan -->
+      <div class="dash-section collapsed" id="section-exec-plan" data-section="exec-plan">
+        <div class="dash-section-header" tabindex="0" role="button" aria-expanded="false">
+          <i class="fas fa-route" style="color:#a855f7;"></i>
+          <h2>Executive Plan</h2>
+          <i class="fas fa-chevron-down dash-section-chevron"></i>
+        </div>
+        <div class="dash-section-body">
+          <div id="ceo-exec-plan" style="padding:0.3rem 0;">
+            <div class="dash-empty">Loading executive plan...</div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <!-- ════════════════════════════════════════ -->
@@ -706,6 +739,111 @@
       </div>
     </div>
 
+    <!-- ════════════════════════════════════════ -->
+    <!-- BOARD VIEW                               -->
+    <!-- ════════════════════════════════════════ -->
+    <div id="view-board" style="display:none;">
+      <section class="board-view">
+
+        <!-- Board Header -->
+        <div class="board-header">
+          <div>
+            <h1><i class="fas fa-columns" style="color:#c084fc;"></i> Quarterly Board</h1>
+            <div class="board-date-range" id="board-range"></div>
+          </div>
+          <div class="board-controls">
+            <select id="board-year"></select>
+            <select id="board-quarter">
+              <option value="Q1">Q1</option>
+              <option value="Q2">Q2</option>
+              <option value="Q3">Q3</option>
+              <option value="Q4">Q4</option>
+            </select>
+            <button id="board-render-btn"><i class="fas fa-sync-alt"></i> Load</button>
+            <button id="board-copy-btn" class="board-copy-btn"><i class="fas fa-clipboard"></i> Copy Board Packet</button>
+          </div>
+        </div>
+
+        <!-- 1. Headline Stats -->
+        <div class="board-stat-row" id="board-headline-stats"></div>
+
+        <!-- 2. Executive Summary -->
+        <div class="board-section" id="sec-exec">
+          <div class="board-section-title"><i class="fas fa-briefcase" style="color:#FFD700;"></i> Executive Summary</div>
+          <div class="board-card" id="board-exec-summary" style="font-size:0.8rem; line-height:1.5; border-color:rgba(255,215,0,0.1); background:rgba(255,215,0,0.02);"></div>
+        </div>
+
+        <!-- 3. Goals -->
+        <div class="board-section" id="sec-goals">
+          <div class="board-section-title"><i class="fas fa-bullseye" style="color:#4ECDC4;"></i> Goals <span class="board-badge" id="badge-goals" style="background:rgba(78,205,196,0.1);color:#4ECDC4;">0</span></div>
+          <div id="board-goals"></div>
+        </div>
+
+        <!-- 4-5. Projects + Team -->
+        <div class="board-two-col">
+          <div>
+            <div class="board-section" id="sec-active-dirs">
+              <div class="board-section-title"><i class="fas fa-fire" style="color:#FF8C00;"></i> Active Projects <span class="board-badge" id="badge-active-dirs" style="background:rgba(255,140,0,0.1);color:#FF8C00;">0</span></div>
+              <div id="board-active-dirs"></div>
+            </div>
+            <div class="board-section" id="sec-completed-dirs">
+              <div class="board-section-title"><i class="fas fa-trophy" style="color:#c084fc;"></i> Completed <span class="board-badge" id="badge-completed-dirs" style="background:rgba(192,132,252,0.1);color:#c084fc;">0</span></div>
+              <div id="board-completed-dirs"></div>
+            </div>
+            <div class="board-section" id="sec-pending-dirs">
+              <div class="board-section-title"><i class="fas fa-hourglass-half" style="color:#fbbf24;"></i> Pending Approval <span class="board-badge" id="badge-pending-dirs" style="background:rgba(251,191,36,0.1);color:#fbbf24;">0</span></div>
+              <div id="board-pending-dirs"></div>
+            </div>
+          </div>
+          <div>
+            <div class="board-section" id="sec-team">
+              <div class="board-section-title"><i class="fas fa-users" style="color:#4ECDC4;"></i> Agent Team</div>
+              <div id="board-team" style="display:flex; flex-direction:column; gap:0.35rem;"></div>
+            </div>
+            <div class="board-section" id="sec-backlog">
+              <div class="board-section-title"><i class="fas fa-inbox" style="color:#fbbf24;"></i> Approval Backlog <span class="board-badge" id="badge-backlog" style="background:rgba(251,191,36,0.1);color:#fbbf24;">0</span></div>
+              <div id="board-backlog"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6-7. Cost + Content Pipeline -->
+        <div class="board-two-col">
+          <div>
+            <div class="board-section" id="sec-cost">
+              <div class="board-section-title"><i class="fas fa-dollar-sign" style="color:#fbbf24;"></i> Cost Summary</div>
+              <div id="board-cost"></div>
+            </div>
+          </div>
+          <div>
+            <div class="board-section" id="sec-content-pipeline">
+              <div class="board-section-title"><i class="fas fa-newspaper" style="color:#a78bfa;"></i> Content Pipeline</div>
+              <div id="board-content-pipeline"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 8. Decisions Log -->
+        <div class="board-section" id="sec-decisions">
+          <div class="board-section-title"><i class="fas fa-gavel" style="color:#60a5fa;"></i> Decisions <span class="board-badge" id="badge-decisions" style="background:rgba(96,165,250,0.1);color:#60a5fa;">0</span></div>
+          <div id="board-decisions"></div>
+        </div>
+
+        <!-- 9. Risk Register -->
+        <div class="board-section" id="sec-risks">
+          <div class="board-section-title"><i class="fas fa-exclamation-triangle" style="color:#f87171;"></i> Risk Register <span class="board-badge" id="badge-risks" style="background:rgba(248,113,113,0.1);color:#f87171;">0</span></div>
+          <div id="board-risks"></div>
+        </div>
+
+        <!-- 10. Throughput -->
+        <div class="board-section" id="sec-throughput">
+          <div class="board-section-title"><i class="fas fa-tachometer-alt" style="color:#34d399;"></i> Delivery / Throughput</div>
+          <div class="board-stat-row" id="board-throughput"></div>
+        </div>
+
+      </section>
+    </div>
+
   </main>
 
   <!-- Quick Chat injected by /modules/company/js/quick-chat.js -->
@@ -773,28 +911,46 @@
       var transcriptTitle = document.getElementById('transcript-title');
       var transcriptClose = document.getElementById('transcript-close');
 
-      // ── View Mode Toggle ──
-      var _viewMode = localStorage.getItem('ap_dashboard_view_mode') || 'ceo';
+      // ── View Mode Toggle (3 views: CEO / Board / Dev) ──
+      // Honour ?view= query param (used by board.html redirect)
+      var _urlView = (new URLSearchParams(window.location.search)).get('view');
+      var _viewMode = (['ceo','board','dev'].indexOf(_urlView) !== -1)
+        ? _urlView
+        : (localStorage.getItem('ap_dashboard_view_mode') || 'ceo');
       var viewCeo = document.getElementById('view-ceo');
       var viewDev = document.getElementById('view-dev');
+      var viewBoard = document.getElementById('view-board');
       var viewToggle = document.getElementById('dash-view-toggle');
+      var _boardInitialised = false;
 
       function applyViewMode(mode) {
         _viewMode = mode;
         localStorage.setItem('ap_dashboard_view_mode', mode);
         viewCeo.style.display = mode === 'ceo' ? '' : 'none';
         viewDev.style.display = mode === 'dev' ? '' : 'none';
+        viewBoard.style.display = mode === 'board' ? '' : 'none';
         viewToggle.querySelectorAll('button').forEach(function (b) {
           var isActive = b.dataset.view === mode;
           b.classList.toggle('active', isActive);
           b.setAttribute('aria-selected', isActive ? 'true' : 'false');
         });
+        if (mode === 'board' && !_boardInitialised) {
+          _boardInitialised = true;
+          initBoardView();
+        }
       }
       applyViewMode(_viewMode);
       viewToggle.addEventListener('click', function (e) {
         var btn = e.target.closest('button');
         if (btn && btn.dataset.view) applyViewMode(btn.dataset.view);
       });
+
+      // Board Mode button in header
+      var boardBtn = document.getElementById('dash-board-btn');
+      if (boardBtn) boardBtn.addEventListener('click', function () { applyViewMode('board'); });
+      // Board View link in System Pulse
+      var boardLink = document.getElementById('dash-board-link');
+      if (boardLink) boardLink.addEventListener('click', function (e) { e.preventDefault(); applyViewMode('board'); });
 
       // ── Command Center Tabs ──
       var ccTabs = document.getElementById('cc-tabs');
@@ -1038,6 +1194,9 @@
         renderGovernanceLogDev();
         renderMeetingsWidget();
         updateActionBadge();
+        renderOrgChart();
+        renderExecPlan();
+        renderInboundKpi();
       }
 
       // ── CEO Stat Cards ──
@@ -3757,6 +3916,330 @@
       // ── Governance Log (Dev View — reuses shared renderer) ──
       function renderGovernanceLogDev() {
         _renderGovInto(document.getElementById('panel-governance-log-dev'), document.getElementById('governance-log-dev-empty'));
+      }
+
+      // ── Mode-based default collapse ──
+      (function applyModeDefaults() {
+        var uiMode = window.APMode ? window.APMode.get() : 'executive';
+        if (uiMode === 'executive') {
+          var defaults = ['agent-grid', 'decisions', 'metrics', 'costs', 'content', 'org-chart', 'exec-plan'];
+          defaults.forEach(function (key) {
+            if (_collapsed[key] === undefined) {
+              _collapsed[key] = true;
+              var section = document.querySelector('[data-section="' + key + '"]');
+              if (section) {
+                section.classList.add('collapsed');
+                var h = section.querySelector('.dash-section-header');
+                if (h) h.setAttribute('aria-expanded', 'false');
+              }
+            }
+          });
+        }
+      })();
+
+      // ── Organization Chart (CEO View) ──
+      function renderOrgChart() {
+        var el = document.getElementById('ceo-org-chart');
+        if (!el) return;
+        var reg = AgentEngine.getRegistry ? AgentEngine.getRegistry() : null;
+        var agents = (reg && reg.agents) ? reg.agents : [];
+        if (agents.length === 0) { el.innerHTML = '<div class="dash-empty">No agents loaded.</div>'; return; }
+        var tiers = {};
+        agents.forEach(function (a) { var t = a.tier || 3; if (!tiers[t]) tiers[t] = []; tiers[t].push(a); });
+        var html = '';
+        [2, 3, 4].forEach(function (t) {
+          if (!tiers[t] || tiers[t].length === 0) return;
+          var label = t === 2 ? 'Executive' : t === 3 ? 'Department Heads' : 'Specialists';
+          html += '<div style="grid-column:1/-1;font-size:0.55rem;opacity:0.35;font-weight:600;text-transform:uppercase;letter-spacing:0.04em;margin:0.3rem 0 0.1rem;">' + label + '</div>';
+          tiers[t].forEach(function (a) {
+            html += '<div style="padding:0.5rem 0.6rem;border:1px solid rgba(255,255,255,0.05);border-radius:8px;background:rgba(255,255,255,0.015);">';
+            html += '<div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.2rem;">';
+            html += '<div style="width:8px;height:8px;border-radius:50%;background:' + (a.color || '#8A2BE2') + ';flex-shrink:0;"></div>';
+            html += '<span style="font-size:0.72rem;font-weight:600;">' + escapeHtml(a.name || a.id) + '</span></div>';
+            html += '<div style="font-size:0.55rem;opacity:0.4;">' + escapeHtml(a.role || '') + '</div></div>';
+          });
+        });
+        el.innerHTML = html || '<div class="dash-empty">No agents loaded.</div>';
+      }
+
+      // ── Executive Plan (CEO View) ──
+      function renderExecPlan() {
+        var el = document.getElementById('ceo-exec-plan');
+        if (!el) return;
+        var objectives = AgentEngine.getObjectives ? AgentEngine.getObjectives() : [];
+        var campaigns = []; try { campaigns = CompanyStore.getState('directives') || []; } catch (e) {}
+        var activeCampaigns = campaigns.filter(function (d) { return d.status === 'active'; });
+        var queue = AgentEngine.getApprovalQueue ? AgentEngine.getApprovalQueue() : [];
+        var pending = queue.filter(function (q) { return q.status === 'pending'; });
+        var html = '';
+        if (activeCampaigns.length > 0) {
+          html += '<div style="font-size:0.6rem;font-weight:600;opacity:0.5;margin-bottom:0.3rem;"><i class="fas fa-flag" style="margin-right:4px;color:#FFA500;"></i>Active Campaigns</div>';
+          activeCampaigns.slice(0, 5).forEach(function (d) {
+            html += '<div style="padding:0.35rem 0.5rem;margin-bottom:0.3rem;border-left:3px solid rgba(255,165,0,0.4);border-radius:0 6px 6px 0;background:rgba(255,165,0,0.02);font-size:0.7rem;">';
+            html += escapeHtml(d.title);
+            if (d.priority) html += ' <span style="font-size:0.5rem;opacity:0.4;">' + d.priority + '</span>';
+            html += '</div>';
+          });
+        }
+        if (objectives.length > 0) {
+          html += '<div style="font-size:0.6rem;font-weight:600;opacity:0.5;margin:0.5rem 0 0.3rem;"><i class="fas fa-bullseye" style="margin-right:4px;color:#4ECDC4;"></i>Goals</div>';
+          objectives.slice(0, 4).forEach(function (o) {
+            var pct = o.progressPercentage || 0;
+            var barColor = pct >= 75 ? '#34d399' : pct >= 40 ? '#fbbf24' : '#60a5fa';
+            html += '<div style="padding:0.3rem 0;border-bottom:1px solid rgba(255,255,255,0.03);">';
+            html += '<div style="display:flex;justify-content:space-between;font-size:0.68rem;margin-bottom:0.2rem;"><span>' + escapeHtml(o.title || 'Untitled') + '</span><span style="opacity:0.4;">' + pct + '%</span></div>';
+            html += '<div style="width:100%;height:6px;border-radius:3px;background:rgba(255,255,255,0.06);overflow:hidden;">';
+            html += '<div style="height:100%;width:' + pct + '%;border-radius:3px;background:' + barColor + ';transition:width 0.5s;"></div></div></div>';
+          });
+        }
+        html += '<div style="font-size:0.6rem;font-weight:600;opacity:0.5;margin:0.5rem 0 0.3rem;"><i class="fas fa-gavel" style="margin-right:4px;color:#FFD700;"></i>Governance</div>';
+        html += '<div style="font-size:0.68rem;opacity:0.6;">' + pending.length + ' pending approval' + (pending.length !== 1 ? 's' : '') + '</div>';
+        el.innerHTML = html || '<div class="dash-empty">No strategic data available.</div>';
+      }
+
+      // ── Inbound KPI ──
+      function renderInboundKpi() {
+        var el = document.getElementById('cstat-inbound');
+        if (!el) return;
+        var tasks = AgentEngine.getTasks ? AgentEngine.getTasks() : [];
+        var inbound = tasks.filter(function (t) { return t.source === 'inbound' && t.status !== 'done' && t.status !== 'archived'; });
+        el.textContent = inbound.length;
+      }
+
+      // ── Board View (lazy-loaded on first activation) ──
+      function initBoardView() {
+        var yearSel = document.getElementById('board-year');
+        var quarterSel = document.getElementById('board-quarter');
+        var renderBoardBtn = document.getElementById('board-render-btn');
+        var copyBoardBtn = document.getElementById('board-copy-btn');
+        var rangeEl = document.getElementById('board-range');
+        if (!yearSel || !quarterSel) return;
+        var nowYear = new Date().getFullYear();
+        for (var y = nowYear - 2; y <= nowYear + 1; y++) {
+          var opt = document.createElement('option'); opt.value = y; opt.textContent = y;
+          if (y === nowYear) opt.selected = true; yearSel.appendChild(opt);
+        }
+        quarterSel.value = 'Q' + (Math.floor(new Date().getMonth() / 3) + 1);
+        var _bPacket = null;
+
+        function renderBoard() {
+          var year = parseInt(yearSel.value);
+          var quarter = quarterSel.value;
+          _bPacket = AgentEngine.getBoardPacket({ year: year, quarter: quarter });
+          var s = new Date(_bPacket.dateRange.startISO), e = new Date(_bPacket.dateRange.endISO);
+          rangeEl.textContent = _bPacket.quarterKey + '  ·  ' + s.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) + ' – ' + e.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+          _bRenderHeadline(); _bRenderExecSummary(); _bRenderGoals();
+          _bRenderDirSection('board-active-dirs','badge-active-dirs',_bPacket.directives.active);
+          _bRenderDirSection('board-completed-dirs','badge-completed-dirs',_bPacket.directives.completed);
+          _bRenderDirSection('board-pending-dirs','badge-pending-dirs',_bPacket.directives.pendingApproval);
+          _bRenderTeam(); _bRenderBacklog(); _bRenderCost(); _bRenderContent();
+          _bRenderDecisions(); _bRenderRisks(); _bRenderThroughput();
+        }
+
+        function _bRenderExecSummary() {
+          document.getElementById('board-exec-summary').textContent = _bPacket.execSummary || 'No data available for this quarter.';
+        }
+
+        function _bRenderHeadline() {
+          var el = document.getElementById('board-headline-stats');
+          var objectives = AgentEngine.getObjectives ? AgentEngine.getObjectives() : [];
+          var queue = AgentEngine.getApprovalQueue ? AgentEngine.getApprovalQueue() : [];
+          var pending = queue.filter(function(q){return q.status==='pending';});
+          var tasks = AgentEngine.getTasks ? AgentEngine.getTasks() : [];
+          var doneTasks = tasks.filter(function(t){return t.status==='done';});
+          var autoCompleted = doneTasks.filter(function(t){return !t.manuallyCompleted;}).length;
+          var autonomyPct = doneTasks.length>0?Math.round((autoCompleted/doneTasks.length)*100):0;
+          var sessions = AgentEngine.getSessionLog ? AgentEngine.getSessionLog() : [];
+          var totalCost=0; sessions.forEach(function(s){if(s.cost)totalCost+=s.cost;});
+          el.innerHTML =
+            '<div class="board-stat"><div class="board-stat-val" style="color:#4ECDC4;">'+objectives.length+'</div><div class="board-stat-label">Goals</div></div>'+
+            '<div class="board-stat"><div class="board-stat-val" style="color:#FF8C00;">'+_bPacket.directives.active.length+'</div><div class="board-stat-label">Active Projects</div></div>'+
+            '<div class="board-stat"><div class="board-stat-val" style="color:#60a5fa;">'+_bPacket.throughput.tasksCreated+' / '+_bPacket.throughput.tasksCompleted+'</div><div class="board-stat-label">Tasks Created / Done</div></div>'+
+            '<div class="board-stat"><div class="board-stat-val" style="color:#34d399;">'+autonomyPct+'%</div><div class="board-stat-label">Autonomy</div></div>'+
+            '<div class="board-stat"><div class="board-stat-val" style="color:#fbbf24;">$'+totalCost.toFixed(2)+'</div><div class="board-stat-label">Total Spend</div></div>'+
+            '<div class="board-stat"><div class="board-stat-val" style="color:#ef4444;">'+pending.length+'</div><div class="board-stat-label">Pending Approvals</div></div>';
+        }
+
+        function _bRenderGoals() {
+          var el = document.getElementById('board-goals');
+          var badge = document.getElementById('badge-goals');
+          var objectives = AgentEngine.getObjectives ? AgentEngine.getObjectives() : [];
+          badge.textContent = objectives.length;
+          if (objectives.length===0){el.innerHTML='<div class="board-empty">No goals defined yet.</div>';return;}
+          var html='';
+          objectives.forEach(function(o){
+            var pct=o.progressPercentage||0;
+            var statusColors={on_track:'#34d399',at_risk:'#fbbf24',behind:'#ef4444',completed:'#c084fc'};
+            var sColor=statusColors[o.status]||'#60a5fa';
+            var barColor=pct>=75?'#34d399':pct>=40?'#fbbf24':'#60a5fa';
+            html+='<div class="board-goal-card"><div class="board-goal-title">'+escapeHtml(o.title||'Untitled')+'</div>';
+            html+='<div class="board-goal-meta">';
+            if(o.quarter)html+='<span>Q'+o.quarter+'</span>';
+            html+='<span style="color:'+sColor+';">'+(o.status||'active').replace(/_/g,' ')+'</span>';
+            html+='<span>'+pct+'% complete</span>';
+            if(o.linkedDirectives&&o.linkedDirectives.length>0)html+='<span>'+o.linkedDirectives.length+' project'+(o.linkedDirectives.length>1?'s':'')+'</span>';
+            html+='</div><div class="board-progress-bar"><div class="board-progress-fill" style="width:'+pct+'%;background:'+barColor+';"></div></div></div>';
+          });
+          el.innerHTML=html;
+        }
+
+        function _bRenderTeam() {
+          var el = document.getElementById('board-team');
+          var reg = AgentEngine.getRegistry ? AgentEngine.getRegistry() : null;
+          var agents = (reg&&reg.agents)?reg.agents:[];
+          if(agents.length===0){el.innerHTML='<div class="board-empty">No agents loaded.</div>';return;}
+          var tasks = AgentEngine.getTasks ? AgentEngine.getTasks() : [];
+          var agentStats = AgentEngine.getAgentSessionStats ? AgentEngine.getAgentSessionStats() : {};
+          var html='';
+          agents.forEach(function(a){
+            var aid=a.id||a.name;
+            var doneTasks=tasks.filter(function(t){return(t.assignee===aid||t.assignee===(a.name||'').toLowerCase())&&t.status==='done';}).length;
+            var activeTasks=tasks.filter(function(t){return(t.assignee===aid||t.assignee===(a.name||'').toLowerCase())&&t.status!=='done'&&t.status!=='backlog';}).length;
+            var stat=agentStats[aid]; var calls=stat?stat.calls:0;
+            html+='<div class="board-agent-card"><div class="board-agent-dot" style="background:'+(a.color||'#8A2BE2')+';"></div>';
+            html+='<div><div class="board-agent-name">'+escapeHtml(a.name||aid)+'</div><div class="board-agent-role">'+escapeHtml(a.role||'')+'</div></div>';
+            html+='<div class="board-agent-stat">'+doneTasks+' done · '+activeTasks+' active · '+calls+' calls</div></div>';
+          });
+          el.innerHTML=html;
+        }
+
+        function _bRenderBacklog() {
+          var el = document.getElementById('board-backlog');
+          var badge = document.getElementById('badge-backlog');
+          var queue = AgentEngine.getApprovalQueue ? AgentEngine.getApprovalQueue() : [];
+          var pending = queue.filter(function(q){return q.status==='pending';});
+          badge.textContent = pending.length;
+          if(pending.length===0){el.innerHTML='<div class="board-empty">No pending approvals.</div>';return;}
+          var now=Date.now(); var totalWaitMs=0;
+          pending.forEach(function(p){if(p.submittedAt)totalWaitMs+=now-new Date(p.submittedAt).getTime();});
+          var avgWaitH=pending.length>0?Math.round(totalWaitMs/pending.length/3600000):0;
+          var html='<div class="board-cost-row" style="margin-bottom:0.5rem;">';
+          html+='<div class="board-cost-item"><div class="board-cost-val" style="color:#fbbf24;">'+pending.length+'</div><div class="board-cost-label">Pending</div></div>';
+          html+='<div class="board-cost-item"><div class="board-cost-val" style="color:#ef4444;">'+avgWaitH+'h</div><div class="board-cost-label">Avg Wait</div></div></div>';
+          pending.slice(0,5).forEach(function(p){
+            html+='<div class="board-dir-card" style="font-size:0.7rem;"><div style="flex:1;min-width:0;"><span style="font-weight:600;">'+escapeHtml(p.taskTitle||p.title||p.taskId||'?')+'</span>';
+            if(p.submittedAt)html+='<span style="opacity:0.35;font-size:0.55rem;margin-left:0.4rem;">'+new Date(p.submittedAt).toLocaleDateString('en-US',{month:'short',day:'numeric'})+'</span>';
+            html+='</div><span style="font-size:0.5rem;color:#fbbf24;">pending</span></div>';
+          });
+          if(pending.length>5)html+='<div style="font-size:0.55rem;opacity:0.3;padding:0.2rem 0;">+'+(pending.length-5)+' more</div>';
+          el.innerHTML=html;
+        }
+
+        function _bRenderCost() {
+          var el = document.getElementById('board-cost');
+          var sessions = AgentEngine.getSessionLog ? AgentEngine.getSessionLog() : [];
+          var totalCost=0,totalTokensIn=0,totalTokensOut=0,totalCalls=0;
+          var perAgent={};
+          sessions.forEach(function(s){totalCost+=s.cost||0;totalTokensIn+=s.inputTokens||0;totalTokensOut+=s.outputTokens||0;totalCalls++;
+            var aid=s.agentId||'unknown';if(!perAgent[aid])perAgent[aid]={cost:0,calls:0};perAgent[aid].cost+=s.cost||0;perAgent[aid].calls++;});
+          var html='<div class="board-cost-row" style="margin-bottom:0.5rem;">';
+          html+='<div class="board-cost-item"><div class="board-cost-val" style="color:#fbbf24;">$'+totalCost.toFixed(2)+'</div><div class="board-cost-label">Total Spend</div></div>';
+          html+='<div class="board-cost-item"><div class="board-cost-val" style="color:#60a5fa;">'+totalCalls+'</div><div class="board-cost-label">API Calls</div></div>';
+          html+='<div class="board-cost-item"><div class="board-cost-val" style="color:#34d399;">'+Math.round((totalTokensIn+totalTokensOut)/1000)+'k</div><div class="board-cost-label">Total Tokens</div></div></div>';
+          var agentKeys=Object.keys(perAgent).sort(function(a,b){return perAgent[b].cost-perAgent[a].cost;});
+          if(agentKeys.length>0){
+            html+='<div style="font-size:0.55rem;opacity:0.4;margin-bottom:0.25rem;">Per Agent</div>';
+            agentKeys.slice(0,6).forEach(function(aid){
+              var agent=AgentEngine.getAgent?AgentEngine.getAgent(aid):null;var name=agent?agent.name:aid;var c=perAgent[aid];
+              html+='<div style="display:flex;justify-content:space-between;font-size:0.65rem;padding:0.15rem 0;border-bottom:1px solid rgba(255,255,255,0.03);">';
+              html+='<span>'+escapeHtml(name)+'</span><span style="opacity:0.5;">$'+c.cost.toFixed(3)+' · '+c.calls+' calls</span></div>';
+            });
+          }
+          el.innerHTML=html||'<div class="board-empty">No cost data available.</div>';
+        }
+
+        function _bRenderContent() {
+          var el = document.getElementById('board-content-pipeline');
+          var docs=[]; try{docs=CompanyStore.getState('documents')||[];}catch(e){}
+          var published=docs.filter(function(d){return d.status==='published';}).length;
+          var draft=docs.filter(function(d){return d.status==='draft';}).length;
+          var review=docs.filter(function(d){return d.status==='review';}).length;
+          if(docs.length===0){el.innerHTML='<div class="board-empty">No content in pipeline.</div>';return;}
+          var html='<div class="board-content-row">';
+          html+='<div class="board-content-pill"><div class="board-content-pill-val" style="color:#34d399;">'+published+'</div><div class="board-content-pill-label">Published</div></div>';
+          html+='<div class="board-content-pill"><div class="board-content-pill-val" style="color:#60a5fa;">'+draft+'</div><div class="board-content-pill-label">Drafts</div></div>';
+          html+='<div class="board-content-pill"><div class="board-content-pill-val" style="color:#fbbf24;">'+review+'</div><div class="board-content-pill-label">In Review</div></div></div>';
+          el.innerHTML=html;
+        }
+
+        function _bRenderDirSection(listId, badgeId, dirs) {
+          var listEl=document.getElementById(listId); var badge=document.getElementById(badgeId);
+          badge.textContent=dirs.length;
+          if(dirs.length===0){listEl.innerHTML='<div class="board-empty">None for this quarter.</div>';return;}
+          listEl.innerHTML='';
+          dirs.forEach(function(d){
+            var pColor=d.priority==='critical'?'#ef4444':d.priority==='high'?'#fbbf24':d.priority==='medium'?'#8A2BE2':'#34d399';
+            var sColor=d.status==='active'?'#34d399':d.status==='completed'?'#c084fc':d.status==='pending-approval'?'#fbbf24':'#6b7280';
+            var div=document.createElement('div'); div.className='board-dir-card';
+            div.innerHTML='<div style="flex:1;min-width:0;"><div style="font-size:0.85rem;font-weight:600;">'+escapeHtml(d.title)+'</div><div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:3px;font-size:0.6rem;opacity:0.5;"><span style="color:'+sColor+';">'+d.status+'</span><span style="color:'+pColor+';">'+(d.priority||'medium')+'</span>'+(d.owner?'<span>Owner: '+d.owner+'</span>':'')+'</div></div>';
+            listEl.appendChild(div);
+          });
+        }
+
+        function _bRenderDecisions() {
+          var listEl=document.getElementById('board-decisions'); var badge=document.getElementById('badge-decisions');
+          badge.textContent=_bPacket.decisions.length;
+          if(_bPacket.decisions.length===0){listEl.innerHTML='<div class="board-empty">No decisions recorded this quarter.</div>';return;}
+          listEl.innerHTML='';
+          _bPacket.decisions.forEach(function(d){
+            var sColor=d.decisionStatus==='Approved'?'#34d399':d.decisionStatus==='Rejected'?'#f87171':d.decisionStatus==='Deferred'?'#fbbf24':'#60a5fa';
+            var div=document.createElement('div'); div.className='board-dir-card';
+            div.innerHTML='<div style="flex:1;min-width:0;"><div style="font-size:0.8rem;font-weight:600;">'+escapeHtml(d.title)+'</div><div style="font-size:0.6rem;opacity:0.5;margin-top:2px;">'+(d.topicKey?d.topicKey+' · ':'')+new Date(d.date).toLocaleDateString('en-US',{month:'short',day:'numeric'})+'</div></div><span style="font-size:0.55rem;padding:2px 8px;border-radius:4px;background:'+sColor+'18;color:'+sColor+';font-weight:600;white-space:nowrap;">'+d.decisionStatus+'</span>';
+            listEl.appendChild(div);
+          });
+        }
+
+        function _bRenderRisks() {
+          var listEl=document.getElementById('board-risks'); var badge=document.getElementById('badge-risks');
+          badge.textContent=_bPacket.risks.length;
+          if(_bPacket.risks.length===0){listEl.innerHTML='<div class="board-empty">No risks identified this quarter.</div>';return;}
+          listEl.innerHTML='';
+          var sevColors={critical:'#ef4444',high:'#f87171',medium:'#fbbf24',low:'#34d399'};
+          _bPacket.risks.slice(0,10).forEach(function(r){
+            var sColor=sevColors[r.severity]||'#fbbf24';
+            var div=document.createElement('div'); div.className='board-dir-card';
+            div.innerHTML='<div style="flex:1;min-width:0;"><div style="font-size:0.8rem;">'+escapeHtml(r.description)+'</div><div style="font-size:0.6rem;opacity:0.4;margin-top:2px;">From: '+escapeHtml(r.standupTitle||'?')+'</div></div><span style="font-size:0.55rem;padding:2px 8px;border-radius:4px;background:'+sColor+'18;color:'+sColor+';font-weight:600;white-space:nowrap;">'+r.severity+'</span>';
+            listEl.appendChild(div);
+          });
+        }
+
+        function _bRenderThroughput() {
+          var el=document.getElementById('board-throughput'); var tp=_bPacket.throughput;
+          el.innerHTML=
+            '<div class="board-stat"><div class="board-stat-val" style="color:#60a5fa;">'+tp.tasksCreated+'</div><div class="board-stat-label">Tasks Created</div></div>'+
+            '<div class="board-stat"><div class="board-stat-val" style="color:#34d399;">'+tp.tasksCompleted+'</div><div class="board-stat-label">Tasks Completed</div></div>'+
+            '<div class="board-stat"><div class="board-stat-val" style="color:#fbbf24;">'+tp.pendingApprovalTasks+'</div><div class="board-stat-label">Pending Approval</div></div>'+
+            '<div class="board-stat"><div class="board-stat-val" style="color:#c084fc;">'+_bPacket.decisions.length+'</div><div class="board-stat-label">Decisions Made</div></div>'+
+            '<div class="board-stat"><div class="board-stat-val" style="color:#f87171;">'+_bPacket.risks.length+'</div><div class="board-stat-label">Risks Logged</div></div>';
+        }
+
+        function copyBoardPacket() {
+          if(!_bPacket)return;
+          var lines=[]; lines.push('# '+_bPacket.quarterKey+' Board Packet'); lines.push('');
+          lines.push('## Executive Summary'); lines.push(_bPacket.execSummary); lines.push('');
+          var objectives=AgentEngine.getObjectives?AgentEngine.getObjectives():[];
+          var tasks=AgentEngine.getTasks?AgentEngine.getTasks():[];
+          var doneTasks=tasks.filter(function(t){return t.status==='done';});
+          var autoCompleted=doneTasks.filter(function(t){return !t.manuallyCompleted;}).length;
+          var autonomyPct=doneTasks.length>0?Math.round((autoCompleted/doneTasks.length)*100):0;
+          var sessions=AgentEngine.getSessionLog?AgentEngine.getSessionLog():[];
+          var totalCost=0; sessions.forEach(function(s){if(s.cost)totalCost+=s.cost;});
+          lines.push('## Key Metrics');
+          lines.push('- Goals: '+objectives.length);
+          lines.push('- Active Projects: '+_bPacket.directives.active.length);
+          lines.push('- Autonomy: '+autonomyPct+'%');
+          lines.push('- Total Spend: $'+totalCost.toFixed(2)); lines.push('');
+          var text=lines.join('\n');
+          if(navigator.clipboard){navigator.clipboard.writeText(text).then(function(){
+            copyBoardBtn.innerHTML='<i class="fas fa-check"></i> Copied!';
+            setTimeout(function(){copyBoardBtn.innerHTML='<i class="fas fa-clipboard"></i> Copy Board Packet';},2000);
+          });}
+        }
+
+        renderBoard();
+        renderBoardBtn.addEventListener('click', renderBoard);
+        copyBoardBtn.addEventListener('click', copyBoardPacket);
+        window.addEventListener('companystoreready', function () { renderBoard(); });
       }
 
     })();

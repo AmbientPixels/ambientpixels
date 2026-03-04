@@ -1262,3 +1262,48 @@
     margin-top: 0.3rem;
   }
 }
+
+/* ── Board View (scoped under .board-view) ── */
+.board-view .board-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem; }
+.board-view .board-header h1 { font-size:1.3rem; font-weight:700; margin:0; }
+.board-view .board-controls { display:flex; gap:0.4rem; align-items:center; }
+.board-view .board-controls select,
+.board-view .board-controls button { padding:0.3rem 0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:6px; color:inherit; font-size:0.7rem; cursor:pointer; }
+.board-view .board-controls button:hover { background:rgba(255,255,255,0.06); }
+.board-view .board-date-range { font-size:0.65rem; opacity:0.4; }
+.board-view .board-section { margin-bottom:1.2rem; }
+.board-view .board-section-title { font-size:0.85rem; font-weight:600; margin-bottom:0.5rem; display:flex; align-items:center; gap:0.4rem; }
+.board-view .board-card { padding:0.5rem 0.6rem; border:1px solid rgba(255,255,255,0.05); border-radius:8px; background:rgba(255,255,255,0.015); margin-bottom:0.4rem; }
+.board-view .board-stat-row { display:flex; gap:0.6rem; flex-wrap:wrap; margin-bottom:1rem; }
+.board-view .board-stat { flex:1 1 140px; min-width:120px; padding:0.5rem 0.6rem; border:1px solid rgba(255,255,255,0.05); border-radius:8px; background:rgba(255,255,255,0.015); text-align:center; }
+.board-view .board-stat-val { font-size:1.4rem; font-weight:700; }
+.board-view .board-stat-label { font-size:0.6rem; opacity:0.5; margin-top:0.15rem; }
+.board-view .board-badge { font-size:0.5rem; padding:1px 6px; border-radius:4px; font-weight:600; }
+.board-view .board-dir-card { display:flex; justify-content:space-between; align-items:center; padding:0.4rem 0.6rem; border:1px solid rgba(255,255,255,0.04); border-radius:6px; margin-bottom:0.3rem; background:rgba(255,255,255,0.01); }
+.board-view .board-empty { font-size:0.7rem; opacity:0.3; padding:0.5rem 0; }
+.board-view .board-copy-btn { border-color:rgba(52,211,153,0.2) !important; color:#34d399 !important; }
+.board-view .board-copy-btn:hover { background:rgba(52,211,153,0.06) !important; }
+.board-view .board-two-col { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+.board-view .board-goal-card { padding:0.45rem 0.6rem; border:1px solid rgba(255,255,255,0.04); border-radius:6px; margin-bottom:0.35rem; background:rgba(255,255,255,0.01); }
+.board-view .board-goal-title { font-size:0.8rem; font-weight:600; margin-bottom:0.2rem; }
+.board-view .board-goal-meta { font-size:0.55rem; opacity:0.45; display:flex; gap:0.4rem; flex-wrap:wrap; }
+.board-view .board-progress-bar { height:6px; border-radius:3px; background:rgba(255,255,255,0.06); overflow:hidden; margin-top:0.3rem; }
+.board-view .board-progress-fill { height:100%; border-radius:3px; transition:width 0.3s; }
+.board-view .board-agent-card { padding:0.4rem 0.55rem; border:1px solid rgba(255,255,255,0.04); border-radius:6px; background:rgba(255,255,255,0.01); display:flex; align-items:center; gap:0.5rem; }
+.board-view .board-agent-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.board-view .board-agent-name { font-size:0.72rem; font-weight:600; }
+.board-view .board-agent-role { font-size:0.5rem; opacity:0.35; }
+.board-view .board-agent-stat { font-size:0.6rem; margin-left:auto; opacity:0.5; }
+.board-view .board-cost-row { display:flex; gap:0.4rem; flex-wrap:wrap; }
+.board-view .board-cost-item { flex:1; min-width:80px; text-align:center; padding:0.3rem 0.4rem; border:1px solid rgba(255,255,255,0.04); border-radius:6px; background:rgba(255,255,255,0.01); }
+.board-view .board-cost-val { font-size:0.9rem; font-weight:700; }
+.board-view .board-cost-label { font-size:0.48rem; opacity:0.35; margin-top:0.1rem; }
+.board-view .board-content-row { display:flex; gap:0.5rem; flex-wrap:wrap; }
+.board-view .board-content-pill { flex:1; min-width:80px; text-align:center; padding:0.5rem; border:1px solid rgba(255,255,255,0.05); border-radius:8px; background:rgba(255,255,255,0.015); }
+.board-view .board-content-pill-val { font-size:1.1rem; font-weight:700; }
+.board-view .board-content-pill-label { font-size:0.5rem; opacity:0.4; margin-top:0.1rem; }
+@media (max-width:700px) { .board-view .board-two-col { grid-template-columns:1fr; } }
+
+/* ── Mode Button in Sidebar ── */
+.sb-mode-btn { transition: color 0.15s; }
+.sb-mode-btn:hover { opacity: 1 !important; }

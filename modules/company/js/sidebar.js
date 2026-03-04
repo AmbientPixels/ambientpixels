@@ -1,3 +1,29 @@
+// ── APMode — UI Mode Manager (inline for all sidebar pages) ──
+(function () {
+  'use strict';
+  var MODES = ['executive', 'operator', 'admin'];
+  var KEY = 'ap_ui_mode';
+  window.APMode = {
+    MODES: MODES,
+    get: function () { return localStorage.getItem(KEY) || 'executive'; },
+    set: function (mode) {
+      if (MODES.indexOf(mode) === -1) return;
+      localStorage.setItem(KEY, mode);
+      window.dispatchEvent(new CustomEvent('ap-mode-change', { detail: { mode: mode } }));
+    },
+    atLeast: function (required) {
+      var current = this.get();
+      return MODES.indexOf(current) >= MODES.indexOf(required);
+    },
+    cycle: function () {
+      var idx = MODES.indexOf(this.get());
+      var next = MODES[(idx + 1) % MODES.length];
+      this.set(next);
+      return next;
+    }
+  };
+})();
+
 // ── Hybrid Nav: Left Rail Chips + Top Sub-link Bar ──
 // Left rail = category icon chips (like VS Code activity bar)
 // Top bar = sub-links for the active category
@@ -8,41 +34,47 @@
 
   var BASE = '/modules/company/';
 
-  // Navigation structure: categories → links
+  // ── Mode helpers ──
+  function _modeIcon(m) {
+    return m === 'admin' ? 'fa-wrench' : m === 'operator' ? 'fa-terminal' : 'fa-crown';
+  }
+  function _modeLabel(m) {
+    return m === 'admin' ? 'Admin' : m === 'operator' ? 'Operator' : 'Executive';
+  }
+  function _modeTint(m) {
+    return m === 'admin' ? '#fbbf24' : m === 'operator' ? '#34d399' : '#c084fc';
+  }
+
+  // Navigation structure: 5 categories
   var NAV = [
     {
-      id: 'ops',
-      label: 'Ops',
-      icon: 'fa-gauge-high',
-      overview: BASE + 'ops-overview.html',
+      id: 'command',
+      label: 'Command',
+      icon: 'fa-tower-broadcast',
+      overview: BASE + 'dashboard.html',
       links: [
-        { href: BASE + 'ops-overview.html', label: 'Overview', icon: 'fa-gauge-high', match: ['ops-overview.html', 'index.html', ''] },
-        { href: BASE + 'dashboard.html', label: 'Dashboard', icon: 'fa-chart-line', match: ['dashboard.html'] },
+        { href: BASE + 'dashboard.html', label: 'Dashboard', icon: 'fa-gauge-high', match: ['dashboard.html'] },
         { href: BASE + 'standup.html', label: 'Standup', icon: 'fa-users', match: ['standup.html'] },
-        { href: BASE + 'meetings.html', label: 'Meetings', icon: 'fa-video', match: ['meetings.html'] },
-        { href: BASE + 'cost-overview.html', label: 'Costs', icon: 'fa-dollar-sign', match: ['cost-overview.html'] },
-        { href: BASE + 'social-analytics.html', label: 'Social Analytics', icon: 'fa-chart-simple', match: ['social-analytics.html'] },
-        { href: BASE + 'memory-stack.html', label: 'Memory Stack', icon: 'fa-layer-group', match: ['memory-stack.html'] }
+        { href: BASE + 'meetings.html', label: 'Meetings', icon: 'fa-video', match: ['meetings.html'] }
       ]
     },
     {
       id: 'work',
       label: 'Work',
       icon: 'fa-list-check',
-      overview: BASE + 'work-overview.html',
+      overview: BASE + 'tasks.html',
       links: [
-        { href: BASE + 'work-overview.html', label: 'Overview', icon: 'fa-list-check', match: ['work-overview.html'] },
         { href: BASE + 'tasks.html', label: 'Tasks', icon: 'fa-tasks', match: ['tasks.html'] },
-        { href: BASE + 'actions.html', label: 'Actions', icon: 'fa-bolt', match: ['actions.html'] }
+        { href: BASE + 'actions.html', label: 'Actions', icon: 'fa-bolt', match: ['actions.html'] },
+        { href: BASE + 'inbound.html', label: 'Inbound', icon: 'fa-satellite-dish', match: ['inbound.html'] }
       ]
     },
     {
-      id: 'strategy',
+      id: 'plan',
       label: 'Plan',
       icon: 'fa-compass',
-      overview: BASE + 'plan-overview.html',
+      overview: BASE + 'objectives.html',
       links: [
-        { href: BASE + 'plan-overview.html', label: 'Overview', icon: 'fa-compass', match: ['plan-overview.html'] },
         { href: BASE + 'objectives.html', label: 'Goals', icon: 'fa-bullseye', match: ['objectives.html'] },
         { href: BASE + 'campaigns.html', label: 'Campaigns', icon: 'fa-layer-group', match: ['campaigns.html', 'directives.html'] },
         { href: BASE + 'calendar.html', label: 'Calendar', icon: 'fa-calendar-alt', match: ['calendar.html'] },
@@ -50,34 +82,27 @@
       ]
     },
     {
-      id: 'inbound',
-      label: 'Inbound',
-      icon: 'fa-satellite-dish',
-      overview: BASE + 'inbound.html',
-      links: [
-        { href: BASE + 'inbound.html', label: 'Inbound', icon: 'fa-satellite-dish', match: ['inbound.html'] }
-      ]
-    },
-    {
       id: 'content',
       label: 'Content',
       icon: 'fa-wand-magic-sparkles',
-      overview: BASE + 'content-overview.html',
+      overview: BASE + 'content-engine.html',
       links: [
-        { href: BASE + 'content-overview.html', label: 'Overview', icon: 'fa-wand-magic-sparkles', match: ['content-overview.html'] },
         { href: BASE + 'content-engine.html', label: 'Image Engine', icon: 'fa-images', match: ['content-engine.html'] },
-        { href: BASE + 'content-gallery.html', label: 'Gallery', icon: 'fa-photo-film', match: ['content-gallery.html'] }
+        { href: BASE + 'content-gallery.html', label: 'Gallery', icon: 'fa-photo-film', match: ['content-gallery.html'] },
+        { href: BASE + 'social-analytics.html', label: 'Analytics', icon: 'fa-chart-simple', match: ['social-analytics.html'] }
       ]
     },
     {
-      id: 'config',
-      label: 'Config',
+      id: 'system',
+      label: 'System',
       icon: 'fa-sliders',
       overview: BASE + 'config-overview.html',
       links: [
-        { href: BASE + 'config-overview.html', label: 'Overview', icon: 'fa-sliders', match: ['config-overview.html'] },
+        { href: BASE + 'config-overview.html', label: 'Config', icon: 'fa-sliders', match: ['config-overview.html'] },
         { href: BASE + 'workspace.html', label: 'Workspace', icon: 'fa-layer-group', match: ['workspace.html'] },
-        { href: BASE + 'memories.html', label: 'Memory', icon: 'fa-brain', match: ['memories.html'] }
+        { href: BASE + 'memories.html', label: 'Memory', icon: 'fa-brain', match: ['memories.html'] },
+        { href: BASE + 'cost-overview.html', label: 'Costs', icon: 'fa-dollar-sign', match: ['cost-overview.html'] },
+        { href: BASE + 'memory-stack.html', label: 'Diagnostics', icon: 'fa-microscope', match: ['memory-stack.html'], minMode: 'admin' }
       ]
     }
   ];
@@ -95,8 +120,8 @@
     return false;
   }
 
-  // Find active category
-  var activeCatId = 'ops';
+  // Find active category — default to command
+  var activeCatId = 'command';
   NAV.forEach(function (cat) {
     cat.links.forEach(function (link) {
       if (isActive(link.match)) activeCatId = cat.id;
@@ -143,14 +168,28 @@
 
   rail.appendChild(chipsWrap);
 
-  // Footer: Globe + Auth
+  // Footer: Wiki + Globe + Blog + Mode + Auth
+  var curMode = window.APMode ? window.APMode.get() : 'executive';
   var footer = document.createElement('div');
   footer.className = 'sb-rail-footer';
   footer.innerHTML = '<a href="' + BASE + 'documents.html" class="sb-rail-globe" title="Wiki"><i class="fas fa-book"></i></a>' +
     '<a href="/" class="sb-rail-globe" title="Main Site"><i class="fas fa-globe"></i></a>' +
     '<a href="/blog/" class="sb-rail-globe" title="Public Blog" style="opacity:0.5;"><i class="fas fa-newspaper"></i></a>' +
+    '<button type="button" id="sb-mode-btn" class="sb-rail-globe sb-mode-btn" title="Mode: ' + _modeLabel(curMode) + '" style="background:none; border:none; cursor:pointer; color:' + _modeTint(curMode) + '; font-size:inherit; padding:0; opacity:0.7;"><i class="fas ' + _modeIcon(curMode) + '"></i></button>' +
     '<button type="button" id="sb-auth-btn" class="sb-rail-globe" title="Loading..." style="opacity:0.4; background:none; border:none; cursor:pointer; color:inherit; font-size:inherit; padding:0;"><i class="fas fa-spinner fa-spin"></i></button>';
   rail.appendChild(footer);
+
+  // Mode toggle handler
+  var modeBtn = footer.querySelector('#sb-mode-btn');
+  if (modeBtn && window.APMode) {
+    modeBtn.addEventListener('click', function () {
+      var next = window.APMode.cycle();
+      modeBtn.title = 'Mode: ' + _modeLabel(next);
+      modeBtn.style.color = _modeTint(next);
+      modeBtn.innerHTML = '<i class="fas ' + _modeIcon(next) + '"></i>';
+      renderSubLinks(selectedCatId);
+    });
+  }
 
   // Check auth status and update button
   fetch('/.auth/me').then(function (r) { return r.json(); }).then(function (data) {
@@ -192,8 +231,9 @@
     label.textContent = cat.label;
     topbar.appendChild(label);
 
-    // Sub-links
+    // Sub-links (filtered by mode)
     cat.links.forEach(function (link) {
+      if (link.minMode && window.APMode && !window.APMode.atLeast(link.minMode)) return;
       var a = document.createElement('a');
       a.href = link.href;
       a.className = 'sb-sub' + (isActive(link.match) ? ' sb-sub--active' : '');
