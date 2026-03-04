@@ -2303,7 +2303,7 @@ var AgentEngine = (function () {
     var allRisks = [];
     standups.forEach(function (s) {
       (s.riskSummary || []).forEach(function (r) {
-        allRisks.push({ description: r.description || r, severity: r.severity || 'medium', date: s.date, standupTitle: s.title });
+        allRisks.push({ description: r.title || r.description || (typeof r === 'string' ? r : JSON.stringify(r)), severity: r.severity || 'medium', date: s.date, standupTitle: s.title });
       });
     });
     var SEV_RANK = { critical: 0, high: 1, medium: 2, low: 3 };
