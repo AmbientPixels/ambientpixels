@@ -89,7 +89,7 @@ async function deleteBlob(containerClient, blobName) {
 let _configCache = null;
 function loadArenaConfig() {
   if (_configCache) return _configCache;
-  const configPath = path.resolve(__dirname, '../../cardforge/data/arena-config.json');
+  const configPath = path.resolve(__dirname, 'arena-config.json');
   _configCache = JSON.parse(fs.readFileSync(configPath, 'utf8'));
   return _configCache;
 }
@@ -97,7 +97,7 @@ function loadArenaConfig() {
 let _bossCache = null;
 function loadBossData() {
   if (_bossCache) return _bossCache;
-  const bossPath = path.resolve(__dirname, '../../cardforge/data/arena-bosses.json');
+  const bossPath = path.resolve(__dirname, 'arena-bosses.json');
   _bossCache = JSON.parse(fs.readFileSync(bossPath, 'utf8'));
   return _bossCache;
 }

@@ -76,7 +76,7 @@ async function downloadJsonBlob(containerClient, blobName, context) {
 let _bossCache = null;
 function loadBossData() {
   if (_bossCache) return _bossCache;
-  const bossPath = path.resolve(__dirname, '../../cardforge/data/arena-bosses.json');
+  const bossPath = path.resolve(__dirname, 'arena-bosses.json');
   _bossCache = JSON.parse(fs.readFileSync(bossPath, 'utf8'));
   return _bossCache;
 }
