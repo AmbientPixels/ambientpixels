@@ -58,12 +58,62 @@
 
 /* Empty state text */
 .cf-empty-state {
-  display: block;
-  padding: 24px 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 32px 16px;
   text-align: center;
   font-size: 13px;
-  color: rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.35);
   font-style: italic;
+}
+.cf-empty-state p {
+  margin: 0;
+  font-size: 0.95rem;
+  font-style: normal;
+  color: rgba(255, 255, 255, 0.45);
+}
+.cf-empty-state small {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+.cf-empty-state > i {
+  font-size: 1.8rem;
+  opacity: 0.4;
+  margin-bottom: 4px;
+}
+
+/* Floating icon animation for empty states */
+.cf-empty-float {
+  animation: cf-empty-float 3s ease-in-out infinite;
+}
+@keyframes cf-empty-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-6px); }
+}
+
+/* Empty state CTA button */
+.cf-empty-cta {
+  margin-top: 10px;
+  padding: 8px 20px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  font-style: normal;
+  color: #00d4ff;
+  background: rgba(0, 212, 255, 0.08);
+  border: 1px solid rgba(0, 212, 255, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+}
+.cf-empty-cta:hover {
+  background: rgba(0, 212, 255, 0.15);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.15);
+}
+.cf-empty-cta:active {
+  transform: translateY(0);
 }
 
 /* New Card button */
@@ -515,6 +565,15 @@ body.cf-ui--neon .cf-variant-btn.active {
 
 .preview-controls .glass-button i {
   font-size: 0.8rem;
+}
+.preview-controls .glass-button:hover {
+  background: rgba(0, 212, 255, 0.1);
+  border-color: rgba(0, 212, 255, 0.3);
+  box-shadow: 0 0 10px rgba(0, 212, 255, 0.15);
+  color: #00d4ff;
+}
+.preview-controls .glass-button:active {
+  transform: scale(0.95);
 }
 
 
@@ -3394,6 +3453,15 @@ opacity: 1;
     flex: 1 1 auto;
     justify-content: center;
   }
+}
+
+/* ── Section enter transition ── */
+.cf-section.cf-section-entering {
+  animation: cf-section-enter 0.25s ease forwards;
+}
+@keyframes cf-section-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ── Screen-reader only ── */

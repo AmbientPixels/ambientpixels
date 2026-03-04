@@ -125,34 +125,17 @@ class RightColumn {
   }
 
   showToolMessage(message, type = 'info') {
-    // Create a simple notification
     const notification = document.createElement('div');
     notification.className = `tool-notification tool-notification-${type}`;
     notification.textContent = message;
-    notification.style.cssText = `
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      background: var(--aura-bg-color, #1a1a2e);
-      color: var(--mood-text-primary, #e1e1ff);
-      padding: 0.75rem 1rem;
-      border-radius: 6px;
-      border: 1px solid var(--mood-accent-color, #4a4a6a);
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      z-index: 1000;
-      animation: slideInRight 0.3s ease;
-    `;
-
     document.body.appendChild(notification);
 
-    // Remove after 3 seconds
+    // Exit animation after 3s, then remove from DOM
     setTimeout(() => {
-      notification.style.animation = 'slideOutRight 0.3s ease';
-      setTimeout(() => {
-        if (notification.parentNode) {
-          notification.parentNode.removeChild(notification);
-        }
-      }, 300);
+      notification.classList.add('removing');
+      notification.addEventListener('animationend', () => {
+        if (notification.parentNode) notification.remove();
+      }, { once: true });
     }, 3000);
   }
 
@@ -295,33 +278,6 @@ class RightColumn {
     return design;
   }
 }
-
-// CSS animations for notifications
-const notificationStyles = document.createElement('style');
-notificationStyles.textContent = `
-  @keyframes slideInRight {
-    from {
-      transform: translateX(100%);
-      opacity: 0;
-    }
-    to {
-      transform: translateX(0);
-      opacity: 1;
-    }
-  }
-  
-  @keyframes slideOutRight {
-    from {
-      transform: translateX(0);
-      opacity: 1;
-    }
-    to {
-      transform: translateX(100%);
-      opacity: 0;
-    }
-  }
-`;
-document.head.appendChild(notificationStyles);
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {

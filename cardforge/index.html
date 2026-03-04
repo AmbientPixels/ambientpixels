@@ -1560,13 +1560,13 @@
     <p id="gallery-msg-user" class="gallery-description hidden">Welcome back! See your cards above and publish more.</p>
     <div class="cardforge-gallery-grid" id="gallery-cards-grid">
       <!-- Gallery cards will be loaded here -->
-      <div class="gallery-loading cf-empty-state">No gallery cards yet — save and publish a card to see it here.</div>
+      <div class="gallery-loading cf-empty-state"><i class="fas fa-palette cf-empty-float"></i><p>No gallery cards yet</p><small>Save and publish a card to see it here</small><button class="cf-empty-cta" onclick="document.querySelector('[data-step=&quot;0&quot;]')?.click()">Start Creating</button></div>
     </div>
 
     <!-- Published Decks -->
     <h3 class="gallery-decks-heading"><i class="fas fa-layer-group"></i> Published Decks</h3>
     <div class="gallery-decks-grid" id="gallery-decks-grid">
-      <div class="gallery-loading cf-empty-state">No published decks yet.</div>
+      <div class="gallery-loading cf-empty-state"><i class="fas fa-layer-group cf-empty-float"></i><p>No published decks yet</p><small>Create and publish a deck to share it</small><button class="cf-empty-cta" onclick="document.querySelector('[data-step=&quot;6&quot;]')?.click()">Create a Deck</button></div>
     </div>
   </section>
   

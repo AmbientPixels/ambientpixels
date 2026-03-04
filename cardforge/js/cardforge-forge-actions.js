@@ -1129,10 +1129,11 @@ const resp = await fetch(loadUrl, {
 
     if (!savedCards || savedCards.length === 0) {
       myCardsList.innerHTML = `
-        <div class="my-cards-empty">
-          <i class="fas fa-layer-group"></i>
+        <div class="my-cards-empty cf-empty-state">
+          <i class="fas fa-layer-group cf-empty-float"></i>
           <p>No saved cards yet</p>
           <small>Save your first card to see it here</small>
+          <button class="cf-empty-cta" onclick="document.querySelector('[data-step=&quot;0&quot;]')?.click()">Start Creating</button>
         </div>
       `;
       return;
@@ -1224,18 +1225,19 @@ const resp = await fetch(loadUrl, {
 
     if (!decks || decks.length === 0) {
       deckListEl.innerHTML = `
-        <div class="deck-empty">
-          <i class="fas fa-th-large"></i>
+        <div class="deck-empty cf-empty-state">
+          <i class="fas fa-th-large cf-empty-float"></i>
           <p>No decks yet</p>
           <small>Create your first deck to see it here</small>
+          <button class="cf-empty-cta" onclick="document.getElementById('create-deck-btn')?.click()">Create a Deck</button>
         </div>
       `;
       // Clear detail panel
       const detailEl = document.getElementById('deck-detail');
       if (detailEl) {
         detailEl.innerHTML = `
-          <div class="deck-detail-empty">
-            <i class="fas fa-folder-open"></i>
+          <div class="deck-detail-empty cf-empty-state">
+            <i class="fas fa-folder-open cf-empty-float"></i>
             <p>No decks yet</p>
             <small>Create a new deck to get started</small>
           </div>

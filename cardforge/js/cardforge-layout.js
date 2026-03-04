@@ -68,12 +68,14 @@
         const step = btn.dataset.step;
         const targetSection = document.querySelector(`[data-step-section="${step}"]`);
         if (targetSection) {
-          // Hide all sections then show target
-          sections.forEach(sec=>{sec.classList.remove('active'); sec.style.display='none';});
+          // Hide all sections then show target with enter animation
+          sections.forEach(sec=>{sec.classList.remove('active','cf-section-entering'); sec.style.display='none';});
           targetSection.classList.add('active');
           targetSection.style.display='block';
+          // Trigger enter animation (reflow trick to restart)
+          void targetSection.offsetWidth;
+          targetSection.classList.add('cf-section-entering');
           // Scroll so the active section is visible below the chrome
-          // Use rAF to ensure layout is recalculated after display change
           requestAnimationFrame(() => {
             targetSection.scrollIntoView({ behavior: 'instant', block: 'start' });
           });
