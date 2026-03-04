@@ -3175,23 +3175,57 @@ var AgentEngine = (function () {
       }
     }
 
-    // 2. Backfill: create approvalQueue entries for pending actions missing from queue
+    // 2. Auto-clean stale completed/abandoned items
+    var _now = Date.now();
+    var _STALE_APPROVED_MS = 48 * 60 * 60 * 1000; // 48 hours
+    var _STALE_REVISION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+    for (var s = queue.length - 1; s >= 0; s--) {
+      var staleEntry = queue[s];
+      var entryAge = staleEntry.submittedAt ? _now - new Date(staleEntry.submittedAt).getTime() : 0;
+      // Remove approved items older than 48h (already acted on)
+      if (staleEntry.status === 'approved' && entryAge > _STALE_APPROVED_MS) {
+        queue.splice(s, 1);
+        changed = true;
+        cleaned++;
+        continue;
+      }
+      // Remove revision_requested items older than 7 days with no revision activity
+      if (staleEntry.status === 'revision_requested' && entryAge > _STALE_REVISION_MS) {
+        queue.splice(s, 1);
+        changed = true;
+        cleaned++;
+        continue;
+      }
+    }
+
+    // 3. Backfill: create approvalQueue entries for pending actions missing from queue
     for (var k = 0; k < actions.length; k++) {
       var act = actions[k];
       var approvalStatus = (act.approval && act.approval.status) || '';
       if ((approvalStatus === 'pending' || approvalStatus === 'revision_requested') && !queueActionIds[act.id]) {
-        queue.push({
+        // Backfill with richer data when available (publish_document actions have payload details)
+        var _bfEntry = {
           id: 'aq-' + act.id,
           kind: 'action',
           action_id: act.id,
           actionType: act.type || 'unknown',
           taskTitle: (act.payload && (act.payload.text || act.payload.title || '').substring(0, 100)) || act.type || 'Action',
           originAgent: act.created_by || 'unknown',
-          status: 'pending',
+          status: approvalStatus,
           submittedAt: (act.approval && act.approval.submitted_at) || act.created_at || new Date().toISOString(),
           classification: act.classification || 'advisory',
           risk_level: act.risk_level || 'medium'
-        });
+        };
+        // Enrich publish_document backfills with document fields
+        if (act.type === 'publish_document' && act.payload) {
+          _bfEntry.documentId = act.payload.documentId || null;
+          _bfEntry.slug = act.payload.slug || null;
+          _bfEntry.docKind = act.payload.kind || null;
+          _bfEntry.heroImageUrl = act.payload.hero_image_url || null;
+          _bfEntry.heroImageAssetId = act.payload.hero_image_asset_id || null;
+          _bfEntry.preview = (act.payload.content_md || '').substring(0, 120);
+        }
+        queue.push(_bfEntry);
         changed = true;
         backfilled++;
       }

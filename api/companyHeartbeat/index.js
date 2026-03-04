@@ -598,11 +598,21 @@ module.exports = async function (context) {
 
     // ── PROACTIVE PUBLISH: auto-submit marketing docs that are ready but have no publish action ──
     try {
+      var _prNow = Date.now();
+      var _PR_MAX_AGE_MS = 14 * 24 * 60 * 60 * 1000; // 14 days
+      var _PR_MIN_CONTENT_LEN = 200; // chars
       const _pubReadyDocs = documents.filter(function(d) {
         if (!d || d.deletedAt || d.status === 'published' || d.status === 'rejected' || d.status === 'archived') return false;
         if (d.status === 'ready_for_approval') return false;
         if (!d.hero_image_asset_id || d.awaiting_hero_image) return false;
         if (!d.kind || ['marketing_post', 'product_brief'].indexOf(d.kind) === -1) return false;
+        // Quality filter: skip test items
+        if (/\btest\b/i.test(d.title || '')) return false;
+        // Quality filter: skip docs older than 14 days
+        var _docAge = d.created_at ? _prNow - new Date(d.created_at).getTime() : Infinity;
+        if (_docAge > _PR_MAX_AGE_MS) return false;
+        // Quality filter: skip docs with insufficient content
+        if (!d.content_md || d.content_md.length < _PR_MIN_CONTENT_LEN) return false;
         var hasPublish = allActions.some(function(a) {
           return a.type === 'publish_document' && a.payload && a.payload.documentId === d.id;
         });
@@ -610,6 +620,7 @@ module.exports = async function (context) {
       });
       if (_pubReadyDocs.length > 0) {
         let _prDocsChanged = false;
+        var _prApprovalQueue = (await storage.getState('approvalQueue')) || [];
         for (var _pri = 0; _pri < _pubReadyDocs.length; _pri++) {
           var _prDoc = _pubReadyDocs[_pri];
           var _prSlug = _prDoc.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -656,6 +667,28 @@ module.exports = async function (context) {
             bundle_id: null
           };
           allActions.push(_prAction);
+          // Add proper AQ entry (mirrors agent-runner submit-for-publish structure)
+          _prApprovalQueue.push({
+            id: 'aq-' + _prAction.id,
+            kind: 'action',
+            actionType: 'publish_document',
+            action_id: _prAction.id,
+            taskId: null,
+            taskTitle: _prDoc.title,
+            originAgent: 'system',
+            classification: 'executive_required',
+            riskLevel: 'medium',
+            budgetImpact: 0,
+            brandImpact: 'medium',
+            status: 'pending',
+            submittedAt: _prAction.created_at,
+            preview: (_prDoc.content_md || '').substring(0, 120),
+            documentId: _prDoc.id,
+            slug: _prSlug,
+            docKind: _prDoc.kind,
+            heroImageUrl: _prHeroUrl,
+            heroImageAssetId: _prDoc.hero_image_asset_id || null
+          });
           // Update doc status
           var _prDocIdx = documents.findIndex(function(d) { return d.id === _prDoc.id; });
           if (_prDocIdx !== -1) {
@@ -666,6 +699,8 @@ module.exports = async function (context) {
           }
           context.log('[Heartbeat] PROACTIVE PUBLISH: auto-submitted doc', _prDoc.id, '"' + (_prDoc.title || '') + '" for CEO approval');
         }
+        if (_prApprovalQueue.length > 100) _prApprovalQueue.splice(0, _prApprovalQueue.length - 100);
+        await storage.setState('approvalQueue', _prApprovalQueue);
         await storage.setState('actions', allActions);
         if (_prDocsChanged) await storage.setState('documents', documents);
       }
