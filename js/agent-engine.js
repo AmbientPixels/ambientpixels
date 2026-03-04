@@ -1984,7 +1984,7 @@ var AgentEngine = (function () {
     });
 
     var tasks = getTasks().filter(function (t) {
-      return t && t.campaign_id === id && !t._archived;
+      return t && t.campaign_id === id && !t._archived && t.status !== 'archived';
     });
     var activeTask = tasks.some(function (t) {
       var s = String(t.status || '').toLowerCase();

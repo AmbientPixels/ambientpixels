@@ -761,11 +761,11 @@
           window.__AP_TASKS_META__ = {
             loadedAt: new Date().toISOString(),
             total: _allTasks.length,
-            archived: _allTasks.filter(function (t) { return t && t._archived; }).length,
+            archived: _allTasks.filter(function (t) { return t && (t._archived || t.status === 'archived'); }).length,
             reasons: (function () {
               var m = {};
               _allTasks.forEach(function (t) {
-                if (t && t._archived) {
+                if (t && (t._archived || t.status === 'archived')) {
                   var r = t.archivedReason || t._archiveReason || 'none';
                   m[r] = (m[r] || 0) + 1;
                 }
@@ -906,7 +906,7 @@
       }
 
       function getFilteredTasks(applySignal) {
-        var tasks = AgentEngine.getTasks().filter(function (t) { return !t._archived; });
+        var tasks = AgentEngine.getTasks().filter(function (t) { return !t._archived && t.status !== 'archived'; });
         if (filterSearch) {
           var q = filterSearch.toLowerCase();
           tasks = tasks.filter(function (t) {
@@ -960,7 +960,7 @@
       }
 
       function renderStats() {
-        var liveTasks = AgentEngine.getTasks().filter(function (t) { return !t._archived; });
+        var liveTasks = AgentEngine.getTasks().filter(function (t) { return !t._archived && t.status !== 'archived'; });
         var today = _localToday();
         var total = liveTasks.length;
         var backlog = 0, todo = 0, inProgress = 0, review = 0, done = 0, overdue = 0, unassigned = 0, pending = 0;
