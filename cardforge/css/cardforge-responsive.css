@@ -7,6 +7,21 @@
 /* Hidden by default — only shown on mobile overlay */
 .cf-mobile-preview-close { display: none; }
 
+/* Forge tab — hover/active states (base color + icon are inline on the element) */
+.step-btn.step-btn--forge:hover {
+  color: #ffd24d !important;
+  background: rgba(240, 192, 64, 0.08) !important;
+}
+.step-btn.step-btn--forge.active {
+  color: #f0c040 !important;
+  background: rgba(240, 192, 64, 0.14) !important;
+}
+.step-btn.step-btn--forge.active .cf-icon-chip {
+  background: rgba(240, 192, 64, 0.22) !important;
+  border-color: rgba(240, 192, 64, 0.4) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 0 8px rgba(240, 192, 64, 0.2) !important;
+}
+
 /* =============================================
    PHASE 1 — GRID LAYOUT BREAKPOINTS
    ============================================= */

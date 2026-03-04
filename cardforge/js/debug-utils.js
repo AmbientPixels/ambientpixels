@@ -162,17 +162,20 @@ const CardForgeDebug = (() => {
     // Add toggle button
     const toggleBtn = document.createElement('button');
     toggleBtn.id = 'debug-toggle-btn';
-    toggleBtn.innerText = 'Debug';
+    toggleBtn.innerText = 'DBG';
     toggleBtn.style.position = 'fixed';
-    toggleBtn.style.bottom = '10px';
-    toggleBtn.style.right = '10px';
-    toggleBtn.style.backgroundColor = '#64d3ff';
-    toggleBtn.style.color = '#000';
-    toggleBtn.style.border = 'none';
-    toggleBtn.style.borderRadius = '3px';
-    toggleBtn.style.padding = '5px 10px';
+    toggleBtn.style.bottom = '6px';
+    toggleBtn.style.right = '6px';
+    toggleBtn.style.backgroundColor = 'rgba(100, 211, 255, 0.15)';
+    toggleBtn.style.color = 'rgba(100, 211, 255, 0.5)';
+    toggleBtn.style.border = '1px solid rgba(100, 211, 255, 0.2)';
+    toggleBtn.style.borderRadius = '4px';
+    toggleBtn.style.padding = '2px 6px';
+    toggleBtn.style.fontSize = '10px';
     toggleBtn.style.zIndex = '10001';
     toggleBtn.style.cursor = 'pointer';
+    toggleBtn.style.opacity = '0.4';
+    toggleBtn.style.transition = 'opacity 0.15s ease';
     document.body.appendChild(toggleBtn);
     
     // Add event listeners

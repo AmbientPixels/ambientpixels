@@ -770,6 +770,11 @@
 }
 
 /* AI Creator section accent */
+.cf-ai-creator-section {
+  border-color: rgba(139, 92, 246, 0.3);
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.08), inset 0 1px 0 rgba(139, 92, 246, 0.06);
+}
+
 .cf-ai-creator-section .random-title {
   color: #c4b5fd;
 }

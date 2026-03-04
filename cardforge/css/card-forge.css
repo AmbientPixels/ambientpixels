@@ -48,8 +48,10 @@
 }
 
 .cf-section-title {
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
   color: var(--mood-primary-color, #e1e1ff);
+  font-size: 0.95rem;
+  opacity: 0.8;
 }
 
 /* Prevent layout blowout without forcing grid structure */

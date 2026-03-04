@@ -201,9 +201,10 @@
             </span>
             <span class="step-label">Attributes</span>
           </button>
-          <button data-step="7" class="step-btn" title="Forge">
+          <hr style="border:none; border-top:1px solid rgba(255,255,255,0.08); margin:0.35rem 0.6rem;" aria-hidden="true">
+          <button data-step="7" class="step-btn step-btn--forge" title="Forge" style="color: #f0c040 !important;">
             <span class="step-icon" aria-hidden="true">
-              <span class="cf-icon-chip" aria-hidden="true">
+              <span class="cf-icon-chip" style="background: rgba(240,192,64,0.15) !important; border-color: rgba(240,192,64,0.3) !important;" aria-hidden="true">
                 <i class="cf-icon fas fa-hammer"></i>
               </span>
             </span>
@@ -216,14 +217,7 @@
       <div class="cardforge-editor">
       <form id="card-editor-form" class="cardforge-form">
       <div class="cf-section active" data-step-section="0">
-        <h3 class="cf-section-title">
-          <span class="cf-section-icon" aria-hidden="true">
-            <span class="cf-icon-chip" aria-hidden="true">
-              <i class="cf-icon fas fa-dice-d6"></i>
-            </span>
-          </span>
-          <span class="cf-section-label">Presets + Random</span>
-        </h3>
+        <h3 class="cf-section-title">Presets + Random</h3>
         <p class="cf-section-description">Choose a curated template or roll for a surprise combo.</p>
 
         <!-- Quick Start Presets -->
@@ -378,14 +372,7 @@
         </div>
       </div>
       <div class="cf-section" data-step-section="1">
-        <h3 class="cf-section-title">
-          <span class="cf-section-icon" aria-hidden="true">
-            <span class="cf-icon-chip" aria-hidden="true">
-              <i class="cf-icon fas fa-layer-group"></i>
-            </span>
-          </span>
-          <span class="cf-section-label">Card Design</span>
-        </h3>
+        <h3 class="cf-section-title">Card Design</h3>
         <!-- Hidden field for card ID when editing existing cards -->
         <input type="hidden" id="card-id" value="" />
 
@@ -1172,14 +1159,7 @@
         </div>
       </div>
       <div class="cf-section" data-step-section="2">
-        <h3 class="cf-section-title">
-          <span class="cf-section-icon" aria-hidden="true">
-            <span class="cf-icon-chip" aria-hidden="true">
-              <i class="cf-icon fas fa-clipboard-list"></i>
-            </span>
-          </span>
-          <span class="cf-section-label">Basics</span>
-        </h3>
+        <h3 class="cf-section-title">Basics</h3>
         <!-- Section 1: Identity (Full Width) -->
         <div class="basics-identity">
           <label for="card-name">Name</label>
@@ -1322,14 +1302,7 @@
       </div>
       
       <div class="cf-section" data-step-section="3">
-        <h3 class="cf-section-title">
-          <span class="cf-section-icon" aria-hidden="true">
-            <span class="cf-icon-chip" aria-hidden="true">
-              <i class="cf-icon fas fa-chart-line"></i>
-            </span>
-          </span>
-          <span class="cf-section-label">Stats</span>
-        </h3>
+        <h3 class="cf-section-title">Stats</h3>
         <div class="stats-panel">
           <div id="stats-editor">
             <!-- Stats will be populated by presets or user input -->
@@ -1341,14 +1314,7 @@
       
 
       <div class="cf-section" data-step-section="4">
-        <h3 class="cf-section-title">
-          <span class="cf-section-icon" aria-hidden="true">
-            <span class="cf-icon-chip" aria-hidden="true">
-              <i class="cf-icon fas fa-share-nodes"></i>
-            </span>
-          </span>
-          <span class="cf-section-label">Social Links</span>
-        </h3>
+        <h3 class="cf-section-title">Social Links</h3>
         <div class="social-panel">
           <div id="social-editor">
             <div class="social-row">
@@ -1374,14 +1340,7 @@
       </div>
       
       <div class="cf-section" data-step-section="5">
-        <h3 class="cf-section-title">
-          <span class="cf-section-icon" aria-hidden="true">
-            <span class="cf-icon-chip" aria-hidden="true">
-              <i class="cf-icon fas fa-award"></i>
-            </span>
-          </span>
-          <span class="cf-section-label">Badges</span>
-        </h3>
+        <h3 class="cf-section-title">Badges</h3>
         <div class="badges-panel">
           <div id="micro-editor">
             <div class="micro-row">
@@ -1416,14 +1375,7 @@
       </div>
       
       <div class="cf-section" data-step-section="6">
-        <h3 class="cf-section-title">
-          <span class="cf-section-icon" aria-hidden="true">
-            <span class="cf-icon-chip" aria-hidden="true">
-              <i class="cf-icon fas fa-atom"></i>
-            </span>
-          </span>
-          <span class="cf-section-label">Attributes</span>
-        </h3>
+        <h3 class="cf-section-title">Attributes</h3>
 <label for="card-bio">Biography</label>
 <textarea id="card-bio" name="card-bio" rows="3" placeholder="Enter biography or background"></textarea>
         <div class="cf-ai-quick-inline">
@@ -1450,14 +1402,7 @@
       
       <!-- FORGE TAB SECTION — Command Center Refactor -->
       <div class="cf-section" data-step-section="7">
-        <h3 class="cf-section-title">
-          <span class="cf-section-icon" aria-hidden="true">
-            <span class="cf-icon-chip" aria-hidden="true">
-              <i class="cf-icon fas fa-hammer"></i>
-            </span>
-          </span>
-          <span class="cf-section-label">Forge</span>
-        </h3>
+        <h3 class="cf-section-title">Forge</h3>
         <p class="cf-section-description">Publish, save, share, and manage your card creations.</p>
 
         <div class="forge-panel">
@@ -1610,7 +1555,7 @@
   
   <!-- Separate Gallery Section -->
   <section class="cardforge-gallery-container grid-col-12">
-    <h2>Public Gallery</h2>
+    <h2><i class="fas fa-globe" style="font-size:0.85em; opacity:0.7; margin-right:0.4rem;"></i>Public Gallery</h2>
     <p id="gallery-msg-anon" class="gallery-description">Browse cards published by the community. Sign in to publish your own creations!</p>
     <p id="gallery-msg-user" class="gallery-description hidden">Welcome back! See your cards above and publish more.</p>
     <div class="cardforge-gallery-grid" id="gallery-cards-grid">

@@ -485,7 +485,7 @@ body.cf-ui--neon .cf-variant-btn.active {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1rem;
+  margin-bottom: 0.6rem;
   width: 100%;
   position: relative;
   box-sizing: border-box;
@@ -493,8 +493,11 @@ body.cf-ui--neon .cf-variant-btn.active {
 
 .preview-header h2 {
   margin: 0;
-  font-size: 1.2rem;
-  color: var(--mood-text-primary, #e1e1ff);
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--mood-text-secondary, #a0a0c0);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 .preview-controls {
@@ -3374,6 +3377,13 @@ opacity: 1;
 
 .cf-step-nav-btn i {
   font-size: 0.65rem;
+}
+
+/* Forward (next) button gets a subtle fill to guide progression */
+.cf-step-nav-next {
+  background: rgba(0, 212, 255, 0.08);
+  border-color: rgba(0, 212, 255, 0.25);
+  color: var(--mood-primary-color, #c6f7ff);
 }
 
 @media (max-width: 600px) {

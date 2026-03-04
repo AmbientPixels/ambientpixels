@@ -78,8 +78,18 @@
             targetSection.scrollIntoView({ behavior: 'instant', block: 'start' });
           });
         }
-        stepButtons.forEach((b) => b.classList.remove('active'));
+        stepButtons.forEach((b) => {
+          b.classList.remove('active');
+          // Reset Forge button active background when deselected
+          if (b.classList.contains('step-btn--forge')) {
+            b.style.background = '';
+          }
+        });
         btn.classList.add('active');
+        // Apply gold active background for Forge tab (inline to beat CSS specificity)
+        if (btn.classList.contains('step-btn--forge')) {
+          btn.style.background = 'rgba(240, 192, 64, 0.14)';
+        }
         // auto-flip card on section change: flip for sections > 3 (Social, Badges, Attributes)
         const cardInner = document.querySelector('.card-inner');
         if (cardInner) {
