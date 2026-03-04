@@ -13,7 +13,7 @@ const corsHeaders = {
 
 const ENDPOINTS = [
   { id: 'gemini',      name: 'Gemini API',           url: 'https://generativelanguage.googleapis.com/',                         method: 'GET', expect: [200, 404] },
-  { id: 'azure_blob',  name: 'Azure Blob Storage',   url: 'https://ambientpixelsstorage.blob.core.windows.net/?comp=list',     method: 'GET', expect: [200, 400, 403, 409] },
+  { id: 'azure_blob',  name: 'Azure Blob Storage',   url: 'https://cardforgeblobdata.blob.core.windows.net/?comp=list',        method: 'GET', expect: [200, 400, 403, 404, 409] },
   { id: 'azure_func',  name: 'Azure Functions',       url: 'https://ambientpixels-nova-api.azurewebsites.net/api/company-state?key=_ping', method: 'GET', expect: [200, 404] },
   { id: 'deviantart',  name: 'DeviantArt',           url: 'https://www.deviantart.com/',                                       method: 'GET', expect: [200, 301, 302] },
   { id: 'huggingface', name: 'HuggingFace',          url: 'https://api-inference.huggingface.co/',                              method: 'GET', expect: [200, 401, 404] },
