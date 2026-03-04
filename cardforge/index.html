@@ -345,7 +345,7 @@
 
         <!-- AI Card Creator -->
         <div class="random-section cf-ai-creator-section">
-          <h4 class="random-title"><i class="fas fa-bolt"></i> AI Card Creator</h4>
+          <h4 class="random-title"><i class="fas fa-bolt"></i> AI Card Creator <span id="cf-ai-remaining" class="cf-ai-counter"></span></h4>
           <p class="random-helper">Describe any character and AI will generate the entire card — name, stats, attributes, badges, lore, and artwork.</p>
           <div class="cf-ai-prompt-wrapper">
             <textarea id="cf-ai-prompt" class="cf-ai-prompt" rows="2" placeholder="e.g. A cyberpunk samurai who controls lightning..."></textarea>
@@ -1685,12 +1685,36 @@
         </div>
       </div>
       <div class="lightbox-actions">
-        <button id="lightbox-share" class="deck-publish-action-btn" title="Copy Share Link">
-          <i class="fas fa-share-alt"></i> Share
-        </button>
-        <button id="lightbox-download" class="deck-publish-action-btn" title="Download as PNG">
-          <i class="fas fa-download"></i> Download PNG
-        </button>
+        <!-- Share buttons -->
+        <div class="cf-share-panel" id="lightbox-share-panel">
+          <button id="lightbox-copy-link" class="cf-share-btn cf-share-btn--copy" title="Copy Link">
+            <i class="fas fa-link"></i> Copy Link
+          </button>
+          <button id="lightbox-share-x" class="cf-share-btn cf-share-btn--x" title="Share on X">
+            <i class="fab fa-x-twitter"></i> X
+          </button>
+          <button id="lightbox-share-reddit" class="cf-share-btn cf-share-btn--reddit" title="Share on Reddit">
+            <i class="fab fa-reddit-alien"></i> Reddit
+          </button>
+          <button id="lightbox-share-discord" class="cf-share-btn cf-share-btn--discord" title="Copy for Discord">
+            <i class="fab fa-discord"></i> Discord
+          </button>
+        </div>
+        <!-- Export -->
+        <div class="cf-export-panel" id="lightbox-export-panel">
+          <button id="lightbox-export-png-1x" class="cf-share-btn cf-share-btn--export" title="Download PNG (Standard)">
+            <i class="fas fa-download"></i> PNG 1x
+          </button>
+          <button id="lightbox-export-png-2x" class="cf-share-btn cf-share-btn--export" title="Download PNG HD">
+            <i class="fas fa-download"></i> PNG HD <span class="cf-pro-badge">Pro</span>
+          </button>
+          <button id="lightbox-export-png-4x" class="cf-share-btn cf-share-btn--export" title="Download PNG Print">
+            <i class="fas fa-download"></i> PNG Print <span class="cf-pro-badge">Pro</span>
+          </button>
+          <button id="lightbox-export-jpg-2x" class="cf-share-btn cf-share-btn--export" title="Download JPG HD">
+            <i class="fas fa-download"></i> JPG HD <span class="cf-pro-badge">Pro</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>

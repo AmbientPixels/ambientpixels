@@ -2441,9 +2441,67 @@ body.cf-ui--clean .cf-section-icon .cf-icon-chip {
 /* Action buttons below card — matches deck viewer style */
 .lightbox-actions {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 0.5rem;
-  justify-content: center;
   padding-top: 0.25rem;
+}
+
+/* Share & export panels */
+.cf-share-panel,
+.cf-export-panel {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.cf-share-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.cf-share-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+/* Platform colors on hover */
+.cf-share-btn--x:hover { border-color: rgba(255, 255, 255, 0.3); }
+.cf-share-btn--reddit:hover { border-color: #ff4500; color: #ff6633; }
+.cf-share-btn--discord:hover { border-color: #5865f2; color: #7289da; }
+.cf-share-btn--copy:hover { border-color: rgba(0, 212, 255, 0.4); color: #00d4ff; }
+.cf-share-btn--export:hover { border-color: rgba(0, 255, 136, 0.4); color: #00ff88; }
+
+/* Pro badge for future gating */
+.cf-pro-badge {
+  display: inline-block;
+  padding: 1px 5px;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #000;
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  border-radius: 3px;
+  margin-left: 4px;
+}
+
+/* AI usage counter */
+.cf-ai-counter {
+  font-size: 11px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.4);
+  margin-left: 8px;
 }
 
 /* Responsive */

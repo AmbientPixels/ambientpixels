@@ -26,8 +26,50 @@
     };
   }
 
+  // ===== AI USAGE TRACKING =====
+  const AI_DAILY_LIMIT = 5;
+  const AI_USAGE_KEY = 'cardforge-ai-usage';
+
+  function getAiUsage() {
+    try {
+      const raw = localStorage.getItem(AI_USAGE_KEY);
+      if (!raw) return { date: '', count: 0 };
+      const data = JSON.parse(raw);
+      const today = new Date().toISOString().slice(0, 10);
+      if (data.date !== today) return { date: today, count: 0 };
+      return data;
+    } catch (e) { return { date: '', count: 0 }; }
+  }
+
+  function incrementAiUsage() {
+    const today = new Date().toISOString().slice(0, 10);
+    const usage = getAiUsage();
+    usage.date = today;
+    usage.count++;
+    localStorage.setItem(AI_USAGE_KEY, JSON.stringify(usage));
+    updateAiCounter();
+  }
+
+  function getAiRemaining() {
+    return Math.max(0, AI_DAILY_LIMIT - getAiUsage().count);
+  }
+
+  function updateAiCounter() {
+    const counter = document.getElementById('cf-ai-remaining');
+    if (counter) {
+      const remaining = getAiRemaining();
+      counter.textContent = remaining + '/' + AI_DAILY_LIMIT + ' free today';
+      counter.style.color = remaining === 0 ? '#ff6b6b' : 'rgba(255,255,255,0.4)';
+    }
+  }
+
   // ===== GEMINI CALLS =====
   async function callGemini(prompt, opts = {}) {
+    // Check daily limit
+    if (getAiRemaining() <= 0) {
+      throw new Error('Daily AI limit reached (' + AI_DAILY_LIMIT + '/day). Upgrade to Pro for unlimited generations.');
+    }
+    incrementAiUsage();
     const payload = { prompt };
     if (opts.model) payload.model = opts.model;
     if (opts.generationConfig) payload.generationConfig = opts.generationConfig;
@@ -469,6 +511,9 @@
       imgBtn.dataset.defaultLabel = 'AI Generate Artwork';
       imgBtn.addEventListener('click', () => handleGenerateImage(imgBtn));
     }
+
+    // Initialize AI usage counter
+    updateAiCounter();
   }
 
   if (document.readyState === 'loading') {

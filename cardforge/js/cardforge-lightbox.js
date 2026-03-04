@@ -373,39 +373,64 @@
     if (inner) inner.classList.toggle('flipped', isFlipped);
   }
 
-  function share() {
+  function getShareInfo() {
     const card = galleryCards[currentIndex];
-    if (!card) return;
+    if (!card) return null;
     const cardId = card.id || '';
-    const shareUrl = window.buildApiPath ? window.buildApiPath('cardShare', { card: cardId }) : window.location.href;
-
-    const btn = el('lightbox-share');
-    const icon = btn ? btn.querySelector('i') : null;
-    const label = btn ? btn.querySelector('span') || btn.lastChild : null;
-
-    navigator.clipboard.writeText(shareUrl).then(() => {
-      if (icon) icon.className = 'fas fa-check';
-      if (btn) { btn.classList.add('copied'); btn.title = 'Link copied!'; }
-      if (label && label.nodeType === 3) label.textContent = ' Copied!';
-      else if (label) label.textContent = 'Copied!';
-      setTimeout(() => {
-        if (icon) icon.className = 'fas fa-share-alt';
-        if (btn) { btn.classList.remove('copied'); btn.title = 'Copy Share Link'; }
-        if (label && label.nodeType === 3) label.textContent = ' Share';
-        else if (label) label.textContent = 'Share';
-      }, 2000);
-    }).catch(() => {
-      window.prompt('Copy this link to share:', shareUrl);
-    });
+    const name = card.name || card.title || 'Card';
+    const url = window.buildApiPath ? window.buildApiPath('cardShare', { card: cardId }) : window.location.href;
+    return { url, name };
   }
 
-  async function downloadAsPng() {
+  function flashBtn(btn, origHtml) {
+    btn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+    setTimeout(() => { btn.innerHTML = origHtml; }, 2000);
+  }
+
+  function shareCopyLink() {
+    const info = getShareInfo();
+    if (!info) return;
+    const btn = el('lightbox-copy-link');
+    navigator.clipboard.writeText(info.url).then(() => {
+      if (btn) flashBtn(btn, '<i class="fas fa-link"></i> Copy Link');
+    }).catch(() => window.prompt('Copy this link:', info.url));
+  }
+
+  function shareToX() {
+    const info = getShareInfo();
+    if (!info) return;
+    const text = encodeURIComponent('Check out "' + info.name + '" on CardForge!');
+    window.open('https://twitter.com/intent/tweet?url=' + encodeURIComponent(info.url) + '&text=' + text, '_blank', 'width=550,height=420');
+  }
+
+  function shareToReddit() {
+    const info = getShareInfo();
+    if (!info) return;
+    window.open('https://reddit.com/submit?url=' + encodeURIComponent(info.url) + '&title=' + encodeURIComponent(info.name + ' — CardForge'), '_blank');
+  }
+
+  function shareToDiscord() {
+    const info = getShareInfo();
+    if (!info) return;
+    const btn = el('lightbox-share-discord');
+    const text = '**' + info.name + '** — ' + info.url;
+    navigator.clipboard.writeText(text).then(() => {
+      if (btn) flashBtn(btn, '<i class="fab fa-discord"></i> Discord');
+    }).catch(() => window.prompt('Copy for Discord:', text));
+  }
+
+  async function exportCard(opts) {
+    opts = opts || {};
+    const format = opts.format || 'png';
+    const scale = opts.scale || 1;
+    const triggerId = opts.triggerId || 'lightbox-export-png-1x';
+
     const container = el('lightbox-card-container');
     if (!container) return;
     const card = galleryCards[currentIndex];
     const cardName = (card && (card.name || card.title)) || 'card';
 
-    const btn = el('lightbox-download');
+    const btn = el(triggerId);
     let icon;
     if (btn) {
       icon = btn.querySelector('i');
@@ -417,7 +442,7 @@
       const frontFace = container.querySelector('.card-front') || container;
       const canvas = await html2canvas(frontFace, {
         backgroundColor: null,
-        scale: 2,
+        scale: scale,
         useCORS: true,
         allowTaint: true,
         logging: false,
@@ -504,9 +529,13 @@
         }
       });
 
+      const ext = format === 'jpg' ? 'jpg' : 'png';
+      const mime = format === 'jpg' ? 'image/jpeg' : 'image/png';
+      const quality = format === 'jpg' ? 0.92 : undefined;
+
       const link = document.createElement('a');
-      link.download = `${cardName.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.png`;
-      link.href = canvas.toDataURL('image/png');
+      link.download = `${cardName.replace(/[^a-z0-9]/gi, '-').toLowerCase()}-${scale}x.${ext}`;
+      link.href = canvas.toDataURL(mime, quality);
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -595,15 +624,31 @@
     const flipBtn = el('lightbox-flip');
     const overlay = el('cardforge-lightbox');
 
-    const shareBtn = el('lightbox-share');
-    const downloadBtn = el('lightbox-download');
+    const copyLinkBtn = el('lightbox-copy-link');
+    const shareXBtn = el('lightbox-share-x');
+    const shareRedditBtn = el('lightbox-share-reddit');
+    const shareDiscordBtn = el('lightbox-share-discord');
 
     if (closeBtn) closeBtn.addEventListener('click', close);
     if (prevBtn) prevBtn.addEventListener('click', () => navigate(-1));
     if (nextBtn) nextBtn.addEventListener('click', () => navigate(1));
     if (flipBtn) flipBtn.addEventListener('click', flip);
-    if (shareBtn) shareBtn.addEventListener('click', share);
-    if (downloadBtn) downloadBtn.addEventListener('click', downloadAsPng);
+    if (copyLinkBtn) copyLinkBtn.addEventListener('click', shareCopyLink);
+    if (shareXBtn) shareXBtn.addEventListener('click', shareToX);
+    if (shareRedditBtn) shareRedditBtn.addEventListener('click', shareToReddit);
+    if (shareDiscordBtn) shareDiscordBtn.addEventListener('click', shareToDiscord);
+
+    // Export buttons
+    const exportConfigs = [
+      { id: 'lightbox-export-png-1x', format: 'png', scale: 1 },
+      { id: 'lightbox-export-png-2x', format: 'png', scale: 2 },
+      { id: 'lightbox-export-png-4x', format: 'png', scale: 4 },
+      { id: 'lightbox-export-jpg-2x', format: 'jpg', scale: 2 }
+    ];
+    exportConfigs.forEach(cfg => {
+      const btn = el(cfg.id);
+      if (btn) btn.addEventListener('click', () => exportCard({ format: cfg.format, scale: cfg.scale, triggerId: cfg.id }));
+    });
 
     // Close on backdrop click
     if (overlay) {

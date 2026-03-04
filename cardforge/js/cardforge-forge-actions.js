@@ -2253,10 +2253,15 @@ CardForgeActions.prototype.publishDeck = function(deckId) {
               '<h3 style="margin-bottom:12px;color:#fff;font-size:1.4em;">' + deckName + '</h3>' +
               '<p style="margin-bottom:8px;color:#00ff88;font-size:1.1em;">Successfully published to the gallery!</p>' +
               '<p style="margin-bottom:16px;color:#aaa;">' + cardCount + ' card' + (cardCount !== 1 ? 's' : '') + ' · Visible to everyone</p>' +
-              '<div style="display:flex;gap:8px;justify-content:center;margin-bottom:20px;">' +
+              '<div style="display:flex;gap:8px;justify-content:center;margin-bottom:12px;">' +
                 '<input type="text" id="deck-share-url" value="' + shareUrl + '" readonly style="flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:6px;padding:8px 10px;color:#e1e1ff;font-size:0.8em;min-width:0;" />' +
                 '<button id="deck-copy-link" class="deck-publish-action-btn" style="flex-shrink:0;"><i class="fas fa-copy"></i></button>' +
                 '<button id="deck-open-link" class="deck-publish-action-btn" style="flex-shrink:0;" title="View Deck"><i class="fas fa-eye"></i></button>' +
+              '</div>' +
+              '<div class="cf-share-panel" style="justify-content:center;margin-bottom:20px;">' +
+                '<button id="deck-share-x" class="cf-share-btn cf-share-btn--x" title="Share on X"><i class="fab fa-x-twitter"></i> X</button>' +
+                '<button id="deck-share-reddit" class="cf-share-btn cf-share-btn--reddit" title="Share on Reddit"><i class="fab fa-reddit-alien"></i> Reddit</button>' +
+                '<button id="deck-share-discord" class="cf-share-btn cf-share-btn--discord" title="Copy for Discord"><i class="fab fa-discord"></i> Discord</button>' +
               '</div>' +
               '<button id="deck-publish-ok-btn" class="btn-primary" style="background:linear-gradient(135deg,#00ff88,#00cc6a);border:none;color:#000;padding:12px 32px;border-radius:6px;cursor:pointer;font-weight:bold;font-size:1em;">' +
                 '<i class="fas fa-thumbs-up"></i> Awesome!' +
@@ -2291,6 +2296,24 @@ CardForgeActions.prototype.publishDeck = function(deckId) {
               }
             });
           }
+          // Social share buttons
+          const xBtn = document.getElementById('deck-share-x');
+          if (xBtn) xBtn.addEventListener('click', () => {
+            const text = encodeURIComponent('Check out "' + deckName + '" on CardForge!');
+            window.open('https://twitter.com/intent/tweet?url=' + encodeURIComponent(shareUrl) + '&text=' + text, '_blank', 'width=550,height=420');
+          });
+          const redditBtn = document.getElementById('deck-share-reddit');
+          if (redditBtn) redditBtn.addEventListener('click', () => {
+            window.open('https://reddit.com/submit?url=' + encodeURIComponent(shareUrl) + '&title=' + encodeURIComponent(deckName + ' — CardForge'), '_blank');
+          });
+          const discordBtn = document.getElementById('deck-share-discord');
+          if (discordBtn) discordBtn.addEventListener('click', () => {
+            const msg = '**' + deckName + '** — ' + shareUrl;
+            navigator.clipboard.writeText(msg).then(() => {
+              discordBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
+              setTimeout(() => { discordBtn.innerHTML = '<i class="fab fa-discord"></i> Discord'; }, 2000);
+            });
+          });
         }, 100);
       } else {
         self.showNotification('Deck published! Link: ' + shareUrl, 'success');
