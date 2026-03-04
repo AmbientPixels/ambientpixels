@@ -449,11 +449,6 @@ function showInfoPopup() {
 function createFeaturesTabContent() {
   return `
     <div class="info-section">
-      <h4><i class="fas fa-chart-bar"></i> By the Numbers</h4>
-      <h5 style="margin: 0 0 8px 0; color: var(--primary-color, #6366f1); font-size: 1.1rem;">Nearly 40 Million Possible Card Designs</h5>
-      <p style="margin: 0 0 8px 0;">CardForge's modular system combines container types, palette families, layout variants, compositions, and stat configurations into a structured design space that supports nearly 40 million unique visual card designs — all generated within intentional constraints rather than random output.</p>
-      <p style="margin: 0 0 24px 0; opacity: 0.8;">This gives creators massive variety without sacrificing readability, balance, or visual consistency.</p>
-
       <h4><i class="fas fa-rocket"></i> Core Features</h4>
       <div class="feature-grid">
         <div class="feature-item">
@@ -482,33 +477,6 @@ function createFeaturesTabContent() {
         </div>
       </div>
 
-      <h4 style="margin-top: 24px;"><i class="fas fa-bolt"></i> Latest Updates</h4>
-      <div class="feature-grid">
-        <div class="feature-item">
-          <h5><i class="fas fa-wand-magic-sparkles"></i> Refreshed Interface</h5>
-          <p>A fully overhauled UI featuring a collapsible left navigation rail, clearer editor sections, and a smoother step-by-step creation flow designed for focus and speed.</p>
-        </div>
-        <div class="feature-item">
-          <h5><i class="fas fa-crop-simple"></i> Inset Container</h5>
-          <p>A new container type that renders artwork inside a constrained inset frame. Choose from Panel, Glass, Emblem, or Cutout variants for cleaner, more controlled compositions.</p>
-        </div>
-        <div class="feature-item">
-          <h5><i class="fas fa-palette"></i> Expanded Palette Library</h5>
-          <p>Five new palette families — Corporate, Royal, Inferno, Frost, and Arcane — join the original collection for a total of 11 palette options (including Auto), each with Light and Dark variants.</p>
-        </div>
-        <div class="feature-item">
-          <h5><i class="fas fa-eye-dropper"></i> Auto Palette</h5>
-          <p>Select Auto in the palette picker and CardForge analyzes your artwork to automatically choose a complementary color palette optimized for contrast and readability.</p>
-        </div>
-        <div class="feature-item">
-          <h5><i class="fas fa-floppy-disk"></i> Save State Feedback</h5>
-          <p>Clear visual save states indicate when your work is unsaved, saving, saved, or up to date, helping you stay confident as you iterate.</p>
-        </div>
-        <div class="feature-item">
-          <h5><i class="fas fa-dice"></i> Improved Preset & Random Flow</h5>
-          <p>Quick Start Presets and the Random Card generator now use unified iconography, clearer hover states, and improved selection feedback for better visual affordance.</p>
-        </div>
-      </div>
     </div>
   `;
 }
