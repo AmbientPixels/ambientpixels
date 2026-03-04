@@ -18,6 +18,9 @@ const ENDPOINTS = [
   { id: 'x_api',       name: 'X (Twitter) API',      url: 'https://api.x.com/2/openapi.json',                                  method: 'GET', expect: [200, 401, 403] },
   { id: 'linkedin',    name: 'LinkedIn API',          url: 'https://api.linkedin.com/v2/me',                                    method: 'GET', expect: [200, 401, 403, 404] },
   { id: 'bluesky',     name: 'Bluesky API',            url: 'https://bsky.social/xrpc/com.atproto.server.describeServer',        method: 'GET', expect: [200] },
+  { id: 'brave',       name: 'Brave Search',           url: 'https://api.search.brave.com/res/v1/web/search',                    method: 'GET', expect: [200, 401, 422] },
+  { id: 'stripe',      name: 'Stripe API',             url: 'https://api.stripe.com/v1',                                         method: 'GET', expect: [200, 401, 404] },
+  { id: 'appinsights', name: 'App Insights',            url: 'https://api.applicationinsights.io/v1/apps',                        method: 'GET', expect: [200, 401, 404] },
   { id: 'github',      name: 'GitHub API',            url: 'https://api.github.com/',                                           method: 'GET', expect: [200, 403] }
 ];
 
