@@ -41,7 +41,7 @@
       <button class="cfg-tab" role="tab" data-tab="storage" aria-controls="cfg-panel-storage">
         <i class="fas fa-database"></i>Storage &amp; Sync
       </button>
-      <button class="cfg-tab" role="tab" data-tab="maintenance" aria-controls="cfg-panel-maintenance">
+      <button class="cfg-tab admin-only" role="tab" data-tab="maintenance" aria-controls="cfg-panel-maintenance">
         <i class="fas fa-tools"></i>Maintenance
       </button>
     </nav>
@@ -391,7 +391,7 @@
       <div class="cfg-storage-btns">
         <button class="cfg-storage-btn cfg-storage-btn--prune" id="cfg-storage-prune"><i class="fas fa-broom"></i> Prune Now</button>
         <button class="cfg-storage-btn cfg-storage-btn--export" id="cfg-storage-export"><i class="fas fa-download"></i> Export Diagnostics</button>
-        <button class="cfg-storage-btn cfg-storage-btn--reset" id="cfg-storage-reset"><i class="fas fa-eraser"></i> Reset Non-Critical</button>
+        <button class="cfg-storage-btn cfg-storage-btn--reset admin-only" id="cfg-storage-reset"><i class="fas fa-eraser"></i> Reset Non-Critical</button>
       </div>
       <div style="display:flex; gap:0.8rem; margin-top:0.3rem; font-size:0.48rem; opacity:0.25;">
         <span><b>Prune:</b> Trim old entries, keep recent</span>
@@ -423,7 +423,7 @@
     <!-- System Tools -->
     <div class="ov-section-title">System Tools</div>
     <div class="cfg-tools-grid">
-      <button class="cfg-tool-btn" onclick="if(confirm('Reset shared memory?')) { CompanyStore.setState('ap_workspace_memory',[]); location.reload(); }">
+      <button class="cfg-tool-btn admin-only" onclick="if(confirm('Reset shared memory?')) { CompanyStore.setState('ap_workspace_memory',[]); location.reload(); }">
         <i class="fas fa-brain"></i> Memory Reset
       </button>
       <button class="cfg-tool-btn" id="cfg-master-automation-toggle">
@@ -605,5 +605,19 @@
 
   <script src="/modules/company/js/quick-chat.js"></script>
   <script src="/modules/company/js/sidebar.js"></script>
+  <script>
+  // Gate admin-only elements behind APMode 'admin'
+  (function () {
+    function applyAdminGate() {
+      var isAdmin = window.APMode && window.APMode.atLeast('admin');
+      var els = document.querySelectorAll('.admin-only');
+      for (var i = 0; i < els.length; i++) {
+        els[i].style.display = isAdmin ? '' : 'none';
+      }
+    }
+    applyAdminGate();
+    window.addEventListener('ap-mode-change', applyAdminGate);
+  })();
+  </script>
 </body>
 </html>
