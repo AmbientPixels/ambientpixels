@@ -77,6 +77,17 @@ function matchCampaign(params) {
     const sameGoal = !!(goalId && c.objective_id && goalId === c.objective_id);
     let score = base + (sameGoal ? 0.08 : 0);
     if (division && c.division && division === c.division) score += 0.04;
+
+    // Containment: if proposed title tokens are (nearly) all found in campaign title, strong match
+    var containment = overlap.length / inputTokens.length;
+    if (containment >= 0.9) {
+      score = Math.max(score, 0.5 + (sameGoal ? 0.08 : 0));
+    }
+    // Reverse containment: existing campaign title is a subset of proposed title
+    var reverseContainment = overlap.length / cTokens.length;
+    if (reverseContainment >= 0.9) {
+      score = Math.max(score, 0.5 + (sameGoal ? 0.08 : 0));
+    }
     const threshold = sameGoal ? 0.18 : 0.30;
     if (score < threshold) return;
 
