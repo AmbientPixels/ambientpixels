@@ -60,6 +60,12 @@
         }
       }
 
+      // Restore data-theme from localStorage
+      const storedTheme = localStorage.getItem('cardforge-theme');
+      if (storedTheme && ['dark', 'dim', 'light'].includes(storedTheme)) {
+        document.body.setAttribute('data-theme', storedTheme);
+      }
+
       const editorForm = document.getElementById('card-editor-form');
       if (editorForm) {
         const handleFormDirty = () => this.markDirty();

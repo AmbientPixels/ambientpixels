@@ -1310,6 +1310,86 @@ body[data-theme="dim"] .search-input-group i {
   color: #6A7090;
 }
 
+/* ── Dim: Toast notifications ── */
+body[data-theme="dim"] .tool-notification {
+  background: rgba(45, 51, 72, 0.95);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+body[data-theme="dim"] .tool-notification-success { border-left-color: #6CE09B; }
+body[data-theme="dim"] .tool-notification-error   { border-left-color: #E06B78; }
+body[data-theme="dim"] .tool-notification-warning { border-left-color: #E0A84C; }
+body[data-theme="dim"] .tool-notification-info    { border-left-color: #7B8FE0; }
+body[data-theme="dim"] .tool-notification-success::before { color: #6CE09B; }
+body[data-theme="dim"] .tool-notification-error::before   { color: #E06B78; }
+body[data-theme="dim"] .tool-notification-warning::before { color: #E0A84C; }
+body[data-theme="dim"] .tool-notification-info::before    { color: #7B8FE0; }
+body[data-theme="dim"] .tool-notification-success::after { background: #6CE09B; }
+body[data-theme="dim"] .tool-notification-error::after   { background: #E06B78; }
+body[data-theme="dim"] .tool-notification-warning::after { background: #E0A84C; }
+body[data-theme="dim"] .tool-notification-info::after    { background: #7B8FE0; }
+
+/* ── Dim: Save states ── */
+body[data-theme="dim"] [data-save-state="unsaved"] { color: #E0A84C !important; }
+body[data-theme="dim"] [data-save-state="saving"]  { color: #7B8FE0 !important; }
+body[data-theme="dim"] [data-save-state="saved"]   { color: #6CE09B !important; }
+body[data-theme="dim"] [data-save-state="error"]   { color: #E06B78 !important; }
+
+/* ── Dim: Empty states ── */
+body[data-theme="dim"] .cf-empty-state {
+  color: rgba(212, 216, 232, 0.35);
+}
+body[data-theme="dim"] .cf-empty-cta {
+  color: #7B8FE0;
+  border-color: rgba(123, 143, 224, 0.3);
+  background: rgba(123, 143, 224, 0.08);
+}
+body[data-theme="dim"] .cf-empty-cta:hover {
+  background: rgba(123, 143, 224, 0.15);
+}
+
+/* ── Dim: Gallery ── */
+body[data-theme="dim"] .cardforge-gallery-container {
+  background: linear-gradient(180deg, #353B52, #2D3348);
+  border-color: #4A5170;
+}
+body[data-theme="dim"] .cardforge-gallery-container::before {
+  background: linear-gradient(90deg, #7B8FE0, #A78FE0);
+}
+body[data-theme="dim"] .cardforge-gallery-container h2 {
+  color: #7B8FE0;
+}
+body[data-theme="dim"] .gallery-deck-tile {
+  background: #2D3348;
+  border-color: #4A5170;
+}
+body[data-theme="dim"] .gallery-deck-tile:hover {
+  border-color: rgba(123, 143, 224, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+}
+body[data-theme="dim"] .gallery-deck-tile-icon {
+  color: #7B8FE0;
+  background: rgba(123, 143, 224, 0.08);
+}
+body[data-theme="dim"] .gallery-deck-tag {
+  color: #7B8FE0;
+  background: rgba(123, 143, 224, 0.06);
+  border-color: rgba(123, 143, 224, 0.12);
+}
+
+/* ── Dim: Preview glass buttons ── */
+body[data-theme="dim"] .preview-controls .glass-button:hover {
+  background: rgba(123, 143, 224, 0.08);
+  border-color: rgba(123, 143, 224, 0.3);
+  color: #7B8FE0;
+}
+
+/* ── Dim: Toolbar buttons ── */
+body[data-theme="dim"] .toolbar-btn { color: #9AA0B8; }
+body[data-theme="dim"] .toolbar-btn:hover {
+  color: #7B8FE0;
+  background: rgba(123, 143, 224, 0.08);
+}
+
 /* ================================
    LIGHT THEME OVERRIDES
    ================================
@@ -1644,4 +1724,94 @@ body[data-theme="light"] .modal-overlay {
 /* Status dot */
 body[data-theme="light"] .cf-status-dot {
   box-shadow: 0 0 6px rgba(79, 107, 240, 0.3);
+}
+
+/* ── Light: Toast notifications ── */
+body[data-theme="light"] .tool-notification {
+  background: rgba(255, 255, 255, 0.96);
+  color: #1A2A44;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+body[data-theme="light"] .tool-notification-success { border-left-color: #16A34A; }
+body[data-theme="light"] .tool-notification-error   { border-left-color: #DC2626; }
+body[data-theme="light"] .tool-notification-warning { border-left-color: #D97706; }
+body[data-theme="light"] .tool-notification-info    { border-left-color: #4F6BF0; }
+body[data-theme="light"] .tool-notification-success::before { color: #16A34A; }
+body[data-theme="light"] .tool-notification-error::before   { color: #DC2626; }
+body[data-theme="light"] .tool-notification-warning::before { color: #D97706; }
+body[data-theme="light"] .tool-notification-info::before    { color: #4F6BF0; }
+body[data-theme="light"] .tool-notification-success::after { background: #16A34A; }
+body[data-theme="light"] .tool-notification-error::after   { background: #DC2626; }
+body[data-theme="light"] .tool-notification-warning::after { background: #D97706; }
+body[data-theme="light"] .tool-notification-info::after    { background: #4F6BF0; }
+
+/* ── Light: Save states ── */
+body[data-theme="light"] [data-save-state="unsaved"] { color: #D97706 !important; }
+body[data-theme="light"] [data-save-state="saving"]  { color: #4F6BF0 !important; }
+body[data-theme="light"] [data-save-state="saved"]   { color: #16A34A !important; }
+body[data-theme="light"] [data-save-state="error"]   { color: #DC2626 !important; }
+
+/* ── Light: Empty states ── */
+body[data-theme="light"] .cf-empty-state {
+  color: rgba(26, 42, 68, 0.35);
+}
+body[data-theme="light"] .cf-empty-state p {
+  color: rgba(26, 42, 68, 0.45);
+}
+body[data-theme="light"] .cf-empty-cta {
+  color: #4F6BF0;
+  border-color: rgba(79, 107, 240, 0.3);
+  background: rgba(79, 107, 240, 0.06);
+}
+body[data-theme="light"] .cf-empty-cta:hover {
+  background: rgba(79, 107, 240, 0.12);
+}
+
+/* ── Light: Gallery ── */
+body[data-theme="light"] .cardforge-gallery-container {
+  background: linear-gradient(180deg, #DDE2E8, #E8ECF1);
+  border-color: #C0C8D4;
+}
+body[data-theme="light"] .cardforge-gallery-container::before {
+  background: linear-gradient(90deg, #4F6BF0, #8B5CF6);
+}
+body[data-theme="light"] .cardforge-gallery-container h2 {
+  color: #4F6BF0;
+}
+body[data-theme="light"] .gallery-deck-tile {
+  background: #E8ECF1;
+  border-color: #C0C8D4;
+}
+body[data-theme="light"] .gallery-deck-tile:hover {
+  border-color: rgba(79, 107, 240, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+}
+body[data-theme="light"] .gallery-deck-tile-icon {
+  color: #4F6BF0;
+  background: rgba(79, 107, 240, 0.06);
+}
+body[data-theme="light"] .gallery-deck-tag {
+  color: #4F6BF0;
+  background: rgba(79, 107, 240, 0.05);
+  border-color: rgba(79, 107, 240, 0.12);
+}
+
+/* ── Light: Preview glass buttons ── */
+body[data-theme="light"] .preview-controls .glass-button:hover {
+  background: rgba(79, 107, 240, 0.06);
+  border-color: rgba(79, 107, 240, 0.2);
+  box-shadow: none;
+  color: #4F6BF0;
+}
+
+/* ── Light: Toolbar buttons ── */
+body[data-theme="light"] .toolbar-btn { color: #5A6A80; }
+body[data-theme="light"] .toolbar-btn:hover {
+  color: #4F6BF0;
+  background: rgba(79, 107, 240, 0.06);
+}
+
+/* ── Light: Gallery error icon ── */
+body[data-theme="light"] .gallery-error i {
+  color: #DC2626;
 }

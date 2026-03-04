@@ -345,6 +345,51 @@ body.cf-ui--neon .step-btn.active {
   color: #c6f7ff;
 }
 
+/* ── Neon Variant: Step accent bar ── */
+body.cf-ui--neon .step-btn.active::before {
+  background: linear-gradient(180deg, #00d4ff, #ff0099);
+  box-shadow: 0 0 12px rgba(0, 212, 255, 0.6), 0 0 6px rgba(255, 0, 153, 0.3);
+}
+
+/* ── Neon Variant: Step icon chip ── */
+body.cf-ui--neon .step-btn.active .cf-icon-chip {
+  background: rgba(0, 212, 255, 0.15);
+  border-color: rgba(0, 212, 255, 0.4);
+  box-shadow: inset 0 1px 0 rgba(0, 212, 255, 0.15), 0 0 10px rgba(0, 212, 255, 0.2);
+}
+
+/* ── Neon Variant: Section icon chip ── */
+body.cf-ui--neon .cf-section-icon .cf-icon-chip {
+  background: rgba(0, 212, 255, 0.1);
+  border-color: rgba(0, 212, 255, 0.3);
+}
+
+/* ── Neon Variant: Toolbar buttons ── */
+body.cf-ui--neon .toolbar-btn:hover,
+body.cf-ui--neon .toolbar-btn:focus {
+  color: #00d4ff;
+  background: rgba(0, 212, 255, 0.1);
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.2);
+}
+
+/* ── Neon Variant: Toast notifications ── */
+body.cf-ui--neon .tool-notification {
+  background: rgba(10, 14, 28, 0.94);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 212, 255, 0.08), 0 0 20px rgba(0, 212, 255, 0.06);
+}
+body.cf-ui--neon .tool-notification-success {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(0, 255, 136, 0.08), 0 0 15px rgba(0, 255, 136, 0.05);
+}
+body.cf-ui--neon .tool-notification-error {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 68, 102, 0.1), 0 0 15px rgba(255, 68, 102, 0.05);
+}
+
+/* ── Neon Variant: Save state micro-interactions ── */
+body.cf-ui--neon [data-save-state="unsaved"] { text-shadow: 0 0 8px rgba(255, 170, 0, 0.4); }
+body.cf-ui--neon [data-save-state="saving"]  { text-shadow: 0 0 8px rgba(0, 212, 255, 0.4); }
+body.cf-ui--neon [data-save-state="saved"]   { text-shadow: 0 0 8px rgba(0, 255, 136, 0.4); }
+body.cf-ui--neon [data-save-state="error"]   { text-shadow: 0 0 8px rgba(255, 68, 102, 0.4); }
+
 body.cf-rail-collapsed .step-btn {
   justify-content: center;
   gap: 0;
@@ -447,6 +492,37 @@ body.cf-ui--clean .step-btn.active .cf-icon-chip {
 body.cf-ui--clean .cf-section-icon .cf-icon-chip {
   background: rgba(12, 20, 42, 0.1);
   border-color: rgba(12, 20, 42, 0.3);
+}
+
+/* ── Clean Variant: Step accent bar — solid, no glow ── */
+body.cf-ui--clean .step-btn.active::before {
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: none;
+  animation: none;
+}
+
+/* ── Clean Variant: Toolbar buttons ── */
+body.cf-ui--clean .toolbar-btn:hover,
+body.cf-ui--clean .toolbar-btn:focus {
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: none;
+}
+
+/* ── Clean Variant: Toast notifications ── */
+body.cf-ui--clean .tool-notification {
+  background: rgba(18, 20, 30, 0.95);
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+/* ── Clean Variant: Save state — no pulse, no glow ── */
+body.cf-ui--clean [data-save-state="unsaved"] {
+  animation: none;
+  box-shadow: none;
+}
+body.cf-ui--clean [data-save-state] {
+  text-shadow: none;
 }
 
 .cf-section-label {

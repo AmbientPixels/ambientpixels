@@ -963,6 +963,61 @@
   border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
 
+/* ── Neon Variant: Gallery container ── */
+body.cf-ui--neon .cardforge-gallery-container {
+  border-color: rgba(0, 212, 255, 0.1);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(0, 212, 255, 0.04);
+}
+body.cf-ui--neon .cardforge-gallery-container::before {
+  background: linear-gradient(90deg, #00d4ff, #ff0099, #00d4ff);
+  background-size: 200% 100%;
+  animation: cf-gallery-neon-line 4s linear infinite;
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.4);
+}
+@keyframes cf-gallery-neon-line {
+  from { background-position: 0% 0; }
+  to   { background-position: 200% 0; }
+}
+body.cf-ui--neon .cardforge-gallery-container h2 {
+  text-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+}
+body.cf-ui--neon .gallery-deck-tile:hover {
+  border-color: rgba(0, 212, 255, 0.35);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4), 0 0 12px rgba(0, 212, 255, 0.08);
+}
+body.cf-ui--neon .gallery-deck-tag {
+  box-shadow: 0 0 6px rgba(0, 212, 255, 0.08);
+}
+
+/* ── Clean Variant: Gallery container ── */
+body.cf-ui--clean .cardforge-gallery-container {
+  border-color: rgba(255, 255, 255, 0.06);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+}
+body.cf-ui--clean .cardforge-gallery-container::before {
+  background: rgba(255, 255, 255, 0.15);
+  animation: none;
+  box-shadow: none;
+}
+body.cf-ui--clean .cardforge-gallery-container h2 {
+  color: var(--mood-text-primary, #e1e1ff);
+  text-shadow: none;
+}
+body.cf-ui--clean .gallery-deck-tile:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+body.cf-ui--clean .gallery-deck-tile-icon {
+  color: rgba(255, 255, 255, 0.6);
+  background: rgba(255, 255, 255, 0.05);
+}
+body.cf-ui--clean .gallery-deck-tag {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.6);
+  box-shadow: none;
+}
+
 /* Responsive */
 @media (max-width: 1300px) {
   .deck-viewer-card { width: 320px; }
