@@ -167,8 +167,10 @@ class CardForgeActions {
         btn.addEventListener('click', (e) => {
           e.preventDefault();
           e.stopPropagation();
-          const currentState = window.CardForgeChrome?.statusEl?.dataset?.state;
-          if (currentState !== 'unsaved' && currentState !== 'error') {
+          const chrome = window.CardForgeChrome;
+          const currentState = chrome?.statusEl?.dataset?.state;
+          // Allow save if status pill says unsaved/error, OR if ChromeUI tracks dirty state
+          if (currentState !== 'unsaved' && currentState !== 'error' && !chrome?.isDirty) {
             return;
           }
           if (window.CardForgeChrome) {
