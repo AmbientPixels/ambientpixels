@@ -9,8 +9,12 @@ window._config = {
   environment: (window.location.hostname === 'ambientpixels.ai' || window.location.hostname.endsWith('.azurestaticapps.net')) ? 'production' : 'development',
   
   // API Configuration
+  // Use SWA proxy (/api) in production so Azure injects x-ms-client-principal auth headers.
+  // Direct function URL bypasses SWA auth — only use for local dev.
   apiEndpoints: {
-    base: 'https://ambientpixels-nova-api.azurewebsites.net/api',
+    base: (window.location.hostname === 'ambientpixels.ai' || window.location.hostname.endsWith('.azurestaticapps.net'))
+      ? '/api'
+      : 'https://ambientpixels-nova-api.azurewebsites.net/api',
     loadCards: 'cardforgeloadcards',
     saveCard: 'cardforgesavecards',
     deleteCard: 'cardforgedeletecard',
