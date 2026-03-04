@@ -4,6 +4,9 @@
  * Created: 2025-08-03 | Major rewrite: 2026-02-11
  */
 
+/* Hidden by default — only shown on mobile overlay */
+.cf-mobile-preview-close { display: none; }
+
 /* =============================================
    PHASE 1 — GRID LAYOUT BREAKPOINTS
    ============================================= */
@@ -98,7 +101,7 @@
   .cf-page-bar {
     padding: 8px 12px;
     border-radius: 0;
-    margin-top: 56px;
+    margin-top: 0;
     min-height: 48px;
   }
 }

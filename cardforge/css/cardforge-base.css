@@ -1113,9 +1113,6 @@ body[data-theme="dim"] .cf-page-bar {
   color: #D4D8E8;
 }
 
-body[data-theme="dim"] .cf-page-bar::after {
-  background: linear-gradient(90deg, transparent, rgba(123, 143, 224, 0.25), transparent);
-}
 
 body[data-theme="dim"] .cf-page-bar__subtitle {
   color: rgba(212, 216, 232, 0.55);
@@ -1351,9 +1348,6 @@ body[data-theme="light"] .cf-page-bar {
   color: #1A2A44;
 }
 
-body[data-theme="light"] .cf-page-bar::after {
-  background: linear-gradient(90deg, transparent, rgba(79, 107, 240, 0.3), transparent);
-}
 
 body[data-theme="light"] .cf-page-bar__subtitle {
   color: rgba(26, 42, 68, 0.6);

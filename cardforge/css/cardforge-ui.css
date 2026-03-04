@@ -4,44 +4,40 @@
 */
 
 :root {
-  --cf-nav-height: 70px;
+  --cf-nav-height: 0px;
   --cf-page-bar-height: 62px;
-  --cf-chrome-h: calc(var(--cf-nav-height, 70px) + var(--cf-page-bar-height, 62px) + 2rem);
+  --cf-chrome-h: calc(var(--cf-page-bar-height, 62px) + 2rem);
   --cf-sticky-tabs-offset: calc(var(--cf-chrome-h) + 10px);
 }
 
-/* Context header */
+/* Top bar (brand + controls) */
 .cf-page-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   width: 100%;
   padding: 12px 22px;
-  margin-top: var(--cf-nav-height, 70px);
+  margin-top: 0;
   margin-bottom: 0;
   background: rgba(12, 16, 28, 0.92);
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 18px;
+  border-radius: 0;
   box-shadow: 0 12px 28px rgba(7, 8, 12, 0.55);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   color: var(--mood-text-primary, #f2f4ff);
   position: sticky;
-  top: var(--cf-nav-height, 70px);
+  top: 0;
   z-index: 1500;
   min-height: var(--cf-page-bar-height, 62px);
 }
 
-.cf-page-bar::after {
-  content: '';
-  position: absolute;
-  left: 20px;
-  right: 20px;
-  bottom: 6px;
-  height: 2px;
-  border-radius: 999px;
-  background: linear-gradient(90deg, rgba(0, 212, 255, 0.35), rgba(255, 0, 153, 0.25));
-  opacity: 0.8;
+.cf-brand-link {
+  text-decoration: none;
+  color: inherit;
+}
+.cf-brand-link:hover {
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .cf-page-bar__titles {
@@ -205,10 +201,6 @@ body.cf-ui--clean .cf-page-bar {
   background: rgba(15, 17, 24, 0.9);
   border-color: rgba(255, 255, 255, 0.05);
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.35);
-}
-
-body.cf-ui--clean .cf-page-bar::after {
-  opacity: 0.4;
 }
 
 body.cf-ui--clean .cf-icon-btn:hover,
