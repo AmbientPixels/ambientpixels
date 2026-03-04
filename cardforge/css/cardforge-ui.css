@@ -20,9 +20,9 @@
   margin-top: 0;
   margin-bottom: 0;
   background: rgba(12, 16, 28, 0.92);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 0;
-  box-shadow: 0 12px 28px rgba(7, 8, 12, 0.55);
+  border: none;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   color: var(--mood-text-primary, #f2f4ff);
@@ -54,6 +54,36 @@
 }
 .cf-footer a:hover {
   color: rgba(255, 255, 255, 0.8);
+}
+
+/* Empty state text */
+.cf-empty-state {
+  display: block;
+  padding: 24px 16px;
+  text-align: center;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.3);
+  font-style: italic;
+}
+
+/* New Card button */
+.cf-new-card-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  background: rgba(99, 102, 241, 0.85);
+  border: 1px solid rgba(99, 102, 241, 0.5);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+.cf-new-card-btn:hover {
+  background: rgba(99, 102, 241, 1);
+  border-color: rgba(99, 102, 241, 0.8);
 }
 
 .cf-page-bar__titles {

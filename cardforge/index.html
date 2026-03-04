@@ -86,105 +86,15 @@
         <h2><i class="fas fa-magic"></i> Welcome to CardForge</h2>
         <button class="intro-close" onclick="hideIntro()" title="Hide intro"><i class="fas fa-times"></i></button>
       </div>
-      
       <div class="intro-body">
-        <div class="intro-layout">
-          <div class="intro-left">
-            <p class="intro-description">
-              <strong>CardForge v2</strong> is a modular visual card design system.
-              Create richly styled cards using real-time preview, structured layouts, and a design engine capable of nearly 40 million unique combinations.
-            </p>
-            
-            <div class="intro-features-compact">
-              <div class="intro-feature-compact">
-                <i class="fas fa-eye"></i>
-                <div class="feature-text">
-                  <span class="feature-title">Real-time Preview</span>
-                  <span class="feature-desc">See changes instantly as you design</span>
-                </div>
-              </div>
-              <div class="intro-feature-compact">
-                <i class="fas fa-layer-group"></i>
-                <div class="feature-text">
-                  <span class="feature-title">Modular Design System</span>
-                  <span class="feature-desc">Containers, palettes, styles, and composition rules</span>
-                </div>
-              </div>
-              <div class="intro-feature-compact">
-                <i class="fas fa-rocket"></i>
-                <div class="feature-text">
-                  <span class="feature-title">Quick Start Presets</span>
-                  <span class="feature-desc">Balanced starting points for any card type</span>
-                </div>
-              </div>
-              <div class="intro-feature-compact">
-                <i class="fas fa-images"></i>
-                <div class="feature-text">
-                  <span class="feature-title">Gallery & Publishing</span>
-                  <span class="feature-desc">Publish publicly or keep cards private</span>
-                </div>
-              </div>
-              <div class="intro-feature-compact">
-                <i class="fas fa-book"></i>
-                <div class="feature-text">
-                  <span class="feature-title">Deck Manager</span>
-                  <span class="feature-desc">Organize cards into visual collections</span>
-                </div>
-              </div>
-              <div class="intro-feature-compact">
-                <i class="fas fa-eye-dropper"></i>
-                <div class="feature-text">
-                  <span class="feature-title">Auto Palette</span>
-                  <span class="feature-desc">Image-aware color selection</span>
-                </div>
-              </div>
-            </div>
-
-            <div class="intro-numbers" style="margin: 24px 0 20px 0; padding: 16px 20px; background: rgba(99, 102, 241, 0.08); border-left: 3px solid var(--primary-color, #6366f1); border-radius: 4px;">
-              <strong style="color: var(--primary-color, #6366f1);">By the Numbers</strong>
-              <p style="margin: 4px 0 0 0; font-size: 0.9rem; opacity: 0.9;">Nearly 40 million unique visual card designs — powered by modular layouts, palettes, and style variants.</p>
-            </div>
-          </div>
-          
-          <div class="intro-right">
-            <div class="cardforge-preview">
-              <div class="preview-card">
-                <div class="card-header">
-                  <div class="card-title">Legendary Hero</div>
-                  <div class="card-cost">5</div>
-                </div>
-                <div class="card-image">
-                  <div class="image-placeholder">
-                    <i class="fas fa-magic"></i>
-                  </div>
-                </div>
-                <div class="card-content">
-                  <div class="card-type">Creature • Human • Warrior</div>
-                  <div class="card-text">
-                    <p>When played, gain +2 attack for each spell in your hand.</p>
-                    <p><em>"Forge your destiny with every card."</em></p>
-                  </div>
-                  <div class="card-stats">
-                    <span class="attack">4</span>
-                    <span class="health">6</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="intro-workflow">
-          <h4><i class="fas fa-rocket"></i> Quick Start Workflow:</h4>
-          <ol class="workflow-steps">
-            <li><strong>Choose a Preset</strong> — Start from a balanced template</li>
-            <li><strong>Add Content</strong> — Name, stats, description, and details</li>
-            <li><strong>Customize Design</strong> — Layout, palette, and style</li>
-            <li><strong>Add Artwork</strong> — Upload or link imagery</li>
-            <li><strong>Save or Publish</strong> — Keep private or share publicly</li>
-          </ol>
-        </div>
-        
+        <p class="intro-description">
+          Modular card design with real-time preview, AI generation, and nearly 40 million unique combinations.
+        </p>
+        <ol class="workflow-steps">
+          <li><strong>Pick a preset</strong> or describe a character with AI</li>
+          <li><strong>Customize</strong> — artwork, style, stats, and badges</li>
+          <li><strong>Save or publish</strong> to the gallery</li>
+        </ol>
         <div class="intro-actions">
           <button class="intro-btn primary" onclick="hideIntro()">Start Creating</button>
           <button class="intro-btn secondary" onclick="toggleIntroVisibility(event)">Don't show this again</button>
@@ -200,10 +110,9 @@
     <a href="https://ambientpixels.ai" class="cf-page-bar__subtitle cf-brand-link">by AmbientPixels</a>
   </div>
   <div class="cf-page-bar__actions" aria-label="Page controls">
-    <div class="cf-status-pill" data-state="ready">
-      <span class="cf-status-pill__dot"></span>
-      <span class="cf-status-pill__label">Ready</span>
-    </div>
+    <button type="button" id="clear-all-btn" class="cf-new-card-btn" title="New Card">
+      <i class="fas fa-plus"></i> New Card
+    </button>
     <div class="cf-variant-toggle" role="group" aria-label="UI Accent Mode">
       <button type="button" class="cf-variant-btn" data-cf-variant="clean">Clean</button>
       <button type="button" class="cf-variant-btn active" data-cf-variant="neon">Neon</button>
@@ -231,7 +140,6 @@
     <div class="cf-app-grid">
       <aside class="cf-rail" aria-label="CardForge navigation rail">
         <div class="cf-rail-header">
-          <span class="cf-rail-header__title"><i class="fas fa-hammer"></i> CardForge</span>
           <button type="button" class="cf-rail-toggle" data-rail-toggle aria-label="Collapse navigation rail" aria-pressed="false">
             <i class="fas fa-angles-left"></i>
           </button>
@@ -506,7 +414,7 @@
                 </div>
               </div>
               <div id="inline-image-grid" class="inline-image-grid">
-                Loading images...
+                <span class="cf-empty-state">No images yet</span>
               </div>
             </div>
             
@@ -1707,13 +1615,13 @@
     <p id="gallery-msg-user" class="gallery-description hidden">Welcome back! See your cards above and publish more.</p>
     <div class="cardforge-gallery-grid" id="gallery-cards-grid">
       <!-- Gallery cards will be loaded here -->
-      <div class="gallery-loading">Loading gallery cards...</div>
+      <div class="gallery-loading cf-empty-state">No gallery cards yet — save and publish a card to see it here.</div>
     </div>
 
     <!-- Published Decks -->
     <h3 class="gallery-decks-heading"><i class="fas fa-layer-group"></i> Published Decks</h3>
     <div class="gallery-decks-grid" id="gallery-decks-grid">
-      <div class="gallery-loading">Loading decks...</div>
+      <div class="gallery-loading cf-empty-state">No published decks yet.</div>
     </div>
   </section>
   
