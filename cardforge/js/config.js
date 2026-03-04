@@ -20,7 +20,11 @@ window._config = {
     deckDelete: 'cardforgedeckdelete',
     template: 'cardforgetemplate',
     cardShare: 'cardshare',
-    deckShare: 'deckshare'
+    deckShare: 'deckshare',
+    arenaProfile: 'cardforgearenaprofile',
+    arenaBattle: 'cardforgearenabattle',
+    arenaBosses: 'cardforgearenabosses',
+    arenaHistory: 'cardforgearenahistory'
   },
   
   // Application Insights - Disabled in production until 400 errors are resolved

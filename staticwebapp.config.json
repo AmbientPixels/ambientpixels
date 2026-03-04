@@ -149,6 +149,26 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/api/cardforgearenaprofile",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgearenaprofile",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/cardforgearenabattle",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgearenabattle",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/cardforgearenabosses",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgearenabosses",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/cardforgearenahistory",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgearenahistory",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/api/cardshare",
       "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardshare",
       "allowedRoles": ["anonymous"]
