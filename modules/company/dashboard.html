@@ -187,7 +187,7 @@
         <span class="dash-action-badge" id="dash-action-badge" data-count="0"></span>
         <span id="store-mode-badge" style="font-size:0.5rem; padding:2px 8px; border-radius:6px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.25); font-weight:400; vertical-align:middle; margin-left:6px;">local</span>
         <span id="exec-mode-pill" style="font-size:0.5rem; padding:2px 8px; border-radius:6px; background:rgba(52,211,153,0.1); color:#34d399; font-weight:500; vertical-align:middle; margin-left:4px; cursor:default;" title="Automation enabled. Agents may create and update tasks.">🟢 Live</span>
-        <span id="dash-mode-indicator" style="font-size:0.5rem; padding:2px 8px; border-radius:6px; font-weight:500; vertical-align:middle; margin-left:4px; cursor:default;"></span>
+
         <span class="dash-view-toggle" id="dash-view-toggle" role="tablist">
           <button role="tab" data-view="ceo" class="active" aria-selected="true">CEO View</button>
           <button role="tab" data-view="board" aria-selected="false">Board View</button>
@@ -1059,23 +1059,6 @@
           .catch(function () { updateExecModePill('active'); });
       }
 
-      // ── UI Mode indicator badge ──
-      var _modeIndicator = document.getElementById('dash-mode-indicator');
-      function updateModeIndicator() {
-        if (!_modeIndicator || !window.APMode) return;
-        var m = window.APMode.get();
-        var cfg = { executive: { label: 'Executive', bg: 'rgba(192,132,252,0.1)', color: '#c084fc' },
-                    operator:  { label: 'Operator',  bg: 'rgba(52,211,153,0.1)',  color: '#34d399' },
-                    admin:     { label: 'Admin',     bg: 'rgba(251,191,36,0.1)',  color: '#fbbf24' } };
-        var c = cfg[m] || cfg.executive;
-        _modeIndicator.textContent = c.label;
-        _modeIndicator.style.background = c.bg;
-        _modeIndicator.style.color = c.color;
-        _modeIndicator.title = 'UI mode: ' + c.label;
-      }
-      updateModeIndicator();
-      window.addEventListener('ap-mode-change', updateModeIndicator);
-
       // ── Heartbeat trigger ──
       function getApiBase() {
         return window.location.hostname.includes('ambientpixels.ai')
@@ -1198,7 +1181,7 @@
          renderActionSnap, renderGeminiCosts, renderAzureCosts, renderXCosts, renderCostSummary,
          renderDailyLogDrafts, renderBlogAdmin, renderGovernanceLog, renderGovernanceLogDev,
          renderMeetingsWidget, updateActionBadge, renderOrgChart, renderExecPlan,
-         renderInboundKpi, updateModeIndicator].forEach(function(fn) {
+         renderInboundKpi].forEach(function(fn) {
           try { fn(); } catch(e) { console.warn('[Dashboard] ' + (fn.name||'anon') + ' error:', e); }
         });
       }
