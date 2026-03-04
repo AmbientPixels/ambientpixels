@@ -397,7 +397,14 @@
       });
 
       // Re-render after CompanyStore server sync
-      window.addEventListener('companystoreready', function () { renderObjectives(); });
+      var _storeReady = false;
+      window.addEventListener('companystoreready', function () { _storeReady = true; renderObjectives(); });
+      setTimeout(function () {
+        if (!_storeReady) {
+          console.warn('[Objectives] companystoreready timeout (8s) — rendering with local data');
+          renderObjectives();
+        }
+      }, 8000);
 
       AgentEngine.on('sync-complete', function () {
         createWidget.refresh();
@@ -491,6 +498,7 @@
       });
 
       function renderObjectives() {
+        try {
         var objectives = AgentEngine.getObjectives();
 
         // Auto-sync: update progressPercentage and auto-complete from campaign progress
@@ -538,6 +546,7 @@
         objectives.slice().reverse().forEach(function (obj) {
           objList.appendChild(createObjectiveCard(obj));
         });
+        } catch(e) { console.warn('[Objectives] renderObjectives error:', e); }
       }
 
       function createObjectiveCard(obj) {

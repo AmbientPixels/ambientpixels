@@ -669,7 +669,14 @@
       AgentEngine.on('sync-complete', function () { renderAll(); _handleDeepLink(); });
 
       // Re-render after CompanyStore server sync
-      window.addEventListener('companystoreready', function () { renderAll(); _handleDeepLink(); });
+      var _storeReady = false;
+      window.addEventListener('companystoreready', function () { _storeReady = true; renderAll(); _handleDeepLink(); });
+      setTimeout(function () {
+        if (!_storeReady) {
+          console.warn('[Tasks] companystoreready timeout (8s) — rendering with local data');
+          renderAll(); _handleDeepLink();
+        }
+      }, 8000);
 
       AgentEngine.loadRegistry().then(function (data) {
         if (!data || !data.agents) return;
@@ -768,10 +775,9 @@
           };
           console.log('[DEBUG] __AP_TASKS_META__', window.__AP_TASKS_META__);
         }
-        renderTaskIntel();
-        renderStats();
-        renderBoard();
-        renderList();
+        [renderTaskIntel, renderStats, renderBoard, renderList].forEach(function(fn) {
+          try { fn(); } catch(e) { console.warn('[Tasks] ' + (fn.name||'anon') + ' error:', e); }
+        });
         if (DEBUG_TASK_EXPOSE) window.__AP_TASKS_ACTIVE__ = getFilteredTasks();
       }
 

@@ -512,7 +512,7 @@
       }
 
       function renderAll() {
-        renderList();
+        try { renderList(); } catch(e) { console.warn('[Campaigns] renderList error:', e); }
       }
 
       editCancelBtn.addEventListener('click', closeEditModal);
@@ -586,7 +586,14 @@
         renderAll();
       });
       AgentEngine.on('sync-complete', function () { populateObjectiveSelect(); renderAll(); });
-      window.addEventListener('companystoreready', function () { populateObjectiveSelect(); renderAll(); });
+      var _storeReady = false;
+      window.addEventListener('companystoreready', function () { _storeReady = true; populateObjectiveSelect(); renderAll(); });
+      setTimeout(function () {
+        if (!_storeReady) {
+          console.warn('[Campaigns] companystoreready timeout (8s) — rendering with local data');
+          populateObjectiveSelect(); renderAll();
+        }
+      }, 8000);
     })();
   </script>
 
