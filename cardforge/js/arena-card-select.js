@@ -16,6 +16,18 @@ window.ArenaCardSelect = (function () {
 
   function mapStats(card) {
     const combat = { ...STAT_DEFAULTS };
+
+    // New cards: use combatStats object directly
+    if (card.combatStats && typeof card.combatStats === 'object') {
+      for (const key of Object.keys(combat)) {
+        if (card.combatStats[key] !== undefined) {
+          combat[key] = Math.min(100, Math.max(1, Math.round(card.combatStats[key])));
+        }
+      }
+      return combat;
+    }
+
+    // Legacy fallback: alias matching
     if (!card.stats || card.stats.length === 0) return combat;
 
     const maxVal = Math.max(...card.stats.map(s => s.value || 0));

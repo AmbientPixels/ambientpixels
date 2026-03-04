@@ -920,3 +920,200 @@
   border-color: var(--mood-primary-color, #8b5cf6);
   color: var(--mood-primary-color, #e1e1ff);
 }
+
+/* ===== Combat Stats Editor ===== */
+
+.arena-combat-stats {
+  margin-bottom: 1rem;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 8px;
+  padding: 12px;
+  background: rgba(139, 92, 246, 0.04);
+}
+
+.arena-combat-stats__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.arena-combat-stats__label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--mood-primary-color, #e1e1ff);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.arena-combat-stats__label i {
+  color: var(--mood-accent-color, #8b5cf6);
+}
+
+.arena-combat-stats__budget {
+  font-weight: 700;
+  font-size: 0.8rem;
+  color: #00e676;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: rgba(0, 230, 118, 0.1);
+  border: 1px solid rgba(0, 230, 118, 0.2);
+}
+
+.arena-combat-stats__budget--low {
+  color: #ffd740;
+  background: rgba(255, 215, 64, 0.1);
+  border-color: rgba(255, 215, 64, 0.2);
+}
+
+.arena-combat-stats__budget--empty {
+  color: #ff5252;
+  background: rgba(255, 82, 82, 0.1);
+  border-color: rgba(255, 82, 82, 0.2);
+}
+
+.combat-stat-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  padding: 4px 0;
+}
+
+.combat-stat-row__icon {
+  width: 20px;
+  text-align: center;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.combat-stat-row__label {
+  width: 80px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--mood-primary-color, #e1e1ff);
+  flex-shrink: 0;
+}
+
+.combat-stat-slider {
+  flex: 1;
+  height: 6px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+}
+
+.combat-stat-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--mood-accent-color, #8b5cf6);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.combat-stat-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.combat-stat-slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--mood-accent-color, #8b5cf6);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+}
+
+.combat-stat-value-display {
+  width: 28px;
+  text-align: right;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--mood-primary-color, #e1e1ff);
+  flex-shrink: 0;
+}
+
+/* Custom Stats section */
+
+.arena-custom-stats {
+  margin-top: 6px;
+}
+
+.arena-custom-stats__label {
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--mood-primary-color, #e1e1ff);
+  margin-bottom: 8px;
+}
+
+.arena-custom-stats__hint {
+  font-weight: 400;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.4);
+  margin-left: 4px;
+}
+
+/* Stats separator on card preview */
+.stats-separator {
+  text-align: center;
+  margin: 4px 0;
+  position: relative;
+}
+
+.stats-separator::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.stats-separator span {
+  position: relative;
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.3);
+  background: inherit;
+  padding: 0 6px;
+}
+
+/* Badge category dropdown */
+.badge-category-select {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
+  border-radius: 4px;
+  background: var(--aura-bg-color, #1a1a2e);
+  color: var(--mood-primary-color, #e1e1ff);
+  font-family: inherit;
+  font-size: 0.78rem;
+  cursor: pointer;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238b8bab' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  padding-right: 24px;
+}
+
+.badge-category-select:focus {
+  border-color: var(--mood-accent-color, #8b5cf6);
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+}
+
+.badge-category-select option {
+  background: var(--aura-bg-color, #1a1a2e);
+  color: var(--mood-primary-color, #e1e1ff);
+}

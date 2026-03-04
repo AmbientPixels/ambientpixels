@@ -683,18 +683,30 @@
         if (cardData.biography) document.getElementById('card-bio').value = cardData.biography;
       }
       
-      // Apply stats - CREATE MULTIPLE ROWS
+      // Apply stats - split into combat + custom
+      if (prefillData.combatStats) {
+        setCombatStatValues(prefillData.combatStats);
+      }
       if (prefillData.stats && prefillData.stats.length > 0) {
         const statsContainer = document.getElementById('stats-editor');
-        
-        // Clear existing stat rows
         statsContainer.innerHTML = '';
-        
-        // Create a row for each stat
-        prefillData.stats.forEach((stat, index) => {
-          const statRow = createStatRow(stat.name, stat.value);
-          statsContainer.appendChild(statRow);
-        });
+
+        // If no combatStats object, migrate legacy stats
+        if (!prefillData.combatStats) {
+          const migrated = migrateLegacyStats(prefillData.stats);
+          setCombatStatValues(migrated.combat);
+          migrated.custom.forEach(stat => {
+            statsContainer.appendChild(createStatRow(stat.name, stat.value));
+          });
+        } else {
+          // Only load custom stats (filter out combat stat names)
+          prefillData.stats.filter(s => {
+            const nameLower = (s.name || '').toLowerCase().trim();
+            return !COMBAT_STAT_DEFS.some(d => d.label.toLowerCase() === nameLower);
+          }).forEach(stat => {
+            statsContainer.appendChild(createStatRow(stat.name, stat.value));
+          });
+        }
       }
       
       // Apply social links - CREATE MULTIPLE ROWS
@@ -829,7 +841,166 @@
     
     return statRow;
   }
-  
+
+  // ===== COMBAT STAT SYSTEM (Arena) =====
+  const COMBAT_STAT_DEFS = [
+    { key: 'str', label: 'Strength',     icon: 'fa-hand-fist',       color: '#ff5252' },
+    { key: 'agi', label: 'Agility',      icon: 'fa-feather-pointed', color: '#00e676' },
+    { key: 'int', label: 'Intelligence',  icon: 'fa-bolt',            color: '#7b2fff' },
+    { key: 'end', label: 'Endurance',     icon: 'fa-heart',           color: '#ff9100' },
+    { key: 'lck', label: 'Luck',          icon: 'fa-clover',          color: '#ffd740' }
+  ];
+  const COMBAT_POINT_BUDGET = 300;
+  const COMBAT_DEFAULT_VALUE = 60;
+
+  function createCombatStatRow(def, value) {
+    const row = document.createElement('div');
+    row.className = 'combat-stat-row';
+    row.dataset.statKey = def.key;
+    row.innerHTML = `
+      <div class="combat-stat-header">
+        <i class="fas ${def.icon}" style="color:${def.color}"></i>
+        <span class="combat-stat-label">${def.label}</span>
+        <span class="combat-stat-value-display">${value}</span>
+      </div>
+      <div class="stat-control">
+        <input type="range" name="combat-stat-value" min="0" max="100" value="${value}" class="stat-slider combat-stat-slider" data-stat-key="${def.key}" aria-label="${def.label}" />
+      </div>
+    `;
+
+    const slider = row.querySelector('.combat-stat-slider');
+    const display = row.querySelector('.combat-stat-value-display');
+    slider.style.setProperty('--fill', value + '%');
+
+    slider.addEventListener('input', function() {
+      enforceBudget(def.key, parseInt(this.value));
+      const clamped = parseInt(this.value);
+      display.textContent = clamped;
+      this.style.setProperty('--fill', clamped + '%');
+      updateBudgetDisplay();
+      updatePreview();
+    });
+
+    return row;
+  }
+
+  function initCombatStatsEditor() {
+    const container = document.getElementById('combat-stats-editor');
+    if (!container) return;
+    container.innerHTML = '';
+    COMBAT_STAT_DEFS.forEach(def => {
+      container.appendChild(createCombatStatRow(def, COMBAT_DEFAULT_VALUE));
+    });
+    updateBudgetDisplay();
+  }
+
+  function getCombatStatTotal() {
+    let total = 0;
+    document.querySelectorAll('#combat-stats-editor .combat-stat-slider').forEach(slider => {
+      total += parseInt(slider.value) || 0;
+    });
+    return total;
+  }
+
+  function enforceBudget(changedKey, requestedValue) {
+    const slider = document.querySelector(`#combat-stats-editor .combat-stat-slider[data-stat-key="${changedKey}"]`);
+    if (!slider) return;
+
+    // Calculate what total would be with the requested value
+    let otherTotal = 0;
+    document.querySelectorAll('#combat-stats-editor .combat-stat-slider').forEach(s => {
+      if (s.dataset.statKey !== changedKey) {
+        otherTotal += parseInt(s.value) || 0;
+      }
+    });
+
+    const maxAllowed = COMBAT_POINT_BUDGET - otherTotal;
+    const clamped = Math.min(requestedValue, Math.max(0, maxAllowed));
+    slider.value = clamped;
+    slider.style.setProperty('--fill', clamped + '%');
+
+    const display = slider.closest('.combat-stat-row').querySelector('.combat-stat-value-display');
+    if (display) display.textContent = clamped;
+  }
+
+  function updateBudgetDisplay() {
+    const display = document.getElementById('stat-budget-display');
+    if (!display) return;
+    const used = getCombatStatTotal();
+    const remaining = COMBAT_POINT_BUDGET - used;
+    display.textContent = `${remaining} / ${COMBAT_POINT_BUDGET}`;
+    display.classList.toggle('arena-combat-stats__budget--empty', remaining <= 0);
+    display.classList.toggle('arena-combat-stats__budget--low', remaining > 0 && remaining <= 50);
+  }
+
+  function collectCombatStatsData() {
+    const combat = {};
+    document.querySelectorAll('#combat-stats-editor .combat-stat-slider').forEach(slider => {
+      combat[slider.dataset.statKey] = parseInt(slider.value) || 0;
+    });
+    return combat;
+  }
+
+  function setCombatStatValues(combatStats) {
+    if (!combatStats) return;
+    COMBAT_STAT_DEFS.forEach(def => {
+      const slider = document.querySelector(`#combat-stats-editor .combat-stat-slider[data-stat-key="${def.key}"]`);
+      if (slider && combatStats[def.key] !== undefined) {
+        const val = Math.min(100, Math.max(0, combatStats[def.key]));
+        slider.value = val;
+        slider.style.setProperty('--fill', val + '%');
+        const display = slider.closest('.combat-stat-row').querySelector('.combat-stat-value-display');
+        if (display) display.textContent = val;
+      }
+    });
+    updateBudgetDisplay();
+  }
+
+  // Map old freeform stats to combat stats (for legacy card loading)
+  const STAT_ALIAS_MAP = {
+    str: ['strength', 'power', 'combat', 'attack', 'might'],
+    agi: ['agility', 'speed', 'dexterity', 'reflexes', 'stealth', 'quickness'],
+    int: ['intelligence', 'magic', 'wisdom', 'tech', 'hacking', 'intellect', 'sorcery'],
+    end: ['endurance', 'defense', 'vitality', 'constitution', 'stamina', 'toughness', 'resilience'],
+    lck: ['luck', 'charisma', 'fortune', 'intuition', 'charm']
+  };
+
+  function migrateLegacyStats(statsArray) {
+    const combat = { str: COMBAT_DEFAULT_VALUE, agi: COMBAT_DEFAULT_VALUE, int: COMBAT_DEFAULT_VALUE, end: COMBAT_DEFAULT_VALUE, lck: COMBAT_DEFAULT_VALUE };
+    const custom = [];
+    if (!statsArray || statsArray.length === 0) return { combat, custom };
+
+    const maxVal = Math.max(...statsArray.map(s => s.value || 0));
+    const scale = maxVal <= 10 ? 10 : 1;
+
+    statsArray.forEach(stat => {
+      const name = (stat.name || '').toLowerCase().trim();
+      let matched = false;
+      for (const [key, aliases] of Object.entries(STAT_ALIAS_MAP)) {
+        if (aliases.includes(name)) {
+          combat[key] = Math.min(100, Math.max(0, Math.round((stat.value || 0) * scale)));
+          matched = true;
+          break;
+        }
+      }
+      if (!matched) {
+        custom.push({ name: stat.name, value: stat.value });
+      }
+    });
+
+    return { combat, custom };
+  }
+
+  // Badge category definitions
+  const BADGE_CATEGORY_DEFS = [
+    { key: 'champion',    label: 'Champion',    icon: 'trophy',  effect: '+3% crit per qty' },
+    { key: 'honor',       label: 'Honor',       icon: 'shield',  effect: '+2% dmg reduction per qty' },
+    { key: 'skill',       label: 'Skill',       icon: 'star',    effect: '+3% ability power per qty' },
+    { key: 'achievement', label: 'Achievement', icon: 'medal',   effect: '+5% XP bonus per qty' },
+    { key: 'courage',     label: 'Courage',     icon: 'bolt',    effect: '+2 STR per qty' },
+    { key: 'wisdom',      label: 'Wisdom',      icon: 'book',    effect: '+2 INT per qty' }
+  ];
+
   function createSocialRow(platform = 'twitter', url = '') {
     const socialRow = document.createElement('div');
     socialRow.className = 'social-row';
@@ -878,80 +1049,67 @@
   }
 
   function createBadgeRow(category = '', icon = 'star', description = '', quantity = 1) {
+    // Build category dropdown options
+    const categoryOptions = BADGE_CATEGORY_DEFS.map(def => {
+      const selected = (category.toLowerCase() === def.key) ? 'selected' : '';
+      return `<option value="${def.key}" ${selected}>${def.label} (${def.effect})</option>`;
+    }).join('');
+
+    // Resolve icon from category if not explicitly set
+    const matchedDef = BADGE_CATEGORY_DEFS.find(d => d.key === category.toLowerCase());
+    const resolvedIcon = matchedDef ? matchedDef.icon : icon;
+
     const badgeRow = document.createElement('div');
     badgeRow.className = 'micro-row';
     badgeRow.innerHTML = `
       <div class="badge-card-header">
-        <input type="text" name="micro-category" placeholder="Category (e.g. Skill)" value="${category}">
+        <select name="micro-category" class="badge-category-select" aria-label="Badge category">
+          ${categoryOptions}
+        </select>
+        <input type="hidden" name="micro-icon" value="${resolvedIcon}">
         <button type="button" class="remove-attribute" aria-label="Remove badge">&times;</button>
       </div>
       <div class="badge-card-body">
-        <div class="icon-picker" aria-label="Select badge icon">
-          <input type="hidden" name="micro-icon" value="${icon}">
-          <button type="button" class="icon-option" data-icon="star"><i class="fas fa-star"></i></button>
-          <button type="button" class="icon-option" data-icon="heart"><i class="fas fa-heart"></i></button>
-          <button type="button" class="icon-option" data-icon="bolt"><i class="fas fa-bolt"></i></button>
-          <button type="button" class="icon-option" data-icon="trophy"><i class="fas fa-trophy"></i></button>
-          <button type="button" class="icon-option" data-icon="leaf"><i class="fas fa-leaf"></i></button>
-          <button type="button" class="icon-option" data-icon="gear"><i class="fas fa-gear"></i></button>
-          <button type="button" class="icon-option" data-icon="book"><i class="fas fa-book"></i></button>
-          <button type="button" class="icon-option" data-icon="lightbulb"><i class="fas fa-lightbulb"></i></button>
-          <button type="button" class="icon-option" data-icon="medal"><i class="fas fa-medal"></i></button>
-          <button type="button" class="icon-option" data-icon="certificate"><i class="fas fa-certificate"></i></button>
-        </div>
-        <input type="text" name="micro-desc" placeholder="Description" value="${description}">
+        <span class="badge-icon-preview"><i class="fas fa-${resolvedIcon}"></i></span>
+        <input type="text" name="micro-desc" placeholder="Description (optional)" value="${description}">
       </div>
       <div class="badge-card-count">
         <input type="range" name="micro-quantity" min="1" max="5" value="${quantity}" class="badge-slider">
         <span class="badge-count-display">${quantity}</span>
       </div>
     `;
-    
-    // Add event listeners for the new row
+
     const removeBtn = badgeRow.querySelector('.remove-attribute');
-    const categoryField = badgeRow.querySelector('input[name="micro-category"]');
+    const categorySelect = badgeRow.querySelector('select[name="micro-category"]');
     const descField = badgeRow.querySelector('input[name="micro-desc"]');
     const quantitySlider = badgeRow.querySelector('input[name="micro-quantity"]');
     const sliderDisplay = badgeRow.querySelector('.badge-count-display');
-    const iconPicker = badgeRow.querySelector('.icon-picker');
     const hiddenIconInput = badgeRow.querySelector('input[name="micro-icon"]');
-    
-    // Icon picker functionality
-    iconPicker.addEventListener('click', function(e) {
-      if (e.target.closest('.icon-option')) {
-        const iconBtn = e.target.closest('.icon-option');
-        const iconValue = iconBtn.dataset.icon;
-        hiddenIconInput.value = iconValue;
-        
-        // Update visual selection
-        iconPicker.querySelectorAll('.icon-option').forEach(btn => btn.classList.remove('selected'));
-        iconBtn.classList.add('selected');
-        
-        updatePreview();
+    const iconPreview = badgeRow.querySelector('.badge-icon-preview i');
+
+    // Auto-assign icon when category changes
+    categorySelect.addEventListener('change', function() {
+      const def = BADGE_CATEGORY_DEFS.find(d => d.key === this.value);
+      if (def) {
+        hiddenIconInput.value = def.icon;
+        iconPreview.className = `fas fa-${def.icon}`;
       }
+      updatePreview();
     });
-    
-    // Set initial icon selection
-    const initialIconBtn = iconPicker.querySelector(`[data-icon="${icon}"]`);
-    if (initialIconBtn) initialIconBtn.classList.add('selected');
-    
-    // Set initial slider fill (range 1–5 → 0–100%)
+
+    // Set initial slider fill
     quantitySlider.style.setProperty('--fill', ((quantity - 1) / 4 * 100) + '%');
 
-    // Quantity slider functionality
     quantitySlider.addEventListener('input', function() {
       sliderDisplay.textContent = this.value;
       this.style.setProperty('--fill', ((this.value - 1) / 4 * 100) + '%');
       updatePreview();
     });
-    
-    // Other field listeners
-    categoryField.addEventListener('input', updatePreview);
+
     descField.addEventListener('input', updatePreview);
-    
+
     removeBtn.addEventListener('click', function() {
       badgeRow.remove();
-      // Re-enable Add Badge button if under cap
       const addBadgeBtn = document.getElementById('add-micro-btn');
       if (addBadgeBtn) {
         const remaining = document.querySelectorAll('#micro-editor .micro-row').length;
@@ -962,7 +1120,7 @@
       }
       updatePreview();
     });
-    
+
     return badgeRow;
   }
 
@@ -1060,15 +1218,17 @@
     updateCounter();
   }
   
+  const CUSTOM_STAT_CAP = 5;
+
   function updateStatBtnState() {
     const addStatBtn = document.getElementById('add-stat-btn');
     if (!addStatBtn) return;
     const statsContainer = document.getElementById('stats-editor');
     const count = statsContainer ? statsContainer.querySelectorAll('.stat-row').length : 0;
-    if (count >= 10) {
+    if (count >= CUSTOM_STAT_CAP) {
       addStatBtn.classList.add('disabled');
       addStatBtn.disabled = true;
-      addStatBtn.title = 'Maximum 10 stats reached';
+      addStatBtn.title = `Maximum ${CUSTOM_STAT_CAP} custom stats reached`;
     } else {
       addStatBtn.classList.remove('disabled');
       addStatBtn.disabled = false;
@@ -1077,17 +1237,21 @@
   }
 
   function initStatsEditor() {
+    // Initialize fixed combat stats first
+    initCombatStatsEditor();
+
+    // Custom stats (freeform, visual only)
     const addStatBtn = document.getElementById('add-stat-btn');
     if (addStatBtn) {
       addStatBtn.addEventListener('click', function() {
         const statsContainer = document.getElementById('stats-editor');
         const currentStats = statsContainer.querySelectorAll('.stat-row').length;
-        
-        if (currentStats >= 10) {
-          console.warn('⚠️ Maximum of 10 stats allowed');
+
+        if (currentStats >= CUSTOM_STAT_CAP) {
+          console.warn(`⚠️ Maximum of ${CUSTOM_STAT_CAP} custom stats allowed`);
           return;
         }
-        
+
         const newStatRow = createStatRow();
         statsContainer.appendChild(newStatRow);
         updateStatBtnState();
@@ -1175,11 +1339,25 @@
     if (cardData.avatar) document.getElementById('card-avatar').value = cardData.avatar;
     if (cardData.biography || cardData.bio) document.getElementById('card-bio').value = cardData.biography || cardData.bio;
 
-    // Stats
+    // Combat Stats — load from combatStats object or migrate from legacy stats
+    if (cardData.combatStats) {
+      setCombatStatValues(cardData.combatStats);
+    } else if (cardData.stats && Array.isArray(cardData.stats)) {
+      const migrated = migrateLegacyStats(cardData.stats);
+      setCombatStatValues(migrated.combat);
+      // Custom stats loaded below
+      cardData._customStats = migrated.custom;
+    }
+
+    // Custom Stats (freeform)
     const statsContainer = document.getElementById('stats-editor');
-    if (statsContainer && cardData.stats && Array.isArray(cardData.stats)) {
+    if (statsContainer) {
       statsContainer.innerHTML = '';
-      cardData.stats.forEach(stat => {
+      const customStats = cardData._customStats || (cardData.stats || []).filter(s => {
+        const nameLower = (s.name || '').toLowerCase().trim();
+        return !COMBAT_STAT_DEFS.some(d => d.label.toLowerCase() === nameLower);
+      });
+      customStats.forEach(stat => {
         statsContainer.appendChild(createStatRow(stat.name, stat.value));
       });
     }
@@ -1866,16 +2044,27 @@
     // Clear existing dynamic content
     clearAllDynamicRows();
     
-    // Populate stats
+    // Populate stats — migrate legacy sample data into combat + custom
+    if (sampleData.combatStats) {
+      setCombatStatValues(sampleData.combatStats);
+    }
     if (sampleData.stats && sampleData.stats.length > 0) {
       const statsContainer = document.getElementById('stats-editor');
       if (statsContainer) {
-        sampleData.stats.forEach(stat => {
-          const statRow = createStatRow(stat.name, stat.value);
-          statsContainer.appendChild(statRow);
-        });
-      } else {
-        console.warn('⚠️ Stats container not found');
+        if (!sampleData.combatStats) {
+          const migrated = migrateLegacyStats(sampleData.stats);
+          setCombatStatValues(migrated.combat);
+          migrated.custom.forEach(stat => {
+            statsContainer.appendChild(createStatRow(stat.name, stat.value));
+          });
+        } else {
+          sampleData.stats.filter(s => {
+            const nameLower = (s.name || '').toLowerCase().trim();
+            return !COMBAT_STAT_DEFS.some(d => d.label.toLowerCase() === nameLower);
+          }).forEach(stat => {
+            statsContainer.appendChild(createStatRow(stat.name, stat.value));
+          });
+        }
       }
     }
     
@@ -1908,7 +2097,13 @@
   }
   
   function clearAllDynamicRows() {
-    // Clear stats
+    // Reset combat stats to defaults
+    const defaultCombat = {};
+    COMBAT_STAT_DEFS.forEach(d => { defaultCombat[d.key] = COMBAT_DEFAULT_VALUE; });
+    setCombatStatValues(defaultCombat);
+    updateBudgetDisplay();
+
+    // Clear custom stats
     const statsContainer = document.getElementById('stats-editor');
     if (statsContainer) {
       statsContainer.innerHTML = '';
@@ -2745,15 +2940,23 @@
   // ===== CARD CONTENT UPDATE =====
   function updateCardContent() {
     // Collect all data first
-    const statsData = collectStatsData();
+    const combatStatsData = collectCombatStatsData();
+    const customStatsData = collectStatsData();
     const socialData = collectSocialLinksData();
     const badgesData = collectBadgesData();
     const attributesData = collectAttributesData();
-    
+
+    // Build combined stats array: combat stats (with fixed names) + custom stats
+    const combatStatsArray = COMBAT_STAT_DEFS.map(def => ({
+      name: def.label,
+      value: combatStatsData[def.key] || COMBAT_DEFAULT_VALUE
+    }));
+    const allStats = combatStatsArray.concat(customStatsData);
+
     // Collect biography separately
     const biographyField = document.getElementById('card-bio');
     const biography = biographyField?.value?.trim() || '';
-    
+
     // Build complete card data object
     const cardData = {
       name: document.getElementById('card-name')?.value || 'Aria Shadowbane',
@@ -2762,7 +2965,8 @@
       quote: document.getElementById('card-quote')?.value || 'Shadows are my allies, silence my weapon.',
       avatar: document.getElementById('card-avatar')?.value || '',
       biography: biography,
-      stats: statsData,
+      combatStats: combatStatsData,
+      stats: allStats,
       socialLinks: socialData,
       badges: badgesData,
       attributes: attributesData
@@ -3027,18 +3231,19 @@
   function collectBadgesData() {
     const badgesContainer = document.getElementById('micro-editor');
     const badges = [];
-    
+
     if (badgesContainer) {
       const badgeRows = badgesContainer.querySelectorAll('.micro-row');
       badgeRows.forEach(row => {
-        const categoryInput = row.querySelector('input[name="micro-category"]');
+        // Support both select (new) and input (legacy) for category
+        const categoryEl = row.querySelector('select[name="micro-category"]') || row.querySelector('input[name="micro-category"]');
         const iconInput = row.querySelector('input[name="micro-icon"]');
         const descInput = row.querySelector('input[name="micro-desc"]');
         const quantityInput = row.querySelector('input[name="micro-quantity"]');
-        
-        if (categoryInput && categoryInput.value.trim()) {
+
+        if (categoryEl && categoryEl.value.trim()) {
           badges.push({
-            category: categoryInput.value.trim(),
+            category: categoryEl.value.trim(),
             icon: iconInput ? iconInput.value : 'star',
             description: descInput ? descInput.value.trim() : '',
             quantity: parseInt(quantityInput?.value) || 1
@@ -3046,7 +3251,7 @@
         }
       });
     }
-    
+
     return badges;
   }
   
@@ -3195,25 +3400,65 @@
       return '<div class="no-stats">No stats available</div>';
     }
 
-    const visible = stats.slice(0, STAT_CAP);
-    const overflow = stats.length - STAT_CAP;
-    
-    let html = visible.map((stat, index) => {
-      const raw = Number(stat.value);
-      const v = Number.isFinite(raw) ? raw : 0;
-      const percentage = Math.max(0, Math.min(100, v));
-      return `
-        <div class="stat-item">
-          <div class="stat-label">${stat.name} <span class="stat-value">${Math.round(v)}</span></div>
-          <div class="stat-bar">
-            <div class="stat-progress" data-target="${percentage}" style="width:0%"></div>
-          </div>
-        </div>
-      `;
-    }).join('');
+    // Separate combat stats from custom stats
+    const combatNames = COMBAT_STAT_DEFS.map(d => d.label.toLowerCase());
+    const combatStats = [];
+    const customStats = [];
 
-    if (overflow > 0) {
-      html += `<div class="stats-overflow-indicator">+${overflow} more</div>`;
+    stats.forEach(stat => {
+      const nameLower = (stat.name || '').toLowerCase().trim();
+      const combatDef = COMBAT_STAT_DEFS.find(d => d.label.toLowerCase() === nameLower);
+      if (combatDef) {
+        combatStats.push({ ...stat, icon: combatDef.icon, color: combatDef.color });
+      } else {
+        customStats.push(stat);
+      }
+    });
+
+    let html = '';
+
+    // Render combat stats first (all 5, with icons)
+    if (combatStats.length > 0) {
+      html += combatStats.map(stat => {
+        const raw = Number(stat.value);
+        const v = Number.isFinite(raw) ? raw : 0;
+        const percentage = Math.max(0, Math.min(100, v));
+        return `
+          <div class="stat-item stat-item--combat">
+            <div class="stat-label"><i class="fas ${stat.icon}" style="color:${stat.color};margin-right:4px"></i>${stat.name} <span class="stat-value">${Math.round(v)}</span></div>
+            <div class="stat-bar">
+              <div class="stat-progress" data-target="${percentage}" style="width:0%"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Render custom stats with separator
+    if (customStats.length > 0) {
+      if (combatStats.length > 0) {
+        html += '<div class="stats-separator"><span>Custom</span></div>';
+      }
+      const visible = customStats.slice(0, CUSTOM_STAT_CAP);
+      const overflow = customStats.length - CUSTOM_STAT_CAP;
+
+      html += visible.map(stat => {
+        const raw = Number(stat.value);
+        const v = Number.isFinite(raw) ? raw : 0;
+        const percentage = Math.max(0, Math.min(100, v));
+        return `
+          <div class="stat-item">
+            <div class="stat-label">${stat.name} <span class="stat-value">${Math.round(v)}</span></div>
+            <div class="stat-bar">
+              <div class="stat-progress" data-target="${percentage}" style="width:0%"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      if (overflow > 0) {
+        html += `<div class="stats-overflow-indicator">+${overflow} more</div>`;
+      }
     }
 
     return html;

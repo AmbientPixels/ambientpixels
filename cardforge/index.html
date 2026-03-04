@@ -1311,12 +1311,25 @@
       <div class="cf-section" data-step-section="3">
         <h3 class="cf-section-title">Stats</h3>
         <div class="stats-panel">
-          <div id="stats-editor">
-            <!-- Stats will be populated by presets or user input -->
+          <!-- Combat Stats (fixed, always present) -->
+          <div class="arena-combat-stats">
+            <div class="arena-combat-stats__header">
+              <span class="arena-combat-stats__label"><i class="fas fa-shield-halved"></i> Combat Stats</span>
+              <span class="arena-combat-stats__budget" id="stat-budget-display">300 / 300</span>
+            </div>
+            <div id="combat-stats-editor">
+              <!-- 5 fixed combat stat rows injected by JS -->
+            </div>
           </div>
-          <button type="button" id="add-stat-btn" class="add-stat-btn">+ Add Stat</button>
+          <!-- Custom Stats (freeform, optional) -->
+          <div class="arena-custom-stats">
+            <div class="arena-custom-stats__label">Custom Stats <span class="arena-custom-stats__hint">(visual only, no combat effect)</span></div>
+            <div id="stats-editor">
+              <!-- Freeform custom stats here -->
+            </div>
+            <button type="button" id="add-stat-btn" class="add-stat-btn">+ Add Custom Stat</button>
+          </div>
         </div>
-
       </div>
       
 
@@ -1350,32 +1363,7 @@
         <h3 class="cf-section-title">Badges</h3>
         <div class="badges-panel">
           <div id="micro-editor">
-            <div class="micro-row">
-              <div class="badge-card-header">
-                <input type="text" name="micro-category" placeholder="Category (e.g. Skill)" />
-                <button type="button" class="remove-attribute" aria-label="Remove badge">&times;</button>
-              </div>
-              <div class="badge-card-body">
-                <div class="icon-picker" aria-label="Select badge icon">
-                  <input type="hidden" name="micro-icon" />
-                  <button type="button" class="icon-option" data-icon="star"><i class="fas fa-star"></i></button>
-                  <button type="button" class="icon-option" data-icon="heart"><i class="fas fa-heart"></i></button>
-                  <button type="button" class="icon-option" data-icon="bolt"><i class="fas fa-bolt"></i></button>
-                  <button type="button" class="icon-option" data-icon="trophy"><i class="fas fa-trophy"></i></button>
-                  <button type="button" class="icon-option" data-icon="leaf"><i class="fas fa-leaf"></i></button>
-                  <button type="button" class="icon-option" data-icon="gear"><i class="fas fa-gear"></i></button>
-                  <button type="button" class="icon-option" data-icon="book"><i class="fas fa-book"></i></button>
-                  <button type="button" class="icon-option" data-icon="lightbulb"><i class="fas fa-lightbulb"></i></button>
-                  <button type="button" class="icon-option" data-icon="medal"><i class="fas fa-medal"></i></button>
-                  <button type="button" class="icon-option" data-icon="certificate"><i class="fas fa-certificate"></i></button>
-                </div>
-                <input type="text" name="micro-desc" placeholder="Description" />
-              </div>
-              <div class="badge-card-count">
-                <input type="range" name="micro-quantity" min="1" max="5" value="1" class="badge-slider" />
-                <span class="badge-count-display">1</span>
-              </div>
-            </div>
+            <!-- Badge rows injected by JS with dropdown categories -->
           </div>
           <button type="button" id="add-micro-btn" class="add-micro-btn">+ Add Badge</button>
         </div>
