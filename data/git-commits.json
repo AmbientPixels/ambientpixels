@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "aa0c1e4c-7e0d-418d-80e4-8e8f4ef088be",
-      "hash": "7a2d8d44b76a0a9628bcb48ffc3e60f222aa9c8d",
-      "message": "Launch prep: set rate limit to 5/hr and remove noindex from CC pages",
-      "timestamp": "2026-03-02 22:29:26 -0800",
+      "id": "971c96b7-4149-41eb-b0d1-550a39489e41",
+      "hash": "c5a7cb4fca43ed8edd2059bcb281411adbeea1f7",
+      "message": "fix: save button broken — add missing status pill element and harden save guard",
+      "timestamp": "2026-03-03 21:53:13 -0800",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/7a2d8d44b76a0a9628bcb48ffc3e60f222aa9c8d"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/c5a7cb4fca43ed8edd2059bcb281411adbeea1f7"
     }
   ],
-  "timestamp": "2026-03-03T14:00:42.047Z",
+  "timestamp": "2026-03-04T13:59:11.064Z",
   "count": 1,
-  "scanId": 1772546442047
+  "scanId": 1772632751064
 }

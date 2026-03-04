@@ -1,10 +1,10 @@
 {
-  "updated": "2026-03-03T14:00:39.866Z",
+  "updated": "2026-03-04T13:59:09.906Z",
   "entries": [
     {
-      "hash": "7a2d8d4",
-      "date": "2026-03-02 22:29:26 -0800",
-      "message": "Launch prep: set rate limit to 5/hr and remove noindex from CC pages"
+      "hash": "c5a7cb4",
+      "date": "2026-03-03 21:53:13 -0800",
+      "message": "fix: save button broken — add missing status pill element and harden save guard"
     }
   ]
 }

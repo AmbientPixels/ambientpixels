@@ -1,12 +1,12 @@
 {
-  "mood": "detached",
-  "aura": "glitchy",
-  "auraColorHex": "#431571",
-  "quote": "inhaling code dust...",
-  "emoji": "🛰️",
+  "mood": "tired",
+  "aura": "lucid unrest",
+  "auraColorHex": "#241e45",
+  "quote": "decoding neural spark trails...",
+  "emoji": "🥱",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 1,
+  "memoryClutter": 0.9,
   "awareness": 0.1,
   "isStable": false,
   "internalState": "drift amid mental clutter",
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: glitchy"
+      "Aura Signature: lucid unrest"
     ]
   },
-  "timestamp": "2026-03-03T14:00:41.967Z"
+  "timestamp": "2026-03-04T13:59:10.988Z"
 }
