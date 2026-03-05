@@ -181,10 +181,17 @@
       <div>
         <label for="ce-preset">Visual Style *</label>
         <select id="ce-preset">
-          <option value="ap-neon-glass">Neon Glass</option>
+          <option value="none">None (Prompt Only)</option>
+          <option value="ap-neon-glass" selected>Neon Glass</option>
           <option value="ap-2d-flat">2D Flat</option>
           <option value="ap-ornate-frame">Ornate Frame</option>
           <option value="ap-corporate-tech">Corporate Tech</option>
+          <option value="ap-watercolor">Watercolor</option>
+          <option value="ap-isometric">Isometric</option>
+          <option value="ap-gradient-mesh">Gradient Mesh</option>
+          <option value="ap-line-art">Line Art</option>
+          <option value="ap-retro-pixel">Retro Pixel</option>
+          <option value="ap-dark-cinematic">Dark Cinematic</option>
         </select>
         <div class="ce-preset-preview" id="ce-preset-preview"></div>
       </div>
@@ -282,10 +289,17 @@
     };
 
     var PRESET_DESC = {
+      'none': 'No style preset — the model decides based on your prompt.',
       'ap-2d-flat': 'Bold flat colors, minimal shadows, geometric vector-art.',
       'ap-neon-glass': 'Dark bg, neon glow, glass-morphism, cyberpunk palette.',
       'ap-ornate-frame': 'Art Nouveau borders, gold & jewel tones, vintage feel.',
-      'ap-corporate-tech': 'Navy-to-teal gradients, geometric patterns, sleek.'
+      'ap-corporate-tech': 'Navy-to-teal gradients, geometric patterns, sleek.',
+      'ap-watercolor': 'Flowing color washes, organic blending, dreamy & ethereal.',
+      'ap-isometric': 'Clean isometric 3D, pastel colors, miniature diorama feel.',
+      'ap-gradient-mesh': 'Abstract aurora gradients, smooth bokeh depth, luminous.',
+      'ap-line-art': 'Minimalist thin strokes, white bg, single accent color.',
+      'ap-retro-pixel': 'Chunky pixel grid, 16-bit palette, nostalgic game aesthetic.',
+      'ap-dark-cinematic': 'Dramatic lighting, film grain, moody teal-and-orange.'
     };
 
     // ── Helpers ──

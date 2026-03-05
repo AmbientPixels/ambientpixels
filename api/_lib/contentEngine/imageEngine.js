@@ -20,6 +20,13 @@ const USAGE_CONTAINER = 'company-state';
 
 // ── Presets (server-side only — never accept arbitrary style text) ──
 var PRESETS = {
+  'none': {
+    label: 'None (Prompt Only)',
+    version: '1.0',
+    author: 'System',
+    visibility: 'internal',
+    style: ''
+  },
   'ap-2d-flat': {
     label: '2D Flat',
     version: '1.0',
@@ -47,6 +54,48 @@ var PRESETS = {
     author: 'Pixel',
     visibility: 'internal',
     style: 'Professional corporate technology aesthetic, clean gradients from dark navy to teal, abstract geometric patterns, sleek modern design.'
+  },
+  'ap-watercolor': {
+    label: 'Watercolor',
+    version: '1.0',
+    author: 'Pixel',
+    visibility: 'internal',
+    style: 'Soft watercolor painting style with flowing color washes, organic blending, visible paper texture, delicate brush strokes, and a dreamy ethereal quality.'
+  },
+  'ap-isometric': {
+    label: 'Isometric',
+    version: '1.0',
+    author: 'Pixel',
+    visibility: 'internal',
+    style: 'Clean isometric 3D illustration with crisp edges, pastel-to-vibrant color palette, miniature diorama perspective, soft shadows, and playful geometric depth.'
+  },
+  'ap-gradient-mesh': {
+    label: 'Gradient Mesh',
+    version: '1.0',
+    author: 'Pixel',
+    visibility: 'internal',
+    style: 'Abstract gradient mesh with flowing organic color transitions, aurora-like luminous blends, smooth bokeh-style depth, modern and minimal with rich color saturation.'
+  },
+  'ap-line-art': {
+    label: 'Line Art',
+    version: '1.0',
+    author: 'Pixel',
+    visibility: 'internal',
+    style: 'Minimalist line art illustration with clean thin strokes on a white or light background, single accent color highlights, architectural precision, elegant simplicity.'
+  },
+  'ap-retro-pixel': {
+    label: 'Retro Pixel',
+    version: '1.0',
+    author: 'Pixel',
+    visibility: 'internal',
+    style: 'Retro pixel art style with a limited 16-bit color palette, chunky pixel grid, nostalgic video game aesthetic, vibrant sprite-art energy.'
+  },
+  'ap-dark-cinematic': {
+    label: 'Dark Cinematic',
+    version: '1.0',
+    author: 'Pixel',
+    visibility: 'internal',
+    style: 'Cinematic dark mood with dramatic chiaroscuro lighting, deep shadows, film-grain texture, moody teal-and-orange color grading, atmospheric depth of field.'
   }
 };
 
@@ -172,7 +221,7 @@ function buildPrompt(opts) {
     'TOPIC: ' + opts.topic,
     'GOAL: ' + opts.goal,
     '',
-    'VISUAL STYLE: ' + preset.style,
+    preset.style ? 'VISUAL STYLE: ' + preset.style : 'VISUAL STYLE: Use your best judgment based on the topic and goal. No specific style constraint.',
     '',
     'PURPOSE: ' + purpose.context,
     '',
