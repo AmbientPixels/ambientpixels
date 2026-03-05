@@ -10,13 +10,13 @@ const CORS_HEADERS = {
   'Content-Type': 'application/json',
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-User-ID, X-CSRF-Token, X-MS-CLIENT-PRINCIPAL'
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-User-ID, X-CSRF-Token, X-CF-Auth-Principal'
 };
 
 // --- Shared helpers (same pattern as other cardforge APIs) ---
 
 function extractUserInfo(req, context) {
-  const principalHeader = req.headers['x-ms-client-principal'];
+  const principalHeader = req.headers['x-ms-client-principal'] || req.headers['x-cf-auth-principal'];
   if (principalHeader) {
     try {
       const decoded = Buffer.from(principalHeader, 'base64').toString('utf8');

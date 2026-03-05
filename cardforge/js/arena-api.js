@@ -33,9 +33,10 @@ window.ArenaAPI = (function () {
     };
 
     // Forward client principal for auth on direct API calls
+    // Uses custom header name — Azure strips the reserved x-ms-client-principal on direct calls
     const principal = await fetchPrincipal();
     if (principal) {
-      fetchOpts.headers['X-MS-CLIENT-PRINCIPAL'] = principal;
+      fetchOpts.headers['X-CF-Auth-Principal'] = principal;
     }
 
     // Add CSRF token for POST requests
