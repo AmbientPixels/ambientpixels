@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="StoryForge Gallery — Browse completed adventures from players around the world" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Gallery — StoryForge</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="css/adventure-base.css" />
+  <link rel="stylesheet" href="css/adventure-gallery.css" />
+  <link rel="stylesheet" href="css/adventure-effects.css" />
+  <link rel="stylesheet" href="css/adventure-responsive.css" />
+</head>
+<body style="background:#071019" data-theme="dark">
+  <div class="adv-app">
+
+    <!-- Header -->
+    <header class="adv-header">
+      <a href="/storyforge/" class="adv-header__logo">
+        <i class="fas fa-book-open-reader"></i>
+        <span>StoryForge</span>
+      </a>
+      <nav class="adv-header__nav">
+        <a href="/storyforge/" class="adv-header__link">Hub</a>
+        <a href="/storyforge/gallery.html" class="adv-header__link adv-header__link--active">Gallery</a>
+      </nav>
+    </header>
+
+    <main class="adv-gallery">
+
+      <!-- Hero -->
+      <div class="adv-gallery__hero">
+        <h1><i class="fas fa-images"></i> Adventure Gallery</h1>
+        <p>Browse completed adventures from players around the world.</p>
+      </div>
+
+      <!-- Genre Filter Tabs -->
+      <div class="adv-gallery__filters" id="galleryFilters">
+        <!-- Injected by JS -->
+      </div>
+
+      <!-- Adventure Grid -->
+      <div class="adv-gallery__grid" id="galleryGrid">
+        <!-- Injected by JS -->
+      </div>
+
+      <!-- Load More -->
+      <div class="adv-gallery__load-more" id="loadMoreWrap" style="display:none;">
+        <button class="adv-btn" id="loadMoreBtn">
+          <i class="fas fa-chevron-down"></i> Load More
+        </button>
+      </div>
+
+      <!-- Empty State -->
+      <div class="adv-gallery__empty" id="galleryEmpty" style="display:none;">
+        <i class="fas fa-book-open"></i>
+        <p>No adventures published yet. Be the first!</p>
+        <a href="/storyforge/" class="adv-btn adv-btn--primary" style="margin-top:1rem;">
+          <i class="fas fa-play"></i> Start Adventure
+        </a>
+      </div>
+
+    </main>
+
+    <div class="adv-toast-container" id="toastContainer"></div>
+  </div>
+
+  <script src="js/adventure-ui.js"></script>
+  <script src="js/adventure-share.js"></script>
+  <script src="js/adventure-gallery.js"></script>
+</body>
+</html>

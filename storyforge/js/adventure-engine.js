@@ -521,6 +521,34 @@
     gameState.status = 'completed';
     gameState.ending = { type: type, text: scene.sceneText };
     saveAdventure();
+
+    // Wire share/publish button
+    var shareBtn = UI.$('shareBtn');
+    if (shareBtn) {
+      shareBtn.onclick = function () {
+        var ShareMod = window.AdventureShare;
+        if (!ShareMod) {
+          UI.toast('Share module not loaded', 'error');
+          return;
+        }
+        shareBtn.disabled = true;
+        shareBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Publishing...';
+
+        ShareMod.publishAdventure(gameState.adventureId)
+          .then(function () {
+            return ShareMod.copyShareLink(gameState.adventureId);
+          })
+          .then(function () {
+            UI.toast('Published! Share link copied to clipboard.', 'success');
+            shareBtn.innerHTML = '<i class="fas fa-check"></i> Shared!';
+          })
+          .catch(function (err) {
+            UI.toast('Failed to publish: ' + err.message, 'error');
+            shareBtn.disabled = false;
+            shareBtn.innerHTML = '<i class="fas fa-share-nodes"></i> Share';
+          });
+      };
+    }
   }
 
   // --- Save Adventure ---
