@@ -1298,6 +1298,22 @@ Write the full deliverable first, then the structured JSON block.`;
       socialPayload.text = (socialPayload.text || '').replace(/\n*\[(?:ADDRESSED|NOTE|REVISED|FEEDBACK|CHANGED|UPDATED)[^\]]*\].*$/gis, '').trim();
       const postText = socialPayload.text || '';
 
+      // Server-side enforcement: reject meta-description posts (task titles / project names)
+      // Echo sometimes submits the task description instead of actual drafted social copy
+      const _bodyNoUrl = postText.replace(/\n*(?:Read more|Learn more|Check it out)?:?\s*https?:\/\/\S+/gi, '').replace(/\n*#\S+/g, '').trim();
+      const _metaPattern = /^(?:Master|Draft|Develop|Consolidated|Create)\s+(?:Social\s+Media|Content|Marketing)/i;
+      const _metaKeywords = /Social\s+Media\s+(?:Project|Strategy|Plan|Calendar|Content\s+Creation)/i;
+      if (_metaPattern.test(_bodyNoUrl) || _metaKeywords.test(_bodyNoUrl)) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action — text is a task/project description, not social copy:', _bodyNoUrl.substring(0, 120));
+        continue;
+      }
+      // Minimum content length (excluding URL/hashtags): LinkedIn 100, X/Bluesky 30
+      const _minLen = (socialPayload.platform || '').toLowerCase() === 'linkedin' ? 100 : 30;
+      if (_bodyNoUrl.length < _minLen) {
+        context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action — body too short after stripping URL (' + _bodyNoUrl.length + '/' + _minLen + ' chars):', _bodyNoUrl.substring(0, 80));
+        continue;
+      }
+
       // Server-side enforcement: platform character limits — auto-trim to fit
       const PLATFORM_CHAR_LIMITS = { x: 280, bluesky: 300, linkedin: 3000 };
       const platformKey = (socialPayload.platform || 'x').toLowerCase();
