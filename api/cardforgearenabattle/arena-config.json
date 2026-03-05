@@ -53,13 +53,14 @@
     "wisdom":      { "effect": "int_bonus",           "valuePerQty": 2, "maxValue": 10 }
   },
   "aiPatterns": {
-    "aggressive":  { "strike": 60, "guard": 10, "ability": 30 },
-    "balanced":    { "strike": 35, "guard": 30, "ability": 35 },
-    "defensive":   { "strike": 20, "guard": 50, "ability": 30 },
-    "spell_heavy": { "strike": 15, "guard": 15, "ability": 70 },
-    "berserker":   { "strike": 75, "guard": 5,  "ability": 20 }
+    "aggressive":  { "strike": 55, "guard": 10, "ability": 25, "heal": 10 },
+    "balanced":    { "strike": 30, "guard": 25, "ability": 30, "heal": 15 },
+    "defensive":   { "strike": 15, "guard": 35, "ability": 20, "heal": 30 },
+    "spell_heavy": { "strike": 15, "guard": 10, "ability": 65, "heal": 10 },
+    "berserker":   { "strike": 70, "guard": 5,  "ability": 20, "heal": 5 }
   },
   "aiLowHpGuardBoost": 20,
+  "aiLowHpHealBoost": 15,
   "aiLowHpThreshold": 0.3,
   "totalRounds": 3,
   "pointBudget": 300,

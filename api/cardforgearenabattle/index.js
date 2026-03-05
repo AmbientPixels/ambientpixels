@@ -194,17 +194,19 @@ function generateBossMove(boss, round, currentHp, maxHp) {
   const pattern = config.aiPatterns[boss.arenaOverrides?.aiPattern || 'balanced'];
   let weights = { ...pattern };
 
-  // Low HP override: boost guard
+  // Low HP override: boost guard and heal
   if (currentHp / maxHp < config.aiLowHpThreshold) {
     weights.guard += config.aiLowHpGuardBoost;
+    weights.heal = (weights.heal || 0) + (config.aiLowHpHealBoost || 15);
   }
 
-  const total = weights.strike + weights.guard + weights.ability;
+  const total = weights.strike + weights.guard + weights.ability + (weights.heal || 0);
   const roll = Math.random() * total;
 
   if (roll < weights.strike) return 'strike';
   if (roll < weights.strike + weights.guard) return 'guard';
-  return 'ability';
+  if (roll < weights.strike + weights.guard + weights.ability) return 'ability';
+  return 'heal';
 }
 
 function resolveRound(player, opponent, playerMove, opponentMove) {
@@ -263,11 +265,29 @@ function resolveRound(player, opponent, playerMove, opponentMove) {
       playerOutDmg *= 0.7;
       events.push('Opponent partially blocked your ability.');
     }
+    // Ability punishes healing (+20%)
+    if (opponentMove === 'heal') {
+      playerOutDmg *= 1.2;
+      events.push('Your ability punished their healing!');
+    }
     playerOutDmg = Math.max(1, Math.floor(playerOutDmg));
     opponentDamageTaken += playerOutDmg;
   } else if (playerMove === 'guard') {
     playerHeal = Math.round(player.maxHp * 0.05);
     events.push(`You guarded and recovered ${playerHeal} HP.`);
+  } else if (playerMove === 'heal') {
+    const end = player.combatStats.end;
+    let healAmt = end * 0.3 + Math.random() * (end * 0.1);
+    if (opponentMove === 'strike') {
+      healAmt *= 0.5;
+      events.push('Your healing was disrupted by the strike!');
+    } else if (opponentMove === 'ability') {
+      healAmt = 0;
+      events.push('Your healing was interrupted by the ability!');
+    }
+    healAmt = Math.round(healAmt);
+    playerHeal += healAmt;
+    if (healAmt > 0) events.push(`You focused and recovered ${healAmt} HP.`);
   }
 
   // --- Opponent attacks player ---
@@ -297,11 +317,29 @@ function resolveRound(player, opponent, playerMove, opponentMove) {
       opponentOutDmg *= 0.7;
       events.push('You partially blocked their ability.');
     }
+    // Opponent ability punishes player healing (+20%)
+    if (playerMove === 'heal') {
+      opponentOutDmg *= 1.2;
+      events.push('Opponent\'s ability punished your healing!');
+    }
     opponentOutDmg = Math.max(1, Math.floor(opponentOutDmg));
     playerDamageTaken += opponentOutDmg;
   } else if (opponentMove === 'guard') {
     opponentHeal = Math.round(opponent.maxHp * 0.05);
     events.push(`Opponent guarded and recovered ${opponentHeal} HP.`);
+  } else if (opponentMove === 'heal') {
+    const end = opponent.combatStats.end;
+    let healAmt = end * 0.3 + Math.random() * (end * 0.1);
+    if (playerMove === 'strike') {
+      healAmt *= 0.5;
+      events.push('Opponent\'s healing was disrupted by your strike!');
+    } else if (playerMove === 'ability') {
+      healAmt = 0;
+      events.push('Opponent\'s healing was interrupted by your ability!');
+    }
+    healAmt = Math.round(healAmt);
+    opponentHeal += healAmt;
+    if (healAmt > 0) events.push(`Opponent focused and recovered ${healAmt} HP.`);
   }
 
   // Passive HP regen (applies every round regardless of action)
@@ -565,8 +603,8 @@ async function handleMove(context, containerClient, userId, body) {
     context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'battleId, round, and move are required' } };
     return;
   }
-  if (!['strike', 'guard', 'ability'].includes(move)) {
-    context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'move must be strike, guard, or ability' } };
+  if (!['strike', 'guard', 'ability', 'heal'].includes(move)) {
+    context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'move must be strike, guard, ability, or heal' } };
     return;
   }
 

@@ -205,20 +205,33 @@
 
       <!-- Move buttons -->
       <div class="arena-battle__moves" id="arena-moves">
-        <button class="arena-move-btn arena-move-btn--strike" data-move="strike">
+        <button class="arena-move-btn arena-move-btn--strike" data-move="strike"
+                title="Physical attack (STR). Reduced 60% by Guard. Disrupts Heal by 50%.">
           <i class="fas fa-hand-fist"></i>
           <span class="arena-move-btn__label">Strike</span>
           <span class="arena-move-btn__stat" id="arena-move-str">STR</span>
+          <span class="arena-move-btn__desc">Physical attack</span>
         </button>
-        <button class="arena-move-btn arena-move-btn--guard" data-move="guard">
+        <button class="arena-move-btn arena-move-btn--guard" data-move="guard"
+                title="Block incoming damage and recover 5% HP. Blocks 60% of Strike, 30% of Ability.">
           <i class="fas fa-shield-halved"></i>
           <span class="arena-move-btn__label">Guard</span>
           <span class="arena-move-btn__stat">Block + Heal</span>
+          <span class="arena-move-btn__desc">Block &amp; recover</span>
         </button>
-        <button class="arena-move-btn arena-move-btn--ability" data-move="ability">
+        <button class="arena-move-btn arena-move-btn--ability" data-move="ability"
+                title="Magic attack (INT). +30% vs Strike. Interrupts Heal completely. Reduced 30% by Guard.">
           <i class="fas fa-bolt"></i>
           <span class="arena-move-btn__label">Ability</span>
           <span class="arena-move-btn__stat" id="arena-move-int">INT</span>
+          <span class="arena-move-btn__desc">Magic attack</span>
+        </button>
+        <button class="arena-move-btn arena-move-btn--heal" data-move="heal"
+                title="Recover HP based on END. Full heal vs Guard. Half heal vs Strike. Interrupted by Ability (+20% damage taken).">
+          <i class="fas fa-heart-pulse"></i>
+          <span class="arena-move-btn__label">Heal</span>
+          <span class="arena-move-btn__stat" id="arena-move-end">END</span>
+          <span class="arena-move-btn__desc">END recovery</span>
         </button>
       </div>
     </div>

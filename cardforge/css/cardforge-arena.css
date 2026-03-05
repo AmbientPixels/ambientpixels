@@ -604,8 +604,13 @@
 .arena-move-btn--ability:hover:not(:disabled) { border-color: rgba(123,47,255,0.5); background: rgba(123,47,255,0.08); box-shadow: 0 4px 20px rgba(123,47,255,0.15); }
 .arena-move-btn--ability i { color: #7b2fff; }
 
+.arena-move-btn--heal { border-color: rgba(0,230,118,0.2); }
+.arena-move-btn--heal:hover:not(:disabled) { border-color: rgba(0,230,118,0.5); background: rgba(0,230,118,0.08); box-shadow: 0 4px 20px rgba(0,230,118,0.15); }
+.arena-move-btn--heal i { color: #00e676; }
+
 .arena-move-btn__label { font-size: 0.85rem; font-weight: 700; }
 .arena-move-btn__stat { font-size: 0.68rem; color: #808099; }
+.arena-move-btn__desc { font-size: 0.6rem; color: #606078; font-style: italic; }
 
 /* --- Damage Float --- */
 

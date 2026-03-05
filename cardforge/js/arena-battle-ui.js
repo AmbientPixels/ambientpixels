@@ -23,8 +23,10 @@ window.ArenaBattleUI = (function () {
     // Update move stat labels
     const strEl = document.getElementById('arena-move-str');
     const intEl = document.getElementById('arena-move-int');
+    const endEl = document.getElementById('arena-move-end');
     if (strEl) strEl.textContent = `STR ${battleData.player.combatStats.str}`;
     if (intEl) intEl.textContent = `INT ${battleData.player.combatStats.int}`;
+    if (endEl) endEl.textContent = `END ${battleData.player.combatStats.end}`;
 
     // Render active buff passives under player card
     renderActiveBuffs(battleData.player.passives);
@@ -138,7 +140,7 @@ window.ArenaBattleUI = (function () {
     _isAnimating = true;
     enableMoves(false);
 
-    const moveNames = { strike: 'Strike', guard: 'Guard', ability: 'Ability' };
+    const moveNames = { strike: 'Strike', guard: 'Guard', ability: 'Ability', heal: 'Heal' };
 
     // Show moves chosen
     addLogEntry(`Round ${result.round}: You used ${moveNames[result.playerMove]}. Opponent used ${moveNames[result.opponentMove]}.`, 'info');
