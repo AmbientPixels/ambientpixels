@@ -162,6 +162,25 @@
 
     </main>
 
+    <!-- Pause Menu Overlay -->
+    <div class="adv-pause" id="pauseOverlay" style="display:none">
+      <div class="adv-pause__panel">
+        <h2 class="adv-pause__title"><i class="fas fa-pause"></i> Paused</h2>
+        <div class="adv-pause__info" id="pauseInfo"></div>
+        <div class="adv-pause__actions">
+          <button class="adv-btn adv-btn--primary" id="resumeBtn">
+            <i class="fas fa-play"></i> Resume
+          </button>
+          <button class="adv-btn" id="saveQuitBtn">
+            <i class="fas fa-save"></i> Save &amp; Quit
+          </button>
+          <button class="adv-btn adv-btn--danger" id="abandonBtn">
+            <i class="fas fa-door-open"></i> Abandon
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Toast Container -->
     <div class="adv-toast-container" id="toastContainer"></div>
   </div>
@@ -171,6 +190,7 @@
   <script src="js/adventure-storage.js"></script>
   <script src="js/adventure-share.js"></script>
   <script src="js/adventure-ai.js"></script>
+  <script src="js/adventure-entitlements.js"></script>
   <script src="js/adventure-engine.js"></script>
 
   <style>

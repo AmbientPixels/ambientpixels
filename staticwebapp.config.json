@@ -359,6 +359,21 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/api/storyforge-checkout",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/storyforge-checkout",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/storyforge-entitlements",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/storyforge-entitlements",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/storyforge-billing-webhook",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/storyforge-billing-webhook",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/api/*",
       "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/{path}"
     },

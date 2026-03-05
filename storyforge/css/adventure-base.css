@@ -170,3 +170,116 @@
 @keyframes adv-spin {
   to { transform: rotate(360deg); }
 }
+
+/* --- Upgrade Modal --- */
+.adv-upgrade-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(7, 16, 25, 0.85);
+  backdrop-filter: blur(4px);
+  animation: adv-fadeIn 0.2s ease;
+}
+
+.adv-upgrade-modal {
+  position: relative;
+  background: rgba(15, 25, 40, 0.97);
+  border: 1px solid rgba(122, 143, 224, 0.15);
+  border-radius: 16px;
+  padding: 2.5rem;
+  text-align: center;
+  min-width: 320px;
+  max-width: 420px;
+}
+
+.adv-upgrade-close {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: none;
+  border: none;
+  color: rgba(216, 224, 229, 0.4);
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  line-height: 1;
+}
+
+.adv-upgrade-close:hover {
+  color: var(--dark-text);
+}
+
+.adv-upgrade-icon {
+  margin-bottom: 1rem;
+}
+
+.adv-upgrade-icon i {
+  color: #FFD700;
+  font-size: 2.5rem;
+}
+
+.adv-upgrade-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.adv-upgrade-text {
+  font-size: 0.9rem;
+  color: rgba(216, 224, 229, 0.6);
+  margin-bottom: 1.25rem;
+  line-height: 1.5;
+}
+
+.adv-upgrade-features {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem;
+  text-align: left;
+}
+
+.adv-upgrade-features li {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.4rem 0;
+  font-size: 0.85rem;
+  color: rgba(216, 224, 229, 0.8);
+}
+
+.adv-upgrade-features li i {
+  color: #55E082;
+  font-size: 0.75rem;
+  width: 16px;
+  text-align: center;
+}
+
+.adv-upgrade-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.adv-upgrade-btn {
+  background: linear-gradient(135deg, #7B8FE0, #6a11cb);
+  border: none;
+  color: #fff;
+  font-weight: 600;
+}
+
+.adv-upgrade-btn:hover {
+  background: linear-gradient(135deg, #8B9FEF, #7a21db);
+}
+
+.adv-upgrade-dismiss {
+  background: transparent;
+  border-color: transparent;
+  color: rgba(216, 224, 229, 0.4);
+}
+
+.adv-upgrade-dismiss:hover {
+  color: rgba(216, 224, 229, 0.7);
+}

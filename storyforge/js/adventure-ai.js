@@ -14,13 +14,13 @@ window.AdventureAI = (function () {
   // --- Generate opening scene ---
   function generateOpeningScene(genre, playerName) {
     var prompt = buildOpeningPrompt(genre, playerName);
-    return callTextAPI(prompt);
+    return callTextAPIWithRetry(prompt);
   }
 
   // --- Generate next scene ---
   function generateNextScene(genre, state, choiceText, skillCheckResult) {
     var prompt = buildScenePrompt(genre, state, choiceText, skillCheckResult);
-    return callTextAPI(prompt);
+    return callTextAPIWithRetry(prompt);
   }
 
   // --- Generate continuation choices for a resumed adventure ---
@@ -44,7 +44,7 @@ window.AdventureAI = (function () {
       '- If a choice involves risk, add a skillCheck.\n\n' +
       RESPONSE_FORMAT;
 
-    return callTextAPI(prompt);
+    return callTextAPIWithRetry(prompt);
   }
 
   // --- Generate scene image ---
@@ -140,6 +140,24 @@ window.AdventureAI = (function () {
     '}';
 
   // --- API calls ---
+  function callTextAPIWithRetry(prompt, maxRetries) {
+    maxRetries = maxRetries || 2;
+    var attempt = 0;
+    function tryCall() {
+      attempt++;
+      return callTextAPI(prompt).catch(function (err) {
+        if (attempt < maxRetries) {
+          console.warn('AI call attempt ' + attempt + ' failed, retrying...', err.message);
+          return new Promise(function (resolve) {
+            setTimeout(resolve, 1000 * attempt);
+          }).then(tryCall);
+        }
+        throw err;
+      });
+    }
+    return tryCall();
+  }
+
   function callTextAPI(prompt) {
     return fetch(GEMINI_ENDPOINT, {
       method: 'POST',
@@ -244,9 +262,9 @@ window.AdventureAI = (function () {
   }
 
   // --- Rate limiting ---
-  function checkDailyLimit() {
+  function checkDailyLimit(limit) {
     var data = getDailyUsage();
-    return data.count < DAILY_LIMIT;
+    return data.count < (limit || DAILY_LIMIT);
   }
 
   function incrementUsage() {
@@ -264,9 +282,9 @@ window.AdventureAI = (function () {
     return { date: today, count: 0 };
   }
 
-  function getRemainingUsage() {
+  function getRemainingUsage(limit) {
     var data = getDailyUsage();
-    return Math.max(0, DAILY_LIMIT - data.count);
+    return Math.max(0, (limit || DAILY_LIMIT) - data.count);
   }
 
   return {

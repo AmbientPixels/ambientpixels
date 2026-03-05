@@ -1,8 +1,12 @@
 const { BlobServiceClient } = require('@azure/storage-blob');
 const { DefaultAzureCredential } = require('@azure/identity');
+const { loadEntitlements, hasFlag } = require('../_lib/stripe/entitlements');
 
 const STORAGE_ACCOUNT_NAME = 'cardforgeblobdata';
 const CONTAINER_NAME = 'storyforge';
+const ENTITLEMENTS_CONTAINER = 'cardforge';
+const FREE_MAX_SAVES = 1;
+const PRO_MAX_SAVES = 999;
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -115,6 +119,31 @@ module.exports = async function (context, req) {
       allAdventures.adventures[existingIdx] = adventure;
       context.log(`[storyforgesave] Updated existing adventure ${adventure.adventureId}`);
     } else {
+      // Save slot enforcement for NEW adventures
+      const inProgressCount = allAdventures.adventures.filter(
+        a => a.status !== 'completed' && a.status !== 'abandoned'
+      ).length;
+
+      let maxSaves = FREE_MAX_SAVES;
+      try {
+        const entContainerClient = blobServiceClient.getContainerClient(ENTITLEMENTS_CONTAINER);
+        const entRecord = await loadEntitlements(entContainerClient, userId);
+        if (hasFlag(entRecord, 'sfExtraSaves')) {
+          maxSaves = PRO_MAX_SAVES;
+        }
+      } catch (e) {
+        context.log.warn(`[storyforgesave] Could not load entitlements: ${e.message}`);
+      }
+
+      if (inProgressCount >= maxSaves) {
+        context.res = {
+          status: 403,
+          headers: CORS_HEADERS,
+          body: { error: 'Save slot limit reached (' + maxSaves + '). Upgrade to Pro for unlimited saves.', code: 'SAVE_LIMIT' }
+        };
+        return;
+      }
+
       allAdventures.adventures.push(adventure);
       context.log(`[storyforgesave] Added new adventure ${adventure.adventureId}`);
     }

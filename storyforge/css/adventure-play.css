@@ -329,6 +329,46 @@
   text-align: center;
 }
 
+.adv-inventory__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.adv-inventory__item--usable {
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.adv-inventory__item--usable:hover {
+  background: rgba(85, 224, 130, 0.08);
+}
+
+.adv-inventory__use {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.15rem 0.4rem;
+  border: 1px solid rgba(85, 224, 130, 0.2);
+  border-radius: 4px;
+  background: rgba(85, 224, 130, 0.1);
+  color: #55E082;
+  font-size: 0.65rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.adv-inventory__use:hover {
+  background: rgba(85, 224, 130, 0.2);
+  border-color: rgba(85, 224, 130, 0.4);
+}
+
 .adv-inventory__empty {
   font-size: 0.8rem;
   color: rgba(216, 224, 229, 0.3);
@@ -379,12 +419,12 @@
   color: rgba(216, 224, 229, 0.5);
 }
 
-/* Event Log */
+/* Event Log / Journal */
 .adv-events {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
-  max-height: 200px;
+  max-height: 250px;
   overflow-y: auto;
 }
 
@@ -398,6 +438,43 @@
 .adv-event:last-child {
   border-bottom: none;
 }
+
+/* Journal entries (turn-by-turn) */
+.adv-journal__entry {
+  padding: 0.35rem 0;
+  border-bottom: 1px solid rgba(122, 143, 224, 0.04);
+}
+
+.adv-journal__entry:last-child {
+  border-bottom: none;
+}
+
+.adv-journal__turn {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: rgba(216, 224, 229, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.15rem;
+}
+
+.adv-journal__choice {
+  font-size: 0.75rem;
+  color: rgba(216, 224, 229, 0.4);
+  line-height: 1.4;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.adv-journal__choice i {
+  font-size: 0.6rem;
+  margin-right: 0.15rem;
+  color: rgba(122, 143, 224, 0.4);
+}
+
+.adv-journal__dice--pass { color: #55E082; font-size: 0.65rem; }
+.adv-journal__dice--fail { color: #E05555; font-size: 0.65rem; }
 
 /* --- Ending Screen --- */
 .adv-ending {
@@ -462,4 +539,56 @@
   display: flex;
   gap: 0.75rem;
   margin-top: 1rem;
+}
+
+/* --- Pause Menu Overlay --- */
+.adv-pause {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(7, 16, 25, 0.85);
+  backdrop-filter: blur(4px);
+  animation: adv-fadeIn 0.2s ease;
+}
+
+.adv-pause__panel {
+  background: rgba(15, 25, 40, 0.95);
+  border: 1px solid rgba(122, 143, 224, 0.15);
+  border-radius: 16px;
+  padding: 2.5rem;
+  text-align: center;
+  min-width: 300px;
+  max-width: 400px;
+}
+
+.adv-pause__title {
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.adv-pause__title i { color: #7B8FE0; }
+
+.adv-pause__info {
+  font-size: 0.85rem;
+  color: rgba(216, 224, 229, 0.5);
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+
+.adv-pause__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.adv-pause__actions .adv-btn {
+  width: 100%;
+  justify-content: center;
 }

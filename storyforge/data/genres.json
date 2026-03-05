@@ -9,7 +9,8 @@
       "genrePrompt": "You are a high fantasy narrator. Use vivid descriptions of magical landscapes, ancient ruins, and mythical creatures. The tone is epic but grounded — danger is real, choices matter.",
       "startingStats": { "hp": 100, "maxHp": 100, "gold": 10, "reputation": 0, "strength": 12, "dexterity": 10, "intelligence": 10, "charisma": 8 },
       "startingInventory": [{ "id": "torch", "name": "Torch", "type": "tool", "description": "A flickering flame to light the way" }],
-      "imageStyleHint": "fantasy art, detailed illustration, warm torchlight, medieval setting, painterly style"
+      "imageStyleHint": "fantasy art, detailed illustration, warm torchlight, medieval setting, painterly style",
+      "tier": "free"
     },
     {
       "id": "horror",
@@ -20,7 +21,8 @@
       "genrePrompt": "You are a horror narrator. Build tension slowly, use sensory details — sounds, smells, cold air. Danger lurks in shadows. The tone is dread and unease, not gore.",
       "startingStats": { "hp": 80, "maxHp": 80, "gold": 5, "reputation": 0, "strength": 8, "dexterity": 10, "intelligence": 14, "charisma": 8 },
       "startingInventory": [{ "id": "flashlight", "name": "Flashlight", "type": "tool", "description": "Batteries half-dead, beam flickering" }],
-      "imageStyleHint": "horror art, dark atmosphere, fog and shadows, muted desaturated colors, unsettling"
+      "imageStyleHint": "horror art, dark atmosphere, fog and shadows, muted desaturated colors, unsettling",
+      "tier": "free"
     },
     {
       "id": "scifi",
@@ -31,7 +33,8 @@
       "genrePrompt": "You are a sci-fi narrator. Describe alien landscapes, advanced technology, and cosmic mysteries. The tone is cerebral and wondrous — think Asimov meets Mass Effect.",
       "startingStats": { "hp": 90, "maxHp": 90, "gold": 20, "reputation": 0, "strength": 8, "dexterity": 10, "intelligence": 14, "charisma": 8 },
       "startingInventory": [{ "id": "scanner", "name": "Bio-Scanner", "type": "tool", "description": "Handheld scanner with cracked display" }],
-      "imageStyleHint": "sci-fi concept art, neon and chrome, alien landscapes, futuristic technology, cinematic lighting"
+      "imageStyleHint": "sci-fi concept art, neon and chrome, alien landscapes, futuristic technology, cinematic lighting",
+      "tier": "free"
     },
     {
       "id": "detective",
@@ -42,7 +45,8 @@
       "genrePrompt": "You are a noir detective narrator. Describe crime scenes with forensic detail, suspects with hidden motives, and clues that connect. The tone is sharp, observant, and cynical.",
       "startingStats": { "hp": 80, "maxHp": 80, "gold": 50, "reputation": 10, "strength": 8, "dexterity": 10, "intelligence": 14, "charisma": 12 },
       "startingInventory": [{ "id": "notebook", "name": "Detective's Notebook", "type": "tool", "description": "Worn leather, pages half-filled" }],
-      "imageStyleHint": "noir art, rain-slicked streets, dramatic shadows, muted warm tones, cinematic"
+      "imageStyleHint": "noir art, rain-slicked streets, dramatic shadows, muted warm tones, cinematic",
+      "tier": "pro"
     },
     {
       "id": "postapoc",
@@ -53,7 +57,8 @@
       "genrePrompt": "You are a post-apocalyptic narrator. Resources are scarce, trust is rare, and the landscape is hostile. Every decision has a cost. The tone is gritty and survival-focused.",
       "startingStats": { "hp": 75, "maxHp": 75, "gold": 5, "reputation": 0, "strength": 12, "dexterity": 12, "intelligence": 8, "charisma": 8 },
       "startingInventory": [{ "id": "knife", "name": "Rusty Knife", "type": "weapon", "description": "Dull but better than nothing" }],
-      "imageStyleHint": "post-apocalyptic art, ruined cities, dust and rust, harsh sunlight, desolate and gritty"
+      "imageStyleHint": "post-apocalyptic art, ruined cities, dust and rust, harsh sunlight, desolate and gritty",
+      "tier": "pro"
     },
     {
       "id": "pirate",
@@ -64,7 +69,8 @@
       "genrePrompt": "You are a pirate adventure narrator. Describe rolling seas, tropical islands, rival crews, and legendary treasure. The tone is swashbuckling and fun — danger with a grin.",
       "startingStats": { "hp": 100, "maxHp": 100, "gold": 15, "reputation": -5, "strength": 12, "dexterity": 12, "intelligence": 8, "charisma": 10 },
       "startingInventory": [{ "id": "cutlass", "name": "Cutlass", "type": "weapon", "description": "Notched blade, good balance" }],
-      "imageStyleHint": "pirate art, tropical seas, wooden ships, golden sunlight, adventure illustration style"
+      "imageStyleHint": "pirate art, tropical seas, wooden ships, golden sunlight, adventure illustration style",
+      "tier": "pro"
     }
   ]
 }

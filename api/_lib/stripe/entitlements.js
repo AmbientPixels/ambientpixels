@@ -3,7 +3,7 @@
 
 const { getProduct } = require('./productCatalog');
 
-const PRO_FLAGS = ['hdExport', 'premiumEffects', 'extraCardSlots'];
+const PRO_FLAGS = ['hdExport', 'premiumEffects', 'extraCardSlots', 'sfAllGenres', 'sfUnlimitedAdventures', 'sfAllImages', 'sfExtraSaves'];
 
 function defaultRecord(userId) {
   return {

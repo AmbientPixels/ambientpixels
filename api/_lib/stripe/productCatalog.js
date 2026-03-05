@@ -27,6 +27,28 @@ const PRODUCTS = {
   // Future one-time products:
   // 'cf-effect-pack-celestial': { mode: 'payment', stripePrice: process.env.CF_STRIPE_PRICE_CELESTIAL, ... }
   // 'cf-xp-booster-24h':       { mode: 'payment', stripePrice: process.env.CF_STRIPE_PRICE_XP_BOOST, ttlHours: 24, ... }
+
+  // === StoryForge Subscriptions ===
+  'sf-pro-monthly': {
+    stripePrice: process.env.SF_STRIPE_PRICE_PRO_MONTHLY,
+    mode: 'subscription',
+    name: 'StoryForge Pro (Monthly)',
+    description: 'All genres, unlimited adventures, images every scene, extra saves',
+    entitlements: {
+      tier: 'pro',
+      flags: ['sfAllGenres', 'sfUnlimitedAdventures', 'sfAllImages', 'sfExtraSaves']
+    }
+  },
+  'sf-pro-yearly': {
+    stripePrice: process.env.SF_STRIPE_PRICE_PRO_YEARLY,
+    mode: 'subscription',
+    name: 'StoryForge Pro (Yearly)',
+    description: 'All genres, unlimited adventures, images every scene, extra saves — save 20%',
+    entitlements: {
+      tier: 'pro',
+      flags: ['sfAllGenres', 'sfUnlimitedAdventures', 'sfAllImages', 'sfExtraSaves']
+    }
+  }
 };
 
 function getProduct(productId) {

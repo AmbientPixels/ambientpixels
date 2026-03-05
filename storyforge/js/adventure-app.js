@@ -6,14 +6,27 @@
 
   var UI = window.AdventureUI;
   var Storage = window.AdventureStorage;
+  var Ent = window.AdventureEntitlements;
 
   var genres = [];
 
   function init() {
-    loadGenres().then(function () {
+    // Load entitlements + genres in parallel, then render
+    var entPromise = Ent ? Ent.load() : Promise.resolve(null);
+    Promise.all([loadGenres(), entPromise]).then(function () {
       renderGenreGrid();
       loadSavedAdventures();
+      handleCheckoutSuccess();
     });
+  }
+
+  function handleCheckoutSuccess() {
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('checkout') === 'success') {
+      UI.toast('Welcome to StoryForge Pro!', 'success');
+      // Clean URL
+      window.history.replaceState({}, '', window.location.pathname);
+    }
   }
 
   function loadGenres() {
@@ -33,12 +46,27 @@
     if (!grid || !genres.length) return;
 
     grid.innerHTML = genres.map(function (g) {
-      return '<a href="/storyforge/play.html?genre=' + g.id + '" class="adv-hub__genre">' +
+      var isLocked = Ent && !Ent.canAccessGenre(g.id, g.tier);
+      var lockedClass = isLocked ? ' adv-hub__genre--locked' : '';
+      var lockBadge = isLocked ? '<div class="adv-hub__genre-lock"><i class="fas fa-lock"></i> Pro</div>' : '';
+
+      return '<a href="' + (isLocked ? '#' : '/storyforge/play.html?genre=' + g.id) +
+        '" class="adv-hub__genre' + lockedClass + '" data-genre="' + g.id + '" data-tier="' + (g.tier || 'free') + '">' +
         '<img class="adv-hub__genre-img" src="images/genre-' + g.id + '.png" alt="' + g.name + '" loading="lazy" />' +
+        lockBadge +
         '<div class="adv-hub__genre-name">' + g.name + '</div>' +
         '<div class="adv-hub__genre-desc">' + g.description + '</div>' +
       '</a>';
     }).join('');
+
+    // Intercept clicks on locked genres
+    grid.querySelectorAll('.adv-hub__genre--locked').forEach(function (el) {
+      el.addEventListener('click', function (e) {
+        e.preventDefault();
+        var genreName = el.querySelector('.adv-hub__genre-name').textContent;
+        Ent.showUpgradePrompt('The ' + genreName + ' genre requires StoryForge Pro.');
+      });
+    });
   }
 
   // --- Saved Adventures ---

@@ -141,6 +141,22 @@
   }
 }
 
+/* Fade-in (pause overlay, general) */
+@keyframes adv-fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Scene exit (fade up before new turn) */
+.adv-scene-exit {
+  animation: adv-fadeSlideOut 0.3s ease forwards;
+}
+
+@keyframes adv-fadeSlideOut {
+  from { opacity: 1; transform: translateY(0); }
+  to { opacity: 0; transform: translateY(-8px); }
+}
+
 /* Genre accent color override */
 .adv-app[data-genre="fantasy"] { --adv-accent: #7B8FE0; }
 .adv-app[data-genre="horror"] { --adv-accent: #E05555; }

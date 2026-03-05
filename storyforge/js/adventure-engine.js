@@ -8,6 +8,7 @@
   var RPG = window.AdventureRPG;
   var AI = window.AdventureAI;
   var Storage = window.AdventureStorage;
+  var Ent = window.AdventureEntitlements;
 
   var genres = [];
   var selectedGenre = null;
@@ -161,13 +162,32 @@
       UI.showScreen('screenGenreSelect');
     });
 
-    UI.$('pauseBtn').addEventListener('click', function () {
+    UI.$('pauseBtn').addEventListener('click', showPauseMenu);
+    UI.$('resumeBtn').addEventListener('click', hidePauseMenu);
+    UI.$('saveQuitBtn').addEventListener('click', function () {
       saveAdventure();
       UI.toast('Adventure saved', 'success');
+      setTimeout(function () { window.location.href = '/storyforge/'; }, 500);
+    });
+    UI.$('abandonBtn').addEventListener('click', function () {
+      if (confirm('Abandon this adventure? Progress will be lost.')) {
+        gameState = null;
+        currentScene = null;
+        window.location.href = '/storyforge/';
+      }
     });
 
-    // Keyboard shortcuts for choices (1-4)
+    // Keyboard shortcuts for choices (1-4) + Escape for pause
     document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && gameState) {
+        var overlay = UI.$('pauseOverlay');
+        if (overlay.style.display === 'none') {
+          showPauseMenu();
+        } else {
+          hidePauseMenu();
+        }
+        return;
+      }
       if (isProcessing) return;
       var num = parseInt(e.key);
       if (num >= 1 && num <= 4) {
@@ -181,8 +201,20 @@
   function startAdventure() {
     if (!selectedGenre || isProcessing) return;
 
-    if (!AI.checkDailyLimit()) {
-      UI.toast('Daily limit reached (' + AI.getRemainingUsage() + ' remaining)', 'warning');
+    // Genre gating: check if user can access this genre tier
+    if (Ent && !Ent.canAccessGenre(selectedGenre.id, selectedGenre.tier)) {
+      Ent.showUpgradePrompt('The ' + selectedGenre.name + ' genre requires StoryForge Pro.');
+      return;
+    }
+
+    // Dynamic daily limit from entitlements
+    var dailyLimit = (Ent && Ent.getDailyLimit) ? Ent.getDailyLimit() : 15;
+    if (!AI.checkDailyLimit(dailyLimit)) {
+      if (Ent && !Ent.isPro()) {
+        Ent.showUpgradePrompt('You\'ve used all ' + dailyLimit + ' free adventures today. Upgrade for unlimited.');
+      } else {
+        UI.toast('Daily limit reached', 'warning');
+      }
       return;
     }
 
@@ -222,8 +254,14 @@
     UI.$('turnLabel').textContent = 'Turn ' + gameState.turnCount;
     UI.$('progressFill').style.width = ((gameState.turnCount / gameState.maxTurns) * 100) + '%';
 
+    // Scene entrance animation
+    var sceneTextEl = UI.$('sceneText');
+    sceneTextEl.classList.remove('adv-scene-enter');
+    void sceneTextEl.offsetWidth; // force reflow to restart animation
+    sceneTextEl.classList.add('adv-scene-enter');
+
     // Typewriter text
-    UI.typewriter(UI.$('sceneText'), scene.sceneText).then(function () {
+    UI.typewriter(sceneTextEl, scene.sceneText).then(function () {
       if (scene.isEnding) {
         showEnding(scene);
       } else {
@@ -359,10 +397,19 @@
 
   // --- Generate Next Turn ---
   function generateNextTurn(choiceText, skillCheckResult) {
-    UI.showLoading(UI.$('sceneText'), 'The story unfolds...');
+    var sceneEl = UI.$('sceneText');
+    sceneEl.classList.add('adv-scene-exit');
     UI.$('choicesContainer').innerHTML = '';
-    showImagePlaceholder();
 
+    setTimeout(function () {
+      sceneEl.classList.remove('adv-scene-exit');
+      UI.showLoading(sceneEl, 'The story unfolds...');
+      showImagePlaceholder();
+      doGenerateNextTurn(choiceText, skillCheckResult);
+    }, 300);
+  }
+
+  function doGenerateNextTurn(choiceText, skillCheckResult) {
     AI.generateNextScene(selectedGenre, gameState, choiceText, skillCheckResult)
       .then(function (scene) {
         currentScene = scene;
@@ -402,6 +449,17 @@
 
   // --- Image ---
   function generateAndShowImage(imagePrompt) {
+    // Image frequency gating: free tier gets images every 2 turns
+    var freq = (Ent && Ent.getImageFrequency) ? Ent.getImageFrequency() : 1;
+    if (freq > 1 && gameState.turnCount % freq !== 1) {
+      // Skip image on this turn for free tier
+      var placeholder = UI.$('sceneImagePlaceholder');
+      placeholder.innerHTML = '<i class="fas fa-image"></i><span>Images every scene with Pro</span>';
+      placeholder.style.display = '';
+      UI.$('sceneImage').classList.remove('adv-scene__image--loaded');
+      return;
+    }
+
     showImagePlaceholder();
     AI.generateSceneImage(imagePrompt, selectedGenre)
       .then(function (dataUrl) {
@@ -416,6 +474,10 @@
           if (gameState.turnCount === 1) {
             gameState.firstSceneImage = dataUrl;
           }
+        } else {
+          // Show "unavailable" state instead of infinite spinner
+          var placeholder = UI.$('sceneImagePlaceholder');
+          placeholder.innerHTML = '<i class="fas fa-image"></i><span>Image unavailable</span>';
         }
       });
   }
@@ -460,14 +522,35 @@
     // Inventory
     UI.$('inventoryCount').textContent = '(' + gameState.inventory.length + '/' + RPG.MAX_INVENTORY + ')';
     if (gameState.inventory.length) {
-      UI.$('inventoryContainer').innerHTML = gameState.inventory.map(function (item) {
+      var invContainer = UI.$('inventoryContainer');
+      invContainer.innerHTML = gameState.inventory.map(function (item) {
         var icon = RPG.ITEM_ICONS[item.type] || 'fa-box';
         var qty = item.quantity > 1 ? ' x' + item.quantity : '';
-        return '<div class="adv-inventory__item" title="' + UI.escapeHtml(item.description) + '">' +
+        var isConsumable = item.type === 'consumable';
+        return '<div class="adv-inventory__item' + (isConsumable ? ' adv-inventory__item--usable' : '') +
+          '" title="' + UI.escapeHtml(item.description) + '">' +
           '<i class="fas ' + icon + '"></i>' +
-          '<span>' + UI.escapeHtml(item.name) + qty + '</span>' +
+          '<span class="adv-inventory__name">' + UI.escapeHtml(item.name) + qty + '</span>' +
+          (isConsumable ? '<button class="adv-inventory__use" data-item-id="' + item.id + '"><i class="fas fa-flask-vial"></i> Use</button>' : '') +
         '</div>';
       }).join('');
+      // Bind use buttons
+      invContainer.querySelectorAll('.adv-inventory__use').forEach(function (btn) {
+        btn.addEventListener('click', function (e) {
+          e.stopPropagation();
+          if (isProcessing) return;
+          var effect = RPG.useConsumable(gameState, btn.dataset.itemId);
+          if (effect) {
+            UI.toast('Used item: +' + effect.value + ' HP', 'success');
+            UI.$('hpFill').parentElement.classList.add('adv-heal-glow');
+            setTimeout(function () {
+              UI.$('hpFill').parentElement.classList.remove('adv-heal-glow');
+            }, 600);
+            updateSidebar();
+            saveAdventure();
+          }
+        });
+      });
     } else {
       UI.$('inventoryContainer').innerHTML = '<div class="adv-inventory__empty">Empty</div>';
     }
@@ -488,12 +571,28 @@
       UI.$('companionsContainer').innerHTML = '<div class="adv-inventory__empty">No companions</div>';
     }
 
-    // Event log
-    if (gameState.eventLog.length) {
-      UI.$('eventsContainer').innerHTML = gameState.eventLog.map(function (evt) {
+    // Journal (turn history + event log fallback)
+    var journalHtml = '';
+    if (gameState.turns && gameState.turns.length) {
+      journalHtml = gameState.turns.slice().reverse().map(function (turn) {
+        var diceIcon = '';
+        if (turn.diceRoll) {
+          diceIcon = turn.diceRoll.success
+            ? ' <i class="fas fa-dice-d20 adv-journal__dice--pass"></i>'
+            : ' <i class="fas fa-dice-d20 adv-journal__dice--fail"></i>';
+        }
+        return '<div class="adv-journal__entry">' +
+          '<div class="adv-journal__turn">Turn ' + turn.turnNumber + diceIcon + '</div>' +
+          '<div class="adv-journal__choice"><i class="fas fa-arrow-right"></i> ' + UI.escapeHtml(turn.choiceMade) + '</div>' +
+        '</div>';
+      }).join('');
+    } else if (gameState.eventLog.length) {
+      journalHtml = gameState.eventLog.map(function (evt) {
         return '<div class="adv-event">' + UI.escapeHtml(evt.replace(/_/g, ' ')) + '</div>';
       }).reverse().join('');
     }
+    UI.$('eventsContainer').innerHTML = journalHtml ||
+      '<div class="adv-event" style="color:rgba(216,224,229,0.3);font-style:italic;">Adventure begins...</div>';
   }
 
   // --- Ending ---
@@ -547,6 +646,19 @@
           });
       };
     }
+  }
+
+  // --- Pause Menu ---
+  function showPauseMenu() {
+    if (!gameState) return;
+    saveAdventure();
+    UI.$('pauseInfo').textContent = 'Turn ' + gameState.turnCount + ' of ' + gameState.maxTurns +
+      ' | ' + gameState.playerName + ' | HP: ' + gameState.stats.hp + '/' + gameState.stats.maxHp;
+    UI.$('pauseOverlay').style.display = '';
+  }
+
+  function hidePauseMenu() {
+    UI.$('pauseOverlay').style.display = 'none';
   }
 
   // --- Save Adventure ---

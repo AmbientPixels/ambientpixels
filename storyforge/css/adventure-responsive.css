@@ -87,4 +87,10 @@
   .adv-scene__image-wrap {
     aspect-ratio: 4 / 3;
   }
+
+  .adv-pause__panel {
+    padding: 1.5rem;
+    min-width: 0;
+    width: 90%;
+  }
 }

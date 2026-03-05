@@ -91,6 +91,23 @@ window.AdventureStorage = (function () {
       saves[adventure.adventureId] = adventure;
       localStorage.setItem(LOCAL_KEY, JSON.stringify(saves));
     } catch (e) {
+      if (e.name === 'QuotaExceededError' || e.code === 22 || e.code === 1014) {
+        // Try to free space by removing oldest non-current save
+        try {
+          var saves2 = getLocalSaves();
+          var ids = Object.keys(saves2).filter(function (id) { return id !== adventure.adventureId; });
+          if (ids.length > 0) {
+            ids.sort(function (a, b) {
+              return (saves2[a].updatedAt || '').localeCompare(saves2[b].updatedAt || '');
+            });
+            delete saves2[ids[0]];
+            saves2[adventure.adventureId] = adventure;
+            localStorage.setItem(LOCAL_KEY, JSON.stringify(saves2));
+            console.warn('localStorage quota hit, removed oldest save');
+            return;
+          }
+        } catch (e2) { /* fall through */ }
+      }
       console.warn('localStorage save failed:', e.message);
     }
   }
