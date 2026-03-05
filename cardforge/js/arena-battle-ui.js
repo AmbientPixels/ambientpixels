@@ -7,6 +7,11 @@ window.ArenaBattleUI = (function () {
   let _battleData = null;
   let _currentRound = 1;
   let _isAnimating = false;
+  let _playerCharges = 0;
+  let _abilityCost = 2;
+  let _maxCharges = 4;
+  let _chargeRate = 1;
+  let _abilityInfo = null;
 
   function initBattle(battleData) {
     _battleData = battleData;
@@ -20,13 +25,23 @@ window.ArenaBattleUI = (function () {
     addLogEntry('Battle started! Choose your move.');
     enableMoves(true);
 
+    // Charge system state
+    _playerCharges = (battleData.charges && battleData.charges.player) || 0;
+    _abilityCost = battleData.abilityCost || 2;
+    _maxCharges = battleData.maxCharges || 4;
+    _chargeRate = battleData.chargeRate || 1;
+    _abilityInfo = battleData.player.abilityDef || null;
+
     // Update move stat labels
     const strEl = document.getElementById('arena-move-str');
     const intEl = document.getElementById('arena-move-int');
     const endEl = document.getElementById('arena-move-end');
     if (strEl) strEl.textContent = `STR ${battleData.player.combatStats.str}`;
-    if (intEl) intEl.textContent = `INT ${battleData.player.combatStats.int}`;
     if (endEl) endEl.textContent = `END ${battleData.player.combatStats.end}`;
+
+    // Dynamic ability button
+    updateAbilityButton(battleData.player.combatStats);
+    updateChargeDisplay();
 
     // Render active buff passives under player card
     renderActiveBuffs(battleData.player.passives);
@@ -117,11 +132,44 @@ window.ArenaBattleUI = (function () {
     log.scrollTop = log.scrollHeight;
   }
 
+  function updateAbilityButton(combatStats) {
+    if (!_abilityInfo) return;
+    const iconEl = document.getElementById('arena-ability-icon');
+    const labelEl = document.getElementById('arena-ability-label');
+    const statEl = document.getElementById('arena-move-int');
+    const descEl = document.getElementById('arena-ability-desc');
+    const abilityBtn = document.querySelector('.arena-move-btn--ability');
+
+    if (iconEl) iconEl.className = 'fas ' + _abilityInfo.icon;
+    if (labelEl) labelEl.textContent = _abilityInfo.label;
+    if (descEl) descEl.textContent = _abilityInfo.bonusDesc || 'Class ability';
+    if (abilityBtn) abilityBtn.title = `${_abilityInfo.label} (${_abilityInfo.stat.toUpperCase()}). Costs ${_abilityCost} charges. +30% vs Strike. Reduced 30% by Guard. ${_abilityInfo.bonusDesc}`;
+
+    // Update stat display to match ability stat
+    const statKey = _abilityInfo.stat;
+    const statVal = combatStats[statKey] || 0;
+    if (statEl) statEl.textContent = `${statKey.toUpperCase()} ${statVal}`;
+  }
+
+  function updateChargeDisplay() {
+    const chargeEl = document.getElementById('arena-ability-charge');
+    if (chargeEl) chargeEl.textContent = `${Math.floor(_playerCharges)}/${_abilityCost}`;
+  }
+
   function enableMoves(enabled) {
     document.querySelectorAll('.arena-move-btn').forEach(btn => {
       btn.disabled = !enabled;
       btn.classList.toggle('arena-move-btn--disabled', !enabled);
     });
+
+    // Lock ability button if insufficient charges
+    const abilityBtn = document.querySelector('.arena-move-btn--ability');
+    if (abilityBtn && enabled) {
+      const locked = _playerCharges < _abilityCost;
+      abilityBtn.disabled = locked;
+      abilityBtn.classList.toggle('arena-move-btn--locked', locked);
+      abilityBtn.classList.toggle('arena-move-btn--disabled', locked);
+    }
   }
 
   function showDamageFloat(side, amount, isHeal) {
@@ -140,7 +188,8 @@ window.ArenaBattleUI = (function () {
     _isAnimating = true;
     enableMoves(false);
 
-    const moveNames = { strike: 'Strike', guard: 'Guard', ability: 'Ability', heal: 'Heal' };
+    const abilityName = _abilityInfo ? _abilityInfo.label : 'Ability';
+    const moveNames = { strike: 'Strike', guard: 'Guard', ability: abilityName, heal: 'Heal' };
 
     // Show moves chosen
     addLogEntry(`Round ${result.round}: You used ${moveNames[result.playerMove]}. Opponent used ${moveNames[result.opponentMove]}.`, 'info');
@@ -175,6 +224,12 @@ window.ArenaBattleUI = (function () {
     // Update local state
     _battleData.player.hp = result.playerHp;
     _battleData.opponent.hp = result.opponentHp;
+
+    // Update charges from round result
+    if (result.charges) {
+      _playerCharges = result.charges.player;
+      updateChargeDisplay();
+    }
 
     await sleep(400);
     _isAnimating = false;

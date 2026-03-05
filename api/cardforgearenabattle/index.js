@@ -189,7 +189,122 @@ function computeMaxHp(combatStats) {
   return Math.round(50 + (combatStats.end * 0.8) + (combatStats.str * 0.2));
 }
 
-function generateBossMove(boss, round, currentHp, maxHp) {
+function getClassAbility(className, config) {
+  if (className && config.classAbilities && config.classAbilities[className]) {
+    return config.classAbilities[className];
+  }
+  return null;
+}
+
+function getAbilityByDominantStat(combatStats, config) {
+  const statMap = { str: 'powerStrike', int: 'arcaneBlast', agi: 'shadowStrike', end: 'fortify', lck: 'wildCard' };
+  let best = 'str';
+  let bestVal = 0;
+  for (const s of ['str', 'int', 'agi', 'end', 'lck']) {
+    if ((combatStats[s] || 0) > bestVal) { bestVal = combatStats[s]; best = s; }
+  }
+  return statMap[best] || 'powerStrike';
+}
+
+function getAbilityKey(className, combatStats, config) {
+  return getClassAbility(className, config) || getAbilityByDominantStat(combatStats, config);
+}
+
+function computeChargeRate(combatStats, arenaXp, config) {
+  const cc = config.chargeConfig || {};
+  let rate = cc.baseRate || 1;
+  if (combatStats.agi >= (cc.agiThreshold || 50)) rate += (cc.agiBonus || 0.5);
+  const rank = computeRank(arenaXp || 0);
+  const rankOrder = config.rankOrder || [];
+  const minRankIdx = rankOrder.indexOf(cc.rankBonusMinRank || 'gold');
+  if (minRankIdx >= 0 && rankOrder.indexOf(rank) >= minRankIdx) rate += (cc.rankBonus || 0.5);
+  return rate;
+}
+
+function resolveClassAbility(abilityKey, combatStats, opponentMove, config, events, side) {
+  const def = config.abilityDefs[abilityKey];
+  if (!def) return { damage: 0, heal: 0, tempEffect: null, alwaysFirst: false };
+
+  const prefix = side === 'player' ? 'Your' : "Opponent's";
+  const target = side === 'player' ? 'their' : 'your';
+  let damage = 0;
+  let heal = 0;
+  let tempEffect = null;
+  let alwaysFirst = false;
+
+  if (abilityKey === 'fortify') {
+    // Fortify: heal + buff
+    const end = combatStats.end;
+    heal = end * def.healMult + Math.random() * (end * def.healRand);
+    // Matchup modifiers for fortify heal
+    if (opponentMove === 'strike') {
+      heal *= 0.5;
+      events.push(`${prefix} fortify was disrupted by ${target} strike!`);
+    } else if (opponentMove === 'ability') {
+      heal = 0;
+      events.push(`${prefix} fortify was interrupted by ${target} ability!`);
+    }
+    heal = Math.round(heal);
+    if (heal > 0) {
+      events.push(`${prefix} ${def.label} restored ${heal} HP and raised defenses!`);
+      tempEffect = { effect: 'fortified', value: 20, roundsLeft: 1 };
+    }
+  } else if (abilityKey === 'wildCard') {
+    // Wild Card: random stat, crit/fizzle chance
+    const statKeys = ['str', 'agi', 'int', 'end', 'lck'];
+    const chosenStat = statKeys[Math.floor(Math.random() * statKeys.length)];
+    const statVal = combatStats[chosenStat] || 30;
+    damage = statVal * def.mult + Math.random() * (statVal * def.randMult);
+    // Fizzle (10%)
+    if (Math.random() < 0.1) {
+      damage = 0;
+      events.push(`${prefix} ${def.label} fizzled!`);
+    } else {
+      // Crit (25%)
+      if (Math.random() < 0.25) {
+        damage *= 2;
+        events.push(`${prefix} ${def.label} scored a wild critical hit!`);
+      }
+      // Standard matchup modifiers
+      if (opponentMove === 'strike') { damage *= 1.3; events.push(`${prefix} ${def.label} overpowered ${target} strike!`); }
+      if (opponentMove === 'guard') { damage *= 0.7; events.push(`${side === 'player' ? 'Opponent' : 'You'} partially blocked the ${def.label}.`); }
+      if (opponentMove === 'heal') { damage *= 1.2; events.push(`${prefix} ${def.label} punished ${target} healing!`); }
+    }
+    damage = Math.max(0, Math.floor(damage));
+  } else {
+    // Damage abilities: powerStrike, arcaneBlast, shadowStrike
+    const statVal = combatStats[def.stat] || 40;
+    damage = statVal * def.mult + Math.random() * (statVal * def.randMult);
+
+    if (abilityKey === 'shadowStrike') alwaysFirst = true;
+
+    // Standard matchup modifiers
+    if (opponentMove === 'strike') { damage *= 1.3; events.push(`${prefix} ${def.label} overpowered ${target} strike!`); }
+    if (opponentMove === 'guard') {
+      let guardMult = 0.7;
+      if (abilityKey === 'powerStrike') { guardMult = 1.4 * 0.7; } // 0.98 — nearly full damage
+      damage *= guardMult;
+      if (abilityKey === 'powerStrike') {
+        events.push(`${prefix} ${def.label} smashed through ${target} guard!`);
+      } else {
+        events.push(`${side === 'player' ? 'Opponent' : 'You'} partially blocked the ${def.label}.`);
+      }
+    }
+    if (opponentMove === 'heal') { damage *= 1.2; events.push(`${prefix} ${def.label} punished ${target} healing!`); }
+
+    // Arcane Blast applies vulnerable debuff
+    if (abilityKey === 'arcaneBlast' && damage > 0) {
+      tempEffect = { effect: 'vulnerable', value: 15, roundsLeft: 1 };
+      events.push(`${prefix} ${def.label} left the target vulnerable!`);
+    }
+
+    damage = Math.max(1, Math.floor(damage));
+  }
+
+  return { damage, heal, tempEffect, alwaysFirst };
+}
+
+function generateBossMove(boss, round, currentHp, maxHp, opponentCharges) {
   const config = loadArenaConfig();
   const pattern = config.aiPatterns[boss.arenaOverrides?.aiPattern || 'balanced'];
   let weights = { ...pattern };
@@ -198,6 +313,13 @@ function generateBossMove(boss, round, currentHp, maxHp) {
   if (currentHp / maxHp < config.aiLowHpThreshold) {
     weights.guard += config.aiLowHpGuardBoost;
     weights.heal = (weights.heal || 0) + (config.aiLowHpHealBoost || 15);
+  }
+
+  // If boss doesn't have enough charges, remove ability from weights
+  const cc = config.chargeConfig || {};
+  if (opponentCharges !== undefined && opponentCharges < (cc.abilityCost || 2)) {
+    weights.strike += weights.ability; // redistribute ability weight to strike
+    weights.ability = 0;
   }
 
   const total = weights.strike + weights.guard + weights.ability + (weights.heal || 0);
@@ -209,18 +331,24 @@ function generateBossMove(boss, round, currentHp, maxHp) {
   return 'heal';
 }
 
-function resolveRound(player, opponent, playerMove, opponentMove) {
+function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffects) {
+  const config = loadArenaConfig();
   const events = [];
 
   // Speed check
   const playerSpeed = player.combatStats.agi + Math.random() * 10;
   const opponentSpeed = opponent.combatStats.agi + Math.random() * 10;
-  const speedWinner = playerSpeed >= opponentSpeed ? 'player' : 'opponent';
+  let speedWinner = playerSpeed >= opponentSpeed ? 'player' : 'opponent';
+
+  // Shadow Strike overrides speed
+  if (playerMove === 'ability' && player.abilityKey === 'shadowStrike') speedWinner = 'player';
+  if (opponentMove === 'ability' && opponent.abilityKey === 'shadowStrike') speedWinner = 'opponent';
 
   let playerDamageTaken = 0;
   let opponentDamageTaken = 0;
   let playerHeal = 0;
   let opponentHeal = 0;
+  const newTempEffects = { player: [], opponent: [] };
 
   // Calculate player's action damage
   const playerCritChance = 5 + getPassiveValue(player.passives, 'crit_chance');
@@ -234,6 +362,21 @@ function resolveRound(player, opponent, playerMove, opponentMove) {
   const opponentStrBonus = getPassiveValue(opponent.passives, 'str_bonus');
   const opponentIntBonus = getPassiveValue(opponent.passives, 'int_bonus');
   const playerDmgReduction = getPassiveValue(player.passives, 'damage_reduction');
+
+  // Apply active temp effects from previous round
+  const te = battleTempEffects || { player: [], opponent: [] };
+  let playerVulnerable = 0;
+  let opponentVulnerable = 0;
+  let playerFortified = 0;
+  let opponentFortified = 0;
+  for (const eff of (te.player || [])) {
+    if (eff.effect === 'vulnerable') playerVulnerable += eff.value;
+    if (eff.effect === 'fortified') playerFortified += eff.value;
+  }
+  for (const eff of (te.opponent || [])) {
+    if (eff.effect === 'vulnerable') opponentVulnerable += eff.value;
+    if (eff.effect === 'fortified') opponentFortified += eff.value;
+  }
 
   // --- Player attacks opponent ---
   let playerOutDmg = 0;
@@ -253,28 +396,17 @@ function resolveRound(player, opponent, playerMove, opponentMove) {
     playerOutDmg = Math.max(1, Math.floor(playerOutDmg * (1 - opponentDmgReduction / 100)));
     opponentDamageTaken += playerOutDmg;
   } else if (playerMove === 'ability') {
-    const int = player.combatStats.int + playerIntBonus;
-    playerOutDmg = int * 0.5 + Math.random() * (int * 0.15) + playerAbilityBonus;
-    // Ability beats strike (+30%)
-    if (opponentMove === 'strike') {
-      playerOutDmg *= 1.3;
-      events.push('Your ability overpowered their strike!');
+    const abilityResult = resolveClassAbility(player.abilityKey || 'arcaneBlast', player.combatStats, opponentMove, config, events, 'player');
+    playerOutDmg = abilityResult.damage + playerAbilityBonus;
+    if (playerOutDmg > 0) {
+      playerOutDmg = Math.max(1, Math.floor(playerOutDmg));
+      opponentDamageTaken += playerOutDmg;
     }
-    // Guard partially blocks ability (30%)
-    if (opponentMove === 'guard') {
-      playerOutDmg *= 0.7;
-      events.push('Opponent partially blocked your ability.');
-    }
-    // Ability punishes healing (+20%)
-    if (opponentMove === 'heal') {
-      playerOutDmg *= 1.2;
-      events.push('Your ability punished their healing!');
-    }
-    playerOutDmg = Math.max(1, Math.floor(playerOutDmg));
-    opponentDamageTaken += playerOutDmg;
+    if (abilityResult.heal > 0) playerHeal += abilityResult.heal;
+    if (abilityResult.tempEffect) newTempEffects.opponent.push(abilityResult.tempEffect);
+    if (abilityResult.alwaysFirst) speedWinner = 'player';
   } else if (playerMove === 'guard') {
-    playerHeal = Math.round(player.maxHp * 0.05);
-    events.push(`You guarded and recovered ${playerHeal} HP.`);
+    events.push('You raised your guard.');
   } else if (playerMove === 'heal') {
     const end = player.combatStats.end;
     let healAmt = end * 0.3 + Math.random() * (end * 0.1);
@@ -307,26 +439,17 @@ function resolveRound(player, opponent, playerMove, opponentMove) {
     opponentOutDmg = Math.max(1, Math.floor(opponentOutDmg * (1 - playerDmgReduction / 100)));
     playerDamageTaken += opponentOutDmg;
   } else if (opponentMove === 'ability') {
-    const int = opponent.combatStats.int + opponentIntBonus;
-    opponentOutDmg = int * 0.5 + Math.random() * (int * 0.15) + opponentAbilityBonus;
-    if (playerMove === 'strike') {
-      opponentOutDmg *= 1.3;
-      events.push('Opponent\'s ability overpowered your strike!');
+    const abilityResult = resolveClassAbility(opponent.abilityKey || 'arcaneBlast', opponent.combatStats, playerMove, config, events, 'opponent');
+    opponentOutDmg = abilityResult.damage + opponentAbilityBonus;
+    if (opponentOutDmg > 0) {
+      opponentOutDmg = Math.max(1, Math.floor(opponentOutDmg));
+      playerDamageTaken += opponentOutDmg;
     }
-    if (playerMove === 'guard') {
-      opponentOutDmg *= 0.7;
-      events.push('You partially blocked their ability.');
-    }
-    // Opponent ability punishes player healing (+20%)
-    if (playerMove === 'heal') {
-      opponentOutDmg *= 1.2;
-      events.push('Opponent\'s ability punished your healing!');
-    }
-    opponentOutDmg = Math.max(1, Math.floor(opponentOutDmg));
-    playerDamageTaken += opponentOutDmg;
+    if (abilityResult.heal > 0) opponentHeal += abilityResult.heal;
+    if (abilityResult.tempEffect) newTempEffects.player.push(abilityResult.tempEffect);
+    if (abilityResult.alwaysFirst) speedWinner = 'opponent';
   } else if (opponentMove === 'guard') {
-    opponentHeal = Math.round(opponent.maxHp * 0.05);
-    events.push(`Opponent guarded and recovered ${opponentHeal} HP.`);
+    events.push('Opponent raised their guard.');
   } else if (opponentMove === 'heal') {
     const end = opponent.combatStats.end;
     let healAmt = end * 0.3 + Math.random() * (end * 0.1);
@@ -340,6 +463,28 @@ function resolveRound(player, opponent, playerMove, opponentMove) {
     healAmt = Math.round(healAmt);
     opponentHeal += healAmt;
     if (healAmt > 0) events.push(`Opponent focused and recovered ${healAmt} HP.`);
+  }
+
+  // Apply temp effects: vulnerable increases damage taken, fortified reduces it
+  if (playerVulnerable > 0 && playerDamageTaken > 0) {
+    const bonus = Math.round(playerDamageTaken * playerVulnerable / 100);
+    playerDamageTaken += bonus;
+    if (bonus > 0) events.push(`Vulnerable! You took ${bonus} extra damage.`);
+  }
+  if (playerFortified > 0 && playerDamageTaken > 0) {
+    const reduction = Math.round(playerDamageTaken * playerFortified / 100);
+    playerDamageTaken = Math.max(1, playerDamageTaken - reduction);
+    if (reduction > 0) events.push(`Fortified! You resisted ${reduction} damage.`);
+  }
+  if (opponentVulnerable > 0 && opponentDamageTaken > 0) {
+    const bonus = Math.round(opponentDamageTaken * opponentVulnerable / 100);
+    opponentDamageTaken += bonus;
+    if (bonus > 0) events.push(`Opponent is vulnerable! They took ${bonus} extra damage.`);
+  }
+  if (opponentFortified > 0 && opponentDamageTaken > 0) {
+    const reduction = Math.round(opponentDamageTaken * opponentFortified / 100);
+    opponentDamageTaken = Math.max(1, opponentDamageTaken - reduction);
+    if (reduction > 0) events.push(`Opponent's fortification resisted ${reduction} damage.`);
   }
 
   // Passive HP regen (applies every round regardless of action)
@@ -359,7 +504,8 @@ function resolveRound(player, opponent, playerMove, opponentMove) {
     opponentDamageTaken,
     playerHeal,
     opponentHeal,
-    events
+    events,
+    newTempEffects
   };
 }
 
@@ -514,18 +660,16 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
   const playerMaxHp = computeMaxHp(playerCombat);
   const opponentMaxHp = computeMaxHp(opponentCombat);
 
-  // Pre-generate boss/AI moves for all rounds
-  const aiMoves = [];
-  let simHp = opponentMaxHp;
-  for (let r = 1; r <= config.totalRounds; r++) {
-    const move = generateBossMove(
-      type === 'pve' ? opponentCard : { arenaOverrides: { aiPattern: 'balanced' } },
-      r, simHp, opponentMaxHp
-    );
-    aiMoves.push(move);
-    // Rough HP sim for AI adaptation (assume ~20 damage per round)
-    simHp = Math.max(1, simHp - 20);
-  }
+  // Compute ability keys from card class (or dominant stat fallback for bosses)
+  const playerAbilityKey = getAbilityKey(playerCard.class, playerCombat, config);
+  const opponentAbilityKey = getAbilityKey(opponentCard.class, opponentCombat, config);
+
+  // Compute charge rates
+  const playerXp = (playerProfile && playerProfile.xp) ? playerProfile.xp : 0;
+  const playerChargeRate = computeChargeRate(playerCombat, playerXp, config);
+  const opponentChargeRate = computeChargeRate(opponentCombat, 1500, config); // AI assumed Gold-level
+
+  const cc = config.chargeConfig || {};
 
   const battleId = `battle-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
   const battleState = {
@@ -542,7 +686,8 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
       maxHp: playerMaxHp,
       hp: playerMaxHp,
       passives: playerPassives,
-      moves: []
+      moves: [],
+      abilityKey: playerAbilityKey
     },
     player2: {
       userId: type === 'pve' ? opponentId : 'gallery',
@@ -552,9 +697,13 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
       maxHp: opponentMaxHp,
       hp: opponentMaxHp,
       passives: opponentPassives,
-      moves: aiMoves,
-      bossLevel
+      moves: [],
+      bossLevel,
+      abilityKey: opponentAbilityKey
     },
+    charges: { player: cc.startCharges || 0, opponent: cc.startCharges || 0 },
+    chargeRate: { player: playerChargeRate, opponent: opponentChargeRate },
+    tempEffects: { player: [], opponent: [] },
     roundLog: [],
     winner: null,
     isDemo: isDemo,
@@ -576,7 +725,9 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
         combatStats: playerCombat,
         maxHp: playerMaxHp,
         hp: playerMaxHp,
-        passives: playerPassives
+        passives: playerPassives,
+        abilityKey: playerAbilityKey,
+        abilityDef: config.abilityDefs[playerAbilityKey]
       },
       opponent: {
         name: opponentCard.name,
@@ -585,8 +736,13 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
         combatStats: opponentCombat,
         maxHp: opponentMaxHp,
         hp: opponentMaxHp,
-        bossLevel
+        bossLevel,
+        abilityKey: opponentAbilityKey
       },
+      charges: { player: cc.startCharges || 0, opponent: cc.startCharges || 0 },
+      chargeRate: playerChargeRate,
+      abilityCost: cc.abilityCost || 2,
+      maxCharges: cc.maxCharges || 4,
       currentRound: 1,
       totalRounds: config.totalRounds,
       status: 'active'
@@ -631,18 +787,58 @@ async function handleMove(context, containerClient, userId, body) {
 
   const player = battle.player1;
   const opponent = battle.player2;
-  const opponentMove = opponent.moves[round - 1];
+  const config = loadArenaConfig();
+  const cc = config.chargeConfig || {};
 
-  // Resolve the round
+  // Charge validation: ability requires enough charges
+  const hasCharges = battle.charges && battle.charges.player !== undefined;
+  if (move === 'ability' && hasCharges) {
+    if (battle.charges.player < (cc.abilityCost || 2)) {
+      context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'Not enough charges to use ability' } };
+      return;
+    }
+  }
+
+  // Generate opponent move on-the-fly (charge-aware) or use pre-generated for old battles
+  let opponentMove;
+  if (hasCharges) {
+    opponentMove = generateBossMove(
+      battle.type === 'pve' ? { arenaOverrides: opponent.arenaOverrides || { aiPattern: 'balanced' }, combatStats: opponent.combatStats } : { arenaOverrides: { aiPattern: 'balanced' } },
+      round, opponent.hp, opponent.maxHp, battle.charges.opponent
+    );
+  } else {
+    opponentMove = opponent.moves[round - 1] || 'strike';
+  }
+
+  // Resolve the round with ability keys and temp effects
   const result = resolveRound(
-    { combatStats: player.combatStats, passives: player.passives, maxHp: player.maxHp },
-    { combatStats: opponent.combatStats, passives: opponent.passives, maxHp: opponent.maxHp },
-    move, opponentMove
+    { combatStats: player.combatStats, passives: player.passives, maxHp: player.maxHp, abilityKey: player.abilityKey },
+    { combatStats: opponent.combatStats, passives: opponent.passives, maxHp: opponent.maxHp, abilityKey: opponent.abilityKey },
+    move, opponentMove, battle.tempEffects
   );
 
   // Apply damage and healing
   player.hp = Math.min(player.maxHp, Math.max(0, player.hp - result.playerDamageTaken + result.playerHeal));
   opponent.hp = Math.min(opponent.maxHp, Math.max(0, opponent.hp - result.opponentDamageTaken + result.opponentHeal));
+
+  // Update charges
+  if (hasCharges) {
+    const maxCh = cc.maxCharges || 4;
+    const rate = battle.chargeRate || { player: 1, opponent: 1 };
+    // Gain charges
+    battle.charges.player = Math.min(maxCh, battle.charges.player + (rate.player || 1));
+    battle.charges.opponent = Math.min(maxCh, battle.charges.opponent + (rate.opponent || 1));
+    // Deduct if ability was used
+    if (move === 'ability') battle.charges.player -= (cc.abilityCost || 2);
+    if (opponentMove === 'ability') battle.charges.opponent -= (cc.abilityCost || 2);
+    battle.charges.player = Math.max(0, battle.charges.player);
+    battle.charges.opponent = Math.max(0, battle.charges.opponent);
+  }
+
+  // Update temp effects: replace with new ones from this round
+  if (battle.tempEffects) {
+    battle.tempEffects = result.newTempEffects || { player: [], opponent: [] };
+  }
 
   player.moves.push(move);
 
@@ -657,7 +853,9 @@ async function handleMove(context, containerClient, userId, body) {
     playerHeal: result.playerHeal,
     opponentHeal: result.opponentHeal,
     events: result.events,
-    speedWinner: result.speedWinner
+    speedWinner: result.speedWinner,
+    charges: hasCharges ? battle.charges : undefined,
+    tempEffects: battle.tempEffects
   };
 
   battle.roundLog.push(roundResult);

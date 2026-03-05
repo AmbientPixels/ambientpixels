@@ -611,6 +611,20 @@
 .arena-move-btn__label { font-size: 0.85rem; font-weight: 700; }
 .arena-move-btn__stat { font-size: 0.68rem; color: #808099; }
 .arena-move-btn__desc { font-size: 0.6rem; color: #606078; font-style: italic; }
+.arena-move-btn__charge {
+  font-size: 0.65rem;
+  color: #a0a0c0;
+  background: rgba(255,255,255,0.05);
+  padding: 1px 6px;
+  border-radius: 8px;
+  margin-top: 2px;
+}
+.arena-move-btn--locked {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.arena-move-btn--locked:hover { background: none; border-color: inherit; box-shadow: none; }
 
 /* --- Damage Float --- */
 

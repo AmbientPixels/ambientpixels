@@ -90,6 +90,31 @@
     { "key": "triumph",   "label": "Triumph",   "icon": "trophy",   "rank": "gold",     "effect": "+5% XP bonus per qty" },
     { "key": "legendary", "label": "Legendary", "icon": "star",     "rank": "platinum", "effect": "+2 all stats per qty" }
   ],
+  "classAbilities": {
+    "Fighter": "powerStrike", "Enforcer": "powerStrike", "Berserker": "powerStrike",
+    "Caster": "arcaneBlast",  "Hacker": "arcaneBlast",   "Scholar": "arcaneBlast",
+    "Scout": "shadowStrike",  "Rogue": "shadowStrike",   "Pilot": "shadowStrike",
+    "Guardian": "fortify",    "Medic": "fortify",
+    "Trickster": "wildCard",  "Wildcard": "wildCard"
+  },
+  "abilityDefs": {
+    "powerStrike":  { "stat": "str", "mult": 0.6,  "randMult": 0.15, "label": "Power Strike",  "icon": "fa-hand-fist",       "color": "#ff5252", "bonusDesc": "1.4x vs Guard" },
+    "arcaneBlast":  { "stat": "int", "mult": 0.55, "randMult": 0.15, "label": "Arcane Blast",  "icon": "fa-bolt",            "color": "#7b2fff", "bonusDesc": "Applies Vulnerable" },
+    "shadowStrike": { "stat": "agi", "mult": 0.5,  "randMult": 0.2,  "label": "Shadow Strike", "icon": "fa-feather-pointed", "color": "#00e676", "bonusDesc": "Always first" },
+    "fortify":      { "stat": "end", "healMult": 0.25, "healRand": 0.1, "label": "Fortify",    "icon": "fa-shield-halved",   "color": "#ff9100", "bonusDesc": "Applies Fortified" },
+    "wildCard":     { "stat": "lck", "mult": 0.5,  "randMult": 0.2,  "label": "Wild Card",     "icon": "fa-clover",          "color": "#ffd740", "bonusDesc": "25% crit / 10% fizzle" }
+  },
+  "chargeConfig": {
+    "startCharges": 0,
+    "abilityCost": 2,
+    "baseRate": 1,
+    "agiThreshold": 50,
+    "agiBonus": 0.5,
+    "rankBonusMinRank": "gold",
+    "rankBonus": 0.5,
+    "maxCharges": 4
+  },
+  "validClasses": ["Fighter", "Enforcer", "Berserker", "Caster", "Hacker", "Scholar", "Scout", "Rogue", "Pilot", "Guardian", "Medic", "Trickster", "Wildcard"],
   "monetization": {
     "freeTier":    { "maxCards": 5, "layouts": 3, "palettes": 2 },
     "premiumTier": { "maxCards": -1, "layouts": -1, "palettes": -1 },

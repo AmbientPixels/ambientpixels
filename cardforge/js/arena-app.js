@@ -25,7 +25,7 @@ window.ArenaApp = (function () {
       {
         id: 'demo-knight',
         name: 'Demo Knight',
-        class: 'Warrior',
+        class: 'Fighter',
         avatar: '',
         quote: 'Steel meets fate.',
         combatStats: { str: 80, agi: 50, int: 30, end: 90, lck: 50 },
@@ -38,7 +38,7 @@ window.ArenaApp = (function () {
       {
         id: 'demo-mage',
         name: 'Demo Mage',
-        class: 'Sorcerer',
+        class: 'Caster',
         avatar: '',
         quote: 'Knowledge is the ultimate weapon.',
         combatStats: { str: 30, agi: 50, int: 90, end: 50, lck: 80 },
@@ -51,7 +51,7 @@ window.ArenaApp = (function () {
       {
         id: 'demo-rogue',
         name: 'Demo Rogue',
-        class: 'Assassin',
+        class: 'Rogue',
         avatar: '',
         quote: 'Shadows never miss.',
         combatStats: { str: 50, agi: 90, int: 50, end: 40, lck: 70 },

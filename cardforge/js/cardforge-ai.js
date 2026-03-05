@@ -168,7 +168,8 @@
       'Based on the user\'s description below, generate a COMPLETE card with these fields:',
       '',
       '- name: Character name (max 30 chars)',
-      '- class: Class or type, e.g. "Ranger", "Mage", "Artifact" (max 25 chars)',
+      '- class: MUST be one of: Fighter, Enforcer, Berserker, Caster, Hacker, Scholar, Scout, Rogue, Pilot, Guardian, Medic, Trickster, Wildcard',
+      '- subclass: A creative title or specialization (max 25 chars), e.g. "Shadow Operative", "Void Walker", "Neon Samurai"',
       '- rarity: One of "Common", "Uncommon", "Rare", "Epic", "Legendary"',
       '- level: A number 1-100 appropriate to the rarity',
       '- quote: A punchy tagline (max 120 chars)',
@@ -182,7 +183,7 @@
       `User Description: ${userPrompt}`,
       '',
       'Return ONLY valid JSON (no markdown, no code fences):',
-      '{"name":"...","class":"...","rarity":"...","level":0,"quote":"...","biography":"...","stats":[{"name":"...","value":0}],"attributes":[{"name":"...","value":"..."}],"imagePrompt":"..."}'
+      '{"name":"...","class":"...","subclass":"...","rarity":"...","level":0,"quote":"...","biography":"...","stats":[{"name":"...","value":0}],"attributes":[{"name":"...","value":"..."}],"imagePrompt":"..."}'
     ].join('\n');
   }
 
@@ -386,10 +387,21 @@
       const card = parseJSON(extractText(textData));
       console.log('[CardForge AI] Card data:', card);
 
+      // Validate class against allowed list
+      const validClasses = ['Fighter', 'Enforcer', 'Berserker', 'Caster', 'Hacker', 'Scholar', 'Scout', 'Rogue', 'Pilot', 'Guardian', 'Medic', 'Trickster', 'Wildcard'];
+      if (card.class && !validClasses.includes(card.class)) {
+        // Try case-insensitive match
+        const match = validClasses.find(c => c.toLowerCase() === (card.class || '').toLowerCase());
+        card.class = match || 'Fighter';
+      }
+
       // Populate text fields
       const fields = getFields();
       setField(fields.name, card.name);
       setField(fields.cardClass, card.class);
+      // Set subclass field
+      const subclassField = document.getElementById('card-subclass');
+      if (subclassField && card.subclass) subclassField.value = card.subclass;
       setField(fields.rarity, card.rarity);
       if (card.level) setField(fields.level, card.level);
       setField(fields.quote, card.quote);

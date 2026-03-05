@@ -213,18 +213,19 @@
           <span class="arena-move-btn__desc">Physical attack</span>
         </button>
         <button class="arena-move-btn arena-move-btn--guard" data-move="guard"
-                title="Block incoming damage and recover 5% HP. Blocks 60% of Strike, 30% of Ability.">
+                title="Block incoming damage. Blocks 60% of Strike, 30% of Ability.">
           <i class="fas fa-shield-halved"></i>
           <span class="arena-move-btn__label">Guard</span>
-          <span class="arena-move-btn__stat">Block + Heal</span>
-          <span class="arena-move-btn__desc">Block &amp; recover</span>
+          <span class="arena-move-btn__stat">Block</span>
+          <span class="arena-move-btn__desc">Reduce damage</span>
         </button>
         <button class="arena-move-btn arena-move-btn--ability" data-move="ability"
-                title="Magic attack (INT). +30% vs Strike. Interrupts Heal completely. Reduced 30% by Guard.">
-          <i class="fas fa-bolt"></i>
-          <span class="arena-move-btn__label">Ability</span>
+                title="Class ability. Costs 2 charges. +30% vs Strike. Interrupts Heal (+20%). Reduced 30% by Guard.">
+          <i class="fas fa-bolt" id="arena-ability-icon"></i>
+          <span class="arena-move-btn__label" id="arena-ability-label">Ability</span>
           <span class="arena-move-btn__stat" id="arena-move-int">INT</span>
-          <span class="arena-move-btn__desc">Magic attack</span>
+          <span class="arena-move-btn__desc" id="arena-ability-desc">Class ability</span>
+          <span class="arena-move-btn__charge" id="arena-ability-charge">0/2</span>
         </button>
         <button class="arena-move-btn arena-move-btn--heal" data-move="heal"
                 title="Recover HP based on END. Full heal vs Guard. Half heal vs Strike. Interrupted by Ability (+20% damage taken).">

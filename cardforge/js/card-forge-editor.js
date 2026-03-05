@@ -256,7 +256,8 @@
       // Back-of-card sample data
       sampleData: {
         name: 'Fantasy Ranger',
-        characterClass: 'Elven Archer',
+        characterClass: 'Scout',
+        characterSubclass: 'Elven Archer',
         avatar: '/images/image-packs/characters/whispers-of-the-sylvan-queen.jpg',
         biography: 'A skilled archer from the Whispering Woods, protector of ancient secrets and guardian of the realm.',
         badges: [
@@ -299,7 +300,8 @@
       // Back-of-card sample data
       sampleData: {
         name: 'Cyberpunk Runner',
-        characterClass: 'Data Netrunner',
+        characterClass: 'Hacker',
+        characterSubclass: 'Data Netrunner',
         avatar: '/images/image-packs/characters/cyber-erenity.jpg',
         biography: 'Elite netrunner specializing in corporate infiltration and data extraction from high-security systems.',
         badges: [
@@ -342,7 +344,8 @@
       // Back-of-card sample data
       sampleData: {
         name: 'Arcane Scholar',
-        characterClass: 'Mystic Researcher',
+        characterClass: 'Scholar',
+        characterSubclass: 'Mystic Researcher',
         avatar: '/images/image-packs/characters/ethereal-enigma.jpg',
         biography: 'Renowned scholar of ancient magics and forbidden knowledge, keeper of the Great Library.',
         badges: [
@@ -385,7 +388,8 @@
       // Back-of-card sample data
       sampleData: {
         name: 'Space Marine',
-        characterClass: 'Galactic Warrior',
+        characterClass: 'Fighter',
+        characterSubclass: 'Galactic Warrior',
         avatar: '/images/image-packs/characters/guardian-of-the-gilded-halls.jpg',
         biography: 'Veteran space marine with decades of combat experience across multiple star systems. Leader of the Phoenix Squadron and defender of the galaxy.',
         badges: [
@@ -428,7 +432,8 @@
       // Back-of-card sample data
       sampleData: {
         name: 'Corporate Ronin',
-        characterClass: 'Blade for Hire',
+        characterClass: 'Rogue',
+        characterSubclass: 'Blade for Hire',
         avatar: '/images/image-packs/characters/the-enigmatic-neuromancer.jpg',
         biography: 'Former corporate security turned freelance blade for hire, walking the path of honor in a corrupt world.',
         badges: [
@@ -471,7 +476,8 @@
       // Back-of-card sample data
       sampleData: {
         name: 'Legendary Hero',
-        characterClass: 'Champion of Justice',
+        characterClass: 'Guardian',
+        characterSubclass: 'Champion of Justice',
         avatar: '/images/image-packs/characters/hero.png',
         biography: 'Champion of justice and defender of the innocent. Wielder of ancient powers and leader of the legendary Phoenix Guard.',
         badges: [
@@ -514,7 +520,8 @@
       // Back-of-card sample data
       sampleData: {
         name: 'Titan Guardian',
-        characterClass: 'Divine Protector',
+        characterClass: 'Guardian',
+        characterSubclass: 'Divine Protector',
         avatar: '/images/image-packs/characters/twilight-titan.jpg',
         biography: 'A towering guardian blessed by the gods, standing watch over sacred temples and protecting the faithful from darkness.',
         badges: [
@@ -557,7 +564,8 @@
       // Back-of-card sample data
       sampleData: {
         name: 'Shadow Operative',
-        characterClass: 'Stealth Specialist',
+        characterClass: 'Rogue',
+        characterSubclass: 'Stealth Specialist',
         avatar: '/images/image-packs/characters/navigator-kairo.jpg',
         biography: 'A master of stealth and infiltration, operating in the shadows to gather intelligence and eliminate threats with surgical precision.',
         badges: [
@@ -600,7 +608,8 @@
       // Back-of-card sample data
       sampleData: {
         name: 'Celestial Warden',
-        characterClass: 'Divine Sentinel',
+        characterClass: 'Guardian',
+        characterSubclass: 'Divine Sentinel',
         avatar: '/images/image-packs/characters/seraphina.jpg',
         biography: 'A radiant guardian chosen by the stars, sworn to protect the boundary between mortal and celestial realms.',
         badges: [
@@ -643,7 +652,8 @@
       // Back-of-card sample data
       sampleData: {
         name: 'Flame Oracle',
-        characterClass: 'Pyromantic Seer',
+        characterClass: 'Caster',
+        characterSubclass: 'Pyromantic Seer',
         avatar: '/images/image-packs/characters/ember-gaze.jpg',
         biography: 'A seer who reads the future in dancing flames, wielding fire as both weapon and window to destiny.',
         badges: [
@@ -1786,7 +1796,8 @@
     const pick = arr => arr[Math.floor(Math.random() * arr.length)];
 
     const randomNames = ['Aria Shadowbane', 'Zara-7', 'Marcus Ironforge', 'Luna Starweaver', 'Kai Stormrider', 'Nova Brightblade', 'Rex Cyberpunk', 'Sage Moonwhisper', 'Titan Guardian', 'Vex Nightshade', 'Orion Blaze', 'Lyra Frostwind'];
-    const randomClasses = ['Rogue Assassin', 'Cyberpunk Runner', 'Arcane Scholar', 'Space Marine', 'Fantasy Ranger', 'Tech Specialist', 'Mystic Warrior', 'Shadow Operative', 'Void Walker', 'Chrono Mage', 'Neon Samurai', 'Bio-Engineer'];
+    const randomClasses = ['Fighter', 'Enforcer', 'Berserker', 'Caster', 'Hacker', 'Scholar', 'Scout', 'Rogue', 'Pilot', 'Guardian', 'Medic', 'Trickster', 'Wildcard'];
+    const randomSubclasses = ['Shadow Operative', 'Void Walker', 'Neon Samurai', 'Chrono Mage', 'Bio-Engineer', 'Cyberpunk Runner', 'Arcane Scholar', 'Space Marine', 'Tech Specialist', 'Mystic Warrior', 'Storm Rider', 'Blade Dancer'];
     const randomRarities = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'];
     const randomQuotes = [
       'Shadows are my allies, silence my weapon.',
@@ -1819,6 +1830,8 @@
     // Set random basic info
     document.getElementById('card-name').value = pick(randomNames);
     document.getElementById('card-class').value = pick(randomClasses);
+    const subclassField = document.getElementById('card-subclass');
+    if (subclassField) subclassField.value = pick(randomSubclasses);
     document.getElementById('card-rarity').value = pick(randomRarities);
     document.getElementById('card-quote').value = pick(randomQuotes);
 
@@ -2084,7 +2097,20 @@
     
     if (sampleData.characterClass) {
       const classField = document.getElementById('card-class');
-      if (classField) classField.value = sampleData.characterClass;
+      if (classField) {
+        classField.value = sampleData.characterClass;
+        // Fallback: if value didn't match any option, try to map or clear
+        if (!classField.value && sampleData.characterClass) {
+          // Old free-text class — use as subclass instead
+          classField.value = '';
+          const subFallback = document.getElementById('card-subclass');
+          if (subFallback && !sampleData.characterSubclass) subFallback.value = sampleData.characterClass;
+        }
+      }
+    }
+    if (sampleData.characterSubclass) {
+      const subclassField = document.getElementById('card-subclass');
+      if (subclassField) subclassField.value = sampleData.characterSubclass;
     }
     
     if (sampleData.biography) {
@@ -3018,6 +3044,7 @@
     const cardData = {
       name: document.getElementById('card-name')?.value || 'Aria Shadowbane',
       characterClass: document.getElementById('card-class')?.value || '',
+      characterSubclass: document.getElementById('card-subclass')?.value || '',
       rarity: document.getElementById('card-rarity')?.value || '',
       quote: document.getElementById('card-quote')?.value || 'Shadows are my allies, silence my weapon.',
       avatar: document.getElementById('card-avatar')?.value || '',
@@ -3674,7 +3701,7 @@
         </div>
       </div>
       <div class="card-body">
-        <div class="card-class">${data.characterClass}</div>
+        <div class="card-class">${data.characterClass}${data.characterSubclass ? ' — ' + data.characterSubclass : ''}</div>
         <div class="card-rarity">${data.rarity}</div>
         <div class="card-quote">"${data.quote}"</div>
         <div class="card-stats">
@@ -3693,7 +3720,7 @@
       <div class="card-right">
         <div class="card-header">
           <h3 class="card-name">${data.name}</h3>
-          <div class="card-class">${data.characterClass}</div>
+          <div class="card-class">${data.characterClass}${data.characterSubclass ? ' — ' + data.characterSubclass : ''}</div>
         </div>
         <div class="card-body">
           <div class="card-rarity">${data.rarity}</div>
@@ -3714,7 +3741,7 @@
         </div>
         <div class="minimal-info">
           <h3 class="card-name">${data.name}</h3>
-          <div class="card-class">${data.characterClass}</div>
+          <div class="card-class">${data.characterClass}${data.characterSubclass ? ' — ' + data.characterSubclass : ''}</div>
           <div class="card-rarity">${data.rarity}</div>
         </div>
       </div>
@@ -3733,7 +3760,7 @@
         <img src="${data.avatar}" alt="${data.name}" class="card-background" />
         <div class="overlay-content">
           <h3 class="card-name">${data.name}</h3>
-          <div class="card-class">${data.characterClass}</div>
+          <div class="card-class">${data.characterClass}${data.characterSubclass ? ' — ' + data.characterSubclass : ''}</div>
           <div class="card-rarity">${data.rarity}</div>
           <div class="card-quote">"${data.quote}"</div>
           <div class="card-stats">
@@ -3748,7 +3775,7 @@
     return `
       <div class="card-header">
         <h3 class="card-name">${data.name}</h3>
-        <div class="card-class">${data.characterClass}</div>
+        <div class="card-class">${data.characterClass}${data.characterSubclass ? ' — ' + data.characterSubclass : ''}</div>
       </div>
       <div class="card-avatar-container">
         <img src="${data.avatar}" alt="${data.name}" class="card-avatar" />
@@ -3772,7 +3799,7 @@
           </div>
           <div class="frame-content">
             <h3 class="card-name">${data.name}</h3>
-            <div class="card-class">${data.characterClass}</div>
+            <div class="card-class">${data.characterClass}${data.characterSubclass ? ' — ' + data.characterSubclass : ''}</div>
             <div class="card-rarity">${data.rarity}</div>
             <div class="card-quote">"${data.quote}"</div>
             <div class="card-stats">
@@ -3795,7 +3822,7 @@
     <div class="card-back-content">
       <div class="back-header">
         <h3 class="card-name">${data.name}</h3>
-        <div class="card-class">${data.characterClass}</div>
+        <div class="card-class">${data.characterClass}${data.characterSubclass ? ' — ' + data.characterSubclass : ''}</div>
       </div>
       <div class="back-body">
         ${data.biography ? `
