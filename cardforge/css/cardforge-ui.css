@@ -2681,7 +2681,7 @@ opacity: 1;
 /* ── My Cards Grid ── */
 [data-step-section="7"] .my-cards-list {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(var(--mini-card-width), 1fr));
   gap: 0.75rem;
 }
 
@@ -3287,7 +3287,7 @@ opacity: 1;
     width: auto !important;
   }
   [data-step-section="7"] .my-cards-list {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   }
   [data-step-section="7"] .deck-manager-layout {
     flex-direction: column;
