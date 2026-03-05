@@ -133,17 +133,9 @@
   width: 100%;
 }
 
-/* Micro Row — display-only buff tile */
+/* Micro Row — buff row, matches attribute-row styling */
 .micro-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
   min-width: 0;
-  padding: 8px 10px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 6px;
 }
 
 /* Buff row elements */
@@ -164,13 +156,12 @@
 .micro-row .badge-category-select {
   flex: 1;
   min-width: 0;
-  padding: 4px 6px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 6px 8px;
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
   border-radius: 4px;
   background: var(--aura-bg-color, #1a1a2e);
   color: var(--mood-primary-color, #e1e1ff);
   font-family: inherit;
-  font-size: 0.78rem;
 }
 .micro-row .badge-card-body {
   flex: 1.2;
@@ -178,22 +169,12 @@
 }
 .badge-desc-input {
   width: 100%;
-  padding: 3px 6px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 6px 8px;
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
   border-radius: 4px;
-  background: transparent;
-  color: var(--mood-text-secondary, #a0a0c0);
-  font-family: inherit;
-  font-size: 0.72rem;
-  transition: border-color 0.2s ease;
-}
-.badge-desc-input:focus {
-  outline: none;
-  border-color: var(--mood-accent-color, #7b2fff);
+  background: var(--aura-bg-color, #1a1a2e);
   color: var(--mood-primary-color, #e1e1ff);
-}
-.badge-desc-input::placeholder {
-  color: rgba(255, 255, 255, 0.2);
+  font-family: inherit;
 }
 .micro-row .badge-card-count {
   flex-shrink: 0;
