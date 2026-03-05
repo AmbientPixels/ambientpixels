@@ -65,6 +65,7 @@ module.exports = async function (context, req) {
     if (!prompt) {
       context.res = {
         status: 400,
+        headers: corsHeaders,
         body: { error: 'Prompt required' }
       };
       return;
@@ -98,6 +99,7 @@ module.exports = async function (context, req) {
       context.log.error('[Gemini Proxy] Gemini API error:', apiRes.status, data);
       context.res = {
         status: apiRes.status,
+        headers: corsHeaders,
         body: {
           error: 'Gemini API error',
           status: apiRes.status,
@@ -111,12 +113,14 @@ module.exports = async function (context, req) {
 
     context.res = {
       status: 200,
+      headers: corsHeaders,
       body: data
     };
   } catch (error) {
     context.log.error('[Gemini Proxy] Internal error:', error);
     context.res = {
       status: 500,
+      headers: corsHeaders,
       body: { error: 'Internal server error', details: error.message }
     };
   }

@@ -69,7 +69,6 @@
     if (getAiRemaining() <= 0) {
       throw new Error('Daily AI limit reached (' + AI_DAILY_LIMIT + '/day). Upgrade to Pro for unlimited generations.');
     }
-    incrementAiUsage();
     const payload = { prompt };
     if (opts.model) payload.model = opts.model;
     if (opts.generationConfig) payload.generationConfig = opts.generationConfig;
@@ -88,6 +87,8 @@
       throw new Error(errObj.error || `API error ${res.status}`);
     }
 
+    // Only count usage on successful API call
+    incrementAiUsage();
     return res.json();
   }
 
@@ -474,7 +475,10 @@
       setButtonState(btn, 'success', 'Card Created!');
     } catch (err) {
       console.error('[CardForge AI] Full card generation failed:', err);
-      setButtonState(btn, 'error');
+      const msg = err.message && err.message.includes('Daily AI limit')
+        ? 'Limit reached'
+        : 'Failed — Retry';
+      setButtonState(btn, 'error', msg);
     }
   }
 
