@@ -157,13 +157,12 @@
     var genreIcon = GENRE_ICONS[adv.genre] || 'fa-book';
     var genreColor = GENRE_COLORS[adv.genre] || '#7B8FE0';
 
-    var thumbHtml = adv.hasImage || adv.firstSceneImage
-      ? '<img src="' + (adv.firstSceneImage || '') + '" alt="" loading="lazy" />'
-      : '<i class="fas ' + genreIcon + '" style="color:' + genreColor + '"></i>';
-
-    // If we stripped firstSceneImage in the API, show icon
-    if (adv.hasImage && !adv.firstSceneImage) {
-      thumbHtml = '<i class="fas ' + genreIcon + '" style="color:' + genreColor + '"></i>';
+    var thumbHtml;
+    if (adv.firstSceneImage) {
+      thumbHtml = '<img src="' + adv.firstSceneImage + '" alt="" loading="lazy" />';
+    } else {
+      // Use genre illustration as fallback
+      thumbHtml = '<img src="/storyforge/images/genre-' + (adv.genre || 'fantasy') + '.png" alt="" loading="lazy" style="opacity:0.6" />';
     }
 
     var endingType = adv.endingType || 'escape';

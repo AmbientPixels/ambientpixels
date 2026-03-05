@@ -34,9 +34,7 @@
 
     grid.innerHTML = genres.map(function (g) {
       return '<a href="/storyforge/play.html?genre=' + g.id + '" class="adv-hub__genre">' +
-        '<div class="adv-hub__genre-icon" style="color:' + g.color + '">' +
-          '<i class="fas ' + g.icon + '"></i>' +
-        '</div>' +
+        '<img class="adv-hub__genre-img" src="images/genre-' + g.id + '.png" alt="' + g.name + '" loading="lazy" />' +
         '<div class="adv-hub__genre-name">' + g.name + '</div>' +
         '<div class="adv-hub__genre-desc">' + g.description + '</div>' +
       '</a>';

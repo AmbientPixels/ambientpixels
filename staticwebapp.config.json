@@ -381,6 +381,13 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/storyforge/images/*",
+      "allowedRoles": ["anonymous"],
+      "headers": {
+        "Cache-Control": "public, max-age=604800, immutable"
+      }
+    },
+    {
       "route": "/storyforge/gallery.html",
       "allowedRoles": ["anonymous"]
     },

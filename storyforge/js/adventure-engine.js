@@ -127,9 +127,7 @@
 
     grid.innerHTML = genres.map(function (g) {
       return '<div class="adv-genre-card" data-genre="' + g.id + '">' +
-        '<div class="adv-genre-card__icon" style="color:' + g.color + '">' +
-          '<i class="fas ' + g.icon + '"></i>' +
-        '</div>' +
+        '<img class="adv-genre-card__img" src="images/genre-' + g.id + '.png" alt="' + g.name + '" loading="lazy" />' +
         '<div class="adv-genre-card__name">' + g.name + '</div>' +
         '<div class="adv-genre-card__desc">' + g.description + '</div>' +
       '</div>';
