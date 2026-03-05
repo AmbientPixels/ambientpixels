@@ -5,22 +5,22 @@
 window.ArenaAPI = (function () {
   'use strict';
 
-  // Cache the client principal from /.auth/me so we can forward it to direct API calls
-  let _principalCache = null;
-  let _principalFetched = false;
+  // Fetch /.auth/me once and share the promise so concurrent callers all wait
+  let _principalPromise = null;
 
-  async function fetchPrincipal() {
-    if (_principalFetched) return _principalCache;
-    _principalFetched = true;
-    try {
-      const resp = await fetch('/.auth/me');
-      if (!resp.ok) return null;
-      const data = await resp.json();
-      if (data.clientPrincipal) {
-        _principalCache = btoa(JSON.stringify(data.clientPrincipal));
-      }
-    } catch (e) { /* not authenticated */ }
-    return _principalCache;
+  function fetchPrincipal() {
+    if (!_principalPromise) {
+      _principalPromise = fetch('/.auth/me')
+        .then(function (resp) { return resp.ok ? resp.json() : { clientPrincipal: null }; })
+        .then(function (data) {
+          if (data && data.clientPrincipal) {
+            return btoa(JSON.stringify(data.clientPrincipal));
+          }
+          return null;
+        })
+        .catch(function () { return null; });
+    }
+    return _principalPromise;
   }
 
   async function apiFetch(endpoint, options = {}) {
