@@ -175,13 +175,14 @@
       '- biography: A vivid backstory hint (max 220 chars)',
       '- stats: An array of 3-5 objects with "name" (string, e.g. "Attack", "Defense", "Speed") and "value" (number 0-100)',
       '- attributes: An array of 3-5 objects with "name" (string, e.g. "Element", "Faction", "Origin") and "value" (string). Do NOT use "Level", "Experience", "XP", "Rank", "Wins", or "Losses" as attribute names — those come from the arena system.',
-      '- badges: An array of 2-4 objects with "category" (string, e.g. "Skill", "Title"), "icon" (one of: star, heart, bolt, trophy, leaf, gear, book, lightbulb, medal, certificate), "description" (short text), and "quantity" (number 1-5)',
       '- imagePrompt: A detailed visual description for generating the card artwork (max 200 chars). Describe the character\'s appearance, pose, and mood. Do NOT include text or card frames.',
+      '',
+      'Do NOT include a "badges" field — buffs are assigned by the game progression system.',
       '',
       `User Description: ${userPrompt}`,
       '',
       'Return ONLY valid JSON (no markdown, no code fences):',
-      '{"name":"...","class":"...","rarity":"...","level":0,"quote":"...","biography":"...","stats":[{"name":"...","value":0}],"attributes":[{"name":"...","value":"..."}],"badges":[{"category":"...","icon":"star","description":"...","quantity":1}],"imagePrompt":"..."}'
+      '{"name":"...","class":"...","rarity":"...","level":0,"quote":"...","biography":"...","stats":[{"name":"...","value":0}],"attributes":[{"name":"...","value":"..."}],"imagePrompt":"..."}'
     ].join('\n');
   }
 
@@ -394,12 +395,12 @@
       setField(fields.quote, card.quote);
       setField(fields.bio, card.biography);
 
-      // Populate stats
+      // Populate stats (capped to 5)
       if (Array.isArray(card.stats) && window.CardForge?.createStatRow) {
         const statsContainer = document.getElementById('stats-editor');
         if (statsContainer) {
           statsContainer.innerHTML = '';
-          card.stats.forEach(function (s) {
+          card.stats.slice(0, 5).forEach(function (s) {
             statsContainer.appendChild(
               window.CardForge.createStatRow(s.name || '', s.value || 0)
             );
@@ -407,12 +408,14 @@
         }
       }
 
-      // Populate attributes
+      // Populate attributes (capped to rank-based slot cap)
       if (Array.isArray(card.attributes) && window.CardForge?.createAttributeRow) {
         const attrContainer = document.getElementById('attribute-editor');
+        const attrCap = (window.EffectTiers && window.EffectTiers.getSlotCap)
+          ? window.EffectTiers.getSlotCap('attributes') : 4;
         if (attrContainer) {
           attrContainer.innerHTML = '';
-          card.attributes.forEach(function (a) {
+          card.attributes.slice(0, attrCap).forEach(function (a) {
             attrContainer.appendChild(
               window.CardForge.createAttributeRow(a.name || '', a.value || '')
             );
@@ -420,21 +423,26 @@
         }
       }
 
-      // Populate badges
-      if (Array.isArray(card.badges) && window.CardForge?.createBadgeRow) {
+      // Populate badges — use unlocked BUFF_DEFS, respect slot cap and qty cap
+      if (window.CardForge?.createBadgeRow) {
         const badgeContainer = document.getElementById('micro-editor');
         if (badgeContainer) {
           badgeContainer.innerHTML = '';
-          card.badges.forEach(function (b) {
-            badgeContainer.appendChild(
-              window.CardForge.createBadgeRow(
-                b.category || '',
-                b.icon || 'star',
-                b.description || '',
-                b.quantity || 1
-              )
-            );
-          });
+          const ET = window.EffectTiers;
+          const buffCap = (ET && ET.getSlotCap) ? ET.getSlotCap('buffs') : 2;
+          const maxQty = (ET && ET.getMaxBuffQty) ? ET.getMaxBuffQty() : 1;
+          const unlocked = (ET && ET.getUnlockedBuffs) ? ET.getUnlockedBuffs() : [];
+
+          if (unlocked.length > 0) {
+            // Shuffle unlocked buffs and pick up to slot cap
+            const shuffled = [...unlocked].sort(() => Math.random() - 0.5).slice(0, buffCap);
+            shuffled.forEach(function (buff) {
+              const qty = Math.floor(Math.random() * maxQty) + 1;
+              badgeContainer.appendChild(
+                window.CardForge.createBadgeRow(buff.key, buff.icon, buff.description, qty)
+              );
+            });
+          }
         }
       }
 
