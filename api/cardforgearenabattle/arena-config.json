@@ -63,6 +63,13 @@
   "aiLowHpThreshold": 0.3,
   "totalRounds": 3,
   "pointBudget": 300,
+  "buffQtyCaps": {
+    "bronze": 1,
+    "silver": 2,
+    "gold": 3,
+    "platinum": 4,
+    "diamond": 5
+  },
   "combatStatDefs": [
     { "key": "str", "label": "Strength",     "icon": "fa-hand-fist",       "color": "#ff5252" },
     { "key": "agi", "label": "Agility",      "icon": "fa-feather-pointed", "color": "#00e676" },

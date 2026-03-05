@@ -2110,31 +2110,7 @@ body.cf-ui--neon .zone-header h3 i {
   text-shadow: 0 0 4px rgba(0, 0, 0, 0.35);
 }
 
-/* ── Add Badge — ghost secondary action ── */
-[data-step-section="4"] .add-micro-btn {
-  background: transparent !important;
-  color: var(--mood-text-secondary, #a0a0c0) !important;
-  border: 1px dashed rgba(255, 255, 255, 0.08) !important;
-  border-radius: 6px !important;
-  padding: 0.45rem 0.75rem !important;
-  font-size: 0.78rem !important;
-  font-weight: 500 !important;
-  margin-top: 0.5rem;
-  width: 100%;
-  cursor: pointer;
-  transition: all 0.15s ease;
-}
-
-[data-step-section="4"] .add-micro-btn:hover {
-  background: rgba(255, 255, 255, 0.025) !important;
-  border-color: rgba(255, 255, 255, 0.12) !important;
-  color: var(--mood-primary-color, #e1e1ff) !important;
-}
-
-[data-step-section="4"] .add-micro-btn.disabled {
-  opacity: 0.25 !important;
-  cursor: not-allowed !important;
-}
+/* Buffs & Traits — display-only panel (game-assigned via random roll) */
 
 /* =========================================
    ATTRIBUTES TAB — Tile Grid Refactor

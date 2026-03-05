@@ -760,22 +760,7 @@
         }
       }
 
-      // Update buff Add button state based on current count
-      const badgesContainer = document.getElementById('micro-editor');
-      if (badgesContainer) {
-        const addBadgeBtn = document.getElementById('add-micro-btn');
-        if (addBadgeBtn) {
-          const buffCap = getBuffSlotCap();
-          const currentBadges = badgesContainer.querySelectorAll('.micro-row').length;
-          if (currentBadges >= buffCap) {
-            addBadgeBtn.classList.add('disabled');
-            addBadgeBtn.title = `Maximum ${buffCap} buffs reached`;
-          } else {
-            addBadgeBtn.classList.remove('disabled');
-            addBadgeBtn.title = '';
-          }
-        }
-      }
+      // Buffs are display-only (game-assigned) — no add button state to manage
 
       // Update preview after loading prefill data
       updatePreview();
@@ -983,79 +968,31 @@
 
   function createBadgeRow(category = '', icon = 'star', description = '', quantity = 1) {
     const defs = getBuffDefs();
-    // Build category dropdown options from unified BUFF_DEFS
-    const categoryOptions = defs.map(def => {
-      const selected = (category.toLowerCase() === def.key) ? 'selected' : '';
-      const locked = (window.EffectTiers && !window.EffectTiers.isBuffUnlocked(def.key)) ? ' disabled' : '';
-      const lockLabel = locked ? ' [Locked]' : '';
-      return `<option value="${def.key}" ${selected}${locked}>${def.label}${lockLabel} — ${def.description}</option>`;
-    }).join('');
-
-    // Resolve icon from category
+    // Resolve display info from unified BUFF_DEFS
     const matchedDef = defs.find(d => d.key === category.toLowerCase());
     const resolvedIcon = matchedDef ? matchedDef.icon : icon;
+    const displayLabel = matchedDef ? matchedDef.label : (category.charAt(0).toUpperCase() + category.slice(1));
+    const displayDesc = matchedDef ? matchedDef.description : description;
 
+    // Display-only row — buffs are game-assigned, not user-editable
     const badgeRow = document.createElement('div');
     badgeRow.className = 'micro-row';
     badgeRow.innerHTML = `
       <div class="badge-card-header">
-        <select name="micro-category" class="badge-category-select" aria-label="Badge category">
-          ${categoryOptions}
-        </select>
+        <span class="badge-label-display"><i class="fas fa-${resolvedIcon}"></i> ${displayLabel}</span>
+        <input type="hidden" name="micro-category" value="${category}">
         <input type="hidden" name="micro-icon" value="${resolvedIcon}">
-        <button type="button" class="remove-attribute" aria-label="Remove badge">&times;</button>
+        <input type="hidden" name="micro-desc" value="${displayDesc}">
+        <input type="hidden" name="micro-quantity" value="${quantity}">
       </div>
       <div class="badge-card-body">
-        <span class="badge-icon-preview"><i class="fas fa-${resolvedIcon}"></i></span>
-        <input type="text" name="micro-desc" placeholder="Description (optional)" value="${description}">
+        <span class="badge-desc-display">${displayDesc}</span>
       </div>
       <div class="badge-card-count">
-        <input type="range" name="micro-quantity" min="1" max="5" value="${quantity}" class="badge-slider">
+        <span class="badge-qty-label">Qty</span>
         <span class="badge-count-display">${quantity}</span>
       </div>
     `;
-
-    const removeBtn = badgeRow.querySelector('.remove-attribute');
-    const categorySelect = badgeRow.querySelector('select[name="micro-category"]');
-    const descField = badgeRow.querySelector('input[name="micro-desc"]');
-    const quantitySlider = badgeRow.querySelector('input[name="micro-quantity"]');
-    const sliderDisplay = badgeRow.querySelector('.badge-count-display');
-    const hiddenIconInput = badgeRow.querySelector('input[name="micro-icon"]');
-    const iconPreview = badgeRow.querySelector('.badge-icon-preview i');
-
-    // Auto-assign icon when category changes
-    categorySelect.addEventListener('change', function() {
-      const def = getBuffDefs().find(d => d.key === this.value);
-      if (def) {
-        hiddenIconInput.value = def.icon;
-        iconPreview.className = `fas fa-${def.icon}`;
-      }
-      updatePreview();
-    });
-
-    // Set initial slider fill
-    quantitySlider.style.setProperty('--fill', ((quantity - 1) / 4 * 100) + '%');
-
-    quantitySlider.addEventListener('input', function() {
-      sliderDisplay.textContent = this.value;
-      this.style.setProperty('--fill', ((this.value - 1) / 4 * 100) + '%');
-      updatePreview();
-    });
-
-    descField.addEventListener('input', updatePreview);
-
-    removeBtn.addEventListener('click', function() {
-      badgeRow.remove();
-      const addBadgeBtn = document.getElementById('add-micro-btn');
-      if (addBadgeBtn) {
-        const remaining = document.querySelectorAll('#micro-editor .micro-row').length;
-        if (remaining < getBuffSlotCap()) {
-          addBadgeBtn.classList.remove('disabled');
-          addBadgeBtn.title = '';
-        }
-      }
-      updatePreview();
-    });
 
     return badgeRow;
   }
@@ -1193,27 +1130,9 @@
     updateStatBtnState();
   }
   
+  // Buffs are game-assigned (via random roll), no manual add button needed
   function initBadgesEditor() {
-    const addBadgeBtn = document.getElementById('add-micro-btn');
-    if (addBadgeBtn) {
-      addBadgeBtn.addEventListener('click', function() {
-        const badgesContainer = document.getElementById('micro-editor');
-        const buffCap = getBuffSlotCap();
-        const currentBadges = badgesContainer.querySelectorAll('.micro-row').length;
-        if (currentBadges >= buffCap) {
-          addBadgeBtn.classList.add('disabled');
-          addBadgeBtn.title = `Maximum ${buffCap} buffs reached`;
-          return;
-        }
-        const newBadgeRow = createBadgeRow();
-        badgesContainer.appendChild(newBadgeRow);
-        // Update button state after adding
-        if (currentBadges + 1 >= buffCap) {
-          addBadgeBtn.classList.add('disabled');
-          addBadgeBtn.title = `Maximum ${buffCap} buffs reached`;
-        }
-      });
-    }
+    // No-op — buff rows are created by random generator or card load only
   }
 
   function initAttributesEditor() {
@@ -1723,7 +1642,7 @@
     // Buff pool sourced from EffectTiers (single source of truth), filtered by rank
     const buffPool = (window.EffectTiers && window.EffectTiers.getUnlockedBuffs)
       ? window.EffectTiers.getUnlockedBuffs()
-      : window.EffectTiers.BUFF_DEFS || [];
+      : (window.EffectTiers && window.EffectTiers.BUFF_DEFS) || [];
     // Set random basic info
     document.getElementById('card-name').value = pick(randomNames);
     document.getElementById('card-class').value = pick(randomClasses);
@@ -1739,9 +1658,9 @@
     // Clear all dynamic rows (stats, badges, attributes)
     clearAllDynamicRows();
 
-    // Generate random stats (3-6)
+    // Generate random stats (3 to STAT_CAP)
     const statNames = ['Strength', 'Agility', 'Intelligence', 'Stealth', 'Magic', 'Tech', 'Charisma', 'Endurance'];
-    const numStats = Math.floor(Math.random() * 4) + 3;
+    const numStats = Math.floor(Math.random() * (STAT_CAP - 2)) + 3; // 3 to STAT_CAP
     const statsContainer = document.getElementById('stats-editor');
     if (statsContainer) {
       const usedStats = [];
@@ -1754,12 +1673,16 @@
       }
     }
 
-    // Generate random buffs/traits (no duplicates, rank-gated)
+    // Generate random buffs/traits — fills exactly the rank-based slot cap, qty capped by rank
     const badgesContainer = document.getElementById('micro-editor');
+    const buffSlots = getBuffSlotCap();
+    const maxQty = (window.EffectTiers && window.EffectTiers.getMaxBuffQty)
+      ? window.EffectTiers.getMaxBuffQty() : 1;
     if (badgesContainer && buffPool.length > 0) {
-      const shuffled = [...buffPool].sort(() => Math.random() - 0.5).slice(0, getBuffSlotCap());
+      const count = Math.min(buffSlots, buffPool.length);
+      const shuffled = [...buffPool].sort(() => Math.random() - 0.5).slice(0, count);
       shuffled.forEach(buff => {
-        const quantity = Math.floor(Math.random() * 3) + 1; // 1-3
+        const quantity = Math.floor(Math.random() * maxQty) + 1; // 1 to maxQty
         badgesContainer.appendChild(createBadgeRow(buff.key, buff.icon, buff.description, quantity));
       });
     }
@@ -2039,15 +1962,10 @@
       statsContainer.innerHTML = '';
     }
     
-    // Clear badges and re-enable Add button
+    // Clear badges
     const badgesContainer = document.getElementById('micro-editor');
     if (badgesContainer) {
       badgesContainer.innerHTML = '';
-      const addBadgeBtn = document.getElementById('add-micro-btn');
-      if (addBadgeBtn) {
-        addBadgeBtn.classList.remove('disabled');
-        addBadgeBtn.title = '';
-      }
     }
     
     // Clear attributes and re-enable Add button

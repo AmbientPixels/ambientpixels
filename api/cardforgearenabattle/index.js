@@ -136,18 +136,23 @@ function mapCardToCombatStats(card) {
   return combat;
 }
 
-function computePassives(card) {
+function computePassives(card, rank) {
   const config = loadArenaConfig();
   const passives = [];
 
   if (!card.badges || card.badges.length === 0) return passives;
+
+  // Server-side qty cap enforcement — prevent inflated client data
+  const qtyCaps = config.buffQtyCaps || {};
+  const maxQty = qtyCaps[(rank || 'bronze').toLowerCase()] || 1;
 
   for (const badge of card.badges) {
     const category = (badge.category || '').toLowerCase().trim();
     const passiveDef = config.badgePassives[category];
     if (!passiveDef) continue;
 
-    const qty = badge.quantity || 1;
+    const rawQty = badge.quantity || 1;
+    const qty = Math.min(rawQty, maxQty); // Clamp to rank-based max
     const value = Math.min(passiveDef.valuePerQty * qty, passiveDef.maxValue);
     passives.push({
       source: `badge:${badge.category}`,
@@ -454,11 +459,15 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
     }
   }
 
-  // Compute combat stats
+  // Load player profile for rank-based buff qty caps
+  const playerProfile = await downloadJsonBlob(containerClient, `arena/profiles/${userId}.json`);
+  const playerRank = (playerProfile && playerProfile.rank) ? playerProfile.rank : 'bronze';
+
+  // Compute combat stats — passives clamped to rank-based qty cap
   const playerCombat = mapCardToCombatStats(playerCard);
   const opponentCombat = mapCardToCombatStats(opponentCard);
-  const playerPassives = computePassives(playerCard);
-  const opponentPassives = computePassives(opponentCard);
+  const playerPassives = computePassives(playerCard, playerRank);
+  const opponentPassives = computePassives(opponentCard, 'diamond'); // AI/opponents use uncapped
 
   // Apply persistent stat bonuses from buffs (end_bonus, all_stats)
   applyStatPassives(playerCombat, playerPassives);

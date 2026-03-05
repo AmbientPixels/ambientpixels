@@ -49,7 +49,6 @@
 /* Form Buttons - Add Buttons */
 .cardforge-form button,
 .add-stat-btn,
-.add-micro-btn,
 .add-attribute-btn,
 .choose-image-btn {
   background: var(--mood-accent-color, #4a4a6a);
@@ -67,7 +66,6 @@
 /* Form Buttons - Hover States */
 .cardforge-form button:hover,
 .add-stat-btn:hover,
-.add-micro-btn:hover,
 .add-attribute-btn:hover,
 .choose-image-btn:hover {
   background: var(--mood-primary-color, #e1e1ff);
@@ -77,13 +75,11 @@
 /* Form Buttons - Active States */
 .cardforge-form button:active,
 .add-stat-btn:active,
-.add-micro-btn:active,
 .add-attribute-btn:active {
   transform: translateY(0);
 }
 
 /* Form Buttons - Disabled State (cap reached) */
-.add-micro-btn.disabled,
 .add-stat-btn.disabled,
 .add-attribute-btn.disabled {
   opacity: 0.4;
@@ -133,36 +129,62 @@
   width: 100%;
 }
 
-/* Micro Row Grid Layout */
+/* Micro Row — display-only buff tile */
 .micro-row {
-  display: grid;
-  grid-template-columns: 120px 100px 1fr 32px;
-  gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   width: 100%;
   min-width: 0;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
 }
 
-.micro-row > * {
-  min-width: 0;
-  max-width: 100%;
-  overflow: hidden;
-  box-sizing: border-box;
+/* Display-only buff row elements */
+.badge-label-display {
+  font-weight: 600;
+  font-size: 0.82rem;
+  color: var(--mood-primary-color, #e1e1ff);
+  white-space: nowrap;
+  min-width: 100px;
 }
-
-.micro-row input,
-.micro-row select {
-  width: 100%;
-  min-width: 0;
-  max-width: 100%;
+.badge-label-display i {
+  margin-right: 6px;
+  opacity: 0.8;
+}
+.badge-desc-display {
+  flex: 1;
+  font-size: 0.75rem;
+  color: var(--mood-text-secondary, #a0a0c0);
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
+}
+.badge-qty-label {
+  font-size: 0.7rem;
+  color: var(--mood-text-secondary, #a0a0c0);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.micro-row .badge-count-display {
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--mood-accent-color, #7b2fff);
+  min-width: 16px;
+  text-align: center;
+}
+.micro-row .badge-card-count {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  flex-shrink: 0;
 }
 
 /* Input Sizing Within Rows */
 .stat-row input,
-.micro-row input,
-.micro-row select,
 .attribute-row input {
   flex: 1;
   min-width: 0;

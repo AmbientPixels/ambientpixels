@@ -339,8 +339,54 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/api/adventuresave",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/adventuresave",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/adventureload",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/adventureload",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/adventuregallery",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/adventuregallery",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/adventureshare",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/adventureshare",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/api/*",
       "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/{path}"
+    },
+    {
+      "route": "/adventure/css/*",
+      "allowedRoles": ["anonymous"],
+      "headers": {
+        "Cache-Control": "public, max-age=604800, immutable"
+      }
+    },
+    {
+      "route": "/adventure/js/*",
+      "allowedRoles": ["anonymous"],
+      "headers": {
+        "Cache-Control": "public, max-age=86400"
+      }
+    },
+    {
+      "route": "/adventure/data/*",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/adventure/gallery.html",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/adventure/*",
+      "allowedRoles": ["authenticated"]
     },
     {
       "route": "/cardforge/*.css",

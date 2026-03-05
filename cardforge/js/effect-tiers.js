@@ -142,6 +142,15 @@
     diamond:  { buffs: 4, attributes: 4 }
   };
 
+  // Rank-based max quantity per buff — higher ranks stack stronger passives
+  var QTY_CAPS = {
+    bronze:   1,
+    silver:   2,
+    gold:     3,
+    platinum: 4,
+    diamond:  5
+  };
+
   /**
    * Get the max buff/attribute slots for the current user's rank.
    * @param {string} slotType — 'buffs' or 'attributes'
@@ -156,6 +165,20 @@
       return 4;
     }
     return caps[slotType] || 2;
+  }
+
+  /**
+   * Get the max quantity per buff for the current user's rank.
+   * @returns {number} 1-5
+   */
+  function getMaxBuffQty() {
+    var profile = window._arenaProfile;
+    var userRank = (profile && profile.rank) ? profile.rank.toLowerCase() : 'bronze';
+    // Pro subscription unlocks max qty
+    if (window.Entitlements && window.Entitlements.isPro && window.Entitlements.isPro()) {
+      return 5;
+    }
+    return QTY_CAPS[userRank] || 1;
   }
 
   var CATEGORY_LABELS = {
@@ -385,7 +408,9 @@
     getBuffTier: getBuffTier,
     isBuffUnlocked: isBuffUnlocked,
     getUnlockedBuffs: getUnlockedBuffs,
-    getSlotCap: getSlotCap
+    getSlotCap: getSlotCap,
+    QTY_CAPS: QTY_CAPS,
+    getMaxBuffQty: getMaxBuffQty
   };
 })();
 
