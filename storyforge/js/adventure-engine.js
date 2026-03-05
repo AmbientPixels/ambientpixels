@@ -54,6 +54,7 @@
         var card = document.querySelector('.adv-genre-card[data-genre="' + genreId + '"]');
         if (card) card.classList.add('adv-genre-card--selected');
         UI.$('startAdventureBtn').disabled = false;
+        showCharacterCreator(selectedGenre);
       }
       UI.showScreen('screenGenreSelect');
     } else {
