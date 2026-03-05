@@ -301,7 +301,7 @@ class CardForgeActions {
           const existingIndex = savedCards.findIndex(card => card.id === cardId);
           if (existingIndex >= 0) savedCards[existingIndex] = savedCard;
           else savedCards.unshift(savedCard);
-          localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards));
+          try { localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards)); } catch (_) {}
           // Clear card-id so the next save creates a new card
           if (idField) idField.value = '';
           this.refreshMyCardsList();
@@ -319,7 +319,14 @@ class CardForgeActions {
             savedCards.unshift(savedCard);
             this.showNotification(`Card "${savedCard.name}" saved locally`, 'warning');
           }
-          localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards));
+          try {
+            localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards));
+          } catch (storageErr) {
+            console.warn('[CardForge] localStorage quota exceeded, pruning oldest cards');
+            while (savedCards.length > 20) savedCards.pop();
+            try { localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards)); }
+            catch (_) { this.showNotification('Storage full — please delete some saved cards', 'error'); }
+          }
           // Clear card-id so the next save creates a new card
           if (idField) idField.value = '';
           this.refreshMyCardsList();
@@ -337,7 +344,14 @@ class CardForgeActions {
           savedCards.unshift(savedCard);
           this.showNotification(`Card "${savedCard.name}" saved locally (sign in to sync)`, 'info');
         }
-        localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards));
+        try {
+          localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards));
+        } catch (storageErr) {
+          console.warn('[CardForge] localStorage quota exceeded, pruning oldest cards');
+          while (savedCards.length > 20) savedCards.pop();
+          try { localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards)); }
+          catch (_) { this.showNotification('Storage full — please delete some saved cards', 'error'); }
+        }
         // Clear card-id so the next save creates a new card
         if (idField) idField.value = '';
         this.refreshMyCardsList();
@@ -345,7 +359,7 @@ class CardForgeActions {
           window.CardForgeChrome.finishSaving(true);
         }
       }
-      
+
     } catch (error) {
       console.error('Error saving card:', error);
       this.showNotification('Error saving card', 'error');
@@ -1855,7 +1869,7 @@ const resp = await fetch(loadUrl, {
             if (c) {
               c.isPublished = true;
               c.published = true;
-              localStorage.setItem('cardforge_saved_cards', JSON.stringify(cards));
+              try { localStorage.setItem('cardforge_saved_cards', JSON.stringify(cards)); } catch (_) {}
             }
             // Update nav publish button
             CardForgeActions.setPublishNavState('published');
@@ -2540,7 +2554,7 @@ CardForgeActions.prototype.duplicateCard = function(cardId) {
   copy.name = newName;
   copy.lastModified = new Date().toISOString();
   savedCards.unshift(copy);
-  localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards));
+  try { localStorage.setItem('cardforge_saved_cards', JSON.stringify(savedCards)); } catch (_) {}
   this.refreshMyCardsList();
   this.showNotification(`Card duplicated as "${newName}"`, 'success');
 };

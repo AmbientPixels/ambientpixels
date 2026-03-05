@@ -83,6 +83,7 @@
   // ===== BADGE TOOLTIP =====
   // Use portal tooltip for badge items — suppress native title.
   document.addEventListener('mouseenter', function (e) {
+    if (!e.target || !e.target.closest) return;
     const badge = e.target.closest('.badge-item[title], .badge-item[data-cf-title]');
     if (!badge) return;
     const text = badge.getAttribute('title') || badge.dataset.cfTitle;
@@ -95,6 +96,7 @@
   }, true);
 
   document.addEventListener('mouseleave', function (e) {
+    if (!e.target || !e.target.closest) return;
     const badge = e.target.closest('.badge-item');
     if (!badge) return;
     if (badge.dataset.cfTitle) {
@@ -107,6 +109,7 @@
   // ===== ATTRIBUTE ELLIPSIS TOOLTIP =====
   // Show full text on hover when attribute key/value is truncated (ellipsed).
   document.addEventListener('mouseenter', function (e) {
+    if (!e.target || !e.target.closest) return;
     const el = e.target.closest('.attribute-key, .attribute-value');
     if (!el) return;
     // Only show tooltip if content is actually truncated
@@ -117,6 +120,7 @@
   }, true);
 
   document.addEventListener('mouseleave', function (e) {
+    if (!e.target || !e.target.closest) return;
     const el = e.target.closest('.attribute-key, .attribute-value');
     if (!el) return;
     removePortalTooltip();
