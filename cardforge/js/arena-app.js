@@ -109,6 +109,7 @@ window.ArenaApp = (function () {
         disablePvP();
       } else {
         state.userCards = cardsData.userCards || [];
+        showAuthStatus();
       }
 
       // Render profile
@@ -148,6 +149,25 @@ window.ArenaApp = (function () {
     // Show login button in top bar
     var loginBtn = document.getElementById('arena-login-btn');
     if (loginBtn) loginBtn.style.display = 'inline-flex';
+  }
+
+  function showAuthStatus() {
+    // Show logged-in user info in top bar
+    fetch('/.auth/me').then(function (r) { return r.json(); }).then(function (data) {
+      if (!data || !data.clientPrincipal) return;
+      var name = (data.clientPrincipal.userDetails || '').split('@')[0] || 'User';
+      var loginBtn = document.getElementById('arena-login-btn');
+      var userStatus = document.getElementById('arena-user-status');
+      var userName = document.getElementById('arena-user-name');
+      if (loginBtn) loginBtn.style.display = 'none';
+      if (userStatus) userStatus.style.display = 'inline-flex';
+      if (userName) userName.textContent = name;
+    }).catch(function () {});
+
+    document.getElementById('arena-logout-btn')?.addEventListener('click', function (e) {
+      e.preventDefault();
+      window.location.href = '/.auth/logout?post_logout_redirect_uri=/cardforge/arena.html';
+    });
   }
 
   function disablePvP() {

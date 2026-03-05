@@ -776,3 +776,35 @@
   background: rgba(0, 212, 255, 0.1);
   border-color: rgba(0, 212, 255, 0.5);
 }
+.arena-auth-link--logout {
+  color: #a0a0c0;
+  border-color: rgba(255,255,255,0.1);
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+}
+.arena-auth-link--logout:hover {
+  color: #ff5252;
+  border-color: rgba(255, 82, 82, 0.3);
+  background: rgba(255, 82, 82, 0.08);
+}
+
+.arena-user-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: #c0c0d8;
+}
+.arena-user-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #00e676;
+}
+#arena-user-name {
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (max-width: 600px) { #arena-user-name { display: none; } }
