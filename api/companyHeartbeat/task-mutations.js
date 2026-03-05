@@ -6,9 +6,17 @@ const { stripTaskPrefixes } = require("./helpers");
 // ── Apply task mutation ──
 function applyTaskUpdate(tasks, update, _pendingEscalations, _creatingAgentId) {
   if (update.action === 'create') {
-    const riskLevel = update.task.risk_level || 'low';
+    var riskLevel = update.task.risk_level || 'low';
     const budgetImpact = update.task.budget_impact || 0;
-    const brandImpact = update.task.brand_impact || 'low';
+    var brandImpact = update.task.brand_impact || 'low';
+
+    // Social tasks are brand-impacting — override defaults
+    const _SOCIAL_TASK_TYPES = ['social_x', 'social_linkedin', 'social_bluesky', 'social_post'];
+    if (_SOCIAL_TASK_TYPES.indexOf(update.task.taskType) !== -1) {
+      if (brandImpact === 'low') brandImpact = 'medium';
+      if (riskLevel === 'low') riskLevel = 'medium';
+    }
+
     // Auto-classify
     let classification = update.task.classification || 'autonomous';
     if (riskLevel === 'high' || brandImpact === 'high') classification = 'executive_required';
