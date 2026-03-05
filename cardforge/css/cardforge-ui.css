@@ -2678,7 +2678,38 @@ opacity: 1;
   font-style: italic;
 }
 
-/* ── My Cards Grid ── */
+/* ── My Cards Grid — scrollable container ── */
+[data-step-section="7"] .my-cards-scroll {
+  position: relative;
+  max-height: 580px; /* ~2 rows of mini cards */
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.15) transparent;
+}
+
+/* Fade hint at bottom when scrollable */
+[data-step-section="7"] .my-cards-scroll::after {
+  content: "";
+  position: sticky;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: block;
+  height: 32px;
+  background: linear-gradient(transparent, var(--aura-bg-color, #0f0f1a));
+  pointer-events: none;
+  z-index: 1;
+}
+
+[data-step-section="7"] .my-cards-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+[data-step-section="7"] .my-cards-scroll::-webkit-scrollbar-thumb {
+  background: rgba(255,255,255,0.15);
+  border-radius: 2px;
+}
+
 [data-step-section="7"] .my-cards-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(var(--mini-card-width), 1fr));
@@ -3285,6 +3316,9 @@ opacity: 1;
     flex: 1 1 0 !important;
     justify-content: center !important;
     width: auto !important;
+  }
+  [data-step-section="7"] .my-cards-scroll {
+    max-height: 460px;
   }
   [data-step-section="7"] .my-cards-list {
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
