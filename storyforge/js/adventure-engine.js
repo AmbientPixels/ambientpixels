@@ -18,7 +18,8 @@
 
   // --- Initialize ---
   function init() {
-    loadGenres().then(function () {
+    var entPromise = Ent ? Ent.load() : Promise.resolve(null);
+    Promise.all([loadGenres(), entPromise]).then(function () {
       bindEvents();
       handleUrlParams();
     });
