@@ -808,3 +808,33 @@
   white-space: nowrap;
 }
 @media (max-width: 600px) { #arena-user-name { display: none; } }
+
+/* ===== Champion Record (inline rank + W/L) ===== */
+.arena-champion__record {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.4rem;
+  font-size: 0.8rem;
+  color: #b0b0c8;
+}
+
+.arena-champion__rank-pill {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #fff;
+  background: #6b5b3a;
+}
+
+.arena-champion__rank-pill--bronze { background: #8d6e3f; }
+.arena-champion__rank-pill--silver { background: #6b7b8d; }
+.arena-champion__rank-pill--gold { background: #b8952f; }
+.arena-champion__rank-pill--platinum { background: #5f8a8a; }
+.arena-champion__rank-pill--diamond { background: #5b6fbf; }
+.arena-champion__rank-pill--master { background: #7b3fa0; }
+.arena-champion__rank-pill--legend { background: linear-gradient(135deg, #b8952f, #e06030); }

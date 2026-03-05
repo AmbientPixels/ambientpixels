@@ -110,6 +110,12 @@ window.ArenaAPI = (function () {
     // Load user's cards (reuse existing endpoint)
     loadCards() {
       return apiFetch('loadCards');
+    },
+
+    // Expose auth header for use by other modules (e.g., card editor)
+    async getPrincipalHeader() {
+      var principal = await fetchPrincipal();
+      return principal ? { 'X-CF-Auth-Principal': principal } : {};
     }
   };
 })();

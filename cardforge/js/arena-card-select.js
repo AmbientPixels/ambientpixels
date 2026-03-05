@@ -70,7 +70,7 @@ window.ArenaCardSelect = (function () {
     });
   }
 
-  function renderChampionDisplay(card, containerId) {
+  function renderChampionDisplay(card, containerId, profile) {
     const container = document.getElementById(containerId);
     if (!container) return;
 
@@ -87,6 +87,22 @@ window.ArenaCardSelect = (function () {
     const stats = mapStats(card);
     const hp = computeHp(stats);
     const hasNoStats = !card.stats || card.stats.length === 0;
+
+    // Build record line from profile
+    let recordHTML = '';
+    if (profile && profile.record) {
+      const rank = (profile.rank || 'unranked').charAt(0).toUpperCase() + (profile.rank || 'unranked').slice(1);
+      const w = profile.record.wins || 0;
+      const l = profile.record.losses || 0;
+      const lvl = profile.level || 1;
+      recordHTML = `
+        <div class="arena-champion__record">
+          <span class="arena-champion__rank-pill arena-champion__rank-pill--${(profile.rank || 'bronze').toLowerCase()}">${rank}</span>
+          <span>Lv.${lvl}</span>
+          <span>${w}W / ${l}L</span>
+        </div>
+      `;
+    }
 
     container.innerHTML = `
       <div class="arena-champion__card">
@@ -105,6 +121,7 @@ window.ArenaCardSelect = (function () {
             <span title="Luck"><i class="fas fa-clover"></i> LCK ${stats.lck}</span>
             <span title="HP" class="arena-champion__hp"><i class="fas fa-heart-pulse"></i> HP ${hp}</span>
           </div>
+          ${recordHTML}
           ${hasNoStats ? '<div class="arena-champion__nudge"><i class="fas fa-info-circle"></i> Add stats in the editor for a combat advantage!</div>' : ''}
         </div>
       </div>

@@ -182,7 +182,7 @@ window.ArenaApp = (function () {
 
   function onCardSelected(card, skipSave) {
     state.selectedCard = card;
-    window.ArenaCardSelect.renderChampionDisplay(card, 'arena-champion-display');
+    window.ArenaCardSelect.renderChampionDisplay(card, 'arena-champion-display', state.profile);
     window.ArenaCardSelect.highlightCard('arena-card-strip', card.id);
 
     // Enable PvE button (PvP only if not demo)

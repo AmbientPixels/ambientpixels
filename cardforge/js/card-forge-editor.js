@@ -1453,6 +1453,11 @@
     // Roll a random card for better initial experience
     // Note: Using direct call since we're inside the IIFE closure
     rollRandomCard();
+
+    // Fetch arena profile for Battle Record (non-blocking)
+    loadArenaStats().then(function (profile) {
+      if (profile) updatePreview();
+    });
     
     // Default image effects and borders to none on page load
     ModularState.imageEffect = 'none';
@@ -3549,6 +3554,57 @@
     return html;
   }
   
+  // ===== GAME STATS (Battle Record) =====
+  // Fetched from arena profile, rendered read-only on card back
+  function loadArenaStats() {
+    if (!window.ArenaAPI || !window.ArenaAPI.getPrincipalHeader) return Promise.resolve(null);
+    return window.ArenaAPI.getPrincipalHeader().then(function (headers) {
+      if (!headers['X-CF-Auth-Principal']) return null;
+      var url = window.buildApiPath('arenaProfile');
+      if (!url) return null;
+      return fetch(url, { headers: Object.assign({ 'Content-Type': 'application/json' }, headers) })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .catch(function () { return null; });
+    }).then(function (profile) {
+      window._arenaProfile = profile;
+      return profile;
+    }).catch(function () {
+      window._arenaProfile = null;
+      return null;
+    });
+  }
+
+  function generateGameStatsHTML(profile) {
+    if (!profile || !profile.record) return '';
+    var w = profile.record.wins || 0;
+    var l = profile.record.losses || 0;
+    var rank = (profile.rank || 'unranked').charAt(0).toUpperCase() + (profile.rank || 'unranked').slice(1);
+    var lvl = profile.level || 1;
+    return `
+      <div class="card-game-stats">
+        <div class="card-game-stats__title">Battle Record</div>
+        <div class="card-game-stats__grid">
+          <div class="card-game-stats__item">
+            <span class="card-game-stats__value">${w}</span>
+            <span class="card-game-stats__label">Wins</span>
+          </div>
+          <div class="card-game-stats__item">
+            <span class="card-game-stats__value">${l}</span>
+            <span class="card-game-stats__label">Losses</span>
+          </div>
+          <div class="card-game-stats__item">
+            <span class="card-game-stats__value">${rank}</span>
+            <span class="card-game-stats__label">Rank</span>
+          </div>
+          <div class="card-game-stats__item">
+            <span class="card-game-stats__value">Lv.${lvl}</span>
+            <span class="card-game-stats__label">Level</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
   function generateAttributesHTML(attributes) {
     if (!attributes || attributes.length === 0) {
       return '<div class="no-attributes">No attributes available</div>';
@@ -3726,7 +3782,9 @@
               ${generateBadgesHTML(data.badges)}
             </div>
           </div>
-          
+
+          ${generateGameStatsHTML(window._arenaProfile)}
+
           <div class="back-section attributes-section">
             <h4 class="section-title">Attributes</h4>
             <div class="attributes-container">
