@@ -50,6 +50,7 @@
 .cardforge-form button,
 .add-stat-btn,
 .add-attribute-btn,
+.add-buff-btn,
 .choose-image-btn {
   background: var(--mood-accent-color, #4a4a6a);
   color: var(--aura-bg-color, #1a1a2e);
@@ -67,6 +68,7 @@
 .cardforge-form button:hover,
 .add-stat-btn:hover,
 .add-attribute-btn:hover,
+.add-buff-btn:hover,
 .choose-image-btn:hover {
   background: var(--mood-primary-color, #e1e1ff);
   transform: translateY(-1px);
@@ -75,13 +77,15 @@
 /* Form Buttons - Active States */
 .cardforge-form button:active,
 .add-stat-btn:active,
-.add-attribute-btn:active {
+.add-attribute-btn:active,
+.add-buff-btn:active {
   transform: translateY(0);
 }
 
 /* Form Buttons - Disabled State (cap reached) */
 .add-stat-btn.disabled,
-.add-attribute-btn.disabled {
+.add-attribute-btn.disabled,
+.add-buff-btn.disabled {
   opacity: 0.4;
   cursor: not-allowed;
   pointer-events: none;
@@ -257,34 +261,6 @@
 .buff-progress-chip i {
   font-size: 0.6rem;
   opacity: 0.7;
-}
-
-/* Add Buff button — mirrors .add-attribute-btn */
-.add-buff-btn {
-  background: var(--mood-accent-color, #4a4a6a);
-  color: var(--aura-bg-color, #1a1a2e);
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-family: inherit;
-  font-weight: 500;
-  font-size: 0.8rem;
-  margin-top: 8px;
-  transition: background-color 0.2s ease, transform 0.1s ease;
-}
-.add-buff-btn:hover {
-  background: var(--mood-primary-color, #e1e1ff);
-  transform: translateY(-1px);
-}
-.add-buff-btn:active {
-  transform: translateY(0);
-}
-.add-buff-btn.disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  pointer-events: none;
-  transform: none;
 }
 
 /* Buff progression banner — shown above buff section when unlocks remain */
