@@ -6,6 +6,9 @@
 window.AdventureEntitlements = (function () {
   'use strict';
 
+  // TODO: Set to false to re-enable pay gate after testing
+  var DEV_BYPASS = true;
+
   var FREE_DEFAULTS = {
     tier: 'free',
     hasActiveSubscription: false,
@@ -18,12 +21,31 @@ window.AdventureEntitlements = (function () {
     maxSaveSlots: 1
   };
 
+  var PRO_DEFAULTS = {
+    tier: 'pro',
+    hasActiveSubscription: true,
+    sfAllGenres: true,
+    sfUnlimitedAdventures: true,
+    sfAllImages: true,
+    sfExtraSaves: true,
+    dailyLimit: 999,
+    imageFrequency: 1,
+    maxSaveSlots: 999
+  };
+
   var _data = null;
   var _loadPromise = null;
 
   // --- Load entitlements from API ---
   function load() {
     if (_loadPromise) return _loadPromise;
+
+    if (DEV_BYPASS) {
+      console.warn('[SF Entitlements] DEV_BYPASS active — all features unlocked');
+      _data = PRO_DEFAULTS;
+      _loadPromise = Promise.resolve(_data);
+      return _loadPromise;
+    }
 
     _loadPromise = fetch('/api/storyforge-entitlements', {
       headers: { 'Content-Type': 'application/json' },
