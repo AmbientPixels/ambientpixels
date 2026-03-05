@@ -5,7 +5,7 @@ window.AdventureAI = (function () {
   'use strict';
 
   var GEMINI_ENDPOINT = '/api/geminiproxy';
-  var TEXT_MODEL = 'gemini-2.0-flash';
+  var TEXT_MODEL = 'gemini-2.5-flash';
   var IMAGE_MODEL = 'gemini-2.5-flash-image';
 
   var DAILY_LIMIT_KEY = 'storyforge-ai-usage';
