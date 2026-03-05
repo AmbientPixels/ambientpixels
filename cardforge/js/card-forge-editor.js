@@ -3565,7 +3565,11 @@
       return fetch(url, { headers: Object.assign({ 'Content-Type': 'application/json' }, headers) })
         .then(function (r) { return r.ok ? r.json() : null; })
         .catch(function () { return null; });
-    }).then(function (profile) {
+    }).then(function (data) {
+      // API returns { profile: { ... }, isDemo }, unwrap to inner profile
+      var profile = (data && data.profile) ? data.profile : null;
+      // Skip demo profiles — only show real arena records
+      if (data && data.isDemo) profile = null;
       window._arenaProfile = profile;
       return profile;
     }).catch(function () {
@@ -3580,6 +3584,7 @@
     var l = profile.record.losses || 0;
     var rank = (profile.rank || 'unranked').charAt(0).toUpperCase() + (profile.rank || 'unranked').slice(1);
     var lvl = profile.level || 1;
+    var xp = profile.xp || 0;
     return `
       <div class="card-game-stats">
         <div class="card-game-stats__title">Battle Record</div>
@@ -3599,6 +3604,10 @@
           <div class="card-game-stats__item">
             <span class="card-game-stats__value">Lv.${lvl}</span>
             <span class="card-game-stats__label">Level</span>
+          </div>
+          <div class="card-game-stats__item">
+            <span class="card-game-stats__value">${xp}</span>
+            <span class="card-game-stats__label">XP</span>
           </div>
         </div>
       </div>
