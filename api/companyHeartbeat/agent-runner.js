@@ -392,6 +392,13 @@ Write the full deliverable first, then the structured JSON block.`;
               } catch (_doneErr) {
                 _socialIdle = _doneSocial;
               }
+              // Sort: campaign tasks first, then newest first (so ConversionCore tasks process before old stale ones)
+              _socialIdle.sort(function (a, b) {
+                var aCmp = a.campaign_id ? 0 : 1;
+                var bCmp = b.campaign_id ? 0 : 1;
+                if (aCmp !== bCmp) return aCmp - bCmp;
+                return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
+              });
               if (_socialIdle.length > 0) {
                 context.log('[Heartbeat] ANTI-STALL: echo found', _socialIdle.length, 'done social task(s) from full tasks array for create-social-action injection');
               }
