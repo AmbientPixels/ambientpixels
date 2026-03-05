@@ -134,7 +134,9 @@
   };
 
   // Rank-based slot caps — buffs & attributes unlock more slots as players progress
+  // Guest tier = signed-out users (1 slot to incentivize sign-in)
   var SLOT_CAPS = {
+    guest:    { buffs: 1, attributes: 1 },
     bronze:   { buffs: 2, attributes: 2 },
     silver:   { buffs: 3, attributes: 3 },
     gold:     { buffs: 4, attributes: 4 },
@@ -144,6 +146,7 @@
 
   // Rank-based max quantity per buff — higher ranks stack stronger passives
   var QTY_CAPS = {
+    guest:    1,
     bronze:   1,
     silver:   2,
     gold:     3,
@@ -152,18 +155,32 @@
   };
 
   /**
+   * Check whether the current user is authenticated.
+   * Used to distinguish guest (signed-out) from bronze (signed-in, rank 0).
+   */
+  function isAuthenticated() {
+    if (typeof location !== 'undefined' && (location.hostname === 'localhost' || location.hostname === '127.0.0.1')) return true;
+    return sessionStorage.getItem('isAuthenticated') === 'true' ||
+           (document.body && document.body.getAttribute('data-auth-state') === 'signed-in');
+  }
+
+  /**
    * Get the max buff/attribute slots for the current user's rank.
    * @param {string} slotType — 'buffs' or 'attributes'
    * @returns {number}
    */
   function getSlotCap(slotType) {
-    var profile = window._arenaProfile;
-    var userRank = (profile && profile.rank) ? profile.rank.toLowerCase() : 'bronze';
-    var caps = SLOT_CAPS[userRank] || SLOT_CAPS.bronze;
     // Pro subscription unlocks max slots
     if (window.Entitlements && window.Entitlements.isPro && window.Entitlements.isPro()) {
       return 4;
     }
+    // Signed-out users get guest tier (1 slot) to incentivize sign-in
+    if (!isAuthenticated()) {
+      return SLOT_CAPS.guest[slotType] || 1;
+    }
+    var profile = window._arenaProfile;
+    var userRank = (profile && profile.rank) ? profile.rank.toLowerCase() : 'bronze';
+    var caps = SLOT_CAPS[userRank] || SLOT_CAPS.bronze;
     return caps[slotType] || 2;
   }
 
@@ -172,12 +189,16 @@
    * @returns {number} 1-5
    */
   function getMaxBuffQty() {
-    var profile = window._arenaProfile;
-    var userRank = (profile && profile.rank) ? profile.rank.toLowerCase() : 'bronze';
     // Pro subscription unlocks max qty
     if (window.Entitlements && window.Entitlements.isPro && window.Entitlements.isPro()) {
       return 5;
     }
+    // Signed-out users locked to ×1
+    if (!isAuthenticated()) {
+      return 1;
+    }
+    var profile = window._arenaProfile;
+    var userRank = (profile && profile.rank) ? profile.rank.toLowerCase() : 'bronze';
     return QTY_CAPS[userRank] || 1;
   }
 
@@ -424,6 +445,67 @@
     return BUFF_DEFS.filter(function (d) { return isBuffUnlocked(d.key); });
   }
 
+  /**
+   * Get the tooltip text for the ×N multiplier display.
+   * Explains progression to next qty tier.
+   */
+  function getQtyTooltip() {
+    var maxQty = getMaxBuffQty();
+    if (!isAuthenticated()) {
+      return 'Sign in and play Arena to unlock multiplier stacking';
+    }
+    var profile = window._arenaProfile;
+    var userRank = (profile && profile.rank) ? profile.rank.toLowerCase() : 'bronze';
+    var nextRank = getNextRank(userRank);
+    if (!nextRank) return 'Max multiplier reached (\u00d7' + maxQty + ')';
+    var nextQty = QTY_CAPS[nextRank] || maxQty;
+    if (nextQty <= maxQty) return 'Current max: \u00d7' + maxQty;
+    return 'Current max: \u00d7' + maxQty + ' \u2014 reach ' + getRankLabel(nextRank) + ' for \u00d7' + nextQty;
+  }
+
+  /**
+   * Describe what the next rank unlocks for buffs (slots, qty, new buff names).
+   * Returns null if at max rank or Pro.
+   */
+  function getNextBuffUnlockDescription() {
+    if (!isAuthenticated()) {
+      return 'Sign in to unlock more buff slots, higher multipliers, and new buff types.';
+    }
+    if (window.Entitlements && window.Entitlements.isPro && window.Entitlements.isPro()) return null;
+    var profile = window._arenaProfile;
+    var userRank = (profile && profile.rank) ? profile.rank.toLowerCase() : 'bronze';
+    var nextRank = getNextRank(userRank);
+    if (!nextRank) return null;
+
+    var parts = [];
+    var currentSlots = (SLOT_CAPS[userRank] || SLOT_CAPS.bronze).buffs;
+    var nextSlots = (SLOT_CAPS[nextRank] || SLOT_CAPS.bronze).buffs;
+    if (nextSlots > currentSlots) parts.push(nextSlots + ' buff slots');
+
+    var currentQty = QTY_CAPS[userRank] || 1;
+    var nextQty = QTY_CAPS[nextRank] || 1;
+    if (nextQty > currentQty) parts.push('\u00d7' + nextQty + ' stacking');
+
+    var newBuffs = BUFF_DEFS.filter(function (d) { return d.rank === nextRank; });
+    if (newBuffs.length > 0) {
+      parts.push(newBuffs.map(function (b) { return b.label; }).join(', '));
+    }
+
+    var xpNeeded = RANK_CONFIG[nextRank].xpRequired - ((profile && profile.xp) || 0);
+    if (xpNeeded < 0) xpNeeded = 0;
+    return xpNeeded + ' XP to ' + getRankLabel(nextRank) + ' \u2014 unlocks ' + parts.join(', ') + '.';
+  }
+
+  /**
+   * Get the effective rank label for display (includes 'Guest' for signed-out).
+   */
+  function getEffectiveRankLabel() {
+    if (!isAuthenticated()) return 'Guest';
+    var profile = window._arenaProfile;
+    var userRank = (profile && profile.rank) ? profile.rank.toLowerCase() : 'bronze';
+    return getRankLabel(userRank);
+  }
+
   // Expose API
   window.EffectTiers = {
     EFFECT_TIERS: EFFECT_TIERS,
@@ -445,7 +527,11 @@
     getUnlockedBuffs: getUnlockedBuffs,
     getSlotCap: getSlotCap,
     QTY_CAPS: QTY_CAPS,
-    getMaxBuffQty: getMaxBuffQty
+    getMaxBuffQty: getMaxBuffQty,
+    isAuthenticated: isAuthenticated,
+    getQtyTooltip: getQtyTooltip,
+    getNextBuffUnlockDescription: getNextBuffUnlockDescription,
+    getEffectiveRankLabel: getEffectiveRankLabel
   };
 })();
 

@@ -970,11 +970,12 @@
 
   function createBadgeRow(category = '', icon = 'star', description = '', quantity = 1) {
     const defs = getBuffDefs();
+    const ET = window.EffectTiers;
 
     // Build dropdown — only unlocked buffs are selectable, locked ones disabled
     const categoryOptions = defs.map(def => {
       const selected = (category.toLowerCase() === def.key) ? 'selected' : '';
-      const locked = (window.EffectTiers && !window.EffectTiers.isBuffUnlocked(def.key)) ? ' disabled' : '';
+      const locked = (ET && !ET.isBuffUnlocked(def.key)) ? ' disabled' : '';
       const lockLabel = locked ? ' [Locked]' : '';
       return `<option value="${def.key}" ${selected}${locked}>${def.label}${lockLabel}</option>`;
     }).join('');
@@ -982,7 +983,10 @@
     // Resolve icon from category
     const matchedDef = defs.find(d => d.key === category.toLowerCase());
     const resolvedIcon = matchedDef ? matchedDef.icon : icon;
-    const displayDesc = matchedDef ? matchedDef.description : description;
+    const displayDesc = description || (matchedDef ? matchedDef.description : '');
+
+    // Qty tooltip — explains multiplier progression
+    const qtyTooltip = (ET && ET.getQtyTooltip) ? ET.getQtyTooltip() : '';
 
     const badgeRow = document.createElement('div');
     badgeRow.className = 'micro-row';
@@ -993,32 +997,44 @@
           ${categoryOptions}
         </select>
         <input type="hidden" name="micro-icon" value="${resolvedIcon}">
-        <input type="hidden" name="micro-desc" value="${displayDesc}">
         <input type="hidden" name="micro-quantity" value="${quantity}">
       </div>
       <div class="badge-card-body">
-        <span class="badge-desc-display">${displayDesc}</span>
+        <input type="text" name="micro-desc" class="badge-desc-input" value="${displayDesc.replace(/"/g, '&quot;')}" placeholder="Custom description" aria-label="Buff description">
       </div>
       <div class="badge-card-count">
-        <span class="badge-qty-display">&times;${quantity}</span>
+        <span class="badge-qty-display" title="${qtyTooltip}">&times;${quantity}</span>
       </div>
+      <button type="button" class="remove-micro" aria-label="Remove buff">&times;</button>
     `;
 
     const categorySelect = badgeRow.querySelector('select[name="micro-category"]');
     const hiddenIconInput = badgeRow.querySelector('input[name="micro-icon"]');
-    const hiddenDescInput = badgeRow.querySelector('input[name="micro-desc"]');
+    const descInput = badgeRow.querySelector('input[name="micro-desc"]');
     const iconPreview = badgeRow.querySelector('.badge-icon-preview i');
-    const descDisplay = badgeRow.querySelector('.badge-desc-display');
+    const removeBtn = badgeRow.querySelector('.remove-micro');
 
-    // Update icon + description when user changes buff type
+    // Update icon + pre-fill description when user changes buff type
     categorySelect.addEventListener('change', function() {
       const def = getBuffDefs().find(d => d.key === this.value);
       if (def) {
         hiddenIconInput.value = def.icon;
-        hiddenDescInput.value = def.description;
         iconPreview.className = `fas fa-${def.icon}`;
-        descDisplay.textContent = def.description;
+        // Pre-fill description from def (user can still overwrite)
+        descInput.value = def.description;
       }
+      updatePreview();
+    });
+
+    // Live preview on description edit
+    descInput.addEventListener('input', updatePreview);
+
+    // Remove button
+    removeBtn.addEventListener('click', function() {
+      badgeRow.remove();
+      updateBuffBtnState();
+      updateBuffEmptyState();
+      updateBuffProgressionBanner();
       updatePreview();
     });
 
@@ -1158,14 +1174,60 @@
     updateStatBtnState();
   }
   
-  // Buffs are game-assigned (via random roll), no manual add button needed
   function initBadgesEditor() {
+    const addBuffBtn = document.getElementById('add-buff-btn');
+    if (addBuffBtn) {
+      addBuffBtn.addEventListener('click', function() {
+        const badgesContainer = document.getElementById('micro-editor');
+        const buffCap = getBuffSlotCap();
+        const currentBuffs = badgesContainer.querySelectorAll('.micro-row').length;
+        if (currentBuffs >= buffCap) {
+          addBuffBtn.classList.add('disabled');
+          addBuffBtn.title = 'Maximum ' + buffCap + ' buff' + (buffCap > 1 ? 's' : '') + ' at your rank';
+          return;
+        }
+        // Pick first available unlocked buff not already in use
+        const usedKeys = Array.from(badgesContainer.querySelectorAll('select[name="micro-category"]')).map(s => s.value);
+        const available = (window.EffectTiers && window.EffectTiers.getUnlockedBuffs)
+          ? window.EffectTiers.getUnlockedBuffs().filter(b => usedKeys.indexOf(b.key) === -1)
+          : [];
+        const pick = available.length > 0 ? available[0] : getBuffDefs()[0];
+        if (!pick) return;
+        const maxQty = (window.EffectTiers && window.EffectTiers.getMaxBuffQty) ? window.EffectTiers.getMaxBuffQty() : 1;
+        const qty = Math.floor(Math.random() * maxQty) + 1;
+        badgesContainer.appendChild(createBadgeRow(pick.key, pick.icon, pick.description, qty));
+        updateBuffBtnState();
+        updateBuffEmptyState();
+        updateBuffProgressionBanner();
+        updatePreview();
+      });
+    }
+    updateBuffBtnState();
     updateBuffEmptyState();
+    updateBuffProgressionBanner();
+  }
+
+  /**
+   * Enable/disable the Add Buff button based on current count vs slot cap.
+   */
+  function updateBuffBtnState() {
+    const addBuffBtn = document.getElementById('add-buff-btn');
+    if (!addBuffBtn) return;
+    const badgesContainer = document.getElementById('micro-editor');
+    const currentBuffs = badgesContainer ? badgesContainer.querySelectorAll('.micro-row').length : 0;
+    const buffCap = getBuffSlotCap();
+    if (currentBuffs >= buffCap) {
+      addBuffBtn.classList.add('disabled');
+      addBuffBtn.title = 'Maximum ' + buffCap + ' buff' + (buffCap > 1 ? 's' : '') + ' at your rank';
+    } else {
+      addBuffBtn.classList.remove('disabled');
+      addBuffBtn.title = '';
+    }
   }
 
   /**
    * Show/hide the buff empty state message based on current buff count.
-   * Also populates rank-based progression info.
+   * Differentiates guest vs signed-in messaging.
    */
   function updateBuffEmptyState() {
     const emptyState = document.getElementById('buff-empty-state');
@@ -1174,24 +1236,70 @@
     const hasBadges = editor && editor.querySelectorAll('.micro-row').length > 0;
     emptyState.style.display = hasBadges ? 'none' : '';
 
-    // Populate progression summary
-    const progressEl = document.getElementById('buff-empty-state__progress');
-    if (!progressEl || !window.EffectTiers) return;
-
     const ET = window.EffectTiers;
-    const profile = window._arenaProfile;
-    const rank = (profile && profile.rank) ? profile.rank.toLowerCase() : 'bronze';
+    if (!ET) return;
+
+    // Update hint text based on auth state
+    const hintEl = emptyState.querySelector('.buff-empty-state__hint');
+    if (hintEl) {
+      if (ET.isAuthenticated && !ET.isAuthenticated()) {
+        hintEl.innerHTML = 'Use <strong>Roll Character</strong> to assign a buff. <strong>Sign in</strong> to unlock more buff slots and customization.';
+      } else {
+        hintEl.innerHTML = 'Use <strong>Roll Character</strong> to assign buffs. Play Arena battles to unlock more buff slots, higher quantities, and new buff types.';
+      }
+    }
+
+    // Populate progression summary chips
+    const progressEl = document.getElementById('buff-empty-state__progress');
+    if (!progressEl) return;
+
     const slots = ET.getSlotCap ? ET.getSlotCap('buffs') : 2;
     const maxQty = ET.getMaxBuffQty ? ET.getMaxBuffQty() : 1;
     const unlocked = ET.getUnlockedBuffs ? ET.getUnlockedBuffs().length : 4;
     const total = ET.BUFF_DEFS ? ET.BUFF_DEFS.length : 10;
-    const rankLabel = ET.RANK_CONFIG && ET.RANK_CONFIG[rank] ? ET.RANK_CONFIG[rank].label : 'Bronze';
+    const rankLabel = (ET.getEffectiveRankLabel) ? ET.getEffectiveRankLabel() : 'Bronze';
 
     progressEl.innerHTML =
       '<span class="buff-progress-chip"><i class="fas fa-shield-halved"></i> ' + rankLabel + '</span>' +
       '<span class="buff-progress-chip"><i class="fas fa-layer-group"></i> ' + slots + '/4 slots</span>' +
       '<span class="buff-progress-chip"><i class="fas fa-xmark"></i> &times;' + maxQty + ' max qty</span>' +
       '<span class="buff-progress-chip"><i class="fas fa-unlock"></i> ' + unlocked + '/' + total + ' buffs</span>';
+  }
+
+  /**
+   * Buff progression banner — shows XP-to-next-rank for signed-in users,
+   * sign-in CTA for guests, hidden at max rank / Pro.
+   */
+  function updateBuffProgressionBanner() {
+    const banner = document.getElementById('buff-progression-banner');
+    if (!banner) return;
+    const ET = window.EffectTiers;
+    if (!ET) { banner.style.display = 'none'; return; }
+
+    const desc = ET.getNextBuffUnlockDescription ? ET.getNextBuffUnlockDescription() : null;
+    if (!desc) {
+      banner.style.display = 'none';
+      return;
+    }
+    banner.style.display = '';
+
+    const textEl = document.getElementById('buff-progression-text');
+    if (textEl) textEl.textContent = desc;
+
+    const statsEl = document.getElementById('buff-progression-stats');
+    if (statsEl) {
+      const slots = ET.getSlotCap ? ET.getSlotCap('buffs') : 1;
+      const maxQty = ET.getMaxBuffQty ? ET.getMaxBuffQty() : 1;
+      const unlocked = ET.getUnlockedBuffs ? ET.getUnlockedBuffs().length : 4;
+      const total = ET.BUFF_DEFS ? ET.BUFF_DEFS.length : 10;
+      const rankLabel = ET.getEffectiveRankLabel ? ET.getEffectiveRankLabel() : 'Bronze';
+
+      statsEl.innerHTML =
+        '<span class="buff-progress-chip"><i class="fas fa-shield-halved"></i> ' + rankLabel + '</span>' +
+        '<span class="buff-progress-chip"><i class="fas fa-unlock"></i> ' + unlocked + '/' + total + ' buffs</span>' +
+        '<span class="buff-progress-chip"><i class="fas fa-layer-group"></i> ' + slots + '/4 slots</span>' +
+        '<span class="buff-progress-chip"><i class="fas fa-xmark"></i> &times;' + maxQty + ' max</span>';
+    }
   }
 
   function initAttributesEditor() {
@@ -1266,6 +1374,8 @@
       });
     }
     updateBuffEmptyState();
+    updateBuffBtnState();
+    updateBuffProgressionBanner();
 
     // Attributes (capped to slot limit)
     const attributesContainer = document.getElementById('attribute-editor');
@@ -1346,6 +1456,8 @@
     loadArenaStats().then(function (profile) {
       if (profile) updatePreview();
       applyEffectLockState(); // refresh locks with actual rank
+      updateBuffProgressionBanner();
+      updateBuffBtnState();
     });
 
     // Load billing entitlements (non-blocking)
@@ -1751,8 +1863,10 @@
       });
     }
 
-    // Hide buff empty state after generation
+    // Update buff UI state after generation
     updateBuffEmptyState();
+    updateBuffBtnState();
+    updateBuffProgressionBanner();
 
     // Generate random attributes — fills exactly the rank-based slot cap
     const attributeNames = ['Strength', 'Agility', 'Intelligence', 'Wisdom', 'Stealth', 'Dexterity',
@@ -2064,6 +2178,8 @@
       badgesContainer.innerHTML = '';
     }
     updateBuffEmptyState();
+    updateBuffBtnState();
+    updateBuffProgressionBanner();
     
     // Clear attributes and re-enable Add button
     const attributesContainer = document.getElementById('attribute-editor');

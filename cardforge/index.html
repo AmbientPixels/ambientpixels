@@ -1340,6 +1340,13 @@
 
       <div class="cf-section" data-step-section="4">
         <h3 class="cf-section-title">Buffs & Traits</h3>
+        <div class="buff-progression-banner" id="buff-progression-banner" style="display:none">
+          <div class="buff-progression-banner__top">
+            <i class="fas fa-lock buff-progression-banner__icon"></i>
+            <span class="buff-progression-banner__text" id="buff-progression-text"></span>
+          </div>
+          <span class="buff-progression-banner__stats" id="buff-progression-stats"></span>
+        </div>
         <div class="badges-panel">
           <div id="micro-editor">
             <!-- Badge rows injected by JS -->
@@ -1350,6 +1357,7 @@
             <p class="buff-empty-state__hint">Use <strong>Roll Character</strong> to assign buffs. Play Arena battles to unlock more buff slots, higher quantities, and new buff types.</p>
             <div id="buff-empty-state__progress" class="buff-empty-state__progress"></div>
           </div>
+          <button type="button" id="add-buff-btn" class="add-buff-btn">+ Add Buff</button>
         </div>
       </div>
       

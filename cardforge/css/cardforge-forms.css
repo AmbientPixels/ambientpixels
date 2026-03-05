@@ -169,11 +169,27 @@
   font-size: 0.78rem;
 }
 .micro-row .badge-card-body {
-  display: none; /* Description hidden in compact row — shown via tooltip */
+  flex: 1.2;
+  min-width: 0;
 }
-.badge-desc-display {
-  font-size: 0.75rem;
+.badge-desc-input {
+  width: 100%;
+  padding: 3px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  background: transparent;
   color: var(--mood-text-secondary, #a0a0c0);
+  font-family: inherit;
+  font-size: 0.72rem;
+  transition: border-color 0.2s ease;
+}
+.badge-desc-input:focus {
+  outline: none;
+  border-color: var(--mood-accent-color, #7b2fff);
+  color: var(--mood-primary-color, #e1e1ff);
+}
+.badge-desc-input::placeholder {
+  color: rgba(255, 255, 255, 0.2);
 }
 .micro-row .badge-card-count {
   flex-shrink: 0;
@@ -241,6 +257,66 @@
 .buff-progress-chip i {
   font-size: 0.6rem;
   opacity: 0.7;
+}
+
+/* Add Buff button — mirrors .add-attribute-btn */
+.add-buff-btn {
+  background: var(--mood-accent-color, #4a4a6a);
+  color: var(--aura-bg-color, #1a1a2e);
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-weight: 500;
+  font-size: 0.8rem;
+  margin-top: 8px;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+.add-buff-btn:hover {
+  background: var(--mood-primary-color, #e1e1ff);
+  transform: translateY(-1px);
+}
+.add-buff-btn:active {
+  transform: translateY(0);
+}
+.add-buff-btn.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+  transform: none;
+}
+
+/* Buff progression banner — shown above buff section when unlocks remain */
+.buff-progression-banner {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0.6rem 0.8rem;
+  margin-bottom: 0.6rem;
+  border: 1px dashed rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.015);
+}
+.buff-progression-banner__top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.buff-progression-banner__icon {
+  font-size: 0.75rem;
+  color: var(--mood-accent-color, #7b2fff);
+  opacity: 0.6;
+}
+.buff-progression-banner__text {
+  font-size: 0.72rem;
+  color: var(--mood-text-secondary, #a0a0c0);
+  line-height: 1.4;
+}
+.buff-progression-banner__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
 /* Effect progression banner — shown above effect panels when locked effects exist */
