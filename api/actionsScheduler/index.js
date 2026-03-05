@@ -190,10 +190,9 @@ module.exports = async function (context) {
       if (executed >= 5) break;
     }
 
-    // Persist all changes
-    await storage.setState('actions', actions);
-
+    // Persist only if something changed
     if (executed > 0) {
+      await storage.setState('actions', actions);
       context.log('[Scheduler] Executed', executed, 'scheduled actions');
     } else {
       context.log('[Scheduler] No scheduled actions due');
