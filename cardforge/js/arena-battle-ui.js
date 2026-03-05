@@ -25,6 +25,35 @@ window.ArenaBattleUI = (function () {
     const intEl = document.getElementById('arena-move-int');
     if (strEl) strEl.textContent = `STR ${battleData.player.combatStats.str}`;
     if (intEl) intEl.textContent = `INT ${battleData.player.combatStats.int}`;
+
+    // Render active buff passives under player card
+    renderActiveBuffs(battleData.player.passives);
+  }
+
+  function renderActiveBuffs(passives) {
+    var container = document.getElementById('arena-player-buffs');
+    if (!container) return;
+    if (!passives || passives.length === 0) {
+      container.innerHTML = '';
+      return;
+    }
+    var iconMap = {
+      crit_chance: 'fa-bullseye', damage_reduction: 'fa-shield-alt', ability_power: 'fa-bolt',
+      str_bonus: 'fa-hand-fist', int_bonus: 'fa-brain', end_bonus: 'fa-heart',
+      hp_regen: 'fa-heart-pulse', xp_bonus: 'fa-star', all_stats: 'fa-chart-line'
+    };
+    var labelMap = {
+      crit_chance: 'Crit', damage_reduction: 'Armor', ability_power: 'AP',
+      str_bonus: 'STR', int_bonus: 'INT', end_bonus: 'END',
+      hp_regen: 'Regen', xp_bonus: 'XP', all_stats: 'All'
+    };
+    container.innerHTML = passives.map(function (p) {
+      var icon = iconMap[p.effect] || 'fa-circle';
+      var label = labelMap[p.effect] || p.effect;
+      return '<span class="arena-buff-chip" title="' + label + ' +' + p.value + '">' +
+        '<i class="fas ' + icon + '"></i> +' + p.value +
+        '</span>';
+    }).join('');
   }
 
   function renderCombatants(data) {

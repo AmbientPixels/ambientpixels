@@ -165,6 +165,21 @@ function getPassiveValue(passives, effectName) {
     .reduce((sum, p) => sum + p.value, 0);
 }
 
+// Apply persistent stat bonuses from buffs (endurance bonus, all-stats boost)
+function applyStatPassives(combatStats, passives) {
+  const endBonus = getPassiveValue(passives, 'end_bonus');
+  if (endBonus > 0) combatStats.end = Math.min(100, combatStats.end + endBonus);
+
+  const allStats = getPassiveValue(passives, 'all_stats');
+  if (allStats > 0) {
+    combatStats.str = Math.min(100, combatStats.str + allStats);
+    combatStats.agi = Math.min(100, combatStats.agi + allStats);
+    combatStats.int = Math.min(100, combatStats.int + allStats);
+    combatStats.end = Math.min(100, combatStats.end + allStats);
+    combatStats.lck = Math.min(100, combatStats.lck + allStats);
+  }
+}
+
 function computeMaxHp(combatStats) {
   return Math.round(50 + (combatStats.end * 0.8) + (combatStats.str * 0.2));
 }
@@ -282,6 +297,17 @@ function resolveRound(player, opponent, playerMove, opponentMove) {
   } else if (opponentMove === 'guard') {
     opponentHeal = Math.round(opponent.maxHp * 0.05);
     events.push(`Opponent guarded and recovered ${opponentHeal} HP.`);
+  }
+
+  // Passive HP regen (applies every round regardless of action)
+  const playerRegenBonus = getPassiveValue(player.passives, 'hp_regen');
+  if (playerRegenBonus > 0) {
+    playerHeal += playerRegenBonus;
+    events.push(`Regen restored ${playerRegenBonus} HP.`);
+  }
+  const opponentRegenBonus = getPassiveValue(opponent.passives, 'hp_regen');
+  if (opponentRegenBonus > 0) {
+    opponentHeal += opponentRegenBonus;
   }
 
   return {
@@ -433,6 +459,11 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
   const opponentCombat = mapCardToCombatStats(opponentCard);
   const playerPassives = computePassives(playerCard);
   const opponentPassives = computePassives(opponentCard);
+
+  // Apply persistent stat bonuses from buffs (end_bonus, all_stats)
+  applyStatPassives(playerCombat, playerPassives);
+  applyStatPassives(opponentCombat, opponentPassives);
+
   const playerMaxHp = computeMaxHp(playerCombat);
   const opponentMaxHp = computeMaxHp(opponentCombat);
 

@@ -309,7 +309,7 @@
   text-align: center;
 }
 
-/* Badges Section - Glass Panel Grid — 2-col × up to 3 rows (max 6 badges) */
+/* Buffs & Traits Section - Glass Panel Grid — 2-col × 2 rows (max 4) */
 .badges-container {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

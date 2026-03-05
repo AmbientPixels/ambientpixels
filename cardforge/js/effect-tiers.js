@@ -133,6 +133,31 @@
     diamond:  { xpRequired: 7000, icon: 'fa-diamond',       color: '#B9F2FF', label: 'Diamond' }
   };
 
+  // Rank-based slot caps — buffs & attributes unlock more slots as players progress
+  var SLOT_CAPS = {
+    bronze:   { buffs: 2, attributes: 2 },
+    silver:   { buffs: 3, attributes: 3 },
+    gold:     { buffs: 4, attributes: 4 },
+    platinum: { buffs: 4, attributes: 4 },
+    diamond:  { buffs: 4, attributes: 4 }
+  };
+
+  /**
+   * Get the max buff/attribute slots for the current user's rank.
+   * @param {string} slotType — 'buffs' or 'attributes'
+   * @returns {number}
+   */
+  function getSlotCap(slotType) {
+    var profile = window._arenaProfile;
+    var userRank = (profile && profile.rank) ? profile.rank.toLowerCase() : 'bronze';
+    var caps = SLOT_CAPS[userRank] || SLOT_CAPS.bronze;
+    // Pro subscription unlocks max slots
+    if (window.Entitlements && window.Entitlements.isPro && window.Entitlements.isPro()) {
+      return 4;
+    }
+    return caps[slotType] || 2;
+  }
+
   var CATEGORY_LABELS = {
     bg: 'Backgrounds',
     border: 'Borders',
@@ -272,6 +297,75 @@
       '</div>';
   }
 
+  // ── Buff & Trait Tier System ─────────────────────────────────────
+  // Single source of truth for all buff/trait definitions + rank gating.
+  // Each buff has a unique key, display label, icon, description, and required rank.
+
+  var BUFF_DEFS = [
+    // Bronze — basic combat buffs (available to all)
+    { key: 'fury',      label: 'Fury',      icon: 'fire',     description: '+25% melee damage for 3 turns',   rank: 'bronze' },
+    { key: 'aegis',     label: 'Aegis',     icon: 'shield',   description: 'Blocks the next incoming attack', rank: 'bronze' },
+    { key: 'fortitude', label: 'Fortitude', icon: 'medal',    description: '+20% max HP this round',          rank: 'bronze' },
+    { key: 'regen',     label: 'Regen',     icon: 'heart',    description: 'Restore 10 HP per turn',          rank: 'bronze' },
+
+    // Silver — tactical buffs
+    { key: 'rally',     label: 'Rally',     icon: 'crown',    description: '+15% team damage when leading',   rank: 'silver' },
+    { key: 'focus',     label: 'Focus',     icon: 'bullseye', description: '+40% critical hit chance',        rank: 'silver' },
+    { key: 'overload',  label: 'Overload',  icon: 'bolt',     description: 'Double energy regen for 2 turns', rank: 'silver' },
+
+    // Gold — advanced buffs
+    { key: 'arcane',    label: 'Arcane',    icon: 'gem',      description: '+30% spell potency',              rank: 'gold' },
+    { key: 'triumph',   label: 'Triumph',   icon: 'trophy',   description: 'Bonus XP on next victory',       rank: 'gold' },
+
+    // Platinum+ — elite buffs
+    { key: 'legendary', label: 'Legendary', icon: 'star',     description: 'All stats boosted by 10%',       rank: 'platinum' }
+  ];
+
+  /**
+   * Get the rank required for a specific buff.
+   * @param {string} key — buff key (e.g. 'fury', 'arcane')
+   * @returns {string|null} rank or null if unknown
+   */
+  function getBuffTier(key) {
+    if (!key) return null;
+    var def = BUFF_DEFS.find(function (d) { return d.key === key.toLowerCase(); });
+    return def ? def.rank : null;
+  }
+
+  /**
+   * Check if a buff is unlocked for the current user's rank.
+   * @param {string} key — buff key
+   * @returns {boolean}
+   */
+  function isBuffUnlocked(key) {
+    if (!key) return true;
+    var requiredRank = getBuffTier(key);
+    if (!requiredRank) return true; // unknown buff — allow
+
+    var profile = window._arenaProfile;
+    var userRank = (profile && profile.rank) ? profile.rank.toLowerCase() : 'bronze';
+    var userIdx = RANK_ORDER.indexOf(userRank);
+    var requiredIdx = RANK_ORDER.indexOf(requiredRank);
+
+    if (userIdx === -1) userIdx = 0;
+    if (userIdx >= requiredIdx) return true;
+
+    // Pro subscription unlocks all buffs
+    if (window.Entitlements && window.Entitlements.hasFlag('premiumEffects')) {
+      return true;
+    }
+
+    return false;
+  }
+
+  /**
+   * Get all unlocked buff definitions for the current rank.
+   * @returns {Array} array of buff def objects
+   */
+  function getUnlockedBuffs() {
+    return BUFF_DEFS.filter(function (d) { return isBuffUnlocked(d.key); });
+  }
+
   // Expose API
   window.EffectTiers = {
     EFFECT_TIERS: EFFECT_TIERS,
@@ -285,7 +379,13 @@
     getNextRank: getNextRank,
     getNewUnlocksForRank: getNewUnlocksForRank,
     renderRankRewardsPanel: renderRankRewardsPanel,
-    renderNextRankPreview: renderNextRankPreview
+    renderNextRankPreview: renderNextRankPreview,
+    BUFF_DEFS: BUFF_DEFS,
+    SLOT_CAPS: SLOT_CAPS,
+    getBuffTier: getBuffTier,
+    isBuffUnlocked: isBuffUnlocked,
+    getUnlockedBuffs: getUnlockedBuffs,
+    getSlotCap: getSlotCap
   };
 })();
 

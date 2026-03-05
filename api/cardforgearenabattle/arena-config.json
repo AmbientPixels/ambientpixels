@@ -30,16 +30,27 @@
     "lck": 30
   },
   "badgePassives": {
-    "champion":    { "effect": "crit_chance",      "valuePerQty": 3, "maxValue": 15 },
-    "victory":     { "effect": "crit_chance",      "valuePerQty": 3, "maxValue": 15 },
-    "honor":       { "effect": "damage_reduction",  "valuePerQty": 2, "maxValue": 10 },
-    "nobility":    { "effect": "damage_reduction",  "valuePerQty": 2, "maxValue": 10 },
-    "skill":       { "effect": "ability_power",     "valuePerQty": 3, "maxValue": 15 },
-    "mastery":     { "effect": "ability_power",     "valuePerQty": 3, "maxValue": 15 },
-    "achievement": { "effect": "xp_bonus",          "valuePerQty": 5, "maxValue": 25 },
-    "recognition": { "effect": "xp_bonus",          "valuePerQty": 5, "maxValue": 25 },
-    "courage":     { "effect": "str_bonus",          "valuePerQty": 2, "maxValue": 10 },
-    "wisdom":      { "effect": "int_bonus",          "valuePerQty": 2, "maxValue": 10 }
+    "fury":        { "effect": "str_bonus",         "valuePerQty": 3, "maxValue": 15 },
+    "aegis":       { "effect": "damage_reduction",  "valuePerQty": 3, "maxValue": 15 },
+    "fortitude":   { "effect": "end_bonus",         "valuePerQty": 3, "maxValue": 15 },
+    "regen":       { "effect": "hp_regen",          "valuePerQty": 2, "maxValue": 10 },
+    "rally":       { "effect": "str_bonus",         "valuePerQty": 2, "maxValue": 10 },
+    "focus":       { "effect": "crit_chance",        "valuePerQty": 4, "maxValue": 20 },
+    "overload":    { "effect": "ability_power",      "valuePerQty": 4, "maxValue": 20 },
+    "arcane":      { "effect": "ability_power",      "valuePerQty": 5, "maxValue": 25 },
+    "triumph":     { "effect": "xp_bonus",           "valuePerQty": 5, "maxValue": 25 },
+    "legendary":   { "effect": "all_stats",          "valuePerQty": 2, "maxValue": 10 },
+
+    "champion":    { "effect": "crit_chance",        "valuePerQty": 3, "maxValue": 15 },
+    "victory":     { "effect": "crit_chance",        "valuePerQty": 3, "maxValue": 15 },
+    "honor":       { "effect": "damage_reduction",   "valuePerQty": 2, "maxValue": 10 },
+    "nobility":    { "effect": "damage_reduction",   "valuePerQty": 2, "maxValue": 10 },
+    "skill":       { "effect": "ability_power",      "valuePerQty": 3, "maxValue": 15 },
+    "mastery":     { "effect": "ability_power",      "valuePerQty": 3, "maxValue": 15 },
+    "achievement": { "effect": "xp_bonus",           "valuePerQty": 5, "maxValue": 25 },
+    "recognition": { "effect": "xp_bonus",           "valuePerQty": 5, "maxValue": 25 },
+    "courage":     { "effect": "str_bonus",           "valuePerQty": 2, "maxValue": 10 },
+    "wisdom":      { "effect": "int_bonus",           "valuePerQty": 2, "maxValue": 10 }
   },
   "aiPatterns": {
     "aggressive":  { "strike": 60, "guard": 10, "ability": 30 },
@@ -60,12 +71,16 @@
     { "key": "lck", "label": "Luck",         "icon": "fa-clover",          "color": "#ffd740" }
   ],
   "badgeCategoryDefs": [
-    { "key": "champion",    "label": "Champion",    "icon": "trophy",  "effect": "+3% crit per qty" },
-    { "key": "honor",       "label": "Honor",       "icon": "shield",  "effect": "+2% dmg reduction per qty" },
-    { "key": "skill",       "label": "Skill",       "icon": "star",    "effect": "+3% ability power per qty" },
-    { "key": "achievement", "label": "Achievement", "icon": "medal",   "effect": "+5% XP bonus per qty" },
-    { "key": "courage",     "label": "Courage",     "icon": "bolt",    "effect": "+2 STR per qty" },
-    { "key": "wisdom",      "label": "Wisdom",      "icon": "book",    "effect": "+2 INT per qty" }
+    { "key": "fury",      "label": "Fury",      "icon": "fire",     "rank": "bronze",   "effect": "+3 STR per qty" },
+    { "key": "aegis",     "label": "Aegis",     "icon": "shield",   "rank": "bronze",   "effect": "+3% dmg reduction per qty" },
+    { "key": "fortitude", "label": "Fortitude", "icon": "medal",    "rank": "bronze",   "effect": "+3 END per qty" },
+    { "key": "regen",     "label": "Regen",     "icon": "heart",    "rank": "bronze",   "effect": "+2 HP regen per turn" },
+    { "key": "rally",     "label": "Rally",     "icon": "crown",    "rank": "silver",   "effect": "+2 STR per qty" },
+    { "key": "focus",     "label": "Focus",     "icon": "bullseye", "rank": "silver",   "effect": "+4% crit chance per qty" },
+    { "key": "overload",  "label": "Overload",  "icon": "bolt",     "rank": "silver",   "effect": "+4 ability power per qty" },
+    { "key": "arcane",    "label": "Arcane",    "icon": "gem",      "rank": "gold",     "effect": "+5 ability power per qty" },
+    { "key": "triumph",   "label": "Triumph",   "icon": "trophy",   "rank": "gold",     "effect": "+5% XP bonus per qty" },
+    { "key": "legendary", "label": "Legendary", "icon": "star",     "rank": "platinum", "effect": "+2 all stats per qty" }
   ],
   "monetization": {
     "freeTier":    { "maxCards": 5, "layouts": 3, "palettes": 2 },

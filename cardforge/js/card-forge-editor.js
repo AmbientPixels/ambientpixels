@@ -222,9 +222,17 @@
   window.CardForgeChrome = ChromeUI;
 
   // ===== CARD DISPLAY CAPS =====
-  const STAT_CAP = 5;        // Max visible stats on card face
-  const BADGE_CAP = 6;       // 2 rows × 3 columns — overflow gets "+N" indicator
-  const ATTRIBUTE_CAP = 6;   // Max visible attributes on card face
+  const STAT_CAP = 5;            // Max visible stats on card face
+  const BADGE_CAP_MAX = 4;      // Absolute max buffs (Gold+ / Pro)
+  const ATTRIBUTE_CAP_MAX = 4;  // Absolute max attributes (Gold+ / Pro)
+
+  // Dynamic caps based on arena rank — falls back to max if EffectTiers not loaded
+  function getBuffSlotCap() {
+    return (window.EffectTiers && window.EffectTiers.getSlotCap) ? window.EffectTiers.getSlotCap('buffs') : BADGE_CAP_MAX;
+  }
+  function getAttributeSlotCap() {
+    return (window.EffectTiers && window.EffectTiers.getSlotCap) ? window.EffectTiers.getSlotCap('attributes') : ATTRIBUTE_CAP_MAX;
+  }
   
   // ===== PRESET CONFIGURATIONS =====
   const PresetConfigurations = {
@@ -737,29 +745,31 @@
       }
       
 
-      // Pad Attributes to ATTRIBUTE_CAP (6) for balanced 3×2 grid
+      // Pad Attributes up to rank-based cap
       const attributesContainer = document.getElementById('attribute-editor');
       if (attributesContainer) {
+        const attrCap = getAttributeSlotCap();
         const existingAttrs = attributesContainer.querySelectorAll('.attribute-row').length;
-        for (let i = existingAttrs; i < ATTRIBUTE_CAP; i++) {
+        for (let i = existingAttrs; i < attrCap; i++) {
           attributesContainer.appendChild(createAttributeRow('Reputation', 'Unknown'));
         }
         const addAttrBtn = document.getElementById('add-attribute-btn');
-        if (attributesContainer.querySelectorAll('.attribute-row').length >= ATTRIBUTE_CAP && addAttrBtn) {
+        if (attributesContainer.querySelectorAll('.attribute-row').length >= attrCap && addAttrBtn) {
           addAttrBtn.classList.add('disabled');
-          addAttrBtn.title = `Maximum ${ATTRIBUTE_CAP} attributes reached`;
+          addAttrBtn.title = `Maximum ${attrCap} attributes reached`;
         }
       }
 
-      // Update badge Add button state based on current count
+      // Update buff Add button state based on current count
       const badgesContainer = document.getElementById('micro-editor');
       if (badgesContainer) {
         const addBadgeBtn = document.getElementById('add-micro-btn');
         if (addBadgeBtn) {
+          const buffCap = getBuffSlotCap();
           const currentBadges = badgesContainer.querySelectorAll('.micro-row').length;
-          if (currentBadges >= BADGE_CAP) {
+          if (currentBadges >= buffCap) {
             addBadgeBtn.classList.add('disabled');
-            addBadgeBtn.title = `Maximum ${BADGE_CAP} badges reached`;
+            addBadgeBtn.title = `Maximum ${buffCap} buffs reached`;
           } else {
             addBadgeBtn.classList.remove('disabled');
             addBadgeBtn.title = '';
@@ -966,25 +976,23 @@
     return { combat, custom };
   }
 
-  // Badge category definitions
-  const BADGE_CATEGORY_DEFS = [
-    { key: 'champion',    label: 'Champion',    icon: 'trophy',  effect: '+3% crit per qty' },
-    { key: 'honor',       label: 'Honor',       icon: 'shield',  effect: '+2% dmg reduction per qty' },
-    { key: 'skill',       label: 'Skill',       icon: 'star',    effect: '+3% ability power per qty' },
-    { key: 'achievement', label: 'Achievement', icon: 'medal',   effect: '+5% XP bonus per qty' },
-    { key: 'courage',     label: 'Courage',     icon: 'bolt',    effect: '+2 STR per qty' },
-    { key: 'wisdom',      label: 'Wisdom',      icon: 'book',    effect: '+2 INT per qty' }
-  ];
+  // Buff/trait definitions — sourced from EffectTiers (single source of truth)
+  function getBuffDefs() {
+    return (window.EffectTiers && window.EffectTiers.BUFF_DEFS) || [];
+  }
 
   function createBadgeRow(category = '', icon = 'star', description = '', quantity = 1) {
-    // Build category dropdown options
-    const categoryOptions = BADGE_CATEGORY_DEFS.map(def => {
+    const defs = getBuffDefs();
+    // Build category dropdown options from unified BUFF_DEFS
+    const categoryOptions = defs.map(def => {
       const selected = (category.toLowerCase() === def.key) ? 'selected' : '';
-      return `<option value="${def.key}" ${selected}>${def.label} (${def.effect})</option>`;
+      const locked = (window.EffectTiers && !window.EffectTiers.isBuffUnlocked(def.key)) ? ' disabled' : '';
+      const lockLabel = locked ? ' [Locked]' : '';
+      return `<option value="${def.key}" ${selected}${locked}>${def.label}${lockLabel} — ${def.description}</option>`;
     }).join('');
 
-    // Resolve icon from category if not explicitly set
-    const matchedDef = BADGE_CATEGORY_DEFS.find(d => d.key === category.toLowerCase());
+    // Resolve icon from category
+    const matchedDef = defs.find(d => d.key === category.toLowerCase());
     const resolvedIcon = matchedDef ? matchedDef.icon : icon;
 
     const badgeRow = document.createElement('div');
@@ -1017,7 +1025,7 @@
 
     // Auto-assign icon when category changes
     categorySelect.addEventListener('change', function() {
-      const def = BADGE_CATEGORY_DEFS.find(d => d.key === this.value);
+      const def = getBuffDefs().find(d => d.key === this.value);
       if (def) {
         hiddenIconInput.value = def.icon;
         iconPreview.className = `fas fa-${def.icon}`;
@@ -1041,7 +1049,7 @@
       const addBadgeBtn = document.getElementById('add-micro-btn');
       if (addBadgeBtn) {
         const remaining = document.querySelectorAll('#micro-editor .micro-row').length;
-        if (remaining < BADGE_CAP) {
+        if (remaining < getBuffSlotCap()) {
           addBadgeBtn.classList.remove('disabled');
           addBadgeBtn.title = '';
         }
@@ -1083,7 +1091,7 @@
       const addAttributeBtn = document.getElementById('add-attribute-btn');
       if (addAttributeBtn) {
         const remaining = document.querySelectorAll('#attribute-editor .attribute-row').length;
-        if (remaining < ATTRIBUTE_CAP) {
+        if (remaining < getAttributeSlotCap()) {
           addAttributeBtn.classList.remove('disabled');
           addAttributeBtn.title = '';
         }
@@ -1190,18 +1198,19 @@
     if (addBadgeBtn) {
       addBadgeBtn.addEventListener('click', function() {
         const badgesContainer = document.getElementById('micro-editor');
+        const buffCap = getBuffSlotCap();
         const currentBadges = badgesContainer.querySelectorAll('.micro-row').length;
-        if (currentBadges >= BADGE_CAP) {
+        if (currentBadges >= buffCap) {
           addBadgeBtn.classList.add('disabled');
-          addBadgeBtn.title = `Maximum ${BADGE_CAP} badges reached`;
+          addBadgeBtn.title = `Maximum ${buffCap} buffs reached`;
           return;
         }
         const newBadgeRow = createBadgeRow();
         badgesContainer.appendChild(newBadgeRow);
         // Update button state after adding
-        if (currentBadges + 1 >= BADGE_CAP) {
+        if (currentBadges + 1 >= buffCap) {
           addBadgeBtn.classList.add('disabled');
-          addBadgeBtn.title = `Maximum ${BADGE_CAP} badges reached`;
+          addBadgeBtn.title = `Maximum ${buffCap} buffs reached`;
         }
       });
     }
@@ -1212,17 +1221,18 @@
     if (addAttributeBtn) {
       addAttributeBtn.addEventListener('click', function() {
         const attributesContainer = document.getElementById('attribute-editor');
+        const attrCap = getAttributeSlotCap();
         const currentAttrs = attributesContainer.querySelectorAll('.attribute-row').length;
-        if (currentAttrs >= ATTRIBUTE_CAP) {
+        if (currentAttrs >= attrCap) {
           addAttributeBtn.classList.add('disabled');
-          addAttributeBtn.title = `Maximum ${ATTRIBUTE_CAP} attributes reached`;
+          addAttributeBtn.title = `Maximum ${attrCap} attributes reached`;
           return;
         }
         const newAttributeRow = createAttributeRow();
         attributesContainer.appendChild(newAttributeRow);
-        if (currentAttrs + 1 >= ATTRIBUTE_CAP) {
+        if (currentAttrs + 1 >= attrCap) {
           addAttributeBtn.classList.add('disabled');
-          addAttributeBtn.title = `Maximum ${ATTRIBUTE_CAP} attributes reached`;
+          addAttributeBtn.title = `Maximum ${attrCap} attributes reached`;
         }
       });
     }
@@ -1710,18 +1720,10 @@
       'A prodigy of bio-mechanical fusion, blurring the line between flesh and machine.',
       'Guardian of the threshold between worlds, sworn to maintain the cosmic balance.'
     ];
-    const badgePool = [
-      { category: 'Fury', icon: 'fire', description: '+25% melee damage for 3 turns' },
-      { category: 'Aegis', icon: 'shield', description: 'Blocks the next incoming attack' },
-      { category: 'Rally', icon: 'crown', description: '+15% team damage when leading' },
-      { category: 'Arcane', icon: 'gem', description: '+30% spell potency' },
-      { category: 'Overload', icon: 'bolt', description: 'Double energy regen for 2 turns' },
-      { category: 'Fortitude', icon: 'medal', description: '+20% max HP this round' },
-      { category: 'Triumph', icon: 'trophy', description: 'Bonus XP on next victory' },
-      { category: 'Focus', icon: 'target', description: '+40% critical hit chance' },
-      { category: 'Regen', icon: 'heart', description: 'Restore 10 HP per turn' },
-      { category: 'Legendary', icon: 'star', description: 'All stats boosted by 10%' }
-    ];
+    // Buff pool sourced from EffectTiers (single source of truth), filtered by rank
+    const buffPool = (window.EffectTiers && window.EffectTiers.getUnlockedBuffs)
+      ? window.EffectTiers.getUnlockedBuffs()
+      : window.EffectTiers.BUFF_DEFS || [];
     // Set random basic info
     document.getElementById('card-name').value = pick(randomNames);
     document.getElementById('card-class').value = pick(randomClasses);
@@ -1752,13 +1754,13 @@
       }
     }
 
-    // Generate full set of 6 random badges (buffs)
+    // Generate random buffs/traits (no duplicates, rank-gated)
     const badgesContainer = document.getElementById('micro-editor');
-    if (badgesContainer) {
-      const shuffledBadges = [...badgePool].sort(() => Math.random() - 0.5).slice(0, BADGE_CAP);
-      shuffledBadges.forEach(badge => {
+    if (badgesContainer && buffPool.length > 0) {
+      const shuffled = [...buffPool].sort(() => Math.random() - 0.5).slice(0, getBuffSlotCap());
+      shuffled.forEach(buff => {
         const quantity = Math.floor(Math.random() * 3) + 1; // 1-3
-        badgesContainer.appendChild(createBadgeRow(badge.category, badge.icon, badge.description, quantity));
+        badgesContainer.appendChild(createBadgeRow(buff.key, buff.icon, buff.description, quantity));
       });
     }
 
@@ -3370,40 +3372,40 @@
   
   function generateBadgesHTML(badges) {
     if (!badges || badges.length === 0) {
-      return '<div class="no-badges">No badges available</div>';
+      return '<div class="no-badges">No buffs assigned</div>';
     }
-    
+
+    // Build icon map from unified BUFF_DEFS + fallback for legacy values
     const iconMap = {
-      star: 'fas fa-star',
-      trophy: 'fas fa-trophy',
-      medal: 'fas fa-medal',
-      crown: 'fas fa-crown',
-      shield: 'fas fa-shield-alt',
-      gem: 'fas fa-gem',
-      fire: 'fas fa-fire',
-      heart: 'fas fa-heart',
-      bolt: 'fas fa-bolt',
-      target: 'fas fa-bullseye'
+      star: 'fas fa-star', trophy: 'fas fa-trophy', medal: 'fas fa-medal',
+      crown: 'fas fa-crown', shield: 'fas fa-shield-alt', gem: 'fas fa-gem',
+      fire: 'fas fa-fire', heart: 'fas fa-heart', bolt: 'fas fa-bolt',
+      bullseye: 'fas fa-bullseye', target: 'fas fa-bullseye', book: 'fas fa-book'
     };
 
-    const visible = badges.slice(0, BADGE_CAP);
-    const overflow = badges.length - BADGE_CAP;
+    const visible = badges.slice(0, BADGE_CAP_MAX);
+    const overflow = badges.length - BADGE_CAP_MAX;
     
     let html = visible.map(badge => {
       const iconClass = iconMap[badge.icon] || 'fas fa-award';
       const quantity = badge.quantity || 1;
-      
+
       // Create multiple icons within a single badge item
-      const icons = Array.from({ length: quantity }, () => 
+      const icons = Array.from({ length: quantity }, () =>
         `<i class="${iconClass}"></i>`
       ).join('');
-      
+
+      // Resolve display label from unified BUFF_DEFS (category may be a key like 'fury')
+      const defs = getBuffDefs();
+      const def = defs.find(d => d.key === badge.category.toLowerCase());
+      const displayLabel = def ? def.label : (badge.category.charAt(0).toUpperCase() + badge.category.slice(1));
+
       return `
-        <div class="badge-item" title="${badge.description || badge.category}">
+        <div class="badge-item" title="${badge.description || displayLabel}">
           <div class="badge-icon">
             ${icons}
           </div>
-          <div class="badge-label">${badge.category}</div>
+          <div class="badge-label">${displayLabel}</div>
         </div>
       `;
     }).join('');
@@ -3516,8 +3518,8 @@
       return '<div class="no-attributes">No attributes available</div>';
     }
 
-    const visible = filtered.slice(0, ATTRIBUTE_CAP);
-    const overflow = filtered.length - ATTRIBUTE_CAP;
+    const visible = filtered.slice(0, ATTRIBUTE_CAP_MAX);
+    const overflow = filtered.length - ATTRIBUTE_CAP_MAX;
     
     let html = visible.map(attr => {
       return `
@@ -3664,7 +3666,7 @@
     const back = document.querySelector('.card-preview-zone .card-back');
     if (!back) return;
 
-    const badgeCount = data.badges ? Math.min(data.badges.length, BADGE_CAP) : 0;
+    const badgeCount = data.badges ? Math.min(data.badges.length, BADGE_CAP_MAX) : 0;
     
     back.innerHTML = `
     <div class="card-back-content">

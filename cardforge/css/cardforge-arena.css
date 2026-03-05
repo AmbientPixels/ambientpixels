@@ -1038,9 +1038,24 @@
   to   { transform: translateX(110%); opacity: 0; }
 }
 
+/* ===== Battle Buff Chips ===== */
+.arena-player-buffs {
+  display: flex; flex-wrap: wrap; gap: 0.25rem; justify-content: center;
+  margin-top: 0.35rem;
+}
+.arena-buff-chip {
+  display: inline-flex; align-items: center; gap: 0.2rem;
+  padding: 0.15rem 0.4rem; border-radius: 6px;
+  background: rgba(90, 228, 255, 0.1); border: 1px solid rgba(90, 228, 255, 0.25);
+  color: rgba(255,255,255,0.8); font-size: 0.65rem; font-weight: 600;
+  white-space: nowrap;
+}
+.arena-buff-chip i { font-size: 0.55rem; color: var(--mood-primary-color, #5AE4FF); }
+
 /* ===== Responsive ===== */
 @media (max-width: 768px) {
   .arena-rewards__tier-header { font-size: 0.78rem; }
   .arena-rewards__tier-body { font-size: 0.7rem; }
   .arena-next-rank { flex-wrap: wrap; }
+  .arena-buff-chip { font-size: 0.6rem; padding: 0.1rem 0.3rem; }
 }
