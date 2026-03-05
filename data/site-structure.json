@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2026-03-04T13:59:09.777Z",
+  "updated": "2026-03-05T14:02:05.598Z",
   "root": [
     {
       "type": "folder",
@@ -127,6 +127,12 @@
                   "children": []
                 }
               ]
+            },
+            {
+              "type": "folder",
+              "name": "stripe",
+              "path": "api/_lib/stripe",
+              "children": []
             }
           ]
         },
@@ -214,6 +220,54 @@
           "type": "folder",
           "name": "blogPosts",
           "path": "api/blogPosts",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "cardforge-billing-portal",
+          "path": "api/cardforge-billing-portal",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "cardforge-billing-webhook",
+          "path": "api/cardforge-billing-webhook",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "cardforge-checkout",
+          "path": "api/cardforge-checkout",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "cardforge-entitlements",
+          "path": "api/cardforge-entitlements",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "cardforgearenabattle",
+          "path": "api/cardforgearenabattle",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "cardforgearenabosses",
+          "path": "api/cardforgearenabosses",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "cardforgearenahistory",
+          "path": "api/cardforgearenahistory",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "cardforgearenaprofile",
+          "path": "api/cardforgearenaprofile",
           "children": []
         },
         {
@@ -618,6 +672,11 @@
       "name": "cardforge",
       "path": "cardforge",
       "children": [
+        {
+          "type": "page",
+          "name": "arena.html",
+          "path": "cardforge/arena.html"
+        },
         {
           "type": "folder",
           "name": "css",

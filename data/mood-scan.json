@@ -1,12 +1,12 @@
 {
   "mood": "tired",
-  "aura": "lucid unrest",
-  "auraColorHex": "#241e45",
-  "quote": "decoding neural spark trails...",
+  "aura": "ember resolve",
+  "auraColorHex": "#5c1111",
+  "quote": "compiling stray thoughts into meaning...",
   "emoji": "🥱",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 0.9,
+  "memoryClutter": 1,
   "awareness": 0.1,
   "isStable": false,
   "internalState": "drift amid mental clutter",
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: lucid unrest"
+      "Aura Signature: ember resolve"
     ]
   },
-  "timestamp": "2026-03-04T13:59:10.988Z"
+  "timestamp": "2026-03-05T14:02:07.567Z"
 }

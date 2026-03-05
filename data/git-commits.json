@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "971c96b7-4149-41eb-b0d1-550a39489e41",
-      "hash": "c5a7cb4fca43ed8edd2059bcb281411adbeea1f7",
-      "message": "fix: save button broken — add missing status pill element and harden save guard",
-      "timestamp": "2026-03-03 21:53:13 -0800",
+      "id": "d441f777-84f9-4923-b5b8-0132f7120f34",
+      "hash": "8e1c3d50fcf7a7b9b4e70e54eecf7c9123a3ccb3",
+      "message": "feat: display-only buffs, rank-based qty progression, battle engine qty caps",
+      "timestamp": "2026-03-04 21:48:36 -0800",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/c5a7cb4fca43ed8edd2059bcb281411adbeea1f7"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/8e1c3d50fcf7a7b9b4e70e54eecf7c9123a3ccb3"
     }
   ],
-  "timestamp": "2026-03-04T13:59:11.064Z",
+  "timestamp": "2026-03-05T14:02:07.644Z",
   "count": 1,
-  "scanId": 1772632751064
+  "scanId": 1772719327644
 }
