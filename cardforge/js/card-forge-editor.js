@@ -3843,7 +3843,9 @@
       }
     }
 
-    // Front-face overflow: condense first, then truncate stats if still overflowing
+    // Front-face overflow: condense first, then truncate stats if still overflowing.
+    // Flex layouts (hero, etc.) constrain .card-body via flex-shrink so the
+    // front element itself may never overflow — check .card-body too.
     const front = document.querySelector('.card-preview-zone .card-front');
     if (!front) return;
 
@@ -3856,14 +3858,25 @@
       if (existingOverflow) existingOverflow.remove();
     }
 
+    const cardBody = front.querySelector('.card-body');
+
+    // Helper: true when content overflows the visible card area.
+    // Checks both the front face (block layouts) and the card-body
+    // (flex layouts where the body absorbs overflow via overflow-y:auto).
+    function isOverflowing() {
+      if (front.scrollHeight > front.clientHeight + 1) return true;
+      if (cardBody && cardBody.scrollHeight > cardBody.clientHeight + 1) return true;
+      return false;
+    }
+
     requestAnimationFrame(() => {
-      if (front.scrollHeight <= front.clientHeight) return;
+      if (!isOverflowing()) return;
 
       // Step 1: Apply condensed mode
       front.classList.add('card-condensed');
 
       requestAnimationFrame(() => {
-        if (front.scrollHeight <= front.clientHeight || !statsContainer) return;
+        if (!isOverflowing() || !statsContainer) return;
 
         // Step 2: Progressively hide stats from bottom until it fits
         const allStats = Array.from(statsContainer.querySelectorAll('.stat-item'));
@@ -3871,7 +3884,7 @@
         let hiddenCount = 0;
 
         for (let i = allStats.length - 1; i >= 0; i--) {
-          if (front.scrollHeight <= front.clientHeight) break;
+          if (!isOverflowing()) break;
           allStats[i].classList.add('stat-hidden');
           hiddenCount++;
           // If we hid all custom stats, also hide the separator
