@@ -369,8 +369,12 @@ Write the full deliverable first, then the structured JSON block.`;
           // FIX: agentTasks excludes 'done' tasks (line 72), so _socialIdle is always empty above.
           // Pull done Echo social tasks directly from full tasks array for create-social-action injection.
           if (_socialIdle.length === 0) {
+            const _doneSocialMaxAge = 7 * 24 * 60 * 60 * 1000; // 7 days — skip old stale tasks
             const _doneSocial = tasks.filter(function (t) {
               if (t.assignee !== 'echo' || t.status !== 'done' || t._archived) return false;
+              // Skip tasks older than 7 days to avoid processing stale backlog
+              var age = Date.now() - new Date(t.createdAt || 0).getTime();
+              if (age > _doneSocialMaxAge) return false;
               var txt = ((t.title || '') + ' ' + (t.description || '')).toLowerCase();
               return /^social_/.test(t.taskType || '') || /linkedin|twitter|x\.com|social media|social post|bluesky|tweet/.test(txt);
             });
