@@ -5,6 +5,24 @@
 window.ArenaAPI = (function () {
   'use strict';
 
+  // Cache the client principal from /.auth/me so we can forward it to direct API calls
+  let _principalCache = null;
+  let _principalFetched = false;
+
+  async function fetchPrincipal() {
+    if (_principalFetched) return _principalCache;
+    _principalFetched = true;
+    try {
+      const resp = await fetch('/.auth/me');
+      if (!resp.ok) return null;
+      const data = await resp.json();
+      if (data.clientPrincipal) {
+        _principalCache = btoa(JSON.stringify(data.clientPrincipal));
+      }
+    } catch (e) { /* not authenticated */ }
+    return _principalCache;
+  }
+
   async function apiFetch(endpoint, options = {}) {
     const url = window.buildApiPath(endpoint, options.params || {});
     if (!url) throw new Error(`Unknown endpoint: ${endpoint}`);
@@ -13,6 +31,12 @@ window.ArenaAPI = (function () {
       method: options.method || 'GET',
       headers: { 'Content-Type': 'application/json' }
     };
+
+    // Forward client principal for auth on direct API calls
+    const principal = await fetchPrincipal();
+    if (principal) {
+      fetchOpts.headers['X-MS-CLIENT-PRINCIPAL'] = principal;
+    }
 
     // Add CSRF token for POST requests
     if (fetchOpts.method === 'POST') {
