@@ -3748,6 +3748,7 @@
       <div class="back-header">
         <h3 class="card-name">${data.name}</h3>
         <div class="card-class">${data.characterClass}</div>
+        ${generateGameStatsHTML(window._arenaProfile)}
       </div>
       <div class="back-body">
         ${data.biography ? `
@@ -3765,8 +3766,6 @@
               ${generateBadgesHTML(data.badges)}
             </div>
           </div>
-
-          ${generateGameStatsHTML(window._arenaProfile)}
 
           <div class="back-section attributes-section">
             <h4 class="section-title">Attributes</h4>
