@@ -14,19 +14,6 @@
   function el(id) { return document.getElementById(id); }
 
   // ===== ICON MAPS (mirror card-forge-editor.js) =====
-  const socialIconMap = {
-    twitter: 'fab fa-twitter',
-    github: 'fab fa-github',
-    instagram: 'fab fa-instagram',
-    linkedin: 'fab fa-linkedin',
-    x: 'fab fa-x-twitter',
-    deviantart: 'fab fa-deviantart',
-    facebook: 'fab fa-facebook',
-    discord: 'fab fa-discord',
-    tiktok: 'fab fa-tiktok',
-    youtube: 'fab fa-youtube'
-  };
-
   const badgeIconMap = {
     star: 'fas fa-star',
     trophy: 'fas fa-trophy',
@@ -99,23 +86,6 @@
       </div>`).join('');
     if (overflow > 0) {
       html += `<div class="attributes-overflow-indicator">+${overflow} more</div>`;
-    }
-    return html;
-  }
-
-  const SOCIAL_CAP = 8; // Max visible social icons on card face
-
-  function socialHTML(links) {
-    if (!links || links.length === 0) return '';
-    const visible = links.slice(0, SOCIAL_CAP);
-    const overflow = links.length - SOCIAL_CAP;
-    let html = visible.map(s => {
-      const iconClass = socialIconMap[s.platform] || 'fas fa-link';
-      const name = s.platform.charAt(0).toUpperCase() + s.platform.slice(1);
-      return `<a href="${s.url}" target="_blank" rel="noopener noreferrer" class="social-link" title="Visit ${name}"><i class="${iconClass}"></i></a>`;
-    }).join('');
-    if (overflow > 0) {
-      html += `<span class="social-overflow-indicator" title="${overflow} more links">+${overflow}</span>`;
     }
     return html;
   }
@@ -216,7 +186,6 @@
       const stats = d.stats || [];
       const badges = d.badges || [];
       const attributes = d.attributes || [];
-      const socialLinks = d.socialLinks || [];
       const fallbackImg = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjE4MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMWExYTJlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzAwZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkNhcmQgSW1hZ2U8L3RleHQ+PC9zdmc+";
 
       const frontHTML = `
@@ -260,11 +229,6 @@
                 <div class="attributes-container">${attributesHTML(attributes)}</div>
               </div>` : ''}
             </div>
-            ${socialLinks.length ? `
-            <div class="social-section">
-              <h4 class="section-title">Social Links</h4>
-              <div class="social-links">${socialHTML(socialLinks)}</div>
-            </div>` : ''}
           </div>
         </div>`;
 

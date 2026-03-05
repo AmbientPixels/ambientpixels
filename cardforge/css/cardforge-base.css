@@ -68,55 +68,6 @@
   opacity: var(--card-glow-hover-opacity, 1);
 }
 
-/* ===== SOCIAL LINKS DISPLAY ON CARD ===== */
-/* Extracted from cardforge-ui.css - Card-specific social link styling */
-
-/* Social Links Display on Card */
-.social-links {
-  display: flex;
-  gap: 10px;
-  margin: 0;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-.social-link {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  transition: all 0.2s ease;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  font-size: 0.8rem;
-}
-
-.social-link:hover {
-  background: var(--mood-primary-color, #5AE4FF);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(90, 228, 255, 0.3);
-}
-
-.social-link .social-icon {
-  width: 16px;
-  height: 16px;
-  filter: brightness(0) invert(1);
-  transition: all 0.2s ease;
-}
-
-/* Theme-specific adjustments */
-.theme-neofantasy .social-link {
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.theme-neofantasy .social-link:hover {
-  background: var(--mood-accent-color, #8b5cf6);
-  box-shadow: 0 0 15px var(--mood-accent-color, #8b5cf6);
-}
-
 /* ===== FRONT FACE STYLING ===== */
 /* Extracted from cardforge-ui.css - Card display components */
 
@@ -226,7 +177,7 @@
 
 
 /* ===== BACK-OF-CARD INFORMATION GRID LAYOUT ===== */
-/* Information Grid Layout - Header, Social Row, Two-Column Content Grid */
+/* Information Grid Layout - Header, Two-Column Content Grid */
 
 .card-back-content {
   padding: 0.75rem;
@@ -268,48 +219,6 @@
   min-height: 0;
   overflow: hidden;
   padding-bottom: 4px;
-}
-
-/* Social Links Section - Horizontal Row — reserved space, never clips off card */
-.social-section {
-  text-align: center;
-  flex-shrink: 0;
-  margin-top: auto;
-  padding-top: 0.35rem;
-  overflow: visible;
-}
-
-.social-section .section-title {
-  font-size: 0.7rem;
-  color: var(--mood-secondary-color, #a0a0c0);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin: 0 0 0.25rem 0;
-  font-weight: 500;
-}
-
-.social-section .social-links {
-  justify-content: center;
-  margin: 0;
-  flex-wrap: wrap;
-  gap: 6px;
-  overflow: visible;
-  padding: 4px 0;
-}
-
-/* Social overflow indicator — shown when social links exceed cap */
-.social-overflow-indicator {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--mood-accent-color, #8b5cf6);
-  font-size: 0.6rem;
-  font-weight: 700;
-  flex-shrink: 0;
 }
 
 /* Biography Section - Above Grid */

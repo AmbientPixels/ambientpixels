@@ -178,7 +178,7 @@
       }
     },
     navigateToMyCards() {
-      const forgeStepBtn = document.querySelector('.step-btn[data-step="7"]');
+      const forgeStepBtn = document.querySelector('.step-btn[data-step="6"]');
       if (forgeStepBtn) {
         try { forgeStepBtn.click(); } catch (e) { /* ignore */ }
       }
@@ -223,7 +223,6 @@
 
   // ===== CARD DISPLAY CAPS =====
   const STAT_CAP = 5;        // Max visible stats on card face
-  const SOCIAL_CAP = 8;      // Max visible social icons on card face
   const BADGE_CAP = 6;       // 2 rows × 3 columns — overflow gets "+N" indicator
   const ATTRIBUTE_CAP = 6;   // Max visible attributes on card face
   
@@ -709,20 +708,6 @@
         }
       }
       
-      // Apply social links - CREATE MULTIPLE ROWS
-      if (prefillData.socialLinks && prefillData.socialLinks.length > 0) {
-        const socialContainer = document.getElementById('social-editor');
-        
-        // Clear existing social rows
-        socialContainer.innerHTML = '';
-        
-        // Create a row for each social link
-        prefillData.socialLinks.forEach((social, index) => {
-          const socialRow = createSocialRow(social.platform, social.url);
-          socialContainer.appendChild(socialRow);
-        });
-      }
-      
       // Apply badges - CREATE MULTIPLE ROWS
       if (prefillData.badges && prefillData.badges.length > 0) {
         const badgesContainer = document.getElementById('micro-editor');
@@ -751,16 +736,6 @@
         });
       }
       
-      
-      // Pad Social to 6 rows for balanced grid layout
-      const SOCIAL_GRID_MIN = 6;
-      const socialContainer = document.getElementById('social-editor');
-      if (socialContainer) {
-        const existingSocial = socialContainer.querySelectorAll('.social-row').length;
-        for (let i = existingSocial; i < SOCIAL_GRID_MIN; i++) {
-          socialContainer.appendChild(createSocialRow());
-        }
-      }
 
       // Pad Attributes to ATTRIBUTE_CAP (6) for balanced 3×2 grid
       const attributesContainer = document.getElementById('attribute-editor');
@@ -1001,53 +976,6 @@
     { key: 'wisdom',      label: 'Wisdom',      icon: 'book',    effect: '+2 INT per qty' }
   ];
 
-  function createSocialRow(platform = 'twitter', url = '') {
-    const socialRow = document.createElement('div');
-    socialRow.className = 'social-row';
-    socialRow.innerHTML = `
-      <div class="social-header">
-        <select name="social-name" class="social-platform" aria-label="Platform">
-          <option value="twitter" ${platform === 'twitter' ? 'selected' : ''}>Twitter</option>
-          <option value="instagram" ${platform === 'instagram' ? 'selected' : ''}>Instagram</option>
-          <option value="linkedin" ${platform === 'linkedin' ? 'selected' : ''}>LinkedIn</option>
-          <option value="x" ${platform === 'x' ? 'selected' : ''}>X</option>
-          <option value="deviantart" ${platform === 'deviantart' ? 'selected' : ''}>DeviantArt</option>
-          <option value="github" ${platform === 'github' ? 'selected' : ''}>GitHub</option>
-          <option value="facebook" ${platform === 'facebook' ? 'selected' : ''}>Facebook</option>
-          <option value="discord" ${platform === 'discord' ? 'selected' : ''}>Discord</option>
-          <option value="tiktok" ${platform === 'tiktok' ? 'selected' : ''}>TikTok</option>
-          <option value="youtube" ${platform === 'youtube' ? 'selected' : ''}>YouTube</option>
-        </select>
-        <input type="url" name="social-url" placeholder="https://..." value="${url}" />
-        <button type="button" class="remove-attribute">&times;</button>
-      </div>
-    `;
-    
-    // Add event listeners for the new row
-    const removeBtn = socialRow.querySelector('.remove-attribute');
-    const selectField = socialRow.querySelector('select[name="social-name"]');
-    const urlField = socialRow.querySelector('input[name="social-url"]');
-    
-    selectField.addEventListener('change', updatePreview);
-    urlField.addEventListener('input', updatePreview);
-    
-    removeBtn.addEventListener('click', function() {
-      socialRow.remove();
-      // Re-enable Add Social button if under cap
-      const addSocialBtn = document.getElementById('add-social-btn');
-      if (addSocialBtn) {
-        const remaining = document.querySelectorAll('#social-editor .social-row').length;
-        if (remaining < SOCIAL_CAP) {
-          addSocialBtn.classList.remove('disabled');
-          addSocialBtn.title = '';
-        }
-      }
-      updatePreview();
-    });
-    
-    return socialRow;
-  }
-
   function createBadgeRow(category = '', icon = 'star', description = '', quantity = 1) {
     // Build category dropdown options
     const categoryOptions = BADGE_CATEGORY_DEFS.map(def => {
@@ -1172,9 +1100,6 @@
     // Initialize Stats Editor
     initStatsEditor();
     
-    // Initialize Social Links Editor
-    initSocialEditor();
-    
     // Initialize Badges Editor
     initBadgesEditor();
     
@@ -1260,27 +1185,6 @@
     updateStatBtnState();
   }
   
-  function initSocialEditor() {
-    const addSocialBtn = document.getElementById('add-social-btn');
-    if (addSocialBtn) {
-      addSocialBtn.addEventListener('click', function() {
-        const socialContainer = document.getElementById('social-editor');
-        const currentSocials = socialContainer.querySelectorAll('.social-row').length;
-        if (currentSocials >= SOCIAL_CAP) {
-          addSocialBtn.classList.add('disabled');
-          addSocialBtn.title = `Maximum ${SOCIAL_CAP} social links reached`;
-          return;
-        }
-        const newSocialRow = createSocialRow();
-        socialContainer.appendChild(newSocialRow);
-        if (currentSocials + 1 >= SOCIAL_CAP) {
-          addSocialBtn.classList.add('disabled');
-          addSocialBtn.title = `Maximum ${SOCIAL_CAP} social links reached`;
-        }
-      });
-    }
-  }
-
   function initBadgesEditor() {
     const addBadgeBtn = document.getElementById('add-micro-btn');
     if (addBadgeBtn) {
@@ -1359,15 +1263,6 @@
       });
       customStats.forEach(stat => {
         statsContainer.appendChild(createStatRow(stat.name, stat.value));
-      });
-    }
-
-    // Social Links
-    const socialContainer = document.getElementById('social-editor');
-    if (socialContainer && cardData.socialLinks && Array.isArray(cardData.socialLinks)) {
-      socialContainer.innerHTML = '';
-      cardData.socialLinks.forEach(social => {
-        socialContainer.appendChild(createSocialRow(social.platform, social.url));
       });
     }
 
@@ -1498,8 +1393,8 @@
       const stepBtn = e.target.closest('.step-btn');
       if (stepBtn && cardInner) {
         const step = stepBtn.getAttribute('data-step');
-        // Steps 4, 5, 6 show back face (Social, Badges, Attributes)
-        if (['4', '5', '6'].includes(step)) {
+        // Steps 4, 5 show back face (Badges, Attributes)
+        if (['4', '5'].includes(step)) {
           cardInner.classList.add('flipped');
         } else {
           // Steps 1, 2, 3 show front face (Card Design, Basics, Stats)
@@ -2947,7 +2842,6 @@
     // Collect all data first
     const combatStatsData = collectCombatStatsData();
     const customStatsData = collectStatsData();
-    const socialData = collectSocialLinksData();
     const badgesData = collectBadgesData();
     const attributesData = collectAttributesData();
 
@@ -2972,7 +2866,6 @@
       biography: biography,
       combatStats: combatStatsData,
       stats: allStats,
-      socialLinks: socialData,
       badges: badgesData,
       attributes: attributesData
     };
@@ -3211,28 +3104,6 @@
     return stats;
   }
   
-  function collectSocialLinksData() {
-    const socialContainer = document.getElementById('social-editor');
-    const socialLinks = [];
-    
-    if (socialContainer) {
-      const socialRows = socialContainer.querySelectorAll('.social-row');
-      socialRows.forEach(row => {
-        const platformSelect = row.querySelector('select[name="social-name"]');
-        const urlInput = row.querySelector('input[name="social-url"]');
-        
-        if (platformSelect && urlInput && urlInput.value.trim()) {
-          socialLinks.push({
-            platform: platformSelect.value,
-            url: urlInput.value.trim()
-          });
-        }
-      });
-    }
-    
-    return socialLinks;
-  }
-  
   function collectBadgesData() {
     const badgesContainer = document.getElementById('micro-editor');
     const badges = [];
@@ -3464,44 +3335,6 @@
       if (overflow > 0) {
         html += `<div class="stats-overflow-indicator">+${overflow} more</div>`;
       }
-    }
-
-    return html;
-  }
-  
-  function generateSocialLinksHTML(socialLinks) {
-    if (!socialLinks || socialLinks.length === 0) {
-      return '<div class="no-social">No social links available</div>';
-    }
-    
-    const iconMap = {
-      twitter: 'fab fa-twitter',
-      github: 'fab fa-github',
-      instagram: 'fab fa-instagram',
-      linkedin: 'fab fa-linkedin',
-      x: 'fab fa-x-twitter',
-      deviantart: 'fab fa-deviantart',
-      facebook: 'fab fa-facebook',
-      discord: 'fab fa-discord',
-      tiktok: 'fab fa-tiktok',
-      youtube: 'fab fa-youtube'
-    };
-
-    const visible = socialLinks.slice(0, SOCIAL_CAP);
-    const overflow = socialLinks.length - SOCIAL_CAP;
-    
-    let html = visible.map(social => {
-      const iconClass = iconMap[social.platform] || 'fas fa-link';
-      const platformName = social.platform.charAt(0).toUpperCase() + social.platform.slice(1);
-      return `
-        <a href="${social.url}" target="_blank" rel="noopener noreferrer" class="social-link" title="Visit ${platformName}">
-          <i class="${iconClass}"></i>
-        </a>
-      `;
-    }).join('');
-
-    if (overflow > 0) {
-      html += `<span class="social-overflow-indicator" title="${overflow} more links">+${overflow}</span>`;
     }
 
     return html;
@@ -3774,13 +3607,6 @@
             </div>
           </div>
         </div>
-        
-        <div class="social-section">
-          <h4 class="section-title">Social Links</h4>
-          <div class="social-links">
-            ${generateSocialLinksHTML(data.socialLinks)}
-          </div>
-        </div>
       </div>
     </div>
   `;
@@ -3852,9 +3678,6 @@
     
     // Dynamic stats listeners
     initStatsListeners();
-    
-    // Dynamic social links listeners
-    initSocialListeners();
     
     // Class and Rarity style selectors
     const classStyleSelector = document.getElementById('class-style');
@@ -3955,23 +3778,7 @@
     }
   }
   
-  function initSocialListeners() {
-    const socialContainer = document.getElementById('social-editor');
-    if (socialContainer) {
-      // Use event delegation for dynamic social rows
-      socialContainer.addEventListener('change', function(e) {
-        if (e.target.matches('select[name="social-name"]') || e.target.matches('input[name="social-url"]')) {
-          updatePreview();
-        }
-      });
-      
-      socialContainer.addEventListener('input', function(e) {
-        if (e.target.matches('input[name="social-url"]')) {
-          updatePreview();
-        }
-      });
-    }
-  }
+
 
 
 

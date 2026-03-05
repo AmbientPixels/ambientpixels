@@ -80,31 +80,6 @@
   window.addEventListener('scroll', removePortalTooltip, true);
   window.addEventListener('resize', removePortalTooltip);
 
-  // ===== SOCIAL LINK TOOLTIP =====
-  document.addEventListener('mouseenter', function (e) {
-    const link = e.target.closest('.social-link[title], .social-link[data-cf-title]');
-    if (!link) return;
-    const text = link.getAttribute('title') || link.dataset.cfTitle;
-    if (!text) return;
-    // Suppress native tooltip by temporarily removing title
-    if (link.hasAttribute('title')) {
-      link.dataset.cfTitle = text;
-      link.removeAttribute('title');
-    }
-    createPortalTooltip(text);
-  }, true);
-
-  document.addEventListener('mouseleave', function (e) {
-    const link = e.target.closest('.social-link');
-    if (!link) return;
-    // Restore native title
-    if (link.dataset.cfTitle) {
-      link.setAttribute('title', link.dataset.cfTitle);
-      delete link.dataset.cfTitle;
-    }
-    removePortalTooltip();
-  }, true);
-
   // ===== BADGE TOOLTIP =====
   // Use portal tooltip for badge items — suppress native title.
   document.addEventListener('mouseenter', function (e) {

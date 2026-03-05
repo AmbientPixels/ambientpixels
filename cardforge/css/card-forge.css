@@ -93,7 +93,6 @@
   font-weight: 500;
 }
 
-#social-editor,
 #micro-editor,
 #attribute-editor {
   max-width: 100%;
@@ -246,7 +245,6 @@
 
 /* Override any conflicting styles with specificity */
 .cardforge-form .stat-row,
-.cardforge-form .social-row,
 .cardforge-form .micro-row {
   display: flex !important;
   align-items: center !important;
@@ -257,7 +255,6 @@
 }
 
 .cardforge-form .stat-row input,
-.cardforge-form .social-row input,
 .cardforge-form .micro-row input,
 .cardforge-form .micro-row select {
   flex: 1 !important;
@@ -272,7 +269,6 @@
 
 /* Ensure remove buttons are properly styled */
 .cardforge-form .remove-stat,
-.cardforge-form .remove-social,
 .cardforge-form .remove-micro {
   background: transparent !important;
   border: none !important;

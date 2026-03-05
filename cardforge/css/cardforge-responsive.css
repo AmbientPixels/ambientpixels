@@ -270,9 +270,8 @@
     justify-content: center;
   }
 
-  /* Stats/Social/Badge rows — stack vertically */
+  /* Stats/Badge rows — stack vertically */
   .stat-header,
-  .social-header,
   .badge-card-header,
   .attribute-header {
     flex-wrap: wrap;
@@ -280,7 +279,6 @@
 
   /* Increase tap targets for all small buttons */
   .stat-header .stat-delete-btn,
-  .social-header .social-delete-btn,
   .badge-card-header .micro-delete-btn,
   .attribute-header .attr-delete-btn {
     min-width: 44px;

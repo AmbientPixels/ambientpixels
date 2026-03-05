@@ -857,7 +857,6 @@ class CardForgeActions {
     
     // Fallback: collect from form fields if preview data not available
     const statsData = window.collectStatsData ? window.collectStatsData() : [];
-    const socialData = window.collectSocialLinksData ? window.collectSocialLinksData() : [];
     const badgesData = window.collectBadgesData ? window.collectBadgesData() : [];
     const attributesData = window.collectAttributesData ? window.collectAttributesData() : [];
     
@@ -872,7 +871,6 @@ class CardForgeActions {
       avatar: document.getElementById('card-avatar')?.value || '',
       biography: biography,
       stats: statsData,
-      socialLinks: socialData,
       badges: badgesData,
       attributes: attributesData
     };
@@ -978,22 +976,6 @@ class CardForgeActions {
     const statsEditor = document.getElementById('stats-editor');
     if (statsEditor) {
       statsEditor.innerHTML = '';
-    }
-    
-    // Reset social links editor
-    const socialEditor = document.getElementById('social-editor');
-    if (socialEditor) {
-      const firstRow = socialEditor.querySelector('.social-row');
-      if (firstRow) {
-        const platformSelect = firstRow.querySelector('.social-platform');
-        const urlInput = firstRow.querySelector('input[name="social-url"]');
-        if (platformSelect) platformSelect.value = 'twitter';
-        if (urlInput) urlInput.value = '';
-        
-        // Remove additional rows
-        const additionalRows = socialEditor.querySelectorAll('.social-row:not(:first-child)');
-        additionalRows.forEach(row => this.refreshMyCardsList());
-      }
     }
     
     // Reset micro badges editor
@@ -2372,7 +2354,7 @@ CardForgeActions.prototype.addCardToDeck = function(cardId, deckId) {
   this.refreshDeckList();
 
   // Navigate to Forge tab → Deck Manager for feedback
-  const forgeStep = document.querySelector('.step-btn[data-step="7"]');
+  const forgeStep = document.querySelector('.step-btn[data-step="6"]');
   if (forgeStep) forgeStep.click();
   setTimeout(() => {
     const deckTab = document.querySelector('[data-forge-tab="deck"]');
@@ -2730,7 +2712,7 @@ function showSavedCardsModal() {
     const goBtn = overlay.querySelector('#saved-modal-go-cards');
     if (goBtn) {
       goBtn.addEventListener('click', () => {
-        const forgeStepBtn = document.querySelector('.step-btn[data-step="7"]');
+        const forgeStepBtn = document.querySelector('.step-btn[data-step="6"]');
         if (forgeStepBtn) {
           try { forgeStepBtn.click(); } catch {}
         }

@@ -49,7 +49,6 @@
 /* Form Buttons - Add Buttons */
 .cardforge-form button,
 .add-stat-btn,
-.add-social-btn,
 .add-micro-btn,
 .add-attribute-btn,
 .choose-image-btn {
@@ -68,7 +67,6 @@
 /* Form Buttons - Hover States */
 .cardforge-form button:hover,
 .add-stat-btn:hover,
-.add-social-btn:hover,
 .add-micro-btn:hover,
 .add-attribute-btn:hover,
 .choose-image-btn:hover {
@@ -79,7 +77,6 @@
 /* Form Buttons - Active States */
 .cardforge-form button:active,
 .add-stat-btn:active,
-.add-social-btn:active,
 .add-micro-btn:active,
 .add-attribute-btn:active {
   transform: translateY(0);
@@ -88,8 +85,7 @@
 /* Form Buttons - Disabled State (cap reached) */
 .add-micro-btn.disabled,
 .add-stat-btn.disabled,
-.add-attribute-btn.disabled,
-.add-social-btn.disabled {
+.add-attribute-btn.disabled {
   opacity: 0.4;
   cursor: not-allowed;
   pointer-events: none;
@@ -98,7 +94,6 @@
 
 /* Remove Buttons */
 .remove-stat,
-.remove-social,
 .remove-micro,
 .remove-attribute,
 .clear-achievement,
@@ -119,7 +114,6 @@
 }
 
 .remove-stat:hover,
-.remove-social:hover,
 .remove-micro:hover,
 .remove-attribute:hover,
 .clear-achievement:hover,
@@ -130,7 +124,6 @@
 
 /* Row Containers */
 .stat-row,
-.social-row,
 .micro-row,
 .attribute-row {
   display: flex;
@@ -168,24 +161,12 @@
 
 /* Input Sizing Within Rows */
 .stat-row input,
-.social-row input,
 .micro-row input,
 .micro-row select,
 .attribute-row input {
   flex: 1;
   min-width: 0;
   padding: 6px 8px;
-  border: 1px solid var(--mood-accent-color, #4a4a6a);
-  border-radius: 4px;
-  background: var(--aura-bg-color, #1a1a2e);
-  color: var(--mood-primary-color, #e1e1ff);
-  font-family: inherit;
-}
-
-/* Social Row Specific Inputs (from cardforge-ui.css) */
-.social-row input[name="social-name"],
-.social-row input[name="social-url"] {
-  padding: 6px;
   border: 1px solid var(--mood-accent-color, #4a4a6a);
   border-radius: 4px;
   background: var(--aura-bg-color, #1a1a2e);
@@ -569,51 +550,6 @@
 }
 
 .add-stat-btn:hover {
-  background: var(--mood-primary-color, #e1e1ff);
-}
-
-/* Social Links Editor Styles */
-.social-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.social-row select,
-.social-row input {
-  padding: 6px;
-  border: 1px solid var(--mood-accent-color, #4a4a6a);
-  border-radius: 4px;
-  background: var(--aura-bg-color, #1a1a2e);
-  color: var(--mood-primary-color, #e1e1ff);
-  font-family: inherit;
-}
-
-.remove-social {
-  background: transparent;
-  border: none;
-  color: var(--mood-secondary-color, #a0a0c0);
-  font-size: 1.2rem;
-  cursor: pointer;
-}
-
-.remove-social:hover {
-  color: var(--mood-primary-color, #e1e1ff);
-}
-
-.add-social-btn {
-  background: var(--mood-accent-color, #4a4a6a);
-  color: var(--aura-bg-color, #1a1a2e);
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  font-family: inherit;
-  margin-top: 8px;
-}
-
-.add-social-btn:hover {
   background: var(--mood-primary-color, #e1e1ff);
 }
 

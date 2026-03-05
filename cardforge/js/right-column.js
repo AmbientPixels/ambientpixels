@@ -153,9 +153,6 @@ class RightColumn {
       // Stats
       stats: this.collectStats(),
       
-      // Social links
-      socialLinks: this.collectSocialLinks(),
-      
       // Badges
       badges: this.collectBadges(),
       
@@ -194,25 +191,6 @@ class RightColumn {
     });
     
     return stats;
-  }
-
-  collectSocialLinks() {
-    const socialLinks = [];
-    const socialRows = document.querySelectorAll('#social-editor .social-row');
-    
-    socialRows.forEach(row => {
-      const platformField = row.querySelector('.social-platform');
-      const urlField = row.querySelector('.social-url');
-      
-      if (platformField && urlField && platformField.value.trim() && urlField.value.trim()) {
-        socialLinks.push({
-          platform: platformField.value.trim(),
-          url: urlField.value.trim()
-        });
-      }
-    });
-    
-    return socialLinks;
   }
 
   collectBadges() {
