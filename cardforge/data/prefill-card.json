@@ -1,7 +1,8 @@
 {
   "cardData": {
     "name": "Aria Shadowbane",
-    "class": "Rogue Assassin", 
+    "class": "Rogue",
+    "subclass": "Assassin",
     "rarity": "Legendary",
     "quote": "Shadows are my allies, silence my weapon.",
     "biography": "A mysterious figure who emerged from the shadows, wielding ancient knowledge and unmatched stealth abilities. Known throughout the realm for her precision and deadly grace.",
@@ -110,7 +111,8 @@
     "hero-classic": {
       "cardData": {
         "name": "Sir Galahad",
-        "class": "Paladin Knight",
+        "class": "Guardian",
+        "subclass": "Paladin Knight",
         "rarity": "Epic",
         "quote": "Honor guides my blade, justice fuels my spirit.",
         "biography": "A noble knight sworn to protect the innocent and uphold the ancient codes of chivalry."
@@ -140,7 +142,8 @@
     "split-modern": {
       "cardData": {
         "name": "Zara Nexus",
-        "class": "Cyber Hacker",
+        "class": "Hacker",
+        "subclass": "Cyber Hacker",
         "rarity": "Rare",
         "quote": "In the matrix of code, I am the ghost in the machine.",
         "biography": "A brilliant hacker who navigates the digital realm with unmatched skill and cyber-enhanced abilities."
@@ -171,7 +174,8 @@
     "minimal-glow": {
       "cardData": {
         "name": "Luna Starweaver",
-        "class": "Mystic Sage",
+        "class": "Caster",
+        "subclass": "Mystic Sage",
         "rarity": "Legendary",
         "quote": "The cosmos whispers its secrets to those who listen.",
         "biography": "An ethereal being who channels the power of stars and moonlight to weave magic beyond mortal comprehension."
@@ -201,7 +205,8 @@
     "full-bleed": {
       "cardData": {
         "name": "Rex Ironforge",
-        "class": "Battle Warrior",
+        "class": "Fighter",
+        "subclass": "Battle Warrior",
         "rarity": "Epic",
         "quote": "Victory is forged in the heat of battle!",
         "biography": "A fearless warrior whose strength is matched only by his unwavering determination to protect his allies."
@@ -231,7 +236,8 @@
     "framed-ornate": {
       "cardData": {
         "name": "Lady Evangeline",
-        "class": "Royal Diplomat",
+        "class": "Scholar",
+        "subclass": "Royal Diplomat",
         "rarity": "Legendary",
         "quote": "Elegance and wisdom shall always triumph over brute force.",
         "biography": "A noble aristocrat whose diplomatic prowess and refined intellect have shaped the fate of kingdoms."

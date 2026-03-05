@@ -658,6 +658,15 @@
   align-items: center;
   gap: 8px;
   margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+
+.field-hint {
+  width: 100%;
+  font-size: 0.7rem;
+  color: var(--mood-secondary-color, #8888aa);
+  margin-top: -4px;
+  opacity: 0.7;
 }
 
 .stat-row input[name="stat-name"],

@@ -694,6 +694,10 @@
         // Basic fields
         if (cardData.name) document.getElementById('card-name').value = cardData.name;
         if (cardData.class) document.getElementById('card-class').value = cardData.class;
+        if (cardData.subclass) {
+          const subField = document.getElementById('card-subclass');
+          if (subField) subField.value = cardData.subclass;
+        }
         if (cardData.rarity) document.getElementById('card-rarity').value = cardData.rarity;
         if (cardData.quote) document.getElementById('card-quote').value = cardData.quote;
         if (cardData.avatar) document.getElementById('card-avatar').value = cardData.avatar;
@@ -4109,7 +4113,8 @@
     // Basic form fields
     const formInputs = [
       'card-name',
-      'card-class', 
+      'card-class',
+      'card-subclass',
       'card-rarity',
       'card-quote',
       'card-avatar',
