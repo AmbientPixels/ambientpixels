@@ -4,7 +4,7 @@
 window.AdventureShare = (function () {
   'use strict';
 
-  var GALLERY_API = '/api/storyforgegallery';
+  var GALLERY_API = 'https://ambientpixels-nova-api.azurewebsites.net/api/storyforgegallery';
   var SHARE_API = '/api/storyforgeshare?adventure=';
 
   // Publish a completed adventure to the public gallery

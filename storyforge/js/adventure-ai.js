@@ -69,6 +69,7 @@ window.AdventureAI = (function () {
       '- Present exactly 3-4 choices. At least one cautious, one bold, one creative.\n' +
       '- If a choice involves risk, add a skillCheck with stat (strength/dexterity/intelligence/charisma) and difficulty (8-16).\n' +
       '- Suggest any immediate inventory finds or companion encounters via stateChanges.\n' +
+      '- IMPORTANT: Every item or companion mentioned in the narrative MUST appear in stateChanges.addItems or stateChanges.addCompanion. Do not describe the player finding/receiving items without adding them.\n' +
       '- Generate a visual description for the scene illustration (max 150 chars).\n\n' +
       RESPONSE_FORMAT;
   }
@@ -107,6 +108,7 @@ window.AdventureAI = (function () {
       '- Present 3-4 choices. At least one cautious, one bold, one creative.\n' +
       '- If a choice involves risk, add a skillCheck (stat + difficulty 8-18).\n' +
       '- Track HP changes (damage: -5 to -25, healing: +10 to +30), inventory, companions, reputation.\n' +
+      '- IMPORTANT: Every item or companion mentioned in the narrative MUST appear in stateChanges. Do not describe the player finding/receiving/losing items without including them in addItems/removeItems.\n' +
       '- If HP <= 0, this is a DEATH scene — set isEnding:true, endingType:"death", no choices.\n' +
       '- If turn >= 20, steer toward climax. At turn 25, force a resolution.\n' +
       (state.turnCount >= 19 ? '- IMPORTANT: We are nearing the end. Start wrapping up the story arc.\n' : '') +

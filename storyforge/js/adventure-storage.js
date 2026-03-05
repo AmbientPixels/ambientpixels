@@ -4,8 +4,9 @@
 window.AdventureStorage = (function () {
   'use strict';
 
-  var SAVE_API = '/api/storyforgesave';
-  var LOAD_API = '/api/storyforgeload';
+  var API_BASE = 'https://ambientpixels-nova-api.azurewebsites.net/api';
+  var SAVE_API = API_BASE + '/storyforgesave';
+  var LOAD_API = API_BASE + '/storyforgeload';
   var LOCAL_KEY = 'storyforge-saves';
 
   // --- Save adventure to server (with localStorage fallback) ---

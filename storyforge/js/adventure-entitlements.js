@@ -99,7 +99,7 @@ window.AdventureEntitlements = (function () {
   function startCheckout(productId) {
     productId = productId || 'sf-pro-monthly';
 
-    return fetch('/api/storyforge-checkout', {
+    return fetch('https://ambientpixels-nova-api.azurewebsites.net/api/storyforge-checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       credentials: 'include',
