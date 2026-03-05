@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="StoryForge — AI-powered choose-your-own-adventure with infinite stories" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>StoryForge — AmbientPixels</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="css/adventure-base.css" />
+  <link rel="stylesheet" href="css/adventure-play.css" />
+  <link rel="stylesheet" href="css/adventure-effects.css" />
+  <link rel="stylesheet" href="css/adventure-responsive.css" />
+</head>
+<body style="background:#071019" data-theme="dark">
+  <div class="adv-app" id="advApp">
+
+    <!-- Header -->
+    <header class="adv-header">
+      <a href="/storyforge/" class="adv-header__logo">
+        <i class="fas fa-book-open-reader"></i>
+        <span>StoryForge</span>
+      </a>
+      <nav class="adv-header__nav">
+        <a href="/storyforge/" class="adv-header__link">Hub</a>
+        <a href="/storyforge/gallery.html" class="adv-header__link">Gallery</a>
+        <button class="adv-btn" id="pauseBtn" style="display:none">
+          <i class="fas fa-pause"></i> Pause
+        </button>
+      </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="adv-main">
+
+      <!-- Genre Select Screen -->
+      <div id="screenGenreSelect" class="adv-genre-select">
+        <div style="text-align:center; max-width:700px; margin:0 auto;">
+          <h1 style="font-size:1.8rem; margin-bottom:0.5rem;">Choose Your Genre</h1>
+          <p style="color:rgba(216,224,229,0.6); margin-bottom:2rem;">Each genre shapes the world, the dangers, and the stories you'll discover.</p>
+          <div id="genreGrid" class="adv-genre-grid"></div>
+          <div style="margin-top:2rem;">
+            <label style="font-size:0.85rem; color:rgba(216,224,229,0.6); display:block; margin-bottom:0.5rem;">Character Name (optional)</label>
+            <input type="text" id="playerNameInput" placeholder="Leave blank for a random name" maxlength="30"
+              style="background:rgba(15,25,40,0.6); border:1px solid rgba(122,143,224,0.15); border-radius:8px; padding:0.6rem 1rem; color:var(--dark-text); font-size:0.95rem; width:100%; max-width:300px; font-family:inherit;" />
+          </div>
+          <button class="adv-btn adv-btn--primary" id="startAdventureBtn" disabled style="margin-top:1.5rem; padding:0.75rem 2rem; font-size:1rem;">
+            <i class="fas fa-play"></i> Begin Adventure
+          </button>
+        </div>
+      </div>
+
+      <!-- Play Screen -->
+      <div id="screenPlay" style="display:none; flex:1; width:100%;">
+        <div class="adv-play">
+          <!-- Scene Panel -->
+          <div class="adv-scene">
+            <div class="adv-scene__image-wrap" id="sceneImageWrap">
+              <img class="adv-scene__image" id="sceneImage" alt="Scene illustration" />
+              <div class="adv-scene__image-placeholder" id="sceneImagePlaceholder">
+                <i class="fas fa-image"></i>
+                <span>Generating scene...</span>
+              </div>
+            </div>
+
+            <div class="adv-scene__turn-bar">
+              <span id="turnLabel">Turn 1</span>
+              <div class="adv-scene__progress">
+                <div class="adv-scene__progress-fill" id="progressFill" style="width:0%"></div>
+              </div>
+              <span id="turnMax">/ 25</span>
+            </div>
+
+            <div class="adv-scene__text adv-scene-enter" id="sceneText">
+              <!-- Scene text injected here -->
+            </div>
+
+            <!-- Dice Roll -->
+            <div class="adv-dice" id="dicePanel">
+              <div class="adv-dice__label" id="diceLabel">Rolling...</div>
+              <div class="adv-dice__value" id="diceValue">?</div>
+              <div class="adv-dice__result" id="diceResult"></div>
+            </div>
+
+            <!-- Choices -->
+            <div class="adv-choices" id="choicesContainer">
+              <!-- Choice buttons injected here -->
+            </div>
+          </div>
+
+          <!-- Stats Sidebar -->
+          <aside class="adv-sidebar">
+            <!-- HP -->
+            <div class="adv-panel">
+              <div class="adv-panel__title">Health</div>
+              <div class="adv-hp">
+                <div class="adv-hp__bar">
+                  <div class="adv-hp__fill" id="hpFill" style="width:100%"></div>
+                </div>
+                <div class="adv-hp__text">
+                  <span id="hpValue">100</span>
+                  <span id="hpMax">/ 100</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Core Stats -->
+            <div class="adv-panel">
+              <div class="adv-panel__title">Stats</div>
+              <div class="adv-stats" id="statsContainer">
+                <!-- Stats injected here -->
+              </div>
+            </div>
+
+            <!-- Inventory -->
+            <div class="adv-panel">
+              <div class="adv-panel__title">Inventory <span id="inventoryCount">(0/8)</span></div>
+              <div class="adv-inventory" id="inventoryContainer">
+                <div class="adv-inventory__empty">Empty</div>
+              </div>
+            </div>
+
+            <!-- Companions -->
+            <div class="adv-panel">
+              <div class="adv-panel__title">Companions <span id="companionCount">(0/2)</span></div>
+              <div class="adv-companions" id="companionsContainer">
+                <div class="adv-inventory__empty">No companions</div>
+              </div>
+            </div>
+
+            <!-- Event Log -->
+            <div class="adv-panel">
+              <div class="adv-panel__title">Journal</div>
+              <div class="adv-events" id="eventsContainer">
+                <div class="adv-event" style="color:rgba(216,224,229,0.3); font-style:italic;">Adventure begins...</div>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+
+      <!-- Ending Screen -->
+      <div id="screenEnding" style="display:none; flex:1; width:100%;">
+        <div class="adv-ending adv-ending--active">
+          <div class="adv-ending__icon" id="endingIcon"></div>
+          <h1 class="adv-ending__title" id="endingTitle"></h1>
+          <div class="adv-ending__text" id="endingText"></div>
+          <div class="adv-ending__stats" id="endingStats"></div>
+          <div class="adv-ending__actions">
+            <button class="adv-btn adv-btn--primary" id="newAdventureBtn">
+              <i class="fas fa-redo"></i> New Adventure
+            </button>
+            <button class="adv-btn" id="shareBtn">
+              <i class="fas fa-share-nodes"></i> Share
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Toast Container -->
+    <div class="adv-toast-container" id="toastContainer"></div>
+  </div>
+
+  <script src="js/adventure-ui.js"></script>
+  <script src="js/adventure-rpg.js"></script>
+  <script src="js/adventure-storage.js"></script>
+  <script src="js/adventure-ai.js"></script>
+  <script src="js/adventure-engine.js"></script>
+
+  <style>
+    /* Genre select grid */
+    .adv-genre-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 0.75rem;
+    }
+    .adv-genre-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 1.25rem 1rem;
+      background: rgba(15, 25, 40, 0.6);
+      border: 2px solid rgba(122, 143, 224, 0.08);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+    .adv-genre-card:hover {
+      background: rgba(15, 25, 40, 0.8);
+      border-color: rgba(122, 143, 224, 0.2);
+      transform: translateY(-2px);
+    }
+    .adv-genre-card--selected {
+      border-color: var(--adv-accent, #7B8FE0);
+      background: rgba(122, 143, 224, 0.1);
+    }
+    .adv-genre-card__icon {
+      font-size: 1.8rem;
+      margin-bottom: 0.25rem;
+    }
+    .adv-genre-card__name {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+    .adv-genre-card__desc {
+      font-size: 0.75rem;
+      color: rgba(216, 224, 229, 0.5);
+      line-height: 1.4;
+    }
+  </style>
+</body>
+</html>

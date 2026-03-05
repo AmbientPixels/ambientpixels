@@ -1,0 +1,465 @@
+/* adventure-play.css — Play screen: scene panel, choices, stats sidebar */
+
+.adv-play {
+  display: flex;
+  gap: 1.5rem;
+  flex: 1;
+  min-height: 0;
+}
+
+/* --- Scene Panel (left) --- */
+.adv-scene {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+.adv-scene__image-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border-radius: 10px;
+  overflow: hidden;
+  background: rgba(15, 25, 40, 0.8);
+  border: 1px solid rgba(122, 143, 224, 0.08);
+}
+
+.adv-scene__image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+
+.adv-scene__image--loaded {
+  opacity: 1;
+}
+
+.adv-scene__image-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 0.75rem;
+  color: rgba(216, 224, 229, 0.3);
+  font-size: 0.85rem;
+}
+
+.adv-scene__image-placeholder i {
+  font-size: 2rem;
+}
+
+.adv-scene__turn-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.4rem 0;
+  font-size: 0.75rem;
+  color: rgba(216, 224, 229, 0.5);
+}
+
+.adv-scene__progress {
+  flex: 1;
+  height: 3px;
+  background: rgba(122, 143, 224, 0.1);
+  border-radius: 2px;
+  margin: 0 0.75rem;
+  overflow: hidden;
+}
+
+.adv-scene__progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #7B8FE0, #6a11cb);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+.adv-scene__text {
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: var(--dark-text);
+  min-height: 100px;
+}
+
+.adv-scene__text p {
+  margin-bottom: 0.75rem;
+}
+
+/* --- Choices --- */
+.adv-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.adv-choice {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  background: rgba(15, 25, 40, 0.6);
+  border: 1px solid rgba(122, 143, 224, 0.12);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--dark-text);
+  width: 100%;
+}
+
+.adv-choice:hover {
+  background: rgba(122, 143, 224, 0.1);
+  border-color: rgba(122, 143, 224, 0.25);
+  transform: translateX(4px);
+}
+
+.adv-choice:active {
+  transform: translateX(2px);
+}
+
+.adv-choice__key {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: rgba(122, 143, 224, 0.15);
+  color: #7B8FE0;
+  font-size: 0.75rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.adv-choice__text {
+  flex: 1;
+}
+
+.adv-choice__skill {
+  font-size: 0.7rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 12px;
+  background: rgba(224, 200, 85, 0.15);
+  color: #E0C855;
+  white-space: nowrap;
+}
+
+.adv-choice--selected {
+  border-color: rgba(122, 143, 224, 0.5);
+  background: rgba(122, 143, 224, 0.15);
+}
+
+.adv-choice:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* --- Dice Roll Overlay --- */
+.adv-dice {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 2rem;
+  background: rgba(7, 16, 25, 0.95);
+  border: 1px solid rgba(122, 143, 224, 0.15);
+  border-radius: 12px;
+  text-align: center;
+}
+
+.adv-dice--active {
+  display: flex;
+}
+
+.adv-dice__value {
+  font-size: 3rem;
+  font-weight: 800;
+  font-family: 'Rajdhani', monospace;
+  color: #7B8FE0;
+  min-width: 80px;
+}
+
+.adv-dice__label {
+  font-size: 0.85rem;
+  color: rgba(216, 224, 229, 0.6);
+}
+
+.adv-dice__result {
+  font-size: 1.1rem;
+  font-weight: 600;
+  padding: 0.3rem 1rem;
+  border-radius: 20px;
+}
+
+.adv-dice__result--success {
+  background: rgba(85, 224, 130, 0.15);
+  color: #55E082;
+}
+
+.adv-dice__result--failure {
+  background: rgba(224, 85, 85, 0.15);
+  color: #E05555;
+}
+
+.adv-dice__result--critical {
+  background: rgba(224, 200, 85, 0.2);
+  color: #E0C855;
+}
+
+/* --- Stats Sidebar (right) --- */
+.adv-sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.adv-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.adv-stat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+}
+
+.adv-stat__label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  color: rgba(216, 224, 229, 0.7);
+}
+
+.adv-stat__label i {
+  width: 16px;
+  text-align: center;
+  font-size: 0.8rem;
+}
+
+.adv-stat__value {
+  font-weight: 600;
+  font-family: 'Rajdhani', monospace;
+  font-size: 0.95rem;
+}
+
+.adv-stat__value--danger {
+  color: #E05555;
+}
+
+.adv-stat__value--warning {
+  color: #E0C855;
+}
+
+.adv-stat__value--good {
+  color: #55E082;
+}
+
+/* HP Bar */
+.adv-hp {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.adv-hp__bar {
+  height: 8px;
+  background: rgba(122, 143, 224, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.adv-hp__fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease, background 0.3s;
+  background: #55E082;
+}
+
+.adv-hp__fill--warning {
+  background: #E0C855;
+}
+
+.adv-hp__fill--danger {
+  background: #E05555;
+}
+
+.adv-hp__text {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: rgba(216, 224, 229, 0.5);
+}
+
+/* Inventory */
+.adv-inventory {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.adv-inventory__item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.6rem;
+  background: rgba(15, 25, 40, 0.5);
+  border-radius: 6px;
+  font-size: 0.8rem;
+}
+
+.adv-inventory__item i {
+  color: rgba(122, 143, 224, 0.6);
+  font-size: 0.75rem;
+  width: 14px;
+  text-align: center;
+}
+
+.adv-inventory__empty {
+  font-size: 0.8rem;
+  color: rgba(216, 224, 229, 0.3);
+  font-style: italic;
+  padding: 0.4rem 0;
+}
+
+/* Companions */
+.adv-companions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.adv-companion {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.6rem;
+  background: rgba(15, 25, 40, 0.5);
+  border-radius: 6px;
+}
+
+.adv-companion__icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(122, 143, 224, 0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: #7B8FE0;
+}
+
+.adv-companion__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.adv-companion__name {
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.adv-companion__bonus {
+  font-size: 0.7rem;
+  color: rgba(216, 224, 229, 0.5);
+}
+
+/* Event Log */
+.adv-events {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.adv-event {
+  font-size: 0.75rem;
+  color: rgba(216, 224, 229, 0.4);
+  padding: 0.2rem 0;
+  border-bottom: 1px solid rgba(122, 143, 224, 0.04);
+}
+
+.adv-event:last-child {
+  border-bottom: none;
+}
+
+/* --- Ending Screen --- */
+.adv-ending {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 1.5rem;
+  padding: 3rem 2rem;
+}
+
+.adv-ending--active {
+  display: flex;
+}
+
+.adv-ending__icon {
+  font-size: 3.5rem;
+}
+
+.adv-ending__icon--victory { color: #55E082; }
+.adv-ending__icon--death { color: #E05555; }
+.adv-ending__icon--escape { color: #E0C855; }
+
+.adv-ending__title {
+  font-size: 1.8rem;
+  font-weight: 700;
+}
+
+.adv-ending__text {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  max-width: 600px;
+  color: rgba(216, 224, 229, 0.8);
+}
+
+.adv-ending__stats {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1rem;
+}
+
+.adv-ending__stat {
+  text-align: center;
+}
+
+.adv-ending__stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-family: 'Rajdhani', monospace;
+  color: #7B8FE0;
+}
+
+.adv-ending__stat-label {
+  font-size: 0.75rem;
+  color: rgba(216, 224, 229, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.adv-ending__actions {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="StoryForge — AI-powered choose-your-own-adventure with infinite stories" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>StoryForge — AmbientPixels</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="css/adventure-base.css" />
+  <link rel="stylesheet" href="css/adventure-hub.css" />
+  <link rel="stylesheet" href="css/adventure-effects.css" />
+  <link rel="stylesheet" href="css/adventure-responsive.css" />
+</head>
+<body style="background:#071019" data-theme="dark">
+  <div class="adv-app">
+
+    <!-- Header -->
+    <header class="adv-header">
+      <a href="/storyforge/" class="adv-header__logo">
+        <i class="fas fa-book-open-reader"></i>
+        <span>StoryForge</span>
+      </a>
+      <nav class="adv-header__nav">
+        <a href="/storyforge/" class="adv-header__link adv-header__link--active">Hub</a>
+        <a href="/storyforge/gallery.html" class="adv-header__link">Gallery</a>
+      </nav>
+    </header>
+
+    <main class="adv-hub">
+
+      <!-- Hero -->
+      <div class="adv-hub__hero">
+        <div class="adv-hub__hero-icon"><i class="fas fa-book-open-reader"></i></div>
+        <h1>StoryForge</h1>
+        <p>AI-powered adventures. Infinite stories. Every choice matters.</p>
+      </div>
+
+      <!-- Continue Adventures -->
+      <section id="savedSection" style="display:none;">
+        <div class="adv-hub__section-title">
+          <i class="fas fa-bookmark"></i> Continue Adventure
+        </div>
+        <div class="adv-hub__saves" id="savedGrid">
+          <!-- Saved adventure cards injected here -->
+        </div>
+      </section>
+
+      <!-- New Adventure — Genre Select -->
+      <section>
+        <div class="adv-hub__section-title">
+          <i class="fas fa-compass"></i> New Adventure
+        </div>
+        <div class="adv-hub__genres" id="genreGrid">
+          <!-- Genre cards injected here -->
+        </div>
+      </section>
+
+      <!-- Quick Links -->
+      <div class="adv-hub__links">
+        <a href="/storyforge/gallery.html" class="adv-btn">
+          <i class="fas fa-images"></i> Browse Gallery
+        </a>
+      </div>
+
+    </main>
+
+    <div class="adv-toast-container" id="toastContainer"></div>
+  </div>
+
+  <script src="js/adventure-ui.js"></script>
+  <script src="js/adventure-storage.js"></script>
+  <script src="js/adventure-app.js"></script>
+</body>
+</html>

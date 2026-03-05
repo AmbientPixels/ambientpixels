@@ -1,0 +1,241 @@
+/* adventure-hub.css — Hub page: genre cards, saved adventures, hero */
+
+.adv-hub {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+}
+
+/* Hero */
+.adv-hub__hero {
+  text-align: center;
+  padding: 2rem 0;
+}
+
+.adv-hub__hero-icon {
+  font-size: 2.5rem;
+  color: #7B8FE0;
+  margin-bottom: 1rem;
+}
+
+.adv-hub__hero h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.adv-hub__hero p {
+  color: rgba(216, 224, 229, 0.6);
+  font-size: 1rem;
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+/* Section titles */
+.adv-hub__section-title {
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(216, 224, 229, 0.5);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.adv-hub__section-title i {
+  font-size: 0.75rem;
+}
+
+/* Genre grid */
+.adv-hub__genres {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 0.75rem;
+}
+
+.adv-hub__genre {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.25rem 1rem;
+  background: rgba(15, 25, 40, 0.6);
+  border: 2px solid rgba(122, 143, 224, 0.08);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  text-decoration: none;
+  color: inherit;
+}
+
+.adv-hub__genre:hover {
+  background: rgba(15, 25, 40, 0.8);
+  border-color: rgba(122, 143, 224, 0.2);
+  transform: translateY(-2px);
+}
+
+.adv-hub__genre-icon {
+  font-size: 1.8rem;
+  margin-bottom: 0.25rem;
+}
+
+.adv-hub__genre-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+.adv-hub__genre-desc {
+  font-size: 0.72rem;
+  color: rgba(216, 224, 229, 0.45);
+  line-height: 1.4;
+}
+
+.adv-hub__genre--locked {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.adv-hub__genre--locked:hover {
+  transform: none;
+}
+
+.adv-hub__genre-lock {
+  font-size: 0.65rem;
+  padding: 0.15rem 0.5rem;
+  border-radius: 10px;
+  background: rgba(224, 200, 85, 0.15);
+  color: #E0C855;
+  margin-top: 0.25rem;
+}
+
+/* Saved adventures grid */
+.adv-hub__saves {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.75rem;
+}
+
+.adv-hub__save-card {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: rgba(15, 25, 40, 0.6);
+  border: 1px solid rgba(122, 143, 224, 0.08);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.adv-hub__save-card:hover {
+  background: rgba(15, 25, 40, 0.8);
+  border-color: rgba(122, 143, 224, 0.2);
+}
+
+.adv-hub__save-thumb {
+  width: 64px;
+  height: 48px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: rgba(122, 143, 224, 0.08);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.adv-hub__save-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.adv-hub__save-thumb i {
+  color: rgba(216, 224, 229, 0.2);
+  font-size: 1.2rem;
+}
+
+.adv-hub__save-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.adv-hub__save-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.adv-hub__save-meta {
+  font-size: 0.75rem;
+  color: rgba(216, 224, 229, 0.45);
+  display: flex;
+  gap: 0.75rem;
+}
+
+.adv-hub__save-status {
+  font-size: 0.65rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.adv-hub__save-status--in_progress {
+  background: rgba(122, 143, 224, 0.15);
+  color: #7B8FE0;
+}
+
+.adv-hub__save-status--completed {
+  background: rgba(85, 224, 130, 0.15);
+  color: #55E082;
+}
+
+/* Empty state */
+.adv-hub__empty {
+  text-align: center;
+  padding: 2rem;
+  color: rgba(216, 224, 229, 0.3);
+  font-size: 0.9rem;
+}
+
+.adv-hub__empty i {
+  font-size: 1.5rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+/* Quick links */
+.adv-hub__links {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  padding-top: 1rem;
+}
+
+@media (max-width: 600px) {
+  .adv-hub {
+    padding: 1.5rem 1rem;
+    gap: 2rem;
+  }
+
+  .adv-hub__hero h1 {
+    font-size: 1.5rem;
+  }
+
+  .adv-hub__genres {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  }
+
+  .adv-hub__saves {
+    grid-template-columns: 1fr;
+  }
+}
