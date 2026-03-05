@@ -365,7 +365,38 @@ Write the full deliverable first, then the structured JSON block.`;
           });
           // Split: done tasks get create-social-action, non-done get execute-task (peer review first)
           const _socialNeedDraft = _allSocialIdle.filter(function (t) { return t.status !== 'done'; });
-          const _socialIdle = _allSocialIdle.filter(function (t) { return t.status === 'done'; });
+          let _socialIdle = _allSocialIdle.filter(function (t) { return t.status === 'done'; });
+          // FIX: agentTasks excludes 'done' tasks (line 72), so _socialIdle is always empty above.
+          // Pull done Echo social tasks directly from full tasks array for create-social-action injection.
+          if (_socialIdle.length === 0) {
+            const _doneSocial = tasks.filter(function (t) {
+              if (t.assignee !== 'echo' || t.status !== 'done' || t._archived) return false;
+              var txt = ((t.title || '') + ' ' + (t.description || '')).toLowerCase();
+              return /^social_/.test(t.taskType || '') || /linkedin|twitter|x\.com|social media|social post|bluesky|tweet/.test(txt);
+            });
+            if (_doneSocial.length > 0) {
+              // Filter out tasks that already have pending social actions (same dedup as above)
+              try {
+                const _doneActions = (await storage.getState('actions')) || [];
+                const _donePending = new Set();
+                for (var _dai = 0; _dai < _doneActions.length; _dai++) {
+                  var _da = _doneActions[_dai];
+                  if (!_da || !_da.type || _da.type.indexOf('social_post') !== 0) continue;
+                  var _daStatus = (_da.approval && _da.approval.status) || '';
+                  if (_daStatus === 'rejected' || _daStatus === 'cancelled') continue;
+                  var _daExec = (_da.execution && _da.execution.status) || '';
+                  if (_daExec === 'success') continue;
+                  if (_da._parentTaskId) _donePending.add(_da._parentTaskId);
+                }
+                _socialIdle = _doneSocial.filter(function (t) { return !_donePending.has(t.id); });
+              } catch (_doneErr) {
+                _socialIdle = _doneSocial;
+              }
+              if (_socialIdle.length > 0) {
+                context.log('[Heartbeat] ANTI-STALL: echo found', _socialIdle.length, 'done social task(s) from full tasks array for create-social-action injection');
+              }
+            }
+          }
           // Inject execute-task for social tasks that need drafting first
           for (var _sdi = 0; _sdi < _socialNeedDraft.length; _sdi++) {
             context.log('[Heartbeat] ANTI-STALL:', agentId, 'injecting execute-task for social task needing draft:', _socialNeedDraft[_sdi].id);
@@ -406,6 +437,22 @@ Write the full deliverable first, then the structured JSON block.`;
                 : 'linkedin';
               var _sUrlMatch = (_sTask.description || '').match(/https?:\/\/ambientpixels\.ai\/blog\/[a-z0-9-]+/i);
               var _sBlogUrl = _sUrlMatch ? _sUrlMatch[0] : 'https://ambientpixels.ai';
+              // For campaign tasks: extract URL from campaign description (e.g. ConversionCore URL)
+              if (!_sUrlMatch && _sTask.campaign_id) {
+                var _cmpDirectives = (activeDirectives || []);
+                var _sTaskCmp = _cmpDirectives.find(function (c) { return c.id === _sTask.campaign_id; });
+                if (!_sTaskCmp) {
+                  // activeDirectives may not be in scope — fall back to campaigns from storage
+                  try {
+                    var _allCmps = (await storage.getState('campaigns')) || [];
+                    _sTaskCmp = _allCmps.find(function (c) { return c.id === _sTask.campaign_id; });
+                  } catch (_e) {}
+                }
+                if (_sTaskCmp && _sTaskCmp.description) {
+                  var _cmpUrlMatch = _sTaskCmp.description.match(/https?:\/\/ambientpixels\.ai\/[a-z0-9/-]+/i);
+                  if (_cmpUrlMatch) _sBlogUrl = _cmpUrlMatch[0];
+                }
+              }
               var _sArticleTitle = _blogTitle || (_sTask.title || '').replace(/^Promote blog post on [^:]+:\s*/i, '');
 
               // Build platform-appropriate social copy from blog content
