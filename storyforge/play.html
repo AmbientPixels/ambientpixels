@@ -30,6 +30,14 @@
         <button class="adv-btn" id="pauseBtn" style="display:none">
           <i class="fas fa-pause"></i> Pause
         </button>
+        <a id="adv-login-btn" class="adv-header__link" href="/.auth/login/aad?post_login_redirect_uri=/storyforge/play.html">
+          <i class="fas fa-sign-in-alt"></i> Sign In
+        </a>
+        <span id="adv-user-status" class="adv-user-status" style="display:none;">
+          <span class="adv-user-dot"></span>
+          <span id="adv-user-name"></span>
+          <a id="adv-logout-btn" class="adv-header__link" href="#"><i class="fas fa-sign-out-alt"></i></a>
+        </span>
       </nav>
     </header>
 
@@ -247,5 +255,37 @@
       padding: 0 0.75rem 0.75rem;
     }
   </style>
+  <script>
+  (function () {
+    async function checkAuth() {
+      try {
+        var resp = await fetch('/.auth/me');
+        if (!resp.ok) return;
+        var data = await resp.json();
+        var cp = data.clientPrincipal;
+        if (!cp) return;
+        var name = (cp.userDetails || '').split('@')[0] || 'User';
+        sessionStorage.setItem('isAuthenticated', 'true');
+        sessionStorage.setItem('userInfo', JSON.stringify({ userId: cp.userId, name: name, email: cp.userDetails }));
+        var loginBtn = document.getElementById('adv-login-btn');
+        var userStatus = document.getElementById('adv-user-status');
+        var userName = document.getElementById('adv-user-name');
+        if (loginBtn) loginBtn.style.display = 'none';
+        if (userStatus) userStatus.style.display = 'inline-flex';
+        if (userName) userName.textContent = name;
+      } catch (e) { /* not authenticated */ }
+    }
+    var logoutBtn = document.getElementById('adv-logout-btn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        sessionStorage.removeItem('isAuthenticated');
+        sessionStorage.removeItem('userInfo');
+        window.location.href = '/.auth/logout?post_logout_redirect_uri=/storyforge/';
+      });
+    }
+    checkAuth();
+  })();
+  </script>
 </body>
 </html>

@@ -55,6 +55,31 @@
   color: var(--dark-text);
 }
 
+.adv-user-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--dark-text);
+}
+
+.adv-user-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #55E082;
+}
+
+.adv-user-status .adv-header__link {
+  color: rgba(216, 224, 229, 0.4);
+  font-size: 0.8rem;
+}
+
+.adv-user-status .adv-header__link:hover {
+  color: #E05555;
+}
+
 .adv-main {
   flex: 1;
   display: flex;
