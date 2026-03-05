@@ -37,7 +37,8 @@ async function createBlobServiceClient() {
 
 // Helper to extract authenticated user information from Static Web Apps EasyAuth header
 function extractUserInfo(req, context) {
-  const principalHeader = req.headers['x-ms-client-principal'];
+  // Check SWA-injected header first, then custom forwarded header
+  const principalHeader = req.headers['x-ms-client-principal'] || req.headers['x-cf-auth-principal'];
   if (principalHeader) {
     try {
       const decoded = Buffer.from(principalHeader, 'base64').toString('utf8');
@@ -154,7 +155,7 @@ module.exports = async function (context, req) {
       headers: {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, api-key',
+        'Access-Control-Allow-Headers': 'Content-Type, api-key, X-CF-Auth-Principal',
         'Access-Control-Max-Age': '86400'
       },
       body: ''
@@ -175,7 +176,7 @@ module.exports = async function (context, req) {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token, X-User-ID'
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token, X-User-ID, X-CF-Auth-Principal'
       },
       body: { status: 'ok', message: 'CardForge load cards service is online' }
     };
@@ -349,7 +350,7 @@ module.exports = async function (context, req) {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-User-ID, X-CSRF-Token'
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-User-ID, X-CSRF-Token, X-CF-Auth-Principal'
       },
       body: responseBody // Using the object directly, not serialized
     };
@@ -374,7 +375,7 @@ module.exports = async function (context, req) {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'GET, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CF-Auth-Principal'
       },
       body: {
         error: `Failed to load cards: ${error.message}`,
