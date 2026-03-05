@@ -24,7 +24,10 @@ window._config = {
     arenaProfile: 'cardforgearenaprofile',
     arenaBattle: 'cardforgearenabattle',
     arenaBosses: 'cardforgearenabosses',
-    arenaHistory: 'cardforgearenahistory'
+    arenaHistory: 'cardforgearenahistory',
+    entitlements: 'cardforge-entitlements',
+    checkout: 'cardforge-checkout',
+    billingPortal: 'cardforge-billing-portal'
   },
   
   // Application Insights - Disabled in production until 400 errors are resolved

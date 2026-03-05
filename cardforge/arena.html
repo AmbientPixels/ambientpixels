@@ -113,7 +113,19 @@
               <span id="arena-stat-losses">0 Losses</span>
               <span id="arena-stat-level">Level 1</span>
             </div>
+            <div class="arena-next-rank-wrap" id="arena-next-rank-preview"></div>
           </div>
+        </section>
+
+        <!-- Rank Rewards -->
+        <section class="arena-section">
+          <h2 class="arena-section__title">
+            <i class="fas fa-trophy"></i> Rank Rewards
+            <button class="arena-rewards__toggle" id="arena-rewards-toggle" aria-expanded="false">
+              <i class="fas fa-chevron-down"></i>
+            </button>
+          </h2>
+          <div class="arena-rewards" id="arena-rewards-panel" style="display:none;"></div>
         </section>
 
         <!-- Recent Matches -->
@@ -253,6 +265,7 @@
   <!-- Scripts -->
   <script src="js/config.js"></script>
   <script src="js/csrf-protection.js"></script>
+  <script src="js/effect-tiers.js"></script>
   <script src="js/arena-api.js"></script>
   <script src="js/arena-card-select.js"></script>
   <script src="js/arena-battle-ui.js"></script>

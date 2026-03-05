@@ -1646,6 +1646,96 @@
   opacity: 0.9;
 }
 
+/* ===== LOCKED EFFECT CHIPS ===== */
+.effect-chip.locked,
+.tier-option.locked,
+.variant-option.locked {
+  opacity: 0.35;
+  cursor: not-allowed;
+  pointer-events: none;
+  position: relative;
+}
+.effect-chip.locked::after,
+.tier-option.locked::after,
+.variant-option.locked::after {
+  content: '\f023'; /* fa-lock fallback */
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-size: 0.55rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* Rank-specific badge icons via data-rank-tier */
+.effect-chip.locked[data-rank-tier="silver"]::after,
+.tier-option.locked[data-rank-tier="silver"]::after,
+.variant-option.locked[data-rank-tier="silver"]::after {
+  content: '\f132'; /* fa-shield */
+  color: #C0C0C0;
+}
+.effect-chip.locked[data-rank-tier="gold"]::after,
+.tier-option.locked[data-rank-tier="gold"]::after,
+.variant-option.locked[data-rank-tier="gold"]::after {
+  content: '\f521'; /* fa-crown */
+  color: #FFD700;
+}
+.effect-chip.locked[data-rank-tier="platinum"]::after,
+.tier-option.locked[data-rank-tier="platinum"]::after,
+.variant-option.locked[data-rank-tier="platinum"]::after {
+  content: '\f3a5'; /* fa-gem */
+  color: #E5E4E2;
+}
+.effect-chip.locked[data-rank-tier="diamond"]::after,
+.tier-option.locked[data-rank-tier="diamond"]::after,
+.variant-option.locked[data-rank-tier="diamond"]::after {
+  content: '\f219'; /* fa-diamond */
+  color: #B9F2FF;
+}
+
+/* ===== UPGRADE PROMPT (Pro Upsell) ===== */
+.cf-upgrade-overlay {
+  position: fixed; inset: 0; z-index: 10000;
+  background: rgba(0,0,0,0.65); display: flex; align-items: center; justify-content: center;
+}
+.cf-upgrade-modal {
+  background: var(--aura-surface, #1a1a2e); border: 1px solid var(--glow-accent, #7b2ff2);
+  border-radius: 12px; padding: 2rem; max-width: 380px; width: 90%; text-align: center;
+  position: relative; box-shadow: 0 8px 32px rgba(123,47,242,0.3);
+}
+.cf-upgrade-close {
+  position: absolute; top: 0.5rem; right: 0.75rem; background: none; border: none;
+  color: rgba(255,255,255,0.5); font-size: 1.4rem; cursor: pointer;
+}
+.cf-upgrade-close:hover { color: #fff; }
+.cf-upgrade-icon { margin-bottom: 0.75rem; }
+.cf-upgrade-title { color: #FFD700; font-size: 1.3rem; margin: 0 0 0.5rem; }
+.cf-upgrade-text { color: rgba(255,255,255,0.8); font-size: 0.95rem; margin: 0 0 0.25rem; }
+.cf-upgrade-features { color: rgba(255,255,255,0.5); font-size: 0.8rem; margin: 0 0 1.25rem; }
+.cf-upgrade-btn {
+  display: block; width: 100%; padding: 0.7rem; border: none; border-radius: 8px;
+  background: linear-gradient(135deg, #7b2ff2, #c471ed); color: #fff; font-size: 1rem;
+  font-weight: 600; cursor: pointer; margin-bottom: 0.5rem;
+}
+.cf-upgrade-btn:hover { filter: brightness(1.15); }
+.cf-upgrade-dismiss {
+  display: block; width: 100%; padding: 0.5rem; border: none; border-radius: 8px;
+  background: transparent; color: rgba(255,255,255,0.5); font-size: 0.85rem; cursor: pointer;
+}
+.cf-upgrade-dismiss:hover { color: rgba(255,255,255,0.8); }
+
+/* Upgrade error toast */
+.cf-upgrade-toast {
+  position: fixed; top: 1.5rem; right: 1.5rem; z-index: 10001;
+  padding: 0.75rem 1.25rem; border-radius: 8px; font-size: 0.9rem; color: #fff;
+  animation: cf-toast-in 0.3s ease-out;
+}
+.cf-upgrade-toast--error { background: rgba(220,53,69,0.9); }
+.cf-upgrade-toast--removing { animation: cf-toast-out 0.3s ease-in forwards; }
+@keyframes cf-toast-in { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes cf-toast-out { from { opacity: 1; } to { opacity: 0; transform: translateY(-10px); } }
+
 /* ===== CARD FONT FAMILY CLASSES ===== */
 .card-preview-canvas.card-font-montserrat { font-family: 'Montserrat', sans-serif; }
 .card-preview-canvas.card-font-poppins { font-family: 'Poppins', sans-serif; }

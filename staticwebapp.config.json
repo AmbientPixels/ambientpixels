@@ -169,6 +169,26 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/api/cardforge-checkout",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforge-checkout",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/cardforge-billing-webhook",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforge-billing-webhook",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/cardforge-entitlements",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforge-entitlements",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/cardforge-billing-portal",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforge-billing-portal",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/api/cardshare",
       "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardshare",
       "allowedRoles": ["anonymous"]

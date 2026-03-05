@@ -115,6 +115,27 @@ window.ArenaApp = (function () {
       // Render profile
       window.ArenaResults.updateRankDisplay(state.profile);
 
+      // Bridge _arenaProfile for EffectTiers API
+      window._arenaProfile = state.profile;
+
+      // Render tier-awareness widgets
+      if (window.EffectTiers) {
+        if (window.EffectTiers.renderRankRewardsPanel) window.EffectTiers.renderRankRewardsPanel('arena-rewards-panel');
+        if (window.EffectTiers.renderNextRankPreview) window.EffectTiers.renderNextRankPreview('arena-next-rank-preview');
+      }
+
+      // Rank Rewards collapsible toggle
+      var rewardsToggle = document.getElementById('arena-rewards-toggle');
+      var rewardsPanel = document.getElementById('arena-rewards-panel');
+      if (rewardsToggle && rewardsPanel) {
+        rewardsToggle.addEventListener('click', function () {
+          var expanded = rewardsPanel.style.display !== 'none';
+          rewardsPanel.style.display = expanded ? 'none' : 'block';
+          rewardsToggle.setAttribute('aria-expanded', String(!expanded));
+          rewardsToggle.querySelector('i').className = 'fas ' + (expanded ? 'fa-chevron-down' : 'fa-chevron-up');
+        });
+      }
+
       // Render card strip
       window.ArenaCardSelect.renderCardStrip(state.userCards, 'arena-card-strip', onCardSelected);
 
@@ -388,6 +409,11 @@ window.ArenaApp = (function () {
       if (profileData.profile) {
         state.profile = profileData.profile;
         window.ArenaResults.updateRankDisplay(state.profile);
+        window._arenaProfile = state.profile;
+        if (window.EffectTiers) {
+          if (window.EffectTiers.renderRankRewardsPanel) window.EffectTiers.renderRankRewardsPanel('arena-rewards-panel');
+          if (window.EffectTiers.renderNextRankPreview) window.EffectTiers.renderNextRankPreview('arena-next-rank-preview');
+        }
       }
       if (!state.isDemo) {
         loadRecentMatches();

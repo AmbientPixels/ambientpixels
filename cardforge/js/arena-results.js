@@ -77,6 +77,19 @@ window.ArenaResults = (function () {
       window._arenaState.profile.level = battleResult.newLevel;
       window._arenaState.profile.record = battleResult.record;
     }
+
+    // Refresh effect tier locks so newly earned effects unlock immediately
+    if (window.CardForge && window.CardForge.applyEffectLockState) {
+      window.CardForge.applyEffectLockState();
+    }
+
+    // "New Unlocks!" toast on rank-up
+    if (battleResult.rankUp && window.EffectTiers && window.EffectTiers.getNewUnlocksForRank) {
+      var unlocks = window.EffectTiers.getNewUnlocksForRank(battleResult.newRank);
+      if (Object.keys(unlocks).length > 0) {
+        showUnlockToast(battleResult.newRank, unlocks);
+      }
+    }
   }
 
   function renderMatchList(matches, containerId) {
@@ -164,6 +177,37 @@ window.ArenaResults = (function () {
     if (wins) wins.textContent = `${profile.record?.wins || 0} Wins`;
     if (losses) losses.textContent = `${profile.record?.losses || 0} Losses`;
     if (level) level.textContent = `Level ${profile.level || 1}`;
+  }
+
+  function showUnlockToast(rank, unlocksByCategory) {
+    var rankDef = RANKS[rank] || RANKS.bronze;
+
+    var listHtml = '';
+    for (var cat in unlocksByCategory) {
+      if (!unlocksByCategory.hasOwnProperty(cat)) continue;
+      listHtml += '<div class="arena-unlock-toast__category">' +
+        '<span class="arena-unlock-toast__cat-name">' + cat + ':</span> ' +
+        unlocksByCategory[cat].join(', ') +
+      '</div>';
+    }
+
+    var toast = document.createElement('div');
+    toast.className = 'arena-unlock-toast';
+    toast.innerHTML =
+      '<div class="arena-unlock-toast__header">' +
+        '<i class="fas ' + rankDef.icon + '" style="color:' + rankDef.color + '"></i>' +
+        ' New Unlocks!' +
+      '</div>' +
+      '<div class="arena-unlock-toast__body">' + listHtml + '</div>';
+
+    document.body.appendChild(toast);
+
+    setTimeout(function () {
+      toast.classList.add('arena-unlock-toast--removing');
+      toast.addEventListener('animationend', function () {
+        if (toast.parentNode) toast.remove();
+      }, { once: true });
+    }, 5000);
   }
 
   return { showResults, renderMatchList, updateRankDisplay, RANKS, RANK_ORDER };

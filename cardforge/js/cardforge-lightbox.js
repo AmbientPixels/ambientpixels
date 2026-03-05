@@ -455,6 +455,12 @@
     const scale = opts.scale || 1;
     const triggerId = opts.triggerId || 'lightbox-export-png-1x';
 
+    // Gate HD exports (scale > 1) behind hdExport entitlement
+    if (scale > 1 && window.Entitlements && !window.Entitlements.hasFlag('hdExport')) {
+      window.Entitlements.showUpgradePrompt('HD Export (' + scale + 'x)');
+      return;
+    }
+
     const container = el('lightbox-card-container');
     if (!container) return;
     const card = galleryCards[currentIndex];

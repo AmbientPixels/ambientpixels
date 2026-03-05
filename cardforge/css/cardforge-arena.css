@@ -838,3 +838,209 @@
 .arena-champion__rank-pill--diamond { background: #5b6fbf; }
 .arena-champion__rank-pill--master { background: #7b3fa0; }
 .arena-champion__rank-pill--legend { background: linear-gradient(135deg, #b8952f, #e06030); }
+
+/* ===== Rank Rewards Panel ===== */
+
+.arena-rewards__toggle {
+  background: none;
+  border: none;
+  color: #808099;
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.4rem;
+  margin-left: auto;
+  transition: color 0.2s ease;
+}
+.arena-rewards__toggle:hover { color: #00d4ff; }
+
+.arena-rewards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.arena-rewards__tier {
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  background: rgba(255,255,255,0.02);
+  overflow: hidden;
+  transition: opacity 0.2s ease;
+}
+
+.arena-rewards__tier--locked { opacity: 0.45; }
+.arena-rewards__tier--unlocked { opacity: 1; }
+
+.arena-rewards__tier--current {
+  border-color: rgba(0,212,255,0.25);
+  background: rgba(0,212,255,0.04);
+  opacity: 1;
+}
+
+.arena-rewards__tier-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #e1e1ff;
+}
+
+.arena-rewards__tier-icon {
+  font-size: 1rem;
+  width: 24px;
+  text-align: center;
+}
+
+.arena-rewards__tier-label {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.arena-rewards__tier-xp {
+  font-size: 0.7rem;
+  color: #808099;
+  margin-left: auto;
+}
+
+.arena-rewards__tier-state {
+  font-size: 0.7rem;
+  width: 18px;
+  text-align: center;
+}
+.arena-rewards__tier--unlocked .arena-rewards__tier-state { color: #00e676; }
+.arena-rewards__tier--locked .arena-rewards__tier-state { color: #606080; }
+
+.arena-rewards__tier-body {
+  padding: 0 0.8rem 0.6rem;
+  font-size: 0.75rem;
+  color: #a0a0c0;
+}
+
+.arena-rewards__category { margin-bottom: 0.2rem; }
+
+.arena-rewards__cat-label {
+  font-weight: 600;
+  color: #808099;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+  letter-spacing: 0.04em;
+}
+
+.arena-rewards__cat-effects { color: #c0c0d0; }
+
+/* ===== Next Rank Preview ===== */
+
+.arena-next-rank-wrap {
+  width: 100%;
+  margin-top: 0.5rem;
+}
+
+.arena-next-rank {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.75rem;
+  color: #a0a0c0;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 8px;
+}
+
+.arena-next-rank i {
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+
+.arena-next-rank__label {
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.arena-next-rank__label strong { color: #e1e1ff; }
+
+.arena-next-rank__effects {
+  color: #808099;
+  font-style: italic;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.arena-next-rank--max {
+  color: #B9F2FF;
+  border-color: rgba(185,242,255,0.15);
+  background: rgba(185,242,255,0.04);
+}
+
+/* ===== New Unlocks Toast ===== */
+
+.arena-unlock-toast {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  min-width: 260px;
+  max-width: 380px;
+  padding: 0.85rem 1.1rem;
+  border-radius: 10px;
+  border-left: 4px solid #ffd740;
+  background: rgba(26,26,46,0.94);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: #e1e1ff;
+  font-size: 0.85rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,215,64,0.1);
+  z-index: 10000;
+  animation: cf-toast-in 0.35s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+
+.arena-unlock-toast--removing {
+  animation: cf-toast-out 0.3s ease forwards;
+}
+
+.arena-unlock-toast__header {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #ffd740;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.arena-unlock-toast__body {
+  font-size: 0.78rem;
+  color: #c0c0d0;
+  line-height: 1.5;
+}
+
+.arena-unlock-toast__category { margin-bottom: 0.15rem; }
+
+.arena-unlock-toast__cat-name {
+  font-weight: 600;
+  color: #a0a0c0;
+  text-transform: uppercase;
+  font-size: 0.68rem;
+  letter-spacing: 0.03em;
+}
+
+/* Toast animations (arena.html doesn't load ui-components.css) */
+@keyframes cf-toast-in {
+  from { transform: translateX(110%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+@keyframes cf-toast-out {
+  from { transform: translateX(0);    opacity: 1; }
+  to   { transform: translateX(110%); opacity: 0; }
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 768px) {
+  .arena-rewards__tier-header { font-size: 0.78rem; }
+  .arena-rewards__tier-body { font-size: 0.7rem; }
+  .arena-next-rank { flex-wrap: wrap; }
+}

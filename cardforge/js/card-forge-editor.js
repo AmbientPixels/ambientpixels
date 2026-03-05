@@ -1352,7 +1352,11 @@
     // Fetch arena profile for Battle Record (non-blocking)
     loadArenaStats().then(function (profile) {
       if (profile) updatePreview();
+      applyEffectLockState(); // refresh locks with actual rank
     });
+
+    // Load billing entitlements (non-blocking)
+    if (window.Entitlements) window.Entitlements.load();
     
     // Default image effects and borders to none on page load
     ModularState.imageEffect = 'none';
@@ -1492,8 +1496,29 @@
     const randomContainer = randomOptions.imageContainers[Math.floor(Math.random() * randomOptions.imageContainers.length)];
     const randomContainerVariant = randomOptions.containerVariants[randomContainer][Math.floor(Math.random() * randomOptions.containerVariants[randomContainer].length)];
     
-    const randomEffect = randomOptions.imageEffects[Math.floor(Math.random() * randomOptions.imageEffects.length)];
-    const randomEffectVariant = randomOptions.effectVariants[randomEffect][Math.floor(Math.random() * randomOptions.effectVariants[randomEffect].length)];
+    // Filter image effects/variants through tier unlock system
+    var availableEffects = randomOptions.imageEffects;
+    if (window.EffectTiers) {
+      availableEffects = randomOptions.imageEffects.filter(function (e) {
+        if (e === 'none') return true;
+        // "filters" type available if any filter variant is unlocked
+        if (e === 'filters') return window.EffectTiers.getUnlockedEffects('imageFilter').length > 0;
+        if (e === 'overlays') return window.EffectTiers.getUnlockedEffects('overlay').length > 0;
+        return true;
+      });
+      if (availableEffects.length === 0) availableEffects = ['none'];
+    }
+    const randomEffect = availableEffects[Math.floor(Math.random() * availableEffects.length)];
+
+    var availableVariants = randomOptions.effectVariants[randomEffect] || ['clean'];
+    if (window.EffectTiers && randomEffect !== 'none') {
+      var cat = randomEffect === 'overlays' ? 'overlay' : 'imageFilter';
+      availableVariants = availableVariants.filter(function (v) {
+        return v === 'clean' || window.EffectTiers.isEffectUnlocked(cat, v);
+      });
+      if (availableVariants.length === 0) availableVariants = ['clean'];
+    }
+    const randomEffectVariant = availableVariants[Math.floor(Math.random() * availableVariants.length)];
     
     const randomPalette = randomOptions.palettes[Math.floor(Math.random() * randomOptions.palettes.length)];
     const randomPaletteVariant = randomOptions.paletteVariants[Math.floor(Math.random() * randomOptions.paletteVariants.length)];
@@ -1505,9 +1530,12 @@
     const randomClassStyle = randomOptions.classStyles[Math.floor(Math.random() * randomOptions.classStyles.length)];
     const randomRarityStyle = randomOptions.rarityStyles[Math.floor(Math.random() * randomOptions.rarityStyles.length)];
     // Keep bg effects off to avoid gotty cards; allow subtle border/glow
+    // Filter picks through effect tier unlock system
     const randomBgEffect = 'none';
-    const randomBorderEffect = Math.random() < 0.5 ? 'border' : 'none';
-    const randomGlowEffect = Math.random() < 0.5 ? 'glow' : 'none';
+    const unlockedBorders = window.EffectTiers ? window.EffectTiers.getUnlockedEffects('border') : ['none', 'border'];
+    const randomBorderEffect = Math.random() < 0.5 ? (unlockedBorders.filter(b => b !== 'none')[0] || 'none') : 'none';
+    const unlockedGlows = window.EffectTiers ? window.EffectTiers.getUnlockedEffects('glow') : ['none', 'glow'];
+    const randomGlowEffect = Math.random() < 0.5 ? (unlockedGlows.filter(g => g !== 'none')[0] || 'none') : 'none';
     const randomFont = randomOptions.fontFamilies[Math.floor(Math.random() * randomOptions.fontFamilies.length)];
     
     // Reset ModularState to defaults, then apply random selections
@@ -1872,7 +1900,25 @@
         });
       }
     }
-    
+
+    // Downgrade locked effects to 'none' when applying presets
+    if (window.EffectTiers) {
+      var bgField = document.getElementById('card-bg-effect');
+      var brField = document.getElementById('card-border-effect');
+      var glField = document.getElementById('card-glow-effect');
+      if (bgField && !window.EffectTiers.isEffectUnlocked('bg', bgField.value)) bgField.value = 'none';
+      if (brField && !window.EffectTiers.isEffectUnlocked('border', brField.value)) brField.value = 'none';
+      if (glField && !window.EffectTiers.isEffectUnlocked('glow', glField.value)) glField.value = 'none';
+      // Downgrade image effect variant if locked
+      if (ModularState.imageEffect === 'filters' && !window.EffectTiers.isEffectUnlocked('imageFilter', ModularState.imageEffectVariant)) {
+        ModularState.imageEffectVariant = 'clean';
+      }
+      if (ModularState.imageEffect === 'overlays' && !window.EffectTiers.isEffectUnlocked('overlay', ModularState.imageEffectVariant)) {
+        ModularState.imageEffectVariant = 'clean';
+        ModularState.imageEffect = 'none';
+      }
+    }
+
     try {
       updateUIFromState();
     } catch (error) {
@@ -3720,6 +3766,98 @@
     });
   }
 
+  // ===== EFFECT TIER LOCK STATE =====
+  function applyEffectLockState() {
+    if (!window.EffectTiers) return;
+
+    // Map data-target IDs to tier categories
+    var targetToCategory = {
+      'card-bg-effect': 'bg',
+      'card-border-effect': 'border',
+      'card-glow-effect': 'glow'
+    };
+
+    // 1) Background / Border / Glow chips
+    document.querySelectorAll('.effect-chips').forEach(function (chipGroup) {
+      var category = targetToCategory[chipGroup.dataset.target];
+      if (!category) return; // skip font chips
+      chipGroup.querySelectorAll('.effect-chip').forEach(function (chip) {
+        var value = chip.dataset.value;
+        if (window.EffectTiers.isEffectUnlocked(category, value)) {
+          chip.classList.remove('locked');
+          chip.removeAttribute('title');
+          chip.removeAttribute('data-rank-tier');
+        } else {
+          chip.classList.add('locked');
+          var tier = window.EffectTiers.getEffectTier(category, value);
+          chip.setAttribute('data-rank-tier', tier);
+          chip.title = 'Reach ' + window.EffectTiers.getRankLabel(tier) + ' to unlock';
+        }
+      });
+    });
+
+    // 2) Image effect type options (none / filters / overlays)
+    document.querySelectorAll('[data-tier="2"] .effects-level .tier-option').forEach(function (option) {
+      var value = option.dataset.value;
+      // "none" is always free; "filters" / "overlays" are unlocked if any variant inside is unlocked
+      if (!value || value === 'none') {
+        option.classList.remove('locked');
+        return;
+      }
+      // Check if any variant in this category is unlocked
+      var category = value === 'overlays' ? 'overlay' : 'imageFilter';
+      var unlocked = window.EffectTiers.getUnlockedEffects(category);
+      if (unlocked.length > 0) {
+        option.classList.remove('locked');
+        option.removeAttribute('title');
+        option.removeAttribute('data-rank-tier');
+      } else {
+        option.classList.add('locked');
+        option.title = 'Unlock effects by earning arena rank';
+        // Find the lowest locked tier for this category
+        var RANK_ORDER = window.EffectTiers.RANK_ORDER;
+        var EFFECT_TIERS = window.EffectTiers.EFFECT_TIERS;
+        for (var ri = 0; ri < RANK_ORDER.length; ri++) {
+          var rk = RANK_ORDER[ri];
+          var eff = EFFECT_TIERS[rk][category];
+          if (eff && eff.length > 0 && !window.EffectTiers.isEffectUnlocked(category, eff[0])) {
+            option.setAttribute('data-rank-tier', rk);
+            break;
+          }
+        }
+      }
+    });
+
+    // 3) Individual filter / overlay variants
+    document.querySelectorAll('[data-tier="2"] .effects-level .variant-option').forEach(function (option) {
+      var variant = option.dataset.variant;
+      if (!variant) return;
+      // Determine category from parent container
+      var container = option.closest('.effect-variants');
+      var effectType = container ? container.dataset.effect : null;
+      var category;
+      if (effectType === 'overlays') {
+        category = 'overlay';
+      } else if (effectType === 'filters') {
+        category = 'imageFilter';
+      } else {
+        // "none" container — always free
+        option.classList.remove('locked');
+        return;
+      }
+      if (window.EffectTiers.isEffectUnlocked(category, variant)) {
+        option.classList.remove('locked');
+        option.removeAttribute('title');
+        option.removeAttribute('data-rank-tier');
+      } else {
+        var tier = window.EffectTiers.getEffectTier(category, variant);
+        option.classList.add('locked');
+        option.setAttribute('data-rank-tier', tier);
+        option.title = 'Reach ' + window.EffectTiers.getRankLabel(tier) + ' to unlock';
+      }
+    });
+  }
+
   // ===== BIOGRAPHY TRUNCATION DETECTION =====
   function detectBioTruncation(root) {
     const bioText = (root || document).querySelector('.biography-text');
@@ -3790,6 +3928,7 @@
       
       chipGroup.querySelectorAll('.effect-chip').forEach(chip => {
         chip.addEventListener('click', function() {
+          if (this.classList.contains('locked')) return;
           chipGroup.querySelectorAll('.effect-chip').forEach(c => c.classList.remove('selected'));
           this.classList.add('selected');
           
@@ -3824,6 +3963,9 @@
     if (clearEffectsBtn) clearEffectsBtn.addEventListener('click', clearAllEffects);
     const clearEffectsBtnBottom = document.getElementById('clear-all-effects-bottom');
     if (clearEffectsBtnBottom) clearEffectsBtnBottom.addEventListener('click', clearAllEffects);
+
+    // Apply effect tier locks (bronze-default until profile loads)
+    applyEffectLockState();
 
     // Hidden select change listeners (for programmatic .value changes from random roll)
     ['card-bg-effect', 'card-border-effect', 'card-glow-effect'].forEach(id => {
@@ -4139,11 +4281,12 @@
     // Effect Type Selection Handlers
     effectOptions.forEach(option => {
       option.addEventListener('click', () => {
+        if (option.classList.contains('locked')) return;
         effectOptions.forEach(opt => opt.classList.remove('selected'));
         option.classList.add('selected');
-        
+
         ModularState.imageEffect = option.dataset.value;
-        
+
         // Show/hide variant containers
         variantContainers.forEach(container => {
           const effectType = container.dataset.effect;
@@ -4181,6 +4324,7 @@
     const variantOptions2 = document.querySelectorAll('[data-tier="2"] .effects-level .variant-option');
     variantOptions2.forEach(option => {
       option.addEventListener('click', () => {
+        if (option.classList.contains('locked')) return;
         const container = option.closest('.effect-variants');
         const siblingOptions = container.querySelectorAll('.variant-option');
         siblingOptions.forEach(opt => opt.classList.remove('selected'));
@@ -4203,11 +4347,12 @@
     
     effectOptions.forEach(option => {
       option.addEventListener('click', () => {
+        if (option.classList.contains('locked')) return;
         effectOptions.forEach(opt => opt.classList.remove('selected'));
         option.classList.add('selected');
-        
+
         ModularState.imageEffect = option.dataset.value;
-        
+
         // Show/hide variant panels
         variantContainers.forEach(container => {
           const effectType = container.dataset.effect;
@@ -4244,6 +4389,7 @@
     const variantOptions3 = document.querySelectorAll('[data-tier="2"] .effects-level .effect-variants .variant-option');
     variantOptions3.forEach(option => {
       option.addEventListener('click', () => {
+        if (option.classList.contains('locked')) return;
         const container = option.closest('.effect-variants');
         const siblingOptions = container.querySelectorAll('.variant-option');
         siblingOptions.forEach(opt => opt.classList.remove('selected'));
@@ -4450,7 +4596,8 @@
     ModularState,
     createStatRow,
     createBadgeRow,
-    createAttributeRow
+    createAttributeRow,
+    applyEffectLockState
   };
 
 })();
