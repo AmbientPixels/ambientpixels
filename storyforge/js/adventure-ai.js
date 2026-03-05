@@ -4,7 +4,7 @@
 window.AdventureAI = (function () {
   'use strict';
 
-  var GEMINI_ENDPOINT = '/api/geminiproxy';
+  var GEMINI_ENDPOINT = 'https://ambientpixels-nova-api.azurewebsites.net/api/geminiproxy';
   var TEXT_MODEL = 'gemini-2.5-flash';
   var IMAGE_MODEL = 'gemini-2.5-flash-image';
 
