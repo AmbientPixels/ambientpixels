@@ -170,11 +170,13 @@
 .badge-desc-input {
   width: 100%;
   padding: 6px 8px;
-  border: 1px solid var(--mood-accent-color, #4a4a6a);
+  border: 1px solid transparent;
   border-radius: 4px;
-  background: var(--aura-bg-color, #1a1a2e);
-  color: var(--mood-primary-color, #e1e1ff);
+  background: transparent;
+  color: var(--mood-text-secondary, #a0a0c0);
   font-family: inherit;
+  font-size: 0.78rem;
+  cursor: default;
 }
 .micro-row .badge-card-count {
   flex-shrink: 0;

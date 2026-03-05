@@ -1000,7 +1000,7 @@
         <input type="hidden" name="micro-quantity" value="${quantity}">
       </div>
       <div class="badge-card-body">
-        <input type="text" name="micro-desc" class="badge-desc-input" value="${displayDesc.replace(/"/g, '&quot;')}" placeholder="Custom description" aria-label="Buff description">
+        <input type="text" name="micro-desc" class="badge-desc-input" value="${displayDesc.replace(/"/g, '&quot;')}" readonly aria-label="Buff description">
       </div>
       <div class="badge-card-count">
         <span class="badge-qty-display" title="${qtyTooltip}">&times;${quantity}</span>
@@ -1025,9 +1025,6 @@
       }
       updatePreview();
     });
-
-    // Live preview on description edit
-    descInput.addEventListener('input', updatePreview);
 
     // Remove button
     removeBtn.addEventListener('click', function() {
