@@ -277,7 +277,9 @@ Workers are read-only analysts that spawn during pressure spikes. Use their find
       var _allowed = Array.isArray(c.allowedTaskTypes) && c.allowedTaskTypes.length > 0 ? c.allowedTaskTypes : (c.taskType ? [c.taskType] : []);
       if (_allowed.length > 0) limitsInfo += ', types: ' + _allowed.join('+') + ' ONLY';
       if (c.endDate) limitsInfo += ', ends: ' + c.endDate.substring(0, 10);
-      return '- "' + c.title + '" (id: ' + c.id + ', priority: ' + (c.priority || 'medium') + limitsInfo + ')' + linkInfo;
+      // Surface campaign description (truncated) so agents see strategic context, URLs, and posting rules
+      const _cmpDesc = c.description ? '\n    Brief: ' + c.description.substring(0, 600).replace(/\n/g, ' ').trim() + (c.description.length > 600 ? '...' : '') : '';
+      return '- "' + c.title + '" (id: ' + c.id + ', priority: ' + (c.priority || 'medium') + limitsInfo + ')' + linkInfo + _cmpDesc;
     }).join('\n');
     directivesSection = `\n\nACTIVE CAMPAIGNS (strategic priorities — these drive what the company works on):
 ${cmpList}
@@ -829,8 +831,10 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
     When you use create-social-action on a task, the server checks for reviewed_copy on the task:
       1. If NO reviewed_copy exists: the server AUTO-CREATES a Scribe writing task and BLOCKS your social action. This is expected — wait for Scribe to write and a peer to review.
       2. If reviewed_copy EXISTS on the task: your social action goes through. Use the reviewed_copy as your post text.
+    EXCEPTION — CAMPAIGN TASKS: If the task has a campaign_id, the Scribe copy review is BYPASSED. Campaign briefs already provide editorial guidance (tone, rules, CTAs, URLs). For campaign tasks, write your own post text directly using the campaign brief as your guide, and use create-social-action immediately. The post still goes to CEO approval.
     HOW TO USE REVIEWED COPY: When a task has reviewed_copy (visible in its properties), use that text as the "text" field in create-social-action. The copy was written by Scribe and peer-reviewed — it is publish-ready. You may make minor platform adjustments (hashtags, @mentions, length trimming) but do NOT rewrite the reviewed copy.
     Example: { "type": "create-social-action", "taskId": "task-id", "social": { "platform": "linkedin", "text": "<use the reviewed_copy from the task>" } }
+    CAMPAIGN TASK EXAMPLE: { "type": "create-social-action", "taskId": "task-id", "social": { "platform": "linkedin", "text": "<write post text using campaign brief URL and rules>" } }
   - CRITICAL RULE — SOCIAL POST TASKS MUST USE create-social-action:
     When a task involves writing a LinkedIn post, X/Twitter post, or any social media content, you MUST use "create-social-action" with the task's ID.
     IMPORTANT: create-social-action does NOT publish live. It creates a DRAFT that goes to the CEO approval queue. The CEO reviews the text, can request revisions, and only publishes after explicit approval. This IS the draft mechanism. Even if the task says "draft only" or "do not publish live", you MUST still use create-social-action — it is how drafts are submitted for review.

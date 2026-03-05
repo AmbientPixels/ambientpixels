@@ -1053,9 +1053,15 @@ Write the full deliverable first, then the structured JSON block.`;
       // Social posts linked to tasks must go through Scribe for copy writing + peer review first.
       // Mirrors the Pixel hero image pattern: auto-create a Scribe task, block until reviewed.
       // Exception: task already has reviewed_copy (set when Scribe's writing sub-task is approved)
+      // Exception: campaign tasks — campaign briefs provide editorial guidance, Scribe review is redundant.
+      //            Posts still go to CEO approval queue for final sign-off.
       if (action.taskId) {
         const socialTask = tasks.find(t => t.id === action.taskId);
-        if (socialTask && !socialTask.reviewed_copy) {
+        const _hasCampaignBrief = socialTask && socialTask.campaign_id;
+        if (_hasCampaignBrief) {
+          context.log('[Heartbeat]', agentId, 'COPY REVIEW GATE BYPASS — task', action.taskId, 'has campaign_id:', socialTask.campaign_id, '— skipping Scribe copy review (campaign brief provides editorial guidance)');
+        }
+        if (socialTask && !socialTask.reviewed_copy && !_hasCampaignBrief) {
           // Check if a Scribe writing sub-task already exists for this social task
           const _copyTag = 'social-copy-for-' + action.taskId;
           const _copyTaskExists = tasks.some(t =>
