@@ -226,7 +226,7 @@ class CardForgeActions {
   // SAVE CARD
   // ===================
   
-  handleSaveCard() {
+  async handleSaveCard() {
     
     try {
       const cardData = this.collectCardData();
@@ -285,9 +285,12 @@ class CardForgeActions {
             cardData: cardData
           };
         }
+        // Get auth header for direct API calls (SWA strips reserved headers)
+        const authHeaders = window.ArenaAPI && window.ArenaAPI.getPrincipalHeader
+          ? await window.ArenaAPI.getPrincipalHeader() : {};
         fetch(saveUrl, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders),
           body: JSON.stringify(backendPayload)
         })
         .then(async (response) => {
@@ -1093,9 +1096,11 @@ class CardForgeActions {
     if (isAuthed) {
       try {
         const loadUrl = window.buildApiPath('loadCards');
+        const authHeaders = window.ArenaAPI && window.ArenaAPI.getPrincipalHeader
+          ? await window.ArenaAPI.getPrincipalHeader() : {};
 const resp = await fetch(loadUrl, {
   method: 'GET',
-  headers: { 'Content-Type': 'application/json' }
+  headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders)
 });
         if (resp.ok) {
           const data = await resp.json();
@@ -1295,11 +1300,13 @@ const resp = await fetch(loadUrl, {
 
     try {
       const loadUrl = window.buildApiPath('loadCards');
+      const authHeaders = window.ArenaAPI && window.ArenaAPI.getPrincipalHeader
+        ? await window.ArenaAPI.getPrincipalHeader() : {};
       const resp = await fetch(loadUrl, {
         method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
+        headers: Object.assign({ 'Content-Type': 'application/json' }, authHeaders)
       });
-      
+
       if (!resp.ok) {
         throw new Error(`Failed to load gallery: ${resp.status}`);
       }

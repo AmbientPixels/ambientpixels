@@ -9,7 +9,8 @@ const CONTAINER_NAME = 'cardforge';
 
 // Helper to extract authenticated user information from Static Web Apps EasyAuth header
 function extractUserInfo(req, context) {
-  const principalHeader = req.headers['x-ms-client-principal'];
+  // Check SWA-injected header first, then custom forwarded header
+  const principalHeader = req.headers['x-ms-client-principal'] || req.headers['x-cf-auth-principal'];
   if (!principalHeader) {
     // Development fallback: use X-User-ID header to simulate auth
     if (process.env.AZURE_FUNCTIONS_ENVIRONMENT !== 'Production') {
@@ -102,7 +103,7 @@ module.exports = async function (context, req) {
   const corsHeaders = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
-    "Access-Control-Allow-Headers": "Content-Type, Authorization, X-CSRF-Token, X-User-ID, x-functions-key",
+    "Access-Control-Allow-Headers": "Content-Type, Authorization, X-CSRF-Token, X-User-ID, X-CF-Auth-Principal, x-functions-key",
     "Content-Type": "application/json"
   };
 
@@ -150,7 +151,7 @@ module.exports = async function (context, req) {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token, X-User-ID'
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token, X-User-ID, X-CF-Auth-Principal'
         },
         body: { error: 'Request body is required' }
       };
@@ -177,7 +178,7 @@ module.exports = async function (context, req) {
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
           'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token, X-User-ID'
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token, X-User-ID, X-CF-Auth-Principal'
         },
         body: { error: 'Invalid card data', validationErrors }
       };
@@ -425,7 +426,7 @@ module.exports = async function (context, req) {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token, X-User-ID'
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token, X-User-ID, X-CF-Auth-Principal'
       },
       body: {
         success: true,
@@ -441,7 +442,7 @@ module.exports = async function (context, req) {
         'Content-Type': 'application/json',
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token, X-User-ID'
+        'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-CSRF-Token, X-User-ID, X-CF-Auth-Principal'
       },
       body: { error: error.message }
     };
