@@ -47,6 +47,15 @@
   gap: 0.5rem;
 }
 .arena-topbar__title i { color: #00d4ff; }
+.arena-topbar__tagline {
+  font-size: 0.7rem;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  color: #808099;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+@media (max-width: 600px) { .arena-topbar__tagline { display: none; } }
 
 .arena-topbar__profile {
   display: flex;
