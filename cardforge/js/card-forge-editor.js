@@ -3585,33 +3585,7 @@
     var rank = (profile.rank || 'unranked').charAt(0).toUpperCase() + (profile.rank || 'unranked').slice(1);
     var lvl = profile.level || 1;
     var xp = profile.xp || 0;
-    return `
-      <div class="card-game-stats">
-        <div class="card-game-stats__title">Battle Record</div>
-        <div class="card-game-stats__grid">
-          <div class="card-game-stats__item">
-            <span class="card-game-stats__value">${w}</span>
-            <span class="card-game-stats__label">Wins</span>
-          </div>
-          <div class="card-game-stats__item">
-            <span class="card-game-stats__value">${l}</span>
-            <span class="card-game-stats__label">Losses</span>
-          </div>
-          <div class="card-game-stats__item">
-            <span class="card-game-stats__value">${rank}</span>
-            <span class="card-game-stats__label">Rank</span>
-          </div>
-          <div class="card-game-stats__item">
-            <span class="card-game-stats__value">Lv.${lvl}</span>
-            <span class="card-game-stats__label">Level</span>
-          </div>
-          <div class="card-game-stats__item">
-            <span class="card-game-stats__value">${xp}</span>
-            <span class="card-game-stats__label">XP</span>
-          </div>
-        </div>
-      </div>
-    `;
+    return `<div class="card-game-stats"><i class="fas fa-swords card-game-stats__icon"></i><span class="card-game-stats__rank">${rank}</span> <span class="card-game-stats__sep">&middot;</span> Lv.${lvl} <span class="card-game-stats__sep">&middot;</span> ${w}W/${l}L <span class="card-game-stats__sep">&middot;</span> ${xp} XP</div>`;
   }
 
   function generateAttributesHTML(attributes) {
