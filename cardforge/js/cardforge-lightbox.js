@@ -74,11 +74,16 @@
   }
 
   const ATTRIBUTE_CAP = 6; // Max visible attributes on card face
+  // Attribute names already covered by the arena stats bar
+  const ARENA_OVERLAP_NAMES = ['level', 'experience', 'xp', 'rank', 'wins', 'losses', 'win', 'loss', 'record'];
 
   function attributesHTML(attrs) {
     if (!attrs || attrs.length === 0) return '';
-    const visible = attrs.slice(0, ATTRIBUTE_CAP);
-    const overflow = attrs.length - ATTRIBUTE_CAP;
+    // Strip attributes that duplicate arena stats
+    const filtered = attrs.filter(a => !ARENA_OVERLAP_NAMES.includes(a.name.toLowerCase()));
+    if (filtered.length === 0) return '';
+    const visible = filtered.slice(0, ATTRIBUTE_CAP);
+    const overflow = filtered.length - ATTRIBUTE_CAP;
     let html = visible.map(a => `
       <div class="attribute-item">
         <span class="attribute-key">${a.name}</span>
@@ -88,6 +93,66 @@
       html += `<div class="attributes-overflow-indicator">+${overflow} more</div>`;
     }
     return html;
+  }
+
+  // ===== ARENA RECORD (mirrors card-forge-editor.js) =====
+  const RANK_THRESHOLDS = {
+    bronze:   { xpRequired: 0,    icon: 'fa-shield-halved', color: '#CD7F32', label: 'Bronze' },
+    silver:   { xpRequired: 500,  icon: 'fa-shield',        color: '#C0C0C0', label: 'Silver' },
+    gold:     { xpRequired: 1500, icon: 'fa-crown',         color: '#FFD700', label: 'Gold' },
+    platinum: { xpRequired: 3500, icon: 'fa-gem',           color: '#E5E4E2', label: 'Platinum' },
+    diamond:  { xpRequired: 7000, icon: 'fa-diamond',       color: '#B9F2FF', label: 'Diamond' }
+  };
+  const RANK_ORDER = ['bronze', 'silver', 'gold', 'platinum', 'diamond'];
+
+  function arenaRecordHTML(profile) {
+    if (!profile || !profile.record) return '';
+    var w = profile.record.wins || 0;
+    var l = profile.record.losses || 0;
+    var rankKey = (profile.rank || 'bronze').toLowerCase();
+    var rankInfo = RANK_THRESHOLDS[rankKey] || RANK_THRESHOLDS.bronze;
+    var lvl = profile.level || 1;
+    var xp = profile.xp || 0;
+    var rankIdx = RANK_ORDER.indexOf(rankKey);
+    var nextRankKey = rankIdx < RANK_ORDER.length - 1 ? RANK_ORDER[rankIdx + 1] : null;
+    var nextXp = nextRankKey ? RANK_THRESHOLDS[nextRankKey].xpRequired : null;
+    var rankXp = rankInfo.xpRequired;
+    var progressPct = 100;
+    var xpLabel = xp + ' XP (Max Rank)';
+    if (nextXp) {
+      progressPct = Math.min(100, Math.round(((xp - rankXp) / (nextXp - rankXp)) * 100));
+      xpLabel = xp + ' / ' + nextXp + ' XP';
+    }
+    return `
+      <div class="back-section arena-record-section">
+        <h4 class="section-title">Arena Record</h4>
+        <div class="arena-record-grid">
+          <div class="arena-record-stat">
+            <i class="fas ${rankInfo.icon} arena-record-stat__icon" style="color:${rankInfo.color}"></i>
+            <span class="arena-record-stat__value">${rankInfo.label}</span>
+            <span class="arena-record-stat__label">Rank</span>
+          </div>
+          <div class="arena-record-stat">
+            <i class="fas fa-swords arena-record-stat__icon"></i>
+            <span class="arena-record-stat__value">${w}W / ${l}L</span>
+            <span class="arena-record-stat__label">Record</span>
+          </div>
+          <div class="arena-record-stat">
+            <i class="fas fa-arrow-up arena-record-stat__icon"></i>
+            <span class="arena-record-stat__value">Lv.${lvl}</span>
+            <span class="arena-record-stat__label">Level</span>
+          </div>
+          <div class="arena-record-stat">
+            <i class="fas fa-star arena-record-stat__icon"></i>
+            <span class="arena-record-stat__value">${xp}</span>
+            <span class="arena-record-stat__label">XP</span>
+          </div>
+        </div>
+        <div class="arena-xp-bar">
+          <div class="arena-xp-bar__fill" style="width:${progressPct}%"></div>
+        </div>
+        <div class="arena-xp-bar__label">${xpLabel}</div>
+      </div>`;
   }
 
   // ===== MODULAR DEFAULTS (mirrors ModularState in card-forge-editor.js) =====
@@ -217,10 +282,11 @@
               <div class="biography-text" data-full-bio="${bio.replace(/"/g, '&quot;')}">${bio}</div>
               <a class="bio-read-more" href="#">Read more &raquo;</a>
             </div>` : ''}
+            ${arenaRecordHTML(window._arenaProfile)}
             <div class="info-grid">
               ${badges.length ? `
               <div class="back-section badges-section">
-                <h4 class="section-title">Badges & Achievements</h4>
+                <h4 class="section-title">Buffs & Traits</h4>
                 <div class="badges-container" data-badge-count="${Math.min(badges.length, BADGE_CAP)}">${badgesHTML(badges)}</div>
               </div>` : ''}
               ${attributes.length ? `

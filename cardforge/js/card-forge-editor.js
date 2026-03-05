@@ -1683,26 +1683,17 @@
       'Guardian of the threshold between worlds, sworn to maintain the cosmic balance.'
     ];
     const badgePool = [
-      { category: 'Combat', icon: 'fire', description: 'Battle-hardened warrior' },
-      { category: 'Stealth', icon: 'shield', description: 'Master of shadows' },
-      { category: 'Leadership', icon: 'crown', description: 'Born to lead' },
-      { category: 'Arcane', icon: 'gem', description: 'Wielder of ancient magic' },
-      { category: 'Tech', icon: 'bolt', description: 'Digital pioneer' },
-      { category: 'Honor', icon: 'medal', description: 'Decorated hero' },
-      { category: 'Valor', icon: 'trophy', description: 'Proven in battle' },
-      { category: 'Precision', icon: 'target', description: 'Never misses' },
-      { category: 'Heart', icon: 'heart', description: 'Compassionate soul' },
-      { category: 'Legend', icon: 'star', description: 'Known across galaxies' }
+      { category: 'Fury', icon: 'fire', description: '+25% melee damage for 3 turns' },
+      { category: 'Aegis', icon: 'shield', description: 'Blocks the next incoming attack' },
+      { category: 'Rally', icon: 'crown', description: '+15% team damage when leading' },
+      { category: 'Arcane', icon: 'gem', description: '+30% spell potency' },
+      { category: 'Overload', icon: 'bolt', description: 'Double energy regen for 2 turns' },
+      { category: 'Fortitude', icon: 'medal', description: '+20% max HP this round' },
+      { category: 'Triumph', icon: 'trophy', description: 'Bonus XP on next victory' },
+      { category: 'Focus', icon: 'target', description: '+40% critical hit chance' },
+      { category: 'Regen', icon: 'heart', description: 'Restore 10 HP per turn' },
+      { category: 'Legendary', icon: 'star', description: 'All stats boosted by 10%' }
     ];
-    const attributePool = [
-      { name: 'Origin', values: ['Earth', 'Mars Colony', 'Void Station', 'Neon City', 'Arcane Realm', 'Deep Space'] },
-      { name: 'Faction', values: ['Rebel Alliance', 'Shadow Guild', 'Tech Union', 'Arcane Order', 'Free Agents', 'Void Walkers'] },
-      { name: 'Weapon', values: ['Plasma Blade', 'Arcane Staff', 'Twin Daggers', 'Rail Cannon', 'Energy Bow', 'Void Gauntlets'] },
-      { name: 'Rank', values: ['Initiate', 'Adept', 'Veteran', 'Commander', 'Grandmaster', 'Ascended'] },
-      { name: 'Element', values: ['Fire', 'Ice', 'Lightning', 'Shadow', 'Light', 'Void'] },
-      { name: 'Era', values: ['Ancient', 'Modern', 'Futuristic', 'Timeless', 'Post-Apocalyptic', 'Mythic'] }
-    ];
-    
     // Set random basic info
     document.getElementById('card-name').value = pick(randomNames);
     document.getElementById('card-class').value = pick(randomClasses);
@@ -1733,26 +1724,17 @@
       }
     }
 
-    // Generate random badges (2-5)
-    const numBadges = Math.floor(Math.random() * 4) + 2;
+    // Generate full set of 6 random badges (buffs)
     const badgesContainer = document.getElementById('micro-editor');
     if (badgesContainer) {
-      const shuffledBadges = [...badgePool].sort(() => Math.random() - 0.5).slice(0, numBadges);
+      const shuffledBadges = [...badgePool].sort(() => Math.random() - 0.5).slice(0, BADGE_CAP);
       shuffledBadges.forEach(badge => {
         const quantity = Math.floor(Math.random() * 3) + 1; // 1-3
         badgesContainer.appendChild(createBadgeRow(badge.category, badge.icon, badge.description, quantity));
       });
     }
 
-    // Generate random attributes (2-4)
-    const numAttrs = Math.floor(Math.random() * 3) + 2;
-    const attributesContainer = document.getElementById('attribute-editor');
-    if (attributesContainer) {
-      const shuffledAttrs = [...attributePool].sort(() => Math.random() - 0.5).slice(0, numAttrs);
-      shuffledAttrs.forEach(attr => {
-        attributesContainer.appendChild(createAttributeRow(attr.name, pick(attr.values)));
-      });
-    }
+    // Attributes are NOT randomly generated — leave custom attributes for the user to add manually
     
   }
   
@@ -3411,23 +3393,85 @@
     });
   }
 
-  function generateGameStatsHTML(profile) {
+  // Rank thresholds for XP bar (mirrors arena-results.js)
+  const RANK_THRESHOLDS = {
+    bronze:   { xpRequired: 0,    icon: 'fa-shield-halved', color: '#CD7F32', label: 'Bronze' },
+    silver:   { xpRequired: 500,  icon: 'fa-shield',        color: '#C0C0C0', label: 'Silver' },
+    gold:     { xpRequired: 1500, icon: 'fa-crown',         color: '#FFD700', label: 'Gold' },
+    platinum: { xpRequired: 3500, icon: 'fa-gem',           color: '#E5E4E2', label: 'Platinum' },
+    diamond:  { xpRequired: 7000, icon: 'fa-diamond',       color: '#B9F2FF', label: 'Diamond' }
+  };
+  const RANK_ORDER = ['bronze', 'silver', 'gold', 'platinum', 'diamond'];
+
+  function generateArenaRecordHTML(profile) {
     if (!profile || !profile.record) return '';
     var w = profile.record.wins || 0;
     var l = profile.record.losses || 0;
-    var rank = (profile.rank || 'unranked').charAt(0).toUpperCase() + (profile.rank || 'unranked').slice(1);
+    var rankKey = (profile.rank || 'bronze').toLowerCase();
+    var rankInfo = RANK_THRESHOLDS[rankKey] || RANK_THRESHOLDS.bronze;
     var lvl = profile.level || 1;
     var xp = profile.xp || 0;
-    return `<div class="card-game-stats"><i class="fas fa-swords card-game-stats__icon"></i><span class="card-game-stats__rank">${rank}</span> <span class="card-game-stats__sep">&middot;</span> Lv.${lvl} <span class="card-game-stats__sep">&middot;</span> ${w}W/${l}L <span class="card-game-stats__sep">&middot;</span> ${xp} XP</div>`;
+
+    // XP progress toward next rank
+    var rankIdx = RANK_ORDER.indexOf(rankKey);
+    var nextRankKey = rankIdx < RANK_ORDER.length - 1 ? RANK_ORDER[rankIdx + 1] : null;
+    var nextXp = nextRankKey ? RANK_THRESHOLDS[nextRankKey].xpRequired : null;
+    var rankXp = rankInfo.xpRequired;
+    var progressPct = 100;
+    var xpLabel = `${xp} XP (Max Rank)`;
+    if (nextXp) {
+      progressPct = Math.min(100, Math.round(((xp - rankXp) / (nextXp - rankXp)) * 100));
+      xpLabel = `${xp} / ${nextXp} XP`;
+    }
+
+    return `
+      <div class="back-section arena-record-section">
+        <h4 class="section-title">Arena Record</h4>
+        <div class="arena-record-grid">
+          <div class="arena-record-stat">
+            <i class="fas ${rankInfo.icon} arena-record-stat__icon" style="color:${rankInfo.color}"></i>
+            <span class="arena-record-stat__value">${rankInfo.label}</span>
+            <span class="arena-record-stat__label">Rank</span>
+          </div>
+          <div class="arena-record-stat">
+            <i class="fas fa-swords arena-record-stat__icon"></i>
+            <span class="arena-record-stat__value">${w}W / ${l}L</span>
+            <span class="arena-record-stat__label">Record</span>
+          </div>
+          <div class="arena-record-stat">
+            <i class="fas fa-arrow-up arena-record-stat__icon"></i>
+            <span class="arena-record-stat__value">Lv.${lvl}</span>
+            <span class="arena-record-stat__label">Level</span>
+          </div>
+          <div class="arena-record-stat">
+            <i class="fas fa-star arena-record-stat__icon"></i>
+            <span class="arena-record-stat__value">${xp}</span>
+            <span class="arena-record-stat__label">XP</span>
+          </div>
+        </div>
+        <div class="arena-xp-bar">
+          <div class="arena-xp-bar__fill" style="width:${progressPct}%"></div>
+        </div>
+        <div class="arena-xp-bar__label">${xpLabel}</div>
+      </div>`;
   }
+
+  // Attribute names already covered by the arena stats bar (Rank/Lv/W-L/XP)
+  const ARENA_OVERLAP_NAMES = ['level', 'experience', 'xp', 'rank', 'wins', 'losses', 'win', 'loss', 'record'];
 
   function generateAttributesHTML(attributes) {
     if (!attributes || attributes.length === 0) {
       return '<div class="no-attributes">No attributes available</div>';
     }
 
-    const visible = attributes.slice(0, ATTRIBUTE_CAP);
-    const overflow = attributes.length - ATTRIBUTE_CAP;
+    // Strip attributes that duplicate arena stats
+    const filtered = attributes.filter(a => !ARENA_OVERLAP_NAMES.includes(a.name.toLowerCase()));
+    if (filtered.length === 0) {
+      return '<div class="no-attributes">No attributes available</div>';
+    }
+
+    const visible = filtered.slice(0, ATTRIBUTE_CAP);
+    const overflow = filtered.length - ATTRIBUTE_CAP;
     
     let html = visible.map(attr => {
       return `
@@ -3581,7 +3625,6 @@
       <div class="back-header">
         <h3 class="card-name">${data.name}</h3>
         <div class="card-class">${data.characterClass}</div>
-        ${generateGameStatsHTML(window._arenaProfile)}
       </div>
       <div class="back-body">
         ${data.biography ? `
@@ -3591,10 +3634,12 @@
           <a class="bio-read-more" href="#">Read more &raquo;</a>
         </div>
         ` : ''}
-        
+
+        ${generateArenaRecordHTML(window._arenaProfile)}
+
         <div class="info-grid">
           <div class="back-section badges-section">
-            <h4 class="section-title">Badges & Achievements</h4>
+            <h4 class="section-title">Buffs & Traits</h4>
             <div class="badges-container" data-badge-count="${badgeCount}">
               ${generateBadgesHTML(data.badges)}
             </div>
@@ -3612,23 +3657,66 @@
   `;
   }
 
-  // ===== OVERFLOW DETECTION — applies condensed mode when back face overflows =====
+  // ===== OVERFLOW DETECTION — applies condensed mode when faces overflow =====
   function checkCardOverflow() {
     const back = document.querySelector('.card-preview-zone .card-back');
-    if (!back) return;
-    const backContent = back.querySelector('.card-back-content');
-    if (!backContent) return;
-
-    // Remove condensed first to measure natural height
-    back.classList.remove('card-condensed');
-
-    // Use requestAnimationFrame to measure after layout
-    requestAnimationFrame(() => {
-      const cardH = back.clientHeight;
-      const contentH = backContent.scrollHeight;
-      if (contentH > cardH) {
-        back.classList.add('card-condensed');
+    if (back) {
+      const backContent = back.querySelector('.card-back-content');
+      if (backContent) {
+        back.classList.remove('card-condensed');
+        requestAnimationFrame(() => {
+          if (backContent.scrollHeight > back.clientHeight) {
+            back.classList.add('card-condensed');
+          }
+        });
       }
+    }
+
+    // Front-face overflow: condense first, then truncate stats if still overflowing
+    const front = document.querySelector('.card-preview-zone .card-front');
+    if (!front) return;
+
+    front.classList.remove('card-condensed');
+    // Remove any previous truncation
+    const statsContainer = front.querySelector('.card-stats');
+    if (statsContainer) {
+      statsContainer.querySelectorAll('.stat-item').forEach(el => el.classList.remove('stat-hidden'));
+      const existingOverflow = statsContainer.querySelector('.stats-overflow-indicator');
+      if (existingOverflow) existingOverflow.remove();
+    }
+
+    requestAnimationFrame(() => {
+      if (front.scrollHeight <= front.clientHeight) return;
+
+      // Step 1: Apply condensed mode
+      front.classList.add('card-condensed');
+
+      requestAnimationFrame(() => {
+        if (front.scrollHeight <= front.clientHeight || !statsContainer) return;
+
+        // Step 2: Progressively hide stats from bottom until it fits
+        const allStats = Array.from(statsContainer.querySelectorAll('.stat-item'));
+        const separator = statsContainer.querySelector('.stats-separator');
+        let hiddenCount = 0;
+
+        for (let i = allStats.length - 1; i >= 0; i--) {
+          if (front.scrollHeight <= front.clientHeight) break;
+          allStats[i].classList.add('stat-hidden');
+          hiddenCount++;
+          // If we hid all custom stats, also hide the separator
+          if (separator) {
+            const visibleCustom = Array.from(statsContainer.querySelectorAll('.stat-item:not(.stat-item--combat):not(.stat-hidden)'));
+            if (visibleCustom.length === 0) separator.classList.add('stat-hidden');
+          }
+        }
+
+        if (hiddenCount > 0) {
+          const indicator = document.createElement('div');
+          indicator.className = 'stats-overflow-indicator';
+          indicator.textContent = `+${hiddenCount} more`;
+          statsContainer.appendChild(indicator);
+        }
+      });
     });
   }
 

@@ -173,7 +173,7 @@
       '- quote: A punchy tagline (max 120 chars)',
       '- biography: A vivid backstory hint (max 220 chars)',
       '- stats: An array of 3-5 objects with "name" (string, e.g. "Attack", "Defense", "Speed") and "value" (number 0-100)',
-      '- attributes: An array of 3-5 objects with "name" (string, e.g. "Element", "Faction", "Origin") and "value" (string)',
+      '- attributes: An array of 3-5 objects with "name" (string, e.g. "Element", "Faction", "Origin") and "value" (string). Do NOT use "Level", "Experience", "XP", "Rank", "Wins", or "Losses" as attribute names — those come from the arena system.',
       '- badges: An array of 2-4 objects with "category" (string, e.g. "Skill", "Title"), "icon" (one of: star, heart, bolt, trophy, leaf, gear, book, lightbulb, medal, certificate), "description" (short text), and "quantity" (number 1-5)',
       '- imagePrompt: A detailed visual description for generating the card artwork (max 200 chars). Describe the character\'s appearance, pose, and mood. Do NOT include text or card frames.',
       '',

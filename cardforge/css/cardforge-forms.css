@@ -1020,8 +1020,8 @@
   text-transform: uppercase;
   letter-spacing: 0.1em;
   color: rgba(255, 255, 255, 0.3);
-  background: inherit;
-  padding: 0 6px;
+  background: var(--card-bg-primary, #1a1a2e);
+  padding: 0 8px;
 }
 
 /* Badge category dropdown */

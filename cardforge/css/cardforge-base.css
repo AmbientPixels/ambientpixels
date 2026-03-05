@@ -176,6 +176,41 @@
 }
 
 
+/* ===== FRONT-FACE CONDENSED MODE — tighter layout when stats overflow ===== */
+.card-front.card-condensed .card-stats {
+  gap: 3px;
+  padding: 2px 0;
+}
+
+.card-front.card-condensed .stat-item {
+  gap: 1px;
+}
+
+.card-front.card-condensed .stat-label {
+  font-size: 0.6rem;
+}
+
+.card-front.card-condensed .stat-value {
+  font-size: 0.55rem;
+}
+
+.card-front.card-condensed .stat-bar {
+  height: 4px;
+}
+
+.card-front.card-condensed .stats-separator {
+  margin: 2px 0;
+}
+
+.card-front.card-condensed .card-quote {
+  font-size: 0.7rem;
+}
+
+/* Hidden stats — overflow truncation */
+.stat-hidden {
+  display: none !important;
+}
+
 /* ===== BACK-OF-CARD INFORMATION GRID LAYOUT ===== */
 /* Information Grid Layout - Header, Two-Column Content Grid */
 
@@ -772,40 +807,84 @@
   margin-bottom: 0.25rem;
 }
 
-/* ===== Battle Record — compact line in header ===== */
-.card-game-stats {
+/* ===== Arena Record — dedicated back-face section ===== */
+.arena-record-section {
+  flex-shrink: 0;
+}
+
+.arena-record-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.35rem;
+  margin-bottom: 0.4rem;
+}
+
+.arena-record-stat {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  gap: 0.3rem;
-  margin-top: 0.15rem;
-  font-size: 0.6rem;
-  font-weight: 500;
-  letter-spacing: 0.03em;
-  color: var(--mood-secondary-color, #a0a0c0);
-  opacity: 0.7;
+  gap: 0.1rem;
+  padding: 0.3rem 0.2rem;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.arena-record-stat__icon {
+  font-size: 0.7rem;
+  color: var(--mood-primary-color, #5AE4FF);
+  opacity: 0.8;
+}
+
+.arena-record-stat__value {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--mood-primary-color, #e1e1ff);
   white-space: nowrap;
 }
 
-.card-game-stats__icon {
+.arena-record-stat__label {
   font-size: 0.55rem;
-  opacity: 0.5;
-}
-
-.card-game-stats__rank {
   text-transform: uppercase;
-  color: var(--mood-primary-color, #e1e1ff);
+  letter-spacing: 0.5px;
+  color: var(--mood-secondary-color, #a0a0c0);
+  opacity: 0.6;
 }
 
-.card-game-stats__sep {
-  opacity: 0.3;
+.arena-xp-bar {
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 0.2rem;
+}
+
+.arena-xp-bar__fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--mood-primary-color, #5AE4FF), var(--mood-accent-color, #8b5cf6));
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+
+.arena-xp-bar__label {
+  font-size: 0.55rem;
+  text-align: center;
+  color: var(--mood-secondary-color, #a0a0c0);
+  opacity: 0.6;
 }
 
 /* Condensed mode */
-.card-condensed .card-game-stats {
-  font-size: 0.5rem;
-  margin-top: 0.1rem;
+.card-condensed .arena-record-grid {
   gap: 0.2rem;
+}
+.card-condensed .arena-record-stat {
+  padding: 0.2rem 0.15rem;
+}
+.card-condensed .arena-record-stat__value {
+  font-size: 0.65rem;
+}
+.card-condensed .arena-xp-bar {
+  height: 3px;
 }
 
 /* Mobile Responsive - Stack Grid Vertically */
