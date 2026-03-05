@@ -55,6 +55,14 @@
             <input type="text" id="playerNameInput" placeholder="Leave blank for a random name" maxlength="30"
               style="background:rgba(15,25,40,0.6); border:1px solid rgba(122,143,224,0.15); border-radius:8px; padding:0.6rem 1rem; color:var(--dark-text); font-size:0.95rem; width:100%; max-width:300px; font-family:inherit;" />
           </div>
+          <!-- Character Appearance (shown after genre pick) -->
+          <div id="characterCreator" class="adv-char-creator" style="display:none;">
+            <div class="adv-char-creator__title">
+              <i class="fas fa-user-pen"></i> Customize Appearance
+            </div>
+            <div id="charOptionsContainer" class="adv-char-creator__options"></div>
+            <div class="adv-char-creator__preview" id="charPreviewText"></div>
+          </div>
           <button class="adv-btn adv-btn--primary" id="startAdventureBtn" disabled style="margin-top:1.5rem; padding:0.75rem 2rem; font-size:1rem;">
             <i class="fas fa-play"></i> Begin Adventure
           </button>

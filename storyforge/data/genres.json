@@ -10,7 +10,37 @@
       "startingStats": { "hp": 100, "maxHp": 100, "gold": 10, "reputation": 0, "strength": 12, "dexterity": 10, "intelligence": 10, "charisma": 8 },
       "startingInventory": [{ "id": "torch", "name": "Torch", "type": "tool", "description": "A flickering flame to light the way" }],
       "imageStyleHint": "fantasy art, detailed illustration, warm torchlight, medieval setting, painterly style",
-      "tier": "free"
+      "tier": "free",
+      "characterOptions": {
+        "race": [
+          { "label": "Human", "promptFragment": "a human" },
+          { "label": "Elf", "promptFragment": "an elf with pointed ears and angular features" },
+          { "label": "Dwarf", "promptFragment": "a stocky dwarf with a thick beard" },
+          { "label": "Halfling", "promptFragment": "a small, nimble halfling" },
+          { "label": "Orc", "promptFragment": "a muscular half-orc with green-tinted skin" }
+        ],
+        "build": [
+          { "label": "Lean", "promptFragment": "lean and wiry" },
+          { "label": "Average", "promptFragment": "average build" },
+          { "label": "Muscular", "promptFragment": "broad-shouldered and muscular" },
+          { "label": "Stout", "promptFragment": "short and stout" }
+        ],
+        "hair": [
+          { "label": "Black", "promptFragment": "with black hair" },
+          { "label": "Brown", "promptFragment": "with brown hair" },
+          { "label": "Blonde", "promptFragment": "with blonde hair" },
+          { "label": "Red", "promptFragment": "with red hair" },
+          { "label": "White", "promptFragment": "with white hair" },
+          { "label": "Shaved", "promptFragment": "with a shaved head" }
+        ],
+        "distinguishingFeature": [
+          { "label": "None", "promptFragment": "" },
+          { "label": "Scar across cheek", "promptFragment": "bearing a scar across one cheek" },
+          { "label": "Glowing eyes", "promptFragment": "with faintly glowing eyes" },
+          { "label": "Tattooed arms", "promptFragment": "with intricate tattoos on both arms" },
+          { "label": "Eye patch", "promptFragment": "wearing an eye patch" }
+        ]
+      }
     },
     {
       "id": "horror",
@@ -22,7 +52,37 @@
       "startingStats": { "hp": 80, "maxHp": 80, "gold": 5, "reputation": 0, "strength": 8, "dexterity": 10, "intelligence": 14, "charisma": 8 },
       "startingInventory": [{ "id": "flashlight", "name": "Flashlight", "type": "tool", "description": "Batteries half-dead, beam flickering" }],
       "imageStyleHint": "horror art, dark atmosphere, fog and shadows, muted desaturated colors, unsettling",
-      "tier": "free"
+      "tier": "free",
+      "characterOptions": {
+        "archetype": [
+          { "label": "College Student", "promptFragment": "a young college student" },
+          { "label": "Journalist", "promptFragment": "a sharp-eyed journalist" },
+          { "label": "Paranormal Investigator", "promptFragment": "a paranormal investigator" },
+          { "label": "Drifter", "promptFragment": "a weary drifter" },
+          { "label": "Nurse", "promptFragment": "an off-duty nurse" }
+        ],
+        "build": [
+          { "label": "Slim", "promptFragment": "slim and pale" },
+          { "label": "Average", "promptFragment": "average build" },
+          { "label": "Athletic", "promptFragment": "athletic and tense" },
+          { "label": "Heavyset", "promptFragment": "heavyset and sturdy" }
+        ],
+        "hair": [
+          { "label": "Black", "promptFragment": "with dark hair" },
+          { "label": "Brown", "promptFragment": "with brown hair" },
+          { "label": "Blonde", "promptFragment": "with light blonde hair" },
+          { "label": "Red", "promptFragment": "with auburn hair" },
+          { "label": "Grey", "promptFragment": "with prematurely grey hair" },
+          { "label": "Shaved", "promptFragment": "with a buzzcut" }
+        ],
+        "distinguishingFeature": [
+          { "label": "None", "promptFragment": "" },
+          { "label": "Glasses", "promptFragment": "wearing thick-rimmed glasses" },
+          { "label": "Nervous tic", "promptFragment": "with a nervous habit of cracking knuckles" },
+          { "label": "Old scar", "promptFragment": "with an old scar on the neck" },
+          { "label": "Haunted eyes", "promptFragment": "with dark circles under haunted eyes" }
+        ]
+      }
     },
     {
       "id": "scifi",
@@ -34,7 +94,36 @@
       "startingStats": { "hp": 90, "maxHp": 90, "gold": 20, "reputation": 0, "strength": 8, "dexterity": 10, "intelligence": 14, "charisma": 8 },
       "startingInventory": [{ "id": "scanner", "name": "Bio-Scanner", "type": "tool", "description": "Handheld scanner with cracked display" }],
       "imageStyleHint": "sci-fi concept art, neon and chrome, alien landscapes, futuristic technology, cinematic lighting",
-      "tier": "free"
+      "tier": "free",
+      "characterOptions": {
+        "species": [
+          { "label": "Human", "promptFragment": "a human" },
+          { "label": "Android", "promptFragment": "a humanoid android with synthetic skin and faint circuit lines" },
+          { "label": "Alien Hybrid", "promptFragment": "a human-alien hybrid with subtly unusual features" },
+          { "label": "Clone", "promptFragment": "a genetically engineered clone with perfect symmetry" },
+          { "label": "Cyborg", "promptFragment": "a cyborg with visible mechanical augmentations" }
+        ],
+        "build": [
+          { "label": "Lean", "promptFragment": "lean and agile" },
+          { "label": "Average", "promptFragment": "standard build" },
+          { "label": "Augmented", "promptFragment": "heavily augmented and imposing" },
+          { "label": "Compact", "promptFragment": "compact and efficient" }
+        ],
+        "hair": [
+          { "label": "Black", "promptFragment": "with black hair" },
+          { "label": "Silver", "promptFragment": "with metallic silver hair" },
+          { "label": "Blue-tinted", "promptFragment": "with blue-tinted hair" },
+          { "label": "Shaved", "promptFragment": "with a shaved head" },
+          { "label": "None (Android)", "promptFragment": "with a smooth, hairless head" }
+        ],
+        "distinguishingFeature": [
+          { "label": "None", "promptFragment": "" },
+          { "label": "Cybernetic eye", "promptFragment": "with one glowing cybernetic eye" },
+          { "label": "Bio-luminescent markings", "promptFragment": "with faint bio-luminescent markings on the skin" },
+          { "label": "Prosthetic arm", "promptFragment": "with a sleek mechanical prosthetic arm" },
+          { "label": "Neural port", "promptFragment": "with a visible neural interface port on the temple" }
+        ]
+      }
     },
     {
       "id": "detective",
@@ -46,7 +135,36 @@
       "startingStats": { "hp": 80, "maxHp": 80, "gold": 50, "reputation": 10, "strength": 8, "dexterity": 10, "intelligence": 14, "charisma": 12 },
       "startingInventory": [{ "id": "notebook", "name": "Detective's Notebook", "type": "tool", "description": "Worn leather, pages half-filled" }],
       "imageStyleHint": "noir art, rain-slicked streets, dramatic shadows, muted warm tones, cinematic",
-      "tier": "pro"
+      "tier": "pro",
+      "characterOptions": {
+        "archetype": [
+          { "label": "Former Cop", "promptFragment": "a former police detective" },
+          { "label": "Private Eye", "promptFragment": "a grizzled private investigator" },
+          { "label": "Federal Agent", "promptFragment": "a sharp federal agent" },
+          { "label": "Forensic Analyst", "promptFragment": "a meticulous forensic analyst" },
+          { "label": "Rookie", "promptFragment": "a fresh-faced rookie detective" }
+        ],
+        "build": [
+          { "label": "Lean", "promptFragment": "lean and sharp-featured" },
+          { "label": "Average", "promptFragment": "average build" },
+          { "label": "Stocky", "promptFragment": "stocky and broad" },
+          { "label": "Tall", "promptFragment": "tall and lanky" }
+        ],
+        "hair": [
+          { "label": "Black", "promptFragment": "with slicked-back black hair" },
+          { "label": "Brown", "promptFragment": "with tousled brown hair" },
+          { "label": "Grey", "promptFragment": "with distinguished grey hair" },
+          { "label": "Blonde", "promptFragment": "with short blonde hair" },
+          { "label": "Shaved", "promptFragment": "with a close-shaved head" }
+        ],
+        "distinguishingFeature": [
+          { "label": "None", "promptFragment": "" },
+          { "label": "Trench coat", "promptFragment": "always wearing a worn trench coat" },
+          { "label": "Fedora", "promptFragment": "wearing a battered fedora" },
+          { "label": "Perpetual stubble", "promptFragment": "with perpetual five o'clock shadow" },
+          { "label": "Reading glasses", "promptFragment": "often peering over reading glasses" }
+        ]
+      }
     },
     {
       "id": "postapoc",
@@ -58,7 +176,36 @@
       "startingStats": { "hp": 75, "maxHp": 75, "gold": 5, "reputation": 0, "strength": 12, "dexterity": 12, "intelligence": 8, "charisma": 8 },
       "startingInventory": [{ "id": "knife", "name": "Rusty Knife", "type": "weapon", "description": "Dull but better than nothing" }],
       "imageStyleHint": "post-apocalyptic art, ruined cities, dust and rust, harsh sunlight, desolate and gritty",
-      "tier": "pro"
+      "tier": "pro",
+      "characterOptions": {
+        "origin": [
+          { "label": "Vault Dweller", "promptFragment": "a vault dweller blinking in the sunlight" },
+          { "label": "Wasteland Nomad", "promptFragment": "a sun-hardened wasteland nomad" },
+          { "label": "Former Soldier", "promptFragment": "a former soldier with a thousand-yard stare" },
+          { "label": "Scavenger", "promptFragment": "a resourceful scavenger in patchwork gear" },
+          { "label": "Farmer", "promptFragment": "a weathered farmer turned survivor" }
+        ],
+        "build": [
+          { "label": "Wiry", "promptFragment": "wiry and tough" },
+          { "label": "Gaunt", "promptFragment": "gaunt from rationed food" },
+          { "label": "Sturdy", "promptFragment": "sturdy and battle-worn" },
+          { "label": "Muscular", "promptFragment": "muscular from hard labor" }
+        ],
+        "hair": [
+          { "label": "Black", "promptFragment": "with matted black hair" },
+          { "label": "Brown", "promptFragment": "with dusty brown hair" },
+          { "label": "Shaved", "promptFragment": "with a shaved head" },
+          { "label": "Grey", "promptFragment": "with prematurely grey hair" },
+          { "label": "Dreadlocks", "promptFragment": "with tangled dreadlocks" }
+        ],
+        "distinguishingFeature": [
+          { "label": "None", "promptFragment": "" },
+          { "label": "Radiation burns", "promptFragment": "with patchy radiation burns on one side of the face" },
+          { "label": "Gas mask", "promptFragment": "always carrying a dented gas mask" },
+          { "label": "Mechanical arm", "promptFragment": "with a crude mechanical arm replacement" },
+          { "label": "War paint", "promptFragment": "with streaks of tribal war paint" }
+        ]
+      }
     },
     {
       "id": "pirate",
@@ -70,7 +217,36 @@
       "startingStats": { "hp": 100, "maxHp": 100, "gold": 15, "reputation": -5, "strength": 12, "dexterity": 12, "intelligence": 8, "charisma": 10 },
       "startingInventory": [{ "id": "cutlass", "name": "Cutlass", "type": "weapon", "description": "Notched blade, good balance" }],
       "imageStyleHint": "pirate art, tropical seas, wooden ships, golden sunlight, adventure illustration style",
-      "tier": "pro"
+      "tier": "pro",
+      "characterOptions": {
+        "origin": [
+          { "label": "Navy Deserter", "promptFragment": "a navy deserter with military bearing" },
+          { "label": "Merchant's Child", "promptFragment": "a merchant's child turned pirate" },
+          { "label": "Island Native", "promptFragment": "an island native with sun-darkened skin" },
+          { "label": "Stowaway", "promptFragment": "a former stowaway, scrappy and quick" },
+          { "label": "Mutineer", "promptFragment": "a notorious mutineer" }
+        ],
+        "build": [
+          { "label": "Lean", "promptFragment": "lean and sun-tanned" },
+          { "label": "Average", "promptFragment": "average build" },
+          { "label": "Burly", "promptFragment": "burly and barrel-chested" },
+          { "label": "Wiry", "promptFragment": "wiry and quick on their feet" }
+        ],
+        "hair": [
+          { "label": "Black", "promptFragment": "with long black hair tied back" },
+          { "label": "Brown", "promptFragment": "with wild brown curls" },
+          { "label": "Red", "promptFragment": "with fiery red hair" },
+          { "label": "Blonde", "promptFragment": "with sun-bleached blonde hair" },
+          { "label": "Shaved", "promptFragment": "with a shaved head" }
+        ],
+        "distinguishingFeature": [
+          { "label": "None", "promptFragment": "" },
+          { "label": "Peg leg", "promptFragment": "walking on a wooden peg leg" },
+          { "label": "Hook hand", "promptFragment": "with a gleaming hook for a hand" },
+          { "label": "Gold tooth", "promptFragment": "flashing a gold tooth when grinning" },
+          { "label": "Parrot companion", "promptFragment": "with a colorful parrot perched on one shoulder" }
+        ]
+      }
     }
   ]
 }

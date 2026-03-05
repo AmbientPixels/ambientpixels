@@ -145,6 +145,7 @@
       selectedGenre = genres.find(function (g) { return g.id === card.dataset.genre; });
       UI.$('startAdventureBtn').disabled = false;
       UI.$('advApp').setAttribute('data-genre', selectedGenre.id);
+      showCharacterCreator(selectedGenre);
     });
   }
 
@@ -160,6 +161,8 @@
       document.querySelectorAll('.adv-genre-card').forEach(function (c) {
         c.classList.remove('adv-genre-card--selected');
       });
+      var creator = UI.$('characterCreator');
+      if (creator) creator.style.display = 'none';
       UI.showScreen('screenGenreSelect');
     });
 
@@ -198,6 +201,68 @@
     });
   }
 
+  // --- Character Creator ---
+  function showCharacterCreator(genre) {
+    var creator = UI.$('characterCreator');
+    var container = UI.$('charOptionsContainer');
+    if (!genre || !genre.characterOptions || Object.keys(genre.characterOptions).length === 0) {
+      if (creator) creator.style.display = 'none';
+      return;
+    }
+    creator.style.display = '';
+    var keys = Object.keys(genre.characterOptions);
+    container.innerHTML = keys.map(function (key) {
+      var opts = genre.characterOptions[key];
+      var label = key.replace(/([A-Z])/g, ' $1').replace(/^./, function (s) { return s.toUpperCase(); });
+      return '<div class="adv-char-creator__field">' +
+        '<label class="adv-char-creator__label">' + label + '</label>' +
+        '<select class="adv-char-creator__select" data-char-key="' + key + '">' +
+        opts.map(function (opt, i) {
+          return '<option value="' + i + '">' + UI.escapeHtml(opt.label) + '</option>';
+        }).join('') +
+        '</select></div>';
+    }).join('');
+    container.querySelectorAll('.adv-char-creator__select').forEach(function (sel) {
+      sel.addEventListener('change', updateCharacterPreview);
+    });
+    updateCharacterPreview();
+  }
+
+  function updateCharacterPreview() {
+    var preview = UI.$('charPreviewText');
+    if (!preview) return;
+    var desc = buildCharacterDescription();
+    preview.textContent = desc || '';
+  }
+
+  function buildCharacterDescription() {
+    if (!selectedGenre || !selectedGenre.characterOptions) return '';
+    var parts = [];
+    document.querySelectorAll('.adv-char-creator__select').forEach(function (sel) {
+      var key = sel.dataset.charKey;
+      var idx = parseInt(sel.value, 10);
+      var opts = selectedGenre.characterOptions[key];
+      if (opts && opts[idx] && opts[idx].promptFragment) {
+        parts.push(opts[idx].promptFragment);
+      }
+    });
+    return parts.join(', ');
+  }
+
+  function collectCharacterSelections() {
+    if (!selectedGenre || !selectedGenre.characterOptions) return null;
+    var selections = {};
+    document.querySelectorAll('.adv-char-creator__select').forEach(function (sel) {
+      var key = sel.dataset.charKey;
+      var idx = parseInt(sel.value, 10);
+      var opts = selectedGenre.characterOptions[key];
+      if (opts && opts[idx]) {
+        selections[key] = { label: opts[idx].label, promptFragment: opts[idx].promptFragment };
+      }
+    });
+    return { selections: selections, description: buildCharacterDescription() };
+  }
+
   // --- Start Adventure ---
   function startAdventure() {
     if (!selectedGenre || isProcessing) return;
@@ -221,8 +286,9 @@
 
     var nameInput = UI.$('playerNameInput');
     var playerName = (nameInput.value || '').trim() || RPG.generateName();
+    var characterAppearance = collectCharacterSelections();
 
-    gameState = RPG.createState(selectedGenre, playerName);
+    gameState = RPG.createState(selectedGenre, playerName, characterAppearance);
     isProcessing = true;
 
     UI.showScreen('screenPlay');
@@ -233,7 +299,7 @@
 
     AI.incrementUsage();
 
-    AI.generateOpeningScene(selectedGenre, playerName)
+    AI.generateOpeningScene(selectedGenre, playerName, gameState.character)
       .then(function (scene) {
         currentScene = scene;
         gameState.turnCount = 1;
@@ -462,7 +528,8 @@
     }
 
     showImagePlaceholder();
-    AI.generateSceneImage(imagePrompt, selectedGenre)
+    var charDesc = (gameState && gameState.character) ? gameState.character.description : '';
+    AI.generateSceneImage(imagePrompt, selectedGenre, charDesc)
       .then(function (dataUrl) {
         if (dataUrl) {
           var img = UI.$('sceneImage');

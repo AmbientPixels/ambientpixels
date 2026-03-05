@@ -467,6 +467,88 @@
   white-space: nowrap;
 }
 
+/* --- Character Creator --- */
+.adv-char-creator {
+  margin-top: 1.5rem;
+  padding: 1.25rem 1.5rem;
+  background: rgba(15, 25, 40, 0.6);
+  border: 1px solid rgba(122, 143, 224, 0.08);
+  border-radius: 12px;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+  animation: adv-fadeSlideIn 0.3s ease both;
+}
+
+.adv-char-creator__title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(216, 224, 229, 0.5);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.adv-char-creator__title i {
+  color: var(--adv-accent, #7B8FE0);
+}
+
+.adv-char-creator__options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.adv-char-creator__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.adv-char-creator__label {
+  font-size: 0.75rem;
+  color: rgba(216, 224, 229, 0.5);
+  font-weight: 500;
+}
+
+.adv-char-creator__select {
+  background: rgba(15, 25, 40, 0.8);
+  border: 1px solid rgba(122, 143, 224, 0.15);
+  border-radius: 8px;
+  padding: 0.5rem 2rem 0.5rem 0.75rem;
+  color: var(--dark-text, #D8E0E5);
+  font-size: 0.85rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%237B8FE0' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.6rem center;
+}
+
+.adv-char-creator__select:hover,
+.adv-char-creator__select:focus {
+  border-color: rgba(122, 143, 224, 0.3);
+  outline: none;
+}
+
+.adv-char-creator__preview {
+  margin-top: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  background: rgba(122, 143, 224, 0.05);
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-style: italic;
+  color: rgba(216, 224, 229, 0.6);
+  line-height: 1.5;
+  min-height: 1.5rem;
+}
+
 .adv-journal__choice i {
   font-size: 0.6rem;
   margin-right: 0.15rem;

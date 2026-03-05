@@ -12,8 +12,8 @@ window.AdventureAI = (function () {
   var DAILY_LIMIT = 15; // adventures per day
 
   // --- Generate opening scene ---
-  function generateOpeningScene(genre, playerName) {
-    var prompt = buildOpeningPrompt(genre, playerName);
+  function generateOpeningScene(genre, playerName, character) {
+    var prompt = buildOpeningPrompt(genre, playerName, character);
     return callTextAPIWithRetry(prompt);
   }
 
@@ -31,6 +31,7 @@ window.AdventureAI = (function () {
       '- Genre: ' + genre.name + '\n' +
       '- Turn: ' + state.turnCount + '/' + state.maxTurns + '\n' +
       '- Player: ' + state.playerName + '\n' +
+      ((state.character && state.character.description) ? '- Appearance: ' + state.character.description + '\n' : '') +
       '- HP: ' + state.stats.hp + '/' + state.stats.maxHp + '\n' +
       '- Inventory: ' + (state.inventory.length ? state.inventory.map(function (i) { return i.name; }).join(', ') : 'empty') + '\n' +
       '- Companions: ' + (state.companions.length ? state.companions.map(function (c) { return c.name; }).join(', ') : 'none') + '\n' +
@@ -48,9 +49,11 @@ window.AdventureAI = (function () {
   }
 
   // --- Generate scene image ---
-  function generateSceneImage(imagePrompt, genre) {
+  function generateSceneImage(imagePrompt, genre, characterDesc) {
+    var charClause = characterDesc ? 'The protagonist is ' + characterDesc + '. ' : '';
     var fullPrompt = 'Create a single illustration for an interactive adventure game scene. ' +
       'Style: ' + (genre.imageStyleHint || 'fantasy illustration') + '. ' +
+      charClause +
       'Scene: ' + imagePrompt + '. ' +
       'No text, no UI elements, no borders. Wide landscape format. Atmospheric and immersive.';
 
@@ -58,10 +61,12 @@ window.AdventureAI = (function () {
   }
 
   // --- Build opening prompt ---
-  function buildOpeningPrompt(genre, playerName) {
+  function buildOpeningPrompt(genre, playerName, character) {
+    var charLine = (character && character.description) ? 'CHARACTER APPEARANCE: ' + playerName + ' is ' + character.description + '\n' : '';
     return genre.genrePrompt + '\n\n' +
       'Generate the OPENING SCENE of a new adventure.\n\n' +
       'PLAYER: ' + playerName + '\n' +
+      charLine +
       'GENRE: ' + genre.name + '\n' +
       'TURN: 1/25\n\n' +
       'RULES:\n' +
@@ -92,6 +97,7 @@ window.AdventureAI = (function () {
       '- Genre: ' + genre.name + '\n' +
       '- Turn: ' + (state.turnCount + 1) + '/' + state.maxTurns + '\n' +
       '- Player: ' + state.playerName + '\n' +
+      ((state.character && state.character.description) ? '- Appearance: ' + state.character.description + '\n' : '') +
       '- HP: ' + state.stats.hp + '/' + state.stats.maxHp + '\n' +
       '- Gold: ' + state.stats.gold + '\n' +
       '- Reputation: ' + state.stats.reputation + '\n' +

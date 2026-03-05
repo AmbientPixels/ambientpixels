@@ -8,11 +8,12 @@ window.AdventureRPG = (function () {
   var MAX_COMPANIONS = 2;
 
   // --- Create fresh game state from genre config ---
-  function createState(genre, playerName) {
+  function createState(genre, playerName, characterAppearance) {
     var s = genre.startingStats;
     return {
       playerName: playerName || generateName(),
       genre: genre.id,
+      character: characterAppearance || null,
       stats: {
         hp: s.hp,
         maxHp: s.maxHp,
