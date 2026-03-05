@@ -339,23 +339,23 @@
       "allowedRoles": ["anonymous"]
     },
     {
-      "route": "/api/adventuresave",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/adventuresave",
+      "route": "/api/storyforgesave",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/storyforgesave",
       "allowedRoles": ["anonymous"]
     },
     {
-      "route": "/api/adventureload",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/adventureload",
+      "route": "/api/storyforgeload",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/storyforgeload",
       "allowedRoles": ["anonymous"]
     },
     {
-      "route": "/api/adventuregallery",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/adventuregallery",
+      "route": "/api/storyforgegallery",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/storyforgegallery",
       "allowedRoles": ["anonymous"]
     },
     {
-      "route": "/api/adventureshare",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/adventureshare",
+      "route": "/api/storyforgeshare",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/storyforgeshare",
       "allowedRoles": ["anonymous"]
     },
     {
@@ -363,29 +363,29 @@
       "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/{path}"
     },
     {
-      "route": "/adventure/css/*",
+      "route": "/storyforge/css/*",
       "allowedRoles": ["anonymous"],
       "headers": {
         "Cache-Control": "public, max-age=604800, immutable"
       }
     },
     {
-      "route": "/adventure/js/*",
+      "route": "/storyforge/js/*",
       "allowedRoles": ["anonymous"],
       "headers": {
         "Cache-Control": "public, max-age=86400"
       }
     },
     {
-      "route": "/adventure/data/*",
+      "route": "/storyforge/data/*",
       "allowedRoles": ["anonymous"]
     },
     {
-      "route": "/adventure/gallery.html",
+      "route": "/storyforge/gallery.html",
       "allowedRoles": ["anonymous"]
     },
     {
-      "route": "/adventure/*",
+      "route": "/storyforge/*",
       "allowedRoles": ["authenticated"]
     },
     {

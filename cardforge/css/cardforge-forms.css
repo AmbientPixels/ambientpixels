@@ -142,45 +142,132 @@
   border-radius: 6px;
 }
 
-/* Display-only buff row elements */
-.badge-label-display {
-  font-weight: 600;
-  font-size: 0.82rem;
-  color: var(--mood-primary-color, #e1e1ff);
-  white-space: nowrap;
-  min-width: 100px;
+/* Buff row elements */
+.micro-row .badge-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
 }
-.badge-label-display i {
-  margin-right: 6px;
+.micro-row .badge-icon-preview {
+  font-size: 0.9rem;
   opacity: 0.8;
+  flex-shrink: 0;
+  width: 20px;
+  text-align: center;
+}
+.micro-row .badge-category-select {
+  flex: 1;
+  min-width: 0;
+  padding: 4px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  background: var(--aura-bg-color, #1a1a2e);
+  color: var(--mood-primary-color, #e1e1ff);
+  font-family: inherit;
+  font-size: 0.78rem;
+}
+.micro-row .badge-card-body {
+  display: none; /* Description hidden in compact row — shown via tooltip */
 }
 .badge-desc-display {
-  flex: 1;
   font-size: 0.75rem;
   color: var(--mood-text-secondary, #a0a0c0);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
-.badge-qty-label {
-  font-size: 0.7rem;
-  color: var(--mood-text-secondary, #a0a0c0);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+.micro-row .badge-card-count {
+  flex-shrink: 0;
+  margin-left: auto;
 }
-.micro-row .badge-count-display {
+.badge-qty-display {
   font-weight: 700;
   font-size: 0.85rem;
   color: var(--mood-accent-color, #7b2fff);
-  min-width: 16px;
+  min-width: 20px;
   text-align: center;
 }
-.micro-row .badge-card-count {
+/* ×N multiplier on card display */
+.badge-qty-multiplier {
+  font-size: 0.65em;
+  font-weight: 700;
+  color: var(--mood-accent-color, #7b2fff);
+  margin-left: 2px;
+  vertical-align: super;
+}
+
+/* Buff empty state — shown when no buffs assigned */
+.buff-empty-state {
+  text-align: center;
+  padding: 1.2rem 1rem;
+  border: 1px dashed rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.015);
+}
+.buff-empty-state__icon {
+  font-size: 1.5rem;
+  color: var(--mood-accent-color, #7b2fff);
+  opacity: 0.5;
+  margin-bottom: 0.5rem;
+}
+.buff-empty-state__text {
+  font-size: 0.85rem;
+  color: var(--mood-primary-color, #e1e1ff);
+  margin: 0 0 0.3rem;
+}
+.buff-empty-state__hint {
+  font-size: 0.72rem;
+  color: var(--mood-text-secondary, #a0a0c0);
+  margin: 0 0 0.6rem;
+  line-height: 1.4;
+}
+.buff-empty-state__progress {
   display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.buff-progress-chip {
+  display: inline-flex;
   align-items: center;
   gap: 4px;
+  padding: 3px 8px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--mood-primary-color, #e1e1ff);
+  background: rgba(123, 47, 255, 0.1);
+  border: 1px solid rgba(123, 47, 255, 0.2);
+  border-radius: 12px;
+}
+.buff-progress-chip i {
+  font-size: 0.6rem;
+  opacity: 0.7;
+}
+
+/* Effect progression banner — shown above effect panels when locked effects exist */
+.effect-progression-banner {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0.6rem 0.8rem;
+  margin-bottom: 0.8rem;
+  border: 1px dashed rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.015);
+}
+.effect-progression-banner__icon {
+  font-size: 0.75rem;
+  color: var(--mood-accent-color, #7b2fff);
+  opacity: 0.6;
+}
+.effect-progression-banner__text {
+  font-size: 0.72rem;
+  color: var(--mood-text-secondary, #a0a0c0);
+}
+.effect-progression-banner__stats {
+  display: flex;
+  gap: 6px;
   margin-left: auto;
-  flex-shrink: 0;
 }
 
 /* Input Sizing Within Rows */

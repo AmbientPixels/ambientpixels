@@ -255,6 +255,25 @@
           }
         }
       }
+
+      // Buff progression info — slots, qty cap, newly unlocked buffs
+      var slotCap = SLOT_CAPS[rank] || SLOT_CAPS.bronze;
+      var qtyCap = QTY_CAPS[rank] || 1;
+      effectList += '<div class="arena-rewards__category arena-rewards__category--buffs">' +
+        '<span class="arena-rewards__cat-label">Buff Slots:</span> ' +
+        '<span class="arena-rewards__cat-effects">' + slotCap.buffs + ' slots, &times;' + qtyCap + ' max qty</span>' +
+        '</div>';
+
+      // Show which buffs unlock at this rank
+      var rankBuffs = BUFF_DEFS.filter(function (b) { return b.rank === rank; });
+      if (rankBuffs.length > 0) {
+        var buffNames = rankBuffs.map(function (b) { return b.label; }).join(', ');
+        effectList += '<div class="arena-rewards__category arena-rewards__category--buffs">' +
+          '<span class="arena-rewards__cat-label">New Buffs:</span> ' +
+          '<span class="arena-rewards__cat-effects">' + buffNames + '</span>' +
+          '</div>';
+      }
+
       if (!effectList) continue; // skip empty tiers
 
       var stateClass = isUnlocked ? 'arena-rewards__tier--unlocked' : 'arena-rewards__tier--locked';
@@ -290,7 +309,7 @@
       container.innerHTML =
         '<div class="arena-next-rank arena-next-rank--max">' +
           '<i class="fas fa-diamond" style="color:#B9F2FF"></i> ' +
-          '<span>All effects unlocked!</span>' +
+          '<span>All effects &amp; buffs unlocked!</span>' +
         '</div>';
       return;
     }
@@ -309,8 +328,24 @@
       }
     }
 
-    var preview = allEffects.slice(0, 5).join(', ');
-    if (allEffects.length > 5) preview += ', +' + (allEffects.length - 5) + ' more';
+    // Add buff progression info
+    var curSlots = SLOT_CAPS[userRank] ? SLOT_CAPS[userRank].buffs : 2;
+    var nextSlots = SLOT_CAPS[nextRank] ? SLOT_CAPS[nextRank].buffs : 2;
+    var curQty = QTY_CAPS[userRank] || 1;
+    var nextQty = QTY_CAPS[nextRank] || 1;
+    var buffUpgrades = [];
+    if (nextSlots > curSlots) buffUpgrades.push(nextSlots + ' buff slots');
+    if (nextQty > curQty) buffUpgrades.push('&times;' + nextQty + ' max qty');
+    var nextBuffs = BUFF_DEFS.filter(function (b) { return b.rank === nextRank; });
+    if (nextBuffs.length > 0) {
+      buffUpgrades.push(nextBuffs.map(function (b) { return b.label; }).join(', '));
+    }
+
+    var preview = allEffects.slice(0, 4).join(', ');
+    if (allEffects.length > 4) preview += ', +' + (allEffects.length - 4) + ' more';
+    if (buffUpgrades.length > 0) {
+      preview += (preview ? ' | ' : '') + buffUpgrades.join(', ');
+    }
 
     container.innerHTML =
       '<div class="arena-next-rank">' +

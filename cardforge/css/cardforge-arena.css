@@ -920,6 +920,12 @@
 }
 
 .arena-rewards__category { margin-bottom: 0.2rem; }
+.arena-rewards__category--buffs .arena-rewards__cat-label {
+  color: var(--mood-accent-color, #7b2fff);
+}
+.arena-rewards__category--buffs .arena-rewards__cat-effects {
+  color: var(--mood-primary-color, #e1e1ff);
+}
 
 .arena-rewards__cat-label {
   font-weight: 600;

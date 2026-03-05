@@ -1087,6 +1087,11 @@
                   <option value="color-shift">Color Shift</option>
                 </select>
 
+                <div class="effect-progression-banner" id="effect-progression-banner">
+                  <i class="fas fa-lock effect-progression-banner__icon"></i>
+                  <span class="effect-progression-banner__text">Play Arena battles to unlock more effects.</span>
+                  <span class="effect-progression-banner__stats" id="effect-progression-stats"></span>
+                </div>
                 <div class="effect-control">
                   <h5 class="level-title">Background Effect</h5>
                   <div class="effect-chips" data-target="card-bg-effect">
@@ -1337,9 +1342,14 @@
         <h3 class="cf-section-title">Buffs & Traits</h3>
         <div class="badges-panel">
           <div id="micro-editor">
-            <!-- Badge rows injected by JS with dropdown categories -->
+            <!-- Badge rows injected by JS -->
           </div>
-          <!-- Buffs are game-assigned (random roll only), no manual add -->
+          <div id="buff-empty-state" class="buff-empty-state">
+            <i class="fas fa-shield-halved buff-empty-state__icon"></i>
+            <p class="buff-empty-state__text">No buffs assigned yet.</p>
+            <p class="buff-empty-state__hint">Use <strong>Roll Character</strong> to assign buffs. Play Arena battles to unlock more buff slots, higher quantities, and new buff types.</p>
+            <div id="buff-empty-state__progress" class="buff-empty-state__progress"></div>
+          </div>
         </div>
       </div>
       

@@ -716,29 +716,31 @@
         }
       }
       
-      // Apply badges - CREATE MULTIPLE ROWS
+      // Apply badges - CREATE MULTIPLE ROWS (capped to slot limit)
       if (prefillData.badges && prefillData.badges.length > 0) {
         const badgesContainer = document.getElementById('micro-editor');
-        
+
         // Clear existing badge rows
         badgesContainer.innerHTML = '';
-        
-        // Create a row for each badge
-        prefillData.badges.forEach((badge, index) => {
-          const badgeRow = createBadgeRow(badge.category, badge.icon, badge.description, badge.quantity);
-          badgesContainer.appendChild(badgeRow);
+
+        const buffCap = getBuffSlotCap();
+        const maxQty = (window.EffectTiers && window.EffectTiers.getMaxBuffQty) ? window.EffectTiers.getMaxBuffQty() : 1;
+        prefillData.badges.slice(0, buffCap).forEach(badge => {
+          const qty = Math.min(badge.quantity || 1, maxQty);
+          badgesContainer.appendChild(createBadgeRow(badge.category, badge.icon, badge.description, qty));
         });
       }
       
-      // Apply attributes - CREATE MULTIPLE ROWS
+      // Apply attributes - CREATE MULTIPLE ROWS (capped to slot limit)
       if (prefillData.attributes && prefillData.attributes.length > 0) {
         const attributesContainer = document.getElementById('attribute-editor');
-        
+
         // Clear existing attribute rows
         attributesContainer.innerHTML = '';
-        
-        // Create a row for each attribute
-        prefillData.attributes.forEach((attribute, index) => {
+
+        // Create a row for each attribute, capped to rank-based slot limit
+        const attrCap = getAttributeSlotCap();
+        prefillData.attributes.slice(0, attrCap).forEach((attribute, index) => {
           const attributeRow = createAttributeRow(attribute.name, attribute.value);
           attributesContainer.appendChild(attributeRow);
         });
@@ -968,19 +970,28 @@
 
   function createBadgeRow(category = '', icon = 'star', description = '', quantity = 1) {
     const defs = getBuffDefs();
-    // Resolve display info from unified BUFF_DEFS
+
+    // Build dropdown — only unlocked buffs are selectable, locked ones disabled
+    const categoryOptions = defs.map(def => {
+      const selected = (category.toLowerCase() === def.key) ? 'selected' : '';
+      const locked = (window.EffectTiers && !window.EffectTiers.isBuffUnlocked(def.key)) ? ' disabled' : '';
+      const lockLabel = locked ? ' [Locked]' : '';
+      return `<option value="${def.key}" ${selected}${locked}>${def.label}${lockLabel}</option>`;
+    }).join('');
+
+    // Resolve icon from category
     const matchedDef = defs.find(d => d.key === category.toLowerCase());
     const resolvedIcon = matchedDef ? matchedDef.icon : icon;
-    const displayLabel = matchedDef ? matchedDef.label : (category.charAt(0).toUpperCase() + category.slice(1));
     const displayDesc = matchedDef ? matchedDef.description : description;
 
-    // Display-only row — buffs are game-assigned, not user-editable
     const badgeRow = document.createElement('div');
     badgeRow.className = 'micro-row';
     badgeRow.innerHTML = `
       <div class="badge-card-header">
-        <span class="badge-label-display"><i class="fas fa-${resolvedIcon}"></i> ${displayLabel}</span>
-        <input type="hidden" name="micro-category" value="${category}">
+        <span class="badge-icon-preview"><i class="fas fa-${resolvedIcon}"></i></span>
+        <select name="micro-category" class="badge-category-select" aria-label="Buff type">
+          ${categoryOptions}
+        </select>
         <input type="hidden" name="micro-icon" value="${resolvedIcon}">
         <input type="hidden" name="micro-desc" value="${displayDesc}">
         <input type="hidden" name="micro-quantity" value="${quantity}">
@@ -989,10 +1000,27 @@
         <span class="badge-desc-display">${displayDesc}</span>
       </div>
       <div class="badge-card-count">
-        <span class="badge-qty-label">Qty</span>
-        <span class="badge-count-display">${quantity}</span>
+        <span class="badge-qty-display">&times;${quantity}</span>
       </div>
     `;
+
+    const categorySelect = badgeRow.querySelector('select[name="micro-category"]');
+    const hiddenIconInput = badgeRow.querySelector('input[name="micro-icon"]');
+    const hiddenDescInput = badgeRow.querySelector('input[name="micro-desc"]');
+    const iconPreview = badgeRow.querySelector('.badge-icon-preview i');
+    const descDisplay = badgeRow.querySelector('.badge-desc-display');
+
+    // Update icon + description when user changes buff type
+    categorySelect.addEventListener('change', function() {
+      const def = getBuffDefs().find(d => d.key === this.value);
+      if (def) {
+        hiddenIconInput.value = def.icon;
+        hiddenDescInput.value = def.description;
+        iconPreview.className = `fas fa-${def.icon}`;
+        descDisplay.textContent = def.description;
+      }
+      updatePreview();
+    });
 
     return badgeRow;
   }
@@ -1132,7 +1160,38 @@
   
   // Buffs are game-assigned (via random roll), no manual add button needed
   function initBadgesEditor() {
-    // No-op — buff rows are created by random generator or card load only
+    updateBuffEmptyState();
+  }
+
+  /**
+   * Show/hide the buff empty state message based on current buff count.
+   * Also populates rank-based progression info.
+   */
+  function updateBuffEmptyState() {
+    const emptyState = document.getElementById('buff-empty-state');
+    if (!emptyState) return;
+    const editor = document.getElementById('micro-editor');
+    const hasBadges = editor && editor.querySelectorAll('.micro-row').length > 0;
+    emptyState.style.display = hasBadges ? 'none' : '';
+
+    // Populate progression summary
+    const progressEl = document.getElementById('buff-empty-state__progress');
+    if (!progressEl || !window.EffectTiers) return;
+
+    const ET = window.EffectTiers;
+    const profile = window._arenaProfile;
+    const rank = (profile && profile.rank) ? profile.rank.toLowerCase() : 'bronze';
+    const slots = ET.getSlotCap ? ET.getSlotCap('buffs') : 2;
+    const maxQty = ET.getMaxBuffQty ? ET.getMaxBuffQty() : 1;
+    const unlocked = ET.getUnlockedBuffs ? ET.getUnlockedBuffs().length : 4;
+    const total = ET.BUFF_DEFS ? ET.BUFF_DEFS.length : 10;
+    const rankLabel = ET.RANK_CONFIG && ET.RANK_CONFIG[rank] ? ET.RANK_CONFIG[rank].label : 'Bronze';
+
+    progressEl.innerHTML =
+      '<span class="buff-progress-chip"><i class="fas fa-shield-halved"></i> ' + rankLabel + '</span>' +
+      '<span class="buff-progress-chip"><i class="fas fa-layer-group"></i> ' + slots + '/4 slots</span>' +
+      '<span class="buff-progress-chip"><i class="fas fa-xmark"></i> &times;' + maxQty + ' max qty</span>' +
+      '<span class="buff-progress-chip"><i class="fas fa-unlock"></i> ' + unlocked + '/' + total + ' buffs</span>';
   }
 
   function initAttributesEditor() {
@@ -1195,20 +1254,25 @@
       });
     }
 
-    // Badges
+    // Badges (capped to slot limit + qty cap)
     const badgesContainer = document.getElementById('micro-editor');
     if (badgesContainer && cardData.badges && Array.isArray(cardData.badges)) {
       badgesContainer.innerHTML = '';
-      cardData.badges.forEach(badge => {
-        badgesContainer.appendChild(createBadgeRow(badge.category, badge.icon, badge.description, badge.quantity));
+      const buffCap = getBuffSlotCap();
+      const maxQty = (window.EffectTiers && window.EffectTiers.getMaxBuffQty) ? window.EffectTiers.getMaxBuffQty() : 1;
+      cardData.badges.slice(0, buffCap).forEach(badge => {
+        const qty = Math.min(badge.quantity || 1, maxQty);
+        badgesContainer.appendChild(createBadgeRow(badge.category, badge.icon, badge.description, qty));
       });
     }
+    updateBuffEmptyState();
 
-    // Attributes
+    // Attributes (capped to slot limit)
     const attributesContainer = document.getElementById('attribute-editor');
     if (attributesContainer && cardData.attributes && Array.isArray(cardData.attributes)) {
       attributesContainer.innerHTML = '';
-      cardData.attributes.forEach(attribute => {
+      const attrCap = getAttributeSlotCap();
+      cardData.attributes.slice(0, attrCap).forEach(attribute => {
         attributesContainer.appendChild(createAttributeRow(attribute.name, attribute.value));
       });
     }
@@ -1687,8 +1751,36 @@
       });
     }
 
-    // Attributes are NOT randomly generated — leave custom attributes for the user to add manually
-    
+    // Hide buff empty state after generation
+    updateBuffEmptyState();
+
+    // Generate random attributes — fills exactly the rank-based slot cap
+    const attributeNames = ['Strength', 'Agility', 'Intelligence', 'Wisdom', 'Stealth', 'Dexterity',
+      'Courage', 'Focus', 'Reflexes', 'Leadership', 'Honor', 'Cunning', 'Tech', 'Nature Lore',
+      'Combat', 'Resilience', 'Reputation', 'Constitution', 'Research', 'Tactics'];
+    const attributeTextValues = ['Expert', 'Masterful', 'Legendary', 'Respected', 'Unbreakable', 'Blessed', 'Renowned'];
+    const attributesContainer = document.getElementById('attribute-editor');
+    const attrSlots = getAttributeSlotCap();
+    if (attributesContainer) {
+      const usedNames = [];
+      for (let i = 0; i < attrSlots; i++) {
+        let attrName;
+        do { attrName = pick(attributeNames); } while (usedNames.includes(attrName) && usedNames.length < attributeNames.length);
+        usedNames.push(attrName);
+        // Mix numeric and text values
+        const attrValue = Math.random() < 0.3
+          ? pick(attributeTextValues)
+          : String(Math.floor(Math.random() * 13) + 8); // 8-20 range
+        attributesContainer.appendChild(createAttributeRow(attrName, attrValue));
+      }
+      // Disable add button if at cap
+      const addAttrBtn = document.getElementById('add-attribute-btn');
+      if (addAttrBtn && attrSlots >= getAttributeSlotCap()) {
+        addAttrBtn.classList.add('disabled');
+        addAttrBtn.title = `Maximum ${attrSlots} attributes reached`;
+      }
+    }
+
   }
   
   // ===== RANDOM IMAGE GENERATOR =====
@@ -1921,12 +2013,15 @@
       }
     }
     
-    // Populate badges
+    // Populate badges (capped to slot limit + qty cap)
     if (sampleData.badges && sampleData.badges.length > 0) {
       const badgesContainer = document.getElementById('micro-editor');
       if (badgesContainer) {
-        sampleData.badges.forEach(badge => {
-          const badgeRow = createMicroBadgeRow(badge.category, badge.icon, badge.description, badge.quantity);
+        const buffCap = getBuffSlotCap();
+        const maxQty = (window.EffectTiers && window.EffectTiers.getMaxBuffQty) ? window.EffectTiers.getMaxBuffQty() : 1;
+        sampleData.badges.slice(0, buffCap).forEach(badge => {
+          const qty = Math.min(badge.quantity || 1, maxQty);
+          const badgeRow = createMicroBadgeRow(badge.category, badge.icon, badge.description, qty);
           badgesContainer.appendChild(badgeRow);
         });
       } else {
@@ -1934,11 +2029,12 @@
       }
     }
     
-    // Populate attributes
+    // Populate attributes (capped to slot limit)
     if (sampleData.attributes && sampleData.attributes.length > 0) {
       const attributesContainer = document.getElementById('attribute-editor');
       if (attributesContainer) {
-        sampleData.attributes.forEach(attribute => {
+        const attrCap = getAttributeSlotCap();
+        sampleData.attributes.slice(0, attrCap).forEach(attribute => {
           const attributeRow = createAttributeRow(attribute.name, attribute.value);
           attributesContainer.appendChild(attributeRow);
         });
@@ -1962,11 +2058,12 @@
       statsContainer.innerHTML = '';
     }
     
-    // Clear badges
+    // Clear badges + show empty state
     const badgesContainer = document.getElementById('micro-editor');
     if (badgesContainer) {
       badgesContainer.innerHTML = '';
     }
+    updateBuffEmptyState();
     
     // Clear attributes and re-enable Add button
     const attributesContainer = document.getElementById('attribute-editor');
@@ -3308,11 +3405,6 @@
       const iconClass = iconMap[badge.icon] || 'fas fa-award';
       const quantity = badge.quantity || 1;
 
-      // Create multiple icons within a single badge item
-      const icons = Array.from({ length: quantity }, () =>
-        `<i class="${iconClass}"></i>`
-      ).join('');
-
       // Resolve display label from unified BUFF_DEFS (category may be a key like 'fury')
       const defs = getBuffDefs();
       const def = defs.find(d => d.key === badge.category.toLowerCase());
@@ -3321,7 +3413,7 @@
       return `
         <div class="badge-item" title="${badge.description || displayLabel}">
           <div class="badge-icon">
-            ${icons}
+            <i class="${iconClass}"></i>${quantity > 1 ? `<span class="badge-qty-multiplier">&times;${quantity}</span>` : ''}
           </div>
           <div class="badge-label">${displayLabel}</div>
         </div>
@@ -3776,6 +3868,56 @@
         option.title = 'Reach ' + window.EffectTiers.getRankLabel(tier) + ' to unlock';
       }
     });
+
+    // Update effects progression banner
+    updateEffectProgressionBanner();
+  }
+
+  /**
+   * Show a progression banner above the effects panels with unlock stats.
+   * Hidden if all effects are unlocked (Diamond / Pro).
+   */
+  function updateEffectProgressionBanner() {
+    var banner = document.getElementById('effect-progression-banner');
+    if (!banner || !window.EffectTiers) return;
+
+    var ET = window.EffectTiers;
+    var profile = window._arenaProfile;
+    var rank = (profile && profile.rank) ? profile.rank.toLowerCase() : 'bronze';
+    var rankLabel = ET.RANK_CONFIG && ET.RANK_CONFIG[rank] ? ET.RANK_CONFIG[rank].label : 'Bronze';
+
+    // Count unlocked vs total across all categories
+    var categories = ['bg', 'border', 'glow', 'imageFilter', 'overlay'];
+    var totalEffects = 0;
+    var unlockedEffects = 0;
+    for (var i = 0; i < categories.length; i++) {
+      var cat = categories[i];
+      var TIERS = ET.EFFECT_TIERS;
+      for (var r = 0; r < ET.RANK_ORDER.length; r++) {
+        var effects = TIERS[ET.RANK_ORDER[r]][cat];
+        if (effects) {
+          for (var e = 0; e < effects.length; e++) {
+            if (effects[e] === 'none') continue;
+            totalEffects++;
+            if (ET.isEffectUnlocked(cat, effects[e])) unlockedEffects++;
+          }
+        }
+      }
+    }
+
+    // Hide banner if all unlocked
+    if (unlockedEffects >= totalEffects) {
+      banner.style.display = 'none';
+      return;
+    }
+    banner.style.display = '';
+
+    var statsEl = document.getElementById('effect-progression-stats');
+    if (statsEl) {
+      statsEl.innerHTML =
+        '<span class="buff-progress-chip"><i class="fas fa-shield-halved"></i> ' + rankLabel + '</span>' +
+        '<span class="buff-progress-chip"><i class="fas fa-unlock"></i> ' + unlockedEffects + '/' + totalEffects + ' effects</span>';
+    }
   }
 
   // ===== BIOGRAPHY TRUNCATION DETECTION =====
@@ -3789,6 +3931,13 @@
       bioText.classList.remove('is-truncated');
     }
   }
+
+  // Hook into updateFrontFace — check overflow after stats render
+  const _origUpdateFrontFace = updateFrontFace;
+  updateFrontFace = function(data) {
+    _origUpdateFrontFace(data);
+    checkCardOverflow();
+  };
 
   // Hook into updateBackFace — check overflow + bio truncation after rendering
   const _origUpdateBackFace = updateBackFace;
