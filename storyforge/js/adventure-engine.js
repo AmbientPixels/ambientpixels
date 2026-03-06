@@ -805,6 +805,96 @@
       });
   }
 
+  // --- Loading text cycling ---
+  var GENRE_LOADING_MESSAGES = {
+    fantasy: [
+      'Ancient runes shimmer in the darkness...',
+      'The mist parts to reveal a new path...',
+      'Magic weaves the world into being...',
+      'A distant horn echoes through the valley...',
+      'The tapestry of fate unfolds...'
+    ],
+    horror: [
+      'Something stirs in the shadows...',
+      'The floorboards creak beneath unseen weight...',
+      'A cold breath brushes your neck...',
+      'The lights flicker and dim...',
+      'Silence falls — too silent...'
+    ],
+    scifi: [
+      'Scanning dimensional frequencies...',
+      'Quantum field stabilizing...',
+      'Neural link synchronizing...',
+      'Rendering holographic environment...',
+      'Calibrating sensory array...'
+    ],
+    detective: [
+      'Piecing together the evidence...',
+      'A clue catches your eye...',
+      'The city hums with secrets...',
+      'Smoke curls under the lamplight...',
+      'The plot thickens...'
+    ],
+    postapoc: [
+      'Static crackles across the wasteland...',
+      'Dust settles on the ruins...',
+      'A signal breaks through the interference...',
+      'The Geiger counter ticks softly...',
+      'Shadows shift between the wreckage...'
+    ],
+    pirate: [
+      'The horizon shimmers with promise...',
+      'Salt spray fills the air...',
+      'The compass needle spins and settles...',
+      'Waves crash against the hull...',
+      'A new heading is charted...'
+    ]
+  };
+
+  var GENRE_LOADING_ICONS = {
+    fantasy: 'fa-dragon',
+    horror: 'fa-ghost',
+    scifi: 'fa-rocket',
+    detective: 'fa-magnifying-glass',
+    postapoc: 'fa-radiation',
+    pirate: 'fa-skull-crossbones'
+  };
+
+  var loadingTextInterval = null;
+
+  function startLoadingTextCycle() {
+    stopLoadingTextCycle();
+    var genreId = selectedGenre ? selectedGenre.id : null;
+    var messages = (genreId && GENRE_LOADING_MESSAGES[genreId]) || ['Generating scene...'];
+    var icon = (genreId && GENRE_LOADING_ICONS[genreId]) || 'fa-image';
+
+    // Set genre icon
+    var iconEl = UI.$('loadingIcon');
+    if (iconEl) iconEl.className = 'fas ' + icon;
+
+    var textEl = UI.$('loadingText');
+    if (!textEl) return;
+    var idx = Math.floor(Math.random() * messages.length);
+    textEl.textContent = messages[idx];
+    textEl.classList.remove('adv-loading-text--fade');
+
+    loadingTextInterval = setInterval(function () {
+      textEl.classList.add('adv-loading-text--fade');
+      setTimeout(function () {
+        idx = (idx + 1) % messages.length;
+        textEl.textContent = messages[idx];
+        textEl.classList.remove('adv-loading-text--fade');
+      }, 400);
+    }, 2500);
+  }
+
+  function stopLoadingTextCycle() {
+    if (loadingTextInterval) {
+      clearInterval(loadingTextInterval);
+      loadingTextInterval = null;
+    }
+  }
+
   // --- Image ---
   function generateAndShowImage(imagePrompt) {
     // Image frequency gating: free tier gets images every 2 turns
@@ -825,6 +915,7 @@
         if (dataUrl) {
           var img = UI.$('sceneImage');
           img.onload = function () {
+            stopLoadingTextCycle();
             img.classList.add('adv-scene__image--loaded');
             UI.$('sceneImagePlaceholder').style.display = 'none';
           };
@@ -835,6 +926,7 @@
           }
         } else {
           // Show "unavailable" state instead of infinite spinner
+          stopLoadingTextCycle();
           var placeholder = UI.$('sceneImagePlaceholder');
           placeholder.innerHTML = '<i class="fas fa-image"></i><span>Image unavailable</span>';
         }
@@ -845,7 +937,10 @@
     var img = UI.$('sceneImage');
     img.classList.remove('adv-scene__image--loaded');
     img.src = '';
-    UI.$('sceneImagePlaceholder').style.display = '';
+    var placeholder = UI.$('sceneImagePlaceholder');
+    placeholder.innerHTML = '<i class="fas fa-image" id="loadingIcon"></i><span class="adv-loading-text" id="loadingText">Generating scene...</span>';
+    placeholder.style.display = '';
+    startLoadingTextCycle();
   }
 
   // --- Update Sidebar ---

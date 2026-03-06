@@ -174,3 +174,234 @@
 .adv-scene__progress-fill {
   background: linear-gradient(90deg, var(--adv-accent, #7B8FE0), var(--nebulight-accent, #6a11cb));
 }
+
+/* ── Scene Image Loading Effects ── */
+
+/* Enhanced image reveal: fade + subtle zoom */
+.adv-scene__image {
+  transform: scale(1.03);
+  transition: opacity 0.8s ease, transform 0.8s ease;
+}
+
+.adv-scene__image--loaded {
+  transform: scale(1);
+}
+
+/* Loading text cycle */
+.adv-loading-text {
+  display: block;
+  min-height: 1.4em;
+  font-style: italic;
+  font-size: 0.85rem;
+  color: rgba(216, 224, 229, 0.45);
+  transition: opacity 0.4s ease;
+}
+
+.adv-loading-text--fade {
+  opacity: 0;
+}
+
+/* Shared placeholder pseudo-element base */
+.adv-scene__image-placeholder::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.adv-scene__image-placeholder > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ── Fantasy: Drifting mist ── */
+[data-genre="fantasy"] .adv-scene__image-placeholder::before {
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(123, 143, 224, 0.15) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 50%, rgba(123, 143, 224, 0.1) 0%, transparent 50%);
+  animation: adv-fantasyMist 6s ease-in-out infinite alternate;
+}
+
+[data-genre="fantasy"] .adv-scene__image-placeholder::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 60% 40%, rgba(123, 143, 224, 0.12) 0%, transparent 55%);
+  animation: adv-fantasyMist 8s ease-in-out infinite alternate-reverse;
+}
+
+@keyframes adv-fantasyMist {
+  0% { transform: translateX(-8%) scale(1); opacity: 0.4; }
+  50% { transform: translateX(4%) scale(1.05); opacity: 0.8; }
+  100% { transform: translateX(8%) scale(1); opacity: 0.5; }
+}
+
+/* ── Horror: Flicker + vignette ── */
+[data-genre="horror"] .adv-scene__image-placeholder::before {
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(224, 85, 85, 0.12) 100%);
+  animation: adv-horrorFlicker 3s steps(8) infinite;
+}
+
+[data-genre="horror"] .adv-scene__image-placeholder::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.6);
+  animation: adv-horrorVignette 4s ease-in-out infinite;
+}
+
+@keyframes adv-horrorFlicker {
+  0%, 100% { opacity: 0.6; }
+  10% { opacity: 0.3; }
+  20% { opacity: 0.7; }
+  35% { opacity: 0.15; }
+  50% { opacity: 0.8; }
+  65% { opacity: 0.4; }
+  80% { opacity: 0.9; }
+  90% { opacity: 0.2; }
+}
+
+@keyframes adv-horrorVignette {
+  0%, 100% { box-shadow: inset 0 0 80px rgba(0, 0, 0, 0.5); }
+  50% { box-shadow: inset 0 0 120px rgba(0, 0, 0, 0.7); }
+}
+
+/* ── Sci-Fi: Scan line sweep ── */
+[data-genre="scifi"] .adv-scene__image-placeholder::before {
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(85, 224, 200, 0.08) 48%,
+    rgba(85, 224, 200, 0.25) 50%,
+    rgba(85, 224, 200, 0.08) 52%,
+    transparent 100%
+  );
+  background-size: 100% 200%;
+  animation: adv-scifiScan 2.5s linear infinite;
+}
+
+[data-genre="scifi"] .adv-scene__image-placeholder::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgba(85, 224, 200, 0.03) 3px,
+      rgba(85, 224, 200, 0.03) 4px
+    );
+  animation: adv-scifiPulse 4s ease-in-out infinite;
+}
+
+@keyframes adv-scifiScan {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 0% 100%; }
+}
+
+@keyframes adv-scifiPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.7; }
+}
+
+/* ── Detective: Spotlight sweep ── */
+[data-genre="detective"] .adv-scene__image-placeholder::before {
+  background: radial-gradient(
+    ellipse 30% 60% at 0% 50%,
+    rgba(224, 200, 85, 0.15) 0%,
+    transparent 100%
+  );
+  animation: adv-detectiveSpotlight 4s ease-in-out infinite;
+}
+
+[data-genre="detective"] .adv-scene__image-placeholder::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 2px,
+    rgba(224, 200, 85, 0.02) 2px,
+    rgba(224, 200, 85, 0.02) 4px
+  );
+  opacity: 0.5;
+}
+
+@keyframes adv-detectiveSpotlight {
+  0% { background-position: -30% 50%; transform: translateX(-20%); }
+  50% { background-position: 130% 50%; transform: translateX(20%); }
+  100% { background-position: -30% 50%; transform: translateX(-20%); }
+}
+
+/* ── Post-Apoc: Glitch ── */
+[data-genre="postapoc"] .adv-scene__image-placeholder::before {
+  background: linear-gradient(
+    0deg,
+    transparent 0%,
+    rgba(200, 224, 85, 0.06) 20%,
+    transparent 22%,
+    transparent 45%,
+    rgba(200, 224, 85, 0.08) 47%,
+    transparent 49%,
+    transparent 75%,
+    rgba(200, 224, 85, 0.05) 77%,
+    transparent 80%
+  );
+  animation: adv-postapocGlitch 0.8s steps(1) infinite;
+}
+
+[data-genre="postapoc"] .adv-scene__image-placeholder::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  box-shadow: inset 2px 0 rgba(200, 224, 85, 0.1), inset -2px 0 rgba(224, 85, 85, 0.08);
+  animation: adv-postapocShift 1.2s steps(1) infinite;
+}
+
+@keyframes adv-postapocGlitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 1px); }
+  40% { transform: translate(1px, -1px); }
+  60% { transform: translate(-1px, 2px); }
+  80% { transform: translate(2px, -1px); }
+  100% { transform: translate(0); }
+}
+
+@keyframes adv-postapocShift {
+  0%, 100% { clip-path: inset(0 0 85% 0); }
+  25% { clip-path: inset(40% 0 30% 0); }
+  50% { clip-path: inset(70% 0 5% 0); }
+  75% { clip-path: inset(10% 0 60% 0); }
+}
+
+/* ── Pirate: Rolling waves ── */
+[data-genre="pirate"] .adv-scene__image-placeholder::before {
+  background:
+    radial-gradient(ellipse at 30% 80%, rgba(224, 144, 85, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 90%, rgba(224, 144, 85, 0.08) 0%, transparent 45%);
+  animation: adv-pirateWave 5s ease-in-out infinite;
+}
+
+[data-genre="pirate"] .adv-scene__image-placeholder::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at 50% 85%, rgba(224, 144, 85, 0.1) 0%, transparent 55%);
+  animation: adv-pirateWave 5s ease-in-out 1.5s infinite;
+}
+
+@keyframes adv-pirateWave {
+  0%, 100% { transform: translateY(0) translateX(0); opacity: 0.5; }
+  25% { transform: translateY(-6px) translateX(4px); opacity: 0.8; }
+  50% { transform: translateY(2px) translateX(-3px); opacity: 0.6; }
+  75% { transform: translateY(-4px) translateX(5px); opacity: 0.7; }
+}
