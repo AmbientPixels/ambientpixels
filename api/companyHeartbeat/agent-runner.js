@@ -333,6 +333,19 @@ Write the full deliverable first, then the structured JSON block.`;
       _erTask.comments.push({ id: 'cmt-echobypass-' + Date.now(), author: 'system', type: 'system', createdAt: new Date().toISOString(),
         text: '[SYSTEM] Social task auto-completed from review (peer review bypass). CEO approves the social action.' });
       context.log('[Heartbeat] ECHO REVIEW BYPASS: social task auto-completed from review:', _erTask.id);
+      // Inject create-social-action immediately — don't wait for next cycle's anti-stall
+      var _erText = ((_erTask.title || '') + ' ' + (_erTask.description || '')).toLowerCase();
+      var _erPlatform = (_erTask.taskType === 'social_linkedin' || /linkedin/.test(_erText)) ? 'linkedin'
+        : (_erTask.taskType === 'social_x' || /twitter|x\.com|tweet/.test(_erText)) ? 'x'
+        : (_erTask.taskType === 'social_bluesky' || /bluesky/.test(_erText)) ? 'bluesky'
+        : 'linkedin';
+      actions.push({
+        type: 'create-social-action',
+        taskId: _erTask.id,
+        social: { platform: _erPlatform, text: _erLatest },
+        summary: 'Review bypass: create social action for ' + (_erTask.title || _erTask.id)
+      });
+      context.log('[Heartbeat] ECHO REVIEW BYPASS: injected create-social-action for:', _erTask.id, 'platform:', _erPlatform);
     }
   }
 
@@ -631,8 +644,8 @@ Write the full deliverable first, then the structured JSON block.`;
       if (agentId === 'echo') {
         context.log('[Heartbeat] ECHO DONE-INJECTION DEBUG: triagedIdle=' + _triagedIdle.length + ' executableIdle=' + _executableIdle.length + ' agentTasks=' + agentTasks.length);
       }
-      if (agentId === 'echo' && _triagedIdle.length === 0) {
-        context.log('[Heartbeat] ECHO DONE-INJECTION: entering done-task path');
+      if (agentId === 'echo') {
+        context.log('[Heartbeat] ECHO DONE-INJECTION: checking done tasks (triagedIdle=' + _triagedIdle.length + ')');
         const _doneSocialMaxAge2 = 7 * 24 * 60 * 60 * 1000;
         const _doneSocialAll = tasks.filter(function (t) {
           if (t.assignee !== 'echo' || t.status !== 'done' || t._archived) return false;
@@ -1225,6 +1238,18 @@ Write the full deliverable first, then the structured JSON block.`;
                   agentId: 'system'
                 });
                 context.log('[Heartbeat] ECHO SOCIAL FAST-PATH: task auto-completed:', action.taskId, '(' + deliverable.length + ' chars)');
+                // Inject create-social-action immediately — triggers Copy Review Gate + AQ in same cycle
+                var _esfPlatform = (task.taskType === 'social_linkedin' || /linkedin/.test(_esfText)) ? 'linkedin'
+                  : (task.taskType === 'social_x' || /twitter|x\.com|tweet/.test(_esfText)) ? 'x'
+                  : (task.taskType === 'social_bluesky' || /bluesky/.test(_esfText)) ? 'bluesky'
+                  : 'linkedin';
+                actions.push({
+                  type: 'create-social-action',
+                  taskId: action.taskId,
+                  social: { platform: _esfPlatform, text: deliverable },
+                  summary: 'Fast-path: create social action for ' + (task.title || action.taskId)
+                });
+                context.log('[Heartbeat] ECHO SOCIAL FAST-PATH: injected create-social-action, platform:', _esfPlatform);
                 continue; // skip blog detection
               }
             }
