@@ -80,6 +80,29 @@
   transition: width 0.4s ease;
 }
 
+.adv-narration-toggle {
+  background: none;
+  border: 1px solid rgba(122, 143, 224, 0.2);
+  border-radius: 6px;
+  color: rgba(216, 224, 229, 0.5);
+  cursor: pointer;
+  padding: 0.2rem 0.45rem;
+  font-size: 0.7rem;
+  margin-left: 0.5rem;
+  transition: color 0.2s, border-color 0.2s;
+  flex-shrink: 0;
+}
+
+.adv-narration-toggle:hover {
+  color: var(--aura-text-primary, #d8e0e5);
+  border-color: rgba(122, 143, 224, 0.4);
+}
+
+.adv-narration-toggle--muted {
+  color: rgba(216, 224, 229, 0.25);
+  border-color: rgba(122, 143, 224, 0.1);
+}
+
 .adv-scene__text {
   font-size: 1.05rem;
   line-height: 1.75;

@@ -17,6 +17,31 @@
   var isProcessing = false;
   var currentNarration = null; // { source, ctx } for Web Audio playback
   var audioCtx = null; // Shared AudioContext, unlocked on first user gesture
+  var narrationEnabled = localStorage.getItem('sf_narration') !== 'off'; // on by default
+
+  function initNarrationToggle() {
+    var btn = UI.$('narrationToggle');
+    if (!btn) return;
+    updateToggleUI(btn);
+    btn.addEventListener('click', function () {
+      narrationEnabled = !narrationEnabled;
+      localStorage.setItem('sf_narration', narrationEnabled ? 'on' : 'off');
+      updateToggleUI(btn);
+      if (!narrationEnabled) stopNarration();
+    });
+  }
+
+  function updateToggleUI(btn) {
+    if (narrationEnabled) {
+      btn.classList.remove('adv-narration-toggle--muted');
+      btn.innerHTML = '<i class="fas fa-volume-up"></i>';
+      btn.title = 'Narration on — click to mute';
+    } else {
+      btn.classList.add('adv-narration-toggle--muted');
+      btn.innerHTML = '<i class="fas fa-volume-xmark"></i>';
+      btn.title = 'Narration off — click to unmute';
+    }
+  }
 
   // --- Initialize ---
   function init() {
@@ -37,6 +62,7 @@
       // Resume saved adventure
       UI.showLoading(UI.$('sceneText'), 'Loading saved adventure...');
       UI.showScreen('screenPlay');
+      initNarrationToggle();
       Storage.loadAdventure(continueId).then(function (adventure) {
         if (!adventure) {
           UI.toast('Saved adventure not found', 'error');
@@ -592,6 +618,7 @@
 
     UI.showScreen('screenPlay');
     UI.$('pauseBtn').style.display = '';
+    initNarrationToggle();
     UI.showLoading(UI.$('sceneText'), 'Forging your story...');
     UI.$('choicesContainer').innerHTML = '';
     updateSidebar();
@@ -683,10 +710,12 @@
   var preloadSessionId = null;
 
   function preloadTTS(text) {
+    preloadSessionId = null;
+    preloadedAudioBuffer = null;
+    if (!narrationEnabled) return; // Skip TTS fetch when muted
     var ctx = ensureAudioContext();
     var sessionId = {};
     preloadSessionId = sessionId;
-    preloadedAudioBuffer = null;
 
     var voice = (gameState && AI.GENRE_VOICES[gameState.genre]) || 'Kore';
     AI.callTTSAPI(text, voice).then(function (audioUrl) {
@@ -712,7 +741,7 @@
   }
 
   function tryAutoPlay() {
-    if (!preloadedAudioBuffer || !audioCtx) return;
+    if (!narrationEnabled || !preloadedAudioBuffer || !audioCtx) return;
     playBuffer(preloadedAudioBuffer);
   }
 
@@ -751,8 +780,11 @@
     var btn = document.createElement('button');
     btn.className = 'adv-narrate';
 
-    // If audio already playing (auto-play beat the typewriter), show stop state
-    if (currentNarration) {
+    if (!narrationEnabled) {
+      // Narration muted — show manual listen button
+      btn.innerHTML = '<i class="fas fa-volume-up"></i> Listen';
+    } else if (currentNarration) {
+      // Audio already playing (auto-play beat the typewriter)
       btn.classList.add('adv-narrate--playing');
       btn.innerHTML = '<i class="fas fa-stop"></i> Stop';
     } else if (preloadedAudioBuffer) {
