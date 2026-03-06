@@ -80,6 +80,14 @@
   transition: width 0.4s ease;
 }
 
+.adv-narration-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-left: 0.5rem;
+  flex-shrink: 0;
+}
+
 .adv-narration-toggle {
   background: none;
   border: 1px solid rgba(122, 143, 224, 0.2);
@@ -88,7 +96,6 @@
   cursor: pointer;
   padding: 0.2rem 0.45rem;
   font-size: 0.7rem;
-  margin-left: 0.5rem;
   transition: color 0.2s, border-color 0.2s;
   flex-shrink: 0;
 }
@@ -101,6 +108,36 @@
 .adv-narration-toggle--muted {
   color: rgba(216, 224, 229, 0.25);
   border-color: rgba(122, 143, 224, 0.1);
+}
+
+.adv-narration-volume {
+  width: 60px;
+  height: 4px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(122, 143, 224, 0.15);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+.adv-narration-volume::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(122, 143, 224, 0.6);
+  border: none;
+  cursor: pointer;
+}
+
+.adv-narration-volume::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(122, 143, 224, 0.6);
+  border: none;
+  cursor: pointer;
 }
 
 .adv-scene__text {

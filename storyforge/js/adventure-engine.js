@@ -18,6 +18,8 @@
   var currentNarration = null; // { source, ctx } for Web Audio playback
   var audioCtx = null; // Shared AudioContext, unlocked on first user gesture
   var narrationEnabled = localStorage.getItem('sf_narration') !== 'off'; // on by default
+  var narrationVolume = parseFloat(localStorage.getItem('sf_narration_vol')) || 0.8;
+  var gainNode = null; // shared GainNode for volume control
 
   function initNarrationToggle() {
     var btn = UI.$('narrationToggle');
@@ -29,6 +31,16 @@
       updateToggleUI(btn);
       if (!narrationEnabled) stopNarration();
     });
+
+    var slider = UI.$('narrationVolume');
+    if (slider) {
+      slider.value = narrationVolume;
+      slider.addEventListener('input', function () {
+        narrationVolume = parseFloat(slider.value);
+        localStorage.setItem('sf_narration_vol', narrationVolume);
+        if (gainNode) gainNode.gain.value = narrationVolume;
+      });
+    }
   }
 
   function updateToggleUI(btn) {
@@ -712,9 +724,14 @@
   function playBuffer(audioBuffer) {
     stopNarration();
     var ctx = ensureAudioContext();
+    if (!gainNode) {
+      gainNode = ctx.createGain();
+      gainNode.connect(ctx.destination);
+    }
+    gainNode.gain.value = narrationVolume;
     var source = ctx.createBufferSource();
     source.buffer = audioBuffer;
-    source.connect(ctx.destination);
+    source.connect(gainNode);
 
     var sessionId = {};
     currentNarration = { source: source, id: sessionId };
@@ -828,6 +845,9 @@
   function handleChoice(choiceId) {
     if (isProcessing || !currentScene) return;
     isProcessing = true;
+
+    // Stop current narration immediately when user advances
+    stopNarration();
 
     // Unlock AudioContext on user gesture so TTS can auto-play later
     ensureAudioContext();
