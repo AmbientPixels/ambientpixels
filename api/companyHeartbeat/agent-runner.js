@@ -1797,9 +1797,18 @@ Write the full deliverable first, then the structured JSON block.`;
         }
       }
 
+      // Resolve platform from task's taskType (accounts for server-side rotation)
+      // e.g. task.taskType = 'social_x' → platform = 'x'
+      var _resolvedPlatform = socialPayload.platform || 'x';
+      if (action.taskId) {
+        var _parentTask = tasks.find(function(t) { return t.id === action.taskId; });
+        if (_parentTask && /^social_/.test(_parentTask.taskType || '')) {
+          _resolvedPlatform = _parentTask.taskType.replace('social_', '');
+        }
+      }
       const actionRequest = {
         type: (socialPayload.scheduled_for || socialPayload.schedule_for) ? 'social_post.schedule' : 'social_post.publish',
-        platform: socialPayload.platform || 'x',
+        platform: _resolvedPlatform,
         payload: {
           text: socialPayload.text || '',
           media: socialPayload.media || [],
