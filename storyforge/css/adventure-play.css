@@ -320,14 +320,49 @@
   background: rgba(15, 25, 40, 0.5);
   border-radius: 6px;
   font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+  border: 1px solid transparent;
 }
 
-.adv-inventory__item i {
-  color: rgba(122, 143, 224, 0.6);
+.adv-inventory__item:hover {
+  background: rgba(15, 25, 40, 0.8);
+}
+
+/* Equipped item glow */
+.adv-inventory__item--equipped {
+  border-color: rgba(122, 143, 224, 0.3);
+  background: rgba(122, 143, 224, 0.08);
+}
+
+.adv-inventory__item--equipped .adv-inventory__icon {
+  position: relative;
+}
+
+.adv-inventory__badge {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  font-size: 0.5rem;
+  font-weight: 700;
+  color: var(--adv-accent, #7B8FE0);
+  line-height: 1;
+}
+
+/* Item type icon colors */
+.adv-inventory__icon {
+  position: relative;
   font-size: 0.75rem;
   width: 14px;
   text-align: center;
+  flex-shrink: 0;
 }
+
+.adv-inventory__item--weapon .adv-inventory__icon { color: #E07B7B; }
+.adv-inventory__item--armor .adv-inventory__icon { color: #7B9FE0; }
+.adv-inventory__item--consumable .adv-inventory__icon { color: #55E082; }
+.adv-inventory__item--tool .adv-inventory__icon { color: #9BA3AE; }
+.adv-inventory__item--quest_item .adv-inventory__icon { color: #E0C855; }
 
 .adv-inventory__name {
   flex: 1;
@@ -337,36 +372,109 @@
   white-space: nowrap;
 }
 
-.adv-inventory__item--usable {
-  cursor: pointer;
-  transition: background 0.2s;
+.adv-inventory__expand-icon {
+  font-size: 0.6rem;
+  color: rgba(216, 224, 229, 0.3);
+  transition: transform 0.2s;
+  flex-shrink: 0;
 }
 
-.adv-inventory__item--usable:hover {
-  background: rgba(85, 224, 130, 0.08);
+.adv-inventory__item--open .adv-inventory__expand-icon {
+  transform: rotate(90deg);
 }
 
-.adv-inventory__use {
+/* Expandable detail panel */
+.adv-inventory__detail {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.25s ease, padding 0.25s ease;
+  padding: 0 0.6rem;
+  background: rgba(10, 18, 30, 0.6);
+  border-radius: 0 0 6px 6px;
+  margin-top: -0.2rem;
+  font-size: 0.75rem;
+}
+
+.adv-inventory__detail--open {
+  max-height: 120px;
+  padding: 0.5rem 0.6rem;
+}
+
+.adv-inventory__desc {
+  color: rgba(216, 224, 229, 0.5);
+  font-style: italic;
+  margin-bottom: 0.4rem;
+  line-height: 1.4;
+}
+
+.adv-inventory__actions {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+/* Shared button base for inventory actions */
+.adv-inventory__btn {
   display: inline-flex;
   align-items: center;
   gap: 0.25rem;
-  padding: 0.15rem 0.4rem;
-  border: 1px solid rgba(85, 224, 130, 0.2);
+  padding: 0.15rem 0.45rem;
+  border: 1px solid;
   border-radius: 4px;
-  background: rgba(85, 224, 130, 0.1);
-  color: #55E082;
   font-size: 0.65rem;
   font-weight: 600;
   cursor: pointer;
   font-family: inherit;
   transition: all 0.2s;
   white-space: nowrap;
-  flex-shrink: 0;
 }
 
-.adv-inventory__use:hover {
+/* Equip — blue */
+.adv-inventory__btn--equip {
+  border-color: rgba(122, 143, 224, 0.25);
+  background: rgba(122, 143, 224, 0.1);
+  color: #7B8FE0;
+}
+
+.adv-inventory__btn--equip:hover {
+  background: rgba(122, 143, 224, 0.2);
+  border-color: rgba(122, 143, 224, 0.4);
+}
+
+/* Unequip — muted */
+.adv-inventory__btn--unequip {
+  border-color: rgba(155, 163, 174, 0.2);
+  background: rgba(155, 163, 174, 0.08);
+  color: #9BA3AE;
+}
+
+.adv-inventory__btn--unequip:hover {
+  background: rgba(155, 163, 174, 0.15);
+  border-color: rgba(155, 163, 174, 0.35);
+}
+
+/* Use — green (replaces old .adv-inventory__use) */
+.adv-inventory__btn--use {
+  border-color: rgba(85, 224, 130, 0.2);
+  background: rgba(85, 224, 130, 0.1);
+  color: #55E082;
+}
+
+.adv-inventory__btn--use:hover {
   background: rgba(85, 224, 130, 0.2);
   border-color: rgba(85, 224, 130, 0.4);
+}
+
+/* Drop — red */
+.adv-inventory__btn--drop {
+  border-color: rgba(224, 85, 85, 0.2);
+  background: rgba(224, 85, 85, 0.08);
+  color: #E05555;
+}
+
+.adv-inventory__btn--drop:hover {
+  background: rgba(224, 85, 85, 0.15);
+  border-color: rgba(224, 85, 85, 0.35);
 }
 
 .adv-inventory__empty {

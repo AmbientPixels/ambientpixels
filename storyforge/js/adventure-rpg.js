@@ -31,6 +31,7 @@ window.AdventureRPG = (function () {
       inventory: (genre.startingInventory || []).map(function (item) {
         return Object.assign({}, item, { quantity: item.quantity || 1 });
       }),
+      equipped: { weapon: null, armor: null },
       companions: [],
       eventLog: [],
       turnCount: 0,
@@ -38,13 +39,16 @@ window.AdventureRPG = (function () {
     };
   }
 
-  // --- Skill check (d20 + modifier + companion bonus vs DC) ---
-  function rollSkillCheck(stats, companions, stat, difficulty) {
+  // --- Skill check (d20 + modifier + companion bonus + equipment bonus vs DC) ---
+  var EQUIP_BONUS_MAP = { weapon: 'strength', armor: 'dexterity' };
+
+  function rollSkillCheck(stats, companions, stat, difficulty, equipped) {
     var roll = Math.floor(Math.random() * 20) + 1;
     var statVal = stats[stat] || 10;
     var modifier = Math.floor((statVal - 10) / 2);
     var companionBonus = getCompanionBonus(companions, stat);
-    var total = roll + modifier + companionBonus;
+    var equipmentBonus = getEquipmentBonus(equipped, stat);
+    var total = roll + modifier + companionBonus + equipmentBonus;
     var success = total >= difficulty;
     var critical = roll === 20 ? 'critical_success' : (roll === 1 ? 'critical_failure' : null);
 
@@ -52,12 +56,21 @@ window.AdventureRPG = (function () {
       roll: roll,
       modifier: modifier,
       companionBonus: companionBonus,
+      equipmentBonus: equipmentBonus,
       total: total,
       difficulty: difficulty,
       stat: stat,
       success: success,
       critical: critical
     };
+  }
+
+  function getEquipmentBonus(equipped, stat) {
+    if (!equipped) return 0;
+    for (var slot in EQUIP_BONUS_MAP) {
+      if (EQUIP_BONUS_MAP[slot] === stat && equipped[slot]) return 1;
+    }
+    return 0;
   }
 
   function getCompanionBonus(companions, stat) {
@@ -89,6 +102,7 @@ window.AdventureRPG = (function () {
     // Add items
     if (changes.addItems && changes.addItems.length) {
       changes.addItems.forEach(function (item) {
+        if (!item.name) return;
         if (state.inventory.length < MAX_INVENTORY) {
           state.inventory.push({
             id: item.id || ('item_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4)),
@@ -101,13 +115,18 @@ window.AdventureRPG = (function () {
       });
     }
 
-    // Remove items
+    // Remove items (auto-unequip if equipped)
     if (changes.removeItems && changes.removeItems.length) {
       changes.removeItems.forEach(function (itemName) {
         var idx = state.inventory.findIndex(function (inv) {
           return inv.name.toLowerCase() === itemName.toLowerCase() || inv.id === itemName;
         });
-        if (idx !== -1) state.inventory.splice(idx, 1);
+        if (idx !== -1) {
+          var removed = state.inventory[idx];
+          if (state.equipped && state.equipped.weapon === removed.id) state.equipped.weapon = null;
+          if (state.equipped && state.equipped.armor === removed.id) state.equipped.armor = null;
+          state.inventory.splice(idx, 1);
+        }
       });
     }
 
@@ -210,6 +229,49 @@ window.AdventureRPG = (function () {
     quest_item: 'fa-scroll'
   };
 
+  // --- Equipment management ---
+  function equipItem(state, itemId) {
+    var item = state.inventory.find(function (i) { return i.id === itemId; });
+    if (!item) return false;
+    var slot = (item.type === 'weapon') ? 'weapon' : (item.type === 'armor') ? 'armor' : null;
+    if (!slot) return false;
+    if (!state.equipped) state.equipped = { weapon: null, armor: null };
+    state.equipped[slot] = itemId;
+    return true;
+  }
+
+  function unequipItem(state, slot) {
+    if (!state.equipped) return;
+    state.equipped[slot] = null;
+  }
+
+  function dropItem(state, itemId) {
+    var idx = state.inventory.findIndex(function (i) { return i.id === itemId; });
+    if (idx === -1) return false;
+    var item = state.inventory[idx];
+    if (item.type === 'quest_item') return false;
+    // Auto-unequip
+    if (state.equipped) {
+      if (state.equipped.weapon === itemId) state.equipped.weapon = null;
+      if (state.equipped.armor === itemId) state.equipped.armor = null;
+    }
+    state.inventory.splice(idx, 1);
+    return true;
+  }
+
+  function getEquippedItem(state, slot) {
+    if (!state.equipped || !state.equipped[slot]) return null;
+    return state.inventory.find(function (i) { return i.id === state.equipped[slot]; }) || null;
+  }
+
+  var ITEM_TYPE_COLORS = {
+    weapon: '#E07B7B',
+    armor: '#7B9FE0',
+    consumable: '#55E082',
+    tool: '#9BA3AE',
+    quest_item: '#E0C855'
+  };
+
   function isAlive(state) {
     return state.stats.hp > 0;
   }
@@ -219,11 +281,17 @@ window.AdventureRPG = (function () {
     rollSkillCheck: rollSkillCheck,
     applyStateChanges: applyStateChanges,
     useConsumable: useConsumable,
+    equipItem: equipItem,
+    unequipItem: unequipItem,
+    dropItem: dropItem,
+    getEquippedItem: getEquippedItem,
     generateName: generateName,
     isAlive: isAlive,
     STAT_ICONS: STAT_ICONS,
     STAT_LABELS: STAT_LABELS,
     ITEM_ICONS: ITEM_ICONS,
+    ITEM_TYPE_COLORS: ITEM_TYPE_COLORS,
+    EQUIP_BONUS_MAP: EQUIP_BONUS_MAP,
     MAX_INVENTORY: MAX_INVENTORY,
     MAX_COMPANIONS: MAX_COMPANIONS
   };

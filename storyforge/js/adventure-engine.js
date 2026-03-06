@@ -681,7 +681,7 @@
   // --- Skill Check ---
   function performSkillCheck(choice) {
     var sc = choice.skillCheck;
-    var result = RPG.rollSkillCheck(gameState.stats, gameState.companions, sc.stat, sc.difficulty);
+    var result = RPG.rollSkillCheck(gameState.stats, gameState.companions, sc.stat, sc.difficulty, gameState.equipped);
 
     showDiceRoll(result).then(function () {
       // Apply failure damage
@@ -943,6 +943,75 @@
     startLoadingTextCycle();
   }
 
+  // --- Inventory Interactions ---
+  function bindInventoryEvents(container) {
+    // Accordion: tap item row to expand/collapse
+    container.querySelectorAll('.adv-inventory__item').forEach(function (row) {
+      row.addEventListener('click', function () {
+        var itemId = row.dataset.itemId;
+        var detail = container.querySelector('[data-detail-for="' + itemId + '"]');
+        var wasOpen = row.classList.contains('adv-inventory__item--open');
+
+        // Close all
+        container.querySelectorAll('.adv-inventory__item--open').forEach(function (r) {
+          r.classList.remove('adv-inventory__item--open');
+        });
+        container.querySelectorAll('.adv-inventory__detail--open').forEach(function (d) {
+          d.classList.remove('adv-inventory__detail--open');
+        });
+
+        // Toggle current
+        if (!wasOpen && detail) {
+          row.classList.add('adv-inventory__item--open');
+          detail.classList.add('adv-inventory__detail--open');
+        }
+      });
+    });
+
+    // Action buttons
+    container.querySelectorAll('.adv-inventory__btn').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (isProcessing) return;
+        var action = btn.dataset.action;
+        var itemId = btn.dataset.itemId;
+
+        if (action === 'equip') {
+          RPG.equipItem(gameState, itemId);
+          var item = gameState.inventory.find(function (i) { return i.id === itemId; });
+          UI.toast('Equipped ' + (item ? item.name : 'item'), 'success');
+          updateSidebar();
+          saveAdventure();
+        } else if (action === 'unequip') {
+          var slot = btn.dataset.slot;
+          var equipped = RPG.getEquippedItem(gameState, slot);
+          RPG.unequipItem(gameState, slot);
+          UI.toast('Unequipped ' + (equipped ? equipped.name : 'item'), 'info');
+          updateSidebar();
+          saveAdventure();
+        } else if (action === 'use') {
+          var effect = RPG.useConsumable(gameState, itemId);
+          if (effect) {
+            UI.toast('Used item: +' + effect.value + ' HP', 'success');
+            UI.$('hpFill').parentElement.classList.add('adv-heal-glow');
+            setTimeout(function () {
+              UI.$('hpFill').parentElement.classList.remove('adv-heal-glow');
+            }, 600);
+            updateSidebar();
+            saveAdventure();
+          }
+        } else if (action === 'drop') {
+          var dropItem = gameState.inventory.find(function (i) { return i.id === itemId; });
+          if (RPG.dropItem(gameState, itemId)) {
+            UI.toast('Dropped ' + (dropItem ? dropItem.name : 'item'), 'info');
+            updateSidebar();
+            saveAdventure();
+          }
+        }
+      });
+    });
+  }
+
   // --- Update Sidebar ---
   function updateSidebar() {
     if (!gameState) return;
@@ -975,37 +1044,59 @@
     UI.$('statsContainer').innerHTML = statsHtml;
 
     // Inventory
+    if (!gameState.equipped) gameState.equipped = { weapon: null, armor: null };
     UI.$('inventoryCount').textContent = '(' + gameState.inventory.length + '/' + RPG.MAX_INVENTORY + ')';
     if (gameState.inventory.length) {
       var invContainer = UI.$('inventoryContainer');
       invContainer.innerHTML = gameState.inventory.map(function (item) {
         var icon = RPG.ITEM_ICONS[item.type] || 'fa-box';
         var qty = item.quantity > 1 ? ' x' + item.quantity : '';
+        var isEquipped = gameState.equipped.weapon === item.id || gameState.equipped.armor === item.id;
+        var isEquippable = item.type === 'weapon' || item.type === 'armor';
         var isConsumable = item.type === 'consumable';
-        return '<div class="adv-inventory__item' + (isConsumable ? ' adv-inventory__item--usable' : '') +
-          '" title="' + UI.escapeHtml(item.description) + '">' +
-          '<i class="fas ' + icon + '"></i>' +
+        var canDrop = item.type !== 'quest_item';
+        var typeClass = ' adv-inventory__item--' + item.type;
+        var equippedClass = isEquipped ? ' adv-inventory__item--equipped' : '';
+
+        // Item row
+        var html = '<div class="adv-inventory__item' + typeClass + equippedClass +
+          '" data-item-id="' + item.id + '">' +
+          '<span class="adv-inventory__icon"><i class="fas ' + icon + '"></i>' +
+          (isEquipped ? '<span class="adv-inventory__badge">E</span>' : '') +
+          '</span>' +
           '<span class="adv-inventory__name">' + UI.escapeHtml(item.name) + qty + '</span>' +
-          (isConsumable ? '<button class="adv-inventory__use" data-item-id="' + item.id + '"><i class="fas fa-flask-vial"></i> Use</button>' : '') +
+          '<i class="fas fa-chevron-right adv-inventory__expand-icon"></i>' +
         '</div>';
-      }).join('');
-      // Bind use buttons
-      invContainer.querySelectorAll('.adv-inventory__use').forEach(function (btn) {
-        btn.addEventListener('click', function (e) {
-          e.stopPropagation();
-          if (isProcessing) return;
-          var effect = RPG.useConsumable(gameState, btn.dataset.itemId);
-          if (effect) {
-            UI.toast('Used item: +' + effect.value + ' HP', 'success');
-            UI.$('hpFill').parentElement.classList.add('adv-heal-glow');
-            setTimeout(function () {
-              UI.$('hpFill').parentElement.classList.remove('adv-heal-glow');
-            }, 600);
-            updateSidebar();
-            saveAdventure();
+
+        // Detail panel
+        var actions = '';
+        if (isEquippable) {
+          var slot = item.type === 'weapon' ? 'weapon' : 'armor';
+          var bonusStat = RPG.EQUIP_BONUS_MAP[slot];
+          var bonusLabel = RPG.STAT_LABELS[bonusStat] || bonusStat;
+          if (isEquipped) {
+            actions += '<button class="adv-inventory__btn adv-inventory__btn--unequip" data-action="unequip" data-slot="' + slot + '"><i class="fas fa-times"></i> Unequip</button>';
+          } else {
+            actions += '<button class="adv-inventory__btn adv-inventory__btn--equip" data-action="equip" data-item-id="' + item.id + '"><i class="fas fa-hand-fist"></i> Equip (+1 ' + bonusLabel + ')</button>';
           }
-        });
-      });
+        }
+        if (isConsumable) {
+          actions += '<button class="adv-inventory__btn adv-inventory__btn--use" data-action="use" data-item-id="' + item.id + '"><i class="fas fa-flask-vial"></i> Use</button>';
+        }
+        if (canDrop) {
+          actions += '<button class="adv-inventory__btn adv-inventory__btn--drop" data-action="drop" data-item-id="' + item.id + '"><i class="fas fa-trash-can"></i> Drop</button>';
+        }
+
+        html += '<div class="adv-inventory__detail" data-detail-for="' + item.id + '">' +
+          '<div class="adv-inventory__desc">' + UI.escapeHtml(item.description || 'No description.') + '</div>' +
+          '<div class="adv-inventory__actions">' + actions + '</div>' +
+        '</div>';
+
+        return html;
+      }).join('');
+
+      // Bind item interactions
+      bindInventoryEvents(invContainer);
     } else {
       UI.$('inventoryContainer').innerHTML = '<div class="adv-inventory__empty">Empty</div>';
     }

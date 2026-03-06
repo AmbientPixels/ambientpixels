@@ -11,6 +11,18 @@ window.AdventureAI = (function () {
   var DAILY_LIMIT_KEY = 'storyforge-ai-usage';
   var DAILY_LIMIT = 15; // adventures per day
 
+  function buildEquippedLine(state) {
+    if (!state.equipped) return 'none';
+    var parts = [];
+    ['weapon', 'armor'].forEach(function (slot) {
+      if (state.equipped[slot]) {
+        var item = state.inventory.find(function (i) { return i.id === state.equipped[slot]; });
+        if (item) parts.push(item.name + ' (' + slot + ')');
+      }
+    });
+    return parts.length ? parts.join(', ') : 'none';
+  }
+
   // --- Generate opening scene ---
   function generateOpeningScene(genre, playerName, character) {
     var prompt = buildOpeningPrompt(genre, playerName, character);
@@ -34,6 +46,7 @@ window.AdventureAI = (function () {
       ((state.character && state.character.description) ? '- Appearance: ' + state.character.description + '\n' : '') +
       '- HP: ' + state.stats.hp + '/' + state.stats.maxHp + '\n' +
       '- Inventory: ' + (state.inventory.length ? state.inventory.map(function (i) { return i.name; }).join(', ') : 'empty') + '\n' +
+      '- Equipped: ' + buildEquippedLine(state) + '\n' +
       '- Companions: ' + (state.companions.length ? state.companions.map(function (c) { return c.name; }).join(', ') : 'none') + '\n' +
       '- Key Events: ' + (state.eventLog.length ? state.eventLog.join(', ') : 'adventure just began') + '\n' +
       '- Last Scene: ' + (state.lastSceneText || '(opening)').substring(0, 500) + '\n\n' +
@@ -104,6 +117,7 @@ window.AdventureAI = (function () {
       '- STR: ' + state.stats.strength + ' DEX: ' + state.stats.dexterity +
       ' INT: ' + state.stats.intelligence + ' CHA: ' + state.stats.charisma + '\n' +
       '- Inventory: ' + (state.inventory.length ? state.inventory.map(function (i) { return i.name; }).join(', ') : 'empty') + '\n' +
+      '- Equipped: ' + buildEquippedLine(state) + '\n' +
       '- Companions: ' + (state.companions.length ? state.companions.map(function (c) { return c.name + ' (' + c.type + ')'; }).join(', ') : 'none') + '\n' +
       '- Key Events: ' + (state.eventLog.length ? state.eventLog.join(', ') : 'adventure just began') + '\n\n' +
       '- Last Scene: ' + (state.lastSceneText || '(opening)').substring(0, 500) + '\n' +
