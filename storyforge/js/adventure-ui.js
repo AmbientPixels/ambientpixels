@@ -40,8 +40,13 @@ window.AdventureUI = (function () {
   }
 
   // --- Typewriter ---
+  var activeTypewriter = null; // allows skip on click
+
   function typewriter(element, text, speed) {
     speed = speed || 18;
+    // Cancel any previous typewriter
+    if (activeTypewriter) activeTypewriter.skip();
+
     return new Promise(function (resolve) {
       element.innerHTML = '';
       var paragraphs = text.split('\n\n');
@@ -49,16 +54,31 @@ window.AdventureUI = (function () {
       var chars = fullHtml;
       var i = 0;
       var inTag = false;
+      var done = false;
+
+      function finish() {
+        if (done) return;
+        done = true;
+        activeTypewriter = null;
+        element.removeEventListener('click', onSkip);
+        element.style.cursor = '';
+        element.innerHTML = fullHtml;
+        resolve();
+      }
+
+      function onSkip() { finish(); }
+
+      // Click to skip
+      element.style.cursor = 'pointer';
+      element.addEventListener('click', onSkip);
+
+      activeTypewriter = { skip: finish };
 
       function tick() {
-        if (i >= chars.length) {
-          element.innerHTML = fullHtml;
-          resolve();
-          return;
-        }
+        if (done) return;
+        if (i >= chars.length) { finish(); return; }
         if (chars[i] === '<') inTag = true;
         if (inTag) {
-          // Fast-forward through HTML tags
           while (i < chars.length && inTag) {
             if (chars[i] === '>') inTag = false;
             i++;
@@ -104,11 +124,34 @@ window.AdventureUI = (function () {
     return document.getElementById(id);
   }
 
+  // --- Confirm dialog (replaces native confirm()) ---
+  function showConfirm(title, text, okLabel) {
+    return new Promise(function (resolve) {
+      var overlay = $('confirmOverlay');
+      $('confirmTitle').textContent = title;
+      $('confirmText').textContent = text;
+      $('confirmOk').textContent = okLabel || 'Confirm';
+      overlay.style.display = '';
+
+      function cleanup(result) {
+        overlay.style.display = 'none';
+        $('confirmOk').removeEventListener('click', onOk);
+        $('confirmCancel').removeEventListener('click', onCancel);
+        resolve(result);
+      }
+      function onOk() { cleanup(true); }
+      function onCancel() { cleanup(false); }
+      $('confirmOk').addEventListener('click', onOk);
+      $('confirmCancel').addEventListener('click', onCancel);
+    });
+  }
+
   return {
     toast: toast,
     typewriter: typewriter,
     showLoading: showLoading,
     showScreen: showScreen,
+    showConfirm: showConfirm,
     escapeHtml: escapeHtml,
     $: $
   };

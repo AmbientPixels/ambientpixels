@@ -203,12 +203,18 @@
     UI.$('pauseBtn').addEventListener('click', showPauseMenu);
     UI.$('resumeBtn').addEventListener('click', hidePauseMenu);
     UI.$('saveQuitBtn').addEventListener('click', function () {
-      saveAdventure();
-      UI.toast('Adventure saved', 'success');
-      setTimeout(function () { window.location.href = '/storyforge/'; }, 500);
+      var btn = UI.$('saveQuitBtn');
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+      saveAdventure().then(function () {
+        UI.toast('Adventure saved', 'success');
+        window.location.href = '/storyforge/';
+      });
     });
     UI.$('abandonBtn').addEventListener('click', function () {
-      if (confirm('Abandon this adventure? Progress will be lost.')) {
+      hidePauseMenu();
+      UI.showConfirm('Abandon Adventure?', 'All progress will be lost. This cannot be undone.', 'Abandon').then(function (ok) {
+        if (!ok) { showPauseMenu(); return; }
         gameState = null;
         currentScene = null;
         window.location.href = '/storyforge/';
@@ -426,15 +432,22 @@
       '</div>';
     }).join('');
 
-    // Bind slider events
+    // Bind slider events (RAF-gated to prevent excessive DOM writes)
+    var sliderRafPending = false;
     rowsEl.querySelectorAll('.adv-stat-row__slider').forEach(function (slider) {
       slider.addEventListener('input', function () {
         enforceStatBudget(slider.dataset.statKey, parseInt(slider.value));
-        updateSliderDisplay(slider);
-        updateStatBudgetDisplay(budget);
-        updateStatPreviewSentence();
-        activePresetLabel = null;
-        updatePresetHighlight();
+        if (!sliderRafPending) {
+          sliderRafPending = true;
+          requestAnimationFrame(function () {
+            sliderRafPending = false;
+            updateSliderDisplay(slider);
+            updateStatBudgetDisplay(budget);
+            updateStatPreviewSentence();
+            activePresetLabel = null;
+            updatePresetHighlight();
+          });
+        }
       });
     });
 
@@ -858,7 +871,7 @@
         skillBadge = '<span class="adv-choice__skill">' + label + '</span>';
       }
       return '<button class="adv-choice" data-choice-id="' + choice.id + '" data-index="' + i + '">' +
-        '<span class="adv-choice__key">' + (i + 1) + '</span>' +
+        '<span class="adv-choice__key" aria-hidden="true">' + (i + 1) + '</span>' +
         '<span class="adv-choice__text">' + UI.escapeHtml(choice.text) + '</span>' +
         skillBadge +
       '</button>';
@@ -907,6 +920,7 @@
         var dmg = -(5 + Math.floor(Math.random() * 11)); // -5 to -15
         if (result.critical === 'critical_failure') dmg *= 2;
         gameState.stats.hp = Math.max(0, gameState.stats.hp + dmg);
+        playSfx('damage');
         UI.$('hpFill').parentElement.classList.add('adv-hp-flash');
         setTimeout(function () {
           UI.$('hpFill').parentElement.classList.remove('adv-hp-flash');
@@ -923,6 +937,74 @@
     });
   }
 
+  // --- Sound Effects (Web Audio synthesis, no external files) ---
+  function playSfx(type) {
+    if (!narrationEnabled || !audioCtx) return;
+    try {
+      var ctx = audioCtx;
+      var now = ctx.currentTime;
+      if (type === 'dice') {
+        // Quick rattling clicks
+        for (var s = 0; s < 5; s++) {
+          var osc = ctx.createOscillator();
+          var gain = ctx.createGain();
+          osc.type = 'square';
+          osc.frequency.value = 800 + Math.random() * 600;
+          gain.gain.setValueAtTime(0.08, now + s * 0.06);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + s * 0.06 + 0.04);
+          osc.connect(gain).connect(ctx.destination);
+          osc.start(now + s * 0.06);
+          osc.stop(now + s * 0.06 + 0.05);
+        }
+      } else if (type === 'success') {
+        var osc1 = ctx.createOscillator();
+        var g1 = ctx.createGain();
+        osc1.type = 'sine';
+        osc1.frequency.setValueAtTime(523, now);
+        osc1.frequency.setValueAtTime(659, now + 0.1);
+        osc1.frequency.setValueAtTime(784, now + 0.2);
+        g1.gain.setValueAtTime(0.1, now);
+        g1.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+        osc1.connect(g1).connect(ctx.destination);
+        osc1.start(now);
+        osc1.stop(now + 0.4);
+      } else if (type === 'failure') {
+        var osc2 = ctx.createOscillator();
+        var g2 = ctx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(330, now);
+        osc2.frequency.exponentialRampToValueAtTime(165, now + 0.3);
+        g2.gain.setValueAtTime(0.1, now);
+        g2.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+        osc2.connect(g2).connect(ctx.destination);
+        osc2.start(now);
+        osc2.stop(now + 0.35);
+      } else if (type === 'damage') {
+        var osc3 = ctx.createOscillator();
+        var g3 = ctx.createGain();
+        osc3.type = 'sawtooth';
+        osc3.frequency.setValueAtTime(200, now);
+        osc3.frequency.exponentialRampToValueAtTime(80, now + 0.15);
+        g3.gain.setValueAtTime(0.08, now);
+        g3.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+        osc3.connect(g3).connect(ctx.destination);
+        osc3.start(now);
+        osc3.stop(now + 0.2);
+      } else if (type === 'item') {
+        var osc4 = ctx.createOscillator();
+        var g4 = ctx.createGain();
+        osc4.type = 'sine';
+        osc4.frequency.setValueAtTime(880, now);
+        osc4.frequency.setValueAtTime(1108, now + 0.08);
+        g4.gain.setValueAtTime(0.07, now);
+        g4.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+        osc4.connect(g4).connect(ctx.destination);
+        osc4.start(now);
+        osc4.stop(now + 0.2);
+      }
+    } catch (e) { /* SFX are non-critical */ }
+  }
+
   // --- Dice Roll Animation ---
   function showDiceRoll(result) {
     return new Promise(function (resolve) {
@@ -933,6 +1015,7 @@
 
       panel.classList.add('adv-dice--active');
       labelEl.textContent = RPG.STAT_LABELS[result.stat] + ' Check (DC ' + result.difficulty + ')';
+      playSfx('dice');
 
       // Animate dice rolling
       var rollCount = 0;
@@ -954,12 +1037,15 @@
           if (result.critical) {
             resultEl.className = 'adv-dice__result adv-dice__result--critical';
             resultEl.textContent = result.critical === 'critical_success' ? 'CRITICAL SUCCESS!' : 'CRITICAL FAILURE!';
+            playSfx(result.critical === 'critical_success' ? 'success' : 'failure');
           } else if (result.success) {
             resultEl.className = 'adv-dice__result adv-dice__result--success';
             resultEl.textContent = 'Success! (' + result.total + ' vs DC ' + result.difficulty + ')';
+            playSfx('success');
           } else {
             resultEl.className = 'adv-dice__result adv-dice__result--failure';
             resultEl.textContent = 'Failed! (' + result.total + ' vs DC ' + result.difficulty + ')';
+            playSfx('failure');
           }
 
           setTimeout(function () {
@@ -1016,10 +1102,19 @@
         UI.toast('Failed to generate scene: ' + err.message, 'error');
         console.error('Scene generation error:', err);
         isProcessing = false;
-        // Offer a retry option
-        UI.$('choicesContainer').innerHTML =
-          '<button class="adv-choice" onclick="location.reload()"><span class="adv-choice__key">!</span>' +
-          '<span class="adv-choice__text">Something went wrong — click to retry</span></button>';
+        // Offer a retry option that retries the same turn
+        var retryBtn = document.createElement('button');
+        retryBtn.className = 'adv-choice';
+        retryBtn.innerHTML = '<span class="adv-choice__key" aria-hidden="true">!</span>' +
+          '<span class="adv-choice__text">Something went wrong \u2014 click to retry</span>';
+        retryBtn.addEventListener('click', function () {
+          isProcessing = true;
+          UI.$('choicesContainer').innerHTML = '';
+          UI.showLoading(UI.$('sceneText'), 'Retrying...');
+          doGenerateNextTurn(choiceText, skillCheckResult);
+        });
+        UI.$('choicesContainer').innerHTML = '';
+        UI.$('choicesContainer').appendChild(retryBtn);
       });
   }
 
@@ -1163,9 +1258,9 @@
 
   // --- Inventory Interactions ---
   function bindInventoryEvents(container) {
-    // Accordion: tap item row to expand/collapse
+    // Accordion: tap/key item row to expand/collapse
     container.querySelectorAll('.adv-inventory__item').forEach(function (row) {
-      row.addEventListener('click', function () {
+      function toggleRow() {
         var itemId = row.dataset.itemId;
         var detail = container.querySelector('[data-detail-for="' + itemId + '"]');
         var wasOpen = row.classList.contains('adv-inventory__item--open');
@@ -1173,6 +1268,7 @@
         // Close all
         container.querySelectorAll('.adv-inventory__item--open').forEach(function (r) {
           r.classList.remove('adv-inventory__item--open');
+          r.setAttribute('aria-expanded', 'false');
         });
         container.querySelectorAll('.adv-inventory__detail--open').forEach(function (d) {
           d.classList.remove('adv-inventory__detail--open');
@@ -1181,8 +1277,14 @@
         // Toggle current
         if (!wasOpen && detail) {
           row.classList.add('adv-inventory__item--open');
+          row.setAttribute('aria-expanded', 'true');
           detail.classList.add('adv-inventory__detail--open');
         }
+      }
+
+      row.addEventListener('click', toggleRow);
+      row.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggleRow(); }
       });
     });
 
@@ -1245,6 +1347,13 @@
     UI.$('hpValue').textContent = stats.hp;
     UI.$('hpMax').textContent = '/ ' + stats.maxHp;
 
+    // Critical HP vignette
+    var sceneEl = document.querySelector('.adv-scene');
+    if (sceneEl) {
+      if (hpPct <= 25) sceneEl.classList.add('adv-scene--critical');
+      else sceneEl.classList.remove('adv-scene--critical');
+    }
+
     // Stats
     var statsHtml = ['strength', 'dexterity', 'intelligence', 'charisma', 'gold', 'reputation'].map(function (key) {
       var icon = RPG.STAT_ICONS[key] || 'fa-circle';
@@ -1278,7 +1387,7 @@
 
         // Item row
         var html = '<div class="adv-inventory__item' + typeClass + equippedClass +
-          '" data-item-id="' + item.id + '">' +
+          '" data-item-id="' + item.id + '" role="button" tabindex="0" aria-expanded="false">' +
           '<span class="adv-inventory__icon"><i class="fas ' + icon + '"></i>' +
           (isEquipped ? '<span class="adv-inventory__badge">E</span>' : '') +
           '</span>' +
@@ -1322,9 +1431,33 @@
     // Companions
     UI.$('companionCount').textContent = '(' + gameState.companions.length + '/' + RPG.MAX_COMPANIONS + ')';
     if (gameState.companions.length) {
+      var COMPANION_ICONS = {
+        warrior: 'fa-shield-halved', fighter: 'fa-shield-halved',
+        mage: 'fa-hat-wizard', wizard: 'fa-hat-wizard', sorcerer: 'fa-hat-wizard',
+        rogue: 'fa-mask', thief: 'fa-mask',
+        healer: 'fa-heart-pulse', cleric: 'fa-heart-pulse',
+        ranger: 'fa-bow-arrow', archer: 'fa-bullseye',
+        animal: 'fa-paw', beast: 'fa-paw', wolf: 'fa-paw', dog: 'fa-dog', cat: 'fa-cat',
+        bird: 'fa-crow', dragon: 'fa-dragon',
+        spirit: 'fa-ghost', ghost: 'fa-ghost',
+        robot: 'fa-robot', droid: 'fa-robot',
+        merchant: 'fa-coins', trader: 'fa-coins',
+        pirate: 'fa-skull-crossbones', sailor: 'fa-anchor',
+        detective: 'fa-magnifying-glass', scientist: 'fa-flask'
+      };
+
       UI.$('companionsContainer').innerHTML = gameState.companions.map(function (comp) {
+        var compType = (comp.type || '').toLowerCase();
+        var compIcon = COMPANION_ICONS[compType] || 'fa-user';
+        // Also check name for animal/creature keywords
+        var nameLower = (comp.name || '').toLowerCase();
+        if (compIcon === 'fa-user') {
+          Object.keys(COMPANION_ICONS).forEach(function (k) {
+            if (nameLower.indexOf(k) !== -1) compIcon = COMPANION_ICONS[k];
+          });
+        }
         return '<div class="adv-companion">' +
-          '<div class="adv-companion__icon"><i class="fas fa-user"></i></div>' +
+          '<div class="adv-companion__icon"><i class="fas ' + compIcon + '"></i></div>' +
           '<div class="adv-companion__info">' +
             '<div class="adv-companion__name">' + UI.escapeHtml(comp.name) + '</div>' +
             '<div class="adv-companion__bonus">+2 ' + (RPG.STAT_LABELS[comp.bonus] || comp.bonus) + '</div>' +
@@ -1379,7 +1512,27 @@
       '<div class="adv-ending__stat"><div class="adv-ending__stat-value">' + gameState.inventory.length + '</div><div class="adv-ending__stat-label">Items</div></div>' +
       '<div class="adv-ending__stat"><div class="adv-ending__stat-value">' + gameState.companions.length + '</div><div class="adv-ending__stat-label">Allies</div></div>';
 
+    // Achievement badges
+    var badges = [];
+    if (type === 'victory') badges.push({ icon: 'fa-crown', label: 'Victorious' });
+    if (gameState.turnCount >= 20) badges.push({ icon: 'fa-hourglass-end', label: 'Marathon' });
+    if (gameState.turnCount <= 5) badges.push({ icon: 'fa-bolt', label: 'Speedrun' });
+    if (gameState.stats.gold >= 100) badges.push({ icon: 'fa-gem', label: 'Wealthy' });
+    if (gameState.companions.length >= 2) badges.push({ icon: 'fa-people-group', label: 'Leader' });
+    if (gameState.inventory.length >= 6) badges.push({ icon: 'fa-suitcase', label: 'Collector' });
+    if (gameState.stats.hp === gameState.stats.maxHp && type === 'victory') badges.push({ icon: 'fa-shield-heart', label: 'Untouched' });
+    if (type === 'death' && gameState.turnCount >= 15) badges.push({ icon: 'fa-skull-crossbones', label: 'Valiant Fall' });
+
+    if (badges.length) {
+      var badgesHtml = '<div class="adv-ending__badges">' +
+        badges.map(function (b) {
+          return '<span class="adv-ending__badge"><i class="fas ' + b.icon + '"></i> ' + b.label + '</span>';
+        }).join('') + '</div>';
+      UI.$('endingStats').insertAdjacentHTML('afterend', badgesHtml);
+    }
+
     gameState.status = 'completed';
+    gameState.badges = badges.map(function (b) { return b.label; });
     gameState.ending = { type: type, text: scene.sceneText };
     saveAdventure();
 
@@ -1427,13 +1580,13 @@
 
   // --- Save Adventure ---
   function saveAdventure() {
-    if (!gameState) return;
+    if (!gameState) return Promise.resolve();
     if (!gameState.adventureId) {
       gameState.adventureId = 'sf_' + Date.now();
     }
     gameState.updatedAt = new Date().toISOString();
     if (!gameState.createdAt) gameState.createdAt = gameState.updatedAt;
-    Storage.saveAdventure(gameState);
+    return Storage.saveAdventure(gameState);
   }
 
   // --- Boot ---

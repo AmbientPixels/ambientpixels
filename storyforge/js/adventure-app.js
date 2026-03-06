@@ -30,7 +30,7 @@
   }
 
   function loadGenres() {
-    return fetch('/storyforge/data/genres.json')
+    return fetch('/storyforge/data/genres.json?v=2')
       .then(function (r) { return r.json(); })
       .then(function (data) {
         genres = data.genres || [];

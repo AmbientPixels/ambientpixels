@@ -86,10 +86,18 @@ window.AdventureStorage = (function () {
   }
 
   // --- localStorage helpers ---
+  // Strip large base64 images to avoid blowing localStorage quota
+  function stripImagesForLocal(adventure) {
+    var copy = JSON.parse(JSON.stringify(adventure));
+    delete copy.portraitImage;
+    delete copy.firstSceneImage;
+    return copy;
+  }
+
   function saveLocal(adventure) {
     try {
       var saves = getLocalSaves();
-      saves[adventure.adventureId] = adventure;
+      saves[adventure.adventureId] = stripImagesForLocal(adventure);
       localStorage.setItem(LOCAL_KEY, JSON.stringify(saves));
     } catch (e) {
       if (e.name === 'QuotaExceededError' || e.code === 22 || e.code === 1014) {
@@ -102,7 +110,7 @@ window.AdventureStorage = (function () {
               return (saves2[a].updatedAt || '').localeCompare(saves2[b].updatedAt || '');
             });
             delete saves2[ids[0]];
-            saves2[adventure.adventureId] = adventure;
+            saves2[adventure.adventureId] = stripImagesForLocal(adventure);
             localStorage.setItem(LOCAL_KEY, JSON.stringify(saves2));
             console.warn('localStorage quota hit, removed oldest save');
             return;

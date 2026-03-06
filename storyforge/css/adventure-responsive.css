@@ -96,6 +96,25 @@
   }
 }
 
+/* --- Reduced Motion --- */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .adv-scene__image-placeholder::before,
+  .adv-scene__image-placeholder::after {
+    display: none;
+  }
+
+  .adv-scene--critical::after {
+    animation: none;
+    opacity: 0.8;
+  }
+}
+
 @media (max-width: 480px) {
   .adv-main {
     padding: 0.75rem;
