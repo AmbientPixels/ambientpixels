@@ -311,6 +311,31 @@ Write the full deliverable first, then the structured JSON block.`;
     }
   }
 
+  // ECHO SOCIAL REVIEW BYPASS: auto-complete Echo social tasks in 'review' status — peer review adds no value
+  // The CEO approves the social action (create-social-action) which is the real quality gate.
+  if (agentId === 'echo') {
+    const _echoReviewTasks = agentTasks.filter(function(t) {
+      if (t.status !== 'review') return false;
+      var txt = ((t.title || '') + ' ' + (t.description || '')).toLowerCase();
+      return /^social_/.test(t.taskType || '') || t.campaign_id ||
+        /linkedin|twitter|x\.com|social\s*media|social\s*post|bluesky/.test(txt);
+    });
+    for (var _eri = 0; _eri < _echoReviewTasks.length; _eri++) {
+      var _erTask = _echoReviewTasks[_eri];
+      var _erDels = (_erTask.comments || []).filter(function(c) { return c.type === 'deliverable'; });
+      var _erLatest = _erDels.length > 0 ? _erDels[_erDels.length - 1].text : '';
+      if (!_erLatest) continue;
+      _erTask.reviewed_copy = _erLatest;
+      _erTask.status = 'done';
+      _erTask.completedAt = new Date().toISOString();
+      _erTask.updatedAt = new Date().toISOString();
+      if (!_erTask.comments) _erTask.comments = [];
+      _erTask.comments.push({ id: 'cmt-echobypass-' + Date.now(), author: 'system', type: 'system', createdAt: new Date().toISOString(),
+        text: '[SYSTEM] Social task auto-completed from review (peer review bypass). CEO approves the social action.' });
+      context.log('[Heartbeat] ECHO REVIEW BYPASS: social task auto-completed from review:', _erTask.id);
+    }
+  }
+
   // ANTI-STALL: if agent has triaged idle tasks but produced no execute/create-doc/create-social-action, inject forced execute
   // v2: Skip convergence-blocked tasks (5+ deliverables) — try a different task or review-task instead
   if (agentId !== 'nova') {
@@ -1176,6 +1201,25 @@ Write the full deliverable first, then the structured JSON block.`;
                 }
               }
               continue; // skip blog detection — social-copy tasks are never blog tasks
+            }
+
+            // ECHO SOCIAL FAST-PATH: auto-complete Echo social tasks after execute — skip peer review.
+            // The CEO approves the social action which is the real quality gate.
+            if (agentId === 'echo') {
+              const _esfText = ((task.title || '') + ' ' + (task.description || '')).toLowerCase();
+              const _esfIsSocial = /^social_/.test(task.taskType || '') || task.campaign_id ||
+                /linkedin|twitter|x\.com|social\s*media|social\s*post|bluesky/.test(_esfText);
+              if (_esfIsSocial) {
+                task.reviewed_copy = deliverable;
+                result.taskUpdates.push({ action: 'move', taskId: action.taskId, newStatus: 'done' });
+                result.taskUpdates.push({
+                  action: 'comment', taskId: action.taskId,
+                  comment: '[SYSTEM] Social task auto-completed (fast-path). CEO approves the social action — peer review skipped.',
+                  agentId: 'system'
+                });
+                context.log('[Heartbeat] ECHO SOCIAL FAST-PATH: task auto-completed:', action.taskId, '(' + deliverable.length + ' chars)');
+                continue; // skip blog detection
+              }
             }
 
             // SERVER-SIDE FALLBACK: Auto-create document for blog post tasks that used execute-task instead of create-doc
