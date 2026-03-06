@@ -63,6 +63,19 @@
             <div id="charOptionsContainer" class="adv-char-creator__options"></div>
             <div class="adv-char-creator__preview" id="charPreviewText"></div>
 
+            <!-- Character Portrait Preview -->
+            <div class="adv-portrait" id="portraitSection">
+              <div class="adv-portrait__frame" id="portraitFrame">
+                <div class="adv-portrait__placeholder" id="portraitPlaceholder">
+                  <i class="fas fa-user-circle"></i>
+                </div>
+                <img class="adv-portrait__image" id="portraitImage" alt="Character portrait" />
+              </div>
+              <button type="button" class="adv-btn adv-portrait__btn" id="generatePortraitBtn">
+                <i class="fas fa-wand-magic-sparkles"></i> Generate Portrait
+              </button>
+            </div>
+
             <!-- Stat Allocator -->
             <div class="adv-stat-allocator" id="statAllocator">
               <div class="adv-stat-allocator__header">
@@ -127,6 +140,8 @@
 
           <!-- Stats Sidebar -->
           <aside class="adv-sidebar">
+            <!-- Character Portrait + Name -->
+            <div id="sidebarPortrait" class="adv-sidebar__portrait" style="display:none;"></div>
             <!-- HP -->
             <div class="adv-panel">
               <div class="adv-panel__title">Health</div>

@@ -164,8 +164,12 @@
       });
       var creator = UI.$('characterCreator');
       if (creator) creator.style.display = 'none';
+      resetPortrait();
       UI.showScreen('screenGenreSelect');
     });
+
+    var portraitBtn = UI.$('generatePortraitBtn');
+    if (portraitBtn) portraitBtn.addEventListener('click', generatePortrait);
 
     UI.$('pauseBtn').addEventListener('click', showPauseMenu);
     UI.$('resumeBtn').addEventListener('click', hidePauseMenu);
@@ -263,6 +267,83 @@
       }
     });
     return { selections: selections, description: buildCharacterDescription() };
+  }
+
+  // --- Character Portrait ---
+  var generatedPortraitDataUrl = null;
+
+  function generatePortrait() {
+    if (!selectedGenre) return;
+    var btn = UI.$('generatePortraitBtn');
+    var img = UI.$('portraitImage');
+    var placeholder = UI.$('portraitPlaceholder');
+    if (!btn || !img) return;
+
+    var charDesc = buildCharacterDescription();
+    if (!charDesc) {
+      UI.toast('Select appearance options first', 'warning');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+    placeholder.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+    var portraitPrompt = 'Character portrait, upper body, facing slightly left, ' + charDesc;
+    AI.generateSceneImage(portraitPrompt, selectedGenre, charDesc)
+      .then(function (dataUrl) {
+        if (dataUrl) {
+          generatedPortraitDataUrl = dataUrl;
+          img.onload = function () {
+            img.classList.add('adv-portrait__image--loaded');
+            placeholder.style.display = 'none';
+          };
+          img.src = dataUrl;
+          btn.innerHTML = '<i class="fas fa-rotate"></i> Regenerate';
+        } else {
+          placeholder.innerHTML = '<i class="fas fa-user-circle"></i>';
+          UI.toast('Portrait generation failed — try again', 'warning');
+        }
+        btn.disabled = false;
+      })
+      .catch(function () {
+        placeholder.innerHTML = '<i class="fas fa-user-circle"></i>';
+        btn.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> Generate Portrait';
+        btn.disabled = false;
+      });
+  }
+
+  function resetPortrait() {
+    generatedPortraitDataUrl = null;
+    var img = UI.$('portraitImage');
+    var placeholder = UI.$('portraitPlaceholder');
+    var btn = UI.$('generatePortraitBtn');
+    if (img) {
+      img.src = '';
+      img.classList.remove('adv-portrait__image--loaded');
+    }
+    if (placeholder) {
+      placeholder.style.display = '';
+      placeholder.innerHTML = '<i class="fas fa-user-circle"></i>';
+    }
+    if (btn) {
+      btn.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> Generate Portrait';
+      btn.disabled = false;
+    }
+  }
+
+  function renderSidebarPortrait() {
+    var container = UI.$('sidebarPortrait');
+    if (!container || !gameState) return;
+    var portraitSrc = gameState.portraitImage || generatedPortraitDataUrl;
+    if (!portraitSrc) {
+      container.style.display = 'none';
+      return;
+    }
+    container.style.display = '';
+    container.innerHTML =
+      '<div class="adv-sidebar__portrait-frame"><img src="' + portraitSrc + '" alt="Portrait" /></div>' +
+      '<div class="adv-sidebar__portrait-name">' + UI.escapeHtml(gameState.playerName) + '</div>';
   }
 
   // --- Stat Allocator ---
@@ -496,6 +577,9 @@
     var customStats = collectStatAllocations();
 
     gameState = RPG.createState(selectedGenre, playerName, characterAppearance, customStats);
+    if (generatedPortraitDataUrl) {
+      gameState.portraitImage = generatedPortraitDataUrl;
+    }
     isProcessing = true;
 
     UI.showScreen('screenPlay');
@@ -767,6 +851,7 @@
   // --- Update Sidebar ---
   function updateSidebar() {
     if (!gameState) return;
+    renderSidebarPortrait();
     var stats = gameState.stats;
 
     // HP
