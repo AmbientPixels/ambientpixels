@@ -541,16 +541,23 @@ Write the full deliverable first, then the structured JSON block.`;
       }
 
       // ECHO DONE-TASK SOCIAL INJECTION: when Echo has no idle tasks at all,
-      // check for done social tasks with reviewed_copy ready to post
+      // check for done social tasks — either with reviewed_copy ready to post,
+      // or without reviewed_copy (needs copy task created via Copy Review Gate)
       if (agentId === 'echo' && _triagedIdle.length === 0) {
         const _doneSocialMaxAge2 = 7 * 24 * 60 * 60 * 1000;
-        const _doneSocialReady = tasks.filter(function (t) {
+        const _doneSocialAll = tasks.filter(function (t) {
           if (t.assignee !== 'echo' || t.status !== 'done' || t._archived) return false;
-          if (!t.reviewed_copy) return false;
           var age = Date.now() - new Date(t.createdAt || 0).getTime();
           if (age > _doneSocialMaxAge2) return false;
           var txt = ((t.title || '') + ' ' + (t.description || '')).toLowerCase();
-          return /^social_/.test(t.taskType || '') || /linkedin|twitter|x\.com|social media|social post|bluesky|tweet/.test(txt);
+          return /^social_/.test(t.taskType || '') || t.campaign_id || /linkedin|twitter|x\.com|social media|social post|bluesky|tweet/.test(txt);
+        });
+        // Split: tasks with reviewed_copy (ready to post) vs without (need copy task)
+        const _doneSocialReady = _doneSocialAll.filter(function (t) { return t.reviewed_copy; });
+        const _doneSocialNeedCopy = _doneSocialAll.filter(function (t) {
+          if (t.reviewed_copy) return false;
+          if (t.awaiting_copy_review) return false; // copy task already in flight
+          return true;
         });
         if (_doneSocialReady.length > 0) {
           // Filter out tasks with pending social actions
@@ -584,6 +591,25 @@ Write the full deliverable first, then the structured JSON block.`;
             }
           } catch (_rpe) {
             context.log('[Heartbeat] ANTI-STALL: echo done-task social injection error (non-fatal):', String(_rpe).substring(0, 200));
+          }
+        }
+        // Inject create-social-action for done tasks that need copy (no reviewed_copy yet)
+        // This triggers the Copy Review Gate which creates the Scribe copy task
+        if (_doneSocialNeedCopy.length > 0) {
+          for (var _nc = 0; _nc < _doneSocialNeedCopy.length; _nc++) {
+            var _ncTask = _doneSocialNeedCopy[_nc];
+            var _ncText = ((_ncTask.title || '') + ' ' + (_ncTask.description || '')).toLowerCase();
+            var _ncPlatform = (_ncTask.taskType === 'social_linkedin' || /linkedin/.test(_ncText)) ? 'linkedin'
+              : (_ncTask.taskType === 'social_x' || /twitter|x\.com|tweet/.test(_ncText)) ? 'x'
+              : (_ncTask.taskType === 'social_bluesky' || /bluesky/.test(_ncText)) ? 'bluesky'
+              : 'linkedin';
+            context.log('[Heartbeat] ANTI-STALL: echo injecting create-social-action for done task NEEDING COPY:', _ncTask.id, 'platform:', _ncPlatform);
+            actions.push({
+              type: 'create-social-action',
+              taskId: _ncTask.id,
+              social: { platform: _ncPlatform, text: 'Pending Scribe copy review' },
+              summary: 'Anti-stall: trigger copy review for ' + (_ncTask.title || _ncTask.id)
+            });
           }
         }
       }
