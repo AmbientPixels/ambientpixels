@@ -836,6 +836,11 @@ Write the full deliverable first, then the structured JSON block.`;
               if (new Date(t.createdAt).getTime() <= _cadenceStart) return false;
               // Exclude auto-created child tasks — only real campaign tasks count toward cadence
               if (t.tags && t.tags.indexOf('auto-created') !== -1) return false;
+              // Per-platform cadence for social tasks: only same taskType blocks
+              // e.g. social_linkedin task doesn't block social_x creation in same window
+              if (/^social_/.test(_taskType) && /^social_/.test(t.taskType || '')) {
+                return t.taskType === _taskType;
+              }
               return true;
             });
             if (_recentCmpTask) {
@@ -968,6 +973,39 @@ Write the full deliverable first, then the structured JSON block.`;
         else if (/research|competitive.*intel|market.*analysis/.test(_ctTitle)) _taskType = 'research';
         else if (/deploy|infrastructure|ci.*cd|pipeline|devops|scaling|azure.*function/.test(_ctTitle)) _taskType = 'ops';
         else if (/cost.*audit|budget.*review|api.*cost|cost.*project|financial.*review|spend.*analysis|cost.*analysis|audit.*cost/.test(_ctTitle)) _taskType = 'financial';
+      }
+      // SERVER-SIDE: platform rotation for multi-platform social campaigns
+      // If Nova creates duplicate social_linkedin tasks, rotate to the next unused platform
+      if (_taskCampaignId && campaignCtx && campaignCtx.campaignById && campaignCtx.campaignById[_taskCampaignId] && /^social_/.test(_taskType)) {
+        var _rotCmp = campaignCtx.campaignById[_taskCampaignId];
+        var _rotAllowed = Array.isArray(_rotCmp.allowedTaskTypes) ? _rotCmp.allowedTaskTypes : [];
+        var _rotSocialTypes = _rotAllowed.filter(function(tt) { return /^social_/.test(tt); });
+        // Only rotate if campaign has 2+ social platforms
+        if (_rotSocialTypes.length > 1) {
+          var _rotCadenceMs = { daily: 86400000, weekly: 604800000, biweekly: 1209600000 };
+          var _rotWindow = _rotCadenceMs[_rotCmp.cadence] || 86400000;
+          var _rotStart = Date.now() - _rotWindow;
+          var _rotUsed = {};
+          tasks.forEach(function(t) {
+            if (t.campaign_id !== _taskCampaignId || t.status === 'archived') return;
+            if (t.tags && t.tags.indexOf('auto-created') !== -1) return;
+            if (new Date(t.createdAt).getTime() <= _rotStart) return;
+            if (/^social_/.test(t.taskType || '')) _rotUsed[t.taskType] = true;
+          });
+          // Also count tasks created earlier in THIS heartbeat cycle (in result.taskUpdates)
+          (result.taskUpdates || []).forEach(function(tu) {
+            if (tu.action === 'create' && tu.task && tu.task.campaign_id === _taskCampaignId && /^social_/.test(tu.task.taskType || '')) {
+              _rotUsed[tu.task.taskType] = true;
+            }
+          });
+          var _rotNext = _rotSocialTypes.find(function(tt) { return !_rotUsed[tt]; });
+          if (_rotNext && _rotNext !== _taskType) {
+            context.log('[Heartbeat]', agentId, 'PLATFORM ROTATION: campaign "' + (_rotCmp.title || _taskCampaignId) + '" rotating', _taskType, '→', _rotNext, '(used:', Object.keys(_rotUsed).join(', ') || 'none', ')');
+            _taskType = _rotNext;
+          } else if (!_rotNext) {
+            context.log('[Heartbeat]', agentId, 'PLATFORM ROTATION: all social platforms used for campaign "' + (_rotCmp.title || _taskCampaignId) + '" — keeping', _taskType);
+          }
+        }
       }
       // SERVER-SIDE GUARD: campaign allowedTaskTypes restriction — reject mismatched task types
       if (_taskCampaignId && campaignCtx && campaignCtx.campaignById && campaignCtx.campaignById[_taskCampaignId]) {

@@ -807,6 +807,14 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
       a) Assign scribe to write the blog post (create-doc with marketing_post kind)
       b) Assign pixel to generate the hero image (generate-image with blog_header purpose, referencing the doc ID once scribe creates it)
     This ensures Scribe writes and Pixel designs — they collaborate through the task board.
+    For social campaigns with multiple allowed platforms (e.g., social_linkedin + social_x + social_bluesky):
+      Create ONE separate task per platform in the same heartbeat, each assigned to echo with the correct taskType set explicitly.
+      Example: If campaign allows social_linkedin + social_x + social_bluesky, create 3 tasks:
+        - "Draft LinkedIn post: [topic]" with taskType: "social_linkedin"
+        - "Draft X post: [topic]" with taskType: "social_x"
+        - "Draft Bluesky post: [topic]" with taskType: "social_bluesky"
+      Echo will tailor content for each platform's style and character limits.
+      IMPORTANT: Always set taskType explicitly on social tasks — do not rely on title-based inference.
   - ESCALATION HIERARCHY — Owner → Domain Lead → CEO:
     You must respect the company chain of command. Do NOT intervene on tasks where the domain lead should handle it first.
     Escalation tiers:
