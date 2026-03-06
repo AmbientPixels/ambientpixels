@@ -1058,6 +1058,15 @@ Write the full deliverable first, then the structured JSON block.`;
           var _rotNext = _rotCandidates.find(function(tt) { return tt !== _taskType; }) || _rotCandidates[0];
           if (_rotNext && _rotNext !== _taskType) {
             context.log('[Heartbeat]', agentId, 'PLATFORM ROTATION: campaign "' + (_rotCmp.title || _taskCampaignId) + '" rotating', _taskType, '→', _rotNext, '(counts:', JSON.stringify(_rotCounts), ')');
+            // Rewrite task title to reflect actual platform so Echo writes correct content
+            var _platNames = { social_linkedin: 'LinkedIn', social_x: 'X', social_bluesky: 'Bluesky' };
+            var _oldPlatName = _platNames[_taskType] || _taskType;
+            var _newPlatName = _platNames[_rotNext] || _rotNext;
+            if (action.task.title) {
+              action.task.title = action.task.title
+                .replace(new RegExp(_oldPlatName, 'gi'), _newPlatName)
+                .replace(/Draft social media posts/i, 'Draft ' + _newPlatName + ' post');
+            }
             _taskType = _rotNext;
           } else {
             context.log('[Heartbeat]', agentId, 'PLATFORM ROTATION: keeping', _taskType, 'for campaign "' + (_rotCmp.title || _taskCampaignId) + '" (counts:', JSON.stringify(_rotCounts), ')');
@@ -1708,15 +1717,29 @@ Write the full deliverable first, then the structured JSON block.`;
         continue;
       }
       // Minimum content length (excluding URL/hashtags): LinkedIn 100, X/Bluesky 30
-      const _minLen = (socialPayload.platform || '').toLowerCase() === 'linkedin' ? 100 : 30;
+      // Use task's taskType (reflects rotation) for accurate platform detection
+      var _minPlatform = (socialPayload.platform || '').toLowerCase();
+      if (action.taskId) {
+        var _mlTask = tasks.find(function(t) { return t.id === action.taskId; });
+        if (_mlTask && /^social_/.test(_mlTask.taskType || '')) _minPlatform = _mlTask.taskType.replace('social_', '');
+      }
+      const _minLen = _minPlatform === 'linkedin' ? 100 : 30;
       if (_bodyNoUrl.length < _minLen) {
         context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action — body too short after stripping URL (' + _bodyNoUrl.length + '/' + _minLen + ' chars):', _bodyNoUrl.substring(0, 80));
         continue;
       }
 
       // Server-side enforcement: platform character limits — auto-trim to fit
+      // Use task's taskType (reflects rotation) over agent's platform guess
       const PLATFORM_CHAR_LIMITS = { x: 280, bluesky: 300, linkedin: 3000 };
-      const platformKey = (socialPayload.platform || 'x').toLowerCase();
+      var _charLimitPlatform = (socialPayload.platform || 'x').toLowerCase();
+      if (action.taskId) {
+        var _clTask = tasks.find(function(t) { return t.id === action.taskId; });
+        if (_clTask && /^social_/.test(_clTask.taskType || '')) {
+          _charLimitPlatform = _clTask.taskType.replace('social_', '');
+        }
+      }
+      const platformKey = _charLimitPlatform;
       const charLimit = PLATFORM_CHAR_LIMITS[platformKey] || 280;
       if (postText.length > charLimit) {
         context.log('[Heartbeat]', agentId, 'Trimming', platformKey, 'post from', postText.length, 'to', charLimit, 'chars');
