@@ -956,7 +956,8 @@ Write the full deliverable first, then the structured JSON block.`;
             const _isBlogByType = (task.taskType === 'blog_post' || task.taskType === 'article');
             const _isBlogByTitle = /write.*blog|draft.*blog|blog\s*post|create.*blog|publish.*blog|new.*blog|first\s*blog|introductory\s*post|write.*article|compose.*article|marketing.*brief|content.*brief|draft.*brief/.test(_etTaskText);
             const _isBlogByContent = /document\s*type:\s*marketing_post|publishing\s*to\s*\/blog\/|submit.*ceo.*approv.*publish/.test(_etDeliverableLower);
-            const _isBlogTask = agentId === 'scribe' && (_isBlogByType || _isBlogByTitle || _isBlogByContent);
+            const _isSocialCopyTask = task.tags && task.tags.indexOf('social-copy') !== -1;
+            const _isBlogTask = agentId === 'scribe' && !_isSocialCopyTask && (_isBlogByType || _isBlogByTitle || _isBlogByContent);
             if (_isBlogTask) context.log('[Heartbeat] BLOG DETECTED:', agentId, 'task:', action.taskId, 'byType:', _isBlogByType, 'byTitle:', _isBlogByTitle, 'byContent:', _isBlogByContent);
             if (_isBlogTask && deliverable.length > 200) {
               const _etDocsStore = (await storage.getState('documents')) || [];
