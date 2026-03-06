@@ -718,7 +718,12 @@ Write the full deliverable first, then the structured JSON block.`;
 
         // SERVER-SIDE GUARD: campaign maxTasks cap — hard limit on tasks per campaign
         if (_parentCmp.maxTasks && typeof _parentCmp.maxTasks === 'number') {
-          var _cmpTaskCount = tasks.filter(function (t) { return t.campaign_id === _taskCampaignId && t.status !== 'archived'; }).length;
+          // Exclude auto-created child tasks (copy tasks, hero images) — they inherit campaign_id
+          // but are workflow artifacts, not campaign output
+          var _cmpTaskCount = tasks.filter(function (t) {
+            return t.campaign_id === _taskCampaignId && t.status !== 'archived' &&
+              !(t.tags && t.tags.indexOf('auto-created') !== -1);
+          }).length;
           if (_cmpTaskCount >= _parentCmp.maxTasks) {
             context.log('[Heartbeat]', agentId, 'BLOCKED create-task: campaign "' + (_parentCmp.title || _taskCampaignId) + '" maxTasks reached (' + _cmpTaskCount + '/' + _parentCmp.maxTasks + ')');
             continue;
@@ -732,7 +737,11 @@ Write the full deliverable first, then the structured JSON block.`;
           if (_cadenceWindow > 0) {
             var _cadenceStart = Date.now() - _cadenceWindow;
             var _recentCmpTask = tasks.find(function (t) {
-              return t.campaign_id === _taskCampaignId && t.status !== 'archived' && new Date(t.createdAt).getTime() > _cadenceStart;
+              if (t.campaign_id !== _taskCampaignId || t.status === 'archived') return false;
+              if (new Date(t.createdAt).getTime() <= _cadenceStart) return false;
+              // Exclude auto-created child tasks — only real campaign tasks count toward cadence
+              if (t.tags && t.tags.indexOf('auto-created') !== -1) return false;
+              return true;
             });
             if (_recentCmpTask) {
               context.log('[Heartbeat]', agentId, 'BLOCKED create-task: campaign "' + (_parentCmp.title || _taskCampaignId) + '" cadence=' + _parentCmp.cadence + ' — task "' + _recentCmpTask.title + '" created within window');
@@ -1010,6 +1019,44 @@ Write the full deliverable first, then the structured JSON block.`;
               // Inject into the running actions array — submit-for-publish handler deduplicates on its own
               actions.push({ type: 'submit-for-publish', documentId: _convDoc.id, taskId: action.taskId, _systemInjected: true });
             }
+            // SOCIAL CONVERGENCE RECOVERY: auto-complete social tasks stuck at convergence limit
+            // Use the latest deliverable as reviewed_copy — CEO approves the social action.
+            const _convIsSocial = (_exTask.assignee === 'echo') &&
+              (/^social_/.test(_exTask.taskType || '') || _exTask.campaign_id ||
+               /linkedin|twitter|x\.com|social\s*media|social\s*post|bluesky/.test(((_exTask.title || '') + ' ' + (_exTask.description || '')).toLowerCase()));
+            if (_convIsSocial) {
+              const _convDels = (_exTask.comments || []).filter(c => c.type === 'deliverable');
+              const _convLatest = _convDels.length > 0 ? _convDels[_convDels.length - 1].text : '';
+              if (_convLatest) {
+                _exTask.reviewed_copy = _convLatest;
+                result.taskUpdates.push({ action: 'move', taskId: action.taskId, newStatus: 'done' });
+                result.taskUpdates.push({ action: 'comment', taskId: action.taskId,
+                  comment: '[SYSTEM] Convergence recovery: social task auto-completed with latest deliverable (' + _convDels.length + ' total). Echo can create the social action for CEO approval.',
+                  agentId: 'system' });
+                context.log('[Heartbeat] SOCIAL CONVERGENCE RECOVERY: auto-completed', action.taskId, '(' + _convLatest.length + ' chars)');
+              }
+            }
+            // Social-copy convergence recovery
+            const _convIsCopy = _exTask.tags && _exTask.tags.indexOf('social-copy') !== -1;
+            if (_convIsCopy) {
+              const _ccDels = (_exTask.comments || []).filter(c => c.type === 'deliverable');
+              const _ccLatest = _ccDels.length > 0 ? _ccDels[_ccDels.length - 1].text : '';
+              if (_ccLatest) {
+                result.taskUpdates.push({ action: 'move', taskId: action.taskId, newStatus: 'done' });
+                const _ccTags = _exTask.tags || [];
+                const _ccPTag = _ccTags.find(function(tg) { return tg.startsWith('social-copy-for-'); });
+                const _ccPId = _ccPTag ? _ccPTag.replace('social-copy-for-', '') : (_exTask.parent_task_id || null);
+                if (_ccPId) {
+                  const _ccP = tasks.find(function(t) { return t.id === _ccPId; });
+                  if (_ccP) {
+                    _ccP.reviewed_copy = _ccLatest;
+                    _ccP.awaiting_copy_review = false;
+                    _ccP.updatedAt = new Date().toISOString();
+                  }
+                }
+                context.log('[Heartbeat] SOCIAL COPY CONVERGENCE RECOVERY: auto-completed', action.taskId);
+              }
+            }
             continue;
           }
           const _hasDeliverable = _deliverableCount > 0;
@@ -1039,6 +1086,39 @@ Write the full deliverable first, then the structured JSON block.`;
               agentId: agentId
             });
             result.executes = (result.executes || 0) + 1;
+
+            // SOCIAL COPY FAST-PATH: auto-complete social-copy tasks after execute — skip peer review.
+            // The CEO approves the social action (create-social-action) which is the real quality gate.
+            if (task.tags && task.tags.indexOf('social-copy') !== -1) {
+              result.taskUpdates.push({ action: 'move', taskId: action.taskId, newStatus: 'done' });
+              result.taskUpdates.push({
+                action: 'comment', taskId: action.taskId,
+                comment: '[SYSTEM] Social copy auto-completed (fast-path). CEO approves the social action — peer review skipped.',
+                agentId: 'system'
+              });
+              // Propagate copy to parent social task
+              const _fpTags = task.tags || [];
+              const _fpParentTag = _fpTags.find(function(tg) { return tg.startsWith('social-copy-for-'); });
+              const _fpParentId = _fpParentTag ? _fpParentTag.replace('social-copy-for-', '') : (task.parent_task_id || null);
+              if (_fpParentId) {
+                const _fpParent = tasks.find(function(t) { return t.id === _fpParentId; });
+                if (_fpParent) {
+                  _fpParent.reviewed_copy = deliverable;
+                  _fpParent.awaiting_copy_review = false;
+                  _fpParent.updatedAt = new Date().toISOString();
+                  if (!_fpParent.comments) _fpParent.comments = [];
+                  _fpParent.comments.push({
+                    id: 'cmt-fastcopy-' + Date.now(),
+                    author: 'system',
+                    text: 'Copy ready from Scribe (fast-path). Echo can now create the social action.',
+                    type: 'system',
+                    createdAt: new Date().toISOString()
+                  });
+                  context.log('[Heartbeat] SOCIAL COPY FAST-PATH: copy propagated to parent:', _fpParentId, '(' + deliverable.length + ' chars)');
+                }
+              }
+              continue; // skip blog detection — social-copy tasks are never blog tasks
+            }
 
             // SERVER-SIDE FALLBACK: Auto-create document for blog post tasks that used execute-task instead of create-doc
             // Three-layer detection: (1) taskType field, (2) title/desc regex fallback, (3) deliverable content signals
