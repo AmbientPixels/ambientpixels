@@ -1705,6 +1705,49 @@ Write the full deliverable first, then the structured JSON block.`;
 
       // Strip meta-comments agents leave in copy (e.g. [ADDRESSED], [NOTE], [REVISED])
       socialPayload.text = (socialPayload.text || '').replace(/\n*\[(?:ADDRESSED|NOTE|REVISED|FEEDBACK|CHANGED|UPDATED)[^\]]*\].*$/gis, '').trim();
+
+      // Strip campaign brief metadata that leaks into social post text
+      // Agents sometimes dump the full task brief (objectives, rules, multi-post format)
+      if (socialPayload.text) {
+        var _briefText = socialPayload.text;
+        // Remove campaign header lines: Objective:, Campaign Focus:, Platforms:, Posting Rules:, Landing Page:
+        _briefText = _briefText.replace(/^(?:Objective|Campaign Focus|Platforms|Posting Rules|Landing Page|Target Audience|Key Messages?|Brand Voice|Tone):?\s*[^\n]*$/gim, '');
+        // Remove posting rules blocks (indented bullet points after "Posting Rules:")
+        _briefText = _briefText.replace(/Posting Rules:\s*\n(?:\s+[^\n]+\n?)*/gi, '');
+        // Remove "---" separators
+        _briefText = _briefText.replace(/^-{3,}$/gm, '');
+        // If text has "Post 1:" / "Post 2:" format, extract just Post 1
+        var _postMatch = _briefText.match(/(?:^|\n)\s*Post\s*1\s*:\s*([\s\S]*?)(?:\n\s*Post\s*2\s*:|$)/i);
+        if (_postMatch && _postMatch[1].trim().length > 30) {
+          _briefText = _postMatch[1].trim();
+          context.log('[Heartbeat]', agentId, 'Extracted Post 1 from multi-post brief (' + _briefText.length + ' chars)');
+        }
+        // If text has platform section headers (### X (Twitter), ### LinkedIn), extract the matching section
+        if (!_postMatch) {
+          var _platSection = null;
+          var _resolvedPlat = (socialPayload.platform || 'x').toLowerCase();
+          var _platPatterns = {
+            x: /(?:^|\n)###?\s*(?:X\s*\(Twitter\)|X \/ Twitter|X Post)\s*\n([\s\S]*?)(?:\n###?\s|\n*$)/i,
+            linkedin: /(?:^|\n)###?\s*LinkedIn\s*(?:Post)?\s*\n([\s\S]*?)(?:\n###?\s|\n*$)/i,
+            bluesky: /(?:^|\n)###?\s*Bluesky\s*(?:Post)?\s*\n([\s\S]*?)(?:\n###?\s|\n*$)/i
+          };
+          if (_platPatterns[_resolvedPlat]) {
+            _platSection = _briefText.match(_platPatterns[_resolvedPlat]);
+          }
+          if (_platSection && _platSection[1].trim().length > 30) {
+            // Extract first post from the section
+            var _secText = _platSection[1].trim();
+            var _secPostMatch = _secText.match(/Post\s*1\s*:\s*([\s\S]*?)(?:\n\s*Post\s*2\s*:|$)/i);
+            _briefText = _secPostMatch ? _secPostMatch[1].trim() : _secText;
+            context.log('[Heartbeat]', agentId, 'Extracted', _resolvedPlat, 'section from multi-platform brief (' + _briefText.length + ' chars)');
+          }
+        }
+        _briefText = _briefText.replace(/\n{3,}/g, '\n\n').trim();
+        if (_briefText.length > 0 && _briefText !== socialPayload.text) {
+          socialPayload.text = _briefText;
+        }
+      }
+
       const postText = socialPayload.text || '';
 
       // Server-side enforcement: reject meta-description posts (task titles / project names)
