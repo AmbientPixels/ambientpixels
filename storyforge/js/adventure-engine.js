@@ -559,6 +559,9 @@
   function startAdventure() {
     if (!selectedGenre || isProcessing) return;
 
+    // Unlock AudioContext on user gesture so TTS can auto-play when scene arrives
+    ensureAudioContext();
+
     // Genre gating: check if user can access this genre tier
     if (Ent && !Ent.canAccessGenre(selectedGenre.id, selectedGenre.tier)) {
       Ent.showUpgradePrompt('The ' + selectedGenre.name + ' genre requires StoryForge Pro.');
@@ -637,60 +640,36 @@
     var btn = document.querySelector('.adv-narrate');
     if (!btn) return;
 
-    // Toggle off if already playing
     if (currentNarration) {
       stopNarration();
       return;
     }
 
-    // Unlock AudioContext immediately within user-gesture context
-    var ctx = ensureAudioContext();
+    // Use preloaded buffer if available
+    if (preloadedAudioBuffer) {
+      playBuffer(preloadedAudioBuffer);
+      return;
+    }
 
-    // Loading state
+    // Fallback: manual TTS fetch (shouldn't normally happen with preloading)
+    var ctx = ensureAudioContext();
     btn.classList.add('adv-narrate--loading');
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
 
-    var sessionId = {};  // unique ref to detect stale callbacks
-    currentNarration = { source: null, id: sessionId };
-
     var voice = (gameState && AI.GENRE_VOICES[gameState.genre]) || 'Kore';
     AI.callTTSAPI(text, voice).then(function (audioUrl) {
-      if (!currentNarration || currentNarration.id !== sessionId) {
-        // User stopped narration while TTS was loading
-        if (audioUrl && audioUrl.indexOf('blob:') === 0) URL.revokeObjectURL(audioUrl);
-        return;
-      }
       if (!audioUrl) {
         stopNarration();
         UI.toast('Narration unavailable', 'warning');
         return;
       }
-
-      // Fetch the audio data as ArrayBuffer for Web Audio API
       return fetch(audioUrl).then(function (r) { return r.arrayBuffer(); }).then(function (buf) {
         if (audioUrl.indexOf('blob:') === 0) URL.revokeObjectURL(audioUrl);
-        if (!currentNarration || currentNarration.id !== sessionId) return;
         return ctx.decodeAudioData(buf);
       }).then(function (audioBuffer) {
-        if (!audioBuffer || !currentNarration || currentNarration.id !== sessionId) return;
-
-        var source = ctx.createBufferSource();
-        source.buffer = audioBuffer;
-        source.connect(ctx.destination);
-        currentNarration = { source: source, id: sessionId };
-
-        source.onended = function () {
-          if (currentNarration && currentNarration.id === sessionId) {
-            currentNarration = null;
-            btn.classList.remove('adv-narrate--playing');
-            btn.innerHTML = '<i class="fas fa-volume-up"></i> Listen';
-          }
-        };
-
-        source.start(0);
-        btn.classList.remove('adv-narrate--loading');
-        btn.classList.add('adv-narrate--playing');
-        btn.innerHTML = '<i class="fas fa-stop"></i> Stop';
+        if (!audioBuffer) return;
+        preloadedAudioBuffer = audioBuffer;
+        playBuffer(audioBuffer);
       });
     }).catch(function (err) {
       console.warn('[TTS] Playback error:', err);
@@ -699,14 +678,106 @@
     });
   }
 
+  // Preloaded audio buffer for current scene (filled by TTS fetch in parallel with typewriter)
+  var preloadedAudioBuffer = null;
+  var preloadSessionId = null;
+
+  function preloadTTS(text) {
+    var ctx = ensureAudioContext();
+    var sessionId = {};
+    preloadSessionId = sessionId;
+    preloadedAudioBuffer = null;
+
+    var voice = (gameState && AI.GENRE_VOICES[gameState.genre]) || 'Kore';
+    AI.callTTSAPI(text, voice).then(function (audioUrl) {
+      if (preloadSessionId !== sessionId) {
+        if (audioUrl && audioUrl.indexOf('blob:') === 0) URL.revokeObjectURL(audioUrl);
+        return;
+      }
+      if (!audioUrl) return;
+
+      return fetch(audioUrl).then(function (r) { return r.arrayBuffer(); }).then(function (buf) {
+        if (audioUrl.indexOf('blob:') === 0) URL.revokeObjectURL(audioUrl);
+        if (preloadSessionId !== sessionId) return;
+        return ctx.decodeAudioData(buf);
+      }).then(function (audioBuffer) {
+        if (preloadSessionId !== sessionId || !audioBuffer) return;
+        preloadedAudioBuffer = audioBuffer;
+        // If typewriter already finished and button is waiting, auto-play now
+        tryAutoPlay();
+      });
+    }).catch(function (err) {
+      console.warn('[TTS] Preload error:', err);
+    });
+  }
+
+  function tryAutoPlay() {
+    if (!preloadedAudioBuffer || !audioCtx) return;
+    playBuffer(preloadedAudioBuffer);
+  }
+
+  function playBuffer(audioBuffer) {
+    stopNarration();
+    var ctx = ensureAudioContext();
+    var source = ctx.createBufferSource();
+    source.buffer = audioBuffer;
+    source.connect(ctx.destination);
+
+    var sessionId = {};
+    currentNarration = { source: source, id: sessionId };
+
+    var btn = document.querySelector('.adv-narrate');
+    source.onended = function () {
+      if (currentNarration && currentNarration.id === sessionId) {
+        currentNarration = null;
+        if (btn) {
+          btn.classList.remove('adv-narrate--playing');
+          btn.innerHTML = '<i class="fas fa-rotate"></i> Replay';
+        }
+      }
+    };
+
+    source.start(0);
+    if (btn) {
+      btn.classList.remove('adv-narrate--loading');
+      btn.classList.add('adv-narrate--playing');
+      btn.innerHTML = '<i class="fas fa-stop"></i> Stop';
+    }
+  }
+
   function injectNarrateButton(sceneText) {
     var el = UI.$('sceneText');
     if (!el) return;
     var btn = document.createElement('button');
     btn.className = 'adv-narrate';
-    btn.innerHTML = '<i class="fas fa-volume-up"></i> Listen';
+
+    // If audio already playing (auto-play beat the typewriter), show stop state
+    if (currentNarration) {
+      btn.classList.add('adv-narrate--playing');
+      btn.innerHTML = '<i class="fas fa-stop"></i> Stop';
+    } else if (preloadedAudioBuffer) {
+      // Audio ready but hasn't played yet — auto-play now
+      btn.innerHTML = '<i class="fas fa-volume-up"></i> Playing...';
+      el.appendChild(btn);
+      tryAutoPlay();
+      return;
+    } else {
+      // TTS still loading
+      btn.classList.add('adv-narrate--loading');
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+    }
+
     btn.addEventListener('click', function () {
-      narrateScene(sceneText);
+      if (currentNarration) {
+        // Stop playback
+        stopNarration();
+      } else if (preloadedAudioBuffer) {
+        // Replay
+        playBuffer(preloadedAudioBuffer);
+      } else {
+        // Still loading — narrateScene as fallback
+        narrateScene(sceneText);
+      }
     });
     el.appendChild(btn);
   }
@@ -725,6 +796,9 @@
     sceneTextEl.classList.remove('adv-scene-enter');
     void sceneTextEl.offsetWidth; // force reflow to restart animation
     sceneTextEl.classList.add('adv-scene-enter');
+
+    // Start TTS preload in parallel with typewriter
+    preloadTTS(scene.sceneText);
 
     // Typewriter text
     UI.typewriter(sceneTextEl, scene.sceneText).then(function () {
@@ -769,6 +843,9 @@
   function handleChoice(choiceId) {
     if (isProcessing || !currentScene) return;
     isProcessing = true;
+
+    // Unlock AudioContext on user gesture so TTS can auto-play later
+    ensureAudioContext();
 
     var choice = currentScene.choices.find(function (c) { return c.id === choiceId; });
     if (!choice) { isProcessing = false; return; }
