@@ -173,6 +173,8 @@ module.exports = async function (context) {
       if (c.taskType && _validTaskTypes.indexOf(c.taskType) === -1) { c.taskType = null; campaignsChanged = true; if (c.id) _campaignsTouched.add(c.id); }
       if (Array.isArray(c.allowedTaskTypes)) { c.allowedTaskTypes = c.allowedTaskTypes.filter(function (t) { return _validTaskTypes.indexOf(t) !== -1; }); if (c.allowedTaskTypes.length === 0) { c.allowedTaskTypes = null; campaignsChanged = true; if (c.id) _campaignsTouched.add(c.id); } }
       if (c.maxTasks !== undefined && c.maxTasks !== null && typeof c.maxTasks !== 'number') { c.maxTasks = parseInt(c.maxTasks, 10) || null; campaignsChanged = true; if (c.id) _campaignsTouched.add(c.id); }
+      if (c.frequency !== undefined && c.frequency !== null && typeof c.frequency !== 'number') { c.frequency = parseInt(c.frequency, 10) || null; campaignsChanged = true; if (c.id) _campaignsTouched.add(c.id); }
+      if (c.frequency && c.frequency < 1) { c.frequency = 1; campaignsChanged = true; if (c.id) _campaignsTouched.add(c.id); }
       if (c.cadence && ['daily', 'weekly', 'biweekly'].indexOf(c.cadence) === -1) { c.cadence = null; campaignsChanged = true; if (c.id) _campaignsTouched.add(c.id); }
       if (c.endDate && isNaN(new Date(c.endDate).getTime())) { c.endDate = null; campaignsChanged = true; if (c.id) _campaignsTouched.add(c.id); }
       if (c.startDate && isNaN(new Date(c.startDate).getTime())) { c.startDate = null; campaignsChanged = true; if (c.id) _campaignsTouched.add(c.id); }
@@ -303,8 +305,19 @@ module.exports = async function (context) {
       if (c.autoComplete === false) continue; // ongoing campaigns opt out
       const cmpTasks = tasks.filter(function (t) { return t && t.campaign_id === c.id; });
       if (cmpTasks.length === 0) continue;
-      // For campaigns with maxTasks, also require that the cap is reached before auto-completing
-      if (c.maxTasks && typeof c.maxTasks === 'number' && cmpTasks.length < c.maxTasks) continue;
+      // For campaigns with maxTasks or frequency, require that the cap is reached before auto-completing
+      var _acMaxTasks = (c.maxTasks && typeof c.maxTasks === 'number') ? c.maxTasks : null;
+      if (!_acMaxTasks && c.frequency && c.cadence) {
+        var _acCadenceDays = { daily: 1, weekly: 7, biweekly: 14 };
+        var _acPeriodDays = _acCadenceDays[c.cadence] || 7;
+        var _acSocialTypes = (Array.isArray(c.allowedTaskTypes) ? c.allowedTaskTypes : []).filter(function(tt) { return /^social_/.test(tt); });
+        var _acPlatformCount = _acSocialTypes.length || 1;
+        var _acStartMs = c.startDate ? new Date(c.startDate).getTime() : new Date(c.createdAt || Date.now()).getTime();
+        var _acEndMs = c.endDate ? new Date(c.endDate).getTime() : (_acStartMs + 90 * 86400000);
+        var _acPeriods = Math.ceil(Math.max(1, Math.ceil((_acEndMs - _acStartMs) / 86400000)) / _acPeriodDays);
+        _acMaxTasks = c.frequency * _acPeriods * _acPlatformCount;
+      }
+      if (_acMaxTasks && cmpTasks.length < _acMaxTasks) continue;
       const allDone = cmpTasks.every(function (t) {
         const s = String(t.status || '').toLowerCase();
         return s === 'done' || s === 'archived';

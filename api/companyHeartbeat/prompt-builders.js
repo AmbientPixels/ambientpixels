@@ -272,11 +272,35 @@ Workers are read-only analysts that spawn during pressure spikes. Use their find
       let linkInfo = linked ? ' [' + taskCount + ' task(s) linked]' : ' [NO TASKS YET — needs task creation]';
       // Surface campaign limits so agents self-limit before server gate blocks them
       let limitsInfo = '';
-      if (c.maxTasks) {
-        linkInfo = ' [' + taskCount + '/' + c.maxTasks + ' tasks]';
-        if (taskCount >= c.maxTasks) linkInfo += ' FULL — do NOT create more tasks';
+      // Derive effective maxTasks from frequency if not explicitly set
+      var _promptMaxTasks = c.maxTasks || null;
+      if (!_promptMaxTasks && c.frequency && c.cadence) {
+        var _pmCadenceDays = { daily: 1, weekly: 7, biweekly: 14 };
+        var _pmPeriodDays = _pmCadenceDays[c.cadence] || 7;
+        var _pmSocialTypes = (Array.isArray(c.allowedTaskTypes) ? c.allowedTaskTypes : []).filter(function(tt) { return /^social_/.test(tt); });
+        var _pmPlatformCount = _pmSocialTypes.length || 1;
+        var _pmStartMs = c.startDate ? new Date(c.startDate).getTime() : Date.now();
+        var _pmEndMs = c.endDate ? new Date(c.endDate).getTime() : (_pmStartMs + 90 * 86400000);
+        var _pmPeriods = Math.ceil(Math.max(1, Math.ceil((_pmEndMs - _pmStartMs) / 86400000)) / _pmPeriodDays);
+        _promptMaxTasks = c.frequency * _pmPeriods * _pmPlatformCount;
       }
-      if (c.cadence) {
+      if (_promptMaxTasks) {
+        linkInfo = ' [' + taskCount + '/' + _promptMaxTasks + ' tasks]';
+        if (taskCount >= _promptMaxTasks) linkInfo += ' FULL — do NOT create more tasks';
+      }
+      if (c.frequency && c.cadence) {
+        limitsInfo += ', frequency: ' + c.frequency + '×/' + c.cadence + '/platform';
+        // Show throttle window status
+        const _fCadenceMs = { daily: 86400000, weekly: 604800000, biweekly: 1209600000 };
+        const _fBasePeriod = _fCadenceMs[c.cadence] || 0;
+        const _fThrottle = c.frequency > 1 ? Math.floor(_fBasePeriod / c.frequency) : _fBasePeriod;
+        if (_fThrottle > 0 && linked) {
+          const _now = Date.now();
+          const _recentExists = allActiveTasks.some(t => t.campaign_id === c.id && t.status !== 'archived' && (new Date(t.createdAt).getTime() > (_now - _fThrottle)));
+          if (_recentExists) limitsInfo += ' (throttled — wait for next slot)';
+          else limitsInfo += ' (slot available)';
+        }
+      } else if (c.cadence) {
         const _cadenceMs = { daily: 86400000, weekly: 604800000, biweekly: 1209600000 };
         const _window = _cadenceMs[c.cadence] || 0;
         if (_window > 0 && linked) {

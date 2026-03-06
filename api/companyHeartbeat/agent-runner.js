@@ -812,23 +812,41 @@ Write the full deliverable first, then the structured JSON block.`;
         if (!_taskObjectiveId && _parentCmp.objective_id) _taskObjectiveId = _parentCmp.objective_id;
 
         // SERVER-SIDE GUARD: campaign maxTasks cap — hard limit on tasks per campaign
-        if (_parentCmp.maxTasks && typeof _parentCmp.maxTasks === 'number') {
+        // Derive maxTasks from frequency when not explicitly set
+        var _effectiveMaxTasks = (_parentCmp.maxTasks && typeof _parentCmp.maxTasks === 'number') ? _parentCmp.maxTasks : null;
+        if (!_effectiveMaxTasks && _parentCmp.frequency && _parentCmp.cadence) {
+          var _fmCadenceDays = { daily: 1, weekly: 7, biweekly: 14 };
+          var _fmPeriodDays = _fmCadenceDays[_parentCmp.cadence] || 7;
+          var _fmSocialTypes = (Array.isArray(_parentCmp.allowedTaskTypes) ? _parentCmp.allowedTaskTypes : []).filter(function(tt) { return /^social_/.test(tt); });
+          var _fmPlatformCount = _fmSocialTypes.length || 1;
+          var _fmStartMs = _parentCmp.startDate ? new Date(_parentCmp.startDate).getTime() : Date.now();
+          var _fmEndMs = _parentCmp.endDate ? new Date(_parentCmp.endDate).getTime() : (_fmStartMs + 90 * 86400000);
+          var _fmPeriods = Math.ceil(Math.max(1, Math.ceil((_fmEndMs - _fmStartMs) / 86400000)) / _fmPeriodDays);
+          _effectiveMaxTasks = _parentCmp.frequency * _fmPeriods * _fmPlatformCount;
+        }
+        if (_effectiveMaxTasks) {
           // Exclude auto-created child tasks (copy tasks, hero images) — they inherit campaign_id
           // but are workflow artifacts, not campaign output
           var _cmpTaskCount = tasks.filter(function (t) {
             return t.campaign_id === _taskCampaignId && t.status !== 'archived' &&
               !(t.tags && t.tags.indexOf('auto-created') !== -1);
           }).length;
-          if (_cmpTaskCount >= _parentCmp.maxTasks) {
-            context.log('[Heartbeat]', agentId, 'BLOCKED create-task: campaign "' + (_parentCmp.title || _taskCampaignId) + '" maxTasks reached (' + _cmpTaskCount + '/' + _parentCmp.maxTasks + ')');
+          if (_cmpTaskCount >= _effectiveMaxTasks) {
+            context.log('[Heartbeat]', agentId, 'BLOCKED create-task: campaign "' + (_parentCmp.title || _taskCampaignId) + '" maxTasks reached (' + _cmpTaskCount + '/' + _effectiveMaxTasks + (_parentCmp.frequency ? ' derived from freq=' + _parentCmp.frequency : '') + ')');
             continue;
           }
         }
 
-        // SERVER-SIDE GUARD: campaign cadence — only one task created per cadence period
+        // SERVER-SIDE GUARD: campaign cadence — throttle task creation rate
+        // With frequency: subdivide cadence period (e.g. 3×/week → throttle = 7d/3 = ~2.3d)
+        // Without frequency: one task per cadence period (legacy behavior)
         if (_parentCmp.cadence) {
           var _cadenceMs = { daily: 86400000, weekly: 604800000, biweekly: 1209600000 };
-          var _cadenceWindow = _cadenceMs[_parentCmp.cadence] || 0;
+          var _basePeriod = _cadenceMs[_parentCmp.cadence] || 0;
+          var _cadenceWindow = _basePeriod;
+          if (_parentCmp.frequency && _parentCmp.frequency > 1 && _basePeriod > 0) {
+            _cadenceWindow = Math.floor(_basePeriod / _parentCmp.frequency);
+          }
           if (_cadenceWindow > 0) {
             var _cadenceStart = Date.now() - _cadenceWindow;
             var _recentCmpTask = tasks.find(function (t) {
@@ -983,7 +1001,9 @@ Write the full deliverable first, then the structured JSON block.`;
         // Only rotate if campaign has 2+ social platforms
         if (_rotSocialTypes.length > 1) {
           var _rotCadenceMs = { daily: 86400000, weekly: 604800000, biweekly: 1209600000 };
-          var _rotWindow = _rotCadenceMs[_rotCmp.cadence] || 86400000;
+          var _rotBasePeriod = _rotCadenceMs[_rotCmp.cadence] || 86400000;
+          // Use throttle window (cadence / frequency) so rotation checks the right timeframe
+          var _rotWindow = (_rotCmp.frequency && _rotCmp.frequency > 1) ? Math.floor(_rotBasePeriod / _rotCmp.frequency) : _rotBasePeriod;
           var _rotStart = Date.now() - _rotWindow;
           var _rotUsed = {};
           tasks.forEach(function(t) {

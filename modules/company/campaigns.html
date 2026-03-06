@@ -132,8 +132,8 @@
         </div>
         <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.3rem;">
           <div style="display:flex;flex-direction:column;gap:0.15rem;">
-            <span style="font-size:0.6rem;opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;">Max Tasks</span>
-            <input id="cmp-max-tasks" type="number" min="1" placeholder="No limit" style="width:5.5rem;" />
+            <span style="font-size:0.6rem;opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;">Frequency</span>
+            <input id="cmp-frequency" type="number" min="1" placeholder="per period" style="width:5.5rem;" title="Posts per cadence period per platform" />
           </div>
           <div style="display:flex;flex-direction:column;gap:0.15rem;">
             <span style="font-size:0.6rem;opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;">Cadence</span>
@@ -202,8 +202,8 @@
       </div>
       <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.4rem;">
         <div style="display:flex;flex-direction:column;gap:0.15rem;">
-          <span style="font-size:0.6rem;opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;">Max Tasks</span>
-          <input type="number" id="cmp-edit-max-tasks" min="1" placeholder="No limit" style="width:5.5rem;" />
+          <span style="font-size:0.6rem;opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;">Frequency</span>
+          <input type="number" id="cmp-edit-frequency" min="1" placeholder="per period" style="width:5.5rem;" title="Posts per cadence period per platform" />
         </div>
         <div style="display:flex;flex-direction:column;gap:0.15rem;">
           <span style="font-size:0.6rem;opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;">Cadence</span>
@@ -326,7 +326,20 @@
         var badges = [];
         var bStyle = 'display:inline-flex;align-items:center;gap:3px;font-size:0.52rem;padding:0.08rem 0.35rem;border-radius:4px;font-weight:500;';
         var dimStyle = bStyle + 'background:rgba(148,163,184,0.1);border:1px solid rgba(148,163,184,0.2);color:#94a3b8;';
-        if (c.maxTasks) {
+        if (c.frequency && c.cadence) {
+          var _bSocialTypes = (Array.isArray(c.allowedTaskTypes) ? c.allowedTaskTypes : []).filter(function(tt) { return /^social_/.test(tt); });
+          var _bPlatformCount = _bSocialTypes.length || 1;
+          var _bCadenceDays = { daily: 1, weekly: 7, biweekly: 14 };
+          var _bPeriodDays = _bCadenceDays[c.cadence] || 7;
+          var _bStartMs = c.startDate ? new Date(c.startDate).getTime() : Date.now();
+          var _bEndMs = c.endDate ? new Date(c.endDate).getTime() : (_bStartMs + 90 * 86400000);
+          var _bPeriods = Math.ceil(Math.max(1, Math.ceil((_bEndMs - _bStartMs) / 86400000)) / _bPeriodDays);
+          var _bDerived = c.frequency * _bPeriods * _bPlatformCount;
+          var used = m ? m.taskCount : 0;
+          var full = used >= _bDerived;
+          var s = full ? bStyle + 'background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#ef4444;' : dimStyle;
+          badges.push('<span style="' + s + '"><i class="fas fa-bolt" style="font-size:0.44rem;"></i>' + c.frequency + '\u00d7/' + c.cadence + '/platform (' + used + '/' + _bDerived + ')' + (full ? ' FULL' : '') + '</span>');
+        } else if (c.maxTasks) {
           var used = m ? m.taskCount : 0;
           var full = used >= c.maxTasks;
           var s = full ? bStyle + 'background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#ef4444;' : dimStyle;
@@ -480,7 +493,7 @@
         populateModalObjectiveSelect(c.objective_id || '');
         var _editTypes = Array.isArray(c.allowedTaskTypes) ? c.allowedTaskTypes : (c.taskType ? [c.taskType] : []);
         document.getElementById('cmp-edit-task-types').querySelectorAll('input[type="checkbox"]').forEach(function (cb) { cb.checked = _editTypes.indexOf(cb.value) !== -1; });
-        document.getElementById('cmp-edit-max-tasks').value = c.maxTasks || '';
+        document.getElementById('cmp-edit-frequency').value = c.frequency || '';
         document.getElementById('cmp-edit-cadence').value = c.cadence || '';
         document.getElementById('cmp-edit-start-date').value = c.startDate ? c.startDate.substring(0, 10) : '';
         document.getElementById('cmp-edit-end-date').value = c.endDate ? c.endDate.substring(0, 10) : '';
@@ -522,7 +535,7 @@
       editSaveBtn.addEventListener('click', function () {
         if (!editingCampaignId) return;
         var _editAllowedTypes = []; document.getElementById('cmp-edit-task-types').querySelectorAll('input[type="checkbox"]:checked').forEach(function (cb) { _editAllowedTypes.push(cb.value); });
-        var _editMaxTasks = document.getElementById('cmp-edit-max-tasks').value;
+        var _editFrequency = document.getElementById('cmp-edit-frequency').value;
         var _editCadence = document.getElementById('cmp-edit-cadence').value;
         var _editStartDate = document.getElementById('cmp-edit-start-date').value;
         var _editEndDate = document.getElementById('cmp-edit-end-date').value;
@@ -534,7 +547,8 @@
           status: editStatusEl.value || 'active',
           allowedTaskTypes: _editAllowedTypes.length > 0 ? _editAllowedTypes : null,
           taskType: null,
-          maxTasks: _editMaxTasks ? parseInt(_editMaxTasks, 10) : null,
+          frequency: _editFrequency ? parseInt(_editFrequency, 10) : null,
+          maxTasks: null,
           cadence: _editCadence || null,
           startDate: _editStartDate || null,
           endDate: _editEndDate || null,
@@ -551,7 +565,7 @@
         var d = (descEl.value || '').trim();
         if (!t) return;
         var _allowedTypes = []; document.getElementById('cmp-task-types').querySelectorAll('input[type="checkbox"]:checked').forEach(function (cb) { _allowedTypes.push(cb.value); });
-        var _maxTasks = document.getElementById('cmp-max-tasks').value;
+        var _frequency = document.getElementById('cmp-frequency').value;
         var _cadence = document.getElementById('cmp-cadence').value;
         var _startDate = document.getElementById('cmp-start-date').value;
         var _endDate = document.getElementById('cmp-end-date').value;
@@ -561,7 +575,7 @@
           objective_id: objectiveEl.value || null,
           provenance: 'Manual: Campaign UI',
           allowedTaskTypes: _allowedTypes.length > 0 ? _allowedTypes : null,
-          maxTasks: _maxTasks ? parseInt(_maxTasks, 10) : null,
+          frequency: _frequency ? parseInt(_frequency, 10) : null,
           cadence: _cadence || null,
           startDate: _startDate || null,
           endDate: _endDate || null
@@ -571,7 +585,7 @@
         descEl.value = '';
         objectiveEl.value = '';
         document.getElementById('cmp-task-types').querySelectorAll('input[type="checkbox"]').forEach(function (cb) { cb.checked = false; });
-        document.getElementById('cmp-max-tasks').value = '';
+        document.getElementById('cmp-frequency').value = '';
         document.getElementById('cmp-cadence').value = '';
         document.getElementById('cmp-start-date').value = '';
         document.getElementById('cmp-end-date').value = '';

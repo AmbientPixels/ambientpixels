@@ -230,6 +230,7 @@ async function ensureCampaign(params) {
   if (Array.isArray(params.allowedTaskTypes) && params.allowedTaskTypes.length > 0) created.allowedTaskTypes = params.allowedTaskTypes;
   else if (params.taskType) created.taskType = params.taskType;
   if (params.maxTasks) created.maxTasks = parseInt(params.maxTasks, 10) || null;
+  if (params.frequency) created.frequency = parseInt(params.frequency, 10) || null;
   if (params.cadence) created.cadence = params.cadence;
   if (params.startDate) created.startDate = params.startDate;
   if (params.endDate) created.endDate = params.endDate;

@@ -1927,6 +1927,7 @@ var AgentEngine = (function () {
     };
     if (c && Array.isArray(c.allowedTaskTypes) && c.allowedTaskTypes.length > 0) item.allowedTaskTypes = c.allowedTaskTypes;
     if (c && c.maxTasks) item.maxTasks = parseInt(c.maxTasks, 10) || null;
+    if (c && c.frequency) item.frequency = parseInt(c.frequency, 10) || null;
     if (c && c.cadence) item.cadence = c.cadence;
     if (c && c.startDate) item.startDate = c.startDate;
     if (c && c.endDate) item.endDate = c.endDate;
