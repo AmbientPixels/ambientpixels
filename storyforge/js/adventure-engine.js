@@ -74,7 +74,6 @@
       // Resume saved adventure
       UI.showLoading(UI.$('sceneText'), 'Loading saved adventure...');
       UI.showScreen('screenPlay');
-      initNarrationToggle();
       Storage.loadAdventure(continueId).then(function (adventure) {
         if (!adventure) {
           UI.toast('Saved adventure not found', 'error');
@@ -191,6 +190,7 @@
 
   // --- Events ---
   function bindEvents() {
+    initNarrationToggle();
     UI.$('startAdventureBtn').addEventListener('click', startAdventure);
     UI.$('newAdventureBtn').addEventListener('click', function () {
       gameState = null;
@@ -643,7 +643,6 @@
 
     UI.showScreen('screenPlay');
     UI.$('pauseBtn').style.display = '';
-    initNarrationToggle();
     UI.showLoading(UI.$('sceneText'), 'Forging your story...');
     UI.$('choicesContainer').innerHTML = '';
     updateSidebar();
@@ -692,27 +691,26 @@
   var preloadedAudioBuffer = null;
   var preloadSessionId = null;
 
+  // Returns a Promise that resolves with the AudioBuffer (or null)
   function preloadTTS(text) {
     preloadSessionId = null;
     preloadedAudioBuffer = null;
-    if (!narrationEnabled) return; // Skip TTS fetch when muted
+    if (!narrationEnabled) return Promise.resolve(null);
     var ctx = ensureAudioContext();
     var sessionId = {};
     preloadSessionId = sessionId;
 
     var voice = (gameState && AI.GENRE_VOICES[gameState.genre]) || 'Kore';
-    AI.callTTSAPI(text, voice).then(function (wavBuffer) {
-      if (preloadSessionId !== sessionId) return;
-      if (!wavBuffer) return;
-
+    return AI.callTTSAPI(text, voice).then(function (wavBuffer) {
+      if (preloadSessionId !== sessionId || !wavBuffer) return null;
       return ctx.decodeAudioData(wavBuffer);
     }).then(function (audioBuffer) {
-      if (preloadSessionId !== sessionId || !audioBuffer) return;
+      if (preloadSessionId !== sessionId || !audioBuffer) return null;
       preloadedAudioBuffer = audioBuffer;
-      // If typewriter already finished and button is waiting, auto-play now
-      tryAutoPlay();
+      return audioBuffer;
     }).catch(function (err) {
       console.warn('[TTS] Preload error:', err);
+      return null;
     });
   }
 
@@ -799,18 +797,21 @@
     void sceneTextEl.offsetWidth; // force reflow to restart animation
     sceneTextEl.classList.add('adv-scene-enter');
 
-    // Start TTS preload in parallel with typewriter
-    preloadTTS(scene.sceneText);
+    // Preload TTS, then start typewriter + audio together
+    preloadTTS(scene.sceneText).then(function () {
+      // Play audio as typewriter begins
+      tryAutoPlay();
 
-    // Typewriter text
-    UI.typewriter(sceneTextEl, scene.sceneText).then(function () {
-      injectNarrateButton(scene.sceneText);
-      if (scene.isEnding) {
-        showEnding(scene);
-      } else {
-        renderChoices(scene.choices);
-      }
-      isProcessing = false;
+      // Typewriter text
+      UI.typewriter(sceneTextEl, scene.sceneText).then(function () {
+        injectNarrateButton(scene.sceneText);
+        if (scene.isEnding) {
+          showEnding(scene);
+        } else {
+          renderChoices(scene.choices);
+        }
+        isProcessing = false;
+      });
     });
 
     updateSidebar();
