@@ -326,10 +326,66 @@ Write the full deliverable first, then the structured JSON block.`;
         )
         .sort((a, b) => (_prioOrder[a.priority] || 3) - (_prioOrder[b.priority] || 3));
       // Filter out convergence-blocked tasks (5+ deliverables — would just get blocked again)
+      const _convergenceBlocked = _triagedIdle.filter(t => {
+        const _delCount = (t.comments || []).filter(c => c.type === 'deliverable').length;
+        return _delCount >= 5;
+      });
       let _executableIdle = _triagedIdle.filter(t => {
         const _delCount = (t.comments || []).filter(c => c.type === 'deliverable').length;
         return _delCount < 5;
       });
+      // CONVERGENCE RECOVERY: auto-complete convergence-blocked social tasks right here
+      // (execute-task will never be injected for them, so the recovery inside the handler never fires)
+      for (var _cri = 0; _cri < _convergenceBlocked.length; _cri++) {
+        var _crTask = _convergenceBlocked[_cri];
+        var _crText = ((_crTask.title || '') + ' ' + (_crTask.description || '')).toLowerCase();
+        var _crIsSocial = (_crTask.assignee === 'echo') &&
+          (/^social_/.test(_crTask.taskType || '') || _crTask.campaign_id ||
+           /linkedin|twitter|x\.com|social\s*media|social\s*post|bluesky/.test(_crText));
+        var _crIsCopy = _crTask.tags && _crTask.tags.indexOf('social-copy') !== -1;
+        var _crDels = (_crTask.comments || []).filter(function(c) { return c.type === 'deliverable'; });
+        var _crLatest = _crDels.length > 0 ? _crDels[_crDels.length - 1].text : '';
+        if (!_crLatest) continue;
+        if (_crIsCopy) {
+          // Auto-complete copy task + propagate to parent
+          _crTask.status = 'done';
+          _crTask.completedAt = new Date().toISOString();
+          _crTask.updatedAt = new Date().toISOString();
+          if (!_crTask.comments) _crTask.comments = [];
+          _crTask.comments.push({ id: 'cmt-convrecov-' + Date.now(), author: 'system', type: 'system', createdAt: new Date().toISOString(),
+            text: '[SYSTEM] Convergence recovery: social-copy auto-completed with latest deliverable (' + _crDels.length + ' total).' });
+          var _crParentTag = (_crTask.tags || []).find(function(tg) { return tg.startsWith('social-copy-for-'); });
+          var _crParentId = _crParentTag ? _crParentTag.replace('social-copy-for-', '') : (_crTask.parent_task_id || null);
+          if (_crParentId) {
+            var _crParent = tasks.find(function(t) { return t.id === _crParentId; });
+            if (_crParent) {
+              _crParent.reviewed_copy = _crLatest;
+              _crParent.awaiting_copy_review = false;
+              _crParent.updatedAt = new Date().toISOString();
+            }
+          }
+          context.log('[Heartbeat] CONVERGENCE RECOVERY (anti-stall): social-copy task auto-completed:', _crTask.id);
+        } else if (_crIsSocial) {
+          // Auto-complete social task with latest deliverable as reviewed_copy
+          _crTask.reviewed_copy = _crLatest;
+          _crTask.status = 'done';
+          _crTask.completedAt = new Date().toISOString();
+          _crTask.updatedAt = new Date().toISOString();
+          if (!_crTask.comments) _crTask.comments = [];
+          _crTask.comments.push({ id: 'cmt-convrecov-' + Date.now(), author: 'system', type: 'system', createdAt: new Date().toISOString(),
+            text: '[SYSTEM] Convergence recovery: social task auto-completed with latest deliverable (' + _crDels.length + ' total). Echo can now create the social action.' });
+          context.log('[Heartbeat] CONVERGENCE RECOVERY (anti-stall): social task auto-completed:', _crTask.id, '(' + _crLatest.length + ' chars)');
+        } else {
+          // General convergence recovery — auto-complete any task stuck in revision loop
+          _crTask.status = 'done';
+          _crTask.completedAt = new Date().toISOString();
+          _crTask.updatedAt = new Date().toISOString();
+          if (!_crTask.comments) _crTask.comments = [];
+          _crTask.comments.push({ id: 'cmt-convrecov-' + Date.now(), author: 'system', type: 'system', createdAt: new Date().toISOString(),
+            text: '[SYSTEM] Convergence recovery: task auto-completed after ' + _crDels.length + ' deliverables (revision loop). Latest deliverable preserved.' });
+          context.log('[Heartbeat] CONVERGENCE RECOVERY (anti-stall): general task auto-completed:', _crTask.id, '— agent:', _crTask.assignee);
+        }
+      }
       // Fix 8: For Echo, filter out tasks that already have pending social actions (avoids dedup loop)
       if (agentId === 'echo' && _executableIdle.length > 0) {
         try {
