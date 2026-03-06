@@ -342,6 +342,9 @@ Write the full deliverable first, then the structured JSON block.`;
     const _hasWorkAction = actions.some(a =>
       a.type === 'execute-task' || a.type === 'create-doc' || a.type === 'create-social-action' || a.type === 'review-task'
     );
+    if (agentId === 'echo') {
+      context.log('[Heartbeat] ECHO ANTI-STALL DEBUG: hasWorkAction=' + _hasWorkAction + ' actionsCount=' + actions.length);
+    }
     if (!_hasWorkAction) {
       const _prioOrder = { critical: 0, high: 1, medium: 2, low: 3 };
       const _triagedIdle = agentTasks
@@ -625,7 +628,11 @@ Write the full deliverable first, then the structured JSON block.`;
       // ECHO DONE-TASK SOCIAL INJECTION: when Echo has no idle tasks at all,
       // check for done social tasks — either with reviewed_copy ready to post,
       // or without reviewed_copy (needs copy task created via Copy Review Gate)
+      if (agentId === 'echo') {
+        context.log('[Heartbeat] ECHO DONE-INJECTION DEBUG: triagedIdle=' + _triagedIdle.length + ' executableIdle=' + _executableIdle.length + ' agentTasks=' + agentTasks.length);
+      }
       if (agentId === 'echo' && _triagedIdle.length === 0) {
+        context.log('[Heartbeat] ECHO DONE-INJECTION: entering done-task path');
         const _doneSocialMaxAge2 = 7 * 24 * 60 * 60 * 1000;
         const _doneSocialAll = tasks.filter(function (t) {
           if (t.assignee !== 'echo' || t.status !== 'done' || t._archived) return false;
