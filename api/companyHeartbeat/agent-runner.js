@@ -1689,7 +1689,7 @@ Write the full deliverable first, then the structured JSON block.`;
       // Fix 10c: Strip agent reasoning / doctrine alignment that leaks into post text
       // Agents sometimes append their strategic analysis as plain-text sections after the actual post
       if (socialPayload.text) {
-        const reasoningPattern = /\n+(?:Explanation\s*(?:&|and)\s*Doctrine\s*Alignment|Additional\s*Notes|Doctrine\s*Alignment|Strategic\s*(?:Reasoning|Analysis|Notes)|Reasoning|Rationale|Notes)\s*(?:\([^)]*\))?\s*:/i;
+        const reasoningPattern = /\n+(?:Explanation\s*(?:&|and)\s*Doctrine\s*Alignment|Additional\s*Notes|Doctrine\s*Alignment|Strategic\s*(?:Bias\s*)?(?:Reasoning|Analysis|Notes|Considerations)|Reasoning|Rationale|Notes|Risk\s*Tolerance|"Are\s+We\s+Visible\??"|Distribution\s*:|Publishing\s*Cadence|Narrative\s*:)\s*(?:\([^)]*\))?\s*:?/i;
         const reasoningIdx = socialPayload.text.search(reasoningPattern);
         if (reasoningIdx > 20) {
           context.log('[Heartbeat] Fix 10c: Stripping agent reasoning at char', reasoningIdx, 'of', socialPayload.text.length);
@@ -1699,6 +1699,8 @@ Write the full deliverable first, then the structured JSON block.`;
         socialPayload.text = socialPayload.text.replace(/\n*\[(?:artifact_id:\s*)?pub_[^\]]+\]\n*/g, '\n').trim();
         // Strip "Headline:" and "Body:" labels that leak from LinkedIn drafts
         socialPayload.text = socialPayload.text.replace(/^Headline:\s*/i, '').replace(/\n+Body:\s*\n+/i, '\n\n').trim();
+        // Strip markdown link syntax: [text](url) → url (social platforms don't render markdown)
+        socialPayload.text = socialPayload.text.replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '$2').trim();
         // Strip "Subject:" label that leaks from Bluesky drafts
         socialPayload.text = socialPayload.text.replace(/^Subject:\s*[^\n]+\n+(?:Body:\s*\n+)?/i, '').trim();
       }
