@@ -811,6 +811,16 @@ Write the full deliverable first, then the structured JSON block.`;
         var _parentCmp = campaignCtx.campaignById[_taskCampaignId];
         if (!_taskObjectiveId && _parentCmp.objective_id) _taskObjectiveId = _parentCmp.objective_id;
 
+        // Early taskType read for cadence gate (full inference happens later at _taskType declaration)
+        var _earlyTaskType = action.task.taskType || null;
+        if (!_earlyTaskType) {
+          var _etTitle = ((action.task.title || '') + ' ' + (action.task.description || '')).toLowerCase();
+          if (/linkedin/.test(_etTitle)) _earlyTaskType = 'social_linkedin';
+          else if (/bluesky/.test(_etTitle)) _earlyTaskType = 'social_bluesky';
+          else if (/social.*post|post.*to.*x\b|tweet/.test(_etTitle)) _earlyTaskType = 'social_x';
+          else if (/blog/.test(_etTitle)) _earlyTaskType = 'blog_post';
+        }
+
         // SERVER-SIDE GUARD: campaign maxTasks cap — hard limit on tasks per campaign
         // Derive maxTasks from frequency when not explicitly set
         var _effectiveMaxTasks = (_parentCmp.maxTasks && typeof _parentCmp.maxTasks === 'number') ? _parentCmp.maxTasks : null;
@@ -856,8 +866,8 @@ Write the full deliverable first, then the structured JSON block.`;
               if (t.tags && t.tags.indexOf('auto-created') !== -1) return false;
               // Per-platform cadence for social tasks: only same taskType blocks
               // e.g. social_linkedin task doesn't block social_x creation in same window
-              if (/^social_/.test(_taskType) && /^social_/.test(t.taskType || '')) {
-                return t.taskType === _taskType;
+              if (/^social_/.test(_earlyTaskType) && /^social_/.test(t.taskType || '')) {
+                return t.taskType === _earlyTaskType;
               }
               return true;
             });
