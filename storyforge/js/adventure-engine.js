@@ -291,8 +291,7 @@
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
     placeholder.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
-    var portraitPrompt = 'Character portrait, upper body, facing slightly left, ' + charDesc;
-    AI.generateSceneImage(portraitPrompt, selectedGenre, charDesc)
+    AI.generatePortraitImage(charDesc, selectedGenre)
       .then(function (dataUrl) {
         if (dataUrl) {
           generatedPortraitDataUrl = dataUrl;

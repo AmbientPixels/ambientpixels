@@ -72,6 +72,15 @@ window.AdventureAI = (function () {
   }
 
   // --- Generate scene image ---
+  function generatePortraitImage(characterDesc, genre) {
+    var prompt = 'Character portrait, head and shoulders, centered subject, circular frame composition. ' +
+      'Style: ' + (genre.imageStyleHint || 'fantasy illustration') + '. ' +
+      'The character is ' + characterDesc + '. ' +
+      'Close-up portrait focus on the face and upper body only. Single character, no background characters. ' +
+      'Painterly, detailed, dramatic lighting. No text, no UI elements, no borders.';
+    return callImageAPI(prompt);
+  }
+
   function generateSceneImage(imagePrompt, genre, characterDesc) {
     var charClause = characterDesc ? 'The protagonist is ' + characterDesc + '. ' : '';
     var fullPrompt = 'Create a single illustration for an interactive adventure game scene. ' +
@@ -411,6 +420,7 @@ window.AdventureAI = (function () {
     generateNextScene: generateNextScene,
     generateContinuation: generateContinuation,
     generateSceneImage: generateSceneImage,
+    generatePortraitImage: generatePortraitImage,
     callTTSAPI: callTTSAPI,
     GENRE_VOICES: GENRE_VOICES,
     checkDailyLimit: checkDailyLimit,
