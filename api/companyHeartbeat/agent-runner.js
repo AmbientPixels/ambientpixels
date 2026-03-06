@@ -539,6 +539,54 @@ Write the full deliverable first, then the structured JSON block.`;
             'idle tasks convergence-blocked and no reviewable tasks from other agents — agent fully stalled');
         }
       }
+
+      // ECHO DONE-TASK SOCIAL INJECTION: when Echo has no idle tasks at all,
+      // check for done social tasks with reviewed_copy ready to post
+      if (agentId === 'echo' && _triagedIdle.length === 0) {
+        const _doneSocialMaxAge2 = 7 * 24 * 60 * 60 * 1000;
+        const _doneSocialReady = tasks.filter(function (t) {
+          if (t.assignee !== 'echo' || t.status !== 'done' || t._archived) return false;
+          if (!t.reviewed_copy) return false;
+          var age = Date.now() - new Date(t.createdAt || 0).getTime();
+          if (age > _doneSocialMaxAge2) return false;
+          var txt = ((t.title || '') + ' ' + (t.description || '')).toLowerCase();
+          return /^social_/.test(t.taskType || '') || /linkedin|twitter|x\.com|social media|social post|bluesky|tweet/.test(txt);
+        });
+        if (_doneSocialReady.length > 0) {
+          // Filter out tasks with pending social actions
+          try {
+            const _doneActions2 = (await storage.getState('actions')) || [];
+            const _donePending2 = new Set();
+            for (var _dai2 = 0; _dai2 < _doneActions2.length; _dai2++) {
+              var _da2 = _doneActions2[_dai2];
+              if (!_da2 || !_da2.type || _da2.type.indexOf('social_post') !== 0) continue;
+              var _daStatus2 = (_da2.approval && _da2.approval.status) || '';
+              if (_daStatus2 === 'rejected' || _daStatus2 === 'cancelled') continue;
+              var _daExec2 = (_da2.execution && _da2.execution.status) || '';
+              if (_daExec2 === 'success') continue;
+              if (_da2._parentTaskId) _donePending2.add(_da2._parentTaskId);
+            }
+            var _readyToPost = _doneSocialReady.filter(function (t) { return !_donePending2.has(t.id); });
+            for (var _rp = 0; _rp < _readyToPost.length; _rp++) {
+              var _rpTask = _readyToPost[_rp];
+              var _rpText = ((_rpTask.title || '') + ' ' + (_rpTask.description || '')).toLowerCase();
+              var _rpPlatform = (_rpTask.taskType === 'social_linkedin' || /linkedin/.test(_rpText)) ? 'linkedin'
+                : (_rpTask.taskType === 'social_x' || /twitter|x\.com|tweet/.test(_rpText)) ? 'x'
+                : (_rpTask.taskType === 'social_bluesky' || /bluesky/.test(_rpText)) ? 'bluesky'
+                : 'linkedin';
+              context.log('[Heartbeat] ANTI-STALL: echo injecting create-social-action for done task with reviewed_copy:', _rpTask.id, 'platform:', _rpPlatform);
+              actions.push({
+                type: 'create-social-action',
+                taskId: _rpTask.id,
+                social: { platform: _rpPlatform, text: _rpTask.reviewed_copy },
+                summary: 'Anti-stall: post reviewed social copy for ' + (_rpTask.title || _rpTask.id)
+              });
+            }
+          } catch (_rpe) {
+            context.log('[Heartbeat] ANTI-STALL: echo done-task social injection error (non-fatal):', String(_rpe).substring(0, 200));
+          }
+        }
+      }
     }
   }
 
