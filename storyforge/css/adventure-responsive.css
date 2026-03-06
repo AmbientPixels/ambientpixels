@@ -40,6 +40,17 @@
     grid-template-columns: 1fr;
   }
 
+  .adv-stat-allocator__footer {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+
+  .adv-stat-allocator__preview {
+    max-width: 100%;
+    text-align: left;
+  }
+
   .adv-choice {
     padding: 0.7rem 0.85rem;
     font-size: 0.88rem;

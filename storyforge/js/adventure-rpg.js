@@ -8,8 +8,12 @@ window.AdventureRPG = (function () {
   var MAX_COMPANIONS = 2;
 
   // --- Create fresh game state from genre config ---
-  function createState(genre, playerName, characterAppearance) {
+  function createState(genre, playerName, characterAppearance, customStats) {
     var s = genre.startingStats;
+    var str = (customStats && customStats.strength != null) ? customStats.strength : s.strength;
+    var dex = (customStats && customStats.dexterity != null) ? customStats.dexterity : s.dexterity;
+    var int = (customStats && customStats.intelligence != null) ? customStats.intelligence : s.intelligence;
+    var cha = (customStats && customStats.charisma != null) ? customStats.charisma : s.charisma;
     return {
       playerName: playerName || generateName(),
       genre: genre.id,
@@ -19,10 +23,10 @@ window.AdventureRPG = (function () {
         maxHp: s.maxHp,
         gold: s.gold,
         reputation: s.reputation,
-        strength: s.strength,
-        dexterity: s.dexterity,
-        intelligence: s.intelligence,
-        charisma: s.charisma
+        strength: str,
+        dexterity: dex,
+        intelligence: int,
+        charisma: cha
       },
       inventory: (genre.startingInventory || []).map(function (item) {
         return Object.assign({}, item, { quantity: item.quantity || 1 });

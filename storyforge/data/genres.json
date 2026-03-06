@@ -11,6 +11,17 @@
       "startingInventory": [{ "id": "torch", "name": "Torch", "type": "tool", "description": "A flickering flame to light the way" }],
       "imageStyleHint": "fantasy art, detailed illustration, warm torchlight, medieval setting, painterly style",
       "tier": "free",
+      "statHints": {
+        "strength": "Melee combat, breaking barriers, intimidation",
+        "dexterity": "Dodging traps, stealth, ranged attacks",
+        "intelligence": "Deciphering runes, magic resistance, lore",
+        "charisma": "Persuading NPCs, bartering, rallying allies"
+      },
+      "archetypePresets": [
+        { "label": "Warrior", "icon": "fa-shield-halved", "stats": { "strength": 16, "dexterity": 10, "intelligence": 6, "charisma": 8 } },
+        { "label": "Rogue", "icon": "fa-mask", "stats": { "strength": 8, "dexterity": 16, "intelligence": 8, "charisma": 8 } },
+        { "label": "Mage", "icon": "fa-hat-wizard", "stats": { "strength": 6, "dexterity": 8, "intelligence": 18, "charisma": 8 } }
+      ],
       "characterOptions": {
         "race": [
           { "label": "Human", "promptFragment": "a human" },
@@ -53,6 +64,17 @@
       "startingInventory": [{ "id": "flashlight", "name": "Flashlight", "type": "tool", "description": "Batteries half-dead, beam flickering" }],
       "imageStyleHint": "horror art, dark atmosphere, fog and shadows, muted desaturated colors, unsettling",
       "tier": "free",
+      "statHints": {
+        "strength": "Barricading doors, fighting back, enduring injury",
+        "dexterity": "Running from danger, hiding, picking locks",
+        "intelligence": "Noticing clues, resisting panic, solving puzzles",
+        "charisma": "Calming others, gaining trust, calling for help"
+      },
+      "archetypePresets": [
+        { "label": "Survivor", "icon": "fa-heart-pulse", "stats": { "strength": 12, "dexterity": 12, "intelligence": 8, "charisma": 8 } },
+        { "label": "Occultist", "icon": "fa-eye", "stats": { "strength": 6, "dexterity": 8, "intelligence": 18, "charisma": 8 } },
+        { "label": "Empath", "icon": "fa-hand-holding-heart", "stats": { "strength": 6, "dexterity": 10, "intelligence": 10, "charisma": 14 } }
+      ],
       "characterOptions": {
         "archetype": [
           { "label": "College Student", "promptFragment": "a young college student" },
@@ -95,6 +117,17 @@
       "startingInventory": [{ "id": "scanner", "name": "Bio-Scanner", "type": "tool", "description": "Handheld scanner with cracked display" }],
       "imageStyleHint": "sci-fi concept art, neon and chrome, alien landscapes, futuristic technology, cinematic lighting",
       "tier": "free",
+      "statHints": {
+        "strength": "Melee combat, forcing hatches, carrying gear",
+        "dexterity": "Zero-G maneuvering, hacking terminals, piloting",
+        "intelligence": "Analyzing alien tech, science checks, engineering",
+        "charisma": "Negotiating with factions, inspiring crew, diplomacy"
+      },
+      "archetypePresets": [
+        { "label": "Marine", "icon": "fa-crosshairs", "stats": { "strength": 14, "dexterity": 12, "intelligence": 8, "charisma": 6 } },
+        { "label": "Engineer", "icon": "fa-wrench", "stats": { "strength": 6, "dexterity": 10, "intelligence": 16, "charisma": 8 } },
+        { "label": "Diplomat", "icon": "fa-handshake", "stats": { "strength": 6, "dexterity": 8, "intelligence": 12, "charisma": 14 } }
+      ],
       "characterOptions": {
         "species": [
           { "label": "Human", "promptFragment": "a human" },
@@ -136,6 +169,17 @@
       "startingInventory": [{ "id": "notebook", "name": "Detective's Notebook", "type": "tool", "description": "Worn leather, pages half-filled" }],
       "imageStyleHint": "noir art, rain-slicked streets, dramatic shadows, muted warm tones, cinematic",
       "tier": "pro",
+      "statHints": {
+        "strength": "Physical confrontations, chasing suspects, breaking down doors",
+        "dexterity": "Tailing suspects, lockpicking, quick-drawing",
+        "intelligence": "Analyzing evidence, connecting clues, reading motives",
+        "charisma": "Interrogating witnesses, gaining trust, bluffing"
+      },
+      "archetypePresets": [
+        { "label": "Brawler", "icon": "fa-fist-raised", "stats": { "strength": 14, "dexterity": 10, "intelligence": 10, "charisma": 10 } },
+        { "label": "Analyst", "icon": "fa-microscope", "stats": { "strength": 6, "dexterity": 10, "intelligence": 18, "charisma": 10 } },
+        { "label": "Smooth Talker", "icon": "fa-comments", "stats": { "strength": 8, "dexterity": 8, "intelligence": 10, "charisma": 18 } }
+      ],
       "characterOptions": {
         "archetype": [
           { "label": "Former Cop", "promptFragment": "a former police detective" },
@@ -177,6 +221,17 @@
       "startingInventory": [{ "id": "knife", "name": "Rusty Knife", "type": "weapon", "description": "Dull but better than nothing" }],
       "imageStyleHint": "post-apocalyptic art, ruined cities, dust and rust, harsh sunlight, desolate and gritty",
       "tier": "pro",
+      "statHints": {
+        "strength": "Melee combat, hauling salvage, overpowering raiders",
+        "dexterity": "Sneaking past threats, setting traps, scavenging",
+        "intelligence": "Crafting, reading maps, identifying hazards",
+        "charisma": "Trading with settlements, recruiting, intimidating"
+      },
+      "archetypePresets": [
+        { "label": "Bruiser", "icon": "fa-hand-fist", "stats": { "strength": 16, "dexterity": 10, "intelligence": 6, "charisma": 8 } },
+        { "label": "Scavenger", "icon": "fa-magnifying-glass", "stats": { "strength": 8, "dexterity": 16, "intelligence": 10, "charisma": 6 } },
+        { "label": "Tinker", "icon": "fa-gears", "stats": { "strength": 8, "dexterity": 10, "intelligence": 16, "charisma": 6 } }
+      ],
       "characterOptions": {
         "origin": [
           { "label": "Vault Dweller", "promptFragment": "a vault dweller blinking in the sunlight" },
@@ -218,6 +273,17 @@
       "startingInventory": [{ "id": "cutlass", "name": "Cutlass", "type": "weapon", "description": "Notched blade, good balance" }],
       "imageStyleHint": "pirate art, tropical seas, wooden ships, golden sunlight, adventure illustration style",
       "tier": "pro",
+      "statHints": {
+        "strength": "Sword fighting, climbing rigging, boarding ships",
+        "dexterity": "Acrobatics, pistol aim, dodging cannon fire",
+        "intelligence": "Navigation, reading maps, ship repairs",
+        "charisma": "Commanding crew, bartering loot, parley"
+      },
+      "archetypePresets": [
+        { "label": "Buccaneer", "icon": "fa-skull-crossbones", "stats": { "strength": 16, "dexterity": 12, "intelligence": 6, "charisma": 8 } },
+        { "label": "Swashbuckler", "icon": "fa-feather-pointed", "stats": { "strength": 8, "dexterity": 16, "intelligence": 8, "charisma": 10 } },
+        { "label": "Captain", "icon": "fa-crown", "stats": { "strength": 8, "dexterity": 10, "intelligence": 10, "charisma": 14 } }
+      ],
       "characterOptions": {
         "origin": [
           { "label": "Navy Deserter", "promptFragment": "a navy deserter with military bearing" },

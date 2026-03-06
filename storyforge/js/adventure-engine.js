@@ -227,6 +227,7 @@
       sel.addEventListener('change', updateCharacterPreview);
     });
     updateCharacterPreview();
+    renderStatAllocator(genre);
   }
 
   function updateCharacterPreview() {
@@ -264,6 +265,210 @@
     return { selections: selections, description: buildCharacterDescription() };
   }
 
+  // --- Stat Allocator ---
+  var STAT_KEYS = ['strength', 'dexterity', 'intelligence', 'charisma'];
+  var STAT_COLORS = { strength: '#ff5252', dexterity: '#00e676', intelligence: '#7b2fff', charisma: '#ffd740' };
+  var STAT_MIN = 4;
+  var STAT_MAX = 20;
+  var activePresetLabel = null;
+
+  function getStatBudget(genre) {
+    var s = genre.startingStats;
+    return s.strength + s.dexterity + s.intelligence + s.charisma;
+  }
+
+  function getDefaultStats(genre) {
+    var s = genre.startingStats;
+    return { strength: s.strength, dexterity: s.dexterity, intelligence: s.intelligence, charisma: s.charisma };
+  }
+
+  function renderStatAllocator(genre) {
+    var rowsEl = UI.$('statSliderRows');
+    var presetsEl = UI.$('archetypePresets');
+    if (!rowsEl || !presetsEl) return;
+
+    var budget = getStatBudget(genre);
+    var defaults = getDefaultStats(genre);
+    var hints = genre.statHints || {};
+    activePresetLabel = null;
+
+    // Render slider rows
+    rowsEl.innerHTML = STAT_KEYS.map(function (key) {
+      var val = defaults[key];
+      var icon = RPG.STAT_ICONS[key] || 'fa-circle';
+      var label = RPG.STAT_LABELS[key] || key;
+      var color = STAT_COLORS[key];
+      var hint = hints[key] || '';
+      var mod = Math.floor((val - 10) / 2);
+      var modStr = mod >= 0 ? '+' + mod : '' + mod;
+      var modClass = mod > 0 ? ' adv-stat-row__modifier--positive' : (mod < 0 ? ' adv-stat-row__modifier--negative' : '');
+      var fillPct = ((val - STAT_MIN) / (STAT_MAX - STAT_MIN)) * 100;
+      return '<div class="adv-stat-row" data-stat-key="' + key + '">' +
+        '<i class="fas ' + icon + ' adv-stat-row__icon" style="color:' + color + '"></i>' +
+        '<span class="adv-stat-row__label" title="' + UI.escapeHtml(hint) + '">' + label + '</span>' +
+        '<input type="range" class="adv-stat-row__slider" data-stat-key="' + key + '" ' +
+          'min="' + STAT_MIN + '" max="' + STAT_MAX + '" value="' + val + '" ' +
+          'style="--fill:' + fillPct + '%" aria-label="' + label + '" />' +
+        '<span class="adv-stat-row__value">' + val + '</span>' +
+        '<span class="adv-stat-row__modifier' + modClass + '">' + modStr + '</span>' +
+      '</div>';
+    }).join('');
+
+    // Bind slider events
+    rowsEl.querySelectorAll('.adv-stat-row__slider').forEach(function (slider) {
+      slider.addEventListener('input', function () {
+        enforceStatBudget(slider.dataset.statKey, parseInt(slider.value));
+        updateSliderDisplay(slider);
+        updateStatBudgetDisplay(budget);
+        updateStatPreviewSentence();
+        activePresetLabel = null;
+        updatePresetHighlight();
+      });
+    });
+
+    // Render archetype presets
+    var presets = genre.archetypePresets || [];
+    presetsEl.innerHTML = presets.map(function (p) {
+      return '<button type="button" class="adv-archetype-btn" data-preset-label="' + UI.escapeHtml(p.label) + '">' +
+        '<i class="fas ' + p.icon + '"></i> ' + UI.escapeHtml(p.label) +
+      '</button>';
+    }).join('');
+
+    presetsEl.querySelectorAll('.adv-archetype-btn').forEach(function (btn, idx) {
+      btn.addEventListener('click', function () {
+        applyArchetypePreset(presets[idx]);
+        activePresetLabel = presets[idx].label;
+        updatePresetHighlight();
+        updateStatBudgetDisplay(budget);
+        updateStatPreviewSentence();
+      });
+    });
+
+    // Reset button
+    var resetBtn = UI.$('statResetBtn');
+    if (resetBtn) {
+      resetBtn.onclick = function () {
+        applyArchetypePreset({ stats: defaults });
+        activePresetLabel = null;
+        updatePresetHighlight();
+        updateStatBudgetDisplay(budget);
+        updateStatPreviewSentence();
+      };
+    }
+
+    updateStatBudgetDisplay(budget);
+    updateStatPreviewSentence();
+  }
+
+  function enforceStatBudget(changedKey, requestedValue) {
+    if (!selectedGenre) return;
+    var budget = getStatBudget(selectedGenre);
+    var slider = document.querySelector('.adv-stat-row__slider[data-stat-key="' + changedKey + '"]');
+    if (!slider) return;
+
+    var otherTotal = 0;
+    document.querySelectorAll('.adv-stat-row__slider').forEach(function (s) {
+      if (s.dataset.statKey !== changedKey) {
+        otherTotal += parseInt(s.value) || 0;
+      }
+    });
+
+    var maxAllowed = Math.min(STAT_MAX, budget - otherTotal);
+    var clamped = Math.min(requestedValue, Math.max(STAT_MIN, maxAllowed));
+    slider.value = clamped;
+  }
+
+  function updateSliderDisplay(slider) {
+    var row = slider.closest('.adv-stat-row');
+    var val = parseInt(slider.value);
+    var fillPct = ((val - STAT_MIN) / (STAT_MAX - STAT_MIN)) * 100;
+    slider.style.setProperty('--fill', fillPct + '%');
+    row.querySelector('.adv-stat-row__value').textContent = val;
+    var mod = Math.floor((val - 10) / 2);
+    var modStr = mod >= 0 ? '+' + mod : '' + mod;
+    var modEl = row.querySelector('.adv-stat-row__modifier');
+    modEl.textContent = modStr;
+    modEl.className = 'adv-stat-row__modifier' +
+      (mod > 0 ? ' adv-stat-row__modifier--positive' : (mod < 0 ? ' adv-stat-row__modifier--negative' : ''));
+  }
+
+  function updateStatBudgetDisplay(budget) {
+    var display = UI.$('statBudgetDisplay');
+    if (!display) return;
+    var used = 0;
+    document.querySelectorAll('.adv-stat-row__slider').forEach(function (s) {
+      used += parseInt(s.value) || 0;
+    });
+    var remaining = budget - used;
+    display.textContent = remaining + ' / ' + budget;
+    display.classList.toggle('adv-stat-allocator__budget--empty', remaining <= 0);
+    display.classList.toggle('adv-stat-allocator__budget--low', remaining > 0 && remaining <= 4);
+  }
+
+  function applyArchetypePreset(preset) {
+    STAT_KEYS.forEach(function (key) {
+      var slider = document.querySelector('.adv-stat-row__slider[data-stat-key="' + key + '"]');
+      if (slider && preset.stats[key] != null) {
+        slider.value = preset.stats[key];
+        updateSliderDisplay(slider);
+      }
+    });
+  }
+
+  function updatePresetHighlight() {
+    document.querySelectorAll('.adv-archetype-btn').forEach(function (btn) {
+      btn.classList.toggle('adv-archetype-btn--active', btn.dataset.presetLabel === activePresetLabel);
+    });
+  }
+
+  function updateStatPreviewSentence() {
+    var preview = UI.$('statPreviewText');
+    if (!preview) return;
+
+    var vals = {};
+    document.querySelectorAll('.adv-stat-row__slider').forEach(function (s) {
+      vals[s.dataset.statKey] = parseInt(s.value);
+    });
+
+    var parts = [];
+
+    // Highest stat descriptor
+    var highest = STAT_KEYS.reduce(function (a, b) { return vals[a] >= vals[b] ? a : b; });
+    var lowest = STAT_KEYS.reduce(function (a, b) { return vals[a] <= vals[b] ? a : b; });
+    var descriptors = {
+      strength: { high: 'Powerful', low: 'Frail' },
+      dexterity: { high: 'Agile', low: 'Clumsy' },
+      intelligence: { high: 'Brilliant', low: 'Simple' },
+      charisma: { high: 'Charming', low: 'Awkward' }
+    };
+
+    if (vals[highest] >= 14) parts.push(descriptors[highest].high);
+    if (vals[lowest] <= 6 && lowest !== highest) parts.push('but ' + descriptors[lowest].low.toLowerCase());
+
+    // Strategy description
+    if (vals.strength >= 14 && vals.dexterity >= 14) {
+      parts.push('— a natural fighter');
+    } else if (vals.intelligence >= 14 && vals.charisma >= 14) {
+      parts.push('— silver-tongued and sharp');
+    } else if (vals.strength >= 14 && vals.intelligence <= 8) {
+      parts.push('— brawn over brains');
+    } else if (vals.intelligence >= 14 && vals.strength <= 8) {
+      parts.push('— wits over muscle');
+    } else if (vals[highest] - vals[lowest] <= 2) {
+      parts.push('— a balanced soul');
+    }
+
+    preview.textContent = parts.join(' ') || 'Balanced across all stats';
+  }
+
+  function collectStatAllocations() {
+    var stats = {};
+    document.querySelectorAll('.adv-stat-row__slider').forEach(function (s) {
+      stats[s.dataset.statKey] = parseInt(s.value);
+    });
+    return stats;
+  }
+
   // --- Start Adventure ---
   function startAdventure() {
     if (!selectedGenre || isProcessing) return;
@@ -288,8 +493,9 @@
     var nameInput = UI.$('playerNameInput');
     var playerName = (nameInput.value || '').trim() || RPG.generateName();
     var characterAppearance = collectCharacterSelections();
+    var customStats = collectStatAllocations();
 
-    gameState = RPG.createState(selectedGenre, playerName, characterAppearance);
+    gameState = RPG.createState(selectedGenre, playerName, characterAppearance, customStats);
     isProcessing = true;
 
     UI.showScreen('screenPlay');

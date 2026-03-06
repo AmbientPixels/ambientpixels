@@ -62,6 +62,24 @@
             </div>
             <div id="charOptionsContainer" class="adv-char-creator__options"></div>
             <div class="adv-char-creator__preview" id="charPreviewText"></div>
+
+            <!-- Stat Allocator -->
+            <div class="adv-stat-allocator" id="statAllocator">
+              <div class="adv-stat-allocator__header">
+                <span class="adv-stat-allocator__title">
+                  <i class="fas fa-sliders"></i> Allocate Stats
+                </span>
+                <span class="adv-stat-allocator__budget" id="statBudgetDisplay">0 / 0</span>
+              </div>
+              <div class="adv-stat-allocator__presets" id="archetypePresets"></div>
+              <div class="adv-stat-allocator__rows" id="statSliderRows"></div>
+              <div class="adv-stat-allocator__footer">
+                <button type="button" class="adv-stat-allocator__reset" id="statResetBtn">
+                  <i class="fas fa-rotate-left"></i> Reset
+                </button>
+                <div class="adv-stat-allocator__preview" id="statPreviewText"></div>
+              </div>
+            </div>
           </div>
           <button class="adv-btn adv-btn--primary" id="startAdventureBtn" disabled style="margin-top:1.5rem; padding:0.75rem 2rem; font-size:1rem;">
             <i class="fas fa-play"></i> Begin Adventure
