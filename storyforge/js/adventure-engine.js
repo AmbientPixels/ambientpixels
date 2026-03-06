@@ -195,6 +195,9 @@
   // --- Events ---
   function bindEvents() {
     initNarrationToggle();
+    // Sync narrator checkbox with stored preference
+    var narratorCheckbox = UI.$('narratorToggle');
+    if (narratorCheckbox) narratorCheckbox.checked = narrationEnabled;
     UI.$('startAdventureBtn').addEventListener('click', startAdventure);
     UI.$('newAdventureBtn').addEventListener('click', function () {
       gameState = null;
@@ -614,6 +617,15 @@
   function startAdventure() {
     if (!selectedGenre || isProcessing) return;
 
+    // Apply narrator preference from character creation
+    var narratorCheckbox = UI.$('narratorToggle');
+    if (narratorCheckbox) {
+      narrationEnabled = narratorCheckbox.checked;
+      localStorage.setItem('sf_narration', narrationEnabled ? 'on' : 'off');
+      var toggleBtn = UI.$('narrationToggle');
+      if (toggleBtn) updateToggleUI(toggleBtn);
+    }
+
     // Unlock AudioContext on user gesture so TTS can auto-play when scene arrives
     ensureAudioContext();
 
@@ -706,6 +718,7 @@
     }).then(function (audioBuffer) {
       if (preloadSessionId !== sessionId || !audioBuffer) return null;
       preloadedAudioBuffer = audioBuffer;
+      tryAutoPlay();
       return audioBuffer;
     }).catch(function (err) {
       console.warn('[TTS] Preload error:', err);
@@ -757,20 +770,17 @@
     void sceneTextEl.offsetWidth; // force reflow to restart animation
     sceneTextEl.classList.add('adv-scene-enter');
 
-    // Preload TTS, then start typewriter + audio together
-    preloadTTS(scene.sceneText).then(function () {
-      // Play audio as typewriter begins
-      tryAutoPlay();
+    // Start TTS fetch in parallel — plays as soon as ready
+    preloadTTS(scene.sceneText);
 
-      // Typewriter text
-      UI.typewriter(sceneTextEl, scene.sceneText).then(function () {
-        if (scene.isEnding) {
-          showEnding(scene);
-        } else {
-          renderChoices(scene.choices);
-        }
-        isProcessing = false;
-      });
+    // Typewriter starts immediately, no waiting for audio
+    UI.typewriter(sceneTextEl, scene.sceneText).then(function () {
+      if (scene.isEnding) {
+        showEnding(scene);
+      } else {
+        renderChoices(scene.choices);
+      }
+      isProcessing = false;
     });
 
     updateSidebar();
@@ -859,7 +869,7 @@
 
   // --- Sound Effects (Web Audio synthesis, no external files) ---
   function playSfx(type) {
-    if (!narrationEnabled || !audioCtx) return;
+    if (!audioCtx) return;
     try {
       var ctx = audioCtx;
       var now = ctx.currentTime;

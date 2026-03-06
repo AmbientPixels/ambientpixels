@@ -96,7 +96,14 @@
               </div>
             </div>
           </div>
-          <button class="adv-btn adv-btn--primary" id="startAdventureBtn" disabled style="margin-top:1.5rem; padding:0.75rem 2rem; font-size:1rem;">
+          <div class="adv-narrator-option" style="margin-top:1.5rem; display:flex; align-items:center; justify-content:center; gap:0.6rem;">
+            <label class="adv-narrator-toggle" style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.85rem; color:rgba(216,224,229,0.7);">
+              <input type="checkbox" id="narratorToggle" checked style="accent-color:#7B8FE0;" />
+              <i class="fas fa-microphone"></i> AI Narrator
+            </label>
+            <span style="font-size:0.75rem; color:rgba(216,224,229,0.4);">Voice narrates each scene</span>
+          </div>
+          <button class="adv-btn adv-btn--primary" id="startAdventureBtn" disabled style="margin-top:0.75rem; padding:0.75rem 2rem; font-size:1rem;">
             <i class="fas fa-play"></i> Begin Adventure
           </button>
           <div class="adv-char-creator__hint" id="portraitHint" style="margin-top:0.5rem; font-size:0.8rem; color:rgba(216,224,229,0.6);">
