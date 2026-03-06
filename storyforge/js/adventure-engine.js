@@ -48,6 +48,11 @@
     }
   }
 
+  function updateNarrationControlsVisibility() {
+    var controls = document.querySelector('.adv-narration-controls');
+    if (controls) controls.style.display = narrationEnabled ? '' : 'none';
+  }
+
   function updateToggleUI(btn) {
     if (narrationEnabled) {
       btn.classList.remove('adv-narration-toggle--muted');
@@ -79,6 +84,7 @@
       // Resume saved adventure
       UI.showLoading(UI.$('sceneText'), 'Loading saved adventure...');
       UI.showScreen('screenPlay');
+      updateNarrationControlsVisibility();
       Storage.loadAdventure(continueId).then(function (adventure) {
         if (!adventure) {
           UI.toast('Saved adventure not found', 'error');
@@ -627,6 +633,7 @@
       var toggleBtn = UI.$('narrationToggle');
       if (toggleBtn) updateToggleUI(toggleBtn);
     }
+    updateNarrationControlsVisibility();
 
     // Unlock AudioContext on user gesture so TTS can auto-play when scene arrives
     ensureAudioContext();
