@@ -627,6 +627,9 @@
     }
   }
 
+  // Minimal silent WAV for unlocking audio during user gesture
+  var SILENT_WAV = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+
   function narrateScene(text) {
     var btn = document.querySelector('.adv-narrate');
     if (!btn) return;
@@ -641,35 +644,40 @@
     btn.classList.add('adv-narrate--loading');
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
 
+    // Create and play silent audio immediately within user-gesture context
+    // to unlock browser autoplay policy for this element
+    var audio = new Audio(SILENT_WAV);
+    currentNarration = audio;
+    audio.play().then(function () { audio.pause(); }).catch(function () {});
+
+    audio.addEventListener('playing', function () {
+      btn.classList.remove('adv-narrate--loading');
+      btn.classList.add('adv-narrate--playing');
+      btn.innerHTML = '<i class="fas fa-stop"></i> Stop';
+    });
+
+    audio.addEventListener('ended', function () {
+      if (audio.src && audio.src.indexOf('blob:') === 0) URL.revokeObjectURL(audio.src);
+      currentNarration = null;
+      btn.classList.remove('adv-narrate--playing');
+      btn.innerHTML = '<i class="fas fa-volume-up"></i> Listen';
+    });
+
+    audio.addEventListener('error', function () {
+      stopNarration();
+      UI.toast('Audio playback failed', 'error');
+    });
+
     var voice = (gameState && AI.GENRE_VOICES[gameState.genre]) || 'Kore';
     AI.callTTSAPI(text, voice).then(function (audioUrl) {
-      if (!audioUrl) {
+      if (!audioUrl || currentNarration !== audio) {
         stopNarration();
-        UI.toast('Narration unavailable', 'warning');
+        if (audioUrl && audioUrl.indexOf('blob:') === 0) URL.revokeObjectURL(audioUrl);
+        if (!audioUrl) UI.toast('Narration unavailable', 'warning');
         return;
       }
 
-      var audio = new Audio(audioUrl);
-      currentNarration = audio;
-
-      audio.addEventListener('playing', function () {
-        btn.classList.remove('adv-narrate--loading');
-        btn.classList.add('adv-narrate--playing');
-        btn.innerHTML = '<i class="fas fa-stop"></i> Stop';
-      });
-
-      audio.addEventListener('ended', function () {
-        if (audio.src && audio.src.indexOf('blob:') === 0) URL.revokeObjectURL(audio.src);
-        currentNarration = null;
-        btn.classList.remove('adv-narrate--playing');
-        btn.innerHTML = '<i class="fas fa-volume-up"></i> Listen';
-      });
-
-      audio.addEventListener('error', function () {
-        stopNarration();
-        UI.toast('Audio playback failed', 'error');
-      });
-
+      audio.src = audioUrl;
       audio.play().catch(function () {
         stopNarration();
         UI.toast('Audio playback blocked', 'warning');
