@@ -312,7 +312,7 @@ Write the full deliverable first, then the structured JSON block.`;
   }
 
   // ANTI-STALL: if agent has triaged idle tasks but produced no execute/create-doc/create-social-action, inject forced execute
-  // v2: Skip convergence-blocked tasks (3+ deliverables) — try a different task or review-task instead
+  // v2: Skip convergence-blocked tasks (5+ deliverables) — try a different task or review-task instead
   if (agentId !== 'nova') {
     const _hasWorkAction = actions.some(a =>
       a.type === 'execute-task' || a.type === 'create-doc' || a.type === 'create-social-action' || a.type === 'review-task'
@@ -325,10 +325,10 @@ Write the full deliverable first, then the structured JSON block.`;
           t.comments && t.comments.some(c => c.author === 'nova' || c.author === 'system')
         )
         .sort((a, b) => (_prioOrder[a.priority] || 3) - (_prioOrder[b.priority] || 3));
-      // Filter out convergence-blocked tasks (3+ deliverables — would just get blocked again)
+      // Filter out convergence-blocked tasks (5+ deliverables — would just get blocked again)
       let _executableIdle = _triagedIdle.filter(t => {
         const _delCount = (t.comments || []).filter(c => c.type === 'deliverable').length;
-        return _delCount < 3;
+        return _delCount < 5;
       });
       // Fix 8: For Echo, filter out tasks that already have pending social actions (avoids dedup loop)
       if (agentId === 'echo' && _executableIdle.length > 0) {
@@ -860,7 +860,7 @@ Write the full deliverable first, then the structured JSON block.`;
           if (_exTask.status === 'review' || _exTask.status === 'done') {
             context.log('[Heartbeat]', agentId, 'BLOCKED execute-task on', action.taskId, '— task already in', _exTask.status);
             // Convergence recovery for blocked hero image tasks: auto-submit parent doc for publish
-            if (_exTask.status === 'done' || ((_exTask.comments || []).filter(c => c.type === 'deliverable').length >= 3)) {
+            if (_exTask.status === 'done' || ((_exTask.comments || []).filter(c => c.type === 'deliverable').length >= 5)) {
               var _blkParent = _exTask.parent_task_id || null;
               var _blkDoc = documents.find(function(d) {
                 if (!d || d.deletedAt || d.status === 'published' || d.status === 'rejected' || d.status === 'archived') return false;
@@ -874,9 +874,9 @@ Write the full deliverable first, then the structured JSON block.`;
             }
             continue;
           }
-          // CONVERGENCE GUARD: if 3+ deliverables already exist, the task is looping — block and escalate
+          // CONVERGENCE GUARD: if 5+ deliverables already exist, the task is looping — block and escalate
           const _deliverableCount = (_exTask.comments || []).filter(c => c.type === 'deliverable').length;
-          if (_deliverableCount >= 3) {
+          if (_deliverableCount >= 5) {
             context.log('[Heartbeat]', agentId, 'CONVERGENCE BLOCKED execute-task on', action.taskId,
               '— task has', _deliverableCount, 'deliverables already (revision loop detected). Escalating to CEO.');
             // Only add the loop-detected comment once — don't spam every heartbeat cycle
@@ -1048,22 +1048,19 @@ Write the full deliverable first, then the structured JSON block.`;
         }
       }
     } else if (action.type === 'create-social-action' && action.social) {
-      // PEER REVIEW GATE: social actions require the linked task to be peer-reviewed (done) first
-      // Echo must use execute-task to draft copy → peer reviews → task moves to done → then create-social-action
-      if (action.taskId) {
-        const _socialTaskForReview = tasks.find(t => t.id === action.taskId);
-        if (_socialTaskForReview && _socialTaskForReview.status !== 'done') {
-          context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action on', action.taskId, '— task not yet peer-reviewed (status:', _socialTaskForReview.status + '). Use execute-task to draft copy first, then wait for peer review.');
-          continue;
-        }
-      }
+      // PEER REVIEW GATE: REMOVED — redundant with Copy Review Gate below.
+      // The Copy Review Gate ensures Scribe writes copy + peer reviews it before posting.
+      // The social ACTION itself goes through CEO approval — that's the real quality gate.
+
       // TRIAGE GATE: if this social action is linked to a task, that task must be triaged first
       // Exception: CEO-created tasks with assignee + dueDate are pre-triaged
+      // Exception: Campaign tasks are system-created with full context — no triage needed
       if (agentId !== 'nova' && action.taskId) {
         const socialTarget = tasks.find(t => t.id === action.taskId);
         const hasSocialTriage = socialTarget && socialTarget.comments && socialTarget.comments.length > 0;
         const isCeoSocialTriaged = socialTarget && socialTarget.source !== 'heartbeat' && socialTarget.assignee && socialTarget.dueDate;
-        if (socialTarget && !hasSocialTriage && !isCeoSocialTriaged) {
+        const isCampaignTask = socialTarget && socialTarget.campaign_id;
+        if (socialTarget && !hasSocialTriage && !isCeoSocialTriaged && !isCampaignTask) {
           context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action on', action.taskId, '— task has zero comments (needs Nova triage first)');
           continue;
         }
@@ -1720,9 +1717,9 @@ Write the full deliverable first, then the structured JSON block.`;
       // Review: agent reviews another agent's deliverable (costs 1 extra Gemini call)
       const task = tasks.find(t => t.id === action.taskId && t.status === 'review');
       if (task) {
-        // CONVERGENCE GUARD: block review if task already has 3+ deliverables — it's looping
+        // CONVERGENCE GUARD: block review if task already has 5+ deliverables — it's looping
         const _rvDelCount = (task.comments || []).filter(c => c.type === 'deliverable').length;
-        if (_rvDelCount >= 3) {
+        if (_rvDelCount >= 5) {
           const _lastRvSys = (task.comments || []).slice().reverse().find(c => c.author === 'system' || c.agentId === 'system');
           const _rvAlreadyWarned = _lastRvSys && _lastRvSys.text && _lastRvSys.text.indexOf('Revision loop') !== -1;
           if (!_rvAlreadyWarned) {

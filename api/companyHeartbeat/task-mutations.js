@@ -196,7 +196,24 @@ function applyTaskUpdate(tasks, update, _pendingEscalations, _creatingAgentId) {
                 }
               }
             } else {
-            // Non-hero deliverable tasks stay in review — CEO must approve before done
+            // ── SOCIAL TASK AUTO-COMPLETE: social tasks skip CEO approval on the task —
+            // the create-social-action itself goes through CEO approval (that's the real gate) ──
+            const _isSocialTask = (tasks[i].assignee === 'echo') &&
+              (/^social_/.test(tasks[i].taskType || '') || tasks[i].campaign_id);
+            if (_isSocialTask) {
+              tasks[i].status = 'done';
+              tasks[i].completedAt = new Date().toISOString();
+              if (!tasks[i].comments) tasks[i].comments = [];
+              tasks[i].comments.push({
+                id: 'cmt-socialauto-' + Date.now(),
+                author: 'system',
+                text: 'Social task auto-completed after peer review. The social action (create-social-action) goes through CEO approval — that is the quality gate for social posts.',
+                type: 'system',
+                createdAt: new Date().toISOString()
+              });
+              console.log('[Heartbeat] SOCIAL AUTO-COMPLETE: task', tasks[i].id, 'auto-completed — create-social-action CEO approval is the gate');
+            } else {
+            // Non-hero, non-social deliverable tasks stay in review — CEO must approve before done
             tasks[i].status = 'review';
             if (!update._ceoApprovalAction) {
               update._ceoApprovalAction = {
@@ -207,6 +224,7 @@ function applyTaskUpdate(tasks, update, _pendingEscalations, _creatingAgentId) {
                 reviewFeedback: update.review.feedback,
                 deliverable: (tasks[i].comments || []).filter(c => c.type === 'deliverable').map(c => c.text).join('\n').substring(0, 2000)
               };
+            }
             }
             }
           } else {
