@@ -1001,6 +1001,25 @@
         });
       });
 
+      // ── Review link handler: expand Decisions section + scroll to approval queue ──
+      function scrollToApprovalQueue(e) {
+        e.preventDefault();
+        var section = document.getElementById('section-decisions');
+        if (section && section.classList.contains('collapsed')) {
+          section.classList.remove('collapsed');
+          _collapsed['decisions'] = false;
+          var header = section.querySelector('.dash-section-header');
+          if (header) header.setAttribute('aria-expanded', 'true');
+          try { localStorage.setItem('ap_dashboard_collapsed', JSON.stringify(_collapsed)); } catch (e2) {}
+        }
+        var target = document.getElementById('panel-approval-wrap');
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      document.addEventListener('click', function (e) {
+        var link = e.target.closest('a[href="#panel-approval-wrap"]');
+        if (link) scrollToApprovalQueue(e);
+      });
+
       // ── Store mode badge ──
       var storeModeBadge = document.getElementById('store-mode-badge');
       var heartbeatBtn = document.getElementById('dash-heartbeat');
