@@ -197,7 +197,7 @@ module.exports = async function (context) {
       autoFixCount++;
     }
 
-    // ── ONE-TIME MIGRATION (2026-03-07k): archive pre-rotation CC tasks + clean AQ ──
+    // ── ONE-TIME MIGRATION (2026-03-07n): archive pre-rotation CC tasks + clean AQ ──
     // Old CC tasks created before platform rotation fix keep getting restored by heartbeat.
     // This runs inside the heartbeat so the cleanup persists. Remove after 2026-03-14.
     {
@@ -208,43 +208,45 @@ module.exports = async function (context) {
         if (_migCC.indexOf(tasks[_mi].campaign_id) !== -1) {
           _migTaskIds.add(tasks[_mi].id);
           if (tasks[_mi].status !== 'archived') {
-            // Only archive tasks created before the rotation fix (2026-03-07 00:00 UTC)
-            var _migCreated = new Date(tasks[_mi].createdAt || 0).getTime();
-            if (_migCreated < 1772870400000) { // 2026-03-07T00:00:00Z
-              tasks[_mi].status = 'archived';
-              tasks[_mi].archivedAt = new Date().toISOString();
-              tasks[_mi].archivedReason = 'pre-rotation migration';
-              tasksChanged = true;
-              _migArchived++;
-            }
+            tasks[_mi].status = 'archived';
+            tasks[_mi].archivedAt = new Date().toISOString();
+            tasks[_mi].archivedReason = 'pre-rotation migration';
+            _migArchived++;
           }
         }
       }
-      // Clean AQ items for archived CC tasks
       if (_migArchived > 0) {
-        var _migAqBefore = approvalQueue.length;
-        for (var _ai = approvalQueue.length - 1; _ai >= 0; _ai--) {
-          if (approvalQueue[_ai].taskId && _migTaskIds.has(approvalQueue[_ai].taskId)) {
-            approvalQueue.splice(_ai, 1);
-          }
-        }
-        context.log('[Heartbeat] MIGRATION: archived', _migArchived, 'pre-rotation CC tasks, cleaned', _migAqBefore - approvalQueue.length, 'AQ items');
+        context.log('[Heartbeat] MIGRATION: archived', _migArchived, 'pre-rotation CC tasks');
         autoFixCount += _migArchived;
       }
-      // Also reject pending CC social actions
-      var _migActions = await storage.getState('actions') || [];
-      var _migActChanged = 0;
-      for (var _aci = 0; _aci < _migActions.length; _aci++) {
-        var _ma = _migActions[_aci];
-        if (_ma.approval && _ma.approval.status === 'pending' && _ma._parentTaskId && _migTaskIds.has(_ma._parentTaskId)) {
-          _ma.approval.status = 'rejected';
-          _ma.approval.resolved_at = new Date().toISOString();
-          _migActChanged++;
+      // Clean AQ items for archived CC tasks (load directly since approvalQueue not yet in scope)
+      if (_migTaskIds.size > 0) {
+        var _migAq = await storage.getState('approvalQueue') || [];
+        var _migAqBefore = _migAq.length;
+        _migAq = _migAq.filter(function(item) {
+          return !(item.taskId && _migTaskIds.has(item.taskId));
+        });
+        if (_migAq.length < _migAqBefore) {
+          await storage.setState('approvalQueue', _migAq);
+          context.log('[Heartbeat] MIGRATION: cleaned', _migAqBefore - _migAq.length, 'AQ items for CC tasks');
         }
       }
-      if (_migActChanged > 0) {
-        await storage.setState('actions', _migActions);
-        context.log('[Heartbeat] MIGRATION: rejected', _migActChanged, 'pending CC social actions');
+      // Reject pending CC social actions
+      if (_migTaskIds.size > 0) {
+        var _migActions = await storage.getState('actions') || [];
+        var _migActChanged = 0;
+        for (var _aci = 0; _aci < _migActions.length; _aci++) {
+          var _ma = _migActions[_aci];
+          if (_ma.approval && _ma.approval.status === 'pending' && _ma._parentTaskId && _migTaskIds.has(_ma._parentTaskId)) {
+            _ma.approval.status = 'rejected';
+            _ma.approval.resolved_at = new Date().toISOString();
+            _migActChanged++;
+          }
+        }
+        if (_migActChanged > 0) {
+          await storage.setState('actions', _migActions);
+          context.log('[Heartbeat] MIGRATION: rejected', _migActChanged, 'pending CC social actions');
+        }
       }
     }
 
