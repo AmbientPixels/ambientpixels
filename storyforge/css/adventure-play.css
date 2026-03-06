@@ -663,6 +663,61 @@
   white-space: nowrap;
 }
 
+/* --- Genre Select Screen --- */
+.adv-genre-select {
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+/* --- Genre Grid (play page) --- */
+.adv-genre-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.adv-genre-card {
+  background: rgba(15, 25, 40, 0.6);
+  border: 1px solid rgba(122, 143, 224, 0.1);
+  border-radius: 12px;
+  padding: 0.75rem;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.15s;
+  text-align: center;
+}
+
+.adv-genre-card:hover {
+  border-color: rgba(122, 143, 224, 0.3);
+  transform: translateY(-2px);
+}
+
+.adv-genre-card--selected {
+  border-color: var(--aura-accent, #7B8FE0);
+  background: rgba(122, 143, 224, 0.1);
+}
+
+.adv-genre-card__img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+}
+
+.adv-genre-card__name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--dark-text, #d8e0e5);
+  margin-bottom: 0.25rem;
+}
+
+.adv-genre-card__desc {
+  font-size: 0.75rem;
+  color: rgba(216, 224, 229, 0.5);
+  line-height: 1.4;
+}
+
 /* --- Character Creator --- */
 .adv-char-creator {
   margin-top: 1.5rem;

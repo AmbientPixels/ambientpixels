@@ -218,7 +218,7 @@
         gameState = null;
         currentScene = null;
         window.location.href = '/storyforge/';
-      }
+      });
     });
 
     // Keyboard shortcuts for choices (1-4) + Escape for pause
