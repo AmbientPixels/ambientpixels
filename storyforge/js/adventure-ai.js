@@ -239,6 +239,45 @@ window.AdventureAI = (function () {
     });
   }
 
+  // Convert raw PCM base64 to WAV blob URL (Gemini TTS returns audio/L16;rate=24000)
+  function pcmToWavBlobUrl(base64Pcm, sampleRate) {
+    sampleRate = sampleRate || 24000;
+    var raw = atob(base64Pcm);
+    var pcmBytes = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) pcmBytes[i] = raw.charCodeAt(i);
+
+    var numChannels = 1;
+    var bitsPerSample = 16;
+    var byteRate = sampleRate * numChannels * (bitsPerSample / 8);
+    var blockAlign = numChannels * (bitsPerSample / 8);
+    var dataSize = pcmBytes.length;
+    var headerSize = 44;
+    var buffer = new ArrayBuffer(headerSize + dataSize);
+    var view = new DataView(buffer);
+
+    function writeString(offset, str) {
+      for (var j = 0; j < str.length; j++) view.setUint8(offset + j, str.charCodeAt(j));
+    }
+
+    writeString(0, 'RIFF');
+    view.setUint32(4, 36 + dataSize, true);
+    writeString(8, 'WAVE');
+    writeString(12, 'fmt ');
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true); // PCM
+    view.setUint16(22, numChannels, true);
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, byteRate, true);
+    view.setUint16(32, blockAlign, true);
+    view.setUint16(34, bitsPerSample, true);
+    writeString(36, 'data');
+    view.setUint32(40, dataSize, true);
+
+    new Uint8Array(buffer, headerSize).set(pcmBytes);
+    var blob = new Blob([buffer], { type: 'audio/wav' });
+    return URL.createObjectURL(blob);
+  }
+
   function callTTSAPI(text, voiceName) {
     return fetch(GEMINI_ENDPOINT, {
       method: 'POST',
@@ -266,15 +305,24 @@ window.AdventureAI = (function () {
       var parts = (data && data.candidates && data.candidates[0] &&
         data.candidates[0].content && data.candidates[0].content.parts) || [];
       for (var i = 0; i < parts.length; i++) {
-        if (parts[i].inlineData) {
-          var mime = parts[i].inlineData.mimeType || 'audio/wav';
-          return 'data:' + mime + ';base64,' + parts[i].inlineData.data;
+        if (parts[i].inlineData && parts[i].inlineData.data) {
+          var mime = parts[i].inlineData.mimeType || '';
+          // If already a browser-playable format, use data URL directly
+          if (mime === 'audio/wav' || mime === 'audio/mp3' || mime === 'audio/mpeg') {
+            return 'data:' + mime + ';base64,' + parts[i].inlineData.data;
+          }
+          // Raw PCM (audio/L16) — wrap with WAV header
+          var rate = 24000;
+          var rateMatch = mime.match(/rate=(\d+)/);
+          if (rateMatch) rate = parseInt(rateMatch[1], 10);
+          return pcmToWavBlobUrl(parts[i].inlineData.data, rate);
         }
       }
       return null;
     })
-    .catch(function () {
-      return null; // TTS is non-critical
+    .catch(function (err) {
+      console.warn('[TTS] Error:', err);
+      return null;
     });
   }
 

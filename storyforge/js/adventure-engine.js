@@ -614,8 +614,11 @@
   // --- Narration (TTS) ---
   function stopNarration() {
     if (currentNarration) {
+      var src = currentNarration.src;
       currentNarration.pause();
       currentNarration = null;
+      // Revoke blob URL to free memory
+      if (src && src.indexOf('blob:') === 0) URL.revokeObjectURL(src);
     }
     var btn = document.querySelector('.adv-narrate');
     if (btn) {
@@ -656,6 +659,7 @@
       });
 
       audio.addEventListener('ended', function () {
+        if (audio.src && audio.src.indexOf('blob:') === 0) URL.revokeObjectURL(audio.src);
         currentNarration = null;
         btn.classList.remove('adv-narrate--playing');
         btn.innerHTML = '<i class="fas fa-volume-up"></i> Listen';
