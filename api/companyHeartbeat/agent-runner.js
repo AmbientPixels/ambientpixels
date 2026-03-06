@@ -1049,10 +1049,13 @@ Write the full deliverable first, then the structured JSON block.`;
               _rotCounts[tu.task.taskType]++;
             }
           });
-          // Pick the platform with the fewest tasks (round-robin by count)
+          // Pick the platform with the fewest tasks, preferring one different from _taskType
+          // (Nova defaults to social_linkedin, so we need to spread across platforms)
           var _rotMin = Infinity;
           _rotSocialTypes.forEach(function(tt) { if (_rotCounts[tt] < _rotMin) _rotMin = _rotCounts[tt]; });
-          var _rotNext = _rotSocialTypes.find(function(tt) { return _rotCounts[tt] === _rotMin; });
+          var _rotCandidates = _rotSocialTypes.filter(function(tt) { return _rotCounts[tt] === _rotMin; });
+          // Prefer a different platform than what Nova defaulted to
+          var _rotNext = _rotCandidates.find(function(tt) { return tt !== _taskType; }) || _rotCandidates[0];
           if (_rotNext && _rotNext !== _taskType) {
             context.log('[Heartbeat]', agentId, 'PLATFORM ROTATION: campaign "' + (_rotCmp.title || _taskCampaignId) + '" rotating', _taskType, '→', _rotNext, '(counts:', JSON.stringify(_rotCounts), ')');
             _taskType = _rotNext;
