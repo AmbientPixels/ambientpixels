@@ -322,7 +322,8 @@ Write the full deliverable first, then the structured JSON block.`;
       const _triagedIdle = agentTasks
         .filter(t =>
           (t.status === 'todo' || t.status === 'in-progress') &&
-          t.comments && t.comments.some(c => c.author === 'nova' || c.author === 'system')
+          (t.campaign_id || // campaign tasks are auto-triaged (created by Nova from campaign directives)
+           (t.comments && t.comments.some(c => c.author === 'nova' || c.author === 'system')))
         )
         .sort((a, b) => (_prioOrder[a.priority] || 3) - (_prioOrder[b.priority] || 3));
       // Filter out convergence-blocked tasks (5+ deliverables — would just get blocked again)
