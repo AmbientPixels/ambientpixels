@@ -29,7 +29,12 @@
       narrationEnabled = !narrationEnabled;
       localStorage.setItem('sf_narration', narrationEnabled ? 'on' : 'off');
       updateToggleUI(btn);
-      if (!narrationEnabled) stopNarration();
+      if (!narrationEnabled) {
+        stopNarration();
+      } else if (preloadedAudioBuffer && !currentNarration) {
+        // Unmuted with audio ready — play it
+        playBuffer(preloadedAudioBuffer);
+      }
     });
 
     var slider = UI.$('narrationVolume');
@@ -117,7 +122,6 @@
     UI.$('turnLabel').textContent = 'Turn ' + gameState.turnCount;
     UI.$('progressFill').style.width = ((gameState.turnCount / gameState.maxTurns) * 100) + '%';
     UI.$('sceneText').innerHTML = '<p>' + UI.escapeHtml(gameState.lastSceneText || 'Your adventure continues...').replace(/\n\n/g, '</p><p>') + '</p>';
-    injectNarrateButton(gameState.lastSceneText || 'Your adventure continues...');
 
     // Show first scene image if available
     if (gameState.firstSceneImage) {
@@ -680,11 +684,6 @@
       try { currentNarration.source.stop(); } catch (e) {}
       currentNarration = null;
     }
-    var btn = document.querySelector('.adv-narrate');
-    if (btn) {
-      btn.classList.remove('adv-narrate--loading', 'adv-narrate--playing');
-      btn.innerHTML = '<i class="fas fa-volume-up"></i> Listen';
-    }
   }
 
   // Preloaded audio buffer for current scene (filled by TTS fetch in parallel with typewriter)
@@ -734,52 +733,13 @@
     var sessionId = {};
     currentNarration = { source: source, id: sessionId };
 
-    var btn = document.querySelector('.adv-narrate');
     source.onended = function () {
       if (currentNarration && currentNarration.id === sessionId) {
         currentNarration = null;
-        if (btn) {
-          btn.classList.remove('adv-narrate--playing');
-          btn.innerHTML = '<i class="fas fa-rotate"></i> Replay';
-        }
       }
     };
 
     source.start(0);
-    if (btn) {
-      btn.classList.remove('adv-narrate--loading');
-      btn.classList.add('adv-narrate--playing');
-      btn.innerHTML = '<i class="fas fa-stop"></i> Stop';
-    }
-  }
-
-  function injectNarrateButton(sceneText) {
-    var el = UI.$('sceneText');
-    if (!el) return;
-    var btn = document.createElement('button');
-    btn.className = 'adv-narrate';
-
-    if (currentNarration) {
-      btn.classList.add('adv-narrate--playing');
-      btn.innerHTML = '<i class="fas fa-stop"></i> Stop';
-    } else if (narrationEnabled && preloadedAudioBuffer) {
-      // Audio ready — auto-play now
-      btn.innerHTML = '<i class="fas fa-volume-up"></i> Playing...';
-      el.appendChild(btn);
-      tryAutoPlay();
-      return;
-    } else {
-      btn.innerHTML = '<i class="fas fa-volume-up"></i> Listen';
-    }
-
-    btn.addEventListener('click', function () {
-      if (currentNarration) {
-        stopNarration();
-      } else if (preloadedAudioBuffer) {
-        playBuffer(preloadedAudioBuffer);
-      }
-    });
-    el.appendChild(btn);
   }
 
   // --- Render Scene ---
@@ -804,7 +764,6 @@
 
       // Typewriter text
       UI.typewriter(sceneTextEl, scene.sceneText).then(function () {
-        injectNarrateButton(scene.sceneText);
         if (scene.isEnding) {
           showEnding(scene);
         } else {
