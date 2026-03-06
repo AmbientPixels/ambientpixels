@@ -1321,7 +1321,9 @@ Write the full deliverable first, then the structured JSON block.`;
             }
 
             // ECHO SOCIAL FAST-PATH: auto-complete Echo social tasks after execute — skip peer review.
-            // The CEO approves the social action which is the real quality gate.
+            // Task moves to "done" but NO auto-injection of create-social-action.
+            // Echo will pick up the done task with reviewed_copy in the next cycle and create
+            // a proper social action using the reviewed copy (not the raw execute-task brief).
             if (agentId === 'echo') {
               const _esfText = ((task.title || '') + ' ' + (task.description || '')).toLowerCase();
               const _esfIsSocial = /^social_/.test(task.taskType || '') || task.campaign_id ||
@@ -1331,22 +1333,10 @@ Write the full deliverable first, then the structured JSON block.`;
                 result.taskUpdates.push({ action: 'move', taskId: action.taskId, newStatus: 'done' });
                 result.taskUpdates.push({
                   action: 'comment', taskId: action.taskId,
-                  comment: '[SYSTEM] Social task auto-completed (fast-path). CEO approves the social action — peer review skipped.',
+                  comment: '[SYSTEM] Social task auto-completed (fast-path). Echo will create social action in next cycle using reviewed copy.',
                   agentId: 'system'
                 });
-                context.log('[Heartbeat] ECHO SOCIAL FAST-PATH: task auto-completed:', action.taskId, '(' + deliverable.length + ' chars)');
-                // Inject create-social-action immediately — triggers Copy Review Gate + AQ in same cycle
-                var _esfPlatform = (task.taskType === 'social_linkedin' || /linkedin/.test(_esfText)) ? 'linkedin'
-                  : (task.taskType === 'social_x' || /twitter|x\.com|tweet/.test(_esfText)) ? 'x'
-                  : (task.taskType === 'social_bluesky' || /bluesky/.test(_esfText)) ? 'bluesky'
-                  : 'linkedin';
-                actions.push({
-                  type: 'create-social-action',
-                  taskId: action.taskId,
-                  social: { platform: _esfPlatform, text: deliverable },
-                  summary: 'Fast-path: create social action for ' + (task.title || action.taskId)
-                });
-                context.log('[Heartbeat] ECHO SOCIAL FAST-PATH: injected create-social-action, platform:', _esfPlatform);
+                context.log('[Heartbeat] ECHO SOCIAL FAST-PATH: task auto-completed (no auto-inject):', action.taskId, '(' + deliverable.length + ' chars)');
                 continue; // skip blog detection
               }
             }
