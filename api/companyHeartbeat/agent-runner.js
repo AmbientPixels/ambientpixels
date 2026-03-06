@@ -1005,7 +1005,8 @@ Write the full deliverable first, then the structured JSON block.`;
         const targetTask = tasks.find(t => t.id === action.taskId);
         const hasAnyComment = targetTask && targetTask.comments && targetTask.comments.length > 0;
         const isCeoTriaged = targetTask && targetTask.source !== 'heartbeat' && targetTask.assignee && targetTask.dueDate;
-        if (targetTask && !hasAnyComment && !isCeoTriaged) {
+        const isCampaignTask = targetTask && targetTask.campaign_id; // campaign tasks are auto-triaged by Nova
+        if (targetTask && !hasAnyComment && !isCeoTriaged && !isCampaignTask) {
           context.log('[Heartbeat]', agentId, 'BLOCKED execute-task on', action.taskId, '— task has zero comments (needs Nova triage first)');
           continue;
         }
