@@ -48,6 +48,7 @@
   gap: 0.75rem;
   color: rgba(216, 224, 229, 0.3);
   font-size: 0.85rem;
+  overflow: hidden;
 }
 
 .adv-scene__image-placeholder i {
