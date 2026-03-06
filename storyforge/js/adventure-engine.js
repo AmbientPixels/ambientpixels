@@ -234,8 +234,10 @@
       hidePauseMenu();
       UI.showConfirm('Abandon Adventure?', 'All progress will be lost. This cannot be undone.', 'Abandon').then(function (ok) {
         if (!ok) { showPauseMenu(); return; }
+        var adventureId = gameState ? gameState.adventureId : null;
         gameState = null;
         currentScene = null;
+        if (adventureId) Storage.deleteAdventure(adventureId);
         window.location.href = '/storyforge/';
       });
     });
