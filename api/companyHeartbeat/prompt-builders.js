@@ -78,7 +78,21 @@ function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirective
     const src = t.source === 'heartbeat' ? 'agent' : 'CEO';
     const _tType = t.taskType || 'general';
     let line = '- [' + t.status + '] ' + t.title + ' (priority: ' + t.priority + ', type: ' + _tType + ', source: ' + src + ', id: ' + t.id;
-    if (t.campaign_id) line += ', campaign: ' + t.campaign_id;
+    if (t.campaign_id) {
+      line += ', campaign: ' + t.campaign_id;
+      // Inject campaign context so agent sees URL, rules, and posting guidelines inline
+      const _cmp = activeDirectives.find(c => c.id === t.campaign_id);
+      if (_cmp) {
+        // Extract URL from campaign description
+        const _urlMatch = (_cmp.description || '').match(/https?:\/\/ambientpixels\.ai\/[a-z0-9/-]+/i);
+        if (_urlMatch) line += ', campaign_url: ' + _urlMatch[0];
+        // Surface allowed task types
+        const _allowed = Array.isArray(_cmp.allowedTaskTypes) && _cmp.allowedTaskTypes.length > 0 ? _cmp.allowedTaskTypes : [];
+        if (_allowed.length > 0) line += ', allowed_types: ' + _allowed.join('+');
+        // Truncated campaign brief (posting rules, tone, etc.)
+        if (_cmp.description) line += '\n  CAMPAIGN BRIEF: ' + _cmp.description.substring(0, 400).replace(/\n/g, ' ').trim() + (_cmp.description.length > 400 ? '...' : '');
+      }
+    }
     if (t.dueDate) line += ', due: ' + t.dueDate.substring(0, 10);
     if (t.reviewed_copy) line += ', reviewed_copy: "' + t.reviewed_copy.substring(0, 300) + (t.reviewed_copy.length > 300 ? '...' : '') + '"';
     if (t.awaiting_copy_review) line += ', ⏳ AWAITING COPY REVIEW FROM SCRIBE';
@@ -826,9 +840,11 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
   - Include acceptanceCriteria in each proposal.
 - DEPARTMENT HEAD DUTIES (Echo — Marketing):
   - You are the ONLY agent authorized to post on social media (LinkedIn, X.com, Bluesky).
+  - ONE POST PER TASK RULE: Each social task produces exactly ONE post for ONE platform. Never bundle multiple posts, variations, or platform versions into a single deliverable. If a campaign needs posts for LinkedIn + X + Bluesky, those are 3 separate tasks. Your draft should be a single focused post, not a batch.
+  - CAMPAIGN CONTEXT: When a task has a campaign_id, read the CAMPAIGN BRIEF shown inline with the task. It contains the product URL, posting rules, tone guidance, and CTA variations. Always use the campaign URL (e.g. https://ambientpixels.ai/conversioncore), not the generic site URL.
   - COLLABORATIVE SOCIAL POST WORKFLOW (ALL social tasks — including campaign tasks):
     Social posts go through a collaborative pipeline: Echo drafts → Scribe writes copy → Peer review → task reaches "done" → Echo posts via create-social-action.
-    STEP 1 — DRAFT: Use execute-task on the social task to produce your draft as a deliverable. This is your initial strategy and talking points for Scribe.
+    STEP 1 — DRAFT: Use execute-task on the social task to produce your draft as a deliverable. Write ONE post — your initial strategy and talking points for Scribe. Not multiple posts, not a batch.
     STEP 2 — SCRIBE COPY: The server auto-creates a Scribe writing task. Scribe writes publish-ready copy and a peer reviews it. Once approved, the task gets reviewed_copy set.
     STEP 3 — PEER REVIEW: The social task must reach "done" status (peer-reviewed) before you can post.
     STEP 4 — POST: Once the task is "done" AND has reviewed_copy, use create-social-action with the reviewed_copy as your post text.

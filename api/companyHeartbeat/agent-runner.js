@@ -1191,21 +1191,34 @@ Write the full deliverable first, then the structured JSON block.`;
             if (!_copyTaskExists) {
               const _platform = (action.social.platform || 'linkedin').toLowerCase();
               const _maxLen = _platform === 'x' ? '280 chars' : _platform === 'bluesky' ? '300 chars' : '3000 chars for LinkedIn';
+              // Pull campaign context for Scribe (URL, posting rules)
+              let _cmpContext = '';
+              if (socialTask.campaign_id) {
+                const _cmp = (activeDirectives || []).find(c => c.id === socialTask.campaign_id);
+                if (!_cmp) {
+                  try { const _cmps = (await storage.getState('campaigns')) || []; const _fc = _cmps.find(c => c.id === socialTask.campaign_id); if (_fc) { _cmpContext = _fc.description || ''; } } catch (_e) {}
+                } else { _cmpContext = _cmp.description || ''; }
+              }
+              const _cmpUrlMatch = _cmpContext.match(/https?:\/\/ambientpixels\.ai\/[a-z0-9/-]+/i);
+              const _cmpUrl = _cmpUrlMatch ? _cmpUrlMatch[0] : 'https://ambientpixels.ai';
+              const _cmpRules = _cmpContext ? '\n\nCAMPAIGN POSTING RULES:\n' + _cmpContext.substring(0, 600) : '';
               const copyTask = {
                 id: 'task_' + Date.now() + '_copy_' + Math.random().toString(36).substr(2, 4),
                 title: 'Write social copy for: ' + stripTaskPrefixes(socialTask.title || 'Untitled'),
-                description: 'Write publish-ready social media copy for the task: "' + stripTaskPrefixes(socialTask.title || '') + '".\n\n'
+                description: 'Write ONE publish-ready social media post for the task: "' + stripTaskPrefixes(socialTask.title || '') + '".\n\n'
                   + 'Original description: ' + ((socialTask.description || 'N/A').substring(0, 500)) + '\n\n'
                   + 'Parent task ID: ' + action.taskId + '\n'
                   + 'Platform: ' + _platform + '\n'
                   + 'Max length: ' + _maxLen + '\n\n'
                   + 'Requirements:\n'
-                  + '- Write clean, platform-ready copy (no markdown, no headers, no internal notes)\n'
+                  + '- Write exactly ONE post — not multiple variations, not a batch. One single post.\n'
+                  + '- Write clean, platform-ready copy (no markdown, no headers, no internal notes, no "Post 1/Post 2" labels)\n'
                   + '- Professional and on-brand for AmbientPixels\n'
-                  + '- MUST include a URL: if promoting a blog post, link to the article; otherwise include https://ambientpixels.ai\n'
+                  + '- MUST include the product URL: ' + _cmpUrl + '\n'
                   + '- LinkedIn posts: aim for 400-800 chars (concise and punchy, not padded to fill 3000)\n'
                   + '- After writing, this task goes to peer review. Once approved, Echo uses the copy to create the social post.\n'
-                  + '- Use execute-task to produce your deliverable.',
+                  + '- Use execute-task to produce your deliverable.'
+                  + _cmpRules,
                 taskType: 'social_copy',
                 status: 'todo',
                 priority: socialTask.priority || 'high',
