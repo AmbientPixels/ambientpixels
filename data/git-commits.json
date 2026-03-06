@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "d441f777-84f9-4923-b5b8-0132f7120f34",
-      "hash": "8e1c3d50fcf7a7b9b4e70e54eecf7c9123a3ccb3",
-      "message": "feat: display-only buffs, rank-based qty progression, battle engine qty caps",
-      "timestamp": "2026-03-04 21:48:36 -0800",
+      "id": "f190942c-d95f-494c-8c48-6ddfe157375d",
+      "hash": "f3d19d3ce304168faca8d0d9bb2debfdbbaf92bb",
+      "message": "Block agents from bypassing review on social-copy tasks",
+      "timestamp": "2026-03-05 22:54:46 -0800",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/8e1c3d50fcf7a7b9b4e70e54eecf7c9123a3ccb3"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/f3d19d3ce304168faca8d0d9bb2debfdbbaf92bb"
     }
   ],
-  "timestamp": "2026-03-05T14:02:07.644Z",
+  "timestamp": "2026-03-06T13:56:50.090Z",
   "count": 1,
-  "scanId": 1772719327644
+  "scanId": 1772805410090
 }

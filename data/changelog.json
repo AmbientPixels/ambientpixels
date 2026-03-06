@@ -1,10 +1,10 @@
 {
-  "updated": "2026-03-05T14:02:05.730Z",
+  "updated": "2026-03-06T13:56:47.404Z",
   "entries": [
     {
-      "hash": "8e1c3d5",
-      "date": "2026-03-04 21:48:36 -0800",
-      "message": "feat: display-only buffs, rank-based qty progression, battle engine qty caps"
+      "hash": "f3d19d3",
+      "date": "2026-03-05 22:54:46 -0800",
+      "message": "Block agents from bypassing review on social-copy tasks"
     }
   ]
 }

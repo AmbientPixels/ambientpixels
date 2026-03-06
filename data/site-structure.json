@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2026-03-05T14:02:05.598Z",
+  "updated": "2026-03-06T13:56:47.262Z",
   "root": [
     {
       "type": "folder",
@@ -610,6 +610,48 @@
           "type": "folder",
           "name": "socialMetrics",
           "path": "api/socialMetrics",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "storyforge-billing-webhook",
+          "path": "api/storyforge-billing-webhook",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "storyforge-checkout",
+          "path": "api/storyforge-checkout",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "storyforge-entitlements",
+          "path": "api/storyforge-entitlements",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "storyforgegallery",
+          "path": "api/storyforgegallery",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "storyforgeload",
+          "path": "api/storyforgeload",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "storyforgesave",
+          "path": "api/storyforgesave",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "storyforgeshare",
+          "path": "api/storyforgeshare",
           "children": []
         },
         {
@@ -1896,6 +1938,46 @@
       "type": "page",
       "name": "soundlab.html",
       "path": "soundlab.html"
+    },
+    {
+      "type": "folder",
+      "name": "storyforge",
+      "path": "storyforge",
+      "children": [
+        {
+          "type": "folder",
+          "name": "css",
+          "path": "storyforge/css",
+          "children": []
+        },
+        {
+          "type": "page",
+          "name": "gallery.html",
+          "path": "storyforge/gallery.html"
+        },
+        {
+          "type": "folder",
+          "name": "images",
+          "path": "storyforge/images",
+          "children": []
+        },
+        {
+          "type": "page",
+          "name": "index.html",
+          "path": "storyforge/index.html"
+        },
+        {
+          "type": "folder",
+          "name": "js",
+          "path": "storyforge/js",
+          "children": []
+        },
+        {
+          "type": "page",
+          "name": "play.html",
+          "path": "storyforge/play.html"
+        }
+      ]
     },
     {
       "type": "folder",
