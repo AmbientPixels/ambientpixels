@@ -903,12 +903,29 @@ Write the full deliverable first, then the structured JSON block.`;
         context.log('[Heartbeat]', agentId, 'STRIPPED child_task_ids from update-task — only Nova can set task hierarchy');
         delete _updates.child_task_ids;
       }
+      // Block agents from setting status=done via update-task on social-copy tasks
+      // These must go through the review flow (peer review → copy propagation)
+      if (_updates.status === 'done') {
+        const _utTarget = tasks.find(t => t.id === action.taskId);
+        if (_utTarget && _utTarget.tags && _utTarget.tags.indexOf('social-copy') !== -1) {
+          context.log('[Heartbeat]', agentId, 'STRIPPED status=done from update-task on social-copy task:', action.taskId, '— must go through review flow');
+          delete _updates.status;
+        }
+      }
       result.taskUpdates.push({
         action: 'update',
         taskId: action.taskId,
         updates: _updates
       });
     } else if (action.type === 'move-task' && action.taskId && action.newStatus) {
+      // Block move-task to done on social-copy tasks — must go through review flow
+      if (action.newStatus === 'done') {
+        const _mtTarget = tasks.find(t => t.id === action.taskId);
+        if (_mtTarget && _mtTarget.tags && _mtTarget.tags.indexOf('social-copy') !== -1) {
+          context.log('[Heartbeat]', agentId, 'BLOCKED move-task to done on social-copy task:', action.taskId, '— must go through review flow');
+          continue;
+        }
+      }
       result.taskUpdates.push({
         action: 'move',
         taskId: action.taskId,
