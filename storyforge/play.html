@@ -60,43 +60,48 @@
             <div class="adv-char-creator__title">
               <i class="fas fa-user-pen"></i> Customize Appearance
             </div>
-            <div id="charOptionsContainer" class="adv-char-creator__options"></div>
-            <div class="adv-char-creator__preview" id="charPreviewText"></div>
-
-            <!-- Character Portrait Preview -->
-            <div class="adv-portrait" id="portraitSection">
-              <div class="adv-portrait__frame" id="portraitFrame">
-                <div class="adv-portrait__placeholder" id="portraitPlaceholder">
-                  <i class="fas fa-user-circle"></i>
+            <div class="adv-char-creator__body">
+              <!-- Left: Portrait -->
+              <div class="adv-portrait" id="portraitSection">
+                <div class="adv-portrait__frame" id="portraitFrame">
+                  <div class="adv-portrait__placeholder" id="portraitPlaceholder">
+                    <i class="fas fa-user-circle"></i>
+                  </div>
+                  <img class="adv-portrait__image" id="portraitImage" alt="Character portrait" />
                 </div>
-                <img class="adv-portrait__image" id="portraitImage" alt="Character portrait" />
-              </div>
-              <button type="button" class="adv-btn adv-portrait__btn" id="generatePortraitBtn">
-                <i class="fas fa-wand-magic-sparkles"></i> Generate Portrait
-              </button>
-            </div>
-
-            <!-- Stat Allocator -->
-            <div class="adv-stat-allocator" id="statAllocator">
-              <div class="adv-stat-allocator__header">
-                <span class="adv-stat-allocator__title">
-                  <i class="fas fa-sliders"></i> Allocate Stats
-                </span>
-                <span class="adv-stat-allocator__budget" id="statBudgetDisplay">0 / 0</span>
-              </div>
-              <div class="adv-stat-allocator__presets" id="archetypePresets"></div>
-              <div class="adv-stat-allocator__rows" id="statSliderRows"></div>
-              <div class="adv-stat-allocator__footer">
-                <button type="button" class="adv-stat-allocator__reset" id="statResetBtn">
-                  <i class="fas fa-rotate-left"></i> Reset
+                <button type="button" class="adv-btn adv-portrait__btn" id="generatePortraitBtn">
+                  <i class="fas fa-wand-magic-sparkles"></i> Generate Portrait
                 </button>
-                <div class="adv-stat-allocator__preview" id="statPreviewText"></div>
+              </div>
+              <!-- Right: Options + Stats -->
+              <div class="adv-char-creator__right">
+                <div id="charOptionsContainer" class="adv-char-creator__options"></div>
+                <div class="adv-char-creator__preview" id="charPreviewText"></div>
+                <div class="adv-stat-allocator" id="statAllocator">
+                  <div class="adv-stat-allocator__header">
+                    <span class="adv-stat-allocator__title">
+                      <i class="fas fa-sliders"></i> Allocate Stats
+                    </span>
+                    <span class="adv-stat-allocator__budget" id="statBudgetDisplay">0 / 0</span>
+                  </div>
+                  <div class="adv-stat-allocator__presets" id="archetypePresets"></div>
+                  <div class="adv-stat-allocator__rows" id="statSliderRows"></div>
+                  <div class="adv-stat-allocator__footer">
+                    <button type="button" class="adv-stat-allocator__reset" id="statResetBtn">
+                      <i class="fas fa-rotate-left"></i> Reset
+                    </button>
+                    <div class="adv-stat-allocator__preview" id="statPreviewText"></div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
           <button class="adv-btn adv-btn--primary" id="startAdventureBtn" disabled style="margin-top:1.5rem; padding:0.75rem 2rem; font-size:1rem;">
             <i class="fas fa-play"></i> Begin Adventure
           </button>
+          <div class="adv-char-creator__hint" id="portraitHint" style="margin-top:0.5rem; font-size:0.8rem; color:rgba(216,224,229,0.4);">
+            <i class="fas fa-info-circle"></i> Generate a portrait to begin your adventure
+          </div>
         </div>
       </div>
 

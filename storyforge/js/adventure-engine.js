@@ -54,7 +54,6 @@
         UI.$('advApp').setAttribute('data-genre', selectedGenre.id);
         var card = document.querySelector('.adv-genre-card[data-genre="' + genreId + '"]');
         if (card) card.classList.add('adv-genre-card--selected');
-        UI.$('startAdventureBtn').disabled = false;
         showCharacterCreator(selectedGenre);
       }
       UI.showScreen('screenGenreSelect');
@@ -146,7 +145,6 @@
       });
       card.classList.add('adv-genre-card--selected');
       selectedGenre = genres.find(function (g) { return g.id === card.dataset.genre; });
-      UI.$('startAdventureBtn').disabled = false;
       UI.$('advApp').setAttribute('data-genre', selectedGenre.id);
       showCharacterCreator(selectedGenre);
     });
@@ -167,6 +165,8 @@
       var creator = UI.$('characterCreator');
       if (creator) creator.style.display = 'none';
       resetPortrait();
+      var hint = UI.$('portraitHint');
+      if (hint) hint.style.display = '';
       UI.showScreen('screenGenreSelect');
     });
 
@@ -302,6 +302,9 @@
           };
           img.src = dataUrl;
           btn.innerHTML = '<i class="fas fa-rotate"></i> Regenerate';
+          UI.$('startAdventureBtn').disabled = false;
+          var hint = UI.$('portraitHint');
+          if (hint) hint.style.display = 'none';
         } else {
           placeholder.innerHTML = '<i class="fas fa-user-circle"></i>';
           UI.toast('Portrait generation failed — try again', 'warning');

@@ -624,10 +624,22 @@
   background: rgba(15, 25, 40, 0.6);
   border: 1px solid rgba(122, 143, 224, 0.08);
   border-radius: 12px;
-  max-width: 500px;
+  max-width: 700px;
   margin-left: auto;
   margin-right: auto;
   animation: adv-fadeSlideIn 0.3s ease both;
+}
+
+.adv-char-creator__body {
+  display: flex;
+  gap: 1.5rem;
+  align-items: flex-start;
+  margin-top: 0.75rem;
+}
+
+.adv-char-creator__right {
+  flex: 1;
+  min-width: 0;
 }
 
 .adv-char-creator__title {
@@ -705,13 +717,12 @@
   flex-direction: column;
   align-items: center;
   gap: 0.6rem;
-  margin-top: 1rem;
-  margin-bottom: 0.25rem;
+  flex-shrink: 0;
 }
 
 .adv-portrait__frame {
-  width: 140px;
-  height: 140px;
+  width: 220px;
+  height: 220px;
   border-radius: 50%;
   overflow: hidden;
   border: 2px solid rgba(122, 143, 224, 0.15);
@@ -726,7 +737,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 3.5rem;
+  font-size: 5rem;
   color: rgba(122, 143, 224, 0.15);
 }
 
