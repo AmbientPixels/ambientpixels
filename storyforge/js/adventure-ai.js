@@ -7,6 +7,16 @@ window.AdventureAI = (function () {
   var GEMINI_ENDPOINT = 'https://ambientpixels-nova-api.azurewebsites.net/api/geminiproxy';
   var TEXT_MODEL = 'gemini-2.5-flash';
   var IMAGE_MODEL = 'gemini-2.5-flash-image';
+  var TTS_MODEL = 'gemini-2.5-flash-preview-tts';
+
+  var GENRE_VOICES = {
+    fantasy: 'Charon',
+    horror: 'Fenrir',
+    scifi: 'Kore',
+    detective: 'Puck',
+    postapoc: 'Enceladus',
+    pirate: 'Leda'
+  };
 
   var DAILY_LIMIT_KEY = 'storyforge-ai-usage';
   var DAILY_LIMIT = 15; // adventures per day
@@ -229,6 +239,45 @@ window.AdventureAI = (function () {
     });
   }
 
+  function callTTSAPI(text, voiceName) {
+    return fetch(GEMINI_ENDPOINT, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prompt: text,
+        model: TTS_MODEL,
+        generationConfig: {
+          responseModalities: ['AUDIO'],
+          speechConfig: {
+            voiceConfig: {
+              prebuiltVoiceConfig: {
+                voiceName: voiceName || 'Kore'
+              }
+            }
+          }
+        }
+      })
+    })
+    .then(function (res) {
+      if (!res.ok) throw new Error('TTS request failed (' + res.status + ')');
+      return res.json();
+    })
+    .then(function (data) {
+      var parts = (data && data.candidates && data.candidates[0] &&
+        data.candidates[0].content && data.candidates[0].content.parts) || [];
+      for (var i = 0; i < parts.length; i++) {
+        if (parts[i].inlineData) {
+          var mime = parts[i].inlineData.mimeType || 'audio/wav';
+          return 'data:' + mime + ';base64,' + parts[i].inlineData.data;
+        }
+      }
+      return null;
+    })
+    .catch(function () {
+      return null; // TTS is non-critical
+    });
+  }
+
   // --- Parse AI JSON response ---
   function parseSceneJSON(text) {
     // Strip markdown code fences if present
@@ -314,6 +363,8 @@ window.AdventureAI = (function () {
     generateNextScene: generateNextScene,
     generateContinuation: generateContinuation,
     generateSceneImage: generateSceneImage,
+    callTTSAPI: callTTSAPI,
+    GENRE_VOICES: GENRE_VOICES,
     checkDailyLimit: checkDailyLimit,
     incrementUsage: incrementUsage,
     getRemainingUsage: getRemainingUsage

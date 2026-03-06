@@ -15,6 +15,7 @@
   var gameState = null;
   var currentScene = null;
   var isProcessing = false;
+  var currentNarration = null; // Audio instance for TTS playback
 
   // --- Initialize ---
   function init() {
@@ -79,6 +80,7 @@
     UI.$('turnLabel').textContent = 'Turn ' + gameState.turnCount;
     UI.$('progressFill').style.width = ((gameState.turnCount / gameState.maxTurns) * 100) + '%';
     UI.$('sceneText').innerHTML = '<p>' + UI.escapeHtml(gameState.lastSceneText || 'Your adventure continues...').replace(/\n\n/g, '</p><p>') + '</p>';
+    injectNarrateButton(gameState.lastSceneText || 'Your adventure continues...');
 
     // Show first scene image if available
     if (gameState.firstSceneImage) {
@@ -606,8 +608,85 @@
       });
   }
 
+  // --- Narration (TTS) ---
+  function stopNarration() {
+    if (currentNarration) {
+      currentNarration.pause();
+      currentNarration = null;
+    }
+    var btn = document.querySelector('.adv-narrate');
+    if (btn) {
+      btn.classList.remove('adv-narrate--loading', 'adv-narrate--playing');
+      btn.innerHTML = '<i class="fas fa-volume-up"></i> Listen';
+    }
+  }
+
+  function narrateScene(text) {
+    var btn = document.querySelector('.adv-narrate');
+    if (!btn) return;
+
+    // Toggle off if already playing
+    if (currentNarration) {
+      stopNarration();
+      return;
+    }
+
+    // Loading state
+    btn.classList.add('adv-narrate--loading');
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Loading...';
+
+    var voice = (gameState && AI.GENRE_VOICES[gameState.genre]) || 'Kore';
+    AI.callTTSAPI(text, voice).then(function (audioUrl) {
+      if (!audioUrl) {
+        stopNarration();
+        UI.toast('Narration unavailable', 'warning');
+        return;
+      }
+
+      var audio = new Audio(audioUrl);
+      currentNarration = audio;
+
+      audio.addEventListener('playing', function () {
+        btn.classList.remove('adv-narrate--loading');
+        btn.classList.add('adv-narrate--playing');
+        btn.innerHTML = '<i class="fas fa-stop"></i> Stop';
+      });
+
+      audio.addEventListener('ended', function () {
+        currentNarration = null;
+        btn.classList.remove('adv-narrate--playing');
+        btn.innerHTML = '<i class="fas fa-volume-up"></i> Listen';
+      });
+
+      audio.addEventListener('error', function () {
+        stopNarration();
+        UI.toast('Audio playback failed', 'error');
+      });
+
+      audio.play().catch(function () {
+        stopNarration();
+        UI.toast('Audio playback blocked', 'warning');
+      });
+    });
+  }
+
+  function injectNarrateButton(sceneText) {
+    var el = UI.$('sceneText');
+    if (!el) return;
+    var btn = document.createElement('button');
+    btn.className = 'adv-narrate';
+    btn.innerHTML = '<i class="fas fa-volume-up"></i> Listen';
+    btn.addEventListener('click', function () {
+      narrateScene(sceneText);
+    });
+    el.appendChild(btn);
+  }
+
   // --- Render Scene ---
   function renderScene(scene) {
+    // Stop any playing narration from previous scene
+    stopNarration();
+
     // Turn bar
     UI.$('turnLabel').textContent = 'Turn ' + gameState.turnCount;
     UI.$('progressFill').style.width = ((gameState.turnCount / gameState.maxTurns) * 100) + '%';
@@ -620,6 +699,7 @@
 
     // Typewriter text
     UI.typewriter(sceneTextEl, scene.sceneText).then(function () {
+      injectNarrateButton(scene.sceneText);
       if (scene.isEnding) {
         showEnding(scene);
       } else {

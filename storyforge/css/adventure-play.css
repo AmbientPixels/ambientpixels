@@ -90,6 +90,48 @@
   margin-bottom: 0.75rem;
 }
 
+/* --- Narrate Button --- */
+.adv-narrate {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 0.5rem;
+  padding: 6px 14px;
+  border: 1px solid rgba(216, 224, 229, 0.12);
+  border-radius: 20px;
+  background: rgba(216, 224, 229, 0.06);
+  color: rgba(216, 224, 229, 0.5);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.adv-narrate:hover {
+  color: rgba(216, 224, 229, 0.8);
+  border-color: rgba(216, 224, 229, 0.2);
+  background: rgba(216, 224, 229, 0.1);
+}
+
+.adv-narrate--loading {
+  pointer-events: none;
+  animation: adv-narratePulse 1.2s ease-in-out infinite;
+}
+
+.adv-narrate--playing {
+  color: var(--adv-accent, #7B8FE0);
+  border-color: var(--adv-accent, #7B8FE0);
+  background: rgba(123, 143, 224, 0.1);
+}
+
+.adv-narrate--playing:hover {
+  background: rgba(123, 143, 224, 0.15);
+}
+
+@keyframes adv-narratePulse {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
 /* --- Choices --- */
 .adv-choices {
   display: flex;

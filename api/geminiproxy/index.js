@@ -4,7 +4,7 @@ const fetch = require('node-fetch');
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 const GEMINI_BASE = 'https://generativelanguage.googleapis.com/v1beta/models/';
 const DEFAULT_MODEL = 'gemini-2.5-flash';
-const ALLOWED_MODELS = ['gemini-2.5-flash', 'gemini-2.5-flash-image'];
+const ALLOWED_MODELS = ['gemini-2.5-flash', 'gemini-2.5-flash-image', 'gemini-2.5-flash-preview-tts'];
 
 /* updated by Cascade 2025-07-15 */
 module.exports = async function (context, req) {
