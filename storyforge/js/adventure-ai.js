@@ -248,8 +248,16 @@ window.AdventureAI = (function () {
     });
   }
 
-  // Convert raw PCM base64 to WAV blob URL (Gemini TTS returns audio/L16;rate=24000)
-  function pcmToWavBlobUrl(base64Pcm, sampleRate) {
+  // Convert base64 to ArrayBuffer
+  function base64ToArrayBuffer(base64) {
+    var raw = atob(base64);
+    var bytes = new Uint8Array(raw.length);
+    for (var i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i);
+    return bytes.buffer;
+  }
+
+  // Convert raw PCM base64 to WAV ArrayBuffer (Gemini TTS returns audio/L16;rate=24000)
+  function pcmToWavArrayBuffer(base64Pcm, sampleRate) {
     sampleRate = sampleRate || 24000;
     var raw = atob(base64Pcm);
     var pcmBytes = new Uint8Array(raw.length);
@@ -283,8 +291,7 @@ window.AdventureAI = (function () {
     view.setUint32(40, dataSize, true);
 
     new Uint8Array(buffer, headerSize).set(pcmBytes);
-    var blob = new Blob([buffer], { type: 'audio/wav' });
-    return URL.createObjectURL(blob);
+    return buffer;
   }
 
   function callTTSAPI(text, voiceName) {
@@ -316,15 +323,15 @@ window.AdventureAI = (function () {
       for (var i = 0; i < parts.length; i++) {
         if (parts[i].inlineData && parts[i].inlineData.data) {
           var mime = parts[i].inlineData.mimeType || '';
-          // If already a browser-playable format, use data URL directly
+          // If already a browser-playable format, decode base64 to ArrayBuffer
           if (mime === 'audio/wav' || mime === 'audio/mp3' || mime === 'audio/mpeg') {
-            return 'data:' + mime + ';base64,' + parts[i].inlineData.data;
+            return base64ToArrayBuffer(parts[i].inlineData.data);
           }
-          // Raw PCM (audio/L16) — wrap with WAV header
+          // Raw PCM (audio/L16) — wrap with WAV header, return ArrayBuffer
           var rate = 24000;
           var rateMatch = mime.match(/rate=(\d+)/);
           if (rateMatch) rate = parseInt(rateMatch[1], 10);
-          return pcmToWavBlobUrl(parts[i].inlineData.data, rate);
+          return pcmToWavArrayBuffer(parts[i].inlineData.data, rate);
         }
       }
       return null;
