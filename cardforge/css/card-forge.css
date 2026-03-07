@@ -35,7 +35,7 @@
   --cf-danger: #ff5252;
   --cf-success: #00e676;
   --cf-warning: #ffd740;
-  --cf-info: var(--mood-primary-color, #00d4ff);
+  --cf-info: var(--mood-primary-color, #A78BFA);
   --cf-gold: #ffd700;
 
   /* Text Hierarchy */
@@ -45,7 +45,7 @@
   --cf-text-dim: #606080;
 
   /* Focus Ring */
-  --cf-focus-ring: 2px solid var(--mood-primary-color, #00d4ff);
+  --cf-focus-ring: 2px solid var(--mood-primary-color, #A78BFA);
   --cf-focus-offset: 2px;
 
   /* ── Button Tier System ── */
@@ -80,6 +80,19 @@
   --cf-btn-nav-hover-bg: rgba(255, 255, 255, 0.08);
   --cf-btn-nav-hover-border: rgba(255, 255, 255, 0.25);
   --cf-btn-nav-hover-text: var(--cf-text-primary, #e1e1ff);
+
+  /* Z-Index Scale — semantic stacking layers */
+  --cf-z-base: 1;
+  --cf-z-raised: 10;
+  --cf-z-chrome: 100;
+  --cf-z-message: 1000;
+  --cf-z-page-bar: 1500;
+  --cf-z-sidebar: 2000;
+  --cf-z-overlay: 5000;
+  --cf-z-dialog: 9000;
+  --cf-z-fullscreen: 9500;
+  --cf-z-toast: 9900;
+  --cf-z-tooltip: 10000;
 }
 
 /* ===== Global Focus-Visible Reset ===== */
@@ -92,7 +105,19 @@
 @media (prefers-reduced-motion: reduce) {
   .cardforge-container *,
   .cardforge-container *::before,
-  .cardforge-container *::after {
+  .cardforge-container *::after,
+  .cardforge-gallery-container *,
+  .cardforge-gallery-container *::before,
+  .cardforge-gallery-container *::after,
+  .lightbox-overlay *,
+  .lightbox-overlay *::before,
+  .lightbox-overlay *::after,
+  .tool-notification,
+  .tool-notification::before,
+  .tool-notification::after,
+  .deck-viewer-overlay *,
+  .deck-viewer-overlay *::before,
+  .deck-viewer-overlay *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

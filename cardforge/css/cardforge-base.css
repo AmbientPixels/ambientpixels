@@ -122,7 +122,7 @@
 
 .stat-value {
   font-weight: 600;
-  color: var(--mood-primary-color, #5AE4FF);
+  color: var(--mood-primary-color, #A78BFA);
   font-size: 0.65rem;
   margin-left: 4px;
   flex-shrink: 0;
@@ -130,7 +130,7 @@
 
 .stat-progress {
   height: 100%;
-  background: linear-gradient(90deg, var(--aura-glow, #5AE4FF), var(--mood-primary-color, #5AE4FF));
+  background: linear-gradient(90deg, var(--aura-glow, #A78BFA), var(--mood-primary-color, #A78BFA));
   border-radius: 3px;
   transition: width 450ms ease;
   position: relative;
@@ -150,7 +150,7 @@
 }
 
 .stats-overflow-indicator:hover {
-  color: var(--mood-primary-color, #5AE4FF);
+  color: var(--mood-primary-color, #A78BFA);
 }
 
 /* Card stats container — prevent unbounded growth */
@@ -234,7 +234,7 @@
   font-size: 1.25rem;
   font-weight: 600;
   margin: 0 0 0.25rem 0;
-  color: var(--mood-primary-color, #5AE4FF);
+  color: var(--mood-primary-color, #A78BFA);
 }
 
 .back-header .card-class {
@@ -584,15 +584,15 @@
 }
 
 .badge-item:hover {
-  background: rgba(90, 228, 255, 0.08);
-  border-color: var(--mood-primary-color, #5AE4FF);
+  background: rgba(139, 92, 246, 0.08);
+  border-color: var(--mood-primary-color, #A78BFA);
   transform: translateY(-2px);
-  box-shadow: 0 4px 16px rgba(90, 228, 255, 0.25), 0 0 8px rgba(90, 228, 255, 0.1);
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.25), 0 0 8px rgba(139, 92, 246, 0.1);
 }
 
 .badge-icon {
   margin-bottom: 0.25rem;
-  color: var(--mood-primary-color, #5AE4FF);
+  color: var(--mood-primary-color, #A78BFA);
   display: grid;
   justify-content: center;
   align-items: center;
@@ -681,7 +681,7 @@
   padding: 0.3rem 0.5rem;
   background: rgba(255, 255, 255, 0.05);
   border-radius: 4px;
-  border-left: 3px solid var(--mood-primary-color, #5AE4FF);
+  border-left: 3px solid var(--mood-primary-color, #A78BFA);
   flex-shrink: 0;
   box-sizing: border-box;
 }
@@ -830,7 +830,7 @@
 
 .arena-record-stat__icon {
   font-size: 0.7rem;
-  color: var(--mood-primary-color, #5AE4FF);
+  color: var(--mood-primary-color, #A78BFA);
   opacity: 0.8;
 }
 
@@ -859,7 +859,7 @@
 
 .arena-xp-bar__fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--mood-primary-color, #5AE4FF), var(--mood-accent-color, #8b5cf6));
+  background: linear-gradient(90deg, var(--mood-primary-color, #A78BFA), var(--mood-accent-color, #8b5cf6));
   border-radius: 2px;
   transition: width 0.4s ease;
 }
@@ -913,11 +913,11 @@
 /* ===== PORTAL TOOLTIP — appended to body, never clipped ===== */
 .cf-portal-tooltip {
   position: fixed;
-  z-index: 100000;
+  z-index: calc(var(--cf-z-tooltip, 10000) + 1000);
   padding: 6px 12px;
   border-radius: 8px;
   background: rgba(18, 22, 34, 0.92);
-  color: var(--mood-primary-color, #5AE4FF);
+  color: var(--mood-primary-color, #A78BFA);
   font-size: 0.75rem;
   font-family: 'Inter', sans-serif;
   font-weight: 500;
@@ -925,8 +925,8 @@
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.15s ease;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 8px rgba(90, 228, 255, 0.1);
-  border: 1px solid rgba(90, 228, 255, 0.2);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5), 0 0 8px rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.2);
   backdrop-filter: blur(12px);
 }
 
@@ -934,7 +934,7 @@
 .cf-bio-modal-overlay {
   position: fixed;
   inset: 0;
-  z-index: 100001;
+  z-index: calc(var(--cf-z-tooltip, 10000) + 1001);
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(4px);
   opacity: 0;
@@ -947,7 +947,7 @@
 
 .cf-bio-modal {
   position: fixed;
-  z-index: 100002;
+  z-index: calc(var(--cf-z-tooltip, 10000) + 1002);
   max-width: 360px;
   width: 85%;
   max-height: var(--card-height, 560px);
@@ -1007,7 +1007,7 @@
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--mood-primary-color, #5AE4FF);
+  color: var(--mood-primary-color, #A78BFA);
   margin: 0;
   font-weight: 600;
 }
@@ -1027,7 +1027,7 @@
 .bio-read-more {
   display: none;
   font-size: 0.65rem;
-  color: var(--mood-primary-color, #5AE4FF);
+  color: var(--mood-primary-color, #A78BFA);
   cursor: pointer;
   text-align: right;
   margin-top: 0.25rem;
@@ -1070,7 +1070,7 @@
 
 .cf-stats-modal-value {
   font-weight: 600;
-  color: var(--mood-primary-color, #5AE4FF);
+  color: var(--mood-primary-color, #A78BFA);
   font-size: 0.7rem;
   margin-left: 4px;
 }
@@ -1085,7 +1085,7 @@
 
 .cf-stats-modal-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--aura-glow, #5AE4FF), var(--mood-primary-color, #5AE4FF));
+  background: linear-gradient(90deg, var(--aura-glow, #A78BFA), var(--mood-primary-color, #A78BFA));
   border-radius: 3px;
 }
 

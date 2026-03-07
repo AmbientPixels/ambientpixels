@@ -21,11 +21,11 @@
 
 .container-icon.masked-icon {
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--mood-primary-color, #00d4ff), var(--mood-accent-color, #4a4a6a));
+  background: linear-gradient(135deg, var(--mood-primary-color, #A78BFA), var(--mood-accent-color, #4a4a6a));
 }
 
 .container-icon.framed-icon {
-  border: 3px solid var(--mood-primary-color, #00d4ff);
+  border: 3px solid var(--mood-primary-color, #A78BFA);
   border-radius: 4px;
   background: var(--aura-glow, #4a4a6a);
 }
@@ -35,12 +35,12 @@
   position: absolute;
   width: 14px;
   height: 14px;
-  background: var(--mood-primary-color, #00d4ff);
+  background: var(--mood-primary-color, #A78BFA);
   border-radius: 2px;
 }
 
 .container-icon.raw-icon {
-  background: var(--mood-primary-color, #00d4ff);
+  background: var(--mood-primary-color, #A78BFA);
   border-radius: 2px;
   position: relative;
 }
@@ -57,19 +57,19 @@
 }
 
 .container-icon.fullbleed-icon {
-  background: linear-gradient(135deg, var(--mood-primary-color, #00d4ff), var(--mood-accent-color, #4a4a6a));
+  background: linear-gradient(135deg, var(--mood-primary-color, #A78BFA), var(--mood-accent-color, #4a4a6a));
   border-radius: 4px;
 }
 
 .container-icon.hero-icon {
-  background: linear-gradient(180deg, var(--mood-primary-color, #00d4ff) 50%, var(--aura-glow, #4a4a6a) 50%);
+  background: linear-gradient(180deg, var(--mood-primary-color, #A78BFA) 50%, var(--aura-glow, #4a4a6a) 50%);
   border-radius: 4px;
 }
 
 .container-icon.inset-icon {
   border-radius: 4px;
   background: var(--aura-bg-secondary, #2a2a4e);
-  border: 2px solid var(--mood-primary-color, #00d4ff);
+  border: 2px solid var(--mood-primary-color, #A78BFA);
   position: relative;
 }
 
@@ -78,7 +78,7 @@
   position: absolute;
   width: 16px;
   height: 16px;
-  background: var(--mood-primary-color, #00d4ff);
+  background: var(--mood-primary-color, #A78BFA);
   border-radius: 3px;
   opacity: 0.6;
 }
@@ -95,7 +95,7 @@
 .variant-title {
   font-size: 0.9rem;
   font-weight: 600;
-  color: var(--mood-primary-color, #00d4ff);
+  color: var(--mood-primary-color, #A78BFA);
   margin: 0 0 0.75rem 0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -127,15 +127,15 @@
 }
 
 .variant-option.selected {
-  border-color: var(--mood-primary-color, #00d4ff);
-  background: var(--mood-primary-color, #00d4ff);
+  border-color: var(--mood-primary-color, #A78BFA);
+  background: var(--mood-primary-color, #A78BFA);
   color: var(--aura-bright, #ffffff);
 }
 
 .variant-preview {
   width: 20px;
   height: 20px;
-  background: var(--mood-primary-color, #00d4ff);
+  background: var(--mood-primary-color, #A78BFA);
   position: relative;
 }
 
@@ -160,18 +160,18 @@
 }
 
 .frame-classic-preview {
-  border: 2px solid var(--mood-primary-color, #00d4ff);
+  border: 2px solid var(--mood-primary-color, #A78BFA);
   background: transparent;
 }
 
 .frame-modern-preview {
-  border: 1px solid var(--mood-primary-color, #00d4ff);
+  border: 1px solid var(--mood-primary-color, #A78BFA);
   border-radius: 4px;
   background: transparent;
 }
 
 .frame-ornate-preview {
-  border: 3px double var(--mood-primary-color, #00d4ff);
+  border: 3px double var(--mood-primary-color, #A78BFA);
   background: transparent;
 }
 
@@ -190,7 +190,7 @@
 /* Inset Variant Previews */
 .inset-panel-preview {
   border-radius: 4px;
-  border: 2px solid var(--mood-primary-color, #00d4ff);
+  border: 2px solid var(--mood-primary-color, #A78BFA);
   background: transparent;
   box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.3);
 }
@@ -204,13 +204,13 @@
 
 .inset-emblem-preview {
   border-radius: 50%;
-  border: 2px solid var(--mood-primary-color, #00d4ff);
+  border: 2px solid var(--mood-primary-color, #A78BFA);
   background: transparent;
 }
 
 .inset-cutout-preview {
   border-radius: 6px;
-  background: var(--mood-primary-color, #00d4ff);
+  background: var(--mood-primary-color, #A78BFA);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
 }
 
@@ -244,23 +244,23 @@
 }
 
 .effect-icon.glow-icon {
-  background: var(--mood-primary-color, #00d4ff);
-  box-shadow: 0 0 12px var(--mood-primary-color, #00d4ff);
+  background: var(--mood-primary-color, #A78BFA);
+  box-shadow: 0 0 12px var(--mood-primary-color, #A78BFA);
   animation: pulse-glow 2s ease-in-out infinite;
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 8px var(--mood-primary-color, #00d4ff); }
-  50% { box-shadow: 0 0 16px var(--mood-primary-color, #00d4ff); }
+  0%, 100% { box-shadow: 0 0 8px var(--mood-primary-color, #A78BFA); }
+  50% { box-shadow: 0 0 16px var(--mood-primary-color, #A78BFA); }
 }
 
 .effect-icon.shadow-icon {
-  background: var(--mood-primary-color, #00d4ff);
+  background: var(--mood-primary-color, #A78BFA);
   box-shadow: 4px 4px 8px rgba(0, 0, 0, 0.4);
 }
 
 .effect-icon.filter-icon {
-  background: linear-gradient(45deg, var(--mood-primary-color, #00d4ff), var(--mood-accent-color, #4a4a6a), var(--mood-secondary-color, #a0a0c0));
+  background: linear-gradient(45deg, var(--mood-primary-color, #A78BFA), var(--mood-accent-color, #4a4a6a), var(--mood-secondary-color, #a0a0c0));
   background-size: 200% 200%;
   animation: gradient-shift 3s ease infinite;
 }
@@ -273,7 +273,7 @@
 
 .effect-icon.border-icon {
   background: var(--aura-glow, #4a4a6a);
-  border: 3px solid var(--mood-primary-color, #00d4ff);
+  border: 3px solid var(--mood-primary-color, #A78BFA);
 }
 
 .effect-icon.border-icon::before {
@@ -281,6 +281,6 @@
   position: absolute;
   width: 12px;
   height: 12px;
-  background: var(--mood-primary-color, #00d4ff);
+  background: var(--mood-primary-color, #A78BFA);
   border-radius: 2px;
 }

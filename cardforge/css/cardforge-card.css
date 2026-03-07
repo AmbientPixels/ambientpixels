@@ -756,7 +756,7 @@
   border: 2px solid var(--card-accent, #00d4ff);
   padding: 0.25rem 0.5rem;
   border-radius: 6px;
-  background: rgba(0, 212, 255, 0.1);
+  background: rgba(139, 92, 246, 0.1);
   font-weight: 500;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -1493,7 +1493,7 @@
   border: 6px solid var(--mood-accent-color, #2a2a3e);
   border-bottom-width: 20px;
   border-radius: 2px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 8px rgba(0, 212, 255, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 0 8px rgba(139, 92, 246, 0.1);
 }
 
 /* ===== BANNER CONTAINER =====
@@ -1611,7 +1611,7 @@
 
 /* Framed Container Variants */
 .card-preview-canvas.container-framed.container-variant-classic .card-avatar-container {
-  border: 4px solid var(--mood-primary-color, #00d4ff);
+  border: 4px solid var(--mood-primary-color, #A78BFA);
   border-radius: 8px;
   padding: 4px;
 }
@@ -1619,13 +1619,13 @@
 .card-preview-canvas.container-framed.container-variant-modern .card-avatar-container {
   border: 2px solid var(--mood-accent-color, #4a4a6a);
   border-radius: 0;
-  box-shadow: 0 0 10px rgba(0, 212, 255, 0.3);
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
 }
 
 .card-preview-canvas.container-framed.container-variant-ornate .card-avatar-container {
-  border: 6px solid var(--mood-primary-color, #00d4ff);
+  border: 6px solid var(--mood-primary-color, #A78BFA);
   border-radius: 12px;
-  box-shadow: inset 0 0 0 2px var(--aura-bg-color, #1a1a2e), 0 0 15px rgba(0, 212, 255, 0.5);
+  box-shadow: inset 0 0 0 2px var(--aura-bg-color, #1a1a2e), 0 0 15px rgba(139, 92, 246, 0.5);
 }
 
 /* Raw Container - wrapper carries size + shape */
@@ -1846,8 +1846,8 @@
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  border: 3px solid var(--mood-primary-color, #00d4ff);
-  box-shadow: 0 0 0 3px var(--aura-bg-color, #1a1a2e), 0 0 12px rgba(0, 212, 255, 0.15);
+  border: 3px solid var(--mood-primary-color, #A78BFA);
+  box-shadow: 0 0 0 3px var(--aura-bg-color, #1a1a2e), 0 0 12px rgba(139, 92, 246, 0.15);
   aspect-ratio: auto;
 }
 
@@ -1902,7 +1902,7 @@
 
 /* Glow Effect */
 .card-preview-canvas.effect-glow .card-avatar-container {
-  box-shadow: 0 0 20px var(--mood-primary-color, #00d4ff), 0 0 40px rgba(0, 212, 255, 0.3);
+  box-shadow: 0 0 20px var(--mood-primary-color, #A78BFA), 0 0 40px rgba(139, 92, 246, 0.3);
 }
 
 .card-preview-canvas.effect-glow .card-avatar {
@@ -1921,7 +1921,7 @@
 
 /* Border Effect */
 .card-preview-canvas.effect-border .card-avatar-container {
-  border: 3px solid var(--mood-primary-color, #00d4ff);
+  border: 3px solid var(--mood-primary-color, #A78BFA);
   box-shadow: 0 0 0 1px var(--aura-bg-color, #1a1a2e);
 }
 
