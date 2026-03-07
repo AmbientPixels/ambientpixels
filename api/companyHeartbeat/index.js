@@ -1910,7 +1910,7 @@ module.exports = async function (context) {
           var _rcText = _pt.reviewed_copy;
           _rcText = _rcText.replace(/\s*\[(?:ADDRESSED|NOTE|REVISED|FEEDBACK|CHANGED|UPDATED)(?::\s*[^\]]*)?(?:\]\.?\s*)/gi, ' ').trim();
           _rcText = _rcText.replace(/^\[(?:ADDRESSED|NOTE|REVISED|FEEDBACK|CHANGED|UPDATED)[^\]]*\]\s*[^\n]*$/gim, '').trim();
-          _rcText = _rcText.replace(/\n*(?:Revision Notes|Editor'?s? Notes?|Changes? Made|Revisions?):\s*\n[\s\S]*$/i, '').trim();
+          _rcText = _rcText.replace(/\n*\*{0,2}(?:Notes|Revision Notes|Editor'?s? Notes?|Changes? Made|Revisions?|Internal Notes?|Keywords)\*{0,2}:?\*{0,2}\s*\n[\s\S]*$/i, '').trim();
           _rcText = _rcText.replace(/^\*\s{2,}/gm, '• ').trim();
           // For promo tasks, ensure the blog URL from the task description is in the copy
           var _blogUrlMatch = (_pt.description || '').match(/https?:\/\/ambientpixels\.ai\/blog\/[a-z0-9-]+/i);

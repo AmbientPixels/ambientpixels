@@ -1172,7 +1172,7 @@ Write the full deliverable first, then the structured JSON block.`;
                 const _articleTitle = _h1Match ? _h1Match[1].replace(/\*\*/g, '').trim() : null;
                 // Sanitize deliverable: strip agent meta-commentary (Notes, Revision Notes, Artifact IDs, etc.)
                 var _cleanedDeliverable = deliverable;
-                _cleanedDeliverable = _cleanedDeliverable.replace(/\n*(?:Notes|Revision Notes|Editor'?s? Notes?|Changes? Made|Revisions?|Internal Notes?):\s*\n[\s\S]*$/i, '').trim();
+                _cleanedDeliverable = _cleanedDeliverable.replace(/\n*\*{0,2}(?:Notes|Revision Notes|Editor'?s? Notes?|Changes? Made|Revisions?|Internal Notes?|Keywords)\*{0,2}:?\*{0,2}\s*\n[\s\S]*$/i, '').trim();
                 _cleanedDeliverable = _cleanedDeliverable.replace(/\n*(?:Artifact ID|Parent task ID|Document ID|Task ID|Campaign ID|Objective ID)[:\s][^\n]*/gi, '').trim();
                 _cleanedDeliverable = _cleanedDeliverable.replace(/\s*\[(?:ADDRESSED|NOTE|REVISED|FEEDBACK|CHANGED|UPDATED)(?::\s*[^\]]*)?(?:\]\.?\s*)/gi, ' ').trim();
                 const _etDoc = {
@@ -1878,7 +1878,7 @@ Write the full deliverable first, then the structured JSON block.`;
         // For publish_document: update content_md, not payload.text
         // Sanitize agent meta-commentary before storing
         var _revClean = revisedText;
-        _revClean = _revClean.replace(/\n*(?:Notes|Revision Notes|Editor'?s? Notes?|Changes? Made|Revisions?|Internal Notes?):\s*\n[\s\S]*$/i, '').trim();
+        _revClean = _revClean.replace(/\n*\*{0,2}(?:Notes|Revision Notes|Editor'?s? Notes?|Changes? Made|Revisions?|Internal Notes?|Keywords)\*{0,2}:?\*{0,2}\s*\n[\s\S]*$/i, '').trim();
         _revClean = _revClean.replace(/\n*(?:Artifact ID|Parent task ID|Document ID|Task ID|Campaign ID|Objective ID)[:\s][^\n]*/gi, '').trim();
         _revClean = _revClean.replace(/\s*\[(?:ADDRESSED|NOTE|REVISED|FEEDBACK|CHANGED|UPDATED)(?::\s*[^\]]*)?(?:\]\.?\s*)/gi, ' ').trim();
         orig.payload.content_md = _revClean;
