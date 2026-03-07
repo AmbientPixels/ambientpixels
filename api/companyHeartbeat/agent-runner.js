@@ -96,8 +96,27 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
 
   if (!response) {
     context.log('[Heartbeat]', agentId, 'got no response');
-    result.durationMs = Date.now() - _agentRunStartMs;
-    return result;
+    // Even with no Gemini response, check done-task social injection for Echo
+    if (agentId === 'echo') {
+      const _earlyDoneSocial = tasks.filter(function (t) {
+        if (t.assignee !== 'echo' || t.status !== 'done' || t._archived) return false;
+        if (!t.reviewed_copy) return false;
+        var age = Date.now() - new Date(t.createdAt || 0).getTime();
+        if (age > 7 * 24 * 60 * 60 * 1000) return false;
+        var txt = ((t.title || '') + ' ' + (t.description || '')).toLowerCase();
+        return /^social_/.test(t.taskType || '') || t.campaign_id || /linkedin|twitter|x\.com|social media|social post|bluesky|tweet/.test(txt);
+      });
+      if (_earlyDoneSocial.length > 0) {
+        context.log('[Heartbeat] echo: no Gemini response but', _earlyDoneSocial.length, 'done social task(s) — continuing for social injection');
+        response = '{"taskUpdates":[],"proposals":[],"remember":[],"observations":[]}';
+      } else {
+        result.durationMs = Date.now() - _agentRunStartMs;
+        return result;
+      }
+    } else {
+      result.durationMs = Date.now() - _agentRunStartMs;
+      return result;
+    }
   }
 
   // Parse structured output
