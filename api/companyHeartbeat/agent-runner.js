@@ -1721,6 +1721,7 @@ Write the full deliverable first, then the structured JSON block.`;
           _resolvedPlatform = _parentTask.taskType.replace('social_', '');
         }
       }
+      context.log('[Heartbeat]', agentId, 'CREATING social action — GATE PASSED. taskId:', action.taskId, 'reviewed_copy:', action.taskId ? (tasks.find(function(t) { return t.id === action.taskId; }) || {}).reviewed_copy ? 'YES' : 'NO' : 'N/A', 'text_len:', (socialPayload.text || '').length, '_codeTag:v9fix');
       const actionRequest = {
         type: (socialPayload.scheduled_for || socialPayload.schedule_for) ? 'social_post.schedule' : 'social_post.publish',
         platform: _resolvedPlatform,
