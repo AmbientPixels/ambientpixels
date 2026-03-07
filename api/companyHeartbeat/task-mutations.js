@@ -202,24 +202,21 @@ function applyTaskUpdate(tasks, update, _pendingEscalations, _creatingAgentId) {
             const _isSocialTask = /^social_/.test(tasks[i].taskType || '') ||
               (tasks[i].campaign_id && /linkedin|twitter|x\.com|social\s*media|social\s*post|bluesky|tweet/.test(_socialText));
             if (_isSocialTask) {
+              // Social tasks auto-complete to done after peer review.
+              // Do NOT set reviewed_copy from Echo's deliverable — Echo writes strategy briefs, not copy.
+              // The copy review gate (in agent-runner.js) will trigger Scribe to write actual copy
+              // and Quill to review it. reviewed_copy is set from Scribe's approved copy.
               tasks[i].status = 'done';
               tasks[i].completedAt = new Date().toISOString();
-              // Set reviewed_copy from latest deliverable so done-task social injection can fire
-              if (!tasks[i].reviewed_copy) {
-                const _socialDels = (tasks[i].comments || []).filter(c => c.type === 'deliverable');
-                if (_socialDels.length > 0) {
-                  tasks[i].reviewed_copy = _socialDels[_socialDels.length - 1].text;
-                }
-              }
               if (!tasks[i].comments) tasks[i].comments = [];
               tasks[i].comments.push({
                 id: 'cmt-socialauto-' + Date.now(),
                 author: 'system',
-                text: 'Social task auto-completed after peer review. The social action (create-social-action) goes through CEO approval — that is the quality gate for social posts.',
+                text: 'Social task peer-reviewed and auto-completed. Echo will now attempt to post — if no reviewed_copy exists, the Scribe copy pipeline activates (Scribe writes copy → Quill reviews → reviewed_copy set).',
                 type: 'system',
                 createdAt: new Date().toISOString()
               });
-              console.log('[Heartbeat] SOCIAL AUTO-COMPLETE: task', tasks[i].id, 'auto-completed — create-social-action CEO approval is the gate');
+              console.log('[Heartbeat] SOCIAL AUTO-COMPLETE: task', tasks[i].id, 'auto-completed — Scribe copy pipeline will activate if no reviewed_copy');
             } else {
             // Non-hero, non-social deliverable tasks stay in review — CEO must approve before done
             tasks[i].status = 'review';
