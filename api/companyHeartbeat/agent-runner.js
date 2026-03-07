@@ -349,12 +349,20 @@ Write the full deliverable first, then the structured JSON block.`;
     );
     if (!_hasWorkAction) {
       const _prioOrder = { critical: 0, high: 1, medium: 2, low: 3 };
+      // Exclude tasks created in this heartbeat cycle (< 2 min old) — let them settle before executing
+      const _cycleStartMs = Date.now();
       const _triagedIdle = agentTasks
-        .filter(t =>
-          (t.status === 'todo' || t.status === 'in-progress') &&
-          (t.campaign_id || // campaign tasks are auto-triaged (created by Nova from campaign directives)
-           (t.comments && t.comments.some(c => c.author === 'nova' || c.author === 'system')))
-        )
+        .filter(t => {
+          if (t.status !== 'todo' && t.status !== 'in-progress') return false;
+          if (!t.campaign_id && !(t.comments && t.comments.some(c => c.author === 'nova' || c.author === 'system'))) return false;
+          // Same-cycle guard: skip tasks created < 2 min ago
+          var _taskAge = _cycleStartMs - new Date(t.createdAt || 0).getTime();
+          if (_taskAge < 120000) {
+            context.log('[Heartbeat] ANTI-STALL: skipping same-cycle task', t.id, '(age:', Math.round(_taskAge / 1000) + 's)');
+            return false;
+          }
+          return true;
+        })
         .sort((a, b) => (_prioOrder[a.priority] || 3) - (_prioOrder[b.priority] || 3));
       // Filter out convergence-blocked tasks (5+ deliverables — would just get blocked again)
       const _convergenceBlocked = _triagedIdle.filter(t => {
@@ -424,7 +432,7 @@ Write the full deliverable first, then the structured JSON block.`;
         // ALL idle tasks are convergence-blocked — try review-task on another agent's task
         const _reviewCandidates = allActiveTasks.filter(t =>
           t.status === 'review' && t.assignee !== agentId &&
-          t.comments && t.comments.length > 0
+          t.comments && t.comments.some(c => c.type === 'deliverable')
         );
         if (_reviewCandidates.length > 0) {
           const _reviewTarget = _reviewCandidates[0];
@@ -438,6 +446,35 @@ Write the full deliverable first, then the structured JSON block.`;
         } else {
           context.log('[Heartbeat] ANTI-STALL:', agentId, 'all', _triagedIdle.length,
             'idle tasks convergence-blocked and no reviewable tasks — agent fully stalled');
+        }
+      }
+    }
+
+    // PEER REVIEW INJECTION: if agent has no idle tasks (all in review/done) and didn't propose a review-task,
+    // auto-inject review-task for another agent's task that has a deliverable awaiting review.
+    {
+      const _hasReviewAction = actions.some(a => a.type === 'review-task');
+      if (!_hasReviewAction) {
+        const _ownIdleTasks = agentTasks.filter(t => t.status === 'todo' || t.status === 'in-progress');
+        if (_ownIdleTasks.length === 0) {
+          const _peerReviewCandidates = allActiveTasks.filter(t =>
+            t.status === 'review' && t.assignee !== agentId &&
+            t.comments && t.comments.some(c => c.type === 'deliverable') &&
+            (t.comments || []).filter(c => c.type === 'deliverable').length < 5
+          );
+          if (_peerReviewCandidates.length > 0) {
+            // Pick the oldest review task (most stale)
+            _peerReviewCandidates.sort((a, b) =>
+              new Date(a.updatedAt || a.createdAt || 0).getTime() - new Date(b.updatedAt || b.createdAt || 0).getTime()
+            );
+            const _prTarget = _peerReviewCandidates[0];
+            context.log('[Heartbeat] PEER REVIEW:', agentId, 'has no idle tasks — injecting review-task for:', _prTarget.id, '"' + (_prTarget.title || '') + '"');
+            actions.unshift({
+              type: 'review-task',
+              taskId: _prTarget.id,
+              summary: 'Peer review (no own idle tasks): ' + (_prTarget.title || _prTarget.id)
+            });
+          }
         }
       }
 
@@ -1011,9 +1048,11 @@ Write the full deliverable first, then the structured JSON block.`;
             task.updatedAt = new Date().toISOString();
             context.log('[Heartbeat]', agentId, 'moved task to in-progress before execute:', action.taskId);
           }
-          const deliverable = await executeTask(context, agent, task, costIntel, siteIntel, socialIntel, execContext);
+          let deliverable = await executeTask(context, agent, task, costIntel, siteIntel, socialIntel, execContext);
           result.geminiCalls++;
           if (deliverable) {
+            // Server-side preamble strip: remove conversational openings that leak into published content
+            deliverable = deliverable.replace(/^(?:Okay|Sure|Alright|Great|Here(?:'s| is| are)|Let me|I'll|I will|Of course)[,.]?\s*(?:here(?:'s| is| are)\s*)?(?:the |a |my |an |your )?(?:draft|post|image|hero|blog|linkedin|social|copy|review|content|asset|version|revision|updated|revised|generated|generating|creating)?[^.\n]*?(?::\s*\n|\.\s*\n\n?|—\s*\n)/i, '');
             result.taskUpdates.push({
               action: 'execute',
               taskId: action.taskId,
