@@ -1922,6 +1922,31 @@ module.exports = async function (context) {
               _rcText = _rcText + '\n\n' + _blogUrlMatch[0];
             }
           }
+          // Platform character limit enforcement (same as agent-runner.js line 1628)
+          const _PLAT_LIMITS = { x: 280, bluesky: 300, linkedin: 3000 };
+          const _charLimit = _PLAT_LIMITS[_platform] || 280;
+          if (_rcText.length > _charLimit) {
+            context.log('[Heartbeat] AUTO-POST: Trimming', _platform, 'from', _rcText.length, 'to', _charLimit, 'chars');
+            // Preserve URL and hashtags at end, trim body
+            const _urlSuffix = _rcText.match(/((?:\n\n|\n)https?:\/\/\S+(?:\s*#[\s\S]*)?)$/);
+            const _hashSuffix = _rcText.match(/((?:\n\n|\n)#[A-Za-z][\s\S]*$)/);
+            const _suffix = _urlSuffix ? _urlSuffix[1] : (_hashSuffix ? _hashSuffix[1] : '');
+            const _body = _suffix ? _rcText.substring(0, _rcText.length - _suffix.length) : _rcText;
+            const _maxBody = _charLimit - _suffix.length;
+            if (_maxBody > 40) {
+              let _trimmed = _body.substring(0, _maxBody);
+              const _lastSent = _trimmed.match(/^([\s\S]*[.!?])\s/);
+              if (_lastSent && _lastSent[1].length > _maxBody * 0.5) {
+                _trimmed = _lastSent[1];
+              } else {
+                _trimmed = _trimmed.substring(0, _trimmed.lastIndexOf(' ')) || _trimmed;
+              }
+              _rcText = (_trimmed.trim() + _suffix).trim();
+            } else {
+              _rcText = _rcText.substring(0, _charLimit - 1).trim() + '…';
+            }
+            context.log('[Heartbeat] AUTO-POST: Trimmed to', _rcText.length, 'chars');
+          }
           const _actionReq = {
             type: 'social_post.publish',
             platform: _platform,
