@@ -1517,8 +1517,15 @@ Write the full deliverable first, then the structured JSON block.`;
       socialPayload.text = socialPayload.text.replace(/\n*-{3,}\s*$/g, '').trim();
 
       // Strip meta-comments agents leave in copy (e.g. [ADDRESSED], [NOTE], [REVISED])
-      // Only strip to end of LINE (no 's' flag) — 's' flag was causing entire post content to be eaten
-      socialPayload.text = socialPayload.text.replace(/\n*\[(?:ADDRESSED|NOTE|REVISED|FEEDBACK|CHANGED|UPDATED)[^\]]*\][^\n]*/gi, '').trim();
+      // Two patterns: 1) inline tags like [ADDRESSED: explanation] — strip just the bracket tag
+      //               2) standalone lines starting with [ADDRESSED] — strip entire line
+      socialPayload.text = socialPayload.text.replace(/\s*\[(?:ADDRESSED|NOTE|REVISED|FEEDBACK|CHANGED|UPDATED)(?::\s*[^\]]*)?(?:\]\.?\s*)/gi, ' ').trim();
+      // Strip standalone [TAG] lines (tag at start of line with content after)
+      socialPayload.text = socialPayload.text.replace(/^\[(?:ADDRESSED|NOTE|REVISED|FEEDBACK|CHANGED|UPDATED)[^\]]*\]\s*[^\n]*$/gim, '').trim();
+      // Strip "Revision Notes:" sections and everything after
+      socialPayload.text = socialPayload.text.replace(/\n*(?:Revision Notes|Editor'?s? Notes?|Changes? Made|Revisions?):\s*\n[\s\S]*$/i, '').trim();
+      // Strip markdown bullet formatting (* item → item)
+      socialPayload.text = socialPayload.text.replace(/^\*\s{2,}/gm, '• ').trim();
 
       // Strip campaign brief metadata that leaks into social post text
       // Agents sometimes dump the full task brief (objectives, rules, multi-post format)
