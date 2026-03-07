@@ -308,10 +308,13 @@ function applyTaskUpdate(tasks, update, _pendingEscalations, _creatingAgentId) {
       if (tasks[i].id === update.taskId) {
         if (update.updates) {
           // CEO task protection: agents cannot rewrite title/description of CEO-created tasks
+          // Assignee is always protected — agents cannot reassign tasks
           const isCeoTask = tasks[i].source !== 'heartbeat';
           const PROTECTED_FIELDS = ['title', 'description'];
+          const ALWAYS_PROTECTED = ['assignee'];
           Object.keys(update.updates).forEach(k => {
             if (k !== 'id' && k !== 'createdAt' && k !== 'comments') {
+              if (ALWAYS_PROTECTED.indexOf(k) !== -1) return; // skip — assignee cannot be changed by agents
               if (isCeoTask && PROTECTED_FIELDS.indexOf(k) !== -1) return; // skip — CEO intent is immutable
               if (k === 'status' && VALID_TASK_STATUSES.indexOf(update.updates[k]) === -1) {
                 console.log('[applyTaskUpdate] BLOCKED invalid status in updates:', update.updates[k], 'for task:', tasks[i].id);
