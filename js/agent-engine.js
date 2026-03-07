@@ -2579,6 +2579,15 @@ var AgentEngine = (function () {
     }
     return null;
   }
+  function deleteObjective(id) {
+    var list = getObjectives().filter(function (o) { return o.id !== id; });
+    _saveStorage(OBJECTIVES_KEY, list);
+    _logGovernance('objective-deleted', { objectiveId: id });
+    if (typeof CompanyStore !== 'undefined' && CompanyStore.setState) {
+      CompanyStore.setState(OBJECTIVES_KEY, list);
+    }
+    return list;
+  }
 
   // ── Governance: Approval Queue ──
   var APPROVAL_KEY = 'ap_approval_queue';
@@ -3784,6 +3793,7 @@ var AgentEngine = (function () {
     getObjectives: getObjectives,
     addObjective: addObjective,
     updateObjective: updateObjective,
+    deleteObjective: deleteObjective,
     getObjectiveProgress: getObjectiveProgress,
     getAllObjectiveProgress: getAllObjectiveProgress,
     getApprovalQueue: getApprovalQueue,
