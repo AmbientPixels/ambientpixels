@@ -252,106 +252,21 @@ module.exports = async function (context) {
       }
     }
 
-    // ── Goal → auto-create Campaign for goals with no linked campaigns ──
+    // ── Goal → auto-create Campaign — DISABLED (CEO-only campaign creation) ──
     let objectivesChanged = false;
-    for (const _goalObj of objectives) {
-      if (!_goalObj || !_goalObj.id) continue;
-      const _goalStatus = String(_goalObj.status || '').toLowerCase();
-      if (_goalStatus === 'complete' || _goalStatus === 'canceled') continue;
-
-      const _goalCmpIds = Array.isArray(_goalObj.linkedCampaigns) ? _goalObj.linkedCampaigns : [];
-      const _hasActiveCampaign = _goalCmpIds.some(function (cmpId) {
-        const cmp = campaigns.find(function (c) { return c && c.id === cmpId && !c.deletedAt; });
-        return cmp && String(cmp.status || '').toLowerCase() !== 'archived';
-      });
-      if (_hasActiveCampaign) continue;
-
-      const _newCmpId = 'cmp-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6);
-      const _goalDescBase = String(_goalObj.description || '').trim();
-      const _goalContextLine = await _commentForEntity('campaign', {
-        agentId: 'nova',
-        title: (_goalObj.quarter ? '[Q' + _goalObj.quarter + '] ' : '') + (_goalObj.title || 'Untitled Campaign'),
-        goalTitle: _goalObj.title || _goalObj.id,
-        goalId: _goalObj.id,
-        seedText: _goalDescBase,
-        fallbackText: 'I created this campaign from the goal "' + (_goalObj.title || _goalObj.id) + '" so the team has a clear execution container.'
-      });
-      const _newCmp = {
-        id: _newCmpId,
-        title: (_goalObj.quarter ? '[Q' + _goalObj.quarter + '] ' : '') + (_goalObj.title || 'Untitled Campaign'),
-        description: _goalContextLine,
-        status: 'active',
-        priority: _goalObj.priority || 'medium',
-        objective_id: _goalObj.id,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        provenance: 'Auto: Goal → Campaign'
-      };
-      campaigns.push(_newCmp);
-      createdCampaignAutoCount++;
-      _campaignsTouched.add(_newCmpId);
-      campaignsChanged = true;
-
-      if (!Array.isArray(_goalObj.linkedCampaigns)) _goalObj.linkedCampaigns = [];
-      _goalObj.linkedCampaigns.push(_newCmpId);
-      _goalObj.linkedDirectives = _goalObj.linkedCampaigns;
-      objectivesChanged = true;
-
-      context.log('[Heartbeat] Auto-created Campaign "' + _newCmp.title + '" (' + _newCmpId + ') for Goal "' + (_goalObj.title || _goalObj.id) + '" (' + _goalObj.id + ')');
-      await logEvent('goal-auto-campaign', null, 'Auto-created campaign for goal', runId, {
-        runId, objectiveId: _goalObj.id, objectiveTitle: _goalObj.title, campaignId: _newCmpId, campaignTitle: _newCmp.title
-      });
-    }
-    if (objectivesChanged) {
-      await storage.setState('objectives', objectives);
-      context.log('[Heartbeat] Pushed updated objectives after goal→campaign auto-creation');
-    }
+    context.log('[Heartbeat] Goal→Campaign auto-creation DISABLED (CEO-only)');
 
     // Build campaignById map for O(1) lookups in freeze gates
     const campaignById = {};
     for (const _c of campaigns) { if (_c && _c.id) campaignById[_c.id] = _c; }
 
-    // Ensure tasks have campaign_id (normalize directive_id → campaign_id, then auto-match)
+    // Normalize directive_id → campaign_id on existing refs (no auto-creation — CEO-only)
     for (const t of tasks) {
       if (!t) continue;
       normalizeCampaignRef(t);
-      if (t.campaign_id) continue;
-
-      const _tResult = await ensureCampaign({
-        campaign_id: t.campaign_id,
-        title: t.title || '',
-        description: t.description || '',
-        goalId: t.objective_id || null,
-        division: t.division || null,
-        provenance: 'Auto: Campaign ' + (t.assignee || 'nova'),
-        campaigns: campaigns,
-        entrypoint: 'heartbeat_task',
-        debug: true,
-        logger: context.log
-      });
-      t.campaign_id = _tResult.campaignId;
-      if (_tResult.created) {
-        _tResult.campaign.description = await _commentForEntity('campaign', {
-          agentId: t.assignee || 'nova',
-          title: _tResult.campaign.title || t.title || 'Campaign',
-          goalId: t.objective_id || null,
-          seedText: t.description || '',
-          fallbackText: 'I created this campaign to group related work and keep planning/execution aligned under one objective.'
-        });
-        _tResult.campaign.updatedAt = new Date().toISOString();
-        campaignsChanged = true;
-        _campaignsTouched.add(_tResult.campaignId);
-        campaignGovEvents.push({
-          id: 'gov-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
-          type: 'campaign-created',
-          data: { campaignId: _tResult.campaignId, title: _tResult.campaign.title, provenance: _tResult.campaign.provenance || null, source: 'task_auto_attach' },
-          timestamp: new Date().toISOString()
-        });
+      if (!t.campaign_id) {
+        context.log('[Heartbeat] Task ' + (t.id || '?') + ' has no campaign_id — skipping auto-attach (CEO-only campaign creation)');
       }
-      t.updatedAt = new Date().toISOString();
-      tasksCampaignChanged = true;
-      autoFixCount++;
-      if (t.id) _tasksTouched.add(t.id);
     }
 
     // Auto-complete campaigns where ALL linked tasks are done (skip if autoComplete === false)

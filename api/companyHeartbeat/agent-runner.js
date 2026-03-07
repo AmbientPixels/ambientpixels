@@ -974,7 +974,7 @@ Write the full deliverable first, then the structured JSON block.`;
         priority: action.task.priority
       }));
 
-      // Resolve campaign via shared module if not already set
+      // Campaign auto-creation DISABLED (CEO-only). Only match existing campaigns.
       if (!_taskCampaignId) {
         const _ctResult = await ensureCampaign({
           campaign_id: _taskCampaignId || null,
@@ -988,23 +988,14 @@ Write the full deliverable first, then the structured JSON block.`;
           debug: true,
           logger: context.log
         });
-        _taskCampaignId = _ctResult.campaignId;
         if (_ctResult.created) {
-          _ctResult.campaign.description = await generateConversationalEntityComment('campaign', {
-            agentId: agentId,
-            title: _ctResult.campaign.title || action.task.title || 'Campaign',
-            goalId: _taskObjectiveId || null,
-            seedText: action.task.description || '',
-            fallbackText: 'I created this campaign to group related work and keep planning/execution aligned under one objective.'
-          });
-          _ctResult.campaign.updatedAt = new Date().toISOString();
-          if (campaignCtx) campaignCtx.campaignsChanged = true;
-          if (campaignCtx && Array.isArray(campaignCtx.campaignGovEvents)) campaignCtx.campaignGovEvents.push({
-            id: 'gov-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
-            type: 'campaign-created',
-            data: { campaignId: _ctResult.campaignId, title: _ctResult.campaign.title, provenance: _ctResult.campaign.provenance || null, source: 'heartbeat_create_task' },
-            timestamp: new Date().toISOString()
-          });
+          // Undo the auto-created campaign — remove it from campaigns array
+          const _cmpArr = (campaignCtx && campaignCtx.campaigns) ? campaignCtx.campaigns : [];
+          const _cmpIdx = _cmpArr.indexOf(_ctResult.campaign);
+          if (_cmpIdx !== -1) _cmpArr.splice(_cmpIdx, 1);
+          context.log('[Heartbeat]', agentId, 'create-task: blocked campaign auto-creation for "' + (action.task.title || '') + '" (CEO-only)');
+        } else {
+          _taskCampaignId = _ctResult.campaignId;
         }
       }
 
