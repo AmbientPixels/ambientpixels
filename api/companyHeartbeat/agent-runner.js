@@ -321,43 +321,8 @@ Write the full deliverable first, then the structured JSON block.`;
     }
   }
 
-  // ECHO SOCIAL REVIEW BYPASS: auto-complete Echo social tasks in 'review' status — peer review adds no value
-  // The CEO approves the social action (create-social-action) which is the real quality gate.
-  if (agentId === 'echo') {
-    const _echoReviewTasks = agentTasks.filter(function(t) {
-      if (t.status !== 'review') return false;
-      var txt = ((t.title || '') + ' ' + (t.description || '')).toLowerCase();
-      return /^social_/.test(t.taskType || '') || t.campaign_id ||
-        /linkedin|twitter|x\.com|social\s*media|social\s*post|bluesky/.test(txt);
-    });
-    for (var _eri = 0; _eri < _echoReviewTasks.length; _eri++) {
-      var _erTask = _echoReviewTasks[_eri];
-      var _erDels = (_erTask.comments || []).filter(function(c) { return c.type === 'deliverable'; });
-      var _erLatest = _erDels.length > 0 ? _erDels[_erDels.length - 1].text : '';
-      if (!_erLatest) continue;
-      _erTask.reviewed_copy = _erLatest;
-      _erTask.status = 'done';
-      _erTask.completedAt = new Date().toISOString();
-      _erTask.updatedAt = new Date().toISOString();
-      if (!_erTask.comments) _erTask.comments = [];
-      _erTask.comments.push({ id: 'cmt-echobypass-' + Date.now(), author: 'system', type: 'system', createdAt: new Date().toISOString(),
-        text: '[SYSTEM] Social task auto-completed from review (peer review bypass). CEO approves the social action.' });
-      context.log('[Heartbeat] ECHO REVIEW BYPASS: social task auto-completed from review:', _erTask.id);
-      // Inject create-social-action immediately — don't wait for next cycle's anti-stall
-      var _erText = ((_erTask.title || '') + ' ' + (_erTask.description || '')).toLowerCase();
-      var _erPlatform = (_erTask.taskType === 'social_linkedin' || /linkedin/.test(_erText)) ? 'linkedin'
-        : (_erTask.taskType === 'social_x' || /twitter|x\.com|tweet/.test(_erText)) ? 'x'
-        : (_erTask.taskType === 'social_bluesky' || /bluesky/.test(_erText)) ? 'bluesky'
-        : 'linkedin';
-      actions.push({
-        type: 'create-social-action',
-        taskId: _erTask.id,
-        social: { platform: _erPlatform, text: _erLatest },
-        summary: 'Review bypass: create social action for ' + (_erTask.title || _erTask.id)
-      });
-      context.log('[Heartbeat] ECHO REVIEW BYPASS: injected create-social-action for:', _erTask.id, 'platform:', _erPlatform);
-    }
-  }
+  // Echo social tasks in review stay in review — CEO reviews via the social action approval queue.
+  // No auto-complete bypass. Tasks flow: todo → in-progress → review → done (after CEO approval).
 
   // QUILL COPY REVIEW: when Quill runs, inject review-task for social-copy tasks awaiting brand voice review
   if (agentId === 'quill') {
@@ -400,53 +365,23 @@ Write the full deliverable first, then the structured JSON block.`;
         const _delCount = (t.comments || []).filter(c => c.type === 'deliverable').length;
         return _delCount < 5;
       });
-      // CONVERGENCE RECOVERY: auto-complete convergence-blocked social tasks right here
-      // (execute-task will never be injected for them, so the recovery inside the handler never fires)
+      // CONVERGENCE ESCALATION: move convergence-blocked tasks to review + CEO escalation.
+      // Do NOT auto-complete. CEO must approve or close these tasks.
       for (var _cri = 0; _cri < _convergenceBlocked.length; _cri++) {
         var _crTask = _convergenceBlocked[_cri];
-        var _crText = ((_crTask.title || '') + ' ' + (_crTask.description || '')).toLowerCase();
-        var _crIsSocial = (_crTask.assignee === 'echo') &&
-          (/^social_/.test(_crTask.taskType || '') || _crTask.campaign_id ||
-           /linkedin|twitter|x\.com|social\s*media|social\s*post|bluesky/.test(_crText));
-        var _crIsCopy = _crTask.tags && _crTask.tags.indexOf('social-copy') !== -1;
         var _crDels = (_crTask.comments || []).filter(function(c) { return c.type === 'deliverable'; });
-        var _crLatest = _crDels.length > 0 ? _crDels[_crDels.length - 1].text : '';
-        if (!_crLatest) continue;
-        if (_crIsCopy) {
-          // Route to Quill for brand voice review instead of auto-completing
-          if (_crTask.status !== 'review') {
-            _crTask.status = 'review';
-            _crTask.updatedAt = new Date().toISOString();
-          }
-          // Add @Quill mention to wake up Tier 4 gate (if not already mentioned)
-          if (!_crTask.comments) _crTask.comments = [];
-          var _quillAlreadyMentioned = _crTask.comments.some(function(c) {
-            return (c.text || '').indexOf('@Quill') !== -1 && c.type === 'system';
-          });
-          if (!_quillAlreadyMentioned) {
-            _crTask.comments.push({ id: 'cmt-quillreview-' + Date.now(), author: 'system', type: 'system', createdAt: new Date().toISOString(),
-              text: '@Quill — please review this social copy for brand voice, clarity, and conciseness. Approve or request revision.' });
-            context.log('[Heartbeat] QUILL REVIEW: routed social-copy task to Quill for brand voice review:', _crTask.id);
-          }
-        } else if (_crIsSocial) {
-          // Auto-complete social task with latest deliverable as reviewed_copy
-          _crTask.reviewed_copy = _crLatest;
-          _crTask.status = 'done';
-          _crTask.completedAt = new Date().toISOString();
+        if (_crTask.status !== 'review') {
+          _crTask.status = 'review';
           _crTask.updatedAt = new Date().toISOString();
-          if (!_crTask.comments) _crTask.comments = [];
-          _crTask.comments.push({ id: 'cmt-convrecov-' + Date.now(), author: 'system', type: 'system', createdAt: new Date().toISOString(),
-            text: '[SYSTEM] Convergence recovery: social task auto-completed with latest deliverable (' + _crDels.length + ' total). Echo can now create the social action.' });
-          context.log('[Heartbeat] CONVERGENCE RECOVERY (anti-stall): social task auto-completed:', _crTask.id, '(' + _crLatest.length + ' chars)');
-        } else {
-          // General convergence recovery — auto-complete any task stuck in revision loop
-          _crTask.status = 'done';
-          _crTask.completedAt = new Date().toISOString();
-          _crTask.updatedAt = new Date().toISOString();
-          if (!_crTask.comments) _crTask.comments = [];
-          _crTask.comments.push({ id: 'cmt-convrecov-' + Date.now(), author: 'system', type: 'system', createdAt: new Date().toISOString(),
-            text: '[SYSTEM] Convergence recovery: task auto-completed after ' + _crDels.length + ' deliverables (revision loop). Latest deliverable preserved.' });
-          context.log('[Heartbeat] CONVERGENCE RECOVERY (anti-stall): general task auto-completed:', _crTask.id, '— agent:', _crTask.assignee);
+        }
+        if (!_crTask.comments) _crTask.comments = [];
+        var _crAlreadyEscalated = _crTask.comments.some(function(c) {
+          return (c.text || '').indexOf('Revision loop detected') !== -1 && c.type === 'system';
+        });
+        if (!_crAlreadyEscalated) {
+          _crTask.comments.push({ id: 'cmt-convesc-' + Date.now() + '-' + _cri, author: 'system', type: 'system', createdAt: new Date().toISOString(),
+            text: '[SYSTEM] Revision loop detected: ' + _crDels.length + ' deliverables without convergence. CEO must approve the latest draft, provide direction, or close this task.' });
+          context.log('[Heartbeat] CONVERGENCE ESCALATION:', _crTask.id, '—', _crDels.length, 'deliverables, moved to review for CEO');
         }
       }
       // Fix 8: For Echo, filter out tasks that already have pending social actions (avoids dedup loop)
@@ -476,189 +411,17 @@ Write the full deliverable first, then the structured JSON block.`;
         }
       }
       if (_executableIdle.length > 0) {
-        // For Echo social tasks: batch ALL social promo tasks in one cycle (they're created together)
-        if (agentId === 'echo') {
-          const _allSocialIdle = _executableIdle.filter(function (t) {
-            var txt = ((t.title || '') + ' ' + (t.description || '')).toLowerCase();
-            return /^social_/.test(t.taskType || '') || /linkedin|twitter|x\.com|social media|social post|bluesky|tweet/.test(txt);
-          });
-          // Split: done tasks get create-social-action, non-done get execute-task (peer review first)
-          const _socialNeedDraft = _allSocialIdle.filter(function (t) { return t.status !== 'done'; });
-          let _socialIdle = _allSocialIdle.filter(function (t) { return t.status === 'done'; });
-          // FIX: agentTasks excludes 'done' tasks (line 72), so _socialIdle is always empty above.
-          // Pull done Echo social tasks directly from full tasks array for create-social-action injection.
-          if (_socialIdle.length === 0) {
-            const _doneSocialMaxAge = 7 * 24 * 60 * 60 * 1000; // 7 days — skip old stale tasks
-            const _doneSocial = tasks.filter(function (t) {
-              if (t.assignee !== 'echo' || t.status !== 'done' || t._archived) return false;
-              // Skip tasks older than 7 days to avoid processing stale backlog
-              var age = Date.now() - new Date(t.createdAt || 0).getTime();
-              if (age > _doneSocialMaxAge) return false;
-              var txt = ((t.title || '') + ' ' + (t.description || '')).toLowerCase();
-              return /^social_/.test(t.taskType || '') || /linkedin|twitter|x\.com|social media|social post|bluesky|tweet/.test(txt);
-            });
-            if (_doneSocial.length > 0) {
-              // Filter out tasks that already have pending social actions OR belong to campaigns with recent rejections
-              try {
-                const _doneActions = (await storage.getState('actions')) || [];
-                const _donePending = new Set();
-                const _rejectedCampaigns = new Set();
-                var _rejectionCooldownMs = 48 * 60 * 60 * 1000; // 48h cooldown after rejection
-                for (var _dai = 0; _dai < _doneActions.length; _dai++) {
-                  var _da = _doneActions[_dai];
-                  if (!_da || !_da.type || _da.type.indexOf('social_post') !== 0) continue;
-                  var _daStatus = (_da.approval && _da.approval.status) || '';
-                  if (_daStatus === 'rejected' || _daStatus === 'cancelled') {
-                    // Track campaigns with recently rejected posts to prevent regeneration loop
-                    var _daTask = _da._parentTaskId ? tasks.find(function (t) { return t.id === _da._parentTaskId; }) : null;
-                    var _daCmpId = (_daTask && _daTask.campaign_id) || null;
-                    var _daRejAge = Date.now() - new Date(_da.updatedAt || _da.created_at || 0).getTime();
-                    if (_daCmpId && _daRejAge < _rejectionCooldownMs) {
-                      _rejectedCampaigns.add(_daCmpId);
-                    }
-                    continue;
-                  }
-                  var _daExec = (_da.execution && _da.execution.status) || '';
-                  if (_daExec === 'success') continue;
-                  if (_da._parentTaskId) _donePending.add(_da._parentTaskId);
-                }
-                _socialIdle = _doneSocial.filter(function (t) {
-                  if (_donePending.has(t.id)) return false;
-                  // Block tasks from campaigns with recently rejected social posts
-                  if (t.campaign_id && _rejectedCampaigns.has(t.campaign_id)) return false;
-                  return true;
-                });
-                if (_rejectedCampaigns.size > 0) {
-                  context.log('[Heartbeat] ANTI-STALL: blocked social tasks from', _rejectedCampaigns.size, 'campaign(s) with recent rejections (48h cooldown)');
-                }
-              } catch (_doneErr) {
-                _socialIdle = _doneSocial;
-              }
-              // Sort: campaign tasks first, then newest first (so ConversionCore tasks process before old stale ones)
-              _socialIdle.sort(function (a, b) {
-                var aCmp = a.campaign_id ? 0 : 1;
-                var bCmp = b.campaign_id ? 0 : 1;
-                if (aCmp !== bCmp) return aCmp - bCmp;
-                return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
-              });
-              if (_socialIdle.length > 0) {
-                context.log('[Heartbeat] ANTI-STALL: echo found', _socialIdle.length, 'done social task(s) from full tasks array for create-social-action injection');
-              }
-            }
-          }
-          // Inject execute-task for social tasks that need drafting first
-          for (var _sdi = 0; _sdi < _socialNeedDraft.length; _sdi++) {
-            context.log('[Heartbeat] ANTI-STALL:', agentId, 'injecting execute-task for social task needing draft:', _socialNeedDraft[_sdi].id);
-            actions.push({ type: 'execute-task', taskId: _socialNeedDraft[_sdi].id, summary: 'Anti-stall: draft social copy for peer review' });
-          }
-          if (_socialIdle.length > 0) {
-            // Fetch blog post content to build proper social copy
-            var _blogContent = null;
-            var _blogTitle = null;
-            try {
-              var _firstDesc = _socialIdle[0].description || '';
-              var _docIdMatch = _firstDesc.match(/Document ID:\s*(doc_[a-z0-9_]+)/i);
-              if (_docIdMatch) {
-                var _allDocs = (await storage.getState('documents')) || [];
-                var _srcDoc = _allDocs.find(function (d) { return d.id === _docIdMatch[1]; });
-                if (_srcDoc) {
-                  _blogTitle = _srcDoc.title || '';
-                  // Strip markdown formatting to get clean text for social
-                  _blogContent = (_srcDoc.content_md || '')
-                    .replace(/^#[^\n]*/m, '')           // remove H1 heading
-                    .replace(/#{1,6}\s+/g, '')           // remove other headings
-                    .replace(/\*\*([^*]+)\*\*/g, '$1')   // **bold** → bold
-                    .replace(/\*([^*]+)\*/g, '$1')        // *italic* → italic
-                    .replace(/^\s*[-*]\s+/gm, '')         // bullet points
-                    .replace(/\n{2,}/g, '\n').trim();
-                }
-              }
-            } catch (_bcErr) {
-              context.log('[Heartbeat] ANTI-STALL: blog content fetch error (non-fatal):', String(_bcErr).substring(0, 200));
-            }
-
-            for (var _si = 0; _si < _socialIdle.length; _si++) {
-              var _sTask = _socialIdle[_si];
-              var _sText = ((_sTask.title || '') + ' ' + (_sTask.description || '')).toLowerCase();
-              var _sPlatform = (_sTask.taskType === 'social_linkedin' || /linkedin/.test(_sText)) ? 'linkedin'
-                : (_sTask.taskType === 'social_x' || /twitter|x\.com|tweet/.test(_sText)) ? 'x'
-                : (_sTask.taskType === 'social_bluesky' || /bluesky/.test(_sText)) ? 'bluesky'
-                : 'linkedin';
-              var _sUrlMatch = (_sTask.description || '').match(/https?:\/\/ambientpixels\.ai\/blog\/[a-z0-9-]+/i);
-              var _sBlogUrl = _sUrlMatch ? _sUrlMatch[0] : 'https://ambientpixels.ai';
-              // For campaign tasks: extract URL from campaign description (e.g. ConversionCore URL)
-              if (!_sUrlMatch && _sTask.campaign_id) {
-                var _cmpDirectives = (activeDirectives || []);
-                var _sTaskCmp = _cmpDirectives.find(function (c) { return c.id === _sTask.campaign_id; });
-                if (!_sTaskCmp) {
-                  // activeDirectives may not be in scope — fall back to campaigns from storage
-                  try {
-                    var _allCmps = (await storage.getState('campaigns')) || [];
-                    _sTaskCmp = _allCmps.find(function (c) { return c.id === _sTask.campaign_id; });
-                  } catch (_e) {}
-                }
-                if (_sTaskCmp && _sTaskCmp.description) {
-                  var _cmpUrlMatch = _sTaskCmp.description.match(/https?:\/\/ambientpixels\.ai\/[a-z0-9/-]+/i);
-                  if (_cmpUrlMatch) _sBlogUrl = _cmpUrlMatch[0];
-                }
-              }
-              var _sArticleTitle = _blogTitle || (_sTask.title || '').replace(/^Promote blog post on [^:]+:\s*/i, '');
-
-              // Build platform-appropriate social copy from blog content
-              var _sPostText = '';
-              var _sExcerpt = _blogContent ? _blogContent.substring(0, 300).replace(/\n/g, ' ').trim() : '';
-              if (_sPlatform === 'x') {
-                // X: 280 char limit — title + short excerpt + URL
-                var _xBody = _sArticleTitle;
-                if (_sExcerpt) _xBody += ' — ' + _sExcerpt.substring(0, 180 - _sArticleTitle.length);
-                _sPostText = _xBody.substring(0, 250).trim() + '\n\n' + _sBlogUrl;
-              } else if (_sPlatform === 'bluesky') {
-                // Bluesky: 300 char limit
-                var _bBody = _sArticleTitle;
-                if (_sExcerpt) _bBody += '\n\n' + _sExcerpt.substring(0, 200 - _sArticleTitle.length);
-                _sPostText = _bBody.substring(0, 270).trim() + '\n\n' + _sBlogUrl;
-              } else {
-                // LinkedIn: longer form (aim 400-800 chars)
-                _sPostText = _sArticleTitle + '\n\n';
-                if (_sExcerpt) _sPostText += _sExcerpt.substring(0, 500) + '\n\n';
-                _sPostText += 'Read more: ' + _sBlogUrl;
-              }
-
-              context.log('[Heartbeat] ANTI-STALL:', agentId, 'batch social (' + (_si + 1) + '/' + _socialIdle.length + ') — injecting create-social-action for:', _sTask.id, 'platform:', _sPlatform, 'text length:', _sPostText.length);
-              actions.push({
-                type: 'create-social-action',
-                taskId: _sTask.id,
-                social: { platform: _sPlatform, text: _sPostText },
-                summary: 'Anti-stall social action: ' + (_sTask.title || _sTask.id)
-              });
-            }
-          }
-          // If there are also non-social idle tasks, inject execute-task for the first one
-          var _nonSocialIdle = _executableIdle.filter(function (t) {
-            return !/^social_/.test(t.taskType || '');
-          });
-          if (_socialIdle.length === 0 && _nonSocialIdle.length > 0) {
-            var _nsTask = _nonSocialIdle[0];
-            context.log('[Heartbeat] ANTI-STALL:', agentId, 'has', _triagedIdle.length,
-              'triaged idle task(s) — injecting execute-task for:', _nsTask.id, '"' + (_nsTask.title || '') + '"');
-            actions.unshift({
-              type: 'execute-task',
-              taskId: _nsTask.id,
-              summary: 'Anti-stall forced execution: ' + (_nsTask.title || _nsTask.id)
-            });
-          }
-        } else {
-          var _stallTask = _executableIdle[0];
-          context.log('[Heartbeat] ANTI-STALL:', agentId, 'has', _triagedIdle.length,
-            'triaged idle task(s) (' + (_triagedIdle.length - _executableIdle.length) + ' convergence-blocked) — injecting execute-task for:', _stallTask.id, '"' + (_stallTask.title || '') + '"');
-          actions.unshift({
-            type: 'execute-task',
-            taskId: _stallTask.id,
-            summary: 'Anti-stall forced execution: ' + (_stallTask.title || _stallTask.id)
-          });
-        }
+        // Simple anti-stall: inject execute-task for the highest-priority idle task
+        var _stallTask = _executableIdle[0];
+        context.log('[Heartbeat] ANTI-STALL:', agentId, 'has', _triagedIdle.length,
+          'triaged idle task(s) (' + (_triagedIdle.length - _executableIdle.length) + ' convergence-blocked) — injecting execute-task for:', _stallTask.id, '"' + (_stallTask.title || '') + '"');
+        actions.unshift({
+          type: 'execute-task',
+          taskId: _stallTask.id,
+          summary: 'Anti-stall forced execution: ' + (_stallTask.title || _stallTask.id)
+        });
       } else if (_triagedIdle.length > 0) {
-        // ALL idle tasks are convergence-blocked — try review-task on another agent's task instead
+        // ALL idle tasks are convergence-blocked — try review-task on another agent's task
         const _reviewCandidates = allActiveTasks.filter(t =>
           t.status === 'review' && t.assignee !== agentId &&
           t.comments && t.comments.length > 0
@@ -666,7 +429,7 @@ Write the full deliverable first, then the structured JSON block.`;
         if (_reviewCandidates.length > 0) {
           const _reviewTarget = _reviewCandidates[0];
           context.log('[Heartbeat] ANTI-STALL:', agentId, 'all', _triagedIdle.length,
-            'idle tasks convergence-blocked — injecting review-task for:', _reviewTarget.id, '"' + (_reviewTarget.title || '') + '"');
+            'idle tasks convergence-blocked — injecting review-task for:', _reviewTarget.id);
           actions.unshift({
             type: 'review-task',
             taskId: _reviewTarget.id,
@@ -674,31 +437,23 @@ Write the full deliverable first, then the structured JSON block.`;
           });
         } else {
           context.log('[Heartbeat] ANTI-STALL:', agentId, 'all', _triagedIdle.length,
-            'idle tasks convergence-blocked and no reviewable tasks from other agents — agent fully stalled');
+            'idle tasks convergence-blocked and no reviewable tasks — agent fully stalled');
         }
       }
 
-      // ECHO DONE-TASK SOCIAL INJECTION: when Echo has no idle tasks at all,
-      // check for done social tasks — either with reviewed_copy ready to post,
-      // or without reviewed_copy (needs copy task created via Copy Review Gate)
+      // ECHO DONE-TASK SOCIAL INJECTION: for done Echo social tasks with reviewed_copy,
+      // inject create-social-action so the post reaches CEO approval queue.
       if (agentId === 'echo') {
         const _doneSocialMaxAge2 = 7 * 24 * 60 * 60 * 1000;
         const _doneSocialAll = tasks.filter(function (t) {
           if (t.assignee !== 'echo' || t.status !== 'done' || t._archived) return false;
+          if (!t.reviewed_copy) return false; // only tasks with reviewed copy
           var age = Date.now() - new Date(t.createdAt || 0).getTime();
           if (age > _doneSocialMaxAge2) return false;
           var txt = ((t.title || '') + ' ' + (t.description || '')).toLowerCase();
           return /^social_/.test(t.taskType || '') || t.campaign_id || /linkedin|twitter|x\.com|social media|social post|bluesky|tweet/.test(txt);
         });
-        // Split: tasks with reviewed_copy (ready to post) vs without (need copy task)
-        const _doneSocialReady = _doneSocialAll.filter(function (t) { return t.reviewed_copy; });
-        const _doneSocialNeedCopy = _doneSocialAll.filter(function (t) {
-          if (t.reviewed_copy) return false;
-          if (t.awaiting_copy_review) return false; // copy task already in flight
-          return true;
-        });
-        if (_doneSocialReady.length > 0) {
-          // Filter out tasks with pending social actions
+        if (_doneSocialAll.length > 0) {
           try {
             const _doneActions2 = (await storage.getState('actions')) || [];
             const _donePending2 = new Set();
@@ -711,7 +466,7 @@ Write the full deliverable first, then the structured JSON block.`;
               if (_daExec2 === 'success') continue;
               if (_da2._parentTaskId) _donePending2.add(_da2._parentTaskId);
             }
-            var _readyToPost = _doneSocialReady.filter(function (t) { return !_donePending2.has(t.id); });
+            var _readyToPost = _doneSocialAll.filter(function (t) { return !_donePending2.has(t.id); });
             for (var _rp = 0; _rp < _readyToPost.length; _rp++) {
               var _rpTask = _readyToPost[_rp];
               var _rpText = ((_rpTask.title || '') + ' ' + (_rpTask.description || '')).toLowerCase();
@@ -719,7 +474,7 @@ Write the full deliverable first, then the structured JSON block.`;
                 : (_rpTask.taskType === 'social_x' || /twitter|x\.com|tweet/.test(_rpText)) ? 'x'
                 : (_rpTask.taskType === 'social_bluesky' || /bluesky/.test(_rpText)) ? 'bluesky'
                 : 'linkedin';
-              context.log('[Heartbeat] ANTI-STALL: echo injecting create-social-action for done task with reviewed_copy:', _rpTask.id, 'platform:', _rpPlatform);
+              context.log('[Heartbeat] ANTI-STALL: echo injecting create-social-action for done task:', _rpTask.id, 'platform:', _rpPlatform);
               actions.push({
                 type: 'create-social-action',
                 taskId: _rpTask.id,
@@ -729,25 +484,6 @@ Write the full deliverable first, then the structured JSON block.`;
             }
           } catch (_rpe) {
             context.log('[Heartbeat] ANTI-STALL: echo done-task social injection error (non-fatal):', String(_rpe).substring(0, 200));
-          }
-        }
-        // Inject create-social-action for done tasks that need copy (no reviewed_copy yet)
-        // This triggers the Copy Review Gate which creates the Scribe copy task
-        if (_doneSocialNeedCopy.length > 0) {
-          for (var _nc = 0; _nc < _doneSocialNeedCopy.length; _nc++) {
-            var _ncTask = _doneSocialNeedCopy[_nc];
-            var _ncText = ((_ncTask.title || '') + ' ' + (_ncTask.description || '')).toLowerCase();
-            var _ncPlatform = (_ncTask.taskType === 'social_linkedin' || /linkedin/.test(_ncText)) ? 'linkedin'
-              : (_ncTask.taskType === 'social_x' || /twitter|x\.com|tweet/.test(_ncText)) ? 'x'
-              : (_ncTask.taskType === 'social_bluesky' || /bluesky/.test(_ncText)) ? 'bluesky'
-              : 'linkedin';
-            context.log('[Heartbeat] ANTI-STALL: echo injecting create-social-action for done task NEEDING COPY:', _ncTask.id, 'platform:', _ncPlatform);
-            actions.push({
-              type: 'create-social-action',
-              taskId: _ncTask.id,
-              social: { platform: _ncPlatform, text: 'Pending Scribe copy review' },
-              summary: 'Anti-stall: trigger copy review for ' + (_ncTask.title || _ncTask.id)
-            });
           }
         }
       }
@@ -1212,19 +948,6 @@ Write the full deliverable first, then the structured JSON block.`;
         if (_exTask) {
           if (_exTask.status === 'review' || _exTask.status === 'done') {
             context.log('[Heartbeat]', agentId, 'BLOCKED execute-task on', action.taskId, '— task already in', _exTask.status);
-            // Convergence recovery for blocked hero image tasks: auto-submit parent doc for publish
-            if (_exTask.status === 'done' || ((_exTask.comments || []).filter(c => c.type === 'deliverable').length >= 5)) {
-              var _blkParent = _exTask.parent_task_id || null;
-              var _blkDoc = documents.find(function(d) {
-                if (!d || d.deletedAt || d.status === 'published' || d.status === 'rejected' || d.status === 'archived') return false;
-                return (d.taskId === action.taskId) || (_blkParent && d.taskId === _blkParent);
-              });
-              if (_blkDoc && _blkDoc.hero_image_asset_id && !_blkDoc.awaiting_hero_image
-                  && _blkDoc.kind && ['marketing_post', 'product_brief'].indexOf(_blkDoc.kind) !== -1) {
-                context.log('[Heartbeat] CONVERGENCE RECOVERY (blocked execute-task): auto-submitting doc', _blkDoc.id, 'for publish');
-                actions.push({ type: 'submit-for-publish', documentId: _blkDoc.id, taskId: _blkParent || action.taskId, _systemInjected: true });
-              }
-            }
             continue;
           }
           // CONVERGENCE GUARD: if 5+ deliverables already exist, the task is looping — block and escalate
@@ -1251,8 +974,7 @@ Write the full deliverable first, then the structured JSON block.`;
                 newStatus: 'review'
               });
             }
-            // Convergence recovery: if a ready document exists, auto-trigger submit-for-publish
-            // rather than waiting for the agent to do it (they're blocked from executing)
+            // Convergence escalation: if a ready document exists, auto-trigger submit-for-publish
             const _convParentTaskId = _exTask && _exTask.parent_task_id ? _exTask.parent_task_id : null;
             const _convDoc = documents.find(function(d) {
               if (!d || d.deletedAt || d.status === 'published' || d.status === 'rejected' || d.status === 'archived') return false;
@@ -1260,56 +982,10 @@ Write the full deliverable first, then the structured JSON block.`;
                 || (_convParentTaskId && d.taskId === _convParentTaskId);
             });
             if (_convDoc && _convDoc.hero_image_asset_id && !_convDoc.awaiting_hero_image) {
-              context.log('[Heartbeat] CONVERGENCE RECOVERY: auto-submitting doc', _convDoc.id, 'for publish (task', action.taskId, 'is convergence-locked)');
-              if (!_alreadyLoopWarned) {
-                result.taskUpdates.push({
-                  action: 'comment',
-                  taskId: action.taskId,
-                  comment: '[SYSTEM] Convergence recovery: document "' + (_convDoc.title || _convDoc.id) + '" is ready (hero image attached). Auto-submitting for publish so the CEO can approve.',
-                  agentId: 'system'
-                });
-              }
-              // Inject into the running actions array — submit-for-publish handler deduplicates on its own
+              context.log('[Heartbeat] CONVERGENCE: auto-submitting doc', _convDoc.id, 'for publish (task', action.taskId, 'is convergence-locked)');
               actions.push({ type: 'submit-for-publish', documentId: _convDoc.id, taskId: action.taskId, _systemInjected: true });
             }
-            // SOCIAL CONVERGENCE RECOVERY: auto-complete social tasks stuck at convergence limit
-            // Use the latest deliverable as reviewed_copy — CEO approves the social action.
-            const _convIsSocial = (_exTask.assignee === 'echo') &&
-              (/^social_/.test(_exTask.taskType || '') || _exTask.campaign_id ||
-               /linkedin|twitter|x\.com|social\s*media|social\s*post|bluesky/.test(((_exTask.title || '') + ' ' + (_exTask.description || '')).toLowerCase()));
-            if (_convIsSocial) {
-              const _convDels = (_exTask.comments || []).filter(c => c.type === 'deliverable');
-              const _convLatest = _convDels.length > 0 ? _convDels[_convDels.length - 1].text : '';
-              if (_convLatest) {
-                _exTask.reviewed_copy = _convLatest;
-                result.taskUpdates.push({ action: 'move', taskId: action.taskId, newStatus: 'done' });
-                result.taskUpdates.push({ action: 'comment', taskId: action.taskId,
-                  comment: '[SYSTEM] Convergence recovery: social task auto-completed with latest deliverable (' + _convDels.length + ' total). Echo can create the social action for CEO approval.',
-                  agentId: 'system' });
-                context.log('[Heartbeat] SOCIAL CONVERGENCE RECOVERY: auto-completed', action.taskId, '(' + _convLatest.length + ' chars)');
-              }
-            }
-            // Social-copy convergence recovery
-            const _convIsCopy = _exTask.tags && _exTask.tags.indexOf('social-copy') !== -1;
-            if (_convIsCopy) {
-              const _ccDels = (_exTask.comments || []).filter(c => c.type === 'deliverable');
-              const _ccLatest = _ccDels.length > 0 ? _ccDels[_ccDels.length - 1].text : '';
-              if (_ccLatest) {
-                result.taskUpdates.push({ action: 'move', taskId: action.taskId, newStatus: 'done' });
-                const _ccTags = _exTask.tags || [];
-                const _ccPTag = _ccTags.find(function(tg) { return tg.startsWith('social-copy-for-'); });
-                const _ccPId = _ccPTag ? _ccPTag.replace('social-copy-for-', '') : (_exTask.parent_task_id || null);
-                if (_ccPId) {
-                  const _ccP = tasks.find(function(t) { return t.id === _ccPId; });
-                  if (_ccP) {
-                    _ccP.reviewed_copy = _ccLatest;
-                    _ccP.awaiting_copy_review = false;
-                    _ccP.updatedAt = new Date().toISOString();
-                  }
-                }
-                context.log('[Heartbeat] SOCIAL COPY CONVERGENCE RECOVERY: auto-completed', action.taskId);
-              }
-            }
+            // No auto-complete for social or social-copy tasks — CEO must review via approval queue.
             continue;
           }
           const _hasDeliverable = _deliverableCount > 0;
@@ -1358,23 +1034,15 @@ Write the full deliverable first, then the structured JSON block.`;
               continue; // skip blog detection — social-copy tasks are never blog tasks
             }
 
-            // ECHO SOCIAL FAST-PATH: auto-complete Echo social tasks after execute — skip peer review.
-            // Task moves to "done" but NO auto-injection of create-social-action.
-            // Echo will pick up the done task with reviewed_copy in the next cycle and create
-            // a proper social action using the reviewed copy (not the raw execute-task brief).
+            // Echo social tasks move to review after execute — CEO approves via social action queue.
+            // No auto-complete fast-path. Standard flow: execute → review → peer review → done.
             if (agentId === 'echo') {
               const _esfText = ((task.title || '') + ' ' + (task.description || '')).toLowerCase();
               const _esfIsSocial = /^social_/.test(task.taskType || '') || task.campaign_id ||
                 /linkedin|twitter|x\.com|social\s*media|social\s*post|bluesky/.test(_esfText);
               if (_esfIsSocial) {
-                task.reviewed_copy = deliverable;
-                result.taskUpdates.push({ action: 'move', taskId: action.taskId, newStatus: 'done' });
-                result.taskUpdates.push({
-                  action: 'comment', taskId: action.taskId,
-                  comment: '[SYSTEM] Social task auto-completed (fast-path). Echo will create social action in next cycle using reviewed copy.',
-                  agentId: 'system'
-                });
-                context.log('[Heartbeat] ECHO SOCIAL FAST-PATH: task auto-completed (no auto-inject):', action.taskId, '(' + deliverable.length + ' chars)');
+                result.taskUpdates.push({ action: 'move', taskId: action.taskId, newStatus: 'review' });
+                context.log('[Heartbeat] Echo social task moved to review after execute:', action.taskId);
                 continue; // skip blog detection
               }
             }
@@ -2243,17 +1911,6 @@ Write the full deliverable first, then the structured JSON block.`;
             });
           }
           context.log('[Heartbeat]', agentId, 'CONVERGENCE BLOCKED review-task on', action.taskId, '—', _rvDelCount, 'deliverables already.');
-          // Convergence recovery: auto-submit for publish if document is ready
-          var _rvParentTaskId = task.parent_task_id || null;
-          var _rvConvDoc = documents.find(function(d) {
-            if (!d || d.deletedAt || d.status === 'published' || d.status === 'rejected' || d.status === 'archived') return false;
-            return (d.taskId === action.taskId) || (_rvParentTaskId && d.taskId === _rvParentTaskId);
-          });
-          if (_rvConvDoc && _rvConvDoc.hero_image_asset_id && !_rvConvDoc.awaiting_hero_image
-              && _rvConvDoc.kind && ['marketing_post', 'product_brief'].indexOf(_rvConvDoc.kind) !== -1) {
-            context.log('[Heartbeat] CONVERGENCE RECOVERY (review-task): auto-submitting doc', _rvConvDoc.id, 'for publish');
-            actions.push({ type: 'submit-for-publish', documentId: _rvConvDoc.id, taskId: _rvParentTaskId || action.taskId, _systemInjected: true });
-          }
         } else {
           const review = await reviewTask(context, agent, task, costIntel, siteIntel, socialIntel, execContext);
           result.geminiCalls++;
@@ -3370,8 +3027,8 @@ Write the full deliverable first, then the structured JSON block.`;
       // Manual mode gate: block all memory writes
       if (normalizedActivationMode === 'manual') {
         _memBlockedReason = 'mode_gate_manual';
-        await logEvent('policy-violation', agentId, 'Memory write blocked: manual mode', runId, {
-          runId: runId, agentId: agentId, gate: 'mode_gate', reason: 'manual_blocks_remember'
+        await logEvent('policy-violation', agentId, 'Memory write blocked: manual mode', cycleId, {
+          runId: cycleId, agentId: agentId, gate: 'mode_gate', reason: 'manual_blocks_remember'
         });
       } else if (!mem.text || mem.text.trim().length === 0) {
         _memBlockedReason = 'empty_text';
@@ -3381,22 +3038,22 @@ Write the full deliverable first, then the structured JSON block.`;
         // Type validation
         if (!_memType || !L4_ALLOWED_TYPES.has(_memType)) {
           _memBlockedReason = 'invalid_type';
-          await logEvent('policy-violation', agentId, 'Memory write blocked: invalid type', runId, {
-            runId: runId, agentId: agentId, gate: 'memory_schema', reason: 'invalid_type', type: mem.type || null
+          await logEvent('policy-violation', agentId, 'Memory write blocked: invalid type', cycleId, {
+            runId: cycleId, agentId: agentId, gate: 'memory_schema', reason: 'invalid_type', type: mem.type || null
           });
         }
         // Evidence requirement for preferred AmbientCore types
         else if (L4_PREFERRED_TYPES.has(_memType) && (!mem.evidence || typeof mem.evidence !== 'object' || !mem.evidence.runId)) {
           _memBlockedReason = 'missing_evidence';
-          await logEvent('policy-violation', agentId, 'Memory write blocked: preferred type requires evidence', runId, {
-            runId: runId, agentId: agentId, gate: 'memory_schema', reason: 'missing_evidence', type: _memType
+          await logEvent('policy-violation', agentId, 'Memory write blocked: preferred type requires evidence', cycleId, {
+            runId: cycleId, agentId: agentId, gate: 'memory_schema', reason: 'missing_evidence', type: _memType
           });
         }
         // Daily rate-cap
         else if (_getMemWriteCount(agentId) >= MAX_L4_WRITES_PER_AGENT_PER_DAY) {
           _memBlockedReason = 'daily_cap_exceeded';
-          await logEvent('policy-violation', agentId, 'Memory write blocked: daily cap exceeded', runId, {
-            runId: runId, agentId: agentId, gate: 'memory_rate_cap', reason: 'daily_cap_exceeded',
+          await logEvent('policy-violation', agentId, 'Memory write blocked: daily cap exceeded', cycleId, {
+            runId: cycleId, agentId: agentId, gate: 'memory_rate_cap', reason: 'daily_cap_exceeded',
             cap: MAX_L4_WRITES_PER_AGENT_PER_DAY, current: _getMemWriteCount(agentId)
           });
         }
@@ -3424,8 +3081,8 @@ Write the full deliverable first, then the structured JSON block.`;
         }
       }
 
-      await logEvent('memory-write-attempt', agentId, _memOk ? 'Memory saved' : 'Memory blocked: ' + _memBlockedReason, runId, {
-        runId: runId, agentId: agentId, ok: _memOk, type: (mem.type || null), blockedReason: _memBlockedReason
+      await logEvent('memory-write-attempt', agentId, _memOk ? 'Memory saved' : 'Memory blocked: ' + _memBlockedReason, cycleId, {
+        runId: cycleId, agentId: agentId, ok: _memOk, type: (mem.type || null), blockedReason: _memBlockedReason
       });
     } else if (action.type === 'create-reminder' && action.reminder) {
       // Agent sets a reminder/date in the workspace dates store
