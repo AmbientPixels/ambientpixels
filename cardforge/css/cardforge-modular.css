@@ -1549,8 +1549,8 @@
   padding: 8px 6px;
   font-size: 0.68rem;
   font-weight: 500;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 6px;
   color: var(--mood-text-secondary, #a0a0c0);
   cursor: pointer;
@@ -1577,10 +1577,10 @@
 }
 
 .effect-chip.selected {
-  background: var(--aura-bg-hover, #3a3a5e);
-  border-color: var(--mood-accent-color, #4a4a6a);
+  background: rgba(0, 212, 255, 0.08);
+  border-color: var(--mood-primary-color, #00d4ff);
   color: var(--mood-text-primary, #e1e1ff);
-  box-shadow: none;
+  box-shadow: 0 0 6px rgba(0, 212, 255, 0.15);
 }
 
 .effect-chip.selected i {
@@ -1613,8 +1613,9 @@
 }
 
 .text-color-pill.selected {
-  background: var(--aura-bg-hover, #3a3a5e);
+  background: rgba(0, 212, 255, 0.1);
   color: var(--mood-text-primary, #e1e1ff);
+  border: 1px solid rgba(0, 212, 255, 0.3);
 }
 
 /* ===== TYPOGRAPHY HEADER PREVIEW ===== */

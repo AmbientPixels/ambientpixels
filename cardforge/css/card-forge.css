@@ -116,8 +116,10 @@
 .cf-section-title {
   margin-bottom: 0.75rem;
   color: var(--mood-primary-color, #e1e1ff);
-  font-size: 0.95rem;
-  opacity: 0.8;
+  font-size: var(--cf-text-lg, 1.125rem);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  opacity: 1;
 }
 
 /* Prevent layout blowout without forcing grid structure */

@@ -396,9 +396,9 @@
 
 .section-header h4 {
   margin: 0;
-  font-size: 1.1rem;
+  font-size: var(--cf-text-md, 1rem);
   font-weight: 600;
-  color: var(--mood-primary-color, #e1e1ff);
+  color: var(--cf-text-primary, #e1e1ff);
   flex-shrink: 0;
 }
 

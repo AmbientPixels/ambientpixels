@@ -455,12 +455,25 @@
     var artSection = document.getElementById('craft-artwork-section');
     if (artToggle && artSection) {
       artToggle.addEventListener('click', function() {
+        var willExpand = artSection.classList.contains('collapsed');
         artSection.classList.toggle('collapsed');
+        // Unified accordion: collapse all tiers when Artwork opens
+        if (willExpand) {
+          document.querySelectorAll('.collapsible-tier.expanded').forEach(function(tier) {
+            tier.classList.remove('expanded');
+          });
+        }
       });
       artToggle.addEventListener('keydown', function(e) {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault();
+          var willExpand = artSection.classList.contains('collapsed');
           artSection.classList.toggle('collapsed');
+          if (willExpand) {
+            document.querySelectorAll('.collapsible-tier.expanded').forEach(function(tier) {
+              tier.classList.remove('expanded');
+            });
+          }
         }
       });
     }

@@ -607,6 +607,34 @@ body.cf-ui--neon .zone-header h3 i {
   box-sizing: border-box;
 }
 
+/* Preview Design Summary */
+.cf-preview-summary {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--cf-space-xs, 0.25rem) var(--cf-space-md, 0.75rem);
+  padding: var(--cf-space-md, 0.75rem);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--cf-radius-md, 8px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+.cf-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--cf-space-sm, 0.5rem);
+}
+.cf-summary-label {
+  font-size: var(--cf-text-xs, 0.75rem);
+  color: var(--cf-text-muted, #808099);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.cf-summary-value {
+  font-size: var(--cf-text-sm, 0.875rem);
+  color: var(--cf-text-primary, #e1e1ff);
+  font-weight: 500;
+}
+
 /* Card Preview Zone (Always Visible) - Fixed math */
 #card-preview-container {
   position: sticky;

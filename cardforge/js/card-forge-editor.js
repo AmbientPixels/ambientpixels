@@ -1451,6 +1451,20 @@
     
     // Initialize card flip functionality
     initCardFlip();
+
+    // Initialize gallery collapse toggle
+    (function() {
+      var toggle = document.querySelector('.gallery-toggle');
+      if (!toggle) return;
+      var container = toggle.closest('.cardforge-gallery-container');
+      toggle.addEventListener('click', function() {
+        var collapsed = container.classList.toggle('gallery-collapsed');
+        toggle.setAttribute('aria-expanded', !collapsed);
+      });
+      toggle.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle.click(); }
+      });
+    })();
     
     // Initialize default class and rarity styles
     initDefaultClassAndRarityStyles();
@@ -2373,14 +2387,20 @@
           // Collapse
           tier.classList.remove('expanded');
         } else {
-          // Expand (and optionally collapse others for accordion effect)
-          // First collapse all other tiers
+          // Expand (and collapse others for exclusive accordion)
+          // Collapse all other tiers
           document.querySelectorAll('.collapsible-tier.expanded').forEach(otherTier => {
             if (otherTier !== tier) {
               otherTier.classList.remove('expanded');
             }
           });
-          
+
+          // Also collapse the Artwork section (unified accordion)
+          var artSection = document.getElementById('craft-artwork-section');
+          if (artSection && !artSection.classList.contains('collapsed')) {
+            artSection.classList.add('collapsed');
+          }
+
           // Then expand this tier
           tier.classList.add('expanded');
         }
@@ -2965,10 +2985,34 @@
     
     // Update card content
     updateCardContent();
-    
+
     // Combine fullbleed variant filters with image effect filters
     applyCombinedFilters();
-    
+
+    // Update preview summary panel
+    updatePreviewSummary(effectivePalette, classStyle, rarityValue);
+  }
+
+  function updatePreviewSummary(palette, classStyle, rarity) {
+    var el = document.getElementById('preview-summary');
+    if (!el) return;
+    var s = function(id, val) {
+      var span = document.getElementById(id);
+      if (span) span.textContent = val || '—';
+    };
+    s('summary-style', palette ? palette.charAt(0).toUpperCase() + palette.slice(1) : 'Default');
+    var classInput = document.getElementById('card-class');
+    s('summary-class', classInput ? classInput.value : null);
+    s('summary-rarity', rarity || null);
+    var effects = [];
+    var bgE = document.getElementById('card-bg-effect');
+    var brE = document.getElementById('card-border-effect');
+    var glE = document.getElementById('card-glow-effect');
+    if (bgE && bgE.value !== 'none') effects.push(bgE.value);
+    if (brE && brE.value !== 'none') effects.push(brE.value);
+    if (glE && glE.value !== 'none') effects.push(glE.value);
+    if (ModularState.imageEffect !== 'none') effects.push(ModularState.imageEffect);
+    s('summary-effects', effects.length ? effects.join(', ') : 'None');
   }
 
   // ===== COMBINED FILTER MERGE =====

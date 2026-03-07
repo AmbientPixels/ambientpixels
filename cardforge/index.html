@@ -1551,7 +1551,13 @@
               </div>
             </div>
           </div>
-          <!-- Right column now dedicated only to card preview -->
+          <!-- Design summary below card -->
+          <div class="cf-preview-summary" id="preview-summary">
+            <div class="cf-summary-row"><span class="cf-summary-label">Style</span><span class="cf-summary-value" id="summary-style">Default</span></div>
+            <div class="cf-summary-row"><span class="cf-summary-label">Class</span><span class="cf-summary-value" id="summary-class">—</span></div>
+            <div class="cf-summary-row"><span class="cf-summary-label">Rarity</span><span class="cf-summary-value" id="summary-rarity">—</span></div>
+            <div class="cf-summary-row"><span class="cf-summary-label">Effects</span><span class="cf-summary-value" id="summary-effects">None</span></div>
+          </div>
           </div>
           
         </div>
@@ -1562,8 +1568,8 @@
   </section>
   
   <!-- Separate Gallery Section -->
-  <section class="cardforge-gallery-container grid-col-12">
-    <h2><i class="fas fa-globe" style="font-size:0.85em; opacity:0.7; margin-right:0.4rem;"></i>Public Gallery</h2>
+  <section class="cardforge-gallery-container grid-col-12 gallery-collapsed">
+    <h2 class="gallery-toggle" role="button" tabindex="0" aria-expanded="false"><i class="fas fa-globe" style="font-size:0.85em; opacity:0.7; margin-right:0.4rem;"></i>Public Gallery<i class="fas fa-chevron-down gallery-toggle-icon"></i></h2>
     <p id="gallery-msg-anon" class="gallery-description">Browse cards published by the community. Sign in to publish your own creations!</p>
     <p id="gallery-msg-user" class="gallery-description hidden">Welcome back! See your cards above and publish more.</p>
     <div class="cardforge-gallery-grid" id="gallery-cards-grid">

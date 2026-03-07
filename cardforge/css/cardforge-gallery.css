@@ -169,6 +169,37 @@
   background: linear-gradient(90deg, #00d4ff, #8b5cf6);
 }
 
+/* Gallery collapse toggle */
+.gallery-toggle {
+  cursor: pointer;
+  user-select: none;
+}
+.gallery-toggle-icon {
+  margin-left: auto;
+  font-size: 0.75rem;
+  opacity: 0.6;
+  transition: transform var(--cf-transition-base, 200ms ease);
+}
+.gallery-collapsed .gallery-toggle-icon {
+  transform: rotate(0deg);
+}
+.cardforge-gallery-container:not(.gallery-collapsed) .gallery-toggle-icon {
+  transform: rotate(180deg);
+}
+/* Hide all gallery content when collapsed */
+.gallery-collapsed .gallery-description,
+.gallery-collapsed .cardforge-gallery-grid,
+.gallery-collapsed .gallery-decks-heading,
+.gallery-collapsed .gallery-decks-grid {
+  display: none;
+}
+.gallery-collapsed {
+  padding-bottom: 1rem;
+}
+.gallery-collapsed h2 {
+  margin-bottom: 0;
+}
+
 .cardforge-gallery-container h2 {
   color: var(--mood-primary-color, #00d4ff);
   margin-bottom: 0.75rem;
