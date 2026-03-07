@@ -1315,7 +1315,14 @@ Write the full deliverable first, then the structured JSON block.`;
       // direction but may not be descriptive enough; Scribe review ensures quality.
       if (action.taskId) {
         const socialTask = tasks.find(t => t.id === action.taskId);
-        if (socialTask && !socialTask.reviewed_copy) {
+        // Block if task not found (bad taskId) — don't let unlinked actions through
+        if (socialTask && socialTask.reviewed_copy) {
+          // Has reviewed_copy — allow through, fix 9 will use it
+        } else if (!socialTask) {
+          context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action — task not found:', action.taskId);
+          continue;
+        } else {
+          // socialTask exists but no reviewed_copy
           // Check if a Scribe writing sub-task already exists for this social task
           const _copyTag = 'social-copy-for-' + action.taskId;
           const _copyTaskExists = tasks.some(t =>
@@ -1417,6 +1424,13 @@ Write the full deliverable first, then the structured JSON block.`;
             continue;
           }
         }
+      }
+
+      // FALLBACK BLOCK: if Echo creates a social action without taskId, block it.
+      // All Echo social actions MUST be linked to a task with reviewed_copy.
+      if (!action.taskId && agentId === 'echo') {
+        context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action — no taskId (action must be linked to a task)');
+        continue;
       }
 
       // Fix 9: If the social task has reviewed_copy, ALWAYS use it over whatever Gemini wrote.
