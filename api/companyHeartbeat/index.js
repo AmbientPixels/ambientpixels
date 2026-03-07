@@ -1922,28 +1922,47 @@ module.exports = async function (context) {
               _rcText = _rcText + '\n\n' + _blogUrlMatch[0];
             }
           }
+          // Strip metadata lines that leak from Scribe (Artifact ID, Parent task ID, Document ID)
+          _rcText = _rcText.replace(/\n*(?:Artifact ID|Parent task ID|Document ID|Task ID)[:\s][^\n]*/gi, '').trim();
           // Platform character limit enforcement (same as agent-runner.js line 1628)
           const _PLAT_LIMITS = { x: 280, bluesky: 300, linkedin: 3000 };
           const _charLimit = _PLAT_LIMITS[_platform] || 280;
           if (_rcText.length > _charLimit) {
             context.log('[Heartbeat] AUTO-POST: Trimming', _platform, 'from', _rcText.length, 'to', _charLimit, 'chars');
-            // Preserve URL and hashtags at end, trim body
-            const _urlSuffix = _rcText.match(/((?:\n\n|\n)https?:\/\/\S+(?:\s*#[\s\S]*)?)$/);
-            const _hashSuffix = _rcText.match(/((?:\n\n|\n)#[A-Za-z][\s\S]*$)/);
-            const _suffix = _urlSuffix ? _urlSuffix[1] : (_hashSuffix ? _hashSuffix[1] : '');
-            const _body = _suffix ? _rcText.substring(0, _rcText.length - _suffix.length) : _rcText;
-            const _maxBody = _charLimit - _suffix.length;
+            // Extract blog URL and hashtags to preserve them during trimming
+            var _blogUrl = '';
+            var _hashTail = '';
+            var _blogUrlInText = _rcText.match(/https?:\/\/ambientpixels\.ai\/blog\/[a-z0-9-]+/i);
+            if (_blogUrlInText) _blogUrl = _blogUrlInText[0];
+            var _hashMatch = _rcText.match(/\s+(#[A-Za-z]\S*(?:\s+#[A-Za-z]\S*)*)$/);
+            if (_hashMatch) _hashTail = _hashMatch[0];
+            // Remove URL and hashtags from body, trim body, then re-append
+            var _bodyText = _rcText;
+            if (_hashTail) _bodyText = _bodyText.substring(0, _bodyText.length - _hashTail.length);
+            if (_blogUrl) _bodyText = _bodyText.replace(_blogUrl, '').replace(/\s{2,}/g, ' ').trim();
+            // Build suffix: URL + hashtags
+            var _keepSuffix = '';
+            if (_blogUrl) _keepSuffix += '\n' + _blogUrl;
+            if (_hashTail.trim()) _keepSuffix += ' ' + _hashTail.trim();
+            var _maxBody = _charLimit - _keepSuffix.length;
             if (_maxBody > 40) {
-              let _trimmed = _body.substring(0, _maxBody);
-              const _lastSent = _trimmed.match(/^([\s\S]*[.!?])\s/);
+              var _trimmed = _bodyText.substring(0, _maxBody);
+              var _lastSent = _trimmed.match(/^([\s\S]*[.!?])\s/);
               if (_lastSent && _lastSent[1].length > _maxBody * 0.5) {
                 _trimmed = _lastSent[1];
               } else {
                 _trimmed = _trimmed.substring(0, _trimmed.lastIndexOf(' ')) || _trimmed;
               }
-              _rcText = (_trimmed.trim() + _suffix).trim();
+              _rcText = (_trimmed.trim() + _keepSuffix).trim();
             } else {
-              _rcText = _rcText.substring(0, _charLimit - 1).trim() + '…';
+              // Suffix alone exceeds limit — drop hashtags, keep URL
+              _keepSuffix = _blogUrl ? '\n' + _blogUrl : '';
+              _maxBody = _charLimit - _keepSuffix.length;
+              if (_maxBody > 40) {
+                _rcText = (_bodyText.substring(0, _maxBody).trim() + _keepSuffix).trim();
+              } else {
+                _rcText = _rcText.substring(0, _charLimit - 1).trim() + '…';
+              }
             }
             context.log('[Heartbeat] AUTO-POST: Trimmed to', _rcText.length, 'chars');
           }
