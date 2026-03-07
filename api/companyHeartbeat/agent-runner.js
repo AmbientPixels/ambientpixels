@@ -489,7 +489,7 @@ Write the full deliverable first, then the structured JSON block.`;
               var _prc = _peerReviewCandidates[_pri];
               var _prcType = (_prc.taskType || '').toLowerCase();
               if (/^social_/.test(_prcType) && _prSocialReviewers.indexOf(agentId) !== -1) { _prTarget = _prc; break; }
-              if (/^blog_|^article|^newsletter|^internal_doc/.test(_prcType) && _prContentReviewers.indexOf(agentId) !== -1) { _prTarget = _prc; break; }
+              if (/^blog_|^content_blog|^content_|^article|^newsletter|^internal_doc|^design_/.test(_prcType) && _prContentReviewers.indexOf(agentId) !== -1) { _prTarget = _prc; break; }
             }
             // Fallback: only inject if this agent is domain-relevant or no better reviewer exists
             if (!_prTarget) {
@@ -497,7 +497,7 @@ Write the full deliverable first, then the structured JSON block.`;
               var _prSkipDomains = ['cipher', 'forge', 'pixel', 'scout'];
               var _prFirstCandidate = _peerReviewCandidates[0];
               var _prCandType = (_prFirstCandidate.taskType || '').toLowerCase();
-              if (_prSkipDomains.indexOf(agentId) !== -1 && (/^social_/.test(_prCandType) || /^blog_|^article/.test(_prCandType))) {
+              if (_prSkipDomains.indexOf(agentId) !== -1 && (/^social_/.test(_prCandType) || /^blog_|^content_blog|^content_|^article|^design_/.test(_prCandType))) {
                 // Skip — let content agents handle this review
               } else {
                 _prTarget = _prFirstCandidate;
