@@ -933,7 +933,7 @@ Write the full deliverable first, then the structured JSON block.`;
         updates: _updates
       });
     } else if (action.type === 'move-task' && action.taskId && action.newStatus) {
-      // Block move-task to done on tasks with no deliverable — must execute first
+      // Block move-task to done — agents cannot skip the review flow
       if (action.newStatus === 'done') {
         const _mtTarget = tasks.find(t => t.id === action.taskId);
         if (_mtTarget && _mtTarget.tags && _mtTarget.tags.indexOf('social-copy') !== -1) {
@@ -946,6 +946,12 @@ Write the full deliverable first, then the structured JSON block.`;
           context.log('[Heartbeat]', agentId, 'BLOCKED move-task to done on', action.taskId, '— no deliverable produced yet. Use execute-task first.');
           // Force execute instead — inject an execute-task action
           actions.push({ type: 'execute-task', taskId: action.taskId, summary: 'System: forced execute before done (no deliverable)' });
+          continue;
+        }
+        // Block move-to-done without peer review — tasks must go through review-task path
+        const _mtHasReview = _mtTarget ? (_mtTarget.comments || []).some(c => c.type === 'review') : false;
+        if (_mtTarget && !_mtHasReview) {
+          context.log('[Heartbeat]', agentId, 'BLOCKED move-task to done on', action.taskId, '— no peer review yet. Task must be reviewed first.');
           continue;
         }
       }
