@@ -1899,6 +1899,56 @@ module.exports = async function (context) {
       });
     }
 
+    // ── Auto-create social actions for tasks with reviewed_copy (post-copy-pipeline) ──
+    {
+      const _pendingPosts = tasks.filter(function (t) {
+        return t._social_action_pending && t.reviewed_copy && /^social_/.test(t.taskType || '');
+      });
+      if (_pendingPosts.length > 0) {
+        const _actionsStore = (await storage.getState('actions')) || [];
+        const _aq = (await storage.getState('approvalQueue')) || [];
+        for (const _pt of _pendingPosts) {
+          const _platform = (_pt.taskType || '').replace('social_', '') || 'x';
+          const _actionReq = {
+            type: 'social_post.publish',
+            platform: _platform,
+            payload: {
+              text: _pt.reviewed_copy,
+              media: [],
+              scheduled_for: null
+            },
+            created_by: 'echo'
+          };
+          const _newAction = H._createActionFromHeartbeat(_actionReq, 'echo');
+          _newAction._parentTaskId = _pt.id;
+          _newAction._autoPosted = true;
+          _actionsStore.push(_newAction);
+          _aq.push({
+            id: 'aq-' + _newAction.id,
+            kind: 'action',
+            action_id: _newAction.id,
+            taskId: _pt.id,
+            taskTitle: 'Social Post (' + _platform + ')',
+            originAgent: 'echo',
+            classification: _newAction.classification,
+            riskLevel: _newAction.risk_level,
+            budgetImpact: 0,
+            brandImpact: 'medium',
+            status: 'pending',
+            submittedAt: new Date().toISOString(),
+            preview: _pt.reviewed_copy.substring(0, 120),
+            previewImageUrl: null
+          });
+          _pt._social_action_pending = false;
+          _pt._social_action_created = true;
+          context.log('[Heartbeat] AUTO-POST: created social action for task', _pt.id, 'platform:', _platform, 'rc_len:', _pt.reviewed_copy.length);
+        }
+        await storage.setState('actions', _actionsStore);
+        await storage.setState('approvalQueue', _aq);
+        context.log('[Heartbeat] AUTO-POST: created', _pendingPosts.length, 'social action(s) from reviewed_copy pipeline');
+      }
+    }
+
     // Persist updated state
     await storage.setState('tasks', tasks);
     if (campaignsChanged) await storage.setState('campaigns', campaigns);

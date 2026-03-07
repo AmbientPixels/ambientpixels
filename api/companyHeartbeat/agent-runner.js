@@ -1721,10 +1721,12 @@ Write the full deliverable first, then the structured JSON block.`;
           _resolvedPlatform = _parentTask.taskType.replace('social_', '');
         }
       }
-      context.log('[Heartbeat]', agentId, 'CREATING social action — GATE PASSED. taskId:', action.taskId, 'reviewed_copy:', action.taskId ? (tasks.find(function(t) { return t.id === action.taskId; }) || {}).reviewed_copy ? 'YES' : 'NO' : 'N/A', 'text_len:', (socialPayload.text || '').length, '_codeTag:v9fix');
+      const _diagRc = action.taskId ? ((tasks.find(function(t) { return t.id === action.taskId; }) || {}).reviewed_copy || '').length : -1;
+      context.log('[Heartbeat]', agentId, 'CREATING social action — GATE PASSED. taskId:', action.taskId, 'rc_len:', _diagRc, 'text_len:', (socialPayload.text || '').length, '_codeTag:v10diag');
       const actionRequest = {
         type: (socialPayload.scheduled_for || socialPayload.schedule_for) ? 'social_post.schedule' : 'social_post.publish',
         platform: _resolvedPlatform,
+        _codeVersion: 'v2-diag10',
         payload: {
           text: socialPayload.text || '',
           media: socialPayload.media || [],

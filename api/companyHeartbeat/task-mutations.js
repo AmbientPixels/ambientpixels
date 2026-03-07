@@ -162,7 +162,8 @@ function applyTaskUpdate(tasks, update, _pendingEscalations, _creatingAgentId) {
                     type: 'system',
                     createdAt: new Date().toISOString()
                   });
-                  console.log('[Heartbeat] COPY PROPAGATED: reviewed_copy set on parent task:', _parentSocialTaskId, '(' + _copyText.length + ' chars)');
+                  _parentSocialTask._social_action_pending = true;
+                  console.log('[Heartbeat] COPY PROPAGATED: reviewed_copy set on parent task:', _parentSocialTaskId, '(' + _copyText.length + ' chars), _social_action_pending=true');
                 }
               }
             }
