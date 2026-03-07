@@ -211,15 +211,9 @@ var CompanyStore = (function () {
       return _serverGet(KEY_MAP[localKey])
         .then(function (val) {
           if (val === undefined || val === null) {
-            // Server has no data — check localStorage (may have UI-created data not yet synced)
-            var localVal = _localGet(localKey, fallback);
-            // Push local data to server so blob catches up
-            if (localVal && localVal !== fallback && (!Array.isArray(localVal) || localVal.length > 0)) {
-              _serverSet(KEY_MAP[localKey], localVal).then(function () {
-                console.log('[CompanyStore] Synced local→server:', localKey, Array.isArray(localVal) ? localVal.length + ' items' : 'data');
-              }).catch(function () {});
-            }
-            return localVal;
+            // Server has no data — return fallback (server is authoritative)
+            _localSet(localKey, fallback);
+            return fallback;
           }
           // Cache locally for offline resilience
           _localSet(localKey, val);
@@ -293,68 +287,14 @@ var CompanyStore = (function () {
       return _serverGet(serverKey)
         .then(function (val) {
           if (val === undefined || val === null) {
-            // Server has no data for this key — push local data if any exists
-            var localOnly = _localGet(localKey, []);
-            if (Array.isArray(localOnly) && localOnly.length > 0) {
-              _serverSet(serverKey, localOnly).then(function () {
-                console.log('[CompanyStore] syncFromServer: pushed local→server (new blob):', serverKey, localOnly.length, 'items');
-              }).catch(function (err) {
-                console.warn('[CompanyStore] syncFromServer: local→server push failed for', serverKey, ':', err.message || err);
-              });
-            }
+            // Server has no data — clear local cache to match (server is authoritative)
+            _localSet(localKey, []);
+            _memCache[localKey] = [];
             return;
           }
-          if (val !== undefined && val !== null) {
-            // Merge-safe: for array data, preserve local creations AND local edits
-            if (Array.isArray(val)) {
-              var localVal = _localGet(localKey, []);
-              if (Array.isArray(localVal) && localVal.length > 0) {
-                // Build server map by ID
-                var serverMap = {};
-                val.forEach(function (item) { if (item && item.id) serverMap[item.id] = item; });
-                // Build local map by ID
-                var localMap = {};
-                localVal.forEach(function (item) { if (item && item.id) localMap[item.id] = item; });
-                var merged = [];
-                var changed = false;
-                // Start with server items, but prefer local if locally newer
-                val.forEach(function (sItem) {
-                  if (sItem && sItem.id && localMap[sItem.id]) {
-                    var lItem = localMap[sItem.id];
-                    // Keep whichever was updated more recently
-                    var lUp = lItem.updatedAt || '';
-                    var sUp = sItem.updatedAt || '';
-                    if (lUp && (!sUp || lUp > sUp)) {
-                      merged.push(lItem);
-                      changed = true;
-                    } else {
-                      merged.push(sItem);
-                    }
-                  } else {
-                    merged.push(sItem);
-                  }
-                });
-                // Add locally-created items not on server
-                localVal.forEach(function (lItem) {
-                  if (lItem && lItem.id && !serverMap[lItem.id]) {
-                    merged.push(lItem);
-                    changed = true;
-                  }
-                });
-                if (changed) {
-                  val = merged;
-                  // Push merged result back to server so local items persist
-                  _serverSet(serverKey, val).catch(function (err) {
-                    console.warn('[CompanyStore] Merge push-back failed for', serverKey, ':', err.message || err);
-                  });
-                }
-              }
-            }
-            // Always keep full data in memory (no trimming)
-            _memCache[localKey] = val;
-            // Cache trimmed version to localStorage (may fail if quota full)
-            _localSet(localKey, val);
-          }
+          // Server wins — use server data directly, no merge with local
+          _memCache[localKey] = val;
+          _localSet(localKey, val);
         })
         .catch(function () {
           // Keep local data on failure
