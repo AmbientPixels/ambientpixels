@@ -172,6 +172,15 @@ window.ArenaBattleUI = (function () {
     }
   }
 
+  function triggerHitShake(side) {
+    const el = document.getElementById(side === 'player' ? 'arena-player-side' : 'arena-opponent-side');
+    if (!el) return;
+    el.classList.remove('arena-combatant--hit');
+    void el.offsetWidth; // reflow to restart animation
+    el.classList.add('arena-combatant--hit');
+    setTimeout(() => el.classList.remove('arena-combatant--hit'), 400);
+  }
+
   function showDamageFloat(side, amount, isHeal) {
     const container = document.getElementById(side === 'player' ? 'arena-player-side' : 'arena-opponent-side');
     if (!container) return;
@@ -197,12 +206,14 @@ window.ArenaBattleUI = (function () {
     // Brief pause for drama
     await sleep(400);
 
-    // Show damage floats
+    // Show damage floats + hit shake
     if (result.opponentDamage > 0) {
       showDamageFloat('player', result.opponentDamage, false);
+      triggerHitShake('player');
     }
     if (result.playerDamage > 0) {
       showDamageFloat('opponent', result.playerDamage, false);
+      triggerHitShake('opponent');
     }
     if (result.playerHeal > 0) {
       showDamageFloat('player', result.playerHeal, true);
