@@ -1954,6 +1954,7 @@ module.exports = async function (context) {
     if (campaignGovEvents.length > 0) {
       const govLog = (await storage.getState('governanceLog')) || [];
       for (const evt of campaignGovEvents) govLog.push(evt);
+      govLog.sort(function (a, b) { return String(a.timestamp || '').localeCompare(String(b.timestamp || '')); });
       if (govLog.length > 300) govLog.splice(0, govLog.length - 300);
       await storage.setState('governanceLog', govLog);
     }

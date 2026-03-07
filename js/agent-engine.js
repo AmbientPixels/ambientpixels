@@ -2998,16 +2998,20 @@ var AgentEngine = (function () {
     return null;
   }
 
-  // Async version — awaits server confirmation before resolving
+  // Async version — syncs to server without re-calling requestActionRevision (avoids double governance log)
   function requestActionRevisionAsync(actionId, note) {
-    var a = requestActionRevision(actionId, note);
+    // Find the action that was already updated by the sync call
+    var list = getActions();
+    var a = null;
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id === actionId) { a = list[i]; break; }
+    }
     if (!a) return Promise.resolve(null);
     // Explicitly push actions + approvalQueue to server and wait for both
     if (typeof CompanyStore !== 'undefined' && CompanyStore.isServerAvailable && CompanyStore.isServerAvailable()) {
-      var actions = getActions();
       var queue = getApprovalQueue();
       return Promise.all([
-        CompanyStore.setState(ACTIONS_KEY, actions),
+        CompanyStore.setState(ACTIONS_KEY, list),
         CompanyStore.setState(APPROVAL_KEY, queue)
       ]).then(function () { return a; })
         .catch(function (err) { console.warn('[AgentEngine] Revision server sync failed:', err); return a; });

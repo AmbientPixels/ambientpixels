@@ -474,20 +474,39 @@ Write the full deliverable first, then the structured JSON block.`;
               return /^social_/.test(t.taskType || '') || /linkedin|twitter|x\.com|social media|social post|bluesky|tweet/.test(txt);
             });
             if (_doneSocial.length > 0) {
-              // Filter out tasks that already have pending social actions (same dedup as above)
+              // Filter out tasks that already have pending social actions OR belong to campaigns with recent rejections
               try {
                 const _doneActions = (await storage.getState('actions')) || [];
                 const _donePending = new Set();
+                const _rejectedCampaigns = new Set();
+                var _rejectionCooldownMs = 48 * 60 * 60 * 1000; // 48h cooldown after rejection
                 for (var _dai = 0; _dai < _doneActions.length; _dai++) {
                   var _da = _doneActions[_dai];
                   if (!_da || !_da.type || _da.type.indexOf('social_post') !== 0) continue;
                   var _daStatus = (_da.approval && _da.approval.status) || '';
-                  if (_daStatus === 'rejected' || _daStatus === 'cancelled') continue;
+                  if (_daStatus === 'rejected' || _daStatus === 'cancelled') {
+                    // Track campaigns with recently rejected posts to prevent regeneration loop
+                    var _daTask = _da._parentTaskId ? tasks.find(function (t) { return t.id === _da._parentTaskId; }) : null;
+                    var _daCmpId = (_daTask && _daTask.campaign_id) || null;
+                    var _daRejAge = Date.now() - new Date(_da.updatedAt || _da.created_at || 0).getTime();
+                    if (_daCmpId && _daRejAge < _rejectionCooldownMs) {
+                      _rejectedCampaigns.add(_daCmpId);
+                    }
+                    continue;
+                  }
                   var _daExec = (_da.execution && _da.execution.status) || '';
                   if (_daExec === 'success') continue;
                   if (_da._parentTaskId) _donePending.add(_da._parentTaskId);
                 }
-                _socialIdle = _doneSocial.filter(function (t) { return !_donePending.has(t.id); });
+                _socialIdle = _doneSocial.filter(function (t) {
+                  if (_donePending.has(t.id)) return false;
+                  // Block tasks from campaigns with recently rejected social posts
+                  if (t.campaign_id && _rejectedCampaigns.has(t.campaign_id)) return false;
+                  return true;
+                });
+                if (_rejectedCampaigns.size > 0) {
+                  context.log('[Heartbeat] ANTI-STALL: blocked social tasks from', _rejectedCampaigns.size, 'campaign(s) with recent rejections (48h cooldown)');
+                }
               } catch (_doneErr) {
                 _socialIdle = _doneSocial;
               }
@@ -2763,6 +2782,7 @@ Write the full deliverable first, then the structured JSON block.`;
             },
             timestamp: new Date().toISOString()
           });
+          govLog.sort(function (a, b) { return String(a.timestamp || '').localeCompare(String(b.timestamp || '')); });
           if (govLog.length > 200) govLog.splice(0, govLog.length - 200);
           await storage.setState('governanceLog', govLog);
 
