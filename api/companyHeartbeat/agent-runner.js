@@ -349,6 +349,23 @@ Write the full deliverable first, then the structured JSON block.`;
     }
   }
 
+  // QUILL COPY REVIEW: when Quill runs, inject review-task for social-copy tasks awaiting brand voice review
+  if (agentId === 'quill') {
+    const _quillReviewTasks = tasks.filter(function(t) {
+      return t.status === 'review' &&
+        t.tags && t.tags.indexOf('social-copy') !== -1 &&
+        t.assignee !== 'quill'; // Quill reviews Scribe's work, not its own
+    });
+    for (var _qi = 0; _qi < _quillReviewTasks.length; _qi++) {
+      context.log('[Heartbeat] QUILL REVIEW: injecting review-task for social-copy:', _quillReviewTasks[_qi].id);
+      actions.unshift({
+        type: 'review-task',
+        taskId: _quillReviewTasks[_qi].id,
+        summary: 'Brand voice review: ' + (_quillReviewTasks[_qi].title || _quillReviewTasks[_qi].id)
+      });
+    }
+  }
+
   // ANTI-STALL: if agent has triaged idle tasks but produced no execute/create-doc/create-social-action, inject forced execute
   // v2: Skip convergence-blocked tasks (5+ deliverables) — try a different task or review-task instead
   if (agentId !== 'nova') {
@@ -386,24 +403,21 @@ Write the full deliverable first, then the structured JSON block.`;
         var _crLatest = _crDels.length > 0 ? _crDels[_crDels.length - 1].text : '';
         if (!_crLatest) continue;
         if (_crIsCopy) {
-          // Auto-complete copy task + propagate to parent
-          _crTask.status = 'done';
-          _crTask.completedAt = new Date().toISOString();
-          _crTask.updatedAt = new Date().toISOString();
-          if (!_crTask.comments) _crTask.comments = [];
-          _crTask.comments.push({ id: 'cmt-convrecov-' + Date.now(), author: 'system', type: 'system', createdAt: new Date().toISOString(),
-            text: '[SYSTEM] Convergence recovery: social-copy auto-completed with latest deliverable (' + _crDels.length + ' total).' });
-          var _crParentTag = (_crTask.tags || []).find(function(tg) { return tg.startsWith('social-copy-for-'); });
-          var _crParentId = _crParentTag ? _crParentTag.replace('social-copy-for-', '') : (_crTask.parent_task_id || null);
-          if (_crParentId) {
-            var _crParent = tasks.find(function(t) { return t.id === _crParentId; });
-            if (_crParent) {
-              _crParent.reviewed_copy = _crLatest;
-              _crParent.awaiting_copy_review = false;
-              _crParent.updatedAt = new Date().toISOString();
-            }
+          // Route to Quill for brand voice review instead of auto-completing
+          if (_crTask.status !== 'review') {
+            _crTask.status = 'review';
+            _crTask.updatedAt = new Date().toISOString();
           }
-          context.log('[Heartbeat] CONVERGENCE RECOVERY (anti-stall): social-copy task auto-completed:', _crTask.id);
+          // Add @Quill mention to wake up Tier 4 gate (if not already mentioned)
+          if (!_crTask.comments) _crTask.comments = [];
+          var _quillAlreadyMentioned = _crTask.comments.some(function(c) {
+            return (c.text || '').indexOf('@Quill') !== -1 && c.type === 'system';
+          });
+          if (!_quillAlreadyMentioned) {
+            _crTask.comments.push({ id: 'cmt-quillreview-' + Date.now(), author: 'system', type: 'system', createdAt: new Date().toISOString(),
+              text: '@Quill — please review this social copy for brand voice, clarity, and conciseness. Approve or request revision.' });
+            context.log('[Heartbeat] QUILL REVIEW: routed social-copy task to Quill for brand voice review:', _crTask.id);
+          }
         } else if (_crIsSocial) {
           // Auto-complete social task with latest deliverable as reviewed_copy
           _crTask.reviewed_copy = _crLatest;
@@ -1297,36 +1311,15 @@ Write the full deliverable first, then the structured JSON block.`;
             });
             result.executes = (result.executes || 0) + 1;
 
-            // SOCIAL COPY FAST-PATH: auto-complete social-copy tasks after execute — skip peer review.
-            // The CEO approves the social action (create-social-action) which is the real quality gate.
+            // SOCIAL COPY → QUILL REVIEW: route to Quill for brand voice review instead of auto-completing
             if (task.tags && task.tags.indexOf('social-copy') !== -1) {
-              result.taskUpdates.push({ action: 'move', taskId: action.taskId, newStatus: 'done' });
+              result.taskUpdates.push({ action: 'move', taskId: action.taskId, newStatus: 'review' });
               result.taskUpdates.push({
                 action: 'comment', taskId: action.taskId,
-                comment: '[SYSTEM] Social copy auto-completed (fast-path). CEO approves the social action — peer review skipped.',
+                comment: '@Quill — please review this social copy for brand voice, clarity, and conciseness. Approve or request revision.',
                 agentId: 'system'
               });
-              // Propagate copy to parent social task
-              const _fpTags = task.tags || [];
-              const _fpParentTag = _fpTags.find(function(tg) { return tg.startsWith('social-copy-for-'); });
-              const _fpParentId = _fpParentTag ? _fpParentTag.replace('social-copy-for-', '') : (task.parent_task_id || null);
-              if (_fpParentId) {
-                const _fpParent = tasks.find(function(t) { return t.id === _fpParentId; });
-                if (_fpParent) {
-                  _fpParent.reviewed_copy = deliverable;
-                  _fpParent.awaiting_copy_review = false;
-                  _fpParent.updatedAt = new Date().toISOString();
-                  if (!_fpParent.comments) _fpParent.comments = [];
-                  _fpParent.comments.push({
-                    id: 'cmt-fastcopy-' + Date.now(),
-                    author: 'system',
-                    text: 'Copy ready from Scribe (fast-path). Echo can now create the social action.',
-                    type: 'system',
-                    createdAt: new Date().toISOString()
-                  });
-                  context.log('[Heartbeat] SOCIAL COPY FAST-PATH: copy propagated to parent:', _fpParentId, '(' + deliverable.length + ' chars)');
-                }
-              }
+              context.log('[Heartbeat] QUILL REVIEW: social-copy task routed to Quill for brand voice review:', action.taskId);
               continue; // skip blog detection — social-copy tasks are never blog tasks
             }
 
@@ -1570,7 +1563,7 @@ Write the full deliverable first, then the structured JSON block.`;
                   + '- Professional and on-brand for AmbientPixels\n'
                   + '- MUST include the product URL: ' + _cmpUrl + '\n'
                   + '- LinkedIn posts: aim for 400-800 chars (concise and punchy, not padded to fill 3000)\n'
-                  + '- After writing, this task goes to peer review. Once approved, Echo uses the copy to create the social post.\n'
+                  + '- After writing, this task goes to Quill for brand voice review. Once Quill approves, Echo uses the copy to create the social post.\n'
                   + '- Use execute-task to produce your deliverable.'
                   + _cmpRules,
                 taskType: 'social_copy',
