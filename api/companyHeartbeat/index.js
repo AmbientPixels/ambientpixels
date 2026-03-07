@@ -656,14 +656,11 @@ module.exports = async function (context) {
       }
     } catch (_liErr) { context.log.warn('[Heartbeat] LinkedIn token refresh check failed (non-fatal):', _liErr.message); }
 
-    // ── AUTO SOCIAL ACTION: when peer-reviewed social promo tasks reach done, create the social action ──
+    // ── AUTO SOCIAL ACTION (LEGACY — DISABLED): superseded by reviewed_copy auto-post mechanism ──
+    // The auto-post block (below, after agent loop) uses reviewed_copy from Scribe instead of raw Gemini text.
+    // This old path created duplicates because it fires before the auto-post sets _social_action_created.
     try {
-      var _socialPromoTasks = tasks.filter(function(t) {
-        if (!t || t.status !== 'done' || t.assignee !== 'echo') return false;
-        if (!/^social_/.test(t.taskType || '')) return false;
-        if (!/promote/i.test(t.title || '')) return false;
-        return true;
-      });
+      var _socialPromoTasks = []; // DISABLED — was: tasks.filter(...);
       if (_socialPromoTasks.length > 0) {
         var _existingActions = allActions || [];
         var _socialCreated = 0;
