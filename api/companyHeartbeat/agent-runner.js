@@ -100,7 +100,6 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
     if (agentId === 'echo') {
       const _earlyDoneSocial = tasks.filter(function (t) {
         if (t.assignee !== 'echo' || t.status !== 'done' || t._archived) return false;
-        if (!t.reviewed_copy) return false;
         var age = Date.now() - new Date(t.createdAt || 0).getTime();
         if (age > 7 * 24 * 60 * 60 * 1000) return false;
         var txt = ((t.title || '') + ' ' + (t.description || '')).toLowerCase();
@@ -519,14 +518,14 @@ Write the full deliverable first, then the structured JSON block.`;
     }
   }
 
-  // ECHO DONE-TASK SOCIAL INJECTION: for done Echo social tasks with reviewed_copy,
+  // ECHO DONE-TASK SOCIAL INJECTION: for done Echo social tasks,
   // inject create-social-action so the post reaches CEO approval queue.
+  // If no reviewed_copy exists, the copy review gate creates a Scribe task.
   // Runs outside the anti-stall guard — must always fire regardless of other work actions.
   if (agentId === 'echo') {
     const _doneSocialMaxAge2 = 7 * 24 * 60 * 60 * 1000;
     const _doneSocialAll = tasks.filter(function (t) {
       if (t.assignee !== 'echo' || t.status !== 'done' || t._archived) return false;
-      if (!t.reviewed_copy) return false;
       var age = Date.now() - new Date(t.createdAt || 0).getTime();
       if (age > _doneSocialMaxAge2) return false;
       var txt = ((t.title || '') + ' ' + (t.description || '')).toLowerCase();
@@ -553,11 +552,11 @@ Write the full deliverable first, then the structured JSON block.`;
             : (_rpTask.taskType === 'social_x' || /twitter|x\.com|tweet/.test(_rpText)) ? 'x'
             : (_rpTask.taskType === 'social_bluesky' || /bluesky/.test(_rpText)) ? 'bluesky'
             : 'linkedin';
-          context.log('[Heartbeat] DONE-TASK SOCIAL: echo injecting create-social-action for done task:', _rpTask.id, 'platform:', _rpPlatform);
+          context.log('[Heartbeat] DONE-TASK SOCIAL: echo injecting create-social-action for done task:', _rpTask.id, 'platform:', _rpPlatform, 'reviewed_copy:', _rpTask.reviewed_copy ? 'YES' : 'NO');
           actions.push({
             type: 'create-social-action',
             taskId: _rpTask.id,
-            social: { platform: _rpPlatform, text: _rpTask.reviewed_copy },
+            social: { platform: _rpPlatform, text: _rpTask.reviewed_copy || '' },
             summary: 'Post reviewed social copy for ' + (_rpTask.title || _rpTask.id)
           });
         }
