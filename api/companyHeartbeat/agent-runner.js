@@ -1359,7 +1359,7 @@ Write the full deliverable first, then the structured JSON block.`;
                   + '- Write clean, platform-ready copy (no markdown, no headers, no internal notes, no "Post 1/Post 2" labels)\n'
                   + '- Professional and on-brand for AmbientPixels\n'
                   + '- MUST include the product URL: ' + _cmpUrl + '\n'
-                  + '- LinkedIn posts: aim for 400-800 chars (concise and punchy, not padded to fill 3000)\n'
+                  + '- LinkedIn posts: aim for 800-1500 chars. Write like a short article — narrative hook, short paragraphs, personal voice, clear takeaway. NOT a compressed ad tagline.\n'
                   + '- After writing, this task goes to Quill for brand voice review. Once Quill approves, Echo uses the copy to create the social post.\n'
                   + '- Use execute-task to produce your deliverable.'
                   + _cmpRules,
