@@ -1473,8 +1473,14 @@ Write the full deliverable first, then the structured JSON block.`;
         socialPayload.text = socialPayload.text.replace(/^Subject:\s*[^\n]+\n+(?:Body:\s*\n+)?/i, '').trim();
       }
 
+      // Strip markdown headings (## Post Draft, ### LinkedIn Post, etc.)
+      socialPayload.text = (socialPayload.text || '').replace(/^#{1,4}\s+.*$/gm, '').replace(/\n{3,}/g, '\n\n').trim();
+
+      // Strip trailing --- separators
+      socialPayload.text = socialPayload.text.replace(/\n*-{3,}\s*$/g, '').trim();
+
       // Strip meta-comments agents leave in copy (e.g. [ADDRESSED], [NOTE], [REVISED])
-      socialPayload.text = (socialPayload.text || '').replace(/\n*\[(?:ADDRESSED|NOTE|REVISED|FEEDBACK|CHANGED|UPDATED)[^\]]*\].*$/gis, '').trim();
+      socialPayload.text = socialPayload.text.replace(/\n*\[(?:ADDRESSED|NOTE|REVISED|FEEDBACK|CHANGED|UPDATED)[^\]]*\].*$/gis, '').trim();
 
       // Strip campaign brief metadata that leaks into social post text
       // Agents sometimes dump the full task brief (objectives, rules, multi-post format)
