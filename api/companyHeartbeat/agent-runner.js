@@ -1334,7 +1334,7 @@ Write the full deliverable first, then the structured JSON block.`;
           if (!socialTask.reviewed_copy) {
             if (!_copyTaskExists) {
               const _platform = (action.social.platform || 'linkedin').toLowerCase();
-              const _maxLen = _platform === 'x' ? '280 chars' : _platform === 'bluesky' ? '300 chars' : '3000 chars for LinkedIn';
+              const _maxLen = _platform === 'x' ? '280 chars' : _platform === 'bluesky' ? '300 chars' : '800-1500 chars for LinkedIn (article-style)';
               // Pull campaign context for Scribe (URL, posting rules)
               let _cmpContext = '';
               if (socialTask.campaign_id) {
@@ -1570,7 +1570,7 @@ Write the full deliverable first, then the structured JSON block.`;
         var _mlTask = tasks.find(function(t) { return t.id === action.taskId; });
         if (_mlTask && /^social_/.test(_mlTask.taskType || '')) _minPlatform = _mlTask.taskType.replace('social_', '');
       }
-      const _minLen = _minPlatform === 'linkedin' ? 100 : 30;
+      const _minLen = _minPlatform === 'linkedin' ? 300 : 30;
       if (_bodyNoUrl.length < _minLen) {
         context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action — body too short after stripping URL (' + _bodyNoUrl.length + '/' + _minLen + ' chars):', _bodyNoUrl.substring(0, 80));
         continue;
