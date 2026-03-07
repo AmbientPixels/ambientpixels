@@ -28,6 +28,16 @@ const { executeTask, reviewTask } = require('./execution-engine');
 
 async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, normalizedActivationMode, isAgentInCooldown, logAgentCooldownOnce, incPolicyGate, campaignCtx, siteIntel, workerReports, _agentMemoryStore) {
   const _agentRunStartMs = Date.now();
+  // Per-day memory write counter (moved from index.js during refactor)
+  const _memoryWriteCounters = {};
+  const _todayKey = new Date().toISOString().substring(0, 10);
+  function _getMemWriteCount(aid) {
+    return _memoryWriteCounters[aid + ':' + _todayKey] || 0;
+  }
+  function _incMemWrite(aid) {
+    var k = aid + ':' + _todayKey;
+    _memoryWriteCounters[k] = (_memoryWriteCounters[k] || 0) + 1;
+  }
   const result = {
     geminiCalls: 0,
     actions: 0,
