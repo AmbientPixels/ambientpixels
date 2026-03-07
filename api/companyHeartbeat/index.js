@@ -1909,11 +1909,27 @@ module.exports = async function (context) {
         const _aq = (await storage.getState('approvalQueue')) || [];
         for (const _pt of _pendingPosts) {
           const _platform = (_pt.taskType || '').replace('social_', '') || 'x';
+          // Sanitize reviewed_copy (same chain as agent-runner)
+          var _rcText = _pt.reviewed_copy;
+          _rcText = _rcText.replace(/\s*\[(?:ADDRESSED|NOTE|REVISED|FEEDBACK|CHANGED|UPDATED)(?::\s*[^\]]*)?(?:\]\.?\s*)/gi, ' ').trim();
+          _rcText = _rcText.replace(/^\[(?:ADDRESSED|NOTE|REVISED|FEEDBACK|CHANGED|UPDATED)[^\]]*\]\s*[^\n]*$/gim, '').trim();
+          _rcText = _rcText.replace(/\n*(?:Revision Notes|Editor'?s? Notes?|Changes? Made|Revisions?):\s*\n[\s\S]*$/i, '').trim();
+          _rcText = _rcText.replace(/^\*\s{2,}/gm, '• ').trim();
+          // For promo tasks, ensure the blog URL from the task description is in the copy
+          var _blogUrlMatch = (_pt.description || '').match(/https?:\/\/ambientpixels\.ai\/blog\/[a-z0-9-]+/i);
+          if (_blogUrlMatch && _rcText.indexOf(_blogUrlMatch[0]) === -1) {
+            // Replace generic ambientpixels.ai URL with the specific blog URL, or append it
+            if (_rcText.match(/https?:\/\/ambientpixels\.ai(?![/]blog)/)) {
+              _rcText = _rcText.replace(/https?:\/\/ambientpixels\.ai(?![/]blog)/, _blogUrlMatch[0]);
+            } else if (_rcText.indexOf('ambientpixels.ai') === -1) {
+              _rcText = _rcText + '\n\n' + _blogUrlMatch[0];
+            }
+          }
           const _actionReq = {
             type: 'social_post.publish',
             platform: _platform,
             payload: {
-              text: _pt.reviewed_copy,
+              text: _rcText,
               media: [],
               scheduled_for: null
             },
@@ -1936,7 +1952,7 @@ module.exports = async function (context) {
             brandImpact: 'medium',
             status: 'pending',
             submittedAt: new Date().toISOString(),
-            preview: _pt.reviewed_copy.substring(0, 120),
+            preview: _rcText.substring(0, 120),
             previewImageUrl: null
           });
           _pt._social_action_pending = false;
