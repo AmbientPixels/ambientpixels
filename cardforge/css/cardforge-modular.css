@@ -1486,17 +1486,18 @@
   align-self: flex-end;
   padding: 4px 10px;
   font-size: 0.72rem;
-  color: rgba(255, 255, 255, 0.5);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 4px;
+  font-weight: 500;
+  color: var(--cf-btn-inline-text, #c4b5fd);
+  background: var(--cf-btn-inline-bg, transparent);
+  border: 1px solid var(--cf-btn-inline-border, rgba(139, 92, 246, 0.3));
+  border-radius: 6px;
   cursor: pointer;
-  transition: color 0.2s, background 0.2s, border-color 0.2s;
+  transition: color var(--cf-transition-base, 200ms ease), background var(--cf-transition-base, 200ms ease), border-color var(--cf-transition-base, 200ms ease);
 }
 .clear-effects-btn:hover {
-  color: #ff6b6b;
-  background: rgba(255, 107, 107, 0.08);
-  border-color: rgba(255, 107, 107, 0.25);
+  color: var(--cf-danger, #ff5252);
+  background: rgba(255, 82, 82, 0.08);
+  border-color: rgba(255, 82, 82, 0.3);
 }
 .clear-effects-btn-bottom {
   margin-top: 0.25rem;

@@ -47,6 +47,39 @@
   /* Focus Ring */
   --cf-focus-ring: 2px solid var(--mood-primary-color, #00d4ff);
   --cf-focus-offset: 2px;
+
+  /* ── Button Tier System ── */
+  /* T1 Action Primary — high-commitment actions (Create Card, Save) */
+  --cf-btn-primary-bg: linear-gradient(135deg, rgba(139, 92, 246, 0.85), rgba(99, 102, 241, 0.85));
+  --cf-btn-primary-border: rgba(139, 92, 246, 0.5);
+  --cf-btn-primary-text: #fff;
+  --cf-btn-primary-hover-bg: linear-gradient(135deg, rgba(139, 92, 246, 1), rgba(99, 102, 241, 1));
+  --cf-btn-primary-hover-border: rgba(139, 92, 246, 0.8);
+  --cf-btn-primary-hover-shadow: 0 4px 16px rgba(139, 92, 246, 0.3);
+
+  /* T2 Action Secondary — secondary actions (Roll Random, Create Deck) */
+  --cf-btn-secondary-bg: linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(99, 102, 241, 0.08));
+  --cf-btn-secondary-border: rgba(139, 92, 246, 0.25);
+  --cf-btn-secondary-text: #c4b5fd;
+  --cf-btn-secondary-hover-bg: linear-gradient(135deg, rgba(139, 92, 246, 0.18), rgba(99, 102, 241, 0.18));
+  --cf-btn-secondary-hover-border: rgba(139, 92, 246, 0.5);
+  --cf-btn-secondary-hover-shadow: 0 0 8px rgba(139, 92, 246, 0.15);
+
+  /* T3 Inline Action — small add/generate/utility buttons */
+  --cf-btn-inline-bg: transparent;
+  --cf-btn-inline-border: rgba(139, 92, 246, 0.3);
+  --cf-btn-inline-text: #c4b5fd;
+  --cf-btn-inline-hover-bg: rgba(139, 92, 246, 0.1);
+  --cf-btn-inline-hover-border: rgba(139, 92, 246, 0.6);
+  --cf-btn-inline-hover-text: #e0d4ff;
+
+  /* T5 Navigation/Utility — preview controls, pagination, subtle actions */
+  --cf-btn-nav-bg: rgba(255, 255, 255, 0.04);
+  --cf-btn-nav-border: rgba(255, 255, 255, 0.12);
+  --cf-btn-nav-text: var(--cf-text-secondary, #a0a0c0);
+  --cf-btn-nav-hover-bg: rgba(255, 255, 255, 0.08);
+  --cf-btn-nav-hover-border: rgba(255, 255, 255, 0.25);
+  --cf-btn-nav-hover-text: var(--cf-text-primary, #e1e1ff);
 }
 
 /* ===== Global Focus-Visible Reset ===== */
@@ -96,8 +129,10 @@
 
 
 .choose-image-btn:hover {
-  background: var(--mood-primary-color, #e1e1ff);
-  transform: translateY(-1px);
+  background: var(--cf-btn-inline-hover-bg, rgba(139, 92, 246, 0.1));
+  border-color: var(--cf-btn-inline-hover-border, rgba(139, 92, 246, 0.6));
+  color: var(--cf-btn-inline-hover-text, #e0d4ff);
+  transform: none;
 }
 
 /* Section consistency */
@@ -212,19 +247,22 @@
 
 .use-url-btn,
 .load-images-btn {
-  background: var(--mood-accent-color, #4a4a6a);
-  color: var(--mood-primary-color, #e1e1ff);
-  border: none;
-  border-radius: 4px;
-  padding: 8px 12px;
+  background: var(--cf-btn-inline-bg, transparent);
+  color: var(--cf-btn-inline-text, #c4b5fd);
+  border: 1px solid var(--cf-btn-inline-border, rgba(139, 92, 246, 0.3));
+  border-radius: 6px;
+  padding: 6px 14px;
   cursor: pointer;
-  font-size: 0.9em;
-  transition: background-color 0.2s;
+  font-size: 0.82rem;
+  font-weight: 500;
+  transition: background var(--cf-transition-base, 200ms ease), border-color var(--cf-transition-base, 200ms ease), color var(--cf-transition-base, 200ms ease);
 }
 
 .use-url-btn:hover,
 .load-images-btn:hover {
-  background: var(--mood-primary-color, #6a6a8a);
+  background: var(--cf-btn-inline-hover-bg, rgba(139, 92, 246, 0.1));
+  border-color: var(--cf-btn-inline-hover-border, rgba(139, 92, 246, 0.6));
+  color: var(--cf-btn-inline-hover-text, #e0d4ff);
 }
 
 .image-chooser-section {
@@ -245,17 +283,21 @@
 }
 
 .image-pagination button {
-  background: var(--mood-accent-color, #4a4a6a);
-  color: var(--mood-primary-color, #e1e1ff);
-  border: none;
-  border-radius: 4px;
-  padding: 4px 8px;
+  background: var(--cf-btn-inline-bg, transparent);
+  color: var(--cf-btn-inline-text, #c4b5fd);
+  border: 1px solid var(--cf-btn-inline-border, rgba(139, 92, 246, 0.3));
+  border-radius: 6px;
+  padding: 4px 10px;
   cursor: pointer;
-  font-size: 0.8em;
+  font-size: 0.78rem;
+  font-weight: 500;
+  transition: background var(--cf-transition-base, 200ms ease), border-color var(--cf-transition-base, 200ms ease), color var(--cf-transition-base, 200ms ease);
 }
 
 .image-pagination button:hover {
-  background: var(--mood-primary-color, #6a6a8a);
+  background: var(--cf-btn-inline-hover-bg, rgba(139, 92, 246, 0.1));
+  border-color: var(--cf-btn-inline-hover-border, rgba(139, 92, 246, 0.6));
+  color: var(--cf-btn-inline-hover-text, #e0d4ff);
 }
 
 .image-pagination button:disabled {

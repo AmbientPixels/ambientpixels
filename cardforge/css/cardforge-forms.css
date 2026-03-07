@@ -45,22 +45,23 @@
   box-shadow: 0 0 0 2px rgba(225, 225, 255, 0.1);
 }
 
-/* Form Buttons - Add Buttons */
+/* Form Buttons — Tier 3 Inline Action */
 .cardforge-form button,
 .add-stat-btn,
 .add-attribute-btn,
 .add-buff-btn,
 .choose-image-btn {
-  background: var(--mood-accent-color, #4a4a6a);
-  color: var(--aura-bg-color, #1a1a2e);
-  border: none;
-  padding: 8px 16px;
-  border-radius: 4px;
+  background: var(--cf-btn-inline-bg, transparent);
+  color: var(--cf-btn-inline-text, #c4b5fd);
+  border: 1px solid var(--cf-btn-inline-border, rgba(139, 92, 246, 0.3));
+  padding: 6px 14px;
+  border-radius: 6px;
   cursor: pointer;
   font-family: inherit;
+  font-size: 0.82rem;
   font-weight: 500;
   margin-top: 12px;
-  transition: background-color 0.2s ease, transform 0.1s ease;
+  transition: background var(--cf-transition-base, 200ms ease), border-color var(--cf-transition-base, 200ms ease), color var(--cf-transition-base, 200ms ease), box-shadow var(--cf-transition-base, 200ms ease);
 }
 
 /* Form Buttons - Hover States */
@@ -69,8 +70,10 @@
 .add-attribute-btn:hover,
 .add-buff-btn:hover,
 .choose-image-btn:hover {
-  background: var(--mood-primary-color, #e1e1ff);
-  transform: translateY(-1px);
+  background: var(--cf-btn-inline-hover-bg, rgba(139, 92, 246, 0.1));
+  border-color: var(--cf-btn-inline-hover-border, rgba(139, 92, 246, 0.6));
+  color: var(--cf-btn-inline-hover-text, #e0d4ff);
+  transform: none;
 }
 
 /* Form Buttons - Active States */
@@ -690,18 +693,21 @@
 }
 
 .add-stat-btn {
-  background: var(--mood-accent-color, #4a4a6a);
-  color: var(--aura-bg-color, #1a1a2e);
-  border: none;
-  padding: 6px 12px;
-  border-radius: 4px;
+  background: var(--cf-btn-inline-bg, transparent);
+  color: var(--cf-btn-inline-text, #c4b5fd);
+  border: 1px solid var(--cf-btn-inline-border, rgba(139, 92, 246, 0.3));
+  padding: 6px 14px;
+  border-radius: 6px;
   cursor: pointer;
   font-family: inherit;
+  font-size: 0.82rem;
   margin-top: 8px;
 }
 
 .add-stat-btn:hover {
-  background: var(--mood-primary-color, #e1e1ff);
+  background: var(--cf-btn-inline-hover-bg, rgba(139, 92, 246, 0.1));
+  border-color: var(--cf-btn-inline-hover-border, rgba(139, 92, 246, 0.6));
+  color: var(--cf-btn-inline-hover-text, #e0d4ff);
 }
 
 /* Biography Character Counter */
@@ -1195,19 +1201,20 @@
   align-items: center;
   gap: 5px;
   padding: 4px 10px;
-  border-radius: 4px;
+  border-radius: 8px;
   font-size: 0.78rem;
   font-weight: 500;
-  color: #00d4ff;
+  color: #c4b5fd;
   text-decoration: none;
-  border: 1px solid rgba(0, 212, 255, 0.3);
-  transition: background 0.2s ease, border-color 0.2s ease;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
   white-space: nowrap;
 }
 
 .cf-auth-link:hover {
-  background: rgba(0, 212, 255, 0.1);
-  border-color: rgba(0, 212, 255, 0.5);
+  background: rgba(139, 92, 246, 0.1);
+  border-color: rgba(139, 92, 246, 0.5);
+  color: #e0d4ff;
 }
 
 .cf-auth-link--logout {

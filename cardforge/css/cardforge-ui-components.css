@@ -153,20 +153,21 @@
   justify-content: center;
   gap: 0.25rem;
   padding: 1rem 1.5rem;
-  background: var(--aura-bg-hover, #23234a);
-  border: 1px solid var(--aura-border, #3a3a5a);
+  background: var(--cf-btn-secondary-bg, linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(99, 102, 241, 0.08)));
+  border: 1px solid var(--cf-btn-secondary-border, rgba(139, 92, 246, 0.25));
   border-radius: 10px;
-  color: var(--aura-text, #e0e0e0);
+  color: var(--cf-btn-secondary-text, #c4b5fd);
   font-size: 0.95rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background var(--cf-transition-base, 200ms ease), border-color var(--cf-transition-base, 200ms ease), color var(--cf-transition-base, 200ms ease), box-shadow var(--cf-transition-base, 200ms ease), transform var(--cf-transition-base, 200ms ease);
   min-width: 140px;
 }
 
 .forge-action-btn i {
   font-size: 1.25rem;
   margin-bottom: 0.25rem;
+  color: rgba(139, 92, 246, 0.7);
 }
 
 .forge-action-btn small {
@@ -176,21 +177,22 @@
 }
 
 .forge-action-btn:hover {
-  background: var(--aura-bg-tertiary, #2a2a4a);
-  border-color: var(--mood-primary-color, #00d4ff);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 212, 255, 0.15);
+  background: var(--cf-btn-secondary-hover-bg, linear-gradient(135deg, rgba(139, 92, 246, 0.18), rgba(99, 102, 241, 0.18)));
+  border-color: var(--cf-btn-secondary-hover-border, rgba(139, 92, 246, 0.5));
+  color: #e0d4ff;
+  transform: translateY(-1px);
+  box-shadow: var(--cf-btn-secondary-hover-shadow, 0 0 8px rgba(139, 92, 246, 0.15));
 }
 
 .forge-action-btn.primary {
-  background: linear-gradient(135deg, var(--mood-primary-color, #00d4ff) 0%, #0099cc 100%);
-  border-color: transparent;
-  color: #fff;
+  background: var(--cf-btn-primary-bg, linear-gradient(135deg, rgba(139, 92, 246, 0.85), rgba(99, 102, 241, 0.85)));
+  border-color: var(--cf-btn-primary-border, rgba(139, 92, 246, 0.5));
+  color: var(--cf-btn-primary-text, #fff);
 }
 
 .forge-action-btn.primary:hover {
-  background: linear-gradient(135deg, #00e5ff 0%, #00b3e6 100%);
-  box-shadow: 0 4px 16px rgba(0, 212, 255, 0.35);
+  background: var(--cf-btn-primary-hover-bg, linear-gradient(135deg, rgba(139, 92, 246, 1), rgba(99, 102, 241, 1)));
+  box-shadow: var(--cf-btn-primary-hover-shadow, 0 4px 16px rgba(139, 92, 246, 0.3));
 }
 
 .forge-action-btn.coming-soon {
@@ -315,7 +317,7 @@ body.cf-rail-collapsed .cf-rail-header__title {
 }
 .step-btn.active {
   color: var(--mood-primary-color, #e1e1ff);
-  background: rgba(0, 212, 255, 0.12);
+  background: rgba(139, 92, 246, 0.12);
 }
 /* Active left accent bar */
 .step-btn.active::before {
@@ -326,8 +328,8 @@ body.cf-rail-collapsed .cf-rail-header__title {
   bottom: 20%;
   width: 3px;
   border-radius: 2px;
-  background: #00d4ff;
-  box-shadow: 0 0 8px rgba(0, 212, 255, 0.5);
+  background: #8B5CF6;
+  box-shadow: 0 0 8px rgba(139, 92, 246, 0.5);
   animation: cf-step-glow 2s ease-in-out infinite;
 }
 /* Gold variant for Forge tab */
@@ -366,9 +368,10 @@ body.cf-ui--neon .cf-section-icon .cf-icon-chip {
 /* ── Neon Variant: Toolbar buttons ── */
 body.cf-ui--neon .toolbar-btn:hover,
 body.cf-ui--neon .toolbar-btn:focus {
-  color: #00d4ff;
-  background: rgba(0, 212, 255, 0.1);
-  box-shadow: 0 0 8px rgba(0, 212, 255, 0.2);
+  color: #c4b5fd;
+  background: rgba(139, 92, 246, 0.12);
+  border-color: rgba(139, 92, 246, 0.5);
+  box-shadow: 0 0 8px rgba(139, 92, 246, 0.15);
 }
 
 /* ── Neon Variant: Toast notifications ── */
@@ -550,12 +553,12 @@ body.cf-ui--clean [data-save-state] {
 
 .cardforge-dialog-content {
   background-color: var(--aura-bg-color, #1a1a2e);
-  border: 1px solid var(--mood-accent-color, #4a4a6a);
-  border-radius: 8px;
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  border-radius: 12px;
   padding: 24px;
   width: 100%;
   max-width: 400px;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.7);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(139, 92, 246, 0.08);
   transform: translateY(-20px);
   opacity: 0;
   transition: opacity 0.2s ease, transform 0.2s ease;
@@ -585,8 +588,8 @@ body.cf-ui--clean [data-save-state] {
 }
 
 .cardforge-dialog-input:focus {
-  border-color: var(--mood-primary-color, #00d4ff);
-  box-shadow: 0 0 0 2px rgba(0, 212, 255, 0.15);
+  border-color: rgba(139, 92, 246, 0.6);
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.15);
 }
 
 .cardforge-dialog-input::placeholder {
@@ -599,6 +602,43 @@ body.cf-ui--clean [data-save-state] {
   justify-content: flex-end;
   gap: 10px;
   margin-top: 20px;
+}
+
+/* Dialog buttons — override global .filter-pill cyan with CardForge purple system */
+.cardforge-dialog .dialog-buttons .filter-pill {
+  border-radius: 8px;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.85rem;
+  font-weight: 500;
+  letter-spacing: 0;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+/* Confirm = Tier 2 Secondary */
+.cardforge-dialog .dialog-buttons .filter-pill#cardforge-dialog-confirm {
+  background: var(--cf-btn-secondary-bg, linear-gradient(135deg, rgba(139, 92, 246, 0.12), rgba(99, 102, 241, 0.12)));
+  border: 1px solid var(--cf-btn-secondary-border, rgba(139, 92, 246, 0.4));
+  color: var(--cf-btn-secondary-text, #c4b5fd);
+}
+.cardforge-dialog .dialog-buttons .filter-pill#cardforge-dialog-confirm:hover {
+  background: var(--cf-btn-secondary-hover-bg, linear-gradient(135deg, rgba(139, 92, 246, 0.18), rgba(99, 102, 241, 0.18)));
+  border-color: var(--cf-btn-secondary-hover-border, rgba(139, 92, 246, 0.5));
+  box-shadow: var(--cf-btn-secondary-hover-shadow, 0 0 8px rgba(139, 92, 246, 0.15));
+  color: #e0d4ff;
+  transform: translateY(-1px);
+}
+
+/* Cancel = Tier 5 Nav ghost */
+.cardforge-dialog .dialog-buttons .filter-pill#cardforge-dialog-cancel {
+  background: var(--cf-btn-nav-bg, rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--cf-btn-nav-border, rgba(255, 255, 255, 0.12));
+  color: var(--mood-text-secondary, #a0a0c0);
+}
+.cardforge-dialog .dialog-buttons .filter-pill#cardforge-dialog-cancel:hover {
+  background: var(--cf-btn-inline-hover-bg, rgba(139, 92, 246, 0.1));
+  border-color: var(--cf-btn-inline-hover-border, rgba(139, 92, 246, 0.6));
+  color: var(--cf-btn-inline-hover-text, #e0d4ff);
+  transform: translateY(-1px);
 }
 
 /* Message Notifications */
@@ -900,23 +940,27 @@ body.cf-ui--clean [data-save-state] {
   min-height: 32px;
 }
 .toolbar-btn {
-  background: none;
-  border: none;
+  background: var(--cf-btn-nav-bg, rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--cf-btn-nav-border, rgba(255, 255, 255, 0.12));
   color: var(--mood-text-secondary, #a0a0c0);
   font-size: 1.25rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 6px;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border-radius: 8px;
   cursor: pointer;
-  transition: background 0.15s, color 0.15s, box-shadow 0.15s;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 .toolbar-btn:focus-visible, .toolbar-btn:hover {
-  background: var(--aura-bg-hover, #23234a);
-  color: var(--mood-primary-color, #00d4ff);
-  box-shadow: 0 0 0 2px var(--mood-primary-color, #00d4ff, 0.2);
-  z-index: 1;
+  background: var(--cf-btn-inline-hover-bg, rgba(139, 92, 246, 0.1));
+  border-color: var(--cf-btn-inline-hover-border, rgba(139, 92, 246, 0.6));
+  color: var(--cf-btn-inline-hover-text, #e0d4ff);
+  transform: translateY(-1px);
 }
 .toolbar-btn:active {
-  transform: scale(0.9);
+  transform: scale(0.95);
 }
 
 /* Card Preview Container */
@@ -1410,24 +1454,28 @@ body.cf-ui--clean [data-save-state] {
 }
 
 .intro-btn.primary {
-  background: linear-gradient(135deg, var(--primary-color, #6366f1), var(--secondary-color, #8b5cf6));
-  color: white;
+  background: var(--cf-btn-primary-bg, linear-gradient(135deg, rgba(139, 92, 246, 0.85), rgba(99, 102, 241, 0.85)));
+  border: 1px solid var(--cf-btn-primary-border, rgba(139, 92, 246, 0.5));
+  color: var(--cf-btn-primary-text, #fff);
 }
 
 .intro-btn.primary:hover {
+  background: var(--cf-btn-primary-hover-bg, linear-gradient(135deg, rgba(139, 92, 246, 1), rgba(99, 102, 241, 1)));
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(99, 102, 241, 0.3);
+  box-shadow: var(--cf-btn-primary-hover-shadow, 0 4px 16px rgba(139, 92, 246, 0.3));
 }
 
 .intro-btn.secondary {
-  background: transparent;
-  color: var(--text-muted, #a1a1aa);
-  border: 1px solid var(--border-color, #333);
+  background: var(--cf-btn-secondary-bg, linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(99, 102, 241, 0.08)));
+  color: var(--cf-btn-secondary-text, #c4b5fd);
+  border: 1px solid var(--cf-btn-secondary-border, rgba(139, 92, 246, 0.25));
 }
 
 .intro-btn.secondary:hover {
-  color: var(--text-color, #e5e5e5);
-  border-color: var(--primary-color, #6366f1);
+  background: var(--cf-btn-secondary-hover-bg, linear-gradient(135deg, rgba(139, 92, 246, 0.18), rgba(99, 102, 241, 0.18)));
+  color: #e0d4ff;
+  border-color: var(--cf-btn-secondary-hover-border, rgba(139, 92, 246, 0.5));
+  box-shadow: var(--cf-btn-secondary-hover-shadow, 0 0 8px rgba(139, 92, 246, 0.15));
 }
 
 /* Responsive Design for Intro */
@@ -2460,13 +2508,13 @@ body.cf-ui--clean [data-save-state] {
 }
 
 .lightbox-btn.flip-btn {
-  background: rgba(0, 255, 255, 0.15);
-  border-color: rgba(0, 255, 255, 0.3);
+  background: rgba(139, 92, 246, 0.15);
+  border-color: rgba(139, 92, 246, 0.3);
 }
 
 .lightbox-btn.flip-btn:hover {
-  background: rgba(0, 255, 255, 0.3);
-  border-color: rgba(0, 255, 255, 0.5);
+  background: rgba(139, 92, 246, 0.3);
+  border-color: rgba(139, 92, 246, 0.5);
 }
 
 /* Navigation arrows — inside card row */
@@ -2579,8 +2627,8 @@ body.cf-ui--clean [data-save-state] {
 .cf-share-btn--x:hover { border-color: rgba(255, 255, 255, 0.3); }
 .cf-share-btn--reddit:hover { border-color: #ff4500; color: #ff6633; }
 .cf-share-btn--discord:hover { border-color: #5865f2; color: #7289da; }
-.cf-share-btn--copy:hover { border-color: rgba(0, 212, 255, 0.4); color: #00d4ff; }
-.cf-share-btn--export:hover { border-color: rgba(0, 255, 136, 0.4); color: #00ff88; }
+.cf-share-btn--copy:hover { border-color: rgba(139, 92, 246, 0.4); color: #c4b5fd; }
+.cf-share-btn--export:hover { border-color: rgba(139, 92, 246, 0.4); color: #c4b5fd; }
 
 /* Pro badge for future gating */
 .cf-pro-badge {

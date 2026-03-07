@@ -466,14 +466,14 @@
 }
 
 .roll-btn {
-  background: linear-gradient(135deg, var(--accent-color), var(--mood-primary-color));
-  border: 2px solid var(--accent-color);
-  border-radius: 16px;
+  background: var(--cf-btn-secondary-bg, linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(99, 102, 241, 0.08)));
+  border: 1px solid var(--cf-btn-secondary-border, rgba(139, 92, 246, 0.25));
+  border-radius: 8px;
   padding: 1rem 2rem;
   cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background var(--cf-transition-base, 200ms ease), border-color var(--cf-transition-base, 200ms ease), color var(--cf-transition-base, 200ms ease), box-shadow var(--cf-transition-base, 200ms ease), transform var(--cf-transition-base, 200ms ease);
   text-align: center;
-  color: white;
+  color: var(--cf-btn-secondary-text, #c4b5fd);
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -481,13 +481,15 @@
   min-height: 70px;
   position: relative;
   font-weight: 600;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  box-shadow: none;
 }
 
 .roll-btn:hover {
-  transform: translateY(-3px) scale(1.02);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
-  border-color: var(--mood-secondary-color);
+  background: var(--cf-btn-secondary-hover-bg, linear-gradient(135deg, rgba(139, 92, 246, 0.18), rgba(99, 102, 241, 0.18)));
+  border-color: var(--cf-btn-secondary-hover-border, rgba(139, 92, 246, 0.5));
+  color: #e0d4ff;
+  box-shadow: var(--cf-btn-secondary-hover-shadow, 0 0 8px rgba(139, 92, 246, 0.15));
+  transform: none;
 }
 
 .roll-btn:active {
@@ -498,8 +500,7 @@
 .roll-icon {
   font-size: 2rem;
   animation: rollSpin 2s ease-in-out infinite;
-  filter: brightness(1.15);
-  text-shadow: 0 0 8px currentColor;
+  color: rgba(139, 92, 246, 0.7);
 }
 
 .roll-btn:hover .roll-icon {
@@ -1399,16 +1400,17 @@ body[data-theme="dim"] .gallery-deck-tag {
 
 /* ── Dim: Preview glass buttons ── */
 body[data-theme="dim"] .preview-controls .glass-button:hover {
-  background: rgba(123, 143, 224, 0.08);
-  border-color: rgba(123, 143, 224, 0.3);
-  color: #7B8FE0;
+  background: rgba(139, 92, 246, 0.08);
+  border-color: rgba(139, 92, 246, 0.4);
+  color: #c4b5fd;
 }
 
 /* ── Dim: Toolbar buttons ── */
 body[data-theme="dim"] .toolbar-btn { color: #9AA0B8; }
 body[data-theme="dim"] .toolbar-btn:hover {
-  color: #7B8FE0;
-  background: rgba(123, 143, 224, 0.08);
+  color: #c4b5fd;
+  background: rgba(139, 92, 246, 0.08);
+  border-color: rgba(139, 92, 246, 0.4);
 }
 
 /* ================================
@@ -1419,34 +1421,34 @@ body[data-theme="dim"] .toolbar-btn:hover {
 */
 
 body[data-theme="light"] {
-  --aura-bg-color: #E8ECF1;
-  --aura-bg-secondary: #DDE2E8;
-  --aura-bg-hover: #D0D6DE;
-  --aura-bg-active: #C4CDD8;
-  --aura-glow: #4F6BF0;
+  --aura-bg-color: #F2F4F7;
+  --aura-bg-secondary: #E8ECF1;
+  --aura-bg-hover: #DDE2E8;
+  --aura-bg-active: #D0D6DE;
+  --aura-glow: #7c3aed;
   --mood-text-primary: #1A2A44;
-  --mood-text-secondary: #5A6A80;
-  --mood-primary-color: #4F6BF0;
-  --mood-accent-color: #C0C8D4;
-  --mood-secondary-color: #5A6A80;
-  --card-bg: rgba(255, 255, 255, 0.92);
-  --card-border: rgba(0, 0, 0, 0.12);
+  --mood-text-secondary: #475569;
+  --mood-primary-color: #7c3aed;
+  --mood-accent-color: #B0B8C4;
+  --mood-secondary-color: #475569;
+  --card-bg: rgba(255, 255, 255, 0.95);
+  --card-border: rgba(0, 0, 0, 0.15);
   --card-text: #1A2A44;
-  --card-glow-opacity: 0.2;
-  --surface-2: rgba(0, 0, 0, 0.03);
-  --card-bg-secondary: #E0E4EA;
-  --border-color: #C8CED6;
-  --text-color: #2A3A50;
-  --text-muted: #6A7A8C;
-  --primary-color: #4F6BF0;
+  --card-glow-opacity: 0.15;
+  --surface-2: rgba(0, 0, 0, 0.04);
+  --card-bg-secondary: #E8ECF1;
+  --border-color: #B0B8C4;
+  --text-color: #1E293B;
+  --text-muted: #64748B;
+  --primary-color: #7c3aed;
 }
 
 /* Page bar */
 body[data-theme="light"] .cf-page-bar {
-  background: rgba(232, 236, 241, 0.95);
-  border-color: rgba(0, 0, 0, 0.08);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
-  color: #1A2A44;
+  background: rgba(255, 255, 255, 0.92);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  color: #1E293B;
 }
 
 
@@ -1456,110 +1458,123 @@ body[data-theme="light"] .cf-page-bar__subtitle {
 
 /* Page bar buttons */
 body[data-theme="light"] .cf-icon-btn {
-  color: #5A6A80;
-  border-color: #C0C8D4;
+  color: #475569;
+  border-color: #B0B8C4;
+  background: rgba(0, 0, 0, 0.03);
 }
 
 body[data-theme="light"] .cf-icon-btn:hover {
-  color: #4F6BF0;
-  background: rgba(79, 107, 240, 0.08);
+  color: #7c3aed;
+  background: rgba(124, 58, 237, 0.08);
+  border-color: rgba(124, 58, 237, 0.3);
 }
 
 body[data-theme="light"] .cf-variant-btn {
   background: rgba(0, 0, 0, 0.04);
-  color: #5A6A80;
-  border-color: #C0C8D4;
+  color: #475569;
+  border-color: #B0B8C4;
 }
 
 body[data-theme="light"] .cf-variant-btn.active {
-  background: #4F6BF0;
+  background: #7c3aed;
   color: #ffffff;
-  border-color: #4F6BF0;
+  border-color: #7c3aed;
 }
 
 /* Left rail */
 body[data-theme="light"] .cf-rail {
-  background: #E8ECF1;
-  border-color: #C0C8D4;
+  background: #ffffff;
+  border-color: #B0B8C4;
 }
 
 body[data-theme="light"] .cf-rail-header__title {
-  color: #4F6BF0;
+  color: #7c3aed;
 }
 
 body[data-theme="light"] .cf-rail-toggle {
-  color: #5A6A80;
-  border-color: rgba(0, 0, 0, 0.08);
+  color: #475569;
+  border-color: rgba(0, 0, 0, 0.1);
 }
 
 body[data-theme="light"] .cf-rail-toggle:hover {
-  background: rgba(0, 0, 0, 0.04);
-  border-color: rgba(79, 107, 240, 0.3);
-  color: #4F6BF0;
+  background: rgba(124, 58, 237, 0.06);
+  border-color: rgba(124, 58, 237, 0.3);
+  color: #7c3aed;
 }
 
-/* Step buttons */
+/* Step buttons — !important needed to beat neon/clean variant overrides loaded after this file */
 body[data-theme="light"] .step-btn {
-  color: #5A6A80;
+  color: #334155 !important;
 }
 
 body[data-theme="light"] .step-btn:hover {
-  color: #4F6BF0;
-  background: rgba(79, 107, 240, 0.06);
+  color: #7c3aed !important;
+  background: rgba(124, 58, 237, 0.06) !important;
 }
 
 body[data-theme="light"] .step-btn.active {
-  color: #4F6BF0;
-  background: rgba(79, 107, 240, 0.1);
+  color: #7c3aed !important;
+  background: rgba(124, 58, 237, 0.1) !important;
+  font-weight: 600;
+}
+body[data-theme="light"] .step-btn.active::before {
+  background: #7c3aed !important;
+  box-shadow: none !important;
+  animation: none !important;
+}
+body[data-theme="light"] .step-btn.active .cf-icon-chip {
+  background: rgba(124, 58, 237, 0.1) !important;
+  border-color: rgba(124, 58, 237, 0.25) !important;
+  box-shadow: none !important;
 }
 
 /* Right column / preview */
 body[data-theme="light"] .right-column {
   background: #E8ECF1;
-  border-color: #C0C8D4;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+  border-color: #B0B8C4;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 
 body[data-theme="light"] .card-preview-zone {
   background: #E8ECF1;
-  border-color: #C0C8D4;
+  border-color: #B0B8C4;
 }
 
 body[data-theme="light"] #card-preview-container {
   background: #E8ECF1;
-  border-color: #C0C8D4;
+  border-color: #B0B8C4;
 }
 
 /* Preview header actions */
 body[data-theme="light"] .preview-header .preview-actions button {
-  color: #5A6A80;
-  border-color: #C0C8D4;
+  color: #475569;
+  border-color: #B0B8C4;
   background: rgba(0, 0, 0, 0.03);
 }
 
 body[data-theme="light"] .preview-header .preview-actions button:hover {
-  color: #4F6BF0;
-  border-color: #4F6BF0;
+  color: #7c3aed;
+  border-color: rgba(124, 58, 237, 0.3);
 }
 
 /* Sections */
 body[data-theme="light"] .cf-section {
-  background: rgba(0, 0, 0, 0.02);
-  border-color: #C0C8D4;
+  background: #ffffff;
+  border: 1px solid #B0B8C4;
 }
 
 body[data-theme="light"] .cf-section-title {
-  color: #4F6BF0;
+  color: #7c3aed;
 }
 
 /* Craft rows */
 body[data-theme="light"] .craft-row-header {
-  background: rgba(0, 0, 0, 0.03);
-  border-color: rgba(0, 0, 0, 0.06);
+  background: rgba(0, 0, 0, 0.02);
+  border-color: rgba(0, 0, 0, 0.08);
 }
 
 body[data-theme="light"] .craft-row-header:hover {
-  background: rgba(79, 107, 240, 0.05);
+  background: rgba(124, 58, 237, 0.05);
 }
 
 /* Forms */
@@ -1567,25 +1582,25 @@ body[data-theme="light"] input,
 body[data-theme="light"] textarea,
 body[data-theme="light"] select {
   background: #ffffff;
-  border-color: #C0C8D4;
-  color: #1A2A44;
+  border-color: #B0B8C4;
+  color: #1E293B;
 }
 
 body[data-theme="light"] input:focus,
 body[data-theme="light"] textarea:focus,
 body[data-theme="light"] select:focus {
-  border-color: #4F6BF0;
-  box-shadow: 0 0 0 2px rgba(79, 107, 240, 0.15);
+  border-color: #7c3aed;
+  box-shadow: 0 0 0 2px rgba(124, 58, 237, 0.15);
 }
 
 body[data-theme="light"] input::placeholder,
 body[data-theme="light"] textarea::placeholder {
-  color: #8A96A6;
+  color: #94A3B8;
 }
 
 /* Modular tier system */
 body[data-theme="light"] .collapsible-tier {
-  border-color: #C0C8D4;
+  border-color: #B0B8C4;
 }
 
 body[data-theme="light"] .tier-header {
@@ -1593,39 +1608,39 @@ body[data-theme="light"] .tier-header {
 }
 
 body[data-theme="light"] .tier-header:hover {
-  background: rgba(79, 107, 240, 0.04);
+  background: rgba(124, 58, 237, 0.04);
 }
 
 body[data-theme="light"] .tier-option {
-  background: #E0E4EA;
-  border-color: #C0C8D4;
-  color: #5A6A80;
+  background: #F2F4F7;
+  border-color: #B0B8C4;
+  color: #475569;
 }
 
 body[data-theme="light"] .tier-option:hover {
-  border-color: #4F6BF0;
-  background: rgba(79, 107, 240, 0.06);
+  border-color: #7c3aed;
+  background: rgba(124, 58, 237, 0.06);
 }
 
 body[data-theme="light"] .tier-option.selected {
-  border-color: #4F6BF0;
-  background: rgba(79, 107, 240, 0.1);
-  color: #4F6BF0;
+  border-color: #7c3aed;
+  background: rgba(124, 58, 237, 0.1);
+  color: #7c3aed;
 }
 
 body[data-theme="light"] .palette-family {
-  background: #E0E4EA;
-  border-color: #C0C8D4;
+  background: #F2F4F7;
+  border-color: #B0B8C4;
 }
 
 body[data-theme="light"] .palette-family:hover {
-  border-color: #4F6BF0;
+  border-color: #7c3aed;
 }
 
 body[data-theme="light"] .palette-family.selected {
-  background: #4F6BF0;
+  background: #7c3aed;
   color: #ffffff;
-  border-color: #4F6BF0;
+  border-color: #7c3aed;
 }
 
 body[data-theme="light"] .palette-family.selected .palette-label {
@@ -1633,92 +1648,92 @@ body[data-theme="light"] .palette-family.selected .palette-label {
 }
 
 body[data-theme="light"] .variant-toggle {
-  background: #E0E4EA;
+  background: #F2F4F7;
   border-color: transparent;
 }
 
 body[data-theme="light"] .variant-toggle.selected {
-  background: rgba(79, 107, 240, 0.12);
-  border-color: #4F6BF0;
+  background: rgba(124, 58, 237, 0.1);
+  border-color: #7c3aed;
 }
 
 body[data-theme="light"] .variant-toggle.selected .variant-label {
-  color: #4F6BF0;
+  color: #7c3aed;
 }
 
 /* Tool buttons */
 body[data-theme="light"] .tool-btn {
-  background: #E0E4EA;
-  border-color: #C0C8D4;
-  color: #2A3A50;
+  background: #F2F4F7;
+  border-color: #B0B8C4;
+  color: #1E293B;
 }
 
 body[data-theme="light"] .tool-btn:hover:not(:disabled) {
-  background: rgba(79, 107, 240, 0.08);
-  border-color: #4F6BF0;
+  background: rgba(124, 58, 237, 0.08);
+  border-color: #7c3aed;
 }
 
 body[data-theme="light"] .tool-btn i {
-  color: #4F6BF0;
+  color: #7c3aed;
 }
 
 /* Zone headers */
 body[data-theme="light"] .zone-header {
   background: rgba(0, 0, 0, 0.03);
-  border-color: #C0C8D4;
-  color: #1A2A44;
+  border-color: #B0B8C4;
+  color: #1E293B;
 }
 
 body[data-theme="light"] .zone-content {
-  scrollbar-color: #4F6BF0 #E8ECF1;
+  scrollbar-color: #7c3aed #F2F4F7;
 }
 
 body[data-theme="light"] .zone-content::-webkit-scrollbar-track {
-  background: #E8ECF1;
+  background: #F2F4F7;
 }
 
 body[data-theme="light"] .zone-content::-webkit-scrollbar-thumb {
-  background: #4F6BF0;
+  background: #7c3aed;
 }
 
 /* Quick start presets */
 body[data-theme="light"] .preset-card {
-  background: #E0E4EA;
-  border-color: #C0C8D4;
-  color: #2A3A50;
+  background: #F8F9FB;
+  border-color: #B0B8C4;
+  color: #1E293B;
 }
 
 body[data-theme="light"] .preset-card:hover {
-  border-color: #4F6BF0;
-  background: rgba(79, 107, 240, 0.06);
+  border-color: #7c3aed;
+  background: rgba(124, 58, 237, 0.04);
 }
 
 /* Forge sidebar */
 body[data-theme="light"] .forge-sidebar-nav {
-  background: #E8ECF1;
-  border-color: #C0C8D4;
-  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+  background: #ffffff;
+  border-color: #B0B8C4;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
 }
 
 body[data-theme="light"] .forge-sidebar-tab {
-  color: #5A6A80;
+  color: #334155 !important;
 }
 
 body[data-theme="light"] .forge-sidebar-tab.active,
 body[data-theme="light"] .forge-sidebar-tab[aria-selected="true"] {
-  background: rgba(79, 107, 240, 0.08);
-  color: #4F6BF0;
+  background: rgba(124, 58, 237, 0.08) !important;
+  color: #7c3aed !important;
 }
 
 body[data-theme="light"] .forge-sidebar-tab:hover:not(.active) {
-  background: rgba(0, 0, 0, 0.03);
-  color: #4F6BF0;
+  background: rgba(124, 58, 237, 0.04) !important;
+  color: #7c3aed !important;
 }
 
 body[data-theme="light"] .forge-content-area {
-  background: #DDE2E8;
-  border-color: #C0C8D4;
-  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.04);
+  background: #F2F4F7;
+  border-color: #B0B8C4;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 /* Stats bar */
@@ -1729,12 +1744,12 @@ body[data-theme="light"] .cf-stats-modal-bar {
 /* Search */
 body[data-theme="light"] .search-input-group input {
   background: #ffffff;
-  border-color: #C0C8D4;
-  color: #1A2A44;
+  border-color: #B0B8C4;
+  color: #1E293B;
 }
 
 body[data-theme="light"] .search-input-group i {
-  color: #8A96A6;
+  color: #64748B;
 }
 
 /* Modal overlay stays dark */
@@ -1744,7 +1759,7 @@ body[data-theme="light"] .modal-overlay {
 
 /* Status dot */
 body[data-theme="light"] .cf-status-dot {
-  box-shadow: 0 0 6px rgba(79, 107, 240, 0.3);
+  box-shadow: 0 0 6px rgba(124, 58, 237, 0.3);
 }
 
 /* ── Light: Toast notifications ── */
@@ -1756,83 +1771,301 @@ body[data-theme="light"] .tool-notification {
 body[data-theme="light"] .tool-notification-success { border-left-color: #16A34A; }
 body[data-theme="light"] .tool-notification-error   { border-left-color: #DC2626; }
 body[data-theme="light"] .tool-notification-warning { border-left-color: #D97706; }
-body[data-theme="light"] .tool-notification-info    { border-left-color: #4F6BF0; }
+body[data-theme="light"] .tool-notification-info    { border-left-color: #7c3aed; }
 body[data-theme="light"] .tool-notification-success::before { color: #16A34A; }
 body[data-theme="light"] .tool-notification-error::before   { color: #DC2626; }
 body[data-theme="light"] .tool-notification-warning::before { color: #D97706; }
-body[data-theme="light"] .tool-notification-info::before    { color: #4F6BF0; }
+body[data-theme="light"] .tool-notification-info::before    { color: #7c3aed; }
 body[data-theme="light"] .tool-notification-success::after { background: #16A34A; }
 body[data-theme="light"] .tool-notification-error::after   { background: #DC2626; }
 body[data-theme="light"] .tool-notification-warning::after { background: #D97706; }
-body[data-theme="light"] .tool-notification-info::after    { background: #4F6BF0; }
+body[data-theme="light"] .tool-notification-info::after    { background: #7c3aed; }
 
 /* ── Light: Save states ── */
 body[data-theme="light"] [data-save-state="unsaved"] { color: #D97706 !important; }
-body[data-theme="light"] [data-save-state="saving"]  { color: #4F6BF0 !important; }
+body[data-theme="light"] [data-save-state="saving"]  { color: #7c3aed !important; }
 body[data-theme="light"] [data-save-state="saved"]   { color: #16A34A !important; }
 body[data-theme="light"] [data-save-state="error"]   { color: #DC2626 !important; }
 
 /* ── Light: Empty states ── */
 body[data-theme="light"] .cf-empty-state {
-  color: rgba(26, 42, 68, 0.35);
+  color: rgba(30, 41, 59, 0.45);
 }
 body[data-theme="light"] .cf-empty-state p {
-  color: rgba(26, 42, 68, 0.45);
+  color: rgba(30, 41, 59, 0.55);
 }
 body[data-theme="light"] .cf-empty-cta {
-  color: #4F6BF0;
-  border-color: rgba(79, 107, 240, 0.3);
-  background: rgba(79, 107, 240, 0.06);
+  color: #7c3aed;
+  border-color: rgba(124, 58, 237, 0.3);
+  background: rgba(124, 58, 237, 0.06);
 }
 body[data-theme="light"] .cf-empty-cta:hover {
-  background: rgba(79, 107, 240, 0.12);
+  background: rgba(124, 58, 237, 0.12);
 }
 
 /* ── Light: Gallery ── */
 body[data-theme="light"] .cardforge-gallery-container {
-  background: linear-gradient(180deg, #DDE2E8, #E8ECF1);
-  border-color: #C0C8D4;
+  background: linear-gradient(180deg, #F2F4F7, #F8F9FB);
+  border-color: #B0B8C4;
 }
 body[data-theme="light"] .cardforge-gallery-container::before {
-  background: linear-gradient(90deg, #4F6BF0, #8B5CF6);
+  background: linear-gradient(90deg, #7c3aed, #8B5CF6);
 }
 body[data-theme="light"] .cardforge-gallery-container h2 {
-  color: #4F6BF0;
+  color: #7c3aed;
 }
 body[data-theme="light"] .gallery-deck-tile {
-  background: #E8ECF1;
-  border-color: #C0C8D4;
+  background: #ffffff;
+  border-color: #B0B8C4;
 }
 body[data-theme="light"] .gallery-deck-tile:hover {
-  border-color: rgba(79, 107, 240, 0.3);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  border-color: rgba(124, 58, 237, 0.3);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 body[data-theme="light"] .gallery-deck-tile-icon {
-  color: #4F6BF0;
-  background: rgba(79, 107, 240, 0.06);
+  color: #7c3aed;
+  background: rgba(124, 58, 237, 0.06);
 }
 body[data-theme="light"] .gallery-deck-tag {
-  color: #4F6BF0;
-  background: rgba(79, 107, 240, 0.05);
-  border-color: rgba(79, 107, 240, 0.12);
+  color: #7c3aed;
+  background: rgba(124, 58, 237, 0.05);
+  border-color: rgba(124, 58, 237, 0.15);
 }
 
 /* ── Light: Preview glass buttons ── */
+body[data-theme="light"] .preview-controls .glass-button {
+  background: rgba(0, 0, 0, 0.03);
+  border-color: #B0B8C4;
+  color: #475569;
+}
 body[data-theme="light"] .preview-controls .glass-button:hover {
-  background: rgba(79, 107, 240, 0.06);
-  border-color: rgba(79, 107, 240, 0.2);
+  background: rgba(124, 58, 237, 0.06);
+  border-color: rgba(124, 58, 237, 0.3);
   box-shadow: none;
-  color: #4F6BF0;
+  color: #7c3aed;
 }
 
 /* ── Light: Toolbar buttons ── */
-body[data-theme="light"] .toolbar-btn { color: #5A6A80; }
+body[data-theme="light"] .toolbar-btn {
+  color: #475569;
+  background: rgba(0, 0, 0, 0.03);
+  border-color: #B0B8C4;
+}
 body[data-theme="light"] .toolbar-btn:hover {
-  color: #4F6BF0;
-  background: rgba(79, 107, 240, 0.06);
+  color: #7c3aed;
+  background: rgba(124, 58, 237, 0.06);
+  border-color: rgba(124, 58, 237, 0.3);
 }
 
 /* ── Light: Gallery error icon ── */
 body[data-theme="light"] .gallery-error i {
   color: #DC2626;
+}
+
+/* ── Light: Status pill — darker colors for contrast ── */
+body[data-theme="light"] .cf-status-pill {
+  border-color: #B0B8C4;
+  background: rgba(0, 0, 0, 0.03);
+}
+body[data-theme="light"] .cf-status-pill[data-state='ready'] { color: #7c3aed; }
+body[data-theme="light"] .cf-status-pill[data-state='unsaved'] {
+  color: #B45309;
+  border-color: rgba(180, 83, 9, 0.3);
+}
+body[data-theme="light"] .cf-status-pill[data-state='saving'] {
+  color: #7c3aed;
+  border-color: rgba(124, 58, 237, 0.3);
+}
+body[data-theme="light"] .cf-status-pill[data-state='saved'] {
+  color: #16A34A;
+  border-color: rgba(22, 163, 74, 0.3);
+}
+body[data-theme="light"] .cf-status-pill[data-state='error'] {
+  color: #DC2626;
+  border-color: rgba(220, 38, 38, 0.3);
+}
+body[data-theme="light"] .cf-status-pill__dot {
+  box-shadow: none;
+}
+
+/* ── Light: Auth link ── */
+body[data-theme="light"] .cf-auth-link {
+  color: #7c3aed;
+  border-color: rgba(124, 58, 237, 0.3);
+}
+body[data-theme="light"] .cf-auth-link:hover {
+  background: rgba(124, 58, 237, 0.06);
+  border-color: rgba(124, 58, 237, 0.5);
+}
+
+/* ── Light: Preview header label ── */
+body[data-theme="light"] .preview-header h2 {
+  color: #1E293B;
+}
+
+/* ── Light: Preset card names — !important to beat later-loaded cardforge-ui.css ── */
+body[data-theme="light"] .preset-name {
+  color: #1E293B !important;
+}
+body[data-theme="light"] .preset-card.active .preset-name,
+body[data-theme="light"] .preset-card:hover .preset-name {
+  color: #1E293B !important;
+}
+
+/* ── Light: Preset character/archetype names — !important to beat later-loaded cardforge-ui.css ── */
+body[data-theme="light"] .preset-character {
+  color: #475569 !important;
+}
+body[data-theme="light"] .preset-btn:hover .preset-character,
+body[data-theme="light"] .preset-card:hover .preset-character,
+body[data-theme="light"] .preset-card.active .preset-character {
+  color: #1E293B !important;
+}
+
+/* ── Light: Pagination buttons ── */
+body[data-theme="light"] .image-pagination button {
+  color: #7c3aed;
+  border-color: rgba(124, 58, 237, 0.35);
+  background: rgba(124, 58, 237, 0.04);
+}
+body[data-theme="light"] .image-pagination button:hover {
+  background: rgba(124, 58, 237, 0.1);
+  border-color: rgba(124, 58, 237, 0.6);
+  color: #6d28d9;
+}
+body[data-theme="light"] .image-pagination button:disabled {
+  color: #94A3B8;
+  border-color: #B0B8C4;
+  background: transparent;
+}
+
+/* ── Light: Roll/Action buttons ── */
+body[data-theme="light"] [data-step-section="0"] .roll-btn:not(.cf-ai-generate-btn) {
+  background: rgba(124, 58, 237, 0.06);
+  border-color: rgba(124, 58, 237, 0.25);
+  color: #7c3aed;
+}
+body[data-theme="light"] [data-step-section="0"] .roll-btn:not(.cf-ai-generate-btn) .roll-icon {
+  color: #7c3aed;
+}
+body[data-theme="light"] [data-step-section="0"] .roll-btn:not(.cf-ai-generate-btn) .roll-subtitle {
+  color: #64748B;
+}
+body[data-theme="light"] [data-step-section="0"] .roll-btn:not(.cf-ai-generate-btn):hover {
+  background: rgba(124, 58, 237, 0.12);
+  border-color: rgba(124, 58, 237, 0.5);
+  color: #6d28d9;
+}
+
+/* ── Light: AI Generate button ── */
+body[data-theme="light"] .roll-btn.cf-ai-generate-btn {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(59, 130, 246, 0.08));
+  border-color: rgba(124, 58, 237, 0.35);
+  color: #7c3aed;
+}
+body[data-theme="light"] .roll-btn.cf-ai-generate-btn:hover {
+  background: linear-gradient(135deg, rgba(124, 58, 237, 0.18), rgba(59, 130, 246, 0.15));
+  border-color: rgba(124, 58, 237, 0.6);
+  color: #6d28d9;
+}
+
+/* ── Light: Forge action buttons ── */
+body[data-theme="light"] .forge-action-btn {
+  color: #475569;
+  border-color: #B0B8C4;
+  background: rgba(0, 0, 0, 0.02);
+}
+body[data-theme="light"] .forge-action-btn i {
+  color: #7c3aed;
+}
+body[data-theme="light"] .forge-action-btn:hover {
+  background: rgba(124, 58, 237, 0.08);
+  border-color: rgba(124, 58, 237, 0.4);
+  color: #7c3aed;
+}
+body[data-theme="light"] .forge-action-btn.primary {
+  background: linear-gradient(135deg, #7c3aed, #6366f1);
+  border-color: #7c3aed;
+  color: #fff;
+}
+body[data-theme="light"] .forge-action-btn.primary:hover {
+  background: linear-gradient(135deg, #6d28d9, #4f46e5);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);
+}
+
+/* ── Light: New card button ── */
+body[data-theme="light"] .cf-new-card-btn {
+  background: linear-gradient(135deg, #7c3aed, #6366f1);
+  border-color: #7c3aed;
+  color: #fff;
+}
+body[data-theme="light"] .cf-new-card-btn:hover {
+  background: linear-gradient(135deg, #6d28d9, #4f46e5);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);
+}
+
+/* ── Light: Section titles ── */
+body[data-theme="light"] .cf-section-title,
+body[data-theme="light"] .cf-section-subtitle {
+  color: #7c3aed;
+}
+
+/* ── Light: Deck form pager ── */
+body[data-theme="light"] .deck-form-pager-btn:hover:not(:disabled) {
+  background: rgba(124, 58, 237, 0.06);
+  color: #7c3aed;
+}
+
+/* ── Light: body text and labels ── */
+body[data-theme="light"] label,
+body[data-theme="light"] .field-label,
+body[data-theme="light"] .cf-label {
+  color: #334155;
+}
+
+/* ── Light: general link color ── */
+body[data-theme="light"] .use-url-link {
+  color: #7c3aed;
+  border-color: rgba(124, 58, 237, 0.25);
+}
+body[data-theme="light"] .use-url-link:hover {
+  border-color: rgba(124, 58, 237, 0.5);
+  background: rgba(124, 58, 237, 0.04);
+}
+
+/* ── Light: Step navigation buttons (< Lore | Stats >) ── */
+body[data-theme="light"] .cf-step-nav {
+  border-top-color: #B0B8C4 !important;
+}
+body[data-theme="light"] .cf-step-nav-btn {
+  background: rgba(0, 0, 0, 0.02) !important;
+  border-color: #B0B8C4 !important;
+  color: #475569 !important;
+}
+body[data-theme="light"] .cf-step-nav-btn:hover:not(:disabled) {
+  background: rgba(124, 58, 237, 0.08) !important;
+  border-color: rgba(124, 58, 237, 0.4) !important;
+  color: #7c3aed !important;
+}
+body[data-theme="light"] .cf-step-nav-next {
+  background: rgba(124, 58, 237, 0.06) !important;
+  border-color: rgba(124, 58, 237, 0.25) !important;
+  color: #7c3aed !important;
+}
+body[data-theme="light"] .cf-step-nav-next:hover:not(:disabled) {
+  background: rgba(124, 58, 237, 0.14) !important;
+  border-color: rgba(124, 58, 237, 0.5) !important;
+  color: #6d28d9 !important;
+}
+
+/* ── Light: Preview summary (STYLE / CLASS / RARITY / EFFECTS below card) ── */
+body[data-theme="light"] .cf-preview-summary {
+  background: rgba(0, 0, 0, 0.03) !important;
+  border-color: #B0B8C4 !important;
+}
+body[data-theme="light"] .cf-summary-label {
+  color: #64748B !important;
+}
+body[data-theme="light"] .cf-summary-value {
+  color: #1E293B !important;
 }
