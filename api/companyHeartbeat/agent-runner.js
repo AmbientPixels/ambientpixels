@@ -1497,6 +1497,9 @@ Write the full deliverable first, then the structured JSON block.`;
       // Strip markdown headings (## Post Draft, ### LinkedIn Post, etc.)
       socialPayload.text = (socialPayload.text || '').replace(/^#{1,4}\s+.*$/gm, '').replace(/\n{3,}/g, '\n\n').trim();
 
+      // Strip plain-text draft labels (LinkedIn Post Draft, X Post Draft, etc.)
+      socialPayload.text = socialPayload.text.replace(/^(?:LinkedIn|X|Twitter|Bluesky|Social)\s+Post\s+Draft\s*(?:[:-]\s*[^\n]*)?\s*\n+/i, '').trim();
+
       // Strip trailing --- separators
       socialPayload.text = socialPayload.text.replace(/\n*-{3,}\s*$/g, '').trim();
 

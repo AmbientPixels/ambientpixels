@@ -4,8 +4,8 @@
 const fs = require('fs');
 const path = require('path');
 
-// Agent processing order
-const AGENT_IDS = ['nova', 'cipher', 'pixel', 'forge', 'echo', 'scribe', 'quill', 'scout'];
+// Agent processing order — Echo runs after Scribe/Quill so peer reviews complete before social injection
+const AGENT_IDS = ['nova', 'cipher', 'pixel', 'forge', 'scribe', 'quill', 'echo', 'scout'];
 
 // Load agent personalities from company-agents.json
 let _agentPersonalities = {};
