@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirm Strategy Session — AmbientScore</title>
+  <link rel="icon" href="/images/favicon.ico">
+  <link rel="stylesheet" href="/ambientscore/css/ambientscore.css">
+  <style>
+    .as-confirm-header { text-align: center; padding: 64px 0 32px; }
+    .as-confirm-header h1 { font-size: 24px; color: var(--as-accent); margin-bottom: 8px; }
+    .as-confirm-header p { font-size: 15px; color: var(--as-text-secondary); max-width: 540px; margin: 0 auto; }
+
+    .as-confirm-card {
+      max-width: 480px; margin: 0 auto 48px;
+      background: var(--as-surface); border: 1px solid var(--as-border);
+      border-radius: var(--as-radius); padding: 32px; text-align: center;
+    }
+
+    .as-confirm-slot { font-size: 20px; font-weight: 600; color: var(--as-text); margin-bottom: 8px; line-height: 1.4; }
+    .as-confirm-duration { font-size: 14px; color: var(--as-text-muted); margin-bottom: 24px; }
+
+    .as-confirm-card .as-buy-btn { width: 100%; text-align: center; }
+    .as-confirm-card .as-buy-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .as-confirm-status { margin-top: 16px; font-size: 14px; }
+    .as-confirm-status.as-error { color: var(--as-danger); }
+    .as-confirm-status.as-success { color: var(--as-accent); }
+    .as-confirm-status.as-warning { color: var(--as-warning, #d4a017); }
+
+    .as-confirmed-check {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 64px; height: 64px; border-radius: 50%;
+      background: var(--as-accent-soft); color: var(--as-accent);
+      font-size: 32px; margin-bottom: 16px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Brand Bar -->
+  <header class="as-brand-bar">
+    <div class="as-container">
+      <a href="/ambientscore/" class="as-brand-name" style="text-decoration:none;">AmbientScore</a>
+      <a href="https://ambientpixels.ai" class="as-brand-link">by AmbientPixels</a>
+    </div>
+  </header>
+
+  <div class="as-container">
+    <div class="as-confirm-header">
+      <h1>Confirm Your Strategy Session</h1>
+      <p>Review the time below and click "Confirm" to book your 30-minute call.</p>
+    </div>
+
+    <div id="as-confirm-card" class="as-confirm-card">
+      <div id="as-slot-label" class="as-confirm-slot">Loading...</div>
+      <div class="as-confirm-duration">30-minute strategy call</div>
+      <button id="as-confirm-btn" class="as-buy-btn" disabled>Confirm This Time</button>
+      <div id="as-confirm-status" class="as-confirm-status"></div>
+    </div>
+
+    <!-- Shown after successful confirmation -->
+    <div id="as-success-card" class="as-confirm-card" style="display:none;">
+      <div class="as-confirmed-check">&#10003;</div>
+      <div class="as-confirm-slot" id="as-confirmed-label"></div>
+      <div class="as-confirm-duration">30-minute strategy call</div>
+      <p style="color:var(--as-text-secondary);font-size:14px;margin-top:16px;">
+        Your session is confirmed. We'll send a calendar invite shortly.
+      </p>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="as-footer">
+    <div class="as-container">
+      <p>&copy; 2026 AmbientScore by <a href="https://ambientpixels.ai">AmbientPixels</a></p>
+    </div>
+  </footer>
+
+  <script>
+  (function () {
+    'use strict';
+
+    var API = window.location.hostname === 'localhost'
+      ? '/api/as-confirm'
+      : 'https://ambientpixels-nova-api.azurewebsites.net/api/as-confirm';
+
+    var params = new URLSearchParams(window.location.search);
+    var submissionId = params.get('id') || '';
+    var slotIndex = params.get('slot') || '';
+    var token = params.get('token') || '';
+    var label = params.get('label') || '';
+
+    var slotLabelEl = document.getElementById('as-slot-label');
+    var confirmBtn = document.getElementById('as-confirm-btn');
+    var statusEl = document.getElementById('as-confirm-status');
+    var confirmCard = document.getElementById('as-confirm-card');
+    var successCard = document.getElementById('as-success-card');
+    var confirmedLabel = document.getElementById('as-confirmed-label');
+
+    // Validate params
+    if (!submissionId || slotIndex === '' || !token) {
+      slotLabelEl.textContent = 'Invalid Link';
+      statusEl.textContent = 'This confirmation link is missing required information. Please use the link from your email.';
+      statusEl.className = 'as-confirm-status as-error';
+      return;
+    }
+
+    // Display slot from URL params (no API call on load — pre-fetcher safe)
+    slotLabelEl.textContent = label || ('Slot ' + (parseInt(slotIndex, 10) + 1));
+    confirmBtn.disabled = false;
+
+    confirmBtn.addEventListener('click', function () {
+      confirmBtn.disabled = true;
+      confirmBtn.textContent = 'Confirming...';
+      statusEl.textContent = '';
+      statusEl.className = 'as-confirm-status';
+
+      fetch(API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: submissionId,
+          slot: parseInt(slotIndex, 10),
+          token: token
+        })
+      })
+        .then(function (res) {
+          return res.json().then(function (data) {
+            return { status: res.status, data: data };
+          });
+        })
+        .then(function (result) {
+          var data = result.data;
+
+          if (result.status === 200 && data.ok) {
+            confirmCard.style.display = 'none';
+            confirmedLabel.textContent = data.confirmedSlot || label;
+            successCard.style.display = '';
+            return;
+          }
+
+          if (result.status === 409 && data.error === 'already_confirmed') {
+            slotLabelEl.textContent = data.confirmedSlot || label;
+            statusEl.textContent = 'This session has already been confirmed.';
+            statusEl.className = 'as-confirm-status as-warning';
+            confirmBtn.style.display = 'none';
+            return;
+          }
+
+          if (result.status === 403) {
+            statusEl.textContent = 'This confirmation link is invalid. Please use the link from your email.';
+            statusEl.className = 'as-confirm-status as-error';
+            confirmBtn.style.display = 'none';
+            return;
+          }
+
+          statusEl.textContent = data.message || 'Something went wrong. Please try again.';
+          statusEl.className = 'as-confirm-status as-error';
+          confirmBtn.disabled = false;
+          confirmBtn.textContent = 'Confirm This Time';
+        })
+        .catch(function () {
+          statusEl.textContent = 'Network error. Please check your connection and try again.';
+          statusEl.className = 'as-confirm-status as-error';
+          confirmBtn.disabled = false;
+          confirmBtn.textContent = 'Confirm This Time';
+        });
+    });
+  })();
+  </script>
+</body>
+</html>

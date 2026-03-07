@@ -37,7 +37,7 @@
 
 **Audience:** Public  
 **Purpose:** Introduce Nova as Prime Operator. Gateway to all sub-pages.  
-**Hero:** Full mini-hero with CTA buttons ("Open Operator Console", "Explore AmbientCore")
+**Hero:** Full mini-hero with CTA buttons ("Open Operator Console", "Explore AmbientOS")
 
 ### Sections
 
@@ -65,8 +65,8 @@
 ## 2. `/nova/preview.html` — Operations Preview
 
 **Audience:** Public  
-**Purpose:** Live operational snapshot. Shows real system data, not marketing copy. Distinct from `/modules/company/demo.html` which is the AmbientCore marketing page.  
-**Hero:** "Operations Preview" — "Live snapshot from the AmbientCore multi-agent operating system."
+**Purpose:** Live operational snapshot. Shows real system data, not marketing copy. Distinct from `/modules/company/demo.html` which is the AmbientOS marketing page.  
+**Hero:** "Operations Preview" — "Live snapshot from the AmbientOS multi-agent operating system."
 
 ### Sections
 
@@ -75,7 +75,7 @@
 | **System Status** | 4-cell grid: Version, Build, Operator State, Last Sync | `version.json` + `mood-scan.json` |
 | **Recent Activity** | Feed of 5 most recent published daily log entries | `/api/dailyLog` |
 | **Company Hierarchy** | Tiered org chart: CEO → Nova → 6 dept heads → Quill sub-agent | Static (from `company-agents.json` schema) |
-| **Deep Links** | Buttons to AmbientCore Overview, Activity Log, Agent Roster | Static |
+| **Deep Links** | Buttons to AmbientOS Overview, Activity Log, Agent Roster | Static |
 | **Nav Footer** | Horizontal links to sibling pages | Static |
 
 ### Scripts
@@ -100,15 +100,15 @@ Inline `<script>` only (no external JS files)
 
 **Audience:** Public  
 **Purpose:** Public-safe agent profile cards showing mandate, ownership, and status.  
-**Hero:** "Agent Roster (Preview)" — "A structured view of the autonomous team operating within AmbientCore."
+**Hero:** "Agent Roster (Preview)" — "A structured view of the autonomous team operating within AmbientOS."
 
 ### Sections
 
 | Section | Description | Data Source |
 |---|---|---|
-| **Intro** | "AmbientCore Agent Team" with overview paragraph | Static |
+| **Intro** | "AmbientOS Agent Team" with overview paragraph | Static |
 | **Agent Cards** | 8 cards in 2-column grid (Nova, Forge, Cipher, Pixel, Echo, Scribe, Scout, Quill) | Static HTML |
-| **CTA** | Operations Preview + AmbientCore Overview buttons | Static |
+| **CTA** | Operations Preview + AmbientOS Overview buttons | Static |
 | **Nav Footer** | Horizontal links to sibling pages | Static |
 
 ### Scripts
@@ -169,7 +169,7 @@ None beyond core (init-header-footer, main, nav, theme)
 
 | Section | Description | Data Source |
 |---|---|---|
-| **Scrolling Ticker** | "AMBIENTCORE system context" + awareness labels | Static |
+| **Scrolling Ticker** | "AMBIENTOS system context" + awareness labels | Static |
 | **Memory & Activity** | Same 6-cell metric grid as dashboard | `NovaSoul.getMemoryStats()` |
 | **System Info** | Same key-value list as dashboard | `version.json` + `mood-scan.json` |
 | **Awareness Detections** | Table with 11 signals (8 live, 3 planned) showing source + status dot | Static |

@@ -1,6 +1,6 @@
 /**
  * CHANGE SUMMARY
- * - New file: Azure Function for AmbientCore Form Intake Daily Digest v1.3
+ * - New file: Azure Function for AmbientOS Form Intake Daily Digest v1.3
  * - GET /api/formIntakeDigest?date=YYYY-MM-DD — on-demand digest generator
  *   Reads daily index, computes stats, selects notable items (redacted),
  *   creates a Nova digest task, appends redacted L4 runtime memory entry.

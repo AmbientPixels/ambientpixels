@@ -45,7 +45,17 @@
   "routes": [
     {
       "route": "/gridos/*",
-      "redirect": "/ambientcore/",
+      "redirect": "/ambientos/",
+      "statusCode": 301
+    },
+    {
+      "route": "/ambientcore/*",
+      "redirect": "/ambientos/",
+      "statusCode": 301
+    },
+    {
+      "route": "/conversioncore/*",
+      "redirect": "/ambientscore/",
       "statusCode": 301
     },
     {
@@ -69,23 +79,23 @@
       "rewrite": "/log/index.html"
     },
     {
-      "route": "/conversioncore/*.css"
+      "route": "/ambientscore/*.css"
     },
     {
-      "route": "/conversioncore/*.js"
+      "route": "/ambientscore/*.js"
     },
     {
-      "route": "/conversioncore/report.html"
+      "route": "/ambientscore/report.html"
     },
     {
-      "route": "/conversioncore/strategy.html"
+      "route": "/ambientscore/strategy.html"
     },
     {
-      "route": "/conversioncore/confirm.html"
+      "route": "/ambientscore/confirm.html"
     },
     {
-      "route": "/conversioncore/*",
-      "rewrite": "/conversioncore/index.html"
+      "route": "/ambientscore/*",
+      "rewrite": "/ambientscore/index.html"
     },
     {
       "route": "/modules/company/css/*",
@@ -314,28 +324,28 @@
       "allowedRoles": ["anonymous"]
     },
     {
-      "route": "/api/cc-analyze",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cc-analyze",
+      "route": "/api/as-analyze",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/as-analyze",
       "allowedRoles": ["anonymous"]
     },
     {
-      "route": "/api/cc-report",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cc-report",
+      "route": "/api/as-report",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/as-report",
       "allowedRoles": ["anonymous"]
     },
     {
-      "route": "/api/cc-webhook",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cc-webhook",
+      "route": "/api/as-webhook",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/as-webhook",
       "allowedRoles": ["anonymous"]
     },
     {
-      "route": "/api/cc-credits",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cc-credits",
+      "route": "/api/as-credits",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/as-credits",
       "allowedRoles": ["anonymous"]
     },
     {
-      "route": "/api/cc-confirm",
-      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cc-confirm",
+      "route": "/api/as-confirm",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/as-confirm",
       "allowedRoles": ["anonymous"]
     },
     {

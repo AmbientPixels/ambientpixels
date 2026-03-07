@@ -117,7 +117,7 @@
   gap: 10px;
 }
 
-.nav-ambientcore-badge {
+.nav-ambientos-badge {
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -132,13 +132,13 @@
   transition: all 0.2s ease;
 }
 
-.nav-ambientcore-badge i {
+.nav-ambientos-badge i {
   font-size: 0.7rem;
   opacity: 0.9;
 }
 
-.nav-ambientcore-badge:hover,
-.nav-ambientcore-badge:focus {
+.nav-ambientos-badge:hover,
+.nav-ambientos-badge:focus {
   border-color: rgba(167,139,250,0.45);
   color: #ffffff;
   background: rgba(167,139,250,0.1);
@@ -186,13 +186,13 @@
 [data-theme="light"] .nav-auth-btn {
   color: #1a2a44 !important;
 }
-[data-theme="light"] .nav-ambientcore-badge {
+[data-theme="light"] .nav-ambientos-badge {
   border-color: rgba(0,0,0,0.12);
   background: rgba(0,0,0,0.02);
   color: #64748b;
 }
-[data-theme="light"] .nav-ambientcore-badge:hover,
-[data-theme="light"] .nav-ambientcore-badge:focus {
+[data-theme="light"] .nav-ambientos-badge:hover,
+[data-theme="light"] .nav-ambientos-badge:focus {
   border-color: rgba(124,58,237,0.35);
   color: #1e293b;
   background: rgba(124,58,237,0.08);
@@ -240,12 +240,12 @@
     justify-content: flex-end;
   }
 
-  .nav-ambientcore-badge {
+  .nav-ambientos-badge {
     font-size: 0.62rem;
     padding: 4px 8px;
   }
 
-  .nav-ambientcore-badge span {
+  .nav-ambientos-badge span {
     display: none;
   }
 

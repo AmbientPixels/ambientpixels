@@ -47,35 +47,35 @@
       ]
     },
     {
-      "folder": "images/AmbientCore",
+      "folder": "images/AmbientOS",
       "count": 14,
       "files": [
-        "images/AmbientCore/CEO-Plan.png",
-        "images/AmbientCore/GridOS-screen1.png",
-        "images/AmbientCore/calendear.png",
-        "images/AmbientCore/content-engine.jpeg",
-        "images/AmbientCore/content-engine.png",
-        "images/AmbientCore/contentengine.png",
-        "images/AmbientCore/cost.png",
-        "images/AmbientCore/dash.png",
-        "images/AmbientCore/memory-stack.png",
-        "images/AmbientCore/ops.png",
-        "images/AmbientCore/ovserve.png",
-        "images/AmbientCore/social.png",
-        "images/AmbientCore/ssocial-small.png",
-        "images/AmbientCore/work overview.png"
+        "images/AmbientOS/CEO-Plan.png",
+        "images/AmbientOS/GridOS-screen1.png",
+        "images/AmbientOS/calendear.png",
+        "images/AmbientOS/content-engine.jpeg",
+        "images/AmbientOS/content-engine.png",
+        "images/AmbientOS/contentengine.png",
+        "images/AmbientOS/cost.png",
+        "images/AmbientOS/dash.png",
+        "images/AmbientOS/memory-stack.png",
+        "images/AmbientOS/ops.png",
+        "images/AmbientOS/ovserve.png",
+        "images/AmbientOS/social.png",
+        "images/AmbientOS/ssocial-small.png",
+        "images/AmbientOS/work overview.png"
       ]
     },
     {
-      "folder": "images/AmbientCore/screens",
+      "folder": "images/AmbientOS/screens",
       "count": 6,
       "files": [
-        "images/AmbientCore/screens/agents.png",
-        "images/AmbientCore/screens/content-engine.png",
-        "images/AmbientCore/screens/cost-center.png",
-        "images/AmbientCore/screens/system-pulse.png",
-        "images/AmbientCore/screens/task-manager.png",
-        "images/AmbientCore/screens/work-cropped.png"
+        "images/AmbientOS/screens/agents.png",
+        "images/AmbientOS/screens/content-engine.png",
+        "images/AmbientOS/screens/cost-center.png",
+        "images/AmbientOS/screens/system-pulse.png",
+        "images/AmbientOS/screens/task-manager.png",
+        "images/AmbientOS/screens/work-cropped.png"
       ]
     },
     {

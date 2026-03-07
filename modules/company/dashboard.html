@@ -4259,8 +4259,8 @@
       tbBody.innerHTML = html;
     }
 
-    function _getAmbientCoreKey() {
-      if (window._config && window._config.ambientcoreInternalKey) return window._config.ambientcoreInternalKey;
+    function _getAmbientOSKey() {
+      if (window._config && window._config.ambientosInternalKey) return window._config.ambientosInternalKey;
       if (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteKey) return CompanyStore.getWriteKey() || '';
       return '';
     }
@@ -4269,8 +4269,8 @@
       var range = tbRange ? tbRange.value : '7d';
       _renderSkeleton();
       var headers = {};
-      var key = _getAmbientCoreKey();
-      if (key) headers['X-AmbientCore-Key'] = key;
+      var key = _getAmbientOSKey();
+      if (key) headers['X-AmbientOS-Key'] = key;
       var apiBase = window.location.hostname.includes('ambientpixels.ai') ? 'https://ambientpixels-nova-api.azurewebsites.net' : '';
       fetch(apiBase + '/api/telemetry/summary?range=' + range, { headers: headers })
         .then(function (r) { return r.json(); })

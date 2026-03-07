@@ -2137,7 +2137,7 @@ Write the full deliverable first, then the structured JSON block.`;
         const _isInternalKind = INTERNAL_KINDS.indexOf(kind) !== -1;
         const _isExternalKind = EXTERNAL_KINDS.indexOf(kind) !== -1;
 
-        // Fix 11a: Internal docs — hard cap at 5 unpublished, must be AmbientCore/operational subject matter
+        // Fix 11a: Internal docs — hard cap at 5 unpublished, must be AmbientOS/operational subject matter
         if (_isInternalKind) {
           const _activeInternalDocs = existingDocs.filter(d =>
             INTERNAL_KINDS.indexOf(d.kind) !== -1 &&
@@ -2148,12 +2148,12 @@ Write the full deliverable first, then the structured JSON block.`;
             result.taskUpdates.push({ action: 'comment', taskId: action.taskId, comment: '[SYSTEM] Internal doc cap reached (5 max). Publish or archive existing internal docs first.', agentId: 'system' });
             continue;
           }
-          // Subject matter gate: internal docs must be about AmbientCore, system operations, or technical reference
+          // Subject matter gate: internal docs must be about AmbientOS, system operations, or technical reference
           const _docText = ((docPayload.title || '') + ' ' + (docPayload.content_md || '').substring(0, 500)).toLowerCase();
-          const _isAmbientCoreTopic = /ambientcore|gridops|heartbeat|agent|orchestrat|governance|storage|pipeline|api|function|deployment|architecture|config|escalation|triage|approval|execution|workflow|system|technical|reference|runbook|spec|schema|endpoint/.test(_docText);
-          if (!_isAmbientCoreTopic) {
-            context.log('[Heartbeat]', agentId, 'BLOCKED create-doc (internal) — not AmbientCore/operational subject matter. Title:', docPayload.title);
-            result.taskUpdates.push({ action: 'comment', taskId: action.taskId, comment: '[SYSTEM] Internal docs (spec/runbook/governance) are for AmbientCore technical reference only. For marketing/blog content, use kind: marketing_post.', agentId: 'system' });
+          const _isAmbientOSTopic = /ambientos|gridops|heartbeat|agent|orchestrat|governance|storage|pipeline|api|function|deployment|architecture|config|escalation|triage|approval|execution|workflow|system|technical|reference|runbook|spec|schema|endpoint/.test(_docText);
+          if (!_isAmbientOSTopic) {
+            context.log('[Heartbeat]', agentId, 'BLOCKED create-doc (internal) — not AmbientOS/operational subject matter. Title:', docPayload.title);
+            result.taskUpdates.push({ action: 'comment', taskId: action.taskId, comment: '[SYSTEM] Internal docs (spec/runbook/governance) are for AmbientOS technical reference only. For marketing/blog content, use kind: marketing_post.', agentId: 'system' });
             continue;
           }
         }
@@ -3210,7 +3210,7 @@ Write the full deliverable first, then the structured JSON block.`;
             runId: cycleId, agentId: agentId, gate: 'memory_schema', reason: 'invalid_type', type: mem.type || null
           });
         }
-        // Evidence requirement for preferred AmbientCore types
+        // Evidence requirement for preferred AmbientOS types
         else if (L4_PREFERRED_TYPES.has(_memType) && (!mem.evidence || typeof mem.evidence !== 'object' || !mem.evidence.runId)) {
           _memBlockedReason = 'missing_evidence';
           await logEvent('policy-violation', agentId, 'Memory write blocked: preferred type requires evidence', cycleId, {

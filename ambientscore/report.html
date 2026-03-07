@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Conversion Audit Report — AmbientScore</title>
+  <link rel="icon" href="/images/favicon.ico">
+  <link rel="stylesheet" href="/ambientscore/css/ambientscore.css">
+  <style>
+    /* Report-specific styles */
+    .as-report-header { text-align: center; padding: 40px 0 32px; }
+    .as-report-url { font-size: 14px; color: var(--as-text-muted); margin-top: 8px; word-break: break-all; }
+    .as-report-date { font-size: 12px; color: var(--as-text-muted); }
+
+    .as-section { margin-bottom: 32px; }
+    .as-section h2 { font-size: 20px; margin-bottom: 16px; padding-bottom: 8px; border-bottom: 1px solid var(--as-border); }
+
+    .as-exec-summary { font-size: 15px; line-height: 1.7; color: var(--as-text-secondary); }
+    .as-health-assessment { font-size: 13px; color: var(--as-text-muted); margin-top: 12px; padding: 12px 16px; background: var(--as-surface); border-radius: var(--as-radius-sm); }
+
+    /* Dimension bars */
+    .as-dim-bar { margin-bottom: 16px; }
+    .as-dim-bar-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+    .as-dim-bar-label { font-size: 14px; }
+    .as-dim-bar-score { font-size: 14px; font-weight: 600; }
+    .as-dim-bar-track { height: 10px; background: #1e293b; border-radius: 5px; overflow: hidden; }
+    .as-dim-bar-fill { height: 100%; border-radius: 5px; transition: width 0.8s ease-out; }
+
+    /* Priority cards */
+    .as-priority { background: var(--as-surface); border: 1px solid var(--as-border); border-radius: var(--as-radius); padding: 20px; margin-bottom: 12px; }
+    .as-priority-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .as-priority h4 { font-size: 16px; margin: 0; }
+    .as-priority-desc { font-size: 14px; color: var(--as-text-secondary); margin-bottom: 8px; }
+    .as-priority-impact { font-size: 12px; color: var(--as-accent); }
+    .as-effort-badge { padding: 2px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; }
+    .as-effort-quick { background: var(--as-accent-soft); color: var(--as-accent); }
+    .as-effort-medium { background: var(--as-warning-soft); color: var(--as-warning); }
+    .as-effort-rebuild { background: var(--as-danger-soft); color: var(--as-danger); }
+
+    /* Rewrites */
+    .as-rewrite { background: var(--as-surface); border-left: 3px solid var(--as-accent); padding: 14px 18px; margin-bottom: 10px; border-radius: 0 var(--as-radius-sm) var(--as-radius-sm) 0; }
+    .as-rewrite-label { font-size: 11px; color: var(--as-text-muted); margin-bottom: 4px; }
+    .as-rewrite-current { font-size: 14px; color: #f87171; text-decoration: line-through; margin-bottom: 8px; }
+    .as-rewrite-suggested { font-size: 14px; color: var(--as-accent); font-weight: 600; margin-bottom: 8px; }
+    .as-rewrite-rationale { font-size: 12px; color: var(--as-text-muted); }
+
+    /* Findings table */
+    .as-findings-table { width: 100%; border-collapse: collapse; }
+    .as-findings-table th { padding: 10px 12px; text-align: left; font-size: 11px; color: var(--as-text-muted); text-transform: uppercase; border-bottom: 2px solid #1e293b; }
+    .as-findings-table td { padding: 10px 12px; font-size: 13px; border-bottom: 1px solid rgba(255,255,255,0.04); }
+
+    /* Upsell */
+    .as-report-upsell { background: linear-gradient(135deg, var(--as-surface), #1a2332); border: 1px solid rgba(16,185,129,0.2); border-radius: var(--as-radius); padding: 32px; text-align: center; }
+    .as-report-upsell h3 { font-size: 20px; margin-bottom: 8px; }
+    .as-report-upsell p { font-size: 14px; color: var(--as-text-secondary); margin-bottom: 20px; }
+    .as-report-upsell a { display: inline-block; padding: 12px 28px; background: var(--as-accent); color: #fff; font-weight: 600; border-radius: var(--as-radius-sm); }
+
+    /* Actions bar */
+    .as-actions { display: flex; justify-content: center; gap: 12px; margin-bottom: 32px; }
+    .as-action-btn { padding: 10px 20px; font-size: 13px; font-weight: 600; border-radius: var(--as-radius-sm); cursor: pointer; border: 1px solid var(--as-border); background: transparent; color: var(--as-text-secondary); font-family: var(--as-font); transition: all 0.2s; }
+    .as-action-btn:hover { border-color: var(--as-accent); color: var(--as-accent); }
+
+    /* Methodology */
+    .as-methodology { font-size: 11px; color: var(--as-text-muted); padding: 16px; background: var(--as-surface); border-radius: var(--as-radius-sm); }
+
+    /* Report loading */
+    .as-report-loading { text-align: center; padding: 80px 0; }
+
+    /* Paywall */
+    .as-paywall { text-align: center; padding: 60px 24px; }
+
+    @media print {
+      .as-brand-bar, .as-actions, .as-report-upsell, .as-footer { display: none; }
+      body { background: #fff; color: #1a1a1a; }
+      .as-dim-bar-track { background: #e5e7eb; }
+      .as-section h2 { border-bottom-color: #d1d5db; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Brand Bar -->
+  <header class="as-brand-bar">
+    <div class="as-container">
+      <a href="/ambientscore/" class="as-brand-name" style="text-decoration:none;">AmbientScore</a>
+      <a href="https://ambientpixels.ai" class="as-brand-link">by AmbientPixels</a>
+    </div>
+  </header>
+
+  <!-- Loading -->
+  <div id="as-report-loading" class="as-report-loading">
+    <div class="as-container">
+      <div class="as-spinner"></div>
+      <p class="as-loading-text">Loading your report...</p>
+    </div>
+  </div>
+
+  <!-- Report Content (injected by JS) -->
+  <div id="as-report-content" class="as-container" style="display:none;"></div>
+
+  <!-- Footer -->
+  <footer class="as-footer">
+    <div class="as-container">
+      <p>&copy; 2026 AmbientScore by <a href="https://ambientpixels.ai">AmbientPixels</a></p>
+    </div>
+  </footer>
+
+  <script src="/ambientscore/js/report.js"></script>
+</body>
+</html>

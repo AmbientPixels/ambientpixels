@@ -1,7 +1,7 @@
 /**
  * CHANGE SUMMARY
- * - New file: AmbientCore Form Intake client-side submit helper v1
- * - Binds to forms with data-ambientcore-intake="true"
+ * - New file: AmbientOS Form Intake client-side submit helper v1
+ * - Binds to forms with data-ambientos-intake="true"
  * - Tracks form_started_at_ms on first focus/input
  * - Builds structured payload and POSTs JSON to /api/formIntake
  * - Inline status feedback (success / error / rate limited)
@@ -35,10 +35,10 @@
 
   // ── Init forms ──
   function initIntakeForms() {
-    var forms = document.querySelectorAll('[data-ambientcore-intake="true"]');
+    var forms = document.querySelectorAll('[data-ambientos-intake="true"]');
     forms.forEach(function (form) {
-      if (form._ambientcoreIntakeInit) return;
-      form._ambientcoreIntakeInit = true;
+      if (form._ambientosIntakeInit) return;
+      form._ambientosIntakeInit = true;
 
       // Track form_started_at_ms on first interaction
       var startedInput = form.querySelector('input[name="form_started_at_ms"]');

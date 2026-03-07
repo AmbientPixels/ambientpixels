@@ -77,13 +77,13 @@
     },
     {
       "type": "folder",
-      "name": "ambientcore",
-      "path": "ambientcore",
+      "name": "ambientos",
+      "path": "ambientos",
       "children": [
         {
           "type": "page",
           "name": "index.html",
-          "path": "ambientcore/index.html"
+          "path": "ambientos/index.html"
         }
       ]
     },
@@ -117,13 +117,13 @@
             },
             {
               "type": "folder",
-              "name": "conversionCore",
-              "path": "api/_lib/conversionCore",
+              "name": "ambientScore",
+              "path": "api/_lib/ambientScore",
               "children": [
                 {
                   "type": "folder",
                   "name": "tools",
-                  "path": "api/_lib/conversionCore/tools",
+                  "path": "api/_lib/ambientScore/tools",
                   "children": []
                 }
               ]
@@ -326,32 +326,32 @@
         },
         {
           "type": "folder",
-          "name": "cc-analyze",
-          "path": "api/cc-analyze",
+          "name": "as-analyze",
+          "path": "api/as-analyze",
           "children": []
         },
         {
           "type": "folder",
-          "name": "cc-confirm",
-          "path": "api/cc-confirm",
+          "name": "as-confirm",
+          "path": "api/as-confirm",
           "children": []
         },
         {
           "type": "folder",
-          "name": "cc-credits",
-          "path": "api/cc-credits",
+          "name": "as-credits",
+          "path": "api/as-credits",
           "children": []
         },
         {
           "type": "folder",
-          "name": "cc-report",
-          "path": "api/cc-report",
+          "name": "as-report",
+          "path": "api/as-report",
           "children": []
         },
         {
           "type": "folder",
-          "name": "cc-webhook",
-          "path": "api/cc-webhook",
+          "name": "as-webhook",
+          "path": "api/as-webhook",
           "children": []
         },
         {
@@ -774,40 +774,40 @@
     },
     {
       "type": "folder",
-      "name": "conversioncore",
-      "path": "conversioncore",
+      "name": "ambientscore",
+      "path": "ambientscore",
       "children": [
         {
           "type": "page",
           "name": "confirm.html",
-          "path": "conversioncore/confirm.html"
+          "path": "ambientscore/confirm.html"
         },
         {
           "type": "folder",
           "name": "css",
-          "path": "conversioncore/css",
+          "path": "ambientscore/css",
           "children": []
         },
         {
           "type": "page",
           "name": "index.html",
-          "path": "conversioncore/index.html"
+          "path": "ambientscore/index.html"
         },
         {
           "type": "folder",
           "name": "js",
-          "path": "conversioncore/js",
+          "path": "ambientscore/js",
           "children": []
         },
         {
           "type": "page",
           "name": "report.html",
-          "path": "conversioncore/report.html"
+          "path": "ambientscore/report.html"
         },
         {
           "type": "page",
           "name": "strategy.html",
-          "path": "conversioncore/strategy.html"
+          "path": "ambientscore/strategy.html"
         }
       ]
     },
@@ -938,13 +938,13 @@
       "children": [
         {
           "type": "folder",
-          "name": "AmbientCore",
-          "path": "images/AmbientCore",
+          "name": "AmbientOS",
+          "path": "images/AmbientOS",
           "children": [
             {
               "type": "folder",
               "name": "screens",
-              "path": "images/AmbientCore/screens",
+              "path": "images/AmbientOS/screens",
               "children": []
             }
           ]

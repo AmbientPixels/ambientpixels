@@ -327,7 +327,7 @@ module.exports = async function (context) {
     const activeObjectives = objectives.filter(o => o.status && o.status !== 'complete' && o.status !== 'canceled');
     const normalizedActivationMode = await resolveActivationMode(storage, runId);
 
-    // Load execution_mode (AmbientCore automation posture)
+    // Load execution_mode (AmbientOS automation posture)
     const _rawExecMode = await storage.getState('execution_mode');
     const executionMode = normalizeExecutionMode(_rawExecMode);
 

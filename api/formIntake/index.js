@@ -1,13 +1,13 @@
 /**
  * CHANGE SUMMARY
- * - New file: Azure Function for AmbientCore Form Intake v1
+ * - New file: Azure Function for AmbientOS Form Intake v1
  * - POST /api/formIntake — write endpoint: validate, spam gates, blob storage, task spawning
  * - GET  /api/formIntake/recent — read recent submissions from daily index blobs
  * - GET  /api/formIntake/item   — read single canonical record by id
  * - CORS: origin allowlist (ambientpixels.ai + localhost dev)
  * - Anti-spam: honeypot, min-time-to-submit, IP rate limiting via blob counters
  * - Storage: canonical JSON per submission + daily JSON index
- * - Task spawning: contact/demo types create AmbientCore tasks; newsletter = store-only
+ * - Task spawning: contact/demo types create AmbientOS tasks; newsletter = store-only
  * - v1.1: Duplicate suppression — dedupe index blob per email+type key,
  *   60-min rolling window, always stores record but skips task if duplicate,
  *   appends comment to existing task on duplicate detection
@@ -62,7 +62,7 @@ function _corsHeaders(origin) {
 // ── Validation + Normalization ──
 // ══════════════════════════════════════════════════════
 
-var VALID_TYPES = ['contact', 'demo', 'newsletter', 'conversioncore_strategy'];
+var VALID_TYPES = ['contact', 'demo', 'newsletter', 'conversioncore_strategy', 'ambientscore_strategy'];
 var LIMITS = { name: 120, email: 200, company: 200, role: 200, subject: 200, body: 8000 };
 var MAX_BODY_BYTES = 32 * 1024;
 
@@ -114,8 +114,8 @@ function _normalizePayload(body) {
     form_started_at_ms: typeof body.form_started_at_ms === 'number' ? body.form_started_at_ms : null
   };
 
-  // ConversionCore strategy — carry CC-specific metadata
-  if (body.type === 'conversioncore_strategy' && body.conversioncore && typeof body.conversioncore === 'object') {
+  // AmbientScore strategy — carry score-specific metadata
+  if ((body.type === 'conversioncore_strategy' || body.type === 'ambientscore_strategy') && body.conversioncore && typeof body.conversioncore === 'object') {
     normalized.conversioncore = {
       reportId: _trunc(body.conversioncore.reportId, 100),
       score: typeof body.conversioncore.score === 'number' ? body.conversioncore.score : null,
@@ -135,7 +135,7 @@ function _normalizePayload(body) {
 // ── Anti-spam ──
 // ══════════════════════════════════════════════════════
 
-var FORM_INTAKE_SALT = process.env.FORM_INTAKE_SALT || 'ambientcore-intake-v1-default';
+var FORM_INTAKE_SALT = process.env.FORM_INTAKE_SALT || 'ambientos-intake-v1-default';
 var RATE_LIMIT_MAX = 10;
 var RATE_LIMIT_WINDOW_MIN = 15;
 var MIN_SUBMIT_MS = 2500;
@@ -394,7 +394,7 @@ async function _readCanonical(id) {
 }
 
 // ══════════════════════════════════════════════════════
-// ── Time Slot Proposal (ConversionCore strategy) ──
+// ── Time Slot Proposal (AmbientScore strategy) ──
 // ══════════════════════════════════════════════════════
 
 /**
@@ -527,10 +527,10 @@ async function _spawnTask(record) {
   var priority = record.type === 'demo' ? 'medium' : 'low';
   var assignee = record.type === 'demo' ? 'scout' : 'nova';
 
-  // ConversionCore strategy — enrich description, route to Nova
-  if (record.type === 'conversioncore_strategy') {
+  // AmbientScore strategy — enrich description, route to Nova
+  if (record.type === 'conversioncore_strategy' || record.type === 'ambientscore_strategy') {
     var cc = record.conversioncore || {};
-    typeLabel = 'Conversioncore Strategy';
+    typeLabel = 'AmbientScore Strategy';
     descParts.push('**Report ID:** ' + (cc.reportId || 'N/A'));
     descParts.push('**Score:** ' + (cc.score != null ? cc.score : 'N/A') + ' | **Site Type:** ' + (cc.siteType || 'N/A'));
     descParts.push('**Website:** ' + (cc.url || 'N/A'));
@@ -599,14 +599,14 @@ function _generateDraftReply(record) {
   var hasSubject = record.message && record.message.subject;
   var hasBody = record.message && record.message.body && record.message.body.length > 10;
 
-  // ConversionCore strategy — scheduling-aware draft
-  if (record.type === 'conversioncore_strategy') {
+  // AmbientScore strategy — scheduling-aware draft
+  if (record.type === 'conversioncore_strategy' || record.type === 'ambientscore_strategy') {
     var cc = record.conversioncore || {};
     var slots = (record.scheduling && record.scheduling.proposedSlots) || [];
     var ccLines = [
       greeting,
       '',
-      'Thank you for requesting a strategy session based on your ConversionCore audit' +
+      'Thank you for requesting a strategy session based on your AmbientScore audit' +
         (cc.score != null ? ' (Score: ' + cc.score + '/100)' : '') + '.',
       '',
       'We\'ve reviewed the findings for ' + (cc.url || 'your site') +
@@ -616,7 +616,7 @@ function _generateDraftReply(record) {
       ''
     ];
     if (slots.length > 0) {
-      var BASE_CONFIRM = 'https://ambientpixels.ai/conversioncore/confirm.html';
+      var BASE_CONFIRM = 'https://ambientpixels.ai/ambientscore/confirm.html';
       slots.forEach(function (s, i) {
         ccLines.push('  ' + (i + 1) + '. ' + s.label);
         if (s.token && record.id) {
@@ -635,7 +635,7 @@ function _generateDraftReply(record) {
     ccLines.push('');
     ccLines.push('Click a link above to confirm your preferred time, or reply with an alternative.');
     ccLines.push('');
-    ccLines.push('— AmbientPixels / ConversionCore');
+    ccLines.push('— AmbientPixels / AmbientScore');
     return ccLines.join('\n');
   }
 
@@ -653,7 +653,7 @@ function _generateDraftReply(record) {
       '',
       'We\'ll follow up within two business days to schedule a walkthrough.',
       '',
-      '— AmbientPixels / AmbientCore'
+      '— AmbientPixels / AmbientOS'
     ];
     return lines.join('\n');
   }
@@ -677,7 +677,7 @@ function _generateDraftReply(record) {
   lines.push('');
   lines.push('We typically respond within two business days. If this is urgent, please note that in your reply and we\'ll prioritize accordingly.');
   lines.push('');
-  lines.push('— AmbientPixels / AmbientCore');
+  lines.push('— AmbientPixels / AmbientOS');
 
   return lines.join('\n');
 }
@@ -1059,8 +1059,8 @@ module.exports = async function (context, req) {
         raw: body
       };
 
-      // ── ConversionCore strategy metadata + proposed time slots ──
-      if (data.type === 'conversioncore_strategy' && data.conversioncore) {
+      // ── AmbientScore strategy metadata + proposed time slots ──
+      if ((data.type === 'conversioncore_strategy' || data.type === 'ambientscore_strategy') && data.conversioncore) {
         record.conversioncore = data.conversioncore;
         var proposedSlots = await _proposeTimeSlots(3);
         proposedSlots.forEach(function (slot, i) {

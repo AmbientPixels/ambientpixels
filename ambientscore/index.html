@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AmbientScore — AI Website Conversion Audit</title>
+  <meta name="description" content="Find where your website is losing revenue. Get a AmbientScore and 3 prioritized fixes you can implement immediately.">
+  <meta property="og:title" content="AmbientScore — AI Website Conversion Audit">
+  <meta property="og:description" content="Find where your website is losing revenue. Get a prioritized fix list in 60 seconds.">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="/images/favicon.ico">
+  <link rel="stylesheet" href="/ambientscore/css/ambientscore.css">
+</head>
+<body>
+
+  <!-- Brand Bar -->
+  <header class="as-brand-bar">
+    <div class="as-container">
+      <span class="as-brand-name">AmbientScore</span>
+      <a href="https://ambientpixels.ai" class="as-brand-link">by AmbientPixels</a>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="as-hero">
+    <div class="as-container">
+      <h1>Find where your website is losing revenue.</h1>
+      <p>Get a AmbientScore and 3 prioritized fixes you can implement immediately.</p>
+      <form id="as-scan-form" class="as-url-form">
+        <input type="url" id="as-url-input" class="as-url-input" placeholder="https://yoursite.com" required autocomplete="url">
+        <button type="submit" id="as-scan-btn" class="as-scan-btn">Get My Score</button>
+      </form>
+      <p class="as-trust-line">Free Conversion Score &mdash; Full Actionable Report $49</p>
+    </div>
+  </section>
+
+  <!-- Loading State -->
+  <section id="as-loading" class="as-loading" style="display:none;">
+    <div class="as-container">
+      <div class="as-spinner"></div>
+      <p class="as-loading-text" id="as-loading-text">Fetching your page...</p>
+      <div class="as-loading-steps">
+        <span class="as-loading-step active" id="as-step-fetch">Fetching page</span>
+        <span class="as-loading-step" id="as-step-extract">Extracting elements</span>
+        <span class="as-loading-step" id="as-step-evaluate">Evaluating 8 dimensions</span>
+        <span class="as-loading-step" id="as-step-score">Computing score</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Error State -->
+  <section id="as-error" class="as-error" style="display:none;">
+    <div class="as-container">
+      <p id="as-error-text"></p>
+    </div>
+  </section>
+
+  <!-- Results -->
+  <section id="as-results" class="as-results" style="display:none;">
+    <div class="as-container">
+
+      <!-- Score -->
+      <div class="as-score-section">
+        <div class="as-score-gauge" id="as-score-gauge">--</div>
+        <div class="as-grade" id="as-grade"></div>
+        <div class="as-score-label">AmbientScore</div>
+        <div class="as-score-interpretation" id="as-score-interpretation"></div>
+        <div class="as-score-meta">
+          <span class="as-meta-check">8 conversion dimensions evaluated</span>
+          <span class="as-meta-check">Evidence-backed scoring</span>
+          <span class="as-meta-check">Actionable rewrites included</span>
+        </div>
+      </div>
+
+      <!-- JS Warning -->
+      <div id="as-js-warning" class="as-warning" style="display:none;"></div>
+
+      <!-- Visible Findings -->
+      <div class="as-findings" id="as-findings-visible"></div>
+
+      <!-- Blurred Findings -->
+      <div class="as-blur-overlay" id="as-findings-blurred"></div>
+
+      <!-- Upgrade CTA -->
+      <div class="as-upgrade" id="as-upgrade">
+        <h3>Unlock Full Revenue Breakdown</h3>
+        <ul class="as-upgrade-list">
+          <li><span id="as-blurred-count">0</span> additional findings ranked by impact</li>
+          <li>Headline + CTA rewrites included</li>
+          <li>Priority roadmap for highest ROI fixes</li>
+        </ul>
+        <div class="as-upgrade-buttons">
+          <button class="as-buy-btn" id="as-buy-single">Unlock Full Breakdown — $49</button>
+          <button class="as-pack-btn" id="as-buy-pack">3-Pack — $149</button>
+        </div>
+        <div class="as-credits-redeem" id="as-credits-redeem" style="display:none;">
+          <p class="as-credits-divider">or</p>
+          <div class="as-credits-form">
+            <input type="email" id="as-credits-email" class="as-credits-email-input" placeholder="Enter your pack email" />
+            <button type="button" class="as-credits-btn" id="as-credits-check-btn">Use Credits</button>
+          </div>
+          <div id="as-credits-status" class="as-credits-status"></div>
+        </div>
+        <p class="as-upgrade-proof">Clients improve their AmbientScore by 15–25 points after implementing top recommendations.</p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- How It Works -->
+  <section class="as-how">
+    <div class="as-container">
+      <h2>How It Works</h2>
+      <div class="as-steps">
+        <div class="as-step">
+          <div class="as-step-num">1</div>
+          <h3>Paste Your URL</h3>
+          <p>Enter any website URL. We analyze the page content, CTAs, trust elements, and conversion path.</p>
+        </div>
+        <div class="as-step">
+          <div class="as-step-num">2</div>
+          <h3>Conversion Health Analysis</h3>
+          <p>AI evaluates messaging clarity, CTA strength, funnel friction, trust signals, and more — using a weighted revenue model.</p>
+        </div>
+        <div class="as-step">
+          <div class="as-step-num">3</div>
+          <h3>Prioritized Fix List</h3>
+          <p>Get a scored report with specific, actionable fixes ranked by impact. Headlines and CTAs rewritten for you.</p>
+        </div>
+      </div>
+      <p class="as-how-differentiator" style="text-align:center;margin-top:24px;font-size:14px;color:var(--as-text-muted);">Built on a structured 8-dimension conversion framework &mdash; not generic AI summaries.</p>
+    </div>
+  </section>
+
+  <!-- Proof -->
+  <div class="as-proof">
+    <span class="as-proof-item">8 conversion dimensions</span>
+    <span class="as-proof-item">Evidence-backed scoring</span>
+    <span class="as-proof-item">Actionable rewrites included</span>
+    <span class="as-proof-item">Results in 60 seconds</span>
+  </div>
+
+  <!-- Footer -->
+  <footer class="as-footer">
+    <div class="as-container">
+      <p>&copy; 2026 AmbientScore by <a href="https://ambientpixels.ai">AmbientPixels</a></p>
+    </div>
+  </footer>
+
+  <script src="/ambientscore/js/ambientscore.js"></script>
+</body>
+</html>

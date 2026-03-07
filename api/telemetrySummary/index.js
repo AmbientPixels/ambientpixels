@@ -74,7 +74,7 @@ module.exports = async function (context, req) {
 
   // CORS preflight
   if (req.method === 'OPTIONS') {
-    context.res = { status: 204, headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type, X-AmbientCore-Key' } };
+    context.res = { status: 204, headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET, OPTIONS', 'Access-Control-Allow-Headers': 'Content-Type, X-AmbientOS-Key' } };
     return;
   }
 
@@ -83,9 +83,9 @@ module.exports = async function (context, req) {
   var timespan = RANGE_MAP[range];
 
   // Light access guard: internal dashboard vs public
-  var ambientcoreKey = process.env.AMBIENTCORE_INTERNAL_KEY || '';
-  var reqKey = (req.headers && req.headers['x-ambientcore-key']) || '';
-  var isInternal = ambientcoreKey && reqKey === ambientcoreKey;
+  var ambientosKey = process.env.AMBIENTOS_INTERNAL_KEY || process.env.AMBIENTCORE_INTERNAL_KEY || '';
+  var reqKey = (req.headers && req.headers['x-ambientos-key']) || '';
+  var isInternal = ambientosKey && reqKey === ambientosKey;
 
   if (!APP_ID || !API_KEY) {
     context.res = {

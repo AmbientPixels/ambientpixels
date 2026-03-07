@@ -99,10 +99,10 @@ function loadForm(formType = 'modal', containerId = 'modal-container') {
       if (typeof window.initForms === 'function') {
         window.initForms();
       }
-      // Initialize AmbientCore intake forms (load script dynamically if needed)
+      // Initialize AmbientOS intake forms (load script dynamically if needed)
       if (typeof window.initIntakeForms === 'function') {
         window.initIntakeForms();
-      } else if (container.querySelector('[data-ambientcore-intake]') && !document.querySelector('script[src*="form-intake"]')) {
+      } else if (container.querySelector('[data-ambientos-intake]') && !document.querySelector('script[src*="form-intake"]')) {
         var s = document.createElement('script');
         s.src = '/js/form-intake.js';
         document.body.appendChild(s);

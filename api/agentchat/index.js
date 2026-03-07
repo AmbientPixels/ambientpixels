@@ -327,7 +327,7 @@ function parseActionResponse(text) {
   return { reply: text, actions: [] };
 }
 
-// AmbientCore execution_mode normalization
+// AmbientOS execution_mode normalization
 const ALLOWED_EXEC_MODES = new Set(['active', 'observe', 'frozen']);
 function normalizeExecutionMode(v) {
   var s = String(v || '').trim().toLowerCase();
@@ -339,7 +339,7 @@ async function executeChatActions(context, actions, agentId) {
   const results = [];
   const validActions = actions.slice(0, 3);
 
-  // Load execution_mode (AmbientCore automation posture)
+  // Load execution_mode (AmbientOS automation posture)
   const _execMode = normalizeExecutionMode(await storage.getState('execution_mode'));
 
   // Frozen: block ALL structured mutations

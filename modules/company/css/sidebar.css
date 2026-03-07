@@ -208,7 +208,7 @@
   color: #8A2BE2;
 }
 
-.sb-topbar-ambientcore {
+.sb-topbar-ambientos {
   margin-left: auto;
   display: inline-flex;
   align-items: center;
@@ -225,13 +225,13 @@
   transition: all 0.15s;
 }
 
-.sb-topbar-ambientcore:hover {
+.sb-topbar-ambientos:hover {
   color: rgba(255,255,255,0.92);
   border-color: rgba(138, 43, 226, 0.42);
   background: rgba(138, 43, 226, 0.1);
 }
 
-.sb-topbar-ambientcore i {
+.sb-topbar-ambientos i {
   font-size: 0.66rem;
   opacity: 0.9;
 }
@@ -306,12 +306,12 @@
     font-size: 0.64rem;
   }
 
-  .sb-topbar-ambientcore {
+  .sb-topbar-ambientos {
     padding: 4px 8px;
     font-size: 0.58rem;
   }
 
-  .sb-topbar-ambientcore span {
+  .sb-topbar-ambientos span {
     display: none;
   }
 

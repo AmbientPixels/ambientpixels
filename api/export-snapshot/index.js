@@ -107,7 +107,7 @@ module.exports = async function (context, req) {
     var snapshot = {
       meta: {
         exportedAt: ts,
-        version: 'AmbientCore Pre-Launch Snapshot',
+        version: 'AmbientOS Pre-Launch Snapshot',
         execution_mode: executionMode || 'active'
       },
       goals: goalsArr,
