@@ -1485,6 +1485,17 @@ Write the full deliverable first, then the structured JSON block.`;
           context.log('[Heartbeat] Fix 10c: Stripping agent reasoning at char', reasoningIdx, 'of', socialPayload.text.length);
           socialPayload.text = socialPayload.text.substring(0, reasoningIdx).trim();
         }
+        // Strip agent self-commentary that appears after the post content
+        // Agents append internal notes like "I've tried to keep..." or "Based on the analytics..."
+        var _hashtagEndIdx = socialPayload.text.search(/\n\s*#\S+[^\n]*$/m);
+        if (_hashtagEndIdx > 20) {
+          // Find end of hashtag line, strip everything after
+          var _afterHashtags = socialPayload.text.substring(_hashtagEndIdx).match(/^[^\n]*\n([\s\S]+)/);
+          if (_afterHashtags && _afterHashtags[1].trim().length > 0) {
+            context.log('[Heartbeat] Stripping post-hashtag agent commentary (' + _afterHashtags[1].trim().length + ' chars)');
+            socialPayload.text = socialPayload.text.substring(0, _hashtagEndIdx + socialPayload.text.substring(_hashtagEndIdx).indexOf('\n', 1)).trim();
+          }
+        }
         // Also strip bare artifact_id references: [artifact_id: ...] or [pub_...]
         socialPayload.text = socialPayload.text.replace(/\n*\[(?:artifact_id:\s*)?pub_[^\]]+\]\n*/g, '\n').trim();
         // Strip "Headline:" and "Body:" labels that leak from LinkedIn drafts
