@@ -1323,7 +1323,9 @@ Write the full deliverable first, then the structured JSON block.`;
             if (_deliverables.length > 0) {
               socialTask.reviewed_copy = _deliverables[_deliverables.length - 1].text;
               socialTask.updatedAt = new Date().toISOString();
-              context.log('[Heartbeat]', agentId, 'Late-resolved reviewed_copy from done copy task:', _copyTaskDone.id);
+              // Override the action text with the reviewed copy (Gemini may have used raw deliverable)
+              action.social.text = socialTask.reviewed_copy;
+              context.log('[Heartbeat]', agentId, 'Late-resolved reviewed_copy from done copy task:', _copyTaskDone.id, '— injected into action text');
               // Fall through — allow the social action with the reviewed copy
             }
           }
@@ -1406,12 +1408,13 @@ Write the full deliverable first, then the structured JSON block.`;
         }
       }
 
-      // Fix 9: If the social task has reviewed_copy but the action text is empty, inject the copy
+      // Fix 9: If the social task has reviewed_copy, ALWAYS use it over whatever Gemini wrote.
+      // Scribe's copy is the canonical post text — Gemini may have used the raw deliverable.
       if (action.taskId) {
         const _rcTask = tasks.find(t => t.id === action.taskId);
-        if (_rcTask && _rcTask.reviewed_copy && (!action.social.text || action.social.text.trim() === '')) {
+        if (_rcTask && _rcTask.reviewed_copy) {
           action.social.text = _rcTask.reviewed_copy;
-          context.log('[Heartbeat]', agentId, 'Injected reviewed_copy into social action text (' + action.social.text.length + ' chars)');
+          context.log('[Heartbeat]', agentId, 'Using reviewed_copy as social action text (' + action.social.text.length + ' chars)');
         }
       }
 
