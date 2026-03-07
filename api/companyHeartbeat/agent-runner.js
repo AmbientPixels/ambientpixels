@@ -1170,11 +1170,16 @@ Write the full deliverable first, then the structured JSON block.`;
                 // Extract article title from first heading (H1 or H2) in markdown (not task title)
                 const _h1Match = (deliverable || '').match(/^#{1,2}\s+(.+)$/m);
                 const _articleTitle = _h1Match ? _h1Match[1].replace(/\*\*/g, '').trim() : null;
+                // Sanitize deliverable: strip agent meta-commentary (Notes, Revision Notes, Artifact IDs, etc.)
+                var _cleanedDeliverable = deliverable;
+                _cleanedDeliverable = _cleanedDeliverable.replace(/\n*(?:Notes|Revision Notes|Editor'?s? Notes?|Changes? Made|Revisions?|Internal Notes?):\s*\n[\s\S]*$/i, '').trim();
+                _cleanedDeliverable = _cleanedDeliverable.replace(/\n*(?:Artifact ID|Parent task ID|Document ID|Task ID|Campaign ID|Objective ID)[:\s][^\n]*/gi, '').trim();
+                _cleanedDeliverable = _cleanedDeliverable.replace(/\s*\[(?:ADDRESSED|NOTE|REVISED|FEEDBACK|CHANGED|UPDATED)(?::\s*[^\]]*)?(?:\]\.?\s*)/gi, ' ').trim();
                 const _etDoc = {
                   id: _etDocId,
                   title: _articleTitle || task.title || 'Untitled Blog Post',
                   kind: 'marketing_post',
-                  content_md: deliverable,
+                  content_md: _cleanedDeliverable,
                   status: 'draft',
                   tags: ['blog', 'auto-created-from-execute'],
                   created_by: agentId,
@@ -1871,7 +1876,12 @@ Write the full deliverable first, then the structured JSON block.`;
       orig.payload = orig.payload || {};
       if (_isPublishRevision) {
         // For publish_document: update content_md, not payload.text
-        orig.payload.content_md = revisedText;
+        // Sanitize agent meta-commentary before storing
+        var _revClean = revisedText;
+        _revClean = _revClean.replace(/\n*(?:Notes|Revision Notes|Editor'?s? Notes?|Changes? Made|Revisions?|Internal Notes?):\s*\n[\s\S]*$/i, '').trim();
+        _revClean = _revClean.replace(/\n*(?:Artifact ID|Parent task ID|Document ID|Task ID|Campaign ID|Objective ID)[:\s][^\n]*/gi, '').trim();
+        _revClean = _revClean.replace(/\s*\[(?:ADDRESSED|NOTE|REVISED|FEEDBACK|CHANGED|UPDATED)(?::\s*[^\]]*)?(?:\]\.?\s*)/gi, ' ').trim();
+        orig.payload.content_md = _revClean;
       } else {
         orig.payload.text = revisedText;
       }
