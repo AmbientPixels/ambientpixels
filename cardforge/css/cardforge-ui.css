@@ -1658,11 +1658,31 @@ body.cf-ui--neon .zone-header h3 i {
   opacity: 0.7;
 }
 
-[data-step-section="0"] .roll-btn:hover {
-  transform: translateY(-1px) scale(1.01);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+/* Secondary generator — same purple family, lower intensity */
+[data-step-section="0"] .roll-btn:not(.cf-ai-generate-btn) {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.08), rgba(59, 130, 246, 0.08));
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  color: #c4b5fd;
+  box-shadow: none;
 }
-/* AI buttons inside Presets tab — override the .roll-btn hover above */
+[data-step-section="0"] .roll-btn:not(.cf-ai-generate-btn) .roll-icon {
+  color: rgba(139, 92, 246, 0.7);
+}
+[data-step-section="0"] .roll-btn:not(.cf-ai-generate-btn) .roll-subtitle {
+  color: var(--cf-text-muted, #808099);
+}
+[data-step-section="0"] .roll-btn:not(.cf-ai-generate-btn):hover {
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.18), rgba(59, 130, 246, 0.18));
+  border-color: rgba(139, 92, 246, 0.6);
+  color: #e0d4ff;
+  transform: none;
+  box-shadow: 0 0 8px rgba(139, 92, 246, 0.15);
+}
+[data-step-section="0"] .roll-btn:not(.cf-ai-generate-btn):hover .roll-icon {
+  color: rgba(139, 92, 246, 1);
+}
+
+/* Primary AI generator hover */
 [data-step-section="0"] .roll-btn.cf-ai-generate-btn:hover {
   transform: none;
   box-shadow: 0 0 10px rgba(139, 92, 246, 0.2);
