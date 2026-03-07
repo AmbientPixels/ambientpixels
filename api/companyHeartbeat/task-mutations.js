@@ -198,8 +198,9 @@ function applyTaskUpdate(tasks, update, _pendingEscalations, _creatingAgentId) {
             } else {
             // ── SOCIAL TASK AUTO-COMPLETE: social tasks skip CEO approval on the task —
             // the create-social-action itself goes through CEO approval (that's the real gate) ──
-            const _isSocialTask = (tasks[i].assignee === 'echo') &&
-              (/^social_/.test(tasks[i].taskType || '') || tasks[i].campaign_id);
+            const _socialText = ((tasks[i].title || '') + ' ' + (tasks[i].description || '')).toLowerCase();
+            const _isSocialTask = /^social_/.test(tasks[i].taskType || '') ||
+              (tasks[i].campaign_id && /linkedin|twitter|x\.com|social\s*media|social\s*post|bluesky|tweet/.test(_socialText));
             if (_isSocialTask) {
               tasks[i].status = 'done';
               tasks[i].completedAt = new Date().toISOString();

@@ -1059,8 +1059,14 @@ Write the full deliverable first, then the structured JSON block.`;
           let deliverable = await executeTask(context, agent, task, costIntel, siteIntel, socialIntel, execContext);
           result.geminiCalls++;
           if (deliverable) {
-            // Server-side preamble strip: remove conversational openings that leak into published content
-            deliverable = deliverable.replace(/^(?:Okay|Sure|Alright|Great|Here(?:'s| is| are)|Let me|I'll|I will|Of course)[,.]?\s*(?:here(?:'s| is| are)\s*)?(?:the |a |my |an |your )?(?:draft|post|image|hero|blog|linkedin|social|copy|review|content|asset|version|revision|updated|revised|generated|generating|creating)?[^.\n]*?(?::\s*\n|\.\s*\n\n?|—\s*\n)/i, '');
+            // Server-side preamble strip: remove conversational preamble before actual content
+            // Match lines starting with conversational openers up to the first ## heading or **bold** content marker
+            if (/^(?:Okay|Sure|Alright|Great|Here|Let me|I'll|I will|I've|Of course)/i.test(deliverable)) {
+              var _headingIdx = deliverable.search(/\n(?:##\s|(?:\*\*(?:Headline|Title|Body|Draft|Post|Hook|Content|Copy|Subject|Platform|Website|Focus|LinkedIn|Twitter|Bluesky)[:\s*]))/i);
+              if (_headingIdx > 0 && _headingIdx < 500) {
+                deliverable = deliverable.substring(_headingIdx + 1);
+              }
+            }
             result.taskUpdates.push({
               action: 'execute',
               taskId: action.taskId,
