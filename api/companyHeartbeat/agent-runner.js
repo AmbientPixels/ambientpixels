@@ -1240,9 +1240,20 @@ Write the full deliverable first, then the structured JSON block.`;
         }
       }
     } else if (action.type === 'create-social-action' && action.social) {
-      // PEER REVIEW GATE: REMOVED — redundant with Copy Review Gate below.
-      // The Copy Review Gate ensures Scribe writes copy + peer reviews it before posting.
-      // The social ACTION itself goes through CEO approval — that's the real quality gate.
+      // AUTO-LINK: If Gemini didn't include taskId, infer it from Echo's active/done social tasks
+      if (!action.taskId && agentId === 'echo') {
+        var _alPlatform = (action.social.platform || '').toLowerCase();
+        var _alMatch = tasks.find(function (t) {
+          if (t.assignee !== 'echo' || t._archived) return false;
+          if (t.status !== 'done' && t.status !== 'review' && t.status !== 'in-progress') return false;
+          var tp = (t.taskType || '').replace('social_', '');
+          return tp === _alPlatform || (tp === 'x' && _alPlatform === 'twitter');
+        });
+        if (_alMatch) {
+          action.taskId = _alMatch.id;
+          context.log('[Heartbeat]', agentId, 'Auto-linked create-social-action to task:', _alMatch.id, '(Gemini omitted taskId)');
+        }
+      }
 
       // TRIAGE GATE: if this social action is linked to a task, that task must be triaged first
       // Exception: CEO-created tasks with assignee + dueDate are pre-triaged
