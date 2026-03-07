@@ -1160,11 +1160,19 @@ Write the full deliverable first, then the structured JSON block.`;
         updates: _updates
       });
     } else if (action.type === 'move-task' && action.taskId && action.newStatus) {
-      // Block move-task to done on social-copy tasks — must go through review flow
+      // Block move-task to done on tasks with no deliverable — must execute first
       if (action.newStatus === 'done') {
         const _mtTarget = tasks.find(t => t.id === action.taskId);
         if (_mtTarget && _mtTarget.tags && _mtTarget.tags.indexOf('social-copy') !== -1) {
           context.log('[Heartbeat]', agentId, 'BLOCKED move-task to done on social-copy task:', action.taskId, '— must go through review flow');
+          continue;
+        }
+        // Block any task from being moved to done without a deliverable (no empty completions)
+        const _mtDeliverables = _mtTarget ? (_mtTarget.comments || []).filter(c => c.type === 'deliverable') : [];
+        if (_mtTarget && _mtDeliverables.length === 0) {
+          context.log('[Heartbeat]', agentId, 'BLOCKED move-task to done on', action.taskId, '— no deliverable produced yet. Use execute-task first.');
+          // Force execute instead — inject an execute-task action
+          actions.push({ type: 'execute-task', taskId: action.taskId, summary: 'System: forced execute before done (no deliverable)' });
           continue;
         }
       }
