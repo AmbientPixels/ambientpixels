@@ -742,44 +742,27 @@
   font-size: 0.85rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.25s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.cf-ai-generate-btn::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(59, 130, 246, 0.3));
-  opacity: 0;
-  transition: opacity 0.25s ease;
+  transition: background var(--cf-transition-base, 200ms ease), border-color var(--cf-transition-base, 200ms ease), color var(--cf-transition-base, 200ms ease), box-shadow var(--cf-transition-base, 200ms ease);
+  min-height: auto;
+  box-shadow: none;
 }
 
 .cf-ai-generate-btn:hover {
-  border-color: rgba(139, 92, 246, 0.7);
-  color: #e0d4ff;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.2);
-}
-
-.cf-ai-generate-btn:hover::before {
-  opacity: 1;
+  border-color: rgba(139, 92, 246, 0.9);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(59, 130, 246, 0.3));
+  color: #f0eaff;
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.2);
+  transform: none;
 }
 
 .cf-ai-generate-btn:active {
-  transform: translateY(0);
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.4), rgba(59, 130, 246, 0.4));
+  transform: none;
 }
 
 .cf-ai-generate-btn:disabled {
   cursor: wait;
   opacity: 0.8;
-}
-
-.cf-ai-btn-icon,
-.cf-ai-btn-label {
-  position: relative;
-  z-index: 1;
 }
 
 .cf-ai-btn-icon {
