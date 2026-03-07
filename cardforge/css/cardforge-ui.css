@@ -166,8 +166,8 @@
 }
 
 .cf-icon-btn {
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border-radius: 10px;
   display: grid;
   place-items: center;
@@ -861,8 +861,7 @@ body.cf-ui--neon .zone-header h3 i {
   transition: border-color 0.2s ease;
 }
 
-.search-input-group input:focus {
-  outline: none;
+.search-input-group input:focus-visible {
   border-color: var(--mood-primary-color, #00d4ff);
 }
 
@@ -1675,7 +1674,6 @@ body.cf-ui--neon .zone-header h3 i {
   border-bottom: 1px solid transparent;
   border-radius: 0;
   color: var(--mood-primary-color, #e1e1ff);
-  outline: none;
   line-height: 1.4;
   min-width: 0;
 }
@@ -1907,7 +1905,6 @@ body.cf-ui--neon .zone-header h3 i {
   border-radius: 4px;
   color: var(--mood-primary-color, #e1e1ff);
   font-family: inherit;
-  outline: none;
   min-width: 0;
 }
 
@@ -2012,7 +2009,6 @@ body.cf-ui--neon .zone-header h3 i {
   border-radius: 4px;
   color: var(--mood-primary-color, #e1e1ff);
   font-family: inherit;
-  outline: none;
   min-width: 0;
   box-sizing: border-box;
 }
@@ -2183,7 +2179,6 @@ border: 1px solid rgba(255, 255, 255, 0.08);
 border-radius: 4px;
 color: var(--mood-primary-color, #e1e1ff);
 font-family: inherit;
-outline: none;
 min-width: 0;
 box-sizing: border-box;
 }
@@ -2198,7 +2193,6 @@ border: 1px solid rgba(255, 255, 255, 0.08);
 border-radius: 4px;
 color: var(--mood-primary-color, #e1e1ff);
 font-family: inherit;
-outline: none;
 min-width: 0;
 box-sizing: border-box;
 }
@@ -2497,7 +2491,6 @@ opacity: 1;
   color: var(--mood-primary-color, #e1e1ff);
   font-size: 0.85rem;
   font-family: inherit;
-  outline: none;
   min-width: 0;
 }
 
@@ -3018,8 +3011,8 @@ opacity: 1;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  width: 44px;
+  height: 44px;
   border: 1px solid transparent;
   border-radius: 5px;
   background: transparent;
@@ -3218,8 +3211,7 @@ opacity: 1;
   font-size: 0.95rem;
 }
 
-.basics-identity input:focus {
-  outline: none;
+.basics-identity input:focus-visible {
   border-color: var(--mood-primary-color, #e1e1ff);
   box-shadow: 0 0 0 2px rgba(225, 225, 255, 0.1);
 }

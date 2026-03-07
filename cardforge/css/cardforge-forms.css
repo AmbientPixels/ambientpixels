@@ -38,10 +38,9 @@
 }
 
 /* Form Inputs - Focus States */
-.cardforge-form input:focus,
-.cardforge-form textarea:focus,
-.cardforge-form select:focus {
-  outline: none;
+.cardforge-form input:focus-visible,
+.cardforge-form textarea:focus-visible,
+.cardforge-form select:focus-visible {
   border-color: var(--mood-primary-color, #e1e1ff);
   box-shadow: 0 0 0 2px rgba(225, 225, 255, 0.1);
 }
@@ -531,7 +530,7 @@
 
 /* None option styling */
 .no-icon {
-  font-size: 10px;
+  font-size: var(--cf-text-xs);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -642,8 +641,7 @@
   transition: all 0.2s ease;
 }
 
-.style-selector:focus {
-  outline: none;
+.style-selector:focus-visible {
   border-color: var(--mood-primary-color, #e1e1ff);
   box-shadow: 0 0 0 2px rgba(225, 225, 255, 0.1);
 }
@@ -847,8 +845,7 @@
   transition: border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
-.cf-ai-prompt:focus {
-  outline: none;
+.cf-ai-prompt:focus-visible {
   border-color: rgba(139, 92, 246, 0.7);
   box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.15);
 }
@@ -1196,9 +1193,8 @@
   padding-right: 24px;
 }
 
-.badge-category-select:focus {
+.badge-category-select:focus-visible {
   border-color: var(--mood-accent-color, #8b5cf6);
-  outline: none;
   box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
 }
 

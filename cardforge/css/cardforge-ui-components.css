@@ -45,7 +45,6 @@
   font-size: 1rem;
   font-family: inherit;
   cursor: pointer;
-  outline: none;
   position: relative;
   transition: background 0.18s, color 0.18s, box-shadow 0.18s;
 }
@@ -581,7 +580,6 @@ body.cf-ui--clean [data-save-state] {
   color: var(--mood-primary-color, #e1e1ff);
   font-family: inherit;
   font-size: 0.95rem;
-  outline: none;
   box-sizing: border-box;
   transition: border-color 0.15s ease;
 }
@@ -910,9 +908,8 @@ body.cf-ui--clean [data-save-state] {
   border-radius: 6px;
   cursor: pointer;
   transition: background 0.15s, color 0.15s, box-shadow 0.15s;
-  outline: none;
 }
-.toolbar-btn:focus, .toolbar-btn:hover {
+.toolbar-btn:focus-visible, .toolbar-btn:hover {
   background: var(--aura-bg-hover, #23234a);
   color: var(--mood-primary-color, #00d4ff);
   box-shadow: 0 0 0 2px var(--mood-primary-color, #00d4ff, 0.2);
@@ -949,8 +946,7 @@ body.cf-ui--clean [data-save-state] {
   font-family: inherit;
 }
 
-.search-input-group input:focus {
-  outline: none;
+.search-input-group input:focus-visible {
   border-color: var(--mood-primary-color, #00d4ff);
 }
 
@@ -2327,7 +2323,7 @@ body.cf-ui--clean [data-save-state] {
   font-size: 4rem;
   margin-bottom: 1.5rem;
   opacity: 0.3;
-  color: #00ffff;
+  color: var(--mood-primary-color, #00d4ff);
 }
 
 .my-cards-empty p {
