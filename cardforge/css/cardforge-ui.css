@@ -1582,12 +1582,18 @@ body.cf-ui--neon .zone-header h3 i {
   align-items: center;
 }
 
-/* Role/title — strongest element */
+/* Role/title — icon centered above name */
 [data-step-section="0"] .preset-character {
   font-size: 0.7rem;
   font-weight: 600;
   margin-bottom: 0;
   line-height: 1.2;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+[data-step-section="0"] .preset-character i {
+  font-size: 0.7rem;
 }
 
 /* Character name — secondary */
