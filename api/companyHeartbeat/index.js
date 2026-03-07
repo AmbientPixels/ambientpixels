@@ -1277,9 +1277,15 @@ module.exports = async function (context) {
               continue;
             }
             // Review cooldown: block reviews on tasks that entered review this cycle
+            // Exception: Quill reviewing social-copy tasks — this is the intended pipeline flow
             if (update.action === 'review' && update.taskId && _reviewCooldownIds.has(update.taskId)) {
-              context.log('[Heartbeat]', agentId, 'BLOCKED review on', update.taskId, '— task just entered review this cycle (cooldown)');
-              continue;
+              const _cooldownTask = tasks.find(t => t.id === update.taskId);
+              const _isSocialCopyCooldown = _cooldownTask && _cooldownTask.tags && _cooldownTask.tags.indexOf('social-copy') !== -1;
+              if (!_isSocialCopyCooldown) {
+                context.log('[Heartbeat]', agentId, 'BLOCKED review on', update.taskId, '— task just entered review this cycle (cooldown)');
+                continue;
+              }
+              context.log('[Heartbeat]', agentId, 'ALLOWED social-copy review on', update.taskId, '— exempt from cooldown (Quill pipeline)');
             }
             const mutationAction = update.action;
             const isTaskMutation = mutationAction === 'create' || mutationAction === 'move' || mutationAction === 'update';
@@ -1962,6 +1968,71 @@ module.exports = async function (context) {
     await storage.setState('agentMemories', _agentMemoryStore);
     await storage.setState('researchIntel', researchIntelStore);
     await storage.setState('runtimeMemory', runtimeMemory);
+
+    // ── Orphan Action Cleanup: cancel pending actions referencing deleted tasks/documents ──
+    {
+      const _orphanActions = (await storage.getState('actions')) || [];
+      const _taskIdSet = new Set(tasks.map(function (t) { return t && t.id; }).filter(Boolean));
+      let _orphanCleaned = 0;
+      for (let _oi = 0; _oi < _orphanActions.length; _oi++) {
+        const _oa = _orphanActions[_oi];
+        if (!_oa || _oa.status !== 'pending') continue;
+        if (_oa.taskId && !_taskIdSet.has(_oa.taskId)) {
+          _oa.status = 'cancelled';
+          _oa.cancelledAt = new Date().toISOString();
+          _oa.cancelReason = 'orphan: referenced task no longer exists';
+          _orphanCleaned++;
+        }
+      }
+      if (_orphanCleaned > 0) {
+        await storage.setState('actions', _orphanActions);
+        context.log('[Heartbeat] Orphan cleanup: cancelled', _orphanCleaned, 'pending actions referencing deleted tasks');
+      }
+    }
+
+    // ── Auto-execute approved actions (social_post.publish, publish_document) ──
+    {
+      const _aeActions = (await storage.getState('actions')) || [];
+      const _aeExecTypes = ['social_post.publish', 'publish_document'];
+      let _aeExecuted = 0;
+      let _aeChanged = false;
+      for (let _aei = 0; _aei < _aeActions.length; _aei++) {
+        const _aeA = _aeActions[_aei];
+        if (!_aeA) continue;
+        const _aeType = _aeA.type || _aeA.action_type;
+        if (_aeExecTypes.indexOf(_aeType) === -1) continue;
+        const _aeApproval = _aeA.approval ? _aeA.approval.status : null;
+        if (_aeApproval !== 'approved') continue;
+        const _aeExec = _aeA.execution ? _aeA.execution.status : 'pending';
+        if (_aeExec === 'success' || _aeExec === 'running') continue;
+        // Execute via the executor router
+        try {
+          const { executeAction } = require('../actionsExecute/executors');
+          _aeA.execution = _aeA.execution || {};
+          _aeA.execution.status = 'running';
+          _aeA.execution.started_at = new Date().toISOString();
+          _aeA.execution.attempts = (_aeA.execution.attempts || 0) + 1;
+          const _aeResult = await executeAction(_aeA);
+          _aeA.execution.status = 'success';
+          _aeA.execution.finished_at = new Date().toISOString();
+          _aeA.execution.receipt = _aeResult.receipt || null;
+          _aeA.execution_status = 'success';
+          _aeExecuted++;
+          context.log('[Heartbeat] Auto-executed approved action:', _aeA.id, _aeType);
+        } catch (_aeErr) {
+          _aeA.execution.status = 'failed';
+          _aeA.execution.finished_at = new Date().toISOString();
+          _aeA.execution.last_error = { code: 'AUTO_EXEC_FAIL', message: _aeErr.message };
+          _aeA.execution_status = 'failed';
+          context.log.warn('[Heartbeat] Auto-execute failed for', _aeA.id, ':', _aeErr.message);
+        }
+        _aeChanged = true;
+      }
+      if (_aeChanged) {
+        await storage.setState('actions', _aeActions);
+        if (_aeExecuted > 0) context.log('[Heartbeat] Auto-executed', _aeExecuted, 'approved action(s)');
+      }
+    }
 
     // Persist escalations to approval queue
     if (_pendingEscalations.length > 0) {

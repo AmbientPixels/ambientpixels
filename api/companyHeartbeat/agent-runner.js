@@ -1158,6 +1158,17 @@ Write the full deliverable first, then the structured JSON block.`;
           continue;
         }
       }
+      // Enforce objective_id when moving to in-progress (exempt: ops_breakfix, governance, maintenance, social-copy)
+      if (action.newStatus === 'in-progress') {
+        const _mvTask = tasks.find(t => t.id === action.taskId);
+        const _mvExempt = ['ops_breakfix', 'governance', 'maintenance'];
+        const _mvType = _mvTask ? (_mvTask.taskType || _mvTask.classification || '') : '';
+        const _mvIsSocialCopy = _mvTask && _mvTask.tags && _mvTask.tags.indexOf('social-copy') !== -1;
+        if (_mvTask && !_mvTask.objective_id && _mvExempt.indexOf(_mvType) === -1 && !_mvIsSocialCopy) {
+          context.log('[Heartbeat]', agentId, 'BLOCKED move-task to in-progress on', action.taskId, '— missing objective_id');
+          continue;
+        }
+      }
       result.taskUpdates.push({
         action: 'move',
         taskId: action.taskId,
@@ -1385,7 +1396,7 @@ Write the full deliverable first, then the structured JSON block.`;
                   taskId: action.taskId,
                   objective_id: task.objective_id || null,
                   campaign_id: task.campaign_id || null,
-                  promote: false,
+                  promote: true,
                   awaiting_hero_image: true,
                   created_at: new Date().toISOString(),
                   updated_at: new Date().toISOString()
@@ -1532,9 +1543,9 @@ Write the full deliverable first, then the structured JSON block.`;
             }
           }
           // If STILL no reviewed copy, block and create Scribe task
-          // SPAWN GUARD: do not spawn child tasks from auto-created tasks (prevents auto→auto chains)
-          const _isAutoCreatedSource = socialTask.tags && socialTask.tags.indexOf('auto-created') !== -1;
-          if (!socialTask.reviewed_copy && !_isAutoCreatedSource) {
+          // NOTE: spawn guard removed for social-copy tasks — the copy pipeline is a controlled chain
+          // (social task → copy task → Quill review), not an unbounded auto→auto loop
+          if (!socialTask.reviewed_copy) {
             if (!_copyTaskExists) {
               const _platform = (action.social.platform || 'linkedin').toLowerCase();
               const _maxLen = _platform === 'x' ? '280 chars' : _platform === 'bluesky' ? '300 chars' : '3000 chars for LinkedIn';
@@ -2372,7 +2383,7 @@ Write the full deliverable first, then the structured JSON block.`;
           created_at: new Date().toISOString(),
           updated_at: new Date().toISOString(),
           content_md: docPayload.content_md || '',
-          promote: false,
+          promote: kind === 'marketing_post' || kind === 'product_brief',
           taskId: action.taskId || null,
           objective_id: _docLinkedTask ? _docLinkedTask.objective_id || null : null,
           campaign_id: _docLinkedTask ? _docLinkedTask.campaign_id || null : null,

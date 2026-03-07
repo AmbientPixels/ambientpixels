@@ -236,6 +236,19 @@ function applyTaskUpdate(tasks, update, _pendingEscalations, _creatingAgentId) {
           // Request changes — back to in-progress
           tasks[i].status = 'in-progress';
           tasks[i].completedAt = null;
+          // Clear awaiting_copy_review on parent if this is a social-copy rejection
+          const _rejTags = tasks[i].tags || [];
+          if (_rejTags.indexOf('social-copy') !== -1) {
+            const _rejParentTag = _rejTags.find(t => t.startsWith('social-copy-for-'));
+            const _rejParentId = _rejParentTag ? _rejParentTag.replace('social-copy-for-', '') : null;
+            if (_rejParentId) {
+              const _rejParent = tasks.find(t => t.id === _rejParentId);
+              if (_rejParent) {
+                _rejParent.awaiting_copy_review = false;
+                _rejParent.updatedAt = new Date().toISOString();
+              }
+            }
+          }
         }
         tasks[i].updatedAt = new Date().toISOString();
         return tasks[i];
