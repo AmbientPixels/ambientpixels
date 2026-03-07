@@ -355,9 +355,9 @@ Write the full deliverable first, then the structured JSON block.`;
         .filter(t => {
           if (t.status !== 'todo' && t.status !== 'in-progress') return false;
           if (!t.campaign_id && !(t.comments && t.comments.some(c => c.author === 'nova' || c.author === 'system'))) return false;
-          // Same-cycle guard: skip tasks created < 2 min ago
+          // Same-cycle guard: skip tasks created < 30s ago (prevents create-then-execute in one heartbeat)
           var _taskAge = _cycleStartMs - new Date(t.createdAt || 0).getTime();
-          if (_taskAge < 120000) {
+          if (_taskAge < 30000) {
             context.log('[Heartbeat] ANTI-STALL: skipping same-cycle task', t.id, '(age:', Math.round(_taskAge / 1000) + 's)');
             return false;
           }
