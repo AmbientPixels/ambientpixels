@@ -482,17 +482,36 @@ Write the full deliverable first, then the structured JSON block.`;
             (t.comments || []).filter(c => c.type === 'deliverable').length < 5
           );
           if (_peerReviewCandidates.length > 0) {
-            // Pick the oldest review task (most stale)
-            _peerReviewCandidates.sort((a, b) =>
-              new Date(a.updatedAt || a.createdAt || 0).getTime() - new Date(b.updatedAt || b.createdAt || 0).getTime()
-            );
-            const _prTarget = _peerReviewCandidates[0];
-            context.log('[Heartbeat] PEER REVIEW:', agentId, 'has no idle tasks — injecting review-task for:', _prTarget.id, '"' + (_prTarget.title || '') + '"');
-            actions.unshift({
-              type: 'review-task',
-              taskId: _prTarget.id,
-              summary: 'Peer review (no own idle tasks): ' + (_prTarget.title || _prTarget.id)
-            });
+            // Domain-aware reviewer selection: prefer content agents for social/content tasks
+            var _prTarget = null;
+            var _prSocialReviewers = ['scribe', 'quill'];
+            var _prContentReviewers = ['scribe', 'echo', 'quill'];
+            for (var _pri = 0; _pri < _peerReviewCandidates.length; _pri++) {
+              var _prc = _peerReviewCandidates[_pri];
+              var _prcType = (_prc.taskType || '').toLowerCase();
+              if (/^social_/.test(_prcType) && _prSocialReviewers.indexOf(agentId) !== -1) { _prTarget = _prc; break; }
+              if (/^blog_|^article|^newsletter|^internal_doc/.test(_prcType) && _prContentReviewers.indexOf(agentId) !== -1) { _prTarget = _prc; break; }
+            }
+            // Fallback: only inject if this agent is domain-relevant or no better reviewer exists
+            if (!_prTarget) {
+              // Non-content agents (cipher, forge, pixel, scout) skip social/content reviews
+              var _prSkipDomains = ['cipher', 'forge', 'pixel', 'scout'];
+              var _prFirstCandidate = _peerReviewCandidates[0];
+              var _prCandType = (_prFirstCandidate.taskType || '').toLowerCase();
+              if (_prSkipDomains.indexOf(agentId) !== -1 && (/^social_/.test(_prCandType) || /^blog_|^article/.test(_prCandType))) {
+                // Skip — let content agents handle this review
+              } else {
+                _prTarget = _prFirstCandidate;
+              }
+            }
+            if (_prTarget) {
+              context.log('[Heartbeat] PEER REVIEW:', agentId, 'has no idle tasks — injecting review-task for:', _prTarget.id, '"' + (_prTarget.title || '') + '"');
+              actions.unshift({
+                type: 'review-task',
+                taskId: _prTarget.id,
+                summary: 'Peer review (no own idle tasks): ' + (_prTarget.title || _prTarget.id)
+              });
+            }
           }
         }
       }
@@ -1480,7 +1499,8 @@ Write the full deliverable first, then the structured JSON block.`;
       socialPayload.text = socialPayload.text.replace(/\n*-{3,}\s*$/g, '').trim();
 
       // Strip meta-comments agents leave in copy (e.g. [ADDRESSED], [NOTE], [REVISED])
-      socialPayload.text = socialPayload.text.replace(/\n*\[(?:ADDRESSED|NOTE|REVISED|FEEDBACK|CHANGED|UPDATED)[^\]]*\].*$/gis, '').trim();
+      // Only strip to end of LINE (no 's' flag) — 's' flag was causing entire post content to be eaten
+      socialPayload.text = socialPayload.text.replace(/\n*\[(?:ADDRESSED|NOTE|REVISED|FEEDBACK|CHANGED|UPDATED)[^\]]*\][^\n]*/gi, '').trim();
 
       // Strip campaign brief metadata that leaks into social post text
       // Agents sometimes dump the full task brief (objectives, rules, multi-post format)
