@@ -1329,6 +1329,12 @@ Write the full deliverable first, then the structured JSON block.`;
       } else {
         const task = tasks.find(t => t.id === action.taskId);
         if (task) {
+          // Move to in-progress before executing (todo → in-progress → review flow)
+          if (task.status === 'todo' || task.status === 'backlog') {
+            task.status = 'in-progress';
+            task.updatedAt = new Date().toISOString();
+            context.log('[Heartbeat]', agentId, 'moved task to in-progress before execute:', action.taskId);
+          }
           const deliverable = await executeTask(context, agent, task, costIntel, siteIntel, socialIntel, execContext);
           result.geminiCalls++;
           if (deliverable) {
