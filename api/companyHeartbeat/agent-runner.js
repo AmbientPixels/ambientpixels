@@ -1316,12 +1316,12 @@ Write the full deliverable first, then the structured JSON block.`;
       if (action.taskId) {
         const socialTask = tasks.find(t => t.id === action.taskId);
         // Block if task not found (bad taskId) — don't let unlinked actions through
-        if (socialTask && socialTask._social_action_created) {
-          // Auto-post already created the action — skip to avoid duplicate
-          context.log('[Heartbeat]', agentId, 'SKIPPED create-social-action — auto-post already created for task:', action.taskId);
+        if (socialTask && (socialTask._social_action_created || socialTask._social_action_pending)) {
+          // Auto-post already created (or will create) the action — skip to avoid duplicate
+          context.log('[Heartbeat]', agentId, 'SKIPPED create-social-action — auto-post handles task:', action.taskId);
           continue;
         } else if (socialTask && socialTask.reviewed_copy) {
-          // Has reviewed_copy — allow through, fix 9 will use it
+          // Has reviewed_copy but no pending flag (e.g. manually set) — allow through, fix 9 will use it
         } else if (!socialTask) {
           context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action — task not found:', action.taskId);
           continue;
