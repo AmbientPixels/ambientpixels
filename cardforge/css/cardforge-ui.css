@@ -1547,7 +1547,17 @@ body.cf-ui--neon .zone-header h3 i {
 
 [data-step-section="0"] .preset-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border-color: var(--mood-primary-color, #00d4ff);
+  background: rgba(0, 212, 255, 0.06);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(0, 212, 255, 0.1);
+}
+
+[data-step-section="0"] .preset-btn:hover .preset-character {
+  color: #fff;
+}
+
+[data-step-section="0"] .preset-btn:hover .preset-name {
+  color: var(--cf-text-primary, #e1e1ff);
 }
 
 /* Mini-card preview — card aspect ratio, subdued */
