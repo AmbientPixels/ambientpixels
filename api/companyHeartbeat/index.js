@@ -197,61 +197,6 @@ module.exports = async function (context) {
       autoFixCount++;
     }
 
-    // ── ONE-TIME MIGRATION (2026-03-07p): archive pre-rotation CC tasks + clean AQ ──
-    // Old CC tasks created before platform rotation fix keep getting restored by heartbeat.
-    // Uses _archived flag (NOT status='archived' which gets reset by cleanup at line ~1105).
-    // Remove after 2026-03-14.
-    {
-      var _migCC = ['cmp-1772575276222', 'cmp-1772575356809', 'cmp-1772575514648'];
-      var _migArchived = 0;
-      var _migTaskIds = new Set();
-      for (var _mi = 0; _mi < tasks.length; _mi++) {
-        if (_migCC.indexOf(tasks[_mi].campaign_id) !== -1) {
-          _migTaskIds.add(tasks[_mi].id);
-          if (!tasks[_mi]._archived) {
-            tasks[_mi]._archived = true;
-            tasks[_mi].status = 'done';
-            tasks[_mi].completedAt = tasks[_mi].completedAt || new Date().toISOString();
-            tasks[_mi].updatedAt = new Date().toISOString();
-            _migArchived++;
-          }
-        }
-      }
-      if (_migArchived > 0) {
-        context.log('[Heartbeat] MIGRATION: archived', _migArchived, 'pre-rotation CC tasks');
-        autoFixCount += _migArchived;
-      }
-      // Clean AQ items for archived CC tasks (load directly since approvalQueue not yet in scope)
-      if (_migTaskIds.size > 0) {
-        var _migAq = await storage.getState('approvalQueue') || [];
-        var _migAqBefore = _migAq.length;
-        _migAq = _migAq.filter(function(item) {
-          return !(item.taskId && _migTaskIds.has(item.taskId));
-        });
-        if (_migAq.length < _migAqBefore) {
-          await storage.setState('approvalQueue', _migAq);
-          context.log('[Heartbeat] MIGRATION: cleaned', _migAqBefore - _migAq.length, 'AQ items for CC tasks');
-        }
-      }
-      // Reject pending CC social actions
-      if (_migTaskIds.size > 0) {
-        var _migActions = await storage.getState('actions') || [];
-        var _migActChanged = 0;
-        for (var _aci = 0; _aci < _migActions.length; _aci++) {
-          var _ma = _migActions[_aci];
-          if (_ma.approval && _ma.approval.status === 'pending' && _ma._parentTaskId && _migTaskIds.has(_ma._parentTaskId)) {
-            _ma.approval.status = 'rejected';
-            _ma.approval.resolved_at = new Date().toISOString();
-            _migActChanged++;
-          }
-        }
-        if (_migActChanged > 0) {
-          await storage.setState('actions', _migActions);
-          context.log('[Heartbeat] MIGRATION: rejected', _migActChanged, 'pending CC social actions');
-        }
-      }
-    }
-
     // ── Goal → auto-create Campaign — DISABLED (CEO-only campaign creation) ──
     let objectivesChanged = false;
     context.log('[Heartbeat] Goal→Campaign auto-creation DISABLED (CEO-only)');
