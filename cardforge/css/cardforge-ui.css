@@ -2134,6 +2134,34 @@ body.cf-ui--neon .zone-header h3 i {
   text-shadow: 0 0 4px rgba(0, 0, 0, 0.35);
 }
 
+/* ── Add Buff — ghost secondary action (matching Attributes) ── */
+[data-step-section="4"] .add-buff-btn {
+  background: transparent !important;
+  color: var(--mood-text-secondary, #a0a0c0) !important;
+  border: 1px dashed rgba(255, 255, 255, 0.08) !important;
+  border-radius: 6px !important;
+  padding: 0.45rem 0.75rem !important;
+  font-size: 0.78rem !important;
+  font-weight: 500 !important;
+  margin-top: 0.5rem;
+  width: 100%;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  transform: none !important;
+}
+
+[data-step-section="4"] .add-buff-btn:hover {
+  background: rgba(255, 255, 255, 0.025) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: var(--mood-primary-color, #e1e1ff) !important;
+  transform: none !important;
+}
+
+[data-step-section="4"] .add-buff-btn.disabled {
+  opacity: 0.25 !important;
+  cursor: not-allowed !important;
+}
+
 /* Buffs & Traits — display-only panel (game-assigned via random roll) */
 
 /* =========================================
@@ -2146,6 +2174,9 @@ body.cf-ui--neon .zone-header h3 i {
 [data-step-section="5"] .attributes-panel {
   background: rgba(255, 255, 255, 0.015);
   border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  padding: 0.6rem;
+  margin-bottom: 0.75rem;
 }
 
 /* Attributes grid — 3-col default for 3×2 layout */
