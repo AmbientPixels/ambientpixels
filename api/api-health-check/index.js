@@ -85,7 +85,7 @@ module.exports = async function (context, req) {
       headers: corsHeaders,
       body: {
         ok: true,
-        apiVersion: '2026-03-07n',
+        apiVersion: '2026-03-07p',
         checkedAt: new Date().toISOString(),
         summary: { total: results.length, reachable: reachableCount, down: results.length - reachableCount },
         endpoints: results

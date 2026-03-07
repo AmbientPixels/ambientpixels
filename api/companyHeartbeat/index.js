@@ -197,9 +197,10 @@ module.exports = async function (context) {
       autoFixCount++;
     }
 
-    // ── ONE-TIME MIGRATION (2026-03-07n): archive pre-rotation CC tasks + clean AQ ──
+    // ── ONE-TIME MIGRATION (2026-03-07p): archive pre-rotation CC tasks + clean AQ ──
     // Old CC tasks created before platform rotation fix keep getting restored by heartbeat.
-    // This runs inside the heartbeat so the cleanup persists. Remove after 2026-03-14.
+    // Uses _archived flag (NOT status='archived' which gets reset by cleanup at line ~1105).
+    // Remove after 2026-03-14.
     {
       var _migCC = ['cmp-1772575276222', 'cmp-1772575356809', 'cmp-1772575514648'];
       var _migArchived = 0;
@@ -207,10 +208,11 @@ module.exports = async function (context) {
       for (var _mi = 0; _mi < tasks.length; _mi++) {
         if (_migCC.indexOf(tasks[_mi].campaign_id) !== -1) {
           _migTaskIds.add(tasks[_mi].id);
-          if (tasks[_mi].status !== 'archived') {
-            tasks[_mi].status = 'archived';
-            tasks[_mi].archivedAt = new Date().toISOString();
-            tasks[_mi].archivedReason = 'pre-rotation migration';
+          if (!tasks[_mi]._archived) {
+            tasks[_mi]._archived = true;
+            tasks[_mi].status = 'done';
+            tasks[_mi].completedAt = tasks[_mi].completedAt || new Date().toISOString();
+            tasks[_mi].updatedAt = new Date().toISOString();
             _migArchived++;
           }
         }
