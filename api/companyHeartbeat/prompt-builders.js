@@ -887,7 +887,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
   - CAMPAIGN CONTEXT: When a task has a campaign_id, read the CAMPAIGN BRIEF shown inline with the task. It contains the product URL, posting rules, tone guidance, and CTA variations. Always use the campaign URL (e.g. https://ambientpixels.ai/conversioncore), not the generic site URL.
   - COLLABORATIVE SOCIAL POST WORKFLOW (ALL social tasks — including campaign tasks):
     Social posts go through a collaborative pipeline: Echo drafts → Scribe writes copy → Peer review → task reaches "done" → Echo posts via create-social-action.
-    STEP 1 — DRAFT: Use execute-task on the social task to produce your draft as a deliverable. Write ONE post — your initial strategy and talking points for Scribe. Not multiple posts, not a batch.
+    STEP 1 — DRAFT: Use execute-task on the social task to produce your draft as a deliverable. Write exactly ONE finished post — not "Option 1/Option 2/Option 3", not multiple variations, not a batch. A single post ready for review. No markdown headers, no "## Draft:" labels, no options.
     STEP 2 — SCRIBE COPY: The server auto-creates a Scribe writing task. Scribe writes publish-ready copy and a peer reviews it. Once approved, the task gets reviewed_copy set.
     STEP 3 — PEER REVIEW: The social task must reach "done" status (peer-reviewed) before you can post.
     STEP 4 — POST: Once the task is "done" AND has reviewed_copy, use create-social-action with the reviewed_copy as your post text.

@@ -1487,7 +1487,9 @@ Write the full deliverable first, then the structured JSON block.`;
         // Strip "Headline:" and "Body:" labels that leak from LinkedIn drafts
         socialPayload.text = socialPayload.text.replace(/^Headline:\s*/i, '').replace(/\n+Body:\s*\n+/i, '\n\n').trim();
         // Strip markdown link syntax: [text](url) → url (social platforms don't render markdown)
-        socialPayload.text = socialPayload.text.replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '$2').trim();
+        socialPayload.text = socialPayload.text.replace(/\[([^\]]+)\]\((https?:\/\/[^)]+)\)/g, '$2');
+        // Strip bare bracket URLs: [https://...] → https://...
+        socialPayload.text = socialPayload.text.replace(/\[(https?:\/\/[^\]]+)\]/g, '$1').trim();
         // Strip "Subject:" label that leaks from Bluesky drafts
         socialPayload.text = socialPayload.text.replace(/^Subject:\s*[^\n]+\n+(?:Body:\s*\n+)?/i, '').trim();
       }
@@ -1512,11 +1514,11 @@ Write the full deliverable first, then the structured JSON block.`;
         _briefText = _briefText.replace(/Posting Rules:\s*\n(?:\s+[^\n]+\n?)*/gi, '');
         // Remove "---" separators
         _briefText = _briefText.replace(/^-{3,}$/gm, '');
-        // If text has "Post 1:" / "Post 2:" format, extract just Post 1
-        var _postMatch = _briefText.match(/(?:^|\n)\s*Post\s*1\s*:\s*([\s\S]*?)(?:\n\s*Post\s*2\s*:|$)/i);
+        // If text has "Post 1:" / "Post 2:" or "Option 1" / "Option 2" format, extract just the first
+        var _postMatch = _briefText.match(/(?:^|\n)\s*(?:Post|Option)\s*1\s*(?:\([^)]*\))?\s*:\s*([\s\S]*?)(?:\n\s*(?:Post|Option)\s*2\s*(?:\([^)]*\))?\s*:|$)/i);
         if (_postMatch && _postMatch[1].trim().length > 30) {
           _briefText = _postMatch[1].trim();
-          context.log('[Heartbeat]', agentId, 'Extracted Post 1 from multi-post brief (' + _briefText.length + ' chars)');
+          context.log('[Heartbeat]', agentId, 'Extracted first option from multi-option brief (' + _briefText.length + ' chars)');
         }
         // If text has platform section headers (### X (Twitter), ### LinkedIn), extract the matching section
         if (!_postMatch) {
