@@ -1646,6 +1646,11 @@ body.cf-ui--neon .zone-header h3 i {
   transform: translateY(-1px) scale(1.01);
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
 }
+/* AI buttons inside Presets tab — override the .roll-btn hover above */
+[data-step-section="0"] .roll-btn.cf-ai-generate-btn:hover {
+  transform: none;
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.2);
+}
 
 /* =========================================
    STATS TAB — Structural Refactor

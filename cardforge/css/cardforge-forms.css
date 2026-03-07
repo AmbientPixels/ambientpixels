@@ -728,7 +728,8 @@
 }
 
 /* ===== AI Generate Button ===== */
-.cf-ai-generate-btn {
+/* Double-class specificity to override .roll-btn base styles */
+.roll-btn.cf-ai-generate-btn {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -745,9 +746,10 @@
   transition: background var(--cf-transition-base, 200ms ease), border-color var(--cf-transition-base, 200ms ease), color var(--cf-transition-base, 200ms ease), box-shadow var(--cf-transition-base, 200ms ease);
   min-height: auto;
   box-shadow: none;
+  overflow: visible;
 }
 
-.cf-ai-generate-btn:hover {
+.roll-btn.cf-ai-generate-btn:hover {
   border-color: rgba(139, 92, 246, 0.9);
   background: linear-gradient(135deg, rgba(139, 92, 246, 0.3), rgba(59, 130, 246, 0.3));
   color: #f0eaff;
@@ -755,12 +757,12 @@
   transform: none;
 }
 
-.cf-ai-generate-btn:active {
+.roll-btn.cf-ai-generate-btn:active {
   background: linear-gradient(135deg, rgba(139, 92, 246, 0.4), rgba(59, 130, 246, 0.4));
   transform: none;
 }
 
-.cf-ai-generate-btn:disabled {
+.roll-btn.cf-ai-generate-btn:disabled {
   cursor: wait;
   opacity: 0.8;
 }
@@ -770,20 +772,20 @@
 }
 
 /* Loading state */
-.cf-ai-generate-btn.cf-ai-loading {
+.roll-btn.cf-ai-generate-btn.cf-ai-loading {
   border-color: rgba(139, 92, 246, 0.5);
   background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(59, 130, 246, 0.1));
 }
 
 /* Success state */
-.cf-ai-generate-btn.cf-ai-success {
+.roll-btn.cf-ai-generate-btn.cf-ai-success {
   border-color: rgba(52, 211, 153, 0.6);
   background: linear-gradient(135deg, rgba(52, 211, 153, 0.15), rgba(16, 185, 129, 0.15));
   color: #6ee7b7;
 }
 
 /* Error state */
-.cf-ai-generate-btn.cf-ai-error {
+.roll-btn.cf-ai-generate-btn.cf-ai-error {
   border-color: rgba(251, 146, 60, 0.6);
   background: linear-gradient(135deg, rgba(251, 146, 60, 0.15), rgba(239, 68, 68, 0.1));
   color: #fbbf24;
