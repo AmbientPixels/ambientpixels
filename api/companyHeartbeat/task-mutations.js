@@ -203,6 +203,13 @@ function applyTaskUpdate(tasks, update, _pendingEscalations, _creatingAgentId) {
             if (_isSocialTask) {
               tasks[i].status = 'done';
               tasks[i].completedAt = new Date().toISOString();
+              // Set reviewed_copy from latest deliverable so done-task social injection can fire
+              if (!tasks[i].reviewed_copy) {
+                const _socialDels = (tasks[i].comments || []).filter(c => c.type === 'deliverable');
+                if (_socialDels.length > 0) {
+                  tasks[i].reviewed_copy = _socialDels[_socialDels.length - 1].text;
+                }
+              }
               if (!tasks[i].comments) tasks[i].comments = [];
               tasks[i].comments.push({
                 id: 'cmt-socialauto-' + Date.now(),
