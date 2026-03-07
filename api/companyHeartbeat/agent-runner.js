@@ -958,13 +958,16 @@ Write the full deliverable first, then the structured JSON block.`;
         context.log('[Heartbeat]', agentId, 'STRIPPED child_task_ids from update-task — only Nova can set task hierarchy');
         delete _updates.child_task_ids;
       }
-      // Block agents from setting status=done via update-task on social-copy tasks
-      // These must go through the review flow (peer review → copy propagation)
+      // Block agents from setting status=done via update-task — must go through peer review flow
       if (_updates.status === 'done') {
         const _utTarget = tasks.find(t => t.id === action.taskId);
-        if (_utTarget && _utTarget.tags && _utTarget.tags.indexOf('social-copy') !== -1) {
-          context.log('[Heartbeat]', agentId, 'STRIPPED status=done from update-task on social-copy task:', action.taskId, '— must go through review flow');
-          delete _updates.status;
+        if (_utTarget) {
+          const _utHasReview = (_utTarget.comments || []).some(c => c.type === 'review');
+          const _utHasDeliverable = (_utTarget.comments || []).some(c => c.type === 'deliverable');
+          if (!_utHasDeliverable || !_utHasReview) {
+            context.log('[Heartbeat]', agentId, 'STRIPPED status=done from update-task on', action.taskId, '— no peer review yet (del:', _utHasDeliverable, 'rev:', _utHasReview + ')');
+            delete _updates.status;
+          }
         }
       }
       result.taskUpdates.push({
