@@ -1255,16 +1255,6 @@ Write the full deliverable first, then the structured JSON block.`;
         }
       }
 
-      // HARD BLOCK: if linked to a task without reviewed_copy, block immediately.
-      // Scribe must write copy first — no exceptions.
-      if (action.taskId) {
-        const _hbTask = tasks.find(t => t.id === action.taskId);
-        if (_hbTask && !_hbTask.reviewed_copy) {
-          context.log('[Heartbeat]', agentId, 'HARD BLOCKED create-social-action on', action.taskId, '— no reviewed_copy (Scribe must write copy first)');
-          continue;
-        }
-      }
-
       // TRIAGE GATE: if this social action is linked to a task, that task must be triaged first
       // Exception: CEO-created tasks with assignee + dueDate are pre-triaged
       // Exception: Campaign tasks are system-created with full context — no triage needed
