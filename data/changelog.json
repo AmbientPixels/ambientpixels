@@ -1,10 +1,10 @@
 {
-  "updated": "2026-03-06T13:56:47.404Z",
+  "updated": "2026-03-07T13:40:23.765Z",
   "entries": [
     {
-      "hash": "f3d19d3",
-      "date": "2026-03-05 22:54:46 -0800",
-      "message": "Block agents from bypassing review on social-copy tasks"
+      "hash": "f24e493",
+      "date": "2026-03-07 00:36:48 -0800",
+      "message": "Sanitize reviewed_copy in auto-post and inject blog URL for promo tasks"
     }
   ]
 }

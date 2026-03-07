@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-06T13:56:58.673Z",
+  "timestamp": "2026-03-07T13:40:34.812Z",
   "summary": {
     "totalJS": 2190,
     "totalCSS": 152,
@@ -1902,6 +1902,7 @@
     "deleteDirective",
     "deleteHeader",
     "deleteMemory",
+    "deleteObjective",
     "deleteTask",
     "deleteTimeEntry",
     "deleteTool",
@@ -4789,6 +4790,7 @@
     "transformStatus",
     "transitional",
     "triggerDreamGeneration",
+    "triggerHitShake",
     "triggerPreviewUpdate",
     "triggerPullNow",
     "trim",
@@ -5144,6 +5146,7 @@
     "025em",
     "02em",
     "03",
+    "035",
     "03em",
     "04",
     "04em",
@@ -5877,6 +5880,7 @@
     "arena-combat-stats__header",
     "arena-combat-stats__label",
     "arena-combatant",
+    "arena-combatant--hit",
     "arena-combatant--opponent",
     "arena-combatant--player",
     "arena-combatant__card",
