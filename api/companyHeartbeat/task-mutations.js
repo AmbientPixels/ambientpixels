@@ -309,7 +309,14 @@ function applyTaskUpdate(tasks, update, _pendingEscalations, _creatingAgentId) {
           // Assignee is always protected — agents cannot reassign tasks
           const isCeoTask = tasks[i].source !== 'heartbeat';
           const PROTECTED_FIELDS = ['title', 'description'];
-          const ALWAYS_PROTECTED = ['assignee'];
+          // Only Nova can assign unassigned tasks; no agent can reassign an already-assigned task
+          const ALWAYS_PROTECTED = [];
+          const isAssigneeUpdate = update.updates && update.updates.assignee;
+          const isUnassigned = !tasks[i].assignee;
+          const isNova = _creatingAgentId === 'nova';
+          if (isAssigneeUpdate && !(isNova && isUnassigned)) {
+            ALWAYS_PROTECTED.push('assignee');
+          }
           Object.keys(update.updates).forEach(k => {
             if (k !== 'id' && k !== 'createdAt' && k !== 'comments') {
               if (ALWAYS_PROTECTED.indexOf(k) !== -1) return; // skip — assignee cannot be changed by agents
