@@ -20,7 +20,7 @@ window.ArenaBattleUI = (function () {
 
     renderCombatants(battleData);
     updateHpBars(battleData.player.hp, battleData.player.maxHp, battleData.opponent.hp, battleData.opponent.maxHp);
-    updateRoundLabel(_currentRound, battleData.totalRounds);
+    updateRoundLabel(_currentRound);
     clearLog();
     addLogEntry('Battle started! Choose your move.');
     enableMoves(true);
@@ -112,9 +112,9 @@ window.ArenaBattleUI = (function () {
     if (opponentFill) opponentFill.classList.toggle('arena-hp-bar__fill--low', opponentPct < 30);
   }
 
-  function updateRoundLabel(round, total) {
+  function updateRoundLabel(round) {
     const el = document.getElementById('arena-round-label');
-    if (el) el.textContent = `Round ${round} of ${total}`;
+    if (el) el.textContent = `Round ${round}`;
   }
 
   function clearLog() {
@@ -261,7 +261,7 @@ window.ArenaBattleUI = (function () {
         window.ArenaResults.showResults(response.battleResult, _battleData);
       } else {
         _currentRound = response.currentRound;
-        updateRoundLabel(_currentRound, _battleData.totalRounds);
+        updateRoundLabel(_currentRound);
         addLogEntry(`Round ${_currentRound} — Choose your move.`);
         enableMoves(true);
       }

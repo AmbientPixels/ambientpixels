@@ -62,7 +62,7 @@
   "aiLowHpGuardBoost": 20,
   "aiLowHpHealBoost": 15,
   "aiLowHpThreshold": 0.3,
-  "totalRounds": 3,
+  "totalRounds": 99,
   "pointBudget": 300,
   "buffQtyCaps": {
     "bronze": 1,

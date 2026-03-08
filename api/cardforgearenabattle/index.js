@@ -860,13 +860,12 @@ async function handleMove(context, containerClient, userId, body) {
 
   battle.roundLog.push(roundResult);
 
-  // Check for battle end
+  // Check for battle end — KO only (round cap is a safety net, not a win condition)
   const isKo = player.hp <= 0 || opponent.hp <= 0;
-  const isFinalRound = round >= battle.totalRounds;
 
   let battleResult = null;
 
-  if (isKo || isFinalRound) {
+  if (isKo) {
     battle.status = 'complete';
 
     if (player.hp > opponent.hp) {
