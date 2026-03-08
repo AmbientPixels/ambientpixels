@@ -941,7 +941,7 @@ body:has(.arena-screen.active) {
 .arena-battle__stage {
   position: relative;
   border-radius: 16px;
-  overflow: hidden;
+  overflow: visible;
   margin-bottom: 1rem;
 }
 .arena-battle__stage::before {
@@ -981,6 +981,7 @@ body:has(.arena-screen.active) {
   border: 1px solid rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(8px);
   transition: box-shadow 0.4s ease;
+  overflow: visible;
 }
 .arena-combatant--player {
   border-color: rgba(139, 92, 246, 0.12);
@@ -1342,6 +1343,41 @@ body:has(.arena-screen.active) {
 .arena-results__banner--loss h1 { color: var(--arena-loss); text-shadow: 0 0 20px var(--arena-glow-red), 0 0 50px rgba(244, 63, 94, 0.15); }
 .arena-results__banner--draw h1 { color: var(--arena-gold); text-shadow: 0 0 20px var(--arena-glow-gold), 0 0 50px rgba(245, 158, 11, 0.15); }
 .arena-results__banner p { font-size: 0.9rem; color: var(--arena-text-muted); margin-top: 0.25rem; }
+.arena-results__avatars {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+.arena-results__avatars img {
+  width: 80px;
+  height: 80px;
+  border-radius: 14px;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  animation: arena-results-entrance 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
+.arena-results__banner--win .arena-results__avatars img {
+  border-color: rgba(34, 197, 94, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 16px var(--arena-glow-green);
+}
+.arena-results__banner--loss .arena-results__avatars img {
+  border-color: rgba(244, 63, 94, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 16px var(--arena-glow-red);
+}
+.arena-results__banner--draw .arena-results__avatars img {
+  border-color: rgba(245, 158, 11, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 16px var(--arena-glow-gold);
+}
+.arena-results__avatars .arena-results__vs {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--arena-text-dim);
+  letter-spacing: 0.05em;
+}
 @keyframes arena-results-entrance { from { opacity: 0; transform: scale(0.85) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 
 .arena-results__xp {

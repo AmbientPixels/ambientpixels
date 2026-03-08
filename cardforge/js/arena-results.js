@@ -43,6 +43,31 @@ window.ArenaResults = (function () {
       banner.className = 'arena-results__banner arena-results__banner--' + (isWin ? 'win' : isDraw ? 'draw' : 'loss');
     }
 
+    // Avatars
+    const avatarContainer = document.getElementById('arena-results-avatars');
+    if (avatarContainer) {
+      avatarContainer.innerHTML = '';
+      if (isDraw) {
+        // Show both avatars with VS between them
+        const playerImg = document.createElement('img');
+        playerImg.src = battleData.player.avatar || '';
+        playerImg.alt = battleData.player.name;
+        const vsLabel = document.createElement('span');
+        vsLabel.className = 'arena-results__vs';
+        vsLabel.textContent = 'VS';
+        const oppImg = document.createElement('img');
+        oppImg.src = battleData.opponent.avatar || '';
+        oppImg.alt = battleData.opponent.name;
+        avatarContainer.append(playerImg, vsLabel, oppImg);
+      } else {
+        // Win: show defeated boss; Loss: show your fallen card
+        const img = document.createElement('img');
+        img.src = (isWin ? battleData.opponent.avatar : battleData.player.avatar) || '';
+        img.alt = isWin ? battleData.opponent.name : battleData.player.name;
+        avatarContainer.appendChild(img);
+      }
+    }
+
     // XP
     const xpEl = document.getElementById('arena-results-xp');
     if (xpEl) xpEl.textContent = `+${battleResult.xpEarned} XP`;
