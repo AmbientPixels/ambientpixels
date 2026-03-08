@@ -506,14 +506,21 @@ body:has(.arena-screen.active) {
   transform: translateY(-2px);
 }
 .arena-card-thumb--selected {
-  border-color: var(--arena-xp);
-  border-width: 2px;
-  background: rgba(139, 92, 246, 0.12);
-  box-shadow: 0 0 20px var(--arena-glow-purple), inset 0 0 12px rgba(139, 92, 246, 0.06);
-  transform: translateY(-3px);
+  border: 2px solid var(--arena-xp) !important;
+  background: rgba(139, 92, 246, 0.15);
+  box-shadow: 0 0 24px rgba(139, 92, 246, 0.5), 0 0 48px rgba(139, 92, 246, 0.15), inset 0 0 16px rgba(139, 92, 246, 0.08);
+  transform: translateY(-5px) scale(1.04);
+}
+.arena-card-thumb--selected .arena-card-thumb__avatar {
+  border: 2px solid var(--arena-xp);
+  box-shadow: 0 0 12px var(--arena-glow-purple);
 }
 .arena-card-thumb--selected .arena-card-thumb__name {
-  color: var(--arena-xp);
+  color: #C4B5FD;
+  text-shadow: 0 0 8px rgba(139, 92, 246, 0.4);
+}
+.arena-card-thumb--selected .arena-card-thumb__class {
+  color: var(--arena-text-muted);
 }
 .arena-card-thumb__avatar {
   width: 64px;
