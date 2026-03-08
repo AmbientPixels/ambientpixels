@@ -325,8 +325,8 @@ body:has(.arena-screen.active) {
   gap: 1.2rem;
 }
 .arena-champion__avatar {
-  width: 96px;
-  height: 96px;
+  width: 110px;
+  height: 110px;
   border-radius: 14px;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.04);
@@ -336,8 +336,8 @@ body:has(.arena-screen.active) {
   font-size: 2.5rem;
   color: var(--arena-xp);
   flex-shrink: 0;
-  border: 2px solid rgba(139, 92, 246, 0.2);
-  box-shadow: 0 0 16px var(--arena-glow-purple);
+  border: 2px solid rgba(139, 92, 246, 0.25);
+  box-shadow: 0 0 20px var(--arena-glow-purple), 0 4px 16px rgba(0, 0, 0, 0.4);
 }
 .arena-champion__avatar img { width: 100%; height: 100%; object-fit: cover; }
 .arena-champion__name {
@@ -578,22 +578,29 @@ body:has(.arena-screen.active) {
 .arena-mode-card__glow {
   position: absolute;
   inset: 0;
-  opacity: 0;
+  opacity: 0.4;
   transition: opacity 0.3s ease;
   pointer-events: none;
 }
 .arena-mode-card--pve .arena-mode-card__glow {
-  background: radial-gradient(ellipse at 20% 50%, rgba(244, 63, 94, 0.06) 0%, transparent 70%);
+  background: radial-gradient(ellipse at 15% 50%, rgba(244, 63, 94, 0.08) 0%, transparent 70%);
 }
 .arena-mode-card--pvp .arena-mode-card__glow {
-  background: radial-gradient(ellipse at 20% 50%, rgba(59, 130, 246, 0.06) 0%, transparent 70%);
+  background: radial-gradient(ellipse at 15% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
 }
+.arena-mode-card--pve { border-color: rgba(244, 63, 94, 0.1); }
+.arena-mode-card--pvp { border-color: rgba(59, 130, 246, 0.1); }
 .arena-mode-card:hover:not(:disabled) .arena-mode-card__glow { opacity: 1; }
 
-.arena-mode-card:hover:not(:disabled) {
-  border-color: rgba(139, 92, 246, 0.3);
+.arena-mode-card--pve:hover:not(:disabled) {
+  border-color: rgba(244, 63, 94, 0.25);
   transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 12px rgba(244, 63, 94, 0.08);
+}
+.arena-mode-card--pvp:hover:not(:disabled) {
+  border-color: rgba(59, 130, 246, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 0 0 12px rgba(59, 130, 246, 0.08);
 }
 .arena-mode-card:disabled { opacity: 0.35; cursor: not-allowed; }
 
@@ -769,42 +776,38 @@ body:has(.arena-screen.active) {
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 1rem;
-  border: 1px solid var(--arena-border);
+  padding: 1rem 1.25rem;
+  border: 1px solid rgba(139, 92, 246, 0.08);
+  border-left: 3px solid var(--arena-xp);
   border-radius: 12px;
   background: var(--arena-surface);
   transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
 }
-.arena-boss-card::before {
-  content: '';
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: var(--arena-xp);
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
 .arena-boss-card:not(.arena-boss-card--locked):hover {
   border-color: rgba(139, 92, 246, 0.2);
-  background: rgba(15, 23, 42, 0.8);
+  border-left-color: var(--arena-xp);
+  background: var(--arena-surface-raised);
+  transform: translateX(4px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3), -2px 0 12px var(--arena-glow-purple);
 }
-.arena-boss-card:not(.arena-boss-card--locked):hover::before { opacity: 1; }
-.arena-boss-card--locked { opacity: 0.35; }
+.arena-boss-card--locked {
+  opacity: 0.3;
+  border-left-color: var(--arena-text-dim);
+}
 .arena-boss-card__level {
   font-family: 'Orbitron', monospace;
-  font-size: 0.72rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: var(--arena-xp);
   min-width: 44px;
   text-align: center;
+  line-height: 1.2;
 }
 .arena-boss-card__avatar {
-  width: 56px;
-  height: 56px;
+  width: 52px;
+  height: 52px;
   border-radius: 10px;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.04);
@@ -812,6 +815,7 @@ body:has(.arena-screen.active) {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  border: 1px solid rgba(139, 92, 246, 0.12);
 }
 .arena-boss-card__avatar img { width: 100%; height: 100%; object-fit: cover; }
 .arena-boss-card__info { flex: 1; min-width: 0; }
@@ -896,21 +900,25 @@ body:has(.arena-screen.active) {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.6rem 1rem;
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid var(--arena-border);
+  padding: 0.75rem 1.25rem;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(139, 92, 246, 0.1);
   border-radius: 10px;
   backdrop-filter: blur(8px);
   margin-bottom: 1rem;
 }
 .arena-battle__round {
   font-family: 'Orbitron', monospace;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 700;
   color: var(--arena-xp);
   text-shadow: 0 0 14px var(--arena-glow-purple);
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+  padding: 0.2rem 0.6rem;
+  background: rgba(139, 92, 246, 0.06);
+  border: 1px solid rgba(139, 92, 246, 0.12);
+  border-radius: 6px;
 }
 
 /* Combat stage — arena floor */
@@ -938,7 +946,7 @@ body:has(.arena-screen.active) {
   align-items: stretch;
   justify-content: center;
   gap: 1.5rem;
-  padding: 2rem 1rem;
+  padding: 1.5rem 1rem;
   position: relative;
   z-index: 1;
 }
@@ -1105,19 +1113,18 @@ body:has(.arena-screen.active) {
 
 /* --- Battle Log --- */
 .arena-battle__log {
-  max-height: 140px;
+  max-height: 120px;
   overflow-y: auto;
-  padding: 0.6rem 0.8rem;
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid var(--arena-border);
-  border-radius: 10px;
-  backdrop-filter: blur(4px);
+  padding: 0.5rem 0.75rem;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(139, 92, 246, 0.06);
+  border-radius: 8px;
   font-family: 'Rajdhani', sans-serif;
-  font-size: 0.78rem;
-  line-height: 1.5;
-  margin-bottom: 1rem;
-  mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 100%);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 100%);
+  font-size: 0.75rem;
+  line-height: 1.4;
+  margin-bottom: 0.75rem;
+  mask-image: linear-gradient(to bottom, transparent 0%, black 12%, black 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 12%, black 100%);
   scrollbar-width: thin;
   scrollbar-color: rgba(139, 92, 246, 0.15) transparent;
 }
