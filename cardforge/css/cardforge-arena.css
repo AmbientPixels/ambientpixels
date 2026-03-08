@@ -4,10 +4,32 @@
    Design System: ui-ux-pro-max persisted → design-system/cardforge-arena/
    =================================================================== */
 
+/* ===== ARENA DESIGN TOKENS ===== */
+:root {
+  --arena-bg: #020617;
+  --arena-surface: #0F172A;
+  --arena-surface-raised: #1E293B;
+  --arena-text: #F8FAFC;
+  --arena-text-muted: #94A3B8;
+  --arena-text-dim: #64748B;
+  --arena-win: #22C55E;
+  --arena-loss: #F43F5E;
+  --arena-xp: #A78BFA;
+  --arena-energy: #3B82F6;
+  --arena-gold: #F59E0B;
+  --arena-border: rgba(148, 163, 184, 0.08);
+  --arena-border-subtle: rgba(148, 163, 184, 0.04);
+  --arena-glow-purple: rgba(139, 92, 246, 0.3);
+  --arena-glow-green: rgba(34, 197, 94, 0.3);
+  --arena-glow-red: rgba(244, 63, 94, 0.3);
+  --arena-glow-blue: rgba(59, 130, 246, 0.3);
+  --arena-glow-gold: rgba(245, 158, 11, 0.3);
+}
+
 /* ===== GLOBAL ARENA CANVAS ===== */
 body:has(.arena-screen.active) {
-  background: var(--arena-bg, #020617);
-  color: var(--arena-text, #F8FAFC);
+  background: var(--arena-bg);
+  color: var(--arena-text);
 }
 
 .arena-screen {
@@ -443,9 +465,9 @@ body:has(.arena-screen.active) {
   color: var(--arena-text-muted);
 }
 .arena-stat-pill i { font-size: 0.6rem; }
-.arena-stat-pill--win i { color: var(--arena-win); }
-.arena-stat-pill--loss i { color: var(--arena-loss); }
-.arena-stat-pill--level i { color: var(--arena-gold); }
+.arena-stat-pill--win { color: var(--arena-win); border-color: rgba(34, 197, 94, 0.15); }
+.arena-stat-pill--loss { color: var(--arena-loss); border-color: rgba(244, 63, 94, 0.15); }
+.arena-stat-pill--level { color: var(--arena-gold); border-color: rgba(245, 158, 11, 0.15); }
 
 /* ===== CARD STRIP / ROSTER ===== */
 .arena-card-strip {
@@ -484,8 +506,13 @@ body:has(.arena-screen.active) {
 }
 .arena-card-thumb--selected {
   border-color: var(--arena-xp);
-  background: rgba(139, 92, 246, 0.08);
-  box-shadow: 0 0 16px var(--arena-glow-purple);
+  border-width: 2px;
+  background: rgba(139, 92, 246, 0.12);
+  box-shadow: 0 0 20px var(--arena-glow-purple), inset 0 0 12px rgba(139, 92, 246, 0.06);
+  transform: translateY(-3px);
+}
+.arena-card-thumb--selected .arena-card-thumb__name {
+  color: var(--arena-xp);
 }
 .arena-card-thumb__avatar {
   width: 64px;
