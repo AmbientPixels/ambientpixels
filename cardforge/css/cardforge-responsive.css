@@ -564,6 +564,68 @@
 }
 
 /* =============================================
+   PHASE 7 — PAGE BAR (phone-specific)
+   ============================================= */
+
+/* On phone widths the page bar has too many items to fit in one row.
+   Strategy: hide secondary controls, collapse labels, tighten spacing.
+   Kept: brand title, Arena (icon+label), New Card (icon+label), auth indicator, icon buttons.
+   Hidden: subtitle, variant toggle, status pill, username text, sign-in label. */
+
+@media (max-width: 480px) {
+  .cf-page-bar {
+    padding: 8px 12px;
+    min-height: 48px;
+  }
+  /* Hide "by AmbientPixels" — saves ~12px vertical, reduces perceived width */
+  .cf-page-bar__subtitle {
+    display: none;
+  }
+  /* Hide Clean/Neon toggle — accessible via Settings on mobile */
+  .cf-variant-toggle {
+    display: none;
+  }
+  /* Hide status pill — saves ~80px */
+  .cf-status-pill {
+    display: none;
+  }
+  /* Tighten action gap */
+  .cf-page-bar__actions {
+    gap: 0.4rem;
+  }
+  /* Compact primary action buttons */
+  .cf-new-card-btn {
+    padding: 5px 10px;
+    font-size: 12px;
+    gap: 4px;
+  }
+  /* Icon buttons slightly smaller but retain 44px tap target via padding */
+  .cf-icon-btn {
+    width: 34px;
+    height: 34px;
+  }
+  /* Auth: hide "Sign In" label, keep icon */
+  .cf-auth-link__text {
+    display: none;
+  }
+  /* User status: hide name, keep online dot */
+  #cf-user-name {
+    display: none;
+  }
+}
+
+/* Ultra-narrow (SE 1st gen, Galaxy A series) */
+@media (max-width: 375px) {
+  .cf-page-bar__title {
+    font-size: 0.95rem;
+  }
+  .cf-new-card-btn {
+    padding: 5px 8px;
+    font-size: 11px;
+  }
+}
+
+/* =============================================
    SAFE AREA INSETS (notched phones)
    ============================================= */
 
