@@ -28,9 +28,17 @@
       <span class="arena-topbar__tagline">Forge it. Fight it. Flex it.</span>
     </div>
     <div class="arena-topbar__actions">
-      <button class="arena-audio-toggle" id="arena-audio-toggle" title="Mute sounds">
-        <i class="fas fa-volume-high"></i>
+      <button class="arena-audio-toggle" id="arena-sfx-toggle" title="Mute SFX">
+        <i class="fas fa-bolt"></i>
+        <span class="arena-audio-toggle__label">SFX</span>
       </button>
+      <div class="arena-music-control">
+        <button class="arena-audio-toggle" id="arena-music-toggle" title="Mute music">
+          <i class="fas fa-music"></i>
+        </button>
+        <input type="range" class="arena-music-volume" id="arena-music-volume"
+               min="0" max="100" value="50" title="Music volume">
+      </div>
     </div>
     <div class="arena-topbar__profile" id="arena-profile-summary">
       <span class="arena-rank-badge" id="arena-rank-badge">

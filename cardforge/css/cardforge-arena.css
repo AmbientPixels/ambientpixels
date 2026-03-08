@@ -121,7 +121,12 @@ body:has(.arena-screen.active) {
   font-size: 0.8rem;
 }
 
-/* ===== AUDIO TOGGLE ===== */
+/* ===== AUDIO CONTROLS ===== */
+.arena-topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
 .arena-audio-toggle {
   background: none;
   border: 1px solid var(--arena-border);
@@ -133,11 +138,47 @@ body:has(.arena-screen.active) {
   transition: color 0.2s ease, border-color 0.2s ease;
   display: flex;
   align-items: center;
-  justify-content: center;
+  gap: 0.3rem;
+}
+.arena-audio-toggle__label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
 }
 .arena-audio-toggle:hover {
   color: var(--arena-text);
   border-color: var(--arena-xp);
+}
+.arena-audio-toggle--muted {
+  color: var(--arena-text-muted);
+  opacity: 0.45;
+}
+.arena-music-control {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  border: 1px solid var(--arena-border);
+  border-radius: 8px;
+  padding: 0.2rem 0.4rem;
+}
+.arena-music-control .arena-audio-toggle {
+  border: none;
+  padding: 0.15rem 0.2rem;
+}
+.arena-music-volume {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 64px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--arena-border);
+  outline: none;
+  cursor: pointer;
+  accent-color: var(--arena-xp);
+}
+.arena-music-volume:disabled {
+  opacity: 0.3;
+  cursor: default;
 }
 
 /* ===== RANK BADGE ===== */

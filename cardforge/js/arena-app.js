@@ -83,13 +83,8 @@ window.ArenaApp = (function () {
   }
 
   async function init() {
-    // Init audio
-    if (window.ArenaAudio) {
-      window.ArenaAudio.init();
-      document.getElementById('arena-audio-toggle')?.addEventListener('click', function () {
-        window.ArenaAudio.toggleMute();
-      });
-    }
+    // Init audio — binds SFX toggle, music toggle, volume slider internally
+    if (window.ArenaAudio) window.ArenaAudio.init();
 
     // Bind events
     window.ArenaBattleUI.bindEvents();
