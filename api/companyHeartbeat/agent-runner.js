@@ -1239,8 +1239,9 @@ Write the full deliverable first, then the structured JSON block.`;
           // auto-save the deliverable to researchIntel so all agents can reference it in future heartbeats.
           // Mirrors what the web-search path does via result.newResearchIntel.
           if (agentId === 'scout' && task.taskType === 'research' && deliverable.length > 200 && !result.newResearchIntel) {
+            const _riId = 'ri_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
             result.newResearchIntel = {
-              id: 'ri_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+              id: _riId,
               title: task.title,
               summary: deliverable.substring(0, 600),
               content: deliverable,
@@ -1249,6 +1250,12 @@ Write the full deliverable first, then the structured JSON block.`;
               agent: 'scout',
               source: 'execute-task'
             };
+            result.taskUpdates.push({
+              action: 'comment',
+              taskId: action.taskId,
+              comment: '**Research intel received.** Scout\'s findings have been saved to the company knowledge base (id: `' + _riId + '`) and are now available to all agents in future heartbeats.',
+              agentId: 'system'
+            });
             context.log('[Heartbeat] RESEARCH AUTO-PERSIST: Scout execute-task deliverable saved to researchIntel for task:', action.taskId);
           }
         }
