@@ -136,6 +136,11 @@ window.ArenaApp = (function () {
         });
       }
 
+      // Render arena background picker
+      if (window.ArenaBackgrounds) {
+        window.ArenaBackgrounds.renderPicker('arena-bg-picker', state.profile.rank);
+      }
+
       // Render card strip
       window.ArenaCardSelect.renderCardStrip(state.userCards, 'arena-card-strip', onCardSelected);
 
@@ -291,6 +296,7 @@ window.ArenaApp = (function () {
     state.lastOpponentId = bossId;
 
     showScreen('battle');
+    if (window.ArenaBackgrounds) window.ArenaBackgrounds.applyToBattleStage();
     window.ArenaBattleUI.enableMoves(false);
 
     try {
@@ -357,6 +363,7 @@ window.ArenaApp = (function () {
     state.lastOpponentId = opponentId;
 
     showScreen('battle');
+    if (window.ArenaBackgrounds) window.ArenaBackgrounds.applyToBattleStage();
     window.ArenaBattleUI.enableMoves(false);
 
     try {
@@ -427,6 +434,10 @@ window.ArenaApp = (function () {
           if (window.EffectTiers.renderRankRewardsPanel) window.EffectTiers.renderRankRewardsPanel('arena-rewards-panel');
           if (window.EffectTiers.renderNextRankPreview) window.EffectTiers.renderNextRankPreview('arena-next-rank-preview');
         }
+      }
+      // Re-render arena picker (new rank may unlock arenas)
+      if (window.ArenaBackgrounds) {
+        window.ArenaBackgrounds.renderPicker('arena-bg-picker', state.profile.rank);
       }
       if (!state.isDemo) {
         loadRecentMatches();

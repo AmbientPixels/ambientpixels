@@ -1511,6 +1511,129 @@ body:has(.arena-screen.active) {
   margin-bottom: 0.75rem;
 }
 
+/* ===== ARENA BACKGROUND PICKER ===== */
+.arena-bg-picker {
+  display: flex;
+  gap: 0.75rem;
+  overflow-x: auto;
+  padding: 0.5rem 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--arena-surface-raised) transparent;
+}
+.arena-bg-picker::-webkit-scrollbar { height: 4px; }
+.arena-bg-picker::-webkit-scrollbar-track { background: transparent; }
+.arena-bg-picker::-webkit-scrollbar-thumb { background: var(--arena-surface-raised); border-radius: 4px; }
+
+.arena-bg-thumb {
+  flex: 0 0 140px;
+  background: var(--arena-surface);
+  border: 2px solid var(--arena-border);
+  border-radius: 10px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+  position: relative;
+  padding: 0;
+  text-align: left;
+  color: var(--arena-text);
+  font-family: inherit;
+}
+.arena-bg-thumb:hover:not([disabled]) {
+  border-color: rgba(139, 92, 246, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+.arena-bg-thumb--selected {
+  border-color: var(--arena-xp) !important;
+  box-shadow: 0 0 12px var(--arena-glow-purple), 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+}
+.arena-bg-thumb--locked {
+  opacity: 0.45;
+  cursor: not-allowed;
+  filter: grayscale(0.6);
+}
+
+.arena-bg-thumb__preview {
+  width: 100%;
+  height: 64px;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--arena-surface-raised);
+}
+.arena-bg-thumb--locked .arena-bg-thumb__preview {
+  filter: blur(2px) brightness(0.5);
+}
+
+.arena-bg-thumb__info {
+  padding: 0.4rem 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--arena-text-muted);
+}
+.arena-bg-thumb__info i {
+  font-size: 0.65rem;
+  color: var(--arena-xp);
+}
+.arena-bg-thumb--locked .arena-bg-thumb__info i {
+  color: var(--arena-text-dim);
+}
+.arena-bg-thumb__name {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.arena-bg-thumb__lock {
+  font-size: 0.62rem;
+  color: var(--arena-text-dim);
+  white-space: nowrap;
+}
+.arena-bg-thumb__lock i { font-size: 0.55rem; }
+
+.arena-bg-thumb__check {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--arena-xp);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.55rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* ===== ARENA BATTLE STAGE BACKGROUNDS ===== */
+.arena-battle__stage {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+.arena-stage--colosseum       { background-image: url('/cardforge/img/arena/arena-colosseum.png'); }
+.arena-stage--shadow-pit      { background-image: url('/cardforge/img/arena/arena-shadow-pit.png'); }
+.arena-stage--forge-grounds   { background-image: url('/cardforge/img/arena/arena-forge-grounds.png'); }
+.arena-stage--crystal-sanctum { background-image: url('/cardforge/img/arena/arena-crystal-sanctum.png'); }
+.arena-stage--void-rift       { background-image: url('/cardforge/img/arena/arena-void-rift.png'); }
+.arena-stage--throne          { background-image: url('/cardforge/img/arena/arena-throne.png'); }
+
+/* Darken overlay so combatants stay readable on busy backgrounds */
+.arena-stage--colosseum::before,
+.arena-stage--shadow-pit::before,
+.arena-stage--forge-grounds::before,
+.arena-stage--crystal-sanctum::before,
+.arena-stage--void-rift::before,
+.arena-stage--throne::before {
+  background:
+    linear-gradient(180deg, rgba(2, 6, 23, 0.55) 0%, rgba(2, 6, 23, 0.3) 40%, rgba(2, 6, 23, 0.55) 100%),
+    radial-gradient(ellipse 90% 60% at 50% 80%, rgba(139, 92, 246, 0.04) 0%, transparent 70%);
+}
+
 /* ===================================================================
    ANIMATIONS
    =================================================================== */
@@ -1583,6 +1706,8 @@ body:has(.arena-screen.active) {
   .arena-gallery-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
   .arena-rewards__tier-header { font-size: 0.78rem; }
   .arena-rewards__tier-body { font-size: 0.7rem; }
+  .arena-bg-thumb { flex: 0 0 120px; }
+  .arena-bg-thumb__preview { height: 52px; }
 }
 
 @media (max-width: 600px) {
