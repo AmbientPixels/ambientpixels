@@ -553,6 +553,7 @@ Write the full deliverable first, then the structured JSON block.`;
           var _rpPlatform = (_rpTask.taskType === 'social_linkedin' || /linkedin/.test(_rpText)) ? 'linkedin'
             : (_rpTask.taskType === 'social_x' || /twitter|x\.com|tweet/.test(_rpText)) ? 'x'
             : (_rpTask.taskType === 'social_bluesky' || /bluesky/.test(_rpText)) ? 'bluesky'
+            : (_rpTask.taskType === 'social_reddit' || /\breddit\b/.test(_rpText)) ? 'reddit'
             : 'linkedin';
           context.log('[Heartbeat] DONE-TASK SOCIAL: echo injecting create-social-action for done task:', _rpTask.id, 'platform:', _rpPlatform, 'reviewed_copy:', _rpTask.reviewed_copy ? 'YES' : 'NO');
           actions.push({
@@ -907,7 +908,7 @@ Write the full deliverable first, then the structured JSON block.`;
           if (_rotNext && _rotNext !== _taskType) {
             context.log('[Heartbeat]', agentId, 'PLATFORM ROTATION: campaign "' + (_rotCmp.title || _taskCampaignId) + '" rotating', _taskType, '→', _rotNext, '(counts:', JSON.stringify(_rotCounts), ')');
             // Rewrite task title to reflect actual platform so Echo writes correct content
-            var _platNames = { social_linkedin: 'LinkedIn', social_x: 'X', social_bluesky: 'Bluesky' };
+            var _platNames = { social_linkedin: 'LinkedIn', social_x: 'X', social_bluesky: 'Bluesky', social_reddit: 'Reddit' };
             var _oldPlatName = _platNames[_taskType] || _taskType;
             var _newPlatName = _platNames[_rotNext] || _rotNext;
             if (action.task.title) {
