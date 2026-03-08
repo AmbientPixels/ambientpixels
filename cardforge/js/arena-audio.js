@@ -22,12 +22,19 @@ window.ArenaAudio = (function () {
     charge:    'charge.wav'
   };
 
-  // A4: looping battle music tracks (files optional — degrade silently if missing)
+  // One track per boss + menu track. Files degrade silently if missing.
   var MUSIC_TRACKS = {
-    arenaMenu:    'arena-menu01.wav',
-    battleMid:    'battle-mid01.wav',
-    battleHigh:   'battle-intense01.wav',
-    battleLowHp:  'battle-low01.wav'
+    menu:                   'arena-menu01.wav',
+    'boss-1':               'boss-training-dummy.mp3',
+    'boss-2':               'boss-gutter-rat.mp3',
+    'boss-3':               'boss-ironclad-sentinel.mp3',
+    'boss-4':               'boss-shadow-stalker.mp3',
+    'boss-5':               'boss-arcane-scholar.mp3',
+    'boss-6':               'boss-warlord-grax.mp3',
+    'boss-7':               'boss-crystal-weaver.mp3',
+    'boss-8':               'boss-void-harbinger.mp3',
+    'boss-9':               'boss-titanium-aegis.mp3',
+    'boss-10':              'boss-forge-king.mp3'
   };
 
   var _muted = false;
@@ -134,22 +141,10 @@ window.ArenaAudio = (function () {
     }, stepTime);
   }
 
-  // A4: called after each round to escalate music with battle intensity
-  function checkMusicEscalation(round, playerHp, playerMax, opHp, opMax) {
-    var minHpPct = Math.min(playerHp / playerMax, opHp / opMax) * 100;
-
-    // Low HP overrides round-based escalation (most dramatic)
-    if (minHpPct <= 25) {
-      playMusic('battleLowHp');
-      return;
-    }
-    if (round >= 9) {
-      playMusic('battleHigh');
-      return;
-    }
-    if (round >= 5) {
-      playMusic('battleMid');
-    }
+  // Play the track assigned to a boss. Falls back to menu track if not found.
+  function playBossMusic(bossId) {
+    var key = bossId && MUSIC_TRACKS[bossId] ? bossId : 'menu';
+    playMusic(key);
   }
 
   function play(key) {
@@ -201,7 +196,7 @@ window.ArenaAudio = (function () {
     toggleMute: toggleMute,
     setVolume: setVolume,
     playMusic: playMusic,
-    stopMusic: stopMusic,
-    checkMusicEscalation: checkMusicEscalation
+    playBossMusic: playBossMusic,
+    stopMusic: stopMusic
   };
 })();

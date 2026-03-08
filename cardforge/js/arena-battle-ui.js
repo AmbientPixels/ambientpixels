@@ -574,14 +574,6 @@ window.ArenaBattleUI = (function () {
       updateChargeDisplay();
     }
 
-    // A4: trigger music escalation check
-    if (audio && typeof audio.checkMusicEscalation === 'function') {
-      audio.checkMusicEscalation(
-        _currentRound,
-        result.playerHp,   _battleData.player.maxHp,
-        result.opponentHp, _battleData.opponent.maxHp
-      );
-    }
 
     await sleep(300);
     _isAnimating = false;

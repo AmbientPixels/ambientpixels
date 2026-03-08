@@ -7,6 +7,7 @@
       "class": "Construct",
       "quote": "Stand still and take it.",
       "avatar": "",
+      "music": "boss-training-dummy.mp3",
       "bio": "A practice target for arena newcomers. Doesn't hit hard but can take a beating.",
       "stats": [
         { "name": "Strength", "value": 25 },
@@ -28,6 +29,7 @@
       "class": "Scavenger",
       "quote": "Fast paws, sharp teeth.",
       "avatar": "",
+      "music": "boss-gutter-rat.mp3",
       "bio": "A nimble street fighter who relies on speed over strength.",
       "stats": [
         { "name": "Strength", "value": 35 },
@@ -49,6 +51,7 @@
       "class": "Guardian",
       "quote": "None shall pass.",
       "avatar": "",
+      "music": "boss-ironclad-sentinel.mp3",
       "bio": "A heavily armored defender who absorbs punishment and outlasts opponents.",
       "stats": [
         { "name": "Strength", "value": 40 },
@@ -70,6 +73,7 @@
       "class": "Assassin",
       "quote": "You won't see me coming.",
       "avatar": "",
+      "music": "boss-shadow-stalker.mp3",
       "bio": "Blindingly fast and unpredictable. Strikes before you can react.",
       "stats": [
         { "name": "Strength", "value": 50 },
@@ -91,6 +95,7 @@
       "class": "Mage",
       "quote": "Knowledge is the ultimate weapon.",
       "avatar": "",
+      "music": "boss-arcane-scholar.mp3",
       "bio": "Fragile but devastating. Channels pure intellect into destructive abilities.",
       "stats": [
         { "name": "Strength", "value": 20 },
@@ -112,6 +117,7 @@
       "class": "Berserker",
       "quote": "Pain fuels my rage.",
       "avatar": "",
+      "music": "boss-warlord-grax.mp3",
       "bio": "A brutal war veteran who hits like a truck and gets stronger as the fight goes on.",
       "stats": [
         { "name": "Strength", "value": 75 },
@@ -135,6 +141,7 @@
       "class": "Enchanter",
       "quote": "Every thread of magic bends to my will.",
       "avatar": "",
+      "music": "boss-crystal-weaver.mp3",
       "bio": "A versatile spellcaster who balances offense and defense with crystalline precision.",
       "stats": [
         { "name": "Strength", "value": 35 },
@@ -158,6 +165,7 @@
       "class": "Warlock",
       "quote": "The void consumes all.",
       "avatar": "",
+      "music": "boss-void-harbinger.mp3",
       "bio": "Channels dark energy into overwhelming ability attacks. Terrifyingly powerful.",
       "stats": [
         { "name": "Strength", "value": 45 },
@@ -182,6 +190,7 @@
       "class": "Juggernaut",
       "quote": "I am the wall that does not break.",
       "avatar": "",
+      "music": "boss-titanium-aegis.mp3",
       "bio": "Nearly indestructible. Outlasts every opponent through sheer endurance and patience.",
       "stats": [
         { "name": "Strength", "value": 60 },
@@ -205,6 +214,7 @@
       "class": "Mythic",
       "quote": "I forged myself in the fires of a thousand battles.",
       "avatar": "",
+      "music": "boss-forge-king.mp3",
       "bio": "The ultimate challenge. Perfectly balanced with no weaknesses. Only the strongest cards survive.",
       "stats": [
         { "name": "Strength", "value": 75 },

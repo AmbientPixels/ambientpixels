@@ -71,13 +71,11 @@ window.ArenaApp = (function () {
 
     // Music transitions
     const audio = window.ArenaAudio;
-    if (audio && typeof audio.playMusic === 'function') {
-      if (screenId === 'battle') {
-        // Stop lobby music — battle music will fade in via checkMusicEscalation after round 5
-        if (typeof audio.stopMusic === 'function') audio.stopMusic();
-      } else if (screenId === 'lobby' || screenId === 'pve' || screenId === 'pvp') {
-        audio.playMusic('arenaMenu');
+    if (audio) {
+      if (screenId === 'lobby' || screenId === 'pve' || screenId === 'pvp') {
+        audio.playMusic('menu');
       }
+      // Battle music is started by startPveBattle via playBossMusic
     }
     window.location.hash = screenId;
   }
@@ -120,9 +118,7 @@ window.ArenaApp = (function () {
       document.getElementById('arena-lobby-main').style.display = 'block';
 
       // Start lobby music
-      if (window.ArenaAudio && typeof window.ArenaAudio.playMusic === 'function') {
-        window.ArenaAudio.playMusic('arenaMenu');
-      }
+      if (window.ArenaAudio) window.ArenaAudio.playMusic('menu');
 
       state.profile = profileData.profile;
 
@@ -320,6 +316,7 @@ window.ArenaApp = (function () {
     state.lastOpponentId = bossId;
 
     showScreen('battle');
+    if (window.ArenaAudio) window.ArenaAudio.playBossMusic(bossId);
     if (window.ArenaBackgrounds) window.ArenaBackgrounds.applyToBattleStage();
     window.ArenaBattleUI.enableMoves(false);
 
