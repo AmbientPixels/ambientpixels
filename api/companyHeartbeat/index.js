@@ -1915,6 +1915,41 @@ module.exports = async function (context) {
       });
     }
 
+    // ── Optimal posting times (B2B/SaaS defaults, overridden by researchIntel) ──
+    // Times in UTC. EDT (UTC-4) from March-Nov, EST (UTC-5) Nov-Mar.
+    // Current: EDT active. LinkedIn peak 10am ET = 14:00 UTC; X/Bluesky peak 9am ET = 13:00 UTC.
+    function _getOptimalPostTime(platform, intelStore) {
+      // Try to find posting times from approved research intel
+      const _intelEntry = (intelStore || []).find(function(e) {
+        return e && (e.topic || e.title || '').toLowerCase().indexOf('posting time') !== -1;
+      });
+      // Defaults: { days: [0-6 where 0=Sun], hourUtc: number }
+      const _defaults = {
+        linkedin:  { days: [2, 3, 4], hourUtc: 14 }, // Tue-Thu 10am ET
+        x:         { days: [1, 2, 3, 4, 5], hourUtc: 13 }, // Mon-Fri 9am ET
+        bluesky:   { days: [1, 2, 3, 4, 5], hourUtc: 13 }  // Mon-Fri 9am ET
+      };
+      var cfg = _defaults[platform] || _defaults.x;
+      // Override from intel if structured data found
+      if (_intelEntry && _intelEntry.schedule && _intelEntry.schedule[platform]) {
+        var s = _intelEntry.schedule[platform];
+        if (s.days) cfg.days = s.days;
+        if (typeof s.hourUtc === 'number') cfg.hourUtc = s.hourUtc;
+      }
+      // Find next occurrence of an optimal day/hour, at least 30 min from now
+      var _now = new Date();
+      var _minTs = _now.getTime() + 30 * 60 * 1000;
+      for (var d = 0; d <= 7; d++) {
+        var _candidate = new Date(_now);
+        _candidate.setUTCDate(_now.getUTCDate() + d);
+        _candidate.setUTCHours(cfg.hourUtc, 0, 0, 0);
+        if (cfg.days.indexOf(_candidate.getUTCDay()) !== -1 && _candidate.getTime() >= _minTs) {
+          return _candidate.toISOString();
+        }
+      }
+      return null; // fallback — caller uses publish instead of schedule
+    }
+
     // ── Auto-create social actions for tasks with reviewed_copy (post-copy-pipeline) ──
     {
       const _pendingPosts = tasks.filter(function (t) {
@@ -1985,13 +2020,14 @@ module.exports = async function (context) {
             }
             context.log('[Heartbeat] AUTO-POST: Trimmed to', _rcText.length, 'chars');
           }
+          const _scheduledFor = _getOptimalPostTime(_platform, researchIntelStore);
           const _actionReq = {
-            type: 'social_post.publish',
+            type: _scheduledFor ? 'social_post.schedule' : 'social_post.publish',
             platform: _platform,
             payload: {
               text: _rcText,
               media: [],
-              scheduled_for: null
+              scheduled_for: _scheduledFor
             },
             created_by: 'echo'
           };
@@ -2004,7 +2040,7 @@ module.exports = async function (context) {
             kind: 'action',
             action_id: _newAction.id,
             taskId: _pt.id,
-            taskTitle: 'Social Post (' + _platform + ')',
+            taskTitle: 'Social Post (' + _platform + (_scheduledFor ? ' — scheduled' : '') + ')',
             originAgent: 'echo',
             classification: _newAction.classification,
             riskLevel: _newAction.risk_level,
@@ -2012,12 +2048,13 @@ module.exports = async function (context) {
             brandImpact: 'medium',
             status: 'pending',
             submittedAt: new Date().toISOString(),
+            scheduledFor: _scheduledFor || null,
             preview: _rcText.substring(0, 120),
             previewImageUrl: null
           });
           _pt._social_action_pending = false;
           _pt._social_action_created = true;
-          context.log('[Heartbeat] AUTO-POST: created social action for task', _pt.id, 'platform:', _platform, 'rc_len:', _pt.reviewed_copy.length);
+          context.log('[Heartbeat] AUTO-POST: created social action for task', _pt.id, 'platform:', _platform, 'type:', _actionReq.type, _scheduledFor ? ('scheduled_for: ' + _scheduledFor) : '(publish now)', 'rc_len:', _pt.reviewed_copy.length);
         }
         await storage.setState('actions', _actionsStore);
         await storage.setState('approvalQueue', _aq);

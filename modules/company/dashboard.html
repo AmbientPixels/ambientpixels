@@ -1589,6 +1589,7 @@
             if (!_isContent) approvalHtml += '<span style="color:' + riskColor + ';">risk: ' + (item.riskLevel || 'low') + '</span>';
             if (_inboxAge) approvalHtml += '<span>Age: ' + _inboxAge + '</span>';
             if (item.submittedAt) approvalHtml += '<span>' + new Date(item.submittedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + '</span>';
+            if (item.scheduledFor) approvalHtml += '<span style="color:#34d399;"><i class="fas fa-clock" style="margin-right:2px;font-size:0.55rem;"></i>Scheduled ' + new Date(item.scheduledFor).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + '</span>';
             approvalHtml += '</div>';
             approvalHtml += '</div>';
             approvalHtml += '<a href="#panel-approval-wrap" style="font-size:0.55rem; color:#FFD700; text-decoration:none; white-space:nowrap; margin-left:0.5rem; align-self:center;">Review →</a>';
