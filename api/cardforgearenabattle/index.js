@@ -322,13 +322,15 @@ function generateBossMove(boss, round, currentHp, maxHp, opponentCharges) {
     weights.ability = 0;
   }
 
-  const total = weights.strike + weights.guard + weights.ability + (weights.heal || 0);
+  const counterWeight = weights.counter || 8;
+  const total = weights.strike + weights.guard + weights.ability + (weights.heal || 0) + counterWeight;
   const roll = Math.random() * total;
 
   if (roll < weights.strike) return 'strike';
   if (roll < weights.strike + weights.guard) return 'guard';
   if (roll < weights.strike + weights.guard + weights.ability) return 'ability';
-  return 'heal';
+  if (roll < weights.strike + weights.guard + weights.ability + (weights.heal || 0)) return 'heal';
+  return 'counter';
 }
 
 function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffects) {
@@ -420,6 +422,9 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     healAmt = Math.round(healAmt);
     playerHeal += healAmt;
     if (healAmt > 0) events.push(`You focused and recovered ${healAmt} HP.`);
+  } else if (playerMove === 'counter') {
+    // Resolved after opponent's attack is computed — see counter resolution block
+    events.push('You took a counter stance.');
   }
 
   // --- Opponent attacks player ---
@@ -463,6 +468,9 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     healAmt = Math.round(healAmt);
     opponentHeal += healAmt;
     if (healAmt > 0) events.push(`Opponent focused and recovered ${healAmt} HP.`);
+  } else if (opponentMove === 'counter') {
+    // Resolved after player's attack is computed — see counter resolution block
+    events.push('Opponent took a counter stance.');
   }
 
   // Apply temp effects: vulnerable increases damage taken, fortified reduces it
@@ -487,6 +495,44 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     if (reduction > 0) events.push(`Opponent's fortification resisted ${reduction} damage.`);
   }
 
+  // B3: Counter resolution — must run after temp effects so reflect uses final damage values
+  let playerCounterReflect = false;
+  let opponentCounterReflect = false;
+
+  if (playerMove === 'counter' && opponentMove === 'counter') {
+    playerDamageTaken = 0;
+    opponentDamageTaken = 0;
+    events.push('Counter standoff! Both fighters mirror each other.');
+  } else if (playerMove === 'counter') {
+    if (opponentMove === 'strike') {
+      const reflected = Math.max(1, Math.round(playerDamageTaken * 0.5));
+      opponentDamageTaken += reflected;
+      playerDamageTaken = 0;
+      playerCounterReflect = true;
+      events.push(`Counter! You deflected the strike and reflected ${reflected} damage back!`);
+    } else if (opponentMove === 'guard') {
+      playerDamageTaken = 0;
+      events.push('Counter standoff — opponent guarded. Nothing to reflect.');
+    } else {
+      // ability or heal — counter fails, player takes full damage
+      events.push('Your counter failed! The opponent did not strike.');
+    }
+  } else if (opponentMove === 'counter') {
+    if (playerMove === 'strike') {
+      const reflected = Math.max(1, Math.round(opponentDamageTaken * 0.5));
+      playerDamageTaken += reflected;
+      opponentDamageTaken = 0;
+      opponentCounterReflect = true;
+      events.push(`Counter! Opponent deflected your strike and reflected ${reflected} damage back!`);
+    } else if (playerMove === 'guard') {
+      opponentDamageTaken = 0;
+      events.push('Counter standoff — you guarded. Opponent has nothing to reflect.');
+    } else {
+      // ability or heal — opponent counter fails
+      events.push("Opponent's counter failed! You did not strike.");
+    }
+  }
+
   // Passive HP regen (applies every round regardless of action)
   const playerRegenBonus = getPassiveValue(player.passives, 'hp_regen');
   if (playerRegenBonus > 0) {
@@ -505,7 +551,9 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     playerHeal,
     opponentHeal,
     events,
-    newTempEffects
+    newTempEffects,
+    playerCounterReflect,
+    opponentCounterReflect
   };
 }
 
@@ -759,8 +807,8 @@ async function handleMove(context, containerClient, userId, body) {
     context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'battleId, round, and move are required' } };
     return;
   }
-  if (!['strike', 'guard', 'ability', 'heal'].includes(move)) {
-    context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'move must be strike, guard, ability, or heal' } };
+  if (!['strike', 'guard', 'ability', 'heal', 'counter'].includes(move)) {
+    context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'move must be strike, guard, ability, heal, or counter' } };
     return;
   }
 
@@ -817,6 +865,18 @@ async function handleMove(context, containerClient, userId, body) {
     move, opponentMove, battle.tempEffects
   );
 
+  // B1: Last Stand — combatant below 20% HP deals +10 flat damage bonus when attacking
+  const playerInLastStand = player.hp > 0 && player.hp < player.maxHp * 0.20;
+  const opponentInLastStand = opponent.hp > 0 && opponent.hp < opponent.maxHp * 0.20;
+  if (playerInLastStand && result.opponentDamageTaken > 0) {
+    result.opponentDamageTaken += 10;
+    result.events.push('Last Stand! You fight with desperate fury! (+10 damage)');
+  }
+  if (opponentInLastStand && result.playerDamageTaken > 0) {
+    result.playerDamageTaken += 10;
+    result.events.push('Last Stand! Opponent fights with desperate fury! (+10 damage)');
+  }
+
   // Apply damage and healing
   player.hp = Math.min(player.maxHp, Math.max(0, player.hp - result.playerDamageTaken + result.playerHeal));
   opponent.hp = Math.min(opponent.maxHp, Math.max(0, opponent.hp - result.opponentDamageTaken + result.opponentHeal));
@@ -855,7 +915,11 @@ async function handleMove(context, containerClient, userId, body) {
     events: result.events,
     speedWinner: result.speedWinner,
     charges: hasCharges ? battle.charges : undefined,
-    tempEffects: battle.tempEffects
+    tempEffects: battle.tempEffects,
+    playerLastStand: playerInLastStand,
+    opponentLastStand: opponentInLastStand,
+    playerCounterReflect: result.playerCounterReflect,
+    opponentCounterReflect: result.opponentCounterReflect
   };
 
   battle.roundLog.push(roundResult);

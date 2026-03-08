@@ -1182,7 +1182,7 @@ body:has(.arena-screen.active) {
 /* --- Command Deck: Move Buttons --- */
 .arena-battle__moves {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 0.6rem;
 }
 .arena-move-btn {
@@ -1840,7 +1840,8 @@ body:has(.arena-screen.active) {
   .arena-battle__vs { width: auto; height: 30px; }
   .arena-battle__vs::before, .arena-battle__vs::after { display: none; }
   .arena-hp-bar__track { height: 8px; }
-  .arena-battle__moves { grid-template-columns: repeat(2, 1fr); }
+  .arena-battle__moves { grid-template-columns: repeat(3, 1fr); }
+  .arena-battle__moves .arena-move-btn:last-child { grid-column: span 1; }
   .arena-move-btn { padding: 0.75rem 0.4rem 0.6rem; }
   .arena-move-btn__desc { display: none; }
   .arena-results__banner { padding: 1.5rem; }
@@ -1971,6 +1972,130 @@ body:has(.arena-screen.active) {
   to   { opacity: 0; transform: translateX(-50%) scale(0.85) translateY(4px); }
 }
 
+/* ===================================================================
+   PHASE B — LAST STAND (B1)
+   =================================================================== */
+
+/* ── B1: Persistent Last Stand state on combatant side ──────────── */
+.arena-combatant--last-stand {
+  animation: arena-last-stand-pulse 1.8s ease-in-out infinite;
+}
+@keyframes arena-last-stand-pulse {
+  0%, 100% {
+    box-shadow:
+      0 0 0 2px rgba(239, 68, 68, 0.25),
+      0 0 18px rgba(239, 68, 68, 0.15),
+      inset 0 0 10px rgba(239, 68, 68, 0.05);
+  }
+  50% {
+    box-shadow:
+      0 0 0 3px rgba(239, 68, 68, 0.55),
+      0 0 32px rgba(239, 68, 68, 0.35),
+      inset 0 0 18px rgba(239, 68, 68, 0.12);
+  }
+}
+/* Cracked border effect via outline offset */
+.arena-combatant--last-stand::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: inherit;
+  border: 1px dashed rgba(239, 68, 68, 0.45);
+  pointer-events: none;
+  animation: arena-last-stand-crack 2.4s steps(1) infinite;
+}
+@keyframes arena-last-stand-crack {
+  0%, 100% { opacity: 0.6; }
+  33%       { opacity: 0.2; }
+  66%       { opacity: 0.9; }
+}
+
+/* ── B1: Activation banner — "⚠ LAST STAND!" ───────────────────── */
+.arena-last-stand-banner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.1rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: #FCA5A5;
+  text-shadow:
+    0 0 10px rgba(239, 68, 68, 0.9),
+    0 0 24px rgba(239, 68, 68, 0.5),
+    2px 2px 0 rgba(0, 0, 0, 0.7);
+  white-space: nowrap;
+  z-index: 40;
+  pointer-events: none;
+  animation: arena-last-stand-in 2.2s ease-out forwards;
+}
+@keyframes arena-last-stand-in {
+  0%   { opacity: 0;   transform: translate(-50%, -50%) scale(1.6);  }
+  12%  { opacity: 1;   transform: translate(-50%, -50%) scale(0.95); }
+  25%  { opacity: 1;   transform: translate(-50%, -50%) scale(1.02); }
+  65%  { opacity: 1;   transform: translate(-50%, -50%) scale(1);    }
+  100% { opacity: 0;   transform: translate(-50%, -60%) scale(0.9);  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   B3: COUNTER MOVE — button + stance badge + reflect banner
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Counter button colour scheme (steel blue-teal) ────────────── */
+.arena-move-btn--counter i { color: #22D3EE; }
+.arena-move-btn--counter .arena-move-btn__glow { background: radial-gradient(ellipse at 50% 80%, rgba(34, 211, 238, 0.12) 0%, transparent 70%); }
+.arena-move-btn--counter { border-color: rgba(34, 211, 238, 0.15); }
+.arena-move-btn--counter:hover:not(:disabled) { border-color: rgba(34, 211, 238, 0.4); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 12px rgba(34, 211, 238, 0.1); }
+.arena-move-btn--counter::after { background: #22D3EE; }
+
+/* ── Counter stance badge ────────────────────────────────────────── */
+.arena-counter-badge {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(34, 211, 238, 0.15);
+  border: 1px solid rgba(34, 211, 238, 0.5);
+  color: #22D3EE;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 5px 14px;
+  border-radius: 20px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 25;
+  animation: arena-counter-badge-in 1.4s ease forwards;
+}
+@keyframes arena-counter-badge-in {
+  0%   { opacity: 0; transform: translateX(-50%) scale(0.8); }
+  20%  { opacity: 1; transform: translateX(-50%) scale(1); }
+  70%  { opacity: 1; }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-12px); }
+}
+
+/* ── Reflect burst banner ────────────────────────────────────────── */
+.arena-reflect-banner {
+  position: absolute;
+  top: 38%;
+  left: 50%;
+  transform: translateX(-50%) scale(2);
+  color: #22D3EE;
+  font-size: 1.5rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  text-shadow: 0 0 16px rgba(34, 211, 238, 0.9), 0 0 32px rgba(34, 211, 238, 0.5);
+  pointer-events: none;
+  z-index: 30;
+  animation: arena-reflect-slam 1.1s ease forwards;
+}
+@keyframes arena-reflect-slam {
+  0%   { opacity: 0; transform: translateX(-50%) scale(2.5); }
+  15%  { opacity: 1; transform: translateX(-50%) scale(1); }
+  60%  { opacity: 1; transform: translateX(-50%) scale(1); }
+  100% { opacity: 0; transform: translateX(-50%) scale(0.8) translateY(-8px); }
+}
+
 /* ===== REDUCED MOTION ===== */
 @media (prefers-reduced-motion: reduce) {
   .arena-combatant--player, .arena-combatant--opponent { animation: none; }
@@ -1981,6 +2106,12 @@ body:has(.arena-screen.active) {
   /* Phase A overlays */
   .arena-crit-banner, .arena-speed-badge, .arena-streak-badge { animation-duration: 0.01ms; }
   .arena--killshot, .arena-combatant--defeated { animation: none; }
+  /* Phase B */
+  .arena-combatant--last-stand { animation: none; box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.5); }
+  .arena-combatant--last-stand::after { animation: none; }
+  .arena-last-stand-banner { animation-duration: 0.01ms; }
+  /* Phase B3 */
+  .arena-counter-badge, .arena-reflect-banner { animation-duration: 0.01ms; }
 }
 
 /* ===== FOCUS VISIBLE ===== */

@@ -215,6 +215,14 @@ window.ArenaBattleUI = (function () {
     const targetSide = attackerSide === 'player' ? 'opponent' : 'player';
     const audio = window.ArenaAudio;
 
+    if (move === 'counter') {
+      // Counter is a stance — show badge at defender, no outgoing damage
+      if (audio) audio.play('guard');
+      showCounterStanceBadge(attackerSide);
+      await sleep(300);
+      return;
+    }
+
     if (audio) audio.play(move);
     await sleep(200);
 
@@ -271,6 +279,45 @@ window.ArenaBattleUI = (function () {
     setTimeout(() => badge.remove(), 1500);
   }
 
+  // ─── B1: Last Stand activation banner ───────────────────────────────────
+  function showLastStandActivation(side) {
+    const container = document.getElementById(
+      side === 'player' ? 'arena-player-side' : 'arena-opponent-side'
+    );
+    if (!container) return;
+    const banner = document.createElement('div');
+    banner.className = 'arena-last-stand-banner';
+    banner.textContent = side === 'player' ? '\u26A0 LAST STAND!' : '\u26A0 LAST STAND!';
+    container.appendChild(banner);
+    setTimeout(() => banner.remove(), 2200);
+  }
+
+  // ─── B3: counter stance badge ────────────────────────────────────────────
+  function showCounterStanceBadge(side) {
+    const container = document.getElementById(
+      side === 'player' ? 'arena-player-side' : 'arena-opponent-side'
+    );
+    if (!container) return;
+    const badge = document.createElement('div');
+    badge.className = 'arena-counter-badge';
+    badge.textContent = '\uD83D\uDEE1 Counter Stance';
+    container.appendChild(badge);
+    setTimeout(() => badge.remove(), 1400);
+  }
+
+  // ─── B3: reflect burst banner ─────────────────────────────────────────────
+  function showReflectBanner(side) {
+    const container = document.getElementById(
+      side === 'player' ? 'arena-player-side' : 'arena-opponent-side'
+    );
+    if (!container) return;
+    const banner = document.createElement('div');
+    banner.className = 'arena-reflect-banner';
+    banner.textContent = 'Reflected!';
+    container.appendChild(banner);
+    setTimeout(() => banner.remove(), 1100);
+  }
+
   // ─── A2: kill shot slow-mo ───────────────────────────────────────────────
   async function triggerKillShot(defeatedSide) {
     const field = document.querySelector('.arena-battle__field');
@@ -290,7 +337,7 @@ window.ArenaBattleUI = (function () {
     enableMoves(false);
 
     const abilityName = _abilityInfo ? _abilityInfo.label : 'Ability';
-    const moveNames = { strike: 'Strike', guard: 'Guard', ability: abilityName, heal: 'Heal' };
+    const moveNames = { strike: 'Strike', guard: 'Guard', ability: abilityName, heal: 'Heal', counter: 'Counter' };
     const audio = window.ArenaAudio;
     const speedWinner = result.speedWinner || 'player';
 
@@ -366,6 +413,25 @@ window.ArenaBattleUI = (function () {
       }
     }
 
+    // ── B3: Counter reflect animation (fires before HP update for drama) ───
+    if (result.playerCounterReflect) {
+      showReflectBanner('player');
+      if (audio) audio.play('crit');
+      await sleep(300);
+      showDamageFloat('opponent', result.playerDamage, false);
+      triggerHitShake('opponent');
+      if (audio) audio.play('hit');
+      await sleep(500);
+    } else if (result.opponentCounterReflect) {
+      showReflectBanner('opponent');
+      if (audio) audio.play('crit');
+      await sleep(300);
+      showDamageFloat('player', result.opponentDamage, false);
+      triggerHitShake('player');
+      if (audio) audio.play('hit');
+      await sleep(500);
+    }
+
     // ── Phase 3: Resolution ───────────────────────────────────────────────
     // HP bars update after both attacks for clean readability
     updateHpBars(result.playerHp, _battleData.player.maxHp, result.opponentHp, _battleData.opponent.maxHp);
@@ -375,11 +441,29 @@ window.ArenaBattleUI = (function () {
       result.events.forEach(e => addLogEntry(e, 'event'));
     }
 
+    // B1: Last Stand — check transition before updating stored HP
+    const prevPlayerHpPct  = _battleData.player.hp   / _battleData.player.maxHp;
+    const prevOpponentHpPct = _battleData.opponent.hp / _battleData.opponent.maxHp;
+    const newPlayerHpPct   = result.playerHp   / _battleData.player.maxHp;
+    const newOpponentHpPct  = result.opponentHp / _battleData.opponent.maxHp;
+
+    const isPlayerLastStand   = result.playerHp   > 0 && newPlayerHpPct   < 0.20;
+    const isOpponentLastStand = result.opponentHp > 0 && newOpponentHpPct  < 0.20;
+
+    const playerSideEl   = document.getElementById('arena-player-side');
+    const opponentSideEl = document.getElementById('arena-opponent-side');
+    if (playerSideEl)   playerSideEl.classList.toggle('arena-combatant--last-stand', isPlayerLastStand);
+    if (opponentSideEl) opponentSideEl.classList.toggle('arena-combatant--last-stand', isOpponentLastStand);
+
+    // Show activation banner on first entry into Last Stand
+    if (isPlayerLastStand   && prevPlayerHpPct   >= 0.20) showLastStandActivation('player');
+    if (isOpponentLastStand && prevOpponentHpPct >= 0.20) showLastStandActivation('opponent');
+
     // A5: update streak counter
     if (result.playerDamage > 0) {
       _playerStreak++;
       if (_playerStreak >= 2) showStreakBadge(_playerStreak);
-    } else if (result.playerMove === 'guard' || result.playerMove === 'heal') {
+    } else if (result.playerMove === 'guard' || result.playerMove === 'heal' || result.playerMove === 'counter') {
       _playerStreak = 0;
     }
 
