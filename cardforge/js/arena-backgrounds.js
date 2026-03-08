@@ -41,7 +41,7 @@ window.ArenaBackgrounds = (function () {
   /**
    * Render the arena picker strip into a container
    */
-  function renderPicker(containerId, playerRank) {
+  function renderPicker(containerId, playerRank, onSelect) {
     var container = document.getElementById(containerId);
     if (!container) return;
 
@@ -73,7 +73,8 @@ window.ArenaBackgrounds = (function () {
     container.querySelectorAll('.arena-bg-thumb:not([disabled])').forEach(function (btn) {
       btn.addEventListener('click', function () {
         setSelected(btn.dataset.arenaId);
-        renderPicker(containerId, playerRank); // re-render to update selection
+        renderPicker(containerId, playerRank, onSelect); // re-render to update selection
+        if (onSelect) onSelect(btn.dataset.arenaId);
       });
     });
   }

@@ -73,9 +73,11 @@ window.ArenaApp = (function () {
     const audio = window.ArenaAudio;
     if (audio) {
       if (screenId === 'lobby' || screenId === 'pve' || screenId === 'pvp') {
-        audio.playMusic('menu');
+        // Play the currently selected arena's track in the lobby as a preview
+        const selectedArena = window.ArenaBackgrounds ? window.ArenaBackgrounds.getSelected() : null;
+        audio.playArenaMusic(selectedArena || 'menu');
       }
-      // Battle music is started by startPveBattle via playBossMusic
+      // Battle music is started by startPveBattle via playArenaMusic
     }
     window.location.hash = screenId;
   }
@@ -156,9 +158,11 @@ window.ArenaApp = (function () {
         });
       }
 
-      // Render arena background picker
+      // Render arena background picker — preview music on selection
       if (window.ArenaBackgrounds) {
-        window.ArenaBackgrounds.renderPicker('arena-bg-picker', state.profile.rank);
+        window.ArenaBackgrounds.renderPicker('arena-bg-picker', state.profile.rank, function (arenaId) {
+          if (window.ArenaAudio) window.ArenaAudio.playArenaMusic(arenaId);
+        });
       }
 
       // Render card strip
@@ -483,7 +487,9 @@ window.ArenaApp = (function () {
       }
       // Re-render arena picker (new rank may unlock arenas)
       if (window.ArenaBackgrounds) {
-        window.ArenaBackgrounds.renderPicker('arena-bg-picker', state.profile.rank);
+        window.ArenaBackgrounds.renderPicker('arena-bg-picker', state.profile.rank, function (arenaId) {
+          if (window.ArenaAudio) window.ArenaAudio.playArenaMusic(arenaId);
+        });
       }
       if (!state.isDemo) {
         loadRecentMatches();
