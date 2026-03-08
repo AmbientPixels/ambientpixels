@@ -16,6 +16,7 @@
 
 .modular-system {
   margin-bottom: 2rem;
+  overflow-anchor: none;
 }
 
 /* ===== TEXT COLOR OPTIONS STYLING ===== */
@@ -295,7 +296,8 @@
 
 .tier-option.selected {
   border-color: var(--mood-primary-color, #A78BFA);
-  background: var(--aura-bg-active, #1a4a5e);
+  background: rgba(139, 92, 246, 0.08);
+  color: var(--mood-text-primary, #e1e1ff);
 }
 
 .option-preview {
@@ -449,6 +451,7 @@
   border-radius: 8px;
   margin-bottom: 1rem;
   overflow: hidden;
+  overflow-anchor: none;
   transition: all 0.3s ease;
 }
 
@@ -722,6 +725,7 @@
   margin-bottom: 1rem;
   background: var(--aura-bg-color, #1a1a2e);
   overflow: hidden;
+  overflow-anchor: none;
   transition: all 0.3s ease;
 }
 

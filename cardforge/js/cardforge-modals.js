@@ -430,6 +430,11 @@ function showInfoPopup() {
       content: createTipsTabContent()
     },
     {
+      title: 'Gameplay',
+      icon: '<i class="fas fa-gamepad"></i>',
+      content: createGameplayTabContent()
+    },
+    {
       title: 'Shortcuts',
       icon: '<i class="fas fa-keyboard"></i>',
       content: createShortcutsTabContent()
@@ -507,7 +512,7 @@ function createGettingStartedTabContent() {
           <div class="step-number">3</div>
           <div class="step-content">
             <h5>Select a Container Type</h5>
-            <p>Choose how your image is displayed: Masked, Framed, Raw, Full Bleed, Hero, or the new Inset type. Each has its own variants (e.g., Inset offers Panel, Glass, Emblem, and Cutout).</p>
+            <p>Choose how your image is displayed: Masked, Polaroid, Banner, Hero, Full Bleed, or Floating. Each has its own variants (e.g., Masked offers Circle, Hex, Diamond, and more).</p>
           </div>
         </div>
         
@@ -515,7 +520,7 @@ function createGettingStartedTabContent() {
           <div class="step-number">4</div>
           <div class="step-content">
             <h5>Pick a Color Palette</h5>
-            <p>Choose from 11 palette families: Neon, Earth, Ocean, Sunset, Mono, Corporate, Royal, Inferno, Frost, Arcane, or Auto. Auto analyzes your image and picks the best match. Each palette has Light and Dark variants.</p>
+            <p>Choose from 11 palette families: Neon, Earth, Ocean, Sunset, Monochrome, Corporate, Royal, Inferno, Frost, Arcane, or Auto. Auto analyzes your image and picks the best match. Each palette has Light and Dark variants.</p>
           </div>
         </div>
         
@@ -559,7 +564,7 @@ function createTipsTabContent() {
             <li>Use high contrast between text and background for readability</li>
             <li>Try the Auto palette to let the system match colors to your image</li>
             <li>Test your design in both Light and Dark palette variants</li>
-            <li>Use the Inset container for a clean, constrained image frame</li>
+            <li>Use the Polaroid container for a clean, framed image look</li>
             <li>Pair the Bold style with Inferno or Royal for dramatic cards</li>
           </ul>
         </div>
@@ -569,8 +574,8 @@ function createTipsTabContent() {
           <ul>
             <li>Use high-resolution images (at least 300x300px)</li>
             <li>PNG format works best for images with transparency</li>
-            <li>The Inset Emblem variant works great for circular portraits</li>
-            <li>Full Bleed is best for landscape or panoramic images</li>
+            <li>The Masked Circle variant works great for circular portraits</li>
+            <li>Full Bleed is best for landscape or panoramic art</li>
             <li>Auto palette works best with colorful, well-lit images</li>
           </ul>
         </div>
@@ -618,6 +623,108 @@ function createTipsTabContent() {
             <li>Keep draft cards private until they are ready to share</li>
           </ul>
         </div>
+      </div>
+    </div>
+  `;
+}
+
+function createGameplayTabContent() {
+  return `
+    <div class="info-section">
+      <h4><i class="fas fa-gamepad"></i> Gameplay Overview</h4>
+      <p>CardForge cards aren't just collectibles — they're battle-ready. Every stat, buff, and attribute feeds into the Arena, a turn-based combat system where your card fights opponents head-to-head.</p>
+
+      <div class="feature-grid">
+
+        <div class="feature-item">
+          <h5><i class="fas fa-heart"></i> Stats & HP</h5>
+          <p>Each card has 5 core stats scaled 0–100:</p>
+          <ul>
+            <li><strong>Strength</strong> — Physical damage output</li>
+            <li><strong>Agility</strong> — Speed and evasion</li>
+            <li><strong>Intelligence</strong> — Spell and ability power</li>
+            <li><strong>Endurance</strong> — Defense and HP pool</li>
+            <li><strong>Luck</strong> — Critical hit chance</li>
+          </ul>
+          <p>HP is calculated from your stats: <em>50 + (Endurance × 0.8) + (Strength × 0.2)</em>. A tank with 100 Endurance and 80 Strength starts with 146 HP.</p>
+        </div>
+
+        <div class="feature-item">
+          <h5><i class="fas fa-crossed-swords fa-swords"></i> Arena Combat</h5>
+          <p>Battles are 3 rounds of turn-based combat. Each round, choose one of 4 moves:</p>
+          <ul>
+            <li><strong>Strike</strong> — Physical attack (Strength-based). Strong vs Ability, weak vs Guard.</li>
+            <li><strong>Guard</strong> — Defensive stance. Reduces incoming damage by 30% and builds Charge.</li>
+            <li><strong>Ability</strong> — Special power move (Intelligence-based). Costs 2 Charge. Strong vs Strike, weak vs Guard.</li>
+            <li><strong>Heal</strong> — Restore HP based on your stats.</li>
+          </ul>
+          <p>Charge builds each turn (max 4). Timing your Ability around Guard and Strike is the core strategy.</p>
+        </div>
+
+        <div class="feature-item">
+          <h5><i class="fas fa-bolt"></i> Buffs & Passives</h5>
+          <p>Buffs are passive combat bonuses that activate automatically during battle. Each buff has a tier and a quantity multiplier:</p>
+          <ul>
+            <li><strong>Fury</strong> — +3% crit chance per stack</li>
+            <li><strong>Aegis</strong> — +2% damage reduction per stack</li>
+            <li><strong>Fortitude</strong> — +2% damage reduction per stack</li>
+            <li><strong>Regen</strong> — +5% HP regen per stack</li>
+            <li><strong>Focus</strong> — +3% crit chance per stack</li>
+            <li><strong>Arcane</strong> — +3% ability power per stack</li>
+            <li><strong>Legendary</strong> — +10% to all stats per stack</li>
+          </ul>
+          <p>Higher ranks unlock more buff slots and higher stack limits (up to ×5 at Diamond).</p>
+        </div>
+
+        <div class="feature-item">
+          <h5><i class="fas fa-trophy"></i> Ranks & XP</h5>
+          <p>Win battles to earn XP and climb the ranks:</p>
+          <ul>
+            <li><strong>Bronze</strong> — 0 XP (2 buff slots, ×1 stacks)</li>
+            <li><strong>Silver</strong> — 500 XP (3 slots, ×2 stacks)</li>
+            <li><strong>Gold</strong> — 1,500 XP (4 slots, ×3 stacks)</li>
+            <li><strong>Platinum</strong> — 3,500 XP (4 slots, ×4 stacks)</li>
+            <li><strong>Diamond</strong> — 7,000 XP (4 slots, ×5 stacks)</li>
+          </ul>
+          <p>PvE wins award 25 XP + 5 per opponent level. PvP wins award 50 XP. Even losses give consolation XP.</p>
+        </div>
+
+        <div class="feature-item">
+          <h5><i class="fas fa-gem"></i> Rarity</h5>
+          <p>Rarity is a freeform text field — name your own tier. Common presets include Common, Uncommon, Rare, Epic, Legendary, and Mythic. Rarity affects the visual presentation of your card (glow, border, badge style) but not combat stats directly.</p>
+        </div>
+
+        <div class="feature-item">
+          <h5><i class="fas fa-shield-halved"></i> Class & Subclass</h5>
+          <p>Your card's Class defines its archetype — Ranger, Fighter, Caster, Rogue, Scholar, or anything you invent. The optional Subclass adds specialization flair. Class influences which stats matter most: a Caster leans on Intelligence for Ability damage, while a Fighter relies on Strength for Strike power.</p>
+        </div>
+
+        <div class="feature-item">
+          <h5><i class="fas fa-layer-group"></i> Attributes</h5>
+          <p>Attributes are custom key-value pairs displayed on the card back — Level, Guild, Alignment, Element, Origin, Weapon, or anything that fits your character's lore. They're flavor and identity, not combat mechanics. Slot count scales with rank (up to 4 at Gold+).</p>
+        </div>
+
+        <div class="feature-item">
+          <h5><i class="fas fa-book"></i> Card Back & Lore</h5>
+          <p>The back of every card tells the story. It displays your stats as visual bars, buff badges with quantities, attribute metadata, a biography (up to 300 characters), flavor text, and optional social links. Choose from Default, Parchment, or Dark back styles.</p>
+        </div>
+
+        <div class="feature-item">
+          <h5><i class="fas fa-layer-group"></i> Decks</h5>
+          <p>Organize your cards into themed decks — by faction, campaign, element, or strategy. Name and curate collections, preview them visually, and publish to the gallery for others to browse.</p>
+        </div>
+
+        <div class="feature-item">
+          <h5><i class="fas fa-chess"></i> Strategy Tips</h5>
+          <ul>
+            <li>High Endurance + Aegis/Fortitude buffs = tanky survivalist</li>
+            <li>High Intelligence + Arcane buff = devastating Ability burst</li>
+            <li>High Luck + Fury + Focus = crit machine</li>
+            <li>Guard early to build Charge, then unleash Ability at the right moment</li>
+            <li>Balance your stats — a one-dimensional card is easy to counter</li>
+          </ul>
+        </div>
+
       </div>
     </div>
   `;

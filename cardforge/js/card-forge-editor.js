@@ -27,7 +27,14 @@
     
     // Image Effects (filters only)
     imageEffect: 'none',
-    imageEffectVariant: 'clean'
+    imageEffectVariant: 'clean',
+
+    // Extras
+    quoteFont: 'default',         // default | serif | cursive
+    cardBackStyle: 'default',     // default | parchment | dark
+    borderRadius: 'default',      // default | sharp | rounded | pill
+    effectIntensity: 1.0,          // 0.25 – 1.5
+    statBarColor: 'default'        // default | red | green | blue | gold | rainbow
   };
   
   // Make ModularState globally accessible for event handlers
@@ -1411,7 +1418,12 @@
         imageContainer: 'masked',
         imageContainerVariant: 'circle',
         imageEffect: 'none',
-        imageEffectVariant: 'clean'
+        imageEffectVariant: 'clean',
+        quoteFont: 'default',
+        cardBackStyle: 'default',
+        borderRadius: 'default',
+        effectIntensity: 1.0,
+        statBarColor: 'default'
       };
       Object.assign(window.ModularState, defaults, cardData.design);
       
@@ -1429,6 +1441,7 @@
     }
 
     _statAnimationNeeded = true;
+    syncExtrasUI();
     updatePreview();
   };
 
@@ -1681,7 +1694,12 @@
       imageContainer: 'masked',
       imageContainerVariant: 'circle',
       imageEffect: 'none',
-      imageEffectVariant: 'clean'
+      imageEffectVariant: 'clean',
+      quoteFont: 'default',
+      cardBackStyle: 'default',
+      borderRadius: 'default',
+      effectIntensity: 1.0,
+      statBarColor: 'default'
     };
     Object.assign(ModularState, defaults, {
       imageContainer: randomContainer,
@@ -1692,8 +1710,13 @@
       paletteVariant: randomPaletteVariant,
       horizontalAlignment: randomHorizontal,
       verticalAlignment: randomVertical,
-      alignmentStyle: randomStyle
+      alignmentStyle: randomStyle,
+      quoteFont: ['default', 'serif', 'cursive'][Math.floor(Math.random() * 3)],
+      cardBackStyle: ['default', 'parchment', 'dark'][Math.floor(Math.random() * 3)],
+      borderRadius: ['default', 'sharp', 'rounded', 'pill'][Math.floor(Math.random() * 4)],
+      statBarColor: ['default', 'red', 'green', 'blue', 'gold'][Math.floor(Math.random() * 5)]
     });
+    syncExtrasUI();
     
     // Apply random class style to the dropdown
     const classStyleField = document.getElementById('class-style');
@@ -1786,7 +1809,7 @@
     });
     
     // Update palette variant toggles
-    const variantToggles = document.querySelectorAll('[data-tier="3"] .variant-toggle');
+    const variantToggles = document.querySelectorAll('[data-tier="3"] .variant-toggle[data-variant]');
     variantToggles.forEach(toggle => {
       toggle.classList.toggle('selected', toggle.dataset.variant === ModularState.paletteVariant);
     });
@@ -2292,8 +2315,8 @@
       option.classList.toggle('selected', option.dataset.palette === ModularState.palette);
     });
     
-    const variantToggles = document.querySelectorAll('[data-tier="3"] .variant-toggle');
-    variantToggles.forEach(toggle => {
+    const variantToggles2 = document.querySelectorAll('[data-tier="3"] .variant-toggle[data-variant]');
+    variantToggles2.forEach(toggle => {
       toggle.classList.toggle('selected', toggle.dataset.variant === ModularState.paletteVariant);
     });
     
@@ -2365,12 +2388,183 @@
     initTier3Palette(); // Color Palette moved to Tier 4 (function name needs updating)
     initTier4Alignment(); // Content Alignment moved to Tier 5 (function name needs updating)
     // initTier5Weight(); // REMOVED - Standalone Visual Weight tier (redundant with Content Alignment weight distribution)
-    
+    initExtras(); // Quote Font, Card Back Style, Border Radius, Effect Intensity
+
   }
+
+  // ===== CARD EXTRAS SYSTEM =====
+  function initExtras() {
+    // Option buttons (quote font, card back style, border radius)
+    document.querySelectorAll('[data-extra]').forEach(function(option) {
+      option.addEventListener('click', function() {
+        var key = this.dataset.extra;
+        var value = this.dataset.value;
+        ModularState[key] = value;
+        // Update selected state within same group
+        var parent = this.closest('.tier-options-grid') || this.closest('.variant-toggles');
+        if (parent) {
+          parent.querySelectorAll('.tier-option, .variant-toggle').forEach(function(opt) {
+            opt.classList.toggle('selected', opt.dataset.value === value);
+          });
+        }
+        updateExtrasSummary();
+        updatePreview();
+        // Auto-flip to show card back when changing back style
+        if (key === 'cardBackStyle') {
+          var cardInner = document.querySelector('.card-inner');
+          if (cardInner && !cardInner.classList.contains('flipped')) {
+            cardInner.classList.add('flipped');
+          }
+        }
+      });
+    });
+
+    // Effect intensity slider
+    var intensitySlider = document.getElementById('cf-effect-intensity');
+    var intensityVal = document.getElementById('cf-effect-intensity-val');
+    if (intensitySlider) {
+      intensitySlider.addEventListener('input', function() {
+        var val = parseFloat(this.value) / 100;
+        ModularState.effectIntensity = val;
+        if (intensityVal) intensityVal.textContent = this.value + '%';
+        updatePreview();
+      });
+    }
+
+    // Inject shuffle buttons into tier headers
+    var tierMap = {
+      '2': 'container',
+      '3': 'palette',
+      'typo': 'typography',
+      '4': 'alignment',
+      '5': 'effects'
+    };
+    Object.keys(tierMap).forEach(function(tierId) {
+      var header = document.querySelector('[data-tier-toggle="' + tierId + '"]');
+      if (!header) return;
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'tier-shuffle-btn';
+      btn.title = 'Randomize this section';
+      btn.innerHTML = '<i class="fas fa-shuffle"></i>';
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation(); // Don't toggle the collapsible
+        randomizeSection(tierMap[tierId]);
+      });
+      // Insert before the expand icon
+      var expandIcon = header.querySelector('.tier-expand-icon');
+      if (expandIcon) header.insertBefore(btn, expandIcon);
+      else header.appendChild(btn);
+    });
+  }
+
+  function updateExtrasSummary() {
+    var parts = [];
+    if (ModularState.quoteFont !== 'default') parts.push(ModularState.quoteFont);
+    if (ModularState.cardBackStyle !== 'default') parts.push('Back: ' + ModularState.cardBackStyle);
+    if (ModularState.borderRadius !== 'default') parts.push(ModularState.borderRadius);
+    if (ModularState.statBarColor !== 'default') parts.push('Bars: ' + ModularState.statBarColor);
+    if (ModularState.effectIntensity !== 1.0) parts.push(Math.round(ModularState.effectIntensity * 100) + '%');
+    var summary = document.getElementById('extras-summary');
+    if (summary) summary.textContent = parts.length ? parts.join(' · ') : 'Default';
+  }
+
+  // Sync extras UI when loading a saved card
+  function syncExtrasUI() {
+    // Quote font
+    document.querySelectorAll('#quote-font-options .tier-option').forEach(function(opt) {
+      opt.classList.toggle('selected', opt.dataset.value === ModularState.quoteFont);
+    });
+    // Card back style
+    document.querySelectorAll('#card-back-style-options .variant-toggle').forEach(function(opt) {
+      opt.classList.toggle('selected', opt.dataset.value === ModularState.cardBackStyle);
+    });
+    // Border radius
+    document.querySelectorAll('#border-radius-options .variant-toggle').forEach(function(opt) {
+      opt.classList.toggle('selected', opt.dataset.value === ModularState.borderRadius);
+    });
+    // Stat bar color
+    document.querySelectorAll('#stat-bar-color-options .tier-option').forEach(function(opt) {
+      opt.classList.toggle('selected', opt.dataset.value === ModularState.statBarColor);
+    });
+    // Effect intensity slider
+    var slider = document.getElementById('cf-effect-intensity');
+    var val = document.getElementById('cf-effect-intensity-val');
+    if (slider) {
+      slider.value = Math.round(ModularState.effectIntensity * 100);
+      if (val) val.textContent = slider.value + '%';
+    }
+    updateExtrasSummary();
+  }
+
+  // ===== SECTION RANDOMIZE =====
+  function randomizeSection(section) {
+    var pick = function(arr) { return arr[Math.floor(Math.random() * arr.length)]; };
+    var ro = {
+      containers: ['masked', 'polaroid', 'banner', 'fullbleed', 'hero', 'floating'],
+      containerVariants: {
+        'masked': ['circle', 'hex', 'diamond', 'rounded', 'square', 'rectangle'],
+        'polaroid': ['classic', 'vintage', 'dark'],
+        'banner': ['top', 'bottom'],
+        'hero': ['large', 'small'],
+        'fullbleed': ['standard', 'dimmed', 'blurred'],
+        'floating': ['centered', 'tilted-left', 'tilted-right']
+      },
+      palettes: ['neon', 'earth', 'ocean', 'sunset', 'monochrome', 'corporate', 'royal', 'inferno', 'frost', 'arcane'],
+      paletteVariants: ['light', 'dark'],
+      alignments: ['left', 'center', 'right'],
+      styles: ['none', 'padded', 'compact', 'elegant', 'narrow', 'bold', 'cinematic', 'editorial', 'stacked'],
+      effects: ['none', 'filters', 'overlays'],
+      filterVariants: ['sepia', 'grayscale', 'vintage', 'noir', 'warm', 'cool', 'cyberpunk', 'faded', 'high-contrast'],
+      overlayVariants: ['color-wash', 'gradient-fade', 'spotlight', 'haze'],
+      quoteFonts: ['default', 'serif', 'cursive'],
+      backStyles: ['default', 'parchment', 'dark'],
+      radii: ['default', 'sharp', 'rounded', 'pill'],
+      statColors: ['default', 'red', 'green', 'blue', 'gold', 'rainbow', 'gradient', 'neon', 'frost', 'ember']
+    };
+
+    if (section === 'container') {
+      var c = pick(ro.containers);
+      ModularState.imageContainer = c;
+      ModularState.imageContainerVariant = pick(ro.containerVariants[c]);
+    } else if (section === 'palette') {
+      ModularState.palette = pick(ro.palettes);
+      ModularState.paletteVariant = pick(ro.paletteVariants);
+      ModularState.cardBackStyle = pick(ro.backStyles);
+      ModularState.borderRadius = pick(ro.radii);
+      syncExtrasUI();
+    } else if (section === 'alignment') {
+      ModularState.horizontalAlignment = pick(ro.alignments);
+      ModularState.alignmentStyle = pick(ro.styles);
+    } else if (section === 'effects') {
+      var eff = pick(ro.effects);
+      ModularState.imageEffect = eff;
+      if (eff === 'filters') ModularState.imageEffectVariant = pick(ro.filterVariants);
+      else if (eff === 'overlays') ModularState.imageEffectVariant = pick(ro.overlayVariants);
+      else ModularState.imageEffectVariant = 'clean';
+    } else if (section === 'typography') {
+      var fonts = ['inter', 'montserrat', 'poppins', 'rajdhani', 'playfair', 'cinzel', 'orbitron', 'medievalsharp', 'pirata'];
+      var font = pick(fonts);
+      var fontSelect = document.getElementById('card-font-family');
+      if (fontSelect) fontSelect.value = font;
+      // Update font chip selection
+      document.querySelectorAll('[data-tier="typo"] .font-chip[data-target="card-font-family"] .font-chip, [data-tier-content="typo"] .font-chip').forEach(function(chip) {
+        if (!chip.dataset.extra) chip.classList.toggle('selected', chip.dataset.value === font);
+      });
+      ModularState.quoteFont = pick(ro.quoteFonts);
+      syncExtrasUI();
+    }
+
+    updateUIElementsFromState();
+    updatePreview();
+  }
+  // Expose for inline onclick
+  window.CardForge = window.CardForge || {};
+  window.CardForge.randomizeSection = randomizeSection;
 
   // ===== COLLAPSIBLE TIER SYSTEM =====
   function initCollapsibleTiers() {
-    
+
     // Get all tier headers (clickable collapse/expand triggers)
     const tierHeaders = document.querySelectorAll('.tier-header[data-tier-toggle]');
     
@@ -2379,10 +2573,14 @@
         const tierId = this.getAttribute('data-tier-toggle');
         const tier = this.closest('.collapsible-tier');
         const content = tier.querySelector(`[data-tier-content="${tierId}"]`);
-        
+
+        // Preserve scroll position to prevent browser scroll anchoring jumps
+        const scrollY = window.scrollY;
+        const headerRect = this.getBoundingClientRect();
+
         // Toggle expanded state
         const isExpanded = tier.classList.contains('expanded');
-        
+
         if (isExpanded) {
           // Collapse
           tier.classList.remove('expanded');
@@ -2404,6 +2602,15 @@
           // Then expand this tier
           tier.classList.add('expanded');
         }
+
+        // After DOM changes, scroll so the clicked header stays in position
+        requestAnimationFrame(function() {
+          var newRect = tier.querySelector('.tier-header').getBoundingClientRect();
+          var drift = newRect.top - headerRect.top;
+          if (Math.abs(drift) > 2) {
+            window.scrollTo(0, window.scrollY + drift);
+          }
+        });
       });
     });
     
@@ -2673,8 +2880,8 @@
   function initTier3Palette() {
     // Palette family selection
     const paletteOptions = document.querySelectorAll('[data-tier="3"] .palette-family');
-    const variantToggles = document.querySelectorAll('[data-tier="3"] .variant-toggle');
-    
+    const variantToggles = document.querySelectorAll('[data-tier="3"] .variant-toggle[data-variant]');
+
     paletteOptions.forEach(option => {
       option.addEventListener('click', () => {
         // Update selection state
@@ -2735,7 +2942,7 @@
     if (defaultVariant) defaultVariant.classList.add('selected');
     
     // Text Color selection
-    const textColorOptions = document.querySelectorAll('[data-tier="3"] .text-color-option');
+    const textColorOptions = document.querySelectorAll('[data-tier="3"] [data-text-color]');
     
     textColorOptions.forEach(option => {
       option.addEventListener('click', () => {
@@ -2908,9 +3115,17 @@
       `container-${ModularState.imageContainer}`,
       `container-variant-${ModularState.imageContainerVariant}`,
       `effect-${ModularState.imageEffect}`,
-      `effect-variant-${ModularState.imageEffectVariant}`
+      `effect-variant-${ModularState.imageEffectVariant}`,
+      `quote-font-${ModularState.quoteFont}`,
+      `card-back-${ModularState.cardBackStyle}`,
+      `card-radius-${ModularState.borderRadius}`,
+      `stat-color-${ModularState.statBarColor}`
     ];
-    
+
+    // Apply effect intensity as CSS variable
+    if (front) front.style.setProperty('--cf-effect-intensity', ModularState.effectIntensity);
+    if (back) back.style.setProperty('--cf-effect-intensity', ModularState.effectIntensity);
+
     // Front-only classes — alignment, weight, style (these resize elements)
     const frontOnlyClasses = [
       `align-${ModularState.horizontalAlignment}`,
@@ -2985,6 +3200,9 @@
     
     // Update card content
     updateCardContent();
+
+    // Render power rating badge on front face (after content is built)
+    renderPowerBadge();
 
     // Combine fullbleed variant filters with image effect filters
     applyCombinedFilters();
@@ -4381,6 +4599,31 @@
       loadInlineImages(currentPage);
     });
 
+    // Random artwork shuffle
+    var artworkShuffleBtn = document.getElementById('artwork-shuffle-btn');
+    if (artworkShuffleBtn) {
+      artworkShuffleBtn.addEventListener('click', function(e) {
+        e.stopPropagation(); // Don't toggle the accordion
+        fetch('/cardforge/image-manifest.json')
+          .then(function(res) { return res.json(); })
+          .then(function(images) {
+            if (!images.length) return;
+            var url = images[Math.floor(Math.random() * images.length)];
+            if (cardAvatarInput) {
+              cardAvatarInput.value = url;
+              updatePreview();
+              if (window.CardForgeChrome) window.CardForgeChrome.markDirty();
+            }
+            // Update gallery selection if visible
+            if (inlineImageGrid) {
+              inlineImageGrid.querySelectorAll('img').forEach(function(img) {
+                img.classList.toggle('selected', img.src === url);
+              });
+            }
+          });
+      });
+    }
+
     // Custom URL functionality
     useCustomUrlBtn?.addEventListener('click', () => {
       if (cardAvatarInput && customUrlInput && customUrlInput.value.trim()) {
@@ -4857,7 +5100,270 @@
   }
   
   // Note: Default styles initialization moved to main DOMContentLoaded listener to avoid conflicts
-  
+
+  // ===== UNDO / REDO SYSTEM =====
+  var _undoStack = [];
+  var _redoStack = [];
+  var _undoMax = 30;
+  var _undoPaused = false;
+
+  function pushUndoState() {
+    if (_undoPaused) return;
+    _undoStack.push(JSON.stringify(ModularState));
+    if (_undoStack.length > _undoMax) _undoStack.shift();
+    _redoStack.length = 0; // clear redo on new action
+  }
+
+  function undo() {
+    if (_undoStack.length === 0) return;
+    _redoStack.push(JSON.stringify(ModularState));
+    var prev = JSON.parse(_undoStack.pop());
+    _undoPaused = true;
+    Object.assign(ModularState, prev);
+    syncExtrasUI();
+    updateUIElementsFromState();
+    updatePreview();
+    _undoPaused = false;
+  }
+
+  function redo() {
+    if (_redoStack.length === 0) return;
+    _undoStack.push(JSON.stringify(ModularState));
+    var next = JSON.parse(_redoStack.pop());
+    _undoPaused = true;
+    Object.assign(ModularState, next);
+    syncExtrasUI();
+    updateUIElementsFromState();
+    updatePreview();
+    _undoPaused = false;
+  }
+
+  // Hook into updatePreview to capture undo snapshots
+  var _origUpdatePreview = updatePreview;
+  // We capture state before each preview update via initExtras event listeners
+  // Instead, patch at the extras/tier click level — push state on any option click
+  document.addEventListener('click', function(e) {
+    var trigger = e.target.closest('.tier-option, .variant-option, .preset-btn, .palette-family, .weight-option, .style-option, #roll-random-preset, [data-extra]');
+    if (trigger) pushUndoState();
+  }, true);
+
+  // Keyboard shortcuts
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key === 'z' && !e.shiftKey) {
+      e.preventDefault();
+      undo();
+    }
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'y' || (e.key === 'z' && e.shiftKey))) {
+      e.preventDefault();
+      redo();
+    }
+  });
+
+  // ===== SAVE / LOAD STYLE TEMPLATES =====
+  var TEMPLATE_STORAGE_KEY = 'cf-style-templates';
+
+  function getStyleTemplates() {
+    try { return JSON.parse(localStorage.getItem(TEMPLATE_STORAGE_KEY) || '[]'); }
+    catch (e) { return []; }
+  }
+
+  function saveStyleTemplate(name) {
+    if (!name) return;
+    var templates = getStyleTemplates();
+    // Capture ModularState + card effect dropdowns
+    var snapshot = JSON.parse(JSON.stringify(ModularState));
+    var extras = {};
+    ['card-bg-effect', 'card-border-effect', 'card-glow-effect', 'card-font-family', 'class-style', 'rarity-style'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) extras[id] = el.value;
+    });
+    snapshot._dropdowns = extras;
+    // Replace if same name exists
+    templates = templates.filter(function(t) { return t.name !== name; });
+    templates.push({ name: name, state: snapshot, created: new Date().toISOString() });
+    localStorage.setItem(TEMPLATE_STORAGE_KEY, JSON.stringify(templates));
+    refreshTemplateList();
+  }
+
+  function loadStyleTemplate(name) {
+    var templates = getStyleTemplates();
+    var tpl = templates.find(function(t) { return t.name === name; });
+    if (!tpl) return;
+    pushUndoState();
+    var state = JSON.parse(JSON.stringify(tpl.state));
+    var dropdowns = state._dropdowns || {};
+    delete state._dropdowns;
+    Object.assign(ModularState, state);
+    // Restore dropdowns
+    Object.keys(dropdowns).forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.value = dropdowns[id];
+    });
+    syncExtrasUI();
+    updateUIElementsFromState();
+    updatePreview();
+  }
+
+  function deleteStyleTemplate(name) {
+    var templates = getStyleTemplates().filter(function(t) { return t.name !== name; });
+    localStorage.setItem(TEMPLATE_STORAGE_KEY, JSON.stringify(templates));
+    refreshTemplateList();
+  }
+
+  function refreshTemplateList() {
+    var list = document.getElementById('cf-template-list');
+    if (!list) return;
+    var templates = getStyleTemplates();
+    if (templates.length === 0) {
+      list.innerHTML = '<div class="cf-template-empty">No saved templates</div>';
+      return;
+    }
+    list.innerHTML = templates.map(function(t) {
+      return '<div class="cf-template-item" data-name="' + t.name.replace(/"/g, '&quot;') + '">'
+        + '<span class="cf-template-name">' + t.name + '</span>'
+        + '<div class="cf-template-actions">'
+        + '<button type="button" class="cf-template-load" title="Load template"><i class="fas fa-download"></i></button>'
+        + '<button type="button" class="cf-template-delete" title="Delete template"><i class="fas fa-trash"></i></button>'
+        + '</div></div>';
+    }).join('');
+  }
+
+  function initTemplates() {
+    // Save button
+    var saveBtn = document.getElementById('cf-save-template-btn');
+    if (saveBtn) {
+      saveBtn.addEventListener('click', function() {
+        var nameInput = document.getElementById('cf-template-name');
+        var name = nameInput ? nameInput.value.trim() : '';
+        if (!name) {
+          name = prompt('Template name:');
+          if (!name) return;
+        }
+        saveStyleTemplate(name);
+        if (nameInput) nameInput.value = '';
+      });
+    }
+    // Delegate load/delete clicks
+    var list = document.getElementById('cf-template-list');
+    if (list) {
+      list.addEventListener('click', function(e) {
+        var loadBtn = e.target.closest('.cf-template-load');
+        var deleteBtn = e.target.closest('.cf-template-delete');
+        var item = e.target.closest('.cf-template-item');
+        if (!item) return;
+        var name = item.dataset.name;
+        if (loadBtn) loadStyleTemplate(name);
+        if (deleteBtn) deleteStyleTemplate(name);
+      });
+    }
+    refreshTemplateList();
+  }
+
+  // ===== CARD COMPARISON — FLOATING PANEL =====
+  var _comparisonSnapshot = null;
+
+  function enterComparisonMode() {
+    var front = document.querySelector('.card-preview-zone .card-front');
+    if (!front) return;
+    // Remove existing panel if any
+    exitComparisonMode();
+    _comparisonSnapshot = {
+      frontHTML: front.innerHTML,
+      frontClass: front.className
+    };
+    // Build floating panel
+    var panel = document.createElement('div');
+    panel.className = 'cf-compare-panel';
+    panel.id = 'cf-compare-panel';
+    panel.innerHTML =
+      '<div class="cf-compare-panel-header">'
+      + '<span class="cf-compare-label">Snapshot</span>'
+      + '<button type="button" class="cf-compare-close"><i class="fas fa-times"></i> Close</button>'
+      + '</div>'
+      + '<div class="cf-compare-snapshot">'
+      + '<div class="' + _comparisonSnapshot.frontClass + '">' + _comparisonSnapshot.frontHTML + '</div>'
+      + '</div>';
+    document.body.appendChild(panel);
+    panel.querySelector('.cf-compare-close').addEventListener('click', exitComparisonMode);
+  }
+
+  function exitComparisonMode() {
+    var panel = document.getElementById('cf-compare-panel');
+    if (panel) panel.remove();
+    _comparisonSnapshot = null;
+  }
+
+  // ===== BATTLE PREVIEW STATS (POWER RATING) =====
+  function calculatePowerRating(stats) {
+    if (!stats || stats.length === 0) return 0;
+    // Use combat stats for power calculation
+    var combatNames = COMBAT_STAT_DEFS.map(function(d) { return d.label.toLowerCase(); });
+    var combatValues = [];
+    stats.forEach(function(s) {
+      if (combatNames.indexOf((s.name || '').toLowerCase().trim()) >= 0) {
+        combatValues.push(Number(s.value) || 0);
+      }
+    });
+    if (combatValues.length === 0) {
+      // Fallback: use all stats
+      stats.forEach(function(s) { combatValues.push(Number(s.value) || 0); });
+    }
+    var sum = combatValues.reduce(function(a, b) { return a + b; }, 0);
+    var avg = combatValues.length ? sum / combatValues.length : 0;
+    // Scale to a rating (avg of 0-100 → letter + number)
+    return Math.round(avg);
+  }
+
+  function getPowerTier(rating) {
+    if (rating >= 90) return { label: 'S', color: '#FFD700', glow: 'rgba(255, 215, 0, 0.4)' };
+    if (rating >= 75) return { label: 'A', color: '#A78BFA', glow: 'rgba(167, 139, 250, 0.3)' };
+    if (rating >= 60) return { label: 'B', color: '#60A5FA', glow: 'rgba(96, 165, 250, 0.3)' };
+    if (rating >= 45) return { label: 'C', color: '#34D399', glow: 'rgba(52, 211, 153, 0.3)' };
+    if (rating >= 30) return { label: 'D', color: '#FBBF24', glow: 'rgba(251, 191, 36, 0.3)' };
+    return { label: 'E', color: '#F87171', glow: 'rgba(248, 113, 113, 0.3)' };
+  }
+
+  function renderPowerBadge() {
+    var front = document.querySelector('.card-preview-zone .card-front');
+    if (!front) return;
+    // Remove existing badge
+    var existing = front.querySelector('.cf-power-badge');
+    if (existing) existing.remove();
+    // Get current stats from the form
+    var stats = [];
+    document.querySelectorAll('#stats-editor .stat-row').forEach(function(row) {
+      var nameField = row.querySelector('.stat-name');
+      var valueField = row.querySelector('.stat-value');
+      if (nameField && nameField.value.trim()) {
+        stats.push({ name: nameField.value.trim(), value: parseInt(valueField.value) || 0 });
+      }
+    });
+    var rating = calculatePowerRating(stats);
+    if (rating === 0) return; // No stats, no badge
+    var tier = getPowerTier(rating);
+    var badge = document.createElement('div');
+    badge.className = 'cf-power-badge';
+    badge.innerHTML = '<span class="cf-power-tier">' + tier.label + '</span><span class="cf-power-value">' + rating + '</span>';
+    badge.style.setProperty('--power-color', tier.color);
+    badge.style.setProperty('--power-glow', tier.glow);
+    front.appendChild(badge);
+  }
+
+  // ===== INIT TEMPLATES & COMPARISON ON DOM READY =====
+  document.addEventListener('DOMContentLoaded', function() {
+    initTemplates();
+    // Compare button
+    var compareBtn = document.getElementById('cf-compare-btn');
+    if (compareBtn) {
+      compareBtn.addEventListener('click', function() {
+        if (_comparisonSnapshot) exitComparisonMode();
+        else enterComparisonMode();
+      });
+    }
+  });
+
+  // Power badge is called directly from updatePreview() after updateCardContent()
+
   // Expose global functions for external access
   window.CardForge = {
     updatePreview,
@@ -4868,7 +5374,16 @@
     createStatRow,
     createBadgeRow,
     createAttributeRow,
-    applyEffectLockState
+    applyEffectLockState,
+    undo,
+    redo,
+    saveStyleTemplate,
+    loadStyleTemplate,
+    deleteStyleTemplate,
+    enterComparisonMode,
+    exitComparisonMode,
+    calculatePowerRating,
+    randomizeSection
   };
 
 })();

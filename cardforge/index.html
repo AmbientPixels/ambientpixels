@@ -391,6 +391,7 @@
             <div class="craft-row-header" id="craft-artwork-toggle" role="button" tabindex="0" aria-expanded="true">
               <span class="craft-row-title">Artwork</span>
               <span class="craft-row-summary art-chip" id="craft-artwork-summary"><img class="art-chip-thumb" src="" alt="" style="display:none" /><span class="art-chip-label">None</span></span>
+              <button type="button" class="tier-shuffle-btn" id="artwork-shuffle-btn" title="Random artwork"><i class="fas fa-shuffle"></i></button>
               <span class="craft-row-chevron">›</span>
             </div>
             <div class="craft-row-body" id="craft-artwork-body">
@@ -859,22 +860,58 @@
                 
                 <div class="palette-level">
                   <h5 class="level-title">Text Color</h5>
-                  <div class="text-color-pills">
-                    <div class="text-color-pill text-color-option selected" data-text-color="auto">
+                  <div class="variant-toggles">
+                    <div class="variant-toggle selected" data-text-color="auto">
                       <span class="variant-label">Auto</span>
                     </div>
-                    <div class="text-color-pill text-color-option" data-text-color="light">
+                    <div class="variant-toggle" data-text-color="light">
                       <span class="variant-label">Light</span>
                     </div>
-                    <div class="text-color-pill text-color-option" data-text-color="dark">
+                    <div class="variant-toggle" data-text-color="dark">
                       <span class="variant-label">Dark</span>
                     </div>
                   </div>
                 </div>
+
+                <!-- Card Back Style -->
+                <div class="palette-level">
+                  <h5 class="level-title">Card Back Style</h5>
+                  <div class="variant-toggles" id="card-back-style-options">
+                    <div class="variant-toggle selected" data-extra="cardBackStyle" data-value="default">
+                      <span class="variant-label">Default</span>
+                    </div>
+                    <div class="variant-toggle" data-extra="cardBackStyle" data-value="parchment">
+                      <span class="variant-label">Parchment</span>
+                    </div>
+                    <div class="variant-toggle" data-extra="cardBackStyle" data-value="dark">
+                      <span class="variant-label">Dark</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Corner Style -->
+                <div class="palette-level">
+                  <h5 class="level-title">Corner Style</h5>
+                  <div class="variant-toggles" id="border-radius-options">
+                    <div class="variant-toggle selected" data-extra="borderRadius" data-value="default">
+                      <span class="variant-label">Default</span>
+                    </div>
+                    <div class="variant-toggle" data-extra="borderRadius" data-value="sharp">
+                      <span class="variant-label">Sharp</span>
+                    </div>
+                    <div class="variant-toggle" data-extra="borderRadius" data-value="rounded">
+                      <span class="variant-label">Rounded</span>
+                    </div>
+                    <div class="variant-toggle" data-extra="borderRadius" data-value="pill">
+                      <span class="variant-label">Pill</span>
+                    </div>
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>
-          
+
           <!-- ZONE: TYPOGRAPHY -->
           <div class="modular-tier collapsible-tier" data-tier="typo">
             <div class="tier-header craft-row-header" data-tier-toggle="typo">
@@ -914,10 +951,21 @@
                     <button type="button" class="effect-chip tier-option font-chip" data-value="pirata" style="font-family:'Pirata One',cursive"><span class="font-preview">Aa</span><span class="option-label">Pirata</span></button>
                   </div>
                 </div>
+
+                <!-- Quote Font -->
+                <div class="effect-control">
+                  <h5 class="level-title">Quote Font</h5>
+                  <div class="effect-chips font-chips" id="quote-font-options">
+                    <button type="button" class="effect-chip tier-option font-chip selected" data-extra="quoteFont" data-value="default"><span class="font-preview">Aa</span><span class="option-label">Default</span></button>
+                    <button type="button" class="effect-chip tier-option font-chip" data-extra="quoteFont" data-value="serif" style="font-family:'Playfair Display',serif;font-style:italic"><span class="font-preview">Aa</span><span class="option-label">Serif</span></button>
+                    <button type="button" class="effect-chip tier-option font-chip" data-extra="quoteFont" data-value="cursive" style="font-family:'Cinzel',serif;letter-spacing:0.04em"><span class="font-preview">Aa</span><span class="option-label">Cinzel</span></button>
+                  </div>
+                </div>
+
               </div>
             </div>
           </div>
-          
+
           <!-- ZONE 3: COMPOSITION & BALANCE (was Tier 4: Content Alignment) -->
           <div class="modular-tier collapsible-tier" data-tier="4">
             <div class="tier-header craft-row-header" data-tier-toggle="4">
@@ -1149,6 +1197,17 @@
                     <button type="button" class="effect-chip tier-option" data-value="color-shift"><i class="fas fa-palette"></i><span class="option-label">Shift</span></button>
                   </div>
                 </div>
+                <!-- Effect Intensity -->
+                <div class="effect-control">
+                  <h5 class="level-title">Effect Intensity</h5>
+                  <div class="cf-image-sliders">
+                    <div class="cf-slider-row">
+                      <label for="cf-effect-intensity">Intensity</label>
+                      <input type="range" id="cf-effect-intensity" min="25" max="150" value="100" step="5" />
+                      <span class="cf-slider-value" id="cf-effect-intensity-val">100%</span>
+                    </div>
+                  </div>
+                </div>
                 <button type="button" class="clear-effects-btn clear-effects-btn-bottom" id="clear-all-effects-bottom" title="Reset all effects to None"><i class="fas fa-eraser"></i> Clear All Effects</button>
               </div>
             </div>
@@ -1177,6 +1236,14 @@
           <label for="card-name">Name</label>
           <input type="text" id="card-name" placeholder="Card Name" />
 
+          <label for="card-quote">Quote/Description</label>
+          <textarea id="card-quote" rows="2" placeholder="Epic one-liner or brief description"></textarea>
+          <div class="cf-ai-quick-inline">
+            <button type="button" id="cf-ai-quote-btn" class="roll-btn cf-ai-generate-btn cf-ai-inline-btn" title="Auto-generate quote using AI">
+              <span class="cf-ai-btn-icon"><i class="fas fa-wand-magic-sparkles"></i></span>
+              <span class="cf-ai-btn-label">AI Generate Quote</span>
+            </button>
+          </div>
         </div>
 
         <!-- Section 2: Classification (Two-Column Grid) -->
@@ -1208,6 +1275,7 @@
               </div>
               <div class="stat-row">
                 <input type="text" id="card-subclass" placeholder="Subclass / Title (optional)" />
+                <small class="field-hint">Optional subclass or personal flair</small>
               </div>
 
               <div class="styling-options">
@@ -1221,6 +1289,7 @@
                   <option value="underline">Underline Accent</option>
                   <option value="gradient">Gradient Text</option>
                 </select>
+                <small class="field-hint">How class is displayed on the card</small>
 
                 <!-- Class Icon Section -->
                 <div class="icon-section">
@@ -1267,6 +1336,7 @@
             <div id="rarity-content" class="section-content">
               <div class="stat-row">
                 <input type="text" id="card-rarity" placeholder="e.g. Common, Rare, Legendary" />
+                <small class="field-hint">Free text — name your own rarity tier</small>
               </div>
 
               <!-- Rarity Styling Options -->
@@ -1281,6 +1351,7 @@
                   <option value="gradient">Gradient Text</option>
                   <option value="ribbon">Ribbon</option>
                 </select>
+                <small class="field-hint">How rarity is displayed on the card</small>
 
                 <!-- Rarity Icon Picker -->
                 <div class="icon-section">
@@ -1320,16 +1391,6 @@
           </div>
         </div>
 
-        <!-- Section 3: Flavor (Full Width) -->
-        <label for="card-quote">Quote/Description</label>
-        <textarea id="card-quote" rows="2" placeholder="Epic one-liner or brief description"></textarea>
-        <div class="cf-ai-quick-inline">
-          <button type="button" id="cf-ai-quote-btn" class="roll-btn cf-ai-generate-btn cf-ai-inline-btn" title="Auto-generate quote using AI">
-            <span class="cf-ai-btn-icon"><i class="fas fa-wand-magic-sparkles"></i></span>
-            <span class="cf-ai-btn-label">AI Generate Quote</span>
-          </button>
-        </div>
-
       </div>
       
       <div class="cf-section" data-step-section="3">
@@ -1352,6 +1413,42 @@
               <!-- Freeform custom stats here -->
             </div>
             <button type="button" id="add-stat-btn" class="add-stat-btn">+ Add Custom Stat</button>
+          </div>
+          <!-- Stat Bar Color -->
+          <div class="container-level" style="margin-top:1rem">
+            <h5 class="level-title">Stat Bar Color</h5>
+            <div class="tier-options-grid" id="stat-bar-color-options">
+              <div class="tier-option selected" data-extra="statBarColor" data-value="default">
+                <span class="option-label">Default</span>
+              </div>
+              <div class="tier-option" data-extra="statBarColor" data-value="red">
+                <span class="option-label"><i class="fas fa-circle" style="color:#F87171;font-size:8px;margin-right:4px"></i>Red</span>
+              </div>
+              <div class="tier-option" data-extra="statBarColor" data-value="green">
+                <span class="option-label"><i class="fas fa-circle" style="color:#34D399;font-size:8px;margin-right:4px"></i>Green</span>
+              </div>
+              <div class="tier-option" data-extra="statBarColor" data-value="blue">
+                <span class="option-label"><i class="fas fa-circle" style="color:#60A5FA;font-size:8px;margin-right:4px"></i>Blue</span>
+              </div>
+              <div class="tier-option" data-extra="statBarColor" data-value="gold">
+                <span class="option-label"><i class="fas fa-circle" style="color:#FBBF24;font-size:8px;margin-right:4px"></i>Gold</span>
+              </div>
+              <div class="tier-option" data-extra="statBarColor" data-value="rainbow">
+                <span class="option-label"><i class="fas fa-rainbow" style="font-size:10px;margin-right:4px"></i>Rainbow</span>
+              </div>
+              <div class="tier-option" data-extra="statBarColor" data-value="gradient">
+                <span class="option-label"><i class="fas fa-wand-magic-sparkles" style="font-size:10px;margin-right:4px;background:linear-gradient(90deg,#F87171,#FBBF24,#34D399,#60A5FA,#A78BFA);-webkit-background-clip:text;-webkit-text-fill-color:transparent"></i>Gradient</span>
+              </div>
+              <div class="tier-option" data-extra="statBarColor" data-value="neon">
+                <span class="option-label"><i class="fas fa-bolt" style="color:#00F5D4;font-size:10px;margin-right:4px"></i>Neon</span>
+              </div>
+              <div class="tier-option" data-extra="statBarColor" data-value="frost">
+                <span class="option-label"><i class="fas fa-snowflake" style="color:#67C6E3;font-size:10px;margin-right:4px"></i>Frost</span>
+              </div>
+              <div class="tier-option" data-extra="statBarColor" data-value="ember">
+                <span class="option-label"><i class="fas fa-fire" style="color:#FF6B35;font-size:10px;margin-right:4px"></i>Ember</span>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1491,6 +1588,19 @@
               </section>
             </div> <!-- /.forge-view -->
           </div> <!-- /.forge-body -->
+
+          <!-- Style Templates -->
+          <div class="forge-templates">
+            <h4 class="forge-section-title"><i class="fas fa-palette"></i> Style Templates</h4>
+            <div class="cf-template-controls">
+              <input type="text" id="cf-template-name" class="cf-template-input" placeholder="Template name…" maxlength="30" />
+              <button type="button" id="cf-save-template-btn" class="cf-template-btn" title="Save current style as template"><i class="fas fa-save"></i></button>
+            </div>
+            <div id="cf-template-list" class="cf-template-list">
+              <div class="cf-template-empty">No saved templates</div>
+            </div>
+          </div>
+
         </div> <!-- /.forge-panel -->
       </div> <!-- /.cf-section[data-step-section="6"] -->
       </form>
@@ -1550,6 +1660,12 @@
                 </div>
               </div>
             </div>
+          </div>
+          <!-- Tools bar below card -->
+          <div class="cf-tools-bar">
+            <button type="button" class="cf-tool-btn" onclick="window.CardForge.undo()" title="Undo (Ctrl+Z)"><i class="fas fa-rotate-left"></i> Undo</button>
+            <button type="button" class="cf-tool-btn" onclick="window.CardForge.redo()" title="Redo (Ctrl+Y)"><i class="fas fa-rotate-right"></i> Redo</button>
+            <button type="button" id="cf-compare-btn" class="cf-tool-btn" title="Compare with snapshot"><i class="fas fa-columns"></i> Compare</button>
           </div>
           <!-- Design summary below card -->
           <div class="cf-preview-summary" id="preview-summary">

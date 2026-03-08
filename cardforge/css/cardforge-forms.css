@@ -533,10 +533,10 @@
 
 /* None option styling */
 .no-icon {
-  font-size: var(--cf-text-xs);
-  font-weight: 600;
+  font-size: 0.5rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0;
   color: inherit;
 }
 

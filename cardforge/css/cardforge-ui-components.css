@@ -966,6 +966,38 @@ body.cf-ui--clean [data-save-state] {
 .toolbar-btn:active {
   transform: scale(0.95);
 }
+/* Tools bar below card preview */
+.cf-tools-bar {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+}
+.cf-tool-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--mood-text-secondary, #a0a0c0);
+  background: var(--cf-btn-nav-bg, rgba(255, 255, 255, 0.04));
+  border: 1px solid var(--cf-btn-nav-border, rgba(255, 255, 255, 0.12));
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+.cf-tool-btn:hover {
+  background: var(--cf-btn-inline-hover-bg, rgba(139, 92, 246, 0.1));
+  border-color: var(--cf-btn-inline-hover-border, rgba(139, 92, 246, 0.6));
+  color: var(--cf-btn-inline-hover-text, #e0d4ff);
+}
+.cf-tool-btn:active {
+  transform: scale(0.95);
+}
+.cf-tool-btn i {
+  font-size: 0.75rem;
+}
 
 /* Card Preview Container */
 #card-preview-container {

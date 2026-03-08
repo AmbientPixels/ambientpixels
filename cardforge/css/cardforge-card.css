@@ -306,8 +306,8 @@
   margin: var(--cf-quote-margin) 0;
   overflow: hidden;
   display: -webkit-box;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
   -webkit-box-orient: vertical;
 }
 
@@ -416,14 +416,7 @@
 }
 
 .card-preview-canvas.align-style-elegant .card-quote::before {
-  content: '\201C';
-  font-size: 1.6rem;
-  color: var(--card-accent, #00d4ff);
-  position: absolute;
-  top: -0.15rem;
-  left: 0.35rem;
-  opacity: 0.3;
-  line-height: 1;
+  content: none;
 }
 
 .card-preview-canvas.align-style-elegant .card-stats {
@@ -1334,8 +1327,8 @@
   color: var(--card-text-primary, #ffffff);
   opacity: 0.9;
   display: -webkit-box;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
+  -webkit-line-clamp: 4;
+  line-clamp: 4;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
@@ -2125,3 +2118,296 @@
 
 /* Filter + Border combinations - filters and borders can be combined */
 /* Filter + Overlay combinations - filters and overlays can be combined */
+
+
+/* ===================================================================
+   EXTRAS — Quote Font, Card Back Style, Border Radius, Effect Intensity
+   =================================================================== */
+
+/* --- QUOTE FONT STYLES --- */
+.card-preview-canvas.quote-font-serif .card-quote {
+  font-family: 'Playfair Display', 'Georgia', serif;
+  font-style: italic;
+  letter-spacing: 0.01em;
+}
+
+.card-preview-canvas.quote-font-cursive .card-quote {
+  font-family: 'Cinzel', 'Times New Roman', serif;
+  font-style: normal;
+  letter-spacing: 0.04em;
+  font-weight: 500;
+}
+
+/* --- CARD BACK STYLES --- */
+.card-preview-canvas.card-back-parchment .card-back-content {
+  background:
+    linear-gradient(135deg, rgba(139, 119, 80, 0.15), rgba(100, 80, 50, 0.08)),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(139, 119, 80, 0.03) 2px,
+      rgba(139, 119, 80, 0.03) 4px
+    );
+}
+
+.card-preview-canvas.card-back-parchment .back-header {
+  border-bottom-color: rgba(139, 119, 80, 0.25);
+}
+
+.card-preview-canvas.card-back-parchment .back-header .card-name {
+  color: #D4A574;
+}
+
+.card-preview-canvas.card-back-parchment .biography-section,
+.card-preview-canvas.card-back-parchment .back-section {
+  background: rgba(139, 119, 80, 0.08);
+  border-color: rgba(139, 119, 80, 0.2);
+}
+
+.card-preview-canvas.card-back-parchment .section-title {
+  color: #C4956A;
+}
+
+.card-preview-canvas.card-back-dark .card-back-content {
+  background: linear-gradient(180deg, rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.2));
+}
+
+.card-preview-canvas.card-back-dark .back-header {
+  border-bottom-color: rgba(255, 255, 255, 0.06);
+}
+
+.card-preview-canvas.card-back-dark .back-header .card-name {
+  color: #e1e1ff;
+}
+
+.card-preview-canvas.card-back-dark .biography-section,
+.card-preview-canvas.card-back-dark .back-section {
+  background: rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.card-preview-canvas.card-back-dark .section-title {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* --- BORDER RADIUS VARIANTS --- */
+/* Sharp — zeroes out all radii */
+.card-preview-canvas.card-radius-sharp,
+.card-preview-canvas.card-radius-sharp .card-quote,
+.card-preview-canvas.card-radius-sharp .card-stats,
+.card-preview-canvas.card-radius-sharp .biography-section,
+.card-preview-canvas.card-radius-sharp .back-section,
+.card-preview-canvas.card-radius-sharp .stat-bar {
+  border-radius: 0 !important;
+}
+/* Sharp avatar — only on circle-variant masked and floating containers */
+.card-preview-canvas.card-radius-sharp.container-masked.container-variant-circle .card-avatar-container,
+.card-preview-canvas.card-radius-sharp.container-floating .card-avatar-container {
+  border-radius: 0 !important;
+}
+
+/* Rounded */
+.card-preview-canvas.card-radius-rounded .card-quote,
+.card-preview-canvas.card-radius-rounded .card-stats,
+.card-preview-canvas.card-radius-rounded .biography-section,
+.card-preview-canvas.card-radius-rounded .back-section {
+  border-radius: 12px;
+}
+
+.card-preview-canvas.card-radius-rounded .stat-bar {
+  border-radius: 6px;
+}
+
+/* Pill */
+.card-preview-canvas.card-radius-pill .card-quote,
+.card-preview-canvas.card-radius-pill .card-stats,
+.card-preview-canvas.card-radius-pill .biography-section,
+.card-preview-canvas.card-radius-pill .back-section {
+  border-radius: 20px;
+}
+
+.card-preview-canvas.card-radius-pill .stat-bar {
+  border-radius: 10px;
+}
+
+/* Pill avatar — only on circle-variant masked and floating containers */
+.card-preview-canvas.card-radius-pill.container-masked.container-variant-circle .card-avatar-container,
+.card-preview-canvas.card-radius-pill.container-floating .card-avatar-container {
+  border-radius: 50%;
+}
+
+/* --- EFFECT INTENSITY --- */
+/* Scales glow/overlay effects via --cf-effect-intensity (0.25–1.5, default 1) */
+/* Background/overlay effects use ::before/::after — scale their opacity */
+.card-preview-canvas[style*="--cf-effect-intensity"]::after,
+.card-preview-canvas[style*="--cf-effect-intensity"]::before {
+  opacity: var(--cf-effect-intensity, 1);
+}
+
+/* --- STAT BAR COLOR OVERRIDES --- */
+.card-preview-canvas.stat-color-red .stat-progress {
+  background: linear-gradient(90deg, #F87171, #EF4444);
+}
+.card-preview-canvas.stat-color-red .stat-value {
+  color: #F87171;
+}
+
+.card-preview-canvas.stat-color-green .stat-progress {
+  background: linear-gradient(90deg, #34D399, #10B981);
+}
+.card-preview-canvas.stat-color-green .stat-value {
+  color: #34D399;
+}
+
+.card-preview-canvas.stat-color-blue .stat-progress {
+  background: linear-gradient(90deg, #60A5FA, #3B82F6);
+}
+.card-preview-canvas.stat-color-blue .stat-value {
+  color: #60A5FA;
+}
+
+.card-preview-canvas.stat-color-gold .stat-progress {
+  background: linear-gradient(90deg, #FBBF24, #F59E0B);
+}
+.card-preview-canvas.stat-color-gold .stat-value {
+  color: #FBBF24;
+}
+
+.card-preview-canvas.stat-color-rainbow .stat-item:nth-child(1) .stat-progress { background: linear-gradient(90deg, #F87171, #EF4444); }
+.card-preview-canvas.stat-color-rainbow .stat-item:nth-child(2) .stat-progress { background: linear-gradient(90deg, #FBBF24, #F59E0B); }
+.card-preview-canvas.stat-color-rainbow .stat-item:nth-child(3) .stat-progress { background: linear-gradient(90deg, #34D399, #10B981); }
+.card-preview-canvas.stat-color-rainbow .stat-item:nth-child(4) .stat-progress { background: linear-gradient(90deg, #60A5FA, #3B82F6); }
+.card-preview-canvas.stat-color-rainbow .stat-item:nth-child(5) .stat-progress { background: linear-gradient(90deg, #A78BFA, #8B5CF6); }
+.card-preview-canvas.stat-color-rainbow .stat-item:nth-child(1) .stat-value { color: #F87171; }
+.card-preview-canvas.stat-color-rainbow .stat-item:nth-child(2) .stat-value { color: #FBBF24; }
+.card-preview-canvas.stat-color-rainbow .stat-item:nth-child(3) .stat-value { color: #34D399; }
+.card-preview-canvas.stat-color-rainbow .stat-item:nth-child(4) .stat-value { color: #60A5FA; }
+.card-preview-canvas.stat-color-rainbow .stat-item:nth-child(5) .stat-value { color: #A78BFA; }
+
+.card-preview-canvas.stat-color-gradient .stat-progress {
+  background: linear-gradient(90deg, #F87171, #FBBF24, #34D399, #60A5FA, #A78BFA);
+}
+.card-preview-canvas.stat-color-gradient .stat-value {
+  color: #A78BFA;
+}
+
+.card-preview-canvas.stat-color-neon .stat-progress {
+  background: linear-gradient(90deg, #FF006E, #00F5D4);
+  box-shadow: 0 0 6px rgba(0, 245, 212, 0.4);
+}
+.card-preview-canvas.stat-color-neon .stat-value {
+  color: #00F5D4;
+}
+
+.card-preview-canvas.stat-color-frost .stat-progress {
+  background: linear-gradient(90deg, #B8E4F0, #67C6E3);
+}
+.card-preview-canvas.stat-color-frost .stat-value {
+  color: #67C6E3;
+}
+
+.card-preview-canvas.stat-color-ember .stat-progress {
+  background: linear-gradient(90deg, #FF6B35, #FF4500);
+}
+.card-preview-canvas.stat-color-ember .stat-value {
+  color: #FF6B35;
+}
+
+/* --- POWER RATING BADGE --- */
+.cf-power-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.65);
+  border: 1px solid var(--power-color, #A78BFA);
+  border-radius: 6px;
+  padding: 2px 6px;
+  z-index: 10;
+  box-shadow: 0 0 8px var(--power-glow, rgba(167, 139, 250, 0.3));
+  pointer-events: none;
+}
+
+.cf-power-tier {
+  font-family: 'Rajdhani', 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 1.1;
+  color: var(--power-color, #A78BFA);
+}
+
+.cf-power-value {
+  font-family: 'Rajdhani', 'Inter', sans-serif;
+  font-weight: 500;
+  font-size: 9px;
+  line-height: 1;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* --- CARD COMPARISON MODE --- */
+/* Compare mode does NOT alter the preview zone layout.
+   The snapshot floats as a fixed overlay panel to the left of the preview. */
+
+.cf-compare-panel {
+  position: fixed;
+  top: 100px;
+  right: calc(var(--cf-preview-width, 440px) + 20px);
+  width: 280px;
+  z-index: 500;
+  background: var(--aura-bg-color, #12121e);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 10px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  animation: cf-compare-in 0.25s ease;
+}
+
+@keyframes cf-compare-in {
+  from { opacity: 0; transform: translateX(20px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.cf-compare-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.cf-compare-label {
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.cf-compare-close {
+  background: rgba(244, 63, 94, 0.2);
+  border: 1px solid rgba(244, 63, 94, 0.3);
+  color: #F43F5E;
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.cf-compare-close:hover {
+  background: rgba(244, 63, 94, 0.35);
+}
+
+.cf-compare-snapshot {
+  width: 100%;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.cf-compare-snapshot .card-preview-canvas {
+  transform: scale(0.65);
+  transform-origin: top left;
+  width: 153.8%;  /* 1 / 0.65 = ~153.8% to fill the container */
+}
