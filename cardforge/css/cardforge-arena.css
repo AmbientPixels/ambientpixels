@@ -951,13 +951,21 @@ body:has(.arena-screen.active) {
   border-radius: 6px;
   overflow: hidden;
   position: relative;
-  background-image: repeating-linear-gradient(
+}
+.arena-hp-bar__track::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 6px;
+  background: repeating-linear-gradient(
     90deg,
     transparent 0px,
     transparent 9px,
     rgba(0, 0, 0, 0.25) 9px,
     rgba(0, 0, 0, 0.25) 10px
   );
+  z-index: 1;
+  pointer-events: none;
 }
 .arena-hp-bar__fill {
   height: 100%;
