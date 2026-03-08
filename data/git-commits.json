@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "710d6981-47ee-47d4-9e63-795396b154e6",
-      "hash": "f24e493de6efb3ea1c0a81ba255c72ee5cec7760",
-      "message": "Sanitize reviewed_copy in auto-post and inject blog URL for promo tasks",
-      "timestamp": "2026-03-07 00:36:48 -0800",
+      "id": "81d33404-5878-4427-abef-e1afedf5d965",
+      "hash": "14283ccee3a68d5bf4d1cf54c74c797df712aca3",
+      "message": "Fix \"Card not found\" error when loading cloud-only cards",
+      "timestamp": "2026-03-08 00:27:38 -0800",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/f24e493de6efb3ea1c0a81ba255c72ee5cec7760"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/14283ccee3a68d5bf4d1cf54c74c797df712aca3"
     }
   ],
-  "timestamp": "2026-03-07T13:40:26.509Z",
+  "timestamp": "2026-03-08T13:42:04.586Z",
   "count": 1,
-  "scanId": 1772890826509
+  "scanId": 1772977324586
 }

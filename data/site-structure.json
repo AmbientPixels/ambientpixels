@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2026-03-07T13:40:23.633Z",
+  "updated": "2026-03-08T13:42:01.722Z",
   "root": [
     {
       "type": "folder",
@@ -89,6 +89,45 @@
     },
     {
       "type": "folder",
+      "name": "ambientscore",
+      "path": "ambientscore",
+      "children": [
+        {
+          "type": "page",
+          "name": "confirm.html",
+          "path": "ambientscore/confirm.html"
+        },
+        {
+          "type": "folder",
+          "name": "css",
+          "path": "ambientscore/css",
+          "children": []
+        },
+        {
+          "type": "page",
+          "name": "index.html",
+          "path": "ambientscore/index.html"
+        },
+        {
+          "type": "folder",
+          "name": "js",
+          "path": "ambientscore/js",
+          "children": []
+        },
+        {
+          "type": "page",
+          "name": "report.html",
+          "path": "ambientscore/report.html"
+        },
+        {
+          "type": "page",
+          "name": "strategy.html",
+          "path": "ambientscore/strategy.html"
+        }
+      ]
+    },
+    {
+      "type": "folder",
       "name": "api",
       "path": "api",
       "children": [
@@ -111,12 +150,6 @@
           "children": [
             {
               "type": "folder",
-              "name": "contentEngine",
-              "path": "api/_lib/contentEngine",
-              "children": []
-            },
-            {
-              "type": "folder",
               "name": "ambientScore",
               "path": "api/_lib/ambientScore",
               "children": [
@@ -127,6 +160,12 @@
                   "children": []
                 }
               ]
+            },
+            {
+              "type": "folder",
+              "name": "contentEngine",
+              "path": "api/_lib/contentEngine",
+              "children": []
             },
             {
               "type": "folder",
@@ -208,6 +247,36 @@
           "type": "folder",
           "name": "api-health-check",
           "path": "api/api-health-check",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "as-analyze",
+          "path": "api/as-analyze",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "as-confirm",
+          "path": "api/as-confirm",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "as-credits",
+          "path": "api/as-credits",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "as-report",
+          "path": "api/as-report",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "as-webhook",
+          "path": "api/as-webhook",
           "children": []
         },
         {
@@ -322,36 +391,6 @@
           "type": "folder",
           "name": "cardshare",
           "path": "api/cardshare",
-          "children": []
-        },
-        {
-          "type": "folder",
-          "name": "as-analyze",
-          "path": "api/as-analyze",
-          "children": []
-        },
-        {
-          "type": "folder",
-          "name": "as-confirm",
-          "path": "api/as-confirm",
-          "children": []
-        },
-        {
-          "type": "folder",
-          "name": "as-credits",
-          "path": "api/as-credits",
-          "children": []
-        },
-        {
-          "type": "folder",
-          "name": "as-report",
-          "path": "api/as-report",
-          "children": []
-        },
-        {
-          "type": "folder",
-          "name": "as-webhook",
-          "path": "api/as-webhook",
           "children": []
         },
         {
@@ -721,6 +760,12 @@
         },
         {
           "type": "folder",
+          "name": "audio",
+          "path": "cardforge/audio",
+          "children": []
+        },
+        {
+          "type": "folder",
           "name": "css",
           "path": "cardforge/css",
           "children": []
@@ -740,6 +785,31 @@
           "name": "images",
           "path": "cardforge/images",
           "children": []
+        },
+        {
+          "type": "folder",
+          "name": "img",
+          "path": "cardforge/img",
+          "children": [
+            {
+              "type": "folder",
+              "name": "arena",
+              "path": "cardforge/img/arena",
+              "children": []
+            },
+            {
+              "type": "folder",
+              "name": "bosses",
+              "path": "cardforge/img/bosses",
+              "children": []
+            },
+            {
+              "type": "folder",
+              "name": "demo",
+              "path": "cardforge/img/demo",
+              "children": []
+            }
+          ]
         },
         {
           "type": "page",
@@ -769,45 +839,6 @@
               "path": "cardforge/templates/card-template.html"
             }
           ]
-        }
-      ]
-    },
-    {
-      "type": "folder",
-      "name": "ambientscore",
-      "path": "ambientscore",
-      "children": [
-        {
-          "type": "page",
-          "name": "confirm.html",
-          "path": "ambientscore/confirm.html"
-        },
-        {
-          "type": "folder",
-          "name": "css",
-          "path": "ambientscore/css",
-          "children": []
-        },
-        {
-          "type": "page",
-          "name": "index.html",
-          "path": "ambientscore/index.html"
-        },
-        {
-          "type": "folder",
-          "name": "js",
-          "path": "ambientscore/js",
-          "children": []
-        },
-        {
-          "type": "page",
-          "name": "report.html",
-          "path": "ambientscore/report.html"
-        },
-        {
-          "type": "page",
-          "name": "strategy.html",
-          "path": "ambientscore/strategy.html"
         }
       ]
     },
