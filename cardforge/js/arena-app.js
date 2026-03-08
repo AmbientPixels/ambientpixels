@@ -26,7 +26,7 @@ window.ArenaApp = (function () {
         id: 'demo-knight',
         name: 'Demo Knight',
         class: 'Fighter',
-        avatar: '',
+        avatar: '/cardforge/img/demo/demo-knight.png',
         quote: 'Steel meets fate.',
         combatStats: { str: 80, agi: 50, int: 30, end: 90, lck: 50 },
         stats: [
@@ -39,7 +39,7 @@ window.ArenaApp = (function () {
         id: 'demo-mage',
         name: 'Demo Mage',
         class: 'Caster',
-        avatar: '',
+        avatar: '/cardforge/img/demo/demo-mage.png',
         quote: 'Knowledge is the ultimate weapon.',
         combatStats: { str: 30, agi: 50, int: 90, end: 50, lck: 80 },
         stats: [
@@ -52,7 +52,7 @@ window.ArenaApp = (function () {
         id: 'demo-rogue',
         name: 'Demo Rogue',
         class: 'Rogue',
-        avatar: '',
+        avatar: '/cardforge/img/demo/demo-rogue.png',
         quote: 'Shadows never miss.',
         combatStats: { str: 50, agi: 90, int: 50, end: 40, lck: 70 },
         stats: [
