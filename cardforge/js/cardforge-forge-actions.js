@@ -1124,6 +1124,8 @@ const resp = await fetch(loadUrl, {
             }
           });
           savedCards = [...cloudCards, ...localOnly];
+          // Cache merged list so loadCard() can find cloud-only cards
+          this._mergedCards = savedCards;
         }
       } catch (e) {
         console.warn('⚠️ Could not load cloud cards, showing local only:', e);
@@ -1770,8 +1772,13 @@ const resp = await fetch(loadUrl, {
   // Card Gallery Actions
   loadCard(cardId) {
     const savedCards = this.getSavedCards();
-    const card = savedCards.find(c => c.id === cardId);
-    
+    let card = savedCards.find(c => c.id === cardId);
+
+    // Fall back to merged cloud+local cache from refreshMyCardsList
+    if (!card && this._mergedCards) {
+      card = this._mergedCards.find(c => c.id === cardId);
+    }
+
     if (!card) {
       this.showNotification('Card not found', 'error');
       return;
@@ -1842,8 +1849,11 @@ const resp = await fetch(loadUrl, {
 
   publishCard(cardId) {
     const savedCards = this.getSavedCards();
-    const card = savedCards.find(c => c.id === cardId);
-    
+    let card = savedCards.find(c => c.id === cardId);
+    if (!card && this._mergedCards) {
+      card = this._mergedCards.find(c => c.id === cardId);
+    }
+
     if (!card) {
       this.showNotification('Card not found', 'error');
       return;
@@ -2534,7 +2544,10 @@ CardForgeActions.prototype.showAddToDeckPicker = function(cardId, anchorEl) {
 // Card duplication logic (single source of truth) - updated by Cascade
 CardForgeActions.prototype.duplicateCard = function(cardId) {
   const savedCards = this.getSavedCards();
-  const original = savedCards.find(c => c.id === cardId);
+  let original = savedCards.find(c => c.id === cardId);
+  if (!original && this._mergedCards) {
+    original = this._mergedCards.find(c => c.id === cardId);
+  }
   if (!original) {
     this.showNotification('Card not found', 'error');
     return;
