@@ -308,6 +308,7 @@ window.ArenaBattleUI = (function () {
 
   // ─── B1: Last Stand activation banner ───────────────────────────────────
   function showLastStandActivation(side) {
+    if (window.ArenaAudio) window.ArenaAudio.play('last_stand');
     const container = document.getElementById(
       side === 'player' ? 'arena-player-side' : 'arena-opponent-side'
     );
@@ -316,7 +317,6 @@ window.ArenaBattleUI = (function () {
     banner.className = 'arena-last-stand-banner';
     banner.textContent = side === 'player' ? '\u26A0 LAST STAND!' : '\u26A0 LAST STAND!';
     container.appendChild(banner);
-    if (window.ArenaAudio) window.ArenaAudio.play('last_stand');
     setTimeout(() => banner.remove(), 2200);
   }
 
