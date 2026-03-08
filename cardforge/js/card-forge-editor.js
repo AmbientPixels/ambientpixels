@@ -485,7 +485,7 @@
         name: 'Legendary Hero',
         characterClass: 'Guardian',
         characterSubclass: 'Champion of Justice',
-        avatar: '/images/image-packs/characters/hero.png',
+        avatar: '/images/image-packs/characters-03-super-heroes/nova-rivera.png',
         biography: 'Champion of justice and defender of the innocent. Wielder of ancient powers and leader of the legendary Phoenix Guard.',
         badges: [
           { category: 'Hero', icon: 'crown', quantity: 5, description: 'Legendary status among all heroes' },
