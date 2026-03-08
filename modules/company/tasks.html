@@ -2210,13 +2210,6 @@
         var title = taskTitleField.value.trim();
         if (!title) { taskTitleField.focus(); return; }
 
-        // UI gate: new tasks require a campaign
-        if (!taskIdField.value && !taskCampaignField.value) {
-          taskCampaignField.style.borderColor = 'rgba(248,113,113,0.6)';
-          taskCampaignField.focus();
-          setTimeout(function () { taskCampaignField.style.borderColor = ''; }, 2000);
-          return;
-        }
 
         var data = {
           title: title,

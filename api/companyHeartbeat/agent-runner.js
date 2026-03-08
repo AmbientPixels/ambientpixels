@@ -999,17 +999,7 @@ Write the full deliverable first, then the structured JSON block.`;
           continue;
         }
       }
-      // Enforce objective_id when moving to in-progress (exempt: ops_breakfix, governance, maintenance, social-copy)
-      if (action.newStatus === 'in-progress') {
-        const _mvTask = tasks.find(t => t.id === action.taskId);
-        const _mvExempt = ['ops_breakfix', 'governance', 'maintenance'];
-        const _mvType = _mvTask ? (_mvTask.taskType || _mvTask.classification || '') : '';
-        const _mvIsSocialCopy = _mvTask && _mvTask.tags && _mvTask.tags.indexOf('social-copy') !== -1;
-        if (_mvTask && !_mvTask.objective_id && _mvExempt.indexOf(_mvType) === -1 && !_mvIsSocialCopy) {
-          context.log('[Heartbeat]', agentId, 'BLOCKED move-task to in-progress on', action.taskId, '— missing objective_id');
-          continue;
-        }
-      }
+      // objective_id is optional — individual one-off tasks may have no goal or campaign
       result.taskUpdates.push({
         action: 'move',
         taskId: action.taskId,
