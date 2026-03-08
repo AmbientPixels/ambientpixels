@@ -1580,6 +1580,24 @@ body.cf-ui--neon .zone-header h3 i {
   color: var(--cf-text-primary, #e1e1ff);
 }
 
+[data-step-section="0"] .preset-btn.active .preset-character,
+[data-step-section="0"] .preset-btn.active .preset-name {
+  color: var(--aura-bg-color, #1a1a2e);
+}
+
+[data-step-section="0"] .preset-btn.active .preset-name {
+  opacity: 0.75;
+}
+
+[data-step-section="0"] .preset-btn.active:hover .preset-character {
+  color: #fff;
+}
+
+[data-step-section="0"] .preset-btn.active:hover .preset-name {
+  color: var(--mood-text-secondary, #a0a0c0);
+  opacity: 1;
+}
+
 /* Mini-card preview — card aspect ratio, subdued */
 [data-step-section="0"] .preset-image {
   width: 52px;
@@ -2430,17 +2448,76 @@ opacity: 1;
   font-weight: 600;
 }
 
-[data-step-section="6"] .forge-actions .forge-action-btn.primary {
-  background: var(--cf-btn-primary-bg, linear-gradient(135deg, rgba(139, 92, 246, 0.85), rgba(99, 102, 241, 0.85)));
-  border: 1px solid var(--cf-btn-primary-border, rgba(139, 92, 246, 0.5));
-  color: var(--cf-btn-primary-text, #fff);
-  box-shadow: 0 2px 8px rgba(139, 92, 246, 0.2);
+/* Forge save button — amber base, dark text for all states */
+[data-step-section="6"] .forge-actions .forge-action-btn.primary,
+[data-step-section="6"] .forge-actions .forge-action-btn.primary[data-save-state] {
+  background: linear-gradient(135deg, #FBBF24, #F59E0B);
+  border: 1px solid rgba(251, 191, 36, 0.5);
+  color: #1a1a2e !important;
+  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.2);
+  animation: none;
+}
+
+[data-step-section="6"] .forge-actions .forge-action-btn.primary i,
+[data-step-section="6"] .forge-actions .forge-action-btn.primary[data-save-state] i {
+  color: #1a1a2e !important;
 }
 
 [data-step-section="6"] .forge-actions .forge-action-btn.primary:hover {
-  background: var(--cf-btn-primary-hover-bg, linear-gradient(135deg, rgba(139, 92, 246, 1), rgba(99, 102, 241, 1)));
-  box-shadow: var(--cf-btn-primary-hover-shadow, 0 4px 16px rgba(139, 92, 246, 0.3));
+  background: linear-gradient(135deg, #FCD34D, #FBBF24);
+  box-shadow: 0 4px 16px rgba(251, 191, 36, 0.3);
   transform: translateY(-1px);
+}
+
+/* Ready/up-to-date — muted amber */
+[data-step-section="6"] .forge-actions .forge-action-btn.primary[data-save-state="ready"] {
+  background: rgba(251, 191, 36, 0.15) !important;
+  border-color: rgba(251, 191, 36, 0.3);
+  color: #FBBF24 !important;
+  box-shadow: none;
+  opacity: 0.7;
+}
+
+[data-step-section="6"] .forge-actions .forge-action-btn.primary[data-save-state="ready"] i {
+  color: #FBBF24 !important;
+}
+
+/* Unsaved — full amber, subtle pulse */
+[data-step-section="6"] .forge-actions .forge-action-btn.primary[data-save-state="unsaved"] {
+  animation: cf-forge-save-pulse 1.5s ease-in-out infinite !important;
+}
+
+@keyframes cf-forge-save-pulse {
+  0%, 100% { box-shadow: 0 2px 8px rgba(251, 191, 36, 0.2); }
+  50%      { box-shadow: 0 2px 16px rgba(251, 191, 36, 0.45); }
+}
+
+/* Saving — dimmed */
+[data-step-section="6"] .forge-actions .forge-action-btn.primary[data-save-state="saving"] {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Saved — brief green flash */
+[data-step-section="6"] .forge-actions .forge-action-btn.primary[data-save-state="saved"] {
+  background: linear-gradient(135deg, #22C55E, #16A34A) !important;
+  border-color: rgba(34, 197, 94, 0.5);
+  color: #fff !important;
+}
+
+[data-step-section="6"] .forge-actions .forge-action-btn.primary[data-save-state="saved"] i {
+  color: #fff !important;
+}
+
+/* Error — red flash */
+[data-step-section="6"] .forge-actions .forge-action-btn.primary[data-save-state="error"] {
+  background: linear-gradient(135deg, #F43F5E, #DC2626) !important;
+  border-color: rgba(244, 63, 94, 0.5);
+  color: #fff !important;
+}
+
+[data-step-section="6"] .forge-actions .forge-action-btn.primary[data-save-state="error"] i {
+  color: #fff !important;
 }
 
 [data-step-section="6"] .forge-actions .forge-action-btn small {

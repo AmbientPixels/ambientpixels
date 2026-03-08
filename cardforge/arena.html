@@ -27,6 +27,11 @@
       </span>
       <span class="arena-topbar__tagline">Forge it. Fight it. Flex it.</span>
     </div>
+    <div class="arena-topbar__actions">
+      <button class="arena-audio-toggle" id="arena-audio-toggle" title="Mute sounds">
+        <i class="fas fa-volume-high"></i>
+      </button>
+    </div>
     <div class="arena-topbar__profile" id="arena-profile-summary">
       <span class="arena-rank-badge" id="arena-rank-badge">
         <i class="fas fa-shield-halved"></i>
@@ -209,6 +214,14 @@
         <button class="arena-btn arena-btn--ghost arena-btn--sm" id="arena-forfeit-btn">
           <i class="fas fa-flag"></i> Forfeit
         </button>
+        <span class="arena-battle__post-actions" id="arena-battle-post" style="display:none;">
+          <button class="arena-btn arena-btn--primary arena-btn--sm" id="arena-battle-again">
+            <i class="fas fa-redo"></i> Play Again
+          </button>
+          <button class="arena-btn arena-btn--ghost arena-btn--sm" id="arena-battle-back">
+            <i class="fas fa-arrow-left"></i> Back to HQ
+          </button>
+        </span>
       </div>
 
       <!-- Combat stage -->
@@ -298,16 +311,28 @@
     </div>
   </div>
 
-  <!-- Screen: Results / Victory Ceremony -->
-  <div id="arena-screen-results" class="arena-screen">
+  <!-- Results Modal — overlays the battle screen -->
+  <div class="arena-results-overlay" id="arena-results-overlay" style="display:none;">
     <div class="arena-results">
+      <button class="arena-results__close" id="arena-results-close" title="View battle log">
+        <i class="fas fa-xmark"></i>
+      </button>
       <div class="arena-results__banner" id="arena-results-banner">
         <div class="arena-results__avatars" id="arena-results-avatars"></div>
         <h1 id="arena-results-title">Victory!</h1>
         <p id="arena-results-subtitle">You defeated the enemy</p>
       </div>
-      <div class="arena-results__xp">
+      <div class="arena-results__xp" id="arena-results-xp-section">
         <div class="arena-results__xp-amount" id="arena-results-xp">+40 XP</div>
+        <div class="arena-results__rank-label" id="arena-results-rank-label">
+          <span class="arena-results__rank-current" id="arena-results-rank-current">
+            <i class="fas fa-shield-halved"></i> Bronze
+          </span>
+          <i class="fas fa-arrow-right arena-results__rank-arrow"></i>
+          <span class="arena-results__rank-next" id="arena-results-rank-next">
+            <i class="fas fa-shield"></i> Silver
+          </span>
+        </div>
         <div class="arena-results__bar-wrap">
           <div class="arena-progress__bar">
             <div class="arena-progress__bar-fill" id="arena-results-xp-fill" style="width:0%"></div>
@@ -355,6 +380,7 @@
   <script src="js/config.js"></script>
   <script src="js/csrf-protection.js"></script>
   <script src="js/effect-tiers.js"></script>
+  <script src="js/arena-audio.js"></script>
   <script src="js/arena-api.js"></script>
   <script src="js/arena-card-select.js"></script>
   <script src="js/arena-battle-ui.js"></script>

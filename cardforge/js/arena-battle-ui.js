@@ -18,6 +18,16 @@ window.ArenaBattleUI = (function () {
     _currentRound = 1;
     _isAnimating = false;
 
+    // Close results overlay if still open
+    var overlay = document.getElementById('arena-results-overlay');
+    if (overlay) overlay.style.display = 'none';
+
+    // Reset battle header buttons
+    var forfeitBtn = document.getElementById('arena-forfeit-btn');
+    var postActions = document.getElementById('arena-battle-post');
+    if (forfeitBtn) forfeitBtn.style.display = '';
+    if (postActions) postActions.style.display = 'none';
+
     renderCombatants(battleData);
     updateHpBars(battleData.player.hp, battleData.player.maxHp, battleData.opponent.hp, battleData.opponent.maxHp);
     updateRoundLabel(_currentRound);
@@ -203,6 +213,10 @@ window.ArenaBattleUI = (function () {
     // Show moves chosen
     addLogEntry(`Round ${result.round}: You used ${moveNames[result.playerMove]}. Opponent used ${moveNames[result.opponentMove]}.`, 'info');
 
+    // Play move sound for player action
+    var audio = window.ArenaAudio;
+    if (audio) audio.play(result.playerMove);
+
     // Brief pause for drama
     await sleep(400);
 
@@ -210,6 +224,7 @@ window.ArenaBattleUI = (function () {
     if (result.opponentDamage > 0) {
       showDamageFloat('player', result.opponentDamage, false);
       triggerHitShake('player');
+      if (audio) audio.play('hit');
     }
     if (result.playerDamage > 0) {
       showDamageFloat('opponent', result.playerDamage, false);
@@ -217,9 +232,15 @@ window.ArenaBattleUI = (function () {
     }
     if (result.playerHeal > 0) {
       showDamageFloat('player', result.playerHeal, true);
+      if (audio) audio.play('heal');
     }
     if (result.opponentHeal > 0) {
       showDamageFloat('opponent', result.opponentHeal, true);
+    }
+
+    // Crit sound
+    if (result.events && result.events.some(e => e.toLowerCase().includes('critical'))) {
+      if (audio) audio.play('crit');
     }
 
     await sleep(300);
@@ -257,6 +278,13 @@ window.ArenaBattleUI = (function () {
       await animateRoundResult(response.roundResult);
 
       if (response.battleStatus === 'complete') {
+        var endAudio = window.ArenaAudio;
+        if (endAudio) endAudio.play(response.battleResult.winner === 'player' ? 'victory' : 'defeat');
+        // Show post-battle actions, hide forfeit
+        var forfeitBtn = document.getElementById('arena-forfeit-btn');
+        var postActions = document.getElementById('arena-battle-post');
+        if (forfeitBtn) forfeitBtn.style.display = 'none';
+        if (postActions) postActions.style.display = '';
         await sleep(600);
         window.ArenaResults.showResults(response.battleResult, _battleData);
       } else {

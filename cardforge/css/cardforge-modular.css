@@ -159,6 +159,38 @@
   color: var(--aura-bg-color, #1a1a2e);
 }
 
+.preset-btn.active .preset-name,
+.preset-btn.active .preset-type,
+.preset-btn.active .preset-desc {
+  color: var(--aura-bg-color, #1a1a2e);
+  opacity: 0.75;
+}
+
+.preset-btn.active .preset-character,
+.preset-btn.active .preset-label {
+  color: var(--aura-bg-color, #1a1a2e);
+}
+
+.preset-btn.active .preset-character i {
+  opacity: 0.8;
+}
+
+.preset-btn.active:hover .preset-character,
+.preset-btn.active:hover .preset-label {
+  color: #fff;
+}
+
+.preset-btn.active:hover .preset-name,
+.preset-btn.active:hover .preset-type,
+.preset-btn.active:hover .preset-desc {
+  color: var(--cf-text-secondary, #a0a0c0);
+  opacity: 1;
+}
+
+.preset-btn.active:hover .preset-character i {
+  opacity: 1;
+}
+
 .preset-preview {
   width: 40px;
   height: 40px;

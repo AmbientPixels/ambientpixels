@@ -25,7 +25,9 @@ window.ArenaResults = (function () {
   }
 
   function showResults(battleResult, battleData) {
-    window.ArenaApp.showScreen('results');
+    // Show as modal overlay on top of battle screen
+    var overlay = document.getElementById('arena-results-overlay');
+    if (overlay) overlay.style.display = 'flex';
 
     const isWin = battleResult.winner === 'player';
     const isDraw = battleResult.winner === 'draw';
@@ -68,12 +70,41 @@ window.ArenaResults = (function () {
       }
     }
 
+    // XP section — hide in demo mode
+    const xpSection = document.getElementById('arena-results-xp-section');
+    if (xpSection) {
+      xpSection.style.display = battleResult.isDemo ? 'none' : '';
+    }
+
     // XP
     const xpEl = document.getElementById('arena-results-xp');
     if (xpEl) xpEl.textContent = `+${battleResult.xpEarned} XP`;
 
-    // XP bar
+    // Rank label (current → next)
     const rank = battleResult.newRank;
+    const rankDef = RANKS[rank];
+    const rankIdx = RANK_ORDER.indexOf(rank);
+    const nextRankKey = rankIdx < RANK_ORDER.length - 1 ? RANK_ORDER[rankIdx + 1] : null;
+    const nextRankDef = nextRankKey ? RANKS[nextRankKey] : null;
+
+    const currentEl = document.getElementById('arena-results-rank-current');
+    const nextEl = document.getElementById('arena-results-rank-next');
+    const rankLabel = document.getElementById('arena-results-rank-label');
+
+    if (currentEl && rankDef) {
+      currentEl.innerHTML = `<i class="fas ${rankDef.icon}" style="color:${rankDef.color}"></i> ${rankDef.label}`;
+    }
+    if (nextEl && nextRankDef) {
+      nextEl.innerHTML = `<i class="fas ${nextRankDef.icon}" style="color:${nextRankDef.color}"></i> ${nextRankDef.label}`;
+      nextEl.style.display = '';
+    } else if (nextEl) {
+      nextEl.style.display = 'none';
+    }
+    // Hide arrow if max rank
+    const arrowEl = rankLabel?.querySelector('.arena-results__rank-arrow');
+    if (arrowEl) arrowEl.style.display = nextRankDef ? '' : 'none';
+
+    // XP bar
     const rankXp = getCurrentRankXp(rank);
     const nextXp = getNextRankXp(rank);
     const progressXp = battleResult.newXp - rankXp;

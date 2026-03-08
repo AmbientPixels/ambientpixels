@@ -430,6 +430,7 @@
   display: flex;
   align-items: center;
   gap: 0.4rem;
+  transition: color 0.2s ease;
 }
 
 .preset-character i {
@@ -450,6 +451,7 @@
   font-size: 0.85rem;
   color: var(--cf-text-secondary, #a0a0c0);
   margin-bottom: 0.125rem;
+  transition: color 0.2s ease, opacity 0.2s ease;
 }
 
 .preset-type {
@@ -1984,13 +1986,16 @@ body[data-theme="light"] .forge-action-btn:hover {
   color: #7c3aed;
 }
 body[data-theme="light"] .forge-action-btn.primary {
-  background: linear-gradient(135deg, #7c3aed, #6366f1);
-  border-color: #7c3aed;
-  color: #fff;
+  background: linear-gradient(135deg, #FBBF24, #F59E0B);
+  border-color: #F59E0B;
+  color: #1E293B;
+}
+body[data-theme="light"] .forge-action-btn.primary i {
+  color: #1E293B;
 }
 body[data-theme="light"] .forge-action-btn.primary:hover {
-  background: linear-gradient(135deg, #6d28d9, #4f46e5);
-  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.25);
+  background: linear-gradient(135deg, #FCD34D, #FBBF24);
+  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
 }
 
 /* ── Light: New card button ── */

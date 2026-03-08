@@ -72,6 +72,14 @@ window.ArenaApp = (function () {
   }
 
   async function init() {
+    // Init audio
+    if (window.ArenaAudio) {
+      window.ArenaAudio.init();
+      document.getElementById('arena-audio-toggle')?.addEventListener('click', function () {
+        window.ArenaAudio.toggleMute();
+      });
+    }
+
     // Bind events
     window.ArenaBattleUI.bindEvents();
     bindNavigation();
@@ -386,12 +394,36 @@ window.ArenaApp = (function () {
     document.getElementById('arena-history-back')?.addEventListener('click', () => showScreen('lobby'));
     document.getElementById('arena-view-history')?.addEventListener('click', openFullHistory);
 
-    // Results screen buttons
+    // Results modal buttons
+    function closeResultsOverlay() {
+      var overlay = document.getElementById('arena-results-overlay');
+      if (overlay) overlay.style.display = 'none';
+    }
+    document.getElementById('arena-results-close')?.addEventListener('click', closeResultsOverlay);
     document.getElementById('arena-results-lobby')?.addEventListener('click', () => {
+      closeResultsOverlay();
       refreshLobby();
       showScreen('lobby');
     });
     document.getElementById('arena-results-again')?.addEventListener('click', () => {
+      closeResultsOverlay();
+      if (state.lastBattleType === 'pve' && state.lastOpponentId) {
+        startPveBattle(state.lastOpponentId);
+      } else if (state.lastBattleType === 'pvp') {
+        openPvpSelect();
+      } else {
+        showScreen('lobby');
+      }
+    });
+
+    // Battle screen post-battle buttons (shown after battle ends)
+    document.getElementById('arena-battle-back')?.addEventListener('click', () => {
+      closeResultsOverlay();
+      refreshLobby();
+      showScreen('lobby');
+    });
+    document.getElementById('arena-battle-again')?.addEventListener('click', () => {
+      closeResultsOverlay();
       if (state.lastBattleType === 'pve' && state.lastOpponentId) {
         startPveBattle(state.lastOpponentId);
       } else if (state.lastBattleType === 'pvp') {
