@@ -38,15 +38,12 @@ jobs:
             --exclude='.git' \
             --exclude='.github' \
             --exclude='.windsurf' \
-            --exclude='video' \
             --exclude='downloads' \
-            --exclude='hanson' \
             --exclude='images/deviant-source.png' \
             --exclude='images/artwork/hearts*.png' \
-            --exclude='images/image-packs/interiors' \
-            --exclude='images/image-packs/characters-02' \
-            --exclude='images/image-packs/characters-03-super-heroes' \
             ./ app_build/
+          echo "--- app_build size ---"
+          du -sh app_build/
 
       - name: Generate build version metadata
         run: |
