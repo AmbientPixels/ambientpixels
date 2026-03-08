@@ -271,10 +271,19 @@ window.ArenaBattleUI = (function () {
     }
   }
 
-  async function handleForfeit() {
+  function showForfeitModal() {
     if (_isAnimating || !_battleData) return;
-    if (!confirm('Are you sure you want to forfeit this battle?')) return;
+    const modal = document.getElementById('arena-forfeit-modal');
+    if (modal) modal.style.display = 'flex';
+  }
 
+  function hideForfeitModal() {
+    const modal = document.getElementById('arena-forfeit-modal');
+    if (modal) modal.style.display = 'none';
+  }
+
+  async function executeForfeit() {
+    hideForfeitModal();
     enableMoves(false);
     try {
       const response = await window.ArenaAPI.forfeitBattle(_battleData.battleId);
@@ -293,7 +302,19 @@ window.ArenaBattleUI = (function () {
     });
 
     const forfeitBtn = document.getElementById('arena-forfeit-btn');
-    if (forfeitBtn) forfeitBtn.addEventListener('click', handleForfeit);
+    if (forfeitBtn) forfeitBtn.addEventListener('click', showForfeitModal);
+
+    const forfeitConfirm = document.getElementById('arena-forfeit-confirm');
+    if (forfeitConfirm) forfeitConfirm.addEventListener('click', executeForfeit);
+
+    const forfeitCancel = document.getElementById('arena-forfeit-cancel');
+    if (forfeitCancel) forfeitCancel.addEventListener('click', hideForfeitModal);
+
+    // Close modal on overlay click
+    const modal = document.getElementById('arena-forfeit-modal');
+    if (modal) modal.addEventListener('click', function (e) {
+      if (e.target === modal) hideForfeitModal();
+    });
   }
 
   function sleep(ms) {

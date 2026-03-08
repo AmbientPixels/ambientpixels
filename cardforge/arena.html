@@ -329,6 +329,19 @@
     </div>
   </div>
 
+  <!-- Forfeit Confirm Modal -->
+  <div class="arena-modal-overlay" id="arena-forfeit-modal" style="display:none;">
+    <div class="arena-modal">
+      <div class="arena-modal__icon"><i class="fas fa-flag"></i></div>
+      <h3 class="arena-modal__title">Forfeit Battle?</h3>
+      <p class="arena-modal__body">You'll take the loss and earn no XP for this fight.</p>
+      <div class="arena-modal__actions">
+        <button class="arena-btn arena-btn--ghost" id="arena-forfeit-cancel">Keep Fighting</button>
+        <button class="arena-btn arena-btn--danger" id="arena-forfeit-confirm">Forfeit</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Scripts -->
   <script src="js/config.js"></script>
   <script src="js/csrf-protection.js"></script>

@@ -1362,6 +1362,71 @@ body:has(.arena-screen.active) {
 .arena-next-rank strong { white-space: nowrap; }
 .arena-next-rank .rank-preview-effects { color: var(--arena-text-muted); word-break: break-word; }
 
+/* ===== MODAL ===== */
+.arena-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 6, 23, 0.8);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: var(--cf-z-modal, 8000);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: arena-modal-fade-in 0.2s ease-out;
+}
+.arena-modal {
+  background: var(--arena-surface);
+  border: 1px solid rgba(139, 92, 246, 0.15);
+  border-radius: 16px;
+  padding: 2rem 2.5rem;
+  max-width: 380px;
+  width: 90%;
+  text-align: center;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5), 0 0 24px var(--arena-glow-purple);
+  animation: arena-modal-scale-in 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.arena-modal__icon {
+  font-size: 2rem;
+  color: var(--arena-loss);
+  margin-bottom: 0.75rem;
+  opacity: 0.8;
+}
+.arena-modal__title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--arena-text);
+  margin-bottom: 0.5rem;
+}
+.arena-modal__body {
+  font-size: 0.85rem;
+  color: var(--arena-text-muted);
+  margin-bottom: 1.5rem;
+  line-height: 1.5;
+}
+.arena-modal__actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+.arena-btn--danger {
+  background: rgba(244, 63, 94, 0.15);
+  border: 1px solid rgba(244, 63, 94, 0.3);
+  color: var(--arena-loss);
+  padding: 0.5rem 1.25rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.arena-btn--danger:hover {
+  background: rgba(244, 63, 94, 0.25);
+  box-shadow: 0 0 12px rgba(244, 63, 94, 0.2);
+}
+@keyframes arena-modal-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes arena-modal-scale-in { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+
 /* ===== UNLOCK TOAST ===== */
 .arena-unlock-toast {
   position: fixed;
