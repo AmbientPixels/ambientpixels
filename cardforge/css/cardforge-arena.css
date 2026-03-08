@@ -822,8 +822,8 @@ body:has(.arena-screen.active) {
   line-height: 1.2;
 }
 .arena-boss-card__avatar {
-  width: 52px;
-  height: 52px;
+  width: 84px;
+  height: 84px;
   border-radius: 10px;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.04);
@@ -1525,6 +1525,7 @@ body:has(.arena-screen.active) {
 .arena-bg-picker::-webkit-scrollbar-thumb { background: var(--arena-surface-raised); border-radius: 4px; }
 
 .arena-bg-thumb {
+  display: block;
   flex: 0 0 140px;
   background: var(--arena-surface);
   border: 2px solid var(--arena-border);
@@ -1559,6 +1560,7 @@ body:has(.arena-screen.active) {
   background-size: cover;
   background-position: center;
   background-color: var(--arena-surface-raised);
+
 }
 .arena-bg-thumb--locked .arena-bg-thumb__preview {
   filter: blur(2px) brightness(0.5);
