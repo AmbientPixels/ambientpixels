@@ -169,7 +169,7 @@ module.exports = async function (context) {
       if (!c.title) { c.title = 'Untitled Campaign'; campaignsChanged = true; autoFixCount++; if (c.id) _campaignsTouched.add(c.id); }
       if (c.description === undefined || c.description === null) { c.description = ''; campaignsChanged = true; autoFixCount++; if (c.id) _campaignsTouched.add(c.id); }
       // Normalize campaign lifecycle fields (no-op if already set or intentionally absent)
-      var _validTaskTypes = ['blog_post', 'social_linkedin', 'social_bluesky', 'social_x', 'design_asset', 'internal_doc', 'research', 'ops', 'financial', 'general'];
+      var _validTaskTypes = ['blog_post', 'social_linkedin', 'social_bluesky', 'social_x', 'social_reddit', 'design_asset', 'internal_doc', 'research', 'ops', 'financial', 'general'];
       if (c.taskType && _validTaskTypes.indexOf(c.taskType) === -1) { c.taskType = null; campaignsChanged = true; if (c.id) _campaignsTouched.add(c.id); }
       if (Array.isArray(c.allowedTaskTypes)) { c.allowedTaskTypes = c.allowedTaskTypes.filter(function (t) { return _validTaskTypes.indexOf(t) !== -1; }); if (c.allowedTaskTypes.length === 0) { c.allowedTaskTypes = null; campaignsChanged = true; if (c.id) _campaignsTouched.add(c.id); } }
       if (c.maxTasks !== undefined && c.maxTasks !== null && typeof c.maxTasks !== 'number') { c.maxTasks = parseInt(c.maxTasks, 10) || null; campaignsChanged = true; if (c.id) _campaignsTouched.add(c.id); }
@@ -1927,7 +1927,8 @@ module.exports = async function (context) {
       const _defaults = {
         linkedin:  { days: [2, 3, 4], hourUtc: 14 }, // Tue-Thu 10am ET
         x:         { days: [1, 2, 3, 4, 5], hourUtc: 13 }, // Mon-Fri 9am ET
-        bluesky:   { days: [1, 2, 3, 4, 5], hourUtc: 13 }  // Mon-Fri 9am ET
+        bluesky:   { days: [1, 2, 3, 4, 5], hourUtc: 13 }, // Mon-Fri 9am ET
+        reddit:    { days: [1, 2, 3, 4], hourUtc: 15 }     // Mon-Thu 11am ET (B2B Reddit peak)
       };
       var cfg = _defaults[platform] || _defaults.x;
       // Override from intel if structured data found

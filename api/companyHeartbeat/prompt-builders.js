@@ -854,6 +854,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
     When the CEO creates a one-off task without a campaign, it needs your explicit delegation comment and correct assignee. Match taskType to agent and pipeline:
     blog_post / article / newsletter → assign to scribe. Comment: "Please write this using create-doc (kind: marketing_post) with the full content in content_md. Then use submit-for-publish. Do NOT use execute-task — it will not create a publishable document or trigger the hero image pipeline."
     social_linkedin / social_x / social_bluesky → assign to echo. Comment: "Please use execute-task to produce a strategy brief first. The system will auto-create a Scribe copy task. Once the task is done and has reviewed_copy, use create-social-action."
+    social_reddit → assign to echo. Comment: "Please use execute-task for strategy brief. Scribe will write a Reddit post (TITLE: line + markdown body). Specify target subreddit in task description (e.g. r/AmbientPixels) or the default subreddit will be used. Once reviewed_copy is set, use create-social-action."
     design_asset → assign to pixel. Comment: "Please use generate-image or create-content-package to produce the visual asset."
     research → assign to scout. Comment: "Please conduct research and deliver your findings via execute-task."
     ops / bug_fix → assign to forge. Comment: "Please diagnose, implement, and report back via execute-task."

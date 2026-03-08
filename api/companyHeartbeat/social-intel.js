@@ -71,9 +71,10 @@ function _socialIntelBuildDigest(existingDigest, socialEvents, engagementSnapsho
   var byPlatform = {
     x: { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 },
     linkedin: { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 },
-    bluesky: { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 }
+    bluesky: { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 },
+    reddit: { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 }
   };
-  var platformPostSets = { x: {}, linkedin: {}, bluesky: {} };
+  var platformPostSets = { x: {}, linkedin: {}, bluesky: {}, reddit: {} };
   var postAgg = {};
 
   for (var j = 0; j < snapshots.length; j++) {

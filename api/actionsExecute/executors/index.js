@@ -4,6 +4,7 @@
 const xAdapter = require('./social/x');
 const linkedinAdapter = require('./social/linkedin');
 const blueskyAdapter = require('./social/bluesky');
+const redditAdapter = require('./social/reddit');
 const contentAdapter = require('./content/publishDocument');
 const storage = require('../../_utils/companyStorage');
 
@@ -12,12 +13,14 @@ const EXECUTORS = {
   'social_post.publish': {
     'x': xAdapter.publishToX,
     'linkedin': linkedinAdapter.publishToLinkedIn,
-    'bluesky': blueskyAdapter.publishToBluesky
+    'bluesky': blueskyAdapter.publishToBluesky,
+    'reddit': redditAdapter.publishToReddit
   },
   'social_post.schedule': {
     'x': xAdapter.publishToX,
     'linkedin': linkedinAdapter.publishToLinkedIn,
-    'bluesky': blueskyAdapter.publishToBluesky
+    'bluesky': blueskyAdapter.publishToBluesky,
+    'reddit': redditAdapter.publishToReddit
   },
   'social_post.reply': {
     'x': null, // v3

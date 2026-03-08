@@ -599,14 +599,14 @@ Write the full deliverable first, then the structured JSON block.`;
     if (action.taskId) {
       const _ttTask = tasks.find(t => t.id === action.taskId);
       const _ttType = _ttTask ? (_ttTask.taskType || 'general') : 'general';
-      const _ttSocial = ['social_x', 'social_linkedin', 'social_bluesky'];
+      const _ttSocial = ['social_x', 'social_linkedin', 'social_bluesky', 'social_reddit'];
       const _ttBlog = ['blog_post', 'article', 'newsletter'];
       const _ttDoc = ['blog_post', 'article', 'newsletter', 'internal_doc'];
       const _ttContent = ['design_asset'];
 
       // Block: social action on a non-social task
       if (action.type === 'create-social-action' && _ttType !== 'general' && _ttSocial.indexOf(_ttType) === -1) {
-        context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action on', action.taskId, '— taskType is', _ttType, '(expected social_x/social_linkedin/social_bluesky)');
+        context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action on', action.taskId, '— taskType is', _ttType, '(expected social_x/social_linkedin/social_bluesky/social_reddit)');
         continue;
       }
       // Block: content package on a non-content task
@@ -1407,6 +1407,7 @@ Write the full deliverable first, then the structured JSON block.`;
                   + '- Professional and on-brand for AmbientPixels\n'
                   + '- MUST include the product URL: ' + _cmpUrl + '\n'
                   + '- LinkedIn posts: aim for 800-1500 chars. Write like a short article — narrative hook, short paragraphs, personal voice, clear takeaway. NOT a compressed ad tagline.\n'
+                  + '- Reddit posts: format as "TITLE: [catchy post title, max 300 chars]\\n\\n[body, markdown supported, 200-800 words, value-first, no hard sell, link to source at the end]". Title and body are both required.\n'
                   + '- After writing, this task goes to Quill for brand voice review. Once Quill approves, Echo uses the copy to create the social post.\n'
                   + '- Use execute-task to produce your deliverable.'
                   + _cmpRules,
@@ -1643,7 +1644,7 @@ Write the full deliverable first, then the structured JSON block.`;
         var _mlTask = tasks.find(function(t) { return t.id === action.taskId; });
         if (_mlTask && /^social_/.test(_mlTask.taskType || '')) _minPlatform = _mlTask.taskType.replace('social_', '');
       }
-      const _minLen = _minPlatform === 'linkedin' ? 300 : 30;
+      const _minLen = _minPlatform === 'linkedin' ? 300 : (_minPlatform === 'reddit' ? 50 : 30);
       if (_bodyNoUrl.length < _minLen) {
         context.log('[Heartbeat]', agentId, 'BLOCKED create-social-action — body too short after stripping URL (' + _bodyNoUrl.length + '/' + _minLen + ' chars):', _bodyNoUrl.substring(0, 80));
         continue;
@@ -1651,7 +1652,7 @@ Write the full deliverable first, then the structured JSON block.`;
 
       // Server-side enforcement: platform character limits — auto-trim to fit
       // Use task's taskType (reflects rotation) over agent's platform guess
-      const PLATFORM_CHAR_LIMITS = { x: 280, bluesky: 300, linkedin: 3000 };
+      const PLATFORM_CHAR_LIMITS = { x: 280, bluesky: 300, linkedin: 3000, reddit: 40000 };
       var _charLimitPlatform = (socialPayload.platform || 'x').toLowerCase();
       if (action.taskId) {
         var _clTask = tasks.find(function(t) { return t.id === action.taskId; });
@@ -1751,6 +1752,14 @@ Write the full deliverable first, then the structured JSON block.`;
       }
       const _diagRc = action.taskId ? ((tasks.find(function(t) { return t.id === action.taskId; }) || {}).reviewed_copy || '').length : -1;
       context.log('[Heartbeat]', agentId, 'CREATING social action — GATE PASSED. taskId:', action.taskId, 'rc_len:', _diagRc, 'text_len:', (socialPayload.text || '').length, '_codeTag:v10diag');
+      // For Reddit: extract target subreddit from task description/comments (r/SubName pattern)
+      var _redditSubreddit = null;
+      if (_resolvedPlatform === 'reddit' && action.taskId) {
+        var _redditTask = tasks.find(function(t) { return t.id === action.taskId; });
+        var _redditSearch = (_redditTask ? ((_redditTask.description || '') + ' ' + (_redditTask.comments || []).map(function(c) { return c.text || ''; }).join(' ')) : '');
+        var _redditSubMatch = _redditSearch.match(/\br\/([A-Za-z0-9_]{2,21})\b/);
+        if (_redditSubMatch) _redditSubreddit = _redditSubMatch[1];
+      }
       const actionRequest = {
         type: (socialPayload.scheduled_for || socialPayload.schedule_for) ? 'social_post.schedule' : 'social_post.publish',
         platform: _resolvedPlatform,
@@ -1758,7 +1767,8 @@ Write the full deliverable first, then the structured JSON block.`;
         payload: {
           text: socialPayload.text || '',
           media: socialPayload.media || [],
-          scheduled_for: socialPayload.scheduled_for || socialPayload.schedule_for || null
+          scheduled_for: socialPayload.scheduled_for || socialPayload.schedule_for || null,
+          subreddit: _redditSubreddit || socialPayload.subreddit || null
         },
         created_by: agentId
       };

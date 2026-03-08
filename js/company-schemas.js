@@ -19,6 +19,7 @@ var CompanySchemas = (function () {
     social_x:         { label: 'X Post',            pipeline: 'social',  requiresDoc: false, description: 'Post to X/Twitter' },
     social_linkedin:  { label: 'LinkedIn Post',     pipeline: 'social',  requiresDoc: false, description: 'Post to LinkedIn' },
     social_bluesky:   { label: 'Bluesky Post',      pipeline: 'social',  requiresDoc: false, description: 'Post to Bluesky' },
+    social_reddit:    { label: 'Reddit Post',       pipeline: 'social',  requiresDoc: false, description: 'Post to Reddit (r/subreddit)' },
     internal_doc:     { label: 'Internal Doc',      pipeline: 'doc',     requiresDoc: true,  description: 'Spec, runbook, or governance doc → publish to /docs/' },
     design_asset:     { label: 'Design Asset',      pipeline: 'content', requiresDoc: false, description: 'Image or content package → approval' },
     research:         { label: 'Research',           pipeline: 'simple',  requiresDoc: false, description: 'Research and analysis task' },
@@ -60,7 +61,7 @@ var CompanySchemas = (function () {
 
   var ACTION_APPROVAL_STATUSES = ['pending', 'approved', 'rejected', 'revision_requested', 'overridden'];
   var ACTION_EXEC_STATUSES = ['pending', 'queued', 'running', 'success', 'failed'];
-  var SUPPORTED_PLATFORMS = ['x', 'linkedin', 'bluesky'];  // only x implemented v1
+  var SUPPORTED_PLATFORMS = ['x', 'linkedin', 'bluesky', 'reddit'];
 
   // Actions that always require CEO approval
   var ACTIONS_REQUIRE_APPROVAL = [
