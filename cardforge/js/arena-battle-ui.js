@@ -32,6 +32,16 @@ window.ArenaBattleUI = (function () {
     if (forfeitBtn) forfeitBtn.style.display = '';
     if (postActions) postActions.style.display = 'none';
 
+    // Reset combatant visual states from previous battle
+    ['arena-player-side', 'arena-opponent-side'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) {
+        el.classList.remove('arena-combatant--defeated', 'arena-combatant--last-stand');
+      }
+    });
+    var field = document.querySelector('.arena-battle__field');
+    if (field) field.classList.remove('arena--killshot');
+
     renderCombatants(battleData);
     updateHpBars(battleData.player.hp, battleData.player.maxHp, battleData.opponent.hp, battleData.opponent.maxHp);
     updateRoundLabel(_currentRound);
