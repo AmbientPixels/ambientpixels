@@ -32,7 +32,22 @@ jobs:
       - name: Build Static Artifacts
         run: |
           mkdir app_build
-          rsync -av --exclude='api' --exclude='node_modules' --exclude='.git' --exclude='.github' --exclude='.windsurf' ./ app_build/
+          rsync -av \
+            --exclude='api' \
+            --exclude='node_modules' \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='.windsurf' \
+            --exclude='video' \
+            --exclude='downloads' \
+            --exclude='hanson' \
+            --exclude='images/image-packs' \
+            --exclude='images/artwork' \
+            --exclude='images/textures' \
+            --exclude='images/projects' \
+            --exclude='images/nova' \
+            --exclude='images/deviant-source.png' \
+            ./ app_build/
 
       - name: Generate build version metadata
         run: |
