@@ -2901,6 +2901,12 @@ var AgentEngine = (function () {
           a.execution.status = 'success';
           a.execution.finished_at = new Date().toISOString();
         }
+        // Mark research_intel.approve as ready for heartbeat to persist
+        if (a.type === 'research_intel.approve') {
+          a.execution = a.execution || {};
+          a.execution.status = 'pending_persist';
+          a.execution.approved_at = new Date().toISOString();
+        }
         _syncLegacy(a);
         _saveActions(list);
         // Update approval queue entry

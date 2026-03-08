@@ -1235,28 +1235,27 @@ Write the full deliverable first, then the structured JSON block.`;
             }
           }
 
-          // RESEARCH AUTO-PERSIST: when Scout completes a research task via execute-task,
-          // auto-save the deliverable to researchIntel so all agents can reference it in future heartbeats.
-          // Mirrors what the web-search path does via result.newResearchIntel.
-          if (agentId === 'scout' && task.taskType === 'research' && deliverable.length > 200 && !result.newResearchIntel) {
+          // RESEARCH INTEL → AQ: when Scout completes a research task via execute-task,
+          // submit findings to the CEO approval queue. On approval the heartbeat stores to researchIntel.
+          if (agentId === 'scout' && task.taskType === 'research' && deliverable.length > 200) {
+            const _riNow = new Date().toISOString();
             const _riId = 'ri_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
-            result.newResearchIntel = {
-              id: _riId,
-              title: task.title,
-              summary: deliverable.substring(0, 600),
-              content: deliverable,
-              task_id: action.taskId,
-              created_at: new Date().toISOString(),
-              agent: 'scout',
-              source: 'execute-task'
-            };
-            result.taskUpdates.push({
-              action: 'comment',
-              taskId: action.taskId,
-              comment: '**Research intel received.** Scout\'s findings have been saved to the company knowledge base (id: `' + _riId + '`) and are now available to all agents in future heartbeats.',
-              agentId: 'system'
-            });
-            context.log('[Heartbeat] RESEARCH AUTO-PERSIST: Scout execute-task deliverable saved to researchIntel for task:', action.taskId);
+            try {
+              const _riActStore = (await storage.getState('actions')) || [];
+              const _riExists = _riActStore.some(a => a.type === 'research_intel.approve' && a._parentTaskId === action.taskId && a.approval && a.approval.status === 'pending');
+              if (!_riExists) {
+                const _riPayload = { id: _riId, title: task.title, summary: deliverable.substring(0, 600), content: deliverable, task_id: action.taskId, created_at: _riNow, agent: 'scout', source: 'execute-task' };
+                _riActStore.push({ id: _riId, type: 'research_intel.approve', created_at: _riNow, created_by: 'scout', payload: _riPayload, approval: { status: 'pending' }, execution: { status: 'pending' }, requires_approval: true, risk_level: 'low', brand_impact: 'low', budget_impact: 0, classification: 'advisory', _parentTaskId: action.taskId, source: 'heartbeat' });
+                await storage.setState('actions', _riActStore);
+                const _riAQStore = (await storage.getState('approvalQueue')) || [];
+                _riAQStore.push({ id: 'aq-' + _riId, kind: 'research.intel', type: 'research.intel', action_id: _riId, title: task.title, summary: deliverable.substring(0, 300), task_id: action.taskId, originAgent: 'scout', status: 'pending', createdAt: _riNow });
+                await storage.setState('approvalQueue', _riAQStore);
+                result.taskUpdates.push({ action: 'comment', taskId: action.taskId, comment: '**Research intel submitted for CEO approval** (id: `' + _riId + '`). Once approved, Scout\'s findings will be stored to the company knowledge base and available to all agents.', agentId: 'system' });
+                context.log('[Heartbeat] RESEARCH INTEL: submitted to AQ for CEO approval, task:', action.taskId, 'intel:', _riId);
+              }
+            } catch (_riErr) {
+              context.log('[Heartbeat] RESEARCH INTEL: AQ submission failed (non-fatal):', String(_riErr).substring(0, 200));
+            }
           }
         }
       }

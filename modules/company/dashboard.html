@@ -2454,6 +2454,7 @@
         filtered.forEach(function (item) {
           var isAction = item.kind === 'action';
           var isContent = item.kind === 'content.package' || item.type === 'content.package';
+          var isIntel = item.kind === 'research.intel' || item.type === 'research.intel';
           // Detect publish_document: check AQ entry first, then fall back to action object
           var isPublish = item.actionType === 'publish_document';
           if (!isPublish && isAction && item.action_id) {
@@ -2464,7 +2465,10 @@
           // Type badge
           var typeBadge = '';
           var borderColor, bgColor;
-          if (isContent) {
+          if (isIntel) {
+            typeBadge = '<span style="display:inline-flex;align-items:center;gap:0.2rem;font-size:0.5rem;padding:0.1rem 0.4rem;border-radius:3px;background:rgba(251,191,36,0.12);color:#fbbf24;margin-right:0.4rem;font-weight:600;"><i class="fas fa-flask" style="font-size:0.45rem;"></i> INTEL</span>';
+            borderColor = 'rgba(251,191,36,0.15)'; bgColor = 'rgba(251,191,36,0.02)';
+          } else if (isContent) {
             typeBadge = '<span style="display:inline-flex;align-items:center;gap:0.2rem;font-size:0.5rem;padding:0.1rem 0.4rem;border-radius:3px;background:rgba(139,92,246,0.12);color:#8b5cf6;margin-right:0.4rem;font-weight:600;"><i class="fas fa-image" style="font-size:0.45rem;"></i> CONTENT</span>';
             borderColor = 'rgba(139,92,246,0.15)'; bgColor = 'rgba(139,92,246,0.02)';
           } else if (isPublish) {
@@ -2600,6 +2604,15 @@
             updateBatchUI();
           });
 
+          // Intel toast notification
+          function _showIntelToast(msg) {
+            var t = document.createElement('div');
+            t.style.cssText = 'position:fixed;bottom:1.5rem;right:1.5rem;z-index:9999;background:rgba(17,24,39,0.96);border:1px solid rgba(251,191,36,0.35);border-radius:8px;padding:0.75rem 1.1rem;display:flex;align-items:center;gap:0.6rem;box-shadow:0 4px 24px rgba(0,0,0,0.4);max-width:360px;animation:fadeIn 0.25s ease;';
+            t.innerHTML = '<i class="fas fa-flask" style="color:#fbbf24;font-size:0.9rem;flex-shrink:0;"></i><span style="color:#f9fafb;font-size:0.75rem;line-height:1.4;">' + msg + '</span>';
+            document.body.appendChild(t);
+            setTimeout(function () { t.style.opacity = '0'; t.style.transition = 'opacity 0.4s'; setTimeout(function () { t.remove(); }, 400); }, 5000);
+          }
+
           // v2.6: Per-item action buttons (approve, reject, revision)
           var _aqApproveBtn = div.querySelector('.aq-act-approve');
           var _aqRejectBtn = div.querySelector('.aq-act-reject');
@@ -2635,6 +2648,9 @@
                   console.error('[Dashboard] Publish execution network error:', err);
                   alert('Network error executing publish: ' + err.message);
                 });
+              }
+              if (aType === 'research_intel.approve') {
+                _showIntelToast("Scout's research intel approved — findings will be stored to the company knowledge base on the next heartbeat.");
               }
             });
           }

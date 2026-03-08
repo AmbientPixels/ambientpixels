@@ -2037,6 +2037,34 @@ module.exports = async function (context) {
     }
     await storage.setState('agentConfigs', configs);
     await storage.setState('agentMemories', _agentMemoryStore);
+
+    // ── Research Intel Approval: find CEO-approved research_intel actions and store to researchIntel ──
+    {
+      const _riActionsAll = (await storage.getState('actions')) || [];
+      const _riApproved = _riActionsAll.filter(a => a.type === 'research_intel.approve' && a.approval && a.approval.status === 'approved' && a.execution && a.execution.status !== 'success');
+      if (_riApproved.length > 0) {
+        for (const _ria of _riApproved) {
+          if (!_ria.payload) continue;
+          researchIntelStore.push(_ria.payload);
+          _ria.execution.status = 'success';
+          _ria.execution.finished_at = new Date().toISOString();
+          // Comment on parent task confirming storage
+          if (_ria._parentTaskId) {
+            const _riTask = tasks.find(t => t.id === _ria._parentTaskId);
+            if (_riTask) {
+              if (!_riTask.comments) _riTask.comments = [];
+              _riTask.comments.push({ id: 'cmt-ri-stored-' + Date.now(), author: 'system', text: '**Research intel stored.** CEO approved Scout\'s findings (id: `' + _ria.payload.id + '`). The knowledge base has been updated — all agents will reference this intel in future heartbeats.', type: 'system', createdAt: new Date().toISOString() });
+              _riTask.updatedAt = new Date().toISOString();
+            }
+          }
+          context.log('[Heartbeat] RESEARCH INTEL: approved intel stored to researchIntel:', _ria.payload.id);
+        }
+        if (researchIntelStore.length > MAX_RESEARCH_STORE_ENTRIES) researchIntelStore = researchIntelStore.slice(-MAX_RESEARCH_STORE_ENTRIES);
+        await storage.setState('actions', _riActionsAll);
+        await storage.setState('tasks', tasks);
+      }
+    }
+
     await storage.setState('researchIntel', researchIntelStore);
     await storage.setState('runtimeMemory', runtimeMemory);
 
