@@ -1234,6 +1234,23 @@ Write the full deliverable first, then the structured JSON block.`;
               }
             }
           }
+
+          // RESEARCH AUTO-PERSIST: when Scout completes a research task via execute-task,
+          // auto-save the deliverable to researchIntel so all agents can reference it in future heartbeats.
+          // Mirrors what the web-search path does via result.newResearchIntel.
+          if (agentId === 'scout' && task.taskType === 'research' && deliverable.length > 200 && !result.newResearchIntel) {
+            result.newResearchIntel = {
+              id: 'ri_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+              title: task.title,
+              summary: deliverable.substring(0, 600),
+              content: deliverable,
+              task_id: action.taskId,
+              created_at: new Date().toISOString(),
+              agent: 'scout',
+              source: 'execute-task'
+            };
+            context.log('[Heartbeat] RESEARCH AUTO-PERSIST: Scout execute-task deliverable saved to researchIntel for task:', action.taskId);
+          }
         }
       }
     } else if (action.type === 'create-social-action' && action.social) {
