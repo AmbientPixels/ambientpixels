@@ -68,6 +68,17 @@ window.ArenaApp = (function () {
     document.querySelectorAll('.arena-screen').forEach(s => s.classList.remove('active'));
     const target = document.getElementById('arena-screen-' + screenId);
     if (target) target.classList.add('active');
+
+    // Music transitions
+    const audio = window.ArenaAudio;
+    if (audio && typeof audio.playMusic === 'function') {
+      if (screenId === 'battle') {
+        // Stop lobby music — battle music will fade in via checkMusicEscalation after round 5
+        if (typeof audio.stopMusic === 'function') audio.stopMusic();
+      } else if (screenId === 'lobby' || screenId === 'pve' || screenId === 'pvp') {
+        audio.playMusic('arenaMenu');
+      }
+    }
     window.location.hash = screenId;
   }
 
@@ -107,6 +118,11 @@ window.ArenaApp = (function () {
       // Show lobby
       document.getElementById('arena-auth-gate').style.display = 'none';
       document.getElementById('arena-lobby-main').style.display = 'block';
+
+      // Start lobby music
+      if (window.ArenaAudio && typeof window.ArenaAudio.playMusic === 'function') {
+        window.ArenaAudio.playMusic('arenaMenu');
+      }
 
       state.profile = profileData.profile;
 

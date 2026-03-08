@@ -24,9 +24,10 @@ window.ArenaAudio = (function () {
 
   // A4: looping battle music tracks (files optional — degrade silently if missing)
   var MUSIC_TRACKS = {
-    battleMid:    'battle-mid.mp3',
-    battleHigh:   'battle-intense.mp3',
-    battleLowHp:  'battle-lowHp.mp3'
+    arenaMenu:    'arena-menu.wav',
+    battleMid:    'battle-mid.wav',
+    battleHigh:   'battle-intense.wav',
+    battleLowHp:  'battle-low.wav'
   };
 
   var _muted = false;
