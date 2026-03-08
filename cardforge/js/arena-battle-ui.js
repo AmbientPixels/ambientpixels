@@ -1,5 +1,6 @@
 /**
  * Arena Battle UI — battle screen rendering, animations, move handling
+ * Phase A combat overhaul: sequential turns, kill shot, crit banner, sound escalation, streak counter
  */
 window.ArenaBattleUI = (function () {
   'use strict';
@@ -12,11 +13,14 @@ window.ArenaBattleUI = (function () {
   let _maxCharges = 4;
   let _chargeRate = 1;
   let _abilityInfo = null;
+  // A5: combo streak — consecutive rounds the player dealt damage
+  let _playerStreak = 0;
 
   function initBattle(battleData) {
     _battleData = battleData;
     _currentRound = 1;
     _isAnimating = false;
+    _playerStreak = 0;
 
     // Close results overlay if still open
     var overlay = document.getElementById('arena-results-overlay');
@@ -203,58 +207,184 @@ window.ArenaBattleUI = (function () {
     setTimeout(() => floater.remove(), 1200);
   }
 
+  // ─── A1: single-attacker animation helper ────────────────────────────────
+  // attackerSide: 'player' | 'opponent'
+  // dmg: damage this attacker deals to target
+  // heal: HP this attacker recovers
+  async function animateAttack(attackerSide, move, dmg, heal) {
+    const targetSide = attackerSide === 'player' ? 'opponent' : 'player';
+    const audio = window.ArenaAudio;
+
+    if (audio) audio.play(move);
+    await sleep(200);
+
+    if (dmg > 0) {
+      showDamageFloat(targetSide, dmg, false);
+      triggerHitShake(targetSide);
+      if (audio) audio.play('hit');
+    }
+    if (heal > 0) {
+      showDamageFloat(attackerSide, heal, true);
+      if (audio) audio.play('heal');
+    }
+  }
+
+  // ─── A3: CRITICAL! banner ────────────────────────────────────────────────
+  function showCritBanner(targetSide) {
+    const container = document.getElementById(
+      targetSide === 'player' ? 'arena-player-side' : 'arena-opponent-side'
+    );
+    if (!container) return;
+    const banner = document.createElement('div');
+    banner.className = 'arena-crit-banner';
+    banner.textContent = 'CRITICAL!';
+    container.appendChild(banner);
+    setTimeout(() => banner.remove(), 1100);
+  }
+
+  // ─── A1: speed badge ─────────────────────────────────────────────────────
+  function showSpeedBadge(winningSide) {
+    const container = document.getElementById(
+      winningSide === 'player' ? 'arena-player-side' : 'arena-opponent-side'
+    );
+    if (!container) return;
+    const badge = document.createElement('div');
+    badge.className = 'arena-speed-badge' +
+      (winningSide === 'opponent' ? ' arena-speed-badge--enemy' : '');
+    badge.textContent = '⚡ First Strike!';
+    container.appendChild(badge);
+    setTimeout(() => badge.remove(), 1200);
+  }
+
+  // ─── A5: streak badge ────────────────────────────────────────────────────
+  function showStreakBadge(count) {
+    const container = document.getElementById('arena-player-side');
+    if (!container) return;
+    // Remove any existing streak badge before adding new one
+    const existing = container.querySelector('.arena-streak-badge');
+    if (existing) existing.remove();
+
+    const badge = document.createElement('div');
+    badge.className = 'arena-streak-badge';
+    badge.textContent = count >= 4 ? `\uD83D\uDD25\uD83D\uDD25 ${count}x Streak!` : `\uD83D\uDD25 ${count}x Streak!`;
+    container.appendChild(badge);
+    setTimeout(() => badge.remove(), 1500);
+  }
+
+  // ─── A2: kill shot slow-mo ───────────────────────────────────────────────
+  async function triggerKillShot(defeatedSide) {
+    const field = document.querySelector('.arena-battle__field');
+    const defeatedEl = document.getElementById(
+      defeatedSide === 'player' ? 'arena-player-side' : 'arena-opponent-side'
+    );
+    if (field) field.classList.add('arena--killshot');
+    if (defeatedEl) defeatedEl.classList.add('arena-combatant--defeated');
+    await sleep(1400);
+    if (field) field.classList.remove('arena--killshot');
+    // Leave arena-combatant--defeated on — it stays until battle end resets the view
+  }
+
+  // ─── A1: main round animation — two sequential phases ────────────────────
   async function animateRoundResult(result) {
     _isAnimating = true;
     enableMoves(false);
 
     const abilityName = _abilityInfo ? _abilityInfo.label : 'Ability';
     const moveNames = { strike: 'Strike', guard: 'Guard', ability: abilityName, heal: 'Heal' };
+    const audio = window.ArenaAudio;
+    const speedWinner = result.speedWinner || 'player';
 
-    // Show moves chosen
-    addLogEntry(`Round ${result.round}: You used ${moveNames[result.playerMove]}. Opponent used ${moveNames[result.opponentMove]}.`, 'info');
+    // Determine ordered attacker/defender sides and their stats
+    const firstSide  = speedWinner;
+    const secondSide = speedWinner === 'player' ? 'opponent' : 'player';
+    const firstMove  = speedWinner === 'player' ? result.playerMove    : result.opponentMove;
+    const secondMove = speedWinner === 'player' ? result.opponentMove   : result.playerMove;
+    const firstDmg   = speedWinner === 'player' ? result.playerDamage  : result.opponentDamage;
+    const secondDmg  = speedWinner === 'player' ? result.opponentDamage : result.playerDamage;
+    const firstHeal  = speedWinner === 'player' ? result.playerHeal    : result.opponentHeal;
+    const secondHeal = speedWinner === 'player' ? result.opponentHeal   : result.playerHeal;
 
-    // Play move sound for player action
-    var audio = window.ArenaAudio;
-    if (audio) audio.play(result.playerMove);
+    // Crit detection — events use "Your strike" vs "Opponent"
+    const playerCrit   = result.events && result.events.some(e => e.includes('Your strike landed a critical'));
+    const opponentCrit = result.events && result.events.some(e => e.includes('Opponent landed a critical'));
+    const firstCrit    = speedWinner === 'player' ? playerCrit   : opponentCrit;
+    const secondCrit   = speedWinner === 'player' ? opponentCrit : playerCrit;
 
-    // Brief pause for drama
-    await sleep(400);
+    // A1: Show speed badge near the faster combatant
+    showSpeedBadge(speedWinner);
 
-    // Show damage floats + hit shake
-    if (result.opponentDamage > 0) {
-      showDamageFloat('player', result.opponentDamage, false);
-      triggerHitShake('player');
-      if (audio) audio.play('hit');
-    }
-    if (result.playerDamage > 0) {
-      showDamageFloat('opponent', result.playerDamage, false);
-      triggerHitShake('opponent');
-    }
-    if (result.playerHeal > 0) {
-      showDamageFloat('player', result.playerHeal, true);
-      if (audio) audio.play('heal');
-    }
-    if (result.opponentHeal > 0) {
-      showDamageFloat('opponent', result.opponentHeal, true);
-    }
+    // ── Phase 1: First attacker ──────────────────────────────────────────
+    const firstLabel = firstSide === 'player' ? 'You' : 'Opponent';
+    addLogEntry(`${firstLabel} used ${moveNames[firstMove] || firstMove}.`, 'info');
 
-    // Crit sound
-    if (result.events && result.events.some(e => e.toLowerCase().includes('critical'))) {
+    await animateAttack(firstSide, firstMove, firstDmg, firstHeal);
+
+    // A3: crit banner on target of first hit
+    if (firstCrit) {
+      const firstTarget = firstSide === 'player' ? 'opponent' : 'player';
+      showCritBanner(firstTarget);
       if (audio) audio.play('crit');
+      await sleep(150);
     }
 
-    await sleep(300);
+    // A2: kill-shot check — if first attacker drops target to 0, skip Phase 2
+    const firstKillsOpponent = firstSide === 'player'   && result.opponentHp <= 0;
+    const firstKillsPlayer   = firstSide === 'opponent' && result.playerHp   <= 0;
+    const phase1KillShot     = firstKillsOpponent || firstKillsPlayer;
 
-    // Animate HP bars
+    if (phase1KillShot) {
+      const defeatedSide = firstSide === 'player' ? 'opponent' : 'player';
+      await sleep(200);
+      await triggerKillShot(defeatedSide);
+
+    } else {
+      // Pause so player absorbs what just happened before the counter
+      await sleep(700);
+
+      // ── Phase 2: Second attacker ───────────────────────────────────────
+      const secondLabel = secondSide === 'player' ? 'You' : 'Opponent';
+      addLogEntry(`${secondLabel} used ${moveNames[secondMove] || secondMove}.`, 'info');
+
+      await animateAttack(secondSide, secondMove, secondDmg, secondHeal);
+
+      // A3: crit banner on target of second hit
+      if (secondCrit) {
+        const secondTarget = secondSide === 'player' ? 'opponent' : 'player';
+        showCritBanner(secondTarget);
+        if (audio) audio.play('crit');
+        await sleep(150);
+      }
+
+      // A2: kill-shot check after Phase 2
+      const phase2KillShot = result.playerHp <= 0 || result.opponentHp <= 0;
+      if (phase2KillShot) {
+        const defeatedSide = result.playerHp <= 0 ? 'player' : 'opponent';
+        await sleep(200);
+        await triggerKillShot(defeatedSide);
+      } else {
+        await sleep(500);
+      }
+    }
+
+    // ── Phase 3: Resolution ───────────────────────────────────────────────
+    // HP bars update after both attacks for clean readability
     updateHpBars(result.playerHp, _battleData.player.maxHp, result.opponentHp, _battleData.opponent.maxHp);
 
-    // Log events
+    // Log events (matchup results, crits, heals, buffs)
     if (result.events && result.events.length > 0) {
       result.events.forEach(e => addLogEntry(e, 'event'));
     }
 
-    // Update local state
-    _battleData.player.hp = result.playerHp;
+    // A5: update streak counter
+    if (result.playerDamage > 0) {
+      _playerStreak++;
+      if (_playerStreak >= 2) showStreakBadge(_playerStreak);
+    } else if (result.playerMove === 'guard' || result.playerMove === 'heal') {
+      _playerStreak = 0;
+    }
+
+    // Update local HP state
+    _battleData.player.hp   = result.playerHp;
     _battleData.opponent.hp = result.opponentHp;
 
     // Update charges from round result
@@ -263,7 +393,16 @@ window.ArenaBattleUI = (function () {
       updateChargeDisplay();
     }
 
-    await sleep(400);
+    // A4: trigger music escalation check
+    if (audio && typeof audio.checkMusicEscalation === 'function') {
+      audio.checkMusicEscalation(
+        _currentRound,
+        result.playerHp,   _battleData.player.maxHp,
+        result.opponentHp, _battleData.opponent.maxHp
+      );
+    }
+
+    await sleep(300);
     _isAnimating = false;
   }
 
@@ -280,6 +419,8 @@ window.ArenaBattleUI = (function () {
       if (response.battleStatus === 'complete') {
         var endAudio = window.ArenaAudio;
         if (endAudio) endAudio.play(response.battleResult.winner === 'player' ? 'victory' : 'defeat');
+        // Stop any looping music
+        if (endAudio && typeof endAudio.stopMusic === 'function') endAudio.stopMusic();
         // Show post-battle actions, hide forfeit
         var forfeitBtn = document.getElementById('arena-forfeit-btn');
         var postActions = document.getElementById('arena-battle-post');
@@ -316,6 +457,9 @@ window.ArenaBattleUI = (function () {
     try {
       const response = await window.ArenaAPI.forfeitBattle(_battleData.battleId);
       addLogEntry('You forfeited the battle.', 'error');
+      if (window.ArenaAudio && typeof window.ArenaAudio.stopMusic === 'function') {
+        window.ArenaAudio.stopMusic();
+      }
       await sleep(400);
       window.ArenaResults.showResults(response.battleResult, _battleData);
     } catch (err) {

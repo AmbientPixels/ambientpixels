@@ -22,9 +22,18 @@ window.ArenaAudio = (function () {
     charge:    'charge.wav'
   };
 
+  // A4: looping battle music tracks (files optional — degrade silently if missing)
+  var MUSIC_TRACKS = {
+    battleMid:    'battle-mid.mp3',
+    battleHigh:   'battle-intense.mp3',
+    battleLowHp:  'battle-lowHp.mp3'
+  };
+
   var _muted = false;
   var _volume = 0.5;
   var _cache = {};
+  var _musicCache = {};
+  var _currentMusicKey = null;
   var _initialized = false;
 
   function init() {
@@ -42,7 +51,7 @@ window.ArenaAudio = (function () {
       _muted = saved === 'true';
     }
 
-    // Preload all sounds
+    // Preload all SFX
     for (var key in SOUNDS) {
       if (SOUNDS.hasOwnProperty(key)) {
         var audio = new Audio();
@@ -53,7 +62,93 @@ window.ArenaAudio = (function () {
       }
     }
 
+    // Pre-create music players (loop-capable, not cloned on play)
+    for (var mkey in MUSIC_TRACKS) {
+      if (MUSIC_TRACKS.hasOwnProperty(mkey)) {
+        var music = new Audio();
+        music.loop = true;
+        music.preload = 'none'; // lazy — only load when needed
+        music.src = BASE_PATH + MUSIC_TRACKS[mkey];
+        music.volume = 0;
+        _musicCache[mkey] = music;
+      }
+    }
+
     updateToggleIcon();
+  }
+
+  // A4: start a looping music track, crossfade from previous
+  function playMusic(key) {
+    if (_muted || !_musicCache[key]) return;
+    if (_currentMusicKey === key) return; // already playing
+
+    // Fade out previous
+    if (_currentMusicKey && _musicCache[_currentMusicKey]) {
+      var prev = _musicCache[_currentMusicKey];
+      _fadeOut(prev, 800, function () { prev.pause(); prev.currentTime = 0; });
+    }
+
+    _currentMusicKey = key;
+    var track = _musicCache[key];
+    track.currentTime = 0;
+    track.volume = 0;
+    track.play().catch(function () {}); // ignore autoplay policy
+    _fadeIn(track, _volume * 0.45, 1200); // music at ~45% of SFX volume
+  }
+
+  function stopMusic() {
+    if (!_currentMusicKey) return;
+    var track = _musicCache[_currentMusicKey];
+    if (track) {
+      _fadeOut(track, 600, function () { track.pause(); track.currentTime = 0; });
+    }
+    _currentMusicKey = null;
+  }
+
+  function _fadeIn(audioEl, targetVol, durationMs) {
+    var steps = 20;
+    var stepTime = durationMs / steps;
+    var stepVol = targetVol / steps;
+    var current = 0;
+    var interval = setInterval(function () {
+      current++;
+      audioEl.volume = Math.min(targetVol, current * stepVol);
+      if (current >= steps) clearInterval(interval);
+    }, stepTime);
+  }
+
+  function _fadeOut(audioEl, durationMs, onDone) {
+    var startVol = audioEl.volume;
+    var steps = 20;
+    var stepTime = durationMs / steps;
+    var stepVol = startVol / steps;
+    var current = 0;
+    var interval = setInterval(function () {
+      current++;
+      audioEl.volume = Math.max(0, startVol - current * stepVol);
+      if (current >= steps) {
+        clearInterval(interval);
+        if (onDone) onDone();
+      }
+    }, stepTime);
+  }
+
+  // A4: called after each round to escalate music with battle intensity
+  function checkMusicEscalation(round, playerHp, playerMax, opHp, opMax) {
+    var minHpPct = Math.min(playerHp / playerMax, opHp / opMax) * 100;
+
+    // Low HP overrides round-based escalation (most dramatic)
+    if (minHpPct <= 25) {
+      playMusic('battleLowHp');
+      return;
+    }
+    if (round >= 9) {
+      playMusic('battleHigh');
+      return;
+    }
+    if (round >= 5) {
+      playMusic('battleMid');
+    }
   }
 
   function play(key) {
@@ -103,6 +198,9 @@ window.ArenaAudio = (function () {
     play: play,
     isMuted: isMuted,
     toggleMute: toggleMute,
-    setVolume: setVolume
+    setVolume: setVolume,
+    playMusic: playMusic,
+    stopMusic: stopMusic,
+    checkMusicEscalation: checkMusicEscalation
   };
 })();
