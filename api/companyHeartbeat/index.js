@@ -1637,8 +1637,8 @@ module.exports = async function (context) {
               const _tcTask = tasks.find(t => t.id === ceo.taskId);
               const _tcTaskType = _tcTask && _tcTask.taskType || '';
               const _tcTitle = (ceo.taskTitle || '').toLowerCase();
-              const _INTERNAL_TASK_TYPES = ['research', 'general'];
-              const _INTERNAL_TITLE_PATTERNS = /\b(traffic brief|review brief|research|analysis|audit|report|internal|ops)\b/i;
+              const _INTERNAL_TASK_TYPES = ['research', 'general', 'ops', 'bug_fix', 'editorial'];
+              const _INTERNAL_TITLE_PATTERNS = /\b(traffic brief|review brief|research|analysis|audit|report|internal|ops|bugfix|hotfix)\b/i;
               const _isInternal = _INTERNAL_TASK_TYPES.indexOf(_tcTaskType) !== -1 || _INTERNAL_TITLE_PATTERNS.test(_tcTitle);
               if (_isInternal) {
                 // Internal task — auto-complete, no CEO gate needed
@@ -1685,6 +1685,24 @@ module.exports = async function (context) {
                 }
                 context.log('[Heartbeat] Auto-completed task with linked doc:', ceo.taskId, '(doc:', _tcDocId, ') — publish_document is the CEO gate');
               } else {
+              // BLOG PIPELINE GATE: blog_post/article/newsletter tasks MUST go through submit-for-publish.
+              // If peer review fires but no doc was ever linked, reset to in-progress and inject a system comment.
+              const _BLOG_TYPES = ['blog_post', 'article', 'newsletter'];
+              if (_BLOG_TYPES.indexOf(_tcTaskType) !== -1) {
+                if (_tcTask && _tcTask.status !== 'done') {
+                  _tcTask.status = 'in-progress';
+                  _tcTask.updatedAt = nowIso;
+                  if (!_tcTask.comments) _tcTask.comments = [];
+                  _tcTask.comments.push({
+                    id: 'cmt-' + Date.now() + '-bloggate',
+                    author: 'system',
+                    text: '**Blog pipeline gate:** This `' + _tcTaskType + '` task cannot be completed without a published document. The assignee must use `create-doc` (kind: `marketing_post`) to write the full article, then `submit-for-publish` to enter the CEO approval queue. `execute-task` deliverables are not publishable — they do not trigger hero image generation or the publish pipeline.',
+                    type: 'system',
+                    createdAt: nowIso
+                  });
+                }
+                context.log('[Heartbeat] BLOG GATE: blocked task_completion.approve for', _tcTaskType, 'task', ceo.taskId, '— no linked document. Reset to in-progress.');
+              } else {
               // No linked document — create task_completion.approve for CEO review
               const completionAction = {
                 id: 'act_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
@@ -1722,6 +1740,7 @@ module.exports = async function (context) {
               await storage.setState('actions', actionsStore);
               context.log('[Heartbeat] Created pending task_completion.approve for CEO review:', ceo.taskTitle, '→', completionAction.id);
               } // end action creation
+              } // end blog gate else
               } // end if(_tcDocId) else
             }
             } // end if(_isInternal) else

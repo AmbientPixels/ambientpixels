@@ -1755,6 +1755,35 @@
       var editOnlyFields = document.getElementById('edit-only-fields');
       var triageHint = document.getElementById('nova-triage-hint');
 
+      // Update triage hint text based on selected task type
+      var _typeAgentMap = {
+        blog_post: { agent: 'Scribe', note: 'will write the article via create-doc + submit-for-publish. Pixel auto-creates the hero image.' },
+        article: { agent: 'Scribe', note: 'will write the article via create-doc + submit-for-publish. Pixel auto-creates the hero image.' },
+        newsletter: { agent: 'Scribe', note: 'will draft the newsletter via create-doc + submit-for-publish.' },
+        social_linkedin: { agent: 'Echo', note: 'will brief → Scribe writes copy → Quill reviews → CEO approves post.' },
+        social_x: { agent: 'Echo', note: 'will brief → Scribe writes copy → Quill reviews → CEO approves post.' },
+        social_bluesky: { agent: 'Echo', note: 'will brief → Scribe writes copy → Quill reviews → CEO approves post.' },
+        design_asset: { agent: 'Pixel', note: 'will generate the visual asset.' },
+        research: { agent: 'Scout', note: 'will conduct research and deliver an analysis.' },
+        ops: { agent: 'Forge', note: 'will handle the infrastructure or deployment work.' },
+        bug_fix: { agent: 'Forge', note: 'will diagnose and fix the issue.' },
+        finance: { agent: 'Cipher', note: 'will handle budget analysis or financial reporting.' },
+        editorial: { agent: 'Quill', note: 'will review and refine for brand voice.' },
+        internal_doc: { agent: 'Scribe', note: 'will write the internal document to the wiki.' }
+      };
+      function _updateTriageHint() {
+        var type = taskTypeField.value;
+        var mapping = _typeAgentMap[type];
+        if (mapping) {
+          triageHint.innerHTML = '<i class="fas fa-robot" style="color:#4ecdc4; margin-right:4px;"></i>'
+            + '<strong style="color:#4ecdc4;">Nova will assign to ' + mapping.agent + '</strong> — ' + mapping.note;
+        } else {
+          triageHint.innerHTML = '<i class="fas fa-robot" style="color:#4ecdc4; margin-right:4px;"></i>'
+            + '<strong style="color:#4ecdc4;">Nova will triage this task</strong> — assign it to the right agent and add delegation context.';
+        }
+      }
+      taskTypeField.addEventListener('change', _updateTriageHint);
+
       // Populate objective dropdown from live objectives
       function _populateObjectiveDropdown(selectedId) {
         var opts = '<option value="">No goal</option>';

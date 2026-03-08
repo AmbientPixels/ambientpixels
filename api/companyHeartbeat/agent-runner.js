@@ -372,7 +372,9 @@ Write the full deliverable first, then the structured JSON block.`;
       const _triagedIdle = agentTasks
         .filter(t => {
           if (t.status !== 'todo' && t.status !== 'in-progress') return false;
-          if (!t.campaign_id && !(t.comments && t.comments.some(c => c.author === 'nova' || c.author === 'system'))) return false;
+          // Triage gate: individual tasks (no campaign) need a Nova/system comment OR be CEO-assigned (explicit assignee + dueDate set by human)
+          const _ceoAssigned = t.source !== 'heartbeat' && t.assignee && t.dueDate;
+          if (!t.campaign_id && !_ceoAssigned && !(t.comments && t.comments.some(c => c.author === 'nova' || c.author === 'system'))) return false;
           // Same-cycle guard: skip tasks created < 30s ago (prevents create-then-execute in one heartbeat)
           var _taskAge = _cycleStartMs - new Date(t.createdAt || 0).getTime();
           if (_taskAge < 30000) {
@@ -1372,7 +1374,11 @@ Write the full deliverable first, then the structured JSON block.`;
                 } else { _cmpContext = _cmp.description || ''; }
               }
               const _cmpUrlMatch = _cmpContext.match(/https?:\/\/ambientpixels\.ai\/[a-z0-9/-]+/i);
-              const _cmpUrl = _cmpUrlMatch ? _cmpUrlMatch[0] : 'https://ambientpixels.ai';
+              // For individual tasks (no campaign), scan task description + Echo's strategy brief for a specific URL
+              const _descUrlMatch = !_cmpUrlMatch
+                ? ((socialTask.description || '') + ' ' + ((socialTask.comments || []).filter(c => c.type === 'deliverable').map(c => c.text).join(' '))).match(/https?:\/\/ambientpixels\.ai\/[a-z0-9/-]+/i)
+                : null;
+              const _cmpUrl = _cmpUrlMatch ? _cmpUrlMatch[0] : (_descUrlMatch ? _descUrlMatch[0] : 'https://ambientpixels.ai');
               const _cmpRules = _cmpContext ? '\n\nCAMPAIGN POSTING RULES:\n' + _cmpContext.substring(0, 600) : '';
               const copyTask = {
                 id: 'task_' + Date.now() + '_copy_' + Math.random().toString(36).substr(2, 4),
