@@ -316,6 +316,7 @@ window.ArenaBattleUI = (function () {
     banner.className = 'arena-last-stand-banner';
     banner.textContent = side === 'player' ? '\u26A0 LAST STAND!' : '\u26A0 LAST STAND!';
     container.appendChild(banner);
+    if (window.ArenaAudio) window.ArenaAudio.play('last_stand');
     setTimeout(() => banner.remove(), 2200);
   }
 
@@ -398,6 +399,7 @@ window.ArenaBattleUI = (function () {
     banner.className = 'arena-crowd-banner';
     banner.textContent = 'CROWD ERUPTS!';
     field.appendChild(banner);
+    if (window.ArenaAudio) window.ArenaAudio.play('crowd');
     setTimeout(function () { banner.remove(); }, 1800);
   }
 
@@ -407,6 +409,7 @@ window.ArenaBattleUI = (function () {
     const defeatedEl = document.getElementById(
       defeatedSide === 'player' ? 'arena-player-side' : 'arena-opponent-side'
     );
+    if (window.ArenaAudio) window.ArenaAudio.play('killshot');
     if (field) field.classList.add('arena--killshot');
     if (defeatedEl) defeatedEl.classList.add('arena-combatant--defeated');
     await sleep(1400);

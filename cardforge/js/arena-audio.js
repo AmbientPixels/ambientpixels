@@ -10,16 +10,19 @@ window.ArenaAudio = (function () {
 
   // Sound definitions — keys match battle events
   var SOUNDS = {
-    strike:    'strike.wav',
-    guard:     'guard.wav',
-    ability:   'ability.mp3',
-    heal:      'heal.wav',
-    crit:      'crit.mp3',
-    victory:   'victory.mp3',
-    defeat:    'defeat.wav',
-    click:     'click.wav',
-    hit:       'hit.wav',
-    charge:    'charge.wav'
+    strike:     'strike.wav',
+    guard:      'guard.wav',
+    ability:    'ability.mp3',
+    heal:       'heal.wav',
+    crit:       'crit.mp3',
+    victory:    'victory.mp3',
+    defeat:     'defeat.wav',
+    click:      'click.wav',
+    hit:        'hit.wav',
+    charge:     'charge.wav',
+    crowd:      'crowd.mp3',
+    last_stand: 'last-stand.mp3',
+    killshot:   'killshot.mp3'
   };
 
   // One track per arena + menu. Add new arenas here as they're created.
