@@ -174,9 +174,9 @@ window.ArenaResults = (function () {
     const wins = document.getElementById('arena-stat-wins');
     const losses = document.getElementById('arena-stat-losses');
     const level = document.getElementById('arena-stat-level');
-    if (wins) wins.textContent = `${profile.record?.wins || 0} Wins`;
-    if (losses) losses.textContent = `${profile.record?.losses || 0} Losses`;
-    if (level) level.textContent = `Level ${profile.level || 1}`;
+    if (wins) wins.textContent = profile.record?.wins || 0;
+    if (losses) losses.textContent = profile.record?.losses || 0;
+    if (level) level.textContent = profile.level || 1;
   }
 
   function showUnlockToast(rank, unlocksByCategory) {

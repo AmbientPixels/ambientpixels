@@ -377,6 +377,7 @@ window.ArenaApp = (function () {
     document.getElementById('arena-pve-back')?.addEventListener('click', () => showScreen('lobby'));
     document.getElementById('arena-pvp-back')?.addEventListener('click', () => showScreen('lobby'));
     document.getElementById('arena-history-back')?.addEventListener('click', () => showScreen('lobby'));
+    document.getElementById('arena-view-history')?.addEventListener('click', openFullHistory);
 
     // Results screen buttons
     document.getElementById('arena-results-lobby')?.addEventListener('click', () => {
@@ -401,6 +402,18 @@ window.ArenaApp = (function () {
         document.getElementById('arena-screen-' + hash).classList.add('active');
       }
     });
+  }
+
+  async function openFullHistory() {
+    showScreen('history');
+    const container = document.getElementById('arena-full-history');
+    if (container) container.innerHTML = '<div class="arena-loading"><i class="fas fa-spinner fa-spin"></i> Loading history...</div>';
+    try {
+      const data = await window.ArenaAPI.loadHistory(50, 0);
+      window.ArenaResults.renderMatchList(data.matches, 'arena-full-history');
+    } catch (err) {
+      if (container) container.innerHTML = '<div class="arena-error">Failed to load match history.</div>';
+    }
   }
 
   async function refreshLobby() {

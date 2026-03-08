@@ -1,109 +1,183 @@
-/* ============================================================
-   CardForge Arena — Styles
-   Prefix: arena-
-   Tokens: --mood-*, --aura-*, --glow-*
-   ============================================================ */
+/* ===================================================================
+   CardForge Arena — Complete Redesign
+   Style: Retro-Futurism (neon glow, CRT scanlines, deep space)
+   Design System: ui-ux-pro-max persisted → design-system/cardforge-arena/
+   =================================================================== */
 
-/* --- Reset & Base --- */
+/* ===== GLOBAL ARENA CANVAS ===== */
+body:has(.arena-screen.active) {
+  background: var(--arena-bg, #020617);
+  color: var(--arena-text, #F8FAFC);
+}
 
-.arena-screen { display: none; width: 100%; max-width: 960px; margin: 0 auto; padding: 1.5rem; }
+.arena-screen {
+  display: none;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 3rem;
+}
 .arena-screen.active { display: block; }
 
-/* --- Top Bar --- */
+/* ===== CRT SCANLINE OVERLAY ===== */
+.arena-scanlines {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: var(--cf-z-chrome, 100);
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+  opacity: 0.4;
+}
 
+@media (prefers-reduced-motion: reduce) {
+  .arena-scanlines { display: none; }
+}
+
+/* ===== TOP BAR ===== */
 .arena-topbar {
-  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75rem 1.5rem;
-  background: rgba(20, 20, 36, 0.95);
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  backdrop-filter: blur(12px);
+  padding: 0.75rem 1.25rem;
+  background: rgba(15, 23, 42, 0.85);
+  border-bottom: 1px solid var(--arena-border);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   position: sticky;
   top: 0;
-  z-index: 100;
+  z-index: var(--cf-z-page-bar, 1500);
+  min-height: 56px;
 }
 
 .arena-topbar__back {
   font-size: 0.82rem;
   font-weight: 600;
-  color: var(--cf-text-secondary);
+  color: var(--arena-text-muted);
   text-decoration: none;
   display: flex;
   align-items: center;
   gap: 0.4rem;
+  transition: color 0.15s ease;
 }
-.arena-topbar__back:hover { color: var(--mood-primary-color, #A78BFA); }
+.arena-topbar__back:hover { color: var(--arena-xp); }
 
+.arena-topbar__brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+}
 .arena-topbar__title {
   font-family: 'Rajdhani', 'Inter', sans-serif;
   font-size: 1.1rem;
   font-weight: 700;
   letter-spacing: 0.05em;
-  color: var(--cf-text-primary);
+  color: var(--arena-text);
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
-.arena-topbar__title i { color: var(--mood-primary-color, #A78BFA); }
+.arena-topbar__title i { color: var(--arena-xp); }
 .arena-topbar__tagline {
-  font-size: 0.7rem;
+  font-size: 0.65rem;
   font-weight: 500;
-  font-family: 'Inter', sans-serif;
-  color: var(--cf-text-muted);
-  letter-spacing: 0.08em;
+  font-family: 'Orbitron', monospace;
+  color: var(--arena-text-dim);
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
-@media (max-width: 600px) { .arena-topbar__tagline { display: none; } }
 
 .arena-topbar__profile {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.82rem;
-  color: var(--cf-text-secondary);
+  gap: 0.6rem;
+  font-size: 0.8rem;
 }
 
+/* ===== RANK BADGE ===== */
 .arena-rank-badge {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
   width: 28px;
   height: 28px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.06);
-  font-size: 0.9rem;
-}
-.arena-rank-badge--lg {
-  width: 48px;
-  height: 48px;
-  font-size: 1.4rem;
-}
-
-/* --- Auth Gate --- */
-
-.arena-auth-gate {
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
-  padding: 4rem 2rem;
-  text-align: center;
+  border-radius: 50%;
+  background: rgba(139, 92, 246, 0.12);
+  border: 1.5px solid rgba(139, 92, 246, 0.3);
+  font-size: 0.7rem;
+  color: var(--arena-xp);
+  transition: all 0.2s ease;
 }
-.arena-auth-gate__icon { font-size: 3rem; color: var(--cf-text-secondary); }
-.arena-auth-gate h2 { font-family: 'Rajdhani', sans-serif; color: var(--cf-text-primary); }
-.arena-auth-gate p { color: var(--cf-text-muted); max-width: 400px; }
+.arena-rank-badge--lg {
+  width: 56px;
+  height: 56px;
+  font-size: 1.4rem;
+  border-width: 2px;
+  box-shadow: 0 0 20px var(--arena-glow-purple);
+}
 
-/* --- Buttons --- */
+.arena-record {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--arena-text-muted);
+  letter-spacing: 0.04em;
+}
 
+/* ===== AUTH LINKS ===== */
+.arena-auth-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--arena-xp);
+  text-decoration: none;
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+.arena-auth-link:hover {
+  background: rgba(139, 92, 246, 0.1);
+  border-color: rgba(139, 92, 246, 0.5);
+}
+.arena-auth-link--logout {
+  color: var(--arena-text-muted);
+  border-color: rgba(255, 255, 255, 0.1);
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+}
+.arena-auth-link--logout:hover { color: var(--arena-loss); border-color: rgba(244, 63, 94, 0.3); }
+
+.arena-user-status {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--arena-text-muted);
+}
+.arena-user-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--arena-win);
+  box-shadow: 0 0 6px var(--arena-glow-green);
+}
+
+/* ===== BUTTONS ===== */
 .arena-btn {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
   padding: 0.6rem 1.2rem;
-  border: none;
+  border: 1px solid transparent;
   border-radius: 8px;
   font-family: 'Inter', sans-serif;
   font-size: 0.85rem;
@@ -112,65 +186,307 @@
   transition: all 0.2s ease;
 }
 .arena-btn--primary {
-  background: linear-gradient(135deg, #A78BFA 0%, #7b2fff 100%);
+  background: linear-gradient(135deg, var(--arena-xp) 0%, #7C3AED 100%);
   color: #fff;
+  border-color: rgba(139, 92, 246, 0.3);
 }
-.arena-btn--primary:hover { filter: brightness(1.1); transform: translateY(-1px); }
+.arena-btn--primary:hover {
+  filter: brightness(1.15);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px var(--arena-glow-purple);
+}
 .arena-btn--ghost {
   background: transparent;
-  color: var(--cf-text-secondary);
-  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--arena-text-muted);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
-.arena-btn--ghost:hover { color: var(--cf-text-primary); border-color: rgba(255,255,255,0.2); }
-.arena-btn--sm { padding: 0.4rem 0.8rem; font-size: 0.78rem; }
+.arena-btn--ghost:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.15);
+  color: var(--arena-text);
+}
+.arena-btn--sm { padding: 0.35rem 0.7rem; font-size: 0.78rem; }
 
-/* --- Sections --- */
+/* ===== DEMO BANNER ===== */
+.arena-demo-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 1rem;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+  border-radius: 8px;
+  font-size: 0.82rem;
+  color: var(--arena-text-muted);
+  margin-bottom: 1.5rem;
+}
+.arena-demo-banner i { color: var(--arena-gold); font-size: 1rem; }
+.arena-demo-banner a { color: var(--arena-xp); text-decoration: underline; font-weight: 600; }
 
-.arena-section { margin-bottom: 2rem; }
+/* ===== AUTH GATE ===== */
+.arena-auth-gate {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4rem 2rem;
+  gap: 1rem;
+  min-height: 50vh;
+}
+.arena-auth-gate__icon { font-size: 2.5rem; color: var(--arena-gold); }
+.arena-auth-gate h2 { font-family: 'Rajdhani', sans-serif; font-size: 1.5rem; font-weight: 700; }
+.arena-auth-gate p { color: var(--arena-text-muted); max-width: 320px; }
+
+/* ===== SECTION TITLES ===== */
+.arena-section {
+  margin-bottom: 2rem;
+}
 .arena-section__title {
   font-family: 'Rajdhani', sans-serif;
-  font-size: 1rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  color: var(--cf-text-secondary);
+  color: var(--arena-text-dim);
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.1em;
   margin-bottom: 0.75rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
-.arena-section__title i { color: var(--mood-primary-color, #A78BFA); font-size: 0.9rem; }
+.arena-section__title i { color: var(--arena-xp); font-size: 0.8rem; }
 
-/* --- Card Strip (horizontal scroll) --- */
+/* ===== HERO: CHAMPION + RANK HUD ===== */
+.arena-hero {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  align-items: start;
+}
 
+/* --- Champion Section --- */
+.arena-champion-section {
+  min-height: 200px;
+}
+.arena-champion {
+  padding: 1.5rem;
+  background: var(--arena-surface);
+  border: 1px solid var(--arena-border);
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.arena-champion::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 30% 80%, rgba(139, 92, 246, 0.04) 0%, transparent 60%);
+  pointer-events: none;
+}
+.arena-champion__empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 2rem;
+  color: var(--arena-text-dim);
+  text-align: center;
+}
+.arena-champion__empty i { font-size: 2rem; color: var(--arena-xp); opacity: 0.4; }
+.arena-champion__empty p { font-size: 0.85rem; }
+
+/* Champion card with stats (rendered by JS) */
+.arena-champion__card {
+  display: flex;
+  gap: 1.2rem;
+}
+.arena-champion__avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  color: var(--arena-xp);
+  flex-shrink: 0;
+  border: 2px solid rgba(139, 92, 246, 0.2);
+  box-shadow: 0 0 16px var(--arena-glow-purple);
+}
+.arena-champion__avatar img { width: 100%; height: 100%; object-fit: cover; }
+.arena-champion__name {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--arena-text);
+}
+.arena-champion__class { font-size: 0.8rem; color: var(--arena-text-dim); margin-bottom: 0.3rem; }
+.arena-champion__quote { font-size: 0.78rem; color: var(--arena-text-dim); font-style: italic; margin-bottom: 0.5rem; }
+.arena-champion__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--arena-text-muted);
+}
+.arena-champion__stats span { display: flex; align-items: center; gap: 0.25rem; }
+.arena-champion__stats i { color: var(--arena-xp); font-size: 0.65rem; }
+.arena-champion__hp { color: var(--arena-win); }
+.arena-champion__hp i { color: var(--arena-win); }
+.arena-champion__nudge {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--arena-gold);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.arena-champion__record {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.35rem;
+}
+.arena-champion__record-pill {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+}
+
+/* --- Rank HUD --- */
+.arena-rank-hud {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem 1.25rem;
+  background: var(--arena-surface);
+  border: 1px solid var(--arena-border);
+  border-radius: 16px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.arena-rank-hud::before {
+  content: '';
+  position: absolute;
+  top: -40%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120%;
+  height: 80%;
+  background: radial-gradient(ellipse, rgba(139, 92, 246, 0.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.arena-rank-hud__insignia {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+.arena-rank-label {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--arena-text);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.arena-rank-hud__xp {
+  width: 100%;
+}
+.arena-progress__bar {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+.arena-progress__bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--arena-xp), #7C3AED);
+  border-radius: 4px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 8px var(--arena-glow-purple);
+}
+.arena-progress__xp-text {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.68rem;
+  color: var(--arena-text-dim);
+  margin-top: 0.35rem;
+  text-align: center;
+}
+
+.arena-rank-hud__stats {
+  display: flex;
+  gap: 0.5rem;
+}
+.arena-stat-pill {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.6rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--arena-border);
+  border-radius: 6px;
+  font-family: 'Orbitron', monospace;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--arena-text-muted);
+}
+.arena-stat-pill i { font-size: 0.6rem; }
+.arena-stat-pill--win i { color: var(--arena-win); }
+.arena-stat-pill--loss i { color: var(--arena-loss); }
+.arena-stat-pill--level i { color: var(--arena-gold); }
+
+/* ===== CARD STRIP / ROSTER ===== */
 .arena-card-strip {
   display: flex;
   gap: 0.75rem;
   overflow-x: auto;
   padding: 0.5rem 0;
+  scroll-behavior: smooth;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255,255,255,0.1) transparent;
+  scrollbar-color: rgba(139, 92, 246, 0.2) transparent;
 }
+.arena-card-strip::-webkit-scrollbar { height: 4px; }
+.arena-card-strip::-webkit-scrollbar-track { background: transparent; }
+.arena-card-strip::-webkit-scrollbar-thumb { background: rgba(139, 92, 246, 0.25); border-radius: 4px; }
 
 .arena-card-thumb {
   flex-shrink: 0;
-  width: 110px;
+  width: 120px;
   padding: 0.6rem;
-  border: 2px solid rgba(255,255,255,0.06);
-  border-radius: 10px;
-  background: rgba(255,255,255,0.03);
-  cursor: pointer;
+  border: 1px solid var(--arena-border);
+  border-radius: 12px;
+  background: var(--arena-surface);
   text-align: center;
+  cursor: pointer;
   transition: all 0.2s ease;
-  color: var(--cf-text-primary);
+  color: var(--arena-text);
   font-family: 'Inter', sans-serif;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
-.arena-card-thumb:hover { border-color: rgba(139, 92, 246,0.3); background: rgba(139, 92, 246,0.05); }
-.arena-card-thumb--selected { border-color: var(--mood-primary-color, #A78BFA); background: rgba(139, 92, 246,0.1); box-shadow: 0 0 12px rgba(139, 92, 246,0.2); }
-
+.arena-card-thumb:hover {
+  border-color: rgba(139, 92, 246, 0.3);
+  background: var(--arena-surface-raised);
+  transform: translateY(-2px);
+}
+.arena-card-thumb--selected {
+  border-color: var(--arena-xp);
+  background: rgba(139, 92, 246, 0.08);
+  box-shadow: 0 0 16px var(--arena-glow-purple);
+}
 .arena-card-thumb__avatar {
   width: 64px;
   height: 64px;
@@ -178,188 +494,200 @@
   min-height: 64px;
   border-radius: 50%;
   overflow: hidden;
-  margin: 0 auto 0.4rem;
-  background: rgba(255,255,255,0.06);
+  margin-bottom: 0.35rem;
+  background: rgba(255, 255, 255, 0.04);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
-  color: var(--cf-text-dim);
-  position: relative;
 }
-.arena-card-thumb__avatar img {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center top;
-}
-.arena-card-thumb__name { font-size: 0.75rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
-.arena-card-thumb__class { font-size: 0.65rem; color: var(--cf-text-muted); }
-
-/* --- Champion Display --- */
-
-.arena-champion__empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 2rem;
-  border: 2px dashed rgba(255,255,255,0.08);
-  border-radius: 12px;
-  color: var(--cf-text-dim);
-  font-size: 1.5rem;
-}
-.arena-champion__empty p { font-size: 0.85rem; }
-
-.arena-champion__card {
-  display: flex;
-  gap: 1.2rem;
-  padding: 1.2rem;
-  border: 1px solid rgba(139, 92, 246,0.15);
-  border-radius: 12px;
-  background: rgba(139, 92, 246,0.03);
-}
-
-.arena-champion__avatar {
-  width: 80px;
-  height: 80px;
-  border-radius: 12px;
-  overflow: hidden;
-  background: rgba(255,255,255,0.06);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2rem;
-  color: var(--mood-primary-color, #A78BFA);
-  flex-shrink: 0;
-}
-.arena-champion__avatar img { width: 100%; height: 100%; object-fit: cover; }
-
-.arena-champion__name { font-family: 'Rajdhani', sans-serif; font-size: 1.2rem; font-weight: 700; color: var(--cf-text-primary); }
-.arena-champion__class { font-size: 0.8rem; color: var(--cf-text-muted); margin-bottom: 0.3rem; }
-.arena-champion__quote { font-size: 0.78rem; color: var(--cf-text-dim); font-style: italic; margin-bottom: 0.5rem; }
-
-.arena-champion__stats {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.6rem;
-  font-size: 0.75rem;
+.arena-card-thumb__avatar img { width: 100%; height: 100%; object-fit: cover; }
+.arena-card-thumb__name {
+  font-size: 0.72rem;
   font-weight: 600;
-  color: var(--cf-text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
-.arena-champion__stats span { display: flex; align-items: center; gap: 0.25rem; }
-.arena-champion__stats i { color: var(--mood-primary-color, #A78BFA); font-size: 0.7rem; }
-.arena-champion__hp { color: var(--cf-danger); }
-.arena-champion__hp i { color: var(--cf-danger); }
-
-.arena-champion__nudge {
-  margin-top: 0.5rem;
-  font-size: 0.75rem;
-  color: var(--cf-gold);
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
+.arena-card-thumb__class {
+  font-size: 0.65rem;
+  color: var(--arena-text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
-/* --- Game Mode Cards --- */
-
-.arena-modes { display: flex; gap: 1rem; }
-
+/* ===== MODE SELECT — BENTO GRID ===== */
+.arena-modes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
 .arena-mode-card {
-  flex: 1;
-  padding: 1.5rem;
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 12px;
-  background: rgba(255,255,255,0.02);
-  cursor: pointer;
-  text-align: center;
-  transition: all 0.2s ease;
-  color: var(--cf-text-primary);
-  font-family: 'Inter', sans-serif;
-}
-.arena-mode-card:hover:not(:disabled) { border-color: rgba(139, 92, 246,0.3); background: rgba(139, 92, 246,0.05); transform: translateY(-2px); }
-.arena-mode-card:disabled { opacity: 0.4; cursor: not-allowed; }
-
-.arena-mode-card__icon { font-size: 2rem; color: var(--mood-primary-color, #A78BFA); margin-bottom: 0.75rem; }
-.arena-mode-card__title { font-family: 'Rajdhani', sans-serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 0.3rem; }
-.arena-mode-card__desc { font-size: 0.78rem; color: var(--cf-text-muted); }
-
-/* --- Progress --- */
-
-.arena-progress {
+  position: relative;
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 1rem;
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 12px;
-  background: rgba(255,255,255,0.02);
-}
-.arena-progress__rank { display: flex; flex-direction: column; align-items: center; gap: 0.3rem; }
-.arena-rank-label { font-size: 0.75rem; font-weight: 700; color: var(--cf-text-secondary); text-transform: uppercase; }
-
-.arena-progress__bar-wrap { flex: 1; }
-.arena-progress__bar {
-  height: 10px;
-  background: rgba(255,255,255,0.06);
-  border-radius: 5px;
+  padding: 1.25rem 1.5rem;
+  border: 1px solid var(--arena-border);
+  border-radius: 14px;
+  background: var(--arena-surface);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--arena-text);
+  font-family: 'Inter', sans-serif;
   overflow: hidden;
+  text-align: left;
 }
-.arena-progress__bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, #A78BFA, #7b2fff);
-  border-radius: 5px;
-  transition: width 0.6s ease;
+.arena-mode-card__glow {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
 }
-.arena-progress__xp-text { font-size: 0.72rem; color: var(--cf-text-muted); margin-top: 0.25rem; text-align: center; }
+.arena-mode-card--pve .arena-mode-card__glow {
+  background: radial-gradient(ellipse at 20% 50%, rgba(244, 63, 94, 0.06) 0%, transparent 70%);
+}
+.arena-mode-card--pvp .arena-mode-card__glow {
+  background: radial-gradient(ellipse at 20% 50%, rgba(59, 130, 246, 0.06) 0%, transparent 70%);
+}
+.arena-mode-card:hover:not(:disabled) .arena-mode-card__glow { opacity: 1; }
 
-.arena-progress__stats {
+.arena-mode-card:hover:not(:disabled) {
+  border-color: rgba(139, 92, 246, 0.3);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+.arena-mode-card:disabled { opacity: 0.35; cursor: not-allowed; }
+
+.arena-mode-card__icon {
+  font-size: 1.8rem;
+  flex-shrink: 0;
+  width: 48px;
+  text-align: center;
+}
+.arena-mode-card--pve .arena-mode-card__icon { color: var(--arena-loss); }
+.arena-mode-card--pvp .arena-mode-card__icon { color: var(--arena-energy); }
+
+.arena-mode-card__content { flex: 1; min-width: 0; }
+.arena-mode-card__title {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.15rem;
+}
+.arena-mode-card__desc { font-size: 0.78rem; color: var(--arena-text-muted); }
+.arena-mode-card__cta {
+  color: var(--arena-text-dim);
+  font-size: 0.9rem;
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+.arena-mode-card:hover:not(:disabled) .arena-mode-card__cta {
+  color: var(--arena-xp);
+  transform: translateX(3px);
+}
+
+/* ===== RANK REWARDS ===== */
+.arena-rewards__toggle {
+  background: none;
+  border: none;
+  color: var(--arena-text-dim);
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0.2rem 0.4rem;
+  margin-left: auto;
+  transition: color 0.2s ease;
+}
+.arena-rewards__toggle:hover { color: var(--arena-xp); }
+
+.arena-rewards {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 0.5rem;
+}
+.arena-rewards__tier {
+  border: 1px solid var(--arena-border);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: opacity 0.2s ease;
+}
+.arena-rewards__tier--locked { opacity: 0.4; }
+.arena-rewards__tier--unlocked { opacity: 1; }
+.arena-rewards__tier--current {
+  border-color: rgba(139, 92, 246, 0.25);
+  background: rgba(139, 92, 246, 0.04);
+  opacity: 1;
+}
+.arena-rewards__tier-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.8rem;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+.arena-rewards__tier-body {
+  padding: 0.4rem 0.8rem 0.6rem;
   font-size: 0.75rem;
-  color: var(--cf-text-secondary);
-  text-align: right;
+  color: var(--arena-text-muted);
+  border-top: 1px solid rgba(148, 163, 184, 0.04);
 }
 
-/* --- Match List --- */
+/* ===== HISTORY LINK ===== */
+.arena-history-link {
+  background: none;
+  border: none;
+  color: var(--arena-xp);
+  cursor: pointer;
+  font-size: 0.72rem;
+  font-weight: 600;
+  margin-left: auto;
+  padding: 0.2rem 0.4rem;
+  transition: opacity 0.2s ease;
+}
+.arena-history-link:hover { opacity: 0.7; }
 
-.arena-match-list { display: flex; flex-direction: column; gap: 0.5rem; }
-
+/* ===== MATCH LIST ===== */
+.arena-match-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
 .arena-match-item {
   display: flex;
   align-items: center;
   gap: 0.75rem;
   padding: 0.6rem 0.8rem;
-  border-radius: 8px;
-  background: rgba(255,255,255,0.02);
-  border-left: 3px solid transparent;
-  font-size: 0.82rem;
+  border: 1px solid var(--arena-border);
+  border-radius: 10px;
+  background: var(--arena-surface);
+  font-size: 0.8rem;
+  transition: border-color 0.15s ease;
 }
-.arena-match-item--win { border-left-color: var(--cf-success); }
-.arena-match-item--loss { border-left-color: var(--cf-danger); }
-.arena-match-item--draw { border-left-color: var(--cf-warning); }
-
-.arena-match-item__icon { font-size: 1rem; width: 28px; text-align: center; }
-.arena-match-item--win .arena-match-item__icon { color: var(--cf-success); }
-.arena-match-item--loss .arena-match-item__icon { color: var(--cf-danger); }
-.arena-match-item--draw .arena-match-item__icon { color: var(--cf-warning); }
-
-.arena-match-item__info { flex: 1; color: #c0c0d0; }
+.arena-match-item:hover { border-color: rgba(255, 255, 255, 0.08); }
+.arena-match-item__icon { font-size: 0.9rem; flex-shrink: 0; width: 24px; text-align: center; }
+.arena-match-item--win .arena-match-item__icon { color: var(--arena-win); }
+.arena-match-item--loss .arena-match-item__icon { color: var(--arena-loss); }
+.arena-match-item--draw .arena-match-item__icon { color: var(--arena-gold); }
+.arena-match-item__info { flex: 1; color: var(--arena-text-muted); }
 .arena-match-item__result { font-weight: 700; }
-.arena-match-item--win .arena-match-item__result { color: var(--cf-success); }
-.arena-match-item--loss .arena-match-item__result { color: var(--cf-danger); }
-.arena-match-item__type { font-size: 0.72rem; color: var(--cf-text-muted); }
+.arena-match-item--win .arena-match-item__result { color: var(--arena-win); }
+.arena-match-item--loss .arena-match-item__result { color: var(--arena-loss); }
+.arena-match-item__type { font-size: 0.72rem; color: var(--arena-text-dim); }
+.arena-match-item__meta { display: flex; flex-direction: column; align-items: flex-end; gap: 0.1rem; }
+.arena-match-item__xp { font-size: 0.75rem; color: var(--arena-xp); font-weight: 600; font-family: 'Orbitron', monospace; }
+.arena-match-item__time { font-size: 0.65rem; color: var(--arena-text-dim); }
 
-.arena-match-item__meta { display: flex; flex-direction: column; align-items: flex-end; gap: 0.15rem; }
-.arena-match-item__xp { font-size: 0.75rem; color: var(--mood-primary-color, #A78BFA); font-weight: 600; }
-.arena-match-item__time { font-size: 0.68rem; color: var(--cf-text-dim); }
+.arena-empty-state {
+  padding: 2rem;
+  text-align: center;
+  color: var(--arena-text-dim);
+  font-size: 0.85rem;
+}
 
-/* --- Screen Header --- */
-
+/* ===== SCREEN HEADER (PvE, PvP, History) ===== */
 .arena-screen__header {
   display: flex;
   align-items: center;
@@ -370,248 +698,298 @@
   font-family: 'Rajdhani', sans-serif;
   font-size: 1.2rem;
   font-weight: 700;
-  color: var(--cf-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
+.arena-screen__header h2 i { color: var(--arena-xp); }
 
-/* --- Boss Ladder --- */
-
-.arena-boss-ladder { display: flex; flex-direction: column; gap: 0.75rem; }
-
+/* ===== PVE BOSS TOWER ===== */
+.arena-boss-tower {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+/* Keep legacy class for JS compat */
+.arena-boss-ladder {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
 .arena-boss-card {
   display: flex;
   align-items: center;
   gap: 1rem;
   padding: 1rem;
-  border: 1px solid rgba(255,255,255,0.06);
+  border: 1px solid var(--arena-border);
   border-radius: 12px;
-  background: rgba(255,255,255,0.02);
+  background: var(--arena-surface);
   transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
 }
-.arena-boss-card:not(.arena-boss-card--locked):hover { border-color: rgba(139, 92, 246,0.2); background: rgba(139, 92, 246,0.03); }
-.arena-boss-card--locked { opacity: 0.45; }
-
+.arena-boss-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--arena-xp);
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.arena-boss-card:not(.arena-boss-card--locked):hover {
+  border-color: rgba(139, 92, 246, 0.2);
+  background: rgba(15, 23, 42, 0.8);
+}
+.arena-boss-card:not(.arena-boss-card--locked):hover::before { opacity: 1; }
+.arena-boss-card--locked { opacity: 0.35; }
 .arena-boss-card__level {
   font-family: 'Orbitron', monospace;
   font-size: 0.72rem;
   font-weight: 700;
-  color: var(--mood-primary-color, #A78BFA);
+  color: var(--arena-xp);
   min-width: 44px;
   text-align: center;
 }
-
 .arena-boss-card__avatar {
   width: 56px;
   height: 56px;
   border-radius: 10px;
   overflow: hidden;
-  background: rgba(255,255,255,0.06);
+  background: rgba(255, 255, 255, 0.04);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.4rem;
-  color: var(--cf-danger);
   flex-shrink: 0;
 }
 .arena-boss-card__avatar img { width: 100%; height: 100%; object-fit: cover; }
-.arena-boss-card--locked .arena-boss-card__avatar { color: var(--cf-text-dim); }
-
-.arena-boss-card__info { flex: 1; }
-.arena-boss-card__name { font-family: 'Rajdhani', sans-serif; font-size: 1rem; font-weight: 700; color: var(--cf-text-primary); }
-.arena-boss-card__class { font-size: 0.75rem; color: var(--cf-text-muted); }
-.arena-boss-card__bio { font-size: 0.75rem; color: var(--cf-text-dim); margin-top: 0.2rem; }
-.arena-boss-card__stats { font-size: 0.7rem; color: var(--cf-text-secondary); margin-top: 0.3rem; display: flex; gap: 0.5rem; flex-wrap: wrap; }
-
+.arena-boss-card__info { flex: 1; min-width: 0; }
+.arena-boss-card__name {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+}
+.arena-boss-card__class { font-size: 0.75rem; color: var(--arena-text-dim); }
+.arena-boss-card__bio { font-size: 0.72rem; color: var(--arena-text-dim); font-style: italic; margin-top: 0.2rem; }
+.arena-boss-card__stats {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.3rem;
+  font-size: 0.68rem;
+  color: var(--arena-text-muted);
+}
 .arena-boss-card__action { flex-shrink: 0; }
-.arena-boss-card__locked-label { font-size: 0.78rem; color: var(--cf-text-dim); }
 
-/* --- Gallery Grid --- */
-
+/* ===== PVP GALLERY GRID ===== */
 .arena-gallery-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
   gap: 1rem;
 }
-
 .arena-gallery-card {
   padding: 1rem;
-  border: 1px solid rgba(255,255,255,0.06);
+  border: 1px solid var(--arena-border);
   border-radius: 12px;
-  background: rgba(255,255,255,0.02);
+  background: var(--arena-surface);
   text-align: center;
   transition: all 0.2s ease;
+  cursor: pointer;
 }
-.arena-gallery-card:hover { border-color: rgba(139, 92, 246,0.2); }
-
+.arena-gallery-card:hover {
+  border-color: rgba(59, 130, 246, 0.25);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
 .arena-gallery-card__avatar {
   width: 64px;
   height: 64px;
   border-radius: 50%;
   overflow: hidden;
   margin: 0 auto 0.5rem;
-  background: rgba(255,255,255,0.06);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  color: var(--cf-text-dim);
+  background: rgba(255, 255, 255, 0.04);
 }
 .arena-gallery-card__avatar img { width: 100%; height: 100%; object-fit: cover; }
-.arena-gallery-card__name { font-size: 0.82rem; font-weight: 600; color: var(--cf-text-primary); margin-bottom: 0.15rem; }
-.arena-gallery-card__class { font-size: 0.72rem; color: var(--cf-text-muted); margin-bottom: 0.5rem; }
+.arena-gallery-card__name { font-size: 0.85rem; font-weight: 600; margin-bottom: 0.15rem; }
+.arena-gallery-card__class { font-size: 0.72rem; color: var(--arena-text-dim); margin-bottom: 0.6rem; }
 
-/* --- Battle Screen --- */
-
+/* ===== BATTLE SCREEN — COMBAT ARENA ===== */
 .arena-battle {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
   position: relative;
-  min-height: calc(100vh - 80px);
-  overflow: hidden;
+  max-width: 960px;
+  margin: 0 auto;
 }
 
-/* Arena floor — subtle grid + radial spotlight */
-.arena-battle::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 90% 60% at 50% 70%, rgba(139, 92, 246, 0.035) 0%, transparent 70%),
-    radial-gradient(ellipse 90% 60% at 50% 70%, rgba(123, 47, 255, 0.02) 0%, transparent 50%),
-    repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(255,255,255,0.012) 59px, rgba(255,255,255,0.012) 60px),
-    repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(255,255,255,0.012) 59px, rgba(255,255,255,0.012) 60px);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Horizon line across the arena */
-.arena-battle::after {
-  content: '';
-  position: absolute;
-  left: 5%;
-  right: 5%;
-  top: 55%;
-  height: 1px;
-  background: linear-gradient(90deg, transparent 0%, rgba(139, 92, 246, 0.1) 30%, rgba(123, 47, 255, 0.08) 70%, transparent 100%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-.arena-battle > * { position: relative; z-index: 1; }
-
+/* Battle header */
 .arena-battle__header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
   padding: 0.6rem 1rem;
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255,255,255,0.04);
+  background: rgba(15, 23, 42, 0.7);
+  border: 1px solid var(--arena-border);
   border-radius: 10px;
-  backdrop-filter: blur(6px);
+  backdrop-filter: blur(8px);
+  margin-bottom: 1rem;
 }
 .arena-battle__round {
   font-family: 'Orbitron', monospace;
   font-size: 0.9rem;
   font-weight: 700;
-  color: var(--mood-primary-color, #A78BFA);
-  text-shadow: 0 0 14px rgba(139, 92, 246, 0.35);
-  letter-spacing: 0.08em;
+  color: var(--arena-xp);
+  text-shadow: 0 0 14px var(--arena-glow-purple);
+  letter-spacing: 0.06em;
   text-transform: uppercase;
 }
 
+/* Combat stage — arena floor */
+.arena-battle__stage {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+.arena-battle__stage::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 90% 60% at 50% 80%, rgba(139, 92, 246, 0.04) 0%, transparent 70%),
+    repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(255, 255, 255, 0.01) 59px, rgba(255, 255, 255, 0.01) 60px),
+    repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(255, 255, 255, 0.01) 59px, rgba(255, 255, 255, 0.01) 60px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Battle field — combatants layout */
 .arena-battle__field {
   display: flex;
   align-items: stretch;
   justify-content: center;
-  gap: 1rem;
-  padding: 2rem 0 1.5rem;
+  gap: 1.5rem;
+  padding: 2rem 1rem;
+  position: relative;
+  z-index: 1;
 }
 
-/* --- Combatant Frames — rectangular with energy borders --- */
-
+/* --- Combatant Pedestals --- */
 .arena-combatant {
+  flex: 1;
+  max-width: 280px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 0.75rem;
-  position: relative;
-  flex: 1;
-  max-width: 240px;
-  padding: 1.25rem 1rem;
+  padding: 1.5rem 1rem;
   border-radius: 16px;
-  background: rgba(8, 8, 24, 0.7);
-  border: 1px solid rgba(255,255,255,0.05);
+  background: rgba(8, 8, 24, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.04);
   backdrop-filter: blur(8px);
   transition: box-shadow 0.4s ease;
 }
-
 .arena-combatant--player {
   border-color: rgba(139, 92, 246, 0.12);
-  box-shadow:
-    0 0 30px rgba(139, 92, 246, 0.04),
-    inset 0 1px 0 rgba(139, 92, 246, 0.08);
-  animation: arena-breathe-cyan 3s ease-in-out infinite;
+  box-shadow: 0 0 30px rgba(139, 92, 246, 0.04), inset 0 1px 0 rgba(139, 92, 246, 0.08);
+  animation: arena-breathe-purple 3s ease-in-out infinite;
 }
-
 .arena-combatant--opponent {
-  border-color: rgba(255, 82, 82, 0.12);
-  box-shadow:
-    0 0 30px rgba(255, 82, 82, 0.04),
-    inset 0 1px 0 rgba(255, 82, 82, 0.08);
+  border-color: rgba(244, 63, 94, 0.12);
+  box-shadow: 0 0 30px rgba(244, 63, 94, 0.04), inset 0 1px 0 rgba(244, 63, 94, 0.08);
   animation: arena-breathe-red 3s ease-in-out infinite;
 }
+.arena-combatant--hit {
+  animation: arena-hit-shake 0.4s ease-out !important;
+}
 
-/* Card portrait — rectangular with glow */
+/* Card portrait frame */
+.arena-combatant__frame {
+  position: relative;
+}
 .arena-combatant__card {
   width: 120px;
   height: 150px;
   border-radius: 12px;
   overflow: hidden;
-  background: rgba(255,255,255,0.03);
+  background: rgba(255, 255, 255, 0.04);
+  border: 2px solid rgba(255, 255, 255, 0.06);
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 2px solid rgba(255,255,255,0.06);
-  box-shadow: 0 6px 24px rgba(0,0,0,0.5);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-
+.arena-combatant__card img { width: 100%; height: 100%; object-fit: cover; }
 .arena-combatant--player .arena-combatant__card {
   border-color: rgba(139, 92, 246, 0.25);
-  box-shadow:
-    0 6px 24px rgba(0, 0, 0, 0.5),
-    0 0 20px rgba(139, 92, 246, 0.1),
-    inset 0 0 20px rgba(139, 92, 246, 0.03);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5), 0 0 20px rgba(139, 92, 246, 0.1);
 }
-
 .arena-combatant--opponent .arena-combatant__card {
-  border-color: rgba(255, 82, 82, 0.25);
-  box-shadow:
-    0 6px 24px rgba(0, 0, 0, 0.5),
-    0 0 20px rgba(255, 82, 82, 0.1),
-    inset 0 0 20px rgba(255, 82, 82, 0.03);
+  border-color: rgba(244, 63, 94, 0.25);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5), 0 0 20px rgba(244, 63, 94, 0.1);
 }
 
-.arena-combatant__img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
-.arena-combatant__placeholder { font-size: 2.8rem; color: #404060; }
-
+/* Name plate */
+.arena-combatant__nameplate {
+  text-align: center;
+}
 .arena-combatant__name {
   font-family: 'Rajdhani', sans-serif;
-  font-size: 1.05rem;
+  font-size: 0.95rem;
   font-weight: 700;
-  color: var(--cf-text-primary);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  color: var(--arena-text);
+  letter-spacing: 0.03em;
+}
+
+/* --- HP Bars --- */
+.arena-hp-bar {
+  width: 100%;
+}
+.arena-hp-bar__track {
+  height: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent 0px,
+    transparent 9px,
+    rgba(0, 0, 0, 0.25) 9px,
+    rgba(0, 0, 0, 0.25) 10px
+  );
+}
+.arena-hp-bar__fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+.arena-hp-bar__fill--player {
+  background: linear-gradient(90deg, #059669, var(--arena-win), #34D399);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 0 8px var(--arena-glow-green);
+}
+.arena-hp-bar__fill--opponent {
+  background: linear-gradient(90deg, #B91C1C, var(--arena-loss), #FB923C);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 0 8px var(--arena-glow-red);
+}
+.arena-hp-bar__fill--low {
+  background: linear-gradient(90deg, #7F1D1D, #DC2626) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 0 12px rgba(220, 38, 38, 0.4) !important;
+  animation: arena-hp-pulse 0.8s ease-in-out infinite;
+}
+.arena-hp-bar__text,
+.arena-hp-text {
+  font-family: 'Orbitron', monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--arena-text-muted);
+  text-align: center;
+  margin-top: 0.25rem;
 }
 
 /* --- VS Clash Divider --- */
-
 .arena-battle__vs {
-  font-family: 'Orbitron', monospace;
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: rgba(255,255,255,0.06);
-  text-shadow: 0 0 30px rgba(139, 92, 246, 0.12);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -620,15 +998,20 @@
   width: 50px;
   align-self: center;
 }
-
-/* Energy lines flanking VS */
+.arena-battle__vs-text {
+  font-family: 'Orbitron', monospace;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.08);
+  text-shadow: 0 0 24px var(--arena-glow-purple);
+}
 .arena-battle__vs::before,
 .arena-battle__vs::after {
   content: '';
   position: absolute;
   width: 1px;
-  height: 70%;
-  top: 15%;
+  height: 60%;
+  top: 20%;
 }
 .arena-battle__vs::before {
   left: 4px;
@@ -637,139 +1020,91 @@
 }
 .arena-battle__vs::after {
   right: 4px;
-  background: linear-gradient(180deg, transparent, rgba(255, 82, 82, 0.25), transparent);
+  background: linear-gradient(180deg, transparent, rgba(244, 63, 94, 0.25), transparent);
   animation: arena-vs-flicker 2.5s ease-in-out infinite 1.25s;
 }
 
-/* --- HP Bars --- */
-
-.arena-hp-bar {
-  width: 100%;
-  height: 16px;
-  background: rgba(255,255,255,0.04);
-  border-radius: 3px;
-  overflow: hidden;
-  position: relative;
-  border: 1px solid rgba(255,255,255,0.06);
-}
-
-/* Segmented overlay */
-.arena-hp-bar::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    90deg,
-    transparent 0px,
-    transparent 9px,
-    rgba(0,0,0,0.3) 9px,
-    rgba(0,0,0,0.3) 10px
-  );
-  pointer-events: none;
-  z-index: 1;
-}
-
-.arena-hp-bar__fill {
-  height: 100%;
-  border-radius: 2px;
-  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
-}
-
-.arena-hp-bar__fill--player {
-  background: linear-gradient(90deg, #00a8cc, #A78BFA, #00e676);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 0 8px rgba(139, 92, 246, 0.3);
-}
-.arena-hp-bar__fill--opponent {
-  background: linear-gradient(90deg, #cc3333, #ff5252, #ff9100);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.2), 0 0 8px rgba(255, 82, 82, 0.3);
-}
-.arena-hp-bar__fill--low {
-  background: linear-gradient(90deg, #991111, #ff3333) !important;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 0 12px rgba(255, 50, 50, 0.4) !important;
-  animation: arena-hp-pulse 0.8s ease-in-out infinite;
-}
-
-.arena-hp-text {
-  font-family: 'Orbitron', monospace;
-  font-size: 0.68rem;
-  font-weight: 500;
-  color: #707090;
-  text-align: center;
-  letter-spacing: 0.05em;
-  margin-top: 0.2rem;
-}
-
 /* --- Battle Log --- */
-
 .arena-battle__log {
-  max-height: 150px;
+  max-height: 140px;
   overflow-y: auto;
-  padding: 0.75rem 1rem;
-  border: 1px solid rgba(255,255,255,0.03);
+  padding: 0.6rem 0.8rem;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--arena-border);
   border-radius: 10px;
-  background: rgba(0,0,0,0.4);
-  backdrop-filter: blur(6px);
-  font-size: 0.78rem;
+  backdrop-filter: blur(4px);
   font-family: 'Rajdhani', sans-serif;
-  letter-spacing: 0.02em;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  margin-bottom: 1rem;
+  mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 100%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 100%);
   scrollbar-width: thin;
-  scrollbar-color: rgba(255,255,255,0.08) transparent;
-  position: relative;
+  scrollbar-color: rgba(139, 92, 246, 0.15) transparent;
 }
-
-/* Fade-out mask at top */
-.arena-battle__log::before {
-  content: '';
-  position: sticky;
-  top: 0;
-  display: block;
-  height: 20px;
-  margin: -0.75rem -1rem 0;
-  background: linear-gradient(180deg, rgba(0,0,0,0.5) 0%, transparent 100%);
-  pointer-events: none;
-  z-index: 1;
-}
-
 .arena-log-entry {
-  padding: 0.3rem 0;
-  color: #8888a8;
-  border-bottom: 1px solid rgba(255,255,255,0.02);
+  padding: 0.25rem 0;
+  color: var(--arena-text-dim);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
   animation: arena-log-fade-in 0.3s ease-out;
 }
-.arena-log-entry:last-child { border-bottom: none; color: #b0b0d0; }
-.arena-log-entry--info { color: var(--mood-primary-color, #A78BFA); text-shadow: 0 0 8px rgba(139, 92, 246, 0.15); }
-.arena-log-entry--event { color: var(--cf-warning); text-shadow: 0 0 8px rgba(255, 215, 64, 0.15); }
-.arena-log-entry--error { color: var(--cf-danger); text-shadow: 0 0 8px rgba(255, 82, 82, 0.15); }
+.arena-log-entry:last-child { border-bottom: none; color: var(--arena-text-muted); }
+.arena-log-entry--info { color: var(--arena-xp); text-shadow: 0 0 8px rgba(139, 92, 246, 0.15); }
+.arena-log-entry--event { color: var(--arena-gold); text-shadow: 0 0 8px rgba(245, 158, 11, 0.15); }
+.arena-log-entry--error { color: var(--arena-loss); text-shadow: 0 0 8px rgba(244, 63, 94, 0.15); }
 
-/* --- Move Buttons --- */
-
+/* --- Command Deck: Move Buttons --- */
 .arena-battle__moves {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 0.6rem;
-  padding-top: 0.75rem;
 }
-
 .arena-move-btn {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.35rem;
-  padding: 1.1rem 0.6rem 0.9rem;
-  border: 1px solid rgba(255,255,255,0.06);
+  gap: 0.3rem;
+  padding: 1rem 0.5rem 0.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 14px;
   background: rgba(10, 10, 28, 0.7);
   backdrop-filter: blur(6px);
-  color: var(--cf-text-primary);
-  font-family: 'Rajdhani', sans-serif;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  position: relative;
+  transition: all 0.2s ease;
+  color: var(--arena-text);
+  font-family: 'Inter', sans-serif;
   overflow: hidden;
 }
+.arena-move-btn__glow {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+.arena-move-btn--strike .arena-move-btn__glow { background: radial-gradient(ellipse at 50% 80%, rgba(244, 63, 94, 0.08) 0%, transparent 70%); }
+.arena-move-btn--guard .arena-move-btn__glow { background: radial-gradient(ellipse at 50% 80%, rgba(139, 92, 246, 0.08) 0%, transparent 70%); }
+.arena-move-btn--ability .arena-move-btn__glow { background: radial-gradient(ellipse at 50% 80%, rgba(124, 58, 237, 0.08) 0%, transparent 70%); }
+.arena-move-btn--heal .arena-move-btn__glow { background: radial-gradient(ellipse at 50% 80%, rgba(34, 197, 94, 0.08) 0%, transparent 70%); }
+.arena-move-btn:hover:not(:disabled) .arena-move-btn__glow { opacity: 1; }
 
-/* Glow underline on hover */
+.arena-move-btn i { font-size: 1.3rem; transition: transform 0.2s ease, filter 0.2s ease; }
+.arena-move-btn--strike i { color: var(--arena-loss); }
+.arena-move-btn--guard i { color: var(--arena-xp); }
+.arena-move-btn--ability i { color: #7C3AED; }
+.arena-move-btn--heal i { color: var(--arena-win); }
+
+.arena-move-btn:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); }
+.arena-move-btn:hover:not(:disabled) i { transform: scale(1.15); }
+.arena-move-btn:active:not(:disabled) { transform: translateY(-1px) scale(0.97); }
+
+.arena-move-btn--strike:hover:not(:disabled) { border-color: rgba(244, 63, 94, 0.3); }
+.arena-move-btn--guard:hover:not(:disabled) { border-color: rgba(139, 92, 246, 0.3); }
+.arena-move-btn--ability:hover:not(:disabled) { border-color: rgba(124, 58, 237, 0.3); }
+.arena-move-btn--heal:hover:not(:disabled) { border-color: rgba(34, 197, 94, 0.3); }
+
+/* Glow underline */
 .arena-move-btn::after {
   content: '';
   position: absolute;
@@ -777,640 +1112,306 @@
   left: 20%;
   right: 20%;
   height: 2px;
-  border-radius: 2px;
-  background: currentColor;
+  border-radius: 1px;
   opacity: 0;
-  transition: opacity 0.25s ease, left 0.25s ease, right 0.25s ease;
+  transition: opacity 0.2s ease, left 0.2s ease, right 0.2s ease;
 }
-.arena-move-btn:hover:not(:disabled)::after {
-  opacity: 0.5;
-  left: 10%;
-  right: 10%;
-}
+.arena-move-btn--strike::after { background: var(--arena-loss); }
+.arena-move-btn--guard::after { background: var(--arena-xp); }
+.arena-move-btn--ability::after { background: #7C3AED; }
+.arena-move-btn--heal::after { background: var(--arena-win); }
+.arena-move-btn:hover:not(:disabled)::after { opacity: 0.5; left: 10%; right: 10%; }
 
-.arena-move-btn:hover:not(:disabled) {
-  transform: translateY(-4px) scale(1.02);
-  border-color: rgba(255,255,255,0.12);
-}
-.arena-move-btn:active:not(:disabled) {
-  transform: translateY(-1px) scale(0.98);
-  transition-duration: 0.1s;
-}
-.arena-move-btn:disabled {
-  opacity: 0.25;
-  cursor: not-allowed;
-  filter: grayscale(0.5);
-}
-
-.arena-move-btn i {
-  font-size: 1.8rem;
-  transition: transform 0.3s ease, filter 0.3s ease;
-}
-.arena-move-btn:hover:not(:disabled) i {
-  transform: scale(1.15);
-  filter: drop-shadow(0 0 6px currentColor);
-}
-
-/* --- Strike --- */
-.arena-move-btn--strike { border-color: rgba(255,82,82,0.12); }
-.arena-move-btn--strike:hover:not(:disabled) {
-  border-color: rgba(255,82,82,0.35);
-  background: rgba(255,82,82,0.06);
-  box-shadow: 0 8px 32px rgba(255,82,82,0.12), inset 0 0 30px rgba(255,82,82,0.03);
-}
-.arena-move-btn--strike i { color: var(--cf-danger); }
-
-/* --- Guard --- */
-.arena-move-btn--guard { border-color: rgba(139, 92, 246,0.12); }
-.arena-move-btn--guard:hover:not(:disabled) {
-  border-color: rgba(139, 92, 246,0.35);
-  background: rgba(139, 92, 246,0.06);
-  box-shadow: 0 8px 32px rgba(139, 92, 246,0.12), inset 0 0 30px rgba(139, 92, 246,0.03);
-}
-.arena-move-btn--guard i { color: var(--mood-primary-color, #A78BFA); }
-
-/* --- Ability --- */
-.arena-move-btn--ability { border-color: rgba(123,47,255,0.12); }
-.arena-move-btn--ability:hover:not(:disabled) {
-  border-color: rgba(123,47,255,0.35);
-  background: rgba(123,47,255,0.06);
-  box-shadow: 0 8px 32px rgba(123,47,255,0.12), inset 0 0 30px rgba(123,47,255,0.03);
-}
-.arena-move-btn--ability i { color: #7b2fff; }
-
-/* --- Heal --- */
-.arena-move-btn--heal { border-color: rgba(0,230,118,0.12); }
-.arena-move-btn--heal:hover:not(:disabled) {
-  border-color: rgba(0,230,118,0.35);
-  background: rgba(0,230,118,0.06);
-  box-shadow: 0 8px 32px rgba(0,230,118,0.12), inset 0 0 30px rgba(0,230,118,0.03);
-}
-.arena-move-btn--heal i { color: var(--cf-success); }
-
-.arena-move-btn__label {
-  font-size: 0.9rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
+.arena-move-btn__label { font-size: 0.78rem; font-weight: 700; }
 .arena-move-btn__stat {
   font-family: 'Orbitron', monospace;
-  font-size: 0.62rem;
-  color: #707090;
-  letter-spacing: 0.06em;
+  font-size: 0.6rem;
+  font-weight: 600;
+  color: var(--arena-text-dim);
+  letter-spacing: 0.05em;
 }
 .arena-move-btn__desc {
   font-size: 0.62rem;
-  color: #505068;
-  font-style: italic;
-  font-family: 'Inter', sans-serif;
+  color: var(--arena-text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 .arena-move-btn__charge {
   font-family: 'Orbitron', monospace;
-  font-size: 0.6rem;
-  color: #9090b0;
-  background: rgba(123, 47, 255, 0.1);
-  border: 1px solid rgba(123, 47, 255, 0.15);
-  padding: 2px 8px;
-  border-radius: 10px;
-  margin-top: 2px;
-  letter-spacing: 0.05em;
+  font-size: 0.58rem;
+  font-weight: 700;
+  padding: 0.1rem 0.35rem;
+  background: rgba(124, 58, 237, 0.2);
+  border: 1px solid rgba(124, 58, 237, 0.3);
+  border-radius: 4px;
+  color: #7C3AED;
+  letter-spacing: 0.04em;
 }
-.arena-move-btn--locked {
-  opacity: 0.3;
-  cursor: not-allowed;
-  pointer-events: none;
-  filter: grayscale(0.6);
+.arena-move-btn:disabled { opacity: 0.25; filter: grayscale(0.5); cursor: not-allowed; transform: none; }
+
+/* --- Player Buffs --- */
+.arena-player-buffs { display: flex; flex-wrap: wrap; gap: 0.3rem; justify-content: center; }
+.arena-buff-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 6px;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.25);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.65rem;
+  font-weight: 600;
+  white-space: nowrap;
 }
-.arena-move-btn--locked:hover { background: none; border-color: inherit; box-shadow: none; }
+.arena-buff-chip i { font-size: 0.55rem; color: var(--arena-xp); }
 
-/* --- Damage Float --- */
-
+/* --- Damage Floaters --- */
 .arena-dmg-float {
   position: absolute;
-  top: 10px;
+  top: 0;
   left: 50%;
-  transform: translateX(-50%) scale(0.5);
   font-family: 'Orbitron', monospace;
   font-size: 1.6rem;
   font-weight: 700;
-  color: var(--cf-danger);
-  text-shadow: 0 0 12px rgba(255, 82, 82, 0.5), 0 2px 4px rgba(0,0,0,0.6);
   pointer-events: none;
+  z-index: var(--cf-z-raised, 10);
   animation: arena-dmg-float 1.4s cubic-bezier(0.2, 0, 0.2, 1) forwards;
-  z-index: 10;
+}
+.arena-dmg-float--damage {
+  color: var(--arena-loss);
+  text-shadow: 0 0 8px var(--arena-glow-red), 0 0 16px var(--arena-glow-red);
 }
 .arena-dmg-float--heal {
-  color: var(--cf-success);
-  text-shadow: 0 0 12px rgba(0, 230, 118, 0.5), 0 2px 4px rgba(0,0,0,0.6);
+  color: var(--arena-win);
+  text-shadow: 0 0 8px var(--arena-glow-green), 0 0 16px var(--arena-glow-green);
 }
 
-/* --- Results Screen --- */
-
+/* ===== RESULTS — VICTORY CEREMONY ===== */
 .arena-results {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1.5rem;
-  padding: 2rem 1rem;
+  justify-content: center;
+  gap: 2rem;
+  min-height: 60vh;
+  padding: 2rem;
   text-align: center;
 }
-
 .arena-results__banner {
-  padding: 2rem;
-  border-radius: 16px;
+  padding: 2.5rem 3rem;
+  border-radius: 20px;
   width: 100%;
   max-width: 500px;
+  position: relative;
+  overflow: hidden;
 }
-.arena-results__banner--win { background: linear-gradient(135deg, rgba(0,230,118,0.1), rgba(139, 92, 246,0.1)); border: 1px solid rgba(0,230,118,0.2); }
-.arena-results__banner--loss { background: linear-gradient(135deg, rgba(255,82,82,0.1), rgba(255,145,0,0.1)); border: 1px solid rgba(255,82,82,0.2); }
-.arena-results__banner--draw { background: linear-gradient(135deg, rgba(255,215,64,0.1), rgba(255,145,0,0.1)); border: 1px solid rgba(255,215,64,0.2); }
-
+.arena-results__banner--win {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(139, 92, 246, 0.08));
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+.arena-results__banner--loss {
+  background: linear-gradient(135deg, rgba(244, 63, 94, 0.1), rgba(251, 146, 60, 0.08));
+  border: 1px solid rgba(244, 63, 94, 0.2);
+}
+.arena-results__banner--draw {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(251, 146, 60, 0.08));
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
 .arena-results__banner h1 {
   font-family: 'Orbitron', monospace;
-  font-size: 2rem;
+  font-size: 2.2rem;
+  font-weight: 700;
   margin-bottom: 0.3rem;
+  letter-spacing: 0.06em;
 }
-.arena-results__banner--win h1 { color: var(--cf-success); }
-.arena-results__banner--loss h1 { color: var(--cf-danger); }
-.arena-results__banner--draw h1 { color: var(--cf-warning); }
-
-.arena-results__banner p { font-size: 0.9rem; color: var(--cf-text-secondary); }
+.arena-results__banner--win h1 { color: var(--arena-win); text-shadow: 0 0 20px var(--arena-glow-green), 0 0 40px rgba(34, 197, 94, 0.15); }
+.arena-results__banner--loss h1 { color: var(--arena-loss); text-shadow: 0 0 20px var(--arena-glow-red); }
+.arena-results__banner--draw h1 { color: var(--arena-gold); text-shadow: 0 0 20px var(--arena-glow-gold); }
+.arena-results__banner p { font-size: 0.9rem; color: var(--arena-text-muted); }
 
 .arena-results__xp { width: 100%; max-width: 400px; }
 .arena-results__xp-amount {
   font-family: 'Orbitron', monospace;
-  font-size: 1.4rem;
+  font-size: 1.5rem;
   font-weight: 700;
-  color: var(--mood-primary-color, #A78BFA);
+  color: var(--arena-xp);
   margin-bottom: 0.75rem;
+  text-shadow: 0 0 12px var(--arena-glow-purple);
 }
-
+.arena-results__bar-wrap { margin-bottom: 0.75rem; }
 .arena-results__rank-up {
-  margin-top: 0.75rem;
   font-family: 'Rajdhani', sans-serif;
   font-size: 1.1rem;
   font-weight: 700;
-  color: var(--cf-warning);
+  color: var(--arena-gold);
   animation: arena-rankup-glow 1.5s ease-in-out infinite;
 }
-
 .arena-results__actions { display: flex; gap: 0.75rem; }
 
-/* --- Loading / Error / Empty States --- */
+/* ===== SCREEN CONTAINERS ===== */
+.arena-history { max-width: 700px; margin: 0 auto; }
+.arena-pve { max-width: 700px; margin: 0 auto; }
+.arena-pvp { max-width: 960px; margin: 0 auto; }
 
-.arena-loading, .arena-error, .arena-empty-state {
-  padding: 2rem;
-  text-align: center;
-  color: var(--cf-text-muted);
-  font-size: 0.85rem;
-}
-.arena-loading i { color: var(--mood-primary-color, #A78BFA); margin-right: 0.5rem; }
-.arena-error { color: var(--cf-danger); }
-
-/* --- Animations --- */
-
-@keyframes arena-dmg-float {
-  0% {
-    opacity: 0;
-    transform: translateX(-50%) translateY(0) scale(0.5);
-  }
-  15% {
-    opacity: 1;
-    transform: translateX(-50%) translateY(-10px) scale(1.3);
-  }
-  30% {
-    transform: translateX(-50%) translateY(-18px) scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: translateX(-50%) translateY(-70px) scale(0.8);
-  }
-}
-
-@keyframes arena-hp-pulse {
-  0%, 100% { opacity: 1; box-shadow: inset 0 1px 0 rgba(255,255,255,0.15), 0 0 12px rgba(255, 50, 50, 0.4); }
-  50% { opacity: 0.65; box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 0 20px rgba(255, 50, 50, 0.6); }
-}
-
-@keyframes arena-rankup-glow {
-  0%, 100% { text-shadow: 0 0 10px rgba(255,215,64,0.3); }
-  50% { text-shadow: 0 0 20px rgba(255,215,64,0.6); }
-}
-
-/* Combatant breathing glow */
-@keyframes arena-breathe-cyan {
-  0%, 100% {
-    box-shadow: 0 0 30px rgba(139, 92, 246, 0.04), inset 0 1px 0 rgba(139, 92, 246, 0.08);
-  }
-  50% {
-    box-shadow: 0 0 40px rgba(139, 92, 246, 0.08), inset 0 1px 0 rgba(139, 92, 246, 0.12);
-  }
-}
-
-@keyframes arena-breathe-red {
-  0%, 100% {
-    box-shadow: 0 0 30px rgba(255, 82, 82, 0.04), inset 0 1px 0 rgba(255, 82, 82, 0.08);
-  }
-  50% {
-    box-shadow: 0 0 40px rgba(255, 82, 82, 0.08), inset 0 1px 0 rgba(255, 82, 82, 0.12);
-  }
-}
-
-/* VS energy line flicker */
-@keyframes arena-vs-flicker {
-  0%, 100% { opacity: 0.4; height: 50%; }
-  50% { opacity: 1; height: 80%; }
-}
-
-/* Battle log entry fade-in */
-@keyframes arena-log-fade-in {
-  from { opacity: 0; transform: translateY(6px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Hit shake — apply via JS class .arena-combatant--hit */
-@keyframes arena-hit-shake {
-  0%, 100% { transform: translateX(0); }
-  15% { transform: translateX(-6px); }
-  30% { transform: translateX(5px); }
-  45% { transform: translateX(-4px); }
-  60% { transform: translateX(3px); }
-  75% { transform: translateX(-2px); }
-}
-.arena-combatant--hit {
-  animation: arena-hit-shake 0.4s ease-out;
-}
-
-/* --- Responsive --- */
-
-@media (max-width: 768px) {
-  .arena-screen { padding: 1rem; }
-  .arena-modes { flex-direction: column; }
-  .arena-battle__field { gap: 0.5rem; padding: 1.5rem 0 1rem; }
-  .arena-combatant { padding: 1rem 0.75rem; max-width: 180px; }
-  .arena-combatant__card { width: 96px; height: 120px; }
-  .arena-battle__vs { width: 36px; font-size: 1.2rem; }
-  .arena-battle__moves { grid-template-columns: repeat(4, 1fr); gap: 0.4rem; }
-  .arena-move-btn { padding: 0.85rem 0.4rem 0.7rem; border-radius: 12px; }
-  .arena-move-btn i { font-size: 1.4rem; }
-  .arena-move-btn__desc { display: none; }
-  .arena-progress { flex-direction: column; text-align: center; }
-  .arena-progress__stats { flex-direction: row; gap: 0.75rem; justify-content: center; }
-  .arena-champion__card { flex-direction: column; align-items: center; text-align: center; }
-}
-
-@media (max-width: 480px) {
-  .arena-topbar { padding: 0.5rem 1rem; }
-  .arena-topbar__title { font-size: 0.9rem; }
-  .arena-battle__field { flex-direction: row; gap: 0.25rem; padding: 1rem 0; }
-  .arena-combatant { padding: 0.75rem 0.5rem; border-radius: 12px; }
-  .arena-combatant__card { width: 72px; height: 90px; border-radius: 8px; }
-  .arena-combatant__name { font-size: 0.82rem; }
-  .arena-battle__vs { font-size: 0.9rem; width: 28px; }
-  .arena-battle__moves { grid-template-columns: repeat(2, 1fr); gap: 0.5rem; }
-  .arena-move-btn { padding: 0.9rem 0.5rem; }
-  .arena-move-btn i { font-size: 1.5rem; }
-  .arena-move-btn__label { font-size: 0.82rem; }
-  .arena-hp-bar { height: 12px; }
-  .arena-results__banner h1 { font-size: 1.5rem; }
-  .arena-gallery-grid { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
-  .arena-demo-banner { font-size: 0.78rem; padding: 0.5rem 1rem; }
-}
-
-/* --- Demo Mode Banner --- */
-
-.arena-demo-banner {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.6rem 1.2rem;
-  margin-bottom: 1rem;
-  background: rgba(255, 180, 50, 0.12);
-  border: 1px solid rgba(255, 180, 50, 0.25);
-  border-radius: 8px;
-  color: #ffc966;
-  font-size: 0.85rem;
-  font-weight: 500;
-}
-.arena-demo-banner i {
-  font-size: 1rem;
-  color: #ffb432;
-}
-.arena-demo-banner a {
-  color: var(--mood-primary-color, #A78BFA);
-  text-decoration: underline;
-  font-weight: 600;
-}
-.arena-demo-banner a:hover {
-  color: #33e0ff;
-}
-
-/* --- Arena Auth Link (top bar login) --- */
-
-.arena-auth-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.3rem 0.7rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--mood-primary-color, #A78BFA);
-  text-decoration: none;
-  border: 1px solid rgba(139, 92, 246, 0.3);
-  border-radius: 6px;
-  transition: background 0.2s, border-color 0.2s;
-}
-.arena-auth-link:hover {
-  background: rgba(139, 92, 246, 0.1);
-  border-color: rgba(139, 92, 246, 0.5);
-}
-.arena-auth-link--logout {
-  color: var(--cf-text-secondary);
-  border-color: rgba(255,255,255,0.1);
-  padding: 0.25rem 0.5rem;
-  font-size: 0.75rem;
-}
-.arena-auth-link--logout:hover {
-  color: var(--cf-danger);
-  border-color: rgba(255, 82, 82, 0.3);
-  background: rgba(255, 82, 82, 0.08);
-}
-
-.arena-user-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  font-size: 0.8rem;
-  color: #c0c0d8;
-}
-.arena-user-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #00e676;
-}
-#arena-user-name {
-  max-width: 100px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-@media (max-width: 600px) { #arena-user-name { display: none; } }
-
-/* ===== Champion Record (inline rank + W/L) ===== */
-.arena-champion__record {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  margin-top: 0.4rem;
-  font-size: 0.8rem;
-  color: #b0b0c8;
-}
-
-.arena-champion__rank-pill {
-  display: inline-block;
-  padding: 0.15rem 0.5rem;
-  border-radius: 9999px;
-  font-size: 0.7rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #fff;
-  background: #6b5b3a;
-}
-
-.arena-champion__rank-pill--bronze { background: #8d6e3f; }
-.arena-champion__rank-pill--silver { background: #6b7b8d; }
-.arena-champion__rank-pill--gold { background: #b8952f; }
-.arena-champion__rank-pill--platinum { background: #5f8a8a; }
-.arena-champion__rank-pill--diamond { background: #5b6fbf; }
-.arena-champion__rank-pill--master { background: #7b3fa0; }
-.arena-champion__rank-pill--legend { background: linear-gradient(135deg, #b8952f, #e06030); }
-
-/* ===== Rank Rewards Panel ===== */
-
-.arena-rewards__toggle {
-  background: none;
-  border: none;
-  color: var(--cf-text-muted);
-  cursor: pointer;
-  font-size: 0.75rem;
-  padding: 0.2rem 0.4rem;
-  margin-left: auto;
-  transition: color 0.2s ease;
-}
-.arena-rewards__toggle:hover { color: var(--mood-primary-color, #A78BFA); }
-
-.arena-rewards {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.arena-rewards__tier {
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 10px;
-  background: rgba(255,255,255,0.02);
-  overflow: hidden;
-  transition: opacity 0.2s ease;
-}
-
-.arena-rewards__tier--locked { opacity: 0.45; }
-.arena-rewards__tier--unlocked { opacity: 1; }
-
-.arena-rewards__tier--current {
-  border-color: rgba(139, 92, 246,0.25);
-  background: rgba(139, 92, 246,0.04);
-  opacity: 1;
-}
-
-.arena-rewards__tier-header {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.6rem 0.8rem;
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--cf-text-primary);
-}
-
-.arena-rewards__tier-icon {
-  font-size: 1rem;
-  width: 24px;
-  text-align: center;
-}
-
-.arena-rewards__tier-label {
-  font-family: 'Rajdhani', sans-serif;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.arena-rewards__tier-xp {
-  font-size: 0.7rem;
-  color: var(--cf-text-muted);
-  margin-left: auto;
-}
-
-.arena-rewards__tier-state {
-  font-size: 0.7rem;
-  width: 18px;
-  text-align: center;
-}
-.arena-rewards__tier--unlocked .arena-rewards__tier-state { color: var(--cf-success); }
-.arena-rewards__tier--locked .arena-rewards__tier-state { color: var(--cf-text-dim); }
-
-.arena-rewards__tier-body {
-  padding: 0 0.8rem 0.6rem;
-  font-size: 0.75rem;
-  color: var(--cf-text-secondary);
-}
-
-.arena-rewards__category { margin-bottom: 0.2rem; }
-.arena-rewards__category--buffs .arena-rewards__cat-label {
-  color: var(--mood-accent-color, #7b2fff);
-}
-.arena-rewards__category--buffs .arena-rewards__cat-effects {
-  color: var(--mood-primary-color, #e1e1ff);
-}
-
-.arena-rewards__cat-label {
-  font-weight: 600;
-  color: var(--cf-text-muted);
-  text-transform: uppercase;
-  font-size: 0.65rem;
-  letter-spacing: 0.04em;
-}
-
-.arena-rewards__cat-effects { color: #c0c0d0; }
-
-/* ===== Next Rank Preview ===== */
-
-.arena-next-rank-wrap {
-  width: 100%;
-  margin-top: 0.5rem;
-}
-
+/* ===== NEXT RANK PREVIEW ===== */
+.arena-next-rank-wrap { width: 100%; font-size: 0.72rem; color: var(--arena-text-dim); }
 .arena-next-rank {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.75rem;
-  color: var(--cf-text-secondary);
-  background: rgba(255,255,255,0.02);
-  border: 1px solid rgba(255,255,255,0.05);
+  gap: 0.5rem;
+  padding: 0.5rem 0.6rem;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--arena-border);
   border-radius: 8px;
+  font-size: 0.72rem;
 }
 
-.arena-next-rank i {
-  font-size: 0.85rem;
-  flex-shrink: 0;
-}
-
-.arena-next-rank__label {
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.arena-next-rank__label strong { color: var(--cf-text-primary); }
-
-.arena-next-rank__effects {
-  color: var(--cf-text-muted);
-  font-style: italic;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.arena-next-rank--max {
-  color: #B9F2FF;
-  border-color: rgba(185,242,255,0.15);
-  background: rgba(185,242,255,0.04);
-}
-
-/* ===== New Unlocks Toast ===== */
-
+/* ===== UNLOCK TOAST ===== */
 .arena-unlock-toast {
   position: fixed;
-  top: 20px;
-  right: 20px;
-  min-width: 260px;
-  max-width: 380px;
-  padding: 0.85rem 1.1rem;
-  border-radius: 10px;
-  border-left: 4px solid #ffd740;
-  background: rgba(26,26,46,0.94);
+  top: 1rem;
+  right: 1rem;
+  max-width: 300px;
+  padding: 1rem 1.25rem;
+  background: var(--arena-surface);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: 12px;
   backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  color: var(--cf-text-primary);
+  color: var(--arena-text);
   font-size: 0.85rem;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.35), 0 0 0 1px rgba(255,215,64,0.1);
   z-index: var(--cf-z-tooltip, 10000);
-  animation: cf-toast-in 0.35s cubic-bezier(0.22,1,0.36,1) forwards;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 16px var(--arena-glow-gold);
+  animation: cf-toast-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
+.arena-unlock-toast--removing { animation: cf-toast-out 0.3s ease-in forwards; }
 
-.arena-unlock-toast--removing {
-  animation: cf-toast-out 0.3s ease forwards;
+/* ===== LOADING / ERROR / EMPTY ===== */
+.arena-loading, .arena-error { padding: 2rem; text-align: center; color: var(--arena-text-dim); font-size: 0.85rem; }
+.arena-loading i { color: var(--arena-xp); margin-right: 0.5rem; }
+.arena-error { color: var(--arena-loss); }
+
+/* ===================================================================
+   ANIMATIONS
+   =================================================================== */
+@keyframes arena-breathe-purple {
+  0%, 100% { box-shadow: 0 0 30px rgba(139, 92, 246, 0.04), inset 0 1px 0 rgba(139, 92, 246, 0.08); }
+  50% { box-shadow: 0 0 40px rgba(139, 92, 246, 0.08), inset 0 1px 0 rgba(139, 92, 246, 0.12); }
 }
-
-.arena-unlock-toast__header {
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--cf-warning);
-  margin-bottom: 0.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
+@keyframes arena-breathe-red {
+  0%, 100% { box-shadow: 0 0 30px rgba(244, 63, 94, 0.04), inset 0 1px 0 rgba(244, 63, 94, 0.08); }
+  50% { box-shadow: 0 0 40px rgba(244, 63, 94, 0.08), inset 0 1px 0 rgba(244, 63, 94, 0.12); }
 }
-
-.arena-unlock-toast__body {
-  font-size: 0.78rem;
-  color: #c0c0d0;
-  line-height: 1.5;
+/* Legacy name — JS references this */
+@keyframes arena-breathe-cyan {
+  0%, 100% { box-shadow: 0 0 30px rgba(139, 92, 246, 0.04), inset 0 1px 0 rgba(139, 92, 246, 0.08); }
+  50% { box-shadow: 0 0 40px rgba(139, 92, 246, 0.08), inset 0 1px 0 rgba(139, 92, 246, 0.12); }
 }
-
-.arena-unlock-toast__category { margin-bottom: 0.15rem; }
-
-.arena-unlock-toast__cat-name {
-  font-weight: 600;
-  color: var(--cf-text-secondary);
-  text-transform: uppercase;
-  font-size: 0.68rem;
-  letter-spacing: 0.03em;
+@keyframes arena-dmg-float {
+  0% { opacity: 0; transform: translateX(-50%) translateY(0) scale(0.5); }
+  20% { opacity: 1; transform: translateX(-50%) translateY(-20px) scale(1.3); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-80px) scale(0.8); }
 }
-
-/* Toast animations (arena.html doesn't load ui-components.css) */
+@keyframes arena-hp-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+@keyframes arena-rankup-glow {
+  0%, 100% { text-shadow: 0 0 10px rgba(245, 158, 11, 0.3); }
+  50% { text-shadow: 0 0 20px rgba(245, 158, 11, 0.6); }
+}
+@keyframes arena-vs-flicker {
+  0%, 100% { opacity: 0.3; height: 50%; }
+  50% { opacity: 0.8; height: 70%; }
+}
+@keyframes arena-log-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes arena-hit-shake {
+  0% { transform: translateX(0); }
+  15% { transform: translateX(-6px) rotate(-1deg); }
+  30% { transform: translateX(5px) rotate(0.5deg); }
+  45% { transform: translateX(-4px); }
+  60% { transform: translateX(3px); }
+  75% { transform: translateX(-1px); }
+  100% { transform: translateX(0); }
+}
 @keyframes cf-toast-in {
-  from { transform: translateX(110%); opacity: 0; }
-  to   { transform: translateX(0);    opacity: 1; }
+  from { opacity: 0; transform: translateY(-16px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }
 @keyframes cf-toast-out {
-  from { transform: translateX(0);    opacity: 1; }
-  to   { transform: translateX(110%); opacity: 0; }
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(-16px) scale(0.95); }
 }
 
-/* ===== Battle Buff Chips ===== */
-.arena-player-buffs {
-  display: flex; flex-wrap: wrap; gap: 0.25rem; justify-content: center;
-  margin-top: 0.35rem;
-}
-.arena-buff-chip {
-  display: inline-flex; align-items: center; gap: 0.2rem;
-  padding: 0.15rem 0.4rem; border-radius: 6px;
-  background: rgba(139, 92, 246, 0.1); border: 1px solid rgba(139, 92, 246, 0.25);
-  color: rgba(255,255,255,0.8); font-size: 0.65rem; font-weight: 600;
-  white-space: nowrap;
-}
-.arena-buff-chip i { font-size: 0.55rem; color: var(--mood-primary-color, #A78BFA); }
-
-/* ===== Responsive ===== */
+/* ===================================================================
+   RESPONSIVE
+   =================================================================== */
 @media (max-width: 768px) {
+  .arena-hero { grid-template-columns: 1fr; }
+  .arena-rank-hud { flex-direction: row; flex-wrap: wrap; justify-content: center; padding: 1rem; }
+  .arena-rank-hud__insignia { flex-direction: row; gap: 0.75rem; }
+  .arena-rank-hud__xp { flex: 1; min-width: 150px; }
+  .arena-modes { grid-template-columns: 1fr; }
+  .arena-battle__field { gap: 0.75rem; padding: 1.5rem 0.5rem; }
+  .arena-combatant { padding: 1rem 0.75rem; }
+  .arena-combatant__card { width: 96px; height: 120px; }
+  .arena-battle__vs { width: 36px; }
+  .arena-battle__vs-text { font-size: 1rem; }
+  .arena-gallery-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
   .arena-rewards__tier-header { font-size: 0.78rem; }
   .arena-rewards__tier-body { font-size: 0.7rem; }
+}
+
+@media (max-width: 600px) {
+  .arena-topbar__tagline { display: none; }
+}
+
+@media (max-width: 480px) {
+  .arena-screen { padding: 1rem 0.75rem 2rem; }
+  .arena-champion__card { flex-direction: column; align-items: center; text-align: center; }
+  .arena-champion__avatar { width: 72px; height: 72px; }
+  .arena-rank-hud__stats { flex-wrap: wrap; justify-content: center; }
+  .arena-battle__field { flex-direction: column; align-items: center; gap: 0.5rem; padding: 1rem 0.5rem; }
+  .arena-combatant { max-width: 100%; flex-direction: row; gap: 1rem; padding: 0.75rem; }
+  .arena-combatant__card { width: 72px; height: 90px; }
+  .arena-battle__vs { width: auto; height: 30px; }
+  .arena-battle__vs::before, .arena-battle__vs::after { display: none; }
+  .arena-hp-bar__track { height: 8px; }
+  .arena-battle__moves { grid-template-columns: repeat(2, 1fr); }
+  .arena-move-btn { padding: 0.75rem 0.4rem 0.6rem; }
+  .arena-move-btn__desc { display: none; }
+  .arena-results__banner { padding: 1.5rem; }
+  .arena-results__banner h1 { font-size: 1.6rem; }
   .arena-next-rank { flex-wrap: wrap; }
   .arena-buff-chip { font-size: 0.6rem; padding: 0.1rem 0.3rem; }
+}
+
+/* ===== REDUCED MOTION ===== */
+@media (prefers-reduced-motion: reduce) {
+  .arena-combatant--player, .arena-combatant--opponent { animation: none; }
+  .arena-battle__vs::before, .arena-battle__vs::after { animation: none; }
+  .arena-dmg-float { animation-duration: 0.01ms; }
+  .arena-results__rank-up { animation: none; }
+  .arena-move-btn, .arena-mode-card, .arena-card-thumb, .arena-boss-card, .arena-gallery-card { transition-duration: 0.01ms; }
+}
+
+/* ===== FOCUS VISIBLE ===== */
+.arena-move-btn:focus-visible,
+.arena-mode-card:focus-visible,
+.arena-btn:focus-visible,
+.arena-card-thumb:focus-visible {
+  outline: 2px solid var(--arena-xp);
+  outline-offset: 2px;
+}
+.arena-topbar__back:focus-visible,
+.arena-auth-link:focus-visible,
+.arena-rewards__toggle:focus-visible,
+.arena-history-link:focus-visible {
+  outline: 2px solid var(--arena-xp);
+  outline-offset: 2px;
 }

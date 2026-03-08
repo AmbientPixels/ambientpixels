@@ -21,8 +21,10 @@
     <a href="/cardforge/" class="arena-topbar__back" title="Back to Card Forge">
       <i class="fas fa-arrow-left"></i> Forge
     </a>
-    <div class="arena-topbar__title">
-      <i class="fas fa-shield-halved"></i> Card Forge Arena
+    <div class="arena-topbar__brand">
+      <span class="arena-topbar__title">
+        <i class="fas fa-shield-halved"></i> Card Forge Arena
+      </span>
       <span class="arena-topbar__tagline">Forge it. Fight it. Flex it.</span>
     </div>
     <div class="arena-topbar__profile" id="arena-profile-summary">
@@ -41,17 +43,20 @@
     </div>
   </header>
 
-  <!-- Screen: Lobby -->
+  <!-- CRT Scanline overlay (retro-futurism) -->
+  <div class="arena-scanlines" aria-hidden="true"></div>
+
+  <!-- Screen: Lobby / War Room -->
   <div id="arena-screen-lobby" class="arena-screen active">
     <div class="arena-lobby">
 
-      <!-- Demo mode banner (shown by JS for anonymous users) -->
+      <!-- Demo mode banner -->
       <div id="arena-demo-banner" class="arena-demo-banner" style="display:none;">
         <i class="fas fa-flask"></i>
         <span>Demo Mode — <a href="/.auth/login/aad?post_login_redirect_uri=/cardforge/arena.html">Sign in</a> to save your progress</span>
       </div>
 
-      <!-- Auth gate message (fallback for API errors) -->
+      <!-- Auth gate -->
       <div class="arena-auth-gate" id="arena-auth-gate" style="display:none;">
         <div class="arena-auth-gate__icon"><i class="fas fa-exclamation-triangle"></i></div>
         <h2>Could Not Connect</h2>
@@ -59,61 +64,80 @@
         <a href="/.auth/login/aad?post_login_redirect_uri=/cardforge/arena.html" class="arena-btn arena-btn--primary">Sign In</a>
       </div>
 
-      <!-- Main lobby (shown when logged in or demo) -->
+      <!-- Main lobby content -->
       <div id="arena-lobby-main" style="display:none;">
-        <!-- Champion Card Selector -->
-        <section class="arena-section">
-          <h2 class="arena-section__title"><i class="fas fa-user-shield"></i> Your Champion</h2>
-          <div class="arena-champion" id="arena-champion-display">
-            <div class="arena-champion__empty">
-              <i class="fas fa-plus-circle"></i>
-              <p>Select a card from your collection to fight with</p>
+
+        <!-- Hero: Champion Showcase + Rank HUD -->
+        <div class="arena-hero">
+          <!-- Champion Display -->
+          <section class="arena-champion-section">
+            <div class="arena-champion" id="arena-champion-display">
+              <div class="arena-champion__empty">
+                <i class="fas fa-plus-circle"></i>
+                <p>Select a card from your collection</p>
+              </div>
             </div>
-          </div>
-          <div class="arena-card-strip" id="arena-card-strip">
-            <!-- Cards injected by JS -->
-          </div>
-        </section>
+          </section>
 
-        <!-- Game Modes -->
-        <section class="arena-section">
-          <h2 class="arena-section__title"><i class="fas fa-gamepad"></i> Game Modes</h2>
-          <div class="arena-modes">
-            <button class="arena-mode-card" id="arena-btn-pve" disabled>
-              <div class="arena-mode-card__icon"><i class="fas fa-dragon"></i></div>
-              <div class="arena-mode-card__title">PvE Ladder</div>
-              <div class="arena-mode-card__desc">Fight 10 boss battles of increasing difficulty</div>
-            </button>
-            <button class="arena-mode-card" id="arena-btn-pvp" disabled>
-              <div class="arena-mode-card__icon"><i class="fas fa-users"></i></div>
-              <div class="arena-mode-card__title">Quick Match</div>
-              <div class="arena-mode-card__desc">Challenge any card from the public gallery</div>
-            </button>
-          </div>
-        </section>
-
-        <!-- XP / Rank -->
-        <section class="arena-section">
-          <h2 class="arena-section__title"><i class="fas fa-chart-line"></i> Arena Progress</h2>
-          <div class="arena-progress" id="arena-progress">
-            <div class="arena-progress__rank">
+          <!-- Rank HUD -->
+          <section class="arena-rank-hud" id="arena-progress">
+            <div class="arena-rank-hud__insignia">
               <span class="arena-rank-badge arena-rank-badge--lg" id="arena-rank-badge-lg">
                 <i class="fas fa-shield-halved"></i>
               </span>
               <span class="arena-rank-label" id="arena-rank-label">Bronze</span>
             </div>
-            <div class="arena-progress__bar-wrap">
+            <div class="arena-rank-hud__xp">
               <div class="arena-progress__bar">
                 <div class="arena-progress__bar-fill" id="arena-xp-fill" style="width:0%"></div>
               </div>
               <div class="arena-progress__xp-text" id="arena-xp-text">0 / 500 XP</div>
             </div>
-            <div class="arena-progress__stats">
-              <span id="arena-stat-wins">0 Wins</span>
-              <span id="arena-stat-losses">0 Losses</span>
-              <span id="arena-stat-level">Level 1</span>
+            <div class="arena-rank-hud__stats">
+              <div class="arena-stat-pill arena-stat-pill--win">
+                <i class="fas fa-trophy"></i> <span id="arena-stat-wins">0</span>
+              </div>
+              <div class="arena-stat-pill arena-stat-pill--loss">
+                <i class="fas fa-skull"></i> <span id="arena-stat-losses">0</span>
+              </div>
+              <div class="arena-stat-pill arena-stat-pill--level">
+                <i class="fas fa-star"></i> Lv.<span id="arena-stat-level">1</span>
+              </div>
             </div>
             <div class="arena-next-rank-wrap" id="arena-next-rank-preview"></div>
+          </section>
+        </div>
+
+        <!-- Roster Carousel -->
+        <section class="arena-section">
+          <h2 class="arena-section__title"><i class="fas fa-layer-group"></i> Your Roster</h2>
+          <div class="arena-card-strip" id="arena-card-strip">
+            <!-- Cards injected by JS -->
+          </div>
+        </section>
+
+        <!-- Mode Select — Bento Grid -->
+        <section class="arena-section">
+          <h2 class="arena-section__title"><i class="fas fa-gamepad"></i> Choose Your Battle</h2>
+          <div class="arena-modes">
+            <button class="arena-mode-card arena-mode-card--pve" id="arena-btn-pve" disabled>
+              <div class="arena-mode-card__glow" aria-hidden="true"></div>
+              <div class="arena-mode-card__icon"><i class="fas fa-dragon"></i></div>
+              <div class="arena-mode-card__content">
+                <div class="arena-mode-card__title">PvE Ladder</div>
+                <div class="arena-mode-card__desc">Fight 10 boss battles of increasing difficulty</div>
+              </div>
+              <div class="arena-mode-card__cta"><i class="fas fa-chevron-right"></i></div>
+            </button>
+            <button class="arena-mode-card arena-mode-card--pvp" id="arena-btn-pvp" disabled>
+              <div class="arena-mode-card__glow" aria-hidden="true"></div>
+              <div class="arena-mode-card__icon"><i class="fas fa-users"></i></div>
+              <div class="arena-mode-card__content">
+                <div class="arena-mode-card__title">Quick Match</div>
+                <div class="arena-mode-card__desc">Challenge any card from the public gallery</div>
+              </div>
+              <div class="arena-mode-card__cta"><i class="fas fa-chevron-right"></i></div>
+            </button>
           </div>
         </section>
 
@@ -130,7 +154,10 @@
 
         <!-- Recent Matches -->
         <section class="arena-section">
-          <h2 class="arena-section__title"><i class="fas fa-clock-rotate-left"></i> Recent Matches</h2>
+          <h2 class="arena-section__title">
+            <i class="fas fa-clock-rotate-left"></i> Recent Matches
+            <button class="arena-history-link" id="arena-view-history">View All</button>
+          </h2>
           <div id="arena-recent-matches" class="arena-match-list">
             <div class="arena-empty-state">No matches yet. Choose a mode above to start fighting!</div>
           </div>
@@ -139,25 +166,25 @@
     </div>
   </div>
 
-  <!-- Screen: PvE Boss Ladder -->
+  <!-- Screen: PvE Boss Ladder / Tower -->
   <div id="arena-screen-pve" class="arena-screen">
     <div class="arena-pve">
       <div class="arena-screen__header">
         <button class="arena-btn arena-btn--ghost" id="arena-pve-back"><i class="fas fa-arrow-left"></i> Back</button>
-        <h2>PvE Boss Ladder</h2>
+        <h2><i class="fas fa-dragon"></i> PvE Boss Ladder</h2>
       </div>
-      <div class="arena-boss-ladder" id="arena-boss-ladder">
+      <div class="arena-boss-tower" id="arena-boss-ladder">
         <!-- Boss cards injected by JS -->
       </div>
     </div>
   </div>
 
-  <!-- Screen: PvP Opponent Select -->
+  <!-- Screen: PvP Opponent Select / Matchmaker -->
   <div id="arena-screen-pvp" class="arena-screen">
     <div class="arena-pvp">
       <div class="arena-screen__header">
         <button class="arena-btn arena-btn--ghost" id="arena-pvp-back"><i class="fas fa-arrow-left"></i> Back</button>
-        <h2>Quick Match — Choose Opponent</h2>
+        <h2><i class="fas fa-users"></i> Quick Match</h2>
       </div>
       <div class="arena-gallery-grid" id="arena-gallery-grid">
         <!-- Gallery cards injected by JS -->
@@ -165,48 +192,70 @@
     </div>
   </div>
 
-  <!-- Screen: Battle -->
+  <!-- Screen: Battle / Combat Arena -->
   <div id="arena-screen-battle" class="arena-screen">
     <div class="arena-battle">
+      <!-- Battle header -->
       <div class="arena-battle__header">
         <span class="arena-battle__round" id="arena-round-label">Round 1 of 3</span>
-        <button class="arena-btn arena-btn--ghost arena-btn--sm" id="arena-forfeit-btn">Forfeit</button>
+        <button class="arena-btn arena-btn--ghost arena-btn--sm" id="arena-forfeit-btn">
+          <i class="fas fa-flag"></i> Forfeit
+        </button>
       </div>
 
-      <div class="arena-battle__field">
-        <!-- Player side -->
-        <div class="arena-combatant arena-combatant--player" id="arena-player-side">
-          <div class="arena-combatant__card" id="arena-player-card"></div>
-          <div class="arena-combatant__name" id="arena-player-name">You</div>
-          <div class="arena-hp-bar">
-            <div class="arena-hp-bar__fill arena-hp-bar__fill--player" id="arena-player-hp-fill" style="width:100%"></div>
+      <!-- Combat stage -->
+      <div class="arena-battle__stage">
+        <div class="arena-battle__field">
+          <!-- Player pedestal -->
+          <div class="arena-combatant arena-combatant--player" id="arena-player-side">
+            <div class="arena-combatant__frame">
+              <div class="arena-combatant__card" id="arena-player-card"></div>
+            </div>
+            <div class="arena-combatant__nameplate">
+              <span class="arena-combatant__name" id="arena-player-name">You</span>
+            </div>
+            <div class="arena-hp-bar">
+              <div class="arena-hp-bar__track">
+                <div class="arena-hp-bar__fill arena-hp-bar__fill--player" id="arena-player-hp-fill" style="width:100%"></div>
+              </div>
+              <div class="arena-hp-bar__text" id="arena-player-hp-text">100 / 100</div>
+            </div>
+            <div class="arena-player-buffs" id="arena-player-buffs"></div>
           </div>
-          <div class="arena-hp-text" id="arena-player-hp-text">100 / 100</div>
-          <div class="arena-player-buffs" id="arena-player-buffs"></div>
-        </div>
 
-        <div class="arena-battle__vs">VS</div>
-
-        <!-- Opponent side -->
-        <div class="arena-combatant arena-combatant--opponent" id="arena-opponent-side">
-          <div class="arena-combatant__card" id="arena-opponent-card"></div>
-          <div class="arena-combatant__name" id="arena-opponent-name">Enemy</div>
-          <div class="arena-hp-bar">
-            <div class="arena-hp-bar__fill arena-hp-bar__fill--opponent" id="arena-opponent-hp-fill" style="width:100%"></div>
+          <!-- VS clash divider -->
+          <div class="arena-battle__vs">
+            <span class="arena-battle__vs-text">VS</span>
           </div>
-          <div class="arena-hp-text" id="arena-opponent-hp-text">100 / 100</div>
+
+          <!-- Opponent pedestal -->
+          <div class="arena-combatant arena-combatant--opponent" id="arena-opponent-side">
+            <div class="arena-combatant__frame">
+              <div class="arena-combatant__card" id="arena-opponent-card"></div>
+            </div>
+            <div class="arena-combatant__nameplate">
+              <span class="arena-combatant__name" id="arena-opponent-name">Enemy</span>
+            </div>
+            <div class="arena-hp-bar">
+              <div class="arena-hp-bar__track">
+                <div class="arena-hp-bar__fill arena-hp-bar__fill--opponent" id="arena-opponent-hp-fill" style="width:100%"></div>
+              </div>
+              <div class="arena-hp-bar__text" id="arena-opponent-hp-text">100 / 100</div>
+            </div>
+          </div>
         </div>
       </div>
 
-      <!-- Battle log -->
+      <!-- Battle log / combat feed -->
       <div class="arena-battle__log" id="arena-battle-log">
         <div class="arena-log-entry">Battle started! Choose your move.</div>
       </div>
 
-      <!-- Move buttons -->
+      <!-- Command Deck: Move buttons -->
       <div class="arena-battle__moves" id="arena-moves">
         <button class="arena-move-btn arena-move-btn--strike" data-move="strike"
                 title="Physical attack (STR). Reduced 60% by Guard. Disrupts Heal by 50%.">
+          <div class="arena-move-btn__glow" aria-hidden="true"></div>
           <i class="fas fa-hand-fist"></i>
           <span class="arena-move-btn__label">Strike</span>
           <span class="arena-move-btn__stat" id="arena-move-str">STR</span>
@@ -214,6 +263,7 @@
         </button>
         <button class="arena-move-btn arena-move-btn--guard" data-move="guard"
                 title="Block incoming damage. Blocks 60% of Strike, 30% of Ability.">
+          <div class="arena-move-btn__glow" aria-hidden="true"></div>
           <i class="fas fa-shield-halved"></i>
           <span class="arena-move-btn__label">Guard</span>
           <span class="arena-move-btn__stat">Block</span>
@@ -221,6 +271,7 @@
         </button>
         <button class="arena-move-btn arena-move-btn--ability" data-move="ability"
                 title="Class ability. Costs 2 charges. +30% vs Strike. Interrupts Heal (+20%). Reduced 30% by Guard.">
+          <div class="arena-move-btn__glow" aria-hidden="true"></div>
           <i class="fas fa-bolt" id="arena-ability-icon"></i>
           <span class="arena-move-btn__label" id="arena-ability-label">Ability</span>
           <span class="arena-move-btn__stat" id="arena-move-int">INT</span>
@@ -229,6 +280,7 @@
         </button>
         <button class="arena-move-btn arena-move-btn--heal" data-move="heal"
                 title="Recover HP based on END. Full heal vs Guard. Half heal vs Strike. Interrupted by Ability (+20% damage taken).">
+          <div class="arena-move-btn__glow" aria-hidden="true"></div>
           <i class="fas fa-heart-pulse"></i>
           <span class="arena-move-btn__label">Heal</span>
           <span class="arena-move-btn__stat" id="arena-move-end">END</span>
@@ -238,7 +290,7 @@
     </div>
   </div>
 
-  <!-- Screen: Results -->
+  <!-- Screen: Results / Victory Ceremony -->
   <div id="arena-screen-results" class="arena-screen">
     <div class="arena-results">
       <div class="arena-results__banner" id="arena-results-banner">
@@ -247,7 +299,7 @@
       </div>
       <div class="arena-results__xp">
         <div class="arena-results__xp-amount" id="arena-results-xp">+40 XP</div>
-        <div class="arena-progress__bar-wrap">
+        <div class="arena-results__bar-wrap">
           <div class="arena-progress__bar">
             <div class="arena-progress__bar-fill" id="arena-results-xp-fill" style="width:0%"></div>
           </div>
@@ -259,7 +311,7 @@
       </div>
       <div class="arena-results__actions">
         <button class="arena-btn arena-btn--primary" id="arena-results-again">Play Again</button>
-        <button class="arena-btn arena-btn--ghost" id="arena-results-lobby">Back to Lobby</button>
+        <button class="arena-btn arena-btn--ghost" id="arena-results-lobby">Back to HQ</button>
       </div>
     </div>
   </div>
@@ -269,7 +321,7 @@
     <div class="arena-history">
       <div class="arena-screen__header">
         <button class="arena-btn arena-btn--ghost" id="arena-history-back"><i class="fas fa-arrow-left"></i> Back</button>
-        <h2>Match History</h2>
+        <h2><i class="fas fa-scroll"></i> Match History</h2>
       </div>
       <div class="arena-match-list" id="arena-full-history">
         <!-- Match history injected by JS -->

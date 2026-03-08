@@ -81,6 +81,26 @@
   --cf-btn-nav-hover-border: rgba(255, 255, 255, 0.25);
   --cf-btn-nav-hover-text: var(--cf-text-primary, #e1e1ff);
 
+  /* Arena Design Tokens — Retro-Futurism */
+  --arena-bg: #020617;
+  --arena-surface: #0F172A;
+  --arena-surface-raised: #1E293B;
+  --arena-text: #F8FAFC;
+  --arena-text-muted: #94A3B8;
+  --arena-text-dim: #64748B;
+  --arena-win: #22C55E;
+  --arena-loss: #F43F5E;
+  --arena-xp: #A78BFA;
+  --arena-energy: #3B82F6;
+  --arena-gold: #F59E0B;
+  --arena-border: rgba(148, 163, 184, 0.08);
+  --arena-border-subtle: rgba(148, 163, 184, 0.04);
+  --arena-glow-purple: rgba(139, 92, 246, 0.3);
+  --arena-glow-green: rgba(34, 197, 94, 0.3);
+  --arena-glow-red: rgba(244, 63, 94, 0.3);
+  --arena-glow-blue: rgba(59, 130, 246, 0.3);
+  --arena-glow-gold: rgba(245, 158, 11, 0.3);
+
   /* Z-Index Scale — semantic stacking layers */
   --cf-z-base: 1;
   --cf-z-raised: 10;
