@@ -316,7 +316,7 @@ window.ArenaApp = (function () {
     state.lastOpponentId = bossId;
 
     showScreen('battle');
-    if (window.ArenaAudio) window.ArenaAudio.playBossMusic(bossId);
+    if (window.ArenaAudio && window.ArenaBackgrounds) window.ArenaAudio.playArenaMusic(window.ArenaBackgrounds.getSelected());
     if (window.ArenaBackgrounds) window.ArenaBackgrounds.applyToBattleStage();
     window.ArenaBattleUI.enableMoves(false);
 
@@ -384,6 +384,7 @@ window.ArenaApp = (function () {
     state.lastOpponentId = opponentId;
 
     showScreen('battle');
+    if (window.ArenaAudio && window.ArenaBackgrounds) window.ArenaAudio.playArenaMusic(window.ArenaBackgrounds.getSelected());
     if (window.ArenaBackgrounds) window.ArenaBackgrounds.applyToBattleStage();
     window.ArenaBattleUI.enableMoves(false);
 

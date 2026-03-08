@@ -22,19 +22,16 @@ window.ArenaAudio = (function () {
     charge:    'charge.wav'
   };
 
-  // One track per boss + menu track. Files degrade silently if missing.
+  // One track per arena + menu. Add new arenas here as they're created.
+  // Files degrade silently if missing.
   var MUSIC_TRACKS = {
-    menu:                   'arena-menu01.wav',
-    'boss-1':               'boss-training-dummy.mp3',
-    'boss-2':               'boss-gutter-rat.mp3',
-    'boss-3':               'boss-ironclad-sentinel.mp3',
-    'boss-4':               'boss-shadow-stalker.mp3',
-    'boss-5':               'boss-arcane-scholar.mp3',
-    'boss-6':               'boss-warlord-grax.mp3',
-    'boss-7':               'boss-crystal-weaver.mp3',
-    'boss-8':               'boss-void-harbinger.mp3',
-    'boss-9':               'boss-titanium-aegis.mp3',
-    'boss-10':              'boss-forge-king.mp3'
+    menu:              'arena-menu01.wav',
+    'colosseum':       'arena-colosseum.mp3',
+    'shadow-pit':      'arena-shadow-pit.mp3',
+    'forge-grounds':   'arena-forge-grounds.mp3',
+    'crystal-sanctum': 'arena-crystal-sanctum.mp3',
+    'void-rift':       'arena-void-rift.mp3',
+    'throne':          'arena-throne.mp3'
   };
 
   var _muted = false;
@@ -141,9 +138,9 @@ window.ArenaAudio = (function () {
     }, stepTime);
   }
 
-  // Play the track assigned to a boss. Falls back to menu track if not found.
-  function playBossMusic(bossId) {
-    var key = bossId && MUSIC_TRACKS[bossId] ? bossId : 'menu';
+  // Play the track for the selected arena. Falls back to menu if not found.
+  function playArenaMusic(arenaId) {
+    var key = arenaId && MUSIC_TRACKS[arenaId] ? arenaId : 'menu';
     playMusic(key);
   }
 
@@ -196,7 +193,7 @@ window.ArenaAudio = (function () {
     toggleMute: toggleMute,
     setVolume: setVolume,
     playMusic: playMusic,
-    playBossMusic: playBossMusic,
+    playArenaMusic: playArenaMusic,
     stopMusic: stopMusic
   };
 })();
