@@ -86,10 +86,10 @@ window.ArenaAPI = (function () {
       });
     },
 
-    submitMove(battleId, round, move) {
+    submitMove(battleId, round, move, extra) {
       return apiFetch('arenaBattle', {
         method: 'POST',
-        body: { action: 'move', battleId, round, move }
+        body: { action: 'move', battleId, round, move, ...(extra || {}) }
       });
     },
 

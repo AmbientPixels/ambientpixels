@@ -15,6 +15,9 @@ window.ArenaBattleUI = (function () {
   let _abilityInfo = null;
   // A5: combo streak — consecutive rounds the player dealt damage
   let _playerStreak = 0;
+  // B4: hype meter
+  let _hype = 0;
+  let _crowdBoostPending = false;
 
   function initBattle(battleData) {
     _battleData = battleData;
@@ -31,6 +34,20 @@ window.ArenaBattleUI = (function () {
     var postActions = document.getElementById('arena-battle-post');
     if (forfeitBtn) forfeitBtn.style.display = '';
     if (postActions) postActions.style.display = 'none';
+
+    // Reset hype and boost state
+    _hype = 0;
+    _crowdBoostPending = false;
+    var hypeBar = document.getElementById('arena-hype-bar');
+    var hypeFill = document.getElementById('arena-hype-fill');
+    if (hypeBar) hypeBar.classList.remove('arena-hype-bar--near-full');
+    if (hypeFill) hypeFill.style.width = '0%';
+
+    // Reset status chips
+    ['arena-player-status', 'arena-opponent-status'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.innerHTML = '';
+    });
 
     // Reset combatant visual states from previous battle
     ['arena-player-side', 'arena-opponent-side'].forEach(function (id) {
@@ -328,6 +345,62 @@ window.ArenaBattleUI = (function () {
     setTimeout(() => banner.remove(), 1100);
   }
 
+  // ─── B2: render burn / stun / blind status chips ─────────────────────────
+  function renderStatusEffects(tempEffects) {
+    if (!tempEffects) return;
+    var sides = { player: 'arena-player-status', opponent: 'arena-opponent-status' };
+    var chipDefs = {
+      burn:  { icon: 'fa-fire',      label: 'Burn',  cls: 'burn'  },
+      stun:  { icon: 'fa-bolt',      label: 'Stun',  cls: 'stun'  },
+      blind: { icon: 'fa-eye-slash', label: 'Blind', cls: 'blind' }
+    };
+    ['player', 'opponent'].forEach(function (side) {
+      var el = document.getElementById(sides[side]);
+      if (!el) return;
+      var effects = (tempEffects[side] || []).filter(function (e) {
+        return chipDefs[e.effect];
+      });
+      el.innerHTML = effects.map(function (e) {
+        var def = chipDefs[e.effect];
+        var rounds = (e.roundsLeft > 1)
+          ? ' <span style="opacity:0.7;font-size:0.6rem">' + e.roundsLeft + '</span>'
+          : '';
+        return '<span class="arena-status-chip arena-status-chip--' + def.cls + ' arena-status-chip--new">' +
+          '<i class="fas ' + def.icon + '"></i> ' + def.label + rounds +
+          '</span>';
+      }).join('');
+      el.querySelectorAll('.arena-status-chip--new').forEach(function (chip) {
+        setTimeout(function () { chip.classList.remove('arena-status-chip--new'); }, 600);
+      });
+    });
+  }
+
+  // ─── B4: hype meter ───────────────────────────────────────────────────────
+  function updateHype(points) {
+    _hype = Math.min(100, _hype + points);
+    var fill = document.getElementById('arena-hype-fill');
+    var bar  = document.getElementById('arena-hype-bar');
+    if (fill) fill.style.width = _hype + '%';
+    if (bar)  bar.classList.toggle('arena-hype-bar--near-full', _hype >= 75);
+    if (_hype >= 100) {
+      showCrowdErupts();
+      _crowdBoostPending = true;
+      _hype = 0;
+      if (fill) fill.style.width = '0%';
+      if (bar)  bar.classList.remove('arena-hype-bar--near-full');
+    }
+  }
+
+  function showCrowdErupts() {
+    var field = document.querySelector('.arena-battle__field');
+    if (!field) return;
+    var banner = document.createElement('div');
+    banner.className = 'arena-crowd-banner';
+    banner.textContent = 'CROWD ERUPTS!';
+    field.appendChild(banner);
+    setTimeout(function () { banner.remove(); }, 1800);
+  }
+
   // ─── A2: kill shot slow-mo ───────────────────────────────────────────────
   async function triggerKillShot(defeatedSide) {
     const field = document.querySelector('.arena-battle__field');
@@ -477,6 +550,20 @@ window.ArenaBattleUI = (function () {
       _playerStreak = 0;
     }
 
+    // B2: render status effect chips
+    renderStatusEffects(result.tempEffects);
+
+    // B4: hype updates
+    if (playerCrit || opponentCrit)                             updateHype(25);
+    if (result.playerCounterReflect || result.opponentCounterReflect) updateHype(20);
+    if (isPlayerLastStand   && prevPlayerHpPct   >= 0.20)      updateHype(20);
+    if (isOpponentLastStand && prevOpponentHpPct >= 0.20)      updateHype(20);
+    if (_playerStreak >= 3)                                    updateHype(15);
+    if (result.tempEffects && (
+      (result.tempEffects.opponent || []).some(function (e) { return e.effect === 'stun'; }) ||
+      (result.tempEffects.player   || []).some(function (e) { return e.effect === 'stun'; })
+    )) updateHype(15);
+
     // Update local HP state
     _battleData.player.hp   = result.playerHp;
     _battleData.opponent.hp = result.opponentHp;
@@ -506,7 +593,12 @@ window.ArenaBattleUI = (function () {
     enableMoves(false);
 
     try {
-      const response = await window.ArenaAPI.submitMove(_battleData.battleId, _currentRound, move);
+      const boost = _crowdBoostPending;
+      _crowdBoostPending = false;
+      const response = await window.ArenaAPI.submitMove(
+        _battleData.battleId, _currentRound, move,
+        boost ? { crowdBoost: true } : {}
+      );
 
       await animateRoundResult(response.roundResult);
 

@@ -242,6 +242,7 @@
               <div class="arena-hp-bar__text" id="arena-player-hp-text">100 / 100</div>
             </div>
             <div class="arena-player-buffs" id="arena-player-buffs"></div>
+            <div class="arena-status-row" id="arena-player-status"></div>
           </div>
 
           <!-- VS clash divider -->
@@ -263,6 +264,7 @@
               </div>
               <div class="arena-hp-bar__text" id="arena-opponent-hp-text">100 / 100</div>
             </div>
+            <div class="arena-status-row" id="arena-opponent-status"></div>
           </div>
         </div>
       </div>
@@ -270,6 +272,14 @@
       <!-- Battle log / combat feed -->
       <div class="arena-battle__log" id="arena-battle-log">
         <div class="arena-log-entry">Battle started! Choose your move.</div>
+      </div>
+
+      <!-- B4: Hype Meter -->
+      <div class="arena-hype-bar" id="arena-hype-bar" title="Crowd Hype — fill with exciting plays for a power boost!">
+        <div class="arena-hype-bar__label"><i class="fas fa-fire-flame-curved"></i> HYPE</div>
+        <div class="arena-hype-bar__track">
+          <div class="arena-hype-bar__fill" id="arena-hype-fill" style="width:0%"></div>
+        </div>
       </div>
 
       <!-- Command Deck: Move buttons -->
