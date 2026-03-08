@@ -185,6 +185,21 @@
   backdrop-filter: blur(4px);
 }
 
+/* --- LEFT/RIGHT TITLE MARGIN — containers where title sits flush to edge --- */
+.card-preview-canvas.align-left.container-masked .card-name,
+.card-preview-canvas.align-left.container-polaroid .card-name,
+.card-preview-canvas.align-left.container-banner .card-name,
+.card-preview-canvas.align-left.container-floating .card-name {
+  padding-left: 0.6rem;
+}
+
+.card-preview-canvas.align-right.container-masked .card-name,
+.card-preview-canvas.align-right.container-polaroid .card-name,
+.card-preview-canvas.align-right.container-banner .card-name,
+.card-preview-canvas.align-right.container-floating .card-name {
+  padding-right: 0.6rem;
+}
+
 /* =========================== */
 /* LEVEL 1: VERTICAL ALIGNMENT */
 /* =========================== */
