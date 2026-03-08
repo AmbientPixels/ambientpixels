@@ -64,6 +64,7 @@ window.ArenaBattleUI = (function () {
     updateRoundLabel(_currentRound);
     clearLog();
     addLogEntry('Battle started! Choose your move.');
+    addLogEntry('💥 Fill the Hype Meter with crits, streaks & big moments for a crowd damage boost!', 'hint');
     enableMoves(true);
 
     // Charge system state
