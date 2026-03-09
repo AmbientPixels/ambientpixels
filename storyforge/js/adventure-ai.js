@@ -100,6 +100,17 @@ window.AdventureAI = (function () {
 
   // --- Generate continuation choices for a resumed adventure ---
   function generateContinuation(genre, state) {
+    // Build plot seed context if available
+    var plotContext = '';
+    if (state.plotSeed) {
+      var ps = state.plotSeed;
+      plotContext = '\nSTORY BLUEPRINT (hidden from player — use this to guide choices):\n' +
+        '- Antagonist: ' + (ps.antagonist || 'unknown') + '\n' +
+        '- Central Conflict: ' + (ps.centralConflict || 'unknown') + '\n' +
+        '- Plot Points: ' + (ps.keyPlotPoints ? ps.keyPlotPoints.join(' | ') : 'none') + '\n' +
+        '- Hidden Clue: ' + (ps.hiddenClue || 'none') + '\n';
+    }
+
     var prompt = genre.genrePrompt + '\n\n' +
       'The player is RESUMING a saved adventure. Generate choices for the current scene.\n\n' +
       'GAME STATE:\n' +
@@ -112,11 +123,12 @@ window.AdventureAI = (function () {
       '- Equipped: ' + buildEquippedLine(state) + '\n' +
       '- Companions: ' + (state.companions.length ? state.companions.map(function (c) { return c.name; }).join(', ') : 'none') + '\n' +
       '- Key Events: ' + (state.eventLog.length ? state.eventLog.join(', ') : 'adventure just began') + '\n' +
-      '- Last Scene: ' + (state.lastSceneText || '(opening)').substring(0, 500) + '\n\n' +
+      '- Last Scene: ' + (state.lastSceneText || '(opening)').substring(0, 500) + '\n' +
+      plotContext + '\n' +
       'RULES:\n' +
       '- Do NOT write a new scene. The player already sees the last scene text.\n' +
       '- Generate ONLY the choices array and stateChanges. Set sceneText to "" and imagePrompt to "".\n' +
-      '- Present 3-4 choices that logically follow from the last scene.\n' +
+      '- Present 3-4 choices that logically follow from the last scene AND advance the overarching plot.\n' +
       '- Include at least one cautious, one bold, and one creative option.\n' +
       '- If a choice involves risk, add a skillCheck.\n\n' +
       RESPONSE_FORMAT;
@@ -173,8 +185,15 @@ window.AdventureAI = (function () {
       charLine +
       'GENRE: ' + genre.name + '\n' +
       'TURN: 1/25\n\n' +
+      'STORY STRUCTURE:\n' +
+      'This adventure has a 3-act structure over 25 turns. You must plan an overarching PLOT with a beginning, middle, and end.\n' +
+      '- Act 1 (turns 1-7): SETUP — introduce the world, the central conflict, and plant the seeds of the mystery or threat. The antagonist should be hinted at but not fully revealed.\n' +
+      '- Act 2 (turns 8-18): RISING ACTION — complications, betrayals, revelations. Stakes escalate. The player discovers the true scope of the threat. Include a "darkest moment" setback around turns 15-18.\n' +
+      '- Act 3 (turns 19-25): CLIMAX & RESOLUTION — confrontation with the antagonist, payoff of planted clues, and a satisfying conclusion shaped by the player\'s choices.\n\n' +
+      'In this opening scene, you MUST also generate a "plotSeed" — a hidden story blueprint that will guide the entire adventure. This includes an antagonist, a central conflict, 4 key plot points (one per act), and a hidden clue planted in the opening scene that pays off later.\n\n' +
       'RULES:\n' +
-      '- Write exactly 3 paragraphs: (1) establish the setting with sensory detail, (2) introduce the situation and stakes, (3) set up the first decision point.\n' +
+      '- Write exactly 3 paragraphs: (1) establish the setting with sensory detail, (2) introduce the situation and stakes — hint at the central conflict, (3) set up the first decision point.\n' +
+      '- Plant at least one subtle clue or detail that connects to the plotSeed.hiddenClue — something the player might notice on replay.\n' +
       '- Use all five senses — not just sight. Include sounds, smells, textures, temperature.\n' +
       '- Vary sentence length: mix short punchy beats with longer flowing descriptions.\n' +
       '- Present exactly 3-4 choices. At least one cautious, one bold, one creative.\n' +
@@ -184,7 +203,17 @@ window.AdventureAI = (function () {
       '- Suggest any immediate inventory finds or companion encounters via stateChanges.\n' +
       '- IMPORTANT: Every item or companion mentioned in the narrative MUST appear in stateChanges.addItems or stateChanges.addCompanion. Do not describe the player finding/receiving items without adding them.\n' +
       '- Generate a visual description for the scene illustration (max 150 chars).\n\n' +
-      RESPONSE_FORMAT;
+      OPENING_RESPONSE_FORMAT;
+  }
+
+  // --- Act structure helper ---
+  function getActInfo(turnCount) {
+    var turn = turnCount + 1; // next turn number
+    if (turn <= 7) return { act: 1, label: 'Act 1 — SETUP', guidance: 'Introduce the world, establish the central conflict, and plant clues. The antagonist should be hinted at or encountered indirectly. Build the player\'s connection to allies, locations, and stakes.' };
+    if (turn <= 14) return { act: 2, label: 'Act 2a — RISING ACTION', guidance: 'Escalate complications. Reveal new dimensions of the conflict. Introduce betrayals, twists, or revelations that deepen the mystery. The antagonist\'s presence should grow more threatening.' };
+    if (turn <= 18) return { act: 2.5, label: 'Act 2b — DARKEST MOMENT', guidance: 'The player should face a major setback — a betrayal, a loss, a failed plan, or a devastating revelation. This is the low point before the final push. Make it personal and connected to earlier choices.' };
+    if (turn <= 24) return { act: 3, label: 'Act 3 — CLIMAX', guidance: 'Build toward the final confrontation with the antagonist. Earlier clues and planted details should pay off. The player\'s choices throughout the adventure should shape how this plays out.' };
+    return { act: 3, label: 'Act 3 — RESOLUTION', guidance: 'This is the FINAL scene. Resolve the central conflict decisively. Reference the hidden clue from the opening. Give the player\'s journey a satisfying conclusion shaped by their choices.' };
   }
 
   // --- Build scene prompt ---
@@ -197,6 +226,21 @@ window.AdventureAI = (function () {
         (skillCheckResult.success ? 'SUCCESS' : 'FAILURE') +
         (skillCheckResult.critical === 'critical_success' ? ' (NATURAL 20 — CRITICAL SUCCESS!)' : '') +
         (skillCheckResult.critical === 'critical_failure' ? ' (NATURAL 1 — CRITICAL FAILURE!)' : '') + '\n';
+    }
+
+    var actInfo = getActInfo(state.turnCount);
+
+    // Build plot seed context if available
+    var plotContext = '';
+    if (state.plotSeed) {
+      var ps = state.plotSeed;
+      plotContext = '\nSTORY BLUEPRINT (hidden from player — use this to guide the narrative):\n' +
+        '- Antagonist: ' + (ps.antagonist || 'unknown') + '\n' +
+        '- Central Conflict: ' + (ps.centralConflict || 'unknown') + '\n' +
+        '- Plot Points: ' + (ps.keyPlotPoints ? ps.keyPlotPoints.join(' | ') : 'none') + '\n' +
+        '- Hidden Clue from Opening: ' + (ps.hiddenClue || 'none') + '\n' +
+        '- Current Act: ' + actInfo.label + '\n' +
+        '- Act Guidance: ' + actInfo.guidance + '\n';
     }
 
     return genre.genrePrompt + '\n\n' +
@@ -217,9 +261,12 @@ window.AdventureAI = (function () {
       '- Key Events: ' + (state.eventLog.length ? state.eventLog.join(', ') : 'adventure just began') + '\n\n' +
       '- Last Scene: ' + (state.lastSceneText || '(opening)').substring(0, 500) + '\n' +
       '- Player\'s Choice: ' + choiceText + '\n' +
-      skillInfo + '\n' +
+      skillInfo +
+      plotContext + '\n' +
       'RULES:\n' +
+      '- You are currently in ' + actInfo.label + '. ' + actInfo.guidance + '\n' +
       '- Write exactly 3 paragraphs: (1) consequence of the choice — what happens immediately, (2) exploration/discovery — what the player sees, hears, finds, (3) new tension — set up the next decision point.\n' +
+      '- ADVANCE THE PLOT: Every scene must move the overarching story forward. Reference earlier events, foreshadow upcoming plot points, and connect scenes to the central conflict. Do NOT write disconnected episodic scenes.\n' +
       '- Use all five senses. Include sounds, smells, textures, temperature — not just visual descriptions.\n' +
       '- Vary sentence length: short punchy beats for action, longer flowing prose for atmosphere.\n' +
       '- Do NOT start consecutive paragraphs the same way.\n' +
@@ -235,9 +282,8 @@ window.AdventureAI = (function () {
       '- Track HP changes (damage: -5 to -25, healing: +10 to +30), inventory, companions, reputation.\n' +
       '- IMPORTANT: Every item or companion mentioned in the narrative MUST appear in stateChanges. Do not describe the player finding/receiving/losing items without including them in addItems/removeItems.\n' +
       '- If HP <= 0, this is a DEATH scene — set isEnding:true, endingType:"death", no choices.\n' +
-      '- If turn >= 20, steer toward climax. At turn 25, force a resolution.\n' +
-      (state.turnCount >= 19 ? '- IMPORTANT: We are nearing the end. Start wrapping up the story arc.\n' : '') +
-      (state.turnCount >= 24 ? '- FINAL TURN: This MUST be the ending. Set isEnding:true, endingType:"victory" or "escape".\n' : '') +
+      (state.turnCount >= 18 ? '- IMPORTANT: We are in the final act. Start steering toward the climax confrontation with the antagonist.\n' : '') +
+      (state.turnCount >= 24 ? '- FINAL TURN: This MUST be the ending. Set isEnding:true, endingType:"victory" or "escape". Resolve the central conflict. Reference the hidden clue from the opening. Give the story a satisfying conclusion.\n' : '') +
       '- Generate a visual description for the scene (max 150 chars).\n\n' +
       RESPONSE_FORMAT;
   }
@@ -264,6 +310,41 @@ window.AdventureAI = (function () {
     '  },\n' +
     '  "isEnding": false,\n' +
     '  "endingType": null\n' +
+    '}';
+
+  var OPENING_RESPONSE_FORMAT =
+    'Return ONLY valid JSON (no markdown, no code fences, no extra text):\n' +
+    '{\n' +
+    '  "sceneText": "2-4 paragraphs of narrative prose",\n' +
+    '  "imagePrompt": "short visual scene description for illustration, max 150 chars",\n' +
+    '  "choices": [\n' +
+    '    { "id": "a", "text": "choice text", "skillCheck": null },\n' +
+    '    { "id": "b", "text": "choice text", "skillCheck": { "stat": "dexterity", "difficulty": 12 } },\n' +
+    '    { "id": "c", "text": "choice text", "skillCheck": null }\n' +
+    '  ],\n' +
+    '  "stateChanges": {\n' +
+    '    "hpDelta": 0,\n' +
+    '    "goldDelta": 0,\n' +
+    '    "reputationDelta": 0,\n' +
+    '    "addItems": [],\n' +
+    '    "removeItems": [],\n' +
+    '    "addCompanion": null,\n' +
+    '    "removeCompanion": null,\n' +
+    '    "eventTag": "short_event_tag"\n' +
+    '  },\n' +
+    '  "isEnding": false,\n' +
+    '  "endingType": null,\n' +
+    '  "plotSeed": {\n' +
+    '    "antagonist": "Name and 1-sentence description of the main villain or opposing force",\n' +
+    '    "centralConflict": "1-sentence description of the core problem the player must resolve",\n' +
+    '    "keyPlotPoints": [\n' +
+    '      "Act 1 (turns 1-7): Setup event or discovery that hooks the player",\n' +
+    '      "Act 2 (turns 8-14): Major complication or betrayal that raises the stakes",\n' +
+    '      "Act 2b (turns 15-18): Darkest moment — the player suffers a setback or loss",\n' +
+    '      "Act 3 (turns 19-25): Climax confrontation and resolution"\n' +
+    '    ],\n' +
+    '    "hiddenClue": "A subtle detail planted in this opening scene that becomes important later"\n' +
+    '  }\n' +
     '}';
 
   // --- API calls ---

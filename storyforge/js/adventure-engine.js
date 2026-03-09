@@ -1223,6 +1223,11 @@
         currentScene = scene;
         gameState.turnCount = 1;
         gameState.lastSceneText = scene.sceneText;
+        // Store plot seed for story continuity across all turns
+        if (scene.plotSeed) {
+          gameState.plotSeed = scene.plotSeed;
+          DEBUG && console.log('[Plot] Seed:', scene.plotSeed);
+        }
         RPG.applyStateChanges(gameState, scene.stateChanges);
         renderScene(scene);
         generateAndShowImage(scene.imagePrompt);
@@ -1255,6 +1260,7 @@
                 preloadTTS(scene.sceneText);
                 currentScene = scene;
                 gameState.lastSceneText = scene.sceneText;
+                if (scene.plotSeed) gameState.plotSeed = scene.plotSeed;
                 RPG.applyStateChanges(gameState, scene.stateChanges);
                 renderScene(scene);
                 generateAndShowImage(scene.imagePrompt);
