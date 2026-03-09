@@ -42,6 +42,7 @@ async function createCheckoutSession({ mode, priceId, successUrl, cancelUrl, met
   params.append('line_items[0][quantity]', '1');
   params.append('success_url', successUrl);
   params.append('cancel_url', cancelUrl);
+  params.append('allow_promotion_codes', 'true');
 
   if (metadata) {
     for (const [key, val] of Object.entries(metadata)) {
