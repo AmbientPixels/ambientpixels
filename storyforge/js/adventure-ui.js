@@ -19,10 +19,10 @@ window.AdventureUI = (function () {
       'display:flex;align-items:center;gap:0.5rem;';
 
     var colors = {
-      info: { bg: 'rgba(122,143,224,0.15)', border: 'rgba(122,143,224,0.3)', color: '#7B8FE0', icon: 'fa-circle-info' },
-      success: { bg: 'rgba(85,224,130,0.15)', border: 'rgba(85,224,130,0.3)', color: '#55E082', icon: 'fa-circle-check' },
-      error: { bg: 'rgba(224,85,85,0.15)', border: 'rgba(224,85,85,0.3)', color: '#E05555', icon: 'fa-circle-xmark' },
-      warning: { bg: 'rgba(224,200,85,0.15)', border: 'rgba(224,200,85,0.3)', color: '#E0C855', icon: 'fa-triangle-exclamation' }
+      info: { bg: 'rgba(124,58,237,0.15)', border: 'rgba(124,58,237,0.3)', color: '#A78BFA', icon: 'fa-circle-info' },
+      success: { bg: 'rgba(52,211,153,0.15)', border: 'rgba(52,211,153,0.3)', color: '#34D399', icon: 'fa-circle-check' },
+      error: { bg: 'rgba(239,68,68,0.15)', border: 'rgba(239,68,68,0.3)', color: '#EF4444', icon: 'fa-circle-xmark' },
+      warning: { bg: 'rgba(251,191,36,0.15)', border: 'rgba(251,191,36,0.3)', color: '#FBBF24', icon: 'fa-triangle-exclamation' }
     };
 
     var c = colors[type] || colors.info;

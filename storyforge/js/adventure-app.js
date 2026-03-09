@@ -90,7 +90,7 @@
         var genreData = genres.find(function (g) { return g.id === adv.genre; });
         var genreName = genreData ? genreData.name : adv.genre;
         var genreIcon = genreData ? genreData.icon : 'fa-book';
-        var genreColor = genreData ? genreData.color : '#7B8FE0';
+        var genreColor = genreData ? genreData.color : '#7C3AED';
 
         var thumbHtml = adv.firstSceneImage
           ? '<img src="' + adv.firstSceneImage + '" alt="" />'

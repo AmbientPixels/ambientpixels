@@ -21,8 +21,8 @@
   };
 
   var GENRE_COLORS = {
-    fantasy: '#7B8FE0', horror: '#E05555', scifi: '#55E0C8',
-    detective: '#E0C855', postapoc: '#C8E055', pirate: '#E09055'
+    fantasy: '#7C3AED', horror: '#EF4444', scifi: '#06B6D4',
+    detective: '#FBBF24', postapoc: '#84CC16', pirate: '#F97316'
   };
 
   var ENDING_LABELS = { victory: 'Victory', death: 'Defeated', escape: 'Escaped' };
@@ -155,7 +155,7 @@
     var genreData = genres.find(function (g) { return g.id === adv.genre; });
     var genreName = genreData ? genreData.name : (adv.genre || 'Unknown');
     var genreIcon = GENRE_ICONS[adv.genre] || 'fa-book';
-    var genreColor = GENRE_COLORS[adv.genre] || '#7B8FE0';
+    var genreColor = GENRE_COLORS[adv.genre] || '#7C3AED';
 
     var thumbHtml;
     if (adv.firstSceneImage) {
@@ -198,7 +198,7 @@
     var genreData = genres.find(function (g) { return g.id === adv.genre; });
     var genreName = genreData ? genreData.name : (adv.genre || 'Unknown');
     var genreIcon = GENRE_ICONS[adv.genre] || 'fa-book';
-    var genreColor = GENRE_COLORS[adv.genre] || '#7B8FE0';
+    var genreColor = GENRE_COLORS[adv.genre] || '#7C3AED';
     var endingType = adv.endingType || 'escape';
     var endingLabel = ENDING_LABELS[endingType] || 'The End';
 

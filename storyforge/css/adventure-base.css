@@ -1,12 +1,68 @@
 /* adventure-base.css — Layout, containers, typography */
 
+/* ── StoryForge Design Tokens ── */
+:root {
+  /* Backgrounds */
+  --sf-bg-deep: #0F0F23;
+  --sf-bg-surface: rgba(31, 29, 75, 0.4);
+  --sf-bg-surface-solid: rgba(31, 29, 75, 0.85);
+  --sf-bg-surface-hover: rgba(31, 29, 75, 0.6);
+  --sf-bg-elevated: rgba(31, 29, 75, 0.95);
+
+  /* Accent */
+  --sf-accent: #7C3AED;
+  --sf-accent-soft: #A78BFA;
+  --sf-accent-rgb: 124, 58, 237;
+  --sf-accent-glow: rgba(124, 58, 237, 0.4);
+
+  /* CTA */
+  --sf-cta: #F43F5E;
+  --sf-cta-hover: #FB7185;
+
+  /* Text */
+  --sf-text: #E2E8F0;
+  --sf-text-rgb: 226, 232, 240;
+  --sf-text-muted: rgba(226, 232, 240, 0.5);
+  --sf-text-dim: rgba(226, 232, 240, 0.35);
+
+  /* Semantic */
+  --sf-success: #34D399;
+  --sf-danger: #EF4444;
+  --sf-warning: #FBBF24;
+  --sf-info: #38BDF8;
+
+  /* Borders */
+  --sf-border: rgba(124, 58, 237, 0.12);
+  --sf-border-hover: rgba(124, 58, 237, 0.3);
+  --sf-border-active: rgba(124, 58, 237, 0.5);
+
+  /* Glass */
+  --sf-glass-blur: blur(12px);
+  --sf-glass-border: 1px solid rgba(124, 58, 237, 0.12);
+
+  /* Typography */
+  --sf-font-display: 'Russo One', 'Inter', sans-serif;
+  --sf-font-body: 'Chakra Petch', 'Inter', sans-serif;
+
+  /* Transitions */
+  --sf-transition: 0.2s ease;
+  --sf-transition-slow: 0.4s ease;
+
+  /* Shadows */
+  --sf-shadow-glow: 0 0 20px rgba(124, 58, 237, 0.15);
+  --sf-shadow-lift: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+  /* Progress gradient */
+  --sf-gradient: linear-gradient(135deg, #7C3AED, #F43F5E);
+}
+
 .adv-app {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--dark-bg, #071019);
-  color: var(--dark-text, #D8E0E5);
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--sf-bg-deep);
+  color: var(--sf-text);
+  font-family: var(--sf-font-body);
 }
 
 .adv-header {
@@ -14,8 +70,10 @@
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 1.5rem;
-  background: rgba(15, 25, 40, 0.95);
-  border-bottom: 1px solid rgba(122, 143, 224, 0.1);
+  background: var(--sf-bg-elevated);
+  backdrop-filter: var(--sf-glass-blur);
+  -webkit-backdrop-filter: var(--sf-glass-blur);
+  border-bottom: 1px solid var(--sf-border);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -26,14 +84,17 @@
   align-items: center;
   gap: 0.5rem;
   font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--dark-text);
+  font-family: var(--sf-font-display);
+  font-weight: 400;
+  color: var(--sf-text);
   text-decoration: none;
+  letter-spacing: 0.02em;
 }
 
 .adv-header__logo i {
-  color: #7B8FE0;
+  color: var(--sf-accent);
   font-size: 1.2rem;
+  filter: drop-shadow(0 0 6px var(--sf-accent-glow));
 }
 
 .adv-header__nav {
@@ -43,16 +104,16 @@
 }
 
 .adv-header__link {
-  color: rgba(216, 224, 229, 0.6);
+  color: var(--sf-text-muted);
   text-decoration: none;
   font-size: 0.85rem;
   font-weight: 500;
-  transition: color 0.2s;
+  transition: color var(--sf-transition);
 }
 
 .adv-header__link:hover,
 .adv-header__link--active {
-  color: var(--dark-text);
+  color: var(--sf-text);
 }
 
 .adv-user-status {
@@ -61,28 +122,29 @@
   gap: 0.5rem;
   font-size: 0.85rem;
   font-weight: 500;
-  color: var(--dark-text);
+  color: var(--sf-text);
   margin-left: 0.25rem;
   padding-left: 0.75rem;
-  border-left: 1px solid rgba(122, 143, 224, 0.15);
+  border-left: 1px solid var(--sf-border);
 }
 
 .adv-user-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #55E082;
+  background: var(--sf-success);
   flex-shrink: 0;
+  box-shadow: 0 0 6px rgba(52, 211, 153, 0.5);
 }
 
 .adv-user-status .adv-header__link {
-  color: rgba(216, 224, 229, 0.4);
+  color: var(--sf-text-dim);
   font-size: 0.85rem;
   padding: 0.2rem;
 }
 
 .adv-user-status .adv-header__link:hover {
-  color: #E05555;
+  color: var(--sf-danger);
 }
 
 .adv-main {
@@ -96,18 +158,26 @@
 }
 
 .adv-panel {
-  background: rgba(15, 25, 40, 0.6);
-  border: 1px solid rgba(122, 143, 224, 0.08);
+  background: var(--sf-bg-surface);
+  backdrop-filter: var(--sf-glass-blur);
+  -webkit-backdrop-filter: var(--sf-glass-blur);
+  border: var(--sf-glass-border);
   border-radius: 12px;
   padding: 1.5rem;
+  transition: border-color var(--sf-transition);
+}
+
+.adv-panel:hover {
+  border-color: rgba(var(--sf-accent-rgb), 0.2);
 }
 
 .adv-panel__title {
   font-size: 0.75rem;
-  font-weight: 600;
+  font-family: var(--sf-font-display);
+  font-weight: 400;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: rgba(216, 224, 229, 0.5);
+  letter-spacing: 0.1em;
+  color: var(--sf-accent-soft);
   margin-bottom: 1rem;
 }
 
@@ -117,38 +187,42 @@
   justify-content: center;
   gap: 0.5rem;
   padding: 0.6rem 1.2rem;
-  border: 1px solid rgba(122, 143, 224, 0.2);
+  border: 1px solid rgba(var(--sf-accent-rgb), 0.2);
   border-radius: 8px;
-  background: rgba(122, 143, 224, 0.08);
-  color: var(--dark-text);
+  background: rgba(var(--sf-accent-rgb), 0.08);
+  color: var(--sf-text);
   font-size: 0.9rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--sf-transition);
   font-family: inherit;
 }
 
 .adv-btn:hover {
-  background: rgba(122, 143, 224, 0.15);
-  border-color: rgba(122, 143, 224, 0.3);
+  background: rgba(var(--sf-accent-rgb), 0.15);
+  border-color: rgba(var(--sf-accent-rgb), 0.35);
+  box-shadow: 0 0 12px rgba(var(--sf-accent-rgb), 0.1);
 }
 
 .adv-btn--primary {
-  background: rgba(122, 143, 224, 0.2);
-  border-color: rgba(122, 143, 224, 0.4);
+  background: var(--sf-gradient);
+  border-color: transparent;
+  color: #fff;
+  font-weight: 600;
 }
 
 .adv-btn--primary:hover {
-  background: rgba(122, 143, 224, 0.3);
+  box-shadow: 0 0 20px rgba(var(--sf-accent-rgb), 0.3);
+  transform: translateY(-1px);
 }
 
 .adv-btn--danger {
-  border-color: rgba(224, 85, 85, 0.3);
-  color: #E05555;
+  border-color: rgba(239, 68, 68, 0.3);
+  color: var(--sf-danger);
 }
 
 .adv-btn--danger:hover {
-  background: rgba(224, 85, 85, 0.1);
+  background: rgba(239, 68, 68, 0.1);
 }
 
 .adv-btn:disabled {
@@ -184,15 +258,15 @@
   justify-content: center;
   gap: 0.75rem;
   padding: 2rem;
-  color: rgba(216, 224, 229, 0.5);
+  color: var(--sf-text-muted);
   font-size: 0.9rem;
 }
 
 .adv-loading__spinner {
   width: 20px;
   height: 20px;
-  border: 2px solid rgba(122, 143, 224, 0.2);
-  border-top-color: #7B8FE0;
+  border: 2px solid rgba(var(--sf-accent-rgb), 0.2);
+  border-top-color: var(--sf-accent);
   border-radius: 50%;
   animation: adv-spin 0.8s linear infinite;
 }
@@ -209,20 +283,23 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(7, 16, 25, 0.85);
-  backdrop-filter: blur(4px);
+  background: rgba(15, 15, 35, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   animation: adv-fadeIn 0.2s ease;
 }
 
 .adv-upgrade-modal {
   position: relative;
-  background: rgba(15, 25, 40, 0.97);
-  border: 1px solid rgba(122, 143, 224, 0.15);
+  background: var(--sf-bg-elevated);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--sf-border-hover);
   border-radius: 16px;
   padding: 2.5rem;
   text-align: center;
   min-width: 320px;
   max-width: 420px;
+  box-shadow: var(--sf-shadow-lift), var(--sf-shadow-glow);
 }
 
 .adv-upgrade-close {
@@ -231,7 +308,7 @@
   right: 0.75rem;
   background: none;
   border: none;
-  color: rgba(216, 224, 229, 0.4);
+  color: var(--sf-text-dim);
   font-size: 1.4rem;
   cursor: pointer;
   padding: 0.25rem;
@@ -239,7 +316,7 @@
 }
 
 .adv-upgrade-close:hover {
-  color: var(--dark-text);
+  color: var(--sf-text);
 }
 
 .adv-upgrade-icon {
@@ -247,19 +324,21 @@
 }
 
 .adv-upgrade-icon i {
-  color: #FFD700;
+  color: var(--sf-warning);
   font-size: 2.5rem;
+  filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.4));
 }
 
 .adv-upgrade-title {
   font-size: 1.4rem;
-  font-weight: 700;
+  font-family: var(--sf-font-display);
+  font-weight: 400;
   margin-bottom: 0.5rem;
 }
 
 .adv-upgrade-text {
   font-size: 0.9rem;
-  color: rgba(216, 224, 229, 0.6);
+  color: var(--sf-text-muted);
   margin-bottom: 1.25rem;
   line-height: 1.5;
 }
@@ -277,11 +356,11 @@
   gap: 0.6rem;
   padding: 0.4rem 0;
   font-size: 0.85rem;
-  color: rgba(216, 224, 229, 0.8);
+  color: rgba(var(--sf-text-rgb), 0.8);
 }
 
 .adv-upgrade-features li i {
-  color: #55E082;
+  color: var(--sf-success);
   font-size: 0.75rem;
   width: 16px;
   text-align: center;
@@ -294,22 +373,22 @@
 }
 
 .adv-upgrade-btn {
-  background: linear-gradient(135deg, #7B8FE0, #6a11cb);
+  background: var(--sf-gradient);
   border: none;
   color: #fff;
   font-weight: 600;
 }
 
 .adv-upgrade-btn:hover {
-  background: linear-gradient(135deg, #8B9FEF, #7a21db);
+  box-shadow: 0 0 20px rgba(var(--sf-accent-rgb), 0.3);
 }
 
 .adv-upgrade-dismiss {
   background: transparent;
   border-color: transparent;
-  color: rgba(216, 224, 229, 0.4);
+  color: var(--sf-text-dim);
 }
 
 .adv-upgrade-dismiss:hover {
-  color: rgba(216, 224, 229, 0.7);
+  color: var(--sf-text-muted);
 }

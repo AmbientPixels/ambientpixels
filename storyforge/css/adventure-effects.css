@@ -78,9 +78,9 @@
 }
 
 @keyframes adv-healGlow {
-  0% { box-shadow: 0 0 0 rgba(85, 224, 130, 0); }
-  50% { box-shadow: 0 0 12px rgba(85, 224, 130, 0.4); }
-  100% { box-shadow: 0 0 0 rgba(85, 224, 130, 0); }
+  0% { box-shadow: 0 0 0 rgba(52, 211, 153, 0); }
+  50% { box-shadow: 0 0 16px rgba(52, 211, 153, 0.5); }
+  100% { box-shadow: 0 0 0 rgba(52, 211, 153, 0); }
 }
 
 /* Item gain pulse */
@@ -99,7 +99,7 @@
   display: inline-block;
   width: 2px;
   height: 1.1em;
-  background: #7B8FE0;
+  background: var(--sf-accent, #7C3AED);
   margin-left: 2px;
   vertical-align: text-bottom;
   animation: adv-blink 0.8s step-end infinite;
@@ -157,22 +157,22 @@
   to { opacity: 0; transform: translateY(-8px); }
 }
 
-/* Genre accent color override */
-.adv-app[data-genre="fantasy"] { --adv-accent: #7B8FE0; }
-.adv-app[data-genre="horror"] { --adv-accent: #E05555; }
-.adv-app[data-genre="scifi"] { --adv-accent: #55E0C8; }
-.adv-app[data-genre="detective"] { --adv-accent: #E0C855; }
-.adv-app[data-genre="postapoc"] { --adv-accent: #C8E055; }
-.adv-app[data-genre="pirate"] { --adv-accent: #E09055; }
+/* Genre accent color override — overrides --sf-accent per genre */
+.adv-app[data-genre="fantasy"] { --sf-accent: #7C3AED; --sf-accent-rgb: 124, 58, 237; --sf-accent-soft: #A78BFA; }
+.adv-app[data-genre="horror"] { --sf-accent: #EF4444; --sf-accent-rgb: 239, 68, 68; --sf-accent-soft: #FCA5A5; }
+.adv-app[data-genre="scifi"] { --sf-accent: #06B6D4; --sf-accent-rgb: 6, 182, 212; --sf-accent-soft: #67E8F9; }
+.adv-app[data-genre="detective"] { --sf-accent: #FBBF24; --sf-accent-rgb: 251, 191, 36; --sf-accent-soft: #FDE68A; }
+.adv-app[data-genre="postapoc"] { --sf-accent: #84CC16; --sf-accent-rgb: 132, 204, 22; --sf-accent-soft: #BEF264; }
+.adv-app[data-genre="pirate"] { --sf-accent: #F97316; --sf-accent-rgb: 249, 115, 22; --sf-accent-soft: #FDBA74; }
 
 /* Apply accent to key elements */
 .adv-choice__key {
-  background: rgba(var(--adv-accent-rgb, 122, 143, 224), 0.15);
-  color: var(--adv-accent, #7B8FE0);
+  background: rgba(var(--sf-accent-rgb), 0.15);
+  color: var(--sf-accent-soft);
 }
 
 .adv-scene__progress-fill {
-  background: linear-gradient(90deg, var(--adv-accent, #7B8FE0), var(--nebulight-accent, #6a11cb));
+  background: linear-gradient(90deg, var(--sf-accent), var(--sf-cta, #F43F5E));
 }
 
 /* ── Scene Image Loading Effects ── */
@@ -193,7 +193,7 @@
   min-height: 1.4em;
   font-style: italic;
   font-size: 0.85rem;
-  color: rgba(216, 224, 229, 0.45);
+  color: rgba(var(--sf-text-rgb, 226, 232, 240), 0.45);
   transition: opacity 0.4s ease;
 }
 

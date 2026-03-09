@@ -7,7 +7,7 @@
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
   <title>StoryForge — AmbientPixels</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700&family=Russo+One&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/base.css" />
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="css/adventure-base.css" />
@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="css/adventure-effects.css" />
   <link rel="stylesheet" href="css/adventure-responsive.css" />
 </head>
-<body style="background:#071019" data-theme="dark">
+<body style="background:#0F0F23" data-theme="dark">
   <div class="adv-app" id="advApp">
 
     <!-- Header -->
@@ -48,12 +48,12 @@
       <div id="screenGenreSelect" class="adv-genre-select">
         <div style="text-align:center; max-width:700px; margin:0 auto;">
           <h1 style="font-size:1.8rem; margin-bottom:0.5rem;">Choose Your Genre</h1>
-          <p style="color:rgba(216,224,229,0.6); margin-bottom:2rem;">Each genre shapes the world, the dangers, and the stories you'll discover.</p>
+          <p style="color:rgba(226,232,240,0.6); margin-bottom:2rem;">Each genre shapes the world, the dangers, and the stories you'll discover.</p>
           <div id="genreGrid" class="adv-genre-grid"></div>
           <div style="margin-top:2rem;">
-            <label style="font-size:0.85rem; color:rgba(216,224,229,0.6); display:block; margin-bottom:0.5rem;">Character Name (optional)</label>
+            <label style="font-size:0.85rem; color:rgba(226,232,240,0.6); display:block; margin-bottom:0.5rem;">Character Name (optional)</label>
             <input type="text" id="playerNameInput" placeholder="Leave blank for a random name" maxlength="30"
-              style="background:rgba(15,25,40,0.6); border:1px solid rgba(122,143,224,0.15); border-radius:8px; padding:0.6rem 1rem; color:var(--dark-text); font-size:0.95rem; width:100%; max-width:300px; font-family:inherit;" />
+              style="background:rgba(31,29,75,0.4); border:1px solid rgba(124,58,237,0.15); border-radius:8px; padding:0.6rem 1rem; color:var(--sf-text); font-size:0.95rem; width:100%; max-width:300px; font-family:inherit;" />
           </div>
           <!-- Character Appearance (shown after genre pick) -->
           <div id="characterCreator" class="adv-char-creator" style="display:none;">
@@ -97,16 +97,16 @@
             </div>
           </div>
           <div class="adv-narrator-option" style="margin-top:1.5rem; display:flex; align-items:center; justify-content:center; gap:0.6rem;">
-            <label class="adv-narrator-toggle" style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.85rem; color:rgba(216,224,229,0.7);">
-              <input type="checkbox" id="narratorToggle" checked style="accent-color:#7B8FE0;" />
+            <label class="adv-narrator-toggle" style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.85rem; color:rgba(226,232,240,0.7);">
+              <input type="checkbox" id="narratorToggle" checked style="accent-color:#7C3AED;" />
               <i class="fas fa-microphone"></i> AI Narrator
             </label>
-            <span style="font-size:0.75rem; color:rgba(216,224,229,0.4);">Voice narrates each scene</span>
+            <span style="font-size:0.75rem; color:rgba(226,232,240,0.4);">Voice narrates each scene</span>
           </div>
           <button class="adv-btn adv-btn--primary" id="startAdventureBtn" disabled style="margin-top:0.75rem; padding:0.75rem 2rem; font-size:1rem;">
             <i class="fas fa-play"></i> Begin Adventure
           </button>
-          <div class="adv-char-creator__hint" id="portraitHint" style="margin-top:0.5rem; font-size:0.8rem; color:rgba(216,224,229,0.6);">
+          <div class="adv-char-creator__hint" id="portraitHint" style="margin-top:0.5rem; font-size:0.8rem; color:rgba(226,232,240,0.6);">
             <i class="fas fa-info-circle"></i> Generate a portrait to begin your adventure
           </div>
         </div>
@@ -202,7 +202,7 @@
             <div class="adv-panel">
               <div class="adv-panel__title">Journal</div>
               <div class="adv-events" id="eventsContainer">
-                <div class="adv-event" style="color:rgba(216,224,229,0.3); font-style:italic;">Adventure begins...</div>
+                <div class="adv-event" style="color:rgba(226,232,240,0.3); font-style:italic;">Adventure begins...</div>
               </div>
             </div>
           </aside>
@@ -291,43 +291,49 @@
       align-items: center;
       gap: 0;
       padding: 0;
-      background: rgba(15, 25, 40, 0.6);
-      border: 2px solid rgba(122, 143, 224, 0.08);
+      background: var(--sf-bg-surface);
+      backdrop-filter: var(--sf-glass-blur);
+      border: 2px solid var(--sf-border);
       border-radius: 12px;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all var(--sf-transition);
       text-align: center;
       overflow: hidden;
     }
     .adv-genre-card:hover {
-      background: rgba(15, 25, 40, 0.8);
-      border-color: rgba(122, 143, 224, 0.2);
-      transform: translateY(-2px);
+      background: var(--sf-bg-surface-hover);
+      border-color: var(--sf-border-hover);
+      transform: translateY(-4px);
+      box-shadow: var(--sf-shadow-glow);
     }
     .adv-genre-card--selected {
-      border-color: var(--adv-accent, #7B8FE0);
-      background: rgba(122, 143, 224, 0.1);
+      border-color: var(--sf-accent);
+      background: rgba(var(--sf-accent-rgb), 0.1);
+      box-shadow: var(--sf-shadow-glow);
     }
     .adv-genre-card__img {
       width: 100%;
       aspect-ratio: 1;
       object-fit: cover;
       display: block;
-      opacity: 0.8;
-      transition: opacity 0.2s;
+      opacity: 0.75;
+      transition: opacity 0.3s, transform 0.3s;
     }
     .adv-genre-card:hover .adv-genre-card__img,
     .adv-genre-card--selected .adv-genre-card__img {
       opacity: 1;
+      transform: scale(1.05);
     }
     .adv-genre-card__name {
       font-size: 0.95rem;
-      font-weight: 600;
+      font-family: var(--sf-font-display);
+      font-weight: 400;
       padding: 0.75rem 0.75rem 0.15rem;
+      letter-spacing: 0.02em;
     }
     .adv-genre-card__desc {
       font-size: 0.75rem;
-      color: rgba(216, 224, 229, 0.5);
+      color: var(--sf-text-muted);
       line-height: 1.4;
       padding: 0 0.75rem 0.75rem;
     }

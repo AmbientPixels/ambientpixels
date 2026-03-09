@@ -265,11 +265,11 @@ window.AdventureRPG = (function () {
   }
 
   var ITEM_TYPE_COLORS = {
-    weapon: '#E07B7B',
-    armor: '#7B9FE0',
-    consumable: '#55E082',
-    tool: '#9BA3AE',
-    quest_item: '#E0C855'
+    weapon: '#F87171',
+    armor: '#60A5FA',
+    consumable: '#34D399',
+    tool: '#94A3B8',
+    quest_item: '#FBBF24'
   };
 
   function isAlive(state) {
