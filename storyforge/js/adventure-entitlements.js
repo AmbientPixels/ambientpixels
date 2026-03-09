@@ -105,6 +105,13 @@ window.AdventureEntitlements = (function () {
   function startCheckout(productId) {
     productId = productId || 'sf-pro-monthly';
 
+    // Redirect to login if not signed in
+    if (sessionStorage.getItem('isAuthenticated') !== 'true' &&
+        !(document.body && document.body.getAttribute('data-auth-state') === 'signed-in')) {
+      window.location.href = '/.auth/login/aad?post_login_redirect_uri=/storyforge/';
+      return;
+    }
+
     return fetch('https://ambientpixels-nova-api.azurewebsites.net/api/storyforge-checkout', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -154,18 +161,23 @@ window.AdventureEntitlements = (function () {
           '<li><i class="fas fa-check"></i> Unlimited save slots</li>' +
         '</ul>' +
         '<div class="adv-upgrade-actions">' +
-          '<button class="adv-btn adv-btn--primary adv-upgrade-btn">Upgrade — $10/mo</button>' +
+          '<button class="adv-btn adv-btn--primary adv-upgrade-btn" data-product="sf-pro-monthly">$9.99 / month</button>' +
+          '<button class="adv-btn adv-btn--primary adv-upgrade-btn" data-product="sf-pro-yearly" style="background:linear-gradient(135deg,#c471ed,#f64f59)">$7.99/mo (yearly)</button>' +
           '<button class="adv-btn adv-upgrade-dismiss">Maybe Later</button>' +
         '</div>' +
+        '<p style="color:rgba(255,255,255,0.3);font-size:0.7rem;margin-top:0.5rem;text-align:center">Yearly plan billed at $95.88/year. Cancel anytime.</p>' +
       '</div>';
 
     document.body.appendChild(overlay);
 
     overlay.querySelector('.adv-upgrade-close').addEventListener('click', function () { overlay.remove(); });
     overlay.querySelector('.adv-upgrade-dismiss').addEventListener('click', function () { overlay.remove(); });
-    overlay.querySelector('.adv-upgrade-btn').addEventListener('click', function () {
-      overlay.remove();
-      startCheckout('sf-pro-monthly');
+    overlay.querySelectorAll('.adv-upgrade-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var pid = this.getAttribute('data-product');
+        overlay.remove();
+        startCheckout(pid);
+      });
     });
     overlay.addEventListener('click', function (e) {
       if (e.target === overlay) overlay.remove();
