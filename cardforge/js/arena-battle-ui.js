@@ -393,6 +393,16 @@ window.ArenaBattleUI = (function () {
     }
   }
 
+  function showCrowdBoostFlash() {
+    var field = document.querySelector('.arena-battle__field');
+    if (!field) return;
+    var badge = document.createElement('div');
+    badge.className = 'arena-crowd-boost-flash';
+    badge.textContent = '⚡ CROWD BOOST!';
+    field.appendChild(badge);
+    setTimeout(function () { badge.remove(); }, 1000);
+  }
+
   function showCrowdErupts() {
     var field = document.querySelector('.arena-battle__field');
     if (!field) return;
@@ -444,6 +454,9 @@ window.ArenaBattleUI = (function () {
     const firstCrit    = speedWinner === 'player' ? playerCrit   : opponentCrit;
     const secondCrit   = speedWinner === 'player' ? opponentCrit : playerCrit;
 
+    // Crowd boost detection
+    const crowdBoosted = result.events && result.events.some(e => e.includes('Crowd energy fuels your attack'));
+
     // A1: Show speed badge near the faster combatant
     showSpeedBadge(speedWinner);
 
@@ -459,6 +472,12 @@ window.ArenaBattleUI = (function () {
       showCritBanner(firstTarget);
       if (audio) audio.play('crit');
       await sleep(150);
+    }
+
+    // Crowd boost flash — player was first and boost fired
+    if (crowdBoosted && firstSide === 'player') {
+      showCrowdBoostFlash();
+      await sleep(200);
     }
 
     // A2: kill-shot check — if first attacker drops target to 0, skip Phase 2
@@ -487,6 +506,12 @@ window.ArenaBattleUI = (function () {
         showCritBanner(secondTarget);
         if (audio) audio.play('crit');
         await sleep(150);
+      }
+
+      // Crowd boost flash — player was second and boost fired
+      if (crowdBoosted && secondSide === 'player') {
+        showCrowdBoostFlash();
+        await sleep(200);
       }
 
       // A2: kill-shot check after Phase 2
