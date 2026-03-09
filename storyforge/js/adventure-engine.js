@@ -1448,26 +1448,12 @@
     ]
   };
 
-  var GENRE_LOADING_ICONS = {
-    fantasy: 'fa-dragon',
-    horror: 'fa-ghost',
-    scifi: 'fa-rocket',
-    detective: 'fa-magnifying-glass',
-    postapoc: 'fa-radiation',
-    pirate: 'fa-skull-crossbones'
-  };
-
   var loadingTextInterval = null;
 
   function startLoadingTextCycle() {
     stopLoadingTextCycle();
     var genreId = selectedGenre ? selectedGenre.id : null;
     var messages = (genreId && GENRE_LOADING_MESSAGES[genreId]) || ['Generating scene...'];
-    var icon = (genreId && GENRE_LOADING_ICONS[genreId]) || 'fa-image';
-
-    // Set genre icon
-    var iconEl = UI.$('loadingIcon');
-    if (iconEl) iconEl.className = 'fas ' + icon;
 
     var textEl = UI.$('loadingText');
     if (!textEl) return;
@@ -1499,7 +1485,7 @@
     if (freq > 1 && gameState.turnCount % freq !== 1) {
       // Skip image on this turn for free tier
       var placeholder = UI.$('sceneImagePlaceholder');
-      placeholder.innerHTML = '<i class="fas fa-image"></i><span>Images every scene with Pro</span>';
+      placeholder.innerHTML = '<span class="adv-loading-text">Images every scene with Pro</span>';
       placeholder.style.display = '';
       UI.$('sceneImage').classList.remove('adv-scene__image--loaded');
       return;
@@ -1530,7 +1516,7 @@
           stopLoadingTextCycle();
           stopSceneArt(function () {
             var placeholder = UI.$('sceneImagePlaceholder');
-            placeholder.innerHTML = '<i class="fas fa-image"></i><span>Image unavailable</span>';
+            placeholder.innerHTML = '<span class="adv-loading-text">Image unavailable</span>';
           });
         }
       })
@@ -1538,7 +1524,7 @@
         stopLoadingTextCycle();
         stopSceneArt(function () {
           var placeholder = UI.$('sceneImagePlaceholder');
-          if (placeholder) placeholder.innerHTML = '<i class="fas fa-image"></i><span>Image unavailable</span>';
+          if (placeholder) placeholder.innerHTML = '<span class="adv-loading-text">Image unavailable</span>';
         });
       });
   }
