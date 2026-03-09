@@ -1168,8 +1168,10 @@
           var img = UI.$('sceneImage');
           img.onload = function () {
             stopLoadingTextCycle();
-            img.classList.add('adv-scene__image--loaded');
-            UI.$('sceneImagePlaceholder').style.display = 'none';
+            stopSceneArt(function () {
+              img.classList.add('adv-scene__image--loaded');
+              UI.$('sceneImagePlaceholder').style.display = 'none';
+            });
           };
           img.src = dataUrl;
           // Store for potential gallery use
@@ -1179,14 +1181,18 @@
         } else {
           // Show "unavailable" state instead of infinite spinner
           stopLoadingTextCycle();
-          var placeholder = UI.$('sceneImagePlaceholder');
-          placeholder.innerHTML = '<i class="fas fa-image"></i><span>Image unavailable</span>';
+          stopSceneArt(function () {
+            var placeholder = UI.$('sceneImagePlaceholder');
+            placeholder.innerHTML = '<i class="fas fa-image"></i><span>Image unavailable</span>';
+          });
         }
       })
       .catch(function () {
         stopLoadingTextCycle();
-        var placeholder = UI.$('sceneImagePlaceholder');
-        if (placeholder) placeholder.innerHTML = '<i class="fas fa-image"></i><span>Image unavailable</span>';
+        stopSceneArt(function () {
+          var placeholder = UI.$('sceneImagePlaceholder');
+          if (placeholder) placeholder.innerHTML = '<i class="fas fa-image"></i><span>Image unavailable</span>';
+        });
       });
   }
 
@@ -1195,9 +1201,22 @@
     img.classList.remove('adv-scene__image--loaded');
     img.src = '';
     var placeholder = UI.$('sceneImagePlaceholder');
-    placeholder.innerHTML = '<i class="fas fa-image" id="loadingIcon"></i><span class="adv-loading-text" id="loadingText">Generating scene...</span>';
+    placeholder.innerHTML = '<span class="adv-loading-text" id="loadingText">Generating scene...</span>';
     placeholder.style.display = '';
     startLoadingTextCycle();
+    // Start Narrative Drift algorithmic art
+    var wrap = UI.$('sceneImageWrap');
+    if (wrap && typeof NarrativeDrift !== 'undefined') {
+      NarrativeDrift.start(wrap, selectedGenre ? selectedGenre.id : 'fantasy');
+    }
+  }
+
+  function stopSceneArt(callback) {
+    if (typeof NarrativeDrift !== 'undefined' && NarrativeDrift.isRunning()) {
+      NarrativeDrift.stop(callback);
+    } else {
+      if (callback) callback();
+    }
   }
 
   // --- Inventory Interactions ---
