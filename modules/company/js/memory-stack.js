@@ -102,7 +102,8 @@
       L3: 'Seed memories from blob (_global + optional per-agent guidance).',
       L4: 'Runtime memory stack (agent memories + runtimeMemory payloads).',
       L5: 'CEO notes/workspace memory injected as operational context.',
-      L6: 'Generated site digest file injected near prompt tail.'
+      L6: 'Generated site digest file injected near prompt tail.',
+      L7: 'CEO-approved research findings from Scout — available to all agents.'
     };
     return map[layerId] || 'Memory layer.';
   }
@@ -736,7 +737,7 @@
     var key = evt.key;
 
     // 1-6: select layer
-    if (key >= '1' && key <= '6') {
+    if (key >= '1' && key <= '7') {
       var idx = parseInt(key, 10) - 1;
       if (state.layers[idx]) {
         selectLayerById(state.layers[idx].id);

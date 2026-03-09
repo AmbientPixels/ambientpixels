@@ -10,7 +10,7 @@ const CORS = {
   'Content-Type': 'application/json'
 };
 
-const VALID_LAYERS = ['L1', 'L2', 'L3', 'L4', 'L5', 'L6'];
+const VALID_LAYERS = ['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7'];
 const REDACT_KEY_RE = /token|secret|key|authorization|password/i;
 
 function toIsoOrNull(ts) {
@@ -279,8 +279,24 @@ function buildLayerRecords(data) {
       status: digest ? 'ok' : 'empty',
       staleThresholdMs: 24 * 60 * 60 * 1000,
       description: 'Generated site manifest digest injected at tail of prompt',
-      order: '6/6',
+      order: '6/7',
       sourcePath: data.digestSourcePath || ''
+    },
+    L7: {
+      id: 'L7',
+      name: 'Research Intel',
+      source: 'blob',
+      scope: 'global',
+      payload: data.researchIntel,
+      agentMap: null,
+      agentsCovered: data.agentDefs.length,
+      lastUpdatedAt: toIsoOrNull(latestTsFromArray(data.researchIntel)),
+      sizeBytes: approxBytes(data.researchIntel),
+      status: data.researchIntel.length > 0 ? 'ok' : 'empty',
+      staleThresholdMs: null,
+      description: 'CEO-approved research findings from Scout — available to all agents',
+      order: '7/7',
+      sourcePath: 'blob:researchIntel'
     }
   };
 
@@ -399,6 +415,7 @@ async function loadLayerSources() {
   const agentMemories = (await storage.getState('agentMemories')) || {};
   const workspaceMemory = (await storage.getState('workspaceMemory')) || [];
   const runtimeMemory = (await storage.getState('runtimeMemory')) || {};
+  const researchIntel = (await storage.getState('researchIntel')) || [];
 
   return {
     agentDefs: companyAgents,
@@ -410,7 +427,8 @@ async function loadLayerSources() {
     agentSeedMemories,
     agentMemories,
     workspaceMemory,
-    runtimeMemory
+    runtimeMemory,
+    researchIntel
   };
 }
 
