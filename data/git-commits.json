@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "81d33404-5878-4427-abef-e1afedf5d965",
-      "hash": "14283ccee3a68d5bf4d1cf54c74c797df712aca3",
-      "message": "Fix \"Card not found\" error when loading cloud-only cards",
-      "timestamp": "2026-03-08 00:27:38 -0800",
+      "id": "420c157a-e245-46d5-b427-1e417deac6b3",
+      "hash": "727db63fffc45d4d767ece39f32ac4abbea7ddb8",
+      "message": "feat(storyforge): disable DEV_BYPASS — auth-based tiers now live",
+      "timestamp": "2026-03-09 00:16:34 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/14283ccee3a68d5bf4d1cf54c74c797df712aca3"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/727db63fffc45d4d767ece39f32ac4abbea7ddb8"
     }
   ],
-  "timestamp": "2026-03-08T13:42:04.586Z",
+  "timestamp": "2026-03-09T14:07:04.188Z",
   "count": 1,
-  "scanId": 1772977324586
+  "scanId": 1773065224188
 }

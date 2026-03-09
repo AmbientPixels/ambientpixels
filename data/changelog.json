@@ -1,10 +1,10 @@
 {
-  "updated": "2026-03-08T13:42:01.858Z",
+  "updated": "2026-03-09T14:07:03.212Z",
   "entries": [
     {
-      "hash": "14283cc",
-      "date": "2026-03-08 00:27:38 -0800",
-      "message": "Fix \"Card not found\" error when loading cloud-only cards"
+      "hash": "727db63",
+      "date": "2026-03-09 00:16:34 -0700",
+      "message": "feat(storyforge): disable DEV_BYPASS — auth-based tiers now live"
     }
   ]
 }
