@@ -1,12 +1,5 @@
 /* adventure-play.css — Play screen: scene panel, choices, stats sidebar */
 
-/* Register custom property for detective spotlight animation */
-@property --spot-x {
-  syntax: '<percentage>';
-  inherits: false;
-  initial-value: 0%;
-}
-
 .adv-play {
   display: flex;
   gap: 1.5rem;
@@ -23,241 +16,46 @@
   min-width: 0;
 }
 
+/* ── Scene Image Wrap — Genre gradient backgrounds ── */
 .adv-scene__image-wrap {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
   border-radius: 14px;
   overflow: hidden;
-  background:
-    radial-gradient(ellipse at 30% 40%, rgba(var(--sf-accent-rgb), 0.12) 0%, transparent 60%),
-    radial-gradient(ellipse at 70% 60%, rgba(var(--sf-accent-rgb), 0.08) 0%, transparent 50%),
-    linear-gradient(135deg, #0a0a1a 0%, #12102a 50%, #0d0d1f 100%);
+  background: linear-gradient(135deg, #0f0a2e 0%, #1a1145 50%, #0d0825 100%);
   border: 1px solid var(--sf-border);
   box-shadow: var(--sf-shadow-lift);
 }
 
-/* ── Genre Loading Shimmer (::before) ── */
-.adv-scene__image-wrap::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  z-index: 2;
-  pointer-events: none;
-  /* Default: horizontal sweep */
-  background: linear-gradient(
-    105deg,
-    transparent 30%,
-    rgba(var(--sf-accent-rgb), 0.06) 45%,
-    rgba(var(--sf-accent-rgb), 0.12) 50%,
-    rgba(var(--sf-accent-rgb), 0.06) 55%,
-    transparent 70%
-  );
-  background-size: 200% 100%;
-  animation: adv-shimmer 3s ease-in-out infinite;
-}
-
-/* Hide shimmer once image is loaded */
-.adv-scene__image-wrap:has(.adv-scene__image--loaded)::before {
-  opacity: 0;
-  transition: opacity 0.4s ease;
-}
-
-/* Default shimmer */
-@keyframes adv-shimmer {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-
-/* ── Fantasy — Radial pulse, arcane energy gathering ── */
+/* Fantasy — violet to indigo */
 .adv-app[data-genre="fantasy"] .adv-scene__image-wrap {
-  background:
-    radial-gradient(ellipse at 50% 50%, rgba(124, 58, 237, 0.15) 0%, transparent 55%),
-    radial-gradient(ellipse at 20% 70%, rgba(167, 139, 250, 0.08) 0%, transparent 45%),
-    radial-gradient(ellipse at 80% 30%, rgba(220, 180, 255, 0.06) 0%, transparent 40%),
-    linear-gradient(160deg, #0c081e 0%, #150e30 50%, #0c081e 100%);
+  background: linear-gradient(135deg, #1a0533 0%, #2d1b69 40%, #1b0f4a 70%, #0f0a2e 100%);
 }
 
-.adv-app[data-genre="fantasy"] .adv-scene__image-wrap::before {
-  background: radial-gradient(
-    ellipse at 50% 50%,
-    rgba(124, 58, 237, 0.14) 0%,
-    rgba(167, 139, 250, 0.06) 40%,
-    transparent 70%
-  );
-  background-size: 100% 100%;
-  animation: adv-shimmer-fantasy 4s ease-in-out infinite;
-}
-
-@keyframes adv-shimmer-fantasy {
-  0%, 100% { transform: scale(0.8); opacity: 0.3; }
-  50% { transform: scale(1.3); opacity: 1; }
-}
-
-/* ── Horror — Erratic flicker/glitch ── */
+/* Horror — deep red to black */
 .adv-app[data-genre="horror"] .adv-scene__image-wrap {
-  background:
-    radial-gradient(ellipse at 60% 40%, rgba(239, 68, 68, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 30% 70%, rgba(180, 40, 40, 0.06) 0%, transparent 40%),
-    linear-gradient(180deg, #0a0505 0%, #120808 50%, #080404 100%);
+  background: linear-gradient(180deg, #1a0a0a 0%, #2d0f0f 35%, #1a0505 70%, #0a0303 100%);
 }
 
-.adv-app[data-genre="horror"] .adv-scene__image-wrap::before {
-  background: linear-gradient(
-    180deg,
-    transparent 0%,
-    rgba(239, 68, 68, 0.08) 48%,
-    rgba(239, 68, 68, 0.15) 50%,
-    rgba(239, 68, 68, 0.08) 52%,
-    transparent 100%
-  );
-  background-size: 100% 300%;
-  animation: adv-shimmer-horror 2s steps(8) infinite;
-}
-
-@keyframes adv-shimmer-horror {
-  0% { background-position: 0 100%; opacity: 0.6; }
-  20% { opacity: 1; }
-  40% { opacity: 0.2; }
-  60% { background-position: 0 -50%; opacity: 0.8; }
-  80% { opacity: 0.3; }
-  100% { background-position: 0 -200%; opacity: 0.6; }
-}
-
-/* ── Sci-fi — Horizontal scan line ── */
+/* Sci-fi — dark teal to navy */
 .adv-app[data-genre="scifi"] .adv-scene__image-wrap {
-  background:
-    radial-gradient(ellipse at 50% 50%, rgba(6, 182, 212, 0.1) 0%, transparent 60%),
-    radial-gradient(ellipse at 80% 20%, rgba(103, 232, 249, 0.05) 0%, transparent 35%),
-    linear-gradient(135deg, #050c14 0%, #081018 50%, #050c14 100%);
+  background: linear-gradient(135deg, #061520 0%, #0a2a3a 40%, #082030 70%, #04101a 100%);
 }
 
-.adv-app[data-genre="scifi"] .adv-scene__image-wrap::before {
-  background: linear-gradient(
-    180deg,
-    transparent 0%,
-    transparent 45%,
-    rgba(6, 182, 212, 0.2) 49%,
-    rgba(103, 232, 249, 0.35) 50%,
-    rgba(6, 182, 212, 0.2) 51%,
-    transparent 55%,
-    transparent 100%
-  );
-  background-size: 100% 100%;
-  animation: adv-shimmer-scifi 2.5s linear infinite;
-}
-
-@keyframes adv-shimmer-scifi {
-  0% { transform: translateY(-100%); }
-  100% { transform: translateY(100%); }
-}
-
-/* ── Detective — Spotlight sweep ── */
+/* Detective — dark amber to brown */
 .adv-app[data-genre="detective"] .adv-scene__image-wrap {
-  background:
-    radial-gradient(ellipse at 40% 50%, rgba(251, 191, 36, 0.08) 0%, transparent 50%),
-    radial-gradient(ellipse at 70% 40%, rgba(253, 230, 138, 0.05) 0%, transparent 35%),
-    linear-gradient(150deg, #0f0c05 0%, #140f08 50%, #0a0804 100%);
+  background: linear-gradient(150deg, #1a1408 0%, #2a2010 35%, #1a1508 70%, #0f0c04 100%);
 }
 
-.adv-app[data-genre="detective"] .adv-scene__image-wrap::before {
-  background: radial-gradient(
-    ellipse 30% 80% at var(--spot-x, 0%) 50%,
-    rgba(251, 191, 36, 0.15) 0%,
-    rgba(253, 230, 138, 0.05) 40%,
-    transparent 70%
-  );
-  background-size: 100% 100%;
-  animation: adv-shimmer-detective 4s ease-in-out infinite;
-}
-
-@keyframes adv-shimmer-detective {
-  0% { --spot-x: -10%; opacity: 0.5; }
-  50% { --spot-x: 110%; opacity: 1; }
-  100% { --spot-x: -10%; opacity: 0.5; }
-}
-
-/* Fallback for browsers without @property — animate via translate */
-@supports not (background: radial-gradient(ellipse at var(--x) 50%, red, blue)) {
-  .adv-app[data-genre="detective"] .adv-scene__image-wrap::before {
-    background: radial-gradient(
-      ellipse 35% 80% at 50% 50%,
-      rgba(251, 191, 36, 0.15) 0%,
-      rgba(253, 230, 138, 0.05) 40%,
-      transparent 70%
-    );
-    animation: adv-shimmer-detective-fb 4s ease-in-out infinite;
-  }
-}
-
-@keyframes adv-shimmer-detective-fb {
-  0% { transform: translateX(-60%); opacity: 0.5; }
-  50% { transform: translateX(60%); opacity: 1; }
-  100% { transform: translateX(-60%); opacity: 0.5; }
-}
-
-/* ── Post-apocalyptic — Static grain with intermittent flashes ── */
+/* Post-apocalyptic — olive to dark earth */
 .adv-app[data-genre="postapoc"] .adv-scene__image-wrap {
-  background:
-    radial-gradient(ellipse at 50% 60%, rgba(132, 204, 22, 0.07) 0%, transparent 55%),
-    radial-gradient(ellipse at 20% 30%, rgba(80, 140, 20, 0.05) 0%, transparent 40%),
-    linear-gradient(170deg, #0a0c05 0%, #0d0f08 50%, #080a04 100%);
+  background: linear-gradient(170deg, #0f1508 0%, #1a2510 40%, #121a0a 70%, #080c04 100%);
 }
 
-.adv-app[data-genre="postapoc"] .adv-scene__image-wrap::before {
-  background:
-    repeating-linear-gradient(
-      0deg,
-      transparent 0px,
-      rgba(132, 204, 22, 0.03) 1px,
-      transparent 2px,
-      transparent 4px
-    ),
-    linear-gradient(
-      180deg,
-      transparent 0%,
-      rgba(132, 204, 22, 0.08) 50%,
-      transparent 100%
-    );
-  background-size: 100% 4px, 100% 200%;
-  animation: adv-shimmer-postapoc 3s steps(4) infinite;
-}
-
-@keyframes adv-shimmer-postapoc {
-  0% { background-position: 0 0, 0 100%; opacity: 0.5; }
-  25% { opacity: 0.9; }
-  50% { background-position: 0 2px, 0 -50%; opacity: 0.4; }
-  75% { opacity: 1; }
-  100% { background-position: 0 0, 0 -200%; opacity: 0.5; }
-}
-
-/* ── Pirate — Wave undulation ── */
+/* Pirate — warm amber to dark brown */
 .adv-app[data-genre="pirate"] .adv-scene__image-wrap {
-  background:
-    radial-gradient(ellipse at 50% 70%, rgba(249, 115, 22, 0.1) 0%, transparent 55%),
-    radial-gradient(ellipse at 30% 30%, rgba(253, 186, 116, 0.06) 0%, transparent 40%),
-    linear-gradient(165deg, #0f0a05 0%, #14100a 50%, #0a0805 100%);
-}
-
-.adv-app[data-genre="pirate"] .adv-scene__image-wrap::before {
-  background: linear-gradient(
-    105deg,
-    transparent 20%,
-    rgba(249, 115, 22, 0.05) 35%,
-    rgba(249, 115, 22, 0.12) 50%,
-    rgba(253, 186, 116, 0.06) 65%,
-    transparent 80%
-  );
-  background-size: 200% 100%;
-  animation: adv-shimmer-pirate 3.5s ease-in-out infinite;
-}
-
-@keyframes adv-shimmer-pirate {
-  0% { background-position: 200% 0; transform: translateY(3%); }
-  25% { transform: translateY(-2%); }
-  50% { background-position: -200% 0; transform: translateY(3%); }
-  75% { transform: translateY(-1%); }
-  100% { background-position: 200% 0; transform: translateY(3%); }
+  background: linear-gradient(165deg, #1a1008 0%, #2a1a0a 35%, #1a1208 70%, #0f0a04 100%);
 }
 
 .adv-scene__image {
@@ -1319,6 +1117,76 @@
   color: rgba(var(--sf-text-rgb), 0.6);
   line-height: 1.5;
   min-height: 1.5rem;
+}
+
+/* --- Art Style Selector --- */
+.adv-art-style {
+  margin-top: 1rem;
+}
+
+.adv-art-style__label {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--sf-text-muted);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.adv-art-style__label i {
+  margin-right: 0.3em;
+  color: var(--sf-accent);
+}
+
+.adv-art-style__grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.5rem;
+}
+
+.adv-art-style__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.6rem 0.25rem;
+  background: rgba(15, 15, 35, 0.6);
+  border: 1px solid rgba(var(--sf-accent-rgb), 0.12);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+  color: var(--sf-text-muted);
+  font-family: inherit;
+}
+
+.adv-art-style__card:hover {
+  border-color: rgba(var(--sf-accent-rgb), 0.35);
+  background: rgba(var(--sf-accent-rgb), 0.06);
+  transform: translateY(-1px);
+}
+
+.adv-art-style__card--active {
+  border-color: var(--sf-accent);
+  background: rgba(var(--sf-accent-rgb), 0.1);
+  color: var(--sf-text);
+  box-shadow: 0 0 12px rgba(var(--sf-accent-rgb), 0.15);
+}
+
+.adv-art-style__icon {
+  font-size: 1.1rem;
+  color: inherit;
+}
+
+.adv-art-style__card--active .adv-art-style__icon {
+  color: var(--sf-accent);
+}
+
+.adv-art-style__name {
+  font-size: 0.65rem;
+  text-align: center;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
 }
 
 /* --- Character Portrait Preview --- */

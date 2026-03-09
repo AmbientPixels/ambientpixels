@@ -9,7 +9,7 @@
       "genrePrompt": "You are a high fantasy narrator. Use vivid descriptions of magical landscapes, ancient ruins, and mythical creatures. The tone is epic but grounded — danger is real, choices matter.",
       "startingStats": { "hp": 100, "maxHp": 100, "gold": 10, "reputation": 0, "strength": 12, "dexterity": 10, "intelligence": 10, "charisma": 8 },
       "startingInventory": [{ "id": "torch", "name": "Torch", "type": "tool", "description": "A flickering flame to light the way" }],
-      "imageStyleHint": "fantasy art, detailed illustration, warm torchlight, medieval setting, painterly style",
+      "imageStyleHint": "epic fantasy digital painting, warm torchlight and cool moonlight contrast, lush magical environments, rich jewel-tone palette with deep purples and golds, volumetric light rays through ancient architecture, influences of Craig Mullins and Eytan Zana concept art",
       "tier": "free",
       "statHints": {
         "strength": "Melee combat, breaking barriers, intimidation",
@@ -62,7 +62,7 @@
       "genrePrompt": "You are a horror narrator. Build tension slowly, use sensory details — sounds, smells, cold air. Danger lurks in shadows. The tone is dread and unease, not gore.",
       "startingStats": { "hp": 80, "maxHp": 80, "gold": 5, "reputation": 0, "strength": 8, "dexterity": 10, "intelligence": 14, "charisma": 8 },
       "startingInventory": [{ "id": "flashlight", "name": "Flashlight", "type": "tool", "description": "Batteries half-dead, beam flickering" }],
-      "imageStyleHint": "horror art, dark atmosphere, fog and shadows, muted desaturated colors, unsettling",
+      "imageStyleHint": "atmospheric horror painting, heavy chiaroscuro with deep blacks and sickly highlights, desaturated palette with occasional blood-red or bile-green accents, dense fog and volumetric shadows, oppressive claustrophobic framing, dread through what is barely visible",
       "tier": "free",
       "statHints": {
         "strength": "Barricading doors, fighting back, enduring injury",
@@ -115,7 +115,7 @@
       "genrePrompt": "You are a sci-fi narrator. Describe alien landscapes, advanced technology, and cosmic mysteries. The tone is cerebral and wondrous — think Asimov meets Mass Effect.",
       "startingStats": { "hp": 90, "maxHp": 90, "gold": 20, "reputation": 0, "strength": 8, "dexterity": 10, "intelligence": 14, "charisma": 8 },
       "startingInventory": [{ "id": "scanner", "name": "Bio-Scanner", "type": "tool", "description": "Handheld scanner with cracked display" }],
-      "imageStyleHint": "sci-fi concept art, neon and chrome, alien landscapes, futuristic technology, cinematic lighting",
+      "imageStyleHint": "cinematic sci-fi concept art, cool blue-cyan palette with neon accent lighting, vast sense of scale, sleek technology and alien architecture, atmospheric haze and lens flares, influences of Syd Mead and Sparth industrial design aesthetic",
       "tier": "free",
       "statHints": {
         "strength": "Melee combat, forcing hatches, carrying gear",
@@ -167,7 +167,7 @@
       "genrePrompt": "You are a noir detective narrator. Describe crime scenes with forensic detail, suspects with hidden motives, and clues that connect. The tone is sharp, observant, and cynical.",
       "startingStats": { "hp": 80, "maxHp": 80, "gold": 50, "reputation": 10, "strength": 8, "dexterity": 10, "intelligence": 14, "charisma": 12 },
       "startingInventory": [{ "id": "notebook", "name": "Detective's Notebook", "type": "tool", "description": "Worn leather, pages half-filled" }],
-      "imageStyleHint": "noir art, rain-slicked streets, dramatic shadows, muted warm tones, cinematic",
+      "imageStyleHint": "noir detective painting, rain-slicked streets with reflected neon, stark directional lighting casting long shadows, muted amber and sepia palette with cold blue moonlight accents, shallow depth of field, cinematic Dutch angles, smoky hazy atmosphere",
       "tier": "pro",
       "statHints": {
         "strength": "Physical confrontations, chasing suspects, breaking down doors",
@@ -219,7 +219,7 @@
       "genrePrompt": "You are a post-apocalyptic narrator. Resources are scarce, trust is rare, and the landscape is hostile. Every decision has a cost. The tone is gritty and survival-focused.",
       "startingStats": { "hp": 75, "maxHp": 75, "gold": 5, "reputation": 0, "strength": 12, "dexterity": 12, "intelligence": 8, "charisma": 8 },
       "startingInventory": [{ "id": "knife", "name": "Rusty Knife", "type": "weapon", "description": "Dull but better than nothing" }],
-      "imageStyleHint": "post-apocalyptic art, ruined cities, dust and rust, harsh sunlight, desolate and gritty",
+      "imageStyleHint": "gritty post-apocalyptic painting, harsh overexposed sunlight with deep burnt shadows, dusty ochre-rust-olive palette, crumbling overgrown architecture, vast desolate landscapes with small human figures for scale, textured gritty brushwork, environmental storytelling through decay and reclamation",
       "tier": "pro",
       "statHints": {
         "strength": "Melee combat, hauling salvage, overpowering raiders",
@@ -271,7 +271,7 @@
       "genrePrompt": "You are a pirate adventure narrator. Describe rolling seas, tropical islands, rival crews, and legendary treasure. The tone is swashbuckling and fun — danger with a grin.",
       "startingStats": { "hp": 100, "maxHp": 100, "gold": 15, "reputation": -5, "strength": 12, "dexterity": 12, "intelligence": 8, "charisma": 10 },
       "startingInventory": [{ "id": "cutlass", "name": "Cutlass", "type": "weapon", "description": "Notched blade, good balance" }],
-      "imageStyleHint": "pirate art, tropical seas, wooden ships, golden sunlight, adventure illustration style",
+      "imageStyleHint": "swashbuckling adventure painting, warm golden-hour sunlight with turquoise ocean reflections, rich saturated palette of amber gold and deep ocean blue, dramatic cloud formations, weathered wooden textures on ships and ports, dynamic composition with diagonal sails and wave spray, romanticism meets adventure illustration",
       "tier": "pro",
       "statHints": {
         "strength": "Sword fighting, climbing rigging, boarding ships",

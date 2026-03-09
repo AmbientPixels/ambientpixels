@@ -9,11 +9,63 @@ window.AdventureAI = (function () {
   var IMAGE_MODEL = 'gemini-2.5-flash-image';
   var TTS_MODEL = 'gemini-2.5-flash-preview-tts';
 
+  // --- Art Style Definitions ---
+  var ART_STYLES = {
+    cinematic_realism: {
+      id: 'cinematic_realism',
+      label: 'Cinematic Realism',
+      icon: 'fa-film',
+      prompt: 'Photorealistic photograph. This MUST look like a real photograph taken with a high-end cinema camera. NOT a painting, NOT an illustration, NOT digital art, NOT concept art. Real skin textures, real fabric, real materials, real lighting. Film-grade color grading with shallow depth of field, natural volumetric lighting, and subtle lens effects like bokeh and chromatic aberration. Shot on ARRI Alexa with anamorphic lens. Think movie still from a big-budget film.'
+    },
+    cinematic_fantasy: {
+      id: 'cinematic_fantasy',
+      label: 'Cinematic Fantasy',
+      icon: 'fa-wand-sparkles',
+      prompt: 'Epic digital fantasy painting. This MUST look like high-end RPG concept art — lush painterly brushwork with cinematic lighting. NOT photorealistic, NOT a photograph, NOT cel-shaded, NOT cartoon. Rich jewel-tone colors, dramatic volumetric light rays, magical glowing particles. Visible brushstrokes with blended edges. Think Blizzard or Magic: The Gathering key art.'
+    },
+    graphic_novel: {
+      id: 'graphic_novel',
+      label: 'Graphic Novel',
+      icon: 'fa-book-open',
+      prompt: 'Bold graphic novel comic book art. This MUST have strong black ink outlines, cel-shaded flat color fills, and high-contrast shadows. NOT painterly, NOT photorealistic, NOT soft or blended. Heavy linework like a pen-and-ink drawing with limited flat colors. Dramatic spot blacks, dynamic angles, and exaggerated perspective. Think Frank Miller or Mike Mignola comic panels.'
+    },
+    dark_fantasy: {
+      id: 'dark_fantasy',
+      label: 'Dark Fantasy',
+      icon: 'fa-skull',
+      prompt: 'Dark gothic oil painting. This MUST look like a traditional oil painting — heavy impasto brushwork with thick visible texture. NOT digital, NOT clean, NOT photorealistic. Somber desaturated palette with sickly amber and pale moonlight. Grim decaying detail — corroded metal, cracked stone, twisted forms. Oppressive fog and deep shadow. Think Beksinski or Frazetta dark fantasy art.'
+    },
+    storybook: {
+      id: 'storybook',
+      label: 'Storybook',
+      icon: 'fa-book',
+      prompt: 'Hand-painted watercolor storybook illustration. This MUST look like a page from a classic children\'s book — soft watercolor washes on textured paper with gentle ink outlines. NOT digital, NOT photorealistic, NOT sharp or glossy. Warm pastel palette with golden light. Slightly stylized proportions, cozy and charming. Visible paper grain and soft bleeding edges. Think Arthur Rackham or Studio Ghibli concept art.'
+    },
+    cyberpunk_neon: {
+      id: 'cyberpunk_neon',
+      label: 'Cyberpunk Neon',
+      icon: 'fa-bolt',
+      prompt: 'Neon-drenched cyberpunk digital art. This MUST be dominated by vivid neon lighting — hot pink, electric blue, acid green — against deep black and purple. NOT subtle, NOT muted, NOT painterly, NOT watercolor. Rain-slicked reflective surfaces everywhere. Dense urban megastructures with holographic signs. Extreme contrast — blown-out neon highlights crushing into pure black shadows. Think Blade Runner 2049 meets Akira.'
+    },
+    vintage_pulp: {
+      id: 'vintage_pulp',
+      label: 'Vintage Pulp',
+      icon: 'fa-newspaper',
+      prompt: 'Retro 1940s-60s pulp magazine cover art. This MUST look like a painted magazine cover — bold saturated colors, dramatic action poses, slightly exaggerated heroic anatomy. NOT modern, NOT photorealistic, NOT digital-looking. Warm faded palette with visible traditional brushwork. Paper grain texture and subtle halftone dot patterns. Strong theatrical lighting. Think vintage adventure book covers or old sci-fi magazine art.'
+    },
+    minimal_symbolic: {
+      id: 'minimal_symbolic',
+      label: 'Minimal Symbolic',
+      icon: 'fa-shapes',
+      prompt: 'Minimalist symbolic poster art. This MUST use only bold geometric shapes, silhouettes, and 3-5 flat colors maximum with strong negative space. NOT detailed, NOT realistic, NOT painterly, NOT illustrated. Abstract representation using simple clean forms and sharp vector-like edges. Mood through color and composition only, not through detail or texture. Think Saul Bass movie posters or Olly Moss art prints.'
+    }
+  };
+
   var GENRE_VOICES = {
     fantasy: 'Charon',
     horror: 'Fenrir',
     scifi: 'Kore',
-    detective: 'Puck',
+    detective: 'Atlas',
     postapoc: 'Enceladus',
     pirate: 'Leda'
   };
@@ -71,23 +123,42 @@ window.AdventureAI = (function () {
     return callTextAPIWithRetry(prompt);
   }
 
+  // --- Genre theme keywords (subject matter only, no rendering style) ---
+  var GENRE_THEMES = {
+    fantasy: 'medieval setting, ancient stone ruins, torchlight, moonlit landscapes, swords and armor',
+    horror: 'dark atmosphere, fog and shadows, unsettling environments, dread and tension',
+    scifi: 'futuristic technology, alien landscapes, starships, neon and chrome',
+    detective: 'rain-slicked streets, urban noir, crime scenes, dramatic shadows',
+    postapoc: 'ruined cities, dust and rust, desolate landscapes, overgrown architecture',
+    pirate: 'tropical seas, wooden ships, island ports, golden sunlight, ocean waves'
+  };
+
   // --- Generate scene image ---
-  function generatePortraitImage(characterDesc, genre) {
-    var prompt = 'Character portrait, head and shoulders, centered subject, circular frame composition. ' +
-      'Style: ' + (genre.imageStyleHint || 'fantasy illustration') + '. ' +
+  function generatePortraitImage(characterDesc, genre, artStyleId) {
+    var artStyle = ART_STYLES[artStyleId] || ART_STYLES.cinematic_fantasy;
+    var theme = GENRE_THEMES[genre.id] || '';
+    var prompt = 'CRITICAL STYLE INSTRUCTION — follow this exactly: ' + artStyle.prompt + ' ' +
+      'Subject: Professional character portrait, head and shoulders, centered subject. ' +
       'The character is ' + characterDesc + '. ' +
-      'Close-up portrait focus on the face and upper body only. Single character, no background characters. ' +
-      'Painterly, detailed, dramatic lighting. No text, no UI elements, no borders.';
+      'Setting elements: ' + theme + '. ' +
+      'Close-up portrait, face and upper body only. Single character, no background figures. ' +
+      'Dramatic directional lighting with rim light. Circular vignette composition. ' +
+      'No text, no watermarks, no UI elements, no borders, no logos.';
     return callImageAPI(prompt);
   }
 
-  function generateSceneImage(imagePrompt, genre, characterDesc) {
-    var charClause = characterDesc ? 'The protagonist is ' + characterDesc + '. ' : '';
-    var fullPrompt = 'Create a single illustration for an interactive adventure game scene. ' +
-      'Style: ' + (genre.imageStyleHint || 'fantasy illustration') + '. ' +
-      charClause +
+  function generateSceneImage(imagePrompt, genre, characterDesc, artStyleId) {
+    var artStyle = ART_STYLES[artStyleId] || ART_STYLES.cinematic_fantasy;
+    var theme = GENRE_THEMES[genre.id] || '';
+    var charClause = characterDesc ? 'The protagonist (' + characterDesc + ') is visible in the scene. ' : '';
+    var fullPrompt = 'CRITICAL STYLE INSTRUCTION — follow this exactly: ' + artStyle.prompt + ' ' +
+      'Subject: Adventure game scene. ' + charClause +
       'Scene: ' + imagePrompt + '. ' +
-      'No text, no UI elements, no borders. Wide landscape format. Atmospheric and immersive.';
+      'Setting elements: ' + theme + '. ' +
+      'Wide 16:9 landscape composition with clear foreground, midground, and background layers. ' +
+      'Strong atmospheric perspective — depth through haze, light falloff, or scale. ' +
+      'No text, no watermarks, no UI elements, no borders, no logos. ' +
+      'REMEMBER: ' + artStyle.prompt;
 
     return callImageAPI(fullPrompt);
   }
@@ -430,6 +501,7 @@ window.AdventureAI = (function () {
     generatePortraitImage: generatePortraitImage,
     callTTSAPI: callTTSAPI,
     GENRE_VOICES: GENRE_VOICES,
+    ART_STYLES: ART_STYLES,
     checkDailyLimit: checkDailyLimit,
     incrementUsage: incrementUsage,
     getRemainingUsage: getRemainingUsage

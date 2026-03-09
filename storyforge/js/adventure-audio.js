@@ -26,97 +26,142 @@ var StoryAudio = (function () {
 
   /* ══════════════════════════════════════════════════════════════════
      GENRE PROFILES — musical DNA for procedural generation
+     Each genre has a chord progression (array of chords), each chord
+     is an array of frequency multipliers relative to baseFreq.
+     The engine cycles through chords, crossfading pads.
      ══════════════════════════════════════════════════════════════════ */
   var GENRE_MUSIC = {
     fantasy: {
-      // Ethereal reverb pads, soft harmonic intervals
       baseFreq: 110,         // A2
-      chordIntervals: [1, 1.25, 1.5, 2],  // root, maj3, P5, octave
+      chords: [
+        [1, 1.25, 1.5, 2],       // Amaj
+        [1.125, 1.335, 1.5, 2],  // Bsus4 → F#m feel
+        [0.75, 1, 1.25, 1.5],    // Emaj/A
+        [0.889, 1.125, 1.335, 1.782] // F#m7
+      ],
+      chordDuration: 10,     // seconds per chord
+      crossfade: 3,          // seconds to blend between chords
       waveform: 'sine',
-      detune: 5,
+      detune: 6,
       filterFreq: 800,
       filterQ: 2,
-      lfoRate: 0.15,
-      lfoDepth: 20,
-      reverbTime: 3,
-      padCount: 3,
-      shimmer: true,
-      noiseLevel: 0.02
+      lfoRate: 0.12,
+      lfoDepth: 25,
+      reverbTime: 3.5,
+      padCount: 4,
+      shimmer: { chance: 0.3, minInterval: 4, maxInterval: 9, freqMult: [3, 4, 5, 6], dur: 2.5 },
+      noiseLevel: 0.02,
+      breathRate: 0.08       // pads breathe in/out
     },
     horror: {
-      // Low dissonant drones, detuned, unsettling
       baseFreq: 55,          // A1
-      chordIntervals: [1, 1.06, 1.414, 1.888],  // root, minor2nd, tritone, min7
+      chords: [
+        [1, 1.06, 1.414, 1.888],      // dissonant cluster
+        [0.944, 1, 1.335, 1.782],      // shift down, tritone
+        [1, 1.189, 1.414, 2],          // minor + tritone
+        [0.75, 1, 1.06, 1.588]         // low rumble cluster
+      ],
+      chordDuration: 14,
+      crossfade: 5,
       waveform: 'sawtooth',
-      detune: 15,
-      filterFreq: 400,
+      detune: 18,
+      filterFreq: 350,
       filterQ: 8,
-      lfoRate: 0.08,
-      lfoDepth: 40,
+      lfoRate: 0.06,
+      lfoDepth: 50,
       reverbTime: 5,
       padCount: 3,
-      shimmer: false,
-      noiseLevel: 0.06
+      shimmer: { chance: 0.15, minInterval: 8, maxInterval: 20, freqMult: [2, 2.5, 3], dur: 4 },
+      noiseLevel: 0.08,
+      breathRate: 0.04
     },
     scifi: {
-      // Clean filtered arpeggios, sine pads
       baseFreq: 220,         // A3
-      chordIntervals: [1, 1.189, 1.498, 2],  // root, min3, P5, octave
+      chords: [
+        [1, 1.189, 1.498, 2],         // Am
+        [0.891, 1.122, 1.335, 1.782], // G maj7
+        [1.122, 1.335, 1.682, 2.244], // Bb maj
+        [1, 1.26, 1.498, 1.888]       // A7
+      ],
+      chordDuration: 8,
+      crossfade: 2.5,
       waveform: 'sine',
-      detune: 2,
-      filterFreq: 1200,
+      detune: 3,
+      filterFreq: 1400,
       filterQ: 4,
-      lfoRate: 0.3,
-      lfoDepth: 50,
+      lfoRate: 0.25,
+      lfoDepth: 60,
       reverbTime: 2,
       padCount: 4,
-      shimmer: true,
-      noiseLevel: 0.01
+      shimmer: { chance: 0.4, minInterval: 2, maxInterval: 6, freqMult: [2, 3, 4, 5, 6], dur: 1.5 },
+      noiseLevel: 0.015,
+      breathRate: 0.15
     },
     detective: {
-      // Warm muted tones, jazzy intervals
       baseFreq: 146.83,      // D3
-      chordIntervals: [1, 1.26, 1.498, 1.782],  // root, maj3, P5, maj7
-      waveform: 'triangle',
-      detune: 3,
-      filterFreq: 600,
-      filterQ: 1.5,
-      lfoRate: 0.1,
-      lfoDepth: 10,
-      reverbTime: 2.5,
-      padCount: 3,
-      shimmer: false,
-      noiseLevel: 0.03
-    },
-    postapoc: {
-      // Industrial hum, wind-like noise, sparse
-      baseFreq: 73.42,       // D2
-      chordIntervals: [1, 1.335, 1.498, 1.888],  // root, P4-ish, P5, min7
-      waveform: 'sawtooth',
-      detune: 8,
-      filterFreq: 350,
-      filterQ: 3,
-      lfoRate: 0.05,
-      lfoDepth: 30,
-      reverbTime: 4,
-      padCount: 2,
-      shimmer: false,
-      noiseLevel: 0.1
-    },
-    pirate: {
-      // Warm fifths, wave-like sweeps
-      baseFreq: 130.81,      // C3
-      chordIntervals: [1, 1.26, 1.498, 2],  // root, maj3, P5, octave
+      chords: [
+        [1, 1.26, 1.498, 1.782],      // Dmaj7
+        [1.122, 1.335, 1.588, 1.888], // Eb dim-ish
+        [0.75, 1, 1.189, 1.498],      // Am/D
+        [0.889, 1.122, 1.335, 1.682]  // Bbmaj7
+      ],
+      chordDuration: 12,
+      crossfade: 4,
       waveform: 'triangle',
       detune: 4,
-      filterFreq: 900,
-      filterQ: 2,
-      lfoRate: 0.2,
-      lfoDepth: 25,
-      reverbTime: 2,
+      filterFreq: 600,
+      filterQ: 1.5,
+      lfoRate: 0.08,
+      lfoDepth: 12,
+      reverbTime: 3,
+      padCount: 4,
+      shimmer: { chance: 0.2, minInterval: 6, maxInterval: 14, freqMult: [2, 3, 4], dur: 3 },
+      noiseLevel: 0.035,
+      breathRate: 0.06
+    },
+    postapoc: {
+      baseFreq: 73.42,       // D2
+      chords: [
+        [1, 1.335, 1.498, 1.888],     // Dm7
+        [1, 1.122, 1.498, 2],         // Dsus2
+        [0.75, 1, 1.335, 1.782],      // low cluster
+        [1, 1.26, 1.588, 2]           // rising tension
+      ],
+      chordDuration: 16,
+      crossfade: 6,
+      waveform: 'sawtooth',
+      detune: 10,
+      filterFreq: 300,
+      filterQ: 3,
+      lfoRate: 0.04,
+      lfoDepth: 35,
+      reverbTime: 4.5,
       padCount: 3,
-      shimmer: true,
-      noiseLevel: 0.04
+      shimmer: { chance: 0.1, minInterval: 10, maxInterval: 25, freqMult: [2, 3], dur: 5 },
+      noiseLevel: 0.12,
+      breathRate: 0.03
+    },
+    pirate: {
+      baseFreq: 130.81,      // C3
+      chords: [
+        [1, 1.26, 1.498, 2],          // Cmaj
+        [0.891, 1.122, 1.335, 1.782], // Bbmaj7
+        [1.122, 1.414, 1.682, 2.244], // Eb maj
+        [0.75, 1, 1.26, 1.498]        // G/C
+      ],
+      chordDuration: 9,
+      crossfade: 3,
+      waveform: 'triangle',
+      detune: 5,
+      filterFreq: 1000,
+      filterQ: 2,
+      lfoRate: 0.18,
+      lfoDepth: 30,
+      reverbTime: 2.5,
+      padCount: 4,
+      shimmer: { chance: 0.35, minInterval: 3, maxInterval: 8, freqMult: [3, 4, 5], dur: 2 },
+      noiseLevel: 0.04,
+      breathRate: 0.1
     }
   };
 
@@ -194,6 +239,7 @@ var StoryAudio = (function () {
 
     var profile = GENRE_MUSIC[genreId] || GENRE_MUSIC.fantasy;
     var nodes = [];
+    var timers = [];
 
     // Create reverb
     var reverb = createReverb(profile.reverbTime);
@@ -229,54 +275,111 @@ var StoryAudio = (function () {
     lfo.start();
     nodes.push(lfo, lfoGainNode);
 
-    // Pad oscillators
-    for (var i = 0; i < profile.padCount; i++) {
-      var interval = profile.chordIntervals[i % profile.chordIntervals.length];
-      var freq = profile.baseFreq * interval;
+    // ── Pad oscillators with chord progression ──
+    var padOscs = [];
+    var padGains = [];
+    var chord = profile.chords[0];
+    var padVol = 0.12 / profile.padCount;
 
+    for (var i = 0; i < profile.padCount; i++) {
+      var mult = chord[i % chord.length];
       var osc = ctx.createOscillator();
       osc.type = profile.waveform;
-      osc.frequency.value = freq;
+      osc.frequency.value = profile.baseFreq * mult;
       osc.detune.value = (Math.random() - 0.5) * profile.detune * 2;
 
       var padGain = ctx.createGain();
       padGain.gain.value = 0;
-      // Fade in slowly
-      padGain.gain.setTargetAtTime(0.12 / profile.padCount, ctx.currentTime + i * 0.5, 1.5);
+      // Stagger fade-in
+      padGain.gain.setTargetAtTime(padVol, ctx.currentTime + i * 0.5, 1.5);
 
       osc.connect(padGain);
       padGain.connect(masterFilter);
       osc.start();
       nodes.push(osc, padGain);
+      padOscs.push(osc);
+      padGains.push(padGain);
     }
 
-    // Shimmer — high octave sine with slow fade in/out cycle
-    if (profile.shimmer) {
-      var shimmerOsc = ctx.createOscillator();
-      shimmerOsc.type = 'sine';
-      shimmerOsc.frequency.value = profile.baseFreq * 4;
-      shimmerOsc.detune.value = 7;
+    // ── Chord progression cycling ──
+    var chordIndex = 0;
+    var chordTimer = setInterval(function () {
+      if (!currentAmbient) return;
+      chordIndex = (chordIndex + 1) % profile.chords.length;
+      var nextChord = profile.chords[chordIndex];
+      var now = ctx.currentTime;
+      var fadeSec = profile.crossfade;
 
-      var shimmerGain = ctx.createGain();
-      shimmerGain.gain.value = 0;
-
-      shimmerOsc.connect(shimmerGain);
-      shimmerGain.connect(masterFilter);
-      shimmerOsc.start();
-      nodes.push(shimmerOsc, shimmerGain);
-
-      // Animate shimmer with slow breathing
-      function animateShimmer() {
-        if (!currentAmbient) return;
-        var t = ctx.currentTime;
-        var breath = Math.sin(t * 0.3) * 0.5 + 0.5; // 0-1, ~3.3s cycle
-        shimmerGain.gain.setTargetAtTime(breath * 0.03, t, 0.1);
-        currentAmbient.animFrame = requestAnimationFrame(animateShimmer);
+      for (var p = 0; p < padOscs.length; p++) {
+        var targetFreq = profile.baseFreq * nextChord[p % nextChord.length];
+        padOscs[p].frequency.setValueAtTime(padOscs[p].frequency.value, now);
+        padOscs[p].frequency.linearRampToValueAtTime(targetFreq, now + fadeSec);
       }
-      requestAnimationFrame(animateShimmer);
+    }, profile.chordDuration * 1000);
+    timers.push(chordTimer);
+
+    // ── Staggered pad breathing ──
+    // Each pad independently fades in/out at slightly different rates
+    var breathFrame = null;
+    function animateBreathing() {
+      if (!currentAmbient) return;
+      var t = ctx.currentTime;
+      for (var p = 0; p < padGains.length; p++) {
+        // Each pad has a unique phase offset and slightly different rate
+        var rate = profile.breathRate * (0.8 + p * 0.15);
+        var phase = p * 1.7; // stagger phase
+        var breath = Math.sin(t * rate * Math.PI * 2 + phase) * 0.5 + 0.5;
+        var vol = padVol * (0.4 + breath * 0.6); // range: 40%-100% of padVol
+        padGains[p].gain.setTargetAtTime(vol, t, 0.2);
+      }
+      breathFrame = requestAnimationFrame(animateBreathing);
+    }
+    requestAnimationFrame(animateBreathing);
+
+    // ── Shimmer — random high-register notes ──
+    if (profile.shimmer && profile.shimmer.chance > 0) {
+      function scheduleShimmer() {
+        if (!currentAmbient) return;
+        // Random chance to actually play
+        if (Math.random() < profile.shimmer.chance) {
+          var freqMults = profile.shimmer.freqMult;
+          var mult = freqMults[Math.floor(Math.random() * freqMults.length)];
+          // Pick a note from the current chord
+          var currentChord = profile.chords[chordIndex];
+          var chordMult = currentChord[Math.floor(Math.random() * currentChord.length)];
+          var shimFreq = profile.baseFreq * chordMult * mult;
+
+          var shimOsc = ctx.createOscillator();
+          shimOsc.type = 'sine';
+          shimOsc.frequency.value = shimFreq;
+          shimOsc.detune.value = (Math.random() - 0.5) * 10;
+
+          var shimGain = ctx.createGain();
+          var now = ctx.currentTime;
+          var dur = profile.shimmer.dur * (0.7 + Math.random() * 0.6);
+          shimGain.gain.setValueAtTime(0, now);
+          shimGain.gain.linearRampToValueAtTime(0.025, now + dur * 0.3);
+          shimGain.gain.setValueAtTime(0.025, now + dur * 0.5);
+          shimGain.gain.exponentialRampToValueAtTime(0.001, now + dur);
+
+          shimOsc.connect(shimGain);
+          shimGain.connect(masterFilter);
+          shimOsc.start(now);
+          shimOsc.stop(now + dur + 0.1);
+        }
+
+        // Schedule next shimmer
+        var delay = profile.shimmer.minInterval +
+          Math.random() * (profile.shimmer.maxInterval - profile.shimmer.minInterval);
+        var shimTimer = setTimeout(scheduleShimmer, delay * 1000);
+        timers.push(shimTimer);
+      }
+      // Start first shimmer after a short delay
+      var initShimTimer = setTimeout(scheduleShimmer, 3000);
+      timers.push(initShimTimer);
     }
 
-    // Background noise (wind/static)
+    // ── Background noise (wind/static) with filter modulation ──
     if (profile.noiseLevel > 0) {
       var bufferSize = ctx.sampleRate * 2;
       var noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
@@ -298,14 +401,24 @@ var StoryAudio = (function () {
       noiseGainNode.gain.value = 0;
       noiseGainNode.gain.setTargetAtTime(profile.noiseLevel, ctx.currentTime + 1, 2);
 
+      // Modulate noise filter cutoff slowly for texture variation
+      var noiseLfo = ctx.createOscillator();
+      var noiseLfoGain = ctx.createGain();
+      noiseLfo.frequency.value = 0.03 + Math.random() * 0.04; // very slow sweep
+      noiseLfo.type = 'sine';
+      noiseLfoGain.gain.value = profile.filterFreq * 0.25;
+      noiseLfo.connect(noiseLfoGain);
+      noiseLfoGain.connect(noiseFilter.frequency);
+      noiseLfo.start();
+
       noiseSource.connect(noiseFilter);
       noiseFilter.connect(noiseGainNode);
       noiseGainNode.connect(masterFilter);
       noiseSource.start();
-      nodes.push(noiseSource, noiseFilter, noiseGainNode);
+      nodes.push(noiseSource, noiseFilter, noiseGainNode, noiseLfo, noiseLfoGain);
     }
 
-    currentAmbient = { nodes: nodes, genre: genreId, animFrame: null };
+    currentAmbient = { nodes: nodes, genre: genreId, animFrame: breathFrame, timers: timers };
   }
 
   function stopAmbient(fadeMs) {
@@ -314,6 +427,14 @@ var StoryAudio = (function () {
 
     if (currentAmbient.animFrame) {
       cancelAnimationFrame(currentAmbient.animFrame);
+    }
+
+    // Clear chord progression and shimmer timers
+    if (currentAmbient.timers) {
+      currentAmbient.timers.forEach(function (id) {
+        clearInterval(id);
+        clearTimeout(id);
+      });
     }
 
     var nodesToStop = currentAmbient.nodes;

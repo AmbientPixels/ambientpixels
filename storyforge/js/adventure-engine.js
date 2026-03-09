@@ -24,6 +24,17 @@
   // Wizard state
   var wizardStep = 1;
   var WIZARD_STEPS = 3;
+  var selectedArtStyle = 'cinematic_fantasy'; // default
+
+  // Best-fit art style per genre (pre-selected when genre is chosen)
+  var GENRE_ART_DEFAULTS = {
+    fantasy: 'cinematic_fantasy',
+    horror: 'dark_fantasy',
+    scifi: 'cyberpunk_neon',
+    detective: 'cinematic_realism',
+    postapoc: 'cinematic_realism',
+    pirate: 'vintage_pulp'
+  };
 
   // XP/Level system
   var XP_PER_LEVEL = [0, 30, 80, 150, 250, 400]; // cumulative thresholds
@@ -206,6 +217,7 @@
   function resetWizard() {
     wizardStep = 1;
     selectedGenre = null;
+    selectedArtStyle = 'cinematic_fantasy';
     UI.$('advApp').removeAttribute('data-genre');
     document.querySelectorAll('.adv-genre-card').forEach(function (c) {
       c.classList.remove('adv-genre-card--selected');
@@ -399,6 +411,7 @@
       selectedGenre = genres.find(function (g) { return g.id === genreId; });
       if (selectedGenre) {
         UI.$('advApp').setAttribute('data-genre', selectedGenre.id);
+        selectedArtStyle = GENRE_ART_DEFAULTS[selectedGenre.id] || 'cinematic_fantasy';
         var card = document.querySelector('.adv-genre-card[data-genre="' + genreId + '"]');
         if (card) card.classList.add('adv-genre-card--selected');
         showCharacterCreator(selectedGenre);
@@ -500,6 +513,7 @@
       card.classList.add('adv-genre-card--selected');
       selectedGenre = genres.find(function (g) { return g.id === card.dataset.genre; });
       UI.$('advApp').setAttribute('data-genre', selectedGenre.id);
+      selectedArtStyle = GENRE_ART_DEFAULTS[selectedGenre.id] || 'cinematic_fantasy';
       showCharacterCreator(selectedGenre);
       updateWizardNextEnabled();
     });
@@ -648,6 +662,7 @@
       sel.addEventListener('change', updateCharacterPreview);
     });
     updateCharacterPreview();
+    showArtStyleGrid();
   }
 
   function updateCharacterPreview() {
@@ -685,6 +700,30 @@
     return { selections: selections, description: buildCharacterDescription() };
   }
 
+  // --- Art Style Selector ---
+  function showArtStyleGrid() {
+    var grid = UI.$('artStyleGrid');
+    if (!grid) return;
+    var styles = AI.ART_STYLES;
+    var keys = Object.keys(styles);
+    grid.innerHTML = keys.map(function (key) {
+      var s = styles[key];
+      var active = key === selectedArtStyle ? ' adv-art-style__card--active' : '';
+      return '<button type="button" class="adv-art-style__card' + active + '" data-style="' + key + '">' +
+        '<i class="fas ' + s.icon + ' adv-art-style__icon"></i>' +
+        '<span class="adv-art-style__name">' + UI.escapeHtml(s.label) + '</span>' +
+        '</button>';
+    }).join('');
+    grid.addEventListener('click', function (e) {
+      var card = e.target.closest('.adv-art-style__card');
+      if (!card) return;
+      selectedArtStyle = card.dataset.style;
+      grid.querySelectorAll('.adv-art-style__card').forEach(function (c) {
+        c.classList.toggle('adv-art-style__card--active', c.dataset.style === selectedArtStyle);
+      });
+    });
+  }
+
   // --- Character Portrait ---
   var generatedPortraitDataUrl = null;
 
@@ -705,7 +744,7 @@
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
     placeholder.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
-    AI.generatePortraitImage(charDesc, selectedGenre)
+    AI.generatePortraitImage(charDesc, selectedGenre, selectedArtStyle)
       .then(function (dataUrl) {
         if (dataUrl) {
           generatedPortraitDataUrl = dataUrl;
@@ -1034,6 +1073,7 @@
     var customStats = collectStatAllocations();
 
     gameState = RPG.createState(selectedGenre, playerName, characterAppearance, customStats);
+    gameState.artStyle = selectedArtStyle;
     gameState.xp = 0;
     if (generatedPortraitDataUrl) {
       gameState.portraitImage = generatedPortraitDataUrl;
@@ -1055,6 +1095,8 @@
 
     AI.generateOpeningScene(selectedGenre, playerName, gameState.character)
       .then(function (scene) {
+        // Kick off TTS immediately — don't wait for renderScene
+        preloadTTS(scene.sceneText);
         currentScene = scene;
         gameState.turnCount = 1;
         gameState.lastSceneText = scene.sceneText;
@@ -1126,6 +1168,17 @@
   function playBuffer(audioBuffer) {
     stopNarration();
     var ctx = ensureAudioContext();
+    // Ensure context is running (may have been suspended by browser policy)
+    if (ctx.state === 'suspended') {
+      ctx.resume().then(function () { doPlayBuffer(audioBuffer); });
+      return;
+    }
+    doPlayBuffer(audioBuffer);
+  }
+
+  function doPlayBuffer(audioBuffer) {
+    var ctx = audioCtx;
+    if (!ctx) return;
     if (!gainNode) {
       gainNode = ctx.createGain();
       gainNode.connect(ctx.destination);
@@ -1143,6 +1196,8 @@
         currentNarration = null;
         var wave = UI.$('narrationWave');
         if (wave) wave.style.display = 'none';
+        // Restore ambient volume when narration finishes naturally
+        if (typeof StoryAudio !== 'undefined') StoryAudio.duckForNarration(false);
       }
     };
 
@@ -1173,8 +1228,7 @@
     void sceneTextEl.offsetWidth; // force reflow to restart animation
     sceneTextEl.classList.add('adv-scene-enter', 'adv-scene__text--transitioning');
 
-    // Start TTS fetch in parallel — plays as soon as ready
-    preloadTTS(scene.sceneText);
+    // TTS already kicked off before renderScene — see generateOpeningScene / doGenerateNextTurn
 
     // Typewriter starts immediately, no waiting for audio
     UI.typewriter(sceneTextEl, scene.sceneText).then(function () {
@@ -1352,6 +1406,8 @@
   function doGenerateNextTurn(choiceText, skillCheckResult) {
     AI.generateNextScene(selectedGenre, gameState, choiceText, skillCheckResult)
       .then(function (scene) {
+        // Kick off TTS immediately — don't wait for renderScene
+        preloadTTS(scene.sceneText);
         currentScene = scene;
         gameState.turnCount++;
         gameState.lastSceneText = scene.sceneText;
@@ -1500,7 +1556,8 @@
 
     showImagePlaceholder();
     var charDesc = (gameState && gameState.character) ? gameState.character.description : '';
-    AI.generateSceneImage(imagePrompt, selectedGenre, charDesc)
+    var artStyle = (gameState && gameState.artStyle) ? gameState.artStyle : selectedArtStyle;
+    AI.generateSceneImage(imagePrompt, selectedGenre, charDesc, artStyle)
       .then(function (dataUrl) {
         if (dataUrl) {
           var img = UI.$('sceneImage');
