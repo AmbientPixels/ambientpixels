@@ -6,8 +6,7 @@
 window.AdventureEntitlements = (function () {
   'use strict';
 
-  // TODO: Set to false to re-enable pay gate after testing
-  var DEV_BYPASS = true;
+  var DEV_BYPASS = false;
 
   var FREE_DEFAULTS = {
     tier: 'free',

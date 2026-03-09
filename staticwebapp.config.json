@@ -418,7 +418,7 @@
     },
     {
       "route": "/storyforge/*",
-      "allowedRoles": ["authenticated"]
+      "allowedRoles": ["anonymous"]
     },
     {
       "route": "/cardforge/*.css",
