@@ -1499,12 +1499,10 @@
           var img = UI.$('sceneImage');
           img.onload = function () {
             stopLoadingTextCycle();
-            stopSceneArt(function () {
-              img.classList.remove('adv-scene__image--crossfade');
-              void img.offsetWidth;
-              img.classList.add('adv-scene__image--loaded', 'adv-scene__image--crossfade');
-              UI.$('sceneImagePlaceholder').style.display = 'none';
-            });
+            img.classList.remove('adv-scene__image--crossfade');
+            void img.offsetWidth;
+            img.classList.add('adv-scene__image--loaded', 'adv-scene__image--crossfade');
+            UI.$('sceneImagePlaceholder').style.display = 'none';
           };
           img.src = dataUrl;
           // Store for potential gallery use
@@ -1514,18 +1512,14 @@
         } else {
           // Show "unavailable" state instead of infinite spinner
           stopLoadingTextCycle();
-          stopSceneArt(function () {
-            var placeholder = UI.$('sceneImagePlaceholder');
-            placeholder.innerHTML = '<span class="adv-loading-text">Image unavailable</span>';
-          });
+          var placeholder = UI.$('sceneImagePlaceholder');
+          placeholder.innerHTML = '<span class="adv-loading-text">Image unavailable</span>';
         }
       })
       .catch(function () {
         stopLoadingTextCycle();
-        stopSceneArt(function () {
-          var placeholder = UI.$('sceneImagePlaceholder');
-          if (placeholder) placeholder.innerHTML = '<span class="adv-loading-text">Image unavailable</span>';
-        });
+        var placeholder = UI.$('sceneImagePlaceholder');
+        if (placeholder) placeholder.innerHTML = '<span class="adv-loading-text">Image unavailable</span>';
       });
   }
 
@@ -1537,19 +1531,6 @@
     placeholder.innerHTML = '<span class="adv-loading-text" id="loadingText">Generating scene...</span>';
     placeholder.style.display = '';
     startLoadingTextCycle();
-    // Start Narrative Drift algorithmic art
-    var wrap = UI.$('sceneImageWrap');
-    if (wrap && typeof NarrativeDrift !== 'undefined') {
-      NarrativeDrift.start(wrap, selectedGenre ? selectedGenre.id : 'fantasy');
-    }
-  }
-
-  function stopSceneArt(callback) {
-    if (typeof NarrativeDrift !== 'undefined' && NarrativeDrift.isRunning()) {
-      NarrativeDrift.stop(callback);
-    } else {
-      if (callback) callback();
-    }
   }
 
   // --- Inventory Interactions ---

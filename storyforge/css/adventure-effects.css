@@ -201,4 +201,4 @@
   opacity: 0;
 }
 
-/* Old CSS particle pseudo-elements removed — superseded by Narrative Drift (p5.js) */
+/* Scene loading uses CSS shimmer + genre gradient (see adventure-play.css) */
