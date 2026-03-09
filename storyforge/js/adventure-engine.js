@@ -146,7 +146,19 @@
       initTouchSwipe();
       initBottomSheet();
       handleUrlParams();
+      updateDailyLimitBadge();
     });
+  }
+
+  function updateDailyLimitBadge() {
+    var badge = UI.$('dailyLimitBadge');
+    if (!badge) return;
+    if (Ent && Ent.isPro()) { badge.style.display = 'none'; return; }
+    var limit = (Ent && Ent.getDailyLimit) ? Ent.getDailyLimit() : 3;
+    var remaining = AI.getRemainingUsage(limit);
+    badge.innerHTML = '<i class="fas fa-bolt"></i> ' + remaining + ' of ' + limit + ' free adventures remaining today';
+    badge.className = 'adv-daily-limit' + (remaining === 0 ? ' adv-daily-limit--empty' : '');
+    badge.style.display = '';
   }
 
   // --- Wizard Navigation ---

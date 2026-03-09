@@ -994,6 +994,25 @@
   text-align: center;
 }
 
+/* Daily limit badge (free tier) */
+.adv-daily-limit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--sf-accent, #a78bfa);
+  background: rgba(167, 139, 250, 0.1);
+  border: 1px solid rgba(167, 139, 250, 0.2);
+  border-radius: 20px;
+  padding: 0.35rem 0.9rem;
+  margin-bottom: 1rem;
+}
+.adv-daily-limit--empty {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.1);
+  border-color: rgba(248, 113, 113, 0.25);
+}
+
 /* Name field in step 1 */
 .adv-wizard__name-field {
   margin-top: 1.5rem;
