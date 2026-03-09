@@ -7,7 +7,7 @@ window.AdventureEntitlements = (function () {
   'use strict';
 
   // DEV_BYPASS: true = everyone gets PRO (for testing). false = auth-based tiers.
-  var DEV_BYPASS = true;
+  var DEV_BYPASS = false;
 
   // When DEV_BYPASS is off: signed in = PRO, signed out = FREE_DEFAULTS.
   function isAuthBypassed() {
