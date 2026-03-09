@@ -196,6 +196,8 @@ class Modal {
 // ================================
 
 function createSubscriptionTabContent() {
+  var isSignedIn = sessionStorage.getItem('isAuthenticated') === 'true' ||
+    (document.body && document.body.getAttribute('data-auth-state') === 'signed-in');
   var isPro = window.Entitlements && window.Entitlements.isPro();
 
   var features =
@@ -215,20 +217,26 @@ function createSubscriptionTabContent() {
     '</div>';
   }
 
+  var buttons = isSignedIn
+    ? '<div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap">' +
+        '<button class="cf-upgrade-btn" style="max-width:200px" ' +
+          'onclick="window.Entitlements.startCheckout(\'cf-pro-monthly\')">$4.99 / month</button>' +
+        '<button class="cf-upgrade-btn" style="max-width:200px;background:linear-gradient(135deg,#c471ed,#f64f59)" ' +
+          'onclick="window.Entitlements.startCheckout(\'cf-pro-yearly\')">$3.99/mo (yearly)</button>' +
+      '</div>' +
+      '<p style="color:rgba(255,255,255,0.3);font-size:0.75rem;margin-top:0.75rem">' +
+        'Yearly plan billed at $47.88/year. Cancel anytime.' +
+      '</p>'
+    : '<a class="cf-upgrade-btn" style="max-width:260px;margin:0 auto;display:block;text-decoration:none;text-align:center" ' +
+        'href="/.auth/login/aad?post_login_redirect_uri=/cardforge/">' +
+        '<i class="fas fa-sign-in-alt"></i> Sign in to upgrade</a>';
+
   return '<div class="settings-section" style="text-align:center">' +
     '<div style="font-size:2.5rem;margin-bottom:0.5rem"><i class="fas fa-crown" style="color:#FFD700"></i></div>' +
     '<h4 style="color:#fff;margin-bottom:0.25rem">Upgrade to Pro</h4>' +
     '<p style="color:rgba(255,255,255,0.5);margin-bottom:1rem">Unlock the full CardForge experience.</p>' +
     '<ul style="list-style:none;padding:0;text-align:left;max-width:300px;margin:0 auto 1.25rem;color:rgba(255,255,255,0.7);font-size:0.9rem;line-height:1.8">' + features + '</ul>' +
-    '<div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap">' +
-      '<button class="cf-upgrade-btn" style="max-width:200px" ' +
-        'onclick="window.Entitlements.startCheckout(\'cf-pro-monthly\')">$4.99 / month</button>' +
-      '<button class="cf-upgrade-btn" style="max-width:200px;background:linear-gradient(135deg,#c471ed,#f64f59)" ' +
-        'onclick="window.Entitlements.startCheckout(\'cf-pro-yearly\')">$3.99/mo (yearly)</button>' +
-    '</div>' +
-    '<p style="color:rgba(255,255,255,0.3);font-size:0.75rem;margin-top:0.75rem">' +
-      'Yearly plan billed at $47.88/year. Cancel anytime.' +
-    '</p>' +
+    buttons +
   '</div>';
 }
 

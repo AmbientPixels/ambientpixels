@@ -77,7 +77,18 @@
    * Start a Stripe checkout session for a product.
    * Redirects the user to Stripe Checkout.
    */
+  function isSignedIn() {
+    return sessionStorage.getItem('isAuthenticated') === 'true' ||
+           (document.body && document.body.getAttribute('data-auth-state') === 'signed-in');
+  }
+
   async function startCheckout(productId) {
+    // Redirect to login if not signed in
+    if (!isSignedIn()) {
+      window.location.href = '/.auth/login/aad?post_login_redirect_uri=/cardforge/';
+      return;
+    }
+
     try {
       var endpoint = window.buildApiPath ? window.buildApiPath('checkout') : '/api/cardforge-checkout';
       if (!endpoint) endpoint = '/api/cardforge-checkout';
