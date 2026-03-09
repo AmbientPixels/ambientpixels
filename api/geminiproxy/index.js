@@ -76,11 +76,12 @@ module.exports = async function (context, req) {
     const apiUrl = GEMINI_BASE + selectedModel + ':generateContent?key=' + GEMINI_API_KEY;
 
     // Build Gemini API request body
+    const isTTS = selectedModel.includes('tts');
     const geminiBody = {
-      contents: [{ parts: [{ text: prompt }] }]
+      contents: [{ parts: [{ text: isTTS ? 'Read the following text aloud:\n\n' + prompt : prompt }] }]
     };
 
-    // Add generationConfig if provided (needed for image responseModalities)
+    // Add generationConfig if provided (needed for image/audio responseModalities)
     if (generationConfig) {
       geminiBody.generationConfig = generationConfig;
     }

@@ -1163,6 +1163,8 @@
   function showTTSLoading(show) {
     var el = UI.$('ttsLoading');
     if (el) el.classList.toggle('adv-tts-loading--active', !!show);
+    var btn = UI.$('narrationToggle');
+    if (btn) btn.classList.toggle('adv-narration-toggle--loading', !!show);
   }
 
   // Returns a Promise that resolves with the AudioBuffer (or null)
@@ -1720,41 +1722,77 @@
   // --- Update Sidebar ---
   function updateSidebar() {
     if (!gameState) return;
-    renderSidebarPortrait();
-    updateLevelBar();
+    try { renderSidebarPortrait(); } catch (e) { console.warn('[Sidebar] portrait error:', e); }
+    try { updateLevelBar(); } catch (e) { console.warn('[Sidebar] level bar error:', e); }
     var stats = gameState.stats;
 
     // HP
-    var hpPct = (stats.hp / stats.maxHp) * 100;
-    var fill = UI.$('hpFill');
-    fill.style.width = hpPct + '%';
-    fill.className = 'adv-hp__fill' +
-      (hpPct <= 25 ? ' adv-hp__fill--danger' : (hpPct <= 50 ? ' adv-hp__fill--warning' : ''));
-    UI.$('hpValue').textContent = stats.hp;
-    UI.$('hpMax').textContent = '/ ' + stats.maxHp;
-
-    // Critical HP vignette
-    var sceneEl = document.querySelector('.adv-scene');
-    if (sceneEl) {
-      if (hpPct <= 25) sceneEl.classList.add('adv-scene--critical');
-      else sceneEl.classList.remove('adv-scene--critical');
-    }
-
-    // Stats
-    var statsHtml = ['strength', 'dexterity', 'intelligence', 'charisma', 'gold', 'reputation'].map(function (key) {
-      var icon = RPG.STAT_ICONS[key] || 'fa-circle';
-      var label = RPG.STAT_LABELS[key] || key;
-      var val = stats[key];
-      var valClass = '';
-      if (key === 'reputation') {
-        valClass = val > 10 ? 'adv-stat__value--good' : (val < -10 ? 'adv-stat__value--danger' : '');
+    try {
+      var hpPct = (stats.hp / stats.maxHp) * 100;
+      var fill = UI.$('hpFill');
+      if (fill) {
+        fill.style.width = hpPct + '%';
+        fill.className = 'adv-hp__fill' +
+          (hpPct <= 25 ? ' adv-hp__fill--danger' : (hpPct <= 50 ? ' adv-hp__fill--warning' : ''));
       }
-      return '<div class="adv-stat">' +
-        '<span class="adv-stat__label"><i class="fas ' + icon + '"></i> ' + label + '</span>' +
-        '<span class="adv-stat__value ' + valClass + '">' + val + '</span>' +
-      '</div>';
-    }).join('');
-    UI.$('statsContainer').innerHTML = statsHtml;
+      var hpVal = UI.$('hpValue');
+      if (hpVal) hpVal.textContent = stats.hp;
+      var hpMax = UI.$('hpMax');
+      if (hpMax) hpMax.textContent = '/ ' + stats.maxHp;
+
+      // Critical HP vignette
+      var sceneEl = document.querySelector('.adv-scene');
+      if (sceneEl) {
+        if (hpPct <= 25) sceneEl.classList.add('adv-scene--critical');
+        else sceneEl.classList.remove('adv-scene--critical');
+      }
+    } catch (e) { console.warn('[Sidebar] HP error:', e); }
+
+    // Stats (with buff indicators)
+    try {
+      var equipBonusMap = { weapon: 'strength', armor: 'dexterity' };
+      var statsHtml = ['strength', 'dexterity', 'intelligence', 'charisma', 'gold', 'reputation'].map(function (key) {
+        var icon = RPG.STAT_ICONS[key] || 'fa-circle';
+        var label = RPG.STAT_LABELS[key] || key;
+        var val = stats[key];
+        var valClass = '';
+        if (key === 'reputation') {
+          valClass = val > 10 ? 'adv-stat__value--good' : (val < -10 ? 'adv-stat__value--danger' : '');
+        }
+
+        // Check for active buffs on this stat
+        var buffs = [];
+        if (gameState.equipped) {
+          for (var slot in equipBonusMap) {
+            if (equipBonusMap[slot] === key && gameState.equipped[slot]) {
+              var eqItem = gameState.inventory.find(function (i) { return i.id === gameState.equipped[slot]; });
+              buffs.push({ value: 1, source: eqItem ? eqItem.name : slot, type: 'equip' });
+            }
+          }
+        }
+        if (gameState.companions) {
+          gameState.companions.forEach(function (comp) {
+            if (comp.bonus === key) {
+              buffs.push({ value: 2, source: comp.name, type: 'companion' });
+            }
+          });
+        }
+
+        var buffHtml = buffs.map(function (b) {
+          var cls = b.type === 'companion' ? 'adv-stat__buff--companion' : 'adv-stat__buff--equip';
+          var buffIcon = b.type === 'companion' ? 'fa-paw' : 'fa-shield-halved';
+          return '<span class="adv-stat__buff ' + cls + '" title="' + UI.escapeHtml(b.source) + '">' +
+            '<i class="fas ' + buffIcon + '"></i>+' + b.value +
+          '</span>';
+        }).join('');
+
+        return '<div class="adv-stat">' +
+          '<span class="adv-stat__label"><i class="fas ' + icon + '"></i> ' + label + '</span>' +
+          '<span class="adv-stat__value ' + valClass + '">' + val + buffHtml + '</span>' +
+        '</div>';
+      }).join('');
+      UI.$('statsContainer').innerHTML = statsHtml;
+    } catch (e) { console.warn('[Sidebar] stats error:', e); }
 
     // Inventory
     if (!gameState.equipped) gameState.equipped = { weapon: null, armor: null };

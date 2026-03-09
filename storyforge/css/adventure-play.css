@@ -160,6 +160,16 @@
   border-color: rgba(var(--sf-accent-rgb), 0.4);
 }
 
+.adv-narration-toggle--loading {
+  animation: adv-ttsButtonPulse 1s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes adv-ttsButtonPulse {
+  0%, 100% { opacity: 1; border-color: rgba(var(--sf-accent-rgb), 0.4); }
+  50% { opacity: 0.5; border-color: var(--sf-accent); }
+}
+
 .adv-audio-divider {
   width: 1px;
   height: 14px;
@@ -398,6 +408,42 @@
 
 .adv-stat__value--good {
   color: var(--sf-success);
+}
+
+/* Buff indicators */
+.adv-stat__buff {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: 0.35rem;
+  padding: 1px 5px;
+  border-radius: 6px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1;
+  vertical-align: middle;
+  animation: buffPulse 2s ease-in-out infinite;
+}
+
+.adv-stat__buff i {
+  font-size: 0.55rem;
+}
+
+.adv-stat__buff--equip {
+  background: rgba(var(--sf-accent-rgb), 0.15);
+  border: 1px solid rgba(var(--sf-accent-rgb), 0.3);
+  color: var(--sf-accent-soft);
+}
+
+.adv-stat__buff--companion {
+  background: rgba(52, 211, 153, 0.15);
+  border: 1px solid rgba(52, 211, 153, 0.3);
+  color: #34D399;
+}
+
+@keyframes buffPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
 }
 
 /* HP Bar */
@@ -1930,21 +1976,10 @@
   pointer-events: auto;
 }
 
-/* Hover zone at top of screen to reveal header */
-.adv-app--immersive::before {
-  content: '';
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 40px;
-  z-index: 101;
-  cursor: default;
-}
+/* Header reveal is handled by JS mousemove — no CSS hover zone needed */
 
-/* When hovering the top zone, reveal the header via shared parent hover */
-.adv-app--immersive:has(::before:hover) .adv-header,
-.adv-app--immersive .adv-header--visible {
+/* JS-driven header reveal (mousemove adds .adv-header--visible) */
+.adv-app--immersive .adv-header.adv-header--visible {
   transform: translateY(0);
   opacity: 1;
   pointer-events: auto;
