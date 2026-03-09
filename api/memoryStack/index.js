@@ -198,12 +198,12 @@ function buildLayerRecords(data) {
       source: 'static',
       scope: 'per-agent',
       payload: {
-        agents: data.agentDefs.map((a) => ({ id: a.id || '', name: a.name || a.id || '', hasDoctrine: !!a.operatingDoctrine }))
+        agents: data.agentDefs.map((a) => ({ id: a.id || '', name: a.name || a.id || '', role: a.role || '', hasDoctrine: !!a.operatingDoctrine, operatingDoctrine: a.operatingDoctrine || null }))
       },
       agentMap: data.agentDefs.reduce((acc, a) => {
         const key = String(a.id || '').toLowerCase();
         if (!key) return acc;
-        acc[key] = a.operatingDoctrine || null;
+        acc[key] = { id: a.id || key, name: a.name || key, role: a.role || '', operatingDoctrine: a.operatingDoctrine || null };
         return acc;
       }, {}),
       agentsCovered: data.agentDefs.filter((a) => !!a.operatingDoctrine).length,
