@@ -23,7 +23,7 @@ const PRODUCTS = {
       tier: 'pro',
       flags: ['hdExport', 'premiumEffects', 'extraCardSlots']
     }
-  }
+  },
   // Future one-time products:
   // 'cf-effect-pack-celestial': { mode: 'payment', stripePrice: process.env.CF_STRIPE_PRICE_CELESTIAL, ... }
   // 'cf-xp-booster-24h':       { mode: 'payment', stripePrice: process.env.CF_STRIPE_PRICE_XP_BOOST, ttlHours: 24, ... }
