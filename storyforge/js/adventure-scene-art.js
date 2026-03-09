@@ -559,9 +559,36 @@ var NarrativeDrift = (function () {
       };
 
       p.windowResized = function () {
-        W = containerEl.clientWidth || containerEl.offsetWidth;
-        H = containerEl.clientHeight || containerEl.offsetHeight;
-        if (W > 0 && H > 0) p.resizeCanvas(W, H);
+        var newW = containerEl.clientWidth || containerEl.offsetWidth;
+        var newH = containerEl.clientHeight || containerEl.offsetHeight;
+        if (newW > 0 && newH > 0 && (newW !== W || newH !== H)) {
+          W = newW; H = newH;
+          p.resizeCanvas(W, H);
+        }
+      };
+
+      // Watch container for layout changes (sidebar toggle, flex reflow, etc.)
+      var resizeObs = null;
+      if (typeof ResizeObserver !== 'undefined') {
+        resizeObs = new ResizeObserver(function (entries) {
+          var entry = entries[0];
+          if (!entry) return;
+          var cr = entry.contentRect;
+          var newW = Math.round(cr.width);
+          var newH = Math.round(cr.height);
+          if (newW > 0 && newH > 0 && (newW !== W || newH !== H)) {
+            W = newW; H = newH;
+            p.resizeCanvas(W, H);
+          }
+        });
+        resizeObs.observe(containerEl);
+      }
+
+      // Cleanup observer when sketch is removed
+      var origRemove = p.remove.bind(p);
+      p.remove = function () {
+        if (resizeObs) { resizeObs.disconnect(); resizeObs = null; }
+        origRemove();
       };
 
       function drawVignette() {
