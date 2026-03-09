@@ -1230,7 +1230,11 @@
         if (resp.ok && resp.data.success) {
           var exec = resp.data.execution || {};
           AE.completeAction(id, exec.receipt || null);
-          _showExecNotice('success', 'Posted successfully!' + (exec.receipt && exec.receipt.post_url ? ' → ' + exec.receipt.post_url : ''));
+          var _execType = (exec.receipt && exec.receipt.type) || '';
+          var _execMsg = _execType === 'research_intel' ? 'Intel stored to knowledge base.'
+            : _execType === 'task_completion' ? 'Task completion recorded.'
+            : 'Posted successfully!' + (exec.receipt && exec.receipt.post_url ? ' → ' + exec.receipt.post_url : '');
+          _showExecNotice('success', _execMsg);
         } else if (resp.status === 409 && resp.data.receipt) {
           AE.completeAction(id, resp.data.receipt);
           _showExecNotice('info', 'Already posted — synced local state.');
