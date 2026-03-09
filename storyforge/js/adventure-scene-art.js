@@ -352,10 +352,8 @@ var NarrativeDrift = (function () {
 
       /* ── p5 lifecycle ──────────────────────────────────────── */
       p.setup = function () {
-        // Use getBoundingClientRect for accurate dimensions after layout
-        var rect = containerEl.getBoundingClientRect();
-        W = Math.round(rect.width) || containerEl.clientWidth || containerEl.offsetWidth;
-        H = Math.round(rect.height) || containerEl.clientHeight || containerEl.offsetHeight;
+        W = containerEl.clientWidth || containerEl.offsetWidth;
+        H = containerEl.clientHeight || containerEl.offsetHeight;
         var canvas = p.createCanvas(W, H);
         canvas.parent(containerEl);
         canvas.style('position', 'absolute');
@@ -561,9 +559,8 @@ var NarrativeDrift = (function () {
       };
 
       p.windowResized = function () {
-        var rect = containerEl.getBoundingClientRect();
-        W = Math.round(rect.width) || containerEl.clientWidth || containerEl.offsetWidth;
-        H = Math.round(rect.height) || containerEl.clientHeight || containerEl.offsetHeight;
+        W = containerEl.clientWidth || containerEl.offsetWidth;
+        H = containerEl.clientHeight || containerEl.offsetHeight;
         if (W > 0 && H > 0) p.resizeCanvas(W, H);
       };
 
@@ -593,11 +590,7 @@ var NarrativeDrift = (function () {
     stop(); // cleanup any previous instance
     dissolving = false;
     if (!containerEl || !window.p5) return;
-    // Defer to next frame so the container has its layout dimensions
-    requestAnimationFrame(function () {
-      if (dissolving) return; // stop() was called before we got here
-      p5Instance = new p5(createSketch(containerEl, genreId), undefined);
-    });
+    p5Instance = new p5(createSketch(containerEl, genreId), undefined);
   }
 
   function stop(callback) {
