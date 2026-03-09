@@ -15,6 +15,11 @@
   var gameState = null;
   var currentScene = null;
   var isProcessing = false;
+  function setProcessing(val) {
+    isProcessing = val;
+    var app = UI.$('advApp');
+    if (app) app.classList.toggle('adv-app--processing', val);
+  }
   var currentNarration = null; // { source, ctx } for Web Audio playback
   var audioCtx = null; // Shared AudioContext, unlocked on first user gesture
   var narrationEnabled = localStorage.getItem('sf_narration') !== 'off'; // on by default
@@ -462,12 +467,12 @@
     }
 
     // Generate fresh choices for the current scene
-    isProcessing = true;
+    setProcessing(true);
     AI.generateContinuation(selectedGenre, gameState)
       .then(function (scene) {
         currentScene = scene;
         renderChoices(scene.choices);
-        isProcessing = false;
+        setProcessing(false);
       })
       .catch(function () {
         // Fallback: offer generic choices
@@ -479,7 +484,7 @@
           ]
         };
         renderChoices(currentScene.choices);
-        isProcessing = false;
+        setProcessing(false);
       });
   }
 
@@ -1102,7 +1107,7 @@
     if (generatedPortraitDataUrl) {
       gameState.portraitImage = generatedPortraitDataUrl;
     }
-    isProcessing = true;
+    setProcessing(true);
 
     UI.showScreen('screenPlay');
     UI.$('pauseBtn').style.display = '';
@@ -1131,7 +1136,7 @@
       .catch(function (err) {
         UI.toast('Failed to generate scene: ' + err.message, 'error');
         console.error('Scene generation error:', err);
-        isProcessing = false;
+        setProcessing(false);
       });
   }
 
@@ -1271,7 +1276,7 @@
       } else {
         renderChoices(scene.choices);
       }
-      isProcessing = false;
+      setProcessing(false);
     });
 
     updateSidebar();
@@ -1305,7 +1310,7 @@
   // --- Handle Choice ---
   function handleChoice(choiceId) {
     if (isProcessing || !currentScene) return;
-    isProcessing = true;
+    setProcessing(true);
 
     // Stop current narration immediately when user advances
     stopNarration();
@@ -1314,7 +1319,7 @@
     ensureAudioContext();
 
     var choice = currentScene.choices.find(function (c) { return c.id === choiceId; });
-    if (!choice) { isProcessing = false; return; }
+    if (!choice) { setProcessing(false); return; }
 
     // Highlight selected choice + SFX
     playSfx('choiceSelect');
@@ -1494,14 +1499,14 @@
       .catch(function (err) {
         UI.toast('Failed to generate scene: ' + err.message, 'error');
         console.error('Scene generation error:', err);
-        isProcessing = false;
+        setProcessing(false);
         // Offer a retry option that retries the same turn
         var retryBtn = document.createElement('button');
         retryBtn.className = 'adv-choice';
         retryBtn.innerHTML = '<span class="adv-choice__key" aria-hidden="true">!</span>' +
           '<span class="adv-choice__text">Something went wrong \u2014 click to retry</span>';
         retryBtn.addEventListener('click', function () {
-          isProcessing = true;
+          setProcessing(true);
           UI.$('choicesContainer').innerHTML = '';
           UI.showLoading(UI.$('sceneText'), 'Retrying...');
           doGenerateNextTurn(choiceText, skillCheckResult);

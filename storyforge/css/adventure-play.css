@@ -680,6 +680,17 @@
   border-color: rgba(239, 68, 68, 0.35);
 }
 
+/* Processing state — grey out inventory actions while AI is generating */
+.adv-app--processing .adv-inventory__btn {
+  opacity: 0.35;
+  pointer-events: none;
+  cursor: not-allowed;
+  filter: grayscale(0.6);
+}
+.adv-app--processing .adv-inventory__item {
+  pointer-events: none;
+}
+
 .adv-inventory__empty {
   font-size: 0.8rem;
   color: var(--sf-text-dim);
