@@ -46,12 +46,35 @@
         <p>Browse completed adventures from players around the world.</p>
       </div>
 
-      <!-- Genre Filter Tabs -->
-      <div class="adv-gallery__filters" id="galleryFilters">
+      <!-- Stats Bar -->
+      <div class="adv-gallery__stats-bar" id="galleryStatsBar">
         <!-- Injected by JS -->
       </div>
 
-      <!-- Adventure Grid -->
+      <!-- Toolbar: Filters + Sort + Search -->
+      <div class="adv-gallery__toolbar">
+        <div class="adv-gallery__filters" id="galleryFilters">
+          <!-- Injected by JS -->
+        </div>
+        <div class="adv-gallery__controls">
+          <div class="adv-gallery__search">
+            <i class="fas fa-search"></i>
+            <input type="text" id="gallerySearch" placeholder="Search adventures..." autocomplete="off" />
+          </div>
+          <div class="adv-gallery__sort">
+            <i class="fas fa-arrow-down-short-wide"></i>
+            <select id="gallerySort">
+              <option value="newest">Newest</option>
+              <option value="oldest">Oldest</option>
+              <option value="longest">Most Turns</option>
+              <option value="shortest">Fewest Turns</option>
+              <option value="level">Highest Level</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Adventure Grid (Masonry) -->
       <div class="adv-gallery__grid" id="galleryGrid">
         <!-- Injected by JS -->
       </div>
@@ -65,8 +88,8 @@
 
       <!-- Empty State -->
       <div class="adv-gallery__empty" id="galleryEmpty" style="display:none;">
-        <i class="fas fa-book-open"></i>
-        <p>No adventures published yet. Be the first!</p>
+        <i class="fas fa-compass"></i>
+        <p>No adventures found. Start your own journey!</p>
         <a href="/storyforge/" class="adv-btn adv-btn--primary" style="margin-top:1rem;">
           <i class="fas fa-play"></i> Start Adventure
         </a>
