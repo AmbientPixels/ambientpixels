@@ -195,8 +195,50 @@ class Modal {
 // SETTINGS MODAL
 // ================================
 
+function createSubscriptionTabContent() {
+  var isPro = window.Entitlements && window.Entitlements.isPro();
+
+  var features =
+    '<li><i class="fas fa-image" style="color:#7b2ff2;margin-right:0.5rem;width:16px"></i> HD exports (2x, 3x, 4x resolution)</li>' +
+    '<li><i class="fas fa-sparkles" style="color:#7b2ff2;margin-right:0.5rem;width:16px"></i> All premium effects unlocked</li>' +
+    '<li><i class="fas fa-layer-group" style="color:#7b2ff2;margin-right:0.5rem;width:16px"></i> 4 buff slots + x5 stacking</li>' +
+    '<li><i class="fas fa-robot" style="color:#7b2ff2;margin-right:0.5rem;width:16px"></i> Unlimited AI generations</li>';
+
+  if (isPro) {
+    return '<div class="settings-section" style="text-align:center">' +
+      '<div style="font-size:2.5rem;margin-bottom:0.5rem"><i class="fas fa-crown" style="color:#FFD700"></i></div>' +
+      '<h4 style="color:#FFD700;margin-bottom:0.25rem">CardForge Pro</h4>' +
+      '<p style="color:rgba(255,255,255,0.5);margin-bottom:1rem">Your subscription is active. All features unlocked.</p>' +
+      '<ul style="list-style:none;padding:0;text-align:left;max-width:300px;margin:0 auto 1.25rem;color:rgba(255,255,255,0.7);font-size:0.9rem;line-height:1.8">' + features + '</ul>' +
+      '<button class="cf-upgrade-btn" style="background:rgba(255,255,255,0.1);max-width:240px;margin:0 auto;display:block" ' +
+        'onclick="window.Entitlements.openBillingPortal()"><i class="fas fa-cog"></i> Manage Subscription</button>' +
+    '</div>';
+  }
+
+  return '<div class="settings-section" style="text-align:center">' +
+    '<div style="font-size:2.5rem;margin-bottom:0.5rem"><i class="fas fa-crown" style="color:#FFD700"></i></div>' +
+    '<h4 style="color:#fff;margin-bottom:0.25rem">Upgrade to Pro</h4>' +
+    '<p style="color:rgba(255,255,255,0.5);margin-bottom:1rem">Unlock the full CardForge experience.</p>' +
+    '<ul style="list-style:none;padding:0;text-align:left;max-width:300px;margin:0 auto 1.25rem;color:rgba(255,255,255,0.7);font-size:0.9rem;line-height:1.8">' + features + '</ul>' +
+    '<div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap">' +
+      '<button class="cf-upgrade-btn" style="max-width:200px" ' +
+        'onclick="window.Entitlements.startCheckout(\'cf-pro-monthly\')">$4.99 / month</button>' +
+      '<button class="cf-upgrade-btn" style="max-width:200px;background:linear-gradient(135deg,#c471ed,#f64f59)" ' +
+        'onclick="window.Entitlements.startCheckout(\'cf-pro-yearly\')">$3.99/mo (yearly)</button>' +
+    '</div>' +
+    '<p style="color:rgba(255,255,255,0.3);font-size:0.75rem;margin-top:0.75rem">' +
+      'Yearly plan billed at $47.88/year. Cancel anytime.' +
+    '</p>' +
+  '</div>';
+}
+
 function openSettings() {
   const tabs = [
+    {
+      title: 'Subscription',
+      icon: '<i class="fas fa-crown"></i>',
+      content: createSubscriptionTabContent()
+    },
     {
       title: 'Themes',
       icon: '<i class="fas fa-palette"></i>',

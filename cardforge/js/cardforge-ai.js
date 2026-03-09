@@ -51,12 +51,18 @@
   }
 
   function getAiRemaining() {
+    if (window.Entitlements && window.Entitlements.isPro()) return 999;
     return Math.max(0, AI_DAILY_LIMIT - getAiUsage().count);
   }
 
   function updateAiCounter() {
     const counter = document.getElementById('cf-ai-remaining');
     if (counter) {
+      if (window.Entitlements && window.Entitlements.isPro()) {
+        counter.textContent = 'Pro \u2014 unlimited';
+        counter.style.color = '#FFD700';
+        return;
+      }
       const remaining = getAiRemaining();
       counter.textContent = remaining + '/' + AI_DAILY_LIMIT + ' free today';
       counter.style.color = remaining === 0 ? '#ff6b6b' : 'rgba(255,255,255,0.4)';
@@ -67,7 +73,10 @@
   async function callGemini(prompt, opts = {}) {
     // Check daily limit
     if (getAiRemaining() <= 0) {
-      throw new Error('Daily AI limit reached (' + AI_DAILY_LIMIT + '/day). Upgrade to Pro for unlimited generations.');
+      if (window.Entitlements && window.Entitlements.showUpgradePrompt) {
+        window.Entitlements.showUpgradePrompt('Unlimited AI Generations');
+      }
+      throw new Error('Daily AI limit reached (' + AI_DAILY_LIMIT + '/day).');
     }
     const payload = { prompt };
     if (opts.model) payload.model = opts.model;

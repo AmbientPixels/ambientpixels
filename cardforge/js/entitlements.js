@@ -200,6 +200,22 @@
     }, 4000);
   }
 
+  /**
+   * Show a general-purpose toast notification.
+   * @param {string} msg — message text
+   * @param {'success'|'info'|'error'} [type='info']
+   */
+  function showToast(msg, type) {
+    var toast = document.createElement('div');
+    toast.className = 'cf-upgrade-toast cf-upgrade-toast--' + (type || 'info');
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    setTimeout(function () {
+      toast.classList.add('cf-upgrade-toast--removing');
+      setTimeout(function () { toast.remove(); }, 300);
+    }, 5000);
+  }
+
   function escapeHtml(str) {
     var div = document.createElement('div');
     div.textContent = str;
@@ -214,6 +230,7 @@
     getTier: getTier,
     startCheckout: startCheckout,
     openBillingPortal: openBillingPortal,
-    showUpgradePrompt: showUpgradePrompt
+    showUpgradePrompt: showUpgradePrompt,
+    showToast: showToast
   };
 })();

@@ -1059,7 +1059,22 @@
     });
 
     // Load billing entitlements (non-blocking)
-    if (window.Entitlements) window.Entitlements.load();
+    if (window.Entitlements) {
+      window.Entitlements.load();
+
+      // Handle Stripe checkout return
+      var params = new URLSearchParams(window.location.search);
+      if (params.get('checkout') === 'success') {
+        window.Entitlements.load().then(function () {
+          if (typeof applyEffectLockState === 'function') applyEffectLockState();
+        });
+        window.Entitlements.showToast('Welcome to CardForge Pro!', 'success');
+        window.history.replaceState({}, '', window.location.pathname);
+      } else if (params.get('checkout') === 'cancelled') {
+        window.Entitlements.showToast('Checkout cancelled. No charges were made.', 'info');
+        window.history.replaceState({}, '', window.location.pathname);
+      }
+    }
     
     // Default image effects and borders to none on page load
     ModularState.imageEffect = 'none';
