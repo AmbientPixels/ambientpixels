@@ -27,6 +27,9 @@
       <nav class="adv-header__nav">
         <a href="/storyforge/" class="adv-header__link">Hub</a>
         <a href="/storyforge/gallery.html" class="adv-header__link">Gallery</a>
+        <button class="adv-btn adv-btn--icon" id="immersiveBtn" style="display:none" title="Immersive mode (F)">
+          <i class="fas fa-expand"></i>
+        </button>
         <button class="adv-btn" id="pauseBtn" style="display:none">
           <i class="fas fa-pause"></i> Pause
         </button>
@@ -135,6 +138,13 @@
                 <button class="adv-narration-toggle" id="narrationToggle" title="Toggle auto-narration">
                   <i class="fas fa-volume-up"></i>
                 </button>
+                <div class="adv-narration-wave" id="narrationWave" style="display:none;">
+                  <span class="adv-narration-wave__bar"></span>
+                  <span class="adv-narration-wave__bar"></span>
+                  <span class="adv-narration-wave__bar"></span>
+                  <span class="adv-narration-wave__bar"></span>
+                  <span class="adv-narration-wave__bar"></span>
+                </div>
                 <input type="range" class="adv-narration-volume" id="narrationVolume" min="0" max="1" step="0.05" value="0.8" title="Narration volume" />
               </div>
             </div>
@@ -206,6 +216,10 @@
               </div>
             </div>
           </aside>
+          <!-- Sidebar toggle for immersive mode -->
+          <button class="adv-sidebar-toggle" id="sidebarToggle" title="Toggle stats panel">
+            <i class="fas fa-chevron-left"></i>
+          </button>
         </div>
       </div>
 

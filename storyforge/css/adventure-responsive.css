@@ -115,6 +115,17 @@
   }
 }
 
+/* Disable immersive mode on small screens — sidebar is already stacked */
+@media (max-width: 900px) {
+  .adv-btn--icon#immersiveBtn {
+    display: none !important;
+  }
+
+  .adv-sidebar-toggle {
+    display: none !important;
+  }
+}
+
 @media (max-width: 480px) {
   .adv-main {
     padding: 0.75rem;

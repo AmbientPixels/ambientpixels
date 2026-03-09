@@ -122,6 +122,7 @@
 
     UI.showScreen('screenPlay');
     UI.$('pauseBtn').style.display = '';
+    UI.$('immersiveBtn').style.display = '';
     updateSidebar();
 
     // Render the last scene text
@@ -224,6 +225,32 @@
 
     var portraitBtn = UI.$('generatePortraitBtn');
     if (portraitBtn) portraitBtn.addEventListener('click', generatePortrait);
+
+    // --- Immersive mode ---
+    var immersiveBtn = UI.$('immersiveBtn');
+    var sidebarToggle = UI.$('sidebarToggle');
+    if (immersiveBtn) {
+      immersiveBtn.addEventListener('click', toggleImmersiveMode);
+    }
+    if (sidebarToggle) {
+      sidebarToggle.addEventListener('click', function () {
+        var sidebar = document.querySelector('.adv-sidebar');
+        if (sidebar) sidebar.classList.toggle('adv-sidebar--open');
+      });
+    }
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'f' || e.key === 'F') {
+        // Don't trigger if typing in an input
+        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+        toggleImmersiveMode();
+      }
+      if (e.key === 'Escape') {
+        var app = UI.$('advApp');
+        if (app && app.classList.contains('adv-app--immersive')) {
+          toggleImmersiveMode();
+        }
+      }
+    });
 
     UI.$('pauseBtn').addEventListener('click', showPauseMenu);
     UI.$('resumeBtn').addEventListener('click', hidePauseMenu);
@@ -668,6 +695,7 @@
 
     UI.showScreen('screenPlay');
     UI.$('pauseBtn').style.display = '';
+    UI.$('immersiveBtn').style.display = '';
     UI.showLoading(UI.$('sceneText'), 'Forging your story...');
     UI.$('choicesContainer').innerHTML = '';
     updateSidebar();
@@ -705,6 +733,8 @@
       try { currentNarration.source.stop(); } catch (e) {}
       currentNarration = null;
     }
+    var wave = UI.$('narrationWave');
+    if (wave) wave.style.display = 'none';
   }
 
   // Preloaded audio buffer for current scene (filled by TTS fetch in parallel with typewriter)
@@ -758,10 +788,18 @@
     source.onended = function () {
       if (currentNarration && currentNarration.id === sessionId) {
         currentNarration = null;
+        var wave = UI.$('narrationWave');
+        if (wave) wave.style.display = 'none';
       }
     };
 
     source.start(0);
+    // Show waveform indicator
+    var wave = UI.$('narrationWave');
+    if (wave) {
+      wave.style.display = '';
+      wave.classList.remove('adv-narration-wave--paused');
+    }
   }
 
   // --- Render Scene ---
@@ -773,11 +811,11 @@
     UI.$('turnLabel').textContent = 'Turn ' + gameState.turnCount;
     UI.$('progressFill').style.width = ((gameState.turnCount / gameState.maxTurns) * 100) + '%';
 
-    // Scene entrance animation
+    // Scene entrance animation with blur transition
     var sceneTextEl = UI.$('sceneText');
-    sceneTextEl.classList.remove('adv-scene-enter');
+    sceneTextEl.classList.remove('adv-scene-enter', 'adv-scene__text--transitioning');
     void sceneTextEl.offsetWidth; // force reflow to restart animation
-    sceneTextEl.classList.add('adv-scene-enter');
+    sceneTextEl.classList.add('adv-scene-enter', 'adv-scene__text--transitioning');
 
     // Start TTS fetch in parallel — plays as soon as ready
     preloadTTS(scene.sceneText);
@@ -1169,7 +1207,9 @@
           img.onload = function () {
             stopLoadingTextCycle();
             stopSceneArt(function () {
-              img.classList.add('adv-scene__image--loaded');
+              img.classList.remove('adv-scene__image--crossfade');
+              void img.offsetWidth;
+              img.classList.add('adv-scene__image--loaded', 'adv-scene__image--crossfade');
               UI.$('sceneImagePlaceholder').style.display = 'none';
             });
           };
@@ -1459,6 +1499,10 @@
   function showEnding(scene) {
     UI.showScreen('screenEnding');
     UI.$('pauseBtn').style.display = 'none';
+    UI.$('immersiveBtn').style.display = 'none';
+    // Exit immersive if active
+    var app = UI.$('advApp');
+    if (app && app.classList.contains('adv-app--immersive')) toggleImmersiveMode();
 
     var type = scene.endingType || 'escape';
     var icons = { victory: 'fa-trophy', death: 'fa-skull', escape: 'fa-person-running' };
@@ -1525,6 +1569,24 @@
             shareBtn.innerHTML = '<i class="fas fa-share-nodes"></i> Share';
           });
       };
+    }
+  }
+
+  // --- Immersive Mode ---
+  function toggleImmersiveMode() {
+    var app = UI.$('advApp');
+    if (!app) return;
+    var isImmersive = app.classList.toggle('adv-app--immersive');
+    var btn = UI.$('immersiveBtn');
+    if (btn) {
+      var icon = btn.querySelector('i');
+      if (icon) icon.className = isImmersive ? 'fas fa-compress' : 'fas fa-expand';
+      btn.title = isImmersive ? 'Exit immersive (Esc)' : 'Immersive mode (F)';
+    }
+    // Close sidebar panel if exiting immersive
+    if (!isImmersive) {
+      var sidebar = document.querySelector('.adv-sidebar');
+      if (sidebar) sidebar.classList.remove('adv-sidebar--open');
     }
   }
 
