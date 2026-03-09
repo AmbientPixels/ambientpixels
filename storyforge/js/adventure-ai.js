@@ -173,8 +173,12 @@ window.AdventureAI = (function () {
       'GENRE: ' + genre.name + '\n' +
       'TURN: 1/25\n\n' +
       'RULES:\n' +
-      '- Write 2-4 paragraphs of vivid ' + genre.name.toLowerCase() + ' prose introducing the setting and situation.\n' +
+      '- Write exactly 3 paragraphs: (1) establish the setting with sensory detail, (2) introduce the situation and stakes, (3) set up the first decision point.\n' +
+      '- Use all five senses — not just sight. Include sounds, smells, textures, temperature.\n' +
+      '- Vary sentence length: mix short punchy beats with longer flowing descriptions.\n' +
       '- Present exactly 3-4 choices. At least one cautious, one bold, one creative.\n' +
+      '- Each choice must lead to a DIFFERENT outcome — never offer three flavors of the same action.\n' +
+      '- Each choice should hint at its consequence without spoiling it.\n' +
       '- If a choice involves risk, add a skillCheck with stat (strength/dexterity/intelligence/charisma) and difficulty (8-16).\n' +
       '- Suggest any immediate inventory finds or companion encounters via stateChanges.\n' +
       '- IMPORTANT: Every item or companion mentioned in the narrative MUST appear in stateChanges.addItems or stateChanges.addCompanion. Do not describe the player finding/receiving items without adding them.\n' +
@@ -214,8 +218,18 @@ window.AdventureAI = (function () {
       '- Player\'s Choice: ' + choiceText + '\n' +
       skillInfo + '\n' +
       'RULES:\n' +
-      '- Write 2-4 paragraphs describing what happens.\n' +
+      '- Write exactly 3 paragraphs: (1) consequence of the choice — what happens immediately, (2) exploration/discovery — what the player sees, hears, finds, (3) new tension — set up the next decision point.\n' +
+      '- Use all five senses. Include sounds, smells, textures, temperature — not just visual descriptions.\n' +
+      '- Vary sentence length: short punchy beats for action, longer flowing prose for atmosphere.\n' +
+      '- Do NOT start consecutive paragraphs the same way.\n' +
+      '- If the player has companions, give them dialogue or actions in the scene — they are not silent followers.\n' +
+      '- Reference equipped items naturally in the prose (e.g., "You grip your cutlass" not just "You attack").\n' +
       '- Present 3-4 choices. At least one cautious, one bold, one creative.\n' +
+      '- Each choice must lead to a DIFFERENT outcome — never offer three flavors of the same action.\n' +
+      '- Never offer "do nothing" or "wait and see" as a choice.\n' +
+      '- At least one choice should leverage the player\'s inventory or companions if available.\n' +
+      '- Bold choices should have higher risk AND higher reward in stateChanges.\n' +
+      '- Each choice should hint at its consequence without spoiling it.\n' +
       '- If a choice involves risk, add a skillCheck (stat + difficulty 8-18).\n' +
       '- Track HP changes (damage: -5 to -25, healing: +10 to +30), inventory, companions, reputation.\n' +
       '- IMPORTANT: Every item or companion mentioned in the narrative MUST appear in stateChanges. Do not describe the player finding/receiving/losing items without including them in addItems/removeItems.\n' +

@@ -20,6 +20,7 @@ window.AdventureStorage = (function () {
     return fetch(SAVE_API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify(adventure)
     })
     .then(function (res) {
@@ -37,7 +38,7 @@ window.AdventureStorage = (function () {
 
   // --- Load all adventures from server (with localStorage fallback) ---
   function loadAdventures() {
-    return fetch(LOAD_API)
+    return fetch(LOAD_API, { credentials: 'include' })
       .then(function (res) {
         if (!res.ok) throw new Error('Server load failed (' + res.status + ')');
         return res.json();
@@ -59,7 +60,7 @@ window.AdventureStorage = (function () {
 
   // --- Load single adventure by ID ---
   function loadAdventure(adventureId) {
-    return fetch(LOAD_API + '?id=' + encodeURIComponent(adventureId))
+    return fetch(LOAD_API + '?id=' + encodeURIComponent(adventureId), { credentials: 'include' })
       .then(function (res) {
         if (!res.ok) throw new Error('Not found');
         return res.json();

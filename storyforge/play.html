@@ -307,9 +307,22 @@
           <h1 class="adv-ending__title" id="endingTitle"></h1>
           <div class="adv-ending__text" id="endingText"></div>
           <div class="adv-ending__stats" id="endingStats"></div>
+          <div class="adv-ending__rating" id="endingRating">
+            <span class="adv-ending__rating-label">Rate this adventure</span>
+            <div class="adv-ending__stars" id="endingStars">
+              <button class="adv-ending__star" data-rating="1"><i class="fas fa-star"></i></button>
+              <button class="adv-ending__star" data-rating="2"><i class="fas fa-star"></i></button>
+              <button class="adv-ending__star" data-rating="3"><i class="fas fa-star"></i></button>
+              <button class="adv-ending__star" data-rating="4"><i class="fas fa-star"></i></button>
+              <button class="adv-ending__star" data-rating="5"><i class="fas fa-star"></i></button>
+            </div>
+          </div>
           <div class="adv-ending__actions">
-            <button class="adv-btn adv-btn--primary" id="newAdventureBtn">
-              <i class="fas fa-redo"></i> New Adventure
+            <button class="adv-btn adv-btn--primary" id="playAgainBtn" style="display:none">
+              <i class="fas fa-redo"></i> Play Again
+            </button>
+            <button class="adv-btn" id="newAdventureBtn">
+              <i class="fas fa-compass"></i> New Adventure
             </button>
             <button class="adv-btn" id="shareBtn">
               <i class="fas fa-share-nodes"></i> Share
@@ -319,6 +332,18 @@
       </div>
 
     </main>
+
+    <!-- Story Recap Overlay -->
+    <div class="adv-recap" id="recapOverlay" style="display:none">
+      <div class="adv-recap__panel">
+        <h2 class="adv-recap__title"><i class="fas fa-scroll"></i> Previously on...</h2>
+        <div class="adv-recap__header" id="recapHeader"></div>
+        <div class="adv-recap__timeline" id="recapTimeline"></div>
+        <button class="adv-btn adv-btn--primary" id="recapContinueBtn">
+          <i class="fas fa-play"></i> Continue Adventure
+        </button>
+      </div>
+    </div>
 
     <!-- Pause Menu Overlay -->
     <div class="adv-pause" id="pauseOverlay" style="display:none">

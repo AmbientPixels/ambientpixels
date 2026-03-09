@@ -389,3 +389,86 @@
   background: rgba(248, 113, 113, 0.1);
   border-color: rgba(248, 113, 113, 0.25);
 }
+
+/* Feature showcase */
+.adv-hub__features {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+.adv-hub__feature {
+  text-align: center;
+  padding: 1.25rem 1rem;
+  background: var(--sf-bg-surface, rgba(255, 255, 255, 0.03));
+  border: 1px solid var(--sf-border, rgba(255, 255, 255, 0.06));
+  border-radius: 12px;
+  transition: border-color 0.2s;
+}
+.adv-hub__feature:hover {
+  border-color: rgba(124, 58, 237, 0.3);
+}
+.adv-hub__feature i {
+  font-size: 1.5rem;
+  color: var(--sf-accent, #a78bfa);
+  margin-bottom: 0.6rem;
+  display: block;
+}
+.adv-hub__feature h3 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0 0 0.3rem;
+  color: var(--sf-text, #e2e8f0);
+}
+.adv-hub__feature p {
+  font-size: 0.75rem;
+  color: var(--sf-text-muted, #94a3b8);
+  margin: 0;
+  line-height: 1.4;
+}
+
+@media (max-width: 600px) {
+  .adv-hub__features {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 480px) {
+  .adv-hub__features {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Save card delete button */
+.adv-hub__save-delete {
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  background: rgba(0, 0, 0, 0.4);
+  border: none;
+  border-radius: 6px;
+  color: var(--sf-text-muted, #94a3b8);
+  font-size: 0.7rem;
+  padding: 0.25rem 0.4rem;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s, color 0.2s, background 0.2s;
+  z-index: 2;
+}
+.adv-hub__save-card:hover .adv-hub__save-delete {
+  opacity: 1;
+}
+.adv-hub__save-delete:hover {
+  color: #f87171;
+  background: rgba(248, 113, 113, 0.15);
+}
+
+/* Save card timestamp */
+.adv-hub__save-ago {
+  font-size: 0.7rem;
+  color: var(--sf-text-dim, #64748b);
+}
+
+/* View All toggle */
+.adv-hub__save-toggle {
+  margin-top: 0.75rem;
+  font-size: 0.8rem;
+}

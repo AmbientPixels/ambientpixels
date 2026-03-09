@@ -463,6 +463,49 @@
   }
 
   // --- Resume Saved Adventure ---
+  // --- Story Recap on Continue ---
+  function showRecap(adventure, onDismiss) {
+    var turns = adventure.turns;
+    if (!turns || turns.length === 0) { onDismiss(); return; }
+
+    var overlay = UI.$('recapOverlay');
+    var header = UI.$('recapHeader');
+    var timeline = UI.$('recapTimeline');
+    if (!overlay || !header || !timeline) { onDismiss(); return; }
+
+    // Header info
+    var genreData = genres.find(function (g) { return g.id === adventure.genre; });
+    var genreName = genreData ? genreData.name : adventure.genre;
+    header.innerHTML =
+      '<span><i class="fas fa-user"></i> ' + UI.escapeHtml(adventure.playerName || 'Hero') + '</span>' +
+      '<span><i class="fas fa-masks-theater"></i> ' + genreName + '</span>' +
+      '<span><i class="fas fa-heart"></i> HP ' + adventure.stats.hp + '/' + adventure.stats.maxHp + '</span>' +
+      '<span><i class="fas fa-shoe-prints"></i> Turn ' + adventure.turnCount + '/' + adventure.maxTurns + '</span>';
+
+    // Show last 5 turns
+    var recentTurns = turns.slice(-5);
+    timeline.innerHTML = recentTurns.map(function (t) {
+      var excerpt = (t.sceneExcerpt || '').substring(0, 120);
+      if ((t.sceneExcerpt || '').length > 120) excerpt += '...';
+      var choiceHtml = t.choiceMade ? '<div class="adv-recap__turn-choice">' + UI.escapeHtml(t.choiceMade) + '</div>' : '';
+      return '<div class="adv-recap__turn">' +
+        '<div class="adv-recap__turn-num">Turn ' + t.turnNumber + '</div>' +
+        '<div class="adv-recap__turn-scene">' + UI.escapeHtml(excerpt) + '</div>' +
+        choiceHtml +
+      '</div>';
+    }).join('');
+
+    overlay.style.display = '';
+
+    var continueBtn = UI.$('recapContinueBtn');
+    function dismiss() {
+      overlay.style.display = 'none';
+      continueBtn.removeEventListener('click', dismiss);
+      onDismiss();
+    }
+    continueBtn.addEventListener('click', dismiss);
+  }
+
   function resumeAdventure(adventure) {
     gameState = adventure;
     selectedGenre = genres.find(function (g) { return g.id === adventure.genre; });
@@ -495,26 +538,29 @@
       UI.$('sceneImagePlaceholder').style.display = 'none';
     }
 
-    // Generate fresh choices for the current scene
-    setProcessing(true);
-    AI.generateContinuation(selectedGenre, gameState)
-      .then(function (scene) {
-        currentScene = scene;
-        renderChoices(scene.choices);
-        setProcessing(false);
-      })
-      .catch(function () {
-        // Fallback: offer generic choices
-        currentScene = {
-          choices: [
-            { id: 'explore', text: 'Look around and assess the situation' },
-            { id: 'proceed', text: 'Press forward cautiously' },
-            { id: 'rest', text: 'Take a moment to rest and recover' }
-          ]
-        };
-        renderChoices(currentScene.choices);
-        setProcessing(false);
-      });
+    // Show recap then generate fresh choices
+    function generateChoices() {
+      setProcessing(true);
+      AI.generateContinuation(selectedGenre, gameState)
+        .then(function (scene) {
+          currentScene = scene;
+          renderChoices(scene.choices);
+          setProcessing(false);
+        })
+        .catch(function () {
+          currentScene = {
+            choices: [
+              { id: 'explore', text: 'Look around and assess the situation' },
+              { id: 'proceed', text: 'Press forward cautiously' },
+              { id: 'rest', text: 'Take a moment to rest and recover' }
+            ]
+          };
+          renderChoices(currentScene.choices);
+          setProcessing(false);
+        });
+    }
+
+    showRecap(adventure, generateChoices);
   }
 
   function loadGenres() {
@@ -2038,6 +2084,45 @@
             shareBtn.innerHTML = '<i class="fas fa-share-nodes"></i> Share';
           });
       };
+    }
+
+    // Wire Play Again button
+    var playAgainBtn = UI.$('playAgainBtn');
+    if (playAgainBtn && gameState.genre) {
+      playAgainBtn.style.display = '';
+      playAgainBtn.onclick = function () {
+        window.location.href = '/storyforge/play.html?genre=' + gameState.genre;
+      };
+    }
+
+    // Wire star rating
+    var starsContainer = UI.$('endingStars');
+    if (starsContainer) {
+      var stars = starsContainer.querySelectorAll('.adv-ending__star');
+      stars.forEach(function (star) {
+        star.addEventListener('click', function () {
+          var rating = parseInt(star.dataset.rating);
+          gameState.rating = rating;
+          saveAdventure();
+          // Highlight stars up to rating
+          stars.forEach(function (s) {
+            s.classList.toggle('adv-ending__star--active', parseInt(s.dataset.rating) <= rating);
+          });
+        });
+        // Hover preview
+        star.addEventListener('mouseenter', function () {
+          var r = parseInt(star.dataset.rating);
+          stars.forEach(function (s) {
+            s.classList.toggle('adv-ending__star--active', parseInt(s.dataset.rating) <= r);
+          });
+        });
+      });
+      starsContainer.addEventListener('mouseleave', function () {
+        var current = gameState.rating || 0;
+        stars.forEach(function (s) {
+          s.classList.toggle('adv-ending__star--active', parseInt(s.dataset.rating) <= current);
+        });
+      });
     }
   }
 

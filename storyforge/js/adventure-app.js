@@ -100,7 +100,23 @@
     });
   }
 
+  // --- Helpers ---
+  function timeAgo(dateStr) {
+    if (!dateStr) return '';
+    var diff = Date.now() - new Date(dateStr).getTime();
+    var mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'just now';
+    if (mins < 60) return mins + 'm ago';
+    var hrs = Math.floor(mins / 60);
+    if (hrs < 24) return hrs + 'h ago';
+    var days = Math.floor(hrs / 24);
+    if (days < 7) return days + 'd ago';
+    return Math.floor(days / 7) + 'w ago';
+  }
+
   // --- Saved Adventures ---
+  var MAX_VISIBLE_SAVES = 6;
+
   function loadSavedAdventures() {
     Storage.loadAdventures().then(function (adventures) {
       var inProgress = adventures.filter(function (a) {
@@ -117,50 +133,92 @@
       }
 
       section.style.display = '';
-      grid.innerHTML = inProgress.map(function (adv) {
-        var genreData = genres.find(function (g) { return g.id === adv.genre; });
-        var genreName = genreData ? genreData.name : adv.genre;
-        var genreIcon = genreData ? genreData.icon : 'fa-book';
-        var genreColor = genreData ? genreData.color : '#7C3AED';
+      var showAll = inProgress.length <= MAX_VISIBLE_SAVES;
+      var visible = showAll ? inProgress : inProgress.slice(0, MAX_VISIBLE_SAVES);
 
-        var thumbSrc = adv.firstSceneImage || adv.thumbnailImage;
-        var thumbHtml = thumbSrc
-          ? '<img src="' + thumbSrc + '" alt="" loading="lazy" />'
-          : '<i class="fas ' + genreIcon + '" style="color:' + genreColor + '"></i>';
+      function renderCards(list) {
+        return list.map(function (adv) {
+          var genreData = genres.find(function (g) { return g.id === adv.genre; });
+          var genreName = genreData ? genreData.name : adv.genre;
+          var genreIcon = genreData ? genreData.icon : 'fa-book';
+          var genreColor = genreData ? genreData.color : '#7C3AED';
 
-        var turns = adv.turnCount || 0;
-        var maxTurns = adv.maxTurns || 25;
-        var turnInfo = 'Turn ' + turns + '/' + maxTurns;
-        var progressPct = Math.round((turns / maxTurns) * 100);
-        var hp = adv.stats ? adv.stats.hp : 0;
-        var maxHp = adv.stats ? adv.stats.maxHp : 100;
-        var hpPct = Math.round((hp / maxHp) * 100);
-        var hpClass = hpPct <= 25 ? 'adv-hub__save-hp-fill--low' : hpPct <= 50 ? 'adv-hub__save-hp-fill--warning' : '';
+          var thumbSrc = adv.firstSceneImage || adv.thumbnailImage;
+          var thumbHtml = thumbSrc
+            ? '<img src="' + thumbSrc + '" alt="" loading="lazy" />'
+            : '<i class="fas ' + genreIcon + '" style="color:' + genreColor + '"></i>';
 
-        return '<div class="adv-hub__save-card" data-adventure-id="' + adv.adventureId + '">' +
-          '<div class="adv-hub__save-thumb">' + thumbHtml + '</div>' +
-          '<div class="adv-hub__save-info">' +
-            '<div class="adv-hub__save-name">' + UI.escapeHtml(adv.playerName || 'Unknown') + ' — ' + genreName + '</div>' +
-            '<div class="adv-hub__save-meta">' +
-              '<span>' + turnInfo + '</span>' +
-              '<span class="adv-hub__save-hp">HP ' +
-                '<span class="adv-hub__save-hp-bar"><span class="adv-hub__save-hp-fill ' + hpClass + '" style="width:' + hpPct + '%"></span></span>' +
-                hp +
-              '</span>' +
+          var turns = adv.turnCount || 0;
+          var maxTurns = adv.maxTurns || 25;
+          var turnInfo = 'Turn ' + turns + '/' + maxTurns;
+          var progressPct = Math.round((turns / maxTurns) * 100);
+          var hp = adv.stats ? adv.stats.hp : 0;
+          var maxHp = adv.stats ? adv.stats.maxHp : 100;
+          var hpPct = Math.round((hp / maxHp) * 100);
+          var hpClass = hpPct <= 25 ? 'adv-hub__save-hp-fill--low' : hpPct <= 50 ? 'adv-hub__save-hp-fill--warning' : '';
+          var ago = timeAgo(adv.updatedAt);
+
+          return '<div class="adv-hub__save-card" data-adventure-id="' + adv.adventureId + '">' +
+            '<button class="adv-hub__save-delete" data-delete-id="' + adv.adventureId + '" title="Delete save"><i class="fas fa-trash-alt"></i></button>' +
+            '<div class="adv-hub__save-thumb">' + thumbHtml + '</div>' +
+            '<div class="adv-hub__save-info">' +
+              '<div class="adv-hub__save-name">' + UI.escapeHtml(adv.playerName || 'Unknown') + ' — ' + genreName + '</div>' +
+              '<div class="adv-hub__save-meta">' +
+                '<span>' + turnInfo + '</span>' +
+                '<span class="adv-hub__save-hp">HP ' +
+                  '<span class="adv-hub__save-hp-bar"><span class="adv-hub__save-hp-fill ' + hpClass + '" style="width:' + hpPct + '%"></span></span>' +
+                  hp +
+                '</span>' +
+                (ago ? '<span class="adv-hub__save-ago">' + ago + '</span>' : '') +
+              '</div>' +
             '</div>' +
-          '</div>' +
-          '<span class="adv-hub__save-status adv-hub__save-status--in_progress">In Progress</span>' +
-          '<div class="adv-hub__save-progress"><div class="adv-hub__save-progress-fill" style="width:' + progressPct + '%"></div></div>' +
-        '</div>';
-      }).join('');
+            '<span class="adv-hub__save-status adv-hub__save-status--in_progress">In Progress</span>' +
+            '<div class="adv-hub__save-progress"><div class="adv-hub__save-progress-fill" style="width:' + progressPct + '%"></div></div>' +
+          '</div>';
+        }).join('');
+      }
 
-      // Click to continue
-      grid.querySelectorAll('.adv-hub__save-card').forEach(function (card) {
-        card.addEventListener('click', function () {
-          var id = card.dataset.adventureId;
-          window.location.href = '/storyforge/play.html?continue=' + encodeURIComponent(id);
+      grid.innerHTML = renderCards(visible);
+
+      // "View All" toggle if more than MAX_VISIBLE_SAVES
+      if (!showAll) {
+        var toggleHtml = '<button class="adv-btn adv-hub__save-toggle" id="saveToggleBtn">' +
+          '<i class="fas fa-chevron-down"></i> View All (' + inProgress.length + ')' +
+          '</button>';
+        grid.insertAdjacentHTML('afterend', toggleHtml);
+        var expanded = false;
+        document.getElementById('saveToggleBtn').addEventListener('click', function () {
+          expanded = !expanded;
+          grid.innerHTML = renderCards(expanded ? inProgress : visible);
+          this.innerHTML = expanded
+            ? '<i class="fas fa-chevron-up"></i> Show Less'
+            : '<i class="fas fa-chevron-down"></i> View All (' + inProgress.length + ')';
+          wireCardEvents();
         });
-      });
+      }
+
+      function wireCardEvents() {
+        // Click to continue
+        grid.querySelectorAll('.adv-hub__save-card').forEach(function (card) {
+          card.addEventListener('click', function (e) {
+            if (e.target.closest('.adv-hub__save-delete')) return;
+            var id = card.dataset.adventureId;
+            window.location.href = '/storyforge/play.html?continue=' + encodeURIComponent(id);
+          });
+        });
+        // Delete buttons
+        grid.querySelectorAll('.adv-hub__save-delete').forEach(function (btn) {
+          btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var id = btn.dataset.deleteId;
+            if (!confirm('Delete this save? This cannot be undone.')) return;
+            Storage.deleteAdventure(id).then(function () {
+              loadSavedAdventures();
+            });
+          });
+        });
+      }
+      wireCardEvents();
     }).catch(function (err) {
       console.error('Failed to load saved adventures:', err);
     });

@@ -1859,6 +1859,37 @@
   100% { transform: scale(1); opacity: 1; }
 }
 
+.adv-ending__rating {
+  text-align: center;
+  margin-top: 1rem;
+}
+.adv-ending__rating-label {
+  font-size: 0.78rem;
+  color: var(--sf-text-muted);
+  display: block;
+  margin-bottom: 0.4rem;
+}
+.adv-ending__stars {
+  display: inline-flex;
+  gap: 0.25rem;
+}
+.adv-ending__star {
+  background: none;
+  border: none;
+  font-size: 1.4rem;
+  color: var(--sf-border, rgba(255,255,255,0.12));
+  cursor: pointer;
+  padding: 0.15rem;
+  transition: color 0.15s, transform 0.15s;
+}
+.adv-ending__star:hover,
+.adv-ending__star--active {
+  color: var(--sf-warning, #FBBF24);
+}
+.adv-ending__star:hover {
+  transform: scale(1.2);
+}
+
 .adv-ending__actions {
   display: flex;
   gap: 0.75rem;
@@ -1971,6 +2002,101 @@
 .adv-confirm__actions .adv-btn {
   flex: 1;
   justify-content: center;
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   STORY RECAP OVERLAY
+   ═══════════════════════════════════════════════════════════════════ */
+
+.adv-recap {
+  position: fixed;
+  inset: 0;
+  z-index: 250;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 15, 35, 0.9);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  animation: adv-fadeIn 0.3s ease;
+}
+
+.adv-recap__panel {
+  background: var(--sf-bg-elevated);
+  border: 1px solid var(--sf-border-hover);
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 520px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: var(--sf-shadow-lift), var(--sf-shadow-glow);
+}
+
+.adv-recap__title {
+  font-size: 1.3rem;
+  font-family: var(--sf-font-display);
+  font-weight: 400;
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  letter-spacing: 0.04em;
+}
+.adv-recap__title i { color: var(--sf-accent); }
+
+.adv-recap__header {
+  font-size: 0.8rem;
+  color: var(--sf-text-muted);
+  margin-bottom: 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+.adv-recap__header span {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid var(--sf-border);
+  border-radius: 8px;
+  padding: 0.25rem 0.6rem;
+}
+
+.adv-recap__timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.adv-recap__turn {
+  padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-left: 2px solid var(--sf-accent, #a78bfa);
+  border-radius: 0 8px 8px 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+.adv-recap__turn-num {
+  font-size: 0.7rem;
+  color: var(--sf-accent);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.25rem;
+}
+.adv-recap__turn-scene {
+  color: var(--sf-text);
+  margin-bottom: 0.3rem;
+}
+.adv-recap__turn-choice {
+  color: var(--sf-text-muted);
+  font-style: italic;
+  font-size: 0.78rem;
+}
+.adv-recap__turn-choice::before {
+  content: "You chose: ";
+  color: var(--sf-accent);
+  font-style: normal;
+  font-weight: 500;
 }
 
 /* ═══════════════════════════════════════════════════════════════════
