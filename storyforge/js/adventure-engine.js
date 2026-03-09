@@ -140,7 +140,9 @@
 
   // --- Initialize ---
   function init() {
-    var entPromise = Ent ? Ent.load() : Promise.resolve(null);
+    // Wait for auth check to complete before loading entitlements
+    var authPromise = window.authReady || Promise.resolve();
+    var entPromise = authPromise.then(function () { return Ent ? Ent.load() : null; });
     Promise.all([loadGenres(), entPromise]).then(function () {
       bindEvents();
       initTouchSwipe();

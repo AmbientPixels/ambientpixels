@@ -6,10 +6,12 @@
 window.AdventureEntitlements = (function () {
   'use strict';
 
-  // Authenticated users get PRO until real entitlements API is wired up.
-  // Unauthenticated demo visitors get FREE_DEFAULTS.
+  // DEV_BYPASS: true = everyone gets PRO (for testing). false = auth-based tiers.
+  var DEV_BYPASS = true;
+
+  // When DEV_BYPASS is off: signed in = PRO, signed out = FREE_DEFAULTS.
   function isAuthBypassed() {
-    return sessionStorage.getItem('isAuthenticated') === 'true';
+    return DEV_BYPASS || sessionStorage.getItem('isAuthenticated') === 'true';
   }
 
   var FREE_DEFAULTS = {

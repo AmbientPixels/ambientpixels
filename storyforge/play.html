@@ -427,7 +427,8 @@
     }
   </style>
   <script>
-  (function () {
+  // Expose authReady as a global promise so entitlements can wait for auth check
+  window.authReady = (function () {
     async function checkAuth() {
       try {
         var resp = await fetch('/.auth/me');
@@ -455,7 +456,7 @@
         window.location.href = '/.auth/logout?post_logout_redirect_uri=/storyforge/';
       });
     }
-    checkAuth();
+    return checkAuth();
   })();
   </script>
 </body>

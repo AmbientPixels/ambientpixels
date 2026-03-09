@@ -18,13 +18,35 @@
   }
 
   function init() {
-    // Load entitlements + genres in parallel, then render
-    var entPromise = Ent ? Ent.load() : Promise.resolve(null);
+    // Wait for auth check to complete before loading entitlements
+    var authPromise = window.authReady || Promise.resolve();
+    var entPromise = authPromise.then(function () { return Ent ? Ent.load() : null; });
     Promise.all([loadGenres(), entPromise]).then(function () {
       renderGenreGrid();
       loadSavedAdventures();
       handleCheckoutSuccess();
+      updateDailyLimitBadge();
     });
+  }
+
+  function updateDailyLimitBadge() {
+    var badge = document.getElementById('dailyLimitBadge');
+    if (!badge) return;
+    if (Ent && Ent.isPro()) { badge.style.display = 'none'; return; }
+    var limit = (Ent && Ent.getDailyLimit) ? Ent.getDailyLimit() : 3;
+    var remaining = getDailyRemaining(limit);
+    badge.innerHTML = '<i class="fas fa-bolt"></i> ' + remaining + ' of ' + limit + ' free adventures remaining today';
+    badge.className = 'adv-daily-limit' + (remaining === 0 ? ' adv-daily-limit--empty' : '');
+    badge.style.display = '';
+  }
+
+  function getDailyRemaining(limit) {
+    try {
+      var stored = JSON.parse(localStorage.getItem('storyforge-ai-usage') || '{}');
+      var today = new Date().toISOString().slice(0, 10);
+      if (stored.date === today) return Math.max(0, limit - stored.count);
+    } catch (e) { /* ignore */ }
+    return limit;
   }
 
   function handleCheckoutSuccess() {
