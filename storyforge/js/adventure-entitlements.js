@@ -6,7 +6,7 @@
 window.AdventureEntitlements = (function () {
   'use strict';
 
-  var DEV_BYPASS = false;
+  var DEV_BYPASS = true;
 
   var FREE_DEFAULTS = {
     tier: 'free',
