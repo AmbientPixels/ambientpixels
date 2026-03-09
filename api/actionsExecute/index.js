@@ -118,6 +118,41 @@ module.exports = async function (context, req) {
       return;
     }
 
+    // 3b. research_intel.approve is internal-only — store intel to researchIntel blob
+    if (actionType === 'research_intel.approve') {
+      action.execution = action.execution || {};
+      action.execution.status = 'success';
+      action.execution.finished_at = new Date().toISOString();
+      action.execution.attempts = (action.execution.attempts || 0) + 1;
+      // Store the intel payload into researchIntel
+      if (action.payload) {
+        const researchIntel = (await storage.getState('researchIntel')) || [];
+        const alreadyStored = researchIntel.some(ri => ri.id === action.payload.id);
+        if (!alreadyStored) {
+          researchIntel.push({
+            id: action.payload.id || actionId,
+            title: action.payload.title || '',
+            summary: action.payload.summary || '',
+            content: action.payload.content || '',
+            task_id: action.payload.task_id || null,
+            created_at: action.payload.created_at || new Date().toISOString(),
+            approved_at: new Date().toISOString(),
+            agent: action.payload.agent || 'scout',
+            source: action.payload.source || 'manual-approve'
+          });
+          await storage.setState('researchIntel', researchIntel);
+          context.log('[ActionsExecute] Research intel stored:', action.payload.id || actionId);
+        }
+      }
+      await storage.setState('actions', actions);
+      context.res = {
+        status: 200,
+        headers: corsHeaders,
+        body: JSON.stringify({ success: true, execution: { status: 'success', receipt: { type: 'research_intel', intel_id: (action.payload && action.payload.id) || actionId } } })
+      };
+      return;
+    }
+
     // 2b. v2.5: Promotion gate — block social posts referencing blog posts without promote: true
     if (SOCIAL_CEO_TYPES.indexOf(actionType) !== -1 && action.payload && action.payload.text) {
       const _promoText = (action.payload.text || '').replace(/\{\{ARTICLE_URL[^}]*\}\}/g, '');
