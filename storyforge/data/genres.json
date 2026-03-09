@@ -23,6 +23,10 @@
         { "label": "Mage", "icon": "fa-hat-wizard", "stats": { "strength": 6, "dexterity": 8, "intelligence": 18, "charisma": 8 } }
       ],
       "characterOptions": {
+        "gender": [
+          { "label": "Male", "promptFragment": "male" },
+          { "label": "Female", "promptFragment": "female" }
+        ],
         "race": [
           { "label": "Human", "promptFragment": "a human" },
           { "label": "Elf", "promptFragment": "an elf with pointed ears and angular features" },
@@ -76,6 +80,10 @@
         { "label": "Empath", "icon": "fa-hand-holding-heart", "stats": { "strength": 6, "dexterity": 10, "intelligence": 10, "charisma": 14 } }
       ],
       "characterOptions": {
+        "gender": [
+          { "label": "Male", "promptFragment": "male" },
+          { "label": "Female", "promptFragment": "female" }
+        ],
         "archetype": [
           { "label": "College Student", "promptFragment": "a young college student" },
           { "label": "Journalist", "promptFragment": "a sharp-eyed journalist" },
@@ -129,6 +137,10 @@
         { "label": "Diplomat", "icon": "fa-handshake", "stats": { "strength": 6, "dexterity": 8, "intelligence": 12, "charisma": 14 } }
       ],
       "characterOptions": {
+        "gender": [
+          { "label": "Male", "promptFragment": "male" },
+          { "label": "Female", "promptFragment": "female" }
+        ],
         "species": [
           { "label": "Human", "promptFragment": "a human" },
           { "label": "Android", "promptFragment": "a humanoid android with synthetic skin and faint circuit lines" },
@@ -181,6 +193,10 @@
         { "label": "Smooth Talker", "icon": "fa-comments", "stats": { "strength": 8, "dexterity": 8, "intelligence": 10, "charisma": 18 } }
       ],
       "characterOptions": {
+        "gender": [
+          { "label": "Male", "promptFragment": "male" },
+          { "label": "Female", "promptFragment": "female" }
+        ],
         "archetype": [
           { "label": "Former Cop", "promptFragment": "a former police detective" },
           { "label": "Private Eye", "promptFragment": "a grizzled private investigator" },
@@ -233,6 +249,10 @@
         { "label": "Tinker", "icon": "fa-gears", "stats": { "strength": 8, "dexterity": 10, "intelligence": 16, "charisma": 6 } }
       ],
       "characterOptions": {
+        "gender": [
+          { "label": "Male", "promptFragment": "male" },
+          { "label": "Female", "promptFragment": "female" }
+        ],
         "origin": [
           { "label": "Vault Dweller", "promptFragment": "a vault dweller blinking in the sunlight" },
           { "label": "Wasteland Nomad", "promptFragment": "a sun-hardened wasteland nomad" },
@@ -285,6 +305,10 @@
         { "label": "Captain", "icon": "fa-crown", "stats": { "strength": 8, "dexterity": 10, "intelligence": 10, "charisma": 14 } }
       ],
       "characterOptions": {
+        "gender": [
+          { "label": "Male", "promptFragment": "male" },
+          { "label": "Female", "promptFragment": "female" }
+        ],
         "origin": [
           { "label": "Navy Deserter", "promptFragment": "a navy deserter with military bearing" },
           { "label": "Merchant's Child", "promptFragment": "a merchant's child turned pirate" },
