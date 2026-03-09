@@ -594,11 +594,16 @@
         '<div class="adv-genre-card__name">' + g.name + '</div>' +
         '<div class="adv-genre-card__desc">' + g.description + '</div>' +
       '</div>';
-    }).join('');
+    }).join('') +
+      '<div class="adv-genre-card adv-genre-card--coming-soon">' +
+        '<div class="adv-genre-card__coming-soon-icon"><i class="fas fa-plus"></i></div>' +
+        '<div class="adv-genre-card__name">More Coming Soon</div>' +
+        '<div class="adv-genre-card__desc">New genres & stories on the way</div>' +
+      '</div>';
 
     grid.addEventListener('click', function (e) {
       var card = e.target.closest('.adv-genre-card');
-      if (!card) return;
+      if (!card || card.classList.contains('adv-genre-card--coming-soon')) return;
       grid.querySelectorAll('.adv-genre-card').forEach(function (c) {
         c.classList.remove('adv-genre-card--selected');
       });

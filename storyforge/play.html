@@ -463,6 +463,23 @@
       line-height: 1.4;
       padding: 0 0.75rem 0.75rem;
     }
+    .adv-genre-card--coming-soon {
+      border-style: dashed;
+      border-color: var(--sf-border);
+      opacity: 0.55;
+      cursor: default;
+      justify-content: center;
+    }
+    .adv-genre-card--coming-soon:hover {
+      transform: none;
+      box-shadow: none;
+    }
+    .adv-genre-card__coming-soon-icon {
+      font-size: 2rem;
+      color: var(--sf-text-muted);
+      padding-top: 2rem;
+      padding-bottom: 0.5rem;
+    }
   </style>
   <script>
   // Expose authReady as a global promise so entitlements can wait for auth check

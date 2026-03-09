@@ -88,7 +88,12 @@
         '<div class="adv-hub__genre-name">' + g.name + '</div>' +
         '<div class="adv-hub__genre-desc">' + g.description + '</div>' +
       '</a>';
-    }).join('');
+    }).join('') +
+      '<div class="adv-hub__genre adv-hub__genre--coming-soon">' +
+        '<div class="adv-hub__coming-soon-icon"><i class="fas fa-plus"></i></div>' +
+        '<div class="adv-hub__genre-name">More Coming Soon</div>' +
+        '<div class="adv-hub__genre-desc">New genres & stories on the way</div>' +
+      '</div>';
 
     // Intercept clicks on locked genres
     grid.querySelectorAll('.adv-hub__genre--locked').forEach(function (el) {

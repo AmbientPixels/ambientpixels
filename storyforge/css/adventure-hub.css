@@ -192,6 +192,28 @@
   margin-top: 0.25rem;
 }
 
+.adv-hub__genre--coming-soon {
+  border-style: dashed;
+  border-color: var(--sf-border);
+  opacity: 0.55;
+  cursor: default;
+  justify-content: center;
+}
+
+.adv-hub__genre--coming-soon:hover {
+  transform: none;
+  box-shadow: none;
+  border-color: var(--sf-border);
+  background: var(--sf-bg-surface);
+}
+
+.adv-hub__coming-soon-icon {
+  font-size: 2rem;
+  color: var(--sf-text-dim);
+  padding-top: 2rem;
+  padding-bottom: 0.5rem;
+}
+
 /* Saved adventures grid */
 .adv-hub__saves {
   display: grid;

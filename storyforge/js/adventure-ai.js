@@ -66,8 +66,8 @@ window.AdventureAI = (function () {
     fantasy: 'Charon',
     horror: 'Fenrir',
     scifi: 'Kore',
-    detective: 'Atlas',
-    postapoc: 'Enceladus',
+    detective: 'Orus',
+    postapoc: 'Puck',
     pirate: 'Leda'
   };
 
