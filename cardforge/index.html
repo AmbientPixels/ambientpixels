@@ -3,8 +3,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <!-- html2canvas for card image export -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <!-- html2canvas for card image export (deferred — only needed on export action) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="CardForge — Create custom RPG cards, build decks, and battle in the arena. AI-powered card creator with class abilities, PvE combat, and a public gallery.">
@@ -1718,6 +1718,7 @@
   <script src="/cardforge/js/entitlements.js"></script>
   <script src="/cardforge/js/card-forge.js" defer></script>
   <script src="/cardforge/js/cardforge-template-loader.js" defer></script>
+  <script src="/cardforge/js/cardforge-presets.js" defer></script>
   <script src="/cardforge/js/card-forge-editor.js" defer></script>
   <script src="/cardforge/js/cardforge-publish.js" defer></script>
   <script src="/cardforge/js/right-column.js" defer></script>
@@ -1726,7 +1727,7 @@
 
 
   <!-- === Application Insights (Production Only) === -->
-  <script src="https://js.monitor.azure.com/scripts/b/ai.2.min.js" crossorigin="anonymous"></script>
+  <script src="https://js.monitor.azure.com/scripts/b/ai.2.min.js" crossorigin="anonymous" defer></script>
   <script src="/cardforge/js/cardforge-layout.js" defer></script>
   <script src="js/cardforge-modals.js" defer></script>
   <script src="js/cardforge-forge-actions.js" defer></script>

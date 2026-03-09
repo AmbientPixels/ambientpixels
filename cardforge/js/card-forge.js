@@ -118,8 +118,6 @@ async function performDelete(id, cardName) {
 }
 
 
-
-
   
 
 
