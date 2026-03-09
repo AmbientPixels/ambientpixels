@@ -7,6 +7,8 @@
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
   <title>StoryForge — AmbientPixels</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700&family=Russo+One&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/base.css" />
   <link rel="stylesheet" href="/css/theme.css" />
@@ -42,7 +44,7 @@
 
       <!-- Hero -->
       <div class="adv-hub__hero">
-        <img class="adv-hub__hero-bg" src="images/hero-banner.png" alt="" />
+        <img class="adv-hub__hero-bg" src="images/hero-banner.png" alt="" loading="lazy" />
         <div class="adv-hub__hero-content">
           <div class="adv-hub__hero-icon"><i class="fas fa-book-open-reader"></i></div>
           <h1>StoryForge</h1>
@@ -82,10 +84,10 @@
     <div class="adv-toast-container" id="toastContainer"></div>
   </div>
 
-  <script src="js/adventure-ui.js"></script>
-  <script src="js/adventure-storage.js"></script>
-  <script src="js/adventure-entitlements.js"></script>
-  <script src="js/adventure-app.js"></script>
+  <script src="js/adventure-ui.js" defer></script>
+  <script src="js/adventure-storage.js" defer></script>
+  <script src="js/adventure-entitlements.js" defer></script>
+  <script src="js/adventure-app.js" defer></script>
   <script>
   (function () {
     async function checkAuth() {

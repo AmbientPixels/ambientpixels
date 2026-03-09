@@ -65,9 +65,9 @@
 - Share button on individual cards (clipboard copy)
 - Mobile: bottom-sheet modal style, horizontal-scroll filters, stacked controls
 
-## Phase 6 — Mobile UX + Performance (PENDING)
-- Touch gesture navigation (swipe for choices)
-- Bottom sheet UI for mobile sidebar
-- Lazy loading and image optimization
-- `prefers-reduced-motion` support for all animations
-- Performance audit and bundle optimization
+## Phase 6 — Mobile UX + Performance (COMPLETE)
+- Touch swipe gesture navigation: horizontal swipe on choices container cycles highlighted choice with visual glow ring
+- Bottom sheet sidebar: on mobile (≤900px), sidebar becomes a fixed bottom panel with drag handle, mini HP/turn/gold summary, swipe or tap to expand/collapse (max 70vh)
+- Lazy loading: `loading="lazy"` on all images (hub hero, genre cards, gallery cards, saved thumbnails, scene images), IntersectionObserver on gallery "Load More" for automatic infinite scroll
+- `prefers-reduced-motion` support: CSS kills all animations/transitions, particles hidden; JS skips typewriter (instant text), dice roll animation (instant result), scene exit transitions
+- Performance: all scripts use `defer`, `preconnect` to Google Fonts + gstatic, reduced DOM thrashing in sidebar updates

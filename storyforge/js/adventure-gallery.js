@@ -460,7 +460,7 @@
 
   // --- Events ---
   function bindEvents() {
-    // Load more
+    // Load more (button fallback + IntersectionObserver auto-load)
     var loadMoreBtn = UI.$('loadMoreBtn');
     if (loadMoreBtn) {
       loadMoreBtn.addEventListener('click', function () {
@@ -469,6 +469,17 @@
           fetchGallery(currentGenre, currentPage);
         }
       });
+
+      // Auto-load more when "Load More" button scrolls into view
+      if ('IntersectionObserver' in window) {
+        var loadObserver = new IntersectionObserver(function (entries) {
+          if (entries[0].isIntersecting && !allLoaded) {
+            currentPage++;
+            fetchGallery(currentGenre, currentPage);
+          }
+        }, { rootMargin: '200px' });
+        loadObserver.observe(loadMoreBtn);
+      }
     }
 
     // Search

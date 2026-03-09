@@ -3,18 +3,104 @@
 @media (max-width: 900px) {
   .adv-play {
     flex-direction: column;
+    padding-bottom: 64px; /* space for bottom sheet */
   }
 
+  /* --- Bottom Sheet Sidebar --- */
   .adv-sidebar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 50;
     width: 100%;
-    flex-direction: row;
-    flex-wrap: wrap;
-    gap: 0.75rem;
+    max-height: 56px;
+    overflow: hidden;
+    background: var(--sf-bg-elevated);
+    backdrop-filter: var(--sf-glass-blur);
+    -webkit-backdrop-filter: var(--sf-glass-blur);
+    border-top: 1px solid var(--sf-border);
+    border-radius: 16px 16px 0 0;
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.4);
+    flex-direction: column;
+    flex-wrap: nowrap;
+    gap: 0;
+    padding: 0;
+    transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .adv-sidebar--sheet-open {
+    max-height: 70vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
   .adv-sidebar .adv-panel {
-    flex: 1;
-    min-width: 200px;
+    flex: none;
+    min-width: 0;
+    margin: 0 0.75rem;
+    border-radius: 10px;
+  }
+
+  .adv-sidebar .adv-panel:last-child {
+    margin-bottom: 0.75rem;
+  }
+
+  /* Drag handle */
+  .adv-sidebar__handle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 16px 4px;
+    cursor: pointer;
+    flex-shrink: 0;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .adv-sidebar__handle-bar {
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(var(--sf-text-rgb), 0.3);
+    transition: background 0.2s;
+  }
+
+  .adv-sidebar__handle:hover .adv-sidebar__handle-bar,
+  .adv-sidebar--sheet-open .adv-sidebar__handle-bar {
+    background: rgba(var(--sf-text-rgb), 0.5);
+  }
+
+  /* Mini summary bar (visible when collapsed) */
+  .adv-sidebar__mini {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    padding: 2px 16px 8px;
+    font-size: 0.72rem;
+    color: var(--sf-text-muted);
+    flex-shrink: 0;
+  }
+
+  .adv-sidebar__mini i {
+    margin-right: 0.2rem;
+    font-size: 0.65rem;
+  }
+
+  .adv-sidebar--sheet-open .adv-sidebar__mini {
+    border-bottom: 1px solid var(--sf-border);
+    padding-bottom: 10px;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Hide portrait in bottom sheet (it's in the sidebar) */
+  .adv-sidebar__portrait {
+    margin: 0 0.75rem;
+  }
+
+  /* Level bar in bottom sheet */
+  .adv-level-bar {
+    margin: 0 0.75rem;
   }
 }
 
@@ -133,6 +219,20 @@
   }
 }
 
+/* --- Touch Swipe Choice Highlight --- */
+.adv-choice--highlighted {
+  border-color: var(--sf-accent) !important;
+  box-shadow: 0 0 16px rgba(var(--sf-accent-rgb), 0.3),
+              inset 0 0 0 1px rgba(var(--sf-accent-rgb), 0.2);
+  transform: translateX(4px);
+}
+
+/* Hide handle/mini on desktop (injected by JS, hide via CSS) */
+.adv-sidebar__handle,
+.adv-sidebar__mini {
+  display: none;
+}
+
 /* --- Reduced Motion --- */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -150,9 +250,43 @@
     animation: none;
     opacity: 0.8;
   }
+
+  /* Skip particles */
+  .adv-particles {
+    display: none !important;
+  }
+
+  /* Skip hover transforms */
+  .adv-hub__genre:hover,
+  .adv-hub__save-card:hover,
+  .adv-gallery__card:hover {
+    transform: none !important;
+  }
+
+  /* Skip image zoom */
+  .adv-scene__image {
+    transform: none !important;
+  }
+
+  /* Instant gallery card entrance */
+  .adv-gallery__card {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* Skip wizard panel slide */
+  .adv-wizard__panel {
+    transition: none !important;
+  }
+
+  /* Skip choice stagger */
+  .adv-choice {
+    opacity: 1 !important;
+    animation: none !important;
+  }
 }
 
-/* Disable immersive mode on small screens — sidebar is already stacked */
+/* Disable immersive mode on small screens — sidebar is bottom sheet */
 @media (max-width: 900px) {
   .adv-btn--icon#immersiveBtn {
     display: none !important;

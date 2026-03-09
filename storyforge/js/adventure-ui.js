@@ -47,6 +47,13 @@ window.AdventureUI = (function () {
     // Cancel any previous typewriter
     if (activeTypewriter) activeTypewriter.skip();
 
+    // Skip animation for reduced-motion preference
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      var paragraphs = text.split('\n\n');
+      element.innerHTML = paragraphs.map(function (p) { return '<p>' + escapeHtml(p.trim()) + '</p>'; }).join('');
+      return Promise.resolve();
+    }
+
     return new Promise(function (resolve) {
       element.innerHTML = '';
       var paragraphs = text.split('\n\n');

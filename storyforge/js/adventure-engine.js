@@ -130,11 +130,16 @@
     }
   }
 
+  // Reduced-motion preference
+  var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
   // --- Initialize ---
   function init() {
     var entPromise = Ent ? Ent.load() : Promise.resolve(null);
     Promise.all([loadGenres(), entPromise]).then(function () {
       bindEvents();
+      initTouchSwipe();
+      initBottomSheet();
       handleUrlParams();
     });
   }
@@ -1349,58 +1354,70 @@
       labelEl.textContent = RPG.STAT_LABELS[result.stat] + ' Check (DC ' + result.difficulty + ')';
       playSfx('dice');
 
-      // Animate dice rolling
-      var rollCount = 0;
-      var maxRolls = 12;
-      var rollInterval = setInterval(function () {
-        valueEl.textContent = Math.floor(Math.random() * 20) + 1;
-        rollCount++;
-        if (rollCount >= maxRolls) {
-          clearInterval(rollInterval);
-          // Show final result
-          valueEl.textContent = result.roll;
-          panel.classList.add('adv-dice--rolling');
+      function showFinalDice() {
+        valueEl.textContent = result.roll;
+        panel.classList.add('adv-dice--rolling');
 
-          var bonusText = '';
-          if (result.modifier !== 0) bonusText += (result.modifier > 0 ? '+' : '') + result.modifier;
-          if (result.companionBonus) bonusText += '+' + result.companionBonus;
-          if (bonusText) labelEl.textContent += ' | Roll: ' + result.roll + bonusText + ' = ' + result.total;
+        var bonusText = '';
+        if (result.modifier !== 0) bonusText += (result.modifier > 0 ? '+' : '') + result.modifier;
+        if (result.companionBonus) bonusText += '+' + result.companionBonus;
+        if (bonusText) labelEl.textContent += ' | Roll: ' + result.roll + bonusText + ' = ' + result.total;
 
-          if (result.critical) {
-            resultEl.className = 'adv-dice__result adv-dice__result--critical';
-            resultEl.textContent = result.critical === 'critical_success' ? 'CRITICAL SUCCESS!' : 'CRITICAL FAILURE!';
-            playSfx(result.critical === 'critical_success' ? 'success' : 'failure');
-          } else if (result.success) {
-            resultEl.className = 'adv-dice__result adv-dice__result--success';
-            resultEl.textContent = 'Success! (' + result.total + ' vs DC ' + result.difficulty + ')';
-            playSfx('success');
-          } else {
-            resultEl.className = 'adv-dice__result adv-dice__result--failure';
-            resultEl.textContent = 'Failed! (' + result.total + ' vs DC ' + result.difficulty + ')';
-            playSfx('failure');
-          }
-
-          setTimeout(function () {
-            panel.classList.remove('adv-dice--active', 'adv-dice--rolling');
-            resolve();
-          }, 1800);
+        if (result.critical) {
+          resultEl.className = 'adv-dice__result adv-dice__result--critical';
+          resultEl.textContent = result.critical === 'critical_success' ? 'CRITICAL SUCCESS!' : 'CRITICAL FAILURE!';
+          playSfx(result.critical === 'critical_success' ? 'success' : 'failure');
+        } else if (result.success) {
+          resultEl.className = 'adv-dice__result adv-dice__result--success';
+          resultEl.textContent = 'Success! (' + result.total + ' vs DC ' + result.difficulty + ')';
+          playSfx('success');
+        } else {
+          resultEl.className = 'adv-dice__result adv-dice__result--failure';
+          resultEl.textContent = 'Failed! (' + result.total + ' vs DC ' + result.difficulty + ')';
+          playSfx('failure');
         }
-      }, 80);
+
+        setTimeout(function () {
+          panel.classList.remove('adv-dice--active', 'adv-dice--rolling');
+          resolve();
+        }, prefersReducedMotion ? 600 : 1800);
+      }
+
+      if (prefersReducedMotion) {
+        showFinalDice();
+      } else {
+        var rollCount = 0;
+        var maxRolls = 12;
+        var rollInterval = setInterval(function () {
+          valueEl.textContent = Math.floor(Math.random() * 20) + 1;
+          rollCount++;
+          if (rollCount >= maxRolls) {
+            clearInterval(rollInterval);
+            showFinalDice();
+          }
+        }, 80);
+      }
     });
   }
 
   // --- Generate Next Turn ---
   function generateNextTurn(choiceText, skillCheckResult) {
     var sceneEl = UI.$('sceneText');
-    sceneEl.classList.add('adv-scene-exit');
     UI.$('choicesContainer').innerHTML = '';
 
-    setTimeout(function () {
-      sceneEl.classList.remove('adv-scene-exit');
+    if (prefersReducedMotion) {
       UI.showLoading(sceneEl, 'The story unfolds...');
       showImagePlaceholder();
       doGenerateNextTurn(choiceText, skillCheckResult);
-    }, 300);
+    } else {
+      sceneEl.classList.add('adv-scene-exit');
+      setTimeout(function () {
+        sceneEl.classList.remove('adv-scene-exit');
+        UI.showLoading(sceneEl, 'The story unfolds...');
+        showImagePlaceholder();
+        doGenerateNextTurn(choiceText, skillCheckResult);
+      }, 300);
+    }
   }
 
   function doGenerateNextTurn(choiceText, skillCheckResult) {
@@ -1832,6 +1849,8 @@
     }
     UI.$('eventsContainer').innerHTML = journalHtml ||
       '<div class="adv-event" style="color:rgba(216,224,229,0.3);font-style:italic;">Adventure begins...</div>';
+
+    updateBottomSheetMini();
   }
 
   // --- Ending ---
@@ -1959,6 +1978,96 @@
     gameState.updatedAt = new Date().toISOString();
     if (!gameState.createdAt) gameState.createdAt = gameState.updatedAt;
     return Storage.saveAdventure(gameState);
+  }
+
+  // --- Touch Swipe for Choices (mobile) ---
+  var swipeStartX = 0;
+  var swipeStartY = 0;
+  var highlightedIdx = -1;
+
+  function initTouchSwipe() {
+    var container = UI.$('choicesContainer');
+    if (!container) return;
+
+    container.addEventListener('touchstart', function (e) {
+      var t = e.touches[0];
+      swipeStartX = t.clientX;
+      swipeStartY = t.clientY;
+    }, { passive: true });
+
+    container.addEventListener('touchend', function (e) {
+      var t = e.changedTouches[0];
+      var dx = t.clientX - swipeStartX;
+      var dy = t.clientY - swipeStartY;
+      if (Math.abs(dx) < 40 || Math.abs(dx) < Math.abs(dy)) return;
+
+      var choices = container.querySelectorAll('.adv-choice:not(:disabled)');
+      if (!choices.length) return;
+
+      if (highlightedIdx < 0) highlightedIdx = 0;
+      if (dx < 0) {
+        highlightedIdx = Math.min(choices.length - 1, highlightedIdx + 1);
+      } else {
+        highlightedIdx = Math.max(0, highlightedIdx - 1);
+      }
+
+      choices.forEach(function (c, i) {
+        c.classList.toggle('adv-choice--highlighted', i === highlightedIdx);
+      });
+      choices[highlightedIdx].scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }, { passive: true });
+  }
+
+  // Reset highlight when new choices render
+  var origRenderChoices = renderChoices;
+  renderChoices = function (choices) {
+    highlightedIdx = -1;
+    origRenderChoices(choices);
+  };
+
+  // --- Bottom Sheet Sidebar (mobile) ---
+  function initBottomSheet() {
+    var sidebar = document.querySelector('.adv-sidebar');
+    if (!sidebar) return;
+
+    // Inject drag handle
+    var handle = document.createElement('div');
+    handle.className = 'adv-sidebar__handle';
+    handle.innerHTML = '<div class="adv-sidebar__handle-bar"></div>';
+    sidebar.prepend(handle);
+
+    // Inject mini summary bar
+    var mini = document.createElement('div');
+    mini.className = 'adv-sidebar__mini';
+    mini.id = 'sidebarMini';
+    sidebar.insertBefore(mini, handle.nextSibling);
+
+    // Tap handle to toggle
+    handle.addEventListener('click', function () {
+      sidebar.classList.toggle('adv-sidebar--sheet-open');
+    });
+
+    // Swipe up/down on handle to open/close
+    var handleStartY = 0;
+    handle.addEventListener('touchstart', function (e) {
+      handleStartY = e.touches[0].clientY;
+    }, { passive: true });
+    handle.addEventListener('touchend', function (e) {
+      var dy = e.changedTouches[0].clientY - handleStartY;
+      if (dy < -30) sidebar.classList.add('adv-sidebar--sheet-open');
+      else if (dy > 30) sidebar.classList.remove('adv-sidebar--sheet-open');
+    }, { passive: true });
+  }
+
+  function updateBottomSheetMini() {
+    var mini = UI.$('sidebarMini');
+    if (!mini || !gameState) return;
+    var hp = gameState.stats.hp;
+    var maxHp = gameState.stats.maxHp;
+    mini.innerHTML =
+      '<span><i class="fas fa-heart"></i> ' + hp + '/' + maxHp + '</span>' +
+      '<span><i class="fas fa-shoe-prints"></i> Turn ' + gameState.turnCount + '/' + gameState.maxTurns + '</span>' +
+      '<span><i class="fas fa-coins"></i> ' + gameState.stats.gold + '</span>';
   }
 
   // --- Boot ---
