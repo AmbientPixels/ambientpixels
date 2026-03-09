@@ -130,6 +130,18 @@
   border-color: rgba(var(--sf-accent-rgb), 0.1);
 }
 
+.adv-narration-toggle--active {
+  color: var(--sf-accent);
+  border-color: rgba(var(--sf-accent-rgb), 0.4);
+}
+
+.adv-audio-divider {
+  width: 1px;
+  height: 14px;
+  background: rgba(var(--sf-accent-rgb), 0.15);
+  flex-shrink: 0;
+}
+
 .adv-narration-volume {
   width: 60px;
   height: 4px;

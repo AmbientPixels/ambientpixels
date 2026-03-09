@@ -96,6 +96,7 @@
 }
 
 .adv-hub__genre {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -107,7 +108,7 @@
   border: 2px solid var(--sf-border);
   border-radius: 12px;
   cursor: pointer;
-  transition: all var(--sf-transition);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   text-align: center;
   text-decoration: none;
   color: inherit;
@@ -116,9 +117,25 @@
 
 .adv-hub__genre:hover {
   background: var(--sf-bg-surface-hover);
-  border-color: var(--sf-border-hover);
-  transform: translateY(-4px);
-  box-shadow: var(--sf-shadow-glow);
+  border-color: var(--genre-color, var(--sf-border-hover));
+  transform: translateY(-6px);
+  box-shadow: 0 4px 20px rgba(var(--genre-rgb, var(--sf-accent-rgb)), 0.25),
+              0 0 30px rgba(var(--genre-rgb, var(--sf-accent-rgb)), 0.1);
+}
+
+.adv-hub__genre::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  background: linear-gradient(180deg, transparent 40%, rgba(var(--genre-rgb, var(--sf-accent-rgb)), 0.08) 100%);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
+}
+
+.adv-hub__genre:hover::after {
+  opacity: 1;
 }
 
 .adv-hub__genre-img {
@@ -183,6 +200,7 @@
 }
 
 .adv-hub__save-card {
+  position: relative;
   display: flex;
   gap: 0.75rem;
   padding: 1rem;
@@ -192,13 +210,62 @@
   border: var(--sf-glass-border);
   border-radius: 10px;
   cursor: pointer;
-  transition: all var(--sf-transition);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
 }
 
 .adv-hub__save-card:hover {
   background: var(--sf-bg-surface-hover);
   border-color: var(--sf-border-hover);
   box-shadow: var(--sf-shadow-glow);
+  transform: translateY(-2px);
+}
+
+/* Progress bar at bottom of save card */
+.adv-hub__save-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(var(--sf-accent-rgb), 0.1);
+}
+
+.adv-hub__save-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--sf-accent), var(--sf-cta));
+  border-radius: 0 3px 3px 0;
+  transition: width 0.5s ease;
+}
+
+/* HP indicator on save card */
+.adv-hub__save-hp {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.adv-hub__save-hp-bar {
+  width: 40px;
+  height: 4px;
+  background: rgba(var(--sf-text-rgb), 0.1);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.adv-hub__save-hp-fill {
+  height: 100%;
+  background: var(--sf-success);
+  border-radius: 2px;
+  transition: width 0.3s;
+}
+
+.adv-hub__save-hp-fill--low {
+  background: var(--sf-danger);
+}
+
+.adv-hub__save-hp-fill--warning {
+  background: var(--sf-warning);
 }
 
 .adv-hub__save-thumb {

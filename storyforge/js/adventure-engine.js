@@ -50,7 +50,45 @@
 
   function updateNarrationControlsVisibility() {
     var controls = document.querySelector('.adv-narration-controls');
-    if (controls) controls.style.display = narrationEnabled ? '' : 'none';
+    if (controls) controls.style.display = '';
+  }
+
+  function initAmbientToggle() {
+    var btn = UI.$('ambientToggle');
+    if (!btn) return;
+    // Set initial state
+    var isOn = typeof StoryAudio !== 'undefined' ? StoryAudio.enabled : false;
+    updateAmbientToggleUI(btn, isOn);
+
+    btn.addEventListener('click', function () {
+      if (typeof StoryAudio === 'undefined') return;
+      var newState = !StoryAudio.enabled;
+      StoryAudio.setEnabled(newState);
+      updateAmbientToggleUI(btn, newState);
+      if (newState && selectedGenre && !StoryAudio.isAmbientPlaying()) {
+        StoryAudio.startAmbient(selectedGenre.id);
+      }
+    });
+
+    var slider = UI.$('ambientVolume');
+    if (slider && typeof StoryAudio !== 'undefined') {
+      slider.value = StoryAudio.ambientVolume;
+      slider.addEventListener('input', function () {
+        StoryAudio.setAmbientVolume(parseFloat(slider.value));
+      });
+    }
+  }
+
+  function updateAmbientToggleUI(btn, isOn) {
+    if (isOn) {
+      btn.classList.remove('adv-narration-toggle--muted');
+      btn.classList.add('adv-narration-toggle--active');
+      btn.title = 'Ambient music on — click to mute';
+    } else {
+      btn.classList.remove('adv-narration-toggle--active');
+      btn.classList.add('adv-narration-toggle--muted');
+      btn.title = 'Ambient music off — click to enable';
+    }
   }
 
   function updateToggleUI(btn) {
@@ -123,6 +161,12 @@
     UI.showScreen('screenPlay');
     UI.$('pauseBtn').style.display = '';
     UI.$('immersiveBtn').style.display = '';
+    // Start ambient music on resume
+    ensureAudioContext();
+    if (typeof StoryAudio !== 'undefined' && audioCtx) {
+      StoryAudio.init(audioCtx);
+      StoryAudio.startAmbient(selectedGenre ? selectedGenre.id : 'fantasy');
+    }
     updateSidebar();
 
     // Render the last scene text
@@ -202,6 +246,7 @@
   // --- Events ---
   function bindEvents() {
     initNarrationToggle();
+    initAmbientToggle();
     // Sync narrator checkbox with stored preference
     var narratorCheckbox = UI.$('narratorToggle');
     if (narratorCheckbox) narratorCheckbox.checked = narrationEnabled;
@@ -664,6 +709,10 @@
 
     // Unlock AudioContext on user gesture so TTS can auto-play when scene arrives
     ensureAudioContext();
+    // Init procedural audio system (shares AudioContext)
+    if (typeof StoryAudio !== 'undefined' && audioCtx) {
+      StoryAudio.init(audioCtx);
+    }
 
     // Genre gating: check if user can access this genre tier
     if (Ent && !Ent.canAccessGenre(selectedGenre.id, selectedGenre.tier)) {
@@ -696,6 +745,10 @@
     UI.showScreen('screenPlay');
     UI.$('pauseBtn').style.display = '';
     UI.$('immersiveBtn').style.display = '';
+    // Start genre ambient music
+    if (typeof StoryAudio !== 'undefined') {
+      StoryAudio.startAmbient(selectedGenre.id);
+    }
     UI.showLoading(UI.$('sceneText'), 'Forging your story...');
     UI.$('choicesContainer').innerHTML = '';
     updateSidebar();
@@ -733,6 +786,8 @@
       try { currentNarration.source.stop(); } catch (e) {}
       currentNarration = null;
     }
+    // Restore ambient volume
+    if (typeof StoryAudio !== 'undefined') StoryAudio.duckForNarration(false);
     var wave = UI.$('narrationWave');
     if (wave) wave.style.display = 'none';
   }
@@ -794,6 +849,8 @@
     };
 
     source.start(0);
+    // Duck ambient music during narration
+    if (typeof StoryAudio !== 'undefined') StoryAudio.duckForNarration(true);
     // Show waveform indicator
     var wave = UI.$('narrationWave');
     if (wave) {
@@ -811,7 +868,8 @@
     UI.$('turnLabel').textContent = 'Turn ' + gameState.turnCount;
     UI.$('progressFill').style.width = ((gameState.turnCount / gameState.maxTurns) * 100) + '%';
 
-    // Scene entrance animation with blur transition
+    // Scene entrance animation with blur transition + SFX
+    playSfx('sceneTransition');
     var sceneTextEl = UI.$('sceneText');
     sceneTextEl.classList.remove('adv-scene-enter', 'adv-scene__text--transitioning');
     void sceneTextEl.offsetWidth; // force reflow to restart animation
@@ -872,7 +930,8 @@
     var choice = currentScene.choices.find(function (c) { return c.id === choiceId; });
     if (!choice) { isProcessing = false; return; }
 
-    // Highlight selected choice
+    // Highlight selected choice + SFX
+    playSfx('choiceSelect');
     document.querySelectorAll('.adv-choice').forEach(function (btn) {
       btn.disabled = true;
       if (btn.dataset.choiceId === choiceId) btn.classList.add('adv-choice--selected');
@@ -908,78 +967,22 @@
       if (result.critical === 'critical_success') {
         var heal = 5;
         gameState.stats.hp = Math.min(gameState.stats.maxHp, gameState.stats.hp + heal);
+        playSfx('heal');
       }
 
       generateNextTurn(choice.text, result);
     });
   }
 
-  // --- Sound Effects (Web Audio synthesis, no external files) ---
+  // --- Sound Effects — delegates to StoryAudio module ---
+  var SFX_MAP = {
+    dice: 'diceRoll', success: 'diceSuccess', failure: 'diceFail',
+    critical: 'diceCritical', damage: 'damage', item: 'itemPickup'
+  };
   function playSfx(type) {
-    if (!audioCtx) return;
-    try {
-      var ctx = audioCtx;
-      var now = ctx.currentTime;
-      if (type === 'dice') {
-        // Quick rattling clicks
-        for (var s = 0; s < 5; s++) {
-          var osc = ctx.createOscillator();
-          var gain = ctx.createGain();
-          osc.type = 'square';
-          osc.frequency.value = 800 + Math.random() * 600;
-          gain.gain.setValueAtTime(0.08, now + s * 0.06);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + s * 0.06 + 0.04);
-          osc.connect(gain).connect(ctx.destination);
-          osc.start(now + s * 0.06);
-          osc.stop(now + s * 0.06 + 0.05);
-        }
-      } else if (type === 'success') {
-        var osc1 = ctx.createOscillator();
-        var g1 = ctx.createGain();
-        osc1.type = 'sine';
-        osc1.frequency.setValueAtTime(523, now);
-        osc1.frequency.setValueAtTime(659, now + 0.1);
-        osc1.frequency.setValueAtTime(784, now + 0.2);
-        g1.gain.setValueAtTime(0.1, now);
-        g1.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
-        osc1.connect(g1).connect(ctx.destination);
-        osc1.start(now);
-        osc1.stop(now + 0.4);
-      } else if (type === 'failure') {
-        var osc2 = ctx.createOscillator();
-        var g2 = ctx.createGain();
-        osc2.type = 'sine';
-        osc2.frequency.setValueAtTime(330, now);
-        osc2.frequency.exponentialRampToValueAtTime(165, now + 0.3);
-        g2.gain.setValueAtTime(0.1, now);
-        g2.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
-        osc2.connect(g2).connect(ctx.destination);
-        osc2.start(now);
-        osc2.stop(now + 0.35);
-      } else if (type === 'damage') {
-        var osc3 = ctx.createOscillator();
-        var g3 = ctx.createGain();
-        osc3.type = 'sawtooth';
-        osc3.frequency.setValueAtTime(200, now);
-        osc3.frequency.exponentialRampToValueAtTime(80, now + 0.15);
-        g3.gain.setValueAtTime(0.08, now);
-        g3.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
-        osc3.connect(g3).connect(ctx.destination);
-        osc3.start(now);
-        osc3.stop(now + 0.2);
-      } else if (type === 'item') {
-        var osc4 = ctx.createOscillator();
-        var g4 = ctx.createGain();
-        osc4.type = 'sine';
-        osc4.frequency.setValueAtTime(880, now);
-        osc4.frequency.setValueAtTime(1108, now + 0.08);
-        g4.gain.setValueAtTime(0.07, now);
-        g4.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
-        osc4.connect(g4).connect(ctx.destination);
-        osc4.start(now);
-        osc4.stop(now + 0.2);
-      }
-    } catch (e) { /* SFX are non-critical */ }
+    if (typeof StoryAudio !== 'undefined') {
+      StoryAudio.sfx(SFX_MAP[type] || type);
+    }
   }
 
   // --- Dice Roll Animation ---
@@ -1504,7 +1507,13 @@
     var app = UI.$('advApp');
     if (app && app.classList.contains('adv-app--immersive')) toggleImmersiveMode();
 
+    // Fade out ambient and play ending SFX
+    if (typeof StoryAudio !== 'undefined') {
+      StoryAudio.stopAmbient(3000);
+    }
     var type = scene.endingType || 'escape';
+    var endingSfx = { victory: 'endingVictory', death: 'endingDeath', escape: 'endingEscape' };
+    playSfx(endingSfx[type] || 'endingEscape');
     var icons = { victory: 'fa-trophy', death: 'fa-skull', escape: 'fa-person-running' };
     var titles = { victory: 'Victory!', death: 'You Died', escape: 'Escaped!' };
 
