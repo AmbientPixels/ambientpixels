@@ -155,9 +155,12 @@
             <i class="fas fa-arrow-left"></i> Back
           </button>
           <div class="adv-wizard__nav-spacer"></div>
-          <button class="adv-btn adv-btn--primary" id="wizardNextBtn" disabled>
-            Next <i class="fas fa-arrow-right"></i>
-          </button>
+          <div class="adv-wizard__next-wrap">
+            <button class="adv-btn adv-btn--primary" id="wizardNextBtn" disabled>
+              Next <i class="fas fa-arrow-right"></i>
+            </button>
+            <span class="adv-wizard__hint" id="wizardHint"></span>
+          </div>
           <button class="adv-btn adv-btn--primary" id="startAdventureBtn" disabled style="display:none;">
             <i class="fas fa-play"></i> Begin Adventure
           </button>

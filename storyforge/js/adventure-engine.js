@@ -189,12 +189,18 @@
 
   function updateWizardNextEnabled() {
     var nextBtn = UI.$('wizardNextBtn');
+    var hint = UI.$('wizardHint');
     if (!nextBtn) return;
+    var hintText = '';
     if (wizardStep === 1) {
       nextBtn.disabled = !selectedGenre;
+      hintText = !selectedGenre ? 'Select a genre to continue' : '';
     } else if (wizardStep === 2) {
-      nextBtn.disabled = false; // appearance is optional, portrait gen is on this step
+      var hasPortrait = !!generatedPortraitDataUrl;
+      nextBtn.disabled = !hasPortrait;
+      hintText = !hasPortrait ? 'Generate a portrait to continue' : '';
     }
+    if (hint) hint.textContent = hintText;
   }
 
   function resetWizard() {
@@ -712,6 +718,7 @@
           };
           img.src = dataUrl;
           btn.innerHTML = '<i class="fas fa-rotate"></i> Regenerate';
+          updateWizardNextEnabled();
           // Enable start button if on step 3
           if (wizardStep === WIZARD_STEPS) {
             UI.$('startAdventureBtn').disabled = false;

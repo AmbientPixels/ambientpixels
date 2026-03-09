@@ -1184,6 +1184,25 @@
   max-width: 200px;
 }
 
+.adv-wizard__next-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.adv-wizard__hint {
+  font-size: 0.7rem;
+  color: var(--sf-text-dim);
+  font-style: italic;
+  min-height: 1em;
+  transition: opacity 0.2s;
+}
+
+.adv-wizard__hint:empty {
+  opacity: 0;
+}
+
 /* Narrator option in step 3 */
 .adv-narrator-option {
   display: flex;
