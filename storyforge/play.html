@@ -47,71 +47,120 @@
     <!-- Main Content -->
     <main class="adv-main">
 
-      <!-- Genre Select Screen -->
-      <div id="screenGenreSelect" class="adv-genre-select">
-        <div style="text-align:center; max-width:700px; margin:0 auto;">
-          <h1 style="font-size:1.8rem; margin-bottom:0.5rem;">Choose Your Genre</h1>
-          <p style="color:rgba(226,232,240,0.6); margin-bottom:2rem;">Each genre shapes the world, the dangers, and the stories you'll discover.</p>
-          <div id="genreGrid" class="adv-genre-grid"></div>
-          <div style="margin-top:2rem;">
-            <label style="font-size:0.85rem; color:rgba(226,232,240,0.6); display:block; margin-bottom:0.5rem;">Character Name (optional)</label>
-            <input type="text" id="playerNameInput" placeholder="Leave blank for a random name" maxlength="30"
-              style="background:rgba(31,29,75,0.4); border:1px solid rgba(124,58,237,0.15); border-radius:8px; padding:0.6rem 1rem; color:var(--sf-text); font-size:0.95rem; width:100%; max-width:300px; font-family:inherit;" />
-          </div>
-          <!-- Character Appearance (shown after genre pick) -->
-          <div id="characterCreator" class="adv-char-creator" style="display:none;">
-            <div class="adv-char-creator__title">
-              <i class="fas fa-user-pen"></i> Customize Appearance
-            </div>
-            <div class="adv-char-creator__body">
-              <!-- Left: Portrait -->
-              <div class="adv-portrait" id="portraitSection">
-                <div class="adv-portrait__frame" id="portraitFrame">
-                  <div class="adv-portrait__placeholder" id="portraitPlaceholder">
-                    <i class="fas fa-user-circle"></i>
-                  </div>
-                  <img class="adv-portrait__image" id="portraitImage" alt="Character portrait" />
-                </div>
-                <button type="button" class="adv-btn adv-portrait__btn" id="generatePortraitBtn">
-                  <i class="fas fa-wand-magic-sparkles"></i> Generate Portrait
-                </button>
-              </div>
-              <!-- Right: Options + Stats -->
-              <div class="adv-char-creator__right">
-                <div id="charOptionsContainer" class="adv-char-creator__options"></div>
-                <div class="adv-char-creator__preview" id="charPreviewText"></div>
-                <div class="adv-stat-allocator" id="statAllocator">
-                  <div class="adv-stat-allocator__header">
-                    <span class="adv-stat-allocator__title">
-                      <i class="fas fa-sliders"></i> Allocate Stats
-                    </span>
-                    <span class="adv-stat-allocator__budget" id="statBudgetDisplay">0 / 0</span>
-                  </div>
-                  <div class="adv-stat-allocator__presets" id="archetypePresets"></div>
-                  <div class="adv-stat-allocator__rows" id="statSliderRows"></div>
-                  <div class="adv-stat-allocator__footer">
-                    <button type="button" class="adv-stat-allocator__reset" id="statResetBtn">
-                      <i class="fas fa-rotate-left"></i> Reset
-                    </button>
-                    <div class="adv-stat-allocator__preview" id="statPreviewText"></div>
-                  </div>
-                </div>
+      <!-- Character Creation Wizard -->
+      <div id="screenGenreSelect" class="adv-wizard">
+        <!-- Step Indicator -->
+        <div class="adv-wizard__steps">
+          <button class="adv-wizard__step adv-wizard__step--active" data-step="1">
+            <span class="adv-wizard__step-num">1</span>
+            <span class="adv-wizard__step-label">Genre</span>
+          </button>
+          <div class="adv-wizard__step-line"></div>
+          <button class="adv-wizard__step" data-step="2">
+            <span class="adv-wizard__step-num">2</span>
+            <span class="adv-wizard__step-label">Character</span>
+          </button>
+          <div class="adv-wizard__step-line"></div>
+          <button class="adv-wizard__step" data-step="3">
+            <span class="adv-wizard__step-num">3</span>
+            <span class="adv-wizard__step-label">Stats</span>
+          </button>
+        </div>
+
+        <!-- Wizard Viewport -->
+        <div class="adv-wizard__viewport">
+          <!-- Step 1: Genre Selection -->
+          <div class="adv-wizard__panel adv-wizard__panel--active" data-panel="1">
+            <div class="adv-wizard__panel-inner" style="text-align:center; max-width:700px; margin:0 auto;">
+              <h1 class="adv-wizard__title">Choose Your Genre</h1>
+              <p class="adv-wizard__subtitle">Each genre shapes the world, the dangers, and the stories you'll discover.</p>
+              <div id="genreGrid" class="adv-genre-grid"></div>
+              <div class="adv-wizard__name-field">
+                <label class="adv-wizard__name-label">Character Name (optional)</label>
+                <input type="text" id="playerNameInput" class="adv-wizard__name-input" placeholder="Leave blank for a random name" maxlength="30" />
               </div>
             </div>
           </div>
-          <div class="adv-narrator-option" style="margin-top:1.5rem; display:flex; align-items:center; justify-content:center; gap:0.6rem;">
-            <label class="adv-narrator-toggle" style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; font-size:0.85rem; color:rgba(226,232,240,0.7);">
-              <input type="checkbox" id="narratorToggle" checked style="accent-color:#7C3AED;" />
-              <i class="fas fa-microphone"></i> AI Narrator
-            </label>
-            <span style="font-size:0.75rem; color:rgba(226,232,240,0.4);">Voice narrates each scene</span>
+
+          <!-- Step 2: Appearance & Portrait -->
+          <div class="adv-wizard__panel" data-panel="2">
+            <div class="adv-wizard__panel-inner" style="max-width:750px; margin:0 auto;">
+              <h2 class="adv-wizard__title"><i class="fas fa-user-pen"></i> Customize Character</h2>
+              <div class="adv-char-creator__body">
+                <!-- Left: Portrait -->
+                <div class="adv-portrait" id="portraitSection">
+                  <div class="adv-portrait__frame" id="portraitFrame">
+                    <div class="adv-portrait__glow"></div>
+                    <div class="adv-portrait__placeholder" id="portraitPlaceholder">
+                      <i class="fas fa-user-circle"></i>
+                    </div>
+                    <img class="adv-portrait__image" id="portraitImage" alt="Character portrait" />
+                  </div>
+                  <button type="button" class="adv-btn adv-portrait__btn" id="generatePortraitBtn">
+                    <i class="fas fa-wand-magic-sparkles"></i> Generate Portrait
+                  </button>
+                </div>
+                <!-- Right: Options -->
+                <div class="adv-char-creator__right">
+                  <div id="charOptionsContainer" class="adv-char-creator__options"></div>
+                  <div class="adv-char-creator__preview" id="charPreviewText"></div>
+                </div>
+              </div>
+            </div>
           </div>
-          <button class="adv-btn adv-btn--primary" id="startAdventureBtn" disabled style="margin-top:0.75rem; padding:0.75rem 2rem; font-size:1rem;">
+
+          <!-- Step 3: Stats & Archetype -->
+          <div class="adv-wizard__panel" data-panel="3">
+            <div class="adv-wizard__panel-inner" style="max-width:750px; margin:0 auto;">
+              <h2 class="adv-wizard__title"><i class="fas fa-diagram-project"></i> Build Your Character</h2>
+              <div class="adv-wizard__stats-layout">
+                <!-- Left: Stat Radar Chart -->
+                <div class="adv-stat-radar" id="statRadarContainer">
+                  <canvas id="statRadarCanvas" width="240" height="240"></canvas>
+                </div>
+                <!-- Right: Archetypes + Sliders -->
+                <div class="adv-wizard__stats-controls">
+                  <div class="adv-archetype-cards" id="archetypePresets"></div>
+                  <div class="adv-stat-allocator" id="statAllocator">
+                    <div class="adv-stat-allocator__header">
+                      <span class="adv-stat-allocator__title">
+                        <i class="fas fa-sliders"></i> Allocate Stats
+                      </span>
+                      <span class="adv-stat-allocator__budget" id="statBudgetDisplay">0 / 0</span>
+                    </div>
+                    <div class="adv-stat-allocator__rows" id="statSliderRows"></div>
+                    <div class="adv-stat-allocator__footer">
+                      <button type="button" class="adv-stat-allocator__reset" id="statResetBtn">
+                        <i class="fas fa-rotate-left"></i> Reset
+                      </button>
+                      <div class="adv-stat-allocator__preview" id="statPreviewText"></div>
+                    </div>
+                  </div>
+                  <div class="adv-narrator-option">
+                    <label class="adv-narrator-toggle">
+                      <input type="checkbox" id="narratorToggle" checked />
+                      <i class="fas fa-microphone"></i> AI Narrator
+                    </label>
+                    <span class="adv-narrator-hint">Voice narrates each scene</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Wizard Navigation -->
+        <div class="adv-wizard__nav">
+          <button class="adv-btn" id="wizardPrevBtn" style="display:none;">
+            <i class="fas fa-arrow-left"></i> Back
+          </button>
+          <div class="adv-wizard__nav-spacer"></div>
+          <button class="adv-btn adv-btn--primary" id="wizardNextBtn" disabled>
+            Next <i class="fas fa-arrow-right"></i>
+          </button>
+          <button class="adv-btn adv-btn--primary" id="startAdventureBtn" disabled style="display:none;">
             <i class="fas fa-play"></i> Begin Adventure
           </button>
-          <div class="adv-char-creator__hint" id="portraitHint" style="margin-top:0.5rem; font-size:0.8rem; color:rgba(226,232,240,0.6);">
-            <i class="fas fa-info-circle"></i> Generate a portrait to begin your adventure
-          </div>
         </div>
       </div>
 
@@ -173,8 +222,16 @@
 
           <!-- Stats Sidebar -->
           <aside class="adv-sidebar">
-            <!-- Character Portrait + Name -->
+            <!-- Character Portrait + Name + Level -->
             <div id="sidebarPortrait" class="adv-sidebar__portrait" style="display:none;"></div>
+            <!-- Level & XP -->
+            <div class="adv-level-bar" id="levelBar" style="display:none;">
+              <div class="adv-level-bar__badge" id="levelBadge">Lv 1</div>
+              <div class="adv-level-bar__track">
+                <div class="adv-level-bar__fill" id="levelFill" style="width:0%"></div>
+              </div>
+              <span class="adv-level-bar__xp" id="levelXp">0 XP</span>
+            </div>
             <!-- HP -->
             <div class="adv-panel">
               <div class="adv-panel__title">Health</div>
@@ -295,11 +352,7 @@
   <script src="js/adventure-engine.js"></script>
 
   <style>
-    /* Genre select takes full width so margin:auto centering works */
-    .adv-genre-select {
-      width: 100%;
-    }
-    /* Genre select grid */
+    /* Genre cards — used in wizard step 1 */
     .adv-genre-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
@@ -318,7 +371,7 @@
       border: 2px solid var(--sf-border);
       border-radius: 12px;
       cursor: pointer;
-      transition: all var(--sf-transition);
+      transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
       text-align: center;
       overflow: hidden;
     }
@@ -331,7 +384,7 @@
     .adv-genre-card--selected {
       border-color: var(--sf-accent);
       background: rgba(var(--sf-accent-rgb), 0.1);
-      box-shadow: var(--sf-shadow-glow);
+      box-shadow: 0 0 24px rgba(var(--sf-accent-rgb), 0.25);
     }
     .adv-genre-card__img {
       width: 100%;

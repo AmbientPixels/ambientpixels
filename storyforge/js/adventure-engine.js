@@ -21,6 +21,22 @@
   var narrationVolume = parseFloat(localStorage.getItem('sf_narration_vol')) || 0.8;
   var gainNode = null; // shared GainNode for volume control
 
+  // Wizard state
+  var wizardStep = 1;
+  var WIZARD_STEPS = 3;
+
+  // XP/Level system
+  var XP_PER_LEVEL = [0, 30, 80, 150, 250, 400]; // cumulative thresholds
+  var XP_EVENTS = {
+    choiceMade: 5,
+    skillCheckPass: 15,
+    skillCheckFail: 5,
+    skillCheckCritical: 25,
+    itemFound: 8,
+    companionGained: 12,
+    turnSurvived: 3
+  };
+
   function initNarrationToggle() {
     var btn = UI.$('narrationToggle');
     if (!btn) return;
@@ -112,6 +128,244 @@
     });
   }
 
+  // --- Wizard Navigation ---
+  function goToWizardStep(step) {
+    if (step < 1 || step > WIZARD_STEPS) return;
+    var prevStep = wizardStep;
+    wizardStep = step;
+
+    // Update step indicators
+    document.querySelectorAll('.adv-wizard__step').forEach(function (el) {
+      var s = parseInt(el.dataset.step);
+      el.classList.remove('adv-wizard__step--active', 'adv-wizard__step--done');
+      if (s === step) el.classList.add('adv-wizard__step--active');
+      else if (s < step) el.classList.add('adv-wizard__step--done');
+    });
+
+    // Update step lines
+    var lines = document.querySelectorAll('.adv-wizard__step-line');
+    lines.forEach(function (line, idx) {
+      line.classList.toggle('adv-wizard__step-line--done', idx < step - 1);
+    });
+
+    // Animate panel transition
+    var panels = document.querySelectorAll('.adv-wizard__panel');
+    var direction = step > prevStep ? 1 : -1;
+    panels.forEach(function (panel) {
+      var p = parseInt(panel.dataset.panel);
+      if (p === prevStep) {
+        panel.classList.remove('adv-wizard__panel--active');
+        panel.classList.add('adv-wizard__panel--exit-left');
+        panel.style.transform = 'translateX(' + (-40 * direction) + 'px)';
+        setTimeout(function () {
+          panel.classList.remove('adv-wizard__panel--exit-left');
+          panel.style.transform = '';
+        }, 400);
+      } else if (p === step) {
+        panel.style.transform = 'translateX(' + (40 * direction) + 'px)';
+        panel.classList.add('adv-wizard__panel--active');
+        // Force reflow for animation
+        panel.offsetHeight;
+        panel.style.transform = '';
+      }
+    });
+
+    // Update nav buttons
+    var prevBtn = UI.$('wizardPrevBtn');
+    var nextBtn = UI.$('wizardNextBtn');
+    var startBtn = UI.$('startAdventureBtn');
+    prevBtn.style.display = step > 1 ? '' : 'none';
+
+    if (step === WIZARD_STEPS) {
+      nextBtn.style.display = 'none';
+      startBtn.style.display = '';
+      startBtn.disabled = !generatedPortraitDataUrl;
+    } else {
+      nextBtn.style.display = '';
+      startBtn.style.display = 'none';
+      updateWizardNextEnabled();
+    }
+  }
+
+  function updateWizardNextEnabled() {
+    var nextBtn = UI.$('wizardNextBtn');
+    if (!nextBtn) return;
+    if (wizardStep === 1) {
+      nextBtn.disabled = !selectedGenre;
+    } else if (wizardStep === 2) {
+      nextBtn.disabled = false; // appearance is optional, portrait gen is on this step
+    }
+  }
+
+  function resetWizard() {
+    wizardStep = 1;
+    selectedGenre = null;
+    UI.$('advApp').removeAttribute('data-genre');
+    document.querySelectorAll('.adv-genre-card').forEach(function (c) {
+      c.classList.remove('adv-genre-card--selected');
+    });
+    resetPortrait();
+    goToWizardStep(1);
+  }
+
+  // --- Stat Radar Chart ---
+  function drawStatRadar() {
+    var canvas = document.getElementById('statRadarCanvas');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var W = canvas.width;
+    var H = canvas.height;
+    var cx = W / 2;
+    var cy = H / 2;
+    var R = Math.min(cx, cy) - 30;
+
+    ctx.clearRect(0, 0, W, H);
+
+    var labels = ['STR', 'DEX', 'INT', 'CHA'];
+    var vals = [];
+    STAT_KEYS.forEach(function (key) {
+      var slider = document.querySelector('.adv-stat-row__slider[data-stat-key="' + key + '"]');
+      vals.push(slider ? parseInt(slider.value) : 10);
+    });
+
+    var n = labels.length;
+    var angleStep = (Math.PI * 2) / n;
+    var startAngle = -Math.PI / 2; // top
+
+    // Get accent color from CSS
+    var style = getComputedStyle(document.documentElement);
+    var accentRgb = style.getPropertyValue('--sf-accent-rgb').trim() || '124, 58, 237';
+
+    // Draw grid rings
+    [0.25, 0.5, 0.75, 1].forEach(function (frac) {
+      ctx.beginPath();
+      for (var i = 0; i <= n; i++) {
+        var angle = startAngle + i * angleStep;
+        var x = cx + Math.cos(angle) * R * frac;
+        var y = cy + Math.sin(angle) * R * frac;
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.strokeStyle = 'rgba(' + accentRgb + ', 0.1)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    });
+
+    // Draw axis lines
+    for (var i = 0; i < n; i++) {
+      var angle = startAngle + i * angleStep;
+      ctx.beginPath();
+      ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + Math.cos(angle) * R, cy + Math.sin(angle) * R);
+      ctx.strokeStyle = 'rgba(' + accentRgb + ', 0.15)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
+    // Draw stat polygon (filled)
+    ctx.beginPath();
+    for (var i = 0; i < n; i++) {
+      var angle = startAngle + i * angleStep;
+      var frac = (vals[i] - STAT_MIN) / (STAT_MAX - STAT_MIN);
+      var x = cx + Math.cos(angle) * R * frac;
+      var y = cy + Math.sin(angle) * R * frac;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.fillStyle = 'rgba(' + accentRgb + ', 0.15)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(' + accentRgb + ', 0.6)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Draw stat dots
+    for (var i = 0; i < n; i++) {
+      var angle = startAngle + i * angleStep;
+      var frac = (vals[i] - STAT_MIN) / (STAT_MAX - STAT_MIN);
+      var x = cx + Math.cos(angle) * R * frac;
+      var y = cy + Math.sin(angle) * R * frac;
+      ctx.beginPath();
+      ctx.arc(x, y, 4, 0, Math.PI * 2);
+      ctx.fillStyle = 'rgba(' + accentRgb + ', 0.8)';
+      ctx.fill();
+      ctx.strokeStyle = '#fff';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+
+    // Draw labels
+    ctx.font = '600 11px "Chakra Petch", sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    for (var i = 0; i < n; i++) {
+      var angle = startAngle + i * angleStep;
+      var lx = cx + Math.cos(angle) * (R + 18);
+      var ly = cy + Math.sin(angle) * (R + 18);
+      ctx.fillStyle = 'rgba(' + accentRgb + ', 0.7)';
+      ctx.fillText(labels[i], lx, ly);
+      // Value below label
+      ctx.font = '700 10px "Chakra Petch", sans-serif';
+      ctx.fillStyle = 'rgba(226, 232, 240, 0.8)';
+      ctx.fillText(vals[i], lx, ly + 13);
+      ctx.font = '600 11px "Chakra Petch", sans-serif';
+    }
+  }
+
+  // --- XP / Level System ---
+  function getPlayerXP() {
+    return (gameState && gameState.xp) || 0;
+  }
+
+  function getPlayerLevel(xp) {
+    for (var i = XP_PER_LEVEL.length - 1; i >= 0; i--) {
+      if (xp >= XP_PER_LEVEL[i]) return i + 1;
+    }
+    return 1;
+  }
+
+  function awardXP(event) {
+    if (!gameState) return;
+    var amount = XP_EVENTS[event] || 0;
+    if (!amount) return;
+    if (!gameState.xp) gameState.xp = 0;
+    var prevLevel = getPlayerLevel(gameState.xp);
+    gameState.xp += amount;
+    var newLevel = getPlayerLevel(gameState.xp);
+    updateLevelBar();
+    if (newLevel > prevLevel) {
+      // Level up notification
+      UI.toast('Level Up! You are now Level ' + newLevel, 'success');
+      var badge = UI.$('levelBadge');
+      if (badge) {
+        badge.classList.add('adv-level-bar__badge--level-up');
+        setTimeout(function () { badge.classList.remove('adv-level-bar__badge--level-up'); }, 1000);
+      }
+      playSfx('levelUp');
+    }
+  }
+
+  function updateLevelBar() {
+    if (!gameState) return;
+    var xp = gameState.xp || 0;
+    var level = getPlayerLevel(xp);
+    var bar = UI.$('levelBar');
+    if (bar) bar.style.display = '';
+    var badge = UI.$('levelBadge');
+    if (badge) badge.textContent = 'Lv ' + level;
+
+    // Calculate fill percentage for current level
+    var currentThreshold = XP_PER_LEVEL[level - 1] || 0;
+    var nextThreshold = XP_PER_LEVEL[level] || (currentThreshold + 100);
+    var pct = ((xp - currentThreshold) / (nextThreshold - currentThreshold)) * 100;
+    pct = Math.min(100, Math.max(0, pct));
+    var fill = UI.$('levelFill');
+    if (fill) fill.style.width = pct + '%';
+
+    var xpDisplay = UI.$('levelXp');
+    if (xpDisplay) xpDisplay.textContent = xp + ' XP';
+  }
+
   // --- URL Parameter Handling ---
   function handleUrlParams() {
     var params = new URLSearchParams(window.location.search);
@@ -135,13 +389,14 @@
         UI.showScreen('screenGenreSelect');
       });
     } else if (genreId) {
-      // Auto-select genre from hub link
+      // Auto-select genre from hub link — jump to step 2
       selectedGenre = genres.find(function (g) { return g.id === genreId; });
       if (selectedGenre) {
         UI.$('advApp').setAttribute('data-genre', selectedGenre.id);
         var card = document.querySelector('.adv-genre-card[data-genre="' + genreId + '"]');
         if (card) card.classList.add('adv-genre-card--selected');
         showCharacterCreator(selectedGenre);
+        goToWizardStep(2);
       }
       UI.showScreen('screenGenreSelect');
     } else {
@@ -240,6 +495,7 @@
       selectedGenre = genres.find(function (g) { return g.id === card.dataset.genre; });
       UI.$('advApp').setAttribute('data-genre', selectedGenre.id);
       showCharacterCreator(selectedGenre);
+      updateWizardNextEnabled();
     });
   }
 
@@ -251,20 +507,44 @@
     var narratorCheckbox = UI.$('narratorToggle');
     if (narratorCheckbox) narratorCheckbox.checked = narrationEnabled;
     UI.$('startAdventureBtn').addEventListener('click', startAdventure);
+
+    // Wizard navigation
+    UI.$('wizardNextBtn').addEventListener('click', function () {
+      if (wizardStep === 1 && !selectedGenre) return;
+      if (wizardStep === 1) {
+        // Moving to step 2 — ensure character creator is populated
+        showCharacterCreator(selectedGenre);
+      }
+      if (wizardStep === 2) {
+        // Moving to step 3 — ensure stat allocator is rendered
+        renderStatAllocator(selectedGenre);
+        setTimeout(drawStatRadar, 50);
+      }
+      goToWizardStep(wizardStep + 1);
+    });
+
+    UI.$('wizardPrevBtn').addEventListener('click', function () {
+      goToWizardStep(wizardStep - 1);
+    });
+
+    // Wizard step indicators are clickable (only to completed steps)
+    document.querySelectorAll('.adv-wizard__step').forEach(function (stepEl) {
+      stepEl.addEventListener('click', function () {
+        var target = parseInt(stepEl.dataset.step);
+        if (target < wizardStep) {
+          goToWizardStep(target);
+        } else if (target === wizardStep + 1) {
+          // Allow clicking next step if current is valid
+          UI.$('wizardNextBtn').click();
+        }
+      });
+    });
+
     UI.$('newAdventureBtn').addEventListener('click', function () {
       gameState = null;
       currentScene = null;
-      selectedGenre = null;
-      UI.$('startAdventureBtn').disabled = true;
-      UI.$('advApp').removeAttribute('data-genre');
-      document.querySelectorAll('.adv-genre-card').forEach(function (c) {
-        c.classList.remove('adv-genre-card--selected');
-      });
-      var creator = UI.$('characterCreator');
-      if (creator) creator.style.display = 'none';
       resetPortrait();
-      var hint = UI.$('portraitHint');
-      if (hint) hint.style.display = '';
+      resetWizard();
       UI.showScreen('screenGenreSelect');
     });
 
@@ -342,13 +622,10 @@
 
   // --- Character Creator ---
   function showCharacterCreator(genre) {
-    var creator = UI.$('characterCreator');
     var container = UI.$('charOptionsContainer');
     if (!genre || !genre.characterOptions || Object.keys(genre.characterOptions).length === 0) {
-      if (creator) creator.style.display = 'none';
       return;
     }
-    creator.style.display = '';
     var keys = Object.keys(genre.characterOptions);
     container.innerHTML = keys.map(function (key) {
       var opts = genre.characterOptions[key];
@@ -365,7 +642,6 @@
       sel.addEventListener('change', updateCharacterPreview);
     });
     updateCharacterPreview();
-    renderStatAllocator(genre);
   }
 
   function updateCharacterPreview() {
@@ -430,12 +706,16 @@
           img.onload = function () {
             img.classList.add('adv-portrait__image--loaded');
             placeholder.style.display = 'none';
+            // Activate glow ring
+            var frame = UI.$('portraitFrame');
+            if (frame) frame.classList.add('adv-portrait__frame--has-portrait');
           };
           img.src = dataUrl;
           btn.innerHTML = '<i class="fas fa-rotate"></i> Regenerate';
-          UI.$('startAdventureBtn').disabled = false;
-          var hint = UI.$('portraitHint');
-          if (hint) hint.style.display = 'none';
+          // Enable start button if on step 3
+          if (wizardStep === WIZARD_STEPS) {
+            UI.$('startAdventureBtn').disabled = false;
+          }
         } else {
           placeholder.innerHTML = '<i class="fas fa-user-circle"></i>';
           UI.toast('Portrait generation failed — try again', 'warning');
@@ -454,6 +734,7 @@
     var img = UI.$('portraitImage');
     var placeholder = UI.$('portraitPlaceholder');
     var btn = UI.$('generatePortraitBtn');
+    var frame = UI.$('portraitFrame');
     if (img) {
       img.src = '';
       img.classList.remove('adv-portrait__image--loaded');
@@ -466,6 +747,7 @@
       btn.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> Generate Portrait';
       btn.disabled = false;
     }
+    if (frame) frame.classList.remove('adv-portrait__frame--has-portrait');
   }
 
   function renderSidebarPortrait() {
@@ -545,26 +827,33 @@
             updateStatPreviewSentence();
             activePresetLabel = null;
             updatePresetHighlight();
+            drawStatRadar();
           });
         }
       });
     });
 
-    // Render archetype presets
+    // Render archetype cards
     var presets = genre.archetypePresets || [];
     presetsEl.innerHTML = presets.map(function (p) {
-      return '<button type="button" class="adv-archetype-btn" data-preset-label="' + UI.escapeHtml(p.label) + '">' +
-        '<i class="fas ' + p.icon + '"></i> ' + UI.escapeHtml(p.label) +
-      '</button>';
+      var statSummary = STAT_KEYS.map(function (k) {
+        return RPG.STAT_LABELS[k].substring(0, 3).toUpperCase() + ' ' + p.stats[k];
+      }).join(' / ');
+      return '<div class="adv-archetype-card" data-preset-label="' + UI.escapeHtml(p.label) + '">' +
+        '<div class="adv-archetype-card__icon"><i class="fas ' + p.icon + '"></i></div>' +
+        '<div class="adv-archetype-card__name">' + UI.escapeHtml(p.label) + '</div>' +
+        '<div class="adv-archetype-card__stats">' + statSummary + '</div>' +
+      '</div>';
     }).join('');
 
-    presetsEl.querySelectorAll('.adv-archetype-btn').forEach(function (btn, idx) {
-      btn.addEventListener('click', function () {
+    presetsEl.querySelectorAll('.adv-archetype-card').forEach(function (card, idx) {
+      card.addEventListener('click', function () {
         applyArchetypePreset(presets[idx]);
         activePresetLabel = presets[idx].label;
         updatePresetHighlight();
         updateStatBudgetDisplay(budget);
         updateStatPreviewSentence();
+        drawStatRadar();
       });
     });
 
@@ -577,6 +866,7 @@
         updatePresetHighlight();
         updateStatBudgetDisplay(budget);
         updateStatPreviewSentence();
+        drawStatRadar();
       };
     }
 
@@ -640,8 +930,8 @@
   }
 
   function updatePresetHighlight() {
-    document.querySelectorAll('.adv-archetype-btn').forEach(function (btn) {
-      btn.classList.toggle('adv-archetype-btn--active', btn.dataset.presetLabel === activePresetLabel);
+    document.querySelectorAll('.adv-archetype-card').forEach(function (card) {
+      card.classList.toggle('adv-archetype-card--active', card.dataset.presetLabel === activePresetLabel);
     });
   }
 
@@ -737,6 +1027,7 @@
     var customStats = collectStatAllocations();
 
     gameState = RPG.createState(selectedGenre, playerName, characterAppearance, customStats);
+    gameState.xp = 0;
     if (generatedPortraitDataUrl) {
       gameState.portraitImage = generatedPortraitDataUrl;
     }
@@ -1069,6 +1360,19 @@
 
         RPG.applyStateChanges(gameState, scene.stateChanges);
 
+        // Award XP
+        awardXP('choiceMade');
+        awardXP('turnSurvived');
+        if (skillCheckResult) {
+          if (skillCheckResult.critical === 'critical_success') awardXP('skillCheckCritical');
+          else if (skillCheckResult.success) awardXP('skillCheckPass');
+          else awardXP('skillCheckFail');
+        }
+        if (scene.stateChanges) {
+          if (scene.stateChanges.addItems && scene.stateChanges.addItems.length) awardXP('itemFound');
+          if (scene.stateChanges.addCompanion) awardXP('companionGained');
+        }
+
         // Check for death
         if (!RPG.isAlive(gameState)) {
           scene.isEnding = true;
@@ -1342,6 +1646,7 @@
   function updateSidebar() {
     if (!gameState) return;
     renderSidebarPortrait();
+    updateLevelBar();
     var stats = gameState.stats;
 
     // HP
@@ -1522,8 +1827,10 @@
     UI.$('endingTitle').textContent = titles[type] || 'The End';
     UI.$('endingText').textContent = scene.sceneText;
 
+    var finalLevel = getPlayerLevel(gameState.xp || 0);
     UI.$('endingStats').innerHTML =
       '<div class="adv-ending__stat"><div class="adv-ending__stat-value">' + gameState.turnCount + '</div><div class="adv-ending__stat-label">Turns</div></div>' +
+      '<div class="adv-ending__stat"><div class="adv-ending__stat-value">Lv ' + finalLevel + '</div><div class="adv-ending__stat-label">Level</div></div>' +
       '<div class="adv-ending__stat"><div class="adv-ending__stat-value">' + gameState.stats.gold + '</div><div class="adv-ending__stat-label">Gold</div></div>' +
       '<div class="adv-ending__stat"><div class="adv-ending__stat-value">' + gameState.inventory.length + '</div><div class="adv-ending__stat-label">Items</div></div>' +
       '<div class="adv-ending__stat"><div class="adv-ending__stat-value">' + gameState.companions.length + '</div><div class="adv-ending__stat-label">Allies</div></div>';
