@@ -1,7 +1,7 @@
 const { BlobServiceClient } = require('@azure/storage-blob');
 const { DefaultAzureCredential } = require('@azure/identity');
 const { extractUserInfo } = require('../_utils/cfAuth');
-const { loadEntitlements, toClientSafe } = require('../_lib/stripe/entitlements');
+const { loadEntitlements, toClientSafe, isAdminUser, PRO_FLAGS } = require('../_lib/stripe/entitlements');
 
 const STORAGE_ACCOUNT_NAME = 'cardforgeblobdata';
 const CONTAINER_NAME = 'cardforge';
@@ -36,6 +36,18 @@ module.exports = async function (context, req) {
         status: 200,
         headers: CORS_HEADERS,
         body: toClientSafe(null)
+      };
+      return;
+    }
+
+    // Admin override — always return Pro for admin users
+    if (isAdminUser(userId)) {
+      const adminFlags = {};
+      for (const f of PRO_FLAGS) adminFlags[f] = true;
+      context.res = {
+        status: 200,
+        headers: CORS_HEADERS,
+        body: { tier: 'pro', flags: adminFlags, subscriptionStatus: 'active', hasActiveSubscription: true }
       };
       return;
     }

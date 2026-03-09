@@ -5,6 +5,13 @@ const { getProduct } = require('./productCatalog');
 
 const PRO_FLAGS = ['hdExport', 'premiumEffects', 'extraCardSlots', 'sfAllGenres', 'sfUnlimitedAdventures', 'sfAllImages', 'sfExtraSaves'];
 
+// Admin user IDs that always get Pro entitlements (for dev/testing)
+const ADMIN_USER_IDS = (process.env.ENTITLEMENTS_ADMIN_IDS || '').split(',').filter(Boolean);
+
+function isAdminUser(userId) {
+  return userId && ADMIN_USER_IDS.includes(userId);
+}
+
 function defaultRecord(userId) {
   return {
     userId: userId,
@@ -173,5 +180,7 @@ module.exports = {
   grantProduct,
   activateSubscription,
   deactivateSubscription,
-  markSubscriptionAtRisk
+  markSubscriptionAtRisk,
+  isAdminUser,
+  PRO_FLAGS
 };
