@@ -204,10 +204,12 @@ window.ArenaAudio = (function () {
     var btn = document.getElementById('arena-music-toggle');
     if (!btn) return;
     var icon = btn.querySelector('i');
-    if (icon) icon.className = _musicMuted ? 'fas fa-music-slash' : 'fas fa-music';
+    // fa-music-slash doesn't exist in FA Free — use volume icons instead
+    if (icon) icon.className = _musicMuted ? 'fas fa-volume-xmark' : 'fas fa-music';
     btn.title = _musicMuted ? 'Unmute music' : 'Mute music';
-    btn.classList.toggle('arena-audio-toggle--muted', _musicMuted);
-    // Dim the slider when muted
+    // Toggle muted state on the parent control, not the button, to avoid opacity hiding the button
+    var control = document.getElementById('arena-music-control');
+    if (control) control.classList.toggle('arena-music-control--muted', _musicMuted);
     var slider = document.getElementById('arena-music-volume');
     if (slider) slider.disabled = _musicMuted;
   }

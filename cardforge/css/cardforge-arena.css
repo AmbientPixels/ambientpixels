@@ -160,10 +160,15 @@ body:has(.arena-screen.active) {
   border: 1px solid var(--arena-border);
   border-radius: 8px;
   padding: 0.2rem 0.4rem;
+  transition: opacity 0.2s ease;
+}
+.arena-music-control--muted {
+  opacity: 0.45;
 }
 .arena-music-control .arena-audio-toggle {
   border: none;
   padding: 0.15rem 0.2rem;
+  opacity: 1; /* never dim the button itself inside the grouped control */
 }
 .arena-music-volume {
   -webkit-appearance: none;
