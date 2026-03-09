@@ -6,7 +6,11 @@
 window.AdventureEntitlements = (function () {
   'use strict';
 
-  var DEV_BYPASS = true;
+  // Authenticated users get PRO until real entitlements API is wired up.
+  // Unauthenticated demo visitors get FREE_DEFAULTS.
+  function isAuthBypassed() {
+    return sessionStorage.getItem('isAuthenticated') === 'true';
+  }
 
   var FREE_DEFAULTS = {
     tier: 'free',
@@ -39,8 +43,8 @@ window.AdventureEntitlements = (function () {
   function load() {
     if (_loadPromise) return _loadPromise;
 
-    if (DEV_BYPASS) {
-      console.warn('[SF Entitlements] DEV_BYPASS active — all features unlocked');
+    if (isAuthBypassed()) {
+      console.info('[SF Entitlements] Authenticated user — PRO features unlocked');
       _data = PRO_DEFAULTS;
       _loadPromise = Promise.resolve(_data);
       return _loadPromise;
