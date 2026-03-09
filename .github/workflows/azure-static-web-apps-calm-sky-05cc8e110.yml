@@ -29,6 +29,9 @@ jobs:
           submodules: true
           lfs: false
 
+      - name: Regenerate site manifest digest
+        run: node scripts/buildSiteManifest.js
+
       - name: Build Static Artifacts
         run: |
           mkdir app_build
