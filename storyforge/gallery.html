@@ -3,13 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="StoryForge Gallery — Browse completed adventures from players around the world" />
+  <meta name="description" content="StoryForge Gallery — Browse completed adventures from players around the world. Filter by genre, sort by level, and share your stories." />
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <link rel="canonical" href="https://www.ambientpixels.ai/storyforge/gallery.html" />
   <title>Gallery — StoryForge</title>
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="StoryForge Gallery — Player Adventures" />
+  <meta property="og:description" content="Browse completed adventures from players around the world. Filter by genre, sort by level, and share your stories." />
+  <meta property="og:image" content="https://www.ambientpixels.ai/storyforge/images/hero-banner01.webp" />
+  <meta property="og:url" content="https://www.ambientpixels.ai/storyforge/gallery.html" />
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="StoryForge Gallery — Player Adventures" />
+  <meta name="twitter:description" content="Browse completed adventures from players around the world. Filter by genre, sort by level, and share your stories." />
+  <meta name="twitter:image" content="https://www.ambientpixels.ai/storyforge/images/hero-banner01.webp" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@300;400;500;600;700&family=Russo+One&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;500;600;700&family=Russo+One&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/base.css" />
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="css/adventure-base.css" />
@@ -61,11 +73,11 @@
         <div class="adv-gallery__controls">
           <div class="adv-gallery__search">
             <i class="fas fa-search"></i>
-            <input type="text" id="gallerySearch" placeholder="Search adventures..." autocomplete="off" />
+            <input type="text" id="gallerySearch" placeholder="Search adventures..." autocomplete="off" aria-label="Search adventures" />
           </div>
           <div class="adv-gallery__sort">
             <i class="fas fa-arrow-down-short-wide"></i>
-            <select id="gallerySort">
+            <select id="gallerySort" aria-label="Sort adventures">
               <option value="newest">Newest</option>
               <option value="oldest">Oldest</option>
               <option value="longest">Most Turns</option>

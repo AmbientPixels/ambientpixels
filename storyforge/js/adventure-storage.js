@@ -3,6 +3,7 @@
  */
 window.AdventureStorage = (function () {
   'use strict';
+  var DEBUG = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 
   var API_BASE = 'https://ambientpixels-nova-api.azurewebsites.net/api';
   var SAVE_API = API_BASE + '/storyforgesave';
@@ -31,7 +32,7 @@ window.AdventureStorage = (function () {
       return data.success || false;
     })
     .catch(function (err) {
-      console.warn('Server save failed, using localStorage:', err.message);
+      DEBUG && console.warn('Server save failed, using localStorage:', err.message);
       return false;
     });
   }
@@ -53,7 +54,7 @@ window.AdventureStorage = (function () {
         return merged;
       })
       .catch(function (err) {
-        console.warn('Server load failed, using localStorage:', err.message);
+        DEBUG && console.warn('Server load failed, using localStorage:', err.message);
         return loadAllLocal();
       });
   }
@@ -114,12 +115,12 @@ window.AdventureStorage = (function () {
             delete saves2[ids[0]];
             saves2[adventure.adventureId] = stripImagesForLocal(adventure);
             localStorage.setItem(LOCAL_KEY, JSON.stringify(saves2));
-            console.warn('localStorage quota hit, removed oldest save');
+            DEBUG && console.warn('localStorage quota hit, removed oldest save');
             return;
           }
         } catch (e2) { /* fall through */ }
       }
-      console.warn('localStorage save failed:', e.message);
+      DEBUG && console.warn('localStorage save failed:', e.message);
     }
   }
 

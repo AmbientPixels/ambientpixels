@@ -4,6 +4,7 @@
  * Defaults to free tier on any failure (graceful degradation).
  */
 window.AdventureEntitlements = (function () {
+  var DEBUG = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
   'use strict';
 
   // DEV_BYPASS: true = everyone gets PRO (for testing). false = auth-based tiers.
@@ -46,7 +47,7 @@ window.AdventureEntitlements = (function () {
     if (_loadPromise) return _loadPromise;
 
     if (isAuthBypassed()) {
-      console.info('[SF Entitlements] Authenticated user — PRO features unlocked');
+      DEBUG && console.info('[SF Entitlements] Authenticated user — PRO features unlocked');
       _data = PRO_DEFAULTS;
       _loadPromise = Promise.resolve(_data);
       return _loadPromise;
@@ -65,7 +66,7 @@ window.AdventureEntitlements = (function () {
       return _data;
     })
     .catch(function (err) {
-      console.warn('[SF Entitlements] Failed to load, defaulting to free:', err.message);
+      DEBUG && console.warn('[SF Entitlements] Failed to load, defaulting to free:', err.message);
       _data = FREE_DEFAULTS;
       return _data;
     });

@@ -135,21 +135,45 @@ window.AdventureUI = (function () {
   function showConfirm(title, text, okLabel) {
     return new Promise(function (resolve) {
       var overlay = $('confirmOverlay');
+      var previousFocus = document.activeElement;
       $('confirmTitle').textContent = title;
       $('confirmText').textContent = text;
       $('confirmOk').textContent = okLabel || 'Confirm';
       overlay.style.display = '';
 
+      // Focus the cancel button by default (safer action)
+      $('confirmCancel').focus();
+
       function cleanup(result) {
         overlay.style.display = 'none';
         $('confirmOk').removeEventListener('click', onOk);
         $('confirmCancel').removeEventListener('click', onCancel);
+        document.removeEventListener('keydown', onKey);
+        // Restore focus
+        if (previousFocus && previousFocus.focus) previousFocus.focus();
         resolve(result);
       }
       function onOk() { cleanup(true); }
       function onCancel() { cleanup(false); }
+      function onKey(e) {
+        if (e.key === 'Escape') { onCancel(); return; }
+        // Focus trap: Tab cycles between Cancel and OK
+        if (e.key === 'Tab') {
+          var btns = [overlay.querySelector('#confirmCancel'), overlay.querySelector('#confirmOk')];
+          var focused = document.activeElement;
+          var idx = btns.indexOf(focused);
+          if (e.shiftKey) {
+            idx = idx <= 0 ? btns.length - 1 : idx - 1;
+          } else {
+            idx = idx >= btns.length - 1 ? 0 : idx + 1;
+          }
+          btns[idx].focus();
+          e.preventDefault();
+        }
+      }
       $('confirmOk').addEventListener('click', onOk);
       $('confirmCancel').addEventListener('click', onCancel);
+      document.addEventListener('keydown', onKey);
     });
   }
 

@@ -1597,3 +1597,14 @@
     opacity: 0.3;
   }
 }
+
+/* Mobile: hide third particle layer, simplify remaining */
+@media (max-width: 768px) {
+  .adv-particles--3 {
+    display: none;
+  }
+  .adv-particles--1,
+  .adv-particles--2 {
+    opacity: 0.5;
+  }
+}

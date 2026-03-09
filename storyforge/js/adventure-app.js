@@ -83,7 +83,7 @@
       return '<a href="' + (isLocked ? '#' : '/storyforge/play.html?genre=' + g.id) +
         '" class="adv-hub__genre' + lockedClass + '" data-genre="' + g.id + '" data-tier="' + (g.tier || 'free') +
         '" style="--genre-color:' + g.color + '; --genre-rgb:' + rgb + '">' +
-        '<img class="adv-hub__genre-img" src="images/genre-' + g.id + '.png" alt="' + g.name + '" loading="lazy" />' +
+        '<img class="adv-hub__genre-img" src="images/genre-' + g.id + '.webp" alt="' + g.name + '" loading="lazy" />' +
         lockBadge +
         '<div class="adv-hub__genre-name">' + g.name + '</div>' +
         '<div class="adv-hub__genre-desc">' + g.description + '</div>' +

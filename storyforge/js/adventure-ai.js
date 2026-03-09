@@ -3,6 +3,7 @@
  */
 window.AdventureAI = (function () {
   'use strict';
+  var DEBUG = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 
   var GEMINI_ENDPOINT = 'https://ambientpixels-nova-api.azurewebsites.net/api/geminiproxy';
   var TEXT_MODEL = 'gemini-2.5-flash';
@@ -266,16 +267,19 @@ window.AdventureAI = (function () {
     '}';
 
   // --- API calls ---
+  var TIMEOUT_MS = 30000; // 30-second request timeout
+
   function callTextAPIWithRetry(prompt, maxRetries) {
-    maxRetries = maxRetries || 2;
+    maxRetries = maxRetries || 3;
     var attempt = 0;
     function tryCall() {
       attempt++;
       return callTextAPI(prompt).catch(function (err) {
         if (attempt < maxRetries) {
-          console.warn('AI call attempt ' + attempt + ' failed, retrying...', err.message);
+          DEBUG && console.warn('AI call attempt ' + attempt + ' failed, retrying...', err.message);
+          // Exponential backoff: 2s, 4s, 8s
           return new Promise(function (resolve) {
-            setTimeout(resolve, 1000 * attempt);
+            setTimeout(resolve, 2000 * Math.pow(2, attempt - 1));
           }).then(tryCall);
         }
         throw err;
@@ -285,12 +289,17 @@ window.AdventureAI = (function () {
   }
 
   function callTextAPI(prompt) {
+    var controller = new AbortController();
+    var timeoutId = setTimeout(function () { controller.abort(); }, TIMEOUT_MS);
+
     return fetch(GEMINI_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: prompt, model: TEXT_MODEL })
+      body: JSON.stringify({ prompt: prompt, model: TEXT_MODEL }),
+      signal: controller.signal
     })
     .then(function (res) {
+      clearTimeout(timeoutId);
       if (!res.ok) throw new Error('AI request failed (' + res.status + ')');
       return res.json();
     })
@@ -300,10 +309,18 @@ window.AdventureAI = (function () {
         data.candidates[0].content.parts[0] && data.candidates[0].content.parts[0].text;
       if (!text) throw new Error('No text in AI response');
       return parseSceneJSON(text);
+    })
+    .catch(function (err) {
+      clearTimeout(timeoutId);
+      if (err.name === 'AbortError') throw new Error('AI request timed out — try again');
+      throw err;
     });
   }
 
   function callImageAPI(prompt) {
+    var controller = new AbortController();
+    var timeoutId = setTimeout(function () { controller.abort(); }, TIMEOUT_MS);
+
     return fetch(GEMINI_ENDPOINT, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -311,9 +328,11 @@ window.AdventureAI = (function () {
         prompt: prompt,
         model: IMAGE_MODEL,
         generationConfig: { responseModalities: ['Image'] }
-      })
+      }),
+      signal: controller.signal
     })
     .then(function (res) {
+      clearTimeout(timeoutId);
       if (!res.ok) throw new Error('Image request failed (' + res.status + ')');
       return res.json();
     })
@@ -328,9 +347,27 @@ window.AdventureAI = (function () {
       }
       return null;
     })
-    .catch(function () {
+    .catch(function (err) {
+      clearTimeout(timeoutId);
+      if (typeof UI !== 'undefined') UI.toast('Scene illustration unavailable', 'warning');
       return null; // Image generation is non-critical
     });
+  }
+
+  // --- Fallback scene when AI completely fails ---
+  function createFallbackScene() {
+    return {
+      sceneText: 'The mists close in, obscuring the path ahead. Though the details are unclear, you sense the journey is far from over. Three paths emerge from the fog...',
+      choices: [
+        { id: 'fallback_1', text: 'Press forward cautiously' },
+        { id: 'fallback_2', text: 'Search the immediate area' },
+        { id: 'fallback_3', text: 'Wait and observe' }
+      ],
+      stateChanges: {},
+      imagePrompt: null,
+      isEnding: false,
+      endingType: null
+    };
   }
 
   // Convert base64 to ArrayBuffer
@@ -422,7 +459,7 @@ window.AdventureAI = (function () {
       return null;
     })
     .catch(function (err) {
-      console.warn('[TTS] Error:', err);
+      DEBUG && console.warn('[TTS] Error:', err);
       return null;
     });
   }
@@ -518,6 +555,7 @@ window.AdventureAI = (function () {
     ART_STYLES: ART_STYLES,
     checkDailyLimit: checkDailyLimit,
     incrementUsage: incrementUsage,
-    getRemainingUsage: getRemainingUsage
+    getRemainingUsage: getRemainingUsage,
+    createFallbackScene: createFallbackScene
   };
 })();

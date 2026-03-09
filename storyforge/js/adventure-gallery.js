@@ -251,10 +251,11 @@
 
     var thumbHtml;
     var thumbSrc = adv.firstSceneImage || adv.thumbnailImage;
+    var altText = UI.escapeHtml((adv.playerName || 'Adventure') + ' — ' + genreName + ' adventure');
     if (thumbSrc) {
-      thumbHtml = '<img src="' + thumbSrc + '" alt="" loading="lazy" />';
+      thumbHtml = '<img src="' + thumbSrc + '" alt="' + altText + '" loading="lazy" />';
     } else {
-      thumbHtml = '<img src="/storyforge/images/genre-' + (adv.genre || 'fantasy') + '.png" alt="" loading="lazy" style="opacity:0.5;filter:saturate(0.6)" />';
+      thumbHtml = '<img src="/storyforge/images/genre-' + (adv.genre || 'fantasy') + '.webp" alt="' + altText + '" loading="lazy" style="opacity:0.5;filter:saturate(0.6)" />';
     }
 
     var endingType = adv.endingType || 'escape';
@@ -328,9 +329,10 @@
     // Hero image
     var heroHtml;
     var heroSrc = adv.firstSceneImage || adv.thumbnailImage;
+    var heroAlt = UI.escapeHtml((adv.playerName || 'Adventure') + ' scene');
     if (heroSrc) {
       heroHtml = '<div class="adv-gallery__detail-hero">' +
-        '<img src="' + heroSrc + '" alt="" />' +
+        '<img src="' + heroSrc + '" alt="' + heroAlt + '" />' +
         '<div class="adv-gallery__detail-hero-gradient"></div>' +
         '<button class="adv-gallery__detail-close" id="detailClose"><i class="fas fa-times"></i></button>' +
       '</div>';
@@ -403,14 +405,24 @@
       '</div>';
 
     // Create overlay
+    var previousFocus = document.activeElement;
     var overlay = document.createElement('div');
     overlay.className = 'adv-gallery__overlay';
     overlay.id = 'detailOverlay';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-label', 'Adventure details');
     overlay.innerHTML = html;
     document.body.appendChild(overlay);
 
     // Prevent body scroll
     document.body.style.overflow = 'hidden';
+
+    // Focus the close button
+    overlay.querySelector('#detailClose').focus();
+
+    // Store previous focus for restoration
+    overlay._previousFocus = previousFocus;
 
     // Close handlers
     overlay.querySelector('#detailClose').addEventListener('click', closeDetail);
@@ -435,9 +447,11 @@
 
   function closeDetail() {
     var overlay = document.getElementById('detailOverlay');
+    var prevFocus = overlay ? overlay._previousFocus : null;
     if (overlay) overlay.remove();
     document.body.style.overflow = '';
     document.removeEventListener('keydown', handleEscape);
+    if (prevFocus && prevFocus.focus) prevFocus.focus();
   }
 
   function handleEscape(e) {

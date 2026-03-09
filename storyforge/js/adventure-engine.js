@@ -3,6 +3,7 @@
  */
 (function () {
   'use strict';
+  var DEBUG = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 
   var UI = window.AdventureUI;
   var RPG = window.AdventureRPG;
@@ -188,8 +189,13 @@
     document.querySelectorAll('.adv-wizard__step').forEach(function (el) {
       var s = parseInt(el.dataset.step);
       el.classList.remove('adv-wizard__step--active', 'adv-wizard__step--done');
-      if (s === step) el.classList.add('adv-wizard__step--active');
-      else if (s < step) el.classList.add('adv-wizard__step--done');
+      if (s === step) {
+        el.classList.add('adv-wizard__step--active');
+        el.setAttribute('aria-current', 'step');
+      } else {
+        el.removeAttribute('aria-current');
+        if (s < step) el.classList.add('adv-wizard__step--done');
+      }
     });
 
     // Update step lines
@@ -451,6 +457,7 @@
       if (selectedGenre) {
         UI.$('advApp').setAttribute('data-genre', selectedGenre.id);
         selectedArtStyle = GENRE_ART_DEFAULTS[selectedGenre.id] || 'cinematic_fantasy';
+        if (StoryAudio.preloadGenre) StoryAudio.preloadGenre(selectedGenre.id);
         var card = document.querySelector('.adv-genre-card[data-genre="' + genreId + '"]');
         if (card) card.classList.add('adv-genre-card--selected');
         showCharacterCreator(selectedGenre);
@@ -583,7 +590,7 @@
 
     grid.innerHTML = genres.map(function (g) {
       return '<div class="adv-genre-card" data-genre="' + g.id + '">' +
-        '<img class="adv-genre-card__img" src="images/genre-' + g.id + '.png" alt="' + g.name + '" loading="lazy" />' +
+        '<img class="adv-genre-card__img" src="images/genre-' + g.id + '.webp" alt="' + g.name + '" loading="lazy" />' +
         '<div class="adv-genre-card__name">' + g.name + '</div>' +
         '<div class="adv-genre-card__desc">' + g.description + '</div>' +
       '</div>';
@@ -599,6 +606,8 @@
       selectedGenre = genres.find(function (g) { return g.id === card.dataset.genre; });
       UI.$('advApp').setAttribute('data-genre', selectedGenre.id);
       selectedArtStyle = GENRE_ART_DEFAULTS[selectedGenre.id] || 'cinematic_fantasy';
+      // Preload ambient loop during wizard so it's ready by turn 1
+      if (StoryAudio.preloadGenre) StoryAudio.preloadGenre(selectedGenre.id);
       showCharacterCreator(selectedGenre);
       updateWizardNextEnabled();
     });
@@ -954,7 +963,9 @@
       var fillPct = ((val - STAT_MIN) / (STAT_MAX - STAT_MIN)) * 100;
       return '<div class="adv-stat-row" data-stat-key="' + key + '">' +
         '<i class="fas ' + icon + ' adv-stat-row__icon" style="color:' + color + '"></i>' +
-        '<span class="adv-stat-row__label" title="' + UI.escapeHtml(hint) + '">' + label + '</span>' +
+        '<span class="adv-stat-row__label">' + label +
+          (hint ? '<span class="adv-stat-hint" title="' + UI.escapeHtml(hint) + '"><i class="fas fa-circle-info"></i></span>' : '') +
+        '</span>' +
         '<input type="range" class="adv-stat-row__slider" data-stat-key="' + key + '" ' +
           'min="' + STAT_MIN + '" max="' + STAT_MAX + '" value="' + val + '" ' +
           'style="--fill:' + fillPct + '%" aria-label="' + label + '" />' +
@@ -1194,11 +1205,14 @@
     UI.showLoading(UI.$('sceneText'), 'Forging your story...');
     UI.$('choicesContainer').innerHTML = '';
     updateSidebar();
+    // Start genre-themed loading messages during text generation
+    startLoadingTextCycle();
 
     AI.incrementUsage();
 
     AI.generateOpeningScene(selectedGenre, playerName, gameState.character)
       .then(function (scene) {
+        stopLoadingTextCycle();
         // Kick off TTS immediately — don't wait for renderScene
         preloadTTS(scene.sceneText);
         currentScene = scene;
@@ -1207,11 +1221,46 @@
         RPG.applyStateChanges(gameState, scene.stateChanges);
         renderScene(scene);
         generateAndShowImage(scene.imagePrompt);
+        // Trigger first-time tutorial after opening scene
+        if (typeof AdventureTutorial !== 'undefined') AdventureTutorial.start();
       })
       .catch(function (err) {
-        UI.toast('Failed to generate scene: ' + err.message, 'error');
+        stopLoadingTextCycle();
         console.error('Scene generation error:', err);
-        setProcessing(false);
+        // Use fallback scene so the player isn't stuck
+        var fallback = AI.createFallbackScene();
+        UI.toast('AI took too long — here\'s a simplified scene. Your next choice will reconnect.', 'warning');
+        currentScene = fallback;
+        gameState.turnCount = 1;
+        gameState.lastSceneText = fallback.sceneText;
+        renderScene(fallback);
+        // Show retry button alongside choices
+        var retryHtml = '<button class="adv-btn adv-btn--outline" id="retryOpeningBtn"><i class="fas fa-redo"></i> Retry with AI</button>';
+        UI.$('choicesContainer').insertAdjacentHTML('beforeend', retryHtml);
+        var retryBtn = UI.$('retryOpeningBtn');
+        if (retryBtn) {
+          retryBtn.addEventListener('click', function () {
+            retryBtn.remove();
+            setProcessing(true);
+            UI.showLoading(UI.$('sceneText'), 'Retrying...');
+            startLoadingTextCycle();
+            AI.generateOpeningScene(selectedGenre, playerName, gameState.character)
+              .then(function (scene) {
+                stopLoadingTextCycle();
+                preloadTTS(scene.sceneText);
+                currentScene = scene;
+                gameState.lastSceneText = scene.sceneText;
+                RPG.applyStateChanges(gameState, scene.stateChanges);
+                renderScene(scene);
+                generateAndShowImage(scene.imagePrompt);
+              })
+              .catch(function () {
+                stopLoadingTextCycle();
+                UI.toast('Still unable to reach AI. Try again later.', 'error');
+                setProcessing(false);
+              });
+          });
+        }
       });
   }
 
@@ -1269,7 +1318,7 @@
       return audioBuffer;
     }).catch(function (err) {
       showTTSLoading(false);
-      console.warn('[TTS] Preload error:', err);
+      DEBUG && console.warn('[TTS] Preload error:', err);
       return null;
     });
   }
@@ -1344,12 +1393,29 @@
 
     // TTS already kicked off before renderScene — see generateOpeningScene / doGenerateNextTurn
 
+    // Show choices early at low opacity after 3s, fully reveal when typewriter completes
+    var earlyChoiceTimer = null;
+    if (!scene.isEnding && scene.choices && scene.choices.length) {
+      earlyChoiceTimer = setTimeout(function () {
+        var container = UI.$('choicesContainer');
+        if (container && !container.children.length) {
+          renderChoices(scene.choices);
+          container.style.opacity = '0.4';
+          container.title = 'Click story text to skip ahead';
+        }
+      }, 3000);
+    }
+
     // Typewriter starts immediately, no waiting for audio
     UI.typewriter(sceneTextEl, scene.sceneText).then(function () {
+      if (earlyChoiceTimer) clearTimeout(earlyChoiceTimer);
       if (scene.isEnding) {
         showEnding(scene);
       } else {
-        renderChoices(scene.choices);
+        var container = UI.$('choicesContainer');
+        container.style.opacity = '';
+        container.title = '';
+        if (!container.children.length) renderChoices(scene.choices);
       }
       setProcessing(false);
     });
@@ -1806,8 +1872,8 @@
   // --- Update Sidebar ---
   function updateSidebar() {
     if (!gameState) return;
-    try { renderSidebarPortrait(); } catch (e) { console.warn('[Sidebar] portrait error:', e); }
-    try { updateLevelBar(); } catch (e) { console.warn('[Sidebar] level bar error:', e); }
+    try { renderSidebarPortrait(); } catch (e) { DEBUG && console.warn('[Sidebar] portrait error:', e); }
+    try { updateLevelBar(); } catch (e) { DEBUG && console.warn('[Sidebar] level bar error:', e); }
     var stats = gameState.stats;
 
     // HP
@@ -1830,7 +1896,7 @@
         if (hpPct <= 25) sceneEl.classList.add('adv-scene--critical');
         else sceneEl.classList.remove('adv-scene--critical');
       }
-    } catch (e) { console.warn('[Sidebar] HP error:', e); }
+    } catch (e) { DEBUG && console.warn('[Sidebar] HP error:', e); }
 
     // Stats (with buff indicators)
     try {
@@ -1876,7 +1942,7 @@
         '</div>';
       }).join('');
       UI.$('statsContainer').innerHTML = statsHtml;
-    } catch (e) { console.warn('[Sidebar] stats error:', e); }
+    } catch (e) { DEBUG && console.warn('[Sidebar] stats error:', e); }
 
     // Inventory
     if (!gameState.equipped) gameState.equipped = { weapon: null, armor: null };
@@ -2145,16 +2211,21 @@
   }
 
   // --- Pause Menu ---
+  var pausePreviousFocus = null;
+
   function showPauseMenu() {
     if (!gameState) return;
+    pausePreviousFocus = document.activeElement;
     saveAdventure();
     UI.$('pauseInfo').textContent = 'Turn ' + gameState.turnCount + ' of ' + gameState.maxTurns +
       ' | ' + gameState.playerName + ' | HP: ' + gameState.stats.hp + '/' + gameState.stats.maxHp;
     UI.$('pauseOverlay').style.display = '';
+    UI.$('resumeBtn').focus();
   }
 
   function hidePauseMenu() {
     UI.$('pauseOverlay').style.display = 'none';
+    if (pausePreviousFocus && pausePreviousFocus.focus) pausePreviousFocus.focus();
   }
 
   // --- Save Adventure ---
