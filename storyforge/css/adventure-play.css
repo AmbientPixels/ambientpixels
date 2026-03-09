@@ -22,9 +22,42 @@
   aspect-ratio: 16 / 9;
   border-radius: 14px;
   overflow: hidden;
-  background: var(--sf-bg-surface-solid);
+  background:
+    radial-gradient(ellipse at 30% 40%, rgba(var(--sf-accent-rgb), 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 60%, rgba(var(--sf-accent-rgb), 0.08) 0%, transparent 50%),
+    linear-gradient(135deg, #0a0a1a 0%, #12102a 50%, #0d0d1f 100%);
   border: 1px solid var(--sf-border);
   box-shadow: var(--sf-shadow-lift);
+}
+
+/* Animated shimmer sweep while loading */
+.adv-scene__image-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(var(--sf-accent-rgb), 0.06) 45%,
+    rgba(var(--sf-accent-rgb), 0.12) 50%,
+    rgba(var(--sf-accent-rgb), 0.06) 55%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: adv-shimmer 3s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* Hide shimmer once image is loaded */
+.adv-scene__image-wrap:has(.adv-scene__image--loaded)::before {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+@keyframes adv-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 .adv-scene__image {
@@ -48,6 +81,8 @@
   overflow: hidden;
   z-index: 4;
   pointer-events: none;
+  /* Vignette edges */
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.4);
 }
 
 .adv-scene__image-placeholder .adv-loading-text {
