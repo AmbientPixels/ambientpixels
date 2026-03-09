@@ -1922,7 +1922,7 @@
               opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Header peeks on hover */
+/* Header peeks on hover/focus */
 .adv-app--immersive .adv-header:hover,
 .adv-app--immersive .adv-header:focus-within {
   transform: translateY(0);
@@ -1937,13 +1937,17 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 20px;
-  z-index: 99;
+  height: 40px;
+  z-index: 101;
+  cursor: default;
 }
 
-.adv-app--immersive::before:hover + .adv-header {
+/* When hovering the top zone, reveal the header via shared parent hover */
+.adv-app--immersive:has(::before:hover) .adv-header,
+.adv-app--immersive .adv-header--visible {
   transform: translateY(0);
   opacity: 1;
+  pointer-events: auto;
 }
 
 .adv-app--immersive .adv-main {
@@ -1965,10 +1969,12 @@
   overflow-y: auto;
   transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: -4px 0 24px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
 }
 
 .adv-app--immersive .adv-sidebar--open {
   right: 0;
+  pointer-events: auto;
 }
 
 .adv-app--immersive .adv-scene {
@@ -1976,7 +1982,7 @@
 }
 
 .adv-app--immersive .adv-scene__image-wrap {
-  aspect-ratio: 21 / 9;
+  aspect-ratio: 16 / 9;
   border-radius: 0;
   margin: 0 -1.5rem;
   border: none;
@@ -2163,6 +2169,35 @@
 .adv-narration-wave--paused .adv-narration-wave__bar {
   animation-play-state: paused;
   transform: scaleY(0.3);
+}
+
+/* TTS loading indicator — small bar under narration toggle */
+.adv-tts-loading {
+  display: none;
+  width: 24px;
+  height: 2px;
+  border-radius: 1px;
+  background: rgba(var(--sf-accent-rgb), 0.2);
+  overflow: hidden;
+  margin-left: 0.2rem;
+}
+
+.adv-tts-loading--active {
+  display: block;
+}
+
+.adv-tts-loading__bar {
+  width: 40%;
+  height: 100%;
+  background: var(--sf-accent);
+  border-radius: 1px;
+  animation: adv-ttsSlide 1s ease-in-out infinite;
+}
+
+@keyframes adv-ttsSlide {
+  0%   { transform: translateX(-100%); }
+  50%  { transform: translateX(200%); }
+  100% { transform: translateX(-100%); }
 }
 
 /* Better volume slider track */

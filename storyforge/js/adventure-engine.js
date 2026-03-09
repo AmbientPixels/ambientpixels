@@ -602,6 +602,25 @@
       }
     });
 
+    // Immersive mode: reveal header when mouse is near top of screen
+    var headerRevealTimer = null;
+    document.addEventListener('mousemove', function (e) {
+      var app = UI.$('advApp');
+      if (!app || !app.classList.contains('adv-app--immersive')) return;
+      var header = document.querySelector('.adv-header');
+      if (!header) return;
+      if (e.clientY <= 48) {
+        header.classList.add('adv-header--visible');
+        clearTimeout(headerRevealTimer);
+      } else if (e.clientY > 80) {
+        // Delay hiding so user can interact with header
+        clearTimeout(headerRevealTimer);
+        headerRevealTimer = setTimeout(function () {
+          header.classList.remove('adv-header--visible');
+        }, 400);
+      }
+    });
+
     UI.$('pauseBtn').addEventListener('click', showPauseMenu);
     UI.$('resumeBtn').addEventListener('click', hidePauseMenu);
     UI.$('saveQuitBtn').addEventListener('click', function () {
@@ -1141,6 +1160,11 @@
   var preloadedAudioBuffer = null;
   var preloadSessionId = null;
 
+  function showTTSLoading(show) {
+    var el = UI.$('ttsLoading');
+    if (el) el.classList.toggle('adv-tts-loading--active', !!show);
+  }
+
   // Returns a Promise that resolves with the AudioBuffer (or null)
   function preloadTTS(text) {
     preloadSessionId = null;
@@ -1149,17 +1173,20 @@
     var ctx = ensureAudioContext();
     var sessionId = {};
     preloadSessionId = sessionId;
+    showTTSLoading(true);
 
     var voice = (gameState && AI.GENRE_VOICES[gameState.genre]) || 'Kore';
     return AI.callTTSAPI(text, voice).then(function (wavBuffer) {
-      if (preloadSessionId !== sessionId || !wavBuffer) return null;
+      if (preloadSessionId !== sessionId || !wavBuffer) { showTTSLoading(false); return null; }
       return ctx.decodeAudioData(wavBuffer);
     }).then(function (audioBuffer) {
+      showTTSLoading(false);
       if (preloadSessionId !== sessionId || !audioBuffer) return null;
       preloadedAudioBuffer = audioBuffer;
       tryAutoPlay();
       return audioBuffer;
     }).catch(function (err) {
+      showTTSLoading(false);
       console.warn('[TTS] Preload error:', err);
       return null;
     });
