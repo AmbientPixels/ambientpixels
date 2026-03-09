@@ -10,7 +10,7 @@ const CORS = {
   'Content-Type': 'application/json'
 };
 
-const VALID_LAYERS = ['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7'];
+const VALID_LAYERS = ['L1', 'L2', 'L3', 'L4', 'L5', 'L6', 'L7', 'L8'];
 const REDACT_KEY_RE = /token|secret|key|authorization|password/i;
 
 function toIsoOrNull(ts) {
@@ -189,7 +189,7 @@ function buildLayerRecords(data) {
       status: 'ok',
       staleThresholdMs: null,
       description: 'Base agent voice/personality from company-agents.json',
-      order: '1/6',
+      order: '1/8',
       sourcePath: data.agentsSourcePath || ''
     },
     L2: {
@@ -212,7 +212,7 @@ function buildLayerRecords(data) {
       status: 'ok',
       staleThresholdMs: null,
       description: 'Strategic doctrine layer that biases decisions per agent',
-      order: '2/6',
+      order: '2/8',
       sourcePath: data.agentsSourcePath || ''
     },
     L3: {
@@ -228,7 +228,7 @@ function buildLayerRecords(data) {
       status: approxBytes(seedMem) > 2 ? 'ok' : 'empty',
       staleThresholdMs: null,
       description: 'CEO-curated seed memory (_global + per-agent)',
-      order: '3/6',
+      order: '3/8',
       sourcePath: 'blob:agentSeedMemories'
     },
     L4: {
@@ -247,7 +247,7 @@ function buildLayerRecords(data) {
       status: 'ok',
       staleThresholdMs: 2 * 60 * 60 * 1000,
       description: 'Live runtime memory buffers (agentMemories + runtimeMemory)',
-      order: '4/6',
+      order: '4/8',
       sourcePath: 'blob:agentMemories+runtimeMemory'
     },
     L5: {
@@ -263,7 +263,7 @@ function buildLayerRecords(data) {
       status: wsMem.length > 0 ? 'ok' : 'empty',
       staleThresholdMs: null,
       description: 'Workspace notes and pinned CEO context',
-      order: '5/6',
+      order: '5/8',
       sourcePath: 'blob:workspaceMemory'
     },
     L6: {
@@ -279,7 +279,7 @@ function buildLayerRecords(data) {
       status: digest ? 'ok' : 'empty',
       staleThresholdMs: 24 * 60 * 60 * 1000,
       description: 'Generated site manifest digest injected at tail of prompt',
-      order: '6/7',
+      order: '6/8',
       sourcePath: data.digestSourcePath || ''
     },
     L7: {
@@ -295,8 +295,36 @@ function buildLayerRecords(data) {
       status: data.researchIntel.length > 0 ? 'ok' : 'empty',
       staleThresholdMs: null,
       description: 'CEO-approved research findings from Scout — available to all agents',
-      order: '7/7',
+      order: '7/8',
       sourcePath: 'blob:researchIntel'
+    },
+    L8: {
+      id: 'L8',
+      name: 'Agent Configs',
+      source: 'blob',
+      scope: 'per-agent',
+      payload: data.agentConfigs,
+      agentMap: (function () {
+        var ac = data.agentConfigs || {};
+        var map = {};
+        var ids = data.agentDefs.map(function (a) { return String(a.id || '').toLowerCase(); }).filter(Boolean);
+        for (var i = 0; i < ids.length; i++) { map[ids[i]] = ac[ids[i]] || null; }
+        return map;
+      })(),
+      agentsCovered: (function () {
+        var ac = data.agentConfigs || {};
+        var count = 0;
+        var ids = data.agentDefs.map(function (a) { return String(a.id || '').toLowerCase(); }).filter(Boolean);
+        for (var i = 0; i < ids.length; i++) { if (ac[ids[i]] && Object.keys(ac[ids[i]]).length > 0) count++; }
+        return count;
+      })(),
+      lastUpdatedAt: toIsoOrNull(latestTsFromTextMap(data.agentConfigs)),
+      sizeBytes: approxBytes(data.agentConfigs),
+      status: (data.agentConfigs && Object.keys(data.agentConfigs).length > 0) ? 'ok' : 'empty',
+      staleThresholdMs: null,
+      description: 'CEO-configured per-agent personality overrides, role/title overrides, and heartbeat settings',
+      order: '8/8',
+      sourcePath: 'blob:agentConfigs'
     }
   };
 
@@ -416,6 +444,7 @@ async function loadLayerSources() {
   const workspaceMemory = (await storage.getState('workspaceMemory')) || [];
   const runtimeMemory = (await storage.getState('runtimeMemory')) || {};
   const researchIntel = (await storage.getState('researchIntel')) || [];
+  const agentConfigs = (await storage.getState('agentConfigs')) || {};
 
   return {
     agentDefs: companyAgents,
@@ -428,7 +457,8 @@ async function loadLayerSources() {
     agentMemories,
     workspaceMemory,
     runtimeMemory,
-    researchIntel
+    researchIntel,
+    agentConfigs
   };
 }
 

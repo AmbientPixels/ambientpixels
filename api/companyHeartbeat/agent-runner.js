@@ -88,7 +88,7 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
   // Only show this agent their own revision-requested actions
   const agentRevisions = (revisionActions || []).filter(a => a.created_by === agentId || a.origin_agent === agentId);
 
-  const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore);
+  const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, configs);
 
   // Call Gemini
   const response = await callGemini(prompt, agentId);

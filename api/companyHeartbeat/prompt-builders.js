@@ -47,7 +47,7 @@ function buildSiteContextBlock() {
 }
 
 // ── Build heartbeat prompt ──
-function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore) {
+function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, agentConfigs) {
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
   documents = documents || [];
@@ -567,8 +567,24 @@ OPERATING DOCTRINE (apply with weight: ${dWeight} / ${Math.round(dWeight * 100)}
 You must remain within your assigned authority tier. Doctrine influences your strategic lens but does NOT override CEO authority or governance rules. Escalate when escalation triggers are met.
 ` : '';
 
-  const personality = _agentPersonalities[agent.name.toLowerCase()] || '';
-  const personalityBlock = personality ? '\nPERSONALITY: ' + personality + '\n' : '';
+  // Resolve personality: agentConfigs.systemPromptOverride wins, then static personality, then build from traits
+  const _agentCfg = (agentConfigs && agentConfigs[agent.name.toLowerCase()]) || {};
+  const _cfgPersonality = _agentCfg.personality || {};
+  let personality = '';
+  if (_agentCfg.systemPromptOverride && String(_agentCfg.systemPromptOverride).trim()) {
+    personality = String(_agentCfg.systemPromptOverride).trim();
+  } else {
+    personality = _agentPersonalities[agent.name.toLowerCase()] || '';
+  }
+  // Append CEO-configured personality traits as modifiers
+  const _traitParts = [];
+  if (_cfgPersonality.tone) _traitParts.push('Tone: ' + _cfgPersonality.tone);
+  if (_cfgPersonality.formality) _traitParts.push('Formality: ' + _cfgPersonality.formality);
+  if (_cfgPersonality.humor) _traitParts.push('Humor: ' + _cfgPersonality.humor);
+  if (_cfgPersonality.verbosity) _traitParts.push('Verbosity: ' + _cfgPersonality.verbosity);
+  if (_cfgPersonality.customTraits && String(_cfgPersonality.customTraits).trim()) _traitParts.push('Traits: ' + String(_cfgPersonality.customTraits).trim());
+  const _traitSuffix = _traitParts.length > 0 ? '\nStyle modifiers (from CEO config): ' + _traitParts.join(' | ') : '';
+  const personalityBlock = personality ? '\nPERSONALITY: ' + personality + _traitSuffix + '\n' : (_traitSuffix ? '\nPERSONALITY:' + _traitSuffix + '\n' : '');
 
   // Inject CEO-curated seed memories (global + per-agent)
   seedMemories = seedMemories || {};
@@ -593,7 +609,10 @@ You must remain within your assigned authority tier. Doctrine influences your st
 
   const socialIntelSection = _buildSocialIntelPromptBlock(agent, socialIntel);
 
-  return `You are ${agent.name}, ${agent.role} at AmbientPixels. Your focus: ${agent.focus}.
+  const _agentRole = (_agentCfg.roleOverride && String(_agentCfg.roleOverride).trim()) || agent.role;
+  const _agentTitle = (_agentCfg.titleOverride && String(_agentCfg.titleOverride).trim()) || '';
+  const _titleSuffix = _agentTitle ? ' (' + _agentTitle + ')' : '';
+  return `You are ${agent.name}, ${_agentRole}${_titleSuffix} at AmbientPixels. Your focus: ${agent.focus}.
 ${personalityBlock}${doctrineBlock}${seedBlock}${memoryBlock}
 This is an automated heartbeat check. Review your current tasks and the company task board, then decide what actions to take (if any). Not every heartbeat needs action — only act if something is genuinely needed.
 

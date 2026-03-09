@@ -92,7 +92,7 @@
   }
 
   function layerSupportsAgent(layerId) {
-    return layerId === 'L1' || layerId === 'L2' || layerId === 'L3' || layerId === 'L4';
+    return layerId === 'L1' || layerId === 'L2' || layerId === 'L3' || layerId === 'L4' || layerId === 'L8';
   }
 
   function layerDescription(layerId) {
@@ -103,7 +103,8 @@
       L4: 'Runtime memory stack (agent memories + runtimeMemory payloads).',
       L5: 'CEO notes/workspace memory injected as operational context.',
       L6: 'Generated site digest file injected near prompt tail.',
-      L7: 'CEO-approved research findings from Scout — available to all agents.'
+      L7: 'CEO-approved research findings from Scout — available to all agents.',
+      L8: 'CEO-configured per-agent personality overrides, role/title overrides, and heartbeat settings.'
     };
     return map[layerId] || 'Memory layer.';
   }
@@ -737,7 +738,7 @@
     var key = evt.key;
 
     // 1-6: select layer
-    if (key >= '1' && key <= '7') {
+    if (key >= '1' && key <= '8') {
       var idx = parseInt(key, 10) - 1;
       if (state.layers[idx]) {
         selectLayerById(state.layers[idx].id);
