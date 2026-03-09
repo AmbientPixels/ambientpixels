@@ -34,6 +34,18 @@ var AdventureTutorial = (function () {
       position: 'left'
     },
     {
+      target: '#inventoryContainer',
+      title: 'Inventory',
+      text: 'Tap any item to see its details. Equip weapons and armor to boost your skill checks. Drop items you don\'t need — but quest items are locked and can\'t be removed.',
+      position: 'left'
+    },
+    {
+      target: '#companionsContainer',
+      title: 'Companions',
+      text: 'Allies you meet on your journey appear here. Companions grant bonuses to skill checks and will speak and act in scenes — keep them alive!',
+      position: 'left'
+    },
+    {
       target: '#narrationToggle',
       title: 'AI Narration',
       text: 'Toggle AI voice narration on or off. You can also press N anytime during play.',

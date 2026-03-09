@@ -78,10 +78,9 @@
       localStorage.setItem('sf_narration', narrationEnabled ? 'on' : 'off');
       updateToggleUI(btn);
       if (!narrationEnabled) {
-        stopNarration();
-      } else if (preloadedAudioBuffer && !currentNarration) {
-        // Unmuted with audio ready — play it
-        playBuffer(preloadedAudioBuffer);
+        pauseNarration();
+      } else {
+        resumeNarration();
       }
     });
 
@@ -1285,15 +1284,47 @@
     return audioCtx;
   }
 
+  var narrationPaused = false;
+
+  function pauseNarration() {
+    if (currentNarration && audioCtx && audioCtx.state === 'running') {
+      narrationPaused = true;
+      audioCtx.suspend();
+      var wave = UI.$('narrationWave');
+      if (wave) wave.classList.add('adv-narration-wave--paused');
+    }
+  }
+
+  function resumeNarration() {
+    if (narrationPaused && audioCtx && audioCtx.state === 'suspended') {
+      narrationPaused = false;
+      audioCtx.resume();
+      var wave = UI.$('narrationWave');
+      if (wave) wave.classList.remove('adv-narration-wave--paused');
+    } else if (!currentNarration && preloadedAudioBuffer) {
+      // No active narration but audio is ready — play from start
+      narrationPaused = false;
+      playBuffer(preloadedAudioBuffer);
+    }
+  }
+
   function stopNarration() {
+    narrationPaused = false;
     if (currentNarration) {
       try { currentNarration.source.stop(); } catch (e) {}
       currentNarration = null;
     }
+    // Resume context if it was suspended for pause (so future audio works)
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
     // Restore ambient volume
     if (typeof StoryAudio !== 'undefined') StoryAudio.duckForNarration(false);
     var wave = UI.$('narrationWave');
-    if (wave) wave.style.display = 'none';
+    if (wave) {
+      wave.style.display = 'none';
+      wave.classList.remove('adv-narration-wave--paused');
+    }
   }
 
   // Preloaded audio buffer for current scene (filled by TTS fetch in parallel with typewriter)
