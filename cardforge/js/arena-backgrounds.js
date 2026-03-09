@@ -7,12 +7,12 @@ window.ArenaBackgrounds = (function () {
   var STORAGE_KEY = 'cardforge-arena-bg';
 
   var ARENAS = [
-    { id: 'colosseum',      name: 'Stone Colosseum',  rank: null,       icon: 'fa-chess-rook',  image: '/cardforge/img/arena/arena-colosseum.png' },
-    { id: 'shadow-pit',     name: 'Shadow Pit',       rank: 'bronze',   icon: 'fa-ghost',       image: '/cardforge/img/arena/arena-shadow-pit.png' },
-    { id: 'forge-grounds',  name: 'Forge Grounds',    rank: 'silver',   icon: 'fa-fire',        image: '/cardforge/img/arena/arena-forge-grounds.png' },
-    { id: 'crystal-sanctum',name: 'Crystal Sanctum',  rank: 'gold',     icon: 'fa-gem',         image: '/cardforge/img/arena/arena-crystal-sanctum.png' },
-    { id: 'void-rift',      name: 'Void Rift',        rank: 'platinum', icon: 'fa-burst',       image: '/cardforge/img/arena/arena-void-rift.png' },
-    { id: 'throne',         name: 'Throne of the King',rank: 'diamond', icon: 'fa-crown',       image: '/cardforge/img/arena/arena-throne.png' }
+    { id: 'colosseum',      name: 'Stone Colosseum',  rank: null,       icon: 'fa-chess-rook',  image: '/cardforge/img/arena/arena-colosseum.webp' },
+    { id: 'shadow-pit',     name: 'Shadow Pit',       rank: 'bronze',   icon: 'fa-ghost',       image: '/cardforge/img/arena/arena-shadow-pit.webp' },
+    { id: 'forge-grounds',  name: 'Forge Grounds',    rank: 'silver',   icon: 'fa-fire',        image: '/cardforge/img/arena/arena-forge-grounds.webp' },
+    { id: 'crystal-sanctum',name: 'Crystal Sanctum',  rank: 'gold',     icon: 'fa-gem',         image: '/cardforge/img/arena/arena-crystal-sanctum.webp' },
+    { id: 'void-rift',      name: 'Void Rift',        rank: 'platinum', icon: 'fa-burst',       image: '/cardforge/img/arena/arena-void-rift.webp' },
+    { id: 'throne',         name: 'Throne of the King',rank: 'diamond', icon: 'fa-crown',       image: '/cardforge/img/arena/arena-throne.webp' }
   ];
 
   var RANK_ORDER = ['bronze', 'silver', 'gold', 'platinum', 'diamond'];
