@@ -123,8 +123,9 @@
         var genreIcon = genreData ? genreData.icon : 'fa-book';
         var genreColor = genreData ? genreData.color : '#7C3AED';
 
-        var thumbHtml = adv.firstSceneImage
-          ? '<img src="' + adv.firstSceneImage + '" alt="" loading="lazy" />'
+        var thumbSrc = adv.firstSceneImage || adv.thumbnailImage;
+        var thumbHtml = thumbSrc
+          ? '<img src="' + thumbSrc + '" alt="" loading="lazy" />'
           : '<i class="fas ' + genreIcon + '" style="color:' + genreColor + '"></i>';
 
         var turns = adv.turnCount || 0;

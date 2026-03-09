@@ -250,8 +250,9 @@
     var genreColor = GENRE_COLORS[adv.genre] || '#7C3AED';
 
     var thumbHtml;
-    if (adv.firstSceneImage) {
-      thumbHtml = '<img src="' + adv.firstSceneImage + '" alt="" loading="lazy" />';
+    var thumbSrc = adv.firstSceneImage || adv.thumbnailImage;
+    if (thumbSrc) {
+      thumbHtml = '<img src="' + thumbSrc + '" alt="" loading="lazy" />';
     } else {
       thumbHtml = '<img src="/storyforge/images/genre-' + (adv.genre || 'fantasy') + '.png" alt="" loading="lazy" style="opacity:0.5;filter:saturate(0.6)" />';
     }
@@ -326,9 +327,10 @@
 
     // Hero image
     var heroHtml;
-    if (adv.firstSceneImage) {
+    var heroSrc = adv.firstSceneImage || adv.thumbnailImage;
+    if (heroSrc) {
       heroHtml = '<div class="adv-gallery__detail-hero">' +
-        '<img src="' + adv.firstSceneImage + '" alt="" />' +
+        '<img src="' + heroSrc + '" alt="" />' +
         '<div class="adv-gallery__detail-hero-gradient"></div>' +
         '<button class="adv-gallery__detail-close" id="detailClose"><i class="fas fa-times"></i></button>' +
       '</div>';

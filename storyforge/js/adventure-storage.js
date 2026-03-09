@@ -91,6 +91,7 @@ window.AdventureStorage = (function () {
     var copy = JSON.parse(JSON.stringify(adventure));
     delete copy.portraitImage;
     delete copy.firstSceneImage;
+    // Keep thumbnailImage — it's small (~2-4KB JPEG)
     return copy;
   }
 

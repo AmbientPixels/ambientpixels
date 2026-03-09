@@ -20,6 +20,21 @@
     var app = UI.$('advApp');
     if (app) app.classList.toggle('adv-app--processing', val);
   }
+  // Downscale an image data-URL to a small JPEG thumbnail
+  function createThumbnail(dataUrl, maxW, maxH, cb) {
+    var img = new Image();
+    img.onload = function () {
+      var c = document.createElement('canvas');
+      var scale = Math.min(maxW / img.width, maxH / img.height, 1);
+      c.width = Math.round(img.width * scale);
+      c.height = Math.round(img.height * scale);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      cb(c.toDataURL('image/jpeg', 0.5));
+    };
+    img.onerror = function () { cb(null); };
+    img.src = dataUrl;
+  }
+
   var currentNarration = null; // { source, ctx } for Web Audio playback
   var audioCtx = null; // Shared AudioContext, unlocked on first user gesture
   var narrationEnabled = localStorage.getItem('sf_narration') !== 'off'; // on by default
@@ -1637,6 +1652,10 @@
           // Store for potential gallery use
           if (gameState.turnCount === 1) {
             gameState.firstSceneImage = dataUrl;
+            // Create small thumbnail for save cards (localStorage-safe)
+            createThumbnail(dataUrl, 160, 100, function (thumbUrl) {
+              if (thumbUrl) gameState.thumbnailImage = thumbUrl;
+            });
           }
         } else {
           // Show "unavailable" state instead of infinite spinner
