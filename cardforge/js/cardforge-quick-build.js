@@ -262,11 +262,19 @@
     }
   }
 
+  function _resetArtwork() {
+    _state.artworkMode = null;
+    _state.artworkUrl = null;
+    _state.aiData = null;
+  }
+
   function _bindVibeEvents() {
     document.querySelectorAll('.qb-vibe-card').forEach(card => {
       card.addEventListener('click', () => {
         const vibeId = card.dataset.vibeId;
-        _state.vibe = VIBES.find(v => v.id === vibeId) || null;
+        const newVibe = VIBES.find(v => v.id === vibeId) || null;
+        if (_state.vibe?.id !== vibeId) _resetArtwork();
+        _state.vibe = newVibe;
         _render();
       });
     });
@@ -274,6 +282,7 @@
     const surpriseBtn = document.getElementById('qb-surprise');
     if (surpriseBtn) {
       surpriseBtn.addEventListener('click', () => {
+        _resetArtwork();
         _state.vibe = VIBES[Math.floor(Math.random() * VIBES.length)];
         _render();
       });
