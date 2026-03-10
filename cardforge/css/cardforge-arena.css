@@ -644,6 +644,8 @@ body:has(.arena-screen.active) {
   overflow: hidden;
   height: 100%;
   box-sizing: border-box;
+  display: flex;
+  align-items: center;
 }
 .arena-champion::before {
   content: '';
@@ -669,6 +671,7 @@ body:has(.arena-screen.active) {
 .arena-champion__card {
   display: flex;
   gap: 1.5rem;
+  width: 100%;
 }
 .arena-champion__avatar {
   width: 180px;
