@@ -167,6 +167,7 @@
             '<button class="adv-hub__save-delete" data-delete-id="' + adv.adventureId + '" title="Delete save"><i class="fas fa-trash-alt"></i></button>' +
             '<div class="adv-hub__save-thumb">' + thumbHtml + '</div>' +
             '<div class="adv-hub__save-info">' +
+              (adv.storyTitle ? '<div class="adv-hub__save-story-title">' + UI.escapeHtml(adv.storyTitle) + '</div>' : '') +
               '<div class="adv-hub__save-name">' + UI.escapeHtml(adv.playerName || 'Unknown') + ' — ' + genreName + '</div>' +
               '<div class="adv-hub__save-meta">' +
                 '<span>' + turnInfo + '</span>' +

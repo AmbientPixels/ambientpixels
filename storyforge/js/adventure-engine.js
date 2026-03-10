@@ -483,6 +483,7 @@
     var genreData = genres.find(function (g) { return g.id === adventure.genre; });
     var genreName = genreData ? genreData.name : adventure.genre;
     header.innerHTML =
+      (adventure.storyTitle ? '<span class="adv-recap__story-title"><i class="fas fa-book"></i> ' + UI.escapeHtml(adventure.storyTitle) + '</span>' : '') +
       '<span><i class="fas fa-user"></i> ' + UI.escapeHtml(adventure.playerName || 'Hero') + '</span>' +
       '<span><i class="fas fa-masks-theater"></i> ' + genreName + '</span>' +
       '<span><i class="fas fa-heart"></i> HP ' + adventure.stats.hp + '/' + adventure.stats.maxHp + '</span>' +
@@ -518,6 +519,11 @@
 
     if (selectedGenre) {
       UI.$('advApp').setAttribute('data-genre', selectedGenre.id);
+    }
+
+    // Restore story title from saved state
+    if (gameState.storyTitle) {
+      showStoryTitle(gameState.storyTitle, false); // no cinematic card on resume
     }
 
     UI.showScreen('screenPlay');
@@ -1222,6 +1228,11 @@
         currentScene = scene;
         gameState.turnCount = 1;
         gameState.lastSceneText = scene.sceneText;
+        // Store story title
+        if (scene.storyTitle) {
+          gameState.storyTitle = scene.storyTitle;
+          showStoryTitle(scene.storyTitle, true); // cinematic title card on first scene
+        }
         // Store plot seed for story continuity across all turns
         if (scene.plotSeed) {
           gameState.plotSeed = scene.plotSeed;
@@ -1259,6 +1270,10 @@
                 preloadTTS(scene.sceneText);
                 currentScene = scene;
                 gameState.lastSceneText = scene.sceneText;
+                if (scene.storyTitle) {
+                  gameState.storyTitle = scene.storyTitle;
+                  showStoryTitle(scene.storyTitle, true);
+                }
                 if (scene.plotSeed) gameState.plotSeed = scene.plotSeed;
                 RPG.applyStateChanges(gameState, scene.stateChanges);
                 renderScene(scene);
@@ -2110,6 +2125,34 @@
     updateBottomSheetMini();
   }
 
+  // --- Story Title ---
+  function showStoryTitle(title, cinematic) {
+    // Persistent title above scene text
+    var titleEl = UI.$('storyTitle');
+    if (titleEl) {
+      titleEl.textContent = title;
+      titleEl.style.display = '';
+    }
+    // Cinematic title card overlay on first scene
+    if (cinematic) {
+      var card = UI.$('titleCard');
+      var cardText = UI.$('titleCardText');
+      if (card && cardText) {
+        cardText.textContent = title;
+        card.style.display = '';
+        card.classList.add('adv-title-card--reveal');
+        // Auto-hide after 4 seconds
+        setTimeout(function () {
+          card.classList.add('adv-title-card--fade-out');
+          setTimeout(function () {
+            card.style.display = 'none';
+            card.classList.remove('adv-title-card--reveal', 'adv-title-card--fade-out');
+          }, 800);
+        }, 4000);
+      }
+    }
+  }
+
   // --- Ending ---
   function showEnding(scene) {
     UI.showScreen('screenEnding');
@@ -2131,6 +2174,12 @@
 
     UI.$('endingIcon').innerHTML = '<i class="fas ' + (icons[type] || icons.escape) + '"></i>';
     UI.$('endingIcon').className = 'adv-ending__icon adv-ending__icon--' + type;
+    // Show story title on ending screen
+    var endingStoryTitle = UI.$('endingStoryTitle');
+    if (endingStoryTitle && gameState.storyTitle) {
+      endingStoryTitle.textContent = gameState.storyTitle;
+      endingStoryTitle.style.display = '';
+    }
     UI.$('endingTitle').textContent = titles[type] || 'The End';
     UI.$('endingText').textContent = scene.sceneText;
 

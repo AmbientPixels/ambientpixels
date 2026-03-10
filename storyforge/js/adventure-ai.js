@@ -190,7 +190,9 @@ window.AdventureAI = (function () {
       '- Act 1 (turns 1-7): SETUP — introduce the world, the central conflict, and plant the seeds of the mystery or threat. The antagonist should be hinted at but not fully revealed.\n' +
       '- Act 2 (turns 8-18): RISING ACTION — complications, betrayals, revelations. Stakes escalate. The player discovers the true scope of the threat. Include a "darkest moment" setback around turns 15-18.\n' +
       '- Act 3 (turns 19-25): CLIMAX & RESOLUTION — confrontation with the antagonist, payoff of planted clues, and a satisfying conclusion shaped by the player\'s choices.\n\n' +
-      'In this opening scene, you MUST also generate a "plotSeed" — a hidden story blueprint that will guide the entire adventure. This includes an antagonist, a central conflict, 4 key plot points (one per act), and a hidden clue planted in the opening scene that pays off later.\n\n' +
+      'In this opening scene, you MUST also generate:\n' +
+      '1. A "storyTitle" — an evocative, genre-appropriate title for this adventure (3-6 words, like a book or movie title). Examples: "Ashes of the Iron Coast", "The Whispering Protocol", "Blood Beneath the Floorboards".\n' +
+      '2. A "plotSeed" — a hidden story blueprint that will guide the entire adventure. This includes an antagonist, a central conflict, 4 key plot points (one per act), and a hidden clue planted in the opening scene that pays off later.\n\n' +
       'RULES:\n' +
       '- Write exactly 3 paragraphs: (1) establish the setting with sensory detail, (2) introduce the situation and stakes — hint at the central conflict, (3) set up the first decision point.\n' +
       '- Plant at least one subtle clue or detail that connects to the plotSeed.hiddenClue — something the player might notice on replay.\n' +
@@ -315,6 +317,7 @@ window.AdventureAI = (function () {
   var OPENING_RESPONSE_FORMAT =
     'Return ONLY valid JSON (no markdown, no code fences, no extra text):\n' +
     '{\n' +
+    '  "storyTitle": "Evocative 3-6 word title for this adventure",\n' +
     '  "sceneText": "2-4 paragraphs of narrative prose",\n' +
     '  "imagePrompt": "short visual scene description for illustration, max 150 chars",\n' +
     '  "choices": [\n' +

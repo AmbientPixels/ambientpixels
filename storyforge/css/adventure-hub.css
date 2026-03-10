@@ -321,6 +321,19 @@
   min-width: 0;
 }
 
+.adv-hub__save-story-title {
+  font-family: var(--sf-font-display);
+  font-size: 0.8rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: var(--sf-accent);
+  opacity: 0.75;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 0.1rem;
+}
+
 .adv-hub__save-name {
   font-size: 0.9rem;
   font-weight: 600;

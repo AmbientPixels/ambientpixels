@@ -212,6 +212,76 @@
   cursor: pointer;
 }
 
+/* --- Persistent Story Title (above scene text) --- */
+.adv-story-title {
+  font-family: var(--sf-font-display);
+  font-size: 1.25rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--sf-accent);
+  text-align: center;
+  margin: 0 0 0.25rem;
+  opacity: 0.7;
+  text-shadow: 0 0 20px rgba(var(--sf-accent-rgb), 0.3);
+}
+
+/* --- Cinematic Title Card (overlays scene image) --- */
+.adv-title-card {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 5;
+  pointer-events: none;
+}
+
+.adv-title-card__text {
+  font-family: var(--sf-font-display);
+  font-size: clamp(1.5rem, 4vw, 2.5rem);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: #fff;
+  text-align: center;
+  text-shadow: 0 0 40px rgba(var(--sf-accent-rgb), 0.6), 0 2px 20px rgba(0, 0, 0, 0.8);
+  opacity: 0;
+  transform: scale(0.92);
+  padding: 0 1.5rem;
+}
+
+.adv-title-card--reveal .adv-title-card__text {
+  animation: titleCardReveal 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+.adv-title-card--fade-out {
+  animation: titleCardFadeOut 0.8s ease forwards;
+}
+
+@keyframes titleCardReveal {
+  0%   { opacity: 0; transform: scale(0.92); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes titleCardFadeOut {
+  0%   { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* --- Ending Story Title --- */
+.adv-ending__story-title {
+  font-family: var(--sf-font-display);
+  font-size: 1.1rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  color: var(--sf-accent);
+  text-align: center;
+  opacity: 0.65;
+  margin-bottom: 0.25rem;
+  text-shadow: 0 0 16px rgba(var(--sf-accent-rgb), 0.3);
+}
+
 .adv-scene__text {
   font-size: 1.05rem;
   line-height: 1.8;
