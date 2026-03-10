@@ -1568,9 +1568,19 @@
     // Stop any playing narration from previous scene
     stopNarration();
 
-    // Turn bar
+    // Turn bar (maxTurns may change dynamically)
     UI.$('turnLabel').textContent = 'Turn ' + gameState.turnCount;
+    UI.$('turnMax').textContent = '/ ' + gameState.maxTurns;
     UI.$('progressFill').style.width = ((gameState.turnCount / gameState.maxTurns) * 100) + '%';
+
+    // Location badge
+    var locationBadge = UI.$('locationBadge');
+    if (locationBadge && gameState.currentLocation) {
+      locationBadge.textContent = gameState.currentLocation;
+      locationBadge.style.display = '';
+    } else if (locationBadge) {
+      locationBadge.style.display = 'none';
+    }
 
     // Scene entrance animation with blur transition + SFX
     playSfx('sceneTransition');
@@ -1684,9 +1694,10 @@
   // --- Skill Check ---
   function performSkillCheck(choice) {
     var sc = choice.skillCheck;
-    // Difficulty adjusts DCs: easy -2, hard +2
+    // Difficulty adjusts DCs: easy -2, hard +2, plus adaptive offset from struggle detection
     var dcOffset = gameState.difficulty === 'easy' ? -2 : gameState.difficulty === 'hard' ? 2 : 0;
-    var adjustedDC = Math.max(1, sc.difficulty + dcOffset);
+    var adaptiveOffset = RPG.getAdaptiveDCOffset(gameState);
+    var adjustedDC = Math.max(1, sc.difficulty + dcOffset + adaptiveOffset);
     var result = RPG.rollSkillCheck(gameState.stats, gameState.companions, sc.stat, adjustedDC, gameState.equipped, gameState.inventory);
 
     showDiceRoll(result).then(function () {
@@ -1828,6 +1839,26 @@
         if (gameState._skippedItems && gameState._skippedItems.length) {
           UI.toast('Inventory full — couldn\'t pick up: ' + gameState._skippedItems.join(', '), 'warning');
           gameState._skippedItems = [];
+        }
+        // Notify if companions departed due to low loyalty
+        if (gameState._departedCompanions && gameState._departedCompanions.length) {
+          gameState._departedCompanions.forEach(function (name) {
+            UI.toast(name + ' has abandoned you!', 'warning');
+          });
+          gameState._departedCompanions = [];
+        }
+
+        // Dynamic turn budget based on pacing signals
+        if (scene.pacingSignal) {
+          gameState.lastPacingSignal = scene.pacingSignal;
+          if (scene.pacingSignal === 'building' && gameState.turnCount >= gameState.maxTurns - 3) {
+            // Story still building near end — extend turns
+            gameState.maxTurns = Math.min(35, gameState.maxTurns + 5);
+            UI.toast('The story deepens... adventure extended', 'info');
+          } else if (scene.pacingSignal === 'climax_ready' && gameState.turnCount >= 18 && gameState.turnCount < gameState.maxTurns - 3) {
+            // AI signals climax is ready — tighten remaining turns
+            gameState.maxTurns = Math.min(gameState.maxTurns, gameState.turnCount + 4);
+          }
         }
 
         // Award XP
@@ -2250,11 +2281,20 @@
             if (nameLower.indexOf(k) !== -1) compIcon = COMPANION_ICONS[k];
           });
         }
+        var loyalty = comp.loyalty != null ? comp.loyalty : 50;
+        var loyaltyPct = loyalty;
+        var loyaltyColor = loyalty >= 70 ? '#34D399' : loyalty >= 40 ? '#FBBF24' : '#F87171';
+        var moodIcons = { inspired: 'fa-fire', loyal: 'fa-heart', neutral: 'fa-minus', wary: 'fa-eye', frightened: 'fa-face-flushed', angry: 'fa-face-angry' };
+        var moodIcon = moodIcons[comp.mood] || moodIcons.neutral;
         return '<div class="adv-companion">' +
           '<div class="adv-companion__icon"><i class="fas ' + compIcon + '"></i></div>' +
           '<div class="adv-companion__info">' +
-            '<div class="adv-companion__name">' + UI.escapeHtml(comp.name) + '</div>' +
+            '<div class="adv-companion__name">' + UI.escapeHtml(comp.name) +
+              ' <i class="fas ' + moodIcon + '" title="Mood: ' + (comp.mood || 'neutral') + '" style="font-size:0.65rem;opacity:0.6;margin-left:2px"></i></div>' +
             '<div class="adv-companion__bonus">+2 ' + (RPG.STAT_LABELS[comp.bonus] || comp.bonus) + '</div>' +
+            '<div class="adv-companion__loyalty" title="Loyalty: ' + loyalty + '/100">' +
+              '<div class="adv-companion__loyalty-bar" style="width:' + loyaltyPct + '%;background:' + loyaltyColor + '"></div>' +
+            '</div>' +
           '</div>' +
         '</div>';
       }).join('');
@@ -2347,11 +2387,14 @@
     UI.$('endingText').textContent = scene.sceneText;
 
     var finalLevel = getPlayerLevel(gameState.xp || 0);
+    var locationsVisited = (gameState.visitedLocations && gameState.visitedLocations.length) || 0;
+    var decisionsCount = (gameState.decisions && gameState.decisions.length) || 0;
     UI.$('endingStats').innerHTML =
       '<div class="adv-ending__stat"><div class="adv-ending__stat-value">' + gameState.turnCount + '</div><div class="adv-ending__stat-label">Turns</div></div>' +
       '<div class="adv-ending__stat"><div class="adv-ending__stat-value">Lv ' + finalLevel + '</div><div class="adv-ending__stat-label">Level</div></div>' +
       '<div class="adv-ending__stat"><div class="adv-ending__stat-value">' + gameState.stats.gold + '</div><div class="adv-ending__stat-label">Gold</div></div>' +
-      '<div class="adv-ending__stat"><div class="adv-ending__stat-value">' + gameState.inventory.length + '</div><div class="adv-ending__stat-label">Items</div></div>' +
+      '<div class="adv-ending__stat"><div class="adv-ending__stat-value">' + locationsVisited + '</div><div class="adv-ending__stat-label">Places</div></div>' +
+      '<div class="adv-ending__stat"><div class="adv-ending__stat-value">' + decisionsCount + '</div><div class="adv-ending__stat-label">Decisions</div></div>' +
       '<div class="adv-ending__stat"><div class="adv-ending__stat-value">' + gameState.companions.length + '</div><div class="adv-ending__stat-label">Allies</div></div>';
 
     // Achievement badges
@@ -2364,6 +2407,8 @@
     if (gameState.inventory.length >= 6) badges.push({ icon: 'fa-suitcase', label: 'Collector' });
     if (gameState.stats.hp === gameState.stats.maxHp && type === 'victory') badges.push({ icon: 'fa-shield-heart', label: 'Untouched' });
     if (type === 'death' && gameState.turnCount >= 15) badges.push({ icon: 'fa-skull-crossbones', label: 'Valiant Fall' });
+    if (locationsVisited >= 8) badges.push({ icon: 'fa-map', label: 'Explorer' });
+    if (decisionsCount >= 10) badges.push({ icon: 'fa-scale-balanced', label: 'Decisive' });
 
     if (badges.length) {
       var badgesHtml = '<div class="adv-ending__badges">' +

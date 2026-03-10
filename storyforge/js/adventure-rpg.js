@@ -1,5 +1,5 @@
 /**
- * adventure-rpg.js — HP, inventory, companions, skill checks, dice
+ * adventure-rpg.js — HP, inventory, companions, skill checks, dice, decisions, locations
  */
 window.AdventureRPG = (function () {
   'use strict';
@@ -34,6 +34,10 @@ window.AdventureRPG = (function () {
       equipped: { weapon: null, armor: null },
       companions: [],
       eventLog: [],
+      decisions: [],           // structured branching consequences
+      currentLocation: null,   // where the player is now
+      visitedLocations: [],    // places the player has been
+      recentHpDeltas: [],      // last 5 HP changes for struggle detection
       turnCount: 0,
       maxTurns: 25
     };
@@ -90,9 +94,12 @@ window.AdventureRPG = (function () {
   function applyStateChanges(state, changes) {
     if (!changes) return state;
 
-    // HP
+    // HP (also track for struggle detection)
     if (changes.hpDelta) {
       state.stats.hp = Math.max(0, Math.min(state.stats.maxHp, state.stats.hp + changes.hpDelta));
+      if (!state.recentHpDeltas) state.recentHpDeltas = [];
+      state.recentHpDeltas.push(changes.hpDelta);
+      if (state.recentHpDeltas.length > 5) state.recentHpDeltas = state.recentHpDeltas.slice(-5);
     }
 
     // Gold
@@ -141,14 +148,16 @@ window.AdventureRPG = (function () {
       });
     }
 
-    // Add companion
+    // Add companion (with loyalty + mood)
     if (changes.addCompanion && state.companions.length < MAX_COMPANIONS) {
       state.companions.push({
         id: changes.addCompanion.id || ('comp_' + Date.now()),
         name: changes.addCompanion.name,
         type: changes.addCompanion.type || 'Ally',
         description: changes.addCompanion.description || '',
-        bonus: changes.addCompanion.bonus || 'strength'
+        bonus: changes.addCompanion.bonus || 'strength',
+        loyalty: 50,
+        mood: 'neutral'
       });
     }
 
@@ -158,6 +167,56 @@ window.AdventureRPG = (function () {
       state.companions = state.companions.filter(function (c) {
         return c.name.toLowerCase() !== compName.toLowerCase() && c.id !== compName;
       });
+    }
+
+    // Companion loyalty changes
+    if (changes.companionLoyalty && state.companions.length) {
+      var loyaltyChanges = changes.companionLoyalty;
+      for (var compKey in loyaltyChanges) {
+        var comp = state.companions.find(function (c) {
+          return c.name.toLowerCase() === compKey.toLowerCase() || c.id === compKey;
+        });
+        if (comp) {
+          var delta = loyaltyChanges[compKey].delta || 0;
+          comp.loyalty = Math.max(0, Math.min(100, (comp.loyalty || 50) + delta));
+          if (loyaltyChanges[compKey].mood) comp.mood = loyaltyChanges[compKey].mood;
+        }
+      }
+      // Auto-remove companions with 0 loyalty (they abandon the player)
+      state._departedCompanions = [];
+      state.companions = state.companions.filter(function (c) {
+        if ((c.loyalty || 50) <= 0) {
+          state._departedCompanions.push(c.name);
+          return false;
+        }
+        return true;
+      });
+    }
+
+    // Location tracking
+    if (changes.location) {
+      if (!state.visitedLocations) state.visitedLocations = [];
+      if (!state.currentLocation) state.currentLocation = null;
+      var loc = changes.location;
+      state.currentLocation = loc;
+      var alreadyVisited = state.visitedLocations.some(function (v) {
+        return v.toLowerCase() === loc.toLowerCase();
+      });
+      if (!alreadyVisited) {
+        state.visitedLocations.push(loc);
+      }
+    }
+
+    // Decision tracking (branching consequences)
+    if (changes.decision && changes.decision.description) {
+      if (!state.decisions) state.decisions = [];
+      state.decisions.push({
+        turn: state.turnCount,
+        id: changes.decision.id || ('dec_' + Date.now()),
+        description: changes.decision.description,
+        impact: changes.decision.impact || ''
+      });
+      if (state.decisions.length > 20) state.decisions = state.decisions.slice(-20);
     }
 
     // Event tag
@@ -287,6 +346,40 @@ window.AdventureRPG = (function () {
     return state.stats.hp > 0;
   }
 
+  // --- Struggle detection for adaptive difficulty ---
+  // Returns a score: negative = struggling, 0 = balanced, positive = breezing
+  function getStruggleScore(state) {
+    if (!state) return 0;
+    var score = 0;
+    // HP percentage factor
+    var hpPct = state.stats.hp / state.stats.maxHp;
+    if (hpPct <= 0.25) score -= 2;
+    else if (hpPct <= 0.4) score -= 1;
+    else if (hpPct >= 0.9) score += 1;
+
+    // Recent HP delta trend
+    var deltas = state.recentHpDeltas || [];
+    if (deltas.length >= 3) {
+      var sum = 0;
+      for (var i = 0; i < deltas.length; i++) sum += deltas[i];
+      if (sum < -30) score -= 1;
+      else if (sum < -15) score -= 0.5;
+      else if (sum > 10) score += 0.5;
+    }
+
+    // Clamp to -3..+3
+    return Math.max(-3, Math.min(3, score));
+  }
+
+  // Returns adaptive DC offset based on struggle score
+  function getAdaptiveDCOffset(state) {
+    var struggle = getStruggleScore(state);
+    if (struggle <= -2) return -2;   // ease up significantly
+    if (struggle <= -1) return -1;   // ease up slightly
+    if (struggle >= 2) return 1;     // tighten slightly
+    return 0;
+  }
+
   return {
     createState: createState,
     rollSkillCheck: rollSkillCheck,
@@ -298,6 +391,8 @@ window.AdventureRPG = (function () {
     getEquippedItem: getEquippedItem,
     generateName: generateName,
     isAlive: isAlive,
+    getStruggleScore: getStruggleScore,
+    getAdaptiveDCOffset: getAdaptiveDCOffset,
     STAT_ICONS: STAT_ICONS,
     STAT_LABELS: STAT_LABELS,
     ITEM_ICONS: ITEM_ICONS,

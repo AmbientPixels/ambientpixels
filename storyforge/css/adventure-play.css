@@ -816,6 +816,45 @@
   color: var(--sf-text-muted);
 }
 
+.adv-companion__loyalty {
+  width: 100%;
+  height: 3px;
+  background: rgba(var(--sf-text-rgb), 0.1);
+  border-radius: 2px;
+  margin-top: 3px;
+  overflow: hidden;
+}
+
+.adv-companion__loyalty-bar {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.5s ease, background 0.3s ease;
+}
+
+/* --- Location Badge --- */
+.adv-location-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.3rem 0.75rem;
+  font-size: 0.75rem;
+  font-family: var(--sf-font-display);
+  letter-spacing: 0.03em;
+  color: var(--sf-text-muted);
+  background: rgba(var(--sf-text-rgb), 0.05);
+  border: 1px solid var(--sf-border);
+  border-radius: 20px;
+  margin-bottom: -0.5rem;
+}
+
+.adv-location-badge::before {
+  content: '\f3c5';
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  font-size: 0.65rem;
+  opacity: 0.6;
+}
+
 /* Event Log / Journal */
 .adv-events {
   display: flex;

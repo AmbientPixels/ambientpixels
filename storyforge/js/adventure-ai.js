@@ -156,7 +156,12 @@ window.AdventureAI = (function () {
       '- HP: ' + state.stats.hp + '/' + state.stats.maxHp + '\n' +
       '- Inventory: ' + (state.inventory.length ? state.inventory.map(function (i) { return i.name; }).join(', ') : 'empty') + '\n' +
       '- Equipped: ' + buildEquippedLine(state) + '\n' +
-      '- Companions: ' + (state.companions.length ? state.companions.map(function (c) { return c.name; }).join(', ') : 'none') + '\n' +
+      '- Companions: ' + (state.companions.length ? state.companions.map(function (c) {
+        var loyalty = c.loyalty != null ? c.loyalty : 50;
+        return c.name + ' (loyalty: ' + loyalty + ', mood: ' + (c.mood || 'neutral') + ')';
+      }).join(', ') : 'none') + '\n' +
+      '- Location: ' + (state.currentLocation || 'unknown') + '\n' +
+      '- Visited: ' + (state.visitedLocations && state.visitedLocations.length ? state.visitedLocations.join(', ') : 'none') + '\n' +
       '- Key Events: ' + (state.eventLog.length ? state.eventLog.join(', ') : 'adventure just began') + '\n' +
       '- Last Scene: ' + (state.lastSceneText || '(opening)').substring(0, 500) + '\n' +
       plotContext +
@@ -166,7 +171,8 @@ window.AdventureAI = (function () {
       '- Generate ONLY the choices array and stateChanges. Set sceneText to "" and imagePrompt to "".\n' +
       '- Present 3-4 choices that logically follow from the last scene AND advance the overarching plot.\n' +
       '- Include at least one cautious, one bold, and one creative option.\n' +
-      '- If a choice involves risk, add a skillCheck.\n\n' +
+      '- If a choice involves risk, add a skillCheck.\n' +
+      '- Include companionLoyalty, location, and decision in stateChanges where relevant.\n\n' +
       RESPONSE_FORMAT;
 
     return callTextAPIWithRetry(prompt);
@@ -237,26 +243,36 @@ window.AdventureAI = (function () {
       '- Plant at least one subtle clue or detail that connects to the plotSeed.hiddenClue — something the player might notice on replay.\n' +
       '- Use all five senses — not just sight. Include sounds, smells, textures, temperature.\n' +
       '- Vary sentence length: mix short punchy beats with longer flowing descriptions.\n' +
+      '- LOCATION: Name the starting location in "location" field and stateChanges.location. Use a specific, evocative name (e.g. "The Rusted Anchor Tavern", "Sector 7 Undercity", "Blackmoor Crossroads").\n' +
       '- Present exactly 3-4 choices. At least one cautious, one bold, one creative.\n' +
       '- Each choice must lead to a DIFFERENT outcome — never offer three flavors of the same action.\n' +
       '- Each choice should hint at its consequence without spoiling it.\n' +
       '- If a choice involves risk, add a skillCheck with stat (strength/dexterity/intelligence/charisma) and difficulty (8-16).\n' +
       '- Suggest any immediate inventory finds or companion encounters via stateChanges.\n' +
       '- Items can have type "weapon", "armor", "consumable", "tool", or "quest_item". Use "consumable" for healing potions, herbs, medkits, elixirs, or any restorative item the player can use from inventory.\n' +
+      '- QUEST ITEMS: Use type "quest_item" for narratively significant items (a mysterious key, a coded letter, an ancient artifact). These can\'t be dropped and should be referenced later in the story. Plant at least one quest item in the first 3 turns.\n' +
       '- Weapons and armor can have a "bonus" (1-3) and optionally "bonusStat" (strength/dexterity/intelligence/charisma). Higher bonus = rarer/more powerful.\n' +
-      '- If introducing a companion, give them a distinct personality trait and a line of dialogue in the scene text.\n' +
+      '- If introducing a companion, give them a distinct personality trait, a line of dialogue, and set their mood. Companions have loyalty (starts at 50) and mood (neutral/inspired/wary/frightened/angry).\n' +
+      '- Set "pacingSignal" to "building" for the opening scene.\n' +
       '- IMPORTANT: Every item or companion mentioned in the narrative MUST appear in stateChanges.addItems or stateChanges.addCompanion. Do not describe the player finding/receiving items without adding them.\n' +
       '- Generate a visual description for the scene illustration (max 150 chars).\n\n' +
       OPENING_RESPONSE_FORMAT;
   }
 
-  // --- Act structure helper ---
-  function getActInfo(turnCount) {
+  // --- Act structure helper (scales with dynamic maxTurns) ---
+  function getActInfo(turnCount, maxTurns) {
+    maxTurns = maxTurns || 25;
     var turn = turnCount + 1; // next turn number
-    if (turn <= 7) return { act: 1, label: 'Act 1 — SETUP', guidance: 'Introduce the world, establish the central conflict, and plant clues. The antagonist should be hinted at or encountered indirectly. Build the player\'s connection to allies, locations, and stakes.' };
-    if (turn <= 14) return { act: 2, label: 'Act 2a — RISING ACTION', guidance: 'Escalate complications. Reveal new dimensions of the conflict. Introduce betrayals, twists, or revelations that deepen the mystery. The antagonist\'s presence should grow more threatening.' };
-    if (turn <= 18) return { act: 2.5, label: 'Act 2b — DARKEST MOMENT', guidance: 'The player should face a major setback — a betrayal, a loss, a failed plan, or a devastating revelation. This is the low point before the final push. Make it personal and connected to earlier choices.' };
-    if (turn <= 24) return { act: 3, label: 'Act 3 — CLIMAX', guidance: 'Build toward the final confrontation with the antagonist. Earlier clues and planted details should pay off. The player\'s choices throughout the adventure should shape how this plays out.' };
+    // Scale act boundaries proportionally
+    var act1End = Math.round(maxTurns * 0.28);    // ~7 for 25
+    var act2aEnd = Math.round(maxTurns * 0.56);   // ~14 for 25
+    var act2bEnd = Math.round(maxTurns * 0.72);   // ~18 for 25
+    var act3End = maxTurns - 1;
+
+    if (turn <= act1End) return { act: 1, label: 'Act 1 — SETUP', guidance: 'Introduce the world, establish the central conflict, and plant clues. The antagonist should be hinted at or encountered indirectly. Build the player\'s connection to allies, locations, and stakes.' };
+    if (turn <= act2aEnd) return { act: 2, label: 'Act 2a — RISING ACTION', guidance: 'Escalate complications. Reveal new dimensions of the conflict. Introduce betrayals, twists, or revelations that deepen the mystery. The antagonist\'s presence should grow more threatening.' };
+    if (turn <= act2bEnd) return { act: 2.5, label: 'Act 2b — DARKEST MOMENT', guidance: 'The player should face a major setback — a betrayal, a loss, a failed plan, or a devastating revelation. This is the low point before the final push. Make it personal and connected to earlier choices.' };
+    if (turn <= act3End) return { act: 3, label: 'Act 3 — CLIMAX', guidance: 'Build toward the final confrontation with the antagonist. Earlier clues and planted details should pay off. The player\'s choices throughout the adventure should shape how this plays out.' };
     return { act: 3, label: 'Act 3 — RESOLUTION', guidance: 'This is the FINAL scene. Resolve the central conflict decisively. Reference the hidden clue from the opening. Give the player\'s journey a satisfying conclusion shaped by their choices.' };
   }
 
@@ -272,7 +288,7 @@ window.AdventureAI = (function () {
         (skillCheckResult.critical === 'critical_failure' ? ' (NATURAL 1 — CRITICAL FAILURE!)' : '') + '\n';
     }
 
-    var actInfo = getActInfo(state.turnCount);
+    var actInfo = getActInfo(state.turnCount, state.maxTurns);
 
     // Build plot seed context if available
     var plotContext = '';
@@ -285,6 +301,44 @@ window.AdventureAI = (function () {
         '- Hidden Clue from Opening: ' + (ps.hiddenClue || 'none') + '\n' +
         '- Current Act: ' + actInfo.label + '\n' +
         '- Act Guidance: ' + actInfo.guidance + '\n';
+    }
+
+    // Build companion details with loyalty/mood
+    var companionLine = 'none';
+    if (state.companions.length) {
+      companionLine = state.companions.map(function (c) {
+        var loyalty = c.loyalty != null ? c.loyalty : 50;
+        var loyaltyLabel = loyalty >= 80 ? 'devoted' : loyalty >= 60 ? 'loyal' : loyalty >= 40 ? 'neutral' : loyalty >= 20 ? 'wary' : 'hostile';
+        return c.name + ' (' + c.type + ', ' + loyaltyLabel + ', mood: ' + (c.mood || 'neutral') + ')';
+      }).join(', ');
+    }
+
+    // Build decisions context
+    var decisionsContext = '';
+    if (state.decisions && state.decisions.length) {
+      var recentDecisions = state.decisions.slice(-8);
+      decisionsContext = '\nKEY DECISIONS (reference these — choices should have consequences):\n' +
+        recentDecisions.map(function (d) {
+          return '- Turn ' + d.turn + ': ' + d.description + (d.impact ? ' → ' + d.impact : '');
+        }).join('\n') + '\n';
+    }
+
+    // Build location context
+    var locationContext = '';
+    if (state.currentLocation || (state.visitedLocations && state.visitedLocations.length)) {
+      locationContext = '\nWORLD MAP:\n' +
+        '- Current Location: ' + (state.currentLocation || 'unknown') + '\n' +
+        '- Visited: ' + (state.visitedLocations && state.visitedLocations.length ? state.visitedLocations.join(', ') : 'none') + '\n' +
+        '- Create spatially coherent world: if the player travels, name the new location. Revisiting a location should feel different (changed by events).\n';
+    }
+
+    // Struggle indicator for adaptive difficulty
+    var struggleInfo = '';
+    if (typeof window.AdventureRPG !== 'undefined' && window.AdventureRPG.getStruggleScore) {
+      var struggleScore = window.AdventureRPG.getStruggleScore(state);
+      if (struggleScore <= -2) struggleInfo = '- ADAPTIVE: Player is STRUGGLING badly. Ease up — offer an escape route, a healing opportunity, or an ally. Lower skill check difficulties.\n';
+      else if (struggleScore <= -1) struggleInfo = '- ADAPTIVE: Player is having a tough time. Include a helpful item or NPC, and keep one low-risk choice available.\n';
+      else if (struggleScore >= 2) struggleInfo = '- ADAPTIVE: Player is breezing through. Increase challenge — tougher enemies, higher stakes, moral dilemmas with no safe option.\n';
     }
 
     return genre.genrePrompt + '\n\n' +
@@ -300,24 +354,35 @@ window.AdventureAI = (function () {
       '- Reputation: ' + state.stats.reputation + '\n' +
       '- STR: ' + state.stats.strength + ' DEX: ' + state.stats.dexterity +
       ' INT: ' + state.stats.intelligence + ' CHA: ' + state.stats.charisma + '\n' +
-      '- Inventory: ' + (state.inventory.length ? state.inventory.map(function (i) { return i.name; }).join(', ') : 'empty') + '\n' +
+      '- Inventory: ' + (state.inventory.length ? state.inventory.map(function (i) {
+        var extra = i.type === 'quest_item' ? ' [QUEST]' : '';
+        return i.name + extra;
+      }).join(', ') : 'empty') + '\n' +
       '- Equipped: ' + buildEquippedLine(state) + '\n' +
-      '- Companions: ' + (state.companions.length ? state.companions.map(function (c) { return c.name + ' (' + c.type + ')'; }).join(', ') : 'none') + '\n' +
+      '- Companions: ' + companionLine + '\n' +
+      '- Location: ' + (state.currentLocation || 'unknown') + '\n' +
       '- Key Events: ' + (state.eventLog.length ? state.eventLog.join(', ') : 'adventure just began') + '\n\n' +
       '- Last Scene: ' + (state.lastSceneText || '(opening)').substring(0, 500) + '\n' +
       '- Player\'s Choice: ' + choiceText + '\n' +
       skillInfo +
       plotContext +
+      decisionsContext +
+      locationContext +
       buildStoryHistory(state) + '\n' +
       'RULES:\n' +
       '- PACING: Turn ' + (state.turnCount + 1) + ' of ' + state.maxTurns + ' (' + (state.maxTurns - state.turnCount - 1) + ' turns remaining). ' + actInfo.label + '. ' + actInfo.guidance + '\n' +
+      '- Set "pacingSignal" to indicate story momentum: "building" (setup/exploration), "rising" (complications/escalation), "climax_ready" (ready for final confrontation), "resolving" (wrapping up). This helps the game engine adjust turn limits dynamically.\n' +
+      struggleInfo +
       '- Write exactly 3 paragraphs: (1) consequence of the choice — what happens immediately, (2) exploration/discovery — what the player sees, hears, finds, (3) new tension — set up the next decision point.\n' +
       '- ADVANCE THE PLOT: Every scene must move the overarching story forward. Reference earlier events from STORY SO FAR, callback to past player choices, foreshadow upcoming plot points, and connect scenes to the central conflict. Do NOT write disconnected episodic scenes.\n' +
+      '- DECISIONS MATTER: Reference the player\'s KEY DECISIONS from above. If they saved someone, that person should return. If they chose violence, NPCs should react with fear. If they were merciful, allies should be more trusting. Include a "decision" in stateChanges for meaningful choices — these accumulate and shape later scenes.\n' +
       '- Use all five senses. Include sounds, smells, textures, temperature — not just visual descriptions.\n' +
       '- Vary sentence length: short punchy beats for action, longer flowing prose for atmosphere.\n' +
       '- Do NOT start consecutive paragraphs the same way.\n' +
-      '- COMPANIONS: If the player has companions, they MUST have at least 1-2 lines of dialogue or a meaningful action every scene. Give them personality — opinions on choices, warnings about danger, jokes, or arguments with the player. They are partners, not props.\n' +
-      '- EQUIPMENT: Reference equipped items naturally in the prose (e.g., "You grip your cutlass" not just "You attack"). When adding weapons or armor via addItems, give them a "bonus" (1-3) and optionally a "bonusStat" (strength/dexterity/intelligence/charisma) to indicate their power. Mundane items: bonus 1. Fine/enchanted: bonus 2. Legendary/rare: bonus 3. Example: {"name":"Blazing Longsword","type":"weapon","bonus":2,"bonusStat":"strength","description":"A blade wreathed in flickering flame"}\n' +
+      '- COMPANIONS: If the player has companions, they MUST have at least 1-2 lines of dialogue or a meaningful action every scene. Companions have loyalty (0-100) and mood — their behavior should reflect this. A wary companion questions the player\'s decisions. A devoted one fights harder. A frightened one might refuse dangerous tasks. Set "companionLoyalty" in stateChanges when the player\'s choice affects a companion (brave actions: +5-10, betrayal/cruelty: -10-20, saving them: +15-20). If loyalty reaches 0, the companion LEAVES.\n' +
+      '- EQUIPMENT: Reference equipped items naturally in the prose. When adding weapons or armor, give them a "bonus" (1-3) and optionally a "bonusStat". Mundane: bonus 1. Fine/enchanted: bonus 2. Legendary/rare: bonus 3.\n' +
+      '- QUEST ITEMS: Items with type "quest_item" are narratively significant — they can\'t be dropped. Reference them when relevant to the plot. If the player has a quest item that could solve the current problem, hint at it in the choices.\n' +
+      '- LOCATIONS: Set "location" in stateChanges with the current place name. Create a coherent world — name locations consistently. When revisiting a location, describe how it\'s changed.\n' +
       '- Present 3-4 choices. At least one cautious, one bold, one creative.\n' +
       '- Each choice must lead to a DIFFERENT outcome — never offer three flavors of the same action.\n' +
       '- Never offer "do nothing" or "wait and see" as a choice.\n' +
@@ -328,14 +393,14 @@ window.AdventureAI = (function () {
       '- Track HP changes, inventory, companions, reputation. Damage range: ' +
       (state.difficulty === 'easy' ? '-3 to -15' : state.difficulty === 'hard' ? '-10 to -30' : '-5 to -25') +
       ', healing range: ' + (state.difficulty === 'easy' ? '+15 to +35' : state.difficulty === 'hard' ? '+5 to +20' : '+10 to +30') + '.\n' +
-      '- HEALING ITEMS: When the player discovers potions, herbs, medkits, elixirs, or similar restorative items, add them with type "consumable" (e.g. {"name":"Healing Potion","type":"consumable","description":"A shimmering red vial"}). The player can use these from their inventory between scenes.' +
+      '- HEALING ITEMS: When the player discovers potions, herbs, medkits, elixirs, or similar restorative items, add them with type "consumable". The player can use these from their inventory between scenes.' +
       (state.difficulty === 'easy' ? ' On Easy mode — include healing items generously, drop one whenever HP is below 60%.' :
        state.difficulty === 'hard' ? ' On Hard mode — healing items are scarce. Only include one if HP drops below 25%.' :
        ' If HP is below 40%, try to weave a healing item find into the scene naturally.') + '\n' +
       '- IMPORTANT: Every item or companion mentioned in the narrative MUST appear in stateChanges. Do not describe the player finding/receiving/losing items without including them in addItems/removeItems.\n' +
       '- If HP <= 0, this is a DEATH scene — set isEnding:true, endingType:"death", no choices.\n' +
       (state.turnCount >= 18 ? '- IMPORTANT: We are in the final act. Start steering toward the climax confrontation with the antagonist.\n' : '') +
-      (state.turnCount >= 24 ? '- FINAL TURN: This MUST be the ending. Set isEnding:true, endingType:"victory" or "escape". Resolve the central conflict. Reference the hidden clue from the opening. Give the story a satisfying conclusion.\n' : '') +
+      (state.turnCount >= state.maxTurns - 1 ? '- FINAL TURN: This MUST be the ending. Set isEnding:true, endingType:"victory" or "escape". Resolve the central conflict. Reference the hidden clue from the opening. Give the story a satisfying conclusion.\n' : '') +
       '- Generate a visual description for the scene (max 150 chars).\n\n' +
       RESPONSE_FORMAT;
   }
@@ -345,6 +410,7 @@ window.AdventureAI = (function () {
     '{\n' +
     '  "sceneText": "2-4 paragraphs of narrative prose",\n' +
     '  "imagePrompt": "short visual scene description — protagonist facing viewer or three-quarter angle with face visible, never from behind. Max 150 chars",\n' +
+    '  "location": "Name of current location (e.g. The Sunken Crypt, Dockside Market)",\n' +
     '  "choices": [\n' +
     '    { "id": "a", "text": "choice text", "skillCheck": null },\n' +
     '    { "id": "b", "text": "choice text", "skillCheck": { "stat": "dexterity", "difficulty": 12 } },\n' +
@@ -358,8 +424,12 @@ window.AdventureAI = (function () {
     '    "removeItems": [],\n' +
     '    "addCompanion": null,\n' +
     '    "removeCompanion": null,\n' +
+    '    "companionLoyalty": {"CompanionName": {"delta": 5, "mood": "inspired|loyal|wary|frightened|angry"}},\n' +
+    '    "location": "Current Location Name",\n' +
+    '    "decision": {"id": "short_id", "description": "what the player decided", "impact": "how this might matter later"},\n' +
     '    "eventTag": "short_event_tag"\n' +
     '  },\n' +
+    '  "pacingSignal": "building|rising|climax_ready|resolving",\n' +
     '  "isEnding": false,\n' +
     '  "endingType": null\n' +
     '}';
@@ -370,6 +440,7 @@ window.AdventureAI = (function () {
     '  "storyTitle": "Evocative 3-6 word title for this adventure",\n' +
     '  "sceneText": "2-4 paragraphs of narrative prose",\n' +
     '  "imagePrompt": "short visual scene description — protagonist facing viewer or three-quarter angle with face visible, never from behind. Max 150 chars",\n' +
+    '  "location": "Name of starting location (e.g. The Sunken Crypt, Dockside Market)",\n' +
     '  "choices": [\n' +
     '    { "id": "a", "text": "choice text", "skillCheck": null },\n' +
     '    { "id": "b", "text": "choice text", "skillCheck": { "stat": "dexterity", "difficulty": 12 } },\n' +
@@ -383,8 +454,11 @@ window.AdventureAI = (function () {
     '    "removeItems": [],\n' +
     '    "addCompanion": null,\n' +
     '    "removeCompanion": null,\n' +
+    '    "location": "Starting Location Name",\n' +
+    '    "decision": null,\n' +
     '    "eventTag": "short_event_tag"\n' +
     '  },\n' +
+    '  "pacingSignal": "building",\n' +
     '  "isEnding": false,\n' +
     '  "endingType": null,\n' +
     '  "plotSeed": {\n' +
@@ -629,6 +703,12 @@ window.AdventureAI = (function () {
     scene.stateChanges = scene.stateChanges || {};
     scene.isEnding = !!scene.isEnding;
     scene.endingType = scene.endingType || null;
+    scene.pacingSignal = scene.pacingSignal || null;
+
+    // Propagate top-level location into stateChanges if present
+    if (scene.location && !scene.stateChanges.location) {
+      scene.stateChanges.location = scene.location;
+    }
 
     // Ensure choices have IDs
     var keys = ['a', 'b', 'c', 'd'];
