@@ -30,6 +30,7 @@
     vibe: null,
     artworkMode: null, // 'ai' | 'url'
     artworkUrl: null,
+    imageContainer: 'masked', // default
     aiData: null,      // Full AI response (name, class, stats, etc.)
     cardName: '',
     cardClass: '',
@@ -42,7 +43,7 @@
   // ===== PUBLIC API =====
 
   function open() {
-    _state = { step: 0, vibe: null, artworkMode: null, artworkUrl: null, aiData: null, cardName: '', cardClass: '', cardRarity: 'Common' };
+    _state = { step: 0, vibe: null, artworkMode: null, artworkUrl: null, imageContainer: 'masked', aiData: null, cardName: '', cardClass: '', cardRarity: 'Common' };
     _render();
   }
 
@@ -173,6 +174,15 @@
       ? `<div class="qb-artwork-preview"><img src="${_state.artworkUrl}" alt="Card artwork preview" onerror="this.parentElement.innerHTML='<p style=color:#ef4444>Failed to load image</p>'"></div>`
       : '';
 
+    const imgContainer = _state.imageContainer || 'masked';
+    const containerStyles = [
+      { id: 'masked',   label: 'Portrait',  icon: 'fa-circle-user',   desc: 'Cropped into a shape' },
+      { id: 'fullbleed',label: 'Full Art',  icon: 'fa-image',         desc: 'Image fills the card' },
+      { id: 'polaroid', label: 'Polaroid',  icon: 'fa-camera-retro',  desc: 'Photo frame style' },
+      { id: 'banner',   label: 'Banner',    icon: 'fa-panorama',      desc: 'Strip at top or bottom' },
+      { id: 'floating', label: 'Floating',  icon: 'fa-expand',        desc: 'Image floats freely' }
+    ];
+
     return `
       <p class="qb-panel-desc">Choose how to get your card's artwork. AI generates a unique image based on your vibe.</p>
       <div class="qb-artwork-options">
@@ -191,6 +201,17 @@
       </div>
       ${panelHTML}
       ${previewHTML}
+      <div class="qb-style-section">
+        <p class="qb-style-label">Image Style</p>
+        <div class="qb-style-options">
+          ${containerStyles.map(s => `
+            <div class="qb-style-tile ${imgContainer === s.id ? 'selected' : ''}" data-img-container="${s.id}" title="${s.desc}">
+              <i class="fas ${s.icon}"></i>
+              <span>${s.label}</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
     `;
   }
 
@@ -359,6 +380,14 @@
       });
       urlInput.addEventListener('change', () => _render());
     }
+
+    // Image style tiles
+    document.querySelectorAll('.qb-style-tile').forEach(tile => {
+      tile.addEventListener('click', () => {
+        _state.imageContainer = tile.dataset.imgContainer;
+        _render();
+      });
+    });
   }
 
   function _bindDetailsEvents() {
@@ -456,6 +485,15 @@
       try {
         if (_state.vibe && window.CardForge?.applyPreset) {
           window.CardForge.applyPreset(_state.vibe.presetId);
+        }
+
+        // Override image container style if user picked one
+        if (_state.imageContainer && window.ModularState) {
+          window.ModularState.imageContainer = _state.imageContainer;
+          if (_state.imageContainer === 'masked') window.ModularState.imageContainerVariant = 'circle';
+          else if (_state.imageContainer === 'polaroid') window.ModularState.imageContainerVariant = 'classic';
+          else if (_state.imageContainer === 'banner') window.ModularState.imageContainerVariant = 'top';
+          else window.ModularState.imageContainerVariant = '';
         }
 
         // Override with wizard data

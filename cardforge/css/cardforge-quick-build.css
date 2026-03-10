@@ -568,6 +568,56 @@
   line-height: 1.4;
 }
 
+/* Image style picker */
+.qb-style-section {
+  margin-top: 1.25rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding-top: 1rem;
+}
+
+.qb-style-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #a0a0c0;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.6rem;
+}
+
+.qb-style-options {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.qb-style-tile {
+  background: var(--aura-bg-color, #14142a);
+  border: 2px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 0.5rem 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: #a0a0c0;
+  transition: all 180ms ease;
+  white-space: nowrap;
+}
+
+.qb-style-tile:hover {
+  border-color: rgba(139,92,246,0.3);
+  color: #e1e1ff;
+}
+
+.qb-style-tile.selected {
+  border-color: #8b5cf6;
+  background: rgba(139,92,246,0.1);
+  color: #e1e1ff;
+}
+
+.qb-style-tile i { font-size: 0.85rem; color: #c4b5fd; }
+
 /* Responsive */
 @media (max-width: 768px) {
   .qb-vibe-grid {
