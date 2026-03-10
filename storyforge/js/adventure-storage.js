@@ -5,7 +5,7 @@ window.AdventureStorage = (function () {
   'use strict';
   var DEBUG = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
 
-  var API_BASE = 'https://ambientpixels-nova-api.azurewebsites.net/api';
+  var API_BASE = '/api';
   var SAVE_API = API_BASE + '/storyforgesave';
   var LOAD_API = API_BASE + '/storyforgeload';
   var LOCAL_KEY = 'storyforge-saves';
