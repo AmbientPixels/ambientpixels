@@ -199,7 +199,9 @@ window.AdventureAI = (function () {
   function generateSceneImage(imagePrompt, genre, characterDesc, artStyleId) {
     var artStyle = ART_STYLES[artStyleId] || ART_STYLES.cinematic_fantasy;
     var theme = GENRE_THEMES[genre.id] || '';
-    var charClause = characterDesc ? 'The protagonist (' + characterDesc + ') is visible in the scene. ' : '';
+    var charClause = characterDesc
+      ? 'The protagonist (' + characterDesc + ') MUST be clearly visible in the foreground, facing the viewer or at a three-quarter angle so their face and facial features are fully visible. Never show the protagonist from behind, silhouetted, or with their face obscured. '
+      : '';
     var fullPrompt = 'CRITICAL STYLE INSTRUCTION — follow this exactly: ' + artStyle.prompt + ' ' +
       'Subject: Adventure game scene. ' + charClause +
       'Scene: ' + imagePrompt + '. ' +
@@ -207,6 +209,7 @@ window.AdventureAI = (function () {
       'Wide 16:9 landscape composition with clear foreground, midground, and background layers. ' +
       'Strong atmospheric perspective — depth through haze, light falloff, or scale. ' +
       'No text, no watermarks, no UI elements, no borders, no logos. ' +
+      (characterDesc ? 'IMPORTANT: The protagonist\'s face must be clearly visible — front-facing or three-quarter view, well-lit, with recognizable facial features. ' : '') +
       'REMEMBER: ' + artStyle.prompt;
 
     return callImageAPI(fullPrompt);
@@ -341,7 +344,7 @@ window.AdventureAI = (function () {
     'Return ONLY valid JSON (no markdown, no code fences, no extra text):\n' +
     '{\n' +
     '  "sceneText": "2-4 paragraphs of narrative prose",\n' +
-    '  "imagePrompt": "short visual scene description for illustration, max 150 chars",\n' +
+    '  "imagePrompt": "short visual scene description — protagonist facing viewer or three-quarter angle with face visible, never from behind. Max 150 chars",\n' +
     '  "choices": [\n' +
     '    { "id": "a", "text": "choice text", "skillCheck": null },\n' +
     '    { "id": "b", "text": "choice text", "skillCheck": { "stat": "dexterity", "difficulty": 12 } },\n' +
@@ -366,7 +369,7 @@ window.AdventureAI = (function () {
     '{\n' +
     '  "storyTitle": "Evocative 3-6 word title for this adventure",\n' +
     '  "sceneText": "2-4 paragraphs of narrative prose",\n' +
-    '  "imagePrompt": "short visual scene description for illustration, max 150 chars",\n' +
+    '  "imagePrompt": "short visual scene description — protagonist facing viewer or three-quarter angle with face visible, never from behind. Max 150 chars",\n' +
     '  "choices": [\n' +
     '    { "id": "a", "text": "choice text", "skillCheck": null },\n' +
     '    { "id": "b", "text": "choice text", "skillCheck": { "stat": "dexterity", "difficulty": 12 } },\n' +
