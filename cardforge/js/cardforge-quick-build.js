@@ -554,8 +554,11 @@
             clone.style.transform = `scale(${scale})`;
             clone.style.transformOrigin = 'top center';
             previewContainer.innerHTML = '';
-            previewContainer.style.height = `${sourcePreview.offsetHeight * scale}px`;
-            previewContainer.style.overflow = 'hidden';
+            const h = sourcePreview.offsetHeight;
+            if (h > 0) {
+              previewContainer.style.height = `${h * scale}px`;
+              previewContainer.style.overflow = 'hidden';
+            }
             previewContainer.appendChild(clone);
           }
         } catch (err) {
