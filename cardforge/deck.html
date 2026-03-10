@@ -52,6 +52,26 @@
   </div>
 
   <script src="/cardforge/js/config.js"></script>
+  <script src="/cardforge/js/arena-api.js"></script>
+  <script>
+    // Bootstrap auth state for deck builder (mirrors index.html auth check)
+    // Stores promise so deck builder can await it before loading collection
+    window._authReady = (async function() {
+      try {
+        var resp = await fetch('/.auth/me');
+        if (!resp.ok) return;
+        var data = await resp.json();
+        if (!data.clientPrincipal) return;
+        var name = (data.clientPrincipal.userDetails || '').split('@')[0] || 'User';
+        sessionStorage.setItem('isAuthenticated', 'true');
+        sessionStorage.setItem('userInfo', JSON.stringify({
+          userId: data.clientPrincipal.userId, name: name,
+          email: data.clientPrincipal.userDetails
+        }));
+        document.body.setAttribute('data-auth-state', 'signed-in');
+      } catch (e) { /* not authenticated */ }
+    })();
+  </script>
   <script src="/cardforge/js/cardforge-deck-builder.js"></script>
 </body>
 </html>

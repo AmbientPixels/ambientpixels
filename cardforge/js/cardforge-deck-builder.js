@@ -322,6 +322,9 @@
 
   // ── Load collection ──
   async function loadCollection(editDeckId) {
+    // Wait for auth bootstrap (from deck.html inline script) before checking auth state
+    if (window._authReady) { try { await window._authReady; } catch (e) {} }
+
     const isAuthed = (sessionStorage.getItem('isAuthenticated') === 'true') ||
                      (document.body?.getAttribute('data-auth-state') === 'signed-in');
 
@@ -347,8 +350,36 @@
     }
 
     // Fallback to localStorage
+    var localCards = [];
+    try { localCards = JSON.parse(localStorage.getItem('cardforge_saved_cards') || '[]'); } catch (e) { localCards = []; }
     if (cards.length === 0) {
-      try { cards = JSON.parse(localStorage.getItem('cardforge_saved_cards') || '[]'); } catch (e) { cards = []; }
+      cards = localCards;
+    }
+
+    // Enrich cloud cards with rendered HTML from localStorage (same pattern as deck viewer & lightbox)
+    if (localCards.length > 0) {
+      cards = cards.map(function (c) {
+        var cd = c.cardData || c;
+        if (cd.renderedFront && cd.frontClasses) return c;
+        // Try to find matching card in localStorage by id
+        var localMatch = localCards.find(function (s) { return s.id === c.id; });
+        if (localMatch && localMatch.cardData && localMatch.cardData.renderedFront) {
+          var enriched = Object.assign({}, c);
+          if (enriched.cardData) {
+            enriched.cardData = Object.assign({}, enriched.cardData, {
+              renderedFront: localMatch.cardData.renderedFront,
+              frontClasses: localMatch.cardData.frontClasses,
+              renderedBack: localMatch.cardData.renderedBack || '',
+              backClasses: localMatch.cardData.backClasses || ''
+            });
+          } else {
+            enriched.renderedFront = localMatch.cardData.renderedFront;
+            enriched.frontClasses = localMatch.cardData.frontClasses;
+          }
+          return enriched;
+        }
+        return c;
+      });
     }
 
     // Filter out sample/default cards
@@ -463,14 +494,23 @@
           '<div class="mini-card-scaler"><div class="' + cd.frontClasses + '">' + cd.renderedFront + '</div></div>' +
         '</div>';
       } else {
-        // Fallback: image + info
+        // Fallback: styled mini-card with available data
+        var cardClass = cd.characterClass || c.class || '';
+        var cardRarity = cd.rarity || '';
+        var rarityColor = RARITY_COLORS[cardRarity] || '#9ca3af';
         var imgHTML = cardImage
-          ? '<img class="db-coll-card-img" src="' + escAttr(cardImage) + '" alt="' + escAttr(cardName) + '" loading="lazy" />'
-          : '<div class="db-coll-card-placeholder"><i class="fas fa-image"></i></div>';
-        contentHTML = imgHTML +
-          '<div class="db-coll-card-info">' +
-            '<div class="db-coll-card-name">' + esc(cardName) + '</div>' +
-          '</div>';
+          ? '<img class="db-fallback-card-img" src="' + escAttr(cardImage) + '" alt="' + escAttr(cardName) + '" loading="lazy" />'
+          : '<div class="db-fallback-card-placeholder"><i class="fas fa-user-shield"></i></div>';
+        contentHTML = '<div class="db-fallback-card" style="border-color:' + rarityColor + '">' +
+          '<div class="db-fallback-card-header" style="background:' + rarityColor + '22;border-bottom:1px solid ' + rarityColor + '44">' +
+            '<span class="db-fallback-card-title">' + esc(cardName) + '</span>' +
+          '</div>' +
+          '<div class="db-fallback-card-art">' + imgHTML + '</div>' +
+          '<div class="db-fallback-card-footer">' +
+            (cardClass ? '<span class="db-fallback-card-class">' + esc(cardClass) + '</span>' : '') +
+            (cardRarity ? '<span class="db-fallback-card-rarity" style="color:' + rarityColor + '">' + esc(cardRarity) + '</span>' : '') +
+          '</div>' +
+        '</div>';
       }
 
       return '<div class="db-coll-card' + (inDeck ? ' in-deck' : '') + (hasRendered ? ' has-render' : '') + '" data-card-id="' + c.id + '">' +
