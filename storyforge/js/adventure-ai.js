@@ -74,6 +74,41 @@ window.AdventureAI = (function () {
   var DAILY_LIMIT_KEY = 'storyforge-ai-usage';
   var DAILY_LIMIT = 15; // adventures per day
 
+  // --- Build condensed story history from turns array ---
+  // Recent 5 turns: full excerpt + choice + dice result
+  // Older turns: choice + event tag only (compact)
+  var RECENT_TURNS = 5;
+
+  function buildStoryHistory(state) {
+    var turns = state.turns;
+    if (!turns || !turns.length) return '';
+
+    var lines = [];
+    var cutoff = turns.length - RECENT_TURNS;
+
+    for (var i = 0; i < turns.length; i++) {
+      var t = turns[i];
+      var num = t.turnNumber || (i + 1);
+
+      if (i < cutoff) {
+        // Compact: just the choice + event tag
+        var compact = 'T' + num + ': ' + (t.choiceMade || '(start)');
+        if (t.diceRoll) compact += ' [' + (t.diceRoll.success ? 'PASS' : 'FAIL') + ']';
+        lines.push(compact);
+      } else {
+        // Detailed: excerpt + choice + dice
+        var detail = 'T' + num + ': ';
+        if (t.sceneExcerpt) detail += t.sceneExcerpt;
+        if (t.choiceMade) detail += ' → Chose: ' + t.choiceMade;
+        if (t.diceRoll) detail += ' [Roll ' + t.diceRoll.total + ' — ' + (t.diceRoll.success ? 'SUCCESS' : 'FAILURE') + ']';
+        lines.push(detail);
+      }
+    }
+
+    return '\nSTORY SO FAR (player\'s journey — reference earlier events, callback to past choices):\n' +
+      lines.join('\n') + '\n';
+  }
+
   function buildEquippedLine(state) {
     if (!state.equipped) return 'none';
     var parts = [];
@@ -124,7 +159,8 @@ window.AdventureAI = (function () {
       '- Companions: ' + (state.companions.length ? state.companions.map(function (c) { return c.name; }).join(', ') : 'none') + '\n' +
       '- Key Events: ' + (state.eventLog.length ? state.eventLog.join(', ') : 'adventure just began') + '\n' +
       '- Last Scene: ' + (state.lastSceneText || '(opening)').substring(0, 500) + '\n' +
-      plotContext + '\n' +
+      plotContext +
+      buildStoryHistory(state) + '\n' +
       'RULES:\n' +
       '- Do NOT write a new scene. The player already sees the last scene text.\n' +
       '- Generate ONLY the choices array and stateChanges. Set sceneText to "" and imagePrompt to "".\n' +
@@ -264,11 +300,12 @@ window.AdventureAI = (function () {
       '- Last Scene: ' + (state.lastSceneText || '(opening)').substring(0, 500) + '\n' +
       '- Player\'s Choice: ' + choiceText + '\n' +
       skillInfo +
-      plotContext + '\n' +
+      plotContext +
+      buildStoryHistory(state) + '\n' +
       'RULES:\n' +
       '- You are currently in ' + actInfo.label + '. ' + actInfo.guidance + '\n' +
       '- Write exactly 3 paragraphs: (1) consequence of the choice — what happens immediately, (2) exploration/discovery — what the player sees, hears, finds, (3) new tension — set up the next decision point.\n' +
-      '- ADVANCE THE PLOT: Every scene must move the overarching story forward. Reference earlier events, foreshadow upcoming plot points, and connect scenes to the central conflict. Do NOT write disconnected episodic scenes.\n' +
+      '- ADVANCE THE PLOT: Every scene must move the overarching story forward. Reference earlier events from STORY SO FAR, callback to past player choices, foreshadow upcoming plot points, and connect scenes to the central conflict. Do NOT write disconnected episodic scenes.\n' +
       '- Use all five senses. Include sounds, smells, textures, temperature — not just visual descriptions.\n' +
       '- Vary sentence length: short punchy beats for action, longer flowing prose for atmosphere.\n' +
       '- Do NOT start consecutive paragraphs the same way.\n' +

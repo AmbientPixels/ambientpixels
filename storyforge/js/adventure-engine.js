@@ -1665,7 +1665,7 @@
         if (!gameState.turns) gameState.turns = [];
         gameState.turns.push({
           turnNumber: gameState.turnCount,
-          sceneExcerpt: scene.sceneText.substring(0, 200),
+          sceneExcerpt: scene.sceneText.substring(0, 300),
           choiceMade: choiceText,
           diceRoll: skillCheckResult ? { roll: skillCheckResult.roll, total: skillCheckResult.total, success: skillCheckResult.success } : null
         });
