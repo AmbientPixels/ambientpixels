@@ -52,17 +52,19 @@
 }
 
 .cf-hero__actions {
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+  max-width: 360px;
 }
 
 .cf-hero__cta {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  padding: 0.65rem 1.4rem;
-  font-size: 0.9rem;
+  padding: 0.65rem 1rem;
+  font-size: 0.85rem;
   font-weight: 600;
   font-family: 'Inter', sans-serif;
   border: none;
@@ -91,6 +93,20 @@
   background: rgba(139, 92, 246, 0.2);
   border-color: rgba(139, 92, 246, 0.5);
   box-shadow: 0 0 12px rgba(139, 92, 246, 0.2);
+}
+
+.cf-hero__cta--accent {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #1a1a2e;
+  font-weight: 700;
+  border: none;
+  box-shadow: 0 0 16px rgba(245, 158, 11, 0.3);
+}
+
+.cf-hero__cta--accent:hover {
+  background: linear-gradient(135deg, #fbbf24, #f59e0b);
+  box-shadow: 0 0 24px rgba(245, 158, 11, 0.5);
+  transform: translateY(-2px);
 }
 
 /* Showcase: fanned card stack */
@@ -176,7 +192,8 @@
   }
 
   .cf-hero__actions {
-    justify-content: center;
+    max-width: 320px;
+    margin: 0 auto;
   }
 
   .cf-hero__showcase {

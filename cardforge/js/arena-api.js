@@ -107,6 +107,13 @@ window.ArenaAPI = (function () {
       });
     },
 
+    // Leaderboard
+    loadLeaderboard(sort = 'xp', limit = 50) {
+      return apiFetch('arenaLeaderboard', {
+        params: { sort, limit }
+      });
+    },
+
     // Load user's cards (reuse existing endpoint)
     loadCards() {
       return apiFetch('loadCards');

@@ -55,6 +55,10 @@
 .cf-footer a:hover {
   color: rgba(255, 255, 255, 0.8);
 }
+.cf-footer__links {
+  margin-top: 0.35rem;
+  font-size: 12px;
+}
 
 /* Empty state text */
 .cf-empty-state {

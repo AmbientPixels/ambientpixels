@@ -1292,8 +1292,57 @@ const resp = await fetch(loadUrl, {
   }
 
   // Public Gallery - shows published cards from all users
+  // Render a single gallery mini-card HTML
+  _renderGalleryCard(card, { canRemove = false } = {}) {
+    const fallbackSvg = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYwIiBoZWlnaHQ9IjUwNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMWExYTJlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzAwZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==';
+    const cd = card.cardData || card;
+    const cardName = cd.name || card.name || 'Untitled Card';
+    const characterClass = cd.characterClass || card.characterClass || '';
+    const cardImage = cd.avatar || card.avatar || card.image || '';
+
+    let contentHTML;
+    if (cd.renderedFront && cd.frontClasses) {
+      contentHTML = `<div class="mini-card-scaler"><div class="${cd.frontClasses}">${cd.renderedFront}</div></div>`;
+    } else {
+      contentHTML = `<img class="mini-card-fallback" src="${cardImage || fallbackSvg}" alt="${cardName}" onerror="this.src='${fallbackSvg}'">`;
+    }
+
+    return `
+      <div class="mini-card" data-card-id="${card.id}">
+        ${contentHTML}
+        <div class="mini-card-label">
+          ${cardName}
+          ${characterClass ? `<span class="mini-card-class">${characterClass}</span>` : ''}
+        </div>
+        ${canRemove ? `
+        <div class="mini-card-overlay">
+          <div class="mini-card-actions">
+            <button class="mini-card-btn remove" type="button" onclick="event.stopPropagation();cardForgeActions.removeFromGallery('${card.id}')" title="Remove from Gallery">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>` : ''}
+      </div>
+    `;
+  }
+
+  // Bind lightbox click handlers to mini-cards in a container
+  _bindGalleryLightbox(container, cards, startIdx = 0) {
+    container.querySelectorAll('.mini-card').forEach((item, idx) => {
+      item.addEventListener('click', (e) => {
+        if (e.target.closest('.mini-card-btn')) return;
+        if (window.CardForgeLightbox) {
+          window.CardForgeLightbox.open(cards, startIdx + idx);
+        }
+      });
+    });
+  }
+
   async refreshGallery() {
     const galleryGrid = document.getElementById('gallery-cards-grid');
+    const previewRow = document.getElementById('gallery-preview-row');
+    const viewAllWrap = document.getElementById('gallery-view-all-wrap');
+    const cardCountBadge = document.getElementById('gallery-card-count');
     if (!galleryGrid) return;
 
     try {
@@ -1308,13 +1357,21 @@ const resp = await fetch(loadUrl, {
       if (!resp.ok) {
         throw new Error(`Failed to load gallery: ${resp.status}`);
       }
-      
+
       const data = await resp.json();
       const galleryCards = Array.isArray(data?.galleryCards) ? data.galleryCards : [];
-      
+
       this._galleryCards = galleryCards;
-      
+
+      // Update card count badge
+      if (cardCountBadge) {
+        cardCountBadge.textContent = galleryCards.length > 0 ? `${galleryCards.length} cards` : '';
+      }
+
       if (galleryCards.length === 0) {
+        if (previewRow) previewRow.innerHTML = '';
+        if (viewAllWrap) viewAllWrap.style.display = 'none';
+        galleryGrid.style.display = '';
         galleryGrid.innerHTML = `
           <div class="gallery-empty">
             <i class="fas fa-images"></i>
@@ -1324,7 +1381,7 @@ const resp = await fetch(loadUrl, {
         `;
         return;
       }
-      
+
       // Determine current user for owner/admin checks
       const currentUserId = (() => {
         try { return JSON.parse(sessionStorage.getItem('userInfo') || '{}').userId || null; } catch { return null; }
@@ -1332,57 +1389,56 @@ const resp = await fetch(loadUrl, {
       const adminIds = window._config?.adminUserIds || [];
       const isAdmin = currentUserId && adminIds.includes(currentUserId);
 
-      // Render mini cards for gallery — half-size replicas using zoom
-      const fallbackSvg = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzYwIiBoZWlnaHQ9IjUwNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjMWExYTJlIi8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxOCIgZmlsbD0iIzAwZmZmZiIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPk5vIEltYWdlPC90ZXh0Pjwvc3ZnPg==';
-      galleryGrid.innerHTML = galleryCards.map(card => {
-        const cd = card.cardData || card;
-        const cardName = cd.name || card.name || 'Untitled Card';
-        const characterClass = cd.characterClass || card.characterClass || '';
-        const cardImage = cd.avatar || card.avatar || card.image || '';
+      const canRemoveCard = (card) => {
         const publishedBy = card.publishedBy || card.userId || 'Anonymous';
-        const canRemove = isAdmin || (currentUserId && publishedBy === currentUserId);
-        const hasRendered = cd.renderedFront && cd.frontClasses;
+        return isAdmin || (currentUserId && publishedBy === currentUserId);
+      };
 
-        let contentHTML;
-        if (hasRendered) {
-          contentHTML = `<div class="mini-card-scaler"><div class="${cd.frontClasses}">${cd.renderedFront}</div></div>`;
-        } else {
-          contentHTML = `<img class="mini-card-fallback" src="${cardImage || fallbackSvg}" alt="${cardName}" onerror="this.src='${fallbackSvg}'">`;
-        }
+      // Populate preview row (first 6 cards)
+      const PREVIEW_COUNT = 6;
+      if (previewRow) {
+        const previewCards = galleryCards.slice(0, PREVIEW_COUNT);
+        previewRow.innerHTML = previewCards.map(card =>
+          this._renderGalleryCard(card, { canRemove: false })
+        ).join('');
+        this._bindGalleryLightbox(previewRow, galleryCards, 0);
+      }
 
-        return `
-          <div class="mini-card" data-card-id="${card.id}">
-            ${contentHTML}
-            <div class="mini-card-label">
-              ${cardName}
-              ${characterClass ? `<span class="mini-card-class">${characterClass}</span>` : ''}
-            </div>
-            ${canRemove ? `
-            <div class="mini-card-overlay">
-              <div class="mini-card-actions">
-                <button class="mini-card-btn remove" type="button" onclick="event.stopPropagation();cardForgeActions.removeFromGallery('${card.id}')" title="Remove from Gallery">
-                  <i class="fas fa-trash"></i>
-                </button>
-              </div>
-            </div>` : ''}
-          </div>
-        `;
-      }).join('');
+      // Show "View All" when there are more cards than the preview row
+      if (viewAllWrap) {
+        viewAllWrap.style.display = galleryCards.length > PREVIEW_COUNT ? '' : 'none';
+      }
 
-      // Height handled by CSS: .mini-card { height: 252px } + .card-preview-canvas { height: 504px }
+      // Show toolbar whenever there are cards
+      const toolbar = document.getElementById('gallery-toolbar');
+      if (toolbar) {
+        toolbar.classList.toggle('hidden', galleryCards.length === 0);
+      }
 
-      // Bind gallery mini-card clicks to open lightbox
-      galleryGrid.querySelectorAll('.mini-card').forEach((item, idx) => {
-        item.addEventListener('click', (e) => {
-          if (e.target.closest('.mini-card-btn')) return;
-          if (window.CardForgeLightbox) {
-            window.CardForgeLightbox.open(galleryCards, idx);
-          }
+      // Populate full grid (all cards)
+      galleryGrid.innerHTML = galleryCards.map(card =>
+        this._renderGalleryCard(card, { canRemove: canRemoveCard(card) })
+      ).join('');
+      this._bindGalleryLightbox(galleryGrid, galleryCards, 0);
+
+      // Wire up View All button
+      const viewAllBtn = document.getElementById('gallery-view-all-btn');
+      if (viewAllBtn && !viewAllBtn._bound) {
+        viewAllBtn._bound = true;
+        viewAllBtn.addEventListener('click', () => {
+          const container = document.querySelector('.cardforge-gallery-container');
+          if (container) container.classList.add('gallery-expanded');
+          galleryGrid.style.display = '';
         });
-      });
-      
+      }
+
+      // Initialize search/filter listeners
+      this._initGalleryFilters();
+
     } catch (e) {
       console.error('❌ Failed to load gallery:', e);
+      if (previewRow) previewRow.innerHTML = '';
+      galleryGrid.style.display = '';
       galleryGrid.innerHTML = `
         <div class="gallery-error">
           <i class="fas fa-exclamation-triangle"></i>
@@ -1391,6 +1447,114 @@ const resp = await fetch(loadUrl, {
         </div>
       `;
     }
+  }
+
+  // Gallery search, filter, and sort — client-side filtering of already-loaded cards
+  filterGallery() {
+    const galleryGrid = document.getElementById('gallery-cards-grid');
+    const resultsCount = document.getElementById('gallery-results-count');
+    if (!galleryGrid || !this._galleryCards) return;
+
+    const searchVal = (document.getElementById('gallery-search')?.value || '').toLowerCase().trim();
+    const classVal = document.getElementById('gallery-filter-class')?.value || '';
+    const rarityVal = document.getElementById('gallery-filter-rarity')?.value || '';
+    const sortVal = document.getElementById('gallery-sort')?.value || 'newest';
+
+    // Filter
+    let filtered = this._galleryCards.filter(card => {
+      const cd = card.cardData || card;
+      const name = (cd.name || card.name || '').toLowerCase();
+      const charClass = cd.characterClass || card.characterClass || '';
+      const rarity = cd.rarity || card.rarity || '';
+
+      if (searchVal && !name.includes(searchVal) && !charClass.toLowerCase().includes(searchVal)) return false;
+      if (classVal && charClass !== classVal) return false;
+      if (rarityVal && rarity !== rarityVal) return false;
+      return true;
+    });
+
+    // Sort
+    const RARITY_ORDER = { Common: 1, Uncommon: 2, Rare: 3, Epic: 4, Legendary: 5 };
+    switch (sortVal) {
+      case 'oldest':
+        filtered = filtered.slice().reverse();
+        break;
+      case 'name-asc':
+        filtered.sort((a, b) => ((a.cardData || a).name || '').localeCompare((b.cardData || b).name || ''));
+        break;
+      case 'name-desc':
+        filtered.sort((a, b) => ((b.cardData || b).name || '').localeCompare((a.cardData || a).name || ''));
+        break;
+      case 'rarity':
+        filtered.sort((a, b) => (RARITY_ORDER[(b.cardData || b).rarity] || 0) - (RARITY_ORDER[(a.cardData || a).rarity] || 0));
+        break;
+      // 'newest' is default order from API
+    }
+
+    // Determine admin/owner
+    const currentUserId = (() => {
+      try { return JSON.parse(sessionStorage.getItem('userInfo') || '{}').userId || null; } catch { return null; }
+    })();
+    const adminIds = window._config?.adminUserIds || [];
+    const isAdmin = currentUserId && adminIds.includes(currentUserId);
+    const canRemoveCard = (card) => {
+      const publishedBy = card.publishedBy || card.userId || 'Anonymous';
+      return isAdmin || (currentUserId && publishedBy === currentUserId);
+    };
+
+    // Render
+    if (filtered.length === 0) {
+      galleryGrid.innerHTML = `
+        <div class="gallery-empty">
+          <i class="fas fa-search"></i>
+          <p>No cards match your filters</p>
+          <small>Try adjusting your search or filters</small>
+        </div>
+      `;
+    } else {
+      galleryGrid.innerHTML = filtered.map(card =>
+        this._renderGalleryCard(card, { canRemove: canRemoveCard(card) })
+      ).join('');
+      this._bindGalleryLightbox(galleryGrid, filtered, 0);
+    }
+
+    // Update results count
+    if (resultsCount) {
+      const total = this._galleryCards.length;
+      resultsCount.textContent = filtered.length < total ? `Showing ${filtered.length} of ${total}` : '';
+    }
+  }
+
+  // Auto-expand gallery to show full grid (used when toolbar is interacted with)
+  _expandGallery() {
+    const container = document.querySelector('.cardforge-gallery-container');
+    const grid = document.getElementById('gallery-cards-grid');
+    if (container) container.classList.add('gallery-expanded');
+    if (grid) grid.style.display = '';
+  }
+
+  // Initialize gallery filter event listeners
+  _initGalleryFilters() {
+    if (this._galleryFiltersBound) return;
+    this._galleryFiltersBound = true;
+
+    let debounceTimer;
+    const searchInput = document.getElementById('gallery-search');
+    if (searchInput) {
+      searchInput.addEventListener('input', () => {
+        this._expandGallery();
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => this.filterGallery(), 200);
+      });
+    }
+
+    ['gallery-filter-class', 'gallery-filter-rarity', 'gallery-sort'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener('change', () => {
+        this._expandGallery();
+        this.filterGallery();
+      });
+    });
   }
 
   // Published Decks — gallery section

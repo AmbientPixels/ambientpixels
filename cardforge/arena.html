@@ -10,13 +10,13 @@
   <meta property="og:type" content="website" />
   <meta property="og:title" content="CardForge Arena — PvE Card Battles" />
   <meta property="og:description" content="Battle bosses with your custom RPG cards. Class abilities, charge system, and ranked progression." />
-  <meta property="og:image" content="https://www.ambientpixels.ai/cardforge/images/og-cardforge.png" />
+  <meta property="og:image" content="https://www.ambientpixels.ai/cardforge/images/og-cardforge.jpg" />
   <meta property="og:url" content="https://www.ambientpixels.ai/cardforge/arena.html" />
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="CardForge Arena — PvE Card Battles" />
   <meta name="twitter:description" content="Battle bosses with your custom RPG cards. Class abilities, charge system, and ranked progression." />
-  <meta name="twitter:image" content="https://www.ambientpixels.ai/cardforge/images/og-cardforge.png" />
+  <meta name="twitter:image" content="https://www.ambientpixels.ai/cardforge/images/og-cardforge.jpg" />
   <meta name="csrf-token" content="">
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
@@ -46,7 +46,7 @@
     </a>
     <div class="arena-topbar__brand">
       <span class="arena-topbar__title">
-        <i class="fas fa-shield-halved"></i> Card Forge Arena
+        <i class="fas fa-hammer"></i> CardForge Arena
       </span>
       <span class="arena-topbar__tagline">Forge it. Fight it. Flex it.</span>
     </div>
@@ -146,7 +146,10 @@
 
         <!-- Roster Carousel -->
         <section class="arena-section">
-          <h2 class="arena-section__title"><i class="fas fa-layer-group"></i> Your Roster</h2>
+          <h2 class="arena-section__title">
+            <i class="fas fa-layer-group"></i> Your Roster
+            <a href="/cardforge/deck.html" class="arena-history-link" style="text-decoration:none">Build Deck</a>
+          </h2>
           <div class="arena-card-strip" id="arena-card-strip">
             <!-- Cards injected by JS -->
           </div>
@@ -194,6 +197,28 @@
             </button>
           </h2>
           <div class="arena-rewards" id="arena-rewards-panel" style="display:none;"></div>
+        </section>
+
+        <!-- Leaderboard -->
+        <section class="arena-section">
+          <h2 class="arena-section__title">
+            <i class="fas fa-crown"></i> Leaderboard
+            <button class="arena-rewards__toggle" id="arena-lb-toggle" aria-expanded="false">
+              <i class="fas fa-chevron-down"></i>
+            </button>
+          </h2>
+          <div id="arena-leaderboard" class="arena-leaderboard" style="display:none;">
+            <div class="arena-lb-controls">
+              <div class="arena-lb-sort">
+                <button class="arena-lb-sort-btn active" data-sort="xp">XP</button>
+                <button class="arena-lb-sort-btn" data-sort="wins">Wins</button>
+                <button class="arena-lb-sort-btn" data-sort="winrate">Win Rate</button>
+              </div>
+            </div>
+            <div id="arena-lb-list" class="arena-lb-list">
+              <div class="arena-empty-state">Loading leaderboard...</div>
+            </div>
+          </div>
         </section>
 
         <!-- Recent Matches -->
@@ -423,6 +448,26 @@
         <button class="arena-btn arena-btn--danger" id="arena-forfeit-confirm">Forfeit</button>
       </div>
     </div>
+  </div>
+
+  <!-- Tutorial Overlay -->
+  <div class="arena-tutorial-overlay" id="arena-tutorial-overlay" style="display:none;">
+    <div class="arena-tutorial-welcome" id="arena-tutorial-welcome">
+      <div class="arena-tutorial-welcome__icon"><i class="fas fa-graduation-cap"></i></div>
+      <h2>Welcome to the Arena!</h2>
+      <p>Let's learn the basics in a quick training match.</p>
+      <div class="arena-tutorial-welcome__actions">
+        <button class="arena-btn arena-btn--primary" id="arena-tutorial-start">Start Tutorial</button>
+        <button class="arena-btn arena-btn--ghost" id="arena-tutorial-skip-welcome">Skip</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tutorial tooltip (positioned near move buttons during battle) -->
+  <div class="arena-tutorial-tooltip" id="arena-tutorial-tooltip" style="display:none;">
+    <div class="arena-tutorial-tooltip__arrow"></div>
+    <div class="arena-tutorial-tooltip__text" id="arena-tutorial-text"></div>
+    <button class="arena-tutorial-skip-btn" id="arena-tutorial-skip">Skip Tutorial</button>
   </div>
 
   <!-- Scripts -->

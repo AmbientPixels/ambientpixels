@@ -186,8 +186,28 @@
 .cardforge-gallery-container:not(.gallery-collapsed) .gallery-toggle-icon {
   transform: rotate(180deg);
 }
-/* Hide all gallery content when collapsed */
+
+/* Card count badge */
+.gallery-card-count {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--mood-text-secondary, #a0a0c0);
+  background: var(--aura-bg-color, #1a1a2e);
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
+  margin-left: 0.5rem;
+}
+.gallery-card-count:empty {
+  display: none;
+}
+
+/* ── Three-state gallery ── */
+
+/* State 1: Collapsed — heading only */
 .gallery-collapsed .gallery-description,
+.gallery-collapsed .gallery-preview-row,
+.gallery-collapsed .gallery-view-all-wrap,
 .gallery-collapsed .cardforge-gallery-grid,
 .gallery-collapsed .gallery-decks-heading,
 .gallery-collapsed .gallery-decks-grid {
@@ -198,6 +218,63 @@
 }
 .gallery-collapsed h2 {
   margin-bottom: 0;
+}
+
+/* State 2: Default — preview row visible, full grid hidden (handled via inline style + JS) */
+
+/* State 3: Expanded — full grid visible, preview row hidden */
+.gallery-expanded .gallery-preview-row,
+.gallery-expanded .gallery-view-all-wrap {
+  display: none;
+}
+
+/* ── Preview row ── */
+.gallery-preview-row {
+  display: flex;
+  gap: 1rem;
+  padding: 0.5rem 0 1rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(139, 92, 246, 0.3) transparent;
+}
+.gallery-preview-row:empty {
+  display: none;
+}
+.gallery-preview-row .mini-card {
+  scroll-snap-align: start;
+  flex-shrink: 0;
+}
+
+/* View All button */
+.gallery-view-all-wrap {
+  text-align: center;
+  padding: 0.5rem 0 1rem;
+}
+.gallery-view-all-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  color: #c4b5fd;
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+.gallery-view-all-btn:hover {
+  background: rgba(139, 92, 246, 0.2);
+  border-color: rgba(139, 92, 246, 0.5);
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.2);
+}
+.gallery-view-all-btn:focus-visible {
+  outline: 2px solid #8b5cf6;
+  outline-offset: 2px;
 }
 
 .cardforge-gallery-container h2 {
@@ -243,6 +320,117 @@
 .gallery-error small {
   font-size: 0.9rem;
   opacity: 0.7;
+}
+
+/* ── Gallery Search & Filter Toolbar ── */
+.gallery-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  padding: 0.75rem 0 1rem;
+}
+.gallery-toolbar.hidden {
+  display: none;
+}
+.gallery-collapsed .gallery-toolbar {
+  display: none;
+}
+
+.gallery-search {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  min-width: 180px;
+  background: var(--aura-bg-color, #14142a);
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
+  border-radius: 8px;
+  padding: 0.4rem 0.75rem;
+  transition: border-color 200ms ease;
+}
+.gallery-search:focus-within {
+  border-color: #8b5cf6;
+}
+.gallery-search i {
+  color: var(--mood-text-secondary, #a0a0c0);
+  font-size: 0.8rem;
+}
+.gallery-search input {
+  background: none;
+  border: none;
+  color: var(--mood-primary-color, #e1e1ff);
+  font-size: 0.85rem;
+  font-family: 'Inter', sans-serif;
+  width: 100%;
+  outline: none;
+}
+.gallery-search input::placeholder {
+  color: var(--mood-text-secondary, #a0a0c0);
+  opacity: 0.7;
+}
+
+.gallery-filters {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.gallery-filters select,
+.gallery-sort select {
+  background: var(--aura-bg-color, #14142a);
+  color: var(--mood-primary-color, #e1e1ff);
+  border: 1px solid var(--mood-accent-color, #4a4a6a);
+  border-radius: 8px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.8rem;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  transition: border-color 200ms ease;
+}
+.gallery-filters select:focus,
+.gallery-sort select:focus {
+  border-color: #8b5cf6;
+  outline: none;
+}
+
+.gallery-results-count {
+  font-size: 0.8rem;
+  color: var(--mood-text-secondary, #a0a0c0);
+  margin-left: auto;
+  white-space: nowrap;
+}
+.gallery-results-count:empty {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .gallery-toolbar {
+    gap: 0.5rem;
+  }
+  .gallery-search {
+    flex: 1 1 100%;
+  }
+  .gallery-filters {
+    flex: 1;
+  }
+  .gallery-filters select,
+  .gallery-sort select {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .gallery-filters {
+    flex-direction: column;
+    flex: 1 1 100%;
+  }
+  .gallery-sort {
+    flex: 1 1 100%;
+  }
+  .gallery-sort select {
+    width: 100%;
+  }
 }
 
 /* ── Published Decks Section ── */

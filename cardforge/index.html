@@ -14,13 +14,13 @@
   <meta property="og:type" content="website" />
   <meta property="og:title" content="CardForge — Modular RPG Card Creator" />
   <meta property="og:description" content="Create custom RPG cards with 40M+ unique combinations. AI-powered card creator with PvE arena battles and a public gallery." />
-  <meta property="og:image" content="https://www.ambientpixels.ai/cardforge/images/og-cardforge.png" />
+  <meta property="og:image" content="https://www.ambientpixels.ai/cardforge/images/og-cardforge.jpg" />
   <meta property="og:url" content="https://www.ambientpixels.ai/cardforge/" />
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="CardForge — Modular RPG Card Creator" />
   <meta name="twitter:description" content="Create custom RPG cards with 40M+ unique combinations. AI-powered card creator with PvE arena battles and a public gallery." />
-  <meta name="twitter:image" content="https://www.ambientpixels.ai/cardforge/images/og-cardforge.png" />
+  <meta name="twitter:image" content="https://www.ambientpixels.ai/cardforge/images/og-cardforge.jpg" />
   <meta name="csrf-token" content="">
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
@@ -43,6 +43,7 @@
   <link rel="stylesheet" href="css/cardforge-glow-effects.css">
   <link rel="stylesheet" href="css/cardforge-layout.css"> <!-- New local layout styles that override grid.css -->
   <link rel="stylesheet" href="css/cardforge-hero.css"> <!-- Hero section -->
+  <link rel="stylesheet" href="css/cardforge-quick-build.css"> <!-- Quick Build wizard -->
   <link rel="stylesheet" href="css/cardforge-responsive.css"> <!-- Responsive design — MUST be last CSS to override all -->
   <script type="application/ld+json">
   {
@@ -180,6 +181,12 @@
       <button class="cf-hero__cta" onclick="document.querySelector('.presets-section').scrollIntoView({behavior:'smooth'})">
         <i class="fas fa-hammer"></i> Start Creating
       </button>
+      <button class="cf-hero__cta cf-hero__cta--accent" onclick="window.QuickBuild?.open()">
+        <i class="fas fa-bolt"></i> Quick Build
+      </button>
+      <a href="/cardforge/deck.html" class="cf-hero__cta cf-hero__cta--secondary">
+        <i class="fas fa-layer-group"></i> Deck Builder
+      </a>
       <a href="/cardforge/arena.html" class="cf-hero__cta cf-hero__cta--secondary">
         <i class="fas fa-shield-halved"></i> Enter Arena
       </a>
@@ -1609,7 +1616,9 @@
               </section>
               <!-- Deck Manager Tab Content -->
               <section class="forge-tab-content" data-forge-content="deck" role="tabpanel" aria-labelledby="tab-deck">
-                <h4 class="forge-section-title"><i class="fas fa-th-large"></i> Deck Manager</h4>
+                <h4 class="forge-section-title"><i class="fas fa-th-large"></i> Deck Manager
+                  <a href="/cardforge/deck.html" class="forge-action-btn" style="font-size:0.75rem;padding:0.3rem 0.6rem;margin-left:auto;text-decoration:none"><i class="fas fa-external-link-alt"></i> Full Builder</a>
+                </h4>
                 <div class="deck-manager-layout">
                   <!-- Left: Deck List Sidebar -->
                   <div class="deck-sidebar">
@@ -1735,11 +1744,72 @@
   </section>
   
   <!-- Separate Gallery Section -->
-  <section class="cardforge-gallery-container grid-col-12 gallery-collapsed">
-    <h2 class="gallery-toggle" role="button" tabindex="0" aria-expanded="false"><i class="fas fa-globe" style="font-size:0.85em; opacity:0.7; margin-right:0.4rem;"></i>Public Gallery<i class="fas fa-chevron-down gallery-toggle-icon"></i></h2>
+  <section class="cardforge-gallery-container grid-col-12">
+    <h2 class="gallery-toggle" role="button" tabindex="0" aria-expanded="true">
+      <i class="fas fa-globe" style="font-size:0.85em; opacity:0.7; margin-right:0.4rem;"></i>
+      Public Gallery
+      <span class="gallery-card-count" id="gallery-card-count"></span>
+      <i class="fas fa-chevron-down gallery-toggle-icon"></i>
+    </h2>
     <p id="gallery-msg-anon" class="gallery-description">Browse cards published by the community. Sign in to publish your own creations!</p>
     <p id="gallery-msg-user" class="gallery-description hidden">Welcome back! See your cards above and publish more.</p>
-    <div class="cardforge-gallery-grid" id="gallery-cards-grid">
+
+    <!-- Search & Filter toolbar — right below heading -->
+    <div class="gallery-toolbar hidden" id="gallery-toolbar">
+      <div class="gallery-search">
+        <i class="fas fa-search"></i>
+        <input type="text" id="gallery-search" placeholder="Search cards..." aria-label="Search gallery cards">
+      </div>
+      <div class="gallery-filters">
+        <select id="gallery-filter-class" aria-label="Filter by class">
+          <option value="">All Classes</option>
+          <option value="Fighter">Fighter</option>
+          <option value="Mage">Mage</option>
+          <option value="Rogue">Rogue</option>
+          <option value="Cleric">Cleric</option>
+          <option value="Ranger">Ranger</option>
+          <option value="Paladin">Paladin</option>
+          <option value="Warlock">Warlock</option>
+          <option value="Monk">Monk</option>
+          <option value="Barbarian">Barbarian</option>
+          <option value="Bard">Bard</option>
+          <option value="Druid">Druid</option>
+          <option value="Sorcerer">Sorcerer</option>
+          <option value="Artificer">Artificer</option>
+        </select>
+        <select id="gallery-filter-rarity" aria-label="Filter by rarity">
+          <option value="">All Rarities</option>
+          <option value="Common">Common</option>
+          <option value="Uncommon">Uncommon</option>
+          <option value="Rare">Rare</option>
+          <option value="Epic">Epic</option>
+          <option value="Legendary">Legendary</option>
+        </select>
+      </div>
+      <div class="gallery-sort">
+        <select id="gallery-sort" aria-label="Sort cards">
+          <option value="newest">Newest First</option>
+          <option value="oldest">Oldest First</option>
+          <option value="name-asc">Name A–Z</option>
+          <option value="name-desc">Name Z–A</option>
+          <option value="rarity">By Rarity</option>
+        </select>
+      </div>
+      <span class="gallery-results-count" id="gallery-results-count"></span>
+    </div>
+
+    <!-- Preview row — shows first 6 cards, visible by default -->
+    <div class="gallery-preview-row" id="gallery-preview-row"></div>
+
+    <!-- View All button -->
+    <div class="gallery-view-all-wrap" id="gallery-view-all-wrap" style="display:none;">
+      <button class="gallery-view-all-btn" id="gallery-view-all-btn" type="button">
+        <i class="fas fa-th"></i> View All
+      </button>
+    </div>
+
+    <!-- Full grid — hidden until "View All" is clicked -->
+    <div class="cardforge-gallery-grid" id="gallery-cards-grid" style="display:none;">
       <!-- Gallery cards will be loaded here -->
       <div class="gallery-loading cf-empty-state">
         <i class="fas fa-palette cf-empty-float"></i>
@@ -1767,6 +1837,7 @@
 
   <footer class="cf-footer">
     <p>&copy; 2026 CardForge by <a href="https://ambientpixels.ai">AmbientPixels</a></p>
+    <p class="cf-footer__links">More from AmbientPixels: <a href="https://ambientpixels.ai/storyforge/">StoryForge</a></p>
   </footer>
 
   <!-- CardForge Core -->
@@ -1796,6 +1867,7 @@
   <script src="js/cardforge-lightbox.js" defer></script>
   <script src="js/cardforge-card-helpers.js" defer></script>
   <script src="js/cardforge-ai.js" defer></script>
+  <script src="js/cardforge-quick-build.js" defer></script>
   <script src="js/cardforge-image-sliders.js" defer></script>
   <script src="/cardforge/js/app-insights.js"></script>
 

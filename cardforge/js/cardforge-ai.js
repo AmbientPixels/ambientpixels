@@ -554,4 +554,18 @@
   } else {
     init();
   }
+
+  // Expose AI functions for Quick Build wizard and other modules
+  window.CardForgeAI = {
+    callGemini,
+    buildFullCardPrompt,
+    extractText,
+    extractImage,
+    parseJSON,
+    getAiRemaining,
+    incrementAiUsage: incrementAiUsage,
+    TEXT_MODEL,
+    IMAGE_MODEL,
+    GEMINI_ENDPOINT
+  };
 })();

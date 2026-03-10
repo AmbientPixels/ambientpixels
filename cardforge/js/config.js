@@ -25,6 +25,7 @@ window._config = {
     arenaBattle: 'cardforgearenabattle',
     arenaBosses: 'cardforgearenabosses',
     arenaHistory: 'cardforgearenahistory',
+    arenaLeaderboard: 'cardforgearenaleaderboard',
     entitlements: 'cardforge-entitlements',
     checkout: 'cardforge-checkout',
     billingPortal: 'cardforge-billing-portal'

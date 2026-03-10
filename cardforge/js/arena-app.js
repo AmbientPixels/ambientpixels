@@ -176,6 +176,12 @@ window.ArenaApp = (function () {
         loadRecentMatches();
       }
 
+      // Leaderboard toggle + sort bindings
+      bindLeaderboard();
+
+      // Check for first-time tutorial
+      checkTutorial();
+
       // Navigate to hash screen if specified
       if (hash && hash !== 'lobby') {
         showScreen(hash);
@@ -250,6 +256,234 @@ window.ArenaApp = (function () {
       console.warn('[Arena] Could not load history:', err);
     }
   }
+
+  // --- Leaderboard ---
+
+  let _lbLoaded = false;
+
+  function bindLeaderboard() {
+    var lbToggle = document.getElementById('arena-lb-toggle');
+    var lbPanel = document.getElementById('arena-leaderboard');
+    if (!lbToggle || !lbPanel) return;
+
+    lbToggle.addEventListener('click', function () {
+      var expanded = lbPanel.style.display !== 'none';
+      lbPanel.style.display = expanded ? 'none' : 'block';
+      lbToggle.setAttribute('aria-expanded', String(!expanded));
+      lbToggle.querySelector('i').className = 'fas ' + (expanded ? 'fa-chevron-down' : 'fa-chevron-up');
+      if (!expanded && !_lbLoaded) {
+        loadLeaderboard('xp');
+        _lbLoaded = true;
+      }
+    });
+
+    // Sort buttons
+    lbPanel.querySelectorAll('.arena-lb-sort-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        lbPanel.querySelectorAll('.arena-lb-sort-btn').forEach(function (b) { b.classList.remove('active'); });
+        btn.classList.add('active');
+        loadLeaderboard(btn.dataset.sort);
+      });
+    });
+  }
+
+  async function loadLeaderboard(sort) {
+    var listEl = document.getElementById('arena-lb-list');
+    if (!listEl) return;
+    listEl.innerHTML = '<div class="arena-empty-state"><i class="fas fa-spinner fa-spin"></i> Loading...</div>';
+
+    try {
+      var data = await window.ArenaAPI.loadLeaderboard(sort, 50);
+      renderLeaderboard(data.leaderboard || [], data.playerPosition);
+    } catch (err) {
+      console.warn('[Arena] Leaderboard error:', err);
+      listEl.innerHTML = '<div class="arena-empty-state">Could not load leaderboard</div>';
+    }
+  }
+
+  function renderLeaderboard(entries, playerPosition) {
+    var listEl = document.getElementById('arena-lb-list');
+    if (!listEl) return;
+
+    if (entries.length === 0) {
+      listEl.innerHTML = '<div class="arena-empty-state">No players ranked yet. Be the first!</div>';
+      return;
+    }
+
+    var tierColors = {
+      'Bronze': '#cd7f32',
+      'Silver': '#c0c0c0',
+      'Gold': '#ffd700',
+      'Platinum': '#e5e4e2',
+      'Diamond': '#b9f2ff'
+    };
+
+    listEl.innerHTML = entries.map(function (e) {
+      var rankIcon = '';
+      if (e.rank === 1) rankIcon = '<i class="fas fa-crown" style="color:#ffd700"></i>';
+      else if (e.rank === 2) rankIcon = '<i class="fas fa-medal" style="color:#c0c0c0"></i>';
+      else if (e.rank === 3) rankIcon = '<i class="fas fa-medal" style="color:#cd7f32"></i>';
+      else rankIcon = '<span class="arena-lb-rank-num">' + e.rank + '</span>';
+
+      var tierColor = tierColors[e.tier] || '#a0a0c0';
+      var isPlayer = playerPosition && e.rank === playerPosition;
+
+      return '<div class="arena-lb-row' + (isPlayer ? ' arena-lb-row--you' : '') + '">' +
+        '<div class="arena-lb-rank">' + rankIcon + '</div>' +
+        '<div class="arena-lb-player">' +
+          '<span class="arena-lb-name">' + escHtml(e.displayName) + '</span>' +
+          '<span class="arena-lb-tier" style="color:' + tierColor + '"><i class="fas fa-shield-halved"></i> ' + escHtml(e.tier) + '</span>' +
+        '</div>' +
+        '<div class="arena-lb-stats">' +
+          '<span class="arena-lb-xp"><i class="fas fa-star"></i> ' + (e.xp || 0).toLocaleString() + '</span>' +
+          '<span class="arena-lb-record">' + e.wins + 'W / ' + e.losses + 'L</span>' +
+          '<span class="arena-lb-winrate">' + e.winRate + '</span>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+  }
+
+  function escHtml(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+
+  // --- Tutorial / Onboarding ---
+
+  var _tutorialStep = -1;
+  var _tutorialActive = false;
+
+  var TUTORIAL_STEPS = [
+    { move: 'strike', text: 'Strike deals damage based on your STR stat. Try it now!' },
+    { move: 'guard', text: 'Guard blocks 60% of incoming Strike damage. Use it to survive heavy hits!' },
+    { move: 'ability', text: 'Abilities cost charges and deal INT-based damage. Use yours now!', fallback: 'heal', fallbackText: 'Heal recovers HP based on your END stat. Try healing up!' }
+  ];
+
+  function checkTutorial() {
+    if (localStorage.getItem('arena-tutorial-complete')) return;
+    if (state.isDemo) return;
+
+    var overlay = document.getElementById('arena-tutorial-overlay');
+    if (!overlay) return;
+
+    overlay.style.display = 'flex';
+
+    document.getElementById('arena-tutorial-start').addEventListener('click', startTutorial);
+    document.getElementById('arena-tutorial-skip-welcome').addEventListener('click', skipTutorial);
+  }
+
+  function startTutorial() {
+    var overlay = document.getElementById('arena-tutorial-overlay');
+    if (overlay) overlay.style.display = 'none';
+
+    _tutorialActive = true;
+    _tutorialStep = -1;
+
+    // Auto-select first card if none selected
+    if (!state.selectedCard && state.userCards.length > 0) {
+      onCardSelected(state.userCards[0], true);
+    }
+
+    if (state.selectedCard) {
+      window.ArenaAPI.loadBosses().then(function (data) {
+        var bosses = data.bosses || [];
+        var dummy = bosses[0]; // First boss = Training Dummy
+        if (dummy) {
+          window.ArenaBattleUI.startBattle('pve', state.selectedCard, dummy);
+          showScreen('battle');
+          setTimeout(function () { advanceTutorial(); }, 1500);
+        }
+      }).catch(function () { skipTutorial(); });
+    } else {
+      skipTutorial();
+    }
+  }
+
+  function advanceTutorial() {
+    if (!_tutorialActive) return;
+    _tutorialStep++;
+
+    document.querySelectorAll('.arena-tutorial-highlight').forEach(function (el) {
+      el.classList.remove('arena-tutorial-highlight');
+    });
+
+    if (_tutorialStep >= TUTORIAL_STEPS.length) {
+      endTutorial();
+      return;
+    }
+
+    var step = TUTORIAL_STEPS[_tutorialStep];
+    var moveBtn = document.querySelector('[data-move="' + step.move + '"]');
+
+    if (step.move === 'ability' && step.fallback) {
+      var chargeEl = document.getElementById('arena-ability-charge');
+      var chargeText = chargeEl ? chargeEl.textContent : '0/0';
+      var charges = parseInt(chargeText.split('/')[0]) || 0;
+      if (charges < 2) {
+        moveBtn = document.querySelector('[data-move="' + step.fallback + '"]');
+        step = { move: step.fallback, text: step.fallbackText };
+      }
+    }
+
+    if (!moveBtn) { advanceTutorial(); return; }
+
+    moveBtn.classList.add('arena-tutorial-highlight');
+
+    var tooltip = document.getElementById('arena-tutorial-tooltip');
+    var textEl = document.getElementById('arena-tutorial-text');
+    if (tooltip && textEl) {
+      textEl.textContent = step.text;
+      tooltip.style.display = 'block';
+
+      var rect = moveBtn.getBoundingClientRect();
+      tooltip.style.top = (rect.top - tooltip.offsetHeight - 12) + 'px';
+      tooltip.style.left = (rect.left + rect.width / 2 - tooltip.offsetWidth / 2) + 'px';
+
+      var tooltipRect = tooltip.getBoundingClientRect();
+      if (tooltipRect.left < 8) tooltip.style.left = '8px';
+      if (tooltipRect.right > window.innerWidth - 8) tooltip.style.left = (window.innerWidth - tooltip.offsetWidth - 8) + 'px';
+      if (tooltipRect.top < 8) tooltip.style.top = (rect.bottom + 12) + 'px';
+    }
+
+    var handler = function () {
+      moveBtn.removeEventListener('click', handler);
+      setTimeout(function () { advanceTutorial(); }, 2000);
+    };
+    moveBtn.addEventListener('click', handler);
+
+    var skipBtn = document.getElementById('arena-tutorial-skip');
+    if (skipBtn) skipBtn.onclick = skipTutorial;
+  }
+
+  function endTutorial() {
+    _tutorialActive = false;
+    localStorage.setItem('arena-tutorial-complete', 'true');
+
+    var tooltip = document.getElementById('arena-tutorial-tooltip');
+    if (tooltip) tooltip.style.display = 'none';
+
+    document.querySelectorAll('.arena-tutorial-highlight').forEach(function (el) {
+      el.classList.remove('arena-tutorial-highlight');
+    });
+  }
+
+  function skipTutorial() {
+    _tutorialActive = false;
+    localStorage.setItem('arena-tutorial-complete', 'true');
+
+    var overlay = document.getElementById('arena-tutorial-overlay');
+    if (overlay) overlay.style.display = 'none';
+
+    var tooltip = document.getElementById('arena-tutorial-tooltip');
+    if (tooltip) tooltip.style.display = 'none';
+
+    document.querySelectorAll('.arena-tutorial-highlight').forEach(function (el) {
+      el.classList.remove('arena-tutorial-highlight');
+    });
+  }
+
+  window._arenaTutorial = {
+    isActive: function () { return _tutorialActive; },
+    advance: advanceTutorial,
+    end: endTutorial
+  };
 
   // --- PvE ---
 

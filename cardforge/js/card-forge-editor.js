@@ -1025,13 +1025,19 @@
     // Initialize card flip functionality
     initCardFlip();
 
-    // Initialize gallery collapse toggle
+    // Initialize gallery collapse toggle (three-state: default → collapsed → default)
     (function() {
       var toggle = document.querySelector('.gallery-toggle');
       if (!toggle) return;
       var container = toggle.closest('.cardforge-gallery-container');
+      var fullGrid = document.getElementById('gallery-cards-grid');
       toggle.addEventListener('click', function() {
         var collapsed = container.classList.toggle('gallery-collapsed');
+        // When collapsing, also exit expanded state and re-hide full grid
+        if (collapsed) {
+          container.classList.remove('gallery-expanded');
+          if (fullGrid) fullGrid.style.display = 'none';
+        }
         toggle.setAttribute('aria-expanded', !collapsed);
       });
       toggle.addEventListener('keydown', function(e) {
@@ -4950,6 +4956,7 @@
     createBadgeRow,
     createAttributeRow,
     applyEffectLockState,
+    applyPreset,
     undo,
     redo,
     saveStyleTemplate,

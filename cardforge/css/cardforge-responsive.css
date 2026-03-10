@@ -626,6 +626,87 @@
 }
 
 /* =============================================
+   PHASE 8 — MOBILE POLISH (touch targets, scroll, wrap)
+   ============================================= */
+
+@media (max-width: 768px) {
+  /* Deck list items in Step 6 manager — ensure 44px tap targets */
+  .deck-item {
+    min-height: 44px;
+    padding: 0.5rem 0.6rem;
+  }
+  .deck-item-btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Gallery filter dropdowns — 44px tap target */
+  .gallery-toolbar select,
+  .gallery-toolbar input {
+    min-height: 44px;
+    font-size: 16px; /* prevents iOS zoom */
+  }
+
+  /* Mini-card action buttons — minimum 44px */
+  .mini-card-btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  /* Gallery preview row — momentum scroll + snap */
+  .gallery-preview-row {
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    scroll-padding: 0.5rem;
+  }
+  .gallery-preview-row .mini-card {
+    scroll-snap-align: start;
+  }
+
+  /* Quick Build wizard — responsive fixes */
+  .qb-vibe-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .qb-artwork-tiles {
+    grid-template-columns: 1fr !important;
+  }
+  .qb-modal {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0 !important;
+    margin: 0;
+  }
+
+  /* Stat/attribute rows — wrap on narrow screens */
+  .stat-row,
+  .attribute-row {
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Stat rows — allow full wrapping at 480px */
+  .stat-row input,
+  .attribute-row input {
+    min-width: 0;
+    flex: 1 1 100px;
+  }
+}
+
+@media (max-width: 375px) {
+  /* Quick Build — tighter padding on smallest screens */
+  .qb-modal-body {
+    padding: 0.75rem !important;
+  }
+  .qb-step-content {
+    padding: 0.5rem !important;
+  }
+}
+
+/* =============================================
    SAFE AREA INSETS (notched phones)
    ============================================= */
 
