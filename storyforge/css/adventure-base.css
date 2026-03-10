@@ -392,3 +392,26 @@
 .adv-upgrade-dismiss:hover {
   color: var(--sf-text-muted);
 }
+
+/* ── Footer ── */
+.sf-footer {
+  padding: 24px;
+  text-align: center;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.35);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.sf-footer a {
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+}
+
+.sf-footer a:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.sf-footer__links {
+  margin-top: 0.35rem;
+  font-size: 12px;
+}
