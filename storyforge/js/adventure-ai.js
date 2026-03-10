@@ -239,6 +239,7 @@ window.AdventureAI = (function () {
       '- Each choice should hint at its consequence without spoiling it.\n' +
       '- If a choice involves risk, add a skillCheck with stat (strength/dexterity/intelligence/charisma) and difficulty (8-16).\n' +
       '- Suggest any immediate inventory finds or companion encounters via stateChanges.\n' +
+      '- Items can have type "weapon", "armor", "consumable", "tool", or "quest_item". Use "consumable" for healing potions, herbs, medkits, elixirs, or any restorative item the player can use from inventory.\n' +
       '- IMPORTANT: Every item or companion mentioned in the narrative MUST appear in stateChanges.addItems or stateChanges.addCompanion. Do not describe the player finding/receiving items without adding them.\n' +
       '- Generate a visual description for the scene illustration (max 150 chars).\n\n' +
       OPENING_RESPONSE_FORMAT;
@@ -319,6 +320,7 @@ window.AdventureAI = (function () {
       '- Each choice should hint at its consequence without spoiling it.\n' +
       '- If a choice involves risk, add a skillCheck (stat + difficulty 8-18).\n' +
       '- Track HP changes (damage: -5 to -25, healing: +10 to +30), inventory, companions, reputation.\n' +
+      '- HEALING ITEMS: When the player discovers potions, herbs, medkits, elixirs, or similar restorative items, add them with type "consumable" (e.g. {"name":"Healing Potion","type":"consumable","description":"A shimmering red vial"}). The player can use these from their inventory between scenes. If HP is below 40%, try to weave a healing item find into the scene naturally (an abandoned camp with supplies, a merchant, a hidden stash, a friendly NPC offering aid).\n' +
       '- IMPORTANT: Every item or companion mentioned in the narrative MUST appear in stateChanges. Do not describe the player finding/receiving/losing items without including them in addItems/removeItems.\n' +
       '- If HP <= 0, this is a DEATH scene — set isEnding:true, endingType:"death", no choices.\n' +
       (state.turnCount >= 18 ? '- IMPORTANT: We are in the final act. Start steering toward the climax confrontation with the antagonist.\n' : '') +
@@ -341,7 +343,7 @@ window.AdventureAI = (function () {
     '    "hpDelta": 0,\n' +
     '    "goldDelta": 0,\n' +
     '    "reputationDelta": 0,\n' +
-    '    "addItems": [],\n' +
+    '    "addItems": [{"name":"Item Name","type":"weapon|armor|consumable|tool|quest_item","description":"short desc"}],\n' +
     '    "removeItems": [],\n' +
     '    "addCompanion": null,\n' +
     '    "removeCompanion": null,\n' +
@@ -366,7 +368,7 @@ window.AdventureAI = (function () {
     '    "hpDelta": 0,\n' +
     '    "goldDelta": 0,\n' +
     '    "reputationDelta": 0,\n' +
-    '    "addItems": [],\n' +
+    '    "addItems": [{"name":"Item Name","type":"weapon|armor|consumable|tool|quest_item","description":"short desc"}],\n' +
     '    "removeItems": [],\n' +
     '    "addCompanion": null,\n' +
     '    "removeCompanion": null,\n' +
