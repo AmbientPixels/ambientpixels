@@ -14,6 +14,14 @@
     { id: 'Trickster',label: 'Trickster',icon: 'fa-dice',             playstyle: 'Wild Card',  desc: 'Unpredictable luck-based abilities with surprise effects. Best stat: LCK.' }
   ];
 
+  const CLASS_STATS = {
+    Fighter:  [{ name: 'Strength', value: 100 }, { name: 'Agility', value: 60 }, { name: 'Intelligence', value: 40 }, { name: 'Endurance', value: 80 }, { name: 'Luck', value: 40 }],
+    Caster:   [{ name: 'Strength', value: 40 }, { name: 'Agility', value: 50 }, { name: 'Intelligence', value: 100 }, { name: 'Endurance', value: 40 }, { name: 'Luck', value: 60 }],
+    Rogue:    [{ name: 'Strength', value: 60 }, { name: 'Agility', value: 100 }, { name: 'Intelligence', value: 70 }, { name: 'Endurance', value: 50 }, { name: 'Luck', value: 60 }],
+    Guardian: [{ name: 'Strength', value: 70 }, { name: 'Agility', value: 40 }, { name: 'Intelligence', value: 50 }, { name: 'Endurance', value: 100 }, { name: 'Luck', value: 40 }],
+    Trickster:[{ name: 'Strength', value: 50 }, { name: 'Agility', value: 70 }, { name: 'Intelligence', value: 60 }, { name: 'Endurance', value: 50 }, { name: 'Luck', value: 100 }]
+  };
+
   const VIBES = [
     { id: 'fantasy-warrior', label: 'Fantasy Warrior', icon: 'fa-khanda', description: 'Swords, shields, and ancient valor', presetId: 'hero-classic', aiPrompt: 'A heroic fantasy warrior in gleaming armor wielding a legendary sword, standing before a castle at sunset' },
     { id: 'sci-fi-pilot', label: 'Sci-Fi Pilot', icon: 'fa-rocket', description: 'Neon cockpits and starship battles', presetId: 'split-modern', aiPrompt: 'A futuristic starship pilot in a cyberpunk cockpit with holographic displays and neon lighting' },
@@ -514,7 +522,6 @@
             if (_state.aiData.quote) fields['card-quote'] = _state.aiData.quote;
             if (_state.aiData.biography) fields['card-bio'] = _state.aiData.biography;
             if (_state.aiData.level) fields['card-level'] = _state.aiData.level;
-            if (_state.aiData.characterSubclass) fields['card-subclass'] = _state.aiData.characterSubclass;
           }
 
           Object.entries(fields).forEach(([id, val]) => {
@@ -522,12 +529,17 @@
             if (el && val) el.value = val;
           });
 
-          // Apply AI-generated stats if available
-          if (_state.aiData?.stats && window.CardForge?.createStatRow) {
+          // Always override card-subclass — AI wins, otherwise clear stale preset data
+          const subclassEl = document.getElementById('card-subclass');
+          if (subclassEl) subclassEl.value = _state.aiData?.characterSubclass || '';
+
+          // Apply stats — AI stats win, otherwise fall back to class-based defaults
+          const stats = _state.aiData?.stats || CLASS_STATS[_state.cardClass] || null;
+          if (stats && window.CardForge?.createStatRow) {
             const statsContainer = document.getElementById('stats-editor');
             if (statsContainer) {
               statsContainer.innerHTML = '';
-              _state.aiData.stats.slice(0, 5).forEach(s => {
+              stats.slice(0, 5).forEach(s => {
                 statsContainer.appendChild(window.CardForge.createStatRow(s.name || '', s.value || 0));
               });
             }
