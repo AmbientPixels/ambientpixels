@@ -1982,6 +1982,8 @@
 }
 
 .adv-ending__icon--victory { color: var(--sf-success); }
+.adv-ending__icon--bittersweet { color: #C084FC; }
+.adv-ending__icon--pyrrhic { color: #FB923C; }
 .adv-ending__icon--death { color: var(--sf-danger); }
 .adv-ending__icon--escape { color: var(--sf-warning); }
 
@@ -2053,6 +2055,23 @@
   0% { transform: scale(0); opacity: 0; }
   60% { transform: scale(1.15); }
   100% { transform: scale(1); opacity: 1; }
+}
+
+.adv-ending__whatif {
+  margin-top: 1.2rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  font-size: 0.85rem;
+  color: rgba(255,255,255,0.5);
+  font-style: italic;
+  text-align: center;
+  animation: adv-fadeIn 1s ease 1.5s both;
+}
+.adv-ending__whatif i {
+  margin-right: 0.4rem;
+  opacity: 0.6;
 }
 
 .adv-ending__rating {

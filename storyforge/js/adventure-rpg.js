@@ -38,6 +38,7 @@ window.AdventureRPG = (function () {
       currentLocation: null,   // where the player is now
       visitedLocations: [],    // places the player has been
       recentHpDeltas: [],      // last 5 HP changes for struggle detection
+      narrativeSummary: '',    // rolling story summary updated every 5 turns
       turnCount: 0,
       maxTurns: 25
     };
@@ -156,6 +157,8 @@ window.AdventureRPG = (function () {
         type: changes.addCompanion.type || 'Ally',
         description: changes.addCompanion.description || '',
         bonus: changes.addCompanion.bonus || 'strength',
+        ability: changes.addCompanion.ability || null,
+        personalQuest: changes.addCompanion.personalQuest || null,
         loyalty: 50,
         mood: 'neutral'
       });

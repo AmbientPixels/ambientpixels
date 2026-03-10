@@ -252,7 +252,7 @@ window.AdventureAI = (function () {
       '- Items can have type "weapon", "armor", "consumable", "tool", or "quest_item". Use "consumable" for healing potions, herbs, medkits, elixirs, or any restorative item the player can use from inventory.\n' +
       '- QUEST ITEMS: Use type "quest_item" for narratively significant items (a mysterious key, a coded letter, an ancient artifact). These can\'t be dropped and should be referenced later in the story. Plant at least one quest item in the first 3 turns.\n' +
       '- Weapons and armor can have a "bonus" (1-3) and optionally "bonusStat" (strength/dexterity/intelligence/charisma). Higher bonus = rarer/more powerful.\n' +
-      '- If introducing a companion, give them a distinct personality trait, a line of dialogue, and set their mood. Companions have loyalty (starts at 50) and mood (neutral/inspired/wary/frightened/angry).\n' +
+      '- If introducing a companion, give them a distinct personality trait, a line of dialogue, and set their mood. Companions have loyalty (starts at 50) and mood (neutral/inspired/wary/frightened/angry). Give every companion an "ability" (a unique skill like lockpicking, healing, tracking, hacking, etc.) and a "personalQuest" (a secret goal, hidden agenda, or unresolved past that can become a subplot).\n' +
       '- Set "pacingSignal" to "building" for the opening scene.\n' +
       '- IMPORTANT: Every item or companion mentioned in the narrative MUST appear in stateChanges.addItems or stateChanges.addCompanion. Do not describe the player finding/receiving items without adding them.\n' +
       '- Generate a visual description for the scene illustration (max 150 chars).\n\n' +
@@ -309,8 +309,11 @@ window.AdventureAI = (function () {
       companionLine = state.companions.map(function (c) {
         var loyalty = c.loyalty != null ? c.loyalty : 50;
         var loyaltyLabel = loyalty >= 80 ? 'devoted' : loyalty >= 60 ? 'loyal' : loyalty >= 40 ? 'neutral' : loyalty >= 20 ? 'wary' : 'hostile';
-        return c.name + ' (' + c.type + ', ' + loyaltyLabel + ', mood: ' + (c.mood || 'neutral') + ')';
-      }).join(', ');
+        var line = c.name + ' (' + c.type + ', ' + loyaltyLabel + ', mood: ' + (c.mood || 'neutral') + ')';
+        if (c.ability) line += ' [Ability: ' + c.ability + ']';
+        if (c.personalQuest) line += ' [Quest: ' + c.personalQuest + ']';
+        return line;
+      }).join('; ');
     }
 
     // Build decisions context
@@ -368,6 +371,7 @@ window.AdventureAI = (function () {
       plotContext +
       decisionsContext +
       locationContext +
+      (state.narrativeSummary ? '\nNARRATIVE MEMORY (condensed story so far — use this to maintain plot coherence):\n' + state.narrativeSummary + '\n' : '') +
       buildStoryHistory(state) + '\n' +
       'RULES:\n' +
       '- PACING: Turn ' + (state.turnCount + 1) + ' of ' + state.maxTurns + ' (' + (state.maxTurns - state.turnCount - 1) + ' turns remaining). ' + actInfo.label + '. ' + actInfo.guidance + '\n' +
@@ -376,10 +380,13 @@ window.AdventureAI = (function () {
       '- Write exactly 3 paragraphs: (1) consequence of the choice — what happens immediately, (2) exploration/discovery — what the player sees, hears, finds, (3) new tension — set up the next decision point.\n' +
       '- ADVANCE THE PLOT: Every scene must move the overarching story forward. Reference earlier events from STORY SO FAR, callback to past player choices, foreshadow upcoming plot points, and connect scenes to the central conflict. Do NOT write disconnected episodic scenes.\n' +
       '- DECISIONS MATTER: Reference the player\'s KEY DECISIONS from above. If they saved someone, that person should return. If they chose violence, NPCs should react with fear. If they were merciful, allies should be more trusting. Include a "decision" in stateChanges for meaningful choices — these accumulate and shape later scenes.\n' +
+      '- CONSEQUENCE BRANCHING: Past decisions should GATE future choices. Examples: if the player spared an enemy, that NPC can offer help later (new choice available). If they burned a bridge with a faction, those NPCs refuse help (choice locked out, replaced with a harder alternative). If they have a quest item, offer a unique choice that uses it. At least one choice per scene should be influenced by a prior decision, inventory item, or companion. Explicitly mark these in choice text (e.g. "[Because you saved the merchant]" or "[Requires: Skeleton Key]").\n' +
       '- Use all five senses. Include sounds, smells, textures, temperature — not just visual descriptions.\n' +
       '- Vary sentence length: short punchy beats for action, longer flowing prose for atmosphere.\n' +
       '- Do NOT start consecutive paragraphs the same way.\n' +
       '- COMPANIONS: If the player has companions, they MUST have at least 1-2 lines of dialogue or a meaningful action every scene. Companions have loyalty (0-100) and mood — their behavior should reflect this. A wary companion questions the player\'s decisions. A devoted one fights harder. A frightened one might refuse dangerous tasks. Set "companionLoyalty" in stateChanges when the player\'s choice affects a companion (brave actions: +5-10, betrayal/cruelty: -10-20, saving them: +15-20). If loyalty reaches 0, the companion LEAVES.\n' +
+      '- COMPANION ABILITIES: Each companion has a unique ability. Reference it naturally — if a companion can pick locks, offer a choice that uses that skill. If they can heal, have them help when HP is low. At loyalty 70+, the ability becomes more powerful or reliable.\n' +
+      '- COMPANION QUESTS: Each companion has a personal quest or secret. Weave it into the story — drop hints in dialogue, create scenes where their quest intersects with the main plot. At loyalty 80+, the companion confides their full story. Helping with their quest grants a large loyalty boost (+15-20) and can unlock story branches.\n' +
       '- EQUIPMENT: Reference equipped items naturally in the prose. When adding weapons or armor, give them a "bonus" (1-3) and optionally a "bonusStat". Mundane: bonus 1. Fine/enchanted: bonus 2. Legendary/rare: bonus 3.\n' +
       '- QUEST ITEMS: Items with type "quest_item" are narratively significant — they can\'t be dropped. Reference them when relevant to the plot. If the player has a quest item that could solve the current problem, hint at it in the choices.\n' +
       '- LOCATIONS: Set "location" in stateChanges with the current place name. Create a coherent world — name locations consistently. When revisiting a location, describe how it\'s changed.\n' +
@@ -400,7 +407,12 @@ window.AdventureAI = (function () {
       '- IMPORTANT: Every item or companion mentioned in the narrative MUST appear in stateChanges. Do not describe the player finding/receiving/losing items without including them in addItems/removeItems.\n' +
       '- If HP <= 0, this is a DEATH scene — set isEnding:true, endingType:"death", no choices.\n' +
       (state.turnCount >= 18 ? '- IMPORTANT: We are in the final act. Start steering toward the climax confrontation with the antagonist.\n' : '') +
-      (state.turnCount >= state.maxTurns - 1 ? '- FINAL TURN: This MUST be the ending. Set isEnding:true, endingType:"victory" or "escape". Resolve the central conflict. Reference the hidden clue from the opening. Give the story a satisfying conclusion.\n' : '') +
+      (state.turnCount >= state.maxTurns - 1 ? '- FINAL TURN: This MUST be the ending. Set isEnding:true. Choose endingType based on the player\'s journey:\n' +
+        '  * "victory" — player triumphed decisively, defeated the antagonist, saved the day\n' +
+        '  * "bittersweet" — player won but at great cost (lost a companion, sacrificed something dear, the world is scarred)\n' +
+        '  * "pyrrhic" — player survived but the victory feels hollow (the antagonist escapes, innocents were lost, the cure had side effects)\n' +
+        '  * "escape" — player survived by fleeing or avoiding the final conflict\n' +
+        '  Choose based on: HP remaining (low HP → pyrrhic/bittersweet), companions lost (any departed → bittersweet), reputation (negative → pyrrhic), decisions (mostly cautious → escape, mostly bold → victory). Resolve the central conflict. Reference the hidden clue from the opening. Give the story a satisfying conclusion that reflects HOW the player played, not just that they finished.\n' : '') +
       '- Generate a visual description for the scene (max 150 chars).\n\n' +
       RESPONSE_FORMAT;
   }
@@ -422,7 +434,7 @@ window.AdventureAI = (function () {
     '    "reputationDelta": 0,\n' +
     '    "addItems": [{"name":"Item Name","type":"weapon|armor|consumable|tool|quest_item","description":"short desc","bonus":1,"bonusStat":"strength"}],\n' +
     '    "removeItems": [],\n' +
-    '    "addCompanion": null,\n' +
+    '    "addCompanion": {"name":"Name","type":"Class/Role","description":"short desc","bonus":"strength","ability":"unique skill or power","personalQuest":"their personal goal or secret"},\n' +
     '    "removeCompanion": null,\n' +
     '    "companionLoyalty": {"CompanionName": {"delta": 5, "mood": "inspired|loyal|wary|frightened|angry"}},\n' +
     '    "location": "Current Location Name",\n' +
@@ -452,7 +464,7 @@ window.AdventureAI = (function () {
     '    "reputationDelta": 0,\n' +
     '    "addItems": [{"name":"Item Name","type":"weapon|armor|consumable|tool|quest_item","description":"short desc","bonus":1,"bonusStat":"strength"}],\n' +
     '    "removeItems": [],\n' +
-    '    "addCompanion": null,\n' +
+    '    "addCompanion": {"name":"Name","type":"Class/Role","description":"short desc","bonus":"strength","ability":"unique skill or power","personalQuest":"their personal goal or secret"},\n' +
     '    "removeCompanion": null,\n' +
     '    "location": "Starting Location Name",\n' +
     '    "decision": null,\n' +
@@ -473,6 +485,33 @@ window.AdventureAI = (function () {
     '    "hiddenClue": "A subtle detail planted in this opening scene that becomes important later"\n' +
     '  }\n' +
     '}';
+
+  // --- Narrative memory: condense story into a rolling summary ---
+  function generateNarrativeSummary(state) {
+    var turns = state.turns || [];
+    if (turns.length < 5) return Promise.resolve(state.narrativeSummary || '');
+
+    var excerpts = turns.map(function (t, i) {
+      var line = 'T' + (t.turnNumber || (i + 1)) + ': ';
+      if (t.sceneExcerpt) line += t.sceneExcerpt.substring(0, 200);
+      if (t.choiceMade) line += ' → ' + t.choiceMade;
+      return line;
+    }).join('\n');
+
+    var prevSummary = state.narrativeSummary ? '\nPREVIOUS SUMMARY:\n' + state.narrativeSummary + '\n' : '';
+
+    var prompt = 'You are a story summarizer. Condense the following adventure turns into a tight 3-5 sentence narrative summary that captures: (1) key plot events, (2) important character relationships, (3) unresolved threads and mysteries, (4) the emotional arc. Write in past tense, third person. Do NOT use bullet points — write flowing prose.\n\n' +
+      prevSummary +
+      'TURNS:\n' + excerpts + '\n\n' +
+      'Return ONLY the summary text, no JSON, no formatting.';
+
+    return callTextAPIWithRetry(prompt, 2).then(function (text) {
+      // Clean any accidental markdown fences
+      return text.replace(/^```[\s\S]*?```$/gm, '').trim();
+    }).catch(function () {
+      return state.narrativeSummary || '';
+    });
+  }
 
   // --- API calls ---
   var TIMEOUT_MS = 30000; // 30-second request timeout
@@ -770,6 +809,7 @@ window.AdventureAI = (function () {
     checkDailyLimit: checkDailyLimit,
     incrementUsage: incrementUsage,
     getRemainingUsage: getRemainingUsage,
-    createFallbackScene: createFallbackScene
+    createFallbackScene: createFallbackScene,
+    generateNarrativeSummary: generateNarrativeSummary
   };
 })();

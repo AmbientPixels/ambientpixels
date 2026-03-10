@@ -436,6 +436,85 @@
     var genreId = params.get('genre');
     var continueId = params.get('continue');
 
+    var quickRestart = params.get('quickRestart');
+
+    if (quickRestart) {
+      // Quick restart — reuse character build from sessionStorage
+      var buildJson = null;
+      try { buildJson = sessionStorage.getItem('sf_quickRestart'); } catch (e) {}
+      if (buildJson) {
+        try { sessionStorage.removeItem('sf_quickRestart'); } catch (e) {}
+        var build = JSON.parse(buildJson);
+        selectedGenre = genres.find(function (g) { return g.id === build.genre; });
+        if (selectedGenre) {
+          selectedArtStyle = build.artStyle || GENRE_ART_DEFAULTS[selectedGenre.id] || 'cinematic_fantasy';
+          selectedDifficulty = build.difficulty || 'normal';
+          UI.$('advApp').setAttribute('data-genre', selectedGenre.id);
+          if (StoryAudio.preloadGenre) StoryAudio.preloadGenre(selectedGenre.id);
+
+          // Create state and launch directly (skip wizard DOM reads)
+          gameState = RPG.createState(selectedGenre, build.playerName, build.character, build.customStats);
+          gameState.artStyle = selectedArtStyle;
+          gameState.difficulty = selectedDifficulty;
+          gameState.ironman = !!build.ironman;
+          gameState.xp = 0;
+
+          // Apply difficulty HP scaling
+          if (selectedDifficulty === 'easy') {
+            gameState.stats.maxHp = Math.round(gameState.stats.maxHp * 1.25);
+            gameState.stats.hp = gameState.stats.maxHp;
+          } else if (selectedDifficulty === 'hard') {
+            gameState.stats.maxHp = Math.round(gameState.stats.maxHp * 0.75);
+            gameState.stats.hp = gameState.stats.maxHp;
+          }
+
+          // Launch game directly
+          undoSnapshot = null;
+          setProcessing(true);
+          ensureAudioContext();
+          if (typeof StoryAudio !== 'undefined' && audioCtx) StoryAudio.init(audioCtx);
+          UI.showScreen('screenPlay');
+          UI.$('pauseBtn').style.display = '';
+          UI.$('immersiveBtn').style.display = '';
+          if (typeof StoryAudio !== 'undefined') StoryAudio.startAmbient(selectedGenre.id);
+          UI.showLoading(UI.$('sceneText'), 'Forging your story...');
+          UI.$('choicesContainer').innerHTML = '';
+          updateSidebar();
+          startLoadingTextCycle();
+          AI.incrementUsage();
+          AI.generateOpeningScene(selectedGenre, build.playerName, build.character)
+            .then(function (scene) {
+              stopLoadingTextCycle();
+              preloadTTS(scene.sceneText);
+              currentScene = scene;
+              gameState.turnCount = 1;
+              gameState.lastSceneText = scene.sceneText;
+              if (scene.storyTitle) {
+                gameState.storyTitle = scene.storyTitle;
+                showStoryTitle(scene.storyTitle, true);
+              }
+              if (scene.plotSeed) gameState.plotSeed = scene.plotSeed;
+              RPG.applyStateChanges(gameState, scene.stateChanges);
+              renderScene(scene);
+              generateAndShowImage(scene.imagePrompt);
+            })
+            .catch(function (err) {
+              stopLoadingTextCycle();
+              var fallback = AI.createFallbackScene();
+              UI.toast('AI took too long — here\'s a simplified scene.', 'warning');
+              currentScene = fallback;
+              gameState.turnCount = 1;
+              gameState.lastSceneText = fallback.sceneText;
+              renderScene(fallback);
+            });
+          return;
+        }
+      }
+      // Fallback if build data missing
+      UI.showScreen('screenGenreSelect');
+      return;
+    }
+
     if (continueId) {
       // Resume saved adventure
       UI.showLoading(UI.$('sceneText'), 'Loading saved adventure...');
@@ -1861,6 +1940,13 @@
           }
         }
 
+        // Update narrative memory every 5 turns (background, non-blocking)
+        if (gameState.turnCount % 5 === 0 && gameState.turnCount > 0) {
+          AI.generateNarrativeSummary(gameState).then(function (summary) {
+            if (summary) gameState.narrativeSummary = summary;
+          });
+        }
+
         // Award XP
         awardXP('choiceMade');
         awardXP('turnSurvived');
@@ -2291,7 +2377,8 @@
           '<div class="adv-companion__info">' +
             '<div class="adv-companion__name">' + UI.escapeHtml(comp.name) +
               ' <i class="fas ' + moodIcon + '" title="Mood: ' + (comp.mood || 'neutral') + '" style="font-size:0.65rem;opacity:0.6;margin-left:2px"></i></div>' +
-            '<div class="adv-companion__bonus">+2 ' + (RPG.STAT_LABELS[comp.bonus] || comp.bonus) + '</div>' +
+            '<div class="adv-companion__bonus">+2 ' + (RPG.STAT_LABELS[comp.bonus] || comp.bonus) +
+              (comp.ability ? ' · ' + UI.escapeHtml(comp.ability) : '') + '</div>' +
             '<div class="adv-companion__loyalty" title="Loyalty: ' + loyalty + '/100">' +
               '<div class="adv-companion__loyalty-bar" style="width:' + loyaltyPct + '%;background:' + loyaltyColor + '"></div>' +
             '</div>' +
@@ -2370,10 +2457,10 @@
       StoryAudio.stopAmbient(3000);
     }
     var type = scene.endingType || 'escape';
-    var endingSfx = { victory: 'endingVictory', death: 'endingDeath', escape: 'endingEscape' };
+    var endingSfx = { victory: 'endingVictory', bittersweet: 'endingVictory', pyrrhic: 'endingEscape', death: 'endingDeath', escape: 'endingEscape' };
     playSfx(endingSfx[type] || 'endingEscape');
-    var icons = { victory: 'fa-trophy', death: 'fa-skull', escape: 'fa-person-running' };
-    var titles = { victory: 'Victory!', death: 'You Died', escape: 'Escaped!' };
+    var icons = { victory: 'fa-trophy', bittersweet: 'fa-heart-crack', pyrrhic: 'fa-fire', death: 'fa-skull', escape: 'fa-person-running' };
+    var titles = { victory: 'Victory!', bittersweet: 'Bittersweet Victory', pyrrhic: 'Pyrrhic Victory', death: 'You Died', escape: 'Escaped!' };
 
     UI.$('endingIcon').innerHTML = '<i class="fas ' + (icons[type] || icons.escape) + '"></i>';
     UI.$('endingIcon').className = 'adv-ending__icon adv-ending__icon--' + type;
@@ -2407,6 +2494,8 @@
     if (gameState.inventory.length >= 6) badges.push({ icon: 'fa-suitcase', label: 'Collector' });
     if (gameState.stats.hp === gameState.stats.maxHp && type === 'victory') badges.push({ icon: 'fa-shield-heart', label: 'Untouched' });
     if (type === 'death' && gameState.turnCount >= 15) badges.push({ icon: 'fa-skull-crossbones', label: 'Valiant Fall' });
+    if (type === 'bittersweet') badges.push({ icon: 'fa-heart-crack', label: 'Bittersweet' });
+    if (type === 'pyrrhic') badges.push({ icon: 'fa-fire', label: 'Pyrrhic' });
     if (locationsVisited >= 8) badges.push({ icon: 'fa-map', label: 'Explorer' });
     if (decisionsCount >= 10) badges.push({ icon: 'fa-scale-balanced', label: 'Decisive' });
 
@@ -2416,6 +2505,20 @@
           return '<span class="adv-ending__badge"><i class="fas ' + b.icon + '"></i> ' + b.label + '</span>';
         }).join('') + '</div>';
       UI.$('endingStats').insertAdjacentHTML('afterend', badgesHtml);
+    }
+
+    // "What if" replay hint
+    var whatIfHints = {
+      victory: 'What if you had sacrificed more? A bittersweet ending awaits the selfless.',
+      bittersweet: 'What if you had kept everyone alive? True victory demands no sacrifice.',
+      pyrrhic: 'What if you had fought harder? A decisive victory was within reach.',
+      death: 'What if you had played it safe? Sometimes retreat is the bravest choice.',
+      escape: 'What if you had stood your ground? Glory belongs to the bold.'
+    };
+    var hint = whatIfHints[type];
+    if (hint) {
+      UI.$('endingStats').parentNode.insertAdjacentHTML('beforeend',
+        '<div class="adv-ending__whatif"><i class="fas fa-rotate-left"></i> ' + hint + '</div>');
     }
 
     gameState.status = 'completed';
@@ -2457,6 +2560,31 @@
       playAgainBtn.style.display = '';
       playAgainBtn.onclick = function () {
         window.location.href = '/storyforge/play.html?genre=' + gameState.genre;
+      };
+    }
+
+    // Quick Restart button (reuses same character build — especially useful for ironman)
+    var quickRestartBtn = UI.$('quickRestartBtn');
+    if (quickRestartBtn && gameState.genre) {
+      quickRestartBtn.style.display = '';
+      quickRestartBtn.onclick = function () {
+        // Store character build in sessionStorage for quick restart
+        var build = {
+          genre: gameState.genre,
+          playerName: gameState.playerName,
+          character: gameState.character,
+          artStyle: gameState.artStyle,
+          difficulty: gameState.difficulty,
+          ironman: gameState.ironman,
+          customStats: {
+            strength: gameState.stats.strength,
+            dexterity: gameState.stats.dexterity,
+            intelligence: gameState.stats.intelligence,
+            charisma: gameState.stats.charisma
+          }
+        };
+        try { sessionStorage.setItem('sf_quickRestart', JSON.stringify(build)); } catch (e) {}
+        window.location.href = '/storyforge/play.html?quickRestart=1';
       };
     }
 
