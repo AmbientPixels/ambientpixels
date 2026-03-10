@@ -678,147 +678,6 @@
 .db-deck-empty p { margin-bottom: 0.35rem; }
 .db-deck-empty small { font-size: 0.72rem; }
 
-/* ── AI Panel ── */
-.db-ai-panel {
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  padding: 0.75rem 1rem;
-  background: rgba(15, 15, 28, 0.8);
-}
-
-.db-ai-row {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.db-ai-input {
-  flex: 1;
-  padding: 0.45rem 0.65rem;
-  border-radius: 6px;
-  border: 1px solid rgba(124, 58, 237, 0.2);
-  background: rgba(255,255,255,0.04);
-  color: #e1e1ff;
-  font-size: 0.78rem;
-  font-family: inherit;
-}
-
-.db-ai-input::placeholder { color: #5a5a7a; }
-
-.db-ai-input:focus {
-  outline: none;
-  border-color: rgba(124, 58, 237, 0.5);
-}
-
-/* ── AI Analysis slide-out ── */
-.db-analysis-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 500;
-  display: none;
-  opacity: 0;
-  transition: opacity 0.2s ease;
-}
-
-.db-analysis-overlay.open {
-  display: block;
-  opacity: 1;
-}
-
-.db-analysis-panel {
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: 420px;
-  max-width: 100vw;
-  height: 100vh;
-  background: #141428;
-  border-left: 1px solid rgba(255,255,255,0.06);
-  z-index: 501;
-  display: flex;
-  flex-direction: column;
-  transform: translateX(100%);
-  transition: transform 0.25s ease;
-}
-
-.db-analysis-panel.open {
-  transform: translateX(0);
-}
-
-.db-analysis-header {
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.db-analysis-header h3 {
-  font-size: 0.95rem;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-}
-
-.db-analysis-header h3 i { color: #f59e0b; }
-
-.db-analysis-close {
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
-  border: none;
-  background: transparent;
-  color: #a0a0c0;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.85rem;
-}
-
-.db-analysis-close:hover { background: rgba(255,255,255,0.06); color: #e1e1ff; }
-
-.db-analysis-body {
-  flex: 1;
-  overflow-y: auto;
-  padding: 1.25rem;
-  font-size: 0.82rem;
-  line-height: 1.6;
-  color: #c0c0e0;
-}
-
-.db-analysis-body h4 {
-  color: #e1e1ff;
-  font-size: 0.85rem;
-  margin: 1rem 0 0.4rem;
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.db-analysis-body h4:first-child { margin-top: 0; }
-.db-analysis-body h4 i { color: #7c3aed; font-size: 0.75rem; }
-
-.db-analysis-body ul {
-  padding-left: 1.2rem;
-  margin: 0.3rem 0;
-}
-
-.db-analysis-body li { margin-bottom: 0.3rem; }
-
-.db-analysis-loading {
-  text-align: center;
-  padding: 3rem 1rem;
-  color: #6a6a8a;
-}
-
-.db-analysis-loading i {
-  font-size: 1.5rem;
-  color: #7c3aed;
-  margin-bottom: 0.75rem;
-  display: block;
-}
-
 /* ── View mode (shared deck) ── */
 .db-view-container {
   width: 100%;
@@ -1003,10 +862,6 @@
     min-width: 120px;
   }
 
-  .db-analysis-panel {
-    width: 100vw;
-  }
-
   .db-bar-title { display: none; }
 }
 
@@ -1100,8 +955,6 @@
   .db-coll-card,
   .db-deck-item,
   .db-toast,
-  .db-analysis-panel,
-  .db-analysis-overlay,
   .db-btn {
     transition: none;
   }

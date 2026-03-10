@@ -243,27 +243,10 @@
             '<div class="db-deck-title">Deck Composition</div>' +
             '<div class="db-deck-stats" id="db-deck-stats"></div>' +
           '</div>' +
-          '<div class="db-ai-panel">' +
-            '<div class="db-ai-row">' +
-              '<input type="text" class="db-ai-input" id="db-ai-input" placeholder="Describe your strategy... (e.g. aggressive melee deck)" maxlength="300" />' +
-              '<button type="button" class="db-btn db-btn-accent" id="db-ai-suggest"><i class="fas fa-wand-sparkles"></i> Build</button>' +
-              '<button type="button" class="db-btn" id="db-ai-analyze" disabled><i class="fas fa-chart-pie"></i> Analyze</button>' +
-            '</div>' +
-          '</div>' +
           '<div class="db-deck-list" id="db-deck-list">' +
             '<div class="db-deck-empty"><i class="fas fa-layer-group"></i><p>No cards in deck</p><small>Click cards from your collection to add them</small></div>' +
           '</div>' +
         '</div>' +
-      '</div>' +
-
-      '<!-- Analysis slide-out -->' +
-      '<div class="db-analysis-overlay" id="db-analysis-overlay"></div>' +
-      '<div class="db-analysis-panel" id="db-analysis-panel">' +
-        '<div class="db-analysis-header">' +
-          '<h3><i class="fas fa-chart-pie"></i> Deck Analysis</h3>' +
-          '<button class="db-analysis-close" id="db-analysis-close"><i class="fas fa-times"></i></button>' +
-        '</div>' +
-        '<div class="db-analysis-body" id="db-analysis-body"></div>' +
       '</div>' +
 
       '<!-- Toast -->' +
@@ -308,16 +291,6 @@
     document.getElementById('db-coll-class').addEventListener('change', renderCollectionGrid);
     document.getElementById('db-coll-rarity').addEventListener('change', renderCollectionGrid);
 
-    // AI suggest
-    document.getElementById('db-ai-suggest').addEventListener('click', aiSuggestDeck);
-    document.getElementById('db-ai-analyze').addEventListener('click', aiAnalyzeDeck);
-    document.getElementById('db-ai-input').addEventListener('keydown', function (e) {
-      if (e.key === 'Enter') aiSuggestDeck();
-    });
-
-    // Analysis panel
-    document.getElementById('db-analysis-close').addEventListener('click', closeAnalysis);
-    document.getElementById('db-analysis-overlay').addEventListener('click', closeAnalysis);
   }
 
   // ── Load collection ──
@@ -554,18 +527,15 @@
   // ── Deck list (right panel) ──
   function renderDeckList() {
     var list = document.getElementById('db-deck-list');
-    var analyzeBtn = document.getElementById('db-ai-analyze');
     var publishBtn = document.getElementById('db-publish-btn');
 
     if (_deckCards.length === 0) {
       list.innerHTML = '<div class="db-deck-empty"><i class="fas fa-layer-group"></i><p>No cards in deck</p><small>Click cards from your collection to add them</small></div>';
-      analyzeBtn.disabled = true;
       publishBtn.disabled = true;
       updateDeckStats();
       return;
     }
 
-    analyzeBtn.disabled = _deckCards.length < 3;
     publishBtn.disabled = false;
 
     list.innerHTML = _deckCards.map(function (c, i) {
@@ -790,127 +760,6 @@
     }
   }
 
-  // ── AI: Suggest deck ──
-  async function aiSuggestDeck() {
-    var prompt = (document.getElementById('db-ai-input').value || '').trim();
-    if (!prompt && _allCards.length === 0) { showToast('No cards available'); return; }
-
-    if (!window.CardForgeAI || !window.CardForgeAI.callGemini) {
-      showToast('AI not available — open CardForge editor first');
-      return;
-    }
-
-    var suggestBtn = document.getElementById('db-ai-suggest');
-    suggestBtn.disabled = true;
-    suggestBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Building...';
-
-    try {
-      var cardSummary = _allCards.slice(0, 50).map(function (c) {
-        var cd = c.cardData || c;
-        return {
-          id: c.id,
-          name: cd.name || c.name || 'Untitled',
-          class: cd.characterClass || '',
-          rarity: cd.rarity || '',
-          stats: (cd.stats || []).map(function (s) { return s.label + ':' + s.value; }).join(', ')
-        };
-      });
-
-      var aiPrompt = 'You are a deck-building strategist for a card game. Given the player\'s collection below, suggest a deck of up to ' + MAX_DECK_SIZE + ' cards.\n\n' +
-        (prompt ? 'Strategy requested: "' + prompt + '"\n\n' : '') +
-        'Available cards:\n' + JSON.stringify(cardSummary, null, 1) + '\n\n' +
-        'Return ONLY a JSON object with this exact shape:\n' +
-        '{"cardIds": ["id1", "id2", ...], "reasoning": "Brief explanation of the deck strategy"}\n' +
-        'Pick cards that synergize well. Order them by play priority.';
-
-      var result = await window.CardForgeAI.callGemini(aiPrompt, window.CardForgeAI.TEXT_MODEL);
-      var text = window.CardForgeAI.extractText(result);
-      var parsed = window.CardForgeAI.parseJSON(text);
-
-      if (parsed && Array.isArray(parsed.cardIds)) {
-        _deckCards = [];
-        parsed.cardIds.forEach(function (id) {
-          var card = _allCards.find(function (c) { return c.id === id; });
-          if (card && _deckCards.length < MAX_DECK_SIZE) _deckCards.push(card);
-        });
-
-        renderDeckList();
-        renderCollectionGrid();
-        updateCapacity();
-
-        if (parsed.reasoning) {
-          showToast('AI built your deck: ' + parsed.reasoning.substring(0, 80));
-        } else {
-          showToast('AI selected ' + _deckCards.length + ' cards for your deck');
-        }
-      } else {
-        showToast('AI response could not be parsed');
-      }
-    } catch (err) {
-      console.error('[DeckBuilder] AI suggest error:', err);
-      showToast('AI suggestion failed: ' + err.message);
-    } finally {
-      suggestBtn.disabled = false;
-      suggestBtn.innerHTML = '<i class="fas fa-wand-sparkles"></i> Build';
-    }
-  }
-
-  // ── AI: Analyze deck ──
-  async function aiAnalyzeDeck() {
-    if (_deckCards.length < 3) { showToast('Add at least 3 cards to analyze'); return; }
-
-    if (!window.CardForgeAI || !window.CardForgeAI.callGemini) {
-      showToast('AI not available — open CardForge editor first');
-      return;
-    }
-
-    openAnalysis();
-    var body = document.getElementById('db-analysis-body');
-    body.innerHTML = '<div class="db-analysis-loading"><i class="fas fa-spinner fa-spin"></i><p>Analyzing your deck...</p></div>';
-
-    try {
-      var deckSummary = _deckCards.map(function (c, i) {
-        var cd = c.cardData || c;
-        return {
-          position: i + 1,
-          name: cd.name || c.name || 'Untitled',
-          class: cd.characterClass || '',
-          rarity: cd.rarity || '',
-          stats: (cd.stats || []).map(function (s) { return s.label + ':' + s.value; }).join(', ')
-        };
-      });
-
-      var aiPrompt = 'You are a deck analysis expert for a card RPG game. Analyze this deck composition:\n\n' +
-        JSON.stringify(deckSummary, null, 1) + '\n\n' +
-        'Provide a thorough analysis in HTML format with these sections (use h4 tags with Font Awesome icons):\n' +
-        '1. <h4><i class="fas fa-shield-halved"></i> Strengths</h4> — what this deck does well\n' +
-        '2. <h4><i class="fas fa-triangle-exclamation"></i> Weaknesses</h4> — gaps and vulnerabilities\n' +
-        '3. <h4><i class="fas fa-scale-balanced"></i> Balance</h4> — class/rarity/stat distribution\n' +
-        '4. <h4><i class="fas fa-chess"></i> Strategy Tips</h4> — how to pilot this deck\n' +
-        '5. <h4><i class="fas fa-lightbulb"></i> Suggestions</h4> — specific improvements to consider\n\n' +
-        'Use <ul><li> for bullet points. Be specific and actionable. Keep it concise — 3-4 bullets per section max.';
-
-      var result = await window.CardForgeAI.callGemini(aiPrompt, window.CardForgeAI.TEXT_MODEL);
-      var text = window.CardForgeAI.extractText(result);
-
-      body.innerHTML = text || '<p>No analysis returned.</p>';
-
-    } catch (err) {
-      console.error('[DeckBuilder] AI analyze error:', err);
-      body.innerHTML = '<div class="db-error"><i class="fas fa-exclamation-triangle"></i><p>Analysis failed: ' + esc(err.message) + '</p></div>';
-    }
-  }
-
-  function openAnalysis() {
-    document.getElementById('db-analysis-overlay').classList.add('open');
-    document.getElementById('db-analysis-panel').classList.add('open');
-  }
-
-  function closeAnalysis() {
-    document.getElementById('db-analysis-overlay').classList.remove('open');
-    document.getElementById('db-analysis-panel').classList.remove('open');
-  }
-
   // ── Tutorial Tips ──
   function showTips() {
     if (localStorage.getItem('db-tips-dismissed')) return;
@@ -937,18 +786,6 @@
         '<span>Drag cards to reorder your deck. Click <i class="fas fa-times"></i> to remove a card.</span>' +
         '<button class="db-tip-close" title="Dismiss"><i class="fas fa-times"></i></button>';
       deckHeader.after(deckTip);
-    }
-
-    // AI panel tip
-    var aiPanel = document.querySelector('.db-ai-panel');
-    if (aiPanel) {
-      var aiTip = document.createElement('div');
-      aiTip.className = 'db-tip db-tip-accent';
-      aiTip.innerHTML =
-        '<i class="fas fa-wand-sparkles db-tip-icon"></i>' +
-        '<span><strong>Build</strong> uses AI to suggest a deck from your collection. <strong>Analyze</strong> gives strategy insights on your current deck.</span>' +
-        '<button class="db-tip-close" title="Dismiss"><i class="fas fa-times"></i></button>';
-      aiPanel.prepend(aiTip);
     }
 
     // Bind close buttons — each tip dismisses independently
