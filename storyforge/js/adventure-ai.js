@@ -180,12 +180,12 @@ window.AdventureAI = (function () {
 
   // --- Genre theme keywords (subject matter only, no rendering style) ---
   var GENRE_THEMES = {
-    fantasy: 'medieval setting, ancient stone ruins, torchlight, moonlit landscapes, swords and armor',
-    horror: 'dark atmosphere, fog and shadows, unsettling environments, dread and tension',
-    scifi: 'futuristic technology, alien landscapes, starships, neon and chrome',
-    detective: 'rain-slicked streets, urban noir, crime scenes, dramatic shadows',
-    postapoc: 'ruined cities, dust and rust, desolate landscapes, overgrown architecture',
-    pirate: 'tropical seas, wooden ships, island ports, golden sunlight, ocean waves'
+    fantasy: 'medieval stone castles, ancient ruins, torchlit corridors, moonlit forests, swords and leather armor',
+    horror: 'abandoned buildings, flickering lights, fog-covered streets, old wooden houses, overgrown cemeteries, cracked windows',
+    scifi: 'futuristic space stations, alien landscapes, starship interiors, holographic displays, chrome and glass architecture',
+    detective: 'rain-slicked city streets, dimly lit offices, crime scene tape, brick alleyways, neon bar signs, trench coats',
+    postapoc: 'crumbling skyscrapers, rusted vehicles, dust-covered highways, overgrown buildings, makeshift shelters',
+    pirate: 'tropical coastlines, wooden sailing ships, busy port towns, palm-lined beaches, ocean waves, treasure maps'
   };
 
   // --- Generate scene image ---
