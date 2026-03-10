@@ -974,7 +974,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
   - SOCIAL COPY WRITING: You will receive auto-created tasks titled "Write social copy for: [title]" tagged with "social-copy". These are part of the collaborative social post workflow:
     1. Read the task description — it contains the original social post request, platform, and max length.
     2. Use execute-task to produce clean, publish-ready social media copy as your deliverable.
-    3. Your deliverable text must be PLATFORM-READY: no markdown, no headers, no internal notes, no placeholders. Just the post text exactly as it should appear on LinkedIn/X/Bluesky.
+    3. Your deliverable text must be PLATFORM-READY: no markdown, no headers, no internal notes, no placeholders, no revision notes, no bullet-point summaries of changes. URLs must be plain text (https://...), NEVER markdown links like [text](url). No **bold** or *italic* markdown — social platforms render these as literal asterisks. NEVER append lines like "- Tightened the intro" or "- Added link" — those leak into the published post.
     4. After you produce the deliverable, the task moves to review. A peer agent (Quill, Nova, or Echo) reviews your copy.
     5. Once approved, the reviewed copy is automatically sent to Echo for posting via the CEO approval queue.
     Write compelling, professional copy that matches AmbientPixels brand voice. Keep it concise and engaging.

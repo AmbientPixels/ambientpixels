@@ -1966,7 +1966,13 @@ module.exports = async function (context) {
           _rcText = _rcText.replace(/\s*\[(?:ADDRESSED|NOTE|REVISED|FEEDBACK|CHANGED|UPDATED)(?::\s*[^\]]*)?(?:\]\.?\s*)/gi, ' ').trim();
           _rcText = _rcText.replace(/^\[(?:ADDRESSED|NOTE|REVISED|FEEDBACK|CHANGED|UPDATED)[^\]]*\]\s*[^\n]*$/gim, '').trim();
           _rcText = _rcText.replace(/\n*\*{0,2}(?:Notes|Revision Notes|Editor'?s? Notes?|Changes? Made|Revisions?|Internal Notes?|Keywords)\*{0,2}:?\*{0,2}\s*\n[\s\S]*$/i, '').trim();
+          // Strip trailing dash-bullet revision notes (e.g. "- Tightened the intro...\n- Added link...")
+          _rcText = _rcText.replace(/\n+(- .+\n?){2,}$/g, '').trim();
           _rcText = _rcText.replace(/^\*\s{2,}/gm, '• ').trim();
+          // Convert markdown links [text](url) to plain URLs (social platforms don't render markdown)
+          _rcText = _rcText.replace(/\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g, '$2').trim();
+          // Strip remaining markdown bold/italic formatting
+          _rcText = _rcText.replace(/\*\*(.+?)\*\*/g, '$1').replace(/\*(.+?)\*/g, '$1');
           // For promo tasks, ensure the blog URL from the task description is in the copy
           var _blogUrlMatch = (_pt.description || '').match(/https?:\/\/ambientpixels\.ai\/blog\/[a-z0-9-]+/i);
           if (_blogUrlMatch && _rcText.indexOf(_blogUrlMatch[0]) === -1) {

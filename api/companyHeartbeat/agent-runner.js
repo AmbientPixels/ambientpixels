@@ -1582,6 +1582,12 @@ Write the full deliverable first, then the structured JSON block.`;
       socialPayload.text = socialPayload.text.replace(/^\[(?:ADDRESSED|NOTE|REVISED|FEEDBACK|CHANGED|UPDATED)[^\]]*\]\s*[^\n]*$/gim, '').trim();
       // Strip "Revision Notes:" sections and everything after
       socialPayload.text = socialPayload.text.replace(/\n*(?:Revision Notes|Editor'?s? Notes?|Changes? Made|Revisions?):\s*\n[\s\S]*$/i, '').trim();
+      // Strip trailing dash-bullet revision notes (e.g. "- Tightened the intro...\n- Added link...")
+      socialPayload.text = socialPayload.text.replace(/\n+(- .+\n?){2,}$/g, '').trim();
+      // Convert markdown links [text](url) to plain URLs (social platforms don't render markdown)
+      socialPayload.text = socialPayload.text.replace(/\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g, '$2').trim();
+      // Strip remaining markdown bold/italic formatting
+      socialPayload.text = socialPayload.text.replace(/\*\*(.+?)\*\*/g, '$1').replace(/\*(.+?)\*/g, '$1');
       // Strip markdown bullet formatting (* item → item)
       socialPayload.text = socialPayload.text.replace(/^\*\s{2,}/gm, '• ').trim();
 
