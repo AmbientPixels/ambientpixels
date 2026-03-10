@@ -692,13 +692,21 @@ body:has(.arena-screen.active) {
 }
 .arena-champion__class { font-size: 0.8rem; color: var(--arena-text-dim); margin-bottom: 0.3rem; }
 .arena-champion__quote { font-size: 0.78rem; color: var(--arena-text-dim); font-style: italic; margin-bottom: 0.5rem; }
-.arena-champion__stats {
+.arena-champion__info {
+  flex: 1;
+  min-width: 0;
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  flex-direction: column;
+  justify-content: center;
+}
+.arena-champion__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.35rem 0.75rem;
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--arena-text-muted);
+  margin-top: 0.4rem;
 }
 .arena-champion__stats span { display: flex; align-items: center; gap: 0.25rem; }
 .arena-champion__stats i { color: var(--arena-xp); font-size: 0.65rem; }
