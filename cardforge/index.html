@@ -42,6 +42,7 @@
   <link rel="stylesheet" href="css/cardforge-border-effects.css">
   <link rel="stylesheet" href="css/cardforge-glow-effects.css">
   <link rel="stylesheet" href="css/cardforge-layout.css"> <!-- New local layout styles that override grid.css -->
+  <link rel="stylesheet" href="css/cardforge-hero.css"> <!-- Hero section -->
   <link rel="stylesheet" href="css/cardforge-responsive.css"> <!-- Responsive design — MUST be last CSS to override all -->
   <script type="application/ld+json">
   {
@@ -131,15 +132,12 @@
 <header class="cf-page-bar" role="banner">
   <h1 class="sr-only">CardForge — RPG Card Creator</h1>
   <div class="cf-page-bar__titles">
-    <div class="cf-page-bar__title">CardForge</div>
+    <div class="cf-page-bar__title"><i class="fas fa-hammer"></i> CardForge</div>
     <a href="https://ambientpixels.ai" class="cf-page-bar__subtitle cf-brand-link">by AmbientPixels</a>
   </div>
   <div class="cf-page-bar__actions" aria-label="Page controls">
     <a href="/cardforge/arena.html" class="cf-new-card-btn" title="Enter the Arena" style="text-decoration:none;">
       <i class="fas fa-shield-halved"></i> Arena
-    </a>
-    <a href="/storyforge/" class="cf-new-card-btn" title="Play StoryForge" style="text-decoration:none;">
-      <i class="fas fa-book-open-reader"></i> StoryForge
     </a>
     <button type="button" id="clear-all-btn" class="cf-new-card-btn" title="New Card">
       <i class="fas fa-plus"></i> New Card
@@ -171,9 +169,34 @@
   </div>
 </header>
 
-
-
 <main>
+
+<!-- Hero Section -->
+<section class="cf-hero">
+  <div class="cf-hero__content">
+    <h2 class="cf-hero__title">Forge Your Legend</h2>
+    <p class="cf-hero__subtitle">40 million unique RPG card combinations. Design, customize, and battle in the arena.</p>
+    <div class="cf-hero__actions">
+      <button class="cf-hero__cta" onclick="document.querySelector('.presets-section').scrollIntoView({behavior:'smooth'})">
+        <i class="fas fa-hammer"></i> Start Creating
+      </button>
+      <a href="/cardforge/arena.html" class="cf-hero__cta cf-hero__cta--secondary">
+        <i class="fas fa-shield-halved"></i> Enter Arena
+      </a>
+    </div>
+  </div>
+  <div class="cf-hero__showcase">
+    <div class="cf-hero__card">
+      <img src="/cardforge/images/showcase-1.webp" alt="Eyes of the Storm — hero image card" />
+    </div>
+    <div class="cf-hero__card">
+      <img src="/cardforge/images/showcase-2.webp" alt="Ember Gaze — full bleed card" />
+    </div>
+    <div class="cf-hero__card">
+      <img src="/cardforge/images/showcase-3.webp" alt="Navigator Kairo — masked avatar card" />
+    </div>
+  </div>
+</section>
 
 
 
@@ -1718,7 +1741,18 @@
     <p id="gallery-msg-user" class="gallery-description hidden">Welcome back! See your cards above and publish more.</p>
     <div class="cardforge-gallery-grid" id="gallery-cards-grid">
       <!-- Gallery cards will be loaded here -->
-      <div class="gallery-loading cf-empty-state"><i class="fas fa-palette cf-empty-float"></i><p>No gallery cards yet</p><small>Save and publish a card to see it here</small><button class="cf-empty-cta" onclick="document.querySelector('[data-step=&quot;0&quot;]')?.click()">Start Creating</button></div>
+      <div class="gallery-loading cf-empty-state">
+        <i class="fas fa-palette cf-empty-float"></i>
+        <p>Community cards will appear here</p>
+        <small>Design a card and publish it to kick things off</small>
+        <div class="cf-gallery-showcase__examples">
+          <img src="/images/image-packs/characters/guardian-of-the-gilded-halls.jpg" alt="Example card" class="cf-gallery-showcase__thumb" />
+          <img src="/images/image-packs/characters/iron-lady.jpg" alt="Example card" class="cf-gallery-showcase__thumb" />
+          <img src="/images/image-packs/characters/twilight-titan.jpg" alt="Example card" class="cf-gallery-showcase__thumb" />
+          <img src="/images/image-packs/characters/the-enigmatic-neuromancer.jpg" alt="Example card" class="cf-gallery-showcase__thumb" />
+        </div>
+        <button class="cf-empty-cta" onclick="document.querySelector('[data-step=&quot;0&quot;]')?.click()">Create Your First Card</button>
+      </div>
     </div>
 
     <!-- Published Decks -->

@@ -1,0 +1,251 @@
+/* CardForge Hero Section
+ * Landing hero with value prop + showcase card fan
+ */
+
+.cf-hero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2rem;
+  max-width: 960px;
+  margin: 1.5rem auto 0;
+  padding: 2.5rem 2rem;
+  background: url('/cardforge/images/hero-bg.webp') center/cover no-repeat,
+              rgba(18, 22, 34, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.cf-hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(10, 12, 24, 0.85) 0%, rgba(10, 12, 24, 0.5) 50%, rgba(10, 12, 24, 0.3) 100%);
+  pointer-events: none;
+}
+
+.cf-hero__content {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  min-width: 0;
+}
+
+.cf-hero__title {
+  font-family: 'Rajdhani', 'Inter', sans-serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #e1e1ff;
+  margin: 0 0 0.5rem;
+  letter-spacing: 0.02em;
+  text-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+}
+
+.cf-hero__subtitle {
+  font-size: 1rem;
+  color: #a0a0c0;
+  margin: 0 0 1.5rem;
+  line-height: 1.5;
+  max-width: 400px;
+}
+
+.cf-hero__actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.cf-hero__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.4rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 200ms ease;
+  text-decoration: none;
+  background: linear-gradient(135deg, #7c3aed, #6366f1);
+  color: #fff;
+  box-shadow: 0 2px 12px rgba(124, 58, 237, 0.3);
+}
+
+.cf-hero__cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.45);
+}
+
+.cf-hero__cta--secondary {
+  background: rgba(139, 92, 246, 0.1);
+  border: 1px solid rgba(139, 92, 246, 0.3);
+  color: #c4b5fd;
+  box-shadow: none;
+}
+
+.cf-hero__cta--secondary:hover {
+  background: rgba(139, 92, 246, 0.2);
+  border-color: rgba(139, 92, 246, 0.5);
+  box-shadow: 0 0 12px rgba(139, 92, 246, 0.2);
+}
+
+/* Showcase: fanned card stack */
+.cf-hero__showcase {
+  position: relative;
+  width: 340px;
+  height: 280px;
+  flex-shrink: 0;
+  z-index: 1;
+}
+
+.cf-hero__card {
+  position: absolute;
+  width: 160px;
+  height: 224px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(139, 92, 246, 0.15);
+  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  top: 50%;
+  left: 50%;
+}
+
+.cf-hero__card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.cf-hero__card:nth-child(1) {
+  transform: translate(-90%, -50%) rotate(-12deg);
+  z-index: 1;
+}
+
+.cf-hero__card:nth-child(2) {
+  transform: translate(-50%, -54%) rotate(0deg);
+  z-index: 3;
+}
+
+.cf-hero__card:nth-child(3) {
+  transform: translate(-10%, -50%) rotate(12deg);
+  z-index: 2;
+}
+
+.cf-hero:hover .cf-hero__card:nth-child(1) {
+  transform: translate(-98%, -50%) rotate(-16deg);
+}
+
+.cf-hero:hover .cf-hero__card:nth-child(2) {
+  transform: translate(-50%, -58%) rotate(0deg);
+}
+
+.cf-hero:hover .cf-hero__card:nth-child(3) {
+  transform: translate(-2%, -50%) rotate(16deg);
+}
+
+/* Glow behind center card */
+.cf-hero__card:nth-child(2)::after {
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, rgba(139, 92, 246, 0.5), rgba(99, 102, 241, 0.4));
+  z-index: -1;
+  filter: blur(12px);
+  opacity: 0.7;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .cf-hero {
+    flex-direction: column;
+    text-align: center;
+    padding: 2rem 1.5rem;
+  }
+
+  .cf-hero__subtitle {
+    max-width: none;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .cf-hero__actions {
+    justify-content: center;
+  }
+
+  .cf-hero__showcase {
+    width: 240px;
+    height: 200px;
+  }
+
+  .cf-hero__card {
+    width: 120px;
+    height: 168px;
+  }
+
+  .cf-hero__title {
+    font-size: 1.6rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .cf-hero__showcase {
+    display: none;
+  }
+
+  .cf-hero {
+    padding: 1.5rem 1rem;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .cf-hero__card,
+  .cf-hero__cta {
+    transition: none;
+  }
+
+  .cf-hero:hover .cf-hero__card {
+    transform: unset;
+  }
+
+  .cf-hero:hover .cf-hero__card:nth-child(1) {
+    transform: translate(-90%, -50%) rotate(-12deg);
+  }
+
+  .cf-hero:hover .cf-hero__card:nth-child(2) {
+    transform: translate(-50%, -54%) rotate(0deg);
+  }
+
+  .cf-hero:hover .cf-hero__card:nth-child(3) {
+    transform: translate(-10%, -50%) rotate(12deg);
+  }
+}
+
+/* Gallery Showcase Thumbnails (empty state) */
+.cf-gallery-showcase__examples {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  margin: 1rem 0;
+}
+
+.cf-gallery-showcase__thumb {
+  width: 64px;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  opacity: 0.5;
+  transition: opacity 200ms ease;
+}
+
+.cf-gallery-showcase__thumb:hover {
+  opacity: 0.8;
+}

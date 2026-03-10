@@ -10,8 +10,9 @@
 function initializeIntro() {
   const showIntroOnStartup = localStorage.getItem('cardforge-show-intro');
   
-  // Show intro by default for new users, or if preference is set to show
-  if (showIntroOnStartup === null || showIntroOnStartup === 'true') {
+  // Hero section now handles the value prop — intro hidden by default
+  // Only show if user explicitly enabled it in settings
+  if (showIntroOnStartup === 'true') {
     showIntro();
   } else {
     hideIntro();
