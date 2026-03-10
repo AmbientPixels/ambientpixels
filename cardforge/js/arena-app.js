@@ -385,11 +385,20 @@ window.ArenaApp = (function () {
       window.ArenaAPI.loadBosses().then(function (data) {
         var bosses = data.bosses || [];
         var dummy = bosses[0]; // First boss = Training Dummy
-        if (dummy) {
-          window.ArenaBattleUI.startBattle('pve', state.selectedCard, dummy);
-          showScreen('battle');
-          setTimeout(function () { advanceTutorial(); }, 1500);
-        }
+        if (!dummy) { skipTutorial(); return; }
+
+        var extra = state.isDemo ? { cardData: state.selectedCard } : {};
+        return window.ArenaAPI.startBattle('pve', state.selectedCard.id, dummy.id, extra)
+          .then(function (battleData) {
+            state.activeBattle = battleData;
+            state.lastBattleType = 'pve';
+            state.lastOpponentId = dummy.id;
+            showScreen('battle');
+            if (window.ArenaAudio && window.ArenaBackgrounds) window.ArenaAudio.playArenaMusic(window.ArenaBackgrounds.getSelected());
+            if (window.ArenaBackgrounds) window.ArenaBackgrounds.applyToBattleStage();
+            window.ArenaBattleUI.initBattle(battleData);
+            setTimeout(function () { advanceTutorial(); }, 1500);
+          });
       }).catch(function () { skipTutorial(); });
     } else {
       skipTutorial();
