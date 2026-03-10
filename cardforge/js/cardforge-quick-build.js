@@ -351,7 +351,7 @@
       const imgPrompt = `Create a high-quality RPG card portrait: ${prompt}. Vertical portrait composition, dramatic lighting, detailed fantasy/sci-fi art style. No text or UI elements.`;
       const imgResp = await AI.callGemini(imgPrompt, { model: AI.IMAGE_MODEL, imageGeneration: true });
       const imgData = AI.extractImage(imgResp);
-      const imageUrl = imgData ? `data:image/${imgData.mimeType || 'png'};base64,${imgData.data}` : '';
+      const imageUrl = imgData ? `data:${imgData.mimeType};base64,${imgData.base64}` : '';
 
       AI.incrementAiUsage();
 
