@@ -636,7 +636,7 @@ body:has(.arena-screen.active) {
   min-height: 200px;
 }
 .arena-champion {
-  padding: 1.5rem;
+  padding: 1.75rem 2rem;
   background: var(--arena-surface);
   border: 1px solid var(--arena-border);
   border-radius: 16px;
@@ -666,18 +666,18 @@ body:has(.arena-screen.active) {
 /* Champion card with stats (rendered by JS) */
 .arena-champion__card {
   display: flex;
-  gap: 1.2rem;
+  gap: 1.5rem;
 }
 .arena-champion__avatar {
-  width: 110px;
-  height: 110px;
+  width: 130px;
+  height: 130px;
   border-radius: 14px;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.04);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2.5rem;
+  font-size: 3rem;
   color: var(--arena-xp);
   flex-shrink: 0;
   border: 2px solid rgba(139, 92, 246, 0.25);
@@ -686,7 +686,7 @@ body:has(.arena-screen.active) {
 .arena-champion__avatar img { width: 100%; height: 100%; object-fit: cover; }
 .arena-champion__name {
   font-family: 'Rajdhani', sans-serif;
-  font-size: 1.3rem;
+  font-size: 1.5rem;
   font-weight: 700;
   color: var(--arena-text);
 }
