@@ -358,7 +358,6 @@ window.ArenaApp = (function () {
 
   function checkTutorial() {
     if (localStorage.getItem('arena-tutorial-complete')) return;
-    if (state.isDemo) return;
 
     var overlay = document.getElementById('arena-tutorial-overlay');
     if (!overlay) return;
