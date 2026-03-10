@@ -376,9 +376,10 @@ window.ArenaApp = (function () {
     _tutorialActive = true;
     _tutorialStep = -1;
 
-    // Auto-select first card if none selected
-    if (!state.selectedCard && state.userCards.length > 0) {
-      onCardSelected(state.userCards[0], true);
+    // Auto-select first card if none selected; fall back to demo card if collection is empty
+    if (!state.selectedCard) {
+      var cards = state.userCards.length > 0 ? state.userCards : getDemoCards();
+      onCardSelected(cards[0], true);
     }
 
     if (state.selectedCard) {
