@@ -423,9 +423,9 @@
         var borderEl = document.getElementById('card-border-effect');
         var glowEl = document.getElementById('card-glow-effect');
         var eParts = [];
-        if (bgEl && bgEl.value !== 'none') eParts.push(bgEl.options[bgEl.selectedIndex].text);
-        if (borderEl && borderEl.value !== 'none') eParts.push(borderEl.options[borderEl.selectedIndex].text);
-        if (glowEl && glowEl.value !== 'none') eParts.push(glowEl.options[glowEl.selectedIndex].text);
+        if (bgEl && bgEl.value !== 'none') eParts.push(bgEl.options[bgEl.selectedIndex]?.text ?? bgEl.value);
+        if (borderEl && borderEl.value !== 'none') eParts.push(borderEl.options[borderEl.selectedIndex]?.text ?? borderEl.value);
+        if (glowEl && glowEl.value !== 'none') eParts.push(glowEl.options[glowEl.selectedIndex]?.text ?? glowEl.value);
         effectsSnap.textContent = eParts.length > 0 ? eParts.join(' \u00B7 ') : '\u2014';
       }
 

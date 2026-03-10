@@ -2297,17 +2297,17 @@
     
     if (bg && bg.value !== 'none') {
       const chip = document.querySelector(`.effect-chips[data-target="card-bg-effect"] .effect-chip[data-value="${bg.value}"] i`);
-      parts.push(bg.options[bg.selectedIndex].text);
+      parts.push(bg.options[bg.selectedIndex]?.text ?? bg.value);
       if (chip) icons.push(chip.className);
     }
     if (border && border.value !== 'none') {
       const chip = document.querySelector(`.effect-chips[data-target="card-border-effect"] .effect-chip[data-value="${border.value}"] i`);
-      parts.push(border.options[border.selectedIndex].text);
+      parts.push(border.options[border.selectedIndex]?.text ?? border.value);
       if (chip) icons.push(chip.className);
     }
     if (glow && glow.value !== 'none') {
       const chip = document.querySelector(`.effect-chips[data-target="card-glow-effect"] .effect-chip[data-value="${glow.value}"] i`);
-      parts.push(glow.options[glow.selectedIndex].text);
+      parts.push(glow.options[glow.selectedIndex]?.text ?? glow.value);
       if (chip) icons.push(chip.className);
     }
     
