@@ -45,6 +45,12 @@
   --p3-color: rgba(254,215,170,0.8);
 }
 
+.adv-app[data-genre="superhero"] .adv-scene__image-wrap {
+  --p1-color: rgba(147,197,253,0.45);
+  --p2-color: rgba(59,130,246,0.6);
+  --p3-color: rgba(191,219,254,0.8);
+}
+
 /* ── Base particle styles ── */
 .adv-particles {
   position: absolute;

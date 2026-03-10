@@ -58,6 +58,11 @@
   background: linear-gradient(165deg, #1a1008 0%, #2a1a0a 35%, #1a1208 70%, #0f0a04 100%);
 }
 
+/* Superhero — deep blue to dark navy */
+.adv-app[data-genre="superhero"] .adv-scene__image-wrap {
+  background: linear-gradient(135deg, #0a1628 0%, #152a4a 40%, #0f1f3a 70%, #060e1e 100%);
+}
+
 .adv-scene__image {
   position: absolute;
   inset: 0;

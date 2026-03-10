@@ -337,6 +337,63 @@
           { "label": "Parrot companion", "promptFragment": "with a colorful parrot perched on one shoulder" }
         ]
       }
+    },
+    {
+      "id": "superhero",
+      "name": "Superhero",
+      "icon": "fa-bolt",
+      "color": "#3B82F6",
+      "description": "Powers, secret identities, and impossible choices",
+      "genrePrompt": "You are a superhero narrator blending the grounded emotional weight of Daredevil with the mythic scale of Kingdom Come. Superpowers are not wish fulfillment — they are burdens that isolate, obligations that consume, and secrets that corrode the relationships that matter most. The hero's civilian life is as important as their costumed one: a missed dinner, a lie to a loved one, rent due on a apartment with a cracked window. Write action with kinetic physicality — the shockwave of a landing that cracks pavement, wind shearing past at terminal velocity, the copper taste of blood inside a mask. But the real conflict is moral: save the bus or stop the bomb. Protect your identity or trust someone who deserves the truth. Mercy or justice. Every power has a cost — physical, emotional, or social. The city is a character: its skyline, its neighborhoods, its people who are sometimes grateful, sometimes afraid, sometimes hostile. Villains believe they are right. Some of them are, partially. Themes: power and responsibility, the loneliness of secrets, whether one person can fix a broken system, and what happens when the mask becomes more real than the face beneath it. The tone is heroic but human — moments of triumph earned through genuine sacrifice.",
+      "startingStats": { "hp": 120, "maxHp": 120, "gold": 15, "reputation": 5, "strength": 14, "dexterity": 12, "intelligence": 10, "charisma": 10 },
+      "startingInventory": [{ "id": "mask", "name": "Hero Mask", "type": "armor", "description": "Simple domino mask — it's not much, but it's yours" }],
+      "imageStyleHint": "cinematic superhero art, dramatic uplighting with lens flares, bold saturated primary colors against dark urban nightscapes, dynamic perspective with extreme foreshortening, rain-slicked rooftops and neon reflections, influences of Alex Ross painted realism and Jim Lee kinetic energy, heroic silhouettes against city skylines",
+      "tier": "pro",
+      "statHints": {
+        "strength": "Melee combat, lifting debris, overpowering villains",
+        "dexterity": "Dodging attacks, acrobatics, precise power control",
+        "intelligence": "Deduction, tech gadgets, identifying weaknesses",
+        "charisma": "Inspiring civilians, de-escalation, maintaining cover identity"
+      },
+      "archetypePresets": [
+        { "label": "Bruiser", "icon": "fa-fist-raised", "stats": { "strength": 18, "dexterity": 10, "intelligence": 6, "charisma": 8 } },
+        { "label": "Speedster", "icon": "fa-bolt", "stats": { "strength": 8, "dexterity": 18, "intelligence": 8, "charisma": 8 } },
+        { "label": "Mastermind", "icon": "fa-brain", "stats": { "strength": 6, "dexterity": 10, "intelligence": 18, "charisma": 8 } }
+      ],
+      "characterOptions": {
+        "gender": [
+          { "label": "Male", "promptFragment": "male" },
+          { "label": "Female", "promptFragment": "female" }
+        ],
+        "origin": [
+          { "label": "Lab Accident", "promptFragment": "a scientist transformed by a lab accident" },
+          { "label": "Born with Powers", "promptFragment": "a mutant who manifested powers at puberty" },
+          { "label": "Alien Heritage", "promptFragment": "half-human with latent alien abilities" },
+          { "label": "Tech Genius", "promptFragment": "a brilliant inventor who built their own suit" },
+          { "label": "Mystic Training", "promptFragment": "trained in ancient mystical arts" }
+        ],
+        "build": [
+          { "label": "Athletic", "promptFragment": "lean and athletic" },
+          { "label": "Imposing", "promptFragment": "tall and imposing" },
+          { "label": "Unassuming", "promptFragment": "average and unassuming — easy to overlook" },
+          { "label": "Powerful", "promptFragment": "broad and powerfully built" }
+        ],
+        "hair": [
+          { "label": "Black", "promptFragment": "with dark hair" },
+          { "label": "Brown", "promptFragment": "with brown hair" },
+          { "label": "Blonde", "promptFragment": "with blonde hair" },
+          { "label": "Red", "promptFragment": "with red hair" },
+          { "label": "White", "promptFragment": "with striking white hair" },
+          { "label": "Shaved", "promptFragment": "with a shaved head" }
+        ],
+        "distinguishingFeature": [
+          { "label": "None", "promptFragment": "" },
+          { "label": "Glowing eyes", "promptFragment": "whose eyes glow faintly when powers activate" },
+          { "label": "Visible scars", "promptFragment": "with scars from battles they barely survived" },
+          { "label": "Energy aura", "promptFragment": "surrounded by a faint crackling energy aura" },
+          { "label": "Unusual skin tone", "promptFragment": "with subtly metallic or luminous skin" }
+        ]
+      }
     }
   ]
 }

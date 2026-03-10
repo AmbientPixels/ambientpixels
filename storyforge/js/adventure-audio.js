@@ -47,7 +47,8 @@ var StoryAudio = (function () {
     scifi:     ['scifi-1.mp3', 'scifi-2.mp3', 'scifi-3.mp3', 'scifi-4.mp3'],
     detective: ['detective-1.mp3', 'detective-2.mp3', 'detective-3.mp3'],
     postapoc:  ['postapoc-1.mp3', 'postapoc-2.mp3', 'postapoc-3.mp3', 'postapoc-4.mp3'],
-    pirate:    ['pirate-1.mp3', 'pirate-2.mp3', 'pirate-3.mp3', 'pirate-4.mp3', 'pirate-5.mp3']
+    pirate:    ['pirate-1.mp3', 'pirate-2.mp3', 'pirate-3.mp3', 'pirate-4.mp3', 'pirate-5.mp3'],
+    superhero: ['superhero-1.mp3', 'superhero-2.mp3', 'superhero-3.mp3', 'superhero-4.mp3', 'superhero-5.mp3']
   };
 
   /* ══════════════════════════════════════════════════════════════════
