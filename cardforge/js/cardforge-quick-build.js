@@ -1,10 +1,18 @@
 /**
  * CardForge Quick Build Wizard
- * 4-step guided card creation for casual/first-time users.
+ * 5-step guided card creation for casual/first-time users.
  * Reuses existing preset system, AI generation, and save pipeline.
  */
 (function () {
   'use strict';
+
+  const CLASSES = [
+    { id: 'Fighter',  label: 'Fighter',  icon: 'fa-hand-fist',        playstyle: 'Brawler',    desc: 'High physical damage and raw strength. Best stat: STR.' },
+    { id: 'Caster',   label: 'Caster',   icon: 'fa-wand-magic-sparkles', playstyle: 'Spellcaster', desc: 'Powerful magic attacks fueled by intelligence. Best stat: INT.' },
+    { id: 'Rogue',    label: 'Rogue',    icon: 'fa-user-ninja',       playstyle: 'Speedster',  desc: 'Fast precision strikes and agility-based damage. Best stat: AGI.' },
+    { id: 'Guardian', label: 'Guardian', icon: 'fa-shield-halved',    playstyle: 'Tank',       desc: 'Absorbs punishment and outlasts opponents. Best stat: END.' },
+    { id: 'Trickster',label: 'Trickster',icon: 'fa-dice',             playstyle: 'Wild Card',  desc: 'Unpredictable luck-based abilities with surprise effects. Best stat: LCK.' }
+  ];
 
   const VIBES = [
     { id: 'fantasy-warrior', label: 'Fantasy Warrior', icon: 'fa-khanda', description: 'Swords, shields, and ancient valor', presetId: 'hero-classic', aiPrompt: 'A heroic fantasy warrior in gleaming armor wielding a legendary sword, standing before a castle at sunset' },
@@ -57,7 +65,7 @@
       document.body.appendChild(_overlayEl);
     }
 
-    const stepTitles = ['Pick Your Vibe', 'Choose Artwork', 'Name & Details', 'Preview & Save'];
+    const stepTitles = ['Pick Your Vibe', 'Choose Class', 'Choose Artwork', 'Name & Details', 'Preview & Save'];
 
     _overlayEl.innerHTML = `
       <div class="qb-modal" role="dialog" aria-label="Quick Build Wizard">
@@ -87,9 +95,10 @@
   function _renderStepContent() {
     switch (_state.step) {
       case 0: return _renderVibeStep();
-      case 1: return _renderArtworkStep();
-      case 2: return _renderDetailsStep();
-      case 3: return _renderPreviewStep();
+      case 1: return _renderClassStep();
+      case 2: return _renderArtworkStep();
+      case 3: return _renderDetailsStep();
+      case 4: return _renderPreviewStep();
       default: return '';
     }
   }
@@ -114,7 +123,25 @@
     `;
   }
 
-  // ===== STEP 2: CHOOSE ARTWORK =====
+  // ===== STEP 2: CHOOSE CLASS =====
+
+  function _renderClassStep() {
+    return `
+      <p class="qb-panel-desc">Pick your playstyle. Your class determines your arena ability and combat strengths.</p>
+      <div class="qb-class-grid">
+        ${CLASSES.map(c => `
+          <div class="qb-class-card ${_state.cardClass === c.id ? 'selected' : ''}" data-class-id="${c.id}">
+            <i class="fas ${c.icon}"></i>
+            <span class="qb-class-label">${c.label}</span>
+            <span class="qb-class-playstyle">${c.playstyle}</span>
+            <span class="qb-class-desc">${c.desc}</span>
+          </div>
+        `).join('')}
+      </div>
+    `;
+  }
+
+  // ===== STEP 3: CHOOSE ARTWORK =====
 
   function _renderArtworkStep() {
     const remaining = window.CardForgeAI?.getAiRemaining() ?? 0;
@@ -218,7 +245,7 @@
   // ===== NAV BUTTON =====
 
   function _renderNavButton() {
-    if (_state.step === 3) {
+    if (_state.step === 4) {
       return `
         <div style="display:flex; gap:0.5rem;">
           <button class="qb-nav-btn qb-nav-btn--save" id="qb-save"><i class="fas fa-download"></i> Save</button>
@@ -227,7 +254,9 @@
       `;
     }
 
-    const canAdvance = _state.step === 0 ? !!_state.vibe : true;
+    const canAdvance = _state.step === 0 ? !!_state.vibe
+                     : _state.step === 1 ? !!_state.cardClass
+                     : true;
     return `<button class="qb-nav-btn qb-nav-btn--next" id="qb-next" ${canAdvance ? '' : 'disabled'}>Next <i class="fas fa-arrow-right"></i></button>`;
   }
 
@@ -256,9 +285,10 @@
     // Step-specific bindings
     switch (_state.step) {
       case 0: _bindVibeEvents(); break;
-      case 1: _bindArtworkEvents(); break;
-      case 2: _bindDetailsEvents(); break;
-      case 3: _triggerPreview(); break;
+      case 1: _bindClassEvents(); break;
+      case 2: _bindArtworkEvents(); break;
+      case 3: _bindDetailsEvents(); break;
+      case 4: _triggerPreview(); break;
     }
   }
 
@@ -287,6 +317,15 @@
         _render();
       });
     }
+  }
+
+  function _bindClassEvents() {
+    document.querySelectorAll('.qb-class-card').forEach(card => {
+      card.addEventListener('click', () => {
+        _state.cardClass = card.dataset.classId;
+        _render();
+      });
+    });
   }
 
   function _bindArtworkEvents() {
@@ -389,8 +428,8 @@
   // ===== NAVIGATION =====
 
   function _handleNext() {
-    // Capture step 2 details before advancing
-    if (_state.step === 2) {
+    // Capture step 3 details before advancing
+    if (_state.step === 3) {
       const nameEl = document.getElementById('qb-name');
       const classEl = document.getElementById('qb-class');
       const rarityEl = document.getElementById('qb-rarity');
