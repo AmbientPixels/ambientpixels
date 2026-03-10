@@ -4,6 +4,7 @@ Allow: /blog/
 Allow: /log/
 Allow: /nova/
 Allow: /cardforge/
+Allow: /storyforge/
 Allow: /projects/
 Allow: /about/
 

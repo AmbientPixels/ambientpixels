@@ -8,7 +8,19 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="CardForge — Create custom RPG cards, build decks, and battle in the arena. AI-powered card creator with class abilities, PvE combat, and a public gallery.">
+  <link rel="canonical" href="https://www.ambientpixels.ai/cardforge/" />
   <title>CardForge — RPG Card Game | Create, Collect & Battle</title>
+  <!-- Open Graph -->
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="CardForge — Modular RPG Card Creator" />
+  <meta property="og:description" content="Create custom RPG cards with 40M+ unique combinations. AI-powered card creator with PvE arena battles and a public gallery." />
+  <meta property="og:image" content="https://www.ambientpixels.ai/cardforge/images/og-cardforge.png" />
+  <meta property="og:url" content="https://www.ambientpixels.ai/cardforge/" />
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="CardForge — Modular RPG Card Creator" />
+  <meta name="twitter:description" content="Create custom RPG cards with 40M+ unique combinations. AI-powered card creator with PvE arena battles and a public gallery." />
+  <meta name="twitter:image" content="https://www.ambientpixels.ai/cardforge/images/og-cardforge.png" />
   <meta name="csrf-token" content="">
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
@@ -31,7 +43,19 @@
   <link rel="stylesheet" href="css/cardforge-glow-effects.css">
   <link rel="stylesheet" href="css/cardforge-layout.css"> <!-- New local layout styles that override grid.css -->
   <link rel="stylesheet" href="css/cardforge-responsive.css"> <!-- Responsive design — MUST be last CSS to override all -->
-
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "CardForge",
+    "description": "Modular RPG card creator with AI-powered generation, 40M+ unique combinations, PvE arena battles, and a public gallery.",
+    "url": "https://www.ambientpixels.ai/cardforge/",
+    "applicationCategory": "GameApplication",
+    "operatingSystem": "Web Browser",
+    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+    "author": { "@type": "Organization", "name": "AmbientPixels", "url": "https://www.ambientpixels.ai" }
+  }
+  </script>
 </head>
 <body data-theme="dark" class="cf-ui--neon">
   <svg aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden;">
@@ -105,6 +129,7 @@
 
 <!-- Top Bar (brand + controls) -->
 <header class="cf-page-bar" role="banner">
+  <h1 class="sr-only">CardForge — RPG Card Creator</h1>
   <div class="cf-page-bar__titles">
     <div class="cf-page-bar__title">CardForge</div>
     <a href="https://ambientpixels.ai" class="cf-page-bar__subtitle cf-brand-link">by AmbientPixels</a>
@@ -112,6 +137,9 @@
   <div class="cf-page-bar__actions" aria-label="Page controls">
     <a href="/cardforge/arena.html" class="cf-new-card-btn" title="Enter the Arena" style="text-decoration:none;">
       <i class="fas fa-shield-halved"></i> Arena
+    </a>
+    <a href="/storyforge/" class="cf-new-card-btn" title="Play StoryForge" style="text-decoration:none;">
+      <i class="fas fa-book-open-reader"></i> StoryForge
     </a>
     <button type="button" id="clear-all-btn" class="cf-new-card-btn" title="New Card">
       <i class="fas fa-plus"></i> New Card

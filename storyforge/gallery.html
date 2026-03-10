@@ -28,6 +28,16 @@
   <link rel="stylesheet" href="css/adventure-gallery.css" />
   <link rel="stylesheet" href="css/adventure-effects.css" />
   <link rel="stylesheet" href="css/adventure-responsive.css" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "StoryForge Gallery — Player Adventures",
+    "description": "Browse completed adventures from players around the world. Filter by genre, sort by level, and share your stories.",
+    "url": "https://www.ambientpixels.ai/storyforge/gallery.html",
+    "isPartOf": { "@type": "WebSite", "name": "AmbientPixels", "url": "https://www.ambientpixels.ai" }
+  }
+  </script>
 </head>
 <body style="background:#0F0F23" data-theme="dark">
   <div class="adv-app">
@@ -41,6 +51,7 @@
       <nav class="adv-header__nav">
         <a href="/storyforge/" class="adv-header__link">Hub</a>
         <a href="/storyforge/gallery.html" class="adv-header__link adv-header__link--active">Gallery</a>
+        <a href="/cardforge/" class="adv-header__link">CardForge</a>
         <a id="adv-login-btn" class="adv-header__link" href="/.auth/login/aad?post_login_redirect_uri=/storyforge/gallery.html">
           <i class="fas fa-sign-in-alt"></i> Sign In
         </a>

@@ -75,6 +75,34 @@
     <priority>0.6</priority>
   </url>
 
+  <url>
+    <loc>https://ambientpixels.ai/cardforge/arena.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://ambientpixels.ai/cardforge/devlog.html</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+  </url>
+
+  <!-- StoryForge -->
+  <url>
+    <loc>https://ambientpixels.ai/storyforge/</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ambientpixels.ai/storyforge/play.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://ambientpixels.ai/storyforge/gallery.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>
+
   <!-- GlitchLab -->
   <url>
     <loc>https://ambientpixels.ai/glitchlab.html</loc>
