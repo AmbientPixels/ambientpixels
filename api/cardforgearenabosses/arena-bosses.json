@@ -6,7 +6,7 @@
       "name": "Training Dummy",
       "class": "Construct",
       "quote": "Stand still and take it.",
-      "avatar": "/cardforge/img/bosses/Training-Dummy-02.png",
+      "avatar": "/cardforge/img/bosses/Training-Dummy-02.webp",
       "bio": "A practice target for arena newcomers. Doesn't hit hard but can take a beating.",
       "stats": [
         { "name": "Strength", "value": 25 },
@@ -27,7 +27,7 @@
       "name": "Gutter Rat",
       "class": "Scavenger",
       "quote": "Fast paws, sharp teeth.",
-      "avatar": "/cardforge/img/bosses/Gutter-Rat01.png",
+      "avatar": "/cardforge/img/bosses/Gutter-Rat01.webp",
       "bio": "A nimble street fighter who relies on speed over strength.",
       "stats": [
         { "name": "Strength", "value": 35 },
@@ -48,7 +48,7 @@
       "name": "Ironclad Sentinel",
       "class": "Guardian",
       "quote": "None shall pass.",
-      "avatar": "/cardforge/img/bosses/Ironclad-Sentinel-01.png",
+      "avatar": "/cardforge/img/bosses/Ironclad-Sentinel-01.webp",
       "bio": "A heavily armored defender who absorbs punishment and outlasts opponents.",
       "stats": [
         { "name": "Strength", "value": 40 },
@@ -69,7 +69,7 @@
       "name": "Shadow Stalker",
       "class": "Assassin",
       "quote": "You won't see me coming.",
-      "avatar": "/cardforge/img/bosses/Shadow-Stalker-01.png",
+      "avatar": "/cardforge/img/bosses/Shadow-Stalker-01.webp",
       "bio": "Blindingly fast and unpredictable. Strikes before you can react.",
       "stats": [
         { "name": "Strength", "value": 50 },
@@ -90,7 +90,7 @@
       "name": "Arcane Scholar",
       "class": "Mage",
       "quote": "Knowledge is the ultimate weapon.",
-      "avatar": "/cardforge/img/bosses/Arcane-Scholar-01.png",
+      "avatar": "/cardforge/img/bosses/Arcane-Scholar-01.webp",
       "bio": "Fragile but devastating. Channels pure intellect into destructive abilities.",
       "stats": [
         { "name": "Strength", "value": 20 },
@@ -111,7 +111,7 @@
       "name": "Warlord Grax",
       "class": "Berserker",
       "quote": "Pain fuels my rage.",
-      "avatar": "/cardforge/img/bosses/Warlord-Grax01.png",
+      "avatar": "/cardforge/img/bosses/Warlord-Grax01.webp",
       "bio": "A brutal war veteran who hits like a truck and gets stronger as the fight goes on.",
       "stats": [
         { "name": "Strength", "value": 75 },
@@ -134,7 +134,7 @@
       "name": "Crystal Weaver",
       "class": "Enchanter",
       "quote": "Every thread of magic bends to my will.",
-      "avatar": "/cardforge/img/bosses/Crystal-Weaver-10.png",
+      "avatar": "/cardforge/img/bosses/Crystal-Weaver-10.webp",
       "bio": "A versatile spellcaster who balances offense and defense with crystalline precision.",
       "stats": [
         { "name": "Strength", "value": 35 },
@@ -157,7 +157,7 @@
       "name": "Void Harbinger",
       "class": "Warlock",
       "quote": "The void consumes all.",
-      "avatar": "/cardforge/img/bosses/Void-Harbinger-01.png",
+      "avatar": "/cardforge/img/bosses/Void-Harbinger-01.webp",
       "bio": "Channels dark energy into overwhelming ability attacks. Terrifyingly powerful.",
       "stats": [
         { "name": "Strength", "value": 45 },
@@ -181,7 +181,7 @@
       "name": "Titanium Aegis",
       "class": "Juggernaut",
       "quote": "I am the wall that does not break.",
-      "avatar": "/cardforge/img/bosses/Titanium-Aegis-01.png",
+      "avatar": "/cardforge/img/bosses/Titanium-Aegis-01.webp",
       "bio": "Nearly indestructible. Outlasts every opponent through sheer endurance and patience.",
       "stats": [
         { "name": "Strength", "value": 60 },
@@ -204,7 +204,7 @@
       "name": "The Forge King",
       "class": "Mythic",
       "quote": "I forged myself in the fires of a thousand battles.",
-      "avatar": "/cardforge/img/bosses/The-Forge-King-01.png",
+      "avatar": "/cardforge/img/bosses/The-Forge-King-01.webp",
       "bio": "The ultimate challenge. Perfectly balanced with no weaknesses. Only the strongest cards survive.",
       "stats": [
         { "name": "Strength", "value": 75 },
