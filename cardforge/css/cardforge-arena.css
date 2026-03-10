@@ -628,7 +628,7 @@ body:has(.arena-screen.active) {
   grid-template-columns: 1fr 260px;
   gap: 1.5rem;
   margin-bottom: 2rem;
-  align-items: start;
+  align-items: stretch;
 }
 
 /* --- Champion Section --- */
@@ -642,6 +642,8 @@ body:has(.arena-screen.active) {
   border-radius: 16px;
   position: relative;
   overflow: hidden;
+  height: 100%;
+  box-sizing: border-box;
 }
 .arena-champion::before {
   content: '';
