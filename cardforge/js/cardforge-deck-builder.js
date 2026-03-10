@@ -460,6 +460,10 @@
       var inDeck = deckCardIds.has(c.id);
       var hasRendered = cd.renderedFront && cd.frontClasses;
 
+      var cardClass = cd.characterClass || c.class || '';
+      var cardRarity = cd.rarity || '';
+      var cardStats = cd.stats || [];
+
       var contentHTML;
       if (hasRendered) {
         // Full rendered card using mini-card-scaler pattern
@@ -468,8 +472,6 @@
         '</div>';
       } else {
         // Fallback: styled mini-card with available data
-        var cardClass = cd.characterClass || c.class || '';
-        var cardRarity = cd.rarity || '';
         var rarityColor = RARITY_COLORS[cardRarity] || '#9ca3af';
         var imgHTML = cardImage
           ? '<img class="db-fallback-card-img" src="' + escAttr(cardImage) + '" alt="' + escAttr(cardName) + '" loading="lazy" />'
@@ -486,9 +488,17 @@
         '</div>';
       }
 
+      var infoHTML = '<div class="db-coll-card-info">' +
+        '<div class="db-coll-card-name">' + esc(cardName) + '</div>' +
+        '<div class="db-coll-card-meta">' +
+          (cardClass ? '<span class="db-coll-card-class">' + esc(cardClass) + '</span>' : '') +
+          rarityBadge(cardRarity) +
+        '</div>' +
+        statPills(cardStats) +
+      '</div>';
+
       return '<div class="db-coll-card' + (inDeck ? ' in-deck' : '') + (hasRendered ? ' has-render' : '') + '" data-card-id="' + c.id + '">' +
-        contentHTML +
-        '<div class="db-coll-card-label">' + esc(cardName) + '</div>' +
+        contentHTML + infoHTML +
       '</div>';
     }).join('');
 

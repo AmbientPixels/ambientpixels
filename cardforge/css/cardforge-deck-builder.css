@@ -389,20 +389,43 @@
   overflow: hidden !important;
 }
 
-/* Name label below rendered card */
-.db-coll-card-label {
-  padding: 0.3rem 0.5rem;
+/* ── Card info section below card visual ── */
+.db-coll-card-info {
+  padding: 0.4rem 0.5rem 0.45rem;
+  background: rgba(15, 15, 28, 0.9);
+  border-top: 1px solid rgba(255,255,255,0.04);
+}
+.db-coll-card-name {
   font-size: 0.68rem;
-  font-weight: 600;
+  font-weight: 700;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  text-align: center;
-  background: rgba(15, 15, 28, 0.9);
+  margin-bottom: 0.2rem;
 }
-
-/* Hide label on fallback cards (they show name in .db-coll-card-info) */
-.db-coll-card:not(.has-render) > .db-coll-card-label { display: none; }
+.db-coll-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.25rem;
+}
+.db-coll-card-class {
+  font-size: 0.58rem;
+  color: #8888aa;
+  font-weight: 500;
+}
+.db-coll-card-info .db-rarity-badge {
+  font-size: 0.52rem;
+  padding: 0.1rem 0.35rem;
+}
+.db-coll-card-info .db-stat-pills {
+  gap: 0.2rem;
+}
+.db-coll-card-info .db-stat-pill {
+  font-size: 0.5rem;
+  padding: 0.1rem 0.3rem;
+}
 
 /* ── Fallback styled card (when renderedFront not available) ── */
 .db-fallback-card {
