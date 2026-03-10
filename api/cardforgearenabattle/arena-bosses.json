@@ -12,7 +12,7 @@
         { "name": "Strength", "value": 25 },
         { "name": "Agility", "value": 15 },
         { "name": "Intelligence", "value": 10 },
-        { "name": "Endurance", "value": 80 },
+        { "name": "Endurance", "value": 120 },
         { "name": "Luck", "value": 10 }
       ],
       "badges": [],

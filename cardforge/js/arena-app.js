@@ -351,9 +351,11 @@ window.ArenaApp = (function () {
   var _tutorialActive = false;
 
   var TUTORIAL_STEPS = [
-    { move: 'strike', text: 'Strike deals damage based on your STR stat. Try it now!' },
-    { move: 'guard', text: 'Guard blocks 60% of incoming Strike damage. Use it to survive heavy hits!' },
-    { move: 'ability', text: 'Abilities cost charges and deal INT-based damage. Use yours now!', fallback: 'heal', fallbackText: 'Heal recovers HP based on your END stat. Try healing up!' }
+    { move: 'strike',  text: 'Strike is your basic attack — deals physical damage based on your STR stat. Hit the Training Dummy!' },
+    { move: 'guard',   text: 'Guard blocks 60% of incoming Strike damage. When the enemy looks ready to swing, Guard to soften the blow.' },
+    { move: 'heal',    text: 'Heal recovers HP based on your END stat. Use it when you\'re taking damage and need to stay in the fight.' },
+    { move: 'counter', text: 'Counter reflects the next enemy Strike back at them. Time it right and let the Dummy hurt itself!' },
+    { move: 'ability', text: 'Your class Ability costs charges (earned by attacking) and deals powerful INT-based damage. Spend your charges now!' }
   ];
 
   function checkTutorial() {
@@ -421,17 +423,8 @@ window.ArenaApp = (function () {
     var step = TUTORIAL_STEPS[_tutorialStep];
     var moveBtn = document.querySelector('[data-move="' + step.move + '"]');
 
-    if (step.move === 'ability' && step.fallback) {
-      var chargeEl = document.getElementById('arena-ability-charge');
-      var chargeText = chargeEl ? chargeEl.textContent : '0/0';
-      var charges = parseInt(chargeText.split('/')[0]) || 0;
-      if (charges < 2) {
-        moveBtn = document.querySelector('[data-move="' + step.fallback + '"]');
-        step = { move: step.fallback, text: step.fallbackText };
-      }
-    }
-
-    if (!moveBtn) { advanceTutorial(); return; }
+    // Skip step if the button doesn't exist or is hidden
+    if (!moveBtn || moveBtn.offsetParent === null) { advanceTutorial(); return; }
 
     moveBtn.classList.add('arena-tutorial-highlight');
 
