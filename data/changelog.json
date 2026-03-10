@@ -1,10 +1,10 @@
 {
-  "updated": "2026-03-09T14:07:03.212Z",
+  "updated": "2026-03-10T14:02:19.079Z",
   "entries": [
     {
-      "hash": "727db63",
-      "date": "2026-03-09 00:16:34 -0700",
-      "message": "feat(storyforge): disable DEV_BYPASS — auth-based tiers now live"
+      "hash": "f994589",
+      "date": "2026-03-10 01:16:15 -0700",
+      "message": "Fix quick build preview always showing preset sample data"
     }
   ]
 }

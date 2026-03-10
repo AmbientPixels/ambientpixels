@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2026-03-09T14:07:03.075Z",
+  "updated": "2026-03-10T14:02:18.946Z",
   "root": [
     {
       "type": "folder",
@@ -331,6 +331,12 @@
           "type": "folder",
           "name": "cardforgearenahistory",
           "path": "api/cardforgearenahistory",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "cardforgearenaleaderboard",
+          "path": "api/cardforgearenaleaderboard",
           "children": []
         },
         {
@@ -1975,6 +1981,25 @@
       "name": "storyforge",
       "path": "storyforge",
       "children": [
+        {
+          "type": "folder",
+          "name": "audio",
+          "path": "storyforge/audio",
+          "children": [
+            {
+              "type": "folder",
+              "name": "ambient",
+              "path": "storyforge/audio/ambient",
+              "children": []
+            },
+            {
+              "type": "folder",
+              "name": "sfx",
+              "path": "storyforge/audio/sfx",
+              "children": []
+            }
+          ]
+        },
         {
           "type": "folder",
           "name": "css",

@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "420c157a-e245-46d5-b427-1e417deac6b3",
-      "hash": "727db63fffc45d4d767ece39f32ac4abbea7ddb8",
-      "message": "feat(storyforge): disable DEV_BYPASS — auth-based tiers now live",
-      "timestamp": "2026-03-09 00:16:34 -0700",
+      "id": "299f78bb-d500-43db-acf8-5f90fe75ff01",
+      "hash": "f994589357bbe600dfd97d6754ef6b4d320eb2ca",
+      "message": "Fix quick build preview always showing preset sample data",
+      "timestamp": "2026-03-10 01:16:15 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/727db63fffc45d4d767ece39f32ac4abbea7ddb8"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/f994589357bbe600dfd97d6754ef6b4d320eb2ca"
     }
   ],
-  "timestamp": "2026-03-09T14:07:04.188Z",
+  "timestamp": "2026-03-10T14:02:21.039Z",
   "count": 1,
-  "scanId": 1773065224188
+  "scanId": 1773151341039
 }
