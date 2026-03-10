@@ -363,9 +363,8 @@
         const mode = tile.dataset.artMode;
         if (mode === 'skip') {
           _state.artworkMode = null;
-          _state.artworkUrl = _state.vibe
-            ? (window.PresetConfigurations?.[_state.vibe.presetId]?.sampleData?.avatar || '')
-            : '';
+          _state.artworkUrl = '';
+          _state.step++;
           _render();
         } else {
           _state.artworkMode = mode;
