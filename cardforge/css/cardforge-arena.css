@@ -819,7 +819,7 @@ body:has(.arena-screen.active) {
   display: flex;
   gap: 0.75rem;
   overflow-x: auto;
-  padding: 0.5rem 0;
+  padding: 0.75rem 0.5rem;
   scroll-behavior: smooth;
   scrollbar-width: thin;
   scrollbar-color: rgba(139, 92, 246, 0.2) transparent;
