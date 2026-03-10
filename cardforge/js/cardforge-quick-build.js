@@ -480,66 +480,93 @@
   // ===== PREVIEW =====
 
   function _triggerPreview() {
-    // Apply preset and data to the actual editor, then render preview
+    // Step 1: Apply preset visual style
     setTimeout(() => {
       try {
         if (_state.vibe && window.CardForge?.applyPreset) {
           window.CardForge.applyPreset(_state.vibe.presetId);
         }
-
-        // Override image container style if user picked one
-        if (_state.imageContainer && window.ModularState) {
-          window.ModularState.imageContainer = _state.imageContainer;
-          if (_state.imageContainer === 'masked') window.ModularState.imageContainerVariant = 'circle';
-          else if (_state.imageContainer === 'polaroid') window.ModularState.imageContainerVariant = 'classic';
-          else if (_state.imageContainer === 'banner') window.ModularState.imageContainerVariant = 'top';
-          else window.ModularState.imageContainerVariant = '';
-        }
-
-        // Override with wizard data
-        const fields = {
-          'card-name': _state.cardName,
-          'card-class': _state.cardClass || '',
-          'card-rarity': _state.cardRarity || 'Common',
-          'card-avatar': _state.artworkUrl || ''
-        };
-
-        // Apply AI-generated data if available
-        if (_state.aiData) {
-          if (_state.aiData.quote) fields['card-quote'] = _state.aiData.quote;
-          if (_state.aiData.biography) fields['card-bio'] = _state.aiData.biography;
-          if (_state.aiData.level) fields['card-level'] = _state.aiData.level;
-          if (_state.aiData.characterSubclass) fields['card-subclass'] = _state.aiData.characterSubclass;
-        }
-
-        Object.entries(fields).forEach(([id, val]) => {
-          const el = document.getElementById(id);
-          if (el && val) el.value = val;
-        });
-
-        // Update preview
-        if (window.CardForge?.updatePreview) {
-          window.CardForge.updatePreview();
-        }
-
-        // Clone preview into wizard
-        const previewContainer = document.getElementById('qb-card-preview');
-        const sourcePreview = document.querySelector('.card-preview-canvas');
-        if (previewContainer && sourcePreview) {
-          const clone = sourcePreview.cloneNode(true);
-          clone.style.transform = 'scale(0.7)';
-          clone.style.transformOrigin = 'top center';
-          previewContainer.innerHTML = '';
-          previewContainer.appendChild(clone);
-        }
       } catch (err) {
-        console.error('Preview generation error:', err);
-        const previewContainer = document.getElementById('qb-card-preview');
-        if (previewContainer) {
-          previewContainer.innerHTML = '<div class="qb-status error">Preview failed to generate</div>';
-        }
+        console.warn('Quick Build preset error:', err);
       }
-    }, 100);
+
+      // Step 2: Override with wizard data after preset fully settles
+      setTimeout(() => {
+        try {
+          // Apply chosen image container style
+          if (_state.imageContainer && window.ModularState) {
+            window.ModularState.imageContainer = _state.imageContainer;
+            if (_state.imageContainer === 'masked') window.ModularState.imageContainerVariant = 'circle';
+            else if (_state.imageContainer === 'polaroid') window.ModularState.imageContainerVariant = 'classic';
+            else if (_state.imageContainer === 'banner') window.ModularState.imageContainerVariant = 'top';
+            else window.ModularState.imageContainerVariant = '';
+          }
+
+          // Override form fields with wizard data
+          const fields = {
+            'card-name': _state.cardName,
+            'card-class': _state.cardClass || '',
+            'card-rarity': _state.cardRarity || 'Common',
+            'card-avatar': _state.artworkUrl || ''
+          };
+
+          if (_state.aiData) {
+            if (_state.aiData.quote) fields['card-quote'] = _state.aiData.quote;
+            if (_state.aiData.biography) fields['card-bio'] = _state.aiData.biography;
+            if (_state.aiData.level) fields['card-level'] = _state.aiData.level;
+            if (_state.aiData.characterSubclass) fields['card-subclass'] = _state.aiData.characterSubclass;
+          }
+
+          Object.entries(fields).forEach(([id, val]) => {
+            const el = document.getElementById(id);
+            if (el && val) el.value = val;
+          });
+
+          // Apply AI-generated stats if available
+          if (_state.aiData?.stats && window.CardForge?.createStatRow) {
+            const statsContainer = document.getElementById('stats-editor');
+            if (statsContainer) {
+              statsContainer.innerHTML = '';
+              _state.aiData.stats.slice(0, 5).forEach(s => {
+                statsContainer.appendChild(window.CardForge.createStatRow(s.name || '', s.value || 0));
+              });
+            }
+          }
+
+          // Re-render the preview
+          if (window.CardForge?.updatePreview) {
+            window.CardForge.updatePreview();
+          }
+
+          // Belt-and-suspenders: directly set avatar img src
+          if (_state.artworkUrl) {
+            document.querySelectorAll('.card-preview-zone .card-avatar').forEach(img => {
+              img.src = _state.artworkUrl;
+            });
+          }
+
+          // Clone preview into wizard with corrected height
+          const previewContainer = document.getElementById('qb-card-preview');
+          const sourcePreview = document.querySelector('.card-preview-canvas');
+          if (previewContainer && sourcePreview) {
+            const scale = 0.65;
+            const clone = sourcePreview.cloneNode(true);
+            clone.style.transform = `scale(${scale})`;
+            clone.style.transformOrigin = 'top center';
+            previewContainer.innerHTML = '';
+            previewContainer.style.height = `${sourcePreview.offsetHeight * scale}px`;
+            previewContainer.style.overflow = 'hidden';
+            previewContainer.appendChild(clone);
+          }
+        } catch (err) {
+          console.error('Preview generation error:', err);
+          const previewContainer = document.getElementById('qb-card-preview');
+          if (previewContainer) {
+            previewContainer.innerHTML = '<div class="qb-status error">Preview failed to generate</div>';
+          }
+        }
+      }, 150);
+    }, 50);
   }
 
   // ===== SAVE =====

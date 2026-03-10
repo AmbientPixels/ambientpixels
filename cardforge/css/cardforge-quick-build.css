@@ -80,7 +80,7 @@
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  padding: 1rem 1.5rem;
+  padding: 0.6rem 1.5rem;
 }
 
 .qb-step-dot {
@@ -124,7 +124,7 @@
 
 /* Panel body */
 .qb-body {
-  padding: 1.5rem;
+  padding: 1rem 1.5rem;
   min-height: 0;
   flex: 1;
   overflow-y: auto;
@@ -392,7 +392,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 1rem;
+  gap: 0.5rem;
 }
 
 .qb-card-preview {
