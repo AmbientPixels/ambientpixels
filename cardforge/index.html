@@ -1840,6 +1840,29 @@
     <p class="cf-footer__links">More from AmbientPixels: <a href="https://ambientpixels.ai/storyforge/">StoryForge</a></p>
   </footer>
 
+  <!-- Onboarding Tour Overlay -->
+  <div class="cf-tour-overlay" id="cf-tour-overlay" style="display:none;">
+    <div class="cf-tour-welcome" id="cf-tour-welcome">
+      <div class="cf-tour-welcome__icon"><i class="fas fa-hammer"></i></div>
+      <h2>Welcome to CardForge</h2>
+      <p>Design custom RPG cards, build decks, and battle in the arena. Let us show you around.</p>
+      <div class="cf-tour-welcome__actions">
+        <button class="cf-tour-btn cf-tour-btn--primary" id="cf-tour-start"><i class="fas fa-play"></i> Take the Tour</button>
+        <button class="cf-tour-btn cf-tour-btn--ghost" id="cf-tour-skip">Skip</button>
+      </div>
+    </div>
+  </div>
+  <div class="cf-tour-tooltip" id="cf-tour-tooltip" style="display:none;">
+    <div class="cf-tour-tooltip__arrow" id="cf-tour-arrow"></div>
+    <div class="cf-tour-tooltip__step" id="cf-tour-step-label"></div>
+    <div class="cf-tour-tooltip__text" id="cf-tour-text"></div>
+    <div class="cf-tour-tooltip__actions">
+      <button class="cf-tour-btn cf-tour-btn--ghost cf-tour-btn--sm" id="cf-tour-skip-step">Skip tour</button>
+      <button class="cf-tour-btn cf-tour-btn--primary cf-tour-btn--sm" id="cf-tour-next"><span id="cf-tour-next-label">Next</span> <i class="fas fa-arrow-right"></i></button>
+    </div>
+  </div>
+  <div class="cf-tour-backdrop" id="cf-tour-backdrop" style="display:none;"></div>
+
   <!-- CardForge Core -->
   <script src="/cardforge/js/config.js"></script>
   <script src="/cardforge/js/arena-api.js"></script>

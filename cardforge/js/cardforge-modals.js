@@ -346,6 +346,11 @@ function createPreferencesTabContent() {
             <i class="fas fa-magic"></i> Show Welcome Intro
           </button>
         </div>
+        <div class="preference-item">
+          <button class="settings-btn secondary" onclick="window.resetTour()">
+            <i class="fas fa-route"></i> Replay Guided Tour
+          </button>
+        </div>
       </div>
 
       <div class="preference-group preference-coming-soon">
@@ -887,7 +892,182 @@ function setTheme(theme) {
 // INITIALIZATION
 // ================================
 
+// ================================
+// ONBOARDING TOUR
+// ================================
+
+var _tourStep = -1;
+var _tourActive = false;
+var _tourHighlightEl = null;
+
+var TOUR_STEPS = [
+  {
+    selector: '.cf-hero__actions',
+    text: 'Start here. <strong>Start Creating</strong> opens the editor, <strong>Quick Build</strong> walks you through a guided 4-step wizard, and <strong>Deck Builder</strong> and <strong>Arena</strong> take you to dedicated pages.',
+    position: 'bottom'
+  },
+  {
+    selector: '.step-btn[data-step="0"]',
+    text: 'Choose a preset to jumpstart your card — each one configures layout, colors, stats, and artwork in one click. Or use the randomizer.',
+    position: 'right'
+  },
+  {
+    selector: '.cf-stepper',
+    text: 'Navigate your card through these steps: <strong>Design</strong> the look, set <strong>Basics</strong> like name and class, tune <strong>Stats</strong>, add <strong>Buffs</strong> and <strong>Attributes</strong>.',
+    position: 'right'
+  },
+  {
+    selector: '.card-preview-zone',
+    text: 'Your card updates in real-time as you edit. Flip it to see the back with stats, buffs, and lore. Use the toolbar to save, reset, or randomize.',
+    position: 'left'
+  },
+  {
+    selector: '.step-btn--forge',
+    text: 'When you\'re done, head to <strong>Forge</strong> to save your card, publish it to the gallery, or add it to a deck. Your cards are also battle-ready in the Arena.',
+    position: 'right'
+  }
+];
+
+function checkTour() {
+  if (localStorage.getItem('cardforge-tour-complete')) return;
+  var overlay = document.getElementById('cf-tour-overlay');
+  if (!overlay) return;
+
+  overlay.style.display = 'flex';
+  document.getElementById('cf-tour-start').addEventListener('click', startTour);
+  document.getElementById('cf-tour-skip').addEventListener('click', endTour);
+}
+
+function startTour() {
+  var overlay = document.getElementById('cf-tour-overlay');
+  if (overlay) overlay.style.display = 'none';
+
+  var backdrop = document.getElementById('cf-tour-backdrop');
+  if (backdrop) backdrop.style.display = 'block';
+
+  _tourActive = true;
+  _tourStep = -1;
+
+  document.getElementById('cf-tour-next').addEventListener('click', advanceTour);
+  document.getElementById('cf-tour-skip-step').addEventListener('click', endTour);
+
+  advanceTour();
+}
+
+function advanceTour() {
+  if (!_tourActive) return;
+
+  // Clear previous highlight
+  if (_tourHighlightEl) {
+    _tourHighlightEl.classList.remove('cf-tour-highlight');
+    _tourHighlightEl = null;
+  }
+
+  _tourStep++;
+
+  if (_tourStep >= TOUR_STEPS.length) {
+    endTour();
+    return;
+  }
+
+  var step = TOUR_STEPS[_tourStep];
+  var target = document.querySelector(step.selector);
+
+  if (!target) {
+    advanceTour();
+    return;
+  }
+
+  // Scroll target into view
+  target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+  // Highlight target
+  setTimeout(function () {
+    target.classList.add('cf-tour-highlight');
+    _tourHighlightEl = target;
+    positionTooltip(target, step);
+  }, 350);
+}
+
+function positionTooltip(target, step) {
+  var tooltip = document.getElementById('cf-tour-tooltip');
+  var arrow = document.getElementById('cf-tour-arrow');
+  var textEl = document.getElementById('cf-tour-text');
+  var stepLabel = document.getElementById('cf-tour-step-label');
+  var nextLabel = document.getElementById('cf-tour-next-label');
+  if (!tooltip || !textEl) return;
+
+  textEl.innerHTML = step.text;
+  stepLabel.textContent = 'Step ' + (_tourStep + 1) + ' of ' + TOUR_STEPS.length;
+  nextLabel.textContent = _tourStep === TOUR_STEPS.length - 1 ? 'Done' : 'Next';
+
+  tooltip.style.display = 'block';
+
+  var rect = target.getBoundingClientRect();
+  var gap = 14;
+
+  // Reset arrow classes
+  arrow.className = 'cf-tour-tooltip__arrow';
+
+  if (step.position === 'bottom') {
+    tooltip.style.top = (rect.bottom + gap + window.scrollY) + 'px';
+    tooltip.style.left = (rect.left + rect.width / 2) + 'px';
+    tooltip.style.transform = 'translateX(-50%)';
+    arrow.classList.add('cf-tour-arrow--top');
+  } else if (step.position === 'right') {
+    tooltip.style.top = (rect.top + rect.height / 2 + window.scrollY) + 'px';
+    tooltip.style.left = (rect.right + gap) + 'px';
+    tooltip.style.transform = 'translateY(-50%)';
+    arrow.classList.add('cf-tour-arrow--left');
+  } else if (step.position === 'left') {
+    tooltip.style.top = (rect.top + rect.height / 2 + window.scrollY) + 'px';
+    tooltip.style.left = (rect.left - gap) + 'px';
+    tooltip.style.transform = 'translate(-100%, -50%)';
+    arrow.classList.add('cf-tour-arrow--right');
+  }
+
+  // Mobile fallback: if tooltip goes off screen, center it
+  var tooltipRect = tooltip.getBoundingClientRect();
+  if (tooltipRect.left < 8 || tooltipRect.right > window.innerWidth - 8) {
+    tooltip.style.left = '50%';
+    tooltip.style.transform = 'translateX(-50%)';
+    tooltip.style.top = (rect.bottom + gap + window.scrollY) + 'px';
+    arrow.className = 'cf-tour-tooltip__arrow cf-tour-arrow--top';
+  }
+}
+
+function endTour() {
+  _tourActive = false;
+  localStorage.setItem('cardforge-tour-complete', '1');
+
+  if (_tourHighlightEl) {
+    _tourHighlightEl.classList.remove('cf-tour-highlight');
+    _tourHighlightEl = null;
+  }
+
+  var overlay = document.getElementById('cf-tour-overlay');
+  if (overlay) overlay.style.display = 'none';
+
+  var tooltip = document.getElementById('cf-tour-tooltip');
+  if (tooltip) tooltip.style.display = 'none';
+
+  var backdrop = document.getElementById('cf-tour-backdrop');
+  if (backdrop) backdrop.style.display = 'none';
+}
+
+// Expose for settings reset
+window.resetTour = function () {
+  localStorage.removeItem('cardforge-tour-complete');
+  location.reload();
+};
+
+// ================================
+// INITIALIZATION
+// ================================
+
 // Initialize intro when the page loads
 document.addEventListener('DOMContentLoaded', function() {
   initializeIntro();
+  // Delay tour check slightly to let the page render
+  setTimeout(checkTour, 800);
 });
