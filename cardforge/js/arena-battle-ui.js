@@ -624,6 +624,10 @@ window.ArenaBattleUI = (function () {
       await animateRoundResult(response.roundResult);
 
       if (response.battleStatus === 'complete') {
+        // Clean up tutorial if still active when battle ends
+        if (window._arenaTutorial && window._arenaTutorial.isActive()) {
+          window._arenaTutorial.end();
+        }
         var endAudio = window.ArenaAudio;
         if (endAudio) endAudio.play(response.battleResult.winner === 'player' ? 'victory' : 'defeat');
         // Stop any looping music
