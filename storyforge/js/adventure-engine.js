@@ -1366,6 +1366,9 @@
 
   function stopNarration() {
     narrationPaused = false;
+    // Clear queued TTS chunks
+    ttsQueue = [];
+    ttsQueuePlaying = false;
     if (currentNarration) {
       try { currentNarration.source.stop(); } catch (e) {}
       currentNarration = null;
@@ -1394,10 +1397,72 @@
     if (btn) btn.classList.toggle('adv-narration-toggle--loading', !!show);
   }
 
+  // --- Split text into paragraphs for chunked TTS ---
+  function splitIntoParagraphs(text) {
+    var paragraphs = text.split(/\n\n+/).filter(function (p) { return p.trim().length > 0; });
+    if (paragraphs.length === 0) return [text];
+    return paragraphs;
+  }
+
+  // Queued TTS buffers for sequential playback
+  var ttsQueue = [];
+  var ttsQueuePlaying = false;
+
+  function playNextInQueue() {
+    if (!ttsQueue.length) { ttsQueuePlaying = false; return; }
+    ttsQueuePlaying = true;
+    var buf = ttsQueue.shift();
+    playBufferQueued(buf, function () { playNextInQueue(); });
+  }
+
+  function playBufferQueued(audioBuffer, onEnded) {
+    var ctx = ensureAudioContext();
+    if (!ctx) { onEnded(); return; }
+    if (ctx.state === 'suspended') {
+      ctx.resume().then(function () { doPlayBufferQueued(audioBuffer, onEnded); });
+      return;
+    }
+    doPlayBufferQueued(audioBuffer, onEnded);
+  }
+
+  function doPlayBufferQueued(audioBuffer, onEnded) {
+    var ctx = audioCtx;
+    if (!ctx || !audioBuffer) { onEnded(); return; }
+    if (!gainNode) {
+      gainNode = ctx.createGain();
+      gainNode.connect(ctx.destination);
+    }
+    gainNode.gain.value = narrationVolume;
+    var source = ctx.createBufferSource();
+    source.buffer = audioBuffer;
+    source.connect(gainNode);
+    var sessionId = {};
+    currentNarration = { source: source, id: sessionId };
+    source.onended = function () {
+      if (currentNarration && currentNarration.id === sessionId) {
+        currentNarration = null;
+      }
+      onEnded();
+      // If no more queued chunks, restore ambient + hide wave
+      if (!ttsQueue.length && !ttsQueuePlaying) {
+        var wave = UI.$('narrationWave');
+        if (wave) wave.style.display = 'none';
+        if (typeof StoryAudio !== 'undefined') StoryAudio.duckForNarration(false);
+      }
+    };
+    source.start(0);
+    if (typeof StoryAudio !== 'undefined') StoryAudio.duckForNarration(true);
+    var wave = UI.$('narrationWave');
+    if (wave) { wave.style.display = ''; wave.classList.remove('adv-narration-wave--paused'); }
+  }
+
   // Returns a Promise that resolves with the AudioBuffer (or null)
+  // Uses chunked paragraph TTS: fires first paragraph immediately, queues rest
   function preloadTTS(text) {
     preloadSessionId = null;
     preloadedAudioBuffer = null;
+    ttsQueue = [];
+    ttsQueuePlaying = false;
     if (!narrationEnabled) return Promise.resolve(null);
     var ctx = ensureAudioContext();
     var sessionId = {};
@@ -1405,7 +1470,14 @@
     showTTSLoading(true);
 
     var voice = (gameState && AI.GENRE_VOICES[gameState.genre]) || 'Kore';
-    return AI.callTTSAPI(text, voice).then(function (wavBuffer) {
+    var paragraphs = splitIntoParagraphs(text);
+
+    // Fire first paragraph TTS immediately for fast start
+    var firstChunk = paragraphs[0];
+    var remainingChunks = paragraphs.slice(1);
+
+    // Start first chunk
+    var firstPromise = AI.callTTSAPI(firstChunk, voice).then(function (wavBuffer) {
       if (preloadSessionId !== sessionId || !wavBuffer) { showTTSLoading(false); return null; }
       return ctx.decodeAudioData(wavBuffer);
     }).then(function (audioBuffer) {
@@ -1416,14 +1488,32 @@
       return audioBuffer;
     }).catch(function (err) {
       showTTSLoading(false);
-      DEBUG && console.warn('[TTS] Preload error:', err);
+      DEBUG && console.warn('[TTS] First chunk error:', err);
       return null;
     });
+
+    // Fire remaining paragraphs in parallel — they'll be queued for playback after first finishes
+    if (remainingChunks.length) {
+      remainingChunks.forEach(function (chunk) {
+        AI.callTTSAPI(chunk, voice).then(function (wavBuffer) {
+          if (preloadSessionId !== sessionId || !wavBuffer) return;
+          return ctx.decodeAudioData(wavBuffer);
+        }).then(function (audioBuffer) {
+          if (preloadSessionId !== sessionId || !audioBuffer) return;
+          ttsQueue.push(audioBuffer);
+        }).catch(function (err) {
+          DEBUG && console.warn('[TTS] Chunk error:', err);
+        });
+      });
+    }
+
+    return firstPromise;
   }
 
   function tryAutoPlay() {
     if (!narrationEnabled || !preloadedAudioBuffer || !audioCtx) return;
-    playBuffer(preloadedAudioBuffer);
+    // Play first chunk, then chain remaining queued chunks
+    playBufferQueued(preloadedAudioBuffer, function () { playNextInQueue(); });
   }
 
   function playBuffer(audioBuffer) {
