@@ -240,6 +240,8 @@ window.AdventureAI = (function () {
       '- If a choice involves risk, add a skillCheck with stat (strength/dexterity/intelligence/charisma) and difficulty (8-16).\n' +
       '- Suggest any immediate inventory finds or companion encounters via stateChanges.\n' +
       '- Items can have type "weapon", "armor", "consumable", "tool", or "quest_item". Use "consumable" for healing potions, herbs, medkits, elixirs, or any restorative item the player can use from inventory.\n' +
+      '- Weapons and armor can have a "bonus" (1-3) and optionally "bonusStat" (strength/dexterity/intelligence/charisma). Higher bonus = rarer/more powerful.\n' +
+      '- If introducing a companion, give them a distinct personality trait and a line of dialogue in the scene text.\n' +
       '- IMPORTANT: Every item or companion mentioned in the narrative MUST appear in stateChanges.addItems or stateChanges.addCompanion. Do not describe the player finding/receiving items without adding them.\n' +
       '- Generate a visual description for the scene illustration (max 150 chars).\n\n' +
       OPENING_RESPONSE_FORMAT;
@@ -287,6 +289,7 @@ window.AdventureAI = (function () {
       'GAME STATE:\n' +
       '- Genre: ' + genre.name + '\n' +
       '- Turn: ' + (state.turnCount + 1) + '/' + state.maxTurns + '\n' +
+      '- Difficulty: ' + (state.difficulty || 'normal').toUpperCase() + '\n' +
       '- Player: ' + state.playerName + '\n' +
       ((state.character && state.character.description) ? '- Appearance: ' + state.character.description + '\n' : '') +
       '- HP: ' + state.stats.hp + '/' + state.stats.maxHp + '\n' +
@@ -304,14 +307,14 @@ window.AdventureAI = (function () {
       plotContext +
       buildStoryHistory(state) + '\n' +
       'RULES:\n' +
-      '- You are currently in ' + actInfo.label + '. ' + actInfo.guidance + '\n' +
+      '- PACING: Turn ' + (state.turnCount + 1) + ' of ' + state.maxTurns + ' (' + (state.maxTurns - state.turnCount - 1) + ' turns remaining). ' + actInfo.label + '. ' + actInfo.guidance + '\n' +
       '- Write exactly 3 paragraphs: (1) consequence of the choice — what happens immediately, (2) exploration/discovery — what the player sees, hears, finds, (3) new tension — set up the next decision point.\n' +
       '- ADVANCE THE PLOT: Every scene must move the overarching story forward. Reference earlier events from STORY SO FAR, callback to past player choices, foreshadow upcoming plot points, and connect scenes to the central conflict. Do NOT write disconnected episodic scenes.\n' +
       '- Use all five senses. Include sounds, smells, textures, temperature — not just visual descriptions.\n' +
       '- Vary sentence length: short punchy beats for action, longer flowing prose for atmosphere.\n' +
       '- Do NOT start consecutive paragraphs the same way.\n' +
-      '- If the player has companions, give them dialogue or actions in the scene — they are not silent followers.\n' +
-      '- Reference equipped items naturally in the prose (e.g., "You grip your cutlass" not just "You attack").\n' +
+      '- COMPANIONS: If the player has companions, they MUST have at least 1-2 lines of dialogue or a meaningful action every scene. Give them personality — opinions on choices, warnings about danger, jokes, or arguments with the player. They are partners, not props.\n' +
+      '- EQUIPMENT: Reference equipped items naturally in the prose (e.g., "You grip your cutlass" not just "You attack"). When adding weapons or armor via addItems, give them a "bonus" (1-3) and optionally a "bonusStat" (strength/dexterity/intelligence/charisma) to indicate their power. Mundane items: bonus 1. Fine/enchanted: bonus 2. Legendary/rare: bonus 3. Example: {"name":"Blazing Longsword","type":"weapon","bonus":2,"bonusStat":"strength","description":"A blade wreathed in flickering flame"}\n' +
       '- Present 3-4 choices. At least one cautious, one bold, one creative.\n' +
       '- Each choice must lead to a DIFFERENT outcome — never offer three flavors of the same action.\n' +
       '- Never offer "do nothing" or "wait and see" as a choice.\n' +
@@ -319,8 +322,13 @@ window.AdventureAI = (function () {
       '- Bold choices should have higher risk AND higher reward in stateChanges.\n' +
       '- Each choice should hint at its consequence without spoiling it.\n' +
       '- If a choice involves risk, add a skillCheck (stat + difficulty 8-18).\n' +
-      '- Track HP changes (damage: -5 to -25, healing: +10 to +30), inventory, companions, reputation.\n' +
-      '- HEALING ITEMS: When the player discovers potions, herbs, medkits, elixirs, or similar restorative items, add them with type "consumable" (e.g. {"name":"Healing Potion","type":"consumable","description":"A shimmering red vial"}). The player can use these from their inventory between scenes. If HP is below 40%, try to weave a healing item find into the scene naturally (an abandoned camp with supplies, a merchant, a hidden stash, a friendly NPC offering aid).\n' +
+      '- Track HP changes, inventory, companions, reputation. Damage range: ' +
+      (state.difficulty === 'easy' ? '-3 to -15' : state.difficulty === 'hard' ? '-10 to -30' : '-5 to -25') +
+      ', healing range: ' + (state.difficulty === 'easy' ? '+15 to +35' : state.difficulty === 'hard' ? '+5 to +20' : '+10 to +30') + '.\n' +
+      '- HEALING ITEMS: When the player discovers potions, herbs, medkits, elixirs, or similar restorative items, add them with type "consumable" (e.g. {"name":"Healing Potion","type":"consumable","description":"A shimmering red vial"}). The player can use these from their inventory between scenes.' +
+      (state.difficulty === 'easy' ? ' On Easy mode — include healing items generously, drop one whenever HP is below 60%.' :
+       state.difficulty === 'hard' ? ' On Hard mode — healing items are scarce. Only include one if HP drops below 25%.' :
+       ' If HP is below 40%, try to weave a healing item find into the scene naturally.') + '\n' +
       '- IMPORTANT: Every item or companion mentioned in the narrative MUST appear in stateChanges. Do not describe the player finding/receiving/losing items without including them in addItems/removeItems.\n' +
       '- If HP <= 0, this is a DEATH scene — set isEnding:true, endingType:"death", no choices.\n' +
       (state.turnCount >= 18 ? '- IMPORTANT: We are in the final act. Start steering toward the climax confrontation with the antagonist.\n' : '') +
@@ -343,7 +351,7 @@ window.AdventureAI = (function () {
     '    "hpDelta": 0,\n' +
     '    "goldDelta": 0,\n' +
     '    "reputationDelta": 0,\n' +
-    '    "addItems": [{"name":"Item Name","type":"weapon|armor|consumable|tool|quest_item","description":"short desc"}],\n' +
+    '    "addItems": [{"name":"Item Name","type":"weapon|armor|consumable|tool|quest_item","description":"short desc","bonus":1,"bonusStat":"strength"}],\n' +
     '    "removeItems": [],\n' +
     '    "addCompanion": null,\n' +
     '    "removeCompanion": null,\n' +
@@ -368,7 +376,7 @@ window.AdventureAI = (function () {
     '    "hpDelta": 0,\n' +
     '    "goldDelta": 0,\n' +
     '    "reputationDelta": 0,\n' +
-    '    "addItems": [{"name":"Item Name","type":"weapon|armor|consumable|tool|quest_item","description":"short desc"}],\n' +
+    '    "addItems": [{"name":"Item Name","type":"weapon|armor|consumable|tool|quest_item","description":"short desc","bonus":1,"bonusStat":"strength"}],\n' +
     '    "removeItems": [],\n' +
     '    "addCompanion": null,\n' +
     '    "removeCompanion": null,\n' +

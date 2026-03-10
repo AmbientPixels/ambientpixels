@@ -191,6 +191,23 @@
   .adv-choice {
     padding: 0.7rem 0.85rem;
     font-size: 0.88rem;
+    min-height: 3rem;
+    align-items: flex-start;
+  }
+
+  .adv-choice__key {
+    margin-top: 0.1rem;
+    flex-shrink: 0;
+  }
+
+  .adv-choice__text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .adv-choice__skill {
+    flex-shrink: 0;
+    margin-top: 0.1rem;
   }
 
   .adv-panel {

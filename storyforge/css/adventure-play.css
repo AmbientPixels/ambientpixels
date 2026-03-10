@@ -1186,6 +1186,88 @@
   color: var(--sf-text-dim);
 }
 
+/* --- Difficulty Selector --- */
+.adv-difficulty {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background: rgba(var(--sf-accent-rgb), 0.04);
+  border: 1px solid var(--sf-border);
+  border-radius: 8px;
+}
+
+.adv-difficulty__label {
+  display: block;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: rgba(var(--sf-text-rgb), 0.7);
+  margin-bottom: 0.5rem;
+}
+
+.adv-difficulty__label i {
+  color: var(--sf-accent);
+  margin-right: 0.3rem;
+}
+
+.adv-difficulty__options {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.adv-difficulty__btn {
+  flex: 1;
+  padding: 0.45rem 0.5rem;
+  font-size: 0.78rem;
+  font-family: inherit;
+  color: rgba(var(--sf-text-rgb), 0.6);
+  background: rgba(var(--sf-text-rgb), 0.04);
+  border: 1px solid var(--sf-border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.adv-difficulty__btn:hover {
+  background: rgba(var(--sf-accent-rgb), 0.08);
+  border-color: rgba(var(--sf-accent-rgb), 0.3);
+  color: rgba(var(--sf-text-rgb), 0.85);
+}
+
+.adv-difficulty__btn--active {
+  background: rgba(var(--sf-accent-rgb), 0.15);
+  border-color: var(--sf-accent);
+  color: var(--sf-accent);
+  font-weight: 600;
+}
+
+.adv-difficulty__btn i {
+  margin-right: 0.25rem;
+  font-size: 0.7rem;
+}
+
+.adv-difficulty__ironman {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+  font-size: 0.78rem;
+  color: rgba(var(--sf-text-rgb), 0.55);
+  cursor: pointer;
+}
+
+.adv-difficulty__ironman input {
+  accent-color: #F87171;
+}
+
+.adv-difficulty__ironman i {
+  color: #F87171;
+  font-size: 0.72rem;
+}
+
+.adv-difficulty__ironman-hint {
+  font-size: 0.7rem;
+  color: var(--sf-text-dim);
+}
+
 /* Step 3: Stats layout — radar left, controls right */
 .adv-wizard__stats-layout {
   display: flex;

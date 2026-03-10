@@ -46,6 +46,8 @@
   var wizardStep = 1;
   var WIZARD_STEPS = 3;
   var selectedArtStyle = 'cinematic_fantasy'; // default
+  var selectedDifficulty = 'normal'; // easy | normal | hard
+  var undoSnapshot = null; // { gameState, currentScene } saved before each turn
 
   // Best-fit art style per genre (pre-selected when genre is chosen)
   var GENRE_ART_DEFAULTS = {
@@ -632,6 +634,20 @@
     if (narratorCheckbox) narratorCheckbox.checked = narrationEnabled;
     UI.$('startAdventureBtn').addEventListener('click', startAdventure);
 
+    // Difficulty selector
+    var diffOpts = UI.$('difficultyOptions');
+    if (diffOpts) {
+      diffOpts.addEventListener('click', function (e) {
+        var btn = e.target.closest('.adv-difficulty__btn');
+        if (!btn) return;
+        diffOpts.querySelectorAll('.adv-difficulty__btn').forEach(function (b) {
+          b.classList.remove('adv-difficulty__btn--active');
+        });
+        btn.classList.add('adv-difficulty__btn--active');
+        selectedDifficulty = btn.dataset.difficulty;
+      });
+    }
+
     // Wizard navigation
     UI.$('wizardNextBtn').addEventListener('click', function () {
       if (wizardStep === 1 && !selectedGenre) return;
@@ -675,6 +691,10 @@
     var portraitBtn = UI.$('generatePortraitBtn');
     if (portraitBtn) portraitBtn.addEventListener('click', generatePortrait);
 
+    // Undo button
+    var undoBtn = UI.$('undoBtn');
+    if (undoBtn) undoBtn.addEventListener('click', undoLastTurn);
+
     // --- Immersive mode ---
     var immersiveBtn = UI.$('immersiveBtn');
     var sidebarToggle = UI.$('sidebarToggle');
@@ -688,10 +708,12 @@
       });
     }
     document.addEventListener('keydown', function (e) {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
       if (e.key === 'f' || e.key === 'F') {
-        // Don't trigger if typing in an input
-        if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
         toggleImmersiveMode();
+      }
+      if (e.key === 'u' || e.key === 'U') {
+        undoLastTurn();
       }
       if (e.key === 'Escape') {
         var app = UI.$('advApp');
@@ -1157,6 +1179,9 @@
   // --- Start Adventure ---
   function startAdventure() {
     if (!selectedGenre || isProcessing) return;
+    // Disable button immediately to prevent double-clicks
+    var startBtn = UI.$('startAdventureBtn');
+    if (startBtn) startBtn.disabled = true;
 
     // Apply narrator preference from character creation
     var narratorCheckbox = UI.$('narratorToggle');
@@ -1197,9 +1222,21 @@
     var characterAppearance = collectCharacterSelections();
     var customStats = collectStatAllocations();
 
+    undoSnapshot = null; // Clear any stale snapshot
     gameState = RPG.createState(selectedGenre, playerName, characterAppearance, customStats);
     gameState.artStyle = selectedArtStyle;
     gameState.xp = 0;
+    gameState.difficulty = selectedDifficulty;
+    gameState.ironman = !!(UI.$('ironmanToggle') && UI.$('ironmanToggle').checked);
+
+    // Apply difficulty HP scaling
+    if (selectedDifficulty === 'easy') {
+      gameState.stats.maxHp = Math.round(gameState.stats.maxHp * 1.25);
+      gameState.stats.hp = gameState.stats.maxHp;
+    } else if (selectedDifficulty === 'hard') {
+      gameState.stats.maxHp = Math.round(gameState.stats.maxHp * 0.75);
+      gameState.stats.hp = gameState.stats.maxHp;
+    }
     if (generatedPortraitDataUrl) {
       gameState.portraitImage = generatedPortraitDataUrl;
     }
@@ -1239,6 +1276,10 @@
           DEBUG && console.log('[Plot] Seed:', scene.plotSeed);
         }
         RPG.applyStateChanges(gameState, scene.stateChanges);
+        if (gameState._skippedItems && gameState._skippedItems.length) {
+          UI.toast('Inventory full — couldn\'t pick up: ' + gameState._skippedItems.join(', '), 'warning');
+          gameState._skippedItems = [];
+        }
         renderScene(scene);
         generateAndShowImage(scene.imagePrompt);
         // Trigger first-time tutorial after opening scene
@@ -1477,6 +1518,12 @@
       setProcessing(false);
     });
 
+    // Show/hide undo button
+    var undoBtnEl = UI.$('undoBtn');
+    if (undoBtnEl) {
+      undoBtnEl.style.display = (undoSnapshot && !gameState.ironman) ? '' : 'none';
+    }
+
     updateSidebar();
     saveAdventure();
   }
@@ -1510,6 +1557,16 @@
     if (isProcessing || !currentScene) return;
     setProcessing(true);
 
+    // Save undo snapshot (deep copy) before mutating state — skip if ironman
+    if (!gameState.ironman) {
+      try {
+        undoSnapshot = {
+          gameState: JSON.parse(JSON.stringify(gameState)),
+          currentScene: JSON.parse(JSON.stringify(currentScene))
+        };
+      } catch (e) { undoSnapshot = null; }
+    }
+
     // Stop current narration immediately when user advances
     stopNarration();
 
@@ -1537,12 +1594,18 @@
   // --- Skill Check ---
   function performSkillCheck(choice) {
     var sc = choice.skillCheck;
-    var result = RPG.rollSkillCheck(gameState.stats, gameState.companions, sc.stat, sc.difficulty, gameState.equipped);
+    // Difficulty adjusts DCs: easy -2, hard +2
+    var dcOffset = gameState.difficulty === 'easy' ? -2 : gameState.difficulty === 'hard' ? 2 : 0;
+    var adjustedDC = Math.max(1, sc.difficulty + dcOffset);
+    var result = RPG.rollSkillCheck(gameState.stats, gameState.companions, sc.stat, adjustedDC, gameState.equipped, gameState.inventory);
 
     showDiceRoll(result).then(function () {
-      // Apply failure damage
+      // Apply failure damage (difficulty scales damage)
       if (!result.success) {
-        var dmg = -(5 + Math.floor(Math.random() * 11)); // -5 to -15
+        var baseDmg = 5 + Math.floor(Math.random() * 11); // 5-15
+        if (gameState.difficulty === 'easy') baseDmg = Math.round(baseDmg * 0.75);
+        else if (gameState.difficulty === 'hard') baseDmg = Math.round(baseDmg * 1.25);
+        var dmg = -baseDmg;
         if (result.critical === 'critical_failure') dmg *= 2;
         gameState.stats.hp = Math.max(0, gameState.stats.hp + dmg);
         playSfx('damage');
@@ -1671,6 +1734,11 @@
         });
 
         RPG.applyStateChanges(gameState, scene.stateChanges);
+        // Warn if items were dropped due to full inventory
+        if (gameState._skippedItems && gameState._skippedItems.length) {
+          UI.toast('Inventory full — couldn\'t pick up: ' + gameState._skippedItems.join(', '), 'warning');
+          gameState._skippedItems = [];
+        }
 
         // Award XP
         awardXP('choiceMade');
@@ -1689,6 +1757,10 @@
         if (!RPG.isAlive(gameState)) {
           scene.isEnding = true;
           scene.endingType = 'death';
+          // Ironman: delete save on death
+          if (gameState.ironman && gameState.adventureId) {
+            Storage.deleteAdventure(gameState.adventureId);
+          }
         }
 
         renderScene(scene);
@@ -2030,12 +2102,13 @@
         var actions = '';
         if (isEquippable) {
           var slot = item.type === 'weapon' ? 'weapon' : 'armor';
-          var bonusStat = RPG.EQUIP_BONUS_MAP[slot];
+          var bonusStat = item.bonusStat || RPG.EQUIP_BONUS_MAP[slot];
           var bonusLabel = RPG.STAT_LABELS[bonusStat] || bonusStat;
+          var bonusVal = item.bonus || 1;
           if (isEquipped) {
             actions += '<button class="adv-inventory__btn adv-inventory__btn--unequip" data-action="unequip" data-slot="' + slot + '"><i class="fas fa-times"></i> Unequip</button>';
           } else {
-            actions += '<button class="adv-inventory__btn adv-inventory__btn--equip" data-action="equip" data-item-id="' + item.id + '"><i class="fas fa-hand-fist"></i> Equip (+1 ' + bonusLabel + ')</button>';
+            actions += '<button class="adv-inventory__btn adv-inventory__btn--equip" data-action="equip" data-item-id="' + item.id + '"><i class="fas fa-hand-fist"></i> Equip (+' + bonusVal + ' ' + bonusLabel + ')</button>';
           }
         }
         if (isConsumable) {
@@ -2308,8 +2381,10 @@
     if (!gameState) return;
     pausePreviousFocus = document.activeElement;
     saveAdventure();
+    var diffLabel = (gameState.difficulty || 'normal').charAt(0).toUpperCase() + (gameState.difficulty || 'normal').slice(1);
     UI.$('pauseInfo').textContent = 'Turn ' + gameState.turnCount + ' of ' + gameState.maxTurns +
-      ' | ' + gameState.playerName + ' | HP: ' + gameState.stats.hp + '/' + gameState.stats.maxHp;
+      ' | ' + gameState.playerName + ' | HP: ' + gameState.stats.hp + '/' + gameState.stats.maxHp +
+      ' | ' + diffLabel + (gameState.ironman ? ' (Ironman)' : '');
     UI.$('pauseOverlay').style.display = '';
     UI.$('resumeBtn').focus();
   }
@@ -2317,6 +2392,26 @@
   function hidePauseMenu() {
     UI.$('pauseOverlay').style.display = 'none';
     if (pausePreviousFocus && pausePreviousFocus.focus) pausePreviousFocus.focus();
+  }
+
+  // --- Undo Last Turn ---
+  function undoLastTurn() {
+    if (!undoSnapshot || isProcessing) return;
+    if (gameState && gameState.ironman) {
+      UI.toast('Ironman mode — no undo allowed', 'warning');
+      return;
+    }
+    gameState = undoSnapshot.gameState;
+    currentScene = undoSnapshot.currentScene;
+    undoSnapshot = null;
+    stopNarration();
+    renderScene(currentScene);
+    updateSidebar();
+    saveAdventure();
+    UI.toast('Rewound to previous turn', 'info');
+    // Hide undo button after use
+    var undoBtn = UI.$('undoBtn');
+    if (undoBtn) undoBtn.style.display = 'none';
   }
 
   // --- Save Adventure ---

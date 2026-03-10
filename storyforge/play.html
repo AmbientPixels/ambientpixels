@@ -53,6 +53,9 @@
         <a href="/storyforge/" class="adv-header__link">Hub</a>
         <a href="/storyforge/gallery.html" class="adv-header__link">Gallery</a>
         <a href="/cardforge/" class="adv-header__link">CardForge</a>
+        <button class="adv-btn adv-btn--icon" id="undoBtn" style="display:none" title="Undo last turn (U)">
+          <i class="fas fa-rotate-left"></i>
+        </button>
         <button class="adv-btn adv-btn--icon" id="immersiveBtn" style="display:none" title="Immersive mode (F)">
           <i class="fas fa-expand"></i>
         </button>
@@ -167,6 +170,26 @@
                       </button>
                       <div class="adv-stat-allocator__preview" id="statPreviewText"></div>
                     </div>
+                  </div>
+                  <!-- Difficulty Selector -->
+                  <div class="adv-difficulty">
+                    <label class="adv-difficulty__label"><i class="fas fa-skull-crossbones"></i> Difficulty</label>
+                    <div class="adv-difficulty__options" id="difficultyOptions">
+                      <button type="button" class="adv-difficulty__btn" data-difficulty="easy" title="More HP, less damage, easier checks">
+                        <i class="fas fa-feather"></i> Easy
+                      </button>
+                      <button type="button" class="adv-difficulty__btn adv-difficulty__btn--active" data-difficulty="normal" title="Balanced experience">
+                        <i class="fas fa-balance-scale"></i> Normal
+                      </button>
+                      <button type="button" class="adv-difficulty__btn" data-difficulty="hard" title="Less HP, more damage, harder checks">
+                        <i class="fas fa-fire"></i> Hard
+                      </button>
+                    </div>
+                    <label class="adv-difficulty__ironman">
+                      <input type="checkbox" id="ironmanToggle" />
+                      <i class="fas fa-skull"></i> Ironman
+                      <span class="adv-difficulty__ironman-hint">— no undo, death is permanent</span>
+                    </label>
                   </div>
                   <div class="adv-narrator-option">
                     <label class="adv-narrator-toggle">

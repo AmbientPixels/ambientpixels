@@ -42,12 +42,12 @@ window.AdventureRPG = (function () {
   // --- Skill check (d20 + modifier + companion bonus + equipment bonus vs DC) ---
   var EQUIP_BONUS_MAP = { weapon: 'strength', armor: 'dexterity' };
 
-  function rollSkillCheck(stats, companions, stat, difficulty, equipped) {
+  function rollSkillCheck(stats, companions, stat, difficulty, equipped, inventory) {
     var roll = Math.floor(Math.random() * 20) + 1;
     var statVal = stats[stat] || 10;
     var modifier = Math.floor((statVal - 10) / 2);
     var companionBonus = getCompanionBonus(companions, stat);
-    var equipmentBonus = getEquipmentBonus(equipped, stat);
+    var equipmentBonus = getEquipmentBonus(equipped, stat, inventory);
     var total = roll + modifier + companionBonus + equipmentBonus;
     var success = total >= difficulty;
     var critical = roll === 20 ? 'critical_success' : (roll === 1 ? 'critical_failure' : null);
@@ -65,12 +65,18 @@ window.AdventureRPG = (function () {
     };
   }
 
-  function getEquipmentBonus(equipped, stat) {
+  function getEquipmentBonus(equipped, stat, inventory) {
     if (!equipped) return 0;
+    var total = 0;
     for (var slot in EQUIP_BONUS_MAP) {
-      if (EQUIP_BONUS_MAP[slot] === stat && equipped[slot]) return 1;
+      if (!equipped[slot]) continue;
+      var item = inventory ? inventory.find(function (i) { return i.id === equipped[slot]; }) : null;
+      var itemStat = (item && item.bonusStat) || EQUIP_BONUS_MAP[slot];
+      if (itemStat === stat) {
+        total += (item && item.bonus) ? item.bonus : 1;
+      }
     }
-    return 0;
+    return total;
   }
 
   function getCompanionBonus(companions, stat) {
@@ -101,6 +107,7 @@ window.AdventureRPG = (function () {
 
     // Add items
     if (changes.addItems && changes.addItems.length) {
+      if (!state._skippedItems) state._skippedItems = [];
       changes.addItems.forEach(function (item) {
         if (!item.name) return;
         if (state.inventory.length < MAX_INVENTORY) {
@@ -109,8 +116,12 @@ window.AdventureRPG = (function () {
             name: item.name,
             type: item.type || 'tool',
             description: item.description || '',
+            bonus: item.bonus || 0,
+            bonusStat: item.bonusStat || null,
             quantity: item.quantity || 1
           });
+        } else {
+          state._skippedItems.push(item.name);
         }
       });
     }
