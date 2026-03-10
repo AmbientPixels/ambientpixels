@@ -248,6 +248,42 @@
     }
     .act-modal-actions button:hover { background:rgba(255,255,255,0.1); }
     .act-modal-actions .primary { border-color:#fbbf24; color:#fbbf24; }
+
+    /* ── CEO Edit Mode ── */
+    .act-edit-textarea {
+      width: 100%; border-radius: 8px;
+      border: 1px solid rgba(168,85,247,0.3); background: rgba(168,85,247,0.04);
+      color: rgba(255,255,255,0.9); font-family: inherit; font-size: 0.75rem;
+      padding: 0.6rem; resize: vertical; line-height: 1.5;
+    }
+    .act-edit-textarea:focus { outline: none; border-color: rgba(168,85,247,0.6); }
+    .act-edit-title-input {
+      width: 100%; border-radius: 6px; padding: 0.4rem 0.6rem;
+      border: 1px solid rgba(168,85,247,0.3); background: rgba(168,85,247,0.04);
+      color: rgba(255,255,255,0.9); font-family: inherit; font-size: 0.9rem;
+      font-weight: 600; margin-bottom: 0.5rem;
+    }
+    .act-edit-title-input:focus { outline: none; border-color: rgba(168,85,247,0.6); }
+    .act-edit-bar {
+      display: flex; gap: 0.4rem; align-items: center; margin-top: 0.5rem;
+    }
+    .act-edit-bar button {
+      font-size: 0.65rem; padding: 0.3rem 0.7rem; border-radius: 5px;
+      border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05);
+      color: rgba(255,255,255,0.8); cursor: pointer;
+    }
+    .act-edit-bar button:hover { background: rgba(255,255,255,0.1); }
+    .act-edit-bar .act-edit-save { border-color: rgba(168,85,247,0.5); color: #a855f7; }
+    .act-edit-bar .act-edit-save:hover { background: rgba(168,85,247,0.15); }
+    .act-edit-bar .act-edit-cancel { border-color: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); }
+    .act-edit-badge {
+      display: inline-flex; align-items: center; gap: 0.2rem;
+      font-size: 0.5rem; padding: 0.1rem 0.35rem; border-radius: 3px;
+      background: rgba(168,85,247,0.12); color: #a855f7; font-weight: 600;
+    }
+    .act-edit-charcount {
+      font-size: 0.6rem; opacity: 0.5; margin-left: auto;
+    }
   </style>
 </head>
 <body style="background:#071019" data-theme="dark">
@@ -988,6 +1024,7 @@
       if (a.kind === 'research.intel' || aType === 'research.intel' || aType === 'research_intel.approve') html += '<span style="display:inline-flex;align-items:center;gap:0.25rem;font-size:0.5rem;padding:0.1rem 0.4rem;border-radius:3px;background:rgba(168,85,247,0.12);color:#a855f7;font-weight:600;"><i class="fas fa-microscope"></i>Intel</span>';
       if (aType === 'publish_document') html += '<span style="display:inline-flex;align-items:center;gap:0.25rem;font-size:0.5rem;padding:0.1rem 0.4rem;border-radius:3px;background:rgba(52,211,153,0.12);color:#34d399;font-weight:600;"><i class="fas fa-newspaper"></i>Blog</span>';
       if (a.approval && a.approval.revision_count) html += '<span style="font-size:0.55rem;padding:0.1rem 0.35rem;border-radius:3px;background:rgba(251,191,36,0.12);color:#fbbf24;font-weight:600;">REV ' + a.approval.revision_count + '</span>';
+      if (payload._ceo_edited) html += '<span class="act-edit-badge"><i class="fas fa-pen" style="font-size:0.4rem;"></i>CEO edited</span>';
       if (a.is_irreversible) html += '<span class="act-badge act-badge--irreversible">irreversible</span>';
       html += '</div>';
       if (actionTitle) html += '<div style="font-size:0.9rem;font-weight:600;margin-top:2px;">' + esc(actionTitle) + '</div>';
@@ -1295,9 +1332,15 @@
       html += '</div>';
 
       // Post preview card (for social posts)
+      var _canEdit = approvalStatus === 'pending' || approvalStatus === 'revision_requested';
       if (isSocial && payload.text) {
         html += '<div class="act-drawer-section">';
-        html += '<h4>Post Content</h4>';
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
+        html += '<h4 style="margin:0;">Post Content</h4>';
+        if (_canEdit) html += '<button class="act-btn act-btn--details" onclick="toggleDrawerEdit(\'' + esc(a.id) + '\', \'social\')" style="font-size:0.55rem;padding:0.15rem 0.5rem;"><i class="fas fa-pen" style="margin-right:0.25rem;font-size:0.45rem;"></i>Edit</button>';
+        html += '</div>';
+        if (payload._ceo_edited) html += '<div style="font-size:0.55rem;color:#a855f7;margin:0.3rem 0;"><i class="fas fa-pen" style="margin-right:0.25rem;font-size:0.4rem;"></i>CEO edited ' + timeAgo(payload._ceo_edited_at) + '</div>';
+        html += '<div id="drawer-content-view">';
         html += '<div class="act-drawer-post">';
         var _resolvedPostText = _resolveTokensForDisplay(a, payload.text);
         html += '<div class="act-drawer-post-text">' + esc(_resolvedPostText) + '</div>';
@@ -1321,11 +1364,19 @@
         if (payload.scheduled_for) {
           html += '<div style="font-size:0.65rem;color:#fbbf24;margin-top:0.3rem;"><i class="fas fa-clock" style="margin-right:0.3rem;"></i>Scheduled: ' + fmtDate(payload.scheduled_for) + '</div>';
         }
+        html += '</div>'; // close drawer-content-view
+        // Edit area (hidden by default)
+        html += '<div id="drawer-edit-area" style="display:none;"></div>';
         html += '</div>';
       } else if (payload.content_md && (aType === 'publish_document' || payload.slug)) {
         // Article preview for published documents
         html += '<div class="act-drawer-section">';
-        html += '<h4>Article Preview</h4>';
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
+        html += '<h4 style="margin:0;">Article Preview</h4>';
+        if (_canEdit) html += '<button class="act-btn act-btn--details" onclick="toggleDrawerEdit(\'' + esc(a.id) + '\', \'article\')" style="font-size:0.55rem;padding:0.15rem 0.5rem;"><i class="fas fa-pen" style="margin-right:0.25rem;font-size:0.45rem;"></i>Edit</button>';
+        html += '</div>';
+        if (payload._ceo_edited) html += '<div style="font-size:0.55rem;color:#a855f7;margin:0.3rem 0;"><i class="fas fa-pen" style="margin-right:0.25rem;font-size:0.4rem;"></i>CEO edited ' + timeAgo(payload._ceo_edited_at) + '</div>';
+        html += '<div id="drawer-content-view">';
         html += '<div style="padding:0.6rem 0.8rem;border-radius:8px;border:1px solid rgba(168,85,247,0.15);background:rgba(168,85,247,0.04);max-height:400px;overflow-y:auto;">';
         if (payload.title) html += '<div style="font-size:1rem;font-weight:700;margin-bottom:0.4rem;color:#e2e8f0;">' + esc(payload.title) + '</div>';
         var metaParts = [];
@@ -1371,9 +1422,18 @@
         var charCount = payload.content_md.length;
         var wordCount = payload.content_md.split(/\s+/).length;
         html += '<div style="font-size:0.55rem;opacity:0.3;margin-top:0.5rem;border-top:1px solid rgba(255,255,255,0.05);padding-top:0.4rem;">' + wordCount + ' words · ' + charCount + ' chars</div>';
-        html += '</div></div>';
+        html += '</div></div>'; // close article container + drawer-content-view
+        // Edit area (hidden by default)
+        html += '<div id="drawer-edit-area" style="display:none;"></div>';
+        html += '</div>';
       } else if (payload.text || payload.content) {
-        html += '<div class="act-drawer-section"><h4>Content</h4>';
+        html += '<div class="act-drawer-section">';
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;">';
+        html += '<h4 style="margin:0;">Content</h4>';
+        if (_canEdit) html += '<button class="act-btn act-btn--details" onclick="toggleDrawerEdit(\'' + esc(a.id) + '\', \'generic\')" style="font-size:0.55rem;padding:0.15rem 0.5rem;"><i class="fas fa-pen" style="margin-right:0.25rem;font-size:0.45rem;"></i>Edit</button>';
+        html += '</div>';
+        if (payload._ceo_edited) html += '<div style="font-size:0.55rem;color:#a855f7;margin:0.3rem 0;"><i class="fas fa-pen" style="margin-right:0.25rem;font-size:0.4rem;"></i>CEO edited ' + timeAgo(payload._ceo_edited_at) + '</div>';
+        html += '<div id="drawer-content-view">';
         // Hero image for task_completion.approve (same pattern as publish_document)
         if (a.type === 'task_completion.approve' && (payload.hero_image_url || payload.hero_image_asset_id)) {
           var _tcDrawerHero = payload.hero_image_url || null;
@@ -1390,6 +1450,9 @@
           }
         }
         html += '<div class="act-drawer-post"><div class="act-drawer-post-text">' + esc(_resolveTokensForDisplay(a, payload.text || payload.content)) + '</div></div>';
+        html += '</div>'; // close drawer-content-view
+        // Edit area (hidden by default)
+        html += '<div id="drawer-edit-area" style="display:none;"></div>';
         html += '</div>';
       }
 
@@ -1506,6 +1569,173 @@
       document.getElementById('drawer-overlay').classList.add('open');
     }
     function closeDrawer() { document.getElementById('drawer-overlay').classList.remove('open'); }
+
+    // ── CEO Content Edit in Drawer ──
+    var _editState = null; // { actionId, contentType, originalText, originalTitle }
+
+    function toggleDrawerEdit(actionId, contentType) {
+      var viewEl = document.getElementById('drawer-content-view');
+      var editEl = document.getElementById('drawer-edit-area');
+      if (!viewEl || !editEl) return;
+
+      // If already editing, cancel
+      if (_editState && _editState.actionId === actionId) {
+        _cancelDrawerEdit();
+        return;
+      }
+
+      var a = AE.getAction(actionId);
+      if (!a) return;
+      var payload = a.payload || {};
+
+      var textContent = '';
+      var titleContent = '';
+      var charLimit = 0;
+
+      if (contentType === 'social') {
+        textContent = payload.text || '';
+        charLimit = a.platform === 'linkedin' ? 3000 : a.platform === 'bluesky' ? 300 : 280;
+      } else if (contentType === 'article') {
+        textContent = payload.content_md || '';
+        titleContent = payload.title || '';
+      } else {
+        textContent = payload.text || payload.content || '';
+      }
+
+      _editState = { actionId: actionId, contentType: contentType, originalText: textContent, originalTitle: titleContent };
+
+      var html = '';
+      // Title input for articles
+      if (contentType === 'article' && titleContent) {
+        html += '<label style="font-size:0.6rem;opacity:0.5;display:block;margin-bottom:0.2rem;">Title</label>';
+        html += '<input type="text" class="act-edit-title-input" id="drawer-edit-title" value="' + esc(titleContent).replace(/"/g, '&quot;') + '" />';
+      }
+      // Content textarea
+      var rows = contentType === 'article' ? 18 : contentType === 'social' ? 8 : 10;
+      html += '<textarea class="act-edit-textarea" id="drawer-edit-text" rows="' + rows + '">' + esc(textContent) + '</textarea>';
+      // Edit bar
+      html += '<div class="act-edit-bar">';
+      html += '<button class="act-edit-save" onclick="saveDrawerEdit()"><i class="fas fa-check" style="margin-right:0.25rem;"></i>Save</button>';
+      html += '<button class="act-edit-cancel" onclick="_cancelDrawerEdit()">Cancel</button>';
+      if (charLimit) {
+        html += '<span class="act-edit-charcount" id="drawer-edit-charcount">' + textContent.length + '/' + charLimit + '</span>';
+      } else {
+        html += '<span class="act-edit-charcount" id="drawer-edit-charcount">' + textContent.length + ' chars</span>';
+      }
+      html += '</div>';
+
+      viewEl.style.display = 'none';
+      editEl.innerHTML = html;
+      editEl.style.display = 'block';
+
+      // Live char count
+      var textarea = document.getElementById('drawer-edit-text');
+      if (textarea) {
+        textarea.focus();
+        textarea.addEventListener('input', function () {
+          var cc = document.getElementById('drawer-edit-charcount');
+          if (!cc) return;
+          var len = textarea.value.length;
+          if (charLimit) {
+            var pct = Math.round((len / charLimit) * 100);
+            var col = pct > 100 ? '#ef4444' : pct > 90 ? '#fbbf24' : '#34d399';
+            cc.innerHTML = '<span style="color:' + col + ';">' + len + '/' + charLimit + ' (' + pct + '%)</span>';
+          } else {
+            cc.textContent = len + ' chars';
+          }
+        });
+      }
+    }
+
+    function _cancelDrawerEdit() {
+      var viewEl = document.getElementById('drawer-content-view');
+      var editEl = document.getElementById('drawer-edit-area');
+      if (viewEl) viewEl.style.display = '';
+      if (editEl) { editEl.style.display = 'none'; editEl.innerHTML = ''; }
+      _editState = null;
+    }
+
+    function saveDrawerEdit() {
+      if (!_editState) return;
+      var textarea = document.getElementById('drawer-edit-text');
+      var titleInput = document.getElementById('drawer-edit-title');
+      if (!textarea) return;
+
+      var newText = textarea.value;
+      var newTitle = titleInput ? titleInput.value.trim() : '';
+      var actionId = _editState.actionId;
+      var contentType = _editState.contentType;
+
+      // Don't save if nothing changed
+      if (newText === _editState.originalText && newTitle === _editState.originalTitle) {
+        _cancelDrawerEdit();
+        return;
+      }
+
+      // Update action payload
+      var list = AE.getActions();
+      var found = false;
+      for (var i = 0; i < list.length; i++) {
+        if (list[i].id === actionId) {
+          var p = list[i].payload || {};
+          if (contentType === 'social') {
+            p.text = newText;
+          } else if (contentType === 'article') {
+            p.content_md = newText;
+            if (newTitle) p.title = newTitle;
+          } else {
+            // Generic: update whichever field was present
+            if (p.text !== undefined) p.text = newText;
+            else p.content = newText;
+          }
+          // Stamp CEO edit
+          p._ceo_edited = true;
+          p._ceo_edited_at = new Date().toISOString();
+          list[i].payload = p;
+          list[i].updatedAt = new Date().toISOString();
+          found = true;
+          break;
+        }
+      }
+
+      if (!found) {
+        _showExecNotice('error', 'Action not found — edit not saved.');
+        _cancelDrawerEdit();
+        return;
+      }
+
+      // Save via AgentEngine (syncs to localStorage + server)
+      if (typeof CompanyStore !== 'undefined' && CompanyStore.setStateSync) {
+        CompanyStore.setStateSync('ap_actions', list);
+      } else {
+        try { localStorage.setItem('ap_actions', JSON.stringify(list)); } catch(e) {}
+      }
+
+      // Also update approval queue preview if present
+      var aq = AE.getApprovalQueue();
+      for (var j = 0; j < aq.length; j++) {
+        if (aq[j].action_id === actionId) {
+          aq[j].preview = (newText || '').substring(0, 120);
+          if (newTitle) aq[j].taskTitle = newTitle;
+          break;
+        }
+      }
+      if (typeof CompanyStore !== 'undefined' && CompanyStore.setStateSync) {
+        CompanyStore.setStateSync('ap_approval_queue', aq);
+      } else {
+        try { localStorage.setItem('ap_approval_queue', JSON.stringify(aq)); } catch(e) {}
+      }
+
+      _editState = null;
+      _showExecNotice('success', 'Content updated — CEO edit saved.');
+      // Re-open drawer to show updated content
+      openDrawer(actionId);
+      renderAll();
+    }
+
+    window.toggleDrawerEdit = toggleDrawerEdit;
+    window.saveDrawerEdit = saveDrawerEdit;
+    window._cancelDrawerEdit = _cancelDrawerEdit;
     function kv(key, val) { return '<dt>' + esc(key) + '</dt><dd>' + esc(String(val || '—')) + '</dd>'; }
     function fmtDate(iso) { return iso ? new Date(iso).toLocaleString() : '—'; }
 
