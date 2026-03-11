@@ -554,6 +554,7 @@ Write the full deliverable first, then the structured JSON block.`;
             : (_rpTask.taskType === 'social_x' || /twitter|x\.com|tweet/.test(_rpText)) ? 'x'
             : (_rpTask.taskType === 'social_bluesky' || /bluesky/.test(_rpText)) ? 'bluesky'
             : (_rpTask.taskType === 'social_reddit' || /\breddit\b/.test(_rpText)) ? 'reddit'
+            : (_rpTask.taskType === 'social_facebook' || /facebook|fb\.com/.test(_rpText)) ? 'facebook'
             : 'linkedin';
           context.log('[Heartbeat] DONE-TASK SOCIAL: echo injecting create-social-action for done task:', _rpTask.id, 'platform:', _rpPlatform, 'reviewed_copy:', _rpTask.reviewed_copy ? 'YES' : 'NO');
           actions.push({
@@ -600,7 +601,7 @@ Write the full deliverable first, then the structured JSON block.`;
     if (action.taskId) {
       const _ttTask = tasks.find(t => t.id === action.taskId);
       const _ttType = _ttTask ? (_ttTask.taskType || 'general') : 'general';
-      const _ttSocial = ['social_x', 'social_linkedin', 'social_bluesky', 'social_reddit'];
+      const _ttSocial = ['social_x', 'social_linkedin', 'social_bluesky', 'social_reddit', 'social_facebook'];
       const _ttBlog = ['blog_post', 'article', 'newsletter'];
       const _ttDoc = ['blog_post', 'article', 'newsletter', 'internal_doc'];
       const _ttContent = ['design_asset'];
@@ -1378,7 +1379,7 @@ Write the full deliverable first, then the structured JSON block.`;
           if (!socialTask.reviewed_copy) {
             if (!_copyTaskExists) {
               const _platform = (action.social.platform || 'linkedin').toLowerCase();
-              const _maxLen = _platform === 'x' ? '280 chars' : _platform === 'bluesky' ? '300 chars' : '800-1500 chars for LinkedIn (article-style)';
+              const _maxLen = _platform === 'x' ? '280 chars' : _platform === 'bluesky' ? '300 chars' : _platform === 'facebook' ? '100-250 chars for engagement (up to 63,206 chars max). Supports links, hashtags, @mentions.' : '800-1500 chars for LinkedIn (article-style)';
               // Pull campaign context for Scribe (URL, posting rules)
               let _cmpContext = '';
               if (socialTask.campaign_id) {

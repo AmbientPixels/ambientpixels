@@ -72,9 +72,10 @@ function _socialIntelBuildDigest(existingDigest, socialEvents, engagementSnapsho
     x: { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 },
     linkedin: { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 },
     bluesky: { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 },
-    reddit: { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 }
+    reddit: { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 },
+    facebook: { likes7d: 0, comments7d: 0, reposts7d: 0, posts7d: 0 }
   };
-  var platformPostSets = { x: {}, linkedin: {}, bluesky: {}, reddit: {} };
+  var platformPostSets = { x: {}, linkedin: {}, bluesky: {}, reddit: {}, facebook: {} };
   var postAgg = {};
 
   for (var j = 0; j < snapshots.length; j++) {
@@ -119,6 +120,7 @@ function _socialIntelBuildDigest(existingDigest, socialEvents, engagementSnapsho
   byPlatform.x.posts7d = Object.keys(platformPostSets.x).length;
   byPlatform.linkedin.posts7d = Object.keys(platformPostSets.linkedin).length;
   byPlatform.bluesky.posts7d = Object.keys(platformPostSets.bluesky).length;
+  byPlatform.facebook.posts7d = Object.keys(platformPostSets.facebook).length;
 
   var topPosts7d = Object.keys(postAgg)
     .map(function (k) { return postAgg[k]; })
@@ -150,20 +152,20 @@ function _socialIntelBuildDigest(existingDigest, socialEvents, engagementSnapsho
   var avgExecutionLatencyMs7d = latencyCount7d > 0 ? Math.round(latencyTotal7d / latencyCount7d) : 0;
 
   var topEngagementPlatform = 'x';
-  ['x', 'linkedin', 'bluesky'].forEach(function (p) {
+  ['x', 'linkedin', 'bluesky', 'facebook'].forEach(function (p) {
     if (byPlatform[p].likes7d > byPlatform[topEngagementPlatform].likes7d) topEngagementPlatform = p;
   });
 
   // Account-level stats (from socialAccountStats cache)
   var acct = (accountStats && accountStats.platforms) ? accountStats : null;
   var acctTotals = (accountStats && accountStats.totals) ? accountStats.totals : null;
-  var acctFollowers = { x: 0, linkedin: 0, bluesky: 0, total: 0 };
+  var acctFollowers = { x: 0, linkedin: 0, bluesky: 0, facebook: 0, total: 0 };
   if (acct && acct.platforms) {
-    ['x', 'linkedin', 'bluesky'].forEach(function (p) {
+    ['x', 'linkedin', 'bluesky', 'facebook'].forEach(function (p) {
       var pl = acct.platforms[p];
       if (pl && pl.ok !== false) acctFollowers[p] = pl.followers || 0;
     });
-    acctFollowers.total = acctFollowers.x + acctFollowers.linkedin + acctFollowers.bluesky;
+    acctFollowers.total = acctFollowers.x + acctFollowers.linkedin + acctFollowers.bluesky + acctFollowers.facebook;
   }
   if (acctTotals && acctTotals.followers) acctFollowers.total = acctTotals.followers;
 
@@ -203,7 +205,7 @@ function _socialIntelBuildDigest(existingDigest, socialEvents, engagementSnapsho
   if (successRate7d < 90) {
     recommendations.push('Improve delivery reliability before increasing social posting cadence.');
   }
-  ['x', 'linkedin', 'bluesky'].forEach(function (p) {
+  ['x', 'linkedin', 'bluesky', 'facebook'].forEach(function (p) {
     if (recommendations.length >= 3) return;
     if (byPlatform[p].posts7d === 0) {
       recommendations.push('Publish at least one ' + p + ' post this week to restore engagement signal coverage.');

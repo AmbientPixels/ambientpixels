@@ -20,6 +20,7 @@ var CompanySchemas = (function () {
     social_linkedin:  { label: 'LinkedIn Post',     pipeline: 'social',  requiresDoc: false, description: 'Post to LinkedIn' },
     social_bluesky:   { label: 'Bluesky Post',      pipeline: 'social',  requiresDoc: false, description: 'Post to Bluesky' },
     social_reddit:    { label: 'Reddit Post',       pipeline: 'social',  requiresDoc: false, description: 'Post to Reddit (r/subreddit)' },
+    social_facebook:  { label: 'Facebook Post',     pipeline: 'social',  requiresDoc: false, description: 'Post to Facebook (manual posting via outbox)' },
     internal_doc:     { label: 'Internal Doc',      pipeline: 'doc',     requiresDoc: true,  description: 'Spec, runbook, or governance doc → publish to /docs/' },
     design_asset:     { label: 'Design Asset',      pipeline: 'content', requiresDoc: false, description: 'Image or content package → approval' },
     research:         { label: 'Research',           pipeline: 'simple',  requiresDoc: false, description: 'Research and analysis task' },

@@ -333,6 +333,16 @@
                 <div class="dash-empty">No items awaiting CEO approval.</div>
               </div>
             </div>
+            <!-- Facebook Outbox (manual posting queue) -->
+            <div class="dash-panel dash-panel--full" id="panel-fb-outbox-wrap" style="display:none;">
+              <div class="dash-panel-header">
+                <span class="dash-panel-title"><i class="fab fa-facebook" style="color:#1877F2;"></i> Facebook Outbox</span>
+                <span class="dash-panel-badge" id="fb-outbox-count-badge" style="background:rgba(24,119,242,0.1); color:#1877F2;">0 ready</span>
+              </div>
+              <div id="panel-fb-outbox-list">
+                <div class="dash-empty">No Facebook posts awaiting manual posting.</div>
+              </div>
+            </div>
             <!-- Goals -->
             <div class="dash-panel">
               <div class="dash-panel-header">
@@ -1211,7 +1221,7 @@
         [renderCeoInbox, renderCeoStatCards, renderCeoAgentGrid, renderCeoSocialGrowth,
          renderCeoObsHealth, renderStats, renderFleet, renderAgentStatus, renderSessions,
          renderCronLog, renderOvernightLog, renderMorningReport, renderServerLogs,
-         renderHeartbeatHealth, renderApprovalQueue, renderCampaignsSnap, renderSystemPulse,
+         renderHeartbeatHealth, renderApprovalQueue, renderFacebookOutbox, renderCampaignsSnap, renderSystemPulse,
          renderKpiScoreboard, renderObjectivesSnap, renderAutonomyScore, renderRiskHeatmap,
          renderActionSnap, renderGeminiCosts, renderAzureCosts, renderXCosts, renderCostSummary,
          renderDailyLogDrafts, renderBlogAdmin, renderGovernanceLog, renderGovernanceLogDev,
@@ -2725,6 +2735,85 @@
         });
 
         updateBatchUI();
+      }
+
+      // ── Facebook Outbox (manual posting queue) ──
+      function renderFacebookOutbox() {
+        var wrap = document.getElementById('panel-fb-outbox-wrap');
+        var listEl = document.getElementById('panel-fb-outbox-list');
+        var badge = document.getElementById('fb-outbox-count-badge');
+        if (!wrap || !listEl || !badge) return;
+
+        var actions = (typeof AgentEngine !== 'undefined') ? AgentEngine.getActions() : [];
+        var fbPosts = actions.filter(function (a) {
+          return a.platform === 'facebook'
+            && a.execution && a.execution.status === 'success'
+            && a.execution.receipt && a.execution.receipt.manual === true
+            && !a._manually_posted;
+        });
+
+        if (fbPosts.length === 0) {
+          wrap.style.display = 'none';
+          return;
+        }
+        wrap.style.display = '';
+        badge.textContent = fbPosts.length + ' ready';
+        listEl.innerHTML = '';
+
+        fbPosts.forEach(function (action) {
+          var text = (action.execution.receipt.text || action.payload && action.payload.text || '').trim();
+          var approvedAt = (action.approval && action.approval.decided_at) || action.execution.receipt.created_at || '';
+          var dateStr = approvedAt ? new Date(approvedAt).toLocaleDateString() + ' ' + new Date(approvedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+
+          var div = document.createElement('div');
+          div.style.cssText = 'padding:0.6rem;margin-bottom:0.4rem;border:1px solid rgba(24,119,242,0.15);border-radius:6px;background:rgba(24,119,242,0.03);';
+          div.innerHTML =
+            '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">' +
+              '<span style="font-size:0.6rem;color:#1877F2;font-weight:600;"><i class="fab fa-facebook" style="margin-right:0.3rem;"></i>Facebook Post</span>' +
+              '<span style="font-size:0.5rem;opacity:0.4;">' + dateStr + '</span>' +
+            '</div>' +
+            '<pre style="white-space:pre-wrap;word-break:break-word;font-size:0.65rem;line-height:1.5;margin:0 0 0.5rem 0;padding:0.5rem;background:rgba(0,0,0,0.2);border-radius:4px;border:1px solid rgba(255,255,255,0.06);font-family:inherit;max-height:200px;overflow-y:auto;">' +
+              text.replace(/</g, '&lt;').replace(/>/g, '&gt;') +
+            '</pre>' +
+            '<div style="display:flex;gap:0.4rem;">' +
+              '<button class="fb-copy-btn" style="padding:0.25rem 0.6rem;font-size:0.55rem;border-radius:4px;cursor:pointer;border:1px solid rgba(24,119,242,0.3);background:rgba(24,119,242,0.08);color:#1877F2;"><i class="fas fa-copy" style="margin-right:0.2rem;"></i>Copy Text</button>' +
+              '<button class="fb-posted-btn" data-action-id="' + (action.id || '') + '" style="padding:0.25rem 0.6rem;font-size:0.55rem;border-radius:4px;cursor:pointer;border:1px solid rgba(52,211,153,0.3);background:rgba(52,211,153,0.06);color:#34d399;"><i class="fas fa-check" style="margin-right:0.2rem;"></i>Mark as Posted</button>' +
+            '</div>';
+
+          // Copy button
+          var copyBtn = div.querySelector('.fb-copy-btn');
+          copyBtn.addEventListener('click', function () {
+            navigator.clipboard.writeText(text).then(function () {
+              copyBtn.innerHTML = '<i class="fas fa-check" style="margin-right:0.2rem;"></i>Copied!';
+              copyBtn.style.color = '#34d399';
+              copyBtn.style.borderColor = 'rgba(52,211,153,0.3)';
+              setTimeout(function () {
+                copyBtn.innerHTML = '<i class="fas fa-copy" style="margin-right:0.2rem;"></i>Copy Text';
+                copyBtn.style.color = '#1877F2';
+                copyBtn.style.borderColor = 'rgba(24,119,242,0.3)';
+              }, 2000);
+            });
+          });
+
+          // Mark as Posted button
+          var postedBtn = div.querySelector('.fb-posted-btn');
+          postedBtn.addEventListener('click', function () {
+            var aid = postedBtn.getAttribute('data-action-id');
+            if (!aid) return;
+            if (!confirm('Mark this Facebook post as manually posted?')) return;
+            var allActions = AgentEngine.getActions();
+            var target = allActions.find(function (a) { return a.id === aid; });
+            if (target) {
+              target._manually_posted = true;
+              target._manually_posted_at = new Date().toISOString();
+              CompanyStore.setState('ap_actions', allActions);
+              if (CompanyStore.persistToServer) CompanyStore.persistToServer('actions');
+            }
+            renderFacebookOutbox();
+          });
+
+          listEl.appendChild(div);
+        });
       }
 
       // ── Campaigns Snapshot ──

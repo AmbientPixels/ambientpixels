@@ -11,7 +11,7 @@ function applyTaskUpdate(tasks, update, _pendingEscalations, _creatingAgentId) {
     var brandImpact = update.task.brand_impact || 'low';
 
     // Social tasks are brand-impacting — override defaults
-    const _SOCIAL_TASK_TYPES = ['social_x', 'social_linkedin', 'social_bluesky', 'social_post'];
+    const _SOCIAL_TASK_TYPES = ['social_x', 'social_linkedin', 'social_bluesky', 'social_facebook', 'social_post'];
     if (_SOCIAL_TASK_TYPES.indexOf(update.task.taskType) !== -1) {
       if (brandImpact === 'low') brandImpact = 'medium';
       if (riskLevel === 'low') riskLevel = 'medium';
