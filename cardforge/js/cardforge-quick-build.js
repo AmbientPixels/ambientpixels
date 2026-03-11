@@ -176,27 +176,25 @@
             </button>
           </div>
           <div class="qb-ai-counter">${remaining} generation${remaining !== 1 ? 's' : ''} remaining today</div>
+          ${_state.artworkUrl ? `<div class="qb-artwork-preview"><img src="${_state.artworkUrl}" alt="Preview"></div>` : ''}
         </div>
       `;
     } else if (artMode === 'url') {
       panelHTML = `
         <div class="qb-artwork-panel">
           <input type="url" class="qb-url-input" id="qb-url-input" placeholder="https://example.com/image.jpg" value="${_state.artworkUrl || ''}">
+          ${_state.artworkUrl ? `<div class="qb-artwork-preview"><img src="${_state.artworkUrl}" alt="Preview"></div>` : ''}
         </div>
       `;
     }
 
-    const previewHTML = _state.artworkUrl
-      ? `<div class="qb-artwork-preview"><img src="${_state.artworkUrl}" alt="Card artwork preview" onerror="this.parentElement.innerHTML='<p style=color:#ef4444>Failed to load image</p>'"></div>`
-      : '';
-
     const imgContainer = _state.imageContainer || 'masked';
     const containerStyles = [
-      { id: 'masked',   label: 'Portrait',  icon: 'fa-circle-user',   desc: 'Cropped into a shape' },
-      { id: 'fullbleed',label: 'Full Art',  icon: 'fa-image',         desc: 'Image fills the card' },
-      { id: 'polaroid', label: 'Polaroid',  icon: 'fa-camera-retro',  desc: 'Photo frame style' },
-      { id: 'banner',   label: 'Banner',    icon: 'fa-panorama',      desc: 'Strip at top or bottom' },
-      { id: 'floating', label: 'Floating',  icon: 'fa-expand',        desc: 'Image floats freely' }
+      { id: 'masked',   label: 'Portrait',  icon: 'fa-circle-user' },
+      { id: 'fullbleed',label: 'Full Art',  icon: 'fa-image' },
+      { id: 'polaroid', label: 'Polaroid',  icon: 'fa-camera-retro' },
+      { id: 'banner',   label: 'Banner',    icon: 'fa-panorama' },
+      { id: 'floating', label: 'Floating',  icon: 'fa-expand' }
     ];
 
     return `
@@ -216,12 +214,11 @@
         </div>
       </div>
       ${panelHTML}
-      ${previewHTML}
       <div class="qb-style-section">
         <p class="qb-style-label">Image Style</p>
         <div class="qb-style-options">
           ${containerStyles.map(s => `
-            <div class="qb-style-tile ${imgContainer === s.id ? 'selected' : ''}" data-img-container="${s.id}" title="${s.desc}">
+            <div class="qb-style-tile ${imgContainer === s.id ? 'selected' : ''}" data-img-container="${s.id}">
               <i class="fas ${s.icon}"></i>
               <span>${s.label}</span>
             </div>
@@ -366,6 +363,7 @@
   }
 
   function _bindArtworkEvents() {
+    // Source mode tabs (gallery / ai / url) — full re-render needed to swap panel
     document.querySelectorAll('.qb-artwork-tile').forEach(tile => {
       tile.addEventListener('click', () => {
         _state.artworkMode = tile.dataset.artMode;
@@ -394,11 +392,12 @@
       urlInput.addEventListener('change', () => _render());
     }
 
-    // Image style tiles
+    // Image style tiles — update selection in-place, no re-render
     document.querySelectorAll('.qb-style-tile').forEach(tile => {
       tile.addEventListener('click', () => {
         _state.imageContainer = tile.dataset.imgContainer;
-        _render();
+        document.querySelectorAll('.qb-style-tile').forEach(t => t.classList.remove('selected'));
+        tile.classList.add('selected');
       });
     });
   }
@@ -414,11 +413,10 @@
 
       container.querySelectorAll('.qb-gallery-img').forEach(img => {
         img.addEventListener('click', () => {
+          // Toggle selection in-place — no full re-render
           container.querySelectorAll('.qb-gallery-img').forEach(i => i.classList.remove('selected'));
           img.classList.add('selected');
           _state.artworkUrl = img.dataset.url;
-          // Re-render to show preview below
-          _render();
         });
       });
     };

@@ -327,13 +327,13 @@
 .qb-artwork-preview {
   display: flex;
   justify-content: center;
-  padding: 1rem 0;
+  padding: 0.5rem 0;
 }
 
 .qb-artwork-preview img {
-  max-width: 200px;
-  max-height: 280px;
-  border-radius: 12px;
+  max-width: 120px;
+  max-height: 160px;
+  border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.15);
   object-fit: cover;
 }
@@ -620,9 +620,9 @@
 
 /* Image style picker */
 .qb-style-section {
-  margin-top: 1.25rem;
+  margin-top: 0.75rem;
   border-top: 1px solid rgba(255,255,255,0.06);
-  padding-top: 1rem;
+  padding-top: 0.6rem;
 }
 
 .qb-style-label {
