@@ -496,16 +496,19 @@
   };
 
   function _triggerPreview() {
-    // Use a single synchronous flow — no nested timeouts, no race conditions.
-    // 1. Apply preset DESIGN ONLY (visual styling, no sample data, no updatePreview)
-    // 2. Apply wizard card data to form fields
-    // 3. Single updatePreview() call
-    // 4. Clone into wizard modal on next frame
+    // Synchronous flow: set design → set form fields → render → clone into wizard.
+    // Uses 100ms initial delay to ensure wizard DOM is ready, then 150ms
+    // post-render delay before cloning to avoid stale content.
     setTimeout(() => {
       try {
+        console.log('[QB] _triggerPreview v2 — cardName:', JSON.stringify(_state.cardName), 'class:', _state.cardClass, 'vibe:', _state.vibe?.id);
+
         // Step 1: Apply preset visual design (skips sample data + updatePreview)
         if (_state.vibe && window.CardForge?.applyPresetDesignOnly) {
           window.CardForge.applyPresetDesignOnly(_state.vibe.presetId);
+          console.log('[QB] Applied preset design:', _state.vibe.presetId);
+        } else {
+          console.warn('[QB] applyPresetDesignOnly not available, vibe:', !!_state.vibe, 'fn:', !!window.CardForge?.applyPresetDesignOnly);
         }
 
         // Step 2: Override image container with wizard's choice
@@ -526,7 +529,12 @@
         // Step 4: Set ALL form fields with wizard data
         const setField = (id, val) => {
           const el = document.getElementById(id);
-          if (el) el.value = val ?? '';
+          if (el) {
+            el.value = val ?? '';
+            console.log('[QB] setField', id, '→', JSON.stringify(el.value));
+          } else {
+            console.warn('[QB] Field not found:', id);
+          }
         };
 
         setField('card-name', _state.cardName);
@@ -567,6 +575,10 @@
           window.CardForge.updatePreview();
         }
 
+        // Verify the render used our data (not fallback)
+        const renderedName = document.querySelector('.card-preview-zone .card-name');
+        console.log('[QB] After render — card-name field:', JSON.stringify(document.getElementById('card-name')?.value), 'rendered .card-name:', renderedName?.textContent);
+
         // Belt-and-suspenders: directly set avatar img src
         if (_state.artworkUrl) {
           document.querySelectorAll('.card-preview-zone .card-avatar').forEach(img => {
@@ -574,18 +586,22 @@
           });
         }
 
-        // Step 7: Clone preview into wizard modal after DOM commits
-        requestAnimationFrame(() => {
+        // Step 7: Clone preview into wizard modal — use longer delay to ensure
+        // any debounced re-renders have completed and DOM is fully committed
+        setTimeout(() => {
           _clonePreviewIntoWizard();
-        });
+          // Verify clone content
+          const clonedName = document.querySelector('#qb-card-preview .card-name');
+          console.log('[QB] Cloned preview — .card-name:', clonedName?.textContent);
+        }, 150);
       } catch (err) {
-        console.error('Preview generation error:', err);
+        console.error('[QB] Preview generation error:', err);
         const previewContainer = document.getElementById('qb-card-preview');
         if (previewContainer) {
           previewContainer.innerHTML = '<div class="qb-status error">Preview failed to generate</div>';
         }
       }
-    }, 50);
+    }, 100);
   }
 
   function _clonePreviewIntoWizard() {
@@ -619,8 +635,8 @@
       // Ensure editor fields are populated (preview already set them,
       // but re-trigger in case user went back and changed something)
       _triggerPreview();
-      // Wait for the 50ms setTimeout inside _triggerPreview to complete
-      await new Promise(r => setTimeout(r, 150));
+      // Wait for the 100ms + 150ms inside _triggerPreview to complete
+      await new Promise(r => setTimeout(r, 350));
 
       // Use existing save pipeline
       if (window.cardForgeActions) {
