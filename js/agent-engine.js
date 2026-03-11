@@ -2116,6 +2116,7 @@ var AgentEngine = (function () {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       completedAt: null,
+      taskType: entry.taskType || null,
       comments: []
     };
     tasks.push(task);

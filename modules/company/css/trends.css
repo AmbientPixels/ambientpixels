@@ -425,6 +425,14 @@
   font-family: 'Inter', sans-serif;
 }
 
+/* ── Opportunity Action — Created State ── */
+.tr-opp-action--created {
+  background: rgba(52,211,153,0.15);
+  border-color: #34d399;
+  color: #34d399;
+  cursor: default;
+}
+
 /* ── Loading State ── */
 .tr-loading {
   display: flex;

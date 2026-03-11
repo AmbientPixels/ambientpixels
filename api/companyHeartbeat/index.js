@@ -292,6 +292,9 @@ module.exports = async function (context) {
     const _seedMemories = (await storage.getState('agentSeedMemories')) || {};
     // Load persistent research intelligence store (survives beyond task completion)
     let researchIntelStore = (await storage.getState('researchIntel')) || [];
+    // Load trend radar store for Scout analysis
+    let trendRadarStore = [];
+    try { trendRadarStore = (await storage.getState('trendRadar')) || []; } catch (_trErr) { /* non-fatal */ }
     // Load worker reports (client-side workers sync intel here for Nova to read)
     let workerReports = [];
     try { workerReports = (await storage.getState('workerReports')) || []; } catch (_wrErr) { /* non-fatal */ }
@@ -1161,13 +1164,25 @@ module.exports = async function (context) {
           normalizedActivationMode, _isAgentInCooldown, _logAgentCooldownOnce, _incPolicyGate,
           _agentCampaignCtx, siteIntel,
           agentId === 'nova' ? workerReports : null,
-          _agentMemoryStore
+          _agentMemoryStore, trendRadarStore
         );
         // Collect any new research intel from this agent's cycle
         if (result.newResearchIntel) {
           researchIntelStore.push(result.newResearchIntel);
           if (researchIntelStore.length > MAX_RESEARCH_STORE_ENTRIES) {
             researchIntelStore = researchIntelStore.slice(-MAX_RESEARCH_STORE_ENTRIES);
+          }
+        }
+        // Persist Scout's trend insights analysis
+        if (result.newTrendInsights) {
+          try {
+            var _tiStore = (await storage.getState('trendInsights')) || [];
+            _tiStore.push(result.newTrendInsights);
+            if (_tiStore.length > 50) _tiStore = _tiStore.slice(-50);
+            await storage.setState('trendInsights', _tiStore);
+            context.log('[Heartbeat] scout: trendInsights persisted, id:', result.newTrendInsights.id);
+          } catch (_tiErr) {
+            context.log.warn('[Heartbeat] trendInsights persist failed (non-fatal):', _tiErr && _tiErr.message);
           }
         }
         geminiCalls += result.geminiCalls;

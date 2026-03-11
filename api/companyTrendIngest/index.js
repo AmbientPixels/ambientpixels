@@ -11,28 +11,63 @@ const MAX_RADAR_SNAPSHOTS = 30; // keep last 30 ingestion runs
 const CATEGORY_IDS = ['ai_ml', 'devtools', 'design', 'marketing', 'infrastructure', 'product'];
 const WEIGHTS = { searchGrowth: 0.4, socialVelocity: 0.4, devActivity: 0.2 };
 
-const TREND_PROMPT = [
-  'You are a technology trend analyst. Return exactly 12 current, real technology trends as a JSON array.',
-  'Each trend object must have these fields:',
-  '  name (string) — short trend name, 2-5 words',
-  '  category (string) — one of: ai_ml, devtools, design, marketing, infrastructure, product',
-  '  description (string) — 1-2 sentence explanation of what this trend is',
-  '  searchGrowth (integer 0-100) — estimated search interest growth rate',
-  '  socialVelocity (integer 0-100) — estimated social media buzz level',
-  '  devActivity (integer 0-100) — estimated developer/builder activity level',
-  '  history (array of 6 integers 0-100) — estimated momentum over 6 periods, ending near searchGrowth',
-  '  relevance (string) — 1 sentence on why this matters for an AI-powered marketing/ops platform',
-  '  signals (array of 3 strings) — specific recent events, launches, or data points driving this trend',
-  '',
-  'Requirements:',
-  '- Use REAL current trends, not made-up ones. Ground in actual technology movements.',
-  '- Spread across all 6 categories. At least 1 trend per category.',
-  '- Include a mix of stages: some early (scores 10-30), some emerging (30-60), some growing (60-85), some exploding (85+).',
-  '- Signals should reference real companies, products, or events.',
-  '- history array should show realistic growth trajectory ending at or near searchGrowth value.',
-  '',
-  'Return ONLY the JSON array, no markdown fences, no explanation.'
-].join('\n');
+// ── GitHub Trending Signal Fetch ──
+
+async function fetchGithubTrending(log) {
+  try {
+    var res = await fetch('https://github-trending-api.now.sh/repositories?since=daily', {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' }
+    });
+    if (!res.ok) {
+      log('[TrendIngest] GitHub Trending API returned ' + res.status + ' — skipping');
+      return null;
+    }
+    var repos = await res.json();
+    if (!Array.isArray(repos) || !repos.length) return null;
+    return repos.slice(0, 10).map(function (r) {
+      return r.name + ' (' + (r.language || 'unknown') + ', +' + (r.currentPeriodStars || r.starsToday || 0) + ' stars today)';
+    });
+  } catch (e) {
+    log('[TrendIngest] GitHub Trending fetch failed (non-fatal): ' + e.message);
+    return null;
+  }
+}
+
+// ── Trend Prompt Builder ──
+
+function buildTrendPrompt(githubLines) {
+  var githubSection = '';
+  if (Array.isArray(githubLines) && githubLines.length > 0) {
+    githubSection = '\n\nReal GitHub Trending data (today):\n'
+      + githubLines.map(function (l, i) { return (i + 1) + '. ' + l; }).join('\n')
+      + '\n\nUse these as ground truth for devActivity scores where relevant. Reference specific repos in signals where appropriate.';
+  }
+
+  return [
+    'You are a technology trend analyst. Return exactly 12 current, real technology trends as a JSON array.',
+    'Each trend object must have these fields:',
+    '  name (string) — short trend name, 2-5 words',
+    '  category (string) — one of: ai_ml, devtools, design, marketing, infrastructure, product',
+    '  description (string) — 1-2 sentence explanation of what this trend is',
+    '  searchGrowth (integer 0-100) — estimated search interest growth rate',
+    '  socialVelocity (integer 0-100) — estimated social media buzz level',
+    '  devActivity (integer 0-100) — developer/builder activity level, grounded in real GitHub data where available',
+    '  history (array of 6 integers 0-100) — estimated momentum over 6 periods, ending near searchGrowth',
+    '  relevance (string) — 1 sentence on why this matters for an AI-powered marketing/ops platform',
+    '  signals (array of 3 strings) — specific recent events, launches, or data points driving this trend',
+    '',
+    'Requirements:',
+    '- Use REAL current trends, not made-up ones. Ground in actual technology movements.',
+    '- Spread across all 6 categories. At least 1 trend per category.',
+    '- Include a mix of stages: some early (scores 10-30), some emerging (30-60), some growing (60-85), some exploding (85+).',
+    '- Signals should reference real companies, products, or events.',
+    '- history array should show realistic growth trajectory ending at or near searchGrowth value.',
+    githubSection,
+    '',
+    'Return ONLY the JSON array, no markdown fences, no explanation.'
+  ].join('\n');
+}
 
 // ── Helpers ──
 
@@ -59,14 +94,14 @@ function classifyStage(score) {
 
 // ── Gemini Call ──
 
-async function callGemini(log) {
+async function callGemini(promptText, log) {
   if (!GEMINI_API_KEY) {
     log('[TrendIngest] GEMINI_API_KEY not set, skipping');
     return null;
   }
 
   const body = {
-    contents: [{ role: 'user', parts: [{ text: TREND_PROMPT }] }],
+    contents: [{ role: 'user', parts: [{ text: promptText }] }],
     generationConfig: {
       temperature: 0.7,
       topP: 0.9,
@@ -171,7 +206,16 @@ function parseTrends(text, log) {
 async function runIngestion(log) {
   log('[TrendIngest] Starting trend ingestion...');
 
-  var rawText = await callGemini(log);
+  // Fetch real GitHub trending data first (graceful fallback if unavailable)
+  var githubLines = await fetchGithubTrending(log);
+  if (githubLines) {
+    log('[TrendIngest] GitHub Trending: fetched ' + githubLines.length + ' repos');
+  } else {
+    log('[TrendIngest] GitHub Trending unavailable — using Gemini estimates only');
+  }
+
+  var promptText = buildTrendPrompt(githubLines);
+  var rawText = await callGemini(promptText, log);
   if (!rawText) {
     log('[TrendIngest] No data from Gemini, aborting');
     return { ok: false, reason: 'gemini_failed' };
@@ -188,6 +232,7 @@ async function runIngestion(log) {
     ingestedAt: new Date().toISOString(),
     source: 'gemini-2.0-flash',
     trendCount: trends.length,
+    githubSignals: githubLines || null,
     trends: trends
   };
 

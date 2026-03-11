@@ -329,9 +329,61 @@
         +   '<span>Effort: ' + esc(o.effort) + '</span>'
         +   '<span>Impact: ' + esc(o.impact) + '</span>'
         + '</div>'
-        + '<button class="tr-opp-action" disabled title="Coming soon \u2014 agent integration"><i class="fas fa-plus"></i> Create Task</button>'
+        + '<button class="tr-opp-action"'
+        +   ' data-opp-type="' + esc(o.type) + '"'
+        +   ' data-opp-title="' + esc(o.title) + '"'
+        +   ' data-opp-desc="' + esc(o.description) + '"'
+        +   ' data-opp-effort="' + esc(o.effort) + '"'
+        +   ' data-opp-impact="' + esc(o.impact) + '">'
+        +   '<i class="fas fa-plus"></i> Create Task'
+        + '</button>'
         + '</div>';
     }).join('');
+  }
+
+  /* ── Opportunity Type → Task Mapping ── */
+  var OPP_TASK_MAP = {
+    blog_post:      { assignee: 'scribe', taskType: 'blog_post',      priority: 'medium' },
+    social_post:    { assignee: 'echo',   taskType: 'social_linkedin', priority: 'medium' },
+    video_topic:    { assignee: 'scribe', taskType: 'general',         priority: 'low'    },
+    campaign_angle: { assignee: 'nova',   taskType: 'general',         priority: 'high'   }
+  };
+
+  function handleCreateTaskClick(btn) {
+    if (btn.disabled || btn.classList.contains('tr-opp-action--created')) return;
+    if (typeof AgentEngine === 'undefined' || !AgentEngine.addTask) {
+      console.warn('[TrendsApp] AgentEngine not available');
+      return;
+    }
+
+    var oppType   = btn.getAttribute('data-opp-type');
+    var oppTitle  = btn.getAttribute('data-opp-title');
+    var oppDesc   = btn.getAttribute('data-opp-desc');
+    var oppEffort = btn.getAttribute('data-opp-effort');
+    var oppImpact = btn.getAttribute('data-opp-impact');
+    var mapping   = OPP_TASK_MAP[oppType] || { assignee: null, taskType: 'general', priority: 'medium' };
+
+    var task = AgentEngine.addTask({
+      title:       oppTitle,
+      description: oppDesc + '\n\nSource: Trends Radar opportunity (' + oppType + ')',
+      assignee:    mapping.assignee,
+      taskType:    mapping.taskType,
+      priority:    mapping.priority,
+      effort:      oppEffort,
+      impact:      oppImpact,
+      status:      'backlog',
+      tags:        ['trends-radar', oppType],
+      source:      { type: 'trends_radar', title: oppTitle, date: new Date().toISOString() }
+    });
+
+    if (task) {
+      btn.classList.add('tr-opp-action--created');
+      btn.innerHTML = '<i class="fas fa-check"></i> Task Created';
+      btn.disabled = true;
+      if (typeof window.showDemoToast === 'function') {
+        window.showDemoToast('Task created: "' + oppTitle.substring(0, 40) + '"');
+      }
+    }
   }
 
   /* ── Load Trends (state first, Gemini fallback) ── */
@@ -448,6 +500,16 @@
     }
 
     renderFilters();
+
+    // Delegate Create Task clicks on opportunity list
+    var oppList = document.getElementById('tr-opp-list');
+    if (oppList) {
+      oppList.addEventListener('click', function (e) {
+        var btn = e.target.closest('.tr-opp-action');
+        if (btn) handleCreateTaskClick(btn);
+      });
+    }
+
     loadTrends();
   }
 
