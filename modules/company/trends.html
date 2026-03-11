@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Trends Radar — track emerging technology trends and identify content opportunities." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Trends — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/trends.css" />
+  <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
+</head>
+<body style="background:#071019" data-theme="dark">
+  <main class="content-section" style="max-width: 1060px; margin: 0 auto; padding: 1rem;">
+
+    <!-- Header -->
+    <div class="company-header">
+      <h1><i class="fas fa-chart-line" style="opacity:0.4; margin-right:8px;"></i>Trends Radar</h1>
+      <p>Track emerging technology trends and identify content opportunities.</p>
+    </div>
+
+    <!-- Stats Row -->
+    <div class="tr-stats" id="tr-stats"></div>
+
+    <!-- Filter Bar -->
+    <div class="tr-filters" id="tr-filters"></div>
+
+    <!-- Trend Card Grid -->
+    <section class="tr-panel" id="tr-radar-section">
+      <div class="tr-panel-title"><i class="fas fa-satellite-dish"></i> Emerging Trends</div>
+      <div class="tr-grid" id="tr-grid">
+        <div class="tr-empty">Loading trends...</div>
+      </div>
+    </section>
+
+    <!-- Trend Detail Panel (hidden until card click) -->
+    <section class="tr-panel tr-detail-panel" id="tr-detail" style="display:none;"></section>
+
+    <!-- Opportunity Generator -->
+    <section class="tr-panel" id="tr-opportunities">
+      <div class="tr-panel-title"><i class="fas fa-lightbulb"></i> Content Opportunities</div>
+      <div class="tr-opp-empty" id="tr-opp-empty">Select a trend above to generate content opportunities.</div>
+      <div class="tr-opp-list" id="tr-opp-list"></div>
+    </section>
+
+    <!-- Future Data Sources -->
+    <section class="tr-panel tr-panel--future" id="tr-future">
+      <div class="tr-panel-title"><i class="fas fa-plug"></i> Data Sources <span class="tr-badge tr-badge--soon">Coming Soon</span></div>
+      <p class="tr-future-note">
+        <strong>Layer 1 — Azure Timer:</strong> Google Trends API, Reddit, GitHub Trending, YouTube, Product Hunt, Bluesky/X<br>
+        <strong>Layer 2 — Scout Agent:</strong> Significance ranking, cross-source clustering, business relevance mapping<br>
+        <strong>Layer 3 — Downstream:</strong> Nova prioritization, Scribe content briefs, campaign engine conversion
+      </p>
+    </section>
+
+  </main>
+
+  <script src="/modules/company/js/demo-toast.js"></script>
+  <script src="/js/company-store.js"></script>
+  <script src="/modules/company/js/trends-data.js"></script>
+  <script src="/modules/company/js/trends-app.js"></script>
+  <script src="/modules/company/js/quick-chat.js"></script>
+  <script src="/modules/company/js/sidebar.js"></script>
+</body>
+</html>

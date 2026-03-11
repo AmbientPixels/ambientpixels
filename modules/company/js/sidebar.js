@@ -78,6 +78,7 @@
         { href: BASE + 'objectives.html', label: 'Goals', icon: 'fa-bullseye', match: ['objectives.html'] },
         { href: BASE + 'campaigns.html', label: 'Campaigns', icon: 'fa-layer-group', match: ['campaigns.html', 'directives.html'] },
         { href: BASE + 'calendar.html', label: 'Calendar', icon: 'fa-calendar-alt', match: ['calendar.html'] },
+        { href: BASE + 'trends.html', label: 'Trends', icon: 'fa-chart-line', match: ['trends.html'] },
         { href: BASE + 'governance.html', label: 'Playbook', icon: 'fa-scroll', match: ['governance.html'] }
       ]
     },
