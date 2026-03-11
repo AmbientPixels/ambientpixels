@@ -4957,6 +4957,8 @@
     createAttributeRow,
     applyEffectLockState,
     applyPreset,
+    setCombatStatValues,
+    clearAllDynamicRows,
     undo,
     redo,
     saveStyleTemplate,

@@ -486,8 +486,17 @@
 
   // ===== PREVIEW =====
 
+  // Map wizard stat names to combat stat keys (mirrors STAT_ALIAS_MAP in editor)
+  const STAT_TO_COMBAT_KEY = {
+    strength: 'str', power: 'str', combat: 'str', attack: 'str', might: 'str',
+    agility: 'agi', speed: 'agi', dexterity: 'agi', reflexes: 'agi', stealth: 'agi',
+    intelligence: 'int', magic: 'int', wisdom: 'int', tech: 'int', intellect: 'int',
+    endurance: 'end', defense: 'end', vitality: 'end', constitution: 'end', stamina: 'end',
+    luck: 'lck', charisma: 'lck', fortune: 'lck', intuition: 'lck', charm: 'lck'
+  };
+
   function _triggerPreview() {
-    // Step 1: Apply preset visual style
+    // Step 1: Apply preset visual style (design only — we'll override all data)
     setTimeout(() => {
       try {
         if (_state.vibe && window.CardForge?.applyPreset) {
@@ -497,81 +506,97 @@
         console.warn('Quick Build preset error:', err);
       }
 
-      // Step 2: Override with wizard data after preset fully settles
+      // Step 2: Override ALL form fields with wizard data after preset settles
       setTimeout(() => {
         try {
           // Apply chosen image container style
-          if (_state.imageContainer && window.ModularState) {
-            window.ModularState.imageContainer = _state.imageContainer;
-            if (_state.imageContainer === 'masked') window.ModularState.imageContainerVariant = 'circle';
-            else if (_state.imageContainer === 'polaroid') window.ModularState.imageContainerVariant = 'classic';
-            else if (_state.imageContainer === 'banner') window.ModularState.imageContainerVariant = 'top';
-            else window.ModularState.imageContainerVariant = '';
+          if (_state.imageContainer && window.CardForge?.ModularState) {
+            const MS = window.CardForge.ModularState;
+            MS.imageContainer = _state.imageContainer;
+            if (_state.imageContainer === 'masked') MS.imageContainerVariant = 'circle';
+            else if (_state.imageContainer === 'polaroid') MS.imageContainerVariant = 'classic';
+            else if (_state.imageContainer === 'banner') MS.imageContainerVariant = 'top';
+            else MS.imageContainerVariant = '';
           }
 
-          // Override form fields with wizard data
-          const fields = {
-            'card-name': _state.cardName,
-            'card-class': _state.cardClass || '',
-            'card-rarity': _state.cardRarity || 'Common',
-            'card-avatar': _state.artworkUrl || ''
+          // Clear dynamic rows left by preset sample data
+          if (window.CardForge?.clearAllDynamicRows) {
+            window.CardForge.clearAllDynamicRows();
+          }
+
+          // Set ALL form fields unconditionally (always override preset data)
+          const setField = (id, val) => {
+            const el = document.getElementById(id);
+            if (el) el.value = val ?? '';
           };
 
-          if (_state.aiData) {
-            if (_state.aiData.quote) fields['card-quote'] = _state.aiData.quote;
-            if (_state.aiData.biography) fields['card-bio'] = _state.aiData.biography;
-            if (_state.aiData.level) fields['card-level'] = _state.aiData.level;
-          }
+          setField('card-name', _state.cardName);
+          setField('card-rarity', _state.cardRarity || 'Common');
+          setField('card-avatar', _state.artworkUrl || '');
+          setField('card-quote', _state.aiData?.quote || '');
+          setField('card-bio', _state.aiData?.biography || '');
+          setField('card-level', _state.aiData?.level || '');
 
-          Object.entries(fields).forEach(([id, val]) => {
-            const el = document.getElementById(id);
-            if (el && val) el.value = val;
-          });
-
-          // Always override card-subclass — AI wins, otherwise clear stale preset data
-          const subclassEl = document.getElementById('card-subclass');
-          if (subclassEl) subclassEl.value = _state.aiData?.characterSubclass || '';
-
-          // Apply stats — AI stats win, otherwise fall back to class-based defaults
-          const stats = _state.aiData?.stats || CLASS_STATS[_state.cardClass] || null;
-          if (stats && window.CardForge?.createStatRow) {
-            const statsContainer = document.getElementById('stats-editor');
-            if (statsContainer) {
-              statsContainer.innerHTML = '';
-              stats.slice(0, 5).forEach(s => {
-                statsContainer.appendChild(window.CardForge.createStatRow(s.name || '', s.value || 0));
-              });
+          // Handle class: editor uses <select> with fixed options, wizard uses free text.
+          // Set select to matching option; put full text in subclass if it differs.
+          const wizardClass = _state.cardClass || '';
+          const classSelect = document.getElementById('card-class');
+          const subclassInput = document.getElementById('card-subclass');
+          if (classSelect) {
+            // Try exact match first
+            classSelect.value = wizardClass;
+            if (classSelect.value === wizardClass) {
+              // Exact match — use AI subclass or clear
+              if (subclassInput) subclassInput.value = _state.aiData?.characterSubclass || '';
+            } else {
+              // No exact match — find closest base class, put full name in subclass
+              const baseClass = CLASSES.find(c => wizardClass.toLowerCase().includes(c.id.toLowerCase()));
+              classSelect.value = baseClass ? baseClass.id : '';
+              if (subclassInput) subclassInput.value = _state.aiData?.characterSubclass || wizardClass;
             }
           }
 
-          // Re-render the preview
+          // Apply stats to combat stat sliders (proper container)
+          const stats = _state.aiData?.stats || CLASS_STATS[_state.cardClass] || CLASS_STATS[classSelect?.value] || null;
+          if (stats && window.CardForge?.setCombatStatValues) {
+            const combatValues = { str: 50, agi: 50, int: 50, end: 50, lck: 50 };
+            stats.forEach(s => {
+              const key = STAT_TO_COMBAT_KEY[(s.name || '').toLowerCase().trim()];
+              if (key) combatValues[key] = Math.min(100, Math.max(0, s.value || 0));
+            });
+            window.CardForge.setCombatStatValues(combatValues);
+          }
+
+          // Re-render the preview with wizard data
           if (window.CardForge?.updatePreview) {
             window.CardForge.updatePreview();
           }
 
-          // Belt-and-suspenders: directly set avatar img src
+          // Belt-and-suspenders: directly set avatar img src after render
           if (_state.artworkUrl) {
             document.querySelectorAll('.card-preview-zone .card-avatar').forEach(img => {
               img.src = _state.artworkUrl;
             });
           }
 
-          // Clone preview into wizard with corrected height
-          const previewContainer = document.getElementById('qb-card-preview');
-          const sourcePreview = document.querySelector('.card-preview-canvas');
-          if (previewContainer && sourcePreview) {
-            const scale = 0.65;
-            const clone = sourcePreview.cloneNode(true);
-            clone.style.transform = `scale(${scale})`;
-            clone.style.transformOrigin = 'top center';
-            previewContainer.innerHTML = '';
-            const h = sourcePreview.offsetHeight;
-            if (h > 0) {
-              previewContainer.style.height = `${h * scale}px`;
-              previewContainer.style.overflow = 'hidden';
+          // Clone preview into wizard after DOM commits
+          requestAnimationFrame(() => {
+            const previewContainer = document.getElementById('qb-card-preview');
+            const sourcePreview = document.querySelector('.card-preview-canvas');
+            if (previewContainer && sourcePreview) {
+              const scale = 0.65;
+              const clone = sourcePreview.cloneNode(true);
+              clone.style.transform = `scale(${scale})`;
+              clone.style.transformOrigin = 'top center';
+              previewContainer.innerHTML = '';
+              const h = sourcePreview.offsetHeight;
+              if (h > 0) {
+                previewContainer.style.height = `${h * scale}px`;
+                previewContainer.style.overflow = 'hidden';
+              }
+              previewContainer.appendChild(clone);
             }
-            previewContainer.appendChild(clone);
-          }
+          });
         } catch (err) {
           console.error('Preview generation error:', err);
           const previewContainer = document.getElementById('qb-card-preview');
@@ -579,7 +604,7 @@
             previewContainer.innerHTML = '<div class="qb-status error">Preview failed to generate</div>';
           }
         }
-      }, 150);
+      }, 200);
     }, 50);
   }
 
@@ -593,9 +618,10 @@
     }
 
     try {
-      // Ensure editor fields are populated
+      // Ensure editor fields are populated (preview already set them,
+      // but re-trigger in case user went back and changed something)
       _triggerPreview();
-      await new Promise(r => setTimeout(r, 200));
+      await new Promise(r => setTimeout(r, 400));
 
       // Use existing save pipeline
       if (window.cardForgeActions) {
