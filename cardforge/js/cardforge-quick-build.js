@@ -356,11 +356,10 @@
   function _renderPreviewStep() {
     return `
       <div class="qb-preview-wrap">
-        <p class="qb-panel-desc">Your card is ready! Save it to your collection or publish it to the gallery.</p>
+        <p class="qb-panel-desc">Your card is ready! Save, publish, or fine-tune it in the full editor.</p>
         <div class="qb-card-preview" id="qb-card-preview">
           <div class="qb-status"><span class="qb-spinner"></span> Generating preview...</div>
         </div>
-        <button class="qb-open-editor" id="qb-open-editor">Want more control? Open in full editor</button>
       </div>
     `;
   }
@@ -371,6 +370,7 @@
     if (_state.step === 4) {
       return `
         <div style="display:flex; gap:0.5rem;">
+          <button class="qb-nav-btn qb-nav-btn--editor" id="qb-open-editor"><i class="fas fa-pen-to-square"></i> Edit</button>
           <button class="qb-nav-btn qb-nav-btn--save" id="qb-save"><i class="fas fa-download"></i> Save</button>
           <button class="qb-nav-btn qb-nav-btn--save" id="qb-publish" style="background:linear-gradient(135deg,#8b5cf6,#6366f1);"><i class="fas fa-globe"></i> Publish</button>
         </div>

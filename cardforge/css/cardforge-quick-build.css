@@ -444,20 +444,6 @@
   width: 100%;
 }
 
-.qb-open-editor {
-  font-size: 0.8rem;
-  color: #a0a0c0;
-  background: none;
-  border: none;
-  cursor: pointer;
-  text-decoration: underline;
-  transition: color 200ms ease;
-}
-
-.qb-open-editor:hover {
-  color: #c4b5fd;
-}
-
 /* Navigation bar */
 .qb-nav {
   display: flex;
@@ -514,6 +500,17 @@
 
 .qb-nav-btn--save:hover {
   box-shadow: 0 4px 20px rgba(34, 197, 94, 0.45);
+}
+
+.qb-nav-btn--editor {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #e1e1ff;
+}
+
+.qb-nav-btn--editor:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.25);
 }
 
 .qb-nav-btn:disabled {

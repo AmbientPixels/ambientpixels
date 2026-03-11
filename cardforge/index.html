@@ -43,7 +43,7 @@
   <link rel="stylesheet" href="css/cardforge-glow-effects.css?v=20260310g">
   <link rel="stylesheet" href="css/cardforge-layout.css?v=20260310g">
   <link rel="stylesheet" href="css/cardforge-hero.css?v=20260310g">
-  <link rel="stylesheet" href="css/cardforge-quick-build.css?v=20260310i">
+  <link rel="stylesheet" href="css/cardforge-quick-build.css?v=20260310j">
   <link rel="stylesheet" href="css/cardforge-responsive.css?v=20260310g"> <!-- Responsive design — MUST be last CSS to override all -->
   <script type="application/ld+json">
   {
@@ -142,6 +142,9 @@
     </a>
     <button type="button" id="clear-all-btn" class="cf-new-card-btn" title="New Card">
       <i class="fas fa-plus"></i> New Card
+    </button>
+    <button type="button" id="quick-build-btn" class="cf-new-card-btn" title="Quick Build Wizard" onclick="window.QuickBuild?.open()">
+      <i class="fas fa-bolt"></i> Quick Build
     </button>
     <div class="cf-variant-toggle" role="group" aria-label="UI Accent Mode">
       <button type="button" class="cf-variant-btn" data-cf-variant="clean">Clean</button>
@@ -1890,7 +1893,7 @@
   <script src="js/cardforge-lightbox.js?v=20260310g" defer></script>
   <script src="js/cardforge-card-helpers.js?v=20260310g" defer></script>
   <script src="js/cardforge-ai.js?v=20260310g" defer></script>
-  <script src="js/cardforge-quick-build.js?v=20260310i" defer></script>
+  <script src="js/cardforge-quick-build.js?v=20260310j" defer></script>
   <script src="js/cardforge-image-sliders.js?v=20260310g" defer></script>
   <script src="/cardforge/js/app-insights.js?v=20260310g"></script>
 
