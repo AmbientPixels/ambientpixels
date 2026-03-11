@@ -18,7 +18,8 @@ const VALID_KEYS = [
   'ap_artifacts', 'meetings', 'tasksArchive', 'agentMemories', 'agentSeedMemories', 'heartbeatRuns',
   'contentEngineConfig', 'imageAssets', 'runtimeMemory',
   'execution_mode', 'workerReports', 'socialCredentials',
-  'demoChatCount', 'researchIntel'
+  'demoChatCount', 'researchIntel',
+  'trendRadar', 'trendInsights', 'trendActions'
 ];
 
 module.exports = async function (context, req) {

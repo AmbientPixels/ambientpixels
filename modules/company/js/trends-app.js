@@ -334,7 +334,7 @@
     }).join('');
   }
 
-  /* ── Load Trends from Gemini ── */
+  /* ── Load Trends (state first, Gemini fallback) ── */
   function loadTrends() {
     if (state.loading) return;
     state.loading = true;
@@ -348,15 +348,8 @@
         state.loading = false;
         renderStats();
         renderGrid();
-
-        // Clear detail + opportunities since data changed
-        var detail = document.getElementById('tr-detail');
-        if (detail) detail.style.display = 'none';
-        var oppList = document.getElementById('tr-opp-list');
-        var oppEmpty = document.getElementById('tr-opp-empty');
-        if (oppList) oppList.innerHTML = '';
-        if (oppEmpty) oppEmpty.style.display = '';
-        state.selectedTrendId = null;
+        updateSourceHint();
+        resetDetailAndOpps();
         setRefreshState(false);
       })
       .catch(function (err) {
@@ -366,6 +359,43 @@
         setRefreshState(false);
         console.error('[TrendsApp]', err);
       });
+  }
+
+  /* ── Force Refresh (triggers server-side ingestion) ── */
+  function refreshTrends() {
+    if (state.loading) return;
+    state.loading = true;
+    state.error = null;
+
+    renderLoading();
+    setRefreshState(true);
+
+    TD.refreshTrends()
+      .then(function () {
+        state.loading = false;
+        renderStats();
+        renderGrid();
+        updateSourceHint();
+        resetDetailAndOpps();
+        setRefreshState(false);
+      })
+      .catch(function (err) {
+        state.loading = false;
+        state.error = err.message;
+        renderError(err.message);
+        setRefreshState(false);
+        console.error('[TrendsApp] Refresh failed:', err);
+      });
+  }
+
+  function resetDetailAndOpps() {
+    var detail = document.getElementById('tr-detail');
+    if (detail) detail.style.display = 'none';
+    var oppList = document.getElementById('tr-opp-list');
+    var oppEmpty = document.getElementById('tr-opp-empty');
+    if (oppList) oppList.innerHTML = '';
+    if (oppEmpty) oppEmpty.style.display = '';
+    state.selectedTrendId = null;
   }
 
   function setRefreshState(loading) {
@@ -380,18 +410,41 @@
     }
   }
 
+  function updateSourceHint() {
+    var hint = document.getElementById('tr-source-hint');
+    if (!hint) return;
+    if (TD.lastSource === 'trendRadar' && TD.lastIngestedAt) {
+      var d = new Date(TD.lastIngestedAt);
+      hint.textContent = 'Last ingested: ' + d.toLocaleString();
+    } else if (TD.lastSource === 'gemini-live') {
+      hint.textContent = 'Live from Gemini (no stored data yet)';
+    } else {
+      hint.textContent = '';
+    }
+  }
+
   /* ── Init ── */
   function init() {
-    // Add refresh button to header
+    // Add refresh button + source hint to header
     var header = document.querySelector('.company-header');
     if (header) {
+      var wrap = document.createElement('div');
+      wrap.style.cssText = 'display:flex;align-items:center;gap:0.5rem;margin-top:0.4rem;flex-wrap:wrap';
+
       var btn = document.createElement('button');
       btn.id = 'tr-refresh-btn';
       btn.className = 'tr-refresh-btn';
-      btn.title = 'Refresh trends from Gemini';
+      btn.title = 'Trigger server-side trend ingestion and reload';
       btn.innerHTML = '<i class="fas fa-rotate"></i> Refresh';
-      btn.addEventListener('click', loadTrends);
-      header.appendChild(btn);
+      btn.addEventListener('click', refreshTrends);
+      wrap.appendChild(btn);
+
+      var hint = document.createElement('span');
+      hint.id = 'tr-source-hint';
+      hint.style.cssText = 'font-size:0.55rem;opacity:0.35';
+      wrap.appendChild(hint);
+
+      header.appendChild(wrap);
     }
 
     renderFilters();

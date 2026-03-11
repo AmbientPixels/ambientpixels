@@ -7,6 +7,8 @@
   'use strict';
 
   var GEMINI_ENDPOINT = '/api/geminiproxy';
+  var STATE_ENDPOINT = '/api/company-state';
+  var INGEST_ENDPOINT = '/api/company-trend-ingest-trigger';
   var TIMEOUT_MS = 45000;
 
   /* ── Constants ── */
@@ -135,8 +137,36 @@
     });
   }
 
-  /* ── Fetch Trends from Gemini ── */
-  function fetchTrends() {
+  /* ── Load from trendRadar state (latest snapshot) ── */
+  function loadFromState() {
+    return fetch(STATE_ENDPOINT + '?key=trendRadar', {
+      headers: { 'x-company-secret': 'pixelpusher' }
+    })
+    .then(function (res) {
+      if (!res.ok) return null;
+      return res.json();
+    })
+    .then(function (data) {
+      if (!Array.isArray(data) || !data.length) return null;
+      // Get latest snapshot
+      var latest = data[data.length - 1];
+      if (!latest || !Array.isArray(latest.trends) || !latest.trends.length) return null;
+
+      // Hydrate stage objects (state stores stage as string id)
+      var trends = latest.trends.map(function (t) {
+        if (typeof t.stage === 'string') {
+          t.stage = classifyStage(t.score || computeScore(t));
+        }
+        return t;
+      });
+
+      return { trends: trends, ingestedAt: latest.ingestedAt, source: 'trendRadar' };
+    })
+    .catch(function () { return null; });
+  }
+
+  /* ── Fetch fresh trends from Gemini (via proxy) ── */
+  function fetchFromGemini() {
     var controller = new AbortController();
     var timeoutId = setTimeout(function () { controller.abort(); }, TIMEOUT_MS);
 
@@ -153,23 +183,66 @@
     })
     .then(function (data) {
       var trends = parseGeminiResponse(data);
-
-      // Compute scores and stages
       trends.forEach(function (t) {
         t.score = computeScore(t);
         t.stage = classifyStage(t.score);
       });
-
-      // Store in module
-      TRENDS = trends;
-      window.TrendsData.trends = trends;
-
-      return trends;
+      return { trends: trends, ingestedAt: new Date().toISOString(), source: 'gemini-live' };
     })
     .catch(function (err) {
       clearTimeout(timeoutId);
       if (err.name === 'AbortError') throw new Error('Trend analysis timed out — please try again');
       throw err;
+    });
+  }
+
+  /* ── Primary fetch: state first, Gemini fallback ── */
+  function fetchTrends() {
+    return loadFromState().then(function (result) {
+      if (result && result.trends.length) {
+        TRENDS = result.trends;
+        window.TrendsData.trends = result.trends;
+        window.TrendsData.lastSource = result.source;
+        window.TrendsData.lastIngestedAt = result.ingestedAt;
+        return result.trends;
+      }
+      // No state data — fall back to live Gemini
+      return fetchFromGemini().then(function (result) {
+        TRENDS = result.trends;
+        window.TrendsData.trends = result.trends;
+        window.TrendsData.lastSource = result.source;
+        window.TrendsData.lastIngestedAt = result.ingestedAt;
+        return result.trends;
+      });
+    });
+  }
+
+  /* ── Force refresh: trigger server-side ingestion, then reload ── */
+  function refreshTrends() {
+    return fetch(INGEST_ENDPOINT, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-company-secret': 'pixelpusher'
+      }
+    })
+    .then(function (res) {
+      if (!res.ok) throw new Error('Ingestion trigger failed (' + res.status + ')');
+      return res.json();
+    })
+    .then(function () {
+      // Reload from state after ingestion
+      return loadFromState();
+    })
+    .then(function (result) {
+      if (result && result.trends.length) {
+        TRENDS = result.trends;
+        window.TrendsData.trends = result.trends;
+        window.TrendsData.lastSource = 'trendRadar';
+        window.TrendsData.lastIngestedAt = result.ingestedAt;
+        return result.trends;
+      }
+      throw new Error('Ingestion completed but no data found');
     });
   }
 
@@ -230,6 +303,9 @@
     classifyStage: classifyStage,
     generateOpportunities: generateOpportunities,
     fetchTrends: fetchTrends,
+    refreshTrends: refreshTrends,
+    lastSource: null,
+    lastIngestedAt: null,
 
     getByCategory: function (cat) {
       return window.TrendsData.trends.filter(function (t) { return t.category === cat; });
