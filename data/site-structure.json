@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2026-03-10T14:02:18.946Z",
+  "updated": "2026-03-11T14:06:27.882Z",
   "root": [
     {
       "type": "folder",
@@ -467,6 +467,12 @@
         },
         {
           "type": "folder",
+          "name": "company-trend-ingest-trigger",
+          "path": "api/company-trend-ingest-trigger",
+          "children": []
+        },
+        {
+          "type": "folder",
           "name": "companyHeartbeat",
           "path": "api/companyHeartbeat",
           "children": []
@@ -475,6 +481,12 @@
           "type": "folder",
           "name": "companyMorningReport",
           "path": "api/companyMorningReport",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "companyTrendIngest",
+          "path": "api/companyTrendIngest",
           "children": []
         },
         {
@@ -1432,6 +1444,11 @@
               "type": "page",
               "name": "tasks.html",
               "path": "modules/company/tasks.html"
+            },
+            {
+              "type": "page",
+              "name": "trends.html",
+              "path": "modules/company/trends.html"
             },
             {
               "type": "page",
