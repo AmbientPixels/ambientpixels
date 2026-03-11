@@ -95,6 +95,7 @@ jobs:
           rm -rf api/actionsMetricsPull
           rm -rf api/socialEngagementPull
           rm -rf api/formIntakeDigestTimer
+          rm -rf api/companyTrendIngest
 
       - name: Build And Deploy
         id: builddeploy
