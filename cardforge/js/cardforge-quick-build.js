@@ -14,13 +14,29 @@
     { id: 'Trickster',label: 'Trickster',icon: 'fa-dice',             playstyle: 'Wild Card',  desc: 'Unpredictable luck-based abilities with surprise effects. Best stat: LCK.' }
   ];
 
+  const STAT_BUDGET = 300;
+
+  const STAT_DEFS = [
+    { key: 'str', label: 'STR', fullLabel: 'Strength',     icon: 'fa-hand-fist',       color: '#ff5252' },
+    { key: 'agi', label: 'AGI', fullLabel: 'Agility',      icon: 'fa-feather-pointed', color: '#00e676' },
+    { key: 'int', label: 'INT', fullLabel: 'Intelligence',  icon: 'fa-bolt',            color: '#7b2fff' },
+    { key: 'end', label: 'END', fullLabel: 'Endurance',     icon: 'fa-heart',           color: '#ff9100' },
+    { key: 'lck', label: 'LCK', fullLabel: 'Luck',          icon: 'fa-clover',          color: '#ffd740' }
+  ];
+
+  // Class base stats (sum to STAT_BUDGET each)
   const CLASS_STATS = {
-    Fighter:  [{ name: 'Strength', value: 100 }, { name: 'Agility', value: 60 }, { name: 'Intelligence', value: 40 }, { name: 'Endurance', value: 80 }, { name: 'Luck', value: 40 }],
-    Caster:   [{ name: 'Strength', value: 40 }, { name: 'Agility', value: 50 }, { name: 'Intelligence', value: 100 }, { name: 'Endurance', value: 40 }, { name: 'Luck', value: 60 }],
-    Rogue:    [{ name: 'Strength', value: 60 }, { name: 'Agility', value: 100 }, { name: 'Intelligence', value: 70 }, { name: 'Endurance', value: 50 }, { name: 'Luck', value: 60 }],
-    Guardian: [{ name: 'Strength', value: 70 }, { name: 'Agility', value: 40 }, { name: 'Intelligence', value: 50 }, { name: 'Endurance', value: 100 }, { name: 'Luck', value: 40 }],
-    Trickster:[{ name: 'Strength', value: 50 }, { name: 'Agility', value: 70 }, { name: 'Intelligence', value: 60 }, { name: 'Endurance', value: 50 }, { name: 'Luck', value: 100 }]
+    Fighter:   { str: 90, agi: 55, int: 35, end: 80, lck: 40 },
+    Caster:    { str: 35, agi: 45, int: 95, end: 40, lck: 85 },
+    Rogue:     { str: 55, agi: 90, int: 60, end: 50, lck: 45 },
+    Guardian:  { str: 65, agi: 35, int: 45, end: 95, lck: 60 },
+    Trickster: { str: 45, agi: 65, int: 55, end: 45, lck: 90 }
   };
+
+  // Helper: convert stat object to legacy array format for _triggerPreview
+  function _statsToArray(statsObj) {
+    return STAT_DEFS.map(d => ({ name: d.fullLabel, value: statsObj[d.key] }));
+  }
 
   const VIBES = [
     { id: 'fantasy-warrior', label: 'Fantasy Warrior', icon: 'fa-khanda', description: 'Swords, shields, and ancient valor', presetId: 'hero-classic', aiPrompt: 'A heroic fantasy warrior in gleaming armor wielding a legendary sword, standing before a castle at sunset' },
@@ -42,7 +58,8 @@
     aiData: null,      // Full AI response (name, class, stats, etc.)
     cardName: '',
     cardClass: '',
-    cardRarity: 'Common'
+    cardRarity: 'Common',
+    customStats: null   // { str, agi, int, end, lck } or null (use class defaults)
   };
 
   let _overlayEl = null;
@@ -51,7 +68,7 @@
   // ===== PUBLIC API =====
 
   function open() {
-    _state = { step: 0, vibe: null, artworkMode: 'gallery', artworkUrl: null, imageContainer: 'masked', aiData: null, cardName: '', cardClass: '', cardRarity: 'Common' };
+    _state = { step: 0, vibe: null, artworkMode: 'gallery', artworkUrl: null, imageContainer: 'masked', aiData: null, cardName: '', cardClass: '', cardRarity: 'Common', customStats: null };
     _render();
   }
 
@@ -132,21 +149,59 @@
     `;
   }
 
-  // ===== STEP 2: CHOOSE CLASS =====
+  // ===== STEP 2: CHOOSE CLASS + STATS =====
+
+  function _getActiveStats() {
+    if (_state.customStats) return { ..._state.customStats };
+    if (_state.cardClass && CLASS_STATS[_state.cardClass]) return { ...CLASS_STATS[_state.cardClass] };
+    return { str: 60, agi: 60, int: 60, end: 60, lck: 60 };
+  }
 
   function _renderClassStep() {
+    const stats = _getActiveStats();
+    const spent = STAT_DEFS.reduce((sum, d) => sum + stats[d.key], 0);
+    const remaining = STAT_BUDGET - spent;
+
+    // Compact stat summary for class tiles
+    const classSummary = (cls) => {
+      const s = CLASS_STATS[cls];
+      const best = STAT_DEFS.reduce((a, b) => s[a.key] > s[b.key] ? a : b);
+      return `<span class="qb-class-stat-hint"><i class="fas ${best.icon}" style="color:${best.color}"></i> ${best.label} ${s[best.key]}</span>`;
+    };
+
     return `
-      <p class="qb-panel-desc">Pick your playstyle. Your class determines your arena ability and combat strengths.</p>
+      <p class="qb-panel-desc">Pick your class, then allocate stats for combat.</p>
       <div class="qb-class-grid">
         ${CLASSES.map(c => `
           <div class="qb-class-card ${_state.cardClass === c.id ? 'selected' : ''}" data-class-id="${c.id}">
             <i class="fas ${c.icon}"></i>
             <span class="qb-class-label">${c.label}</span>
             <span class="qb-class-playstyle">${c.playstyle}</span>
-            <span class="qb-class-desc">${c.desc}</span>
+            ${classSummary(c.id)}
           </div>
         `).join('')}
       </div>
+      ${_state.cardClass ? `
+      <div class="qb-stats-section">
+        <div class="qb-stats-header">
+          <span class="qb-stats-title"><i class="fas fa-sliders"></i> Allocate Stats</span>
+          <span class="qb-stats-budget ${remaining < 0 ? 'over' : remaining === 0 ? 'exact' : ''}">${remaining} pts left</span>
+        </div>
+        <div class="qb-stats-sliders" id="qb-stats-sliders">
+          ${STAT_DEFS.map(d => `
+            <div class="qb-stat-row" data-stat="${d.key}">
+              <i class="fas ${d.icon}" style="color:${d.color}"></i>
+              <span class="qb-stat-label">${d.label}</span>
+              <input type="range" class="qb-stat-slider" data-stat="${d.key}" min="0" max="100" value="${stats[d.key]}" style="--fill:${stats[d.key]}%;--stat-color:${d.color}">
+              <span class="qb-stat-value" data-stat="${d.key}">${stats[d.key]}</span>
+            </div>
+          `).join('')}
+        </div>
+        <div class="qb-stats-footer">
+          <button class="qb-stats-reset" id="qb-stats-reset"><i class="fas fa-rotate-left"></i> Reset</button>
+        </div>
+      </div>
+      ` : ''}
     `;
   }
 
@@ -357,9 +412,41 @@
     document.querySelectorAll('.qb-class-card').forEach(card => {
       card.addEventListener('click', () => {
         _state.cardClass = card.dataset.classId;
+        _state.customStats = null; // Reset to class defaults
         _render();
       });
     });
+
+    // Stat sliders — update in-place, no re-render
+    document.querySelectorAll('.qb-stat-slider').forEach(slider => {
+      slider.addEventListener('input', () => {
+        const key = slider.dataset.stat;
+        const val = parseInt(slider.value, 10);
+        if (!_state.customStats) _state.customStats = { ..._getActiveStats() };
+        _state.customStats[key] = val;
+        slider.style.setProperty('--fill', val + '%');
+        const display = slider.closest('.qb-stat-row').querySelector('.qb-stat-value');
+        if (display) display.textContent = val;
+        // Update budget display
+        const spent = STAT_DEFS.reduce((sum, d) => sum + (_state.customStats[d.key] || 0), 0);
+        const remaining = STAT_BUDGET - spent;
+        const budgetEl = document.querySelector('.qb-stats-budget');
+        if (budgetEl) {
+          budgetEl.textContent = `${remaining} pts left`;
+          budgetEl.classList.toggle('over', remaining < 0);
+          budgetEl.classList.toggle('exact', remaining === 0);
+        }
+      });
+    });
+
+    // Reset button
+    const resetBtn = document.getElementById('qb-stats-reset');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        _state.customStats = null;
+        _render();
+      });
+    }
   }
 
   function _bindArtworkEvents() {
@@ -600,13 +687,20 @@
         }
 
         // Step 5: Apply stats to combat stat sliders
-        const stats = _state.aiData?.stats || CLASS_STATS[_state.cardClass] || CLASS_STATS[classSelect?.value] || null;
-        if (stats && window.CardForge?.setCombatStatValues) {
-          const combatValues = { str: 50, agi: 50, int: 50, end: 50, lck: 50 };
-          stats.forEach(s => {
-            const key = STAT_TO_COMBAT_KEY[(s.name || '').toLowerCase().trim()];
-            if (key) combatValues[key] = Math.min(100, Math.max(0, s.value || 0));
-          });
+        // Priority: custom stats > AI stats > class defaults
+        if (window.CardForge?.setCombatStatValues) {
+          let combatValues;
+          if (_state.customStats) {
+            combatValues = { ..._state.customStats };
+          } else if (_state.aiData?.stats) {
+            combatValues = { str: 50, agi: 50, int: 50, end: 50, lck: 50 };
+            _state.aiData.stats.forEach(s => {
+              const key = STAT_TO_COMBAT_KEY[(s.name || '').toLowerCase().trim()];
+              if (key) combatValues[key] = Math.min(100, Math.max(0, s.value || 0));
+            });
+          } else {
+            combatValues = _getActiveStats();
+          }
           window.CardForge.setCombatStatValues(combatValues);
         }
 
