@@ -36,7 +36,7 @@
   let _state = {
     step: 0,
     vibe: null,
-    artworkMode: null, // 'ai' | 'url'
+    artworkMode: 'gallery', // 'gallery' | 'ai' | 'url'
     artworkUrl: null,
     imageContainer: 'masked', // default
     aiData: null,      // Full AI response (name, class, stats, etc.)
@@ -51,7 +51,7 @@
   // ===== PUBLIC API =====
 
   function open() {
-    _state = { step: 0, vibe: null, artworkMode: null, artworkUrl: null, imageContainer: 'masked', aiData: null, cardName: '', cardClass: '', cardRarity: 'Common' };
+    _state = { step: 0, vibe: null, artworkMode: 'gallery', artworkUrl: null, imageContainer: 'masked', aiData: null, cardName: '', cardClass: '', cardRarity: 'Common' };
     _render();
   }
 
@@ -154,10 +154,18 @@
 
   function _renderArtworkStep() {
     const remaining = window.CardForgeAI?.getAiRemaining() ?? 0;
-    const artMode = _state.artworkMode;
+    const artMode = _state.artworkMode || 'gallery'; // default to gallery
 
     let panelHTML = '';
-    if (artMode === 'ai') {
+    if (artMode === 'gallery') {
+      panelHTML = `
+        <div class="qb-artwork-panel">
+          <div class="qb-gallery-grid" id="qb-gallery-grid">
+            <div class="qb-status"><span class="qb-spinner"></span> Loading artwork...</div>
+          </div>
+        </div>
+      `;
+    } else if (artMode === 'ai') {
       const prompt = _state.vibe?.aiPrompt || '';
       panelHTML = `
         <div class="qb-artwork-panel">
@@ -192,8 +200,12 @@
     ];
 
     return `
-      <p class="qb-panel-desc">Choose how to get your card's artwork. AI generates a unique image based on your vibe.</p>
+      <p class="qb-panel-desc">Pick artwork for your card from the gallery, generate with AI, or paste a URL.</p>
       <div class="qb-artwork-options">
+        <div class="qb-artwork-tile ${artMode === 'gallery' ? 'selected' : ''}" data-art-mode="gallery">
+          <i class="fas fa-images"></i>
+          <span>Gallery</span>
+        </div>
         <div class="qb-artwork-tile ${artMode === 'ai' ? 'selected' : ''}" data-art-mode="ai">
           <i class="fas fa-wand-magic-sparkles"></i>
           <span>AI Generate</span>
@@ -201,10 +213,6 @@
         <div class="qb-artwork-tile ${artMode === 'url' ? 'selected' : ''}" data-art-mode="url">
           <i class="fas fa-link"></i>
           <span>Paste URL</span>
-        </div>
-        <div class="qb-artwork-tile" data-art-mode="skip">
-          <i class="fas fa-forward"></i>
-          <span>Skip for Now</span>
         </div>
       </div>
       ${panelHTML}
@@ -322,7 +330,7 @@
   }
 
   function _resetArtwork() {
-    _state.artworkMode = null;
+    _state.artworkMode = 'gallery';
     _state.artworkUrl = null;
     _state.aiData = null;
   }
@@ -360,18 +368,16 @@
   function _bindArtworkEvents() {
     document.querySelectorAll('.qb-artwork-tile').forEach(tile => {
       tile.addEventListener('click', () => {
-        const mode = tile.dataset.artMode;
-        if (mode === 'skip') {
-          _state.artworkMode = null;
-          _state.artworkUrl = '';
-          _state.step++;
-          _render();
-        } else {
-          _state.artworkMode = mode;
-          _render();
-        }
+        _state.artworkMode = tile.dataset.artMode;
+        _render();
       });
     });
+
+    // Gallery: load image manifest and populate grid
+    const galleryGrid = document.getElementById('qb-gallery-grid');
+    if (galleryGrid) {
+      _loadGalleryImages(galleryGrid);
+    }
 
     // AI generate
     const generateBtn = document.getElementById('qb-ai-generate');
@@ -395,6 +401,42 @@
         _render();
       });
     });
+  }
+
+  let _galleryCache = null;
+
+  function _loadGalleryImages(container) {
+    const renderGrid = (images) => {
+      container.innerHTML = images.map(url => {
+        const selected = _state.artworkUrl === url ? ' selected' : '';
+        return `<img class="qb-gallery-img${selected}" src="${url}" alt="" loading="lazy" data-url="${url}">`;
+      }).join('');
+
+      container.querySelectorAll('.qb-gallery-img').forEach(img => {
+        img.addEventListener('click', () => {
+          container.querySelectorAll('.qb-gallery-img').forEach(i => i.classList.remove('selected'));
+          img.classList.add('selected');
+          _state.artworkUrl = img.dataset.url;
+          // Re-render to show preview below
+          _render();
+        });
+      });
+    };
+
+    if (_galleryCache) {
+      renderGrid(_galleryCache);
+      return;
+    }
+
+    fetch('/cardforge/image-manifest.json')
+      .then(r => r.json())
+      .then(images => {
+        _galleryCache = images;
+        renderGrid(images);
+      })
+      .catch(() => {
+        container.innerHTML = '<div class="qb-status error">Failed to load gallery</div>';
+      });
   }
 
   function _bindDetailsEvents() {
