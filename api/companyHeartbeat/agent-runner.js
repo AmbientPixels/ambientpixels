@@ -26,7 +26,7 @@ const { normalizeAgentResult, _normalizeEnvelope, _normalizeProposal, _isValidPr
 const { buildHeartbeatPrompt } = require('./prompt-builders');
 const { executeTask, reviewTask } = require('./execution-engine');
 
-async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, normalizedActivationMode, isAgentInCooldown, logAgentCooldownOnce, incPolicyGate, campaignCtx, siteIntel, workerReports, _agentMemoryStore) {
+async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, normalizedActivationMode, isAgentInCooldown, logAgentCooldownOnce, incPolicyGate, campaignCtx, siteIntel, workerReports, _agentMemoryStore, trendRadarStore) {
   const _agentRunStartMs = Date.now();
   // Per-day memory write counter (moved from index.js during refactor)
   const _memoryWriteCounters = {};
@@ -46,6 +46,7 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
     taskUpdates: [],
     proposals: [],
     newResearchIntel: null,
+    newTrendInsights: null,
     guardrails: {
       orphanBlocked: 0,
       exactDupBlocked: 0,
@@ -88,7 +89,7 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
   // Only show this agent their own revision-requested actions
   const agentRevisions = (revisionActions || []).filter(a => a.created_by === agentId || a.origin_agent === agentId);
 
-  const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, configs);
+  const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, configs, trendRadarStore);
 
   // Call Gemini
   const response = await callGemini(prompt, agentId);
@@ -115,6 +116,39 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
     } else {
       result.durationMs = Date.now() - _agentRunStartMs;
       return result;
+    }
+  }
+
+  // Extract TREND_INSIGHTS_JSON from Scout's response (before JSON parse to avoid interference)
+  if (agentId === 'scout' && response) {
+    const trendMatch = response.match(/<!--TREND_INSIGHTS_JSON\s*([\s\S]*?)\s*TREND_INSIGHTS_JSON-->/);
+    if (trendMatch) {
+      // Strip the block from response so it doesn't break normal JSON parsing
+      response = response.replace(/<!--TREND_INSIGHTS_JSON[\s\S]*?TREND_INSIGHTS_JSON-->/, '').trim();
+      try {
+        const raw = JSON.parse(trendMatch[1].trim());
+        if (raw && Array.isArray(raw.insights) && raw.insights.length > 0) {
+          result.newTrendInsights = {
+            id: 'ti_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+            analysisDate: raw.analysisDate || new Date().toISOString(),
+            summary: String(raw.summary || '').substring(0, 500),
+            insights: raw.insights.slice(0, 15).map(function (i) {
+              return {
+                trendName: String(i.trendName || '').substring(0, 80),
+                significance: ['high', 'medium', 'low'].indexOf(i.significance) !== -1 ? i.significance : 'medium',
+                confidence: Math.max(0, Math.min(1, parseFloat(i.confidence) || 0.5)),
+                interpretation: String(i.interpretation || '').substring(0, 300),
+                actionRecommendation: String(i.actionRecommendation || '').substring(0, 200)
+              };
+            }),
+            created_by: 'scout',
+            timestamp: new Date().toISOString()
+          };
+          context.log('[Heartbeat] scout: trend insights extracted,', result.newTrendInsights.insights.length, 'trends analyzed');
+        }
+      } catch (e) {
+        context.log('[Heartbeat] scout: TREND_INSIGHTS_JSON parse failed:', e.message);
+      }
     }
   }
 

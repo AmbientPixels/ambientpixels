@@ -3,7 +3,7 @@
 
 const fs = require("fs");
 const path = require("path");
-const { AGENT_IDS, _agentPersonalities, CFO_THRESHOLD, RESEARCH_MAX_AGE_DAYS, MAX_RESEARCH_INJECTIONS, MAX_RESEARCH_CHARS } = require("./constants");
+const { AGENT_IDS, _agentPersonalities, CFO_THRESHOLD, RESEARCH_MAX_AGE_DAYS, MAX_RESEARCH_INJECTIONS, MAX_RESEARCH_CHARS, TREND_RADAR_MAX_AGE_DAYS } = require("./constants");
 const { _buildSocialIntelPromptBlock } = require('./social-intel');
 function buildSiteContextBlock() {
   try {
@@ -47,7 +47,7 @@ function buildSiteContextBlock() {
 }
 
 // ── Build heartbeat prompt ──
-function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, agentConfigs) {
+function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, agentConfigs, trendRadarStore) {
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
   documents = documents || [];
@@ -462,6 +462,37 @@ Use this knowledge to inform your work. Do not re-create documents that already 
     }
   }
 
+  // Trend Radar injection — Scout-only: latest ingested trends for analysis
+  let trendRadarSection = '';
+  if (agent === AGENT_ROLES.scout && Array.isArray(trendRadarStore) && trendRadarStore.length > 0) {
+    const latestSnapshot = trendRadarStore[trendRadarStore.length - 1];
+    if (latestSnapshot && Array.isArray(latestSnapshot.trends) && latestSnapshot.trends.length > 0) {
+      const snapshotAge = Date.now() - new Date(latestSnapshot.ingestedAt || 0).getTime();
+      if (snapshotAge < TREND_RADAR_MAX_AGE_DAYS * 24 * 60 * 60 * 1000) {
+        const trendLines = latestSnapshot.trends.map(function (t) {
+          return '- ' + t.name + ' [' + t.category + '] score=' + t.score + ' stage=' + t.stage +
+            ' | ' + (t.description || '').substring(0, 120) +
+            (t.signals && t.signals.length ? '\n  Signals: ' + t.signals.slice(0, 2).join('; ') : '');
+        }).join('\n');
+        trendRadarSection = `\n\nTREND RADAR (latest ingestion: ${latestSnapshot.ingestedAt}, ${latestSnapshot.trends.length} trends):
+${trendLines}
+
+TREND ANALYSIS TASK: Analyze these trends and output a structured insight block. After your normal heartbeat response, include EXACTLY this JSON block:
+<!--TREND_INSIGHTS_JSON
+{"insights":[{"trendName":"...","significance":"high|medium|low","confidence":0.0-1.0,"interpretation":"1-2 sentences","actionRecommendation":"1 sentence"}],"summary":"2-3 sentence overall trend landscape summary","analysisDate":"ISO date"}
+TREND_INSIGHTS_JSON-->
+
+Rules:
+- Analyze ALL trends, one insight object per trend
+- significance: how important this trend is for AmbientPixels strategy
+- confidence: how confident you are in your assessment (0.0 to 1.0)
+- interpretation: what this trend means in context (competitive landscape, market timing)
+- actionRecommendation: specific next step for AmbientPixels
+- summary: overall landscape assessment across all trends`;
+      }
+    }
+  }
+
   // CEO workspace context: high-priority memories + upcoming critical dates (token-capped)
   const MAX_WORKSPACE_CHARS = 1000;
   let workspaceSection = '';
@@ -637,7 +668,7 @@ ${otherTasks}
 
 TASKS AWAITING REVIEW (from other agents — you can review these):
 ${reviewableTasks}${_reviewUrgencyNudge}
-${triageSection}${workerIntelSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${workspaceSection}${costSection}${revisionSection}${ceoEditSection}${socialIntelSection}
+${triageSection}${workerIntelSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${workspaceSection}${costSection}${revisionSection}${ceoEditSection}${socialIntelSection}
 ${buildSiteContextBlock()}
 CURRENT TIME: ${new Date().toISOString()}
 
