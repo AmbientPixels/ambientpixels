@@ -227,10 +227,11 @@
     }, 5000);
   }
 
+  // Use shared escapeHtml from UIUtils (loaded before entitlements.js)
   function escapeHtml(str) {
-    var div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
+    return (window.UIUtils && window.UIUtils.escapeHtml)
+      ? window.UIUtils.escapeHtml(str)
+      : (function() { var d = document.createElement('div'); d.textContent = str || ''; return d.innerHTML; })();
   }
 
   // Expose API

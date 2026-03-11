@@ -382,8 +382,8 @@
       updatePreview();
     });
     
-    // Name edits: no animation needed — just re-render and snap
-    statRow.querySelector('input[name="stat-name"]').addEventListener('input', updatePreview);
+    // Name edits: no animation needed — just re-render and snap (debounced for typing)
+    statRow.querySelector('input[name="stat-name"]').addEventListener('input', updatePreviewDebounced);
     
     removeBtn.addEventListener('click', function() {
       statRow.remove();
@@ -640,9 +640,9 @@
     const nameField = attributeRow.querySelector('input[name="attribute-name"]');
     const valueField = attributeRow.querySelector('input[name="attribute-value"]');
     
-    // Field listeners
-    nameField.addEventListener('input', updatePreview);
-    valueField.addEventListener('input', updatePreview);
+    // Field listeners (debounced for typing)
+    nameField.addEventListener('input', updatePreviewDebounced);
+    valueField.addEventListener('input', updatePreviewDebounced);
     
     removeBtn.addEventListener('click', function() {
       attributeRow.remove();
@@ -2668,6 +2668,12 @@
   }
 
   // ===== PREVIEW UPDATE SYSTEM =====
+
+  // Debounced version for form input listeners (avoids re-rendering on every keystroke)
+  const updatePreviewDebounced = (window.UIUtils && window.UIUtils.debounce)
+    ? window.UIUtils.debounce(function() { updatePreview(); }, 80)
+    : function() { updatePreview(); };
+
   function updatePreview() {
 
     // Any preview update means the card changed — mark dirty
@@ -3967,8 +3973,8 @@
     formInputs.forEach(inputId => {
       const input = document.getElementById(inputId);
       if (input) {
-        input.addEventListener('input', updatePreview);
-        input.addEventListener('change', updatePreview);
+        input.addEventListener('input', updatePreviewDebounced);
+        input.addEventListener('change', updatePreview); // change fires once on blur — no debounce needed
       }
     });
     
@@ -4060,8 +4066,8 @@
       // Use event delegation for dynamic stat rows
       statsContainer.addEventListener('input', function(e) {
         if (e.target.matches('input[name="stat-value"]') || e.target.matches('input[name="stat-name"]')) {
-          // Value and name edits: snap bars (no full animation)
-          updatePreview();
+          // Value and name edits: snap bars (no full animation), debounced for typing
+          updatePreviewDebounced();
         }
       });
       

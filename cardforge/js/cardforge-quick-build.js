@@ -667,10 +667,10 @@
 
   // ===== UTILS =====
 
+  // Delegate to shared utility (with inline fallback)
   function _escHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str || '';
-    return div.innerHTML;
+    return (window.UIUtils && window.UIUtils.escapeHtml) ? window.UIUtils.escapeHtml(str)
+      : (function() { const div = document.createElement('div'); div.textContent = str || ''; return div.innerHTML; })();
   }
 
   // ===== EXPOSE =====

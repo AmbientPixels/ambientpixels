@@ -521,6 +521,66 @@
     setTimeout(initCraftPanel, 150);
   }
 
+  // ===== SHARED UTILITIES =====
+
+  /**
+   * Creates a debounced version of a function.
+   * @param {Function} fn - Function to debounce
+   * @param {number} delay - Delay in ms (default 80)
+   * @returns {Function} Debounced function with .cancel() method
+   */
+  function debounce(fn, delay) {
+    var timer = 0;
+    var debounced = function() {
+      var ctx = this, args = arguments;
+      clearTimeout(timer);
+      timer = setTimeout(function() { fn.apply(ctx, args); }, delay || 80);
+    };
+    debounced.cancel = function() { clearTimeout(timer); };
+    return debounced;
+  }
+
+  /**
+   * Show a toast notification.
+   * @param {string} msg - Message text
+   * @param {'success'|'info'|'error'} [type='info']
+   * @param {number} [duration=4000] - Auto-dismiss in ms
+   */
+  function showToast(msg, type, duration) {
+    var toast = document.createElement('div');
+    toast.className = 'cf-upgrade-toast cf-upgrade-toast--' + (type || 'info');
+    toast.textContent = msg;
+    document.body.appendChild(toast);
+    setTimeout(function () {
+      toast.classList.add('cf-upgrade-toast--removing');
+      setTimeout(function () { toast.remove(); }, 300);
+    }, duration || 4000);
+  }
+
+  /**
+   * Escape a string for safe HTML text content.
+   * @param {string} str
+   * @returns {string}
+   */
+  function escapeHtml(str) {
+    var div = document.createElement('div');
+    div.textContent = str || '';
+    return div.innerHTML;
+  }
+
+  /**
+   * Escape a string for safe use inside HTML attributes.
+   * @param {string} str
+   * @returns {string}
+   */
+  function escapeHtmlAttr(str) {
+    return (str || '').replace(/&/g, '&amp;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+  }
+
   const UIUtils = {
     showConfirmDialog,
     showPromptDialog,
@@ -531,7 +591,11 @@
     updateCardDesignSummaries,
     getCardDesignSelections,
     renderCardDesignSummaries,
-    scheduleRender
+    scheduleRender,
+    debounce,
+    showToast,
+    escapeHtml,
+    escapeHtmlAttr
   };
 
   // Export to global scope

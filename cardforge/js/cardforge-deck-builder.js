@@ -821,13 +821,20 @@
 
   // ── Helpers ──
   function showToast(msg) {
+    // Prefer the deck-builder's own #db-toast element for in-page feedback;
+    // fall back to shared UIUtils toast if element is missing (e.g. embedded views)
     var el = document.getElementById('db-toast');
-    el.textContent = msg;
-    el.classList.add('show');
-    setTimeout(function () { el.classList.remove('show'); }, 3000);
+    if (el) {
+      el.textContent = msg;
+      el.classList.add('show');
+      setTimeout(function () { el.classList.remove('show'); }, 3000);
+    } else if (window.UIUtils && window.UIUtils.showToast) {
+      window.UIUtils.showToast(msg);
+    }
   }
 
-  function esc(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
-  function escAttr(s) { return (s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  // Delegate to shared utilities (with inline fallback for standalone deck.html)
+  function esc(s) { return (window.UIUtils && window.UIUtils.escapeHtml) ? window.UIUtils.escapeHtml(s) : (function() { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; })(); }
+  function escAttr(s) { return (window.UIUtils && window.UIUtils.escapeHtmlAttr) ? window.UIUtils.escapeHtmlAttr(s) : (s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 
 })();
