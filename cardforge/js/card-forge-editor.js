@@ -1707,7 +1707,105 @@
       console.error('Error in updatePreview:', error);
     }
   }
-  
+
+  /**
+   * Apply only the visual design portion of a preset (ModularState + styling fields).
+   * Skips sample data population and preview update — caller handles those.
+   * Used by Quick Build wizard to avoid race conditions with its own card data.
+   */
+  function applyPresetDesignOnly(presetId) {
+    const config = PresetConfigurations[presetId];
+    if (!config) return;
+
+    const { sampleData, classStyle, classIcon, rarityStyle, rarityIcon, ...designConfig } = config;
+
+    // Reset ModularState to defaults, then apply preset design config
+    const defaults = {
+      horizontalAlignment: 'center',
+      verticalAlignment: 'middle',
+      alignmentWeight: 'balanced',
+      alignmentStyle: 'padded',
+      palette: 'neon',
+      paletteVariant: 'light',
+      textColor: 'auto',
+      imageContainer: 'masked',
+      imageContainerVariant: 'circle',
+      imageEffect: 'none',
+      imageEffectVariant: 'clean'
+    };
+    Object.assign(ModularState, defaults, designConfig);
+
+    // Legacy mappings
+    if (['framed', 'raw', 'inset'].includes(ModularState.imageContainer)) {
+      const legacyMap = { 'framed': 'rounded', 'raw': 'square', 'inset': 'rounded' };
+      ModularState.imageContainerVariant = legacyMap[ModularState.imageContainer] || 'circle';
+      ModularState.imageContainer = 'masked';
+    }
+    if (ModularState.imageEffect === 'borders') {
+      ModularState.imageEffect = 'none';
+      ModularState.imageEffectVariant = 'clean';
+    }
+
+    // Class/rarity styling form fields
+    if (classStyle) {
+      const f = document.getElementById('class-style');
+      if (f) f.value = classStyle;
+    }
+    if (classIcon) {
+      const f = document.getElementById('class-icon-value');
+      if (f) {
+        f.value = classIcon;
+        document.querySelectorAll('#class-section .icon-option').forEach(o => {
+          o.classList.toggle('selected', o.dataset.icon === classIcon);
+        });
+      }
+    }
+    if (rarityStyle) {
+      const bgF = document.getElementById('card-bg-effect');
+      const brF = document.getElementById('card-border-effect');
+      const glF = document.getElementById('card-glow-effect');
+      const rsF = document.getElementById('rarity-style');
+      if (bgF) bgF.value = 'none';
+      if (brF) brF.value = 'none';
+      if (glF) glF.value = 'none';
+      if (rsF) rsF.value = 'default';
+      const fontF = document.getElementById('card-font-family');
+      if (fontF) fontF.value = 'inter';
+      if (rarityStyle === 'foil' && bgF) bgF.value = 'foil';
+      else if ((rarityStyle === 'border' || rarityStyle === 'frame') && brF) brF.value = rarityStyle;
+      else if (rarityStyle === 'glow' && glF) glF.value = 'glow';
+      else if (rsF) rsF.value = rarityStyle;
+    }
+    if (rarityIcon) {
+      const f = document.getElementById('rarity-icon-value');
+      if (f) {
+        f.value = rarityIcon;
+        document.querySelectorAll('#rarity-section .icon-option').forEach(o => {
+          o.classList.toggle('selected', o.dataset.icon === rarityIcon);
+        });
+      }
+    }
+
+    // Downgrade locked effects
+    if (window.EffectTiers) {
+      var bgField = document.getElementById('card-bg-effect');
+      var brField = document.getElementById('card-border-effect');
+      var glField = document.getElementById('card-glow-effect');
+      if (bgField && !window.EffectTiers.isEffectUnlocked('bg', bgField.value)) bgField.value = 'none';
+      if (brField && !window.EffectTiers.isEffectUnlocked('border', brField.value)) brField.value = 'none';
+      if (glField && !window.EffectTiers.isEffectUnlocked('glow', glField.value)) glField.value = 'none';
+      if (ModularState.imageEffect === 'filters' && !window.EffectTiers.isEffectUnlocked('imageFilter', ModularState.imageEffectVariant)) {
+        ModularState.imageEffectVariant = 'clean';
+      }
+      if (ModularState.imageEffect === 'overlays' && !window.EffectTiers.isEffectUnlocked('overlay', ModularState.imageEffectVariant)) {
+        ModularState.imageEffectVariant = 'clean';
+        ModularState.imageEffect = 'none';
+      }
+    }
+
+    try { updateUIFromState(); } catch (e) { console.error('updateUIFromState error:', e); }
+  }
+
   function populateFormWithSampleData(sampleData) {
     // Populate basic character info
     if (sampleData.name) {
@@ -4963,6 +5061,7 @@
     createAttributeRow,
     applyEffectLockState,
     applyPreset,
+    applyPresetDesignOnly,
     setCombatStatValues,
     clearAllDynamicRows,
     undo,

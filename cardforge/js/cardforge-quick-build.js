@@ -496,116 +496,114 @@
   };
 
   function _triggerPreview() {
-    // Step 1: Apply preset visual style (design only — we'll override all data)
+    // Use a single synchronous flow — no nested timeouts, no race conditions.
+    // 1. Apply preset DESIGN ONLY (visual styling, no sample data, no updatePreview)
+    // 2. Apply wizard card data to form fields
+    // 3. Single updatePreview() call
+    // 4. Clone into wizard modal on next frame
     setTimeout(() => {
       try {
-        if (_state.vibe && window.CardForge?.applyPreset) {
-          window.CardForge.applyPreset(_state.vibe.presetId);
+        // Step 1: Apply preset visual design (skips sample data + updatePreview)
+        if (_state.vibe && window.CardForge?.applyPresetDesignOnly) {
+          window.CardForge.applyPresetDesignOnly(_state.vibe.presetId);
         }
-      } catch (err) {
-        console.warn('Quick Build preset error:', err);
-      }
 
-      // Step 2: Override ALL form fields with wizard data after preset settles
-      setTimeout(() => {
-        try {
-          // Apply chosen image container style
-          if (_state.imageContainer && window.CardForge?.ModularState) {
-            const MS = window.CardForge.ModularState;
-            MS.imageContainer = _state.imageContainer;
-            if (_state.imageContainer === 'masked') MS.imageContainerVariant = 'circle';
-            else if (_state.imageContainer === 'polaroid') MS.imageContainerVariant = 'classic';
-            else if (_state.imageContainer === 'banner') MS.imageContainerVariant = 'top';
-            else MS.imageContainerVariant = '';
+        // Step 2: Override image container with wizard's choice
+        if (_state.imageContainer && window.CardForge?.ModularState) {
+          const MS = window.CardForge.ModularState;
+          MS.imageContainer = _state.imageContainer;
+          if (_state.imageContainer === 'masked') MS.imageContainerVariant = 'circle';
+          else if (_state.imageContainer === 'polaroid') MS.imageContainerVariant = 'classic';
+          else if (_state.imageContainer === 'banner') MS.imageContainerVariant = 'top';
+          else MS.imageContainerVariant = '';
+        }
+
+        // Step 3: Clear dynamic rows (badges/attributes/stats from any prior state)
+        if (window.CardForge?.clearAllDynamicRows) {
+          window.CardForge.clearAllDynamicRows();
+        }
+
+        // Step 4: Set ALL form fields with wizard data
+        const setField = (id, val) => {
+          const el = document.getElementById(id);
+          if (el) el.value = val ?? '';
+        };
+
+        setField('card-name', _state.cardName);
+        setField('card-rarity', _state.cardRarity || 'Common');
+        setField('card-avatar', _state.artworkUrl || '');
+        setField('card-quote', _state.aiData?.quote || '');
+        setField('card-bio', _state.aiData?.biography || '');
+        setField('card-level', _state.aiData?.level || '');
+
+        // Handle class: editor uses <select>, wizard uses free text
+        const wizardClass = _state.cardClass || '';
+        const classSelect = document.getElementById('card-class');
+        const subclassInput = document.getElementById('card-subclass');
+        if (classSelect) {
+          classSelect.value = wizardClass;
+          if (classSelect.value === wizardClass) {
+            if (subclassInput) subclassInput.value = _state.aiData?.characterSubclass || '';
+          } else {
+            const baseClass = CLASSES.find(c => wizardClass.toLowerCase().includes(c.id.toLowerCase()));
+            classSelect.value = baseClass ? baseClass.id : '';
+            if (subclassInput) subclassInput.value = _state.aiData?.characterSubclass || wizardClass;
           }
+        }
 
-          // Clear dynamic rows left by preset sample data
-          if (window.CardForge?.clearAllDynamicRows) {
-            window.CardForge.clearAllDynamicRows();
-          }
-
-          // Set ALL form fields unconditionally (always override preset data)
-          const setField = (id, val) => {
-            const el = document.getElementById(id);
-            if (el) el.value = val ?? '';
-          };
-
-          setField('card-name', _state.cardName);
-          setField('card-rarity', _state.cardRarity || 'Common');
-          setField('card-avatar', _state.artworkUrl || '');
-          setField('card-quote', _state.aiData?.quote || '');
-          setField('card-bio', _state.aiData?.biography || '');
-          setField('card-level', _state.aiData?.level || '');
-
-          // Handle class: editor uses <select> with fixed options, wizard uses free text.
-          // Set select to matching option; put full text in subclass if it differs.
-          const wizardClass = _state.cardClass || '';
-          const classSelect = document.getElementById('card-class');
-          const subclassInput = document.getElementById('card-subclass');
-          if (classSelect) {
-            // Try exact match first
-            classSelect.value = wizardClass;
-            if (classSelect.value === wizardClass) {
-              // Exact match — use AI subclass or clear
-              if (subclassInput) subclassInput.value = _state.aiData?.characterSubclass || '';
-            } else {
-              // No exact match — find closest base class, put full name in subclass
-              const baseClass = CLASSES.find(c => wizardClass.toLowerCase().includes(c.id.toLowerCase()));
-              classSelect.value = baseClass ? baseClass.id : '';
-              if (subclassInput) subclassInput.value = _state.aiData?.characterSubclass || wizardClass;
-            }
-          }
-
-          // Apply stats to combat stat sliders (proper container)
-          const stats = _state.aiData?.stats || CLASS_STATS[_state.cardClass] || CLASS_STATS[classSelect?.value] || null;
-          if (stats && window.CardForge?.setCombatStatValues) {
-            const combatValues = { str: 50, agi: 50, int: 50, end: 50, lck: 50 };
-            stats.forEach(s => {
-              const key = STAT_TO_COMBAT_KEY[(s.name || '').toLowerCase().trim()];
-              if (key) combatValues[key] = Math.min(100, Math.max(0, s.value || 0));
-            });
-            window.CardForge.setCombatStatValues(combatValues);
-          }
-
-          // Re-render the preview with wizard data
-          if (window.CardForge?.updatePreview) {
-            window.CardForge.updatePreview();
-          }
-
-          // Belt-and-suspenders: directly set avatar img src after render
-          if (_state.artworkUrl) {
-            document.querySelectorAll('.card-preview-zone .card-avatar').forEach(img => {
-              img.src = _state.artworkUrl;
-            });
-          }
-
-          // Clone preview into wizard after DOM commits
-          requestAnimationFrame(() => {
-            const previewContainer = document.getElementById('qb-card-preview');
-            const sourcePreview = document.querySelector('.card-preview-canvas');
-            if (previewContainer && sourcePreview) {
-              const scale = 0.65;
-              const clone = sourcePreview.cloneNode(true);
-              clone.style.transform = `scale(${scale})`;
-              clone.style.transformOrigin = 'top center';
-              previewContainer.innerHTML = '';
-              const h = sourcePreview.offsetHeight;
-              if (h > 0) {
-                previewContainer.style.height = `${h * scale}px`;
-                previewContainer.style.overflow = 'hidden';
-              }
-              previewContainer.appendChild(clone);
-            }
+        // Step 5: Apply stats to combat stat sliders
+        const stats = _state.aiData?.stats || CLASS_STATS[_state.cardClass] || CLASS_STATS[classSelect?.value] || null;
+        if (stats && window.CardForge?.setCombatStatValues) {
+          const combatValues = { str: 50, agi: 50, int: 50, end: 50, lck: 50 };
+          stats.forEach(s => {
+            const key = STAT_TO_COMBAT_KEY[(s.name || '').toLowerCase().trim()];
+            if (key) combatValues[key] = Math.min(100, Math.max(0, s.value || 0));
           });
-        } catch (err) {
-          console.error('Preview generation error:', err);
-          const previewContainer = document.getElementById('qb-card-preview');
-          if (previewContainer) {
-            previewContainer.innerHTML = '<div class="qb-status error">Preview failed to generate</div>';
-          }
+          window.CardForge.setCombatStatValues(combatValues);
         }
-      }, 200);
+
+        // Step 6: Single render pass — all data is set, render once
+        if (window.CardForge?.updatePreview) {
+          window.CardForge.updatePreview();
+        }
+
+        // Belt-and-suspenders: directly set avatar img src
+        if (_state.artworkUrl) {
+          document.querySelectorAll('.card-preview-zone .card-avatar').forEach(img => {
+            img.src = _state.artworkUrl;
+          });
+        }
+
+        // Step 7: Clone preview into wizard modal after DOM commits
+        requestAnimationFrame(() => {
+          _clonePreviewIntoWizard();
+        });
+      } catch (err) {
+        console.error('Preview generation error:', err);
+        const previewContainer = document.getElementById('qb-card-preview');
+        if (previewContainer) {
+          previewContainer.innerHTML = '<div class="qb-status error">Preview failed to generate</div>';
+        }
+      }
     }, 50);
+  }
+
+  function _clonePreviewIntoWizard() {
+    const previewContainer = document.getElementById('qb-card-preview');
+    const sourcePreview = document.querySelector('.card-preview-canvas');
+    if (previewContainer && sourcePreview) {
+      const scale = 0.65;
+      const clone = sourcePreview.cloneNode(true);
+      clone.style.transform = `scale(${scale})`;
+      clone.style.transformOrigin = 'top center';
+      previewContainer.innerHTML = '';
+      const h = sourcePreview.offsetHeight;
+      if (h > 0) {
+        previewContainer.style.height = `${h * scale}px`;
+        previewContainer.style.overflow = 'hidden';
+      }
+      previewContainer.appendChild(clone);
+    }
   }
 
   // ===== SAVE =====
@@ -621,7 +619,8 @@
       // Ensure editor fields are populated (preview already set them,
       // but re-trigger in case user went back and changed something)
       _triggerPreview();
-      await new Promise(r => setTimeout(r, 400));
+      // Wait for the 50ms setTimeout inside _triggerPreview to complete
+      await new Promise(r => setTimeout(r, 150));
 
       // Use existing save pipeline
       if (window.cardForgeActions) {
