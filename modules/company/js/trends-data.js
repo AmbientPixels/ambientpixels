@@ -147,9 +147,11 @@
       return res.json();
     })
     .then(function (data) {
-      if (!Array.isArray(data) || !data.length) return null;
+      // State endpoint returns { key, value } envelope
+      var arr = data && data.value ? data.value : data;
+      if (!Array.isArray(arr) || !arr.length) return null;
       // Get latest snapshot
-      var latest = data[data.length - 1];
+      var latest = arr[arr.length - 1];
       if (!latest || !Array.isArray(latest.trends) || !latest.trends.length) return null;
 
       // Hydrate stage objects (state stores stage as string id)
