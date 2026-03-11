@@ -102,7 +102,69 @@ function loadBossData() {
   return _bossCache;
 }
 
-// --- Battle engine ---
+// ═══════════════════════════════════════════════════════════════════════════
+// BATTLE ENGINE — Combat Math Reference
+// ═══════════════════════════════════════════════════════════════════════════
+//
+// CORE STATS (all clamped 1–100):
+//   STR — Strike damage, Power Strike ability
+//   AGI — Speed check, Shadow Strike ability, charge rate bonus at 50+
+//   INT — Arcane Blast ability
+//   END — Heal amount, Fortify ability, HP pool
+//   LCK — Wild Card ability
+//
+// HP FORMULA:  maxHp = 50 + (END × 0.8) + (STR × 0.2)
+//   Range: ~74 HP (all 40s default) to ~130 HP (END 100, STR 100)
+//
+// DAMAGE FORMULAS:
+//   Strike:       STR × 0.4  + rand(0 … STR × 0.1)     → ~16–50 dmg
+//   Crit strike:  1.5× damage, 5% base chance + badge bonuses
+//   Heal:         END × 0.3  + rand(0 … END × 0.1)     → ~12–40 heal
+//
+// ABILITY FORMULAS (cost: 2 charges, gain 1/round + bonuses):
+//   Power Strike:  STR × 0.6  + rand(STR × 0.15)  — 1.4× vs Guard (net 0.98×)
+//   Arcane Blast:  INT × 0.55 + rand(INT × 0.15)  — applies Vulnerable (+15% dmg taken)
+//   Shadow Strike: AGI × 0.5  + rand(AGI × 0.2)   — always acts first
+//   Fortify:       END × 0.25 + rand(END × 0.1)   — heals + Fortified (-20% dmg taken)
+//   Wild Card:     random_stat × 0.5 + rand(× 0.2) — 25% crit (2×), 10% fizzle (0 dmg)
+//
+// MATCHUP MATRIX (applies to abilities AND interactions):
+//   Ability vs Strike: 1.3× damage (overpowers)
+//   Ability vs Guard:  0.7× damage (partially blocked) + Stun on target
+//   Ability vs Heal:   1.2× damage (punishes)
+//   Guard vs Strike:   blocks 60% of strike damage
+//   Heal vs Strike:    heal reduced 50% (disrupted)
+//   Heal vs Ability:   heal = 0 (interrupted)
+//   Counter vs Strike: reflects 50% of incoming damage, blocks all
+//   Counter vs Guard:  nothing happens
+//   Counter vs Ability/Heal: counter fails, takes full damage
+//
+// STATUS EFFECTS:
+//   Burn (2 rounds):  8% of target maxHp per round, triggered by crit strike
+//   Stun (1 round):   skip turn, triggered by ability hitting guard
+//   Blind (1 round):  40% miss chance on strikes, triggered by Shadow Strike crit
+//   Vulnerable (1 round): +15% damage taken, triggered by Arcane Blast
+//   Fortified (1 round):  -20% damage taken, triggered by Fortify ability
+//
+// SPEED:  AGI + rand(0–10), higher goes first. Shadow Strike overrides to always first.
+//
+// CHARGE SYSTEM:
+//   Start: 0 charges. Gain chargeRate per round. Ability costs 2 charges.
+//   chargeRate = 1 base + 0.5 if AGI ≥ 50 + 0.5 if rank ≥ Gold
+//   Max charges: 4
+//
+// LAST STAND:  Below 20% HP → +10 flat damage bonus on attacks
+// CROWD BOOST: Hype meter fills from crits/streaks/events → +15% damage when full
+//
+// XP AWARDS:
+//   PvE win: 25 + (bossLevel × 5)    PvE loss: 5
+//   PvP win: 50                        PvP loss: 10     Draw: 20
+//
+// RANKS: Bronze (0) → Silver (500) → Gold (1500) → Platinum (3500) → Diamond (7000)
+//
+// BADGE PASSIVES: qty capped by rank (Bronze=1, Silver=2, Gold=3, Plat=4, Diamond=5)
+//   Each badge category maps to an effect with valuePerQty and maxValue (see arena-config.json)
+// ═══════════════════════════════════════════════════════════════════════════
 
 function mapCardToCombatStats(card) {
   const config = loadArenaConfig();
@@ -185,6 +247,7 @@ function applyStatPassives(combatStats, passives) {
   }
 }
 
+// HP = 50 base + END contribution (80%) + STR contribution (20%)
 function computeMaxHp(combatStats) {
   return Math.round(50 + (combatStats.end * 0.8) + (combatStats.str * 0.2));
 }
@@ -337,7 +400,7 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
   const config = loadArenaConfig();
   const events = [];
 
-  // Speed check
+  // Speed check: AGI + random 0–10 jitter determines who attacks first
   const playerSpeed = player.combatStats.agi + Math.random() * 10;
   const opponentSpeed = opponent.combatStats.agi + Math.random() * 10;
   let speedWinner = playerSpeed >= opponentSpeed ? 'player' : 'opponent';
@@ -403,6 +466,7 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
   if (playerStunned) {
     events.push('You are stunned and cannot attack this round!');
   } else if (playerMove === 'strike') {
+    // Strike: 40% of STR as base + up to 10% STR as random variance
     const str = player.combatStats.str + playerStrBonus;
     playerOutDmg = str * 0.4 + Math.random() * (str * 0.1);
     const isCrit = Math.random() * 100 < playerCritChance;
@@ -452,6 +516,7 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
   } else if (playerMove === 'guard') {
     events.push('You raised your guard.');
   } else if (playerMove === 'heal') {
+    // Heal: 30% of END as base + up to 10% END as random variance
     const end = player.combatStats.end;
     let healAmt = end * 0.3 + Math.random() * (end * 0.1);
     if (opponentMove === 'strike') {
@@ -945,14 +1010,14 @@ async function handleMove(context, containerClient, userId, body) {
     move, opponentMove, battle.tempEffects
   );
 
-  // B4: Crowd Boost — +15% damage when player spent accumulated hype
+  // B4: Crowd Boost — hype meter filled by crits/streaks/stuns, +15% dmg when spent
   if (crowdBoost === true && result.opponentDamageTaken > 0) {
     const boost = Math.round(result.opponentDamageTaken * 0.15);
     result.opponentDamageTaken += boost;
     result.events.push(`CROWD ERUPTS! Crowd energy fuels your attack! (+${boost} damage)`);
   }
 
-  // B1: Last Stand — combatant below 20% HP deals +10 flat damage bonus when attacking
+  // B1: Last Stand — below 20% HP → +10 flat damage on any attack (desperation bonus)
   const playerInLastStand = player.hp > 0 && player.hp < player.maxHp * 0.20;
   const opponentInLastStand = opponent.hp > 0 && opponent.hp < opponent.maxHp * 0.20;
   if (playerInLastStand && result.opponentDamageTaken > 0) {
