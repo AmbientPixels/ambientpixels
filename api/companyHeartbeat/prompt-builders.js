@@ -555,6 +555,19 @@ ${revList}
 You MUST address these revision requests using revise-action. Provide the action_id and the corrected content based on the CEO's feedback. This takes priority over creating new actions.`;
   }
 
+  // CEO edit examples — show the agent recent corrections the CEO made to their posts
+  const _agentName = agent.name.toLowerCase();
+  const _ceoEditMems = ((_agentMemoryStore[_agentName] || [])
+    .filter(m => m.source === 'auto:ceo-edit'))
+    .slice(-3);
+  let ceoEditSection = '';
+  if (_ceoEditMems.length > 0) {
+    const editLines = _ceoEditMems.map(m => '- ' + (m.text || '').substring(0, 600)).join('\n');
+    ceoEditSection = `\n\nCEO STYLE CORRECTIONS (the CEO approved your posts but edited them — learn from these):
+${editLines}
+Study these edits carefully. The CEO's version is the standard. Apply the same tone, length, structure, and corrections to all future posts. Do NOT repeat the mistakes shown above.`;
+  }
+
   // Build doctrine block if available and weight > 0
   const dWeight = agent._doctrineWeight != null ? agent._doctrineWeight : 0.4;
   const doctrineBlock = (agent.doctrine && dWeight > 0) ? `
@@ -624,7 +637,7 @@ ${otherTasks}
 
 TASKS AWAITING REVIEW (from other agents — you can review these):
 ${reviewableTasks}${_reviewUrgencyNudge}
-${triageSection}${workerIntelSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${workspaceSection}${costSection}${revisionSection}${socialIntelSection}
+${triageSection}${workerIntelSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${workspaceSection}${costSection}${revisionSection}${ceoEditSection}${socialIntelSection}
 ${buildSiteContextBlock()}
 CURRENT TIME: ${new Date().toISOString()}
 

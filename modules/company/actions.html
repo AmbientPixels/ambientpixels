@@ -1678,6 +1678,13 @@
       for (var i = 0; i < list.length; i++) {
         if (list[i].id === actionId) {
           var p = list[i].payload || {};
+          // Preserve original text before first CEO edit (for agent learning)
+          if (!p._ceo_original_text) {
+            p._ceo_original_text = p.text || p.content_md || p.content || '';
+          }
+          if (!p._ceo_original_title && (p.title !== undefined)) {
+            p._ceo_original_title = p.title;
+          }
           if (contentType === 'social') {
             p.text = newText;
           } else if (contentType === 'article') {

@@ -1805,6 +1805,8 @@ module.exports = async function (context) {
     for (const _pAid of Object.keys(_agentMemoryStore)) {
       if (!Array.isArray(_agentMemoryStore[_pAid])) continue;
       _agentMemoryStore[_pAid] = _agentMemoryStore[_pAid].filter(function (m) {
+        // CEO edit corrections are permanent — never prune them
+        if (m.source === 'auto:ceo-edit' || m.source === 'auto:ceo-revision') return true;
         var expiry;
         if (m.expiresAt) {
           expiry = new Date(m.expiresAt).getTime();
@@ -1819,6 +1821,61 @@ module.exports = async function (context) {
       if (_agentMemoryStore[_pAid].length > MAX_MEMORIES_PER_AGENT) {
         _agentMemoryStore[_pAid] = _agentMemoryStore[_pAid].slice(-MAX_MEMORIES_PER_AGENT);
       }
+    }
+
+    // ── CEO Edit Learning — auto-create agent memories from CEO-edited actions ──
+    // When the CEO edits an action's content before approving, the agent should
+    // learn from the correction. We scan for successfully executed actions where
+    // _ceo_edited is true and _ceo_original_text is present, then create a
+    // feedback memory for the originating agent showing what was changed.
+    {
+      const _celActions = (await storage.getState('actions')) || [];
+      for (let _ci = 0; _ci < _celActions.length; _ci++) {
+        const _ca = _celActions[_ci];
+        if (!_ca || !_ca.payload) continue;
+        const _cp = _ca.payload;
+        // Only process successfully executed, CEO-edited actions that haven't been learned from yet
+        if (!_cp._ceo_edited) continue;
+        if (_cp._ceo_edit_learned) continue;
+        if (!_cp._ceo_original_text) continue;
+        const _caExec = _ca.execution_status || (_ca.execution && _ca.execution.status) || '';
+        if (_caExec !== 'success' && _caExec !== 'approved' && _caExec !== 'running') continue;
+
+        const _agentId = _ca.created_by || _ca.origin_agent || '';
+        if (!_agentId) continue;
+
+        const _editedText = _cp.text || _cp.content_md || _cp.content || '';
+        const _originalText = _cp._ceo_original_text || '';
+        if (_editedText === _originalText) continue; // no actual change
+
+        // Build a concise diff summary for the agent
+        const _platform = _ca.platform || _cp.platform || _ca.type || '';
+        const _origSnippet = _originalText.substring(0, 300);
+        const _editSnippet = _editedText.substring(0, 300);
+        const _memText = 'CEO approved but edited my ' + _platform + ' post. '
+          + 'ORIGINAL: "' + _origSnippet + (_originalText.length > 300 ? '...' : '') + '" → '
+          + 'CEO VERSION: "' + _editSnippet + (_editedText.length > 300 ? '...' : '') + '"'
+          + ' — Study the CEO\'s edits and apply the same style/corrections to future posts.';
+
+        if (!_agentMemoryStore[_agentId]) _agentMemoryStore[_agentId] = [];
+        const _celNow = new Date();
+        _agentMemoryStore[_agentId].push({
+          id: 'mem_' + Date.now() + '_ceoedit',
+          type: 'feedback',
+          text: _memText,
+          source: 'auto:ceo-edit',
+          timestamp: _celNow.toISOString()
+          // No expiresAt — CEO style corrections are permanent (capped by MAX_MEMORIES_PER_AGENT)
+        });
+        if (_agentMemoryStore[_agentId].length > MAX_MEMORIES_PER_AGENT) {
+          _agentMemoryStore[_agentId] = _agentMemoryStore[_agentId].slice(-MAX_MEMORIES_PER_AGENT);
+        }
+
+        // Mark as learned so we don't re-create the memory every heartbeat
+        _celActions[_ci].payload._ceo_edit_learned = true;
+        context.log('[Heartbeat] CEO edit learning: created memory for', _agentId, 'from action', _ca.id);
+      }
+      await storage.setState('actions', _celActions);
     }
 
     // Objective lifecycle health proposals (non-destructive)
