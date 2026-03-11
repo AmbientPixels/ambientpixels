@@ -212,9 +212,22 @@
       return;
     }
 
+    var SOURCE_LABELS = { github: 'GH', hn: 'HN', reddit: 'RD', devto: 'DEV' };
+
     container.innerHTML = trends.map(function (t) {
       var selected = t.id === state.selectedTrendId;
       var color = stageColor(t.stage);
+
+      var badgesHtml = '';
+      if (Array.isArray(t.sourceCoverage) && t.sourceCoverage.length) {
+        badgesHtml = '<div class="tr-source-badges">'
+          + t.sourceCoverage.map(function (s) {
+              return '<span class="tr-source-badge tr-source-badge--' + s + '">'
+                + (SOURCE_LABELS[s] || s) + '</span>';
+            }).join('')
+          + '</div>';
+      }
+
       return '<div class="tr-card' + (selected ? ' tr-card--selected' : '') + '" data-id="' + t.id + '" style="--tr-card-accent:' + color + '">'
         + '<div class="tr-card-head">'
         +   '<div>'
@@ -228,6 +241,7 @@
         +   '<span class="tr-badge tr-badge--' + t.stage.id + '">' + esc(t.stage.label) + '</span>'
         +   buildSparkline(t.history)
         + '</div>'
+        + badgesHtml
         + '</div>';
     }).join('');
 

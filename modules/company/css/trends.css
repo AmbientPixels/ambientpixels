@@ -528,6 +528,27 @@
   text-align: center;
 }
 
+/* ── Source Coverage Badges ── */
+.tr-source-badges {
+  display: flex;
+  gap: 0.18rem;
+  align-items: center;
+  margin-top: 0.25rem;
+}
+.tr-source-badge {
+  font-size: 0.42rem;
+  padding: 0.06rem 0.28rem;
+  border-radius: 3px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  opacity: 0.65;
+}
+.tr-source-badge--github { background: rgba(255,255,255,0.07); color: #94a3b8; }
+.tr-source-badge--hn     { background: rgba(251,146,60,0.14);  color: #fb923c; }
+.tr-source-badge--reddit { background: rgba(239,68,68,0.12);   color: #f87171; }
+.tr-source-badge--devto  { background: rgba(167,139,250,0.12); color: #a78bfa; }
+
 /* ── Scout Analysis Panel ── */
 .tr-scout-panel {
   border-color: rgba(90,228,255,0.12);

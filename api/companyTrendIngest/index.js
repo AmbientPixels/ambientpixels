@@ -57,22 +57,158 @@ async function fetchHNSignals(log) {
   }
 }
 
+// ── Reddit Signal Fetch ──
+
+async function fetchRedditSignals(log) {
+  try {
+    var res = await fetch(
+      'https://www.reddit.com/r/MachineLearning+technology+programming+webdev.json?sort=hot&limit=25&t=day',
+      { method: 'GET', headers: { 'Accept': 'application/json', 'User-Agent': 'AmbientPixels/TrendIngest/1.0' } }
+    );
+    if (!res.ok) {
+      log('[TrendIngest] Reddit API returned ' + res.status + ' — skipping');
+      return null;
+    }
+    var data = await res.json();
+    var posts = data && data.data && Array.isArray(data.data.children) ? data.data.children : [];
+    if (!posts.length) return null;
+    return posts.slice(0, 15).map(function (p) {
+      var d = p.data || {};
+      return d.title + ' (' + (d.score || 0) + ' pts, r/' + (d.subreddit || 'unknown') + ')';
+    }).filter(Boolean);
+  } catch (e) {
+    log('[TrendIngest] Reddit fetch failed (non-fatal): ' + e.message);
+    return null;
+  }
+}
+
+// ── DEV.to Signal Fetch ──
+
+async function fetchDevToSignals(log) {
+  try {
+    var res = await fetch('https://dev.to/api/articles?top=1&per_page=15', {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' }
+    });
+    if (!res.ok) {
+      log('[TrendIngest] DEV.to API returned ' + res.status + ' — skipping');
+      return null;
+    }
+    var articles = await res.json();
+    if (!Array.isArray(articles) || !articles.length) return null;
+    return articles.slice(0, 12).map(function (a) {
+      return a.title + (a.positive_reactions_count ? ' (' + a.positive_reactions_count + ' reactions)' : '');
+    }).filter(Boolean);
+  } catch (e) {
+    log('[TrendIngest] DEV.to fetch failed (non-fatal): ' + e.message);
+    return null;
+  }
+}
+
+// ── Cross-Source Cluster Builder ──
+
+var CLUSTER_STOP_WORDS = new Set([
+  'with', 'from', 'that', 'this', 'have', 'been', 'will', 'your', 'using', 'build',
+  'make', 'show', 'more', 'into', 'what', 'when', 'year', 'week', 'just', 'also',
+  'like', 'they', 'them', 'open', 'free', 'news', 'week', 'here', 'some', 'about',
+  'how', 'new', 'for', 'the', 'and', 'but', 'not', 'are', 'was', 'its', 'all', 'can'
+]);
+
+function buildClusterSection(githubLines, hnLines, redditLines, devtoLines) {
+  var kwMap = {};
+
+  function addLines(lines, source) {
+    if (!Array.isArray(lines)) return;
+    lines.forEach(function (line) {
+      String(line).toLowerCase()
+        .replace(/[^a-z0-9\s]/g, ' ')
+        .split(/\s+/)
+        .filter(function (w) { return w.length >= 4 && !CLUSTER_STOP_WORDS.has(w); })
+        .forEach(function (w) {
+          if (!kwMap[w]) kwMap[w] = new Set();
+          kwMap[w].add(source);
+        });
+    });
+  }
+
+  addLines(githubLines, 'GitHub');
+  addLines(hnLines, 'HN');
+  addLines(redditLines, 'Reddit');
+  addLines(devtoLines, 'DEV.to');
+
+  var confirmed = [];
+  Object.keys(kwMap).forEach(function (kw) {
+    if (kwMap[kw].size >= 2) {
+      confirmed.push(kw + ' [' + Array.from(kwMap[kw]).join('+') + ']');
+    }
+  });
+
+  if (!confirmed.length) return '';
+  return '\n\nCross-source confirmed signals (topics appearing in 2+ independent sources — treat as high-confidence):\n'
+    + confirmed.slice(0, 25).join(', ')
+    + '\n\nBoost scores for trends touching these keywords. Multi-source confirmation = real momentum.';
+}
+
+// ── Source Coverage Computation ──
+
+function computeSourceCoverage(trends, githubLines, hnLines, redditLines, devtoLines) {
+  var sources = {
+    github: githubLines || [],
+    hn:     hnLines     || [],
+    reddit: redditLines || [],
+    devto:  devtoLines  || []
+  };
+
+  return trends.map(function (t) {
+    var nameParts = t.name.toLowerCase()
+      .replace(/[^a-z0-9\s]/g, ' ')
+      .split(/\s+/)
+      .filter(function (w) { return w.length >= 3; });
+
+    var coverage = [];
+    Object.keys(sources).forEach(function (src) {
+      var joined = sources[src].join(' ').toLowerCase();
+      if (nameParts.some(function (w) { return joined.indexOf(w) !== -1; })) {
+        coverage.push(src);
+      }
+    });
+    t.sourceCoverage = coverage;
+    return t;
+  });
+}
+
 // ── Trend Prompt Builder ──
 
-function buildTrendPrompt(githubLines, hnLines) {
+function buildTrendPrompt(githubLines, hnLines, redditLines, devtoLines) {
   var githubSection = '';
   if (Array.isArray(githubLines) && githubLines.length > 0) {
     githubSection = '\n\nReal GitHub Trending data (today):\n'
       + githubLines.map(function (l, i) { return (i + 1) + '. ' + l; }).join('\n')
-      + '\n\nUse these as ground truth for devActivity scores where relevant. Reference specific repos in signals where appropriate.';
+      + '\n\nUse these as ground truth for devActivity scores. Reference specific repos in signals where appropriate.';
   }
 
   var hnSection = '';
   if (Array.isArray(hnLines) && hnLines.length > 0) {
     hnSection = '\n\nHackerNews front page (today):\n'
       + hnLines.map(function (l, i) { return (i + 1) + '. ' + l; }).join('\n')
-      + '\n\nUse these to inform socialVelocity and searchGrowth scores where relevant. High-point HN posts indicate strong developer/tech community interest.';
+      + '\n\nUse to inform socialVelocity and searchGrowth. High-point HN posts = strong developer community interest.';
   }
+
+  var redditSection = '';
+  if (Array.isArray(redditLines) && redditLines.length > 0) {
+    redditSection = '\n\nReddit hot posts across r/MachineLearning, r/technology, r/programming, r/webdev (today):\n'
+      + redditLines.map(function (l, i) { return (i + 1) + '. ' + l; }).join('\n')
+      + '\n\nUse to inform socialVelocity. High upvote posts = mainstream developer conversation.';
+  }
+
+  var devtoSection = '';
+  if (Array.isArray(devtoLines) && devtoLines.length > 0) {
+    devtoSection = '\n\nDEV.to top articles (today):\n'
+      + devtoLines.map(function (l, i) { return (i + 1) + '. ' + l; }).join('\n')
+      + '\n\nUse to inform devActivity and product/devtools category trends.';
+  }
+
+  var clusterSection = buildClusterSection(githubLines, hnLines, redditLines, devtoLines);
 
   return [
     'You are a technology trend analyst. Return exactly 12 current, real technology trends as a JSON array.',
@@ -95,6 +231,9 @@ function buildTrendPrompt(githubLines, hnLines) {
     '- history array should show realistic growth trajectory ending at or near searchGrowth value.',
     githubSection,
     hnSection,
+    redditSection,
+    devtoSection,
+    clusterSection,
     '',
     'Return ONLY the JSON array, no markdown fences, no explanation.'
   ].join('\n');
@@ -252,7 +391,21 @@ async function runIngestion(log) {
     log('[TrendIngest] HackerNews unavailable — skipping HN signals');
   }
 
-  var promptText = buildTrendPrompt(githubLines, hnLines);
+  var redditLines = await fetchRedditSignals(log);
+  if (redditLines) {
+    log('[TrendIngest] Reddit: fetched ' + redditLines.length + ' hot posts');
+  } else {
+    log('[TrendIngest] Reddit unavailable — skipping Reddit signals');
+  }
+
+  var devtoLines = await fetchDevToSignals(log);
+  if (devtoLines) {
+    log('[TrendIngest] DEV.to: fetched ' + devtoLines.length + ' top articles');
+  } else {
+    log('[TrendIngest] DEV.to unavailable — skipping DEV.to signals');
+  }
+
+  var promptText = buildTrendPrompt(githubLines, hnLines, redditLines, devtoLines);
   var rawText = await callGemini(promptText, log);
   if (!rawText) {
     log('[TrendIngest] No data from Gemini, aborting');
@@ -265,13 +418,18 @@ async function runIngestion(log) {
     return { ok: false, reason: 'parse_failed' };
   }
 
+  // Compute per-trend source coverage (keyword matching across all 4 sources)
+  trends = computeSourceCoverage(trends, githubLines, hnLines, redditLines, devtoLines);
+
   // Build radar snapshot
   var snapshot = {
     ingestedAt: new Date().toISOString(),
     source: 'gemini-2.0-flash',
     trendCount: trends.length,
     githubSignals: githubLines || null,
-    hnSignals: hnLines || null,
+    hnSignals:     hnLines     || null,
+    redditSignals: redditLines || null,
+    devtoSignals:  devtoLines  || null,
     trends: trends
   };
 
