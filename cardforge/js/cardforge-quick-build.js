@@ -157,12 +157,38 @@
     return { str: 60, agi: 60, int: 60, end: 60, lck: 60 };
   }
 
+  // SVG spider chart — 5 axes, pentagon shape
+  function _renderSpiderChart(stats) {
+    const size = 130, cx = size / 2, cy = size / 2, r = 50;
+    const angleOff = -Math.PI / 2; // start from top
+    const pts = STAT_DEFS.map((d, i) => {
+      const angle = angleOff + (2 * Math.PI * i) / 5;
+      const pct = (stats[d.key] || 0) / 100;
+      return { x: cx + r * pct * Math.cos(angle), y: cy + r * pct * Math.sin(angle), ax: cx + (r + 14) * Math.cos(angle), ay: cy + (r + 14) * Math.sin(angle), def: d };
+    });
+    const polyPoints = pts.map(p => `${p.x},${p.y}`).join(' ');
+    // Grid rings at 25%, 50%, 75%, 100%
+    const rings = [0.25, 0.5, 0.75, 1].map(pct => {
+      const rPts = STAT_DEFS.map((_, i) => {
+        const angle = angleOff + (2 * Math.PI * i) / 5;
+        return `${cx + r * pct * Math.cos(angle)},${cy + r * pct * Math.sin(angle)}`;
+      }).join(' ');
+      return `<polygon points="${rPts}" fill="none" stroke="rgba(255,255,255,${pct === 1 ? 0.12 : 0.06})" stroke-width="1"/>`;
+    }).join('');
+    // Axis lines
+    const axes = pts.map(p => `<line x1="${cx}" y1="${cy}" x2="${cx + r * Math.cos(Math.atan2(p.y - cy, p.x - cx))}" y2="${cy + r * Math.sin(Math.atan2(p.y - cy, p.x - cx))}" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>`).join('');
+    // Labels
+    const labels = pts.map(p => `<text x="${p.ax}" y="${p.ay}" fill="${p.def.color}" font-size="8" font-weight="700" text-anchor="middle" dominant-baseline="central" font-family="Inter,sans-serif">${p.def.label}</text>`).join('');
+    // Value dots
+    const dots = pts.map(p => `<circle cx="${p.x}" cy="${p.y}" r="3" fill="${p.def.color}" stroke="rgba(0,0,0,0.4)" stroke-width="1"/>`).join('');
+    return `<svg viewBox="0 0 ${size} ${size}" class="qb-spider-chart">${rings}${axes}<polygon points="${polyPoints}" fill="rgba(139,92,246,0.15)" stroke="#8b5cf6" stroke-width="1.5"/>${dots}${labels}</svg>`;
+  }
+
   function _renderClassStep() {
     const stats = _getActiveStats();
     const spent = STAT_DEFS.reduce((sum, d) => sum + stats[d.key], 0);
     const remaining = STAT_BUDGET - spent;
 
-    // Compact stat summary for class tiles
     const classSummary = (cls) => {
       const s = CLASS_STATS[cls];
       const best = STAT_DEFS.reduce((a, b) => s[a.key] > s[b.key] ? a : b);
@@ -183,22 +209,29 @@
       </div>
       ${_state.cardClass ? `
       <div class="qb-stats-section">
-        <div class="qb-stats-header">
-          <span class="qb-stats-title"><i class="fas fa-sliders"></i> Allocate Stats</span>
-          <span class="qb-stats-budget ${remaining < 0 ? 'over' : remaining === 0 ? 'exact' : ''}">${remaining} pts left</span>
-        </div>
-        <div class="qb-stats-sliders" id="qb-stats-sliders">
-          ${STAT_DEFS.map(d => `
-            <div class="qb-stat-row" data-stat="${d.key}">
-              <i class="fas ${d.icon}" style="color:${d.color}"></i>
-              <span class="qb-stat-label">${d.label}</span>
-              <input type="range" class="qb-stat-slider" data-stat="${d.key}" min="0" max="100" value="${stats[d.key]}" style="--fill:${stats[d.key]}%;--stat-color:${d.color}">
-              <span class="qb-stat-value" data-stat="${d.key}">${stats[d.key]}</span>
+        <div class="qb-stats-layout">
+          <div class="qb-spider-wrap" id="qb-spider-wrap">
+            ${_renderSpiderChart(stats)}
+          </div>
+          <div class="qb-stats-panel">
+            <div class="qb-stats-header">
+              <span class="qb-stats-title"><i class="fas fa-sliders"></i> Allocate Stats</span>
+              <span class="qb-stats-budget ${remaining < 0 ? 'over' : remaining === 0 ? 'exact' : ''}">${remaining} / ${STAT_BUDGET}</span>
             </div>
-          `).join('')}
-        </div>
-        <div class="qb-stats-footer">
-          <button class="qb-stats-reset" id="qb-stats-reset"><i class="fas fa-rotate-left"></i> Reset</button>
+            <div class="qb-stats-sliders" id="qb-stats-sliders">
+              ${STAT_DEFS.map(d => `
+                <div class="qb-stat-row" data-stat="${d.key}">
+                  <i class="fas ${d.icon}" style="color:${d.color}"></i>
+                  <span class="qb-stat-label">${d.label}</span>
+                  <input type="range" class="qb-stat-slider" data-stat="${d.key}" min="0" max="100" value="${stats[d.key]}" style="--fill:${stats[d.key]}%;--stat-color:${d.color}">
+                  <span class="qb-stat-value" data-stat="${d.key}">${stats[d.key]}</span>
+                </div>
+              `).join('')}
+            </div>
+            <div class="qb-stats-footer">
+              <button class="qb-stats-reset" id="qb-stats-reset"><i class="fas fa-rotate-left"></i> Reset</button>
+            </div>
+          </div>
         </div>
       </div>
       ` : ''}
@@ -417,25 +450,40 @@
       });
     });
 
-    // Stat sliders — update in-place, no re-render
+    // Stat sliders — update in-place with budget enforcement
     document.querySelectorAll('.qb-stat-slider').forEach(slider => {
       slider.addEventListener('input', () => {
         const key = slider.dataset.stat;
-        const val = parseInt(slider.value, 10);
+        let requested = parseInt(slider.value, 10);
         if (!_state.customStats) _state.customStats = { ..._getActiveStats() };
-        _state.customStats[key] = val;
-        slider.style.setProperty('--fill', val + '%');
+
+        // Enforce budget: clamp so total never exceeds STAT_BUDGET
+        let otherTotal = 0;
+        STAT_DEFS.forEach(d => {
+          if (d.key !== key) otherTotal += (_state.customStats[d.key] || 0);
+        });
+        const maxAllowed = Math.max(0, STAT_BUDGET - otherTotal);
+        const clamped = Math.min(requested, maxAllowed);
+
+        _state.customStats[key] = clamped;
+        slider.value = clamped;
+        slider.style.setProperty('--fill', clamped + '%');
         const display = slider.closest('.qb-stat-row').querySelector('.qb-stat-value');
-        if (display) display.textContent = val;
+        if (display) display.textContent = clamped;
+
         // Update budget display
         const spent = STAT_DEFS.reduce((sum, d) => sum + (_state.customStats[d.key] || 0), 0);
         const remaining = STAT_BUDGET - spent;
         const budgetEl = document.querySelector('.qb-stats-budget');
         if (budgetEl) {
-          budgetEl.textContent = `${remaining} pts left`;
+          budgetEl.textContent = `${remaining} / ${STAT_BUDGET}`;
           budgetEl.classList.toggle('over', remaining < 0);
           budgetEl.classList.toggle('exact', remaining === 0);
         }
+
+        // Update spider chart in-place
+        const spiderWrap = document.getElementById('qb-spider-wrap');
+        if (spiderWrap) spiderWrap.innerHTML = _renderSpiderChart(_state.customStats);
       });
     });
 

@@ -798,6 +798,41 @@
 
 .qb-style-tile i { font-size: 0.85rem; color: #c4b5fd; }
 
+/* Stats layout — spider chart + sliders side by side */
+.qb-stats-layout {
+  display: flex;
+  gap: 1.2rem;
+  align-items: flex-start;
+  margin-top: 0.75rem;
+}
+
+.qb-spider-wrap {
+  flex: 0 0 130px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qb-spider-chart {
+  width: 130px;
+  height: 130px;
+}
+
+.qb-stats-panel {
+  flex: 1;
+  min-width: 0;
+}
+
+@media (max-width: 600px) {
+  .qb-stats-layout {
+    flex-direction: column;
+    align-items: center;
+  }
+  .qb-spider-wrap {
+    flex: none;
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .qb-vibe-grid {
