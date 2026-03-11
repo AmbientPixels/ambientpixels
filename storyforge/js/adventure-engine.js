@@ -2741,7 +2741,7 @@
     // Inject drag handle
     var handle = document.createElement('div');
     handle.className = 'adv-sidebar__handle';
-    handle.innerHTML = '<div class="adv-sidebar__handle-bar"></div>';
+    handle.innerHTML = '<div class="adv-sidebar__handle-bar"></div><span class="adv-sidebar__handle-hint"><i class="fas fa-chevron-up"></i> Stats</span>';
     sidebar.prepend(handle);
 
     // Inject mini summary bar
