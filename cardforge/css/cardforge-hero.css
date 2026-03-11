@@ -84,16 +84,18 @@
 }
 
 .cf-hero__cta--secondary {
-  background: rgba(139, 92, 246, 0.1);
-  border: 1px solid rgba(139, 92, 246, 0.3);
-  color: #c4b5fd;
-  box-shadow: none;
+  background: rgba(15, 15, 35, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1.5px solid rgba(196, 181, 253, 0.4);
+  color: #e1e1ff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .cf-hero__cta--secondary:hover {
-  background: rgba(139, 92, 246, 0.2);
-  border-color: rgba(139, 92, 246, 0.5);
-  box-shadow: 0 0 12px rgba(139, 92, 246, 0.2);
+  background: rgba(139, 92, 246, 0.25);
+  border-color: rgba(196, 181, 253, 0.65);
+  box-shadow: 0 4px 16px rgba(139, 92, 246, 0.3);
 }
 
 .cf-hero__cta--accent {
