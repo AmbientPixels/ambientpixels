@@ -40,7 +40,7 @@
   color: #e1e1ff;
   margin: 0 0 0.5rem;
   letter-spacing: 0.02em;
-  text-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+  text-shadow: 0 0 20px rgba(139, 92, 246, 0.3), 0 2px 6px rgba(0, 0, 0, 0.6);
 }
 
 .cf-hero__subtitle {
@@ -49,6 +49,7 @@
   margin: 0 0 1.5rem;
   line-height: 1.5;
   max-width: 400px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.7), 0 0 12px rgba(0, 0, 0, 0.4);
 }
 
 .cf-hero__actions {
