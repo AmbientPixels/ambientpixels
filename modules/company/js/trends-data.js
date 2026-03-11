@@ -139,17 +139,17 @@
 
   /* ── Load from trendRadar state (latest snapshot) ── */
   function loadFromState() {
-    return fetch(STATE_ENDPOINT + '?key=trendRadar', {
-      headers: { 'x-company-secret': 'pixelpusher' }
-    })
+    return fetch(STATE_ENDPOINT + '?key=trendRadar')
     .then(function (res) {
+      console.log('[TrendsData] state response:', res.status, res.headers.get('content-type'));
       if (!res.ok) return null;
       return res.json();
     })
     .then(function (data) {
+      console.log('[TrendsData] state data type:', typeof data, Array.isArray(data), data && data.key ? 'has envelope' : 'raw');
       // State endpoint returns { key, value } envelope
       var arr = data && data.value ? data.value : data;
-      if (!Array.isArray(arr) || !arr.length) return null;
+      if (!Array.isArray(arr) || !arr.length) { console.log('[TrendsData] state empty or not array'); return null; }
       // Get latest snapshot
       var latest = arr[arr.length - 1];
       if (!latest || !Array.isArray(latest.trends) || !latest.trends.length) return null;
@@ -164,7 +164,7 @@
 
       return { trends: trends, ingestedAt: latest.ingestedAt, source: 'trendRadar' };
     })
-    .catch(function () { return null; });
+    .catch(function (err) { console.error('[TrendsData] loadFromState error:', err); return null; });
   }
 
   /* ── Fetch fresh trends from Gemini (via proxy) ── */
