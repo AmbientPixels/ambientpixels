@@ -575,10 +575,6 @@
           window.CardForge.updatePreview();
         }
 
-        // Verify the render used our data (not fallback)
-        const renderedName = document.querySelector('.card-preview-zone .card-name');
-        console.log('[QB] After render — card-name field:', JSON.stringify(document.getElementById('card-name')?.value), 'rendered .card-name:', renderedName?.textContent);
-
         // Belt-and-suspenders: directly set avatar img src
         if (_state.artworkUrl) {
           document.querySelectorAll('.card-preview-zone .card-avatar').forEach(img => {
@@ -586,14 +582,25 @@
           });
         }
 
-        // Step 7: Clone preview into wizard modal — use longer delay to ensure
-        // any debounced re-renders have completed and DOM is fully committed
-        setTimeout(() => {
-          _clonePreviewIntoWizard();
-          // Verify clone content
-          const clonedName = document.querySelector('#qb-card-preview .card-name');
-          console.log('[QB] Cloned preview — .card-name:', clonedName?.textContent);
-        }, 150);
+        // Step 7: Clone preview IMMEDIATELY — the DOM is synchronously updated
+        // by updateFrontFace/updateBackFace, so content is ready now.
+        // Use specific selector to avoid matching other .card-preview-canvas elements.
+        const sourcePreview = document.querySelector('.card-preview-zone .card-preview-canvas');
+        const previewContainer = document.getElementById('qb-card-preview');
+        if (sourcePreview && previewContainer) {
+          const scale = 0.65;
+          const clone = sourcePreview.cloneNode(true);
+          clone.style.transform = `scale(${scale})`;
+          clone.style.transformOrigin = 'top center';
+          previewContainer.innerHTML = '';
+          const h = sourcePreview.offsetHeight;
+          if (h > 0) {
+            previewContainer.style.height = `${h * scale}px`;
+            previewContainer.style.overflow = 'hidden';
+          }
+          previewContainer.appendChild(clone);
+          console.log('[QB] Cloned immediately — source .card-name:', document.querySelector('.card-preview-zone .card-name')?.textContent, '→ clone .card-name:', clone.querySelector('.card-name')?.textContent);
+        }
       } catch (err) {
         console.error('[QB] Preview generation error:', err);
         const previewContainer = document.getElementById('qb-card-preview');
@@ -635,8 +642,8 @@
       // Ensure editor fields are populated (preview already set them,
       // but re-trigger in case user went back and changed something)
       _triggerPreview();
-      // Wait for the 100ms + 150ms inside _triggerPreview to complete
-      await new Promise(r => setTimeout(r, 350));
+      // Wait for the 100ms setTimeout inside _triggerPreview to complete
+      await new Promise(r => setTimeout(r, 200));
 
       // Use existing save pipeline
       if (window.cardForgeActions) {
