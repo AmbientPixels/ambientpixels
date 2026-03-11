@@ -34,14 +34,44 @@ async function fetchGithubTrending(log) {
   }
 }
 
+// ── HackerNews Signal Fetch ──
+
+async function fetchHNSignals(log) {
+  try {
+    var res = await fetch('https://hn.algolia.com/api/v1/search?tags=front_page&hitsPerPage=20', {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' }
+    });
+    if (!res.ok) {
+      log('[TrendIngest] HackerNews API returned ' + res.status + ' — skipping');
+      return null;
+    }
+    var data = await res.json();
+    if (!data || !Array.isArray(data.hits) || !data.hits.length) return null;
+    return data.hits.slice(0, 15).map(function (h) {
+      return h.title + (h.points ? ' (' + h.points + ' pts, ' + (h.num_comments || 0) + ' comments)' : '');
+    });
+  } catch (e) {
+    log('[TrendIngest] HackerNews fetch failed (non-fatal): ' + e.message);
+    return null;
+  }
+}
+
 // ── Trend Prompt Builder ──
 
-function buildTrendPrompt(githubLines) {
+function buildTrendPrompt(githubLines, hnLines) {
   var githubSection = '';
   if (Array.isArray(githubLines) && githubLines.length > 0) {
     githubSection = '\n\nReal GitHub Trending data (today):\n'
       + githubLines.map(function (l, i) { return (i + 1) + '. ' + l; }).join('\n')
       + '\n\nUse these as ground truth for devActivity scores where relevant. Reference specific repos in signals where appropriate.';
+  }
+
+  var hnSection = '';
+  if (Array.isArray(hnLines) && hnLines.length > 0) {
+    hnSection = '\n\nHackerNews front page (today):\n'
+      + hnLines.map(function (l, i) { return (i + 1) + '. ' + l; }).join('\n')
+      + '\n\nUse these to inform socialVelocity and searchGrowth scores where relevant. High-point HN posts indicate strong developer/tech community interest.';
   }
 
   return [
@@ -64,6 +94,7 @@ function buildTrendPrompt(githubLines) {
     '- Signals should reference real companies, products, or events.',
     '- history array should show realistic growth trajectory ending at or near searchGrowth value.',
     githubSection,
+    hnSection,
     '',
     'Return ONLY the JSON array, no markdown fences, no explanation.'
   ].join('\n');
@@ -206,7 +237,7 @@ function parseTrends(text, log) {
 async function runIngestion(log) {
   log('[TrendIngest] Starting trend ingestion...');
 
-  // Fetch real GitHub trending data first (graceful fallback if unavailable)
+  // Fetch real signal data first (graceful fallback if unavailable)
   var githubLines = await fetchGithubTrending(log);
   if (githubLines) {
     log('[TrendIngest] GitHub Trending: fetched ' + githubLines.length + ' repos');
@@ -214,7 +245,14 @@ async function runIngestion(log) {
     log('[TrendIngest] GitHub Trending unavailable — using Gemini estimates only');
   }
 
-  var promptText = buildTrendPrompt(githubLines);
+  var hnLines = await fetchHNSignals(log);
+  if (hnLines) {
+    log('[TrendIngest] HackerNews: fetched ' + hnLines.length + ' front-page stories');
+  } else {
+    log('[TrendIngest] HackerNews unavailable — skipping HN signals');
+  }
+
+  var promptText = buildTrendPrompt(githubLines, hnLines);
   var rawText = await callGemini(promptText, log);
   if (!rawText) {
     log('[TrendIngest] No data from Gemini, aborting');
@@ -233,6 +271,7 @@ async function runIngestion(log) {
     source: 'gemini-2.0-flash',
     trendCount: trends.length,
     githubSignals: githubLines || null,
+    hnSignals: hnLines || null,
     trends: trends
   };
 

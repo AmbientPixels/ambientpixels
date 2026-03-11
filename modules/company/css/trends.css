@@ -528,6 +528,90 @@
   text-align: center;
 }
 
+/* ── Scout Analysis Panel ── */
+.tr-scout-panel {
+  border-color: rgba(90,228,255,0.12);
+  background: rgba(90,228,255,0.02);
+}
+.tr-scout-loading {
+  font-size: 0.65rem;
+  opacity: 0.3;
+  padding: 0.6rem 0.25rem;
+}
+.tr-scout-empty {
+  font-size: 0.65rem;
+  opacity: 0.3;
+  padding: 0.6rem 0.25rem;
+  font-style: italic;
+}
+.tr-scout-age {
+  font-size: 0.5rem;
+  opacity: 0.3;
+  font-weight: 400;
+  margin-left: 0.5rem;
+}
+.tr-scout-summary {
+  font-size: 0.68rem;
+  opacity: 0.65;
+  line-height: 1.5;
+  margin-bottom: 0.7rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-style: italic;
+}
+.tr-scout-insights {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.5rem;
+}
+.tr-scout-insight {
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 7px;
+  padding: 0.55rem 0.65rem;
+  background: rgba(255,255,255,0.015);
+}
+.tr-scout-insight--high {
+  border-left: 3px solid #f87171;
+}
+.tr-scout-insight--medium {
+  border-left: 3px solid #fbbf24;
+}
+.tr-scout-insight--low {
+  border-left: 3px solid #60a5fa;
+}
+.tr-scout-insight-name {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--nv-text, #e2e8f0);
+  margin-bottom: 0.2rem;
+}
+.tr-scout-insight-sig {
+  font-size: 0.48rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.4;
+  margin-bottom: 0.3rem;
+}
+.tr-scout-insight-sig--high  { color: #f87171; opacity: 0.7; }
+.tr-scout-insight-sig--medium { color: #fbbf24; opacity: 0.7; }
+.tr-scout-insight-sig--low   { color: #60a5fa; opacity: 0.7; }
+.tr-scout-insight-interp {
+  font-size: 0.6rem;
+  opacity: 0.5;
+  line-height: 1.4;
+  margin-bottom: 0.3rem;
+}
+.tr-scout-insight-action {
+  font-size: 0.58rem;
+  color: var(--aura-glow, #5ae4ff);
+  opacity: 0.65;
+  line-height: 1.35;
+}
+.tr-scout-insight-action i {
+  margin-right: 0.25rem;
+  opacity: 0.5;
+}
+
 /* ── Future Note ── */
 .tr-future-note {
   font-size: 0.62rem;

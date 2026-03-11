@@ -335,7 +335,8 @@
         +   ' data-opp-desc="' + esc(o.description) + '"'
         +   ' data-opp-effort="' + esc(o.effort) + '"'
         +   ' data-opp-impact="' + esc(o.impact) + '">'
-        +   '<i class="fas fa-plus"></i> Create Task'
+        +   '<i class="fas fa-plus"></i> '
+        +   (o.type === 'campaign_angle' ? 'Create Campaign' : 'Create Task')
         + '</button>'
         + '</div>';
     }).join('');
@@ -351,7 +352,7 @@
 
   function handleCreateTaskClick(btn) {
     if (btn.disabled || btn.classList.contains('tr-opp-action--created')) return;
-    if (typeof AgentEngine === 'undefined' || !AgentEngine.addTask) {
+    if (typeof AgentEngine === 'undefined') {
       console.warn('[TrendsApp] AgentEngine not available');
       return;
     }
@@ -361,29 +362,132 @@
     var oppDesc   = btn.getAttribute('data-opp-desc');
     var oppEffort = btn.getAttribute('data-opp-effort');
     var oppImpact = btn.getAttribute('data-opp-impact');
-    var mapping   = OPP_TASK_MAP[oppType] || { assignee: null, taskType: 'general', priority: 'medium' };
 
-    var task = AgentEngine.addTask({
-      title:       oppTitle,
-      description: oppDesc + '\n\nSource: Trends Radar opportunity (' + oppType + ')',
-      assignee:    mapping.assignee,
-      taskType:    mapping.taskType,
-      priority:    mapping.priority,
-      effort:      oppEffort,
-      impact:      oppImpact,
-      status:      'backlog',
-      tags:        ['trends-radar', oppType],
-      source:      { type: 'trends_radar', title: oppTitle, date: new Date().toISOString() }
-    });
+    var created = null;
 
-    if (task) {
-      btn.classList.add('tr-opp-action--created');
-      btn.innerHTML = '<i class="fas fa-check"></i> Task Created';
-      btn.disabled = true;
-      if (typeof window.showDemoToast === 'function') {
-        window.showDemoToast('Task created: "' + oppTitle.substring(0, 40) + '"');
+    if (oppType === 'campaign_angle') {
+      // Campaign opportunities → create a proper campaign
+      if (!AgentEngine.addCampaign) {
+        console.warn('[TrendsApp] AgentEngine.addCampaign not available');
+        return;
+      }
+      created = AgentEngine.addCampaign({
+        title:            oppTitle,
+        description:      oppDesc + '\n\nSource: Trends Radar opportunity (campaign_angle)',
+        status:           'active',
+        allowedTaskTypes: ['blog_post', 'social_linkedin', 'social_bluesky', 'social_x'],
+        provenance:       'trends_radar'
+      });
+      if (created) {
+        btn.classList.add('tr-opp-action--created');
+        btn.innerHTML = '<i class="fas fa-check"></i> Campaign Created';
+        btn.disabled = true;
+        if (typeof window.showDemoToast === 'function') {
+          window.showDemoToast('Campaign created: "' + oppTitle.substring(0, 40) + '"');
+        }
+      }
+    } else {
+      // All other opportunities → create a task
+      if (!AgentEngine.addTask) {
+        console.warn('[TrendsApp] AgentEngine.addTask not available');
+        return;
+      }
+      var mapping = OPP_TASK_MAP[oppType] || { assignee: null, taskType: 'general', priority: 'medium' };
+      created = AgentEngine.addTask({
+        title:       oppTitle,
+        description: oppDesc + '\n\nSource: Trends Radar opportunity (' + oppType + ')',
+        assignee:    mapping.assignee,
+        taskType:    mapping.taskType,
+        priority:    mapping.priority,
+        effort:      oppEffort,
+        impact:      oppImpact,
+        status:      'backlog',
+        tags:        ['trends-radar', oppType],
+        source:      { type: 'trends_radar', title: oppTitle, date: new Date().toISOString() }
+      });
+      if (created) {
+        btn.classList.add('tr-opp-action--created');
+        btn.innerHTML = '<i class="fas fa-check"></i> Task Created';
+        btn.disabled = true;
+        if (typeof window.showDemoToast === 'function') {
+          window.showDemoToast('Task created: "' + oppTitle.substring(0, 40) + '"');
+        }
       }
     }
+  }
+
+  /* ── Scout Insights ── */
+  function loadScoutInsights() {
+    var el = document.getElementById('tr-scout-content');
+    if (!el) return;
+
+    var apiBase = window.location.hostname.indexOf('ambientpixels.ai') !== -1
+      ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+      : '/api';
+
+    fetch(apiBase + '/company-state?key=trendInsights')
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (data) {
+        var arr = data && data.value ? data.value : data;
+        if (!Array.isArray(arr) || !arr.length) {
+          el.className = 'tr-scout-empty';
+          el.textContent = 'No Scout analysis yet — will appear after next heartbeat cycle.';
+          return;
+        }
+        var latest = arr[arr.length - 1];
+        renderScoutInsights(latest);
+      })
+      .catch(function () {
+        el.className = 'tr-scout-empty';
+        el.textContent = 'Could not load Scout analysis.';
+      });
+  }
+
+  function renderScoutInsights(data) {
+    var el = document.getElementById('tr-scout-content');
+    var ageEl = document.getElementById('tr-scout-age');
+    if (!el) return;
+
+    if (!data || !Array.isArray(data.insights) || !data.insights.length) {
+      el.className = 'tr-scout-empty';
+      el.textContent = 'No Scout analysis yet — will appear after next heartbeat cycle.';
+      return;
+    }
+
+    if (ageEl && data.timestamp) {
+      var d = new Date(data.timestamp);
+      ageEl.textContent = '— ' + d.toLocaleString();
+    }
+
+    // Show only high + medium significance, capped at 6
+    var topInsights = data.insights
+      .filter(function (i) { return i.significance === 'high' || i.significance === 'medium'; })
+      .sort(function (a, b) {
+        var order = { high: 0, medium: 1, low: 2 };
+        return (order[a.significance] || 2) - (order[b.significance] || 2);
+      })
+      .slice(0, 6);
+
+    var summaryHtml = data.summary
+      ? '<div class="tr-scout-summary">' + esc(data.summary) + '</div>'
+      : '';
+
+    var insightsHtml = '<div class="tr-scout-insights">'
+      + topInsights.map(function (ins) {
+          var sig = ins.significance || 'low';
+          return '<div class="tr-scout-insight tr-scout-insight--' + sig + '">'
+            + '<div class="tr-scout-insight-name">' + esc(ins.trendName) + '</div>'
+            + '<div class="tr-scout-insight-sig tr-scout-insight-sig--' + sig + '">' + sig + ' significance</div>'
+            + '<div class="tr-scout-insight-interp">' + esc(ins.interpretation || '') + '</div>'
+            + (ins.actionRecommendation
+                ? '<div class="tr-scout-insight-action"><i class="fas fa-arrow-right"></i>' + esc(ins.actionRecommendation) + '</div>'
+                : '')
+            + '</div>';
+        }).join('')
+      + '</div>';
+
+    el.className = '';
+    el.innerHTML = summaryHtml + insightsHtml;
   }
 
   /* ── Load Trends (state first, Gemini fallback) ── */
@@ -511,6 +615,7 @@
     }
 
     loadTrends();
+    loadScoutInsights();
   }
 
   if (document.readyState === 'loading') {
