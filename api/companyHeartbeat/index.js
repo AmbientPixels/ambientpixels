@@ -295,6 +295,9 @@ module.exports = async function (context) {
     // Load trend radar store for Scout analysis
     let trendRadarStore = [];
     try { trendRadarStore = (await storage.getState('trendRadar')) || []; } catch (_trErr) { /* non-fatal */ }
+    // Load trend insights store for Nova campaign prompting + Scribe content context
+    let trendInsightsStore = [];
+    try { trendInsightsStore = (await storage.getState('trendInsights')) || []; } catch (_tiLoadErr) { /* non-fatal */ }
     // Load worker reports (client-side workers sync intel here for Nova to read)
     let workerReports = [];
     try { workerReports = (await storage.getState('workerReports')) || []; } catch (_wrErr) { /* non-fatal */ }
@@ -1164,7 +1167,8 @@ module.exports = async function (context) {
           normalizedActivationMode, _isAgentInCooldown, _logAgentCooldownOnce, _incPolicyGate,
           _agentCampaignCtx, siteIntel,
           agentId === 'nova' ? workerReports : null,
-          _agentMemoryStore, trendRadarStore
+          _agentMemoryStore, trendRadarStore,
+          (agentId === 'nova' || agentId === 'scribe') ? trendInsightsStore : null
         );
         // Collect any new research intel from this agent's cycle
         if (result.newResearchIntel) {
@@ -2138,6 +2142,53 @@ module.exports = async function (context) {
         await storage.setState('actions', _actionsStore);
         await storage.setState('approvalQueue', _aq);
         context.log('[Heartbeat] AUTO-POST: created', _pendingPosts.length, 'social action(s) from reviewed_copy pipeline');
+      }
+    }
+
+    // ── Auto-brief: create Scout research tasks for new high-significance trends ──
+    {
+      const _latestInsights = trendInsightsStore.length > 0 ? trendInsightsStore[trendInsightsStore.length - 1] : null;
+      const _insightsAge = _latestInsights ? Date.now() - new Date(_latestInsights.timestamp || _latestInsights.analysisDate || 0).getTime() : Infinity;
+      const _INSIGHTS_FRESH_MS = 8 * 60 * 60 * 1000; // only act on insights < 8h old
+      if (_latestInsights && _insightsAge < _INSIGHTS_FRESH_MS && Array.isArray(_latestInsights.insights)) {
+        const _highTrends = _latestInsights.insights.filter(function (i) { return i.significance === 'high'; }).slice(0, 2);
+        let _autoBriefCreated = 0;
+        for (const _ti of _highTrends) {
+          const _trendName = String(_ti.trendName || '').toLowerCase();
+          if (!_trendName) continue;
+          // Skip if a research task already exists for this trend
+          const _alreadyExists = tasks.some(function (t) {
+            return t.status !== 'done' && t.status !== 'canceled'
+              && (t.taskType === 'research' || t.taskType === 'general')
+              && (String(t.title || '').toLowerCase().indexOf(_trendName) !== -1
+                  || (Array.isArray(t.tags) && t.tags.indexOf('trends-radar') !== -1 && String(t.description || '').toLowerCase().indexOf(_trendName) !== -1));
+          });
+          if (_alreadyExists) continue;
+          // Create a backlog research task for Scout
+          const _briefId = 'task-tr-brief-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4);
+          const _briefTask = {
+            id: _briefId,
+            title: 'Research Brief: ' + _ti.trendName,
+            description: 'Scout Radar flagged this trend as high significance.\n\n'
+              + 'Trend: ' + _ti.trendName + '\n'
+              + 'Interpretation: ' + (_ti.interpretation || '') + '\n'
+              + 'Recommended action: ' + (_ti.actionRecommendation || '') + '\n\n'
+              + 'Investigate competitive positioning, content angles, and strategic opportunities for AmbientPixels.',
+            assignee: 'scout',
+            taskType: 'research',
+            status: 'backlog',
+            priority: 'medium',
+            tags: ['trends-radar', 'auto-brief'],
+            source: { type: 'trends_radar_auto_brief', trendName: _ti.trendName, insightId: _latestInsights.id || null },
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+            comments: []
+          };
+          tasks.push(_briefTask);
+          _autoBriefCreated++;
+          context.log('[Heartbeat] auto-brief: created research task for trend "' + _ti.trendName + '"', _briefId);
+        }
+        if (_autoBriefCreated > 0) context.log('[Heartbeat] auto-brief: ' + _autoBriefCreated + ' research task(s) created from trendInsights');
       }
     }
 

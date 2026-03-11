@@ -47,7 +47,7 @@ function buildSiteContextBlock() {
 }
 
 // ── Build heartbeat prompt ──
-function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, agentConfigs, trendRadarStore) {
+function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore) {
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
   documents = documents || [];
@@ -493,6 +493,57 @@ Rules:
     }
   }
 
+  // Trend Insights — Nova: exploding/growing trends → campaign opportunity prompting
+  let novaTrendSection = '';
+  if (agent === AGENT_ROLES.nova && Array.isArray(trendInsightsStore) && trendInsightsStore.length > 0) {
+    const latestInsights = trendInsightsStore[trendInsightsStore.length - 1];
+    const insightsAge = Date.now() - new Date(latestInsights.timestamp || latestInsights.analysisDate || 0).getTime();
+    if (insightsAge < TREND_RADAR_MAX_AGE_DAYS * 24 * 60 * 60 * 1000 && Array.isArray(latestInsights.insights)) {
+      const highPriority = latestInsights.insights
+        .filter(function (i) { return i.significance === 'high'; })
+        .slice(0, 4);
+      if (highPriority.length > 0) {
+        const lines = highPriority.map(function (i) {
+          return '- ' + i.trendName + ' [high significance] — ' + (i.interpretation || '').substring(0, 120)
+            + '\n  → Recommended action: ' + (i.actionRecommendation || 'investigate further');
+        }).join('\n');
+        novaTrendSection = `\n\nTREND INTELLIGENCE (Scout — ${latestInsights.timestamp || latestInsights.analysisDate}):
+${latestInsights.summary ? 'Summary: ' + latestInsights.summary.substring(0, 200) + '\n' : ''}
+High-significance trends flagged by Scout:
+${lines}
+
+TREND ACTION: Review the active campaigns. For each high-significance trend above that does NOT already have a matching active campaign or objective, consider creating a campaign or delegating a research/content task to capture the opportunity. Do NOT create duplicate campaigns for trends already covered.`;
+      }
+    }
+  }
+
+  // Trend Insights — Scribe: top trends as content context for blog/social work
+  let scribeTrendSection = '';
+  if (agent === AGENT_ROLES.scribe && Array.isArray(trendInsightsStore) && trendInsightsStore.length > 0) {
+    const latestInsights = trendInsightsStore[trendInsightsStore.length - 1];
+    const insightsAge = Date.now() - new Date(latestInsights.timestamp || latestInsights.analysisDate || 0).getTime();
+    if (insightsAge < TREND_RADAR_MAX_AGE_DAYS * 24 * 60 * 60 * 1000 && Array.isArray(latestInsights.insights)) {
+      const hasContentTask = agentTasks.some(function (t) {
+        return /blog_post|social_|marketing_post|article/.test(t.taskType || '') && t.status !== 'done';
+      });
+      if (hasContentTask) {
+        const topTrends = latestInsights.insights
+          .filter(function (i) { return i.significance === 'high' || i.significance === 'medium'; })
+          .sort(function (a, b) { var o = { high: 0, medium: 1, low: 2 }; return (o[a.significance] || 2) - (o[b.significance] || 2); })
+          .slice(0, 3);
+        if (topTrends.length > 0) {
+          const lines = topTrends.map(function (i) {
+            return '- ' + i.trendName + ' [' + i.significance + '] — ' + (i.interpretation || '').substring(0, 100);
+          }).join('\n');
+          scribeTrendSection = `\n\nCURRENT TREND CONTEXT (Scout's Radar — use to make content more topical):
+${lines}
+
+Where relevant to your content tasks, weave in references to these trends to increase timeliness and search relevance. Do not force it — only use if naturally relevant to the topic at hand.`;
+        }
+      }
+    }
+  }
+
   // CEO workspace context: high-priority memories + upcoming critical dates (token-capped)
   const MAX_WORKSPACE_CHARS = 1000;
   let workspaceSection = '';
@@ -668,7 +719,7 @@ ${otherTasks}
 
 TASKS AWAITING REVIEW (from other agents — you can review these):
 ${reviewableTasks}${_reviewUrgencyNudge}
-${triageSection}${workerIntelSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${workspaceSection}${costSection}${revisionSection}${ceoEditSection}${socialIntelSection}
+${triageSection}${workerIntelSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${novaTrendSection}${scribeTrendSection}${workspaceSection}${costSection}${revisionSection}${ceoEditSection}${socialIntelSection}
 ${buildSiteContextBlock()}
 CURRENT TIME: ${new Date().toISOString()}
 

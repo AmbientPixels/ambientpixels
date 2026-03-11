@@ -26,7 +26,7 @@ const { normalizeAgentResult, _normalizeEnvelope, _normalizeProposal, _isValidPr
 const { buildHeartbeatPrompt } = require('./prompt-builders');
 const { executeTask, reviewTask } = require('./execution-engine');
 
-async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, normalizedActivationMode, isAgentInCooldown, logAgentCooldownOnce, incPolicyGate, campaignCtx, siteIntel, workerReports, _agentMemoryStore, trendRadarStore) {
+async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, normalizedActivationMode, isAgentInCooldown, logAgentCooldownOnce, incPolicyGate, campaignCtx, siteIntel, workerReports, _agentMemoryStore, trendRadarStore, trendInsightsStore) {
   const _agentRunStartMs = Date.now();
   // Per-day memory write counter (moved from index.js during refactor)
   const _memoryWriteCounters = {};
@@ -89,7 +89,7 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
   // Only show this agent their own revision-requested actions
   const agentRevisions = (revisionActions || []).filter(a => a.created_by === agentId || a.origin_agent === agentId);
 
-  const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, configs, trendRadarStore);
+  const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, configs, trendRadarStore, trendInsightsStore);
 
   // Call Gemini
   const response = await callGemini(prompt, agentId);
