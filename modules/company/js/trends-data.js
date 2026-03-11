@@ -6,9 +6,13 @@
 (function () {
   'use strict';
 
-  var GEMINI_ENDPOINT = '/api/geminiproxy';
-  var STATE_ENDPOINT = '/api/company-state';
-  var INGEST_ENDPOINT = '/api/company-trend-ingest-trigger';
+  // SWA proxy doesn't reliably forward API calls — use Function App directly on production
+  var API_BASE = window.location.hostname.indexOf('ambientpixels.ai') !== -1
+    ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+    : '/api';
+  var GEMINI_ENDPOINT = API_BASE + '/geminiproxy';
+  var STATE_ENDPOINT = API_BASE + '/company-state';
+  var INGEST_ENDPOINT = API_BASE + '/company-trend-ingest-trigger';
   var TIMEOUT_MS = 45000;
 
   /* ── Constants ── */
