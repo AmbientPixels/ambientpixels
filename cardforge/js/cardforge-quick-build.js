@@ -7,11 +7,11 @@
   'use strict';
 
   const CLASSES = [
-    { id: 'Fighter',  label: 'Fighter',  icon: 'fa-hand-fist',        playstyle: 'Brawler',    desc: 'High physical damage and raw strength. Best stat: STR.' },
-    { id: 'Caster',   label: 'Caster',   icon: 'fa-wand-magic-sparkles', playstyle: 'Spellcaster', desc: 'Powerful magic attacks fueled by intelligence. Best stat: INT.' },
-    { id: 'Rogue',    label: 'Rogue',    icon: 'fa-user-ninja',       playstyle: 'Speedster',  desc: 'Fast precision strikes and agility-based damage. Best stat: AGI.' },
-    { id: 'Guardian', label: 'Guardian', icon: 'fa-shield-halved',    playstyle: 'Tank',       desc: 'Absorbs punishment and outlasts opponents. Best stat: END.' },
-    { id: 'Trickster',label: 'Trickster',icon: 'fa-dice',             playstyle: 'Wild Card',  desc: 'Unpredictable luck-based abilities with surprise effects. Best stat: LCK.' }
+    { id: 'Fighter',  label: 'Fighter',  icon: 'fa-hand-fist',        playstyle: 'Brawler',    desc: 'Highest strike damage in the arena. Power Strike hits 1.4× and triggers Last Stand (+10 dmg) when low on HP.' },
+    { id: 'Caster',   label: 'Caster',   icon: 'fa-wand-magic-sparkles', playstyle: 'Spellcaster', desc: 'Arcane Blast applies Vulnerable (+15% dmg taken). High INT + LCK combo unlocks powerful Wild Card crits.' },
+    { id: 'Rogue',    label: 'Rogue',    icon: 'fa-user-ninja',       playstyle: 'Speedster',  desc: 'Shadow Strike always attacks first and crits apply Blind (40% miss). AGI 50+ charges abilities 50% faster.' },
+    { id: 'Guardian', label: 'Guardian', icon: 'fa-shield-halved',    playstyle: 'Tank',       desc: 'Largest HP pool — END is 80% of max HP. Fortify heals and grants -20% damage taken for a full round.' },
+    { id: 'Trickster',label: 'Trickster',icon: 'fa-dice',             playstyle: 'Wild Card',  desc: 'Wild Card ability uses random stats — 25% chance to crit for 2× damage, but 10% chance to fizzle entirely.' }
   ];
 
   const STAT_BUDGET = 300;
@@ -196,7 +196,7 @@
     };
 
     return `
-      <p class="qb-panel-desc">Pick your class, then allocate stats for combat.</p>
+      <p class="qb-panel-desc">Your class determines combat abilities and stat bonuses in the Arena.</p>
       <div class="qb-class-grid">
         ${CLASSES.map(c => `
           <div class="qb-class-card ${_state.cardClass === c.id ? 'selected' : ''}" data-class-id="${c.id}">
@@ -204,6 +204,7 @@
             <span class="qb-class-label">${c.label}</span>
             <span class="qb-class-playstyle">${c.playstyle}</span>
             ${classSummary(c.id)}
+            <span class="qb-class-desc">${c.desc}</span>
           </div>
         `).join('')}
       </div>
@@ -378,6 +379,7 @@
 
     const canAdvance = _state.step === 0 ? !!_state.vibe
                      : _state.step === 1 ? !!_state.cardClass
+                     : _state.step === 2 ? !!_state.artworkUrl
                      : true;
     return `<button class="qb-nav-btn qb-nav-btn--next" id="qb-next" ${canAdvance ? '' : 'disabled'}>Next <i class="fas fa-arrow-right"></i></button>`;
   }
@@ -523,6 +525,8 @@
     if (urlInput) {
       urlInput.addEventListener('input', () => {
         _state.artworkUrl = urlInput.value.trim();
+        const nextBtn = document.getElementById('qb-next');
+        if (nextBtn) nextBtn.disabled = !_state.artworkUrl;
       });
       urlInput.addEventListener('change', () => _render());
     }
@@ -552,6 +556,9 @@
           container.querySelectorAll('.qb-gallery-img').forEach(i => i.classList.remove('selected'));
           img.classList.add('selected');
           _state.artworkUrl = img.dataset.url;
+          // Enable Next button now that an image is selected
+          const nextBtn = document.getElementById('qb-next');
+          if (nextBtn) nextBtn.disabled = false;
         });
       });
     };
