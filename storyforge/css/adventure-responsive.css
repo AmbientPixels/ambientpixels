@@ -261,10 +261,12 @@
   transform: translateX(4px);
 }
 
-/* Hide handle/mini on desktop (injected by JS, hide via CSS) */
-.adv-sidebar__handle,
-.adv-sidebar__mini {
-  display: none;
+/* Hide handle/mini on desktop only (injected by JS for mobile bottom sheet) */
+@media (min-width: 901px) {
+  .adv-sidebar__handle,
+  .adv-sidebar__mini {
+    display: none;
+  }
 }
 
 /* --- Reduced Motion --- */
