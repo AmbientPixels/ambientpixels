@@ -484,6 +484,40 @@
       ageEl.textContent = '— ' + d.toLocaleString();
     }
 
+    // Build Nova action index: trendName words → matching campaigns/tasks
+    var novaIndex = {};
+    if (typeof AgentEngine !== 'undefined') {
+      var trendsCampaigns = [];
+      var trendsTasks = [];
+      try {
+        trendsCampaigns = (AgentEngine.getCampaigns() || []).filter(function (c) {
+          return c.provenance === 'trends_radar' && !c.deletedAt;
+        });
+        trendsTasks = (AgentEngine.getTasks() || []).filter(function (t) {
+          return Array.isArray(t.tags) && t.tags.indexOf('trends-radar') !== -1 && t.status !== 'done';
+        });
+      } catch (_e) {}
+
+      data.insights.forEach(function (ins) {
+        var words = (ins.trendName || '').toLowerCase().split(/\s+/).filter(function (w) { return w.length >= 4; });
+        if (!words.length) return;
+        var matches = [];
+        trendsCampaigns.forEach(function (c) {
+          var title = (c.title || '').toLowerCase();
+          if (words.some(function (w) { return title.indexOf(w) !== -1; })) {
+            matches.push({ kind: 'campaign', title: c.title });
+          }
+        });
+        trendsTasks.forEach(function (t) {
+          var title = (t.title || '').toLowerCase();
+          if (words.some(function (w) { return title.indexOf(w) !== -1; })) {
+            matches.push({ kind: t.tags.indexOf('auto-brief') !== -1 ? 'auto-brief' : 'task', title: t.title });
+          }
+        });
+        if (matches.length) novaIndex[ins.trendName] = matches[0]; // show top match only
+      });
+    }
+
     // Show only high + medium significance, capped at 6
     var topInsights = data.insights
       .filter(function (i) { return i.significance === 'high' || i.significance === 'medium'; })
@@ -500,6 +534,14 @@
     var insightsHtml = '<div class="tr-scout-insights">'
       + topInsights.map(function (ins) {
           var sig = ins.significance || 'low';
+          var novaMatch = novaIndex[ins.trendName];
+          var novaHtml = novaMatch
+            ? '<div class="tr-scout-nova-action">'
+              + '<i class="fas fa-robot"></i>'
+              + (novaMatch.kind === 'campaign' ? 'Campaign: ' : novaMatch.kind === 'auto-brief' ? 'Auto-brief: ' : 'Task: ')
+              + esc(novaMatch.title.substring(0, 55)) + (novaMatch.title.length > 55 ? '…' : '')
+              + '</div>'
+            : '';
           return '<div class="tr-scout-insight tr-scout-insight--' + sig + '">'
             + '<div class="tr-scout-insight-name">' + esc(ins.trendName) + '</div>'
             + '<div class="tr-scout-insight-sig tr-scout-insight-sig--' + sig + '">' + sig + ' significance</div>'
@@ -507,6 +549,7 @@
             + (ins.actionRecommendation
                 ? '<div class="tr-scout-insight-action"><i class="fas fa-arrow-right"></i>' + esc(ins.actionRecommendation) + '</div>'
                 : '')
+            + novaHtml
             + '</div>';
         }).join('')
       + '</div>';

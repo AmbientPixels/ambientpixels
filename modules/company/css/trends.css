@@ -690,6 +690,25 @@
   margin-right: 0.25rem;
   opacity: 0.5;
 }
+.tr-scout-nova-action {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.55rem;
+  color: #a78bfa;
+  opacity: 0.8;
+  margin-top: 0.35rem;
+  padding: 0.18rem 0.4rem;
+  background: rgba(167,139,250,0.08);
+  border: 1px solid rgba(167,139,250,0.2);
+  border-radius: 4px;
+  line-height: 1.3;
+}
+.tr-scout-nova-action i {
+  font-size: 0.5rem;
+  opacity: 0.6;
+  flex-shrink: 0;
+}
 
 /* ── Future Note ── */
 .tr-future-note {
