@@ -37,4 +37,30 @@
 .board-view .board-content-pill { flex:1; min-width:80px; text-align:center; padding:0.5rem; border:1px solid rgba(255,255,255,0.05); border-radius:8px; background:rgba(255,255,255,0.015); }
 .board-view .board-content-pill-val { font-size:1.1rem; font-weight:700; }
 .board-view .board-content-pill-label { font-size:0.5rem; opacity:0.4; margin-top:0.1rem; }
+/* Consistent card heights */
+.board-view .board-stat { min-height: 70px; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.board-view .board-goal-card { min-height: 60px; }
+
 @media (max-width:700px) { .board-view .board-two-col { grid-template-columns:1fr; } }
+
+/* ── Print Styles ── */
+@media print {
+  body { background: #fff !important; color: #111 !important; }
+  .board-view .board-header { page-break-after: avoid; }
+  .board-view .board-controls { display: none !important; }
+  .board-view .board-copy-btn { display: none !important; }
+  .board-view .board-section { page-break-inside: avoid; }
+  .board-view .board-card,
+  .board-view .board-stat,
+  .board-view .board-goal-card,
+  .board-view .board-dir-card,
+  .board-view .board-agent-card,
+  .board-view .board-cost-item,
+  .board-view .board-content-pill {
+    border-color: #ddd !important;
+    background: #fafafa !important;
+  }
+  .board-view .board-section-title { color: #333 !important; }
+  .board-view .board-stat-val { color: #111 !important; }
+  .board-view .board-stat-label { color: #666 !important; }
+}

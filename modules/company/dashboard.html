@@ -223,7 +223,27 @@
     <!-- ════════════════════════════════════════ -->
     <div id="view-ceo">
 
-      <!-- CEO: Stat Cards -->
+      <!-- CEO: Status Strip (Zone 1) -->
+      <div class="ceo-status-strip" id="ceo-status-strip">
+        <div class="ceo-obs-light">
+          <div class="ceo-obs-light-dot ceo-obs-light-dot--unknown" id="ceo-strip-dot-hb"></div>
+          <div class="ceo-obs-light-label">Heartbeat</div>
+          <div class="ceo-obs-light-value" id="ceo-strip-val-hb">—</div>
+        </div>
+        <div class="ceo-obs-light">
+          <div class="ceo-obs-light-dot ceo-obs-light-dot--unknown" id="ceo-strip-dot-api"></div>
+          <div class="ceo-obs-light-label">API</div>
+          <div class="ceo-obs-light-value" id="ceo-strip-val-api">—</div>
+        </div>
+        <div class="ceo-obs-light">
+          <div class="ceo-obs-light-dot ceo-obs-light-dot--unknown" id="ceo-strip-dot-deploy"></div>
+          <div class="ceo-obs-light-label">Deploy</div>
+          <div class="ceo-obs-light-value" id="ceo-strip-val-deploy">—</div>
+        </div>
+        <div id="ceo-strip-alert-row"></div>
+      </div>
+
+      <!-- CEO: Stat Cards (Zone 2) -->
       <div class="ceo-stats" id="ceo-stats" style="margin-bottom:1rem;">
         <div class="ceo-stat" style="--cstat-color:#ef4444;">
           <div class="ceo-stat-label">Needs Action</div>
@@ -252,8 +272,11 @@
         </div>
       </div>
 
+      <!-- CEO: Main Area (Zone 3 — Command Center + Team Roster) -->
+      <div class="ceo-main-split">
+
       <!-- Command Center (Tabbed) -->
-      <div class="dash-panel dash-panel--full" style="border:1px solid rgba(255,215,0,0.12); background:linear-gradient(135deg, rgba(255,215,0,0.03) 0%, rgba(138,43,226,0.03) 100%); margin-bottom:1rem;">
+      <div class="dash-panel dash-panel--full" style="border:1px solid rgba(255,215,0,0.12); background:linear-gradient(135deg, rgba(255,215,0,0.03) 0%, rgba(138,43,226,0.03) 100%); margin-bottom:0;">
         <div class="dash-panel-header" style="border-bottom:none; margin-bottom:0; padding-bottom:0;">
           <span class="dash-panel-title"><i class="fas fa-satellite-dish" style="color:#FFD700;"></i> Command Center</span>
           <span class="dash-panel-badge" id="inbox-total-badge" style="background:rgba(255,215,0,0.1); color:#FFD700;">0 items</span>
@@ -299,14 +322,28 @@
         </div>
       </div>
 
-      <!-- CEO: Growth (Traffic + Social) -->
-      <div class="dash-section" id="section-growth" data-section="growth">
+      <!-- Team Roster (right side of main split) -->
+      <div class="dash-panel ceo-team-panel" style="border:1px solid rgba(78,205,196,0.12); background:rgba(78,205,196,0.02); margin-bottom:0; overflow-y:auto; max-height:400px;">
+        <div class="dash-panel-header" style="margin-bottom:0.4rem; padding-bottom:0.4rem;">
+          <span class="dash-panel-title"><i class="fas fa-users" style="color:#4ECDC4;"></i> Team</span>
+        </div>
+        <div class="agent-grid ceo-agent-grid-compact" id="ceo-agent-grid"></div>
+      </div>
+
+      </div><!-- /.ceo-main-split -->
+
+      <!-- CEO: Insights (Zone 5 — Growth + Cost + Content merged) -->
+      <div class="dash-section" id="section-insights" data-section="insights">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-chart-area" style="color:#38bdf8;"></i>
-          <h2>Growth</h2>
+          <i class="fas fa-chart-pie" style="color:#a78bfa;"></i>
+          <h2>Insights</h2>
           <i class="fas fa-chevron-down dash-section-chevron"></i>
         </div>
         <div class="dash-section-body">
+          <div class="ceo-insights-grid">
+
+      <!-- Growth (Traffic + Social) -->
+      <div class="ceo-insights-panel" id="insights-growth">
 
           <!-- Growth Headline Stats -->
           <div class="ceo-stats growth-stats" id="growth-stats">
@@ -361,23 +398,36 @@
               <div class="dash-empty">Loading social data...</div>
             </div>
           </div>
+      </div><!-- /.ceo-insights-panel (growth) -->
 
-        </div>
-      </div>
+      <!-- Cost Summary -->
+      <div class="ceo-insights-panel" id="insights-cost">
+          <div id="ceo-cost-summary-mirror" style="padding:0.5rem 0.6rem;">
+            <div class="dash-empty" style="font-size:0.6rem;">Loading cost summary...</div>
+          </div>
+          <div style="text-align:right; margin-top:0.3rem;">
+            <a href="/modules/company/cost-overview.html" style="font-size:0.62rem; color:#fbbf24; opacity:0.6; text-decoration:none;">
+              Full Cost Center <i class="fas fa-arrow-right" style="margin-left:3px;"></i>
+            </a>
+          </div>
+      </div><!-- /.ceo-insights-panel (cost) -->
 
-      <!-- CEO: Agent Grid -->
-      <div class="dash-section" id="section-agent-grid" data-section="agent-grid">
-        <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-users" style="color:#4ECDC4;"></i>
-          <h2>Team</h2>
-          <i class="fas fa-chevron-down dash-section-chevron"></i>
-        </div>
-        <div class="dash-section-body">
-          <div class="agent-grid" id="ceo-agent-grid"></div>
-        </div>
-      </div>
+      <!-- Content Pipeline -->
+      <div class="ceo-insights-panel" id="insights-content">
+          <div id="ceo-content-mirror" style="font-size:0.7rem; opacity:0.6;">
+            <span id="ceo-content-blog-count">0</span> blog posts · <span id="ceo-content-log-count">0</span> daily logs
+            <div style="margin-top:0.3rem; display:flex; gap:0.8rem;">
+              <a href="/blog/" target="_blank" style="font-size:0.6rem; color:#a78bfa; opacity:0.7; text-decoration:none;">Public Blog →</a>
+              <a href="/log/" target="_blank" style="font-size:0.6rem; color:#34d399; opacity:0.7; text-decoration:none;">Public Log →</a>
+            </div>
+          </div>
+      </div><!-- /.ceo-insights-panel (content) -->
 
-      <!-- CEO: Decisions Section -->
+          </div><!-- /.ceo-insights-grid -->
+        </div><!-- /.dash-section-body -->
+      </div><!-- /.dash-section (insights) -->
+
+      <!-- CEO: Decisions Section (Zone 4) -->
       <div class="dash-section" id="section-decisions" data-section="decisions">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
           <i class="fas fa-gavel" style="color:#FFD700;"></i>
@@ -428,8 +478,8 @@
         </div>
       </div>
 
-      <!-- CEO: Metrics Section -->
-      <div class="dash-section" id="section-metrics" data-section="metrics">
+      <!-- CEO: Metrics Section (hidden in CEO — moved to Dev view) -->
+      <div class="dash-section" id="section-metrics" data-section="metrics" style="display:none;">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
           <i class="fas fa-chart-line" style="color:#4ECDC4;"></i>
           <h2>Metrics</h2>
@@ -490,8 +540,8 @@
         </div>
       </div>
 
-      <!-- CEO: Cost Center Section -->
-      <div class="dash-section" id="section-costs" data-section="costs">
+      <!-- CEO: Cost Center Section (hidden — data mirrored to Insights) -->
+      <div class="dash-section" id="section-costs" data-section="costs" style="display:none;">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
           <i class="fas fa-dollar-sign" style="color:#fbbf24;"></i>
           <h2>Cost Center</h2>
@@ -519,8 +569,8 @@
         </div>
       </div>
 
-      <!-- CEO: Observability (simplified) -->
-      <div class="dash-section" id="obs-section" data-section="observability">
+      <!-- CEO: Observability (hidden — status strip at top) -->
+      <div class="dash-section" id="obs-section" data-section="observability" style="display:none;">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
           <i class="fas fa-binoculars" style="color:#60a5fa;"></i>
           <h2>System Health</h2>
@@ -554,8 +604,8 @@
         </div>
       </div>
 
-      <!-- CEO: Content Section -->
-      <div class="dash-section" id="section-content" data-section="content">
+      <!-- CEO: Content Section (hidden — data mirrored to Insights) -->
+      <div class="dash-section" id="section-content" data-section="content" style="display:none;">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
           <i class="fas fa-newspaper" style="color:#a78bfa;"></i>
           <h2>Content</h2>
@@ -585,8 +635,8 @@
         </div>
       </div>
 
-      <!-- CEO: Organization -->
-      <div class="dash-section collapsed" id="section-org-chart" data-section="org-chart">
+      <!-- CEO: Organization (hidden — moved to Board view) -->
+      <div class="dash-section collapsed" id="section-org-chart" data-section="org-chart" style="display:none;">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="false">
           <i class="fas fa-sitemap" style="color:#c084fc;"></i>
           <h2>Organization</h2>
@@ -597,8 +647,8 @@
         </div>
       </div>
 
-      <!-- CEO: Executive Plan -->
-      <div class="dash-section collapsed" id="section-exec-plan" data-section="exec-plan">
+      <!-- CEO: Executive Plan (hidden — moved to Board view) -->
+      <div class="dash-section collapsed" id="section-exec-plan" data-section="exec-plan" style="display:none;">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="false">
           <i class="fas fa-route" style="color:#a855f7;"></i>
           <h2>Executive Plan</h2>
@@ -803,6 +853,50 @@
           </div>
         </div>
       </div>
+
+      <!-- Dev: Metrics (moved from CEO view) -->
+      <div class="dash-section" id="section-metrics-dev" data-section="metrics-dev">
+        <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
+          <i class="fas fa-chart-line" style="color:#4ECDC4;"></i>
+          <h2>Metrics</h2>
+          <i class="fas fa-chevron-down dash-section-chevron"></i>
+        </div>
+        <div class="dash-section-body">
+          <div class="dash-grid">
+            <!-- System Pulse (mirrored from CEO) -->
+            <div class="dash-panel dash-panel--full" style="min-height:auto;">
+              <div class="dash-panel-header">
+                <span class="dash-panel-title"><i class="fas fa-wave-square" style="color:#4ECDC4;"></i> System Pulse</span>
+              </div>
+              <div id="panel-system-pulse-dev" class="system-pulse"></div>
+            </div>
+            <!-- Autonomy Score (mirrored) -->
+            <div class="dash-panel">
+              <div class="dash-panel-header">
+                <span class="dash-panel-title"><i class="fas fa-robot" style="color:#34d399;"></i> Autonomy Score</span>
+              </div>
+              <div id="panel-autonomy-dev" style="padding:0.5rem; text-align:center;"></div>
+            </div>
+            <!-- Risk Heatmap (mirrored) -->
+            <div class="dash-panel">
+              <div class="dash-panel-header">
+                <span class="dash-panel-title"><i class="fas fa-fire" style="color:#ef4444;"></i> Risk Heatmap</span>
+              </div>
+              <div id="panel-risk-heatmap-dev" style="padding:0.5rem;"></div>
+            </div>
+            <!-- Actions Snapshot (mirrored) -->
+            <div class="dash-panel dash-panel--full">
+              <div class="dash-panel-header">
+                <span class="dash-panel-title"><i class="fas fa-bolt" style="color:#FFA500;"></i> Actions</span>
+                <a href="/modules/company/actions.html" style="font-size:0.65rem; opacity:0.4; text-decoration:none;">Command Center →</a>
+              </div>
+              <div id="panel-action-snap-dev" style="padding:0.3rem 0.5rem;">
+                <div class="dash-empty">No actions yet.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- ════════════════════════════════════════ -->
@@ -830,14 +924,14 @@
           </div>
         </div>
 
-        <!-- 1. Headline Stats -->
-        <div class="board-stat-row" id="board-headline-stats"></div>
-
-        <!-- 2. Executive Summary -->
+        <!-- 1. Executive Summary (moved above stats — narrative first) -->
         <div class="board-section" id="sec-exec">
           <div class="board-section-title"><i class="fas fa-briefcase" style="color:#FFD700;"></i> Executive Summary</div>
           <div class="board-card" id="board-exec-summary" style="font-size:0.8rem; line-height:1.5; border-color:rgba(255,215,0,0.1); background:rgba(255,215,0,0.02);"></div>
         </div>
+
+        <!-- 2. Headline Stats -->
+        <div class="board-stat-row" id="board-headline-stats"></div>
 
         <!-- 3. Goals -->
         <div class="board-section" id="sec-goals">
@@ -905,6 +999,18 @@
         <div class="board-section" id="sec-throughput">
           <div class="board-section-title"><i class="fas fa-tachometer-alt" style="color:#34d399;"></i> Delivery / Throughput</div>
           <div class="board-stat-row" id="board-throughput"></div>
+        </div>
+
+        <!-- 11. Organization (moved from CEO view) -->
+        <div class="board-section" id="sec-org">
+          <div class="board-section-title"><i class="fas fa-sitemap" style="color:#c084fc;"></i> Organization</div>
+          <div id="board-org-chart" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:0.5rem;"></div>
+        </div>
+
+        <!-- 12. Executive Plan (moved from CEO view) -->
+        <div class="board-section" id="sec-exec-plan">
+          <div class="board-section-title"><i class="fas fa-route" style="color:#a855f7;"></i> Executive Plan</div>
+          <div id="board-exec-plan" class="board-card" style="font-size:0.75rem; line-height:1.5;"></div>
         </div>
 
       </section>
@@ -1230,6 +1336,20 @@
       });
 
       // Sync social pulse content from hidden CEO panels → DEV panels
+      function syncMetricsToDev() {
+        var pairs = [
+          ['panel-system-pulse', 'panel-system-pulse-dev'],
+          ['panel-autonomy', 'panel-autonomy-dev'],
+          ['panel-risk-heatmap', 'panel-risk-heatmap-dev'],
+          ['panel-action-snap', 'panel-action-snap-dev']
+        ];
+        pairs.forEach(function (p) {
+          var src = document.getElementById(p[0]);
+          var dst = document.getElementById(p[1]);
+          if (src && dst && src.innerHTML) dst.innerHTML = src.innerHTML;
+        });
+      }
+
       function syncSocialToDev() {
         var src1 = document.getElementById('panel-social-pulse');
         var dst1 = document.getElementById('panel-social-pulse-dev');
@@ -1245,6 +1365,11 @@
       // Run sync after social scripts have had time to load
       setTimeout(syncSocialToDev, 3000);
       setTimeout(syncSocialToDev, 8000);
+      setTimeout(syncMetricsToDev, 3000);
+      setTimeout(syncMetricsToDev, 8000);
+      // Delayed strip sync (obs health is async — re-mirror after fetch completes)
+      setTimeout(function () { try { renderCeoStatusStrip(); renderCeoInsightsMirrors(); syncMetricsToDev(); } catch(e){} }, 4000);
+      setTimeout(function () { try { renderCeoStatusStrip(); renderCeoInsightsMirrors(); syncMetricsToDev(); } catch(e){} }, 10000);
 
       // Re-render after CompanyStore server sync
       var _storeReady = false;
@@ -1254,6 +1379,7 @@
         updateStoreModeBadge();
         loadExecMode();
         setTimeout(syncSocialToDev, 2000);
+        setTimeout(syncMetricsToDev, 2000);
       });
       setTimeout(function () {
         if (!_storeReady) {
@@ -1280,7 +1406,7 @@
          renderActionSnap, renderGeminiCosts, renderAzureCosts, renderXCosts, renderCostSummary,
          renderDailyLogDrafts, renderBlogAdmin, renderGovernanceLog, renderGovernanceLogDev,
          renderMeetingsWidget, updateActionBadge, renderOrgChart, renderExecPlan,
-         renderInboundKpi, updateModeIndicator].forEach(function(fn) {
+         renderInboundKpi, updateModeIndicator, renderCeoStatusStrip, renderCeoInsightsMirrors].forEach(function(fn) {
           try { fn(); } catch(e) { console.warn('[Dashboard] ' + (fn.name||'anon') + ' error:', e); }
         });
       }
@@ -1834,6 +1960,75 @@
           alertRow.innerHTML = '<div class="ceo-obs-alert"><i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i>API unreachable — cannot fetch health data</div>';
         });
       }
+
+      // ── CEO Status Strip (mirrors obs health to top strip) ──
+      function renderCeoStatusStrip() {
+        var pairs = [
+          ['ceo-obs-dot-hb', 'ceo-strip-dot-hb', 'ceo-obs-val-hb', 'ceo-strip-val-hb'],
+          ['ceo-obs-dot-api', 'ceo-strip-dot-api', 'ceo-obs-val-api', 'ceo-strip-val-api'],
+          ['ceo-obs-dot-deploy', 'ceo-strip-dot-deploy', 'ceo-obs-val-deploy', 'ceo-strip-val-deploy']
+        ];
+        pairs.forEach(function (p) {
+          var srcDot = document.getElementById(p[0]);
+          var dstDot = document.getElementById(p[1]);
+          var srcVal = document.getElementById(p[2]);
+          var dstVal = document.getElementById(p[3]);
+          if (srcDot && dstDot) dstDot.className = srcDot.className;
+          if (srcVal && dstVal) dstVal.textContent = srcVal.textContent;
+        });
+        var srcAlert = document.getElementById('ceo-obs-alert-row');
+        var dstAlert = document.getElementById('ceo-strip-alert-row');
+        if (srcAlert && dstAlert) dstAlert.innerHTML = srcAlert.innerHTML;
+      }
+
+      // ── CEO Insights Mirrors (sync cost + content data) ──
+      function renderCeoInsightsMirrors() {
+        // Mirror cost summary
+        var srcCost = document.getElementById('panel-cost-summary');
+        var dstCost = document.getElementById('ceo-cost-summary-mirror');
+        if (srcCost && dstCost && srcCost.innerHTML) {
+          dstCost.innerHTML = srcCost.innerHTML;
+        }
+        // Mirror content counts
+        var blogCount = 0;
+        var logCount = 0;
+        try {
+          var blogPosts = AgentEngine.getBlogPosts ? AgentEngine.getBlogPosts() : [];
+          blogCount = Array.isArray(blogPosts) ? blogPosts.length : 0;
+        } catch(e) {}
+        try {
+          var dailyLogs = AgentEngine.getDailyLogs ? AgentEngine.getDailyLogs() : [];
+          logCount = Array.isArray(dailyLogs) ? dailyLogs.length : 0;
+        } catch(e) {}
+        var bc = document.getElementById('ceo-content-blog-count');
+        var lc = document.getElementById('ceo-content-log-count');
+        if (bc) bc.textContent = blogCount;
+        if (lc) lc.textContent = logCount;
+      }
+
+      // ── CEO Stat Card Click Handlers ──
+      (function () {
+        var stats = document.querySelectorAll('#ceo-stats .ceo-stat');
+        var targets = [
+          '#section-decisions',                          // Needs Action → scroll to decisions
+          '/modules/company/diagnostics.html',           // Autonomy → diagnostics
+          '/modules/company/cost-overview.html',         // Daily Burn → cost page
+          '/modules/company/work-overview.html',         // Pipeline → work overview
+          '/modules/company/inbound.html'                // Inbound → inbound page
+        ];
+        stats.forEach(function (card, i) {
+          card.style.cursor = 'pointer';
+          card.addEventListener('click', function () {
+            var t = targets[i];
+            if (t.charAt(0) === '#') {
+              var el = document.querySelector(t);
+              if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+              window.location.href = t;
+            }
+          });
+        });
+      })();
 
       // ── CEO Morning Inbox ──
       function renderCeoInbox() {

@@ -1009,7 +1009,12 @@
   padding: 0.7rem 0.8rem;
   position: relative;
   overflow: hidden;
-  cursor: default;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s;
+}
+.ceo-stat:hover {
+  border-color: rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.035);
 }
 .ceo-stat::before {
   content: '';
@@ -1367,6 +1372,118 @@
 }
 
 /* Board View styles moved to board-view.css */
+
+/* ══════════════════════════════════════════════
+   Morning Briefing Layout — CEO View Zones
+   ══════════════════════════════════════════════ */
+
+/* Zone 1: Status Strip (always visible, compact) */
+.ceo-status-strip {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.5rem 0;
+  margin-bottom: 0.8rem;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  flex-wrap: wrap;
+}
+.ceo-status-strip .ceo-obs-light {
+  flex: 0 0 auto;
+  min-width: auto;
+  padding: 0.3rem 0.5rem;
+  font-size: 0.85em;
+}
+.ceo-status-strip #ceo-strip-alert-row {
+  flex-basis: 100%;
+}
+.ceo-status-strip #ceo-strip-alert-row:empty {
+  display: none;
+}
+
+/* Zone 3: Main Split (Command Center 60% + Team 40%) */
+.ceo-main-split {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  align-items: start;
+}
+.ceo-team-panel {
+  min-height: 200px;
+}
+/* Compact agent grid for team roster */
+.ceo-agent-grid-compact {
+  grid-template-columns: 1fr !important;
+  gap: 0.3rem !important;
+}
+.ceo-agent-grid-compact .agent-grid-card {
+  padding: 0.35rem 0.5rem;
+}
+.ceo-agent-grid-compact .agent-grid-meta {
+  display: none;
+}
+
+/* Reorder CEO view: Decisions (Zone 4) before Insights (Zone 5) */
+#view-ceo {
+  display: flex;
+  flex-direction: column;
+}
+#ceo-status-strip { order: 1; }
+#ceo-stats { order: 2; }
+.ceo-main-split { order: 3; }
+#section-decisions { order: 4; }
+#section-insights { order: 5; }
+/* Hidden sections pushed to end */
+#section-metrics,
+#section-costs,
+#obs-section,
+#section-content,
+#section-org-chart,
+#section-exec-plan { order: 99; }
+
+/* Zone 5: Insights Grid (2x2 panels) */
+.ceo-insights-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
+}
+.ceo-insights-panel {
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 10px;
+  padding: 0.8rem;
+}
+/* Growth panel spans full width */
+#insights-growth {
+  grid-column: 1 / -1;
+}
+
+/* ── Staggered Fade-Up Animation ── */
+@keyframes ceo-fade-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+#view-ceo > * {
+  animation: ceo-fade-up 0.4s ease both;
+}
+#ceo-status-strip { animation-delay: 0.05s; }
+#ceo-stats { animation-delay: 0.1s; }
+.ceo-main-split { animation-delay: 0.15s; }
+#section-decisions { animation-delay: 0.2s; }
+#section-insights { animation-delay: 0.25s; }
+
+/* ── Morning Briefing Responsive ── */
+@media (max-width: 768px) {
+  .ceo-main-split {
+    grid-template-columns: 1fr;
+  }
+  .ceo-insights-grid {
+    grid-template-columns: 1fr;
+  }
+  .ceo-agent-grid-compact {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
+  }
+}
 
 /* ── Mode Button in Sidebar ── */
 .sb-mode-btn { transition: color 0.15s; }
