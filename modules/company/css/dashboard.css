@@ -1400,22 +1400,21 @@
   display: none;
 }
 
-/* Zone 3: Main Split (Command Center 60% + Team 40%) */
+/* Zone 3: Main Area (Command Center + Team stacked full-width) */
 .ceo-main-split {
-  display: grid;
-  grid-template-columns: 3fr 2fr;
+  display: flex;
+  flex-direction: column;
   gap: 1rem;
   margin-bottom: 1rem;
-  align-items: start;
 }
 .ceo-team-panel {
-  min-height: 200px;
+  min-height: auto;
   max-height: none;
 }
-/* Compact agent grid for team roster */
+/* Compact agent grid — multi-column when full-width */
 .ceo-agent-grid-compact {
-  grid-template-columns: 1fr !important;
-  gap: 0.3rem !important;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)) !important;
+  gap: 0.4rem !important;
 }
 .ceo-agent-grid-compact .agent-grid-card {
   padding: 0.35rem 0.5rem;
@@ -1424,7 +1423,18 @@
   display: none;
 }
 
-/* Reorder CEO view: Decisions (Zone 4) before Insights (Zone 5) */
+/* Zone 3.5: Strategy Row (Goals + Projects side by side) */
+.ceo-strategy-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+.ceo-strategy-panel {
+  min-height: 80px;
+}
+
+/* Reorder CEO view zones */
 #view-ceo {
   display: flex;
   flex-direction: column;
@@ -1432,8 +1442,9 @@
 #ceo-status-strip { order: 1; }
 #ceo-stats { order: 2; }
 .ceo-main-split { order: 3; }
-#section-decisions { order: 4; }
-#section-insights { order: 5; }
+#ceo-strategy-row { order: 4; }
+#section-decisions { order: 5; }
+#section-insights { order: 6; }
 /* Hidden sections pushed to end */
 #section-metrics,
 #section-costs,
@@ -1470,19 +1481,23 @@
 #ceo-status-strip { animation-delay: 0.05s; }
 #ceo-stats { animation-delay: 0.1s; }
 .ceo-main-split { animation-delay: 0.15s; }
-#section-decisions { animation-delay: 0.2s; }
-#section-insights { animation-delay: 0.25s; }
+#ceo-strategy-row { animation-delay: 0.2s; }
+#section-decisions { animation-delay: 0.25s; }
+#section-insights { animation-delay: 0.3s; }
 
 /* ── Morning Briefing Responsive ── */
 @media (max-width: 768px) {
   .ceo-main-split {
     grid-template-columns: 1fr;
   }
+  .ceo-strategy-row {
+    grid-template-columns: 1fr;
+  }
   .ceo-insights-grid {
     grid-template-columns: 1fr;
   }
   .ceo-agent-grid-compact {
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)) !important;
+    grid-template-columns: 1fr 1fr !important;
   }
 }
 

@@ -332,6 +332,28 @@
 
       </div><!-- /.ceo-main-split -->
 
+      <!-- CEO: Strategy (Zone 3.5 — Goals + Projects side by side) -->
+      <div class="ceo-strategy-row" id="ceo-strategy-row">
+        <!-- Goals -->
+        <div class="dash-panel ceo-strategy-panel" style="border-color:rgba(78,205,196,0.12); background:rgba(78,205,196,0.02);">
+          <div class="dash-panel-header">
+            <span class="dash-panel-title"><i class="fas fa-bullseye" style="color:#4ECDC4;"></i> Goals</span>
+            <a href="/modules/company/objectives.html" style="font-size:0.65rem; opacity:0.4; text-decoration:none;">View All →</a>
+          </div>
+          <ul class="log-list" id="ceo-objectives-mirror"></ul>
+          <div class="dash-empty" id="ceo-objectives-mirror-empty">No active goals.</div>
+        </div>
+        <!-- Campaigns / Projects -->
+        <div class="dash-panel ceo-strategy-panel" style="border-color:rgba(255,165,0,0.12); background:rgba(255,165,0,0.02);">
+          <div class="dash-panel-header">
+            <span class="dash-panel-title"><i class="fas fa-flag" style="color:#FFA500;"></i> Projects</span>
+            <a href="/modules/company/campaigns.html" style="font-size:0.65rem; opacity:0.4; text-decoration:none;">View All →</a>
+          </div>
+          <ul class="log-list" id="ceo-campaigns-mirror"></ul>
+          <div class="dash-empty" id="ceo-campaigns-mirror-empty">No active projects.</div>
+        </div>
+      </div>
+
       <!-- CEO: Insights (Zone 5 — Growth + Cost + Content merged) -->
       <div class="dash-section" id="section-insights" data-section="insights">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
@@ -412,14 +434,17 @@
           </div>
       </div><!-- /.ceo-insights-panel (cost) -->
 
-      <!-- Content Pipeline -->
+      <!-- Content Pipeline (Blog + Logs) -->
       <div class="ceo-insights-panel" id="insights-content">
-          <div id="ceo-content-mirror" style="font-size:0.7rem; opacity:0.6;">
-            <span id="ceo-content-blog-count">0</span> blog posts · <span id="ceo-content-log-count">0</span> daily logs
-            <div style="margin-top:0.3rem; display:flex; gap:0.8rem;">
-              <a href="/blog/" target="_blank" style="font-size:0.6rem; color:#a78bfa; opacity:0.7; text-decoration:none;">Public Blog →</a>
-              <a href="/log/" target="_blank" style="font-size:0.6rem; color:#34d399; opacity:0.7; text-decoration:none;">Public Log →</a>
-            </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+            <span style="font-size:0.72rem; font-weight:600; opacity:0.7;"><i class="fas fa-newspaper" style="color:#a78bfa; margin-right:4px;"></i>Content Pipeline</span>
+            <span style="font-size:0.6rem; opacity:0.4;"><span id="ceo-content-blog-count">0</span> posts · <span id="ceo-content-log-count">0</span> logs</span>
+          </div>
+          <div id="ceo-blog-admin-mirror"></div>
+          <div class="dash-empty" id="ceo-blog-admin-mirror-empty" style="font-size:0.65rem;">No published blog posts.</div>
+          <div style="margin-top:0.4rem; display:flex; gap:0.8rem;">
+            <a href="/blog/" target="_blank" style="font-size:0.6rem; color:#a78bfa; opacity:0.7; text-decoration:none;">Public Blog →</a>
+            <a href="/log/" target="_blank" style="font-size:0.6rem; color:#34d399; opacity:0.7; text-decoration:none;">Public Log →</a>
           </div>
       </div><!-- /.ceo-insights-panel (content) -->
 
@@ -431,7 +456,7 @@
       <div class="dash-section" id="section-decisions" data-section="decisions">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
           <i class="fas fa-gavel" style="color:#FFD700;"></i>
-          <h2>Decisions</h2>
+          <h2>Approvals</h2>
           <i class="fas fa-chevron-down dash-section-chevron"></i>
         </div>
         <div class="dash-section-body">
@@ -456,21 +481,13 @@
                 <div class="dash-empty">No Facebook posts awaiting manual posting.</div>
               </div>
             </div>
-            <!-- Goals -->
-            <div class="dash-panel">
-              <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-bullseye" style="color:#4ECDC4;"></i> Goals</span>
-                <a href="/modules/company/objectives.html" style="font-size:0.65rem; opacity:0.4; text-decoration:none;">View All →</a>
-              </div>
+            <!-- Goals (render target — visible in Strategy row via mirror) -->
+            <div class="dash-panel" style="display:none;">
               <ul class="log-list" id="panel-objectives-snap"></ul>
               <div class="dash-empty" id="objectives-snap-empty">No active goals.</div>
             </div>
-            <!-- Campaigns -->
-            <div class="dash-panel">
-              <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-flag" style="color:#FFA500;"></i> Campaigns</span>
-                <a href="/modules/company/campaigns.html" style="font-size:0.65rem; opacity:0.4; text-decoration:none;">View All →</a>
-              </div>
+            <!-- Campaigns (render target — visible in Strategy row via mirror) -->
+            <div class="dash-panel" style="display:none;">
               <ul class="log-list" id="panel-campaigns-snap"></ul>
               <div class="dash-empty" id="campaigns-snap-empty">No active campaigns.</div>
             </div>
@@ -1368,8 +1385,8 @@
       setTimeout(syncMetricsToDev, 3000);
       setTimeout(syncMetricsToDev, 8000);
       // Delayed strip sync (obs health is async — re-mirror after fetch completes)
-      setTimeout(function () { try { renderCeoStatusStrip(); renderCeoInsightsMirrors(); syncMetricsToDev(); } catch(e){} }, 4000);
-      setTimeout(function () { try { renderCeoStatusStrip(); renderCeoInsightsMirrors(); syncMetricsToDev(); } catch(e){} }, 10000);
+      setTimeout(function () { try { renderCeoStatusStrip(); renderCeoInsightsMirrors(); renderCeoStrategy(); syncMetricsToDev(); } catch(e){} }, 4000);
+      setTimeout(function () { try { renderCeoStatusStrip(); renderCeoInsightsMirrors(); renderCeoStrategy(); syncMetricsToDev(); } catch(e){} }, 10000);
 
       // Re-render after CompanyStore server sync
       var _storeReady = false;
@@ -1406,7 +1423,7 @@
          renderActionSnap, renderGeminiCosts, renderAzureCosts, renderXCosts, renderCostSummary,
          renderDailyLogDrafts, renderBlogAdmin, renderGovernanceLog, renderGovernanceLogDev,
          renderMeetingsWidget, updateActionBadge, renderOrgChart, renderExecPlan,
-         renderInboundKpi, updateModeIndicator, renderCeoStatusStrip, renderCeoInsightsMirrors].forEach(function(fn) {
+         renderInboundKpi, updateModeIndicator, renderCeoStatusStrip, renderCeoInsightsMirrors, renderCeoStrategy].forEach(function(fn) {
           try { fn(); } catch(e) { console.warn('[Dashboard] ' + (fn.name||'anon') + ' error:', e); }
         });
       }
@@ -1989,6 +2006,19 @@
         if (srcCost && dstCost && srcCost.innerHTML) {
           dstCost.innerHTML = srcCost.innerHTML;
         }
+        // Mirror blog admin list
+        var srcBlog = document.getElementById('panel-blog-admin');
+        var dstBlog = document.getElementById('ceo-blog-admin-mirror');
+        var dstBlogEmpty = document.getElementById('ceo-blog-admin-mirror-empty');
+        if (srcBlog && dstBlog) {
+          if (srcBlog.innerHTML && srcBlog.innerHTML.trim()) {
+            dstBlog.innerHTML = srcBlog.innerHTML;
+            if (dstBlogEmpty) dstBlogEmpty.style.display = 'none';
+          } else {
+            dstBlog.innerHTML = '';
+            if (dstBlogEmpty) dstBlogEmpty.style.display = '';
+          }
+        }
         // Mirror content counts
         var blogCount = 0;
         var logCount = 0;
@@ -2004,6 +2034,30 @@
         var lc = document.getElementById('ceo-content-log-count');
         if (bc) bc.textContent = blogCount;
         if (lc) lc.textContent = logCount;
+      }
+
+      // ── CEO Strategy Row (Goals + Projects mirrors) ──
+      function renderCeoStrategy() {
+        // Mirror objectives
+        var srcObj = document.getElementById('panel-objectives-snap');
+        var srcObjEmpty = document.getElementById('objectives-snap-empty');
+        var dstObj = document.getElementById('ceo-objectives-mirror');
+        var dstObjEmpty = document.getElementById('ceo-objectives-mirror-empty');
+        if (srcObj && dstObj) {
+          dstObj.innerHTML = srcObj.innerHTML;
+          var hasContent = srcObj.innerHTML && srcObj.innerHTML.trim();
+          if (dstObjEmpty) dstObjEmpty.style.display = hasContent ? 'none' : '';
+        }
+        // Mirror campaigns
+        var srcCmp = document.getElementById('panel-campaigns-snap');
+        var srcCmpEmpty = document.getElementById('campaigns-snap-empty');
+        var dstCmp = document.getElementById('ceo-campaigns-mirror');
+        var dstCmpEmpty = document.getElementById('ceo-campaigns-mirror-empty');
+        if (srcCmp && dstCmp) {
+          dstCmp.innerHTML = srcCmp.innerHTML;
+          var hasContent2 = srcCmp.innerHTML && srcCmp.innerHTML.trim();
+          if (dstCmpEmpty) dstCmpEmpty.style.display = hasContent2 ? 'none' : '';
+        }
       }
 
       // ── CEO Stat Card Click Handlers ──
