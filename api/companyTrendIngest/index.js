@@ -469,7 +469,11 @@ async function runIngestion(log) {
   trends = computeTrendDeltas(trends, previousSnapshot);
 
   // Build radar snapshot
+  var snapshotId = 'snap-' + Date.now();
+  // Stamp snapshotId onto each trend for feedback-loop traceability
+  trends = trends.map(function (t) { return Object.assign({}, t, { snapshotId: snapshotId }); });
   var snapshot = {
+    snapshotId: snapshotId,
     ingestedAt: new Date().toISOString(),
     source: 'gemini-2.0-flash',
     trendCount: trends.length,
@@ -515,6 +519,7 @@ async function runIngestion(log) {
             trendScore: t.score,
             scoreDelta: t.scoreDelta,
             category: t.category,
+            snapshotId: snapshotId,
             title: stageLabel + ': ' + t.name,
             body: t.description + deltaNote + ' Consider creating a campaign or research task.',
             status: 'pending',
@@ -569,6 +574,7 @@ async function runIngestion(log) {
               cadence: 'weekly',
               provenance: 'trends_radar',
               autoCreated: true,
+              source_trend: { trendName: t.name, snapshotId: snapshotId, scoreAtCreation: t.score, stageAtCreation: t.stage },
               trendScore: t.score,
               trendCategory: t.category,
               createdAt: new Date().toISOString()

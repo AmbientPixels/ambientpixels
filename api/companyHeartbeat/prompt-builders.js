@@ -516,6 +516,33 @@ Rules:
     }
   }
 
+  // Trend Outcomes — Scout: show what campaigns/tasks were created from prior trend recommendations
+  // Closes the feedback loop so Scout can calibrate future significance ratings
+  let trendOutcomesSection = '';
+  if (agent === AGENT_ROLES.scout) {
+    const _trendCampaigns = activeDirectives.filter(function (c) { return c.source_trend && !c.deletedAt; });
+    const _trendTasks = (allActiveTasks || []).filter(function (t) {
+      return Array.isArray(t.tags) && t.tags.indexOf('trends-radar') !== -1 && t.status === 'done';
+    }).slice(-10); // last 10 completed trend tasks
+
+    if (_trendCampaigns.length > 0 || _trendTasks.length > 0) {
+      let _outcomesBlock = '\n\nTREND OUTCOMES (what your prior analyses generated):';
+      let _charCount = _outcomesBlock.length;
+
+      _trendCampaigns.slice(0, 5).forEach(function (c) {
+        const _line = '\n- Campaign: "' + c.title + '" [' + (c.status || 'active') + '] — from trend: ' + (c.source_trend.trendName || '?') + ' (score ' + (c.source_trend.scoreAtCreation || '?') + ', ' + (c.source_trend.stageAtCreation || '?') + ')';
+        if (_charCount + _line.length < 600) { _outcomesBlock += _line; _charCount += _line.length; }
+      });
+      _trendTasks.slice(0, 5).forEach(function (t) {
+        const _src = t.source || {};
+        const _line = '\n- Task done: "' + t.title + '" [' + (t.taskType || 'general') + ']' + (_src.trendName ? ' — from trend: ' + _src.trendName : '');
+        if (_charCount + _line.length < 600) { _outcomesBlock += _line; _charCount += _line.length; }
+      });
+      _outcomesBlock += '\nUse this to assess whether your past significance ratings led to appropriate action. Adjust future confidence accordingly.';
+      trendOutcomesSection = _outcomesBlock;
+    }
+  }
+
   // Trend Insights — Nova: exploding/growing trends → campaign opportunity prompting
   let novaTrendSection = '';
   if (agent === AGENT_ROLES.nova && Array.isArray(trendInsightsStore) && trendInsightsStore.length > 0) {
@@ -742,7 +769,7 @@ ${otherTasks}
 
 TASKS AWAITING REVIEW (from other agents — you can review these):
 ${reviewableTasks}${_reviewUrgencyNudge}
-${triageSection}${workerIntelSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${novaTrendSection}${scribeTrendSection}${workspaceSection}${costSection}${revisionSection}${ceoEditSection}${socialIntelSection}
+${triageSection}${workerIntelSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${workspaceSection}${costSection}${revisionSection}${ceoEditSection}${socialIntelSection}
 ${buildSiteContextBlock()}
 CURRENT TIME: ${new Date().toISOString()}
 
