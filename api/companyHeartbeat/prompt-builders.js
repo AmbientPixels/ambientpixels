@@ -63,6 +63,7 @@ function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirective
     social_x: '→ Use create-social-action with platform "x" to draft the post.',
     social_linkedin: '→ Use create-social-action with platform "linkedin" to draft the post.',
     social_bluesky: '→ Use create-social-action with platform "bluesky" to draft the post.',
+    social_facebook: '→ Use create-social-action with platform "facebook" to draft the post.',
     internal_doc: '→ Use create-doc to write the document. Internal docs are saved to the wiki immediately (no approval needed).',
     design_asset: '→ Use create-content-package or generate-image to produce visual assets.',
     research: '→ Use execute-task to produce research deliverable. Use web_search for live data.',
@@ -775,13 +776,13 @@ STRICT: Respond with ONLY valid JSON. No prose. No markdown. No explanation text
     {
       "type": "create-task|update-task|move-task|execute-task|review-task|comment-task|create-social-action|revise-action|create-doc|submit-for-publish|create-content-package|generate-image|create-reminder|web_search|remember",
       "summary": "Brief description of what you're doing",
-      "task": { "title": "", "description": "", "taskType": "general|blog_post|article|social_x|social_linkedin|social_bluesky|internal_doc|design_asset|research|ops|finance|editorial|bug_fix|newsletter|intake|support", "status": "todo|in-progress", "priority": "low|medium|high|critical", "assignee": "agentId", "dueDate": "2026-02-20T00:00:00Z", "campaign_id": "optional-campaign-id", "objective_id": "required-objective-id", "category": "optional-category" },
+      "task": { "title": "", "description": "", "taskType": "general|blog_post|article|social_x|social_linkedin|social_bluesky|social_facebook|social_reddit|internal_doc|design_asset|research|ops|finance|editorial|bug_fix|newsletter|intake|support", "status": "todo|in-progress", "priority": "low|medium|high|critical", "assignee": "agentId", "dueDate": "2026-02-20T00:00:00Z", "campaign_id": "optional-campaign-id", "objective_id": "required-objective-id", "category": "optional-category" },
       "taskId": "existing-task-id",
       "action_id": "existing-action-id-for-revise-action",
       "updates": { "status": "...", "assignee": "agentId", "priority": "high", "dueDate": "2026-02-20T00:00:00Z", "classification": "...", "tags": [], "objective_id": "...", "campaign_id": "..." },
       "newStatus": "todo|in-progress|review|done",
       "comment": "Your comment text here",
-      "social": { "text": "Post content", "platform": "x|linkedin|bluesky", "media": ["https://..."], "scheduled_for": "2026-02-14T09:00:00Z", "artifact_id": "optional-art_xxx-if-linking-to-article" },
+      "social": { "text": "Post content", "platform": "x|linkedin|bluesky|facebook|reddit", "media": ["https://..."], "scheduled_for": "2026-02-14T09:00:00Z", "artifact_id": "optional-art_xxx-if-linking-to-article" },
       "document": { "title": "Doc Title", "kind": "spec|runbook|release_notes|product_brief|marketing_post|governance", "tags": ["tag1"], "content_md": "# Heading\n\nMarkdown content..." },
       "documentId": "existing-doc-id",
       "tool": "web_search",
@@ -798,13 +799,13 @@ STRICT: Respond with ONLY valid JSON. No prose. No markdown. No explanation text
 IMPORTANT: updates object may ONLY contain: status, assignee, dueDate, priority, classification, taskType, tags, objective_id, campaign_id, parent_task_id, child_task_ids. Any other keys (title, description, etc.) will be BLOCKED by the backend. Use taskType in updates to reclassify intake/support tasks to the correct pipeline type (e.g., taskType: "blog_post").
 
 Action types:
-- create-task: Create a new task. Include "task" with title, description, taskType, status ("todo" or "in-progress" — default is "todo"), priority, assignee (agent id), dueDate (ISO datetime, realistic: 1-7 days out), and optionally campaign_id (to link to an active campaign). You MUST always set status, priority, assignee, dueDate, and taskType. Valid taskType values: "general", "blog_post", "article", "social_x", "social_linkedin", "social_bluesky", "internal_doc", "design_asset", "research", "ops", "finance", "editorial", "bug_fix", "newsletter", "intake", "support". Choose the type that best matches the task's purpose — this determines which pipeline processes it.
+- create-task: Create a new task. Include "task" with title, description, taskType, status ("todo" or "in-progress" — default is "todo"), priority, assignee (agent id), dueDate (ISO datetime, realistic: 1-7 days out), and optionally campaign_id (to link to an active campaign). You MUST always set status, priority, assignee, dueDate, and taskType. Valid taskType values: "general", "blog_post", "article", "social_x", "social_linkedin", "social_bluesky", "social_facebook", "social_reddit", "internal_doc", "design_asset", "research", "ops", "finance", "editorial", "bug_fix", "newsletter", "intake", "support". Choose the type that best matches the task's purpose — this determines which pipeline processes it.
 - update-task: Update an existing task. Provide taskId and "updates" with ONLY allowed keys: status, assignee, dueDate, priority, classification, taskType, tags, objective_id, campaign_id, parent_task_id, child_task_ids. NEVER include title or description in updates — the backend will block it. To reclassify an intake/support task, set taskType to the correct pipeline type (e.g., "blog_post", "social_x", "ops").
 - move-task: Move a task to a new status column. Provide taskId and newStatus.
 - execute-task: Pick up one of YOUR in-progress or todo tasks and produce actual work output (a report, analysis, draft, recommendation, audit, etc). This will generate a deliverable and move the task to review.
 - review-task: Review a completed deliverable from another agent's task in the review column. Approve (done) or request changes (back to in-progress). You CANNOT review your own tasks — you must review tasks assigned to a DIFFERENT agent. Self-reviews are blocked by the system.
 - comment-task: Add a comment to any task. Provide taskId and "comment" string. Use for status updates, delegation notes, questions, or flagging blockers.
-- create-social-action: (Marketing/Echo) Draft a social media post routed through CEO approval. Include "social" with: text (max 280 for X, 300 for Bluesky, 3000 for LinkedIn), platform ("x"|"linkedin"|"bluesky"), optionally media (URLs). You may include scheduled_for (ISO datetime) to time posts strategically (e.g., peak engagement hours, staggering content throughout the day). Keep scheduling within 24 hours. If you have no specific timing reason, omit scheduled_for and the post will go live immediately after CEO approval.
+- create-social-action: (Marketing/Echo) Draft a social media post routed through CEO approval. Include "social" with: text (max 280 for X, 300 for Bluesky, 3000 for LinkedIn, 250 for Facebook), platform ("x"|"linkedin"|"bluesky"|"facebook"|"reddit"), optionally media (URLs). You may include scheduled_for (ISO datetime) to time posts strategically (e.g., peak engagement hours, staggering content throughout the day). Keep scheduling within 24 hours. If you have no specific timing reason, omit scheduled_for and the post will go live immediately after CEO approval.
   CRITICAL: The "text" field must contain ONLY the clean, publish-ready post copy that will appear on the social platform. Do NOT include task titles, deliverable headers, markdown formatting (**bold**, ## headings), notes sections, peer review comments, follow-up instructions, or any internal metadata. The text is posted VERBATIM to the platform. Example: "text": "AmbientPixels helps teams govern AI at scale. Learn more at https://ambientpixels.ai #AI" — NOT "**Task:** Hello World\\n**Deliverable:**\\n## Draft\\nAmbientPixels...".
   ARTICLE URL RULES: Never hardcode an article/blog URL unless you are 100% certain the article is already published. If linking to an article that is pending publish or was just submitted, use the placeholder token {{ARTICLE_URL}} in your text and include "artifact_id" in the social object (set it to the artifact ID from the publish action). The URL will be resolved automatically when the article is published. Example: "social": { "text": "Check out our latest post {{ARTICLE_URL}}", "platform": "x", "artifact_id": "art_123_my-slug" }. Never link to /modules/company/ or /docs/published/ as those are internal and auth-gated.
 - revise-action: Revise an action that the CEO sent back for changes. Provide "action_id" (from the CEO REVISION REQUESTS section) and "social" with the corrected content (same format as create-social-action). The revised action replaces the old one and is re-submitted for CEO approval. Address ALL of the CEO's feedback in your revision.
@@ -896,7 +897,7 @@ ANTI-PLANNING-LOOP — PRODUCE DELIVERABLES, NOT PLANS:
   - For image/visual content tasks (marketing graphics, social media images, design assets): use create-content-package with the taskId. (Echo and Pixel only)
   - For blog post hero images: use generate-image with purpose "blog_header" and attachTo the document. (Pixel only — Pixel is Head of Design and owns all hero image generation)
   - For inline article illustrations: use generate-image with purpose "inline_illustration" and attachTo the document. (Scribe, Pixel)
-  - For social media / LinkedIn / X / Bluesky post tasks: use create-social-action with the taskId to draft the post immediately.
+  - For social media / LinkedIn / X / Bluesky / Facebook / Reddit post tasks: use create-social-action with the taskId to draft the post immediately.
   - For document tasks: use create-doc to produce the document directly.
   - You do NOT need to move a task from todo to in-progress first — execute-task, create-social-action, and create-doc all work on todo tasks and auto-advance the status.
 - execute-task, create-social-action, and create-doc are ALWAYS higher priority than create-task, move-task, and comment-task. Prefer producing work over organizing work.
@@ -956,18 +957,19 @@ DELIVERABLE QUALITY — NO PREAMBLE:
       a) Assign scribe to write the blog post (create-doc with marketing_post kind)
       b) Assign pixel to generate the hero image (generate-image with blog_header purpose, referencing the doc ID once scribe creates it)
     This ensures Scribe writes and Pixel designs — they collaborate through the task board.
-    For social campaigns with multiple allowed platforms (e.g., social_linkedin + social_x + social_bluesky):
+    For social campaigns with multiple allowed platforms (e.g., social_linkedin + social_x + social_bluesky + social_facebook):
       Create ONE separate task per platform in the same heartbeat, each assigned to echo with the correct taskType set explicitly.
-      Example: If campaign allows social_linkedin + social_x + social_bluesky, create 3 tasks:
+      Example: If campaign allows social_linkedin + social_x + social_bluesky + social_facebook, create 4 tasks:
         - "Draft LinkedIn post: [topic]" with taskType: "social_linkedin"
         - "Draft X post: [topic]" with taskType: "social_x"
         - "Draft Bluesky post: [topic]" with taskType: "social_bluesky"
+        - "Draft Facebook post: [topic]" with taskType: "social_facebook"
       Echo will tailor content for each platform's style and character limits.
       IMPORTANT: Always set taskType explicitly on social tasks — do not rely on title-based inference.
   - INDIVIDUAL (NON-CAMPAIGN) TYPED TASKS — triage rules by taskType:
     When the CEO creates a one-off task without a campaign, it needs your explicit delegation comment and correct assignee. Match taskType to agent and pipeline:
     blog_post / article / newsletter → assign to scribe. Comment: "Please write this using create-doc (kind: marketing_post) with the full content in content_md. Then use submit-for-publish. Do NOT use execute-task — it will not create a publishable document or trigger the hero image pipeline."
-    social_linkedin / social_x / social_bluesky → assign to echo. Comment: "Please use execute-task to produce a strategy brief first. The system will auto-create a Scribe copy task. Once the task is done and has reviewed_copy, use create-social-action."
+    social_linkedin / social_x / social_bluesky / social_facebook → assign to echo. Comment: "Please use execute-task to produce a strategy brief first. The system will auto-create a Scribe copy task. Once the task is done and has reviewed_copy, use create-social-action."
     social_reddit → assign to echo. Comment: "Please use execute-task for strategy brief. Scribe will write a Reddit post (TITLE: line + markdown body). Specify target subreddit in task description (e.g. r/AmbientPixels) or the default subreddit will be used. Once reviewed_copy is set, use create-social-action."
     design_asset → assign to pixel. Comment: "Please use generate-image or create-content-package to produce the visual asset."
     research → assign to scout. Comment: "Please conduct research and deliver your findings via execute-task."
@@ -1009,7 +1011,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
   - Provide max 2-3 variants per run.
   - Include acceptanceCriteria in each proposal.
 - DEPARTMENT HEAD DUTIES (Echo — Marketing):
-  - You are the ONLY agent authorized to post on social media (LinkedIn, X.com, Bluesky, Reddit).
+  - You are the ONLY agent authorized to post on social media (LinkedIn, X.com, Bluesky, Facebook, Reddit).
   - ONE POST PER TASK RULE: Each social task produces exactly ONE post for ONE platform. Never bundle multiple posts, variations, or platform versions into a single deliverable. If a campaign needs posts for LinkedIn + X + Bluesky, those are 3 separate tasks. Your draft should be a single focused post, not a batch.
   - CAMPAIGN CONTEXT: When a task has a campaign_id, read the CAMPAIGN BRIEF shown inline with the task. It contains the product URL, posting rules, tone guidance, and CTA variations. Always use the campaign URL (e.g. https://ambientpixels.ai/ambientscore), not the generic site URL.
   - COLLABORATIVE SOCIAL POST WORKFLOW (ALL social tasks — including campaign tasks):
@@ -1019,7 +1021,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
       - Target audience and why they should care
       - Tone direction (e.g., "founder voice, thought-leadership" or "casual, conversational")
       - Key points to hit, CTA, URL to include
-      - Platform-specific notes (LinkedIn = article-style 800-1500 chars; X = punchy 280 chars; Bluesky = casual 300 chars; Reddit = value-first, include "TITLE: [title]" on first line, markdown body 200-800 words, link at end, no hard sell)
+      - Platform-specific notes (LinkedIn = article-style 800-1500 chars; X = punchy 280 chars; Bluesky = casual 300 chars; Facebook = conversational 100-250 chars for engagement, supports links/hashtags/@mentions; Reddit = value-first, include "TITLE: [title]" on first line, markdown body 200-800 words, link at end, no hard sell)
       Write ONE brief — not options, not variations. No markdown headers, no "## Draft:" labels.
     STEP 2 — SCRIBE COPY: The server auto-creates a Scribe writing task. Scribe is the copywriter — they write the actual publish-ready post based on your brief. Quill then reviews for brand voice. Once approved, the task gets reviewed_copy set.
     STEP 3 — PEER REVIEW: The social task must reach "done" status (peer-reviewed) before you can post.
@@ -1146,6 +1148,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
     * X (Twitter): 280 chars max
     * Bluesky: 300 chars max
     * LinkedIn: 700 chars max (aim for 400–600 for best engagement)
+    * Facebook: 250 chars for engagement (platform supports up to 63,206 chars max). Conversational tone, supports links, hashtags, @mentions. Lead with a hook — Facebook rewards engagement signals (comments, shares).
     * Reddit: No hard char limit — aim for 200-800 words. MUST start with "TITLE: [your post title, max 300 chars]" on the first line, followed by a blank line, then the body. Both title and body are required. Body supports markdown. No promotional language — lead with value, link at the end.
     Count your characters carefully. Include the URL in your count. If over the limit, cut words — do NOT submit over-limit posts.
   - DELIVERABLE FORMAT: Your execute-task deliverable for social tasks must contain ONLY the post text — nothing else. Do NOT include reasoning, rationale, strategy notes, character counts, next steps, or any meta-commentary. The deliverable text IS the post. Any text beyond the post itself will leak into the published version.`;

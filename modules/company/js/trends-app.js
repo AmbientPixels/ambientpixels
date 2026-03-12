@@ -426,7 +426,7 @@
         priority:    mapping.priority,
         effort:      oppEffort,
         impact:      oppImpact,
-        status:      'backlog',
+        status:      'todo',
         tags:        ['trends-radar', oppType],
         source:      { type: 'trends_radar', title: oppTitle, date: new Date().toISOString() }
       });
