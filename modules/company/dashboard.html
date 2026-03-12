@@ -325,8 +325,9 @@
       <!-- Team Roster (right side of main split) -->
       <div class="dash-panel ceo-team-panel" style="border:1px solid rgba(78,205,196,0.12); background:rgba(78,205,196,0.02); margin-bottom:0;">
         <div class="dash-panel-header" style="margin-bottom:0.4rem; padding-bottom:0.4rem;">
-          <span class="dash-panel-title"><i class="fas fa-users" style="color:#4ECDC4;"></i> Team</span>
+          <span class="dash-panel-title"><i class="fas fa-heartbeat" style="color:#4ECDC4;"></i> Agent Health</span>
         </div>
+        <div class="dash-lastrun-bar" id="dash-lastrun-bar" style="display:none;"></div>
         <div class="agent-grid ceo-agent-grid-compact" id="ceo-agent-grid"></div>
       </div>
 
@@ -1395,6 +1396,7 @@
         renderAll();
         updateStoreModeBadge();
         loadExecMode();
+        _dashLoadHeartbeatHealth();
         setTimeout(syncSocialToDev, 2000);
         setTimeout(syncMetricsToDev, 2000);
       });
@@ -1483,7 +1485,8 @@
         }
       }
 
-      // ── CEO Agent Grid ──
+      // ── CEO Agent Health Grid ──
+      var _hbPerAgent = {};
       function renderCeoAgentGrid() {
         var gridEl = document.getElementById('ceo-agent-grid');
         if (!gridEl) return;
@@ -1495,69 +1498,111 @@
           return;
         }
 
-        var activeAgents = [];
-        var idleAgents = [];
-        var logs = AgentEngine.getSessionLog ? AgentEngine.getSessionLog() : [];
-
-        agents.forEach(function (a) {
-          var agentId = a.id || a.name;
-          var agentTasks = allTasks.filter(function (t) {
-            return (t.assignee === agentId || t.assignee === (a.name || '').toLowerCase()) && t.status !== 'done' && t.status !== 'backlog';
-          });
-          var currentTask = agentTasks.length > 0 ? agentTasks[0] : null;
-
-          // Find last session from session log
-          var lastLog = null;
-          for (var i = logs.length - 1; i >= 0; i--) {
-            if (logs[i] && logs[i].agentId === agentId) {
-              lastLog = logs[i];
-              break;
-            }
-          }
-
-          var isActive = a.id === 'pixelpusher' || agentTasks.length > 0 || (lastLog && lastLog.timestamp && (Date.now() - new Date(lastLog.timestamp).getTime()) < 3600000);
-          var entry = { agent: a, tasks: agentTasks, currentTask: currentTask, lastLog: lastLog, isActive: isActive };
-          if (isActive) activeAgents.push(entry);
-          else idleAgents.push(entry);
-        });
+        var configs = (typeof AgentEngine !== 'undefined' && AgentEngine.getAgentConfigs) ? AgentEngine.getAgentConfigs() : {};
+        var now = Date.now();
+        var tierColors = { 1: '#FFD700', 2: '#8A2BE2', 3: '#4ECDC4', 4: '#888' };
 
         var html = '';
-        var allEntries = activeAgents.concat(idleAgents);
-        var shownActive = 0;
+        agents.forEach(function (a) {
+          var id = (a.id || a.name || '').toLowerCase();
+          var color = tierColors[a.tier] || '#666';
 
-        allEntries.forEach(function (e) {
-          var dotClass = e.isActive ? 'agent-grid-dot--active' : 'agent-grid-dot--idle';
-          var dotTitle = e.isActive ? 'Active — has tasks in progress or recent API activity' : 'Idle — no active tasks or recent activity';
-          var name = e.agent.name || e.agent.id || '?';
-          var role = e.agent.role || '';
+          // Heartbeat recency
+          var hb = configs[id] && configs[id].heartbeat;
+          var lastBeat = hb && hb.lastBeat ? new Date(hb.lastBeat).getTime() : null;
+          var agoMin = lastBeat ? Math.round((now - lastBeat) / 60000) : null;
+          var hbLabel = '';
+          var dotClass = 'agent-grid-dot--idle';
 
-          // Count tasks by status
-          var agentId = e.agent.id || e.agent.name;
-          var doneTasks = allTasks.filter(function (t) { return (t.assignee === agentId || t.assignee === (e.agent.name || '').toLowerCase()) && t.status === 'done'; }).length;
-          var activeTasks = e.tasks.length;
-          var taskText = doneTasks + ' done · ' + activeTasks + ' active';
-
-          var metaText = '';
-          if (e.lastLog && e.lastLog.timestamp) {
-            var ago = Date.now() - new Date(e.lastLog.timestamp).getTime();
-            if (ago < 60000) metaText = 'just now';
-            else if (ago < 3600000) metaText = Math.floor(ago / 60000) + 'm ago';
-            else if (ago < 86400000) metaText = Math.floor(ago / 3600000) + 'h ago';
-            else metaText = Math.floor(ago / 86400000) + 'd ago';
-            if (e.lastLog.mode) metaText = e.lastLog.mode + ' · ' + metaText;
+          if (a.tier === 1) {
+            hbLabel = 'human';
+            dotClass = 'agent-grid-dot--active';
+          } else if (agoMin !== null) {
+            if (agoMin < 1) hbLabel = 'just now';
+            else if (agoMin < 60) hbLabel = agoMin + 'm ago';
+            else if (agoMin < 1440) hbLabel = Math.round(agoMin / 60) + 'h ago';
+            else hbLabel = Math.round(agoMin / 1440) + 'd ago';
+            dotClass = agoMin < 120 ? 'agent-grid-dot--active' : 'agent-grid-dot--idle';
+          } else {
+            hbLabel = 'no heartbeat';
           }
 
-          html += '<div class="agent-grid-card">';
-          html += '<div class="agent-grid-dot ' + dotClass + '" title="' + dotTitle + '"></div>';
+          // Task count
+          var agentTasks = allTasks.filter(function (t) { return t.assignee === id && t.status !== 'done' && t.status !== 'backlog'; });
+          var taskLabel = agentTasks.length > 0 ? agentTasks.length + ' task' + (agentTasks.length > 1 ? 's' : '') : '0 tasks';
+
+          // Per-agent heartbeat stats
+          var pa = _hbPerAgent[id] || {};
+          var microHtml = '';
+          if (a.tier !== 1 && (pa.actionsExecuted != null || pa.actionsBlocked != null || pa.avgLatencyMs != null)) {
+            microHtml += '<div class="agent-grid-micro">';
+            if (pa.actionsExecuted != null) microHtml += '<span>' + pa.actionsExecuted + ' exec</span>';
+            if (pa.actionsBlocked != null && pa.actionsBlocked > 0) microHtml += '<span class="agent-grid-micro--blocked">' + pa.actionsBlocked + ' blocked</span>';
+            if (pa.avgLatencyMs != null) microHtml += '<span>' + Math.round(pa.avgLatencyMs / 100) / 10 + 's</span>';
+            microHtml += '</div>';
+          }
+          var errorHtml = '';
+          if (pa.error) {
+            errorHtml = '<div class="agent-grid-error" title="' + escapeHtml(pa.error) + '">'
+              + '<i class="fas fa-exclamation-circle"></i> '
+              + escapeHtml(pa.error.substring(0, 60)) + (pa.error.length > 60 ? '\u2026' : '')
+              + '</div>';
+          }
+
+          var statusText = a.tier === 1 ? 'CEO' : (agoMin !== null && agoMin < 120 ? 'Active' : 'Idle');
+          var statusCls = statusText === 'Active' ? 'agent-grid-status--active' : (statusText === 'CEO' ? 'agent-grid-status--active' : '');
+
+          html += '<div class="agent-grid-card' + (pa.error ? ' agent-grid-card--error' : '') + '">';
+          html += '<div class="agent-grid-dot ' + dotClass + '" style="background:' + color + ';"></div>';
           html += '<div class="agent-grid-info">';
-          html += '<div class="agent-grid-name">' + escapeHtml(name) + '</div>';
-          html += '<div class="agent-grid-role">' + escapeHtml(role) + '</div>';
-          html += '<div class="agent-grid-task">' + escapeHtml(taskText) + '</div>';
-          if (metaText) html += '<div class="agent-grid-meta">' + escapeHtml(metaText) + '</div>';
-          html += '</div></div>';
+          html += '<div class="agent-grid-name">' + escapeHtml(a.name || 'Unknown') + '</div>';
+          html += '<div class="agent-grid-role">' + escapeHtml(a.role || '') + '</div>';
+          html += '<div class="agent-grid-task">';
+          html += '<span><i class="fas fa-heartbeat" style="margin-right:2px;opacity:0.4;"></i>' + hbLabel + '</span>';
+          html += ' &nbsp;<span><i class="fas fa-tasks" style="margin-right:2px;opacity:0.4;"></i>' + taskLabel + '</span>';
+          html += '</div>';
+          html += microHtml;
+          html += errorHtml;
+          html += '</div>';
+          html += '<div class="agent-grid-status ' + statusCls + '">' + statusText + '</div>';
+          html += '</div>';
         });
 
         gridEl.innerHTML = html || '<div class="dash-empty" style="padding:0.5rem;">No agents loaded.</div>';
+      }
+
+      // Fetch heartbeat health and render last-run bar + enrich agent tiles
+      function _dashLoadHeartbeatHealth() {
+        var base = (typeof CompanyStore !== 'undefined' && CompanyStore.getServerBase) ? CompanyStore.getServerBase() : '/api';
+        var headers = {};
+        if (typeof CompanyStore !== 'undefined' && CompanyStore.getAuthHeaders) headers = CompanyStore.getAuthHeaders();
+        fetch(base + '/company-state?key=heartbeatRuns', { headers: headers })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (data) {
+            var runs = data && data.value ? data.value : (Array.isArray(data) ? data : null);
+            var lastRun = runs && runs.length ? runs[runs.length - 1] : null;
+            _hbPerAgent = (lastRun && lastRun.perAgent) ? lastRun.perAgent : {};
+            _dashRenderLastRunBar(lastRun);
+            renderCeoAgentGrid();
+          })
+          .catch(function () {});
+      }
+
+      function _dashRenderLastRunBar(run) {
+        var bar = document.getElementById('dash-lastrun-bar');
+        if (!bar || !run) return;
+        var statusColor = run.status === 'success' ? '#34d399' : run.status === 'partial' ? '#fbbf24' : '#f87171';
+        var dur = run.durationMs ? (run.durationMs / 1000).toFixed(1) + 's' : '\u2014';
+        var ts = run.startedAt ? new Date(run.startedAt).toLocaleTimeString() : '\u2014';
+        var executed = (run.agentActions && run.agentActions.executed != null) ? run.agentActions.executed : '\u2014';
+        var blocked = (run.guardrails && run.guardrails.exactDupBlocked != null) ? run.guardrails.exactDupBlocked : 0;
+        bar.style.display = '';
+        bar.innerHTML = '<span class="dash-lastrun-label">LAST RUN</span>'
+          + '<span class="dash-lastrun-status" style="color:' + statusColor + '">' + (run.status || '\u2014') + '</span>'
+          + '<span class="dash-lastrun-item"><i class="fas fa-clock"></i> ' + ts + '</span>'
+          + '<span class="dash-lastrun-item"><i class="fas fa-stopwatch"></i> ' + dur + '</span>'
+          + '<span class="dash-lastrun-item"><i class="fas fa-bolt"></i> ' + executed + ' actions</span>'
+          + (blocked ? '<span class="dash-lastrun-item dash-lastrun-blocked"><i class="fas fa-ban"></i> ' + blocked + ' dup-blocked</span>' : '');
       }
 
       // ── CEO Social Growth (simplified) ──

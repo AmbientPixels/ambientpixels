@@ -1423,6 +1423,33 @@
   display: none;
 }
 
+/* ── Last Run Bar (dashboard) ── */
+.dash-lastrun-bar {
+  display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap;
+  padding: 0.4rem 0.7rem; margin-bottom: 0.5rem;
+  background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 7px; font-size: 0.58rem;
+}
+.dash-lastrun-label { font-weight: 700; opacity: 0.35; letter-spacing: 0.06em; font-size: 0.5rem; }
+.dash-lastrun-status { font-weight: 600; }
+.dash-lastrun-item { opacity: 0.45; display: flex; align-items: center; gap: 0.25rem; }
+.dash-lastrun-blocked { color: #fbbf24; opacity: 0.7; }
+
+/* ── Agent Health Micro-stats ── */
+.agent-grid-micro {
+  display: flex; gap: 0.5rem; font-size: 0.5rem; opacity: 0.45; margin-top: 0.2rem;
+}
+.agent-grid-micro--blocked { color: #fbbf24; opacity: 1; }
+.agent-grid-error {
+  font-size: 0.48rem; color: #f87171; margin-top: 0.2rem;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 180px;
+}
+.agent-grid-card--error { border-color: rgba(248,113,113,0.2) !important; }
+.agent-grid-status {
+  font-size: 0.5rem; font-weight: 600; opacity: 0.35; text-align: right; flex-shrink: 0;
+}
+.agent-grid-status--active { color: #4ECDC4; opacity: 0.8; }
+
 /* Zone 3.5: Strategy Row (Goals + Projects side by side) */
 .ceo-strategy-row {
   display: grid;
