@@ -998,7 +998,7 @@
 /* ── CEO Stat Cards ── */
 .ceo-stats {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 0.6rem;
   margin-bottom: 1rem;
 }
@@ -1320,7 +1320,7 @@
 }
 
 @media (max-width: 960px) {
-  .ceo-stats { grid-template-columns: repeat(2, 1fr); }
+  .ceo-stats { grid-template-columns: repeat(3, 1fr); }
   .ceo-social-summary { grid-template-columns: 1fr; }
 }
 
@@ -1410,6 +1410,7 @@
 }
 .ceo-team-panel {
   min-height: 200px;
+  max-height: none;
 }
 /* Compact agent grid for team roster */
 .ceo-agent-grid-compact {
