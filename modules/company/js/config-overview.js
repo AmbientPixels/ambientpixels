@@ -1758,4 +1758,47 @@
     clearTimeout(_limitTimer);
     _limitTimer = setTimeout(function () { _saveConfig('cfg-ce-limit-saved'); }, 800);
   });
+
+  // ── Trends Automation: Auto-Campaign Conversion ──
+  (function () {
+    var toggle = document.getElementById('cfg-trend-auto-campaign-toggle');
+    var status = document.getElementById('cfg-trend-auto-campaign-status');
+    if (!toggle) return;
+
+    var _taApiBase = window.location.hostname.includes('ambientpixels.ai')
+      ? 'https://ambientpixels-nova-api.azurewebsites.net/api' : '/api';
+
+    // Load current state
+    fetch(_taApiBase + '/company-state?key=trendActions')
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        var cfg = data && data.value ? data.value : data;
+        toggle.checked = !!(cfg && cfg.auto_campaign_enabled === true);
+        if (status) status.textContent = toggle.checked ? 'Status: Enabled' : 'Status: Disabled (default)';
+      })
+      .catch(function () {
+        if (status) status.textContent = 'Could not load trend settings';
+      });
+
+    toggle.addEventListener('change', function () {
+      var enabled = this.checked;
+      if (status) status.textContent = 'Saving\u2026';
+      fetch(_taApiBase + '/company-state', {
+        method: 'POST',
+        headers: _getHeaders(),
+        body: JSON.stringify({ key: 'trendActions', value: { auto_campaign_enabled: enabled } })
+      })
+      .then(function (r) { if (!r.ok) throw new Error('POST failed'); return r.json(); })
+      .then(function () {
+        if (status) status.textContent = enabled ? 'Status: Enabled — saved' : 'Status: Disabled — saved';
+        setTimeout(function () {
+          if (status) status.textContent = enabled ? 'Status: Enabled' : 'Status: Disabled (default)';
+        }, 2000);
+      })
+      .catch(function () {
+        toggle.checked = !enabled;
+        if (status) status.textContent = 'Save failed — check auth';
+      });
+    });
+  }());
 })();

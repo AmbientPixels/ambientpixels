@@ -375,6 +375,24 @@
       <div class="cfg-ce-version" id="cfg-ce-version">Engine v—</div>
     </div>
 
+    <!-- Trends Automation -->
+    <div class="ov-section-title">Trends Automation</div>
+    <div style="font-size:0.55rem; opacity:0.3; margin:-0.3rem 0 0.4rem 0;">Controls autonomous actions driven by the Trends Radar ingest cycle</div>
+    <div class="cfg-worker-panel" id="cfg-trends-auto-panel">
+      <div class="cfg-worker-title"><i class="fas fa-chart-line" style="opacity:0.5;"></i> Trends Radar</div>
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem; padding:0.5rem 0; border-bottom:1px solid rgba(255,255,255,0.04);">
+        <div>
+          <div style="font-size:0.65rem; font-weight:600; color:rgba(255,255,255,0.8); margin-bottom:0.2rem;">Auto-Campaign Conversion</div>
+          <div style="font-size:0.6rem; color:rgba(255,255,255,0.35); line-height:1.5;">Top exploding trend each 6h cycle auto-generates a campaign (Nova, blog_post). Bypasses CEO approval.</div>
+        </div>
+        <label class="tr-toggle" title="Toggle auto-campaign conversion" style="flex-shrink:0;">
+          <input type="checkbox" id="cfg-trend-auto-campaign-toggle" />
+          <span class="tr-toggle-track"></span>
+        </label>
+      </div>
+      <div style="font-size:0.55rem; opacity:0.3; margin-top:0.5rem;" id="cfg-trend-auto-campaign-status"></div>
+    </div>
+
     </div><!-- /cfg-panel-automation -->
 
     <!-- ═══ TAB: Storage & Sync ═══ -->

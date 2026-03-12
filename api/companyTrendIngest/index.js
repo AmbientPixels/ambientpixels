@@ -533,6 +533,63 @@ async function runIngestion(log) {
     }
   }
 
+  // ── Auto-Campaign Conversion (governance switch) ──
+  try {
+    var trendActions = (await storage.getState('trendActions')) || {};
+    if (trendActions.auto_campaign_enabled === true) {
+      var topExploding = trends.filter(function (t) {
+        return t.stage === 'exploding' && t.score >= 70;
+      }).slice(0, 1);
+
+      if (topExploding.length) {
+        var campaigns = (await storage.getState('campaigns')) || [];
+        if (!Array.isArray(campaigns)) campaigns = [];
+        var sevenDaysCutoff = Date.now() - 7 * 24 * 60 * 60 * 1000;
+        var recentAutoNames = campaigns
+          .filter(function (c) {
+            return c.provenance === 'trends_radar' && c.autoCreated && c.createdAt && new Date(c.createdAt).getTime() > sevenDaysCutoff;
+          })
+          .map(function (c) { return (c.title || '').toLowerCase(); });
+
+        var newCampaigns = topExploding
+          .filter(function (t) {
+            var slug = t.name.toLowerCase().slice(0, 10);
+            return !recentAutoNames.some(function (n) { return n.indexOf(slug) !== -1; });
+          })
+          .map(function (t) {
+            return {
+              id: 'camp-trend-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+              title: t.name + ' Content Campaign',
+              description: 'Auto-generated from Trends Radar (score: ' + t.score + '). ' + (t.description || ''),
+              status: 'active',
+              assignee: 'nova',
+              priority: 'high',
+              allowedTaskTypes: ['blog_post'],
+              frequency: 2,
+              cadence: 'weekly',
+              provenance: 'trends_radar',
+              autoCreated: true,
+              trendScore: t.score,
+              trendCategory: t.category,
+              createdAt: new Date().toISOString()
+            };
+          });
+
+        if (newCampaigns.length) {
+          campaigns = campaigns.concat(newCampaigns);
+          await storage.setState('campaigns', campaigns);
+          log('[TrendIngest] Auto-created ' + newCampaigns.length + ' campaign(s): ' + newCampaigns.map(function (c) { return c.title; }).join(', '));
+        } else {
+          log('[TrendIngest] Auto-campaign: top exploding trend already has a recent campaign — skipping');
+        }
+      } else {
+        log('[TrendIngest] Auto-campaign: no exploding trends with score >= 70 this cycle');
+      }
+    }
+  } catch (e) {
+    log('[TrendIngest] Auto-campaign creation failed (non-fatal): ' + e.message);
+  }
+
   return { ok: true, trendCount: trends.length, snapshotIndex: existing.length };
 }
 

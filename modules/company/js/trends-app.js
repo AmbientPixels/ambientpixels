@@ -647,6 +647,40 @@
     }
   }
 
+  /* ── Automation Governance: trendActions ── */
+  function _trendActionsApiBase() {
+    return window.location.hostname.includes('ambientpixels.ai')
+      ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+      : '/api';
+  }
+
+  function loadTrendActions() {
+    var toggle = document.getElementById('tr-auto-campaign-toggle');
+    if (!toggle) return;
+    fetch(_trendActionsApiBase() + '/company-state?key=trendActions')
+      .then(function (res) { return res.ok ? res.json() : null; })
+      .then(function (data) {
+        var cfg = data && data.value ? data.value : data;
+        if (cfg && cfg.auto_campaign_enabled === true) {
+          toggle.checked = true;
+        }
+      })
+      .catch(function () { /* non-fatal — toggle stays off */ });
+  }
+
+  function saveTrendActions(cfg) {
+    var headers = { 'Content-Type': 'application/json' };
+    try {
+      var k = sessionStorage.getItem('ap_server_key');
+      if (k) headers['x-company-secret'] = k;
+    } catch (e) {}
+    return fetch(_trendActionsApiBase() + '/company-state', {
+      method: 'POST',
+      headers: headers,
+      body: JSON.stringify({ key: 'trendActions', value: cfg })
+    });
+  }
+
   /* ── Init ── */
   function init() {
     // Add refresh button + source hint to header
@@ -699,8 +733,34 @@
       });
     }
 
+    // Automation Controls toggle
+    var autoCampaignToggle = document.getElementById('tr-auto-campaign-toggle');
+    if (autoCampaignToggle) {
+      autoCampaignToggle.addEventListener('change', function () {
+        var enabled = this.checked;
+        saveTrendActions({ auto_campaign_enabled: enabled })
+          .then(function (res) {
+            if (res && res.ok) {
+              if (typeof window.showDemoToast === 'function') {
+                window.showDemoToast(
+                  enabled ? 'Auto-campaign conversion enabled' : 'Auto-campaign conversion disabled',
+                  enabled ? 'success' : 'info'
+                );
+              }
+            } else {
+              autoCampaignToggle.checked = !enabled;
+              console.warn('[TrendsApp] Failed to save trendActions');
+            }
+          })
+          .catch(function () {
+            autoCampaignToggle.checked = !enabled;
+          });
+      });
+    }
+
     loadTrends();
     loadScoutInsights();
+    loadTrendActions();
   }
 
   if (document.readyState === 'loading') {

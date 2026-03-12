@@ -61,6 +61,23 @@
       <div id="tr-scout-content" class="tr-scout-loading">Loading Scout's analysis...</div>
     </section>
 
+    <!-- Automation Controls -->
+    <section class="tr-panel tr-automation-panel" id="tr-automation">
+      <div class="tr-panel-title"><i class="fas fa-sliders-h"></i> Automation Controls</div>
+      <div class="tr-automation-body">
+        <div class="tr-automation-row" id="tr-auto-campaign-row">
+          <div class="tr-automation-info">
+            <div class="tr-automation-label">Auto-Campaign Conversion</div>
+            <div class="tr-automation-desc">When enabled, the top exploding trend each 6h cycle automatically generates a campaign — no CEO approval required. Uses Layer 3 pipeline (Nova assigned, blog_post type).</div>
+          </div>
+          <label class="tr-toggle" title="Toggle auto-campaign conversion">
+            <input type="checkbox" id="tr-auto-campaign-toggle" />
+            <span class="tr-toggle-track"></span>
+          </label>
+        </div>
+      </div>
+    </section>
+
     <!-- Data Sources -->
     <section class="tr-panel tr-panel--future" id="tr-future">
       <div class="tr-panel-title"><i class="fas fa-plug"></i> Data Sources</div>
@@ -72,8 +89,7 @@
         <span class="tr-source-badge tr-source-badge--devto" style="opacity:0.9">DEV</span> DEV.to<br>
         <strong>Layer 1 — Coming Soon:</strong> Google Trends API, YouTube, Product Hunt, Bluesky/X<br>
         <strong>Layer 2 — Live:</strong> Cross-source clustering, Scout significance ranking, business relevance mapping<br>
-        <strong>Layer 3 — Live:</strong> Nova campaign prompting, Scribe content briefs, Scout auto-brief<br>
-        <strong>Layer 3 — Coming Soon:</strong> Auto-campaign conversion (fully automated)
+        <strong>Layer 3 — Live:</strong> Nova campaign prompting, Scribe content briefs, Scout auto-brief, Auto-campaign conversion
       </p>
     </section>
 
