@@ -149,6 +149,45 @@ function buildClusterSection(githubLines, hnLines, redditLines, devtoLines) {
     + '\n\nBoost scores for trends touching these keywords. Multi-source confirmation = real momentum.';
 }
 
+// ── Trend Delta Computation ──
+
+var STAGE_TIERS = { early_signal: 0, emerging: 1, growing: 2, exploding: 3 };
+
+function computeTrendDeltas(currentTrends, previousSnapshot) {
+  if (!previousSnapshot || !Array.isArray(previousSnapshot.trends)) return currentTrends;
+  var prevTrends = previousSnapshot.trends;
+
+  currentTrends.forEach(function (t) {
+    // Exact name match first, then partial word overlap
+    var prev = prevTrends.find(function (p) {
+      return p.name.toLowerCase() === t.name.toLowerCase();
+    });
+    if (!prev) {
+      var tWords = t.name.toLowerCase().split(/\s+/).filter(function (w) { return w.length >= 4; });
+      prev = prevTrends.find(function (p) {
+        var pWords = p.name.toLowerCase().split(/\s+/);
+        var overlap = tWords.filter(function (w) { return pWords.indexOf(w) !== -1; }).length;
+        return overlap >= Math.max(1, Math.min(2, tWords.length - 1));
+      });
+    }
+
+    if (prev) {
+      t.previousScore = prev.score;
+      t.scoreDelta = t.score - prev.score;
+      var prevTier = STAGE_TIERS[prev.stage] || 0;
+      var currTier = STAGE_TIERS[t.stage] || 0;
+      t.risingFast = t.scoreDelta >= 10 || currTier > prevTier;
+    } else {
+      // New trend not seen before — flag if already at high momentum
+      t.previousScore = null;
+      t.scoreDelta = null;
+      t.risingFast = t.stage === 'exploding';
+    }
+  });
+
+  return currentTrends;
+}
+
 // ── Source Coverage Computation ──
 
 function computeSourceCoverage(trends, githubLines, hnLines, redditLines, devtoLines) {
@@ -421,6 +460,14 @@ async function runIngestion(log) {
   // Compute per-trend source coverage (keyword matching across all 4 sources)
   trends = computeSourceCoverage(trends, githubLines, hnLines, redditLines, devtoLines);
 
+  // Read existing radar early so we can compare against previous snapshot
+  var existing = (await storage.getState('trendRadar')) || [];
+  if (!Array.isArray(existing)) existing = [];
+  var previousSnapshot = existing.length ? existing[existing.length - 1] : null;
+
+  // Compute deltas against previous snapshot — marks risingFast + scoreDelta
+  trends = computeTrendDeltas(trends, previousSnapshot);
+
   // Build radar snapshot
   var snapshot = {
     ingestedAt: new Date().toISOString(),
@@ -433,17 +480,59 @@ async function runIngestion(log) {
     trends: trends
   };
 
-  // Read existing radar, append snapshot, trim
-  var existing = (await storage.getState('trendRadar')) || [];
-  if (!Array.isArray(existing)) existing = [];
+  // Append snapshot, trim, store
   existing.push(snapshot);
   if (existing.length > MAX_RADAR_SNAPSHOTS) {
     existing = existing.slice(-MAX_RADAR_SNAPSHOTS);
   }
-
   await storage.setState('trendRadar', existing);
-
   log('[TrendIngest] Stored ' + trends.length + ' trends (snapshot ' + existing.length + '/' + MAX_RADAR_SNAPSHOTS + ')');
+
+  // ── AQ Alerts for Rising/Exploding Trends ──
+  var alertCandidates = trends.filter(function (t) {
+    return t.risingFast && (t.stage === 'exploding' || t.stage === 'growing');
+  }).slice(0, 2);
+
+  if (alertCandidates.length) {
+    try {
+      var aq = (await storage.getState('approvalQueue')) || [];
+      if (!Array.isArray(aq)) aq = [];
+      var cutoff = Date.now() - 24 * 60 * 60 * 1000;
+      var recentAlertNames = aq
+        .filter(function (e) { return e.type === 'trend_alert' && e.createdAt && new Date(e.createdAt).getTime() > cutoff; })
+        .map(function (e) { return (e.trendName || '').toLowerCase(); });
+
+      var newAlerts = alertCandidates
+        .filter(function (t) { return recentAlertNames.indexOf(t.name.toLowerCase()) === -1; })
+        .map(function (t) {
+          var deltaNote = t.scoreDelta != null ? ' Score jumped +' + t.scoreDelta + ' pts since last cycle.' : ' Newly detected high-momentum trend.';
+          var stageLabel = t.stage === 'exploding' ? 'Exploding' : 'Rising Fast';
+          return {
+            id: 'aq-trend-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+            type: 'trend_alert',
+            trendName: t.name,
+            trendStage: t.stage,
+            trendScore: t.score,
+            scoreDelta: t.scoreDelta,
+            category: t.category,
+            title: stageLabel + ': ' + t.name,
+            body: t.description + deltaNote + ' Consider creating a campaign or research task.',
+            status: 'pending',
+            createdAt: new Date().toISOString(),
+            source: 'trends_radar'
+          };
+        });
+
+      if (newAlerts.length) {
+        aq.push.apply(aq, newAlerts);
+        await storage.setState('approvalQueue', aq);
+        log('[TrendIngest] Created ' + newAlerts.length + ' AQ trend alert(s)');
+      }
+    } catch (e) {
+      log('[TrendIngest] AQ alert creation failed (non-fatal): ' + e.message);
+    }
+  }
+
   return { ok: true, trendCount: trends.length, snapshotIndex: existing.length };
 }
 

@@ -228,6 +228,13 @@
           + '</div>';
       }
 
+      var risingHtml = t.risingFast
+        ? '<span class="tr-rising-badge">'
+          + '<i class="fas fa-arrow-trend-up"></i> Rising Fast'
+          + (t.scoreDelta != null ? ' +' + t.scoreDelta : '')
+          + '</span>'
+        : '';
+
       return '<div class="tr-card' + (selected ? ' tr-card--selected' : '') + '" data-id="' + t.id + '" style="--tr-card-accent:' + color + '">'
         + '<div class="tr-card-head">'
         +   '<div>'
@@ -239,6 +246,7 @@
         + '<div class="tr-card-desc">' + esc(t.description) + '</div>'
         + '<div class="tr-card-footer">'
         +   '<span class="tr-badge tr-badge--' + t.stage.id + '">' + esc(t.stage.label) + '</span>'
+        +   risingHtml
         +   buildSparkline(t.history)
         + '</div>'
         + badgesHtml
