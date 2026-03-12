@@ -117,6 +117,17 @@
       </div>
     </div>
 
+    <!-- Trends Radar Widget -->
+    <div class="hq-trends-widget">
+      <div class="hq-trends-header">
+        <h3><i class="fas fa-chart-line"></i> Trends Radar</h3>
+        <a href="/modules/company/trends.html" class="hq-trends-link">View all <i class="fas fa-arrow-right"></i></a>
+      </div>
+      <div class="hq-trends-list" id="hq-trends-list">
+        <div class="hq-trends-empty">Loading trends...</div>
+      </div>
+    </div>
+
     <!-- Standup Quick Link -->
     <div style="margin-top:1.5rem; padding-top:1.5rem; border-top:1px solid rgba(255,255,255,0.05);">
       <a href="/modules/company/standup.html" style="display:flex; align-items:center; gap:0.8rem; padding:0.8rem 1rem; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:10px; text-decoration:none; color:inherit; transition:border-color 0.2s;" onmouseover="this.style.borderColor='rgba(138,43,226,0.2)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.05)'">
@@ -326,6 +337,41 @@
       if (AgentEngine.hasStandupToday()) {
         quickStatus.textContent = '✓ Completed today — view transcript →';
       }
+
+      // ── Trends Radar Widget ──
+      (function () {
+        var el = document.getElementById('hq-trends-list');
+        if (!el) return;
+        var STAGE_COLORS = { exploding: '#f87171', growing: '#fbbf24', emerging: '#34d399', early_signal: '#60a5fa' };
+        var CAT_LABELS = { ai_ml: 'AI / ML', devtools: 'Dev Tools', design: 'Design', marketing: 'Marketing', infrastructure: 'Infrastructure', product: 'Product' };
+        var apiBase = window.location.hostname.indexOf('ambientpixels.ai') !== -1
+          ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+          : '/api';
+        fetch(apiBase + '/company-state?key=trendRadar')
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (data) {
+            var arr = data && data.value ? data.value : data;
+            if (!Array.isArray(arr) || !arr.length) { el.innerHTML = '<div class="hq-trends-empty">No trend data yet.</div>'; return; }
+            var latest = arr[arr.length - 1];
+            var trends = Array.isArray(latest.trends) ? latest.trends.slice() : [];
+            trends.sort(function (a, b) { return (b.score || 0) - (a.score || 0); });
+            var top3 = trends.slice(0, 3);
+            if (!top3.length) { el.innerHTML = '<div class="hq-trends-empty">No trends available.</div>'; return; }
+            el.innerHTML = top3.map(function (t) {
+              var color = STAGE_COLORS[t.stage] || '#a78bfa';
+              var cat = CAT_LABELS[t.category] || t.category;
+              return '<a href="/modules/company/trends.html" class="hq-trend-row" style="--tr-accent:' + color + '">'
+                + '<div class="hq-trend-score" style="color:' + color + '">' + (t.score || '—') + '</div>'
+                + '<div class="hq-trend-info">'
+                +   '<div class="hq-trend-name">' + (t.name || 'Unknown') + '</div>'
+                +   '<div class="hq-trend-cat">' + cat + '</div>'
+                + '</div>'
+                + '<span class="hq-trend-stage hq-trend-stage--' + (t.stage || 'emerging') + '">' + (t.stage || 'emerging').replace('_', ' ') + '</span>'
+                + '</a>';
+            }).join('');
+          })
+          .catch(function () { el.innerHTML = '<div class="hq-trends-empty">Could not load trends.</div>'; });
+      })();
     })();
   </script>
 

@@ -559,6 +559,30 @@
 .tr-source-badge--reddit { background: rgba(239,68,68,0.12);   color: #f87171; }
 .tr-source-badge--devto  { background: rgba(167,139,250,0.12); color: #a78bfa; }
 
+/* ── Ask Nova Button ── */
+.tr-nova-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22rem;
+  font-size: 0.44rem;
+  padding: 0.07rem 0.32rem;
+  border: 1px solid rgba(167,139,250,0.2);
+  border-radius: 4px;
+  background: rgba(167,139,250,0.05);
+  color: rgba(167,139,250,0.55);
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: all 0.15s;
+  white-space: nowrap;
+  margin-top: 0.3rem;
+}
+.tr-nova-btn:hover {
+  background: rgba(167,139,250,0.14);
+  border-color: rgba(167,139,250,0.5);
+  color: #a78bfa;
+}
+.tr-nova-btn i { font-size: 0.44rem; }
+
 /* ── Rising Fast Badge ── */
 .tr-rising-badge {
   display: inline-flex;

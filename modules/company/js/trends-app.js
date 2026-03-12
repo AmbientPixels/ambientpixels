@@ -250,6 +250,9 @@
         +   buildSparkline(t.history)
         + '</div>'
         + badgesHtml
+        + '<button class="tr-nova-btn" data-nova-id="' + t.id + '" title="Suggest campaign to Nova">'
+        +   '<i class="fas fa-robot"></i> Ask Nova'
+        + '</button>'
         + '</div>';
     }).join('');
 
@@ -626,6 +629,23 @@
     }
 
     renderFilters();
+
+    // Delegate Ask Nova clicks on trend grid
+    var grid = document.getElementById('tr-grid');
+    if (grid) {
+      grid.addEventListener('click', function (e) {
+        var btn = e.target.closest('.tr-nova-btn');
+        if (!btn) return;
+        e.stopPropagation();
+        var trendId = btn.getAttribute('data-nova-id');
+        var trend = TD.trends.find(function (t) { return t.id === trendId; });
+        if (!trend || !window.QuickChat || !window.QuickChat.suggest) return;
+        var msg = 'Build a campaign for "' + trend.name + '". '
+          + (trend.relevance ? trend.relevance + ' ' : '')
+          + (trend.signals && trend.signals.length ? 'Key signals: ' + trend.signals.slice(0, 2).join('; ') : '');
+        window.QuickChat.suggest('nova', msg.trim());
+      });
+    }
 
     // Delegate Create Task clicks on opportunity list
     var oppList = document.getElementById('tr-opp-list');

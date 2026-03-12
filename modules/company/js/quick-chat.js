@@ -227,9 +227,19 @@
   }
 
   // Public API (optional — dashboard can call renderAll after chat)
+  function suggest(agentId, text) {
+    if (agentSel) agentSel.value = agentId || 'nova';
+    if (input) input.value = text || '';
+    open();
+    setTimeout(function () {
+      if (input) { input.focus(); input.setSelectionRange(input.value.length, input.value.length); }
+    }, 320);
+  }
+
   window.QuickChat = {
     open: open,
     close: close,
+    suggest: suggest,
     onAfterSend: null
   };
 })();
