@@ -645,3 +645,30 @@
 }
 .tr-toggle:hover .tr-toggle-track { border-color: rgba(255,255,255,0.25); }
 .tr-toggle input:checked:hover + .tr-toggle-track { border-color: #c4b5fd; }
+
+/* ── Runtime Tuning Panel ── */
+.cfg-rt-grid { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.4rem; }
+.cfg-rt-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.4rem 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.cfg-rt-row:last-child { border-bottom: none; }
+.cfg-rt-label { font-size: 0.63rem; color: rgba(255,255,255,0.6); flex: 1; }
+.cfg-rt-input {
+  width: 64px; padding: 0.3rem 0.5rem;
+  background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 6px; color: #e2e8f0; font-size: 0.65rem; font-family: inherit;
+  text-align: center; outline: none; transition: border-color 0.15s;
+}
+.cfg-rt-input:focus { border-color: rgba(167,139,250,0.5); }
+.cfg-action-btn {
+  display: inline-flex; align-items: center; gap: 0.35rem;
+  padding: 0.4rem 0.9rem; border-radius: 6px;
+  font-size: 0.63rem; font-family: inherit; font-weight: 500;
+  cursor: pointer; border: 1px solid rgba(167,139,250,0.3);
+  background: rgba(167,139,250,0.08); color: #a78bfa;
+  transition: all 0.15s;
+}
+.cfg-action-btn:hover { background: rgba(167,139,250,0.18); border-color: rgba(167,139,250,0.5); }
+.cfg-action-btn--secondary {
+  border-color: rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.4);
+}
+.cfg-action-btn--secondary:hover { background: rgba(255,255,255,0.07); border-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.6); }

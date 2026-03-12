@@ -1855,4 +1855,75 @@
       });
     });
   }());
+
+  // ── Runtime Tuning: systemConfig overrides ──
+  (function () {
+    var _rtApiBase = window.location.hostname.includes('ambientpixels.ai')
+      ? 'https://ambientpixels-nova-api.azurewebsites.net/api' : '/api';
+
+    var _defaults = { maxCreatesPerAgentPerRun: 2, maxMovesPerAgentPerRun: 5, maxUpdatesPerAgentPerRun: 8, maxProposalsPerAgentPerRun: 10 };
+    var _fields = [
+      { id: 'cfg-rt-creates',   key: 'maxCreatesPerAgentPerRun' },
+      { id: 'cfg-rt-moves',     key: 'maxMovesPerAgentPerRun' },
+      { id: 'cfg-rt-updates',   key: 'maxUpdatesPerAgentPerRun' },
+      { id: 'cfg-rt-proposals', key: 'maxProposalsPerAgentPerRun' }
+    ];
+    var saveBtn = document.getElementById('cfg-rt-save-btn');
+    var resetBtn = document.getElementById('cfg-rt-reset-btn');
+    var rtStatus = document.getElementById('cfg-rt-status');
+    if (!saveBtn) return;
+
+    function _setStatus(msg, fade) {
+      if (rtStatus) rtStatus.textContent = msg;
+      if (fade) setTimeout(function () { if (rtStatus) rtStatus.textContent = ''; }, 2500);
+    }
+
+    // Load current systemConfig
+    fetch(_rtApiBase + '/company-state?key=systemConfig')
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        var cfg = (data && data.value) ? data.value : {};
+        _fields.forEach(function (f) {
+          var el = document.getElementById(f.id);
+          if (!el) return;
+          if (cfg[f.key] != null) el.value = cfg[f.key];
+          else el.value = '';
+        });
+      })
+      .catch(function () {});
+
+    saveBtn.addEventListener('click', function () {
+      var payload = {};
+      _fields.forEach(function (f) {
+        var el = document.getElementById(f.id);
+        if (!el || el.value === '') return;
+        var n = parseInt(el.value, 10);
+        if (!isNaN(n) && n >= 0) payload[f.key] = n;
+      });
+      fetch(_rtApiBase + '/company-state', {
+        method: 'POST',
+        headers: _getHeaders(),
+        body: JSON.stringify({ key: 'systemConfig', value: payload })
+      })
+      .then(function (r) { if (!r.ok) throw new Error('POST failed'); return r.json(); })
+      .then(function () { _setStatus('Saved — takes effect next heartbeat', true); })
+      .catch(function () { _setStatus('Save failed — check auth'); });
+    });
+
+    resetBtn.addEventListener('click', function () {
+      // Clear all inputs and write empty object (falls back to CAP_DEFAULTS)
+      _fields.forEach(function (f) {
+        var el = document.getElementById(f.id);
+        if (el) el.value = '';
+      });
+      fetch(_rtApiBase + '/company-state', {
+        method: 'POST',
+        headers: _getHeaders(),
+        body: JSON.stringify({ key: 'systemConfig', value: {} })
+      })
+      .then(function (r) { if (!r.ok) throw new Error('POST failed'); return r.json(); })
+      .then(function () { _setStatus('Reset to defaults — takes effect next heartbeat', true); })
+      .catch(function () { _setStatus('Reset failed — check auth'); });
+    });
+  }());
 })();

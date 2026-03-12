@@ -301,6 +301,15 @@ module.exports = async function (context) {
     // Load worker reports (client-side workers sync intel here for Nova to read)
     let workerReports = [];
     try { workerReports = (await storage.getState('workerReports')) || []; } catch (_wrErr) { /* non-fatal */ }
+    // Load systemConfig: runtime-tunable overrides for heartbeat constants (non-destructive — falls back to constants)
+    let _systemConfig = {};
+    try { _systemConfig = (await storage.getState('systemConfig')) || {}; } catch (_scErr) { /* non-fatal */ }
+    const _runtimeCaps = {
+      maxCreatesPerAgentPerRun:  _systemConfig.maxCreatesPerAgentPerRun  != null ? Number(_systemConfig.maxCreatesPerAgentPerRun)  : CAP_DEFAULTS.maxCreatesPerAgentPerRun,
+      maxMovesPerAgentPerRun:    _systemConfig.maxMovesPerAgentPerRun    != null ? Number(_systemConfig.maxMovesPerAgentPerRun)    : CAP_DEFAULTS.maxMovesPerAgentPerRun,
+      maxUpdatesPerAgentPerRun:  _systemConfig.maxUpdatesPerAgentPerRun  != null ? Number(_systemConfig.maxUpdatesPerAgentPerRun)  : CAP_DEFAULTS.maxUpdatesPerAgentPerRun,
+      maxProposalsPerAgentPerRun:_systemConfig.maxProposalsPerAgentPerRun!= null ? Number(_systemConfig.maxProposalsPerAgentPerRun): CAP_DEFAULTS.maxProposalsPerAgentPerRun
+    };
     // Fetch cost data for Cipher (CFO) awareness
     let costIntel = null;
     try {
@@ -350,13 +359,13 @@ module.exports = async function (context) {
       return { skipped: true, reason: 'frozen' };
     }
 
-    // Compute effective rate caps (Phase 1F: experimental mode gets 1.5x)
+    // Compute effective rate caps (Phase 1F: experimental mode gets 1.5x; systemConfig overrides base)
     const _capMultiplier = normalizedActivationMode === 'experimental' ? 1.5 : 1;
     const _effectiveCaps = {
-      maxCreatesPerAgentPerRun: Math.floor(CAP_DEFAULTS.maxCreatesPerAgentPerRun * _capMultiplier),
-      maxMovesPerAgentPerRun: Math.floor(CAP_DEFAULTS.maxMovesPerAgentPerRun * _capMultiplier),
-      maxUpdatesPerAgentPerRun: Math.floor(CAP_DEFAULTS.maxUpdatesPerAgentPerRun * _capMultiplier),
-      maxProposalsPerAgentPerRun: Math.floor(CAP_DEFAULTS.maxProposalsPerAgentPerRun * _capMultiplier)
+      maxCreatesPerAgentPerRun: Math.floor(_runtimeCaps.maxCreatesPerAgentPerRun * _capMultiplier),
+      maxMovesPerAgentPerRun: Math.floor(_runtimeCaps.maxMovesPerAgentPerRun * _capMultiplier),
+      maxUpdatesPerAgentPerRun: Math.floor(_runtimeCaps.maxUpdatesPerAgentPerRun * _capMultiplier),
+      maxProposalsPerAgentPerRun: Math.floor(_runtimeCaps.maxProposalsPerAgentPerRun * _capMultiplier)
     };
 
     await logEvent('run-start', null, 'Heartbeat run start', runId, {
