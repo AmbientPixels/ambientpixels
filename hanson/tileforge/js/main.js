@@ -328,24 +328,6 @@ document.addEventListener('DOMContentLoaded', function() {
   console.log('TileForge initialized successfully with modular architecture');
 });
 
-// Open Transform Modal manually
-function openTransformModal() {
-  if (typeof window.transformModal !== 'undefined') {
-    console.log('🔁 Opening transform modal manually');
-    window.transformModal.show((transformedCsvText, stats) => {
-      console.log('✅ Manual transformation complete:', stats);
-      // Process the transformed CSV data
-      processCsvData(transformedCsvText, 'Transformed Data', stats.totalRows);
-    });
-  } else {
-    console.error('Transform modal not available');
-    if (window.Modal && typeof Modal.alert === 'function') {
-      Modal.alert('Transform modal is not loaded. Please refresh the page and try again.', 'error');
-    } else {
-      alert('Transform modal is not loaded. Please refresh the page and try again.');
-    }
-  }
-}
 
 // Persistently hide intro and update UI labels (used by right-side card action)
 function dontShowIntro() {

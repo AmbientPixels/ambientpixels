@@ -723,14 +723,19 @@
   }
 }
 
-/* Modal Footer */ /* updated by Cascade */
+/* Modal Footer — sticky so it stays visible while scrolling the body */
 #mapping-modal .modal-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
   background: #2a2a2a;
   padding: 16px 24px;
   border-top: 1px solid #444;
   display: flex;
-  justify-content: flex-end;
-  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-start;
 }
 
 .btn {
@@ -762,4 +767,258 @@
 
 .btn-primary:hover {
   background: #106ebe;
+}
+
+.btn-outline-primary {
+  background: transparent;
+  color: #0078d4;
+  border: 1px solid #0078d4;
+}
+
+.btn-outline-primary:hover {
+  background: #0078d4;
+  color: #fff;
+}
+
+.btn-outline-success {
+  background: transparent;
+  color: #4caf50;
+  border: 1px solid #4caf50;
+}
+
+.btn-outline-success:hover {
+  background: #4caf50;
+  color: #fff;
+}
+
+/* ── Step indicator ─────────────────────────────────────── */
+.hm-steps {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 10px 24px;
+  background: #1e1e1e;
+  border-bottom: 1px solid #333;
+}
+
+.hm-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #555;
+  transition: color 0.2s, background 0.2s;
+}
+
+.hm-step.active {
+  color: #fff;
+  background: rgba(0, 120, 212, 0.15);
+}
+
+.hm-step.done {
+  color: #4caf50;
+}
+
+.hm-step-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 11px;
+  font-weight: 700;
+  background: #333;
+  color: #666;
+  transition: background 0.2s, color 0.2s;
+  flex-shrink: 0;
+}
+
+.hm-step.active .hm-step-num {
+  background: #0078d4;
+  color: #fff;
+}
+
+.hm-step.done .hm-step-num {
+  background: #4caf50;
+  color: #fff;
+}
+
+.hm-step-label {
+  white-space: nowrap;
+}
+
+.hm-step-sep {
+  color: #333;
+  font-size: 10px;
+  padding: 0 4px;
+}
+
+/* ── Split drop zones ───────────────────────────────────── */
+.hm-dropzone-row {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.hm-dz-half {
+  flex: 1;
+  max-width: none;
+  margin: 0;
+  border-radius: 0;
+}
+
+.hm-dz-half:first-child {
+  border-radius: 12px 0 0 12px;
+  border-right: none;
+}
+
+.hm-dz-half:last-child {
+  border-radius: 0 12px 12px 0;
+  border-left: none;
+}
+
+.hm-dz-half:hover,
+.hm-dz-half.drag-over {
+  z-index: 1;
+}
+
+.hm-dz-xml {
+  border-color: #3a6b3a;
+  background: #2a332a;
+}
+
+.hm-dz-xml:hover {
+  border-color: #4caf50;
+  background: #2e3c2e;
+}
+
+.hm-dz-xml.drag-over {
+  border-color: #4caf50;
+  background: #1a3a1a;
+  box-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
+}
+
+.hm-xml-icon {
+  color: #4caf50 !important;
+}
+
+.hm-dz-or {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  flex-shrink: 0;
+  font-size: 11px;
+  font-weight: 600;
+  color: #555;
+  background: #222;
+  border-top: 2px dashed #444;
+  border-bottom: 2px dashed #444;
+  letter-spacing: 0.04em;
+}
+
+.hm-browse-hint {
+  text-align: center;
+  margin-top: 14px;
+  font-size: 13px;
+  color: #666;
+}
+
+.hm-browse-ext {
+  color: #444;
+  font-size: 11px;
+  margin-left: 4px;
+}
+
+/* ── Mode badge ─────────────────────────────────────────── */
+.hm-mode-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 13px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  margin-bottom: 4px;
+}
+
+.hm-mode-badge.hm-mode-csv {
+  background: rgba(0, 120, 212, 0.12);
+  border: 1px solid rgba(0, 120, 212, 0.3);
+  color: #60acff;
+}
+
+.hm-mode-badge.hm-mode-xml {
+  background: rgba(76, 175, 80, 0.12);
+  border: 1px solid rgba(76, 175, 80, 0.3);
+  color: #7ed680;
+}
+
+/* ── XML Output Preview ─────────────────────────────────── */
+.hm-xml-preview-section {
+  border-top: 1px solid #333;
+  padding-top: 20px;
+  margin-top: 4px;
+}
+
+.hm-xml-preview-section h3 {
+  margin: 0 0 12px 0;
+  color: #fff;
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hm-xml-preview-section h3 i {
+  color: #4caf50;
+}
+
+.hm-xml-preview-toggle {
+  margin-left: auto;
+  padding: 3px 12px;
+  font-size: 12px;
+  background: transparent;
+  border: 1px solid #4caf50;
+  color: #4caf50;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.hm-xml-preview-toggle:hover {
+  background: #4caf50;
+  color: #fff;
+}
+
+.hm-xml-preview-area {
+  width: 100%;
+  min-height: 180px;
+  max-height: 320px;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  border-radius: 8px;
+  color: #7ed680;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  padding: 14px 16px;
+  resize: vertical;
+  box-sizing: border-box;
+  outline: none;
+}
+
+/* ── Upload section extra padding adjustment ─────────────── */
+.upload-section {
+  padding-top: 28px;
+  padding-bottom: 28px;
 }

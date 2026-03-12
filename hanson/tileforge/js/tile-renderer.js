@@ -99,11 +99,31 @@ function createTile(locale, title, subtitle, narratorText, analysis) {
   // Create editing content container (like existing live editor)
   const editingContent = document.createElement('div');
   editingContent.className = 'editing-content';
-  
+
   // Tile preview container (left side)
   const previewContainer = document.createElement('div');
   previewContainer.className = 'preview-tile-container';
   previewContainer.appendChild(tile);
+
+  // Action buttons — float over tile bottom, no layout impact
+  const tileActions = document.createElement('div');
+  tileActions.className = 'tile-actions';
+  tileActions.innerHTML = `
+    <button class="tile-action-btn tile-action-preview" title="Preview tile at full size">
+      <i class="fas fa-expand-alt" aria-hidden="true"></i> Preview
+    </button>
+    <button class="tile-action-btn tile-action-export" title="Export tile as PNG">
+      <i class="fas fa-download" aria-hidden="true"></i> Export PNG
+    </button>
+  `;
+  previewContainer.appendChild(tileActions);
+
+  tileActions.querySelector('.tile-action-preview').addEventListener('click', function () {
+    if (window.TileExport) window.TileExport.openPreview(tileContainer);
+  });
+  tileActions.querySelector('.tile-action-export').addEventListener('click', function () {
+    if (window.TileExport) window.TileExport.exportPng(tileContainer);
+  });
   
   // Editing controls container (right side)
   const editingControls = document.createElement('div');

@@ -7,12 +7,14 @@ class MappingModal {
   constructor() {
     this.currentData = null;
     this.dataAnalysis = null;
+    this.sourceType = null; // 'csv' | 'xml'
     this.fieldTypes = {
       input: [],
       output: ['headline', 'subheadline', 'narrator']
     };
     this.currentMapping = {};
-    
+    this._xmlPreviewOpen = false;
+
     this.init();
     console.log('🎨 Mapping Modal initialized (Clean Version)');
   }
@@ -34,11 +36,30 @@ class MappingModal {
     const modalHTML = `
       <div id="mapping-modal" class="modal-overlay" style="display: none;">
         <div class="modal-container">
+
           <div class="modal-header">
             <h2><i class="fas fa-magic"></i> Headline Mapper</h2>
             <button class="modal-close">&times;</button>
           </div>
-          
+
+          <!-- Step indicator -->
+          <div class="hm-steps" id="hmSteps">
+            <div class="hm-step active" id="hmStep1">
+              <span class="hm-step-num">1</span>
+              <span class="hm-step-label">Upload</span>
+            </div>
+            <div class="hm-step-sep"><i class="fas fa-chevron-right"></i></div>
+            <div class="hm-step" id="hmStep2">
+              <span class="hm-step-num">2</span>
+              <span class="hm-step-label">Map Fields</span>
+            </div>
+            <div class="hm-step-sep"><i class="fas fa-chevron-right"></i></div>
+            <div class="hm-step" id="hmStep3">
+              <span class="hm-step-num">3</span>
+              <span class="hm-step-label">Export</span>
+            </div>
+          </div>
+
           <div class="modal-body">
             <!-- Template Selector (mapper-only override) -->
             <div class="analysis-section" id="mapperTemplateSection">
@@ -53,38 +74,48 @@ class MappingModal {
               </div>
             </div>
 
-            <!-- CSV Upload Section -->
+            <!-- Upload Section — split CSV / XML zones -->
             <div id="csv-upload-section" class="upload-section">
-              <div class="csv-drop-zone" id="modalCsvDropZone">
-                <div class="csv-drop-zone-content">
-  <i class="fas fa-file-csv upload-icon"></i>
-  <h4>Drop CSV or Campsite XML File Here</h4>
-  <p>or <span class="browse-link" onclick="document.getElementById('modalCsvInput').click()">browse files</span></p>
-  <small>
-    Drag and drop your localization <b>CSV</b> or <b>Campsite-localized XML</b> file.<br>
-    <span style="color:#6c63ff"><b>Tip:</b></span> This tool lets you map and convert Campsite XML files to an <b>Iris-ready CSV</b> for CardForge or other Iris-compatible tools.
-  </small>
-  <div class="dropzone-info">
-    <p style="margin-top:8px;font-size:13px;color:#888;">
-      <b>What does this tool do?</b><br>
-      • Import Campsite-localized XML or CSV files<br>
-      • Map and preview localization fields<br>
-      • Export as Iris-ready CSV for CardForge or Iris pipeline
-    </p>
-  </div>
-</div>
-                <input type="file" id="modalCsvInput" accept=".csv" style="display: none;" />
+              <div class="hm-dropzone-row">
+
+                <div class="csv-drop-zone hm-dz-half" id="modalCsvDropZone" data-type="csv">
+                  <div class="csv-drop-zone-content">
+                    <i class="fas fa-file-csv upload-icon"></i>
+                    <h4>CSV File</h4>
+                    <p>Iris-format localization CSV</p>
+                    <small>Map fields → Export as XML or import directly to CardForge</small>
+                  </div>
+                </div>
+
+                <div class="hm-dz-or">or</div>
+
+                <div class="csv-drop-zone hm-dz-half hm-dz-xml" id="modalXmlDropZone" data-type="xml">
+                  <div class="csv-drop-zone-content">
+                    <i class="fas fa-file-code upload-icon hm-xml-icon"></i>
+                    <h4>Campsite XML</h4>
+                    <p>Localized content export</p>
+                    <small>Map fields → Export as Iris-ready CSV for CardForge</small>
+                  </div>
+                </div>
+
               </div>
+              <p class="hm-browse-hint">
+                or <span class="browse-link" onclick="document.getElementById('modalCsvInput').click()">browse files</span>
+                <span class="hm-browse-ext">(.csv or .xml)</span>
+              </p>
+              <input type="file" id="modalCsvInput" accept=".csv,.xml" style="display: none;" />
             </div>
 
             <!-- Mapping Interface -->
             <div id="mapping-interface" class="mapping-interface" style="display: none;">
+
+              <!-- Mode badge -->
+              <div id="hmModeBadge" class="hm-mode-badge" style="display:none;"></div>
+
               <!-- Data Analysis -->
               <div class="analysis-section">
                 <h3><i class="fas fa-chart-bar"></i> Data Analysis</h3>
-                <div class="stats-container" id="statsContainer">
-                  <!-- Stats will be populated here -->
-                </div>
+                <div class="stats-container" id="statsContainer"></div>
               </div>
 
               <!-- Field Mapping -->
@@ -92,19 +123,13 @@ class MappingModal {
                 <h3><i class="fas fa-arrows-alt-h"></i> Field Mapping</h3>
                 <div class="mapping-grid">
                   <div class="input-fields">
-                    <h4>Input Fields (Your CSV)</h4>
-                    <div id="input-fields">
-                      <!-- Input fields will be populated here -->
-                    </div>
+                    <h4 id="hmInputColLabel">Input Fields (Your File)</h4>
+                    <div id="input-fields"></div>
                   </div>
-                  <div class="mapping-arrow">
-                    <i class="fas fa-arrow-right"></i>
-                  </div>
+                  <div class="mapping-arrow"><i class="fas fa-arrow-right"></i></div>
                   <div class="output-fields">
-                    <h4>Output Fields (CardForge)</h4>
-                    <div id="output-fields">
-                      <!-- Output fields will be populated here -->
-                    </div>
+                    <h4 id="hmOutputColLabel">Output Fields (CardForge)</h4>
+                    <div id="output-fields"></div>
                   </div>
                 </div>
               </div>
@@ -112,23 +137,38 @@ class MappingModal {
               <!-- Live Preview -->
               <div class="preview-section">
                 <h3><i class="fas fa-eye"></i> Live Preview</h3>
-                <div class="preview-container" id="previewContainer">
-                  <!-- Preview will be populated here -->
-                </div>
+                <div class="preview-container" id="previewContainer"></div>
               </div>
-            </div>
 
-            <!-- Line Name Generator moved to its own modal (open via Tools → Line Name Generator) — removed from this modal -->
+              <!-- XML Output Preview (toggle) -->
+              <div class="hm-xml-preview-section" id="hmXmlPreviewSection" style="display:none;">
+                <h3>
+                  <i class="fas fa-file-code"></i> XML Output Preview
+                  <button class="hm-xml-preview-toggle" id="hmXmlPreviewToggle" onclick="window.mappingModal.toggleXmlPreview()">Show</button>
+                </h3>
+                <textarea id="hmXmlPreviewArea" class="hm-xml-preview-area" readonly
+                  placeholder="Click Show to generate a preview of the XML export…" style="display:none;"></textarea>
+              </div>
+
+            </div>
           </div>
-          
+
           <div class="modal-footer">
             <button class="btn btn-secondary" onclick="window.mappingModal.hide()">Cancel</button>
             <button class="btn btn-outline-primary" id="exportCsvBtn" onclick="window.mappingModal.exportCsv()" style="display: none;">
-              <i class="fas fa-download"></i> Export CSV
+              <i class="fas fa-file-csv"></i> Export CSV
+            </button>
+            <button class="btn btn-outline-success" id="exportXmlBtn" onclick="window.mappingModal.exportXml()" style="display: none;" title="Export current data as Campsite-format XML">
+              <i class="fas fa-file-code"></i> Export XML
             </button>
             <button class="btn btn-primary" id="importBtn" onclick="window.mappingModal.importToCardForge()" style="display: none;">
               <i class="fas fa-upload"></i> Import to CardForge
             </button>
+            <div id="xmlItemNameWrap" style="display:none; align-items:center; gap:6px; margin-left:8px;">
+              <label for="xmlItemNameInput" style="font-size:12px; white-space:nowrap; color:var(--text-secondary,#aaa);">XML Name:</label>
+              <input type="text" id="xmlItemNameInput" placeholder="_ExportedItem" value="_ExportedItem"
+                style="width:160px; font-size:12px; padding:3px 7px; background:var(--bg-secondary,#1e1e2e); border:1px solid var(--border,#333); border-radius:4px; color:var(--text-primary,#fff);" />
+            </div>
             <div style="margin-left:auto; display:flex; align-items:center; gap:8px;">
               <input type="checkbox" id="strictSetToggle" />
               <label for="strictSetToggle" title="Require full locale set for the selected template before allowing export/import">Require full set</label>
@@ -300,6 +340,117 @@ class MappingModal {
         }
       });
     }
+
+    // XML drop zone (separate zone for XML-only drops)
+    const xmlDropZone = document.getElementById('modalXmlDropZone');
+    if (xmlDropZone) {
+      xmlDropZone.style.cursor = 'pointer';
+      xmlDropZone.addEventListener('click', () => document.getElementById('modalCsvInput').click());
+      xmlDropZone.addEventListener('dragover', (e) => { e.preventDefault(); xmlDropZone.classList.add('drag-over'); });
+      xmlDropZone.addEventListener('dragleave', (e) => { e.preventDefault(); xmlDropZone.classList.remove('drag-over'); });
+      xmlDropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        xmlDropZone.classList.remove('drag-over');
+        const file = e.dataTransfer.files && e.dataTransfer.files[0];
+        if (!file) return;
+        if (file.name.endsWith('.xml') || file.type === 'text/xml' || file.type === 'application/xml') {
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            const rows = window.headlinerCrafter.constructor.parseXML(ev.target.result);
+            this.handleCsvUpload(rows);
+          };
+          reader.readAsText(file);
+        } else if (file.name.endsWith('.csv') || file.type === 'text/csv') {
+          this.handleCsvUpload(file);
+        }
+      });
+    }
+
+    // Also make CSV drop zone clickable
+    const csvDropZone = document.getElementById('modalCsvDropZone');
+    if (csvDropZone) {
+      csvDropZone.style.cursor = 'pointer';
+      csvDropZone.addEventListener('click', () => document.getElementById('modalCsvInput').click());
+    }
+
+    // Refresh XML preview when item name changes
+    const xmlNameInput = document.getElementById('xmlItemNameInput');
+    if (xmlNameInput) {
+      xmlNameInput.addEventListener('input', () => this.refreshXmlPreview());
+    }
+  }
+
+  /**
+   * Move the step indicator to step 1, 2, or 3
+   */
+  setStep(n) {
+    for (let i = 1; i <= 3; i++) {
+      const el = document.getElementById('hmStep' + i);
+      if (!el) continue;
+      el.classList.remove('active', 'done');
+      if (i < n) el.classList.add('done');
+      else if (i === n) el.classList.add('active');
+    }
+  }
+
+  /**
+   * Show/update the mode badge inside the mapping interface
+   */
+  setModeBadge(type) {
+    const badge = document.getElementById('hmModeBadge');
+    if (!badge) return;
+    if (!type) { badge.style.display = 'none'; return; }
+    const isXml = type === 'xml';
+    badge.className = 'hm-mode-badge ' + (isXml ? 'hm-mode-xml' : 'hm-mode-csv');
+    badge.innerHTML = isXml
+      ? '<i class="fas fa-file-code"></i> Campsite XML imported — mapping to Iris CSV'
+      : '<i class="fas fa-file-csv"></i> CSV imported — mapping fields';
+    badge.style.display = 'inline-flex';
+  }
+
+  /**
+   * Toggle XML output preview textarea open/closed
+   */
+  toggleXmlPreview() {
+    const area = document.getElementById('hmXmlPreviewArea');
+    const btn  = document.getElementById('hmXmlPreviewToggle');
+    if (!area) return;
+    this._xmlPreviewOpen = !this._xmlPreviewOpen;
+    area.style.display = this._xmlPreviewOpen ? 'block' : 'none';
+    if (btn) btn.textContent = this._xmlPreviewOpen ? 'Hide' : 'Show';
+    if (this._xmlPreviewOpen) this.refreshXmlPreview();
+  }
+
+  /**
+   * Regenerate the XML preview textarea content from current data
+   */
+  refreshXmlPreview() {
+    const area = document.getElementById('hmXmlPreviewArea');
+    if (!area || !this._xmlPreviewOpen || !this.currentData) return;
+    try {
+      const itemName = (document.getElementById('xmlItemNameInput')?.value || '').trim() || '_ExportedItem';
+      const xmlRows = this.currentData.map(row => {
+        const localeRaw = (row.Locale || row.locale || row.Language || '').trim();
+        const parts = localeRaw.toUpperCase().replace(/_/g, '-').split('-').filter(Boolean);
+        return {
+          Language: row.Language || parts[0] || '',
+          Region: row.Region || (parts.length > 1 ? parts[parts.length - 1] : ''),
+          Title: row.Title || row['items/0/title'] || row.title || '',
+          Description: row.Description || row['items/0/subtitle'] || row.subtitle || '',
+          MiniFAD: row.MiniFAD || row['items/0/narratorText'] || row.narratorText || row['items/0/subtitle'] || '',
+          SubHeader: row.SubHeader || '',
+          Footer: row.Footer || ''
+        };
+      }).filter(r => r.Language);
+      if (!xmlRows.length) { area.value = '(no exportable rows)'; return; }
+      const xml = window.headlinerCrafter.constructor.exportToXML(xmlRows, itemName);
+      // Show first ~40 lines as a preview
+      const lines = xml.split('\n');
+      const preview = lines.slice(0, 40).join('\n') + (lines.length > 40 ? '\n  … (' + (lines.length - 40) + ' more lines)' : '');
+      area.value = preview;
+    } catch (e) {
+      area.value = '(preview error: ' + e.message + ')';
+    }
   }
 
   /**
@@ -307,15 +458,16 @@ class MappingModal {
    */
   show(csvData = null) {
     console.log('🎨 Opening Headliner Crafter mapping modal...');
-    
+
     const modal = document.getElementById('mapping-modal');
     const uploadSection = document.getElementById('csv-upload-section');
     const mappingInterface = document.getElementById('mapping-interface');
     const exportCsvBtn = document.getElementById('exportCsvBtn');
+    const exportXmlBtn = document.getElementById('exportXmlBtn');
+    const xmlItemNameWrap = document.getElementById('xmlItemNameWrap');
     const importBtn = document.getElementById('importBtn');
     const tplSelect = document.getElementById('mapperTemplateSelect');
-    const strictToggle = document.getElementById('strictSetToggle');
-    
+
     // Initialize template selector to current mode
     try {
       if (tplSelect && window.headlinerCrafter && typeof window.headlinerCrafter.getActiveTemplateMode === 'function') {
@@ -326,7 +478,7 @@ class MappingModal {
         }
       }
     } catch (_) {}
-    
+
     if (csvData && csvData.length > 0) {
       console.log('📊 Using provided CSV data:', csvData.length, 'rows');
       this.currentData = csvData;
@@ -334,14 +486,22 @@ class MappingModal {
       uploadSection.style.display = 'none';
       mappingInterface.style.display = 'block';
       exportCsvBtn.style.display = 'inline-block';
+      exportXmlBtn.style.display = 'inline-block';
+      if (xmlItemNameWrap) xmlItemNameWrap.style.display = 'flex';
       importBtn.style.display = 'inline-block';
+      this.setStep(2);
+      this.setModeBadge(this.sourceType || 'csv');
     } else {
       uploadSection.style.display = 'block';
       mappingInterface.style.display = 'none';
       exportCsvBtn.style.display = 'none';
+      exportXmlBtn.style.display = 'none';
+      if (xmlItemNameWrap) xmlItemNameWrap.style.display = 'none';
       importBtn.style.display = 'none';
+      this.setStep(1);
+      this.setModeBadge(null);
     }
-    
+
     modal.style.display = 'flex';
     modal.style.opacity = '1';
     modal.style.visibility = 'visible';
@@ -357,6 +517,12 @@ class MappingModal {
       modal.style.opacity = '0';
       modal.style.visibility = 'hidden';
     }
+    // Reset preview toggle state so next open starts fresh
+    this._xmlPreviewOpen = false;
+    const area = document.getElementById('hmXmlPreviewArea');
+    const btn  = document.getElementById('hmXmlPreviewToggle');
+    if (area) { area.style.display = 'none'; area.value = ''; }
+    if (btn)  btn.textContent = 'Show';
   }
 
   /**
@@ -371,12 +537,18 @@ class MappingModal {
       }
       console.log('📁 Processing uploaded XML data:', input.length, 'rows');
       this.currentData = input;
+      this.sourceType = 'xml';
       this.analyzeAndPopulate(input);
       // Switch to mapping interface
       document.getElementById('csv-upload-section').style.display = 'none';
       document.getElementById('mapping-interface').style.display = 'block';
       document.getElementById('exportCsvBtn').style.display = 'inline-block';
+      document.getElementById('exportXmlBtn').style.display = 'none'; // XML→XML doesn't make sense; hide
+      const wrap1 = document.getElementById('xmlItemNameWrap'); if (wrap1) wrap1.style.display = 'none';
       document.getElementById('importBtn').style.display = 'inline-block';
+      const xmlPrev1 = document.getElementById('hmXmlPreviewSection'); if (xmlPrev1) xmlPrev1.style.display = 'none';
+      this.setStep(2);
+      this.setModeBadge('xml');
       return;
     }
 
@@ -406,12 +578,18 @@ class MappingModal {
         }
         console.log('✅ CSV parsed successfully:', csvData.length, 'rows');
         this.currentData = csvData;
+        this.sourceType = 'csv';
         this.analyzeAndPopulate(csvData);
         // Switch to mapping interface
         document.getElementById('csv-upload-section').style.display = 'none';
         document.getElementById('mapping-interface').style.display = 'block';
         document.getElementById('exportCsvBtn').style.display = 'inline-block';
+        document.getElementById('exportXmlBtn').style.display = 'inline-block';
+        const wrap2 = document.getElementById('xmlItemNameWrap'); if (wrap2) wrap2.style.display = 'flex';
         document.getElementById('importBtn').style.display = 'inline-block';
+        const xmlPrev2 = document.getElementById('hmXmlPreviewSection'); if (xmlPrev2) xmlPrev2.style.display = 'block';
+        this.setStep(2);
+        this.setModeBadge('csv');
       } catch (error) {
         console.error('❌ Error parsing CSV:', error);
         /* No alert for CSV parse error */
@@ -642,7 +820,13 @@ class MappingModal {
     
     inputContainer.innerHTML = inputHTML;
     outputContainer.innerHTML = outputHTML;
-    
+
+    // Update column labels based on source type
+    const inputLabel  = document.getElementById('hmInputColLabel');
+    const outputLabel = document.getElementById('hmOutputColLabel');
+    if (inputLabel)  inputLabel.textContent  = this.sourceType === 'xml' ? 'Input Fields (Campsite XML)' : 'Input Fields (Your CSV)';
+    if (outputLabel) outputLabel.textContent = this.sourceType === 'xml' ? 'Output Fields (Iris / CardForge)' : 'Output Fields (Campsite XML)';
+
     // Bind mapping change events with enhanced feedback
     document.querySelectorAll('.field-mapping-select').forEach(select => {
       select.addEventListener('change', () => {
@@ -725,7 +909,8 @@ class MappingModal {
     }
     
     console.log('📤 Exporting CardForge CSV...');
-    
+    this.setStep(3);
+
     try {
       const transformedData = window.headlinerCrafter.transformData(this.currentData);
       const csvContent = window.headlinerCrafter.exportToCardForgeCSV(transformedData);
@@ -751,6 +936,67 @@ class MappingModal {
   }
 
   /**
+   * Export current data as Campsite-format XML
+   */
+  exportXml() {
+    if (!this.currentData || !window.headlinerCrafter) return;
+
+    console.log('📤 Exporting Campsite XML...');
+    this.setStep(3);
+
+    try {
+      const itemName = (document.getElementById('xmlItemNameInput')?.value || '').trim() || '_ExportedItem';
+
+      // Build xml-ready rows. Source may be XML-parsed (has Title/Description/MiniFAD)
+      // or CSV-parsed (has items/0/title etc). Handle both.
+      const xmlRows = this.currentData.map(row => {
+        const localeRaw = (row.Locale || row.locale || row.Language || '').trim();
+        const parts = localeRaw.toUpperCase().replace(/_/g, '-').split('-').filter(Boolean);
+        const lang = row.Language || parts[0] || '';
+        const region = row.Region || (parts.length > 1 ? parts[parts.length - 1] : '');
+        return {
+          Language: lang,
+          Region: region,
+          Title: row.Title || row['items/0/title'] || row.title || '',
+          Description: row.Description || row['items/0/subtitle'] || row.subtitle || '',
+          MiniFAD: row.MiniFAD || row['items/0/narratorText'] || row.narratorText || row['items/0/subtitle'] || '',
+          SubHeader: row.SubHeader || '',
+          Footer: row.Footer || ''
+        };
+      }).filter(r => r.Language);
+
+      if (!xmlRows.length) {
+        if (window.Modal && typeof Modal.alert === 'function') {
+          Modal.alert('No exportable rows found. Check that your data has locale information.', 'warning');
+        }
+        return;
+      }
+
+      const xmlContent = window.headlinerCrafter.constructor.exportToXML(xmlRows, itemName);
+
+      const blob = new Blob([xmlContent], { type: 'application/xml' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = itemName + '.xml';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      console.log('✅ Campsite XML exported:', xmlRows.length, 'variants');
+      if (window.Modal && typeof Modal.alert === 'function') {
+        Modal.alert(`"${itemName}.xml" exported with ${xmlRows.length} locale variants.`, 'success', 'XML exported');
+      }
+    } catch (error) {
+      console.error('❌ XML export error:', error);
+      if (window.Modal && typeof Modal.alert === 'function') {
+        Modal.alert('Failed to export XML: ' + error.message, 'error');
+      }
+    }
+  }
+
+  /**
    * Import the transformed data directly into CardForge main interface
    */
   importToCardForge() {
@@ -760,6 +1006,7 @@ class MappingModal {
     }
     
     console.log('📥 Importing ONLY content to CardForge...');
+    this.setStep(3);
      
     try {
       const transformedData = window.headlinerCrafter.transformData(this.currentData);
