@@ -215,9 +215,43 @@
     });
 
   // Re-render agent tiles once CompanyStore is ready (to get heartbeat + task data)
-  window.addEventListener('companystoreready', function () { _cfgRenderAgentTiles(); });
+  // Also fetch heartbeatRuns for per-agent error/stats enrichment
+  window.addEventListener('companystoreready', function () { _cfgLoadHeartbeatHealth(); });
 
-  function _cfgRenderAgentTiles() {
+  function _cfgLoadHeartbeatHealth() {
+    var _hrApiBase = window.location.hostname.includes('ambientpixels.ai')
+      ? 'https://ambientpixels-nova-api.azurewebsites.net/api' : '/api';
+    fetch(_hrApiBase + '/company-state?key=heartbeatRuns')
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        var runs = data && data.value ? data.value : (Array.isArray(data) ? data : null);
+        var lastRun = runs && runs.length ? runs[runs.length - 1] : null;
+        var perAgent = (lastRun && lastRun.perAgent) ? lastRun.perAgent : {};
+        _cfgRenderLastRunBar(lastRun);
+        _cfgRenderAgentTiles(perAgent);
+      })
+      .catch(function () { _cfgRenderAgentTiles({}); });
+  }
+
+  function _cfgRenderLastRunBar(run) {
+    var bar = document.getElementById('cfg-lastrun-bar');
+    if (!bar || !run) return;
+    var statusColor = run.status === 'success' ? '#34d399' : run.status === 'partial' ? '#fbbf24' : '#f87171';
+    var dur = run.durationMs ? (run.durationMs / 1000).toFixed(1) + 's' : '—';
+    var ts = run.startedAt ? new Date(run.startedAt).toLocaleTimeString() : '—';
+    var executed = (run.agentActions && run.agentActions.executed != null) ? run.agentActions.executed : '—';
+    var blocked = (run.guardrails && run.guardrails.exactDupBlocked != null) ? run.guardrails.exactDupBlocked : 0;
+    bar.style.display = '';
+    bar.innerHTML = '<span class="cfg-lastrun-label">Last Run</span>'
+      + '<span class="cfg-lastrun-status" style="color:' + statusColor + '">' + (run.status || '—') + '</span>'
+      + '<span class="cfg-lastrun-item"><i class="fas fa-clock"></i>' + ts + '</span>'
+      + '<span class="cfg-lastrun-item"><i class="fas fa-stopwatch"></i>' + dur + '</span>'
+      + '<span class="cfg-lastrun-item"><i class="fas fa-bolt"></i>' + executed + ' actions</span>'
+      + (blocked ? '<span class="cfg-lastrun-item cfg-lastrun-blocked"><i class="fas fa-ban"></i>' + blocked + ' dup-blocked</span>' : '');
+  }
+
+  function _cfgRenderAgentTiles(perAgent) {
+    perAgent = perAgent || {};
     if (!_agentRoster) return;
     var el = document.getElementById('ov-agents');
     var tierColors = { 1: '#FFD700', 2: '#8A2BE2', 3: '#4ECDC4', 4: '#888' };
@@ -258,7 +292,25 @@
       var agentTasks = tasks.filter(function (t) { return t.assignee === id && t.status !== 'done'; });
       var taskLabel = agentTasks.length > 0 ? agentTasks.length + ' task' + (agentTasks.length > 1 ? 's' : '') : '0 tasks';
 
-      return '<div class="cfg-agent-tile">' +
+      // Last-run per-agent stats from heartbeatRuns
+      var pa = perAgent[id] || {};
+      var microHtml = '';
+      if (a.tier !== 1 && (pa.actionsExecuted != null || pa.actionsBlocked != null || pa.avgLatencyMs != null)) {
+        microHtml += '<div class="cfg-agent-micro-stats">';
+        if (pa.actionsExecuted != null) microHtml += '<span>' + pa.actionsExecuted + ' exec</span>';
+        if (pa.actionsBlocked != null && pa.actionsBlocked > 0) microHtml += '<span class="cfg-agent-micro-blocked">' + pa.actionsBlocked + ' blocked</span>';
+        if (pa.avgLatencyMs != null) microHtml += '<span>' + Math.round(pa.avgLatencyMs / 100) / 10 + 's</span>';
+        microHtml += '</div>';
+      }
+      var errorHtml = '';
+      if (pa.error) {
+        errorHtml = '<div class="cfg-agent-error" title="' + pa.error.replace(/"/g, '&quot;') + '">'
+          + '<i class="fas fa-exclamation-circle"></i> '
+          + pa.error.substring(0, 80) + (pa.error.length > 80 ? '\u2026' : '')
+          + '</div>';
+      }
+
+      return '<div class="cfg-agent-tile' + (pa.error ? ' cfg-agent-tile--error' : '') + '">' +
         '<div class="cfg-agent-dot" style="background:' + color + ';"></div>' +
         '<div class="cfg-agent-info">' +
           '<div class="cfg-agent-name">' + (a.name || 'Unknown') + '</div>' +
@@ -266,6 +318,8 @@
             '<span><i class="fas fa-heartbeat" style="margin-right:2px;"></i>' + hbLabel + '</span>' +
             '<span><i class="fas fa-tasks" style="margin-right:2px;"></i>' + taskLabel + '</span>' +
           '</div>' +
+          microHtml +
+          errorHtml +
         '</div>' +
         '<div class="cfg-agent-right">' +
           '<div class="cfg-agent-status ' + statusClass + '">' + statusText + '</div>' +

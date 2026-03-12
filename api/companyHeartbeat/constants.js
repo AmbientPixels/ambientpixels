@@ -84,6 +84,16 @@ const MAX_OBSERVATION_CHARS = 180;
 const MAX_ENTITY_COMMENT_CALLS_PER_RUN = 6;
 const VALID_TASK_STATUSES = ['pending-approval', 'backlog', 'todo', 'in-progress', 'review', 'done'];
 
+// ── Valid task types — single source of truth ──
+// Keep in sync with: index.js _validTaskTypes, prompt-builders.js schema enum, company-state VALID_KEYS
+const VALID_SOCIAL_TASK_TYPES = ['social_x', 'social_linkedin', 'social_bluesky', 'social_facebook', 'social_reddit'];
+const VALID_TASK_TYPES = [
+  'general', 'blog_post', 'article', 'newsletter', 'internal_doc',
+  'design_asset', 'research', 'ops', 'finance', 'editorial', 'bug_fix',
+  'intake', 'support',
+  ...VALID_SOCIAL_TASK_TYPES
+];
+
 // ── Known action types for dual-envelope normalizer ──
 const KNOWN_ACTION_TYPES = [
   'create-task', 'update-task', 'move-task', 'execute-task', 'review-task',
@@ -159,6 +169,8 @@ module.exports = {
   MAX_OBSERVATION_CHARS,
   MAX_ENTITY_COMMENT_CALLS_PER_RUN,
   VALID_TASK_STATUSES,
+  VALID_TASK_TYPES,
+  VALID_SOCIAL_TASK_TYPES,
   KNOWN_ACTION_TYPES,
   RESEARCH_MAX_AGE_DAYS,
   MAX_TREND_INSIGHTS_STORE,

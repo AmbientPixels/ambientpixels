@@ -3,8 +3,30 @@
 
 const fs = require("fs");
 const path = require("path");
-const { AGENT_IDS, AGENT_ROLES, _agentPersonalities, CFO_THRESHOLD, RESEARCH_MAX_AGE_DAYS, MAX_RESEARCH_INJECTIONS, MAX_RESEARCH_CHARS, TREND_RADAR_MAX_AGE_DAYS } = require("./constants");
+const { AGENT_IDS, AGENT_ROLES, _agentPersonalities, CFO_THRESHOLD, RESEARCH_MAX_AGE_DAYS, MAX_RESEARCH_INJECTIONS, MAX_RESEARCH_CHARS, TREND_RADAR_MAX_AGE_DAYS, VALID_SOCIAL_TASK_TYPES, VALID_TASK_TYPES } = require("./constants");
 const { _buildSocialIntelPromptBlock } = require('./social-intel');
+
+// ── Prompt Coverage Guard ──
+// Logs startup warnings if a valid taskType or social platform is missing from prompt definitions.
+// This prevents the "Facebook gap" class of bugs where a feature is wired in the executor
+// but agents never receive instructions for it.
+(function _validatePromptCoverage() {
+  const _schemaEnum = 'general|blog_post|article|social_x|social_linkedin|social_bluesky|social_facebook|social_reddit|internal_doc|design_asset|research|ops|finance|editorial|bug_fix|newsletter|intake|support';
+  const _platformEnum = 'x|linkedin|bluesky|facebook|reddit';
+  const _socialPlatformMap = { social_x: 'x', social_linkedin: 'linkedin', social_bluesky: 'bluesky', social_facebook: 'facebook', social_reddit: 'reddit' };
+
+  VALID_TASK_TYPES.forEach(function (t) {
+    if (_schemaEnum.indexOf(t) === -1) {
+      console.warn('[PromptBuilders] COVERAGE GAP: "' + t + '" missing from create-task schema enum');
+    }
+  });
+  VALID_SOCIAL_TASK_TYPES.forEach(function (t) {
+    var platform = _socialPlatformMap[t];
+    if (platform && _platformEnum.indexOf(platform) === -1) {
+      console.warn('[PromptBuilders] COVERAGE GAP: platform "' + platform + '" (' + t + ') missing from create-social-action platform enum');
+    }
+  });
+}());
 function buildSiteContextBlock() {
   try {
     const digestPath = path.join(__dirname, '..', '..', 'data', 'site-manifest.digest.json');
