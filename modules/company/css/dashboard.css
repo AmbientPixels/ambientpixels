@@ -1164,6 +1164,109 @@
 }
 .ceo-social-chart-bar--accent { background: rgba(52,211,153,0.65); }
 
+/* ── Growth Section (Traffic + Social — CEO) ── */
+.growth-stats { margin-bottom: 0.8rem; }
+.growth-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.growth-select {
+  font-size: 0.62rem;
+  padding: 0.25rem 0.5rem;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 5px;
+  color: inherit;
+  font-family: inherit;
+}
+.growth-btn {
+  font-size: 0.58rem;
+  padding: 0.25rem 0.6rem;
+  border-radius: 5px;
+  cursor: pointer;
+  border: 1px solid;
+  font-family: inherit;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.growth-btn--cyan {
+  border-color: rgba(56,189,248,0.2);
+  background: rgba(56,189,248,0.04);
+  color: #38bdf8;
+}
+.growth-btn--green {
+  border-color: rgba(52,211,153,0.2);
+  background: rgba(52,211,153,0.04);
+  color: #34d399;
+}
+.growth-traffic-panel {
+  border-color: rgba(56,189,248,0.1);
+  background: rgba(56,189,248,0.015);
+  margin-bottom: 1rem;
+}
+.growth-social-panel {
+  border-color: rgba(96,165,250,0.1);
+  background: rgba(96,165,250,0.015);
+}
+.growth-traffic-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.6rem;
+}
+.growth-traffic-col {
+  background: rgba(255,255,255,0.015);
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 8px;
+  padding: 0.6rem 0.7rem;
+}
+.growth-table-title {
+  font-size: 0.65rem;
+  font-weight: 600;
+  opacity: 0.5;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: 0.35rem;
+}
+.growth-table-title i { margin-right: 5px; opacity: 0.6; }
+.growth-table-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0.25rem 0;
+  border-bottom: 1px solid rgba(255,255,255,0.025);
+  font-size: 0.65rem;
+}
+.growth-table-row:last-child { border-bottom: none; }
+.growth-table-key {
+  opacity: 0.65;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 72%;
+}
+.growth-table-val {
+  font-weight: 600;
+  color: #38bdf8;
+  flex-shrink: 0;
+}
+.growth-table-val--green { color: #34d399; }
+.growth-perf-row {
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 0.6rem;
+  font-size: 0.62rem;
+  opacity: 0.5;
+  flex-wrap: wrap;
+}
+@media (max-width: 960px) {
+  .growth-traffic-grid { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 768px) {
+  .growth-traffic-grid { grid-template-columns: 1fr; }
+  .growth-controls { flex-wrap: wrap; }
+}
+
 /* ── CEO Observability (simplified) ── */
 .ceo-obs-lights {
   display: flex;

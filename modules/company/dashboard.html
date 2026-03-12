@@ -299,6 +299,72 @@
         </div>
       </div>
 
+      <!-- CEO: Growth (Traffic + Social) -->
+      <div class="dash-section" id="section-growth" data-section="growth">
+        <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
+          <i class="fas fa-chart-area" style="color:#38bdf8;"></i>
+          <h2>Growth</h2>
+          <i class="fas fa-chevron-down dash-section-chevron"></i>
+        </div>
+        <div class="dash-section-body">
+
+          <!-- Growth Headline Stats -->
+          <div class="ceo-stats growth-stats" id="growth-stats">
+            <div class="ceo-stat" style="--cstat-color:#38bdf8;">
+              <div class="ceo-stat-label">Page Views</div>
+              <div class="ceo-stat-value" id="gstat-pageviews">--</div>
+              <div class="ceo-stat-sub" id="gstat-pageviews-sub">last 7 days</div>
+            </div>
+            <div class="ceo-stat" style="--cstat-color:#34d399;">
+              <div class="ceo-stat-label">Top Referrer</div>
+              <div class="ceo-stat-value" id="gstat-referrer" style="font-size:0.85rem;">--</div>
+              <div class="ceo-stat-sub" id="gstat-referrer-sub">sessions</div>
+            </div>
+            <div class="ceo-stat" style="--cstat-color:#60a5fa;">
+              <div class="ceo-stat-label">Followers</div>
+              <div class="ceo-stat-value" id="gstat-followers">--</div>
+              <div class="ceo-stat-sub" id="gstat-followers-sub">across platforms</div>
+            </div>
+            <div class="ceo-stat" style="--cstat-color:#a78bfa;">
+              <div class="ceo-stat-label">Engagements</div>
+              <div class="ceo-stat-value" id="gstat-engagements">--</div>
+              <div class="ceo-stat-sub" id="gstat-engagements-sub">last 7 days</div>
+            </div>
+          </div>
+
+          <!-- Traffic Brief Panel -->
+          <div class="dash-panel dash-panel--full growth-traffic-panel">
+            <div class="dash-panel-header">
+              <span class="dash-panel-title"><i class="fas fa-signal" style="color:#38bdf8;"></i> Traffic Brief</span>
+              <div class="growth-controls">
+                <select id="ceo-tb-range" class="growth-select">
+                  <option value="7d" selected>Last 7 days</option>
+                  <option value="1d">Last 24 hours</option>
+                  <option value="30d">Last 30 days</option>
+                </select>
+                <button id="ceo-tb-refresh" class="growth-btn growth-btn--cyan"><i class="fas fa-sync-alt"></i> Refresh</button>
+                <button id="ceo-tb-scout" class="growth-btn growth-btn--green"><i class="fas fa-binoculars"></i> Scout Brief</button>
+              </div>
+            </div>
+            <div id="ceo-tb-body" style="padding:0.5rem 0.6rem;">
+              <div class="dash-empty">Loading traffic data...</div>
+            </div>
+          </div>
+
+          <!-- Social Growth Panel -->
+          <div class="dash-panel dash-panel--full growth-social-panel">
+            <div class="dash-panel-header">
+              <span class="dash-panel-title"><i class="fas fa-chart-line" style="color:#60a5fa;"></i> Social Growth</span>
+              <a href="/modules/company/social-analytics.html" style="font-size:0.65rem; opacity:0.45; text-decoration:none;">Detailed Analytics →</a>
+            </div>
+            <div id="ceo-social-growth-body" style="padding:0.5rem;">
+              <div class="dash-empty">Loading social data...</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
       <!-- CEO: Agent Grid -->
       <div class="dash-section" id="section-agent-grid" data-section="agent-grid">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
@@ -310,9 +376,6 @@
           <div class="agent-grid" id="ceo-agent-grid"></div>
         </div>
       </div>
-
-      <!-- CEO: Traffic Brief (hidden — moved to DEV view) -->
-      <div style="display:none;" id="section-traffic"></div>
 
       <!-- CEO: Decisions Section -->
       <div class="dash-section" id="section-decisions" data-section="decisions">
@@ -416,18 +479,9 @@
               </div>
             </div>
 
-            <!-- CEO Social Growth (simplified) -->
-            <div class="dash-panel dash-panel--full" id="panel-ceo-social-wrap">
-              <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-chart-line" style="color:#60a5fa;"></i> Social Growth</span>
-                <a href="/modules/company/social-analytics.html" style="font-size:0.65rem; opacity:0.45; text-decoration:none;">Detailed Analytics →</a>
-              </div>
-              <div id="panel-ceo-social" style="padding:0.5rem;">
-                <div class="dash-empty">Loading social data...</div>
-              </div>
-            </div>
-
             <!-- Hidden targets so existing social-pulse.js and engagement-pulse.js don't error -->
+            <!-- CEO Social Growth moved to #section-growth above -->
+            <div style="display:none;" id="panel-ceo-social-wrap"><div id="panel-ceo-social"></div></div>
             <div style="display:none;">
               <div id="panel-social-pulse-wrap"><div id="panel-social-pulse"></div></div>
               <div id="panel-engagement-pulse-wrap"><div id="panel-engagement-pulse"></div></div>
@@ -1218,7 +1272,7 @@
         _govEntriesCache = null; // clear gov cache for fresh data
         try { if (AgentEngine.reconcileProposals) AgentEngine.reconcileProposals(); } catch(e) { console.warn('[Dashboard] reconcileProposals error:', e); }
         try { if (AgentEngine.reconcileApprovalQueue) AgentEngine.reconcileApprovalQueue(); } catch(e) { console.warn('[Dashboard] reconcileApprovalQueue error:', e); }
-        [renderCeoInbox, renderCeoStatCards, renderCeoAgentGrid, renderCeoSocialGrowth,
+        [renderCeoInbox, renderCeoStatCards, renderCeoAgentGrid, renderGrowthTraffic, renderGrowthSocial,
          renderCeoObsHealth, renderStats, renderFleet, renderAgentStatus, renderSessions,
          renderCronLog, renderOvernightLog, renderMorningReport, renderServerLogs,
          renderHeartbeatHealth, renderApprovalQueue, renderFacebookOutbox, renderCampaignsSnap, renderSystemPulse,
@@ -1453,6 +1507,245 @@
 
         root.innerHTML = html;
       }
+
+      // ── Growth Section: Traffic Brief (CEO) ──
+      var _growthTrafficCache = null;
+      function renderGrowthTraffic() {
+        var body = document.getElementById('ceo-tb-body');
+        if (!body) return;
+
+        function _esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+        function _getKey() {
+          if (window._config && window._config.ambientosInternalKey) return window._config.ambientosInternalKey;
+          if (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteKey) return CompanyStore.getWriteKey() || '';
+          return '';
+        }
+
+        function _renderTable(title, icon, rows, keyField, valField, valClass) {
+          if (!rows || rows.length === 0) return '<div class="growth-table-title"><i class="fas fa-' + icon + '"></i>' + _esc(title) + '</div><div style="font-size:0.6rem;opacity:0.25;padding:0.2rem 0;">No data</div>';
+          var h = '<div class="growth-table-title"><i class="fas fa-' + icon + '"></i>' + _esc(title) + '</div>';
+          rows.forEach(function (r) {
+            h += '<div class="growth-table-row"><span class="growth-table-key">' + _esc(r[keyField] || '—') + '</span><span class="growth-table-val' + (valClass ? ' ' + valClass : '') + '">' + (r[valField] || 0).toLocaleString() + '</span></div>';
+          });
+          return h;
+        }
+
+        function _render(data) {
+          _growthTrafficCache = data;
+          var isRealError = data.warning && data.warning.indexOf('telemetry_unavailable') === 0;
+          if (isRealError) {
+            body.innerHTML = '<div style="font-size:0.62rem;padding:0.5rem;border:1px solid rgba(251,191,36,0.2);border-radius:6px;background:rgba(251,191,36,0.04);color:#fbbf24;"><i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i>' + _esc(data.warning) + '</div>';
+            return;
+          }
+          var hasAnyData = (data.topPages && data.topPages.length > 0) || (data.topReferrers && data.topReferrers.length > 0);
+          if (!hasAnyData) {
+            body.innerHTML = '<div style="font-size:0.62rem;padding:0.5rem;border:1px solid rgba(251,191,36,0.2);border-radius:6px;background:rgba(251,191,36,0.04);color:#fbbf24;"><i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i>No traffic data yet — telemetry is connected and collecting. Check back in a few hours.</div>';
+            return;
+          }
+
+          // Populate headline stat cards
+          var totalViews = 0;
+          if (data.topPages) data.topPages.forEach(function (p) { totalViews += (p.views || 0); });
+          var pvEl = document.getElementById('gstat-pageviews');
+          var pvSub = document.getElementById('gstat-pageviews-sub');
+          if (pvEl) pvEl.textContent = totalViews > 0 ? totalViews.toLocaleString() : '—';
+          if (pvSub) pvSub.textContent = (data.rangeLabel || data.range || 'last 7 days');
+
+          // Top referrer stat card
+          var refEl = document.getElementById('gstat-referrer');
+          var refSub = document.getElementById('gstat-referrer-sub');
+          if (refEl && data.topReferrers && data.topReferrers.length > 0) {
+            refEl.textContent = data.topReferrers[0].referrer || '—';
+            if (refSub) refSub.textContent = (data.topReferrers[0].sessions || 0).toLocaleString() + ' sessions';
+          }
+
+          // Build traffic grid
+          var html = '<div class="growth-traffic-grid">';
+          html += '<div class="growth-traffic-col">' + _renderTable('Top Pages', 'file-alt', data.topPages, 'path', 'views') + '</div>';
+          html += '<div class="growth-traffic-col">' + _renderTable('Top Referrers', 'external-link-alt', data.topReferrers, 'referrer', 'sessions') + '</div>';
+          html += '<div class="growth-traffic-col">';
+          if (data.topCampaigns && data.topCampaigns.length > 0) {
+            html += '<div class="growth-table-title"><i class="fas fa-bullhorn"></i>Top Campaigns</div>';
+            data.topCampaigns.forEach(function (c) {
+              html += '<div class="growth-table-row"><span class="growth-table-key">' + _esc(c.campaign) + '</span><span class="growth-table-val growth-table-val--green">' + (c.sessions || 0).toLocaleString() + '</span></div>';
+            });
+          } else {
+            html += '<div class="growth-table-title"><i class="fas fa-bullhorn"></i>Top Campaigns</div>';
+            html += '<div style="font-size:0.6rem;opacity:0.25;padding:0.2rem 0;">No campaign data</div>';
+          }
+          html += '</div></div>';
+
+          // Performance (simplified — p50 only)
+          if (data.performance) {
+            html += '<div class="growth-perf-row"><i class="fas fa-tachometer-alt" style="margin-right:3px;"></i>Page load p50: <strong style="color:#38bdf8;margin-left:3px;">' + (data.performance.pageLoadMs_p50 || 0) + 'ms</strong></div>';
+          }
+
+          body.innerHTML = html;
+        }
+
+        // Fetch
+        var range = document.getElementById('ceo-tb-range');
+        var rangeVal = range ? range.value : '7d';
+        body.innerHTML = '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;">' +
+          '<div style="flex:1;min-width:180px;height:80px;background:rgba(255,255,255,0.02);border-radius:6px;"></div>'.repeat(3) + '</div>';
+        var headers = {};
+        var key = _getKey();
+        if (key) headers['X-AmbientOS-Key'] = key;
+        var apiBase = window.location.hostname.includes('ambientpixels.ai') ? 'https://ambientpixels-nova-api.azurewebsites.net' : '';
+        fetch(apiBase + '/api/telemetry/summary?range=' + rangeVal, { headers: headers })
+          .then(function (r) { return r.json(); })
+          .then(function (data) { _render(data); })
+          .catch(function (err) {
+            body.innerHTML = '<div style="font-size:0.62rem;padding:0.5rem;border:1px solid rgba(251,191,36,0.2);border-radius:6px;background:rgba(251,191,36,0.04);color:#fbbf24;"><i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i>Telemetry unavailable: ' + _esc(err.message || 'fetch error') + '</div>';
+          });
+      }
+
+      // ── Growth Section: Social (CEO) ──
+      function renderGrowthSocial() {
+        var root = document.getElementById('ceo-social-growth-body');
+        if (!root) return;
+
+        // Reuse cached social data if available
+        if (_ceoSocialCache) { _renderGrowthSocialHtml(root, _ceoSocialCache); return; }
+
+        var apiBase = (typeof CompanyStore !== 'undefined' && CompanyStore.getServerBase) ? CompanyStore.getServerBase() : '/api';
+        var headers = {};
+        try { if (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) headers = CompanyStore.getWriteHeaders() || {}; } catch (e) {}
+        try { if (!headers['x-company-secret']) { var k = sessionStorage.getItem('ap_server_key') || ''; if (k) headers['x-company-secret'] = k; } } catch (e) {}
+
+        Promise.all([
+          fetch(apiBase + '/social-metrics?limit=50', { headers: headers }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
+          fetch(apiBase + '/social-account-stats', { headers: headers }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
+        ]).then(function (results) {
+          var metricsData = results[0] || {};
+          var acctData = results[1] || {};
+          _ceoSocialCache = { metrics: metricsData, acct: acctData };
+          _renderGrowthSocialHtml(root, _ceoSocialCache);
+          // Also render into old location if it exists (hidden stub)
+          var oldRoot = document.getElementById('panel-ceo-social');
+          if (oldRoot) _renderCeoSocialHtml(oldRoot, _ceoSocialCache);
+        }).catch(function () {
+          root.innerHTML = '<div class="dash-empty">Could not load social data.</div>';
+        });
+      }
+
+      function _renderGrowthSocialHtml(root, cache) {
+        var metricsData = cache.metrics || {};
+        var acctData = cache.acct || {};
+        var summary = metricsData.summary || {};
+        var events = metricsData.events || metricsData.metrics || [];
+
+        var totalFollowers = 0;
+        if (acctData && acctData.totals && acctData.totals.followers) {
+          totalFollowers = acctData.totals.followers;
+        }
+
+        var weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+        var postsThisWeek = summary.published || 0;
+        if (!postsThisWeek && events.length > 0) {
+          postsThisWeek = events.filter(function (e) {
+            return e.timestamp && new Date(e.timestamp).getTime() > weekAgo && e.status === 'success';
+          }).length;
+        }
+
+        var totalEngagement = summary.totalEngagement || 0;
+
+        // Populate headline stat cards
+        var fEl = document.getElementById('gstat-followers');
+        var eEl = document.getElementById('gstat-engagements');
+        if (fEl) fEl.textContent = totalFollowers > 0 ? totalFollowers.toLocaleString() : '—';
+        if (eEl) eEl.textContent = totalEngagement > 0 ? totalEngagement.toLocaleString() : '—';
+
+        // Summary numbers
+        var html = '<div class="ceo-social-summary">';
+        html += '<div class="ceo-social-num"><div class="ceo-social-num-value" style="color:#60a5fa;">' + (totalFollowers > 0 ? totalFollowers.toLocaleString() : '—') + '</div><div class="ceo-social-num-label">Followers</div></div>';
+        html += '<div class="ceo-social-num"><div class="ceo-social-num-value" style="color:#34d399;">' + postsThisWeek + '</div><div class="ceo-social-num-label">Posts This Week</div></div>';
+        html += '<div class="ceo-social-num"><div class="ceo-social-num-value" style="color:#a78bfa;">' + (totalEngagement > 0 ? totalEngagement.toLocaleString() : '—') + '</div><div class="ceo-social-num-label">Engagements (7d)</div></div>';
+        html += '</div>';
+
+        // Bar chart — posts per day (14d)
+        var dayBuckets = {};
+        var now = new Date();
+        for (var d = 13; d >= 0; d--) {
+          var day = new Date(now.getTime() - d * 86400000);
+          var key = day.toISOString().split('T')[0];
+          dayBuckets[key] = 0;
+        }
+        events.forEach(function (e) {
+          if (e.timestamp && e.status === 'success') {
+            var dk = e.timestamp.substring(0, 10);
+            if (dayBuckets.hasOwnProperty(dk)) dayBuckets[dk]++;
+          }
+        });
+        var dayKeys = Object.keys(dayBuckets).sort();
+        var maxPosts = Math.max.apply(null, dayKeys.map(function (k) { return dayBuckets[k]; })) || 1;
+
+        html += '<div class="ceo-social-chart">';
+        html += '<div class="ceo-social-chart-title">Posts per day (14d)</div>';
+        html += '<div class="ceo-social-chart-row">';
+        dayKeys.forEach(function (k) {
+          var h = Math.max(3, Math.round((dayBuckets[k] / maxPosts) * 60));
+          var label = k.substring(5);
+          html += '<div style="flex:1;min-width:0;text-align:center;">';
+          html += '<div class="ceo-social-chart-bar" style="height:' + h + 'px;"></div>';
+          html += '<div style="font-size:0.4rem;opacity:0.2;margin-top:2px;">' + label + '</div>';
+          html += '</div>';
+        });
+        html += '</div></div>';
+
+        root.innerHTML = html;
+      }
+
+      // ── Growth Section: Wire Controls ──
+      (function () {
+        var ceoTbRefresh = document.getElementById('ceo-tb-refresh');
+        var ceoTbRange = document.getElementById('ceo-tb-range');
+        var ceoTbScout = document.getElementById('ceo-tb-scout');
+
+        if (ceoTbRefresh) ceoTbRefresh.addEventListener('click', function () { _growthTrafficCache = null; renderGrowthTraffic(); });
+        if (ceoTbRange) ceoTbRange.addEventListener('change', function () { _growthTrafficCache = null; renderGrowthTraffic(); });
+
+        // Scout Brief — clone logic from Dev IIFE
+        if (ceoTbScout) {
+          ceoTbScout.addEventListener('click', function () {
+            if (!_growthTrafficCache) { alert('No traffic data loaded yet. Refresh first.'); return; }
+            var briefJson = JSON.stringify(_growthTrafficCache, null, 2);
+            var rl = _growthTrafficCache.rangeLabel || '';
+            var titleRange = rl;
+            if (rl && rl.indexOf(' to ') !== -1) {
+              var parts = rl.split(' to ');
+              var fmt = function (iso) {
+                var d = new Date(iso + 'T00:00:00');
+                return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+              };
+              var endD = new Date(parts[1] + 'T00:00:00');
+              titleRange = fmt(parts[0]) + '\u2013' + fmt(parts[1]) + ', ' + endD.getFullYear();
+            }
+            var title = 'Scout: Review Traffic Brief (' + (titleRange || _growthTrafficCache.range || 'Last 7 Days') + ')';
+            var desc = '## Traffic Summary (Range: ' + (_growthTrafficCache.range || '7d') + ')\n\n'
+              + '```json\n' + briefJson + '\n```\n\n'
+              + '## Required Output\n- Key Findings\n- Hypotheses\n- Recommended Actions (Echo / Scribe / Pixel / Nova)\n- Proposed Directives\n- Proposed Tasks\n';
+
+            if (typeof AgentEngine !== 'undefined' && typeof AgentEngine.addTask === 'function') {
+              AgentEngine.addTask({ title: title, description: desc, status: 'todo', priority: 'low', assignee: 'scout', tags: ['Scout', 'Analytics', 'Weekly Brief'], category: 'analytics' });
+              if (typeof CompanyStore !== 'undefined' && CompanyStore.setState) CompanyStore.setState('ap_tasks', AgentEngine.getTasks());
+              ceoTbScout.textContent = '\u2713 Task Created';
+              ceoTbScout.disabled = true;
+              setTimeout(function () { ceoTbScout.innerHTML = '<i class="fas fa-binoculars"></i> Scout Brief'; ceoTbScout.disabled = false; }, 3000);
+              return;
+            }
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+              navigator.clipboard.writeText(title + '\n\n' + desc).then(function () {
+                ceoTbScout.textContent = '\u2713 Copied to Clipboard';
+                setTimeout(function () { ceoTbScout.innerHTML = '<i class="fas fa-binoculars"></i> Scout Brief'; }, 2500);
+              });
+            } else {
+              prompt('Copy this Scout Brief:', title + '\n\n' + desc);
+            }
+          });
+        }
+      })();
 
       // ── CEO Observability Health (simplified) ──
       function renderCeoObsHealth() {
