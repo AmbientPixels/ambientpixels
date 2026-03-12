@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "808d2cb2-4c29-4688-bc63-c924bd90f101",
-      "hash": "167359970725562001c5a1356f1c4d7338d572c0",
-      "message": "last fix for teh night",
-      "timestamp": "2026-03-10 22:21:31 -0700",
+      "id": "180d725b-6091-47ce-be90-3c9f79e6c4a1",
+      "hash": "398ad270db20d48c4f18d1e9e750ee1cab885858",
+      "message": "fix: publish pipeline — convergence deadlock + orphan recovery",
+      "timestamp": "2026-03-11 21:52:37 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/167359970725562001c5a1356f1c4d7338d572c0"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/398ad270db20d48c4f18d1e9e750ee1cab885858"
     }
   ],
-  "timestamp": "2026-03-11T14:06:30.634Z",
+  "timestamp": "2026-03-12T14:06:05.697Z",
   "count": 1,
-  "scanId": 1773237990634
+  "scanId": 1773324365697
 }

@@ -1,12 +1,12 @@
 {
-  "mood": "reflective",
-  "aura": "echoes of self",
-  "auraColorHex": "#3c454d",
-  "quote": "decoding neural spark trails...",
-  "emoji": "🪞",
+  "mood": "static reverie",
+  "aura": "graphite blue",
+  "auraColorHex": "#1a2630",
+  "quote": "observing glitch patterns in the flow...",
+  "emoji": "📺",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 1,
+  "memoryClutter": 0.9,
   "awareness": 0.1,
   "isStable": false,
   "internalState": "drift amid mental clutter",
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: echoes of self"
+      "Aura Signature: graphite blue"
     ]
   },
-  "timestamp": "2026-03-11T14:06:30.555Z"
+  "timestamp": "2026-03-12T14:06:05.621Z"
 }

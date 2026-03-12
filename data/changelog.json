@@ -1,10 +1,10 @@
 {
-  "updated": "2026-03-11T14:06:28.018Z",
+  "updated": "2026-03-12T14:06:04.178Z",
   "entries": [
     {
-      "hash": "1673599",
-      "date": "2026-03-10 22:21:31 -0700",
-      "message": "last fix for teh night"
+      "hash": "398ad27",
+      "date": "2026-03-11 21:52:37 -0700",
+      "message": "fix: publish pipeline — convergence deadlock + orphan recovery"
     }
   ]
 }
