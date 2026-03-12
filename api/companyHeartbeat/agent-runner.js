@@ -92,7 +92,7 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
   const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, configs, trendRadarStore, trendInsightsStore);
 
   // Call Gemini
-  const response = await callGemini(prompt, agentId);
+  let response = await callGemini(prompt, agentId);
   result.geminiCalls = 1;
 
   if (!response) {
