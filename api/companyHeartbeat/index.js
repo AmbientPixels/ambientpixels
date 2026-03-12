@@ -647,6 +647,115 @@ module.exports = async function (context) {
         await storage.setState('actions', allActions);
         if (_prDocsChanged) await storage.setState('documents', documents);
       }
+
+      // ── ORPHAN RECOVERY: ready_for_approval docs missing action or AQ entry ──
+      // Catches docs that reached ready_for_approval but whose action or AQ entry
+      // was lost due to a partial write failure in submit-for-publish.
+      var _orphanDocs = documents.filter(function(d) {
+        if (!d || d.deletedAt || d.status !== 'ready_for_approval') return false;
+        if (!d.hero_image_asset_id || d.awaiting_hero_image) return false;
+        if (!d.kind || ['marketing_post', 'product_brief'].indexOf(d.kind) === -1) return false;
+        if (/\btest\b/i.test(d.title || '')) return false;
+        var _docAge = d.created_at ? _prNow - new Date(d.created_at).getTime() : Infinity;
+        if (_docAge > _PR_MAX_AGE_MS) return false;
+        if (!d.content_md || d.content_md.length < _PR_MIN_CONTENT_LEN) return false;
+        return true;
+      });
+      if (_orphanDocs.length > 0) {
+        var _orpAQ = (await storage.getState('approvalQueue')) || [];
+        var _orpChanged = false;
+        var _orpActionsChanged = false;
+        for (var _oi = 0; _oi < _orphanDocs.length; _oi++) {
+          var _orpDoc = _orphanDocs[_oi];
+          var _orpAction = allActions.find(function(a) {
+            return a.type === 'publish_document' && a.payload && a.payload.documentId === _orpDoc.id;
+          });
+          var _orpHasAQ = _orpAQ.some(function(q) {
+            return q.documentId === _orpDoc.id && q.actionType === 'publish_document';
+          });
+
+          if (!_orpAction) {
+            // Case 1: No action at all — create both action + AQ entry
+            var _orpSlug = _orpDoc.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+            var _orpIsPublic = ['marketing_post', 'product_brief'].indexOf(_orpDoc.kind) !== -1;
+            var _orpTarget = _orpIsPublic ? '/blog/' + _orpSlug : '/docs/published/' + _orpSlug;
+            var _orpHeroUrl = null;
+            try {
+              var _orpImgAssets = (await storage.getState('imageAssets')) || [];
+              var _orpHero = _orpImgAssets.find(function(a) { return a.id === _orpDoc.hero_image_asset_id; });
+              if (_orpHero && _orpHero.url) _orpHeroUrl = _orpHero.url;
+            } catch (_e) {}
+            var _orpNewAction = {
+              id: 'act_pub_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+              created_at: new Date().toISOString(),
+              created_by: 'system',
+              type: 'publish_document',
+              platform: 'site',
+              payload: {
+                documentId: _orpDoc.id, title: _orpDoc.title, slug: _orpSlug, kind: _orpDoc.kind,
+                content_md: _orpDoc.content_md, target_path: _orpTarget, public_url: _orpTarget,
+                hero_image_asset_id: _orpDoc.hero_image_asset_id || null, hero_image_url: _orpHeroUrl,
+                missing_hero_image: false
+              },
+              classification: 'executive_required', requires_ceo_approval: true,
+              risk_level: 'medium', brand_impact: 'medium', budget_impact: 0,
+              approval: { status: 'pending', approved_by: null, approved_at: null, decision_note: null },
+              execution: { status: 'pending', started_at: null, finished_at: null, attempts: 0, last_error: null, receipt: null },
+              action_type: 'publish_document', action_category: 'content', execution_status: 'pending',
+              origin_agent: 'system',
+              action_payload: { documentId: _orpDoc.id, title: _orpDoc.title, slug: _orpSlug },
+              requires_approval: true, is_irreversible: true, bundle_id: null
+            };
+            allActions.push(_orpNewAction);
+            _orpActionsChanged = true;
+            _orpAQ.push({
+              id: 'aq-' + _orpNewAction.id, kind: 'action', actionType: 'publish_document',
+              action_id: _orpNewAction.id, taskId: null, taskTitle: _orpDoc.title,
+              originAgent: 'system', classification: 'executive_required',
+              riskLevel: 'medium', budgetImpact: 0, brandImpact: 'medium', status: 'pending',
+              submittedAt: _orpNewAction.created_at,
+              preview: (_orpDoc.content_md || '').substring(0, 120),
+              documentId: _orpDoc.id, slug: _orpSlug, docKind: _orpDoc.kind,
+              heroImageUrl: _orpHeroUrl, heroImageAssetId: _orpDoc.hero_image_asset_id || null
+            });
+            _orpChanged = true;
+            context.log('[Heartbeat] ORPHAN RECOVERY: no publish action for ready_for_approval doc', _orpDoc.id, '— created action + AQ entry');
+          } else if (!_orpHasAQ) {
+            // Case 2: Action exists but AQ entry missing — backfill AQ only
+            var _orpSlug2 = (_orpAction.payload && _orpAction.payload.slug) || _orpDoc.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+            var _orpHeroUrl2 = null;
+            try {
+              var _orpImgAssets2 = (await storage.getState('imageAssets')) || [];
+              var _orpHero2 = _orpImgAssets2.find(function(a) { return a.id === _orpDoc.hero_image_asset_id; });
+              if (_orpHero2 && _orpHero2.url) _orpHeroUrl2 = _orpHero2.url;
+            } catch (_e) {}
+            _orpAQ.push({
+              id: 'aq-' + _orpAction.id, kind: 'action', actionType: 'publish_document',
+              action_id: _orpAction.id,
+              taskId: (_orpAction.action_payload && _orpAction.action_payload.taskId) || null,
+              taskTitle: _orpDoc.title,
+              originAgent: _orpAction.created_by || _orpAction.origin_agent || 'scribe',
+              classification: 'executive_required',
+              riskLevel: 'medium', budgetImpact: 0, brandImpact: 'medium',
+              status: (_orpAction.approval && _orpAction.approval.status) || 'pending',
+              submittedAt: _orpAction.created_at,
+              preview: (_orpDoc.content_md || '').substring(0, 120),
+              documentId: _orpDoc.id, slug: _orpSlug2, docKind: _orpDoc.kind,
+              heroImageUrl: _orpHeroUrl2, heroImageAssetId: _orpDoc.hero_image_asset_id || null
+            });
+            _orpChanged = true;
+            context.log('[Heartbeat] ORPHAN RECOVERY: backfilled AQ entry for doc', _orpDoc.id, 'action', _orpAction.id);
+          }
+          // else: both action and AQ exist — healthy state, no recovery needed
+        }
+        if (_orpChanged) {
+          if (_orpAQ.length > 100) _orpAQ.splice(0, _orpAQ.length - 100);
+          await storage.setState('approvalQueue', _orpAQ);
+        }
+        if (_orpActionsChanged) {
+          await storage.setState('actions', allActions);
+        }
+      }
     } catch (_prErr) { context.log.warn('[Heartbeat] Proactive publish check failed (non-fatal):', _prErr.message); }
 
     // ── PROACTIVE LINKEDIN TOKEN REFRESH: refresh if expiring within 7 days ──

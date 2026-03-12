@@ -445,6 +445,25 @@ Write the full deliverable first, then the structured JSON block.`;
             text: '[SYSTEM] Revision loop detected: ' + _crDels.length + ' deliverables without convergence. CEO must approve the latest draft, provide direction, or close this task.' });
           context.log('[Heartbeat] CONVERGENCE ESCALATION:', _crTask.id, '—', _crDels.length, 'deliverables, moved to review for CEO');
         }
+        // Auto-submit-for-publish: if convergence-locked task has a ready document with hero image,
+        // inject submit-for-publish so it reaches the CEO approval queue instead of being stuck forever.
+        var _convDocEsc = documents.find(function(d) {
+          if (!d || d.deletedAt || d.status === 'published' || d.status === 'rejected' || d.status === 'archived') return false;
+          return (d.taskId === _crTask.id) || (d.source && d.source.task_id === _crTask.id);
+        });
+        if (_convDocEsc && _convDocEsc.hero_image_asset_id && !_convDocEsc.awaiting_hero_image
+            && ['marketing_post', 'product_brief'].indexOf(_convDocEsc.kind) !== -1) {
+          // Check no pending publish action already exists for this doc
+          var _convAlreadySubmitted = _crTask.comments && _crTask.comments.some(function(c) {
+            return (c.text || '').indexOf('auto-submitting doc') !== -1;
+          });
+          if (!_convAlreadySubmitted) {
+            context.log('[Heartbeat] CONVERGENCE AUTO-PUBLISH:', agentId, 'auto-submitting doc', _convDocEsc.id, 'for task', _crTask.id);
+            actions.push({ type: 'submit-for-publish', documentId: _convDocEsc.id, taskId: _crTask.id, _systemInjected: true });
+            _crTask.comments.push({ id: 'cmt-convpub-' + Date.now(), author: 'system', type: 'system', createdAt: new Date().toISOString(),
+              text: '[SYSTEM] CONVERGENCE: auto-submitting doc ' + _convDocEsc.id + ' for publish to unblock revision loop.' });
+          }
+        }
       }
       // Fix 8: For Echo, filter out tasks that already have pending social actions (avoids dedup loop)
       if (agentId === 'echo' && _executableIdle.length > 0) {
@@ -1087,17 +1106,10 @@ Write the full deliverable first, then the structured JSON block.`;
                 newStatus: 'review'
               });
             }
-            // Convergence escalation: if a ready document exists, auto-trigger submit-for-publish
-            const _convParentTaskId = _exTask && _exTask.parent_task_id ? _exTask.parent_task_id : null;
-            const _convDoc = documents.find(function(d) {
-              if (!d || d.deletedAt || d.status === 'published' || d.status === 'rejected' || d.status === 'archived') return false;
-              return (d.taskId === action.taskId) || (d.source && d.source.task_id === action.taskId)
-                || (_convParentTaskId && d.taskId === _convParentTaskId);
-            });
-            if (_convDoc && _convDoc.hero_image_asset_id && !_convDoc.awaiting_hero_image) {
-              context.log('[Heartbeat] CONVERGENCE: auto-submitting doc', _convDoc.id, 'for publish (task', action.taskId, 'is convergence-locked)');
-              actions.push({ type: 'submit-for-publish', documentId: _convDoc.id, taskId: action.taskId, _systemInjected: true });
-            }
+            // Convergence auto-publish moved to the convergence escalation block (~line 448).
+            // That block runs during triage and actually fires; this location was unreachable
+            // because convergence-locked tasks are filtered from _executableIdle before any
+            // execute-task action reaches here.
             // No auto-complete for social or social-copy tasks — CEO must review via approval queue.
             continue;
           }
@@ -2540,11 +2552,9 @@ Write the full deliverable first, then the structured JSON block.`;
             continue;
           }
 
-          // Update doc status
-          docsStore[docIdx].status = 'ready_for_approval';
-          docsStore[docIdx].updated_at = new Date().toISOString();
-          docsStore[docIdx].submitted_by = agentId;
-          await storage.setState('documents', docsStore);
+          // Doc status write moved to after action + AQ writes (see below).
+          // This reduces orphan risk: if the function crashes during action/AQ creation,
+          // the doc stays in draft/review and can be retried.
 
           // Generate slug from title
           const slug = doc.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
@@ -2674,6 +2684,14 @@ Write the full deliverable first, then the structured JSON block.`;
           });
           if (approvalQueue.length > 100) approvalQueue.splice(0, approvalQueue.length - 100);
           await storage.setState('approvalQueue', approvalQueue);
+
+          // Update doc status AFTER action + AQ are persisted.
+          // If we crash here, the doc stays draft but action + AQ exist,
+          // which is recoverable (orphan recovery catches this, and CEO can still approve).
+          docsStore[docIdx].status = 'ready_for_approval';
+          docsStore[docIdx].updated_at = new Date().toISOString();
+          docsStore[docIdx].submitted_by = agentId;
+          await storage.setState('documents', docsStore);
 
           // Audit log
           const auditLog = (await storage.getState('actionAuditLog')) || [];
