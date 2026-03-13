@@ -2627,20 +2627,21 @@ var AgentEngine = (function () {
 
   function ceoApprove(approvalId, note) {
     var queue = getApprovalQueue();
+    var resolved = null;
     for (var i = 0; i < queue.length; i++) {
       if (queue[i].id === approvalId) {
-        queue[i].status = 'approved';
-        queue[i].resolvedAt = new Date().toISOString();
-        queue[i].ceoDecision = 'approved';
-        if (note) queue[i].ceoNote = note;
-        _saveApprovalQueue(queue);
-        // Unlock task
-        updateTask(queue[i].taskId, { requires_ceo_approval: false, escalated: false });
-        _logGovernance('ceo-approval', { taskId: queue[i].taskId, title: queue[i].taskTitle, note: note || '' });
-        return queue[i];
+        resolved = Object.assign({}, queue[i], { status: 'approved', resolvedAt: new Date().toISOString(), ceoDecision: 'approved' });
+        if (note) resolved.ceoNote = note;
+        queue.splice(i, 1); // Remove from queue
+        break;
       }
     }
-    return null;
+    if (!resolved) return null;
+    _saveApprovalQueue(queue);
+    // Unlock task
+    updateTask(resolved.taskId, { requires_ceo_approval: false, escalated: false });
+    _logGovernance('ceo-approval', { taskId: resolved.taskId, title: resolved.taskTitle, note: note || '' });
+    return resolved;
   }
 
   // Auto-route design/visual feedback to Pixel when CEO rejects or requests revision
@@ -2676,20 +2677,21 @@ var AgentEngine = (function () {
 
   function ceoReject(approvalId, note) {
     var queue = getApprovalQueue();
+    var resolved = null;
     for (var i = 0; i < queue.length; i++) {
       if (queue[i].id === approvalId) {
-        queue[i].status = 'rejected';
-        queue[i].resolvedAt = new Date().toISOString();
-        queue[i].ceoDecision = 'rejected';
-        if (note) queue[i].ceoNote = note;
-        _saveApprovalQueue(queue);
-        _logGovernance('ceo-reject', { taskId: queue[i].taskId, title: queue[i].taskTitle, note: note || '' });
-        // Auto-route design feedback to Pixel
-        _autoRouteDesignFeedback(queue[i], note);
-        return queue[i];
+        resolved = Object.assign({}, queue[i], { status: 'rejected', resolvedAt: new Date().toISOString(), ceoDecision: 'rejected' });
+        if (note) resolved.ceoNote = note;
+        queue.splice(i, 1); // Remove from queue
+        break;
       }
     }
-    return null;
+    if (!resolved) return null;
+    _saveApprovalQueue(queue);
+    _logGovernance('ceo-reject', { taskId: resolved.taskId, title: resolved.taskTitle, note: note || '' });
+    // Auto-route design feedback to Pixel
+    _autoRouteDesignFeedback(resolved, note);
+    return resolved;
   }
 
   function ceoRequestRevision(approvalId, note) {
@@ -2715,15 +2717,11 @@ var AgentEngine = (function () {
     if (!task) return null;
     var prevClassification = task.classification || 'autonomous';
     updateTask(taskId, { requires_ceo_approval: false, escalated: false, classification: 'autonomous' });
-    // Also resolve any pending approval for this task
+    // Also resolve any pending approval for this task — remove from queue
     var queue = getApprovalQueue();
-    for (var i = 0; i < queue.length; i++) {
-      if (queue[i].taskId === taskId && queue[i].status === 'pending') {
-        queue[i].status = 'overridden';
-        queue[i].resolvedAt = new Date().toISOString();
-        queue[i].ceoDecision = 'override';
-      }
-    }
+    queue = queue.filter(function (entry) {
+      return !(entry.taskId === taskId && entry.status === 'pending');
+    });
     _saveApprovalQueue(queue);
     _logGovernance('ceo-override', { taskId: taskId, title: task.title, previousClassification: prevClassification, riskLevel: task.risk_level || 'low' });
     return task;
@@ -3196,15 +3194,15 @@ var AgentEngine = (function () {
       }
     }
 
-    // 2. Auto-clean stale completed/abandoned items
+    // 2. Auto-clean resolved items (approved, rejected, cancelled, overridden)
     var _now = Date.now();
-    var _STALE_APPROVED_MS = 48 * 60 * 60 * 1000; // 48 hours
     var _STALE_REVISION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
     for (var s = queue.length - 1; s >= 0; s--) {
       var staleEntry = queue[s];
       var entryAge = staleEntry.submittedAt ? _now - new Date(staleEntry.submittedAt).getTime() : 0;
-      // Remove approved items older than 48h (already acted on)
-      if (staleEntry.status === 'approved' && entryAge > _STALE_APPROVED_MS) {
+      // Remove all resolved entries immediately (approved, rejected, cancelled, overridden)
+      if (staleEntry.status === 'approved' || staleEntry.status === 'rejected' ||
+          staleEntry.status === 'cancelled' || staleEntry.status === 'overridden') {
         queue.splice(s, 1);
         changed = true;
         cleaned++;
@@ -3212,13 +3210,6 @@ var AgentEngine = (function () {
       }
       // Remove revision_requested items older than 7 days with no revision activity
       if (staleEntry.status === 'revision_requested' && entryAge > _STALE_REVISION_MS) {
-        queue.splice(s, 1);
-        changed = true;
-        cleaned++;
-        continue;
-      }
-      // Remove cancelled/rejected items immediately
-      if (staleEntry.status === 'cancelled' || staleEntry.status === 'rejected') {
         queue.splice(s, 1);
         changed = true;
         cleaned++;
@@ -3270,10 +3261,18 @@ var AgentEngine = (function () {
   // Update matching approval queue entry status
   function _updateApprovalQueueForAction(actionId, status) {
     var queue = getApprovalQueue();
-    for (var i = 0; i < queue.length; i++) {
-      if (queue[i].action_id === actionId) {
-        queue[i].status = status;
-        break;
+    var resolved = ['approved', 'rejected', 'cancelled', 'overridden'];
+    if (resolved.indexOf(status) !== -1) {
+      // Remove resolved entries immediately instead of leaving them as ghosts
+      queue = queue.filter(function (entry) {
+        return entry.action_id !== actionId;
+      });
+    } else {
+      for (var i = 0; i < queue.length; i++) {
+        if (queue[i].action_id === actionId) {
+          queue[i].status = status;
+          break;
+        }
       }
     }
     _saveStorage(APPROVAL_KEY, queue);
