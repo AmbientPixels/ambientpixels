@@ -137,39 +137,34 @@
     .obs-storage-hint a { color: #60a5fa; text-decoration: none; }
     .obs-empty { font-size: 0.58rem; opacity: 0.25; padding: 0.4rem 0; }
 
-    /* Social Pulse */
-    .spulse-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:0.45rem; margin-bottom:0.6rem; }
-    .spulse-chip { border:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.015); border-radius:8px; padding:0.45rem 0.5rem; }
-    .spulse-chip-label { font-size:0.52rem; opacity:0.35; }
-    .spulse-chip-value { font-size:0.95rem; font-weight:700; margin-top:0.08rem; }
-    .spulse-chip-value--bad { color:#ef4444; }
-    .spulse-block { margin-bottom:0.5rem; }
-    .spulse-subtitle { font-size:0.56rem; opacity:0.45; margin-bottom:0.25rem; text-transform:uppercase; letter-spacing:0.03em; }
-    .spulse-trend-row { display:flex; gap:4px; align-items:flex-end; min-height:56px; }
-    .spulse-trend-col { flex:1; min-width:0; text-align:center; }
-    .spulse-trend-bar { width:100%; min-height:4px; border-radius:3px 3px 0 0; background:rgba(96,165,250,0.75); }
-    .spulse-trend-label { font-size:0.48rem; opacity:0.3; margin-top:2px; }
-    .spulse-issue { display:flex; align-items:center; gap:0.4rem; font-size:0.62rem; }
-    .spulse-issue-pill { font-size:0.52rem; background:rgba(239,68,68,0.12); color:#ef4444; border-radius:999px; padding:0.1rem 0.38rem; font-weight:600; }
-
-    /* Engagement Pulse */
-    .epulse-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(120px, 1fr)); gap:0.45rem; margin-bottom:0.6rem; }
-    .epulse-chip { border:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.015); border-radius:8px; padding:0.45rem 0.5rem; }
-    .epulse-chip-label { font-size:0.52rem; opacity:0.35; }
-    .epulse-chip-value { font-size:0.95rem; font-weight:700; margin-top:0.08rem; }
-    .epulse-meta { font-size:0.56rem; opacity:0.45; margin-bottom:0.45rem; display:flex; align-items:center; gap:0.45rem; }
-    .epulse-badge { font-size:0.48rem; font-weight:700; letter-spacing:0.03em; padding:0.08rem 0.36rem; border-radius:999px; text-transform:uppercase; }
-    .epulse-badge--live { background:rgba(52,211,153,0.12); color:#34d399; }
-    .epulse-badge--mock { background:rgba(251,191,36,0.12); color:#fbbf24; }
-    .epulse-split { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:0.45rem; margin-bottom:0.5rem; }
-    .epulse-card { border:1px solid rgba(255,255,255,0.06); border-radius:8px; padding:0.45rem; background:rgba(255,255,255,0.012); }
-    .epulse-card-title { font-size:0.56rem; opacity:0.45; text-transform:uppercase; margin-bottom:0.28rem; }
-    .epulse-row { display:flex; justify-content:space-between; font-size:0.58rem; padding:0.1rem 0; }
-    .epulse-trend-title { font-size:0.56rem; opacity:0.45; margin-bottom:0.25rem; text-transform:uppercase; letter-spacing:0.03em; }
-    .epulse-trend-row { display:flex; gap:4px; align-items:flex-end; min-height:56px; }
-    .epulse-trend-col { flex:1; min-width:0; text-align:center; }
-    .epulse-trend-bar { width:100%; min-height:4px; border-radius:3px 3px 0 0; background:rgba(52,211,153,0.72); }
-    .epulse-trend-label { font-size:0.48rem; opacity:0.3; margin-top:2px; }
+    /* Social Command Center */
+    .scc-chips { display:grid; grid-template-columns:repeat(auto-fit, minmax(100px, 1fr)); gap:0.4rem; margin-bottom:0.6rem; }
+    .scc-chip { border:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.015); border-radius:8px; padding:0.4rem 0.5rem; }
+    .scc-chip-value { font-size:0.95rem; font-weight:700; }
+    .scc-chip-label { font-size:0.5rem; opacity:0.35; margin-top:0.06rem; }
+    .scc-chip--badge { display:flex; align-items:center; justify-content:center; }
+    .scc-badge { font-size:0.48rem; font-weight:700; letter-spacing:0.03em; padding:0.08rem 0.36rem; border-radius:999px; text-transform:uppercase; }
+    .scc-badge--live { background:rgba(52,211,153,0.12); color:#34d399; }
+    .scc-badge--mock { background:rgba(251,191,36,0.12); color:#fbbf24; }
+    .scc-platforms { display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:0.4rem; margin-bottom:0.6rem; }
+    .scc-platform-card { border:1px solid rgba(255,255,255,0.06); border-left:3px solid #60a5fa; border-radius:8px; padding:0.4rem 0.5rem; background:rgba(255,255,255,0.012); }
+    .scc-platform-name { font-size:0.52rem; opacity:0.45; text-transform:uppercase; margin-bottom:0.2rem; letter-spacing:0.03em; }
+    .scc-platform-stat { display:flex; align-items:baseline; gap:0.25rem; font-size:0.78rem; font-weight:700; padding:0.04rem 0; }
+    .scc-platform-stat-label { font-size:0.44rem; opacity:0.35; font-weight:400; }
+    .scc-platform-stat--off { font-size:0.5rem; opacity:0.3; font-weight:400; padding:0.3rem 0; }
+    .scc-graph-wrap { margin-bottom:0.5rem; }
+    .scc-svg { width:100%; height:auto; min-height:80px; max-height:140px; display:block; }
+    .scc-graph-labels { display:flex; justify-content:space-between; padding:0 8px; }
+    .scc-graph-labels span { font-size:0.42rem; opacity:0.25; }
+    .scc-graph-legend { display:flex; gap:0.7rem; margin-bottom:0.3rem; }
+    .scc-legend-item { font-size:0.5rem; opacity:0.5; display:flex; align-items:center; gap:0.2rem; }
+    .scc-legend-swatch { width:10px; height:3px; border-radius:2px; display:inline-block; }
+    .scc-dot:hover { opacity:1 !important; r:5; }
+    .scc-issue-row { display:flex; align-items:center; gap:0.35rem; font-size:0.58rem; padding:0.3rem 0; border-top:1px solid rgba(255,255,255,0.04); margin-top:0.2rem; }
+    .scc-issue-pill { font-size:0.5rem; background:rgba(239,68,68,0.12); color:#ef4444; border-radius:999px; padding:0.08rem 0.35rem; font-weight:600; }
+    .scc-issue-count { font-size:0.5rem; opacity:0.45; }
+    @media (max-width: 768px) { .scc-platforms { grid-template-columns:1fr; } .scc-chips { grid-template-columns:repeat(3, 1fr); } }
+    @media (max-width: 480px) { .scc-chips { grid-template-columns:repeat(2, 1fr); } }
     .dev-log-split { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:0.5rem; }
     @media (max-width: 760px) { .dev-log-split { grid-template-columns:1fr; } }
     @media (max-width: 760px) { .epulse-split { grid-template-columns:1fr; } }
@@ -411,13 +406,13 @@
             </div>
           </div>
 
-          <!-- Social Growth Panel -->
+          <!-- Social Command Center (CEO view) -->
           <div class="dash-panel dash-panel--full growth-social-panel">
             <div class="dash-panel-header">
-              <span class="dash-panel-title"><i class="fas fa-chart-line" style="color:#60a5fa;"></i> Social Growth</span>
-              <a href="/modules/company/social-analytics.html" style="font-size:0.65rem; opacity:0.45; text-decoration:none;">Detailed Analytics →</a>
+              <span class="dash-panel-title"><i class="fas fa-satellite-dish" style="color:#60a5fa;"></i> Social Command Center</span>
+              <a href="/modules/company/social-analytics.html" style="font-size:0.65rem; opacity:0.45; text-decoration:none;">Detailed Analytics &rarr;</a>
             </div>
-            <div id="ceo-social-growth-body" style="padding:0.5rem;">
+            <div id="social-command-ceo" style="padding:0.5rem;">
               <div class="dash-empty">Loading social data...</div>
             </div>
           </div>
@@ -547,13 +542,7 @@
               </div>
             </div>
 
-            <!-- Hidden targets so existing social-pulse.js and engagement-pulse.js don't error -->
-            <!-- CEO Social Growth moved to #section-growth above -->
-            <div style="display:none;" id="panel-ceo-social-wrap"><div id="panel-ceo-social"></div></div>
-            <div style="display:none;">
-              <div id="panel-social-pulse-wrap"><div id="panel-social-pulse"></div></div>
-              <div id="panel-engagement-pulse-wrap"><div id="panel-engagement-pulse"></div></div>
-            </div>
+            <!-- Social mirror targets removed — social-command.js renders directly -->
           </div>
         </div>
       </div>
@@ -832,24 +821,14 @@
         </div>
         <div class="dash-section-body">
           <div class="dash-grid">
-            <!-- Social Pulse (detailed) -->
-            <div class="dash-panel dash-panel--full" id="panel-social-pulse-dev-wrap">
+            <!-- Social Command Center (Dev view) -->
+            <div class="dash-panel dash-panel--full" id="panel-social-command-dev-wrap">
               <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-hashtag" style="color:#60a5fa;"></i> Social Delivery</span>
-                <a href="/modules/company/social-analytics.html" style="font-size:0.65rem; opacity:0.45; text-decoration:none;">Full Analytics →</a>
+                <span class="dash-panel-title"><i class="fas fa-satellite-dish" style="color:#60a5fa;"></i> Social Command Center</span>
+                <a href="/modules/company/social-analytics.html" style="font-size:0.65rem; opacity:0.45; text-decoration:none;">Full Analytics &rarr;</a>
               </div>
-              <div id="panel-social-pulse-dev" style="padding:0.5rem;">
-                <div class="dash-empty">Loading social delivery data...</div>
-              </div>
-            </div>
-            <!-- Engagement Pulse (detailed) -->
-            <div class="dash-panel dash-panel--full" id="panel-engagement-pulse-dev-wrap">
-              <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-heart" style="color:#34d399;"></i> Engagement Details</span>
-                <a href="/modules/company/social-analytics.html?section=engagement" style="font-size:0.65rem; opacity:0.45; text-decoration:none;">Full Analytics →</a>
-              </div>
-              <div id="panel-engagement-pulse-dev" style="padding:0.5rem;">
-                <div class="dash-empty">Loading engagement data...</div>
+              <div id="social-command-dev" style="padding:0.5rem;">
+                <div class="dash-empty">Loading social data...</div>
               </div>
             </div>
           </div>
@@ -1068,8 +1047,7 @@
   <script src="/js/observability-metrics.js"></script>
   <script src="/js/observability-ui.js"></script>
   <script src="/modules/company/js/quick-chat.js"></script>
-  <script src="/modules/company/js/social-pulse.js"></script>
-  <script src="/modules/company/js/engagement-pulse.js"></script>
+  <script src="/modules/company/js/social-command.js"></script>
   <script src="/modules/company/js/board-view.js"></script>
 
   <script>
@@ -1368,21 +1346,6 @@
         });
       }
 
-      function syncSocialToDev() {
-        var src1 = document.getElementById('panel-social-pulse');
-        var dst1 = document.getElementById('panel-social-pulse-dev');
-        if (src1 && dst1 && src1.innerHTML && !src1.innerHTML.includes('Loading')) {
-          dst1.innerHTML = src1.innerHTML;
-        }
-        var src2 = document.getElementById('panel-engagement-pulse');
-        var dst2 = document.getElementById('panel-engagement-pulse-dev');
-        if (src2 && dst2 && src2.innerHTML && !src2.innerHTML.includes('Loading')) {
-          dst2.innerHTML = src2.innerHTML;
-        }
-      }
-      // Run sync after social scripts have had time to load
-      setTimeout(syncSocialToDev, 3000);
-      setTimeout(syncSocialToDev, 8000);
       setTimeout(syncMetricsToDev, 3000);
       setTimeout(syncMetricsToDev, 8000);
       // Delayed strip sync (obs health is async — re-mirror after fetch completes)
@@ -1397,7 +1360,6 @@
         updateStoreModeBadge();
         loadExecMode();
         _dashLoadHeartbeatHealth();
-        setTimeout(syncSocialToDev, 2000);
         setTimeout(syncMetricsToDev, 2000);
       });
       setTimeout(function () {
@@ -1417,7 +1379,7 @@
         _govEntriesCache = null; // clear gov cache for fresh data
         try { if (AgentEngine.reconcileProposals) AgentEngine.reconcileProposals(); } catch(e) { console.warn('[Dashboard] reconcileProposals error:', e); }
         try { if (AgentEngine.reconcileApprovalQueue) AgentEngine.reconcileApprovalQueue(); } catch(e) { console.warn('[Dashboard] reconcileApprovalQueue error:', e); }
-        [renderCeoInbox, renderCeoStatCards, renderCeoAgentGrid, renderGrowthTraffic, renderGrowthSocial,
+        [renderCeoInbox, renderCeoStatCards, renderCeoAgentGrid, renderGrowthTraffic, refreshSocialCommand,
          renderCeoObsHealth, renderStats, renderFleet, renderAgentStatus, renderSessions,
          renderCronLog, renderOvernightLog, renderMorningReport, renderServerLogs,
          renderHeartbeatHealth, renderApprovalQueue, renderFacebookOutbox, renderCampaignsSnap, renderSystemPulse,
@@ -1605,97 +1567,6 @@
           + (blocked ? '<span class="dash-lastrun-item dash-lastrun-blocked"><i class="fas fa-ban"></i> ' + blocked + ' dup-blocked</span>' : '');
       }
 
-      // ── CEO Social Growth (simplified) ──
-      var _ceoSocialCache = null;
-      function renderCeoSocialGrowth() {
-        var root = document.getElementById('panel-ceo-social');
-        if (!root) return;
-
-        // If we already have cached data, render immediately
-        if (_ceoSocialCache) { _renderCeoSocialHtml(root, _ceoSocialCache); return; }
-
-        // Fetch from same APIs as social-pulse.js
-        var apiBase = (typeof CompanyStore !== 'undefined' && CompanyStore.getServerBase) ? CompanyStore.getServerBase() : '/api';
-        var headers = {};
-        try { if (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) headers = CompanyStore.getWriteHeaders() || {}; } catch (e) {}
-        try { if (!headers['x-company-secret']) { var k = sessionStorage.getItem('ap_server_key') || ''; if (k) headers['x-company-secret'] = k; } } catch (e) {}
-
-        Promise.all([
-          fetch(apiBase + '/social-metrics?limit=50', { headers: headers }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
-          fetch(apiBase + '/social-account-stats', { headers: headers }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
-        ]).then(function (results) {
-          var metricsData = results[0] || {};
-          var acctData = results[1] || {};
-          _ceoSocialCache = { metrics: metricsData, acct: acctData };
-          _renderCeoSocialHtml(root, _ceoSocialCache);
-        }).catch(function () {
-          root.innerHTML = '<div class="dash-empty">Could not load social data.</div>';
-        });
-      }
-
-      function _renderCeoSocialHtml(root, cache) {
-        var metricsData = cache.metrics || {};
-        var acctData = cache.acct || {};
-        var summary = metricsData.summary || {};
-        var events = metricsData.events || metricsData.metrics || [];
-
-        // Calculate headline numbers
-        var totalFollowers = 0;
-        if (acctData && acctData.totals && acctData.totals.followers) {
-          totalFollowers = acctData.totals.followers;
-        }
-
-        // Posts this week
-        var weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-        var postsThisWeek = summary.published || 0;
-        if (!postsThisWeek && events.length > 0) {
-          postsThisWeek = events.filter(function (e) {
-            return e.timestamp && new Date(e.timestamp).getTime() > weekAgo && e.status === 'success';
-          }).length;
-        }
-
-        // Total engagement
-        var totalEngagement = summary.totalEngagement || 0;
-
-        var html = '<div class="ceo-social-summary">';
-        html += '<div class="ceo-social-num"><div class="ceo-social-num-value" style="color:#60a5fa;">' + (totalFollowers > 0 ? totalFollowers.toLocaleString() : '—') + '</div><div class="ceo-social-num-label">Followers</div></div>';
-        html += '<div class="ceo-social-num"><div class="ceo-social-num-value" style="color:#34d399;">' + postsThisWeek + '</div><div class="ceo-social-num-label">Posts This Week</div></div>';
-        html += '<div class="ceo-social-num"><div class="ceo-social-num-value" style="color:#a78bfa;">' + (totalEngagement > 0 ? totalEngagement.toLocaleString() : '—') + '</div><div class="ceo-social-num-label">Engagements (7d)</div></div>';
-        html += '</div>';
-
-        // Growth chart — posts per day (last 14 days)
-        var dayBuckets = {};
-        var now = new Date();
-        for (var d = 13; d >= 0; d--) {
-          var day = new Date(now.getTime() - d * 86400000);
-          var key = day.toISOString().split('T')[0];
-          dayBuckets[key] = 0;
-        }
-        events.forEach(function (e) {
-          if (e.timestamp && e.status === 'success') {
-            var dk = e.timestamp.substring(0, 10);
-            if (dayBuckets.hasOwnProperty(dk)) dayBuckets[dk]++;
-          }
-        });
-        var dayKeys = Object.keys(dayBuckets).sort();
-        var maxPosts = Math.max.apply(null, dayKeys.map(function (k) { return dayBuckets[k]; })) || 1;
-
-        html += '<div class="ceo-social-chart">';
-        html += '<div class="ceo-social-chart-title">Posts per day (14d)</div>';
-        html += '<div class="ceo-social-chart-row">';
-        dayKeys.forEach(function (k) {
-          var h = Math.max(3, Math.round((dayBuckets[k] / maxPosts) * 60));
-          var label = k.substring(5); // MM-DD
-          html += '<div style="flex:1;min-width:0;text-align:center;">';
-          html += '<div class="ceo-social-chart-bar" style="height:' + h + 'px;"></div>';
-          html += '<div style="font-size:0.4rem;opacity:0.2;margin-top:2px;">' + label + '</div>';
-          html += '</div>';
-        });
-        html += '</div></div>';
-
-        root.innerHTML = html;
-      }
-
       // ── Growth Section: Traffic Brief (CEO) ──
       var _growthTrafficCache = null;
       function renderGrowthTraffic() {
@@ -1787,102 +1658,6 @@
           .catch(function (err) {
             body.innerHTML = '<div style="font-size:0.62rem;padding:0.5rem;border:1px solid rgba(251,191,36,0.2);border-radius:6px;background:rgba(251,191,36,0.04);color:#fbbf24;"><i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i>Telemetry unavailable: ' + _esc(err.message || 'fetch error') + '</div>';
           });
-      }
-
-      // ── Growth Section: Social (CEO) ──
-      function renderGrowthSocial() {
-        var root = document.getElementById('ceo-social-growth-body');
-        if (!root) return;
-
-        // Reuse cached social data if available
-        if (_ceoSocialCache) { _renderGrowthSocialHtml(root, _ceoSocialCache); return; }
-
-        var apiBase = (typeof CompanyStore !== 'undefined' && CompanyStore.getServerBase) ? CompanyStore.getServerBase() : '/api';
-        var headers = {};
-        try { if (typeof CompanyStore !== 'undefined' && CompanyStore.getWriteHeaders) headers = CompanyStore.getWriteHeaders() || {}; } catch (e) {}
-        try { if (!headers['x-company-secret']) { var k = sessionStorage.getItem('ap_server_key') || ''; if (k) headers['x-company-secret'] = k; } } catch (e) {}
-
-        Promise.all([
-          fetch(apiBase + '/social-metrics?limit=50', { headers: headers }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
-          fetch(apiBase + '/social-account-stats', { headers: headers }).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
-        ]).then(function (results) {
-          var metricsData = results[0] || {};
-          var acctData = results[1] || {};
-          _ceoSocialCache = { metrics: metricsData, acct: acctData };
-          _renderGrowthSocialHtml(root, _ceoSocialCache);
-          // Also render into old location if it exists (hidden stub)
-          var oldRoot = document.getElementById('panel-ceo-social');
-          if (oldRoot) _renderCeoSocialHtml(oldRoot, _ceoSocialCache);
-        }).catch(function () {
-          root.innerHTML = '<div class="dash-empty">Could not load social data.</div>';
-        });
-      }
-
-      function _renderGrowthSocialHtml(root, cache) {
-        var metricsData = cache.metrics || {};
-        var acctData = cache.acct || {};
-        var summary = metricsData.summary || {};
-        var events = metricsData.events || metricsData.metrics || [];
-
-        var totalFollowers = 0;
-        if (acctData && acctData.totals && acctData.totals.followers) {
-          totalFollowers = acctData.totals.followers;
-        }
-
-        var weekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
-        var postsThisWeek = summary.published || 0;
-        if (!postsThisWeek && events.length > 0) {
-          postsThisWeek = events.filter(function (e) {
-            return e.timestamp && new Date(e.timestamp).getTime() > weekAgo && e.status === 'success';
-          }).length;
-        }
-
-        var totalEngagement = summary.totalEngagement || 0;
-
-        // Populate headline stat cards
-        var fEl = document.getElementById('gstat-followers');
-        var eEl = document.getElementById('gstat-engagements');
-        if (fEl) fEl.textContent = totalFollowers > 0 ? totalFollowers.toLocaleString() : '—';
-        if (eEl) eEl.textContent = totalEngagement > 0 ? totalEngagement.toLocaleString() : '—';
-
-        // Summary numbers
-        var html = '<div class="ceo-social-summary">';
-        html += '<div class="ceo-social-num"><div class="ceo-social-num-value" style="color:#60a5fa;">' + (totalFollowers > 0 ? totalFollowers.toLocaleString() : '—') + '</div><div class="ceo-social-num-label">Followers</div></div>';
-        html += '<div class="ceo-social-num"><div class="ceo-social-num-value" style="color:#34d399;">' + postsThisWeek + '</div><div class="ceo-social-num-label">Posts This Week</div></div>';
-        html += '<div class="ceo-social-num"><div class="ceo-social-num-value" style="color:#a78bfa;">' + (totalEngagement > 0 ? totalEngagement.toLocaleString() : '—') + '</div><div class="ceo-social-num-label">Engagements (7d)</div></div>';
-        html += '</div>';
-
-        // Bar chart — posts per day (14d)
-        var dayBuckets = {};
-        var now = new Date();
-        for (var d = 13; d >= 0; d--) {
-          var day = new Date(now.getTime() - d * 86400000);
-          var key = day.toISOString().split('T')[0];
-          dayBuckets[key] = 0;
-        }
-        events.forEach(function (e) {
-          if (e.timestamp && e.status === 'success') {
-            var dk = e.timestamp.substring(0, 10);
-            if (dayBuckets.hasOwnProperty(dk)) dayBuckets[dk]++;
-          }
-        });
-        var dayKeys = Object.keys(dayBuckets).sort();
-        var maxPosts = Math.max.apply(null, dayKeys.map(function (k) { return dayBuckets[k]; })) || 1;
-
-        html += '<div class="ceo-social-chart">';
-        html += '<div class="ceo-social-chart-title">Posts per day (14d)</div>';
-        html += '<div class="ceo-social-chart-row">';
-        dayKeys.forEach(function (k) {
-          var h = Math.max(3, Math.round((dayBuckets[k] / maxPosts) * 60));
-          var label = k.substring(5);
-          html += '<div style="flex:1;min-width:0;text-align:center;">';
-          html += '<div class="ceo-social-chart-bar" style="height:' + h + 'px;"></div>';
-          html += '<div style="font-size:0.4rem;opacity:0.2;margin-top:2px;">' + label + '</div>';
-          html += '</div>';
-        });
-        html += '</div></div>';
-
-        root.innerHTML = html;
       }
 
       // ── Growth Section: Wire Controls ──
