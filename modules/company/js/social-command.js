@@ -166,16 +166,20 @@
     // ── Headline chips ──
     var totalFollowers = acctTotals.followers || 0;
     var postsWeek = summary.published || 0;
-    var totalEng = (engSummary.likes7d || 0) + (engSummary.comments7d || 0) + (engSummary.reposts7d || 0);
+    var likes7d = engSummary.likes7d || 0;
+    var comments7d = engSummary.comments7d || 0;
+    var reposts7d = engSummary.reposts7d || 0;
+    var totalEng = likes7d + comments7d + reposts7d;
     var successRate = summary.successRate || 0;
     var mode = engMeta.mode || 'mock_fallback';
     var isLive = mode === 'real';
 
     var html = '<div class="scc-chips">';
     html += '<div class="scc-chip"><div class="scc-chip-value" style="color:#60a5fa;">' + _esc(_fmtNum(totalFollowers)) + '</div><div class="scc-chip-label">Followers</div></div>';
-    html += '<div class="scc-chip"><div class="scc-chip-value" style="color:#34d399;">' + _esc(postsWeek) + '</div><div class="scc-chip-label">Posts (7d)</div></div>';
-    html += '<div class="scc-chip"><div class="scc-chip-value" style="color:#a78bfa;">' + _esc(_fmtNum(totalEng)) + '</div><div class="scc-chip-label">Engagements (7d)</div></div>';
-    html += '<div class="scc-chip"><div class="scc-chip-value" style="color:' + (successRate >= 80 ? '#34d399' : '#ef4444') + ';">' + _esc(successRate) + '%</div><div class="scc-chip-label">Success Rate</div></div>';
+    html += '<div class="scc-chip"><div class="scc-chip-value" style="color:#60a5fa;">' + _esc(postsWeek) + '</div><div class="scc-chip-label">Posts (7d)</div></div>';
+    html += '<div class="scc-chip"><div class="scc-chip-value" style="color:#34d399;">' + _esc(_fmtNum(likes7d)) + '</div><div class="scc-chip-label">Likes (7d)</div></div>';
+    html += '<div class="scc-chip"><div class="scc-chip-value" style="color:#fbbf24;">' + _esc(_fmtNum(comments7d)) + '</div><div class="scc-chip-label">Comments (7d)</div></div>';
+    html += '<div class="scc-chip"><div class="scc-chip-value" style="color:#a78bfa;">' + _esc(_fmtNum(reposts7d)) + '</div><div class="scc-chip-label">Reposts (7d)</div></div>';
     html += '<div class="scc-chip scc-chip--badge"><span class="scc-badge scc-badge--' + (isLive ? 'live' : 'mock') + '">' + (isLive ? 'LIVE' : 'MOCK') + '</span></div>';
     html += '</div>';
 
@@ -194,10 +198,16 @@
       if (pl && pl.ok !== false) {
         var plFollowers = pl.followers || 0;
         var plPosts = pl.tweets_count || pl.posts_count || 0;
-        var plEngTotal = (plEng.likes7d || 0) + (plEng.comments7d || 0) + (plEng.reposts7d || 0);
+        var plLikes = plEng.likes7d || 0;
+        var plComments = plEng.comments7d || 0;
+        var plReposts = plEng.reposts7d || 0;
         html += '<div class="scc-platform-stat"><span>' + _esc(_fmtNum(plFollowers)) + '</span><span class="scc-platform-stat-label">followers</span></div>';
         html += '<div class="scc-platform-stat"><span>' + _esc(_fmtNum(plPosts)) + '</span><span class="scc-platform-stat-label">posts</span></div>';
-        html += '<div class="scc-platform-stat"><span>' + _esc(_fmtNum(plEngTotal)) + '</span><span class="scc-platform-stat-label">engagements</span></div>';
+        html += '<div class="scc-platform-eng">';
+        html += '<span style="color:#34d399;" title="Likes">' + _esc(_fmtNum(plLikes)) + ' <i class="fas fa-heart" style="font-size:0.4rem;"></i></span>';
+        html += '<span style="color:#fbbf24;" title="Comments">' + _esc(_fmtNum(plComments)) + ' <i class="fas fa-comment" style="font-size:0.4rem;"></i></span>';
+        html += '<span style="color:#a78bfa;" title="Reposts">' + _esc(_fmtNum(plReposts)) + ' <i class="fas fa-retweet" style="font-size:0.4rem;"></i></span>';
+        html += '</div>';
       } else {
         html += '<div class="scc-platform-stat scc-platform-stat--off">Not connected</div>';
       }
@@ -205,9 +215,11 @@
     }
     html += '</div>';
 
-    // ── Line graph (14-day: posts + engagements) ──
+    // ── Line graph (14-day: posts + likes + comments + reposts) ──
     var postBuckets = _buildDayBuckets(14);
-    var engBuckets = _buildDayBuckets(14);
+    var likesBuckets = _buildDayBuckets(14);
+    var commentsBuckets = _buildDayBuckets(14);
+    var repostsBuckets = _buildDayBuckets(14);
 
     // Posts from metrics trends.daily or events
     var metricsDaily = (metrics.trends && metrics.trends.daily) || [];
@@ -216,7 +228,6 @@
         if (d.date && postBuckets.hasOwnProperty(d.date)) postBuckets[d.date] = (d.published || 0);
       });
     } else {
-      // Fallback: count from events
       events.forEach(function (e) {
         if (e.timestamp && (e.result === 'success' || e.status === 'success')) {
           var dk = (e.timestamp || '').substring(0, 10);
@@ -225,22 +236,58 @@
       });
     }
 
-    // Engagements from engagement trends.daily
+    // Engagement breakdown from engagement trends.daily
     var engDaily = (eng.trends && (eng.trends.daily || eng.trends.last7 || eng.trends.last30)) || [];
     engDaily.forEach(function (d) {
-      if (d.date && engBuckets.hasOwnProperty(d.date)) {
-        engBuckets[d.date] = (d.likes || 0) + (d.comments || 0) + (d.reposts || 0);
+      if (d.date) {
+        if (likesBuckets.hasOwnProperty(d.date)) likesBuckets[d.date] = (d.likes || 0);
+        if (commentsBuckets.hasOwnProperty(d.date)) commentsBuckets[d.date] = (d.comments || 0);
+        if (repostsBuckets.hasOwnProperty(d.date)) repostsBuckets[d.date] = (d.reposts || 0);
       }
     });
 
     var dayKeys = Object.keys(postBuckets).sort();
     var postSeries = dayKeys.map(function (k) { return { date: k, value: postBuckets[k] }; });
-    var engSeries = dayKeys.map(function (k) { return { date: k, value: engBuckets[k] }; });
+    var likesSeries = dayKeys.map(function (k) { return { date: k, value: likesBuckets[k] }; });
+    var commentsSeries = dayKeys.map(function (k) { return { date: k, value: commentsBuckets[k] }; });
+    var repostsSeries = dayKeys.map(function (k) { return { date: k, value: repostsBuckets[k] }; });
 
     html += _renderLineGraph([
       { label: 'Posts', data: postSeries, color: '#60a5fa' },
-      { label: 'Engagements', data: engSeries, color: '#a78bfa' }
+      { label: 'Likes', data: likesSeries, color: '#34d399' },
+      { label: 'Comments', data: commentsSeries, color: '#fbbf24' },
+      { label: 'Reposts', data: repostsSeries, color: '#a78bfa' }
     ], { width: 400, height: 120 });
+
+    // ── Comment alert (conditional) ──
+    var topPosts = eng.topPosts || [];
+    var postsWithComments = topPosts.filter(function (p) { return (p.comments || 0) > 0; });
+    if (postsWithComments.length > 0) {
+      var totalCommentCount = 0;
+      postsWithComments.forEach(function (p) { totalCommentCount += (p.comments || 0); });
+      var platformIcons = { x: 'fab fa-x-twitter', linkedin: 'fab fa-linkedin', bluesky: 'fas fa-cloud' };
+
+      html += '<div class="scc-comment-alert">';
+      html += '<div class="scc-comment-alert-header">';
+      html += '<i class="fas fa-comment" style="color:#fbbf24;margin-right:5px;"></i>';
+      html += '<strong>' + totalCommentCount + ' comment' + (totalCommentCount !== 1 ? 's' : '') + '</strong>';
+      html += ' across ' + postsWithComments.length + ' post' + (postsWithComments.length !== 1 ? 's' : '');
+      html += '</div>';
+
+      // Show top 3 posts with comments
+      var showPosts = postsWithComments.slice(0, 3);
+      showPosts.forEach(function (p) {
+        var icon = platformIcons[p.platform] || 'fas fa-share-alt';
+        html += '<div class="scc-comment-post">';
+        html += '<i class="' + icon + '" style="color:' + (colors[p.platform] || '#60a5fa') + ';margin-right:5px;font-size:0.55rem;"></i>';
+        html += '<span class="scc-comment-post-text">' + _esc((p.text_preview || '').substring(0, 80)) + (p.text_preview && p.text_preview.length > 80 ? '...' : '') + '</span>';
+        html += '<span class="scc-comment-count">' + (p.comments || 0) + '</span>';
+        if (p.link) html += '<a href="' + _esc(p.link) + '" target="_blank" class="scc-comment-link" title="View post"><i class="fas fa-external-link-alt"></i></a>';
+        html += '</div>';
+      });
+
+      html += '</div>';
+    }
 
     // ── Top issue (conditional) ──
     var issue = summary.topIssue || _topIssue(metrics.recentFailures || []);
