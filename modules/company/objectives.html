@@ -77,6 +77,15 @@
     .cmp-chip-x { cursor:pointer; opacity:0.6; font-size:0.6rem; margin-left:2px; }
     .cmp-chip-x:hover { opacity:1; color:#f87171; }
     .cmp-count { font-size:0.58rem; opacity:0.4; margin-top:0.2rem; }
+    .obj-view-btn { background:transparent; border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.4); border-radius:5px; padding:0.25rem 0.4rem; font-size:0.65rem; cursor:pointer; }
+    .obj-view-btn:hover { border-color:rgba(78,205,196,0.4); color:rgba(255,255,255,0.7); }
+    .obj-view-btn--active { background:rgba(78,205,196,0.15); border-color:rgba(78,205,196,0.4); color:#4ECDC4; }
+    .obj-list-table { width:100%; border-collapse:collapse; font-size:0.68rem; }
+    .obj-list-table th { text-align:left; font-size:0.58rem; text-transform:uppercase; letter-spacing:0.5px; opacity:0.4; padding:0.4rem 0.5rem; border-bottom:1px solid rgba(255,255,255,0.06); font-weight:600; }
+    .obj-list-table td { padding:0.45rem 0.5rem; border-bottom:1px solid rgba(255,255,255,0.03); vertical-align:middle; }
+    .obj-list-table tr:hover { background:rgba(78,205,196,0.04); }
+    .obj-tbl-bar { height:4px; border-radius:2px; background:rgba(255,255,255,0.06); min-width:60px; overflow:hidden; }
+    .obj-tbl-fill { height:100%; border-radius:2px; }
   </style>
 </head>
 <body style="background:#071019" data-theme="dark">
@@ -156,9 +165,15 @@
     <div class="dash-panel dash-panel--full">
       <div class="dash-panel-header" style="display:flex;justify-content:space-between;align-items:center;">
         <span class="dash-panel-title"><i class="fas fa-list-check" style="color:#4ECDC4;"></i> All Goals</span>
-        <label style="font-size:0.66rem; opacity:0.6; display:flex; align-items:center; gap:0.25rem;">
-          <input type="checkbox" id="obj-show-completed" /> Show completed &amp; canceled
-        </label>
+        <div style="display:flex;align-items:center;gap:0.5rem;">
+          <div style="display:flex;align-items:center;gap:0.35rem;">
+            <button id="obj-view-card" class="obj-view-btn obj-view-btn--active" title="Card view"><i class="fas fa-th-large"></i></button>
+            <button id="obj-view-list" class="obj-view-btn" title="List view"><i class="fas fa-list"></i></button>
+          </div>
+          <label style="font-size:0.66rem; opacity:0.6; display:flex; align-items:center; gap:0.25rem;">
+            <input type="checkbox" id="obj-show-completed" /> Show completed &amp; canceled
+          </label>
+        </div>
       </div>
       <div id="obj-list">
         <div class="dash-empty">No goals yet. Create one above.</div>
@@ -417,6 +432,20 @@
       var objShowCompleted = document.getElementById('obj-show-completed');
       if (objShowCompleted) objShowCompleted.addEventListener('change', renderObjectives);
 
+      var _objViewMode = 'card';
+      var objViewCardBtn = document.getElementById('obj-view-card');
+      var objViewListBtn = document.getElementById('obj-view-list');
+      if (objViewCardBtn) objViewCardBtn.addEventListener('click', function () {
+        _objViewMode = 'card';
+        objViewCardBtn.classList.add('obj-view-btn--active'); objViewListBtn.classList.remove('obj-view-btn--active');
+        renderObjectives();
+      });
+      if (objViewListBtn) objViewListBtn.addEventListener('click', function () {
+        _objViewMode = 'list';
+        objViewListBtn.classList.add('obj-view-btn--active'); objViewCardBtn.classList.remove('obj-view-btn--active');
+        renderObjectives();
+      });
+
       // ── Edit Modal ──
       function openEditModal(obj) {
         editingId = obj.id;
@@ -549,7 +578,6 @@
           return true;
         });
 
-        objList.innerHTML = '';
         // Active goals first, then complete, then canceled
         var statusOrder = { on_track: 0, at_risk: 1, behind: 2, complete: 3, canceled: 4 };
         visible.sort(function (a, b) {
@@ -557,9 +585,61 @@
           var bOrd = statusOrder[b.status] !== undefined ? statusOrder[b.status] : 1;
           return aOrd - bOrd;
         });
-        visible.forEach(function (obj) {
-          objList.appendChild(createObjectiveCard(obj));
-        });
+
+        objList.innerHTML = '';
+        if (_objViewMode === 'list') {
+          // List view
+          var statusColors = { on_track: '#34d399', at_risk: '#fbbf24', behind: '#f87171', complete: '#c084fc', canceled: '#9ca3af' };
+          var html = '<table class="obj-list-table"><thead><tr>' +
+            '<th>Goal</th><th>Status</th><th>Progress</th><th>Tasks</th><th>Campaigns</th><th>Dates</th><th></th>' +
+          '</tr></thead><tbody>';
+          visible.forEach(function (obj) {
+            var progress = (typeof AgentEngine.getObjectiveProgress === 'function') ? AgentEngine.getObjectiveProgress(obj.id) : null;
+            var pct = progress ? progress.pct : 0;
+            var autoHealth = progress ? progress.health : 'neutral';
+            var barColor = autoHealth === 'good' ? '#34d399' : autoHealth === 'warn' ? '#fbbf24' : autoHealth === 'bad' ? '#ef4444' : '#64748b';
+            var sColor = statusColors[obj.status] || '#60a5fa';
+            var primaryDone = progress && progress.primaryDoneTasks !== undefined ? progress.primaryDoneTasks : (progress ? progress.doneTasks : 0);
+            var expected = progress ? (progress.expectedTasks || progress.totalTasks) : 0;
+            var campCount = progress ? progress.campaigns : 0;
+            // Date range
+            var dateText = '';
+            if (obj.quarter && obj.year) {
+              dateText = obj.quarter + ' ' + obj.year;
+            } else if (progress && progress.campaignDetails && progress.campaignDetails.length > 0) {
+              var _lc = (typeof AgentEngine.getCampaigns === 'function') ? AgentEngine.getCampaigns() : [];
+              var _ids = progress.campaignDetails.map(function (cd) { return cd.id; });
+              var _earliest = null, _latest = null;
+              _lc.forEach(function (c) { if (_ids.indexOf(c.id) === -1) return; if (c.startDate) { var s = new Date(c.startDate); if (!_earliest || s < _earliest) _earliest = s; } if (c.endDate) { var e = new Date(c.endDate); if (!_latest || e > _latest) _latest = e; } });
+              var fmt = function (d) { return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); };
+              if (_earliest && _latest) dateText = fmt(_earliest) + ' → ' + fmt(_latest);
+            }
+            var isInactive = obj.status === 'complete' || obj.status === 'canceled';
+            html += '<tr' + (isInactive ? ' style="opacity:0.5;"' : '') + '>' +
+              '<td><strong>' + escapeHtml(obj.title) + '</strong></td>' +
+              '<td><span style="color:' + sColor + ';font-size:0.62rem;font-weight:600;">' + (obj.status || 'on_track').replace(/_/g, ' ') + '</span></td>' +
+              '<td style="min-width:100px;"><div class="obj-tbl-bar"><div class="obj-tbl-fill" style="width:' + pct + '%;background:' + barColor + ';"></div></div><span style="font-size:0.58rem;color:' + barColor + ';font-weight:600;">' + pct + '%</span></td>' +
+              '<td style="font-size:0.62rem;">' + primaryDone + '/' + expected + '</td>' +
+              '<td style="font-size:0.62rem;">' + campCount + '</td>' +
+              '<td style="font-size:0.6rem;opacity:0.5;white-space:nowrap;">' + dateText + '</td>' +
+              '<td><button class="obj-edit-row-btn" data-id="' + obj.id + '" style="font-size:0.55rem;padding:0.15rem 0.35rem;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);border-radius:4px;cursor:pointer;"><i class="fas fa-pen"></i></button></td>' +
+            '</tr>';
+          });
+          html += '</tbody></table>';
+          objList.innerHTML = html;
+          objList.querySelectorAll('.obj-edit-row-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () {
+              var id = btn.getAttribute('data-id');
+              var obj = AgentEngine.getObjectives().find(function (o) { return o.id === id; });
+              if (obj) openEditModal(obj);
+            });
+          });
+        } else {
+          // Card view
+          visible.forEach(function (obj) {
+            objList.appendChild(createObjectiveCard(obj));
+          });
+        }
         } catch(e) { console.warn('[Objectives] renderObjectives error:', e); }
       }
 

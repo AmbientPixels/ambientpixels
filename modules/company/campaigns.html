@@ -96,6 +96,15 @@
     .cmp-card--paused .cmp-progress-fill { opacity:0.4; }
     .cmp-pause-btn { background:rgba(251,191,36,0.1) !important; border-color:rgba(251,191,36,0.3) !important; color:#fbbf24 !important; }
     .cmp-resume-btn { background:rgba(52,211,153,0.1) !important; border-color:rgba(52,211,153,0.3) !important; color:#34d399 !important; }
+    .cmp-view-btn { background:transparent; border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.4); border-radius:5px; padding:0.25rem 0.4rem; font-size:0.65rem; cursor:pointer; }
+    .cmp-view-btn:hover { border-color:rgba(138,43,226,0.4); color:rgba(255,255,255,0.7); }
+    .cmp-view-btn--active { background:rgba(138,43,226,0.15); border-color:rgba(138,43,226,0.4); color:#a78bfa; }
+    .cmp-list-table { width:100%; border-collapse:collapse; font-size:0.68rem; }
+    .cmp-list-table th { text-align:left; font-size:0.58rem; text-transform:uppercase; letter-spacing:0.5px; opacity:0.4; padding:0.4rem 0.5rem; border-bottom:1px solid rgba(255,255,255,0.06); font-weight:600; }
+    .cmp-list-table td { padding:0.45rem 0.5rem; border-bottom:1px solid rgba(255,255,255,0.03); vertical-align:middle; }
+    .cmp-list-table tr:hover { background:rgba(138,43,226,0.04); }
+    .cmp-list-table .cmp-tbl-bar { height:4px; border-radius:2px; background:rgba(255,255,255,0.06); min-width:60px; overflow:hidden; }
+    .cmp-list-table .cmp-tbl-fill { height:100%; border-radius:2px; }
   </style>
 </head>
 <body style="background:#071019" data-theme="dark">
@@ -161,8 +170,12 @@
       </section>
 
       <section class="cmp-panel">
-        <div class="cmp-list-row">
-          <input id="cmp-search" type="text" placeholder="Search campaigns..." />
+        <div class="cmp-list-row" style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
+          <input id="cmp-search" type="text" placeholder="Search campaigns..." style="flex:1;min-width:140px;" />
+          <div style="display:flex;align-items:center;gap:0.35rem;">
+            <button id="cmp-view-card" class="cmp-view-btn cmp-view-btn--active" title="Card view"><i class="fas fa-th-large"></i></button>
+            <button id="cmp-view-list" class="cmp-view-btn" title="List view"><i class="fas fa-list"></i></button>
+          </div>
           <label style="font-size:0.66rem; opacity:0.6; display:flex; align-items:center; gap:0.25rem;">
             <input type="checkbox" id="cmp-show-archived" /> Show completed &amp; archived
           </label>
@@ -411,7 +424,49 @@
         return '<div style="display:flex;gap:0.3rem;flex-wrap:wrap;margin-top:0.25rem;">' + badges.join('') + '</div>';
       }
 
+      var _cmpViewMode = 'card';
+
+      function renderListView() {
+        var campaigns = getVisibleCampaigns();
+        renderCounts();
+        if (campaigns.length === 0) { listEl.innerHTML = '<div class="cmp-empty">No campaigns found.</div>'; return; }
+        var fmt = function (iso) { return iso ? new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'; };
+        var now = Date.now();
+        var html = '<table class="cmp-list-table"><thead><tr>' +
+          '<th>Campaign</th><th>Status</th><th>Progress</th><th>Tasks</th><th>Dates</th><th>Goal</th><th></th>' +
+          '</tr></thead><tbody>';
+        campaigns.forEach(function (c) {
+          var m = campaignMetrics(c);
+          var p = (typeof AgentEngine.getCampaignProgress === 'function') ? AgentEngine.getCampaignProgress(c.id) : null;
+          var barColor = m.health === 'good' ? '#34d399' : m.health === 'warn' ? '#fbbf24' : m.health === 'bad' ? '#ef4444' : '#64748b';
+          var statusColor = c.status === 'active' ? '#34d399' : c.status === 'complete' ? '#c084fc' : c.status === 'paused' ? '#fbbf24' : '#94a3b8';
+          var objTitle = objectiveTitle(c.objective_id);
+          var primaryDone = p && p.primaryDone !== undefined ? p.primaryDone : (p ? p.done : 0);
+          var expected = p ? (p.expectedTotal || p.total) : 0;
+          var daysLeft = '';
+          if (c.endDate) {
+            var dl = Math.ceil((new Date(c.endDate).getTime() - now) / 86400000);
+            daysLeft = dl > 0 ? dl + 'd left' : dl === 0 ? 'Today' : Math.abs(dl) + 'd ago';
+          }
+          html += '<tr>' +
+            '<td><strong>' + esc(c.title) + '</strong></td>' +
+            '<td><span style="color:' + statusColor + ';font-size:0.62rem;font-weight:600;">' + esc(c.status) + '</span></td>' +
+            '<td style="min-width:100px;"><div class="cmp-tbl-bar"><div class="cmp-tbl-fill" style="width:' + m.pctComplete + '%;background:' + barColor + ';"></div></div><span style="font-size:0.58rem;color:' + barColor + ';font-weight:600;">' + m.pctComplete + '%</span></td>' +
+            '<td style="font-size:0.62rem;">' + primaryDone + '/' + expected + '</td>' +
+            '<td style="font-size:0.6rem;opacity:0.5;white-space:nowrap;">' + fmt(c.startDate) + ' → ' + fmt(c.endDate) + (daysLeft ? '<br><span style="font-size:0.55rem;opacity:0.7;">' + daysLeft + '</span>' : '') + '</td>' +
+            '<td style="font-size:0.6rem;color:#4ECDC4;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (objTitle ? esc(objTitle) : '<span style="opacity:0.2;">—</span>') + '</td>' +
+            '<td><button class="cmp-edit-btn" data-id="' + esc(c.id) + '" style="font-size:0.55rem;padding:0.15rem 0.35rem;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);border-radius:4px;cursor:pointer;"><i class="fas fa-pen"></i></button></td>' +
+          '</tr>';
+        });
+        html += '</tbody></table>';
+        listEl.innerHTML = html;
+        listEl.querySelectorAll('.cmp-edit-btn').forEach(function (btn) {
+          btn.addEventListener('click', function () { openEditModal(btn.getAttribute('data-id')); });
+        });
+      }
+
       function renderList() {
+        if (_cmpViewMode === 'list') { renderListView(); return; }
         var campaigns = getVisibleCampaigns();
         renderCounts();
         if (campaigns.length === 0) {
@@ -656,6 +711,19 @@
 
       searchEl.addEventListener('input', renderList);
       archivedToggleEl.addEventListener('change', renderList);
+
+      var viewCardBtn = document.getElementById('cmp-view-card');
+      var viewListBtn = document.getElementById('cmp-view-list');
+      viewCardBtn.addEventListener('click', function () {
+        _cmpViewMode = 'card';
+        viewCardBtn.classList.add('cmp-view-btn--active'); viewListBtn.classList.remove('cmp-view-btn--active');
+        renderList();
+      });
+      viewListBtn.addEventListener('click', function () {
+        _cmpViewMode = 'list';
+        viewListBtn.classList.add('cmp-view-btn--active'); viewCardBtn.classList.remove('cmp-view-btn--active');
+        renderList();
+      });
 
       AgentEngine.loadRegistry().then(function () {
         populateObjectiveSelect();
