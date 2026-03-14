@@ -567,8 +567,8 @@
 
         // Task breakdown text
         var breakdownParts = [];
-        if (progress && progress.totalTasks > 0) {
-          breakdownParts.push(progress.doneTasks + '/' + progress.totalTasks + ' done');
+        if (progress && (progress.expectedTasks || progress.totalTasks) > 0) {
+          breakdownParts.push((progress.primaryDoneTasks !== undefined ? progress.primaryDoneTasks : progress.doneTasks) + '/' + (progress.expectedTasks || progress.totalTasks) + ' done');
           if (progress.inProgress > 0) breakdownParts.push(progress.inProgress + ' active');
           if (progress.review > 0) breakdownParts.push(progress.review + ' in review');
           if (progress.blocked > 0) breakdownParts.push(progress.blocked + ' blocked');

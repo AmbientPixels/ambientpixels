@@ -322,12 +322,16 @@ module.exports = async function (context) {
       // Only replenish if 0 active tasks
       if (activeTasks.length > 0) continue;
 
-      // Check cadence throttle — count tasks created in the current cadence period vs frequency target
+      // Check cadence throttle — count only primary tasks (matching allowedTaskTypes) created this period
       const _window = _cadenceMs[c.cadence] || 604800000;
       const _periodStart = _now - _window;
-      const _tasksThisPeriod = cmpTasks.filter(t => t.createdAt && new Date(t.createdAt).getTime() > _periodStart).length;
+      const _allowedTypes = Array.isArray(c.allowedTaskTypes) && c.allowedTaskTypes.length > 0 ? c.allowedTaskTypes : null;
+      const _primaryThisPeriod = cmpTasks.filter(t => {
+        if (!t.createdAt || new Date(t.createdAt).getTime() <= _periodStart) return false;
+        return !_allowedTypes || _allowedTypes.indexOf(t.taskType) !== -1;
+      }).length;
       const _freq = c.frequency || 1;
-      if (_tasksThisPeriod >= _freq) continue;
+      if (_primaryThisPeriod >= _freq) continue;
 
       // Determine which task type to create
       const allowedTypes = Array.isArray(c.allowedTaskTypes) && c.allowedTaskTypes.length > 0

@@ -79,7 +79,7 @@
         var statusColors={on_track:'#34d399',at_risk:'#fbbf24',behind:'#ef4444',completed:'#c084fc'};
         var sColor=statusColors[o.status]||'#60a5fa';
         var barColor = autoHealth === 'good' ? '#34d399' : autoHealth === 'warn' ? '#fbbf24' : autoHealth === 'bad' ? '#ef4444' : '#60a5fa';
-        var tasksMeta = progress ? progress.doneTasks + '/' + (progress.expectedTasks || progress.totalTasks) + ' tasks' : '';
+        var tasksMeta = progress ? (progress.primaryDoneTasks !== undefined ? progress.primaryDoneTasks : progress.doneTasks) + '/' + (progress.expectedTasks || progress.totalTasks) + ' tasks' : '';
         html+='<div class="board-goal-card"><div class="board-goal-title">'+escapeHtml(o.title||'Untitled')+'</div>';
         html+='<div class="board-goal-meta">';
         if(o.quarter)html+='<span>Q'+o.quarter+'</span>';
@@ -182,7 +182,7 @@
         var p = (typeof AgentEngine.getCampaignProgress === 'function') ? AgentEngine.getCampaignProgress(d.id) : null;
         var pct = p ? p.pct : 0;
         var barColor = p && p.signal === 'blocked' ? '#ef4444' : p && (p.signal === 'behind' || p.signal === 'at_risk' || p.signal === 'stale') ? '#fbbf24' : sColor;
-        var taskInfo = p && p.total > 0 ? p.done + '/' + (p.expectedTotal || p.total) + ' done' : '';
+        var taskInfo = p && p.total > 0 ? (p.primaryDone !== undefined ? p.primaryDone : p.done) + '/' + (p.expectedTotal || p.total) + ' done' : '';
         var div=document.createElement('div'); div.className='board-dir-card';
         div.innerHTML='<div style="flex:1;min-width:0;"><div style="font-size:0.85rem;font-weight:600;">'+escapeHtml(d.title)+'</div><div style="display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:3px;font-size:0.6rem;opacity:0.5;"><span style="color:'+sColor+';">'+d.status+'</span><span style="color:'+pColor+';">'+(d.priority||'medium')+'</span>'+(taskInfo?'<span>'+taskInfo+'</span>':'')+(d.owner?'<span>Owner: '+d.owner+'</span>':'')+'</div>'+(p&&p.total>0?'<div style="height:4px;border-radius:2px;background:rgba(255,255,255,0.06);margin-top:0.3rem;overflow:hidden;"><div style="height:100%;width:'+pct+'%;background:'+barColor+';border-radius:2px;"></div></div>':'')+'</div>';
         listEl.appendChild(div);

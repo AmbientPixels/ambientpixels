@@ -375,7 +375,7 @@
           var progress = (typeof AgentEngine.getCampaignProgress === 'function') ? AgentEngine.getCampaignProgress(c.id) : null;
           var breakdownParts = [];
           if (progress && progress.total > 0) {
-            breakdownParts.push(progress.done + '/' + progress.total + ' done');
+            breakdownParts.push((progress.primaryDone !== undefined ? progress.primaryDone : progress.done) + '/' + (progress.expectedTotal || progress.total) + ' done');
             if (progress.inProgress > 0) breakdownParts.push(progress.inProgress + ' active');
             if (progress.review > 0) breakdownParts.push(progress.review + ' in review');
           }

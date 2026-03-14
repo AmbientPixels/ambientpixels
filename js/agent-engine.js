@@ -2418,12 +2418,18 @@ var AgentEngine = (function () {
     // Look up campaign for cadence-based progress
     var campaign = getCampaigns().find(function (c) { return c.id === campaignId; });
 
-    if (total === 0) return { total: 0, done: 0, inProgress: 0, review: 0, todo: 0, backlog: 0, blocked: 0, overdue: 0, pct: 0, donePct: 0, signal: 'no_tasks', agents: {}, tasks: linked, staleDays: 0 };
+    if (total === 0) return { total: 0, done: 0, inProgress: 0, review: 0, todo: 0, backlog: 0, blocked: 0, overdue: 0, pct: 0, donePct: 0, signal: 'no_tasks', agents: {}, tasks: linked, staleDays: 0, primaryDone: 0, primaryTotal: 0, expectedTotal: 0 };
 
     var done = 0, inProgress = 0, review = 0, todo = 0, backlog = 0, blocked = 0, overdue = 0;
     var agents = {};
     var now = new Date();
     var latestUpdate = null;
+
+    // Determine primary task types for cadence counting (exclude auto-spawned children)
+    var allowedTypes = (campaign && Array.isArray(campaign.allowedTaskTypes) && campaign.allowedTaskTypes.length > 0)
+      ? campaign.allowedTaskTypes : null;
+
+    var primaryDone = 0, primaryTotal = 0;
 
     linked.forEach(function (t) {
       var s = t.status || 'backlog';
@@ -2435,6 +2441,13 @@ var AgentEngine = (function () {
       if (t.blocked) blocked++;
       if (t.dueDate && new Date(t.dueDate) < now && s !== 'done') overdue++;
 
+      // Count primary tasks (matching campaign's allowedTaskTypes)
+      var isPrimary = !allowedTypes || allowedTypes.indexOf(t.taskType) !== -1;
+      if (isPrimary) {
+        primaryTotal++;
+        if (s === 'done') primaryDone++;
+      }
+
       var agent = t.assignee || 'unassigned';
       if (!agents[agent]) agents[agent] = { total: 0, done: 0, active: 0 };
       agents[agent].total++;
@@ -2445,10 +2458,10 @@ var AgentEngine = (function () {
       if (updated && (!latestUpdate || updated > latestUpdate)) latestUpdate = updated;
     });
 
-    // Cadence-aware progress: measure against full lifetime target, cap at 99% until ended
+    // Cadence-aware progress: use primary task counts against cadence target
     var cadenceMs = { daily: 86400000, weekly: 604800000, biweekly: 1209600000 };
-    var expectedTotal = total; // fallback to actual total
-    var expectedByNow = 0; // how many tasks should be done by now based on elapsed time
+    var expectedTotal = primaryTotal; // fallback to primary task count
+    var expectedByNow = 0;
     var campaignEnded = false;
     if (campaign && campaign.cadence && campaign.frequency && campaign.startDate && campaign.endDate) {
       var campStart = new Date(campaign.startDate).getTime();
@@ -2456,7 +2469,7 @@ var AgentEngine = (function () {
       var nowMs = now.getTime();
       var periodMs = cadenceMs[campaign.cadence] || 604800000;
       var totalPeriods = Math.max(1, Math.ceil((campEnd - campStart) / periodMs));
-      expectedTotal = Math.max(total, totalPeriods * campaign.frequency);
+      expectedTotal = totalPeriods * campaign.frequency;
       campaignEnded = nowMs >= campEnd;
       if (campaignEnded) {
         expectedByNow = expectedTotal;
@@ -2466,23 +2479,23 @@ var AgentEngine = (function () {
       }
     }
 
-    var weightedDone = (done * 1.0) + (review * 0.75) + (inProgress * 0.5) + (todo * 0.25);
-    var pct = expectedTotal > 0 ? Math.min(campaignEnded ? 100 : 99, Math.round((weightedDone / expectedTotal) * 100)) : 0;
-    var donePct = expectedTotal > 0 ? Math.min(campaignEnded ? 100 : 99, Math.round((done / expectedTotal) * 100)) : 0;
+    // Progress based on primary tasks vs cadence target
+    var pct = expectedTotal > 0 ? Math.min(campaignEnded ? 100 : 99, Math.round((primaryDone / expectedTotal) * 100)) : 0;
+    var donePct = expectedTotal > 0 ? Math.min(campaignEnded ? 100 : 99, Math.round((primaryDone / expectedTotal) * 100)) : 0;
     var staleDays = latestUpdate ? Math.floor((now - new Date(latestUpdate)) / 86400000) : 999;
 
-    // Pace check: behind if done < 50% of what's expected by now
-    var behind = expectedByNow > 0 && done < expectedByNow * 0.5;
+    // Pace check: behind if primary done < 50% of what's expected by now
+    var behind = expectedByNow > 0 && primaryDone < expectedByNow * 0.5;
 
     var signal = 'on_track';
     if (inProgress === 0 && review === 0 && done === 0 && todo === 0) signal = 'not_started';
     else if (blocked > 0) signal = 'blocked';
     else if (overdue > 0) signal = 'at_risk';
     else if (behind) signal = 'behind';
-    else if (staleDays >= 3 && donePct < 100 && total > 0 && done < expectedTotal) signal = 'stale';
-    else if (campaignEnded && done >= expectedTotal && expectedTotal > 0) signal = 'complete';
+    else if (staleDays >= 3 && donePct < 100 && total > 0 && primaryDone < expectedTotal) signal = 'stale';
+    else if (campaignEnded && primaryDone >= expectedTotal && expectedTotal > 0) signal = 'complete';
 
-    return { total: total, done: done, inProgress: inProgress, review: review, todo: todo, backlog: backlog, blocked: blocked, overdue: overdue, pct: pct, donePct: donePct, expectedTotal: expectedTotal, signal: signal, agents: agents, tasks: linked, staleDays: staleDays };
+    return { total: total, done: done, inProgress: inProgress, review: review, todo: todo, backlog: backlog, blocked: blocked, overdue: overdue, pct: pct, donePct: donePct, expectedTotal: expectedTotal, primaryDone: primaryDone, primaryTotal: primaryTotal, signal: signal, agents: agents, tasks: linked, staleDays: staleDays };
   }
 
   function getAllCampaignProgress() {
@@ -2501,7 +2514,8 @@ var AgentEngine = (function () {
     });
     if (campaigns.length === 0) return { campaigns: 0, totalTasks: 0, doneTasks: 0, inProgress: 0, review: 0, todo: 0, backlog: 0, blocked: 0, overdue: 0, pct: 0, donePct: 0, signal: 'no_campaigns', health: 'neutral', campaignDetails: [] };
 
-    var totalTasks = 0, doneTasks = 0, inProgressTasks = 0, reviewTasks = 0, todoTasks = 0, backlogTasks = 0, blockedTasks = 0, overdueTasks = 0;
+    var totalTasks = 0, doneTasks = 0, primaryDoneTasks = 0, inProgressTasks = 0, reviewTasks = 0, todoTasks = 0, backlogTasks = 0, blockedTasks = 0, overdueTasks = 0;
+    var totalExpected = 0;
     var campaignDetails = [];
     var worstSignal = 'on_track';
     var signalPriority = { blocked: 5, at_risk: 4, behind: 3, stale: 3, not_started: 2, on_track: 1, complete: 0, no_tasks: 1 };
@@ -2510,6 +2524,8 @@ var AgentEngine = (function () {
       var cp = getCampaignProgress(c.id);
       totalTasks += cp.total;
       doneTasks += cp.done;
+      primaryDoneTasks += (cp.primaryDone !== undefined ? cp.primaryDone : cp.done);
+      totalExpected += cp.expectedTotal || cp.total;
       inProgressTasks += cp.inProgress;
       reviewTasks += cp.review;
       todoTasks += cp.todo;
@@ -2522,22 +2538,15 @@ var AgentEngine = (function () {
       }
     });
 
-    // Weighted progress — use expectedTotal from campaign progress (cadence-aware)
-    var totalExpected = 0;
-    campaigns.forEach(function (c) {
-      var cp = getCampaignProgress(c.id);
-      totalExpected += cp.expectedTotal || cp.total;
-    });
-    var effectiveTotal = Math.max(totalTasks, totalExpected);
+    // Progress based on primary tasks vs cadence-aware expected totals
     var pct = 0;
     var donePct = 0;
     var anyCampaignRunning = campaigns.some(function (c) {
       return c.endDate && new Date(c.endDate).getTime() > Date.now();
     });
-    if (effectiveTotal > 0) {
-      var weighted = (doneTasks * 1.0) + (reviewTasks * 0.75) + (inProgressTasks * 0.5) + (todoTasks * 0.25);
-      pct = Math.min(anyCampaignRunning ? 99 : 100, Math.round((weighted / effectiveTotal) * 100));
-      donePct = Math.min(anyCampaignRunning ? 99 : 100, Math.round((doneTasks / effectiveTotal) * 100));
+    if (totalExpected > 0) {
+      pct = Math.min(anyCampaignRunning ? 99 : 100, Math.round((primaryDoneTasks / totalExpected) * 100));
+      donePct = pct;
     }
 
     // If all campaigns are complete, goal signal is complete
@@ -2557,7 +2566,7 @@ var AgentEngine = (function () {
     else if (worstSignal === 'blocked') health = 'bad';
 
     return {
-      campaigns: campaigns.length, totalTasks: totalTasks, expectedTasks: effectiveTotal, doneTasks: doneTasks,
+      campaigns: campaigns.length, totalTasks: totalTasks, expectedTasks: totalExpected, doneTasks: doneTasks, primaryDoneTasks: primaryDoneTasks,
       inProgress: inProgressTasks, review: reviewTasks, todo: todoTasks, backlog: backlogTasks,
       blocked: blockedTasks, overdue: overdueTasks, pct: pct, donePct: donePct,
       signal: worstSignal, health: health, campaignDetails: campaignDetails

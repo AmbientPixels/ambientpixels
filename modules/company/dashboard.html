@@ -3412,7 +3412,7 @@
               '</div>' +
               '<div class="log-time" style="display:flex;gap:0.4rem;align-items:center;flex-wrap:wrap;">' +
                 '<span style="color:' + sig.color + ';font-weight:600;">' + p.pct + '%</span>' +
-                '<span>' + p.done + '/' + (p.expectedTotal || p.total) + ' done' + (p.inProgress ? ', ' + p.inProgress + ' active' : '') + '</span>' +
+                '<span>' + (p.primaryDone !== undefined ? p.primaryDone : p.done) + '/' + (p.expectedTotal || p.total) + ' done' + (p.inProgress ? ', ' + p.inProgress + ' active' : '') + '</span>' +
                 warnings +
               '</div>' +
               (agentChips ? '<div style="display:flex;gap:0.2rem;flex-wrap:wrap;margin-top:0.25rem;">' + agentChips + '</div>' : '') +
@@ -3607,7 +3607,7 @@
 
           var metaParts = [];
           if (progress && progress.campaigns > 0) metaParts.push(progress.campaigns + ' campaign' + (progress.campaigns !== 1 ? 's' : ''));
-          if (progress && (progress.expectedTasks || progress.totalTasks) > 0) metaParts.push(progress.doneTasks + '/' + (progress.expectedTasks || progress.totalTasks) + ' tasks done');
+          if (progress && (progress.expectedTasks || progress.totalTasks) > 0) metaParts.push((progress.primaryDoneTasks !== undefined ? progress.primaryDoneTasks : progress.doneTasks) + '/' + (progress.expectedTasks || progress.totalTasks) + ' tasks done');
           var metaHtml = metaParts.length > 0 ? '<span style="font-size:0.55rem; opacity:0.35; margin-left:0.3rem;">' + metaParts.join(' · ') + '</span>' : '';
 
           var li = document.createElement('li');
@@ -3633,7 +3633,7 @@
 
           completed.slice(0, 3).forEach(function (obj) {
             var progress = (typeof AgentEngine.getObjectiveProgress === 'function') ? AgentEngine.getObjectiveProgress(obj.id) : null;
-            var tasksDone = progress ? progress.doneTasks : 0;
+            var tasksDone = progress ? (progress.primaryDoneTasks !== undefined ? progress.primaryDoneTasks : progress.doneTasks) : 0;
             var tasksTotal = progress ? (progress.expectedTasks || progress.totalTasks) : 0;
 
             var li = document.createElement('li');
