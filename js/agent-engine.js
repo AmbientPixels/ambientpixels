@@ -2475,12 +2475,12 @@ var AgentEngine = (function () {
     var behind = expectedByNow > 0 && done < expectedByNow * 0.5;
 
     var signal = 'on_track';
-    if (blocked > 0) signal = 'blocked';
+    if (inProgress === 0 && review === 0 && done === 0 && todo === 0) signal = 'not_started';
+    else if (blocked > 0) signal = 'blocked';
     else if (overdue > 0) signal = 'at_risk';
     else if (behind) signal = 'behind';
-    else if (staleDays >= 3 && donePct < 100) signal = 'stale';
+    else if (staleDays >= 3 && donePct < 100 && total > 0) signal = 'stale';
     else if (campaignEnded && done >= expectedTotal && expectedTotal > 0) signal = 'complete';
-    else if (inProgress === 0 && review === 0 && done === 0 && todo === 0) signal = 'not_started';
 
     return { total: total, done: done, inProgress: inProgress, review: review, todo: todo, backlog: backlog, blocked: blocked, overdue: overdue, pct: pct, donePct: donePct, expectedTotal: expectedTotal, signal: signal, agents: agents, tasks: linked, staleDays: staleDays };
   }
