@@ -715,19 +715,6 @@
         </div>
       </div>
 
-      <!-- CEO: Executive Plan (hidden — moved to Board view) -->
-      <div class="dash-section collapsed" id="section-exec-plan" data-section="exec-plan" style="display:none;">
-        <div class="dash-section-header" tabindex="0" role="button" aria-expanded="false">
-          <i class="fas fa-route" style="color:#a855f7;"></i>
-          <h2>Executive Plan</h2>
-          <i class="fas fa-chevron-down dash-section-chevron"></i>
-        </div>
-        <div class="dash-section-body">
-          <div id="ceo-exec-plan" style="padding:0.3rem 0;">
-            <div class="dash-empty">Loading executive plan...</div>
-          </div>
-        </div>
-      </div>
 
     </div>
 
@@ -1065,11 +1052,6 @@
           <div id="board-org-chart" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:0.5rem;"></div>
         </div>
 
-        <!-- 12. Executive Plan (moved from CEO view) -->
-        <div class="board-section" id="sec-exec-plan">
-          <div class="board-section-title"><i class="fas fa-route" style="color:#a855f7;"></i> Executive Plan</div>
-          <div id="board-exec-plan" class="board-card" style="font-size:0.75rem; line-height:1.5;"></div>
-        </div>
 
       </section>
     </div>
@@ -4634,7 +4616,7 @@
       (function applyModeDefaults() {
         var uiMode = window.APMode ? window.APMode.get() : 'executive';
         if (uiMode === 'executive') {
-          var defaults = ['agent-grid', 'decisions', 'metrics', 'costs', 'content', 'org-chart', 'exec-plan'];
+          var defaults = ['agent-grid', 'decisions', 'metrics', 'costs', 'content', 'org-chart'];
           defaults.forEach(function (key) {
             if (_collapsed[key] === undefined) {
               _collapsed[key] = true;
@@ -4674,40 +4656,7 @@
         el.innerHTML = html || '<div class="dash-empty">No agents loaded.</div>';
       }
 
-      // ── Executive Plan (CEO View) ──
-      function renderExecPlan() {
-        var el = document.getElementById('ceo-exec-plan');
-        if (!el) return;
-        var objectives = AgentEngine.getObjectives ? AgentEngine.getObjectives() : [];
-        var campaigns = []; try { campaigns = CompanyStore.getStateSync('ap_directives', []) || []; } catch (e) {}
-        var activeCampaigns = campaigns.filter(function (d) { return d.status === 'active'; });
-        var queue = AgentEngine.getApprovalQueue ? AgentEngine.getApprovalQueue() : [];
-        var pending = queue.filter(function (q) { return q.status === 'pending'; });
-        var html = '';
-        if (activeCampaigns.length > 0) {
-          html += '<div style="font-size:0.6rem;font-weight:600;opacity:0.5;margin-bottom:0.3rem;"><i class="fas fa-flag" style="margin-right:4px;color:#FFA500;"></i>Active Campaigns</div>';
-          activeCampaigns.slice(0, 5).forEach(function (d) {
-            html += '<div style="padding:0.35rem 0.5rem;margin-bottom:0.3rem;border-left:3px solid rgba(255,165,0,0.4);border-radius:0 6px 6px 0;background:rgba(255,165,0,0.02);font-size:0.7rem;">';
-            html += escapeHtml(d.title);
-            if (d.priority) html += ' <span style="font-size:0.5rem;opacity:0.4;">' + d.priority + '</span>';
-            html += '</div>';
-          });
-        }
-        if (objectives.length > 0) {
-          html += '<div style="font-size:0.6rem;font-weight:600;opacity:0.5;margin:0.5rem 0 0.3rem;"><i class="fas fa-bullseye" style="margin-right:4px;color:#4ECDC4;"></i>Goals</div>';
-          objectives.slice(0, 4).forEach(function (o) {
-            var pct = o.progressPercentage || 0;
-            var barColor = pct >= 75 ? '#34d399' : pct >= 40 ? '#fbbf24' : '#60a5fa';
-            html += '<div style="padding:0.3rem 0;border-bottom:1px solid rgba(255,255,255,0.03);">';
-            html += '<div style="display:flex;justify-content:space-between;font-size:0.68rem;margin-bottom:0.2rem;"><span>' + escapeHtml(o.title || 'Untitled') + '</span><span style="opacity:0.4;">' + pct + '%</span></div>';
-            html += '<div style="width:100%;height:6px;border-radius:3px;background:rgba(255,255,255,0.06);overflow:hidden;">';
-            html += '<div style="height:100%;width:' + pct + '%;border-radius:3px;background:' + barColor + ';transition:width 0.5s;"></div></div></div>';
-          });
-        }
-        html += '<div style="font-size:0.6rem;font-weight:600;opacity:0.5;margin:0.5rem 0 0.3rem;"><i class="fas fa-gavel" style="margin-right:4px;color:#FFD700;"></i>Governance</div>';
-        html += '<div style="font-size:0.68rem;opacity:0.6;">' + pending.length + ' pending approval' + (pending.length !== 1 ? 's' : '') + '</div>';
-        el.innerHTML = html || '<div class="dash-empty">No strategic data available.</div>';
-      }
+      // Executive Plan removed — redundant with Goals + Projects panels
 
       // ── Inbound KPI ──
       function renderInboundKpi() {

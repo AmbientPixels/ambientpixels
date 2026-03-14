@@ -36,7 +36,7 @@
        function(){_bRenderDirSection('board-completed-dirs','badge-completed-dirs',_bPacket.directives.completed);},
        function(){_bRenderDirSection('board-pending-dirs','badge-pending-dirs',_bPacket.directives.pendingApproval);},
        _bRenderTeam, _bRenderBacklog, _bRenderCost, _bRenderContent,
-       _bRenderDecisions, _bRenderRisks, _bRenderThroughput, _bRenderOrg, _bRenderExecPlan].forEach(function(fn){
+       _bRenderDecisions, _bRenderRisks, _bRenderThroughput, _bRenderOrg].forEach(function(fn){
         try { fn(); } catch(e) { console.warn('[Board] ' + (fn.name||'anon') + ' error:', e); }
       });
     }
@@ -246,17 +246,7 @@
       }).join('');
     }
 
-    function _bRenderExecPlan() {
-      var el = document.getElementById('board-exec-plan');
-      if (!el) return;
-      // Mirror from CEO exec plan if available
-      var ceoExecPlan = document.getElementById('ceo-exec-plan');
-      if (ceoExecPlan && ceoExecPlan.innerHTML && !ceoExecPlan.innerHTML.includes('Loading')) {
-        el.innerHTML = ceoExecPlan.innerHTML;
-      } else {
-        el.innerHTML = '<div class="board-empty">No executive plan data available.</div>';
-      }
-    }
+    // Executive Plan removed — redundant with Goals + Active Projects sections
 
     function copyBoardPacket() {
       if(!_bPacket)return;
