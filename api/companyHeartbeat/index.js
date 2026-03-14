@@ -233,6 +233,9 @@ module.exports = async function (context) {
         _acMaxTasks = c.frequency * _acPeriods * _acPlatformCount;
       }
       if (_acMaxTasks && cmpTasks.length < _acMaxTasks) continue;
+      // Don't auto-complete if the campaign's end date is still in the future —
+      // recurring campaigns should keep producing tasks until their end date
+      if (c.endDate && new Date(c.endDate).getTime() > Date.now()) continue;
       const allDone = cmpTasks.every(function (t) {
         const s = String(t.status || '').toLowerCase();
         return s === 'done' || s === 'archived';
@@ -265,6 +268,115 @@ module.exports = async function (context) {
           timestamp: new Date().toISOString()
         });
       }
+    }
+
+    // Reactivate prematurely completed campaigns whose end date is still in the future
+    for (const c of campaigns) {
+      if (!c || c.deletedAt) continue;
+      if (String(c.status || '').toLowerCase() !== 'complete') continue;
+      if (!c.endDate) continue;
+      if (new Date(c.endDate).getTime() > Date.now()) {
+        // Campaign was auto-completed but end date hasn't passed — reactivate it
+        c.status = 'active';
+        c.updatedAt = new Date().toISOString();
+        campaignsChanged = true;
+        if (c.id) _campaignsTouched.add(c.id);
+        context.log('[Heartbeat] Reactivated campaign "' + (c.title || c.id) + '" — end date ' + c.endDate.substring(0, 10) + ' not yet reached');
+        campaignGovEvents.push({
+          id: 'gov-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+          type: 'campaign_reactivated',
+          data: { campaignId: c.id, title: c.title, endDate: c.endDate, reason: 'end_date_not_reached' },
+          timestamp: new Date().toISOString()
+        });
+      }
+    }
+
+    // ── Campaign auto-replenish: create tasks for active campaigns with 0 active tasks ──
+    let tasksChanged = false;
+    const _now = Date.now();
+    const _cadenceMs = { daily: 86400000, weekly: 604800000, biweekly: 1209600000 };
+    const _taskTypeToAgent = {
+      blog_post: 'echo', social_linkedin: 'echo', social_bluesky: 'echo',
+      social_x: 'echo', social_facebook: 'echo', design_asset: 'pixel',
+      research: 'scout', internal_doc: 'scribe', general: 'nova'
+    };
+    const _taskTypeLabels = {
+      blog_post: 'blog post', social_linkedin: 'LinkedIn post', social_bluesky: 'Bluesky post',
+      social_x: 'X post', social_facebook: 'Facebook post', design_asset: 'design asset',
+      research: 'research task', internal_doc: 'internal doc', general: 'task'
+    };
+
+    for (const c of campaigns) {
+      if (!c || c.deletedAt || String(c.status || '').toLowerCase() !== 'active') continue;
+      if (!c.cadence || !c.frequency) continue;
+      // Must be within start/end date window
+      if (c.startDate && new Date(c.startDate).getTime() > _now) continue;
+      if (c.endDate && new Date(c.endDate).getTime() < _now) continue;
+
+      const cmpTasks = tasks.filter(t => t && t.campaign_id === c.id && t.status !== 'archived');
+      const activeTasks = cmpTasks.filter(t => {
+        const s = String(t.status || '').toLowerCase();
+        return s !== 'done' && s !== 'archived';
+      });
+
+      // Only replenish if 0 active tasks
+      if (activeTasks.length > 0) continue;
+
+      // Check cadence throttle — don't create if a task was created recently within the cadence window
+      const _window = _cadenceMs[c.cadence] || 604800000;
+      const _throttle = c.frequency > 1 ? Math.floor(_window / c.frequency) : _window;
+      const _recentTask = cmpTasks.find(t => t.createdAt && (_now - new Date(t.createdAt).getTime()) < _throttle);
+      if (_recentTask) continue;
+
+      // Determine which task type to create
+      const allowedTypes = Array.isArray(c.allowedTaskTypes) && c.allowedTaskTypes.length > 0
+        ? c.allowedTaskTypes
+        : (c.taskType ? [c.taskType] : ['general']);
+
+      // For multi-platform social campaigns, pick the platform that has fewest tasks
+      let chosenType = allowedTypes[0];
+      if (allowedTypes.length > 1) {
+        const typeCounts = {};
+        allowedTypes.forEach(tt => { typeCounts[tt] = 0; });
+        cmpTasks.forEach(t => {
+          const tt = t.taskType || '';
+          if (typeCounts[tt] !== undefined) typeCounts[tt]++;
+        });
+        // Pick the type with fewest existing tasks (round-robin effect)
+        chosenType = allowedTypes.reduce((best, tt) => (typeCounts[tt] || 0) < (typeCounts[best] || 0) ? tt : best, allowedTypes[0]);
+      }
+
+      const label = _taskTypeLabels[chosenType] || chosenType.replace(/_/g, ' ');
+      const assignee = _taskTypeToAgent[chosenType] || 'echo';
+      const newTask = {
+        id: 'task-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+        title: 'Draft ' + label + ' for ' + (c.title || 'campaign'),
+        description: 'Auto-created by campaign scheduler. Campaign: ' + (c.title || c.id) + '. Create a ' + label + ' aligned with the campaign brief and objectives.',
+        status: 'todo',
+        taskType: chosenType,
+        assignee: assignee,
+        campaign_id: c.id,
+        objective_id: c.objective_id || null,
+        priority: c.priority || 'medium',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        source: { type: 'campaign_scheduler', campaignId: c.id, campaignTitle: c.title }
+      };
+
+      tasks.push(newTask);
+      tasksChanged = true;
+      context.log('[Heartbeat] Auto-replenish: created task "' + newTask.title + '" for campaign "' + (c.title || c.id) + '" (type: ' + chosenType + ', assignee: ' + assignee + ')');
+      campaignGovEvents.push({
+        id: 'gov-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+        type: 'campaign_auto_replenish',
+        data: { campaignId: c.id, campaignTitle: c.title, taskId: newTask.id, taskTitle: newTask.title, taskType: chosenType },
+        timestamp: new Date().toISOString()
+      });
+    }
+    // Persist auto-replenished tasks immediately so agents see them this cycle
+    if (tasksChanged) {
+      await storage.setState('tasks', tasks);
+      context.log('[Heartbeat] Saved ' + tasks.length + ' tasks (includes auto-replenished)');
     }
 
     const documents = (await storage.getState('documents')) || [];
