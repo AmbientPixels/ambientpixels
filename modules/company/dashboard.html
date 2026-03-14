@@ -175,7 +175,22 @@
     .scc-comment-count { font-size:0.5rem; font-weight:700; color:#fbbf24; background:rgba(251,191,36,0.12); border-radius:999px; padding:0.06rem 0.3rem; min-width:1.2rem; text-align:center; }
     .scc-comment-link { color:#fbbf24; opacity:0.5; font-size:0.45rem; margin-left:0.2rem; text-decoration:none; }
     .scc-comment-link:hover { opacity:1; }
-    @media (max-width: 768px) { .scc-platforms { grid-template-columns:1fr; } .scc-chips { grid-template-columns:repeat(3, 1fr); } }
+    .scc-health-dot { display:inline-block; width:6px; height:6px; border-radius:50%; margin-right:3px; vertical-align:middle; }
+    .scc-health-dot--ok { background:#34d399; }
+    .scc-health-dot--err { background:#ef4444; }
+    .scc-platform-last { font-size:0.44rem; opacity:0.4; margin-top:0.15rem; }
+    .scc-top-post { border:1px solid rgba(251,191,36,0.1); border-radius:8px; padding:0.4rem 0.5rem; margin-top:0.4rem; background:rgba(251,191,36,0.02); }
+    .scc-top-post-header { font-size:0.52rem; opacity:0.55; margin-bottom:0.25rem; text-transform:uppercase; letter-spacing:0.03em; }
+    .scc-top-post-body { display:flex; align-items:center; gap:0.2rem; font-size:0.55rem; margin-bottom:0.2rem; }
+    .scc-top-post-text { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; opacity:0.65; }
+    .scc-top-post-stats { display:flex; gap:0.6rem; font-size:0.52rem; font-weight:600; }
+    .scc-top-post-stats i { font-size:0.42rem; margin-right:2px; }
+    .scc-empty { padding:1rem 0.5rem; text-align:center; }
+    .scc-empty-title { font-size:0.7rem; opacity:0.4; margin-bottom:0.6rem; }
+    .scc-empty-platforms { display:flex; justify-content:center; gap:1rem; margin-bottom:0.5rem; }
+    .scc-empty-pl { font-size:0.55rem; opacity:0.5; }
+    .scc-empty-hint { font-size:0.48rem; opacity:0.3; max-width:300px; margin:0 auto; }
+    @media (max-width: 768px) { .scc-platforms { grid-template-columns:1fr; } .scc-chips { grid-template-columns:repeat(3, 1fr); } .scc-empty-platforms { flex-direction:column; gap:0.3rem; } }
     @media (max-width: 480px) { .scc-chips { grid-template-columns:repeat(2, 1fr); } }
     .dev-log-split { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:0.5rem; }
     @media (max-width: 760px) { .dev-log-split { grid-template-columns:1fr; } }

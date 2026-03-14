@@ -29,6 +29,27 @@
     return String(n);
   }
 
+  function _relTime(iso) {
+    if (!iso) return '';
+    var ts = Date.parse(iso);
+    if (isNaN(ts)) return '';
+    var diff = Math.max(0, Date.now() - ts);
+    var mins = Math.floor(diff / 60000);
+    if (mins < 60) return mins + 'm ago';
+    var hrs = Math.floor(mins / 60);
+    if (hrs < 24) return hrs + 'h ago';
+    var days = Math.floor(hrs / 24);
+    return days + 'd ago';
+  }
+
+  function _postUrl(platform, postId) {
+    if (!postId) return '';
+    if (platform === 'x') return 'https://x.com/i/status/' + postId;
+    if (platform === 'linkedin') return 'https://www.linkedin.com/feed/update/' + postId;
+    if (platform === 'bluesky') return 'https://bsky.app/profile/' + postId;
+    return '';
+  }
+
   // ── SVG Line Graph ──
   function _renderLineGraph(series, opts) {
     var w = opts.width || 400;
@@ -95,7 +116,7 @@
       for (var j = 0; j < len; j++) {
         var xPct = (pad.left + (j / (len - 1)) * plotW) / w * 100;
         var yPct = (pad.top + plotH - (s.data[j].value / globalMax) * plotH) / h * 100;
-        dots.push('<div class="scc-dot" style="left:' + xPct.toFixed(2) + '%;top:' + yPct.toFixed(2) + '%;background:' + s.color + ';" title="' + _esc(s.data[j].date) + ': ' + s.data[j].value + '"></div>');
+        dots.push('<div class="scc-dot" style="left:' + xPct.toFixed(2) + '%;top:' + yPct.toFixed(2) + '%;background:' + s.color + ';" title="' + _esc(s.label) + ': ' + s.data[j].value + ' (' + _esc(s.data[j].date) + ')"></div>');
       }
     });
 
@@ -155,6 +176,32 @@
   var _cache = null;
   var _loading = false;
 
+  function _renderEmpty(container, acct) {
+    var platforms = (acct && acct.platforms) || {};
+    var errors = (acct && acct.errors) || [];
+    var order = ['x', 'linkedin', 'bluesky'];
+    var labels = { x: 'X', linkedin: 'LinkedIn', bluesky: 'Bluesky' };
+    var html = '<div class="scc-empty">';
+    html += '<div class="scc-empty-title"><i class="fas fa-satellite-dish" style="opacity:0.3;margin-right:5px;"></i>No social data yet</div>';
+    html += '<div class="scc-empty-platforms">';
+    for (var i = 0; i < order.length; i++) {
+      var pl = platforms[order[i]];
+      var connected = pl && pl.ok !== false;
+      html += '<div class="scc-empty-pl">';
+      html += '<span class="scc-health-dot scc-health-dot--' + (connected ? 'ok' : 'err') + '"></span>';
+      html += _esc(labels[order[i]]) + ': ' + (connected ? 'Connected' : 'Not connected');
+      html += '</div>';
+    }
+    html += '</div>';
+    if (errors.length > 0) {
+      html += '<div class="scc-empty-hint">Errors: ' + _esc(errors.map(function (e) { return e.platform + ': ' + (e.error || e.message || 'unknown'); }).join(', ')) + '</div>';
+    } else {
+      html += '<div class="scc-empty-hint">Check platform API keys in Azure env vars if connections are missing.</div>';
+    }
+    html += '</div>';
+    container.innerHTML = html;
+  }
+
   function _render(container) {
     if (!container || !_cache) return;
     var metrics = _cache.metrics || {};
@@ -168,6 +215,10 @@
     var acctTotals = acct.totals || {};
     var platforms = acct.platforms || {};
     var events = metrics.events || metrics.recentPosts || [];
+
+    // Check if we have any meaningful data
+    var hasData = (acctTotals.followers || 0) > 0 || (summary.published || 0) > 0 || events.length > 0;
+    if (!hasData) { _renderEmpty(container, acct); return; }
 
     // ── Headline chips ──
     var totalFollowers = acctTotals.followers || 0;
@@ -193,6 +244,7 @@
     var order = ['x', 'linkedin', 'bluesky'];
     var labels = { x: 'X', linkedin: 'LinkedIn', bluesky: 'Bluesky' };
     var colors = { x: '#1d9bf0', linkedin: '#0a66c2', bluesky: '#0085ff' };
+    var platformIcons = { x: 'fab fa-x-twitter', linkedin: 'fab fa-linkedin', bluesky: 'fas fa-cloud' };
 
     function _profileUrl(platform, pl) {
       var handle = pl && pl.handle ? pl.handle : '';
@@ -221,6 +273,11 @@
         var plLikes = plEng.likes7d || 0;
         var plComments = plEng.comments7d || 0;
         var plReposts = plEng.reposts7d || 0;
+        // Last posted timestamp
+        var lastPosted = '';
+        if (pl.recentPosts && pl.recentPosts.length > 0) {
+          lastPosted = _relTime(pl.recentPosts[0].created_at);
+        }
         html += '<div class="scc-platform-stat"><span>' + _esc(_fmtNum(plFollowers)) + '</span><span class="scc-platform-stat-label">followers</span></div>';
         html += '<div class="scc-platform-stat"><span>' + _esc(_fmtNum(plPosts)) + '</span><span class="scc-platform-stat-label">posts</span></div>';
         html += '<div class="scc-platform-eng">';
@@ -228,8 +285,11 @@
         html += '<span style="color:#fbbf24;" title="Comments">' + _esc(_fmtNum(plComments)) + ' <i class="fas fa-comment" style="font-size:0.4rem;"></i></span>';
         html += '<span style="color:#a78bfa;" title="Reposts">' + _esc(_fmtNum(plReposts)) + ' <i class="fas fa-retweet" style="font-size:0.4rem;"></i></span>';
         html += '</div>';
+        if (lastPosted) {
+          html += '<div class="scc-platform-last"><span class="scc-health-dot scc-health-dot--ok"></span>Last post: ' + _esc(lastPosted) + '</div>';
+        }
       } else {
-        html += '<div class="scc-platform-stat scc-platform-stat--off">Not connected</div>';
+        html += '<div class="scc-platform-stat scc-platform-stat--off"><span class="scc-health-dot scc-health-dot--err"></span>Not connected</div>';
       }
       html += '</div>';
     }
@@ -279,13 +339,35 @@
       { label: 'Reposts', data: repostsSeries, color: '#a78bfa' }
     ], { width: 400, height: 120 });
 
-    // ── Comment alert (conditional) ──
+    // ── Top performing post ──
     var topPosts = eng.topPosts || [];
+    if (topPosts.length > 0) {
+      var tp = topPosts[0];
+      var tpEng = (tp.likes || 0) + (tp.comments || 0) + (tp.reposts || 0);
+      if (tpEng > 0) {
+        var tpIcon = platformIcons[tp.platform] || 'fas fa-share-alt';
+        var tpLink = tp.link || _postUrl(tp.platform, tp.action_id);
+        html += '<div class="scc-top-post">';
+        html += '<div class="scc-top-post-header"><i class="fas fa-trophy" style="color:#fbbf24;margin-right:4px;"></i>Top Post This Week</div>';
+        html += '<div class="scc-top-post-body">';
+        html += '<i class="' + tpIcon + '" style="color:' + (colors[tp.platform] || '#60a5fa') + ';margin-right:5px;font-size:0.55rem;"></i>';
+        html += '<span class="scc-top-post-text">' + _esc((tp.text_preview || '').substring(0, 100)) + (tp.text_preview && tp.text_preview.length > 100 ? '...' : '') + '</span>';
+        if (tpLink) html += '<a href="' + _esc(tpLink) + '" target="_blank" class="scc-comment-link" title="View post"><i class="fas fa-external-link-alt"></i></a>';
+        html += '</div>';
+        html += '<div class="scc-top-post-stats">';
+        html += '<span style="color:#34d399;"><i class="fas fa-heart"></i> ' + _esc(tp.likes || 0) + '</span>';
+        html += '<span style="color:#fbbf24;"><i class="fas fa-comment"></i> ' + _esc(tp.comments || 0) + '</span>';
+        html += '<span style="color:#a78bfa;"><i class="fas fa-retweet"></i> ' + _esc(tp.reposts || 0) + '</span>';
+        html += '</div>';
+        html += '</div>';
+      }
+    }
+
+    // ── Comment alert (conditional) ──
     var postsWithComments = topPosts.filter(function (p) { return (p.comments || 0) > 0; });
     if (postsWithComments.length > 0) {
       var totalCommentCount = 0;
       postsWithComments.forEach(function (p) { totalCommentCount += (p.comments || 0); });
-      var platformIcons = { x: 'fab fa-x-twitter', linkedin: 'fab fa-linkedin', bluesky: 'fas fa-cloud' };
 
       html += '<div class="scc-comment-alert">';
       html += '<div class="scc-comment-alert-header">';
@@ -302,7 +384,8 @@
         html += '<i class="' + icon + '" style="color:' + (colors[p.platform] || '#60a5fa') + ';margin-right:5px;font-size:0.55rem;"></i>';
         html += '<span class="scc-comment-post-text">' + _esc((p.text_preview || '').substring(0, 80)) + (p.text_preview && p.text_preview.length > 80 ? '...' : '') + '</span>';
         html += '<span class="scc-comment-count">' + (p.comments || 0) + '</span>';
-        if (p.link) html += '<a href="' + _esc(p.link) + '" target="_blank" class="scc-comment-link" title="View post"><i class="fas fa-external-link-alt"></i></a>';
+        var cLink = p.link || _postUrl(p.platform, p.action_id);
+        if (cLink) html += '<a href="' + _esc(cLink) + '" target="_blank" class="scc-comment-link" title="View post"><i class="fas fa-external-link-alt"></i></a>';
         html += '</div>';
       });
 
