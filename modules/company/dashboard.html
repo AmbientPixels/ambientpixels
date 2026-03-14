@@ -7,6 +7,7 @@
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
   <title>Dashboard — AmbientPixels HQ</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/base.css" />
   <link rel="stylesheet" href="/css/grid.css" />
@@ -1648,8 +1649,42 @@
             if (refSub) refSub.textContent = (data.topReferrers[0].sessions || 0).toLocaleString() + ' sessions';
           }
 
-          // Build traffic grid
-          var html = '<div class="growth-traffic-grid">';
+          // ── Product visitor counts (derived from topPages) ──
+          var products = [
+            { key: 'cardforge',       prefix: '/cardforge',        label: 'CardForge',   icon: 'layer-group',    color: '#38bdf8' },
+            { key: 'storyforge',      prefix: '/storyforge',       label: 'StoryForge',  icon: 'book-open',      color: '#a78bfa' },
+            { key: 'ambientscore',    prefix: '/ambientscore',     label: 'AmbientScore',icon: 'chart-line',     color: '#a3e635' },
+            { key: 'tileforge',       prefix: '/hanson/tileforge', label: 'TileForge',   icon: 'th-large',       color: '#fbbf24' },
+            { key: 'nova',            prefix: '/nova',             label: 'Nova',        icon: 'star',           color: '#7dd3fc' },
+            { key: 'blog',            prefix: '/blog',             label: 'Blog',        icon: 'rss',            color: '#34d399' }
+          ];
+          products.forEach(function (p) {
+            p.views = 0;
+            if (data.topPages) data.topPages.forEach(function (pg) {
+              if ((pg.path || '').indexOf(p.prefix) === 0) p.views += (pg.views || 0);
+            });
+          });
+
+          var html = '<div class="tb-product-grid">';
+          products.forEach(function (p) {
+            var countStr = p.views > 0 ? p.views.toLocaleString() : '—';
+            var sublabel = p.views > 0 ? 'views' : 'no visits yet';
+            html += '<div class="tb-product-card" style="border-left-color:' + p.color + ';">'
+              + '<div class="tb-product-card__name"><i class="fas fa-' + p.icon + '" style="color:' + p.color + ';margin-right:3px;"></i>' + _esc(p.label) + '</div>'
+              + '<div class="tb-product-card__count" style="color:' + (p.views > 0 ? p.color : 'inherit') + ';">' + countStr + '</div>'
+              + '<div class="tb-product-card__label">' + sublabel + '</div>'
+              + '</div>';
+          });
+          html += '</div>';
+
+          // ── Charts row (bar + donut) ──
+          html += '<div class="tb-charts-row">'
+            + '<div class="tb-chart-wrap"><div class="tb-chart-title"><i class="fas fa-bars" style="margin-right:4px;"></i>Top Pages by Views</div><canvas id="tb-bar-canvas" height="120"></canvas></div>'
+            + '<div class="tb-chart-wrap"><div class="tb-chart-title"><i class="fas fa-circle-notch" style="margin-right:4px;"></i>Traffic by Product</div><canvas id="tb-donut-canvas" height="120"></canvas></div>'
+            + '</div>';
+
+          // ── Existing 3-column grid ──
+          html += '<div class="growth-traffic-grid">';
           html += '<div class="growth-traffic-col">' + _renderTable('Top Pages', 'file-alt', data.topPages, 'path', 'views') + '</div>';
           html += '<div class="growth-traffic-col">' + _renderTable('Top Referrers', 'external-link-alt', data.topReferrers, 'referrer', 'sessions') + '</div>';
           html += '<div class="growth-traffic-col">';
@@ -1664,12 +1699,131 @@
           }
           html += '</div></div>';
 
-          // Performance (simplified — p50 only)
-          if (data.performance) {
-            html += '<div class="growth-perf-row"><i class="fas fa-tachometer-alt" style="margin-right:3px;"></i>Page load p50: <strong style="color:#38bdf8;margin-left:3px;">' + (data.performance.pageLoadMs_p50 || 0) + 'ms</strong></div>';
+          // ── Metrics row (p50, p95, error rate, campaign ratio) ──
+          function _perfPill(ms) {
+            if (!ms) return '<span class="tb-pill tb-pill--yellow">—</span>';
+            if (ms < 1000) return '<span class="tb-pill tb-pill--green">' + ms + 'ms</span>';
+            if (ms < 3000) return '<span class="tb-pill tb-pill--yellow">' + ms + 'ms</span>';
+            return '<span class="tb-pill tb-pill--red">' + ms + 'ms</span>';
           }
+          html += '<div class="tb-metrics-row">';
+          if (data.performance) {
+            html += '<span class="tb-metric-chip"><i class="fas fa-tachometer-alt"></i> p50 load ' + _perfPill(data.performance.pageLoadMs_p50) + '</span>';
+            html += '<span class="tb-metric-chip"><i class="fas fa-tachometer-alt"></i> p95 load ' + _perfPill(data.performance.pageLoadMs_p95) + '</span>';
+          }
+          if (data.errors && totalViews > 0) {
+            var errTotal = 0;
+            data.errors.forEach(function (e) { errTotal += (e.count || 0); });
+            var errRate = (errTotal / totalViews * 100).toFixed(2);
+            var errClass = errTotal === 0 ? 'tb-pill--green' : (parseFloat(errRate) < 0.1 ? 'tb-pill--green' : (parseFloat(errRate) < 1 ? 'tb-pill--yellow' : 'tb-pill--red'));
+            html += '<span class="tb-metric-chip"><i class="fas fa-bug"></i> error rate <span class="tb-pill ' + errClass + '">' + errRate + '%</span></span>';
+          }
+          if (data.topCampaigns && data.topCampaigns.length > 0 && totalViews > 0) {
+            var campTotal = 0;
+            data.topCampaigns.forEach(function (c) { campTotal += (c.sessions || 0); });
+            var campPct = Math.round(campTotal / totalViews * 100);
+            html += '<span class="tb-metric-chip"><i class="fas fa-bullhorn"></i> campaign-driven <span class="tb-pill tb-pill--green">' + campPct + '%</span> (' + campTotal.toLocaleString() + ' / ' + totalViews.toLocaleString() + ')</span>';
+          }
+          html += '</div>';
+
+          // ── Collapsible stats table ──
+          var csvRows = [['Page Path', 'Views', '% of Total']];
+          var tableRows = '';
+          if (data.topPages) {
+            data.topPages.forEach(function (p) {
+              var pct = totalViews > 0 ? (p.views / totalViews * 100).toFixed(1) : '0.0';
+              tableRows += '<tr><td>' + _esc(p.path || '—') + '</td><td class="tb-col-views">' + (p.views || 0).toLocaleString() + '</td><td class="tb-col-pct">' + pct + '%</td></tr>';
+              csvRows.push([p.path || '', p.views || 0, pct + '%']);
+            });
+          }
+          var csvContent = csvRows.map(function (r) { return r.map(function (c) { return '"' + String(c).replace(/"/g, '""') + '"'; }).join(','); }).join('\n');
+          html += '<details class="tb-stats-details">'
+            + '<summary><i class="fas fa-table" style="margin-right:4px;"></i>Full Stats Table'
+            + '<button class="tb-export-btn" id="tb-csv-btn" type="button"><i class="fas fa-download" style="margin-right:3px;"></i>Export CSV</button>'
+            + '</summary>'
+            + '<table class="tb-stats-table"><thead><tr><th>Page Path</th><th style="text-align:right;">Views</th><th style="text-align:right;">% of Total</th></tr></thead>'
+            + '<tbody>' + tableRows + '</tbody></table>'
+            + '</details>';
 
           body.innerHTML = html;
+
+          // ── Wire CSV export ──
+          var csvBtn = document.getElementById('tb-csv-btn');
+          if (csvBtn) {
+            csvBtn.addEventListener('click', function (e) {
+              e.stopPropagation();
+              var blob = new Blob([csvContent], { type: 'text/csv' });
+              var url = URL.createObjectURL(blob);
+              var a = document.createElement('a');
+              a.href = url;
+              a.download = 'traffic-brief-' + (data.range || '7d') + '.csv';
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+            });
+          }
+
+          // ── Draw charts ──
+          if (typeof Chart === 'undefined') return;
+
+          // Destroy existing charts to prevent "Canvas already in use" error
+          if (window._tbBarChart) { window._tbBarChart.destroy(); window._tbBarChart = null; }
+          if (window._tbDonutChart) { window._tbDonutChart.destroy(); window._tbDonutChart = null; }
+
+          // Bar chart — top 5 pages
+          var barCanvas = document.getElementById('tb-bar-canvas');
+          if (barCanvas && data.topPages && data.topPages.length > 0) {
+            var barPages = data.topPages.slice(0, 5);
+            var barLabels = barPages.map(function (p) { var s = p.path || ''; return s.length > 38 ? s.slice(0, 36) + '…' : s; });
+            var barData = barPages.map(function (p) { return p.views || 0; });
+            window._tbBarChart = new Chart(barCanvas, {
+              type: 'bar',
+              data: {
+                labels: barLabels,
+                datasets: [{ data: barData, backgroundColor: 'rgba(56,189,248,0.55)', borderColor: '#38bdf8', borderWidth: 1, borderRadius: 3 }]
+              },
+              options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false }, tooltip: { callbacks: { label: function (ctx) { return ' ' + ctx.parsed.x.toLocaleString() + ' views'; } } } },
+                scales: {
+                  x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: 'rgba(255,255,255,0.35)', font: { size: 9 } }, border: { color: 'rgba(255,255,255,0.08)' } },
+                  y: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 9 } }, border: { color: 'rgba(255,255,255,0.08)' } }
+                }
+              }
+            });
+          }
+
+          // Donut chart — traffic by product vs other
+          var donutCanvas = document.getElementById('tb-donut-canvas');
+          if (donutCanvas) {
+            var productViews = products.map(function (p) { return p.views; });
+            var productTotal = productViews.reduce(function (a, b) { return a + b; }, 0);
+            var otherViews = Math.max(0, totalViews - productTotal);
+            var donutLabels = products.map(function (p) { return p.label; }).concat(['Other']);
+            var donutData = productViews.concat([otherViews]);
+            var donutColors = products.map(function (p) { return p.color; }).concat(['rgba(255,255,255,0.15)']);
+            var hasProductData = productTotal > 0 || otherViews > 0;
+            if (hasProductData) {
+              window._tbDonutChart = new Chart(donutCanvas, {
+                type: 'doughnut',
+                data: { labels: donutLabels, datasets: [{ data: donutData, backgroundColor: donutColors, borderWidth: 1, borderColor: 'rgba(0,0,0,0.3)' }] },
+                options: {
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  cutout: '62%',
+                  plugins: {
+                    legend: { display: true, position: 'right', labels: { color: 'rgba(255,255,255,0.45)', font: { size: 9 }, boxWidth: 10, padding: 6 } },
+                    tooltip: { callbacks: { label: function (ctx) { var pct = totalViews > 0 ? (ctx.parsed / totalViews * 100).toFixed(1) : '0'; return ' ' + ctx.label + ': ' + ctx.parsed.toLocaleString() + ' (' + pct + '%)'; } } }
+                  }
+                }
+              });
+            } else {
+              donutCanvas.parentElement.innerHTML += '<div style="font-size:0.58rem;opacity:0.25;text-align:center;padding-top:0.5rem;">No product data yet</div>';
+            }
+          }
         }
 
         // Fetch

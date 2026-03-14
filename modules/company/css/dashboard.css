@@ -1530,4 +1530,134 @@
 
 /* ── Mode Button in Sidebar ── */
 .sb-mode-btn { transition: color 0.15s; }
+
+/* ── Traffic Brief: Product Visitor Cards ── */
+.tb-product-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 0.4rem;
+  margin-bottom: 0.7rem;
+}
+.tb-product-card {
+  background: rgba(255,255,255,0.025);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-left-width: 2px;
+  border-radius: 8px;
+  padding: 0.45rem 0.5rem;
+  text-align: center;
+}
+.tb-product-card__name {
+  font-size: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.4;
+  margin-bottom: 2px;
+}
+.tb-product-card__count {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+.tb-product-card__label {
+  font-size: 0.48rem;
+  opacity: 0.25;
+  margin-top: 2px;
+}
+@media (max-width: 960px) { .tb-product-grid { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 600px) { .tb-product-grid { grid-template-columns: repeat(2, 1fr); } }
+
+/* ── Traffic Brief: Charts Row ── */
+.tb-charts-row {
+  display: flex;
+  gap: 0.6rem;
+  margin-bottom: 0.7rem;
+}
+.tb-chart-wrap {
+  flex: 1;
+  background: rgba(255,255,255,0.015);
+  border-radius: 6px;
+  padding: 0.5rem 0.6rem;
+  min-width: 0;
+}
+.tb-chart-title {
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  opacity: 0.35;
+  margin-bottom: 0.35rem;
+}
+@media (max-width: 768px) { .tb-charts-row { flex-direction: column; } }
+
+/* ── Traffic Brief: Metrics Row ── */
+.tb-metrics-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.6rem;
+  margin-bottom: 0.5rem;
+  align-items: center;
+}
+.tb-metric-chip {
+  font-size: 0.58rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  opacity: 0.8;
+}
+.tb-metric-chip i { opacity: 0.5; }
+.tb-pill {
+  font-size: 0.55rem;
+  font-weight: 700;
+  padding: 1px 7px;
+  border-radius: 20px;
+}
+.tb-pill--green { background: rgba(52,211,153,0.12); color: #34d399; }
+.tb-pill--yellow { background: rgba(251,191,36,0.12); color: #fbbf24; }
+.tb-pill--red { background: rgba(248,113,113,0.12); color: #f87171; }
+
+/* ── Traffic Brief: Stats Table ── */
+.tb-stats-details { margin-top: 0.5rem; }
+.tb-stats-details summary {
+  font-size: 0.58rem;
+  opacity: 0.35;
+  cursor: pointer;
+  padding: 0.25rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  list-style: none;
+}
+.tb-stats-details summary::-webkit-details-marker { display: none; }
+.tb-stats-details summary:hover { opacity: 0.6; }
+.tb-export-btn {
+  font-size: 0.5rem;
+  padding: 1px 7px;
+  border-radius: 4px;
+  border: 1px solid rgba(56,189,248,0.3);
+  background: rgba(56,189,248,0.06);
+  color: #38bdf8;
+  cursor: pointer;
+  margin-left: auto;
+}
+.tb-export-btn:hover { background: rgba(56,189,248,0.12); }
+.tb-stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.58rem;
+  margin-top: 0.3rem;
+}
+.tb-stats-table th {
+  text-align: left;
+  opacity: 0.3;
+  font-weight: 600;
+  padding: 0.2rem 0.35rem;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+}
+.tb-stats-table td {
+  padding: 0.2rem 0.35rem;
+  border-bottom: 1px solid rgba(255,255,255,0.025);
+}
+.tb-stats-table tr:hover td { background: rgba(255,255,255,0.025); }
+.tb-stats-table .tb-col-views { color: #38bdf8; font-weight: 600; text-align: right; }
+.tb-stats-table .tb-col-pct { opacity: 0.45; text-align: right; }
 .sb-mode-btn:hover { opacity: 1 !important; }
