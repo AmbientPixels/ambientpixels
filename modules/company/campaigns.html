@@ -310,6 +310,50 @@
         document.getElementById('cmp-archived-count').textContent = (completed + archived) + ' completed/archived';
       }
 
+      function dateRangeHtml(startDate, endDate) {
+        if (!startDate && !endDate) return '';
+        var now = Date.now();
+        var fmt = function (iso) { return new Date(iso).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); };
+        var startMs = startDate ? new Date(startDate).getTime() : now;
+        var endMs = endDate ? new Date(endDate).getTime() : null;
+
+        var dateText = '';
+        if (startDate && endDate) dateText = fmt(startDate) + ' → ' + fmt(endDate);
+        else if (startDate) dateText = 'Started ' + fmt(startDate);
+        else if (endDate) dateText = 'Ends ' + fmt(endDate);
+
+        var rightText = '';
+        var rightColor = 'rgba(255,255,255,0.35)';
+        if (endMs) {
+          var daysLeft = Math.ceil((endMs - now) / 86400000);
+          if (daysLeft > 0) { rightText = daysLeft + 'd left'; rightColor = daysLeft <= 7 ? '#fbbf24' : 'rgba(255,255,255,0.35)'; }
+          else if (daysLeft === 0) { rightText = 'Ends today'; rightColor = '#ef4444'; }
+          else { rightText = Math.abs(daysLeft) + 'd ago'; rightColor = '#c084fc'; }
+        }
+        if (startMs > now) {
+          var daysUntil = Math.ceil((startMs - now) / 86400000);
+          rightText = 'Starts in ' + daysUntil + 'd';
+          rightColor = '#60a5fa';
+        }
+
+        // Timeline position
+        var timelineHtml = '';
+        if (startDate && endDate && startMs < endMs) {
+          var elapsed = Math.max(0, Math.min(1, (now - startMs) / (endMs - startMs)));
+          var pct = Math.round(elapsed * 100);
+          timelineHtml = '<div style="flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,0.06);position:relative;min-width:40px;">' +
+            '<div style="height:100%;width:' + pct + '%;border-radius:2px;background:rgba(255,255,255,0.15);"></div>' +
+            '<div style="position:absolute;top:-2px;left:' + pct + '%;width:7px;height:7px;border-radius:50%;background:' + rightColor + ';transform:translateX(-50%);"></div>' +
+          '</div>';
+        }
+
+        return '<div style="display:flex;align-items:center;gap:0.5rem;font-size:0.62rem;margin:0.15rem 0 0.3rem;opacity:0.7;">' +
+          '<span style="color:rgba(255,255,255,0.5);"><i class="fas fa-calendar-alt" style="font-size:0.5rem;margin-right:3px;"></i>' + dateText + '</span>' +
+          timelineHtml +
+          (rightText ? '<span style="color:' + rightColor + ';font-weight:600;white-space:nowrap;">' + rightText + '</span>' : '') +
+        '</div>';
+      }
+
       // Compute campaign container metrics
       function campaignMetrics(c) {
         var progress = (typeof AgentEngine.getCampaignProgress === 'function') ? AgentEngine.getCampaignProgress(c.id) : null;
@@ -361,8 +405,7 @@
         if (c.cadence) badges.push('<span style="' + dimStyle + '"><i class="fas fa-clock" style="font-size:0.44rem;"></i>' + c.cadence + '</span>');
         var _types = Array.isArray(c.allowedTaskTypes) && c.allowedTaskTypes.length > 0 ? c.allowedTaskTypes : (c.taskType ? [c.taskType] : []);
         if (_types.length > 0) badges.push('<span style="' + dimStyle + '"><i class="fas fa-filter" style="font-size:0.44rem;"></i>' + _types.join(', ') + '</span>');
-        if (c.startDate) badges.push('<span style="' + dimStyle + '"><i class="fas fa-calendar-plus" style="font-size:0.44rem;"></i>' + c.startDate.substring(0, 10) + '</span>');
-        if (c.endDate) badges.push('<span style="' + dimStyle + '"><i class="fas fa-calendar-times" style="font-size:0.44rem;"></i>' + c.endDate.substring(0, 10) + '</span>');
+        // Dates now shown in dateRangeHtml above the card body
         if (c.autoComplete === false) badges.push('<span style="' + dimStyle + '"><i class="fas fa-infinity" style="font-size:0.44rem;"></i>Ongoing</span>');
         if (badges.length === 0) return '';
         return '<div style="display:flex;gap:0.3rem;flex-wrap:wrap;margin-top:0.25rem;">' + badges.join('') + '</div>';
@@ -400,6 +443,7 @@
 
           html += '<div class="' + cardCls + '" data-id="' + esc(c.id) + '">'
             + '<h4>' + esc(c.title) + '<span class="cmp-pill ' + pillCls + '">' + esc(c.status) + '</span></h4>'
+            + dateRangeHtml(c.startDate, c.endDate)
             + (c.description ? '<p>' + esc(c.description) + '</p>' : '')
             + '<div class="cmp-progress-bar"><div class="cmp-progress-fill" style="width:' + m.pctComplete + '%; background:' + barColor + ';"></div></div>'
             + '<div class="cmp-task-breakdown" style="color:' + barColor + ';">'
