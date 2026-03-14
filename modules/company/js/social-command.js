@@ -194,13 +194,27 @@
     var labels = { x: 'X', linkedin: 'LinkedIn', bluesky: 'Bluesky' };
     var colors = { x: '#1d9bf0', linkedin: '#0a66c2', bluesky: '#0085ff' };
 
+    function _profileUrl(platform, pl) {
+      var handle = pl && pl.handle ? pl.handle : '';
+      if (!handle) return '';
+      if (platform === 'x') return 'https://x.com/' + handle.replace(/^@/, '');
+      if (platform === 'linkedin') return 'https://www.linkedin.com/company/' + handle.replace(/^@/, '');
+      if (platform === 'bluesky') return 'https://bsky.app/profile/' + handle.replace(/^@/, '');
+      return '';
+    }
+
     html += '<div class="scc-platforms">';
     for (var i = 0; i < order.length; i++) {
       var pl = platforms[order[i]];
       var plEng = engSplit[order[i]] || {};
       var plColor = colors[order[i]];
+      var plUrl = _profileUrl(order[i], pl);
       html += '<div class="scc-platform-card" style="border-left-color:' + plColor + ';">';
-      html += '<div class="scc-platform-name">' + _esc(labels[order[i]]) + '</div>';
+      if (plUrl) {
+        html += '<a href="' + _esc(plUrl) + '" target="_blank" class="scc-platform-name scc-platform-link">' + _esc(labels[order[i]]) + ' <i class="fas fa-external-link-alt" style="font-size:0.38rem;opacity:0.4;"></i></a>';
+      } else {
+        html += '<div class="scc-platform-name">' + _esc(labels[order[i]]) + '</div>';
+      }
       if (pl && pl.ok !== false) {
         var plFollowers = pl.followers || 0;
         var plPosts = pl.tweets_count || pl.posts_count || 0;
