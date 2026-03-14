@@ -518,7 +518,7 @@
                 <span class="dash-panel-badge" id="approval-count-badge" style="background:rgba(255,215,0,0.1); color:#FFD700;">0 pending</span>
               </div>
               <div style="padding:0.6rem 0.75rem 0.75rem;">
-                <p style="font-size:0.72rem; opacity:0.55; margin:0 0 0.65rem; line-height:1.4;">Agent actions, social posts, and content waiting for your review.</p>
+                <div id="approval-preview-list" style="margin-bottom:0.65rem;"></div>
                 <a href="/modules/company/actions.html" style="font-size:0.72rem; color:#FFA500; text-decoration:none; font-weight:500;">Open Action Queue <i class="fas fa-arrow-right" style="margin-left:3px;"></i></a>
               </div>
             </div>
@@ -2657,9 +2657,10 @@
         });
       })();
 
-      // ── Pending Approvals count badge (full detail lives in Action Queue page) ──
+      // ── Pending Approvals count + preview (full detail lives in Action Queue page) ──
       function renderApprovalQueue() {
         var badge = document.getElementById('approval-count-badge');
+        var previewEl = document.getElementById('approval-preview-list');
         var queue = AgentEngine.getApprovalQueue();
         var aqNonAction = queue.filter(function (q) { return q.status === 'pending' && q.kind !== 'action'; });
         var pendingActions = (typeof AgentEngine.getActions === 'function' ? AgentEngine.getActions() : []).filter(function (a) {
@@ -2669,11 +2670,47 @@
         });
         var total = pendingActions.length + aqNonAction.length;
         if (badge) badge.textContent = total + ' pending';
-        // Update stat card
-        var statVal = document.getElementById('cstat-action');
-        var statSub = document.getElementById('cstat-action-sub');
-        if (statVal) statVal.textContent = total;
-        if (statSub) statSub.textContent = total === 1 ? 'pending approval' : 'pending approvals';
+
+        // Preview list — top 3 pending items
+        if (previewEl) {
+          if (total === 0) {
+            previewEl.innerHTML = '<div style="font-size:0.72rem; opacity:0.4;">Nothing pending. All clear.</div>';
+          } else {
+            var platformIcon = { linkedin: 'fab fa-linkedin', facebook: 'fab fa-facebook', x: 'fab fa-x-twitter', bluesky: 'fab fa-bluesky', site: 'fas fa-globe' };
+            var typeLabel = { 'social_post.schedule': 'Social Post', 'publish_document': 'Blog Post', 'trend_alert': 'Trend Alert', 'research.intel': 'Research Brief' };
+            // Build combined list: actions first, then aq items
+            var preview = pendingActions.slice(0, 3).map(function (a) {
+              var platform = a.platform || '';
+              var icon = platformIcon[platform] || 'fas fa-bolt';
+              var label = typeLabel[a.type] || a.type || 'Action';
+              var title = (a.payload && (a.payload.text || a.payload.title)) || a.type || 'Pending action';
+              if (title.length > 55) title = title.substring(0, 55) + '…';
+              return '<div style="display:flex;align-items:center;gap:0.5rem;padding:0.3rem 0;border-bottom:1px solid rgba(255,255,255,0.05);">' +
+                '<i class="' + icon + '" style="font-size:0.65rem;opacity:0.5;width:12px;text-align:center;flex-shrink:0;"></i>' +
+                '<span style="font-size:0.65rem;opacity:0.5;flex-shrink:0;">' + label + '</span>' +
+                '<span style="font-size:0.68rem;opacity:0.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + title + '</span>' +
+              '</div>';
+            });
+            // Fill remaining slots from aq non-action items if actions < 3
+            if (preview.length < 3) {
+              aqNonAction.slice(0, 3 - preview.length).forEach(function (q) {
+                var icon = typeLabel[q.type] ? 'fas fa-chart-line' : 'fas fa-bell';
+                var label = typeLabel[q.type] || q.type || 'Alert';
+                var title = q.title || q.taskTitle || label;
+                if (title.length > 55) title = title.substring(0, 55) + '…';
+                preview.push('<div style="display:flex;align-items:center;gap:0.5rem;padding:0.3rem 0;border-bottom:1px solid rgba(255,255,255,0.05);">' +
+                  '<i class="' + icon + '" style="font-size:0.65rem;opacity:0.5;width:12px;text-align:center;flex-shrink:0;"></i>' +
+                  '<span style="font-size:0.65rem;opacity:0.5;flex-shrink:0;">' + label + '</span>' +
+                  '<span style="font-size:0.68rem;opacity:0.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + title + '</span>' +
+                '</div>');
+              });
+            }
+            var remainder = total - preview.length;
+            var html = preview.join('');
+            if (remainder > 0) html += '<div style="font-size:0.65rem;opacity:0.4;padding-top:0.35rem;">+ ' + remainder + ' more in Action Queue</div>';
+            previewEl.innerHTML = html;
+          }
+        }
       }
 
       // ── Facebook Outbox (manual posting queue) ──
