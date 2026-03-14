@@ -1076,11 +1076,6 @@
           html += '<button onclick="event.stopPropagation();toggleCopyExpand(\'' + a.id + '\')" id="copy-expand-btn-' + a.id + '" style="font-size:0.58rem;color:#60a5fa;background:none;border:none;cursor:pointer;padding:2px 0;opacity:0.55;display:block;margin-top:2px;">Show full copy \u2193</button>';
         }
       }
-      // Platform guidance for pending social posts
-      var _platHints = { linkedin: '\uD83D\uDCA1 Insight-first opener \u00b7 100\u2013250 words \u00b7 3 hashtags \u00b7 no bullet walls', x: '\uD83D\uDCA1 Under 280 chars \u00b7 do not put URL in post body \u2014 drop link in a reply', bluesky: '\uD83D\uDCA1 Community tone \u00b7 genuine observation \u00b7 replies matter more than likes' };
-      if (context === 'pending' && aPlat && _platHints[aPlat.toLowerCase()]) {
-        html += '<div style="font-size:0.56rem;margin-top:5px;padding:3px 8px;border-radius:4px;background:rgba(59,130,246,0.05);border:1px solid rgba(59,130,246,0.1);color:rgba(255,255,255,0.38);line-height:1.4;">' + _platHints[aPlat.toLowerCase()] + '</div>';
-      }
       // Image thumbnail for publish_document (hero) and social posts (media)
       // Fallback: check approval queue if payload.hero_image_url is missing
       var _listThumbUrl = null;
