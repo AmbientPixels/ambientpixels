@@ -3363,11 +3363,12 @@
       function renderCampaignsSnap() {
         var campaigns = AgentEngine.getCampaigns();
         var active = campaigns.filter(function (c) { return c && c.status === 'active' && !c.deletedAt; });
+        var completed = campaigns.filter(function (c) { return c && c.status === 'complete' && !c.deletedAt; });
         var listEl = document.getElementById('panel-campaigns-snap');
         var empty = document.getElementById('campaigns-snap-empty');
         if (!listEl || !empty) return;
 
-        if (active.length === 0) {
+        if (active.length === 0 && completed.length === 0) {
           listEl.innerHTML = '';
           empty.style.display = '';
           return;
@@ -3418,6 +3419,30 @@
             '</div>';
           listEl.appendChild(li);
         });
+
+        // Completed campaigns
+        if (completed.length > 0) {
+          var divider = document.createElement('li');
+          divider.style.cssText = 'list-style:none;font-size:0.55rem;opacity:0.35;padding:0.5rem 0 0.25rem;border-top:1px solid rgba(255,255,255,0.06);margin-top:0.4rem;';
+          divider.innerHTML = '<i class="fas fa-trophy" style="color:#c084fc;margin-right:4px;"></i>Completed (' + completed.length + ')';
+          listEl.appendChild(divider);
+
+          completed.slice(0, 3).forEach(function (cmp) {
+            var p = AgentEngine.getCampaignProgress(cmp.id);
+            var endLabel = cmp.endDate ? new Date(cmp.endDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '';
+
+            var li = document.createElement('li');
+            li.className = 'log-item';
+            li.style.cssText = 'align-items:flex-start;opacity:0.5;';
+            li.innerHTML =
+              '<div class="log-icon" style="background:rgba(192,132,252,0.1); color:#c084fc;"><i class="fas fa-check-circle"></i></div>' +
+              '<div class="log-body" style="flex:1;">' +
+                '<div class="log-text"><strong>' + escapeHtml(cmp.title) + '</strong></div>' +
+                '<div class="log-time" style="color:#c084fc;">100% · ' + p.done + ' tasks completed' + (endLabel ? ' · ended ' + endLabel : '') + '</div>' +
+              '</div>';
+            listEl.appendChild(li);
+          });
+        }
       }
 
       // ── System Pulse (CEO View) ──
@@ -3561,10 +3586,11 @@
       function renderObjectivesSnap() {
         var objectives = AgentEngine.getObjectives();
         var active = objectives.filter(function (o) { return o.status !== 'complete' && o.status !== 'canceled'; });
+        var completed = objectives.filter(function (o) { return o.status === 'complete'; });
         var listEl = document.getElementById('panel-objectives-snap');
         var empty = document.getElementById('objectives-snap-empty');
 
-        if (active.length === 0) {
+        if (active.length === 0 && completed.length === 0) {
           listEl.innerHTML = '';
           empty.style.display = '';
           return;
@@ -3573,14 +3599,12 @@
         listEl.innerHTML = '';
 
         active.slice(0, 5).forEach(function (obj) {
-          // Auto-calculated progress
           var progress = (typeof AgentEngine.getObjectiveProgress === 'function') ? AgentEngine.getObjectiveProgress(obj.id) : null;
           var pct = progress ? progress.pct : (obj.progressPercentage || 0);
           var autoHealth = progress ? progress.health : 'neutral';
           var barColor = autoHealth === 'good' ? '#34d399' : autoHealth === 'warn' ? '#fbbf24' : autoHealth === 'bad' ? '#ef4444' : '#64748b';
           var statusColor = obj.status === 'on_track' ? '#34d399' : obj.status === 'at_risk' ? '#fbbf24' : '#f87171';
 
-          // Breakdown meta
           var metaParts = [];
           if (progress && progress.campaigns > 0) metaParts.push(progress.campaigns + ' campaign' + (progress.campaigns !== 1 ? 's' : ''));
           if (progress && (progress.expectedTasks || progress.totalTasks) > 0) metaParts.push(progress.doneTasks + '/' + (progress.expectedTasks || progress.totalTasks) + ' tasks done');
@@ -3599,6 +3623,31 @@
             '</div>';
           listEl.appendChild(li);
         });
+
+        // Completed goals
+        if (completed.length > 0) {
+          var divider = document.createElement('li');
+          divider.style.cssText = 'list-style:none;font-size:0.55rem;opacity:0.35;padding:0.5rem 0 0.25rem;border-top:1px solid rgba(255,255,255,0.06);margin-top:0.4rem;';
+          divider.innerHTML = '<i class="fas fa-trophy" style="color:#c084fc;margin-right:4px;"></i>Completed (' + completed.length + ')';
+          listEl.appendChild(divider);
+
+          completed.slice(0, 3).forEach(function (obj) {
+            var progress = (typeof AgentEngine.getObjectiveProgress === 'function') ? AgentEngine.getObjectiveProgress(obj.id) : null;
+            var tasksDone = progress ? progress.doneTasks : 0;
+            var tasksTotal = progress ? (progress.expectedTasks || progress.totalTasks) : 0;
+
+            var li = document.createElement('li');
+            li.className = 'log-item';
+            li.style.opacity = '0.5';
+            li.innerHTML =
+              '<div class="log-icon" style="background:rgba(192,132,252,0.1); color:#c084fc;"><i class="fas fa-check-circle"></i></div>' +
+              '<div class="log-body" style="flex:1;">' +
+                '<div class="log-text"><strong>' + escapeHtml(obj.title) + '</strong></div>' +
+                '<div class="log-time" style="color:#c084fc;">100% · ' + tasksDone + ' tasks completed</div>' +
+              '</div>';
+            listEl.appendChild(li);
+          });
+        }
       }
 
       // ── Daily Logs ──
