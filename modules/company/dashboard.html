@@ -3353,6 +3353,7 @@
       var _dirSignalMeta = {
         on_track: { label: 'On Track', icon: 'fa-check-circle', color: '#34d399' },
         at_risk: { label: 'At Risk', icon: 'fa-exclamation-triangle', color: '#fbbf24' },
+        behind: { label: 'Behind Pace', icon: 'fa-exclamation-triangle', color: '#fbbf24' },
         blocked: { label: 'Blocked', icon: 'fa-ban', color: '#ef4444' },
         stale: { label: 'Stale', icon: 'fa-clock', color: '#9ca3af' },
         complete: { label: 'Complete', icon: 'fa-trophy', color: '#c084fc' },
@@ -3410,7 +3411,7 @@
               '</div>' +
               '<div class="log-time" style="display:flex;gap:0.4rem;align-items:center;flex-wrap:wrap;">' +
                 '<span style="color:' + sig.color + ';font-weight:600;">' + p.pct + '%</span>' +
-                '<span>' + p.done + '/' + p.total + ' done' + (p.inProgress ? ', ' + p.inProgress + ' active' : '') + '</span>' +
+                '<span>' + p.done + '/' + (p.expectedTotal || p.total) + ' done' + (p.inProgress ? ', ' + p.inProgress + ' active' : '') + '</span>' +
                 warnings +
               '</div>' +
               (agentChips ? '<div style="display:flex;gap:0.2rem;flex-wrap:wrap;margin-top:0.25rem;">' + agentChips + '</div>' : '') +
@@ -3582,7 +3583,7 @@
           // Breakdown meta
           var metaParts = [];
           if (progress && progress.campaigns > 0) metaParts.push(progress.campaigns + ' campaign' + (progress.campaigns !== 1 ? 's' : ''));
-          if (progress && progress.totalTasks > 0) metaParts.push(progress.doneTasks + '/' + progress.totalTasks + ' tasks done');
+          if (progress && (progress.expectedTasks || progress.totalTasks) > 0) metaParts.push(progress.doneTasks + '/' + (progress.expectedTasks || progress.totalTasks) + ' tasks done');
           var metaHtml = metaParts.length > 0 ? '<span style="font-size:0.55rem; opacity:0.35; margin-left:0.3rem;">' + metaParts.join(' · ') + '</span>' : '';
 
           var li = document.createElement('li');

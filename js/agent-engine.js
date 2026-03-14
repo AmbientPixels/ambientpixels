@@ -2557,7 +2557,7 @@ var AgentEngine = (function () {
     else if (worstSignal === 'blocked') health = 'bad';
 
     return {
-      campaigns: campaigns.length, totalTasks: totalTasks, doneTasks: doneTasks,
+      campaigns: campaigns.length, totalTasks: totalTasks, expectedTasks: effectiveTotal, doneTasks: doneTasks,
       inProgress: inProgressTasks, review: reviewTasks, todo: todoTasks, backlog: backlogTasks,
       blocked: blockedTasks, overdue: overdueTasks, pct: pct, donePct: donePct,
       signal: worstSignal, health: health, campaignDetails: campaignDetails
