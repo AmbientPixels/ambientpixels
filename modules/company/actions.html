@@ -375,6 +375,8 @@
                 Select all
               </label>
               <button id="bulk-approve-btn" class="act-btn act-btn--approve" onclick="doApproveSelected()" style="display:none; font-size:0.58rem; padding:0.18rem 0.6rem;"></button>
+              <button id="bulk-reject-btn" class="act-btn act-btn--reject" onclick="doRejectSelected()" style="display:none; font-size:0.58rem; padding:0.18rem 0.6rem;"></button>
+              <button id="bulk-revision-btn" class="act-btn act-btn--revision" onclick="openBulkRevisionModal()" style="display:none; font-size:0.58rem; padding:0.18rem 0.6rem;"></button>
             </div>
             <div class="act-panel-body" id="pending-list"></div>
           </div>
@@ -1235,11 +1237,15 @@
       updateBulkApproveBtn();
     }
     function updateBulkApproveBtn() {
-      var btn = document.getElementById('bulk-approve-btn');
-      if (!btn) return;
       var n = _selectedPending.size;
-      if (n > 0) { btn.textContent = 'Approve Selected (' + n + ')'; btn.style.display = ''; }
-      else { btn.style.display = 'none'; }
+      var suffix = n > 0 ? ' (' + n + ')' : '';
+      var show = n > 0;
+      var ab = document.getElementById('bulk-approve-btn');
+      var rb = document.getElementById('bulk-reject-btn');
+      var vb = document.getElementById('bulk-revision-btn');
+      if (ab) { ab.textContent = 'Approve' + suffix; ab.style.display = show ? '' : 'none'; }
+      if (rb) { rb.textContent = 'Reject' + suffix; rb.style.display = show ? '' : 'none'; }
+      if (vb) { vb.textContent = 'Revision' + suffix; vb.style.display = show ? '' : 'none'; }
     }
     function doApproveSelected() {
       var ids = Array.from(_selectedPending);
@@ -1248,6 +1254,24 @@
       _selectedPending.clear();
       renderAll();
       _showExecNotice('success', ids.length + ' action' + (ids.length !== 1 ? 's' : '') + ' approved.');
+    }
+    function doRejectSelected() {
+      var ids = Array.from(_selectedPending);
+      if (!ids.length) return;
+      ids.forEach(function(id) { AE.rejectAction(id); });
+      _selectedPending.clear();
+      renderAll();
+      _showExecNotice('success', ids.length + ' action' + (ids.length !== 1 ? 's' : '') + ' rejected.');
+    }
+    function openBulkRevisionModal() {
+      var ids = Array.from(_selectedPending);
+      if (!ids.length) return;
+      var rm = window._revisionModal;
+      if (!rm) return;
+      rm.actionId = ids; // pass array
+      rm.note.value = '';
+      rm.backdrop.classList.add('open');
+      setTimeout(function() { rm.note.focus(); }, 50);
     }
     // ── Copy expand ──
     function toggleCopyExpand(id) {
@@ -1290,7 +1314,19 @@
       btn.disabled = true;
       var actionId = rm.actionId;
       closeRevisionModal();
-      doRevision(actionId, note).finally(function () {
+      var revisionPromise;
+      if (Array.isArray(actionId)) {
+        // Bulk revision
+        actionId.forEach(function(id) { AE.requestActionRevision(id, note); });
+        _selectedPending.clear();
+        renderAll();
+        revisionPromise = Promise.all(actionId.map(function(id) { return AE.requestActionRevisionAsync(id, note); }))
+          .then(function() { _showExecNotice('success', actionId.length + ' revision requests synced.'); })
+          .catch(function() { _showExecNotice('warn', 'Revisions saved locally but server sync may have failed.'); });
+      } else {
+        revisionPromise = doRevision(actionId, note);
+      }
+      revisionPromise.finally(function () {
         btn.innerHTML = origText;
         btn.disabled = false;
       });
