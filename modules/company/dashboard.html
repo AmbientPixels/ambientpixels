@@ -137,6 +137,34 @@
     .obs-storage-hint a { color: #60a5fa; text-decoration: none; }
     .obs-empty { font-size: 0.58rem; opacity: 0.25; padding: 0.4rem 0; }
 
+    /* Approval Queue Tabs */
+    .aq-tabs { display:flex; gap:0; border-bottom:1px solid rgba(255,255,255,0.08); margin-bottom:0.5rem; }
+    .aq-tab { background:none; border:none; color:rgba(255,255,255,0.4); font-size:0.65rem; padding:0.4rem 0.7rem; cursor:pointer; border-bottom:2px solid transparent; display:flex; align-items:center; gap:0.3rem; transition:color 0.2s, border-color 0.2s; }
+    .aq-tab:hover { color:rgba(255,255,255,0.7); }
+    .aq-tab--active { color:#FFD700; border-bottom-color:#FFD700; }
+    .aq-tab-count { font-size:0.5rem; padding:0.05rem 0.35rem; border-radius:999px; background:rgba(255,255,255,0.06); font-weight:600; min-width:14px; text-align:center; }
+    .aq-tab--active .aq-tab-count { background:rgba(255,215,0,0.12); color:#FFD700; }
+    /* Trending cards */
+    .trend-card { border:1px solid rgba(96,165,250,0.12); border-radius:8px; padding:0.5rem 0.6rem; margin-bottom:0.35rem; background:rgba(96,165,250,0.02); transition:border-color 0.2s; }
+    .trend-card:hover { border-color:rgba(96,165,250,0.25); }
+    .trend-card-header { display:flex; align-items:center; gap:0.4rem; margin-bottom:0.25rem; flex-wrap:wrap; }
+    .trend-stage { font-size:0.48rem; font-weight:700; padding:0.1rem 0.4rem; border-radius:3px; text-transform:uppercase; letter-spacing:0.03em; }
+    .trend-stage--exploding { background:rgba(248,113,113,0.12); color:#f87171; }
+    .trend-stage--rising { background:rgba(251,191,36,0.12); color:#fbbf24; }
+    .trend-stage--emerging { background:rgba(52,211,153,0.12); color:#34d399; }
+    .trend-stage--stable { background:rgba(148,163,184,0.12); color:#94a3b8; }
+    .trend-score { font-size:0.55rem; font-weight:700; color:#60a5fa; }
+    .trend-delta { font-size:0.5rem; font-weight:600; }
+    .trend-delta--up { color:#34d399; }
+    .trend-delta--down { color:#f87171; }
+    .trend-body { font-size:0.7rem; opacity:0.6; line-height:1.35; margin-bottom:0.35rem; }
+    .trend-actions { display:flex; gap:0.3rem; flex-wrap:wrap; }
+    .trend-btn { font-size:0.55rem; padding:0.2rem 0.5rem; border-radius:4px; cursor:pointer; border:1px solid; transition:opacity 0.2s; }
+    .trend-btn:hover { opacity:0.8; }
+    .trend-btn--dismiss { border-color:rgba(148,163,184,0.2); background:rgba(148,163,184,0.06); color:#94a3b8; }
+    .trend-btn--campaign { border-color:rgba(96,165,250,0.25); background:rgba(96,165,250,0.06); color:#60a5fa; }
+    .trend-batch-bar { display:flex; align-items:center; gap:0.4rem; margin-bottom:0.5rem; padding:0.3rem 0.5rem; border:1px solid rgba(255,255,255,0.06); border-radius:6px; background:rgba(255,255,255,0.015); }
+
     /* Social Command Center */
     .scc-chips { display:grid; grid-template-columns:repeat(auto-fit, minmax(100px, 1fr)); gap:0.4rem; margin-bottom:0.6rem; }
     .scc-chip { border:1px solid rgba(255,255,255,0.06); background:rgba(255,255,255,0.015); border-radius:8px; padding:0.4rem 0.5rem; }
@@ -221,7 +249,6 @@
           <i class="fas fa-heartbeat"></i> Run Heartbeat
         </button>
         <a href="/modules/company/meetings.html" class="dash-refresh-btn" style="border-color:rgba(78,205,196,0.2); color:#4ecdc4;"><i class="fas fa-video"></i> Call Meeting</a>
-        <button class="dash-refresh-btn operator-only" id="dash-board-btn" style="border-color:rgba(138,43,226,0.2); color:#c084fc;"><i class="fas fa-columns"></i> Board Mode</button>
         <a href="/modules/company/" class="dash-refresh-btn"><i class="fas fa-arrow-left"></i> Back to HQ</a>
         <button class="dash-refresh-btn" id="dash-refresh"><i class="fas fa-sync-alt"></i> Refresh</button>
       </div>
@@ -490,8 +517,16 @@
                 <span class="dash-panel-title"><i class="fas fa-gavel" style="color:#FFD700;"></i> CEO Approval Queue</span>
                 <span class="dash-panel-badge" id="approval-count-badge" style="background:rgba(255,215,0,0.1); color:#FFD700;">0 pending</span>
               </div>
+              <!-- Tabs: Approvals | Trending -->
+              <div class="aq-tabs" id="aq-tabs">
+                <button class="aq-tab aq-tab--active" data-aq-tab="approvals"><i class="fas fa-gavel"></i> Approvals <span class="aq-tab-count" id="aq-tab-count-approvals">0</span></button>
+                <button class="aq-tab" data-aq-tab="trending"><i class="fas fa-chart-line"></i> Trending <span class="aq-tab-count" id="aq-tab-count-trending">0</span></button>
+              </div>
               <div id="panel-approval-list">
                 <div class="dash-empty">No items awaiting CEO approval.</div>
+              </div>
+              <div id="panel-trending-list" style="display:none;">
+                <div class="dash-empty">No trend alerts.</div>
               </div>
             </div>
             <!-- Facebook Outbox (manual posting queue) -->
@@ -531,7 +566,6 @@
             <div class="dash-panel dash-panel--full" id="panel-system-pulse-wrap" style="min-height:auto;">
               <div class="dash-panel-header">
                 <span class="dash-panel-title"><i class="fas fa-wave-square" style="color:#4ECDC4;"></i> System Pulse</span>
-                <a href="#" id="dash-board-link" style="font-size:0.65rem; opacity:0.4; text-decoration:none;">Board View →</a>
               </div>
               <div id="panel-system-pulse" class="system-pulse"></div>
             </div>
@@ -1140,13 +1174,6 @@
         var btn = e.target.closest('button');
         if (btn && btn.dataset.view) applyViewMode(btn.dataset.view);
       });
-
-      // Board Mode button in header
-      var boardBtn = document.getElementById('dash-board-btn');
-      if (boardBtn) boardBtn.addEventListener('click', function () { applyViewMode('board'); });
-      // Board View link in System Pulse
-      var boardLink = document.getElementById('dash-board-link');
-      if (boardLink) boardLink.addEventListener('click', function (e) { e.preventDefault(); applyViewMode('board'); });
 
       // ── Command Center Tabs ──
       var ccTabs = document.getElementById('cc-tabs');
@@ -2700,17 +2727,49 @@
       var _aqSelectedIds = {};
       var _aqActiveFilter = 'all';
       var _aqAllPending = [];
+      var _aqActiveTab = 'approvals';
+
+      // ── Tab switching ──
+      (function initAqTabs() {
+        var tabBar = document.getElementById('aq-tabs');
+        if (!tabBar) return;
+        tabBar.addEventListener('click', function (e) {
+          var btn = e.target.closest('.aq-tab');
+          if (!btn) return;
+          var tab = btn.dataset.aqTab;
+          if (tab === _aqActiveTab) return;
+          _aqActiveTab = tab;
+          tabBar.querySelectorAll('.aq-tab').forEach(function (b) { b.classList.remove('aq-tab--active'); });
+          btn.classList.add('aq-tab--active');
+          document.getElementById('panel-approval-list').style.display = tab === 'approvals' ? '' : 'none';
+          document.getElementById('panel-trending-list').style.display = tab === 'trending' ? '' : 'none';
+        });
+      })();
 
       // ── CEO Approval Queue (read-only overview) ──
       function renderApprovalQueue() {
         // Reconcile: clean orphaned entries before rendering
         if (AgentEngine.reconcileApprovalQueue) AgentEngine.reconcileApprovalQueue();
         var queue = AgentEngine.getApprovalQueue();
-        var pending = queue.filter(function (q) { return q.status === 'pending'; });
+        var allPending = queue.filter(function (q) { return q.status === 'pending'; });
+
+        // Split: trend alerts → Trending tab, everything else → Approvals tab
+        var trendItems = allPending.filter(function (q) { return q.type === 'trend_alert'; });
+        var pending = allPending.filter(function (q) { return q.type !== 'trend_alert'; });
+
+        // Update tab counts
+        var tabCountApprovals = document.getElementById('aq-tab-count-approvals');
+        var tabCountTrending = document.getElementById('aq-tab-count-trending');
+        if (tabCountApprovals) tabCountApprovals.textContent = pending.length;
+        if (tabCountTrending) tabCountTrending.textContent = trendItems.length;
+
+        // Update header badge with combined total
         var listEl = document.getElementById('panel-approval-list');
         var badge = document.getElementById('approval-count-badge');
+        badge.textContent = allPending.length + ' pending';
 
-        badge.textContent = pending.length + ' pending';
+        // Render trending tab
+        _renderTrendingTab(trendItems);
 
         if (pending.length === 0) {
           listEl.innerHTML = '<div class="dash-empty">No items awaiting CEO approval.</div>';
@@ -3124,6 +3183,91 @@
         });
 
         updateBatchUI();
+      }
+
+      // ── Trending Tab (trend alerts from Scout) ──
+      function _renderTrendingTab(items) {
+        var listEl = document.getElementById('panel-trending-list');
+        if (!listEl) return;
+
+        if (!items || items.length === 0) {
+          listEl.innerHTML = '<div class="dash-empty">No trend alerts. Scout will surface emerging trends on the next heartbeat cycle.</div>';
+          return;
+        }
+
+        // Sort: exploding first, then rising, then by score descending
+        var stageOrder = { exploding: 0, rising: 1, emerging: 2, stable: 3 };
+        items.sort(function (a, b) {
+          var aOrd = stageOrder[a.trendStage] !== undefined ? stageOrder[a.trendStage] : 9;
+          var bOrd = stageOrder[b.trendStage] !== undefined ? stageOrder[b.trendStage] : 9;
+          if (aOrd !== bOrd) return aOrd - bOrd;
+          return (b.trendScore || 0) - (a.trendScore || 0);
+        });
+
+        var html = '';
+
+        // Batch dismiss bar
+        html += '<div class="trend-batch-bar">' +
+          '<button class="trend-btn trend-btn--dismiss" id="trend-dismiss-all"><i class="fas fa-check-double" style="margin-right:0.2rem;"></i>Dismiss All (' + items.length + ')</button>' +
+          '<span style="font-size:0.55rem;opacity:0.4;">' + items.length + ' trend alert' + (items.length > 1 ? 's' : '') + '</span>' +
+          '</div>';
+
+        items.forEach(function (item) {
+          var stageLower = (item.trendStage || 'stable').toLowerCase();
+          var stageClass = 'trend-stage--' + (stageLower.indexOf('rising') !== -1 ? 'rising' : stageLower.indexOf('exploding') !== -1 ? 'exploding' : stageLower.indexOf('emerging') !== -1 ? 'emerging' : 'stable');
+          var stageLabel = stageLower.indexOf('rising') !== -1 ? 'RISING' : stageLower;
+          var delta = item.scoreDelta || 0;
+          var deltaHtml = delta !== 0 ? '<span class="trend-delta ' + (delta > 0 ? 'trend-delta--up' : 'trend-delta--down') + '">' + (delta > 0 ? '+' : '') + delta + ' pts</span>' : '';
+          var category = item.category ? '<span style="font-size:0.48rem;padding:0.1rem 0.35rem;border-radius:3px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:0.03em;">' + escapeHtml(item.category) + '</span>' : '';
+          var age = item.createdAt ? _aqFormatAge(new Date(item.createdAt)) : '';
+
+          html += '<div class="trend-card" data-trend-id="' + escapeHtml(item.id) + '">' +
+            '<div class="trend-card-header">' +
+              '<span class="trend-stage ' + stageClass + '">' + stageLabel.toUpperCase() + '</span>' +
+              '<span class="trend-score">Score: ' + (item.trendScore || '?') + '</span>' +
+              deltaHtml + category +
+              (age ? '<span style="font-size:0.5rem;opacity:0.35;margin-left:auto;">' + age + '</span>' : '') +
+            '</div>' +
+            '<div style="font-size:0.85rem;font-weight:600;margin-bottom:0.2rem;">' + escapeHtml(item.trendName || item.title || 'Unknown Trend') + '</div>' +
+            (item.body ? '<div class="trend-body">' + escapeHtml(item.body) + '</div>' : '') +
+            '<div class="trend-actions">' +
+              '<button class="trend-btn trend-btn--dismiss" data-dismiss-id="' + escapeHtml(item.id) + '"><i class="fas fa-check" style="margin-right:0.2rem;"></i>Dismiss</button>' +
+              '<button class="trend-btn trend-btn--campaign" data-campaign-trend="' + escapeHtml(item.trendName || '') + '"><i class="fas fa-bullhorn" style="margin-right:0.2rem;"></i>Create Campaign</button>' +
+            '</div>' +
+          '</div>';
+        });
+
+        listEl.innerHTML = html;
+
+        // Dismiss single
+        listEl.querySelectorAll('[data-dismiss-id]').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var id = this.dataset.dismissId;
+            AgentEngine.ceoApprove(id, 'Trend alert acknowledged');
+            renderApprovalQueue();
+          });
+        });
+
+        // Dismiss all
+        var dismissAllBtn = document.getElementById('trend-dismiss-all');
+        if (dismissAllBtn) {
+          dismissAllBtn.addEventListener('click', function () {
+            if (!confirm('Dismiss all ' + items.length + ' trend alerts?')) return;
+            items.forEach(function (item) {
+              AgentEngine.ceoApprove(item.id, 'Trend alert batch dismissed');
+            });
+            renderApprovalQueue();
+          });
+        }
+
+        // Create Campaign link
+        listEl.querySelectorAll('[data-campaign-trend]').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var trendName = this.dataset.campaignTrend;
+            // Navigate to campaigns page with trend name pre-filled
+            window.location.href = '/modules/company/campaigns.html?trend=' + encodeURIComponent(trendName);
+          });
+        });
       }
 
       // ── Facebook Outbox (manual posting queue) ──
