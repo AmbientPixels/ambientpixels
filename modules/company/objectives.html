@@ -154,8 +154,11 @@
 
     <!-- Objectives List -->
     <div class="dash-panel dash-panel--full">
-      <div class="dash-panel-header">
+      <div class="dash-panel-header" style="display:flex;justify-content:space-between;align-items:center;">
         <span class="dash-panel-title"><i class="fas fa-list-check" style="color:#4ECDC4;"></i> All Goals</span>
+        <label style="font-size:0.66rem; opacity:0.6; display:flex; align-items:center; gap:0.25rem;">
+          <input type="checkbox" id="obj-show-completed" /> Show completed &amp; canceled
+        </label>
       </div>
       <div id="obj-list">
         <div class="dash-empty">No goals yet. Create one above.</div>
@@ -411,6 +414,9 @@
         renderObjectives();
       });
 
+      var objShowCompleted = document.getElementById('obj-show-completed');
+      if (objShowCompleted) objShowCompleted.addEventListener('change', renderObjectives);
+
       // ── Edit Modal ──
       function openEditModal(obj) {
         editingId = obj.id;
@@ -537,8 +543,21 @@
           return;
         }
 
+        var showCompleted = !!(document.getElementById('obj-show-completed') && document.getElementById('obj-show-completed').checked);
+        var visible = objectives.filter(function (o) {
+          if (!showCompleted && (o.status === 'complete' || o.status === 'canceled')) return false;
+          return true;
+        });
+
         objList.innerHTML = '';
-        objectives.slice().reverse().forEach(function (obj) {
+        // Active goals first, then complete, then canceled
+        var statusOrder = { on_track: 0, at_risk: 1, behind: 2, complete: 3, canceled: 4 };
+        visible.sort(function (a, b) {
+          var aOrd = statusOrder[a.status] !== undefined ? statusOrder[a.status] : 1;
+          var bOrd = statusOrder[b.status] !== undefined ? statusOrder[b.status] : 1;
+          return aOrd - bOrd;
+        });
+        visible.forEach(function (obj) {
           objList.appendChild(createObjectiveCard(obj));
         });
         } catch(e) { console.warn('[Objectives] renderObjectives error:', e); }
@@ -546,7 +565,8 @@
 
       function createObjectiveCard(obj) {
         var card = document.createElement('div');
-        card.style.cssText = 'padding:0.8rem; border:1px solid rgba(78,205,196,0.08); border-radius:8px; margin-bottom:0.5rem; background:rgba(78,205,196,0.02);';
+        var isInactive = obj.status === 'complete' || obj.status === 'canceled';
+        card.style.cssText = 'padding:0.8rem; border:1px solid ' + (isInactive ? 'rgba(192,132,252,0.12)' : 'rgba(78,205,196,0.08)') + '; border-radius:8px; margin-bottom:0.5rem; background:' + (isInactive ? 'rgba(192,132,252,0.02)' : 'rgba(78,205,196,0.02)') + ';' + (isInactive ? ' opacity:0.6;' : '');
 
         var isCanceled = obj.status === 'canceled';
 
