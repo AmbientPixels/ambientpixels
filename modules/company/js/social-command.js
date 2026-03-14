@@ -83,15 +83,21 @@
       // Line
       svgParts.push('<polyline points="' + pointStr + '" fill="none" stroke="' + s.color + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>');
 
-      // Dots
-      for (var j = 0; j < len; j++) {
-        var dx = pad.left + (j / (len - 1)) * plotW;
-        var dy = pad.top + plotH - (s.data[j].value / globalMax) * plotH;
-        svgParts.push('<circle cx="' + dx.toFixed(1) + '" cy="' + dy.toFixed(1) + '" r="3" fill="' + s.color + '" opacity="0" class="scc-dot"><title>' + _esc(s.data[j].date) + ': ' + s.data[j].value + '</title></circle>');
-      }
     });
 
     svgParts.push('</svg>');
+
+    // HTML dots (positioned outside SVG to avoid non-uniform stretch)
+    var dots = [];
+    series.forEach(function (s) {
+      var len = s.data.length;
+      if (len < 2) return;
+      for (var j = 0; j < len; j++) {
+        var xPct = (pad.left + (j / (len - 1)) * plotW) / w * 100;
+        var yPct = (pad.top + plotH - (s.data[j].value / globalMax) * plotH) / h * 100;
+        dots.push('<div class="scc-dot" style="left:' + xPct.toFixed(2) + '%;top:' + yPct.toFixed(2) + '%;background:' + s.color + ';" title="' + _esc(s.data[j].date) + ': ' + s.data[j].value + '"></div>');
+      }
+    });
 
     // Date labels below
     var labels = [];
@@ -114,7 +120,7 @@
     });
     legend += '</div>';
 
-    return '<div class="scc-graph-wrap">' + legend + svgParts.join('') + labels.join('') + '</div>';
+    return '<div class="scc-graph-wrap">' + legend + '<div class="scc-graph-area">' + svgParts.join('') + dots.join('') + '</div>' + labels.join('') + '</div>';
   }
 
   // ── Top Issue (from recent failures) ──
