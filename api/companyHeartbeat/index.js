@@ -322,11 +322,12 @@ module.exports = async function (context) {
       // Only replenish if 0 active tasks
       if (activeTasks.length > 0) continue;
 
-      // Check cadence throttle — don't create if a task was created recently within the cadence window
+      // Check cadence throttle — count tasks created in the current cadence period vs frequency target
       const _window = _cadenceMs[c.cadence] || 604800000;
-      const _throttle = c.frequency > 1 ? Math.floor(_window / c.frequency) : _window;
-      const _recentTask = cmpTasks.find(t => t.createdAt && (_now - new Date(t.createdAt).getTime()) < _throttle);
-      if (_recentTask) continue;
+      const _periodStart = _now - _window;
+      const _tasksThisPeriod = cmpTasks.filter(t => t.createdAt && new Date(t.createdAt).getTime() > _periodStart).length;
+      const _freq = c.frequency || 1;
+      if (_tasksThisPeriod >= _freq) continue;
 
       // Determine which task type to create
       const allowedTypes = Array.isArray(c.allowedTaskTypes) && c.allowedTaskTypes.length > 0

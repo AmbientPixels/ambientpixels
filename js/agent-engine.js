@@ -2414,6 +2414,10 @@ var AgentEngine = (function () {
     var tasks = getTasks();
     var linked = tasks.filter(function (t) { return t.campaign_id === campaignId; });
     var total = linked.length;
+
+    // Look up campaign for cadence-based progress
+    var campaign = getCampaigns().find(function (c) { return c.id === campaignId; });
+
     if (total === 0) return { total: 0, done: 0, inProgress: 0, review: 0, todo: 0, backlog: 0, blocked: 0, overdue: 0, pct: 0, donePct: 0, signal: 'no_tasks', agents: {}, tasks: linked, staleDays: 0 };
 
     var done = 0, inProgress = 0, review = 0, todo = 0, backlog = 0, blocked = 0, overdue = 0;
@@ -2441,19 +2445,31 @@ var AgentEngine = (function () {
       if (updated && (!latestUpdate || updated > latestUpdate)) latestUpdate = updated;
     });
 
+    // Cadence-aware progress: use expected total tasks over campaign lifetime
+    var cadenceMs = { daily: 86400000, weekly: 604800000, biweekly: 1209600000 };
+    var expectedTotal = total; // fallback to actual total
+    if (campaign && campaign.cadence && campaign.frequency && campaign.startDate && campaign.endDate) {
+      var campStart = new Date(campaign.startDate).getTime();
+      var campEnd = new Date(campaign.endDate).getTime();
+      var campDuration = campEnd - campStart;
+      var periodMs = cadenceMs[campaign.cadence] || 604800000;
+      var periods = Math.max(1, Math.ceil(campDuration / periodMs));
+      expectedTotal = Math.max(total, periods * campaign.frequency);
+    }
+
     var weightedDone = (done * 1.0) + (review * 0.75) + (inProgress * 0.5) + (todo * 0.25);
-    var pct = total > 0 ? Math.round((weightedDone / total) * 100) : 0;
-    var donePct = total > 0 ? Math.round((done / total) * 100) : 0;
+    var pct = expectedTotal > 0 ? Math.min(100, Math.round((weightedDone / expectedTotal) * 100)) : 0;
+    var donePct = expectedTotal > 0 ? Math.min(100, Math.round((done / expectedTotal) * 100)) : 0;
     var staleDays = latestUpdate ? Math.floor((now - new Date(latestUpdate)) / 86400000) : 999;
 
     var signal = 'on_track';
     if (blocked > 0) signal = 'blocked';
     else if (overdue > 0) signal = 'at_risk';
     else if (staleDays >= 3 && donePct < 100) signal = 'stale';
-    else if (donePct === 100) signal = 'complete';
+    else if (done >= expectedTotal && expectedTotal > 0) signal = 'complete';
     else if (inProgress === 0 && review === 0 && done === 0 && todo === 0) signal = 'not_started';
 
-    return { total: total, done: done, inProgress: inProgress, review: review, todo: todo, backlog: backlog, blocked: blocked, overdue: overdue, pct: pct, donePct: donePct, signal: signal, agents: agents, tasks: linked, staleDays: staleDays };
+    return { total: total, done: done, inProgress: inProgress, review: review, todo: todo, backlog: backlog, blocked: blocked, overdue: overdue, pct: pct, donePct: donePct, expectedTotal: expectedTotal, signal: signal, agents: agents, tasks: linked, staleDays: staleDays };
   }
 
   function getAllCampaignProgress() {
