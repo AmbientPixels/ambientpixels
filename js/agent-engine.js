@@ -2479,7 +2479,7 @@ var AgentEngine = (function () {
     else if (blocked > 0) signal = 'blocked';
     else if (overdue > 0) signal = 'at_risk';
     else if (behind) signal = 'behind';
-    else if (staleDays >= 3 && donePct < 100 && total > 0) signal = 'stale';
+    else if (staleDays >= 3 && donePct < 100 && total > 0 && done < expectedTotal) signal = 'stale';
     else if (campaignEnded && done >= expectedTotal && expectedTotal > 0) signal = 'complete';
 
     return { total: total, done: done, inProgress: inProgress, review: review, todo: todo, backlog: backlog, blocked: blocked, overdue: overdue, pct: pct, donePct: donePct, expectedTotal: expectedTotal, signal: signal, agents: agents, tasks: linked, staleDays: staleDays };
