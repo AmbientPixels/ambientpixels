@@ -2671,10 +2671,40 @@
 
       // ── CEO Approval Queue (read-only overview) ──
       function renderApprovalQueue() {
-        // Reconcile: clean orphaned entries before rendering
-        if (AgentEngine.reconcileApprovalQueue) AgentEngine.reconcileApprovalQueue();
+        // Read from BOTH sources and merge:
+        // 1. approvalQueue blob — for trend alerts, escalations, content packages (non-action items)
+        // 2. actions blob — for actual pending actions (same source as Actions page)
         var queue = AgentEngine.getApprovalQueue();
-        var allPending = queue.filter(function (q) { return q.status === 'pending'; });
+        var aqNonAction = queue.filter(function (q) { return q.status === 'pending' && q.kind !== 'action'; });
+
+        // Map pending actions into approval-queue-shaped items
+        var actions = (typeof AgentEngine.getActions === 'function') ? AgentEngine.getActions() : [];
+        var pendingActions = actions.filter(function (a) {
+          if (!a.requires_ceo_approval) return false;
+          var st = (a.approval && a.approval.status) || '';
+          return st === 'pending' || st === '' || st === 'revision_requested' || !a.approval;
+        }).map(function (a) {
+          return {
+            id: 'aq-' + a.id,
+            kind: 'action',
+            action_id: a.id,
+            actionType: a.type || a.action_type,
+            taskId: a.payload ? a.payload.taskId : null,
+            taskTitle: (a.payload ? (a.payload.text || a.payload.title) : '') || a.type || 'Action',
+            title: (a.payload ? (a.payload.text || a.payload.title) : '') || a.type || 'Action',
+            originAgent: a.created_by || 'system',
+            status: 'pending',
+            submittedAt: (a.approval && a.approval.submitted_at) || a.created_at,
+            classification: a.classification,
+            riskLevel: a.risk_level,
+            preview: a.payload ? (a.payload.description || a.payload.preview || '') : '',
+            documentId: a.payload ? a.payload.documentId : null,
+            heroImageUrl: a.payload ? a.payload.heroImageUrl : null,
+            revisionCount: a.approval ? a.approval.revision_count : 0
+          };
+        });
+
+        var allPending = aqNonAction.concat(pendingActions);
 
         // Split: trend alerts → Trending tab, everything else → Approvals tab
         var trendItems = allPending.filter(function (q) { return q.type === 'trend_alert'; });
