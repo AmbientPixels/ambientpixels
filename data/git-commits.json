@@ -1,23 +1,23 @@
 {
   "commits": [
     {
-      "id": "b1c47191-4240-493e-b8ff-f4308e12f0d7",
-      "hash": "6393f4a261ea805f5a1324bf7f3b41ff9432eae8",
-      "message": "Daily refresh: site memory update for Nova",
-      "timestamp": "2026-03-12 14:06:15 +0000",
+      "id": "36c4aeec-6e9f-4144-b8a6-bf3ff251655a",
+      "hash": "13322a3fb54df5c6c69c8f2b44d98901ed0ef8c0",
+      "message": "Unify approval queue: dashboard reads from actions blob",
+      "timestamp": "2026-03-13 23:36:11 -0700",
       "author": {
-        "name": "NovaBot",
-        "email": "nova@ambientpixels.ai"
+        "name": "AmbientPixels",
+        "email": "ambientpixels2022@gmail.com"
       },
       "branches": [
         "grafted",
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/6393f4a261ea805f5a1324bf7f3b41ff9432eae8"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/13322a3fb54df5c6c69c8f2b44d98901ed0ef8c0"
     }
   ],
-  "timestamp": "2026-03-13T14:04:04.562Z",
+  "timestamp": "2026-03-14T13:48:46.814Z",
   "count": 1,
-  "scanId": 1773410644562
+  "scanId": 1773496126814
 }
