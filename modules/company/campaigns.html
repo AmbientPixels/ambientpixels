@@ -311,7 +311,7 @@
         var health = 'neutral';
         if (progress && progress.signal === 'complete') health = 'good';
         else if (progress && progress.signal === 'on_track') health = 'good';
-        else if (progress && (progress.signal === 'at_risk' || progress.signal === 'stale')) health = 'warn';
+        else if (progress && (progress.signal === 'at_risk' || progress.signal === 'stale' || progress.signal === 'behind')) health = 'warn';
         else if (progress && progress.signal === 'blocked') health = 'bad';
         else if (taskCount > 0) health = pctComplete >= 75 ? 'good' : pctComplete >= 40 ? 'warn' : 'bad';
         return { taskCount: taskCount, pctComplete: pctComplete, donePct: donePct, health: health, signal: progress ? progress.signal : 'no_tasks' };
