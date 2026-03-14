@@ -369,6 +369,13 @@
               <span><i class="fas fa-clock"></i> Pending Action Approvals</span>
               <span id="pending-count" style="font-size:0.6rem; opacity:0.4;"></span>
             </div>
+            <div id="pending-bulk-bar" style="display:none; padding:0.3rem 0.8rem; border-bottom:1px solid rgba(255,255,255,0.04); align-items:center; gap:0.5rem; background:rgba(52,211,153,0.025);">
+              <label style="display:flex;align-items:center;gap:0.3rem;font-size:0.6rem;opacity:0.5;cursor:pointer;">
+                <input type="checkbox" id="select-all-pending" onchange="toggleSelectAllPending(this.checked)" style="accent-color:#34d399;" />
+                Select all
+              </label>
+              <button id="bulk-approve-btn" class="act-btn act-btn--approve" onclick="doApproveSelected()" style="display:none; font-size:0.58rem; padding:0.18rem 0.6rem;"></button>
+            </div>
             <div class="act-panel-body" id="pending-list"></div>
           </div>
           <!-- Revision Requested -->
@@ -788,8 +795,35 @@
         bundles[bid].forEach(function (a) { html += actionRow(a, 'pending'); });
         html += '</div>';
       });
-      unbundled.forEach(function (a) { html += actionRow(a, 'pending'); });
+      // Campaign grouping for unbundled items
+      var byCampaign = {}, nocamp = [];
+      unbundled.forEach(function(a) {
+        var cid = a.campaign_id || (a.payload && a.payload.campaign_id) || null;
+        var cname = a.campaign_name || (a.payload && a.payload.campaign_name) || cid;
+        if (cid) {
+          if (!byCampaign[cid]) byCampaign[cid] = { name: cname, items: [] };
+          byCampaign[cid].items.push(a);
+        } else { nocamp.push(a); }
+      });
+      Object.keys(byCampaign).forEach(function(cid) {
+        var cg = byCampaign[cid];
+        html += '<div style="margin-bottom:0.4rem;">';
+        html += '<div style="display:flex;align-items:center;justify-content:space-between;padding:0.25rem 0;border-bottom:1px solid rgba(255,255,255,0.04);margin-bottom:0.15rem;">';
+        html += '<span style="font-size:0.6rem;font-weight:600;color:rgba(255,255,255,0.35);text-transform:uppercase;letter-spacing:0.05em;"><i class="fas fa-bullhorn" style="margin-right:4px;opacity:0.4;font-size:0.5rem;"></i>' + esc(cg.name) + '</span>';
+        html += '<span style="font-size:0.55rem;opacity:0.25;">' + cg.items.length + ' item' + (cg.items.length !== 1 ? 's' : '') + '</span>';
+        html += '</div>';
+        cg.items.forEach(function(a) { html += actionRow(a, 'pending'); });
+        html += '</div>';
+      });
+      nocamp.forEach(function (a) { html += actionRow(a, 'pending'); });
       el.innerHTML = html;
+      // Show bulk bar, reset selection
+      var bulkBar = document.getElementById('pending-bulk-bar');
+      if (bulkBar) bulkBar.style.display = 'flex';
+      var saEl = document.getElementById('select-all-pending');
+      if (saEl) saEl.checked = false;
+      _selectedPending.clear();
+      updateBulkApproveBtn();
 
       // Wire up promote checkboxes for publish_document items
       el.querySelectorAll('.act-promote-cb').forEach(function (cb) {
@@ -1011,11 +1045,18 @@
       var friendlyExec = typeof FriendlyLabels !== 'undefined' ? FriendlyLabels.status(execStatus) : execStatus;
 
       var html = '<div class="act-row">';
+      if (context === 'pending') {
+        html += '<input type="checkbox" class="act-pending-cb" data-action-id="' + a.id + '" onclick="event.stopPropagation(); toggleSelectPending(\'' + a.id + '\', this.checked);" style="accent-color:#34d399; flex-shrink:0; cursor:pointer; margin-top:2px;" />';
+      }
       html += '<div class="act-row-icon" style="background:' + bg + ';color:' + tc + ';"><i class="fas ' + icon + '"></i></div>';
       // v2.4.3: Derive title + preview
       var actionTitle = _apResolveTitle(a);
       var fullPreviewText = _apResolvePreviewText(a);
-      var previewLine = _apBuildPreview(fullPreviewText);
+      var isSocialAction = aType && aType.indexOf('social') !== -1;
+      var _previewLimit = (context === 'pending' && isSocialAction) ? 240 : 160;
+      var previewLine = _apBuildPreview(fullPreviewText, _previewLimit);
+      var _cleanFull = fullPreviewText ? fullPreviewText.replace(/[\r\n]+/g, ' ').replace(/\s{2,}/g, ' ').trim() : '';
+      var _hasMore = context === 'pending' && _cleanFull.length > _previewLimit;
 
       html += '<div class="act-row-info" style="cursor:pointer;" onclick="openDrawer(\'' + a.id + '\')">';
       html += '<div class="act-row-title" style="display:flex;align-items:center;gap:0.3rem;flex-wrap:wrap;">';
@@ -1028,7 +1069,18 @@
       if (a.is_irreversible) html += '<span class="act-badge act-badge--irreversible">irreversible</span>';
       html += '</div>';
       if (actionTitle) html += '<div style="font-size:0.9rem;font-weight:600;margin-top:2px;">' + esc(actionTitle) + '</div>';
-      if (previewLine) html += '<div style="font-size:0.75rem;opacity:0.7;line-height:1.3;margin-top:4px;">' + esc(previewLine) + '</div>';
+      if (previewLine) {
+        html += '<div style="font-size:0.75rem;opacity:0.7;line-height:1.3;margin-top:4px;">' + esc(previewLine) + '</div>';
+        if (_hasMore) {
+          html += '<div id="copy-full-' + a.id + '" style="display:none;font-size:0.73rem;line-height:1.5;color:rgba(255,255,255,0.78);white-space:pre-wrap;word-break:break-word;margin-top:6px;padding:7px 9px;background:rgba(255,255,255,0.02);border-radius:6px;border:1px solid rgba(255,255,255,0.06);">' + esc(_cleanFull) + '</div>';
+          html += '<button onclick="event.stopPropagation();toggleCopyExpand(\'' + a.id + '\')" id="copy-expand-btn-' + a.id + '" style="font-size:0.58rem;color:#60a5fa;background:none;border:none;cursor:pointer;padding:2px 0;opacity:0.55;display:block;margin-top:2px;">Show full copy \u2193</button>';
+        }
+      }
+      // Platform guidance for pending social posts
+      var _platHints = { linkedin: '\uD83D\uDCA1 Insight-first opener \u00b7 100\u2013250 words \u00b7 3 hashtags \u00b7 no bullet walls', x: '\uD83D\uDCA1 Under 280 chars \u00b7 do not put URL in post body \u2014 drop link in a reply', bluesky: '\uD83D\uDCA1 Community tone \u00b7 genuine observation \u00b7 replies matter more than likes' };
+      if (context === 'pending' && aPlat && _platHints[aPlat.toLowerCase()]) {
+        html += '<div style="font-size:0.56rem;margin-top:5px;padding:3px 8px;border-radius:4px;background:rgba(59,130,246,0.05);border:1px solid rgba(59,130,246,0.1);color:rgba(255,255,255,0.38);line-height:1.4;">' + _platHints[aPlat.toLowerCase()] + '</div>';
+      }
       // Image thumbnail for publish_document (hero) and social posts (media)
       // Fallback: check approval queue if payload.hero_image_url is missing
       var _listThumbUrl = null;
@@ -1172,6 +1224,45 @@
     }
     function doOverride(id) { AE.overrideAction(id); renderAll(); }
     function doApproveBundle(bid) { AE.approveBundle(bid); renderAll(); }
+
+    // ── Bulk approve ──
+    var _selectedPending = new Set();
+    function toggleSelectPending(id, checked) {
+      if (checked) _selectedPending.add(id); else _selectedPending.delete(id);
+      updateBulkApproveBtn();
+    }
+    function toggleSelectAllPending(checked) {
+      document.querySelectorAll('.act-pending-cb').forEach(function(cb) {
+        cb.checked = checked;
+        var id = cb.dataset.actionId;
+        if (checked) _selectedPending.add(id); else _selectedPending.delete(id);
+      });
+      updateBulkApproveBtn();
+    }
+    function updateBulkApproveBtn() {
+      var btn = document.getElementById('bulk-approve-btn');
+      if (!btn) return;
+      var n = _selectedPending.size;
+      if (n > 0) { btn.textContent = 'Approve Selected (' + n + ')'; btn.style.display = ''; }
+      else { btn.style.display = 'none'; }
+    }
+    function doApproveSelected() {
+      var ids = Array.from(_selectedPending);
+      if (!ids.length) return;
+      ids.forEach(function(id) { AE.approveAction(id); });
+      _selectedPending.clear();
+      renderAll();
+      _showExecNotice('success', ids.length + ' action' + (ids.length !== 1 ? 's' : '') + ' approved.');
+    }
+    // ── Copy expand ──
+    function toggleCopyExpand(id) {
+      var el = document.getElementById('copy-full-' + id);
+      var btn = document.getElementById('copy-expand-btn-' + id);
+      if (!el) return;
+      var show = el.style.display === 'none';
+      el.style.display = show ? '' : 'none';
+      if (btn) btn.textContent = show ? 'Show less \u2191' : 'Show full copy \u2193';
+    }
 
     function openRevisionModal(id) {
       var rm = window._revisionModal;
