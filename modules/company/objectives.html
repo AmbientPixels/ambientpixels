@@ -618,34 +618,59 @@
           signalHintHtml = '<span style="font-size:0.52rem; opacity:0.45; margin-left:0.4rem;"><i class="fas fa-robot" style="margin-right:2px;"></i>Auto: ' + autoLabel + '</span>';
         }
 
-        // Quarter to date range
+        // Date range: from quarter/year or derived from linked campaigns
         var qDateHtml = '';
+        var _qStart = null, _qEnd = null, _dateLabel = '';
         if (obj.quarter && obj.year) {
           var qNum = parseInt((obj.quarter || 'Q1').replace(/\D/g, '')) || 1;
           var yr = parseInt(obj.year) || 2026;
-          var qStart = new Date(yr, (qNum - 1) * 3, 1);
-          var qEnd = new Date(yr, qNum * 3, 0); // last day of quarter
+          _qStart = new Date(yr, (qNum - 1) * 3, 1);
+          _qEnd = new Date(yr, qNum * 3, 0);
+          _dateLabel = obj.quarter + ' ' + yr + ' · ';
+        } else if (progress && progress.campaignDetails && progress.campaignDetails.length > 0) {
+          // Derive from linked campaign dates
+          var _linkedCamps = (typeof AgentEngine.getCampaigns === 'function') ? AgentEngine.getCampaigns() : [];
+          var _campIds = progress.campaignDetails.map(function (cd) { return cd.id; });
+          var _earliest = null, _latest = null;
+          _linkedCamps.forEach(function (lc) {
+            if (_campIds.indexOf(lc.id) === -1) return;
+            if (lc.startDate) { var s = new Date(lc.startDate).getTime(); if (!_earliest || s < _earliest) _earliest = s; }
+            if (lc.endDate) { var e = new Date(lc.endDate).getTime(); if (!_latest || e > _latest) _latest = e; }
+          });
+          if (_earliest) _qStart = new Date(_earliest);
+          if (_latest) _qEnd = new Date(_latest);
+        }
+        if (_qStart || _qEnd) {
           var nowMs = Date.now();
-          var qStartMs = qStart.getTime();
-          var qEndMs = qEnd.getTime();
+          var qStartMs = _qStart ? _qStart.getTime() : nowMs;
+          var qEndMs = _qEnd ? _qEnd.getTime() : null;
           var fmt = function (d) { return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); };
-          var dateText = obj.quarter + ' ' + yr + ' · ' + fmt(qStart) + ' → ' + fmt(qEnd);
+          var dateText = _dateLabel;
+          if (_qStart && _qEnd) dateText += fmt(_qStart) + ' → ' + fmt(_qEnd);
+          else if (_qStart) dateText += 'Started ' + fmt(_qStart);
+          else if (_qEnd) dateText += 'Ends ' + fmt(_qEnd);
           var rightText = '';
           var rightColor = 'rgba(255,255,255,0.35)';
-          var daysLeft = Math.ceil((qEndMs - nowMs) / 86400000);
-          if (nowMs < qStartMs) { rightText = 'Starts in ' + Math.ceil((qStartMs - nowMs) / 86400000) + 'd'; rightColor = '#60a5fa'; }
-          else if (daysLeft > 0) { rightText = daysLeft + 'd left'; rightColor = daysLeft <= 14 ? '#fbbf24' : 'rgba(255,255,255,0.35)'; }
-          else if (daysLeft === 0) { rightText = 'Ends today'; rightColor = '#ef4444'; }
-          else { rightText = 'Ended ' + Math.abs(daysLeft) + 'd ago'; rightColor = '#c084fc'; }
-          var elapsed = Math.max(0, Math.min(1, (nowMs - qStartMs) / (qEndMs - qStartMs)));
-          var tlPct = Math.round(elapsed * 100);
-          qDateHtml = '<div style="display:flex;align-items:center;gap:0.5rem;font-size:0.62rem;margin:0.1rem 0 0.3rem;opacity:0.7;">' +
-            '<span style="color:rgba(255,255,255,0.5);white-space:nowrap;"><i class="fas fa-calendar-alt" style="font-size:0.5rem;margin-right:3px;"></i>' + dateText + '</span>' +
-            '<div style="flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,0.06);position:relative;min-width:40px;">' +
+          if (qEndMs) {
+            var daysLeft = Math.ceil((qEndMs - nowMs) / 86400000);
+            if (nowMs < qStartMs) { rightText = 'Starts in ' + Math.ceil((qStartMs - nowMs) / 86400000) + 'd'; rightColor = '#60a5fa'; }
+            else if (daysLeft > 0) { rightText = daysLeft + 'd left'; rightColor = daysLeft <= 14 ? '#fbbf24' : 'rgba(255,255,255,0.35)'; }
+            else if (daysLeft === 0) { rightText = 'Ends today'; rightColor = '#ef4444'; }
+            else { rightText = 'Ended ' + Math.abs(daysLeft) + 'd ago'; rightColor = '#c084fc'; }
+          }
+          var tlHtml = '';
+          if (_qStart && _qEnd && qStartMs < qEndMs) {
+            var elapsed = Math.max(0, Math.min(1, (nowMs - qStartMs) / (qEndMs - qStartMs)));
+            var tlPct = Math.round(elapsed * 100);
+            tlHtml = '<div style="flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,0.06);position:relative;min-width:40px;">' +
               '<div style="height:100%;width:' + tlPct + '%;border-radius:2px;background:rgba(255,255,255,0.15);"></div>' +
               '<div style="position:absolute;top:-2px;left:' + tlPct + '%;width:7px;height:7px;border-radius:50%;background:' + rightColor + ';transform:translateX(-50%);"></div>' +
-            '</div>' +
-            '<span style="color:' + rightColor + ';font-weight:600;white-space:nowrap;">' + rightText + '</span>' +
+            '</div>';
+          }
+          qDateHtml = '<div style="display:flex;align-items:center;gap:0.5rem;font-size:0.62rem;margin:0.1rem 0 0.3rem;opacity:0.7;">' +
+            '<span style="color:rgba(255,255,255,0.5);white-space:nowrap;"><i class="fas fa-calendar-alt" style="font-size:0.5rem;margin-right:3px;"></i>' + dateText + '</span>' +
+            tlHtml +
+            (rightText ? '<span style="color:' + rightColor + ';font-weight:600;white-space:nowrap;">' + rightText + '</span>' : '') +
           '</div>';
         }
 
