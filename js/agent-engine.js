@@ -2518,7 +2518,7 @@ var AgentEngine = (function () {
     var totalExpected = 0;
     var campaignDetails = [];
     var worstSignal = 'on_track';
-    var signalPriority = { blocked: 5, at_risk: 4, behind: 3, stale: 3, not_started: 2, on_track: 1, complete: 0, no_tasks: 1 };
+    var signalPriority = { blocked: 5, at_risk: 4, behind: 3, stale: 3, on_track: 1, not_started: 0, complete: 0, no_tasks: 0 };
 
     campaigns.forEach(function (c) {
       var cp = getCampaignProgress(c.id);
