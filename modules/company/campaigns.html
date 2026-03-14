@@ -32,6 +32,8 @@
     .cmp-list-row input { flex:1; min-width:200px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; padding:0.38rem 0.55rem; font-size:0.72rem; }
     .cmp-pill { font-size:0.58rem; padding:0.12rem 0.38rem; border-radius:999px; border:1px solid rgba(255,255,255,0.1); opacity:0.85; }
     .cmp-pill--active { color:#34d399; border-color:rgba(52,211,153,0.35); background:rgba(52,211,153,0.08); }
+    .cmp-pill--complete { color:#c084fc; border-color:rgba(192,132,252,0.35); background:rgba(192,132,252,0.08); }
+    .cmp-card--complete { border-color:rgba(192,132,252,0.15); opacity:0.7; }
     .cmp-pill--archived { color:#94a3b8; border-color:rgba(148,163,184,0.35); background:rgba(148,163,184,0.08); }
     .cmp-card { border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.02); border-radius:8px; padding:0.6rem; margin-bottom:0.45rem; }
     .cmp-card:hover { border-color:rgba(138,43,226,0.35); }
@@ -162,7 +164,7 @@
         <div class="cmp-list-row">
           <input id="cmp-search" type="text" placeholder="Search campaigns..." />
           <label style="font-size:0.66rem; opacity:0.6; display:flex; align-items:center; gap:0.25rem;">
-            <input type="checkbox" id="cmp-show-archived" /> Show archived
+            <input type="checkbox" id="cmp-show-archived" /> Show completed &amp; archived
           </label>
         </div>
         <div id="cmp-list"></div>
@@ -186,6 +188,7 @@
       <label for="cmp-edit-status">Status</label>
       <select id="cmp-edit-status">
         <option value="active">Active</option>
+        <option value="complete">Complete</option>
         <option value="archived">Archived</option>
       </select>
 
@@ -278,11 +281,16 @@
           return c && !c.deletedAt;
         });
         return all.filter(function (c) {
-          if (!showArchived && c.status === 'archived') return false;
+          if (!showArchived && (c.status === 'archived' || c.status === 'complete')) return false;
           if (!q) return true;
           var hay = ((c.title || '') + ' ' + (c.description || '') + ' ' + (c.id || '')).toLowerCase();
           return hay.indexOf(q) !== -1;
         }).sort(function (a, b) {
+          // Active first, then complete, then archived
+          var statusOrder = { active: 0, paused: 1, complete: 2, archived: 3 };
+          var aOrd = statusOrder[a.status] !== undefined ? statusOrder[a.status] : 1;
+          var bOrd = statusOrder[b.status] !== undefined ? statusOrder[b.status] : 1;
+          if (aOrd !== bOrd) return aOrd - bOrd;
           return (b.createdAt || '').localeCompare(a.createdAt || '');
         });
       }
@@ -296,9 +304,10 @@
       function renderCounts() {
         var all = (typeof AgentEngine.getCampaigns === 'function' ? AgentEngine.getCampaigns() : []).filter(function (c) { return c && !c.deletedAt; });
         var active = all.filter(function (c) { return c.status === 'active'; }).length;
+        var completed = all.filter(function (c) { return c.status === 'complete'; }).length;
         var archived = all.filter(function (c) { return c.status === 'archived'; }).length;
         document.getElementById('cmp-active-count').textContent = active + ' active';
-        document.getElementById('cmp-archived-count').textContent = archived + ' archived';
+        document.getElementById('cmp-archived-count').textContent = (completed + archived) + ' completed/archived';
       }
 
       // Compute campaign container metrics
@@ -382,9 +391,14 @@
           // Status pill class
           var pillCls = 'cmp-pill--active';
           if (c.status === 'archived') pillCls = 'cmp-pill--archived';
+          else if (c.status === 'complete') pillCls = 'cmp-pill--complete';
           else if (c.status === 'paused') pillCls = 'cmp-pill--paused';
 
-          html += '<div class="cmp-card' + (c.status === 'paused' ? ' cmp-card--paused' : '') + '" data-id="' + esc(c.id) + '">'
+          var cardCls = 'cmp-card';
+          if (c.status === 'paused') cardCls += ' cmp-card--paused';
+          else if (c.status === 'complete') cardCls += ' cmp-card--complete';
+
+          html += '<div class="' + cardCls + '" data-id="' + esc(c.id) + '">'
             + '<h4>' + esc(c.title) + '<span class="cmp-pill ' + pillCls + '">' + esc(c.status) + '</span></h4>'
             + (c.description ? '<p>' + esc(c.description) + '</p>' : '')
             + '<div class="cmp-progress-bar"><div class="cmp-progress-fill" style="width:' + m.pctComplete + '%; background:' + barColor + ';"></div></div>'
