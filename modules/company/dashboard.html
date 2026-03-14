@@ -1422,7 +1422,7 @@
          renderKpiScoreboard, renderObjectivesSnap, renderAutonomyScore, renderRiskHeatmap,
          renderActionSnap, renderGeminiCosts, renderAzureCosts, renderXCosts, renderCostSummary,
          renderDailyLogDrafts, renderBlogAdmin, renderGovernanceLog, renderGovernanceLogDev,
-         renderMeetingsWidget, updateActionBadge, renderOrgChart, renderExecPlan,
+         renderMeetingsWidget, updateActionBadge, renderOrgChart,
          renderInboundKpi, updateModeIndicator, renderCeoStatusStrip, renderCeoInsightsMirrors, renderCeoStrategy].forEach(function(fn) {
           try { fn(); } catch(e) { console.warn('[Dashboard] ' + (fn.name||'anon') + ' error:', e); }
         });
