@@ -578,7 +578,7 @@
         var cmpChipsHtml = '';
         if (progress && progress.campaignDetails && progress.campaignDetails.length > 0) {
           var chips = progress.campaignDetails.map(function (cd) {
-            var chipColor = cd.signal === 'complete' ? '#8A2BE2' : cd.signal === 'on_track' ? '#34d399' : cd.signal === 'at_risk' || cd.signal === 'stale' ? '#fbbf24' : cd.signal === 'blocked' ? '#ef4444' : '#64748b';
+            var chipColor = cd.signal === 'complete' ? '#8A2BE2' : cd.signal === 'on_track' ? '#34d399' : cd.signal === 'at_risk' || cd.signal === 'stale' || cd.signal === 'behind' ? '#fbbf24' : cd.signal === 'blocked' ? '#ef4444' : '#64748b';
             var pauseIcon = cd.status === 'paused' ? '<i class="fas fa-pause-circle" style="font-size:0.45rem; color:#fbbf24; margin-right:2px;"></i>' : '';
             return '<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.54rem;padding:0.08rem 0.38rem;border-radius:4px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);color:' + chipColor + ';">' +
               pauseIcon + '<i class="fas fa-layer-group" style="font-size:0.42rem; opacity:0.6;"></i>' +
@@ -588,11 +588,11 @@
         }
 
         // Auto-signal hint (shown if different from manual status)
-        var signalLabels = { on_track: 'On Track', at_risk: 'At Risk', blocked: 'Blocked', stale: 'Stale', complete: 'Complete', not_started: 'Not Started', no_campaigns: 'No Campaigns', no_tasks: 'No Tasks' };
+        var signalLabels = { on_track: 'On Track', at_risk: 'At Risk', behind: 'Behind Pace', blocked: 'Blocked', stale: 'Stale', complete: 'Complete', not_started: 'Not Started', no_campaigns: 'No Campaigns', no_tasks: 'No Tasks' };
         var autoLabel = signalLabels[autoSignal] || autoSignal;
         var signalHintHtml = '';
         // Show auto-signal hint if it differs from manual status
-        var signalStatusMap = { on_track: 'on_track', at_risk: 'at_risk', blocked: 'behind', stale: 'at_risk', complete: 'complete', not_started: 'on_track', no_campaigns: 'on_track', no_tasks: 'on_track' };
+        var signalStatusMap = { on_track: 'on_track', at_risk: 'at_risk', behind: 'behind', blocked: 'behind', stale: 'at_risk', complete: 'complete', not_started: 'on_track', no_campaigns: 'on_track', no_tasks: 'on_track' };
         var suggestedStatus = signalStatusMap[autoSignal] || 'on_track';
         if (suggestedStatus !== effectiveStatus && !isCanceled && progress && progress.campaigns > 0) {
           signalHintHtml = '<span style="font-size:0.52rem; opacity:0.45; margin-left:0.4rem;"><i class="fas fa-robot" style="margin-right:2px;"></i>Auto: ' + autoLabel + '</span>';

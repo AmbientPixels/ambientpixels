@@ -2522,13 +2522,22 @@ var AgentEngine = (function () {
       }
     });
 
-    // Weighted progress across all tasks in all linked campaigns
+    // Weighted progress — use expectedTotal from campaign progress (cadence-aware)
+    var totalExpected = 0;
+    campaigns.forEach(function (c) {
+      var cp = getCampaignProgress(c.id);
+      totalExpected += cp.expectedTotal || cp.total;
+    });
+    var effectiveTotal = Math.max(totalTasks, totalExpected);
     var pct = 0;
     var donePct = 0;
-    if (totalTasks > 0) {
+    var anyCampaignRunning = campaigns.some(function (c) {
+      return c.endDate && new Date(c.endDate).getTime() > Date.now();
+    });
+    if (effectiveTotal > 0) {
       var weighted = (doneTasks * 1.0) + (reviewTasks * 0.75) + (inProgressTasks * 0.5) + (todoTasks * 0.25);
-      pct = Math.round((weighted / totalTasks) * 100);
-      donePct = Math.round((doneTasks / totalTasks) * 100);
+      pct = Math.min(anyCampaignRunning ? 99 : 100, Math.round((weighted / effectiveTotal) * 100));
+      donePct = Math.min(anyCampaignRunning ? 99 : 100, Math.round((doneTasks / effectiveTotal) * 100));
     }
 
     // If all campaigns are complete, goal signal is complete
@@ -2544,7 +2553,7 @@ var AgentEngine = (function () {
     // Health mapping
     var health = 'neutral';
     if (worstSignal === 'complete' || worstSignal === 'on_track') health = 'good';
-    else if (worstSignal === 'at_risk' || worstSignal === 'stale') health = 'warn';
+    else if (worstSignal === 'at_risk' || worstSignal === 'stale' || worstSignal === 'behind') health = 'warn';
     else if (worstSignal === 'blocked') health = 'bad';
 
     return {
