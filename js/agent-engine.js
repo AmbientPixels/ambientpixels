@@ -2445,28 +2445,36 @@ var AgentEngine = (function () {
       if (updated && (!latestUpdate || updated > latestUpdate)) latestUpdate = updated;
     });
 
-    // Cadence-aware progress: use expected total tasks over campaign lifetime
+    // Cadence-aware progress: measure against expected tasks *so far*, not full lifetime
     var cadenceMs = { daily: 86400000, weekly: 604800000, biweekly: 1209600000 };
     var expectedTotal = total; // fallback to actual total
+    var expectedSoFar = total; // how many tasks should exist by now
+    var campaignEnded = false;
     if (campaign && campaign.cadence && campaign.frequency && campaign.startDate && campaign.endDate) {
       var campStart = new Date(campaign.startDate).getTime();
       var campEnd = new Date(campaign.endDate).getTime();
-      var campDuration = campEnd - campStart;
+      var nowMs = now.getTime();
       var periodMs = cadenceMs[campaign.cadence] || 604800000;
-      var periods = Math.max(1, Math.ceil(campDuration / periodMs));
-      expectedTotal = Math.max(total, periods * campaign.frequency);
+      // Full lifetime expected
+      var totalPeriods = Math.max(1, Math.ceil((campEnd - campStart) / periodMs));
+      expectedTotal = Math.max(total, totalPeriods * campaign.frequency);
+      // Expected so far (elapsed periods since start)
+      campaignEnded = nowMs >= campEnd;
+      campaignEnded = nowMs >= campEnd;
+      expectedSoFar = expectedTotal; // progress always against full lifetime target
     }
 
     var weightedDone = (done * 1.0) + (review * 0.75) + (inProgress * 0.5) + (todo * 0.25);
-    var pct = expectedTotal > 0 ? Math.min(100, Math.round((weightedDone / expectedTotal) * 100)) : 0;
-    var donePct = expectedTotal > 0 ? Math.min(100, Math.round((done / expectedTotal) * 100)) : 0;
+    // Progress is against expected-so-far (not full lifetime) — only 100% once campaign ends and all done
+    var pct = expectedSoFar > 0 ? Math.min(campaignEnded ? 100 : 99, Math.round((weightedDone / expectedSoFar) * 100)) : 0;
+    var donePct = expectedSoFar > 0 ? Math.min(campaignEnded ? 100 : 99, Math.round((done / expectedSoFar) * 100)) : 0;
     var staleDays = latestUpdate ? Math.floor((now - new Date(latestUpdate)) / 86400000) : 999;
 
     var signal = 'on_track';
     if (blocked > 0) signal = 'blocked';
     else if (overdue > 0) signal = 'at_risk';
     else if (staleDays >= 3 && donePct < 100) signal = 'stale';
-    else if (done >= expectedTotal && expectedTotal > 0) signal = 'complete';
+    else if (campaignEnded && done >= expectedTotal && expectedTotal > 0) signal = 'complete';
     else if (inProgress === 0 && review === 0 && done === 0 && todo === 0) signal = 'not_started';
 
     return { total: total, done: done, inProgress: inProgress, review: review, todo: todo, backlog: backlog, blocked: blocked, overdue: overdue, pct: pct, donePct: donePct, expectedTotal: expectedTotal, signal: signal, agents: agents, tasks: linked, staleDays: staleDays };
