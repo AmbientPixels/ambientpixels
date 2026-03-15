@@ -16,7 +16,7 @@ const RATE_LIMIT_PER_DAY = 3;
 let agentRegistry = null;
 function loadAgentRegistry() {
   if (agentRegistry) return agentRegistry;
-  const filePath = path.join(__dirname, '..', '..', 'data', 'pixel-agents.json');
+  const filePath = path.join(__dirname, '..', '_data', 'pixel-agents.json');
   agentRegistry = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
   return agentRegistry;
 }
