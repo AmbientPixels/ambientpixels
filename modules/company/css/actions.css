@@ -181,6 +181,18 @@ body[data-theme="light"] .act-section-header .act-section-chevron { color: rgba(
 body[data-theme="light"] .act-raw-stat { background: #ffffff; }
 body[data-theme="light"] .act-raw-stat-val { color: #1c1c1e; }
 body[data-theme="light"] .act-raw-stat-label { color: rgba(0,0,0,0.35); }
+body[data-theme="light"] .act-drawer { background: #ffffff; border-left-color: rgba(0,0,0,0.1); }
+body[data-theme="light"] .act-drawer h3 { color: #1c1c1e; }
+body[data-theme="light"] .act-drawer-close { color: rgba(0,0,0,0.35); }
+body[data-theme="light"] .act-drawer-close:hover { color: #1c1c1e; background: rgba(0,0,0,0.06); }
+body[data-theme="light"] .act-drawer-section { border-top-color: rgba(0,0,0,0.07); }
+body[data-theme="light"] .act-drawer-section h4 { color: rgba(0,0,0,0.35); }
+body[data-theme="light"] .act-drawer-kv dt { color: rgba(0,0,0,0.4); }
+body[data-theme="light"] .act-drawer-kv dd { color: rgba(0,0,0,0.8); }
+body[data-theme="light"] .act-drawer-pre { background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.08); color: rgba(0,0,0,0.7); }
+body[data-theme="light"] .act-drawer-post { background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.08); }
+body[data-theme="light"] .act-drawer-post-text { color: rgba(0,0,0,0.85); }
+body[data-theme="light"] .act-modal { background: #ffffff; border-color: rgba(0,0,0,0.1); color: #1c1c1e; }
 
 /* ── Dim Theme ── */
 body[data-theme="dim"] .act-view-toggle { background: #1e293b; }
@@ -196,6 +208,18 @@ body[data-theme="dim"] .act-section-header .act-section-chevron { color: rgba(24
 body[data-theme="dim"] .act-raw-stat { background: #1e293b; }
 body[data-theme="dim"] .act-raw-stat-val { color: #f1f5f9; }
 body[data-theme="dim"] .act-raw-stat-label { color: rgba(241,245,249,0.35); }
+body[data-theme="dim"] .act-drawer { background: #1e293b; border-left-color: rgba(148,163,184,0.1); }
+body[data-theme="dim"] .act-drawer h3 { color: #f1f5f9; }
+body[data-theme="dim"] .act-drawer-close { color: rgba(241,245,249,0.35); }
+body[data-theme="dim"] .act-drawer-close:hover { color: #f1f5f9; background: rgba(255,255,255,0.06); }
+body[data-theme="dim"] .act-drawer-section { border-top-color: rgba(148,163,184,0.08); }
+body[data-theme="dim"] .act-drawer-section h4 { color: rgba(241,245,249,0.35); }
+body[data-theme="dim"] .act-drawer-kv dt { color: rgba(241,245,249,0.4); }
+body[data-theme="dim"] .act-drawer-kv dd { color: rgba(241,245,249,0.85); }
+body[data-theme="dim"] .act-drawer-pre { background: rgba(0,0,0,0.2); border-color: rgba(148,163,184,0.1); color: rgba(241,245,249,0.7); }
+body[data-theme="dim"] .act-drawer-post { background: rgba(255,255,255,0.03); border-color: rgba(148,163,184,0.1); }
+body[data-theme="dim"] .act-drawer-post-text { color: rgba(241,245,249,0.9); }
+body[data-theme="dim"] .act-modal { background: #1e293b; border-color: rgba(148,163,184,0.1); color: #f1f5f9; }
 
 /* ══════════════════════════════════════════
    Actions — Inline Style Replacements
