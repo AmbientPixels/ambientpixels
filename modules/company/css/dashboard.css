@@ -573,6 +573,29 @@
   color: rgba(255,255,255,0.6);
 }
 
+/* ── Command Center quick links (always visible below tabs) ── */
+.cc-quick-links {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  padding: 0.5rem 0.8rem 0.6rem;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+.cc-quick-links a {
+  font-size: 0.58rem;
+  color: rgba(255,255,255,0.35);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+.cc-quick-links a:hover { color: rgba(255,255,255,0.75); }
+.cc-quick-links a i { margin-right: 3px; }
+body[data-theme="light"] .cc-quick-links { border-top-color: rgba(0,0,0,0.07); }
+body[data-theme="light"] .cc-quick-links a { color: rgba(0,0,0,0.35); }
+body[data-theme="light"] .cc-quick-links a:hover { color: rgba(0,0,0,0.7); }
+body[data-theme="dim"] .cc-quick-links { border-top-color: rgba(148,163,184,0.08); }
+body[data-theme="dim"] .cc-quick-links a { color: rgba(241,245,249,0.3); }
+body[data-theme="dim"] .cc-quick-links a:hover { color: rgba(241,245,249,0.7); }
+
 /* ── CC Panes ── */
 .cc-pane { display: none; padding: 16px; }
 .cc-pane.active { display: block; }

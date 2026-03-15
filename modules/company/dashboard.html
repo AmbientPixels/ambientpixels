@@ -373,6 +373,15 @@
             </div>
           </div>
         </div>
+        <!-- Quick Links (always visible, below all tabs) -->
+        <div class="cc-quick-links">
+          <a href="/modules/company/tasks.html"><i class="fas fa-tasks"></i> Task Board</a>
+          <a href="/modules/company/actions.html"><i class="fas fa-bolt"></i> Actions</a>
+          <a href="/modules/company/campaigns.html"><i class="fas fa-flag"></i> Campaigns</a>
+          <a href="/modules/company/objectives.html"><i class="fas fa-bullseye"></i> Goals</a>
+          <a href="/modules/company/workspace.html"><i class="fas fa-brain"></i> Workspace</a>
+          <a href="/modules/company/memories.html"><i class="fas fa-memory"></i> Agent Memory</a>
+        </div>
       </div>
 
       <!-- Team Roster (right side of main split) -->
@@ -2605,16 +2614,6 @@
             });
             html += '</div>';
           }
-
-          // ── Deep Links ──
-          html += '<div style="display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:0.5rem; padding-top:0.5rem; border-top:1px solid rgba(255,255,255,0.04);">';
-          html += '<a href="/modules/company/tasks.html" style="font-size:0.6rem; color:#60a5fa; text-decoration:none;"><i class="fas fa-tasks"></i> Task Board</a>';
-          html += '<a href="/modules/company/actions.html" style="font-size:0.6rem; color:rgba(255,255,255,0.4); text-decoration:none;"><i class="fas fa-bolt"></i> Actions</a>';
-          html += '<a href="/modules/company/campaigns.html" style="font-size:0.6rem; color:rgba(255,255,255,0.4); text-decoration:none;"><i class="fas fa-flag"></i> Campaigns</a>';
-          html += '<a href="/modules/company/objectives.html" style="font-size:0.6rem; color:#60a5fa; text-decoration:none;"><i class="fas fa-bullseye"></i> Goals</a>';
-          html += '<a href="/modules/company/workspace.html" style="font-size:0.6rem; color:#FF6B9D; text-decoration:none;"><i class="fas fa-brain"></i> Workspace</a>';
-          html += '<a href="/modules/company/memories.html" style="font-size:0.6rem; color:rgba(255,255,255,0.4); text-decoration:none;"><i class="fas fa-memory"></i> Agent Memory</a>';
-          html += '</div>';
 
           panelReport.innerHTML = html || '<div class="dash-empty">Report generated but no summary available.</div>';
         });
