@@ -394,6 +394,17 @@
         <div class="agent-grid ceo-agent-grid-compact" id="ceo-agent-grid"></div>
       </div>
 
+      <!-- Agent Performance Scores (below Agent Health) -->
+      <div class="dash-panel ceo-team-panel dash-panel--no-bottom" style="margin-top:0.5rem;">
+        <div class="dash-panel-header dash-panel-header--tight">
+          <span class="dash-panel-title"><i class="fas fa-gauge-high dash-icon-sky"></i> Agent Performance</span>
+          <a href="/modules/company/agent-performance.html" class="dash-view-all">Details →</a>
+        </div>
+        <div id="ceo-perf-widget" style="font-size:0.7rem;">
+          <div style="opacity:0.3;padding:0.5rem;text-align:center;">Loading scores...</div>
+        </div>
+      </div>
+
       </div><!-- /.ceo-main-split -->
 
       <!-- CEO: Strategy (Zone 3.5 — Goals + Projects side by side) -->
@@ -1462,7 +1473,7 @@
          renderActionSnap, renderApiUsage, renderGeminiCosts, renderClaudeCosts, renderAzureCosts, renderXCosts, renderCostSummary,
          renderDailyLogDrafts, renderBlogAdmin, renderGovernanceLog, renderGovernanceLogDev,
          renderMeetingsWidget, updateActionBadge, renderOrgChart,
-         renderInboundKpi, updateModeIndicator, renderCeoStatusStrip, renderCeoInsightsMirrors, renderCeoStrategy].forEach(function(fn) {
+         renderInboundKpi, updateModeIndicator, renderCeoStatusStrip, renderCeoInsightsMirrors, renderCeoStrategy, renderCeoPerfWidget].forEach(function(fn) {
           try { fn(); } catch(e) { console.warn('[Dashboard] ' + (fn.name||'anon') + ' error:', e); }
         });
       }
@@ -1603,6 +1614,59 @@
         });
 
         gridEl.innerHTML = html || '<div class="dash-empty" style="padding:0.5rem;">No agents loaded.</div>';
+      }
+
+      // ── Agent Performance Widget (CEO Dashboard) ──
+      function renderCeoPerfWidget() {
+        var el = document.getElementById('ceo-perf-widget');
+        if (!el) return;
+        var base = (typeof CompanyStore !== 'undefined' && CompanyStore.getServerBase) ? CompanyStore.getServerBase() : '/api';
+        var headers = {};
+        if (typeof CompanyStore !== 'undefined' && CompanyStore.getAuthHeaders) headers = CompanyStore.getAuthHeaders();
+        fetch(base + '/company-state?key=runtimeMemory', { headers: headers })
+          .then(function (r) { var ct = r.headers.get('content-type') || ''; if (!r.ok || ct.indexOf('json') === -1) return null; return r.json(); })
+          .then(function (data) {
+            var runtime = data && data.value !== undefined ? data.value : data;
+            var digest = runtime && runtime.agentPerformance;
+            if (!digest || !digest.agents) { el.innerHTML = '<div style="opacity:0.3;padding:0.5rem;text-align:center;">No performance data yet. Runs after next heartbeat.</div>'; return; }
+            var ids = Object.keys(digest.agents).sort(function (a, b) { return (digest.agents[b].qualityScore || 0) - (digest.agents[a].qualityScore || 0); });
+            if (!ids.length) { el.innerHTML = '<div style="opacity:0.3;padding:0.5rem;text-align:center;">No agent data.</div>'; return; }
+            var html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:0.35rem;padding:0.4rem 0;">';
+            ids.forEach(function (id, idx) {
+              var a = digest.agents[id];
+              var sc = a.qualityScore || 0;
+              var color = sc >= 70 ? '#34d399' : (sc >= 45 ? '#facc15' : '#f87171');
+              var trendIcon = a.qualityTrend === 'improving' ? '<i class="fas fa-caret-up" style="color:#34d399"></i>' : (a.qualityTrend === 'declining' ? '<i class="fas fa-caret-down" style="color:#f87171"></i>' : '');
+              var name = id.charAt(0).toUpperCase() + id.slice(1);
+              var crown = idx === 0 ? ' <i class="fas fa-crown" style="color:#facc15;font-size:0.5rem"></i>' : '';
+              // Star rating display
+              var starHtml = '';
+              if (a.ceoAvgStarRating > 0) {
+                starHtml = '<div style="margin-top:2px;">';
+                for (var si = 1; si <= 5; si++) starHtml += '<i class="' + (si <= Math.round(a.ceoAvgStarRating) ? 'fas' : 'far') + ' fa-star" style="color:#facc15;font-size:0.45rem"></i>';
+                starHtml += '</div>';
+              }
+              html += '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:0.4rem 0.5rem;text-align:center;">';
+              html += '<div style="font-weight:600;font-size:0.7rem;margin-bottom:2px;">' + name + crown + '</div>';
+              html += '<div style="font-size:1.3rem;font-weight:700;color:' + color + ';line-height:1;">' + sc + ' ' + trendIcon + '</div>';
+              html += '<div style="font-size:0.55rem;opacity:0.4;margin-top:2px;">' + Math.round((a.ceoApprovalRate || 0) * 100) + '% CEO · ' + (a.tasksCompleted || 0) + ' tasks</div>';
+              if (a.actionsBlocked > 0) html += '<div style="font-size:0.5rem;color:#f87171;margin-top:1px;">' + a.actionsBlocked + ' blocked</div>';
+              html += starHtml;
+              html += '</div>';
+            });
+            html += '</div>';
+            // Declining warning
+            var declining = ids.filter(function (id) { return digest.agents[id].qualityTrend === 'declining'; });
+            if (declining.length > 0) {
+              html += '<div style="padding:3px 6px;margin-top:4px;border-radius:4px;background:rgba(248,113,113,0.08);font-size:0.55rem;color:#f87171;">'
+                + '<i class="fas fa-triangle-exclamation" style="margin-right:3px"></i>'
+                + declining.map(function (d) { return d.charAt(0).toUpperCase() + d.slice(1); }).join(', ') + ' declining</div>';
+            }
+            // Timestamp
+            html += '<div style="font-size:0.48rem;opacity:0.2;margin-top:4px;text-align:right;">' + (digest.windowDays || 30) + '-day window · ' + (digest.asOfUtc ? new Date(digest.asOfUtc).toLocaleString() : '') + '</div>';
+            el.innerHTML = html;
+          })
+          .catch(function () { el.innerHTML = '<div style="opacity:0.3;padding:0.5rem;text-align:center;">Could not load performance data.</div>'; });
       }
 
       // Fetch heartbeat health and render last-run bar + enrich agent tiles
