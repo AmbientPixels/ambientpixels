@@ -9,7 +9,7 @@ const fs = require('fs');
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
-const MODEL = 'claude-sonnet-4-6-20250514';
+const MODEL = 'claude-sonnet-4-6';
 const RATE_LIMIT_PER_DAY = 3;
 
 // Load agent registry at cold start
