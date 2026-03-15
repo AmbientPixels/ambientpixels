@@ -20,7 +20,9 @@ const VALID_KEYS = [
   'execution_mode', 'workerReports', 'socialCredentials',
   'demoChatCount', 'researchIntel',
   'trendRadar', 'trendInsights', 'trendActions', 'systemConfig',
-  'agentPerformance', 'agentExperiments'
+  'agentPerformance', 'agentExperiments',
+  'geminiUsage', 'blogPostViews',
+  'socialMetricsEvents', 'socialEngagementSnapshots', 'socialEngagementMeta', 'socialAccountStats'
 ];
 
 module.exports = async function (context, req) {

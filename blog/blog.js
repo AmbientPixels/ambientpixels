@@ -37,6 +37,15 @@
       })
       .then(function (post) {
         renderPost(post);
+        // Track view (fire-and-forget)
+        try {
+          var fp = (navigator.userAgent || '').slice(0, 64);
+          fetch(API_BASE + '/blog-views', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ slug: slug, fp: fp, referrer: document.referrer || '' })
+          }).catch(function () { /* silent */ });
+        } catch (_e) { /* silent */ }
       })
       .catch(function (err) {
         if (err && err.code === 'NOT_FOUND') {

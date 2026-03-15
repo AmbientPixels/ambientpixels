@@ -1142,6 +1142,12 @@
       html += '<div class="act-row-actions">';
       // Pending: approve, reject, revision, override
       if (context === 'pending' && execStatus === 'pending') {
+        // Star rating widget (1-5, optional quality feedback)
+        html += '<span class="act-star-rating" data-action-id="' + a.id + '" title="Rate quality (optional)">';
+        for (var _si = 1; _si <= 5; _si++) {
+          html += '<i class="fa-star act-star" data-star="' + _si + '" onclick="setStarRating(\'' + a.id + '\',' + _si + ')" style="cursor:pointer;font-size:0.7rem;margin:0 1px;color:var(--aura-muted,#555);"></i>';
+        }
+        html += '</span>';
         if (!depCheck.ready) {
           html += '<button class="act-btn act-btn--approve" disabled style="opacity:0.35;cursor:not-allowed;" title="Dependencies not met — cannot approve"><i class="fas fa-lock" style="margin-right:0.2rem;"></i>Approve</button>';
         } else {
@@ -1199,9 +1205,25 @@
       }
     }
 
+    // ── Star Rating State ──
+    var _starRatings = {};
+    function setStarRating(actionId, stars) {
+      _starRatings[actionId] = stars;
+      var container = document.querySelector('.act-star-rating[data-action-id="' + actionId + '"]');
+      if (container) {
+        var icons = container.querySelectorAll('.act-star');
+        icons.forEach(function (icon) {
+          var s = parseInt(icon.getAttribute('data-star'));
+          icon.className = s <= stars ? 'fas fa-star act-star' : 'far fa-star act-star';
+          icon.style.color = s <= stars ? '#facc15' : 'var(--aura-muted,#555)';
+        });
+      }
+    }
+
     // ── CEO Actions ──
     function doApprove(id) {
-      var result = AE.approveAction(id);
+      var starRating = _starRatings[id] || null;
+      var result = AE.approveAction(id, null, starRating);
       renderAll();
       if (result) {
         if (result.type === 'task_completion.approve') {

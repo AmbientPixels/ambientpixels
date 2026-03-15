@@ -122,34 +122,94 @@
         card += '<div class="ap-card-role">' + role + '</div></div>';
         card += '</div>';
 
+        // Score + trend
         card += '<div class="ap-score">';
         card += '<div class="ap-score-value" style="color:' + color + '">' + a.qualityScore + '</div>';
         card += '<div><div class="ap-score-label">/100</div>';
         card += '<span class="ap-trend ' + trendClass + '">' + trendLabel + (deltaStr ? ' ' + deltaStr : '') + '</span>';
         card += '</div></div>';
 
+        // CEO star rating
+        if (a.ceoAvgStarRating > 0) {
+          var stars = '';
+          for (var si = 1; si <= 5; si++) stars += '<i class="' + (si <= Math.round(a.ceoAvgStarRating) ? 'fas' : 'far') + ' fa-star" style="color:#facc15;font-size:0.65rem"></i>';
+          card += '<div class="ap-stat-row"><span class="ap-stat-label">CEO Rating</span><span class="ap-stat-val">' + stars + ' ' + a.ceoAvgStarRating + '/5</span></div>';
+        }
+
+        // Peer review
         if (a.peerReviewsReceived > 0) {
           card += '<div class="ap-stat-row"><span class="ap-stat-label">Peer Review</span><span class="ap-stat-val">' + a.peerReviewApproved + '/' + a.peerReviewsReceived + ' (' + Math.round(a.peerReviewApprovalRate * 100) + '%)</span></div>';
           card += pctBar(a.peerReviewApprovalRate, '#34d399');
         }
 
+        // CEO approval
         if (a.ceoActionsSubmitted > 0) {
           card += '<div class="ap-stat-row"><span class="ap-stat-label">CEO Approval</span><span class="ap-stat-val">' + a.ceoApproved + '/' + a.ceoActionsSubmitted + ' (' + Math.round(a.ceoApprovalRate * 100) + '%)</span></div>';
           card += pctBar(a.ceoApprovalRate, '#60a5fa');
         }
-
         if (a.avgRevisionsBeforeApproval > 0) {
           card += '<div class="ap-stat-row"><span class="ap-stat-label">Avg Revisions</span><span class="ap-stat-val">' + a.avgRevisionsBeforeApproval + '</span></div>';
         }
+        if (a.avgApprovalWaitHours > 0) {
+          card += '<div class="ap-stat-row"><span class="ap-stat-label">CEO Wait Time</span><span class="ap-stat-val">' + a.avgApprovalWaitHours + 'h avg</span></div>';
+        }
 
+        // Block rate
+        if (a.actionsBlocked > 0) {
+          card += '<div class="ap-stat-row"><span class="ap-stat-label">Block Rate</span><span class="ap-stat-val" style="color:' + (a.blockRate > 0.25 ? '#f87171' : 'inherit') + '">' + a.actionsBlocked + '/' + a.actionsAttempted + ' (' + Math.round(a.blockRate * 100) + '%)</span></div>';
+          card += pctBar(1 - a.blockRate, a.blockRate > 0.25 ? '#f87171' : '#a78bfa');
+        }
+
+        // Handoff quality
+        if (a.handoffsReceived > 0) {
+          card += '<div class="ap-stat-row"><span class="ap-stat-label">Handoff 1st Pass</span><span class="ap-stat-val">' + a.handoffsPassedFirstReview + '/' + a.handoffsReceived + ' (' + Math.round(a.handoffFirstPassRate * 100) + '%)</span></div>';
+        }
+
+        // Social
         if (a.socialPostsPublished > 0) {
           card += '<div class="ap-stat-row"><span class="ap-stat-label">Social Posts</span><span class="ap-stat-val">' + a.socialPostsPublished + ' (avg ' + a.avgLikesPerPost + ' likes)</span></div>';
+          // Hook breakdown
+          var hooks = Object.keys(a.hookEngagement || {});
+          if (hooks.length > 0) {
+            card += '<div class="ap-notes"><div class="ap-notes-title">Hook Performance</div>';
+            hooks.forEach(function (h) {
+              var he = a.hookEngagement[h];
+              var avg = he.posts > 0 ? Math.round(he.totalLikes / he.posts) : 0;
+              card += '<div class="ap-notes-item">' + h + ': ' + avg + ' avg likes (' + he.posts + ' posts)</div>';
+            });
+            card += '</div>';
+          }
         }
 
+        // Blog views
+        if (a.blogPostsPublished > 0) {
+          card += '<div class="ap-stat-row"><span class="ap-stat-label">Blog Posts</span><span class="ap-stat-val">' + a.blogPostsPublished + ' (avg ' + a.avgBlogViews + ' views)</span></div>';
+        }
+
+        // Research acceptance (Scout)
+        if (a.researchSubmitted > 0) {
+          card += '<div class="ap-stat-row"><span class="ap-stat-label">Research Accept</span><span class="ap-stat-val">' + a.researchAccepted + '/' + a.researchSubmitted + ' (' + Math.round(a.researchAcceptRate * 100) + '%)</span></div>';
+        }
+
+        // Tasks + turnaround + churn
         if (a.tasksCompleted > 0) {
           card += '<div class="ap-stat-row"><span class="ap-stat-label">Tasks Done</span><span class="ap-stat-val">' + a.tasksCompleted + (a.avgTaskDurationHours ? ' (avg ' + a.avgTaskDurationHours + 'h)' : '') + '</span></div>';
+          if (a.avgCommentsBeforeDone > 3) {
+            card += '<div class="ap-stat-row"><span class="ap-stat-label">Task Churn</span><span class="ap-stat-val" style="color:#fbbf24">' + a.avgCommentsBeforeDone + ' comments/task</span></div>';
+          }
         }
 
+        // Cost efficiency
+        if (a.totalCost > 0) {
+          card += '<div class="ap-stat-row"><span class="ap-stat-label">Token Cost</span><span class="ap-stat-val">$' + a.totalCost.toFixed(3) + (a.avgTokensPerTask > 0 ? ' (' + Math.round(a.avgTokensPerTask / 1000) + 'k/task)' : '') + '</span></div>';
+        }
+
+        // Governance violations
+        if (a.governanceViolations > 0) {
+          card += '<div class="ap-stat-row"><span class="ap-stat-label">Gov Violations</span><span class="ap-stat-val" style="color:#f87171">' + a.governanceViolations + '</span></div>';
+        }
+
+        // CEO feedback notes
         if (a.ceoRevisionNotes && a.ceoRevisionNotes.length > 0) {
           card += '<div class="ap-notes"><div class="ap-notes-title">CEO Feedback</div>';
           a.ceoRevisionNotes.slice(0, 3).forEach(function (n) {

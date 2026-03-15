@@ -2939,7 +2939,7 @@ var AgentEngine = (function () {
   }
 
   // CEO approves an action
-  function approveAction(actionId, note) {
+  function approveAction(actionId, note, starRating) {
     var list = getActions();
     for (var i = 0; i < list.length; i++) {
       var a = list[i];
@@ -2948,6 +2948,7 @@ var AgentEngine = (function () {
         a.approval.approved_by = 'Pixelpusher';
         a.approval.approved_at = new Date().toISOString();
         a.approval.decision_note = note || null;
+        if (starRating >= 1 && starRating <= 5) a.approval.star_rating = starRating;
         a.updatedAt = new Date().toISOString();
         // Auto-execute task_completion actions BEFORE _syncLegacy (no external API needed)
         if (a.type === 'task_completion.approve') {

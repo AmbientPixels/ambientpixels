@@ -1,15 +1,36 @@
 // performance-intel.js — AutoResearch-inspired agent performance scoring
 // Mirrors social-intel.js pattern: digest builder + prompt block formatter
-// Aggregates peer review rates, CEO approval rates, engagement, and turnaround
-// into per-agent quality scores fed back into heartbeat prompts.
+// Aggregates 14 signal sources into per-agent quality scores fed back into heartbeat prompts.
 
 const { PERFORMANCE_INTEL_FRESHNESS_MS, PERFORMANCE_INTEL_WINDOW_DAYS, AGENT_IDS,
   MAX_PERFORMANCE_INSIGHTS_PER_DAY, MAX_EXPERIMENTS_PER_AGENT,
   EXPERIMENT_MIN_SAMPLES, EXPERIMENT_IMPROVEMENT_THRESHOLD } = require('./constants');
 
+// ── Content Hook Classifier ──
+// Classifies social post text into hook type for engagement correlation
+
+var HOOK_PATTERNS = [
+  { hook: 'question', re: /\?/ },
+  { hook: 'statistic', re: /\d+%|\d+x|\d+\.\d+|\b\d{2,}\b.*(?:increase|decrease|growth|drop|rise|users|customers)/ },
+  { hook: 'storytelling', re: /\b(?:story|journey|when I|once upon|imagine|picture this|here's what happened)\b/i },
+  { hook: 'quote', re: /[""\u201C\u201D].{10,}[""\u201C\u201D]/ },
+  { hook: 'listicle', re: /\b(?:\d+\s+(?:ways|tips|reasons|steps|things|lessons|mistakes))\b/i },
+  { hook: 'cta', re: /\b(?:check out|try|sign up|join|download|learn more|get started|don't miss|register)\b/i },
+  { hook: 'contrarian', re: /\b(?:unpopular opinion|hot take|controversial|actually|myth|wrong about|stop doing)\b/i },
+  { hook: 'announcement', re: /\b(?:launching|announcing|introducing|just shipped|now available|new feature|released)\b/i }
+];
+
+function classifyHook(text) {
+  if (!text || typeof text !== 'string') return 'general';
+  for (var i = 0; i < HOOK_PATTERNS.length; i++) {
+    if (HOOK_PATTERNS[i].re.test(text)) return HOOK_PATTERNS[i].hook;
+  }
+  return 'general';
+}
+
 // ── Performance Digest Builder ──
 
-function buildPerformanceDigest(tasks, actions, engagementSnapshots, existingDigest, nowMs) {
+function buildPerformanceDigest(tasks, actions, engagementSnapshots, existingDigest, nowMs, opts) {
   var now = Number.isFinite(nowMs) ? nowMs : Date.now();
 
   // Freshness check — reuse existing digest if recent enough
@@ -17,6 +38,12 @@ function buildPerformanceDigest(tasks, actions, engagementSnapshots, existingDig
   if (existingDigest && Number.isFinite(existingAsOf) && (now - existingAsOf) < PERFORMANCE_INTEL_FRESHNESS_MS) {
     return existingDigest;
   }
+
+  opts = opts || {};
+  var heartbeatRuns = Array.isArray(opts.heartbeatRuns) ? opts.heartbeatRuns : [];
+  var geminiUsage = Array.isArray(opts.geminiUsage) ? opts.geminiUsage : [];
+  var governanceLog = Array.isArray(opts.governanceLog) ? opts.governanceLog : [];
+  var blogPostViews = Array.isArray(opts.blogPostViews) ? opts.blogPostViews : [];
 
   var windowMs = PERFORMANCE_INTEL_WINDOW_DAYS * 24 * 60 * 60 * 1000;
   var cutoff = now - windowMs;
@@ -27,6 +54,7 @@ function buildPerformanceDigest(tasks, actions, engagementSnapshots, existingDig
   var agents = {};
   AGENT_IDS.forEach(function (id) {
     agents[id] = {
+      // Original signals
       peerReviewsReceived: 0,
       peerReviewApproved: 0,
       peerReviewChangesRequested: 0,
@@ -36,6 +64,8 @@ function buildPerformanceDigest(tasks, actions, engagementSnapshots, existingDig
       ceoRevisionRequested: 0,
       ceoRejected: 0,
       ceoApprovalRate: 0,
+      ceoStarRatings: [],
+      ceoAvgStarRating: 0,
       avgRevisionsBeforeApproval: 0,
       avgTaskDurationHours: 0,
       tasksCompleted: 0,
@@ -46,16 +76,67 @@ function buildPerformanceDigest(tasks, actions, engagementSnapshots, existingDig
       topPostPlatform: '',
       topPostSnippet: '',
       ceoRevisionNotes: [],
+
+      // New signal 1: Action block rate
+      actionsAttempted: 0,
+      actionsBlocked: 0,
+      blockRate: 0,
+
+      // New signal 2: Task churn (comment count before done)
+      avgCommentsBeforeDone: 0,
+      _totalCommentsBeforeDone: 0,
+
+      // New signal 3: Cross-agent handoff quality
+      handoffsReceived: 0,
+      handoffsPassedFirstReview: 0,
+      handoffFirstPassRate: 0,
+
+      // New signal 4: Governance violations
+      governanceViolations: 0,
+
+      // New signal 5: Approval queue aging (time CEO takes to decide)
+      avgApprovalWaitHours: 0,
+      _totalApprovalWaitMs: 0,
+      _approvalWaitCount: 0,
+
+      // New signal 6: Deliverable length stats
+      avgDeliverableLength: 0,
+      _totalDeliverableLength: 0,
+      _deliverableCount: 0,
+
+      // New signal 7: Content hook analysis (social posts)
+      hookBreakdown: {},
+      hookEngagement: {},
+
+      // New signal 8: Token/cost efficiency
+      totalTokens: 0,
+      totalCost: 0,
+      avgTokensPerTask: 0,
+
+      // New signal 9: Time-of-day performance
+      bestHour: null,
+      _hourlyScores: {},
+
+      // New signal 10: Research intel acceptance (Scout)
+      researchSubmitted: 0,
+      researchAccepted: 0,
+      researchAcceptRate: 0,
+
+      // New signal 11: Blog post views (Scribe)
+      blogPostsPublished: 0,
+      avgBlogViews: 0,
+
+      // Composite
       qualityScore: 0,
       qualityTrend: 'stable',
       previousScore: 0
     };
   });
 
-  // ── Scan tasks for peer review signals ──
+  // ── Scan tasks for peer review, churn, handoff, deliverable length ──
   for (var i = 0; i < taskArr.length; i++) {
     var task = taskArr[i];
-    if (!task || !task.comments) continue;
+    if (!task) continue;
     var assignee = (task.assignee || '').toLowerCase();
     if (!agents[assignee]) continue;
 
@@ -64,59 +145,162 @@ function buildPerformanceDigest(tasks, actions, engagementSnapshots, existingDig
     var taskTs = Number.isFinite(updatedTs) ? updatedTs : (Number.isFinite(createdTs) ? createdTs : 0);
     if (taskTs < cutoff) continue;
 
-    // Count peer reviews on this agent's tasks
-    var comments = task.comments;
+    var comments = task.comments || [];
+
+    // Peer reviews on this agent's tasks
     for (var c = 0; c < comments.length; c++) {
       var cmt = comments[c];
-      if (cmt.type !== 'review' || !cmt.verdict) continue;
-      var cmtTs = Date.parse(cmt.createdAt || '');
-      if (Number.isFinite(cmtTs) && cmtTs < cutoff) continue;
-      agents[assignee].peerReviewsReceived += 1;
-      if (cmt.verdict === 'approved') {
-        agents[assignee].peerReviewApproved += 1;
-      } else if (cmt.verdict === 'changes-requested') {
-        agents[assignee].peerReviewChangesRequested += 1;
+      if (cmt.type === 'review' && cmt.verdict) {
+        var cmtTs = Date.parse(cmt.createdAt || '');
+        if (Number.isFinite(cmtTs) && cmtTs < cutoff) continue;
+        agents[assignee].peerReviewsReceived += 1;
+        if (cmt.verdict === 'approved') agents[assignee].peerReviewApproved += 1;
+        else if (cmt.verdict === 'changes-requested') agents[assignee].peerReviewChangesRequested += 1;
       }
     }
 
-    // Count completed tasks + turnaround
-    if (task.status === 'done' && Number.isFinite(createdTs) && Number.isFinite(updatedTs)) {
-      agents[assignee].tasksCompleted += 1;
-      var durationMs = updatedTs - createdTs;
-      agents[assignee].avgTaskDurationHours += durationMs / (1000 * 60 * 60);
+    // Completed tasks: turnaround, churn, deliverable length
+    if (task.status === 'done') {
+      if (Number.isFinite(createdTs) && Number.isFinite(updatedTs)) {
+        agents[assignee].tasksCompleted += 1;
+        agents[assignee].avgTaskDurationHours += (updatedTs - createdTs) / (1000 * 60 * 60);
+      }
+
+      // Churn: total comments before task reached done
+      agents[assignee]._totalCommentsBeforeDone += comments.length;
+
+      // Deliverable length
+      for (var dl = 0; dl < comments.length; dl++) {
+        if (comments[dl].type === 'deliverable' && comments[dl].text) {
+          agents[assignee]._totalDeliverableLength += comments[dl].text.length;
+          agents[assignee]._deliverableCount += 1;
+        }
+      }
+    }
+
+    // Cross-agent handoff: task created by one agent, completed by another
+    var createdBy = (task.created_by || '').toLowerCase();
+    if (createdBy && createdBy !== assignee && agents[assignee] && task.status === 'done') {
+      agents[assignee].handoffsReceived += 1;
+      // Check if first review was approved (no changes-requested before first approved)
+      var firstReviewApproved = false;
+      for (var hr = 0; hr < comments.length; hr++) {
+        if (comments[hr].type === 'review' && comments[hr].verdict) {
+          firstReviewApproved = comments[hr].verdict === 'approved';
+          break;
+        }
+      }
+      if (firstReviewApproved) agents[assignee].handoffsPassedFirstReview += 1;
     }
   }
 
-  // ── Scan actions for CEO approval signals ──
+  // ── Scan actions for CEO approval signals + block rate + aging + star ratings ──
   for (var j = 0; j < actionArr.length; j++) {
     var action = actionArr[j];
-    if (!action || !action.approval) continue;
+    if (!action) continue;
     var actionTs = Date.parse(action.createdAt || action.timestamp || '');
     if (Number.isFinite(actionTs) && actionTs < cutoff) continue;
     var agentId = (action.created_by || action.origin_agent || '').toLowerCase();
     if (!agents[agentId]) continue;
 
-    var status = action.approval.status;
-    if (status === 'approved' || status === 'revision_requested' || status === 'rejected' || status === 'pending') {
-      agents[agentId].ceoActionsSubmitted += 1;
+    // Count all action attempts (for block rate calculation from heartbeat perAgent)
+    agents[agentId].actionsAttempted += 1;
+
+    if (action.approval) {
+      var status = action.approval.status;
+      if (status === 'approved' || status === 'revision_requested' || status === 'rejected' || status === 'pending') {
+        agents[agentId].ceoActionsSubmitted += 1;
+      }
+      if (status === 'approved') {
+        agents[agentId].ceoApproved += 1;
+        agents[agentId].avgRevisionsBeforeApproval += (action.approval.revision_count || 0);
+
+        // Approval wait time
+        var approvedTs = Date.parse(action.approval.approved_at || '');
+        if (Number.isFinite(approvedTs) && Number.isFinite(actionTs)) {
+          agents[agentId]._totalApprovalWaitMs += (approvedTs - actionTs);
+          agents[agentId]._approvalWaitCount += 1;
+        }
+
+        // Star rating (if CEO rated)
+        if (Number.isFinite(action.approval.star_rating) && action.approval.star_rating >= 1 && action.approval.star_rating <= 5) {
+          agents[agentId].ceoStarRatings.push(action.approval.star_rating);
+        }
+      } else if (status === 'revision_requested') {
+        agents[agentId].ceoRevisionRequested += 1;
+        var note = (action.approval.decision_note || '').trim();
+        if (note) agents[agentId].ceoRevisionNotes.push(note);
+      } else if (status === 'rejected') {
+        agents[agentId].ceoRejected += 1;
+        var rejNote = (action.approval.decision_note || '').trim();
+        if (rejNote) agents[agentId].ceoRevisionNotes.push(rejNote);
+      }
+
+      // Research intel acceptance (Scout-specific)
+      if (action.type === 'research_intel.approve') {
+        var riAgent = (action._createdByAgent || action.created_by || '').toLowerCase();
+        if (agents[riAgent]) {
+          agents[riAgent].researchSubmitted += 1;
+          if (status === 'approved') agents[riAgent].researchAccepted += 1;
+        }
+      }
     }
-    if (status === 'approved') {
-      agents[agentId].ceoApproved += 1;
-      agents[agentId].avgRevisionsBeforeApproval += (action.approval.revision_count || 0);
-    } else if (status === 'revision_requested') {
-      agents[agentId].ceoRevisionRequested += 1;
-      // Capture revision note for pattern detection
-      var note = (action.approval.decision_note || '').trim();
-      if (note) agents[agentId].ceoRevisionNotes.push(note);
-    } else if (status === 'rejected') {
-      agents[agentId].ceoRejected += 1;
-      var rejNote = (action.approval.decision_note || '').trim();
-      if (rejNote) agents[agentId].ceoRevisionNotes.push(rejNote);
+
+    // Content hook classification for social actions
+    if (action.type === 'create-social-action' && action.payload) {
+      var postText = action.payload.text || action.payload.content || '';
+      var hook = classifyHook(postText);
+      if (!agents[agentId].hookBreakdown[hook]) agents[agentId].hookBreakdown[hook] = 0;
+      agents[agentId].hookBreakdown[hook] += 1;
     }
   }
 
-  // ── Scan engagement snapshots for social performance (keyed by agent) ──
-  var agentPostEngagement = {}; // agentId -> { postKey -> { likes, comments, reposts, platform, snippet } }
+  // ── Block rate from heartbeat runs (perAgent.actionsBlocked) ──
+  for (var hb = 0; hb < heartbeatRuns.length; hb++) {
+    var run = heartbeatRuns[hb];
+    if (!run || !run.perAgent) continue;
+    var runTs = Date.parse(run.startedAt || '');
+    if (Number.isFinite(runTs) && runTs < cutoff) continue;
+    var perAgent = run.perAgent;
+    Object.keys(perAgent).forEach(function (aid) {
+      if (!agents[aid]) return;
+      var pa = perAgent[aid];
+      agents[aid].actionsBlocked += (pa.actionsBlocked || 0);
+
+      // Time-of-day: track which hour this agent performed in
+      if (Number.isFinite(runTs)) {
+        var hour = new Date(runTs).getUTCHours();
+        if (!agents[aid]._hourlyScores[hour]) agents[aid]._hourlyScores[hour] = { runs: 0, executed: 0 };
+        agents[aid]._hourlyScores[hour].runs += 1;
+        agents[aid]._hourlyScores[hour].executed += (pa.actionsExecuted || 0);
+      }
+    });
+  }
+
+  // ── Governance violations per agent ──
+  for (var gv = 0; gv < governanceLog.length; gv++) {
+    var gEntry = governanceLog[gv];
+    if (!gEntry) continue;
+    var gTs = Date.parse(gEntry.timestamp || '');
+    if (Number.isFinite(gTs) && gTs < cutoff) continue;
+    var gAgent = (gEntry.data && gEntry.data.agent) || '';
+    if (gAgent && agents[gAgent]) agents[gAgent].governanceViolations += 1;
+  }
+
+  // ── Token/cost efficiency from Gemini usage ──
+  for (var gu = 0; gu < geminiUsage.length; gu++) {
+    var usage = geminiUsage[gu];
+    if (!usage) continue;
+    var uTs = Date.parse(usage.timestamp || '');
+    if (Number.isFinite(uTs) && uTs < cutoff) continue;
+    var uAgent = (usage.agentId || '').toLowerCase();
+    if (!uAgent || !agents[uAgent]) continue;
+    agents[uAgent].totalTokens += (usage.totalTokens || 0);
+    agents[uAgent].totalCost += (usage.totalCost || 0);
+  }
+
+  // ── Social engagement per agent + hook correlation ──
+  var agentPostEngagement = {};
   for (var s = 0; s < snapshots.length; s++) {
     var snap = snapshots[s];
     if (!snap) continue;
@@ -130,13 +314,26 @@ function buildPerformanceDigest(tasks, actions, engagementSnapshots, existingDig
       agentPostEngagement[snapAgent][postKey] = {
         likes: 0, comments: 0, reposts: 0,
         platform: snap.post_platform || '',
-        snippet: ''
+        snippet: '',
+        hook: null
       };
     }
     var m = snap.metrics || {};
     agentPostEngagement[snapAgent][postKey].likes += (Number.isFinite(m.likes) ? m.likes : 0);
     agentPostEngagement[snapAgent][postKey].comments += (Number.isFinite(m.comments) ? m.comments : 0);
     agentPostEngagement[snapAgent][postKey].reposts += (Number.isFinite(m.reposts) ? m.reposts : 0);
+  }
+
+  // Match engagement to hook types via action cross-reference
+  for (var aj = 0; aj < actionArr.length; aj++) {
+    var act = actionArr[aj];
+    if (!act || act.type !== 'create-social-action' || !act.payload) continue;
+    var actAgent2 = (act.created_by || act.origin_agent || '').toLowerCase();
+    if (!agentPostEngagement[actAgent2]) continue;
+    var actKey = (act.payload.platform || '') + '|' + (act.id || '');
+    if (agentPostEngagement[actAgent2][actKey]) {
+      agentPostEngagement[actAgent2][actKey].hook = classifyHook(act.payload.text || act.payload.content || '');
+    }
   }
 
   // Aggregate engagement per agent
@@ -155,6 +352,12 @@ function buildPerformanceDigest(tasks, actions, engagementSnapshots, existingDig
         topPlatform = p.platform;
         topSnippet = p.snippet;
       }
+      // Hook engagement correlation
+      if (p.hook) {
+        if (!agents[aid].hookEngagement[p.hook]) agents[aid].hookEngagement[p.hook] = { posts: 0, totalLikes: 0 };
+        agents[aid].hookEngagement[p.hook].posts += 1;
+        agents[aid].hookEngagement[p.hook].totalLikes += p.likes;
+      }
     });
     agents[aid].avgLikesPerPost = Math.round(totalLikes / keys.length);
     agents[aid].avgCommentsPerPost = Math.round(totalComments / keys.length);
@@ -162,6 +365,16 @@ function buildPerformanceDigest(tasks, actions, engagementSnapshots, existingDig
     agents[aid].topPostPlatform = topPlatform;
     agents[aid].topPostSnippet = topSnippet;
   });
+
+  // ── Blog post views (Scribe) ──
+  for (var bv = 0; bv < blogPostViews.length; bv++) {
+    var view = blogPostViews[bv];
+    if (!view) continue;
+    var bvAgent = (view.created_by || '').toLowerCase();
+    if (!bvAgent || !agents[bvAgent]) continue;
+    agents[bvAgent].blogPostsPublished += 1;
+    agents[bvAgent].avgBlogViews += (view.views || 0);
+  }
 
   // ── Compute final metrics ──
   var previousDigest = (existingDigest && existingDigest.agents) || {};
@@ -173,6 +386,12 @@ function buildPerformanceDigest(tasks, actions, engagementSnapshots, existingDig
       ? Number((a.peerReviewApproved / a.peerReviewsReceived).toFixed(2)) : 0;
     a.ceoApprovalRate = a.ceoActionsSubmitted > 0
       ? Number((a.ceoApproved / a.ceoActionsSubmitted).toFixed(2)) : 0;
+    a.blockRate = a.actionsAttempted > 0
+      ? Number((a.actionsBlocked / a.actionsAttempted).toFixed(2)) : 0;
+    a.handoffFirstPassRate = a.handoffsReceived > 0
+      ? Number((a.handoffsPassedFirstReview / a.handoffsReceived).toFixed(2)) : 0;
+    a.researchAcceptRate = a.researchSubmitted > 0
+      ? Number((a.researchAccepted / a.researchSubmitted).toFixed(2)) : 0;
 
     // Averages
     if (a.ceoApproved > 0) {
@@ -180,29 +399,60 @@ function buildPerformanceDigest(tasks, actions, engagementSnapshots, existingDig
     }
     if (a.tasksCompleted > 0) {
       a.avgTaskDurationHours = Number((a.avgTaskDurationHours / a.tasksCompleted).toFixed(1));
+      a.avgCommentsBeforeDone = Number((a._totalCommentsBeforeDone / a.tasksCompleted).toFixed(1));
+      a.avgTokensPerTask = a.totalTokens > 0 ? Math.round(a.totalTokens / a.tasksCompleted) : 0;
     }
+    if (a._deliverableCount > 0) {
+      a.avgDeliverableLength = Math.round(a._totalDeliverableLength / a._deliverableCount);
+    }
+    if (a._approvalWaitCount > 0) {
+      a.avgApprovalWaitHours = Number((a._totalApprovalWaitMs / a._approvalWaitCount / (1000 * 60 * 60)).toFixed(1));
+    }
+    if (a.ceoStarRatings.length > 0) {
+      a.ceoAvgStarRating = Number((a.ceoStarRatings.reduce(function (s, r) { return s + r; }, 0) / a.ceoStarRatings.length).toFixed(1));
+    }
+    if (a.blogPostsPublished > 0) {
+      a.avgBlogViews = Math.round(a.avgBlogViews / a.blogPostsPublished);
+    }
+
+    // Best hour of day
+    var bestHour = null, bestHourExec = 0;
+    Object.keys(a._hourlyScores).forEach(function (h) {
+      var hs = a._hourlyScores[h];
+      var avgExec = hs.runs > 0 ? hs.executed / hs.runs : 0;
+      if (avgExec > bestHourExec) { bestHourExec = avgExec; bestHour = parseInt(h); }
+    });
+    a.bestHour = bestHour;
 
     // Revision efficiency: 1.0 = no revisions needed, 0.0 = 3+ revisions avg
     var revisionEfficiency = Math.max(0, 1 - (a.avgRevisionsBeforeApproval / 3));
 
-    // Engagement percentile (for social agents) or turnaround score (for non-social)
+    // Engagement or turnaround
     var engagementOrTurnaround = 0;
     var isSocialAgent = (id === 'echo' || id === 'scribe' || id === 'quill');
     if (isSocialAgent && a.socialPostsPublished > 0) {
-      // Normalize: 100+ avg likes = 1.0
       engagementOrTurnaround = Math.min(1, a.avgLikesPerPost / 100);
     } else if (a.tasksCompleted > 0) {
-      // Turnaround score: < 2h = 1.0, > 24h = 0.0
       engagementOrTurnaround = Math.max(0, 1 - ((a.avgTaskDurationHours - 2) / 22));
     }
 
+    // Block penalty: high block rate reduces score
+    var blockPenalty = a.blockRate > 0.3 ? (a.blockRate - 0.3) * 10 : 0;
+
+    // Star rating bonus (if CEO has rated)
+    var starBonus = a.ceoAvgStarRating > 0 ? (a.ceoAvgStarRating - 3) * 3 : 0;
+
     // Composite quality score (0-100)
-    a.qualityScore = Math.round(
-      (a.ceoApprovalRate * 35) +
-      (a.peerReviewApprovalRate * 25) +
-      (revisionEfficiency * 20) +
-      (engagementOrTurnaround * 20)
-    );
+    a.qualityScore = Math.min(100, Math.max(0, Math.round(
+      (a.ceoApprovalRate * 30) +
+      (a.peerReviewApprovalRate * 20) +
+      (revisionEfficiency * 15) +
+      (engagementOrTurnaround * 15) +
+      ((1 - a.blockRate) * 10) +
+      (a.handoffFirstPassRate * 10) -
+      blockPenalty +
+      starBonus
+    )));
 
     // Trend vs previous
     var prev = previousDigest[id];
@@ -212,6 +462,14 @@ function buildPerformanceDigest(tasks, actions, engagementSnapshots, existingDig
 
     // Trim revision notes to top 5
     a.ceoRevisionNotes = a.ceoRevisionNotes.slice(0, 5);
+
+    // Clean up internal accumulators
+    delete a._totalCommentsBeforeDone;
+    delete a._totalDeliverableLength;
+    delete a._deliverableCount;
+    delete a._totalApprovalWaitMs;
+    delete a._approvalWaitCount;
+    delete a._hourlyScores;
   });
 
   return {
@@ -229,7 +487,6 @@ function _buildPerformancePromptBlock(agent, performanceDigest) {
   var data = performanceDigest.agents[agentId];
   if (!data) return '';
 
-  // Skip if no data at all (agent hasn't done anything in the window)
   if (data.tasksCompleted === 0 && data.ceoActionsSubmitted === 0 && data.peerReviewsReceived === 0) {
     return '';
   }
@@ -241,6 +498,11 @@ function _buildPerformancePromptBlock(agent, performanceDigest) {
   var trendArrow = data.qualityTrend === 'improving' ? ' (up from ' + data.previousScore + ')' :
     (data.qualityTrend === 'declining' ? ' (down from ' + data.previousScore + ')' : '');
   lines.push('- Quality Score: ' + data.qualityScore + '/100' + trendArrow + ' — ' + data.qualityTrend);
+
+  // CEO star rating
+  if (data.ceoAvgStarRating > 0) {
+    lines.push('- CEO Quality Rating: ' + data.ceoAvgStarRating + '/5 (' + data.ceoStarRatings.length + ' ratings)');
+  }
 
   // Peer review
   if (data.peerReviewsReceived > 0) {
@@ -259,9 +521,23 @@ function _buildPerformancePromptBlock(agent, performanceDigest) {
     if (data.avgRevisionsBeforeApproval > 0) {
       lines.push('- Avg revisions before approval: ' + data.avgRevisionsBeforeApproval);
     }
+    if (data.avgApprovalWaitHours > 0) {
+      lines.push('- Avg CEO decision time: ' + data.avgApprovalWaitHours + 'h (lower = CEO trusts your work more)');
+    }
   }
 
-  // Social engagement (for social-facing agents)
+  // Block rate
+  if (data.actionsBlocked > 0) {
+    lines.push('- Action block rate: ' + data.actionsBlocked + '/' + data.actionsAttempted + ' blocked (' + Math.round(data.blockRate * 100) + '%) — reduce invalid action attempts');
+  }
+
+  // Cross-agent handoff
+  if (data.handoffsReceived > 0) {
+    lines.push('- Handoff quality: ' + data.handoffsPassedFirstReview + '/' + data.handoffsReceived +
+      ' passed first review (' + Math.round(data.handoffFirstPassRate * 100) + '%)');
+  }
+
+  // Social engagement
   if (data.socialPostsPublished > 0) {
     var socialLine = '- Social: ' + data.socialPostsPublished + ' posts, avg ' +
       data.avgLikesPerPost + ' likes';
@@ -270,26 +546,59 @@ function _buildPerformancePromptBlock(agent, performanceDigest) {
       if (data.topPostPlatform) socialLine += ' (' + data.topPostPlatform + ')';
     }
     lines.push(socialLine);
+
+    // Hook analysis
+    var hookKeys = Object.keys(data.hookEngagement);
+    if (hookKeys.length > 1) {
+      var hookLines = hookKeys.map(function (h) {
+        var he = data.hookEngagement[h];
+        return h + ': ' + (he.posts > 0 ? Math.round(he.totalLikes / he.posts) : 0) + ' avg likes (' + he.posts + ' posts)';
+      }).sort().join(', ');
+      lines.push('- Hook analysis: ' + hookLines);
+    }
   }
 
-  // Tasks + turnaround
+  // Blog views
+  if (data.blogPostsPublished > 0) {
+    lines.push('- Blog: ' + data.blogPostsPublished + ' posts, avg ' + data.avgBlogViews + ' views');
+  }
+
+  // Research acceptance (Scout)
+  if (data.researchSubmitted > 0) {
+    lines.push('- Research intel: ' + data.researchAccepted + '/' + data.researchSubmitted + ' accepted (' + Math.round(data.researchAcceptRate * 100) + '%)');
+  }
+
+  // Tasks + turnaround + churn
   if (data.tasksCompleted > 0) {
-    lines.push('- Tasks completed: ' + data.tasksCompleted +
-      (data.avgTaskDurationHours > 0 ? ', avg turnaround: ' + data.avgTaskDurationHours + 'h' : ''));
+    var taskLine = '- Tasks completed: ' + data.tasksCompleted;
+    if (data.avgTaskDurationHours > 0) taskLine += ', avg turnaround: ' + data.avgTaskDurationHours + 'h';
+    if (data.avgCommentsBeforeDone > 3) taskLine += ', avg ' + data.avgCommentsBeforeDone + ' comments/task (high churn)';
+    lines.push(taskLine);
   }
 
-  // CEO revision note themes (top 3, truncated)
+  // Cost efficiency
+  if (data.totalCost > 0) {
+    lines.push('- Token cost: $' + data.totalCost.toFixed(3) + ' total' +
+      (data.avgTokensPerTask > 0 ? ', ' + Math.round(data.avgTokensPerTask / 1000) + 'k tokens/task avg' : ''));
+  }
+
+  // Governance violations
+  if (data.governanceViolations > 0) {
+    lines.push('- Governance violations: ' + data.governanceViolations + ' (reduce policy-violating actions)');
+  }
+
+  // CEO revision note themes
   if (data.ceoRevisionNotes && data.ceoRevisionNotes.length > 0) {
-    lines.push('- Recent CEO feedback themes:');
-    data.ceoRevisionNotes.slice(0, 3).forEach(function (note) {
-      lines.push('  - "' + note.slice(0, 100) + '"');
+    lines.push('- Recent CEO feedback:');
+    data.ceoRevisionNotes.slice(0, 3).forEach(function (n) {
+      lines.push('  - "' + n.slice(0, 100) + '"');
     });
   }
 
   return lines.join('\n');
 }
 
-// ── Phase 2: Reflective Memory Generator ──
+// ── Reflective Memory Generator ──
 
 function generatePerformanceInsights(agentId, currentDigest, previousDigest) {
   if (!currentDigest || !currentDigest.agents) return [];
@@ -298,60 +607,80 @@ function generatePerformanceInsights(agentId, currentDigest, previousDigest) {
   var previous = (previousDigest && previousDigest.agents && previousDigest.agents[agentId]) || null;
   var insights = [];
 
-  // Skip agents with insufficient data
   if (current.tasksCompleted < 3 && current.ceoActionsSubmitted < 3) return [];
 
   // Pattern 1: CEO rejection clustering
   if (current.ceoRevisionNotes && current.ceoRevisionNotes.length >= 2) {
     var wordCounts = {};
     current.ceoRevisionNotes.forEach(function (note) {
-      var words = note.toLowerCase().split(/\s+/);
-      words.forEach(function (w) {
+      note.toLowerCase().split(/\s+/).forEach(function (w) {
         if (w.length > 3) wordCounts[w] = (wordCounts[w] || 0) + 1;
       });
     });
     var topWord = null, topCount = 0;
     Object.keys(wordCounts).forEach(function (w) {
-      if (wordCounts[w] > topCount && wordCounts[w] >= 2) {
-        topWord = w; topCount = wordCounts[w];
-      }
+      if (wordCounts[w] > topCount && wordCounts[w] >= 2) { topWord = w; topCount = wordCounts[w]; }
     });
     if (topWord) {
-      insights.push('CEO feedback pattern: "' + topWord + '" appears in ' + topCount + '/' +
-        current.ceoRevisionNotes.length + ' revision notes. Review and adjust approach accordingly.');
+      insights.push('CEO feedback pattern: "' + topWord + '" appears in ' + topCount + '/' + current.ceoRevisionNotes.length + ' revision notes.');
     }
   }
 
-  // Pattern 2: Platform engagement disparity (social agents only)
-  // (Would need per-platform breakdown in digest — skipped for now, covered by social intel)
+  // Pattern 2: Content hook performance (social agents)
+  var hookKeys = Object.keys(current.hookEngagement || {});
+  if (hookKeys.length >= 2) {
+    var bestHook = null, bestAvg = 0, worstHook = null, worstAvg = Infinity;
+    hookKeys.forEach(function (h) {
+      var he = current.hookEngagement[h];
+      if (he.posts < 2) return;
+      var avg = he.totalLikes / he.posts;
+      if (avg > bestAvg) { bestAvg = avg; bestHook = h; }
+      if (avg < worstAvg) { worstAvg = avg; worstHook = h; }
+    });
+    if (bestHook && worstHook && bestHook !== worstHook && bestAvg > worstAvg * 1.5) {
+      insights.push('"' + bestHook + '" hooks average ' + Math.round(bestAvg) + ' likes vs "' + worstHook + '" at ' + Math.round(worstAvg) + '. Favor ' + bestHook + ' hooks.');
+    }
+  }
 
   // Pattern 3: Approval rate trend
   if (previous && previous.ceoApprovalRate > 0 && current.ceoApprovalRate > 0) {
     var rateDelta = current.ceoApprovalRate - previous.ceoApprovalRate;
     if (rateDelta >= 0.15) {
-      insights.push('CEO approval rate improved from ' + Math.round(previous.ceoApprovalRate * 100) +
-        '% to ' + Math.round(current.ceoApprovalRate * 100) + '%. Current approach is working well.');
+      insights.push('CEO approval rate improved to ' + Math.round(current.ceoApprovalRate * 100) + '%. Current approach is working.');
     } else if (rateDelta <= -0.15) {
-      insights.push('CEO approval rate dropped from ' + Math.round(previous.ceoApprovalRate * 100) +
-        '% to ' + Math.round(current.ceoApprovalRate * 100) + '%. Review recent submissions for quality drift.');
+      insights.push('CEO approval rate dropped to ' + Math.round(current.ceoApprovalRate * 100) + '%. Review recent submissions for quality drift.');
     }
   }
 
-  // Pattern 4: Revision count creep
+  // Pattern 4: High block rate
+  if (current.blockRate > 0.25) {
+    insights.push(Math.round(current.blockRate * 100) + '% of actions are being blocked. Review allowed action types and reduce invalid attempts.');
+  }
+
+  // Pattern 5: High churn
+  if (current.avgCommentsBeforeDone > 5) {
+    insights.push('Tasks average ' + current.avgCommentsBeforeDone + ' comments before done (high churn). Aim for cleaner first deliverables.');
+  }
+
+  // Pattern 6: Revision count creep
   if (current.avgRevisionsBeforeApproval >= 2) {
-    insights.push('Average ' + current.avgRevisionsBeforeApproval + ' revisions before CEO approval. Consider front-loading quality checks before submission.');
+    insights.push('Average ' + current.avgRevisionsBeforeApproval + ' revisions before CEO approval. Front-load quality checks.');
   }
 
-  // Pattern 5: Quality score trend
-  if (current.qualityTrend === 'declining' && current.qualityScore < 50) {
-    insights.push('Quality score declining (' + current.qualityScore + '/100). Prioritize accuracy and alignment with CEO expectations over throughput.');
+  // Pattern 7: Handoff quality drop
+  if (current.handoffsReceived >= 3 && current.handoffFirstPassRate < 0.5) {
+    insights.push('Only ' + Math.round(current.handoffFirstPassRate * 100) + '% of handoff tasks pass first review. Clarify requirements upfront.');
   }
 
-  // Cap insights per call
+  // Pattern 8: Cost outlier
+  if (previous && previous.totalCost > 0 && current.totalCost > previous.totalCost * 1.5) {
+    insights.push('Token costs up ' + Math.round(((current.totalCost / previous.totalCost) - 1) * 100) + '% vs last period. Check for unnecessarily verbose outputs.');
+  }
+
   return insights.slice(0, MAX_PERFORMANCE_INSIGHTS_PER_DAY);
 }
 
-// ── Phase 3: Experiment Evaluation ──
+// ── Experiment Evaluation ──
 
 function evaluateExperiments(agentExperiments, performanceDigest, actions, nowMs) {
   if (!Array.isArray(agentExperiments) || !performanceDigest || !performanceDigest.agents) return agentExperiments;
@@ -362,7 +691,6 @@ function evaluateExperiments(agentExperiments, performanceDigest, actions, nowMs
     var exp = agentExperiments[i];
     if (!exp || exp.status !== 'active') continue;
 
-    // Auto-discard experiments older than 30 days with no progress
     var startTs = Date.parse(exp.startedAt || '');
     if (Number.isFinite(startTs) && (now - startTs) > thirtyDaysMs && exp.sampleCount < exp.minSamples) {
       exp.status = 'discarded';
@@ -371,11 +699,7 @@ function evaluateExperiments(agentExperiments, performanceDigest, actions, nowMs
       continue;
     }
 
-    // Count samples: actions with matching experiment_tag from this agent
-    var samples = 0;
-    var totalLikes = 0;
-    var totalApproved = 0;
-    var totalSubmitted = 0;
+    var samples = 0, totalApproved = 0, totalSubmitted = 0;
     for (var a = 0; a < actions.length; a++) {
       var act = actions[a];
       if (!act || !act.experiment_tag || act.experiment_tag !== exp.hypothesis) continue;
@@ -389,31 +713,17 @@ function evaluateExperiments(agentExperiments, performanceDigest, actions, nowMs
     }
     exp.sampleCount = samples;
 
-    // Evaluate if enough samples
     if (samples >= (exp.minSamples || EXPERIMENT_MIN_SAMPLES)) {
       var baseline = exp.baselineMetric || {};
-      var baselineApprovalRate = Number.isFinite(baseline.ceoApprovalRate) ? baseline.ceoApprovalRate : 0;
-      var expApprovalRate = totalSubmitted > 0 ? totalApproved / totalSubmitted : 0;
+      var baselineRate = Number.isFinite(baseline.ceoApprovalRate) ? baseline.ceoApprovalRate : 0;
+      var expRate = totalSubmitted > 0 ? totalApproved / totalSubmitted : 0;
+      var improvement = baselineRate > 0 ? (expRate - baselineRate) / baselineRate : (expRate > 0 ? 1 : 0);
 
-      var improvement = baselineApprovalRate > 0
-        ? (expApprovalRate - baselineApprovalRate) / baselineApprovalRate
-        : (expApprovalRate > 0 ? 1 : 0);
+      exp.experimentMetric = { ceoApprovalRate: Number(expRate.toFixed(2)), samples: samples };
 
-      exp.experimentMetric = {
-        ceoApprovalRate: Number(expApprovalRate.toFixed(2)),
-        samples: samples
-      };
-
-      if (improvement >= EXPERIMENT_IMPROVEMENT_THRESHOLD) {
-        exp.status = 'concluded';
-        exp.result = 'keep';
-      } else if (improvement <= -EXPERIMENT_IMPROVEMENT_THRESHOLD) {
-        exp.status = 'concluded';
-        exp.result = 'discard';
-      } else {
-        exp.status = 'concluded';
-        exp.result = 'inconclusive';
-      }
+      if (improvement >= EXPERIMENT_IMPROVEMENT_THRESHOLD) { exp.status = 'concluded'; exp.result = 'keep'; }
+      else if (improvement <= -EXPERIMENT_IMPROVEMENT_THRESHOLD) { exp.status = 'concluded'; exp.result = 'discard'; }
+      else { exp.status = 'concluded'; exp.result = 'inconclusive'; }
       exp.concludedAt = new Date(now).toISOString();
     }
   }
@@ -423,9 +733,7 @@ function evaluateExperiments(agentExperiments, performanceDigest, actions, nowMs
 
 function _buildExperimentPromptBlock(agentId, agentExperiments) {
   if (!Array.isArray(agentExperiments)) return '';
-  var active = agentExperiments.filter(function (e) {
-    return e && e.agentId === agentId && e.status === 'active';
-  });
+  var active = agentExperiments.filter(function (e) { return e && e.agentId === agentId && e.status === 'active'; });
   var recentConcluded = agentExperiments.filter(function (e) {
     return e && e.agentId === agentId && e.status === 'concluded' &&
       e.concludedAt && (Date.now() - Date.parse(e.concludedAt)) < 7 * 24 * 60 * 60 * 1000;
@@ -435,13 +743,11 @@ function _buildExperimentPromptBlock(agentId, agentExperiments) {
 
   var lines = ['\n\nEXPERIMENTS:'];
   active.forEach(function (e) {
-    lines.push('- ACTIVE: "' + e.hypothesis + '" — ' + (e.description || '') +
-      ' (' + e.sampleCount + '/' + (e.minSamples || EXPERIMENT_MIN_SAMPLES) + ' samples)');
+    lines.push('- ACTIVE: "' + e.hypothesis + '" — ' + (e.description || '') + ' (' + e.sampleCount + '/' + (e.minSamples || EXPERIMENT_MIN_SAMPLES) + ' samples)');
   });
   recentConcluded.forEach(function (e) {
-    var resultLabel = e.result === 'keep' ? 'KEEP' : (e.result === 'discard' ? 'DISCARD' : 'INCONCLUSIVE');
-    lines.push('- ' + resultLabel + ': "' + e.hypothesis + '"' +
-      (e.experimentMetric ? ' — approval rate: ' + Math.round((e.experimentMetric.ceoApprovalRate || 0) * 100) + '%' : ''));
+    var label = e.result === 'keep' ? 'KEEP' : (e.result === 'discard' ? 'DISCARD' : 'INCONCLUSIVE');
+    lines.push('- ' + label + ': "' + e.hypothesis + '"' + (e.experimentMetric ? ' — approval rate: ' + Math.round((e.experimentMetric.ceoApprovalRate || 0) * 100) + '%' : ''));
   });
 
   return lines.join('\n');
@@ -452,5 +758,6 @@ module.exports = {
   _buildPerformancePromptBlock,
   generatePerformanceInsights,
   evaluateExperiments,
-  _buildExperimentPromptBlock
+  _buildExperimentPromptBlock,
+  classifyHook
 };

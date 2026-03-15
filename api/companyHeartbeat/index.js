@@ -405,7 +405,17 @@ module.exports = async function (context) {
     runtimeMemory.socialIntel = socialIntel;
     // Build agent performance digest (AutoResearch feedback loop)
     const _existingPerf = (runtimeMemory && runtimeMemory.agentPerformance) || null;
-    const performanceDigest = buildPerformanceDigest(tasks, allActions, socialEngagementSnapshots, _existingPerf, Date.now());
+    let _perfHeartbeatRuns = [], _perfGeminiUsage = [], _perfGovernanceLog = [], _perfBlogPostViews = [];
+    try { _perfHeartbeatRuns = (await storage.getState('heartbeatRuns')) || []; } catch (_e) { /* non-fatal */ }
+    try { _perfGeminiUsage = (await storage.getState('geminiUsage')) || []; } catch (_e) { /* non-fatal */ }
+    try { _perfGovernanceLog = (await storage.getState('governanceLog')) || []; } catch (_e) { /* non-fatal */ }
+    try { _perfBlogPostViews = (await storage.getState('blogPostViews')) || []; } catch (_e) { /* non-fatal */ }
+    const performanceDigest = buildPerformanceDigest(tasks, allActions, socialEngagementSnapshots, _existingPerf, Date.now(), {
+      heartbeatRuns: _perfHeartbeatRuns,
+      geminiUsage: _perfGeminiUsage,
+      governanceLog: _perfGovernanceLog,
+      blogPostViews: _perfBlogPostViews
+    });
     runtimeMemory.agentPerformance = performanceDigest;
     let agentExperiments = [];
     try { agentExperiments = (await storage.getState('agentExperiments')) || []; } catch (_expErr) { /* non-fatal */ }
