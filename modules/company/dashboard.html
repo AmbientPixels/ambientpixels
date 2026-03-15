@@ -246,7 +246,7 @@
         <button role="tab" data-view="dev" aria-selected="false" class="operator-only">Dev View</button>
       </span>
       <div class="dash-header-actions">
-        <button class="dash-refresh-btn operator-only" id="dash-heartbeat" title="Run agent heartbeat cycle manually">
+        <button class="dash-refresh-btn dash-refresh-btn--primary operator-only" id="dash-heartbeat" title="Run agent heartbeat cycle manually">
           <i class="fas fa-heartbeat"></i> Run Heartbeat
         </button>
         <a href="/modules/company/meetings.html" class="dash-refresh-btn"><i class="fas fa-video"></i> Call Meeting</a>
@@ -360,8 +360,11 @@
           <div class="dash-panel-body">
             <div class="dash-content-section-hdr">
               <div class="dash-sub-label"><i class="fas fa-moon dash-icon-mr"></i>Today's Activity</div>
-              <ul class="log-list" id="panel-overnight"></ul>
+              <div class="log-collapse-wrap log-collapse-wrap--collapsed" id="overnight-collapse">
+                <ul class="log-list" id="panel-overnight"></ul>
+              </div>
               <div class="dash-empty" id="overnight-empty">No activity today yet.</div>
+              <button class="log-expand-btn" id="overnight-expand-btn">Show all entries</button>
             </div>
             <div>
               <div class="dash-sub-label"><i class="fas fa-scroll dash-icon-mr"></i>Governance Log</div>
@@ -2407,6 +2410,26 @@
         });
       }
 
+      // ── Activity collapse helper ──
+      var _overnightCollapseThreshold = 5;
+      function _updateOvernightExpand() {
+        var count = panelOvernight.querySelectorAll('.log-item').length;
+        var wrap = document.getElementById('overnight-collapse');
+        var btn = document.getElementById('overnight-expand-btn');
+        if (count > _overnightCollapseThreshold) {
+          wrap.classList.add('log-collapse-wrap--collapsed');
+          btn.textContent = 'Show all ' + count + ' entries';
+          btn.classList.add('log-expand-btn--visible');
+        } else {
+          wrap.classList.remove('log-collapse-wrap--collapsed');
+          btn.classList.remove('log-expand-btn--visible');
+        }
+      }
+      document.getElementById('overnight-expand-btn').addEventListener('click', function () {
+        document.getElementById('overnight-collapse').classList.remove('log-collapse-wrap--collapsed');
+        this.classList.remove('log-expand-btn--visible');
+      });
+
       // ── Overnight / Today Log ──
       function renderOvernightLog() {
         var overnight = AgentEngine.getOvernightLog();
@@ -2448,6 +2471,7 @@
             '</div>';
           panelOvernight.appendChild(li);
         });
+        _updateOvernightExpand();
       }
 
       // ── Morning Report ──
@@ -2699,6 +2723,7 @@
             panelOvernight.appendChild(li);
             overnightEmpty.style.display = 'none';
           });
+          _updateOvernightExpand();
         });
       }
 
