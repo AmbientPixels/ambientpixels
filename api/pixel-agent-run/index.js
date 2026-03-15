@@ -221,10 +221,18 @@ module.exports = async function (context, req) {
       await storage.setState('pixelAgentStats', stats);
     } catch { /* non-fatal */ }
 
-    // Log token usage
+    // Log token usage to Claude cost tracking
     const usage = data?.usage;
     if (usage) {
       context.log('[PixelAgentRun] Tokens — input:', usage.input_tokens, 'output:', usage.output_tokens);
+      storage.logClaudeUsage({
+        caller: 'pixel-agent-run',
+        model: MODEL,
+        agentId: agent.id,
+        promptTokens: usage.input_tokens || 0,
+        completionTokens: usage.output_tokens || 0,
+        totalTokens: (usage.input_tokens || 0) + (usage.output_tokens || 0)
+      }).catch(() => {});
     }
 
     context.res = {

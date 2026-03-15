@@ -649,6 +649,8 @@
           <div style="display:none;">
             <div id="panel-gemini-cost"></div>
             <select id="gemini-cost-range"><option value="30" selected>30</option></select>
+            <div id="panel-claude-cost"></div>
+            <select id="claude-cost-range"><option value="30" selected>30</option></select>
             <div id="panel-azure-cost"></div>
             <select id="azure-cost-range"><option value="30" selected>30</option></select>
             <div id="panel-x-cost"></div>
@@ -1429,7 +1431,7 @@
          renderCronLog, renderOvernightLog, renderMorningReport, renderServerLogs,
          renderHeartbeatHealth, renderApprovalQueue, renderFacebookOutbox, renderCampaignsSnap, renderSystemPulse,
          renderKpiScoreboard, renderObjectivesSnap, renderAutonomyScore, renderRiskHeatmap,
-         renderActionSnap, renderGeminiCosts, renderAzureCosts, renderXCosts, renderCostSummary,
+         renderActionSnap, renderGeminiCosts, renderClaudeCosts, renderAzureCosts, renderXCosts, renderCostSummary,
          renderDailyLogDrafts, renderBlogAdmin, renderGovernanceLog, renderGovernanceLogDev,
          renderMeetingsWidget, updateActionBadge, renderOrgChart,
          renderInboundKpi, updateModeIndicator, renderCeoStatusStrip, renderCeoInsightsMirrors, renderCeoStrategy].forEach(function(fn) {
@@ -3773,7 +3775,7 @@
       }
 
       // ── Cost Center Summary ──
-      var _costSummaryData = { gemini: null, azure: null, x: null };
+      var _costSummaryData = { gemini: null, claude: null, azure: null, x: null };
       var _costSummaryRendered = false;
 
       // Fallback: if no cost data after 8s, show $0 instead of forever-loading
@@ -3785,25 +3787,29 @@
         var el = document.getElementById('panel-cost-summary');
         if (!el) return;
         var g = _costSummaryData.gemini;
+        var cl = _costSummaryData.claude;
         var a = _costSummaryData.azure;
         var x = _costSummaryData.x;
-        if (!g && !a && !x && !force) {
+        if (!g && !cl && !a && !x && !force) {
           el.innerHTML = '<div class="dash-empty" style="font-size:0.6rem;">Loading cost data...</div>';
           return;
         }
         _costSummaryRendered = true;
 
         var geminiTotal = g ? g.totalCost : 0;
+        var claudeTotal = cl ? cl.totalCost : 0;
         var azureTotal = a ? a.totalCost : 0;
         var xTotal = x ? x.totalCost : 0;
-        var combined = geminiTotal + azureTotal + xTotal;
+        var combined = geminiTotal + claudeTotal + azureTotal + xTotal;
         var azureProjected = a ? a.projectedMonthly : 0;
         var geminiAvgDay = g && g.totalCalls > 0 ? geminiTotal / Math.max(Object.keys(g.byDay || {}).length, 1) : 0;
-        var projectedMonthly = azureProjected + (geminiAvgDay * 30) + X_MONTHLY_SUBSCRIPTION;
+        var claudeAvgDay = cl && cl.totalCalls > 0 ? claudeTotal / Math.max(Object.keys(cl.byDay || {}).length, 1) : 0;
+        var projectedMonthly = azureProjected + (geminiAvgDay * 30) + (claudeAvgDay * 30) + X_MONTHLY_SUBSCRIPTION;
 
         var html = '<div style="display:flex; gap:1rem; flex-wrap:wrap; align-items:stretch;">';
         html += _costKpi('$' + combined.toFixed(2), 'Total Spend', '#fbbf24');
         html += _costKpi('$' + geminiTotal.toFixed(2), 'Gemini API', '#fbbf24');
+        html += _costKpi('$' + claudeTotal.toFixed(2), 'Claude API', '#DC6956');
         html += _costKpi('$' + azureTotal.toFixed(2), 'Azure Infra', '#0078D4');
         html += _costKpi('$' + xTotal.toFixed(2), 'X.com API', '#1DA1F2');
         html += _costKpi('$' + projectedMonthly.toFixed(2), 'Projected/Mo', '#34d399');
@@ -3812,16 +3818,19 @@
         // Percentage breakdown bar
         if (combined > 0) {
           var gPct = Math.round((geminiTotal / combined) * 100);
+          var clPct = Math.round((claudeTotal / combined) * 100);
           var xPct = Math.round((xTotal / combined) * 100);
-          var aPct = 100 - gPct - xPct;
+          var aPct = Math.max(0, 100 - gPct - clPct - xPct);
           html += '<div style="margin-top:0.5rem;">';
           html += '<div style="display:flex; height:6px; border-radius:3px; overflow:hidden; background:rgba(255,255,255,0.03);">';
           if (gPct > 0) html += '<div style="width:' + gPct + '%; background:#fbbf24;" title="Gemini: ' + gPct + '%"></div>';
+          if (clPct > 0) html += '<div style="width:' + clPct + '%; background:#DC6956;" title="Claude: ' + clPct + '%"></div>';
           if (xPct > 0) html += '<div style="width:' + xPct + '%; background:#1DA1F2;" title="X.com: ' + xPct + '%"></div>';
           if (aPct > 0) html += '<div style="width:' + aPct + '%; background:#0078D4;" title="Azure: ' + aPct + '%"></div>';
           html += '</div>';
           html += '<div style="display:flex; justify-content:space-between; font-size:0.5rem; opacity:0.35; margin-top:0.15rem;">';
           html += '<span><i class="fas fa-coins" style="color:#fbbf24;margin-right:2px;"></i>Gemini ' + gPct + '%</span>';
+          html += '<span><i class="fas fa-brain" style="color:#DC6956;margin-right:2px;"></i>Claude ' + clPct + '%</span>';
           html += '<span><i class="fab fa-x-twitter" style="color:#1DA1F2;margin-right:2px;"></i>X ' + xPct + '%</span>';
           html += '<span><i class="fab fa-microsoft" style="color:#0078D4;margin-right:2px;"></i>Azure ' + aPct + '%</span>';
           html += '</div></div>';
@@ -3921,6 +3930,90 @@
         _costRangeEl.addEventListener('change', function () {
           _geminiCostDays = parseInt(this.value) || 30;
           renderGeminiCosts();
+        });
+      }
+
+      // ── Claude API Costs ──
+      var _claudeCostDays = 30;
+      var _claudeCostCache = null;
+
+      function renderClaudeCosts() {
+        var el = document.getElementById('panel-claude-cost');
+        if (!el) return;
+        var apiBase = (typeof CompanyStore !== 'undefined' && CompanyStore.getServerBase) ? CompanyStore.getServerBase() : '/api';
+        fetch(apiBase + '/claudeCosts?days=' + _claudeCostDays)
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (data) {
+          if (!data) { el.innerHTML = '<div class="dash-empty">Could not load Claude cost data.</div>'; return; }
+          _claudeCostCache = data;
+          _costSummaryData.claude = data;
+          _renderClaudeCostPanel(el, data);
+          renderCostSummary();
+        })
+        .catch(function () { el.innerHTML = '<div class="dash-empty">Network error loading Claude costs.</div>'; });
+      }
+
+      function _renderClaudeCostPanel(el, data) {
+        var html = '';
+        html += '<div style="display:flex; gap:0.8rem; flex-wrap:wrap; margin-bottom:0.6rem;">';
+        html += _costKpi('$' + data.totalCost.toFixed(2), 'Total Cost', '#DC6956');
+        html += _costKpi(formatNumber(data.totalCalls), 'API Calls', '#60a5fa');
+        html += _costKpi(formatNumber(data.totalPromptTokens + data.totalCompletionTokens), 'Tokens', '#a855f7');
+        var avgCost = data.totalCalls > 0 ? (data.totalCost / data.totalCalls) : 0;
+        html += _costKpi('$' + avgCost.toFixed(4), 'Avg/Call', '#34d399');
+        html += '</div>';
+
+        var callers = Object.keys(data.byCaller).sort(function (a, b) { return data.byCaller[b].cost - data.byCaller[a].cost; });
+        if (callers.length > 0) {
+          html += '<div style="font-size:0.58rem; opacity:0.4; margin-bottom:0.25rem; font-weight:600;">Cost by Service</div>';
+          html += '<div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.5rem;">';
+          callers.forEach(function (c) {
+            var d = data.byCaller[c];
+            html += '<span style="font-size:0.55rem; padding:0.12rem 0.4rem; border-radius:3px; background:rgba(220,105,86,0.06); border:1px solid rgba(220,105,86,0.1); color:rgba(255,255,255,0.6);">' +
+              escapeHtml(c) + ' <span style="color:#DC6956; font-weight:500;">$' + d.cost.toFixed(4) + '</span> <span style="opacity:0.4;">(' + d.calls + ')</span></span>';
+          });
+          html += '</div>';
+        }
+
+        var agents = Object.keys(data.byAgent).sort(function (a, b) { return data.byAgent[b].cost - data.byAgent[a].cost; });
+        if (agents.length > 0) {
+          html += '<div style="font-size:0.58rem; opacity:0.4; margin-bottom:0.25rem; font-weight:600;">Cost by Agent</div>';
+          html += '<div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.5rem;">';
+          agents.forEach(function (a) {
+            var d = data.byAgent[a];
+            html += '<span style="font-size:0.55rem; padding:0.12rem 0.4rem; border-radius:3px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.6);">' +
+              escapeHtml(a) + ' <span style="color:rgba(255,255,255,0.75); font-weight:500;">$' + d.cost.toFixed(4) + '</span> <span style="opacity:0.4;">(' + d.calls + ')</span></span>';
+          });
+          html += '</div>';
+        }
+
+        var days = Object.keys(data.byDay).sort();
+        if (days.length > 1) {
+          var maxDayCost = 0;
+          days.forEach(function (d) { if (data.byDay[d].cost > maxDayCost) maxDayCost = data.byDay[d].cost; });
+          html += '<div style="font-size:0.58rem; opacity:0.4; margin-bottom:0.25rem; font-weight:600;">Daily Spend</div>';
+          html += '<div style="display:flex; align-items:flex-end; gap:2px; height:40px;">';
+          days.forEach(function (d) {
+            var pct = maxDayCost > 0 ? Math.max(2, (data.byDay[d].cost / maxDayCost) * 100) : 2;
+            var today = new Date();
+            var isToday = d === today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
+            html += '<div title="' + d + ': $' + data.byDay[d].cost.toFixed(4) + ' (' + data.byDay[d].calls + ' calls)" style="flex:1; min-width:3px; max-width:12px; height:' + pct + '%; background:' + (isToday ? '#DC6956' : 'rgba(220,105,86,0.25)') + '; border-radius:2px 2px 0 0;"></div>';
+          });
+          html += '</div>';
+          html += '<div style="display:flex; justify-content:space-between; font-size:0.45rem; opacity:0.2; margin-top:0.15rem;"><span>' + days[0].substring(5) + '</span><span>' + days[days.length-1].substring(5) + '</span></div>';
+        }
+
+        if (data.totalCalls === 0) {
+          html = '<div class="dash-empty">No Claude API usage tracked yet. Data will appear after Pixel Agents runs.</div>';
+        }
+        el.innerHTML = html;
+      }
+
+      var _claudeCostRangeEl = document.getElementById('claude-cost-range');
+      if (_claudeCostRangeEl) {
+        _claudeCostRangeEl.addEventListener('change', function () {
+          _claudeCostDays = parseInt(this.value) || 30;
+          renderClaudeCosts();
         });
       }
 

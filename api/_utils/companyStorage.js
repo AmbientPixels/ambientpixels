@@ -466,6 +466,95 @@ async function getGeminiCostSummary(days) {
   };
 }
 
+// ── Claude API Usage Tracking ──
+// Claude pricing (per 1M tokens)
+const CLAUDE_PRICING = {
+  'claude-sonnet-4-6-20250514': { input: 3.00, output: 15.00 },
+  'claude-sonnet-4-5-20250514': { input: 3.00, output: 15.00 },
+  'claude-haiku-4-5-20251001': { input: 0.80, output: 4.00 },
+  'default': { input: 3.00, output: 15.00 }
+};
+
+async function logClaudeUsage(entry) {
+  // entry: { caller, model, promptTokens, completionTokens, totalTokens, timestamp, agentId? }
+  try {
+    const usage = (await getState('claudeUsage')) || [];
+    const model = entry.model || 'claude-sonnet-4-6-20250514';
+    const pricing = CLAUDE_PRICING[model] || CLAUDE_PRICING['default'];
+    const inputCost = (entry.promptTokens || 0) * pricing.input / 1000000;
+    const outputCost = (entry.completionTokens || 0) * pricing.output / 1000000;
+
+    usage.push({
+      id: 'cu_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+      caller: entry.caller || 'unknown',
+      model: model,
+      agentId: entry.agentId || null,
+      promptTokens: entry.promptTokens || 0,
+      completionTokens: entry.completionTokens || 0,
+      totalTokens: entry.totalTokens || 0,
+      inputCost: Math.round(inputCost * 1000000) / 1000000,
+      outputCost: Math.round(outputCost * 1000000) / 1000000,
+      totalCost: Math.round((inputCost + outputCost) * 1000000) / 1000000,
+      timestamp: entry.timestamp || new Date().toISOString()
+    });
+
+    // Retention: keep last 5000 entries, max 30 days
+    const cutoff = new Date(Date.now() - 30 * 86400000).toISOString();
+    const pruned = usage.filter(u => u.timestamp >= cutoff).slice(-5000);
+    await setState('claudeUsage', pruned);
+  } catch (err) {
+    console.error('[CompanyStorage] logClaudeUsage failed:', err.message);
+  }
+}
+
+async function getClaudeCostSummary(days) {
+  days = days || 30;
+  const usage = (await getState('claudeUsage')) || [];
+  const cutoff = new Date(Date.now() - days * 86400000).toISOString();
+  const recent = usage.filter(u => u.timestamp >= cutoff);
+
+  const byDay = {};
+  const byCaller = {};
+  const byAgent = {};
+  let totalInput = 0, totalOutput = 0, totalCost = 0;
+
+  recent.forEach(function (u) {
+    var day = u.timestamp.substring(0, 10);
+    if (!byDay[day]) byDay[day] = { calls: 0, promptTokens: 0, completionTokens: 0, cost: 0 };
+    byDay[day].calls++;
+    byDay[day].promptTokens += u.promptTokens;
+    byDay[day].completionTokens += u.completionTokens;
+    byDay[day].cost += u.totalCost;
+
+    var caller = u.caller || 'unknown';
+    if (!byCaller[caller]) byCaller[caller] = { calls: 0, cost: 0 };
+    byCaller[caller].calls++;
+    byCaller[caller].cost += u.totalCost;
+
+    if (u.agentId) {
+      if (!byAgent[u.agentId]) byAgent[u.agentId] = { calls: 0, cost: 0 };
+      byAgent[u.agentId].calls++;
+      byAgent[u.agentId].cost += u.totalCost;
+    }
+
+    totalInput += u.promptTokens;
+    totalOutput += u.completionTokens;
+    totalCost += u.totalCost;
+  });
+
+  return {
+    period: days + 'd',
+    totalCalls: recent.length,
+    totalTokens: totalInput + totalOutput,
+    totalPromptTokens: totalInput,
+    totalCompletionTokens: totalOutput,
+    totalCost: Math.round(totalCost * 100) / 100,
+    byDay: byDay,
+    byCaller: byCaller,
+    byAgent: byAgent
+  };
+}
+
 module.exports = {
   getState,
   setState,
@@ -488,5 +577,9 @@ module.exports = {
   // Gemini Usage
   logGeminiUsage,
   getGeminiCostSummary,
-  GEMINI_PRICING
+  GEMINI_PRICING,
+  // Claude Usage
+  logClaudeUsage,
+  getClaudeCostSummary,
+  CLAUDE_PRICING
 };
