@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   try {
     // Load agents + stats in parallel
     const [agentsRes, statsRes] = await Promise.all([
-      fetch('/data/pixel-agents.json'),
+      fetch('/data/pixel-agents.json', { cache: 'no-store' }),
       fetch('/api/pixel-agent-catalog').catch(() => null)
     ]);
 
