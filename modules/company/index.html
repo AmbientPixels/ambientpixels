@@ -21,10 +21,10 @@
   <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
   <link rel="stylesheet" href="/modules/company/css/hq.css" />
 </head>
-<body style="background:#071019" data-theme="dark">
+<body data-theme="dark">
 
 
-  <main class="content-section" style="max-width: 900px; margin: 0 auto; padding: 1rem;">
+  <main id="hq-main" class="content-section">
 
     <!-- Hero -->
     <div class="hq-hero">
@@ -54,14 +54,14 @@
     <!-- Org Chart -->
     <div class="org-chart" id="org-chart">
       <!-- Tier 1: CEO -->
-      <div class="org-tier-label" style="font-size:0.6rem; text-transform:uppercase; letter-spacing:2px; opacity:0.3; margin-bottom:0.3rem;">Tier 1 — Executive</div>
+      <div class="org-tier-label">Tier 1 — Executive</div>
       <div class="org-tier" id="tier-1"></div>
 
       <!-- Connector -->
       <div class="org-connector"></div>
 
       <!-- Tier 2: Prime Operator -->
-      <div class="org-tier-label" style="font-size:0.6rem; text-transform:uppercase; letter-spacing:2px; opacity:0.3; margin-bottom:0.3rem;">Tier 2 — Prime Operator</div>
+      <div class="org-tier-label">Tier 2 — Prime Operator</div>
       <div class="org-tier" id="tier-2"></div>
 
       <!-- Connector -->
@@ -69,14 +69,14 @@
       <div class="org-branch-line"></div>
 
       <!-- Tier 3: Department Heads -->
-      <div class="org-tier-label" style="font-size:0.6rem; text-transform:uppercase; letter-spacing:2px; opacity:0.3; margin-bottom:0.3rem;">Tier 3 — Department Heads</div>
+      <div class="org-tier-label">Tier 3 — Department Heads</div>
       <div class="org-tier" id="tier-3"></div>
 
       <!-- Connector -->
       <div class="org-connector"></div>
 
       <!-- Tier 4: Sub-Agents -->
-      <div class="org-tier-label" style="font-size:0.6rem; text-transform:uppercase; letter-spacing:2px; opacity:0.3; margin-bottom:0.3rem;">Tier 4 — Sub-Agents <span style="opacity:0.5;">(Content)</span></div>
+      <div class="org-tier-label">Tier 4 — Sub-Agents <span class="org-tier-sub">(Content)</span></div>
       <div class="org-tier" id="tier-4"></div>
     </div>
 
@@ -129,21 +129,21 @@
     </div>
 
     <!-- Standup Quick Link -->
-    <div style="margin-top:1.5rem; padding-top:1.5rem; border-top:1px solid rgba(255,255,255,0.05);">
-      <a href="/modules/company/standup.html" style="display:flex; align-items:center; gap:0.8rem; padding:0.8rem 1rem; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:10px; text-decoration:none; color:inherit; transition:border-color 0.2s;" onmouseover="this.style.borderColor='rgba(138,43,226,0.2)'" onmouseout="this.style.borderColor='rgba(255,255,255,0.05)'">
-        <i class="fas fa-users" style="font-size:1rem; opacity:0.4;"></i>
+    <div class="hq-standup-section">
+      <a href="/modules/company/standup.html" class="hq-standup-link">
+        <i class="fas fa-users hq-standup-icon"></i>
         <div>
-          <div style="font-size:0.85rem; font-weight:500;">Daily Standup</div>
-          <div style="font-size:0.7rem; opacity:0.35;" id="standup-quick-status">Run today's standup →</div>
+          <div class="hq-standup-title">Daily Standup</div>
+          <div class="hq-standup-status" id="standup-quick-status">Run today's standup →</div>
         </div>
       </a>
     </div>
 
     <!-- Company Activity Feed -->
     <div class="company-activity">
-      <h3><i class="fas fa-pulse" style="margin-right:6px;"></i>Agent Activity</h3>
+      <h3><i class="fas fa-pulse hq-activity-icon"></i>Agent Activity</h3>
       <ul class="activity-feed" id="activity-feed">
-        <li class="activity-item" style="opacity:0.3; font-style:italic;">Loading agent activity...</li>
+        <li class="activity-item hq-activity-placeholder">Loading agent activity...</li>
       </ul>
     </div>
 

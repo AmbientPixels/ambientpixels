@@ -18,17 +18,17 @@
   <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
   <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
   <style>
-    .mt-config { background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:0.8rem; margin-bottom:0.8rem; }
+    .mt-config { background:#1c1c1e; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:0.8rem; margin-bottom:0.8rem; }
     .mt-config-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-bottom:0.5rem; }
     .mt-config label { font-size:0.65rem; opacity:0.5; display:block; margin-bottom:2px; }
     .mt-config input, .mt-config select, .mt-config textarea { width:100%; font-size:0.72rem; padding:6px 8px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:#e0e0e0; font-family:inherit; box-sizing:border-box; }
     .mt-config textarea { resize:vertical; min-height:48px; }
     .mt-config-row { display:flex; gap:0.5rem; align-items:end; }
 
-    .mt-decision-panel { background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:0.8rem; margin-bottom:0.8rem; display:none; }
+    .mt-decision-panel { background:#1c1c1e; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:0.8rem; margin-bottom:0.8rem; display:none; }
     .mt-decision-header { display:flex; align-items:center; gap:0.5rem; margin-bottom:0.6rem; }
     .mt-decision-title { font-size:0.8rem; font-weight:600; }
-    .mt-lock-icon { color:#FFD700; font-size:0.7rem; }
+    .mt-lock-icon { color:rgba(255,255,255,0.5); font-size:0.7rem; }
     .mt-decision-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:0.5rem; }
     .mt-decision-card { background:rgba(255,255,255,0.03); border-radius:8px; padding:0.5rem; }
     .mt-decision-card-label { font-size:0.55rem; opacity:0.4; text-transform:uppercase; margin-bottom:2px; }
@@ -52,10 +52,10 @@
     .mt-risk-Medium { background:rgba(251,191,36,0.15); color:#fbbf24; }
     .mt-risk-Low { background:rgba(107,114,128,0.15); color:#6b7280; }
 
-    .mt-proposals-panel { background:rgba(138,43,226,0.04); border:1px solid rgba(138,43,226,0.12); border-radius:10px; padding:0.6rem 0.8rem; margin-bottom:0.8rem; display:none; }
-    .mt-proposals-title { font-size:0.7rem; font-weight:600; color:#a855f7; margin-bottom:0.4rem; }
-    .mt-proposal-item { background:rgba(255,255,255,0.03); border-radius:8px; padding:0.5rem; margin-bottom:0.4rem; border-left:3px solid rgba(138,43,226,0.4); }
-    .mt-proposal-item--task { border-left-color:rgba(59,130,246,0.5); }
+    .mt-proposals-panel { background:#1c1c1e; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:0.6rem 0.8rem; margin-bottom:0.8rem; display:none; }
+    .mt-proposals-title { font-size:0.7rem; font-weight:600; color:rgba(255,255,255,0.6); margin-bottom:0.4rem; }
+    .mt-proposal-item { background:rgba(255,255,255,0.03); border-radius:8px; padding:0.5rem; margin-bottom:0.4rem; border-left:3px solid rgba(255,255,255,0.15); }
+    .mt-proposal-item--task { border-left-color:rgba(96,165,250,0.4); }
     .mt-proposal-name { font-size:0.72rem; font-weight:500; margin-bottom:0.2rem; }
     .mt-proposal-meta { display:flex; gap:0.3rem; flex-wrap:wrap; }
     .mt-proposal-badge { font-size:0.55rem; padding:1px 6px; border-radius:6px; font-weight:500; }
@@ -66,8 +66,8 @@
     .mt-proposal-action:hover { background:rgba(255,255,255,0.1); }
     .mt-proposal-action--activate { border-color:rgba(34,197,94,0.5); color:#22c55e; background:rgba(34,197,94,0.1); }
     .mt-proposal-action--activate:hover { background:rgba(34,197,94,0.2); }
-    .mt-proposal-action--approve { border-color:rgba(59,130,246,0.5); color:#3b82f6; background:rgba(59,130,246,0.08); }
-    .mt-proposal-action--approve:hover { background:rgba(59,130,246,0.18); }
+    .mt-proposal-action--approve { border-color:rgba(96,165,250,0.5); color:#60a5fa; background:rgba(96,165,250,0.08); }
+    .mt-proposal-action--approve:hover { background:rgba(96,165,250,0.18); }
     .mt-proposal-action--reject { border-color:rgba(239,68,68,0.4); color:#ef4444; background:rgba(239,68,68,0.06); }
     .mt-proposal-action--reject:hover { background:rgba(239,68,68,0.15); }
     .mt-proposal-action--defer { border-color:rgba(139,92,246,0.4); color:#8b5cf6; background:rgba(139,92,246,0.06); }
@@ -75,23 +75,51 @@
     .mt-proposal-action:disabled { opacity:0.3; cursor:not-allowed; }
     .mt-proposal-item--decided { opacity:0.7; }
 
-    .mt-count-badge { display:inline-flex; align-items:center; justify-content:center; min-width:18px; height:18px; font-size:0.55rem; font-weight:600; border-radius:9px; padding:0 5px; background:rgba(78,205,196,0.15); color:#4ecdc4; margin-left:6px; }
+    .mt-count-badge { display:inline-flex; align-items:center; justify-content:center; min-width:18px; height:18px; font-size:0.55rem; font-weight:600; border-radius:9px; padding:0 5px; background:rgba(255,255,255,0.1); color:rgba(255,255,255,0.6); margin-left:6px; }
+
+    /* ── Inline Style Replacements ── */
+    #mt-main { max-width: 900px; margin: 0 auto; padding: 1rem; }
+    .mt-icon-mr  { margin-right: 4px; }
+    .mt-icon-mr-lg { margin-right: 8px; }
+    .mt-icon-dim { opacity: 0.4; }
+    .mt-version-tag { font-size: 0.5rem; opacity: 0.3; vertical-align: middle; }
+    #mt-section { border-top: none; margin-top: 0; padding-top: 0; }
+    #mt-date-heading { font-size: 0.8rem; font-weight: 400; opacity: 0.4; }
+    .mt-field-hint { opacity: 0.4; font-size: 0.55rem; }
+    .mt-config-grid--top { margin-top: 0.4rem; }
+    .mt-decision-hint { font-size: 0.6rem; opacity: 0.35; margin-top: 0.5rem; }
+    .mt-card-label--green  { color: #22c55e; }
+    .mt-card-value--green  { color: #22c55e; }
+    .mt-card-label--red    { color: #ef4444; }
+    .mt-card-value--red    { color: #ef4444; }
+    .mt-card-label--purple { color: #8b5cf6; }
+    .mt-card-value--purple { color: #8b5cf6; }
+    #mt-outcome-panel { background: #1c1c1e; border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 0.6rem 0.8rem; margin-bottom: 0.8rem; }
+    .mt-outcome-header { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.15rem; }
+    .mt-outcome-icon  { color: rgba(255,255,255,0.5); font-size: 0.65rem; }
+    .mt-outcome-title { font-size: 0.75rem; color: rgba(255,255,255,0.7); }
+    .mt-outcome-sub   { font-size: 0.55rem; opacity: 0.35; margin-bottom: 0.5rem; }
+    #mt-artifacts-panel { background: #1c1c1e; border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 0.6rem 0.8rem; margin-bottom: 0.8rem; }
+    .mt-artifacts-header { font-size: 0.7rem; font-weight: 600; color: rgba(255,255,255,0.6); margin-bottom: 0.4rem; }
+    #mt-artifacts-list { font-size: 0.65rem; }
+    #mt-parse-warnings { background: rgba(251,191,36,0.04); border: 1px solid rgba(251,191,36,0.1); border-radius: 8px; padding: 0.4rem 0.6rem; margin-bottom: 0.6rem; font-size: 0.6rem; color: #fbbf24; }
+    .mt-parse-icon { margin-right: 4px; }
   </style>
 </head>
-<body style="background:#071019" data-theme="dark">
+<body data-theme="dark">
 
-  <main class="content-section" style="max-width: 800px; margin: 0 auto; padding: 1rem;">
+  <main class="content-section" id="mt-main">
 
     <div class="company-header">
-      <h1><i class="fas fa-video" style="opacity:0.4; margin-right:8px;"></i>Meetings <span style="font-size:0.5rem; opacity:0.3; vertical-align:middle;">On-Demand v2.6</span> <span class="mt-count-badge" id="mt-total-count">0</span></h1>
+      <h1><i class="fas fa-video co-icon-faint co-icon-mr-lg"></i>Meetings <span class="mt-version-tag">On-Demand v2.6</span> <span class="mt-count-badge" id="mt-total-count">0</span></h1>
       <p>On-demand collaborative decision sessions (CEO-triggered). Unlimited per day — agenda-driven, decision-engine powered.</p>
     </div>
 
     <!-- Meeting Controls -->
-    <div class="standup-section" id="mt-section" style="border-top:none; margin-top:0; padding-top:0;">
+    <div class="standup-section" id="mt-section">
       <div class="standup-header">
-        <h3 id="mt-date-heading" style="font-size:0.8rem; font-weight:400; opacity:0.4;"></h3>
-        <button class="standup-trigger-btn" id="mt-trigger" style="border-color:rgba(78,205,196,0.3); color:#4ecdc4;">
+        <h3 id="mt-date-heading"></h3>
+        <button class="standup-trigger-btn" id="mt-trigger">
           <i class="fas fa-play"></i> <span id="mt-trigger-label">Call Meeting</span>
         </button>
       </div>
@@ -119,12 +147,12 @@
           </div>
         </div>
         <div>
-          <label for="mt-agenda">Agenda / Intent <span style="opacity:0.4;font-size:0.55rem;">(required for focused meetings)</span></label>
+          <label for="mt-agenda">Agenda / Intent <span class="mt-field-hint">(required for focused meetings)</span></label>
           <textarea id="mt-agenda" placeholder="What should this meeting focus on? Be specific — the agents will respond to this agenda."></textarea>
         </div>
-        <div class="mt-config-grid" style="margin-top:0.4rem;">
+        <div class="mt-config-grid mt-config-grid--top">
           <div>
-            <label for="mt-topic-key">Topic Key <span style="opacity:0.4;font-size:0.55rem;">(auto from title)</span></label>
+            <label for="mt-topic-key">Topic Key <span class="mt-field-hint">(auto from title)</span></label>
             <input type="text" id="mt-topic-key" placeholder="auto-generated-from-title" />
           </div>
           <div>
@@ -142,7 +170,7 @@
       <!-- Decision Status Panel -->
       <div class="mt-decision-panel" id="mt-decision-panel">
         <div class="mt-decision-header">
-          <span class="mt-decision-title"><i class="fas fa-gavel" style="margin-right:4px;"></i> Decision Status</span>
+          <span class="mt-decision-title"><i class="fas fa-gavel mt-icon-mr"></i> Decision Status</span>
           <span id="mt-lock-icon" class="mt-lock-icon" style="display:none;"><i class="fas fa-lock"></i> Locked</span>
           <span id="mt-decision-badge" class="mt-status-badge mt-status-Pending">Pending</span>
         </div>
@@ -156,23 +184,23 @@
             <div class="mt-decision-card-value" id="mt-directives-count">0</div>
           </div>
           <div class="mt-decision-card">
-            <div class="mt-decision-card-label" style="color:#22c55e;">Approved</div>
-            <div class="mt-decision-card-value" id="mt-approved-count" style="color:#22c55e;">0</div>
+            <div class="mt-decision-card-label mt-card-label--green">Approved</div>
+            <div class="mt-decision-card-value mt-card-value--green" id="mt-approved-count">0</div>
           </div>
           <div class="mt-decision-card">
-            <div class="mt-decision-card-label" style="color:#ef4444;">Rejected</div>
-            <div class="mt-decision-card-value" id="mt-rejected-count" style="color:#ef4444;">0</div>
+            <div class="mt-decision-card-label mt-card-label--red">Rejected</div>
+            <div class="mt-decision-card-value mt-card-value--red" id="mt-rejected-count">0</div>
           </div>
           <div class="mt-decision-card">
-            <div class="mt-decision-card-label" style="color:#8b5cf6;">Deferred</div>
-            <div class="mt-decision-card-value" id="mt-deferred-count" style="color:#8b5cf6;">0</div>
+            <div class="mt-decision-card-label mt-card-label--purple">Deferred</div>
+            <div class="mt-decision-card-value mt-card-value--purple" id="mt-deferred-count">0</div>
           </div>
           <div class="mt-decision-card">
             <div class="mt-decision-card-label">Remaining</div>
             <div class="mt-decision-card-value" id="mt-remaining-count">0</div>
           </div>
         </div>
-        <div style="font-size:0.6rem;opacity:0.35;margin-top:0.5rem;">Review each proposed action below and approve, reject, or defer individually.</div>
+        <div class="mt-decision-hint">Review each proposed action below and approve, reject, or defer individually.</div>
       </div>
 
       <!-- Risk Aggregation Panel -->
@@ -188,24 +216,24 @@
       </div>
 
       <!-- Outcome Summary -->
-      <div id="mt-outcome-panel" style="background:rgba(255,215,0,0.03);border:1px solid rgba(255,215,0,0.1);border-radius:10px;padding:0.6rem 0.8rem;margin-bottom:0.8rem;display:none;">
-        <div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.15rem;">
-          <i class="fas fa-chart-line" style="color:#FFD700;font-size:0.65rem;"></i>
-          <strong style="font-size:0.75rem;color:#FFD700;">Outcome Summary</strong>
+      <div id="mt-outcome-panel" style="display:none;">
+        <div class="mt-outcome-header">
+          <i class="fas fa-chart-line mt-outcome-icon"></i>
+          <strong class="mt-outcome-title">Outcome Summary</strong>
         </div>
-        <div style="font-size:0.55rem;opacity:0.35;margin-bottom:0.5rem;">What changed as a result of this meeting.</div>
+        <div class="mt-outcome-sub">What changed as a result of this meeting.</div>
         <div id="mt-outcome-body"></div>
       </div>
 
       <!-- Artifacts Created -->
-      <div id="mt-artifacts-panel" style="background:rgba(59,130,246,0.04);border:1px solid rgba(59,130,246,0.12);border-radius:10px;padding:0.6rem 0.8rem;margin-bottom:0.8rem;display:none;">
-        <div style="font-size:0.7rem;font-weight:600;color:#3b82f6;margin-bottom:0.4rem;"><i class="fas fa-cube"></i> Artifacts Created</div>
-        <div id="mt-artifacts-list" style="font-size:0.65rem;"></div>
+      <div id="mt-artifacts-panel" style="display:none;">
+        <div class="mt-artifacts-header"><i class="fas fa-cube"></i> Artifacts Created</div>
+        <div id="mt-artifacts-list"></div>
       </div>
 
       <!-- Parser Warnings -->
-      <div id="mt-parse-warnings" style="background:rgba(251,191,36,0.04);border:1px solid rgba(251,191,36,0.1);border-radius:8px;padding:0.4rem 0.6rem;margin-bottom:0.6rem;font-size:0.6rem;color:#fbbf24;display:none;">
-        <i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i> <span id="mt-parse-warnings-text"></span>
+      <div id="mt-parse-warnings" style="display:none;">
+        <i class="fas fa-exclamation-triangle mt-parse-icon"></i> <span id="mt-parse-warnings-text"></span>
       </div>
 
       <!-- Live Feed -->
@@ -534,20 +562,20 @@
         list.innerHTML = '';
 
         var IMPACT_COLORS = { High: '#ef4444', Medium: '#fbbf24', Low: '#6b7280' };
-        var PRI_COLORS = { urgent: '#ef4444', high: '#f59e0b', medium: '#3b82f6', low: '#6b7280' };
+        var PRI_COLORS = { urgent: '#ef4444', high: '#f59e0b', medium: '#60a5fa', low: '#6b7280' };
 
         tasks.forEach(function (t, i) {
           var el = document.createElement('div');
           el.className = 'mt-proposal-item mt-proposal-item--task' + (t._decision ? ' mt-proposal-item--decided' : '');
           el.innerHTML =
-            '<div class="mt-proposal-name"><i class="fas fa-tasks" style="color:#3b82f6;margin-right:4px;font-size:0.6rem;"></i>' + esc(t.title) + ' ' + _proposalDecisionBadge(t) + '</div>' +
+            '<div class="mt-proposal-name"><i class="fas fa-tasks" style="color:#60a5fa;margin-right:4px;font-size:0.6rem;"></i>' + esc(t.title) + ' ' + _proposalDecisionBadge(t) + '</div>' +
             '<div class="mt-proposal-meta">' +
-              '<span class="mt-proposal-badge" style="background:rgba(59,130,246,0.12);color:#3b82f6;">Task</span>' +
+              '<span class="mt-proposal-badge" style="background:rgba(96,165,250,0.12);color:#60a5fa;">Task</span>' +
               (t.assignee ? '<span class="mt-proposal-badge" style="background:rgba(255,255,255,0.06);color:#ccc;">' + t.assignee + '</span>' : '') +
-              '<span class="mt-proposal-badge" style="background:' + (PRI_COLORS[t.priority] || '#3b82f6') + '22;color:' + (PRI_COLORS[t.priority] || '#3b82f6') + ';">' + (t.priority || 'medium') + '</span>' +
+              '<span class="mt-proposal-badge" style="background:' + (PRI_COLORS[t.priority] || '#60a5fa') + '22;color:' + (PRI_COLORS[t.priority] || '#60a5fa') + ';">' + (t.priority || 'medium') + '</span>' +
               '<span class="mt-proposal-badge" style="background:' + (IMPACT_COLORS[t.impact] || '#fbbf24') + '22;color:' + (IMPACT_COLORS[t.impact] || '#fbbf24') + ';">Impact: ' + (t.impact || '?') + '</span>' +
               '<span class="mt-proposal-badge" style="background:rgba(255,255,255,0.06);color:#ccc;">Effort: ' + (t.effort || '?') + '</span>' +
-              (t._proposers && t._proposers.length > 1 ? '<span class="mt-proposal-badge" style="background:rgba(138,43,226,0.12);color:#a855f7;">Merged (' + t._proposers.join(', ') + ')</span>' : '') +
+              (t._proposers && t._proposers.length > 1 ? '<span class="mt-proposal-badge" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);">Merged (' + t._proposers.join(', ') + ')</span>' : '') +
             '</div>' +
             (t.rationale ? '<div class="mt-proposal-rationale">' + esc(t.rationale) + '</div>' : '') +
             _proposalActionButtons('task', i, t);
@@ -558,15 +586,15 @@
           var el = document.createElement('div');
           el.className = 'mt-proposal-item' + (d._decision ? ' mt-proposal-item--decided' : '');
           el.innerHTML =
-            '<div class="mt-proposal-name"><i class="fas fa-compass" style="color:#a855f7;margin-right:4px;font-size:0.6rem;"></i>' + esc(d.title) + ' ' + _proposalDecisionBadge(d) + '</div>' +
+            '<div class="mt-proposal-name"><i class="fas fa-compass" style="color:rgba(255,255,255,0.4);margin-right:4px;font-size:0.6rem;"></i>' + esc(d.title) + ' ' + _proposalDecisionBadge(d) + '</div>' +
             '<div class="mt-proposal-meta">' +
-              '<span class="mt-proposal-badge" style="background:rgba(138,43,226,0.12);color:#a855f7;">Directive</span>' +
+              '<span class="mt-proposal-badge" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);">Directive</span>' +
               '<span class="mt-proposal-badge" style="background:rgba(255,255,255,0.06);color:#ccc;">' + (d.classification || 'Operational') + '</span>' +
               (d.owner ? '<span class="mt-proposal-badge" style="background:rgba(255,255,255,0.06);color:#ccc;">' + d.owner + '</span>' : '') +
-              '<span class="mt-proposal-badge" style="background:' + (PRI_COLORS[d.priority] || '#3b82f6') + '22;color:' + (PRI_COLORS[d.priority] || '#3b82f6') + ';">' + (d.priority || 'medium') + '</span>' +
+              '<span class="mt-proposal-badge" style="background:' + (PRI_COLORS[d.priority] || '#60a5fa') + '22;color:' + (PRI_COLORS[d.priority] || '#60a5fa') + ';">' + (d.priority || 'medium') + '</span>' +
               '<span class="mt-proposal-badge" style="background:' + (IMPACT_COLORS[d.impact] || '#fbbf24') + '22;color:' + (IMPACT_COLORS[d.impact] || '#fbbf24') + ';">Impact: ' + (d.impact || '?') + '</span>' +
               '<span class="mt-proposal-badge" style="background:rgba(255,255,255,0.06);color:#ccc;">Effort: ' + (d.effort || '?') + '</span>' +
-              (d._proposers && d._proposers.length > 1 ? '<span class="mt-proposal-badge" style="background:rgba(138,43,226,0.12);color:#a855f7;">Merged (' + d._proposers.join(', ') + ')</span>' : '') +
+              (d._proposers && d._proposers.length > 1 ? '<span class="mt-proposal-badge" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);">Merged (' + d._proposers.join(', ') + ')</span>' : '') +
             '</div>' +
             (d.rationale ? '<div class="mt-proposal-rationale">' + esc(d.rationale) + '</div>' : '') +
             _proposalActionButtons('directive', i, d);
@@ -600,7 +628,7 @@
           html += taskIds.map(function (id) {
             var t = AE.getTask(id);
             var label = t ? esc(t.title) + ' <span style="opacity:0.4;">(' + t.status + ')</span>' : id;
-            return '<a href="/modules/company/tasks.html" style="color:#3b82f6;text-decoration:none;">' + label + '</a>';
+            return '<a href="/modules/company/tasks.html" style="color:#60a5fa;text-decoration:none;">' + label + '</a>';
           }).join(', ');
           html += '</div>';
         }
@@ -610,7 +638,7 @@
             var d = null;
             AE.getDirectives().forEach(function (dir) { if (dir.id === id) d = dir; });
             var label = d ? esc(d.title) + ' <span style="opacity:0.4;">(' + d.status + ')</span>' : id;
-            return '<a href="/modules/company/campaigns.html" style="color:#a855f7;text-decoration:none;">' + label + '</a>';
+            return '<a href="/modules/company/campaigns.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">' + label + '</a>';
           }).join(', ');
           html += '</div>';
         }
@@ -668,7 +696,7 @@
         var body = document.getElementById('mt-outcome-body');
         var html = '';
         var IMPACT_COLORS = { High: '#ef4444', Medium: '#fbbf24', Low: '#6b7280' };
-        var PRI_COLORS = { urgent: '#ef4444', high: '#f59e0b', medium: '#3b82f6', low: '#6b7280' };
+        var PRI_COLORS = { urgent: '#ef4444', high: '#f59e0b', medium: '#60a5fa', low: '#6b7280' };
         var STATUS_COLORS = { 'pending-approval': '#fbbf24', active: '#22c55e', completed: '#c084fc', backlog: '#6b7280', todo: '#3b82f6' };
 
         html += '<div style="margin-bottom:0.5rem;">';
@@ -678,11 +706,11 @@
 
         if (summary.directives.length > 0) {
           html += '<div style="margin-bottom:0.5rem;">';
-          html += '<div style="font-size:0.65rem;font-weight:600;color:#a855f7;margin-bottom:0.3rem;"><i class="fas fa-compass" style="font-size:0.55rem;margin-right:3px;"></i>Projects (' + summary.directives.length + ')</div>';
+          html += '<div style="font-size:0.65rem;font-weight:600;color:rgba(255,255,255,0.5);margin-bottom:0.3rem;"><i class="fas fa-compass" style="font-size:0.55rem;margin-right:3px;"></i>Projects (' + summary.directives.length + ')</div>';
           summary.directives.forEach(function (d) {
             var status = d.status || 'pending-approval';
             var sColor = STATUS_COLORS[status] || '#6b7280';
-            html += '<div style="padding:0.35rem 0.5rem;border-left:3px solid rgba(138,43,226,0.4);background:rgba(138,43,226,0.03);border-radius:0 6px 6px 0;margin-bottom:0.25rem;">';
+            html += '<div style="padding:0.35rem 0.5rem;border-left:3px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.02);border-radius:0 6px 6px 0;margin-bottom:0.25rem;">';
             html += '<div style="font-size:0.72rem;font-weight:600;">' + esc(d.title) + '</div>';
             html += '<div style="display:flex;gap:0.25rem;flex-wrap:wrap;margin-top:2px;">';
             html += '<span style="font-size:0.5rem;padding:1px 5px;border-radius:4px;background:' + sColor + '22;color:' + sColor + ';font-weight:500;">' + (status || '').replace(/-/g, ' ') + '</span>';
@@ -695,10 +723,10 @@
 
         if (summary.tasks.length > 0) {
           html += '<div style="margin-bottom:0.5rem;">';
-          html += '<div style="font-size:0.65rem;font-weight:600;color:#3b82f6;margin-bottom:0.3rem;"><i class="fas fa-tasks" style="font-size:0.55rem;margin-right:3px;"></i>Tasks (' + summary.tasks.length + ')</div>';
+          html += '<div style="font-size:0.65rem;font-weight:600;color:rgba(255,255,255,0.5);margin-bottom:0.3rem;"><i class="fas fa-tasks" style="font-size:0.55rem;margin-right:3px;"></i>Tasks (' + summary.tasks.length + ')</div>';
           summary.tasks.forEach(function (t) {
-            var pColor = PRI_COLORS[t.priority] || '#3b82f6';
-            html += '<div style="padding:0.2rem 0.4rem;border-left:2px solid rgba(59,130,246,0.3);margin-bottom:2px;">';
+            var pColor = PRI_COLORS[t.priority] || '#60a5fa';
+            html += '<div style="padding:0.2rem 0.4rem;border-left:2px solid rgba(255,255,255,0.12);margin-bottom:2px;">';
             html += '<span style="font-size:0.68rem;font-weight:500;">' + esc(t.title) + '</span>';
             html += ' <span style="font-size:0.48rem;padding:1px 4px;border-radius:3px;background:' + pColor + '22;color:' + pColor + ';">' + (t.priority || 'medium') + '</span>';
             html += '</div>';
@@ -719,8 +747,8 @@
         }
 
         html += '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;padding-top:0.3rem;border-top:1px solid rgba(255,255,255,0.04);font-size:0.6rem;">';
-        if (summary.counts.directives > 0) html += '<span style="color:#a855f7;font-weight:500;">+' + summary.counts.directives + ' Project' + (summary.counts.directives > 1 ? 's' : '') + '</span>';
-        if (summary.counts.tasks > 0) html += '<span style="color:#3b82f6;font-weight:500;">+' + summary.counts.tasks + ' Task' + (summary.counts.tasks > 1 ? 's' : '') + '</span>';
+        if (summary.counts.directives > 0) html += '<span style="color:rgba(255,255,255,0.5);font-weight:500;">+' + summary.counts.directives + ' Project' + (summary.counts.directives > 1 ? 's' : '') + '</span>';
+        if (summary.counts.tasks > 0) html += '<span style="color:#60a5fa;font-weight:500;">+' + summary.counts.tasks + ' Task' + (summary.counts.tasks > 1 ? 's' : '') + '</span>';
         if (summary.counts.risks > 0) html += '<span style="color:#ef4444;font-weight:500;">+' + summary.counts.risks + ' Risk' + (summary.counts.risks > 1 ? 's' : '') + '</span>';
         if (summary.counts.activatedTasks > 0 || summary.counts.activatedDirs > 0) {
           html += '<span style="color:#22c55e;">Activated: ' + (summary.counts.activatedTasks + summary.counts.activatedDirs) + '</span>';
@@ -761,9 +789,9 @@
           var item = document.createElement('div');
           item.className = 'standup-past-item';
           var dateStr = fmtDate(meeting.date);
-          var lockHtml = meeting.locked ? ' <i class="fas fa-lock" style="color:#FFD700;font-size:0.55rem;"></i>' : '';
+          var lockHtml = meeting.locked ? ' <i class="fas fa-lock" style="opacity:0.4;font-size:0.55rem;"></i>' : '';
           var statusHtml = meeting.decisionStatus ? ' <span class="mt-status-badge mt-status-' + meeting.decisionStatus + '" style="font-size:0.5rem;">' + meeting.decisionStatus + '</span>' : '';
-          item.innerHTML = '<div class="standup-date-label"><i class="fas fa-video" style="margin-right:4px;color:#4ecdc4;"></i>' + dateStr + lockHtml + statusHtml +
+          item.innerHTML = '<div class="standup-date-label"><i class="fas fa-video" style="margin-right:4px;opacity:0.5;"></i>' + dateStr + lockHtml + statusHtml +
             ' <span style="opacity:0.4;font-size:0.65rem;">— ' + esc(meeting.title || 'Meeting') + '</span>' +
             ' <span style="opacity:0.25;font-size:0.55rem;">(' + (meeting.entries || []).length + ' entries)</span></div>';
 

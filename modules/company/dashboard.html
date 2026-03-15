@@ -8,7 +8,7 @@
   <title>Dashboard — AmbientPixels HQ</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/base.css" />
   <link rel="stylesheet" href="/css/grid.css" />
   <link rel="stylesheet" href="/css/nav.css" />
@@ -128,7 +128,7 @@
 
     /* Source pills */
     .obs-src-pill { font-size: 0.45rem; padding: 0.08rem 0.3rem; border-radius: 3px; font-weight: 500; }
-    .obs-src-pill--planner { background: rgba(138,43,226,0.1); color: #c084fc; }
+    .obs-src-pill--planner { background: rgba(167,139,250,0.1); color: #c084fc; }
     .obs-src-pill--cal { background: rgba(52,211,153,0.1); color: #34d399; }
 
     /* Storage strip */
@@ -142,9 +142,9 @@
     .aq-tabs { display:flex; gap:0; border-bottom:1px solid rgba(255,255,255,0.08); margin-bottom:0.5rem; }
     .aq-tab { background:none; border:none; color:rgba(255,255,255,0.4); font-size:0.65rem; padding:0.4rem 0.7rem; cursor:pointer; border-bottom:2px solid transparent; display:flex; align-items:center; gap:0.3rem; transition:color 0.2s, border-color 0.2s; }
     .aq-tab:hover { color:rgba(255,255,255,0.7); }
-    .aq-tab--active { color:#FFD700; border-bottom-color:#FFD700; }
+    .aq-tab--active { color:#e8e4df; border-bottom-color:#e8e4df; }
     .aq-tab-count { font-size:0.5rem; padding:0.05rem 0.35rem; border-radius:999px; background:rgba(255,255,255,0.06); font-weight:600; min-width:14px; text-align:center; }
-    .aq-tab--active .aq-tab-count { background:rgba(255,215,0,0.12); color:#FFD700; }
+    .aq-tab--active .aq-tab-count { background:rgba(255,255,255,0.1); color:#e8e4df; }
     /* Trending cards */
     .trend-card { border:1px solid rgba(96,165,250,0.12); border-radius:8px; padding:0.5rem 0.6rem; margin-bottom:0.35rem; background:rgba(96,165,250,0.02); transition:border-color 0.2s; }
     .trend-card:hover { border-color:rgba(96,165,250,0.25); }
@@ -226,47 +226,47 @@
     @media (max-width: 760px) { .epulse-split { grid-template-columns:1fr; } }
   </style>
 </head>
-<body style="background:#071019" data-theme="dark">
+<body data-theme="dark">
 
 
-  <main class="content-section" style="max-width: 1240px; margin: 0 auto; padding: 1rem;">
+  <main class="content-section" id="dash-main">
 
     <!-- Header -->
     <div class="dash-header">
-      <h1>
-        <i class="fas fa-tachometer-alt"></i> Dashboard
+      <div class="dash-header-identity">
+        <span class="dash-header-title"><i class="fas fa-tachometer-alt"></i> Dashboard</span>
         <span class="dash-action-badge" id="dash-action-badge" data-count="0"></span>
-        <span id="store-mode-badge" style="font-size:0.5rem; padding:2px 8px; border-radius:6px; background:rgba(255,255,255,0.04); color:rgba(255,255,255,0.25); font-weight:400; vertical-align:middle; margin-left:6px;">local</span>
-        <span id="exec-mode-pill" style="font-size:0.5rem; padding:2px 8px; border-radius:6px; background:rgba(52,211,153,0.1); color:#34d399; font-weight:500; vertical-align:middle; margin-left:4px; cursor:default;" title="Automation enabled. Agents may create and update tasks.">🟢 Live</span>
-        <span id="dash-mode-indicator" style="font-size:0.5rem; padding:2px 8px; border-radius:6px; font-weight:500; vertical-align:middle; margin-left:4px; cursor:pointer;" title="Click sidebar mode button to change"></span>
-        <span class="dash-view-toggle" id="dash-view-toggle" role="tablist">
-          <button role="tab" data-view="ceo" class="active" aria-selected="true">CEO View</button>
-          <button role="tab" data-view="board" aria-selected="false">Board View</button>
-          <button role="tab" data-view="dev" aria-selected="false" class="operator-only">Dev View</button>
-        </span>
-      </h1>
+        <span id="store-mode-badge" class="dash-meta-badge">local</span>
+        <span id="exec-mode-pill" class="dash-meta-badge" title="Automation enabled. Agents may create and update tasks.">🟢 Live</span>
+        <span id="dash-mode-indicator" class="dash-meta-badge dash-mode-badge" title="Click sidebar mode button to change"></span>
+      </div>
+      <span class="dash-view-toggle" id="dash-view-toggle" role="tablist">
+        <button role="tab" data-view="ceo" class="active" aria-selected="true">CEO View</button>
+        <button role="tab" data-view="board" aria-selected="false">Board View</button>
+        <button role="tab" data-view="dev" aria-selected="false" class="operator-only">Dev View</button>
+      </span>
       <div class="dash-header-actions">
-        <button class="dash-refresh-btn operator-only" id="dash-heartbeat" title="Run agent heartbeat cycle manually" style="border-color:rgba(78,205,196,0.2); color:#4ecdc4;">
+        <button class="dash-refresh-btn operator-only" id="dash-heartbeat" title="Run agent heartbeat cycle manually">
           <i class="fas fa-heartbeat"></i> Run Heartbeat
         </button>
-        <a href="/modules/company/meetings.html" class="dash-refresh-btn" style="border-color:rgba(78,205,196,0.2); color:#4ecdc4;"><i class="fas fa-video"></i> Call Meeting</a>
+        <a href="/modules/company/meetings.html" class="dash-refresh-btn"><i class="fas fa-video"></i> Call Meeting</a>
         <a href="/modules/company/" class="dash-refresh-btn"><i class="fas fa-arrow-left"></i> Back to HQ</a>
         <button class="dash-refresh-btn" id="dash-refresh"><i class="fas fa-sync-alt"></i> Refresh</button>
       </div>
     </div>
 
     <!-- Server Write Status Banner -->
-    <div id="dash-write-banner" style="display:none; margin-bottom:0.75rem; padding:0.5rem 0.75rem; border-radius:6px; font-size:0.7rem; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); color:#f87171;">
-      <i class="fas fa-exclamation-triangle" style="margin-right:0.4rem;"></i>
+    <div id="dash-write-banner">
+      <i class="fas fa-exclamation-triangle dash-banner-icon"></i>
       <span id="dash-write-msg">Server writes failing — changes won't reach agents.</span>
-      <span style="margin-left:0.5rem;">
-        Key: <input id="dash-write-key" type="password" placeholder="write secret" style="width:140px; padding:0.2rem 0.4rem; font-size:0.65rem; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.15); border-radius:4px; color:#fff; margin:0 0.3rem;" />
-        <button id="dash-write-key-btn" style="padding:0.2rem 0.5rem; font-size:0.6rem; background:rgba(52,211,153,0.15); border:1px solid rgba(52,211,153,0.3); border-radius:4px; color:#34d399; cursor:pointer;">Set Key</button>
+      <span class="dash-banner-key-wrap">
+        Key: <input id="dash-write-key" type="password" placeholder="write secret" />
+        <button id="dash-write-key-btn">Set Key</button>
       </span>
     </div>
 
     <!-- Execution Mode Banner (non-live modes) -->
-    <div id="exec-mode-banner" style="display:none; margin-bottom:0.75rem; padding:0.45rem 0.75rem; border-radius:6px; font-size:0.7rem; text-align:center; font-weight:500;"></div>
+    <div id="exec-mode-banner"></div>
 
     <!-- ════════════════════════════════════════ -->
     <!-- CEO VIEW                                 -->
@@ -294,31 +294,31 @@
       </div>
 
       <!-- CEO: Stat Cards (Zone 2) -->
-      <div class="ceo-stats" id="ceo-stats" style="margin-bottom:1rem;">
-        <div class="ceo-stat" style="--cstat-color:#ef4444;">
+      <div class="ceo-stats" id="ceo-stats">
+        <div class="ceo-stat cstat--red">
           <div class="ceo-stat-label">Needs Action</div>
           <div class="ceo-stat-value" id="cstat-action">0</div>
           <div class="ceo-stat-sub" id="cstat-action-sub">pending approvals</div>
         </div>
-        <div class="ceo-stat" style="--cstat-color:#34d399;">
+        <div class="ceo-stat cstat--green">
           <div class="ceo-stat-label">Autonomy</div>
           <div class="ceo-stat-value" id="cstat-autonomy">—</div>
           <div class="ceo-stat-sub" id="cstat-autonomy-sub">agent self-sufficiency</div>
         </div>
-        <div class="ceo-stat" style="--cstat-color:#fbbf24;">
+        <div class="ceo-stat cstat--amber">
           <div class="ceo-stat-label">Daily Burn</div>
           <div class="ceo-stat-value" id="cstat-burn">$0</div>
           <div class="ceo-stat-sub" id="cstat-burn-sub">est. cost today</div>
         </div>
-        <div class="ceo-stat" style="--cstat-color:#60a5fa;">
+        <div class="ceo-stat cstat--blue">
           <div class="ceo-stat-label">Task Pipeline</div>
           <div class="ceo-stat-value" id="cstat-pipeline">0</div>
           <div class="ceo-stat-sub" id="cstat-pipeline-sub">in-progress / review / done</div>
         </div>
-        <div class="ceo-stat" style="--cstat-color:#a78bfa;">
+        <div class="ceo-stat cstat--purple">
           <div class="ceo-stat-label">Inbound</div>
           <div class="ceo-stat-value" id="cstat-inbound">0</div>
-          <div class="ceo-stat-sub"><a href="/modules/company/inbound.html" style="color:inherit; text-decoration:none; opacity:0.7;">unprocessed signals</a></div>
+          <div class="ceo-stat-sub"><a href="/modules/company/inbound.html" class="ceo-inbound-link">unprocessed signals</a></div>
         </div>
       </div>
 
@@ -326,45 +326,45 @@
       <div class="ceo-main-split">
 
       <!-- Command Center (Tabbed) -->
-      <div class="dash-panel dash-panel--full" style="border:1px solid rgba(255,215,0,0.12); background:linear-gradient(135deg, rgba(255,215,0,0.03) 0%, rgba(138,43,226,0.03) 100%); margin-bottom:0;">
-        <div class="dash-panel-header" style="border-bottom:none; margin-bottom:0; padding-bottom:0;">
-          <span class="dash-panel-title"><i class="fas fa-satellite-dish" style="color:#FFD700;"></i> Command Center</span>
-          <span class="dash-panel-badge" id="inbox-total-badge" style="background:rgba(255,215,0,0.1); color:#FFD700;">0 items</span>
+      <div class="dash-panel dash-panel--full dash-panel--flush">
+        <div class="dash-panel-header dash-panel-header--flush">
+          <span class="dash-panel-title"><i class="fas fa-satellite-dish dash-icon-muted"></i> Command Center</span>
+          <span class="dash-panel-badge" id="inbox-total-badge">0 items</span>
         </div>
         <div class="cc-tabs" role="tablist" id="cc-tabs">
-          <button class="cc-tab active" role="tab" data-tab="cc-needs-action" aria-selected="true"><i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i>Alerts <span class="cc-tab-count" id="cc-count-action">0</span></button>
-          <button class="cc-tab" role="tab" data-tab="cc-meetings" aria-selected="false"><i class="fas fa-video" style="margin-right:4px;"></i>Meetings <span class="cc-tab-count" id="cc-count-meetings">0</span></button>
-          <button class="cc-tab" role="tab" data-tab="cc-briefing" aria-selected="false"><i class="fas fa-sun" style="margin-right:4px;"></i>Morning Brief</button>
-          <button class="cc-tab" role="tab" data-tab="cc-activity" aria-selected="false"><i class="fas fa-moon" style="margin-right:4px;"></i>Activity</button>
+          <button class="cc-tab active" role="tab" data-tab="cc-needs-action" aria-selected="true"><i class="fas fa-exclamation-triangle dash-icon-mr"></i>Alerts <span class="cc-tab-count" id="cc-count-action">0</span></button>
+          <button class="cc-tab" role="tab" data-tab="cc-meetings" aria-selected="false"><i class="fas fa-video dash-icon-mr"></i>Meetings <span class="cc-tab-count" id="cc-count-meetings">0</span></button>
+          <button class="cc-tab" role="tab" data-tab="cc-briefing" aria-selected="false"><i class="fas fa-sun dash-icon-mr"></i>Morning Brief</button>
+          <button class="cc-tab" role="tab" data-tab="cc-activity" aria-selected="false"><i class="fas fa-moon dash-icon-mr"></i>Activity</button>
         </div>
         <!-- Tab: Needs Action -->
         <div class="cc-tab-body active" id="cc-needs-action" role="tabpanel">
-          <div id="ceo-inbox-body" style="padding:0.5rem;">
+          <div id="ceo-inbox-body">
             <div class="dash-empty">Loading inbox...</div>
           </div>
         </div>
         <!-- Tab: Meetings -->
         <div class="cc-tab-body" id="cc-meetings" role="tabpanel">
-          <div id="cc-meetings-body" style="padding:0.5rem;">
+          <div id="cc-meetings-body">
             <div class="dash-empty">Loading meetings...</div>
           </div>
         </div>
         <!-- Tab: Morning Brief -->
         <div class="cc-tab-body" id="cc-briefing" role="tabpanel">
-          <div id="panel-report" style="padding:0.5rem;">
+          <div id="panel-report">
             <div class="dash-empty">No morning report available yet.</div>
           </div>
         </div>
         <!-- Tab: Activity -->
         <div class="cc-tab-body" id="cc-activity" role="tabpanel">
-          <div style="padding:0.5rem;">
-            <div style="margin-bottom:0.8rem;">
-              <div style="font-size:0.7rem; font-weight:600; opacity:0.5; margin-bottom:0.4rem;"><i class="fas fa-moon" style="margin-right:4px;"></i>Today's Activity</div>
+          <div class="dash-panel-body">
+            <div class="dash-content-section-hdr">
+              <div class="dash-sub-label"><i class="fas fa-moon dash-icon-mr"></i>Today's Activity</div>
               <ul class="log-list" id="panel-overnight"></ul>
               <div class="dash-empty" id="overnight-empty">No activity today yet.</div>
             </div>
             <div>
-              <div style="font-size:0.7rem; font-weight:600; opacity:0.5; margin-bottom:0.4rem;"><i class="fas fa-scroll" style="margin-right:4px; color:#FF8C00;"></i>Governance Log</div>
+              <div class="dash-sub-label"><i class="fas fa-scroll dash-icon-mr"></i>Governance Log</div>
               <ul class="log-list" id="panel-governance-log"></ul>
               <div class="dash-empty" id="governance-log-empty">No governance events yet.</div>
             </div>
@@ -373,9 +373,9 @@
       </div>
 
       <!-- Team Roster (right side of main split) -->
-      <div class="dash-panel ceo-team-panel" style="border:1px solid rgba(78,205,196,0.12); background:rgba(78,205,196,0.02); margin-bottom:0;">
-        <div class="dash-panel-header" style="margin-bottom:0.4rem; padding-bottom:0.4rem;">
-          <span class="dash-panel-title"><i class="fas fa-heartbeat" style="color:#4ECDC4;"></i> Agent Health</span>
+      <div class="dash-panel ceo-team-panel dash-panel--no-bottom">
+        <div class="dash-panel-header dash-panel-header--tight">
+          <span class="dash-panel-title"><i class="fas fa-heartbeat dash-icon-dim"></i> Agent Health</span>
         </div>
         <div class="dash-lastrun-bar" id="dash-lastrun-bar" style="display:none;"></div>
         <div class="agent-grid ceo-agent-grid-compact" id="ceo-agent-grid"></div>
@@ -386,19 +386,19 @@
       <!-- CEO: Strategy (Zone 3.5 — Goals + Projects side by side) -->
       <div class="ceo-strategy-row" id="ceo-strategy-row">
         <!-- Goals -->
-        <div class="dash-panel ceo-strategy-panel" style="border-color:rgba(78,205,196,0.12); background:rgba(78,205,196,0.02);">
+        <div class="dash-panel ceo-strategy-panel">
           <div class="dash-panel-header">
-            <span class="dash-panel-title"><i class="fas fa-bullseye" style="color:#4ECDC4;"></i> Goals</span>
-            <a href="/modules/company/objectives.html" style="font-size:0.65rem; opacity:0.4; text-decoration:none;">View All →</a>
+            <span class="dash-panel-title"><i class="fas fa-bullseye dash-icon-dim"></i> Goals</span>
+            <a href="/modules/company/objectives.html" class="dash-view-all">View All →</a>
           </div>
           <ul class="log-list" id="ceo-objectives-mirror"></ul>
           <div class="dash-empty" id="ceo-objectives-mirror-empty">No active goals.</div>
         </div>
         <!-- Campaigns / Projects -->
-        <div class="dash-panel ceo-strategy-panel" style="border-color:rgba(255,165,0,0.12); background:rgba(255,165,0,0.02);">
+        <div class="dash-panel ceo-strategy-panel">
           <div class="dash-panel-header">
-            <span class="dash-panel-title"><i class="fas fa-flag" style="color:#FFA500;"></i> Projects</span>
-            <a href="/modules/company/campaigns.html" style="font-size:0.65rem; opacity:0.4; text-decoration:none;">View All →</a>
+            <span class="dash-panel-title"><i class="fas fa-flag dash-icon-muted"></i> Projects</span>
+            <a href="/modules/company/campaigns.html" class="dash-view-all">View All →</a>
           </div>
           <ul class="log-list" id="ceo-campaigns-mirror"></ul>
           <div class="dash-empty" id="ceo-campaigns-mirror-empty">No active projects.</div>
@@ -408,7 +408,7 @@
       <!-- CEO: Insights (Zone 5 — Growth + Cost + Content merged) -->
       <div class="dash-section" id="section-insights" data-section="insights">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-chart-pie" style="color:#a78bfa;"></i>
+          <i class="fas fa-chart-pie dash-icon-purple"></i>
           <h2>Insights</h2>
           <i class="fas fa-chevron-down dash-section-chevron"></i>
         </div>
@@ -420,22 +420,22 @@
 
           <!-- Growth Headline Stats -->
           <div class="ceo-stats growth-stats" id="growth-stats">
-            <div class="ceo-stat" style="--cstat-color:#38bdf8;">
+            <div class="ceo-stat cstat--sky">
               <div class="ceo-stat-label">Page Views</div>
               <div class="ceo-stat-value" id="gstat-pageviews">--</div>
               <div class="ceo-stat-sub" id="gstat-pageviews-sub">last 7 days</div>
             </div>
-            <div class="ceo-stat" style="--cstat-color:#34d399;">
+            <div class="ceo-stat cstat--green">
               <div class="ceo-stat-label">Top Referrer</div>
-              <div class="ceo-stat-value" id="gstat-referrer" style="font-size:0.85rem;">--</div>
+              <div class="ceo-stat-value" id="gstat-referrer">--</div>
               <div class="ceo-stat-sub" id="gstat-referrer-sub">sessions</div>
             </div>
-            <div class="ceo-stat" style="--cstat-color:#60a5fa;">
+            <div class="ceo-stat cstat--blue">
               <div class="ceo-stat-label">Followers</div>
               <div class="ceo-stat-value" id="gstat-followers">--</div>
               <div class="ceo-stat-sub" id="gstat-followers-sub">across platforms</div>
             </div>
-            <div class="ceo-stat" style="--cstat-color:#a78bfa;">
+            <div class="ceo-stat cstat--purple">
               <div class="ceo-stat-label">Engagements</div>
               <div class="ceo-stat-value" id="gstat-engagements">--</div>
               <div class="ceo-stat-sub" id="gstat-engagements-sub">last 7 days</div>
@@ -445,7 +445,7 @@
           <!-- Traffic Brief Panel -->
           <div class="dash-panel dash-panel--full growth-traffic-panel">
             <div class="dash-panel-header">
-              <span class="dash-panel-title"><i class="fas fa-signal" style="color:#38bdf8;"></i> Traffic Brief</span>
+              <span class="dash-panel-title"><i class="fas fa-signal dash-icon-sky"></i> Traffic Brief</span>
               <div class="growth-controls">
                 <select id="ceo-tb-range" class="growth-select">
                   <option value="7d" selected>Last 7 days</option>
@@ -456,7 +456,7 @@
                 <button id="ceo-tb-scout" class="growth-btn growth-btn--green"><i class="fas fa-binoculars"></i> Scout Brief</button>
               </div>
             </div>
-            <div id="ceo-tb-body" style="padding:0.5rem 0.6rem;">
+            <div id="ceo-tb-body">
               <div class="dash-empty">Loading traffic data...</div>
             </div>
           </div>
@@ -464,10 +464,10 @@
           <!-- Social Command Center (CEO view) -->
           <div class="dash-panel dash-panel--full growth-social-panel">
             <div class="dash-panel-header">
-              <span class="dash-panel-title"><i class="fas fa-satellite-dish" style="color:#60a5fa;"></i> Social Command Center</span>
-              <a href="/modules/company/social-analytics.html" style="font-size:0.65rem; opacity:0.45; text-decoration:none;">Detailed Analytics &rarr;</a>
+              <span class="dash-panel-title"><i class="fas fa-satellite-dish dash-icon-blue"></i> Social Command Center</span>
+              <a href="/modules/company/social-analytics.html" class="dash-view-all--sm">Detailed Analytics &rarr;</a>
             </div>
-            <div id="social-command-ceo" style="padding:0.5rem;">
+            <div id="social-command-ceo">
               <div class="dash-empty">Loading social data...</div>
             </div>
           </div>
@@ -475,27 +475,27 @@
 
       <!-- Cost Summary -->
       <div class="ceo-insights-panel" id="insights-cost">
-          <div id="ceo-cost-summary-mirror" style="padding:0.5rem 0.6rem;">
-            <div class="dash-empty" style="font-size:0.6rem;">Loading cost summary...</div>
+          <div id="ceo-cost-summary-mirror">
+            <div class="dash-empty">Loading cost summary...</div>
           </div>
-          <div style="text-align:right; margin-top:0.3rem;">
-            <a href="/modules/company/cost-overview.html" style="font-size:0.62rem; color:#fbbf24; opacity:0.6; text-decoration:none;">
-              Full Cost Center <i class="fas fa-arrow-right" style="margin-left:3px;"></i>
+          <div class="dash-cost-link-wrap">
+            <a href="/modules/company/cost-overview.html" class="dash-cost-link">
+              Full Cost Center <i class="fas fa-arrow-right dash-icon-ml"></i>
             </a>
           </div>
       </div><!-- /.ceo-insights-panel (cost) -->
 
       <!-- Content Pipeline (Blog + Logs) -->
       <div class="ceo-insights-panel" id="insights-content">
-          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
-            <span style="font-size:0.72rem; font-weight:600; opacity:0.7;"><i class="fas fa-newspaper" style="color:#a78bfa; margin-right:4px;"></i>Content Pipeline</span>
-            <span style="font-size:0.6rem; opacity:0.4;"><span id="ceo-content-blog-count">0</span> posts · <span id="ceo-content-log-count">0</span> logs</span>
+          <div class="dash-section-flex">
+            <span class="dash-sub-label dash-sub-label--flush"><i class="fas fa-newspaper dash-icon-mr dash-icon-purple"></i>Content Pipeline</span>
+            <span class="dash-section-meta"><span id="ceo-content-blog-count">0</span> posts · <span id="ceo-content-log-count">0</span> logs</span>
           </div>
           <div id="ceo-blog-admin-mirror"></div>
-          <div class="dash-empty" id="ceo-blog-admin-mirror-empty" style="font-size:0.65rem;">No published blog posts.</div>
-          <div style="margin-top:0.4rem; display:flex; gap:0.8rem;">
-            <a href="/blog/" target="_blank" style="font-size:0.6rem; color:#a78bfa; opacity:0.7; text-decoration:none;">Public Blog →</a>
-            <a href="/log/" target="_blank" style="font-size:0.6rem; color:#34d399; opacity:0.7; text-decoration:none;">Public Log →</a>
+          <div class="dash-empty" id="ceo-blog-admin-mirror-empty">No published blog posts.</div>
+          <div class="dash-content-links">
+            <a href="/blog/" target="_blank" class="dash-content-link--purple">Public Blog →</a>
+            <a href="/log/" target="_blank" class="dash-content-link--green">Public Log →</a>
           </div>
       </div><!-- /.ceo-insights-panel (content) -->
 
@@ -506,7 +506,7 @@
       <!-- CEO: Decisions Section (Zone 4) -->
       <div class="dash-section" id="section-decisions" data-section="decisions">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-gavel" style="color:#FFD700;"></i>
+          <i class="fas fa-gavel dash-icon-muted"></i>
           <h2>Approvals</h2>
           <i class="fas fa-chevron-down dash-section-chevron"></i>
         </div>
@@ -515,19 +515,19 @@
             <!-- Pending Approvals — slim summary, full detail in Action Queue -->
             <div class="dash-panel dash-panel--full" id="panel-approval-wrap">
               <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-gavel" style="color:#FFD700;"></i> Pending Approvals</span>
-                <span class="dash-panel-badge" id="approval-count-badge" style="background:rgba(255,215,0,0.1); color:#FFD700;">0 pending</span>
+                <span class="dash-panel-title"><i class="fas fa-gavel dash-icon-muted"></i> Pending Approvals</span>
+                <span class="dash-panel-badge" id="approval-count-badge">0 pending</span>
               </div>
-              <div style="padding:0.6rem 0.75rem 0.75rem;">
-                <div id="approval-preview-list" style="margin-bottom:0.65rem;"></div>
-                <a href="/modules/company/actions.html" style="font-size:0.72rem; color:#FFA500; text-decoration:none; font-weight:500;">Open Action Queue <i class="fas fa-arrow-right" style="margin-left:3px;"></i></a>
+              <div class="dash-panel-body--padded">
+                <div id="approval-preview-list"></div>
+                <a href="/modules/company/actions.html" class="dash-approval-link">Open Action Queue <i class="fas fa-arrow-right dash-icon-ml"></i></a>
               </div>
             </div>
             <!-- Facebook Outbox (manual posting queue) -->
             <div class="dash-panel dash-panel--full" id="panel-fb-outbox-wrap" style="display:none;">
               <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fab fa-facebook" style="color:#1877F2;"></i> Facebook Outbox</span>
-                <span class="dash-panel-badge" id="fb-outbox-count-badge" style="background:rgba(24,119,242,0.1); color:#1877F2;">0 ready</span>
+                <span class="dash-panel-title"><i class="fab fa-facebook dash-icon-fb"></i> Facebook Outbox</span>
+                <span class="dash-panel-badge dash-fb-badge" id="fb-outbox-count-badge">0 ready</span>
               </div>
               <div id="panel-fb-outbox-list">
                 <div class="dash-empty">No Facebook posts awaiting manual posting.</div>
@@ -550,49 +550,49 @@
       <!-- CEO: Metrics Section (hidden in CEO — moved to Dev view) -->
       <div class="dash-section" id="section-metrics" data-section="metrics" style="display:none;">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-chart-line" style="color:#4ECDC4;"></i>
+          <i class="fas fa-chart-line dash-icon-dim"></i>
           <h2>Metrics</h2>
           <i class="fas fa-chevron-down dash-section-chevron"></i>
         </div>
         <div class="dash-section-body">
           <div class="dash-grid">
             <!-- System Pulse -->
-            <div class="dash-panel dash-panel--full" id="panel-system-pulse-wrap" style="min-height:auto;">
+            <div class="dash-panel dash-panel--full dash-panel--min-auto" id="panel-system-pulse-wrap">
               <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-wave-square" style="color:#4ECDC4;"></i> System Pulse</span>
+                <span class="dash-panel-title"><i class="fas fa-wave-square dash-icon-dim"></i> System Pulse</span>
               </div>
               <div id="panel-system-pulse" class="system-pulse"></div>
             </div>
             <!-- Autonomy Score -->
             <div class="dash-panel">
               <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-robot" style="color:#34d399;"></i> Autonomy Score</span>
+                <span class="dash-panel-title"><i class="fas fa-robot dash-icon-green"></i> Autonomy Score</span>
               </div>
-              <div id="panel-autonomy" style="padding:0.5rem; text-align:center;">
-                <div id="autonomy-ring" style="position:relative; width:90px; height:90px; margin:0 auto;">
-                  <svg viewBox="0 0 36 36" style="width:90px; height:90px; transform:rotate(-90deg);">
+              <div id="panel-autonomy">
+                <div id="autonomy-ring">
+                  <svg viewBox="0 0 36 36" class="dash-autonomy-svg">
                     <circle cx="18" cy="18" r="15.9" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="3" />
-                    <circle id="autonomy-arc" cx="18" cy="18" r="15.9" fill="none" stroke="#34d399" stroke-width="3" stroke-dasharray="0, 100" stroke-linecap="round" style="transition:stroke-dasharray 0.6s;" />
+                    <circle id="autonomy-arc" cx="18" cy="18" r="15.9" fill="none" stroke="#34d399" stroke-width="3" stroke-dasharray="0, 100" stroke-linecap="round" />
                   </svg>
-                  <div id="autonomy-pct" style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); font-size:1.3rem; font-weight:600; color:#34d399;">—</div>
+                  <div id="autonomy-pct">—</div>
                 </div>
-                <div id="autonomy-detail" style="font-size:0.6rem; opacity:0.4; margin-top:0.4rem;"></div>
+                <div id="autonomy-detail"></div>
               </div>
             </div>
             <!-- Risk Heatmap -->
             <div class="dash-panel">
               <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-fire" style="color:#ef4444;"></i> Risk Heatmap</span>
+                <span class="dash-panel-title"><i class="fas fa-fire dash-icon-red"></i> Risk Heatmap</span>
               </div>
-              <div id="panel-risk-heatmap" style="padding:0.5rem;"></div>
+              <div id="panel-risk-heatmap"></div>
             </div>
             <!-- Actions Snapshot -->
             <div class="dash-panel dash-panel--full">
               <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-bolt" style="color:#FFA500;"></i> Actions</span>
-                <a href="/modules/company/actions.html" style="font-size:0.65rem; opacity:0.4; text-decoration:none;">Command Center →</a>
+                <span class="dash-panel-title"><i class="fas fa-bolt dash-icon-muted"></i> Actions</span>
+                <a href="/modules/company/actions.html" class="dash-view-all">Command Center →</a>
               </div>
-              <div id="panel-action-snap" style="padding:0.3rem 0.5rem;">
+              <div id="panel-action-snap">
                 <div class="dash-empty">No actions yet.</div>
               </div>
             </div>
@@ -605,18 +605,18 @@
       <!-- CEO: Cost Center Section (hidden — data mirrored to Insights) -->
       <div class="dash-section" id="section-costs" data-section="costs" style="display:none;">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-dollar-sign" style="color:#fbbf24;"></i>
+          <i class="fas fa-dollar-sign dash-icon-amber"></i>
           <h2>Cost Center</h2>
           <i class="fas fa-chevron-down dash-section-chevron"></i>
         </div>
         <div class="dash-section-body">
           <!-- Combined Cost Summary -->
-          <div id="panel-cost-summary" style="padding:0.5rem 0.6rem; margin-bottom:0.6rem;">
-            <div class="dash-empty" style="font-size:0.6rem;">Loading cost summary...</div>
+          <div id="panel-cost-summary">
+            <div class="dash-empty">Loading cost summary...</div>
           </div>
-          <div style="text-align:right; margin-top:0.3rem;">
-            <a href="/modules/company/cost-overview.html" style="font-size:0.62rem; color:#fbbf24; opacity:0.6; text-decoration:none;">
-              View Full Cost Center <i class="fas fa-arrow-right" style="margin-left:3px;"></i>
+          <div class="dash-cost-link-wrap">
+            <a href="/modules/company/cost-overview.html" class="dash-cost-link">
+              View Full Cost Center <i class="fas fa-arrow-right dash-icon-ml"></i>
             </a>
           </div>
           <!-- Hidden targets so render functions don't error -->
@@ -634,12 +634,12 @@
       <!-- CEO: Observability (hidden — status strip at top) -->
       <div class="dash-section" id="obs-section" data-section="observability" style="display:none;">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-binoculars" style="color:#60a5fa;"></i>
+          <i class="fas fa-binoculars dash-icon-blue"></i>
           <h2>System Health</h2>
           <i class="fas fa-chevron-down dash-section-chevron"></i>
         </div>
         <div class="dash-section-body">
-          <div id="ceo-obs-root" style="padding:0.3rem 0;">
+          <div id="ceo-obs-root">
             <div class="ceo-obs-lights" id="ceo-obs-lights">
               <div class="ceo-obs-light">
                 <div class="ceo-obs-light-dot ceo-obs-light-dot--unknown" id="ceo-obs-dot-hb"></div>
@@ -669,7 +669,7 @@
       <!-- CEO: Content Section (hidden — data mirrored to Insights) -->
       <div class="dash-section" id="section-content" data-section="content" style="display:none;">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-newspaper" style="color:#a78bfa;"></i>
+          <i class="fas fa-newspaper dash-icon-purple"></i>
           <h2>Content</h2>
           <i class="fas fa-chevron-down dash-section-chevron"></i>
         </div>
@@ -678,8 +678,8 @@
             <!-- Daily Log Review -->
             <div class="dash-panel dash-panel--full">
               <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-stream" style="color:#34d399;"></i> Daily Logs</span>
-                <a href="/log/" target="_blank" style="font-size:0.65rem; opacity:0.4; text-decoration:none;">Public Log →</a>
+                <span class="dash-panel-title"><i class="fas fa-stream dash-icon-green"></i> Daily Logs</span>
+                <a href="/log/" target="_blank" class="dash-view-all">Public Log →</a>
               </div>
               <div id="panel-daily-log-drafts"></div>
               <div class="dash-empty" id="daily-log-empty">No daily log entries yet.</div>
@@ -687,8 +687,8 @@
             <!-- Blog Admin -->
             <div class="dash-panel dash-panel--full">
               <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-newspaper" style="color:#a78bfa;"></i> Blog Posts</span>
-                <a href="/blog/" target="_blank" style="font-size:0.65rem; opacity:0.4; text-decoration:none;">Public Blog →</a>
+                <span class="dash-panel-title"><i class="fas fa-newspaper dash-icon-purple"></i> Blog Posts</span>
+                <a href="/blog/" target="_blank" class="dash-view-all">Public Blog →</a>
               </div>
               <div id="panel-blog-admin"></div>
               <div class="dash-empty" id="blog-admin-empty">No published blog posts.</div>
@@ -697,17 +697,6 @@
         </div>
       </div>
 
-      <!-- CEO: Organization (hidden — moved to Board view) -->
-      <div class="dash-section collapsed" id="section-org-chart" data-section="org-chart" style="display:none;">
-        <div class="dash-section-header" tabindex="0" role="button" aria-expanded="false">
-          <i class="fas fa-sitemap" style="color:#c084fc;"></i>
-          <h2>Organization</h2>
-          <i class="fas fa-chevron-down dash-section-chevron"></i>
-        </div>
-        <div class="dash-section-body">
-          <div id="ceo-org-chart" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:0.5rem; padding:0.3rem 0;"></div>
-        </div>
-      </div>
 
 
     </div>
@@ -719,22 +708,22 @@
 
       <!-- Stat Cards -->
       <div class="dash-stats" id="dash-stats">
-        <div class="dash-stat-card" style="--stat-color: #8A2BE2;">
+        <div class="dash-stat-card stat-card--purple">
           <div class="dash-stat-label">Total Sessions</div>
           <div class="dash-stat-value" id="stat-total-sessions">0</div>
           <div class="dash-stat-sub" id="stat-total-sessions-sub">—</div>
         </div>
-        <div class="dash-stat-card" style="--stat-color: #00C896;">
+        <div class="dash-stat-card stat-card--green">
           <div class="dash-stat-label">Active Now</div>
           <div class="dash-stat-value" id="stat-active">0</div>
           <div class="dash-stat-sub" id="stat-idle-count">0 idle</div>
         </div>
-        <div class="dash-stat-card" style="--stat-color: #4ECDC4;">
+        <div class="dash-stat-card stat-card--blue">
           <div class="dash-stat-label">Total Tokens</div>
           <div class="dash-stat-value" id="stat-tokens">0</div>
           <div class="dash-stat-sub" id="stat-tokens-sub">in / out</div>
         </div>
-        <div class="dash-stat-card" style="--stat-color: #FF6B9D;">
+        <div class="dash-stat-card stat-card--pink">
           <div class="dash-stat-label">Est. Cost</div>
           <div class="dash-stat-value" id="stat-cost">$0.00</div>
           <div class="dash-stat-sub" id="stat-cost-sub">lifetime</div>
@@ -744,7 +733,7 @@
       <!-- Dev: System Section -->
       <div class="dash-section" id="section-system" data-section="system">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-cogs" style="color:#4ECDC4;"></i>
+          <i class="fas fa-cogs dash-icon-dim"></i>
           <h2>System</h2>
           <i class="fas fa-chevron-down dash-section-chevron"></i>
         </div>
@@ -776,7 +765,7 @@
                 <span class="dash-panel-title"><i class="fas fa-stream"></i> Session Log</span>
                 <span class="dash-panel-badge" id="session-count-badge">0 calls</span>
               </div>
-              <div style="overflow-x: auto;">
+              <div class="overflow-x-auto">
                 <table class="session-table" id="panel-sessions">
                   <thead>
                     <tr>
@@ -796,7 +785,7 @@
             <!-- Heartbeat Health -->
             <div class="dash-panel dash-panel--full">
               <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-heart-pulse" style="color:#4ecdc4;"></i> Heartbeat Health</span>
+                <span class="dash-panel-title"><i class="fas fa-heart-pulse dash-icon-muted"></i> Heartbeat Health</span>
                 <span class="dash-panel-badge" id="heartbeat-health-badge">Loading...</span>
               </div>
               <div id="panel-heartbeat-health"></div>
@@ -813,7 +802,7 @@
               </div>
               <div class="dash-panel">
                 <div class="dash-panel-header">
-                  <span class="dash-panel-title"><i class="fas fa-scroll" style="color:#FF8C00;"></i> Governance Log (Dev)</span>
+                  <span class="dash-panel-title"><i class="fas fa-scroll dash-icon-muted"></i> Governance Log (Dev)</span>
                 </div>
                 <ul class="log-list" id="panel-governance-log-dev"></ul>
                 <div class="dash-empty" id="governance-log-dev-empty">No governance events yet.</div>
@@ -826,28 +815,28 @@
       <!-- Dev: Traffic Brief (moved from CEO) -->
       <div class="dash-section" id="section-traffic-dev" data-section="traffic-dev">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-signal" style="color:#38bdf8;"></i>
+          <i class="fas fa-signal dash-icon-sky"></i>
           <h2>Traffic Brief</h2>
           <i class="fas fa-chevron-down dash-section-chevron"></i>
         </div>
         <div class="dash-section-body">
-          <div class="dash-panel dash-panel--full" style="border:1px solid rgba(56,189,248,0.1); background:rgba(56,189,248,0.015);">
-            <div class="dash-panel-header" style="border-bottom:none; padding-bottom:0;">
-              <span class="dash-panel-title"><i class="fas fa-chart-area" style="color:#38bdf8;"></i> Traffic Brief</span>
-              <span id="tb-range-label" style="font-size:0.52rem; opacity:0.35;">Last 7 days · powered by Application Insights</span>
+          <div class="dash-panel dash-panel--full dash-panel--sky">
+            <div class="dash-panel-header dash-panel-header--flush">
+              <span class="dash-panel-title"><i class="fas fa-chart-area dash-icon-sky"></i> Traffic Brief</span>
+              <span id="tb-range-label">Last 7 days · powered by Application Insights</span>
             </div>
-            <div id="traffic-brief-root" style="padding:0.5rem 0.6rem;">
-              <div style="display:flex; align-items:center; gap:6px; margin-bottom:0.6rem;">
-                <select id="tb-range" style="font-size:0.6rem; padding:0.2rem 0.4rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:5px; color:inherit;">
+            <div id="traffic-brief-root">
+              <div class="tb-controls-row">
+                <select id="tb-range">
                   <option value="7d" selected>Last 7 days</option>
                   <option value="1d">Last 24 hours</option>
                   <option value="30d">Last 30 days</option>
                 </select>
-                <button id="tb-refresh" style="font-size:0.55rem; padding:0.2rem 0.5rem; border-radius:5px; cursor:pointer; border:1px solid rgba(56,189,248,0.2); background:rgba(56,189,248,0.04); color:#38bdf8; font-family:inherit;"><i class="fas fa-sync-alt" style="margin-right:3px;"></i>Refresh</button>
-                <button id="tb-scout-btn" style="font-size:0.55rem; padding:0.2rem 0.5rem; border-radius:5px; cursor:pointer; border:1px solid rgba(52,211,153,0.2); background:rgba(52,211,153,0.04); color:#34d399; font-family:inherit; margin-left:auto;"><i class="fas fa-binoculars" style="margin-right:3px;"></i>Generate Scout Brief</button>
+                <button id="tb-refresh"><i class="fas fa-sync-alt dash-icon-mr-sm"></i>Refresh</button>
+                <button id="tb-scout-btn"><i class="fas fa-binoculars dash-icon-mr-sm"></i>Generate Scout Brief</button>
               </div>
               <div id="tb-body">
-                <div class="dash-empty" style="font-size:0.6rem;">Loading traffic data...</div>
+                <div class="dash-empty dash-empty--sm">Loading traffic data...</div>
               </div>
             </div>
           </div>
@@ -857,7 +846,7 @@
       <!-- Dev: Social Ops (detailed — moved from CEO) -->
       <div class="dash-section" id="section-social-dev" data-section="social-dev">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-hashtag" style="color:#60a5fa;"></i>
+          <i class="fas fa-hashtag dash-icon-blue"></i>
           <h2>Social Ops</h2>
           <i class="fas fa-chevron-down dash-section-chevron"></i>
         </div>
@@ -866,10 +855,10 @@
             <!-- Social Command Center (Dev view) -->
             <div class="dash-panel dash-panel--full" id="panel-social-command-dev-wrap">
               <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-satellite-dish" style="color:#60a5fa;"></i> Social Command Center</span>
-                <a href="/modules/company/social-analytics.html" style="font-size:0.65rem; opacity:0.45; text-decoration:none;">Full Analytics &rarr;</a>
+                <span class="dash-panel-title"><i class="fas fa-satellite-dish dash-icon-blue"></i> Social Command Center</span>
+                <a href="/modules/company/social-analytics.html" class="dash-view-all--sm">Full Analytics &rarr;</a>
               </div>
-              <div id="social-command-dev" style="padding:0.5rem;">
+              <div id="social-command-dev">
                 <div class="dash-empty">Loading social data...</div>
               </div>
             </div>
@@ -880,12 +869,12 @@
       <!-- Dev: Full Observability -->
       <div class="dash-section" id="section-obs-dev" data-section="obs-dev">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-binoculars" style="color:#60a5fa;"></i>
+          <i class="fas fa-binoculars dash-icon-blue"></i>
           <h2>Observability</h2>
           <i class="fas fa-chevron-down dash-section-chevron"></i>
         </div>
         <div class="dash-section-body">
-          <div class="dash-panel dash-panel--full" style="border:1px solid rgba(96,165,250,0.08); background:rgba(96,165,250,0.01);">
+          <div class="dash-panel dash-panel--full dash-panel--blue-subtle">
             <div id="obs-dashboard-root-dev">
               <div class="dash-empty">Loading observability data...</div>
             </div>
@@ -896,40 +885,40 @@
       <!-- Dev: Metrics (moved from CEO view) -->
       <div class="dash-section" id="section-metrics-dev" data-section="metrics-dev">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-chart-line" style="color:#4ECDC4;"></i>
+          <i class="fas fa-chart-line dash-icon-dim"></i>
           <h2>Metrics</h2>
           <i class="fas fa-chevron-down dash-section-chevron"></i>
         </div>
         <div class="dash-section-body">
           <div class="dash-grid">
             <!-- System Pulse (mirrored from CEO) -->
-            <div class="dash-panel dash-panel--full" style="min-height:auto;">
+            <div class="dash-panel dash-panel--full dash-panel--min-auto">
               <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-wave-square" style="color:#4ECDC4;"></i> System Pulse</span>
+                <span class="dash-panel-title"><i class="fas fa-wave-square dash-icon-dim"></i> System Pulse</span>
               </div>
               <div id="panel-system-pulse-dev" class="system-pulse"></div>
             </div>
             <!-- Autonomy Score (mirrored) -->
             <div class="dash-panel">
               <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-robot" style="color:#34d399;"></i> Autonomy Score</span>
+                <span class="dash-panel-title"><i class="fas fa-robot dash-icon-green"></i> Autonomy Score</span>
               </div>
-              <div id="panel-autonomy-dev" style="padding:0.5rem; text-align:center;"></div>
+              <div id="panel-autonomy-dev"></div>
             </div>
             <!-- Risk Heatmap (mirrored) -->
             <div class="dash-panel">
               <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-fire" style="color:#ef4444;"></i> Risk Heatmap</span>
+                <span class="dash-panel-title"><i class="fas fa-fire dash-icon-red"></i> Risk Heatmap</span>
               </div>
-              <div id="panel-risk-heatmap-dev" style="padding:0.5rem;"></div>
+              <div id="panel-risk-heatmap-dev"></div>
             </div>
             <!-- Actions Snapshot (mirrored) -->
             <div class="dash-panel dash-panel--full">
               <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-bolt" style="color:#FFA500;"></i> Actions</span>
-                <a href="/modules/company/actions.html" style="font-size:0.65rem; opacity:0.4; text-decoration:none;">Command Center →</a>
+                <span class="dash-panel-title"><i class="fas fa-bolt dash-icon-muted"></i> Actions</span>
+                <a href="/modules/company/actions.html" class="dash-view-all">Command Center →</a>
               </div>
-              <div id="panel-action-snap-dev" style="padding:0.3rem 0.5rem;">
+              <div id="panel-action-snap-dev">
                 <div class="dash-empty">No actions yet.</div>
               </div>
             </div>
@@ -947,7 +936,7 @@
         <!-- Board Header -->
         <div class="board-header">
           <div>
-            <h1><i class="fas fa-columns" style="color:#c084fc;"></i> Quarterly Board</h1>
+            <h1><i class="fas fa-columns dash-icon-faint"></i> Quarterly Board</h1>
             <div class="board-date-range" id="board-range"></div>
           </div>
           <div class="board-controls">
@@ -965,8 +954,8 @@
 
         <!-- 1. Executive Summary (moved above stats — narrative first) -->
         <div class="board-section" id="sec-exec">
-          <div class="board-section-title"><i class="fas fa-briefcase" style="color:#FFD700;"></i> Executive Summary</div>
-          <div class="board-card" id="board-exec-summary" style="font-size:0.8rem; line-height:1.5; border-color:rgba(255,215,0,0.1); background:rgba(255,215,0,0.02);"></div>
+          <div class="board-section-title"><i class="fas fa-briefcase dash-icon-muted"></i> Executive Summary</div>
+          <div class="board-card board-card--body" id="board-exec-summary"></div>
         </div>
 
         <!-- 2. Headline Stats -->
@@ -974,7 +963,7 @@
 
         <!-- 3. Goals -->
         <div class="board-section" id="sec-goals">
-          <div class="board-section-title"><i class="fas fa-bullseye" style="color:#4ECDC4;"></i> Goals <span class="board-badge" id="badge-goals" style="background:rgba(78,205,196,0.1);color:#4ECDC4;">0</span></div>
+          <div class="board-section-title"><i class="fas fa-bullseye dash-icon-dim"></i> Goals <span class="board-badge board-badge--sky" id="badge-goals">0</span></div>
           <div id="board-goals"></div>
         </div>
 
@@ -982,25 +971,25 @@
         <div class="board-two-col">
           <div>
             <div class="board-section" id="sec-active-dirs">
-              <div class="board-section-title"><i class="fas fa-fire" style="color:#FF8C00;"></i> Active Projects <span class="board-badge" id="badge-active-dirs" style="background:rgba(255,140,0,0.1);color:#FF8C00;">0</span></div>
+              <div class="board-section-title"><i class="fas fa-fire dash-icon-muted"></i> Active Projects <span class="board-badge" id="badge-active-dirs">0</span></div>
               <div id="board-active-dirs"></div>
             </div>
             <div class="board-section" id="sec-completed-dirs">
-              <div class="board-section-title"><i class="fas fa-trophy" style="color:#c084fc;"></i> Completed <span class="board-badge" id="badge-completed-dirs" style="background:rgba(192,132,252,0.1);color:#c084fc;">0</span></div>
+              <div class="board-section-title"><i class="fas fa-trophy dash-icon-faint"></i> Completed <span class="board-badge" id="badge-completed-dirs">0</span></div>
               <div id="board-completed-dirs"></div>
             </div>
             <div class="board-section" id="sec-pending-dirs">
-              <div class="board-section-title"><i class="fas fa-hourglass-half" style="color:#fbbf24;"></i> Pending Approval <span class="board-badge" id="badge-pending-dirs" style="background:rgba(251,191,36,0.1);color:#fbbf24;">0</span></div>
+              <div class="board-section-title"><i class="fas fa-hourglass-half dash-icon-amber"></i> Pending Approval <span class="board-badge board-badge--amber" id="badge-pending-dirs">0</span></div>
               <div id="board-pending-dirs"></div>
             </div>
           </div>
           <div>
             <div class="board-section" id="sec-team">
-              <div class="board-section-title"><i class="fas fa-users" style="color:#4ECDC4;"></i> Agent Team</div>
-              <div id="board-team" style="display:flex; flex-direction:column; gap:0.35rem;"></div>
+              <div class="board-section-title"><i class="fas fa-users dash-icon-dim"></i> Agent Team</div>
+              <div id="board-team"></div>
             </div>
             <div class="board-section" id="sec-backlog">
-              <div class="board-section-title"><i class="fas fa-inbox" style="color:#fbbf24;"></i> Approval Backlog <span class="board-badge" id="badge-backlog" style="background:rgba(251,191,36,0.1);color:#fbbf24;">0</span></div>
+              <div class="board-section-title"><i class="fas fa-inbox dash-icon-amber"></i> Approval Backlog <span class="board-badge board-badge--amber" id="badge-backlog">0</span></div>
               <div id="board-backlog"></div>
             </div>
           </div>
@@ -1010,13 +999,13 @@
         <div class="board-two-col">
           <div>
             <div class="board-section" id="sec-cost">
-              <div class="board-section-title"><i class="fas fa-dollar-sign" style="color:#fbbf24;"></i> Cost Summary</div>
+              <div class="board-section-title"><i class="fas fa-dollar-sign dash-icon-amber"></i> Cost Summary</div>
               <div id="board-cost"></div>
             </div>
           </div>
           <div>
             <div class="board-section" id="sec-content-pipeline">
-              <div class="board-section-title"><i class="fas fa-newspaper" style="color:#a78bfa;"></i> Content Pipeline</div>
+              <div class="board-section-title"><i class="fas fa-newspaper dash-icon-purple"></i> Content Pipeline</div>
               <div id="board-content-pipeline"></div>
             </div>
           </div>
@@ -1024,27 +1013,22 @@
 
         <!-- 8. Decisions Log -->
         <div class="board-section" id="sec-decisions">
-          <div class="board-section-title"><i class="fas fa-gavel" style="color:#60a5fa;"></i> Decisions <span class="board-badge" id="badge-decisions" style="background:rgba(96,165,250,0.1);color:#60a5fa;">0</span></div>
+          <div class="board-section-title"><i class="fas fa-gavel dash-icon-blue"></i> Decisions <span class="board-badge board-badge--blue" id="badge-decisions">0</span></div>
           <div id="board-decisions"></div>
         </div>
 
         <!-- 9. Risk Register -->
         <div class="board-section" id="sec-risks">
-          <div class="board-section-title"><i class="fas fa-exclamation-triangle" style="color:#f87171;"></i> Risk Register <span class="board-badge" id="badge-risks" style="background:rgba(248,113,113,0.1);color:#f87171;">0</span></div>
+          <div class="board-section-title"><i class="fas fa-exclamation-triangle dash-icon-red-lt"></i> Risk Register <span class="board-badge board-badge--red" id="badge-risks">0</span></div>
           <div id="board-risks"></div>
         </div>
 
         <!-- 10. Throughput -->
         <div class="board-section" id="sec-throughput">
-          <div class="board-section-title"><i class="fas fa-tachometer-alt" style="color:#34d399;"></i> Delivery / Throughput</div>
+          <div class="board-section-title"><i class="fas fa-tachometer-alt dash-icon-green"></i> Delivery / Throughput</div>
           <div class="board-stat-row" id="board-throughput"></div>
         </div>
 
-        <!-- 11. Organization (moved from CEO view) -->
-        <div class="board-section" id="sec-org">
-          <div class="board-section-title"><i class="fas fa-sitemap" style="color:#c084fc;"></i> Organization</div>
-          <div id="board-org-chart" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(160px, 1fr)); gap:0.5rem;"></div>
-        </div>
 
 
       </section>
@@ -1224,8 +1208,8 @@
         var mode = AgentEngine.getStoreMode();
         storeModeBadge.textContent = mode;
         if (mode === 'server') {
-          storeModeBadge.style.background = 'rgba(78,205,196,0.1)';
-          storeModeBadge.style.color = '#4ecdc4';
+          storeModeBadge.style.background = 'rgba(96,165,250,0.08)';
+          storeModeBadge.style.color = '#60a5fa';
         }
       }
 
@@ -1311,28 +1295,28 @@
         .then(function (res) { return res.json(); })
         .then(function (data) {
           heartbeatBtn.innerHTML = '<i class="fas fa-check"></i> Done!';
-          heartbeatBtn.style.borderColor = 'rgba(52,211,153,0.3)';
+          heartbeatBtn.style.borderColor = '';
           heartbeatBtn.style.color = '#34d399';
           setTimeout(function () {
             renderAll();
           }, 500);
           setTimeout(function () {
             heartbeatBtn.innerHTML = '<i class="fas fa-heartbeat"></i> Run Heartbeat';
-            heartbeatBtn.style.borderColor = 'rgba(78,205,196,0.2)';
-            heartbeatBtn.style.color = '#4ecdc4';
+            heartbeatBtn.style.borderColor = '';
+            heartbeatBtn.style.color = '';
             heartbeatBtn.disabled = false;
             _heartbeatRunning = false;
           }, 3000);
         })
         .catch(function (err) {
           heartbeatBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Failed';
-          heartbeatBtn.style.borderColor = 'rgba(248,113,113,0.3)';
+          heartbeatBtn.style.borderColor = '';
           heartbeatBtn.style.color = '#f87171';
           console.error('[Dashboard] Heartbeat trigger failed:', err);
           setTimeout(function () {
             heartbeatBtn.innerHTML = '<i class="fas fa-heartbeat"></i> Run Heartbeat';
-            heartbeatBtn.style.borderColor = 'rgba(78,205,196,0.2)';
-            heartbeatBtn.style.color = '#4ecdc4';
+            heartbeatBtn.style.borderColor = '';
+            heartbeatBtn.style.color = '';
             heartbeatBtn.disabled = false;
             _heartbeatRunning = false;
           }, 3000);
@@ -1492,7 +1476,7 @@
 
         var configs = (typeof AgentEngine !== 'undefined' && AgentEngine.getAgentConfigs) ? AgentEngine.getAgentConfigs() : {};
         var now = Date.now();
-        var tierColors = { 1: '#FFD700', 2: '#8A2BE2', 3: '#4ECDC4', 4: '#888' };
+        var tierColors = { 1: '#e8e4df', 2: '#a78bfa', 3: '#60a5fa', 4: 'rgba(255,255,255,0.35)' };
 
         var html = '';
         agents.forEach(function (a) {
@@ -2113,7 +2097,7 @@
             sdeHtml += '<div style="padding:0.5rem 0.6rem; border:1px solid rgba(251,191,36,0.1); border-radius:6px; margin-bottom:0.3rem; background:rgba(251,191,36,0.02);">';
             sdeHtml += '<div style="display:flex; justify-content:space-between; align-items:flex-start;">';
             sdeHtml += '<div style="flex:1; min-width:0;">';
-            sdeHtml += '<span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(59,130,246,0.1);color:#3b82f6;margin-right:0.3rem;">TASK</span>';
+            sdeHtml += '<span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.45);margin-right:0.3rem;">TASK</span>';
             sdeHtml += '<div style="font-size:0.9rem; font-weight:600; margin-top:2px;">' + escapeHtml(t.title) + '</div>';
             if (tPreview) sdeHtml += '<div style="font-size:0.75rem; opacity:0.7; line-height:1.3; margin-top:4px;">' + escapeHtml(tPreview) + '</div>';
             sdeHtml += '<div style="font-size:0.65rem; opacity:0.5; margin-top:4px; display:flex; gap:0.5rem; flex-wrap:wrap;">';
@@ -2128,11 +2112,11 @@
           });
           sdePendingDirs.slice(0, 3).forEach(function (d) {
             var dPreview = AgentEngine.buildPreview(d.description || '');
-            sdeHtml += '<div style="padding:0.5rem 0.6rem; border:1px solid rgba(138,43,226,0.1); border-radius:6px; margin-bottom:0.3rem; background:rgba(138,43,226,0.02);">';
+            sdeHtml += '<div style="padding:0.5rem 0.6rem; border:1px solid rgba(255,255,255,0.07); border-radius:6px; margin-bottom:0.3rem; background:rgba(255,255,255,0.02);">';
             sdeHtml += '<div style="display:flex; justify-content:space-between; align-items:flex-start;">';
             sdeHtml += '<div style="flex:1; min-width:0;">';
-            sdeHtml += '<span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(138,43,226,0.1);color:#a855f7;margin-right:0.3rem;">CAMPAIGN</span>';
-            if (d.classification) sdeHtml += '<span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(138,43,226,0.06);color:#c084fc;margin-left:0.2rem;">' + escapeHtml(d.classification) + '</span>';
+            sdeHtml += '<span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.4);margin-right:0.3rem;">CAMPAIGN</span>';
+            if (d.classification) sdeHtml += '<span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.35);margin-left:0.2rem;">' + escapeHtml(d.classification) + '</span>';
             sdeHtml += '<div style="font-size:0.9rem; font-weight:600; margin-top:2px;">' + escapeHtml(d.title) + '</div>';
             if (dPreview) sdeHtml += '<div style="font-size:0.75rem; opacity:0.7; line-height:1.3; margin-top:4px;">' + escapeHtml(dPreview) + '</div>';
             sdeHtml += '<div style="font-size:0.65rem; opacity:0.5; margin-top:4px; display:flex; gap:0.5rem; flex-wrap:wrap;">';
@@ -2141,7 +2125,7 @@
             if (d.effort) sdeHtml += '<span>Effort: ' + d.effort + '</span>';
             if (d.source && d.source.title) sdeHtml += '<span>From: ' + escapeHtml(d.source.title) + '</span>';
             sdeHtml += '</div></div>';
-            sdeHtml += '<a href="/modules/company/campaigns.html" style="font-size:0.55rem; color:#a855f7; text-decoration:none; white-space:nowrap; align-self:center; margin-left:0.5rem;">View →</a>';
+            sdeHtml += '<a href="/modules/company/campaigns.html" style="font-size:0.55rem; color:rgba(255,255,255,0.4); text-decoration:none; white-space:nowrap; align-self:center; margin-left:0.5rem;">View →</a>';
             sdeHtml += '</div></div>';
           });
           if (sdePendingTotal > 6) sdeHtml += '<div style="font-size:0.55rem; opacity:0.3; padding-left:0.6rem;">+' + (sdePendingTotal - 6) + ' more pending</div>';
@@ -2228,11 +2212,11 @@
 
         if (blocked.length > 0) {
           var blockedHtml = '<div style="margin-bottom:0.8rem;">';
-          blockedHtml += '<div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.4rem;"><i class="fas fa-ban" style="color:#FFA500; font-size:0.7rem;"></i> <strong style="font-size:0.75rem; color:#FFA500;">Blocked / Escalated</strong> <span style="font-size:0.6rem; opacity:0.4;">(' + blocked.length + ')</span></div>';
+          blockedHtml += '<div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.4rem;"><i class="fas fa-ban" style="color:#fbbf24; font-size:0.7rem;"></i> <strong style="font-size:0.75rem; color:#fbbf24;">Blocked / Escalated</strong> <span style="font-size:0.6rem; opacity:0.4;">(' + blocked.length + ')</span></div>';
           blocked.slice(0, 3).forEach(function (t) {
             var agent = t.assignee ? AgentEngine.getAgent(t.assignee) : null;
             var blkPreview = AgentEngine.buildPreview(t.description || '');
-            blockedHtml += '<div style="padding:0.5rem 0.6rem; border:1px solid rgba(255,165,0,0.1); border-radius:6px; margin-bottom:0.3rem; background:rgba(255,165,0,0.02);">';
+            blockedHtml += '<div style="padding:0.5rem 0.6rem; border:1px solid rgba(255,255,255,0.07); border-radius:6px; margin-bottom:0.3rem;">';
             blockedHtml += '<div style="display:flex; justify-content:space-between; align-items:flex-start;">';
             blockedHtml += '<div style="flex:1; min-width:0;">';
             blockedHtml += '<div style="font-size:0.9rem; font-weight:600;">' + escapeHtml(t.title) + '</div>';
@@ -2243,7 +2227,7 @@
             if (t.source && t.source.title) blockedHtml += '<span>From: ' + escapeHtml(t.source.title) + '</span>';
             blockedHtml += '</div>';
             blockedHtml += '</div>';
-            blockedHtml += '<a href="/modules/company/tasks.html" style="font-size:0.55rem; color:#FFA500; text-decoration:none; white-space:nowrap; margin-left:0.5rem; align-self:center;">View →</a>';
+            blockedHtml += '<a href="/modules/company/tasks.html" style="font-size:0.55rem; color:rgba(255,255,255,0.4); text-decoration:none; white-space:nowrap; margin-left:0.5rem; align-self:center;">View →</a>';
             blockedHtml += '</div></div>';
           });
           blockedHtml += '</div>';
@@ -2262,14 +2246,14 @@
         if (upcoming.length > 0) {
           totalItems += upcoming.length;
           var dateHtml = '<div style="margin-bottom:0.8rem;">';
-          dateHtml += '<div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.4rem;"><i class="fas fa-calendar-day" style="color:#8A2BE2; font-size:0.7rem;"></i> <strong style="font-size:0.75rem; color:#8A2BE2;">Upcoming (7 days)</strong> <span style="font-size:0.6rem; opacity:0.4;">(' + upcoming.length + ')</span></div>';
+          dateHtml += '<div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.4rem;"><i class="fas fa-calendar-day" style="color:#a78bfa; font-size:0.7rem;"></i> <strong style="font-size:0.75rem; color:#a78bfa;">Upcoming (7 days)</strong> <span style="font-size:0.6rem; opacity:0.4;">(' + upcoming.length + ')</span></div>';
           upcoming.slice(0, 5).forEach(function (d) {
             var diff = Math.ceil((new Date(d.date + 'T00:00:00') - nowMs) / 86400000);
             var dayLabel = diff === 0 ? 'today' : diff === 1 ? 'tomorrow' : diff + ' days';
-            var typeColor = d.type === 'deadline' ? '#f87171' : d.type === 'meeting' ? '#3b82f6' : d.type === 'launch' ? '#34d399' : '#8A2BE2';
-            dateHtml += '<div style="padding:0.3rem 0.6rem; border:1px solid rgba(138,43,226,0.08); border-radius:6px; margin-bottom:0.25rem; background:rgba(138,43,226,0.02); display:flex; justify-content:space-between; align-items:center;">';
+            var typeColor = d.type === 'deadline' ? '#f87171' : d.type === 'meeting' ? '#60a5fa' : d.type === 'launch' ? '#34d399' : '#a78bfa';
+            dateHtml += '<div style="padding:0.3rem 0.6rem; border:1px solid rgba(167,139,250,0.08); border-radius:6px; margin-bottom:0.25rem; background:rgba(167,139,250,0.02); display:flex; justify-content:space-between; align-items:center;">';
             dateHtml += '<div style="flex:1; min-width:0;">';
-            dateHtml += '<span style="font-size:0.5rem; padding:0.1rem 0.3rem; border-radius:3px; background:rgba(' + (d.type === 'deadline' ? '248,113,113' : d.type === 'meeting' ? '59,130,246' : d.type === 'launch' ? '52,211,153' : '138,43,226') + ',0.1); color:' + typeColor + '; margin-right:0.3rem;">' + (d.type || 'event') + '</span>';
+            dateHtml += '<span style="font-size:0.5rem; padding:0.1rem 0.3rem; border-radius:3px; background:rgba(' + (d.type === 'deadline' ? '248,113,113' : d.type === 'meeting' ? '96,165,250' : d.type === 'launch' ? '52,211,153' : '167,139,250') + ',0.1); color:' + typeColor + '; margin-right:0.3rem;">' + (d.type || 'event') + '</span>';
             dateHtml += '<span style="font-size:0.75rem;">' + escapeHtml(d.title) + '</span>';
             dateHtml += '</div>';
             dateHtml += '<span style="font-size:0.6rem; color:' + (diff === 0 ? '#f87171' : diff <= 2 ? '#fbbf24' : 'rgba(255,255,255,0.4)') + '; white-space:nowrap; margin-left:0.5rem;">' + dayLabel + '</span>';
@@ -2284,7 +2268,7 @@
         var hasOvernight = overnight.sessions.length > 0 || overnight.standups.length > 0;
         if (hasOvernight) {
           var oHtml = '<div style="margin-bottom:0.4rem;">';
-          oHtml += '<div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.4rem;"><i class="fas fa-moon" style="color:#4ECDC4; font-size:0.7rem;"></i> <strong style="font-size:0.75rem; color:#4ECDC4;">Overnight Highlights</strong></div>';
+          oHtml += '<div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.4rem;"><i class="fas fa-moon" style="color:#60a5fa; font-size:0.7rem;"></i> <strong style="font-size:0.75rem; color:#60a5fa;">Overnight Highlights</strong></div>';
           oHtml += '<div style="display:flex; gap:0.6rem; flex-wrap:wrap; font-size:0.65rem; opacity:0.6;">';
           if (overnight.standups.length > 0) oHtml += '<span><i class="fas fa-users" style="margin-right:0.2rem;"></i>' + overnight.standups.length + ' standup(s)</span>';
           if (overnight.sessions.length > 0) oHtml += '<span><i class="fas fa-comment" style="margin-right:0.2rem;"></i>' + overnight.sessions.length + ' sessions</span>';
@@ -2298,8 +2282,8 @@
         // Render
         badge.textContent = totalItems + ' item' + (totalItems !== 1 ? 's' : '');
         if (totalItems > 0) {
-          badge.style.background = 'rgba(255,215,0,0.15)';
-          badge.style.color = '#FFD700';
+          badge.style.background = 'rgba(255,255,255,0.08)';
+          badge.style.color = '#e8e4df';
         } else {
           badge.style.background = 'rgba(52,211,153,0.1)';
           badge.style.color = '#34d399';
@@ -2382,7 +2366,7 @@
 
         sessions.forEach(function (s) {
           var agent = AgentEngine.getAgent(s.agentId);
-          var color = agent ? agent.color : '#8A2BE2';
+          var color = agent ? agent.color : '#a78bfa';
           var name = agent ? agent.name : s.agentId;
 
           var tr = document.createElement('tr');
@@ -2475,7 +2459,7 @@
 
           // CEO Summary (from heartbeat-generated report)
           if (report && report.ceoSummary) {
-            html += '<div style="padding:0.6rem; background:rgba(138,43,226,0.05); border:1px solid rgba(138,43,226,0.1); border-radius:8px; margin-bottom:0.6rem; font-size:0.8rem; line-height:1.5;">' + escapeHtml(report.ceoSummary).replace(/\n/g, '<br>') + '</div>';
+            html += '<div style="padding:0.6rem; background:rgba(167,139,250,0.05); border:1px solid rgba(167,139,250,0.1); border-radius:8px; margin-bottom:0.6rem; font-size:0.8rem; line-height:1.5;">' + escapeHtml(report.ceoSummary).replace(/\n/g, '<br>') + '</div>';
           }
 
           // Stats bar
@@ -2497,7 +2481,7 @@
             pendingExec.slice(0, 3).forEach(function (item) {
               html += '<div style="font-size:0.7rem; padding:0.2rem 0; display:flex; justify-content:space-between;">';
               html += '<span>' + escapeHtml(item.taskTitle) + ' <span style="opacity:0.4;">(' + (item.originAgent || '?') + ')</span></span>';
-              html += '<a href="#panel-approval-wrap" style="font-size:0.55rem; color:#FFD700; text-decoration:none;">Review →</a>';
+              html += '<a href="#panel-approval-wrap" style="font-size:0.55rem; color:rgba(255,255,255,0.55); text-decoration:none;">Review →</a>';
               html += '</div>';
             });
             html += '</div>';
@@ -2555,12 +2539,12 @@
 
           // ── Deep Links ──
           html += '<div style="display:flex; gap:0.6rem; flex-wrap:wrap; margin-top:0.5rem; padding-top:0.5rem; border-top:1px solid rgba(255,255,255,0.04);">';
-          html += '<a href="/modules/company/tasks.html" style="font-size:0.6rem; color:#4ECDC4; text-decoration:none;"><i class="fas fa-tasks"></i> Task Board</a>';
-          html += '<a href="/modules/company/actions.html" style="font-size:0.6rem; color:#FFA500; text-decoration:none;"><i class="fas fa-bolt"></i> Actions</a>';
-          html += '<a href="/modules/company/campaigns.html" style="font-size:0.6rem; color:#FFA500; text-decoration:none;"><i class="fas fa-flag"></i> Campaigns</a>';
-          html += '<a href="/modules/company/objectives.html" style="font-size:0.6rem; color:#4ECDC4; text-decoration:none;"><i class="fas fa-bullseye"></i> Goals</a>';
+          html += '<a href="/modules/company/tasks.html" style="font-size:0.6rem; color:#60a5fa; text-decoration:none;"><i class="fas fa-tasks"></i> Task Board</a>';
+          html += '<a href="/modules/company/actions.html" style="font-size:0.6rem; color:rgba(255,255,255,0.4); text-decoration:none;"><i class="fas fa-bolt"></i> Actions</a>';
+          html += '<a href="/modules/company/campaigns.html" style="font-size:0.6rem; color:rgba(255,255,255,0.4); text-decoration:none;"><i class="fas fa-flag"></i> Campaigns</a>';
+          html += '<a href="/modules/company/objectives.html" style="font-size:0.6rem; color:#60a5fa; text-decoration:none;"><i class="fas fa-bullseye"></i> Goals</a>';
           html += '<a href="/modules/company/workspace.html" style="font-size:0.6rem; color:#FF6B9D; text-decoration:none;"><i class="fas fa-brain"></i> Workspace</a>';
-          html += '<a href="/modules/company/memories.html" style="font-size:0.6rem; color:#c084fc; text-decoration:none;"><i class="fas fa-memory"></i> Agent Memory</a>';
+          html += '<a href="/modules/company/memories.html" style="font-size:0.6rem; color:rgba(255,255,255,0.4); text-decoration:none;"><i class="fas fa-memory"></i> Agent Memory</a>';
           html += '</div>';
 
           panelReport.innerHTML = html || '<div class="dash-empty">Report generated but no summary available.</div>';
@@ -2679,7 +2663,7 @@
           }
 
           // 4) Action trend sparkline (last 10 heartbeats)
-          html += '<div style="font-size:0.6rem; opacity:0.5;">Actions trend ' + _spark(execVals, maxExec, '#4ecdc4') + '</div>';
+          html += '<div style="font-size:0.6rem; opacity:0.5;">Actions trend ' + _spark(execVals, maxExec, 'rgba(255,255,255,0.4)') + '</div>';
 
           panelHeartbeatHealth.innerHTML = html;
         }).catch(function (err) {
@@ -2955,7 +2939,7 @@
         stale: { label: 'Stale', icon: 'fa-clock', color: '#9ca3af' },
         complete: { label: 'Complete', icon: 'fa-trophy', color: '#c084fc' },
         not_started: { label: 'Not Started', icon: 'fa-hourglass-start', color: 'rgba(255,255,255,0.4)' },
-        no_tasks: { label: 'No Tasks', icon: 'fa-exclamation-circle', color: '#FFA500' }
+        no_tasks: { label: 'No Tasks', icon: 'fa-exclamation-circle', color: 'rgba(255,255,255,0.3)' }
       };
       function renderCampaignsSnap() {
         var campaigns = AgentEngine.getCampaigns();
@@ -2985,7 +2969,7 @@
               return '<span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.06);">' +
                 aid.charAt(0).toUpperCase() + aid.slice(1) +
                 ' <span style="color:#34d399;">' + ag.done + '✓</span>' +
-                (ag.active > 0 ? ' <span style="color:#FFA500;">' + ag.active + '⟳</span>' : '') +
+                (ag.active > 0 ? ' <span style="opacity:0.5;">' + ag.active + '⟳</span>' : '') +
               '</span>';
             }).join(' ');
           }
@@ -3021,7 +3005,7 @@
         if (completed.length > 0) {
           var divider = document.createElement('li');
           divider.style.cssText = 'list-style:none;font-size:0.55rem;opacity:0.35;padding:0.5rem 0 0.25rem;border-top:1px solid rgba(255,255,255,0.06);margin-top:0.4rem;';
-          divider.innerHTML = '<i class="fas fa-trophy" style="color:#c084fc;margin-right:4px;"></i>Completed (' + completed.length + ')';
+          divider.innerHTML = '<i class="fas fa-trophy" style="opacity:0.4;margin-right:4px;"></i>Completed (' + completed.length + ')';
           listEl.appendChild(divider);
 
           completed.slice(0, 3).forEach(function (cmp) {
@@ -3032,10 +3016,10 @@
             li.className = 'log-item';
             li.style.cssText = 'align-items:flex-start;opacity:0.5;';
             li.innerHTML =
-              '<div class="log-icon" style="background:rgba(192,132,252,0.1); color:#c084fc;"><i class="fas fa-check-circle"></i></div>' +
+              '<div class="log-icon" style="background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.4);"><i class="fas fa-check-circle"></i></div>' +
               '<div class="log-body" style="flex:1;">' +
                 '<div class="log-text"><strong>' + escapeHtml(cmp.title) + '</strong></div>' +
-                '<div class="log-time" style="color:#c084fc;">100% · ' + p.done + ' tasks completed' + (endLabel ? ' · ended ' + endLabel : '') + '</div>' +
+                '<div class="log-time" style="color:rgba(255,255,255,0.4);">100% · ' + p.done + ' tasks completed' + (endLabel ? ' · ended ' + endLabel : '') + '</div>' +
               '</div>';
             listEl.appendChild(li);
           });
@@ -3125,7 +3109,7 @@
         emptyEl.style.display = 'none';
         listEl.innerHTML = '';
 
-        var catColors = { Growth: '#34d399', Engagement: '#60a5fa', Product: '#a78bfa', Activation: '#fbbf24', Cost: '#f87171', Reliability: '#4ECDC4' };
+        var catColors = { Growth: '#34d399', Engagement: '#60a5fa', Product: '#a78bfa', Activation: '#fbbf24', Cost: '#f87171', Reliability: '#60a5fa' };
 
         kpis.forEach(function (k) {
           var linkedDirIds = (index.kpiToCampaigns || index.kpiToDirectives || {})[k.id] || [];
@@ -3135,7 +3119,7 @@
             return d;
           }).filter(Boolean);
 
-          var catColor = catColors[k.category] || '#8A2BE2';
+          var catColor = catColors[k.category] || '#a78bfa';
           var unitLabel = k.unit === 'usd' ? '$' : k.unit === 'percent' ? '%' : '';
 
           var card = document.createElement('div');
@@ -3210,7 +3194,7 @@
           var li = document.createElement('li');
           li.className = 'log-item';
           li.innerHTML =
-            '<div class="log-icon" style="background:rgba(78,205,196,0.1); color:#4ECDC4;"><i class="fas fa-bullseye"></i></div>' +
+            '<div class="log-icon" style="background:rgba(96,165,250,0.08); color:#60a5fa;"><i class="fas fa-bullseye"></i></div>' +
             '<div class="log-body" style="flex:1;">' +
               '<div class="log-text"><strong>' + escapeHtml(obj.title) + '</strong> <span style="font-size:0.6rem; opacity:0.4;">' + (obj.quarter || '') + ' ' + (obj.year || '') + '</span></div>' +
               '<div style="margin-top:0.3rem; height:4px; background:rgba(255,255,255,0.05); border-radius:2px; overflow:hidden;">' +
@@ -3225,7 +3209,7 @@
         if (completed.length > 0) {
           var divider = document.createElement('li');
           divider.style.cssText = 'list-style:none;font-size:0.55rem;opacity:0.35;padding:0.5rem 0 0.25rem;border-top:1px solid rgba(255,255,255,0.06);margin-top:0.4rem;';
-          divider.innerHTML = '<i class="fas fa-trophy" style="color:#c084fc;margin-right:4px;"></i>Completed (' + completed.length + ')';
+          divider.innerHTML = '<i class="fas fa-trophy" style="opacity:0.4;margin-right:4px;"></i>Completed (' + completed.length + ')';
           listEl.appendChild(divider);
 
           completed.slice(0, 3).forEach(function (obj) {
@@ -3237,10 +3221,10 @@
             li.className = 'log-item';
             li.style.opacity = '0.5';
             li.innerHTML =
-              '<div class="log-icon" style="background:rgba(192,132,252,0.1); color:#c084fc;"><i class="fas fa-check-circle"></i></div>' +
+              '<div class="log-icon" style="background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.4);"><i class="fas fa-check-circle"></i></div>' +
               '<div class="log-body" style="flex:1;">' +
                 '<div class="log-text"><strong>' + escapeHtml(obj.title) + '</strong></div>' +
-                '<div class="log-time" style="color:#c084fc;">100% · ' + tasksDone + ' tasks completed</div>' +
+                '<div class="log-time" style="color:rgba(255,255,255,0.4);">100% · ' + tasksDone + ' tasks completed</div>' +
               '</div>';
             listEl.appendChild(li);
           });
@@ -3280,7 +3264,7 @@
 
           var html = '';
           rows.slice(0, 5).forEach(function (d) {
-            var moodColors = { productive: '#34d399', steady: '#60a5fa', quiet: 'rgba(255,255,255,0.4)', busy: '#fbbf24', milestone: '#8A2BE2' };
+            var moodColors = { productive: '#34d399', steady: '#60a5fa', quiet: 'rgba(255,255,255,0.4)', busy: '#fbbf24', milestone: '#a78bfa' };
             var moodColor = moodColors[d.mood] || '#60a5fa';
             var highlights = (d.highlights || []).slice(0, 3).map(function (h) {
               return '<div style="font-size:0.65rem; color:rgba(255,255,255,0.6); padding-left:0.8rem; margin-top:0.15rem;">⚡ ' + escapeHtml(h) + '</div>';
@@ -3309,8 +3293,8 @@
                   (d.status === 'draft'
                     ? '<button class="dlog-approve-btn" data-id="' + d.id + '" data-date="' + d.date + '" style="font-size:0.6rem; padding:0.2rem 0.5rem; border-radius:4px; border:1px solid rgba(52,211,153,0.3); background:rgba(52,211,153,0.05); color:#34d399; cursor:pointer;">Publish</button>' +
                       '<button class="dlog-reject-btn" data-id="' + d.id + '" data-date="' + d.date + '" style="font-size:0.6rem; padding:0.2rem 0.5rem; border-radius:4px; border:1px solid rgba(248,113,113,0.3); background:rgba(248,113,113,0.05); color:#f87171; cursor:pointer;">Discard</button>' +
-                      '<a href="/log/' + d.date + '" target="_blank" style="font-size:0.6rem; padding:0.2rem 0.5rem; border-radius:4px; border:1px solid rgba(138,43,226,0.3); background:rgba(138,43,226,0.05); color:#8A2BE2; text-decoration:none; display:inline-flex; align-items:center; gap:0.2rem;"><i class="fas fa-external-link-alt" style="font-size:0.5rem;"></i> Preview</a>'
-                    : '<a href="/log/' + d.date + '" target="_blank" style="font-size:0.6rem; padding:0.2rem 0.5rem; border-radius:4px; border:1px solid rgba(138,43,226,0.3); background:rgba(138,43,226,0.05); color:#8A2BE2; text-decoration:none; display:inline-flex; align-items:center; gap:0.2rem;"><i class="fas fa-external-link-alt" style="font-size:0.5rem;"></i> View</a>') +
+                      '<a href="/log/' + d.date + '" target="_blank" style="font-size:0.6rem; padding:0.2rem 0.5rem; border-radius:4px; border:1px solid rgba(167,139,250,0.3); background:rgba(167,139,250,0.05); color:#a78bfa; text-decoration:none; display:inline-flex; align-items:center; gap:0.2rem;"><i class="fas fa-external-link-alt" style="font-size:0.5rem;"></i> Preview</a>'
+                    : '<a href="/log/' + d.date + '" target="_blank" style="font-size:0.6rem; padding:0.2rem 0.5rem; border-radius:4px; border:1px solid rgba(167,139,250,0.3); background:rgba(167,139,250,0.05); color:#a78bfa; text-decoration:none; display:inline-flex; align-items:center; gap:0.2rem;"><i class="fas fa-external-link-alt" style="font-size:0.5rem;"></i> View</a>') +
                 '</div>' +
               '</div>';
           });
@@ -3553,11 +3537,11 @@
       var _govTypeIcons = {
         'ceo-approval': { icon: 'fa-check-circle', color: '#34d399' },
         'ceo-reject': { icon: 'fa-times-circle', color: '#f87171' },
-        'ceo-override': { icon: 'fa-bolt', color: '#FFD700' },
+        'ceo-override': { icon: 'fa-bolt', color: '#e8e4df' },
         'ceo-revision': { icon: 'fa-redo', color: '#fbbf24' },
         'escalation': { icon: 'fa-flag', color: '#f87171' },
-        'directive-created': { icon: 'fa-compass', color: '#8A2BE2' },
-        'objective-created': { icon: 'fa-bullseye', color: '#4ECDC4' }
+        'directive-created': { icon: 'fa-compass', color: '#a78bfa' },
+        'objective-created': { icon: 'fa-bullseye', color: '#60a5fa' }
       };
       var _govEntriesCache = null; // cached sorted entries, cleared each renderAll cycle
 
@@ -3579,12 +3563,12 @@
         emptyEl.style.display = 'none';
         listEl.innerHTML = '';
         entries.forEach(function (entry) {
-          var meta = _govTypeIcons[entry.type] || { icon: 'fa-scroll', color: '#FF8C00' };
+          var meta = _govTypeIcons[entry.type] || { icon: 'fa-scroll', color: 'rgba(255,255,255,0.4)' };
           var li = document.createElement('li');
           li.className = 'log-item';
           var summary = entry.data && entry.data.title ? entry.data.title : (entry.data && entry.data.taskId ? entry.data.taskId : entry.type);
           li.innerHTML =
-            '<div class="log-icon" style="background:rgba(255,140,0,0.1); color:' + meta.color + ';"><i class="fas ' + meta.icon + '"></i></div>' +
+            '<div class="log-icon" style="background:rgba(255,255,255,0.06); color:' + meta.color + ';"><i class="fas ' + meta.icon + '"></i></div>' +
             '<div class="log-body">' +
               '<div class="log-text"><strong>' + entry.type.replace(/-/g, ' ') + '</strong> — ' + escapeHtml(summary) + '</div>' +
               '<div class="log-time">' + formatTime(entry.timestamp) + '</div>' +
@@ -3640,8 +3624,8 @@
         html += riskCell('Overdue Tasks', data.overdueTasks.length, '#ef4444', 'fa-clock');
         html += riskCell('Stuck High Prio', data.stuckHighPrio.length, '#fbbf24', 'fa-exclamation-triangle');
         html += riskCell('Blocked', data.blockedTasks.length, '#f87171', 'fa-ban');
-        html += riskCell('At-Risk Objectives', data.atRiskObjectives.length, '#FFA500', 'fa-bullseye');
-        html += riskCell('At-Risk Directives', data.atRiskDirectives.length, '#a855f7', 'fa-compass');
+        html += riskCell('At-Risk Objectives', data.atRiskObjectives.length, '#fbbf24', 'fa-bullseye');
+        html += riskCell('At-Risk Directives', data.atRiskDirectives.length, '#a78bfa', 'fa-compass');
         html += riskCell('Failed Actions', data.failedActions.length, '#ef4444', 'fa-bolt');
         html += '</div>';
 
@@ -3689,16 +3673,16 @@
         var stats = AgentEngine.getActionStats();
         var el = document.getElementById('panel-action-snap');
         if (stats.total === 0) {
-          el.innerHTML = '<div class="dash-empty">No actions yet. <a href="/modules/company/actions.html" style="color:#FFA500;">Open Command Center →</a></div>';
+          el.innerHTML = '<div class="dash-empty">No actions yet. <a href="/modules/company/actions.html" style="opacity:0.5;">Open Command Center →</a></div>';
           return;
         }
         var html = '<div style="display:flex; gap:0.6rem; flex-wrap:wrap; margin-bottom:0.5rem;">';
-        if (stats.pending > 0) html += snapBadge(stats.pending, 'pending', '#FFA500');
+        if (stats.pending > 0) html += snapBadge(stats.pending, 'pending', '#fbbf24');
         if (stats.approved > 0) html += snapBadge(stats.approved, 'approved', '#34d399');
-        if (stats.running > 0) html += snapBadge(stats.running, 'running', '#3b82f6');
+        if (stats.running > 0) html += snapBadge(stats.running, 'running', '#60a5fa');
         if (stats.success > 0) html += snapBadge(stats.success, 'success', '#34d399');
         if (stats.failed > 0) html += snapBadge(stats.failed, 'failed', '#ef4444');
-        if (stats.dryRun > 0) html += snapBadge(stats.dryRun, 'dry run', '#a855f7');
+        if (stats.dryRun > 0) html += snapBadge(stats.dryRun, 'dry run', '#a78bfa');
         html += '</div>';
 
         // Show latest 3 pending actions (exclude revision_requested — those are back in agent workflow)
@@ -3715,9 +3699,9 @@
         el.innerHTML = html;
       }
       function snapBadge(count, label, color) {
-        return '<span style="font-size:0.55rem; padding:0.15rem 0.5rem; border-radius:3px; background:rgba(' +
-          (color === '#FFA500' ? '255,165,0' : color === '#34d399' ? '52,211,153' : color === '#3b82f6' ? '59,130,246' : color === '#ef4444' ? '239,68,68' : '168,85,247') +
-          ',0.1); color:' + color + '; font-weight:500;">' + count + ' ' + label + '</span>';
+        var rgbMap = { '#fbbf24': '251,191,36', '#34d399': '52,211,153', '#60a5fa': '96,165,250', '#ef4444': '239,68,68', '#a78bfa': '167,139,250' };
+        var rgb = rgbMap[color] || '255,255,255';
+        return '<span style="font-size:0.55rem; padding:0.15rem 0.5rem; border-radius:3px; background:rgba(' + rgb + ',0.1); color:' + color + '; font-weight:500;">' + count + ' ' + label + '</span>';
       }
 
       // ── Cost Center Summary ──
@@ -3829,8 +3813,8 @@
           html += '<div style="display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:0.5rem;">';
           agents.forEach(function (a) {
             var d = data.byAgent[a];
-            html += '<span style="font-size:0.55rem; padding:0.12rem 0.4rem; border-radius:3px; background:rgba(168,85,247,0.06); border:1px solid rgba(168,85,247,0.1); color:rgba(255,255,255,0.6);">' +
-              escapeHtml(a) + ' <span style="color:#a855f7; font-weight:500;">$' + d.cost.toFixed(4) + '</span> <span style="opacity:0.4;">(' + d.calls + ')</span></span>';
+            html += '<span style="font-size:0.55rem; padding:0.12rem 0.4rem; border-radius:3px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.6);">' +
+              escapeHtml(a) + ' <span style="color:rgba(255,255,255,0.75); font-weight:500;">$' + d.cost.toFixed(4) + '</span> <span style="opacity:0.4;">(' + d.calls + ')</span></span>';
           });
           html += '</div>';
         }
@@ -4030,8 +4014,8 @@
             html += '<span style="font-size:0.55rem; padding:0.12rem 0.4rem; border-radius:3px; background:rgba(96,165,250,0.06); border:1px solid rgba(96,165,250,0.1); color:rgba(255,255,255,0.6);">' +
               '<i class="fas fa-comment" style="color:#60a5fa;margin-right:3px;"></i>' + totalReplies + ' replies</span>';
             if (totalQuotes > 0) {
-              html += '<span style="font-size:0.55rem; padding:0.12rem 0.4rem; border-radius:3px; background:rgba(168,85,247,0.06); border:1px solid rgba(168,85,247,0.1); color:rgba(255,255,255,0.6);">' +
-                '<i class="fas fa-quote-left" style="color:#a855f7;margin-right:3px;"></i>' + totalQuotes + ' quotes</span>';
+              html += '<span style="font-size:0.55rem; padding:0.12rem 0.4rem; border-radius:3px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.6);">' +
+                '<i class="fas fa-quote-left" style="opacity:0.5;margin-right:3px;"></i>' + totalQuotes + ' quotes</span>';
             }
             html += '</div>';
           }
@@ -4170,7 +4154,7 @@
         }
 
         html += '<div style="margin-top:0.5rem; text-align:right;">';
-        html += '<a href="/modules/company/meetings.html" style="font-size:0.6rem; color:#4ecdc4; text-decoration:none;">View all meetings →</a>';
+        html += '<a href="/modules/company/meetings.html" style="font-size:0.6rem; color:rgba(255,255,255,0.45); text-decoration:none;">View all meetings →</a>';
         html += '</div>';
         html += '</div>';
 
@@ -4263,7 +4247,7 @@
           tiers[t].forEach(function (a) {
             html += '<div style="padding:0.5rem 0.6rem;border:1px solid rgba(255,255,255,0.05);border-radius:8px;background:rgba(255,255,255,0.015);">';
             html += '<div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.2rem;">';
-            html += '<div style="width:8px;height:8px;border-radius:50%;background:' + (a.color || '#8A2BE2') + ';flex-shrink:0;"></div>';
+            html += '<div style="width:8px;height:8px;border-radius:50%;background:' + (a.color || '#a78bfa') + ';flex-shrink:0;"></div>';
             html += '<span style="font-size:0.72rem;font-weight:600;">' + escapeHtml(a.name || a.id) + '</span></div>';
             html += '<div style="font-size:0.55rem;opacity:0.4;">' + escapeHtml(a.role || '') + '</div></div>';
           });

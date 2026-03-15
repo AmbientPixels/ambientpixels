@@ -19,9 +19,8 @@
   <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
   <style>
     .cg-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:0.8rem; flex-wrap:wrap; gap:0.5rem; }
-    .cg-header h1 { font-size:1.1rem; font-weight:600; margin:0; }
-    .cg-header h1 i { opacity:0.5; }
-    .cg-header-sub { font-size:0.65rem; opacity:0.4; }
+    .cg-header h1 { font-size:1.4rem; font-weight:600; margin:0; }
+    .cg-header-sub { font-size:0.8rem; opacity:0.45; }
     .cg-new-btn {
       padding:6px 14px; border:1px solid rgba(139,92,246,0.3); border-radius:6px;
       background:rgba(139,92,246,0.08); color:#8b5cf6; font-size:0.65rem; font-weight:600;
@@ -123,15 +122,18 @@
     .cg-empty { text-align:center; padding:3rem 1rem; opacity:0.3; font-size:0.7rem; }
     .cg-empty i { font-size:1.5rem; display:block; margin-bottom:0.5rem; }
     .cg-error { color:#ef4444; font-size:0.65rem; padding:1rem; text-align:center; }
+    /* ── Inline Style Replacements ── */
+    #cg-main { max-width: 1200px; margin: 0 auto; padding: 1rem; }
+    .cg-empty a { color: #8b5cf6; }
   </style>
 </head>
-<body style="background:#071019" data-theme="dark">
-<main class="content-section" style="max-width: 1200px; margin: 0 auto; padding: 1rem;">
+<body data-theme="dark">
+<main id="cg-main" class="content-section">
 
   <!-- Header -->
   <div class="cg-header">
     <div>
-      <h1><i class="fas fa-images"></i> Content Gallery</h1>
+      <h1><i class="fas fa-images co-icon-faint co-icon-mr-lg"></i>Content Gallery</h1>
       <div class="cg-header-sub">Browse generated content packages</div>
     </div>
     <a class="cg-new-btn" href="/modules/company/content-engine.html"><i class="fas fa-plus"></i> New Image</a>
@@ -166,7 +168,7 @@
 
   <!-- Grid -->
   <div class="cg-grid" id="cg-grid"></div>
-  <div class="cg-empty" id="cg-empty" style="display:none;"><i class="fas fa-box-open"></i>No packages found. Generate your first image in the <a href="/modules/company/content-engine.html" style="color:#8b5cf6;">Image Engine</a>.</div>
+  <div class="cg-empty" id="cg-empty" style="display:none;"><i class="fas fa-box-open"></i>No packages found. Generate your first image in the <a href="/modules/company/content-engine.html">Image Engine</a>.</div>
   <div class="cg-error" id="cg-error" style="display:none;"></div>
 
   <!-- Scripts -->

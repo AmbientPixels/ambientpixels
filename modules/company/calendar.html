@@ -20,11 +20,11 @@
   <link rel="stylesheet" href="/modules/company/css/calendar.css" />
   <style>
     .cal-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 1.2rem 0 0.8rem; flex-wrap: wrap; gap: 0.5rem;
+      display: flex; align-items: flex-start; justify-content: space-between;
+      padding: 1.5rem 0 1rem; flex-wrap: wrap; gap: 0.5rem;
     }
-    .cal-header h1 { font-size: 1.2rem; font-weight: 500; margin: 0; display: flex; align-items: center; gap: 8px; }
-    .cal-header h1 i { opacity: 0.4; }
+    .cal-header h1 { font-size: 1.4rem; font-weight: 600; margin: 0; display: flex; align-items: center; gap: 8px; }
+    .cal-header-sub { font-size: 0.8rem; opacity: 0.45; margin: 0.3rem 0 0; }
     .cal-nav { display: flex; align-items: center; gap: 0.4rem; }
     .cal-nav-btn {
       background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08);
@@ -87,8 +87,8 @@
 
     /* Day Detail Panel */
     .cal-detail {
-      margin-top: 1rem; border: 1px solid rgba(255,255,255,0.05);
-      border-radius: 10px; background: rgba(255,255,255,0.015); overflow: hidden;
+      margin-top: 1rem; border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 12px; background: #1c1c1e; overflow: hidden;
     }
     .cal-detail-head {
       padding: 0.6rem 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.04);
@@ -137,7 +137,7 @@
       color:rgba(255,255,255,0.65); display:inline-flex; align-items:center; gap:0.15rem;
     }
     .cal-flag--alert { border-color:rgba(248,113,113,0.4); color:#f87171; }
-    .cal-flag--social { border-color:rgba(59,130,246,0.4); color:#3b82f6; }
+    .cal-flag--social { border-color:rgba(96,165,250,0.4); color:#60a5fa; }
     .cal-flag--reminder { border-color:rgba(255,215,0,0.4); color:#fbbf24; }
 
     /* View toggle */
@@ -151,7 +151,7 @@
       cursor: pointer; font-family: inherit; transition: all 0.15s;
     }
     .cal-view-btn:hover { color: rgba(255,255,255,0.7); }
-    .cal-view-btn.active { background: rgba(59,130,246,0.15); color: #3b82f6; font-weight: 600; }
+    .cal-view-btn.active { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.9); font-weight: 600; }
 
     /* Week view */
     .cal-grid--week .cal-cell { min-height: 200px; }
@@ -162,8 +162,8 @@
 
     /* Day view */
     .cal-day-view {
-      border: 1px solid rgba(255,255,255,0.05); border-radius: 10px;
-      background: rgba(255,255,255,0.015); overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.07); border-radius: 12px;
+      background: #1c1c1e; overflow: hidden;
     }
     .cal-day-view-head {
       padding: 0.8rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.04);
@@ -247,14 +247,21 @@
     }
     .cal-stat-val { font-size: 1.1rem; font-weight: 600; }
     .cal-stat-label { font-size: 0.5rem; opacity: 0.35; text-transform: uppercase; letter-spacing: 0.04em; margin-top: 0.1rem; }
+
+    /* ── Inline Style Replacements ── */
+    #cal-main { max-width: 1200px; margin: 0 auto; padding: 1rem; }
+    #cal-today { margin-left: 0.3rem; }
   </style>
 </head>
-<body style="background:#071019" data-theme="dark">
+<body data-theme="dark">
 
-  <main class="content-section" style="max-width: 960px; margin: 0 auto; padding: 1rem;">
+  <main class="content-section" id="cal-main">
 
     <div class="cal-header">
-      <h1><i class="fas fa-calendar-alt"></i>Company Calendar</h1>
+      <div>
+        <h1><i class="fas fa-calendar-alt co-icon-faint co-icon-mr-lg"></i>Company Calendar</h1>
+        <p class="cal-header-sub">Scheduled tasks, campaigns, and key dates across all agents.</p>
+      </div>
       <div class="cal-nav">
         <div class="cal-view-toggle" id="cal-view-toggle">
           <button class="cal-view-btn active" data-view="month">Month</button>
@@ -264,14 +271,14 @@
         <button class="cal-nav-btn" id="cal-prev"><i class="fas fa-chevron-left"></i></button>
         <span class="cal-month-label" id="cal-month-label"></span>
         <button class="cal-nav-btn" id="cal-next"><i class="fas fa-chevron-right"></i></button>
-        <button class="cal-nav-btn" id="cal-today" style="margin-left:0.3rem;">Today</button>
+        <button class="cal-nav-btn" id="cal-today">Today</button>
       </div>
     </div>
 
     <!-- Filters -->
     <div class="cal-filters" id="cal-filters">
-      <button class="cal-filter active" data-layer="tasks" style="--fc:#3b82f6;--fb:rgba(59,130,246,0.08);">
-        <span class="cal-dot" style="background:#3b82f6;"></span> Tasks
+      <button class="cal-filter active" data-layer="tasks" style="--fc:#60a5fa;--fb:rgba(96,165,250,0.08);">
+        <span class="cal-dot" style="background:#60a5fa;"></span> Tasks
       </button>
       <button class="cal-filter active" data-layer="content" style="--fc:#34d399;--fb:rgba(52,211,153,0.08);">
         <span class="cal-dot" style="background:#34d399;"></span> Content
@@ -345,11 +352,11 @@
 
       // Layer colors
       var LAYER_COLORS = {
-        tasks: '#3b82f6',
+        tasks: '#60a5fa',
         content: '#34d399',
-        social: '#a855f7',
-        reminders: '#FFD700',
-        activity: '#FFA500'
+        social: '#a78bfa',
+        reminders: '#fbbf24',
+        activity: '#fbbf24'
       };
 
       // Elements
@@ -613,7 +620,7 @@
               assignee: t.assignee || null,
               assigneeName: agent ? agent.name : null,
               badge: isOverdue ? 'overdue' : t.status,
-              badgeColor: isOverdue ? '#f87171' : t.status === 'done' ? '#34d399' : t.status === 'review' ? '#a855f7' : t.status === 'in-progress' ? '#3b82f6' : '#FFA500',
+              badgeColor: isOverdue ? '#f87171' : t.status === 'done' ? '#34d399' : t.status === 'review' ? '#a78bfa' : t.status === 'in-progress' ? '#60a5fa' : '#fbbf24',
               link: '/modules/company/tasks.html?task=' + t.id
             });
           }
@@ -667,7 +674,7 @@
             title: text || 'Social post',
             meta: platform + ' · ' + (a.created_by || a.origin_agent || '?'),
             badge: approvalStatus === 'approved' ? execStatus : approvalStatus,
-            badgeColor: execStatus === 'success' ? '#34d399' : approvalStatus === 'approved' ? '#3b82f6' : approvalStatus === 'rejected' ? '#ef4444' : '#FFA500',
+            badgeColor: execStatus === 'success' ? '#34d399' : approvalStatus === 'approved' ? '#60a5fa' : approvalStatus === 'rejected' ? '#ef4444' : '#fbbf24',
             platform: platform,
             link: '/modules/company/actions.html?action=' + a.id
           });
@@ -1143,7 +1150,7 @@
           '<div class="cal-day-view">' +
             '<div class="cal-day-view-head">' +
               '<div>' +
-                '<div class="cal-day-view-date">' + d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + (isToday ? ' <span style="font-size:0.55rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(255,215,0,0.15);color:#FFD700;font-weight:600;vertical-align:middle;">TODAY</span>' : '') + '</div>' +
+                '<div class="cal-day-view-date">' + d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + (isToday ? ' <span style="font-size:0.55rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(52,211,153,0.15);color:#34d399;font-weight:600;vertical-align:middle;">TODAY</span>' : '') + '</div>' +
                 '<div class="cal-day-view-sub">' + d.getFullYear() + '</div>' +
               '</div>' +
               '<div style="display:flex;gap:0.3rem;">' +
@@ -1316,10 +1323,10 @@
 
         var periodLabel = currentView === 'day' ? 'Today' : currentView === 'week' ? 'This Week' : 'This Month';
         statsEl.innerHTML =
-          statHtml(taskCount, 'Task Deadlines', '#3b82f6') +
+          statHtml(taskCount, 'Task Deadlines', '#60a5fa') +
           statHtml(contentCount, 'Content Items', '#34d399') +
-          statHtml(socialCount, 'Social Posts', '#a855f7') +
-          statHtml(reminderCount, 'Reminders', '#FFD700');
+          statHtml(socialCount, 'Social Posts', '#a78bfa') +
+          statHtml(reminderCount, 'Reminders', '#fbbf24');
       }
 
       function statHtml(val, label, color) {

@@ -33,9 +33,9 @@
     .act-stat-label { font-size: 0.55rem; opacity: 0.4; text-transform: uppercase; letter-spacing: 0.05em; margin-top: 0.15rem; }
 
     .act-panel {
-      border: 1px solid rgba(255,255,255,0.05);
-      border-radius: 10px;
-      background: rgba(255,255,255,0.015);
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 12px;
+      background: #1c1c1e;
       margin-bottom: 1rem;
       overflow: hidden;
     }
@@ -75,17 +75,17 @@
       font-weight: 500; text-transform: uppercase; letter-spacing: 0.03em;
       white-space: nowrap;
     }
-    .act-badge--pending { background: rgba(255,165,0,0.12); color: #FFA500; }
+    .act-badge--pending { background: rgba(251,191,36,0.12); color: #fbbf24; }
     .act-badge--revision_requested { background: rgba(251,191,36,0.12); color: #fbbf24; }
     .act-badge--approved { background: rgba(52,211,153,0.12); color: #34d399; }
-    .act-badge--running { background: rgba(59,130,246,0.12); color: #3b82f6; }
+    .act-badge--running { background: rgba(96,165,250,0.12); color: #60a5fa; }
     .act-badge--success { background: rgba(52,211,153,0.12); color: #34d399; }
     .act-badge--failed { background: rgba(239,68,68,0.12); color: #ef4444; }
     .act-badge--rejected { background: rgba(239,68,68,0.12); color: #ef4444; }
-    .act-badge--dry_run { background: rgba(168,85,247,0.12); color: #a855f7; }
+    .act-badge--dry_run { background: rgba(167,139,250,0.12); color: #a78bfa; }
     .act-badge--scheduled { background: rgba(251,191,36,0.12); color: #fbbf24; }
     .act-badge--irreversible { background: rgba(239,68,68,0.08); color: #ef4444; }
-    .act-badge--external { background: rgba(255,165,0,0.08); color: #FFA500; }
+    .act-badge--external { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.45); }
 
     .act-btn {
       font-size: 0.55rem; padding: 0.2rem 0.5rem; border-radius: 4px;
@@ -98,8 +98,8 @@
     .act-btn--approve:hover { background: rgba(52,211,153,0.1); }
     .act-btn--reject { border-color: rgba(239,68,68,0.3); color: #ef4444; }
     .act-btn--reject:hover { background: rgba(239,68,68,0.1); }
-    .act-btn--bundle { border-color: rgba(138,43,226,0.3); color: #8A2BE2; }
-    .act-btn--bundle:hover { background: rgba(138,43,226,0.1); }
+    .act-btn--bundle { border-color: rgba(255,255,255,0.12); color: rgba(255,255,255,0.55); }
+    .act-btn--bundle:hover { background: rgba(255,255,255,0.06); }
 
     .act-rate-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 0.5rem; }
     .act-rate-card {
@@ -127,7 +127,7 @@
       display: flex; align-items: center; gap: 0.5rem;
       font-size: 0.7rem; opacity: 0.6;
     }
-    .act-dry-toggle input { accent-color: #a855f7; }
+    .act-dry-toggle input { accent-color: #a78bfa; }
 
     .act-receipt {
       font-size: 0.6rem; opacity: 0.5; margin-top: 0.3rem;
@@ -145,12 +145,12 @@
     }
     .act-filter-label { font-size: 0.6rem; opacity: 0.35; }
 
-    .act-btn--execute { border-color: rgba(59,130,246,0.4); color: #3b82f6; }
-    .act-btn--execute:hover { background: rgba(59,130,246,0.12); }
+    .act-btn--execute { border-color: rgba(255,255,255,0.15); color: rgba(255,255,255,0.7); }
+    .act-btn--execute:hover { background: rgba(255,255,255,0.08); }
     .act-btn--revision { border-color: rgba(251,191,36,0.3); color: #fbbf24; }
     .act-btn--revision:hover { background: rgba(251,191,36,0.1); }
-    .act-btn--override { border-color: rgba(255,215,0,0.3); color: #FFD700; }
-    .act-btn--override:hover { background: rgba(255,215,0,0.1); }
+    .act-btn--override { border-color: rgba(255,255,255,0.15); color: rgba(255,255,255,0.6); }
+    .act-btn--override:hover { background: rgba(255,255,255,0.08); }
     .act-btn--details { border-color: rgba(255,255,255,0.08); color: rgba(255,255,255,0.5); }
 
     .act-drawer-overlay {
@@ -286,23 +286,23 @@
     }
   </style>
 </head>
-<body style="background:#071019" data-theme="dark">
+<body data-theme="dark">
 
-  <main class="content-section" style="max-width: 960px; margin: 0 auto; padding: 1rem;">
+  <main class="content-section" id="act-main">
 
-    <div class="company-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.5rem;">
+    <div class="company-header" id="act-header">
       <div>
-        <h1 style="display:flex; align-items:center; gap:0.4rem; flex-wrap:wrap;">
-          <i class="fas fa-bolt" style="opacity:0.4; color:#FFA500;"></i>Action Command Center
+        <h1 class="act-h1">
+          <i class="fas fa-bolt co-icon-faint co-icon-mr-lg"></i>Action Command Center
           <span class="act-view-toggle" id="act-view-toggle" role="tablist">
             <button role="tab" data-view="governance" class="active" aria-selected="true">Governance</button>
             <button role="tab" data-view="execution" aria-selected="false">Execution</button>
           </span>
         </h1>
-        <p style="margin:0.2rem 0 0; font-size:0.7rem; opacity:0.4;">Controlled execution layer — every external and internal action routes through approval, audit, and receipt.</p>
+        <p class="act-header-sub">Controlled execution layer — every external and internal action routes through approval, audit, and receipt.</p>
       </div>
-      <button class="act-btn" onclick="createTestAction()" style="font-size:0.6rem; padding:0.3rem 0.8rem; flex-shrink:0;">
-        <i class="fas fa-plus" style="margin-right:0.3rem;"></i>Test Action
+      <button class="act-btn act-btn--sm" onclick="createTestAction()">
+        <i class="fas fa-plus dash-icon-mr"></i>Test Action
       </button>
     </div>
 
@@ -358,7 +358,7 @@
       <!-- Approvals Section -->
       <div class="act-section" data-section="approvals">
         <div class="act-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-gavel" style="color:#FFA500;"></i>
+          <i class="fas fa-gavel dash-icon-muted"></i>
           <h2>Approvals</h2>
           <i class="fas fa-chevron-down act-section-chevron"></i>
         </div>
@@ -367,24 +367,24 @@
           <div class="act-panel">
             <div class="act-panel-head">
               <span><i class="fas fa-clock"></i> Pending Action Approvals</span>
-              <span id="pending-count" style="font-size:0.6rem; opacity:0.4;"></span>
+              <span id="pending-count" class="act-count-badge"></span>
             </div>
-            <div id="pending-bulk-bar" style="display:none; padding:0.3rem 0.8rem; border-bottom:1px solid rgba(255,255,255,0.04); align-items:center; gap:0.5rem; background:rgba(52,211,153,0.025);">
-              <label style="display:flex;align-items:center;gap:0.3rem;font-size:0.6rem;opacity:0.5;cursor:pointer;">
-                <input type="checkbox" id="select-all-pending" onchange="toggleSelectAllPending(this.checked)" style="accent-color:#34d399;" />
+            <div id="pending-bulk-bar" style="display:none;">
+              <label class="act-bulk-label">
+                <input type="checkbox" id="select-all-pending" onchange="toggleSelectAllPending(this.checked)" class="act-checkbox-green" />
                 Select all
               </label>
-              <button id="bulk-approve-btn" class="act-btn act-btn--approve" onclick="doApproveSelected()" style="display:none; font-size:0.58rem; padding:0.18rem 0.6rem;"></button>
-              <button id="bulk-reject-btn" class="act-btn act-btn--reject" onclick="doRejectSelected()" style="display:none; font-size:0.58rem; padding:0.18rem 0.6rem;"></button>
-              <button id="bulk-revision-btn" class="act-btn act-btn--revision" onclick="openBulkRevisionModal()" style="display:none; font-size:0.58rem; padding:0.18rem 0.6rem;"></button>
+              <button id="bulk-approve-btn" class="act-btn act-btn--approve act-bulk-btn" onclick="doApproveSelected()" style="display:none;"></button>
+              <button id="bulk-reject-btn" class="act-btn act-btn--reject act-bulk-btn" onclick="doRejectSelected()" style="display:none;"></button>
+              <button id="bulk-revision-btn" class="act-btn act-btn--revision act-bulk-btn" onclick="openBulkRevisionModal()" style="display:none;"></button>
             </div>
             <div class="act-panel-body" id="pending-list"></div>
           </div>
           <!-- Revision Requested -->
           <div class="act-panel" id="revision-panel" style="display:none;">
-            <div class="act-panel-head" style="border-color:rgba(251,191,36,0.15);">
-              <span style="color:#fbbf24;"><i class="fas fa-pen-to-square"></i> Revision Requested</span>
-              <span id="revision-count" style="font-size:0.6rem; opacity:0.4;"></span>
+            <div class="act-panel-head act-panel-head--amber">
+              <span class="act-amber"><i class="fas fa-pen-to-square"></i> Revision Requested</span>
+              <span id="revision-count" class="act-count-badge"></span>
             </div>
             <div class="act-panel-body" id="revision-list"></div>
           </div>
@@ -392,7 +392,7 @@
           <div class="act-panel">
             <div class="act-panel-head">
               <span><i class="fas fa-calendar-check"></i> Approved / Scheduled</span>
-              <span id="scheduled-count" style="font-size:0.6rem; opacity:0.4;"></span>
+              <span id="scheduled-count" class="act-count-badge"></span>
             </div>
             <div class="act-panel-body" id="scheduled-list"></div>
           </div>
@@ -402,15 +402,15 @@
       <!-- Content Packages Section -->
       <div class="act-section" data-section="content-packages">
         <div class="act-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-image" style="color:#8b5cf6;"></i>
+          <i class="fas fa-image dash-icon-muted"></i>
           <h2>Content Packages</h2>
           <i class="fas fa-chevron-down act-section-chevron"></i>
         </div>
         <div class="act-section-body">
           <div class="act-panel">
-            <div class="act-panel-head" style="border-color:rgba(139,92,246,0.15);">
-              <span style="color:#8b5cf6;"><i class="fas fa-image"></i> Pending Content Review</span>
-              <span id="content-pkg-count" style="font-size:0.6rem; opacity:0.4;"></span>
+            <div class="act-panel-head">
+              <span><i class="fas fa-image dash-icon-muted"></i> Pending Content Review</span>
+              <span id="content-pkg-count" class="act-count-badge"></span>
             </div>
             <div class="act-panel-body" id="content-pkg-list"></div>
           </div>
@@ -420,7 +420,7 @@
       <!-- Failures Section (elevated: right after approvals) -->
       <div class="act-section" data-section="failures">
         <div class="act-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-exclamation-triangle" style="color:#ef4444;"></i>
+          <i class="fas fa-exclamation-triangle dash-icon-red"></i>
           <h2>Failures</h2>
           <i class="fas fa-chevron-down act-section-chevron"></i>
         </div>
@@ -428,7 +428,7 @@
           <div class="act-panel">
             <div class="act-panel-head">
               <span><i class="fas fa-exclamation-triangle"></i> Failures</span>
-              <span id="fail-count" style="font-size:0.6rem; opacity:0.4;"></span>
+              <span id="fail-count" class="act-count-badge"></span>
             </div>
             <div class="act-panel-body" id="fail-list"></div>
           </div>
@@ -438,7 +438,7 @@
       <!-- Integrations Section -->
       <div class="act-section" data-section="integrations">
         <div class="act-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-plug" style="color:#60a5fa;"></i>
+          <i class="fas fa-plug dash-icon-blue"></i>
           <h2>Integrations</h2>
           <i class="fas fa-chevron-down act-section-chevron"></i>
         </div>
@@ -467,7 +467,7 @@
       <!-- Logs Section -->
       <div class="act-section" data-section="logs">
         <div class="act-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-stream" style="color:#34d399;"></i>
+          <i class="fas fa-stream dash-icon-green"></i>
           <h2>Logs</h2>
           <i class="fas fa-chevron-down act-section-chevron"></i>
         </div>
@@ -476,7 +476,7 @@
           <div class="act-panel">
             <div class="act-panel-head">
               <span><i class="fas fa-check-circle"></i> Execution Log</span>
-              <span id="exec-count" style="font-size:0.6rem; opacity:0.4;"></span>
+              <span id="exec-count" class="act-count-badge"></span>
             </div>
             <div class="act-panel-body" id="exec-list"></div>
           </div>
@@ -484,9 +484,9 @@
           <div class="act-panel">
             <div class="act-panel-head">
               <span><i class="fas fa-list-alt"></i> Action Audit Log</span>
-              <span id="audit-count" style="font-size:0.6rem; opacity:0.4;"></span>
+              <span id="audit-count" class="act-count-badge"></span>
             </div>
-            <div class="act-panel-body" id="audit-list" style="max-height: 300px; overflow-y: auto;"></div>
+            <div class="act-panel-body" id="audit-list"></div>
           </div>
         </div>
       </div>
@@ -502,12 +502,12 @@
 
   <div class="act-modal-backdrop" id="revision-modal">
     <div class="act-modal">
-      <h3><i class="fas fa-comment-dots" style="margin-right:0.35rem; opacity:0.6;"></i>Send Revision Request</h3>
-      <p style="font-size:0.7rem; opacity:0.6; margin:0 0 0.5rem;">Tell the agent what needs to change before approval.</p>
+      <h3><i class="fas fa-comment-dots act-modal-icon"></i>Send Revision Request</h3>
+      <p class="act-modal-desc">Tell the agent what needs to change before approval.</p>
       <textarea id="revision-note" placeholder="Example: Tighten the headline, remove placeholder hashtags, and schedule for 9AM PST."></textarea>
       <div class="act-modal-actions">
         <button id="revision-cancel">Cancel</button>
-        <button class="primary" id="revision-save"><i class="fas fa-paper-plane" style="margin-right:0.3rem;"></i>Send Revision</button>
+        <button class="primary" id="revision-save"><i class="fas fa-paper-plane dash-icon-mr"></i>Send Revision</button>
       </div>
     </div>
   </div>
@@ -669,11 +669,11 @@
       var segments = [];
 
       // Pending
-      var pendColor = s.pending > 10 ? '#fbbf24' : s.pending > 0 ? '#FFA500' : total === 0 ? 'rgba(255,255,255,0.15)' : '#34d399';
+      var pendColor = s.pending > 0 ? '#fbbf24' : total === 0 ? 'rgba(255,255,255,0.15)' : '#34d399';
       segments.push({ label: 'Pending', value: total === 0 ? '—' : String(s.pending), color: pendColor, title: s.pending + ' actions awaiting approval' });
 
       // Running
-      var runColor = s.running > 5 ? '#fbbf24' : s.running > 0 ? '#3b82f6' : total === 0 ? 'rgba(255,255,255,0.15)' : '#34d399';
+      var runColor = s.running > 0 ? '#60a5fa' : total === 0 ? 'rgba(255,255,255,0.15)' : '#34d399';
       segments.push({ label: 'Running', value: total === 0 ? '—' : String(s.running), color: runColor, title: s.running + ' actions currently executing' });
 
       // Success %
@@ -716,9 +716,9 @@
       }
       el.innerHTML =
         rawCard(s.total, 'Total', '#fff') +
-        rawCard(s.pending, 'Pending', '#FFA500') +
+        rawCard(s.pending, 'Pending', '#fbbf24') +
         rawCard(s.approved, 'Approved', '#34d399') +
-        rawCard(s.running, 'Running', '#3b82f6') +
+        rawCard(s.running, 'Running', '#60a5fa') +
         rawCard(s.success, 'Success', '#34d399') +
         rawCard(s.failed, 'Failed', '#ef4444') +
         rawCard(s.rejected, 'Rejected', '#ef4444');
@@ -748,7 +748,7 @@
 
         html += '<div class="act-row" style="flex-direction:column;align-items:stretch;gap:0.3rem;padding:0.5rem 0;">';
         html += '<div style="display:flex;align-items:center;gap:0.5rem;">';
-        html += '<span style="display:inline-flex;align-items:center;gap:0.2rem;font-size:0.5rem;padding:0.1rem 0.4rem;border-radius:3px;background:rgba(139,92,246,0.12);color:#8b5cf6;font-weight:600;"><i class="fas fa-image" style="font-size:0.4rem;"></i> CONTENT</span>';
+        html += '<span style="display:inline-flex;align-items:center;gap:0.2rem;font-size:0.5rem;padding:0.1rem 0.4rem;border-radius:3px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);font-weight:600;"><i class="fas fa-image" style="font-size:0.4rem;"></i> CONTENT</span>';
         html += '<span style="font-size:0.75rem;font-weight:600;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(title) + '</span>';
         html += '<span style="font-size:0.55rem;opacity:0.4;flex-shrink:0;">' + esc(agentDisplay) + (age ? ' \u00b7 ' + age : '') + '</span>';
         html += '</div>';
@@ -765,7 +765,7 @@
         html += '<div style="display:flex;gap:0.3rem;margin-top:0.2rem;align-items:center;flex-wrap:wrap;">';
         html += '<button class="act-btn act-btn--approve" onclick="doContentApprove(\'' + esc(item.id) + '\')"><i class="fas fa-check" style="margin-right:0.2rem;"></i>Approve</button>';
         html += '<button class="act-btn act-btn--reject" onclick="doContentReject(\'' + esc(item.id) + '\')"><i class="fas fa-times" style="margin-right:0.2rem;"></i>Reject</button>';
-        html += '<a href="/modules/company/content-gallery.html" style="font-size:0.55rem;color:#8b5cf6;text-decoration:none;padding:0.2rem 0.4rem;border:1px solid rgba(139,92,246,0.2);border-radius:4px;background:rgba(139,92,246,0.05);"><i class="fas fa-images" style="margin-right:3px;"></i>View in Gallery</a>';
+        html += '<a href="/modules/company/content-gallery.html" style="font-size:0.55rem;color:rgba(255,255,255,0.5);text-decoration:none;padding:0.2rem 0.4rem;border:1px solid rgba(255,255,255,0.1);border-radius:4px;"><i class="fas fa-images" style="margin-right:3px;"></i>View in Gallery</a>';
         if (item.links && item.links.packageUrl) html += '<a href="' + esc(item.links.packageUrl) + '" target="_blank" style="font-size:0.55rem;color:#60a5fa;text-decoration:none;padding:0.2rem 0.4rem;border:1px solid rgba(96,165,250,0.2);border-radius:4px;background:rgba(96,165,250,0.05);"><i class="fas fa-box" style="margin-right:3px;"></i>Package JSON</a>';
         html += '</div>';
         html += '</div>';
@@ -789,9 +789,9 @@
       });
       var html = '';
       Object.keys(bundles).forEach(function (bid) {
-        html += '<div style="margin-bottom:0.5rem;padding:0.4rem;border:1px dashed rgba(138,43,226,0.2);border-radius:6px;">';
+        html += '<div style="margin-bottom:0.5rem;padding:0.4rem;border:1px dashed rgba(255,255,255,0.08);border-radius:6px;">';
         html += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.3rem;">';
-        html += '<span style="font-size:0.65rem;font-weight:500;color:#8A2BE2;"><i class="fas fa-layer-group"></i> Bundle: ' + esc(bid) + ' (' + bundles[bid].length + ')</span>';
+        html += '<span style="font-size:0.65rem;font-weight:500;color:rgba(255,255,255,0.55);"><i class="fas fa-layer-group"></i> Bundle: ' + esc(bid) + ' (' + bundles[bid].length + ')</span>';
         html += '<button class="act-btn act-btn--bundle" onclick="doApproveBundle(\'' + esc(bid) + '\')">Approve Bundle</button>';
         html += '</div>';
         bundles[bid].forEach(function (a) { html += actionRow(a, 'pending'); });
@@ -899,12 +899,12 @@
           var parts = [];
           if (receipt.platform) parts.push(receipt.platform);
           if (receipt.handle) parts.push(receipt.handle);
-          if (receipt.post_url) parts.push('<a href="' + esc(receipt.post_url) + '" target="_blank" style="color:#3b82f6;">' + esc(receipt.post_url) + '</a>');
+          if (receipt.post_url) parts.push('<a href="' + esc(receipt.post_url) + '" target="_blank" style="color:#60a5fa;">' + esc(receipt.post_url) + '</a>');
           if (receipt.public_url) {
             var fullUrl = receipt.public_url.indexOf('http') === 0 ? receipt.public_url : 'https://ambientpixels.ai' + receipt.public_url;
             var visLabel = receipt.visibility === 'public' ? '<span style="color:#34d399;">public</span>' : '<span style="color:#fbbf24;">internal</span>';
             parts.push(visLabel);
-            parts.push('<a href="' + esc(fullUrl) + '" target="_blank" style="color:#3b82f6;"><i class="fas fa-external-link-alt" style="margin-right:3px;font-size:0.5rem;"></i>' + esc(receipt.public_url) + '</a>');
+            parts.push('<a href="' + esc(fullUrl) + '" target="_blank" style="color:#60a5fa;"><i class="fas fa-external-link-alt" style="margin-right:3px;font-size:0.5rem;"></i>' + esc(receipt.public_url) + '</a>');
           }
           if (receipt.media_count) parts.push(receipt.media_count + ' media');
           if (receipt.content_hash) parts.push('sha256:' + receipt.content_hash.substring(0, 12) + '…');
@@ -918,7 +918,7 @@
             if (m.replies) mParts.push('💬 ' + m.replies);
             if (m.quotes) mParts.push('📝 ' + m.quotes);
             if (mParts.length) {
-              row += '<div class="act-receipt" style="color:#3b82f6;opacity:0.7;font-size:0.58rem;">' + mParts.join(' · ');
+              row += '<div class="act-receipt" style="color:rgba(255,255,255,0.45);font-size:0.58rem;">' + mParts.join(' · ');
               if (m.pulled_at) row += ' <span style="opacity:0.3;">(updated ' + timeAgo(m.pulled_at) + ')</span>';
               row += '</div>';
             }
@@ -949,12 +949,12 @@
       var status = AE.getRateLimitStatus();
       var el = document.getElementById('rate-grid');
       var icons = { social: 'fa-share-alt', email: 'fa-envelope', git: 'fa-code-branch', azure: 'fa-cloud', content: 'fa-paint-brush' };
-      var colors = { social: '#3b82f6', email: '#FFA500', git: '#34d399', azure: '#60a5fa', content: '#a855f7' };
+      var colors = { social: '#60a5fa', email: '#fbbf24', git: '#34d399', azure: '#60a5fa', content: '#a78bfa' };
       var html = '';
       Object.keys(status).forEach(function (cat) {
         var s = status[cat];
         var pct = s.limit > 0 ? Math.round((s.current / s.limit) * 100) : 0;
-        var barColor = pct > 80 ? '#ef4444' : pct > 50 ? '#FFA500' : colors[cat] || '#34d399';
+        var barColor = pct > 80 ? '#ef4444' : pct > 50 ? '#fbbf24' : colors[cat] || '#34d399';
         html += '<div class="act-rate-card">';
         html += '<div class="act-rate-cat"><i class="fas ' + (icons[cat] || 'fa-cog') + '" style="margin-right:0.3rem;color:' + (colors[cat] || '#888') + ';"></i>' + cat + '</div>';
         html += '<div class="act-rate-bar"><div class="act-rate-fill" style="width:' + pct + '%;background:' + barColor + ';"></div></div>';
@@ -989,9 +989,9 @@
     function getAuditColor(type) {
       if (type.includes('approved') || type.includes('overridden')) return '#34d399';
       if (type.includes('rejected') || type.includes('failed')) return '#ef4444';
-      if (type.includes('running')) return '#3b82f6';
+      if (type.includes('running')) return '#60a5fa';
       if (type.includes('success')) return '#34d399';
-      if (type.includes('created')) return '#FFA500';
+      if (type.includes('created')) return 'rgba(255,255,255,0.5)';
       return 'rgba(255,255,255,0.5)';
     }
 
@@ -1030,8 +1030,8 @@
     // ── Row renderer ──
     function actionRow(a, context) {
       var catIcons = { social: 'fa-share-alt', email: 'fa-envelope', git: 'fa-code-branch', azure: 'fa-cloud', content: 'fa-paint-brush' };
-      var catColors = { social: 'rgba(59,130,246,0.12)', email: 'rgba(255,165,0,0.12)', git: 'rgba(52,211,153,0.12)', azure: 'rgba(96,165,250,0.12)', content: 'rgba(168,85,247,0.12)' };
-      var catTextColors = { social: '#3b82f6', email: '#FFA500', git: '#34d399', azure: '#60a5fa', content: '#a855f7' };
+      var catColors = { social: 'rgba(96,165,250,0.12)', email: 'rgba(251,191,36,0.12)', git: 'rgba(52,211,153,0.12)', azure: 'rgba(96,165,250,0.12)', content: 'rgba(167,139,250,0.12)' };
+      var catTextColors = { social: '#60a5fa', email: '#fbbf24', git: '#34d399', azure: '#60a5fa', content: '#a78bfa' };
       var cat = a.action_category || 'unknown';
       var icon = catIcons[cat] || 'fa-cog';
       var bg = catColors[cat] || 'rgba(255,255,255,0.04)';
@@ -1064,7 +1064,7 @@
       html += '<div class="act-row-title" style="display:flex;align-items:center;gap:0.3rem;flex-wrap:wrap;">';
       html += '<span>' + friendlyActionName(aType) + '</span>';
       if (aPlat) html += platformBadge(aPlat);
-      if (a.kind === 'research.intel' || aType === 'research.intel' || aType === 'research_intel.approve') html += '<span style="display:inline-flex;align-items:center;gap:0.25rem;font-size:0.5rem;padding:0.1rem 0.4rem;border-radius:3px;background:rgba(168,85,247,0.12);color:#a855f7;font-weight:600;"><i class="fas fa-microscope"></i>Intel</span>';
+      if (a.kind === 'research.intel' || aType === 'research.intel' || aType === 'research_intel.approve') html += '<span style="display:inline-flex;align-items:center;gap:0.25rem;font-size:0.5rem;padding:0.1rem 0.4rem;border-radius:3px;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.5);font-weight:600;"><i class="fas fa-microscope"></i>Intel</span>';
       if (aType === 'publish_document') html += '<span style="display:inline-flex;align-items:center;gap:0.25rem;font-size:0.5rem;padding:0.1rem 0.4rem;border-radius:3px;background:rgba(52,211,153,0.12);color:#34d399;font-weight:600;"><i class="fas fa-newspaper"></i>Blog</span>';
       if (a.approval && a.approval.revision_count) html += '<span style="font-size:0.55rem;padding:0.1rem 0.35rem;border-radius:3px;background:rgba(251,191,36,0.12);color:#fbbf24;font-weight:600;">REV ' + a.approval.revision_count + '</span>';
       if (payload._ceo_edited) html += '<span class="act-edit-badge"><i class="fas fa-pen" style="font-size:0.4rem;"></i>CEO edited</span>';
@@ -1107,7 +1107,7 @@
       }
       // Promote checkbox for publish_document actions (mirrors Dashboard CEO Queue)
       if (aType === 'publish_document' && payload.documentId && context === 'pending') {
-        html += '<label class="act-promote-label" style="display:flex;align-items:center;gap:5px;font-size:0.6rem;margin-top:6px;cursor:pointer;color:rgba(255,255,255,0.6);" onclick="event.stopPropagation();"><input type="checkbox" class="act-promote-cb" data-doc-id="' + esc(payload.documentId) + '" style="accent-color:#a855f7;cursor:pointer;" /> <i class="fas fa-bullhorn" style="font-size:0.5rem;color:#a855f7;"></i> Enable automatic social promotion</label>';
+        html += '<label class="act-promote-label" style="display:flex;align-items:center;gap:5px;font-size:0.6rem;margin-top:6px;cursor:pointer;color:rgba(255,255,255,0.6);" onclick="event.stopPropagation();"><input type="checkbox" class="act-promote-cb" data-doc-id="' + esc(payload.documentId) + '" style="accent-color:rgba(255,255,255,0.6);cursor:pointer;" /> <i class="fas fa-bullhorn" style="font-size:0.5rem;opacity:0.5;"></i> Enable automatic social promotion</label>';
       }
       var showTime = (approvalStatus === 'approved' && a.approval && a.approval.approved_at) ? a.approval.approved_at : a.created_at;
       var timePrefix = (approvalStatus === 'approved' && a.approval && a.approval.approved_at) ? 'approved ' : '';
@@ -1427,7 +1427,7 @@
       var agentLabel = agentName.charAt(0).toUpperCase() + agentName.slice(1);
 
       // Status colors
-      var statusColors = { pending: '#FFA500', approved: '#34d399', revision_requested: '#fbbf24', rejected: '#ef4444', failed: '#ef4444', success: '#34d399', running: '#3b82f6', overridden: '#FFD700' };
+      var statusColors = { pending: '#fbbf24', approved: '#34d399', revision_requested: '#fbbf24', rejected: '#ef4444', failed: '#ef4444', success: '#34d399', running: '#60a5fa', overridden: '#34d399' };
       var approvalStatus = (a.approval && a.approval.status) || 'pending';
       var execStatus = a.execution_status || 'pending';
       var friendlyApproval = typeof FriendlyLabels !== 'undefined' ? FriendlyLabels.status(approvalStatus) : approvalStatus;
@@ -1439,7 +1439,7 @@
       // Title with friendly name
       html += '<h3>' + friendlyActionName(aType);
       if (a.platform) html += ' ' + platformBadge(a.platform);
-      if (a.kind === 'research.intel' || aType === 'research.intel' || aType === 'research_intel.approve') html += ' <span style="display:inline-flex;align-items:center;gap:0.25rem;font-size:0.6rem;padding:0.15rem 0.5rem;border-radius:3px;background:rgba(168,85,247,0.12);color:#a855f7;font-weight:600;"><i class="fas fa-microscope"></i>Intel</span>';
+      if (a.kind === 'research.intel' || aType === 'research.intel' || aType === 'research_intel.approve') html += ' <span style="display:inline-flex;align-items:center;gap:0.25rem;font-size:0.6rem;padding:0.15rem 0.5rem;border-radius:3px;background:rgba(167,139,250,0.12);color:#a78bfa;font-weight:600;"><i class="fas fa-microscope"></i>Intel</span>';
       if (aType === 'publish_document') html += ' <span style="display:inline-flex;align-items:center;gap:0.25rem;font-size:0.6rem;padding:0.15rem 0.5rem;border-radius:3px;background:rgba(52,211,153,0.12);color:#34d399;font-weight:600;"><i class="fas fa-newspaper"></i>Blog</span>';
       html += '</h3>';
 
@@ -1461,7 +1461,7 @@
         html += '<h4 style="margin:0;">Post Content</h4>';
         if (_canEdit) html += '<button class="act-btn act-btn--details" onclick="toggleDrawerEdit(\'' + esc(a.id) + '\', \'social\')" style="font-size:0.55rem;padding:0.15rem 0.5rem;"><i class="fas fa-pen" style="margin-right:0.25rem;font-size:0.45rem;"></i>Edit</button>';
         html += '</div>';
-        if (payload._ceo_edited) html += '<div style="font-size:0.55rem;color:#a855f7;margin:0.3rem 0;"><i class="fas fa-pen" style="margin-right:0.25rem;font-size:0.4rem;"></i>CEO edited ' + timeAgo(payload._ceo_edited_at) + '</div>';
+        if (payload._ceo_edited) html += '<div style="font-size:0.55rem;color:rgba(255,255,255,0.4);margin:0.3rem 0;"><i class="fas fa-pen" style="margin-right:0.25rem;font-size:0.4rem;"></i>CEO edited ' + timeAgo(payload._ceo_edited_at) + '</div>';
         html += '<div id="drawer-content-view">';
         html += '<div class="act-drawer-post">';
         var _resolvedPostText = _resolveTokensForDisplay(a, payload.text);
@@ -1497,9 +1497,9 @@
         html += '<h4 style="margin:0;">Article Preview</h4>';
         if (_canEdit) html += '<button class="act-btn act-btn--details" onclick="toggleDrawerEdit(\'' + esc(a.id) + '\', \'article\')" style="font-size:0.55rem;padding:0.15rem 0.5rem;"><i class="fas fa-pen" style="margin-right:0.25rem;font-size:0.45rem;"></i>Edit</button>';
         html += '</div>';
-        if (payload._ceo_edited) html += '<div style="font-size:0.55rem;color:#a855f7;margin:0.3rem 0;"><i class="fas fa-pen" style="margin-right:0.25rem;font-size:0.4rem;"></i>CEO edited ' + timeAgo(payload._ceo_edited_at) + '</div>';
+        if (payload._ceo_edited) html += '<div style="font-size:0.55rem;color:rgba(255,255,255,0.4);margin:0.3rem 0;"><i class="fas fa-pen" style="margin-right:0.25rem;font-size:0.4rem;"></i>CEO edited ' + timeAgo(payload._ceo_edited_at) + '</div>';
         html += '<div id="drawer-content-view">';
-        html += '<div style="padding:0.6rem 0.8rem;border-radius:8px;border:1px solid rgba(168,85,247,0.15);background:rgba(168,85,247,0.04);max-height:400px;overflow-y:auto;">';
+        html += '<div style="padding:0.6rem 0.8rem;border-radius:8px;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.02);max-height:400px;overflow-y:auto;">';
         if (payload.title) html += '<div style="font-size:1rem;font-weight:700;margin-bottom:0.4rem;color:#e2e8f0;">' + esc(payload.title) + '</div>';
         var metaParts = [];
         if (payload.kind) metaParts.push(esc(payload.kind).replace(/_/g, ' '));
@@ -1554,7 +1554,7 @@
         html += '<h4 style="margin:0;">Content</h4>';
         if (_canEdit) html += '<button class="act-btn act-btn--details" onclick="toggleDrawerEdit(\'' + esc(a.id) + '\', \'generic\')" style="font-size:0.55rem;padding:0.15rem 0.5rem;"><i class="fas fa-pen" style="margin-right:0.25rem;font-size:0.45rem;"></i>Edit</button>';
         html += '</div>';
-        if (payload._ceo_edited) html += '<div style="font-size:0.55rem;color:#a855f7;margin:0.3rem 0;"><i class="fas fa-pen" style="margin-right:0.25rem;font-size:0.4rem;"></i>CEO edited ' + timeAgo(payload._ceo_edited_at) + '</div>';
+        if (payload._ceo_edited) html += '<div style="font-size:0.55rem;color:rgba(255,255,255,0.4);margin:0.3rem 0;"><i class="fas fa-pen" style="margin-right:0.25rem;font-size:0.4rem;"></i>CEO edited ' + timeAgo(payload._ceo_edited_at) + '</div>';
         html += '<div id="drawer-content-view">';
         // Hero image for task_completion.approve (same pattern as publish_document)
         if (a.type === 'task_completion.approve' && (payload.hero_image_url || payload.hero_image_asset_id)) {
@@ -1661,7 +1661,7 @@
           if (r.media_count) html += kv('Media', r.media_count + ' attached');
           html += '</dl>';
           if (r.post_url) {
-            html += '<a href="' + esc(r.post_url) + '" target="_blank" style="display:inline-flex;align-items:center;gap:0.3rem;margin-top:0.4rem;font-size:0.65rem;color:#3b82f6;text-decoration:none;"><i class="fas fa-external-link-alt"></i>View Post</a>';
+            html += '<a href="' + esc(r.post_url) + '" target="_blank" style="display:inline-flex;align-items:center;gap:0.3rem;margin-top:0.4rem;font-size:0.65rem;color:#60a5fa;text-decoration:none;"><i class="fas fa-external-link-alt"></i>View Post</a>';
           }
 
           // Engagement metrics
@@ -1670,8 +1670,8 @@
             html += '<div style="margin-top:0.5rem;display:flex;gap:0.6rem;font-size:0.65rem;">';
             if (m.likes) html += '<span style="color:#ef4444;">❤️ ' + m.likes + '</span>';
             if (m.retweets) html += '<span style="color:#34d399;">🔁 ' + m.retweets + '</span>';
-            if (m.replies) html += '<span style="color:#3b82f6;">💬 ' + m.replies + '</span>';
-            if (m.quotes) html += '<span style="color:#a855f7;">📝 ' + m.quotes + '</span>';
+            if (m.replies) html += '<span style="color:#60a5fa;">💬 ' + m.replies + '</span>';
+            if (m.quotes) html += '<span style="opacity:0.6;">📝 ' + m.quotes + '</span>';
             html += '</div>';
             if (m.pulled_at) html += '<div style="font-size:0.55rem;opacity:0.3;margin-top:0.2rem;">Updated ' + timeAgo(m.pulled_at) + '</div>';
           }

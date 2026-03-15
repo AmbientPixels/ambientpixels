@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
   <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
   <style>
-    .ce-panel { background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:1rem; margin-bottom:1rem; }
+    .ce-panel { background:#1c1c1e; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:1rem; margin-bottom:1rem; }
     .ce-panel-title { font-size:0.8rem; font-weight:600; margin-bottom:0.7rem; display:flex; align-items:center; gap:0.4rem; }
     .ce-panel-title i { opacity:0.5; font-size:0.7rem; }
 
@@ -38,8 +38,8 @@
       font-size:0.65rem; cursor:pointer; user-select:none; transition:all 0.15s;
       background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); color:#aaa;
     }
-    .ce-output-chip:hover { border-color:rgba(139,92,246,0.3); }
-    .ce-output-chip--active { background:rgba(139,92,246,0.12); border-color:rgba(139,92,246,0.4); color:#c4b5fd; }
+    .ce-output-chip:hover { border-color:rgba(255,255,255,0.2); }
+    .ce-output-chip--active { background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.3); color:#fff; }
     .ce-output-chip i { font-size:0.6rem; }
     .ce-output-chip .ce-chip-size { font-size:0.55rem; opacity:0.5; }
 
@@ -49,15 +49,15 @@
       background:rgba(255,255,255,0.03); color:#aaa; font-size:0.72rem; font-weight:600;
       cursor:pointer; transition:all 0.15s;
     }
-    .ce-var-btn:hover { border-color:rgba(139,92,246,0.3); }
-    .ce-var-btn--active { background:rgba(139,92,246,0.12); border-color:rgba(139,92,246,0.4); color:#c4b5fd; }
+    .ce-var-btn:hover { border-color:rgba(255,255,255,0.2); color:#fff; }
+    .ce-var-btn--active { background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.3); color:#fff; }
 
     .ce-prompt-preview {
       background:rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.06); border-radius:6px;
       padding:0.6rem; font-size:0.6rem; font-family:'Courier New',monospace; line-height:1.5;
       max-height:120px; overflow-y:auto; color:#888; display:none; margin-top:0.5rem;
     }
-    .ce-prompt-toggle { font-size:0.6rem; color:#8b5cf6; cursor:pointer; opacity:0.7; margin-top:0.4rem; display:inline-block; }
+    .ce-prompt-toggle { font-size:0.6rem; color:rgba(255,255,255,0.45); cursor:pointer; margin-top:0.4rem; display:inline-block; }
     .ce-prompt-toggle:hover { opacity:1; }
     .ce-est { font-size:0.6rem; opacity:0.4; }
 
@@ -68,10 +68,10 @@
       transition: opacity 0.2s;
     }
     .ce-btn:disabled { opacity:0.3; cursor:not-allowed; }
-    .ce-btn--primary { background:#3b82f6; color:#fff; }
-    .ce-btn--primary:hover:not(:disabled) { background:#2563eb; }
-    .ce-btn--generate { background:#8b5cf6; color:#fff; }
-    .ce-btn--generate:hover:not(:disabled) { background:#7c3aed; }
+    .ce-btn--primary { background:#2c2c2e; color:rgba(255,255,255,0.8); border:1px solid rgba(255,255,255,0.12); }
+    .ce-btn--primary:hover:not(:disabled) { background:#3a3a3c; color:#fff; }
+    .ce-btn--generate { background:#2c2c2e; color:rgba(255,255,255,0.75); border:1px solid rgba(255,255,255,0.12); }
+    .ce-btn--generate:hover:not(:disabled) { background:#3a3a3c; color:#fff; }
 
     .ce-status { margin-top:0.6rem; font-size:0.68rem; padding:0.4rem 0.6rem; border-radius:6px; display:none; }
     .ce-status--info { background:rgba(96,165,250,0.1); color:#60a5fa; display:block; }
@@ -161,14 +161,19 @@
     .ce-log-entry { padding:1px 0; }
 
     .ce-preset-preview { font-size:0.6rem; opacity:0.4; margin-top:2px; font-style:italic; }
+    /* ── Inline Style Replacements ── */
+    #ce-main { max-width: 900px; margin: 0 auto; padding: 1rem; }
+    #ce-results-meta { font-size: 0.65rem; opacity: 0.5; margin-bottom: 0.4rem; }
+    #ce-results-links { margin-top: 0.5rem; }
+    #ce-danger-status { font-size: 0.62rem; margin-top: 0.3rem; }
   </style>
 </head>
-<body style="background:#071019" data-theme="dark">
-<main class="content-section" style="max-width: 900px; margin: 0 auto; padding: 1rem;">
-  <h1 style="font-size:1.1rem; font-weight:600; margin-bottom:0.3rem;">
-    <i class="fas fa-images" style="opacity:0.5;"></i> Image Engine
-  </h1>
-  <p style="font-size:0.68rem; opacity:0.4; margin-bottom:1rem;">Generate branded images with AI. One click — brief is auto-created behind the scenes.</p>
+<body data-theme="dark">
+<main id="ce-main" class="content-section">
+  <header class="company-header">
+    <h1><i class="fas fa-images co-icon-faint co-icon-mr-lg"></i>Image Engine</h1>
+    <p>Generate branded images with AI. One click — brief is auto-created behind the scenes.</p>
+  </header>
 
   <!-- ── Generate Form ── -->
   <div class="ce-panel ce-form" id="ce-form-panel">
@@ -240,9 +245,9 @@
   <!-- ── Results ── -->
   <div class="ce-panel ce-results" id="ce-results">
     <div class="ce-panel-title"><i class="fas fa-box-open"></i> Generated Package</div>
-    <div id="ce-results-meta" style="font-size:0.65rem; opacity:0.5; margin-bottom:0.4rem;"></div>
+    <div id="ce-results-meta"></div>
     <div class="ce-results-grid" id="ce-results-grid"></div>
-    <div id="ce-results-links" style="margin-top:0.5rem;"></div>
+    <div id="ce-results-links"></div>
     <div id="ce-approval-status"></div>
 
     <!-- Danger Zone — Hard Delete (CEO only, shown when viewing existing package) -->
@@ -262,7 +267,7 @@
         <input class="ce-danger-input" id="ce-danger-confirm-input" type="text" placeholder="Type DELETE to confirm" autocomplete="off" />
         <button class="ce-btn--danger" id="ce-hard-delete-btn" disabled onclick="ceHardDelete()"><i class="fas fa-trash"></i> Purge Package</button>
       </div>
-      <div id="ce-danger-status" style="font-size:0.62rem;margin-top:0.3rem;"></div>
+      <div id="ce-danger-status"></div>
     </div>
   </div>
 

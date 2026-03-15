@@ -220,14 +220,18 @@
   function _cfgRenderAgentTiles() {
     if (!_agentRoster) return;
     var el = document.getElementById('ov-agents');
-    var tierColors = { 1: '#FFD700', 2: '#8A2BE2', 3: '#4ECDC4', 4: '#888' };
+    var agentColors = {
+      pixelpusher: '#fbbf24', nova: '#818cf8', cipher: '#34d399',
+      pixel: '#fb7185', forge: '#fb923c', echo: '#38bdf8',
+      scout: '#facc15', scribe: '#a3e635', quill: '#c4b5fd'
+    };
     var configs = (typeof AgentEngine !== 'undefined' && AgentEngine.getAgentConfigs) ? AgentEngine.getAgentConfigs() : {};
     var tasks = (typeof AgentEngine !== 'undefined' && AgentEngine.getTasks) ? AgentEngine.getTasks() : [];
     var now = Date.now();
 
     el.innerHTML = _agentRoster.map(function (a) {
-      var color = tierColors[a.tier] || '#666';
       var id = (a.id || a.name || '').toLowerCase();
+      var color = a.color || agentColors[id] || '#888';
 
       // Heartbeat info
       var hb = configs[id] && configs[id].heartbeat;

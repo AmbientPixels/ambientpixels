@@ -19,17 +19,7 @@
   <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
   <style>
     /* ── Cost Center v1.0 ── */
-    .cost-hero {
-      position: relative;
-      background: linear-gradient(135deg, rgba(251,191,36,0.06) 0%, rgba(251,191,36,0.01) 100%);
-      border: 1px solid rgba(251,191,36,0.15);
-      border-radius: 14px;
-      padding: 1.6rem 1.8rem 1.2rem;
-      margin-bottom: 1.2rem;
-    }
-    .cost-hero h1 { margin: 0 0 0.25rem; font-size: 1.3rem; font-weight: 600; }
-    .cost-hero p { margin: 0; font-size: 0.72rem; opacity: 0.45; }
-    .cost-hero-summary { margin-top: 0.6rem; font-size: 0.68rem; color: #fbbf24; opacity: 0.8; }
+
 
     /* Stat Cards */
     .cost-stat-grid {
@@ -39,9 +29,9 @@
     @media (max-width: 768px) { .cost-stat-grid { grid-template-columns: repeat(3, 1fr); } }
     @media (max-width: 480px) { .cost-stat-grid { grid-template-columns: repeat(2, 1fr); } }
     .cost-stat-card {
-      background: rgba(255,255,255,0.02);
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 10px;
+      background: #1c1c1e;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 12px;
       padding: 0.9rem 1rem;
       text-align: center;
       transition: border-color 0.2s, transform 0.2s;
@@ -68,9 +58,9 @@
       margin-bottom: 1.4rem;
     }
     .cost-budget-card {
-      background: rgba(255,255,255,0.015);
-      border: 1px solid rgba(255,255,255,0.05);
-      border-radius: 10px; padding: 0.8rem 1rem;
+      background: #1c1c1e;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 12px; padding: 0.8rem 1rem;
     }
     .cost-budget-card-header {
       display: flex; justify-content: space-between; align-items: center;
@@ -98,9 +88,9 @@
       display: grid; grid-template-columns: 1fr; gap: 1rem; margin-bottom: 1.4rem;
     }
     .cost-panel {
-      background: rgba(255,255,255,0.015);
-      border: 1px solid rgba(255,255,255,0.05);
-      border-radius: 10px; overflow: hidden;
+      background: #1c1c1e;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 12px; overflow: hidden;
     }
     .cost-panel-header {
       display: flex; justify-content: space-between; align-items: center;
@@ -173,8 +163,8 @@
     }
     .cost-roi-card {
       text-align: center; padding: 0.6rem;
-      background: rgba(255,255,255,0.015);
-      border: 1px solid rgba(255,255,255,0.04);
+      background: #1c1c1e;
+      border: 1px solid rgba(255,255,255,0.07);
       border-radius: 8px;
     }
     .cost-roi-value { font-size: 1.2rem; font-weight: 600; line-height: 1.2; }
@@ -186,28 +176,31 @@
     @media (prefers-reduced-motion: reduce) {
       .cost-stat-card:hover { transform: none; }
     }
+
+    /* ── Inline Style Replacements ── */
+    #cost-main { max-width: 900px; margin: 0 auto; padding: 1rem; }
+    .cost-select { font-size: 0.6rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 4px; color: inherit; padding: 0.15rem 0.3rem; }
+    .cost-filter-row { display: flex; gap: 0.4rem; align-items: center; }
   </style>
 </head>
-<body style="background:#071019" data-theme="dark">
+<body data-theme="dark">
 
-  <main class="content-section" style="max-width: 900px; margin: 0 auto; padding: 1rem;">
+  <main id="cost-main" class="content-section">
 
-    <!-- Hero -->
-    <div class="cost-hero">
-      <h1><i class="fas fa-dollar-sign" style="opacity:0.4; margin-right:8px; color:#fbbf24;"></i>Cost Center</h1>
+    <div class="company-header">
+      <h1><i class="fas fa-dollar-sign co-icon-faint co-icon-mr-lg"></i>Cost Center</h1>
       <p>API spend, budget targets, cost-per-agent, and platform ROI.</p>
-      <div class="cost-hero-summary" id="cost-summary-text">Loading cost data...</div>
     </div>
 
     <!-- Top-line Stat Cards -->
     <div class="cost-stat-grid" id="cost-stats">
       <div class="cost-stat-card">
-        <div class="cost-stat-value" style="color:#fbbf24;" id="cs-total">—</div>
+        <div class="cost-stat-value" style="color:var(--c-amber);" id="cs-total">—</div>
         <div class="cost-stat-label">Total Spend</div>
         <div class="cost-stat-sub" id="cs-total-sub">30 days</div>
       </div>
       <div class="cost-stat-card">
-        <div class="cost-stat-value" style="color:#fbbf24;" id="cs-gemini">—</div>
+        <div class="cost-stat-value" style="color:var(--c-amber);" id="cs-gemini">—</div>
         <div class="cost-stat-label">Gemini API</div>
         <div class="cost-stat-sub" id="cs-gemini-sub">—</div>
       </div>
@@ -222,7 +215,7 @@
         <div class="cost-stat-sub" id="cs-x-sub">loading</div>
       </div>
       <div class="cost-stat-card">
-        <div class="cost-stat-value" style="color:#34d399;" id="cs-projected">—</div>
+        <div class="cost-stat-value" style="color:var(--c-green);" id="cs-projected">—</div>
         <div class="cost-stat-label">Projected/Mo</div>
         <div class="cost-stat-sub" id="cs-projected-sub">all sources</div>
       </div>
@@ -233,15 +226,15 @@
     <div class="cost-breakdown-legend" id="cost-bar-legend"></div>
 
     <!-- Budget Targets -->
-    <div class="cost-section-title"><i class="fas fa-bullseye" style="margin-right:6px;"></i>Budget Targets</div>
+    <div class="cost-section-title"><i class="fas fa-bullseye co-icon-mr"></i>Budget Targets</div>
     <div class="cost-budget-grid" id="budget-targets"></div>
 
     <!-- Gemini API Panel -->
-    <div class="cost-section-title"><i class="fas fa-coins" style="margin-right:6px; color:#fbbf24;"></i>Gemini API</div>
+    <div class="cost-section-title"><i class="fas fa-coins co-icon-mr" style="color:#fbbf24;"></i>Gemini API</div>
     <div class="cost-panel">
       <div class="cost-panel-header">
         <span class="cost-panel-title"><i class="fas fa-coins" style="color:#fbbf24;"></i> Gemini API Costs</span>
-        <select id="gemini-range" style="font-size:0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:4px; color:inherit; padding:0.15rem 0.3rem;">
+        <select id="gemini-range" class="cost-select">
           <option value="7">7 days</option>
           <option value="14">14 days</option>
           <option value="30" selected>30 days</option>
@@ -251,11 +244,11 @@
     </div>
 
     <!-- Azure Panel -->
-    <div class="cost-section-title"><i class="fab fa-microsoft" style="margin-right:6px; color:#0078D4;"></i>Azure Infrastructure</div>
+    <div class="cost-section-title"><i class="fab fa-microsoft co-icon-mr" style="color:#0078D4;"></i>Azure Infrastructure</div>
     <div class="cost-panel">
       <div class="cost-panel-header">
         <span class="cost-panel-title"><i class="fab fa-microsoft" style="color:#0078D4;"></i> Azure Costs</span>
-        <select id="azure-range" style="font-size:0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:4px; color:inherit; padding:0.15rem 0.3rem;">
+        <select id="azure-range" class="cost-select">
           <option value="7">7 days</option>
           <option value="14">14 days</option>
           <option value="30" selected>30 days</option>
@@ -265,17 +258,17 @@
     </div>
 
     <!-- X.com Panel -->
-    <div class="cost-section-title"><i class="fab fa-x-twitter" style="margin-right:6px; color:#1DA1F2;"></i>X.com (Twitter) API</div>
+    <div class="cost-section-title"><i class="fab fa-x-twitter co-icon-mr" style="color:#1DA1F2;"></i>X.com (Twitter) API</div>
     <div class="cost-panel">
       <div class="cost-panel-header">
         <span class="cost-panel-title"><i class="fab fa-x-twitter" style="color:#1DA1F2;"></i> X.com API Costs</span>
-        <div style="display:flex;gap:0.4rem;align-items:center;">
-          <select id="x-plan" title="X API plan" style="font-size:0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:4px; color:inherit; padding:0.15rem 0.3rem;">
+        <div class="cost-filter-row">
+          <select id="x-plan" title="X API plan" class="cost-select">
             <option value="0">Free ($0/mo)</option>
             <option value="100">Basic ($100/mo)</option>
             <option value="5000">Pro ($5,000/mo)</option>
           </select>
-          <select id="x-range" style="font-size:0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:4px; color:inherit; padding:0.15rem 0.3rem;">
+          <select id="x-range" class="cost-select">
             <option value="7">7 days</option>
             <option value="14">14 days</option>
             <option value="30" selected>30 days</option>
@@ -286,7 +279,7 @@
     </div>
 
     <!-- Cost per Agent -->
-    <div class="cost-section-title"><i class="fas fa-users" style="margin-right:6px;"></i>Cost by Agent</div>
+    <div class="cost-section-title"><i class="fas fa-users co-icon-mr"></i>Cost by Agent</div>
     <div class="cost-panel">
       <div class="cost-panel-header">
         <span class="cost-panel-title"><i class="fas fa-users"></i> Agent Cost Breakdown</span>
@@ -295,7 +288,7 @@
     </div>
 
     <!-- Social ROI -->
-    <div class="cost-section-title"><i class="fas fa-chart-line" style="margin-right:6px;"></i>Social ROI</div>
+    <div class="cost-section-title"><i class="fas fa-chart-line co-icon-mr"></i>Social ROI</div>
     <div class="cost-panel">
       <div class="cost-panel-header">
         <span class="cost-panel-title"><i class="fas fa-chart-line"></i> Return on Investment</span>
@@ -413,8 +406,8 @@
           var pct = maxAgent > 0 ? Math.max(3, (d.cost / maxAgent) * 100) : 3;
           html += '<div class="cost-bar-row"><div class="cost-bar-row-header">';
           html += '<span class="cost-bar-row-name">' + escapeHtml(a) + '</span>';
-          html += '<span class="cost-bar-row-value" style="color:#a855f7;">$' + d.cost.toFixed(4) + ' <span style="opacity:0.4;">(' + d.calls + ')</span></span>';
-          html += '</div><div class="cost-bar-track"><div class="cost-bar-fill" style="width:' + pct + '%; background:linear-gradient(90deg,#a855f7,#7c3aed);"></div></div></div>';
+          html += '<span class="cost-bar-row-value" style="color:rgba(255,255,255,0.7);">$' + d.cost.toFixed(4) + ' <span style="opacity:0.4;">(' + d.calls + ')</span></span>';
+          html += '</div><div class="cost-bar-track"><div class="cost-bar-fill" style="width:' + pct + '%; background:linear-gradient(90deg,rgba(255,255,255,0.25),rgba(255,255,255,0.12));"></div></div></div>';
         });
       }
 

@@ -18,144 +18,84 @@
   <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
   <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
   <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
-  <style>
-    .obj-modal-backdrop {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
-      display: none; align-items: center; justify-content: center; z-index: 1000;
-    }
-    .obj-modal {
-      width: min(440px, 90%); background: rgba(7,16,25,0.95);
-      border: 1px solid rgba(255,255,255,0.08); border-radius: 10px;
-      padding: 1rem; box-shadow: 0 20px 40px rgba(0,0,0,0.4);
-    }
-    .obj-modal h3 { margin: 0 0 0.6rem; font-size: 1rem; }
-    .obj-modal label { display:block; font-size:0.7rem; opacity:0.5; margin-top:0.6rem; }
-    .obj-modal input,
-    .obj-modal textarea,
-    .obj-modal select {
-      width: 100%; padding: 0.4rem 0.6rem; border-radius: 6px;
-      border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.03);
-      color: inherit; font-size: 0.8rem; font-family: inherit;
-    }
-    .obj-modal textarea { resize: vertical; min-height: 80px; }
-    .obj-modal-row { display:flex; gap:0.5rem; }
-    .obj-modal-row > div { flex:1; }
-    .obj-modal-actions { margin-top: 0.8rem; display:flex; gap:0.5rem; justify-content:flex-end; }
-    .obj-btn {
-      font-size:0.65rem; padding:0.3rem 0.8rem; border-radius:5px; border:1px solid rgba(255,255,255,0.1);
-      background:rgba(255,255,255,0.05); color:#fff; cursor:pointer;
-    }
-    .obj-btn--primary { border-color:rgba(78,205,196,0.4); color:#4ECDC4; }
-    .obj-btn--danger { border-color:rgba(248,113,113,0.4); color:#f87171; margin-right:auto; }
-
-    /* Campaign multi-select widget */
-    .cmp-select-wrap { position:relative; }
-    .cmp-select-trigger {
-      width:100%; padding:0.35rem 0.55rem; border-radius:6px;
-      border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.03);
-      color:inherit; font-size:0.72rem; cursor:pointer; display:flex; align-items:center; justify-content:space-between;
-    }
-    .cmp-select-trigger:hover { border-color:rgba(255,255,255,0.15); }
-    .cmp-select-dropdown {
-      display:none; position:absolute; left:0; right:0; top:100%; margin-top:2px; z-index:100;
-      background:rgba(7,16,25,0.97); border:1px solid rgba(255,255,255,0.12); border-radius:6px;
-      max-height:180px; overflow-y:auto; padding:0.2rem 0;
-    }
-    .cmp-select-dropdown.open { display:block; }
-    .cmp-select-option {
-      display:flex; align-items:center; gap:0.4rem; padding:0.3rem 0.55rem; cursor:pointer;
-      font-size:0.68rem; color:rgba(255,255,255,0.75); transition:background 0.1s;
-    }
-    .cmp-select-option:hover { background:rgba(255,255,255,0.04); }
-    .cmp-select-option input[type="checkbox"] { accent-color:#a78bfa; margin:0; cursor:pointer; }
-    .cmp-select-empty { padding:0.5rem; font-size:0.65rem; opacity:0.3; text-align:center; }
-    .cmp-chips { display:flex; flex-wrap:wrap; gap:0.25rem; margin-top:0.3rem; }
-    .cmp-chip {
-      display:inline-flex; align-items:center; gap:3px; font-size:0.56rem; padding:0.1rem 0.38rem;
-      border-radius:4px; background:rgba(167,139,250,0.1); border:1px solid rgba(167,139,250,0.25); color:#a78bfa;
-    }
-    .cmp-chip-x { cursor:pointer; opacity:0.6; font-size:0.6rem; margin-left:2px; }
-    .cmp-chip-x:hover { opacity:1; color:#f87171; }
-    .cmp-count { font-size:0.58rem; opacity:0.4; margin-top:0.2rem; }
-    .obj-view-btn { background:transparent; border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.4); border-radius:5px; padding:0.25rem 0.4rem; font-size:0.65rem; cursor:pointer; }
-    .obj-view-btn:hover { border-color:rgba(78,205,196,0.4); color:rgba(255,255,255,0.7); }
-    .obj-view-btn--active { background:rgba(78,205,196,0.15); border-color:rgba(78,205,196,0.4); color:#4ECDC4; }
-    .obj-list-table { width:100%; border-collapse:collapse; font-size:0.68rem; }
-    .obj-list-table th { text-align:left; font-size:0.58rem; text-transform:uppercase; letter-spacing:0.5px; opacity:0.4; padding:0.4rem 0.5rem; border-bottom:1px solid rgba(255,255,255,0.06); font-weight:600; }
-    .obj-list-table td { padding:0.45rem 0.5rem; border-bottom:1px solid rgba(255,255,255,0.03); vertical-align:middle; }
-    .obj-list-table tr:hover { background:rgba(78,205,196,0.04); }
-    .obj-tbl-bar { height:4px; border-radius:2px; background:rgba(255,255,255,0.06); min-width:60px; overflow:hidden; }
-    .obj-tbl-fill { height:100%; border-radius:2px; }
-  </style>
+  <link rel="stylesheet" href="/modules/company/css/objectives.css" />
 </head>
-<body style="background:#071019" data-theme="dark">
+<body data-theme="dark">
 
-  <main class="content-section" style="max-width: 900px; margin: 0 auto; padding: 1rem;">
+  <main class="content-section obj-main">
 
-    <div class="company-header">
-      <h1><i class="fas fa-bullseye" style="opacity:0.4; margin-right:8px; color:#4ECDC4;"></i>Goals</h1>
-      <p>Track progress on quarterly targets. Prime Operator owns execution and updates weekly.</p>
+    <div class="company-header obj-header">
+      <div>
+        <h1><i class="fas fa-bullseye co-icon-faint co-icon-mr-lg"></i>Goals</h1>
+        <p>Track progress on quarterly targets. Prime Operator owns execution and updates weekly.</p>
+      </div>
+      <div class="obj-header-pills">
+        <span class="obj-pill obj-pill--active" id="obj-active-count">0 active</span>
+        <span class="obj-pill obj-pill--complete" id="obj-complete-count">0 complete</span>
+      </div>
     </div>
 
     <!-- Create Objective Form -->
-    <div class="dash-panel" style="margin-bottom:1.5rem;">
+    <div class="dash-panel obj-form-panel">
       <div class="dash-panel-header">
-        <span class="dash-panel-title"><i class="fas fa-plus-circle" style="color:#FFD700;"></i> New Goal</span>
+        <span class="dash-panel-title"><i class="fas fa-plus-circle dash-icon-muted"></i> New Goal</span>
       </div>
-      <div style="padding:0.5rem 0;">
-        <input type="text" id="obj-title" placeholder="Goal title..." style="width:100%; padding:0.5rem 0.7rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.8rem; margin-bottom:0.5rem;" />
-        <textarea id="obj-desc" placeholder="Describe the goal..." style="width:100%; padding:0.5rem 0.7rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.8rem; font-family:inherit; margin-bottom:0.5rem; resize:vertical; min-height:60px;"></textarea>
-        <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
-          <select id="obj-quarter" style="padding:0.35rem 0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.7rem;">
+      <div class="obj-form-body">
+        <input type="text" id="obj-title" class="obj-input" placeholder="Goal title..." />
+        <textarea id="obj-desc" class="obj-textarea" placeholder="Describe the goal..."></textarea>
+        <div class="obj-form-row">
+          <select id="obj-quarter" class="obj-select">
             <option value="Q1">Q1</option>
             <option value="Q2">Q2</option>
             <option value="Q3">Q3</option>
             <option value="Q4">Q4</option>
           </select>
-          <input type="number" id="obj-year" value="2026" min="2024" max="2030" style="width:80px; padding:0.35rem 0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.7rem;" />
-          <div class="cmp-select-wrap" id="create-cmp-wrap" style="min-width:200px; flex:1;">
-            <div class="cmp-select-trigger" id="create-cmp-trigger">
-              <span><i class="fas fa-layer-group" style="margin-right:4px; opacity:0.5;"></i>Linked Campaigns</span>
-              <i class="fas fa-chevron-down" style="font-size:0.5rem; opacity:0.4;"></i>
-            </div>
-            <div class="cmp-select-dropdown" id="create-cmp-dropdown"></div>
-            <div class="cmp-chips" id="create-cmp-chips"></div>
-            <div class="cmp-count" id="create-cmp-count">0 linked campaigns</div>
-            <a href="/modules/company/campaigns.html" style="font-size:0.55rem; opacity:0.45; text-decoration:none; color:#a78bfa; margin-top:0.15rem; display:inline-block;"><i class="fas fa-external-link-alt" style="margin-right:2px;"></i>Manage campaigns</a>
+          <input type="number" id="obj-year" class="obj-year-input" value="2026" min="2024" max="2030" />
+        </div>
+        <div class="cmp-select-wrap obj-cmp-wrap" id="create-cmp-wrap">
+          <div class="cmp-select-trigger" id="create-cmp-trigger">
+            <span><i class="fas fa-layer-group dash-icon-mr dash-icon-muted"></i>Linked Campaigns</span>
+            <i class="fas fa-chevron-down obj-chevron-sm"></i>
           </div>
-          <button id="obj-create-btn" style="padding:0.35rem 1rem; background:rgba(78,205,196,0.1); border:1px solid rgba(78,205,196,0.3); border-radius:6px; color:#4ECDC4; font-size:0.7rem; cursor:pointer; font-weight:500;">Create Goal</button>
+          <div class="cmp-select-dropdown" id="create-cmp-dropdown"></div>
+          <div class="cmp-chips" id="create-cmp-chips"></div>
+          <div class="cmp-count" id="create-cmp-count">0 linked campaigns</div>
+          <a href="/modules/company/campaigns.html" class="obj-manage-link"><i class="fas fa-external-link-alt obj-link-icon"></i>Manage campaigns</a>
+        </div>
+        <div class="obj-form-footer">
+          <button id="obj-create-btn" class="obj-create-btn">Create Goal</button>
         </div>
       </div>
     </div>
 
     <!-- Executive Summary -->
-    <div class="dash-panel dash-panel--full" style="margin-bottom:1rem;">
+    <div class="dash-panel dash-panel--full obj-summary-panel">
       <div class="dash-panel-header">
-        <span class="dash-panel-title"><i class="fas fa-chart-pie" style="color:#FFD700;"></i> Executive Summary</span>
+        <span class="dash-panel-title"><i class="fas fa-chart-pie dash-icon-muted"></i> Executive Summary</span>
       </div>
-      <div id="obj-summary" style="display:flex; gap:1rem; flex-wrap:wrap; padding:0.5rem 0;">
-        <div class="stat-card" style="flex:1; min-width:120px;">
+      <div id="obj-summary" class="obj-summary">
+        <div class="stat-card obj-stat-card">
           <div class="stat-value" id="obj-total">0</div>
           <div class="stat-label">Total</div>
         </div>
-        <div class="stat-card" style="flex:1; min-width:120px;">
-          <div class="stat-value" id="obj-on-track" style="color:#34d399;">0</div>
+        <div class="stat-card obj-stat-card">
+          <div class="stat-value obj-stat--on-track" id="obj-on-track">0</div>
           <div class="stat-label">On Track</div>
         </div>
-        <div class="stat-card" style="flex:1; min-width:120px;">
-          <div class="stat-value" id="obj-at-risk" style="color:#fbbf24;">0</div>
+        <div class="stat-card obj-stat-card">
+          <div class="stat-value obj-stat--at-risk" id="obj-at-risk">0</div>
           <div class="stat-label">At Risk</div>
         </div>
-        <div class="stat-card" style="flex:1; min-width:120px;">
-          <div class="stat-value" id="obj-behind" style="color:#f87171;">0</div>
+        <div class="stat-card obj-stat-card">
+          <div class="stat-value obj-stat--behind" id="obj-behind">0</div>
           <div class="stat-label">Behind</div>
         </div>
-        <div class="stat-card" style="flex:1; min-width:120px;">
-          <div class="stat-value" id="obj-complete" style="color:#8A2BE2;">0</div>
+        <div class="stat-card obj-stat-card">
+          <div class="stat-value obj-stat--complete" id="obj-complete">0</div>
           <div class="stat-label">Complete</div>
         </div>
-        <div class="stat-card" style="flex:1; min-width:120px;">
-          <div class="stat-value" id="obj-canceled" style="color:#9ca3af;">0</div>
+        <div class="stat-card obj-stat-card">
+          <div class="stat-value obj-stat--canceled" id="obj-canceled">0</div>
           <div class="stat-label">Canceled</div>
         </div>
       </div>
@@ -163,20 +103,22 @@
 
     <!-- Objectives List -->
     <div class="dash-panel dash-panel--full">
-      <div class="dash-panel-header" style="display:flex;justify-content:space-between;align-items:center;">
-        <span class="dash-panel-title"><i class="fas fa-list-check" style="color:#4ECDC4;"></i> All Goals</span>
-        <div style="display:flex;align-items:center;gap:0.5rem;">
-          <div style="display:flex;align-items:center;gap:0.35rem;">
+      <div class="dash-panel-header">
+        <span class="dash-panel-title"><i class="fas fa-list-check dash-icon-muted"></i> All Goals</span>
+        <div class="obj-list-controls">
+          <div class="obj-view-btns">
             <button id="obj-view-card" class="obj-view-btn obj-view-btn--active" title="Card view"><i class="fas fa-th-large"></i></button>
             <button id="obj-view-list" class="obj-view-btn" title="List view"><i class="fas fa-list"></i></button>
           </div>
-          <label style="font-size:0.66rem; opacity:0.6; display:flex; align-items:center; gap:0.25rem;">
+          <label class="obj-filter-label">
             <input type="checkbox" id="obj-show-completed" /> Show completed &amp; canceled
           </label>
         </div>
       </div>
       <div id="obj-list">
-        <div class="dash-empty">No goals yet. Create one above.</div>
+        <div class="ap-skeleton-card"><div class="ap-skeleton ap-skeleton-line ap-skeleton-line--title"></div><div class="ap-skeleton ap-skeleton-line ap-skeleton-line--body"></div><div class="ap-skeleton ap-skeleton-line ap-skeleton-line--bar"></div></div>
+        <div class="ap-skeleton-card"><div class="ap-skeleton ap-skeleton-line ap-skeleton-line--title"></div><div class="ap-skeleton ap-skeleton-line ap-skeleton-line--body"></div><div class="ap-skeleton ap-skeleton-line ap-skeleton-line--bar"></div></div>
+        <div class="ap-skeleton-card"><div class="ap-skeleton ap-skeleton-line ap-skeleton-line--title"></div><div class="ap-skeleton ap-skeleton-line ap-skeleton-line--short"></div><div class="ap-skeleton ap-skeleton-line ap-skeleton-line--bar"></div></div>
       </div>
     </div>
 
@@ -208,18 +150,18 @@
         </div>
       </div>
 
-      <label>Linked Campaigns <span style="opacity:0.35; font-weight:normal;">(multi-select)</span></label>
-      <span style="display:block; font-size:0.58rem; opacity:0.35; margin-bottom:0.25rem;">Select one or more campaigns under this goal.</span>
+      <label>Linked Campaigns <span class="obj-hint">(multi-select)</span></label>
+      <span class="obj-hint-block">Select one or more campaigns under this goal.</span>
       <div class="cmp-select-wrap" id="edit-cmp-wrap">
         <div class="cmp-select-trigger" id="edit-cmp-trigger">
-          <span><i class="fas fa-layer-group" style="margin-right:4px; opacity:0.5;"></i>Select campaigns...</span>
-          <i class="fas fa-chevron-down" style="font-size:0.5rem; opacity:0.4;"></i>
+          <span><i class="fas fa-layer-group dash-icon-mr dash-icon-muted"></i>Select campaigns...</span>
+          <i class="fas fa-chevron-down obj-chevron-sm"></i>
         </div>
         <div class="cmp-select-dropdown" id="edit-cmp-dropdown"></div>
         <div class="cmp-chips" id="edit-cmp-chips"></div>
         <div class="cmp-count" id="edit-cmp-count">0 linked campaigns</div>
-        <a href="/modules/company/campaigns.html" style="font-size:0.55rem; opacity:0.45; text-decoration:none; color:#a78bfa; margin-top:0.15rem; display:inline-block;"><i class="fas fa-external-link-alt" style="margin-right:2px;"></i>Manage campaigns</a>
-        <div id="edit-cmp-legacy-note" style="display:none; font-size:0.54rem; opacity:0.4; color:#94a3b8; margin-top:0.2rem;"><i class="fas fa-info-circle" style="margin-right:3px;"></i>Derived from linked projects (legacy). Save to convert.</div>
+        <a href="/modules/company/campaigns.html" class="obj-manage-link--modal"><i class="fas fa-external-link-alt obj-link-icon"></i>Manage campaigns</a>
+        <div id="edit-cmp-legacy-note" style="display:none;"><i class="fas fa-info-circle obj-link-icon-sm"></i>Derived from linked projects (legacy). Save to convert.</div>
       </div>
 
       <div class="obj-modal-row">
@@ -256,6 +198,7 @@
     </div>
   </div>
 
+  <script src="/modules/company/js/co-colors.js"></script>
   <script src="/modules/company/js/demo-toast.js"></script>
   <script src="/js/company-store.js"></script>
   <script src="/js/agent-engine.js"></script>
@@ -566,6 +509,9 @@
         document.getElementById('obj-behind').textContent = behind;
         document.getElementById('obj-complete').textContent = complete;
         document.getElementById('obj-canceled').textContent = canceled;
+        var active = objectives.filter(function(o) { return o.status !== 'complete' && o.status !== 'canceled'; }).length;
+        document.getElementById('obj-active-count').textContent = active + ' active';
+        document.getElementById('obj-complete-count').textContent = complete + ' complete';
 
         if (objectives.length === 0) {
           objList.innerHTML = '<div class="dash-empty">No objectives yet. Create one above.</div>';
@@ -589,7 +535,10 @@
         objList.innerHTML = '';
         if (_objViewMode === 'list') {
           // List view
-          var statusColors = { on_track: '#34d399', at_risk: '#fbbf24', behind: '#f87171', complete: '#c084fc', canceled: '#9ca3af' };
+          var _cc = window.CO_COLORS;
+          var statusColors = _cc
+            ? { on_track: _cc.green, at_risk: _cc.amber, behind: _cc.red, complete: _cc.purple, canceled: _cc.gray }
+            : { on_track: '#34d399', at_risk: '#fbbf24', behind: '#f87171', complete: '#c084fc', canceled: '#9ca3af' };
           var html = '<table class="obj-list-table"><thead><tr>' +
             '<th>Goal</th><th>Status</th><th>Progress</th><th>Tasks</th><th>Campaigns</th><th>Dates</th><th></th>' +
           '</tr></thead><tbody>';
@@ -646,7 +595,7 @@
       function createObjectiveCard(obj) {
         var card = document.createElement('div');
         var isInactive = obj.status === 'complete' || obj.status === 'canceled';
-        card.style.cssText = 'padding:0.8rem; border:1px solid ' + (isInactive ? 'rgba(192,132,252,0.12)' : 'rgba(78,205,196,0.08)') + '; border-radius:8px; margin-bottom:0.5rem; background:' + (isInactive ? 'rgba(192,132,252,0.02)' : 'rgba(78,205,196,0.02)') + ';' + (isInactive ? ' opacity:0.6;' : '');
+        card.className = 'obj-card' + (isInactive ? ' obj-card--inactive' : '');
 
         var isCanceled = obj.status === 'canceled';
 
@@ -660,10 +609,12 @@
         // Use auto-derived status unless manually overridden
         // If status was never manually set or still matches what auto would suggest, use auto
         var effectiveStatus = obj.status || 'on_track';
-        var statusColor = effectiveStatus === 'on_track' ? '#34d399' : effectiveStatus === 'at_risk' ? '#fbbf24' : effectiveStatus === 'behind' ? '#f87171' : effectiveStatus === 'canceled' ? '#9ca3af' : '#8A2BE2';
+        var statusColor = (window.CO_COLORS && CO_COLORS.forStatus) ? CO_COLORS.forStatus(effectiveStatus) : '#34d399';
+        // complete uses purple not green
+        if (effectiveStatus === 'complete') statusColor = (window.CO_COLORS ? CO_COLORS.purple : '#8A2BE2');
 
         // Bar color based on auto health (independent of manual status override)
-        var barColor = autoHealth === 'good' ? '#34d399' : autoHealth === 'warn' ? '#fbbf24' : autoHealth === 'bad' ? '#ef4444' : '#64748b';
+        var barColor = (window.CO_COLORS && CO_COLORS.forHealth) ? CO_COLORS.forHealth(autoHealth) : '#64748b';
 
         // Task breakdown text
         var breakdownParts = [];
@@ -677,14 +628,16 @@
         // Campaign breakdown chips
         var cmpChipsHtml = '';
         if (progress && progress.campaignDetails && progress.campaignDetails.length > 0) {
+          var _cc = window.CO_COLORS;
           var chips = progress.campaignDetails.map(function (cd) {
-            var chipColor = cd.signal === 'complete' ? '#8A2BE2' : cd.signal === 'on_track' ? '#34d399' : cd.signal === 'at_risk' || cd.signal === 'stale' || cd.signal === 'behind' ? '#fbbf24' : cd.signal === 'blocked' ? '#ef4444' : '#64748b';
-            var pauseIcon = cd.status === 'paused' ? '<i class="fas fa-pause-circle" style="font-size:0.45rem; color:#fbbf24; margin-right:2px;"></i>' : '';
+            var chipColor = _cc ? _cc.forStatus(cd.signal === 'complete' ? 'complete' : cd.signal) : '#64748b';
+            if (cd.signal === 'complete') chipColor = _cc ? _cc.purple : '#8A2BE2';
+            var pauseIcon = cd.status === 'paused' ? '<i class="fas fa-pause-circle" style="font-size:0.45rem; color:' + (_cc ? _cc.amber : '#fbbf24') + '; margin-right:2px;"></i>' : '';
             return '<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.54rem;padding:0.08rem 0.38rem;border-radius:4px;background:rgba(167,139,250,0.08);border:1px solid rgba(167,139,250,0.2);color:' + chipColor + ';">' +
               pauseIcon + '<i class="fas fa-layer-group" style="font-size:0.42rem; opacity:0.6;"></i>' +
               escapeHtml(cd.title || cd.id) + ' <span style="opacity:0.6;">' + cd.pct + '%</span></span>';
           });
-          cmpChipsHtml = '<div style="display:flex; flex-wrap:wrap; gap:0.25rem; margin:0.3rem 0 0.15rem;">' + chips.join('') + '</div>';
+          cmpChipsHtml = chips.join('');
         }
 
         // Auto-signal hint (shown if different from manual status)
@@ -755,32 +708,35 @@
         }
 
         card.innerHTML =
-          '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.15rem;">' +
-            '<strong style="font-size:0.85rem;">' + escapeHtml(obj.title) + '</strong>' +
+          '<div class="obj-card-header">' +
+            '<strong class="obj-card-title">' + escapeHtml(obj.title) + '</strong>' +
           '</div>' +
           qDateHtml +
-          (obj.description ? '<div style="font-size:0.7rem; opacity:0.5; margin-bottom:0.4rem; line-height:1.3;">' + escapeHtml(obj.description) + '</div>' : '') +
-          cmpChipsHtml +
-          '<div style="margin:0.4rem 0 0.15rem; height:6px; background:rgba(255,255,255,0.05); border-radius:3px; overflow:hidden;">' +
-            '<div style="height:100%; width:' + pct + '%; background:' + barColor + '; border-radius:3px; transition:width 0.3s;"></div>' +
+          (obj.description ? '<div class="obj-card-desc">' + escapeHtml(obj.description) + '</div>' : '') +
+          (cmpChipsHtml ? '<div class="obj-card-camps">' + cmpChipsHtml + '</div>' : '') +
+          '<div class="obj-card-progress-wrap">' +
+            '<div class="obj-card-progress-fill" style="--obj-bar-width:' + pct + '%;--obj-bar-color:' + barColor + ';"></div>' +
           '</div>' +
-          '<div style="font-size:0.6rem; font-weight:500; color:' + barColor + '; margin-bottom:0.15rem;">' +
+          '<div class="obj-card-progress-label" style="--obj-bar-color:' + barColor + ';">' +
             '<span style="font-weight:700;">' + pct + '%</span> ' +
             (breakdownParts.length > 0 ? breakdownParts.join('  ') : (progress && progress.campaigns > 0 ? progress.totalTasks + ' tasks across ' + progress.campaigns + ' campaigns' : 'No campaigns linked')) +
           '</div>' +
-          '<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">' +
-            '<span style="font-size:0.7rem; color:' + statusColor + '; font-weight:500;">' + (effectiveStatus).replace(/_/g, ' ') + signalHintHtml + '</span>' +
-            '<span style="font-size:0.6rem; opacity:0.4;">Owner: ' + (obj.owner || 'nova') + '</span>' +
+          '<div class="obj-card-status-row">' +
+            '<span class="obj-card-status" style="--obj-status-color:' + statusColor + ';">' + (effectiveStatus).replace(/_/g, ' ') + signalHintHtml + '</span>' +
+            '<span class="obj-card-owner">Owner: ' + escapeHtml(obj.owner || 'nova') + '</span>' +
           '</div>';
 
         // Controls
         var controls = document.createElement('div');
-        controls.style.cssText = 'display:flex; gap:0.3rem; flex-wrap:wrap; align-items:center;';
+        controls.className = 'obj-card-controls';
 
         // Status override buttons
         var statuses = ['on_track', 'at_risk', 'behind', 'complete'];
         var statusLabels = { on_track: 'On Track', at_risk: 'At Risk', behind: 'Behind', complete: 'Complete' };
-        var statusColors = { on_track: '#34d399', at_risk: '#fbbf24', behind: '#f87171', complete: '#8A2BE2' };
+        var _cc2 = window.CO_COLORS;
+        var statusColors = _cc2
+          ? { on_track: _cc2.green, at_risk: _cc2.amber, behind: _cc2.red, complete: _cc2.purple }
+          : { on_track: '#34d399', at_risk: '#fbbf24', behind: '#f87171', complete: '#8A2BE2' };
 
         statuses.forEach(function (s) {
           var btn = document.createElement('button');
@@ -818,7 +774,7 @@
         // Edit button
         var editBtn = document.createElement('button');
         editBtn.innerHTML = '<i class="fas fa-pen"></i> Edit';
-        editBtn.style.cssText = 'font-size:0.55rem; padding:0.2rem 0.5rem; border:1px solid rgba(138,43,226,0.3); background:rgba(138,43,226,0.05); color:#c084fc; border-radius:3px; cursor:pointer;';
+        editBtn.style.cssText = 'font-size:0.55rem; padding:0.2rem 0.5rem; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.6); border-radius:3px; cursor:pointer;';
         editBtn.addEventListener('click', function () { openEditModal(obj); });
         controls.appendChild(editBtn);
 

@@ -15,6 +15,7 @@
   <link rel="stylesheet" href="/css/theme.css" />
   <link rel="stylesheet" href="/css/banner.css" />
   <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
   <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
   <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
   <style>
@@ -22,14 +23,11 @@
 
     .inb-hero {
       position: relative;
-      background: linear-gradient(135deg, rgba(56,189,248,0.06) 0%, rgba(56,189,248,0.01) 100%);
-      border: 1px solid rgba(56,189,248,0.15);
-      border-radius: 14px;
-      padding: 1.6rem 1.8rem 1.2rem;
-      margin-bottom: 1.2rem;
+      padding: 1.5rem 0 1rem;
+      margin-bottom: 0;
     }
-    .inb-hero h1 { margin: 0 0 0.25rem; font-size: 1.3rem; font-weight: 600; }
-    .inb-hero p { margin: 0; font-size: 0.72rem; opacity: 0.45; }
+    .inb-hero h1 { margin: 0 0 0.25rem; font-size: 1.4rem; font-weight: 600; }
+    .inb-hero p { margin: 0; font-size: 0.8rem; opacity: 0.45; }
 
     /* Stat cards */
     .inb-stats {
@@ -41,14 +39,14 @@
     .inb-stat {
       padding: 1rem 1.2rem;
       border-radius: 10px;
-      border: 1px solid rgba(56,189,248,0.1);
-      background: rgba(56,189,248,0.03);
+      border: 1px solid var(--c-sep);
+      background: var(--c-surface);
       text-align: center;
     }
     .inb-stat-value {
       font-size: 1.8rem;
       font-weight: 700;
-      color: #38bdf8;
+      color: var(--c-text);
       letter-spacing: -0.02em;
     }
     .inb-stat-label {
@@ -78,11 +76,11 @@
       cursor: pointer;
       transition: all 0.15s;
     }
-    .inb-chip:hover { border-color: rgba(56,189,248,0.3); color: rgba(255,255,255,0.7); }
+    .inb-chip:hover { border-color: rgba(96,165,250,0.3); color: rgba(255,255,255,0.7); }
     .inb-chip--active {
-      background: rgba(56,189,248,0.12);
-      border-color: rgba(56,189,248,0.3);
-      color: #38bdf8;
+      background: var(--c-accent-dim);
+      border-color: var(--c-accent-border);
+      color: var(--c-accent);
     }
     .inb-toggle {
       margin-left: auto;
@@ -97,8 +95,9 @@
 
     /* Table */
     .inb-table-wrap {
-      border: 1px solid rgba(255,255,255,0.06);
-      border-radius: 10px;
+      background: #1c1c1e;
+      border: 1px solid rgba(255,255,255,0.07);
+      border-radius: 12px;
       overflow: hidden;
     }
     .inb-table {
@@ -272,8 +271,8 @@
       position: fixed;
       top: 0; right: 0; bottom: 0;
       width: min(480px, 90vw);
-      background: #0d1520;
-      border-left: 1px solid rgba(56,189,248,0.12);
+      background: #1c1c1e;
+      border-left: 1px solid rgba(255,255,255,0.07);
       z-index: 901;
       transform: translateX(100%);
       transition: transform 0.2s ease;
@@ -311,15 +310,17 @@
       .inb-table { font-size: 0.68rem; }
       .inb-table td, .inb-table th { padding: 0.4rem 0.5rem; }
     }
+    /* ── Inline Style Replacements ── */
+    #inb-main { max-width: 900px; margin: 0 auto; padding: 1rem; min-height: calc(100vh - 44px); }
   </style>
 </head>
-<body style="background:#071019" data-theme="dark">
+<body data-theme="dark">
 
-  <main class="content-section" style="max-width: 960px; margin: 0 auto; padding: 1rem;">
+  <main id="inb-main" class="content-section">
 
     <!-- Hero -->
     <div class="inb-hero">
-      <h1><i class="fas fa-satellite-dish" style="opacity:0.4; margin-right:0.4rem;"></i> Inbound</h1>
+      <h1><i class="fas fa-satellite-dish co-icon-faint co-icon-mr-lg"></i> Inbound</h1>
       <p>External signals captured by AmbientOS (forms, requests, signups).</p>
     </div>
 

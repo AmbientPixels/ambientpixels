@@ -44,11 +44,11 @@
       font-size:0.65rem; padding:0.3rem 0.8rem; border-radius:5px; border:1px solid rgba(255,255,255,0.1);
       background:rgba(255,255,255,0.05); color:#fff; cursor:pointer;
     }
-    .dir-btn--primary { border-color:#8A2BE2; background:rgba(138,43,226,0.2); color:#d8b4fe; }
+    .dir-btn--primary { border-color:rgba(255,255,255,0.2); background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.85); }
     .dir-btn--danger { border-color:#f87171; color:#f87171; }
 
     /* Directive Progress Tracker */
-    .dir-card { padding:0.8rem; border:1px solid rgba(138,43,226,0.08); border-radius:8px; margin-bottom:0.5rem; background:rgba(138,43,226,0.02); }
+    .dir-card { padding:0.8rem; border:1px solid rgba(255,255,255,0.07); border-radius:8px; margin-bottom:0.5rem; background:rgba(255,255,255,0.02); }
     .dir-progress-bar { height:6px; border-radius:3px; background:rgba(255,255,255,0.15); overflow:hidden; margin:0.4rem 0; }
     .dir-progress-fill { height:100%; border-radius:3px; transition:width 0.3s ease; min-width:2px; }
     .dir-signal {
@@ -59,9 +59,9 @@
     .dir-signal--at_risk { background:rgba(251,191,36,0.12); color:#fbbf24; }
     .dir-signal--blocked { background:rgba(239,68,68,0.12); color:#ef4444; }
     .dir-signal--stale { background:rgba(156,163,175,0.12); color:#9ca3af; }
-    .dir-signal--complete { background:rgba(138,43,226,0.12); color:#c084fc; }
+    .dir-signal--complete { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.4); }
     .dir-signal--not_started { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.4); }
-    .dir-signal--no_tasks { background:rgba(255,165,0,0.12); color:#FFA500; }
+    .dir-signal--no_tasks { background:rgba(251,191,36,0.12); color:#fbbf24; }
     .dir-agents { display:flex; flex-wrap:wrap; gap:0.3rem; margin-top:0.4rem; }
     .dir-agent-chip {
       display:inline-flex; align-items:center; gap:0.25rem;
@@ -69,7 +69,7 @@
       background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.06);
     }
     .dir-agent-chip .done-count { color:#34d399; }
-    .dir-agent-chip .active-count { color:#FFA500; }
+    .dir-agent-chip .active-count { color:#fbbf24; }
     .dir-tasks-toggle {
       font-size:0.6rem; color:rgba(255,255,255,0.4); cursor:pointer; background:none;
       border:none; padding:0.2rem 0; margin-top:0.3rem; display:flex; align-items:center; gap:0.3rem;
@@ -83,56 +83,79 @@
     }
     .dir-task-status { font-size:0.5rem; padding:0.1rem 0.3rem; border-radius:2px; font-weight:600; }
     .dir-task-status--done { background:rgba(52,211,153,0.12); color:#34d399; }
-    .dir-task-status--in-progress { background:rgba(59,130,246,0.12); color:#3b82f6; }
-    .dir-task-status--review { background:rgba(168,85,247,0.12); color:#a855f7; }
-    .dir-task-status--todo { background:rgba(255,165,0,0.12); color:#FFA500; }
+    .dir-task-status--in-progress { background:rgba(96,165,250,0.12); color:#60a5fa; }
+    .dir-task-status--review { background:rgba(167,139,250,0.12); color:#a78bfa; }
+    .dir-task-status--todo { background:rgba(251,191,36,0.12); color:#fbbf24; }
     .dir-task-status--backlog { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.4); }
     .dir-stat-row { display:flex; gap:0.6rem; flex-wrap:wrap; align-items:center; font-size:0.6rem; margin:0.3rem 0; }
     .dir-stat { opacity:0.5; }
     .dir-stat strong { opacity:1; }
+    /* ── Inline Style Replacements ── */
+    #dir-main { max-width: 900px; margin: 0 auto; padding: 1rem; }
+    .dir-create-panel { margin-bottom: 1.5rem; }
+    .dir-create-body { padding: 0.5rem 0; }
+    .dir-field-full { width: 100%; padding: 0.5rem 0.7rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; color: inherit; font-size: 0.8rem; margin-bottom: 0.5rem; }
+    .dir-field-desc { font-size: 0.75rem; resize: vertical; }
+    .dir-create-row { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; }
+    .dir-select { padding: 0.35rem 0.6rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; color: inherit; font-size: 0.7rem; }
+    #dir-create-btn { padding: 0.35rem 1rem; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; color: rgba(255,255,255,0.7); font-size: 0.7rem; cursor: pointer; font-weight: 500; }
+    .dir-kpi-wrap { margin-top: 0.5rem; }
+    .dir-kpi-label { font-size: 0.65rem; opacity: 0.5; }
+    #dir-kpi-select { width: 100%; min-height: 60px; padding: 0.3rem; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 6px; color: inherit; font-size: 0.65rem; }
+    .dir-panel--mb { margin-top: 1rem; }
+    #panel-pending-dirs { border: 1px solid rgba(251,191,36,0.12); }
+    .dir-pending-header { border-bottom: 1px solid rgba(251,191,36,0.08); }
+    .dir-pending-title { color: #fbbf24; }
+    .dir-pending-badge { background: rgba(251,191,36,0.1); color: #fbbf24; }
+    .dir-paused-badge  { background: rgba(251,191,36,0.1); color: #fbbf24; }
+    .dir-canceled-badge { background: rgba(248,113,113,0.1); color: #f87171; }
+    .dir-edit-select--sm { font-size: 0.7rem; }
+    .dir-edit-select--kpi { min-height: 60px; font-size: 0.7rem; }
+    .dir-goal-hint { opacity: 0.35; font-weight: normal; }
+    .dir-edit-goals { font-size: 0.7rem; overflow: auto; appearance: none; -webkit-appearance: none; }
   </style>
 </head>
-<body style="background:#071019" data-theme="dark">
+<body data-theme="dark">
 
-  <main class="content-section" style="max-width: 900px; margin: 0 auto; padding: 1rem;">
+  <main class="content-section" id="dir-main">
 
     <div class="company-header">
-      <h1><i class="fas fa-compass" style="opacity:0.4; margin-right:8px; color:#8A2BE2;"></i>Campaigns</h1>
+      <h1><i class="fas fa-compass co-icon-faint co-icon-mr-lg"></i>Campaigns</h1>
       <p>CEO-defined high-level direction. Prime Operator translates campaigns into goals and tasks.</p>
     </div>
 
     <!-- Create Directive Form -->
-    <div class="dash-panel" style="margin-bottom:1.5rem;">
+    <div class="dash-panel dir-create-panel">
       <div class="dash-panel-header">
-        <span class="dash-panel-title"><i class="fas fa-plus-circle" style="color:#FFD700;"></i> New Campaign</span>
+        <span class="dash-panel-title"><i class="fas fa-plus-circle dash-icon-muted"></i> New Campaign</span>
       </div>
-      <div style="padding:0.5rem 0;">
-        <input type="text" id="dir-title" placeholder="Campaign title..." style="width:100%; padding:0.5rem 0.7rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.8rem; margin-bottom:0.5rem;" />
-        <textarea id="dir-desc" placeholder="Description — what should the team achieve?" rows="3" style="width:100%; padding:0.5rem 0.7rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.75rem; resize:vertical; margin-bottom:0.5rem;"></textarea>
-        <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
-          <select id="dir-priority" style="padding:0.35rem 0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.7rem;">
+      <div class="dir-create-body">
+        <input type="text" id="dir-title" placeholder="Campaign title..." class="dir-field-full" />
+        <textarea id="dir-desc" placeholder="Description — what should the team achieve?" rows="3" class="dir-field-full dir-field-desc"></textarea>
+        <div class="dir-create-row">
+          <select id="dir-priority" class="dir-select">
             <option value="low">Low</option>
             <option value="medium" selected>Medium</option>
             <option value="high">High</option>
             <option value="critical">Critical</option>
           </select>
-          <select id="dir-campaign" style="padding:0.35rem 0.6rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.7rem;">
+          <select id="dir-campaign" class="dir-select">
             <option value="">Select campaign...</option>
           </select>
-          <button id="dir-create-btn" style="padding:0.35rem 1rem; background:rgba(138,43,226,0.1); border:1px solid rgba(138,43,226,0.3); border-radius:6px; color:#8A2BE2; font-size:0.7rem; cursor:pointer; font-weight:500;">Create Campaign</button>
+          <button id="dir-create-btn">Create Campaign</button>
         </div>
-        <div style="margin-top:0.5rem;">
-          <label style="font-size:0.65rem; opacity:0.5;">Linked KPIs</label>
-          <select id="dir-kpi-select" multiple style="width:100%; min-height:60px; padding:0.3rem; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; font-size:0.65rem;"></select>
+        <div class="dir-kpi-wrap">
+          <label class="dir-kpi-label">Linked KPIs</label>
+          <select id="dir-kpi-select" multiple></select>
         </div>
       </div>
     </div>
 
     <!-- Pending Approval Directives (v2.3) -->
-    <div class="dash-panel dash-panel--full" id="panel-pending-dirs" style="margin-bottom:1rem; border:1px solid rgba(251,191,36,0.12); display:none;">
-      <div class="dash-panel-header" style="border-bottom:1px solid rgba(251,191,36,0.08);">
-        <span class="dash-panel-title" style="color:#fbbf24;"><i class="fas fa-hourglass-half"></i> Pending Approval</span>
-        <span class="dash-panel-badge" id="pending-dir-count" style="background:rgba(251,191,36,0.1);color:#fbbf24;">0</span>
+    <div class="dash-panel dash-panel--full" id="panel-pending-dirs" style="display:none;">
+      <div class="dash-panel-header dir-pending-header">
+        <span class="dash-panel-title dir-pending-title"><i class="fas fa-hourglass-half"></i> Pending Approval</span>
+        <span class="dash-panel-badge dir-pending-badge" id="pending-dir-count">0</span>
       </div>
       <div id="dir-pending-list"></div>
     </div>
@@ -140,7 +163,7 @@
     <!-- Active Directives -->
     <div class="dash-panel dash-panel--full">
       <div class="dash-panel-header">
-        <span class="dash-panel-title"><i class="fas fa-fire" style="color:#FF8C00;"></i> Active Campaigns</span>
+        <span class="dash-panel-title"><i class="fas fa-fire dash-icon-muted"></i> Active Campaigns</span>
         <span class="dash-panel-badge" id="active-dir-count">0</span>
       </div>
       <div id="dir-active-list">
@@ -149,10 +172,10 @@
     </div>
 
     <!-- Paused -->
-    <div class="dash-panel dash-panel--full" style="margin-top:1rem;">
+    <div class="dash-panel dash-panel--full dir-panel--mb">
       <div class="dash-panel-header">
-        <span class="dash-panel-title"><i class="fas fa-pause-circle" style="color:#fbbf24; opacity:0.6;"></i> Paused</span>
-        <span class="dash-panel-badge" id="paused-dir-count" style="background:rgba(251,191,36,0.1);color:#fbbf24;">0</span>
+        <span class="dash-panel-title"><i class="fas fa-pause-circle dash-icon-amber dash-icon-faint"></i> Paused</span>
+        <span class="dash-panel-badge dir-paused-badge" id="paused-dir-count">0</span>
       </div>
       <div id="dir-paused-list">
         <div class="dash-empty">No paused campaigns.</div>
@@ -160,10 +183,10 @@
     </div>
 
     <!-- Canceled -->
-    <div class="dash-panel dash-panel--full" style="margin-top:1rem;" id="panel-canceled-dirs">
+    <div class="dash-panel dash-panel--full dir-panel--mb" id="panel-canceled-dirs">
       <div class="dash-panel-header">
-        <span class="dash-panel-title"><i class="fas fa-ban" style="color:#f87171; opacity:0.6;"></i> Canceled</span>
-        <span class="dash-panel-badge" id="canceled-dir-count" style="background:rgba(248,113,113,0.1);color:#f87171;">0</span>
+        <span class="dash-panel-title"><i class="fas fa-ban dash-icon-red-lt dash-icon-faint"></i> Canceled</span>
+        <span class="dash-panel-badge dir-canceled-badge" id="canceled-dir-count">0</span>
       </div>
       <div id="dir-canceled-list">
         <div class="dash-empty">No canceled campaigns.</div>
@@ -171,10 +194,10 @@
     </div>
 
     <!-- Completed / Archived -->
-    <div class="dash-panel dash-panel--full" style="margin-top:1rem;">
+    <div class="dash-panel dash-panel--full dir-panel--mb">
       <div class="dash-panel-header">
-        <span class="dash-panel-title"><i class="fas fa-trophy" style="color:#c084fc; opacity:0.6;"></i> Completed / Archived</span>
-        <span class="dash-panel-badge" id="archive-dir-count" style="background:rgba(138,43,226,0.1);color:#c084fc;">0</span>
+        <span class="dash-panel-title"><i class="fas fa-trophy dash-icon-faint"></i> Completed / Archived</span>
+        <span class="dash-panel-badge" id="archive-dir-count">0</span>
       </div>
       <div id="dir-archive-list">
         <div class="dash-empty">No completed or archived campaigns.</div>
@@ -211,13 +234,13 @@
       </select>
 
       <label for="edit-campaign">Campaign</label>
-      <select id="edit-campaign" style="font-size:0.7rem;"></select>
+      <select id="edit-campaign" class="dir-edit-select--sm"></select>
 
       <label for="edit-kpis">Linked KPIs</label>
-      <select id="edit-kpis" multiple style="min-height:60px; font-size:0.7rem;"></select>
+      <select id="edit-kpis" multiple class="dir-edit-select--kpi"></select>
 
-      <label for="edit-goals">Linked Goals <span style="opacity:0.35; font-weight:normal;">(Ctrl+click to multi-select)</span></label>
-      <select id="edit-goals" multiple style="font-size:0.7rem; overflow:auto; appearance:none; -webkit-appearance:none;"></select>
+      <label for="edit-goals">Linked Goals <span class="dir-goal-hint">(Ctrl+click to multi-select)</span></label>
+      <select id="edit-goals" multiple class="dir-edit-goals"></select>
 
       <div class="dir-modal-actions">
         <button class="dir-btn" id="edit-cancel">Cancel</button>
@@ -490,14 +513,14 @@
 
       var progressColors = {
         on_track: '#34d399', at_risk: '#fbbf24', blocked: '#ef4444',
-        stale: '#9ca3af', complete: '#c084fc', not_started: 'rgba(255,255,255,0.15)', no_tasks: '#FFA500'
+        stale: '#9ca3af', complete: 'rgba(255,255,255,0.35)', not_started: 'rgba(255,255,255,0.15)', no_tasks: '#fbbf24'
       };
 
       function createDirectiveCard(dir, bucket) {
         var card = document.createElement('div');
         card.className = 'dir-card';
 
-        var priorityColor = dir.priority === 'critical' ? '#f87171' : dir.priority === 'high' ? '#fbbf24' : dir.priority === 'medium' ? '#8A2BE2' : '#34d399';
+        var priorityColor = dir.priority === 'critical' ? '#f87171' : dir.priority === 'high' ? '#fbbf24' : dir.priority === 'medium' ? '#60a5fa' : '#34d399';
         var p = AgentEngine.getDirectiveProgress(dir.id);
         var sig = signalLabels[p.signal] || signalLabels.no_tasks;
         var barColor = progressColors[p.signal] || '#888';
@@ -507,7 +530,7 @@
           '<strong style="font-size:0.85rem;">' + escapeHtml(dir.title) + '</strong>' +
           '<div style="display:flex; gap:0.3rem; align-items:center;">' +
             '<span class="dir-signal dir-signal--' + p.signal + '"><i class="fas ' + sig.icon + '"></i> ' + sig.label + '</span>' +
-            '<span style="font-size:0.6rem; padding:0.15rem 0.5rem; border-radius:3px; background:rgba(138,43,226,0.1); color:' + priorityColor + ';">' + dir.priority + '</span>' +
+            '<span style="font-size:0.6rem; padding:0.15rem 0.5rem; border-radius:3px; background:rgba(255,255,255,0.06); color:' + priorityColor + ';">' + dir.priority + '</span>' +
           '</div></div>';
 
         if (dir.description) html += '<p style="font-size:0.75rem; opacity:0.6; margin:0 0 0.4rem;">' + escapeHtml(dir.description) + '</p>';
@@ -532,7 +555,7 @@
         // v2.3: Classification, Impact/Effort, Source link, Approval state
         if (dir.classification) {
           html += '<div style="display:flex;gap:0.3rem;flex-wrap:wrap;margin:0.3rem 0;">';
-          html += '<span style="font-size:0.55rem;padding:1px 6px;border-radius:4px;background:rgba(138,43,226,0.1);color:#c084fc;">' + escapeHtml(dir.classification) + '</span>';
+          html += '<span style="font-size:0.55rem;padding:1px 6px;border-radius:4px;background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);">' + escapeHtml(dir.classification) + '</span>';
           if (dir.impact) html += '<span style="font-size:0.55rem;padding:1px 6px;border-radius:4px;background:rgba(251,191,36,0.1);color:#fbbf24;">Impact: ' + dir.impact + '</span>';
           if (dir.effort) html += '<span style="font-size:0.55rem;padding:1px 6px;border-radius:4px;background:rgba(255,255,255,0.06);color:#ccc;">Effort: ' + dir.effort + '</span>';
           if (dir.owner) html += '<span style="font-size:0.55rem;padding:1px 6px;border-radius:4px;background:rgba(255,255,255,0.06);color:#ccc;">Owner: ' + dir.owner + '</span>';
@@ -555,7 +578,7 @@
           dir.kpiLinks.forEach(function (kId) {
             var k = kpiMap[kId];
             if (!k) return;
-            html += '<a href="/modules/company/dashboard.html#kpi_' + k.id + '" style="font-size:0.55rem;padding:2px 6px;border-radius:4px;background:rgba(78,205,196,0.1);color:#4ECDC4;text-decoration:none;border:1px solid rgba(78,205,196,0.15);"><i class="fas fa-chart-line" style="font-size:0.45rem;margin-right:2px;"></i>KPI: ' + escapeHtml(k.name) + '</a>';
+            html += '<a href="/modules/company/dashboard.html#kpi_' + k.id + '" style="font-size:0.55rem;padding:2px 6px;border-radius:4px;background:rgba(255,255,255,0.05);color:rgba(255,255,255,0.5);text-decoration:none;border:1px solid rgba(255,255,255,0.08);"><i class="fas fa-chart-line" style="font-size:0.45rem;margin-right:2px;"></i>KPI: ' + escapeHtml(k.name) + '</a>';
           });
           html += '</div>';
         }

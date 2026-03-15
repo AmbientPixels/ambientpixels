@@ -1,132 +1,133 @@
-/* ══════════════════════════════════════════
-   Actions Command Center — Phase 2 Styles
-   ══════════════════════════════════════════ */
+/* ── Actions — Apple-clean ── */
 
-/* ── View Toggle ── */
+/* ── View Toggle (segmented control) ── */
 .act-view-toggle {
   display: inline-flex;
-  border-radius: 6px;
-  border: 1px solid rgba(255,255,255,0.08);
-  overflow: hidden;
+  background: #1c1c1e;
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
   margin-left: 0.5rem;
   vertical-align: middle;
 }
 .act-view-toggle button {
-  background: rgba(255,255,255,0.03);
+  background: none;
   border: none;
   color: rgba(255,255,255,0.4);
-  font-size: 0.65rem;
-  padding: 4px 12px;
+  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: 6px;
   cursor: pointer;
-  font-family: inherit;
-  transition: all 0.15s;
+  font-family: 'Inter', -apple-system, system-ui, sans-serif;
+  font-weight: 500;
+  transition: background 0.12s, color 0.12s;
   outline: none;
+  white-space: nowrap;
+}
+.act-view-toggle button.active {
+  background: #3a3a3c;
+  color: #fff;
+}
+.act-view-toggle button:hover:not(.active) {
+  color: rgba(255,255,255,0.65);
 }
 .act-view-toggle button:focus-visible {
-  box-shadow: 0 0 0 2px rgba(255,165,0,0.4);
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.2);
   z-index: 1;
   position: relative;
 }
-.act-view-toggle button.active {
-  background: rgba(255,165,0,0.12);
-  color: #FFA500;
-  font-weight: 600;
-}
-.act-view-toggle button:hover:not(.active) {
-  background: rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.6);
-}
 
-/* ── Execution Pulse ── */
+/* ── Execution Pulse Bar ── */
 .exec-pulse {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 1px;
-  background: rgba(255,255,255,0.04);
-  border-radius: 10px;
-  overflow: hidden;
-  max-height: 48px;
-  margin-bottom: 1rem;
+  gap: 8px;
+  margin-bottom: 20px;
 }
 .exec-pulse-seg {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  padding: 0.5rem 0.6rem;
-  background: #071019;
+  background: #1c1c1e;
+  border-radius: 12px;
+  padding: 16px 14px 14px;
   position: relative;
-  min-height: 42px;
+  min-height: 72px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
-.exec-pulse-seg::before {
+.exec-pulse-seg::after {
   content: '';
   position: absolute;
-  top: 0; left: 0; right: 0;
+  top: 0; left: 14px; right: 14px;
   height: 2px;
-  background: var(--pulse-color, rgba(255,255,255,0.08));
+  border-radius: 0 0 2px 2px;
+  background: var(--pulse-color, rgba(255,255,255,0.12));
 }
 .exec-pulse-dot {
-  width: 8px;
-  height: 8px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   flex-shrink: 0;
-  background: var(--pulse-color, rgba(255,255,255,0.15));
-  box-shadow: 0 0 6px var(--pulse-color, transparent);
+  background: var(--pulse-color, rgba(255,255,255,0.2));
+  margin-bottom: 8px;
 }
-.exec-pulse-info { flex: 1; min-width: 0; }
+.exec-pulse-info { }
 .exec-pulse-label {
-  font-size: 0.55rem;
+  font-size: 10px;
   text-transform: uppercase;
-  letter-spacing: 0.8px;
-  opacity: 0.45;
+  letter-spacing: 0.06em;
+  color: rgba(255,255,255,0.35);
   line-height: 1;
+  margin-bottom: 4px;
 }
 .exec-pulse-value {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--pulse-color, rgba(255,255,255,0.6));
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--pulse-color, rgba(255,255,255,0.85));
   line-height: 1;
 }
-@media (max-width: 600px) {
-  .exec-pulse {
-    grid-template-columns: repeat(3, 1fr);
-    max-height: none;
-  }
+@media (max-width: 768px) {
+  .exec-pulse { grid-template-columns: repeat(3, 1fr); }
+}
+@media (max-width: 480px) {
+  .exec-pulse { grid-template-columns: repeat(2, 1fr); }
 }
 
 /* ── Collapsible Sections ── */
 .act-section {
-  margin-bottom: 0.8rem;
+  margin-bottom: 16px;
 }
 .act-section-header {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 8px;
   cursor: pointer;
-  padding: 0.4rem 0;
+  padding: 10px 0 8px;
   user-select: none;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-  margin-bottom: 0.6rem;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  margin-bottom: 12px;
 }
-.act-section-header:hover { opacity: 0.9; }
+.act-section-header:hover { opacity: 0.85; }
 .act-section-header > i:first-child {
-  font-size: 0.6rem;
+  font-size: 10px;
   width: 14px;
   text-align: center;
   flex-shrink: 0;
+  color: rgba(255,255,255,0.3);
 }
 .act-section-header h2 {
-  font-size: 0.65rem;
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 1.2px;
+  letter-spacing: 0.08em;
   margin: 0;
   flex: 1;
-  opacity: 0.5;
+  color: rgba(255,255,255,0.4);
 }
 .act-section-header .act-section-chevron {
-  font-size: 0.5rem;
-  opacity: 0.3;
-  transition: transform 0.2s;
+  font-size: 10px;
+  color: rgba(255,255,255,0.25);
+  transition: transform 0.18s;
   width: 12px;
   text-align: center;
 }
@@ -139,17 +140,92 @@
 /* ── Raw Stats (Execution View) ── */
 .act-raw-stats {
   display: flex;
-  gap: 0.5rem;
+  gap: 8px;
   flex-wrap: wrap;
-  margin-bottom: 0.8rem;
+  margin-bottom: 16px;
 }
 .act-raw-stat {
-  flex: 1; min-width: 70px;
-  padding: 0.4rem 0.5rem;
-  border: 1px solid rgba(255,255,255,0.04);
-  border-radius: 6px;
-  background: rgba(255,255,255,0.015);
+  flex: 1;
+  min-width: 80px;
+  padding: 14px 12px;
+  background: #1c1c1e;
+  border-radius: 10px;
   text-align: center;
 }
-.act-raw-stat-val { font-size: 1rem; font-weight: 600; }
-.act-raw-stat-label { font-size: 0.5rem; opacity: 0.35; text-transform: uppercase; letter-spacing: 0.04em; margin-top: 0.1rem; }
+.act-raw-stat-val {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: #fff;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+.act-raw-stat-label {
+  font-size: 10px;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ── Light Theme ── */
+body[data-theme="light"] .act-view-toggle { background: #e5e5ea; }
+body[data-theme="light"] .act-view-toggle button { color: rgba(0,0,0,0.4); }
+body[data-theme="light"] .act-view-toggle button.active { background: #ffffff; color: #1c1c1e; }
+body[data-theme="light"] .act-view-toggle button:hover:not(.active) { color: rgba(0,0,0,0.65); }
+body[data-theme="light"] .exec-pulse-seg { background: #ffffff; }
+body[data-theme="light"] .exec-pulse-label { color: rgba(0,0,0,0.35); }
+body[data-theme="light"] .act-section-header { border-bottom-color: rgba(0,0,0,0.06); }
+body[data-theme="light"] .act-section-header > i:first-child { color: rgba(0,0,0,0.3); }
+body[data-theme="light"] .act-section-header h2 { color: rgba(0,0,0,0.4); }
+body[data-theme="light"] .act-section-header .act-section-chevron { color: rgba(0,0,0,0.25); }
+body[data-theme="light"] .act-raw-stat { background: #ffffff; }
+body[data-theme="light"] .act-raw-stat-val { color: #1c1c1e; }
+body[data-theme="light"] .act-raw-stat-label { color: rgba(0,0,0,0.35); }
+
+/* ── Dim Theme ── */
+body[data-theme="dim"] .act-view-toggle { background: #1e293b; }
+body[data-theme="dim"] .act-view-toggle button { color: rgba(241,245,249,0.4); }
+body[data-theme="dim"] .act-view-toggle button.active { background: #475569; color: #f1f5f9; }
+body[data-theme="dim"] .act-view-toggle button:hover:not(.active) { color: rgba(241,245,249,0.65); }
+body[data-theme="dim"] .exec-pulse-seg { background: #1e293b; }
+body[data-theme="dim"] .exec-pulse-label { color: rgba(241,245,249,0.35); }
+body[data-theme="dim"] .act-section-header { border-bottom-color: rgba(148,163,184,0.08); }
+body[data-theme="dim"] .act-section-header > i:first-child { color: rgba(241,245,249,0.3); }
+body[data-theme="dim"] .act-section-header h2 { color: rgba(241,245,249,0.4); }
+body[data-theme="dim"] .act-section-header .act-section-chevron { color: rgba(241,245,249,0.25); }
+body[data-theme="dim"] .act-raw-stat { background: #1e293b; }
+body[data-theme="dim"] .act-raw-stat-val { color: #f1f5f9; }
+body[data-theme="dim"] .act-raw-stat-label { color: rgba(241,245,249,0.35); }
+
+/* ══════════════════════════════════════════
+   Actions — Inline Style Replacements
+   ══════════════════════════════════════════ */
+#act-main   { max-width: 900px; margin: 0 auto; padding: 1rem; }
+#act-header { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 0.5rem; }
+.act-h1 { display: flex; align-items: center; gap: 0.4rem; flex-wrap: wrap; }
+.act-header-sub { margin: 0.2rem 0 0; font-size: 0.8rem; opacity: 0.45; }
+.act-btn--sm { font-size: 0.6rem; padding: 0.3rem 0.8rem; flex-shrink: 0; }
+.act-count-badge { font-size: 0.6rem; opacity: 0.4; }
+
+/* Bulk bar — non-display styles (display:none stays inline for JS toggling) */
+#pending-bulk-bar {
+  padding: 0.3rem 0.8rem;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(52,211,153,0.025);
+}
+.act-bulk-label { display: flex; align-items: center; gap: 0.3rem; font-size: 0.6rem; opacity: 0.5; cursor: pointer; }
+.act-checkbox-green { accent-color: #34d399; }
+.act-bulk-btn { font-size: 0.58rem; padding: 0.18rem 0.6rem; }
+
+/* Panel head modifier */
+.act-panel-head--amber { border-color: rgba(251,191,36,0.15); }
+.act-amber { color: #fbbf24; }
+
+/* Audit list scroll */
+#audit-list { max-height: 300px; overflow-y: auto; }
+
+/* Modal */
+.act-modal-icon { margin-right: 0.35rem; opacity: 0.6; }
+.act-modal-desc { font-size: 0.7rem; opacity: 0.6; margin: 0 0 0.5rem; }

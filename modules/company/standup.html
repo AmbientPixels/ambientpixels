@@ -18,7 +18,7 @@
   <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
   <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
   <style>
-    .su-config { background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:0.8rem; margin-bottom:0.8rem; }
+    .su-config { background:#1c1c1e; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:0.8rem; margin-bottom:0.8rem; }
     .su-config-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; margin-bottom:0.5rem; }
     .su-config label { font-size:0.65rem; opacity:0.5; display:block; margin-bottom:2px; }
     .su-config input, .su-config select, .su-config textarea { width:100%; font-size:0.72rem; padding:6px 8px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:#e0e0e0; font-family:inherit; box-sizing:border-box; }
@@ -38,21 +38,43 @@
 
     .su-recurrence { display:flex; gap:0.4rem; align-items:center; }
     .su-recurrence label { margin:0; white-space:nowrap; }
+
+    /* ── Inline Style Replacements ── */
+    #su-main { max-width: 900px; margin: 0 auto; padding: 1rem; }
+    .su-icon-mr-lg { margin-right: 8px; }
+    .su-icon-dim   { opacity: 0.4; }
+    .su-version-tag { font-size: 0.5rem; opacity: 0.3; vertical-align: middle; }
+    #standup-section { border-top: none; margin-top: 0; padding-top: 0; }
+    #standup-date-heading { font-size: 0.8rem; font-weight: 400; opacity: 0.4; }
+    .su-config-grid--top { margin-top: 0.4rem; }
+    .su-field-hint { opacity: 0.4; font-size: 0.55rem; }
+    .su-config-row--top { margin-top: 0.4rem; }
+    #su-frequency { width: auto; font-size: 0.65rem; padding: 3px 6px; }
+    #su-outcome-panel { background: #1c1c1e; border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 0.6rem 0.8rem; margin-bottom: 0.8rem; }
+    .su-outcome-header { display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.15rem; }
+    .su-outcome-icon  { color: rgba(255,255,255,0.5); font-size: 0.65rem; }
+    .su-outcome-title { font-size: 0.75rem; color: rgba(255,255,255,0.7); }
+    .su-outcome-sub   { font-size: 0.55rem; opacity: 0.35; margin-bottom: 0.5rem; }
+    #su-artifacts-panel { background: #1c1c1e; border: 1px solid rgba(255,255,255,0.07); border-radius: 12px; padding: 0.6rem 0.8rem; margin-bottom: 0.8rem; }
+    .su-artifacts-header { font-size: 0.7rem; font-weight: 600; color: rgba(255,255,255,0.6); margin-bottom: 0.4rem; }
+    #su-artifacts-list { font-size: 0.65rem; }
+    #su-parse-warnings { background: rgba(251,191,36,0.04); border: 1px solid rgba(251,191,36,0.1); border-radius: 8px; padding: 0.4rem 0.6rem; margin-bottom: 0.6rem; font-size: 0.6rem; color: #fbbf24; }
+    .su-parse-icon { margin-right: 4px; }
   </style>
 </head>
-<body style="background:#071019" data-theme="dark">
+<body data-theme="dark">
 
-  <main class="content-section" style="max-width: 800px; margin: 0 auto; padding: 1rem;">
+  <main class="content-section" id="su-main">
 
     <div class="company-header">
-      <h1><i class="fas fa-users" style="opacity:0.4; margin-right:8px;"></i>Standup <span style="font-size:0.5rem; opacity:0.3; vertical-align:middle;">Decision Engine v2.3</span></h1>
+      <h1><i class="fas fa-users co-icon-faint co-icon-mr-lg"></i>Standup <span class="su-version-tag">Decision Engine v2.3</span></h1>
       <p>Nova (Prime Operator) opens with priorities, department heads report in, Nova closes with summary for CEO.</p>
     </div>
 
     <!-- Standup Controls -->
-    <div class="standup-section" id="standup-section" style="border-top:none; margin-top:0; padding-top:0;">
+    <div class="standup-section" id="standup-section">
       <div class="standup-header">
-        <h3 id="standup-date-heading" style="font-size:0.8rem; font-weight:400; opacity:0.4;"></h3>
+        <h3 id="standup-date-heading"></h3>
         <button class="standup-trigger-btn" id="standup-trigger">
           <i class="fas fa-play"></i> <span id="standup-trigger-label">Run Standup</span>
         </button>
@@ -84,9 +106,9 @@
           <label for="su-agenda">Agenda / Intent</label>
           <textarea id="su-agenda" placeholder="What should this standup focus on? Leave blank for open status update..."></textarea>
         </div>
-        <div class="su-config-grid" style="margin-top:0.4rem;">
+        <div class="su-config-grid su-config-grid--top">
           <div>
-            <label for="su-topic-key">Topic Key <span style="opacity:0.4;font-size:0.55rem;">(auto from title)</span></label>
+            <label for="su-topic-key">Topic Key <span class="su-field-hint">(auto from title)</span></label>
             <input type="text" id="su-topic-key" placeholder="auto-generated-from-title" />
           </div>
           <div>
@@ -94,10 +116,10 @@
             <select id="su-topic-existing"><option value="">— New topic —</option></select>
           </div>
         </div>
-        <div class="su-config-row" style="margin-top:0.4rem;">
+        <div class="su-config-row su-config-row--top">
           <div class="su-recurrence">
             <label><input type="checkbox" id="su-recurring" /> Recurring</label>
-            <select id="su-frequency" style="width:auto; font-size:0.65rem; padding:3px 6px;" disabled>
+            <select id="su-frequency" disabled>
               <option value="weekly">Weekly</option>
               <option value="monthly">Monthly</option>
               <option value="quarterly">Quarterly</option>
@@ -118,24 +140,24 @@
       </div>
 
       <!-- Outcome Summary (v2.3.1) -->
-      <div id="su-outcome-panel" style="background:rgba(255,215,0,0.03);border:1px solid rgba(255,215,0,0.1);border-radius:10px;padding:0.6rem 0.8rem;margin-bottom:0.8rem;display:none;">
-        <div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.15rem;">
-          <i class="fas fa-chart-line" style="color:#FFD700;font-size:0.65rem;"></i>
-          <strong style="font-size:0.75rem;color:#FFD700;">Outcome Summary</strong>
+      <div id="su-outcome-panel" style="display:none;">
+        <div class="su-outcome-header">
+          <i class="fas fa-chart-line su-outcome-icon"></i>
+          <strong class="su-outcome-title">Outcome Summary</strong>
         </div>
-        <div style="font-size:0.55rem;opacity:0.35;margin-bottom:0.5rem;">What changed as a result of this standup.</div>
+        <div class="su-outcome-sub">What changed as a result of this standup.</div>
         <div id="su-outcome-body"></div>
       </div>
 
       <!-- Artifacts Created (v2.3 D) -->
-      <div id="su-artifacts-panel" style="background:rgba(59,130,246,0.04);border:1px solid rgba(59,130,246,0.12);border-radius:10px;padding:0.6rem 0.8rem;margin-bottom:0.8rem;display:none;">
-        <div style="font-size:0.7rem;font-weight:600;color:#3b82f6;margin-bottom:0.4rem;"><i class="fas fa-cube"></i> Artifacts Created</div>
-        <div id="su-artifacts-list" style="font-size:0.65rem;"></div>
+      <div id="su-artifacts-panel" style="display:none;">
+        <div class="su-artifacts-header"><i class="fas fa-cube"></i> Artifacts Created</div>
+        <div id="su-artifacts-list"></div>
       </div>
 
       <!-- Parser Warnings (v2.3 H) -->
-      <div id="su-parse-warnings" style="background:rgba(251,191,36,0.04);border:1px solid rgba(251,191,36,0.1);border-radius:8px;padding:0.4rem 0.6rem;margin-bottom:0.6rem;font-size:0.6rem;color:#fbbf24;display:none;">
-        <i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i> <span id="su-parse-warnings-text"></span>
+      <div id="su-parse-warnings" style="display:none;">
+        <i class="fas fa-exclamation-triangle su-parse-icon"></i> <span id="su-parse-warnings-text"></span>
       </div>
 
       <!-- Live Feed -->
@@ -355,7 +377,7 @@
           html += taskIds.map(function (id) {
             var t = AgentEngine.getTask(id);
             var label = t ? escapeHtml(t.title) + ' <span style="opacity:0.4;">(' + t.status + ')</span>' : id;
-            return '<a href="/modules/company/tasks.html" style="color:#3b82f6;text-decoration:none;">' + label + '</a>';
+            return '<a href="/modules/company/tasks.html" style="color:#60a5fa;text-decoration:none;">' + label + '</a>';
           }).join(', ');
           html += '</div>';
         }
@@ -365,7 +387,7 @@
             var d = null;
             AgentEngine.getDirectives().forEach(function (dir) { if (dir.id === id) d = dir; });
             var label = d ? escapeHtml(d.title) + ' <span style="opacity:0.4;">(' + d.status + ')</span>' : id;
-            return '<a href="/modules/company/campaigns.html" style="color:#a855f7;text-decoration:none;">' + label + '</a>';
+            return '<a href="/modules/company/campaigns.html" style="color:rgba(255,255,255,0.5);text-decoration:none;">' + label + '</a>';
           }).join(', ');
           html += '</div>';
         }
@@ -463,8 +485,8 @@
         var html = '';
 
         var IMPACT_COLORS = { High: '#ef4444', Medium: '#fbbf24', Low: '#6b7280' };
-        var PRI_COLORS = { urgent: '#ef4444', high: '#f59e0b', medium: '#3b82f6', low: '#6b7280' };
-        var STATUS_COLORS = { 'pending-approval': '#fbbf24', active: '#22c55e', completed: '#c084fc', backlog: '#6b7280', todo: '#3b82f6' };
+        var PRI_COLORS = { urgent: '#ef4444', high: '#f59e0b', medium: '#60a5fa', low: '#6b7280' };
+        var STATUS_COLORS = { 'pending-approval': '#fbbf24', active: '#22c55e', completed: 'rgba(255,255,255,0.4)', backlog: '#6b7280', todo: '#fbbf24' };
 
         // ── 1) Decision ──
         html += '<div style="margin-bottom:0.5rem;">';
@@ -475,11 +497,11 @@
         // ── 2) Directives ──
         if (summary.directives.length > 0) {
           html += '<div style="margin-bottom:0.5rem;">';
-          html += '<div style="font-size:0.65rem;font-weight:600;color:#a855f7;margin-bottom:0.3rem;"><i class="fas fa-compass" style="font-size:0.55rem;margin-right:3px;"></i>Projects (' + summary.directives.length + ')</div>';
+          html += '<div style="font-size:0.65rem;font-weight:600;color:rgba(255,255,255,0.5);margin-bottom:0.3rem;"><i class="fas fa-compass" style="font-size:0.55rem;margin-right:3px;"></i>Projects (' + summary.directives.length + ')</div>';
           summary.directives.forEach(function (d) {
             var status = d.status || d.approval || 'pending-approval';
             var sColor = STATUS_COLORS[status] || '#6b7280';
-            html += '<div style="padding:0.35rem 0.5rem;border-left:3px solid rgba(138,43,226,0.4);background:rgba(138,43,226,0.03);border-radius:0 6px 6px 0;margin-bottom:0.25rem;">';
+            html += '<div style="padding:0.35rem 0.5rem;border-left:3px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.02);border-radius:0 6px 6px 0;margin-bottom:0.25rem;">';
             html += '<div style="font-size:0.72rem;font-weight:600;">' + escapeHtml(d.title) + '</div>';
             html += '<div style="display:flex;gap:0.25rem;flex-wrap:wrap;margin-top:2px;">';
             html += '<span style="font-size:0.5rem;padding:1px 5px;border-radius:4px;background:' + sColor + '22;color:' + sColor + ';font-weight:500;">' + (status || '').replace(/-/g, ' ') + '</span>';
@@ -501,7 +523,7 @@
                 var kpi = kpiMap[kId];
                 var label = kpi ? kpi.name : kId;
                 var cat = kpi ? kpi.category : '';
-                html += '<a href="/modules/company/dashboard.html#kpi_' + kId + '" style="font-size:0.48rem;padding:1px 5px;border-radius:4px;background:rgba(255,215,0,0.1);color:#FFD700;text-decoration:none;" title="' + escapeHtml(cat) + '">' + escapeHtml(label) + '</a>';
+                html += '<a href="/modules/company/dashboard.html#kpi_' + kId + '" style="font-size:0.48rem;padding:1px 5px;border-radius:4px;background:rgba(251,191,36,0.1);color:#fbbf24;text-decoration:none;" title="' + escapeHtml(cat) + '">' + escapeHtml(label) + '</a>';
               });
               if (kLinks.length > showMax) html += '<span style="font-size:0.48rem;opacity:0.4;">+' + (kLinks.length - showMax) + ' more</span>';
               html += '</div>';
@@ -514,7 +536,7 @@
         // ── 3) Tasks ──
         if (summary.tasks.length > 0) {
           html += '<div style="margin-bottom:0.5rem;">';
-          html += '<div style="font-size:0.65rem;font-weight:600;color:#3b82f6;margin-bottom:0.3rem;"><i class="fas fa-tasks" style="font-size:0.55rem;margin-right:3px;"></i>Tasks (' + summary.tasks.length + ')</div>';
+          html += '<div style="font-size:0.65rem;font-weight:600;color:rgba(255,255,255,0.5);margin-bottom:0.3rem;"><i class="fas fa-tasks" style="font-size:0.55rem;margin-right:3px;"></i>Tasks (' + summary.tasks.length + ')</div>';
           // Group by assignee
           var byAssignee = {};
           summary.tasks.forEach(function (t) {
@@ -531,8 +553,8 @@
             group.forEach(function (t, idx) {
               taskCount++;
               var isExtra = taskCount > 8;
-              var pColor = PRI_COLORS[t.priority] || '#3b82f6';
-              html += '<div' + (isExtra ? ' class="su-outcome-task-extra"' : '') + ' style="' + (isExtra ? 'display:none;' : '') + 'padding:0.2rem 0.4rem;border-left:2px solid rgba(59,130,246,0.3);margin-bottom:2px;margin-left:0.3rem;">';
+              var pColor = PRI_COLORS[t.priority] || '#60a5fa';
+              html += '<div' + (isExtra ? ' class="su-outcome-task-extra"' : '') + ' style="' + (isExtra ? 'display:none;' : '') + 'padding:0.2rem 0.4rem;border-left:2px solid rgba(255,255,255,0.12);margin-bottom:2px;margin-left:0.3rem;">';
               html += '<span style="font-size:0.68rem;font-weight:500;">' + escapeHtml(t.title) + '</span>';
               html += ' <span style="font-size:0.48rem;padding:1px 4px;border-radius:3px;background:' + pColor + '22;color:' + pColor + ';">' + (t.priority || 'medium') + '</span>';
               if (t.impact) html += ' <span style="font-size:0.48rem;padding:1px 4px;border-radius:3px;background:' + (IMPACT_COLORS[t.impact] || '#fbbf24') + '22;color:' + (IMPACT_COLORS[t.impact] || '#fbbf24') + ';">Impact: ' + t.impact + '</span>';
@@ -543,7 +565,7 @@
             html += '</div>';
           });
           if (summary.tasks.length > 8) {
-            html += '<button id="' + showAllId + '" onclick="var els=document.querySelectorAll(\'.su-outcome-task-extra\');var show=this.dataset.open!==\'1\';els.forEach(function(e){e.style.display=show?\'\':\'none\';});this.dataset.open=show?\'1\':\'\';this.textContent=show?\'Show less\':\'Show all ' + summary.tasks.length + ' tasks\';" style="font-size:0.55rem;padding:2px 8px;border-radius:4px;border:1px solid rgba(59,130,246,0.2);background:rgba(59,130,246,0.06);color:#3b82f6;cursor:pointer;margin-top:2px;">Show all ' + summary.tasks.length + ' tasks</button>';
+            html += '<button id="' + showAllId + '" onclick="var els=document.querySelectorAll(\'.su-outcome-task-extra\');var show=this.dataset.open!==\'1\';els.forEach(function(e){e.style.display=show?\'\':\'none\';});this.dataset.open=show?\'1\':\'\';this.textContent=show?\'Show less\':\'Show all ' + summary.tasks.length + ' tasks\';" style="font-size:0.55rem;padding:2px 8px;border-radius:4px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.5);cursor:pointer;margin-top:2px;">Show all ' + summary.tasks.length + ' tasks</button>';
           }
           html += '</div>';
         }
@@ -570,13 +592,13 @@
           var kpiMap2 = {};
           if (kpiReg2) kpiReg2.forEach(function (k) { kpiMap2[k.id] = k; });
           html += '<div style="margin-bottom:0.5rem;">';
-          html += '<div style="font-size:0.65rem;font-weight:600;color:#FFD700;margin-bottom:0.3rem;"><i class="fas fa-bullseye" style="font-size:0.55rem;margin-right:3px;"></i>KPI Impact (' + kpiKeys.length + ' KPIs)</div>';
+          html += '<div style="font-size:0.65rem;font-weight:600;color:#fbbf24;margin-bottom:0.3rem;"><i class="fas fa-bullseye" style="font-size:0.55rem;margin-right:3px;"></i>KPI Impact (' + kpiKeys.length + ' KPIs)</div>';
           kpiKeys.forEach(function (kId) {
             var kpi = kpiMap2[kId];
             var name = kpi ? kpi.name : kId;
             var cat = kpi ? kpi.category : '';
             html += '<div style="display:flex;align-items:center;gap:0.3rem;font-size:0.62rem;padding:0.1rem 0;">';
-            html += '<a href="/modules/company/dashboard.html#kpi_' + kId + '" style="color:#FFD700;text-decoration:none;font-weight:500;">' + escapeHtml(name) + '</a>';
+            html += '<a href="/modules/company/dashboard.html#kpi_' + kId + '" style="color:#fbbf24;text-decoration:none;font-weight:500;">' + escapeHtml(name) + '</a>';
             html += '<span style="font-size:0.5rem;opacity:0.4;">' + summary.kpiCounts[kId] + ' directive' + (summary.kpiCounts[kId] > 1 ? 's' : '') + '</span>';
             if (cat) html += '<span style="font-size:0.48rem;padding:1px 5px;border-radius:3px;background:rgba(255,255,255,0.04);color:rgba(255,255,255,0.35);">' + escapeHtml(cat) + '</span>';
             html += '</div>';
@@ -586,10 +608,10 @@
 
         // ── 6) Net Changes Snapshot ──
         html += '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;padding-top:0.3rem;border-top:1px solid rgba(255,255,255,0.04);font-size:0.6rem;">';
-        if (summary.counts.directives > 0) html += '<span style="color:#a855f7;font-weight:500;">+' + summary.counts.directives + ' Project' + (summary.counts.directives > 1 ? 's' : '') + '</span>';
-        if (summary.counts.tasks > 0) html += '<span style="color:#3b82f6;font-weight:500;">+' + summary.counts.tasks + ' Task' + (summary.counts.tasks > 1 ? 's' : '') + '</span>';
+        if (summary.counts.directives > 0) html += '<span style="color:rgba(255,255,255,0.5);font-weight:500;">+' + summary.counts.directives + ' Project' + (summary.counts.directives > 1 ? 's' : '') + '</span>';
+        if (summary.counts.tasks > 0) html += '<span style="color:#60a5fa;font-weight:500;">+' + summary.counts.tasks + ' Task' + (summary.counts.tasks > 1 ? 's' : '') + '</span>';
         if (summary.counts.risks > 0) html += '<span style="color:#ef4444;font-weight:500;">+' + summary.counts.risks + ' Risk' + (summary.counts.risks > 1 ? 's' : '') + '</span>';
-        if (summary.counts.uniqueKpis > 0) html += '<span style="color:#FFD700;">KPI links: ' + summary.counts.uniqueKpis + ' unique</span>';
+        if (summary.counts.uniqueKpis > 0) html += '<span style="color:#fbbf24;">KPI links: ' + summary.counts.uniqueKpis + ' unique</span>';
         if (summary.counts.activatedTasks > 0 || summary.counts.activatedDirs > 0) {
           var actCount = summary.counts.activatedTasks + summary.counts.activatedDirs;
           html += '<span style="color:#22c55e;">Activated: ' + actCount + '</span>';
@@ -639,7 +661,7 @@
           item.className = 'standup-past-item';
 
           var dateStr = formatStandupDate(standup.date);
-          var lockHtml = standup.locked ? ' <i class="fas fa-lock" style="color:#FFD700;font-size:0.55rem;"></i>' : '';
+          var lockHtml = standup.locked ? ' <i class="fas fa-lock" style="opacity:0.4;font-size:0.55rem;"></i>' : '';
           var statusHtml = standup.decisionStatus ? ' <span class="su-status-badge su-status-' + standup.decisionStatus + '" style="font-size:0.5rem;">' + standup.decisionStatus + '</span>' : '';
           item.innerHTML = '<div class="standup-date-label"><i class="fas fa-calendar-day" style="margin-right:4px;"></i>' + dateStr + lockHtml + statusHtml +
             (standup.title && standup.title !== 'Daily Standup' ? ' <span style="opacity:0.4;font-size:0.65rem;">— ' + escapeHtml(standup.title) + '</span>' : '') + '</div>';

@@ -47,7 +47,7 @@
     /* Priority Engine pills */
     .priority-pill { font-size:0.5rem; padding:0.1rem 0.3rem; border-radius:3px; margin-left:0.3rem; white-space:nowrap; vertical-align:middle; }
     .priority-pill--low { background:rgba(156,163,175,0.08); border:1px solid rgba(156,163,175,0.2); color:#9ca3af; }
-    .priority-pill--medium { background:rgba(59,130,246,0.08); border:1px solid rgba(59,130,246,0.25); color:#60a5fa; }
+    .priority-pill--medium { background:rgba(96,165,250,0.08); border:1px solid rgba(96,165,250,0.25); color:#60a5fa; }
     .priority-pill--high { background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.3); color:#fbbf24; }
     .priority-pill--critical { background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.35); color:#f87171; }
 
@@ -55,7 +55,7 @@
     .tm-tab-bar { display:flex; gap:0; margin-bottom:0.75rem; border-bottom:1px solid rgba(255,255,255,0.06); }
     .tm-tab { padding:0.45rem 1rem; font-size:0.72rem; font-weight:500; color:rgba(255,255,255,0.35); background:none; border:none; border-bottom:2px solid transparent; cursor:pointer; transition:all 0.15s; font-family:inherit; }
     .tm-tab:hover { color:rgba(255,255,255,0.6); }
-    .tm-tab.active { color:rgba(255,165,0,0.9); border-bottom-color:rgba(255,165,0,0.6); }
+    .tm-tab.active { color:#fff; border-bottom-color:rgba(255,255,255,0.7); }
     .tm-tab .tm-tab-count { font-size:0.6rem; opacity:0.5; margin-left:0.3rem; }
     .tm-archive-panel { display:none; }
     .tm-archive-panel.active { display:block; }
@@ -64,8 +64,8 @@
     .tm-archive-table td { padding:0.4rem 0.6rem; border-bottom:1px solid rgba(255,255,255,0.03); color:rgba(255,255,255,0.55); }
     .tm-archive-table tr:hover td { background:rgba(255,255,255,0.02); }
     .tm-archive-empty { text-align:center; padding:2rem; opacity:0.2; font-size:0.75rem; }
-    .tm-archive-load-btn { display:block; margin:1rem auto; padding:0.4rem 1.2rem; font-size:0.7rem; font-family:inherit; background:rgba(255,165,0,0.08); border:1px solid rgba(255,165,0,0.2); border-radius:6px; color:rgba(255,165,0,0.7); cursor:pointer; transition:all 0.15s; }
-    .tm-archive-load-btn:hover { background:rgba(255,165,0,0.15); color:rgba(255,165,0,0.9); }
+    .tm-archive-load-btn { display:block; margin:1rem auto; padding:0.4rem 1.2rem; font-size:0.7rem; font-family:inherit; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:6px; color:rgba(255,255,255,0.5); cursor:pointer; transition:all 0.15s; }
+    .tm-archive-load-btn:hover { background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.85); }
     .tm-archive-stats { display:flex; gap:1rem; margin-bottom:0.75rem; font-size:0.65rem; color:rgba(255,255,255,0.3); }
     .tm-archive-stats span { background:rgba(255,255,255,0.03); padding:0.2rem 0.6rem; border-radius:4px; border:1px solid rgba(255,255,255,0.05); }
 
@@ -81,7 +81,7 @@
       border-radius: 6px; outline: none;
       transition: border-color 0.15s;
     }
-    .tm-search-wrap input:focus { border-color: rgba(255,165,0,0.3); }
+    .tm-search-wrap input:focus { border-color: rgba(255,255,255,0.25); }
     .tm-search-wrap input::placeholder { color: rgba(255,255,255,0.2); }
     .tm-search-wrap .tm-search-icon {
       position: absolute; left: 0.6rem; top: 50%; transform: translateY(-50%);
@@ -246,25 +246,28 @@
     }
   </style>
 </head>
-<body style="background:#071019" data-theme="dark">
+<body data-theme="dark">
 
-  <main class="content-section" style="max-width: 1100px; margin: 0 auto; padding: 1rem;">
+  <main class="content-section" id="tm-main">
 
     <!-- Header -->
     <div class="tm-header">
-      <h1><i class="fas fa-tasks"></i> DevOps Dash</h1>
+      <div>
+        <h1><i class="fas fa-tasks co-icon-faint co-icon-mr-lg"></i>DevOps Dash</h1>
+        <p class="tm-header-sub">Manage and track all agent tasks across the system.</p>
+      </div>
       <div class="tm-actions">
         <button class="tm-btn tm-btn--primary" id="btn-new-task"><i class="fas fa-plus"></i> New Task</button>
       </div>
     </div>
 
     <!-- Server Write Status Banner -->
-    <div id="write-status-banner" style="display:none; margin-bottom:0.75rem; padding:0.5rem 0.75rem; border-radius:6px; font-size:0.7rem; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); color:#f87171;">
-      <i class="fas fa-exclamation-triangle" style="margin-right:0.4rem;"></i>
+    <div id="write-status-banner" style="display:none;">
+      <i class="fas fa-exclamation-triangle" id="write-status-icon"></i>
       <span id="write-status-msg">Server writes failing — tasks won't reach agents.</span>
-      <span style="margin-left:0.5rem;">
-        Key: <input id="write-key-input" type="password" placeholder="write secret" style="width:140px; padding:0.2rem 0.4rem; font-size:0.65rem; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.15); border-radius:4px; color:#fff; margin:0 0.3rem;" />
-        <button id="write-key-save" style="padding:0.2rem 0.5rem; font-size:0.6rem; background:rgba(52,211,153,0.15); border:1px solid rgba(52,211,153,0.3); border-radius:4px; color:#34d399; cursor:pointer;">Set Key</button>
+      <span id="write-status-key-wrap">
+        Key: <input id="write-key-input" type="password" placeholder="write secret" />
+        <button id="write-key-save">Set Key</button>
       </span>
     </div>
 
@@ -273,8 +276,8 @@
 
     <!-- Tab Bar: Active / Archive -->
     <div class="tm-tab-bar">
-      <button class="tm-tab active" id="tab-active"><i class="fas fa-tasks" style="margin-right:4px;"></i>Active</button>
-      <button class="tm-tab" id="tab-archive"><i class="fas fa-archive" style="margin-right:4px;"></i>Archive <span class="tm-tab-count" id="archive-count"></span></button>
+      <button class="tm-tab active" id="tab-active"><i class="fas fa-tasks tm-icon-mr"></i>Active</button>
+      <button class="tm-tab" id="tab-archive"><i class="fas fa-archive tm-icon-mr"></i>Archive <span class="tm-tab-count" id="archive-count"></span></button>
     </div>
 
     <!-- Filters + View Toggle -->
@@ -349,10 +352,10 @@
 
     <!-- Kanban Board -->
     <div class="tm-board active" id="tm-board">
-      <div class="tm-column" data-status="pending-approval" style="border-top:2px solid rgba(251,191,36,0.3);">
+      <div class="tm-column" data-status="pending-approval">
         <div class="tm-column-header">
-          <span class="tm-column-title" style="color:#fbbf24;"><i class="fas fa-hourglass-half"></i> Pending Approval</span>
-          <span class="tm-column-count" data-count="pending-approval" style="background:rgba(251,191,36,0.12);color:#fbbf24;">0</span>
+          <span class="tm-column-title tm-column-title--amber"><i class="fas fa-hourglass-half"></i> Pending Approval</span>
+          <span class="tm-column-count tm-column-count--amber" data-count="pending-approval">0</span>
           <button class="tm-col-chevron" aria-expanded="true" aria-label="Toggle column"><i class="fas fa-chevron-down"></i></button>
         </div>
         <div class="tm-column-summary" data-summary="pending-approval"></div>
@@ -421,12 +424,12 @@
           <option value="">Assign to...</option>
         </select>
         <button id="tm-bulk-apply"><i class="fas fa-check"></i> Apply</button>
-        <button id="tm-bulk-clear" style="margin-left:auto; opacity:0.5;"><i class="fas fa-times"></i> Clear</button>
+        <button id="tm-bulk-clear"><i class="fas fa-times"></i> Clear</button>
       </div>
       <table class="tm-list-table">
         <thead>
           <tr>
-            <th style="width:28px; cursor:default; opacity:1;" data-sort=""><input type="checkbox" class="tm-bulk-check" id="tm-check-all" title="Select all" /></th>
+            <th data-sort=""><input type="checkbox" class="tm-bulk-check" id="tm-check-all" title="Select all" /></th>
             <th data-sort="title">Task <span class="sort-arrow"></span></th>
             <th data-sort="taskType">Type <span class="sort-arrow"></span></th>
             <th data-sort="status">Status <span class="sort-arrow"></span></th>
@@ -446,7 +449,7 @@
     <div class="tm-archive-panel" id="tm-archive-panel">
       <div class="tm-archive-stats" id="tm-archive-stats"></div>
       <div id="tm-archive-content">
-        <button class="tm-archive-load-btn" id="btn-load-archive"><i class="fas fa-cloud-download-alt" style="margin-right:4px;"></i>Load Archive from Server</button>
+        <button class="tm-archive-load-btn" id="btn-load-archive"><i class="fas fa-cloud-download-alt tm-icon-mr"></i>Load Archive from Server</button>
       </div>
     </div>
 
@@ -497,22 +500,22 @@
 
           <div class="tm-modal-row">
             <div>
-              <label for="task-campaign">Campaign <span style="opacity:0.35; font-weight:normal;">(optional)</span></label>
+              <label for="task-campaign">Campaign <span class="tm-label-optional">(optional)</span></label>
               <select id="task-campaign">
                 <option value="">No campaign</option>
               </select>
             </div>
             <div>
-              <label for="task-objective">Goal <span style="opacity:0.35; font-weight:normal;">(optional)</span></label>
+              <label for="task-objective">Goal <span class="tm-label-optional">(optional)</span></label>
               <select id="task-objective">
                 <option value="">No goal</option>
               </select>
             </div>
           </div>
 
-          <div id="nova-triage-hint" style="padding:0.5rem 0.6rem; margin:0.3rem 0 0.5rem; border-radius:6px; background:rgba(78,205,196,0.06); border:1px solid rgba(78,205,196,0.15); font-size:0.62rem; color:rgba(255,255,255,0.5); display:none;">
-            <i class="fas fa-robot" style="color:#4ecdc4; margin-right:4px;"></i>
-            <strong style="color:#4ecdc4;">Nova will triage this task</strong> — assign it to the right agent and add delegation context.
+          <div id="nova-triage-hint" style="display:none;">
+            <i class="fas fa-robot tm-nova-robot"></i>
+            <strong class="tm-nova-strong">Nova will triage this task</strong> — assign it to the right agent and add delegation context.
           </div>
 
           <!-- Edit-only fields (hidden during creation, shown when editing) -->
@@ -551,14 +554,14 @@
 
           <!-- Lifecycle (only in edit mode) -->
           <div id="taskLifecycleSection" style="display:none;">
-            <div class="task-lc-title"><i class="fas fa-route" style="margin-right:4px;opacity:0.45;"></i>Lifecycle</div>
+            <div class="task-lc-title"><i class="fas fa-route tm-icon-mr tm-icon-dim"></i>Lifecycle</div>
             <div id="taskLifecycle"></div>
             <div id="taskLifecycleBadges"></div>
           </div>
 
           <!-- Comments (only in edit mode) -->
           <div class="tm-comments" id="task-comments" style="display:none;">
-            <h4><i class="fas fa-comments" style="margin-right:4px;"></i>Comments</h4>
+            <h4><i class="fas fa-comments tm-icon-mr"></i>Comments</h4>
             <div id="task-comments-list"></div>
             <div class="tm-comment-add">
               <input type="text" id="task-comment-input" placeholder="Add a comment..." />
@@ -567,7 +570,7 @@
           </div>
         </div>
         <div class="tm-modal-footer">
-          <button class="tm-btn" id="btn-delete-task" style="margin-right:auto; color:#f87171; border-color:rgba(248,113,113,0.2); display:none;">
+          <button class="tm-btn" id="btn-delete-task" style="display:none;">
             <i class="fas fa-trash"></i> Delete
           </button>
           <button class="tm-btn" id="btn-cancel-task">Cancel</button>
@@ -1422,7 +1425,7 @@
           var titleCell = listNumChip + escapeHtml(task.title) + _pausedProjectBadge(task) + listRelBadge;
           var campCell = camp ? '<span style="font-size:0.65rem;">' + escapeHtml(camp.title || camp.id) + '</span>' : '<span style="opacity:0.15">&mdash;</span>';
           var goal = _resolveGoal(task);
-          var goalCell = goal ? '<span style="font-size:0.65rem; color:#4ECDC4;">' + escapeHtml(goal.title || goal.id) + '</span>' : '<span style="opacity:0.15">&mdash;</span>';
+          var goalCell = goal ? '<span style="font-size:0.65rem; color:rgba(255,255,255,0.55);">' + escapeHtml(goal.title || goal.id) + '</span>' : '<span style="opacity:0.15">&mdash;</span>';
           var checked = _bulkSelected[task.id] ? ' checked' : '';
           tr.innerHTML =
             '<td style="width:28px;" onclick="event.stopPropagation();"><input type="checkbox" class="tm-bulk-check" data-task-id="' + task.id + '"' + checked + ' /></td>' +
@@ -1776,11 +1779,11 @@
         var type = taskTypeField.value;
         var mapping = _typeAgentMap[type];
         if (mapping) {
-          triageHint.innerHTML = '<i class="fas fa-robot" style="color:#4ecdc4; margin-right:4px;"></i>'
-            + '<strong style="color:#4ecdc4;">Nova will assign to ' + mapping.agent + '</strong> — ' + mapping.note;
+          triageHint.innerHTML = '<i class="fas fa-robot" style="color:#a78bfa; margin-right:4px;"></i>'
+            + '<strong style="color:#a78bfa;">Nova will assign to ' + mapping.agent + '</strong> — ' + mapping.note;
         } else {
-          triageHint.innerHTML = '<i class="fas fa-robot" style="color:#4ecdc4; margin-right:4px;"></i>'
-            + '<strong style="color:#4ecdc4;">Nova will triage this task</strong> — assign it to the right agent and add delegation context.';
+          triageHint.innerHTML = '<i class="fas fa-robot" style="color:#a78bfa; margin-right:4px;"></i>'
+            + '<strong style="color:#a78bfa;">Nova will triage this task</strong> — assign it to the right agent and add delegation context.';
         }
       }
       taskTypeField.addEventListener('change', _updateTriageHint);

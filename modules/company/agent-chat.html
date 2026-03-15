@@ -17,18 +17,18 @@
   <link rel="stylesheet" href="/modules/company/css/company.css" />
   <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
 </head>
-<body style="background:#071019" data-theme="dark">
+<body data-theme="dark">
 
-  <main class="content-section">
+  <main class="content-section" style="max-width:900px;margin:0 auto;">
     <div class="agent-chat-container" id="chat-container">
 
       <!-- Header (populated by JS) -->
       <div class="agent-chat-header" id="chat-header">
         <a href="/modules/company/" class="agent-chat-back"><i class="fas fa-arrow-left"></i> Back to HQ</a>
-        <div class="agent-detail-avatar" id="chat-agent-avatar" style="width:36px;height:36px;font-size:1rem;"></div>
+        <div class="agent-detail-avatar" id="chat-agent-avatar"></div>
         <div>
-          <strong id="chat-agent-name" style="font-size:0.95rem;">Loading...</strong>
-          <span id="chat-agent-role" style="font-size:0.7rem; opacity:0.4; display:block;"></span>
+          <strong id="chat-agent-name">Loading...</strong>
+          <span id="chat-agent-role"></span>
         </div>
       </div>
 
@@ -42,7 +42,7 @@
 
       <!-- Messages -->
       <div class="agent-chat-messages" id="chat-messages">
-        <div class="agent-chat-msg agent-chat-msg--agent" style="opacity:0.5; font-style:italic;">
+        <div class="agent-chat-msg agent-chat-msg--agent agent-chat-msg--placeholder">
           Select an agent to start chatting...
         </div>
       </div>
@@ -89,13 +89,13 @@
       // Load registry and init
       AgentEngine.loadRegistry().then(function (data) {
         if (!data || !agentId) {
-          messagesEl.innerHTML = '<div class="agent-chat-msg agent-chat-msg--agent">No agent specified. <a href="/modules/company/" style="color:#8A2BE2;">Go back to HQ</a></div>';
+          messagesEl.innerHTML = '<div class="agent-chat-msg agent-chat-msg--agent">No agent specified. <a href="/modules/company/" style="color:rgba(255,255,255,0.55);">Go back to HQ</a></div>';
           return;
         }
 
         currentAgent = AgentEngine.getAgent(agentId);
         if (!currentAgent) {
-          messagesEl.innerHTML = '<div class="agent-chat-msg agent-chat-msg--agent">Agent "' + agentId + '" not found. <a href="/modules/company/" style="color:#8A2BE2;">Go back to HQ</a></div>';
+          messagesEl.innerHTML = '<div class="agent-chat-msg agent-chat-msg--agent">Agent "' + agentId + '" not found. <a href="/modules/company/" style="color:rgba(255,255,255,0.55);">Go back to HQ</a></div>';
           return;
         }
 

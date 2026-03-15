@@ -169,16 +169,44 @@
 
   rail.appendChild(chipsWrap);
 
-  // Footer: Wiki + Globe + Blog + Mode + Auth
+  // Theme cycling helper
+  var THEMES = ['dark', 'dim', 'light'];
+  var THEME_ICONS = { dark: 'fa-moon', dim: 'fa-circle-half-stroke', light: 'fa-sun' };
+  var THEME_LABELS = { dark: 'Dark', dim: 'Medium (Blue)', light: 'Light (Grey)' };
+  function _getTheme() { return localStorage.getItem('preferred-theme') || 'dark'; }
+  function _applyTheme(t) {
+    localStorage.setItem('preferred-theme', t);
+    document.body.setAttribute('data-theme', t);
+    document.body.style.background = '';
+  }
+  // Apply stored theme on load
+  _applyTheme(_getTheme());
+
+  // Footer: Wiki + Globe + Blog + Theme + Mode + Auth
   var curMode = window.APMode ? window.APMode.get() : 'executive';
+  var curTheme = _getTheme();
   var footer = document.createElement('div');
   footer.className = 'sb-rail-footer';
   footer.innerHTML = '<a href="' + BASE + 'documents.html" class="sb-rail-globe" title="Wiki"><i class="fas fa-book"></i></a>' +
     '<a href="/" class="sb-rail-globe" title="Main Site"><i class="fas fa-globe"></i></a>' +
     '<a href="/blog/" class="sb-rail-globe" title="Public Blog" style="opacity:0.5;"><i class="fas fa-newspaper"></i></a>' +
+    '<button type="button" id="sb-theme-btn" class="sb-rail-globe" title="Theme: ' + THEME_LABELS[curTheme] + '" style="background:none; border:none; cursor:pointer; color:inherit; font-size:inherit; padding:0; opacity:0.6;"><i class="fas ' + (THEME_ICONS[curTheme] || 'fa-moon') + '"></i></button>' +
     '<button type="button" id="sb-mode-btn" class="sb-rail-globe sb-mode-btn" title="Mode: ' + _modeLabel(curMode) + '" style="background:none; border:none; cursor:pointer; color:' + _modeTint(curMode) + '; font-size:inherit; padding:0; opacity:0.7;"><i class="fas ' + _modeIcon(curMode) + '"></i></button>' +
     '<button type="button" id="sb-auth-btn" class="sb-rail-globe" title="Loading..." style="opacity:0.4; background:none; border:none; cursor:pointer; color:inherit; font-size:inherit; padding:0;"><i class="fas fa-spinner fa-spin"></i></button>';
   rail.appendChild(footer);
+
+  // Theme toggle handler
+  var themeBtn = footer.querySelector('#sb-theme-btn');
+  if (themeBtn) {
+    themeBtn.addEventListener('click', function () {
+      var cur = _getTheme();
+      var idx = THEMES.indexOf(cur);
+      var next = THEMES[(idx + 1) % THEMES.length];
+      _applyTheme(next);
+      themeBtn.title = 'Theme: ' + THEME_LABELS[next];
+      themeBtn.innerHTML = '<i class="fas ' + THEME_ICONS[next] + '"></i>';
+    });
+  }
 
   // Mode toggle handler
   var modeBtn = footer.querySelector('#sb-mode-btn');
@@ -246,7 +274,7 @@
     ambientos.href = '/ambientos/';
     ambientos.className = 'sb-topbar-ambientos';
     ambientos.setAttribute('aria-label', 'AmbientOS overview');
-    ambientos.innerHTML = '<i class="fas fa-server" aria-hidden="true"></i><span>AmbientOS v1.0</span>';
+    ambientos.innerHTML = '<i class="fas fa-server" aria-hidden="true"></i><span>AmbientOS v1.1</span>';
     topbar.appendChild(ambientos);
   }
 
@@ -260,6 +288,13 @@
 
   // Initial render
   renderSubLinks(selectedCatId);
+
+  // ── Apply APMode attribute to body for CSS-based mode gating ──
+  function _applyModeAttr() {
+    document.body.setAttribute('data-mode', window.APMode ? window.APMode.get() : 'executive');
+  }
+  _applyModeAttr();
+  window.addEventListener('ap-mode-change', _applyModeAttr);
 
   // ── Assemble layout ──
   var body = document.body;

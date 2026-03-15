@@ -16,27 +16,29 @@
   <link rel="stylesheet" href="/css/banner.css" />
   <link rel="stylesheet" href="/modules/company/css/company.css" />
   <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
+  <link rel="stylesheet" href="/modules/company/css/objectives.css" />
   <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
   <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
   <style>
     .cmp-grid { display:grid; grid-template-columns: 1fr; gap: 0.8rem; }
-    .cmp-create, .cmp-panel { border:1px solid rgba(255,255,255,0.08); border-radius:10px; background:rgba(255,255,255,0.02); padding:0.75rem; }
+    .cmp-create, .cmp-panel { border:1px solid rgba(255,255,255,0.08); border-radius:10px; background:rgba(255,255,255,0.02); padding:0.75rem 1rem 1rem; }
     .cmp-title { font-size:0.78rem; font-weight:600; opacity:0.82; margin-bottom:0.55rem; }
     .cmp-create input, .cmp-create textarea, .cmp-create select {
-      width:100%; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); color:inherit; border-radius:6px;
-      padding:0.45rem 0.55rem; font-size:0.72rem; margin-bottom:0.45rem;
+      width:100%; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); color:inherit; border-radius:6px;
+      padding:0.5rem 0.7rem; font-size:0.8rem; margin-bottom:0.5rem; font-family:inherit; box-sizing:border-box;
     }
-    .cmp-create textarea { min-height:72px; resize:vertical; }
-    .cmp-btn { border:1px solid rgba(138,43,226,0.32); background:rgba(138,43,226,0.1); color:#c084fc; border-radius:6px; padding:0.35rem 0.75rem; font-size:0.68rem; cursor:pointer; }
+    .cmp-create textarea { min-height:60px; resize:vertical; }
+    .cmp-create input[type="date"] { -webkit-appearance:none; appearance:none; color-scheme:dark; }
+    .cmp-btn { border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.7); border-radius:6px; padding:0.35rem 0.75rem; font-size:0.68rem; cursor:pointer; margin-top:0.5rem; }
     .cmp-list-row { display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap; margin-bottom:0.5rem; }
     .cmp-list-row input { flex:1; min-width:200px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:6px; color:inherit; padding:0.38rem 0.55rem; font-size:0.72rem; }
     .cmp-pill { font-size:0.58rem; padding:0.12rem 0.38rem; border-radius:999px; border:1px solid rgba(255,255,255,0.1); opacity:0.85; }
     .cmp-pill--active { color:#34d399; border-color:rgba(52,211,153,0.35); background:rgba(52,211,153,0.08); }
-    .cmp-pill--complete { color:#c084fc; border-color:rgba(192,132,252,0.35); background:rgba(192,132,252,0.08); }
-    .cmp-card--complete { border-color:rgba(192,132,252,0.15); opacity:0.7; }
+    .cmp-pill--complete { color:rgba(255,255,255,0.45); border-color:rgba(255,255,255,0.15); background:rgba(255,255,255,0.06); }
+    .cmp-card--complete { border-color:rgba(255,255,255,0.08); opacity:0.7; }
     .cmp-pill--archived { color:#94a3b8; border-color:rgba(148,163,184,0.35); background:rgba(148,163,184,0.08); }
     .cmp-card { border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.02); border-radius:8px; padding:0.6rem; margin-bottom:0.45rem; }
-    .cmp-card:hover { border-color:rgba(138,43,226,0.35); }
+    .cmp-card:hover { border-color:rgba(255,255,255,0.15); }
     .cmp-card h4 { margin:0 0 0.25rem; font-size:0.76rem; display:flex; align-items:center; justify-content:space-between; gap:0.5rem; }
     .cmp-card p { margin:0 0 0.35rem; font-size:0.67rem; opacity:0.58; line-height:1.35; }
     .cmp-meta { font-size:0.58rem; opacity:0.45; display:flex; gap:0.4rem; flex-wrap:wrap; }
@@ -47,14 +49,14 @@
       color:#fff; cursor:pointer; text-decoration:none;
     }
     .cmp-card-actions .cmp-edit-btn {
-      border-color:rgba(138,43,226,0.3); background:rgba(138,43,226,0.05); color:#c084fc;
+      border-color:rgba(255,255,255,0.12); background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.6);
     }
     .cmp-card-actions .danger { border-color:rgba(248,113,113,0.4); background:rgba(248,113,113,0.05); color:#f87171; }
     .cmp-progress-bar { height:4px; border-radius:2px; background:rgba(255,255,255,0.06); margin:0.35rem 0 0.25rem; overflow:hidden; }
     .cmp-progress-fill { height:100%; border-radius:2px; transition:width 0.3s; }
     .cmp-task-breakdown { font-size:0.6rem; font-weight:500; margin-bottom:0.15rem; }
     .cmp-empty { font-size:0.7rem; opacity:0.3; padding:0.8rem 0.25rem; }
-    .cmp-detail { border:1px solid rgba(138,43,226,0.2); background:rgba(138,43,226,0.05); border-radius:10px; padding:0.75rem; }
+    .cmp-detail { border:1px solid rgba(255,255,255,0.08); background:rgba(255,255,255,0.02); border-radius:10px; padding:0.75rem; }
     .cmp-detail-head { display:flex; justify-content:space-between; align-items:center; gap:0.5rem; margin-bottom:0.5rem; }
     .cmp-detail h3 { margin:0; font-size:0.82rem; }
     .cmp-actions { display:flex; gap:0.3rem; flex-wrap:wrap; }
@@ -74,13 +76,13 @@
     .cmp-modal-backdrop.visible { display: flex; }
     .cmp-modal {
       width: min(560px, 100%);
-      border: 1px solid rgba(138,43,226,0.35);
+      border: 1px solid rgba(255,255,255,0.12);
       border-radius: 10px;
-      background: #0b1422;
+      background: #1c1c1e;
       padding: 0.9rem;
       box-shadow: 0 18px 50px rgba(0,0,0,0.45);
     }
-    .cmp-modal h3 { margin: 0 0 0.65rem; font-size: 0.82rem; color:#c084fc; }
+    .cmp-modal h3 { margin: 0 0 0.65rem; font-size: 0.82rem; color:rgba(255,255,255,0.85); }
     .cmp-modal label { display:block; font-size:0.66rem; opacity:0.72; margin-bottom:0.25rem; }
     .cmp-modal input, .cmp-modal textarea, .cmp-modal select {
       width:100%; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.12);
@@ -90,93 +92,114 @@
     .cmp-modal-actions { display:flex; justify-content:flex-end; gap:0.35rem; margin-top:0.35rem; }
     .cmp-modal-actions button { font-size:0.62rem; padding:0.25rem 0.62rem; border-radius:5px; cursor:pointer; }
     .cmp-modal-cancel { border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.05); color:inherit; }
-    .cmp-modal-save { border:1px solid rgba(138,43,226,0.32); background:rgba(138,43,226,0.15); color:#c084fc; }
+    .cmp-modal-save { border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.85); }
     .cmp-pill--paused { background:rgba(251,191,36,0.12); color:#fbbf24; border-color:rgba(251,191,36,0.3); }
     .cmp-card--paused { border-color:rgba(251,191,36,0.2); opacity:0.85; }
     .cmp-card--paused .cmp-progress-fill { opacity:0.4; }
     .cmp-pause-btn { background:rgba(251,191,36,0.1) !important; border-color:rgba(251,191,36,0.3) !important; color:#fbbf24 !important; }
     .cmp-resume-btn { background:rgba(52,211,153,0.1) !important; border-color:rgba(52,211,153,0.3) !important; color:#34d399 !important; }
     .cmp-view-btn { background:transparent; border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.4); border-radius:5px; padding:0.25rem 0.4rem; font-size:0.65rem; cursor:pointer; }
-    .cmp-view-btn:hover { border-color:rgba(138,43,226,0.4); color:rgba(255,255,255,0.7); }
-    .cmp-view-btn--active { background:rgba(138,43,226,0.15); border-color:rgba(138,43,226,0.4); color:#a78bfa; }
+    .cmp-view-btn:hover { border-color:rgba(255,255,255,0.25); color:rgba(255,255,255,0.7); }
+    .cmp-view-btn--active { background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.25); color:rgba(255,255,255,0.9); }
     .cmp-list-table { width:100%; border-collapse:collapse; font-size:0.68rem; }
     .cmp-list-table th { text-align:left; font-size:0.58rem; text-transform:uppercase; letter-spacing:0.5px; opacity:0.4; padding:0.4rem 0.5rem; border-bottom:1px solid rgba(255,255,255,0.06); font-weight:600; }
     .cmp-list-table td { padding:0.45rem 0.5rem; border-bottom:1px solid rgba(255,255,255,0.03); vertical-align:middle; }
-    .cmp-list-table tr:hover { background:rgba(138,43,226,0.04); }
+    .cmp-list-table tr:hover { background:rgba(255,255,255,0.03); }
     .cmp-list-table .cmp-tbl-bar { height:4px; border-radius:2px; background:rgba(255,255,255,0.06); min-width:60px; overflow:hidden; }
     .cmp-list-table .cmp-tbl-fill { height:100%; border-radius:2px; }
+
+    /* ── Inline Style Replacements ── */
+    #cmp-main { max-width: 900px; margin: 0 auto; padding: 1rem; }
+    .cmp-header-sub { font-size: 0.8rem; opacity: 0.45; margin-top: 0.3rem; margin-bottom: 0.75rem; }
+    .cmp-types-outer { display: flex; gap: 0.5rem; margin-top: 0.35rem; }
+    .cmp-field-col--full { flex: 1; display: flex; flex-direction: column; gap: 0.15rem; }
+    .cmp-field-col { display: flex; flex-direction: column; gap: 0.15rem; }
+    .cmp-field-label { font-size: 0.6rem; opacity: 0.5; text-transform: uppercase; letter-spacing: 0.5px; }
+    #cmp-task-types, #cmp-edit-task-types { display: flex; gap: 0.4rem 0.6rem; flex-wrap: wrap; font-size: 0.65rem; }
+    .cmp-check-label { display: flex; align-items: center; gap: 3px; cursor: pointer; }
+    .cmp-settings-row { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.3rem; }
+    .cmp-settings-row--edit { margin-top: 0.4rem; }
+    #cmp-frequency, #cmp-edit-frequency { width: 5.5rem; margin-bottom: 0; }
+    #cmp-cadence, #cmp-edit-cadence { width: 6.5rem; margin-bottom: 0; }
+    #cmp-start-date, #cmp-end-date, #cmp-edit-start-date, #cmp-edit-end-date { width: 8rem; margin-bottom: 0; }
+    #cmp-search { min-width: 140px; }
+    .cmp-view-btns { display: flex; align-items: center; gap: 0.35rem; }
+    .cmp-archive-toggle { font-size: 0.66rem; opacity: 0.6; display: flex; align-items: center; gap: 0.25rem; }
+    .cmp-edit-types-wrap { margin-top: 0.5rem; }
+    .cmp-autocomplete-row { display: flex; align-items: center; gap: 0.25rem; margin-top: 1.1rem; }
+    .cmp-autocomplete-label { font-size: 0.65rem; opacity: 0.7; }
   </style>
 </head>
-<body style="background:#071019" data-theme="dark">
-  <main class="content-section" style="max-width:980px; margin:0 auto; padding:1rem;">
-    <div class="company-header" style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; flex-wrap:wrap;">
+<body data-theme="dark">
+  <main class="content-section" id="cmp-main">
+    <div class="company-header obj-header">
       <div>
-        <h1 style="display:flex; align-items:center; gap:0.45rem;"><i class="fas fa-layer-group" style="color:#a78bfa; opacity:0.8;"></i>Campaigns</h1>
-        <p style="font-size:0.72rem; opacity:0.5; margin-top:0.2rem;">Goal → Campaign → Task</p>
+        <h1><i class="fas fa-layer-group co-icon-faint co-icon-mr-lg"></i>Campaigns</h1>
+        <p class="cmp-header-sub">Goal → Campaign → Task</p>
       </div>
-      <div style="display:flex; gap:0.35rem;">
-        <span class="cmp-pill cmp-pill--active" id="cmp-active-count">0 active</span>
-        <span class="cmp-pill cmp-pill--archived" id="cmp-archived-count">0 archived</span>
+      <div class="obj-header-pills">
+        <span class="obj-pill obj-pill--active" id="cmp-active-count">0 active</span>
+        <span class="obj-pill obj-pill--complete" id="cmp-archived-count">0 archived</span>
       </div>
     </div>
 
     <div class="cmp-grid">
       <section class="cmp-create">
-        <div class="cmp-title"><i class="fas fa-plus-circle" style="margin-right:4px;"></i>New Campaign</div>
+        <div class="cmp-title"><i class="fas fa-plus-circle dash-icon-mr"></i>New Campaign</div>
         <input id="cmp-title" type="text" placeholder="Campaign title..." />
         <textarea id="cmp-desc" placeholder="Description (optional)..."></textarea>
         <select id="cmp-objective"><option value="">No goal</option></select>
-        <div style="display:flex;gap:0.5rem;margin-top:0.35rem;">
-          <div style="flex:1;display:flex;flex-direction:column;gap:0.15rem;">
-            <span style="font-size:0.6rem;opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;">Allowed Types</span>
-            <div id="cmp-task-types" style="display:flex;gap:0.4rem 0.6rem;flex-wrap:wrap;font-size:0.65rem;">
-              <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="blog_post" />Blog</label>
-              <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="research" />Research</label>
-              <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="social_linkedin" />LinkedIn</label>
-              <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="social_x" />X</label>
-              <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="social_bluesky" />Bluesky</label>
-              <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="social_reddit" />Reddit</label>
-              <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="social_facebook" />Facebook</label>
-              <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="internal_doc" />Doc</label>
-              <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="ops" />Ops</label>
-              <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="financial" />Financial</label>
+        <div class="cmp-types-outer">
+          <div class="cmp-field-col--full">
+            <span class="cmp-field-label">Allowed Types</span>
+            <div id="cmp-task-types">
+              <label class="cmp-check-label"><input type="checkbox" value="blog_post" />Blog</label>
+              <label class="cmp-check-label"><input type="checkbox" value="research" />Research</label>
+              <label class="cmp-check-label"><input type="checkbox" value="social_linkedin" />LinkedIn</label>
+              <label class="cmp-check-label"><input type="checkbox" value="social_x" />X</label>
+              <label class="cmp-check-label"><input type="checkbox" value="social_bluesky" />Bluesky</label>
+              <label class="cmp-check-label"><input type="checkbox" value="social_reddit" />Reddit</label>
+              <label class="cmp-check-label"><input type="checkbox" value="social_facebook" />Facebook</label>
+              <label class="cmp-check-label"><input type="checkbox" value="internal_doc" />Doc</label>
+              <label class="cmp-check-label"><input type="checkbox" value="ops" />Ops</label>
+              <label class="cmp-check-label"><input type="checkbox" value="financial" />Financial</label>
             </div>
           </div>
         </div>
-        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.3rem;">
-          <div style="display:flex;flex-direction:column;gap:0.15rem;">
-            <span style="font-size:0.6rem;opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;">Frequency</span>
-            <input id="cmp-frequency" type="number" min="1" placeholder="per period" style="width:5.5rem;" title="Posts per cadence period per platform" />
+        <div class="cmp-settings-row">
+          <div class="cmp-field-col">
+            <span class="cmp-field-label">Frequency</span>
+            <input id="cmp-frequency" type="number" min="1" placeholder="per period" title="Posts per cadence period per platform" />
           </div>
-          <div style="display:flex;flex-direction:column;gap:0.15rem;">
-            <span style="font-size:0.6rem;opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;">Cadence</span>
-            <select id="cmp-cadence" style="width:6.5rem;">
+          <div class="cmp-field-col">
+            <span class="cmp-field-label">Cadence</span>
+            <select id="cmp-cadence">
               <option value="">None</option>
               <option value="daily">Daily</option>
               <option value="weekly">Weekly</option>
               <option value="biweekly">Biweekly</option>
             </select>
           </div>
-          <div style="display:flex;flex-direction:column;gap:0.15rem;">
-            <span style="font-size:0.6rem;opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;">Start Date</span>
-            <input id="cmp-start-date" type="date" style="width:8rem;" />
+          <div class="cmp-field-col">
+            <span class="cmp-field-label">Start Date</span>
+            <input id="cmp-start-date" type="date" />
           </div>
-          <div style="display:flex;flex-direction:column;gap:0.15rem;">
-            <span style="font-size:0.6rem;opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;">End Date</span>
-            <input id="cmp-end-date" type="date" style="width:8rem;" />
+          <div class="cmp-field-col">
+            <span class="cmp-field-label">End Date</span>
+            <input id="cmp-end-date" type="date" />
           </div>
         </div>
         <button class="cmp-btn" id="cmp-create-btn">Create Campaign</button>
       </section>
 
       <section class="cmp-panel">
-        <div class="cmp-list-row" style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;">
-          <input id="cmp-search" type="text" placeholder="Search campaigns..." style="flex:1;min-width:140px;" />
-          <div style="display:flex;align-items:center;gap:0.35rem;">
+        <div class="cmp-list-row">
+          <input id="cmp-search" type="text" placeholder="Search campaigns..." />
+          <div class="cmp-view-btns">
             <button id="cmp-view-card" class="cmp-view-btn cmp-view-btn--active" title="Card view"><i class="fas fa-th-large"></i></button>
             <button id="cmp-view-list" class="cmp-view-btn" title="List view"><i class="fas fa-list"></i></button>
           </div>
-          <label style="font-size:0.66rem; opacity:0.6; display:flex; align-items:center; gap:0.25rem;">
+          <label class="cmp-archive-toggle">
             <input type="checkbox" id="cmp-show-archived" /> Show completed &amp; archived
           </label>
         </div>
@@ -205,46 +228,46 @@
         <option value="archived">Archived</option>
       </select>
 
-      <div style="margin-top:0.5rem;">
-        <span style="font-size:0.6rem;opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;">Allowed Types</span>
-        <div id="cmp-edit-task-types" style="display:flex;gap:0.4rem 0.6rem;flex-wrap:wrap;font-size:0.65rem;margin-top:0.15rem;">
-          <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="blog_post" />Blog</label>
-          <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="research" />Research</label>
-          <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="social_linkedin" />LinkedIn</label>
-          <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="social_x" />X</label>
-          <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="social_bluesky" />Bluesky</label>
-          <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="social_reddit" />Reddit</label>
-          <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="social_facebook" />Facebook</label>
-          <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="internal_doc" />Doc</label>
-          <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="ops" />Ops</label>
-          <label style="display:flex;align-items:center;gap:3px;cursor:pointer;"><input type="checkbox" value="financial" />Financial</label>
+      <div class="cmp-edit-types-wrap">
+        <span class="cmp-field-label">Allowed Types</span>
+        <div id="cmp-edit-task-types">
+          <label class="cmp-check-label"><input type="checkbox" value="blog_post" />Blog</label>
+          <label class="cmp-check-label"><input type="checkbox" value="research" />Research</label>
+          <label class="cmp-check-label"><input type="checkbox" value="social_linkedin" />LinkedIn</label>
+          <label class="cmp-check-label"><input type="checkbox" value="social_x" />X</label>
+          <label class="cmp-check-label"><input type="checkbox" value="social_bluesky" />Bluesky</label>
+          <label class="cmp-check-label"><input type="checkbox" value="social_reddit" />Reddit</label>
+          <label class="cmp-check-label"><input type="checkbox" value="social_facebook" />Facebook</label>
+          <label class="cmp-check-label"><input type="checkbox" value="internal_doc" />Doc</label>
+          <label class="cmp-check-label"><input type="checkbox" value="ops" />Ops</label>
+          <label class="cmp-check-label"><input type="checkbox" value="financial" />Financial</label>
         </div>
       </div>
-      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;margin-top:0.4rem;">
-        <div style="display:flex;flex-direction:column;gap:0.15rem;">
-          <span style="font-size:0.6rem;opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;">Frequency</span>
-          <input type="number" id="cmp-edit-frequency" min="1" placeholder="per period" style="width:5.5rem;" title="Posts per cadence period per platform" />
+      <div class="cmp-settings-row cmp-settings-row--edit">
+        <div class="cmp-field-col">
+          <span class="cmp-field-label">Frequency</span>
+          <input type="number" id="cmp-edit-frequency" min="1" placeholder="per period" title="Posts per cadence period per platform" />
         </div>
-        <div style="display:flex;flex-direction:column;gap:0.15rem;">
-          <span style="font-size:0.6rem;opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;">Cadence</span>
-          <select id="cmp-edit-cadence" style="width:6.5rem;">
+        <div class="cmp-field-col">
+          <span class="cmp-field-label">Cadence</span>
+          <select id="cmp-edit-cadence">
             <option value="">None</option>
             <option value="daily">Daily</option>
             <option value="weekly">Weekly</option>
             <option value="biweekly">Biweekly</option>
           </select>
         </div>
-        <div style="display:flex;flex-direction:column;gap:0.15rem;">
-          <span style="font-size:0.6rem;opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;">Start Date</span>
-          <input type="date" id="cmp-edit-start-date" style="width:8rem;" />
+        <div class="cmp-field-col">
+          <span class="cmp-field-label">Start Date</span>
+          <input type="date" id="cmp-edit-start-date" />
         </div>
-        <div style="display:flex;flex-direction:column;gap:0.15rem;">
-          <span style="font-size:0.6rem;opacity:0.5;text-transform:uppercase;letter-spacing:0.5px;">End Date</span>
-          <input type="date" id="cmp-edit-end-date" style="width:8rem;" />
+        <div class="cmp-field-col">
+          <span class="cmp-field-label">End Date</span>
+          <input type="date" id="cmp-edit-end-date" />
         </div>
-        <div style="display:flex;align-items:center;gap:0.25rem;margin-top:1.1rem;">
+        <div class="cmp-autocomplete-row">
           <input type="checkbox" id="cmp-edit-auto-complete" checked />
-          <label for="cmp-edit-auto-complete" style="font-size:0.65rem;opacity:0.7;">Auto-complete</label>
+          <label for="cmp-edit-auto-complete" class="cmp-autocomplete-label">Auto-complete</label>
         </div>
       </div>
 
@@ -454,7 +477,7 @@
             '<td style="min-width:100px;"><div class="cmp-tbl-bar"><div class="cmp-tbl-fill" style="width:' + m.pctComplete + '%;background:' + barColor + ';"></div></div><span style="font-size:0.58rem;color:' + barColor + ';font-weight:600;">' + m.pctComplete + '%</span></td>' +
             '<td style="font-size:0.62rem;">' + primaryDone + '/' + expected + '</td>' +
             '<td style="font-size:0.6rem;opacity:0.5;white-space:nowrap;">' + fmt(c.startDate) + ' → ' + fmt(c.endDate) + (daysLeft ? '<br><span style="font-size:0.55rem;opacity:0.7;">' + daysLeft + '</span>' : '') + '</td>' +
-            '<td style="font-size:0.6rem;color:#4ECDC4;max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (objTitle ? esc(objTitle) : '<span style="opacity:0.2;">—</span>') + '</td>' +
+            '<td style="font-size:0.6rem;color:rgba(255,255,255,0.5);max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + (objTitle ? esc(objTitle) : '<span style="opacity:0.2;">—</span>') + '</td>' +
             '<td><button class="cmp-edit-btn" data-id="' + esc(c.id) + '" style="font-size:0.55rem;padding:0.15rem 0.35rem;border:1px solid rgba(255,255,255,0.1);background:transparent;color:rgba(255,255,255,0.5);border-radius:4px;cursor:pointer;"><i class="fas fa-pen"></i></button></td>' +
           '</tr>';
         });
@@ -508,7 +531,7 @@
             + '<div class="cmp-meta" style="gap:0.55rem;">'
             + '<span><i class="fas fa-tasks" style="margin-right:2px;"></i>' + m.taskCount + ' tasks</span>'
             + healthChip(m.health)
-            + (objTitle ? '<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.54rem;padding:0.08rem 0.35rem;border-radius:4px;background:rgba(78,205,196,0.1);border:1px solid rgba(78,205,196,0.25);color:#4ECDC4;"><i class="fas fa-bullseye" style="font-size:0.48rem;"></i>' + esc(objTitle) + '</span>' : '')
+            + (objTitle ? '<span style="display:inline-flex;align-items:center;gap:3px;font-size:0.54rem;padding:0.08rem 0.35rem;border-radius:4px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);color:rgba(255,255,255,0.5);"><i class="fas fa-bullseye" style="font-size:0.48rem;"></i>' + esc(objTitle) + '</span>' : '')
             + '</div>'
             + lifecycleBadges(c, m)
             + '<div class="cmp-card-actions">'

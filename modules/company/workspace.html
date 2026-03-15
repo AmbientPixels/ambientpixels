@@ -19,12 +19,15 @@
   <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
   <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
 </head>
-<body style="background:#071019" data-theme="dark">
+<body data-theme="dark">
 
-  <main class="content-section" style="max-width: 900px; margin: 0 auto; padding: 1rem;">
+  <main class="content-section" id="ws-main">
 
     <div class="ws-header">
-      <h1><i class="fas fa-layer-group"></i> Workspace</h1>
+      <div>
+        <h1><i class="fas fa-layer-group co-icon-faint co-icon-mr-lg"></i>Workspace</h1>
+        <p class="ws-header-sub">Agent configs, runtime state, and system controls.</p>
+      </div>
       <div class="ws-nav-actions">
         <a href="/modules/company/" class="ws-nav-btn"><i class="fas fa-arrow-left"></i> HQ</a>
         <a href="/modules/company/dashboard.html" class="ws-nav-btn"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
@@ -70,14 +73,14 @@
       </div>
       <div class="ws-field">
         <label class="ws-field-label">Primary Color</label>
-        <input type="color" id="id-primary-color" style="width:40px;height:30px;border:none;background:none;cursor:pointer;" />
+        <input type="color" id="id-primary-color" />
       </div>
       <div class="ws-field">
         <label class="ws-field-label">Core Values</label>
         <div class="ws-values-list" id="id-values"></div>
-        <div style="display:flex;gap:0.3rem;margin-top:0.4rem;">
-          <input type="text" class="ws-field-input" id="id-value-input" placeholder="Add a value..." style="flex:1;font-size:0.7rem;padding:5px 8px;" />
-          <button class="ws-save-btn" id="id-value-add" style="margin:0;padding:5px 10px;font-size:0.65rem;">Add</button>
+        <div class="ws-value-add-row">
+          <input type="text" class="ws-field-input ws-value-input--sm" id="id-value-input" placeholder="Add a value..." />
+          <button class="ws-save-btn ws-save-btn--sm" id="id-value-add">Add</button>
         </div>
       </div>
       <button class="ws-save-btn" id="id-save"><i class="fas fa-save"></i> Save Identity</button>
@@ -94,11 +97,11 @@
       <div class="ws-memory-form" id="mem-form">
         <input type="hidden" id="mem-form-edit-id" value="" />
         <div class="ws-memory-form-row">
-          <div class="ws-field" style="margin:0;">
+          <div class="ws-field ws-field--flush">
             <label class="ws-field-label">Title</label>
             <input type="text" class="ws-field-input" id="mem-form-title" placeholder="Memory title..." />
           </div>
-          <div class="ws-field" style="margin:0;">
+          <div class="ws-field ws-field--flush">
             <label class="ws-field-label">Type</label>
             <select class="ws-field-select" id="mem-form-type">
               <option value="note">Note</option>
@@ -109,16 +112,16 @@
             </select>
           </div>
         </div>
-        <div class="ws-field" style="margin:0 0 0.5rem;">
+        <div class="ws-field ws-field--mb">
           <label class="ws-field-label">Description</label>
           <input type="text" class="ws-field-input" id="mem-form-description" placeholder="Short summary..." />
         </div>
-        <div class="ws-field" style="margin:0 0 0.5rem;">
+        <div class="ws-field ws-field--mb">
           <label class="ws-field-label">Content</label>
           <textarea class="ws-field-textarea" id="mem-form-content" rows="3" placeholder="What should be remembered..."></textarea>
         </div>
         <div class="ws-memory-form-row">
-          <div class="ws-field" style="margin:0;">
+          <div class="ws-field ws-field--flush">
             <label class="ws-field-label">Priority</label>
             <select class="ws-field-select" id="mem-form-priority">
               <option value="low">Low</option>
@@ -127,7 +130,7 @@
               <option value="critical">Critical</option>
             </select>
           </div>
-          <div class="ws-field" style="margin:0;">
+          <div class="ws-field ws-field--flush">
             <label class="ws-field-label">Source</label>
             <select class="ws-field-select" id="mem-form-source">
               <option value="ceo">CEO</option>
@@ -139,19 +142,19 @@
           </div>
         </div>
         <div class="ws-memory-form-row">
-          <div class="ws-field" style="margin:0;">
+          <div class="ws-field ws-field--flush">
             <label class="ws-field-label">Agent (optional)</label>
             <select class="ws-field-select" id="mem-form-agent">
               <option value="">Shared (all agents)</option>
             </select>
           </div>
-          <div class="ws-field" style="margin:0;">
+          <div class="ws-field ws-field--flush">
             <label class="ws-field-label">Tags (comma separated)</label>
             <input type="text" class="ws-field-input" id="mem-form-tags" placeholder="project, feature, idea..." />
           </div>
         </div>
-        <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
-          <button class="ws-save-btn" id="mem-form-save" style="margin:0;"><i class="fas fa-save"></i> Save Memory</button>
+        <div class="ws-form-actions">
+          <button class="ws-save-btn ws-save-btn--flush" id="mem-form-save"><i class="fas fa-save"></i> Save Memory</button>
           <button class="ws-nav-btn" id="mem-form-cancel">Cancel</button>
         </div>
       </div>
@@ -180,17 +183,17 @@
       <div class="ws-memory-form" id="date-form">
         <input type="hidden" id="date-edit-id" value="" />
         <div class="ws-memory-form-row">
-          <div class="ws-field" style="margin:0;">
+          <div class="ws-field ws-field--flush">
             <label class="ws-field-label">Title</label>
             <input type="text" class="ws-field-input" id="date-title" placeholder="Event title..." />
           </div>
-          <div class="ws-field" style="margin:0;">
+          <div class="ws-field ws-field--flush">
             <label class="ws-field-label">Date</label>
             <input type="date" class="ws-field-input" id="date-date" />
           </div>
         </div>
         <div class="ws-memory-form-row">
-          <div class="ws-field" style="margin:0;">
+          <div class="ws-field ws-field--flush">
             <label class="ws-field-label">Type</label>
             <select class="ws-field-select" id="date-type">
               <option value="event">Event</option>
@@ -199,7 +202,7 @@
               <option value="recurring">Recurring</option>
             </select>
           </div>
-          <div class="ws-field" style="margin:0;">
+          <div class="ws-field ws-field--flush">
             <label class="ws-field-label">Priority</label>
             <select class="ws-field-select" id="date-priority">
               <option value="low">Low</option>
@@ -210,13 +213,13 @@
           </div>
         </div>
         <div class="ws-memory-form-row">
-          <div class="ws-field" style="margin:0;">
+          <div class="ws-field ws-field--flush">
             <label class="ws-field-label">Agent (optional)</label>
             <select class="ws-field-select" id="date-agent">
               <option value="">Shared (all agents)</option>
             </select>
           </div>
-          <div class="ws-field" style="margin:0;">
+          <div class="ws-field ws-field--flush">
             <label class="ws-field-label">Recurring</label>
             <select class="ws-field-select" id="date-recurring">
               <option value="">No</option>
@@ -228,12 +231,12 @@
             </select>
           </div>
         </div>
-        <div class="ws-field" style="margin:0 0 0.5rem;">
+        <div class="ws-field ws-field--mb">
           <label class="ws-field-label">Notes (optional)</label>
           <input type="text" class="ws-field-input" id="date-notes" placeholder="Additional context..." />
         </div>
-        <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
-          <button class="ws-save-btn" id="date-add" style="margin:0;"><i class="fas fa-save"></i> Save Date</button>
+        <div class="ws-form-actions">
+          <button class="ws-save-btn ws-save-btn--flush" id="date-add"><i class="fas fa-save"></i> Save Date</button>
           <button class="ws-nav-btn" id="date-form-cancel">Cancel</button>
         </div>
       </div>
@@ -426,7 +429,7 @@
         renderMemories(this.value.toLowerCase());
       });
 
-      var MEM_PRIORITY_COLORS = { low: '#6b7280', medium: '#3b82f6', high: '#f59e0b', critical: '#ef4444' };
+      var MEM_PRIORITY_COLORS = { low: '#6b7280', medium: '#60a5fa', high: '#f59e0b', critical: '#ef4444' };
       var MEM_SOURCE_ICONS = { ceo: 'fa-crown', agent: 'fa-robot', research: 'fa-search', external: 'fa-globe', meeting: 'fa-users' };
 
       function renderMemories(filterText) {
@@ -452,7 +455,7 @@
 
           var timeStr = new Date(m.timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
           var pri = m.priority || 'medium';
-          var priColor = MEM_PRIORITY_COLORS[pri] || '#3b82f6';
+          var priColor = MEM_PRIORITY_COLORS[pri] || '#60a5fa';
           var src = m.source || 'ceo';
           var srcIcon = MEM_SOURCE_ICONS[src] || 'fa-circle';
 
@@ -584,7 +587,7 @@
           '<div class="ws-config-section">' +
             '<div class="ws-config-title"><i class="fas fa-theater-masks"></i> Personality</div>' +
             '<div class="ws-config-grid">' +
-              '<div class="ws-field" style="margin:0;">' +
+              '<div class="ws-field ws-field--flush">' +
                 '<label class="ws-field-label">Tone</label>' +
                 '<select class="ws-field-select agent-cfg" data-agent="' + agent.id + '" data-key="personality.tone">' +
                   '<option value="default"' + sel(config.personality.tone, 'default') + '>Default</option>' +
@@ -594,7 +597,7 @@
                   '<option value="creative"' + sel(config.personality.tone, 'creative') + '>Creative</option>' +
                 '</select>' +
               '</div>' +
-              '<div class="ws-field" style="margin:0;">' +
+              '<div class="ws-field ws-field--flush">' +
                 '<label class="ws-field-label">Formality</label>' +
                 '<select class="ws-field-select agent-cfg" data-agent="' + agent.id + '" data-key="personality.formality">' +
                   '<option value="adaptive"' + sel(config.personality.formality, 'adaptive') + '>Adaptive</option>' +
@@ -602,7 +605,7 @@
                   '<option value="informal"' + sel(config.personality.formality, 'informal') + '>Informal</option>' +
                 '</select>' +
               '</div>' +
-              '<div class="ws-field" style="margin:0;">' +
+              '<div class="ws-field ws-field--flush">' +
                 '<label class="ws-field-label">Humor</label>' +
                 '<select class="ws-field-select agent-cfg" data-agent="' + agent.id + '" data-key="personality.humor">' +
                   '<option value="none"' + sel(config.personality.humor, 'none') + '>None</option>' +
@@ -611,7 +614,7 @@
                   '<option value="frequent"' + sel(config.personality.humor, 'frequent') + '>Frequent</option>' +
                 '</select>' +
               '</div>' +
-              '<div class="ws-field" style="margin:0;">' +
+              '<div class="ws-field ws-field--flush">' +
                 '<label class="ws-field-label">Verbosity</label>' +
                 '<select class="ws-field-select agent-cfg" data-agent="' + agent.id + '" data-key="personality.verbosity">' +
                   '<option value="minimal"' + sel(config.personality.verbosity, 'minimal') + '>Minimal</option>' +
@@ -634,8 +637,8 @@
             '<div style="display:flex;align-items:center;gap:0.8rem;">' +
               '<input type="range" class="agent-cfg-range" data-agent="' + agent.id + '" data-key="doctrineWeight" ' +
                 'min="0" max="0.6" step="0.05" value="' + (config.doctrineWeight != null ? config.doctrineWeight : 0.4) + '" ' +
-                'style="flex:1;accent-color:#a855f7;cursor:pointer;" />' +
-              '<span class="doctrine-weight-val" data-agent="' + agent.id + '" style="font-size:0.8rem;font-weight:600;color:#a855f7;min-width:2.5rem;text-align:center;">' +
+                'style="flex:1;accent-color:rgba(255,255,255,0.6);cursor:pointer;" />' +
+              '<span class="doctrine-weight-val" data-agent="' + agent.id + '" style="font-size:0.8rem;font-weight:600;color:rgba(255,255,255,0.7);min-width:2.5rem;text-align:center;">' +
                 (config.doctrineWeight != null ? config.doctrineWeight : 0.4) +
               '</span>' +
             '</div>' +
@@ -649,11 +652,11 @@
           '<div class="ws-config-section">' +
             '<div class="ws-config-title"><i class="fas fa-user-tag"></i> Role &amp; Identity</div>' +
             '<div class="ws-config-grid">' +
-              '<div class="ws-field" style="margin:0;">' +
+              '<div class="ws-field ws-field--flush">' +
                 '<label class="ws-field-label">Role Override</label>' +
                 '<input type="text" class="ws-field-input agent-cfg-text" data-agent="' + agent.id + '" data-key="roleOverride" placeholder="' + agent.role + '" value="' + escapeHtml(config.roleOverride || '') + '" />' +
               '</div>' +
-              '<div class="ws-field" style="margin:0;">' +
+              '<div class="ws-field ws-field--flush">' +
                 '<label class="ws-field-label">Title Override</label>' +
                 '<input type="text" class="ws-field-input agent-cfg-text" data-agent="' + agent.id + '" data-key="titleOverride" placeholder="' + agent.title + '" value="' + escapeHtml(config.titleOverride || '') + '" />' +
               '</div>' +
@@ -780,9 +783,9 @@
       //  DATES
       // ════════════════════════════════════════
       var dateForm = document.getElementById('date-form');
-      var DATE_TYPE_COLORS = { event: '#3b82f6', deadline: '#ef4444', milestone: '#f59e0b', recurring: '#8b5cf6' };
+      var DATE_TYPE_COLORS = { event: '#60a5fa', deadline: '#ef4444', milestone: '#f59e0b', recurring: '#a78bfa' };
       var DATE_TYPE_ICONS = { event: 'fa-calendar-check', deadline: 'fa-clock', milestone: 'fa-flag', recurring: 'fa-sync-alt' };
-      var DATE_PRI_COLORS = { low: '#6b7280', medium: '#3b82f6', high: '#f59e0b', critical: '#ef4444' };
+      var DATE_PRI_COLORS = { low: '#6b7280', medium: '#60a5fa', high: '#f59e0b', critical: '#ef4444' };
 
       function initDates() {
         var agentSelect = document.getElementById('date-agent');
@@ -890,16 +893,16 @@
 
           var daysLabel = '';
           if (isToday) daysLabel = '<span style="color:#22c55e;font-weight:600;font-size:0.65rem;">TODAY</span>';
-          else if (days === 1) daysLabel = '<span style="color:#3b82f6;font-size:0.65rem;">tomorrow</span>';
-          else if (days > 1 && days <= 7) daysLabel = '<span style="color:#3b82f6;font-size:0.65rem;">in ' + days + ' days</span>';
+          else if (days === 1) daysLabel = '<span style="color:#60a5fa;font-size:0.65rem;">tomorrow</span>';
+          else if (days > 1 && days <= 7) daysLabel = '<span style="color:#60a5fa;font-size:0.65rem;">in ' + days + ' days</span>';
           else if (days > 7) daysLabel = '<span style="opacity:0.4;font-size:0.65rem;">in ' + days + ' days</span>';
           else if (days === -1) daysLabel = '<span style="color:' + (isOverdue ? '#ef4444' : '#6b7280') + ';font-size:0.65rem;">yesterday</span>';
           else daysLabel = '<span style="color:' + (isOverdue ? '#ef4444' : '#6b7280') + ';font-size:0.65rem;">' + Math.abs(days) + ' days ago</span>';
 
-          var typeColor = DATE_TYPE_COLORS[d.type] || '#3b82f6';
+          var typeColor = DATE_TYPE_COLORS[d.type] || '#60a5fa';
           var typeIcon = DATE_TYPE_ICONS[d.type] || 'fa-calendar';
           var pri = d.priority || 'medium';
-          var priColor = DATE_PRI_COLORS[pri] || '#3b82f6';
+          var priColor = DATE_PRI_COLORS[pri] || '#60a5fa';
           var agent = d.agentId ? AgentEngine.getAgent(d.agentId) : null;
 
           var el = document.createElement('div');

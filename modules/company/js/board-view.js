@@ -36,7 +36,7 @@
        function(){_bRenderDirSection('board-completed-dirs','badge-completed-dirs',_bPacket.directives.completed);},
        function(){_bRenderDirSection('board-pending-dirs','badge-pending-dirs',_bPacket.directives.pendingApproval);},
        _bRenderTeam, _bRenderBacklog, _bRenderCost, _bRenderContent,
-       _bRenderDecisions, _bRenderRisks, _bRenderThroughput, _bRenderOrg].forEach(function(fn){
+       _bRenderDecisions, _bRenderRisks, _bRenderThroughput].forEach(function(fn){
         try { fn(); } catch(e) { console.warn('[Board] ' + (fn.name||'anon') + ' error:', e); }
       });
     }
@@ -224,26 +224,6 @@
         '<div class="board-stat"><div class="board-stat-val" style="color:#fbbf24;">'+tp.pendingApprovalTasks+'</div><div class="board-stat-label">Pending Approval</div></div>'+
         '<div class="board-stat"><div class="board-stat-val" style="color:#c084fc;">'+_bPacket.decisions.length+'</div><div class="board-stat-label">Decisions Made</div></div>'+
         '<div class="board-stat"><div class="board-stat-val" style="color:#f87171;">'+_bPacket.risks.length+'</div><div class="board-stat-label">Risks Logged</div></div>';
-    }
-
-    function _bRenderOrg() {
-      var el = document.getElementById('board-org-chart');
-      if (!el) return;
-      var agents = [
-        { name: 'Nova', role: 'Prime Operator', tier: 2, color: '#FFD700' },
-        { name: 'Cipher', role: 'CFO', tier: 3, color: '#60a5fa' },
-        { name: 'Pixel', role: 'Design & QC', tier: 3, color: '#f472b6' },
-        { name: 'Forge', role: 'DevOps', tier: 3, color: '#4ECDC4' },
-        { name: 'Echo', role: 'Marketing', tier: 3, color: '#c084fc' },
-        { name: 'Scout', role: 'Research', tier: 3, color: '#34d399' },
-        { name: 'Scribe', role: 'Content', tier: 3, color: '#fbbf24' },
-        { name: 'Quill', role: 'Editor (T4)', tier: 4, color: '#f87171' }
-      ];
-      el.innerHTML = agents.map(function (a) {
-        return '<div class="board-agent-card"><div class="board-agent-dot" style="background:' + a.color + ';"></div>' +
-          '<div><div class="board-agent-name">' + escapeHtml(a.name) + '</div>' +
-          '<div class="board-agent-role">' + escapeHtml(a.role) + ' · Tier ' + a.tier + '</div></div></div>';
-      }).join('');
     }
 
     // Executive Plan removed — redundant with Goals + Active Projects sections

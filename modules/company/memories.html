@@ -27,7 +27,7 @@
       font-family:inherit; transition:all 0.15s;
     }
     .mem-tab:hover { color:rgba(255,255,255,0.7); }
-    .mem-tab--active { color:#c084fc; border-bottom-color:#8A2BE2; }
+    .mem-tab--active { color:rgba(255,255,255,0.9); border-bottom-color:rgba(255,255,255,0.4); }
     .mem-tab .mem-tab-dot {
       display:inline-block; width:6px; height:6px; border-radius:50%; margin-right:5px;
     }
@@ -43,15 +43,15 @@
     }
     .mem-textarea:focus { outline:none; border-color:rgba(138,43,226,0.4); }
     .mem-preview {
-      padding:0.8rem; border-radius:8px; border:1px solid rgba(255,255,255,0.05);
-      background:rgba(255,255,255,0.015); font-size:0.8rem; color:rgba(255,255,255,0.7);
+      padding:0.8rem; border-radius:8px; border:1px solid rgba(255,255,255,0.07);
+      background:#1c1c1e; font-size:0.8rem; color:rgba(255,255,255,0.7);
       overflow-y:auto; max-height:500px; line-height:1.6;
     }
-    .mem-preview h1,.mem-preview h2,.mem-preview h3 { color:#c084fc; margin:0.6rem 0 0.3rem; }
+    .mem-preview h1,.mem-preview h2,.mem-preview h3 { color:rgba(255,255,255,0.75); margin:0.6rem 0 0.3rem; }
     .mem-preview h1 { font-size:1rem; } .mem-preview h2 { font-size:0.9rem; } .mem-preview h3 { font-size:0.85rem; }
     .mem-preview ul,.mem-preview ol { padding-left:1.2rem; margin:0.3rem 0; }
     .mem-preview li { margin-bottom:0.2rem; }
-    .mem-preview code { background:rgba(138,43,226,0.1); padding:0.1rem 0.3rem; border-radius:3px; font-size:0.75rem; }
+    .mem-preview code { background:rgba(255,255,255,0.08); padding:0.1rem 0.3rem; border-radius:3px; font-size:0.75rem; }
     .mem-preview p { margin:0.3rem 0; }
     .mem-char-count {
       font-size:0.65rem; opacity:0.4; margin-top:0.3rem; text-align:right;
@@ -63,15 +63,15 @@
     }
     .mem-save-btn {
       padding:0.4rem 1.2rem; border-radius:6px; font-size:0.75rem; font-weight:600;
-      border:1px solid #8A2BE2; background:rgba(138,43,226,0.2); color:#d8b4fe;
+      border:1px solid rgba(255,255,255,0.2); background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.85);
       cursor:pointer; font-family:inherit;
     }
-    .mem-save-btn:hover { background:rgba(138,43,226,0.35); }
+    .mem-save-btn:hover { background:rgba(255,255,255,0.14); }
     .mem-save-btn:disabled { opacity:0.4; cursor:not-allowed; }
     .mem-save-status { font-size:0.7rem; opacity:0.5; }
     .mem-runtime-panel {
-      margin-top:1.5rem; padding:0.8rem; border-radius:8px;
-      border:1px solid rgba(255,255,255,0.05); background:rgba(255,255,255,0.015);
+      margin-top:1.5rem; padding:0.8rem; border-radius:12px;
+      border:1px solid rgba(255,255,255,0.07); background:#1c1c1e;
     }
     .mem-runtime-title { font-size:0.75rem; font-weight:600; color:rgba(255,255,255,0.5); margin-bottom:0.5rem; }
     .mem-runtime-item {
@@ -85,26 +85,68 @@
     }
     .mem-runtime-type--learning { background:rgba(52,211,153,0.12); color:#34d399; }
     .mem-runtime-type--feedback { background:rgba(251,191,36,0.12); color:#fbbf24; }
-    .mem-runtime-type--preference { background:rgba(59,130,246,0.12); color:#3b82f6; }
-    .mem-runtime-type--context { background:rgba(138,43,226,0.12); color:#c084fc; }
+    .mem-runtime-type--preference { background:rgba(96,165,250,0.12); color:#60a5fa; }
+    .mem-runtime-type--context { background:rgba(255,255,255,0.07); color:rgba(255,255,255,0.5); }
     .mem-runtime-text { color:rgba(255,255,255,0.6); }
     .mem-runtime-time { font-size:0.55rem; opacity:0.3; margin-left:auto; flex-shrink:0; }
     .mem-runtime-empty { font-size:0.7rem; opacity:0.3; padding:0.5rem; text-align:center; }
+
+    /* ── Light Theme ── */
+    body[data-theme="light"] .mem-tabs { border-bottom-color: rgba(0,0,0,0.08); }
+    body[data-theme="light"] .mem-tab { color: rgba(0,0,0,0.4); }
+    body[data-theme="light"] .mem-tab:hover { color: rgba(0,0,0,0.7); }
+    body[data-theme="light"] .mem-tab--active { color: #1c1c1e; border-bottom-color: rgba(0,0,0,0.5); }
+    body[data-theme="light"] .mem-textarea { border-color: rgba(0,0,0,0.1); background: #ffffff; color: #1c1c1e; }
+    body[data-theme="light"] .mem-textarea:focus { border-color: rgba(138,43,226,0.4); }
+    body[data-theme="light"] .mem-preview { border-color: rgba(0,0,0,0.07); background: #f2f2f7; color: rgba(0,0,0,0.7); }
+    body[data-theme="light"] .mem-preview h1,
+    body[data-theme="light"] .mem-preview h2,
+    body[data-theme="light"] .mem-preview h3 { color: rgba(0,0,0,0.75); }
+    body[data-theme="light"] .mem-preview code { background: rgba(0,0,0,0.06); }
+    body[data-theme="light"] .mem-save-btn { border-color: rgba(0,0,0,0.15); background: rgba(0,0,0,0.05); color: rgba(0,0,0,0.8); }
+    body[data-theme="light"] .mem-save-btn:hover { background: rgba(0,0,0,0.1); }
+    body[data-theme="light"] .mem-runtime-panel { border-color: rgba(0,0,0,0.06); background: #ffffff; }
+    body[data-theme="light"] .mem-runtime-title { color: rgba(0,0,0,0.5); }
+    body[data-theme="light"] .mem-runtime-item { background: rgba(0,0,0,0.02); }
+    body[data-theme="light"] .mem-runtime-type--context { background: rgba(0,0,0,0.05); color: rgba(0,0,0,0.5); }
+    body[data-theme="light"] .mem-runtime-text { color: rgba(0,0,0,0.6); }
+
+    /* ── Dim Theme ── */
+    body[data-theme="dim"] .mem-tabs { border-bottom-color: rgba(148,163,184,0.1); }
+    body[data-theme="dim"] .mem-tab { color: rgba(241,245,249,0.4); }
+    body[data-theme="dim"] .mem-tab:hover { color: rgba(241,245,249,0.7); }
+    body[data-theme="dim"] .mem-tab--active { color: #f1f5f9; border-bottom-color: rgba(241,245,249,0.4); }
+    body[data-theme="dim"] .mem-textarea { border-color: rgba(148,163,184,0.1); background: rgba(241,245,249,0.04); color: #e2e8f0; }
+    body[data-theme="dim"] .mem-preview { border-color: rgba(148,163,184,0.08); background: rgba(241,245,249,0.02); color: rgba(241,245,249,0.7); }
+    body[data-theme="dim"] .mem-preview h1,
+    body[data-theme="dim"] .mem-preview h2,
+    body[data-theme="dim"] .mem-preview h3 { color: rgba(241,245,249,0.75); }
+    body[data-theme="dim"] .mem-preview code { background: rgba(241,245,249,0.08); }
+    body[data-theme="dim"] .mem-save-btn { border-color: rgba(241,245,249,0.2); background: rgba(241,245,249,0.08); color: rgba(241,245,249,0.85); }
+    body[data-theme="dim"] .mem-save-btn:hover { background: rgba(241,245,249,0.14); }
+    body[data-theme="dim"] .mem-runtime-panel { border-color: rgba(148,163,184,0.08); background: rgba(241,245,249,0.02); }
+    body[data-theme="dim"] .mem-runtime-title { color: rgba(241,245,249,0.5); }
+    body[data-theme="dim"] .mem-runtime-item { background: rgba(241,245,249,0.02); }
+    body[data-theme="dim"] .mem-runtime-type--context { background: rgba(241,245,249,0.07); color: rgba(241,245,249,0.5); }
+    body[data-theme="dim"] .mem-runtime-text { color: rgba(241,245,249,0.6); }
+    /* ── Inline Style Replacements ── */
+    #mem-main { max-width: 900px; margin: 0 auto; padding: 1rem; }
+    .mem-preview-placeholder { opacity: 0.3; }
   </style>
 </head>
-<body style="background:#071019" data-theme="dark">
+<body data-theme="dark">
 
-  <main class="content-section" style="max-width: 960px; margin: 0 auto; padding: 1rem;">
+  <main id="mem-main" class="content-section">
 
     <div class="company-header">
-      <h1><i class="fas fa-brain" style="opacity:0.4; margin-right:8px; color:#8A2BE2;"></i>Agent Memory</h1>
+      <h1><i class="fas fa-brain co-icon-faint co-icon-mr-lg"></i>Agent Memory</h1>
       <p>CEO-curated knowledge base for each agent. Write instructions, context, and preferences that agents follow every heartbeat.</p>
     </div>
 
     <!-- Tabs -->
     <div class="mem-tabs" id="mem-tabs">
       <button class="mem-tab mem-tab--active" data-agent="_global">
-        <span class="mem-tab-dot" style="background:#FFD700;"></span>Global
+        <span class="mem-tab-dot" style="background:rgba(255,255,255,0.3);"></span>Global
       </button>
       <button class="mem-tab" data-agent="nova">
         <span class="mem-tab-dot" style="background:#8A2BE2;"></span>Nova
@@ -135,8 +177,8 @@
     <!-- Editor Panel -->
     <div class="dash-panel dash-panel--full">
       <div class="dash-panel-header">
-        <span class="dash-panel-title" id="editor-title"><i class="fas fa-globe" style="color:#FFD700; opacity:0.6;"></i> Global — Shared Knowledge</span>
-        <span class="dash-panel-badge" id="editor-badge" style="background:rgba(138,43,226,0.1);color:#c084fc;">Seed Memory</span>
+        <span class="dash-panel-title" id="editor-title"><i class="fas fa-globe dash-icon-faint"></i> Global — Shared Knowledge</span>
+        <span class="dash-panel-badge" id="editor-badge">Seed Memory</span>
       </div>
 
       <div class="mem-editor-wrap">
@@ -145,7 +187,7 @@
           <div class="mem-char-count" id="char-count">0 / 2000</div>
         </div>
         <div class="mem-preview" id="seed-preview">
-          <span style="opacity:0.3;">Preview will appear here...</span>
+          <span class="mem-preview-placeholder">Preview will appear here...</span>
         </div>
       </div>
 
@@ -159,7 +201,7 @@
 
     <!-- Runtime Memories (read-only) -->
     <div class="mem-runtime-panel" id="runtime-panel" style="display:none;">
-      <div class="mem-runtime-title"><i class="fas fa-sticky-note" style="margin-right:4px;"></i> Runtime Memories (auto-learned by agent)</div>
+      <div class="mem-runtime-title"><i class="fas fa-sticky-note dash-icon-mr"></i> Runtime Memories (auto-learned by agent)</div>
       <div id="runtime-list">
         <div class="mem-runtime-empty">No runtime memories yet.</div>
       </div>

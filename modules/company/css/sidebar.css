@@ -1,6 +1,5 @@
-/* ── Hybrid Nav: Left Rail Chips + Top Sub-link Bar ── */
-/* Left rail = category icon chips (like VS Code activity bar) */
-/* Top bar = sub-links for the active category */
+/* ── AmbientOS Sidebar — Apple-clean hybrid nav ── */
+/* Left rail = category icon chips · Top bar = sub-links */
 
 /* Layout wrapper */
 .sb-layout {
@@ -14,37 +13,38 @@
   top: 0;
   left: 0;
   bottom: 0;
-  width: 58px;
-  background: rgba(7, 16, 25, 0.97);
-  border-right: 1px solid rgba(255,255,255,0.06);
+  width: 60px;
+  background: #0a0a0a;
+  border-right: 1px solid rgba(255,255,255,0.07);
   display: flex;
   flex-direction: column;
   align-items: center;
   z-index: 1001;
-  font-family: 'Inter', sans-serif;
-  padding-top: 6px;
+  font-family: 'Inter', -apple-system, system-ui, sans-serif;
+  padding-top: 8px;
 }
 
-/* Logo chip at top of rail */
+/* Logo chip */
 .sb-rail-logo {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
   text-decoration: none;
-  color: #8A2BE2;
-  font-size: 1.1rem;
-  margin-bottom: 8px;
-  transition: background 0.15s;
+  color: rgba(255,255,255,0.55);
+  font-size: 16px;
+  margin-bottom: 10px;
+  transition: background 0.12s, color 0.12s;
 }
 
 .sb-rail-logo:hover {
-  background: rgba(138, 43, 226, 0.08);
+  background: rgba(255,255,255,0.06);
+  color: #fff;
 }
 
-/* Category chips in rail */
+/* Category chips */
 .sb-rail-chips {
   display: flex;
   flex-direction: column;
@@ -60,80 +60,80 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 5px;
+  gap: 4px;
   width: 52px;
-  height: 56px;
-  border-radius: 8px;
+  height: 54px;
+  border-radius: 10px;
   border: none;
   background: none;
-  color: rgba(255,255,255,0.35);
+  color: rgba(255,255,255,0.3);
   font-family: inherit;
-  font-size: 0.58rem;
+  font-size: 9px;
   font-weight: 500;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.04em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: background 0.12s, color 0.12s;
   user-select: none;
 }
 
 .sb-rail-chip:hover {
-  color: rgba(255,255,255,0.7);
-  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.65);
+  background: rgba(255,255,255,0.05);
 }
 
 .sb-rail-chip i {
-  font-size: 1.3rem;
+  font-size: 18px;
 }
 
-/* Active rail chip */
+/* Active chip */
 .sb-rail-chip--active {
-  color: rgba(255,255,255,0.9);
-  background: rgba(138, 43, 226, 0.08);
+  color: #60a5fa;
+  background: rgba(96,165,250,0.1);
 }
 
 .sb-rail-chip--active i {
-  color: #8A2BE2;
+  color: #60a5fa;
 }
 
-/* Left edge indicator for active chip */
+/* Active indicator — thin left bar */
 .sb-rail-chip--active::before {
   content: '';
   position: absolute;
   left: -4px;
-  top: 10px;
-  bottom: 10px;
+  top: 12px;
+  bottom: 12px;
   width: 3px;
   border-radius: 0 3px 3px 0;
-  background: #8A2BE2;
+  background: #60a5fa;
 }
 
-/* Globe at bottom of rail */
+/* Rail footer */
 .sb-rail-footer {
-  padding-bottom: 10px;
+  padding-bottom: 12px;
 }
 
 .sb-rail-globe {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 8px;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
   text-decoration: none;
   color: rgba(255,255,255,0.2);
-  font-size: 0.95rem;
-  transition: color 0.15s, background 0.15s;
+  font-size: 14px;
+  transition: color 0.12s, background 0.12s;
 }
 
 .sb-rail-globe:hover {
-  color: rgba(255,255,255,0.6);
-  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.55);
+  background: rgba(255,255,255,0.05);
 }
 
 /* ── Right side: topbar + content ── */
 .sb-main {
-  margin-left: 58px;
+  margin-left: 60px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -149,26 +149,26 @@
   align-items: center;
   gap: 2px;
   padding: 0 16px;
-  height: 46px;
-  background: rgba(7, 16, 25, 0.95);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(255,255,255,0.06);
-  font-family: 'Inter', sans-serif;
+  height: 44px;
+  background: rgba(0,0,0,0.94);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  font-family: 'Inter', -apple-system, system-ui, sans-serif;
   overflow-x: auto;
   scrollbar-width: none;
 }
 
 .sb-topbar::-webkit-scrollbar { display: none; }
 
-/* Category label in topbar */
+/* Category label */
 .sb-topbar-label {
-  font-size: 0.72rem;
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: rgba(255,255,255,0.25);
-  margin-right: 12px;
+  letter-spacing: 0.07em;
+  color: rgba(255,255,255,0.22);
+  margin-right: 10px;
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -177,74 +177,75 @@
 .sb-sub {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 7px 16px;
-  border-radius: 6px;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 7px;
   text-decoration: none;
-  color: rgba(255,255,255,0.45);
-  font-size: 0.88rem;
+  color: rgba(255,255,255,0.4);
+  font-size: 13px;
+  font-weight: 500;
   white-space: nowrap;
-  transition: color 0.15s, background 0.15s;
+  transition: color 0.12s, background 0.12s;
 }
 
 .sb-sub:hover {
-  color: rgba(255,255,255,0.8);
-  background: rgba(255,255,255,0.04);
+  color: rgba(255,255,255,0.75);
+  background: rgba(255,255,255,0.05);
 }
 
 .sb-sub i {
-  font-size: 0.84rem;
+  font-size: 12px;
   opacity: 0.5;
 }
 
 /* Active sub-link */
 .sb-sub--active {
-  color: rgba(255,255,255,0.95);
-  background: rgba(138, 43, 226, 0.1);
+  color: #60a5fa;
+  background: rgba(96,165,250,0.08);
 }
 
 .sb-sub--active i {
-  opacity: 1;
-  color: #8A2BE2;
+  opacity: 0.85;
 }
 
+/* AmbientOS badge */
 .sb-topbar-ambientos {
   margin-left: auto;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 5px 10px;
+  gap: 5px;
+  padding: 4px 10px;
   border-radius: 999px;
-  border: 1px solid rgba(255,255,255,0.12);
+  border: 1px solid rgba(255,255,255,0.1);
   background: rgba(255,255,255,0.03);
-  color: rgba(255,255,255,0.72);
+  color: rgba(255,255,255,0.6);
   text-decoration: none;
-  font-size: 0.62rem;
-  letter-spacing: 0.08em;
+  font-size: 11px;
+  letter-spacing: 0.06em;
   white-space: nowrap;
-  transition: all 0.15s;
+  transition: all 0.12s;
 }
 
 .sb-topbar-ambientos:hover {
-  color: rgba(255,255,255,0.92);
-  border-color: rgba(138, 43, 226, 0.42);
-  background: rgba(138, 43, 226, 0.1);
+  color: rgba(255,255,255,0.85);
+  border-color: rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.06);
 }
 
 .sb-topbar-ambientos i {
-  font-size: 0.66rem;
-  opacity: 0.9;
+  font-size: 10px;
+  opacity: 0.8;
 }
 
 /* ── Content area ── */
 .sb-content {
   flex: 1;
   min-height: 0;
+  scrollbar-gutter: stable;
 }
 
 /* ── Mobile ── */
 @media (max-width: 768px) {
-  /* Rail becomes bottom tab bar */
   .sb-rail {
     position: fixed;
     top: auto;
@@ -255,12 +256,12 @@
     height: 52px;
     flex-direction: row;
     border-right: none;
-    border-top: 1px solid rgba(255,255,255,0.08);
+    border-top: 1px solid rgba(255,255,255,0.07);
     padding-top: 0;
     justify-content: center;
   }
 
-  .sb-rail-logo { display: none; }
+  .sb-rail-logo  { display: none; }
   .sb-rail-footer { display: none; }
 
   .sb-rail-chips {
@@ -276,10 +277,10 @@
     flex: 1;
     height: 52px;
     border-radius: 0;
-    font-size: 0.44rem;
+    font-size: 8px;
   }
 
-  .sb-rail-chip i { font-size: 0.95rem; }
+  .sb-rail-chip i { font-size: 16px; }
 
   .sb-rail-chip--active::before {
     left: 25%;
@@ -302,21 +303,137 @@
   }
 
   .sb-sub {
-    padding: 4px 8px;
-    font-size: 0.64rem;
+    padding: 4px 9px;
+    font-size: 12px;
   }
 
-  .sb-topbar-ambientos {
-    padding: 4px 8px;
-    font-size: 0.58rem;
-  }
-
-  .sb-topbar-ambientos span {
-    display: none;
-  }
-
+  .sb-topbar-ambientos span { display: none; }
   .sb-topbar-label { display: none; }
 }
 
-/* ── Hide the old navbar ── */
+/* ── Hide old navbar ── */
 .sb-layout .navbar { display: none !important; }
+
+/* ── Grey Light Theme ── */
+body[data-theme="light"] .sb-rail {
+  background: #ffffff;
+  border-right-color: rgba(0,0,0,0.08);
+}
+body[data-theme="light"] .sb-topbar {
+  background: rgba(255,255,255,0.97);
+  border-bottom-color: rgba(0,0,0,0.08);
+}
+body[data-theme="light"] .sb-rail-chip {
+  color: rgba(0,0,0,0.35);
+}
+body[data-theme="light"] .sb-rail-chip:hover {
+  background: rgba(0,0,0,0.05);
+  color: rgba(0,0,0,0.65);
+}
+body[data-theme="light"] .sb-rail-chip--active {
+  color: #2563eb;
+  background: rgba(37,99,235,0.08);
+}
+body[data-theme="light"] .sb-rail-chip--active i {
+  color: #2563eb;
+}
+body[data-theme="light"] .sb-rail-chip--active::before {
+  background: #2563eb;
+}
+body[data-theme="light"] .sb-sub {
+  color: rgba(0,0,0,0.45);
+}
+body[data-theme="light"] .sb-sub:hover {
+  color: rgba(0,0,0,0.75);
+  background: rgba(0,0,0,0.04);
+}
+body[data-theme="light"] .sb-sub--active {
+  color: #2563eb;
+  background: rgba(37,99,235,0.07);
+}
+body[data-theme="light"] .sb-topbar-label {
+  color: rgba(0,0,0,0.25);
+}
+body[data-theme="light"] .sb-topbar-ambientos {
+  border-color: rgba(0,0,0,0.1);
+  color: rgba(0,0,0,0.45);
+}
+body[data-theme="light"] .sb-topbar-ambientos:hover {
+  border-color: rgba(0,0,0,0.18);
+  color: rgba(0,0,0,0.7);
+  background: rgba(0,0,0,0.04);
+}
+body[data-theme="light"] .sb-rail-logo {
+  color: rgba(0,0,0,0.35);
+}
+body[data-theme="light"] .sb-rail-logo:hover {
+  background: rgba(0,0,0,0.05);
+  color: rgba(0,0,0,0.65);
+}
+body[data-theme="light"] .sb-rail-globe {
+  color: rgba(0,0,0,0.2);
+}
+body[data-theme="light"] .sb-rail-globe:hover {
+  color: rgba(0,0,0,0.5);
+  background: rgba(0,0,0,0.04);
+}
+@media (max-width: 768px) {
+  body[data-theme="light"] .sb-rail {
+    border-top-color: rgba(0,0,0,0.08);
+  }
+}
+
+/* ── Blue Medium Theme ── */
+body[data-theme="dim"] .sb-rail {
+  background: #0f172a;
+  border-right-color: rgba(148,163,184,0.12);
+}
+body[data-theme="dim"] .sb-topbar {
+  background: rgba(15,23,42,0.97);
+  border-bottom-color: rgba(148,163,184,0.12);
+}
+body[data-theme="dim"] .sb-rail-chip {
+  color: rgba(241,245,249,0.35);
+}
+body[data-theme="dim"] .sb-rail-chip:hover {
+  background: rgba(148,163,184,0.07);
+  color: rgba(241,245,249,0.75);
+}
+body[data-theme="dim"] .sb-rail-chip--active {
+  color: #38bdf8;
+  background: rgba(56,189,248,0.1);
+}
+body[data-theme="dim"] .sb-rail-chip--active i {
+  color: #38bdf8;
+}
+body[data-theme="dim"] .sb-rail-chip--active::before {
+  background: #38bdf8;
+}
+body[data-theme="dim"] .sb-sub {
+  color: rgba(241,245,249,0.4);
+}
+body[data-theme="dim"] .sb-sub:hover {
+  color: rgba(241,245,249,0.8);
+  background: rgba(148,163,184,0.06);
+}
+body[data-theme="dim"] .sb-sub--active {
+  color: #38bdf8;
+  background: rgba(56,189,248,0.1);
+}
+body[data-theme="dim"] .sb-topbar-label {
+  color: rgba(241,245,249,0.2);
+}
+body[data-theme="dim"] .sb-topbar-ambientos {
+  border-color: rgba(148,163,184,0.15);
+  color: rgba(241,245,249,0.45);
+}
+body[data-theme="dim"] .sb-topbar-ambientos:hover {
+  border-color: rgba(148,163,184,0.25);
+  color: rgba(241,245,249,0.75);
+  background: rgba(148,163,184,0.05);
+}
+@media (max-width: 768px) {
+  body[data-theme="dim"] .sb-rail {
+    border-top-color: rgba(148,163,184,0.12);
+  }
+}

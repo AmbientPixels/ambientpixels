@@ -584,6 +584,31 @@
       .gia-text h3 { font-size: 1rem; }
       .gia-text p { font-size: 0.88rem; }
     }
+
+    /* ── Inline Style Replacements ── */
+    .hero-base-content--center { text-align: center; }
+    .hero-h1 { max-width: 900px; margin: 0 auto; }
+    .hero-h1 span { display: inline; }
+    .hero-p { max-width: 640px; margin: 0.8rem auto 0; font-size: 1.1rem; line-height: 1.7; }
+    .hq-trust-line--mt { margin-top: 1.4rem; }
+    .hero-cta-row { margin-top: 2rem; display: flex; gap: 0.7rem; justify-content: center; flex-wrap: wrap; }
+    .hq-cta--lg { font-size: 1rem; padding: 0.75rem 1.6rem; }
+    .hq-cta--md { font-size: 0.95rem; padding: 0.65rem 1.4rem; }
+    .hero-micro--mt { margin-top: 0.8rem; }
+    .stats-row--neg { margin-top: -1rem; }
+    .demo-caption { font-size: 0.8rem; opacity: 0.35; text-align: center; margin-top: 0.8rem; line-height: 1.6; }
+    .demo-note { font-size: 0.85rem; opacity: 0.4; text-align: center; margin-top: 0.6rem; line-height: 1.7; }
+    .demo-center-block { text-align: center; margin-top: 1.5rem; }
+    .demo-center-block p { font-size: 0.85rem; opacity: 0.4; line-height: 1.7; max-width: 600px; margin: 0 auto; font-style: italic; }
+    .demo-gia-footnote { font-size: 0.85rem; opacity: 0.4; margin-top: 0.6rem; line-height: 1.6; font-style: italic; }
+    .demo-category-block { text-align: center; padding: 2rem 0 0; margin-top: 2rem; }
+    .demo-category-block p { font-size: 1.1rem; font-weight: 500; opacity: 0.45; letter-spacing: 0.01em; line-height: 1.8; font-style: italic; color: #a78bfa; }
+    .feature-grid--3 { grid-template-columns: repeat(3, 1fr); }
+    .feature-grid--2 { grid-template-columns: repeat(2, 1fr); }
+    .exec-mode-caption { font-size: 0.8rem; opacity: 0.35; text-align: center; margin-top: 1rem; line-height: 1.6; }
+    .demo-eyebrow { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0.3; margin-top: 1rem; text-align: center; }
+    .faq-content { max-width: 720px; }
+    .demo-cta-row { display: flex; gap: 0.7rem; justify-content: center; flex-wrap: wrap; }
   </style>
 </head>
 <body>
@@ -593,29 +618,29 @@
   <!-- Hero — uses hero-base system -->
   <section class="hero-base" data-hero="infrastructure">
     <div class="hero-base-layer"></div>
-    <div class="hero-base-content" style="text-align:center;">
-      <div class="ambientos-hero-badge"><i class="fas fa-server"></i> AmbientOS v1.0</div>
-      <h1 style="max-width:900px;margin:0 auto;">The Autonomous Executive Layer <span style="display:inline;">for AI-Run Companies.</span></h1>
-      <p style="max-width:640px;margin:0.8rem auto 0;font-size:1.1rem;line-height:1.7;">Set the strategy. AmbientOS handles triage, delegation, execution, and delivery — with full governance at every step.</p>
-      <div class="hq-trust-line" style="margin-top:1.4rem;">
+    <div class="hero-base-content hero-base-content--center">
+      <div class="ambientos-hero-badge"><i class="fas fa-server"></i> AmbientOS v1.1</div>
+      <h1 class="hero-h1">The Autonomous Executive Layer <span>for AI-Run Companies.</span></h1>
+      <p class="hero-p">Set the strategy. AmbientOS handles triage, delegation, execution, and delivery — with full governance at every step.</p>
+      <div class="hq-trust-line hq-trust-line--mt">
         <span class="hq-trust-chip"><i class="fas fa-shield-alt"></i> Governance Gates</span>
         <span class="hq-trust-chip"><i class="fas fa-clipboard-check"></i> Audit Trails</span>
         <span class="hq-trust-chip"><i class="fas fa-microchip"></i> Multi-Agent Runtime</span>
         <span class="hq-trust-chip"><i class="fas fa-database"></i> Memory Stack</span>
         <span class="hq-trust-chip"><i class="fas fa-photo-film"></i> Content Pipeline</span>
       </div>
-      <div style="margin-top:2rem;display:flex;gap:0.7rem;justify-content:center;flex-wrap:wrap;">
-        <a href="#" onclick="openAmbientOSAccessModal();return false;" class="hq-cta hq-cta--primary" style="font-size:1rem;padding:0.75rem 1.6rem;"><i class="fas fa-server"></i> Request Access</a>
-        <a href="#how-it-works" class="hq-cta hq-cta--secondary" style="font-size:1rem;padding:0.75rem 1.6rem;"><i class="fas fa-play-circle"></i> See How It Works</a>
+      <div class="hero-cta-row">
+        <a href="#" onclick="openAmbientOSAccessModal();return false;" class="hq-cta hq-cta--primary hq-cta--lg"><i class="fas fa-server"></i> Request Access</a>
+        <a href="#how-it-works" class="hq-cta hq-cta--secondary hq-cta--lg"><i class="fas fa-play-circle"></i> See How It Works</a>
       </div>
-      <div class="hero-micro" style="margin-top:0.8rem;">Early Cohort &bull; Builder Access</div>
+      <div class="hero-micro hero-micro--mt">Early Cohort &bull; Builder Access</div>
     </div>
   </section>
 
   <div class="demo-page">
 
     <!-- Live Stats -->
-    <div class="stats-row" style="margin-top:-1rem;">
+    <div class="stats-row stats-row--neg">
       <div class="stat-item">
         <div class="stat-value">8</div>
         <div class="stat-label">Agents Online</div>
@@ -690,7 +715,7 @@
         </div>
       </div>
 
-      <p style="font-size:0.8rem;opacity:0.35;text-align:center;margin-top:0.8rem;line-height:1.6;">Every task links to a campaign. Every campaign traces to a goal. No orphan work. No strategic drift.</p>
+      <p class="demo-caption">Every task links to a campaign. Every campaign traces to a goal. No orphan work. No strategic drift.</p>
     </div>
 
     <!-- How the Loop Works -->
@@ -718,7 +743,7 @@
         </div>
       </div>
 
-      <p style="font-size:0.85rem;opacity:0.4;text-align:center;margin-top:0.6rem;line-height:1.7;">Proposal &rarr; Approval &rarr; Execution &rarr; Audit &rarr; Memory. Nothing executes without guardrails. Everything is logged.</p>
+      <p class="demo-note">Proposal &rarr; Approval &rarr; Execution &rarr; Audit &rarr; Memory. Nothing executes without guardrails. Everything is logged.</p>
     </div>
 
     <!-- Agent Roster -->
@@ -904,8 +929,8 @@
         </div>
       </div>
 
-      <div style="text-align:center;margin-top:1.5rem;">
-        <p style="font-size:0.85rem;opacity:0.4;line-height:1.7;max-width:600px;margin:0 auto;font-style:italic;">Every step is logged, governed, and reversible. No content ships without human approval. No agent acts outside its scope.</p>
+      <div class="demo-center-block">
+        <p>Every step is logged, governed, and reversible. No content ships without human approval. No agent acts outside its scope.</p>
       </div>
     </div>
 
@@ -953,7 +978,7 @@
         <div class="gia-text">
           <h3>Financial Discipline by Design</h3>
           <p>AI systems scale cost faster than teams notice. AmbientOS enforces API usage tracking per agent, cost visibility across execution loops, and budget-aware task orchestration.</p>
-          <p style="font-size:0.85rem;opacity:0.4;margin-top:0.6rem;line-height:1.6;font-style:italic;">Autonomy without cost control isn't autonomy. It's liability.</p>
+          <p class="demo-gia-footnote">Autonomy without cost control isn't autonomy. It's liability.</p>
         </div>
       </div>
 
@@ -1000,15 +1025,15 @@
     </div>
 
     <!-- Category Statement -->
-    <div style="text-align:center;padding:2rem 0 0;margin-top:2rem;">
-      <p style="font-size:1.1rem;font-weight:500;opacity:0.45;letter-spacing:0.01em;line-height:1.8;font-style:italic;color:#a78bfa;">AI without governance isn't autonomy.<br>It's entropy.</p>
+    <div class="demo-category-block">
+      <p>AI without governance isn't autonomy.<br>It's entropy.</p>
     </div>
 
     <!-- Access Tiers -->
     <div class="demo-section">
       <h2><i class="fas fa-layer-group"></i> Access Tiers</h2>
       <p>Structured access for every stage of AI operations maturity.</p>
-      <div class="feature-grid" style="grid-template-columns:repeat(3,1fr);">
+      <div class="feature-grid feature-grid--3">
         <div class="feature-card">
           <div class="feature-card-icon"><i class="fas fa-rocket"></i></div>
           <h3>Founder</h3>
@@ -1053,14 +1078,14 @@
         </div>
       </div>
 
-      <p style="font-size:0.8rem;opacity:0.35;text-align:center;margin-top:1rem;line-height:1.6;">The CEO is the only entity that can change execution mode. No agent can promote itself. No override exists without human authorization.</p>
+      <p class="exec-mode-caption">The CEO is the only entity that can change execution mode. No agent can promote itself. No override exists without human authorization.</p>
     </div>
 
     <!-- Built For -->
     <div class="demo-section">
       <h2><i class="fas fa-bullseye"></i> Built For</h2>
       <p>AmbientOS is designed for people who want AI to do real work — not just generate suggestions.</p>
-      <div class="feature-grid" style="grid-template-columns:repeat(2,1fr);">
+      <div class="feature-grid feature-grid--2">
         <div class="feature-card">
           <div class="feature-card-icon"><i class="fas fa-rocket" style="color:#FFD700;"></i></div>
           <h3>Solo Founders</h3>
@@ -1082,13 +1107,13 @@
           <p>Automate the full pipeline from research to blog post to social distribution — with CEO approval gates at every stage.</p>
         </div>
       </div>
-      <p style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.1em;opacity:0.3;margin-top:1rem;text-align:center;">Not built for unstructured automation. Not built for prompt-and-pray.</p>
+      <p class="demo-eyebrow">Not built for unstructured automation. Not built for prompt-and-pray.</p>
     </div>
 
     <!-- FAQ -->
     <div class="demo-section" id="faq">
       <h2><i class="fas fa-circle-question"></i> Frequently Asked Questions</h2>
-      <div style="max-width:720px;">
+      <div class="faq-content">
         <details class="faq-item">
           <summary>Is this a chatbot or an agent framework?</summary>
           <p>Neither. AmbientOS is an operating system. Agents don't just respond to prompts — they operate on continuous heartbeat cycles, producing real deliverables (reports, blog posts, images, social posts) within a governed task board. Think of it as an AI org chart, not a chat window.</p>
@@ -1120,8 +1145,8 @@
     <div class="demo-cta-block">
       <h3>Ready to Run Your Company on AmbientOS?</h3>
       <p>Early access is open to a small group of aligned builders. Tell us what you're building.</p>
-      <div style="display:flex;gap:0.7rem;justify-content:center;flex-wrap:wrap;">
-        <a href="#" onclick="openAmbientOSAccessModal();return false;" class="hq-cta hq-cta--primary" style="font-size:0.95rem;padding:0.65rem 1.4rem;"><i class="fas fa-server"></i> Request AmbientOS Access</a>
+      <div class="demo-cta-row">
+        <a href="#" onclick="openAmbientOSAccessModal();return false;" class="hq-cta hq-cta--primary hq-cta--md"><i class="fas fa-server"></i> Request AmbientOS Access</a>
         <a href="/nova/" class="hq-cta hq-cta--secondary"><i class="fas fa-bolt"></i> Meet Nova</a>
         <a href="/blog/" class="hq-cta hq-cta--secondary"><i class="fas fa-pen-nib"></i> Blog</a>
       </div>
