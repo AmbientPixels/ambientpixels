@@ -22,13 +22,13 @@
 <body data-theme="dark">
   <main id="sa-main" class="content-section">
     <div class="company-header">
-      <h1><i class="fas fa-chart-line co-icon-faint co-icon-mr-lg"></i>Social Analytics</h1>
+      <h1><i class="fas fa-chart-line co-icon-mr-lg dash-icon-sky"></i>Social Analytics</h1>
       <p>Account-level stats, engagement metrics, and agent delivery diagnostics across X, LinkedIn, and Bluesky.</p>
     </div>
 
     <!-- ═══ Account Overview (live from platform APIs) ═══ -->
     <section class="sa-panel" id="sa-acct-section">
-      <div class="sa-panel-title"><i class="fas fa-users"></i> Account Overview <button class="sa-btn sa-btn--ghost sa-btn--xs" id="sa-acct-refresh" title="Refresh account stats"><i class="fas fa-rotate"></i></button> <span class="sa-acct-cache-hint" id="sa-acct-cache"></span></div>
+      <div class="sa-panel-title"><i class="fas fa-users dash-icon-sky co-icon-mr"></i> Account Overview <button class="sa-btn sa-btn--ghost sa-btn--xs" id="sa-acct-refresh" title="Refresh account stats"><i class="fas fa-rotate"></i></button> <span class="sa-acct-cache-hint" id="sa-acct-cache"></span></div>
       <div class="sa-acct-totals" id="sa-acct-totals"></div>
       <div class="sa-acct-grid" id="sa-acct-grid">
         <div class="dash-empty">Loading account stats...</div>
@@ -38,7 +38,7 @@
 
     <!-- ═══ Recent Posts (live from platform APIs) ═══ -->
     <section class="sa-panel" id="sa-live-posts-section">
-      <div class="sa-panel-title"><i class="fas fa-newspaper"></i> Recent Posts (Live)</div>
+      <div class="sa-panel-title"><i class="fas fa-newspaper dash-icon-sky co-icon-mr"></i> Recent Posts (Live)</div>
       <div class="sa-table-wrap">
         <table class="sa-table" id="sa-live-posts-table">
           <thead>
@@ -60,7 +60,7 @@
 
     <!-- ═══ Filters ═══ -->
     <section class="sa-panel">
-      <div class="sa-panel-title"><i class="fas fa-filter"></i> Agent Delivery Filters</div>
+      <div class="sa-panel-title"><i class="fas fa-filter dash-icon-sky co-icon-mr"></i> Agent Delivery Filters</div>
       <div class="sa-filters" id="sa-filters">
         <div class="sa-field">
           <label for="sa-from">From</label>
@@ -102,7 +102,7 @@
 
     <!-- ═══ Operational Health ═══ -->
     <section class="sa-panel">
-      <div class="sa-panel-title"><i class="fas fa-wave-square"></i> Operational Health</div>
+      <div class="sa-panel-title"><i class="fas fa-wave-square dash-icon-sky co-icon-mr"></i> Operational Health</div>
       <div class="sa-health-chips" id="sa-health-chips"></div>
       <div class="sa-mini-grid">
         <div class="sa-mini-card">
@@ -119,14 +119,14 @@
 
     <!-- ═══ KPI Summary + Platform Split ═══ -->
     <section class="sa-panel">
-      <div class="sa-panel-title"><i class="fas fa-gauge"></i> Agent Delivery KPIs</div>
+      <div class="sa-panel-title"><i class="fas fa-gauge dash-icon-sky co-icon-mr"></i> Agent Delivery KPIs</div>
       <div class="sa-kpis" id="sa-kpis"></div>
       <div class="sa-platform-grid sa-platform-grid--mt" id="sa-platform-grid"></div>
     </section>
 
     <!-- ═══ Agent Posts Log ═══ -->
     <section class="sa-panel">
-      <div class="sa-panel-title"><i class="fas fa-list-check"></i> Agent Posts Log</div>
+      <div class="sa-panel-title"><i class="fas fa-list-check dash-icon-sky co-icon-mr"></i> Agent Posts Log</div>
       <div class="sa-table-wrap">
         <table class="sa-table" id="sa-posts-table">
           <thead>
@@ -152,7 +152,7 @@
 
     <!-- ═══ Failure Diagnostics ═══ -->
     <section class="sa-panel">
-      <div class="sa-panel-title"><i class="fas fa-triangle-exclamation"></i> Failure Diagnostics</div>
+      <div class="sa-panel-title"><i class="fas fa-triangle-exclamation dash-icon-sky co-icon-mr"></i> Failure Diagnostics</div>
       <div id="sa-diagnostics"></div>
     </section>
 

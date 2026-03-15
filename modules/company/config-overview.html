@@ -26,23 +26,23 @@
     <!-- Header -->
     <div class="company-header cfg-header-rel">
       <div class="cfg-status-dot"></div>
-      <h1><i class="fas fa-sliders co-icon-faint co-icon-mr-lg"></i>Config</h1>
+      <h1><i class="fas fa-sliders co-icon-mr-lg dash-icon-pink"></i>Config</h1>
       <p>Workspace settings, agent configuration, and system tools.</p>
     </div>
 
     <!-- Tab Bar -->
     <nav class="cfg-tabs" role="tablist" aria-label="Config sections">
       <button class="cfg-tab" role="tab" data-tab="health" aria-controls="cfg-panel-health">
-        <i class="fas fa-heartbeat"></i>System Health
+        <i class="fas fa-heartbeat dash-icon-pink"></i>System Health
       </button>
       <button class="cfg-tab" role="tab" data-tab="automation" aria-controls="cfg-panel-automation">
-        <i class="fas fa-robot"></i>Automation
+        <i class="fas fa-robot dash-icon-pink"></i>Automation
       </button>
       <button class="cfg-tab" role="tab" data-tab="storage" aria-controls="cfg-panel-storage">
-        <i class="fas fa-database"></i>Storage &amp; Sync
+        <i class="fas fa-database dash-icon-pink"></i>Storage &amp; Sync
       </button>
       <button class="cfg-tab admin-only" role="tab" data-tab="maintenance" aria-controls="cfg-panel-maintenance">
-        <i class="fas fa-tools"></i>Maintenance
+        <i class="fas fa-tools dash-icon-pink"></i>Maintenance
       </button>
     </nav>
 
@@ -51,7 +51,7 @@
 
     <!-- System Status Checklist -->
     <div class="cfg-checklist">
-      <div class="cfg-checklist-title"><i class="fas fa-server co-icon-mr"></i> System Status</div>
+      <div class="cfg-checklist-title"><i class="fas fa-server co-icon-mr dash-icon-pink"></i> System Status</div>
       <div class="cfg-check-row">
         <div class="cfg-check-label">
           <span class="cfg-check-icon cfg-check-icon--ok"><i class="fas fa-check"></i></span>
@@ -107,7 +107,7 @@
     <div class="ov-section-title">Agent Memory Stack</div>
     <div class="cfg-helper">Knowledge layers injected into every heartbeat prompt</div>
     <div class="cfg-memstack" id="cfg-memstack">
-      <div class="cfg-memstack-title"><i class="fas fa-layer-group cfg-icon-subtle"></i> Prompt Injection Order</div>
+      <div class="cfg-memstack-title"><i class="fas fa-layer-group dash-icon-pink"></i> Prompt Injection Order</div>
       <div class="cfg-memstack-order">L1 → L2 → L3 → L4 → L5 → L6 — each layer adds context to every agent cycle</div>
 
       <div class="cfg-memstack-layer" id="ms-layer-1">
@@ -167,7 +167,7 @@
     <!-- External API Health -->
     <div class="cfg-api-health" id="cfg-api-health">
       <div class="cfg-api-health-header">
-        <div class="cfg-api-health-title"><i class="fas fa-satellite-dish co-icon-mr"></i> External API Health</div>
+        <div class="cfg-api-health-title"><i class="fas fa-satellite-dish co-icon-mr dash-icon-pink"></i> External API Health</div>
         <div class="cfg-flex-row">
           <span class="cfg-api-health-meta" id="cfg-api-health-time">Not checked yet</span>
           <button class="cfg-api-health-btn" id="cfg-api-health-btn"><i class="fas fa-sync-alt"></i> Check Now</button>
@@ -192,7 +192,7 @@
     <div class="ov-section-title">Worker Automation</div>
     <div class="cfg-helper">Agents that run jobs automatically behind the scenes</div>
     <div class="cfg-worker-panel" id="cfg-worker-panel">
-      <div class="cfg-worker-title"><i class="fas fa-robot cfg-icon-subtle"></i> Worker Framework</div>
+      <div class="cfg-worker-title"><i class="fas fa-robot dash-icon-pink"></i> Worker Framework</div>
       <div class="cfg-worker-status">
         <div class="cfg-worker-dot" id="cfg-worker-dot"></div>
         <span class="cfg-worker-state" id="cfg-worker-state">—</span>
@@ -209,7 +209,7 @@
     <div class="ov-section-title">Verification Engine</div>
     <div class="cfg-helper">Validates agent outputs before they go live</div>
     <div class="cfg-verify-panel" id="cfg-verify-panel">
-      <div class="cfg-verify-title"><i class="fas fa-shield-halved cfg-icon-subtle"></i> Verification Gate</div>
+      <div class="cfg-verify-title"><i class="fas fa-shield-halved dash-icon-pink"></i> Verification Gate</div>
       <div class="cfg-verify-row">
         <div class="cfg-verify-dot" id="cfg-verify-dot"></div>
         <span class="cfg-verify-label">Status:</span>
@@ -225,7 +225,7 @@
     <div class="ov-section-title">Autonomy Controls</div>
     <div class="cfg-helper">How much freedom agents have per channel. OFF = CEO approval required. ON = agents act autonomously.</div>
     <div class="cfg-action-panel" id="cfg-action-panel">
-      <div class="cfg-action-title"><i class="fas fa-bolt cfg-icon-subtle"></i> Action Router</div>
+      <div class="cfg-action-title"><i class="fas fa-bolt dash-icon-pink"></i> Action Router</div>
       <div class="cfg-action-status">
         <div class="cfg-action-dot" id="cfg-action-dot"></div>
         <span class="cfg-action-state" id="cfg-action-state">—</span>
@@ -270,7 +270,7 @@
     <div class="ov-section-title">Planner Automation</div>
     <div class="cfg-helper">Generates recommendations and schedules daily standups</div>
     <div class="cfg-planner-panel" id="cfg-planner-panel">
-      <div class="cfg-planner-title"><i class="fas fa-brain cfg-icon-subtle"></i> Planner Loop</div>
+      <div class="cfg-planner-title"><i class="fas fa-brain dash-icon-pink"></i> Planner Loop</div>
       <div class="cfg-planner-status">
         <div class="cfg-planner-dot" id="cfg-planner-dot"></div>
         <span class="cfg-planner-state" id="cfg-planner-state">—</span>
@@ -279,7 +279,7 @@
       <button class="cfg-planner-toggle" id="cfg-planner-toggle"></button>
       <div class="cfg-planner-info" id="cfg-planner-info"></div>
       <div class="cfg-form-row-sep">
-        <span class="cfg-form-label-sm"><i class="fas fa-sync-alt co-icon-mr-xs"></i> Cadence</span>
+        <span class="cfg-form-label-sm"><i class="fas fa-sync-alt co-icon-mr-xs dash-icon-pink"></i> Cadence</span>
         <select class="cfg-tz-select cfg-inline-select--auto" id="cfg-planner-cadence">
           <option value="1">Every day</option>
           <option value="2">Every 2 days</option>
@@ -291,7 +291,7 @@
         <span class="cfg-tz-saved" id="cfg-cadence-saved" style="display:none;">Saved</span>
       </div>
       <div class="cfg-row-flex-mt">
-        <span class="cfg-form-label-sm"><i class="fas fa-clock co-icon-mr-xs"></i> Business Day Timezone</span>
+        <span class="cfg-form-label-sm"><i class="fas fa-clock co-icon-mr-xs dash-icon-pink"></i> Business Day Timezone</span>
         <select class="cfg-tz-select" id="cfg-tz-select">
           <option value="America/Los_Angeles">Pacific (PST/PDT)</option>
           <option value="America/Denver">Mountain (MST/MDT)</option>
@@ -313,7 +313,7 @@
     <div class="ov-section-title">Calibration Automation</div>
     <div class="cfg-helper">Periodically reviews and adjusts agent priorities</div>
     <div class="cfg-cal-panel" id="cfg-cal-panel">
-      <div class="cfg-cal-title"><i class="fas fa-stethoscope cfg-icon-subtle"></i> Calibration Loop</div>
+      <div class="cfg-cal-title"><i class="fas fa-stethoscope dash-icon-pink"></i> Calibration Loop</div>
       <div class="cfg-cal-status">
         <div class="cfg-cal-dot" id="cfg-cal-dot"></div>
         <span class="cfg-cal-state" id="cfg-cal-state">—</span>
@@ -322,7 +322,7 @@
       <button class="cfg-cal-toggle" id="cfg-cal-toggle"></button>
       <div class="cfg-cal-info" id="cfg-cal-info"></div>
       <div class="cfg-form-row-sep cfg-form-row-sep--green">
-        <span class="cfg-form-label-sm"><i class="fas fa-sync-alt co-icon-mr-xs"></i> Cadence</span>
+        <span class="cfg-form-label-sm"><i class="fas fa-sync-alt co-icon-mr-xs dash-icon-pink"></i> Cadence</span>
         <select class="cfg-tz-select cfg-inline-select--auto" id="cfg-cal-cadence">
           <option value="3">Every 3 days</option>
           <option value="5">Every 5 days</option>
@@ -339,7 +339,7 @@
     <div class="ov-section-title">Content Engine</div>
     <div class="cfg-helper">Default generation settings for Image Engine and agent-driven content</div>
     <div class="cfg-ce-panel" id="cfg-ce-panel">
-      <div class="cfg-ce-title"><i class="fas fa-wand-magic-sparkles cfg-icon-subtle"></i> Generation Defaults</div>
+      <div class="cfg-ce-title"><i class="fas fa-wand-magic-sparkles dash-icon-pink"></i> Generation Defaults</div>
 
       <div class="cfg-ce-row">
         <span class="cfg-ce-label">Default Preset</span>
@@ -379,7 +379,7 @@
     <div class="ov-section-title">Trends Automation</div>
     <div class="cfg-helper">Controls autonomous actions driven by the Trends Radar ingest cycle</div>
     <div class="cfg-worker-panel" id="cfg-trends-auto-panel">
-      <div class="cfg-worker-title"><i class="fas fa-chart-line cfg-icon-subtle"></i> Trends Radar</div>
+      <div class="cfg-worker-title"><i class="fas fa-chart-line dash-icon-pink"></i> Trends Radar</div>
       <div class="cfg-quota-header">
         <div>
           <div class="cfg-quota-label">Auto-Campaign Conversion</div>
@@ -397,7 +397,7 @@
     <div class="ov-section-title cfg-mt">Runtime Tuning</div>
     <div class="cfg-helper">Override heartbeat cap constants without a deploy. Leave blank to use defaults.</div>
     <div class="cfg-worker-panel" id="cfg-runtime-tuning-panel">
-      <div class="cfg-worker-title"><i class="fas fa-sliders-h cfg-icon-subtle"></i> Agent Cap Overrides</div>
+      <div class="cfg-worker-title"><i class="fas fa-sliders-h dash-icon-pink"></i> Agent Cap Overrides</div>
       <div class="cfg-rt-grid">
         <div class="cfg-rt-row">
           <label class="cfg-rt-label" for="cfg-rt-creates">Max Creates / Agent / Run</label>
@@ -432,7 +432,7 @@
     <div class="ov-section-title">System Storage</div>
     <div class="cfg-helper">Browser-side data cache and cleanup tools</div>
     <div class="cfg-storage-panel" id="cfg-storage-panel">
-      <div class="cfg-storage-title"><i class="fas fa-database cfg-icon-subtle"></i> Storage Health</div>
+      <div class="cfg-storage-title"><i class="fas fa-database dash-icon-pink"></i> Storage Health</div>
       <div class="cfg-storage-usage" id="cfg-storage-usage"></div>
       <div class="cfg-storage-counts" id="cfg-storage-counts"></div>
       <div class="cfg-storage-oldest" id="cfg-storage-oldest"></div>
@@ -453,7 +453,7 @@
     <div class="ov-section-title">Server Persistence</div>
     <div class="cfg-helper">Saves data to Azure — survives across devices and sessions</div>
     <div class="cfg-store-panel" id="cfg-store-panel">
-      <div class="cfg-store-title"><i class="fas fa-cloud cfg-icon-subtle"></i> Server Store</div>
+      <div class="cfg-store-title"><i class="fas fa-cloud dash-icon-pink"></i> Server Store</div>
       <div class="cfg-store-status">
         <div class="cfg-store-dot" id="cfg-store-dot"></div>
         <span class="cfg-store-state" id="cfg-store-state">—</span>
@@ -472,10 +472,10 @@
     <div class="ov-section-title">System Tools</div>
     <div class="cfg-tools-grid">
       <button class="cfg-tool-btn admin-only" onclick="if(confirm('Reset shared memory?')) { CompanyStore.setState('ap_workspace_memory',[]); location.reload(); }">
-        <i class="fas fa-brain"></i> Memory Reset
+        <i class="fas fa-brain dash-icon-pink co-icon-mr"></i> Memory Reset
       </button>
       <button class="cfg-tool-btn" id="cfg-master-automation-toggle">
-        <i class="fas fa-robot"></i> Automation Toggle
+        <i class="fas fa-robot dash-icon-pink co-icon-mr"></i> Automation Toggle
       </button>
       <button class="cfg-tool-btn" id="cfg-tool-export">
         <i class="fas fa-download"></i> Export State
@@ -484,7 +484,7 @@
         <i class="fas fa-sync-alt"></i> Force Server Sync
       </button>
       <button class="cfg-tool-btn" id="cfg-tool-flush">
-        <i class="fas fa-paper-plane"></i> Flush Outbox
+        <i class="fas fa-paper-plane dash-icon-pink co-icon-mr"></i> Flush Outbox
       </button>
     </div>
 
@@ -528,7 +528,7 @@
 
     <!-- System Maintenance -->
     <div class="cfg-maintenance">
-      <div class="cfg-maintenance-title"><i class="fas fa-tools"></i> System Maintenance</div>
+      <div class="cfg-maintenance-title"><i class="fas fa-tools dash-icon-pink co-icon-mr"></i> System Maintenance</div>
       <div class="maintenance-intro">
         <p><strong>Administrative tools for controlled resets and cleanup.</strong></p>
         <p>These actions affect operational data but do not modify governance or system safeguards.</p>

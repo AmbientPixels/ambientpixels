@@ -1441,6 +1441,18 @@ body[data-theme="dark"] { background: #000000; }
 .co-icon-mr-xs  { margin-right: 3px; }
 .co-icon-mr-md  { margin-right: 0.4rem; }
 .co-icon-mr-lg  { margin-right: 8px; }
+/* ── Semantic icon colors (available on all company pages) ── */
+.dash-icon-sky    { color: #38bdf8; }
+.dash-icon-blue   { color: #60a5fa; }
+.dash-icon-purple { color: #a78bfa; }
+.dash-icon-green  { color: #34d399; }
+.dash-icon-red    { color: #ef4444; }
+.dash-icon-red-lt { color: #f87171; }
+.dash-icon-amber  { color: #fbbf24; }
+.dash-icon-teal   { color: #2dd4bf; }
+.dash-icon-orange { color: #fb923c; }
+.dash-icon-pink   { color: #FF6B9D; }
+.dash-icon-gold   { color: #f59e0b; }
 /* agent-chat.html */
 #chat-agent-avatar    { width: 36px; height: 36px; font-size: 1rem; }
 #chat-agent-name      { font-size: 0.95rem; }

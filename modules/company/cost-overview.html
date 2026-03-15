@@ -97,7 +97,7 @@
       padding: 0.7rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.04);
     }
     .cost-panel-title { font-size: 0.72rem; font-weight: 600; }
-    .cost-panel-title i { margin-right: 6px; opacity: 0.5; }
+    .cost-panel-title i { margin-right: 6px; }
     .cost-panel-body { padding: 0.8rem 1rem; }
 
     /* KPI row */
@@ -188,7 +188,7 @@
   <main id="cost-main" class="content-section">
 
     <div class="company-header">
-      <h1><i class="fas fa-dollar-sign co-icon-faint co-icon-mr-lg"></i>Cost Center</h1>
+      <h1><i class="fas fa-dollar-sign co-icon-mr-lg dash-icon-amber"></i>Cost Center</h1>
       <p>API spend, budget targets, cost-per-agent, and platform ROI.</p>
     </div>
 
@@ -226,14 +226,14 @@
     <div class="cost-breakdown-legend" id="cost-bar-legend"></div>
 
     <!-- Budget Targets -->
-    <div class="cost-section-title"><i class="fas fa-bullseye co-icon-mr"></i>Budget Targets</div>
+    <div class="cost-section-title"><i class="fas fa-bullseye co-icon-mr dash-icon-amber"></i>Budget Targets</div>
     <div class="cost-budget-grid" id="budget-targets"></div>
 
     <!-- Gemini API Panel -->
-    <div class="cost-section-title"><i class="fas fa-coins co-icon-mr" style="color:#fbbf24;"></i>Gemini API</div>
+    <div class="cost-section-title"><i class="fas fa-coins co-icon-mr dash-icon-amber"></i>Gemini API</div>
     <div class="cost-panel">
       <div class="cost-panel-header">
-        <span class="cost-panel-title"><i class="fas fa-coins" style="color:#fbbf24;"></i> Gemini API Costs</span>
+        <span class="cost-panel-title"><i class="fas fa-coins dash-icon-amber"></i> Gemini API Costs</span>
         <select id="gemini-range" class="cost-select">
           <option value="7">7 days</option>
           <option value="14">14 days</option>
@@ -279,19 +279,19 @@
     </div>
 
     <!-- Cost per Agent -->
-    <div class="cost-section-title"><i class="fas fa-users co-icon-mr"></i>Cost by Agent</div>
+    <div class="cost-section-title"><i class="fas fa-users co-icon-mr dash-icon-amber"></i>Cost by Agent</div>
     <div class="cost-panel">
       <div class="cost-panel-header">
-        <span class="cost-panel-title"><i class="fas fa-users"></i> Agent Cost Breakdown</span>
+        <span class="cost-panel-title"><i class="fas fa-users dash-icon-amber"></i> Agent Cost Breakdown</span>
       </div>
       <div class="cost-panel-body" id="agent-cost-panel"><div class="cost-empty">Loading agent costs...</div></div>
     </div>
 
     <!-- Social ROI -->
-    <div class="cost-section-title"><i class="fas fa-chart-line co-icon-mr"></i>Social ROI</div>
+    <div class="cost-section-title"><i class="fas fa-chart-line co-icon-mr dash-icon-amber"></i>Social ROI</div>
     <div class="cost-panel">
       <div class="cost-panel-header">
-        <span class="cost-panel-title"><i class="fas fa-chart-line"></i> Return on Investment</span>
+        <span class="cost-panel-title"><i class="fas fa-chart-line dash-icon-amber"></i> Return on Investment</span>
       </div>
       <div class="cost-panel-body" id="roi-panel"><div class="cost-empty">Loading ROI data...</div></div>
     </div>

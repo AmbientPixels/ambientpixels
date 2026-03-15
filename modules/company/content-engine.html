@@ -20,7 +20,7 @@
   <style>
     .ce-panel { background:#1c1c1e; border:1px solid rgba(255,255,255,0.07); border-radius:12px; padding:1rem; margin-bottom:1rem; }
     .ce-panel-title { font-size:0.8rem; font-weight:600; margin-bottom:0.7rem; display:flex; align-items:center; gap:0.4rem; }
-    .ce-panel-title i { opacity:0.5; font-size:0.7rem; }
+    .ce-panel-title i { font-size:0.7rem; }
 
     .ce-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:0.6rem; margin-bottom:0.6rem; }
     .ce-form-full { grid-column: 1 / -1; }
@@ -171,13 +171,13 @@
 <body data-theme="dark">
 <main id="ce-main" class="content-section">
   <header class="company-header">
-    <h1><i class="fas fa-images co-icon-faint co-icon-mr-lg"></i>Image Engine</h1>
+    <h1><i class="fas fa-images co-icon-mr-lg dash-icon-purple"></i>Image Engine</h1>
     <p>Generate branded images with AI. One click — brief is auto-created behind the scenes.</p>
   </header>
 
   <!-- ── Generate Form ── -->
   <div class="ce-panel ce-form" id="ce-form-panel">
-    <div class="ce-panel-title"><i class="fas fa-wand-magic-sparkles"></i> Generate Images</div>
+    <div class="ce-panel-title"><i class="fas fa-wand-magic-sparkles dash-icon-purple"></i> Generate Images</div>
     <div class="ce-form-grid">
       <div>
         <label for="ce-topic">Topic *</label>
@@ -244,7 +244,7 @@
 
   <!-- ── Results ── -->
   <div class="ce-panel ce-results" id="ce-results">
-    <div class="ce-panel-title"><i class="fas fa-box-open"></i> Generated Package</div>
+    <div class="ce-panel-title"><i class="fas fa-box-open dash-icon-purple"></i> Generated Package</div>
     <div id="ce-results-meta"></div>
     <div class="ce-results-grid" id="ce-results-grid"></div>
     <div id="ce-results-links"></div>
@@ -252,7 +252,7 @@
 
     <!-- Danger Zone — Hard Delete (CEO only, shown when viewing existing package) -->
     <div class="ce-danger-zone" id="ce-danger-zone">
-      <div class="ce-danger-title"><i class="fas fa-skull-crossbones"></i> Danger Zone</div>
+      <div class="ce-danger-title"><i class="fas fa-skull-crossbones dash-icon-red"></i> Danger Zone</div>
       <div class="ce-danger-desc">
         Permanently delete this package from storage. This removes the package JSON and its gallery index entry.
         Optionally purge the generated image blobs (only those hosted on our blob storage).

@@ -45,7 +45,7 @@
       border-bottom: 1px solid rgba(255,255,255,0.04);
       font-size: 0.78rem; font-weight: 500;
     }
-    .act-panel-head i { opacity: 0.4; margin-right: 0.4rem; }
+    .act-panel-head i { margin-right: 0.4rem; }
     .act-panel-body { padding: 0.45rem 0.7rem; }
     .act-panel-body:empty::after {
       content: 'None';
@@ -302,7 +302,7 @@
     <div class="company-header" id="act-header">
       <div>
         <h1 class="act-h1">
-          <i class="fas fa-bolt co-icon-faint co-icon-mr-lg"></i>Action Command Center
+          <i class="fas fa-bolt co-icon-mr-lg dash-icon-amber"></i>Action Command Center
           <span class="act-view-toggle" id="act-view-toggle" role="tablist">
             <button role="tab" data-view="governance" class="active" aria-selected="true">Governance</button>
             <button role="tab" data-view="execution" aria-selected="false">Execution</button>
@@ -367,7 +367,7 @@
       <!-- Approvals Section -->
       <div class="act-section" data-section="approvals">
         <div class="act-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-gavel dash-icon-muted"></i>
+          <i class="fas fa-gavel dash-icon-amber"></i>
           <h2>Approvals</h2>
           <i class="fas fa-chevron-down act-section-chevron"></i>
         </div>
@@ -375,7 +375,7 @@
           <!-- Pending Approvals -->
           <div class="act-panel">
             <div class="act-panel-head">
-              <span><i class="fas fa-clock"></i> Pending Action Approvals</span>
+              <span><i class="fas fa-clock dash-icon-amber co-icon-mr"></i> Pending Action Approvals</span>
               <span id="pending-count" class="act-count-badge"></span>
             </div>
             <div id="pending-bulk-bar" style="display:none;">
@@ -400,7 +400,7 @@
           <!-- Scheduled / Approved -->
           <div class="act-panel">
             <div class="act-panel-head">
-              <span><i class="fas fa-calendar-check"></i> Approved / Scheduled</span>
+              <span><i class="fas fa-calendar-check dash-icon-amber co-icon-mr"></i> Approved / Scheduled</span>
               <span id="scheduled-count" class="act-count-badge"></span>
             </div>
             <div class="act-panel-body" id="scheduled-list"></div>
@@ -411,14 +411,14 @@
       <!-- Content Packages Section -->
       <div class="act-section" data-section="content-packages">
         <div class="act-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-image dash-icon-muted"></i>
+          <i class="fas fa-image dash-icon-amber"></i>
           <h2>Content Packages</h2>
           <i class="fas fa-chevron-down act-section-chevron"></i>
         </div>
         <div class="act-section-body">
           <div class="act-panel">
             <div class="act-panel-head">
-              <span><i class="fas fa-image dash-icon-muted"></i> Pending Content Review</span>
+              <span><i class="fas fa-image dash-icon-amber"></i> Pending Content Review</span>
               <span id="content-pkg-count" class="act-count-badge"></span>
             </div>
             <div class="act-panel-body" id="content-pkg-list"></div>
@@ -436,7 +436,7 @@
         <div class="act-section-body">
           <div class="act-panel">
             <div class="act-panel-head">
-              <span><i class="fas fa-exclamation-triangle"></i> Failures</span>
+              <span><i class="fas fa-exclamation-triangle dash-icon-red co-icon-mr"></i> Failures</span>
               <span id="fail-count" class="act-count-badge"></span>
             </div>
             <div class="act-panel-body" id="fail-list"></div>
@@ -454,7 +454,7 @@
         <div class="act-section-body">
           <div class="act-panel">
             <div class="act-panel-head">
-              <span><i class="fas fa-tachometer-alt"></i> Integration Status &amp; Rate Limits</span>
+              <span><i class="fas fa-tachometer-alt dash-icon-blue co-icon-mr"></i> Integration Status &amp; Rate Limits</span>
             </div>
             <div class="act-panel-body">
               <div class="act-rate-grid" id="rate-grid"></div>
@@ -484,7 +484,7 @@
           <!-- Execution Log -->
           <div class="act-panel">
             <div class="act-panel-head">
-              <span><i class="fas fa-check-circle"></i> Execution Log</span>
+              <span><i class="fas fa-check-circle dash-icon-green co-icon-mr"></i> Execution Log</span>
               <span id="exec-count" class="act-count-badge"></span>
             </div>
             <div class="act-panel-body" id="exec-list"></div>
@@ -492,7 +492,7 @@
           <!-- Audit Log -->
           <div class="act-panel">
             <div class="act-panel-head">
-              <span><i class="fas fa-list-alt"></i> Action Audit Log</span>
+              <span><i class="fas fa-list-alt dash-icon-amber co-icon-mr"></i> Action Audit Log</span>
               <span id="audit-count" class="act-count-badge"></span>
             </div>
             <div class="act-panel-body" id="audit-list"></div>
@@ -511,7 +511,7 @@
 
   <div class="act-modal-backdrop" id="revision-modal">
     <div class="act-modal">
-      <h3><i class="fas fa-comment-dots act-modal-icon"></i>Send Revision Request</h3>
+      <h3><i class="fas fa-comment-dots act-modal-icon dash-icon-amber"></i>Send Revision Request</h3>
       <p class="act-modal-desc">Tell the agent what needs to change before approval.</p>
       <textarea id="revision-note" placeholder="Example: Tighten the headline, remove placeholder hashtags, and schedule for 9AM PST."></textarea>
       <div class="act-modal-actions">

@@ -234,7 +234,7 @@
     <!-- Header -->
     <div class="dash-header">
       <div class="dash-header-identity">
-        <span class="dash-header-title"><i class="fas fa-tachometer-alt"></i> Dashboard</span>
+        <span class="dash-header-title"><i class="fas fa-tachometer-alt dash-icon-blue"></i> Dashboard</span>
         <span class="dash-action-badge" id="dash-action-badge" data-count="0"></span>
         <span id="store-mode-badge" class="dash-meta-badge">local</span>
         <span id="exec-mode-pill" class="dash-meta-badge" title="Automation enabled. Agents may create and update tasks.">🟢 Live</span>
@@ -328,7 +328,7 @@
       <!-- Command Center (Tabbed) -->
       <div class="dash-panel dash-panel--full dash-panel--flush">
         <div class="dash-panel-header dash-panel-header--flush">
-          <span class="dash-panel-title"><i class="fas fa-satellite-dish dash-icon-muted"></i> Command Center</span>
+          <span class="dash-panel-title"><i class="fas fa-satellite-dish dash-icon-sky"></i> Command Center</span>
           <span class="dash-panel-badge" id="inbox-total-badge">0 items</span>
         </div>
         <div class="cc-tabs" role="tablist" id="cc-tabs">
@@ -359,7 +359,7 @@
         <div class="cc-tab-body" id="cc-activity" role="tabpanel">
           <div class="dash-panel-body">
             <div class="dash-content-section-hdr">
-              <div class="dash-sub-label"><i class="fas fa-moon dash-icon-mr"></i>Today's Activity</div>
+              <div class="dash-sub-label"><i class="fas fa-moon dash-icon-mr dash-icon-sky"></i>Today's Activity</div>
               <div class="log-collapse-wrap log-collapse-wrap--collapsed" id="overnight-collapse">
                 <ul class="log-list" id="panel-overnight"></ul>
               </div>
@@ -367,7 +367,7 @@
               <button class="log-expand-btn" id="overnight-expand-btn">Show all entries</button>
             </div>
             <div>
-              <div class="dash-sub-label"><i class="fas fa-scroll dash-icon-mr"></i>Governance Log</div>
+              <div class="dash-sub-label"><i class="fas fa-scroll dash-icon-mr dash-icon-teal"></i>Governance Log</div>
               <ul class="log-list" id="panel-governance-log"></ul>
               <div class="dash-empty" id="governance-log-empty">No governance events yet.</div>
             </div>
@@ -375,19 +375,19 @@
         </div>
         <!-- Quick Links (always visible, below all tabs) -->
         <div class="cc-quick-links">
-          <a href="/modules/company/tasks.html" style="color:#60a5fa;"><i class="fas fa-tasks"></i> Task Board</a>
-          <a href="/modules/company/actions.html"><i class="fas fa-bolt"></i> Actions</a>
-          <a href="/modules/company/campaigns.html"><i class="fas fa-flag"></i> Campaigns</a>
-          <a href="/modules/company/objectives.html" style="color:#60a5fa;"><i class="fas fa-bullseye"></i> Goals</a>
-          <a href="/modules/company/workspace.html" style="color:#FF6B9D;"><i class="fas fa-brain"></i> Workspace</a>
-          <a href="/modules/company/memories.html"><i class="fas fa-memory"></i> Agent Memory</a>
+          <a href="/modules/company/tasks.html" class="dash-icon-blue"><i class="fas fa-tasks co-icon-mr"></i> Task Board</a>
+          <a href="/modules/company/actions.html" class="dash-icon-amber"><i class="fas fa-bolt co-icon-mr"></i> Actions</a>
+          <a href="/modules/company/campaigns.html" class="dash-icon-orange"><i class="fas fa-flag co-icon-mr"></i> Campaigns</a>
+          <a href="/modules/company/objectives.html" class="dash-icon-blue"><i class="fas fa-bullseye co-icon-mr"></i> Goals</a>
+          <a href="/modules/company/workspace.html" class="dash-icon-pink"><i class="fas fa-brain co-icon-mr"></i> Workspace</a>
+          <a href="/modules/company/memories.html" class="dash-icon-gold"><i class="fas fa-memory co-icon-mr"></i> Agent Memory</a>
         </div>
       </div>
 
       <!-- Team Roster (right side of main split) -->
       <div class="dash-panel ceo-team-panel dash-panel--no-bottom">
         <div class="dash-panel-header dash-panel-header--tight">
-          <span class="dash-panel-title"><i class="fas fa-heartbeat dash-icon-dim"></i> Agent Health</span>
+          <span class="dash-panel-title"><i class="fas fa-heartbeat dash-icon-green"></i> Agent Health</span>
           <span id="agent-health-hb-dot" style="display:none;"></span>
         </div>
         <div class="dash-lastrun-bar" id="dash-lastrun-bar" style="display:none;"></div>
@@ -401,7 +401,7 @@
         <!-- Goals -->
         <div class="dash-panel ceo-strategy-panel">
           <div class="dash-panel-header">
-            <span class="dash-panel-title"><i class="fas fa-bullseye dash-icon-dim"></i> Goals</span>
+            <span class="dash-panel-title"><i class="fas fa-bullseye dash-icon-blue"></i> Goals</span>
             <a href="/modules/company/objectives.html" class="dash-view-all">View All →</a>
           </div>
           <ul class="log-list" id="ceo-objectives-mirror"></ul>
@@ -410,7 +410,7 @@
         <!-- Campaigns / Projects -->
         <div class="dash-panel ceo-strategy-panel">
           <div class="dash-panel-header">
-            <span class="dash-panel-title"><i class="fas fa-flag dash-icon-muted"></i> Projects</span>
+            <span class="dash-panel-title"><i class="fas fa-flag dash-icon-orange"></i> Projects</span>
             <a href="/modules/company/campaigns.html" class="dash-view-all">View All →</a>
           </div>
           <ul class="log-list" id="ceo-campaigns-mirror"></ul>
@@ -487,7 +487,7 @@
       <!-- CEO: Decisions Section (Zone 4) -->
       <div class="dash-section" id="section-decisions" data-section="decisions">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-gavel dash-icon-muted"></i>
+          <i class="fas fa-gavel dash-icon-amber"></i>
           <h2>Approvals</h2>
           <i class="fas fa-chevron-down dash-section-chevron"></i>
         </div>
@@ -496,7 +496,7 @@
             <!-- Pending Approvals — slim summary, full detail in Action Queue -->
             <div class="dash-panel dash-panel--full" id="panel-approval-wrap">
               <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-gavel dash-icon-muted"></i> Pending Approvals</span>
+                <span class="dash-panel-title"><i class="fas fa-gavel dash-icon-amber"></i> Pending Approvals</span>
                 <span class="dash-panel-badge" id="approval-count-badge">0 pending</span>
               </div>
               <div class="dash-panel-body--padded">
@@ -576,7 +576,7 @@
       <!-- CEO: Metrics Section (hidden in CEO — moved to Dev view) -->
       <div class="dash-section" id="section-metrics" data-section="metrics" style="display:none;">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-chart-line dash-icon-dim"></i>
+          <i class="fas fa-chart-line dash-icon-sky"></i>
           <h2>Metrics</h2>
           <i class="fas fa-chevron-down dash-section-chevron"></i>
         </div>
@@ -585,7 +585,7 @@
             <!-- System Pulse -->
             <div class="dash-panel dash-panel--full dash-panel--min-auto" id="panel-system-pulse-wrap">
               <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-wave-square dash-icon-dim"></i> System Pulse</span>
+                <span class="dash-panel-title"><i class="fas fa-wave-square dash-icon-sky"></i> System Pulse</span>
               </div>
               <div id="panel-system-pulse" class="system-pulse"></div>
             </div>
@@ -615,7 +615,7 @@
             <!-- Actions Snapshot -->
             <div class="dash-panel dash-panel--full">
               <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-bolt dash-icon-muted"></i> Actions</span>
+                <span class="dash-panel-title"><i class="fas fa-bolt dash-icon-amber"></i> Actions</span>
                 <a href="/modules/company/actions.html" class="dash-view-all">Command Center →</a>
               </div>
               <div id="panel-action-snap">
@@ -759,7 +759,7 @@
       <!-- Dev: System Section -->
       <div class="dash-section" id="section-system" data-section="system">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-cogs dash-icon-dim"></i>
+          <i class="fas fa-cogs dash-icon-pink"></i>
           <h2>System</h2>
           <i class="fas fa-chevron-down dash-section-chevron"></i>
         </div>
@@ -768,14 +768,14 @@
             <!-- Model Fleet -->
             <div class="dash-panel">
               <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-microchip"></i> AI Model Fleet</span>
+                <span class="dash-panel-title"><i class="fas fa-microchip dash-icon-purple co-icon-mr"></i> AI Model Fleet</span>
               </div>
               <div id="panel-fleet"></div>
             </div>
             <!-- Agent Status -->
             <div class="dash-panel">
               <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-users"></i> Agent Status</span>
+                <span class="dash-panel-title"><i class="fas fa-users dash-icon-blue co-icon-mr"></i> Agent Status</span>
                 <span class="dash-panel-badge" id="agent-count-badge">5 agents</span>
               </div>
               <ul class="agent-status-list" id="panel-agent-status"></ul>
@@ -788,7 +788,7 @@
             <!-- Session Log -->
             <div class="dash-panel dash-panel--full">
               <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-stream"></i> Session Log</span>
+                <span class="dash-panel-title"><i class="fas fa-stream dash-icon-sky co-icon-mr"></i> Session Log</span>
                 <label class="session-today-toggle" title="Show today's sessions only">
                   <input type="checkbox" id="session-today-only"> Today
                 </label>
@@ -814,7 +814,7 @@
             <!-- Heartbeat Health -->
             <div class="dash-panel dash-panel--full">
               <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-heart-pulse dash-icon-muted"></i> Heartbeat Health</span>
+                <span class="dash-panel-title"><i class="fas fa-heart-pulse dash-icon-green"></i> Heartbeat Health</span>
                 <span class="dash-panel-badge" id="heartbeat-health-badge">Loading...</span>
               </div>
               <div id="panel-heartbeat-health"></div>
@@ -824,14 +824,14 @@
             <div class="dash-panel--full dev-log-split">
               <div class="dash-panel">
                 <div class="dash-panel-header">
-                  <span class="dash-panel-title"><i class="fas fa-clock"></i> Cron Log</span>
+                  <span class="dash-panel-title"><i class="fas fa-clock dash-icon-teal co-icon-mr"></i> Cron Log</span>
                 </div>
                 <ul class="log-list" id="panel-cron"></ul>
                 <div class="dash-empty" id="cron-empty">No scheduled tasks have run yet.</div>
               </div>
               <div class="dash-panel">
                 <div class="dash-panel-header">
-                  <span class="dash-panel-title"><i class="fas fa-scroll dash-icon-muted"></i> Governance Log (Dev)</span>
+                  <span class="dash-panel-title"><i class="fas fa-scroll dash-icon-teal"></i> Governance Log (Dev)</span>
                 </div>
                 <ul class="log-list" id="panel-governance-log-dev"></ul>
                 <div class="dash-empty" id="governance-log-dev-empty">No governance events yet.</div>
@@ -875,7 +875,7 @@
       <!-- Dev: Social Ops (detailed — moved from CEO) -->
       <div class="dash-section" id="section-social-dev" data-section="social-dev">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-hashtag dash-icon-blue"></i>
+          <i class="fas fa-hashtag dash-icon-sky"></i>
           <h2>Social Ops</h2>
           <i class="fas fa-chevron-down dash-section-chevron"></i>
         </div>
@@ -914,7 +914,7 @@
       <!-- Dev: Metrics (moved from CEO view) -->
       <div class="dash-section" id="section-metrics-dev" data-section="metrics-dev">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-chart-line dash-icon-dim"></i>
+          <i class="fas fa-chart-line dash-icon-sky"></i>
           <h2>Metrics</h2>
           <i class="fas fa-chevron-down dash-section-chevron"></i>
         </div>
@@ -923,7 +923,7 @@
             <!-- System Pulse (mirrored from CEO) -->
             <div class="dash-panel dash-panel--full dash-panel--min-auto">
               <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-wave-square dash-icon-dim"></i> System Pulse</span>
+                <span class="dash-panel-title"><i class="fas fa-wave-square dash-icon-sky"></i> System Pulse</span>
               </div>
               <div id="panel-system-pulse-dev" class="system-pulse"></div>
             </div>
@@ -944,7 +944,7 @@
             <!-- Actions Snapshot (mirrored) -->
             <div class="dash-panel dash-panel--full">
               <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-bolt dash-icon-muted"></i> Actions</span>
+                <span class="dash-panel-title"><i class="fas fa-bolt dash-icon-amber"></i> Actions</span>
                 <a href="/modules/company/actions.html" class="dash-view-all">Command Center →</a>
               </div>
               <div id="panel-action-snap-dev">
@@ -965,7 +965,7 @@
         <!-- Board Header -->
         <div class="board-header">
           <div>
-            <h1><i class="fas fa-columns dash-icon-faint"></i> Quarterly Board</h1>
+            <h1><i class="fas fa-columns dash-icon-blue"></i> Quarterly Board</h1>
             <div class="board-date-range" id="board-range"></div>
           </div>
           <div class="board-controls">
@@ -982,7 +982,7 @@
 
         <!-- 1. Executive Summary (moved above stats — narrative first) -->
         <div class="board-section" id="sec-exec">
-          <div class="board-section-title"><i class="fas fa-briefcase dash-icon-muted"></i> Executive Summary</div>
+          <div class="board-section-title"><i class="fas fa-briefcase dash-icon-blue"></i> Executive Summary</div>
           <div class="board-card board-card--body" id="board-exec-summary"></div>
         </div>
 
@@ -997,7 +997,7 @@
 
         <!-- 4. Goals -->
         <div class="board-section" id="sec-goals">
-          <div class="board-section-title"><i class="fas fa-bullseye dash-icon-dim"></i> Goals <span class="board-badge board-badge--sky" id="badge-goals">0</span></div>
+          <div class="board-section-title"><i class="fas fa-bullseye dash-icon-blue"></i> Goals <span class="board-badge board-badge--sky" id="badge-goals">0</span></div>
           <div id="board-goals"></div>
         </div>
 
@@ -1005,11 +1005,11 @@
         <div class="board-two-col">
           <div>
             <div class="board-section" id="sec-active-dirs">
-              <div class="board-section-title"><i class="fas fa-fire dash-icon-muted"></i> Active Projects <span class="board-badge" id="badge-active-dirs">0</span></div>
+              <div class="board-section-title"><i class="fas fa-fire dash-icon-orange"></i> Active Projects <span class="board-badge" id="badge-active-dirs">0</span></div>
               <div id="board-active-dirs"></div>
             </div>
             <div class="board-section" id="sec-completed-dirs">
-              <div class="board-section-title"><i class="fas fa-trophy dash-icon-faint"></i> Completed <span class="board-badge" id="badge-completed-dirs">0</span></div>
+              <div class="board-section-title"><i class="fas fa-trophy dash-icon-green"></i> Completed <span class="board-badge" id="badge-completed-dirs">0</span></div>
               <div id="board-completed-dirs"></div>
             </div>
             <div class="board-section" id="sec-pending-dirs">
@@ -1019,7 +1019,7 @@
           </div>
           <div>
             <div class="board-section" id="sec-team">
-              <div class="board-section-title"><i class="fas fa-users dash-icon-dim"></i> Agent Team</div>
+              <div class="board-section-title"><i class="fas fa-users dash-icon-teal"></i> Agent Team</div>
               <div id="board-team"></div>
             </div>
             <div class="board-section" id="sec-backlog">
