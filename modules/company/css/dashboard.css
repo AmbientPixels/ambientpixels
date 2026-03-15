@@ -1742,6 +1742,7 @@
 .tb-stats-table tr:hover td { background: rgba(255,255,255,0.02); }
 .tb-stats-table .tb-col-views { color: #60a5fa; font-weight: 600; text-align: right; }
 .tb-stats-table .tb-col-pct   { color: rgba(255,255,255,0.35); text-align: right; }
+.tb-stats-table .tb-col-empty { text-align: center; color: rgba(255,255,255,0.25); font-style: italic; padding: 0.8rem; }
 
 /* ── CEO View Order ── */
 #view-ceo {

@@ -1723,6 +1723,7 @@
             });
           }
           var csvContent = csvRows.map(function (r) { return r.map(function (c) { return '"' + String(c).replace(/"/g, '""') + '"'; }).join(','); }).join('\n');
+          if (!tableRows) tableRows = '<tr><td colspan="3" class="tb-col-empty">No page data available</td></tr>';
           html += '<details class="tb-stats-details">'
             + '<summary><i class="fas fa-table" style="margin-right:4px;"></i>Full Stats Table'
             + '<button class="tb-export-btn" id="tb-csv-btn" type="button"><i class="fas fa-download" style="margin-right:3px;"></i>Export CSV</button>'
