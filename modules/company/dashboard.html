@@ -379,6 +379,7 @@
       <div class="dash-panel ceo-team-panel dash-panel--no-bottom">
         <div class="dash-panel-header dash-panel-header--tight">
           <span class="dash-panel-title"><i class="fas fa-heartbeat dash-icon-dim"></i> Agent Health</span>
+          <span id="agent-health-hb-dot" style="display:none;"></span>
         </div>
         <div class="dash-lastrun-bar" id="dash-lastrun-bar" style="display:none;"></div>
         <div class="agent-grid ceo-agent-grid-compact" id="ceo-agent-grid"></div>
@@ -548,7 +549,11 @@
         <div class="dash-section-body">
           <div class="dash-section-flex">
             <span class="dash-sub-label dash-sub-label--flush"><i class="fas fa-newspaper dash-icon-mr dash-icon-purple"></i>Content Pipeline</span>
-            <span class="dash-section-meta"><span id="ceo-content-blog-count">0</span> posts · <span id="ceo-content-log-count">0</span> logs</span>
+            <span class="dash-section-meta">
+              <span id="ceo-content-blog-count">0</span> published ·
+              <span id="ceo-content-draft-count">0</span> drafts ·
+              <span id="ceo-content-log-count">0</span> logs
+            </span>
           </div>
           <div id="ceo-blog-admin-mirror"></div>
           <div class="dash-empty" id="ceo-blog-admin-mirror-empty">No published blog posts.</div>
@@ -775,6 +780,9 @@
             <div class="dash-panel dash-panel--full">
               <div class="dash-panel-header">
                 <span class="dash-panel-title"><i class="fas fa-stream"></i> Session Log</span>
+                <label class="session-today-toggle" title="Show today's sessions only">
+                  <input type="checkbox" id="session-today-only"> Today
+                </label>
                 <span class="dash-panel-badge" id="session-count-badge">0 calls</span>
               </div>
               <div class="overflow-x-auto">
@@ -960,7 +968,6 @@
               <option value="Q4">Q4</option>
             </select>
             <button id="board-render-btn"><i class="fas fa-sync-alt"></i> Load</button>
-            <button id="board-copy-btn" class="board-copy-btn"><i class="fas fa-clipboard"></i> Copy Board Packet</button>
           </div>
         </div>
 
@@ -1041,6 +1048,10 @@
           <div id="board-risks"></div>
         </div>
 
+        <!-- Copy Packet (bottom) -->
+        <div style="text-align:center; padding: 1rem 0 0.5rem;">
+          <button id="board-copy-btn" class="board-copy-btn"><i class="fas fa-clipboard"></i> Copy Board Packet</button>
+        </div>
 
       </section>
     </div>
@@ -1587,6 +1598,14 @@
           + '<span class="dash-lastrun-item"><i class="fas fa-stopwatch"></i> ' + dur + '</span>'
           + '<span class="dash-lastrun-item"><i class="fas fa-bolt"></i> ' + executed + ' actions</span>'
           + (blocked ? '<span class="dash-lastrun-item dash-lastrun-blocked"><i class="fas fa-ban"></i> ' + blocked + ' dup-blocked</span>' : '');
+        // Heartbeat status dot in Agent Health header
+        var hbDot = document.getElementById('agent-health-hb-dot');
+        if (hbDot) {
+          hbDot.style.display = '';
+          hbDot.innerHTML = '<span style="display:inline-flex;align-items:center;gap:4px;font-size:0.6rem;opacity:0.6;">'
+            + '<span style="width:6px;height:6px;border-radius:50%;background:' + statusColor + ';display:inline-block;"></span>'
+            + (run.startedAt ? new Date(run.startedAt).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}) : '') + '</span>';
+        }
       }
 
       // ── Growth Section: Traffic Brief (CEO) ──
@@ -2017,18 +2036,29 @@
         }
         // Mirror content counts
         var blogCount = 0;
+        var draftCount = 0;
         var logCount = 0;
         try {
           var blogPosts = AgentEngine.getBlogPosts ? AgentEngine.getBlogPosts() : [];
           blogCount = Array.isArray(blogPosts) ? blogPosts.length : 0;
         } catch(e) {}
         try {
+          var docs = (typeof CompanyStore !== 'undefined' && CompanyStore.getState) ? CompanyStore.getState('ap_documents', []) : [];
+          if (Array.isArray(docs)) {
+            draftCount = docs.filter(function (d) {
+              return (d.kind === 'marketing_post' || d.kind === 'product_brief') && d.status !== 'published';
+            }).length;
+          }
+        } catch(e) {}
+        try {
           var dailyLogs = AgentEngine.getDailyLogs ? AgentEngine.getDailyLogs() : [];
           logCount = Array.isArray(dailyLogs) ? dailyLogs.length : 0;
         } catch(e) {}
         var bc = document.getElementById('ceo-content-blog-count');
+        var dc = document.getElementById('ceo-content-draft-count');
         var lc = document.getElementById('ceo-content-log-count');
         if (bc) bc.textContent = blogCount;
+        if (dc) dc.textContent = draftCount;
         if (lc) lc.textContent = logCount;
       }
 
@@ -2367,8 +2397,26 @@
       }
 
       // ── Session Log ──
+      (function () {
+        var todayToggle = document.getElementById('session-today-only');
+        if (todayToggle) {
+          todayToggle.addEventListener('change', renderSessions);
+        }
+      })();
+
       function renderSessions() {
-        var sessions = AgentEngine.getSessionLog().slice().reverse().slice(0, 30);
+        var todayToggle = document.getElementById('session-today-only');
+        var todayOnly = todayToggle && todayToggle.checked;
+        var all = AgentEngine.getSessionLog().slice().reverse();
+        var sessions;
+        if (todayOnly) {
+          var todayStr = new Date().toDateString();
+          sessions = all.filter(function (s) {
+            return s.timestamp && new Date(s.timestamp).toDateString() === todayStr;
+          }).slice(0, 30);
+        } else {
+          sessions = all.slice(0, 30);
+        }
         sessionTbody.innerHTML = '';
         sessionEmpty.style.display = sessions.length === 0 ? '' : 'none';
         sessionCountBadge.textContent = sessions.length + ' calls';
