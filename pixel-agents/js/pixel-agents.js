@@ -16,7 +16,10 @@ const CATEGORY_LABELS = {
   strategy: 'Strategy',
   naming: 'Naming',
   pitch: 'Pitch',
-  design: 'Design'
+  design: 'Design',
+  lifestyle: 'Lifestyle',
+  tools: 'Tools',
+  career: 'Career'
 };
 
 document.addEventListener('DOMContentLoaded', async () => {

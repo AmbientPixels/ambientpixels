@@ -43,6 +43,27 @@ const LOADING_MESSAGES = {
     'Generating your visual identity image...',
     'Almost there — image generation takes a moment...'
   ],
+  'fridge-raid': [
+    'Checking your ingredients...',
+    'Brainstorming recipes...',
+    'Writing step-by-step instructions...',
+    'Generating a photo of your dish...',
+    'Almost there — plating the final image...'
+  ],
+  'prompt-forge': [
+    'Analyzing your goal...',
+    'Crafting the Character role...',
+    'Building the Request...',
+    'Adding Examples and Adjustments...',
+    'Assembling your complete prompt...'
+  ],
+  'resume-roast': [
+    'Reading your resume...',
+    'Running ATS compatibility check...',
+    'Preparing the roast...',
+    'Writing rewrite suggestions...',
+    'Scoring your career document...'
+  ],
   '_default': [
     'Processing your request...',
     'The agent is working on it...',

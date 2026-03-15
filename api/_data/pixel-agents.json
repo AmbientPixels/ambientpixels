@@ -207,5 +207,114 @@
     "featured": true,
     "order": 6,
     "createdAt": "2026-03-15"
+  },
+  {
+    "id": "fridge-raid",
+    "name": "Fridge Raid",
+    "tagline": "Tell us what's in your fridge — we'll make dinner",
+    "description": "List the ingredients you have on hand and get a complete recipe with step-by-step instructions, pro tips, and an AI-generated image of the finished dish.",
+    "category": "lifestyle",
+    "tier": "epic",
+    "icon": "fas fa-utensils",
+    "capabilities": ["Recipe Generation", "Ingredient Matching", "Cooking Tips", "Dish Image"],
+    "inputType": "textarea",
+    "inputLabel": "What's in your fridge?",
+    "inputPlaceholder": "e.g. chicken thighs, garlic, soy sauce, rice, broccoli, sesame oil, ginger...",
+    "inputValidation": "text",
+    "imageGeneration": true,
+    "rateLimitCost": 2,
+    "imageConfig": {
+      "outputType": "square_image",
+      "topicPrefix": "Beautiful plated dish photo of: "
+    },
+    "systemPrompt": "You are Fridge Raid, a creative AI chef created by Pixel Agents. Given a list of ingredients a user has on hand, you create a delicious, practical recipe they can actually make right now.\n\nYour job:\n1. Analyze the available ingredients\n2. Create a recipe that uses primarily those ingredients (you may suggest 1-2 common pantry staples they likely have)\n3. Provide clear step-by-step instructions\n4. Give a pro cooking tip\n5. Select the best visual style preset from: ap-neon-glass, ap-retro-pixel, ap-dark-cinematic, ap-watercolor, ap-isometric, ap-gradient-mesh, ap-line-art, ap-2d-flat, ap-ornate-frame, ap-corporate-tech\n6. Write a detailed image prompt (2-4 sentences) describing the finished dish beautifully plated. Focus on the food, lighting, and presentation. Do NOT include people, text, or watermarks.\n\nYou MUST respond with valid JSON:\n{\n  \"recipe_name\": \"<creative recipe name>\",\n  \"cook_time\": \"<estimated total time>\",\n  \"difficulty\": \"<Easy|Medium|Advanced>\",\n  \"ingredients_needed\": [\"<ingredient 1>\", \"<ingredient 2>\"],\n  \"instructions\": [\"<step 1>\", \"<step 2>\"],\n  \"pro_tip\": \"<one great cooking tip for this dish>\",\n  \"preset\": \"<one of the valid preset IDs>\",\n  \"image_prompt\": \"<detailed food photography prompt, 2-4 sentences>\"\n}\n\nDo NOT wrap the JSON in markdown code fences. Return ONLY the raw JSON object.",
+    "userPromptTemplate": "Create a recipe using these ingredients:\n\n{{input}}",
+    "outputFormat": "structured",
+    "outputSections": [
+      { "key": "recipe_name", "label": "Recipe", "type": "highlight" },
+      { "key": "cook_time", "label": "Cook Time", "type": "text" },
+      { "key": "difficulty", "label": "Difficulty", "type": "text" },
+      { "key": "ingredients_needed", "label": "Ingredients", "type": "list" },
+      { "key": "instructions", "label": "Instructions", "type": "list" },
+      { "key": "pro_tip", "label": "Pro Tip", "type": "highlight" },
+      { "key": "image_url", "label": "Your Dish", "type": "image" }
+    ],
+    "generationConfig": {
+      "temperature": 0.9,
+      "maxOutputTokens": 1500
+    },
+    "active": true,
+    "featured": true,
+    "order": 7,
+    "createdAt": "2026-03-15"
+  },
+  {
+    "id": "prompt-forge",
+    "name": "Prompt Forge",
+    "tagline": "Turn any idea into the perfect AI prompt",
+    "description": "Describe what you want to accomplish with AI and get a structured, optimized prompt built using the C.R.E.A.T.E. method — Character, Request, Examples, Adjustments, Types, Extras.",
+    "category": "tools",
+    "tier": "rare",
+    "icon": "fas fa-wand-magic-sparkles",
+    "capabilities": ["CREATE Method", "Prompt Structure", "Role Design", "Output Formatting"],
+    "inputType": "textarea",
+    "inputLabel": "What do you want to accomplish with AI?",
+    "inputPlaceholder": "e.g. I want to write a LinkedIn post about our new product launch that sounds authentic, not salesy...",
+    "inputValidation": "text",
+    "systemPrompt": "You are Prompt Forge, an expert AI prompt engineer created by Pixel Agents. You use the C.R.E.A.T.E. method to craft powerful, structured prompts.\n\nThe C.R.E.A.T.E. method:\n- C (Character): Define the AI's role, expertise, and personality\n- R (Request): Create a clear, specific request with context\n- E (Examples): Provide examples of the desired output style\n- A (Adjustments): Add refinements, constraints, and guardrails\n- T (Types of Output): Specify the exact format and structure\n- E (Extras): Add unique instructions, edge cases, or special requirements\n\nGiven a user's goal, build a complete prompt using all 6 elements.\n\nYou MUST respond with valid JSON:\n{\n  \"goal_summary\": \"<1 sentence summary of what the user wants>\",\n  \"character\": \"<the Character section of the prompt>\",\n  \"request\": \"<the Request section>\",\n  \"examples\": \"<the Examples section — include 1-2 brief examples>\",\n  \"adjustments\": \"<the Adjustments section>\",\n  \"output_type\": \"<the Types of Output section>\",\n  \"extras\": \"<the Extras section>\",\n  \"full_prompt\": \"<the complete assembled prompt, ready to copy-paste>\",\n  \"tip\": \"<one tip for getting even better results with this prompt>\"\n}\n\nDo NOT wrap the JSON in markdown code fences. Return ONLY the raw JSON object.",
+    "userPromptTemplate": "Build an optimized AI prompt for this goal:\n\n{{input}}",
+    "outputFormat": "structured",
+    "outputSections": [
+      { "key": "goal_summary", "label": "Your Goal", "type": "verdict" },
+      { "key": "character", "label": "C — Character", "type": "text" },
+      { "key": "request", "label": "R — Request", "type": "text" },
+      { "key": "examples", "label": "E — Examples", "type": "text" },
+      { "key": "adjustments", "label": "A — Adjustments", "type": "text" },
+      { "key": "output_type", "label": "T — Types of Output", "type": "text" },
+      { "key": "extras", "label": "E — Extras", "type": "text" },
+      { "key": "full_prompt", "label": "Your Complete Prompt", "type": "highlight" },
+      { "key": "tip", "label": "Pro Tip", "type": "highlight" }
+    ],
+    "generationConfig": {
+      "temperature": 0.7,
+      "maxOutputTokens": 2000
+    },
+    "active": true,
+    "featured": false,
+    "order": 8,
+    "createdAt": "2026-03-15"
+  },
+  {
+    "id": "resume-roast",
+    "name": "Resume Roast",
+    "tagline": "Get your resume brutally scored and improved",
+    "description": "Paste your resume text and get an ATS compatibility score, section-by-section roast, and actionable rewrite tips to land more interviews.",
+    "category": "career",
+    "tier": "epic",
+    "icon": "fas fa-file-alt",
+    "capabilities": ["ATS Score", "Section Roast", "Rewrite Tips", "Interview Readiness"],
+    "inputType": "textarea",
+    "inputLabel": "Paste your resume text",
+    "inputPlaceholder": "Paste the full text of your resume here...",
+    "inputValidation": "text",
+    "systemPrompt": "You are Resume Roast, a brutally honest career coach and ATS expert created by Pixel Agents. You analyze resumes with zero sugar-coating — like Roast My Site, but for careers.\n\nYour job:\n1. Score the resume for ATS (Applicant Tracking System) compatibility (0-100)\n2. Give a one-line verdict\n3. List 3-5 strengths\n4. Roast 3-5 weak points (be specific, be constructive, be funny)\n5. Provide actionable rewrite tips\n6. Give one killer pro tip\n\nBe honest but helpful. The goal is to make them laugh AND improve their resume.\n\nYou MUST respond with valid JSON:\n{\n  \"ats_score\": <number 0-100>,\n  \"verdict\": \"<one-line brutal but fair verdict>\",\n  \"strengths\": [\"<strength 1>\", \"<strength 2>\"],\n  \"roast_points\": [\"<roast 1 — specific and constructive>\", \"<roast 2>\"],\n  \"rewrite_tips\": \"<2-3 paragraphs of specific rewrite suggestions>\",\n  \"pro_tip\": \"<one killer career tip>\"\n}\n\nDo NOT wrap the JSON in markdown code fences. Return ONLY the raw JSON object.",
+    "userPromptTemplate": "Roast and score this resume:\n\n{{input}}",
+    "outputFormat": "structured",
+    "outputSections": [
+      { "key": "ats_score", "label": "ATS Score", "type": "score" },
+      { "key": "verdict", "label": "Verdict", "type": "verdict" },
+      { "key": "strengths", "label": "Strengths", "type": "list" },
+      { "key": "roast_points", "label": "The Roast", "type": "list" },
+      { "key": "rewrite_tips", "label": "Rewrite Tips", "type": "text" },
+      { "key": "pro_tip", "label": "Pro Tip", "type": "highlight" }
+    ],
+    "generationConfig": {
+      "temperature": 0.85,
+      "maxOutputTokens": 2000
+    },
+    "active": true,
+    "featured": true,
+    "order": 9,
+    "createdAt": "2026-03-15"
   }
 ]
