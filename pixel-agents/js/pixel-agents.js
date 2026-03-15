@@ -19,7 +19,9 @@ const CATEGORY_LABELS = {
   design: 'Design',
   lifestyle: 'Lifestyle',
   tools: 'Tools',
-  career: 'Career'
+  career: 'Career',
+  intel: 'Intel',
+  gaming: 'Gaming'
 };
 
 document.addEventListener('DOMContentLoaded', async () => {

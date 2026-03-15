@@ -64,6 +64,30 @@ const LOADING_MESSAGES = {
     'Writing rewrite suggestions...',
     'Scoring your career document...'
   ],
+  'signal': [
+    'Scanning the news wire...',
+    'Searching for breaking stories...',
+    'Filtering the noise...',
+    'Assembling your briefing...'
+  ],
+  'hype-check': [
+    'Checking Steam charts...',
+    'Scanning gaming news...',
+    'Finding hidden gems...',
+    'Rating the hype...'
+  ],
+  'buzz-check': [
+    'Scanning the internet...',
+    'Detecting viral trends...',
+    'Analyzing the buzz...',
+    'Making predictions...'
+  ],
+  'hivemind': [
+    'Infiltrating Reddit...',
+    'Reading the hot posts...',
+    'Feeling the community mood...',
+    'Extracting the spiciest takes...'
+  ],
   '_default': [
     'Processing your request...',
     'The agent is working on it...',

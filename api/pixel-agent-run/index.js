@@ -133,8 +133,37 @@ module.exports = async function (context, req) {
       }
     }
 
+    // Web search enrichment (for agents that need live data)
+    let searchContext = '';
+    if (agent.webSearch) {
+      try {
+        const { searchInternal } = require('../toolsWebSearch');
+        const queries = agent.searchConfig?.queries
+          ? agent.searchConfig.queries.map(q => q.replace('{{input}}', input.trim()))
+          : [input.trim()];
+        const maxResults = agent.searchConfig?.maxResults || 5;
+
+        const allResults = [];
+        for (const q of queries) {
+          const searchResult = await searchInternal(q, maxResults, 'pixel-agent-' + agentId, context);
+          if (searchResult.ok && searchResult.results.length > 0) {
+            allResults.push(...searchResult.results);
+          }
+        }
+
+        if (allResults.length > 0) {
+          searchContext = '\n\n--- LIVE WEB SEARCH RESULTS ---\n' +
+            allResults.map((r, i) => (i + 1) + '. ' + r.title + '\n   ' + r.url + '\n   ' + r.snippet).join('\n\n') +
+            '\n--- END SEARCH RESULTS ---\n';
+          context.log('[PixelAgentRun] Web search returned ' + allResults.length + ' results for ' + queries.length + ' queries');
+        }
+      } catch (searchErr) {
+        context.log.warn('[PixelAgentRun] Web search failed (non-fatal):', searchErr.message);
+      }
+    }
+
     // Build prompt
-    const userMessage = agent.userPromptTemplate.replace('{{input}}', input.trim());
+    const userMessage = agent.userPromptTemplate.replace('{{input}}', input.trim()) + searchContext;
 
     // Call Claude API
     context.log('[PixelAgentRun] Agent:', agentId, 'Input:', input.substring(0, 100));

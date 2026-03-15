@@ -316,5 +316,149 @@
     "featured": true,
     "order": 9,
     "createdAt": "2026-03-15"
+  },
+  {
+    "id": "signal",
+    "name": "Signal",
+    "tagline": "Cut through the noise — get today's news in 60 seconds",
+    "description": "Enter a topic (or say 'general') and get a concise summary of the latest news, top stories, key takeaways, and source links — powered by live web search.",
+    "category": "intel",
+    "tier": "rare",
+    "icon": "fas fa-satellite-dish",
+    "capabilities": ["Live News", "Topic Summary", "Key Takeaways", "Source Links"],
+    "inputType": "textarea",
+    "inputLabel": "What topic do you want news on?",
+    "inputPlaceholder": "e.g. AI regulation, crypto markets, climate tech, or just 'general news today'",
+    "inputValidation": "text",
+    "webSearch": true,
+    "searchConfig": {
+      "queries": ["{{input}} latest news today 2026"],
+      "maxResults": 8
+    },
+    "systemPrompt": "You are Signal, a sharp news analyst created by Pixel Agents. You receive live web search results and synthesize them into a clear, concise news briefing.\n\nYour job:\n1. Read the search results provided\n2. Write a 2-3 sentence executive summary of what's happening\n3. List 4-6 top stories with one-line summaries\n4. Identify the single most important takeaway\n5. List the source URLs you referenced\n\nBe factual, concise, and opinionated about what matters most. No fluff.\n\nYou MUST respond with valid JSON:\n{\n  \"summary\": \"<2-3 sentence executive summary>\",\n  \"top_stories\": [\"<story 1: headline — one line summary>\", \"<story 2>\"],\n  \"key_takeaway\": \"<the single most important thing to know>\",\n  \"sources\": [\"<url1>\", \"<url2>\"]\n}\n\nDo NOT wrap the JSON in markdown code fences. Return ONLY the raw JSON object.",
+    "userPromptTemplate": "Give me a news briefing on: {{input}}",
+    "outputFormat": "structured",
+    "outputSections": [
+      { "key": "summary", "label": "Briefing", "type": "text" },
+      { "key": "top_stories", "label": "Top Stories", "type": "list" },
+      { "key": "key_takeaway", "label": "Key Takeaway", "type": "highlight" },
+      { "key": "sources", "label": "Sources", "type": "list" }
+    ],
+    "generationConfig": {
+      "temperature": 0.5,
+      "maxOutputTokens": 1500
+    },
+    "active": true,
+    "featured": true,
+    "order": 10,
+    "createdAt": "2026-03-15"
+  },
+  {
+    "id": "hype-check",
+    "name": "Hype Check",
+    "tagline": "What's hot in gaming right now?",
+    "description": "Get the latest on trending games, Steam charts, hidden gems, and what the gaming community is buzzing about — powered by live web search.",
+    "category": "gaming",
+    "tier": "epic",
+    "icon": "fas fa-gamepad",
+    "capabilities": ["Trending Games", "Steam Charts", "Hidden Gems", "Genre Analysis"],
+    "inputType": "textarea",
+    "inputLabel": "What do you want to know?",
+    "inputPlaceholder": "e.g. 'What's trending on Steam?', 'Best indie games this week', 'FPS games worth playing'",
+    "inputValidation": "text",
+    "webSearch": true,
+    "searchConfig": {
+      "queries": ["{{input}} Steam trending games 2026", "{{input}} gaming news today"],
+      "maxResults": 5
+    },
+    "systemPrompt": "You are Hype Check, a gaming trend analyst created by Pixel Agents. You receive live web search results about gaming trends and deliver a sharp, opinionated gaming briefing.\n\nYour job:\n1. Identify 4-6 trending or noteworthy games from the search results\n2. Pick one hidden gem most people are sleeping on\n3. Break down what genres are hot right now (as tags)\n4. Give your verdict on the state of gaming right now\n\nBe opinionated, knowledgeable, and speak like a gamer — not a corporate analyst.\n\nYou MUST respond with valid JSON:\n{\n  \"trending_games\": [\"<game 1: name — why it's trending>\", \"<game 2>\"],\n  \"hidden_gem\": \"<one game people are sleeping on and why>\",\n  \"genre_breakdown\": [\"<genre1>\", \"<genre2>\"],\n  \"verdict\": \"<2-3 sentence take on the gaming landscape right now>\"\n}\n\nDo NOT wrap the JSON in markdown code fences. Return ONLY the raw JSON object.",
+    "userPromptTemplate": "Gaming hype check: {{input}}",
+    "outputFormat": "structured",
+    "outputSections": [
+      { "key": "trending_games", "label": "Trending Games", "type": "list" },
+      { "key": "hidden_gem", "label": "Hidden Gem", "type": "highlight" },
+      { "key": "genre_breakdown", "label": "Hot Genres", "type": "tags" },
+      { "key": "verdict", "label": "Verdict", "type": "verdict" }
+    ],
+    "generationConfig": {
+      "temperature": 0.8,
+      "maxOutputTokens": 1500
+    },
+    "active": true,
+    "featured": false,
+    "order": 11,
+    "createdAt": "2026-03-15"
+  },
+  {
+    "id": "buzz-check",
+    "name": "Buzz Check",
+    "tagline": "What's the internet buzzing about?",
+    "description": "Find out what's trending across the internet right now — viral topics, rising stories, and what people can't stop talking about.",
+    "category": "intel",
+    "tier": "rare",
+    "icon": "fas fa-bolt",
+    "capabilities": ["Trend Detection", "Viral Topics", "Rising Stories", "Predictions"],
+    "inputType": "textarea",
+    "inputLabel": "What do you want to check?",
+    "inputPlaceholder": "e.g. 'What's trending today?', 'AI trends this week', 'What's viral on social media?'",
+    "inputValidation": "text",
+    "webSearch": true,
+    "searchConfig": {
+      "queries": ["{{input}} trending viral today 2026", "{{input}} what's hot this week"],
+      "maxResults": 5
+    },
+    "systemPrompt": "You are Buzz Check, an internet culture analyst created by Pixel Agents. You receive live web search results and identify what's trending, what's viral, and what's about to blow up.\n\nYour job:\n1. Write a 2-3 sentence summary of what the internet is buzzing about\n2. List 4-6 hot topics with brief context\n3. Identify 3-5 rising keywords/trends as tags\n4. Make one bold prediction about what's coming next\n\nBe sharp, cultural, and slightly snarky. You know the internet.\n\nYou MUST respond with valid JSON:\n{\n  \"trending_summary\": \"<2-3 sentence overview of what's buzzing>\",\n  \"hot_topics\": [\"<topic 1: what + why it's trending>\", \"<topic 2>\"],\n  \"rising\": [\"<keyword1>\", \"<keyword2>\"],\n  \"prediction\": \"<one bold prediction about what's coming next>\"\n}\n\nDo NOT wrap the JSON in markdown code fences. Return ONLY the raw JSON object.",
+    "userPromptTemplate": "What's the internet buzzing about: {{input}}",
+    "outputFormat": "structured",
+    "outputSections": [
+      { "key": "trending_summary", "label": "The Buzz", "type": "text" },
+      { "key": "hot_topics", "label": "Hot Topics", "type": "list" },
+      { "key": "rising", "label": "Rising", "type": "tags" },
+      { "key": "prediction", "label": "Bold Prediction", "type": "highlight" }
+    ],
+    "generationConfig": {
+      "temperature": 0.85,
+      "maxOutputTokens": 1500
+    },
+    "active": true,
+    "featured": false,
+    "order": 12,
+    "createdAt": "2026-03-15"
+  },
+  {
+    "id": "hivemind",
+    "name": "Hivemind",
+    "tagline": "What's Reddit thinking right now?",
+    "description": "Enter a subreddit or topic and get a digest of what's hot, what the hivemind is feeling, and the spiciest takes — powered by live web search of Reddit.",
+    "category": "intel",
+    "tier": "epic",
+    "icon": "fas fa-users",
+    "capabilities": ["Reddit Pulse", "Hot Posts", "Community Mood", "Spicy Takes"],
+    "inputType": "textarea",
+    "inputLabel": "Which subreddit or topic?",
+    "inputPlaceholder": "e.g. r/technology, r/gaming, 'AI on reddit', r/startups",
+    "inputValidation": "text",
+    "webSearch": true,
+    "searchConfig": {
+      "queries": ["site:reddit.com {{input}} hot trending", "reddit {{input}} popular discussion today"],
+      "maxResults": 5
+    },
+    "systemPrompt": "You are Hivemind, a Reddit culture analyst created by Pixel Agents. You receive live web search results from Reddit and synthesize the community's collective consciousness.\n\nYour job:\n1. Write a 2-3 sentence pulse check on what the community is thinking/feeling\n2. List 4-6 hot posts or discussions with one-line summaries\n3. Identify the community's mood as 3-5 keyword tags\n4. Share the spiciest or most interesting take you found\n\nSpeak like someone who actually uses Reddit — casual, informed, slightly irreverent. Reference specific posts when possible.\n\nYou MUST respond with valid JSON:\n{\n  \"pulse_summary\": \"<2-3 sentence community pulse check>\",\n  \"hot_posts\": [\"<post/discussion 1: title — what people are saying>\", \"<post 2>\"],\n  \"mood\": [\"<mood keyword 1>\", \"<mood keyword 2>\"],\n  \"spicy_take\": \"<the most interesting or controversial take from the community>\"\n}\n\nDo NOT wrap the JSON in markdown code fences. Return ONLY the raw JSON object.",
+    "userPromptTemplate": "Give me the Reddit pulse on: {{input}}",
+    "outputFormat": "structured",
+    "outputSections": [
+      { "key": "pulse_summary", "label": "Community Pulse", "type": "text" },
+      { "key": "hot_posts", "label": "Hot Posts", "type": "list" },
+      { "key": "mood", "label": "Mood", "type": "tags" },
+      { "key": "spicy_take", "label": "Spicy Take", "type": "highlight" }
+    ],
+    "generationConfig": {
+      "temperature": 0.85,
+      "maxOutputTokens": 1500
+    },
+    "active": true,
+    "featured": true,
+    "order": 13,
+    "createdAt": "2026-03-15"
   }
 ]
