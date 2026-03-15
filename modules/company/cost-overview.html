@@ -345,7 +345,9 @@
     }
 
     var _data = { gemini: null, claude: null, azure: null, x: null };
-    var apiBase = '/api';
+    var apiBase = window.location.hostname.includes('ambientpixels.ai')
+      ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+      : '/api';
 
     function escapeHtml(s) {
       var d = document.createElement('div'); d.textContent = s; return d.innerHTML;
@@ -357,12 +359,24 @@
       return n.toString();
     }
 
+    function setText(id, text) {
+      var el = document.getElementById(id);
+      if (el) el.textContent = text;
+    }
+
     // ── Init ──
+    // Start cost fetches immediately (don't wait for AgentEngine which may be slow)
+    fetchGemini(30);
+    fetchClaude(30);
+    fetchAzure(30);
+
+    // Agent-dependent renders need registry
     AgentEngine.loadRegistry().then(function () {
-      apiBase = (typeof CompanyStore !== 'undefined' && CompanyStore.getServerBase) ? (CompanyStore.getServerBase() || '/api') : '/api';
-      fetchGemini(30);
-      fetchClaude(30);
-      fetchAzure(30);
+      renderX(30);
+      renderAgentCosts();
+      renderROI();
+    }).catch(function () {
+      // If registry fails, still render X/agent costs with empty data
       renderX(30);
       renderAgentCosts();
       renderROI();
@@ -674,7 +688,7 @@
         if (xActions.length === 0) html = '<div class="cost-empty">No X.com posts in the last ' + days + ' days.' + (xMonthly > 0 ? ' Subscription: $' + xMonthly + '/mo.' : ' Free tier.') + '</div>';
         el.innerHTML = html;
       } catch (e) {
-        el.innerHTML = '<div class="cost-empty">Error loading X.com data.</div>';
+        el.innerHTML = '<div class="cost-empty">Error loading X.com data: ' + escapeHtml(e.message || '') + '</div>';
       }
     }
 
@@ -788,27 +802,27 @@
       var claudeAvgDay = cl && cl.totalCalls > 0 ? claudeTotal / Math.max(Object.keys(cl.byDay || {}).length, 1) : 0;
       var projected = azureProjected + (geminiAvgDay * 30) + (claudeAvgDay * 30) + getXMonthly();
 
-      // Stat cards
-      document.getElementById('cs-total').textContent = '$' + combined.toFixed(2);
-      document.getElementById('cs-gemini').textContent = '$' + geminiTotal.toFixed(2);
-      document.getElementById('cs-gemini-sub').textContent = g ? g.totalCalls + ' calls' : '—';
-      document.getElementById('cs-claude').textContent = '$' + claudeTotal.toFixed(2);
-      document.getElementById('cs-claude-sub').textContent = cl ? cl.totalCalls + ' calls' : '—';
-      document.getElementById('cs-azure').textContent = '$' + azureTotal.toFixed(2);
-      document.getElementById('cs-azure-sub').textContent = a ? a.serviceCount + ' services' : '—';
+      // Stat cards (null-safe)
+      setText('cs-total', '$' + combined.toFixed(2));
+      setText('cs-gemini', '$' + geminiTotal.toFixed(2));
+      setText('cs-gemini-sub', g ? g.totalCalls + ' calls' : '—');
+      setText('cs-claude', '$' + claudeTotal.toFixed(2));
+      setText('cs-claude-sub', cl ? cl.totalCalls + ' calls' : '—');
+      setText('cs-azure', '$' + azureTotal.toFixed(2));
+      setText('cs-azure-sub', a ? a.serviceCount + ' services' : '—');
       var xCostPerPost = (x && x.postsCount > 0) ? xTotal / x.postsCount : 0;
-      document.getElementById('cs-x').textContent = (x && x.postsCount > 0) ? '$' + xCostPerPost.toFixed(2) : '$0.00';
+      setText('cs-x', (x && x.postsCount > 0) ? '$' + xCostPerPost.toFixed(2) : '$0.00');
       var xPlan = getXMonthly();
       var xPlanName = xPlan === 0 ? 'Free' : (xPlan === 100 ? 'Basic' : (xPlan === 5000 ? 'Pro' : '$' + xPlan));
-      document.getElementById('cs-x-sub').textContent = x ? x.postsCount + ' posts \u00B7 ' + xPlanName : xPlanName;
-      document.getElementById('cs-projected').textContent = '$' + projected.toFixed(2);
+      setText('cs-x-sub', x ? x.postsCount + ' posts \u00B7 ' + xPlanName : xPlanName);
+      setText('cs-projected', '$' + projected.toFixed(2));
 
       // Hero summary
       var parts = ['$' + combined.toFixed(2) + ' total spend (30d)'];
       if (projected > 0) parts.push('$' + projected.toFixed(2) + '/mo projected');
       var totalCalls = (g ? g.totalCalls : 0) + (cl ? cl.totalCalls : 0);
       if (totalCalls > 0) parts.push(formatNum(totalCalls) + ' API calls');
-      document.getElementById('cost-summary-text').textContent = parts.join(' · ');
+      setText('cost-summary-text', parts.join(' · '));
 
       // Breakdown bar
       if (combined > 0) {
