@@ -29,8 +29,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     allAgents = allAgents.filter(a => a.active);
 
     if (statsRes && statsRes.ok) {
-      const statsData = await statsRes.json();
-      usageStats = statsData.stats || {};
+      const statsCT = statsRes.headers.get('content-type') || '';
+      if (statsCT.includes('application/json')) {
+        const statsData = await statsRes.json();
+        usageStats = statsData.stats || {};
+      }
     }
 
     renderGrid(allAgents);
