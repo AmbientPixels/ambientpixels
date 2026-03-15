@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   try {
-    const res = await fetch('/data/pixel-agents.json');
+    const res = await fetch('/pixel-agents/data/pixel-agents.json?v=1');
     const agents = await res.json();
     currentAgent = agents.find(a => a.id === agentId && a.active);
 

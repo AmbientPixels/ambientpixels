@@ -392,6 +392,19 @@
       "route": "/data/*"
     },
     {
+      "route": "/pixel-agents/data/*"
+    },
+    {
+      "route": "/pixel-agents/css/*"
+    },
+    {
+      "route": "/pixel-agents/js/*"
+    },
+    {
+      "route": "/pixel-agents/*",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/storyforge/css/*",
       "allowedRoles": ["anonymous"],
       "headers": {
