@@ -2458,8 +2458,11 @@
         var wrap = document.getElementById('overnight-collapse');
         var btn = document.getElementById('overnight-expand-btn');
         if (count > _overnightCollapseThreshold) {
-          wrap.classList.add('log-collapse-wrap--collapsed');
-          btn.textContent = 'Show all ' + count + ' entries';
+          var isExpanded = !wrap.classList.contains('log-collapse-wrap--collapsed');
+          if (!isExpanded) {
+            wrap.classList.add('log-collapse-wrap--collapsed');
+            btn.textContent = 'Show all ' + count + ' entries';
+          }
           btn.classList.add('log-expand-btn--visible');
         } else {
           wrap.classList.remove('log-collapse-wrap--collapsed');
@@ -2467,8 +2470,9 @@
         }
       }
       document.getElementById('overnight-expand-btn').addEventListener('click', function () {
-        document.getElementById('overnight-collapse').classList.remove('log-collapse-wrap--collapsed');
-        this.classList.remove('log-expand-btn--visible');
+        var wrap = document.getElementById('overnight-collapse');
+        var collapsed = wrap.classList.toggle('log-collapse-wrap--collapsed');
+        this.textContent = collapsed ? 'Show all entries' : 'Collapse';
       });
 
       // ── Overnight / Today Log ──
