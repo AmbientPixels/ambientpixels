@@ -1425,16 +1425,15 @@
           cstatActionSub.textContent = pending.length + ' approvals' + (sdePending.length > 0 ? ', ' + sdePending.length + ' proposals' : '');
         }
 
-        // Autonomy
+        // Autonomy — use same composite score as ops Autonomy Score panel
         var cstatAutonomy = document.getElementById('cstat-autonomy');
         var cstatAutonomySub = document.getElementById('cstat-autonomy-sub');
-        if (cstatAutonomy) {
-          var doneTasks = allTasks.filter(function (t) { return t.status === 'done'; });
-          var autoCompleted = doneTasks.filter(function (t) { return !t.manuallyCompleted; }).length;
-          var pct = doneTasks.length > 0 ? Math.round((autoCompleted / doneTasks.length) * 100) : 0;
+        if (cstatAutonomy && AgentEngine.getAutonomyScore) {
+          var autoData = AgentEngine.getAutonomyScore();
+          var pct = autoData.score || 0;
           cstatAutonomy.textContent = pct + '%';
           cstatAutonomy.parentElement.style.setProperty('--cstat-color', pct >= 70 ? '#34d399' : pct >= 40 ? '#fbbf24' : '#ef4444');
-          cstatAutonomySub.textContent = autoCompleted + '/' + doneTasks.length + ' auto-completed';
+          cstatAutonomySub.textContent = autoData.total + ' items · 7-day window';
         }
 
         // Daily Burn
