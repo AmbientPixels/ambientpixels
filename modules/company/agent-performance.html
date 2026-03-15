@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Agent Performance — quality scores, approval rates, and experiment tracking." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Agent Performance — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
+  <style>
+    .ap-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+    .ap-card { background: var(--aura-surface, #1a1a2e); border: 1px solid var(--aura-border, #2a2a4a); border-radius: 12px; padding: 1.25rem; position: relative; }
+    .ap-card-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1rem; }
+    .ap-card-name { font-weight: 600; font-size: 1.05rem; color: var(--aura-text, #e0e0ff); }
+    .ap-card-role { font-size: 0.8rem; color: var(--aura-muted, #888); }
+    .ap-score { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; }
+    .ap-score-value { font-size: 2rem; font-weight: 700; line-height: 1; }
+    .ap-score-label { font-size: 0.75rem; color: var(--aura-muted, #888); }
+    .ap-trend { font-size: 0.8rem; padding: 2px 8px; border-radius: 999px; font-weight: 500; }
+    .ap-trend--improving { background: rgba(52, 211, 153, 0.15); color: #34d399; }
+    .ap-trend--stable { background: rgba(250, 204, 21, 0.12); color: #facc15; }
+    .ap-trend--declining { background: rgba(248, 113, 113, 0.15); color: #f87171; }
+    .ap-stat-row { display: flex; justify-content: space-between; padding: 0.3rem 0; font-size: 0.85rem; border-bottom: 1px solid var(--aura-border, #2a2a4a); }
+    .ap-stat-row:last-child { border-bottom: none; }
+    .ap-stat-label { color: var(--aura-muted, #888); }
+    .ap-stat-val { color: var(--aura-text, #e0e0ff); font-weight: 500; }
+    .ap-bar { height: 6px; border-radius: 3px; background: var(--aura-border, #2a2a4a); margin-top: 0.5rem; overflow: hidden; }
+    .ap-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+    .ap-notes { margin-top: 0.75rem; padding: 0.5rem 0.75rem; background: rgba(255,255,255,0.03); border-radius: 8px; font-size: 0.8rem; color: var(--aura-muted, #888); }
+    .ap-notes-title { font-weight: 600; color: var(--aura-text, #e0e0ff); margin-bottom: 0.25rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    .ap-notes-item { margin: 0.15rem 0; }
+    .ap-empty { text-align: center; padding: 3rem 1rem; color: var(--aura-muted, #888); }
+    .ap-section-title { font-size: 1.1rem; font-weight: 600; margin: 1.5rem 0 0.75rem; color: var(--aura-text, #e0e0ff); }
+    .ap-exp-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .ap-exp-table th { text-align: left; padding: 0.5rem 0.75rem; color: var(--aura-muted, #888); border-bottom: 1px solid var(--aura-border, #2a2a4a); font-weight: 500; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    .ap-exp-table td { padding: 0.5rem 0.75rem; border-bottom: 1px solid var(--aura-border, #1a1a3a); color: var(--aura-text, #e0e0ff); }
+    .ap-exp-badge { padding: 2px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+    .ap-exp-badge--active { background: rgba(96, 165, 250, 0.15); color: #60a5fa; }
+    .ap-exp-badge--keep { background: rgba(52, 211, 153, 0.15); color: #34d399; }
+    .ap-exp-badge--discard { background: rgba(248, 113, 113, 0.15); color: #f87171; }
+    .ap-exp-badge--inconclusive { background: rgba(250, 204, 21, 0.12); color: #facc15; }
+    .ap-timestamp { font-size: 0.75rem; color: var(--aura-muted, #888); margin-top: 0.5rem; }
+    @media (max-width: 768px) { .ap-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body data-theme="dark">
+  <main class="content-section">
+    <div class="company-header">
+      <h1><i class="fas fa-gauge-high co-icon-mr-lg dash-icon-sky"></i>Agent Performance</h1>
+      <p>Quality scores, approval rates, and experiment tracking across all agents.</p>
+    </div>
+
+    <div id="ap-loading" class="ap-empty">Loading performance data...</div>
+    <div id="ap-content" style="display:none;">
+      <div class="ap-timestamp" id="ap-timestamp"></div>
+      <div class="ap-grid" id="ap-agent-grid"></div>
+
+      <h2 class="ap-section-title"><i class="fas fa-flask co-icon-mr"></i> Experiments</h2>
+      <div id="ap-experiments">
+        <div class="ap-empty">No experiments yet.</div>
+      </div>
+    </div>
+  </main>
+
+  <script src="/modules/company/js/sidebar.js"></script>
+  <script>
+  (function () {
+    var API = '/api/company-state';
+    var SECRET = 'pixelpusher';
+
+    function fetchState(key) {
+      return fetch(API + '?key=' + key, { headers: { 'x-company-secret': SECRET } })
+        .then(function (r) { return r.json(); })
+        .then(function (d) { return d && d.value !== undefined ? d.value : d; });
+    }
+
+    function scoreColor(score) {
+      if (score >= 70) return '#34d399';
+      if (score >= 45) return '#facc15';
+      return '#f87171';
+    }
+
+    function pctBar(rate, color) {
+      var pct = Math.round((rate || 0) * 100);
+      return '<div class="ap-bar"><div class="ap-bar-fill" style="width:' + pct + '%;background:' + (color || '#60a5fa') + '"></div></div>';
+    }
+
+    function renderAgents(digest) {
+      var grid = document.getElementById('ap-agent-grid');
+      var agents = digest.agents || {};
+      var ids = Object.keys(agents).sort(function (a, b) {
+        return (agents[b].qualityScore || 0) - (agents[a].qualityScore || 0);
+      });
+
+      if (!ids.length) { grid.innerHTML = '<div class="ap-empty">No agent data available.</div>'; return; }
+
+      var ROLES = { nova: 'Prime Operator', cipher: 'CFO', pixel: 'Design & QC', forge: 'DevOps', echo: 'Marketing', scribe: 'Head of Content', quill: 'Editor', scout: 'Research' };
+
+      grid.innerHTML = ids.map(function (id, idx) {
+        var a = agents[id];
+        var name = id.charAt(0).toUpperCase() + id.slice(1);
+        var role = ROLES[id] || '';
+        var color = scoreColor(a.qualityScore);
+        var trendClass = 'ap-trend--' + (a.qualityTrend || 'stable');
+        var trendLabel = a.qualityTrend === 'improving' ? 'Improving' : (a.qualityTrend === 'declining' ? 'Declining' : 'Stable');
+        var prevDelta = a.qualityScore - (a.previousScore || a.qualityScore);
+        var deltaStr = prevDelta > 0 ? '+' + prevDelta : (prevDelta < 0 ? '' + prevDelta : '');
+
+        var card = '<div class="ap-card">';
+        card += '<div class="ap-card-header">';
+        card += '<div><div class="ap-card-name">' + name + (idx === 0 ? ' <i class="fas fa-crown" style="color:#facc15;font-size:0.85rem" title="Top performer"></i>' : '') + '</div>';
+        card += '<div class="ap-card-role">' + role + '</div></div>';
+        card += '</div>';
+
+        card += '<div class="ap-score">';
+        card += '<div class="ap-score-value" style="color:' + color + '">' + a.qualityScore + '</div>';
+        card += '<div><div class="ap-score-label">/100</div>';
+        card += '<span class="ap-trend ' + trendClass + '">' + trendLabel + (deltaStr ? ' ' + deltaStr : '') + '</span>';
+        card += '</div></div>';
+
+        if (a.peerReviewsReceived > 0) {
+          card += '<div class="ap-stat-row"><span class="ap-stat-label">Peer Review</span><span class="ap-stat-val">' + a.peerReviewApproved + '/' + a.peerReviewsReceived + ' (' + Math.round(a.peerReviewApprovalRate * 100) + '%)</span></div>';
+          card += pctBar(a.peerReviewApprovalRate, '#34d399');
+        }
+
+        if (a.ceoActionsSubmitted > 0) {
+          card += '<div class="ap-stat-row"><span class="ap-stat-label">CEO Approval</span><span class="ap-stat-val">' + a.ceoApproved + '/' + a.ceoActionsSubmitted + ' (' + Math.round(a.ceoApprovalRate * 100) + '%)</span></div>';
+          card += pctBar(a.ceoApprovalRate, '#60a5fa');
+        }
+
+        if (a.avgRevisionsBeforeApproval > 0) {
+          card += '<div class="ap-stat-row"><span class="ap-stat-label">Avg Revisions</span><span class="ap-stat-val">' + a.avgRevisionsBeforeApproval + '</span></div>';
+        }
+
+        if (a.socialPostsPublished > 0) {
+          card += '<div class="ap-stat-row"><span class="ap-stat-label">Social Posts</span><span class="ap-stat-val">' + a.socialPostsPublished + ' (avg ' + a.avgLikesPerPost + ' likes)</span></div>';
+        }
+
+        if (a.tasksCompleted > 0) {
+          card += '<div class="ap-stat-row"><span class="ap-stat-label">Tasks Done</span><span class="ap-stat-val">' + a.tasksCompleted + (a.avgTaskDurationHours ? ' (avg ' + a.avgTaskDurationHours + 'h)' : '') + '</span></div>';
+        }
+
+        if (a.ceoRevisionNotes && a.ceoRevisionNotes.length > 0) {
+          card += '<div class="ap-notes"><div class="ap-notes-title">CEO Feedback</div>';
+          a.ceoRevisionNotes.slice(0, 3).forEach(function (n) {
+            card += '<div class="ap-notes-item">"' + n.substring(0, 80) + (n.length > 80 ? '...' : '') + '"</div>';
+          });
+          card += '</div>';
+        }
+
+        card += '</div>';
+        return card;
+      }).join('');
+    }
+
+    function renderExperiments(experiments) {
+      var el = document.getElementById('ap-experiments');
+      if (!Array.isArray(experiments) || !experiments.length) {
+        el.innerHTML = '<div class="ap-empty">No experiments yet. Agents can start experiments via the <code>remember</code> action with an <code>experiment_tag</code>.</div>';
+        return;
+      }
+
+      // Sort: active first, then by startedAt desc
+      experiments.sort(function (a, b) {
+        if (a.status === 'active' && b.status !== 'active') return -1;
+        if (b.status === 'active' && a.status !== 'active') return 1;
+        return (Date.parse(b.startedAt) || 0) - (Date.parse(a.startedAt) || 0);
+      });
+
+      var html = '<table class="ap-exp-table"><thead><tr><th>Agent</th><th>Hypothesis</th><th>Status</th><th>Samples</th><th>Result</th><th>Started</th></tr></thead><tbody>';
+      experiments.forEach(function (e) {
+        var statusClass = e.status === 'active' ? 'active' : (e.result || 'inconclusive');
+        var statusLabel = e.status === 'active' ? 'Active' : (e.result === 'keep' ? 'Keep' : (e.result === 'discard' ? 'Discard' : 'Inconclusive'));
+        var name = (e.agentId || '').charAt(0).toUpperCase() + (e.agentId || '').slice(1);
+        var started = e.startedAt ? new Date(e.startedAt).toLocaleDateString() : '—';
+        html += '<tr>';
+        html += '<td>' + name + '</td>';
+        html += '<td>' + (e.hypothesis || '') + '<br><span style="font-size:0.75rem;color:var(--aura-muted,#888)">' + (e.description || '').substring(0, 80) + '</span></td>';
+        html += '<td><span class="ap-exp-badge ap-exp-badge--' + statusClass + '">' + statusLabel + '</span></td>';
+        html += '<td>' + (e.sampleCount || 0) + '/' + (e.minSamples || 3) + '</td>';
+        html += '<td>' + (e.experimentMetric ? Math.round((e.experimentMetric.ceoApprovalRate || 0) * 100) + '% approval' : '—') + '</td>';
+        html += '<td>' + started + '</td>';
+        html += '</tr>';
+      });
+      html += '</tbody></table>';
+      el.innerHTML = html;
+    }
+
+    // Load data
+    Promise.all([
+      fetchState('runtimeMemory'),
+      fetchState('agentExperiments')
+    ]).then(function (results) {
+      var runtime = results[0] || {};
+      var experiments = results[1] || [];
+      var digest = runtime.agentPerformance;
+
+      document.getElementById('ap-loading').style.display = 'none';
+      document.getElementById('ap-content').style.display = 'block';
+
+      if (digest && digest.agents) {
+        document.getElementById('ap-timestamp').textContent = 'Last updated: ' + (digest.asOfUtc ? new Date(digest.asOfUtc).toLocaleString() : 'unknown') + ' (' + (digest.windowDays || 30) + '-day window)';
+        renderAgents(digest);
+      } else {
+        document.getElementById('ap-agent-grid').innerHTML = '<div class="ap-empty">No performance data yet. Data appears after agents complete tasks and receive reviews.</div>';
+      }
+
+      renderExperiments(experiments);
+    }).catch(function (err) {
+      document.getElementById('ap-loading').innerHTML = '<div class="ap-empty">Error loading data: ' + err.message + '</div>';
+    });
+  })();
+  </script>
+</body>
+</html>

@@ -26,7 +26,7 @@ const { normalizeAgentResult, _normalizeEnvelope, _normalizeProposal, _isValidPr
 const { buildHeartbeatPrompt } = require('./prompt-builders');
 const { executeTask, reviewTask } = require('./execution-engine');
 
-async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, normalizedActivationMode, isAgentInCooldown, logAgentCooldownOnce, incPolicyGate, campaignCtx, siteIntel, workerReports, _agentMemoryStore, trendRadarStore, trendInsightsStore) {
+async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, normalizedActivationMode, isAgentInCooldown, logAgentCooldownOnce, incPolicyGate, campaignCtx, siteIntel, workerReports, _agentMemoryStore, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments) {
   const _agentRunStartMs = Date.now();
   // Per-day memory write counter (moved from index.js during refactor)
   const _memoryWriteCounters = {};
@@ -89,7 +89,7 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
   // Only show this agent their own revision-requested actions
   const agentRevisions = (revisionActions || []).filter(a => a.created_by === agentId || a.origin_agent === agentId);
 
-  const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, configs, trendRadarStore, trendInsightsStore);
+  const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, configs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments);
 
   // Call Gemini
   let response = await callGemini(prompt, agentId);
@@ -3335,6 +3335,41 @@ Write the full deliverable first, then the structured JSON block.`;
           _memOk = true;
           context.log('[Heartbeat]', agentId, 'saved memory:', mem.text.substring(0, 80));
           result.taskUpdates.push({ action: 'memory-saved', agentId: agentId });
+
+          // ── Experiment tracking (AutoResearch loop) ──
+          // If memory includes experiment_tag, create or update an active experiment
+          if (mem.experiment_tag && typeof mem.experiment_tag === 'string' && agentExperiments) {
+            var _expTag = mem.experiment_tag.trim().toLowerCase().replace(/[^a-z0-9_-]/g, '-').substring(0, 50);
+            if (_expTag) {
+              var _existingExp = agentExperiments.find(function (e) { return e.agentId === agentId && e.hypothesis === _expTag && e.status === 'active'; });
+              if (!_existingExp) {
+                // Cap active experiments per agent
+                var _activeCount = agentExperiments.filter(function (e) { return e.agentId === agentId && e.status === 'active'; }).length;
+                var _MAX_EXP = require('./constants').MAX_EXPERIMENTS_PER_AGENT || 3;
+                if (_activeCount < _MAX_EXP) {
+                  var _agentPerf = performanceDigest && performanceDigest.agents && performanceDigest.agents[agentId];
+                  agentExperiments.push({
+                    id: 'exp_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+                    agentId: agentId,
+                    hypothesis: _expTag,
+                    description: mem.text.trim().substring(0, 200),
+                    baselineMetric: _agentPerf ? { ceoApprovalRate: _agentPerf.ceoApprovalRate, avgLikesPerPost: _agentPerf.avgLikesPerPost } : {},
+                    experimentMetric: null,
+                    status: 'active',
+                    taskIds: [],
+                    result: null,
+                    minSamples: require('./constants').EXPERIMENT_MIN_SAMPLES || 3,
+                    sampleCount: 0,
+                    startedAt: _memNowIso,
+                    concludedAt: null
+                  });
+                  context.log('[Heartbeat]', agentId, 'created experiment:', _expTag);
+                } else {
+                  context.log('[Heartbeat]', agentId, 'BLOCKED experiment creation: max active experiments reached (' + _activeCount + '/' + _MAX_EXP + ')');
+                }
+              }
+            }
+          }
         }
       }
 

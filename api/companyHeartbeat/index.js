@@ -11,6 +11,7 @@ const { _buildBlockedProposal, _normalizeProposal, _isValidProposal } = require(
 const { _fetchSiteIntel } = require('./site-intelligence');
 const { applyTaskUpdate } = require('./task-mutations');
 const { _socialIntelBuildDigest } = require('./social-intel');
+const { buildPerformanceDigest, generatePerformanceInsights, evaluateExperiments } = require('./performance-intel');
 const { runAgentHeartbeat } = require('./agent-runner');
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY; // used for early-exit check in main function
@@ -402,6 +403,12 @@ module.exports = async function (context) {
       socialAccountStats
     );
     runtimeMemory.socialIntel = socialIntel;
+    // Build agent performance digest (AutoResearch feedback loop)
+    const _existingPerf = (runtimeMemory && runtimeMemory.agentPerformance) || null;
+    const performanceDigest = buildPerformanceDigest(tasks, allActions, socialEngagementSnapshots, _existingPerf, Date.now());
+    runtimeMemory.agentPerformance = performanceDigest;
+    let agentExperiments = [];
+    try { agentExperiments = (await storage.getState('agentExperiments')) || []; } catch (_expErr) { /* non-fatal */ }
     const revisionActions = allActions.filter(a => a.approval && a.approval.status === 'revision_requested');
     // Load persistent agent memories
     _agentMemoryStore = (await storage.getState('agentMemories')) || {};
@@ -1403,7 +1410,8 @@ module.exports = async function (context) {
           _agentCampaignCtx, siteIntel,
           agentId === 'nova' ? workerReports : null,
           _agentMemoryStore, trendRadarStore,
-          (agentId === 'nova' || agentId === 'scribe') ? trendInsightsStore : null
+          (agentId === 'nova' || agentId === 'scribe') ? trendInsightsStore : null,
+          performanceDigest, agentExperiments
         );
         // Collect any new research intel from this agent's cycle
         if (result.newResearchIntel) {
@@ -2468,6 +2476,54 @@ module.exports = async function (context) {
     }
 
     await storage.setState('researchIntel', researchIntelStore);
+
+    // ── Agent Performance: reflective insights + experiment evaluation (AutoResearch loop) ──
+    {
+      const _perfPrev = _existingPerf || null;
+      const _todayKey = new Date().toISOString().slice(0, 10);
+      for (let _pi = 0; _pi < AGENT_IDS.length; _pi++) {
+        const _perfAgent = AGENT_IDS[_pi];
+        const _perfMem = _agentMemoryStore[_perfAgent] || [];
+        // Rate-limit: 1 insight per agent per day
+        const _hasInsightToday = _perfMem.some(function (m) {
+          return m.source === 'auto:performance-reflection' && (m.timestamp || '').slice(0, 10) === _todayKey;
+        });
+        if (!_hasInsightToday) {
+          const _insights = generatePerformanceInsights(_perfAgent, performanceDigest, _perfPrev);
+          for (let _ii = 0; _ii < _insights.length; _ii++) {
+            if (!_agentMemoryStore[_perfAgent]) _agentMemoryStore[_perfAgent] = [];
+            _agentMemoryStore[_perfAgent].push({
+              id: 'mem-perf-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+              type: 'verified_fact',
+              text: _insights[_ii],
+              source: 'auto:performance-reflection',
+              timestamp: new Date().toISOString()
+            });
+          }
+        }
+      }
+      // Evaluate active experiments
+      agentExperiments = evaluateExperiments(agentExperiments, performanceDigest, allActions, Date.now());
+      // Persist experiment conclusions as agent memories
+      for (let _ei = 0; _ei < agentExperiments.length; _ei++) {
+        const _exp = agentExperiments[_ei];
+        if (_exp.status === 'concluded' && _exp.result && !_exp._memoryLogged) {
+          const _expAgent = _exp.agentId;
+          if (!_agentMemoryStore[_expAgent]) _agentMemoryStore[_expAgent] = [];
+          var _expLabel = _exp.result === 'keep' ? 'KEEP' : (_exp.result === 'discard' ? 'DISCARD' : 'INCONCLUSIVE');
+          _agentMemoryStore[_expAgent].push({
+            id: 'mem-exp-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
+            type: 'verified_fact',
+            text: 'Experiment "' + _exp.hypothesis + '": ' + _expLabel + '. ' + (_exp.description || ''),
+            source: 'auto:experiment-conclusion',
+            timestamp: new Date().toISOString()
+          });
+          _exp._memoryLogged = true;
+        }
+      }
+      try { await storage.setState('agentExperiments', agentExperiments); } catch (_expSaveErr) { context.log('[Heartbeat] WARN: failed to save agentExperiments:', _expSaveErr.message); }
+    }
+
     await storage.setState('runtimeMemory', runtimeMemory);
 
     // ── Orphan Action Cleanup: cancel pending actions referencing deleted tasks/documents ──

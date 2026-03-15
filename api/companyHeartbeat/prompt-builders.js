@@ -5,6 +5,7 @@ const fs = require("fs");
 const path = require("path");
 const { AGENT_IDS, AGENT_ROLES, _agentPersonalities, CFO_THRESHOLD, RESEARCH_MAX_AGE_DAYS, MAX_RESEARCH_INJECTIONS, MAX_RESEARCH_CHARS, TREND_RADAR_MAX_AGE_DAYS, VALID_SOCIAL_TASK_TYPES, VALID_TASK_TYPES } = require("./constants");
 const { _buildSocialIntelPromptBlock } = require('./social-intel');
+const { _buildPerformancePromptBlock, _buildExperimentPromptBlock } = require('./performance-intel');
 
 // ── Prompt Coverage Guard ──
 // Logs startup warnings if a valid taskType or social platform is missing from prompt definitions.
@@ -69,7 +70,7 @@ function buildSiteContextBlock() {
 }
 
 // ── Build heartbeat prompt ──
-function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore) {
+function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments) {
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
   documents = documents || [];
@@ -753,6 +754,8 @@ You must remain within your assigned authority tier. Doctrine influences your st
   }
 
   const socialIntelSection = _buildSocialIntelPromptBlock(agent, socialIntel);
+  const performanceSection = _buildPerformancePromptBlock(agent, performanceDigest);
+  const experimentSection = _buildExperimentPromptBlock((agent.name || '').toLowerCase(), agentExperiments);
 
   const _agentRole = (_agentCfg.roleOverride && String(_agentCfg.roleOverride).trim()) || agent.role;
   const _agentTitle = (_agentCfg.titleOverride && String(_agentCfg.titleOverride).trim()) || '';
@@ -769,7 +772,7 @@ ${otherTasks}
 
 TASKS AWAITING REVIEW (from other agents — you can review these):
 ${reviewableTasks}${_reviewUrgencyNudge}
-${triageSection}${workerIntelSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${workspaceSection}${costSection}${revisionSection}${ceoEditSection}${socialIntelSection}
+${triageSection}${workerIntelSection}${directivesSection}${objectivesSection}${docsSection}${researchSection}${trendRadarSection}${trendOutcomesSection}${novaTrendSection}${scribeTrendSection}${workspaceSection}${costSection}${revisionSection}${ceoEditSection}${socialIntelSection}${performanceSection}${experimentSection}
 ${buildSiteContextBlock()}
 CURRENT TIME: ${new Date().toISOString()}
 

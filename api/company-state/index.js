@@ -19,7 +19,8 @@ const VALID_KEYS = [
   'contentEngineConfig', 'imageAssets', 'runtimeMemory',
   'execution_mode', 'workerReports', 'socialCredentials',
   'demoChatCount', 'researchIntel',
-  'trendRadar', 'trendInsights', 'trendActions', 'systemConfig'
+  'trendRadar', 'trendInsights', 'trendActions', 'systemConfig',
+  'agentPerformance', 'agentExperiments'
 ];
 
 module.exports = async function (context, req) {
