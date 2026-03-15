@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Pixel Agents — a library of specialized AI agents you can hire for one-shot tasks. Analyze, create, validate, and more." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Pixel Agents — AI Agents for Hire</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/css/hero-base.css" />
+  <link rel="stylesheet" href="/pixel-agents/css/pixel-agent-card.css" />
+  <link rel="stylesheet" href="/pixel-agents/css/pixel-agents.css" />
+</head>
+<body data-theme="dark">
+  <header id="nav-header"></header>
+
+  <!-- Hero -->
+  <section class="hero-base" data-hero="infrastructure">
+    <div class="hero-base-layer"></div>
+    <div class="hero-base-content">
+      <h1>Pixel Agents</h1>
+      <h2>Specialized AI Agents for Hire</h2>
+      <p>Pick an agent. Give it a task. Get results in seconds.</p>
+    </div>
+  </section>
+
+  <main class="pa-catalog-shell">
+
+    <!-- Filter Bar -->
+    <div class="pa-catalog-toolbar">
+      <div class="pa-catalog-filters" id="pa-filters">
+        <button class="pa-filter-btn active" data-category="all">All</button>
+        <button class="pa-filter-btn" data-category="audit">Audit</button>
+        <button class="pa-filter-btn" data-category="content">Content</button>
+        <button class="pa-filter-btn" data-category="strategy">Strategy</button>
+        <button class="pa-filter-btn" data-category="naming">Naming</button>
+        <button class="pa-filter-btn" data-category="pitch">Pitch</button>
+      </div>
+      <span class="pa-catalog-count" id="pa-count"></span>
+    </div>
+
+    <!-- Agent Grid -->
+    <div class="pa-catalog-grid" id="pa-grid">
+      <!-- Rendered by JS -->
+    </div>
+
+    <!-- Empty state -->
+    <div class="pa-catalog-empty" id="pa-empty" style="display:none">
+      <i class="fas fa-robot"></i>
+      <p>No agents found in this category.</p>
+    </div>
+
+  </main>
+
+  <footer id="nav-footer"></footer>
+  <script src="/js/init-header-footer.js"></script>
+  <script src="/pixel-agents/js/pixel-agents.js"></script>
+</body>
+</html>

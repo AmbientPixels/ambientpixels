@@ -1,0 +1,214 @@
+/* Pixel Agent Card — reusable agent profile card component */
+
+.pa-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
+  border-radius: var(--aura-radius-md, 8px);
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.3s;
+  cursor: default;
+}
+
+.pa-card:hover {
+  transform: translateY(-6px) scale(1.01);
+  border-color: rgba(255,255,255,0.15);
+}
+
+/* Tier-based glow on hover */
+.pa-card[data-tier="legendary"]:hover {
+  box-shadow: 0 12px 32px rgba(245,158,11,0.15);
+  border-color: rgba(245,158,11,0.3);
+}
+
+.pa-card[data-tier="epic"]:hover {
+  box-shadow: 0 12px 32px rgba(139,92,246,0.15);
+  border-color: rgba(139,92,246,0.3);
+}
+
+.pa-card[data-tier="rare"]:hover {
+  box-shadow: 0 12px 32px rgba(59,130,246,0.15);
+  border-color: rgba(59,130,246,0.3);
+}
+
+.pa-card[data-tier="uncommon"]:hover {
+  box-shadow: 0 12px 32px rgba(16,185,129,0.12);
+  border-color: rgba(16,185,129,0.3);
+}
+
+.pa-card[data-tier="common"]:hover {
+  box-shadow: 0 12px 32px rgba(156,163,175,0.1);
+  border-color: rgba(156,163,175,0.3);
+}
+
+/* ── Avatar area ── */
+.pa-card-avatar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.pa-card-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+/* Icon tier colors */
+.pa-card[data-tier="legendary"] .pa-card-icon {
+  background: rgba(245,158,11,0.15);
+  border: 1px solid rgba(245,158,11,0.3);
+  color: #f59e0b;
+}
+
+.pa-card[data-tier="epic"] .pa-card-icon {
+  background: rgba(139,92,246,0.15);
+  border: 1px solid rgba(139,92,246,0.3);
+  color: #a78bfa;
+}
+
+.pa-card[data-tier="rare"] .pa-card-icon {
+  background: rgba(59,130,246,0.15);
+  border: 1px solid rgba(59,130,246,0.3);
+  color: #60a5fa;
+}
+
+.pa-card[data-tier="uncommon"] .pa-card-icon {
+  background: rgba(16,185,129,0.15);
+  border: 1px solid rgba(16,185,129,0.3);
+  color: #34d399;
+}
+
+.pa-card[data-tier="common"] .pa-card-icon {
+  background: rgba(156,163,175,0.15);
+  border: 1px solid rgba(156,163,175,0.3);
+  color: #9ca3af;
+}
+
+.pa-card-tier {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 2px 8px;
+  border-radius: 99px;
+}
+
+/* Tier badge colors */
+.pa-card-tier--legendary { background: rgba(245,158,11,0.2); color: #f59e0b; }
+.pa-card-tier--epic { background: rgba(139,92,246,0.2); color: #a78bfa; }
+.pa-card-tier--rare { background: rgba(59,130,246,0.2); color: #60a5fa; }
+.pa-card-tier--uncommon { background: rgba(16,185,129,0.2); color: #34d399; }
+.pa-card-tier--common { background: rgba(156,163,175,0.2); color: #9ca3af; }
+
+/* ── Body ── */
+.pa-card-body {
+  flex: 1;
+}
+
+.pa-card-name {
+  font-size: 1.05rem;
+  font-weight: 600;
+  margin: 0 0 0.25rem;
+  color: rgba(255,255,255,0.95);
+}
+
+.pa-card-tagline {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.5);
+  margin: 0 0 0.75rem;
+  line-height: 1.4;
+}
+
+.pa-card-role {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  padding: 2px 8px;
+  border-radius: 99px;
+  margin-bottom: 0.75rem;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.6);
+}
+
+.pa-card-capabilities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.25rem;
+}
+
+.pa-card-capabilities li {
+  font-size: 0.68rem;
+  padding: 2px 7px;
+  border-radius: 99px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.07);
+  color: rgba(255,255,255,0.55);
+}
+
+/* ── Footer ── */
+.pa-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.pa-card-usage {
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.35);
+}
+
+.pa-card-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.45rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
+  border: none;
+  border-radius: var(--aura-radius-md, 8px);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+  background: linear-gradient(135deg, #5ae4ff, #3b82f6);
+  color: #0a0e17;
+}
+
+.pa-card-action:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(90,228,255,0.25);
+}
+
+/* ── Featured badge ── */
+.pa-card-featured {
+  position: absolute;
+  top: -1px;
+  right: 12px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 3px 8px;
+  border-radius: 0 0 6px 6px;
+  background: linear-gradient(135deg, #5ae4ff, #3b82f6);
+  color: #0a0e17;
+}

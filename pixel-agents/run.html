@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Pixel Agents — hire a specialized AI agent to analyze, create, or validate. Powered by AmbientPixels." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Run Agent — Pixel Agents</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/css/hero-base.css" />
+  <link rel="stylesheet" href="/pixel-agents/css/pixel-agent-run.css" />
+</head>
+<body data-theme="dark">
+  <header id="nav-header"></header>
+
+  <!-- Hero (dynamic — filled by JS) -->
+  <section class="hero-base" data-hero="control">
+    <div class="hero-base-layer"></div>
+    <div class="hero-base-content">
+      <p class="pa-run-breadcrumb"><a href="/pixel-agents/">Pixel Agents</a></p>
+      <h1 id="pa-agent-name">Loading Agent...</h1>
+      <h2 id="pa-agent-tagline"></h2>
+    </div>
+  </section>
+
+  <main class="pa-run-shell">
+
+    <!-- Agent Identity Card -->
+    <div class="pa-run-identity" id="pa-identity">
+      <div class="pa-run-identity-icon" id="pa-identity-icon">
+        <i class="fas fa-robot"></i>
+      </div>
+      <div class="pa-run-identity-info">
+        <span class="pa-run-identity-tier" id="pa-identity-tier"></span>
+        <ul class="pa-run-identity-caps" id="pa-identity-caps"></ul>
+      </div>
+    </div>
+
+    <!-- Input Section -->
+    <section class="pa-run-input-section" id="pa-input-section">
+      <label class="pa-run-label" id="pa-input-label" for="pa-input">Enter your input</label>
+      <div class="pa-run-input-wrap">
+        <!-- URL input (default) -->
+        <input type="url" id="pa-input-url" class="pa-run-input" placeholder="https://example.com" />
+        <!-- Textarea input (hidden by default) -->
+        <textarea id="pa-input-text" class="pa-run-input pa-run-textarea" placeholder="Paste your content here..." rows="6" style="display:none"></textarea>
+      </div>
+      <div class="pa-run-actions">
+        <button class="pa-run-btn" id="pa-run-btn" onclick="runAgent()">
+          <i class="fas fa-play"></i> Hire Agent
+        </button>
+        <span class="pa-run-remaining" id="pa-remaining"></span>
+      </div>
+    </section>
+
+    <!-- Loading State -->
+    <section class="pa-run-loading" id="pa-loading" style="display:none">
+      <div class="pa-run-spinner"></div>
+      <p class="pa-run-loading-text" id="pa-loading-text">Analyzing...</p>
+    </section>
+
+    <!-- Error State -->
+    <section class="pa-run-error" id="pa-error" style="display:none">
+      <i class="fas fa-exclamation-triangle"></i>
+      <p id="pa-error-text"></p>
+      <button class="pa-run-btn pa-run-btn--secondary" onclick="resetRun()">Try Again</button>
+    </section>
+
+    <!-- Result Section -->
+    <section class="pa-run-result" id="pa-result" style="display:none">
+      <div class="pa-result-header">
+        <h2>Results</h2>
+        <div class="pa-result-actions">
+          <button class="pa-run-btn pa-run-btn--secondary" onclick="copyResult()">
+            <i class="fas fa-copy"></i> Copy
+          </button>
+          <button class="pa-run-btn pa-run-btn--secondary" onclick="shareResult()">
+            <i class="fas fa-share-alt"></i> Share
+          </button>
+          <button class="pa-run-btn pa-run-btn--secondary" onclick="resetRun()">
+            <i class="fas fa-redo"></i> Run Again
+          </button>
+        </div>
+      </div>
+      <div class="pa-result-body" id="pa-result-body">
+        <!-- Rendered dynamically by JS -->
+      </div>
+      <div class="pa-result-footer">
+        <span class="pa-result-powered">Powered by <a href="/">AmbientPixels</a></span>
+        <a href="/pixel-agents/" class="pa-result-browse">Browse All Agents &rarr;</a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer id="nav-footer"></footer>
+  <script src="/js/init-header-footer.js"></script>
+  <script src="/pixel-agents/js/pixel-agent-run.js"></script>
+</body>
+</html>

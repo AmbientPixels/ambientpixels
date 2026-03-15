@@ -1,0 +1,89 @@
+/* Pixel Agents Catalog — index.html styles */
+
+.pa-catalog-shell {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+/* ── Toolbar ── */
+.pa-catalog-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.pa-catalog-filters {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.pa-filter-btn {
+  padding: 0.4rem 0.9rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  font-family: 'Inter', sans-serif;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 99px;
+  background: transparent;
+  color: rgba(255,255,255,0.5);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pa-filter-btn:hover {
+  border-color: rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.7);
+}
+
+.pa-filter-btn.active {
+  background: rgba(90,228,255,0.12);
+  border-color: rgba(90,228,255,0.3);
+  color: #5ae4ff;
+}
+
+.pa-catalog-count {
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.35);
+}
+
+/* ── Grid ── */
+.pa-catalog-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.25rem;
+}
+
+/* ── Empty State ── */
+.pa-catalog-empty {
+  text-align: center;
+  padding: 4rem 1rem;
+  color: rgba(255,255,255,0.35);
+}
+
+.pa-catalog-empty i {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  display: block;
+  opacity: 0.4;
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .pa-catalog-shell {
+    padding: 1.5rem 1rem 3rem;
+  }
+
+  .pa-catalog-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pa-catalog-toolbar {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
