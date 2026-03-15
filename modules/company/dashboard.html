@@ -1420,18 +1420,16 @@
 
       // ── CEO Stat Cards ──
       function renderCeoStatCards() {
-        // Needs Action
-        var queue = AgentEngine.getApprovalQueue();
-        var pending = queue.filter(function (q) { return q.status === 'pending'; });
+        // Needs Action — match actions page: count actions with approval.status === 'pending'
         var allTasks = AgentEngine.getTasks();
-        var sdePending = allTasks.filter(function (t) { return t.status === 'pending-approval'; });
-        var actionCount = pending.length + sdePending.length;
+        var pendingActions = (AgentEngine.getActions ? AgentEngine.getActions() : []).filter(function (a) { return a.approval && a.approval.status === 'pending'; });
+        var actionCount = pendingActions.length;
         var cstatAction = document.getElementById('cstat-action');
         var cstatActionSub = document.getElementById('cstat-action-sub');
         if (cstatAction) {
           cstatAction.textContent = actionCount;
           cstatAction.parentElement.style.setProperty('--cstat-color', actionCount > 0 ? '#ef4444' : '#34d399');
-          cstatActionSub.textContent = pending.length + ' approvals' + (sdePending.length > 0 ? ', ' + sdePending.length + ' proposals' : '');
+          cstatActionSub.textContent = actionCount + ' approval' + (actionCount !== 1 ? 's' : '') + ' pending';
         }
 
         // Autonomy — use same composite score as ops Autonomy Score panel
