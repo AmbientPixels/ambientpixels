@@ -548,6 +548,34 @@
         </div>
       </div>
 
+      <!-- CEO: API Usage Section -->
+      <div class="dash-section" id="section-api-usage" data-section="api-usage">
+        <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
+          <i class="fas fa-chart-bar dash-icon-blue"></i>
+          <h2>API Usage</h2>
+          <i class="fas fa-chevron-down dash-section-chevron"></i>
+        </div>
+        <div class="dash-section-body">
+          <div class="dash-panel">
+            <div class="dash-panel-header" style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:0.72rem;font-weight:600;opacity:0.7;">API Calls Over Time</span>
+              <select id="api-usage-range" style="font-size:0.6rem;padding:2px 6px;border-radius:4px;background:#2c2c2e;color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.1);font-family:inherit;">
+                <option value="7">7 days</option>
+                <option value="14">14 days</option>
+                <option value="30" selected>30 days</option>
+              </select>
+            </div>
+            <div class="dash-panel-body" style="padding:12px 16px;">
+              <div style="position:relative;height:220px;">
+                <canvas id="api-usage-chart"></canvas>
+              </div>
+            </div>
+          </div>
+          <div id="panel-api-usage-kpis" style="margin-top:8px;"></div>
+          <div id="panel-api-usage-agents" style="margin-top:6px;"></div>
+        </div>
+      </div>
+
       <!-- CEO: Content Section -->
       <div class="dash-section" id="section-content-pipeline" data-section="content-pipeline">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
@@ -1431,7 +1459,7 @@
          renderCronLog, renderOvernightLog, renderMorningReport, renderServerLogs,
          renderHeartbeatHealth, renderApprovalQueue, renderFacebookOutbox, renderCampaignsSnap, renderSystemPulse,
          renderKpiScoreboard, renderObjectivesSnap, renderAutonomyScore, renderRiskHeatmap,
-         renderActionSnap, renderGeminiCosts, renderClaudeCosts, renderAzureCosts, renderXCosts, renderCostSummary,
+         renderActionSnap, renderApiUsage, renderGeminiCosts, renderClaudeCosts, renderAzureCosts, renderXCosts, renderCostSummary,
          renderDailyLogDrafts, renderBlogAdmin, renderGovernanceLog, renderGovernanceLogDev,
          renderMeetingsWidget, updateActionBadge, renderOrgChart,
          renderInboundKpi, updateModeIndicator, renderCeoStatusStrip, renderCeoInsightsMirrors, renderCeoStrategy].forEach(function(fn) {
@@ -3772,6 +3800,190 @@
         var rgbMap = { '#fbbf24': '251,191,36', '#34d399': '52,211,153', '#60a5fa': '96,165,250', '#ef4444': '239,68,68', '#a78bfa': '167,139,250' };
         var rgb = rgbMap[color] || '255,255,255';
         return '<span style="font-size:0.55rem; padding:0.15rem 0.5rem; border-radius:3px; background:rgba(' + rgb + ',0.1); color:' + color + '; font-weight:500;">' + count + ' ' + label + '</span>';
+      }
+
+      // ── API Usage Chart ──
+      var _apiUsageDays = 30;
+      var _apiUsageChart = null;
+
+      function renderApiUsage() {
+        var kpiEl = document.getElementById('panel-api-usage-kpis');
+        var agentsEl = document.getElementById('panel-api-usage-agents');
+        if (!kpiEl) return;
+
+        var apiUrl = window.location.hostname.includes('ambientpixels.ai')
+          ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+          : '/api';
+
+        Promise.all([
+          fetch(apiUrl + '/geminiCosts?days=' + _apiUsageDays).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; }),
+          fetch(apiUrl + '/claudeCosts?days=' + _apiUsageDays).then(function (r) { return r.ok ? r.json() : null; }).catch(function () { return null; })
+        ]).then(function (results) {
+          var g = results[0];
+          var cl = results[1];
+
+          var geminiCalls = g ? g.totalCalls : 0;
+          var claudeCalls = cl ? cl.totalCalls : 0;
+          var totalCalls = geminiCalls + claudeCalls;
+          var geminiTokens = g ? (g.totalPromptTokens + g.totalCompletionTokens) : 0;
+          var claudeTokens = cl ? (cl.totalPromptTokens + cl.totalCompletionTokens) : 0;
+          var totalTokens = geminiTokens + claudeTokens;
+
+          // KPI cards
+          var html = '<div style="display:flex; gap:0.8rem; flex-wrap:wrap;">';
+          html += _costKpi(formatNumber(totalCalls), 'Total Calls', '#60a5fa');
+          html += _costKpi(formatNumber(geminiCalls), 'Gemini', '#fbbf24');
+          html += _costKpi(formatNumber(claudeCalls), 'Claude', '#DC6956');
+          html += _costKpi(formatNumber(totalTokens), 'Total Tokens', '#a855f7');
+          html += '</div>';
+          kpiEl.innerHTML = html;
+
+          // Merge byDay data for chart
+          var allDays = {};
+          if (g && g.byDay) {
+            Object.keys(g.byDay).forEach(function (d) {
+              if (!allDays[d]) allDays[d] = { gemini: 0, claude: 0 };
+              allDays[d].gemini = g.byDay[d].calls || 0;
+            });
+          }
+          if (cl && cl.byDay) {
+            Object.keys(cl.byDay).forEach(function (d) {
+              if (!allDays[d]) allDays[d] = { gemini: 0, claude: 0 };
+              allDays[d].claude = cl.byDay[d].calls || 0;
+            });
+          }
+
+          var sortedDays = Object.keys(allDays).sort();
+          var labels = sortedDays.map(function (d) { return d.substring(5); }); // MM-DD
+          var geminiData = sortedDays.map(function (d) { return allDays[d].gemini; });
+          var claudeData = sortedDays.map(function (d) { return allDays[d].claude; });
+
+          // Render Chart.js stacked bar
+          if (typeof Chart !== 'undefined' && sortedDays.length > 0) {
+            var canvas = document.getElementById('api-usage-chart');
+            if (!canvas) return;
+            if (_apiUsageChart) { _apiUsageChart.destroy(); _apiUsageChart = null; }
+
+            _apiUsageChart = new Chart(canvas, {
+              type: 'bar',
+              data: {
+                labels: labels,
+                datasets: [
+                  {
+                    label: 'Gemini',
+                    data: geminiData,
+                    backgroundColor: 'rgba(251,191,36,0.7)',
+                    borderColor: '#fbbf24',
+                    borderWidth: 1,
+                    borderRadius: 2
+                  },
+                  {
+                    label: 'Claude',
+                    data: claudeData,
+                    backgroundColor: 'rgba(220,105,86,0.7)',
+                    borderColor: '#DC6956',
+                    borderWidth: 1,
+                    borderRadius: 2
+                  }
+                ]
+              },
+              options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                  legend: {
+                    display: true,
+                    position: 'top',
+                    align: 'end',
+                    labels: {
+                      color: 'rgba(255,255,255,0.5)',
+                      font: { size: 10 },
+                      boxWidth: 10,
+                      padding: 8
+                    }
+                  },
+                  tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: 'rgba(20,20,30,0.95)',
+                    titleColor: 'rgba(255,255,255,0.8)',
+                    bodyColor: 'rgba(255,255,255,0.7)',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderWidth: 1,
+                    padding: 10,
+                    titleFont: { size: 11 },
+                    bodyFont: { size: 10 },
+                    callbacks: {
+                      title: function (items) { return items[0] ? items[0].label : ''; },
+                      label: function (ctx) { return ' ' + ctx.dataset.label + ': ' + ctx.parsed.y.toLocaleString() + ' calls'; },
+                      afterBody: function (items) {
+                        var total = items.reduce(function (s, i) { return s + (i.parsed.y || 0); }, 0);
+                        return '\n Total: ' + total.toLocaleString() + ' calls';
+                      }
+                    }
+                  }
+                },
+                scales: {
+                  x: {
+                    stacked: true,
+                    grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+                    ticks: { color: 'rgba(255,255,255,0.35)', font: { size: 9 }, maxRotation: 0 },
+                    border: { color: 'rgba(255,255,255,0.06)' }
+                  },
+                  y: {
+                    stacked: true,
+                    beginAtZero: true,
+                    grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+                    ticks: { color: 'rgba(255,255,255,0.35)', font: { size: 9 }, callback: function (v) { return v >= 1000 ? (v/1000).toFixed(0) + 'K' : v; } },
+                    border: { color: 'rgba(255,255,255,0.06)' }
+                  }
+                }
+              }
+            });
+          }
+
+          // Agent call chips (merge Gemini + Claude byAgent)
+          var agentMap = {};
+          if (g && g.byAgent) {
+            Object.keys(g.byAgent).forEach(function (a) {
+              if (!agentMap[a]) agentMap[a] = { calls: 0 };
+              agentMap[a].calls += g.byAgent[a].calls || 0;
+            });
+          }
+          if (cl && cl.byAgent) {
+            Object.keys(cl.byAgent).forEach(function (a) {
+              if (!agentMap[a]) agentMap[a] = { calls: 0 };
+              agentMap[a].calls += cl.byAgent[a].calls || 0;
+            });
+          }
+
+          var agentList = Object.keys(agentMap).sort(function (a, b) { return agentMap[b].calls - agentMap[a].calls; });
+          if (agentList.length > 0 && agentsEl) {
+            var agentColors = { nova: '#8A2BE2', forge: '#4ECDC4', pixel: '#FF6B9D', cipher: '#fbbf24', echo: '#1DA1F2', scribe: '#34d399', scout: '#f97316', quill: '#a78bfa' };
+            var aHtml = '<div style="font-size:0.58rem; opacity:0.4; margin-bottom:0.25rem; font-weight:600;">Calls by Agent</div>';
+            aHtml += '<div style="display:flex; gap:0.4rem; flex-wrap:wrap;">';
+            agentList.forEach(function (a) {
+              var color = agentColors[a] || 'rgba(255,255,255,0.5)';
+              aHtml += '<span style="font-size:0.55rem; padding:0.12rem 0.4rem; border-radius:3px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.6);">' +
+                '<span style="display:inline-block;width:6px;height:6px;border-radius:50%;background:' + color + ';margin-right:3px;vertical-align:middle;"></span>' +
+                escapeHtml(a) + ' <span style="color:rgba(255,255,255,0.75); font-weight:500;">' + agentMap[a].calls.toLocaleString() + '</span></span>';
+            });
+            aHtml += '</div>';
+            agentsEl.innerHTML = aHtml;
+          }
+
+        }).catch(function (err) {
+          console.warn('[Dashboard] renderApiUsage error:', err);
+          kpiEl.innerHTML = '<div class="dash-empty">Could not load API usage data.</div>';
+        });
+      }
+
+      var _apiUsageRangeEl = document.getElementById('api-usage-range');
+      if (_apiUsageRangeEl) {
+        _apiUsageRangeEl.addEventListener('change', function () {
+          _apiUsageDays = parseInt(this.value) || 30;
+          renderApiUsage();
+        });
       }
 
       // ── Cost Center Summary ──
