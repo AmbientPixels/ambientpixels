@@ -48,12 +48,8 @@
     function _bRenderHeadline() {
       var el = document.getElementById('board-headline-stats');
       var objectives = AgentEngine.getObjectives ? AgentEngine.getObjectives() : [];
-      var queue = AgentEngine.getApprovalQueue ? AgentEngine.getApprovalQueue() : [];
-      var pending = queue.filter(function(q){return q.status==='pending';});
-      var tasks = AgentEngine.getTasks ? AgentEngine.getTasks() : [];
-      var doneTasks = tasks.filter(function(t){return t.status==='done';});
-      var autoCompleted = doneTasks.filter(function(t){return !t.manuallyCompleted;}).length;
-      var autonomyPct = doneTasks.length>0?Math.round((autoCompleted/doneTasks.length)*100):0;
+      var pending = (AgentEngine.getActions ? AgentEngine.getActions() : []).filter(function(a){return a.approval && a.approval.status==='pending';});
+      var autonomyPct = AgentEngine.getAutonomyScore ? (AgentEngine.getAutonomyScore().score || 0) : 0;
       var sessions = AgentEngine.getSessionLog ? AgentEngine.getSessionLog() : [];
       var totalCost=0; sessions.forEach(function(s){if(s.cost)totalCost+=s.cost;});
       el.innerHTML =
@@ -115,8 +111,7 @@
     function _bRenderBacklog() {
       var el = document.getElementById('board-backlog');
       var badge = document.getElementById('badge-backlog');
-      var queue = AgentEngine.getApprovalQueue ? AgentEngine.getApprovalQueue() : [];
-      var pending = queue.filter(function(q){return q.status==='pending';});
+      var pending = (AgentEngine.getActions ? AgentEngine.getActions() : []).filter(function(a){return a.approval && a.approval.status==='pending';});
       badge.textContent = pending.length;
       if(pending.length===0){el.innerHTML='<div class="board-empty">No pending approvals.</div>';return;}
       var now=Date.now(); var totalWaitMs=0;
@@ -233,10 +228,7 @@
       var lines=[]; lines.push('# '+_bPacket.quarterKey+' Board Packet'); lines.push('');
       lines.push('## Executive Summary'); lines.push(_bPacket.execSummary); lines.push('');
       var objectives=AgentEngine.getObjectives?AgentEngine.getObjectives():[];
-      var tasks=AgentEngine.getTasks?AgentEngine.getTasks():[];
-      var doneTasks=tasks.filter(function(t){return t.status==='done';});
-      var autoCompleted=doneTasks.filter(function(t){return !t.manuallyCompleted;}).length;
-      var autonomyPct=doneTasks.length>0?Math.round((autoCompleted/doneTasks.length)*100):0;
+      var autonomyPct=AgentEngine.getAutonomyScore?(AgentEngine.getAutonomyScore().score||0):0;
       var sessions=AgentEngine.getSessionLog?AgentEngine.getSessionLog():[];
       var totalCost=0; sessions.forEach(function(s){if(s.cost)totalCost+=s.cost;});
       lines.push('## Key Metrics');
