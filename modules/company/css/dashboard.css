@@ -2599,9 +2599,8 @@ body[data-theme="dark"] { background: #000000; }
   line-height: 1.6;
 }
 
-/* ── Cron + Governance log scroll cap ── */
+/* ── Cron + Governance log scroll cap (Dev view side-by-side only) ── */
 #panel-cron,
-#panel-governance-log,
 #panel-governance-log-dev {
   max-height: 220px;
   overflow-y: auto;
