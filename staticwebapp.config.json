@@ -12,6 +12,7 @@
       "/images/*",
       "/lab/*",
       "/api/*",
+      "/data/*",
       "/*.css",
       "/*.js",
       "/*.json",
