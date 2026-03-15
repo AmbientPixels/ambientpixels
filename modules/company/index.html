@@ -128,6 +128,17 @@
       </div>
     </div>
 
+    <!-- Agent Performance Widget -->
+    <div class="hq-trends-widget">
+      <div class="hq-trends-header">
+        <h3><i class="fas fa-gauge-high"></i> Agent Performance</h3>
+        <a href="/modules/company/agent-performance.html" class="hq-trends-link">View all <i class="fas fa-arrow-right"></i></a>
+      </div>
+      <div class="hq-trends-list" id="hq-perf-list">
+        <div class="hq-trends-empty">Loading agent scores...</div>
+      </div>
+    </div>
+
     <!-- Standup Quick Link -->
     <div class="hq-standup-section">
       <a href="/modules/company/standup.html" class="hq-standup-link">
@@ -371,6 +382,50 @@
             }).join('');
           })
           .catch(function () { el.innerHTML = '<div class="hq-trends-empty">Could not load trends.</div>'; });
+      })();
+
+      // ── Agent Performance Widget ──
+      (function () {
+        var el = document.getElementById('hq-perf-list');
+        if (!el) return;
+        var SCORE_COLORS = { high: '#34d399', mid: '#facc15', low: '#f87171' };
+        var TREND_ICONS = { improving: '<i class="fas fa-arrow-up" style="color:#34d399;font-size:0.6rem"></i>', declining: '<i class="fas fa-arrow-down" style="color:#f87171;font-size:0.6rem"></i>', stable: '<i class="fas fa-minus" style="color:#888;font-size:0.6rem"></i>' };
+        fetch('/api/company-state?key=runtimeMemory', { headers: { 'x-company-secret': 'pixelpusher' } })
+          .then(function (r) { var ct = r.headers.get('content-type') || ''; if (!r.ok || ct.indexOf('json') === -1) return null; return r.json(); })
+          .then(function (data) {
+            var runtime = data && data.value !== undefined ? data.value : data;
+            var digest = runtime && runtime.agentPerformance;
+            if (!digest || !digest.agents) { el.innerHTML = '<div class="hq-trends-empty">No performance data yet.</div>'; return; }
+            var ids = Object.keys(digest.agents).sort(function (a, b) { return (digest.agents[b].qualityScore || 0) - (digest.agents[a].qualityScore || 0); });
+            var top5 = ids.slice(0, 5);
+            if (!top5.length) { el.innerHTML = '<div class="hq-trends-empty">No agent data.</div>'; return; }
+            // Check for any declining agents
+            var declining = ids.filter(function (id) { return digest.agents[id].qualityTrend === 'declining'; });
+            var warnHtml = '';
+            if (declining.length > 0) {
+              warnHtml = '<div style="padding:4px 8px;margin-bottom:8px;border-radius:6px;background:rgba(248,113,113,0.1);font-size:0.7rem;color:#f87171">'
+                + '<i class="fas fa-triangle-exclamation" style="margin-right:4px"></i>'
+                + declining.map(function (d) { return d.charAt(0).toUpperCase() + d.slice(1); }).join(', ')
+                + ' declining</div>';
+            }
+            el.innerHTML = warnHtml + top5.map(function (id, idx) {
+              var a = digest.agents[id];
+              var sc = a.qualityScore || 0;
+              var color = sc >= 70 ? SCORE_COLORS.high : (sc >= 45 ? SCORE_COLORS.mid : SCORE_COLORS.low);
+              var trend = TREND_ICONS[a.qualityTrend] || TREND_ICONS.stable;
+              var name = id.charAt(0).toUpperCase() + id.slice(1);
+              var crown = idx === 0 ? ' <i class="fas fa-crown" style="color:#facc15;font-size:0.55rem"></i>' : '';
+              return '<a href="/modules/company/agent-performance.html" class="hq-trend-row" style="--tr-accent:' + color + '">'
+                + '<div class="hq-trend-score" style="color:' + color + '">' + sc + '</div>'
+                + '<div class="hq-trend-info">'
+                +   '<div class="hq-trend-name">' + name + crown + '</div>'
+                +   '<div class="hq-trend-cat">' + (a.tasksCompleted || 0) + ' tasks, ' + Math.round((a.ceoApprovalRate || 0) * 100) + '% CEO approval</div>'
+                + '</div>'
+                + '<span style="font-size:0.65rem">' + trend + '</span>'
+                + '</a>';
+            }).join('');
+          })
+          .catch(function () { el.innerHTML = '<div class="hq-trends-empty">Could not load performance data.</div>'; });
       })();
     })();
   </script>

@@ -80,8 +80,13 @@
 
     function fetchState(key) {
       return fetch(API + '?key=' + key, { headers: { 'x-company-secret': SECRET } })
-        .then(function (r) { return r.json(); })
-        .then(function (d) { return d && d.value !== undefined ? d.value : d; });
+        .then(function (r) {
+          var ct = r.headers.get('content-type') || '';
+          if (!r.ok || ct.indexOf('json') === -1) return null;
+          return r.json();
+        })
+        .then(function (d) { return d && d.value !== undefined ? d.value : (d || null); })
+        .catch(function () { return null; });
     }
 
     function scoreColor(score) {
