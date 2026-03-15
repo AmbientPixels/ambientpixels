@@ -430,6 +430,16 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/agent-forge/css/*"
+    },
+    {
+      "route": "/agent-forge/js/*"
+    },
+    {
+      "route": "/agent-forge/*",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/storyforge/css/*",
       "allowedRoles": ["anonymous"],
       "headers": {

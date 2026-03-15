@@ -1,5 +1,26 @@
 /* Pixel Agents Catalog — index.html styles */
 
+.pa-hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding: 0.65rem 1.25rem;
+  background: rgba(90,200,250,0.15);
+  border: 1px solid rgba(90,200,250,0.3);
+  color: rgba(90,200,250,0.9);
+  border-radius: 8px;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+.pa-hero-cta:hover {
+  background: rgba(90,200,250,0.25);
+  border-color: rgba(90,200,250,0.5);
+  color: #fff;
+}
+
 .pa-catalog-shell {
   max-width: 1000px;
   margin: 0 auto;

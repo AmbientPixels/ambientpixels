@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Agent Forge — Build your own AI agent with a visual card pipeline. Drag, configure, test, and submit to the Pixel Agents library." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Agent Forge — Build Your Own AI Agent</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/css/hero-base.css" />
+  <link rel="stylesheet" href="/pixel-agents/css/pixel-agent-card.css" />
+  <link rel="stylesheet" href="/agent-forge/css/agent-forge.css" />
+</head>
+<body data-theme="dark">
+  <header id="nav-header"></header>
+
+  <!-- Hero -->
+  <section class="hero-base" data-hero="infrastructure">
+    <div class="hero-base-layer"></div>
+    <div class="hero-base-content">
+      <a href="/pixel-agents/" class="af-breadcrumb">← Pixel Agents</a>
+      <h1>Agent Forge</h1>
+      <h2>Build Your Own AI Agent</h2>
+      <p>Drag components into the pipeline. Configure. Test. Submit to the library.</p>
+    </div>
+  </section>
+
+  <!-- Main Builder -->
+  <main class="af-builder">
+    <!-- Left: Component Tray -->
+    <aside class="af-tray">
+      <div class="af-tray-section">
+        <h3 class="af-tray-title">Components</h3>
+        <div class="af-tray-cards" id="af-component-tray">
+          <div class="af-tray-card" data-component="identity" draggable="true">
+            <i class="fas fa-masks-theater"></i>
+            <span>Identity</span>
+          </div>
+          <div class="af-tray-card" data-component="input" draggable="true">
+            <i class="fas fa-keyboard"></i>
+            <span>Input</span>
+          </div>
+          <div class="af-tray-card" data-component="prompt" draggable="true">
+            <i class="fas fa-brain"></i>
+            <span>Prompt</span>
+          </div>
+          <div class="af-tray-card" data-component="output" draggable="true">
+            <i class="fas fa-chart-bar"></i>
+            <span>Output</span>
+          </div>
+          <div class="af-tray-card" data-component="powers" draggable="true">
+            <i class="fas fa-bolt"></i>
+            <span>Powers</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="af-tray-section">
+        <h3 class="af-tray-title">Templates</h3>
+        <div class="af-tray-templates">
+          <button class="af-template-btn" data-template="roast">
+            <i class="fas fa-fire"></i> Roast-style
+          </button>
+          <button class="af-template-btn" data-template="analyzer">
+            <i class="fas fa-search"></i> Analyzer
+          </button>
+          <button class="af-template-btn" data-template="generator">
+            <i class="fas fa-wand-magic-sparkles"></i> Generator
+          </button>
+          <button class="af-template-btn" data-template="advisor">
+            <i class="fas fa-user-tie"></i> Advisor
+          </button>
+        </div>
+      </div>
+
+      <div class="af-tray-section">
+        <h3 class="af-tray-title">Drafts</h3>
+        <div id="af-drafts-list" class="af-drafts-list">
+          <p class="af-drafts-empty">No saved drafts</p>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Center: Pipeline Canvas -->
+    <section class="af-canvas">
+      <div class="af-canvas-header">
+        <h3>Agent Pipeline</h3>
+        <button class="af-btn af-btn-ghost" id="af-clear-btn" title="Clear pipeline">
+          <i class="fas fa-trash-alt"></i> Clear
+        </button>
+      </div>
+
+      <div class="af-pipeline" id="af-pipeline">
+        <div class="af-pipeline-empty" id="af-pipeline-empty">
+          <i class="fas fa-arrow-left"></i>
+          <p>Drag components here to start building<br>or pick a template</p>
+        </div>
+      </div>
+
+      <div class="af-canvas-status" id="af-canvas-status">
+        <span id="af-status-text">0 / 5 components</span>
+      </div>
+    </section>
+
+    <!-- Right: Preview + Test + Actions -->
+    <aside class="af-preview-col">
+      <div class="af-preview-sticky">
+        <!-- Agent Card Preview -->
+        <div class="af-preview-card" id="af-preview-card">
+          <div class="af-preview-label">Live Preview</div>
+          <div class="pa-card" id="af-agent-card">
+            <div class="pa-card-header">
+              <div class="pa-card-avatar">
+                <i class="fas fa-question" id="af-preview-icon"></i>
+              </div>
+              <span class="pa-card-tier pa-tier-common" id="af-preview-tier">COMMON</span>
+            </div>
+            <h3 class="pa-card-name" id="af-preview-name">Untitled Agent</h3>
+            <p class="pa-card-tagline" id="af-preview-tagline">Add a tagline...</p>
+            <span class="pa-card-category" id="af-preview-category">—</span>
+            <div class="pa-card-capabilities" id="af-preview-capabilities"></div>
+            <div class="pa-card-footer">
+              <span class="pa-card-runs">Preview</span>
+              <span class="pa-card-hire-btn"><i class="fas fa-play"></i> Hire Agent</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Test Run -->
+        <div class="af-test-panel" id="af-test-panel">
+          <div class="af-preview-label">Test Run</div>
+          <textarea id="af-test-input" class="af-test-input" placeholder="Enter test input..." rows="3"></textarea>
+          <button class="af-btn af-btn-primary" id="af-test-btn" disabled>
+            <i class="fas fa-play"></i> Run Test
+          </button>
+          <div class="af-test-result" id="af-test-result" style="display:none;"></div>
+          <div class="af-test-loading" id="af-test-loading" style="display:none;">
+            <div class="af-spinner"></div>
+            <span>Running agent...</span>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="af-actions">
+          <button class="af-btn af-btn-secondary" id="af-save-btn">
+            <i class="fas fa-save"></i> Save Draft
+          </button>
+          <button class="af-btn af-btn-primary" id="af-submit-btn" disabled>
+            <i class="fas fa-paper-plane"></i> Submit for Review
+          </button>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Scaffold Modal -->
+  <div class="af-modal-overlay" id="af-scaffold-modal" style="display:none;">
+    <div class="af-modal">
+      <div class="af-modal-header">
+        <h3><i class="fas fa-wand-magic-sparkles"></i> Help Me Write This Prompt</h3>
+        <button class="af-modal-close" id="af-scaffold-close">&times;</button>
+      </div>
+      <div class="af-modal-body">
+        <p>Describe what your agent should do in plain English. We'll generate the full prompt, output sections, and configuration for you.</p>
+        <textarea id="af-scaffold-input" class="af-scaffold-textarea" placeholder="e.g. An agent that analyzes tweets and tells you if they'll go viral, with a virality score and suggestions for improvement..." rows="5"></textarea>
+      </div>
+      <div class="af-modal-footer">
+        <button class="af-btn af-btn-ghost" id="af-scaffold-cancel">Cancel</button>
+        <button class="af-btn af-btn-primary" id="af-scaffold-generate">
+          <i class="fas fa-wand-magic-sparkles"></i> Generate Agent Config
+        </button>
+      </div>
+      <div class="af-scaffold-loading" id="af-scaffold-loading" style="display:none;">
+        <div class="af-spinner"></div>
+        <span>Claude is crafting your agent...</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Icon Picker Modal -->
+  <div class="af-modal-overlay" id="af-icon-modal" style="display:none;">
+    <div class="af-modal af-modal-lg">
+      <div class="af-modal-header">
+        <h3><i class="fas fa-icons"></i> Choose an Icon</h3>
+        <button class="af-modal-close" id="af-icon-close">&times;</button>
+      </div>
+      <div class="af-modal-body">
+        <input type="text" id="af-icon-search" class="af-icon-search" placeholder="Search icons..." />
+        <div class="af-icon-grid" id="af-icon-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer id="nav-footer"></footer>
+
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+  <script src="/js/init-header-footer.js"></script>
+  <script src="/agent-forge/js/agent-forge.js"></script>
+</body>
+</html>
