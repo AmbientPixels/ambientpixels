@@ -441,11 +441,10 @@
 
 /* ── Main Layout ── */
 .ceo-main-split {
-  display: grid;
-  grid-template-columns: 1fr 320px;
+  display: flex;
+  flex-direction: column;
   gap: 12px;
   margin-bottom: 12px;
-  align-items: start;
 }
 
 .ceo-strategy-row {
@@ -1686,11 +1685,6 @@
 #section-insights  { animation-delay: 0.24s; }
 
 /* ── Responsive ── */
-@media (max-width: 1200px) {
-  .ceo-main-split {
-    grid-template-columns: 1fr;
-  }
-}
 
 @media (max-width: 960px) {
   .ceo-stats { grid-template-columns: repeat(3, 1fr); }
@@ -1699,7 +1693,6 @@
 
 @media (max-width: 768px) {
   .ceo-stats { grid-template-columns: repeat(2, 1fr); }
-  .ceo-main-split { grid-template-columns: 1fr; }
   .ceo-insights-grid { grid-template-columns: 1fr; }
   .ceo-agent-grid-compact { grid-template-columns: 1fr 1fr !important; }
   .dash-header { flex-wrap: wrap; }
