@@ -973,7 +973,13 @@
         <!-- 2. Headline Stats -->
         <div class="board-stat-row" id="board-headline-stats"></div>
 
-        <!-- 3. Goals -->
+        <!-- 3. Throughput (moved up — execution proof belongs near top) -->
+        <div class="board-section" id="sec-throughput">
+          <div class="board-section-title"><i class="fas fa-tachometer-alt dash-icon-green"></i> Delivery / Throughput</div>
+          <div class="board-stat-row" id="board-throughput"></div>
+        </div>
+
+        <!-- 4. Goals -->
         <div class="board-section" id="sec-goals">
           <div class="board-section-title"><i class="fas fa-bullseye dash-icon-dim"></i> Goals <span class="board-badge board-badge--sky" id="badge-goals">0</span></div>
           <div id="board-goals"></div>
@@ -1034,13 +1040,6 @@
           <div class="board-section-title"><i class="fas fa-exclamation-triangle dash-icon-red-lt"></i> Risk Register <span class="board-badge board-badge--red" id="badge-risks">0</span></div>
           <div id="board-risks"></div>
         </div>
-
-        <!-- 10. Throughput -->
-        <div class="board-section" id="sec-throughput">
-          <div class="board-section-title"><i class="fas fa-tachometer-alt dash-icon-green"></i> Delivery / Throughput</div>
-          <div class="board-stat-row" id="board-throughput"></div>
-        </div>
-
 
 
       </section>
@@ -2651,12 +2650,11 @@
 
           // 1) Status row — last run + actions
           var statusDot = uiStatus === 'green' ? '#34d399' : (uiStatus === 'yellow' ? '#fbbf24' : '#f87171');
-          html += '<div style="display:flex; align-items:center; gap:0.6rem; margin-bottom:0.55rem; flex-wrap:wrap;">';
-          html += '<span style="width:8px; height:8px; border-radius:50%; background:' + statusDot + '; display:inline-block;"></span>';
-          html += '<span style="font-size:0.72rem;">Last run <strong>' + (last.finishedAt ? formatTime(last.finishedAt) : 'N/A') + '</strong> <span style="opacity:0.45;">(' + ageMin + 'm ago)</span></span>';
-          html += '<span style="font-size:0.72rem; margin-left:auto;">';
-          html += '<strong>' + _safeNum(actions.executed) + '</strong> executed';
-          if (_safeNum(actions.blocked) > 0) html += ' · <span style="color:#fbbf24;">' + _safeNum(actions.blocked) + ' blocked</span>';
+          html += '<div class="hb-status-row">';
+          html += '<span class="hb-dot" style="background:' + statusDot + ';"></span>';
+          html += '<span class="hb-last-run">Last run <strong>' + (last.finishedAt ? formatTime(last.finishedAt) : 'N/A') + '</strong> <span class="hb-last-run-age">(' + ageMin + 'm ago)</span></span>';
+          html += '<span class="hb-exec-count"><strong>' + _safeNum(actions.executed) + '</strong> executed';
+          if (_safeNum(actions.blocked) > 0) html += ' · <span>' + _safeNum(actions.blocked) + ' blocked</span>';
           html += '</span>';
           html += '</div>';
 
@@ -2664,37 +2662,30 @@
           var overdue = _safeNum(backlog.overdueTasks);
           var blocked = _safeNum(backlog.blockedTasks);
           if (overdue > 0 || blocked > 0) {
-            html += '<div style="display:flex; gap:0.4rem; margin-bottom:0.55rem; flex-wrap:wrap;">';
-            if (overdue > 0) {
-              html += '<div style="padding:0.3rem 0.55rem; border-radius:6px; background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); font-size:0.68rem; color:#f87171;">'
-                + '<i class="fas fa-clock" style="margin-right:0.3rem;"></i>' + overdue + ' overdue</div>';
-            }
-            if (blocked > 0) {
-              html += '<div style="padding:0.3rem 0.55rem; border-radius:6px; background:rgba(251,191,36,0.1); border:1px solid rgba(251,191,36,0.3); font-size:0.68rem; color:#fbbf24;">'
-                + '<i class="fas fa-ban" style="margin-right:0.3rem;"></i>' + blocked + ' blocked</div>';
-            }
+            html += '<div class="hb-alert-row">';
+            if (overdue > 0) html += '<div class="hb-alert-pill hb-alert-pill--red"><i class="fas fa-clock"></i>' + overdue + ' overdue</div>';
+            if (blocked > 0) html += '<div class="hb-alert-pill hb-alert-pill--amber"><i class="fas fa-ban"></i>' + blocked + ' blocked</div>';
             html += '</div>';
           }
 
           // 3) Compact agent strip — name + executed count
           var agentKeys = Object.keys(perAgent).sort();
           if (agentKeys.length > 0) {
-            html += '<div style="display:flex; flex-wrap:wrap; gap:0.3rem; margin-bottom:0.55rem;">';
+            html += '<div class="hb-agent-strip">';
             agentKeys.forEach(function (aid) {
               var a = perAgent[aid] || {};
               var agent = AgentEngine.getAgent ? AgentEngine.getAgent(aid) : null;
               var color = (agent && agent.color) ? agent.color : '#94a3b8';
               var exe = _safeNum(a.actionsExecuted);
-              var opacity = exe > 0 ? '1' : '0.45';
-              html += '<div style="padding:0.25rem 0.45rem; border:1px solid rgba(255,255,255,0.08); border-radius:6px; font-size:0.64rem; opacity:' + opacity + ';">'
-                + '<span style="color:' + color + '; font-weight:600;">' + escapeHtml(agent ? agent.name : aid) + '</span>'
-                + ' <span style="opacity:0.7;">' + exe + '</span></div>';
+              html += '<div class="hb-agent-chip' + (exe === 0 ? ' hb-agent-chip--dim' : '') + '">'
+                + '<span class="hb-agent-name" style="color:' + color + ';">' + escapeHtml(agent ? agent.name : aid) + '</span>'
+                + '<span class="hb-agent-count">' + exe + '</span></div>';
             });
             html += '</div>';
           }
 
           // 4) Action trend sparkline (last 10 heartbeats)
-          html += '<div style="font-size:0.6rem; opacity:0.5;">Actions trend ' + _spark(execVals, maxExec, 'rgba(255,255,255,0.4)') + '</div>';
+          html += '<div class="hb-trend">Actions trend ' + _spark(execVals, maxExec, 'rgba(255,255,255,0.4)') + '</div>';
 
           panelHeartbeatHealth.innerHTML = html;
         }).catch(function (err) {
