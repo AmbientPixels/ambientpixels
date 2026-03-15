@@ -1421,6 +1421,64 @@
   letter-spacing: -0.02em;
 }
 
+/* ── Traffic Brief — 3-column data grid ── */
+.growth-traffic-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  margin-top: 12px;
+  margin-bottom: 8px;
+}
+@media (max-width: 900px) { .growth-traffic-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 640px) { .growth-traffic-grid { grid-template-columns: 1fr; } }
+
+.growth-traffic-col {
+  min-width: 0;
+}
+
+.growth-table-title {
+  font-size: 0.6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.4;
+  margin-bottom: 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.growth-table-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.4rem;
+  padding: 0.22rem 0.4rem;
+  border-radius: 5px;
+  font-size: 0.62rem;
+  margin-bottom: 2px;
+  background: rgba(128,128,128,0.03);
+  border: 1px solid var(--c-sep);
+}
+.growth-table-row:hover { background: rgba(128,128,128,0.07); }
+
+.growth-table-key {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  opacity: 0.7;
+  flex: 1;
+}
+
+.growth-table-val {
+  font-size: 0.6rem;
+  font-weight: 600;
+  opacity: 0.55;
+  flex-shrink: 0;
+}
+.growth-table-val--green { color: #34d399; opacity: 1; }
+.growth-table-val--blue  { color: #60a5fa; opacity: 1; }
+
 /* ── Last Run Bar ── */
 .dash-lastrun-bar {
   display: flex;
