@@ -43,6 +43,12 @@ const LOADING_MESSAGES = {
   ]
 };
 
+function getApiBase() {
+  return window.location.hostname.includes('ambientpixels.ai')
+    ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+    : '/api';
+}
+
 // ── Init ──
 document.addEventListener('DOMContentLoaded', async () => {
   const params = new URLSearchParams(window.location.search);
@@ -153,7 +159,7 @@ async function runAgent() {
   btn.disabled = true;
 
   try {
-    const res = await fetch('/api/pixel-agent-run', {
+    const res = await fetch(getApiBase() + '/pixel-agent-run', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

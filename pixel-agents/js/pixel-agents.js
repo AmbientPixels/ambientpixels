@@ -4,6 +4,12 @@ let allAgents = [];
 let currentCategory = 'all';
 let usageStats = {};
 
+function getApiBase() {
+  return window.location.hostname.includes('ambientpixels.ai')
+    ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
+    : '/api';
+}
+
 const CATEGORY_LABELS = {
   audit: 'Audit',
   content: 'Content',
@@ -17,7 +23,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Load agents + stats in parallel
     const [agentsRes, statsRes] = await Promise.all([
       fetch('./data/pixel-agents.json?v=1'),
-      fetch('/api/pixel-agent-catalog').catch(() => null)
+      fetch(getApiBase() + '/pixel-agent-catalog').catch(() => null)
     ]);
 
     // Guard against SWA fallback returning HTML instead of JSON
