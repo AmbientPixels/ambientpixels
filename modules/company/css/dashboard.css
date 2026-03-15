@@ -202,6 +202,29 @@
   /* collapsible content */
 }
 
+/* Collapsed state — JS toggles .collapsed on .dash-section */
+.dash-section.collapsed .dash-section-body {
+  display: none;
+}
+.dash-section.collapsed .dash-section-chevron {
+  transform: rotate(-90deg);
+}
+
+/* Dev view top spacing */
+#view-dev {
+  padding-top: 4px;
+}
+
+/* Cron + Governance side-by-side in dev System section */
+.dev-log-split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+@media (max-width: 768px) {
+  .dev-log-split { grid-template-columns: 1fr; }
+}
+
 /* ── Panel — Apple #1c1c1e card ── */
 .dash-panel {
   background: #1c1c1e;
