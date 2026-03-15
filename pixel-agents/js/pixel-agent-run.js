@@ -71,11 +71,18 @@ const LOADING_MESSAGES = {
   ]
 };
 
+let isLoggedIn = false;
+
 function getApiBase() {
   return window.location.hostname.includes('ambientpixels.ai')
     ? 'https://ambientpixels-nova-api.azurewebsites.net/api'
     : '/api';
 }
+
+// Check auth status
+fetch('/.auth/me').then(r => r.json()).then(d => {
+  if (d && d.clientPrincipal) isLoggedIn = true;
+}).catch(() => {});
 
 // ── Init ──
 document.addEventListener('DOMContentLoaded', async () => {
@@ -187,9 +194,11 @@ async function runAgent() {
   btn.disabled = true;
 
   try {
+    const hdrs = { 'Content-Type': 'application/json' };
+    if (isLoggedIn) hdrs['x-company-secret'] = 'pixelpusher';
     const res = await fetch(getApiBase() + '/pixel-agent-run', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: hdrs,
       body: JSON.stringify({
         agentId: currentAgent.id,
         input: input

@@ -102,31 +102,35 @@ module.exports = async function (context, req) {
       }
     }
 
-    // Rate limiting (IP-based, per day)
+    // Rate limiting (IP-based, per day) — skip for authenticated users
+    const isAuthed = req.headers['x-company-secret'] === 'pixelpusher';
     const clientIP = getClientIP(req);
     const ipHash = hashIP(clientIP);
     const today = todayKey();
     let rateLimits = {};
+    let userRuns = 0;
 
-    try {
-      rateLimits = (await storage.getState('pixelAgentRateLimits')) || {};
-    } catch { rateLimits = {}; }
+    if (!isAuthed) {
+      try {
+        rateLimits = (await storage.getState('pixelAgentRateLimits')) || {};
+      } catch { rateLimits = {}; }
 
-    const userKey = ipHash + '_' + today;
-    const userRuns = rateLimits[userKey] || 0;
+      const userKey = ipHash + '_' + today;
+      userRuns = rateLimits[userKey] || 0;
 
-    const cost = agent.rateLimitCost || 1;
-    if (userRuns + cost > RATE_LIMIT_PER_DAY) {
-      context.res = {
-        status: 429,
-        headers: corsHeaders,
-        body: {
-          error: 'Daily limit reached',
-          message: `You've used all ${RATE_LIMIT_PER_DAY} free runs for today. Come back tomorrow!`,
-          remaining: 0
-        }
-      };
-      return;
+      const cost = agent.rateLimitCost || 1;
+      if (userRuns + cost > RATE_LIMIT_PER_DAY) {
+        context.res = {
+          status: 429,
+          headers: corsHeaders,
+          body: {
+            error: 'Daily limit reached',
+            message: `You've used all ${RATE_LIMIT_PER_DAY} free runs for today. Come back tomorrow!`,
+            remaining: 0
+          }
+        };
+        return;
+      }
     }
 
     // Build prompt
@@ -211,13 +215,16 @@ module.exports = async function (context, req) {
     // Generate run ID
     const runId = 'run-' + Date.now() + '-' + crypto.randomBytes(3).toString('hex');
 
-    // Update rate limit
-    rateLimits[userKey] = userRuns + (agent.rateLimitCost || 1);
-    // Clean old entries (keep only today's)
-    for (const key of Object.keys(rateLimits)) {
-      if (!key.endsWith('_' + today)) delete rateLimits[key];
+    // Update rate limit (skip for authenticated users)
+    if (!isAuthed) {
+      const userKey = ipHash + '_' + today;
+      rateLimits[userKey] = userRuns + (agent.rateLimitCost || 1);
+      // Clean old entries (keep only today's)
+      for (const key of Object.keys(rateLimits)) {
+        if (!key.endsWith('_' + today)) delete rateLimits[key];
+      }
+      storage.setState('pixelAgentRateLimits', rateLimits).catch(() => {});
     }
-    storage.setState('pixelAgentRateLimits', rateLimits).catch(() => {});
 
     // Store run result for share URLs
     const runRecord = {
