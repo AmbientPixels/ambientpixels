@@ -95,6 +95,66 @@ const LOADING_MESSAGES = {
     'Generating your redesign concept...',
     'Almost there — rendering the mockup...'
   ],
+  'color-thief': [
+    'Analyzing the image...',
+    'Extracting dominant colors...',
+    'Naming the palette...',
+    'Suggesting design pairings...'
+  ],
+  'roast-my-linkedin': [
+    'Reading your profile...',
+    'Cringing at your headline...',
+    'Rewriting your about section...',
+    'Preparing the roast...'
+  ],
+  'eli5': [
+    'Reading the complex stuff...',
+    'Simplifying for a 5-year-old...',
+    'Adding teenage context...',
+    'Summarizing for experts...'
+  ],
+  'startup-obituary': [
+    'Examining the startup idea...',
+    'Predicting the cause of death...',
+    'Writing the timeline...',
+    'Composing the eulogy...'
+  ],
+  'legal-eagle': [
+    'Reading the fine print...',
+    'Translating legalese...',
+    'Scanning for red flags...',
+    'Identifying key terms...'
+  ],
+  'email-fixer': [
+    'Analyzing your draft...',
+    'Identifying tone issues...',
+    'Rewriting for clarity...',
+    'Crafting a better subject line...'
+  ],
+  'code-roast': [
+    'Reading your code...',
+    'Detecting the language...',
+    'Finding bugs and anti-patterns...',
+    'Preparing the roast...'
+  ],
+  'meeting-killer': [
+    'Reading the meeting notes...',
+    'Extracting action items...',
+    'Calculating wasted time...',
+    'Delivering the verdict...'
+  ],
+  'plot-twist': [
+    'Analyzing your story...',
+    'Brainstorming twists...',
+    'Finding the perfect shock...',
+    'Setting up foreshadowing...'
+  ],
+  'debate-me': [
+    'Analyzing your position...',
+    'Researching counter-arguments...',
+    'Building the case against you...',
+    'Scoring both sides...'
+  ],
   '_default': [
     'Processing your request...',
     'The agent is working on it...',

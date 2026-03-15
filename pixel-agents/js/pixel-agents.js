@@ -21,7 +21,8 @@ const CATEGORY_LABELS = {
   tools: 'Tools',
   career: 'Career',
   intel: 'Intel',
-  gaming: 'Gaming'
+  gaming: 'Gaming',
+  creative: 'Creative'
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
