@@ -337,6 +337,14 @@ var AgentEngine = (function () {
       usage: 'All agents — chat, standup, tasks, reports',
       inputPrice: '$0.10 / 1M tokens',
       outputPrice: '$0.40 / 1M tokens'
+    }, {
+      id: 'claude-sonnet-4-6',
+      name: 'Claude Sonnet 4.6',
+      provider: 'Anthropic',
+      status: 'active',
+      usage: 'Pixel Agents — public AI tools',
+      inputPrice: '$3.00 / 1M tokens',
+      outputPrice: '$15.00 / 1M tokens'
     }];
   }
 
