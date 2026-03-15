@@ -15,7 +15,8 @@ const CATEGORY_LABELS = {
   content: 'Content',
   strategy: 'Strategy',
   naming: 'Naming',
-  pitch: 'Pitch'
+  pitch: 'Pitch',
+  design: 'Design'
 };
 
 document.addEventListener('DOMContentLoaded', async () => {

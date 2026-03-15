@@ -115,7 +115,8 @@ module.exports = async function (context, req) {
     const userKey = ipHash + '_' + today;
     const userRuns = rateLimits[userKey] || 0;
 
-    if (userRuns >= RATE_LIMIT_PER_DAY) {
+    const cost = agent.rateLimitCost || 1;
+    if (userRuns + cost > RATE_LIMIT_PER_DAY) {
       context.res = {
         status: 429,
         headers: corsHeaders,
@@ -182,11 +183,36 @@ module.exports = async function (context, req) {
       result = { raw: rawText };
     }
 
+    // Image generation for hybrid agents (Claude analysis + Gemini image)
+    if (agent.imageGeneration && result && !result.raw) {
+      try {
+        const imageEngine = require('../_lib/contentEngine/imageEngine');
+
+        const preset = imageEngine.VALID_PRESETS.indexOf(result.preset) !== -1
+          ? result.preset : 'ap-neon-glass';
+
+        const imgOpts = {
+          topic: (agent.imageConfig?.topicPrefix || '') + input.substring(0, 200),
+          goal: result.image_prompt || 'Generate a brand visual identity',
+          preset: preset,
+          outputType: agent.imageConfig?.outputType || 'square_image'
+        };
+
+        context.log('[PixelAgentRun] Image generation — preset:', preset, 'output:', imgOpts.outputType);
+        const imgResult = await imageEngine.generateImage(imgOpts);
+        result.image_url = imgResult.imageUrl;
+        context.log('[PixelAgentRun] Image generated:', imgResult.imageUrl);
+      } catch (imgErr) {
+        context.log.error('[PixelAgentRun] Image generation failed:', imgErr.message);
+        result.image_url = null;
+      }
+    }
+
     // Generate run ID
     const runId = 'run-' + Date.now() + '-' + crypto.randomBytes(3).toString('hex');
 
     // Update rate limit
-    rateLimits[userKey] = userRuns + 1;
+    rateLimits[userKey] = userRuns + (agent.rateLimitCost || 1);
     // Clean old entries (keep only today's)
     for (const key of Object.keys(rateLimits)) {
       if (!key.endsWith('_' + today)) delete rateLimits[key];
@@ -247,7 +273,7 @@ module.exports = async function (context, req) {
         raw: rawText,
         runId,
         timestamp: runRecord.timestamp,
-        remaining: RATE_LIMIT_PER_DAY - userRuns - 1,
+        remaining: Math.max(0, RATE_LIMIT_PER_DAY - userRuns - (agent.rateLimitCost || 1)),
         shareUrl: '/pixel-agents/share.html?run=' + runId
       }
     };

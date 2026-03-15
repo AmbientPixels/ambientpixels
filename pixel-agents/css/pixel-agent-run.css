@@ -515,3 +515,67 @@
     justify-content: center;
   }
 }
+
+/* ── Image result type ── */
+.pa-result-image {
+  text-align: center;
+  padding: 1.25rem;
+}
+
+.pa-result-image-img {
+  max-width: 100%;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+  transition: transform 0.2s;
+}
+
+.pa-result-image-img:hover {
+  transform: scale(1.02);
+}
+
+.pa-result-image a {
+  display: inline-block;
+  text-decoration: none;
+}
+
+/* ── Color palette type ── */
+.pa-result-palette {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.pa-result-swatch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 72px;
+}
+
+.pa-result-swatch-color {
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.15);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.pa-result-swatch-name {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.7);
+  font-weight: 500;
+}
+
+.pa-result-swatch-hex {
+  font-size: 0.68rem;
+  color: rgba(255,255,255,0.4);
+  font-family: monospace;
+}
+
+@media (max-width: 600px) {
+  .pa-result-palette {
+    justify-content: center;
+  }
+}

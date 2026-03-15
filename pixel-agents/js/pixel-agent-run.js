@@ -36,6 +36,13 @@ const LOADING_MESSAGES = {
     'Rewriting your narrative...',
     'Prescribing improvements...'
   ],
+  'vibe-check': [
+    'Reading your brand\'s energy...',
+    'Analyzing color vibes...',
+    'Selecting the perfect visual style...',
+    'Generating your visual identity image...',
+    'Almost there — image generation takes a moment...'
+  ],
   '_default': [
     'Processing your request...',
     'The agent is working on it...',
@@ -303,6 +310,34 @@ function renderResult(data) {
         body.appendChild(card);
         break;
 
+      case 'image':
+        if (!value) break;
+        card.className = 'pa-result-card pa-result-image';
+        card.innerHTML =
+          '<div class="pa-result-card-label">' + escapeHtml(section.label) + '</div>' +
+          '<a href="' + escapeAttr(String(value)) + '" target="_blank" rel="noopener">' +
+          '<img src="' + escapeAttr(String(value)) + '" alt="Generated visual" class="pa-result-image-img" loading="lazy" />' +
+          '</a>';
+        body.appendChild(card);
+        break;
+
+      case 'color_palette':
+        card.className = 'pa-result-card';
+        var colors = Array.isArray(value) ? value : [];
+        card.innerHTML =
+          '<div class="pa-result-card-label">' + escapeHtml(section.label) + '</div>' +
+          '<div class="pa-result-palette">' +
+          colors.map(function(c) {
+            return '<div class="pa-result-swatch">' +
+              '<div class="pa-result-swatch-color" style="background:' + escapeAttr(c.hex || '#888') + '"></div>' +
+              '<span class="pa-result-swatch-name">' + escapeHtml(c.name || '') + '</span>' +
+              '<span class="pa-result-swatch-hex">' + escapeHtml(c.hex || '') + '</span>' +
+              '</div>';
+          }).join('') +
+          '</div>';
+        body.appendChild(card);
+        break;
+
       default:
         card.className = 'pa-result-card';
         card.innerHTML =
@@ -406,6 +441,10 @@ function escapeHtml(str) {
   const div = document.createElement('div');
   div.textContent = str;
   return div.innerHTML;
+}
+
+function escapeAttr(str) {
+  return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 function showToast(msg) {

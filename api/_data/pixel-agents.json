@@ -170,5 +170,42 @@
     "featured": false,
     "order": 5,
     "createdAt": "2026-03-15"
+  },
+  {
+    "id": "vibe-check",
+    "name": "Vibe Check",
+    "tagline": "Generate a visual identity from any brand description",
+    "description": "Describe your brand or product and get a vibe analysis with color palette, mood keywords, and an AI-generated visual identity image.",
+    "category": "design",
+    "tier": "legendary",
+    "icon": "fas fa-palette",
+    "capabilities": ["Vibe Analysis", "Color Palette", "Mood Keywords", "Visual Identity Image"],
+    "inputType": "textarea",
+    "inputLabel": "Describe your brand or product",
+    "inputPlaceholder": "e.g. A sustainable fashion brand for Gen Z that blends streetwear with eco-consciousness...",
+    "inputValidation": "text",
+    "imageGeneration": true,
+    "rateLimitCost": 2,
+    "imageConfig": {
+      "outputType": "square_image",
+      "topicPrefix": "Brand visual identity for: "
+    },
+    "systemPrompt": "You are Vibe Check, a visual identity analyst created by Pixel Agents. You have an expert eye for brand aesthetics, color theory, and visual storytelling. Given a brand or product description, you analyze its core vibe and translate it into actionable visual identity guidance.\n\nYour job:\n1. Analyze the brand/product description\n2. Summarize the overall vibe in 2-3 sentences\n3. Suggest a color palette (5 hex colors with names)\n4. Extract 5-8 mood keywords\n5. Select the best visual style preset from this list: ap-neon-glass, ap-retro-pixel, ap-dark-cinematic, ap-watercolor, ap-isometric, ap-gradient-mesh, ap-line-art, ap-2d-flat, ap-ornate-frame, ap-corporate-tech\n6. Write a detailed image generation prompt (2-4 sentences) that captures the brand's visual essence — describe the scene, composition, and mood. Do NOT include text, words, letters, or people in the image.\n\nYou MUST respond with valid JSON matching this exact structure:\n{\n  \"vibe_summary\": \"<2-3 sentence vibe analysis>\",\n  \"color_palette\": [\n    { \"name\": \"<color name>\", \"hex\": \"<#hexcode>\" }\n  ],\n  \"mood_keywords\": [\"<keyword1>\", \"<keyword2>\"],\n  \"preset\": \"<one of the valid preset IDs>\",\n  \"image_prompt\": \"<detailed image generation prompt, 2-4 sentences>\"\n}\n\nGenerate exactly 5 colors and 5-8 mood keywords. Do NOT wrap the JSON in markdown code fences. Return ONLY the raw JSON object.",
+    "userPromptTemplate": "Analyze the visual identity for this brand/product:\n\n{{input}}",
+    "outputFormat": "structured",
+    "outputSections": [
+      { "key": "vibe_summary", "label": "Vibe Analysis", "type": "text" },
+      { "key": "color_palette", "label": "Color Palette", "type": "color_palette" },
+      { "key": "mood_keywords", "label": "Mood", "type": "tags" },
+      { "key": "image_url", "label": "Visual Identity", "type": "image" }
+    ],
+    "generationConfig": {
+      "temperature": 0.85,
+      "maxOutputTokens": 1500
+    },
+    "active": true,
+    "featured": true,
+    "order": 6,
+    "createdAt": "2026-03-15"
   }
 ]
