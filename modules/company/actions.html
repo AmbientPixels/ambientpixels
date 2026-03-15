@@ -1145,7 +1145,7 @@
         // Star rating widget (1-5, optional quality feedback)
         html += '<span class="act-star-rating" data-action-id="' + a.id + '" title="Rate quality (optional)">';
         for (var _si = 1; _si <= 5; _si++) {
-          html += '<i class="fa-star act-star" data-star="' + _si + '" onclick="setStarRating(\'' + a.id + '\',' + _si + ')" style="cursor:pointer;font-size:0.7rem;margin:0 1px;color:var(--aura-muted,#555);"></i>';
+          html += '<i class="far fa-star act-star" data-star="' + _si + '" onclick="setStarRating(\'' + a.id + '\',' + _si + ')" style="cursor:pointer;font-size:0.7rem;margin:0 1px;color:var(--aura-muted,#555);"></i>';
         }
         html += '</span>';
         if (!depCheck.ready) {
