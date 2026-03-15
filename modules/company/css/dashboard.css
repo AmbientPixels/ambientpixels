@@ -1739,8 +1739,10 @@
 #ceo-stats        { order: 2; }
 .ceo-main-split   { order: 3; }
 #ceo-strategy-row { order: 4; }
-#section-decisions { order: 5; }
-#section-insights  { order: 6; }
+#section-decisions        { order: 5; }
+#section-insights         { order: 6; }
+#section-budget           { order: 7; }
+#section-content-pipeline { order: 8; }
 
 #section-metrics,
 #section-costs,
@@ -2123,8 +2125,10 @@ body[data-theme="dim"] .tb-stats-table td { border-bottom-color: rgba(148,163,18
 /* ── Panel modifiers ── */
 .dash-panel--flush        { border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.02); margin-bottom: 0; }
 .dash-panel--no-bottom    { margin-bottom: 0; }
-.dash-panel--sky          { border: 1px solid rgba(56,189,248,0.1); background: rgba(56,189,248,0.015); }
-.dash-panel--blue-subtle  { border: 1px solid rgba(96,165,250,0.08); background: rgba(96,165,250,0.01); }
+.dash-panel--sky          { border: 1px solid rgba(56,189,248,0.1);   background: rgba(56,189,248,0.015); }
+.dash-panel--blue-subtle  { border: 1px solid rgba(96,165,250,0.08);  background: rgba(96,165,250,0.01); }
+.dash-panel--amber        { border: 1px solid rgba(251,191,36,0.12);  background: rgba(251,191,36,0.018); }
+.dash-panel--purple       { border: 1px solid rgba(139,92,246,0.12);  background: rgba(139,92,246,0.018); }
 .dash-panel--min-auto     { min-height: auto; }
 .dash-panel-header--flush { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
 .dash-panel-header--tight { margin-bottom: 0.4rem; padding-bottom: 0.4rem; }
