@@ -496,21 +496,6 @@
   min-height: 80px;
 }
 
-.ceo-insights-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.ceo-insights-panel {
-  background: #1c1c1e;
-  border-radius: 12px;
-  padding: 16px;
-}
-
-#insights-growth {
-  grid-column: 1 / -1;
-}
 
 /* ── Command Center ── */
 .cc-panel {
@@ -1939,7 +1924,6 @@ body[data-theme="light"] .tb-stats-table th { color: rgba(0,0,0,0.28); border-bo
 body[data-theme="light"] .tb-stats-table td { border-bottom-color: rgba(0,0,0,0.025); color: rgba(0,0,0,0.65); }
 body[data-theme="light"] .tb-stats-table tr:hover td { background: rgba(0,0,0,0.02); }
 body[data-theme="light"] .tb-col-pct { color: rgba(0,0,0,0.35) !important; }
-body[data-theme="light"] .ceo-insights-panel { background: #ffffff; }
 body[data-theme="light"] .dash-chat-fab { background: rgba(0,0,0,0.08); border-color: rgba(0,0,0,0.12); color: #1c1c1e; }
 body[data-theme="light"] .dash-chat-fab:hover { background: rgba(0,0,0,0.14); }
 
@@ -2063,7 +2047,6 @@ body[data-theme="dim"] .tb-chart-title { color: rgba(241,245,249,0.4); }
 body[data-theme="dim"] .tb-metric-chip { color: rgba(241,245,249,0.65); }
 body[data-theme="dim"] .tb-stats-table th { color: rgba(241,245,249,0.28); border-bottom-color: rgba(148,163,184,0.1); }
 body[data-theme="dim"] .tb-stats-table td { border-bottom-color: rgba(148,163,184,0.05); color: rgba(241,245,249,0.65); }
-body[data-theme="dim"] .ceo-insights-panel { background: #1e293b; }
 
 /* ══════════════════════════════════════════════════
    Dashboard — Inline Style Replacements

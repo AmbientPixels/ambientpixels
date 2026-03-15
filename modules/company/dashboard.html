@@ -408,7 +408,7 @@
         </div>
       </div>
 
-      <!-- CEO: Insights (Zone 5 — Growth + Cost + Content merged) -->
+      <!-- CEO: Insights (Growth — Traffic + Social) -->
       <div class="dash-section" id="section-insights" data-section="insights">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
           <i class="fas fa-chart-pie dash-icon-purple"></i>
@@ -416,10 +416,6 @@
           <i class="fas fa-chevron-down dash-section-chevron"></i>
         </div>
         <div class="dash-section-body">
-          <div class="ceo-insights-grid">
-
-      <!-- Growth (Traffic + Social) -->
-      <div class="ceo-insights-panel" id="insights-growth">
 
           <!-- Growth Headline Stats -->
           <div class="ceo-stats growth-stats" id="growth-stats">
@@ -474,35 +470,7 @@
               <div class="dash-empty">Loading social data...</div>
             </div>
           </div>
-      </div><!-- /.ceo-insights-panel (growth) -->
 
-      <!-- Cost Summary -->
-      <div class="ceo-insights-panel" id="insights-cost">
-          <div id="ceo-cost-summary-mirror">
-            <div class="dash-empty">Loading cost summary...</div>
-          </div>
-          <div class="dash-cost-link-wrap">
-            <a href="/modules/company/cost-overview.html" class="dash-cost-link">
-              Full Cost Center <i class="fas fa-arrow-right dash-icon-ml"></i>
-            </a>
-          </div>
-      </div><!-- /.ceo-insights-panel (cost) -->
-
-      <!-- Content Pipeline (Blog + Logs) -->
-      <div class="ceo-insights-panel" id="insights-content">
-          <div class="dash-section-flex">
-            <span class="dash-sub-label dash-sub-label--flush"><i class="fas fa-newspaper dash-icon-mr dash-icon-purple"></i>Content Pipeline</span>
-            <span class="dash-section-meta"><span id="ceo-content-blog-count">0</span> posts · <span id="ceo-content-log-count">0</span> logs</span>
-          </div>
-          <div id="ceo-blog-admin-mirror"></div>
-          <div class="dash-empty" id="ceo-blog-admin-mirror-empty">No published blog posts.</div>
-          <div class="dash-content-links">
-            <a href="/blog/" target="_blank" class="dash-content-link--purple">Public Blog →</a>
-            <a href="/log/" target="_blank" class="dash-content-link--green">Public Log →</a>
-          </div>
-      </div><!-- /.ceo-insights-panel (content) -->
-
-          </div><!-- /.ceo-insights-grid -->
         </div><!-- /.dash-section-body -->
       </div><!-- /.dash-section (insights) -->
 
@@ -546,6 +514,46 @@
               <ul class="log-list" id="panel-campaigns-snap"></ul>
               <div class="dash-empty" id="campaigns-snap-empty">No active campaigns.</div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CEO: Budget Section -->
+      <div class="dash-section" id="section-budget" data-section="budget">
+        <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
+          <i class="fas fa-dollar-sign dash-icon-amber"></i>
+          <h2>Budget</h2>
+          <i class="fas fa-chevron-down dash-section-chevron"></i>
+        </div>
+        <div class="dash-section-body">
+          <div id="ceo-cost-summary-mirror">
+            <div class="dash-empty">Loading cost summary...</div>
+          </div>
+          <div class="dash-cost-link-wrap">
+            <a href="/modules/company/cost-overview.html" class="dash-cost-link">
+              Full Cost Center <i class="fas fa-arrow-right dash-icon-ml"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- CEO: Content Section -->
+      <div class="dash-section" id="section-content-pipeline" data-section="content-pipeline">
+        <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
+          <i class="fas fa-newspaper dash-icon-purple"></i>
+          <h2>Content</h2>
+          <i class="fas fa-chevron-down dash-section-chevron"></i>
+        </div>
+        <div class="dash-section-body">
+          <div class="dash-section-flex">
+            <span class="dash-sub-label dash-sub-label--flush"><i class="fas fa-newspaper dash-icon-mr dash-icon-purple"></i>Content Pipeline</span>
+            <span class="dash-section-meta"><span id="ceo-content-blog-count">0</span> posts · <span id="ceo-content-log-count">0</span> logs</span>
+          </div>
+          <div id="ceo-blog-admin-mirror"></div>
+          <div class="dash-empty" id="ceo-blog-admin-mirror-empty">No published blog posts.</div>
+          <div class="dash-content-links">
+            <a href="/blog/" target="_blank" class="dash-content-link--purple">Public Blog →</a>
+            <a href="/log/" target="_blank" class="dash-content-link--green">Public Log →</a>
           </div>
         </div>
       </div>
