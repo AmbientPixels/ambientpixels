@@ -395,6 +395,21 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/api/pixel-agent-checkout",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/pixel-agent-checkout",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/pixel-agent-billing-webhook",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/pixel-agent-billing-webhook",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/pixel-agent-entitlements",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/pixel-agent-entitlements",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/api/*",
       "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/{path}"
     },

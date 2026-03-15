@@ -3,7 +3,7 @@
 
 const { getProduct } = require('./productCatalog');
 
-const PRO_FLAGS = ['hdExport', 'premiumEffects', 'extraCardSlots', 'sfAllGenres', 'sfUnlimitedAdventures', 'sfAllImages', 'sfExtraSaves'];
+const PRO_FLAGS = ['hdExport', 'premiumEffects', 'extraCardSlots', 'sfAllGenres', 'sfUnlimitedAdventures', 'sfAllImages', 'sfExtraSaves', 'paUnlimitedRuns', 'paPriorityQueue', 'paEarlyAccess'];
 
 // Admin user IDs that always get Pro entitlements (for dev/testing)
 const ADMIN_USER_IDS = (process.env.ENTITLEMENTS_ADMIN_IDS || '').split(',').filter(Boolean);

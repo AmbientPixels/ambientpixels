@@ -48,6 +48,46 @@ const PRODUCTS = {
       tier: 'pro',
       flags: ['sfAllGenres', 'sfUnlimitedAdventures', 'sfAllImages', 'sfExtraSaves']
     }
+  },
+
+  // === Pixel Agents ===
+  'pa-pro-monthly': {
+    stripePrice: process.env.PA_STRIPE_PRICE_PRO_MONTHLY,
+    mode: 'subscription',
+    name: 'Pixel Agents Pro (Monthly)',
+    description: 'Unlimited daily runs, priority queue, early access to new agents',
+    entitlements: {
+      tier: 'pro',
+      flags: ['paUnlimitedRuns', 'paPriorityQueue', 'paEarlyAccess']
+    }
+  },
+  'pa-pro-yearly': {
+    stripePrice: process.env.PA_STRIPE_PRICE_PRO_YEARLY,
+    mode: 'subscription',
+    name: 'Pixel Agents Pro (Yearly)',
+    description: 'Unlimited daily runs, priority queue, early access — save 20%',
+    entitlements: {
+      tier: 'pro',
+      flags: ['paUnlimitedRuns', 'paPriorityQueue', 'paEarlyAccess']
+    }
+  },
+  'pa-credit-10': {
+    stripePrice: process.env.PA_STRIPE_PRICE_CREDIT_10,
+    mode: 'payment',
+    name: '10 Agent Runs',
+    description: '10 agent runs — use any agent, no expiration',
+    entitlements: {
+      credits: 10
+    }
+  },
+  'pa-credit-50': {
+    stripePrice: process.env.PA_STRIPE_PRICE_CREDIT_50,
+    mode: 'payment',
+    name: '50 Agent Runs',
+    description: '50 agent runs — use any agent, no expiration — save 20%',
+    entitlements: {
+      credits: 50
+    }
   }
 };
 
