@@ -2034,32 +2034,19 @@
             if (dstBlogEmpty) dstBlogEmpty.style.display = '';
           }
         }
-        // Mirror content counts
-        var blogCount = 0;
+        // Draft count (marketing_post/product_brief docs not yet published)
         var draftCount = 0;
-        var logCount = 0;
         try {
-          var blogPosts = AgentEngine.getBlogPosts ? AgentEngine.getBlogPosts() : [];
-          blogCount = Array.isArray(blogPosts) ? blogPosts.length : 0;
-        } catch(e) {}
-        try {
-          var docs = (typeof CompanyStore !== 'undefined' && CompanyStore.getState) ? CompanyStore.getState('ap_documents', []) : [];
+          var docs = (typeof CompanyStore !== 'undefined' && CompanyStore.getStateSync) ? CompanyStore.getStateSync('ap_documents', []) : [];
           if (Array.isArray(docs)) {
             draftCount = docs.filter(function (d) {
               return (d.kind === 'marketing_post' || d.kind === 'product_brief') && d.status !== 'published';
             }).length;
           }
         } catch(e) {}
-        try {
-          var dailyLogs = AgentEngine.getDailyLogs ? AgentEngine.getDailyLogs() : [];
-          logCount = Array.isArray(dailyLogs) ? dailyLogs.length : 0;
-        } catch(e) {}
-        var bc = document.getElementById('ceo-content-blog-count');
         var dc = document.getElementById('ceo-content-draft-count');
-        var lc = document.getElementById('ceo-content-log-count');
-        if (bc) bc.textContent = blogCount;
         if (dc) dc.textContent = draftCount;
-        if (lc) lc.textContent = logCount;
+        // Blog count + log count are set by renderBlogAdmin / renderDailyLogDrafts after their fetches
       }
 
       // ── CEO Strategy Row (Goals + Projects mirrors) ──
@@ -3320,6 +3307,9 @@
           // Show all entries (published + drafts), newest first
           var rows = entries.filter(function (e) { return e.status === 'published' || e.status === 'draft'; });
 
+          var lcEl = document.getElementById('ceo-content-log-count');
+          if (lcEl) lcEl.textContent = rows.length;
+
           if (rows.length === 0) {
             listEl.innerHTML = '';
             emptyEl.style.display = '';
@@ -3454,9 +3444,13 @@
           if (!Array.isArray(posts) || posts.length === 0) {
             listEl.innerHTML = '';
             emptyEl.style.display = '';
+            var bcEl = document.getElementById('ceo-content-blog-count');
+            if (bcEl) bcEl.textContent = '0';
             return;
           }
           emptyEl.style.display = 'none';
+          var bcEl = document.getElementById('ceo-content-blog-count');
+          if (bcEl) bcEl.textContent = posts.length;
 
           // Sort newest first
           posts.sort(function (a, b) {
