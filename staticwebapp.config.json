@@ -25,7 +25,7 @@
     ]
   },
   "mimeTypes": {
-    ".json": "text/json"
+    ".json": "application/json"
   },
   "responseOverrides": {
     "401": {
@@ -387,6 +387,9 @@
     {
       "route": "/api/*",
       "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/{path}"
+    },
+    {
+      "route": "/data/*"
     },
     {
       "route": "/storyforge/css/*",

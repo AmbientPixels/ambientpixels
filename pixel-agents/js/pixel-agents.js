@@ -20,6 +20,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       fetch('/api/pixel-agent-catalog').catch(() => null)
     ]);
 
+    // Guard against SWA fallback returning HTML instead of JSON
+    const contentType = agentsRes.headers.get('content-type') || '';
+    if (!agentsRes.ok || contentType.includes('text/html')) {
+      throw new Error('Agent data unavailable (got HTML instead of JSON)');
+    }
     allAgents = await agentsRes.json();
     allAgents = allAgents.filter(a => a.active);
 
