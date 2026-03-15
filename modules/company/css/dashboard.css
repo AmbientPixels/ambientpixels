@@ -215,6 +215,21 @@
   padding-top: 4px;
 }
 
+/* Dash grid — two-col by default, full-width panels span both columns */
+.dash-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 0;
+}
+.dash-grid .dash-panel--full {
+  grid-column: 1 / -1;
+}
+@media (max-width: 768px) {
+  .dash-grid { grid-template-columns: 1fr; }
+  .dash-grid .dash-panel--full { grid-column: 1; }
+}
+
 /* Cron + Governance side-by-side in dev System section */
 .dev-log-split {
   display: grid;
