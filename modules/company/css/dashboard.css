@@ -199,7 +199,9 @@
 }
 
 .dash-section-body {
-  /* collapsible content */
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 /* Collapsed state — JS toggles .collapsed on .dash-section */
