@@ -88,6 +88,13 @@ const LOADING_MESSAGES = {
     'Feeling the community mood...',
     'Extracting the spiciest takes...'
   ],
+  'site-glow-up': [
+    'Fetching your site content...',
+    'Analyzing layout and design...',
+    'Crafting a new color palette...',
+    'Generating your redesign concept...',
+    'Almost there — rendering the mockup...'
+  ],
   '_default': [
     'Processing your request...',
     'The agent is working on it...',

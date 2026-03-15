@@ -162,8 +162,65 @@ module.exports = async function (context, req) {
       }
     }
 
+    // URL content fetching (for agents that analyze actual site content)
+    let siteContext = '';
+    if (agent.fetchUrl && agent.inputValidation === 'url') {
+      try {
+        const nodeFetch = require('node-fetch');
+        const targetUrl = input.trim();
+        context.log('[PixelAgentRun] Fetching URL:', targetUrl);
+
+        const siteRes = await nodeFetch(targetUrl, {
+          timeout: 10000,
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (compatible; PixelAgents/1.0; +https://ambientpixels.ai)',
+            'Accept': 'text/html'
+          },
+          redirect: 'follow'
+        });
+
+        if (siteRes.ok) {
+          let html = await siteRes.text();
+
+          // Strip scripts, styles, comments, and SVG
+          html = html.replace(/<script[\s\S]*?<\/script>/gi, '');
+          html = html.replace(/<style[\s\S]*?<\/style>/gi, '');
+          html = html.replace(/<svg[\s\S]*?<\/svg>/gi, '');
+          html = html.replace(/<!--[\s\S]*?-->/g, '');
+
+          // Extract title
+          const titleMatch = html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+          const pageTitle = titleMatch ? titleMatch[1].trim() : '';
+
+          // Extract meta description
+          const metaMatch = html.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']+)["']/i);
+          const metaDesc = metaMatch ? metaMatch[1].trim() : '';
+
+          // Strip remaining HTML tags, normalize whitespace
+          let text = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+
+          // Truncate to ~4000 chars to keep prompt reasonable
+          if (text.length > 4000) text = text.substring(0, 4000) + '...';
+
+          siteContext = '\n\n--- SITE CONTENT FROM ' + targetUrl + ' ---\n' +
+            (pageTitle ? 'Title: ' + pageTitle + '\n' : '') +
+            (metaDesc ? 'Meta Description: ' + metaDesc + '\n' : '') +
+            'Content:\n' + text +
+            '\n--- END SITE CONTENT ---\n';
+
+          context.log('[PixelAgentRun] Fetched site content: ' + text.length + ' chars');
+        } else {
+          context.log.warn('[PixelAgentRun] Site fetch returned ' + siteRes.status);
+          siteContext = '\n\n[Note: Could not fetch site content — HTTP ' + siteRes.status + ']\n';
+        }
+      } catch (fetchErr) {
+        context.log.warn('[PixelAgentRun] URL fetch failed (non-fatal):', fetchErr.message);
+        siteContext = '\n\n[Note: Could not fetch site content — ' + fetchErr.message + ']\n';
+      }
+    }
+
     // Build prompt
-    const userMessage = agent.userPromptTemplate.replace('{{input}}', input.trim()) + searchContext;
+    const userMessage = agent.userPromptTemplate.replace('{{input}}', input.trim()) + searchContext + siteContext;
 
     // Call Claude API
     context.log('[PixelAgentRun] Agent:', agentId, 'Input:', input.substring(0, 100));
