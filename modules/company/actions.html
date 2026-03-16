@@ -389,14 +389,6 @@
             </div>
             <div class="act-panel-body" id="pending-list"></div>
           </div>
-          <!-- Agent Forge Submissions -->
-          <div class="act-panel" id="agent-forge-panel" style="display:none;">
-            <div class="act-panel-head">
-              <span><i class="fas fa-hammer dash-icon-blue co-icon-mr"></i> Agent Forge Submissions</span>
-              <span id="agent-forge-count" class="act-count-badge"></span>
-            </div>
-            <div class="act-panel-body" id="agent-forge-list"></div>
-          </div>
           <!-- Revision Requested -->
           <div class="act-panel" id="revision-panel" style="display:none;">
             <div class="act-panel-head act-panel-head--amber">
@@ -639,6 +631,7 @@
       renderExecutionPulse();
       renderRawStats();
       renderPending();
+      appendApprovalQueueItems();
       renderContentPackages();
       renderRevisions();
       renderScheduled();
@@ -646,7 +639,6 @@
       renderFailures();
       renderRateLimits();
       renderAuditLog();
-      renderAgentForgeSubmissions();
     }
 
     // ── Action Drift Detection (>24h pending approvals) ──
@@ -870,7 +862,103 @@
       });
     }
 
-    // ── Agent Forge Submissions ──
+    // ── Append Approval Queue Items to Pending List ──
+    // Converts approvalQueue items into action-compatible objects and appends
+    // them to #pending-list using the existing actionRow() renderer.
+    // Does NOT touch renderPending — purely additive after it finishes.
+    function appendApprovalQueueItems() {
+      var apiBase = 'https://ambientpixels-nova-api.azurewebsites.net/api';
+      fetch(apiBase + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': 'pixelpusher' } })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var queue = data.value || data || [];
+          if (!Array.isArray(queue)) return;
+          var pending = queue.filter(function(q) {
+            return q.status === 'pending' && (q.type === 'agent_forge_submission' || q.type === 'convergence_escalation');
+          });
+          if (pending.length === 0) return;
+
+          var el = document.getElementById('pending-list');
+          if (!el) return;
+
+          // Update pending count to include these items
+          var countEl = document.getElementById('pending-count');
+          if (countEl) {
+            var existing = parseInt(countEl.textContent) || 0;
+            countEl.textContent = (existing + pending.length) + ' pending';
+          }
+
+          // Convert each item to an action-compatible object and render with actionRow
+          var html = '';
+          pending.forEach(function(item) {
+            var fakeAction;
+            if (item.type === 'agent_forge_submission') {
+              var scores = (item.aiReview && item.aiReview.scores) || {};
+              fakeAction = {
+                id: item.submissionId || item.id,
+                created_at: item.createdAt,
+                created_by: 'agent-forge',
+                type: 'agent_forge.approve',
+                action_type: 'agent_forge.approve',
+                action_category: 'content',
+                platform: null,
+                payload: { text: (item.agentName || '') + ' — ' + (item.agentTagline || '') + (scores.quality ? '\nQuality: ' + scores.quality + ' | Uniqueness: ' + scores.uniqueness + ' | Safety: ' + scores.safety : '') },
+                action_payload: { text: item.agentName || '' },
+                classification: 'advisory',
+                requires_ceo_approval: true,
+                requires_approval: true,
+                risk_level: 'low',
+                brand_impact: 'low',
+                budget_impact: 0,
+                is_irreversible: false,
+                approval: { status: 'pending' },
+                execution: { status: 'pending' },
+                execution_status: 'pending',
+                origin_agent: 'agent-forge',
+                _aqItem: item
+              };
+            } else if (item.type === 'convergence_escalation') {
+              fakeAction = {
+                id: item.id,
+                created_at: item.createdAt,
+                created_by: item.assignee || 'system',
+                type: 'task_completion.approve',
+                action_type: 'task_completion.approve',
+                action_category: 'content',
+                platform: null,
+                payload: { text: item.latestDeliverable || '', taskId: item.taskId, taskTitle: item.taskTitle },
+                action_payload: { text: item.latestDeliverable || '' },
+                classification: 'advisory',
+                requires_ceo_approval: true,
+                requires_approval: true,
+                risk_level: 'medium',
+                brand_impact: 'low',
+                budget_impact: 0,
+                is_irreversible: false,
+                approval: { status: 'pending', revision_count: item.deliverableCount },
+                execution: { status: 'pending' },
+                execution_status: 'pending',
+                origin_agent: item.assignee || 'system',
+                _aqItem: item,
+                _parentTaskId: item.taskId
+              };
+            }
+            if (fakeAction) {
+              html += actionRow(fakeAction, 'pending');
+            }
+          });
+
+          // Append without replacing
+          el.innerHTML += html;
+
+          // Show bulk bar if it was hidden due to 0 action items
+          var bulkBar = document.getElementById('pending-bulk-bar');
+          if (bulkBar) bulkBar.style.display = 'flex';
+        })
+        .catch(function(err) { console.warn('[Actions] approvalQueue fetch failed:', err.message); });
+    }
+
+    // ── Agent Forge Submissions (legacy — kept for reference) ──
     function renderAgentForgeSubmissions() {
       var panel = document.getElementById('agent-forge-panel');
       var list = document.getElementById('agent-forge-list');
