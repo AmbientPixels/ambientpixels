@@ -10,27 +10,30 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/base.css" />
   <link rel="stylesheet" href="/css/grid.css" />
-  <link rel="stylesheet" href="/css/nav.css" />
   <link rel="stylesheet" href="/css/components.css" />
   <link rel="stylesheet" href="/css/theme.css" />
-  <link rel="stylesheet" href="/css/banner.css" />
-  <link rel="stylesheet" href="/css/hero-base.css" />
   <link rel="stylesheet" href="/pixel-agents/css/pixel-agent-card.css" />
   <link rel="stylesheet" href="/agent-forge/css/agent-forge.css" />
 </head>
 <body data-theme="dark">
-  <header id="nav-header"></header>
 
-  <!-- Hero -->
-  <section class="hero-base" data-hero="infrastructure">
-    <div class="hero-base-layer"></div>
-    <div class="hero-base-content">
-      <a href="/pixel-agents/" class="af-breadcrumb">← Pixel Agents</a>
-      <h1>Agent Forge</h1>
-      <h2>Build Your Own AI Agent</h2>
-      <p>Drag components into the pipeline. Configure. Test. Submit to the library.</p>
+  <!-- Minimal Top Bar -->
+  <header class="af-topbar">
+    <div class="af-topbar-brand">
+      <a href="/agent-forge/" class="af-topbar-logo"><i class="fas fa-hammer"></i> Agent Forge</a>
+      <a href="https://ambientpixels.ai" class="af-topbar-byline">by Ambient Pixels</a>
     </div>
-  </section>
+    <div class="af-topbar-actions">
+      <a href="/pixel-agents/" class="af-topbar-link"><i class="fas fa-robot"></i> Agents</a>
+      <button id="af-theme-toggle" class="af-topbar-icon" title="Toggle theme"><i class="fas fa-moon"></i></button>
+      <a id="af-login-btn" href="/.auth/login/aad?post_login_redirect_uri=/agent-forge/" class="af-topbar-login"><i class="fas fa-sign-in-alt"></i> Login</a>
+      <span id="af-user-status" class="af-topbar-user" style="display:none;">
+        <span class="af-user-dot"></span>
+        <span id="af-user-name"></span>
+        <a id="af-logout-btn" href="#" class="af-topbar-logout">Logout</a>
+      </span>
+    </div>
+  </header>
 
   <!-- Main Builder -->
   <main class="af-builder">
@@ -213,11 +216,53 @@
   <!-- Suggestions Banner (shown when status = returned) -->
   <div id="af-suggestions-banner" class="af-suggestions-banner" style="display:none;"></div>
 
-  <div id="footer-container"></div>
-
   <!-- Scripts -->
   <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-  <script src="/js/init-header-footer.js"></script>
   <script src="/agent-forge/js/agent-forge.js"></script>
+  <script>
+  // Inline auth (same pattern as CardForge/StoryForge)
+  (function() {
+    var cached = sessionStorage.getItem('af_auth');
+    if (cached) { try { var d = JSON.parse(cached); if (d.isAuthenticated) showUser(d.name); } catch {} }
+
+    fetch('/.auth/me').then(function(r) { return r.json(); }).then(function(d) {
+      if (d && d.clientPrincipal) {
+        var name = d.clientPrincipal.userDetails || 'User';
+        sessionStorage.setItem('af_auth', JSON.stringify({ isAuthenticated: true, name: name }));
+        document.body.setAttribute('data-auth-state', 'signed-in');
+        showUser(name);
+      }
+    }).catch(function() {});
+
+    function showUser(name) {
+      document.getElementById('af-login-btn').style.display = 'none';
+      document.getElementById('af-user-status').style.display = '';
+      document.getElementById('af-user-name').textContent = name;
+      isLoggedIn = true;
+    }
+
+    document.getElementById('af-logout-btn').addEventListener('click', function(e) {
+      e.preventDefault();
+      sessionStorage.removeItem('af_auth');
+      window.location.href = '/.auth/logout?post_logout_redirect_uri=/agent-forge/';
+    });
+
+    // Theme toggle
+    var savedTheme = localStorage.getItem('preferred-theme');
+    if (savedTheme) {
+      document.body.setAttribute('data-theme', savedTheme);
+      var icon = document.querySelector('#af-theme-toggle i');
+      if (icon) { icon.className = savedTheme === 'light' ? 'fas fa-sun' : 'fas fa-moon'; }
+    }
+    document.getElementById('af-theme-toggle').addEventListener('click', function() {
+      var isDark = document.body.getAttribute('data-theme') === 'dark';
+      var next = isDark ? 'light' : 'dark';
+      document.body.setAttribute('data-theme', next);
+      localStorage.setItem('preferred-theme', next);
+      var ic = this.querySelector('i');
+      ic.className = next === 'light' ? 'fas fa-sun' : 'fas fa-moon';
+    });
+  })();
+  </script>
 </body>
 </html>

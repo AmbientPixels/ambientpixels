@@ -10,16 +10,31 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/css/base.css" />
   <link rel="stylesheet" href="/css/grid.css" />
-  <link rel="stylesheet" href="/css/nav.css" />
   <link rel="stylesheet" href="/css/components.css" />
   <link rel="stylesheet" href="/css/theme.css" />
-  <link rel="stylesheet" href="/css/banner.css" />
   <link rel="stylesheet" href="/css/hero-base.css" />
   <link rel="stylesheet" href="/pixel-agents/css/pixel-agent-card.css" />
   <link rel="stylesheet" href="/pixel-agents/css/pixel-agents.css" />
 </head>
 <body data-theme="dark">
-  <header id="nav-header"></header>
+
+  <!-- Minimal Top Bar -->
+  <header class="pa-topbar">
+    <div class="pa-topbar-brand">
+      <a href="/pixel-agents/" class="pa-topbar-logo"><i class="fas fa-robot"></i> Pixel Agents</a>
+      <a href="https://ambientpixels.ai" class="pa-topbar-byline">by Ambient Pixels</a>
+    </div>
+    <div class="pa-topbar-actions">
+      <a href="/agent-forge/" class="pa-topbar-link"><i class="fas fa-hammer"></i> Build</a>
+      <button id="pa-theme-toggle" class="pa-topbar-icon" title="Toggle theme"><i class="fas fa-moon"></i></button>
+      <a id="pa-login-btn" href="/.auth/login/aad?post_login_redirect_uri=/pixel-agents/" class="pa-topbar-login"><i class="fas fa-sign-in-alt"></i> Login</a>
+      <span id="pa-user-status" class="pa-topbar-user" style="display:none;">
+        <span class="pa-user-dot"></span>
+        <span id="pa-user-name"></span>
+        <a id="pa-logout-btn" href="#" class="pa-topbar-logout">Logout</a>
+      </span>
+    </div>
+  </header>
 
   <!-- Hero -->
   <section class="hero-base" data-hero="infrastructure">
@@ -55,9 +70,7 @@
     </div>
 
     <!-- Agent Grid -->
-    <div class="pa-catalog-grid" id="pa-grid">
-      <!-- Rendered by JS -->
-    </div>
+    <div class="pa-catalog-grid" id="pa-grid"></div>
 
     <!-- Empty state -->
     <div class="pa-catalog-empty" id="pa-empty" style="display:none">
@@ -67,8 +80,47 @@
 
   </main>
 
-  <div id="footer-container"></div>
-  <script src="/js/init-header-footer.js"></script>
   <script src="/pixel-agents/js/pixel-agents.js"></script>
+  <script>
+  // Inline auth
+  (function() {
+    var cached = sessionStorage.getItem('pa_auth');
+    if (cached) { try { var d = JSON.parse(cached); if (d.isAuthenticated) showUser(d.name); } catch {} }
+
+    fetch('/.auth/me').then(function(r) { return r.json(); }).then(function(d) {
+      if (d && d.clientPrincipal) {
+        var name = d.clientPrincipal.userDetails || 'User';
+        sessionStorage.setItem('pa_auth', JSON.stringify({ isAuthenticated: true, name: name }));
+        showUser(name);
+      }
+    }).catch(function() {});
+
+    function showUser(name) {
+      document.getElementById('pa-login-btn').style.display = 'none';
+      document.getElementById('pa-user-status').style.display = '';
+      document.getElementById('pa-user-name').textContent = name;
+    }
+
+    document.getElementById('pa-logout-btn').addEventListener('click', function(e) {
+      e.preventDefault();
+      sessionStorage.removeItem('pa_auth');
+      window.location.href = '/.auth/logout?post_logout_redirect_uri=/pixel-agents/';
+    });
+
+    var savedTheme = localStorage.getItem('preferred-theme');
+    if (savedTheme) {
+      document.body.setAttribute('data-theme', savedTheme);
+      var icon = document.querySelector('#pa-theme-toggle i');
+      if (icon) icon.className = savedTheme === 'light' ? 'fas fa-sun' : 'fas fa-moon';
+    }
+    document.getElementById('pa-theme-toggle').addEventListener('click', function() {
+      var isDark = document.body.getAttribute('data-theme') === 'dark';
+      var next = isDark ? 'light' : 'dark';
+      document.body.setAttribute('data-theme', next);
+      localStorage.setItem('preferred-theme', next);
+      this.querySelector('i').className = next === 'light' ? 'fas fa-sun' : 'fas fa-moon';
+    });
+  })();
+  </script>
 </body>
 </html>

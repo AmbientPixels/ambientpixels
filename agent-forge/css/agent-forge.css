@@ -1,5 +1,53 @@
 /* Agent Forge — Builder Styles */
 
+/* ── Minimal Top Bar ── */
+.af-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 1.5rem;
+  background: rgba(15,23,42,0.95);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(8px);
+}
+.af-topbar-brand { display: flex; align-items: center; gap: 0.75rem; }
+.af-topbar-logo {
+  font-size: 0.95rem; font-weight: 600; color: #fff; text-decoration: none;
+  display: flex; align-items: center; gap: 0.4rem;
+}
+.af-topbar-logo i { color: rgba(90,200,250,0.8); }
+.af-topbar-logo:hover { color: rgba(90,200,250,0.9); }
+.af-topbar-byline { font-size: 0.75rem; color: rgba(255,255,255,0.3); text-decoration: none; }
+.af-topbar-byline:hover { color: rgba(255,255,255,0.5); }
+.af-topbar-actions { display: flex; align-items: center; gap: 0.75rem; }
+.af-topbar-link {
+  font-size: 0.82rem; color: rgba(255,255,255,0.5); text-decoration: none;
+  display: flex; align-items: center; gap: 0.3rem;
+}
+.af-topbar-link:hover { color: rgba(90,200,250,0.8); }
+.af-topbar-icon {
+  background: none; border: none; color: rgba(255,255,255,0.4);
+  cursor: pointer; font-size: 0.95rem; padding: 4px;
+}
+.af-topbar-icon:hover { color: rgba(90,200,250,0.8); }
+.af-topbar-login {
+  font-size: 0.82rem; color: rgba(90,200,250,0.7); text-decoration: none;
+  display: flex; align-items: center; gap: 0.3rem;
+}
+.af-topbar-login:hover { color: rgba(90,200,250,1); }
+.af-topbar-user {
+  display: flex; align-items: center; gap: 0.4rem;
+  font-size: 0.82rem; color: rgba(255,255,255,0.6);
+}
+.af-user-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; }
+.af-topbar-logout {
+  color: rgba(255,255,255,0.35); text-decoration: none; font-size: 0.75rem; margin-left: 0.3rem;
+}
+.af-topbar-logout:hover { color: rgba(255,255,255,0.6); }
+
 /* ── Breadcrumb ── */
 .af-breadcrumb {
   font-size: 0.85rem;
@@ -25,7 +73,7 @@
 /* ── Component Tray (Left) ── */
 .af-tray {
   position: sticky;
-  top: 80px;
+  top: 50px;
   align-self: start;
   max-height: calc(100vh - 100px);
   overflow-y: auto;
@@ -656,7 +704,7 @@
 }
 .af-preview-sticky {
   position: sticky;
-  top: 80px;
+  top: 50px;
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -930,7 +978,7 @@
 /* ── Notification Popups ── */
 .af-notifications {
   position: fixed;
-  top: 80px;
+  top: 50px;
   right: 20px;
   z-index: 10000;
   display: flex;
@@ -1276,6 +1324,19 @@
 /* ══════════════════════════════════════════════
    LIGHT THEME OVERRIDES
    ══════════════════════════════════════════════ */
+
+/* Topbar */
+body[data-theme="light"] .af-topbar { background: rgba(255,255,255,0.95); border-bottom-color: rgba(0,0,0,0.08); }
+body[data-theme="light"] .af-topbar-logo { color: #1e293b; }
+body[data-theme="light"] .af-topbar-logo i { color: #3b82f6; }
+body[data-theme="light"] .af-topbar-byline { color: #94a3b8; }
+body[data-theme="light"] .af-topbar-link { color: #64748b; }
+body[data-theme="light"] .af-topbar-link:hover { color: #3b82f6; }
+body[data-theme="light"] .af-topbar-icon { color: #94a3b8; }
+body[data-theme="light"] .af-topbar-icon:hover { color: #3b82f6; }
+body[data-theme="light"] .af-topbar-login { color: #3b82f6; }
+body[data-theme="light"] .af-topbar-user { color: #475569; }
+body[data-theme="light"] .af-topbar-logout { color: #94a3b8; }
 
 /* Tray */
 body[data-theme="light"] .af-tray-card {

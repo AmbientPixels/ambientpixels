@@ -1,5 +1,101 @@
 /* Pixel Agents Catalog — index.html styles */
 
+/* ── Minimal Top Bar ── */
+.pa-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 1.5rem;
+  background: rgba(15,23,42,0.95);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(8px);
+}
+.pa-topbar-brand { display: flex; align-items: center; gap: 0.75rem; }
+.pa-topbar-logo {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #fff;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.pa-topbar-logo i { color: rgba(90,200,250,0.8); }
+.pa-topbar-logo:hover { color: rgba(90,200,250,0.9); }
+.pa-topbar-byline {
+  font-size: 0.75rem;
+  color: rgba(255,255,255,0.3);
+  text-decoration: none;
+}
+.pa-topbar-byline:hover { color: rgba(255,255,255,0.5); }
+.pa-topbar-actions { display: flex; align-items: center; gap: 0.75rem; }
+.pa-topbar-link {
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.5);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.pa-topbar-link:hover { color: rgba(90,200,250,0.8); }
+.pa-topbar-icon {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.4);
+  cursor: pointer;
+  font-size: 0.95rem;
+  padding: 4px;
+}
+.pa-topbar-icon:hover { color: rgba(90,200,250,0.8); }
+.pa-topbar-login {
+  font-size: 0.82rem;
+  color: rgba(90,200,250,0.7);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.pa-topbar-login:hover { color: rgba(90,200,250,1); }
+.pa-topbar-user {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: rgba(255,255,255,0.6);
+}
+.pa-user-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4ade80;
+}
+.pa-topbar-logout {
+  color: rgba(255,255,255,0.35);
+  text-decoration: none;
+  font-size: 0.75rem;
+  margin-left: 0.3rem;
+}
+.pa-topbar-logout:hover { color: rgba(255,255,255,0.6); }
+
+/* Light theme topbar */
+body[data-theme="light"] .pa-topbar {
+  background: rgba(255,255,255,0.95);
+  border-bottom-color: rgba(0,0,0,0.08);
+}
+body[data-theme="light"] .pa-topbar-logo { color: #1e293b; }
+body[data-theme="light"] .pa-topbar-logo i { color: #3b82f6; }
+body[data-theme="light"] .pa-topbar-byline { color: #94a3b8; }
+body[data-theme="light"] .pa-topbar-link { color: #64748b; }
+body[data-theme="light"] .pa-topbar-link:hover { color: #3b82f6; }
+body[data-theme="light"] .pa-topbar-icon { color: #94a3b8; }
+body[data-theme="light"] .pa-topbar-icon:hover { color: #3b82f6; }
+body[data-theme="light"] .pa-topbar-login { color: #3b82f6; }
+body[data-theme="light"] .pa-topbar-user { color: #475569; }
+body[data-theme="light"] .pa-topbar-logout { color: #94a3b8; }
+
 .pa-hero-cta {
   display: inline-flex;
   align-items: center;
