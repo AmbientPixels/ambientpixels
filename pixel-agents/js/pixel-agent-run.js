@@ -186,9 +186,24 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   try {
-    const res = await fetch('/pixel-agents/data/pixel-agents.json?v=1');
-    const agents = await res.json();
-    currentAgent = agents.find(a => a.id === agentId && a.active);
+    // Load built-in + community agents in parallel
+    const [builtInRes, communityRes] = await Promise.all([
+      fetch('/pixel-agents/data/pixel-agents.json?v=1'),
+      fetch(getApiBase() + '/pixel-agent-community').catch(() => null)
+    ]);
+
+    const builtInAgents = await builtInRes.json();
+    currentAgent = builtInAgents.find(a => a.id === agentId && a.active);
+
+    // Fallback: check community agents
+    if (!currentAgent && communityRes && communityRes.ok) {
+      try {
+        const commData = await communityRes.json();
+        const communityAgents = commData.agents || [];
+        currentAgent = communityAgents.find(a => a.id === agentId && a.active);
+        if (currentAgent) currentAgent.community = true;
+      } catch (e) { /* non-fatal */ }
+    }
 
     if (!currentAgent) {
       window.location.href = '/pixel-agents/';
