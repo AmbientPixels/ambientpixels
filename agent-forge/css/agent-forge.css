@@ -147,14 +147,19 @@
   flex-direction: column;
   gap: 0;
   min-height: 400px;
-  padding: 1rem;
-  border: 2px dashed rgba(255,255,255,0.08);
+  padding: 1.5rem;
+  border: 1px solid rgba(255,255,255,0.06);
   border-radius: 12px;
-  transition: border-color 0.2s;
+  transition: border-color 0.2s, background 0.2s;
+  position: relative;
+  /* Subtle dot grid background */
+  background-image: radial-gradient(circle, rgba(255,255,255,0.04) 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-color: rgba(0,0,0,0.15);
 }
 .af-pipeline.af-pipeline--dragover {
   border-color: rgba(90,200,250,0.4);
-  background: rgba(90,200,250,0.02);
+  background-color: rgba(90,200,250,0.02);
 }
 
 .af-pipeline-empty {
@@ -170,33 +175,104 @@
 .af-pipeline-empty i { font-size: 1.5rem; }
 .af-pipeline-empty p { font-size: 0.9rem; line-height: 1.5; }
 
+/* ── SVG Connector between cards ── */
+.af-connector {
+  display: flex;
+  justify-content: center;
+  height: 32px;
+  position: relative;
+  pointer-events: none;
+}
+.af-connector svg {
+  width: 40px;
+  height: 32px;
+  overflow: visible;
+}
+.af-connector-line {
+  stroke: rgba(90,200,250,0.3);
+  stroke-width: 2;
+  fill: none;
+  stroke-dasharray: 6 4;
+  animation: af-dash-flow 1.5s linear infinite;
+}
+.af-connector-dot {
+  fill: rgba(90,200,250,0.5);
+}
+.af-connector-arrow {
+  fill: rgba(90,200,250,0.4);
+  stroke: none;
+}
+
+@keyframes af-dash-flow {
+  to { stroke-dashoffset: -10; }
+}
+
 /* ── Pipeline Cards ── */
 .af-pipe-card {
   background: rgba(255,255,255,0.03);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 10px;
   overflow: hidden;
-  transition: all 0.2s;
-}
-.af-pipe-card + .af-pipe-card {
-  margin-top: -1px;
+  transition: all 0.25s ease, transform 0.2s ease, box-shadow 0.25s ease;
+  animation: af-card-enter 0.3s ease-out;
 }
 
-/* Connector line between cards */
-.af-pipe-card:not(:first-child)::before {
-  content: '';
-  display: block;
-  width: 2px;
-  height: 16px;
-  background: rgba(90,200,250,0.25);
-  margin: 0 auto;
-  position: relative;
-  top: -8px;
-  margin-bottom: -8px;
+@keyframes af-card-enter {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .af-pipe-card:hover {
+  border-color: rgba(90,200,250,0.25);
+  box-shadow: 0 0 20px rgba(90,200,250,0.06);
+  transform: translateY(-1px);
+}
+
+.af-pipe-card.af-pipe-card--open {
   border-color: rgba(90,200,250,0.2);
+  background: rgba(255,255,255,0.04);
+  box-shadow: 0 2px 16px rgba(90,200,250,0.08);
+}
+
+/* Node port dots on cards */
+.af-pipe-card::before,
+.af-pipe-card::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(90,200,250,0.3);
+  border: 2px solid rgba(15,23,42,0.8);
+  z-index: 2;
+  transition: background 0.2s;
+}
+.af-pipe-card {
+  position: relative;
+}
+.af-pipe-card::before {
+  top: -5px;
+}
+.af-pipe-card::after {
+  bottom: -5px;
+}
+.af-pipe-card:first-child::before {
+  display: none;
+}
+.af-pipe-card:last-child::after {
+  display: none;
+}
+.af-pipe-card:hover::before,
+.af-pipe-card:hover::after {
+  background: rgba(90,200,250,0.6);
 }
 
 .af-pipe-card-header {

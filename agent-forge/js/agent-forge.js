@@ -166,16 +166,18 @@ function initDragAndDrop() {
 
   // Init Sortable for reordering pipeline cards
   new Sortable(pipeline, {
-    animation: 150,
+    animation: 200,
     handle: '.af-pipe-drag',
     ghostClass: 'sortable-ghost',
     chosenClass: 'sortable-chosen',
-    filter: '.af-pipeline-empty',
+    filter: '.af-pipeline-empty, .af-connector',
+    draggable: '.af-pipe-card',
     onEnd: function() {
       // Update pipelineOrder from DOM
       var cards = pipeline.querySelectorAll('.af-pipe-card');
       pipelineOrder = [];
       cards.forEach(function(c) { pipelineOrder.push(c.dataset.component); });
+      renderPipeline(); // re-render to fix connector positions
     }
   });
 }
@@ -200,10 +202,23 @@ function renderPipeline() {
     openCards[c.dataset.component] = true;
   });
 
-  // Remove existing cards (keep empty placeholder)
-  pipeline.querySelectorAll('.af-pipe-card').forEach(function(c) { c.remove(); });
+  // Remove existing cards and connectors
+  pipeline.querySelectorAll('.af-pipe-card, .af-connector').forEach(function(c) { c.remove(); });
 
-  pipelineOrder.forEach(function(comp) {
+  pipelineOrder.forEach(function(comp, idx) {
+    // Add SVG connector before each card (except first)
+    if (idx > 0) {
+      var connector = document.createElement('div');
+      connector.className = 'af-connector';
+      connector.innerHTML =
+        '<svg viewBox="0 0 40 32">' +
+          '<circle class="af-connector-dot" cx="20" cy="2" r="3" />' +
+          '<line class="af-connector-line" x1="20" y1="5" x2="20" y2="24" />' +
+          '<polygon class="af-connector-arrow" points="14,22 20,30 26,22" />' +
+        '</svg>';
+      pipeline.appendChild(connector);
+    }
+
     var card = createPipelineCard(comp, openCards[comp]);
     pipeline.appendChild(card);
   });
