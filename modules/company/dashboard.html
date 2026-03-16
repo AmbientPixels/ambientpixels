@@ -273,27 +273,7 @@
     <!-- ════════════════════════════════════════ -->
     <div id="view-ceo">
 
-      <!-- CEO: Status Strip (Zone 1) -->
-      <div class="ceo-status-strip" id="ceo-status-strip">
-        <div class="ceo-obs-light">
-          <div class="ceo-obs-light-dot ceo-obs-light-dot--unknown" id="ceo-strip-dot-hb"></div>
-          <div class="ceo-obs-light-label">Heartbeat</div>
-          <div class="ceo-obs-light-value" id="ceo-strip-val-hb">—</div>
-        </div>
-        <div class="ceo-obs-light">
-          <div class="ceo-obs-light-dot ceo-obs-light-dot--unknown" id="ceo-strip-dot-api"></div>
-          <div class="ceo-obs-light-label">API</div>
-          <div class="ceo-obs-light-value" id="ceo-strip-val-api">—</div>
-        </div>
-        <div class="ceo-obs-light">
-          <div class="ceo-obs-light-dot ceo-obs-light-dot--unknown" id="ceo-strip-dot-deploy"></div>
-          <div class="ceo-obs-light-label">Deploy</div>
-          <div class="ceo-obs-light-value" id="ceo-strip-val-deploy">—</div>
-        </div>
-        <div id="ceo-strip-alert-row"></div>
-      </div>
-
-      <!-- CEO: Stat Cards (Zone 2) -->
+      <!-- CEO: Stat Cards (Zone 1) -->
       <div class="ceo-stats" id="ceo-stats">
         <div class="ceo-stat cstat--red">
           <div class="ceo-stat-label">Needs Action</div>
@@ -320,6 +300,26 @@
           <div class="ceo-stat-value" id="cstat-inbound">0</div>
           <div class="ceo-stat-sub"><a href="/modules/company/inbound.html" class="ceo-inbound-link">unprocessed signals</a></div>
         </div>
+      </div>
+
+      <!-- CEO: Status Strip (Zone 2) -->
+      <div class="ceo-status-strip" id="ceo-status-strip">
+        <div class="ceo-obs-light">
+          <div class="ceo-obs-light-dot ceo-obs-light-dot--unknown" id="ceo-strip-dot-hb"></div>
+          <div class="ceo-obs-light-label">Heartbeat</div>
+          <div class="ceo-obs-light-value" id="ceo-strip-val-hb">—</div>
+        </div>
+        <div class="ceo-obs-light">
+          <div class="ceo-obs-light-dot ceo-obs-light-dot--unknown" id="ceo-strip-dot-api"></div>
+          <div class="ceo-obs-light-label">API</div>
+          <div class="ceo-obs-light-value" id="ceo-strip-val-api">—</div>
+        </div>
+        <div class="ceo-obs-light">
+          <div class="ceo-obs-light-dot ceo-obs-light-dot--unknown" id="ceo-strip-dot-deploy"></div>
+          <div class="ceo-obs-light-label">Deploy</div>
+          <div class="ceo-obs-light-value" id="ceo-strip-val-deploy">—</div>
+        </div>
+        <div id="ceo-strip-alert-row"></div>
       </div>
 
       <!-- CEO: Main Area (Zone 3 — Command Center + Team Roster) -->
@@ -406,6 +406,34 @@
       </div>
 
       </div><!-- /.ceo-main-split -->
+
+      <!-- CEO: API Usage -->
+      <div class="dash-section" id="section-api-usage" data-section="api-usage">
+        <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
+          <i class="fas fa-chart-bar dash-icon-blue"></i>
+          <h2>API Usage</h2>
+          <i class="fas fa-chevron-down dash-section-chevron"></i>
+        </div>
+        <div class="dash-section-body">
+          <div class="dash-panel">
+            <div class="dash-panel-header" style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:0.72rem;font-weight:600;opacity:0.7;">API Calls Over Time</span>
+              <select id="api-usage-range" style="font-size:0.6rem;padding:2px 6px;border-radius:4px;background:#2c2c2e;color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.1);font-family:inherit;">
+                <option value="7">7 days</option>
+                <option value="14">14 days</option>
+                <option value="30" selected>30 days</option>
+              </select>
+            </div>
+            <div class="dash-panel-body" style="padding:12px 16px;">
+              <div style="position:relative;height:220px;">
+                <canvas id="api-usage-chart"></canvas>
+              </div>
+            </div>
+          </div>
+          <div id="panel-api-usage-kpis" style="margin-top:8px;"></div>
+          <div id="panel-api-usage-agents" style="margin-top:6px;"></div>
+        </div>
+      </div>
 
       <!-- CEO: Strategy (Zone 3.5 — Goals + Projects side by side) -->
       <div class="ceo-strategy-row" id="ceo-strategy-row">
@@ -556,34 +584,6 @@
               <div class="dash-empty">Loading cost summary...</div>
             </div>
           </div>
-        </div>
-      </div>
-
-      <!-- CEO: API Usage Section -->
-      <div class="dash-section" id="section-api-usage" data-section="api-usage">
-        <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-chart-bar dash-icon-blue"></i>
-          <h2>API Usage</h2>
-          <i class="fas fa-chevron-down dash-section-chevron"></i>
-        </div>
-        <div class="dash-section-body">
-          <div class="dash-panel">
-            <div class="dash-panel-header" style="display:flex;justify-content:space-between;align-items:center;">
-              <span style="font-size:0.72rem;font-weight:600;opacity:0.7;">API Calls Over Time</span>
-              <select id="api-usage-range" style="font-size:0.6rem;padding:2px 6px;border-radius:4px;background:#2c2c2e;color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.1);font-family:inherit;">
-                <option value="7">7 days</option>
-                <option value="14">14 days</option>
-                <option value="30" selected>30 days</option>
-              </select>
-            </div>
-            <div class="dash-panel-body" style="padding:12px 16px;">
-              <div style="position:relative;height:220px;">
-                <canvas id="api-usage-chart"></canvas>
-              </div>
-            </div>
-          </div>
-          <div id="panel-api-usage-kpis" style="margin-top:8px;"></div>
-          <div id="panel-api-usage-agents" style="margin-top:6px;"></div>
         </div>
       </div>
 
