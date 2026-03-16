@@ -890,16 +890,26 @@
           _aqItem: item
         };
       } else if (item.type === 'convergence_escalation') {
+        // Detect platform from task title
+        var _convTitle = (item.taskTitle || '').toLowerCase();
+        var _convPlat = null;
+        if (_convTitle.indexOf('facebook') !== -1) _convPlat = 'facebook';
+        else if (_convTitle.indexOf('linkedin') !== -1) _convPlat = 'linkedin';
+        else if (_convTitle.indexOf('bluesky') !== -1) _convPlat = 'bluesky';
+        else if (_convTitle.indexOf(' x ') !== -1 || _convTitle.indexOf('twitter') !== -1) _convPlat = 'x';
+        var _convIsBlog = _convTitle.indexOf('blog') !== -1;
+        var _convType = _convIsBlog ? 'publish_document' : (_convPlat ? 'social_post.publish' : 'task_completion.approve');
+        var _convCat = _convIsBlog ? 'content' : (_convPlat ? 'social' : 'content');
         return {
           id: item.id,
           created_at: item.createdAt,
           created_by: item.assignee || 'system',
-          type: 'task_completion.approve',
-          action_type: 'task_completion.approve',
-          action_category: 'content',
-          platform: null,
-          payload: { text: item.latestDeliverable || '', taskId: item.taskId, taskTitle: item.taskTitle },
-          action_payload: { text: item.latestDeliverable || '' },
+          type: _convType,
+          action_type: _convType,
+          action_category: _convCat,
+          platform: _convPlat,
+          payload: { text: item.latestDeliverable || '', taskId: item.taskId, taskTitle: item.taskTitle, title: item.taskTitle },
+          action_payload: { text: item.latestDeliverable || '', title: item.taskTitle },
           classification: 'advisory',
           requires_ceo_approval: true,
           requires_approval: true,
