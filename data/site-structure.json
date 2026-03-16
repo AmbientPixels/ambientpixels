@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2026-03-15T13:50:06.878Z",
+  "updated": "2026-03-16T14:21:13.019Z",
   "root": [
     {
       "type": "folder",
@@ -77,6 +77,30 @@
     },
     {
       "type": "folder",
+      "name": "agent-forge",
+      "path": "agent-forge",
+      "children": [
+        {
+          "type": "folder",
+          "name": "css",
+          "path": "agent-forge/css",
+          "children": []
+        },
+        {
+          "type": "page",
+          "name": "index.html",
+          "path": "agent-forge/index.html"
+        },
+        {
+          "type": "folder",
+          "name": "js",
+          "path": "agent-forge/js",
+          "children": []
+        }
+      ]
+    },
+    {
+      "type": "folder",
       "name": "ambientos",
       "path": "ambientos",
       "children": [
@@ -141,6 +165,12 @@
           "type": "folder",
           "name": "GenerateMoodInsights",
           "path": "api/GenerateMoodInsights",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "_data",
+          "path": "api/_data",
           "children": []
         },
         {
@@ -245,6 +275,12 @@
         },
         {
           "type": "folder",
+          "name": "agentforge-drafts",
+          "path": "api/agentforge-drafts",
+          "children": []
+        },
+        {
+          "type": "folder",
           "name": "api-health-check",
           "path": "api/api-health-check",
           "children": []
@@ -289,6 +325,12 @@
           "type": "folder",
           "name": "blogPosts",
           "path": "api/blogPosts",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "blogViews",
+          "path": "api/blogViews",
           "children": []
         },
         {
@@ -397,6 +439,12 @@
           "type": "folder",
           "name": "cardshare",
           "path": "api/cardshare",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "claudeCosts",
+          "path": "api/claudeCosts",
           "children": []
         },
         {
@@ -631,6 +679,66 @@
           "type": "folder",
           "name": "novavision",
           "path": "api/novavision",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "pixel-agent-approve",
+          "path": "api/pixel-agent-approve",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "pixel-agent-billing-webhook",
+          "path": "api/pixel-agent-billing-webhook",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "pixel-agent-catalog",
+          "path": "api/pixel-agent-catalog",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "pixel-agent-checkout",
+          "path": "api/pixel-agent-checkout",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "pixel-agent-community",
+          "path": "api/pixel-agent-community",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "pixel-agent-entitlements",
+          "path": "api/pixel-agent-entitlements",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "pixel-agent-remove",
+          "path": "api/pixel-agent-remove",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "pixel-agent-review",
+          "path": "api/pixel-agent-review",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "pixel-agent-run",
+          "path": "api/pixel-agent-run",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "pixel-agent-submit",
+          "path": "api/pixel-agent-submit",
           "children": []
         },
         {
@@ -1315,6 +1423,11 @@
             },
             {
               "type": "page",
+              "name": "agent-performance.html",
+              "path": "modules/company/agent-performance.html"
+            },
+            {
+              "type": "page",
               "name": "board.html",
               "path": "modules/company/board.html"
             },
@@ -1694,6 +1807,35 @@
           "type": "page",
           "name": "form-explainer-demo.html",
           "path": "pages/form-explainer-demo.html"
+        }
+      ]
+    },
+    {
+      "type": "folder",
+      "name": "pixel-agents",
+      "path": "pixel-agents",
+      "children": [
+        {
+          "type": "folder",
+          "name": "css",
+          "path": "pixel-agents/css",
+          "children": []
+        },
+        {
+          "type": "page",
+          "name": "index.html",
+          "path": "pixel-agents/index.html"
+        },
+        {
+          "type": "folder",
+          "name": "js",
+          "path": "pixel-agents/js",
+          "children": []
+        },
+        {
+          "type": "page",
+          "name": "run.html",
+          "path": "pixel-agents/run.html"
         }
       ]
     },

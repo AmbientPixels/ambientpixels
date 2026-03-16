@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "657b775e-0113-4623-a0e8-87bf62ce9814",
-      "hash": "b73f154643500cf3a533cb8177daba3333d9f668",
-      "message": "Apply semantic icon color system across all company module pages",
-      "timestamp": "2026-03-15 00:41:48 -0700",
+      "id": "3cb0d49d-1953-422e-834c-f51fd5738df2",
+      "hash": "44fc15a733767166d2300ea456729ada84e139c9",
+      "message": "Revert agent-runner.js to pre-convergence changes (793133e9)",
+      "timestamp": "2026-03-15 22:58:44 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/b73f154643500cf3a533cb8177daba3333d9f668"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/44fc15a733767166d2300ea456729ada84e139c9"
     }
   ],
-  "timestamp": "2026-03-15T13:50:08.967Z",
+  "timestamp": "2026-03-16T14:21:14.814Z",
   "count": 1,
-  "scanId": 1773582608967
+  "scanId": 1773670874814
 }
