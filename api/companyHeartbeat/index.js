@@ -2298,10 +2298,12 @@ module.exports = async function (context) {
           // Strip trailing dash-bullet revision notes (e.g. "- Tightened the intro...\n- Added link...")
           _rcText = _rcText.replace(/\n+(- .+\n?){2,}$/g, '').trim();
           _rcText = _rcText.replace(/^\*\s{2,}/gm, '• ').trim();
-          // Convert markdown links [text](url) to plain URLs (social platforms don't render markdown)
-          _rcText = _rcText.replace(/\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g, '$2').trim();
-          // Strip remaining markdown bold/italic formatting
-          _rcText = _rcText.replace(/\*\*(.+?)\*\*/g, '$1').replace(/\*(.+?)\*/g, '$1');
+          // Convert markdown links [text](url) to plain URLs (social platforms don't render markdown — except Reddit)
+          if (_platform !== 'reddit') {
+            _rcText = _rcText.replace(/\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)/g, '$2').trim();
+            // Strip remaining markdown bold/italic formatting
+            _rcText = _rcText.replace(/\*\*(.+?)\*\*/g, '$1').replace(/\*(.+?)\*/g, '$1');
+          }
           // For promo tasks, ensure the blog URL from the task description is in the copy
           var _blogUrlMatch = (_pt.description || '').match(/https?:\/\/ambientpixels\.ai\/blog\/[a-z0-9-]+/i);
           if (_blogUrlMatch && _rcText.indexOf(_blogUrlMatch[0]) === -1) {
@@ -2315,7 +2317,7 @@ module.exports = async function (context) {
           // Strip metadata lines that leak from Scribe (Artifact ID, Parent task ID, Document ID)
           _rcText = _rcText.replace(/\n*(?:Artifact ID|Parent task ID|Document ID|Task ID)[:\s][^\n]*/gi, '').trim();
           // Platform character limit enforcement (same as agent-runner.js line 1628)
-          const _PLAT_LIMITS = { x: 280, bluesky: 300, linkedin: 3000 };
+          const _PLAT_LIMITS = { x: 280, bluesky: 300, linkedin: 3000, reddit: 40000, facebook: 63206 };
           const _charLimit = _PLAT_LIMITS[_platform] || 280;
           if (_rcText.length > _charLimit) {
             context.log('[Heartbeat] AUTO-POST: Trimming', _platform, 'from', _rcText.length, 'to', _charLimit, 'chars');

@@ -1073,7 +1073,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
       - Target audience and why they should care
       - Tone direction (e.g., "founder voice, thought-leadership" or "casual, conversational")
       - Key points to hit, CTA, URL to include
-      - Platform-specific notes (LinkedIn = article-style 800-1500 chars; X = punchy 280 chars; Bluesky = casual 300 chars; Facebook = conversational 100-250 chars for engagement, supports links/hashtags/@mentions; Reddit = value-first, include "TITLE: [title]" on first line, markdown body 200-800 words, link at end, no hard sell)
+      - Platform-specific notes (LinkedIn = article-style 800-1500 chars; X = punchy 280 chars; Bluesky = casual 300 chars; Facebook = conversational 100-250 chars for engagement, supports links/hashtags/@mentions; Reddit = see REDDIT POSTING GUIDE below)
       Write ONE brief — not options, not variations. No markdown headers, no "## Draft:" labels.
     STEP 2 — SCRIBE COPY: The server auto-creates a Scribe writing task. Scribe is the copywriter — they write the actual publish-ready post based on your brief. Quill then reviews for brand voice. Once approved, the task gets reviewed_copy set.
     STEP 3 — PEER REVIEW: The social task must reach "done" status (peer-reviewed) before you can post.
@@ -1091,7 +1091,26 @@ DELIVERABLE QUALITY — NO PREAMBLE:
   - ALLOWED actions: create-social-action, execute-task, create-task, update-task, move-task, comment-task, review-task, create-doc (marketing_post kind), generate-image (social_media purpose)
   - If a social task is NOT yet "done": use execute-task to draft. If a social task IS "done" with reviewed_copy: use create-social-action to post.
   - PROMOTION GATING: You may ONLY auto-generate social posts for published documents when "promote: YES" appears in the EXISTING DOCUMENTS list. If a document is published but does NOT show "promote: YES", do NOT create a social post for it. You may note in your reasoning that the document could benefit from promotion, but you MUST NOT create a social action for it. This is a CEO-controlled gate — only the CEO can enable promotion on a document.
-  - SOCIAL PROMOTION PIPELINE: Do NOT create social media promotion tasks, social copy tasks, or social image tasks for blog posts BEFORE the blog is published and promoted. The correct pipeline is: 1) Scribe writes blog post (create-doc) → 2) Pixel generates hero image → 3) submit-for-publish → 4) CEO approves publish + enables "promote" → 5) System auto-creates social tasks for Echo. Creating social tasks before step 4 wastes heartbeat cycles and creates noise. Wait for the system to create them.` : '') + (agent.name === 'Pixel' ? `
+  - SOCIAL PROMOTION PIPELINE: Do NOT create social media promotion tasks, social copy tasks, or social image tasks for blog posts BEFORE the blog is published and promoted. The correct pipeline is: 1) Scribe writes blog post (create-doc) → 2) Pixel generates hero image → 3) submit-for-publish → 4) CEO approves publish + enables "promote" → 5) System auto-creates social tasks for Echo. Creating social tasks before step 4 wastes heartbeat cycles and creates noise. Wait for the system to create them.
+  - REDDIT POSTING GUIDE:
+    TONE & VOICE: Reddit rewards authenticity. Never sound like a press release or an ad. Write like a builder sharing what they made — conversational, specific, slightly self-deprecating humor is fine. Use first person ("I built...", "We shipped..."). Be transparent about being the maker. Redditors respect honesty and despise astroturfing or corporate speak.
+    SUBREDDIT TARGETING — always suggest the target subreddit in your strategy brief. Match content to community:
+      Pixel Agents: r/SideProject (show-and-tell), r/artificial (AI tools), r/ChatGPT (AI use cases), r/webdev (dev tools), r/InternetIsBeautiful (cool free tools)
+      CardForge: r/rpg (tabletop community), r/tabletopgames, r/gamedesign (game creators), r/DnD (D&D players), r/IndieGaming
+      StoryForge: r/interactivefiction, r/rpg, r/gamingsuggestions, r/IndieGaming, r/ChoiceOfGames
+      AmbientScore: r/webdev (dev tools), r/SEO (site analysis), r/Entrepreneur (business tools), r/SideProject
+      AmbientOS / Build in Public: r/artificial, r/MachineLearning (technical), r/SideProject, r/startups
+      General brand: r/technology, r/programming
+    Only suggest ONE subreddit per task. The task description should include the target subreddit as "r/SubredditName".
+    COMMUNITY NORMS:
+      - Follow the 90/10 rule mentally: posts should be 90% value, 10% self-promotion at most
+      - Lead with what the reader gets, not what you built. "Free tool that roasts your website's SEO" not "Announcing our new product"
+      - Include a genuine ask or discussion prompt at the end — invite feedback, feature requests, or debate
+      - Never use hashtags on Reddit (they don't work and look out of place)
+      - Expect tough questions and criticism — the brief should anticipate objections
+      - Different subreddits have different rules. r/SideProject is show-and-tell friendly. r/webdev hates low-effort promos. r/artificial wants technical depth
+    FORMAT: Posts use "TITLE: [title]" on line 1, blank line, then markdown body (200-800 words). Title should be curiosity-driven, not clickbait. Body should tell a story: what problem, what you built, how it works, what's next, and a link at the end
+    MANUAL POSTING: Reddit posts are currently manual — the CEO copies the approved post from the dashboard outbox and posts it. The create-social-action flow still applies (it queues for CEO approval), but execution is manual, not automated` : '') + (agent.name === 'Pixel' ? `
 - AMBIENTOS CONTRACT (Pixel — Design & QC):
   - Create tasks only when acceptanceCriteria are defined.
   - Prefer updating classification, tags, status, objective_id.
@@ -1201,7 +1220,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
     * Bluesky: 300 chars max
     * LinkedIn: 700 chars max (aim for 400–600 for best engagement)
     * Facebook: 250 chars for engagement (platform supports up to 63,206 chars max). Conversational tone, supports links, hashtags, @mentions. Lead with a hook — Facebook rewards engagement signals (comments, shares).
-    * Reddit: No hard char limit — aim for 200-800 words. MUST start with "TITLE: [your post title, max 300 chars]" on the first line, followed by a blank line, then the body. Both title and body are required. Body supports markdown. No promotional language — lead with value, link at the end.
+    * Reddit: No hard char limit — aim for 200-800 words. MUST start with "TITLE: [your post title, max 300 chars]" on the first line, followed by a blank line, then the body in markdown. Both title and body are required. Tone: authentic builder voice, conversational, specific — never corporate. No hashtags. Lead with value, link at the end. Include a discussion prompt to invite engagement.
     Count your characters carefully. Include the URL in your count. If over the limit, cut words — do NOT submit over-limit posts.
   - DELIVERABLE FORMAT: Your execute-task deliverable for social tasks must contain ONLY the post text — nothing else. Do NOT include reasoning, rationale, strategy notes, character counts, next steps, or any meta-commentary. The deliverable text IS the post. Any text beyond the post itself will leak into the published version.`;
 }

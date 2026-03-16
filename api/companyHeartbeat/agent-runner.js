@@ -1425,7 +1425,7 @@ Write the full deliverable first, then the structured JSON block.`;
           if (!socialTask.reviewed_copy) {
             if (!_copyTaskExists) {
               const _platform = (action.social.platform || 'linkedin').toLowerCase();
-              const _maxLen = _platform === 'x' ? '280 chars' : _platform === 'bluesky' ? '300 chars' : _platform === 'facebook' ? '100-250 chars for engagement (up to 63,206 chars max). Supports links, hashtags, @mentions.' : '800-1500 chars for LinkedIn (article-style)';
+              const _maxLen = _platform === 'x' ? '280 chars' : _platform === 'bluesky' ? '300 chars' : _platform === 'reddit' ? 'format as "TITLE: [max 300 chars]\\n\\n[body, 200-800 words, markdown supported]"' : _platform === 'facebook' ? '100-250 chars for engagement (up to 63,206 chars max). Supports links, hashtags, @mentions.' : '800-1500 chars for LinkedIn (article-style)';
               // Pull campaign context for Scribe (URL, posting rules)
               let _cmpContext = '';
               if (socialTask.campaign_id) {
@@ -1455,7 +1455,7 @@ Write the full deliverable first, then the structured JSON block.`;
                   + '- Professional and on-brand for AmbientPixels\n'
                   + '- MUST include the product URL: ' + _cmpUrl + '\n'
                   + '- LinkedIn posts: aim for 800-1500 chars. Write like a short article — narrative hook, short paragraphs, personal voice, clear takeaway. NOT a compressed ad tagline.\n'
-                  + '- Reddit posts: format as "TITLE: [catchy post title, max 300 chars]\\n\\n[body, markdown supported, 200-800 words, value-first, no hard sell, link to source at the end]". Title and body are both required.\n'
+                  + '- Reddit posts: format as "TITLE: [catchy post title, max 300 chars]\\n\\n[body, markdown supported, 200-800 words]". Title and body are both required. TONE: write like a builder sharing what they made — conversational, authentic, slightly informal. Use first person ("I built...", "We shipped..."). NO corporate speak, NO hashtags, NO press-release language. Lead with what the reader gets, not what we built. Tell a story: problem → what we built → how it works → link at the end. End with a genuine discussion prompt inviting feedback or questions. Redditors respect transparency and despise astroturfing.\n'
                   + '- After writing, this task goes to Quill for brand voice review. Once Quill approves, Echo uses the copy to create the social post.\n'
                   + '- Use execute-task to produce your deliverable.'
                   + _cmpRules,
