@@ -418,14 +418,14 @@ Write the full deliverable first, then the structured JSON block.`;
           return true;
         })
         .sort((a, b) => (_prioOrder[a.priority] || 3) - (_prioOrder[b.priority] || 3));
-      // Filter out convergence-blocked tasks (3+ deliverables — would just get blocked again)
+      // Filter out convergence-blocked tasks (5+ deliverables — would just get blocked again)
       const _convergenceBlocked = _triagedIdle.filter(t => {
         const _delCount = (t.comments || []).filter(c => c.type === 'deliverable').length;
-        return _delCount >= 3;
+        return _delCount >= 5;
       });
       let _executableIdle = _triagedIdle.filter(t => {
         const _delCount = (t.comments || []).filter(c => c.type === 'deliverable').length;
-        return _delCount < 3;
+        return _delCount < 5;
       });
       // CONVERGENCE ESCALATION: move convergence-blocked tasks to review + CEO escalation.
       // Do NOT auto-complete. CEO must approve or close these tasks.
@@ -462,41 +462,6 @@ Write the full deliverable first, then the structured JSON block.`;
             actions.push({ type: 'submit-for-publish', documentId: _convDocEsc.id, taskId: _crTask.id, _systemInjected: true });
             _crTask.comments.push({ id: 'cmt-convpub-' + Date.now(), author: 'system', type: 'system', createdAt: new Date().toISOString(),
               text: '[SYSTEM] CONVERGENCE: auto-submitting doc ' + _convDocEsc.id + ' for publish to unblock revision loop.' });
-          }
-        } else {
-          // FALLBACK: No publishable document found — escalate directly to approval queue
-          // so CEO can see the deliverable and approve/reject from the Actions page.
-          var _aqAlreadyCreated = _crTask.comments && _crTask.comments.some(function(c) {
-            return (c.text || '').indexOf('escalated to approval queue') !== -1;
-          });
-          if (!_aqAlreadyCreated) {
-            var _latestDel = _crDels.length > 0 ? _crDels[_crDels.length - 1] : null;
-            var _aqEntry = {
-              id: 'aq-conv-' + Date.now() + '-' + _cri,
-              type: 'convergence_escalation',
-              taskId: _crTask.id,
-              taskTitle: _crTask.title || 'Untitled task',
-              taskType: _crTask.task_type || 'general',
-              assignee: _crTask.assignee || agentId,
-              deliverableCount: _crDels.length,
-              latestDeliverable: _latestDel ? (_latestDel.text || '').substring(0, 2000) : '',
-              status: 'pending',
-              createdAt: new Date().toISOString()
-            };
-            // Push to approval queue
-            try {
-              var _aqState = (await storage.getState('approvalQueue')) || [];
-              if (!Array.isArray(_aqState)) _aqState = _aqState.value || [];
-              if (!Array.isArray(_aqState)) _aqState = [];
-              _aqState.push(_aqEntry);
-              if (_aqState.length > 500) _aqState = _aqState.slice(-500);
-              await storage.setState('approvalQueue', _aqState);
-              context.log('[Heartbeat] CONVERGENCE → APPROVAL QUEUE:', _crTask.id, _crTask.title);
-            } catch (_aqErr) {
-              context.log.warn('[Heartbeat] Failed to push convergence task to approval queue:', _aqErr.message);
-            }
-            _crTask.comments.push({ id: 'cmt-convaq-' + Date.now(), author: 'system', type: 'system', createdAt: new Date().toISOString(),
-              text: '[SYSTEM] CONVERGENCE: escalated to approval queue for CEO review. Latest deliverable attached.' });
           }
         }
       }
@@ -1117,9 +1082,9 @@ Write the full deliverable first, then the structured JSON block.`;
             context.log('[Heartbeat]', agentId, 'BLOCKED execute-task on', action.taskId, '— task already in', _exTask.status);
             continue;
           }
-          // CONVERGENCE GUARD: if 3+ deliverables already exist, the task is looping — block and escalate
+          // CONVERGENCE GUARD: if 5+ deliverables already exist, the task is looping — block and escalate
           const _deliverableCount = (_exTask.comments || []).filter(c => c.type === 'deliverable').length;
-          if (_deliverableCount >= 3) {
+          if (_deliverableCount >= 5) {
             context.log('[Heartbeat]', agentId, 'CONVERGENCE BLOCKED execute-task on', action.taskId,
               '— task has', _deliverableCount, 'deliverables already (revision loop detected). Escalating to CEO.');
             // Only add the loop-detected comment once — don't spam every heartbeat cycle
@@ -2183,9 +2148,9 @@ Write the full deliverable first, then the structured JSON block.`;
       // Review: agent reviews another agent's deliverable (costs 1 extra Gemini call)
       const task = tasks.find(t => t.id === action.taskId && t.status === 'review');
       if (task) {
-        // CONVERGENCE GUARD: block review if task already has 3+ deliverables — it's looping
+        // CONVERGENCE GUARD: block review if task already has 5+ deliverables — it's looping
         const _rvDelCount = (task.comments || []).filter(c => c.type === 'deliverable').length;
-        if (_rvDelCount >= 3) {
+        if (_rvDelCount >= 5) {
           const _lastRvSys = (task.comments || []).slice().reverse().find(c => c.author === 'system' || c.agentId === 'system');
           const _rvAlreadyWarned = _lastRvSys && _lastRvSys.text && _lastRvSys.text.indexOf('Revision loop') !== -1;
           if (!_rvAlreadyWarned) {
