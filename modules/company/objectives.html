@@ -522,7 +522,8 @@
               var _lc = (typeof AgentEngine.getCampaigns === 'function') ? AgentEngine.getCampaigns() : [];
               var _ids = progress.campaignDetails.map(function (cd) { return cd.id; });
               var _earliest = null, _latest = null;
-              _lc.forEach(function (c) { if (_ids.indexOf(c.id) === -1) return; if (c.startDate) { var s = new Date(c.startDate); if (!_earliest || s < _earliest) _earliest = s; } if (c.endDate) { var e = new Date(c.endDate); if (!_latest || e > _latest) _latest = e; } });
+              var _parseDate = function (ds) { return new Date(ds.length === 10 ? ds + 'T12:00:00' : ds); };
+              _lc.forEach(function (c) { if (_ids.indexOf(c.id) === -1) return; if (c.startDate) { var s = _parseDate(c.startDate); if (!_earliest || s < _earliest) _earliest = s; } if (c.endDate) { var e = _parseDate(c.endDate); if (!_latest || e > _latest) _latest = e; } });
               var fmt = function (d) { return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); };
               if (_earliest && _latest) dateText = fmt(_earliest) + ' → ' + fmt(_latest);
             } else {
@@ -623,10 +624,11 @@
           var _linkedCamps = (typeof AgentEngine.getCampaigns === 'function') ? AgentEngine.getCampaigns() : [];
           var _campIds = progress.campaignDetails.map(function (cd) { return cd.id; });
           var _earliest = null, _latest = null;
+          var _parseDate = function (ds) { return new Date(ds.length === 10 ? ds + 'T12:00:00' : ds); };
           _linkedCamps.forEach(function (lc) {
             if (_campIds.indexOf(lc.id) === -1) return;
-            if (lc.startDate) { var s = new Date(lc.startDate).getTime(); if (!_earliest || s < _earliest) _earliest = s; }
-            if (lc.endDate) { var e = new Date(lc.endDate).getTime(); if (!_latest || e > _latest) _latest = e; }
+            if (lc.startDate) { var s = _parseDate(lc.startDate).getTime(); if (!_earliest || s < _earliest) _earliest = s; }
+            if (lc.endDate) { var e = _parseDate(lc.endDate).getTime(); if (!_latest || e > _latest) _latest = e; }
           });
           if (_earliest) _qStart = new Date(_earliest);
           if (_latest) _qEnd = new Date(_latest);
