@@ -389,22 +389,7 @@
             </div>
             <div class="act-panel-body" id="pending-list"></div>
           </div>
-          <!-- Agent Forge Submissions -->
-          <div class="act-panel" id="agent-forge-panel" style="display:none;">
-            <div class="act-panel-head">
-              <span><i class="fas fa-hammer dash-icon-blue co-icon-mr"></i> Agent Forge Submissions</span>
-              <span id="agent-forge-count" class="act-count-badge"></span>
-            </div>
-            <div class="act-panel-body" id="agent-forge-list"></div>
-          </div>
-          <!-- Convergence Escalations (revision loop tasks) -->
-          <div class="act-panel" id="convergence-panel" style="display:none;">
-            <div class="act-panel-head">
-              <span><i class="fas fa-exclamation-triangle dash-icon-amber co-icon-mr"></i> Revision Loop Escalations</span>
-              <span id="convergence-count" class="act-count-badge"></span>
-            </div>
-            <div class="act-panel-body" id="convergence-list"></div>
-          </div>
+          <!-- Unified queue items injected into pending-list by renderPending -->
           <!-- Revision Requested -->
           <div class="act-panel" id="revision-panel" style="display:none;">
             <div class="act-panel-head act-panel-head--amber">
@@ -654,8 +639,7 @@
       renderFailures();
       renderRateLimits();
       renderAuditLog();
-      renderAgentForgeSubmissions();
-      renderConvergenceEscalations();
+      // Agent forge + convergence items now merged into renderPending()
     }
 
     // ── Action Drift Detection (>24h pending approvals) ──
@@ -807,8 +791,26 @@
       });
       var items = applyFilters(all);
       var el = document.getElementById('pending-list');
-      document.getElementById('pending-count').textContent = items.length + ' pending';
-      if (items.length === 0) { el.innerHTML = ''; return; }
+
+      // Also fetch approvalQueue items (agent forge + convergence) and merge
+      var apiBase = 'https://ambientpixels-nova-api.azurewebsites.net/api';
+      fetch(apiBase + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': 'pixelpusher' } })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var queue = data.value || data || [];
+          if (!Array.isArray(queue)) queue = [];
+          var aqPending = queue.filter(function(q) { return q.status === 'pending'; });
+          _renderPendingCombined(el, items, aqPending);
+        })
+        .catch(function() {
+          _renderPendingCombined(el, items, []);
+        });
+    }
+
+    function _renderPendingCombined(el, actionItems, aqItems) {
+      var totalCount = actionItems.length + aqItems.length;
+      document.getElementById('pending-count').textContent = totalCount + ' pending';
+      if (totalCount === 0) { el.innerHTML = ''; return; }
       var bundles = {}, unbundled = [];
       items.forEach(function (a) {
         if (a.bundle_id) { if (!bundles[a.bundle_id]) bundles[a.bundle_id] = []; bundles[a.bundle_id].push(a); }
@@ -845,6 +847,34 @@
         html += '</div>';
       });
       nocamp.forEach(function (a) { html += actionRow(a, 'pending'); });
+
+      // Render approvalQueue items (agent forge submissions + convergence escalations)
+      aqItems.forEach(function(item) {
+        if (item.type === 'agent_forge_submission') {
+          var review = item.aiReview || {};
+          var scores = review.scores || {};
+          html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0.4rem;border-bottom:1px solid rgba(255,255,255,0.04);">';
+          html += '<div style="flex:1;min-width:0;">';
+          html += '<div style="font-size:0.75rem;font-weight:500;"><i class="fas fa-hammer" style="color:rgba(90,200,250,0.6);margin-right:0.3rem;font-size:0.6rem;"></i>' + esc(item.agentName || 'Agent') + ' <span style="font-size:0.5rem;padding:1px 4px;border-radius:3px;background:rgba(90,200,250,0.12);color:rgba(90,200,250,0.8);font-weight:600;">AGENT</span></div>';
+          html += '<div style="font-size:0.6rem;opacity:0.35;margin-top:1px;">' + esc(item.agentCategory || '') + (scores.quality ? ' · Q:' + scores.quality + ' U:' + scores.uniqueness + ' S:' + scores.safety : '') + '</div>';
+          html += '</div>';
+          html += '<div style="display:flex;gap:0.25rem;flex-shrink:0;">';
+          html += '<button class="act-btn act-btn--approve" onclick="approveAgent(\'' + esc(item.submissionId) + '\')"><i class="fas fa-check"></i></button>';
+          html += '<button class="act-btn act-btn--reject" onclick="rejectAgent(\'' + esc(item.submissionId) + '\')"><i class="fas fa-times"></i></button>';
+          html += '</div></div>';
+        } else if (item.type === 'convergence_escalation') {
+          html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:0.5rem 0.4rem;border-bottom:1px solid rgba(255,255,255,0.04);">';
+          html += '<div style="flex:1;min-width:0;">';
+          html += '<div style="font-size:0.75rem;font-weight:500;"><i class="fas fa-exclamation-triangle" style="color:#fbbf24;margin-right:0.3rem;font-size:0.6rem;"></i>' + esc(item.taskTitle || 'Task') + ' <span style="font-size:0.5rem;padding:1px 4px;border-radius:3px;background:rgba(251,191,36,0.12);color:#fbbf24;font-weight:600;">STUCK</span></div>';
+          html += '<div style="font-size:0.6rem;opacity:0.35;margin-top:1px;">' + esc(item.assignee || '') + ' · ' + (item.deliverableCount || 0) + ' revisions</div>';
+          html += '</div>';
+          html += '<div style="display:flex;gap:0.25rem;flex-shrink:0;">';
+          html += '<button class="act-btn act-btn--approve" onclick="approveConvergence(\'' + esc(item.taskId) + '\',\'' + esc(item.id) + '\')"><i class="fas fa-check"></i></button>';
+          html += '<button class="act-btn act-btn--reject" onclick="closeConvergence(\'' + esc(item.taskId) + '\',\'' + esc(item.id) + '\')"><i class="fas fa-times"></i></button>';
+          html += '</div></div>';
+        }
+      });
+
       el.innerHTML = html;
       // Show bulk bar, reset selection
       var bulkBar = document.getElementById('pending-bulk-bar');
