@@ -398,13 +398,7 @@
 }
 .af-pipe-card-header .af-pipe-drag:hover { color: rgba(255,255,255,0.5); }
 
-.af-pipe-card-body {
-  display: none;
-  padding: 0 1rem 1rem;
-}
-.af-pipe-card.af-pipe-card--open .af-pipe-card-body {
-  display: block;
-}
+/* Card body animation handled in UI Polish section below */
 
 /* ── Form Controls ── */
 .af-field {
@@ -1353,6 +1347,100 @@
   white-space: pre-wrap;
   word-break: break-word;
 }
+
+/* ══════════════════════════════════════════════
+   UI/UX POLISH — Accessibility, Interactions, Visual Hierarchy
+   ══════════════════════════════════════════════ */
+
+/* 1. Focus states for all interactive elements */
+.af-tray-card:focus-visible,
+.af-template-btn:focus-visible,
+.af-btn:focus-visible,
+.af-pipe-card-header:focus-visible,
+.af-topbar-link:focus-visible,
+.af-topbar-icon:focus-visible,
+.af-topbar-login:focus-visible,
+.af-icon-trigger:focus-visible,
+.af-tier-btn:focus-visible,
+.af-output-remove:focus-visible,
+.af-add-output-btn:focus-visible,
+.af-toggle input:focus-visible + .af-toggle-slider {
+  outline: 2px solid rgba(90,200,250,0.6);
+  outline-offset: 2px;
+}
+
+/* 2. Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .af-connector-line { animation: none; }
+  .af-pipe-card { animation: none; }
+  .af-notification { transition: none; }
+  * { transition-duration: 0.01ms !important; }
+}
+
+/* 3. Cursor improvements */
+.af-tray-card { cursor: grab; }
+.af-tray-card:active { cursor: grabbing; }
+
+/* 4. Drag handle visibility */
+.af-pipe-card-header .af-pipe-drag { color: rgba(255,255,255,0.35); }
+.af-pipe-card-header .af-pipe-drag:hover { color: rgba(255,255,255,0.6); }
+
+/* 5. Active/open card left accent border */
+.af-pipe-card.af-pipe-card--open {
+  border-left: 3px solid rgba(90,200,250,0.5);
+}
+
+/* 6. Card expand/collapse animation */
+.af-pipe-card-body {
+  display: block;
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  transition: max-height 0.3s ease, opacity 0.2s ease, padding 0.2s ease;
+  padding: 0 1rem;
+}
+.af-pipe-card.af-pipe-card--open .af-pipe-card-body {
+  max-height: 2000px;
+  opacity: 1;
+  padding: 0 1rem 1rem;
+}
+
+/* 7. Tray section spacing */
+.af-tray-section { margin-bottom: 2rem; }
+
+/* 8. Used tray card — softer, with checkmark */
+.af-tray-card.af-tray-card--used {
+  opacity: 0.5;
+  pointer-events: none;
+  position: relative;
+}
+.af-tray-card.af-tray-card--used::after {
+  content: '\f00c';
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 0.65rem;
+  color: #4ade80;
+}
+
+/* 9. Test result score color coding */
+.af-test-score-num[data-score-level="high"] { color: #4ade80; }
+.af-test-score-num[data-score-level="mid"] { color: #fbbf24; }
+.af-test-score-num[data-score-level="low"] { color: #f87171; }
+
+/* 10. Test result panel scroll */
+.af-test-result {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* 11. Contrast fixes — bump low-contrast labels */
+.af-tray-title { color: rgba(255,255,255,0.5); }
+.af-canvas-status { color: rgba(255,255,255,0.4); }
+.af-preview-label { color: rgba(255,255,255,0.45); }
 
 /* ══════════════════════════════════════════════
    LIGHT THEME OVERRIDES

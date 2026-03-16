@@ -237,8 +237,8 @@ function createPipelineCard(component, isOpen) {
   var summary = getComponentSummary(component);
 
   card.innerHTML =
-    '<div class="af-pipe-card-header">' +
-      '<i class="fas af-pipe-drag fa-grip-vertical"></i>' +
+    '<div class="af-pipe-card-header" tabindex="0" role="button" aria-expanded="' + (isOpen ? 'true' : 'false') + '" aria-label="' + titles[component] + ' configuration">' +
+      '<i class="fas af-pipe-drag fa-grip-vertical" aria-label="Drag to reorder"></i>' +
       '<i class="fas ' + icons[component] + ' af-pipe-icon"></i>' +
       '<span class="af-pipe-title">' + titles[component] + '</span>' +
       '<span class="af-pipe-summary">' + escapeHtml(summary) + '</span>' +
@@ -247,9 +247,18 @@ function createPipelineCard(component, isOpen) {
     '<div class="af-pipe-card-body">' + renderComponentForm(component) + '</div>';
 
   // Toggle expand/collapse
-  card.querySelector('.af-pipe-card-header').addEventListener('click', function(e) {
+  var header = card.querySelector('.af-pipe-card-header');
+  header.addEventListener('click', function(e) {
     if (e.target.closest('.af-pipe-drag')) return;
     card.classList.toggle('af-pipe-card--open');
+    header.setAttribute('aria-expanded', card.classList.contains('af-pipe-card--open'));
+  });
+  header.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      card.classList.toggle('af-pipe-card--open');
+      header.setAttribute('aria-expanded', card.classList.contains('af-pipe-card--open'));
+    }
   });
 
   // Bind form events
