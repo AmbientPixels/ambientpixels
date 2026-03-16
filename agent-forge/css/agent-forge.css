@@ -719,10 +719,11 @@
   inset: 0;
   background: rgba(0,0,0,0.7);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   z-index: 1000;
-  padding: 1rem;
+  padding: 6rem 1rem 2rem;
+  overflow-y: auto;
 }
 .af-modal {
   background: #1a1f2e;
@@ -924,6 +925,24 @@
   line-height: 1;
 }
 .af-notification-close:hover { color: #fff; }
+
+/* ── Confirm Modal ── */
+.af-modal-confirm {
+  max-width: 440px;
+}
+.af-confirm-overlay {
+  align-items: center;
+  padding: 1rem;
+}
+
+/* ── Review Loading ── */
+.af-review-loading-msg {
+  text-align: center;
+  padding: 2rem 0;
+}
+.af-review-loading-msg p {
+  margin: 0.3rem 0;
+}
 
 /* ── Review Modal ── */
 .af-modal-review {

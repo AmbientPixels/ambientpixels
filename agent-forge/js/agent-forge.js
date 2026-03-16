@@ -528,8 +528,9 @@ function applyTemplate(tmpl) {
 
 // ── Actions ──
 function initActions() {
-  document.getElementById('af-clear-btn').addEventListener('click', function() {
-    if (!confirm('Clear the pipeline?')) return;
+  document.getElementById('af-clear-btn').addEventListener('click', async function() {
+    var ok = await showConfirmModal('Clear Pipeline', 'Remove all components and reset the builder?');
+    if (!ok) return;
     pipelineOrder = [];
     agentState = {
       identity: { name: '', tagline: '', description: '', icon: 'fas fa-question', category: 'tools', tier: 'common' },
@@ -641,7 +642,7 @@ async function runScaffold() {
     }
     document.getElementById('af-scaffold-modal').style.display = 'none';
   } catch (err) {
-    alert('Scaffold failed: ' + err.message);
+    showNotification('Scaffold Failed', err.message, 'error');
   } finally {
     loading.style.display = 'none';
     genBtn.disabled = false;
@@ -651,7 +652,7 @@ async function runScaffold() {
 // ── Test Run ──
 async function runTest() {
   var input = document.getElementById('af-test-input').value.trim();
-  if (!input) { alert('Enter test input first'); return; }
+  if (!input) { showNotification('Missing Input', 'Enter test input first', 'warning'); return; }
 
   var resultEl = document.getElementById('af-test-result');
   var loadingEl = document.getElementById('af-test-loading');
@@ -690,9 +691,14 @@ async function runTest() {
 
 // ── Submit ──
 async function submitForReview() {
-  if (!confirm('Submit "' + (agentState.identity.name || 'Untitled') + '" for review?')) return;
+  var confirmed = await showConfirmModal(
+    'Submit for Review',
+    'Submit "' + escapeHtml(agentState.identity.name || 'Untitled') + '" for AI review?\n\nThe AI reviewer will evaluate quality, uniqueness, and safety before forwarding to the CEO.'
+  );
+  if (!confirmed) return;
 
   setAgentStatus('reviewing');
+  showReviewLoading();
 
   try {
     var agentConfig = buildAgentConfig();
@@ -1127,3 +1133,50 @@ function showNotification(title, message, type) {
 
 // Keep showToast as alias for backward compat
 function showToast(msg) { showNotification(msg, '', 'success'); }
+
+// ── Confirm Modal (replaces browser confirm()) ──
+function showConfirmModal(title, message) {
+  return new Promise(function(resolve) {
+    var overlay = document.createElement('div');
+    overlay.className = 'af-modal-overlay af-confirm-overlay';
+    overlay.innerHTML =
+      '<div class="af-modal af-modal-confirm">' +
+        '<div class="af-modal-header">' +
+          '<h3><i class="fas fa-question-circle" style="color:rgba(90,200,250,0.8)"></i> ' + escapeHtml(title) + '</h3>' +
+        '</div>' +
+        '<div class="af-modal-body">' +
+          '<p style="white-space:pre-line">' + escapeHtml(message) + '</p>' +
+        '</div>' +
+        '<div class="af-modal-footer">' +
+          '<button class="af-btn af-btn-ghost af-confirm-cancel">Cancel</button>' +
+          '<button class="af-btn af-btn-primary af-confirm-ok">Confirm</button>' +
+        '</div>' +
+      '</div>';
+
+    document.body.appendChild(overlay);
+    overlay.style.display = 'flex';
+
+    overlay.querySelector('.af-confirm-ok').onclick = function() { overlay.remove(); resolve(true); };
+    overlay.querySelector('.af-confirm-cancel').onclick = function() { overlay.remove(); resolve(false); };
+    overlay.addEventListener('click', function(e) { if (e.target === overlay) { overlay.remove(); resolve(false); } });
+    overlay.querySelector('.af-confirm-ok').focus();
+  });
+}
+
+// ── Review Loading State ──
+function showReviewLoading() {
+  var modal = document.getElementById('af-review-modal');
+  document.getElementById('af-review-title').innerHTML = '<div class="af-spinner" style="display:inline-block;vertical-align:middle;margin-right:8px;"></div> AI Reviewing Your Agent...';
+  document.getElementById('af-review-header').style.borderBottomColor = 'rgba(90,200,250,0.3)';
+  document.getElementById('af-review-scores').innerHTML = '';
+  document.getElementById('af-review-feedback').innerHTML =
+    '<div class="af-review-loading-msg">' +
+      '<p>Evaluating quality, uniqueness, and safety...</p>' +
+      '<p style="font-size:0.78rem;color:rgba(255,255,255,0.35)">This usually takes 5-10 seconds</p>' +
+    '</div>';
+  document.getElementById('af-review-similar').style.display = 'none';
+  document.getElementById('af-review-suggestions').style.display = 'none';
+  document.getElementById('af-review-status').innerHTML = '';
+  document.getElementById('af-review-actions').innerHTML = '';
+  modal.style.display = 'flex';
+}
