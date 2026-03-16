@@ -48,6 +48,39 @@
 }
 .af-topbar-logout:hover { color: rgba(255,255,255,0.6); }
 
+/* ── Page Header ── */
+.af-page-header {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 0.5rem;
+}
+.af-page-header h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0 0 0.4rem;
+  color: #fff;
+}
+.af-page-header p {
+  font-size: 0.9rem;
+  color: rgba(255,255,255,0.5);
+  margin: 0;
+  max-width: 600px;
+  line-height: 1.5;
+}
+
+/* ── Minimal Footer ── */
+.af-footer {
+  padding: 1.5rem;
+  text-align: center;
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.3);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  margin-top: 2rem;
+}
+.af-footer a { color: rgba(255,255,255,0.45); text-decoration: none; }
+.af-footer a:hover { color: rgba(255,255,255,0.7); }
+.af-footer-sep { margin: 0 0.4rem; color: rgba(255,255,255,0.15); }
+
 /* ── Breadcrumb ── */
 .af-breadcrumb {
   font-size: 0.85rem;
@@ -1324,6 +1357,14 @@
 /* ══════════════════════════════════════════════
    LIGHT THEME OVERRIDES
    ══════════════════════════════════════════════ */
+
+/* Page header + footer */
+body[data-theme="light"] .af-page-header h1 { color: #1e293b; }
+body[data-theme="light"] .af-page-header p { color: #64748b; }
+body[data-theme="light"] .af-footer { color: #94a3b8; border-top-color: rgba(0,0,0,0.06); }
+body[data-theme="light"] .af-footer a { color: #64748b; }
+body[data-theme="light"] .af-footer a:hover { color: #334155; }
+body[data-theme="light"] .af-footer-sep { color: #e2e8f0; }
 
 /* Topbar */
 body[data-theme="light"] .af-topbar { background: rgba(255,255,255,0.95); border-bottom-color: rgba(0,0,0,0.08); }

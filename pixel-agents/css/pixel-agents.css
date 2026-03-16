@@ -96,6 +96,27 @@ body[data-theme="light"] .pa-topbar-login { color: #3b82f6; }
 body[data-theme="light"] .pa-topbar-user { color: #475569; }
 body[data-theme="light"] .pa-topbar-logout { color: #94a3b8; }
 
+/* Fix hero gap for minimal topbar (was 85px for old main nav) */
+.pa-topbar + .hero-base { margin-top: 0; }
+
+/* ── Minimal Footer ── */
+.pa-footer {
+  padding: 1.5rem;
+  text-align: center;
+  font-size: 0.78rem;
+  color: rgba(255,255,255,0.3);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  margin-top: 2rem;
+}
+.pa-footer a { color: rgba(255,255,255,0.45); text-decoration: none; }
+.pa-footer a:hover { color: rgba(255,255,255,0.7); }
+.pa-footer-sep { margin: 0 0.4rem; color: rgba(255,255,255,0.15); }
+
+body[data-theme="light"] .pa-footer { color: #94a3b8; border-top-color: rgba(0,0,0,0.06); }
+body[data-theme="light"] .pa-footer a { color: #64748b; }
+body[data-theme="light"] .pa-footer a:hover { color: #334155; }
+body[data-theme="light"] .pa-footer-sep { color: #e2e8f0; }
+
 .pa-hero-cta {
   display: inline-flex;
   align-items: center;
