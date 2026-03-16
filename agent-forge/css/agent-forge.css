@@ -358,7 +358,33 @@
 }
 .af-field textarea { resize: vertical; min-height: 60px; }
 .af-field textarea.af-mono { font-family: monospace; font-size: 0.8rem; min-height: 150px; }
-.af-field select { cursor: pointer; }
+.af-field select {
+  cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='rgba(255,255,255,0.4)' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.6rem center;
+  padding-right: 2rem;
+}
+
+/* Dark-themed select options (Firefox/Chrome) */
+.af-field select option,
+.af-output-row select option {
+  background: #1a1f2e;
+  color: rgba(255,255,255,0.85);
+  padding: 0.4rem 0.6rem;
+}
+.af-field select option:checked,
+.af-output-row select option:checked {
+  background: rgba(90,200,250,0.2);
+  color: #fff;
+}
+.af-field select option:hover,
+.af-output-row select option:hover {
+  background: rgba(90,200,250,0.15);
+}
 
 /* Toggle switch */
 .af-toggle-row {
@@ -499,11 +525,19 @@
   outline: none;
 }
 .af-output-row select {
-  width: 120px;
+  width: 130px;
   background: rgba(0,0,0,0.3);
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 4px;
   color: rgba(255,255,255,0.7);
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='rgba(255,255,255,0.3)' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.4rem center;
+  padding-right: 1.4rem;
+  cursor: pointer;
   font-size: 0.78rem;
   padding: 0.3rem;
 }
