@@ -862,6 +862,62 @@
       });
     }
 
+    // ── Build action-compatible object from approval queue item ──
+    function _buildAqAction(item) {
+      if (item.type === 'agent_forge_submission') {
+        var scores = (item.aiReview && item.aiReview.scores) || {};
+        return {
+          id: item.submissionId || item.id,
+          created_at: item.createdAt,
+          created_by: 'agent-forge',
+          type: 'agent_forge.approve',
+          action_type: 'agent_forge.approve',
+          action_category: 'content',
+          platform: null,
+          payload: { text: (item.agentName || '') + ' — ' + (item.agentTagline || '') + (scores.quality ? '\nQuality: ' + scores.quality + ' | Uniqueness: ' + scores.uniqueness + ' | Safety: ' + scores.safety : '') },
+          action_payload: { text: item.agentName || '' },
+          classification: 'advisory',
+          requires_ceo_approval: true,
+          requires_approval: true,
+          risk_level: 'low',
+          brand_impact: 'low',
+          budget_impact: 0,
+          is_irreversible: false,
+          approval: { status: 'pending' },
+          execution: { status: 'pending' },
+          execution_status: 'pending',
+          origin_agent: 'agent-forge',
+          _aqItem: item
+        };
+      } else if (item.type === 'convergence_escalation') {
+        return {
+          id: item.id,
+          created_at: item.createdAt,
+          created_by: item.assignee || 'system',
+          type: 'task_completion.approve',
+          action_type: 'task_completion.approve',
+          action_category: 'content',
+          platform: null,
+          payload: { text: item.latestDeliverable || '', taskId: item.taskId, taskTitle: item.taskTitle },
+          action_payload: { text: item.latestDeliverable || '' },
+          classification: 'advisory',
+          requires_ceo_approval: true,
+          requires_approval: true,
+          risk_level: 'medium',
+          brand_impact: 'low',
+          budget_impact: 0,
+          is_irreversible: false,
+          approval: { status: 'pending', revision_count: item.deliverableCount },
+          execution: { status: 'pending' },
+          execution_status: 'pending',
+          origin_agent: item.assignee || 'system',
+          _aqItem: item,
+          _parentTaskId: item.taskId
+        };
+      }
+      return null;
+    }
+
     // ── Append Approval Queue Items to Pending List ──
     // Converts approvalQueue items into action-compatible objects and appends
     // them to #pending-list using the existing actionRow() renderer.
@@ -888,67 +944,27 @@
             countEl.textContent = (existing + pending.length) + ' pending';
           }
 
-          // Convert each item to an action-compatible object and render with actionRow
+          // Convert each item and render with actionRow
           var html = '';
           pending.forEach(function(item) {
-            var fakeAction;
-            if (item.type === 'agent_forge_submission') {
-              var scores = (item.aiReview && item.aiReview.scores) || {};
-              fakeAction = {
-                id: item.submissionId || item.id,
-                created_at: item.createdAt,
-                created_by: 'agent-forge',
-                type: 'agent_forge.approve',
-                action_type: 'agent_forge.approve',
-                action_category: 'content',
-                platform: null,
-                payload: { text: (item.agentName || '') + ' — ' + (item.agentTagline || '') + (scores.quality ? '\nQuality: ' + scores.quality + ' | Uniqueness: ' + scores.uniqueness + ' | Safety: ' + scores.safety : '') },
-                action_payload: { text: item.agentName || '' },
-                classification: 'advisory',
-                requires_ceo_approval: true,
-                requires_approval: true,
-                risk_level: 'low',
-                brand_impact: 'low',
-                budget_impact: 0,
-                is_irreversible: false,
-                approval: { status: 'pending' },
-                execution: { status: 'pending' },
-                execution_status: 'pending',
-                origin_agent: 'agent-forge',
-                _aqItem: item
-              };
-            } else if (item.type === 'convergence_escalation') {
-              fakeAction = {
-                id: item.id,
-                created_at: item.createdAt,
-                created_by: item.assignee || 'system',
-                type: 'task_completion.approve',
-                action_type: 'task_completion.approve',
-                action_category: 'content',
-                platform: null,
-                payload: { text: item.latestDeliverable || '', taskId: item.taskId, taskTitle: item.taskTitle },
-                action_payload: { text: item.latestDeliverable || '' },
-                classification: 'advisory',
-                requires_ceo_approval: true,
-                requires_approval: true,
-                risk_level: 'medium',
-                brand_impact: 'low',
-                budget_impact: 0,
-                is_irreversible: false,
-                approval: { status: 'pending', revision_count: item.deliverableCount },
-                execution: { status: 'pending' },
-                execution_status: 'pending',
-                origin_agent: item.assignee || 'system',
-                _aqItem: item,
-                _parentTaskId: item.taskId
-              };
-            }
-            if (fakeAction) {
-              html += actionRow(fakeAction, 'pending');
-            }
+            var action = _buildAqAction(item);
+            if (action) html += actionRow(action, 'pending');
           });
 
-          // Append without replacing
+          // Inject into AE store so drawer can find them
+          var existingActions = AE.getActions();
+          pending.forEach(function(item) {
+            // Only add if not already there
+            var fakeId = (item.type === 'agent_forge_submission') ? item.submissionId || item.id : item.id;
+            if (!existingActions.some(function(a) { return a.id === fakeId; })) {
+              var obj = _buildAqAction(item);
+              if (obj) existingActions.push(obj);
+            }
+          });
+          // Save back so getAction() can find them
+          try { localStorage.setItem('ap_actions', JSON.stringify(existingActions)); } catch(e) {}
+
+          // Append HTML without replacing
           el.innerHTML += html;
 
           // Show bulk bar if it was hidden due to 0 action items
@@ -1265,6 +1281,7 @@
       if (aPlat) html += platformBadge(aPlat);
       if (a.kind === 'research.intel' || aType === 'research.intel' || aType === 'research_intel.approve') html += '<span style="display:inline-flex;align-items:center;gap:0.25rem;font-size:0.5rem;padding:0.1rem 0.4rem;border-radius:3px;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.5);font-weight:600;"><i class="fas fa-microscope"></i>Intel</span>';
       if (aType === 'publish_document') html += '<span style="display:inline-flex;align-items:center;gap:0.25rem;font-size:0.5rem;padding:0.1rem 0.4rem;border-radius:3px;background:rgba(52,211,153,0.12);color:#34d399;font-weight:600;"><i class="fas fa-newspaper"></i>Blog</span>';
+      if (aType === 'agent_forge.approve') html += '<span style="display:inline-flex;align-items:center;gap:0.25rem;font-size:0.5rem;padding:0.1rem 0.4rem;border-radius:3px;background:rgba(90,200,250,0.12);color:rgba(90,200,250,0.8);font-weight:600;"><i class="fas fa-robot"></i>Pixel Agent</span>';
       if (a.approval && a.approval.revision_count) html += '<span style="font-size:0.55rem;padding:0.1rem 0.35rem;border-radius:3px;background:rgba(251,191,36,0.12);color:#fbbf24;font-weight:600;">REV ' + a.approval.revision_count + '</span>';
       if (payload._ceo_edited) html += '<span class="act-edit-badge"><i class="fas fa-pen" style="font-size:0.4rem;"></i>CEO edited</span>';
       if (a.is_irreversible) html += '<span class="act-badge act-badge--irreversible">irreversible</span>';
