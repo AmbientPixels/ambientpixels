@@ -48,6 +48,67 @@
 }
 .af-topbar-logout:hover { color: rgba(255,255,255,0.6); }
 
+/* ── Agent Lifecycle Groups ── */
+.af-lifecycle-group { margin-bottom: 1.25rem; }
+.af-lifecycle-label {
+  font-size: 0.65rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: rgba(255,255,255,0.4);
+  margin-bottom: 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.af-lifecycle-label i { font-size: 0.55rem; }
+.af-lifecycle-label--pending { color: #fbbf24; }
+.af-lifecycle-label--pending i { color: #fbbf24; }
+.af-lifecycle-label--live { color: #4ade80; }
+.af-lifecycle-label--live i { color: #4ade80; }
+.af-lifecycle-count { font-weight: 400; opacity: 0.6; }
+
+/* Pending item */
+.af-pending-item {
+  opacity: 0.7;
+  cursor: default;
+}
+.af-pending-icon {
+  color: #fbbf24;
+  font-size: 0.7rem;
+  margin-right: 0.2rem;
+}
+
+/* Live item */
+.af-live-item { }
+.af-live-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #4ade80;
+  margin-right: 0.3rem;
+  vertical-align: middle;
+}
+.af-live-delete {
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.2);
+  cursor: pointer;
+  font-size: 0.7rem;
+  padding: 2px 4px;
+}
+.af-live-delete:hover { color: #f87171; }
+
+/* Light theme lifecycle */
+body[data-theme="light"] .af-lifecycle-label { color: #94a3b8; }
+body[data-theme="light"] .af-lifecycle-label--pending { color: #d97706; }
+body[data-theme="light"] .af-lifecycle-label--live { color: #16a34a; }
+body[data-theme="light"] .af-pending-icon { color: #d97706; }
+body[data-theme="light"] .af-live-dot { background: #16a34a; }
+body[data-theme="light"] .af-live-delete { color: #cbd5e1; }
+body[data-theme="light"] .af-live-delete:hover { color: #ef4444; }
+
 /* ── Auth Gate ── */
 .af-auth-gate {
   display: flex;

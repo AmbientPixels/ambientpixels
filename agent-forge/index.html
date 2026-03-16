@@ -103,9 +103,23 @@
       </div>
 
       <div class="af-tray-section">
-        <h3 class="af-tray-title">Drafts</h3>
-        <div id="af-drafts-list" class="af-drafts-list">
-          <p class="af-drafts-empty">No saved drafts</p>
+        <h3 class="af-tray-title">My Agents</h3>
+
+        <div class="af-lifecycle-group">
+          <h4 class="af-lifecycle-label"><i class="fas fa-pencil-alt"></i> Drafts <span id="af-draft-count" class="af-lifecycle-count"></span></h4>
+          <div id="af-drafts-list" class="af-drafts-list">
+            <p class="af-drafts-empty">No drafts yet</p>
+          </div>
+        </div>
+
+        <div class="af-lifecycle-group">
+          <h4 class="af-lifecycle-label af-lifecycle-label--pending"><i class="fas fa-clock"></i> Pending <span id="af-pending-count" class="af-lifecycle-count"></span></h4>
+          <div id="af-pending-list" class="af-drafts-list"></div>
+        </div>
+
+        <div class="af-lifecycle-group">
+          <h4 class="af-lifecycle-label af-lifecycle-label--live"><i class="fas fa-circle" style="font-size:0.45rem;vertical-align:middle;"></i> Live <span id="af-live-count" class="af-lifecycle-count"></span></h4>
+          <div id="af-live-list" class="af-drafts-list"></div>
         </div>
       </div>
     </aside>
@@ -281,8 +295,8 @@
       document.getElementById('af-auth-gate').style.display = 'none';
       document.getElementById('af-builder').style.display = '';
       document.querySelector('.af-page-header').style.display = '';
-      // Load drafts from blob
-      if (typeof loadDrafts === 'function') loadDrafts();
+      // Load full sidebar (drafts + pending + live)
+      if (typeof loadSidebar === 'function') loadSidebar();
     }
 
     document.getElementById('af-logout-btn').addEventListener('click', function(e) {

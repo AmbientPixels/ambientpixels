@@ -126,7 +126,7 @@ document.addEventListener('DOMContentLoaded', function() {
   initDragAndDrop();
   initTemplates();
   initActions();
-  loadDrafts();
+  loadSidebar();
   updatePreview();
   updateStatus();
 });
@@ -1028,6 +1028,101 @@ function buildAgentConfig() {
 // ── Draft Management (Blob Storage) ──
 var _draftsCache = []; // local cache of loaded drafts
 
+// ── Load Full Sidebar (Drafts + Pending + Live) ──
+function loadSidebar() {
+  var hdrs = { 'x-company-secret': 'pixelpusher' };
+  Promise.all([
+    fetch(getApiBase() + '/agentforge-drafts', { headers: hdrs }).then(function(r) { return r.json(); }).catch(function() { return { drafts: [] }; }),
+    fetch(getApiBase() + '/company-state?key=approvalQueue', { headers: hdrs }).then(function(r) { return r.json(); }).catch(function() { return {}; }),
+    fetch(getApiBase() + '/pixel-agent-community', { headers: hdrs }).then(function(r) { return r.json(); }).catch(function() { return { agents: [] }; })
+  ]).then(function(results) {
+    var draftsData = results[0];
+    var queueData = results[1];
+    var communityData = results[2];
+
+    _draftsCache = draftsData.drafts || [];
+    renderDraftsList(_draftsCache);
+
+    // Pending: filter approval queue for agent_forge_submission type
+    var queue = queueData.value || queueData || [];
+    if (!Array.isArray(queue)) queue = [];
+    var pending = queue.filter(function(item) { return item.type === 'agent_forge_submission' && item.status === 'pending'; });
+    renderPendingList(pending);
+
+    // Live: all community agents
+    var live = (communityData.agents || []).filter(function(a) { return a.active; });
+    renderLiveList(live);
+  });
+}
+
+function renderPendingList(items) {
+  var list = document.getElementById('af-pending-list');
+  var countEl = document.getElementById('af-pending-count');
+  if (!list) return;
+  if (countEl) countEl.textContent = items.length ? '(' + items.length + ')' : '';
+
+  if (items.length === 0) {
+    list.innerHTML = '<p class="af-drafts-empty">None</p>';
+    return;
+  }
+
+  list.innerHTML = items.map(function(item) {
+    return '<div class="af-draft-item af-pending-item">' +
+      '<span><i class="fas fa-clock af-pending-icon"></i> ' + escapeHtml(item.agentName || 'Unnamed') + '</span>' +
+    '</div>';
+  }).join('');
+}
+
+function renderLiveList(agents) {
+  var list = document.getElementById('af-live-list');
+  var countEl = document.getElementById('af-live-count');
+  if (!list) return;
+  if (countEl) countEl.textContent = agents.length ? '(' + agents.length + ')' : '';
+
+  if (agents.length === 0) {
+    list.innerHTML = '<p class="af-drafts-empty">None</p>';
+    return;
+  }
+
+  list.innerHTML = agents.map(function(a) {
+    return '<div class="af-draft-item af-live-item" data-agent-id="' + escapeAttr(a.id) + '">' +
+      '<span><span class="af-live-dot"></span> ' + escapeHtml(a.name || 'Unnamed') + '</span>' +
+      '<button class="af-draft-delete af-live-delete" data-live-delete="' + escapeAttr(a.id) + '" title="Remove from catalog"><i class="fas fa-trash-alt"></i></button>' +
+    '</div>';
+  }).join('');
+
+  list.querySelectorAll('[data-live-delete]').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      deleteLiveAgent(btn.dataset.liveDelete);
+    });
+  });
+}
+
+async function deleteLiveAgent(agentId) {
+  var ok = await showConfirmModal(
+    'Remove Live Agent',
+    'This will permanently remove this agent from the Pixel Agents catalog. Users will no longer be able to use it.'
+  );
+  if (!ok) return;
+
+  fetch(getApiBase() + '/pixel-agent-remove', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
+    body: JSON.stringify({ agentId: agentId })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    if (d.success) {
+      showNotification('Agent Removed', d.agentName + ' has been removed from the catalog', 'success');
+      loadSidebar();
+    } else {
+      showNotification('Error', d.error || 'Failed to remove', 'error');
+    }
+  })
+  .catch(function(err) { showNotification('Error', err.message, 'error'); });
+}
+
 function saveDraft() {
   var config = buildAgentConfig();
   var draft = {
@@ -1048,7 +1143,7 @@ function saveDraft() {
   .then(function(d) {
     if (d.success) {
       showNotification('Saved', '', 'success');
-      loadDrafts();
+      loadSidebar();
     } else {
       showNotification('Save Failed', d.error || 'Unknown error', 'error');
     }
@@ -1129,7 +1224,7 @@ function deleteDraft(draftId) {
   .then(function(d) {
     if (d.success) {
       if (currentDraftId === draftId) currentDraftId = null;
-      loadDrafts();
+      loadSidebar();
     }
   })
   .catch(function() {});
