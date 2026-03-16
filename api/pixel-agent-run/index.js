@@ -12,6 +12,20 @@ const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
 const MODEL = 'claude-sonnet-4-6';
 const RATE_LIMIT_PER_DAY = 3;
 
+// Built-in scaffold agent for Agent Forge prompt generation
+const SCAFFOLD_AGENT = {
+  id: '_scaffold',
+  name: 'Agent Scaffold',
+  active: true,
+  inputType: 'textarea',
+  inputValidation: 'text',
+  systemPrompt: 'You are a prompt engineer for the Pixel Agents platform. Given a user\'s plain-English description of what an AI agent should do, generate a complete agent configuration.\n\nThe available output section types are: score (0-100 number with progress bar), verdict (italic one-line with left border), text (paragraph), list (bullet points), tags (colored pill badges), highlight (bordered callout box).\n\nYou MUST respond with valid JSON:\n{\n  "suggestedName": "<short agent name, 2-3 words>",\n  "suggestedTagline": "<tagline, max 60 chars>",\n  "suggestedCategory": "<one of: audit, content, strategy, naming, pitch, design, lifestyle, tools, career, intel, gaming, creative>",\n  "systemPrompt": "<complete system prompt that enforces JSON output, includes role definition, numbered instructions, and the exact JSON structure the agent must return>",\n  "userPromptTemplate": "<user prompt with {{input}} placeholder>",\n  "suggestedOutputs": [\n    { "key": "<snake_case_key>", "label": "<Display Label>", "type": "<one of the output types above>" }\n  ],\n  "temperature": <0.0-1.0>,\n  "maxTokens": <500-4000>\n}\n\nMake the system prompt detailed and specific. Always enforce JSON output in the system prompt. Include 4-7 output sections. Do NOT wrap in code fences. Return ONLY raw JSON.',
+  userPromptTemplate: 'Generate a complete agent configuration for this idea:\n\n{{input}}',
+  outputFormat: 'structured',
+  outputSections: [],
+  generationConfig: { temperature: 0.7, maxOutputTokens: 3000 }
+};
+
 // Load agent registry at cold start
 let agentRegistry = null;
 function loadAgentRegistry() {
@@ -62,11 +76,24 @@ module.exports = async function (context, req) {
     const body = req.body || {};
     const { agentId, input } = body;
 
-    // Validate agent
-    const agents = loadAgentRegistry();
-    const agent = agents.find(a => a.id === agentId && a.active);
+    // Built-in meta-agents for Agent Forge
+    let agent = null;
+
+    if (agentId === '_scaffold') {
+      agent = SCAFFOLD_AGENT;
+    } else if (agentId === '_test' && body._customAgent) {
+      // Custom agent test run from Agent Forge
+      agent = body._customAgent;
+      agent.active = true;
+      agent.id = '_test';
+    } else {
+      // Normal agent lookup
+      const agents = loadAgentRegistry();
+      agent = agents.find(a => a.id === agentId && a.active);
+    }
 
     if (!agent) {
+      const agents = loadAgentRegistry();
       context.res = {
         status: 400,
         headers: corsHeaders,
