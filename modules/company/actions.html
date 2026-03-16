@@ -389,6 +389,14 @@
             </div>
             <div class="act-panel-body" id="pending-list"></div>
           </div>
+          <!-- Agent Forge Submissions -->
+          <div class="act-panel" id="agent-forge-panel" style="display:none;">
+            <div class="act-panel-head">
+              <span><i class="fas fa-hammer dash-icon-blue co-icon-mr"></i> Agent Forge Submissions</span>
+              <span id="agent-forge-count" class="act-count-badge"></span>
+            </div>
+            <div class="act-panel-body" id="agent-forge-list"></div>
+          </div>
           <!-- Revision Requested -->
           <div class="act-panel" id="revision-panel" style="display:none;">
             <div class="act-panel-head act-panel-head--amber">
@@ -638,6 +646,7 @@
       renderFailures();
       renderRateLimits();
       renderAuditLog();
+      renderAgentForgeSubmissions();
     }
 
     // ── Action Drift Detection (>24h pending approvals) ──
@@ -859,6 +868,99 @@
           });
         });
       });
+    }
+
+    // ── Agent Forge Submissions ──
+    function renderAgentForgeSubmissions() {
+      var panel = document.getElementById('agent-forge-panel');
+      var list = document.getElementById('agent-forge-list');
+      var countEl = document.getElementById('agent-forge-count');
+      if (!panel || !list) return;
+
+      var apiBase = 'https://ambientpixels-nova-api.azurewebsites.net/api';
+      fetch(apiBase + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': 'pixelpusher' } })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var queue = data.value || data || [];
+          if (!Array.isArray(queue)) queue = [];
+          var agentItems = queue.filter(function(item) { return item.type === 'agent_forge_submission' && item.status === 'pending'; });
+
+          if (agentItems.length === 0) { panel.style.display = 'none'; return; }
+          panel.style.display = '';
+          countEl.textContent = agentItems.length + ' pending';
+
+          var html = '';
+          agentItems.forEach(function(item) {
+            var review = item.aiReview || {};
+            var scores = review.scores || {};
+            html += '<div class="act-row" style="padding:0.75rem;margin-bottom:0.5rem;border:1px solid rgba(90,200,250,0.12);border-radius:8px;background:rgba(90,200,250,0.03);">';
+            html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.5rem;">';
+            html += '<div>';
+            html += '<div style="font-size:0.9rem;font-weight:600;color:#fff;"><i class="fas fa-hammer" style="color:rgba(90,200,250,0.7);margin-right:0.4rem;"></i>' + esc(item.agentName || 'Unnamed') + '</div>';
+            html += '<div style="font-size:0.72rem;color:rgba(255,255,255,0.45);margin-top:2px;">' + esc(item.agentTagline || '') + ' &middot; ' + esc(item.agentCategory || '') + '</div>';
+            html += '</div>';
+            html += '<div style="display:flex;gap:0.4rem;">';
+            html += '<button class="act-btn act-btn--approve" onclick="approveAgent(\'' + esc(item.submissionId) + '\')"><i class="fas fa-check"></i> Approve</button>';
+            html += '<button class="act-btn act-btn--reject" onclick="rejectAgent(\'' + esc(item.submissionId) + '\')"><i class="fas fa-times"></i> Reject</button>';
+            html += '</div>';
+            html += '</div>';
+            // AI Review scores
+            if (scores.quality || scores.uniqueness || scores.safety) {
+              html += '<div style="display:flex;gap:1rem;font-size:0.7rem;color:rgba(255,255,255,0.5);margin-bottom:0.4rem;">';
+              html += '<span>Quality: <strong style="color:#4ade80">' + (scores.quality || 0) + '</strong></span>';
+              html += '<span>Unique: <strong style="color:#4ade80">' + (scores.uniqueness || 0) + '</strong></span>';
+              html += '<span>Safety: <strong style="color:#4ade80">' + (scores.safety || 0) + '</strong></span>';
+              html += '</div>';
+            }
+            if (review.feedback) {
+              html += '<div style="font-size:0.75rem;color:rgba(255,255,255,0.55);line-height:1.4;">' + esc(review.feedback) + '</div>';
+            }
+            html += '<div style="font-size:0.6rem;color:rgba(255,255,255,0.25);margin-top:0.3rem;">Submitted: ' + (item.createdAt ? new Date(item.createdAt).toLocaleString() : '?') + ' &middot; ID: ' + esc(item.submissionId || '') + '</div>';
+            html += '</div>';
+          });
+          list.innerHTML = html;
+        })
+        .catch(function(err) { console.warn('[Actions] Agent forge load failed:', err.message); });
+    }
+
+    function approveAgent(submissionId) {
+      if (!confirm('Approve this agent to go live in the Pixel Agents catalog?')) return;
+      var apiBase = 'https://ambientpixels-nova-api.azurewebsites.net/api';
+      fetch(apiBase + '/pixel-agent-approve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
+        body: JSON.stringify({ submissionId: submissionId, action: 'approve' })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (d.success) {
+          alert(d.message || 'Approved!');
+          renderAll();
+        } else {
+          alert('Error: ' + (d.error || 'Unknown'));
+        }
+      })
+      .catch(function(err) { alert('Failed: ' + err.message); });
+    }
+
+    function rejectAgent(submissionId) {
+      var reason = prompt('Rejection reason (optional):');
+      var apiBase = 'https://ambientpixels-nova-api.azurewebsites.net/api';
+      fetch(apiBase + '/pixel-agent-approve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
+        body: JSON.stringify({ submissionId: submissionId, action: 'reject', reason: reason || '' })
+      })
+      .then(function(r) { return r.json(); })
+      .then(function(d) {
+        if (d.success) {
+          alert(d.message || 'Rejected');
+          renderAll();
+        } else {
+          alert('Error: ' + (d.error || 'Unknown'));
+        }
+      })
+      .catch(function(err) { alert('Failed: ' + err.message); });
     }
 
     // ── Revision Requested ──
