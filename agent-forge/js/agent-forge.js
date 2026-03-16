@@ -13,6 +13,8 @@ var agentState = {
 var pipelineOrder = []; // which components are in the pipeline
 var isLoggedIn = false;
 var currentDraftId = null;
+var agentStatus = 'draft'; // draft, reviewing, returned, submitted, approved, rejected
+var lastReview = null; // last AI review result
 
 // Check auth
 fetch('/.auth/me').then(function(r) { return r.json(); }).then(function(d) {
@@ -675,7 +677,7 @@ async function runTest() {
     });
 
     var data = await res.json();
-    resultEl.textContent = data.raw || JSON.stringify(data.result, null, 2) || 'No result';
+    resultEl.innerHTML = renderTestResult(data, agentConfig);
     resultEl.style.display = '';
   } catch (err) {
     resultEl.textContent = 'Error: ' + err.message;
@@ -688,11 +690,9 @@ async function runTest() {
 
 // ── Submit ──
 async function submitForReview() {
-  if (!confirm('Submit "' + (agentState.identity.name || 'Untitled') + '" for review?\n\nAn AI reviewer will evaluate your agent for quality, uniqueness, and safety before forwarding to the CEO for final approval.')) return;
+  if (!confirm('Submit "' + (agentState.identity.name || 'Untitled') + '" for review?')) return;
 
-  var submitBtn = document.getElementById('af-submit-btn');
-  submitBtn.disabled = true;
-  submitBtn.innerHTML = '<div class="af-spinner" style="width:14px;height:14px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:6px;"></div> Reviewing...';
+  setAgentStatus('reviewing');
 
   try {
     var agentConfig = buildAgentConfig();
@@ -708,6 +708,7 @@ async function submitForReview() {
     var data = await res.json();
 
     if (data.error) {
+      setAgentStatus('draft');
       showReviewResult('error', data.error, null);
       return;
     }
@@ -715,58 +716,250 @@ async function submitForReview() {
     showReviewResult(data.decision, data.feedback, data);
 
   } catch (err) {
+    setAgentStatus('draft');
     showReviewResult('error', 'Submission failed: ' + err.message, null);
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit for Review';
   }
 }
 
 function showReviewResult(decision, feedback, data) {
-  var colors = {
-    approved: { bg: 'rgba(74,222,128,0.1)', border: 'rgba(74,222,128,0.3)', text: '#4ade80', icon: 'fa-check-circle', title: 'Approved!' },
-    needs_work: { bg: 'rgba(251,191,36,0.1)', border: 'rgba(251,191,36,0.3)', text: '#fbbf24', icon: 'fa-exclamation-triangle', title: 'Needs Work' },
-    rejected: { bg: 'rgba(248,113,113,0.1)', border: 'rgba(248,113,113,0.3)', text: '#f87171', icon: 'fa-times-circle', title: 'Rejected' },
-    error: { bg: 'rgba(248,113,113,0.1)', border: 'rgba(248,113,113,0.3)', text: '#f87171', icon: 'fa-exclamation-circle', title: 'Error' }
+  lastReview = data;
+  var meta = {
+    approved: { color: '#4ade80', bg: 'rgba(74,222,128,0.08)', icon: 'fa-check-circle', title: 'Approved!', status: 'Forwarded to CEO for final approval' },
+    needs_work: { color: '#fbbf24', bg: 'rgba(251,191,36,0.08)', icon: 'fa-exclamation-triangle', title: 'Needs Work', status: 'Returned for edits' },
+    rejected: { color: '#f87171', bg: 'rgba(248,113,113,0.08)', icon: 'fa-times-circle', title: 'Rejected', status: 'Not approved' },
+    error: { color: '#f87171', bg: 'rgba(248,113,113,0.08)', icon: 'fa-exclamation-circle', title: 'Error', status: '' }
   };
+  var m = meta[decision] || meta.error;
 
-  var c = colors[decision] || colors.error;
+  // Update agent status
+  if (decision === 'approved') { setAgentStatus('submitted'); }
+  else if (decision === 'needs_work') { setAgentStatus('returned'); }
+  else if (decision === 'rejected') { setAgentStatus('draft'); }
 
-  var scoresHtml = '';
+  // Header
+  var header = document.getElementById('af-review-header');
+  header.style.borderBottomColor = m.color;
+  document.getElementById('af-review-title').innerHTML = '<i class="fas ' + m.icon + '" style="color:' + m.color + '"></i> ' + m.title;
+
+  // Scores
+  var scoresEl = document.getElementById('af-review-scores');
   if (data && data.scores) {
-    scoresHtml = '<div style="display:flex;gap:1rem;margin:0.75rem 0;">' +
-      '<div style="text-align:center"><div style="font-size:1.2rem;font-weight:700;color:' + c.text + '">' + (data.scores.quality || 0) + '</div><div style="font-size:0.7rem;color:rgba(255,255,255,0.4)">Quality</div></div>' +
-      '<div style="text-align:center"><div style="font-size:1.2rem;font-weight:700;color:' + c.text + '">' + (data.scores.uniqueness || 0) + '</div><div style="font-size:0.7rem;color:rgba(255,255,255,0.4)">Uniqueness</div></div>' +
-      '<div style="text-align:center"><div style="font-size:1.2rem;font-weight:700;color:' + c.text + '">' + (data.scores.safety || 0) + '</div><div style="font-size:0.7rem;color:rgba(255,255,255,0.4)">Safety</div></div>' +
+    scoresEl.innerHTML = '<div class="af-review-score-row">' +
+      renderScoreBar('Quality', data.scores.quality || 0, m.color) +
+      renderScoreBar('Uniqueness', data.scores.uniqueness || 0, m.color) +
+      renderScoreBar('Safety', data.scores.safety || 0, m.color) +
     '</div>';
-  }
+  } else { scoresEl.innerHTML = ''; }
 
-  var improvementsHtml = '';
-  if (data && data.improvements && data.improvements.length) {
-    improvementsHtml = '<div style="margin-top:0.5rem;font-size:0.8rem;color:rgba(255,255,255,0.5)"><strong>Suggestions:</strong><ul style="margin:0.3rem 0 0 1rem;padding:0">' +
-      data.improvements.map(function(i) { return '<li>' + escapeHtml(i) + '</li>'; }).join('') +
-    '</ul></div>';
-  }
+  // Feedback
+  document.getElementById('af-review-feedback').innerHTML =
+    '<div class="af-review-feedback-text">' + escapeHtml(feedback || '') + '</div>';
 
-  var similarHtml = '';
+  // Similar to
+  var similarEl = document.getElementById('af-review-similar');
   if (data && data.similar_to) {
-    similarHtml = '<div style="margin-top:0.5rem;font-size:0.8rem;color:rgba(255,255,255,0.4)">Most similar to: <strong>' + escapeHtml(data.similar_to) + '</strong></div>';
+    similarEl.innerHTML = '<i class="fas fa-link"></i> Most similar to: <strong>' + escapeHtml(data.similar_to) + '</strong>';
+    similarEl.style.display = '';
+  } else { similarEl.style.display = 'none'; }
+
+  // Suggestions
+  var sugEl = document.getElementById('af-review-suggestions');
+  if (data && data.improvements && data.improvements.length) {
+    sugEl.innerHTML = '<h4><i class="fas fa-lightbulb"></i> Suggestions</h4><ul>' +
+      data.improvements.map(function(s) { return '<li>' + escapeHtml(s) + '</li>'; }).join('') + '</ul>';
+    sugEl.style.display = '';
+  } else { sugEl.style.display = 'none'; }
+
+  // Status
+  document.getElementById('af-review-status').innerHTML =
+    '<div class="af-review-status-badge" style="color:' + m.color + ';border-color:' + m.color + '">' +
+      '<i class="fas ' + (decision === 'approved' ? 'fa-arrow-right' : decision === 'needs_work' ? 'fa-pencil-alt' : 'fa-info-circle') + '"></i> ' +
+      m.status +
+    '</div>';
+
+  // Action buttons
+  var actionsEl = document.getElementById('af-review-actions');
+  if (decision === 'approved') {
+    actionsEl.innerHTML = '<button class="af-btn af-btn-primary" onclick="closeReviewModal()">Close</button>';
+  } else if (decision === 'needs_work') {
+    actionsEl.innerHTML =
+      '<button class="af-btn af-btn-secondary" onclick="closeReviewModal()">Close</button>' +
+      '<button class="af-btn af-btn-primary" onclick="editAndResubmit()"><i class="fas fa-pencil-alt"></i> Edit & Resubmit</button>';
+  } else {
+    actionsEl.innerHTML =
+      '<button class="af-btn af-btn-secondary" onclick="closeReviewModal()">Close</button>' +
+      '<button class="af-btn af-btn-primary" onclick="editAndRetry()"><i class="fas fa-redo"></i> Edit & Retry</button>';
   }
 
-  var resultEl = document.getElementById('af-test-result');
-  resultEl.innerHTML =
-    '<div style="background:' + c.bg + ';border:1px solid ' + c.border + ';border-radius:8px;padding:1rem;">' +
-      '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">' +
-        '<i class="fas ' + c.icon + '" style="color:' + c.text + ';font-size:1.1rem;"></i>' +
-        '<strong style="color:' + c.text + ';font-size:0.95rem;">' + c.title + '</strong>' +
+  document.getElementById('af-review-modal').style.display = 'flex';
+}
+
+function renderScoreBar(label, score, color) {
+  return '<div class="af-review-score-item">' +
+    '<div class="af-review-score-label">' + label + '</div>' +
+    '<div class="af-review-score-bar-bg">' +
+      '<div class="af-review-score-bar-fill" style="width:' + score + '%;background:' + color + '"></div>' +
+    '</div>' +
+    '<div class="af-review-score-num" style="color:' + color + '">' + score + '</div>' +
+  '</div>';
+}
+
+function closeReviewModal() {
+  document.getElementById('af-review-modal').style.display = 'none';
+}
+
+function editAndResubmit() {
+  closeReviewModal();
+  setAgentStatus('returned');
+  showSuggestionsBanner();
+}
+
+function editAndRetry() {
+  closeReviewModal();
+  setAgentStatus('draft');
+}
+
+// ── Agent Status Management ──
+function setAgentStatus(status) {
+  agentStatus = status;
+  updateLockState();
+  updateSubmitButton();
+}
+
+function updateLockState() {
+  var pipeline = document.getElementById('af-pipeline');
+  var isLocked = agentStatus === 'submitted' || agentStatus === 'reviewing';
+
+  pipeline.querySelectorAll('.af-pipe-card').forEach(function(card) {
+    if (isLocked) {
+      card.classList.add('af-pipe-card--locked');
+      card.querySelectorAll('input, textarea, select, button:not(.af-pipe-card-header button)').forEach(function(el) { el.disabled = true; });
+    } else {
+      card.classList.remove('af-pipe-card--locked');
+      card.querySelectorAll('input, textarea, select').forEach(function(el) { el.disabled = false; });
+    }
+  });
+
+  // Tray cards
+  document.querySelectorAll('.af-tray-card').forEach(function(c) {
+    c.style.pointerEvents = isLocked ? 'none' : '';
+    c.style.opacity = isLocked ? '0.3' : '';
+  });
+}
+
+function updateSubmitButton() {
+  var btn = document.getElementById('af-submit-btn');
+  var saveBtn = document.getElementById('af-save-btn');
+
+  switch (agentStatus) {
+    case 'submitted':
+      btn.innerHTML = '<i class="fas fa-lock"></i> Awaiting CEO Approval';
+      btn.disabled = true;
+      btn.className = 'af-btn af-btn-locked';
+      // Show unlock button
+      if (!document.getElementById('af-unlock-btn')) {
+        var unlockBtn = document.createElement('button');
+        unlockBtn.id = 'af-unlock-btn';
+        unlockBtn.className = 'af-btn af-btn-ghost';
+        unlockBtn.innerHTML = '<i class="fas fa-lock-open"></i> Unlock & Edit';
+        unlockBtn.onclick = function() { setAgentStatus('draft'); hideSuggestionsBanner(); showNotification('Unlocked', 'Agent is now editable', 'info'); };
+        btn.parentElement.appendChild(unlockBtn);
+      }
+      break;
+    case 'returned':
+      btn.innerHTML = '<i class="fas fa-paper-plane"></i> Resubmit for Review';
+      btn.disabled = false;
+      btn.className = 'af-btn af-btn-primary';
+      removeUnlockBtn();
+      break;
+    case 'reviewing':
+      btn.innerHTML = '<div class="af-spinner" style="width:14px;height:14px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:6px;"></div> Reviewing...';
+      btn.disabled = true;
+      btn.className = 'af-btn af-btn-primary';
+      removeUnlockBtn();
+      break;
+    default: // draft, rejected
+      btn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit for Review';
+      btn.disabled = pipelineOrder.length < 5 || !agentState.identity.name || !agentState.prompt.systemPrompt;
+      btn.className = 'af-btn af-btn-primary';
+      removeUnlockBtn();
+  }
+}
+
+function removeUnlockBtn() {
+  var btn = document.getElementById('af-unlock-btn');
+  if (btn) btn.remove();
+}
+
+// ── Suggestions Banner ──
+function showSuggestionsBanner() {
+  if (!lastReview || !lastReview.improvements || !lastReview.improvements.length) return;
+  var banner = document.getElementById('af-canvas-banner');
+  banner.innerHTML =
+    '<div class="af-suggestions-banner">' +
+      '<div class="af-suggestions-header"><i class="fas fa-exclamation-triangle"></i> AI Review: Needs Work</div>' +
+      '<ul>' + lastReview.improvements.map(function(s) { return '<li>' + escapeHtml(s) + '</li>'; }).join('') + '</ul>' +
+      '<div class="af-suggestions-actions">' +
+        '<button class="af-btn af-btn-ghost" onclick="hideSuggestionsBanner()">Dismiss</button>' +
       '</div>' +
-      scoresHtml +
-      '<div style="font-size:0.85rem;color:rgba(255,255,255,0.7);line-height:1.5;">' + escapeHtml(feedback || '') + '</div>' +
-      similarHtml +
-      improvementsHtml +
-      (decision === 'approved' ? '<div style="margin-top:0.75rem;font-size:0.8rem;color:rgba(74,222,128,0.7);"><i class="fas fa-arrow-right"></i> Forwarded to CEO for final approval</div>' : '') +
     '</div>';
-  resultEl.style.display = '';
+}
+
+function hideSuggestionsBanner() {
+  document.getElementById('af-canvas-banner').innerHTML = '';
+}
+
+// ── Formatted Test Result Renderer ──
+function renderTestResult(data, agentConfig) {
+  if (!data || !data.result) return '<div class="af-test-empty">No result returned</div>';
+
+  var result = data.result;
+  var sections = agentConfig.outputSections || [];
+  var html = '';
+
+  sections.forEach(function(sec) {
+    var val = result[sec.key];
+    if (val === undefined || val === null) return;
+
+    html += '<div class="af-test-section">';
+    html += '<div class="af-test-section-label">' + escapeHtml(sec.label) + '</div>';
+
+    switch (sec.type) {
+      case 'score':
+        var n = typeof val === 'number' ? val : parseInt(val) || 0;
+        var scoreColor = n >= 70 ? '#4ade80' : n >= 40 ? '#fbbf24' : '#f87171';
+        html += '<div class="af-test-score"><span class="af-test-score-num" style="color:' + scoreColor + '">' + n + '</span><div class="af-test-score-bar"><div style="width:' + n + '%;background:' + scoreColor + '"></div></div></div>';
+        break;
+      case 'verdict':
+        html += '<div class="af-test-verdict">' + escapeHtml(String(val)) + '</div>';
+        break;
+      case 'list':
+        var items = Array.isArray(val) ? val : [val];
+        html += '<ul class="af-test-list">' + items.map(function(item) {
+          var text = typeof item === 'object' ? JSON.stringify(item) : String(item);
+          return '<li>' + escapeHtml(text) + '</li>';
+        }).join('') + '</ul>';
+        break;
+      case 'tags':
+        var tags = Array.isArray(val) ? val : [val];
+        html += '<div class="af-test-tags">' + tags.map(function(t) {
+          return '<span class="af-test-tag">' + escapeHtml(String(t)) + '</span>';
+        }).join('') + '</div>';
+        break;
+      case 'highlight':
+        html += '<div class="af-test-highlight">' + escapeHtml(String(val)) + '</div>';
+        break;
+      default:
+        var textVal = typeof val === 'object' ? JSON.stringify(val, null, 2) : String(val);
+        html += '<div class="af-test-text">' + escapeHtml(textVal).replace(/\n/g, '<br>') + '</div>';
+    }
+    html += '</div>';
+  });
+
+  // Show raw JSON toggle
+  html += '<details class="af-test-json-toggle"><summary>Show Raw JSON</summary><pre>' + escapeHtml(JSON.stringify(result, null, 2)) + '</pre></details>';
+
+  return html;
 }
 
 // ── Build Config ──
@@ -907,15 +1100,30 @@ function escapeAttr(str) {
   return String(str || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
-function showToast(msg) {
-  var toast = document.querySelector('.af-toast');
-  if (!toast) {
-    toast = document.createElement('div');
-    toast.className = 'af-toast';
-    toast.style.cssText = 'position:fixed;bottom:20px;right:20px;background:rgba(90,200,250,0.2);color:rgba(90,200,250,0.9);border:1px solid rgba(90,200,250,0.3);padding:0.6rem 1.2rem;border-radius:8px;font-size:0.85rem;z-index:9999;opacity:0;transition:opacity 0.3s;';
-    document.body.appendChild(toast);
-  }
-  toast.textContent = msg;
-  toast.style.opacity = '1';
-  setTimeout(function() { toast.style.opacity = '0'; }, 2000);
+function showNotification(title, message, type) {
+  type = type || 'info';
+  var icons = { success: 'fa-check-circle', warning: 'fa-exclamation-triangle', error: 'fa-times-circle', info: 'fa-info-circle' };
+  var colors = { success: '#4ade80', warning: '#fbbf24', error: '#f87171', info: 'rgba(90,200,250,0.9)' };
+
+  var container = document.getElementById('af-notifications');
+  var notif = document.createElement('div');
+  notif.className = 'af-notification af-notification--' + type;
+  notif.innerHTML =
+    '<div class="af-notification-content">' +
+      '<i class="fas ' + icons[type] + '" style="color:' + colors[type] + ';font-size:1.1rem;"></i>' +
+      '<div><strong>' + escapeHtml(title) + '</strong>' + (message ? '<p>' + escapeHtml(message) + '</p>' : '') + '</div>' +
+    '</div>' +
+    '<button class="af-notification-close" onclick="this.parentElement.remove()">&times;</button>';
+
+  container.appendChild(notif);
+  requestAnimationFrame(function() { notif.classList.add('af-notification--visible'); });
+
+  var autoDismiss = (type === 'success' || type === 'info') ? 3000 : 8000;
+  setTimeout(function() {
+    notif.classList.remove('af-notification--visible');
+    setTimeout(function() { if (notif.parentElement) notif.remove(); }, 300);
+  }, autoDismiss);
 }
+
+// Keep showToast as alias for backward compat
+function showToast(msg) { showNotification(msg, '', 'success'); }

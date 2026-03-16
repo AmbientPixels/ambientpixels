@@ -97,6 +97,7 @@
         </button>
       </div>
 
+      <div id="af-canvas-banner"></div>
       <div class="af-pipeline" id="af-pipeline">
         <div class="af-pipeline-empty" id="af-pipeline-empty">
           <i class="fas fa-arrow-left"></i>
@@ -197,6 +198,35 @@
       </div>
     </div>
   </div>
+
+  <!-- Review Results Modal -->
+  <div class="af-modal-overlay" id="af-review-modal" style="display:none;">
+    <div class="af-modal af-modal-review">
+      <div class="af-modal-header" id="af-review-header">
+        <h3 id="af-review-title"><i class="fas fa-check-circle"></i> Review Results</h3>
+        <button class="af-modal-close" id="af-review-close">&times;</button>
+      </div>
+      <div class="af-modal-body">
+        <!-- Scores -->
+        <div class="af-review-scores" id="af-review-scores"></div>
+        <!-- Feedback -->
+        <div class="af-review-feedback" id="af-review-feedback"></div>
+        <!-- Similar to -->
+        <div class="af-review-similar" id="af-review-similar" style="display:none;"></div>
+        <!-- Suggestions -->
+        <div class="af-review-suggestions" id="af-review-suggestions" style="display:none;"></div>
+        <!-- Status -->
+        <div class="af-review-status" id="af-review-status"></div>
+      </div>
+      <div class="af-modal-footer" id="af-review-actions"></div>
+    </div>
+  </div>
+
+  <!-- Notification Container -->
+  <div id="af-notifications" class="af-notifications"></div>
+
+  <!-- Suggestions Banner (shown when status = returned) -->
+  <div id="af-suggestions-banner" class="af-suggestions-banner" style="display:none;"></div>
 
   <footer id="nav-footer"></footer>
 
