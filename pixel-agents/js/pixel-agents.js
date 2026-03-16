@@ -27,9 +27,10 @@ const CATEGORY_LABELS = {
 
 document.addEventListener('DOMContentLoaded', async () => {
   try {
-    // Load agents + stats in parallel
-    const [agentsRes, statsRes] = await Promise.all([
+    // Load built-in agents, community agents, and stats in parallel
+    const [agentsRes, communityRes, statsRes] = await Promise.all([
       fetch('./data/pixel-agents.json?v=1'),
+      fetch(getApiBase() + '/pixel-agent-community').catch(() => null),
       fetch(getApiBase() + '/pixel-agent-catalog').catch(() => null)
     ]);
 
@@ -40,6 +41,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     allAgents = await agentsRes.json();
     allAgents = allAgents.filter(a => a.active);
+
+    // Merge community agents
+    if (communityRes && communityRes.ok) {
+      try {
+        const commCT = communityRes.headers.get('content-type') || '';
+        if (commCT.includes('application/json')) {
+          const commData = await communityRes.json();
+          const communityAgents = (commData.agents || []).filter(a => a.active);
+          communityAgents.forEach(a => { a.community = true; });
+          allAgents = allAgents.concat(communityAgents);
+        }
+      } catch (e) { /* non-fatal */ }
+    }
 
     if (statsRes && statsRes.ok) {
       const statsCT = statsRes.headers.get('content-type') || '';
@@ -113,7 +127,7 @@ function renderCard(agent) {
   return `
     <a href="${agentUrl}" class="pa-card-link">
       <div class="pa-card" data-tier="${escapeAttr(agent.tier)}" data-agent-id="${escapeAttr(agent.id)}">
-        ${agent.featured ? '<div class="pa-card-featured">Featured</div>' : ''}
+        ${agent.community ? '<div class="pa-card-community">Community</div>' : (agent.featured ? '<div class="pa-card-featured">Featured</div>' : '')}
         <div class="pa-card-avatar">
           <div class="pa-card-icon"><i class="${escapeAttr(agent.icon)}"></i></div>
           <span class="pa-card-tier pa-card-tier--${escapeAttr(agent.tier)}">${escapeHtml(tierLabel)}</span>

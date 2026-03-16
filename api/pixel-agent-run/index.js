@@ -87,9 +87,17 @@ module.exports = async function (context, req) {
       agent.active = true;
       agent.id = '_test';
     } else {
-      // Normal agent lookup
+      // Normal agent lookup — check built-in registry first, then community
       const agents = loadAgentRegistry();
       agent = agents.find(a => a.id === agentId && a.active);
+
+      // Fallback: check community agents in blob storage
+      if (!agent) {
+        try {
+          const communityAgents = (await storage.getState('pixelAgentCommunity')) || [];
+          agent = communityAgents.find(a => a.id === agentId && a.active);
+        } catch { /* non-fatal */ }
+      }
     }
 
     if (!agent) {

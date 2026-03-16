@@ -425,6 +425,11 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/api/pixel-agent-approve",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/pixel-agent-approve",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/api/*",
       "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/{path}"
     },

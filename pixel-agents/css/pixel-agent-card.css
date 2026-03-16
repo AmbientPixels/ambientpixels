@@ -254,3 +254,18 @@ body[data-theme="light"] .pa-card-capabilities li {
 }
 body[data-theme="light"] .pa-card-footer { border-top-color: rgba(0,0,0,0.06); }
 body[data-theme="light"] .pa-card-usage { color: #94a3b8; }
+
+/* ── Community badge ── */
+.pa-card-community {
+  position: absolute;
+  top: -1px;
+  right: 12px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  padding: 3px 8px;
+  border-radius: 0 0 6px 6px;
+  background: linear-gradient(135deg, #a855f7, #7c3aed);
+  color: #fff;
+}
