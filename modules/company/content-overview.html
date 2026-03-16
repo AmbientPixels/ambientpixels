@@ -2,20 +2,388 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta http-equiv="refresh" content="0;url=content-engine.html" />
-  <title>Redirecting to Content Engine…</title>
-  <script>
-    (function () {
-      var t = 'content-engine.html';
-      window.location.replace(t + (window.location.search || '') + (window.location.hash || ''));
-    })();
-  </script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Content Hub — Manage blog posts, Pixel Agents, CardForge, and StoryForge content" />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Content Hub — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/dashboard.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
   <style>
-    body { background:#000000; color:#fff; font-family:Inter,sans-serif; display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; }
-    a { color:#a78bfa; }
+    /* Content Hub styles */
+    .ch-shell { max-width: 960px; margin: 0 auto; padding: 1.5rem; }
+    .ch-header { margin-bottom: 1.5rem; }
+    .ch-header h1 { font-size: 1.4rem; font-weight: 700; margin: 0 0 0.25rem; }
+    .ch-header p { font-size: 0.85rem; color: rgba(255,255,255,0.45); margin: 0; }
+
+    /* Tabs */
+    .ch-tabs { display: flex; gap: 0; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 1.5rem; }
+    .ch-tab {
+      padding: 0.6rem 1.2rem; font-size: 0.82rem; font-weight: 500; color: rgba(255,255,255,0.45);
+      cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.15s;
+      background: none; border-top: none; border-left: none; border-right: none; font-family: inherit;
+    }
+    .ch-tab:hover { color: rgba(255,255,255,0.7); }
+    .ch-tab.ch-tab--active { color: rgba(90,200,250,0.9); border-bottom-color: rgba(90,200,250,0.7); }
+    .ch-tab-badge { font-size: 0.6rem; background: rgba(255,255,255,0.08); padding: 1px 5px; border-radius: 8px; margin-left: 0.4rem; }
+
+    /* Tab panels */
+    .ch-panel { display: none; }
+    .ch-panel.ch-panel--active { display: block; }
+
+    /* Stats row */
+    .ch-stats { display: flex; gap: 1.5rem; margin-bottom: 1rem; font-size: 0.75rem; color: rgba(255,255,255,0.4); }
+    .ch-stat-num { font-weight: 700; color: rgba(255,255,255,0.7); margin-right: 0.2rem; }
+
+    /* Section headers */
+    .ch-section-title {
+      font-size: 0.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em;
+      color: rgba(255,255,255,0.35); margin: 1.25rem 0 0.5rem; padding-bottom: 0.3rem;
+      border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .ch-section-title--purple { color: rgba(168,85,247,0.6); }
+    .ch-section-title--amber { color: rgba(251,191,36,0.6); }
+
+    /* Content rows */
+    .ch-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.55rem 0.6rem; border-bottom: 1px solid rgba(255,255,255,0.04);
+      transition: background 0.1s;
+    }
+    .ch-row:hover { background: rgba(255,255,255,0.02); }
+    .ch-row-info { flex: 1; min-width: 0; }
+    .ch-row-title { font-size: 0.8rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ch-row-meta { font-size: 0.65rem; color: rgba(255,255,255,0.3); margin-top: 2px; }
+    .ch-row-actions { display: flex; gap: 0.3rem; flex-shrink: 0; }
+
+    /* Action buttons */
+    .ch-btn {
+      font-size: 0.6rem; padding: 0.2rem 0.55rem; border-radius: 4px; cursor: pointer;
+      font-weight: 500; font-family: inherit; transition: all 0.15s;
+    }
+    .ch-btn--view { background: rgba(96,165,250,0.08); border: 1px solid rgba(96,165,250,0.25); color: #60a5fa; text-decoration: none; }
+    .ch-btn--view:hover { background: rgba(96,165,250,0.15); }
+    .ch-btn--edit { background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.25); color: #fbbf24; }
+    .ch-btn--edit:hover { background: rgba(251,191,36,0.15); }
+    .ch-btn--delete { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25); color: #f87171; }
+    .ch-btn--delete:hover { background: rgba(248,113,113,0.15); }
+    .ch-btn--approve { background: rgba(74,222,128,0.08); border: 1px solid rgba(74,222,128,0.25); color: #4ade80; }
+    .ch-btn--approve:hover { background: rgba(74,222,128,0.15); }
+    .ch-btn--reject { background: rgba(248,113,113,0.08); border: 1px solid rgba(248,113,113,0.25); color: #f87171; }
+
+    /* Badges */
+    .ch-badge { font-size: 0.5rem; padding: 1px 5px; border-radius: 3px; font-weight: 600; vertical-align: middle; margin-left: 0.3rem; }
+    .ch-badge--community { background: rgba(168,85,247,0.15); color: #a855f7; }
+    .ch-badge--pending { background: rgba(251,191,36,0.15); color: #fbbf24; }
+
+    /* Placeholder */
+    .ch-placeholder {
+      text-align: center; padding: 3rem 1rem; color: rgba(255,255,255,0.25);
+    }
+    .ch-placeholder i { font-size: 2rem; display: block; margin-bottom: 0.75rem; opacity: 0.4; }
+    .ch-placeholder p { font-size: 0.9rem; margin: 0 0 1rem; }
+    .ch-placeholder a { color: rgba(90,200,250,0.7); text-decoration: none; font-size: 0.85rem; }
+    .ch-placeholder a:hover { color: rgba(90,200,250,1); }
+
+    /* Empty */
+    .ch-empty { text-align: center; padding: 2rem; color: rgba(255,255,255,0.25); font-size: 0.85rem; }
+
+    /* Link row */
+    .ch-link-row { text-align: right; padding: 0.5rem 0.6rem; }
+    .ch-link-row a { font-size: 0.7rem; color: rgba(255,255,255,0.35); text-decoration: none; }
+    .ch-link-row a:hover { color: rgba(90,200,250,0.7); }
+
+    /* Scores inline */
+    .ch-scores { display: flex; gap: 0.8rem; font-size: 0.6rem; color: rgba(255,255,255,0.4); margin-top: 2px; }
+    .ch-scores strong { color: #4ade80; }
   </style>
 </head>
-<body>
-  <p>Redirecting to <a href="content-engine.html">Content Engine</a>…</p>
+<body data-theme="dark">
+  <header id="nav-header"></header>
+
+  <div class="co-page-shell" style="margin-top:80px;">
+    <div class="ch-shell">
+      <div class="ch-header">
+        <h1><i class="fas fa-layer-group" style="color:rgba(90,200,250,0.6);margin-right:0.4rem;"></i> Content Hub</h1>
+        <p>Manage published content across all products</p>
+      </div>
+
+      <!-- Tabs -->
+      <div class="ch-tabs">
+        <button class="ch-tab ch-tab--active" data-tab="blog"><i class="fas fa-newspaper"></i> Blog <span class="ch-tab-badge" id="ch-blog-count">0</span></button>
+        <button class="ch-tab" data-tab="agents"><i class="fas fa-robot"></i> Pixel Agents <span class="ch-tab-badge" id="ch-agents-count">0</span></button>
+        <button class="ch-tab" data-tab="cardforge"><i class="fas fa-diamond"></i> CardForge</button>
+        <button class="ch-tab" data-tab="storyforge"><i class="fas fa-book-open"></i> StoryForge</button>
+      </div>
+
+      <!-- Blog Tab -->
+      <div class="ch-panel ch-panel--active" data-panel="blog">
+        <div class="ch-stats" id="ch-blog-stats"></div>
+        <div id="ch-blog-list"></div>
+        <div class="ch-empty" id="ch-blog-empty" style="display:none;">No published blog posts.</div>
+        <div class="ch-link-row"><a href="/blog/" target="_blank">View Public Blog →</a></div>
+      </div>
+
+      <!-- Pixel Agents Tab -->
+      <div class="ch-panel" data-panel="agents">
+        <div class="ch-stats" id="ch-agents-stats"></div>
+
+        <div id="ch-agents-pending-section" style="display:none;">
+          <div class="ch-section-title ch-section-title--amber"><i class="fas fa-clock"></i> Pending Approval</div>
+          <div id="ch-agents-pending"></div>
+        </div>
+
+        <div id="ch-agents-community-section" style="display:none;">
+          <div class="ch-section-title ch-section-title--purple"><i class="fas fa-users"></i> Community Agents</div>
+          <div id="ch-agents-community"></div>
+        </div>
+
+        <div class="ch-section-title">Built-in Agents</div>
+        <div id="ch-agents-builtin"></div>
+
+        <div class="ch-link-row">
+          <a href="/pixel-agents/" target="_blank">View Catalog →</a>
+          <span style="margin:0 0.5rem;color:rgba(255,255,255,0.1);">·</span>
+          <a href="/agent-forge/" target="_blank">Open Agent Forge →</a>
+        </div>
+      </div>
+
+      <!-- CardForge Tab -->
+      <div class="ch-panel" data-panel="cardforge">
+        <div class="ch-placeholder">
+          <i class="fas fa-diamond"></i>
+          <p>CardForge content management coming soon</p>
+          <a href="/cardforge/" target="_blank">Open CardForge →</a>
+        </div>
+      </div>
+
+      <!-- StoryForge Tab -->
+      <div class="ch-panel" data-panel="storyforge">
+        <div class="ch-placeholder">
+          <i class="fas fa-book-open"></i>
+          <p>StoryForge content management coming soon</p>
+          <a href="/storyforge/" target="_blank">Open StoryForge →</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="footer-container"></div>
+  <script src="/js/init-header-footer.js"></script>
+  <script>
+    var API_BASE = 'https://ambientpixels-nova-api.azurewebsites.net/api';
+    var HDRS = { 'x-company-secret': 'pixelpusher' };
+    var HDRS_JSON = { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' };
+
+    function esc(s) { var d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+
+    // ── Tab switching ──
+    document.querySelectorAll('.ch-tab').forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.ch-tab').forEach(function(t) { t.classList.remove('ch-tab--active'); });
+        document.querySelectorAll('.ch-panel').forEach(function(p) { p.classList.remove('ch-panel--active'); });
+        tab.classList.add('ch-tab--active');
+        document.querySelector('[data-panel="' + tab.dataset.tab + '"]').classList.add('ch-panel--active');
+      });
+    });
+
+    // ── Init ──
+    renderBlog();
+    renderAgents();
+
+    // ══════════════════════════════════════
+    // BLOG TAB
+    // ══════════════════════════════════════
+    function renderBlog() {
+      fetch(API_BASE + '/company-state?key=blogPosts', { headers: HDRS })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var posts = data.value || data || [];
+          if (!Array.isArray(posts)) posts = [];
+          posts.sort(function(a, b) { return (b.published_at || '').localeCompare(a.published_at || ''); });
+
+          document.getElementById('ch-blog-count').textContent = posts.length;
+          document.getElementById('ch-blog-stats').innerHTML =
+            '<span><span class="ch-stat-num">' + posts.length + '</span> published</span>';
+
+          if (posts.length === 0) {
+            document.getElementById('ch-blog-list').innerHTML = '';
+            document.getElementById('ch-blog-empty').style.display = '';
+            return;
+          }
+          document.getElementById('ch-blog-empty').style.display = 'none';
+
+          var html = '';
+          posts.forEach(function(post) {
+            var date = post.published_at ? new Date(post.published_at).toLocaleDateString() : '';
+            html += '<div class="ch-row">' +
+              '<div class="ch-row-info">' +
+                '<div class="ch-row-title">' + esc(post.title || post.slug) + '</div>' +
+                '<div class="ch-row-meta">/blog/' + esc(post.slug) + ' · ' + date + (post.created_by ? ' · ' + esc(post.created_by) : '') + '</div>' +
+              '</div>' +
+              '<div class="ch-row-actions">' +
+                '<a href="/blog/' + esc(post.slug) + '" target="_blank" class="ch-btn ch-btn--view">View</a>' +
+                '<button class="ch-btn ch-btn--delete" onclick="deleteBlog(\'' + esc(post.slug) + '\')">Delete</button>' +
+              '</div>' +
+            '</div>';
+          });
+          document.getElementById('ch-blog-list').innerHTML = html;
+        })
+        .catch(function() {
+          document.getElementById('ch-blog-list').innerHTML = '';
+          document.getElementById('ch-blog-empty').style.display = '';
+        });
+    }
+
+    function deleteBlog(slug) {
+      if (!confirm('Delete blog post "' + slug + '"? This removes it from the public blog.')) return;
+      fetch(API_BASE + '/company-state?key=blogPosts', { headers: HDRS })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var posts = data.value || data || [];
+          if (!Array.isArray(posts)) return;
+          posts = posts.filter(function(p) { return p.slug !== slug; });
+          return fetch(API_BASE + '/company-state', {
+            method: 'POST',
+            headers: HDRS_JSON,
+            body: JSON.stringify({ key: 'blogPosts', value: posts })
+          });
+        })
+        .then(function() { renderBlog(); })
+        .catch(function(err) { alert('Delete failed: ' + err.message); });
+    }
+
+    // ══════════════════════════════════════
+    // PIXEL AGENTS TAB
+    // ══════════════════════════════════════
+    function renderAgents() {
+      Promise.all([
+        fetch('/pixel-agents/data/pixel-agents.json?v=1').then(function(r) { return r.json(); }).catch(function() { return []; }),
+        fetch(API_BASE + '/pixel-agent-community', { headers: HDRS }).then(function(r) { return r.json(); }).catch(function() { return { agents: [] }; }),
+        fetch(API_BASE + '/pixel-agent-catalog', { headers: HDRS }).then(function(r) { return r.json(); }).catch(function() { return { stats: {} }; }),
+        fetch(API_BASE + '/company-state?key=approvalQueue', { headers: HDRS }).then(function(r) { return r.json(); }).catch(function() { return {}; })
+      ]).then(function(results) {
+        var builtIn = results[0].filter(function(a) { return a.active; });
+        var community = (results[1].agents || []).filter(function(a) { return a.active; });
+        var stats = results[2].stats || {};
+        var queue = results[3].value || results[3] || [];
+        if (!Array.isArray(queue)) queue = [];
+        var pending = queue.filter(function(item) { return item.type === 'agent_forge_submission' && item.status === 'pending'; });
+
+        var totalRuns = stats._totalRuns || 0;
+        document.getElementById('ch-agents-count').textContent = builtIn.length + community.length;
+        document.getElementById('ch-agents-stats').innerHTML =
+          '<span><span class="ch-stat-num">' + builtIn.length + '</span> built-in</span>' +
+          '<span><span class="ch-stat-num">' + community.length + '</span> community</span>' +
+          '<span><span class="ch-stat-num">' + pending.length + '</span> pending</span>' +
+          '<span><span class="ch-stat-num">' + totalRuns + '</span> total runs</span>';
+
+        // Pending submissions
+        var pendingSection = document.getElementById('ch-agents-pending-section');
+        if (pending.length > 0) {
+          pendingSection.style.display = '';
+          var phtml = '';
+          pending.forEach(function(item) {
+            var review = item.aiReview || {};
+            var scores = review.scores || {};
+            phtml += '<div class="ch-row">' +
+              '<div class="ch-row-info">' +
+                '<div class="ch-row-title"><i class="fas fa-clock" style="color:#fbbf24;margin-right:0.3rem;font-size:0.7rem;"></i>' + esc(item.agentName) + ' <span class="ch-badge ch-badge--pending">PENDING</span></div>' +
+                '<div class="ch-row-meta">' + esc(item.agentCategory || '') + ' · submitted ' + (item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '') + '</div>' +
+                (scores.quality ? '<div class="ch-scores">Quality: <strong>' + scores.quality + '</strong> Unique: <strong>' + scores.uniqueness + '</strong> Safety: <strong>' + scores.safety + '</strong></div>' : '') +
+              '</div>' +
+              '<div class="ch-row-actions">' +
+                '<button class="ch-btn ch-btn--approve" onclick="approveAgent(\'' + esc(item.submissionId) + '\')">Approve</button>' +
+                '<button class="ch-btn ch-btn--reject" onclick="rejectAgent(\'' + esc(item.submissionId) + '\')">Reject</button>' +
+              '</div>' +
+            '</div>';
+          });
+          document.getElementById('ch-agents-pending').innerHTML = phtml;
+        } else {
+          pendingSection.style.display = 'none';
+        }
+
+        // Community agents
+        var commSection = document.getElementById('ch-agents-community-section');
+        if (community.length > 0) {
+          commSection.style.display = '';
+          var chtml = '';
+          community.forEach(function(a) {
+            var runs = stats[a.id] || 0;
+            chtml += '<div class="ch-row">' +
+              '<div class="ch-row-info">' +
+                '<div class="ch-row-title"><i class="' + esc(a.icon || 'fas fa-robot') + '" style="margin-right:0.3rem;opacity:0.5;font-size:0.7rem;"></i>' + esc(a.name) + ' <span class="ch-badge ch-badge--community">COMMUNITY</span></div>' +
+                '<div class="ch-row-meta">' + esc(a.category || '') + ' · ' + esc(a.tier || '') + (runs > 0 ? ' · ' + runs + ' runs' : '') + '</div>' +
+              '</div>' +
+              '<div class="ch-row-actions">' +
+                '<a href="/pixel-agents/run.html?agent=' + esc(a.id) + '" target="_blank" class="ch-btn ch-btn--view">View</a>' +
+                '<button class="ch-btn ch-btn--delete" onclick="deleteAgent(\'' + esc(a.id) + '\',\'' + esc(a.name) + '\')">Delete</button>' +
+              '</div>' +
+            '</div>';
+          });
+          document.getElementById('ch-agents-community').innerHTML = chtml;
+        } else {
+          commSection.style.display = 'none';
+        }
+
+        // Built-in agents
+        var bhtml = '';
+        builtIn.forEach(function(a) {
+          var runs = stats[a.id] || 0;
+          bhtml += '<div class="ch-row">' +
+            '<div class="ch-row-info">' +
+              '<div class="ch-row-title"><i class="' + esc(a.icon || 'fas fa-robot') + '" style="margin-right:0.3rem;opacity:0.4;font-size:0.65rem;"></i>' + esc(a.name) + '</div>' +
+              '<div class="ch-row-meta">' + esc(a.category || '') + ' · ' + esc(a.tier || '') + (runs > 0 ? ' · ' + runs + ' runs' : '') + '</div>' +
+            '</div>' +
+            '<div class="ch-row-actions">' +
+              '<a href="/pixel-agents/run.html?agent=' + esc(a.id) + '" target="_blank" class="ch-btn ch-btn--view">View</a>' +
+            '</div>' +
+          '</div>';
+        });
+        document.getElementById('ch-agents-builtin').innerHTML = bhtml;
+      });
+    }
+
+    function approveAgent(submissionId) {
+      if (!confirm('Approve this agent to go live in the Pixel Agents catalog?')) return;
+      fetch(API_BASE + '/pixel-agent-approve', {
+        method: 'POST', headers: HDRS_JSON,
+        body: JSON.stringify({ submissionId: submissionId, action: 'approve' })
+      }).then(function(r) { return r.json(); }).then(function(d) {
+        if (d.success) { alert(d.message || 'Approved!'); renderAgents(); }
+        else { alert('Error: ' + (d.error || 'Unknown')); }
+      }).catch(function(err) { alert('Failed: ' + err.message); });
+    }
+
+    function rejectAgent(submissionId) {
+      var reason = prompt('Rejection reason (optional):');
+      fetch(API_BASE + '/pixel-agent-approve', {
+        method: 'POST', headers: HDRS_JSON,
+        body: JSON.stringify({ submissionId: submissionId, action: 'reject', reason: reason || '' })
+      }).then(function(r) { return r.json(); }).then(function(d) {
+        if (d.success) { alert(d.message || 'Rejected'); renderAgents(); }
+        else { alert('Error: ' + (d.error || 'Unknown')); }
+      }).catch(function(err) { alert('Failed: ' + err.message); });
+    }
+
+    function deleteAgent(agentId, agentName) {
+      if (!confirm('Delete "' + agentName + '" from the Pixel Agents catalog?')) return;
+      fetch(API_BASE + '/pixel-agent-remove', {
+        method: 'POST', headers: HDRS_JSON,
+        body: JSON.stringify({ agentId: agentId })
+      }).then(function(r) { return r.json(); }).then(function(d) {
+        if (d.success) { renderAgents(); }
+        else { alert('Error: ' + (d.error || 'Unknown')); }
+      }).catch(function(err) { alert('Failed: ' + err.message); });
+    }
+  </script>
 </body>
 </html>
