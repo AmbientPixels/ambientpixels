@@ -4,11 +4,14 @@
 const fetch = require('node-fetch');
 const storage = require('../_utils/companyStorage');
 
+const DAILY_SUBMISSION_LIMIT = 3;
+const MAX_LIVE_AGENTS = 3;
+
 const CORS_HEADERS = {
   'Content-Type': 'application/json',
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, x-company-secret'
+  'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, x-company-secret, x-ms-client-principal'
 };
 
 function getApiBase() {
@@ -22,6 +25,33 @@ module.exports = async function (context, req) {
   }
 
   try {
+    // GET: return remaining submissions for today + live agent count
+    if (req.method === 'GET') {
+      const today = new Date().toISOString().split('T')[0];
+      let submissions = [];
+      try { submissions = (await storage.getState('pixelAgentSubmissions')) || []; } catch { submissions = []; }
+      const todayCount = submissions.filter(function(s) {
+        return s.submittedAt && s.submittedAt.startsWith(today);
+      }).length;
+
+      let community = [];
+      try { community = (await storage.getState('pixelAgentCommunity')) || []; } catch { community = []; }
+      const liveCount = community.filter(function(a) { return a.active; }).length;
+
+      context.res = {
+        status: 200,
+        headers: CORS_HEADERS,
+        body: {
+          dailyLimit: DAILY_SUBMISSION_LIMIT,
+          submissionsToday: todayCount,
+          remaining: Math.max(0, DAILY_SUBMISSION_LIMIT - todayCount),
+          liveAgentLimit: MAX_LIVE_AGENTS,
+          liveAgentCount: liveCount
+        }
+      };
+      return;
+    }
+
     const { agentConfig } = req.body || {};
 
     if (!agentConfig || !agentConfig.name || !agentConfig.systemPrompt) {
@@ -29,6 +59,28 @@ module.exports = async function (context, req) {
         status: 400,
         headers: CORS_HEADERS,
         body: { error: 'Invalid agent config' }
+      };
+      return;
+    }
+
+    // Check daily submission limit
+    const today = new Date().toISOString().split('T')[0];
+    let existingSubmissions = [];
+    try { existingSubmissions = (await storage.getState('pixelAgentSubmissions')) || []; } catch { existingSubmissions = []; }
+    const todaySubmissions = existingSubmissions.filter(function(s) {
+      return s.submittedAt && s.submittedAt.startsWith(today);
+    });
+
+    if (todaySubmissions.length >= DAILY_SUBMISSION_LIMIT) {
+      context.res = {
+        status: 429,
+        headers: CORS_HEADERS,
+        body: {
+          error: 'Daily submission limit reached',
+          message: 'You\'ve used all ' + DAILY_SUBMISSION_LIMIT + ' submissions for today. Come back tomorrow!',
+          remaining: 0,
+          dailyLimit: DAILY_SUBMISSION_LIMIT
+        }
       };
       return;
     }

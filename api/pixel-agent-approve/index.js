@@ -48,6 +48,18 @@ module.exports = async function (context, req) {
       // Move agent config to community catalog
       let community = (await storage.getState('pixelAgentCommunity')) || [];
 
+      // Check live agent cap (3 max)
+      const MAX_LIVE = 3;
+      const liveCount = community.filter(a => a.active).length;
+      if (liveCount >= MAX_LIVE) {
+        context.res = {
+          status: 409,
+          headers: CORS_HEADERS,
+          body: { error: 'Max ' + MAX_LIVE + ' live agents. Delete one from the catalog to publish a new one.', liveCount: liveCount, limit: MAX_LIVE }
+        };
+        return;
+      }
+
       // Check for duplicate
       if (community.some(a => a.id === submission.agentConfig.id)) {
         context.res = {

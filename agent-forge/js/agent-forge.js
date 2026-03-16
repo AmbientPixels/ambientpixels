@@ -1034,11 +1034,25 @@ function loadSidebar() {
   Promise.all([
     fetch(getApiBase() + '/agentforge-drafts', { headers: hdrs }).then(function(r) { return r.json(); }).catch(function() { return { drafts: [] }; }),
     fetch(getApiBase() + '/company-state?key=approvalQueue', { headers: hdrs }).then(function(r) { return r.json(); }).catch(function() { return {}; }),
-    fetch(getApiBase() + '/pixel-agent-community', { headers: hdrs }).then(function(r) { return r.json(); }).catch(function() { return { agents: [] }; })
+    fetch(getApiBase() + '/pixel-agent-community', { headers: hdrs }).then(function(r) { return r.json(); }).catch(function() { return { agents: [] }; }),
+    fetch(getApiBase() + '/pixel-agent-submit', { headers: hdrs }).then(function(r) { return r.json(); }).catch(function() { return {}; })
   ]).then(function(results) {
     var draftsData = results[0];
     var queueData = results[1];
     var communityData = results[2];
+    var limitsData = results[3];
+
+    // Update submission remaining count
+    if (limitsData.remaining !== undefined) {
+      var submitBtn = document.getElementById('af-submit-btn');
+      if (submitBtn && agentStatus === 'draft') {
+        var remainText = limitsData.remaining > 0
+          ? ' (' + limitsData.remaining + ' left today)'
+          : ' (limit reached)';
+        submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit for Review' + '<span style="font-size:0.65rem;opacity:0.5;">' + remainText + '</span>';
+        if (limitsData.remaining <= 0) submitBtn.disabled = true;
+      }
+    }
 
     _draftsCache = draftsData.drafts || [];
     renderDraftsList(_draftsCache);
@@ -1077,7 +1091,7 @@ function renderLiveList(agents) {
   var list = document.getElementById('af-live-list');
   var countEl = document.getElementById('af-live-count');
   if (!list) return;
-  if (countEl) countEl.textContent = agents.length ? '(' + agents.length + ')' : '';
+  if (countEl) countEl.textContent = '(' + agents.length + '/3)';
 
   if (agents.length === 0) {
     list.innerHTML = '<p class="af-drafts-empty">None</p>';
