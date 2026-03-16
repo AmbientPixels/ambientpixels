@@ -237,7 +237,7 @@ async function loadCompanyContext(agentId) {
     // Objectives
     const activeObjectives = objectives.filter(o => o.status === 'active' || !o.status).slice(0, 5);
     const objectivesSummary = activeObjectives.map(o =>
-      '- "' + o.title + '" Q' + (o.quarter || '?') + ' (progress: ' + (o.progress || 0) + '%, id: ' + o.id + ')'
+      '- "' + o.title + '" (progress: ' + (o.progress || 0) + '%, id: ' + o.id + ')'
     ).join('\n') || '(none)';
 
     // Documents

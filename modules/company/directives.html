@@ -670,7 +670,7 @@
           activeGoals.forEach(function (g) {
             var opt = document.createElement('option');
             opt.value = g.id;
-            opt.textContent = g.title + ' (' + (g.quarter || '?') + ' ' + (g.year || '') + ')';
+            opt.textContent = g.title;
             opt.style.cssText = 'padding:0.25rem 0.4rem; border-radius:4px;';
             var gDirs = g.linkedDirectives || (g.linkedDirective ? [g.linkedDirective] : []);
             if (gDirs.indexOf(dir.id) !== -1) opt.selected = true;

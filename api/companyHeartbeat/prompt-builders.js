@@ -392,7 +392,7 @@ IMPORTANT: Create specific leaf tasks for each campaign directly (e.g. "Draft Q1
       const linkInfo = linked ? ' [' + linked.length + ' task(s) linked]' : ' [NO TASKS YET \u2014 needs task creation]';
       const cmps = objectiveCmpMap[o.id];
       const cmpInfo = cmps ? ' campaigns: ' + cmps.map(c => '"' + c.title + '" (id: ' + c.id + ')').join(', ') : '';
-      return '- "' + o.title + '" Q' + (o.quarter || '?') + ' (id: ' + o.id + ', progress: ' + (o.progress || 0) + '%' + cmpInfo + ')' + linkInfo;
+      return '- "' + o.title + '" (id: ' + o.id + ', progress: ' + (o.progress || 0) + '%' + cmpInfo + ')' + linkInfo;
     }).join('\n');
     objectivesSection = `\n\nACTIVE GOALS (strategic goals \u2014 create tasks to advance these, always set objective_id when creating tasks for a goal):
 ${objList}

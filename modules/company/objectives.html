@@ -27,7 +27,7 @@
     <div class="company-header obj-header">
       <div>
         <h1><i class="fas fa-bullseye co-icon-mr-lg dash-icon-blue"></i>Goals</h1>
-        <p>Track progress on quarterly targets. Prime Operator owns execution and updates weekly.</p>
+        <p>Track progress on strategic targets. Timelines derived from linked campaigns.</p>
       </div>
       <div class="obj-header-pills">
         <span class="obj-pill obj-pill--active" id="obj-active-count">0 active</span>
@@ -43,15 +43,6 @@
       <div class="obj-form-body">
         <input type="text" id="obj-title" class="obj-input" placeholder="Goal title..." />
         <textarea id="obj-desc" class="obj-textarea" placeholder="Describe the goal..."></textarea>
-        <div class="obj-form-row">
-          <select id="obj-quarter" class="obj-select">
-            <option value="Q1">Q1</option>
-            <option value="Q2">Q2</option>
-            <option value="Q3">Q3</option>
-            <option value="Q4">Q4</option>
-          </select>
-          <input type="number" id="obj-year" class="obj-year-input" value="2026" min="2024" max="2030" />
-        </div>
         <div class="cmp-select-wrap obj-cmp-wrap" id="create-cmp-wrap">
           <div class="cmp-select-trigger" id="create-cmp-trigger">
             <span><i class="fas fa-layer-group dash-icon-mr dash-icon-blue"></i>Linked Campaigns</span>
@@ -134,22 +125,6 @@
       <label for="obj-edit-desc">Description</label>
       <textarea id="obj-edit-desc" placeholder="Describe the goal..."></textarea>
 
-      <div class="obj-modal-row">
-        <div>
-          <label for="obj-edit-quarter">Quarter</label>
-          <select id="obj-edit-quarter">
-            <option value="Q1">Q1</option>
-            <option value="Q2">Q2</option>
-            <option value="Q3">Q3</option>
-            <option value="Q4">Q4</option>
-          </select>
-        </div>
-        <div>
-          <label for="obj-edit-year">Year</label>
-          <input type="number" id="obj-edit-year" min="2024" max="2030" />
-        </div>
-      </div>
-
       <label>Linked Campaigns <span class="obj-hint">(multi-select)</span></label>
       <span class="obj-hint-block">Select one or more campaigns under this goal.</span>
       <div class="cmp-select-wrap" id="edit-cmp-wrap">
@@ -208,8 +183,6 @@
       'use strict';
 
       var titleInput = document.getElementById('obj-title');
-      var quarterSelect = document.getElementById('obj-quarter');
-      var yearInput = document.getElementById('obj-year');
       var createBtn = document.getElementById('obj-create-btn');
       var objList = document.getElementById('obj-list');
 
@@ -217,8 +190,6 @@
       var editModal = document.getElementById('obj-edit-modal');
       var editTitle = document.getElementById('obj-edit-title');
       var editDesc = document.getElementById('obj-edit-desc');
-      var editQuarter = document.getElementById('obj-edit-quarter');
-      var editYear = document.getElementById('obj-edit-year');
       var editOwner = document.getElementById('obj-edit-owner');
       var editStatus = document.getElementById('obj-edit-status');
       var editSave = document.getElementById('obj-edit-save');
@@ -394,8 +365,6 @@
         editingId = obj.id;
         editTitle.value = obj.title || '';
         editDesc.value = obj.description || '';
-        editQuarter.value = obj.quarter || 'Q1';
-        editYear.value = obj.year || 2026;
         editOwner.value = obj.owner || 'nova';
         editStatus.value = obj.status || 'on_track';
         // Populate edit campaign widget with resolved campaign IDs
@@ -421,8 +390,6 @@
         var payload = {
           title: editTitle.value.trim(),
           description: editDesc.value.trim(),
-          quarter: editQuarter.value,
-          year: parseInt(editYear.value, 10),
           linkedCampaigns: selectedCampaigns,
           owner: editOwner.value || 'nova',
           status: editStatus.value
@@ -453,8 +420,6 @@
         AgentEngine.addObjective({
           title: title,
           description: (descInput.value || '').trim(),
-          quarter: quarterSelect.value,
-          year: parseInt(yearInput.value, 10),
           linkedCampaigns: selectedCampaigns
         });
 
@@ -551,17 +516,17 @@
             var primaryDone = progress && progress.primaryDoneTasks !== undefined ? progress.primaryDoneTasks : (progress ? progress.doneTasks : 0);
             var expected = progress ? (progress.expectedTasks || progress.totalTasks) : 0;
             var campCount = progress ? progress.campaigns : 0;
-            // Date range
+            // Date range — derived from linked campaigns
             var dateText = '';
-            if (obj.quarter && obj.year) {
-              dateText = obj.quarter + ' ' + obj.year;
-            } else if (progress && progress.campaignDetails && progress.campaignDetails.length > 0) {
+            if (progress && progress.campaignDetails && progress.campaignDetails.length > 0) {
               var _lc = (typeof AgentEngine.getCampaigns === 'function') ? AgentEngine.getCampaigns() : [];
               var _ids = progress.campaignDetails.map(function (cd) { return cd.id; });
               var _earliest = null, _latest = null;
               _lc.forEach(function (c) { if (_ids.indexOf(c.id) === -1) return; if (c.startDate) { var s = new Date(c.startDate); if (!_earliest || s < _earliest) _earliest = s; } if (c.endDate) { var e = new Date(c.endDate); if (!_latest || e > _latest) _latest = e; } });
               var fmt = function (d) { return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); };
               if (_earliest && _latest) dateText = fmt(_earliest) + ' → ' + fmt(_latest);
+            } else {
+              dateText = 'No campaigns linked';
             }
             var isInactive = obj.status === 'complete' || obj.status === 'canceled';
             html += '<tr' + (isInactive ? ' style="opacity:0.5;"' : '') + '>' +
@@ -651,17 +616,10 @@
           signalHintHtml = '<span style="font-size:0.52rem; opacity:0.45; margin-left:0.4rem;"><i class="fas fa-robot" style="margin-right:2px;"></i>Auto: ' + autoLabel + '</span>';
         }
 
-        // Date range: from quarter/year or derived from linked campaigns
+        // Date range — derived from linked campaigns
         var qDateHtml = '';
-        var _qStart = null, _qEnd = null, _dateLabel = '';
-        if (obj.quarter && obj.year) {
-          var qNum = parseInt((obj.quarter || 'Q1').replace(/\D/g, '')) || 1;
-          var yr = parseInt(obj.year) || 2026;
-          _qStart = new Date(yr, (qNum - 1) * 3, 1);
-          _qEnd = new Date(yr, qNum * 3, 0);
-          _dateLabel = obj.quarter + ' ' + yr + ' · ';
-        } else if (progress && progress.campaignDetails && progress.campaignDetails.length > 0) {
-          // Derive from linked campaign dates
+        var _qStart = null, _qEnd = null;
+        if (progress && progress.campaignDetails && progress.campaignDetails.length > 0) {
           var _linkedCamps = (typeof AgentEngine.getCampaigns === 'function') ? AgentEngine.getCampaigns() : [];
           var _campIds = progress.campaignDetails.map(function (cd) { return cd.id; });
           var _earliest = null, _latest = null;
@@ -678,10 +636,10 @@
           var qStartMs = _qStart ? _qStart.getTime() : nowMs;
           var qEndMs = _qEnd ? _qEnd.getTime() : null;
           var fmt = function (d) { return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); };
-          var dateText = _dateLabel;
-          if (_qStart && _qEnd) dateText += fmt(_qStart) + ' → ' + fmt(_qEnd);
-          else if (_qStart) dateText += 'Started ' + fmt(_qStart);
-          else if (_qEnd) dateText += 'Ends ' + fmt(_qEnd);
+          var dateText = '';
+          if (_qStart && _qEnd) dateText = fmt(_qStart) + ' → ' + fmt(_qEnd);
+          else if (_qStart) dateText = 'Started ' + fmt(_qStart);
+          else if (_qEnd) dateText = 'Ends ' + fmt(_qEnd);
           var rightText = '';
           var rightColor = 'rgba(255,255,255,0.35)';
           if (qEndMs) {

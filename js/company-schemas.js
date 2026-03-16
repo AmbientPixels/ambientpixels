@@ -197,8 +197,6 @@ var CompanySchemas = (function () {
     var obj = {
       id: 'obj-' + Date.now(),
       title: (data && data.title) || '',
-      quarter: (data && data.quarter) || 'Q1',
-      year: (data && data.year) || new Date().getFullYear(),
       linkedCampaigns: (data && Array.isArray(data.linkedCampaigns)) ? data.linkedCampaigns : (data && Array.isArray(data.linkedDirectives) ? data.linkedDirectives : (data && data.linkedDirective ? [data.linkedDirective] : [])),
       progressPercentage: 0,
       status: 'on_track',

@@ -78,7 +78,6 @@
         var tasksMeta = progress ? (progress.primaryDoneTasks !== undefined ? progress.primaryDoneTasks : progress.doneTasks) + '/' + (progress.expectedTasks || progress.totalTasks) + ' tasks' : '';
         html+='<div class="board-goal-card"><div class="board-goal-title">'+escapeHtml(o.title||'Untitled')+'</div>';
         html+='<div class="board-goal-meta">';
-        if(o.quarter)html+='<span>Q'+o.quarter+'</span>';
         html+='<span style="color:'+sColor+';">'+(o.status||'active').replace(/_/g,' ')+'</span>';
         html+='<span>'+pct+'% complete</span>';
         if(tasksMeta)html+='<span>'+tasksMeta+'</span>';

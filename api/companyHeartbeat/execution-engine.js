@@ -26,7 +26,7 @@ function _buildExecContextBlock(agent, task, ctx) {
   if (objId && Array.isArray(ctx.objectives)) {
     const obj = ctx.objectives.find(o => o.id === objId);
     if (obj) {
-      const line = '🎯 GOAL: "' + obj.title + '" (Q' + (obj.quarter || '?') + ', progress: ' + (obj.progress || 0) + '%) — align your deliverable to advance this goal.';
+      const line = '🎯 GOAL: "' + obj.title + '" (progress: ' + (obj.progress || 0) + '%) — align your deliverable to advance this goal.';
       if (used + line.length < MAX_CTX_CHARS) { parts.push(line); used += line.length; }
     }
   }

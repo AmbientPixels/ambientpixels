@@ -250,18 +250,16 @@
         }
 
         if (cmd === '/objective' && parts[1] === 'create') {
-          var match = text.match(/\/objective\s+create\s+"([^"]+)"\s*(Q[1-4])?\s*(\d{4})?/i);
+          var match = text.match(/\/objective\s+create\s+"([^"]+)"/i);
           if (match) {
             var obj = AgentEngine.addObjective({
-              title: match[1],
-              quarter: match[2] || 'Q1',
-              year: parseInt(match[3], 10) || new Date().getFullYear()
+              title: match[1]
             });
             addMessage('user', text);
-            addMessage('agent', 'Goal created: **' + match[1] + '** (' + (match[2] || 'Q1') + ' ' + (match[3] || new Date().getFullYear()) + ', ID: ' + obj.id + '). Navigate to [Goals](/modules/company/objectives.html) to track progress.');
+            addMessage('agent', 'Goal created: **' + match[1] + '** (ID: ' + obj.id + '). Navigate to [Goals](/modules/company/objectives.html) to link campaigns and track progress.');
           } else {
             addMessage('user', text);
-            addMessage('agent', 'Usage: `/objective create "Title" Q1 2026`');
+            addMessage('agent', 'Usage: `/objective create "Title"`');
           }
           return true;
         }
@@ -316,7 +314,7 @@
 
         if (cmd === '/help') {
           addMessage('user', text);
-          addMessage('agent', '**CEO Commands:**\n`/override [task_id]` — Force approve and unlock a task\n`/directive create "Title"` — Create a new strategic directive\n`/objective create "Title" Q1 2026` — Create a quarterly objective\n`/action create [type] {payload}` — Create an action request\n`/approve [action_id]` — Approve a pending action\n`/reject [action_id]` — Reject a pending action\n`/help` — Show this help');
+          addMessage('agent', '**CEO Commands:**\n`/override [task_id]` — Force approve and unlock a task\n`/directive create "Title"` — Create a new strategic directive\n`/objective create "Title"` — Create a new goal\n`/action create [type] {payload}` — Create an action request\n`/approve [action_id]` — Approve a pending action\n`/reject [action_id]` — Reject a pending action\n`/help` — Show this help');
           return true;
         }
 
