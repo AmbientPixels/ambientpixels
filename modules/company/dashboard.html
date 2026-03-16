@@ -595,20 +595,12 @@
           <i class="fas fa-chevron-down dash-section-chevron"></i>
         </div>
         <div class="dash-section-body">
-          <div class="dash-section-flex">
-            <span class="dash-sub-label dash-sub-label--flush"><i class="fas fa-newspaper dash-icon-mr dash-icon-purple"></i>Content Pipeline</span>
-            <span class="dash-section-meta">
-              <span id="ceo-content-blog-count">0</span> published ·
-              <span id="ceo-content-draft-count">0</span> drafts ·
-              <span id="ceo-content-log-count">0</span> logs
-            </span>
-          </div>
-          <div id="ceo-blog-admin-mirror"></div>
-          <div class="dash-empty" id="ceo-blog-admin-mirror-empty">No published blog posts.</div>
+          <div id="content-kpi-row" style="display:flex; gap:0.6rem; flex-wrap:wrap; margin-bottom:0.75rem;"></div>
           <div class="dash-content-links">
             <a href="/modules/company/content-overview.html" class="dash-content-link--purple"><i class="fas fa-layer-group"></i> Content Hub →</a>
             <a href="/blog/" target="_blank" class="dash-content-link--purple">Public Blog →</a>
-            <a href="/log/" target="_blank" class="dash-content-link--green">Public Log →</a>
+            <a href="/pixel-agents/" target="_blank" class="dash-content-link--purple">Pixel Agents →</a>
+            <a href="/agent-forge/" target="_blank" class="dash-content-link--purple">Agent Forge →</a>
           </div>
         </div>
       </div>
@@ -1474,7 +1466,7 @@
          renderHeartbeatHealth, renderApprovalQueue, renderFacebookOutbox, renderCampaignsSnap, renderSystemPulse,
          renderKpiScoreboard, renderObjectivesSnap, renderAutonomyScore, renderRiskHeatmap,
          renderActionSnap, renderApiUsage, renderGeminiCosts, renderClaudeCosts, renderAzureCosts, renderXCosts, renderCostSummary,
-         renderDailyLogDrafts, renderBlogAdmin, renderGovernanceLog, renderGovernanceLogDev,
+         renderDailyLogDrafts, renderBlogAdmin, renderContentKPIs, renderGovernanceLog, renderGovernanceLogDev,
          renderMeetingsWidget, updateActionBadge, renderOrgChart,
          renderInboundKpi, updateModeIndicator, renderCeoStatusStrip, renderCeoInsightsMirrors, renderCeoStrategy, renderCeoPerfWidget].forEach(function(fn) {
           try { fn(); } catch(e) { console.warn('[Dashboard] ' + (fn.name||'anon') + ' error:', e); }
@@ -3696,6 +3688,46 @@
             }).then(function (r) { return r.ok; });
           })
           .catch(function () { return false; });
+      }
+
+      // ── Content KPI Cards ──
+      function renderContentKPIs() {
+        var el = document.getElementById('content-kpi-row');
+        if (!el) return;
+
+        var apiBase = getApiBase();
+        Promise.all([
+          fetch(apiBase + '/company-state?key=blogPosts', { headers: { 'x-company-secret': 'pixelpusher' } }).then(function(r) { return r.json(); }).catch(function() { return {}; }),
+          fetch('/pixel-agents/data/pixel-agents.json?v=1').then(function(r) { return r.json(); }).catch(function() { return []; }),
+          fetch(apiBase + '/pixel-agent-community').then(function(r) { return r.json(); }).catch(function() { return { agents: [] }; }),
+          fetch(apiBase + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': 'pixelpusher' } }).then(function(r) { return r.json(); }).catch(function() { return {}; })
+        ]).then(function(results) {
+          var blogData = results[0].value || results[0] || [];
+          var blogCount = Array.isArray(blogData) ? blogData.length : 0;
+
+          var builtIn = Array.isArray(results[1]) ? results[1].filter(function(a) { return a.active; }).length : 0;
+          var community = (results[2].agents || []).filter(function(a) { return a.active; }).length;
+          var agentCount = builtIn + community;
+
+          var queue = results[3].value || results[3] || [];
+          if (!Array.isArray(queue)) queue = [];
+          var pending = queue.filter(function(i) { return i.type === 'agent_forge_submission' && i.status === 'pending'; }).length;
+
+          // Draft count
+          var draftCount = 0;
+          try {
+            var docs = (typeof CompanyStore !== 'undefined' && CompanyStore.getStateSync) ? CompanyStore.getStateSync('ap_documents', []) : [];
+            if (Array.isArray(docs)) {
+              draftCount = docs.filter(function(d) { return (d.kind === 'marketing_post' || d.kind === 'product_brief') && d.status !== 'published'; }).length;
+            }
+          } catch (e) {}
+
+          el.innerHTML =
+            _costKpi(String(blogCount), 'Blog Posts', '#a855f7') +
+            _costKpi(String(draftCount), 'Drafts', '#fbbf24') +
+            _costKpi(String(agentCount), 'Agents', '#60a5fa') +
+            (pending > 0 ? _costKpi(String(pending), 'Pending', '#f87171') : _costKpi('0', 'Pending', 'rgba(255,255,255,0.2)'));
+        });
       }
 
       // ── Pixel Agents Admin ──
