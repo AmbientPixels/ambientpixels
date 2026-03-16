@@ -673,8 +673,85 @@ async function runTest() {
 
 // ── Submit ──
 async function submitForReview() {
-  if (!confirm('Submit this agent for review?')) return;
-  alert('Submission pipeline coming soon! For now, save your draft and share the config with the team.');
+  if (!confirm('Submit "' + (agentState.identity.name || 'Untitled') + '" for review?\n\nAn AI reviewer will evaluate your agent for quality, uniqueness, and safety before forwarding to the CEO for final approval.')) return;
+
+  var submitBtn = document.getElementById('af-submit-btn');
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '<div class="af-spinner" style="width:14px;height:14px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:6px;"></div> Reviewing...';
+
+  try {
+    var agentConfig = buildAgentConfig();
+    var hdrs = { 'Content-Type': 'application/json' };
+    if (isLoggedIn) hdrs['x-company-secret'] = 'pixelpusher';
+
+    var res = await fetch(getApiBase() + '/pixel-agent-submit', {
+      method: 'POST',
+      headers: hdrs,
+      body: JSON.stringify({ agentConfig: agentConfig })
+    });
+
+    var data = await res.json();
+
+    if (data.error) {
+      showReviewResult('error', data.error, null);
+      return;
+    }
+
+    showReviewResult(data.decision, data.feedback, data);
+
+  } catch (err) {
+    showReviewResult('error', 'Submission failed: ' + err.message, null);
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit for Review';
+  }
+}
+
+function showReviewResult(decision, feedback, data) {
+  var colors = {
+    approved: { bg: 'rgba(74,222,128,0.1)', border: 'rgba(74,222,128,0.3)', text: '#4ade80', icon: 'fa-check-circle', title: 'Approved!' },
+    needs_work: { bg: 'rgba(251,191,36,0.1)', border: 'rgba(251,191,36,0.3)', text: '#fbbf24', icon: 'fa-exclamation-triangle', title: 'Needs Work' },
+    rejected: { bg: 'rgba(248,113,113,0.1)', border: 'rgba(248,113,113,0.3)', text: '#f87171', icon: 'fa-times-circle', title: 'Rejected' },
+    error: { bg: 'rgba(248,113,113,0.1)', border: 'rgba(248,113,113,0.3)', text: '#f87171', icon: 'fa-exclamation-circle', title: 'Error' }
+  };
+
+  var c = colors[decision] || colors.error;
+
+  var scoresHtml = '';
+  if (data && data.scores) {
+    scoresHtml = '<div style="display:flex;gap:1rem;margin:0.75rem 0;">' +
+      '<div style="text-align:center"><div style="font-size:1.2rem;font-weight:700;color:' + c.text + '">' + (data.scores.quality || 0) + '</div><div style="font-size:0.7rem;color:rgba(255,255,255,0.4)">Quality</div></div>' +
+      '<div style="text-align:center"><div style="font-size:1.2rem;font-weight:700;color:' + c.text + '">' + (data.scores.uniqueness || 0) + '</div><div style="font-size:0.7rem;color:rgba(255,255,255,0.4)">Uniqueness</div></div>' +
+      '<div style="text-align:center"><div style="font-size:1.2rem;font-weight:700;color:' + c.text + '">' + (data.scores.safety || 0) + '</div><div style="font-size:0.7rem;color:rgba(255,255,255,0.4)">Safety</div></div>' +
+    '</div>';
+  }
+
+  var improvementsHtml = '';
+  if (data && data.improvements && data.improvements.length) {
+    improvementsHtml = '<div style="margin-top:0.5rem;font-size:0.8rem;color:rgba(255,255,255,0.5)"><strong>Suggestions:</strong><ul style="margin:0.3rem 0 0 1rem;padding:0">' +
+      data.improvements.map(function(i) { return '<li>' + escapeHtml(i) + '</li>'; }).join('') +
+    '</ul></div>';
+  }
+
+  var similarHtml = '';
+  if (data && data.similar_to) {
+    similarHtml = '<div style="margin-top:0.5rem;font-size:0.8rem;color:rgba(255,255,255,0.4)">Most similar to: <strong>' + escapeHtml(data.similar_to) + '</strong></div>';
+  }
+
+  var resultEl = document.getElementById('af-test-result');
+  resultEl.innerHTML =
+    '<div style="background:' + c.bg + ';border:1px solid ' + c.border + ';border-radius:8px;padding:1rem;">' +
+      '<div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.5rem;">' +
+        '<i class="fas ' + c.icon + '" style="color:' + c.text + ';font-size:1.1rem;"></i>' +
+        '<strong style="color:' + c.text + ';font-size:0.95rem;">' + c.title + '</strong>' +
+      '</div>' +
+      scoresHtml +
+      '<div style="font-size:0.85rem;color:rgba(255,255,255,0.7);line-height:1.5;">' + escapeHtml(feedback || '') + '</div>' +
+      similarHtml +
+      improvementsHtml +
+      (decision === 'approved' ? '<div style="margin-top:0.75rem;font-size:0.8rem;color:rgba(74,222,128,0.7);"><i class="fas fa-arrow-right"></i> Forwarded to CEO for final approval</div>' : '') +
+    '</div>';
+  resultEl.style.display = '';
 }
 
 // ── Build Config ──
