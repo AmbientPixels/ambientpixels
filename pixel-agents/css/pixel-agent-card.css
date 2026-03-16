@@ -212,3 +212,32 @@
   background: linear-gradient(135deg, #5ae4ff, #3b82f6);
   color: #0a0e17;
 }
+
+/* ══════════════════════════════════════
+   LIGHT THEME — Agent Cards
+   ══════════════════════════════════════ */
+body[data-theme="light"] .pa-card {
+  background: #fff;
+  border-color: rgba(0,0,0,0.08);
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+body[data-theme="light"] .pa-card:hover { border-color: rgba(0,0,0,0.12); }
+body[data-theme="light"] .pa-card[data-tier="legendary"]:hover {
+  box-shadow: 0 8px 24px rgba(245,158,11,0.12); border-color: rgba(245,158,11,0.3);
+}
+body[data-theme="light"] .pa-card[data-tier="epic"]:hover {
+  box-shadow: 0 8px 24px rgba(139,92,246,0.12); border-color: rgba(139,92,246,0.3);
+}
+body[data-theme="light"] .pa-card[data-tier="rare"]:hover {
+  box-shadow: 0 8px 24px rgba(59,130,246,0.12); border-color: rgba(59,130,246,0.3);
+}
+body[data-theme="light"] .pa-card-name { color: #1e293b; }
+body[data-theme="light"] .pa-card-tagline { color: #64748b; }
+body[data-theme="light"] .pa-card-role {
+  background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.08); color: #475569;
+}
+body[data-theme="light"] .pa-card-capabilities li {
+  background: rgba(0,0,0,0.03); border-color: rgba(0,0,0,0.06); color: #64748b;
+}
+body[data-theme="light"] .pa-card-footer { border-top-color: rgba(0,0,0,0.06); }
+body[data-theme="light"] .pa-card-usage { color: #94a3b8; }
