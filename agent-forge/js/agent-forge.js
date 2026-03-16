@@ -476,26 +476,37 @@ function updateStatus() {
 // ── Preview ──
 function updatePreview() {
   var s = agentState.identity;
-  var iconEl = document.getElementById('af-preview-icon');
-  var nameEl = document.getElementById('af-preview-name');
-  var tagEl = document.getElementById('af-preview-tagline');
-  var tierEl = document.getElementById('af-preview-tier');
-  var catEl = document.getElementById('af-preview-category');
-  var capsEl = document.getElementById('af-preview-capabilities');
+  var CATEGORY_LABELS = { audit:'Audit', content:'Content', strategy:'Strategy', naming:'Naming', pitch:'Pitch', design:'Design', lifestyle:'Lifestyle', tools:'Tools', career:'Career', intel:'Intel', gaming:'Gaming', creative:'Creative' };
+  var tierLabel = (s.tier || 'common').charAt(0).toUpperCase() + (s.tier || 'common').slice(1);
+  var categoryLabel = CATEGORY_LABELS[s.category] || s.category || '—';
+  var caps = agentState.output.sections.slice(0, 4);
+  var name = s.name || 'Untitled Agent';
+  var tagline = s.tagline || 'Add a tagline...';
+  var icon = s.icon || 'fas fa-question';
+  var tier = s.tier || 'common';
 
-  if (iconEl) iconEl.className = s.icon || 'fas fa-question';
-  if (nameEl) nameEl.textContent = s.name || 'Untitled Agent';
-  if (tagEl) tagEl.textContent = s.tagline || 'Add a tagline...';
-  if (tierEl) {
-    tierEl.textContent = (s.tier || 'common').toUpperCase();
-    tierEl.className = 'pa-card-tier pa-tier-' + (s.tier || 'common');
-  }
-  if (catEl) catEl.textContent = (s.category || '—').toUpperCase();
-  if (capsEl) {
-    var caps = agentState.output.sections.slice(0, 4).map(function(sec) {
-      return '<span class="pa-card-cap">' + escapeHtml(sec.label) + '</span>';
-    });
-    capsEl.innerHTML = caps.join('');
+  var wrap = document.getElementById('af-agent-card-wrap');
+  if (wrap) {
+    wrap.innerHTML =
+      '<div class="pa-card" data-tier="' + escapeAttr(tier) + '">' +
+        '<div class="pa-card-featured" style="' + (caps.length >= 3 ? '' : 'display:none') + '">Preview</div>' +
+        '<div class="pa-card-avatar">' +
+          '<div class="pa-card-icon"><i class="' + escapeAttr(icon) + '"></i></div>' +
+          '<span class="pa-card-tier pa-card-tier--' + escapeAttr(tier) + '">' + escapeHtml(tierLabel) + '</span>' +
+        '</div>' +
+        '<div class="pa-card-body">' +
+          '<h3 class="pa-card-name">' + escapeHtml(name) + '</h3>' +
+          '<p class="pa-card-tagline">' + escapeHtml(tagline) + '</p>' +
+          '<span class="pa-card-role">' + escapeHtml(categoryLabel) + '</span>' +
+          '<ul class="pa-card-capabilities">' +
+            caps.map(function(sec) { return '<li>' + escapeHtml(sec.label) + '</li>'; }).join('') +
+          '</ul>' +
+        '</div>' +
+        '<div class="pa-card-footer">' +
+          '<span class="pa-card-usage">Preview</span>' +
+          '<span class="pa-card-action"><i class="fas fa-play"></i> Hire Agent</span>' +
+        '</div>' +
+      '</div>';
   }
 
   updateStatus();
