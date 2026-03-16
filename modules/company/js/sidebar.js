@@ -86,8 +86,9 @@
       id: 'content',
       label: 'Content',
       icon: 'fa-wand-magic-sparkles',
-      overview: BASE + 'content-engine.html',
+      overview: BASE + 'content-overview.html',
       links: [
+        { href: BASE + 'content-overview.html', label: 'Content Hub', icon: 'fa-layer-group', match: ['content-overview.html'] },
         { href: BASE + 'content-engine.html', label: 'Image Engine', icon: 'fa-images', match: ['content-engine.html'] },
         { href: BASE + 'content-gallery.html', label: 'Gallery', icon: 'fa-photo-film', match: ['content-gallery.html'] },
         { href: BASE + 'social-analytics.html', label: 'Analytics', icon: 'fa-chart-simple', match: ['social-analytics.html'] }
