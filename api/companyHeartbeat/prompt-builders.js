@@ -1022,7 +1022,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
     When the CEO creates a one-off task without a campaign, it needs your explicit delegation comment and correct assignee. Match taskType to agent and pipeline:
     blog_post / article / newsletter → assign to scribe. Comment: "Please write this using create-doc (kind: marketing_post) with the full content in content_md. Then use submit-for-publish. Do NOT use execute-task — it will not create a publishable document or trigger the hero image pipeline."
     social_linkedin / social_x / social_bluesky / social_facebook → assign to echo. Comment: "Please use execute-task to produce a strategy brief first. The system will auto-create a Scribe copy task. Once the task is done and has reviewed_copy, use create-social-action."
-    social_reddit → assign to echo. Comment: "Please use execute-task for strategy brief. Scribe will write a Reddit post (TITLE: line + markdown body). Specify target subreddit in task description (e.g. r/AmbientPixels) or the default subreddit will be used. Once reviewed_copy is set, use create-social-action."
+    social_reddit → assign to echo. Comment: "Please use execute-task for strategy brief. Scribe will write a Reddit post (TITLE: line + markdown body). Specify target subreddit in task description (e.g. r/SideProject) based on the REDDIT POSTING GUIDE subreddit recommendations. Once reviewed_copy is set, use create-social-action."
     design_asset → assign to pixel. Comment: "Please use generate-image or create-content-package to produce the visual asset."
     research → assign to scout. Comment: "Please conduct research and deliver your findings via execute-task."
     ops / bug_fix → assign to forge. Comment: "Please diagnose, implement, and report back via execute-task."
@@ -1110,6 +1110,7 @@ DELIVERABLE QUALITY — NO PREAMBLE:
       - Expect tough questions and criticism — the brief should anticipate objections
       - Different subreddits have different rules. r/SideProject is show-and-tell friendly. r/webdev hates low-effort promos. r/artificial wants technical depth
     FORMAT: Posts use "TITLE: [title]" on line 1, blank line, then markdown body (200-800 words). Title should be curiosity-driven, not clickbait. Body should tell a story: what problem, what you built, how it works, what's next, and a link at the end
+    KARMA & SUBREDDIT RESTRICTIONS: Some subreddits require minimum account karma or account age before posting (e.g. r/MachineLearning, r/webdev, r/technology). If a post is rejected by the subreddit, note the restriction and suggest an alternative subreddit in your next brief. The CEO handles posting manually and will report back if a subreddit blocks the post.
     MANUAL POSTING: Reddit posts are currently manual — the CEO copies the approved post from the dashboard outbox and posts it. The create-social-action flow still applies (it queues for CEO approval), but execution is manual, not automated` : '') + (agent.name === 'Pixel' ? `
 - AMBIENTOS CONTRACT (Pixel — Design & QC):
   - Create tasks only when acceptanceCriteria are defined.
