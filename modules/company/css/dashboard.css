@@ -1776,14 +1776,15 @@ body[data-theme="dim"] .cc-quick-links a:hover { color: rgba(241,245,249,0.7); }
   flex-direction: column;
 }
 
-#ceo-status-strip { order: 1; }
-#ceo-stats        { order: 2; }
+#ceo-stats        { order: 1; }
+#ceo-status-strip { order: 2; }
 .ceo-main-split   { order: 3; }
-#ceo-strategy-row { order: 4; }
-#section-insights         { order: 5; }
-#section-decisions        { order: 6; }
-#section-budget           { order: 7; }
-#section-content-pipeline { order: 8; }
+#section-api-usage        { order: 4; }
+#ceo-strategy-row { order: 5; }
+#section-insights         { order: 6; }
+#section-decisions        { order: 7; }
+#section-budget           { order: 8; }
+#section-content-pipeline { order: 9; }
 
 #section-metrics,
 #section-costs,
@@ -1802,11 +1803,12 @@ body[data-theme="dim"] .cc-quick-links a:hover { color: rgba(241,245,249,0.7); }
   animation: ceo-fade-up 0.3s ease both;
 }
 
-#ceo-status-strip  { animation-delay: 0.04s; }
-#ceo-stats         { animation-delay: 0.08s; }
+#ceo-stats         { animation-delay: 0.04s; }
+#ceo-status-strip  { animation-delay: 0.08s; }
 .ceo-main-split    { animation-delay: 0.12s; }
-#ceo-strategy-row  { animation-delay: 0.16s; }
-#section-insights  { animation-delay: 0.20s; }
+#section-api-usage { animation-delay: 0.16s; }
+#ceo-strategy-row  { animation-delay: 0.20s; }
+#section-insights  { animation-delay: 0.24s; }
 #section-decisions { animation-delay: 0.24s; }
 
 /* ── Responsive ── */
