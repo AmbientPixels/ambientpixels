@@ -307,7 +307,7 @@ function renderComponentForm(component) {
       return '<div class="af-toggle-row"><label>Web Search</label><label class="af-toggle"><input type="checkbox" data-bind="powers.webSearch"' + (s.powers.webSearch ? ' checked' : '') + '><span class="af-toggle-slider"></span></label></div>' +
         '<div class="af-toggle-row"><label>URL Fetch</label><label class="af-toggle"><input type="checkbox" data-bind="powers.fetchUrl"' + (s.powers.fetchUrl ? ' checked' : '') + '><span class="af-toggle-slider"></span></label></div>' +
         '<div class="af-toggle-row"><label>Image Generation</label><label class="af-toggle"><input type="checkbox" data-bind="powers.imageGeneration"' + (s.powers.imageGeneration ? ' checked' : '') + '><span class="af-toggle-slider"></span></label></div>' +
-        '<div class="af-toggle-row"><label>Rate Limit Cost</label><select data-bind="powers.rateLimitCost" style="width:60px"><option value="1"' + (s.powers.rateLimitCost === 1 ? ' selected' : '') + '>1</option><option value="2"' + (s.powers.rateLimitCost === 2 ? ' selected' : '') + '>2</option></select></div>';
+        '<div class="af-toggle-row"><label>Rate Limit Cost</label><select data-bind="powers.rateLimitCost" class="af-powers-select"><option value="1"' + (s.powers.rateLimitCost === 1 ? ' selected' : '') + '>1</option><option value="2"' + (s.powers.rateLimitCost === 2 ? ' selected' : '') + '>2</option></select></div>';
 
     default: return '';
   }
@@ -503,7 +503,7 @@ function updatePreview() {
           '</ul>' +
         '</div>' +
         '<div class="pa-card-footer">' +
-          '<span class="pa-card-usage">Preview</span>' +
+          '<span class="pa-card-usage"></span>' +
           '<span class="pa-card-action"><i class="fas fa-play"></i> Hire Agent</span>' +
         '</div>' +
       '</div>';

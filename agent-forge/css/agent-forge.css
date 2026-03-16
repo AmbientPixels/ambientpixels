@@ -386,6 +386,33 @@
   background: rgba(90,200,250,0.15);
 }
 
+/* Powers select */
+.af-powers-select {
+  width: 64px;
+  background: rgba(0,0,0,0.3);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  padding: 0.35rem 1.4rem 0.35rem 0.5rem;
+  color: #fff;
+  font-size: 0.85rem;
+  font-family: 'Inter', sans-serif;
+  cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 12 12'%3E%3Cpath fill='rgba(255,255,255,0.3)' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.4rem center;
+}
+.af-powers-select:focus {
+  outline: none;
+  border-color: rgba(90,200,250,0.5);
+}
+.af-powers-select option {
+  background: #1a1f2e;
+  color: rgba(255,255,255,0.85);
+}
+
 /* Toggle switch */
 .af-toggle-row {
   display: flex;
