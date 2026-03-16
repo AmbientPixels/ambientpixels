@@ -41,8 +41,21 @@
     <p>Build your own AI agent. Drag components into the pipeline, configure each card, test your agent live, and submit it to the Pixel Agents library.</p>
   </div>
 
-  <!-- Main Builder -->
-  <main class="af-builder">
+  <!-- Auth Gate (shown when not logged in) -->
+  <div id="af-auth-gate" class="af-auth-gate" style="display:none;">
+    <div class="af-auth-gate-card">
+      <i class="fas fa-lock"></i>
+      <h2>Sign In Required</h2>
+      <p>Sign in to build and save your own AI agents.</p>
+      <a href="/.auth/login/aad?post_login_redirect_uri=/agent-forge/" class="af-btn af-btn-primary">
+        <i class="fas fa-sign-in-alt"></i> Sign In
+      </a>
+      <a href="/pixel-agents/" class="af-auth-gate-link">Browse existing agents instead</a>
+    </div>
+  </div>
+
+  <!-- Main Builder (hidden until authenticated) -->
+  <main class="af-builder" id="af-builder" style="display:none;">
     <!-- Left: Component Tray -->
     <aside class="af-tray">
       <div class="af-tray-section">
@@ -248,14 +261,28 @@
         sessionStorage.setItem('af_auth', JSON.stringify({ isAuthenticated: true, name: name }));
         document.body.setAttribute('data-auth-state', 'signed-in');
         showUser(name);
+      } else {
+        showAuthGate();
       }
-    }).catch(function() {});
+    }).catch(function() { showAuthGate(); });
+
+    function showAuthGate() {
+      if (isLoggedIn) return; // already authenticated via cache
+      document.getElementById('af-auth-gate').style.display = 'flex';
+      document.getElementById('af-builder').style.display = 'none';
+    }
 
     function showUser(name) {
       document.getElementById('af-login-btn').style.display = 'none';
       document.getElementById('af-user-status').style.display = '';
       document.getElementById('af-user-name').textContent = name;
       isLoggedIn = true;
+      // Show builder, hide auth gate
+      document.getElementById('af-auth-gate').style.display = 'none';
+      document.getElementById('af-builder').style.display = '';
+      document.querySelector('.af-page-header').style.display = '';
+      // Load drafts from blob
+      if (typeof loadDrafts === 'function') loadDrafts();
     }
 
     document.getElementById('af-logout-btn').addEventListener('click', function(e) {

@@ -425,6 +425,11 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/api/agentforge-drafts",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/agentforge-drafts",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/api/pixel-agent-remove",
       "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/pixel-agent-remove",
       "allowedRoles": ["anonymous"]

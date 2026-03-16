@@ -1025,10 +1025,11 @@ function buildAgentConfig() {
 }
 
 // ── Draft Management ──
+// ── Draft Management (Blob Storage) ──
+var _draftsCache = []; // local cache of loaded drafts
+
 function saveDraft() {
   var config = buildAgentConfig();
-  var drafts = JSON.parse(localStorage.getItem('agentforge_drafts') || '[]');
-
   var draft = {
     id: currentDraftId || 'draft-' + Date.now(),
     name: config.name || 'Untitled',
@@ -1036,23 +1037,44 @@ function saveDraft() {
     pipelineOrder: pipelineOrder.slice(),
     updatedAt: new Date().toISOString()
   };
+  if (!currentDraftId) currentDraftId = draft.id;
 
-  if (currentDraftId) {
-    var idx = drafts.findIndex(function(d) { return d.id === currentDraftId; });
-    if (idx >= 0) drafts[idx] = draft; else drafts.push(draft);
-  } else {
-    currentDraftId = draft.id;
-    drafts.push(draft);
-  }
-
-  if (drafts.length > 20) drafts = drafts.slice(-20);
-  localStorage.setItem('agentforge_drafts', JSON.stringify(drafts));
-  loadDrafts();
-  showToast('Draft saved');
+  fetch(getApiBase() + '/agentforge-drafts', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
+    body: JSON.stringify({ draft: draft })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    if (d.success) {
+      showNotification('Saved', '', 'success');
+      loadDrafts();
+    } else {
+      showNotification('Save Failed', d.error || 'Unknown error', 'error');
+    }
+  })
+  .catch(function(err) { showNotification('Save Failed', err.message, 'error'); });
 }
 
 function loadDrafts() {
-  var drafts = JSON.parse(localStorage.getItem('agentforge_drafts') || '[]');
+  var list = document.getElementById('af-drafts-list');
+  if (!list) return;
+
+  fetch(getApiBase() + '/agentforge-drafts', {
+    headers: { 'x-company-secret': 'pixelpusher' }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(data) {
+    _draftsCache = data.drafts || [];
+    renderDraftsList(_draftsCache);
+  })
+  .catch(function() {
+    _draftsCache = [];
+    renderDraftsList([]);
+  });
+}
+
+function renderDraftsList(drafts) {
   var list = document.getElementById('af-drafts-list');
   if (!list) return;
 
@@ -1084,8 +1106,7 @@ function loadDrafts() {
 }
 
 function loadDraft(draftId) {
-  var drafts = JSON.parse(localStorage.getItem('agentforge_drafts') || '[]');
-  var draft = drafts.find(function(d) { return d.id === draftId; });
+  var draft = _draftsCache.find(function(d) { return d.id === draftId; });
   if (!draft) return;
 
   currentDraftId = draft.id;
@@ -1095,15 +1116,23 @@ function loadDraft(draftId) {
   updateTrayState();
   updatePreview();
   updateStatus();
-  showToast('Draft loaded');
+  showNotification('Draft Loaded', draft.name || 'Untitled', 'success');
 }
 
 function deleteDraft(draftId) {
-  var drafts = JSON.parse(localStorage.getItem('agentforge_drafts') || '[]');
-  drafts = drafts.filter(function(d) { return d.id !== draftId; });
-  localStorage.setItem('agentforge_drafts', JSON.stringify(drafts));
-  if (currentDraftId === draftId) currentDraftId = null;
-  loadDrafts();
+  fetch(getApiBase() + '/agentforge-drafts', {
+    method: 'DELETE',
+    headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
+    body: JSON.stringify({ draftId: draftId })
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(d) {
+    if (d.success) {
+      if (currentDraftId === draftId) currentDraftId = null;
+      loadDrafts();
+    }
+  })
+  .catch(function() {});
 }
 
 // Auto-save debounce
