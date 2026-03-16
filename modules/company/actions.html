@@ -799,7 +799,9 @@
         .then(function(data) {
           var queue = data.value || data || [];
           if (!Array.isArray(queue)) queue = [];
-          var aqPending = queue.filter(function(q) { return q.status === 'pending'; });
+          var aqPending = queue.filter(function(q) {
+            return q.status === 'pending' && (q.type === 'agent_forge_submission' || q.type === 'convergence_escalation');
+          });
           _renderPendingCombined(el, items, aqPending);
         })
         .catch(function() {
@@ -812,7 +814,7 @@
       document.getElementById('pending-count').textContent = totalCount + ' pending';
       if (totalCount === 0) { el.innerHTML = ''; return; }
       var bundles = {}, unbundled = [];
-      items.forEach(function (a) {
+      actionItems.forEach(function (a) {
         if (a.bundle_id) { if (!bundles[a.bundle_id]) bundles[a.bundle_id] = []; bundles[a.bundle_id].push(a); }
         else unbundled.push(a);
       });
