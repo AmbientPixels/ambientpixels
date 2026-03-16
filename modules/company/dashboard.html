@@ -760,6 +760,15 @@
               <div id="panel-blog-admin"></div>
               <div class="dash-empty" id="blog-admin-empty">No published blog posts.</div>
             </div>
+            <!-- Pixel Agents Management -->
+            <div class="dash-panel dash-panel--full">
+              <div class="dash-panel-header">
+                <span class="dash-panel-title"><i class="fas fa-robot dash-icon-blue"></i> Pixel Agents</span>
+                <a href="/pixel-agents/" target="_blank" class="dash-view-all">Catalog →</a>
+              </div>
+              <div id="panel-agent-admin"></div>
+              <div class="dash-empty" id="agent-admin-empty" style="display:none;">No agents found.</div>
+            </div>
           </div>
         </div>
       </div>
@@ -1471,7 +1480,7 @@
          renderHeartbeatHealth, renderApprovalQueue, renderFacebookOutbox, renderCampaignsSnap, renderSystemPulse,
          renderKpiScoreboard, renderObjectivesSnap, renderAutonomyScore, renderRiskHeatmap,
          renderActionSnap, renderApiUsage, renderGeminiCosts, renderClaudeCosts, renderAzureCosts, renderXCosts, renderCostSummary,
-         renderDailyLogDrafts, renderBlogAdmin, renderGovernanceLog, renderGovernanceLogDev,
+         renderDailyLogDrafts, renderBlogAdmin, renderAgentAdmin, renderGovernanceLog, renderGovernanceLogDev,
          renderMeetingsWidget, updateActionBadge, renderOrgChart,
          renderInboundKpi, updateModeIndicator, renderCeoStatusStrip, renderCeoInsightsMirrors, renderCeoStrategy, renderCeoPerfWidget].forEach(function(fn) {
           try { fn(); } catch(e) { console.warn('[Dashboard] ' + (fn.name||'anon') + ' error:', e); }
@@ -3693,6 +3702,91 @@
             }).then(function (r) { return r.ok; });
           })
           .catch(function () { return false; });
+      }
+
+      // ── Pixel Agents Admin ──
+      function renderAgentAdmin() {
+        var listEl = document.getElementById('panel-agent-admin');
+        var emptyEl = document.getElementById('agent-admin-empty');
+        if (!listEl) return;
+
+        var apiBase = getApiBase();
+        Promise.all([
+          fetch('/pixel-agents/data/pixel-agents.json?v=1').then(function(r) { return r.json(); }).catch(function() { return []; }),
+          fetch(apiBase + '/pixel-agent-community', { headers: { 'x-company-secret': 'pixelpusher' } }).then(function(r) { return r.json(); }).catch(function() { return { agents: [] }; }),
+          fetch(apiBase + '/pixel-agent-catalog', { headers: { 'x-company-secret': 'pixelpusher' } }).then(function(r) { return r.json(); }).catch(function() { return { stats: {} }; })
+        ]).then(function(results) {
+          var builtIn = results[0].filter(function(a) { return a.active; });
+          var community = (results[1].agents || []).filter(function(a) { return a.active; });
+          var stats = results[2].stats || {};
+
+          if (builtIn.length === 0 && community.length === 0) {
+            listEl.innerHTML = '';
+            emptyEl.style.display = '';
+            return;
+          }
+          emptyEl.style.display = 'none';
+
+          var html = '<div style="font-size:0.65rem;color:rgba(255,255,255,0.4);padding:0.4rem 0.5rem;">' +
+            builtIn.length + ' built-in · ' + community.length + ' community</div>';
+
+          // Community agents first (with delete)
+          if (community.length > 0) {
+            html += '<div style="font-size:0.55rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:rgba(168,85,247,0.6);padding:0.3rem 0.5rem;margin-top:0.3rem;">Community Agents</div>';
+            community.forEach(function(a) {
+              var runs = stats[a.id] || 0;
+              html += '<div class="blog-admin-row" style="display:flex;justify-content:space-between;align-items:center;padding:0.45rem 0.5rem;border-bottom:1px solid rgba(255,255,255,0.04);">' +
+                '<div style="flex:1;min-width:0;">' +
+                  '<div style="font-size:0.75rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><i class="' + escapeHtml(a.icon || 'fas fa-robot') + '" style="margin-right:0.3rem;opacity:0.5;font-size:0.65rem;"></i>' + escapeHtml(a.name) + ' <span style="font-size:0.5rem;padding:1px 5px;border-radius:3px;background:rgba(168,85,247,0.15);color:#a855f7;font-weight:600;vertical-align:middle;">COMMUNITY</span></div>' +
+                  '<div style="font-size:0.6rem;color:rgba(255,255,255,0.35);margin-top:1px;">' + escapeHtml(a.category || '') + ' · ' + escapeHtml(a.tier || '') + (runs > 0 ? ' · ' + runs + ' runs' : '') + '</div>' +
+                '</div>' +
+                '<div style="display:flex;gap:0.3rem;flex-shrink:0;">' +
+                  '<a href="/pixel-agents/run.html?agent=' + escapeHtml(a.id) + '" target="_blank" style="font-size:0.55rem;padding:0.2rem 0.5rem;border-radius:4px;border:1px solid rgba(96,165,250,0.3);background:rgba(96,165,250,0.08);color:#60a5fa;text-decoration:none;cursor:pointer;">View</a>' +
+                  '<button class="agent-admin-delete" data-agent-id="' + escapeHtml(a.id) + '" data-agent-name="' + escapeHtml(a.name) + '" style="font-size:0.55rem;padding:0.2rem 0.5rem;border-radius:4px;border:1px solid rgba(248,113,113,0.3);background:rgba(248,113,113,0.08);color:#f87171;cursor:pointer;">Delete</button>' +
+                '</div>' +
+              '</div>';
+            });
+          }
+
+          // Built-in agents (view only)
+          html += '<div style="font-size:0.55rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:rgba(255,255,255,0.3);padding:0.3rem 0.5rem;margin-top:0.3rem;">Built-in Agents</div>';
+          var showCount = 5;
+          builtIn.slice(0, showCount).forEach(function(a) {
+            var runs = stats[a.id] || 0;
+            html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:0.35rem 0.5rem;border-bottom:1px solid rgba(255,255,255,0.03);">' +
+              '<div style="flex:1;min-width:0;">' +
+                '<div style="font-size:0.7rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><i class="' + escapeHtml(a.icon || 'fas fa-robot') + '" style="margin-right:0.3rem;opacity:0.4;font-size:0.6rem;"></i>' + escapeHtml(a.name) + '</div>' +
+                '<div style="font-size:0.55rem;color:rgba(255,255,255,0.3);margin-top:1px;">' + escapeHtml(a.category || '') + ' · ' + escapeHtml(a.tier || '') + (runs > 0 ? ' · ' + runs + ' runs' : '') + '</div>' +
+              '</div>' +
+              '<a href="/pixel-agents/run.html?agent=' + escapeHtml(a.id) + '" target="_blank" style="font-size:0.55rem;padding:0.2rem 0.5rem;border-radius:4px;border:1px solid rgba(96,165,250,0.2);background:rgba(96,165,250,0.05);color:rgba(96,165,250,0.7);text-decoration:none;cursor:pointer;flex-shrink:0;">View</a>' +
+            '</div>';
+          });
+
+          if (builtIn.length > showCount) {
+            html += '<div style="text-align:right;padding:0.4rem 0.5rem;"><a href="/pixel-agents/" target="_blank" style="font-size:0.6rem;color:rgba(255,255,255,0.4);text-decoration:none;">View all ' + builtIn.length + ' agents →</a></div>';
+          }
+
+          listEl.innerHTML = html;
+
+          // Wire delete buttons
+          listEl.querySelectorAll('.agent-admin-delete').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+              var agentId = btn.dataset.agentId;
+              var agentName = btn.dataset.agentName;
+              if (!confirm('Delete "' + agentName + '" from the Pixel Agents catalog?')) return;
+              btn.disabled = true;
+              btn.textContent = 'Deleting...';
+              fetch(apiBase + '/pixel-agent-remove', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
+                body: JSON.stringify({ agentId: agentId })
+              }).then(function(r) { return r.json(); }).then(function(d) {
+                if (d.success) { renderAgentAdmin(); }
+                else { alert('Error: ' + (d.error || 'Unknown')); btn.disabled = false; btn.textContent = 'Delete'; }
+              }).catch(function(err) { alert('Failed: ' + err.message); btn.disabled = false; btn.textContent = 'Delete'; });
+            });
+          });
+        });
       }
 
       // ── Governance Log (shared renderer for CEO + Dev) ──
