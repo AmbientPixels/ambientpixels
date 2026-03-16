@@ -397,6 +397,14 @@
             </div>
             <div class="act-panel-body" id="agent-forge-list"></div>
           </div>
+          <!-- Convergence Escalations (revision loop tasks) -->
+          <div class="act-panel" id="convergence-panel" style="display:none;">
+            <div class="act-panel-head">
+              <span><i class="fas fa-exclamation-triangle dash-icon-amber co-icon-mr"></i> Revision Loop Escalations</span>
+              <span id="convergence-count" class="act-count-badge"></span>
+            </div>
+            <div class="act-panel-body" id="convergence-list"></div>
+          </div>
           <!-- Revision Requested -->
           <div class="act-panel" id="revision-panel" style="display:none;">
             <div class="act-panel-head act-panel-head--amber">
@@ -647,6 +655,7 @@
       renderRateLimits();
       renderAuditLog();
       renderAgentForgeSubmissions();
+      renderConvergenceEscalations();
     }
 
     // ── Action Drift Detection (>24h pending approvals) ──
@@ -961,6 +970,120 @@
         }
       })
       .catch(function(err) { alert('Failed: ' + err.message); });
+    }
+
+    // ── Convergence Escalations ──
+    function renderConvergenceEscalations() {
+      var panel = document.getElementById('convergence-panel');
+      var list = document.getElementById('convergence-list');
+      var countEl = document.getElementById('convergence-count');
+      if (!panel || !list) return;
+
+      var apiBase = 'https://ambientpixels-nova-api.azurewebsites.net/api';
+      fetch(apiBase + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': 'pixelpusher' } })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var queue = data.value || data || [];
+          if (!Array.isArray(queue)) queue = [];
+          var items = queue.filter(function(item) { return item.type === 'convergence_escalation' && item.status === 'pending'; });
+
+          if (items.length === 0) { panel.style.display = 'none'; return; }
+          panel.style.display = '';
+          countEl.textContent = items.length + ' stuck';
+
+          var html = '';
+          items.forEach(function(item) {
+            var deliverable = item.latestDeliverable || '';
+            var preview = deliverable.length > 300 ? deliverable.substring(0, 300) + '...' : deliverable;
+            html += '<div class="act-row" style="padding:0.75rem;margin-bottom:0.5rem;border:1px solid rgba(251,191,36,0.15);border-radius:8px;background:rgba(251,191,36,0.03);">';
+            html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:0.5rem;">';
+            html += '<div>';
+            html += '<div style="font-size:0.85rem;font-weight:600;color:#fff;"><i class="fas fa-exclamation-triangle" style="color:#fbbf24;margin-right:0.3rem;"></i>' + esc(item.taskTitle) + '</div>';
+            html += '<div style="font-size:0.68rem;color:rgba(255,255,255,0.4);margin-top:2px;">' + esc(item.taskType || '') + ' · ' + esc(item.assignee || '') + ' · ' + item.deliverableCount + ' revisions · ' + (item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '') + '</div>';
+            html += '</div>';
+            html += '<div style="display:flex;gap:0.3rem;">';
+            html += '<button class="act-btn act-btn--approve" onclick="approveConvergence(\'' + esc(item.taskId) + '\',\'' + esc(item.id) + '\')"><i class="fas fa-check"></i> Approve & Done</button>';
+            html += '<button class="act-btn act-btn--reject" onclick="closeConvergence(\'' + esc(item.taskId) + '\',\'' + esc(item.id) + '\')"><i class="fas fa-times"></i> Close Task</button>';
+            html += '</div>';
+            html += '</div>';
+            if (preview) {
+              html += '<div style="font-size:0.75rem;color:rgba(255,255,255,0.55);line-height:1.5;background:rgba(0,0,0,0.15);padding:0.5rem;border-radius:4px;max-height:200px;overflow-y:auto;white-space:pre-wrap;">' + esc(preview) + '</div>';
+            }
+            html += '</div>';
+          });
+          list.innerHTML = html;
+        })
+        .catch(function(err) { console.warn('[Actions] Convergence load failed:', err.message); });
+    }
+
+    function approveConvergence(taskId, aqId) {
+      if (!confirm('Approve the latest deliverable and mark this task as done?')) return;
+      var apiBase = 'https://ambientpixels-nova-api.azurewebsites.net/api';
+      // Update task status to done
+      fetch(apiBase + '/company-state?key=tasks', { headers: { 'x-company-secret': 'pixelpusher' } })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var tasks = data.value || data || [];
+          if (!Array.isArray(tasks)) return;
+          var task = tasks.find(function(t) { return t.id === taskId; });
+          if (task) {
+            task.status = 'done';
+            task.updatedAt = new Date().toISOString();
+            task.comments = task.comments || [];
+            task.comments.push({ id: 'cmt-ceoapprove-' + Date.now(), author: 'ceo', type: 'system', createdAt: new Date().toISOString(),
+              text: '[CEO] Approved latest deliverable. Task marked as done.' });
+          }
+          return fetch(apiBase + '/company-state', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
+            body: JSON.stringify({ key: 'tasks', value: tasks }) });
+        })
+        .then(function() {
+          // Remove from approval queue
+          return fetch(apiBase + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': 'pixelpusher' } });
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var queue = data.value || data || [];
+          if (!Array.isArray(queue)) return;
+          queue = queue.filter(function(q) { return q.id !== aqId; });
+          return fetch(apiBase + '/company-state', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
+            body: JSON.stringify({ key: 'approvalQueue', value: queue }) });
+        })
+        .then(function() { alert('Task approved and marked as done!'); renderAll(); })
+        .catch(function(err) { alert('Failed: ' + err.message); });
+    }
+
+    function closeConvergence(taskId, aqId) {
+      var reason = prompt('Close reason (optional):');
+      var apiBase = 'https://ambientpixels-nova-api.azurewebsites.net/api';
+      fetch(apiBase + '/company-state?key=tasks', { headers: { 'x-company-secret': 'pixelpusher' } })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var tasks = data.value || data || [];
+          if (!Array.isArray(tasks)) return;
+          var task = tasks.find(function(t) { return t.id === taskId; });
+          if (task) {
+            task.status = 'done';
+            task.updatedAt = new Date().toISOString();
+            task.comments = task.comments || [];
+            task.comments.push({ id: 'cmt-ceoclose-' + Date.now(), author: 'ceo', type: 'system', createdAt: new Date().toISOString(),
+              text: '[CEO] Closed task. ' + (reason || 'Not worth pursuing.') });
+          }
+          return fetch(apiBase + '/company-state', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
+            body: JSON.stringify({ key: 'tasks', value: tasks }) });
+        })
+        .then(function() {
+          return fetch(apiBase + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': 'pixelpusher' } });
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var queue = data.value || data || [];
+          if (!Array.isArray(queue)) return;
+          queue = queue.filter(function(q) { return q.id !== aqId; });
+          return fetch(apiBase + '/company-state', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
+            body: JSON.stringify({ key: 'approvalQueue', value: queue }) });
+        })
+        .then(function() { alert('Task closed.'); renderAll(); })
+        .catch(function(err) { alert('Failed: ' + err.message); });
     }
 
     // ── Revision Requested ──
