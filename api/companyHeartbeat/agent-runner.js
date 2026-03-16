@@ -710,6 +710,15 @@ Write the full deliverable first, then the structured JSON block.`;
         continue;
       }
 
+      // SERVER-SIDE GUARD: research task ceiling — max 5 active research tasks at a time
+      if ((action.task.taskType || '').toLowerCase() === 'research' || /^research\s*brief/i.test(action.task.title || '')) {
+        const _activeResearch = tasks.filter(t => t.status !== 'done' && t.status !== 'archived' && t.status !== 'canceled' && t.taskType === 'research').length;
+        if (_activeResearch >= 5) {
+          context.log('[Heartbeat]', agentId, 'BLOCKED create-task: research task ceiling reached (' + _activeResearch + '/5). Title:', action.task.title);
+          continue;
+        }
+      }
+
       // SERVER-SIDE GUARD: block agents from creating hero image tasks — system auto-creates them
       if ((action.task.assignee || '').toLowerCase() === 'pixel' && /hero\s*image/i.test(action.task.title || '')) {
         context.log('[Heartbeat]', agentId, 'BLOCKED create-task: hero image tasks are auto-created by the system, not agents. Title:', action.task.title);

@@ -2406,7 +2406,12 @@ module.exports = async function (context) {
       const _insightsAge = _latestInsights ? Date.now() - new Date(_latestInsights.timestamp || _latestInsights.analysisDate || 0).getTime() : Infinity;
       const _INSIGHTS_FRESH_MS = 8 * 60 * 60 * 1000; // only act on insights < 8h old
       if (_latestInsights && _insightsAge < _INSIGHTS_FRESH_MS && Array.isArray(_latestInsights.insights)) {
-        const _highTrends = _latestInsights.insights.filter(function (i) { return i.significance === 'high'; }).slice(0, 2);
+        // Cap: max 5 active research tasks at a time — skip auto-brief if already at ceiling
+        const _activeResearchCount = tasks.filter(function (t) { return t.status !== 'done' && t.status !== 'archived' && t.status !== 'canceled' && t.taskType === 'research'; }).length;
+        if (_activeResearchCount >= 5) {
+          context.log('[Heartbeat] auto-brief: skipped — research task ceiling reached (' + _activeResearchCount + '/5)');
+        }
+        const _highTrends = _activeResearchCount >= 5 ? [] : _latestInsights.insights.filter(function (i) { return i.significance === 'high'; }).slice(0, 2);
         let _autoBriefCreated = 0;
         for (const _ti of _highTrends) {
           const _trendName = String(_ti.trendName || '').toLowerCase();
