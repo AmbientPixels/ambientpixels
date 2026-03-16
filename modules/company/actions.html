@@ -799,9 +799,7 @@
         .then(function(data) {
           var queue = data.value || data || [];
           if (!Array.isArray(queue)) queue = [];
-          var aqPending = queue.filter(function(q) {
-            return q.status === 'pending' && (q.type === 'agent_forge_submission' || q.type === 'convergence_escalation');
-          });
+          var aqPending = queue.filter(function(q) { return q.status === 'pending'; });
           _renderPendingCombined(el, items, aqPending);
         })
         .catch(function() {
