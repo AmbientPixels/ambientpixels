@@ -389,6 +389,14 @@
             </div>
             <div class="act-panel-body" id="pending-list"></div>
           </div>
+          <!-- Agent Forge Submissions -->
+          <div class="act-panel" id="agent-forge-panel" style="display:none;">
+            <div class="act-panel-head">
+              <span><i class="fas fa-hammer dash-icon-blue co-icon-mr"></i> Agent Forge Submissions</span>
+              <span id="agent-forge-count" class="act-count-badge"></span>
+            </div>
+            <div class="act-panel-body" id="agent-forge-list"></div>
+          </div>
           <!-- Revision Requested -->
           <div class="act-panel" id="revision-panel" style="display:none;">
             <div class="act-panel-head act-panel-head--amber">
@@ -631,7 +639,6 @@
       renderExecutionPulse();
       renderRawStats();
       renderPending();
-      appendApprovalQueueItems();
       renderContentPackages();
       renderRevisions();
       renderScheduled();
@@ -639,6 +646,7 @@
       renderFailures();
       renderRateLimits();
       renderAuditLog();
+      renderAgentForgeSubmissions();
     }
 
     // ── Action Drift Detection (>24h pending approvals) ──
@@ -862,129 +870,7 @@
       });
     }
 
-    // ── Build action-compatible object from approval queue item ──
-    function _buildAqAction(item) {
-      if (item.type === 'agent_forge_submission') {
-        var scores = (item.aiReview && item.aiReview.scores) || {};
-        return {
-          id: item.submissionId || item.id,
-          created_at: item.createdAt,
-          created_by: 'agent-forge',
-          type: 'agent_forge.approve',
-          action_type: 'agent_forge.approve',
-          action_category: 'content',
-          platform: null,
-          payload: { text: (item.agentName || '') + ' — ' + (item.agentTagline || '') + (scores.quality ? '\nQuality: ' + scores.quality + ' | Uniqueness: ' + scores.uniqueness + ' | Safety: ' + scores.safety : '') },
-          action_payload: { text: item.agentName || '' },
-          classification: 'advisory',
-          requires_ceo_approval: true,
-          requires_approval: true,
-          risk_level: 'low',
-          brand_impact: 'low',
-          budget_impact: 0,
-          is_irreversible: false,
-          approval: { status: 'pending' },
-          execution: { status: 'pending' },
-          execution_status: 'pending',
-          origin_agent: 'agent-forge',
-          _aqItem: item
-        };
-      } else if (item.type === 'convergence_escalation') {
-        // Detect platform from task title
-        var _convTitle = (item.taskTitle || '').toLowerCase();
-        var _convPlat = null;
-        if (_convTitle.indexOf('facebook') !== -1) _convPlat = 'facebook';
-        else if (_convTitle.indexOf('linkedin') !== -1) _convPlat = 'linkedin';
-        else if (_convTitle.indexOf('bluesky') !== -1) _convPlat = 'bluesky';
-        else if (_convTitle.indexOf(' x ') !== -1 || _convTitle.indexOf('twitter') !== -1) _convPlat = 'x';
-        var _convIsBlog = _convTitle.indexOf('blog') !== -1;
-        var _convType = _convIsBlog ? 'publish_document' : (_convPlat ? 'social_post.publish' : 'task_completion.approve');
-        var _convCat = _convIsBlog ? 'content' : (_convPlat ? 'social' : 'content');
-        return {
-          id: item.id,
-          created_at: item.createdAt,
-          created_by: item.assignee || 'system',
-          type: _convType,
-          action_type: _convType,
-          action_category: _convCat,
-          platform: _convPlat,
-          payload: { text: item.latestDeliverable || '', taskId: item.taskId, taskTitle: item.taskTitle, title: item.taskTitle },
-          action_payload: { text: item.latestDeliverable || '', title: item.taskTitle },
-          classification: 'advisory',
-          requires_ceo_approval: true,
-          requires_approval: true,
-          risk_level: 'medium',
-          brand_impact: 'low',
-          budget_impact: 0,
-          is_irreversible: false,
-          approval: { status: 'pending', revision_count: item.deliverableCount },
-          execution: { status: 'pending' },
-          execution_status: 'pending',
-          origin_agent: item.assignee || 'system',
-          _aqItem: item,
-          _parentTaskId: item.taskId
-        };
-      }
-      return null;
-    }
-
-    // ── Append Approval Queue Items to Pending List ──
-    // Converts approvalQueue items into action-compatible objects and appends
-    // them to #pending-list using the existing actionRow() renderer.
-    // Does NOT touch renderPending — purely additive after it finishes.
-    function appendApprovalQueueItems() {
-      var apiBase = 'https://ambientpixels-nova-api.azurewebsites.net/api';
-      fetch(apiBase + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': 'pixelpusher' } })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-          var queue = data.value || data || [];
-          if (!Array.isArray(queue)) return;
-          var pending = queue.filter(function(q) {
-            return q.status === 'pending' && (q.type === 'agent_forge_submission' || q.type === 'convergence_escalation');
-          });
-          if (pending.length === 0) return;
-
-          var el = document.getElementById('pending-list');
-          if (!el) return;
-
-          // Update pending count to include these items
-          var countEl = document.getElementById('pending-count');
-          if (countEl) {
-            var existing = parseInt(countEl.textContent) || 0;
-            countEl.textContent = (existing + pending.length) + ' pending';
-          }
-
-          // Convert each item and render with actionRow
-          var html = '';
-          pending.forEach(function(item) {
-            var action = _buildAqAction(item);
-            if (action) html += actionRow(action, 'pending');
-          });
-
-          // Inject into AE store so drawer can find them
-          var existingActions = AE.getActions();
-          pending.forEach(function(item) {
-            // Only add if not already there
-            var fakeId = (item.type === 'agent_forge_submission') ? item.submissionId || item.id : item.id;
-            if (!existingActions.some(function(a) { return a.id === fakeId; })) {
-              var obj = _buildAqAction(item);
-              if (obj) existingActions.push(obj);
-            }
-          });
-          // Save back so getAction() can find them
-          try { localStorage.setItem('ap_actions', JSON.stringify(existingActions)); } catch(e) {}
-
-          // Append HTML without replacing
-          el.innerHTML += html;
-
-          // Show bulk bar if it was hidden due to 0 action items
-          var bulkBar = document.getElementById('pending-bulk-bar');
-          if (bulkBar) bulkBar.style.display = 'flex';
-        })
-        .catch(function(err) { console.warn('[Actions] approvalQueue fetch failed:', err.message); });
-    }
-
-    // ── Agent Forge Submissions (legacy — kept for reference) ──
+    // ── Agent Forge Submissions ──
     function renderAgentForgeSubmissions() {
       var panel = document.getElementById('agent-forge-panel');
       var list = document.getElementById('agent-forge-list');
@@ -1291,7 +1177,6 @@
       if (aPlat) html += platformBadge(aPlat);
       if (a.kind === 'research.intel' || aType === 'research.intel' || aType === 'research_intel.approve') html += '<span style="display:inline-flex;align-items:center;gap:0.25rem;font-size:0.5rem;padding:0.1rem 0.4rem;border-radius:3px;background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.5);font-weight:600;"><i class="fas fa-microscope"></i>Intel</span>';
       if (aType === 'publish_document') html += '<span style="display:inline-flex;align-items:center;gap:0.25rem;font-size:0.5rem;padding:0.1rem 0.4rem;border-radius:3px;background:rgba(52,211,153,0.12);color:#34d399;font-weight:600;"><i class="fas fa-newspaper"></i>Blog</span>';
-      if (aType === 'agent_forge.approve') html += '<span style="display:inline-flex;align-items:center;gap:0.25rem;font-size:0.5rem;padding:0.1rem 0.4rem;border-radius:3px;background:rgba(90,200,250,0.12);color:rgba(90,200,250,0.8);font-weight:600;"><i class="fas fa-robot"></i>Pixel Agent</span>';
       if (a.approval && a.approval.revision_count) html += '<span style="font-size:0.55rem;padding:0.1rem 0.35rem;border-radius:3px;background:rgba(251,191,36,0.12);color:#fbbf24;font-weight:600;">REV ' + a.approval.revision_count + '</span>';
       if (payload._ceo_edited) html += '<span class="act-edit-badge"><i class="fas fa-pen" style="font-size:0.4rem;"></i>CEO edited</span>';
       if (a.is_irreversible) html += '<span class="act-badge act-badge--irreversible">irreversible</span>';
@@ -1440,15 +1325,6 @@
     // ── CEO Actions ──
     function doApprove(id) {
       var starRating = _starRatings[id] || null;
-      // Check if this is an approval queue item (agent forge or convergence)
-      var action = AE.getAction(id);
-      if (action && action._aqItem) {
-        _handleAqApprove(action._aqItem);
-        // Remove from AE store
-        AE.approveAction(id, null, starRating);
-        renderAll();
-        return;
-      }
       var result = AE.approveAction(id, null, starRating);
       renderAll();
       if (result) {
@@ -1463,105 +1339,7 @@
         _showExecNotice('warn', 'Action not found or already processed.');
       }
     }
-    function doReject(id) {
-      // Check if this is an approval queue item
-      var action = AE.getAction(id);
-      if (action && action._aqItem) {
-        _handleAqReject(action._aqItem);
-        AE.rejectAction(id);
-        renderAll();
-        return;
-      }
-      AE.rejectAction(id); renderAll();
-    }
-
-    // Handle approval queue item approve/reject via API
-    function _handleAqApprove(aqItem) {
-      var apiBase = 'https://ambientpixels-nova-api.azurewebsites.net/api';
-      if (aqItem.type === 'agent_forge_submission') {
-        fetch(apiBase + '/pixel-agent-approve', {
-          method: 'POST', headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
-          body: JSON.stringify({ submissionId: aqItem.submissionId, action: 'approve' })
-        }).then(function(r) { return r.json(); }).then(function(d) {
-          _showExecNotice(d.success ? 'success' : 'error', d.message || d.error || 'Done');
-          _removeFromApprovalQueue(aqItem.id || aqItem.submissionId);
-        }).catch(function(e) { _showExecNotice('error', e.message); });
-      } else if (aqItem.type === 'convergence_escalation') {
-        // Mark task as done
-        fetch(apiBase + '/company-state?key=tasks', { headers: { 'x-company-secret': 'pixelpusher' } })
-          .then(function(r) { return r.json(); })
-          .then(function(data) {
-            var tasks = data.value || data || [];
-            if (!Array.isArray(tasks)) return;
-            var task = tasks.find(function(t) { return t.id === aqItem.taskId; });
-            if (task) {
-              task.status = 'done';
-              task.updatedAt = new Date().toISOString();
-              task.comments = task.comments || [];
-              task.comments.push({ id: 'cmt-ceoapprove-' + Date.now(), author: 'ceo', type: 'system', createdAt: new Date().toISOString(),
-                text: '[CEO] Approved latest deliverable. Task marked as done.' });
-            }
-            return fetch(apiBase + '/company-state', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
-              body: JSON.stringify({ key: 'tasks', value: tasks }) });
-          })
-          .then(function() {
-            _showExecNotice('success', 'Task approved and marked as done.');
-            _removeFromApprovalQueue(aqItem.id);
-          })
-          .catch(function(e) { _showExecNotice('error', e.message); });
-      }
-    }
-
-    function _handleAqReject(aqItem) {
-      var apiBase = 'https://ambientpixels-nova-api.azurewebsites.net/api';
-      if (aqItem.type === 'agent_forge_submission') {
-        fetch(apiBase + '/pixel-agent-approve', {
-          method: 'POST', headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
-          body: JSON.stringify({ submissionId: aqItem.submissionId, action: 'reject', reason: 'Rejected by CEO' })
-        }).then(function(r) { return r.json(); }).then(function(d) {
-          _showExecNotice(d.success ? 'success' : 'error', d.message || d.error || 'Rejected');
-          _removeFromApprovalQueue(aqItem.id || aqItem.submissionId);
-        }).catch(function(e) { _showExecNotice('error', e.message); });
-      } else if (aqItem.type === 'convergence_escalation') {
-        // Close the task
-        fetch(apiBase + '/company-state?key=tasks', { headers: { 'x-company-secret': 'pixelpusher' } })
-          .then(function(r) { return r.json(); })
-          .then(function(data) {
-            var tasks = data.value || data || [];
-            if (!Array.isArray(tasks)) return;
-            var task = tasks.find(function(t) { return t.id === aqItem.taskId; });
-            if (task) {
-              task.status = 'done';
-              task.updatedAt = new Date().toISOString();
-              task.comments = task.comments || [];
-              task.comments.push({ id: 'cmt-ceoclose-' + Date.now(), author: 'ceo', type: 'system', createdAt: new Date().toISOString(),
-                text: '[CEO] Closed task — rejected.' });
-            }
-            return fetch(apiBase + '/company-state', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
-              body: JSON.stringify({ key: 'tasks', value: tasks }) });
-          })
-          .then(function() {
-            _showExecNotice('success', 'Task closed.');
-            _removeFromApprovalQueue(aqItem.id);
-          })
-          .catch(function(e) { _showExecNotice('error', e.message); });
-      }
-    }
-
-    function _removeFromApprovalQueue(itemId) {
-      var apiBase = 'https://ambientpixels-nova-api.azurewebsites.net/api';
-      fetch(apiBase + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': 'pixelpusher' } })
-        .then(function(r) { return r.json(); })
-        .then(function(data) {
-          var queue = data.value || data || [];
-          if (!Array.isArray(queue)) return;
-          queue = queue.filter(function(q) { return q.id !== itemId && q.submissionId !== itemId; });
-          return fetch(apiBase + '/company-state', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
-            body: JSON.stringify({ key: 'approvalQueue', value: queue }) });
-        })
-        .then(function() { renderAll(); })
-        .catch(function() {});
-    }
+    function doReject(id) { AE.rejectAction(id); renderAll(); }
     function doRevision(id, note) {
       // Sync version updates localStorage instantly — render UI immediately
       var a = AE.requestActionRevision(id, note || '');
