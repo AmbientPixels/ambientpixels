@@ -281,10 +281,10 @@
 
 .pa-result-card-label {
   font-size: 0.72rem;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.8px;
-  color: rgba(255,255,255,0.45);
+  color: rgba(90,200,250,0.6);
   margin-bottom: 0.5rem;
 }
 
@@ -486,6 +486,15 @@
   opacity: 1;
   transform: translateX(-50%) translateY(0);
 }
+
+/* ── Focus states ── */
+.pa-run-btn:focus-visible {
+  outline: 2px solid rgba(90,200,250,0.6);
+  outline-offset: 2px;
+}
+
+/* ── Hero spacing fix for minimal topbar ── */
+.pa-topbar ~ .hero-base { margin-top: 0; }
 
 /* ── Responsive ── */
 @media (max-width: 600px) {

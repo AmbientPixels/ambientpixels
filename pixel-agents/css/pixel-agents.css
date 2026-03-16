@@ -97,7 +97,16 @@ body[data-theme="light"] .pa-topbar-user { color: #475569; }
 body[data-theme="light"] .pa-topbar-logout { color: #94a3b8; }
 
 /* Fix hero gap for minimal topbar (was 85px for old main nav) */
-.pa-topbar + .hero-base { margin-top: 0; }
+.pa-topbar ~ .hero-base { margin-top: 0; }
+
+/* Filter bar: horizontal scroll on overflow */
+.pa-catalog-filters {
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.pa-catalog-filters::-webkit-scrollbar { display: none; }
 
 /* ── Minimal Footer ── */
 .pa-footer {

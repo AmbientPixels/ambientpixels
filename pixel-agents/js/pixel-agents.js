@@ -109,28 +109,31 @@ function renderCard(agent) {
   const tierLabel = agent.tier.charAt(0).toUpperCase() + agent.tier.slice(1);
   const categoryLabel = CATEGORY_LABELS[agent.category] || agent.category;
 
+  const agentUrl = `/pixel-agents/run.html?agent=${escapeAttr(agent.id)}`;
   return `
-    <div class="pa-card" data-tier="${escapeAttr(agent.tier)}" data-agent-id="${escapeAttr(agent.id)}">
-      ${agent.featured ? '<div class="pa-card-featured">Featured</div>' : ''}
-      <div class="pa-card-avatar">
-        <div class="pa-card-icon"><i class="${escapeAttr(agent.icon)}"></i></div>
-        <span class="pa-card-tier pa-card-tier--${escapeAttr(agent.tier)}">${escapeHtml(tierLabel)}</span>
+    <a href="${agentUrl}" class="pa-card-link">
+      <div class="pa-card" data-tier="${escapeAttr(agent.tier)}" data-agent-id="${escapeAttr(agent.id)}">
+        ${agent.featured ? '<div class="pa-card-featured">Featured</div>' : ''}
+        <div class="pa-card-avatar">
+          <div class="pa-card-icon"><i class="${escapeAttr(agent.icon)}"></i></div>
+          <span class="pa-card-tier pa-card-tier--${escapeAttr(agent.tier)}">${escapeHtml(tierLabel)}</span>
+        </div>
+        <div class="pa-card-body">
+          <h3 class="pa-card-name">${escapeHtml(agent.name)}</h3>
+          <p class="pa-card-tagline">${escapeHtml(agent.tagline)}</p>
+          <span class="pa-card-role">${escapeHtml(categoryLabel)}</span>
+          <ul class="pa-card-capabilities">
+            ${agent.capabilities.map(c => '<li>' + escapeHtml(c) + '</li>').join('')}
+          </ul>
+        </div>
+        <div class="pa-card-footer">
+          <span class="pa-card-usage">${runsLabel}</span>
+          <span class="pa-card-action">
+            <i class="fas fa-play"></i> Hire Agent
+          </span>
+        </div>
       </div>
-      <div class="pa-card-body">
-        <h3 class="pa-card-name">${escapeHtml(agent.name)}</h3>
-        <p class="pa-card-tagline">${escapeHtml(agent.tagline)}</p>
-        <span class="pa-card-role">${escapeHtml(categoryLabel)}</span>
-        <ul class="pa-card-capabilities">
-          ${agent.capabilities.map(c => '<li>' + escapeHtml(c) + '</li>').join('')}
-        </ul>
-      </div>
-      <div class="pa-card-footer">
-        <span class="pa-card-usage">${runsLabel}</span>
-        <a href="/pixel-agents/run.html?agent=${escapeAttr(agent.id)}" class="pa-card-action">
-          <i class="fas fa-play"></i> Hire Agent
-        </a>
-      </div>
-    </div>
+    </a>
   `;
 }
 

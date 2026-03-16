@@ -1,5 +1,18 @@
 /* Pixel Agent Card — reusable agent profile card component */
 
+/* Card link wrapper — makes entire card clickable */
+.pa-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+.pa-card-link:hover { color: inherit; text-decoration: none; }
+.pa-card-link:focus-visible {
+  outline: 2px solid rgba(90,200,250,0.6);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
 .pa-card {
   position: relative;
   display: flex;
@@ -11,7 +24,7 @@
   transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
               box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1),
               border-color 0.3s;
-  cursor: default;
+  cursor: pointer;
 }
 
 .pa-card:hover {
