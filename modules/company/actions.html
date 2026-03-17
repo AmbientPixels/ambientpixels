@@ -372,6 +372,15 @@
           <i class="fas fa-chevron-down act-section-chevron"></i>
         </div>
         <div class="act-section-body">
+          <!-- Needs Attention (convergence escalations) -->
+          <div class="act-panel" id="needs-attention-panel" style="display:none;">
+            <div class="act-panel-head" style="border-bottom-color:rgba(248,113,113,0.15);">
+              <span style="color:#f87171;"><i class="fas fa-exclamation-triangle"></i> Needs Attention</span>
+              <span id="needs-attention-count" class="act-count-badge" style="background:rgba(248,113,113,0.12);color:#f87171;"></span>
+            </div>
+            <div class="act-panel-body" id="needs-attention-list"></div>
+          </div>
+
           <!-- Pending Approvals -->
           <div class="act-panel">
             <div class="act-panel-head">
@@ -638,6 +647,7 @@
       renderActionDrift();
       renderExecutionPulse();
       renderRawStats();
+      renderNeedsAttention();
       renderPending();
       renderContentPackages();
       renderRevisions();
@@ -868,6 +878,148 @@
           });
         });
       });
+    }
+
+    // ── Needs Attention (convergence escalations from approvalQueue) ──
+    function renderNeedsAttention() {
+      var panel = document.getElementById('needs-attention-panel');
+      var list = document.getElementById('needs-attention-list');
+      var countEl = document.getElementById('needs-attention-count');
+      if (!panel || !list) return;
+
+      var apiBase = 'https://ambientpixels-nova-api.azurewebsites.net/api';
+      fetch(apiBase + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': 'pixelpusher' } })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var queue = data.value || data || [];
+          if (!Array.isArray(queue)) queue = [];
+          var items = queue.filter(function(item) { return item.type === 'convergence_escalation' && item.status === 'pending'; });
+
+          if (items.length === 0) { panel.style.display = 'none'; return; }
+          panel.style.display = '';
+          countEl.textContent = items.length;
+
+          var html = '';
+          items.forEach(function(item) {
+            var taskTitle = esc(item.taskTitle || item.title || 'Untitled task');
+            var agent = esc(item.originAgent || item.assignee || '?');
+            var attempts = item.deliverableCount || item.attempts || '5+';
+            var created = item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '';
+            var taskId = item.taskId || '';
+            var lastDeliverable = esc((item.latestDeliverable || item.preview || '').substring(0, 200));
+            var agentOptions = ['nova','echo','scribe','cipher','pixel','forge','scout','quill'].map(function(a) {
+              return '<option value="' + a + '"' + (a === agent ? ' selected' : '') + '>' + a.charAt(0).toUpperCase() + a.slice(1) + '</option>';
+            }).join('');
+
+            html += '<div class="act-row" style="flex-direction:column;align-items:stretch;padding:0.7rem 0;gap:0.4rem;">';
+            html += '<div style="display:flex;justify-content:space-between;align-items:flex-start;">';
+            html += '<div style="flex:1;min-width:0;">';
+            html += '<div class="act-row-title" style="white-space:normal;"><i class="fas fa-exclamation-circle" style="color:#f87171;margin-right:0.3rem;font-size:0.65rem;"></i>' + taskTitle + '</div>';
+            html += '<div class="act-row-meta">' + agent + ' · ' + attempts + ' attempts · ' + created + '</div>';
+            html += '</div>';
+            html += '<a href="/modules/company/tasks.html" class="act-btn act-btn--details" style="font-size:0.5rem;text-decoration:none;flex-shrink:0;">View on Board</a>';
+            html += '</div>';
+            if (lastDeliverable) {
+              html += '<div style="font-size:0.62rem;color:rgba(255,255,255,0.4);padding:0.35rem 0.5rem;background:rgba(255,255,255,0.02);border-radius:4px;max-height:80px;overflow:hidden;line-height:1.4;">' + lastDeliverable + '</div>';
+            }
+            html += '<div style="display:flex;gap:0.35rem;flex-wrap:wrap;margin-top:0.2rem;">';
+            html += '<button class="act-btn act-btn--approve" onclick="naAccept(\'' + esc(taskId) + '\',\'' + esc(item.id || '') + '\')"><i class="fas fa-check"></i> Accept</button>';
+            html += '<button class="act-btn act-btn--revision" onclick="naDirectionPrompt(\'' + esc(taskId) + '\',\'' + esc(item.id || '') + '\')"><i class="fas fa-comment-dots"></i> Give Direction</button>';
+            html += '<select class="act-filter-select" style="font-size:0.55rem;padding:0.18rem 0.3rem;" onchange="naReassign(\'' + esc(taskId) + '\',this.value,\'' + esc(item.id || '') + '\')">';
+            html += '<option value="">Reassign...</option>' + agentOptions + '</select>';
+            html += '<button class="act-btn act-btn--reject" onclick="naCancel(\'' + esc(taskId) + '\',\'' + esc(item.id || '') + '\')"><i class="fas fa-times"></i> Cancel</button>';
+            html += '</div>';
+            html += '</div>';
+          });
+          list.innerHTML = html;
+        })
+        .catch(function() { panel.style.display = 'none'; });
+    }
+
+    function _naRemoveFromQueue(queueItemId) {
+      var apiBase = 'https://ambientpixels-nova-api.azurewebsites.net/api';
+      return fetch(apiBase + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': 'pixelpusher' } })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var queue = data.value || data || [];
+          if (!Array.isArray(queue)) return;
+          queue = queue.filter(function(item) { return item.id !== queueItemId; });
+          return fetch(apiBase + '/company-state', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
+            body: JSON.stringify({ key: 'approvalQueue', value: queue })
+          });
+        });
+    }
+
+    function _naUpdateTask(taskId, updates) {
+      var apiBase = 'https://ambientpixels-nova-api.azurewebsites.net/api';
+      return fetch(apiBase + '/company-state?key=tasks', { headers: { 'x-company-secret': 'pixelpusher' } })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var tasks = data.value || data || [];
+          if (!Array.isArray(tasks)) return;
+          var task = tasks.find(function(t) { return t.id === taskId; });
+          if (!task) return;
+          Object.keys(updates).forEach(function(k) { task[k] = updates[k]; });
+          task.updatedAt = new Date().toISOString();
+          return fetch(apiBase + '/company-state', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
+            body: JSON.stringify({ key: 'tasks', value: tasks })
+          });
+        });
+    }
+
+    function naAccept(taskId, queueItemId) {
+      if (!confirm('Accept the latest draft and mark this task as done?')) return;
+      _naUpdateTask(taskId, { status: 'done' })
+        .then(function() { return _naRemoveFromQueue(queueItemId); })
+        .then(function() { renderNeedsAttention(); });
+    }
+
+    function naDirectionPrompt(taskId, queueItemId) {
+      var direction = prompt('Give the agent direction (what to change):');
+      if (!direction) return;
+      var apiBase = 'https://ambientpixels-nova-api.azurewebsites.net/api';
+      fetch(apiBase + '/company-state?key=tasks', { headers: { 'x-company-secret': 'pixelpusher' } })
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          var tasks = data.value || data || [];
+          if (!Array.isArray(tasks)) return;
+          var task = tasks.find(function(t) { return t.id === taskId; });
+          if (!task) return;
+          task.status = 'in-progress';
+          task.updatedAt = new Date().toISOString();
+          task.comments = task.comments || [];
+          task.comments.push({
+            type: 'system',
+            text: '[CEO DIRECTION] ' + direction,
+            createdAt: new Date().toISOString()
+          });
+          return fetch(apiBase + '/company-state', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
+            body: JSON.stringify({ key: 'tasks', value: tasks })
+          });
+        })
+        .then(function() { return _naRemoveFromQueue(queueItemId); })
+        .then(function() { renderNeedsAttention(); });
+    }
+
+    function naReassign(taskId, newAgent, queueItemId) {
+      if (!newAgent) return;
+      if (!confirm('Reassign this task to ' + newAgent.charAt(0).toUpperCase() + newAgent.slice(1) + ' and reopen it?')) return;
+      _naUpdateTask(taskId, { status: 'in-progress', assignee: newAgent })
+        .then(function() { return _naRemoveFromQueue(queueItemId); })
+        .then(function() { renderNeedsAttention(); });
+    }
+
+    function naCancel(taskId, queueItemId) {
+      if (!confirm('Cancel this task? It will not be worked on further.')) return;
+      _naUpdateTask(taskId, { status: 'done' })
+        .then(function() { return _naRemoveFromQueue(queueItemId); })
+        .then(function() { renderNeedsAttention(); });
     }
 
     // ── Agent Forge Submissions ──
