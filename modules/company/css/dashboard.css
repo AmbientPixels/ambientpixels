@@ -1785,6 +1785,7 @@ body[data-theme="dim"] .cc-quick-links a:hover { color: rgba(241,245,249,0.7); }
 #section-decisions        { order: 7; }
 #section-budget           { order: 8; }
 #section-content-pipeline { order: 9; }
+#section-trend-radar     { order: 10; }
 
 #section-metrics,
 #section-costs,
