@@ -492,51 +492,8 @@ async function runIngestion(log) {
   await storage.setState('trendRadar', existing);
   log('[TrendIngest] Stored ' + trends.length + ' trends (snapshot ' + existing.length + '/' + MAX_RADAR_SNAPSHOTS + ')');
 
-  // ── AQ Alerts for Rising/Exploding Trends ──
-  var alertCandidates = trends.filter(function (t) {
-    return t.risingFast && (t.stage === 'exploding' || t.stage === 'growing');
-  }).slice(0, 2);
-
-  if (alertCandidates.length) {
-    try {
-      var aq = (await storage.getState('approvalQueue')) || [];
-      if (!Array.isArray(aq)) aq = [];
-      var cutoff = Date.now() - 24 * 60 * 60 * 1000;
-      var recentAlertNames = aq
-        .filter(function (e) { return e.type === 'trend_alert' && e.createdAt && new Date(e.createdAt).getTime() > cutoff; })
-        .map(function (e) { return (e.trendName || '').toLowerCase(); });
-
-      var newAlerts = alertCandidates
-        .filter(function (t) { return recentAlertNames.indexOf(t.name.toLowerCase()) === -1; })
-        .map(function (t) {
-          var deltaNote = t.scoreDelta != null ? ' Score jumped +' + t.scoreDelta + ' pts since last cycle.' : ' Newly detected high-momentum trend.';
-          var stageLabel = t.stage === 'exploding' ? 'Exploding' : 'Rising Fast';
-          return {
-            id: 'aq-trend-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6),
-            type: 'trend_alert',
-            trendName: t.name,
-            trendStage: t.stage,
-            trendScore: t.score,
-            scoreDelta: t.scoreDelta,
-            category: t.category,
-            snapshotId: snapshotId,
-            title: stageLabel + ': ' + t.name,
-            body: t.description + deltaNote + ' Consider creating a campaign or research task.',
-            status: 'pending',
-            createdAt: new Date().toISOString(),
-            source: 'trends_radar'
-          };
-        });
-
-      if (newAlerts.length) {
-        aq.push.apply(aq, newAlerts);
-        await storage.setState('approvalQueue', aq);
-        log('[TrendIngest] Created ' + newAlerts.length + ' AQ trend alert(s)');
-      }
-    } catch (e) {
-      log('[TrendIngest] AQ alert creation failed (non-fatal): ' + e.message);
-    }
-  }
+  // Trend alerts are now shown on the CEO Dashboard Trend Radar widget (read-only).
+  // They are no longer pushed to the approvalQueue — that queue is reserved for actionable items.
 
   // ── Auto-Campaign Conversion (governance switch) ──
   try {

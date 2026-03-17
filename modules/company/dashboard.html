@@ -605,6 +605,26 @@
         </div>
       </div>
 
+      <!-- CEO: Trend Radar -->
+      <div class="dash-section" id="section-trend-radar" data-section="trend-radar">
+        <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
+          <i class="fas fa-satellite-dish dash-icon-sky"></i>
+          <h2>Trend Radar</h2>
+          <i class="fas fa-chevron-down dash-section-chevron"></i>
+        </div>
+        <div class="dash-section-body">
+          <div class="dash-panel dash-panel--full">
+            <div class="dash-panel-header dash-panel-header--tight">
+              <span class="dash-panel-title"><i class="fas fa-bolt dash-icon-sky"></i> Top Trends</span>
+              <span id="trend-radar-age" style="font-size:0.55rem;opacity:0.3;"></span>
+            </div>
+            <div id="trend-radar-list" style="padding:0.4rem 0.6rem;">
+              <div class="dash-empty">Loading trends...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- CEO: Metrics Section (hidden in CEO — moved to Dev view) -->
       <div class="dash-section" id="section-metrics" data-section="metrics" style="display:none;">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
@@ -1467,7 +1487,7 @@
          renderKpiScoreboard, renderObjectivesSnap, renderAutonomyScore, renderRiskHeatmap,
          renderActionSnap, renderApiUsage, renderGeminiCosts, renderClaudeCosts, renderAzureCosts, renderXCosts, renderCostSummary,
          renderDailyLogDrafts, renderBlogAdmin, renderContentKPIs, renderGovernanceLog, renderGovernanceLogDev,
-         renderMeetingsWidget, updateActionBadge, renderOrgChart,
+         renderTrendRadar, renderMeetingsWidget, updateActionBadge, renderOrgChart,
          renderInboundKpi, updateModeIndicator, renderCeoStatusStrip, renderCeoInsightsMirrors, renderCeoStrategy, renderCeoPerfWidget].forEach(function(fn) {
           try { fn(); } catch(e) { console.warn('[Dashboard] ' + (fn.name||'anon') + ' error:', e); }
         });
@@ -3688,6 +3708,73 @@
             }).then(function (r) { return r.ok; });
           })
           .catch(function () { return false; });
+      }
+
+      // ── Trend Radar Widget ──
+      function renderTrendRadar() {
+        var listEl = document.getElementById('trend-radar-list');
+        var ageEl = document.getElementById('trend-radar-age');
+        if (!listEl) return;
+
+        var apiBase = getApiBase();
+        fetch(apiBase + '/company-state?key=trendRadar', { headers: { 'x-company-secret': 'pixelpusher' } })
+          .then(function(r) { return r.json(); })
+          .then(function(data) {
+            var snapshots = data.value || [];
+            if (!Array.isArray(snapshots) || snapshots.length === 0) {
+              listEl.innerHTML = '<div class="dash-empty">No trend data yet.</div>';
+              return;
+            }
+            var latest = snapshots[snapshots.length - 1];
+            var trends = latest.trends || [];
+            if (trends.length === 0) {
+              listEl.innerHTML = '<div class="dash-empty">No trends detected.</div>';
+              return;
+            }
+
+            // Show age
+            if (ageEl && latest.ingestedAt) {
+              var ageH = Math.round((Date.now() - new Date(latest.ingestedAt).getTime()) / 3600000);
+              ageEl.textContent = ageH < 1 ? 'Just now' : ageH + 'h ago';
+            }
+
+            // Sort by score desc, take top 5
+            trends.sort(function(a, b) { return (b.score || 0) - (a.score || 0); });
+            var top = trends.slice(0, 5);
+
+            var stageColors = {
+              exploding: '#ef4444', growing: '#fbbf24', rising: '#fbbf24',
+              emerging: '#60a5fa', stable: '#34d399'
+            };
+            var stageLabels = {
+              exploding: 'Exploding', growing: 'Rising Fast', rising: 'Rising Fast',
+              emerging: 'Emerging', stable: 'Stable'
+            };
+
+            var html = '';
+            top.forEach(function(t) {
+              var stage = t.stage || 'emerging';
+              var color = stageColors[stage] || '#60a5fa';
+              var label = stageLabels[stage] || stage;
+              var delta = t.scoreDelta ? (t.scoreDelta > 0 ? '+' + t.scoreDelta : t.scoreDelta) : '';
+              var deltaColor = t.scoreDelta > 0 ? '#34d399' : t.scoreDelta < 0 ? '#ef4444' : 'rgba(255,255,255,0.3)';
+              html += '<div style="display:flex;align-items:center;gap:0.5rem;padding:0.35rem 0;border-bottom:1px solid rgba(255,255,255,0.03);">';
+              html += '<div style="flex:1;min-width:0;">';
+              html += '<div style="font-size:0.75rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">' + escapeHtml(t.name || '') + '</div>';
+              html += '<div style="font-size:0.55rem;opacity:0.4;margin-top:1px;">' + escapeHtml(t.category || '') + '</div>';
+              html += '</div>';
+              html += '<span style="font-size:0.5rem;padding:0.1rem 0.35rem;border-radius:3px;background:' + color + '20;color:' + color + ';font-weight:600;white-space:nowrap;">' + label + '</span>';
+              html += '<span style="font-size:0.7rem;font-weight:600;color:rgba(255,255,255,0.5);width:28px;text-align:right;">' + (t.score || 0) + '</span>';
+              if (delta) {
+                html += '<span style="font-size:0.55rem;font-weight:600;color:' + deltaColor + ';width:30px;text-align:right;">' + delta + '</span>';
+              }
+              html += '</div>';
+            });
+            listEl.innerHTML = html;
+          })
+          .catch(function() {
+            listEl.innerHTML = '<div class="dash-empty">Failed to load trends.</div>';
+          });
       }
 
       // ── Content KPI Cards ──
