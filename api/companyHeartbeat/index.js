@@ -492,6 +492,30 @@ module.exports = async function (context) {
       siteIntel = null;
     }
 
+    // ── Product usage data for Cipher (CFO) — piggybacked on costIntel ──
+    try {
+      const [_paStats, _ccAnalytics] = await Promise.all([
+        storage.getState('pixelAgentStats'),
+        storage.getState('cc_analytics')
+      ]);
+      const _pa = _paStats || {};
+      const _cc = Array.isArray(_ccAnalytics) ? _ccAnalytics : [];
+      const _7dCutoff = Date.now() - 7 * 86400000;
+      const _cc7d = _cc.filter(e => e.timestamp && new Date(e.timestamp).getTime() > _7dCutoff);
+      const _topPages = (siteIntel && siteIntel.telemetry && siteIntel.telemetry.topPages) || [];
+      const _cfViews = _topPages.filter(p => p.path && p.path.indexOf('/cardforge') === 0).reduce((s, p) => s + (p.views || 0), 0);
+      const _sfViews = _topPages.filter(p => p.path && p.path.indexOf('/storyforge') === 0).reduce((s, p) => s + (p.views || 0), 0);
+      if (!costIntel) costIntel = {};
+      costIntel.productUsage = {
+        pixelAgents: { totalRuns: _pa._totalRuns || 0 },
+        ambientScore: { totalScans: _cc.length, scans7d: _cc7d.length, paid7d: _cc7d.filter(e => e.tier && e.tier !== 'free').length },
+        cardForge: { pageViews7d: _cfViews },
+        storyForge: { pageViews7d: _sfViews }
+      };
+    } catch (_puErr) {
+      context.log('[Heartbeat] Product usage fetch failed (non-fatal):', _puErr.message);
+    }
+
     // v2.3: Exclude pending-approval items from heartbeat processing
     const pendingTasks = tasks.filter(t => t.status === 'pending-approval');
     const pendingCmps = campaigns.filter(c => c.status === 'pending-approval');

@@ -667,6 +667,16 @@ ${recentDays.map(([day, d]) => '- ' + day + ': $' + d.cost.toFixed(4) + ' (' + d
 
 These are REAL costs hitting the Azure subscription. Use this data in your CFO analyses, budget reports, and cost recommendations. Flag anomalies, suggest optimizations, and track burn rate against any budget thresholds.`;
     }
+    if (costIntel.productUsage) {
+      const pu = costIntel.productUsage;
+      costSection += `\n\n📊 PRODUCT USAGE INTEL (REAL DATA):
+Pixel Agents — Total runs: ${pu.pixelAgents.totalRuns}
+AmbientScore — Total scans: ${pu.ambientScore.totalScans} | Last 7d: ${pu.ambientScore.scans7d} (${pu.ambientScore.paid7d} paid)
+CardForge — Page views (7d): ${pu.cardForge.pageViews7d}
+StoryForge — Page views (7d): ${pu.storyForge.pageViews7d}
+
+Use this alongside cost data for ROI analysis. Products with high usage and low cost are efficient. Zero-usage products may need marketing investment or sunset evaluation.`;
+    }
   }
 
   // Revision requests — actions the CEO sent back for changes
