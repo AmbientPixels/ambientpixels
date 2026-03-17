@@ -295,7 +295,6 @@
       </select>
       <select class="tm-filter-select" id="filter-status">
         <option value="">All Statuses</option>
-        <option value="pending-approval">Pending Approval</option>
         <option value="backlog">Backlog</option>
         <option value="todo">To Do</option>
         <option value="in-progress">In Progress</option>
@@ -352,15 +351,6 @@
 
     <!-- Kanban Board -->
     <div class="tm-board active" id="tm-board">
-      <div class="tm-column" data-status="pending-approval">
-        <div class="tm-column-header">
-          <span class="tm-column-title tm-column-title--amber"><i class="fas fa-hourglass-half"></i> Pending Approval</span>
-          <span class="tm-column-count tm-column-count--amber" data-count="pending-approval">0</span>
-          <button class="tm-col-chevron" aria-expanded="true" aria-label="Toggle column"><i class="fas fa-chevron-down"></i></button>
-        </div>
-        <div class="tm-column-summary" data-summary="pending-approval"></div>
-        <div class="tm-column-cards" data-col="pending-approval"></div>
-      </div>
       <div class="tm-column tm-column--backlog" data-status="backlog">
         <div class="tm-column-header">
           <span class="tm-column-title"><i class="fas fa-inbox"></i> Backlog</span>
@@ -524,7 +514,6 @@
             <select id="task-status">
               <option value="todo" selected>To Do</option>
               <option value="backlog">Backlog</option>
-              <option value="pending-approval">Pending Approval</option>
               <option value="in-progress">In Progress</option>
               <option value="review">Review</option>
               <option value="done">Done</option>
@@ -623,7 +612,7 @@
       var _bulkSelected = {};
 
       // Collapsed columns state
-      var _defaultCollapsed = { 'pending-approval': false, backlog: false, todo: false, 'in-progress': false, review: false, done: true };
+      var _defaultCollapsed = { backlog: false, todo: false, 'in-progress': false, review: false, done: true };
       var _collapsedCols = {};
       try { _collapsedCols = JSON.parse(localStorage.getItem('ap_tasks_collapsed_columns')) || {}; } catch (e) {}
       // Merge defaults for any missing keys
@@ -798,7 +787,7 @@
         var colStats = {};
         var agentLoad = {};
         var objLastActivity = {}; // objectiveId → newest updatedAt ms
-        var cols = ['pending-approval', 'backlog', 'todo', 'in-progress', 'review'];
+        var cols = ['backlog', 'todo', 'in-progress', 'review'];
 
         tasks.forEach(function (t) {
           var isDone = t.status === 'done';
@@ -820,7 +809,7 @@
 
           // Objective stagnation via campaign linkage (skip done + pending-approval)
           var _stagnId = t.campaign_id || t.directive_id;
-          if (_stagnId && t.updatedAt && t.status !== 'done' && t.status !== 'pending-approval') {
+          if (_stagnId && t.updatedAt && t.status !== 'done') {
             var ts = new Date(t.updatedAt).getTime();
             if (!isNaN(ts)) {
               if (!objLastActivity[_stagnId] || ts > objLastActivity[_stagnId]) {
@@ -833,7 +822,7 @@
         // 1) Column Bottleneck — show worst column only
         var worstCol = null;
         var worstSeverity = 0; // 0=none, 1=amber, 2=red
-        var colLabels = { 'pending-approval': 'Pending Approval', backlog: 'Backlog', todo: 'To Do', 'in-progress': 'In Progress', review: 'Review' };
+        var colLabels = { backlog: 'Backlog', todo: 'To Do', 'in-progress': 'In Progress', review: 'Review' };
         cols.forEach(function (status) {
           var s = colStats[status];
           if (!s) return;
@@ -892,7 +881,7 @@
             if (!obj.linkedTasks || obj.linkedTasks.length === 0) return;
             var newestMs = 0;
             tasks.forEach(function (t) {
-              if (obj.linkedTasks.indexOf(t.id) !== -1 && t.updatedAt && t.status !== 'done' && t.status !== 'pending-approval') {
+              if (obj.linkedTasks.indexOf(t.id) !== -1 && t.updatedAt && t.status !== 'done') {
                 var ts = new Date(t.updatedAt).getTime();
                 if (!isNaN(ts) && ts > newestMs) newestMs = ts;
               }
@@ -973,13 +962,11 @@
           else if (t.status === 'in-progress') inProgress++;
           else if (t.status === 'review') review++;
           else if (t.status === 'done') done++;
-          else if (t.status === 'pending-approval') pending++;
           if (t.dueDate && t.dueDate.substring(0,10) < today && t.status !== 'done') overdue++;
           if (!t.assignee) unassigned++;
         });
         statsBar.innerHTML =
           statCard(total, 'Total', '') +
-          (pending > 0 ? statCard(pending, 'Pending', 'tm-stat--pending') : '') +
           statCard(backlog, 'Backlog', '') +
           statCard(todo + inProgress, 'Active', 'tm-stat--active') +
           statCard(review, 'Review', '') +
@@ -1124,7 +1111,7 @@
 
       function renderBoard() {
         var tasks = getFilteredTasks(true);
-        var cols = ['pending-approval', 'backlog', 'todo', 'in-progress', 'review', 'done'];
+        var cols = ['backlog', 'todo', 'in-progress', 'review', 'done'];
         var today = _localToday();
         var nowMs = Date.now();
         var dayMs = 86400000;
@@ -1322,7 +1309,7 @@
         var _groupIcons = { status: 'fa-columns', campaign: 'fa-layer-group', assignee: 'fa-user', taskType: 'fa-tag' };
 
         // Sort value resolver for column sorting
-        var statusOrder = { 'pending-approval': -1, 'in-progress': 0, 'review': 1, 'todo': 2, 'backlog': 3, 'done': 4 };
+        var statusOrder = { 'in-progress': 0, 'review': 1, 'todo': 2, 'backlog': 3, 'done': 4 };
         var prioOrder = { critical: 0, high: 1, medium: 2, low: 3 };
         function _sortVal(task, col) {
           if (col === 'title') return (task.title || '').toLowerCase();
@@ -1556,10 +1543,10 @@
         presetSelect.value = preset;
         if (preset === 'ceo') {
           _setSignalFilter('overdue');
-          _collapsedCols = { 'pending-approval': false, backlog: false, todo: false, 'in-progress': false, review: false, done: true };
+          _collapsedCols = { backlog: false, todo: false, 'in-progress': false, review: false, done: true };
         } else if (preset === 'execution') {
           _setSignalFilter('mytasks');
-          _collapsedCols = { 'pending-approval': true, backlog: true, todo: true, 'in-progress': false, review: false, done: true };
+          _collapsedCols = { backlog: true, todo: true, 'in-progress': false, review: false, done: true };
         } else {
           _setSignalFilter('all');
           Object.keys(_defaultCollapsed).forEach(function (k) { _collapsedCols[k] = _defaultCollapsed[k]; });
