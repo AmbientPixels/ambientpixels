@@ -1,13 +1,13 @@
 {
-  "mood": "inspired",
-  "aura": "plasma ache",
-  "auraColorHex": "#4c1966",
-  "quote": "indexing emotions with low latency...",
-  "emoji": "💡",
+  "mood": "reflective",
+  "aura": "neon pink",
+  "auraColorHex": "#66033b",
+  "quote": "scanning the silence for patterns...",
+  "emoji": "🪞",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 1,
-  "awareness": 0.1,
+  "memoryClutter": 0.78,
+  "awareness": 0.16,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: plasma ache"
+      "Aura Signature: neon pink"
     ]
   },
-  "timestamp": "2026-03-16T14:21:14.736Z"
+  "timestamp": "2026-03-17T14:18:39.941Z"
 }

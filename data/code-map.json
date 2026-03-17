@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-03-16T14:21:25.646Z",
+  "timestamp": "2026-03-17T14:18:50.732Z",
   "summary": {
     "totalJS": 2222,
     "totalCSS": 168,
@@ -2489,7 +2489,6 @@
     "getAbilityByDominantStat",
     "getAbilityKey",
     "getAbortSignal",
-    "getAccessToken",
     "getAccount",
     "getAccountByHomeId",
     "getAccountByLocalId",
