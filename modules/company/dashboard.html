@@ -387,22 +387,12 @@
       <!-- Team Roster (right side of main split) -->
       <div class="dash-panel ceo-team-panel dash-panel--no-bottom">
         <div class="dash-panel-header dash-panel-header--tight">
-          <span class="dash-panel-title"><i class="fas fa-heartbeat dash-icon-green"></i> Agent Health</span>
-          <span id="agent-health-hb-dot" style="display:none;"></span>
+          <span class="dash-panel-title"><i class="fas fa-heartbeat dash-icon-green"></i> Agent Team</span>
+          <a href="/modules/company/agent-performance.html" class="dash-view-all">Performance →</a>
         </div>
         <div class="dash-lastrun-bar" id="dash-lastrun-bar" style="display:none;"></div>
         <div class="agent-grid ceo-agent-grid-compact" id="ceo-agent-grid"></div>
-      </div>
-
-      <!-- Agent Performance Scores (below Agent Health) -->
-      <div class="dash-panel ceo-team-panel dash-panel--no-bottom" style="margin-top:0.5rem;">
-        <div class="dash-panel-header dash-panel-header--tight">
-          <span class="dash-panel-title"><i class="fas fa-gauge-high dash-icon-sky"></i> Agent Performance</span>
-          <a href="/modules/company/agent-performance.html" class="dash-view-all">Details →</a>
-        </div>
-        <div id="ceo-perf-widget" style="font-size:0.7rem;">
-          <div style="opacity:0.3;padding:0.5rem;text-align:center;">Loading scores...</div>
-        </div>
+        <div id="ceo-perf-widget" style="display:none;"></div>
       </div>
 
       </div><!-- /.ceo-main-split -->
@@ -415,22 +405,7 @@
           <i class="fas fa-chevron-down dash-section-chevron"></i>
         </div>
         <div class="dash-section-body">
-          <div class="dash-panel">
-            <div class="dash-panel-header" style="display:flex;justify-content:space-between;align-items:center;">
-              <span style="font-size:0.72rem;font-weight:600;opacity:0.7;">API Calls Over Time</span>
-              <select id="api-usage-range" style="font-size:0.6rem;padding:2px 6px;border-radius:4px;background:#2c2c2e;color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.1);font-family:inherit;">
-                <option value="7">7 days</option>
-                <option value="14">14 days</option>
-                <option value="30" selected>30 days</option>
-              </select>
-            </div>
-            <div class="dash-panel-body" style="padding:12px 16px;">
-              <div style="position:relative;height:220px;">
-                <canvas id="api-usage-chart"></canvas>
-              </div>
-            </div>
-          </div>
-          <div id="panel-api-usage-kpis" style="margin-top:8px;"></div>
+          <div id="panel-api-usage-kpis"></div>
           <div id="panel-api-usage-agents" style="margin-top:6px;"></div>
         </div>
       </div>
@@ -490,34 +465,8 @@
             </div>
           </div>
 
-          <!-- Traffic Brief Panel -->
-          <div class="dash-panel dash-panel--full dash-panel--sky growth-traffic-panel">
-            <div class="dash-panel-header">
-              <span class="dash-panel-title"><i class="fas fa-signal dash-icon-sky"></i> Traffic Brief</span>
-              <div class="growth-controls">
-                <select id="ceo-tb-range" class="growth-select">
-                  <option value="7d" selected>Last 7 days</option>
-                  <option value="1d">Last 24 hours</option>
-                  <option value="30d">Last 30 days</option>
-                </select>
-                <button id="ceo-tb-refresh" class="growth-btn growth-btn--cyan"><i class="fas fa-sync-alt"></i> Refresh</button>
-                <button id="ceo-tb-scout" class="growth-btn growth-btn--green"><i class="fas fa-binoculars"></i> Scout Brief</button>
-              </div>
-            </div>
-            <div id="ceo-tb-body">
-              <div class="dash-empty">Loading traffic data...</div>
-            </div>
-          </div>
-
-          <!-- Social Command Center (CEO view) -->
-          <div class="dash-panel dash-panel--full dash-panel--blue-subtle growth-social-panel">
-            <div class="dash-panel-header">
-              <span class="dash-panel-title"><i class="fas fa-satellite-dish dash-icon-blue"></i> Social Command Center</span>
-              <a href="/modules/company/social-analytics.html" class="dash-view-all--sm">Detailed Analytics &rarr;</a>
-            </div>
-            <div id="social-command-ceo">
-              <div class="dash-empty">Loading social data...</div>
-            </div>
+          <div style="margin-top:0.5rem;">
+            <a href="/modules/company/social-analytics.html" style="font-size:0.7rem;color:rgba(90,200,250,0.7);text-decoration:none;"><i class="fas fa-chart-line" style="margin-right:0.3rem;"></i>View Full Analytics →</a>
           </div>
 
         </div><!-- /.dash-section-body -->
@@ -605,62 +554,7 @@
         </div>
       </div>
 
-      <!-- CEO: Metrics Section (hidden in CEO — moved to Dev view) -->
-      <div class="dash-section" id="section-metrics" data-section="metrics" style="display:none;">
-        <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-chart-line dash-icon-sky"></i>
-          <h2>Metrics</h2>
-          <i class="fas fa-chevron-down dash-section-chevron"></i>
-        </div>
-        <div class="dash-section-body">
-          <div class="dash-grid">
-            <!-- System Pulse -->
-            <div class="dash-panel dash-panel--full dash-panel--min-auto" id="panel-system-pulse-wrap">
-              <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-wave-square dash-icon-sky"></i> System Pulse</span>
-              </div>
-              <div id="panel-system-pulse" class="system-pulse"></div>
-            </div>
-            <!-- Autonomy Score -->
-            <div class="dash-panel">
-              <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-robot dash-icon-green"></i> Autonomy Score</span>
-              </div>
-              <div id="panel-autonomy">
-                <div id="autonomy-ring">
-                  <svg viewBox="0 0 36 36" class="dash-autonomy-svg">
-                    <circle cx="18" cy="18" r="15.9" fill="none" stroke="rgba(255,255,255,0.04)" stroke-width="3" />
-                    <circle id="autonomy-arc" cx="18" cy="18" r="15.9" fill="none" stroke="#34d399" stroke-width="3" stroke-dasharray="0, 100" stroke-linecap="round" />
-                  </svg>
-                  <div id="autonomy-pct">—</div>
-                </div>
-                <div id="autonomy-detail"></div>
-              </div>
-            </div>
-            <!-- Risk Heatmap -->
-            <div class="dash-panel">
-              <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-fire dash-icon-red"></i> Risk Heatmap</span>
-              </div>
-              <div id="panel-risk-heatmap"></div>
-            </div>
-            <!-- Actions Snapshot -->
-            <div class="dash-panel dash-panel--full">
-              <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-bolt dash-icon-amber"></i> Actions</span>
-                <a href="/modules/company/actions.html" class="dash-view-all">Command Center →</a>
-              </div>
-              <div id="panel-action-snap">
-                <div class="dash-empty">No actions yet.</div>
-              </div>
-            </div>
-
-            <!-- Social mirror targets removed — social-command.js renders directly -->
-          </div>
-        </div>
-      </div>
-
-      <!-- CEO: Cost Center Section (hidden — data mirrored to Insights) -->
+      <!-- CEO: Cost Center Section (hidden — data mirrored to Budget) -->
       <div class="dash-section" id="section-costs" data-section="costs" style="display:none;">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
           <i class="fas fa-dollar-sign dash-icon-amber"></i>
@@ -676,17 +570,6 @@
             <a href="/modules/company/cost-overview.html" class="dash-cost-link">
               View Full Cost Center <i class="fas fa-arrow-right dash-icon-ml"></i>
             </a>
-          </div>
-          <!-- Hidden targets so render functions don't error -->
-          <div style="display:none;">
-            <div id="panel-gemini-cost"></div>
-            <select id="gemini-cost-range"><option value="30" selected>30</option></select>
-            <div id="panel-claude-cost"></div>
-            <select id="claude-cost-range"><option value="30" selected>30</option></select>
-            <div id="panel-azure-cost"></div>
-            <select id="azure-cost-range"><option value="30" selected>30</option></select>
-            <div id="panel-x-cost"></div>
-            <select id="x-cost-range"><option value="30" selected>30</option></select>
           </div>
         </div>
       </div>
@@ -722,39 +605,6 @@
           <!-- Full observability dashboard hidden — still rendered by ObservabilityUI.init() -->
           <div style="display:none;">
             <div id="obs-dashboard-root"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- CEO: Content Section (hidden — data mirrored to Insights) -->
-      <div class="dash-section" id="section-content" data-section="content" style="display:none;">
-        <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-newspaper dash-icon-purple"></i>
-          <h2>Content</h2>
-          <i class="fas fa-chevron-down dash-section-chevron"></i>
-        </div>
-        <div class="dash-section-body">
-          <div class="dash-grid">
-            <!-- Daily Log Review -->
-            <div class="dash-panel dash-panel--full">
-              <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-stream dash-icon-green"></i> Daily Logs</span>
-                <a href="/log/" target="_blank" class="dash-view-all">Public Log →</a>
-              </div>
-              <div id="panel-daily-log-drafts"></div>
-              <div class="dash-empty" id="daily-log-empty">No daily log entries yet.</div>
-            </div>
-            <!-- Blog Admin -->
-            <div class="dash-panel dash-panel--full">
-              <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-newspaper dash-icon-purple"></i> Blog Posts</span>
-                <a href="/blog/" target="_blank" class="dash-view-all">Public Blog →</a>
-              </div>
-              <div id="panel-blog-admin"></div>
-              <div class="dash-empty" id="blog-admin-empty">No published blog posts.</div>
-            </div>
-            <!-- Pixel Agents — managed in Content Hub -->
-
           </div>
         </div>
       </div>
@@ -1631,8 +1481,7 @@
 
       // ── Agent Performance Widget (CEO Dashboard) ──
       function renderCeoPerfWidget() {
-        var el = document.getElementById('ceo-perf-widget');
-        if (!el) return;
+        // Inject quality scores as badges into agent grid cards (merged view)
         var base = (typeof CompanyStore !== 'undefined' && CompanyStore.getServerBase) ? CompanyStore.getServerBase() : '/api';
         var headers = {};
         if (typeof CompanyStore !== 'undefined' && CompanyStore.getAuthHeaders) headers = CompanyStore.getAuthHeaders();
@@ -1641,45 +1490,36 @@
           .then(function (data) {
             var runtime = data && data.value !== undefined ? data.value : data;
             var digest = runtime && runtime.agentPerformance;
-            if (!digest || !digest.agents) { el.innerHTML = '<div style="opacity:0.3;padding:0.5rem;text-align:center;">No performance data yet. Runs after next heartbeat.</div>'; return; }
-            var ids = Object.keys(digest.agents).sort(function (a, b) { return (digest.agents[b].qualityScore || 0) - (digest.agents[a].qualityScore || 0); });
-            if (!ids.length) { el.innerHTML = '<div style="opacity:0.3;padding:0.5rem;text-align:center;">No agent data.</div>'; return; }
-            var html = '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:0.35rem;padding:0.4rem 0;">';
-            ids.forEach(function (id, idx) {
-              var a = digest.agents[id];
-              var sc = a.qualityScore || 0;
+            if (!digest || !digest.agents) return;
+            // Find agent grid cards and append score badges
+            var gridEl = document.getElementById('ceo-agent-grid');
+            if (!gridEl) return;
+            var cards = gridEl.querySelectorAll('.agent-grid-card');
+            cards.forEach(function (card) {
+              var nameEl = card.querySelector('.agent-grid-name');
+              if (!nameEl) return;
+              var agentName = nameEl.textContent.trim().toLowerCase();
+              var perf = digest.agents[agentName];
+              if (!perf) return;
+              // Remove existing badge if re-rendering
+              var existing = card.querySelector('.perf-score-badge');
+              if (existing) existing.remove();
+              var sc = perf.qualityScore || 0;
               var color = sc >= 70 ? '#34d399' : (sc >= 45 ? '#facc15' : '#f87171');
-              var trendIcon = a.qualityTrend === 'improving' ? '<i class="fas fa-caret-up" style="color:#34d399"></i>' : (a.qualityTrend === 'declining' ? '<i class="fas fa-caret-down" style="color:#f87171"></i>' : '');
-              var name = id.charAt(0).toUpperCase() + id.slice(1);
-              var crown = idx === 0 ? ' <i class="fas fa-crown" style="color:#facc15;font-size:0.5rem"></i>' : '';
-              // Star rating display
-              var starHtml = '';
-              if (a.ceoAvgStarRating > 0) {
-                starHtml = '<div style="margin-top:2px;">';
-                for (var si = 1; si <= 5; si++) starHtml += '<i class="' + (si <= Math.round(a.ceoAvgStarRating) ? 'fas' : 'far') + ' fa-star" style="color:#facc15;font-size:0.45rem"></i>';
-                starHtml += '</div>';
+              var trendIcon = perf.qualityTrend === 'improving' ? ' <i class="fas fa-caret-up" style="color:#34d399;font-size:0.5rem;"></i>' : (perf.qualityTrend === 'declining' ? ' <i class="fas fa-caret-down" style="color:#f87171;font-size:0.5rem;"></i>' : '');
+              var badge = document.createElement('div');
+              badge.className = 'perf-score-badge';
+              badge.style.cssText = 'font-size:0.85rem;font-weight:700;color:' + color + ';margin-top:2px;line-height:1;';
+              badge.innerHTML = sc + trendIcon;
+              // Insert after the status element
+              var statusEl = card.querySelector('.agent-grid-status');
+              if (statusEl) {
+                statusEl.style.cssText = 'display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;';
+                statusEl.appendChild(badge);
               }
-              html += '<div style="background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.06);border-radius:8px;padding:0.4rem 0.5rem;text-align:center;">';
-              html += '<div style="font-weight:600;font-size:0.7rem;margin-bottom:2px;">' + name + crown + '</div>';
-              html += '<div style="font-size:1.3rem;font-weight:700;color:' + color + ';line-height:1;">' + sc + ' ' + trendIcon + '</div>';
-              html += '<div style="font-size:0.55rem;opacity:0.4;margin-top:2px;">' + Math.round((a.ceoApprovalRate || 0) * 100) + '% CEO · ' + (a.tasksCompleted || 0) + ' tasks</div>';
-              if (a.actionsBlocked > 0) html += '<div style="font-size:0.5rem;color:#f87171;margin-top:1px;">' + a.actionsBlocked + ' blocked</div>';
-              html += starHtml;
-              html += '</div>';
             });
-            html += '</div>';
-            // Declining warning
-            var declining = ids.filter(function (id) { return digest.agents[id].qualityTrend === 'declining'; });
-            if (declining.length > 0) {
-              html += '<div style="padding:3px 6px;margin-top:4px;border-radius:4px;background:rgba(248,113,113,0.08);font-size:0.55rem;color:#f87171;">'
-                + '<i class="fas fa-triangle-exclamation" style="margin-right:3px"></i>'
-                + declining.map(function (d) { return d.charAt(0).toUpperCase() + d.slice(1); }).join(', ') + ' declining</div>';
-            }
-            // Timestamp
-            html += '<div style="font-size:0.48rem;opacity:0.2;margin-top:4px;text-align:right;">' + (digest.windowDays || 30) + '-day window · ' + (digest.asOfUtc ? new Date(digest.asOfUtc).toLocaleString() : '') + '</div>';
-            el.innerHTML = html;
           })
-          .catch(function () { el.innerHTML = '<div style="opacity:0.3;padding:0.5rem;text-align:center;">Could not load performance data.</div>'; });
+          .catch(function () {});
       }
 
       // Fetch heartbeat health and render last-run bar + enrich agent tiles
