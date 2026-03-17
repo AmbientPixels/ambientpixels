@@ -298,7 +298,7 @@
 /* ── Kanban Board ── */
 .tm-board {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 8px;
   height: var(--tasks-board-height, calc(100vh - 220px));
   min-height: 400px;
