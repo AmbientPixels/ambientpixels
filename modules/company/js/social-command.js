@@ -411,7 +411,7 @@
   }
 
   function _renderAll() {
-    var targets = ['social-command-ceo', 'social-command-dev'];
+    var targets = ['social-command-ceo', 'social-command-dev', 'social-command-analytics'];
     for (var i = 0; i < targets.length; i++) {
       var el = document.getElementById(targets[i]);
       if (el) _render(el);
@@ -435,7 +435,7 @@
       _renderAll();
     }).catch(function () {
       _loading = false;
-      var targets = ['social-command-ceo', 'social-command-dev'];
+      var targets = ['social-command-ceo', 'social-command-dev', 'social-command-analytics'];
       for (var i = 0; i < targets.length; i++) {
         var el = document.getElementById(targets[i]);
         if (el) el.innerHTML = '<div class="dash-empty">Social data unavailable.</div>';
@@ -455,7 +455,8 @@
   function init() {
     var ceo = document.getElementById('social-command-ceo');
     var dev = document.getElementById('social-command-dev');
-    if (ceo || dev) load();
+    var analytics = document.getElementById('social-command-analytics');
+    if (ceo || dev || analytics) load();
   }
 
   if (document.readyState === 'loading') {
