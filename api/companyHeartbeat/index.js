@@ -420,6 +420,33 @@ module.exports = async function (context) {
     let agentExperiments = [];
     try { agentExperiments = (await storage.getState('agentExperiments')) || []; } catch (_expErr) { /* non-fatal */ }
     const revisionActions = allActions.filter(a => a.approval && a.approval.status === 'revision_requested');
+
+    // ── Revision safety net: reopen parent tasks for revision_requested social actions ──
+    // When CEO requests revision on a social action, the parent task may already be 'done'.
+    // Reopen it to 'in-progress' so agents re-engage with the revision feedback.
+    for (const _ra of revisionActions) {
+      const _parentId = _ra._parentTaskId || _ra.taskId;
+      if (!_parentId) continue;
+      const _parentTask = tasks.find(t => t.id === _parentId);
+      if (!_parentTask || _parentTask.status === 'in-progress') continue;
+      if (_parentTask.status === 'done' || _parentTask.status === 'review') {
+        _parentTask.status = 'in-progress';
+        _parentTask._social_action_created = false;
+        _parentTask._social_action_pending = false;
+        _parentTask.reviewed_copy = '';
+        const _feedback = (_ra.approval && _ra.approval.decision_note) || 'CEO requested revision on the social post.';
+        _parentTask.comments = _parentTask.comments || [];
+        if (!_parentTask.comments.some(c => c.text && c.text.indexOf('CEO REVISION') !== -1 && c.text.indexOf(_ra.id) !== -1)) {
+          _parentTask.comments.push({
+            type: 'system',
+            text: '[CEO REVISION — action ' + _ra.id + '] ' + _feedback,
+            createdAt: new Date().toISOString()
+          });
+        }
+        context.log('[Heartbeat] Revision reopened task', _parentId, 'for action', _ra.id);
+      }
+    }
+
     // Load persistent agent memories
     _agentMemoryStore = (await storage.getState('agentMemories')) || {};
     // Load CEO-curated seed memories (markdown per agent + global)
