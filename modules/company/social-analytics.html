@@ -156,14 +156,130 @@
       <div id="sa-diagnostics"></div>
     </section>
 
+    <!-- ═══ Traffic Brief ═══ -->
+    <section class="sa-panel">
+      <div class="sa-panel-title" style="display:flex;justify-content:space-between;align-items:center;">
+        <span><i class="fas fa-signal dash-icon-sky co-icon-mr"></i> Traffic Brief</span>
+        <div style="display:flex;gap:0.4rem;align-items:center;">
+          <select id="sa-tb-range" style="font-size:0.6rem;padding:2px 6px;border-radius:4px;background:#2c2c2e;color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.1);font-family:inherit;">
+            <option value="7d" selected>Last 7 days</option>
+            <option value="1d">Last 24 hours</option>
+            <option value="30d">Last 30 days</option>
+          </select>
+          <button id="sa-tb-refresh" style="font-size:0.55rem;padding:0.2rem 0.5rem;border-radius:4px;border:1px solid rgba(90,200,250,0.3);background:rgba(90,200,250,0.06);color:#5ac8fa;cursor:pointer;font-family:inherit;"><i class="fas fa-sync-alt"></i> Refresh</button>
+        </div>
+      </div>
+      <div id="sa-tb-body">
+        <div style="opacity:0.3;padding:1rem;text-align:center;font-size:0.7rem;">Loading traffic data...</div>
+      </div>
+    </section>
+
+    <!-- ═══ Social Command Center ═══ -->
+    <section class="sa-panel">
+      <div class="sa-panel-title"><i class="fas fa-satellite-dish dash-icon-sky co-icon-mr"></i> Social Command Center</div>
+      <div id="social-command-analytics">
+        <div style="opacity:0.3;padding:1rem;text-align:center;font-size:0.7rem;">Loading social data...</div>
+      </div>
+    </section>
+
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <script src="/js/storage-manager.js"></script>
   <script src="/modules/company/js/demo-toast.js"></script>
   <script src="/js/company-store.js"></script>
   <script src="/modules/company/js/social-analytics.js"></script>
   <script src="/js/agent-engine.js"></script>
+  <script src="/modules/company/js/social-command.js"></script>
   <script src="/modules/company/js/quick-chat.js"></script>
   <script src="/modules/company/js/sidebar.js"></script>
+  <script>
+    // Traffic Brief (standalone for analytics page)
+    (function () {
+      var body = document.getElementById('sa-tb-body');
+      if (!body) return;
+
+      function _esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+      function _renderTable(title, icon, rows, keyField, valField) {
+        if (!rows || rows.length === 0) return '<div style="font-size:0.62rem;font-weight:600;opacity:0.5;margin-bottom:0.2rem;"><i class="fas fa-' + icon + '" style="margin-right:4px;"></i>' + _esc(title) + '</div><div style="font-size:0.6rem;opacity:0.25;">No data</div>';
+        var h = '<div style="font-size:0.62rem;font-weight:600;opacity:0.5;margin-bottom:0.2rem;"><i class="fas fa-' + icon + '" style="margin-right:4px;"></i>' + _esc(title) + '</div>';
+        rows.forEach(function (r) {
+          h += '<div style="display:flex;justify-content:space-between;padding:0.15rem 0;font-size:0.6rem;border-bottom:1px solid rgba(255,255,255,0.03);"><span style="opacity:0.6;">' + _esc(r[keyField] || '—') + '</span><span style="font-weight:600;color:#5ac8fa;">' + (r[valField] || 0).toLocaleString() + '</span></div>';
+        });
+        return h;
+      }
+
+      function _render(data) {
+        if (data.warning && data.warning.indexOf('telemetry_unavailable') === 0) {
+          body.innerHTML = '<div style="font-size:0.62rem;padding:0.5rem;border:1px solid rgba(251,191,36,0.2);border-radius:6px;background:rgba(251,191,36,0.04);color:#fbbf24;"><i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i>' + _esc(data.warning) + '</div>';
+          return;
+        }
+        var hasData = (data.topPages && data.topPages.length > 0) || (data.topReferrers && data.topReferrers.length > 0);
+        if (!hasData) {
+          body.innerHTML = '<div style="font-size:0.62rem;padding:0.5rem;opacity:0.4;">No traffic data available.</div>';
+          return;
+        }
+        var totalViews = 0;
+        if (data.topPages) data.topPages.forEach(function (p) { totalViews += (p.views || 0); });
+
+        var html = '<div style="display:flex;gap:1rem;margin-bottom:0.8rem;flex-wrap:wrap;">';
+        html += '<div style="font-size:0.65rem;"><span style="font-size:1.1rem;font-weight:700;color:#5ac8fa;">' + totalViews.toLocaleString() + '</span> <span style="opacity:0.4;">page views</span></div>';
+        if (data.performance) {
+          html += '<div style="font-size:0.65rem;"><span style="opacity:0.4;">p50</span> <span style="font-weight:600;">' + (data.performance.pageLoadMs_p50 || '—') + 'ms</span></div>';
+          html += '<div style="font-size:0.65rem;"><span style="opacity:0.4;">p95</span> <span style="font-weight:600;">' + (data.performance.pageLoadMs_p95 || '—') + 'ms</span></div>';
+        }
+        html += '</div>';
+
+        html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">';
+        html += '<div>' + _renderTable('Top Pages', 'file-alt', data.topPages, 'path', 'views') + '</div>';
+        html += '<div>' + _renderTable('Top Referrers', 'external-link-alt', data.topReferrers, 'referrer', 'sessions') + '</div>';
+        html += '<div>' + _renderTable('Top Campaigns', 'bullhorn', data.topCampaigns, 'campaign', 'sessions') + '</div>';
+        html += '</div>';
+        body.innerHTML = html;
+      }
+
+      function _fetch() {
+        var range = document.getElementById('sa-tb-range');
+        var rangeVal = range ? range.value : '7d';
+        body.innerHTML = '<div style="opacity:0.3;padding:1rem;text-align:center;font-size:0.7rem;">Loading...</div>';
+        var apiBase = window.location.hostname.includes('ambientpixels.ai') ? 'https://ambientpixels-nova-api.azurewebsites.net' : '';
+        fetch(apiBase + '/api/telemetry/summary?range=' + rangeVal)
+          .then(function (r) { return r.json(); })
+          .then(function (data) { _render(data); })
+          .catch(function (err) {
+            body.innerHTML = '<div style="font-size:0.62rem;padding:0.5rem;color:#fbbf24;"><i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i>' + _esc(err.message || 'fetch error') + '</div>';
+          });
+      }
+
+      _fetch();
+      var refreshBtn = document.getElementById('sa-tb-refresh');
+      var rangeEl = document.getElementById('sa-tb-range');
+      if (refreshBtn) refreshBtn.addEventListener('click', _fetch);
+      if (rangeEl) rangeEl.addEventListener('change', _fetch);
+    })();
+
+    // Social Command Center — add analytics target
+    (function () {
+      if (typeof refreshSocialCommand === 'function') {
+        // social-command.js renders into #social-command-ceo and #social-command-dev
+        // For the analytics page, copy from ceo target if it rendered there, or render fresh
+        var el = document.getElementById('social-command-analytics');
+        if (!el) return;
+        // social-command.js looks for #social-command-ceo — create a hidden alias
+        var alias = document.createElement('div');
+        alias.id = 'social-command-ceo';
+        alias.style.display = 'none';
+        document.body.appendChild(alias);
+        refreshSocialCommand();
+        // After render, copy to our analytics target
+        setTimeout(function () {
+          var src = document.getElementById('social-command-ceo');
+          if (src && src.innerHTML) el.innerHTML = src.innerHTML;
+          else el.innerHTML = '<div style="opacity:0.3;padding:1rem;text-align:center;font-size:0.7rem;">No social data available.</div>';
+        }, 3000);
+      }
+    })();
+  </script>
 </body>
 </html>
