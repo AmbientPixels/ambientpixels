@@ -473,45 +473,31 @@
       </div><!-- /.dash-section (insights) -->
 
       <!-- CEO: Decisions Section (Zone 4) -->
-      <div class="dash-section" id="section-decisions" data-section="decisions">
+      <div class="dash-section" id="section-decisions" data-section="social-media">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-gavel dash-icon-amber"></i>
-          <h2>Approvals</h2>
+          <i class="fas fa-satellite-dish dash-icon-blue"></i>
+          <h2>Social Media</h2>
           <i class="fas fa-chevron-down dash-section-chevron"></i>
         </div>
         <div class="dash-section-body">
-          <div class="dash-grid">
-            <!-- Pending Approvals — slim summary, full detail in Action Queue -->
-            <div class="dash-panel dash-panel--full" id="panel-approval-wrap">
-              <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-gavel dash-icon-amber"></i> Pending Approvals</span>
-                <span class="dash-panel-badge" id="approval-count-badge">0 pending</span>
-              </div>
-              <div class="dash-panel-body--padded">
-                <div id="approval-preview-list"></div>
-                <a href="/modules/company/actions.html" class="dash-approval-link">Open Action Queue <i class="fas fa-arrow-right dash-icon-ml"></i></a>
-              </div>
+          <div class="dash-panel dash-panel--full">
+            <div class="dash-panel-header dash-panel-header--tight">
+              <span class="dash-panel-title"><i class="fas fa-chart-line dash-icon-blue"></i> Engagement</span>
+              <a href="/modules/company/social-analytics.html" class="dash-view-all">Full Analytics →</a>
             </div>
-            <!-- Facebook Outbox (manual posting queue) -->
-            <div class="dash-panel dash-panel--full" id="panel-fb-outbox-wrap" style="display:none;">
-              <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fab fa-facebook dash-icon-fb"></i> Facebook Outbox</span>
-                <span class="dash-panel-badge dash-fb-badge" id="fb-outbox-count-badge">0 ready</span>
-              </div>
-              <div id="panel-fb-outbox-list">
-                <div class="dash-empty">No Facebook posts awaiting manual posting.</div>
-              </div>
+            <div id="social-command-ceo">
+              <div class="dash-empty">Loading social data...</div>
             </div>
-            <!-- Goals (render target — visible in Strategy row via mirror) -->
-            <div class="dash-panel" style="display:none;">
-              <ul class="log-list" id="panel-objectives-snap"></ul>
-              <div class="dash-empty" id="objectives-snap-empty">No active goals.</div>
-            </div>
-            <!-- Campaigns (render target — visible in Strategy row via mirror) -->
-            <div class="dash-panel" style="display:none;">
-              <ul class="log-list" id="panel-campaigns-snap"></ul>
-              <div class="dash-empty" id="campaigns-snap-empty">No active campaigns.</div>
-            </div>
+          </div>
+          <!-- Hidden render targets for Goals/Campaigns mirroring (DO NOT REMOVE) -->
+          <div style="display:none;">
+            <div id="approval-preview-list"></div>
+            <span id="approval-count-badge"></span>
+            <div id="panel-fb-outbox-wrap"><div id="panel-fb-outbox-list"></div><span id="fb-outbox-count-badge"></span></div>
+            <ul class="log-list" id="panel-objectives-snap"></ul>
+            <div class="dash-empty" id="objectives-snap-empty">No active goals.</div>
+            <ul class="log-list" id="panel-campaigns-snap"></ul>
+            <div class="dash-empty" id="campaigns-snap-empty">No active campaigns.</div>
           </div>
         </div>
       </div>
@@ -2033,7 +2019,7 @@
       (function () {
         var stats = document.querySelectorAll('#ceo-stats .ceo-stat');
         var targets = [
-          '#section-decisions',                          // Needs Action → scroll to decisions
+          '/modules/company/actions.html',                 // Needs Action → Actions page
           '/modules/company/diagnostics.html',           // Autonomy → diagnostics
           '/modules/company/cost-overview.html',         // Daily Burn → cost page
           '/modules/company/work-overview.html',         // Pipeline → work overview
