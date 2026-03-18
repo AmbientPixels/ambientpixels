@@ -2235,7 +2235,7 @@
 
         // 3. Blocked / Escalated Tasks
         var blocked = tasks.filter(function (t) {
-          return t.status !== 'done' && (t.blocked || t.escalated ||
+          return t.status !== 'done' && (t.blocked ||
             (t.tags && t.tags.indexOf('blocked') !== -1));
         });
         totalItems += blocked.length;
@@ -4720,7 +4720,7 @@
             var k = stableId('task', t);
             if (t.status === 'pending-approval') add(k);
             if (t.dueDate && t.dueDate < today) add(k);
-            if (t.blocked || t.escalated || (t.tags && t.tags.indexOf('blocked') !== -1)) add(k);
+            if (t.blocked || (t.tags && t.tags.indexOf('blocked') !== -1)) add(k);
           });
 
           // Directives: pending-approval
