@@ -3891,7 +3891,7 @@
       // ── Action Snapshot ──
       function renderActionSnap() {
         var stats = AgentEngine.getActionStats();
-        var el = document.getElementById('panel-action-snap');
+        var el = document.getElementById('panel-action-snap') || document.getElementById('panel-action-snap-dev');
         if (stats.total === 0) {
           el.innerHTML = '<div class="dash-empty">No actions yet. <a href="/modules/company/actions.html" style="opacity:0.5;">Open Command Center →</a></div>';
           return;
