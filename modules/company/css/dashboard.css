@@ -232,12 +232,54 @@
   .dash-grid .dash-panel--full { grid-column: 1; }
 }
 
-/* Cron + Governance side-by-side in dev System section */
+/* ── Dev View layout ── */
+#view-dev { display: flex; flex-direction: column; }
+#view-dev > .dash-stats      { order: 1; }
+.dev-health-row               { order: 2; }
+#section-metrics-dev          { order: 3; }
+.dev-activity-row             { order: 4; }
+.dev-session-section          { order: 5; }
+#section-traffic-dev          { order: 6; }
+#section-obs-dev              { order: 7; }
+#section-social-dev           { order: 8; }
+
+/* Dev: System Health Row — 3-col grid */
+.dev-health-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+@media (max-width: 768px) {
+  .dev-health-row { grid-template-columns: 1fr; }
+}
+
+/* Dev: Recent Activity row */
+.dev-activity-row { margin-bottom: 0.75rem; }
+
+/* Dev: Session Log details */
+.dev-session-section { margin-bottom: 0.75rem; }
+.dev-session-section > summary { display: flex; align-items: center; padding: 0.5rem 0; }
+.dev-session-section > summary::-webkit-details-marker { display: none; }
+
+/* Dev: Section header visual hierarchy */
+#view-dev .dash-section-header h2,
+#view-dev .dev-session-section h2 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+
+/* Cron + Governance side-by-side — larger font for readability */
 .dev-log-split {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
+.dev-log-split .log-list { font-size: 0.72rem; line-height: 1.6; }
+.dev-log-split .log-list li { padding: 0.4rem 0; }
 @media (max-width: 768px) {
   .dev-log-split { grid-template-columns: 1fr; }
 }

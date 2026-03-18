@@ -648,90 +648,103 @@
         </div>
       </div>
 
-      <!-- Dev: System Section -->
-      <div class="dash-section" id="section-system" data-section="system">
-        <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
-          <i class="fas fa-cogs dash-icon-pink"></i>
-          <h2>System</h2>
-          <i class="fas fa-chevron-down dash-section-chevron"></i>
+      <!-- Dev: System Health Row (Fleet + Agent Status + Heartbeat) -->
+      <div class="dev-health-row">
+        <div class="dash-panel">
+          <div class="dash-panel-header">
+            <span class="dash-panel-title"><i class="fas fa-microchip dash-icon-purple co-icon-mr"></i> AI Model Fleet</span>
+          </div>
+          <div id="panel-fleet"></div>
         </div>
-        <div class="dash-section-body">
-          <div class="dash-grid">
-            <!-- Model Fleet -->
-            <div class="dash-panel">
-              <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-microchip dash-icon-purple co-icon-mr"></i> AI Model Fleet</span>
-              </div>
-              <div id="panel-fleet"></div>
+        <div class="dash-panel">
+          <div class="dash-panel-header">
+            <span class="dash-panel-title"><i class="fas fa-users dash-icon-blue co-icon-mr"></i> Agent Status</span>
+            <span class="dash-panel-badge" id="agent-count-badge">5 agents</span>
+          </div>
+          <ul class="agent-status-list" id="panel-agent-status"></ul>
+        </div>
+        <div class="dash-panel">
+          <div class="dash-panel-header">
+            <span class="dash-panel-title"><i class="fas fa-heart-pulse dash-icon-green"></i> Heartbeat Health</span>
+            <span class="dash-panel-badge" id="heartbeat-health-badge">Loading...</span>
+          </div>
+          <div id="panel-heartbeat-health"></div>
+          <div class="dash-empty" id="heartbeat-health-empty">No heartbeat telemetry yet.</div>
+        </div>
+      </div>
+      <!-- KPI Scoreboard (hidden — no real data feeding in) -->
+      <div style="display:none;" id="panel-kpi-wrap">
+        <div id="panel-kpi-list"></div>
+        <div id="kpi-empty"></div>
+      </div>
+
+      <!-- Dev: Recent Activity (Cron + Governance side by side) -->
+      <div class="dev-activity-row">
+        <div class="dash-panel--full dev-log-split">
+          <div class="dash-panel">
+            <div class="dash-panel-header">
+              <span class="dash-panel-title"><i class="fas fa-clock dash-icon-teal co-icon-mr"></i> Cron Log</span>
             </div>
-            <!-- Agent Status -->
-            <div class="dash-panel">
-              <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-users dash-icon-blue co-icon-mr"></i> Agent Status</span>
-                <span class="dash-panel-badge" id="agent-count-badge">5 agents</span>
-              </div>
-              <ul class="agent-status-list" id="panel-agent-status"></ul>
+            <ul class="log-list" id="panel-cron"></ul>
+            <div class="dash-empty" id="cron-empty">No scheduled tasks have run yet.</div>
+          </div>
+          <div class="dash-panel">
+            <div class="dash-panel-header">
+              <span class="dash-panel-title"><i class="fas fa-scroll dash-icon-teal"></i> Governance Log</span>
             </div>
-            <!-- KPI Scoreboard (hidden — no real data feeding in) -->
-            <div style="display:none;" id="panel-kpi-wrap">
-              <div id="panel-kpi-list"></div>
-              <div id="kpi-empty"></div>
-            </div>
-            <!-- Session Log -->
-            <div class="dash-panel dash-panel--full">
-              <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-stream dash-icon-sky co-icon-mr"></i> Session Log</span>
-                <label class="session-today-toggle" title="Show today's sessions only">
-                  <input type="checkbox" id="session-today-only"> Today
-                </label>
-                <span class="dash-panel-badge" id="session-count-badge">0 calls</span>
-              </div>
-              <div class="overflow-x-auto">
-                <table class="session-table" id="panel-sessions">
-                  <thead>
-                    <tr>
-                      <th>Agent</th>
-                      <th>Mode</th>
-                      <th>Tokens</th>
-                      <th>Cost</th>
-                      <th>Time</th>
-                      <th></th>
-                    </tr>
-                  </thead>
-                  <tbody id="session-tbody"></tbody>
-                </table>
-                <div class="dash-empty" id="session-empty">No sessions recorded yet. Chat with an agent to see data here.</div>
-              </div>
-            </div>
-            <!-- Heartbeat Health -->
-            <div class="dash-panel dash-panel--full">
-              <div class="dash-panel-header">
-                <span class="dash-panel-title"><i class="fas fa-heart-pulse dash-icon-green"></i> Heartbeat Health</span>
-                <span class="dash-panel-badge" id="heartbeat-health-badge">Loading...</span>
-              </div>
-              <div id="panel-heartbeat-health"></div>
-              <div class="dash-empty" id="heartbeat-health-empty">No heartbeat telemetry yet.</div>
-            </div>
-            <!-- Cron Log + Governance Log (Dev) — side by side -->
-            <div class="dash-panel--full dev-log-split">
-              <div class="dash-panel">
-                <div class="dash-panel-header">
-                  <span class="dash-panel-title"><i class="fas fa-clock dash-icon-teal co-icon-mr"></i> Cron Log</span>
-                </div>
-                <ul class="log-list" id="panel-cron"></ul>
-                <div class="dash-empty" id="cron-empty">No scheduled tasks have run yet.</div>
-              </div>
-              <div class="dash-panel">
-                <div class="dash-panel-header">
-                  <span class="dash-panel-title"><i class="fas fa-scroll dash-icon-teal"></i> Governance Log (Dev)</span>
-                </div>
-                <ul class="log-list" id="panel-governance-log-dev"></ul>
-                <div class="dash-empty" id="governance-log-dev-empty">No governance events yet.</div>
-              </div>
-            </div>
+            <ul class="log-list" id="panel-governance-log-dev"></ul>
+            <div class="dash-empty" id="governance-log-dev-empty">No governance events yet.</div>
           </div>
         </div>
       </div>
+
+      <!-- Dev: Session Log (collapsed by default) -->
+      <details class="dev-session-section">
+        <summary class="dash-section-header" style="cursor:pointer;list-style:none;">
+          <i class="fas fa-stream dash-icon-sky co-icon-mr"></i>
+          <h2 style="display:inline;margin:0;">Session Log</h2>
+          <span class="dash-panel-badge" id="session-count-badge" style="margin-left:0.5rem;">0 calls</span>
+          <i class="fas fa-chevron-down dash-section-chevron" style="margin-left:auto;"></i>
+        </summary>
+        <div class="dash-section-body">
+          <div class="dash-panel dash-panel--full">
+            <div class="dash-panel-header" style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap;">
+              <!-- TODO: update agent list if agents change -->
+              <select id="session-agent-filter" style="font-size:0.6rem;padding:2px 6px;border-radius:4px;background:#2c2c2e;color:rgba(255,255,255,0.7);border:1px solid rgba(255,255,255,0.1);font-family:inherit;">
+                <option value="">All Agents</option>
+                <option value="nova">Nova</option>
+                <option value="cipher">Cipher</option>
+                <option value="pixel">Pixel</option>
+                <option value="forge">Forge</option>
+                <option value="scribe">Scribe</option>
+                <option value="quill">Quill</option>
+                <option value="echo">Echo</option>
+                <option value="scout">Scout</option>
+              </select>
+              <label class="session-today-toggle" title="Show today's sessions only">
+                <input type="checkbox" id="session-today-only"> Today
+              </label>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="session-table" id="panel-sessions">
+                <thead>
+                  <tr>
+                    <th>Agent</th>
+                    <th>Mode</th>
+                    <th>Tokens</th>
+                    <th>Cost</th>
+                    <th>Time</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="session-tbody"></tbody>
+              </table>
+              <div class="dash-empty" id="session-empty">No sessions recorded yet.</div>
+            </div>
+            <div id="session-pagination" style="display:flex;justify-content:space-between;align-items:center;padding:0.4rem 0;font-size:0.6rem;"></div>
+          </div>
+        </div>
+      </details>
 
       <!-- Dev: Traffic Brief (moved from CEO) -->
       <div class="dash-section" id="section-traffic-dev" data-section="traffic-dev">
@@ -2287,30 +2300,42 @@
         statuses.idle.forEach(function (s) { addItem(s.agent, false); });
       }
 
-      // ── Session Log ──
+      // ── Session Log (filtered + paginated) ──
+      var _sessionPage = 0;
+      var _sessionPageSize = 10;
+      var _sessionAgentFilter = '';
+
       (function () {
         var todayToggle = document.getElementById('session-today-only');
-        if (todayToggle) {
-          todayToggle.addEventListener('change', renderSessions);
-        }
+        var agentFilter = document.getElementById('session-agent-filter');
+        if (todayToggle) todayToggle.addEventListener('change', function () { _sessionPage = 0; renderSessions(); });
+        if (agentFilter) agentFilter.addEventListener('change', function () { _sessionAgentFilter = this.value; _sessionPage = 0; renderSessions(); });
       })();
 
       function renderSessions() {
         var todayToggle = document.getElementById('session-today-only');
         var todayOnly = todayToggle && todayToggle.checked;
         var all = AgentEngine.getSessionLog().slice().reverse();
-        var sessions;
+
+        // Filter by today
         if (todayOnly) {
           var todayStr = new Date().toDateString();
-          sessions = all.filter(function (s) {
-            return s.timestamp && new Date(s.timestamp).toDateString() === todayStr;
-          }).slice(0, 30);
-        } else {
-          sessions = all.slice(0, 30);
+          all = all.filter(function (s) { return s.timestamp && new Date(s.timestamp).toDateString() === todayStr; });
         }
+        // Filter by agent
+        if (_sessionAgentFilter) {
+          all = all.filter(function (s) { return s.agentId === _sessionAgentFilter; });
+        }
+
+        var totalCount = all.length;
+        var totalPages = Math.max(1, Math.ceil(totalCount / _sessionPageSize));
+        if (_sessionPage >= totalPages) _sessionPage = totalPages - 1;
+        var start = _sessionPage * _sessionPageSize;
+        var sessions = all.slice(start, start + _sessionPageSize);
+
         sessionTbody.innerHTML = '';
         sessionEmpty.style.display = sessions.length === 0 ? '' : 'none';
-        sessionCountBadge.textContent = sessions.length + ' calls';
+        sessionCountBadge.textContent = totalCount + ' calls';
 
         sessions.forEach(function (s) {
           var agent = AgentEngine.getAgent(s.agentId);
@@ -2326,13 +2351,22 @@
             '<td class="session-time">' + formatTime(s.timestamp) + '</td>' +
             '<td><button class="session-view-btn" data-agent="' + s.agentId + '"><i class="fas fa-eye"></i></button></td>';
 
-          // View transcript button
           tr.querySelector('.session-view-btn').addEventListener('click', function () {
             showTranscript(this.dataset.agent);
           });
 
           sessionTbody.appendChild(tr);
         });
+
+        // Pagination controls
+        var pagEl = document.getElementById('session-pagination');
+        if (pagEl) {
+          if (totalPages <= 1) { pagEl.innerHTML = ''; return; }
+          pagEl.innerHTML =
+            '<button class="sa-btn sa-btn--ghost" style="font-size:0.55rem;padding:0.15rem 0.4rem;"' + (_sessionPage === 0 ? ' disabled' : '') + ' onclick="_sessionPage--;renderSessions()"><i class="fas fa-arrow-left"></i> Prev</button>' +
+            '<span style="opacity:0.4;">Page ' + (_sessionPage + 1) + ' of ' + totalPages + '</span>' +
+            '<button class="sa-btn sa-btn--ghost" style="font-size:0.55rem;padding:0.15rem 0.4rem;"' + (_sessionPage >= totalPages - 1 ? ' disabled' : '') + ' onclick="_sessionPage++;renderSessions()">Next <i class="fas fa-arrow-right"></i></button>';
+        }
       }
 
       // ── Cron Log ──
