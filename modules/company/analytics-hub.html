@@ -292,12 +292,75 @@
         return h;
       }
 
+      function _renderTimeline(dailyViews) {
+        if (!dailyViews || dailyViews.length < 2) return;
+        var canvas = document.getElementById('sa-tb-timeline');
+        if (!canvas) return;
+        if (window._tbLineChart) { window._tbLineChart.destroy(); window._tbLineChart = null; }
+        var ctx = canvas.getContext('2d');
+        var grad = ctx.createLinearGradient(0, 0, 0, canvas.parentElement.offsetHeight || 120);
+        grad.addColorStop(0, 'rgba(90,200,250,0.2)');
+        grad.addColorStop(1, 'rgba(90,200,250,0.02)');
+        var labels = dailyViews.map(function (d) { return d.day ? d.day.slice(5) : ''; });
+        var values = dailyViews.map(function (d) { return d.views || 0; });
+        window._tbLineChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: labels,
+            datasets: [{
+              data: values,
+              borderColor: '#5ac8fa',
+              backgroundColor: grad,
+              borderWidth: 2,
+              tension: 0.3,
+              fill: true,
+              pointRadius: 2,
+              pointHoverRadius: 4,
+              pointBackgroundColor: '#5ac8fa'
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: {
+                backgroundColor: 'rgba(20,20,30,0.95)',
+                titleColor: 'rgba(255,255,255,0.8)',
+                bodyColor: 'rgba(255,255,255,0.7)',
+                borderColor: 'rgba(255,255,255,0.1)',
+                borderWidth: 1,
+                padding: 8,
+                titleFont: { size: 10 },
+                bodyFont: { size: 10 },
+                callbacks: {
+                  label: function (ctx) { return ' ' + ctx.parsed.y.toLocaleString() + ' views'; }
+                }
+              }
+            },
+            scales: {
+              x: {
+                grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+                ticks: { color: 'rgba(255,255,255,0.35)', font: { size: 9 }, maxRotation: 0 },
+                border: { color: 'rgba(255,255,255,0.06)' }
+              },
+              y: {
+                beginAtZero: true,
+                grid: { color: 'rgba(255,255,255,0.04)', drawBorder: false },
+                ticks: { color: 'rgba(255,255,255,0.35)', font: { size: 9 } },
+                border: { color: 'rgba(255,255,255,0.06)' }
+              }
+            }
+          }
+        });
+      }
+
       function _render(data) {
         if (data.warning && data.warning.indexOf('telemetry_unavailable') === 0) {
           body.innerHTML = '<div style="font-size:0.62rem;padding:0.5rem;border:1px solid rgba(251,191,36,0.2);border-radius:6px;background:rgba(251,191,36,0.04);color:#fbbf24;"><i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i>' + _esc(data.warning) + '</div>';
           return;
         }
-        var hasData = (data.topPages && data.topPages.length > 0) || (data.topReferrers && data.topReferrers.length > 0);
+        var hasData = (data.topPages && data.topPages.length > 0) || (data.topReferrers && data.topReferrers.length > 0) || (data.dailyViews && data.dailyViews.length > 0);
         if (!hasData) {
           body.innerHTML = '<div style="font-size:0.62rem;padding:0.5rem;opacity:0.4;">No traffic data available.</div>';
           return;
@@ -314,12 +377,21 @@
         html += _kpiCard('P95 Load', p95 != null ? p95 + 'ms' : '—', _perfColor(p95));
         html += '</div>';
 
+        if (data.dailyViews && data.dailyViews.length >= 2) {
+          html += '<div style="position:relative;height:120px;margin-bottom:12px;"><canvas id="sa-tb-timeline" height="120"></canvas></div>';
+        }
+
         html += '<div class="sa-tb-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">';
         html += '<div>' + _renderBarChart('Top Pages', 'file-alt', data.topPages, 'path', 'views') + '</div>';
         html += '<div>' + _renderBarChart('Top Referrers', 'external-link-alt', data.topReferrers, 'referrer', 'sessions') + '</div>';
         html += '<div>' + _renderBarChart('Top Campaigns', 'bullhorn', data.topCampaigns, 'campaign', 'sessions') + '</div>';
         html += '</div>';
         body.innerHTML = html;
+
+        // Render chart after DOM is updated
+        if (data.dailyViews && data.dailyViews.length >= 2) {
+          _renderTimeline(data.dailyViews);
+        }
       }
 
       function _fetch() {

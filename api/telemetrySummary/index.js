@@ -32,6 +32,7 @@ function _emptyResponse(range, warning) {
     topPages: [],
     topReferrers: [],
     topCampaigns: [],
+    dailyViews: [],
     events: { ctaClicks: 0, requestAccessClicks: 0 },
     performance: { pageLoadMs_p50: 0, pageLoadMs_p95: 0 },
     errors: []
@@ -153,13 +154,22 @@ module.exports = async function (context, req) {
       '| top 10 by count_ desc'
     ].join('\n');
 
+    // Daily page views timeline
+    var dailyViewsQuery = [
+      'pageViews',
+      '| where isnotempty(url)',
+      '| summarize views = count() by day = bin(timestamp, 1d)',
+      '| order by day asc'
+    ].join('\n');
+
     // Run queries in parallel
     var results = await Promise.all([
       _kustoQuery(topPagesQuery, timespan),
       _kustoQuery(topReferrersQuery, timespan),
       _kustoQuery(topCampaignsQuery, timespan),
       _kustoQuery(perfQuery, timespan),
-      _kustoQuery(errorsQuery, timespan)
+      _kustoQuery(errorsQuery, timespan),
+      _kustoQuery(dailyViewsQuery, timespan)
     ]);
 
     var pages = _parseRows(results[0]).map(function (r) { return { path: r.path || '/', views: r.views || 0 }; });
@@ -168,6 +178,10 @@ module.exports = async function (context, req) {
     var perfRows = _parseRows(results[3]);
     var perf = perfRows.length > 0 ? { pageLoadMs_p50: Math.round(perfRows[0].p50 || 0), pageLoadMs_p95: Math.round(perfRows[0].p95 || 0) } : { pageLoadMs_p50: 0, pageLoadMs_p95: 0 };
     var errors = _parseRows(results[4]).map(function (r) { return { name: r.name || 'Unknown', count: r.count_ || 0 }; });
+    var dailyViews = _parseRows(results[5]).map(function (r) {
+      var d = r.day ? new Date(r.day).toISOString().slice(0, 10) : '';
+      return { day: d, views: r.views || 0 };
+    });
 
     var anyFailed = results.some(function (r) { return r === null; });
 
@@ -179,6 +193,7 @@ module.exports = async function (context, req) {
       topPages: pages,
       topReferrers: referrers,
       topCampaigns: campaigns,
+      dailyViews: dailyViews,
       events: { ctaClicks: 0, requestAccessClicks: 0 },
       performance: perf,
       errors: errors
