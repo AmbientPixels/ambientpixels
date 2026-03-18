@@ -278,12 +278,12 @@
         <div class="ceo-stat cstat--red">
           <div class="ceo-stat-label">Needs Action</div>
           <div class="ceo-stat-value" id="cstat-action">0</div>
-          <div class="ceo-stat-sub" id="cstat-action-sub">pending approvals</div>
+          <div class="ceo-stat-sub" id="cstat-action-sub">pending</div>
         </div>
-        <div class="ceo-stat cstat--green">
-          <div class="ceo-stat-label">Autonomy</div>
-          <div class="ceo-stat-value" id="cstat-autonomy">—</div>
-          <div class="ceo-stat-sub" id="cstat-autonomy-sub">agent self-sufficiency</div>
+        <div class="ceo-stat cstat--blue">
+          <div class="ceo-stat-label">API Usage</div>
+          <div class="ceo-stat-value" id="cstat-api">—</div>
+          <div class="ceo-stat-sub" id="cstat-api-sub">total calls</div>
         </div>
         <div class="ceo-stat cstat--amber">
           <div class="ceo-stat-label">Daily Burn</div>
@@ -293,12 +293,12 @@
         <div class="ceo-stat cstat--blue">
           <div class="ceo-stat-label">Task Pipeline</div>
           <div class="ceo-stat-value" id="cstat-pipeline">0</div>
-          <div class="ceo-stat-sub" id="cstat-pipeline-sub">in-progress / review / done</div>
+          <div class="ceo-stat-sub" id="cstat-pipeline-sub">active · review · done</div>
         </div>
-        <div class="ceo-stat cstat--purple">
-          <div class="ceo-stat-label">Inbound</div>
-          <div class="ceo-stat-value" id="cstat-inbound">0</div>
-          <div class="ceo-stat-sub"><a href="/modules/company/inbound.html" class="ceo-inbound-link">unprocessed signals</a></div>
+        <div class="ceo-stat cstat--green">
+          <div class="ceo-stat-label">System Health</div>
+          <div class="ceo-stat-value" id="cstat-health"><i class="fas fa-circle" style="font-size:0.6em;"></i></div>
+          <div class="ceo-stat-sub" id="cstat-health-sub">checking...</div>
         </div>
       </div>
 
@@ -1331,37 +1331,57 @@
 
       // ── CEO Stat Cards ──
       function renderCeoStatCards() {
-        // Needs Action — match actions page: count actions with approval.status === 'pending'
         var allTasks = AgentEngine.getTasks();
+
+        // Needs Action — pending approvals + Needs Attention items (overdue, stale revision, convergence)
         var pendingActions = (AgentEngine.getActions ? AgentEngine.getActions() : []).filter(function (a) { return a.approval && a.approval.status === 'pending'; });
-        var actionCount = pendingActions.length;
+        var approvalCount = pendingActions.length;
         var cstatAction = document.getElementById('cstat-action');
         var cstatActionSub = document.getElementById('cstat-action-sub');
         if (cstatAction) {
-          cstatAction.textContent = actionCount;
-          cstatAction.parentElement.style.setProperty('--cstat-color', actionCount > 0 ? '#ef4444' : '#34d399');
-          cstatActionSub.textContent = actionCount + ' approval' + (actionCount !== 1 ? 's' : '') + ' pending';
+          // Also count Needs Attention items from approvalQueue
+          var naTypes = ['convergence_escalation', 'overdue_escalation', 'stale_revision_escalation'];
+          var apiBase = (typeof CompanyStore !== 'undefined' && CompanyStore.getServerBase) ? CompanyStore.getServerBase() : '/api';
+          fetch(apiBase + '/company-state?key=approvalQueue', { headers: { 'x-company-secret': 'pixelpusher' } })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+              var queue = data.value || data || [];
+              if (!Array.isArray(queue)) queue = [];
+              var naCount = queue.filter(function(item) { return naTypes.indexOf(item.type) !== -1 && item.status === 'pending'; }).length;
+              var total = approvalCount + naCount;
+              cstatAction.textContent = total;
+              cstatAction.parentElement.style.setProperty('--cstat-color', total > 0 ? '#ef4444' : '#34d399');
+              var parts = [];
+              if (approvalCount > 0) parts.push(approvalCount + ' approval' + (approvalCount !== 1 ? 's' : ''));
+              if (naCount > 0) parts.push(naCount + ' attention');
+              cstatActionSub.textContent = parts.length > 0 ? parts.join(' · ') : 'all clear';
+            })
+            .catch(function() {
+              cstatAction.textContent = approvalCount;
+              cstatAction.parentElement.style.setProperty('--cstat-color', approvalCount > 0 ? '#ef4444' : '#34d399');
+              cstatActionSub.textContent = approvalCount + ' approval' + (approvalCount !== 1 ? 's' : '') + ' pending';
+            });
         }
 
-        // Autonomy — use same composite score as ops Autonomy Score panel
-        var cstatAutonomy = document.getElementById('cstat-autonomy');
-        var cstatAutonomySub = document.getElementById('cstat-autonomy-sub');
-        if (cstatAutonomy && AgentEngine.getAutonomyScore) {
-          var autoData = AgentEngine.getAutonomyScore();
-          var pct = autoData.score || 0;
-          cstatAutonomy.textContent = pct + '%';
-          cstatAutonomy.parentElement.style.setProperty('--cstat-color', pct >= 70 ? '#34d399' : pct >= 40 ? '#fbbf24' : '#ef4444');
-          cstatAutonomySub.textContent = autoData.total + ' items · 7-day window';
+        // API Usage — total Gemini calls from session log
+        var cstatApi = document.getElementById('cstat-api');
+        var cstatApiSub = document.getElementById('cstat-api-sub');
+        if (cstatApi) {
+          var sessions = AgentEngine.getSessionLog ? AgentEngine.getSessionLog() : [];
+          var totalCalls = 0;
+          sessions.forEach(function (s) { if (s.geminiCalls) totalCalls += s.geminiCalls; });
+          cstatApi.textContent = totalCalls >= 1000 ? (totalCalls / 1000).toFixed(1) + 'K' : totalCalls;
+          cstatApiSub.textContent = 'total calls';
         }
 
         // Daily Burn
         var cstatBurn = document.getElementById('cstat-burn');
         var cstatBurnSub = document.getElementById('cstat-burn-sub');
         if (cstatBurn) {
-          var sessions = AgentEngine.getSessionLog ? AgentEngine.getSessionLog() : [];
+          var burnSessions = AgentEngine.getSessionLog ? AgentEngine.getSessionLog() : [];
           var today = new Date().toISOString().split('T')[0];
           var todayCost = 0;
-          sessions.forEach(function (s) {
+          burnSessions.forEach(function (s) {
             if (s.timestamp && s.timestamp.startsWith(today) && s.cost) todayCost += s.cost;
           });
           cstatBurn.textContent = '$' + todayCost.toFixed(todayCost < 1 ? 4 : 2);
@@ -1378,6 +1398,46 @@
           var active = allTasks.filter(function (t) { return t.status !== 'done' && t.status !== 'backlog'; }).length;
           cstatPipeline.textContent = active;
           cstatPipelineSub.textContent = inProgress + ' active · ' + inReview + ' review · ' + done + ' done';
+        }
+
+        // System Health — derive from heartbeat + API reachability
+        var cstatHealth = document.getElementById('cstat-health');
+        var cstatHealthSub = document.getElementById('cstat-health-sub');
+        if (cstatHealth) {
+          var healthChecks = { heartbeat: null, api: null };
+          var _renderHealth = function() {
+            if (healthChecks.heartbeat === null || healthChecks.api === null) return;
+            var status = 'green';
+            var label = 'all systems go';
+            if (!healthChecks.api) { status = 'red'; label = 'API unreachable'; }
+            else if (healthChecks.heartbeat === 'error') { status = 'red'; label = 'heartbeat error'; }
+            else if (healthChecks.heartbeat === 'stale') { status = 'yellow'; label = 'heartbeat stale'; }
+            var colors = { green: '#34d399', yellow: '#fbbf24', red: '#ef4444' };
+            cstatHealth.innerHTML = '<i class="fas fa-circle" style="font-size:0.6em;color:' + colors[status] + ';"></i>';
+            cstatHealth.parentElement.style.setProperty('--cstat-color', colors[status]);
+            cstatHealthSub.textContent = label;
+          };
+          // Check API
+          var healthApiBase = (typeof CompanyStore !== 'undefined' && CompanyStore.getServerBase) ? CompanyStore.getServerBase() : '/api';
+          fetch(healthApiBase + '/company-state?key=_ping', { headers: { 'x-company-secret': 'pixelpusher' } })
+            .then(function() { healthChecks.api = true; _renderHealth(); })
+            .catch(function() { healthChecks.api = false; _renderHealth(); });
+          // Check heartbeat recency
+          fetch(healthApiBase + '/company-state?key=heartbeatRuns', { headers: { 'x-company-secret': 'pixelpusher' } })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+              var runs = data.value || [];
+              if (!Array.isArray(runs) || runs.length === 0) { healthChecks.heartbeat = 'stale'; _renderHealth(); return; }
+              runs.sort(function(a, b) { return new Date(a.finishedAt || a.startedAt || 0).getTime() - new Date(b.finishedAt || b.startedAt || 0).getTime(); });
+              var last = runs[runs.length - 1] || {};
+              var ageMin = Math.floor((Date.now() - new Date(last.finishedAt || last.startedAt || 0).getTime()) / 60000);
+              var hbStatus = String(last.status || 'ok').toLowerCase();
+              if (hbStatus === 'error') healthChecks.heartbeat = 'error';
+              else if (ageMin > 90) healthChecks.heartbeat = 'stale';
+              else healthChecks.heartbeat = 'ok';
+              _renderHealth();
+            })
+            .catch(function() { healthChecks.heartbeat = 'stale'; _renderHealth(); });
         }
       }
 
