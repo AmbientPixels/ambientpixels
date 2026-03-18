@@ -50,7 +50,12 @@ async function _kustoQuery(query, timespan) {
       },
       body: JSON.stringify({ query: query, timespan: timespan })
     });
-    if (!resp.ok) return null;
+    if (!resp.ok) {
+      var errBody = '';
+      try { errBody = await resp.text(); } catch (_) {}
+      console.log('[telemetrySummary] Kusto query failed:', resp.status, errBody.substring(0, 300));
+      return null;
+    }
     var data = await resp.json();
     return data;
   } catch (e) {
@@ -107,8 +112,10 @@ module.exports = async function (context, req) {
     // Top pages query — strip querystrings, keep only utm params
     var topPagesQuery = [
       'pageViews',
-      '| extend cleanUrl = tostring(split(url, "?")[0])',
-      '| summarize views = count() by path = cleanUrl',
+      '| where isnotempty(url)',
+      '| extend cleanPath = tostring(parse_url(url).Path)',
+      '| where isnotempty(cleanPath)',
+      '| summarize views = count() by path = cleanPath',
       '| top 10 by views desc'
     ].join('\n');
 
