@@ -18,6 +18,42 @@ const {
 const {
   logEvent, stripTaskPrefixes, _createActionFromHeartbeat, generateConversationalEntityComment
 } = require('./helpers');
+const _productFacts = require('../_data/product-facts.json');
+
+// Claude quality gate for external-facing content
+async function _validateContentQuality(text, platform, context) {
+  var apiKey = process.env.ANTHROPIC_API_KEY;
+  if (!apiKey || !text) return null;
+  try {
+    var factsStr = Object.keys(_productFacts.products).map(function(name) {
+      var p = _productFacts.products[name];
+      return name + ': ' + p.description + '. Features: ' + p.features.join(', ') + '. NOT: ' + p.notThis.join('; ');
+    }).join('\n');
+    var prompt = 'You are a content quality checker for AmbientPixels. Check this ' + platform + ' post for factual accuracy against the product descriptions below. Flag any hallucinated features, inaccurate claims, or features that do not exist.\n\nPRODUCT FACTS:\n' + factsStr + '\n\nPOST TO CHECK:\n' + text + '\n\nReturn ONLY raw JSON with no markdown, no preamble, no explanation:\n{"pass": true_or_false, "confidence": 0_to_100, "issues": ["issue1", "issue2"]}';
+    var controller = new AbortController();
+    var timeout = setTimeout(function() { controller.abort(); }, 10000);
+    var resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({ model: 'claude-haiku-4-5-20251001', max_tokens: 500, messages: [{ role: 'user', content: prompt }] }),
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+    if (!resp.ok) { context.log('[QualityGate] Claude returned', resp.status); return null; }
+    var data = await resp.json();
+    var responseText = (data.content && data.content[0] && data.content[0].text) || '';
+    // Try direct JSON parse
+    try { return JSON.parse(responseText); } catch (_) {}
+    // Regex fallback — extract JSON from response
+    var match = responseText.match(/\{[\s\S]*\}/);
+    if (match) { try { return JSON.parse(match[0]); } catch (_) {} }
+    // Parse failed — flag for manual review
+    return { pass: true, confidence: 0, issues: ['Quality gate parse error — manual review recommended'] };
+  } catch (err) {
+    context.log('[QualityGate] Error (fail-open):', String(err).substring(0, 150));
+    return null; // fail-open
+  }
+}
 
 // Phase 2 modules
 const { normalizeAgentResult, _normalizeEnvelope, _normalizeProposal, _isValidProposal } = require('./normalization');
@@ -26,7 +62,7 @@ const { normalizeAgentResult, _normalizeEnvelope, _normalizeProposal, _isValidPr
 const { buildHeartbeatPrompt } = require('./prompt-builders');
 const { executeTask, reviewTask } = require('./execution-engine');
 
-async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, normalizedActivationMode, isAgentInCooldown, logAgentCooldownOnce, incPolicyGate, campaignCtx, siteIntel, workerReports, _agentMemoryStore, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments) {
+async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummaries, cycleId, novaSkipTaskIds, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, revisionActions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, normalizedActivationMode, isAgentInCooldown, logAgentCooldownOnce, incPolicyGate, campaignCtx, siteIntel, workerReports, _agentMemoryStore, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts) {
   const _agentRunStartMs = Date.now();
   // Per-day memory write counter (moved from index.js during refactor)
   const _memoryWriteCounters = {};
@@ -89,7 +125,7 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
   // Only show this agent their own revision-requested actions
   const agentRevisions = (revisionActions || []).filter(a => a.created_by === agentId || a.origin_agent === agentId);
 
-  const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, configs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments);
+  const prompt = buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, configs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts);
 
   // Call Gemini
   let response = await callGemini(prompt, agentId);
@@ -1903,9 +1939,19 @@ Write the full deliverable first, then the structured JSON block.`;
         _socialPreviewImage = (typeof _firstMedia === 'string') ? _firstMedia : (_firstMedia && _firstMedia.url) || null;
       }
 
+      // Quality gate — validate content before approval queue
+      var _qgResult = null;
+      var _postText = (newAction.payload && newAction.payload.text) || '';
+      if (_postText.length > 10) {
+        _qgResult = await _validateContentQuality(_postText, newAction.platform || 'social', context);
+        if (_qgResult) {
+          context.log('[QualityGate]', newAction.platform, 'pass:', _qgResult.pass, 'confidence:', _qgResult.confidence, 'issues:', (_qgResult.issues || []).length);
+        }
+      }
+
       // Add to approval queue
       const approvalQueue = (await storage.getState('approvalQueue')) || [];
-      approvalQueue.push({
+      var _aqEntry = {
         id: 'aq-' + newAction.id,
         kind: 'action',
         action_id: newAction.id,
@@ -1918,9 +1964,19 @@ Write the full deliverable first, then the structured JSON block.`;
         brandImpact: 'medium',
         status: 'pending',
         submittedAt: new Date().toISOString(),
-        preview: (newAction.payload && newAction.payload.text) ? newAction.payload.text.substring(0, 120) : '',
+        preview: _postText.substring(0, 120),
         previewImageUrl: _socialPreviewImage
-      });
+      };
+      if (_qgResult) {
+        _aqEntry.qualityGate = {
+          pass: !!_qgResult.pass,
+          confidence: _qgResult.confidence || 0,
+          issues: _qgResult.issues || [],
+          model: 'claude-haiku-4-5-20251001',
+          checkedAt: new Date().toISOString()
+        };
+      }
+      approvalQueue.push(_aqEntry);
       if (approvalQueue.length > 100) approvalQueue.splice(0, approvalQueue.length - 100);
       await storage.setState('approvalQueue', approvalQueue);
 

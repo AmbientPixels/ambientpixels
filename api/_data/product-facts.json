@@ -1,0 +1,39 @@
+{
+  "products": {
+    "AmbientOS": {
+      "description": "AI-powered company orchestration platform where 8 autonomous agents run departments under human governance",
+      "features": ["heartbeat system (30-min cycles)", "8 AI agents", "task/campaign/goal management", "social pipeline", "blog pipeline", "CEO approval queue"],
+      "notThis": ["it is NOT a traditional operating system", "it does NOT run on desktop/mobile devices", "it does NOT have a CLI or terminal"]
+    },
+    "CardForge": {
+      "description": "AI-powered RPG card creator with visual editor, arena battles, deck builder, and public gallery",
+      "features": ["6-tier modular card editor", "AI art generation via Gemini", "arena PvE battles", "deck builder (30 cards)", "public gallery", "Quick Build wizard", "10 presets"],
+      "notThis": ["it is NOT a trading card marketplace", "it does NOT support card trading or selling", "it does NOT integrate with MTG/Pokemon/Yu-Gi-Oh"]
+    },
+    "StoryForge": {
+      "description": "AI interactive fiction game with RPG mechanics, multiple genres, and branching narratives",
+      "features": ["genre selection (fantasy, sci-fi, horror, etc.)", "character wizard", "dice rolls and skill checks", "inventory system", "companion system", "audio/music", "Gemini AI narration"],
+      "notThis": ["it is NOT a writing tool or word processor", "it does NOT generate novels or ebooks", "it does NOT export to PDF"]
+    },
+    "PixelAgents": {
+      "description": "AI agent marketplace with 24 built-in agents across 12 categories, plus community Agent Forge",
+      "features": ["text-only agents", "web search agents (Brave API)", "URL fetch agents", "image generation agents (Gemini)", "Agent Forge builder", "community submissions"],
+      "notThis": ["it is NOT a web scraper", "it does NOT browse URLs interactively", "it does NOT fill forms", "it does NOT export CSV files", "agents do NOT have persistent memory between sessions"]
+    },
+    "AmbientScore": {
+      "description": "Website conversion scoring tool that analyzes landing pages for conversion optimization",
+      "features": ["URL-based scanning", "conversion score rating", "AI-generated recommendations", "scan history"],
+      "notThis": ["it is NOT an SEO tool", "it does NOT track rankings", "it does NOT monitor competitors"]
+    },
+    "AgentForge": {
+      "description": "Visual agent builder where users create custom AI agents with a card-based pipeline",
+      "features": ["drag-and-drop builder", "test before submit", "AI gatekeeper review", "CEO approval", "community catalog"],
+      "notThis": ["it is NOT a coding tool", "it does NOT generate code", "it does NOT deploy agents to external platforms"]
+    }
+  },
+  "company": {
+    "name": "AmbientPixels",
+    "url": "https://ambientpixels.ai",
+    "tone": "Speak as AmbientPixels, not as an individual. Focus on what we build, ship, and learn. No corporate buzzwords."
+  }
+}

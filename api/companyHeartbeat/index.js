@@ -15,6 +15,7 @@ const { buildPerformanceDigest, generatePerformanceInsights, evaluateExperiments
 const { runAgentHeartbeat } = require('./agent-runner');
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY; // used for early-exit check in main function
+const productFacts = require('../_data/product-facts.json');
 
 // Destructure constants used by main orchestrator
 const {
@@ -1545,7 +1546,8 @@ module.exports = async function (context) {
           agentId === 'nova' ? workerReports : null,
           _agentMemoryStore, trendRadarStore,
           (agentId === 'nova' || agentId === 'scribe') ? trendInsightsStore : null,
-          performanceDigest, agentExperiments
+          performanceDigest, agentExperiments,
+          productFacts
         );
         // Collect any new research intel from this agent's cycle
         if (result.newResearchIntel) {

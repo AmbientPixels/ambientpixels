@@ -892,6 +892,10 @@
         .then(function(data) {
           var queue = data.value || data || [];
           if (!Array.isArray(queue)) queue = [];
+          // Build action→qualityGate lookup for badge rendering
+          window._aqItemsByActionId = {};
+          queue.forEach(function(item) { if (item.action_id) window._aqItemsByActionId[item.action_id] = item; });
+
           var naTypes = ['convergence_escalation', 'overdue_escalation', 'stale_revision_escalation'];
           var items = queue.filter(function(item) { return naTypes.indexOf(item.type) !== -1 && item.status === 'pending'; });
 
@@ -1417,6 +1421,11 @@
       if (aType === 'publish_document') html += '<span style="display:inline-flex;align-items:center;gap:0.25rem;font-size:0.5rem;padding:0.1rem 0.4rem;border-radius:3px;background:rgba(52,211,153,0.12);color:#34d399;font-weight:600;"><i class="fas fa-newspaper"></i>Blog</span>';
       if (a.approval && a.approval.revision_count) html += '<span style="font-size:0.55rem;padding:0.1rem 0.35rem;border-radius:3px;background:rgba(251,191,36,0.12);color:#fbbf24;font-weight:600;">REV ' + a.approval.revision_count + '</span>';
       if (payload._ceo_edited) html += '<span class="act-edit-badge"><i class="fas fa-pen" style="font-size:0.4rem;"></i>CEO edited</span>';
+      // Quality gate badge
+      var _qg = a._aqEntry && a._aqEntry.qualityGate;
+      if (!_qg && window._aqItemsByActionId) { var _aqI = window._aqItemsByActionId[a.id]; if (_aqI) _qg = _aqI.qualityGate; }
+      if (_qg && _qg.pass === false) html += '<span style="display:inline-flex;align-items:center;gap:0.2rem;font-size:0.5rem;padding:0.1rem 0.4rem;border-radius:3px;background:rgba(239,68,68,0.12);color:#ef4444;font-weight:600;" title="' + esc((_qg.issues || []).join('; ')) + '"><i class="fas fa-exclamation-triangle"></i>Quality Flag</span>';
+      else if (_qg && _qg.pass === true) html += '<span style="display:inline-flex;align-items:center;gap:0.2rem;font-size:0.5rem;padding:0.1rem 0.4rem;border-radius:3px;background:rgba(52,211,153,0.08);color:#34d399;font-weight:600;"><i class="fas fa-check"></i>Verified</span>';
       if (a.is_irreversible) html += '<span class="act-badge act-badge--irreversible">irreversible</span>';
       html += '</div>';
       if (actionTitle) html += '<div style="font-size:0.9rem;font-weight:600;margin-top:2px;">' + esc(actionTitle) + '</div>';

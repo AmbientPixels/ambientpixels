@@ -70,7 +70,7 @@ function buildSiteContextBlock() {
 }
 
 // ── Build heartbeat prompt ──
-function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments) {
+function buildHeartbeatPrompt(agent, agentTasks, allActiveTasks, activeDirectives, activeObjectives, documents, workspaceMemory, workspaceDates, agentRevisions, costIntel, reviewCooldownIds, seedMemories, researchIntelStore, socialIntel, workerReports, _agentMemoryStore, agentConfigs, trendRadarStore, trendInsightsStore, performanceDigest, agentExperiments, productFacts) {
   activeDirectives = activeDirectives || [];
   activeObjectives = activeObjectives || [];
   documents = documents || [];
@@ -770,8 +770,27 @@ You must remain within your assigned authority tier. Doctrine influences your st
   const _agentRole = (_agentCfg.roleOverride && String(_agentCfg.roleOverride).trim()) || agent.role;
   const _agentTitle = (_agentCfg.titleOverride && String(_agentCfg.titleOverride).trim()) || '';
   const _titleSuffix = _agentTitle ? ' (' + _agentTitle + ')' : '';
+
+  // Product facts injection for content-producing agents (Echo, Scribe, Quill)
+  var productFactsBlock = '';
+  if (productFacts && productFacts.products && ['echo', 'scribe', 'quill'].indexOf(agentId) !== -1) {
+    var pfLines = ['\n📋 PRODUCT FACTS (use ONLY these when describing products — do NOT invent features):'];
+    Object.keys(productFacts.products).forEach(function(pName) {
+      var p = productFacts.products[pName];
+      pfLines.push('• ' + pName + ': ' + p.description);
+      pfLines.push('  Features: ' + p.features.join(', '));
+      pfLines.push('  ⛔ NOT: ' + p.notThis.join('; '));
+    });
+    if (productFacts.company) {
+      pfLines.push('\nCompany: ' + productFacts.company.name + ' (' + productFacts.company.url + ')');
+      pfLines.push('Tone: ' + productFacts.company.tone);
+    }
+    pfLines.push('\n⚠️ ACCURACY RULE: When writing external content (social posts, blog posts, marketing copy), you MUST only reference features listed above. If unsure about a product feature, say something general rather than inventing specifics. NEVER fabricate features, capabilities, or use cases that are not listed.');
+    productFactsBlock = pfLines.join('\n');
+  }
+
   return `You are ${agent.name}, ${_agentRole}${_titleSuffix} at AmbientPixels. Your focus: ${agent.focus}.
-${personalityBlock}${doctrineBlock}${seedBlock}${memoryBlock}
+${personalityBlock}${doctrineBlock}${seedBlock}${memoryBlock}${productFactsBlock}
 This is an automated heartbeat check. Review your current tasks and the company task board, then decide what actions to take (if any). Not every heartbeat needs action — only act if something is genuinely needed.
 
 YOUR TASKS:
