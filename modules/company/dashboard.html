@@ -465,7 +465,7 @@
             </div>
           </div>
 
-          <div id="ceo-tb-body" style="display:none;"></div>
+          <div id="ceo-tb-body" style="min-height:160px;"></div>
 
           <div style="margin-top:0.5rem;">
             <a href="/modules/company/analytics-hub.html" style="font-size:0.7rem;color:rgba(90,200,250,0.7);text-decoration:none;"><i class="fas fa-chart-line" style="margin-right:0.3rem;"></i>View Full Analytics →</a>
@@ -1692,125 +1692,19 @@
           });
           html += '</div>';
 
-          // ── Charts row (bar + donut) ──
-          html += '<div class="tb-charts-row">'
-            + '<div class="tb-chart-wrap"><div class="tb-chart-title"><i class="fas fa-bars" style="margin-right:4px;"></i>Top Pages by Views</div><canvas id="tb-bar-canvas" height="120"></canvas></div>'
-            + '<div class="tb-chart-wrap"><div class="tb-chart-title"><i class="fas fa-circle-notch" style="margin-right:4px;"></i>Traffic by Product</div><canvas id="tb-donut-canvas" height="120"></canvas></div>'
-            + '</div>';
-
-          // ── Existing 3-column grid ──
-          html += '<div class="growth-traffic-grid">';
-          html += '<div class="growth-traffic-col">' + _renderTable('Top Pages', 'file-alt', data.topPages, 'path', 'views') + '</div>';
-          html += '<div class="growth-traffic-col">' + _renderTable('Top Referrers', 'external-link-alt', data.topReferrers, 'referrer', 'sessions') + '</div>';
-          html += '<div class="growth-traffic-col">';
-          if (data.topCampaigns && data.topCampaigns.length > 0) {
-            html += '<div class="growth-table-title"><i class="fas fa-bullhorn"></i>Top Campaigns</div>';
-            data.topCampaigns.forEach(function (c) {
-              html += '<div class="growth-table-row"><span class="growth-table-key">' + _esc(c.campaign) + '</span><span class="growth-table-val growth-table-val--green">' + (c.sessions || 0).toLocaleString() + '</span></div>';
-            });
-          } else {
-            html += '<div class="growth-table-title"><i class="fas fa-bullhorn"></i>Top Campaigns</div>';
-            html += '<div style="font-size:0.6rem;opacity:0.25;padding:0.2rem 0;">No campaign data</div>';
-          }
-          html += '</div></div>';
-
-          // ── Metrics row (p50, p95, error rate, campaign ratio) ──
-          function _perfPill(ms) {
-            if (!ms) return '<span class="tb-pill tb-pill--yellow">—</span>';
-            if (ms < 1000) return '<span class="tb-pill tb-pill--green">' + ms + 'ms</span>';
-            if (ms < 3000) return '<span class="tb-pill tb-pill--yellow">' + ms + 'ms</span>';
-            return '<span class="tb-pill tb-pill--red">' + ms + 'ms</span>';
-          }
-          html += '<div class="tb-metrics-row">';
-          if (data.performance) {
-            html += '<span class="tb-metric-chip"><i class="fas fa-tachometer-alt"></i> p50 load ' + _perfPill(data.performance.pageLoadMs_p50) + '</span>';
-            html += '<span class="tb-metric-chip"><i class="fas fa-tachometer-alt"></i> p95 load ' + _perfPill(data.performance.pageLoadMs_p95) + '</span>';
-          }
-          if (data.errors && totalViews > 0) {
-            var errTotal = 0;
-            data.errors.forEach(function (e) { errTotal += (e.count || 0); });
-            var errRate = (errTotal / totalViews * 100).toFixed(2);
-            var errClass = errTotal === 0 ? 'tb-pill--green' : (parseFloat(errRate) < 0.1 ? 'tb-pill--green' : (parseFloat(errRate) < 1 ? 'tb-pill--yellow' : 'tb-pill--red'));
-            html += '<span class="tb-metric-chip"><i class="fas fa-bug"></i> error rate <span class="tb-pill ' + errClass + '">' + errRate + '%</span></span>';
-          }
-          if (data.topCampaigns && data.topCampaigns.length > 0 && totalViews > 0) {
-            var campTotal = 0;
-            data.topCampaigns.forEach(function (c) { campTotal += (c.sessions || 0); });
-            var campPct = Math.round(campTotal / totalViews * 100);
-            html += '<span class="tb-metric-chip"><i class="fas fa-bullhorn"></i> campaign-driven <span class="tb-pill tb-pill--green">' + campPct + '%</span> (' + campTotal.toLocaleString() + ' / ' + totalViews.toLocaleString() + ')</span>';
-          }
+          // ── Compact layout: donut + 2-column tables ──
+          html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;align-items:start;">';
+          html += '<div class="growth-traffic-col">' + _renderTable('Top Pages', 'file-alt', (data.topPages || []).slice(0, 5), 'path', 'views') + '</div>';
+          html += '<div class="growth-traffic-col">' + _renderTable('Top Referrers', 'external-link-alt', (data.topReferrers || []).slice(0, 5), 'referrer', 'sessions') + '</div>';
+          html += '<div><div class="growth-table-title"><i class="fas fa-circle-notch"></i>Traffic by Product</div><div style="position:relative;height:130px;"><canvas id="tb-donut-canvas" height="130"></canvas></div></div>';
           html += '</div>';
-
-          // ── Collapsible stats table ──
-          var csvRows = [['Page Path', 'Views', '% of Total']];
-          var tableRows = '';
-          if (data.topPages) {
-            data.topPages.forEach(function (p) {
-              var pct = totalViews > 0 ? (p.views / totalViews * 100).toFixed(1) : '0.0';
-              tableRows += '<tr><td>' + _esc(p.path || '—') + '</td><td class="tb-col-views">' + (p.views || 0).toLocaleString() + '</td><td class="tb-col-pct">' + pct + '%</td></tr>';
-              csvRows.push([p.path || '', p.views || 0, pct + '%']);
-            });
-          }
-          var csvContent = csvRows.map(function (r) { return r.map(function (c) { return '"' + String(c).replace(/"/g, '""') + '"'; }).join(','); }).join('\n');
-          if (!tableRows) tableRows = '<tr><td colspan="3" class="tb-col-empty">No page data available</td></tr>';
-          html += '<details class="tb-stats-details">'
-            + '<summary><i class="fas fa-table" style="margin-right:4px;"></i>Full Stats Table'
-            + '<button class="tb-export-btn" id="tb-csv-btn" type="button"><i class="fas fa-download" style="margin-right:3px;"></i>Export CSV</button>'
-            + '</summary>'
-            + '<table class="tb-stats-table"><thead><tr><th>Page Path</th><th style="text-align:right;">Views</th><th style="text-align:right;">% of Total</th></tr></thead>'
-            + '<tbody>' + tableRows + '</tbody></table>'
-            + '</details>';
 
           body.innerHTML = html;
 
-          // ── Wire CSV export ──
-          var csvBtn = document.getElementById('tb-csv-btn');
-          if (csvBtn) {
-            csvBtn.addEventListener('click', function (e) {
-              e.stopPropagation();
-              var blob = new Blob([csvContent], { type: 'text/csv' });
-              var url = URL.createObjectURL(blob);
-              var a = document.createElement('a');
-              a.href = url;
-              a.download = 'traffic-brief-' + (data.range || '7d') + '.csv';
-              document.body.appendChild(a);
-              a.click();
-              document.body.removeChild(a);
-              URL.revokeObjectURL(url);
-            });
-          }
-
-          // ── Draw charts ──
+          // ── Draw donut chart ──
           if (typeof Chart === 'undefined') return;
 
-          // Destroy existing charts to prevent "Canvas already in use" error
-          if (window._tbBarChart) { window._tbBarChart.destroy(); window._tbBarChart = null; }
           if (window._tbDonutChart) { window._tbDonutChart.destroy(); window._tbDonutChart = null; }
-
-          // Bar chart — top 5 pages
-          var barCanvas = document.getElementById('tb-bar-canvas');
-          if (barCanvas && data.topPages && data.topPages.length > 0) {
-            var barPages = data.topPages.slice(0, 5);
-            var barLabels = barPages.map(function (p) { var s = p.path || ''; return s.length > 38 ? s.slice(0, 36) + '…' : s; });
-            var barData = barPages.map(function (p) { return p.views || 0; });
-            window._tbBarChart = new Chart(barCanvas, {
-              type: 'bar',
-              data: {
-                labels: barLabels,
-                datasets: [{ data: barData, backgroundColor: 'rgba(56,189,248,0.55)', borderColor: '#38bdf8', borderWidth: 1, borderRadius: 3 }]
-              },
-              options: {
-                indexAxis: 'y',
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false }, tooltip: { callbacks: { label: function (ctx) { return ' ' + ctx.parsed.x.toLocaleString() + ' views'; } } } },
-                scales: {
-                  x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: 'rgba(255,255,255,0.35)', font: { size: 9 } }, border: { color: 'rgba(255,255,255,0.08)' } },
-                  y: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.5)', font: { size: 9 } }, border: { color: 'rgba(255,255,255,0.08)' } }
-                }
-              }
-            });
-          }
 
           // Donut chart — traffic by product vs other
           var donutCanvas = document.getElementById('tb-donut-canvas');
