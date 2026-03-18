@@ -284,6 +284,23 @@
   .dev-log-split { grid-template-columns: 1fr; }
 }
 
+/* Dev View: bump font sizes for Traffic Brief, Observability, and sub-panels */
+#view-dev #traffic-brief-root { font-size: 0.72rem; }
+#view-dev #traffic-brief-root .tb-controls-row { font-size: 0.65rem; }
+#view-dev .obs-section-title { font-size: 0.75rem; }
+#view-dev .obs-status-bar { font-size: 0.65rem; }
+#view-dev .obs-kpi-label { font-size: 0.65rem; }
+#view-dev .obs-kpi-val { font-size: 1.1rem; }
+#view-dev .obs-kpi-sub { font-size: 0.6rem; }
+#view-dev .obs-driver-title { font-size: 0.7rem; }
+#view-dev .obs-driver-panel { font-size: 0.65rem; }
+#view-dev .obs-spark-title { font-size: 0.65rem; }
+#view-dev .obs-spark-label { font-size: 0.5rem; }
+#view-dev .obs-storage-strip { font-size: 0.68rem; }
+#view-dev .obs-btn { font-size: 0.65rem; }
+#view-dev .obs-dq-badge { font-size: 0.55rem; }
+#view-dev .obs-last-updated { font-size: 0.58rem; }
+
 /* ── Panel — Apple #1c1c1e card ── */
 .dash-panel {
   background: #1c1c1e;
