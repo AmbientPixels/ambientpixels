@@ -444,6 +444,28 @@ Write the full deliverable first, then the structured JSON block.`;
           _crTask.comments.push({ id: 'cmt-convesc-' + Date.now() + '-' + _cri, author: 'system', type: 'system', createdAt: new Date().toISOString(),
             text: '[SYSTEM] Revision loop detected: ' + _crDels.length + ' deliverables without convergence. CEO must approve the latest draft, provide direction, or close this task.' });
           context.log('[Heartbeat] CONVERGENCE ESCALATION:', _crTask.id, '—', _crDels.length, 'deliverables, moved to review for CEO');
+          // Push convergence_escalation to approvalQueue so it appears in Needs Attention panel
+          try {
+            var _ceAQ = (await storage.getState('approvalQueue')) || [];
+            var _ceAlreadyInQueue = _ceAQ.some(function(q) { return q.type === 'convergence_escalation' && q.taskId === _crTask.id && q.status === 'pending'; });
+            if (!_ceAlreadyInQueue) {
+              _ceAQ.push({
+                id: 'aq-convesc-' + _crTask.id + '-' + Date.now(),
+                type: 'convergence_escalation',
+                taskId: _crTask.id,
+                taskTitle: _crTask.title || _crTask.id,
+                originAgent: _crTask.assignee || agentId,
+                attempts: _crDels.length,
+                status: 'pending',
+                createdAt: new Date().toISOString()
+              });
+              if (_ceAQ.length > 100) _ceAQ.splice(0, _ceAQ.length - 100);
+              await storage.setState('approvalQueue', _ceAQ);
+              context.log('[Heartbeat] CONVERGENCE ESCALATION: added to approvalQueue for task', _crTask.id);
+            }
+          } catch (_ceErr) {
+            context.log('[Heartbeat] CONVERGENCE ESCALATION: approvalQueue write failed (non-fatal):', String(_ceErr).substring(0, 200));
+          }
         }
         // Auto-submit-for-publish: if convergence-locked task has a ready document with hero image,
         // inject submit-for-publish so it reaches the CEO approval queue instead of being stuck forever.
@@ -1120,6 +1142,27 @@ Write the full deliverable first, then the structured JSON block.`;
             // because convergence-locked tasks are filtered from _executableIdle before any
             // execute-task action reaches here.
             // No auto-complete for social or social-copy tasks — CEO must review via approval queue.
+            // Push convergence_escalation to approvalQueue (backup path)
+            try {
+              var _ce2AQ = (await storage.getState('approvalQueue')) || [];
+              var _ce2Already = _ce2AQ.some(function(q) { return q.type === 'convergence_escalation' && q.taskId === _exTask.id && q.status === 'pending'; });
+              if (!_ce2Already) {
+                _ce2AQ.push({
+                  id: 'aq-convesc-' + _exTask.id + '-' + Date.now(),
+                  type: 'convergence_escalation',
+                  taskId: _exTask.id,
+                  taskTitle: _exTask.title || _exTask.id,
+                  originAgent: _exTask.assignee || agentId,
+                  attempts: _deliverableCount,
+                  status: 'pending',
+                  createdAt: new Date().toISOString()
+                });
+                if (_ce2AQ.length > 100) _ce2AQ.splice(0, _ce2AQ.length - 100);
+                await storage.setState('approvalQueue', _ce2AQ);
+              }
+            } catch (_ce2Err) {
+              context.log('[Heartbeat] CONVERGENCE ESCALATION (backup): approvalQueue write failed:', String(_ce2Err).substring(0, 200));
+            }
             continue;
           }
           const _hasDeliverable = _deliverableCount > 0;
