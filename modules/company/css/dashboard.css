@@ -1792,6 +1792,11 @@ body[data-theme="dim"] .cc-quick-links a:hover { color: rgba(241,245,249,0.7); }
 #section-org-chart,
 #section-exec-plan { order: 99; }
 
+/* CEO Social: compact — hide platform cards + alerts, keep KPIs + graph + top post */
+#social-command-ceo .scc-platforms { display: none; }
+#social-command-ceo .scc-comment-alert { display: none; }
+#social-command-ceo .scc-issue-row { display: none; }
+
 /* ── Fade-up animation ── */
 @keyframes ceo-fade-up {
   from { opacity: 0; transform: translateY(8px); }
