@@ -56,7 +56,7 @@ async function _kustoQuery(query, timespan, logger) {
       var errBody = '';
       try { errBody = await resp.text(); } catch (_) {}
       if (logger) logger('[telemetrySummary] Kusto query failed:', resp.status, errBody.substring(0, 300));
-      _lastQueryErrors.push({ query: query.substring(0, 80), status: resp.status, error: errBody.substring(0, 200) });
+      _lastQueryErrors.push({ query: query.substring(0, 80), status: resp.status, error: errBody.substring(0, 500) });
       return null;
     }
     var data = await resp.json();
@@ -116,8 +116,8 @@ module.exports = async function (context, req) {
     // Top pages query — strip querystrings, keep only utm params
     var topPagesQuery = [
       'pageViews',
-      '| extend pagePath = iif(isnotempty(url), tostring(split(url, "?")[0]), "")',
-      '| where isnotempty(pagePath)',
+      '| extend pagePath = tostring(parse_url(url).Path)',
+      '| where pagePath != ""',
       '| summarize views = count() by path = pagePath',
       '| top 10 by views desc'
     ].join('\n');
@@ -159,7 +159,8 @@ module.exports = async function (context, req) {
     // Daily page views timeline
     var dailyViewsQuery = [
       'pageViews',
-      '| summarize views = count() by day = startofday(timestamp)',
+      '| extend day = format_datetime(timestamp, "yyyy-MM-dd")',
+      '| summarize views = count() by day',
       '| order by day asc'
     ].join('\n');
 
