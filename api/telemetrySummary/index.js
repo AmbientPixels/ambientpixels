@@ -116,9 +116,8 @@ module.exports = async function (context, req) {
     // Top pages query — strip querystrings, keep only utm params
     var topPagesQuery = [
       'pageViews',
-      '| extend pagePath = tostring(parse_url(url).Path)',
-      '| where pagePath != ""',
-      '| summarize viewCount = count() by path = pagePath',
+      '| where isnotempty(["name"])',
+      '| summarize viewCount = count() by path = tostring(["name"])',
       '| top 10 by viewCount desc'
     ].join('\n');
 
