@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2026-03-17T14:18:38.640Z",
+  "updated": "2026-03-18T14:21:59.615Z",
   "root": [
     {
       "type": "folder",
@@ -1428,6 +1428,11 @@
             },
             {
               "type": "page",
+              "name": "analytics-hub.html",
+              "path": "modules/company/analytics-hub.html"
+            },
+            {
+              "type": "page",
               "name": "board.html",
               "path": "modules/company/board.html"
             },
@@ -1542,11 +1547,6 @@
               "type": "page",
               "name": "plan-overview.html",
               "path": "modules/company/plan-overview.html"
-            },
-            {
-              "type": "page",
-              "name": "analytics-hub.html",
-              "path": "modules/company/analytics-hub.html"
             },
             {
               "type": "page",

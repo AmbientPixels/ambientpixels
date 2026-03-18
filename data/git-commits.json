@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "89f90c9b-7188-4888-8ace-9d7ced7e38ff",
-      "hash": "f1743427535fbbb32be437ff4861b445422f0822",
-      "message": "Fix Social Analytics page: move Social Command Center to top + add CSS",
-      "timestamp": "2026-03-16 20:36:59 -0700",
+      "id": "ed550abf-185c-489e-ad01-ddf0ca14709d",
+      "hash": "a91eddf2c19ec1f3f32d0cc10fea6cb00e5fe094",
+      "message": "Add product facts maintenance to Nova's standing instructions",
+      "timestamp": "2026-03-17 23:08:10 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/f1743427535fbbb32be437ff4861b445422f0822"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/a91eddf2c19ec1f3f32d0cc10fea6cb00e5fe094"
     }
   ],
-  "timestamp": "2026-03-17T14:18:40.009Z",
+  "timestamp": "2026-03-18T14:22:01.381Z",
   "count": 1,
-  "scanId": 1773757120009
+  "scanId": 1773843721381
 }

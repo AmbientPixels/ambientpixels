@@ -1,10 +1,10 @@
 {
-  "updated": "2026-03-17T14:18:38.757Z",
+  "updated": "2026-03-18T14:21:59.750Z",
   "entries": [
     {
-      "hash": "f174342",
-      "date": "2026-03-16 20:36:59 -0700",
-      "message": "Fix Social Analytics page: move Social Command Center to top + add CSS"
+      "hash": "a91eddf",
+      "date": "2026-03-17 23:08:10 -0700",
+      "message": "Add product facts maintenance to Nova's standing instructions"
     }
   ]
 }
