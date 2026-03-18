@@ -4144,6 +4144,9 @@
         }
 
         el.innerHTML = html;
+        // Sync to CEO Budget mirror
+        var dstCost = document.getElementById('ceo-cost-summary-mirror');
+        if (dstCost) dstCost.innerHTML = html;
       }
 
       // ── Gemini API Costs ──
@@ -4152,18 +4155,17 @@
 
       function renderGeminiCosts() {
         var el = document.getElementById('panel-gemini-cost');
-        if (!el) return;
         var apiBase = (typeof CompanyStore !== 'undefined' && CompanyStore.getServerBase) ? CompanyStore.getServerBase() : '/api';
         fetch(apiBase + '/geminiCosts?days=' + _geminiCostDays)
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (data) {
-          if (!data) { el.innerHTML = '<div class="dash-empty">Could not load cost data.</div>'; return; }
+          if (!data) { if (el) el.innerHTML = '<div class="dash-empty">Could not load cost data.</div>'; return; }
           _geminiCostCache = data;
           _costSummaryData.gemini = data;
-          _renderGeminiCostPanel(el, data);
+          if (el) _renderGeminiCostPanel(el, data);
           renderCostSummary();
         })
-        .catch(function () { el.innerHTML = '<div class="dash-empty">Network error loading costs.</div>'; });
+        .catch(function () { if (el) el.innerHTML = '<div class="dash-empty">Network error loading costs.</div>'; });
       }
 
       function _renderGeminiCostPanel(el, data) {
@@ -4246,18 +4248,17 @@
 
       function renderClaudeCosts() {
         var el = document.getElementById('panel-claude-cost');
-        if (!el) return;
         var apiBase = (typeof CompanyStore !== 'undefined' && CompanyStore.getServerBase) ? CompanyStore.getServerBase() : '/api';
         fetch(apiBase + '/claudeCosts?days=' + _claudeCostDays)
         .then(function (r) { return r.ok ? r.json() : null; })
         .then(function (data) {
-          if (!data) { el.innerHTML = '<div class="dash-empty">Could not load Claude cost data.</div>'; return; }
+          if (!data) { if (el) el.innerHTML = '<div class="dash-empty">Could not load Claude cost data.</div>'; return; }
           _claudeCostCache = data;
           _costSummaryData.claude = data;
-          _renderClaudeCostPanel(el, data);
+          if (el) _renderClaudeCostPanel(el, data);
           renderCostSummary();
         })
-        .catch(function () { el.innerHTML = '<div class="dash-empty">Network error loading Claude costs.</div>'; });
+        .catch(function () { if (el) el.innerHTML = '<div class="dash-empty">Network error loading Claude costs.</div>'; });
       }
 
       function _renderClaudeCostPanel(el, data) {
@@ -4329,7 +4330,6 @@
 
       function renderAzureCosts() {
         var el = document.getElementById('panel-azure-cost');
-        if (!el) return;
         var apiBase = (typeof CompanyStore !== 'undefined' && CompanyStore.getServerBase) ? CompanyStore.getServerBase() : '/api';
         fetch(apiBase + '/azureCosts?days=' + _azureCostDays)
         .then(function (r) {
@@ -4338,11 +4338,11 @@
         })
         .then(function (data) {
           _costSummaryData.azure = data;
-          _renderAzureCostPanel(el, data);
+          if (el) _renderAzureCostPanel(el, data);
           renderCostSummary();
         })
         .catch(function (err) {
-          el.innerHTML = '<div class="dash-empty" style="font-size:0.6rem;">' + escapeHtml(err.message || 'Could not load Azure cost data.') + '</div>';
+          if (el) el.innerHTML = '<div class="dash-empty" style="font-size:0.6rem;">' + escapeHtml(err.message || 'Could not load Azure cost data.') + '</div>';
         });
       }
 
@@ -4412,7 +4412,6 @@
 
       function renderXCosts() {
         var el = document.getElementById('panel-x-cost');
-        if (!el) return;
         try {
           var actions = (typeof AgentEngine !== 'undefined') ? AgentEngine.getActions() : [];
           var cutoffMs = Date.now() - (_xCostDays * 24 * 60 * 60 * 1000);
@@ -4495,9 +4494,9 @@
           if (xActions.length === 0) {
             html = '<div class="dash-empty">No X.com posts in the last ' + _xCostDays + ' days.' + (X_MONTHLY_SUBSCRIPTION > 0 ? ' Subscription: $' + X_MONTHLY_SUBSCRIPTION + '/mo.' : ' Free tier.') + '</div>';
           }
-          el.innerHTML = html;
+          if (el) el.innerHTML = html;
         } catch (e) {
-          el.innerHTML = '<div class="dash-empty">Error loading X.com data.</div>';
+          if (el) el.innerHTML = '<div class="dash-empty">Error loading X.com data.</div>';
         }
       }
 
