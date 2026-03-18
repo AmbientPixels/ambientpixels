@@ -892,7 +892,8 @@
         .then(function(data) {
           var queue = data.value || data || [];
           if (!Array.isArray(queue)) queue = [];
-          var items = queue.filter(function(item) { return item.type === 'convergence_escalation' && item.status === 'pending'; });
+          var naTypes = ['convergence_escalation', 'overdue_escalation', 'stale_revision_escalation'];
+          var items = queue.filter(function(item) { return naTypes.indexOf(item.type) !== -1 && item.status === 'pending'; });
 
           if (items.length === 0) { panel.style.display = 'none'; return; }
           panel.style.display = '';
@@ -901,19 +902,24 @@
           // Cache items for drawer lookup
           window._naItems = items;
 
+          var _naTypeConfig = {
+            convergence_escalation: { icon: 'fa-exclamation-triangle', color: '#f87171', bg: 'rgba(248,113,113,0.08)', label: 'Stuck', meta: function(item) { return (item.deliverableCount || item.attempts || '5+') + ' attempts'; } },
+            overdue_escalation: { icon: 'fa-clock', color: '#fb923c', bg: 'rgba(251,146,60,0.08)', label: 'Overdue', meta: function(item) { return 'due ' + (item.dueDate || '?'); } },
+            stale_revision_escalation: { icon: 'fa-comment-dots', color: '#fbbf24', bg: 'rgba(251,191,36,0.08)', label: 'Revision Stalled', meta: function(item) { return 'CEO revision unaddressed'; } }
+          };
+
           var html = '';
           items.forEach(function(item, idx) {
             var taskTitle = esc(item.taskTitle || item.title || 'Untitled task');
             var agent = esc(item.originAgent || item.assignee || '?');
-            var attempts = item.deliverableCount || item.attempts || '5+';
             var created = item.createdAt ? new Date(item.createdAt).toLocaleDateString() : '';
-            var taskId = item.taskId || '';
+            var cfg = _naTypeConfig[item.type] || _naTypeConfig.convergence_escalation;
 
             html += '<div class="act-row" style="padding:0.5rem 0;cursor:pointer;" onclick="openNaDrawer(' + idx + ')">';
-            html += '<div class="act-row-icon" style="background:rgba(248,113,113,0.08);color:#f87171;"><i class="fas fa-exclamation-triangle"></i></div>';
+            html += '<div class="act-row-icon" style="background:' + cfg.bg + ';color:' + cfg.color + ';"><i class="fas ' + cfg.icon + '"></i></div>';
             html += '<div class="act-row-info">';
             html += '<div class="act-row-title">' + taskTitle + '</div>';
-            html += '<div class="act-row-meta">' + agent + ' · ' + attempts + ' attempts · ' + created + '</div>';
+            html += '<div class="act-row-meta">' + agent + ' · ' + cfg.meta(item) + ' · ' + created + '</div>';
             html += '</div>';
             html += '<button class="act-btn act-btn--details" onclick="event.stopPropagation();openNaDrawer(' + idx + ')"><i class="fas fa-eye"></i></button>';
             html += '</div>';
@@ -949,7 +955,9 @@
           var agent = item.originAgent || item.assignee || '?';
           var agentLabel = agent.charAt(0).toUpperCase() + agent.slice(1);
           html += '<div style="display:flex;gap:0.5rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap;">';
-          html += '<span class="act-drawer-badge" style="background:rgba(248,113,113,0.12);color:#f87171;">Stuck</span>';
+          var _badgeMap = { convergence_escalation: { label: 'Stuck', color: '#f87171' }, overdue_escalation: { label: 'Overdue', color: '#fb923c' }, stale_revision_escalation: { label: 'Revision Stalled', color: '#fbbf24' } };
+          var _badge = _badgeMap[item.type] || _badgeMap.convergence_escalation;
+          html += '<span class="act-drawer-badge" style="background:' + _badge.color + '20;color:' + _badge.color + ';">' + _badge.label + '</span>';
           html += '<span style="font-size:0.65rem;opacity:0.5;">Assigned to ' + esc(agentLabel) + '</span>';
           html += '<span style="font-size:0.55rem;opacity:0.3;margin-left:auto;">' + esc(taskId) + '</span>';
           html += '</div>';

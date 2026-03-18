@@ -448,6 +448,78 @@ module.exports = async function (context) {
       }
     }
 
+    // ── CEO Needs Attention escalations: overdue + stale revisions ──
+    try {
+      const _naAQ = (await storage.getState('approvalQueue')) || [];
+      let _naChanged = false;
+      const _naNow = Date.now();
+
+      // Overdue escalation: active tasks past dueDate
+      for (const _ot of tasks) {
+        if (_ot.status === 'done' || !_ot.dueDate) continue;
+        if (new Date(_ot.dueDate).getTime() >= _naNow) continue;
+        const _otAlready = _naAQ.some(function(q) { return q.type === 'overdue_escalation' && q.taskId === _ot.id && q.status === 'pending'; });
+        if (!_otAlready) {
+          _naAQ.push({
+            id: 'aq-overdue-' + _ot.id + '-' + _naNow,
+            type: 'overdue_escalation',
+            taskId: _ot.id,
+            taskTitle: _ot.title || _ot.id,
+            originAgent: _ot.assignee || 'unassigned',
+            dueDate: _ot.dueDate,
+            status: 'pending',
+            createdAt: new Date().toISOString()
+          });
+          _naChanged = true;
+          context.log('[Heartbeat] OVERDUE ESCALATION: task', _ot.id, 'due', _ot.dueDate);
+        }
+      }
+
+      // Stale revision escalation: CEO requested revision but agent hasn't responded in 60+ min
+      for (const _sra of revisionActions) {
+        const _srParentId = _sra._parentTaskId || _sra.taskId;
+        if (!_srParentId) continue;
+        const _srTask = tasks.find(function(t) { return t.id === _srParentId; });
+        if (!_srTask || _srTask.status === 'done') continue;
+        // Find the CEO REVISION comment
+        const _srRevComment = (_srTask.comments || []).find(function(c) {
+          return c.text && c.text.indexOf('CEO REVISION') !== -1 && c.text.indexOf(_sra.id) !== -1;
+        });
+        if (!_srRevComment || !_srRevComment.createdAt) continue;
+        // Check if older than 60 min
+        var _srAge = _naNow - new Date(_srRevComment.createdAt).getTime();
+        if (_srAge < 60 * 60 * 1000) continue;
+        // Check if agent has responded with a deliverable AFTER the revision comment
+        const _srRevTs = new Date(_srRevComment.createdAt).getTime();
+        const _srHasNewDeliverable = (_srTask.comments || []).some(function(c) {
+          return c.type === 'deliverable' && c.createdAt && new Date(c.createdAt).getTime() > _srRevTs;
+        });
+        if (_srHasNewDeliverable) continue;
+        const _srAlready = _naAQ.some(function(q) { return q.type === 'stale_revision_escalation' && q.taskId === _srTask.id && q.status === 'pending'; });
+        if (!_srAlready) {
+          _naAQ.push({
+            id: 'aq-stalerev-' + _srTask.id + '-' + _naNow,
+            type: 'stale_revision_escalation',
+            taskId: _srTask.id,
+            taskTitle: _srTask.title || _srTask.id,
+            originAgent: _srTask.assignee || 'unassigned',
+            actionId: _sra.id,
+            status: 'pending',
+            createdAt: new Date().toISOString()
+          });
+          _naChanged = true;
+          context.log('[Heartbeat] STALE REVISION ESCALATION: task', _srTask.id, 'revision unaddressed for', Math.round(_srAge / 60000), 'min');
+        }
+      }
+
+      if (_naChanged) {
+        if (_naAQ.length > 100) _naAQ.splice(0, _naAQ.length - 100);
+        await storage.setState('approvalQueue', _naAQ);
+      }
+    } catch (_naErr) {
+      context.log('[Heartbeat] Needs Attention escalation check failed (non-fatal):', String(_naErr).substring(0, 200));
+    }
+
     // Load persistent agent memories
     _agentMemoryStore = (await storage.getState('agentMemories')) || {};
     // Load CEO-curated seed memories (markdown per agent + global)
