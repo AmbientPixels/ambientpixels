@@ -39,7 +39,7 @@ function _emptyResponse(range, warning) {
   };
 }
 
-async function _kustoQuery(query, timespan) {
+async function _kustoQuery(query, timespan, logger) {
   if (!APP_ID || !API_KEY) return null;
   var url = 'https://api.applicationinsights.io/v1/apps/' + APP_ID + '/query';
   try {
@@ -54,7 +54,7 @@ async function _kustoQuery(query, timespan) {
     if (!resp.ok) {
       var errBody = '';
       try { errBody = await resp.text(); } catch (_) {}
-      console.log('[telemetrySummary] Kusto query failed:', resp.status, errBody.substring(0, 300));
+      if (logger) logger('[telemetrySummary] Kusto query failed:', resp.status, errBody.substring(0, 300));
       return null;
     }
     var data = await resp.json();
@@ -113,10 +113,8 @@ module.exports = async function (context, req) {
     // Top pages query — strip querystrings, keep only utm params
     var topPagesQuery = [
       'pageViews',
-      '| where isnotempty(url)',
-      '| extend cleanPath = tostring(parse_url(url).Path)',
-      '| where isnotempty(cleanPath)',
-      '| summarize views = count() by path = cleanPath',
+      '| where isnotempty(name)',
+      '| summarize views = count() by path = name',
       '| top 10 by views desc'
     ].join('\n');
 
@@ -157,19 +155,19 @@ module.exports = async function (context, req) {
     // Daily page views timeline
     var dailyViewsQuery = [
       'pageViews',
-      '| where isnotempty(url)',
       '| summarize views = count() by day = bin(timestamp, 1d)',
       '| order by day asc'
     ].join('\n');
 
     // Run queries in parallel
+    var _log = context.log.bind(context);
     var results = await Promise.all([
-      _kustoQuery(topPagesQuery, timespan),
-      _kustoQuery(topReferrersQuery, timespan),
-      _kustoQuery(topCampaignsQuery, timespan),
-      _kustoQuery(perfQuery, timespan),
-      _kustoQuery(errorsQuery, timespan),
-      _kustoQuery(dailyViewsQuery, timespan)
+      _kustoQuery(topPagesQuery, timespan, _log),
+      _kustoQuery(topReferrersQuery, timespan, _log),
+      _kustoQuery(topCampaignsQuery, timespan, _log),
+      _kustoQuery(perfQuery, timespan, _log),
+      _kustoQuery(errorsQuery, timespan, _log),
+      _kustoQuery(dailyViewsQuery, timespan, _log)
     ]);
 
     var pages = _parseRows(results[0]).map(function (r) { return { path: r.path || '/', views: r.views || 0 }; });
