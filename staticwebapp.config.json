@@ -60,6 +60,11 @@
       "statusCode": 301
     },
     {
+      "route": "/modules/company/social-analytics.html",
+      "redirect": "/modules/company/analytics-hub.html",
+      "statusCode": 301
+    },
+    {
       "route": "/blog/*.css"
     },
     {

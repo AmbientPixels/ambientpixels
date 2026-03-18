@@ -1458,7 +1458,7 @@ body[data-theme="dark"] { background: #000000; }
 #chat-agent-name      { font-size: 0.95rem; }
 #chat-agent-role      { font-size: 0.7rem; opacity: 0.4; display: block; }
 .agent-chat-msg--placeholder { opacity: 0.5; font-style: italic; }
-/* social-analytics.html */
+/* analytics-hub.html */
 .sa-platform-grid--mt { margin-top: 0.6rem; }
 
 /* ── Skeleton Loading ── */

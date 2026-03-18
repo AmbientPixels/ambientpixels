@@ -1545,8 +1545,8 @@
             },
             {
               "type": "page",
-              "name": "social-analytics.html",
-              "path": "modules/company/social-analytics.html"
+              "name": "analytics-hub.html",
+              "path": "modules/company/analytics-hub.html"
             },
             {
               "type": "page",
