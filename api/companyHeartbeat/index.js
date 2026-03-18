@@ -431,6 +431,7 @@ module.exports = async function (context) {
       if (!_parentTask || _parentTask.status === 'in-progress') continue;
       if (_parentTask.status === 'done' || _parentTask.status === 'review') {
         _parentTask.status = 'in-progress';
+        _parentTask.priority = 'critical';
         _parentTask._social_action_created = false;
         _parentTask._social_action_pending = false;
         _parentTask.reviewed_copy = '';

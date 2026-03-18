@@ -940,7 +940,7 @@
               return t.dueDate && t.dueDate < today && t.status !== 'done';
             }
             if (_signalFilter === 'blocked') {
-              return t.status !== 'done' && (t.blocked || t.escalated || (t.tags && t.tags.indexOf('blocked') !== -1));
+              return t.status !== 'done' && (t.blocked || (t.tags && t.tags.indexOf('blocked') !== -1));
             }
             if (_signalFilter === 'mytasks') {
               return t.assignee && t.assignee === _currentAgentId;
@@ -1147,7 +1147,7 @@
               if (!isNaN(age) && age > oldestAge) oldestAge = age;
             }
             if (t.dueDate && t.dueDate < today && t.status !== 'done') overdueCount++;
-            if (t.status !== 'done' && (t.blocked || t.escalated || (t.tags && t.tags.indexOf('blocked') !== -1))) blockedCount++;
+            if (t.status !== 'done' && (t.blocked || (t.tags && t.tags.indexOf('blocked') !== -1))) blockedCount++;
           });
 
           var summaryHtml = '';
