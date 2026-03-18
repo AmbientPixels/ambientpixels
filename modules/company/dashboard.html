@@ -1363,15 +1363,21 @@
             });
         }
 
-        // API Usage — total Gemini calls from session log
+        // API Usage — total Gemini calls from geminiUsage state
         var cstatApi = document.getElementById('cstat-api');
         var cstatApiSub = document.getElementById('cstat-api-sub');
         if (cstatApi) {
-          var sessions = AgentEngine.getSessionLog ? AgentEngine.getSessionLog() : [];
-          var totalCalls = 0;
-          sessions.forEach(function (s) { if (s.geminiCalls) totalCalls += s.geminiCalls; });
-          cstatApi.textContent = totalCalls >= 1000 ? (totalCalls / 1000).toFixed(1) + 'K' : totalCalls;
-          cstatApiSub.textContent = 'total calls';
+          var apiBase = (typeof CompanyStore !== 'undefined' && CompanyStore.getServerBase) ? CompanyStore.getServerBase() : '/api';
+          fetch(apiBase + '/company-state?key=geminiUsage', { headers: { 'x-company-secret': 'pixelpusher' } })
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+              var usage = data.value || data || [];
+              if (!Array.isArray(usage)) usage = [];
+              var totalCalls = usage.length;
+              cstatApi.textContent = totalCalls >= 1000 ? (totalCalls / 1000).toFixed(1) + 'K' : String(totalCalls);
+              cstatApiSub.textContent = 'total calls';
+            })
+            .catch(function() { cstatApi.textContent = '—'; });
         }
 
         // Daily Burn
