@@ -2703,10 +2703,43 @@ body[data-theme="dark"] { background: #000000; }
 .session-view-btn:hover { opacity: 1; }
 
 /* ── System Pulse ── */
+/* System Pulse — 4-segment card layout */
 .system-pulse {
-  font-size: 0.65rem;
-  opacity: 0.6;
-  line-height: 1.6;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+.system-pulse .pulse-segment {
+  flex: 1 1 120px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 0.75rem;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  width: auto;
+  height: auto;
+}
+.system-pulse .pulse-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--pulse-color, rgba(255,255,255,0.15));
+  flex-shrink: 0;
+}
+.system-pulse .pulse-info { display: flex; flex-direction: column; }
+.system-pulse .pulse-label {
+  font-size: 0.55rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: rgba(255,255,255,0.35);
+  font-weight: 600;
+}
+.system-pulse .pulse-value {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--pulse-color, rgba(255,255,255,0.8));
 }
 
 /* ── Cron + Governance log scroll cap (Dev view side-by-side only) ── */
