@@ -116,7 +116,9 @@ module.exports = async function (context, req) {
     // Top pages query — strip querystrings, keep only utm params
     var topPagesQuery = [
       'pageViews',
-      '| summarize views = count() by path = tostring(name)',
+      '| extend pagePath = iif(isnotempty(url), tostring(split(url, "?")[0]), "")',
+      '| where isnotempty(pagePath)',
+      '| summarize views = count() by path = pagePath',
       '| top 10 by views desc'
     ].join('\n');
 
@@ -157,7 +159,7 @@ module.exports = async function (context, req) {
     // Daily page views timeline
     var dailyViewsQuery = [
       'pageViews',
-      '| summarize views = count() by day = bin(timestamp, 1d)',
+      '| summarize views = count() by day = startofday(timestamp)',
       '| order by day asc'
     ].join('\n');
 
