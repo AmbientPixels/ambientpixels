@@ -1780,10 +1780,10 @@ body[data-theme="dim"] .cc-quick-links a:hover { color: rgba(241,245,249,0.7); }
 #ceo-status-strip { order: 2; }
 .ceo-main-split   { order: 3; }
 #ceo-strategy-row { order: 4; }
-#section-decisions        { order: 5; }
-#section-budget           { order: 6; }
-#section-content-pipeline { order: 7; }
-#section-insights         { order: 8; }
+#section-insights         { order: 5; }
+#section-decisions        { order: 6; }
+#section-budget           { order: 7; }
+#section-content-pipeline { order: 8; }
 #section-api-usage        { order: 9; }
 #section-trend-radar     { order: 10; }
 
