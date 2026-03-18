@@ -1902,14 +1902,14 @@
           var lastTs = new Date(last.finishedAt || last.startedAt || 0).getTime();
           var ageMin = isNaN(lastTs) ? 9999 : Math.floor((Date.now() - lastTs) / 60000);
           var status = String(last.status || 'ok').toLowerCase();
-          if (status !== 'error' && ageMin > 90) status = 'warn';
+          var isStale = ageMin > 90;
 
           var ageText = ageMin < 60 ? ageMin + 'm ago' : Math.floor(ageMin / 60) + 'h ago';
           if (status === 'error') {
             dotHb.className = 'ceo-obs-light-dot ceo-obs-light-dot--bad';
             valHb.textContent = 'error · ' + ageText;
             alerts.push('Last heartbeat errored (' + ageText + ')');
-          } else if (status === 'warn') {
+          } else if (isStale) {
             dotHb.className = 'ceo-obs-light-dot ceo-obs-light-dot--warn';
             valHb.textContent = 'stale · ' + ageText;
             alerts.push('Heartbeat is stale (' + ageText + ')');
