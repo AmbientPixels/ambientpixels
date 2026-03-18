@@ -194,7 +194,6 @@ module.exports = async function (context, req) {
       rangeLabel: _rangeLabel(range),
       generatedAt: new Date().toISOString(),
       warning: anyFailed ? 'partial_data: some queries failed' : null,
-      _debug: queryErrors,
       topPages: pages,
       topReferrers: referrers,
       topCampaigns: campaigns,
