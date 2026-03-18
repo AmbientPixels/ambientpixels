@@ -1075,6 +1075,7 @@
           var task = tasks.find(function(t) { return t.id === taskId; });
           if (!task) return;
           task.status = 'in-progress';
+          task.priority = 'critical';
           task.updatedAt = new Date().toISOString();
           task.comments = task.comments || [];
           task.comments.push({
