@@ -942,12 +942,7 @@
               <div id="board-cost"></div>
             </div>
           </div>
-          <div>
-            <div class="board-section" id="sec-content-pipeline">
-              <div class="board-section-title"><i class="fas fa-newspaper dash-icon-purple"></i> Content Pipeline</div>
-              <div id="board-content-pipeline"></div>
-            </div>
-          </div>
+          <div></div>
         </div>
 
         <!-- 8. Decisions Log -->
@@ -959,12 +954,26 @@
         <!-- 9. Risk Register -->
         <div class="board-section" id="sec-risks">
           <div class="board-section-title"><i class="fas fa-exclamation-triangle dash-icon-red-lt"></i> Risk Register <span class="board-badge board-badge--red" id="badge-risks">0</span></div>
+          <div class="board-risk-controls" id="board-risk-controls">
+            <select id="board-risk-severity">
+              <option value="">All Severities</option>
+              <option value="critical">Critical</option>
+              <option value="high">High</option>
+              <option value="medium">Medium</option>
+              <option value="low">Low</option>
+            </select>
+            <select id="board-risk-source">
+              <option value="manual">Manual Only</option>
+              <option value="all">All Sources</option>
+              <option value="automated">Automated Only</option>
+            </select>
+          </div>
           <div id="board-risks"></div>
         </div>
 
         <!-- Copy Packet (bottom) -->
-        <div style="text-align:center; padding: 1rem 0 0.5rem;">
-          <button id="board-copy-btn" class="board-copy-btn"><i class="fas fa-clipboard"></i> Copy Board Packet</button>
+        <div style="padding: 1rem 0 0.5rem;">
+          <button id="board-copy-btn" class="board-copy-btn" style="width:100%;padding:0.6rem;font-size:0.75rem;font-weight:600;"><i class="fas fa-clipboard"></i> Copy Board Packet</button>
         </div>
 
       </section>

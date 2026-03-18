@@ -25,6 +25,12 @@
     quarterSel.value = 'Q' + (Math.floor(new Date().getMonth() / 3) + 1);
     var _bPacket = null;
 
+    // Risk Register filter state
+    var _riskSeverity = '';       // '' = All, 'critical', 'high', 'medium', 'low'
+    // TODO: standupTitle match for 'Daily' is fragile — update if standup naming changes
+    var _riskSource = 'manual';   // 'all', 'manual' (excludes Daily Standup), 'automated'
+    var _riskExpanded = false;    // false = top 5, true = all
+
     function renderBoard() {
       var year = parseInt(yearSel.value);
       var quarter = quarterSel.value;
@@ -32,17 +38,27 @@
       var s = new Date(_bPacket.dateRange.startISO), e = new Date(_bPacket.dateRange.endISO);
       rangeEl.textContent = _bPacket.quarterKey + '  ·  ' + s.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) + ' – ' + e.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
       [_bRenderHeadline, _bRenderExecSummary, _bRenderGoals,
-       function(){_bRenderDirSection('board-active-dirs','badge-active-dirs',_bPacket.directives.active);},
-       function(){_bRenderDirSection('board-completed-dirs','badge-completed-dirs',_bPacket.directives.completed);},
-       function(){_bRenderDirSection('board-pending-dirs','badge-pending-dirs',_bPacket.directives.pendingApproval);},
-       _bRenderTeam, _bRenderBacklog, _bRenderCost, _bRenderContent,
+       function(){_bRenderDirSection('board-active-dirs','badge-active-dirs',_bPacket.directives.active, null);},
+       function(){_bRenderDirSection('board-completed-dirs','badge-completed-dirs',_bPacket.directives.completed, 'sec-completed-dirs');},
+       function(){_bRenderDirSection('board-pending-dirs','badge-pending-dirs',_bPacket.directives.pendingApproval, 'sec-pending-dirs');},
+       _bRenderTeam, _bRenderBacklog, _bRenderCost,
        _bRenderDecisions, _bRenderRisks, _bRenderThroughput].forEach(function(fn){
         try { fn(); } catch(e) { console.warn('[Board] ' + (fn.name||'anon') + ' error:', e); }
       });
     }
 
     function _bRenderExecSummary() {
-      document.getElementById('board-exec-summary').textContent = _bPacket.execSummary || 'No data available for this quarter.';
+      var el = document.getElementById('board-exec-summary');
+      var summary = _bPacket.execSummary || '';
+      if (!summary) { el.innerHTML = '<div class="board-empty">No data available for this quarter.</div>'; return; }
+      // Split run-on string into structured bullet points
+      var parts = summary.split(/\.\s+/).filter(function(p) { return p.trim().length > 0; });
+      var html = '<ul class="board-exec-list">';
+      parts.forEach(function(p) {
+        html += '<li>' + escapeHtml(p.replace(/\.$/, '')) + '</li>';
+      });
+      html += '</ul>';
+      el.innerHTML = html;
     }
 
     function _bRenderHeadline() {
@@ -110,9 +126,11 @@
     function _bRenderBacklog() {
       var el = document.getElementById('board-backlog');
       var badge = document.getElementById('badge-backlog');
+      var sec = document.getElementById('sec-backlog');
       var pending = (AgentEngine.getActions ? AgentEngine.getActions() : []).filter(function(a){return a.approval && a.approval.status==='pending';});
       badge.textContent = pending.length;
-      if(pending.length===0){el.innerHTML='<div class="board-empty">No pending approvals.</div>';return;}
+      if(pending.length===0){ if(sec) sec.style.display='none'; return; }
+      if(sec) sec.style.display='';
       var now=Date.now(); var totalWaitMs=0;
       pending.forEach(function(p){if(p.submittedAt)totalWaitMs+=now-new Date(p.submittedAt).getTime();});
       var avgWaitH=pending.length>0?Math.round(totalWaitMs/pending.length/3600000):0;
@@ -151,24 +169,16 @@
       el.innerHTML=html||'<div class="board-empty">No cost data available.</div>';
     }
 
-    function _bRenderContent() {
-      var el = document.getElementById('board-content-pipeline');
-      var docs=[]; try{docs=CompanyStore.getStateSync('ap_documents',[])||[];}catch(e){}
-      var published=docs.filter(function(d){return d.status==='published';}).length;
-      var draft=docs.filter(function(d){return d.status==='draft';}).length;
-      var review=docs.filter(function(d){return d.status==='ready_for_approval'||d.status==='review';}).length;
-      if(docs.length===0){el.innerHTML='<div class="board-empty">No content in pipeline.</div>';return;}
-      var html='<div class="board-content-row">';
-      html+='<div class="board-content-pill"><div class="board-content-pill-val" style="color:#34d399;">'+published+'</div><div class="board-content-pill-label">Published</div></div>';
-      html+='<div class="board-content-pill"><div class="board-content-pill-val" style="color:#60a5fa;">'+draft+'</div><div class="board-content-pill-label">Drafts</div></div>';
-      html+='<div class="board-content-pill"><div class="board-content-pill-val" style="color:#fbbf24;">'+review+'</div><div class="board-content-pill-label">In Review</div></div></div>';
-      el.innerHTML=html;
-    }
-
-    function _bRenderDirSection(listId, badgeId, dirs) {
+    function _bRenderDirSection(listId, badgeId, dirs, hideSectionId) {
       var listEl=document.getElementById(listId); var badge=document.getElementById(badgeId);
       badge.textContent=dirs.length;
-      if(dirs.length===0){listEl.innerHTML='<div class="board-empty">None for this quarter.</div>';return;}
+      // Hide section when empty (if hideSectionId provided)
+      if(dirs.length===0){
+        if(hideSectionId){ var sec=document.getElementById(hideSectionId); if(sec) sec.style.display='none'; }
+        else { listEl.innerHTML='<div class="board-empty">None for this quarter.</div>'; }
+        return;
+      }
+      if(hideSectionId){ var secShow=document.getElementById(hideSectionId); if(secShow) secShow.style.display=''; }
       listEl.innerHTML='';
       dirs.forEach(function(d){
         var pColor=d.priority==='critical'?'#ef4444':d.priority==='high'?'#fbbf24':d.priority==='medium'?'#8A2BE2':'#34d399';
@@ -185,8 +195,10 @@
 
     function _bRenderDecisions() {
       var listEl=document.getElementById('board-decisions'); var badge=document.getElementById('badge-decisions');
+      var sec=document.getElementById('sec-decisions');
       badge.textContent=_bPacket.decisions.length;
-      if(_bPacket.decisions.length===0){listEl.innerHTML='<div class="board-empty">No decisions recorded this quarter.</div>';return;}
+      if(_bPacket.decisions.length===0){ if(sec) sec.style.display='none'; return; }
+      if(sec) sec.style.display='';
       listEl.innerHTML='';
       _bPacket.decisions.forEach(function(d){
         var sColor=d.decisionStatus==='Approved'?'#34d399':d.decisionStatus==='Rejected'?'#f87171':d.decisionStatus==='Deferred'?'#fbbf24':'#60a5fa';
@@ -198,17 +210,57 @@
 
     function _bRenderRisks() {
       var listEl=document.getElementById('board-risks'); var badge=document.getElementById('badge-risks');
-      badge.textContent=_bPacket.risks.length;
-      if(_bPacket.risks.length===0){listEl.innerHTML='<div class="board-empty">No risks identified this quarter.</div>';return;}
-      listEl.innerHTML='';
+      var allRisks = _bPacket.risks || [];
+      badge.textContent=allRisks.length;
+      if(allRisks.length===0){listEl.innerHTML='<div class="board-empty">No risks identified this quarter.</div>';return;}
+
+      // Filter by severity
+      var filtered = allRisks;
+      if (_riskSeverity) {
+        filtered = filtered.filter(function(r) { return r.severity === _riskSeverity; });
+      }
+      // Filter by source
+      // TODO: standupTitle match for 'Daily' is fragile — update if standup naming changes
+      if (_riskSource === 'manual') {
+        filtered = filtered.filter(function(r) { return !r.standupTitle || r.standupTitle.indexOf('Daily') === -1; });
+      } else if (_riskSource === 'automated') {
+        filtered = filtered.filter(function(r) { return r.standupTitle && r.standupTitle.indexOf('Daily') !== -1; });
+      }
+
+      var totalFiltered = filtered.length;
+      var displayRisks = _riskExpanded ? filtered : filtered.slice(0, 5);
+
+      if (totalFiltered === 0) {
+        listEl.innerHTML = '<div class="board-empty">No risks match current filters.</div>';
+        return;
+      }
+
       var sevColors={critical:'#ef4444',high:'#f87171',medium:'#fbbf24',low:'#34d399'};
-      _bPacket.risks.slice(0,10).forEach(function(r){
+      var html = '';
+      displayRisks.forEach(function(r){
         var sColor=sevColors[r.severity]||'#fbbf24';
-        var div=document.createElement('div'); div.className='board-dir-card';
-        div.innerHTML='<div style="flex:1;min-width:0;"><div style="font-size:0.8rem;">'+escapeHtml(r.description)+'</div><div style="font-size:0.6rem;opacity:0.4;margin-top:2px;">From: '+escapeHtml(r.standupTitle||'?')+'</div></div><span style="font-size:0.55rem;padding:2px 8px;border-radius:4px;background:'+sColor+'18;color:'+sColor+';font-weight:600;white-space:nowrap;">'+r.severity+'</span>';
-        listEl.appendChild(div);
+        var sevClass = (r.severity === 'critical' || r.severity === 'high') ? ' board-risk-card--high' : r.severity === 'medium' ? ' board-risk-card--medium' : ' board-risk-card--low';
+        html += '<div class="board-dir-card' + sevClass + '">';
+        html += '<div style="flex:1;min-width:0;"><div style="font-size:0.8rem;">'+escapeHtml(r.description)+'</div><div style="font-size:0.6rem;opacity:0.4;margin-top:2px;">From: '+escapeHtml(r.standupTitle||'?')+'</div></div>';
+        html += '<span style="font-size:0.55rem;padding:2px 8px;border-radius:4px;background:'+sColor+'18;color:'+sColor+';font-weight:600;white-space:nowrap;">'+r.severity+'</span>';
+        html += '</div>';
       });
+
+      // Show All / Show Less toggle
+      if (totalFiltered > 5) {
+        html += '<button class="board-risk-toggle" onclick="window._boardRiskToggle()" style="font-size:0.6rem;padding:0.25rem 0.6rem;border-radius:4px;border:1px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.03);color:rgba(255,255,255,0.5);cursor:pointer;margin-top:0.3rem;font-family:inherit;">';
+        html += _riskExpanded ? 'Show Less' : 'Show All (' + totalFiltered + ')';
+        html += '</button>';
+      }
+
+      listEl.innerHTML = html;
     }
+
+    // Expose risk toggle globally for inline onclick
+    window._boardRiskToggle = function() {
+      _riskExpanded = !_riskExpanded;
+      _bRenderRisks();
+    };
 
     function _bRenderThroughput() {
       var el=document.getElementById('board-throughput'); var tp=_bPacket.throughput;
@@ -241,6 +293,12 @@
         setTimeout(function(){copyBoardBtn.innerHTML='<i class="fas fa-clipboard"></i> Copy Board Packet';},2000);
       });}
     }
+
+    // Wire risk filter controls
+    var riskSevEl = document.getElementById('board-risk-severity');
+    var riskSrcEl = document.getElementById('board-risk-source');
+    if (riskSevEl) riskSevEl.addEventListener('change', function() { _riskSeverity = this.value; _riskExpanded = false; if (_bPacket) _bRenderRisks(); });
+    if (riskSrcEl) riskSrcEl.addEventListener('change', function() { _riskSource = this.value; _riskExpanded = false; if (_bPacket) _bRenderRisks(); });
 
     renderBoard();
     renderBoardBtn.addEventListener('click', renderBoard);

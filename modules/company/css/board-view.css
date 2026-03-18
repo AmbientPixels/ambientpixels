@@ -95,8 +95,23 @@
   background: #2c2c2e;
 }
 .board-view .board-empty { font-size: 13px; color: rgba(255,255,255,0.25); padding: 8px 0; }
+.board-view .board-section { margin-bottom: 12px; }
 .board-view .board-copy-btn { border-color: rgba(52,211,153,0.2) !important; color: #34d399 !important; }
 .board-view .board-copy-btn:hover { background: rgba(52,211,153,0.06) !important; }
+
+/* Executive Summary — structured list */
+.board-exec-list { list-style: none; padding: 0; margin: 0; }
+.board-exec-list li { padding: 0.3rem 0; font-size: 0.8rem; line-height: 1.5; border-bottom: 1px solid rgba(255,255,255,0.04); color: rgba(255,255,255,0.7); }
+.board-exec-list li:last-child { border-bottom: none; }
+
+/* Risk Register — severity borders */
+.board-risk-card--high { border-left: 3px solid #ef4444; }
+.board-risk-card--medium { border-left: 3px solid #fbbf24; }
+.board-risk-card--low { border-left: 3px solid #34d399; }
+
+/* Risk filter controls */
+.board-risk-controls { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; align-items: center; flex-wrap: wrap; }
+.board-risk-controls select { font-size: 0.6rem; padding: 2px 6px; border-radius: 4px; background: #2c2c2e; color: rgba(255,255,255,0.7); border: 1px solid rgba(255,255,255,0.1); font-family: inherit; }
 .board-view .board-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
 .board-view .board-goal-card {
   padding: 10px 12px;
