@@ -3027,7 +3027,7 @@
 
       // ── System Pulse (CEO View) ──
       function renderSystemPulse() {
-        var el = document.getElementById('panel-system-pulse');
+        var el = document.getElementById('panel-system-pulse') || document.getElementById('panel-system-pulse-dev');
         if (!el) return;
 
         var segments = [];
@@ -3782,25 +3782,47 @@
       // ── Autonomy Score ──
       function renderAutonomyScore() {
         var data = AgentEngine.getAutonomyScore();
+        var score = data.score || 0;
+        var color = score >= 80 ? '#34d399' : score >= 50 ? '#fbbf24' : '#ef4444';
+
+        // Try CEO panel first, then Dev panel
         var arc = document.getElementById('autonomy-arc');
         var pct = document.getElementById('autonomy-pct');
         var detail = document.getElementById('autonomy-detail');
-        var score = data.score || 0;
-        arc.setAttribute('stroke-dasharray', score + ', 100');
-        var color = score >= 80 ? '#34d399' : score >= 50 ? '#fbbf24' : '#ef4444';
-        arc.setAttribute('stroke', color);
-        pct.textContent = score + '%';
-        pct.style.color = color;
 
-        var b = data.breakdown || {};
-        var lines = [];
-        if (b.throughput) lines.push(_autoBar('Throughput', b.throughput.score, b.throughput.count, b.throughput.total, b.throughput.weight));
-        if (b.delegation) lines.push(_autoBar('Delegation', b.delegation.score, b.delegation.count, b.delegation.total, b.delegation.weight));
-        if (b.completion) lines.push(_autoBar('Completion', b.completion.score, b.completion.count, b.completion.total, b.completion.weight));
-        if (b.escalation) lines.push(_autoBar('Escalation', b.escalation.score, b.escalation.count, b.escalation.total, b.escalation.weight));
-        if (b.approval) lines.push(_autoBar('Approval', b.approval.score, b.approval.count, b.approval.total, b.approval.weight));
-        if (b.memory) lines.push(_autoBar('Memory', b.memory.score, b.memory.count, b.memory.total, b.memory.weight));
-        detail.innerHTML = '<span style="opacity:0.5;font-size:0.55rem;">7-day window · ' + data.total + ' items</span>' + lines.join('');
+        // If CEO panel elements exist, render there (for mirroring)
+        if (arc && pct && detail) {
+          arc.setAttribute('stroke-dasharray', score + ', 100');
+          arc.setAttribute('stroke', color);
+          pct.textContent = score + '%';
+          pct.style.color = color;
+          var b = data.breakdown || {};
+          var lines = [];
+          if (b.throughput) lines.push(_autoBar('Throughput', b.throughput.score, b.throughput.count, b.throughput.total, b.throughput.weight));
+          if (b.delegation) lines.push(_autoBar('Delegation', b.delegation.score, b.delegation.count, b.delegation.total, b.delegation.weight));
+          if (b.completion) lines.push(_autoBar('Completion', b.completion.score, b.completion.count, b.completion.total, b.completion.weight));
+          if (b.escalation) lines.push(_autoBar('Escalation', b.escalation.score, b.escalation.count, b.escalation.total, b.escalation.weight));
+          if (b.approval) lines.push(_autoBar('Approval', b.approval.score, b.approval.count, b.approval.total, b.approval.weight));
+          if (b.memory) lines.push(_autoBar('Memory', b.memory.score, b.memory.count, b.memory.total, b.memory.weight));
+          detail.innerHTML = '<span style="opacity:0.5;font-size:0.55rem;">7-day window · ' + data.total + ' items</span>' + lines.join('');
+        }
+
+        // Render directly into Dev panel
+        var devEl = document.getElementById('panel-autonomy-dev');
+        if (devEl) {
+          var html = '<div style="display:flex;align-items:center;gap:1rem;">';
+          html += '<div style="position:relative;width:80px;height:80px;">';
+          html += '<svg viewBox="0 0 36 36" width="80" height="80"><circle cx="18" cy="18" r="15.9" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="2.8"/>';
+          html += '<circle cx="18" cy="18" r="15.9" fill="none" stroke="' + color + '" stroke-width="2.8" stroke-dasharray="' + score + ', 100" stroke-linecap="round" transform="rotate(-90 18 18)"/></svg>';
+          html += '<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:1.1rem;font-weight:700;color:' + color + ';">' + score + '%</div>';
+          html += '</div><div>';
+          var b2 = data.breakdown || {};
+          var keys = ['throughput','delegation','completion','escalation','approval','memory'];
+          keys.forEach(function(k) { if (b2[k]) html += _autoBar(k.charAt(0).toUpperCase() + k.slice(1), b2[k].score, b2[k].count, b2[k].total, b2[k].weight); });
+          html += '<div style="opacity:0.4;font-size:0.5rem;margin-top:0.3rem;">7-day window · ' + data.total + ' items</div>';
+          html += '</div></div>';
+          devEl.innerHTML = html;
+        }
       }
       function _autoBar(label, score, count, total, weight) {
         var c = score >= 80 ? '#34d399' : score >= 50 ? '#fbbf24' : '#ef4444';
@@ -3817,7 +3839,7 @@
       // ── Risk Heatmap ──
       function renderRiskHeatmap() {
         var data = AgentEngine.getRiskHeatmap();
-        var el = document.getElementById('panel-risk-heatmap');
+        var el = document.getElementById('panel-risk-heatmap') || document.getElementById('panel-risk-heatmap-dev');
         var html = '<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.4rem;">';
         html += riskCell('Overdue Tasks', data.overdueTasks.length, '#ef4444', 'fa-clock');
         html += riskCell('Stuck High Prio', data.stuckHighPrio.length, '#fbbf24', 'fa-exclamation-triangle');
