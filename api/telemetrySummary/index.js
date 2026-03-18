@@ -39,6 +39,7 @@ function _emptyResponse(range, warning) {
   };
 }
 
+var _lastQueryErrors = [];
 async function _kustoQuery(query, timespan, logger) {
   if (!APP_ID || !API_KEY) return null;
   var url = 'https://api.applicationinsights.io/v1/apps/' + APP_ID + '/query';
@@ -55,11 +56,13 @@ async function _kustoQuery(query, timespan, logger) {
       var errBody = '';
       try { errBody = await resp.text(); } catch (_) {}
       if (logger) logger('[telemetrySummary] Kusto query failed:', resp.status, errBody.substring(0, 300));
+      _lastQueryErrors.push({ query: query.substring(0, 80), status: resp.status, error: errBody.substring(0, 200) });
       return null;
     }
     var data = await resp.json();
     return data;
   } catch (e) {
+    _lastQueryErrors.push({ query: query.substring(0, 80), error: e.message });
     return null;
   }
 }
@@ -113,8 +116,7 @@ module.exports = async function (context, req) {
     // Top pages query — strip querystrings, keep only utm params
     var topPagesQuery = [
       'pageViews',
-      '| where isnotempty(name)',
-      '| summarize views = count() by path = name',
+      '| summarize views = count() by path = tostring(name)',
       '| top 10 by views desc'
     ].join('\n');
 
@@ -182,12 +184,15 @@ module.exports = async function (context, req) {
     });
 
     var anyFailed = results.some(function (r) { return r === null; });
+    var queryErrors = _lastQueryErrors.length > 0 ? _lastQueryErrors.slice() : undefined;
+    _lastQueryErrors = [];
 
     var body = {
       range: range,
       rangeLabel: _rangeLabel(range),
       generatedAt: new Date().toISOString(),
       warning: anyFailed ? 'partial_data: some queries failed' : null,
+      _debug: queryErrors,
       topPages: pages,
       topReferrers: referrers,
       topCampaigns: campaigns,
