@@ -564,13 +564,6 @@
 
   function bind() {
     bindAccountRefresh();
-    bindKpiQuickFilters();
-
-    document.getElementById('sa-apply').addEventListener('click', function () {
-      state.cursor = '';
-      state.prevStack = [];
-      loadData();
-    });
 
     var pullBtn = document.getElementById('sa-pull-now');
     if (pullBtn) {
@@ -578,39 +571,11 @@
         triggerPullNow();
       });
     }
-
-    document.getElementById('sa-reset').addEventListener('click', function () {
-      var now = new Date();
-      var weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-      document.getElementById('sa-from').value = fmtDateInput(weekAgo);
-      document.getElementById('sa-to').value = fmtDateInput(now);
-      document.getElementById('sa-platform').value = '';
-      document.getElementById('sa-result').value = '';
-      document.getElementById('sa-campaign').value = '';
-      state.cursor = '';
-      state.prevStack = [];
-      loadData();
-    });
-
-    document.getElementById('sa-next').addEventListener('click', function () {
-      if (!state.nextCursor) return;
-      state.prevStack.push(state.cursor);
-      state.cursor = state.nextCursor;
-      loadData();
-    });
-
-    document.getElementById('sa-prev').addEventListener('click', function () {
-      if (!state.prevStack.length) return;
-      state.cursor = state.prevStack.pop() || '';
-      loadData();
-    });
   }
 
   function init() {
-    loadFiltersFromQuery();
     bind();
     loadAccountStats(false);
-    loadData();
   }
 
   if (document.readyState === 'loading') {
