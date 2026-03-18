@@ -79,7 +79,7 @@
   <main id="sa-main" class="content-section">
     <div class="company-header">
       <h1><i class="fas fa-chart-line co-icon-mr-lg dash-icon-sky"></i>Analytics Hub</h1>
-      <p>Site traffic, social engagement, and agent delivery diagnostics — all in one place.</p>
+      <p>Site traffic, social engagement, and platform metrics.</p>
     </div>
 
     <!-- ═══ Social Command Center ═══ -->
@@ -116,62 +116,6 @@
       <div id="sa-tb-body">
         <div style="opacity:0.3;padding:1rem;text-align:center;font-size:0.7rem;">Loading traffic data...</div>
       </div>
-    </section>
-
-    <!-- ═══ Operational Health ═══ -->
-    <section class="sa-panel">
-      <div class="sa-panel-title"><i class="fas fa-wave-square dash-icon-sky co-icon-mr"></i> Operational Health</div>
-      <div class="sa-health-chips" id="sa-health-chips"></div>
-      <div class="sa-mini-grid">
-        <div class="sa-mini-card">
-          <div class="sa-mini-title">Delivery Trend (7d)</div>
-          <div id="sa-delivery-mini"></div>
-        </div>
-        <div class="sa-mini-card">
-          <div class="sa-mini-title">Engagement Trend (7d)</div>
-          <div id="sa-engagement-mini"></div>
-        </div>
-      </div>
-      <div class="sa-pull-feedback" id="sa-pull-feedback">Manual pull status will appear here.</div>
-    </section>
-
-    <!-- ═══ KPI Summary + Platform Split ═══ -->
-    <section class="sa-panel">
-      <div class="sa-panel-title"><i class="fas fa-gauge dash-icon-sky co-icon-mr"></i> Agent Delivery KPIs</div>
-      <div class="sa-kpis" id="sa-kpis"></div>
-      <div class="sa-platform-grid sa-platform-grid--mt" id="sa-platform-grid"></div>
-    </section>
-
-    <!-- ═══ Agent Posts Log ═══ -->
-    <section class="sa-panel">
-      <div class="sa-panel-title"><i class="fas fa-list-check dash-icon-sky co-icon-mr"></i> Agent Posts Log</div>
-      <div class="sa-table-wrap">
-        <table class="sa-table" id="sa-posts-table">
-          <thead>
-            <tr>
-              <th>Platform</th>
-              <th>Text Preview</th>
-              <th>Result</th>
-              <th>Timestamp (UTC)</th>
-              <th>Attempts</th>
-              <th>Error Class</th>
-              <th>Post URL</th>
-            </tr>
-          </thead>
-          <tbody id="sa-posts-body"></tbody>
-        </table>
-        <div class="dash-empty" id="sa-posts-empty">No posts found for selected filters.</div>
-      </div>
-      <div class="sa-pagination">
-        <button class="sa-btn sa-btn--ghost" id="sa-prev" disabled><i class="fas fa-arrow-left"></i> Prev</button>
-        <button class="sa-btn sa-btn--ghost" id="sa-next" disabled>Next <i class="fas fa-arrow-right"></i></button>
-      </div>
-    </section>
-
-    <!-- ═══ Failure Diagnostics ═══ -->
-    <section class="sa-panel">
-      <div class="sa-panel-title"><i class="fas fa-triangle-exclamation dash-icon-sky co-icon-mr"></i> Failure Diagnostics</div>
-      <div id="sa-diagnostics"></div>
     </section>
 
   </main>
