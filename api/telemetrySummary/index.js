@@ -118,8 +118,8 @@ module.exports = async function (context, req) {
       'pageViews',
       '| extend pagePath = tostring(parse_url(url).Path)',
       '| where pagePath != ""',
-      '| summarize views = count() by path = pagePath',
-      '| top 10 by views desc'
+      '| summarize viewCount = count() by path = pagePath',
+      '| top 10 by viewCount desc'
     ].join('\n');
 
     // Top referrers
@@ -160,7 +160,7 @@ module.exports = async function (context, req) {
     var dailyViewsQuery = [
       'pageViews',
       '| extend day = format_datetime(timestamp, "yyyy-MM-dd")',
-      '| summarize views = count() by day',
+      '| summarize viewCount = count() by day',
       '| order by day asc'
     ].join('\n');
 
@@ -175,7 +175,7 @@ module.exports = async function (context, req) {
       _kustoQuery(dailyViewsQuery, timespan, _log)
     ]);
 
-    var pages = _parseRows(results[0]).map(function (r) { return { path: r.path || '/', views: r.views || 0 }; });
+    var pages = _parseRows(results[0]).map(function (r) { return { path: r.path || '/', views: r.viewCount || 0 }; });
     var referrers = _parseRows(results[1]).map(function (r) { return { referrer: r.referrer || '', sessions: r.sessions || 0 }; });
     var campaigns = _parseRows(results[2]).map(function (r) { return { campaign: r.campaign || '', source: r.source || '', medium: r.medium || '', sessions: r.sessions || 0 }; });
     var perfRows = _parseRows(results[3]);
@@ -183,7 +183,7 @@ module.exports = async function (context, req) {
     var errors = _parseRows(results[4]).map(function (r) { return { name: r.name || 'Unknown', count: r.count_ || 0 }; });
     var dailyViews = _parseRows(results[5]).map(function (r) {
       var d = r.day ? new Date(r.day).toISOString().slice(0, 10) : '';
-      return { day: d, views: r.views || 0 };
+      return { day: d, views: r.viewCount || 0 };
     });
 
     var anyFailed = results.some(function (r) { return r === null; });
