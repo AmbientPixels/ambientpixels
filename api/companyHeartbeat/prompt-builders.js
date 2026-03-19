@@ -773,7 +773,7 @@ You must remain within your assigned authority tier. Doctrine influences your st
 
   // Product facts injection for content-producing agents (Echo, Scribe, Quill)
   var productFactsBlock = '';
-  if (productFacts && productFacts.products && ['echo', 'scribe', 'quill'].indexOf(agentId) !== -1) {
+  if (productFacts && productFacts.products && ['echo', 'scribe', 'quill'].indexOf(agent.id) !== -1) {
     var pfLines = ['\n📋 PRODUCT FACTS (use ONLY these when describing products — do NOT invent features):'];
     Object.keys(productFacts.products).forEach(function(pName) {
       var p = productFacts.products[pName];
