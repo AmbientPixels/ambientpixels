@@ -1522,12 +1522,13 @@ Write the full deliverable first, then the structured JSON block.`;
           // Check if a Scribe writing sub-task already exists for this social task
           const _copyTag = 'social-copy-for-' + action.taskId;
           const _copyTaskExists = tasks.some(t =>
+            !t._revision_superseded &&
             ((t.tags && t.tags.indexOf(_copyTag) !== -1) ||
              (t.assignee === 'scribe' && t.parent_task_id === action.taskId && (t.title || '').indexOf('Write social copy') === 0))
           );
           // Also check if a COMPLETED Scribe copy task exists (reviewed_copy may not have propagated yet)
           const _copyTaskDone = tasks.find(t =>
-            t.status === 'done' &&
+            t.status === 'done' && !t._revision_superseded &&
             ((t.tags && t.tags.indexOf(_copyTag) !== -1) ||
              (t.assignee === 'scribe' && t.parent_task_id === action.taskId && (t.title || '').indexOf('Write social copy') === 0))
           );

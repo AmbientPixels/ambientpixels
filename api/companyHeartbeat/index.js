@@ -445,6 +445,19 @@ module.exports = async function (context) {
             createdAt: new Date().toISOString()
           });
         }
+        // Also reset any existing Scribe copy tasks for this parent so Scribe rewrites with new context
+        _parentTask.awaiting_copy_review = false;
+        const _oldCopyTasks = tasks.filter(t =>
+          t.parent_task_id === _parentId && t.assignee === 'scribe' &&
+          (t.title || '').indexOf('Write social copy') === 0
+        );
+        for (const _oct of _oldCopyTasks) {
+          _oct.status = 'done';
+          _oct._revision_superseded = true;
+          _oct.updatedAt = new Date().toISOString();
+          _oct.tags = (_oct.tags || []).filter(tag => tag.indexOf('social-copy-for-') !== 0);
+          context.log('[Heartbeat] Revision: marked old copy task', _oct.id, 'as superseded for parent', _parentId);
+        }
         context.log('[Heartbeat] Revision reopened task', _parentId, 'for action', _ra.id);
       }
     }
