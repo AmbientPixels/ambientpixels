@@ -2025,7 +2025,37 @@
         var sections = [];
         var totalItems = 0;
 
-        // Pending Approvals handled by CEO Approval Queue panel — not duplicated here
+        // 1a. Pending Action Approvals (from approvalQueue)
+        var aqQueue = AgentEngine.getApprovalQueue();
+        var aqPending = aqQueue.filter(function (q) { return q.status === 'pending' && q.type !== 'convergence_escalation' && q.type !== 'overdue_escalation' && q.type !== 'stale_revision_escalation'; });
+        totalItems += aqPending.length;
+
+        if (aqPending.length > 0) {
+          var aqHtml = '<div style="margin-bottom:0.8rem;">';
+          aqHtml += '<div style="display:flex; align-items:center; gap:0.4rem; margin-bottom:0.4rem;"><i class="fas fa-clipboard-check" style="color:#60a5fa; font-size:0.7rem;"></i> <strong style="font-size:0.75rem; color:#60a5fa;">Pending Approvals</strong> <span style="font-size:0.6rem; opacity:0.4;">(' + aqPending.length + ')</span></div>';
+          aqPending.slice(0, 5).forEach(function (q) {
+            var qTitle = q.title || q.taskTitle || 'Untitled action';
+            var qAgent = q.originAgent || q.created_by || '?';
+            var qAgentLabel = qAgent.charAt(0).toUpperCase() + qAgent.slice(1);
+            var qKind = q.kind || q.type || '';
+            var qAge = q.createdAt ? Math.round((Date.now() - new Date(q.createdAt).getTime()) / 3600000) : null;
+            var qAgeLabel = qAge !== null ? (qAge < 1 ? '<1h ago' : qAge < 24 ? qAge + 'h ago' : Math.round(qAge / 24) + 'd ago') : '';
+            aqHtml += '<div style="padding:0.5rem 0.6rem; border:1px solid rgba(96,165,250,0.1); border-radius:6px; margin-bottom:0.3rem; background:rgba(96,165,250,0.02);">';
+            aqHtml += '<div style="display:flex; justify-content:space-between; align-items:flex-start;">';
+            aqHtml += '<div style="flex:1; min-width:0;">';
+            if (qKind) aqHtml += '<span style="font-size:0.5rem;padding:0.1rem 0.3rem;border-radius:3px;background:rgba(96,165,250,0.1);color:#60a5fa;margin-right:0.3rem;">' + escapeHtml(qKind) + '</span>';
+            aqHtml += '<div style="font-size:0.9rem; font-weight:600; margin-top:2px;">' + escapeHtml(qTitle) + '</div>';
+            aqHtml += '<div style="font-size:0.65rem; opacity:0.5; margin-top:4px; display:flex; gap:0.5rem; flex-wrap:wrap;">';
+            aqHtml += '<span>' + escapeHtml(qAgentLabel) + '</span>';
+            if (qAgeLabel) aqHtml += '<span>' + qAgeLabel + '</span>';
+            aqHtml += '</div></div>';
+            aqHtml += '<a href="/modules/company/actions.html" style="font-size:0.55rem; color:#60a5fa; text-decoration:none; white-space:nowrap; align-self:center; margin-left:0.5rem;">Review →</a>';
+            aqHtml += '</div></div>';
+          });
+          if (aqPending.length > 5) aqHtml += '<div style="font-size:0.55rem; opacity:0.3; padding-left:0.6rem;">+' + (aqPending.length - 5) + ' more pending</div>';
+          aqHtml += '</div>';
+          sections.push(aqHtml);
+        }
 
         // 1b. SDE Pending Approval (standup-generated tasks+campaigns awaiting CEO)
         var allTasks = AgentEngine.getTasks();
@@ -4667,10 +4697,11 @@
         try {
           var today = _localToday();
 
-          // Pending approvals
+          // Pending approvals (exclude escalation types — those show in Needs Attention on Actions page)
+          var _escalationTypes = ['convergence_escalation', 'overdue_escalation', 'stale_revision_escalation'];
           var queue = AgentEngine.getApprovalQueue();
           queue.forEach(function (q) {
-            if (q.status === 'pending') add(stableId('aq', q));
+            if (q.status === 'pending' && _escalationTypes.indexOf(q.type) === -1) add(stableId('aq', q));
           });
 
           // Tasks: pending-approval, overdue, blocked/escalated
