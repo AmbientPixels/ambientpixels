@@ -1235,14 +1235,14 @@
         .then(function (res) { return res.json(); })
         .then(function (data) {
           heartbeatBtn.innerHTML = '<i class="fas fa-check"></i> Done!';
-          heartbeatBtn.style.borderColor = '';
-          heartbeatBtn.style.color = '#34d399';
+          heartbeatBtn.style.background = '#34d399';
+          heartbeatBtn.style.color = '#000';
           setTimeout(function () {
             renderAll();
           }, 500);
           setTimeout(function () {
             heartbeatBtn.innerHTML = '<i class="fas fa-heartbeat"></i> Run Heartbeat';
-            heartbeatBtn.style.borderColor = '';
+            heartbeatBtn.style.background = '';
             heartbeatBtn.style.color = '';
             heartbeatBtn.disabled = false;
             _heartbeatRunning = false;
@@ -1250,12 +1250,12 @@
         })
         .catch(function (err) {
           heartbeatBtn.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Failed';
-          heartbeatBtn.style.borderColor = '';
-          heartbeatBtn.style.color = '#f87171';
+          heartbeatBtn.style.background = '#f87171';
+          heartbeatBtn.style.color = '#000';
           console.error('[Dashboard] Heartbeat trigger failed:', err);
           setTimeout(function () {
             heartbeatBtn.innerHTML = '<i class="fas fa-heartbeat"></i> Run Heartbeat';
-            heartbeatBtn.style.borderColor = '';
+            heartbeatBtn.style.background = '';
             heartbeatBtn.style.color = '';
             heartbeatBtn.disabled = false;
             _heartbeatRunning = false;
