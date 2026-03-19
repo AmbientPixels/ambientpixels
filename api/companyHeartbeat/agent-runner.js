@@ -587,7 +587,15 @@ Write the full deliverable first, then the structured JSON block.`;
       const _hasReviewAction = actions.some(a => a.type === 'review-task');
       if (!_hasReviewAction) {
         const _ownIdleTasks = agentTasks.filter(t => t.status === 'todo' || t.status === 'in-progress');
-        if (_ownIdleTasks.length === 0) {
+        // Check for stale reviews: tasks in review 60+ min should trigger review injection
+        // even when agent has some idle work, to prevent review bottlenecks
+        const _staleReviewThreshold = 60 * 60 * 1000;
+        const _hasStaleReviews = allActiveTasks.some(t =>
+          t.status === 'review' && t.assignee !== agentId &&
+          t.comments && t.comments.some(c => c.type === 'deliverable') &&
+          t.updatedAt && (Date.now() - new Date(t.updatedAt).getTime()) > _staleReviewThreshold
+        );
+        if (_ownIdleTasks.length === 0 || (_hasStaleReviews && _ownIdleTasks.length <= 2)) {
           const _peerReviewCandidates = allActiveTasks.filter(t =>
             t.status === 'review' && t.assignee !== agentId &&
             t.comments && t.comments.some(c => c.type === 'deliverable') &&
@@ -1369,11 +1377,38 @@ Write the full deliverable first, then the structured JSON block.`;
                 });
               }
             }
+          } else {
+            // Null deliverable — track failed attempt so task doesn't stay stuck in-progress forever
+            if (!task.comments) task.comments = [];
+            const _failCount = task.comments.filter(c => c.type === 'failed_attempt').length;
+            task.comments.push({
+              id: 'cmt-fail-' + Date.now(),
+              author: 'system',
+              type: 'failed_attempt',
+              text: '[SYSTEM] Execute returned empty result (attempt ' + (_failCount + 1) + '). Gemini may have failed or timed out.',
+              createdAt: new Date().toISOString()
+            });
+            task.updatedAt = new Date().toISOString();
+            context.log('[Heartbeat]', agentId, 'NULL DELIVERABLE for task:', action.taskId, '— failed attempt', _failCount + 1);
+
+            // After 3 consecutive failures, reset to todo for fresh retry
+            if (_failCount + 1 >= 3) {
+              task.status = 'todo';
+              task.updatedAt = new Date().toISOString();
+              task.comments.push({
+                id: 'cmt-failreset-' + Date.now(),
+                author: 'system',
+                type: 'system',
+                text: '[SYSTEM] 3 consecutive execution failures — resetting to todo for retry with fresh context.',
+                createdAt: new Date().toISOString()
+              });
+              context.log('[Heartbeat]', agentId, 'FAIL RESET: task', action.taskId, 'reset to todo after 3 null deliverables');
+            }
           }
 
           // RESEARCH INTEL → AQ: when Scout completes a research task via execute-task,
           // submit findings to the CEO approval queue. On approval the heartbeat stores to researchIntel.
-          if (agentId === 'scout' && task.taskType === 'research' && deliverable.length > 200) {
+          if (deliverable && agentId === 'scout' && task.taskType === 'research' && deliverable.length > 200) {
             const _riNow = new Date().toISOString();
             const _riId = 'ri_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
             try {
@@ -1558,6 +1593,7 @@ Write the full deliverable first, then the structured JSON block.`;
                 updatedAt: new Date().toISOString(),
                 dueDate: socialTask.dueDate || new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
                 campaign_id: socialTask.campaign_id || null,
+                objective_id: socialTask.objective_id || null,
                 tags: ['social-copy', 'auto-created', _copyTag],
                 comments: [{
                   id: 'cmt-' + Date.now(),

@@ -1032,7 +1032,13 @@
         .then(function(data) {
           var queue = data.value || data || [];
           if (!Array.isArray(queue)) return;
-          queue = queue.filter(function(item) { return item.id !== queueItemId; });
+          queue = queue.map(function(item) {
+            if (item.id === queueItemId) {
+              item.status = 'resolved';
+              item.resolvedAt = new Date().toISOString();
+            }
+            return item;
+          });
           return fetch(apiBase + '/company-state', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },

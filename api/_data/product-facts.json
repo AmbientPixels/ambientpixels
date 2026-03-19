@@ -23,7 +23,7 @@
     "AmbientScore": {
       "description": "Website conversion scoring tool that analyzes landing pages for conversion optimization",
       "features": ["URL-based scanning", "conversion score rating", "AI-generated recommendations", "scan history"],
-      "notThis": ["it is NOT an SEO tool", "it does NOT track rankings", "it does NOT monitor competitors"]
+      "notThis": ["it is NOT an SEO tool", "it does NOT track rankings", "it does NOT monitor competitors", "it is NOT an accessibility or WCAG compliance tool"]
     },
     "AgentForge": {
       "description": "Visual agent builder where users create custom AI agents with a card-based pipeline",

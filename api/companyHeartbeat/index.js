@@ -459,7 +459,7 @@ module.exports = async function (context) {
       for (const _ot of tasks) {
         if (_ot.status === 'done' || !_ot.dueDate) continue;
         if (new Date(_ot.dueDate).getTime() >= _naNow) continue;
-        const _otAlready = _naAQ.some(function(q) { return q.type === 'overdue_escalation' && q.taskId === _ot.id && q.status === 'pending'; });
+        const _otAlready = _naAQ.some(function(q) { return q.type === 'overdue_escalation' && q.taskId === _ot.id; });
         if (!_otAlready) {
           _naAQ.push({
             id: 'aq-overdue-' + _ot.id + '-' + _naNow,
@@ -496,7 +496,7 @@ module.exports = async function (context) {
           return c.type === 'deliverable' && c.createdAt && new Date(c.createdAt).getTime() > _srRevTs;
         });
         if (_srHasNewDeliverable) continue;
-        const _srAlready = _naAQ.some(function(q) { return q.type === 'stale_revision_escalation' && q.taskId === _srTask.id && q.status === 'pending'; });
+        const _srAlready = _naAQ.some(function(q) { return q.type === 'stale_revision_escalation' && q.taskId === _srTask.id; });
         if (!_srAlready) {
           _naAQ.push({
             id: 'aq-stalerev-' + _srTask.id + '-' + _naNow,
@@ -510,6 +510,15 @@ module.exports = async function (context) {
           });
           _naChanged = true;
           context.log('[Heartbeat] STALE REVISION ESCALATION: task', _srTask.id, 'revision unaddressed for', Math.round(_srAge / 60000), 'min');
+        }
+      }
+
+      // Prune resolved escalations older than 7 days to prevent unbounded growth
+      const _pruneThreshold = _naNow - 7 * 24 * 60 * 60 * 1000;
+      for (let _pi = _naAQ.length - 1; _pi >= 0; _pi--) {
+        if (_naAQ[_pi].status === 'resolved' && _naAQ[_pi].resolvedAt && new Date(_naAQ[_pi].resolvedAt).getTime() < _pruneThreshold) {
+          _naAQ.splice(_pi, 1);
+          _naChanged = true;
         }
       }
 
