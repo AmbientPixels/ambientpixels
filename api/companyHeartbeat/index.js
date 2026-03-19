@@ -2548,6 +2548,20 @@ module.exports = async function (context) {
           _pt._social_action_pending = false;
           _pt._social_action_created = true;
           context.log('[Heartbeat] AUTO-POST: created social action for task', _pt.id, 'platform:', _platform, 'type:', _actionReq.type, _scheduledFor ? ('scheduled_for: ' + _scheduledFor) : '(publish now)', 'rc_len:', _pt.reviewed_copy.length);
+
+          // Auto-reject old revision_requested actions for the same parent task
+          _actionsStore.forEach(function (_oldAct) {
+            if (_oldAct.id === _newAction.id) return;
+            if (_oldAct._parentTaskId !== _pt.id) return;
+            if (!_oldAct.approval || _oldAct.approval.status !== 'revision_requested') return;
+            _oldAct.approval.status = 'superseded';
+            _oldAct.approval.decision_note = (_oldAct.approval.decision_note || '') + '\n[AUTO] Superseded by revised action ' + _newAction.id;
+            _oldAct.updatedAt = new Date().toISOString();
+            // Also update the AQ entry
+            var _oldAqIdx = _aq.findIndex(function (q) { return q.action_id === _oldAct.id; });
+            if (_oldAqIdx !== -1) _aq[_oldAqIdx].status = 'superseded';
+            context.log('[Heartbeat] AUTO-POST: superseded old revision action', _oldAct.id, 'for task', _pt.id);
+          });
         }
         await storage.setState('actions', _actionsStore);
         await storage.setState('approvalQueue', _aq);
