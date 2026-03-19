@@ -1,10 +1,10 @@
 {
-  "updated": "2026-03-18T14:21:59.750Z",
+  "updated": "2026-03-19T14:11:32.440Z",
   "entries": [
     {
-      "hash": "a91eddf",
-      "date": "2026-03-17 23:08:10 -0700",
-      "message": "Add product facts maintenance to Nova's standing instructions"
+      "hash": "b22af60",
+      "date": "2026-03-18 21:55:03 -0700",
+      "message": "Fix product visitor cards — use URL path not page title"
     }
   ]
 }

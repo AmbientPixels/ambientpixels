@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "ed550abf-185c-489e-ad01-ddf0ca14709d",
-      "hash": "a91eddf2c19ec1f3f32d0cc10fea6cb00e5fe094",
-      "message": "Add product facts maintenance to Nova's standing instructions",
-      "timestamp": "2026-03-17 23:08:10 -0700",
+      "id": "ac69e817-f114-4337-bb3c-77b2270d3341",
+      "hash": "b22af60862c16be2b8843001667904e23fa44691",
+      "message": "Fix product visitor cards — use URL path not page title",
+      "timestamp": "2026-03-18 21:55:03 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/a91eddf2c19ec1f3f32d0cc10fea6cb00e5fe094"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/b22af60862c16be2b8843001667904e23fa44691"
     }
   ],
-  "timestamp": "2026-03-18T14:22:01.381Z",
+  "timestamp": "2026-03-19T14:11:33.799Z",
   "count": 1,
-  "scanId": 1773843721381
+  "scanId": 1773929493799
 }
