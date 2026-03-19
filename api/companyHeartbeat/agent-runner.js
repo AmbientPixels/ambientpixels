@@ -3649,4 +3649,4 @@ Write the full deliverable first, then the structured JSON block.`;
   return result;
 }
 
-module.exports = { runAgentHeartbeat };
+module.exports = { runAgentHeartbeat, _validateContentQuality };

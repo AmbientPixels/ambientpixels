@@ -12,7 +12,7 @@ const { _fetchSiteIntel } = require('./site-intelligence');
 const { applyTaskUpdate } = require('./task-mutations');
 const { _socialIntelBuildDigest } = require('./social-intel');
 const { buildPerformanceDigest, generatePerformanceInsights, evaluateExperiments } = require('./performance-intel');
-const { runAgentHeartbeat } = require('./agent-runner');
+const { runAgentHeartbeat, _validateContentQuality } = require('./agent-runner');
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY; // used for early-exit check in main function
 const productFacts = require('../_data/product-facts.json');
@@ -2528,7 +2528,13 @@ module.exports = async function (context) {
           _newAction._parentTaskId = _pt.id;
           _newAction._autoPosted = true;
           _actionsStore.push(_newAction);
-          _aq.push({
+          // Quality gate: validate content against product facts before queuing
+          var _aqQualityGate = null;
+          try {
+            _aqQualityGate = await _validateContentQuality(_rcText, _platform, context);
+            if (_aqQualityGate) context.log('[QualityGate] AUTO-POST', _platform, 'pass:', _aqQualityGate.pass, 'confidence:', _aqQualityGate.confidence);
+          } catch (_qgErr) { context.log('[QualityGate] AUTO-POST error (fail-open):', String(_qgErr).substring(0, 100)); }
+          var _aqEntry = {
             id: 'aq-' + _newAction.id,
             kind: 'action',
             action_id: _newAction.id,
@@ -2544,7 +2550,17 @@ module.exports = async function (context) {
             scheduledFor: _scheduledFor || null,
             preview: _rcText.substring(0, 120),
             previewImageUrl: null
-          });
+          };
+          if (_aqQualityGate) {
+            _aqEntry.qualityGate = {
+              pass: _aqQualityGate.pass,
+              confidence: _aqQualityGate.confidence || 0,
+              issues: _aqQualityGate.issues || [],
+              model: 'claude-haiku-4-5-20251001',
+              checkedAt: new Date().toISOString()
+            };
+          }
+          _aq.push(_aqEntry);
           _pt._social_action_pending = false;
           _pt._social_action_created = true;
           context.log('[Heartbeat] AUTO-POST: created social action for task', _pt.id, 'platform:', _platform, 'type:', _actionReq.type, _scheduledFor ? ('scheduled_for: ' + _scheduledFor) : '(publish now)', 'rc_len:', _pt.reviewed_copy.length);
