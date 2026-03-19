@@ -2027,7 +2027,15 @@
 
         // 1a. Pending Action Approvals (from approvalQueue)
         var aqQueue = AgentEngine.getApprovalQueue();
-        var aqPending = aqQueue.filter(function (q) { return q.status === 'pending' && q.type !== 'convergence_escalation' && q.type !== 'overdue_escalation' && q.type !== 'stale_revision_escalation'; });
+        var _aqSeen = {};
+        var aqPending = aqQueue.filter(function (q) {
+          if (q.status !== 'pending') return false;
+          if (q.type === 'convergence_escalation' || q.type === 'overdue_escalation' || q.type === 'stale_revision_escalation') return false;
+          var dedupKey = q.action_id || q.id;
+          if (_aqSeen[dedupKey]) return false;
+          _aqSeen[dedupKey] = true;
+          return true;
+        });
         totalItems += aqPending.length;
 
         if (aqPending.length > 0) {
