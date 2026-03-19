@@ -2456,10 +2456,10 @@ module.exports = async function (context) {
           const _charLimit = _PLAT_LIMITS[_platform] || 280;
           if (_rcText.length > _charLimit) {
             context.log('[Heartbeat] AUTO-POST: Trimming', _platform, 'from', _rcText.length, 'to', _charLimit, 'chars');
-            // Extract blog URL and hashtags to preserve them during trimming
+            // Extract any ambientpixels.ai URL and hashtags to preserve them during trimming
             var _blogUrl = '';
             var _hashTail = '';
-            var _blogUrlInText = _rcText.match(/https?:\/\/ambientpixels\.ai\/blog\/[a-z0-9-]+/i);
+            var _blogUrlInText = _rcText.match(/https?:\/\/ambientpixels\.ai(?:\/[a-z0-9\/-]*)?/i);
             if (_blogUrlInText) _blogUrl = _blogUrlInText[0];
             var _hashMatch = _rcText.match(/\s+(#[A-Za-z]\S*(?:\s+#[A-Za-z]\S*)*)$/);
             if (_hashMatch) _hashTail = _hashMatch[0];
@@ -2492,6 +2492,13 @@ module.exports = async function (context) {
               }
             }
             context.log('[Heartbeat] AUTO-POST: Trimmed to', _rcText.length, 'chars');
+          }
+          // Safety net: ensure post contains an ambientpixels.ai URL — extract from description or use default
+          if (_rcText.indexOf('ambientpixels.ai') === -1) {
+            var _descUrl = (_pt.description || '').match(/https?:\/\/ambientpixels\.ai(?:\/[a-z0-9\/-]*)?/i);
+            var _fallbackUrl = _descUrl ? _descUrl[0] : 'https://ambientpixels.ai';
+            _rcText = _rcText.trimEnd() + '\n' + _fallbackUrl;
+            context.log('[Heartbeat] AUTO-POST: URL missing after trim — appended', _fallbackUrl);
           }
           const _scheduledFor = _getOptimalPostTime(_platform, researchIntelStore);
           const _actionReq = {
