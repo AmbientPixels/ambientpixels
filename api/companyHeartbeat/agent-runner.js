@@ -93,6 +93,7 @@ async function runAgentHeartbeat(context, agentId, tasks, configs, recentSummari
   };
   const agent = AGENT_ROLES[agentId];
   if (!agent) return result;
+  agent.id = agentId;
 
   // Read dynamic doctrine weight from workspace config (slider value), clamp 0.0–0.6
   const agentCfg = configs[agentId] || {};
