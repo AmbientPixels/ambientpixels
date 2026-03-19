@@ -113,12 +113,14 @@ module.exports = async function (context, req) {
   }
 
   try {
-    // Top pages query — strip querystrings, keep only utm params
+    // Top pages query — extract URL path for product matching, fall back to page name
     var topPagesQuery = [
       'pageViews',
-      '| where isnotempty(["name"])',
-      '| summarize viewCount = count() by path = tostring(["name"])',
-      '| top 10 by viewCount desc'
+      '| where isnotempty(url)',
+      '| extend parsedPath = tostring(parse_url(url).Path)',
+      '| extend cleanPath = iff(parsedPath == "" or parsedPath == "/", tostring(["name"]), parsedPath)',
+      '| summarize viewCount = count() by path = cleanPath',
+      '| top 20 by viewCount desc'
     ].join('\n');
 
     // Top referrers
