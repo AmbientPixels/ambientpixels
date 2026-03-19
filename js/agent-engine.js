@@ -3231,7 +3231,8 @@ var AgentEngine = (function () {
     var queueActionIds = {};
     for (var j = queue.length - 1; j >= 0; j--) {
       var entry = queue[j];
-      if (entry.kind !== 'action' || !entry.action_id) continue;
+      if (!entry.action_id) continue;
+      if (entry.kind !== 'action' && entry.kind !== 'research.intel') continue;
       queueActionIds[entry.action_id] = true;
       var action = actionMap[entry.action_id];
       if (!action) {
