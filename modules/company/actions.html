@@ -2015,6 +2015,31 @@
         html += '</div>';
       }
 
+      // Quality Gate
+      var _dqg = a._aqEntry && a._aqEntry.qualityGate;
+      if (!_dqg && window._aqItemsByActionId) { var _dqgAq = window._aqItemsByActionId[a.id]; if (_dqgAq) _dqg = _dqgAq.qualityGate; }
+      if (_dqg) {
+        var _qgColor = _dqg.pass ? '#34d399' : '#ef4444';
+        var _qgBg = _dqg.pass ? 'rgba(52,211,153,0.04)' : 'rgba(239,68,68,0.04)';
+        var _qgBorder = _dqg.pass ? 'rgba(52,211,153,0.2)' : 'rgba(239,68,68,0.2)';
+        var _qgIcon = _dqg.pass ? 'fa-check-circle' : 'fa-exclamation-triangle';
+        var _qgLabel = _dqg.pass ? 'Verified' : 'Quality Flag';
+        html += '<div class="act-drawer-section"><h4>Quality Gate</h4>';
+        html += '<div style="padding:0.5rem;border-radius:6px;border:1px solid ' + _qgBorder + ';background:' + _qgBg + ';">';
+        html += '<div style="display:flex;align-items:center;gap:0.4rem;margin-bottom:0.3rem;">';
+        html += '<i class="fas ' + _qgIcon + '" style="color:' + _qgColor + ';font-size:0.7rem;"></i>';
+        html += '<span style="font-size:0.7rem;font-weight:600;color:' + _qgColor + ';">' + _qgLabel + '</span>';
+        if (_dqg.confidence) html += '<span style="font-size:0.55rem;opacity:0.5;margin-left:auto;">Confidence: ' + _dqg.confidence + '%</span>';
+        html += '</div>';
+        if (_dqg.issues && _dqg.issues.length > 0) {
+          html += '<ul style="margin:0.3rem 0 0 0;padding-left:1rem;font-size:0.65rem;color:rgba(255,255,255,0.7);">';
+          _dqg.issues.forEach(function(issue) { html += '<li style="margin-bottom:0.2rem;">' + esc(issue) + '</li>'; });
+          html += '</ul>';
+        }
+        if (_dqg.model) html += '<div style="font-size:0.5rem;opacity:0.3;margin-top:0.3rem;">Model: ' + esc(_dqg.model) + '</div>';
+        html += '</div></div>';
+      }
+
       // Execution
       if (a.execution && a.execution.status !== 'pending') {
         html += '<div class="act-drawer-section"><h4>Execution</h4><dl class="act-drawer-kv">';
