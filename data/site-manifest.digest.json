@@ -1,28 +1,28 @@
 {
-  "generatedAt": "2026-03-09T02:18:20.206Z",
-  "gitHead": "bafe04ea",
+  "generatedAt": "2026-03-20T22:19:08.506Z",
+  "gitHead": "d6a4bbcb",
   "lastDeployHint": "// trigger deploy",
   "counts": {
-    "pages": 159,
+    "pages": 162,
     "categories": {
-      "company": 28,
-      "cardforge": 5,
-      "root": 23,
-      "nova": 26,
-      "modules": 16,
+      "company": 31,
       "projects": 34,
-      "lab": 7,
+      "modules": 16,
+      "root": 23,
       "tools": 15,
-      "hanson": 5
+      "nova": 26,
+      "lab": 7,
+      "hanson": 5,
+      "cardforge": 5
     }
   },
   "attention": [
     {
-      "path": "/modules/contact-modal.html",
+      "path": "/modules/header.html",
       "issue": "missingTitle"
     },
     {
-      "path": "/modules/header.html",
+      "path": "/modules/contact-modal.html",
       "issue": "missingTitle"
     },
     {
@@ -40,24 +40,24 @@
   ],
   "recentPages": [
     {
-      "path": "/modules/company/memory-stack.html",
-      "title": "Memory Stack — AmbientPixels HQ"
+      "path": "/modules/company/agent-performance.html",
+      "title": "Agent Performance — AmbientPixels HQ"
     },
     {
-      "path": "/modules/company/actions.html",
-      "title": "Actions — AmbientPixels HQ"
+      "path": "/modules/company/agent-intelligence.html",
+      "title": "Agent Intelligence — AmbientPixels HQ"
     },
     {
       "path": "/modules/company/dashboard.html",
       "title": "Dashboard — AmbientPixels HQ"
     },
     {
-      "path": "/cardforge/arena.html",
-      "title": "CardForge Arena — PvE Card Battles"
+      "path": "/modules/company/analytics-hub.html",
+      "title": "Analytics Hub — AmbientPixels HQ"
     },
     {
-      "path": "/modules/company/tasks.html",
-      "title": "Tasks — AmbientPixels HQ"
+      "path": "/projects/xbox-support-team.html",
+      "title": "Xbox Support Content Team | AmbientPixels"
     }
   ]
 }
