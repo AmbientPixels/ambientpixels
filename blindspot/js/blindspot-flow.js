@@ -52,6 +52,166 @@
   };
 
   // ============================================================
+  // SOUND EFFECTS (Web Audio API — no files needed)
+  // ============================================================
+
+  let _audioCtx = null;
+  let _sfxMuted = localStorage.getItem('bs-sfx-muted') === 'true';
+
+  function getAudioCtx() {
+    if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    return _audioCtx;
+  }
+
+  function playSfx(name) {
+    if (_sfxMuted) return;
+    try {
+      const ctx = getAudioCtx();
+      if (ctx.state === 'suspended') ctx.resume();
+      const sfx = SFX_DEFS[name];
+      if (sfx) sfx(ctx);
+    } catch (e) { /* audio not supported — fail silently */ }
+  }
+
+  function toggleSfxMute() {
+    _sfxMuted = !_sfxMuted;
+    localStorage.setItem('bs-sfx-muted', String(_sfxMuted));
+    return _sfxMuted;
+  }
+
+  // Synth definitions — each creates oscillator nodes and schedules them
+  const SFX_DEFS = {
+    // Loot drop: bright sparkle arpeggio (3 rising notes)
+    loot: function (ctx) {
+      var t = ctx.currentTime;
+      [523, 659, 784].forEach(function (freq, i) {
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.18, t + i * 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.08 + 0.25);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(t + i * 0.08);
+        osc.stop(t + i * 0.08 + 0.3);
+      });
+    },
+
+    // Boss defeat: triumphant fanfare (power chord + octave rise)
+    bossDefeat: function (ctx) {
+      var t = ctx.currentTime;
+      // Root + fifth + octave staggered
+      [[262, 0], [330, 0.05], [392, 0.1], [523, 0.2]].forEach(function (pair) {
+        var freq = pair[0], delay = pair[1];
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.2, t + delay);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + delay + 0.5);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(t + delay);
+        osc.stop(t + delay + 0.55);
+      });
+    },
+
+    // Ascension: ethereal rising sweep with shimmer
+    ascension: function (ctx) {
+      var t = ctx.currentTime;
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(220, t);
+      osc.frequency.exponentialRampToValueAtTime(880, t + 0.6);
+      gain.gain.setValueAtTime(0.15, t);
+      gain.gain.setValueAtTime(0.2, t + 0.3);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.8);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(t);
+      osc.stop(t + 0.85);
+      // Shimmer overtone
+      var osc2 = ctx.createOscillator();
+      var gain2 = ctx.createGain();
+      osc2.type = 'sine';
+      osc2.frequency.setValueAtTime(660, t + 0.2);
+      osc2.frequency.exponentialRampToValueAtTime(1760, t + 0.7);
+      gain2.gain.setValueAtTime(0.08, t + 0.2);
+      gain2.gain.exponentialRampToValueAtTime(0.001, t + 0.9);
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      osc2.start(t + 0.2);
+      osc2.stop(t + 0.95);
+    },
+
+    // Forge complete: anvil hit (short noise burst + metallic ring)
+    forgeComplete: function (ctx) {
+      var t = ctx.currentTime;
+      // Noise burst (impact)
+      var bufferSize = ctx.sampleRate * 0.05;
+      var buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      var data = buffer.getChannelData(0);
+      for (var i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * 0.3;
+      var noise = ctx.createBufferSource();
+      noise.buffer = buffer;
+      var nGain = ctx.createGain();
+      nGain.gain.setValueAtTime(0.25, t);
+      nGain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+      noise.connect(nGain);
+      nGain.connect(ctx.destination);
+      noise.start(t);
+      noise.stop(t + 0.1);
+      // Metallic ring
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.value = 1047;
+      gain.gain.setValueAtTime(0.1, t + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(t + 0.02);
+      osc.stop(t + 0.45);
+    },
+
+    // Battle win: short victory jingle
+    battleWin: function (ctx) {
+      var t = ctx.currentTime;
+      [392, 494, 587, 784].forEach(function (freq, i) {
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.15, t + i * 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.1 + 0.3);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(t + i * 0.1);
+        osc.stop(t + i * 0.1 + 0.35);
+      });
+    },
+
+    // Battle loss: descending minor notes
+    battleLoss: function (ctx) {
+      var t = ctx.currentTime;
+      [392, 349, 311, 262].forEach(function (freq, i) {
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        gain.gain.setValueAtTime(0.12, t + i * 0.15);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.15 + 0.35);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(t + i * 0.15);
+        osc.stop(t + i * 0.15 + 0.4);
+      });
+    }
+  };
+
+  // ============================================================
   // SHARED UTILITIES
   // ============================================================
 
@@ -1431,6 +1591,7 @@
 
   async function handlePlayPageResult(battleResult, battleData) {
     const isWin = battleResult.winner === 'player';
+    playSfx(isWin ? 'battleWin' : 'battleLoss');
 
     // Track boss record
     if (_battleType === 'pve' && _currentBossId) {
@@ -1487,6 +1648,9 @@
         if (getWinStreak() >= 5) forgeGain = 2; // Streak bonus
         setForgeWins(getForgeWins() + forgeGain);
       }
+
+      // Play boss defeat fanfare on new boss kills
+      if (isNewBossDefeat) playSfx('bossDefeat');
 
       // Apply boss reward (stat bonus, title, etc.)
       if (isNewBossDefeat && boss) {
@@ -2080,6 +2244,7 @@
         updateForgeProgress();
         renderLobby();
         completeBounty('forgeVisit');
+        playSfx('forgeComplete');
         showSuccessToast(_respecActive ? 'Card respecced!' : 'Card evolved!');
       } catch (e) {
         console.warn('[Blindspot] Forge save error:', e);
@@ -2584,6 +2749,7 @@
   }
 
   function performAscension(newLevel) {
+    playSfx('ascension');
     setAscension(newLevel);
     // Reset boss progress but keep stats/visuals/rank
     localStorage.setItem('bs-highest-boss', '0');
@@ -2708,6 +2874,7 @@
     }).join('');
 
     showOverlay('bs-loot-choice');
+    playSfx('loot');
 
     container.querySelectorAll('.bs-loot-card').forEach(btn => {
       btn.addEventListener('click', async () => {
