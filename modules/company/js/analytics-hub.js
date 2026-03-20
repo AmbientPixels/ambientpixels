@@ -374,6 +374,7 @@
   function renderLiveRecentPosts(data) {
     var tbody = document.getElementById('sa-live-posts-body');
     var empty = document.getElementById('sa-live-posts-empty');
+    if (!tbody || !empty) return;
     var posts = (data && data.recentPosts) || [];
 
     if (!posts.length) {
@@ -412,10 +413,12 @@
         renderLiveRecentPosts(resp.body || {});
       })
       .catch(function (err) {
-        document.getElementById('sa-acct-grid').innerHTML = '<div class="dash-empty">Account stats failed: ' + esc(err.message || 'Unknown error') + '</div>';
-        document.getElementById('sa-live-posts-empty').textContent = 'Could not load recent posts.';
-        document.getElementById('sa-live-posts-empty').style.display = '';
-        document.getElementById('sa-live-posts-body').innerHTML = '';
+        var grid = document.getElementById('sa-acct-grid');
+        if (grid) grid.innerHTML = '<div class="dash-empty">Account stats failed: ' + esc(err.message || 'Unknown error') + '</div>';
+        var postsEmpty = document.getElementById('sa-live-posts-empty');
+        if (postsEmpty) { postsEmpty.textContent = 'Could not load recent posts.'; postsEmpty.style.display = ''; }
+        var postsBody = document.getElementById('sa-live-posts-body');
+        if (postsBody) postsBody.innerHTML = '';
       });
   }
 
