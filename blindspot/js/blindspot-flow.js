@@ -643,6 +643,13 @@
   // ============================================================
 
   function renderLobby() {
+    // Apply streak glow
+    const cardDisplay0 = document.getElementById('bs-player-card');
+    if (cardDisplay0) {
+      const streak = getWinStreak();
+      cardDisplay0.classList.toggle('bs-card-streak', streak >= 3);
+      cardDisplay0.classList.toggle('bs-card-streak--hot', streak >= 5);
+    }
     // Apply palette to card display
     const cardDisplay = document.getElementById('bs-player-card');
     if (cardDisplay && _selectedCard) {
@@ -685,7 +692,8 @@
       const highestB = getHighestBossDefeated();
 
       let streakHtml = '';
-      if (streak >= 3) streakHtml = `<span style="color:var(--bs-accent-glow);"><i class="fas fa-fire"></i> ${streak} streak</span>`;
+      if (streak >= 5) streakHtml = `<span style="color:#ff3333;"><i class="fas fa-fire-flame-curved"></i> ${streak} STREAK</span>`;
+      else if (streak >= 3) streakHtml = `<span style="color:var(--bs-accent-glow);"><i class="fas fa-fire"></i> ${streak} streak</span>`;
       else if (streak > 0) streakHtml = `<span><i class="fas fa-fire"></i> ${streak} streak</span>`;
 
       const ascension = getAscension();
@@ -1181,7 +1189,22 @@
       }
     } else {
       if (titleEl) titleEl.textContent = 'Defeated';
-      if (subtitleEl) subtitleEl.textContent = 'Your card remembers.';
+      if (subtitleEl) {
+        const boss = _bosses.find(b => b.id === _currentBossId);
+        const tips = {
+          'Enforcer': 'Enforcers guard often. Use Ability to break through.',
+          'Fighter': 'Fighters strike hard. Guard or Counter their attacks.',
+          'Scout': 'Scouts are fast. High AGI lets them dodge. Use abilities.',
+          'Hacker': 'Hackers use abilities frequently. Guard when they charge up.',
+          'Berserker': 'Berserkers are all-in on strikes. Counter destroys them.',
+          'Scholar': 'Scholars mix heals and abilities. Pressure them with strikes.',
+          'Guardian': 'Guardians are tanks. Chip away with abilities, not strikes.',
+          'Trickster': 'Tricksters are unpredictable. Watch their pattern and adapt.',
+          'Caster': 'Casters hit hard with abilities. Guard when they have charges.'
+        };
+        const tip = boss ? (tips[boss.class] || 'Your card remembers.') : 'Your card remembers.';
+        subtitleEl.textContent = tip;
+      }
     }
   }
 
