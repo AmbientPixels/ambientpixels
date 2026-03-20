@@ -923,6 +923,11 @@
       const newStreak = getWinStreak() + 1;
       setWinStreak(newStreak);
       setBestStreak(newStreak);
+
+      // Loot roulette — every win drops something
+      const loot = rollLoot();
+      await applyLootDrop(loot);
+      setTimeout(() => showRewardDrop(loot, 'Victory Reward'), 1500);
     } else {
       setWinStreak(0);
     }
@@ -1335,37 +1340,100 @@
   function showSuccessToast(msg) { showToast(msg, 'success'); }
 
   // ============================================================
-  // REWARD DROP DISPLAY
+  // REWARD SYSTEM — Roulette + Boss Drops
   // ============================================================
 
-  function showRewardDrop(reward, boss) {
+  const LOOT_TABLE = [
+    { weight: 30, type: 'stat_shard', stat: 'str', amount: 3, label: '+3 STR', rarity: 'common' },
+    { weight: 30, type: 'stat_shard', stat: 'agi', amount: 3, label: '+3 AGI', rarity: 'common' },
+    { weight: 30, type: 'stat_shard', stat: 'int', amount: 3, label: '+3 INT', rarity: 'common' },
+    { weight: 30, type: 'stat_shard', stat: 'end', amount: 3, label: '+3 END', rarity: 'common' },
+    { weight: 30, type: 'stat_shard', stat: 'lck', amount: 3, label: '+3 LCK', rarity: 'common' },
+    { weight: 15, type: 'stat_shard', stat: 'str', amount: 5, label: '+5 STR', rarity: 'uncommon' },
+    { weight: 15, type: 'stat_shard', stat: 'agi', amount: 5, label: '+5 AGI', rarity: 'uncommon' },
+    { weight: 15, type: 'stat_shard', stat: 'int', amount: 5, label: '+5 INT', rarity: 'uncommon' },
+    { weight: 15, type: 'stat_shard', stat: 'end', amount: 5, label: '+5 END', rarity: 'uncommon' },
+    { weight: 15, type: 'stat_shard', stat: 'lck', amount: 5, label: '+5 LCK', rarity: 'uncommon' },
+    { weight: 5, type: 'stat_shard', stat: 'str', amount: 8, label: '+8 STR', rarity: 'rare' },
+    { weight: 5, type: 'stat_shard', stat: 'end', amount: 8, label: '+8 END', rarity: 'rare' },
+    { weight: 3, type: 'stat_shard', stat: 'str', amount: 12, label: '+12 STR', rarity: 'epic' },
+    { weight: 2, type: 'stat_shard', stat: 'int', amount: 12, label: '+12 INT', rarity: 'epic' }
+  ];
+
+  function rollLoot() {
+    const totalWeight = LOOT_TABLE.reduce((sum, item) => sum + item.weight, 0);
+    let roll = Math.random() * totalWeight;
+    for (const item of LOOT_TABLE) {
+      roll -= item.weight;
+      if (roll <= 0) return item;
+    }
+    return LOOT_TABLE[0];
+  }
+
+  async function applyLootDrop(loot) {
+    if (!_selectedCard || !_selectedCard.combatStats || loot.type !== 'stat_shard') return;
+
+    _selectedCard.combatStats[loot.stat] = Math.min(100,
+      (_selectedCard.combatStats[loot.stat] || 0) + loot.amount
+    );
+
+    // Save (non-blocking)
+    try {
+      const cardToSave = { ..._selectedCard };
+      cardToSave.stats = [
+        { name: 'Strength', value: cardToSave.combatStats.str },
+        { name: 'Agility', value: cardToSave.combatStats.agi },
+        { name: 'Intelligence', value: cardToSave.combatStats.int },
+        { name: 'Endurance', value: cardToSave.combatStats.end },
+        { name: 'Luck', value: cardToSave.combatStats.lck }
+      ];
+      const url = window.buildApiPath('saveCard');
+      const headers = { 'Content-Type': 'application/json' };
+      const authHeaders = await window.ArenaAPI.getPrincipalHeader();
+      Object.assign(headers, authHeaders);
+      const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+      if (csrfMeta && csrfMeta.content) headers['X-CSRF-Token'] = csrfMeta.content;
+      fetch(url, { method: 'POST', headers, body: JSON.stringify(cardToSave) });
+    } catch (e) { console.warn('[Blindspot] Loot save:', e); }
+  }
+
+  function showRewardDrop(reward, source) {
     const existing = document.querySelector('.bs-reward-drop');
     if (existing) existing.remove();
 
+    const rarityColors = {
+      common: 'var(--bs-text-muted)',
+      uncommon: 'var(--bs-accent)',
+      rare: '#7b2fff',
+      epic: '#ff5252'
+    };
+
     const iconMap = {
+      stat_shard: 'fa-gem',
       stat_bonus: 'fa-arrow-up',
       title: 'fa-crown',
       forge_bonus: 'fa-fire'
     };
 
+    const color = rarityColors[reward.rarity] || 'var(--bs-accent)';
+    const rarityLabel = reward.rarity ? reward.rarity.charAt(0).toUpperCase() + reward.rarity.slice(1) : '';
+
     const drop = document.createElement('div');
     drop.className = 'bs-reward-drop';
     drop.innerHTML = `
-      <div class="bs-reward-drop__content">
-        <div class="bs-reward-drop__icon"><i class="fas ${iconMap[reward.type] || 'fa-gift'}"></i></div>
+      <div class="bs-reward-drop__content" style="border-color:${color};">
+        <div class="bs-reward-drop__icon" style="color:${color};"><i class="fas ${iconMap[reward.type] || 'fa-gift'}"></i></div>
         <div class="bs-reward-drop__text">
-          <span class="bs-reward-drop__title">Boss Reward</span>
+          <span class="bs-reward-drop__title" style="color:${color};">${rarityLabel} Drop</span>
           <span class="bs-reward-drop__label">${escHtml(reward.label)}</span>
-          <span class="bs-reward-drop__from">from ${escHtml(boss.name)}</span>
+          ${source ? `<span class="bs-reward-drop__from">${escHtml(typeof source === 'string' ? source : source.name)}</span>` : ''}
         </div>
       </div>
     `;
     document.body.appendChild(drop);
 
-    // Animate in
     requestAnimationFrame(() => drop.classList.add('bs-reward-drop--visible'));
 
-    // Auto-dismiss after 4s
     setTimeout(() => {
       drop.classList.remove('bs-reward-drop--visible');
       setTimeout(() => drop.remove(), 500);
