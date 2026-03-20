@@ -1329,11 +1329,23 @@
       if (selectedPalette) _selectedCard.palette = selectedPalette.dataset.palette;
       if (selectedContainer) _selectedCard.imageContainer = selectedContainer.dataset.container;
 
+      // Apply details from Details tab
+      const nameInput = document.getElementById('bs-forge-name');
+      const quoteInput = document.getElementById('bs-forge-quote');
+      const avatarInput = document.getElementById('bs-forge-avatar');
+      if (nameInput && nameInput.value.trim()) _selectedCard.name = nameInput.value.trim();
+      if (quoteInput) _selectedCard.quote = quoteInput.value.trim();
+      if (avatarInput && avatarInput.value.trim()) _selectedCard.avatar = avatarInput.value.trim();
+
       // Save via API
       try {
         const cardToSave = { ..._selectedCard, combatStats: newStats };
         if (selectedPalette) cardToSave.palette = selectedPalette.dataset.palette;
         if (selectedContainer) cardToSave.imageContainer = selectedContainer.dataset.container;
+        // Include details tab changes
+        if (nameInput && nameInput.value.trim()) cardToSave.name = nameInput.value.trim();
+        if (quoteInput) cardToSave.quote = quoteInput.value.trim();
+        if (avatarInput && avatarInput.value.trim()) cardToSave.avatar = avatarInput.value.trim();
         cardToSave.stats = [
           { name: 'Strength', value: newStats.str },
           { name: 'Agility', value: newStats.agi },
