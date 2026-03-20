@@ -1548,29 +1548,42 @@
       });
     });
 
-    // Look tab: palette selection
-    panel.querySelectorAll('[data-palette]').forEach(btn => {
+    // Scroll preview into view on mobile after visual change
+    function flashPreview() {
+      if (window.innerWidth > 768) return;
+      const previewCard = panel.querySelector('.bs-forge-card');
+      if (!previewCard) return;
+      previewCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      previewCard.style.transition = 'box-shadow 0.3s ease';
+      previewCard.style.boxShadow = '0 0 20px var(--bs-accent)';
+      setTimeout(() => { previewCard.style.boxShadow = ''; }, 800);
+    }
+
+    // Look tab: palette selection — only target option buttons, not the preview card itself
+    panel.querySelectorAll('.bs-forge-option[data-palette]').forEach(btn => {
       btn.addEventListener('click', () => {
-        panel.querySelectorAll('[data-palette]').forEach(b => b.classList.remove('bs-forge-option--selected'));
+        panel.querySelectorAll('.bs-forge-option[data-palette]').forEach(b => b.classList.remove('bs-forge-option--selected'));
         btn.classList.add('bs-forge-option--selected');
         // Live update preview card palette
         const previewCard = panel.querySelector('.bs-forge-card');
         if (previewCard) previewCard.setAttribute('data-palette', btn.dataset.palette);
         _hasVisualChange = true;
         updateBudget();
+        flashPreview();
       });
     });
 
-    // Look tab: container selection
-    panel.querySelectorAll('[data-container]').forEach(btn => {
+    // Look tab: container selection — only target option buttons
+    panel.querySelectorAll('.bs-forge-option[data-container]').forEach(btn => {
       btn.addEventListener('click', () => {
-        panel.querySelectorAll('[data-container]').forEach(b => b.classList.remove('bs-forge-option--selected'));
+        panel.querySelectorAll('.bs-forge-option[data-container]').forEach(b => b.classList.remove('bs-forge-option--selected'));
         btn.classList.add('bs-forge-option--selected');
         // Live update preview card container
         const previewCard = panel.querySelector('.bs-forge-card');
         if (previewCard) previewCard.setAttribute('data-container', btn.dataset.container);
         _hasVisualChange = true;
         updateBudget();
+        flashPreview();
       });
     });
 
