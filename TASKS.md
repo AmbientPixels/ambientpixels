@@ -4,13 +4,13 @@
 Blindspot is a standalone arena combat card game at /blindspot/. 62 iterations shipped. Core loop works: landing → stranger fight → quick build → campaign (10 bosses with images) → forge → PvP. Needs polish to feel like a shippable game.
 
 ## Done
-- (2026-03-20) Forge Look tab: palette/container preview now updates visually on mobile — scroll-into-view with glow flash, narrowed selectors, compact card size, CSS transitions
+- (2026-03-20) Quick Build card reveal: full-screen celebration overlay after saving card — card display with name/class/rarity/avatar/stats, particle burst, glow pulse, "Your card is ready" message, auto-redirect after 8s
+- (2026-03-20) Boss avatar flow verified: all 10 boss images exist, avatar field in all 3 data files, API passes avatar through startBattle response, arena-battle-ui.js renders img tags — no issues found
+- (2026-03-20) Forge Look tab: palette/container preview now updates visually on mobile — scroll-into-view with glow flash, narrowed selectors, compact card size, CSS transitions, cascade fix (mobile breakpoint after base styles), inferno/frost palette styles, fullbleed mobile scaling
 - (2026-03-20) iter 56-62: mobile bottom nav, bounty rewards, boss images, in-game leaderboard, loot choice (pick 1 of 3), combat guide overlay, combat tooltips, forge palette preview, ascension system, stat bars, boss defeat tips, streak glow, battle palette borders
 
 ## Next up (do these in order)
-1. Battle screen: verify boss avatars flow from server arena-bosses.json through startBattle API response to renderCombatants in arena-battle-ui.js — if avatars are empty in the battle response, the skull placeholder shows. Files: `ambientpixels/api/cardforgearenabattle/arena-bosses.json`, `ambientpixels/api/cardforgearenabattle/index.js`
-3. Quick Build card reveal: after building your card, show a full-screen card reveal celebration (flip animation, particle burst, "Your card is ready") instead of silently redirecting. Files: `ambientpixels/blindspot/js/blindspot-flow.js` (openBlindspotQuickBuild callback), `ambientpixels/blindspot/css/blindspot.css`
-4. Lobby stat bars: show damage/heal estimates next to each stat (e.g., "STR 60 → ~24-30 dmg"). File: `ambientpixels/blindspot/js/blindspot-flow.js` (renderLobby stat bars section)
+1. Lobby stat bars: show damage/heal estimates next to each stat (e.g., "STR 60 → ~24-30 dmg"). File: `ambientpixels/blindspot/js/blindspot-flow.js` (renderLobby stat bars section)
 5. PvP screen: add a matchmaking feel with "Searching for opponent..." animation and opponent card reveal. Files: `ambientpixels/blindspot/js/blindspot-flow.js` (renderPvPGallery, startPvPBattle), `ambientpixels/blindspot/css/blindspot.css`
 6. Forge respec: let players redistribute ALL stat points (costs forge points). File: `ambientpixels/blindspot/js/blindspot-flow.js` (openForgeScreen)
 7. Mobile battle: optimize the 5-button move layout for touch — larger targets, 3+2 grid. File: `ambientpixels/blindspot/css/blindspot.css`
