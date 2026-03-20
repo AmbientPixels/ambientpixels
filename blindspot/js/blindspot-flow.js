@@ -362,7 +362,12 @@
   // ============================================================
 
   async function initPlay() {
-    await loadGameData();
+    // Show lobby shell immediately while data loads
+    showScreen('lobby');
+
+    // Start data loading in parallel
+    const gameDataPromise = loadGameData();
+    const profilePromise = loadProfile();
 
     if (window.ArenaAudio) window.ArenaAudio.init();
 
@@ -373,9 +378,12 @@
 
     hookBattleCompletion();
 
-    const profile = await loadProfile();
+    // Wait for game data
+    await gameDataPromise;
 
-    // No profile at all — redirect to landing
+    // Wait for profile
+    const profile = await profilePromise;
+
     if (!profile) {
       window.location.href = '/blindspot/';
       return;
