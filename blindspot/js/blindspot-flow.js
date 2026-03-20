@@ -71,6 +71,19 @@
     return PVP_RANKS[0];
   }
 
+  function showEloChange(text, color, newRankObj) {
+    var el = document.createElement('div');
+    el.className = 'bs-elo-toast';
+    el.innerHTML = '<span class="bs-elo-toast__value" style="color:' + color + ';">' + text + '</span>' +
+      (newRankObj ? '<span class="bs-elo-toast__rank" style="color:' + newRankObj.color + ';"><i class="fas ' + newRankObj.icon + '"></i> Rank Up: ' + newRankObj.name + '!</span>' : '');
+    document.body.appendChild(el);
+    requestAnimationFrame(function() { el.classList.add('bs-elo-toast--active'); });
+    setTimeout(function() {
+      el.classList.add('bs-elo-toast--exit');
+      setTimeout(function() { el.remove(); }, 600);
+    }, 2500);
+  }
+
   function estimateOpponentElo(card) {
     var power = getCardPower(card);
     // Map power (typically 50-250) to Elo range 800-1600
@@ -1199,7 +1212,13 @@
     const pvpLock = document.getElementById('bs-pvp-lock');
     if (highestBoss >= 10) {
       if (pvpBtn) pvpBtn.disabled = false;
-      if (pvpLock) pvpLock.style.display = 'none';
+      if (pvpLock) {
+        var elo = getPvPElo();
+        var pvpRank = getPvPRank(elo);
+        pvpLock.style.display = '';
+        pvpLock.className = 'bs-mode-btn__rank';
+        pvpLock.innerHTML = '<i class="fas ' + pvpRank.icon + '" style="color:' + pvpRank.color + ';"></i> ' + pvpRank.name + ' <span style="color:var(--bs-text-muted);">' + elo + '</span>';
+      }
     }
 
     // Power rating + stats
@@ -1786,6 +1805,41 @@
       var sign = eloChange >= 0 ? '+' : '';
       var eloColor = eloChange >= 0 ? 'var(--bs-accent)' : 'var(--bs-danger, #ff5252)';
       showEloChange(sign + eloChange, eloColor, oldRank.name !== newRank.name ? newRank : null);
+
+      // Update results modal with Elo info
+      var xpSection = document.getElementById('arena-results-xp-section');
+      if (xpSection) {
+        var xpAmtEl = document.getElementById('arena-results-xp');
+        if (xpAmtEl) xpAmtEl.innerHTML = '<span style="color:' + eloColor + ';">' + sign + eloChange + ' Elo</span>';
+        var rankLabel = document.getElementById('arena-results-rank-label');
+        if (rankLabel) {
+          rankLabel.innerHTML =
+            '<span style="color:' + oldRank.color + ';"><i class="fas ' + oldRank.icon + '"></i> ' + oldRank.name + '</span>' +
+            ' <i class="fas fa-arrow-right" style="color:var(--bs-text-muted);margin:0 0.3rem;"></i> ' +
+            '<span style="color:' + newRank.color + ';"><i class="fas ' + newRank.icon + '"></i> ' + newRank.name + ' (' + newElo + ')</span>';
+        }
+        // Show progress to next PvP rank instead of XP bar
+        var barFill = document.getElementById('arena-results-xp-fill');
+        var barText = document.getElementById('arena-results-xp-text');
+        var pvpNextRank = PVP_RANKS[PVP_RANKS.indexOf(newRank) + 1];
+        if (barFill && barText && pvpNextRank) {
+          var pvpPct = Math.min(100, Math.max(0, ((newElo - newRank.min) / (pvpNextRank.min - newRank.min)) * 100));
+          barFill.style.width = pvpPct + '%';
+          barFill.style.background = newRank.color;
+          barText.textContent = newElo + ' / ' + pvpNextRank.min + ' Elo';
+        } else if (barFill && barText) {
+          barFill.style.width = '100%';
+          barFill.style.background = newRank.color;
+          barText.textContent = newElo + ' Elo — Max Rank!';
+        }
+        // Rank up notification
+        var rankUpEl = document.getElementById('arena-results-rank-up');
+        var newRankEl = document.getElementById('arena-results-new-rank');
+        if (oldRank.name !== newRank.name && eloChange > 0) {
+          if (rankUpEl) rankUpEl.style.display = 'block';
+          if (newRankEl) newRankEl.textContent = newRank.name;
+        }
+      }
     }
 
     loadProfile().then(() => updateRankDisplay());

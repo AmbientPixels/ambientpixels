@@ -3690,3 +3690,126 @@ body.bs-battle-active .bs-bottom-nav {
   .bs-stranger-intro__line[data-line="1"] { font-size: 1.4rem; }
   .bs-stranger-intro__lines { gap: 1.2rem; padding: 1.5rem; }
 }
+
+/* ============================================================
+   PvP Elo Rating Display
+   ============================================================ */
+.bs-pvp-rating {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  margin: 0 1rem 0.5rem;
+  background: var(--bs-surface, rgba(255,255,255,0.04));
+  border: 1px solid var(--bs-border);
+  border-radius: 10px;
+  flex-wrap: wrap;
+}
+.bs-pvp-rank-badge {
+  font-family: 'Cinzel', serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.bs-pvp-elo {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1rem;
+  color: var(--bs-text);
+}
+.bs-pvp-record {
+  font-size: 0.8rem;
+  color: var(--bs-text-muted);
+}
+.bs-pvp-progress {
+  width: 100%;
+  height: 6px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 0.25rem;
+}
+.bs-pvp-progress__fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+.bs-pvp-next {
+  font-size: 0.7rem;
+  color: var(--bs-text-muted);
+  width: 100%;
+  text-align: center;
+}
+
+/* Opponent Elo badge in PvP gallery */
+.bs-pvp-opp-elo {
+  font-size: 0.75rem;
+  font-family: 'Share Tech Mono', monospace;
+  margin-left: 0.4rem;
+}
+
+/* PvP rank in lobby mode button */
+.bs-mode-btn__rank {
+  font-size: 0.75rem;
+  font-family: 'Share Tech Mono', monospace;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+/* Elo change toast */
+.bs-elo-toast {
+  position: fixed;
+  top: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(-30px);
+  opacity: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.6rem 1.2rem;
+  background: var(--bs-bg, #0d0d0f);
+  border: 1px solid var(--bs-border);
+  border-radius: 10px;
+  z-index: 10000;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+.bs-elo-toast--active {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.bs-elo-toast--exit {
+  opacity: 0;
+  transform: translateX(-50%) translateY(-20px);
+}
+.bs-elo-toast__value {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+.bs-elo-toast__rank {
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  animation: bs-elo-rank-pulse 0.6s ease 0.3s both;
+}
+@keyframes bs-elo-rank-pulse {
+  0% { transform: scale(0.8); opacity: 0; }
+  50% { transform: scale(1.15); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@media (max-width: 480px) {
+  .bs-pvp-rating { gap: 0.6rem; padding: 0.5rem 0.75rem; margin: 0 0.5rem 0.5rem; }
+  .bs-pvp-rank-badge { font-size: 1rem; }
+  .bs-elo-toast { top: 0.75rem; }
+  .bs-elo-toast__value { font-size: 1.2rem; }
+}
