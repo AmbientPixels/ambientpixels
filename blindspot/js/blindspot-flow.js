@@ -203,11 +203,16 @@
   // ============================================================
 
   async function initLanding() {
-    await loadGameData();
-    const profile = await loadProfile();
+    // Start loading in parallel for faster boot
+    const gameDataPromise = loadGameData();
+    const profilePromise = loadProfile();
 
     const fightBtn = document.getElementById('bs-fight-btn');
     if (!fightBtn) return;
+
+    // Enable button as soon as possible — don't block on API
+    await gameDataPromise;
+    const profile = await profilePromise;
 
     fightBtn.addEventListener('click', async () => {
       fightBtn.disabled = true;
