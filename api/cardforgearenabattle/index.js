@@ -288,7 +288,7 @@ function resolveClassAbility(abilityKey, combatStats, opponentMove, config, even
   const def = config.abilityDefs[abilityKey];
   if (!def) return { damage: 0, heal: 0, tempEffect: null, alwaysFirst: false };
 
-  const prefix = side === 'player' ? 'Your' : "Opponent's";
+  const prefix = side === 'player' ? 'Your' : "Enemy's";
   const target = side === 'player' ? 'their' : 'your';
   let damage = 0;
   let heal = 0;
@@ -330,7 +330,7 @@ function resolveClassAbility(abilityKey, combatStats, opponentMove, config, even
       }
       // Standard matchup modifiers
       if (opponentMove === 'strike') { damage *= 1.3; events.push(`${prefix} ${def.label} overpowered ${target} strike!`); }
-      if (opponentMove === 'guard') { damage *= 0.7; events.push(`${side === 'player' ? 'Opponent' : 'You'} partially blocked the ${def.label}.`); }
+      if (opponentMove === 'guard') { damage *= 0.7; events.push(`🛡️ ${side === 'player' ? 'Enemy' : 'You'} partially blocked the ${def.label}.`); }
       if (opponentMove === 'heal') { damage *= 1.2; events.push(`${prefix} ${def.label} punished ${target} healing!`); }
     }
     damage = Math.max(0, Math.floor(damage));
@@ -350,7 +350,7 @@ function resolveClassAbility(abilityKey, combatStats, opponentMove, config, even
       if (abilityKey === 'powerStrike') {
         events.push(`${prefix} ${def.label} smashed through ${target} guard!`);
       } else {
-        events.push(`${side === 'player' ? 'Opponent' : 'You'} partially blocked the ${def.label}.`);
+        events.push(`\uD83D\uDEE1\uFE0F ${side === 'player' ? 'Enemy' : 'You'} partially blocked the ${def.label}.`);
       }
     }
     if (opponentMove === 'heal') { damage *= 1.2; events.push(`${prefix} ${def.label} punished ${target} healing!`); }
@@ -402,7 +402,7 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
 
   // Move label map for round header
   const moveLabels = { strike: 'Strike', guard: 'Guard', ability: 'Ability', heal: 'Heal', counter: 'Counter' };
-  events.push(`\u2694\uFE0F You: ${moveLabels[playerMove] || playerMove} vs ${moveLabels[opponentMove] || opponentMove} :Enemy`);
+  events.push(`\u2694\uFE0F You chose ${moveLabels[playerMove] || playerMove} \u2014 Enemy chose ${moveLabels[opponentMove] || opponentMove}`);
 
   // Speed check: AGI + random 0–10 jitter determines who attacks first
   const playerSpeed = player.combatStats.agi + Math.random() * 10;
@@ -468,7 +468,7 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
   // --- Player attacks opponent ---
   let playerOutDmg = 0;
   if (playerStunned) {
-    events.push('You are stunned and cannot attack this round!');
+    events.push('\uD83D\uDCA5 You are stunned and cannot act this round!');
   } else if (playerMove === 'strike') {
     // Strike: 40% of STR as base + up to 10% STR as random variance
     const str = player.combatStats.str + playerStrBonus;
@@ -476,7 +476,7 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     const isCrit = Math.random() * 100 < playerCritChance;
     if (isCrit) {
       playerOutDmg *= 1.5;
-      events.push('\u2728 Critical hit! Your strike lands with devastating force!');
+      events.push('\u2728 Your strike landed a critical hit with devastating force!');
       // B2: Burn on crit strike
       newTempEffects.opponent.push({ effect: 'burn', value: Math.round(opponent.maxHp * 0.08), roundsLeft: 2 });
       events.push('\uD83D\uDD25 The critical strike ignites the enemy! (Burn x2 rounds)');
@@ -495,7 +495,7 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     if (playerOutDmg > 0) {
       playerOutDmg = Math.max(1, Math.floor(playerOutDmg * (1 - opponentDmgReduction / 100)));
       opponentDamageTaken += playerOutDmg;
-      events.push(`You struck for ${playerOutDmg} damage.`);
+      events.push(`⚔️ You struck for ${playerOutDmg} damage!`);
     }
   } else if (playerMove === 'ability') {
     const abilityResult = resolveClassAbility(player.abilityKey || 'arcaneBlast', player.combatStats, opponentMove, config, events, 'player');
@@ -503,7 +503,7 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     if (playerOutDmg > 0) {
       playerOutDmg = Math.max(1, Math.floor(playerOutDmg));
       opponentDamageTaken += playerOutDmg;
-      events.push(`Your ability dealt ${playerOutDmg} damage.`);
+      events.push(`\u2728 Your ability dealt ${playerOutDmg} damage!`);
     }
     if (abilityResult.heal > 0) playerHeal += abilityResult.heal;
     if (abilityResult.tempEffect) newTempEffects.opponent.push(abilityResult.tempEffect);
@@ -511,65 +511,65 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     // B2: Stun when ability hits a guarding opponent
     if (opponentMove === 'guard') {
       newTempEffects.opponent.push({ effect: 'stun', roundsLeft: 1 });
-      events.push('Your ability stuns the guarding opponent! (Stun x1)');
+      events.push('\uD83D\uDCA5 Your ability breaks through their guard — enemy stunned! (Stun x1)');
     }
     // B2: Shadow Strike crit → Blind
     if (player.abilityKey === 'shadowStrike' && abilityResult.damage > 0) {
       if (Math.random() * 100 < playerCritChance) {
         newTempEffects.opponent.push({ effect: 'blind', roundsLeft: 1 });
-        events.push('Shadow Strike blinds the opponent! (Blind x1)');
+        events.push('\uD83C\uDF11 Shadow Strike blinds the enemy! (Blind x1)');
       }
     }
   } else if (playerMove === 'guard') {
-    events.push('You raised your guard.');
+    events.push('\uD83D\uDEE1\uFE0F You raised your guard, bracing for impact.');
   } else if (playerMove === 'heal') {
     // Heal: 30% of END as base + up to 10% END as random variance
     const end = player.combatStats.end;
     let healAmt = end * 0.3 + Math.random() * (end * 0.1);
     if (opponentMove === 'strike') {
       healAmt *= 0.5;
-      events.push('Your healing was disrupted by the strike!');
+      events.push('\u26A0\uFE0F Your healing was disrupted by the enemy strike! (50% reduced)');
     } else if (opponentMove === 'ability') {
       healAmt = 0;
-      events.push('Your healing was interrupted by the ability!');
+      events.push('\u274C Your healing was interrupted by the enemy ability!');
     }
     healAmt = Math.round(healAmt);
     playerHeal += healAmt;
-    if (healAmt > 0) events.push(`You focused and recovered ${healAmt} HP.`);
+    if (healAmt > 0) events.push(`\uD83D\uDC9A You focused and recovered ${healAmt} HP.`);
   } else if (playerMove === 'counter') {
     // Resolved after opponent's attack is computed — see counter resolution block
-    events.push('You took a counter stance.');
+    events.push('\uD83D\uDD04 You took a counter stance, ready to reflect.');
   }
 
   // --- Opponent attacks player ---
   let opponentOutDmg = 0;
   if (opponentStunned) {
-    events.push('Opponent is stunned and cannot attack this round!');
+    events.push('\uD83D\uDCA5 Enemy is stunned and cannot act this round!');
   } else if (opponentMove === 'strike') {
     const str = opponent.combatStats.str + opponentStrBonus;
     opponentOutDmg = str * 0.4 + Math.random() * (str * 0.1);
     const isCrit = Math.random() * 100 < opponentCritChance;
     if (isCrit) {
       opponentOutDmg *= 1.5;
-      events.push('Opponent landed a critical hit!');
+      events.push('\u2728 Enemy landed a critical hit!');
       // B2: Burn on crit strike
       newTempEffects.player.push({ effect: 'burn', value: Math.round(player.maxHp * 0.08), roundsLeft: 2 });
-      events.push("Opponent's critical strike ignites you! (Burn x2)");
+      events.push('\uD83D\uDD25 The critical strike ignites you! (Burn x2 rounds)');
     }
     // B2: Blind miss chance
     if (opponentBlind && Math.random() < 0.40) {
-      events.push("Blind! Opponent's strike misses!");
+      events.push('\uD83D\uDE35 Blinded! Enemy strike swings wide and misses!');
       opponentOutDmg = 0;
     }
     if (playerMove === 'guard' && opponentOutDmg > 0) {
       const preGuard = Math.floor(opponentOutDmg);
       opponentOutDmg *= 0.4;
-      events.push(`You guarded — blocked 60% of their strike (${preGuard} → ${Math.floor(opponentOutDmg)}).`);
+      events.push(`\uD83D\uDEE1\uFE0F You guarded, blocked 60% of their strike (${preGuard} \u2192 ${Math.floor(opponentOutDmg)}).`);
     }
     if (opponentOutDmg > 0) {
       opponentOutDmg = Math.max(1, Math.floor(opponentOutDmg * (1 - playerDmgReduction / 100)));
       playerDamageTaken += opponentOutDmg;
-      events.push(`Opponent struck for ${opponentOutDmg} damage.`);
+      events.push(`⚔️ Enemy struck you for ${opponentOutDmg} damage!`);
     }
   } else if (opponentMove === 'ability') {
     const abilityResult = resolveClassAbility(opponent.abilityKey || 'arcaneBlast', opponent.combatStats, playerMove, config, events, 'opponent');
@@ -577,7 +577,7 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     if (opponentOutDmg > 0) {
       opponentOutDmg = Math.max(1, Math.floor(opponentOutDmg));
       playerDamageTaken += opponentOutDmg;
-      events.push(`Opponent's ability dealt ${opponentOutDmg} damage.`);
+      events.push(`\u2728 Enemy ability dealt ${opponentOutDmg} damage to you!`);
     }
     if (abilityResult.heal > 0) opponentHeal += abilityResult.heal;
     if (abilityResult.tempEffect) newTempEffects.player.push(abilityResult.tempEffect);
@@ -585,55 +585,55 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     // B2: Stun when ability hits a guarding player
     if (playerMove === 'guard') {
       newTempEffects.player.push({ effect: 'stun', roundsLeft: 1 });
-      events.push('Opponent ability stuns you while guarding! (Stun x1)');
+      events.push('\uD83D\uDCA5 Enemy ability breaks through your guard \u2014 you are stunned! (Stun x1)');
     }
     // B2: Shadow Strike crit → Blind
     if (opponent.abilityKey === 'shadowStrike' && abilityResult.damage > 0) {
       if (Math.random() * 100 < opponentCritChance) {
         newTempEffects.player.push({ effect: 'blind', roundsLeft: 1 });
-        events.push('Shadow Strike blinds you! (Blind x1)');
+        events.push('\uD83C\uDF11 Shadow Strike blinds you! (Blind x1)');
       }
     }
   } else if (opponentMove === 'guard') {
-    events.push('Opponent raised their guard.');
+    events.push('\uD83D\uDEE1\uFE0F Enemy raised their guard, bracing for impact.');
   } else if (opponentMove === 'heal') {
     const end = opponent.combatStats.end;
     let healAmt = end * 0.3 + Math.random() * (end * 0.1);
     if (playerMove === 'strike') {
       healAmt *= 0.5;
-      events.push('Opponent\'s healing was disrupted by your strike!');
+      events.push('\u26A0\uFE0F Enemy healing was disrupted by your strike! (50% reduced)');
     } else if (playerMove === 'ability') {
       healAmt = 0;
-      events.push('Opponent\'s healing was interrupted by your ability!');
+      events.push('\u274C Enemy healing was interrupted by your ability!');
     }
     healAmt = Math.round(healAmt);
     opponentHeal += healAmt;
-    if (healAmt > 0) events.push(`Opponent focused and recovered ${healAmt} HP.`);
+    if (healAmt > 0) events.push(`\uD83D\uDC9A Enemy focused and recovered ${healAmt} HP.`);
   } else if (opponentMove === 'counter') {
     // Resolved after player's attack is computed — see counter resolution block
-    events.push('Opponent took a counter stance.');
+    events.push('\uD83D\uDD04 Enemy took a counter stance, ready to reflect.');
   }
 
   // Apply temp effects: vulnerable increases damage taken, fortified reduces it
   if (playerVulnerable > 0 && playerDamageTaken > 0) {
     const bonus = Math.round(playerDamageTaken * playerVulnerable / 100);
     playerDamageTaken += bonus;
-    if (bonus > 0) events.push(`Vulnerable! You took ${bonus} extra damage.`);
+    if (bonus > 0) events.push(`💀 Vulnerable! You took ${bonus} extra damage.`);
   }
   if (playerFortified > 0 && playerDamageTaken > 0) {
     const reduction = Math.round(playerDamageTaken * playerFortified / 100);
     playerDamageTaken = Math.max(1, playerDamageTaken - reduction);
-    if (reduction > 0) events.push(`Fortified! You resisted ${reduction} damage.`);
+    if (reduction > 0) events.push(`🛡️ Fortified! You resisted ${reduction} damage.`);
   }
   if (opponentVulnerable > 0 && opponentDamageTaken > 0) {
     const bonus = Math.round(opponentDamageTaken * opponentVulnerable / 100);
     opponentDamageTaken += bonus;
-    if (bonus > 0) events.push(`Opponent is vulnerable! They took ${bonus} extra damage.`);
+    if (bonus > 0) events.push(`💀 Enemy is vulnerable! They took ${bonus} extra damage.`);
   }
   if (opponentFortified > 0 && opponentDamageTaken > 0) {
     const reduction = Math.round(opponentDamageTaken * opponentFortified / 100);
     opponentDamageTaken = Math.max(1, opponentDamageTaken - reduction);
-    if (reduction > 0) events.push(`Opponent's fortification resisted ${reduction} damage.`);
+    if (reduction > 0) events.push(`🛡️ Enemy fortification resisted ${reduction} damage.`);
   }
 
   // B3: Counter resolution — must run after temp effects so reflect uses final damage values
@@ -643,20 +643,20 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
   if (playerMove === 'counter' && opponentMove === 'counter') {
     playerDamageTaken = 0;
     opponentDamageTaken = 0;
-    events.push('Counter standoff! Both fighters mirror each other.');
+    events.push('🔄 Counter standoff! Both fighters mirror each other — no damage dealt.');
   } else if (playerMove === 'counter') {
     if (opponentMove === 'strike') {
       const reflected = Math.max(1, Math.round(playerDamageTaken * 0.5));
       opponentDamageTaken += reflected;
       playerDamageTaken = 0;
       playerCounterReflect = true;
-      events.push(`Counter! You deflected the strike and reflected ${reflected} damage back!`);
+      events.push(`🔄 Counter! You deflected the strike and reflected ${reflected} damage back!`);
     } else if (opponentMove === 'guard') {
       playerDamageTaken = 0;
-      events.push('Counter standoff — opponent guarded. Nothing to reflect.');
+      events.push('🔄 Counter fizzled — enemy guarded. Nothing to reflect.');
     } else {
       // ability or heal — counter fails, player takes full damage
-      events.push('Your counter failed! The opponent did not strike.');
+      events.push('❌ Your counter failed! Enemy did not strike.');
     }
   } else if (opponentMove === 'counter') {
     if (playerMove === 'strike') {
@@ -664,13 +664,13 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
       playerDamageTaken += reflected;
       opponentDamageTaken = 0;
       opponentCounterReflect = true;
-      events.push(`Counter! Opponent deflected your strike and reflected ${reflected} damage back!`);
+      events.push(`🔄 Counter! Enemy deflected your strike and reflected ${reflected} damage back!`);
     } else if (playerMove === 'guard') {
       opponentDamageTaken = 0;
-      events.push('Counter standoff — you guarded. Opponent has nothing to reflect.');
+      events.push('🔄 Counter fizzled — you guarded. Nothing to reflect.');
     } else {
       // ability or heal — opponent counter fails
-      events.push("Opponent's counter failed! You did not strike.");
+      events.push('❌ Enemy counter failed! You did not strike.');
     }
   }
 
@@ -681,7 +681,7 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
   }
   if (opponentBurn > 0) {
     opponentDamageTaken += opponentBurn;
-    events.push(`\uD83D\uDD25 Burn deals ${opponentBurn} damage to opponent!`);
+    events.push(`\uD83D\uDD25 Burn deals ${opponentBurn} damage to enemy!`);
   }
 
   // B2: Merge persisted multi-round effects with newly applied effects
@@ -692,7 +692,7 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
   const playerRegenBonus = getPassiveValue(player.passives, 'hp_regen');
   if (playerRegenBonus > 0) {
     playerHeal += playerRegenBonus;
-    events.push(`Regen restored ${playerRegenBonus} HP.`);
+    events.push(`💚 Regen restored ${playerRegenBonus} HP.`);
   }
   const opponentRegenBonus = getPassiveValue(opponent.passives, 'hp_regen');
   if (opponentRegenBonus > 0) {
@@ -701,10 +701,10 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
 
   // Round summary line
   const parts = [];
-  if (opponentDamageTaken > 0) parts.push(`dealt ${opponentDamageTaken}`);
-  if (playerHeal > 0) parts.push(`healed ${playerHeal}`);
-  if (playerDamageTaken > 0) parts.push(`took ${playerDamageTaken}`);
-  if (parts.length > 0) events.push(`\u2014 Round summary: You ${parts.join(', ')}.`);
+  if (opponentDamageTaken > 0) parts.push(`dealt ${opponentDamageTaken} dmg`);
+  if (playerHeal > 0) parts.push(`healed ${playerHeal} HP`);
+  if (playerDamageTaken > 0) parts.push(`took ${playerDamageTaken} dmg`);
+  if (parts.length > 0) events.push(`\uD83D\uDCCA Net: You ${parts.join(', ')}.`);
 
   return {
     speedWinner,
@@ -1044,7 +1044,7 @@ async function handleMove(context, containerClient, userId, body) {
   if (crowdBoost === true && result.opponentDamageTaken > 0) {
     const boost = Math.round(result.opponentDamageTaken * 0.15);
     result.opponentDamageTaken += boost;
-    result.events.push(`CROWD ERUPTS! Crowd energy fuels your attack! (+${boost} damage)`);
+    result.events.push(`🔥 CROWD ERUPTS! Crowd energy fuels your attack! (+${boost} damage)`);
   }
 
   // B1: Last Stand — below 20% HP → +10 flat damage on any attack (desperation bonus)
@@ -1052,11 +1052,11 @@ async function handleMove(context, containerClient, userId, body) {
   const opponentInLastStand = opponent.hp > 0 && opponent.hp < opponent.maxHp * 0.20;
   if (playerInLastStand && result.opponentDamageTaken > 0) {
     result.opponentDamageTaken += 10;
-    result.events.push('Last Stand! You fight with desperate fury! (+10 damage)');
+    result.events.push('⚡ Last Stand! You fight with desperate fury! (+10 damage)');
   }
   if (opponentInLastStand && result.playerDamageTaken > 0) {
     result.playerDamageTaken += 10;
-    result.events.push('Last Stand! Opponent fights with desperate fury! (+10 damage)');
+    result.events.push('⚡ Last Stand! Enemy fights with desperate fury! (+10 damage)');
   }
 
   // Apply damage and healing
