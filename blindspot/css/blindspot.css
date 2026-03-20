@@ -2720,3 +2720,53 @@ body.bs-battle-active .bs-bottom-nav {
   font-family: 'Cinzel', serif;
   font-weight: 600;
 }
+
+/* ============================================================
+   MOBILE CLEANUP (iter 59)
+   ============================================================ */
+
+/* Hide ENTER ARENA button + mode buttons on mobile — bottom nav handles all */
+@media (max-width: 768px) {
+  .bs-play-btn { display: none; }
+  .bs-forge-progress__hint { font-size: 0.65rem; }
+
+  /* Bottom nav should not cover content */
+  .bs-lobby {
+    padding-bottom: 1rem;
+  }
+
+  /* Compact bounties on mobile */
+  .bs-bounties {
+    max-width: 100%;
+  }
+
+  /* Campaign progress in header */
+  .bs-campaign__header {
+    flex-wrap: wrap;
+  }
+}
+
+/* Leaderboard "no data" styling */
+.bs-leaderboard-empty {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--bs-text-muted);
+}
+.bs-leaderboard-empty i {
+  font-size: 2.5rem;
+  color: var(--bs-accent-dim);
+  margin-bottom: 1rem;
+  display: block;
+}
+
+/* Lobby card palette borders (iter 59) */
+.bs-lobby__card-display[data-palette="ocean"] { border-color: #4a9eff; }
+.bs-lobby__card-display[data-palette="neon"] { border-color: #00d4ff; }
+.bs-lobby__card-display[data-palette="fire"] { border-color: #ff6b3d; }
+.bs-lobby__card-display[data-palette="monochrome"] { border-color: #666; }
+.bs-lobby__card-display[data-palette="sunset"] { border-color: #ff8c42; }
+.bs-lobby__card-display[data-palette="earth"] { border-color: #8b6914; }
+.bs-lobby__card-display[data-palette="inferno"] { border-color: #ff3333; }
+.bs-lobby__card-display[data-palette="frost"] { border-color: #88ddff; }
+.bs-lobby__card-display[data-palette="arcane"] { border-color: #9b59b6; }
+.bs-lobby__card-display[data-palette="void"] { border-color: #333366; }

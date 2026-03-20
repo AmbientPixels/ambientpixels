@@ -443,6 +443,11 @@
 
       window.ArenaBattleUI.initBattle(battleData);
       updateCombatTooltips();
+      // Show combat guide on very first battle
+      if (!localStorage.getItem('bs-combat-guide-shown')) {
+        localStorage.setItem('bs-combat-guide-shown', 'true');
+        showOverlay('bs-combat-guide');
+      }
       // Only show tutorial on first attempt (not on retries after losing)
       if (!localStorage.getItem('bs-tutorial-shown')) {
         localStorage.setItem('bs-tutorial-shown', 'true');
@@ -638,6 +643,12 @@
   // ============================================================
 
   function renderLobby() {
+    // Apply palette to card display
+    const cardDisplay = document.getElementById('bs-player-card');
+    if (cardDisplay && _selectedCard) {
+      const palette = _selectedCard.palette || 'earth';
+      cardDisplay.setAttribute('data-palette', palette);
+    }
     // Player card — show as a mini card with name + class
     const cardEl = document.getElementById('bs-player-card');
     if (cardEl && _selectedCard) {
@@ -821,6 +832,7 @@
           if (getForgeWins() >= needed || isForgePending()) { openForgeScreen(); }
           else { showErrorToast('Win ' + (needed - getForgeWins()) + ' more campaign fights to unlock the Forge'); }
         }
+        else if (nav === 'leaderboard') { showScreen('leaderboard'); renderLeaderboard(); }
         else if (nav === 'pvp') {
           if (getHighestBossDefeated() >= 10) { showScreen('pvp'); renderPvPGallery(); }
           else { showErrorToast('Beat Boss 10 to unlock PvP'); }
@@ -1184,7 +1196,16 @@
     container.innerHTML = '<div class="bs-loading"><div class="bs-spinner"></div> Loading gallery...</div>';
 
     try {
-      const data = await window.ArenaAPI.loadCards();
+      let data;
+      try {
+        data = await Promise.race([
+          window.ArenaAPI.loadCards(),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), TIMEOUT))
+        ]);
+      } catch (timeoutErr) {
+        container.innerHTML = '<p style="text-align:center; color:var(--bs-text-muted); padding:2rem;">Could not load leaderboard. Try again later.</p>';
+        return;
+      }
       const gallery = data.galleryCards || [];
 
       if (gallery.length === 0) {
@@ -2029,12 +2050,23 @@
   // ============================================================
 
   async function renderLeaderboard() {
+    // Timeout wrapper to prevent infinite loading
+    const TIMEOUT = 8000;
     const container = document.getElementById('bs-leaderboard-content');
     if (!container) return;
     container.innerHTML = '<div class="bs-loading"><div class="bs-spinner"></div> Loading...</div>';
 
     try {
-      const data = await window.ArenaAPI.loadCards();
+      let data;
+      try {
+        data = await Promise.race([
+          window.ArenaAPI.loadCards(),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), TIMEOUT))
+        ]);
+      } catch (timeoutErr) {
+        container.innerHTML = '<p style="text-align:center; color:var(--bs-text-muted); padding:2rem;">Could not load leaderboard. Try again later.</p>';
+        return;
+      }
       const gallery = data.galleryCards || [];
 
       // Sort by power (sum of stats)
