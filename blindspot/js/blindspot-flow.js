@@ -1668,10 +1668,41 @@
   }
 
   // ============================================================
+  // STORAGE CLEANUP
+  // ============================================================
+
+  function cleanupLocalStorage() {
+    try {
+      // CardForge's cardforge_saved_cards can bloat localStorage with
+      // renderedFront/renderedBack HTML (50-100KB per card). Strip these
+      // to keep localStorage under the 5MB quota.
+      const raw = localStorage.getItem('cardforge_saved_cards');
+      if (!raw) return;
+      const cards = JSON.parse(raw);
+      let cleaned = false;
+      cards.forEach(card => {
+        if (card.cardData) {
+          if (card.cardData.renderedFront) { delete card.cardData.renderedFront; cleaned = true; }
+          if (card.cardData.renderedBack) { delete card.cardData.renderedBack; cleaned = true; }
+          if (card.cardData.frontClasses) { delete card.cardData.frontClasses; cleaned = true; }
+          if (card.cardData.backClasses) { delete card.cardData.backClasses; cleaned = true; }
+        }
+      });
+      if (cleaned) {
+        localStorage.setItem('cardforge_saved_cards', JSON.stringify(cards));
+        console.log('[Blindspot] Cleaned localStorage: removed rendered HTML from saved cards');
+      }
+    } catch (e) {
+      console.warn('[Blindspot] Storage cleanup error:', e);
+    }
+  }
+
+  // ============================================================
   // BOOT
   // ============================================================
 
   document.addEventListener('DOMContentLoaded', () => {
+    cleanupLocalStorage();
     if (isOnLandingPage()) initLanding();
     else if (isOnPlayPage()) initPlay();
   });
