@@ -121,6 +121,94 @@
   }
 
   // ============================================================
+  // PROGRESSION SYSTEM
+  // ============================================================
+
+  // Card Power Rating = sum of all combat stats
+  function getCardPower(card) {
+    if (!card || !card.combatStats) return 0;
+    const s = card.combatStats;
+    return (s.str || 0) + (s.agi || 0) + (s.int || 0) + (s.end || 0) + (s.lck || 0);
+  }
+
+  // Win streak
+  function getWinStreak() { return parseInt(localStorage.getItem('bs-win-streak') || '0', 10); }
+  function setWinStreak(n) { localStorage.setItem('bs-win-streak', String(n)); }
+
+  // Best win streak
+  function getBestStreak() { return parseInt(localStorage.getItem('bs-best-streak') || '0', 10); }
+  function setBestStreak(n) {
+    if (n > getBestStreak()) localStorage.setItem('bs-best-streak', String(n));
+  }
+
+  // Card title (earned from boss milestones)
+  function getCardTitle() { return localStorage.getItem('bs-card-title') || ''; }
+  function setCardTitle(t) { localStorage.setItem('bs-card-title', t); }
+
+  // Claimed boss rewards (prevent double-claiming)
+  function getClaimedRewards() {
+    try { return JSON.parse(localStorage.getItem('bs-claimed-rewards') || '[]'); }
+    catch { return []; }
+  }
+  function claimReward(bossId) {
+    const claimed = getClaimedRewards();
+    if (!claimed.includes(bossId)) {
+      claimed.push(bossId);
+      localStorage.setItem('bs-claimed-rewards', JSON.stringify(claimed));
+    }
+  }
+  function isRewardClaimed(bossId) {
+    return getClaimedRewards().includes(bossId);
+  }
+
+  // Apply boss reward to card
+  async function applyBossReward(boss) {
+    if (!boss.reward || isRewardClaimed(boss.id)) return null;
+
+    const reward = boss.reward;
+    claimReward(boss.id);
+
+    if (reward.type === 'stat_bonus' && _selectedCard && _selectedCard.combatStats) {
+      // Apply stat bonus to card
+      _selectedCard.combatStats[reward.stat] = Math.min(100,
+        (_selectedCard.combatStats[reward.stat] || 0) + reward.amount
+      );
+
+      // Save card with new stats
+      try {
+        const cardToSave = { ..._selectedCard };
+        cardToSave.stats = [
+          { name: 'Strength', value: cardToSave.combatStats.str },
+          { name: 'Agility', value: cardToSave.combatStats.agi },
+          { name: 'Intelligence', value: cardToSave.combatStats.int },
+          { name: 'Endurance', value: cardToSave.combatStats.end },
+          { name: 'Luck', value: cardToSave.combatStats.lck }
+        ];
+        const url = window.buildApiPath('saveCard');
+        const headers = { 'Content-Type': 'application/json' };
+        const authHeaders = await window.ArenaAPI.getPrincipalHeader();
+        Object.assign(headers, authHeaders);
+        const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+        if (csrfMeta && csrfMeta.content) headers['X-CSRF-Token'] = csrfMeta.content;
+        await fetch(url, { method: 'POST', headers, body: JSON.stringify(cardToSave) });
+      } catch (e) {
+        console.warn('[Blindspot] Reward save error:', e);
+      }
+    }
+
+    if (reward.type === 'title') {
+      setCardTitle(reward.title);
+    }
+
+    if (reward.type === 'forge_bonus') {
+      // Add bonus forge points
+      setForgeWins(getForgeWins() + Math.floor(reward.amount / (_config?.forgeVisit?.bonusPoints || 25)));
+    }
+
+    return reward;
+  }
+
+  // ============================================================
   // LOAD DATA
   // ============================================================
 
@@ -495,14 +583,46 @@
       if (pvpLock) pvpLock.style.display = 'none';
     }
 
-    // Show win streak / stats summary
+    // Power rating + stats
     const statsEl = document.getElementById('bs-lobby-stats');
-    if (statsEl && _profile) {
+    if (statsEl) {
+      const power = getCardPower(_selectedCard);
+      const streak = getWinStreak();
+      const title = getCardTitle();
+      const highestB = getHighestBossDefeated();
+
+      let streakHtml = '';
+      if (streak >= 3) streakHtml = `<span style="color:var(--bs-accent-glow);"><i class="fas fa-fire"></i> ${streak} streak</span>`;
+      else if (streak > 0) streakHtml = `<span><i class="fas fa-fire"></i> ${streak} streak</span>`;
+
       statsEl.innerHTML = `
-        <span><i class="fas fa-trophy" style="color:var(--bs-accent);"></i> ${_profile.record?.wins || 0}W</span>
-        <span><i class="fas fa-skull" style="color:var(--bs-danger);"></i> ${_profile.record?.losses || 0}L</span>
-        <span><i class="fas fa-mountain" style="color:var(--bs-text-muted);"></i> Boss ${highestBoss}/10</span>
+        <span><i class="fas fa-bolt" style="color:var(--bs-accent);"></i> ${power} Power</span>
+        <span><i class="fas fa-mountain"></i> Boss ${highestB}/10</span>
+        ${streakHtml}
       `;
+    }
+
+    // Card title display
+    const titleEl = document.getElementById('bs-card-title');
+    const title = getCardTitle();
+    if (titleEl) {
+      titleEl.textContent = title || '';
+      titleEl.style.display = title ? '' : 'none';
+    }
+
+    // Next boss reward preview
+    const rewardEl = document.getElementById('bs-next-reward');
+    if (rewardEl) {
+      const nextBoss = _bosses.find(b => b.boss === highestBoss + 1);
+      if (nextBoss && nextBoss.reward && !isRewardClaimed(nextBoss.id)) {
+        rewardEl.innerHTML = `<i class="fas fa-gift" style="color:var(--bs-accent);"></i> Next reward: <strong>${nextBoss.reward.label}</strong>`;
+        rewardEl.style.display = '';
+      } else if (highestBoss >= 10) {
+        rewardEl.innerHTML = '<i class="fas fa-crown" style="color:var(--bs-accent-glow);"></i> Campaign complete';
+        rewardEl.style.display = '';
+      } else {
+        rewardEl.style.display = 'none';
+      }
     }
   }
 
@@ -669,12 +789,20 @@
         ? `<span class="bs-boss-card__record">${record.wins}W / ${record.losses}L</span>`
         : '';
 
+      const rewardBadge = boss.reward
+        ? `<span class="bs-boss-card__reward ${isRewardClaimed(boss.id) ? 'bs-boss-card__reward--claimed' : ''}">
+            <i class="fas ${boss.reward.type === 'title' ? 'fa-crown' : boss.reward.type === 'forge_bonus' ? 'fa-fire' : 'fa-arrow-up'}"></i>
+            ${escHtml(boss.reward.label)}
+           </span>`
+        : '';
+
       return `
         <div class="bs-boss-card ${statusClass}">
           <div class="bs-boss-avatar"><i class="fas ${icon}"></i></div>
           <div class="bs-boss-card__info">
             <div class="bs-boss-card__name">${escHtml(boss.name)} ${recordBadge}</div>
             <div class="bs-boss-card__class">${escHtml(boss.class)}</div>
+            ${rewardBadge}
             <div class="bs-boss-card__flavor">"${escHtml(boss.flavor)}"</div>
           </div>
           <div class="bs-boss-card__action">
@@ -750,7 +878,7 @@
   // BATTLE RESULTS
   // ============================================================
 
-  function handlePlayPageResult(battleResult, battleData) {
+  async function handlePlayPageResult(battleResult, battleData) {
     const isWin = battleResult.winner === 'player';
 
     // Track boss record
@@ -760,6 +888,15 @@
 
     loadProfile().then(() => updateRankDisplay());
 
+    // Win streak tracking
+    if (isWin) {
+      const newStreak = getWinStreak() + 1;
+      setWinStreak(newStreak);
+      setBestStreak(newStreak);
+    } else {
+      setWinStreak(0);
+    }
+
     if (_battleType === 'pve' && isWin) {
       const boss = _bosses.find(b => b.id === _currentBossId);
       const prevHighest = getHighestBossDefeated();
@@ -767,9 +904,20 @@
 
       if (boss) setHighestBossDefeated(boss.boss);
 
-      // Forge wins only on NEW boss defeats
-      const wins = isNewBossDefeat ? getForgeWins() + 1 : getForgeWins();
-      if (isNewBossDefeat) setForgeWins(wins);
+      // Forge wins on NEW boss defeats + bonus for streaks
+      if (isNewBossDefeat) {
+        let forgeGain = 1;
+        if (getWinStreak() >= 5) forgeGain = 2; // Streak bonus
+        setForgeWins(getForgeWins() + forgeGain);
+      }
+
+      // Apply boss reward (stat bonus, title, etc.)
+      if (isNewBossDefeat && boss) {
+        const reward = await applyBossReward(boss);
+        if (reward) {
+          showRewardDrop(reward, boss);
+        }
+      }
 
       // Boss 10 — The Architect
       if (boss && boss.boss === 10 && isNewBossDefeat) {
@@ -819,13 +967,22 @@
     if (againBtn) againBtn.textContent = isWin ? 'Next Fight' : 'Try Again';
     if (lobbyBtn) lobbyBtn.textContent = 'Lobby';
 
-    // Override results title/subtitle with Blindspot flavor
+    // Override results with Blindspot flavor
     const titleEl = document.getElementById('arena-results-title');
     const subtitleEl = document.getElementById('arena-results-subtitle');
     if (isWin) {
       const boss = _bosses.find(b => b.id === _currentBossId);
-      if (titleEl) titleEl.textContent = 'Victory';
+      const streak = getWinStreak();
+      if (titleEl) titleEl.textContent = streak >= 3 ? `${streak}x Victory!` : 'Victory';
       if (subtitleEl && boss) subtitleEl.textContent = `You defeated ${boss.name}`;
+      // Show power after win
+      const power = getCardPower(_selectedCard);
+      if (power > 0) {
+        const powerEl = document.createElement('div');
+        powerEl.className = 'bs-results-power';
+        powerEl.innerHTML = `<i class="fas fa-bolt"></i> ${power} Power`;
+        subtitleEl?.after(powerEl);
+      }
     } else {
       if (titleEl) titleEl.textContent = 'Defeated';
       if (subtitleEl) subtitleEl.textContent = 'Your card remembers.';
@@ -1145,6 +1302,44 @@
 
   function showErrorToast(msg) { showToast(msg, 'error'); }
   function showSuccessToast(msg) { showToast(msg, 'success'); }
+
+  // ============================================================
+  // REWARD DROP DISPLAY
+  // ============================================================
+
+  function showRewardDrop(reward, boss) {
+    const existing = document.querySelector('.bs-reward-drop');
+    if (existing) existing.remove();
+
+    const iconMap = {
+      stat_bonus: 'fa-arrow-up',
+      title: 'fa-crown',
+      forge_bonus: 'fa-fire'
+    };
+
+    const drop = document.createElement('div');
+    drop.className = 'bs-reward-drop';
+    drop.innerHTML = `
+      <div class="bs-reward-drop__content">
+        <div class="bs-reward-drop__icon"><i class="fas ${iconMap[reward.type] || 'fa-gift'}"></i></div>
+        <div class="bs-reward-drop__text">
+          <span class="bs-reward-drop__title">Boss Reward</span>
+          <span class="bs-reward-drop__label">${escHtml(reward.label)}</span>
+          <span class="bs-reward-drop__from">from ${escHtml(boss.name)}</span>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(drop);
+
+    // Animate in
+    requestAnimationFrame(() => drop.classList.add('bs-reward-drop--visible'));
+
+    // Auto-dismiss after 4s
+    setTimeout(() => {
+      drop.classList.remove('bs-reward-drop--visible');
+      setTimeout(() => drop.remove(), 500);
+    }, 4000);
+  }
 
   // ============================================================
   // AUTH UI
