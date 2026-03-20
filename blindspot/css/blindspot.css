@@ -2009,23 +2009,7 @@
   align-items: start;
 }
 
-@media (max-width: 768px) {
-  .bs-forge-layout {
-    grid-template-columns: 1fr;
-  }
-  .bs-forge-preview {
-    display: flex;
-    justify-content: center;
-    position: static;
-  }
-  .bs-forge-card {
-    width: 140px;
-  }
-  .bs-forge-card__img,
-  .bs-forge-card__placeholder {
-    height: 160px;
-  }
-}
+/* Mobile forge overrides moved after base styles — see below line 2687 */
 
 .bs-forge-preview {
   position: sticky;
@@ -2683,6 +2667,44 @@ body.bs-battle-active .bs-bottom-nav {
 .bs-forge-option--selected[data-container]::after {
   content: '\2713';
   margin-left: 0.3rem;
+}
+
+/* Inferno palette (Ascension 1 unlock) */
+.bs-forge-card[data-palette="inferno"] {
+  background: linear-gradient(135deg, #1a0000, #4a0a0a);
+  border-color: #ff2200;
+}
+.bs-forge-card[data-palette="inferno"] .bs-forge-card__name { color: #ffcccc; }
+.bs-forge-card[data-palette="inferno"] .bs-forge-card__class { color: #ff4444; }
+
+/* Frost palette (Ascension 2 unlock) */
+.bs-forge-card[data-palette="frost"] {
+  background: linear-gradient(135deg, #0a1a2a, #1a3050);
+  border-color: #88ddff;
+}
+.bs-forge-card[data-palette="frost"] .bs-forge-card__name { color: #e6f7ff; }
+.bs-forge-card[data-palette="frost"] .bs-forge-card__class { color: #88ddff; }
+
+/* Mobile forge overrides — MUST come after base styles to win cascade */
+@media (max-width: 768px) {
+  .bs-forge-layout {
+    grid-template-columns: 1fr;
+  }
+  .bs-forge-preview {
+    display: flex;
+    justify-content: center;
+    position: static;
+  }
+  .bs-forge-card {
+    width: 140px;
+  }
+  .bs-forge-card__img,
+  .bs-forge-card__placeholder {
+    height: 160px;
+  }
+  .bs-forge-card[data-container="fullbleed"] .bs-forge-card__img {
+    height: 180px;
+  }
 }
 
 /* ============================================================
