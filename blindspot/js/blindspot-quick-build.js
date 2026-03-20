@@ -26,21 +26,13 @@
     { key: 'lck', label: 'LCK', fullLabel: 'Luck',          icon: 'fa-clover',          color: '#ffd740', desc: 'The unexpected.' }
   ];
 
-  // Simplified class base stats (sum to STAT_BUDGET)
+  // Base stats per class (each sums to STAT_BUDGET = 300)
   const CLASS_STATS = {
     Fighter:   { str: 90, agi: 55, int: 35, end: 80, lck: 40 },
-    Enforcer:  { str: 85, agi: 50, int: 40, end: 85, lck: 40 },
-    Berserker: { str: 95, agi: 55, int: 30, end: 75, lck: 45 },
     Caster:    { str: 35, agi: 45, int: 95, end: 40, lck: 85 },
-    Hacker:    { str: 40, agi: 65, int: 85, end: 45, lck: 65 },
-    Scholar:   { str: 30, agi: 40, int: 90, end: 55, lck: 85 },
-    Scout:     { str: 50, agi: 90, int: 50, end: 55, lck: 55 },
     Rogue:     { str: 55, agi: 90, int: 60, end: 50, lck: 45 },
-    Pilot:     { str: 45, agi: 95, int: 55, end: 50, lck: 55 },
     Guardian:  { str: 65, agi: 35, int: 45, end: 95, lck: 60 },
-    Medic:     { str: 45, agi: 40, int: 60, end: 90, lck: 65 },
-    Trickster: { str: 45, agi: 65, int: 55, end: 45, lck: 90 },
-    Wildcard:  { str: 55, agi: 55, int: 55, end: 55, lck: 80 }
+    Trickster: { str: 45, agi: 65, int: 55, end: 45, lck: 90 }
   };
 
   const VIBES = [
@@ -315,15 +307,17 @@
   function _renderBecomeStep() {
     return `
       <div class="qb-preview-wrap" style="text-align:center;">
+        <p class="qb-panel-desc" style="margin-bottom:1rem;">Your card is ready. One moment defines everything.</p>
         <div class="bs-card-flip-container" id="bs-flip-container">
           <div class="bs-card-flip-inner" id="bs-flip-inner">
-            <!-- FRONT: face-down Stranger card back -->
             <div class="bs-card-flip-front">
-              <i class="fas fa-fire" style="font-size:3rem; color:var(--bs-text-muted,#8A8070); opacity:0.3;"></i>
+              <div style="display:flex; flex-direction:column; align-items:center; gap:1rem;">
+                <i class="fas fa-fire" style="font-size:3rem; color:var(--bs-text-muted,#8A8070); opacity:0.25;"></i>
+                <span style="font-size:0.7rem; color:var(--bs-text-muted,#8A8070); text-transform:uppercase; letter-spacing:0.1em;">Ready</span>
+              </div>
             </div>
-            <!-- BACK: the actual card preview (shown after flip) -->
             <div class="bs-card-flip-back" id="bs-flip-back">
-              <div id="qb-card-preview" style="width:100%; height:100%;"></div>
+              <div id="qb-card-preview" style="width:100%; height:100%; overflow:hidden;"></div>
             </div>
           </div>
         </div>
