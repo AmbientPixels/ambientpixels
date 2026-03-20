@@ -88,9 +88,7 @@
     if (!_overlayEl) {
       _overlayEl = document.createElement('div');
       _overlayEl.className = 'qb-overlay';
-      _overlayEl.addEventListener('click', (e) => {
-        if (e.target === _overlayEl) close();
-      });
+      // Don't close on backdrop click — user must use X button or complete the wizard
       document.body.appendChild(_overlayEl);
     }
 
@@ -287,7 +285,7 @@
         <div class="qb-form-row">
           <div class="qb-field">
             <label for="qb-class">Class</label>
-            <input type="text" id="qb-class" value="${_escHtml(cls)}" placeholder="e.g. Fighter, Mage...">
+            <input type="text" id="qb-class" value="${_escHtml(cls)}" readonly style="opacity:0.7; cursor:default;">
           </div>
           <div class="qb-field">
             <label for="qb-rarity">Rarity</label>

@@ -123,14 +123,20 @@
   // ============================================================
 
   async function loadGameData() {
-    const [configResp, bossesResp, strangerResp] = await Promise.all([
-      fetch('/blindspot/data/game-config.json').then(r => r.json()),
-      fetch('/blindspot/data/bosses.json').then(r => r.json()),
-      fetch('/blindspot/data/stranger-card.json').then(r => r.json())
-    ]);
-    _config = configResp;
-    _bosses = bossesResp;
-    _strangerCard = strangerResp;
+    try {
+      const [configResp, bossesResp, strangerResp] = await Promise.all([
+        fetch('/blindspot/data/game-config.json').then(r => r.json()),
+        fetch('/blindspot/data/bosses.json').then(r => r.json()),
+        fetch('/blindspot/data/stranger-card.json').then(r => r.json())
+      ]);
+      _config = configResp;
+      _bosses = bossesResp;
+      _strangerCard = strangerResp;
+    } catch (e) {
+      console.error('[Blindspot] Failed to load game data:', e);
+      showErrorToast('Failed to load game. Please refresh.');
+      throw e;
+    }
   }
 
   async function loadProfile() {
@@ -662,13 +668,14 @@
         }
 
         showOverlay('bs-prefight-overlay');
-        const goBtn = document.getElementById('bs-prefight-go');
-        const handler = async () => {
-          goBtn.removeEventListener('click', handler);
+        // Clone button to remove any previously stacked handlers
+        const oldBtn = document.getElementById('bs-prefight-go');
+        const freshBtn = oldBtn.cloneNode(true);
+        oldBtn.parentNode.replaceChild(freshBtn, oldBtn);
+        freshBtn.addEventListener('click', async () => {
           hideOverlay('bs-prefight-overlay');
           await startCampaignBattle(bossId);
-        };
-        goBtn.addEventListener('click', handler);
+        }, { once: true });
       });
     });
   }
@@ -956,19 +963,21 @@
         // Add CSRF token if available
         const csrfMeta = document.querySelector('meta[name="csrf-token"]');
         if (csrfMeta && csrfMeta.content) headers['X-CSRF-Token'] = csrfMeta.content;
-        await fetch(url, { method: 'POST', headers, body: JSON.stringify(cardToSave) });
+        const resp = await fetch(url, { method: 'POST', headers, body: JSON.stringify(cardToSave) });
+        if (!resp.ok) throw new Error('Save failed: ' + resp.status);
+
+        setForgeWins(0);
+        localStorage.removeItem('bs-forge-pending');
+        incForgeVisitCount();
+        hideOverlay('bs-forge-screen');
+        updateForgeProgress();
+        renderLobby();
+        showSuccessToast('Card evolved!');
       } catch (e) {
         console.warn('[Blindspot] Forge save error:', e);
+        hideOverlay('bs-forge-screen');
+        showErrorToast('Failed to save evolution. Try again.');
       }
-
-      setForgeWins(0);
-      localStorage.removeItem('bs-forge-pending');
-      incForgeVisitCount();
-
-      hideOverlay('bs-forge-screen');
-      updateForgeProgress();
-      renderLobby();
-      showSuccessToast('Card evolved!');
     });
   }
 
