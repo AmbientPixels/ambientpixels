@@ -9,14 +9,34 @@
       "avatar": "/cardforge/img/bosses/Training-Dummy-02.webp",
       "bio": "A practice target for arena newcomers. Doesn't hit hard but can take a beating.",
       "stats": [
-        { "name": "Strength", "value": 25 },
-        { "name": "Agility", "value": 15 },
-        { "name": "Intelligence", "value": 10 },
-        { "name": "Endurance", "value": 120 },
-        { "name": "Luck", "value": 10 }
+        {
+          "name": "Strength",
+          "value": 25
+        },
+        {
+          "name": "Agility",
+          "value": 15
+        },
+        {
+          "name": "Intelligence",
+          "value": 10
+        },
+        {
+          "name": "Endurance",
+          "value": 120
+        },
+        {
+          "name": "Luck",
+          "value": 10
+        }
       ],
       "badges": [],
-      "attributes": [{ "key": "Element", "value": "None" }],
+      "attributes": [
+        {
+          "key": "Element",
+          "value": "None"
+        }
+      ],
       "arenaOverrides": {
         "aiPattern": "defensive"
       }
@@ -30,14 +50,34 @@
       "avatar": "/cardforge/img/bosses/Gutter-Rat01.webp",
       "bio": "A nimble street fighter who relies on speed over strength.",
       "stats": [
-        { "name": "Strength", "value": 35 },
-        { "name": "Agility", "value": 45 },
-        { "name": "Intelligence", "value": 15 },
-        { "name": "Endurance", "value": 25 },
-        { "name": "Luck", "value": 20 }
+        {
+          "name": "Strength",
+          "value": 35
+        },
+        {
+          "name": "Agility",
+          "value": 45
+        },
+        {
+          "name": "Intelligence",
+          "value": 15
+        },
+        {
+          "name": "Endurance",
+          "value": 25
+        },
+        {
+          "name": "Luck",
+          "value": 20
+        }
       ],
       "badges": [],
-      "attributes": [{ "key": "Element", "value": "Shadow" }],
+      "attributes": [
+        {
+          "key": "Element",
+          "value": "Shadow"
+        }
+      ],
       "arenaOverrides": {
         "aiPattern": "aggressive"
       }
@@ -51,14 +91,34 @@
       "avatar": "/cardforge/img/bosses/Ironclad-Sentinel-01.webp",
       "bio": "A heavily armored defender who absorbs punishment and outlasts opponents.",
       "stats": [
-        { "name": "Strength", "value": 40 },
-        { "name": "Agility", "value": 20 },
-        { "name": "Intelligence", "value": 25 },
-        { "name": "Endurance", "value": 60 },
-        { "name": "Luck", "value": 15 }
+        {
+          "name": "Strength",
+          "value": 40
+        },
+        {
+          "name": "Agility",
+          "value": 20
+        },
+        {
+          "name": "Intelligence",
+          "value": 25
+        },
+        {
+          "name": "Endurance",
+          "value": 60
+        },
+        {
+          "name": "Luck",
+          "value": 15
+        }
       ],
       "badges": [],
-      "attributes": [{ "key": "Element", "value": "Iron" }],
+      "attributes": [
+        {
+          "key": "Element",
+          "value": "Iron"
+        }
+      ],
       "arenaOverrides": {
         "aiPattern": "defensive"
       }
@@ -72,14 +132,34 @@
       "avatar": "/cardforge/img/bosses/Shadow-Stalker-01.webp",
       "bio": "Blindingly fast and unpredictable. Strikes before you can react.",
       "stats": [
-        { "name": "Strength", "value": 50 },
-        { "name": "Agility", "value": 65 },
-        { "name": "Intelligence", "value": 30 },
-        { "name": "Endurance", "value": 30 },
-        { "name": "Luck", "value": 35 }
+        {
+          "name": "Strength",
+          "value": 50
+        },
+        {
+          "name": "Agility",
+          "value": 65
+        },
+        {
+          "name": "Intelligence",
+          "value": 30
+        },
+        {
+          "name": "Endurance",
+          "value": 30
+        },
+        {
+          "name": "Luck",
+          "value": 35
+        }
       ],
       "badges": [],
-      "attributes": [{ "key": "Element", "value": "Shadow" }],
+      "attributes": [
+        {
+          "key": "Element",
+          "value": "Shadow"
+        }
+      ],
       "arenaOverrides": {
         "aiPattern": "aggressive"
       }
@@ -93,14 +173,34 @@
       "avatar": "/cardforge/img/bosses/Arcane-Scholar-01.webp",
       "bio": "Fragile but devastating. Channels pure intellect into destructive abilities.",
       "stats": [
-        { "name": "Strength", "value": 20 },
-        { "name": "Agility", "value": 30 },
-        { "name": "Intelligence", "value": 70 },
-        { "name": "Endurance", "value": 35 },
-        { "name": "Luck", "value": 25 }
+        {
+          "name": "Strength",
+          "value": 20
+        },
+        {
+          "name": "Agility",
+          "value": 30
+        },
+        {
+          "name": "Intelligence",
+          "value": 70
+        },
+        {
+          "name": "Endurance",
+          "value": 35
+        },
+        {
+          "name": "Luck",
+          "value": 25
+        }
       ],
       "badges": [],
-      "attributes": [{ "key": "Element", "value": "Arcane" }],
+      "attributes": [
+        {
+          "key": "Element",
+          "value": "Arcane"
+        }
+      ],
       "arenaOverrides": {
         "aiPattern": "spell_heavy"
       }
@@ -114,16 +214,40 @@
       "avatar": "/cardforge/img/bosses/Warlord-Grax01.webp",
       "bio": "A brutal war veteran who hits like a truck and gets stronger as the fight goes on.",
       "stats": [
-        { "name": "Strength", "value": 75 },
-        { "name": "Agility", "value": 40 },
-        { "name": "Intelligence", "value": 20 },
-        { "name": "Endurance", "value": 55 },
-        { "name": "Luck", "value": 20 }
+        {
+          "name": "Strength",
+          "value": 75
+        },
+        {
+          "name": "Agility",
+          "value": 40
+        },
+        {
+          "name": "Intelligence",
+          "value": 20
+        },
+        {
+          "name": "Endurance",
+          "value": 55
+        },
+        {
+          "name": "Luck",
+          "value": 20
+        }
       ],
       "badges": [
-        { "category": "Champion", "icon": "trophy", "quantity": 2 }
+        {
+          "category": "Champion",
+          "icon": "trophy",
+          "quantity": 2
+        }
       ],
-      "attributes": [{ "key": "Element", "value": "Fire" }],
+      "attributes": [
+        {
+          "key": "Element",
+          "value": "Fire"
+        }
+      ],
       "arenaOverrides": {
         "aiPattern": "berserker"
       }
@@ -137,16 +261,40 @@
       "avatar": "/cardforge/img/bosses/Crystal-Weaver-10.webp",
       "bio": "A versatile spellcaster who balances offense and defense with crystalline precision.",
       "stats": [
-        { "name": "Strength", "value": 35 },
-        { "name": "Agility", "value": 45 },
-        { "name": "Intelligence", "value": 65 },
-        { "name": "Endurance", "value": 50 },
-        { "name": "Luck", "value": 40 }
+        {
+          "name": "Strength",
+          "value": 35
+        },
+        {
+          "name": "Agility",
+          "value": 45
+        },
+        {
+          "name": "Intelligence",
+          "value": 65
+        },
+        {
+          "name": "Endurance",
+          "value": 50
+        },
+        {
+          "name": "Luck",
+          "value": 40
+        }
       ],
       "badges": [
-        { "category": "Skill", "icon": "star", "quantity": 3 }
+        {
+          "category": "Skill",
+          "icon": "star",
+          "quantity": 3
+        }
       ],
-      "attributes": [{ "key": "Element", "value": "Crystal" }],
+      "attributes": [
+        {
+          "key": "Element",
+          "value": "Crystal"
+        }
+      ],
       "arenaOverrides": {
         "aiPattern": "balanced"
       }
@@ -160,17 +308,45 @@
       "avatar": "/cardforge/img/bosses/Void-Harbinger-01.webp",
       "bio": "Channels dark energy into overwhelming ability attacks. Terrifyingly powerful.",
       "stats": [
-        { "name": "Strength", "value": 45 },
-        { "name": "Agility", "value": 35 },
-        { "name": "Intelligence", "value": 80 },
-        { "name": "Endurance", "value": 45 },
-        { "name": "Luck", "value": 30 }
+        {
+          "name": "Strength",
+          "value": 45
+        },
+        {
+          "name": "Agility",
+          "value": 35
+        },
+        {
+          "name": "Intelligence",
+          "value": 80
+        },
+        {
+          "name": "Endurance",
+          "value": 45
+        },
+        {
+          "name": "Luck",
+          "value": 30
+        }
       ],
       "badges": [
-        { "category": "Skill", "icon": "star", "quantity": 2 },
-        { "category": "Honor", "icon": "shield", "quantity": 2 }
+        {
+          "category": "Skill",
+          "icon": "star",
+          "quantity": 2
+        },
+        {
+          "category": "Honor",
+          "icon": "shield",
+          "quantity": 2
+        }
       ],
-      "attributes": [{ "key": "Element", "value": "Void" }],
+      "attributes": [
+        {
+          "key": "Element",
+          "value": "Void"
+        }
+      ],
       "arenaOverrides": {
         "aiPattern": "spell_heavy"
       }
@@ -184,16 +360,40 @@
       "avatar": "/cardforge/img/bosses/Titanium-Aegis-01.webp",
       "bio": "Nearly indestructible. Outlasts every opponent through sheer endurance and patience.",
       "stats": [
-        { "name": "Strength", "value": 60 },
-        { "name": "Agility", "value": 25 },
-        { "name": "Intelligence", "value": 40 },
-        { "name": "Endurance", "value": 85 },
-        { "name": "Luck", "value": 20 }
+        {
+          "name": "Strength",
+          "value": 60
+        },
+        {
+          "name": "Agility",
+          "value": 25
+        },
+        {
+          "name": "Intelligence",
+          "value": 40
+        },
+        {
+          "name": "Endurance",
+          "value": 85
+        },
+        {
+          "name": "Luck",
+          "value": 20
+        }
       ],
       "badges": [
-        { "category": "Honor", "icon": "shield", "quantity": 4 }
+        {
+          "category": "Honor",
+          "icon": "shield",
+          "quantity": 4
+        }
       ],
-      "attributes": [{ "key": "Element", "value": "Titanium" }],
+      "attributes": [
+        {
+          "key": "Element",
+          "value": "Titanium"
+        }
+      ],
       "arenaOverrides": {
         "aiPattern": "defensive"
       }
@@ -207,23 +407,54 @@
       "avatar": "/cardforge/img/bosses/The-Forge-King-01.webp",
       "bio": "The ultimate challenge. Perfectly balanced with no weaknesses. Only the strongest cards survive.",
       "stats": [
-        { "name": "Strength", "value": 75 },
-        { "name": "Agility", "value": 60 },
-        { "name": "Intelligence", "value": 70 },
-        { "name": "Endurance", "value": 70 },
-        { "name": "Luck", "value": 50 }
+        {
+          "name": "Strength",
+          "value": 75
+        },
+        {
+          "name": "Agility",
+          "value": 60
+        },
+        {
+          "name": "Intelligence",
+          "value": 70
+        },
+        {
+          "name": "Endurance",
+          "value": 70
+        },
+        {
+          "name": "Luck",
+          "value": 50
+        }
       ],
       "badges": [
-        { "category": "Champion", "icon": "trophy", "quantity": 3 },
-        { "category": "Skill", "icon": "star", "quantity": 2 },
-        { "category": "Honor", "icon": "shield", "quantity": 2 }
+        {
+          "category": "Champion",
+          "icon": "trophy",
+          "quantity": 3
+        },
+        {
+          "category": "Skill",
+          "icon": "star",
+          "quantity": 2
+        },
+        {
+          "category": "Honor",
+          "icon": "shield",
+          "quantity": 2
+        }
       ],
-      "attributes": [{ "key": "Element", "value": "Forge Fire" }],
+      "attributes": [
+        {
+          "key": "Element",
+          "value": "Forge Fire"
+        }
+      ],
       "arenaOverrides": {
         "aiPattern": "balanced"
       }
     },
-
     {
       "id": "bs-boss-1",
       "bossLevel": 101,
@@ -231,17 +462,39 @@
       "class": "Enforcer",
       "quote": "Everyone passes through here once.",
       "avatar": "",
-      "bio": "A disciplined enforcer who tests every newcomer. Balanced and methodical.",
+      "bio": "A slow enforcer who tests newcomers. Methodical but predictable.",
       "stats": [
-        { "name": "Strength", "value": 60 },
-        { "name": "Agility", "value": 45 },
-        { "name": "Intelligence", "value": 40 },
-        { "name": "Endurance", "value": 75 },
-        { "name": "Luck", "value": 30 }
+        {
+          "name": "Strength",
+          "value": 45
+        },
+        {
+          "name": "Agility",
+          "value": 35
+        },
+        {
+          "name": "Intelligence",
+          "value": 30
+        },
+        {
+          "name": "Endurance",
+          "value": 60
+        },
+        {
+          "name": "Luck",
+          "value": 25
+        }
       ],
       "badges": [],
-      "attributes": [{ "key": "Element", "value": "None" }],
-      "arenaOverrides": { "aiPattern": "balanced" }
+      "attributes": [
+        {
+          "key": "Element",
+          "value": "None"
+        }
+      ],
+      "arenaOverrides": {
+        "aiPattern": "balanced"
+      }
     },
     {
       "id": "bs-boss-2",
@@ -252,15 +505,37 @@
       "avatar": "",
       "bio": "A career fighter who believes in structure. Hits hard, plays fair.",
       "stats": [
-        { "name": "Strength", "value": 70 },
-        { "name": "Agility", "value": 40 },
-        { "name": "Intelligence", "value": 35 },
-        { "name": "Endurance", "value": 65 },
-        { "name": "Luck", "value": 40 }
+        {
+          "name": "Strength",
+          "value": 70
+        },
+        {
+          "name": "Agility",
+          "value": 40
+        },
+        {
+          "name": "Intelligence",
+          "value": 35
+        },
+        {
+          "name": "Endurance",
+          "value": 65
+        },
+        {
+          "name": "Luck",
+          "value": 40
+        }
       ],
       "badges": [],
-      "attributes": [{ "key": "Element", "value": "Iron" }],
-      "arenaOverrides": { "aiPattern": "balanced" }
+      "attributes": [
+        {
+          "key": "Element",
+          "value": "Iron"
+        }
+      ],
+      "arenaOverrides": {
+        "aiPattern": "balanced"
+      }
     },
     {
       "id": "bs-boss-3",
@@ -271,15 +546,37 @@
       "avatar": "",
       "bio": "Blindingly fast. Shadow Strike always lands first. Built for speed, not endurance.",
       "stats": [
-        { "name": "Strength", "value": 45 },
-        { "name": "Agility", "value": 75 },
-        { "name": "Intelligence", "value": 40 },
-        { "name": "Endurance", "value": 50 },
-        { "name": "Luck", "value": 50 }
+        {
+          "name": "Strength",
+          "value": 45
+        },
+        {
+          "name": "Agility",
+          "value": 75
+        },
+        {
+          "name": "Intelligence",
+          "value": 40
+        },
+        {
+          "name": "Endurance",
+          "value": 50
+        },
+        {
+          "name": "Luck",
+          "value": 50
+        }
       ],
       "badges": [],
-      "attributes": [{ "key": "Element", "value": "Shadow" }],
-      "arenaOverrides": { "aiPattern": "aggressive" }
+      "attributes": [
+        {
+          "key": "Element",
+          "value": "Shadow"
+        }
+      ],
+      "arenaOverrides": {
+        "aiPattern": "aggressive"
+      }
     },
     {
       "id": "bs-boss-4",
@@ -290,15 +587,37 @@
       "avatar": "",
       "bio": "Exploits weaknesses with Arcane Blast. Applies Vulnerable debuff, then hammers the gap.",
       "stats": [
-        { "name": "Strength", "value": 35 },
-        { "name": "Agility", "value": 55 },
-        { "name": "Intelligence", "value": 75 },
-        { "name": "Endurance", "value": 50 },
-        { "name": "Luck", "value": 55 }
+        {
+          "name": "Strength",
+          "value": 35
+        },
+        {
+          "name": "Agility",
+          "value": 55
+        },
+        {
+          "name": "Intelligence",
+          "value": 75
+        },
+        {
+          "name": "Endurance",
+          "value": 50
+        },
+        {
+          "name": "Luck",
+          "value": 55
+        }
       ],
       "badges": [],
-      "attributes": [{ "key": "Element", "value": "Arcane" }],
-      "arenaOverrides": { "aiPattern": "spell_heavy" }
+      "attributes": [
+        {
+          "key": "Element",
+          "value": "Arcane"
+        }
+      ],
+      "arenaOverrides": {
+        "aiPattern": "spell_heavy"
+      }
     },
     {
       "id": "bs-boss-5",
@@ -309,15 +628,37 @@
       "avatar": "",
       "bio": "Pure aggression. Massive STR pool, relentless Power Strikes, gets dangerous when low.",
       "stats": [
-        { "name": "Strength", "value": 85 },
-        { "name": "Agility", "value": 50 },
-        { "name": "Intelligence", "value": 25 },
-        { "name": "Endurance", "value": 70 },
-        { "name": "Luck", "value": 40 }
+        {
+          "name": "Strength",
+          "value": 85
+        },
+        {
+          "name": "Agility",
+          "value": 50
+        },
+        {
+          "name": "Intelligence",
+          "value": 25
+        },
+        {
+          "name": "Endurance",
+          "value": 70
+        },
+        {
+          "name": "Luck",
+          "value": 40
+        }
       ],
       "badges": [],
-      "attributes": [{ "key": "Element", "value": "Fire" }],
-      "arenaOverrides": { "aiPattern": "berserker" }
+      "attributes": [
+        {
+          "key": "Element",
+          "value": "Fire"
+        }
+      ],
+      "arenaOverrides": {
+        "aiPattern": "berserker"
+      }
     },
     {
       "id": "bs-boss-6",
@@ -328,17 +669,43 @@
       "avatar": "",
       "bio": "High INT spellcaster who punishes Guard with stuns. Patient and calculating.",
       "stats": [
-        { "name": "Strength", "value": 30 },
-        { "name": "Agility", "value": 45 },
-        { "name": "Intelligence", "value": 85 },
-        { "name": "Endurance", "value": 60 },
-        { "name": "Luck", "value": 60 }
+        {
+          "name": "Strength",
+          "value": 30
+        },
+        {
+          "name": "Agility",
+          "value": 45
+        },
+        {
+          "name": "Intelligence",
+          "value": 85
+        },
+        {
+          "name": "Endurance",
+          "value": 60
+        },
+        {
+          "name": "Luck",
+          "value": 60
+        }
       ],
       "badges": [
-        { "category": "Skill", "icon": "star", "quantity": 2 }
+        {
+          "category": "Skill",
+          "icon": "star",
+          "quantity": 2
+        }
       ],
-      "attributes": [{ "key": "Element", "value": "Arcane" }],
-      "arenaOverrides": { "aiPattern": "spell_heavy" }
+      "attributes": [
+        {
+          "key": "Element",
+          "value": "Arcane"
+        }
+      ],
+      "arenaOverrides": {
+        "aiPattern": "spell_heavy"
+      }
     },
     {
       "id": "bs-boss-7",
@@ -349,17 +716,43 @@
       "avatar": "",
       "bio": "Massive HP pool. Fortify heals and reduces damage. You'll run out of steam before they do.",
       "stats": [
-        { "name": "Strength", "value": 55 },
-        { "name": "Agility", "value": 35 },
-        { "name": "Intelligence", "value": 40 },
-        { "name": "Endurance", "value": 90 },
-        { "name": "Luck", "value": 50 }
+        {
+          "name": "Strength",
+          "value": 55
+        },
+        {
+          "name": "Agility",
+          "value": 35
+        },
+        {
+          "name": "Intelligence",
+          "value": 40
+        },
+        {
+          "name": "Endurance",
+          "value": 90
+        },
+        {
+          "name": "Luck",
+          "value": 50
+        }
       ],
       "badges": [
-        { "category": "Honor", "icon": "shield", "quantity": 2 }
+        {
+          "category": "Honor",
+          "icon": "shield",
+          "quantity": 2
+        }
       ],
-      "attributes": [{ "key": "Element", "value": "Titanium" }],
-      "arenaOverrides": { "aiPattern": "defensive" }
+      "attributes": [
+        {
+          "key": "Element",
+          "value": "Titanium"
+        }
+      ],
+      "arenaOverrides": {
+        "aiPattern": "defensive"
+      }
     },
     {
       "id": "bs-boss-8",
@@ -370,17 +763,43 @@
       "avatar": "",
       "bio": "Wild Card ability means every round is a coin flip. 25% crit or 10% fizzle. High LCK amplifies chaos.",
       "stats": [
-        { "name": "Strength", "value": 60 },
-        { "name": "Agility", "value": 65 },
-        { "name": "Intelligence", "value": 60 },
-        { "name": "Endurance", "value": 55 },
-        { "name": "Luck", "value": 80 }
+        {
+          "name": "Strength",
+          "value": 60
+        },
+        {
+          "name": "Agility",
+          "value": 65
+        },
+        {
+          "name": "Intelligence",
+          "value": 60
+        },
+        {
+          "name": "Endurance",
+          "value": 55
+        },
+        {
+          "name": "Luck",
+          "value": 80
+        }
       ],
       "badges": [
-        { "category": "Champion", "icon": "trophy", "quantity": 2 }
+        {
+          "category": "Champion",
+          "icon": "trophy",
+          "quantity": 2
+        }
       ],
-      "attributes": [{ "key": "Element", "value": "Crystal" }],
-      "arenaOverrides": { "aiPattern": "balanced" }
+      "attributes": [
+        {
+          "key": "Element",
+          "value": "Crystal"
+        }
+      ],
+      "arenaOverrides": {
+        "aiPattern": "balanced"
+      }
     },
     {
       "id": "bs-boss-9",
@@ -391,18 +810,48 @@
       "avatar": "",
       "bio": "Relentless berserker with massive STR and END. Last Stand makes them even deadlier.",
       "stats": [
-        { "name": "Strength", "value": 90 },
-        { "name": "Agility", "value": 60 },
-        { "name": "Intelligence", "value": 30 },
-        { "name": "Endurance", "value": 80 },
-        { "name": "Luck", "value": 50 }
+        {
+          "name": "Strength",
+          "value": 90
+        },
+        {
+          "name": "Agility",
+          "value": 60
+        },
+        {
+          "name": "Intelligence",
+          "value": 30
+        },
+        {
+          "name": "Endurance",
+          "value": 80
+        },
+        {
+          "name": "Luck",
+          "value": 50
+        }
       ],
       "badges": [
-        { "category": "Champion", "icon": "trophy", "quantity": 3 },
-        { "category": "Honor", "icon": "shield", "quantity": 2 }
+        {
+          "category": "Champion",
+          "icon": "trophy",
+          "quantity": 3
+        },
+        {
+          "category": "Honor",
+          "icon": "shield",
+          "quantity": 2
+        }
       ],
-      "attributes": [{ "key": "Element", "value": "Fire" }],
-      "arenaOverrides": { "aiPattern": "berserker" }
+      "attributes": [
+        {
+          "key": "Element",
+          "value": "Fire"
+        }
+      ],
+      "arenaOverrides": {
+        "aiPattern": "berserker"
+      }
     },
     {
       "id": "bs-boss-10",
@@ -413,19 +862,53 @@
       "avatar": "",
       "bio": "The final challenge. INT-heavy Caster with Arcane Blast, Vulnerable stacking, and no mercy.",
       "stats": [
-        { "name": "Strength", "value": 50 },
-        { "name": "Agility", "value": 55 },
-        { "name": "Intelligence", "value": 95 },
-        { "name": "Endurance", "value": 75 },
-        { "name": "Luck", "value": 75 }
+        {
+          "name": "Strength",
+          "value": 50
+        },
+        {
+          "name": "Agility",
+          "value": 55
+        },
+        {
+          "name": "Intelligence",
+          "value": 95
+        },
+        {
+          "name": "Endurance",
+          "value": 75
+        },
+        {
+          "name": "Luck",
+          "value": 75
+        }
       ],
       "badges": [
-        { "category": "Champion", "icon": "trophy", "quantity": 3 },
-        { "category": "Skill", "icon": "star", "quantity": 3 },
-        { "category": "Honor", "icon": "shield", "quantity": 3 }
+        {
+          "category": "Champion",
+          "icon": "trophy",
+          "quantity": 3
+        },
+        {
+          "category": "Skill",
+          "icon": "star",
+          "quantity": 3
+        },
+        {
+          "category": "Honor",
+          "icon": "shield",
+          "quantity": 3
+        }
       ],
-      "attributes": [{ "key": "Element", "value": "Forge Fire" }],
-      "arenaOverrides": { "aiPattern": "spell_heavy" }
+      "attributes": [
+        {
+          "key": "Element",
+          "value": "Forge Fire"
+        }
+      ],
+      "arenaOverrides": {
+        "aiPattern": "spell_heavy"
+      }
     }
   ]
 }
