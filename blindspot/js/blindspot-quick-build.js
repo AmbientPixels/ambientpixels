@@ -659,16 +659,21 @@
         await window.cardForgeActions.handleSaveCard();
       }
 
-      // Try to get the saved card's ID from the user's cards
-      try {
-        const data = await window.ArenaAPI.loadCards();
-        const cards = data.userCards || [];
-        // Find the most recently saved card (last in list)
-        if (cards.length > 0) {
-          savedCardId = cards[cards.length - 1].id;
+      // Wait for save to propagate, then load cards with retry
+      await new Promise(r => setTimeout(r, 1000));
+
+      for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+          const data = await window.ArenaAPI.loadCards();
+          const cards = data.userCards || [];
+          if (cards.length > 0) {
+            savedCardId = cards[cards.length - 1].id;
+            break;
+          }
+        } catch (e) {
+          console.warn('[BS-QB] loadCards attempt', attempt + 1, 'failed:', e);
         }
-      } catch (e) {
-        console.warn('[BS-QB] Could not load cards after save:', e);
+        if (attempt < 2) await new Promise(r => setTimeout(r, 1500));
       }
 
       // Select the card
