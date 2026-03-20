@@ -1871,9 +1871,18 @@
 
   .bs-page .arena-move-btn {
     grid-column: span 2;
-    min-height: 56px;
-    padding: 0.75rem 0.5rem;
+    min-height: 64px;
+    padding: 0.875rem 0.5rem;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
+
+  .bs-page .arena-move-btn:active:not(:disabled) {
+    transform: scale(0.95);
+    filter: brightness(1.2);
+  }
+
+  .bs-page .arena-move-btn i { font-size: 1.4rem; }
 
   /* Row 2: center 2 buttons by offsetting first one */
   .bs-page .arena-battle__moves .arena-move-btn:nth-child(4) {
@@ -1927,9 +1936,11 @@
   }
   .bs-page .arena-move-btn {
     grid-column: span 2;
-    min-height: 52px;
-    padding: 0.625rem 0.375rem;
+    min-height: 60px;
+    padding: 0.75rem 0.375rem;
   }
+  .bs-page .arena-move-btn i { font-size: 1.3rem; }
+  .bs-page .arena-move-btn__label { font-size: 0.8rem; }
   .bs-page .arena-battle__moves .arena-move-btn:nth-child(4) {
     grid-column: 2 / 4;
   }
