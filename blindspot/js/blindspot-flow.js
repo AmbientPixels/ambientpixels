@@ -619,15 +619,16 @@
     if (statsEl) {
       const power = getCardPower(_selectedCard);
       const streak = getWinStreak();
-      const title = getCardTitle();
       const highestB = getHighestBossDefeated();
 
       let streakHtml = '';
       if (streak >= 3) streakHtml = `<span style="color:var(--bs-accent-glow);"><i class="fas fa-fire"></i> ${streak} streak</span>`;
       else if (streak > 0) streakHtml = `<span><i class="fas fa-fire"></i> ${streak} streak</span>`;
 
+      const powerHtml = power > 0 ? `<span><i class="fas fa-bolt" style="color:var(--bs-accent);"></i> ${power} Power</span>` : '';
+
       statsEl.innerHTML = `
-        <span><i class="fas fa-bolt" style="color:var(--bs-accent);"></i> ${power} Power</span>
+        ${powerHtml}
         <span><i class="fas fa-mountain"></i> Boss ${highestB}/10</span>
         ${streakHtml}
       `;
