@@ -2591,3 +2591,132 @@ body.bs-battle-active .bs-bottom-nav {
   object-fit: cover;
   border-radius: 50%;
 }
+
+/* ============================================================
+   FORGE PALETTE PREVIEW (iter 58)
+   ============================================================ */
+
+.bs-forge-card[data-palette="earth"] {
+  background: linear-gradient(135deg, #2d1b0e, #3d2b1e);
+  border-color: #8b6914;
+}
+.bs-forge-card[data-palette="earth"] .bs-forge-card__name { color: #f4e4c1; }
+.bs-forge-card[data-palette="earth"] .bs-forge-card__class { color: #daa520; }
+
+.bs-forge-card[data-palette="ocean"] {
+  background: linear-gradient(135deg, #0e1b2d, #1e2b3d);
+  border-color: #4a9eff;
+}
+.bs-forge-card[data-palette="ocean"] .bs-forge-card__name { color: #e6f3ff; }
+.bs-forge-card[data-palette="ocean"] .bs-forge-card__class { color: #66ccff; }
+
+.bs-forge-card[data-palette="neon"] {
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  border-color: #00d4ff;
+}
+.bs-forge-card[data-palette="neon"] .bs-forge-card__name { color: #ffffff; }
+.bs-forge-card[data-palette="neon"] .bs-forge-card__class { color: #00d4ff; }
+
+.bs-forge-card[data-palette="fire"] {
+  background: linear-gradient(135deg, #2a0f0f, #3a1f1f);
+  border-color: #ff6b3d;
+}
+.bs-forge-card[data-palette="fire"] .bs-forge-card__name { color: #ffe0dc; }
+.bs-forge-card[data-palette="fire"] .bs-forge-card__class { color: #ff6b5c; }
+
+.bs-forge-card[data-palette="monochrome"] {
+  background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+  border-color: #666;
+}
+.bs-forge-card[data-palette="monochrome"] .bs-forge-card__name { color: #cccccc; }
+.bs-forge-card[data-palette="monochrome"] .bs-forge-card__class { color: #999; }
+
+.bs-forge-card[data-palette="sunset"] {
+  background: linear-gradient(135deg, #2d1a0e, #3d2a1e);
+  border-color: #ff8c42;
+}
+.bs-forge-card[data-palette="sunset"] .bs-forge-card__name { color: #fff2e6; }
+.bs-forge-card[data-palette="sunset"] .bs-forge-card__class { color: #ffcd3c; }
+
+/* Container variants */
+.bs-forge-card[data-container="fullbleed"] .bs-forge-card__img {
+  height: 260px;
+}
+.bs-forge-card[data-container="fullbleed"] .bs-forge-card__info {
+  margin-top: -3rem;
+  background: linear-gradient(transparent, rgba(0,0,0,0.85));
+  padding-top: 1.5rem;
+}
+
+.bs-forge-card[data-container="framed"] .bs-forge-card__img {
+  height: 160px;
+  margin: 0.5rem;
+  width: calc(100% - 1rem);
+  border-radius: 8px;
+}
+
+.bs-forge-card[data-container="masked"] .bs-forge-card__img {
+  height: 200px;
+}
+
+/* Palette selected state — show active palette */
+.bs-forge-option--selected[data-palette] {
+  position: relative;
+}
+.bs-forge-option--selected[data-palette]::after {
+  content: '\2713';
+  margin-left: 0.3rem;
+}
+
+.bs-forge-option--selected[data-container]::after {
+  content: '\2713';
+  margin-left: 0.3rem;
+}
+
+/* ============================================================
+   ASCENSION SYSTEM (iter 58)
+   ============================================================ */
+
+.bs-ascension-overlay {
+  max-width: 400px;
+  width: 100%;
+}
+
+.bs-ascension-stars {
+  display: flex;
+  gap: 0.3rem;
+  justify-content: center;
+  margin: 0.5rem 0;
+}
+
+.bs-ascension-star {
+  color: var(--bs-accent);
+  font-size: 1.2rem;
+  animation: bs-star-pop 0.5s ease forwards;
+  opacity: 0;
+}
+
+@keyframes bs-star-pop {
+  0% { opacity: 0; transform: scale(0); }
+  60% { opacity: 1; transform: scale(1.3); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.bs-ascension-star:nth-child(2) { animation-delay: 0.15s; }
+.bs-ascension-star:nth-child(3) { animation-delay: 0.3s; }
+.bs-ascension-star:nth-child(4) { animation-delay: 0.45s; }
+.bs-ascension-star:nth-child(5) { animation-delay: 0.6s; }
+
+/* Ascension badge in lobby */
+.bs-ascension-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.7rem;
+  color: var(--bs-accent);
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--bs-accent-dim);
+  border-radius: 100px;
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+}

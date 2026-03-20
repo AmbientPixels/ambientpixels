@@ -184,6 +184,11 @@
   }
 
   // Card title (earned from boss milestones)
+
+  // Ascension system
+  function getAscension() { return parseInt(localStorage.getItem('bs-ascension') || '0', 10); }
+  function setAscension(n) { localStorage.setItem('bs-ascension', String(n)); }
+
   function getCardTitle() { return localStorage.getItem('bs-card-title') || ''; }
   function setCardTitle(t) { localStorage.setItem('bs-card-title', t); }
 
@@ -672,6 +677,8 @@
       if (streak >= 3) streakHtml = `<span style="color:var(--bs-accent-glow);"><i class="fas fa-fire"></i> ${streak} streak</span>`;
       else if (streak > 0) streakHtml = `<span><i class="fas fa-fire"></i> ${streak} streak</span>`;
 
+      const ascension = getAscension();
+      const ascHtml = ascension > 0 ? `<span class="bs-ascension-badge"><i class="fas fa-star"></i> Ascension ${ascension}</span>` : '';
       const powerHtml = power > 0 ? `<span data-tooltip="Sum of all combat stats"><i class="fas fa-bolt" style="color:var(--bs-accent);"></i> ${power} Power</span>` : '';
 
       statsEl.innerHTML = `
@@ -795,7 +802,11 @@
     document.getElementById('bs-forge-unlock-btn')?.addEventListener('click', () => { hideOverlay('bs-forge-unlock'); openForgeScreen(true); });
 
     // Architect win
-    document.getElementById('bs-architect-continue')?.addEventListener('click', () => { hideOverlay('bs-architect-win'); refreshLobby(); showScreen('lobby'); });
+    document.getElementById('bs-architect-continue')?.addEventListener('click', () => {
+      hideOverlay('bs-architect-win');
+      // First completion — offer ascension
+      showAscensionOffer(0);
+    });
 
     // Bottom nav handling
     document.querySelectorAll('.bs-bottom-nav__item').forEach(function(btn) {
@@ -1089,7 +1100,13 @@
       if (boss && boss.boss === 10 && isNewBossDefeat) {
         setTimeout(() => {
           document.getElementById('arena-results-overlay').style.display = 'none';
-          showOverlay('bs-architect-win');
+          const asc = getAscension();
+          if (asc > 0) {
+            // Already ascended before — offer ascension again
+            showAscensionOffer(asc);
+          } else {
+            showOverlay('bs-architect-win');
+          }
         }, 2000);
         return;
       }
@@ -1272,7 +1289,7 @@
     panel.innerHTML = `
       <div class="bs-forge-layout">
         <div class="bs-forge-preview">
-          <div class="bs-forge-card">
+          <div class="bs-forge-card" data-palette="${_selectedCard.palette || 'earth'}" data-container="${_selectedCard.imageContainer || 'masked'}">
             ${cardAvatar ? `<img src="${escHtml(cardAvatar)}" alt="${escHtml(cardName)}" class="bs-forge-card__img">` : `<div class="bs-forge-card__placeholder"><i class="fas fa-user"></i></div>`}
             <div class="bs-forge-card__info">
               <span class="bs-forge-card__name">${escHtml(cardName)}</span>
@@ -1414,6 +1431,9 @@
       btn.addEventListener('click', () => {
         panel.querySelectorAll('[data-palette]').forEach(b => b.classList.remove('bs-forge-option--selected'));
         btn.classList.add('bs-forge-option--selected');
+        // Live update preview card palette
+        const previewCard = panel.querySelector('.bs-forge-card');
+        if (previewCard) previewCard.setAttribute('data-palette', btn.dataset.palette);
         _hasVisualChange = true;
         updateBudget();
       });
@@ -1424,6 +1444,9 @@
       btn.addEventListener('click', () => {
         panel.querySelectorAll('[data-container]').forEach(b => b.classList.remove('bs-forge-option--selected'));
         btn.classList.add('bs-forge-option--selected');
+        // Live update preview card container
+        const previewCard = panel.querySelector('.bs-forge-card');
+        if (previewCard) previewCard.setAttribute('data-container', btn.dataset.container);
         _hasVisualChange = true;
         updateBudget();
       });
@@ -1922,6 +1945,84 @@
     }
   }
 
+
+
+  // ============================================================
+  // ASCENSION SYSTEM
+  // ============================================================
+
+  function showAscensionOffer(currentAscension) {
+    const nextAsc = currentAscension + 1;
+    // Create overlay dynamically
+    const overlay = document.createElement('div');
+    overlay.className = 'bs-overlay';
+    overlay.id = 'bs-ascension-offer';
+    overlay.innerHTML = `
+      <div class="bs-ascension-overlay">
+        <p class="bs-overlay__title">Campaign Complete — Again.</p>
+        <div class="bs-ascension-stars">
+          ${Array.from({length: currentAscension}, () => '<i class="fas fa-star bs-ascension-star"></i>').join('')}
+          <i class="fas fa-star bs-ascension-star" style="color:var(--bs-text-muted);opacity:0.3;"></i>
+        </div>
+        <p class="bs-overlay__subtitle">Ascend to level ${nextAsc}? Bosses grow stronger. Your legend grows.</p>
+        <p style="font-size:0.75rem; color:var(--bs-text-muted); max-width:300px; margin:0 auto;">
+          Bosses gain +${nextAsc * 20}% stats. You keep your card, rank, and visual unlocks.
+          New palette unlocked: <strong style="color:var(--bs-accent);">${getAscensionReward(nextAsc)}</strong>
+        </p>
+        <div style="display:flex; gap:0.75rem; margin-top:1.5rem; justify-content:center; flex-wrap:wrap;">
+          <button class="bs-btn bs-btn--primary bs-btn--glow" id="bs-ascend-btn">
+            <i class="fas fa-arrow-up"></i> Ascend
+          </button>
+          <button class="bs-btn bs-btn--secondary" id="bs-ascend-skip">Stay at Ascension ${currentAscension}</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+
+    document.getElementById('bs-ascend-btn').addEventListener('click', () => {
+      performAscension(nextAsc);
+      overlay.remove();
+    }, { once: true });
+
+    document.getElementById('bs-ascend-skip').addEventListener('click', () => {
+      overlay.remove();
+      showScreen('lobby');
+      renderLobby();
+    }, { once: true });
+  }
+
+  function getAscensionReward(level) {
+    const rewards = {
+      1: 'Inferno Palette',
+      2: 'Frost Palette',
+      3: 'Arcane Palette',
+      4: 'Void Palette',
+      5: 'Holographic Border'
+    };
+    return rewards[level] || 'Prestige Star ' + level;
+  }
+
+  function performAscension(newLevel) {
+    setAscension(newLevel);
+    // Reset boss progress but keep stats/visuals/rank
+    localStorage.setItem('bs-highest-boss', '0');
+    localStorage.removeItem('bs-boss-records');
+    // Unlock ascension visual reward
+    const rewardMap = {
+      1: 'palette_inferno',
+      2: 'palette_frost',
+      3: 'palette_arcane',
+      4: 'palette_void',
+      5: 'border_holographic'
+    };
+    if (rewardMap[newLevel]) unlockVisual(rewardMap[newLevel]);
+    // Reset forge progress
+    setForgeWins(0);
+    localStorage.removeItem('bs-forge-pending');
+    showSuccessToast('Ascended to level ' + newLevel + '! Bosses are now stronger.');
+    showScreen('lobby');
+    renderLobby();
+  }
 
   // ============================================================
   // LEADERBOARD
