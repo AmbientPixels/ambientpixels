@@ -1548,12 +1548,10 @@
       });
     });
 
-    // Scroll preview into view on mobile after visual change
+    // Flash preview card after visual change (sticky keeps it visible on mobile)
     function flashPreview() {
-      if (window.innerWidth > 768) return;
       const previewCard = panel.querySelector('.bs-forge-card');
       if (!previewCard) return;
-      previewCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
       previewCard.style.transition = 'box-shadow 0.3s ease';
       previewCard.style.boxShadow = '0 0 20px var(--bs-accent)';
       setTimeout(() => { previewCard.style.boxShadow = ''; }, 800);

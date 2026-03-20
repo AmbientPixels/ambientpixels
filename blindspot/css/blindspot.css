@@ -2693,14 +2693,19 @@ body.bs-battle-active .bs-bottom-nav {
   .bs-forge-preview {
     display: flex;
     justify-content: center;
-    position: static;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: var(--bs-bg);
+    padding: 0.5rem 0;
+    margin: -0.5rem 0 0.5rem;
   }
   .bs-forge-card {
-    width: 140px;
+    width: 120px;
   }
   .bs-forge-card__img,
   .bs-forge-card__placeholder {
-    height: 160px;
+    height: 140px;
   }
   .bs-forge-card[data-container="fullbleed"] .bs-forge-card__img {
     height: 180px;
