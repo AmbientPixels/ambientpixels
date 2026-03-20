@@ -1205,6 +1205,8 @@
     updateRankDisplay();
     updateForgeProgress();
     renderBounties();
+    renderChallenges();
+    checkAndClaimChallenges();
 
     // PvP unlock check
     const highestBoss = getHighestBossDefeated();
@@ -1846,6 +1848,7 @@
 
     // Win streak tracking
     if (isWin) {
+      incrementTotalWins();
       const newStreak = getWinStreak() + 1;
       setWinStreak(newStreak);
       setBestStreak(newStreak);
@@ -2763,6 +2766,288 @@
   }
 
   // ============================================================
+  // CHALLENGES — persistent milestones for replayability
+  // ============================================================
+
+  const CHALLENGES = [
+    { id: 'wins', name: 'Warrior', icon: 'fa-sword',
+      desc: ['Win 10 fights', 'Win 25 fights', 'Win 50 fights'],
+      target: [10, 25, 50],
+      reward: [
+        { stat: 'str', amount: 3, label: '+3 STR' },
+        { stat: 'str', amount: 5, label: '+5 STR' },
+        { forgeWins: 2, label: '+2 Forge Wins' }
+      ]
+    },
+    { id: 'bosses', name: 'Slayer', icon: 'fa-dragon',
+      desc: ['Defeat 3 bosses', 'Defeat 7 bosses', 'Defeat all 10 bosses'],
+      target: [3, 7, 10],
+      reward: [
+        { stat: 'end', amount: 3, label: '+3 END' },
+        { stat: 'end', amount: 5, label: '+5 END' },
+        { forgeWins: 3, label: '+3 Forge Wins' }
+      ]
+    },
+    { id: 'streak', name: 'Unstoppable', icon: 'fa-fire-flame-curved',
+      desc: ['Get a 3 win streak', 'Get a 5 win streak', 'Get a 10 win streak'],
+      target: [3, 5, 10],
+      reward: [
+        { stat: 'agi', amount: 3, label: '+3 AGI' },
+        { stat: 'agi', amount: 5, label: '+5 AGI' },
+        { stat: 'lck', amount: 8, label: '+8 LCK' }
+      ]
+    },
+    { id: 'forge', name: 'Artisan', icon: 'fa-fire',
+      desc: ['Visit the Forge 3 times', 'Visit the Forge 5 times', 'Visit the Forge 10 times'],
+      target: [3, 5, 10],
+      reward: [
+        { stat: 'int', amount: 3, label: '+3 INT' },
+        { forgeWins: 1, label: '+1 Forge Win' },
+        { stat: 'int', amount: 8, label: '+8 INT' }
+      ]
+    },
+    { id: 'ascension', name: 'Transcendent', icon: 'fa-star',
+      desc: ['Reach Ascension 1', 'Reach Ascension 3', 'Reach Ascension 5'],
+      target: [1, 3, 5],
+      reward: [
+        { stat: 'lck', amount: 5, label: '+5 LCK' },
+        { forgeWins: 3, label: '+3 Forge Wins' },
+        { stat: 'str', amount: 10, label: '+10 STR' }
+      ]
+    },
+    { id: 'pvp', name: 'Gladiator', icon: 'fa-users',
+      desc: ['Win 3 PvP fights', 'Win 10 PvP fights', 'Reach Gold PvP rank'],
+      target: [3, 10, 'gold'],
+      reward: [
+        { stat: 'agi', amount: 3, label: '+3 AGI' },
+        { stat: 'str', amount: 5, label: '+5 STR' },
+        { forgeWins: 3, label: '+3 Forge Wins' }
+      ]
+    },
+    { id: 'bounties', name: 'Completionist', icon: 'fa-scroll',
+      desc: ['Complete 3 daily bounties', 'Complete 10 daily bounties', 'Complete 25 daily bounties'],
+      target: [3, 10, 25],
+      reward: [
+        { stat: 'end', amount: 3, label: '+3 END' },
+        { stat: 'lck', amount: 5, label: '+5 LCK' },
+        { forgeWins: 2, label: '+2 Forge Wins' }
+      ]
+    },
+    { id: 'power', name: 'Powerhouse', icon: 'fa-bolt',
+      desc: ['Reach 200 Power', 'Reach 300 Power', 'Reach 400 Power'],
+      target: [200, 300, 400],
+      reward: [
+        { stat: 'end', amount: 3, label: '+3 END' },
+        { stat: 'int', amount: 5, label: '+5 INT' },
+        { stat: 'str', amount: 8, label: '+8 STR' }
+      ]
+    }
+  ];
+
+  function getChallengeProgress() {
+    try { return JSON.parse(localStorage.getItem('bs-challenges') || '{}'); }
+    catch (e) { return {}; }
+  }
+
+  function saveChallengeProgress(data) {
+    localStorage.setItem('bs-challenges', JSON.stringify(data));
+  }
+
+  function getChallengeCurrentValue(ch) {
+    switch (ch.id) {
+      case 'wins': return parseInt(localStorage.getItem('bs-total-wins') || '0', 10);
+      case 'bosses': return getHighestBossDefeated();
+      case 'streak': return getBestStreak();
+      case 'forge': return getForgeVisitCount();
+      case 'ascension': return getAscension();
+      case 'pvp': return 'special'; // handled in tier check
+      case 'bounties': return parseInt(localStorage.getItem('bs-total-bounties') || '0', 10);
+      case 'power': return _selectedCard ? getCardPower(_selectedCard) : 0;
+    }
+    return 0;
+  }
+
+  function getChallengeClaimedTier(chId) {
+    var data = getChallengeProgress();
+    return data[chId] || 0; // 0=none, 1=bronze, 2=silver, 3=gold
+  }
+
+  function getChallengeTierReached(ch) {
+    var val = getChallengeCurrentValue(ch);
+    if (ch.id === 'pvp') {
+      var rec = getPvPRecord();
+      var elo = getPvPElo();
+      var pvpRank = getPvPRank(elo);
+      // Tier 1: 3 PvP wins
+      if (rec.w < 3) return 0;
+      // Tier 2: 10 PvP wins
+      if (rec.w < 10) return 1;
+      // Tier 3: Gold PvP rank
+      var rankNames = PVP_RANKS.map(function(r) { return r.name; });
+      var goldIdx = rankNames.indexOf('Gold');
+      var curIdx = PVP_RANKS.indexOf(pvpRank);
+      if (curIdx >= goldIdx) return 3;
+      return 2;
+    }
+    for (var t = ch.target.length - 1; t >= 0; t--) {
+      if (val >= ch.target[t]) return t + 1;
+    }
+    return 0;
+  }
+
+  async function checkAndClaimChallenges() {
+    var data = getChallengeProgress();
+    var newClaims = [];
+    CHALLENGES.forEach(function(ch) {
+      var reached = getChallengeTierReached(ch);
+      var claimed = data[ch.id] || 0;
+      while (claimed < reached) {
+        claimed++;
+        var tierIdx = claimed - 1;
+        var reward = ch.reward[tierIdx];
+        if (reward) {
+          newClaims.push({ challenge: ch, tier: claimed, reward: reward });
+        }
+      }
+      if (claimed > (data[ch.id] || 0)) {
+        data[ch.id] = claimed;
+      }
+    });
+    saveChallengeProgress(data);
+
+    // Grant rewards
+    for (var i = 0; i < newClaims.length; i++) {
+      var claim = newClaims[i];
+      var r = claim.reward;
+      if (r.stat && r.amount && _selectedCard && _selectedCard.combatStats) {
+        var oldVal = _selectedCard.combatStats[r.stat] || 0;
+        _selectedCard.combatStats[r.stat] = Math.min(100, oldVal + r.amount);
+        try {
+          var cardToSave = Object.assign({}, _selectedCard);
+          cardToSave.stats = [
+            { name: 'Strength', value: cardToSave.combatStats.str },
+            { name: 'Agility', value: cardToSave.combatStats.agi },
+            { name: 'Intelligence', value: cardToSave.combatStats.int },
+            { name: 'Endurance', value: cardToSave.combatStats.end },
+            { name: 'Luck', value: cardToSave.combatStats.lck }
+          ];
+          var url = window.buildApiPath('saveCard');
+          var headers = { 'Content-Type': 'application/json' };
+          var authHeaders = await window.ArenaAPI.getPrincipalHeader();
+          Object.assign(headers, authHeaders);
+          var csrfMeta = document.querySelector('meta[name="csrf-token"]');
+          if (csrfMeta && csrfMeta.content) headers['X-CSRF-Token'] = csrfMeta.content;
+          fetch(url, { method: 'POST', headers: headers, body: JSON.stringify(cardToSave) });
+        } catch (e) {
+          console.warn('[Blindspot] Challenge stat save error:', e);
+          _selectedCard.combatStats[r.stat] = oldVal;
+        }
+      }
+      if (r.forgeWins) {
+        setForgeWins(getForgeWins() + r.forgeWins);
+      }
+      var tierNames = ['Bronze', 'Silver', 'Gold'];
+      showSuccessToast(claim.challenge.name + ' ' + tierNames[claim.tier - 1] + '! ' + r.label);
+    }
+    return newClaims.length > 0;
+  }
+
+  function incrementTotalWins() {
+    var v = parseInt(localStorage.getItem('bs-total-wins') || '0', 10);
+    localStorage.setItem('bs-total-wins', String(v + 1));
+  }
+
+  function incrementTotalBounties() {
+    var v = parseInt(localStorage.getItem('bs-total-bounties') || '0', 10);
+    localStorage.setItem('bs-total-bounties', String(v + 1));
+  }
+
+  function renderChallenges() {
+    var el = document.getElementById('bs-challenges');
+    if (!el) return;
+
+    var data = getChallengeProgress();
+    var totalTiers = CHALLENGES.length * 3;
+    var claimedTiers = 0;
+    CHALLENGES.forEach(function(ch) { claimedTiers += (data[ch.id] || 0); });
+
+    var tierColors = ['#CD7F32', '#C0C0C0', '#FFD700'];
+    var tierNames = ['Bronze', 'Silver', 'Gold'];
+
+    var rows = CHALLENGES.map(function(ch) {
+      var claimed = data[ch.id] || 0;
+      var reached = getChallengeTierReached(ch);
+      var currentVal = getChallengeCurrentValue(ch);
+      var nextTier = Math.min(claimed + 1, 3);
+      var nextIdx = nextTier - 1;
+      var isComplete = claimed >= 3;
+
+      // Progress bar to next tier
+      var pct = 0;
+      var progressLabel = '';
+      if (isComplete) {
+        pct = 100;
+        progressLabel = 'Complete!';
+      } else if (ch.id === 'pvp') {
+        var rec = getPvPRecord();
+        if (nextTier === 1) { pct = Math.min(100, (rec.w / 3) * 100); progressLabel = rec.w + '/3 wins'; }
+        else if (nextTier === 2) { pct = Math.min(100, (rec.w / 10) * 100); progressLabel = rec.w + '/10 wins'; }
+        else { var elo = getPvPElo(); pct = Math.min(100, (elo / 1300) * 100); progressLabel = elo + '/1300 Elo'; }
+      } else {
+        var target = ch.target[nextIdx];
+        if (typeof currentVal === 'number' && typeof target === 'number') {
+          pct = Math.min(100, (currentVal / target) * 100);
+          progressLabel = currentVal + '/' + target;
+        }
+      }
+
+      // Tier pips
+      var pips = '';
+      for (var t = 0; t < 3; t++) {
+        var pipClass = t < claimed ? 'bs-challenge-pip--claimed' : (t < reached ? 'bs-challenge-pip--ready' : '');
+        pips += '<span class="bs-challenge-pip ' + pipClass + '" style="' + (t < claimed ? 'color:' + tierColors[t] : '') + '"><i class="fas ' + (t < claimed ? 'fa-star' : 'fa-circle') + '"></i></span>';
+      }
+
+      return '<div class="bs-challenge ' + (isComplete ? 'bs-challenge--done' : '') + '">' +
+        '<div class="bs-challenge__icon"><i class="fas ' + ch.icon + '"></i></div>' +
+        '<div class="bs-challenge__info">' +
+          '<div class="bs-challenge__name">' + ch.name + '</div>' +
+          '<div class="bs-challenge__desc">' + (isComplete ? 'All tiers complete' : escHtml(ch.desc[nextIdx])) + '</div>' +
+          '<div class="bs-challenge__bar"><div class="bs-challenge__bar-fill" style="width:' + pct + '%;"></div></div>' +
+          '<div class="bs-challenge__progress">' + progressLabel +
+            (!isComplete && ch.reward[nextIdx] ? ' <span class="bs-challenge__reward">' + escHtml(ch.reward[nextIdx].label) + '</span>' : '') +
+          '</div>' +
+        '</div>' +
+        '<div class="bs-challenge__pips">' + pips + '</div>' +
+      '</div>';
+    }).join('');
+
+    el.innerHTML =
+      '<div class="bs-challenges__header" id="bs-challenges-toggle">' +
+        '<span><i class="fas fa-trophy"></i> Challenges</span>' +
+        '<span class="bs-challenges__count">' + claimedTiers + '/' + totalTiers + '</span>' +
+      '</div>' +
+      '<div class="bs-challenges__list" id="bs-challenges-list">' + rows + '</div>';
+
+    el.style.display = '';
+
+    // Toggle collapse
+    var toggle = document.getElementById('bs-challenges-toggle');
+    var list = document.getElementById('bs-challenges-list');
+    if (toggle && list) {
+      // Restore collapse state
+      var collapsed = localStorage.getItem('bs-challenges-collapsed') === 'true';
+      if (collapsed) list.style.display = 'none';
+      toggle.style.cursor = 'pointer';
+      toggle.onclick = function() {
+        var isHidden = list.style.display === 'none';
+        list.style.display = isHidden ? '' : 'none';
+        localStorage.setItem('bs-challenges-collapsed', isHidden ? 'false' : 'true');
+      };
+    }
+  }
+
+  // ============================================================
   // DAILY BOUNTIES
   // ============================================================
 
@@ -2807,6 +3092,7 @@
     }
     localStorage.setItem('bs-bounties', JSON.stringify(data));
     if (completed) {
+      incrementTotalBounties();
       // Grant bounty rewards
       const completedBounty = data.bounties.find(b => b.check === checkType && b.done);
       if (completedBounty && completedBounty.reward) {
