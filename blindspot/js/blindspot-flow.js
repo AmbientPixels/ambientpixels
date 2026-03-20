@@ -464,40 +464,6 @@
 
     const reward = boss.reward;
 
-    // Weekly bundle: stat bonus + forge points
-    if (reward.type === 'weekly_bundle' && _selectedCard && _selectedCard.combatStats) {
-      var sb = reward.statBonus;
-      _selectedCard.combatStats[sb.stat] = Math.min(100,
-        (_selectedCard.combatStats[sb.stat] || 0) + sb.amount
-      );
-      try {
-        const cardToSave = { ..._selectedCard };
-        cardToSave.stats = [
-          { name: 'Strength', value: cardToSave.combatStats.str },
-          { name: 'Agility', value: cardToSave.combatStats.agi },
-          { name: 'Intelligence', value: cardToSave.combatStats.int },
-          { name: 'Endurance', value: cardToSave.combatStats.end },
-          { name: 'Luck', value: cardToSave.combatStats.lck }
-        ];
-        const url = window.buildApiPath('saveCard');
-        const headers = { 'Content-Type': 'application/json' };
-        const authHeaders = await window.ArenaAPI.getPrincipalHeader();
-        Object.assign(headers, authHeaders);
-        const csrfMeta = document.querySelector('meta[name="csrf-token"]');
-        if (csrfMeta && csrfMeta.content) headers['X-CSRF-Token'] = csrfMeta.content;
-        const resp = await fetch(url, { method: 'POST', headers, body: JSON.stringify(cardToSave) });
-        if (!resp.ok) throw new Error('Save failed');
-        setForgeWins(getForgeWins() + (reward.forgePoints || 0));
-        claimWeeklyReward();
-      } catch (e) {
-        _selectedCard.combatStats[sb.stat] = Math.min(100,
-          (_selectedCard.combatStats[sb.stat] || 0) - sb.amount
-        );
-        console.warn('[Blindspot] Weekly reward save failed, reverted:', e);
-        return null;
-      }
-    }
-
     if (reward.type === 'stat_bonus' && _selectedCard && _selectedCard.combatStats) {
       _selectedCard.combatStats[reward.stat] = Math.min(100,
         (_selectedCard.combatStats[reward.stat] || 0) + reward.amount
@@ -1806,9 +1772,10 @@
         setForgeWins(getForgeWins() + forgeGain);
       }
 
-      // Weekly boss: award reward on first weekly win (forge points handled in applyBossReward)
+      // Weekly boss: award stat reward + 2 forge wins on first weekly win
       if (isWeekly && !isWeeklyRewardClaimed()) {
         playSfx('bossDefeat');
+        setForgeWins(getForgeWins() + 2);
         const reward = await applyBossReward(boss);
         if (reward) {
           showRewardDrop(reward, boss);
