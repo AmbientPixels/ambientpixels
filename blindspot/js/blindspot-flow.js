@@ -226,6 +226,9 @@
   async function startStrangerFight() {
     _isStrangerFight = true;
 
+    // Clean up any existing tutorial from previous attempt
+    removeTutorial();
+
     document.getElementById('bs-landing').style.display = 'none';
     const battleContainer = document.getElementById('bs-battle-container');
     battleContainer.style.display = 'block';
@@ -547,12 +550,26 @@
       document.getElementById('arena-results-overlay').style.display = 'none';
       if (_isFirstRealFight) {
         _isFirstRealFight = false;
-        showScreen('campaign');
-        renderCampaignLadder();
+        // After first fight, go to campaign (win advances, loss can retry from ladder)
+        showScreen('lobby');
+        renderLobby();
         return;
       }
       if (_battleType === 'pvp') { showScreen('pvp'); renderPvPGallery(); }
-      else if (_currentBossId) { startCampaignBattle(_currentBossId); }
+      else if (_currentBossId) {
+        // Advance to next boss if current was defeated, otherwise retry same boss
+        const currentBoss = _bosses.find(b => b.id === _currentBossId);
+        const highest = getHighestBossDefeated();
+        if (currentBoss && currentBoss.boss <= highest && currentBoss.boss < 10) {
+          // Current boss defeated — advance to next
+          const nextBoss = _bosses.find(b => b.boss === currentBoss.boss + 1);
+          if (nextBoss) { startCampaignBattle(nextBoss.id); }
+          else { showScreen('campaign'); renderCampaignLadder(); }
+        } else {
+          // Not yet defeated or last boss — retry same
+          startCampaignBattle(_currentBossId);
+        }
+      }
       else { showScreen('campaign'); renderCampaignLadder(); }
     });
 
@@ -859,7 +876,8 @@
           <span class="bs-forge-stat__desc">${d.desc}</span>
         </div>
       `).join('')}
-      <div class="bs-forge-actions">
+      <div class="bs-forge-actions" style="display:flex; gap:0.75rem; justify-content:center;">
+        <button class="bs-btn bs-btn--secondary" id="bs-forge-cancel">Cancel</button>
         <button class="bs-btn bs-btn--primary bs-btn--glow" id="bs-forge-apply" disabled>
           <i class="fas fa-fire"></i> Forge
         </button>
@@ -901,6 +919,10 @@
       });
     });
 
+    document.getElementById('bs-forge-cancel')?.addEventListener('click', () => {
+      hideOverlay('bs-forge-screen');
+    });
+
     applyBtn.addEventListener('click', async () => {
       applyBtn.disabled = true;
       applyBtn.innerHTML = '<i class="fas fa-fire" style="animation: bs-spin 0.8s linear infinite;"></i> Forging...';
@@ -931,6 +953,9 @@
         const headers = { 'Content-Type': 'application/json' };
         const authHeaders = await window.ArenaAPI.getPrincipalHeader();
         Object.assign(headers, authHeaders);
+        // Add CSRF token if available
+        const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+        if (csrfMeta && csrfMeta.content) headers['X-CSRF-Token'] = csrfMeta.content;
         await fetch(url, { method: 'POST', headers, body: JSON.stringify(cardToSave) });
       } catch (e) {
         console.warn('[Blindspot] Forge save error:', e);
