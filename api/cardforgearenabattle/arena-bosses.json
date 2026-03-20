@@ -507,23 +507,23 @@
       "stats": [
         {
           "name": "Strength",
-          "value": 70
+          "value": 55
         },
         {
           "name": "Agility",
-          "value": 40
-        },
-        {
-          "name": "Intelligence",
           "value": 35
         },
         {
+          "name": "Intelligence",
+          "value": 30
+        },
+        {
           "name": "Endurance",
-          "value": 65
+          "value": 55
         },
         {
           "name": "Luck",
-          "value": 40
+          "value": 30
         }
       ],
       "badges": [],
@@ -548,23 +548,23 @@
       "stats": [
         {
           "name": "Strength",
-          "value": 45
-        },
-        {
-          "name": "Agility",
-          "value": 75
-        },
-        {
-          "name": "Intelligence",
           "value": 40
         },
         {
+          "name": "Agility",
+          "value": 60
+        },
+        {
+          "name": "Intelligence",
+          "value": 35
+        },
+        {
           "name": "Endurance",
-          "value": 50
+          "value": 45
         },
         {
           "name": "Luck",
-          "value": 50
+          "value": 40
         }
       ],
       "badges": [],
@@ -589,23 +589,23 @@
       "stats": [
         {
           "name": "Strength",
-          "value": 35
+          "value": 30
         },
         {
           "name": "Agility",
-          "value": 55
+          "value": 45
         },
         {
           "name": "Intelligence",
-          "value": 75
+          "value": 60
         },
         {
           "name": "Endurance",
-          "value": 50
+          "value": 45
         },
         {
           "name": "Luck",
-          "value": 55
+          "value": 45
         }
       ],
       "badges": [],
