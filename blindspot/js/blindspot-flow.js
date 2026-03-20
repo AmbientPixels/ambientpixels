@@ -1281,12 +1281,16 @@
     const applyBtn = document.getElementById('bs-forge-apply');
 
     let _hasVisualChange = false;
+    const previewPowerEl = panel.querySelector('.bs-forge-card__power');
+    const previewNameEl = panel.querySelector('.bs-forge-card__name');
 
     function updateBudget() {
       const totalAllocated = Object.values(allocations).reduce((a, b) => a + b, 0);
       const remaining = bonusPoints - totalAllocated;
       if (remainingEl) remainingEl.textContent = remaining;
       if (totalEl) totalEl.textContent = totalBefore + totalAllocated;
+      // Live update preview power
+      if (previewPowerEl) previewPowerEl.innerHTML = `<i class="fas fa-bolt"></i> ${totalBefore + totalAllocated} Power`;
       // Enable forge if all stats spent OR if any visual/detail change was made
       if (applyBtn) applyBtn.disabled = !(remaining === 0 || _hasVisualChange);
     }
@@ -1347,10 +1351,22 @@
       });
     });
 
-    // Details tab: any input change enables forge
+    // Details tab: any input change enables forge + updates preview
     ['bs-forge-name', 'bs-forge-quote', 'bs-forge-avatar'].forEach(id => {
       const input = document.getElementById(id);
-      if (input) input.addEventListener('input', () => { _hasVisualChange = true; updateBudget(); });
+      if (input) input.addEventListener('input', () => {
+        _hasVisualChange = true;
+        updateBudget();
+        // Live update preview name
+        if (id === 'bs-forge-name' && previewNameEl) {
+          previewNameEl.textContent = input.value || 'Your Card';
+        }
+        // Live update preview avatar
+        if (id === 'bs-forge-avatar') {
+          const previewImg = panel.querySelector('.bs-forge-card__img');
+          if (previewImg && input.value.trim()) previewImg.src = input.value.trim();
+        }
+      });
     });
 
     applyBtn.addEventListener('click', async () => {
