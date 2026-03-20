@@ -811,18 +811,31 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
     }
     bossLevel = opponentCard.bossLevel;
 
-    // Check if boss is unlocked (demo users: first 3 bosses unlocked)
+    // Check if boss is unlocked
+    // Blindspot bosses use levels 101-110 with separate progression
+    const isBlindspotBoss = bossLevel >= 101 && bossLevel <= 110;
     if (isDemo) {
-      if (bossLevel > 3) {
+      // Demo: first 3 CardForge bosses OR first Blindspot boss
+      const demoAllowed = isBlindspotBoss ? (bossLevel <= 101) : (bossLevel <= 3);
+      if (!demoAllowed) {
         context.res = { status: 403, headers: CORS_HEADERS, body: { error: 'Sign in to unlock more bosses' } };
         return;
       }
     } else {
       const profile = await downloadJsonBlob(containerClient, `arena/profiles/${userId}.json`);
-      const highestDefeated = profile?.pveProgress?.highestBossDefeated || 0;
-      if (bossLevel > highestDefeated + 1) {
-        context.res = { status: 403, headers: CORS_HEADERS, body: { error: 'This boss is still locked. Defeat the previous boss first.' } };
-        return;
+      if (isBlindspotBoss) {
+        // Blindspot: separate progression lane
+        const bsHighest = profile?.pveProgress?.blindspotHighestDefeated || 100;
+        if (bossLevel > bsHighest + 1) {
+          context.res = { status: 403, headers: CORS_HEADERS, body: { error: 'This boss is still locked. Defeat the previous boss first.' } };
+          return;
+        }
+      } else {
+        const highestDefeated = profile?.pveProgress?.highestBossDefeated || 0;
+        if (bossLevel > highestDefeated + 1) {
+          context.res = { status: 403, headers: CORS_HEADERS, body: { error: 'This boss is still locked. Defeat the previous boss first.' } };
+          return;
+        }
       }
     }
   } else {
@@ -1201,9 +1214,16 @@ async function finalizeBattle(context, containerClient, userId, battle, result) 
   else if (result === 'loss') profile.record.losses++;
   else profile.record.draws++;
 
-  // PvE progress
-  if (type === 'pve' && result === 'win' && bossLevel > (profile.pveProgress.highestBossDefeated || 0)) {
-    profile.pveProgress.highestBossDefeated = bossLevel;
+  // PvE progress — separate tracking for Blindspot (levels 101-110) vs CardForge (levels 1-10)
+  if (type === 'pve' && result === 'win') {
+    const isBsBoss = bossLevel >= 101 && bossLevel <= 110;
+    if (isBsBoss) {
+      if (bossLevel > (profile.pveProgress.blindspotHighestDefeated || 100)) {
+        profile.pveProgress.blindspotHighestDefeated = bossLevel;
+      }
+    } else if (bossLevel > (profile.pveProgress.highestBossDefeated || 0)) {
+      profile.pveProgress.highestBossDefeated = bossLevel;
+    }
   }
   if (type === 'pve') {
     const bossKey = battle.player2.cardId;

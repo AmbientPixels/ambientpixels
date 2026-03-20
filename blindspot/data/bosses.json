@@ -1,42 +1,52 @@
 [
   {
-    "boss": 1, "id": "boss-1", "name": "The Gatekeeper", "serverName": "Training Dummy",
-    "class": "Enforcer", "flavor": "Everyone passes through here once."
+    "boss": 1, "id": "bs-boss-1", "bossLevel": 101,
+    "name": "The Gatekeeper", "class": "Enforcer",
+    "flavor": "Everyone passes through here once."
   },
   {
-    "boss": 2, "id": "boss-2", "name": "The Warden", "serverName": "Gutter Rat",
-    "class": "Fighter", "flavor": "Rules exist for a reason."
+    "boss": 2, "id": "bs-boss-2", "bossLevel": 102,
+    "name": "The Warden", "class": "Fighter",
+    "flavor": "Rules exist for a reason."
   },
   {
-    "boss": 3, "id": "boss-3", "name": "The Ghost", "serverName": "Ironclad Sentinel",
-    "class": "Scout", "flavor": "You never see them coming."
+    "boss": 3, "id": "bs-boss-3", "bossLevel": 103,
+    "name": "The Ghost", "class": "Scout",
+    "flavor": "You never see them coming."
   },
   {
-    "boss": 4, "id": "boss-4", "name": "The Cipher", "serverName": "Shadow Stalker",
-    "class": "Hacker", "flavor": "Every system has a flaw."
+    "boss": 4, "id": "bs-boss-4", "bossLevel": 104,
+    "name": "The Cipher", "class": "Hacker",
+    "flavor": "Every system has a flaw."
   },
   {
-    "boss": 5, "id": "boss-5", "name": "The Brute", "serverName": "Arcane Scholar",
-    "class": "Berserker", "flavor": "Subtlety is for cowards."
+    "boss": 5, "id": "bs-boss-5", "bossLevel": 105,
+    "name": "The Brute", "class": "Berserker",
+    "flavor": "Subtlety is for cowards."
   },
   {
-    "boss": 6, "id": "boss-6", "name": "The Sage", "serverName": "Warlord Grax",
-    "class": "Scholar", "flavor": "Knowledge compounds."
+    "boss": 6, "id": "bs-boss-6", "bossLevel": 106,
+    "name": "The Sage", "class": "Scholar",
+    "flavor": "Knowledge compounds."
   },
   {
-    "boss": 7, "id": "boss-7", "name": "The Iron", "serverName": "Crystal Weaver",
-    "class": "Guardian", "flavor": "Nothing gets through."
+    "boss": 7, "id": "bs-boss-7", "bossLevel": 107,
+    "name": "The Iron", "class": "Guardian",
+    "flavor": "Nothing gets through."
   },
   {
-    "boss": 8, "id": "boss-8", "name": "The Trickster", "serverName": "Void Harbinger",
-    "class": "Trickster", "flavor": "Probability is just a suggestion."
+    "boss": 8, "id": "bs-boss-8", "bossLevel": 108,
+    "name": "The Trickster", "class": "Trickster",
+    "flavor": "Probability is just a suggestion."
   },
   {
-    "boss": 9, "id": "boss-9", "name": "The Feral", "serverName": "Titanium Aegis",
-    "class": "Berserker", "flavor": "Pain stopped mattering long ago."
+    "boss": 9, "id": "bs-boss-9", "bossLevel": 109,
+    "name": "The Feral", "class": "Berserker",
+    "flavor": "Pain stopped mattering long ago."
   },
   {
-    "boss": 10, "id": "boss-10", "name": "The Architect", "serverName": "The Forge King",
-    "class": "Caster", "flavor": "This is what a Forger becomes when they never stop."
+    "boss": 10, "id": "bs-boss-10", "bossLevel": 110,
+    "name": "The Architect", "class": "Caster",
+    "flavor": "This is what a Forger becomes when they never stop."
   }
 ]

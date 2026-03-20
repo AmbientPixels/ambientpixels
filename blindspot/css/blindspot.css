@@ -30,6 +30,15 @@
   font-weight: 400;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* --- Particle Canvas --- */
+.bs-particles {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
 }
 
 .bs-page *,
@@ -47,10 +56,34 @@
 .bs-wordmark {
   font-family: 'Cinzel', serif;
   font-weight: 700;
-  font-size: 2rem;
+  font-size: 2.5rem;
   color: var(--bs-accent);
-  letter-spacing: 0.15em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
+  text-shadow: 0 0 40px rgba(239, 159, 39, 0.3);
+}
+
+/* ============================================================
+   CINEMATIC ANIMATIONS
+   ============================================================ */
+
+.bs-anim-fade-down {
+  opacity: 0;
+  transform: translateY(-20px);
+  animation: bs-anim-enter 0.8s ease forwards;
+}
+
+.bs-anim-fade-up {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: bs-anim-enter 0.8s ease forwards;
+}
+
+@keyframes bs-anim-enter {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ============================================================
@@ -65,6 +98,14 @@
   min-height: 100vh;
   padding: 2rem;
   text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.bs-landing__content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   gap: 1.5rem;
 }
 
@@ -72,6 +113,13 @@
 .bs-stranger-card {
   width: 220px;
   height: 320px;
+  perspective: 800px;
+  position: relative;
+}
+
+.bs-stranger-card__inner {
+  width: 100%;
+  height: 100%;
   background: var(--bs-card-bg);
   border: 1px solid var(--bs-border);
   border-radius: 12px;
@@ -79,17 +127,40 @@
   align-items: center;
   justify-content: center;
   position: relative;
-  transition: transform 0.3s ease;
+  transition: transform 0.4s ease, box-shadow 0.4s ease;
+  overflow: hidden;
 }
 
-.bs-stranger-card:hover {
-  transform: translateY(-4px);
+.bs-stranger-card:hover .bs-stranger-card__inner {
+  transform: translateY(-6px) rotateX(2deg);
+  box-shadow: 0 20px 60px rgba(239, 159, 39, 0.15);
+}
+
+.bs-stranger-card__glow {
+  position: absolute;
+  inset: -1px;
+  border-radius: 12px;
+  background: radial-gradient(ellipse at 50% 80%, rgba(239, 159, 39, 0.08), transparent 70%);
+  pointer-events: none;
 }
 
 .bs-stranger-card__icon {
   font-size: 3rem;
   color: var(--bs-text-muted);
-  opacity: 0.3;
+  opacity: 0.25;
+  transition: opacity 0.4s ease;
+}
+
+.bs-stranger-card:hover .bs-stranger-card__icon {
+  opacity: 0.4;
+}
+
+.bs-stranger-card__edge {
+  position: absolute;
+  inset: 0;
+  border-radius: 12px;
+  border: 1px solid rgba(239, 159, 39, 0.06);
+  pointer-events: none;
 }
 
 /* Landing copy */
@@ -166,6 +237,53 @@
 .bs-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+.bs-btn--glow {
+  position: relative;
+  overflow: hidden;
+}
+
+.bs-btn--glow::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, rgba(239, 159, 39, 0.3), transparent, rgba(239, 159, 39, 0.3));
+  z-index: -1;
+  animation: bs-glow-rotate 4s linear infinite;
+}
+
+@keyframes bs-glow-rotate {
+  0% { filter: hue-rotate(0deg); }
+  100% { filter: hue-rotate(360deg); }
+}
+
+/* Landing footer badges */
+.bs-landing__footer {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
+.bs-landing__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.7rem;
+  color: var(--bs-text-muted);
+  padding: 0.35rem 0.65rem;
+  border: 1px solid var(--bs-border);
+  border-radius: 100px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.bs-landing__badge i {
+  color: var(--bs-accent-dim);
+  font-size: 0.65rem;
 }
 
 /* ============================================================
@@ -443,24 +561,49 @@
   display: flex;
   align-items: center;
   gap: 1rem;
-  padding: 1rem;
+  padding: 1rem 1.25rem;
   background: var(--bs-surface);
   border: 1px solid var(--bs-border);
   border-radius: 8px;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.bs-boss-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--bs-border);
+  transition: background 0.25s ease;
 }
 
 .bs-boss-card--current {
   border-color: var(--bs-accent);
-  background: var(--bs-surface-2);
+  background: linear-gradient(135deg, var(--bs-surface-2), var(--bs-surface));
+  box-shadow: 0 0 20px rgba(239, 159, 39, 0.08);
+}
+
+.bs-boss-card--current::before {
+  background: var(--bs-accent);
+  box-shadow: 0 0 8px var(--bs-accent);
 }
 
 .bs-boss-card--locked {
-  opacity: 0.4;
+  opacity: 0.35;
+  filter: grayscale(0.3);
 }
 
-.bs-boss-card--defeated {
-  border-left: 3px solid var(--bs-success);
+.bs-boss-card--defeated::before {
+  background: var(--bs-success);
+}
+
+.bs-boss-card:not(.bs-boss-card--locked):hover {
+  border-color: var(--bs-accent-dim);
+  transform: translateX(4px);
 }
 
 .bs-boss-card__number {
@@ -533,6 +676,8 @@
   font-weight: 600;
   font-size: 1.5rem;
   color: var(--bs-text);
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
+  line-height: 1.5;
 }
 
 .bs-overlay__subtitle {
@@ -549,24 +694,35 @@
 /* Loss screen */
 .bs-loss-screen {
   cursor: pointer;
+  background: #000;
 }
 
 .bs-loss-screen__text {
   font-family: 'Cinzel', serif;
-  font-weight: 600;
-  font-size: 2rem;
+  font-weight: 700;
+  font-size: 2.5rem;
   color: var(--bs-text);
+  letter-spacing: 0.15em;
+  opacity: 0;
+  animation: bs-loss-appear 1s ease 0.5s forwards;
+}
+
+@keyframes bs-loss-appear {
+  0% { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
 }
 
 .bs-loss-screen__tap {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: var(--bs-text-muted);
   opacity: 0;
-  animation: bs-fade-in 0.5s ease 2s forwards;
+  animation: bs-fade-in 0.5s ease 2.5s forwards;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
 }
 
 @keyframes bs-fade-in {
-  to { opacity: 1; }
+  to { opacity: 0.6; }
 }
 
 /* Pre-fight screen */

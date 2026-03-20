@@ -404,9 +404,11 @@
     renderLobby();
     bindPlayNavigation();
 
-    // Sync boss progress from server profile
-    if (profile.pveProgress && profile.pveProgress.highestBossDefeated) {
-      setHighestBossDefeated(profile.pveProgress.highestBossDefeated);
+    // Sync Blindspot boss progress from server profile (separate from CardForge)
+    if (profile.pveProgress) {
+      const bsHighest = profile.pveProgress.blindspotHighestDefeated || 100;
+      // Convert server level (101-110) to Blindspot boss number (1-10)
+      setHighestBossDefeated(bsHighest - 100);
     }
   }
 

@@ -5,7 +5,7 @@
     "firstUnlockBonusPoints": 35
   },
   "tutorialBoss": {
-    "id": "boss-1",
+    "id": "bs-boss-1",
     "name": "The Gatekeeper",
     "characterClass": "Enforcer",
     "combatStats": {
