@@ -2161,3 +2161,14 @@
 #bs-forge-screen {
   background: var(--bs-bg);
 }
+
+/* Make battle placeholder icons more prominent and distinct */
+.bs-page .arena-combatant--player .arena-combatant__placeholder i {
+  color: var(--bs-accent);
+  font-size: 2.5rem;
+}
+
+.bs-page .arena-combatant--opponent .arena-combatant__placeholder i {
+  color: var(--bs-danger);
+  font-size: 2.5rem;
+}
