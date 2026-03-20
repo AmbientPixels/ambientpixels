@@ -1644,6 +1644,64 @@
 }
 
 /* ============================================================
+   DAILY BOUNTIES
+   ============================================================ */
+
+.bs-bounties {
+  width: 100%;
+  max-width: 360px;
+  background: var(--bs-surface);
+  border: 1px solid var(--bs-border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+}
+
+.bs-bounties__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--bs-text-muted);
+  margin-bottom: 0.5rem;
+}
+
+.bs-bounties__header i {
+  color: var(--bs-accent-dim);
+  margin-right: 0.3rem;
+}
+
+.bs-bounties__count {
+  color: var(--bs-accent);
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.bs-bounty {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--bs-text-muted);
+  padding: 0.25rem 0;
+}
+
+.bs-bounty i {
+  color: var(--bs-border);
+  font-size: 0.65rem;
+}
+
+.bs-bounty--done {
+  color: var(--bs-success);
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.bs-bounty--done i {
+  color: var(--bs-success);
+}
+
+/* ============================================================
    RESULTS POWER DISPLAY
    ============================================================ */
 

@@ -603,6 +603,7 @@
 
     updateRankDisplay();
     updateForgeProgress();
+    renderBounties();
 
     // PvP unlock check
     const highestBoss = getHighestBossDefeated();
@@ -928,9 +929,15 @@
       const loot = rollLoot();
       await applyLootDrop(loot);
       setTimeout(() => showRewardDrop(loot, 'Victory Reward'), 1500);
+
+      // Bounty checks
+      if (getWinStreak() >= 3) completeBounty('streak3');
     } else {
       setWinStreak(0);
     }
+
+    // Track fight for daily bounty
+    completeBounty('play3');
 
     if (_battleType === 'pve' && isWin) {
       const boss = _bosses.find(b => b.id === _currentBossId);
@@ -952,6 +959,7 @@
         if (reward) {
           showRewardDrop(reward, boss);
         }
+        completeBounty('newBoss');
       }
 
       // Boss 10 — The Architect
@@ -1438,6 +1446,78 @@
       drop.classList.remove('bs-reward-drop--visible');
       setTimeout(() => drop.remove(), 500);
     }, 4000);
+  }
+
+  // ============================================================
+  // DAILY BOUNTIES
+  // ============================================================
+
+  const BOUNTY_POOL = [
+    { id: 'win_no_heal', text: 'Win a fight without healing', check: 'noHeal' },
+    { id: 'win_3_streak', text: 'Win 3 fights in a row', check: 'streak3' },
+    { id: 'beat_new_boss', text: 'Defeat a new boss', check: 'newBoss' },
+    { id: 'use_counter', text: 'Win using Counter in the final round', check: 'counterFinish' },
+    { id: 'win_under_30', text: 'Win with under 30% HP remaining', check: 'lowHpWin' },
+    { id: 'play_3', text: 'Play 3 fights today', check: 'play3' },
+    { id: 'win_fast', text: 'Win a fight in 5 rounds or less', check: 'fastWin' }
+  ];
+
+  function getDailyBounties() {
+    const today = new Date().toISOString().slice(0, 10);
+    const stored = JSON.parse(localStorage.getItem('bs-bounties') || '{}');
+    if (stored.date !== today) {
+      // Generate 3 new bounties for today
+      const shuffled = [...BOUNTY_POOL].sort(() => Math.random() - 0.5);
+      const bounties = shuffled.slice(0, 3).map(b => ({ ...b, done: false }));
+      const data = { date: today, bounties, fights: 0 };
+      localStorage.setItem('bs-bounties', JSON.stringify(data));
+      return data;
+    }
+    return stored;
+  }
+
+  function completeBounty(checkType) {
+    const data = getDailyBounties();
+    let completed = false;
+    data.bounties.forEach(b => {
+      if (b.check === checkType && !b.done) {
+        b.done = true;
+        completed = true;
+      }
+    });
+    if (checkType === 'play3') {
+      data.fights = (data.fights || 0) + 1;
+      if (data.fights >= 3) {
+        data.bounties.forEach(b => {
+          if (b.check === 'play3' && !b.done) { b.done = true; completed = true; }
+        });
+      }
+    }
+    localStorage.setItem('bs-bounties', JSON.stringify(data));
+    if (completed) showSuccessToast('Bounty complete!');
+    return completed;
+  }
+
+  function renderBounties() {
+    const el = document.getElementById('bs-bounties');
+    if (!el) return;
+
+    const data = getDailyBounties();
+    const doneCount = data.bounties.filter(b => b.done).length;
+
+    el.innerHTML = `
+      <div class="bs-bounties__header">
+        <span><i class="fas fa-scroll"></i> Daily Bounties</span>
+        <span class="bs-bounties__count">${doneCount}/3</span>
+      </div>
+      ${data.bounties.map(b => `
+        <div class="bs-bounty ${b.done ? 'bs-bounty--done' : ''}">
+          <i class="fas ${b.done ? 'fa-check-circle' : 'fa-circle'}"></i>
+          <span>${escHtml(b.text)}</span>
+        </div>
+      `).join('')}
+    `;
+    el.style.display = '';
   }
 
   // ============================================================
