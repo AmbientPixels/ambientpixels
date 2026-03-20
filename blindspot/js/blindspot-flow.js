@@ -31,6 +31,8 @@
   let _pvpGallery = [];
   let _hookInstalled = false;
   let _origShowResults = null;
+  let _battleRoundStats = null;
+  let _submitMoveHooked = false;
 
   const RANKS = {
     bronze:   { xp: 0,    icon: 'fa-shield-halved', color: '#CD7F32', label: 'Bronze' },
@@ -331,6 +333,105 @@
   }
 
   // ============================================================
+  // SESSION STATS TRACKING
+  // ============================================================
+
+  function resetBattleStats() {
+    _battleRoundStats = {
+      rounds: 0,
+      damageDealt: 0,
+      damageTaken: 0,
+      healingDone: 0,
+      moves: { strike: 0, guard: 0, ability: 0, heal: 0, counter: 0 }
+    };
+  }
+
+  function trackRoundResult(roundResult) {
+    if (!_battleRoundStats) resetBattleStats();
+    _battleRoundStats.rounds++;
+    _battleRoundStats.damageDealt += (roundResult.playerDamage || 0);
+    _battleRoundStats.damageTaken += (roundResult.opponentDamage || 0);
+    _battleRoundStats.healingDone += (roundResult.playerHeal || 0);
+    const move = roundResult.playerMove;
+    if (move && _battleRoundStats.moves.hasOwnProperty(move)) {
+      _battleRoundStats.moves[move]++;
+    }
+  }
+
+  function hookBattleTracking() {
+    if (window._bsTrackingHooked) return;
+    window._bsTrackingHooked = true;
+    // Hook initBattle to reset stats
+    if (window.ArenaBattleUI && window.ArenaBattleUI.initBattle) {
+      const origInit = window.ArenaBattleUI.initBattle;
+      window.ArenaBattleUI.initBattle = function (battleData) {
+        resetBattleStats();
+        return origInit.call(window.ArenaBattleUI, battleData);
+      };
+    }
+    // Hook submitMove to track each round's result
+    if (window.ArenaAPI && window.ArenaAPI.submitMove) {
+      const origSubmit = window.ArenaAPI.submitMove;
+      window.ArenaAPI.submitMove = async function () {
+        const response = await origSubmit.apply(window.ArenaAPI, arguments);
+        if (response && response.roundResult) {
+          trackRoundResult(response.roundResult);
+        }
+        return response;
+      };
+    }
+  }
+
+  function renderSessionStats() {
+    if (!_battleRoundStats || _battleRoundStats.rounds === 0) return;
+    const s = _battleRoundStats;
+    // Remove any previous stats panel
+    document.querySelector('.bs-session-stats')?.remove();
+
+    const moveIcons = { strike: 'fa-fist-raised', guard: 'fa-shield-halved', ability: 'fa-bolt', heal: 'fa-heart', counter: 'fa-rotate-left' };
+    const moveLabels = { strike: 'Strike', guard: 'Guard', ability: 'Ability', heal: 'Heal', counter: 'Counter' };
+    let movesHtml = '';
+    for (const [move, count] of Object.entries(s.moves)) {
+      if (count > 0) {
+        movesHtml += `<span class="bs-session-stat__move"><i class="fas ${moveIcons[move]}"></i> ${count}</span>`;
+      }
+    }
+
+    const panel = document.createElement('div');
+    panel.className = 'bs-session-stats';
+    panel.innerHTML = `
+      <div class="bs-session-stats__title"><i class="fas fa-chart-bar"></i> Battle Stats</div>
+      <div class="bs-session-stats__grid">
+        <div class="bs-session-stat">
+          <span class="bs-session-stat__val">${s.rounds}</span>
+          <span class="bs-session-stat__label">Rounds</span>
+        </div>
+        <div class="bs-session-stat bs-session-stat--dmg">
+          <span class="bs-session-stat__val">${s.damageDealt}</span>
+          <span class="bs-session-stat__label">Damage Dealt</span>
+        </div>
+        <div class="bs-session-stat bs-session-stat--taken">
+          <span class="bs-session-stat__val">${s.damageTaken}</span>
+          <span class="bs-session-stat__label">Damage Taken</span>
+        </div>
+        <div class="bs-session-stat bs-session-stat--heal">
+          <span class="bs-session-stat__val">${s.healingDone}</span>
+          <span class="bs-session-stat__label">Healing</span>
+        </div>
+      </div>
+      ${movesHtml ? `<div class="bs-session-stats__moves">${movesHtml}</div>` : ''}
+    `;
+
+    // Insert after subtitle/power row in results overlay
+    const subtitle = document.getElementById('arena-results-subtitle');
+    const power = document.querySelector('.bs-results-power');
+    const insertAfter = power || subtitle;
+    if (insertAfter) {
+      insertAfter.after(panel);
+    }
+  }
+
+  // ============================================================
   // BATTLE COMPLETION HOOK
   // ============================================================
 
@@ -479,6 +580,7 @@
     }
 
     hookBattleCompletion();
+    hookBattleTracking();
 
     try {
       const battleData = await window.ArenaAPI.startBattle(
@@ -724,6 +826,7 @@
     }
 
     hookBattleCompletion();
+    hookBattleTracking();
 
     // Wait for game data
     await gameDataPromise;
@@ -1481,6 +1584,9 @@
         subtitleEl.textContent = tip;
       }
     }
+
+    // Session stats panel
+    renderSessionStats();
   }
 
   // ============================================================
