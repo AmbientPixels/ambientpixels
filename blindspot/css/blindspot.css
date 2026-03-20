@@ -477,6 +477,21 @@
   letter-spacing: 0.05em;
 }
 
+/* Edit card link */
+.bs-lobby-edit {
+  font-size: 0.7rem;
+  color: var(--bs-text-muted);
+  text-decoration: none;
+  transition: color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.bs-lobby-edit:hover {
+  color: var(--bs-accent);
+}
+
 /* Rank HUD */
 .bs-rank-hud {
   text-align: center;
