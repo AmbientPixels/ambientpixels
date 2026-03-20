@@ -18,6 +18,9 @@
 </head>
 <body class="bs-page" data-theme="dark">
 
+  <!-- Ambient particles -->
+  <canvas id="bs-play-particles" class="bs-play-particles"></canvas>
+
   <!-- TOP BAR -->
   <header class="bs-topbar">
     <span class="bs-topbar__brand">Blindspot</span>
@@ -37,6 +40,7 @@
     <!-- SCREEN: LOBBY -->
     <div id="bs-screen-lobby" class="bs-screen active">
       <div class="bs-lobby">
+        <p class="bs-lobby__status-label">Fighter Status</p>
         <!-- Player card display -->
         <div class="bs-lobby__card-display" id="bs-player-card">
           <div class="bs-loading" style="flex-direction:column; padding:1rem;"><div class="bs-spinner"></div><span style="font-size:0.7rem; margin-top:0.5rem;">Loading...</span></div>
@@ -44,7 +48,7 @@
 
         <!-- Rank HUD -->
         <div class="bs-rank-hud" id="bs-rank-hud">
-          <div class="bs-rank-badge" id="bs-rank-badge">
+          <div class="bs-rank-badge" id="bs-rank-badge" data-tooltip="Your arena rank">
             <i class="fas fa-shield-halved" style="color: #CD7F32;"></i>
             <span>Bronze</span>
           </div>
@@ -74,7 +78,7 @@
 
         <!-- Primary PLAY button -->
         <button class="bs-btn bs-btn--primary bs-btn--glow bs-btn--full bs-play-btn" id="bs-play-btn" style="max-width:360px; padding:1rem; font-size:1.1rem; font-family:'Cinzel',serif; font-weight:700; letter-spacing:0.1em; margin-bottom:0.5rem;">
-          <i class="fas fa-dragon"></i> PLAY CAMPAIGN
+          <i class="fas fa-bolt"></i> ENTER ARENA
         </button>
 
         <!-- Mode buttons -->
@@ -113,6 +117,7 @@
         <div class="bs-campaign__header">
           <button class="bs-campaign__back" id="bs-campaign-back"><i class="fas fa-arrow-left"></i></button>
           <h2>Campaign</h2>
+          <span class="bs-campaign__progress" id="bs-campaign-progress"></span>
         </div>
         <div id="bs-boss-ladder">
           <div class="bs-loading"><div class="bs-spinner"></div> Loading bosses...</div>
@@ -334,6 +339,27 @@
     </div>
   </div>
 
+
+  <!-- MOBILE BOTTOM NAV -->
+  <nav class="bs-bottom-nav" id="bs-bottom-nav">
+    <button class="bs-bottom-nav__item bs-bottom-nav__item--active" data-nav="lobby">
+      <i class="fas fa-home"></i>
+      <span>Arena</span>
+    </button>
+    <button class="bs-bottom-nav__item" data-nav="campaign">
+      <i class="fas fa-dragon"></i>
+      <span>Campaign</span>
+    </button>
+    <button class="bs-bottom-nav__item" data-nav="forge" id="bs-nav-forge">
+      <i class="fas fa-fire"></i>
+      <span>Forge</span>
+    </button>
+    <button class="bs-bottom-nav__item" data-nav="pvp" id="bs-nav-pvp">
+      <i class="fas fa-users"></i>
+      <span>PvP</span>
+    </button>
+  </nav>
+
   <!-- Scripts -->
   <script src="/cardforge/js/config.js"></script>
   <script src="/cardforge/js/csrf-protection.js"></script>
@@ -349,5 +375,51 @@
   <script src="/cardforge/js/arena-backgrounds.js"></script>
 
   <script src="js/blindspot-flow.js"></script>
+
+  <!-- Play page particle system -->
+  <script>
+  (function() {
+    var canvas = document.getElementById('bs-play-particles');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    var particles = [];
+    var COUNT = 25;
+
+    function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+    resize();
+    window.addEventListener('resize', resize);
+
+    function create() {
+      return {
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.2,
+        vy: -Math.random() * 0.3 - 0.05,
+        size: Math.random() * 1.5 + 0.3,
+        opacity: Math.random() * 0.3 + 0.05,
+        life: Math.random()
+      };
+    }
+
+    for (var i = 0; i < COUNT; i++) particles.push(create());
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      particles.forEach(function(p, i) {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life += 0.001;
+        if (p.y < -10 || p.life > 1) particles[i] = create();
+        var alpha = p.opacity * (1 - p.life);
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(239, 159, 39, ' + alpha + ')';
+        ctx.fill();
+      });
+      requestAnimationFrame(animate);
+    }
+    animate();
+  })();
+  </script>
 </body>
 </html>

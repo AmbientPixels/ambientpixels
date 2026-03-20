@@ -1793,18 +1793,7 @@
    LADDER CONNECTOR
    ============================================================ */
 
-.bs-ladder-connector {
-  width: 2px;
-  height: 16px;
-  background: var(--bs-border);
-  margin: 0 auto;
-  margin-left: 21px; /* center under avatar */
-}
-
-.bs-ladder-connector--done {
-  background: var(--bs-success);
-  opacity: 0.5;
-}
+/* old ladder connector removed — see iter 56 section */
 
 /* ============================================================
    FORGE STAT EXTRAS
@@ -2171,4 +2160,317 @@
 .bs-page .arena-combatant--opponent .arena-combatant__placeholder i {
   color: var(--bs-danger);
   font-size: 2.5rem;
+}
+
+
+/* ============================================================
+   MOBILE BOTTOM NAV (iter 56)
+   ============================================================ */
+
+.bs-bottom-nav {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9990;
+  background: var(--bs-surface);
+  border-top: 1px solid var(--bs-border);
+  padding: 0.4rem 0 calc(0.4rem + env(safe-area-inset-bottom, 0px));
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+@media (max-width: 768px) {
+  .bs-bottom-nav { display: flex; }
+  .bs-modes { display: none; }
+  .bs-play { padding-bottom: 5rem; }
+}
+
+.bs-bottom-nav__item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15rem;
+  padding: 0.4rem 0.25rem;
+  background: none;
+  border: none;
+  color: var(--bs-text-muted);
+  font-size: 0.55rem;
+  font-family: 'Share Tech Mono', monospace;
+  cursor: pointer;
+  transition: color 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  position: relative;
+}
+
+.bs-bottom-nav__item i {
+  font-size: 1.1rem;
+  transition: transform 0.2s;
+}
+
+.bs-bottom-nav__item--active {
+  color: var(--bs-accent);
+}
+
+.bs-bottom-nav__item--active i {
+  transform: scale(1.15);
+}
+
+.bs-bottom-nav__item--active::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 25%;
+  right: 25%;
+  height: 2px;
+  background: var(--bs-accent);
+  border-radius: 1px;
+}
+
+.bs-bottom-nav__item:hover {
+  color: var(--bs-text);
+}
+
+.bs-bottom-nav__item:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* ============================================================
+   LOBBY HERO CARD (iter 56)
+   ============================================================ */
+
+.bs-lobby__card-display {
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+.bs-lobby__card-display::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 14px;
+  background: conic-gradient(from 0deg, var(--bs-accent), var(--bs-accent-dim), transparent, var(--bs-accent-dim), var(--bs-accent));
+  z-index: -1;
+  opacity: 0;
+  animation: bs-card-border-spin 4s linear infinite;
+}
+
+.bs-lobby__card-display:hover::after {
+  opacity: 0.7;
+}
+
+@keyframes bs-card-border-spin {
+  0% { opacity: 0; transform: rotate(0deg); }
+  25% { opacity: 0.5; }
+  50% { opacity: 0; transform: rotate(180deg); }
+  75% { opacity: 0.5; }
+  100% { opacity: 0; transform: rotate(360deg); }
+}
+
+.bs-lobby__welcome {
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--bs-text-muted);
+  text-align: center;
+  letter-spacing: 0.08em;
+}
+
+.bs-lobby__status-label {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--bs-accent);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+/* ============================================================
+   BOUNTY REWARD BADGES (iter 56)
+   ============================================================ */
+
+.bs-bounty__reward {
+  margin-left: auto;
+  font-size: 0.6rem;
+  color: var(--bs-accent);
+  font-weight: 700;
+  white-space: nowrap;
+  padding: 0.1rem 0.4rem;
+  background: rgba(239, 159, 39, 0.08);
+  border-radius: 4px;
+  border: 1px solid rgba(239, 159, 39, 0.15);
+}
+
+.bs-bounty--done .bs-bounty__reward {
+  color: var(--bs-success);
+  background: rgba(29, 158, 117, 0.08);
+  border-color: rgba(29, 158, 117, 0.15);
+}
+
+/* ============================================================
+   CAMPAIGN TOWER VISUAL UPGRADE (iter 56)
+   ============================================================ */
+
+.bs-boss-card[data-boss-class=Enforcer] .bs-boss-avatar { color: #7b8794; border-color: #7b8794; }
+.bs-boss-card[data-boss-class=Fighter] .bs-boss-avatar { color: #e85d3a; border-color: #e85d3a; }
+.bs-boss-card[data-boss-class=Scout] .bs-boss-avatar { color: #4ecdc4; border-color: #4ecdc4; }
+.bs-boss-card[data-boss-class=Hacker] .bs-boss-avatar { color: #00ff88; border-color: #00ff88; }
+.bs-boss-card[data-boss-class=Berserker] .bs-boss-avatar { color: #ff3333; border-color: #ff3333; }
+.bs-boss-card[data-boss-class=Scholar] .bs-boss-avatar { color: #9b59b6; border-color: #9b59b6; }
+.bs-boss-card[data-boss-class=Guardian] .bs-boss-avatar { color: #3498db; border-color: #3498db; }
+.bs-boss-card[data-boss-class=Trickster] .bs-boss-avatar { color: #f39c12; border-color: #f39c12; }
+.bs-boss-card[data-boss-class=Caster] .bs-boss-avatar { color: #e74c3c; border-color: #e74c3c; }
+
+.bs-boss-card--current[data-boss-class] .bs-boss-avatar {
+  box-shadow: 0 0 16px currentColor;
+}
+
+.bs-boss-card--current .bs-boss-card__here {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.6rem;
+  color: var(--bs-accent);
+  font-family: 'Share Tech Mono', monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  animation: bs-here-pulse 2s ease-in-out infinite;
+}
+
+@keyframes bs-here-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+.bs-boss-card__here {
+  display: none;
+}
+
+.bs-ladder-connector {
+  width: 3px;
+  height: 20px;
+  margin-left: 35px;
+  position: relative;
+}
+
+.bs-ladder-connector::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--bs-border);
+}
+
+.bs-ladder-connector--done::before {
+  background: var(--bs-success);
+}
+
+.bs-campaign__progress {
+  font-size: 0.75rem;
+  color: var(--bs-text-muted);
+  margin-left: auto;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+/* ============================================================
+   PLAY PAGE PARTICLES (iter 56)
+   ============================================================ */
+
+.bs-play-particles {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+.bs-play > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* ============================================================
+   PLAY BUTTON SWEEP ANIM (iter 56)
+   ============================================================ */
+
+.bs-play-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.bs-play-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: -100%;
+  width: 200%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--bs-accent-glow), transparent);
+  animation: bs-btn-sweep 3s ease-in-out infinite;
+  opacity: 0.6;
+}
+
+@keyframes bs-btn-sweep {
+  0% { left: -100%; }
+  50% { left: 100%; }
+  100% { left: 100%; }
+}
+
+/* ============================================================
+   TOOLTIP SYSTEM (iter 56)
+   ============================================================ */
+
+[data-tooltip] {
+  position: relative;
+  cursor: help;
+}
+
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 0.4rem 0.75rem;
+  background: var(--bs-surface-2);
+  border: 1px solid var(--bs-border);
+  border-radius: 6px;
+  color: var(--bs-text);
+  font-size: 0.7rem;
+  font-family: 'Share Tech Mono', monospace;
+  white-space: nowrap;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+}
+
+[data-tooltip]:hover::after {
+  opacity: 1;
+}
+
+@media (max-width: 480px) {
+  [data-tooltip]::after { display: none; }
+}
+
+/* Hide bottom nav during battle (iter 56 fix) */
+.bs-screen.active#bs-screen-battle ~ .bs-bottom-nav,
+body.bs-battle-active .bs-bottom-nav {
+  display: none !important;
+}
+
+/* Campaign progress no-wrap */
+.bs-campaign__progress {
+  white-space: nowrap;
+  flex-shrink: 0;
 }

@@ -65,10 +65,19 @@
     if (el) el.classList.add('bs-overlay--hidden');
   }
 
+  function updateBottomNav(screenId) {
+    var navMap = { lobby: 'lobby', campaign: 'campaign', pvp: 'pvp', forge: 'forge', battle: '__none__' };
+    document.querySelectorAll('.bs-bottom-nav__item').forEach(function(btn) {
+      btn.classList.toggle('bs-bottom-nav__item--active', btn.dataset.nav === navMap[screenId]);
+    });
+  }
+
   function showScreen(id) {
     document.querySelectorAll('.bs-screen').forEach(s => s.classList.remove('active'));
     const target = document.getElementById('bs-screen-' + id);
     if (target) target.classList.add('active');
+    document.body.classList.toggle('bs-battle-active', id === 'battle');
+    updateBottomNav(id);
   }
 
   function isNewPlayer(profile) {
@@ -662,7 +671,7 @@
       if (streak >= 3) streakHtml = `<span style="color:var(--bs-accent-glow);"><i class="fas fa-fire"></i> ${streak} streak</span>`;
       else if (streak > 0) streakHtml = `<span><i class="fas fa-fire"></i> ${streak} streak</span>`;
 
-      const powerHtml = power > 0 ? `<span><i class="fas fa-bolt" style="color:var(--bs-accent);"></i> ${power} Power</span>` : '';
+      const powerHtml = power > 0 ? `<span data-tooltip="Sum of all combat stats"><i class="fas fa-bolt" style="color:var(--bs-accent);"></i> ${power} Power</span>` : '';
 
       statsEl.innerHTML = `
         ${powerHtml}
@@ -778,6 +787,26 @@
     // Architect win
     document.getElementById('bs-architect-continue')?.addEventListener('click', () => { hideOverlay('bs-architect-win'); refreshLobby(); showScreen('lobby'); });
 
+    // Bottom nav handling
+    document.querySelectorAll('.bs-bottom-nav__item').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        const nav = btn.dataset.nav;
+        document.querySelectorAll('.bs-bottom-nav__item').forEach(function(b) { b.classList.remove('bs-bottom-nav__item--active'); });
+        btn.classList.add('bs-bottom-nav__item--active');
+        if (nav === 'lobby') { showScreen('lobby'); renderLobby(); }
+        else if (nav === 'campaign') { showScreen('campaign'); renderCampaignLadder(); }
+        else if (nav === 'forge') {
+          var needed = _config ? _config.forgeVisit.winsRequired : 3;
+          if (getForgeWins() >= needed || isForgePending()) { openForgeScreen(); }
+          else { showErrorToast('Win ' + (needed - getForgeWins()) + ' more campaign fights to unlock the Forge'); }
+        }
+        else if (nav === 'pvp') {
+          if (getHighestBossDefeated() >= 10) { showScreen('pvp'); renderPvPGallery(); }
+          else { showErrorToast('Beat Boss 10 to unlock PvP'); }
+        }
+      });
+    });
+
     // Results buttons
     document.getElementById('arena-results-again')?.addEventListener('click', () => {
       document.getElementById('arena-results-overlay').style.display = 'none';
@@ -866,11 +895,13 @@
         : '';
 
       return `
-        <div class="bs-boss-card ${statusClass}">
+        <div class="bs-boss-card ${statusClass}" data-boss-class="${escHtml(boss.class)}">
+          <span class="bs-boss-card__number">${boss.boss}</span>
           <div class="bs-boss-avatar"><i class="fas ${icon}"></i></div>
           <div class="bs-boss-card__info">
             <div class="bs-boss-card__name">${escHtml(boss.name)} ${recordBadge}</div>
             <div class="bs-boss-card__class">${escHtml(boss.class)}</div>
+            ${current ? '<span class="bs-boss-card__here"><i class="fas fa-location-dot"></i> You are here</span>' : ''}
             ${rewardBadge}
             <div class="bs-boss-card__flavor">"${escHtml(boss.flavor)}"</div>
           </div>
@@ -939,7 +970,22 @@
     } catch (err) {
       console.error('[Blindspot] Campaign battle error:', err);
       if (err.message && err.message.includes('not found')) {
-        // Card doesn't exist on server — need to rebuild
+        // Card doesn't exist on server — try reloading before giving up
+        console.warn('[Blindspot] Card not found, attempting recovery...');
+        try {
+          const recoveryCards = await loadUserCards();
+          if (recoveryCards.length > 0) {
+            _selectedCard = recoveryCards[0];
+            ensureCombatStats(_selectedCard);
+            showErrorToast('Card reloaded. Try again.');
+            showScreen('lobby');
+            renderLobby();
+            return;
+          }
+        } catch (recoveryErr) {
+          console.warn('[Blindspot] Recovery failed:', recoveryErr);
+        }
+        // Final fallback — rebuild card
         showErrorToast('Card not found. Please rebuild your card.');
         localStorage.removeItem('blindspot-onboarded');
         setTimeout(() => { window.location.href = '/blindspot/'; }, 2000);
@@ -1660,11 +1706,11 @@
   // ============================================================
 
   const BOUNTY_POOL = [
-    { id: 'win_3_streak', text: 'Win 3 fights in a row', check: 'streak3' },
-    { id: 'beat_new_boss', text: 'Defeat a new boss', check: 'newBoss' },
-    { id: 'play_3', text: 'Play 3 fights today', check: 'play3' },
-    { id: 'win_2', text: 'Win 2 fights today', check: 'win2' },
-    { id: 'forge_card', text: 'Visit the Forge', check: 'forgeVisit' }
+    { id: 'win_3_streak', text: 'Win 3 fights in a row', check: 'streak3', reward: { xp: 25, stat: 'str', amount: 3, label: '+25 XP, +3 STR' } },
+    { id: 'beat_new_boss', text: 'Defeat a new boss', check: 'newBoss', reward: { xp: 50, label: '+50 XP' } },
+    { id: 'play_3', text: 'Play 3 fights today', check: 'play3', reward: { xp: 15, forgePoints: 1, label: '+15 XP, +1 Forge' } },
+    { id: 'win_2', text: 'Win 2 fights today', check: 'win2', reward: { xp: 20, stat: 'agi', amount: 2, label: '+20 XP, +2 AGI' } },
+    { id: 'forge_card', text: 'Visit the Forge', check: 'forgeVisit', reward: { xp: 10, label: '+10 XP' } }
   ];
 
   function getDailyBounties() {
@@ -1681,7 +1727,7 @@
     return stored;
   }
 
-  function completeBounty(checkType) {
+  async function completeBounty(checkType) {
     const data = getDailyBounties();
     let completed = false;
     data.bounties.forEach(b => {
@@ -1699,7 +1745,44 @@
       }
     }
     localStorage.setItem('bs-bounties', JSON.stringify(data));
-    if (completed) showSuccessToast('Bounty complete!');
+    if (completed) {
+      // Grant bounty rewards
+      const completedBounty = data.bounties.find(b => b.check === checkType && b.done);
+      if (completedBounty && completedBounty.reward) {
+        const r = completedBounty.reward;
+        if (r.stat && r.amount && _selectedCard && _selectedCard.combatStats) {
+          const oldVal = _selectedCard.combatStats[r.stat] || 0;
+          _selectedCard.combatStats[r.stat] = Math.min(100, oldVal + r.amount);
+          // Persist bounty stat reward to server
+          try {
+            const cardToSave = { ..._selectedCard };
+            cardToSave.stats = [
+              { name: 'Strength', value: cardToSave.combatStats.str },
+              { name: 'Agility', value: cardToSave.combatStats.agi },
+              { name: 'Intelligence', value: cardToSave.combatStats.int },
+              { name: 'Endurance', value: cardToSave.combatStats.end },
+              { name: 'Luck', value: cardToSave.combatStats.lck }
+            ];
+            const url = window.buildApiPath('saveCard');
+            const headers = { 'Content-Type': 'application/json' };
+            const authHeaders = await window.ArenaAPI.getPrincipalHeader();
+            Object.assign(headers, authHeaders);
+            const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+            if (csrfMeta && csrfMeta.content) headers['X-CSRF-Token'] = csrfMeta.content;
+            fetch(url, { method: 'POST', headers, body: JSON.stringify(cardToSave) });
+          } catch (saveErr) {
+            console.warn('[Blindspot] Bounty stat save error:', saveErr);
+            _selectedCard.combatStats[r.stat] = oldVal;
+          }
+        }
+        if (r.forgePoints) {
+          setForgeWins(getForgeWins() + r.forgePoints);
+        }
+        showSuccessToast('Bounty complete! ' + r.label);
+      } else {
+        showSuccessToast('Bounty complete!');
+      }
+    }
     return completed;
   }
 
@@ -1719,6 +1802,7 @@
         <div class="bs-bounty ${b.done ? 'bs-bounty--done' : ''}">
           <i class="fas ${b.done ? 'fa-check-circle' : 'fa-circle'}"></i>
           <span>${escHtml(b.text)}</span>
+          ${b.reward ? `<span class="bs-bounty__reward">${escHtml(b.reward.label)}</span>` : ''}
         </div>
       `).join('')}
     `;
