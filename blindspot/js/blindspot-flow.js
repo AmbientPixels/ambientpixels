@@ -983,6 +983,17 @@
 
     if (window.ArenaAudio) window.ArenaAudio.init();
 
+    // Wire SFX mute toggle
+    var sfxBtn = document.getElementById('arena-sfx-toggle');
+    if (sfxBtn) {
+      var updateSfxIcon = function () {
+        var icon = sfxBtn.querySelector('i');
+        if (icon) icon.className = _sfxMuted ? 'fas fa-volume-xmark' : 'fas fa-bolt';
+      };
+      updateSfxIcon();
+      sfxBtn.addEventListener('click', function () { toggleSfxMute(); updateSfxIcon(); });
+    }
+
     if (!window._bsBattleEventsBound) {
       window.ArenaBattleUI.bindEvents();
       window._bsBattleEventsBound = true;
