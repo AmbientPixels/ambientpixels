@@ -1104,6 +1104,95 @@
 }
 
 /* ============================================================
+   TOAST NOTIFICATIONS
+   ============================================================ */
+
+.bs-toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.85rem;
+  z-index: 99999;
+  opacity: 0;
+  transition: all 0.3s ease;
+  pointer-events: none;
+  max-width: 90vw;
+  text-align: center;
+}
+
+.bs-toast--visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.bs-toast--error {
+  background: var(--bs-danger);
+  color: #fff;
+}
+
+.bs-toast--success {
+  background: var(--bs-success);
+  color: #fff;
+}
+
+/* ============================================================
+   LADDER CONNECTOR
+   ============================================================ */
+
+.bs-ladder-connector {
+  width: 2px;
+  height: 16px;
+  background: var(--bs-border);
+  margin: 0 auto;
+  margin-left: 21px; /* center under avatar */
+}
+
+.bs-ladder-connector--done {
+  background: var(--bs-success);
+  opacity: 0.5;
+}
+
+/* ============================================================
+   FORGE STAT EXTRAS
+   ============================================================ */
+
+.bs-forge-stat__base {
+  width: 24px;
+  font-size: 0.7rem;
+  color: var(--bs-text-muted);
+  text-align: right;
+}
+
+.bs-forge-stat__arrow {
+  color: var(--bs-accent-dim);
+  font-size: 0.7rem;
+  margin: 0 0.25rem;
+}
+
+/* ============================================================
+   LOBBY STATS ROW
+   ============================================================ */
+
+.bs-lobby-stats {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  font-size: 0.8rem;
+  color: var(--bs-text-muted);
+  margin-top: 0.25rem;
+}
+
+.bs-lobby-stats span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+/* ============================================================
    RESPONSIVE
    ============================================================ */
 
