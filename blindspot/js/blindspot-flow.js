@@ -785,7 +785,42 @@
 
     // Primary PLAY button + Campaign button both open campaign
     const openCampaign = () => { showScreen('campaign'); renderCampaignLadder(); };
-    document.getElementById('bs-play-btn')?.addEventListener('click', openCampaign);
+    // Smart ENTER ARENA: go straight to next boss fight
+    const enterArena = () => {
+      const highest = getHighestBossDefeated();
+      const nextBoss = _bosses.find(b => b.boss === highest + 1);
+      if (nextBoss) {
+        // Show pre-fight overlay for next boss
+        const flavorEl = document.getElementById('bs-prefight-flavor');
+        const titleEl = document.getElementById('bs-prefight-title');
+        const avatarEl = document.getElementById('bs-prefight-avatar');
+        if (flavorEl) flavorEl.textContent = '"' + nextBoss.flavor + '"';
+        if (titleEl) titleEl.textContent = nextBoss.name;
+        if (avatarEl) {
+          if (nextBoss.avatar) {
+            avatarEl.innerHTML = '<img src="' + escHtml(nextBoss.avatar) + '" alt="' + escHtml(nextBoss.name) + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+            avatarEl.style.width = '96px';
+            avatarEl.style.height = '96px';
+          } else {
+            const icon = BOSS_ICONS[nextBoss.class] || 'fa-skull';
+            avatarEl.innerHTML = '<i class="fas ' + icon + '"></i>';
+          }
+        }
+        showOverlay('bs-prefight-overlay');
+        const oldBtn = document.getElementById('bs-prefight-go');
+        const freshBtn = oldBtn.cloneNode(true);
+        oldBtn.parentNode.replaceChild(freshBtn, oldBtn);
+        freshBtn.addEventListener('click', async () => {
+          hideOverlay('bs-prefight-overlay');
+          await startCampaignBattle(nextBoss.id);
+        }, { once: true });
+      } else {
+        // All bosses defeated — go to campaign to replay or ascend
+        showScreen('campaign');
+        renderCampaignLadder();
+      }
+    };
+    document.getElementById('bs-play-btn')?.addEventListener('click', enterArena);
     document.getElementById('bs-btn-campaign')?.addEventListener('click', openCampaign);
 
     document.getElementById('bs-btn-pvp')?.addEventListener('click', () => {
@@ -1015,6 +1050,7 @@
       _activeBattle = battleData;
       window.ArenaBattleUI.initBattle(battleData);
       updateCombatTooltips();
+      applyBattlePalette();
     } catch (err) {
       console.error('[Blindspot] Campaign battle error:', err);
       if (err.message && err.message.includes('not found')) {
@@ -1299,23 +1335,25 @@
     const allocations = { str: 0, agi: 0, int: 0, end: 0, lck: 0 };
 
     const statDefs = [
-      { key: 'str', label: 'STR', desc: 'Raw damage.',          color: '#ff5252', icon: 'fa-hand-fist' },
-      { key: 'agi', label: 'AGI', desc: 'Speed and evasion.',   color: '#00e676', icon: 'fa-feather-pointed' },
-      { key: 'int', label: 'INT', desc: 'Ability power.',       color: '#7b2fff', icon: 'fa-bolt' },
-      { key: 'end', label: 'END', desc: 'How long you survive.', color: '#ff9100', icon: 'fa-heart' },
-      { key: 'lck', label: 'LCK', desc: 'The unexpected.',      color: '#ffd740', icon: 'fa-clover' }
+      { key: 'str', label: 'STR', desc: 'Strike: 40-50% as dmg', color: '#ff5252', icon: 'fa-hand-fist' },
+      { key: 'agi', label: 'AGI', desc: 'Turn order + dodge',    color: '#00e676', icon: 'fa-feather-pointed' },
+      { key: 'int', label: 'INT', desc: 'Ability damage',        color: '#7b2fff', icon: 'fa-bolt' },
+      { key: 'end', label: 'END', desc: 'Heal: 30-40% as HP',   color: '#ff9100', icon: 'fa-heart' },
+      { key: 'lck', label: 'LCK', desc: 'Crit chance (5%+)',    color: '#ffd740', icon: 'fa-clover' }
     ];
 
     const totalBefore = Object.values(currentStats).reduce((a, b) => a + b, 0);
 
     // Visual options for Look tab
     const PALETTES = [
-      { id: 'earth', label: 'Earth', key: 'palette_earth' },
-      { id: 'ocean', label: 'Ocean', key: 'palette_ocean' },
-      { id: 'neon', label: 'Neon', key: 'palette_neon' },
-      { id: 'fire', label: 'Fire', key: 'palette_fire' },
-      { id: 'monochrome', label: 'Mono', key: 'palette_earth' },
-      { id: 'sunset', label: 'Sunset', key: 'palette_earth' }
+      { id: 'earth', label: 'Earth', key: 'palette_earth', unlock: 'Default' },
+      { id: 'ocean', label: 'Ocean', key: 'palette_ocean', unlock: 'Beat Boss 2' },
+      { id: 'neon', label: 'Neon', key: 'palette_neon', unlock: 'Beat Boss 4' },
+      { id: 'fire', label: 'Fire', key: 'palette_fire', unlock: 'Beat Boss 8' },
+      { id: 'monochrome', label: 'Mono', key: 'palette_earth', unlock: 'Default' },
+      { id: 'sunset', label: 'Sunset', key: 'palette_earth', unlock: 'Default' },
+      { id: 'inferno', label: 'Inferno', key: 'palette_inferno', unlock: 'Ascension 1' },
+      { id: 'frost', label: 'Frost', key: 'palette_frost', unlock: 'Ascension 2' }
     ];
     const CONTAINERS = [
       { id: 'masked', label: 'Portrait', icon: 'fa-circle-user', key: 'container_masked' },
@@ -1375,7 +1413,7 @@
         <div style="margin-bottom:1rem;">
           <label style="font-size:0.75rem; color:var(--bs-text-muted); display:block; margin-bottom:0.4rem;">Card Palette</label>
           <div class="bs-forge-options">
-            ${PALETTES.map(p => `<button class="bs-forge-option ${uv.includes(p.key) ? '' : 'bs-forge-option--locked'}" data-palette="${p.id}" ${uv.includes(p.key) ? '' : 'disabled'}>${uv.includes(p.key) ? p.label : '<i class="fas fa-lock"></i>'}</button>`).join('')}
+            ${PALETTES.map(p => `<button class="bs-forge-option ${uv.includes(p.key) ? '' : 'bs-forge-option--locked'}" data-palette="${p.id}" ${uv.includes(p.key) ? '' : 'disabled'} title="${uv.includes(p.key) ? p.label : p.unlock}">${uv.includes(p.key) ? p.label : '<i class="fas fa-lock"></i> ' + p.unlock}</button>`).join('')}
           </div>
         </div>
         <div>
@@ -1990,6 +2028,40 @@
   }
 
 
+
+
+  // ============================================================
+  // BATTLE CARD PALETTE
+  // ============================================================
+
+  function applyBattlePalette() {
+    if (!_selectedCard) return;
+    const palette = _selectedCard.palette || 'earth';
+    const paletteColors = {
+      earth: '#8b6914',
+      ocean: '#4a9eff',
+      neon: '#00d4ff',
+      fire: '#ff6b3d',
+      monochrome: '#888',
+      sunset: '#ff8c42',
+      inferno: '#ff3333',
+      frost: '#88ddff',
+      arcane: '#9b59b6',
+      void: '#6666cc'
+    };
+    const color = paletteColors[palette] || '#8b6914';
+    const playerCard = document.getElementById('arena-player-card');
+    if (playerCard) {
+      playerCard.style.borderColor = color;
+      playerCard.style.boxShadow = '0 0 15px ' + color + '40';
+    }
+    // Also style the combatant frame
+    const playerFrame = document.querySelector('.arena-combatant--player .arena-combatant__card');
+    if (playerFrame) {
+      playerFrame.style.borderColor = color;
+      playerFrame.style.boxShadow = '0 0 15px ' + color + '40';
+    }
+  }
 
   // ============================================================
   // ASCENSION SYSTEM
