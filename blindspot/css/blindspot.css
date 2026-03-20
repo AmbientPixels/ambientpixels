@@ -551,6 +551,13 @@
   color: var(--bs-text-muted);
 }
 
+.bs-forge-progress__hint {
+  font-size: 0.7rem;
+  color: var(--bs-text-muted);
+  margin-top: 0.15rem;
+  opacity: 0.7;
+}
+
 .bs-forge-progress__bar {
   width: 100%;
   height: 6px;
@@ -1916,4 +1923,88 @@
   .bs-wordmark { font-size: 1.1rem; }
   .bs-stranger-card { width: 130px; height: 190px; }
   .bs-btn { padding: 0.625rem 1.25rem; font-size: 0.8rem; }
+}
+
+/* ============================================================
+   FORGE TABS
+   ============================================================ */
+
+.bs-forge-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--bs-border);
+}
+
+.bs-forge-tab {
+  flex: 1;
+  padding: 0.6rem 1rem;
+  background: none;
+  border: none;
+  color: var(--bs-text-muted);
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.bs-forge-tab:hover {
+  color: var(--bs-text);
+}
+
+.bs-forge-tab--active {
+  color: var(--bs-accent);
+  border-bottom-color: var(--bs-accent);
+}
+
+.bs-forge-tab i {
+  font-size: 0.75rem;
+}
+
+/* Visual options grid */
+.bs-forge-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.bs-forge-option {
+  padding: 0.4rem 0.75rem;
+  background: var(--bs-surface);
+  border: 1px solid var(--bs-border);
+  border-radius: 6px;
+  color: var(--bs-text);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.bs-forge-option:hover:not(:disabled) {
+  border-color: var(--bs-accent-dim);
+}
+
+.bs-forge-option--selected {
+  border-color: var(--bs-accent) !important;
+  background: rgba(239, 159, 39, 0.1);
+  color: var(--bs-accent);
+}
+
+.bs-forge-option--locked {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.bs-forge-option--locked i {
+  font-size: 0.6rem;
+  color: var(--bs-text-muted);
 }

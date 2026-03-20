@@ -190,6 +190,23 @@
     return getClaimedRewards().includes(bossId);
   }
 
+
+  // Visual unlocks (earned from boss kills)
+  function getUnlockedVisuals() {
+    try { return JSON.parse(localStorage.getItem('bs-visual-unlocks') || '["palette_earth","container_masked"]'); }
+    catch { return ['palette_earth', 'container_masked']; }
+  }
+  function unlockVisual(key) {
+    const unlocks = getUnlockedVisuals();
+    if (!unlocks.includes(key)) {
+      unlocks.push(key);
+      localStorage.setItem('bs-visual-unlocks', JSON.stringify(unlocks));
+    }
+  }
+  function hasVisualUnlock(key) {
+    return getUnlockedVisuals().includes(key);
+  }
+
   // Apply boss reward to card
   async function applyBossReward(boss) {
     if (!boss.reward || isRewardClaimed(boss.id)) return null;
@@ -227,6 +244,10 @@
 
     if (reward.type === 'title') {
       setCardTitle(reward.title);
+    }
+
+    if (reward.type === 'visual') {
+      unlockVisual(reward.unlock);
     }
 
     if (reward.type === 'forge_bonus') {
@@ -1195,6 +1216,36 @@
 
     document.getElementById('bs-forge-cancel')?.addEventListener('click', () => {
       hideOverlay('bs-forge-screen');
+    });
+
+    // Tab switching
+    panel.querySelectorAll('.bs-forge-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        panel.querySelectorAll('.bs-forge-tab').forEach(t => t.classList.remove('bs-forge-tab--active'));
+        tab.classList.add('bs-forge-tab--active');
+        panel.querySelectorAll('.bs-forge-tab-content').forEach(c => c.style.display = 'none');
+        const target = document.getElementById('bs-forge-tab-' + tab.dataset.tab);
+        if (target) target.style.display = '';
+      });
+    });
+
+    // Look tab: palette selection
+    panel.querySelectorAll('[data-palette]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        panel.querySelectorAll('[data-palette]').forEach(b => b.classList.remove('bs-forge-option--selected'));
+        btn.classList.add('bs-forge-option--selected');
+        // Enable apply button when any change is made
+        if (applyBtn) applyBtn.disabled = false;
+      });
+    });
+
+    // Look tab: container selection
+    panel.querySelectorAll('[data-container]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        panel.querySelectorAll('[data-container]').forEach(b => b.classList.remove('bs-forge-option--selected'));
+        btn.classList.add('bs-forge-option--selected');
+        if (applyBtn) applyBtn.disabled = false;
+      });
     });
 
     applyBtn.addEventListener('click', async () => {

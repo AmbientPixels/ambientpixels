@@ -9,7 +9,7 @@
     "boss": 2, "id": "bs-boss-2", "bossLevel": 102,
     "name": "The Warden", "class": "Fighter",
     "flavor": "Rules exist for a reason.",
-    "reward": { "type": "stat_bonus", "stat": "end", "amount": 5, "label": "+5 END" }
+    "reward": { "type": "visual", "unlock": "palette_ocean", "label": "Ocean Palette" }
   },
   {
     "boss": 3, "id": "bs-boss-3", "bossLevel": 103,
@@ -21,7 +21,7 @@
     "boss": 4, "id": "bs-boss-4", "bossLevel": 104,
     "name": "The Cipher", "class": "Hacker",
     "flavor": "Every system has a flaw.",
-    "reward": { "type": "stat_bonus", "stat": "int", "amount": 5, "label": "+5 INT" }
+    "reward": { "type": "visual", "unlock": "palette_neon", "label": "Neon Palette" }
   },
   {
     "boss": 5, "id": "bs-boss-5", "bossLevel": 105,
@@ -33,19 +33,19 @@
     "boss": 6, "id": "bs-boss-6", "bossLevel": 106,
     "name": "The Sage", "class": "Scholar",
     "flavor": "Knowledge compounds.",
-    "reward": { "type": "stat_bonus", "stat": "lck", "amount": 5, "label": "+5 LCK" }
+    "reward": { "type": "visual", "unlock": "container_fullbleed", "label": "Full Art Layout" }
   },
   {
     "boss": 7, "id": "bs-boss-7", "bossLevel": 107,
     "name": "The Iron", "class": "Guardian",
     "flavor": "Nothing gets through.",
-    "reward": { "type": "forge_bonus", "amount": 10, "label": "+10 Forge Points" }
+    "reward": { "type": "stat_bonus", "stat": "end", "amount": 10, "label": "+10 END" }
   },
   {
     "boss": 8, "id": "bs-boss-8", "bossLevel": 108,
     "name": "The Trickster", "class": "Trickster",
     "flavor": "Probability is just a suggestion.",
-    "reward": { "type": "stat_bonus", "stat": "lck", "amount": 10, "label": "+10 LCK" }
+    "reward": { "type": "visual", "unlock": "palette_fire", "label": "Fire Palette" }
   },
   {
     "boss": 9, "id": "bs-boss-9", "bossLevel": 109,
