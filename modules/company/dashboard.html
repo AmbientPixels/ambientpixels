@@ -397,6 +397,25 @@
 
       </div><!-- /.ceo-main-split -->
 
+      <!-- CEO: Agent Intelligence Widget -->
+      <div class="dash-section" id="section-agent-intel" data-section="agent-intel">
+        <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
+          <i class="fas fa-lightbulb dash-icon-purple"></i>
+          <h2>Agent Intelligence</h2>
+          <i class="fas fa-chevron-down dash-section-chevron"></i>
+        </div>
+        <div class="dash-section-body">
+          <div id="ceo-aint-stats" style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.5rem;margin-bottom:0.6rem;">
+            <div class="ceo-stat cstat--purple"><div class="ceo-stat-label">Team IQ</div><div class="ceo-stat-value" id="ceo-aint-iq">--</div><div class="ceo-stat-sub">avg quality score</div></div>
+            <div class="ceo-stat cstat--green"><div class="ceo-stat-label">Accuracy</div><div class="ceo-stat-value" id="ceo-aint-accuracy">--</div><div class="ceo-stat-sub">CEO approval rate</div></div>
+            <div class="ceo-stat cstat--sky"><div class="ceo-stat-label">Learning</div><div class="ceo-stat-value" id="ceo-aint-learning">--</div><div class="ceo-stat-sub">agents trending up</div></div>
+            <div class="ceo-stat cstat--blue"><div class="ceo-stat-label">Autonomy</div><div class="ceo-stat-value" id="ceo-aint-autonomy">--</div><div class="ceo-stat-sub">unblocked execution</div></div>
+          </div>
+          <div id="ceo-aint-mini-lb" style="margin-bottom:0.5rem;"></div>
+          <a href="/modules/company/agent-intelligence.html" style="font-size:0.65rem;color:rgba(167,139,250,0.7);text-decoration:none;"><i class="fas fa-lightbulb" style="margin-right:0.3rem;"></i>Full Agent Intelligence →</a>
+        </div>
+      </div>
+
       <!-- CEO: API Usage -->
       <div class="dash-section" id="section-api-usage" data-section="api-usage">
         <div class="dash-section-header" tabindex="0" role="button" aria-expanded="true">
@@ -1341,7 +1360,7 @@
          renderActionSnap, renderApiUsage, renderGeminiCosts, renderClaudeCosts, renderAzureCosts, renderXCosts, renderCostSummary,
          renderDailyLogDrafts, renderBlogAdmin, renderContentKPIs, renderGovernanceLog, renderGovernanceLogDev,
          renderTrendRadar, renderMeetingsWidget, updateActionBadge, renderOrgChart,
-         renderInboundKpi, updateModeIndicator, renderCeoStatusStrip, renderCeoInsightsMirrors, renderCeoStrategy, renderCeoPerfWidget].forEach(function(fn) {
+         renderInboundKpi, updateModeIndicator, renderCeoStatusStrip, renderCeoInsightsMirrors, renderCeoStrategy, renderCeoPerfWidget, renderAgentIntelWidget].forEach(function(fn) {
           try { fn(); } catch(e) { console.warn('[Dashboard] ' + (fn.name||'anon') + ' error:', e); }
         });
       }
@@ -1589,6 +1608,63 @@
                 statusEl.appendChild(badge);
               }
             });
+          })
+          .catch(function () {});
+      }
+
+      // ── Agent Intelligence Widget (CEO view) ──
+      function renderAgentIntelWidget() {
+        var base = (typeof CompanyStore !== 'undefined' && CompanyStore.getServerBase) ? CompanyStore.getServerBase() : '/api';
+        var headers = {};
+        if (typeof CompanyStore !== 'undefined' && CompanyStore.getAuthHeaders) headers = CompanyStore.getAuthHeaders();
+        fetch(base + '/company-state?key=runtimeMemory', { headers: headers })
+          .then(function (r) { var ct = r.headers.get('content-type') || ''; if (!r.ok || ct.indexOf('json') === -1) return null; return r.json(); })
+          .then(function (data) {
+            var runtime = data && data.value !== undefined ? data.value : data;
+            var digest = runtime && runtime.agentPerformance;
+            if (!digest || !digest.agents) return;
+            var agents = digest.agents;
+            var ids = Object.keys(agents).filter(function (id) { return (agents[id].actionsAttempted || 0) > 0; });
+            if (!ids.length) return;
+
+            var totalScore = 0, totalApproval = 0, improving = 0, totalBlock = 0, approvalCount = 0;
+            ids.forEach(function (id) {
+              var a = agents[id];
+              totalScore += (a.qualityScore || 0);
+              if ((a.ceoActionsSubmitted || 0) > 0) { totalApproval += (a.ceoApprovalRate || 0); approvalCount++; }
+              if (a.qualityTrend === 'improving') improving++;
+              totalBlock += (a.blockRate || 0);
+            });
+
+            var iqEl = document.getElementById('ceo-aint-iq');
+            var accEl = document.getElementById('ceo-aint-accuracy');
+            var learnEl = document.getElementById('ceo-aint-learning');
+            var autoEl = document.getElementById('ceo-aint-autonomy');
+            if (iqEl) iqEl.textContent = Math.round(totalScore / ids.length);
+            if (accEl) accEl.textContent = (approvalCount > 0 ? Math.round((totalApproval / approvalCount) * 100) : 0) + '%';
+            if (learnEl) learnEl.textContent = improving + '/' + ids.length;
+            if (autoEl) autoEl.textContent = Math.round((1 - totalBlock / ids.length) * 100) + '%';
+
+            // Mini leaderboard (top 3)
+            var lbEl = document.getElementById('ceo-aint-mini-lb');
+            if (!lbEl) return;
+            ids.sort(function (a, b) { return (agents[b].qualityScore || 0) - (agents[a].qualityScore || 0); });
+            var top3 = ids.slice(0, 3);
+            var lbHtml = '';
+            top3.forEach(function (id, idx) {
+              var a = agents[id];
+              var sc = a.qualityScore || 0;
+              var color = sc >= 70 ? '#34d399' : (sc >= 45 ? '#facc15' : '#f87171');
+              var name = id.charAt(0).toUpperCase() + id.slice(1);
+              var trend = a.qualityTrend === 'improving' ? '<i class="fas fa-caret-up" style="color:#34d399;font-size:0.55rem;margin-left:2px;"></i>' : (a.qualityTrend === 'declining' ? '<i class="fas fa-caret-down" style="color:#f87171;font-size:0.55rem;margin-left:2px;"></i>' : '');
+              var rank = idx === 0 ? '<i class="fas fa-crown" style="color:#facc15;font-size:0.5rem;"></i>' : (idx + 1);
+              lbHtml += '<div style="display:flex;align-items:center;gap:0.4rem;padding:0.2rem 0.4rem;font-size:0.7rem;border-bottom:1px solid rgba(255,255,255,0.03);">';
+              lbHtml += '<span style="width:16px;text-align:center;opacity:0.4;font-size:0.6rem;">' + rank + '</span>';
+              lbHtml += '<span style="flex:1;font-weight:500;opacity:0.7;">' + name + '</span>';
+              lbHtml += '<span style="font-weight:700;color:' + color + ';">' + sc + trend + '</span>';
+              lbHtml += '</div>';
+            });
+            lbEl.innerHTML = lbHtml;
           })
           .catch(function () {});
       }

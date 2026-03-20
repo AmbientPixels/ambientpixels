@@ -418,6 +418,21 @@ module.exports = async function (context) {
       blogPostViews: _perfBlogPostViews
     });
     runtimeMemory.agentPerformance = performanceDigest;
+
+    // ── Quality History — rolling daily snapshots for trend sparkline ──
+    var _qh = Array.isArray(runtimeMemory.qualityHistory) ? runtimeMemory.qualityHistory : [];
+    var _qhToday = new Date().toISOString().slice(0, 10);
+    var _qhSnap = { date: _qhToday, scores: {} };
+    if (performanceDigest && performanceDigest.agents) {
+      Object.keys(performanceDigest.agents).forEach(function (aid) {
+        _qhSnap.scores[aid] = performanceDigest.agents[aid].qualityScore || 0;
+      });
+    }
+    _qh = _qh.filter(function (h) { return h.date !== _qhToday; });
+    _qh.push(_qhSnap);
+    if (_qh.length > 30) _qh = _qh.slice(-30);
+    runtimeMemory.qualityHistory = _qh;
+
     let agentExperiments = [];
     try { agentExperiments = (await storage.getState('agentExperiments')) || []; } catch (_expErr) { /* non-fatal */ }
     const revisionActions = allActions.filter(a => a.approval && a.approval.status === 'revision_requested');

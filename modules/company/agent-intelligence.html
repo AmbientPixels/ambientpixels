@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AmbientPixels Agent Intelligence — feedback loop health, learning velocity, and quality metrics." />
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
+  <title>Agent Intelligence — AmbientPixels HQ</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/base.css" />
+  <link rel="stylesheet" href="/css/grid.css" />
+  <link rel="stylesheet" href="/css/nav.css" />
+  <link rel="stylesheet" href="/css/components.css" />
+  <link rel="stylesheet" href="/css/theme.css" />
+  <link rel="stylesheet" href="/css/banner.css" />
+  <link rel="stylesheet" href="/modules/company/css/company.css" />
+  <link rel="stylesheet" href="/modules/company/css/sidebar.css" />
+  <link rel="stylesheet" href="/modules/company/css/agent-intelligence.css" />
+  <link rel="stylesheet" href="/modules/company/css/quick-chat.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body data-theme="dark">
+  <main class="content-section">
+    <div class="company-header">
+      <h1><i class="fas fa-lightbulb co-icon-mr-lg dash-icon-purple"></i>Agent Intelligence</h1>
+      <p>Feedback loop health, learning velocity, and quality metrics.</p>
+    </div>
+
+    <!-- Zone 1: Fleet Summary -->
+    <div class="aint-stats" id="aint-stats">
+      <div class="aint-stat"><div class="aint-stat-label">Team IQ</div><div class="aint-stat-value" style="color:#a78bfa;">--</div><div class="aint-stat-sub">avg quality score</div></div>
+      <div class="aint-stat"><div class="aint-stat-label">Accuracy</div><div class="aint-stat-value" style="color:#34d399;">--</div><div class="aint-stat-sub">CEO approval rate</div></div>
+      <div class="aint-stat"><div class="aint-stat-label">Learning</div><div class="aint-stat-value" style="color:#38bdf8;">--</div><div class="aint-stat-sub">agents trending up</div></div>
+      <div class="aint-stat"><div class="aint-stat-label">Autonomy</div><div class="aint-stat-value" style="color:#60a5fa;">--</div><div class="aint-stat-sub">unblocked execution</div></div>
+    </div>
+
+    <!-- Zone 2: CEO Feedback Loop -->
+    <div class="aint-panel" id="aint-feedback-panel">
+      <div class="aint-panel-title"><i class="fas fa-comments dash-icon-purple"></i> CEO Feedback Loop</div>
+      <div class="aint-feedback-split" id="aint-feedback-body">
+        <div class="aint-empty">Loading feedback data...</div>
+      </div>
+    </div>
+
+    <!-- Zone 3: Leaderboard -->
+    <div class="aint-panel" id="aint-leaderboard-panel">
+      <div class="aint-panel-title"><i class="fas fa-ranking-star dash-icon-amber"></i> Quality Leaderboard</div>
+      <div class="aint-leaderboard" id="aint-leaderboard">
+        <div class="aint-empty">Loading leaderboard...</div>
+      </div>
+    </div>
+
+    <!-- Zone 4: Quality Trend -->
+    <div class="aint-panel" id="aint-trend-panel">
+      <div class="aint-panel-title"><i class="fas fa-chart-line dash-icon-sky"></i> Quality Trend</div>
+      <div class="aint-sparkline" id="aint-sparkline">
+        <div class="aint-sparkline-placeholder">Loading trend data...</div>
+      </div>
+    </div>
+
+    <div style="margin-top:0.5rem;">
+      <a href="/modules/company/agent-performance.html" style="font-size:0.72rem;color:rgba(167,139,250,0.7);text-decoration:none;"><i class="fas fa-gauge-high" style="margin-right:0.3rem;"></i>Full Performance Breakdown →</a>
+    </div>
+  </main>
+
+  <script src="/modules/company/js/sidebar.js"></script>
+  <script>
+  (function () {
+    'use strict';
+
+    var API = '/api/company-state';
+    var SECRET = 'pixelpusher';
+
+    var ROLES = {
+      nova: 'Prime Operator', cipher: 'CFO', pixel: 'Design & QC', forge: 'DevOps',
+      echo: 'Marketing', scribe: 'Head of Content', quill: 'Editor', scout: 'Research'
+    };
+
+    var AGENT_COLORS = {
+      nova: '#a78bfa', cipher: '#60a5fa', pixel: '#f472b6', forge: '#fb923c',
+      echo: '#34d399', scribe: '#38bdf8', quill: '#fbbf24', scout: '#4ade80'
+    };
+
+    function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+
+    function fetchState(key) {
+      return fetch(API + '?key=' + key, { headers: { 'x-company-secret': SECRET } })
+        .then(function (r) {
+          var ct = r.headers.get('content-type') || '';
+          if (!r.ok || ct.indexOf('json') === -1) return null;
+          return r.json();
+        })
+        .then(function (d) { return d && d.value !== undefined ? d.value : (d || null); })
+        .catch(function () { return null; });
+    }
+
+    function scoreColor(score) {
+      if (score >= 70) return '#34d399';
+      if (score >= 45) return '#facc15';
+      return '#f87171';
+    }
+
+    function timeAgo(ts) {
+      if (!ts) return '';
+      var diff = Date.now() - new Date(ts).getTime();
+      var mins = Math.floor(diff / 60000);
+      if (mins < 1) return 'just now';
+      if (mins < 60) return mins + 'm ago';
+      var hrs = Math.floor(mins / 60);
+      if (hrs < 24) return hrs + 'h ago';
+      var days = Math.floor(hrs / 24);
+      return days + 'd ago';
+    }
+
+    // ── Rendering ──
+
+    function renderStats(agents) {
+      var ids = Object.keys(agents).filter(function (id) { return (agents[id].actionsAttempted || 0) > 0; });
+      var statsEl = document.getElementById('aint-stats');
+      if (!ids.length) {
+        statsEl.innerHTML = '<div class="aint-empty" style="grid-column:1/-1;">No agent activity data yet.</div>';
+        return;
+      }
+
+      var totalScore = 0, totalApproval = 0, improving = 0, totalBlock = 0, approvalCount = 0;
+      ids.forEach(function (id) {
+        var a = agents[id];
+        totalScore += (a.qualityScore || 0);
+        if ((a.ceoActionsSubmitted || 0) > 0) { totalApproval += (a.ceoApprovalRate || 0); approvalCount++; }
+        if (a.qualityTrend === 'improving') improving++;
+        totalBlock += (a.blockRate || 0);
+      });
+
+      var avgScore = Math.round(totalScore / ids.length);
+      var avgApproval = approvalCount > 0 ? Math.round((totalApproval / approvalCount) * 100) : 0;
+      var autonomy = Math.round((1 - totalBlock / ids.length) * 100);
+
+      // Compute delta from previous scores
+      var prevTotal = 0;
+      ids.forEach(function (id) { prevTotal += (agents[id].previousScore || agents[id].qualityScore || 0); });
+      var prevAvg = Math.round(prevTotal / ids.length);
+      var scoreDelta = avgScore - prevAvg;
+      var deltaHtml = '';
+      if (scoreDelta > 0) deltaHtml = '<span class="aint-stat-delta aint-stat-delta--up">+' + scoreDelta + '</span>';
+      else if (scoreDelta < 0) deltaHtml = '<span class="aint-stat-delta aint-stat-delta--down">' + scoreDelta + '</span>';
+
+      var learningColor = improving >= Math.ceil(ids.length / 2) ? '#34d399' : (improving > 0 ? '#fbbf24' : '#ef4444');
+
+      statsEl.innerHTML =
+        '<div class="aint-stat"><div class="aint-stat-label">Team IQ</div><div class="aint-stat-value" style="color:#a78bfa;">' + avgScore + deltaHtml + '</div><div class="aint-stat-sub">avg quality score</div></div>' +
+        '<div class="aint-stat"><div class="aint-stat-label">Accuracy</div><div class="aint-stat-value" style="color:#34d399;">' + avgApproval + '%</div><div class="aint-stat-sub">CEO approval rate</div></div>' +
+        '<div class="aint-stat"><div class="aint-stat-label">Learning</div><div class="aint-stat-value" style="color:' + learningColor + ';">' + improving + '/' + ids.length + '</div><div class="aint-stat-sub">agents trending up</div></div>' +
+        '<div class="aint-stat"><div class="aint-stat-label">Autonomy</div><div class="aint-stat-value" style="color:#60a5fa;">' + autonomy + '%</div><div class="aint-stat-sub">unblocked execution</div></div>';
+    }
+
+    function renderFeedbackLoop(agents, memories, experiments) {
+      var body = document.getElementById('aint-feedback-body');
+      var ids = Object.keys(agents).filter(function (id) { return (agents[id].actionsAttempted || 0) > 0; });
+
+      // Left: digest cards
+      var totalRevisions = 0, totalRevisionAgents = 0;
+      ids.forEach(function (id) {
+        var a = agents[id];
+        if ((a.ceoActionsSubmitted || 0) > 0) {
+          totalRevisions += (a.avgRevisionsBeforeApproval || 0);
+          totalRevisionAgents++;
+        }
+      });
+      var avgRevisions = totalRevisionAgents > 0 ? (totalRevisions / totalRevisionAgents).toFixed(1) : '0';
+      var revColor = avgRevisions < 1.5 ? '#34d399' : (avgRevisions < 2.5 ? '#fbbf24' : '#ef4444');
+
+      // Count recent learnings from memories
+      var sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+      var ceoFeedbackCount = 0, selfReflectCount = 0;
+      var ceoNotes = [];
+      if (memories && typeof memories === 'object') {
+        Object.keys(memories).forEach(function (agentId) {
+          var mems = Array.isArray(memories[agentId]) ? memories[agentId] : [];
+          mems.forEach(function (m) {
+            var ts = m.timestamp ? new Date(m.timestamp).getTime() : 0;
+            if (m.source === 'auto:ceo-revision') {
+              ceoNotes.push({ agent: agentId, text: m.text || '', timestamp: m.timestamp });
+              if (ts > sevenDaysAgo) ceoFeedbackCount++;
+            }
+            if (m.source === 'auto:performance-reflection' && ts > sevenDaysAgo) selfReflectCount++;
+          });
+        });
+      }
+
+      // Sort CEO notes newest first
+      ceoNotes.sort(function (a, b) { return new Date(b.timestamp) - new Date(a.timestamp); });
+      ceoNotes = ceoNotes.slice(0, 10);
+
+      // Experiments
+      var activeExp = 0, provenExp = 0;
+      if (Array.isArray(experiments)) {
+        experiments.forEach(function (e) {
+          if (e.status === 'active') activeExp++;
+          if (e.status === 'concluded' && e.result === 'keep') provenExp++;
+        });
+      }
+
+      var leftHtml = '<div class="aint-digest-stack">';
+      leftHtml += '<div class="aint-digest-card"><div class="aint-digest-title">CEO Revisions</div><div class="aint-digest-value" style="color:' + revColor + ';">' + avgRevisions + '</div><div class="aint-digest-sub">avg revisions before approval</div></div>';
+      leftHtml += '<div class="aint-digest-card"><div class="aint-digest-title">Learnings Absorbed (7d)</div><div class="aint-digest-value" style="color:#38bdf8;">' + ceoFeedbackCount + '</div><div class="aint-digest-sub">from CEO feedback &nbsp;·&nbsp; ' + selfReflectCount + ' self-reflections</div></div>';
+      leftHtml += '<div class="aint-digest-card"><div class="aint-digest-title">Experiments</div><div class="aint-digest-value" style="color:#a78bfa;">' + activeExp + ' <span style="font-size:0.7rem;opacity:0.4;font-weight:400;">active</span> &nbsp; ' + provenExp + ' <span style="font-size:0.7rem;opacity:0.4;font-weight:400;">proven</span></div><div class="aint-digest-sub">A/B tests</div></div>';
+      leftHtml += '</div>';
+
+      // Right: CEO feedback notes
+      var rightHtml = '<div class="aint-ceo-notes">';
+      if (ceoNotes.length === 0) {
+        rightHtml += '<div class="aint-empty">No CEO feedback recorded yet.</div>';
+      } else {
+        ceoNotes.forEach(function (n) {
+          var color = AGENT_COLORS[n.agent] || 'rgba(255,255,255,0.3)';
+          var name = n.agent ? n.agent.charAt(0).toUpperCase() + n.agent.slice(1) : 'Unknown';
+          // Extract the quoted part from the feedback text
+          var displayText = n.text || '';
+          var quoteMatch = displayText.match(/said:\s*"(.+)"$/);
+          if (quoteMatch) displayText = quoteMatch[1];
+          rightHtml += '<div class="aint-note-row" style="border-left-color:' + color + ';">';
+          rightHtml += '<div class="aint-note-header"><span class="aint-note-dot" style="background:' + color + ';"></span><span class="aint-note-agent">' + esc(name) + '</span><span class="aint-note-time">' + esc(timeAgo(n.timestamp)) + '</span></div>';
+          rightHtml += '<div class="aint-note-text">"' + esc(displayText) + '"</div>';
+          rightHtml += '</div>';
+        });
+      }
+      rightHtml += '</div>';
+
+      body.innerHTML = leftHtml + rightHtml;
+    }
+
+    function renderLeaderboard(agents) {
+      var el = document.getElementById('aint-leaderboard');
+      var ids = Object.keys(agents).filter(function (id) { return (agents[id].actionsAttempted || 0) > 0; });
+
+      if (!ids.length) { el.innerHTML = '<div class="aint-empty">No agent activity data yet.</div>'; return; }
+
+      ids.sort(function (a, b) { return (agents[b].qualityScore || 0) - (agents[a].qualityScore || 0); });
+
+      el.innerHTML = ids.map(function (id, idx) {
+        var a = agents[id];
+        var score = a.qualityScore || 0;
+        var color = scoreColor(score);
+        var name = id.charAt(0).toUpperCase() + id.slice(1);
+        var role = ROLES[id] || '';
+        var trend = a.qualityTrend || 'stable';
+        var trendIcon = trend === 'improving' ? '<i class="fas fa-arrow-up" style="color:#34d399;"></i>'
+          : (trend === 'declining' ? '<i class="fas fa-arrow-down" style="color:#ef4444;"></i>'
+          : '<i class="fas fa-minus" style="color:rgba(255,255,255,0.2);"></i>');
+        var crownHtml = idx === 0 ? '<i class="fas fa-crown" style="color:#facc15;font-size:0.6rem;"></i>' : (idx + 1);
+
+        return '<div class="aint-lb-row">' +
+          '<div class="aint-lb-rank">' + crownHtml + '</div>' +
+          '<div class="aint-lb-name"><div class="aint-lb-name-main">' + esc(name) + '</div><div class="aint-lb-name-role">' + esc(role) + '</div></div>' +
+          '<div class="aint-lb-bar-wrap"><div class="aint-lb-bar" style="width:' + score + '%;background:' + color + ';"></div></div>' +
+          '<div class="aint-lb-score" style="color:' + color + ';">' + score + '</div>' +
+          '<div class="aint-lb-trend">' + trendIcon + '</div>' +
+          '</div>';
+      }).join('');
+    }
+
+    function renderSparkline(qualityHistory, agents) {
+      var container = document.getElementById('aint-sparkline');
+      if (!Array.isArray(qualityHistory) || qualityHistory.length < 2) {
+        container.innerHTML = '<div class="aint-sparkline-placeholder"><i class="fas fa-clock" style="margin-right:0.4rem;opacity:0.4;"></i>Collecting data — trend will appear after 2+ days of heartbeats.</div>';
+        return;
+      }
+
+      // Compute daily team average
+      var activeIds = Object.keys(agents).filter(function (id) { return (agents[id].actionsAttempted || 0) > 0; });
+      var labels = [];
+      var avgData = [];
+      qualityHistory.forEach(function (day) {
+        labels.push(day.date ? day.date.slice(5) : '');
+        var sum = 0, count = 0;
+        activeIds.forEach(function (id) {
+          if (day.scores && day.scores[id] != null) { sum += day.scores[id]; count++; }
+        });
+        avgData.push(count > 0 ? Math.round(sum / count) : 0);
+      });
+
+      container.innerHTML = '<canvas id="aint-trend-canvas" style="width:100%;height:100%;"></canvas>';
+      var canvas = document.getElementById('aint-trend-canvas');
+      if (!canvas || typeof Chart === 'undefined') return;
+
+      var ctx = canvas.getContext('2d');
+      var grad = ctx.createLinearGradient(0, 0, 0, 180);
+      grad.addColorStop(0, 'rgba(167,139,250,0.2)');
+      grad.addColorStop(1, 'rgba(167,139,250,0.02)');
+
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Team Avg',
+            data: avgData,
+            borderColor: '#a78bfa',
+            backgroundColor: grad,
+            borderWidth: 2,
+            tension: 0.3,
+            fill: true,
+            pointRadius: 3,
+            pointBackgroundColor: '#a78bfa'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: 'rgba(20,20,30,0.95)',
+              titleColor: 'rgba(255,255,255,0.8)',
+              bodyColor: 'rgba(255,255,255,0.7)',
+              borderColor: 'rgba(255,255,255,0.1)',
+              borderWidth: 1,
+              padding: 8,
+              callbacks: {
+                label: function (ctx) { return 'Team Avg: ' + ctx.parsed.y + '/100'; }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(255,255,255,0.04)' },
+              ticks: { color: 'rgba(255,255,255,0.35)', font: { size: 10 } }
+            },
+            y: {
+              beginAtZero: true,
+              max: 100,
+              grid: { color: 'rgba(255,255,255,0.04)' },
+              ticks: { color: 'rgba(255,255,255,0.35)', font: { size: 10 } }
+            }
+          }
+        }
+      });
+    }
+
+    // ── Init ──
+
+    Promise.all([
+      fetchState('runtimeMemory'),
+      fetchState('agentMemories'),
+      fetchState('agentExperiments')
+    ]).then(function (results) {
+      var runtime = results[0] || {};
+      var memories = results[1] || {};
+      var experiments = results[2] || [];
+
+      var perf = (runtime.agentPerformance && runtime.agentPerformance.agents) || {};
+      var history = runtime.qualityHistory || [];
+
+      if (!Object.keys(perf).length) {
+        document.getElementById('aint-stats').innerHTML = '<div class="aint-empty" style="grid-column:1/-1;">No performance data yet. Data will appear after agents run heartbeat cycles.</div>';
+        document.getElementById('aint-feedback-body').innerHTML = '<div class="aint-empty">No data yet.</div>';
+        document.getElementById('aint-leaderboard').innerHTML = '<div class="aint-empty">No data yet.</div>';
+        document.getElementById('aint-sparkline').innerHTML = '<div class="aint-sparkline-placeholder">No data yet.</div>';
+        return;
+      }
+
+      renderStats(perf);
+      renderFeedbackLoop(perf, memories, experiments);
+      renderLeaderboard(perf);
+      renderSparkline(history, perf);
+    }).catch(function (err) {
+      document.getElementById('aint-stats').innerHTML = '<div class="aint-error" style="grid-column:1/-1;"><i class="fas fa-exclamation-triangle" style="margin-right:4px;"></i>Failed to load intelligence data: ' + esc(err.message || 'Unknown error') + '</div>';
+    });
+  })();
+  </script>
+</body>
+</html>
