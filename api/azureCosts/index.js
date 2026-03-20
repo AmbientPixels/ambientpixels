@@ -65,7 +65,7 @@ module.exports = async function (context, req) {
   }
 
   try {
-    const days = Math.min(parseInt(req.query && req.query.days) || 30, 90);
+    const days = Math.min(parseInt(req.query && req.query.days, 10) || 30, 90);
 
     // Demo mode: return generated data (no Azure Cost Management API access in demo)
     if (process.env.DEMO_MODE === 'true') {

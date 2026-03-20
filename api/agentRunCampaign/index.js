@@ -144,14 +144,14 @@ module.exports = async function (context, req) {
     }
 
     // variations
-    var variations = Math.min(Math.max(parseInt(body.variations) || 1, 1), MAX_VARIATIONS);
-    if ((parseInt(body.variations) || 1) > MAX_VARIATIONS) {
+    var variations = Math.min(Math.max(parseInt(body.variations, 10) || 1, 1), MAX_VARIATIONS);
+    if ((parseInt(body.variations, 10) || 1) > MAX_VARIATIONS) {
       context.res = { status: 400, headers: CORS, body: JSON.stringify({ ok: false, error: 'limit_exceeded', details: 'variations exceeds server cap (' + MAX_VARIATIONS + ')' }) };
       return;
     }
 
     // packageCount
-    var packageCount = parseInt(body.packageCount) || 1;
+    var packageCount = parseInt(body.packageCount, 10) || 1;
     if (packageCount < 1 || packageCount > MAX_PACKAGES_PER_RUN) {
       context.res = { status: 400, headers: CORS, body: JSON.stringify({ ok: false, error: 'limit_exceeded', details: 'packageCount exceeds server cap (' + MAX_PACKAGES_PER_RUN + ')' }) };
       return;
