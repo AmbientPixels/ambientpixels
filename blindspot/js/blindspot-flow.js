@@ -422,21 +422,41 @@
 
   function showStrangerIntro() {
     return new Promise(resolve => {
-      const intro = document.createElement('div');
-      intro.className = 'bs-stranger-intro';
-      intro.innerHTML = `
-        <div class="bs-stranger-intro__lines">
-          <p class="bs-stranger-intro__line" style="animation-delay:0.3s">You are The Stranger.</p>
-          <p class="bs-stranger-intro__line" style="animation-delay:1.6s">This card is not yours.</p>
-          <p class="bs-stranger-intro__line bs-stranger-intro__line--accent" style="animation-delay:3s">Win it&hellip; or lose everything.</p>
-        </div>
-      `;
-      document.body.appendChild(intro);
+      // Only show intro on first stranger fight
+      if (localStorage.getItem('bs-stranger-intro-shown')) { resolve(); return; }
+      localStorage.setItem('bs-stranger-intro-shown', 'true');
+
+      // Fade out landing screen
+      const landing = document.getElementById('bs-landing');
+      landing.style.opacity = '0';
+      landing.style.transition = 'opacity 0.5s ease';
+
+      const intro = document.getElementById('bs-stranger-intro');
+      if (!intro) { resolve(); return; }
+
       setTimeout(() => {
-        intro.style.opacity = '0';
-        intro.style.transition = 'opacity 0.6s ease';
-        setTimeout(() => { intro.remove(); resolve(); }, 600);
-      }, 4800);
+        landing.style.display = 'none';
+        landing.style.opacity = '';
+        intro.classList.remove('bs-overlay--hidden');
+        intro.style.display = '';
+
+        // Reveal lines one by one
+        const lines = intro.querySelectorAll('.bs-stranger-intro__line');
+        const delays = [400, 1800, 3200];
+        lines.forEach((line, i) => {
+          setTimeout(() => line.classList.add('bs-intro-visible'), delays[i] || (i * 1400));
+        });
+
+        // Fade out and resolve after all lines shown
+        setTimeout(() => {
+          intro.classList.add('bs-intro-fadeout');
+          setTimeout(() => {
+            intro.classList.add('bs-overlay--hidden');
+            intro.classList.remove('bs-intro-fadeout');
+            resolve();
+          }, 600);
+        }, 5000);
+      }, 500);
     });
   }
 
@@ -446,18 +466,7 @@
     // Clean up any existing tutorial from previous attempt
     removeTutorial();
 
-    // Show dramatic intro on first stranger fight only
-    if (!localStorage.getItem('bs-stranger-intro-shown')) {
-      localStorage.setItem('bs-stranger-intro-shown', 'true');
-      document.getElementById('bs-landing').style.opacity = '0';
-      document.getElementById('bs-landing').style.transition = 'opacity 0.5s ease';
-      await new Promise(r => setTimeout(r, 500));
-      document.getElementById('bs-landing').style.display = 'none';
-      document.getElementById('bs-landing').style.opacity = '';
-      await showStrangerIntro();
-    } else {
-      document.getElementById('bs-landing').style.display = 'none';
-    }
+    document.getElementById('bs-landing').style.display = 'none';
 
     const battleContainer = document.getElementById('bs-battle-container');
     battleContainer.style.display = 'block';
@@ -1120,6 +1129,18 @@
     if (!container) return;
 
     const highestDefeated = getHighestBossDefeated();
+
+    // Update progress counter in header
+    const progressEl = document.getElementById('bs-campaign-progress');
+    if (progressEl) {
+      const total = _bosses.length;
+      const defeated = Math.min(highestDefeated, total);
+      if (defeated >= total) {
+        progressEl.innerHTML = '<i class="fas fa-crown" style="color:var(--bs-accent);"></i> ' + total + '/' + total + ' defeated';
+      } else {
+        progressEl.textContent = defeated + '/' + total + ' defeated';
+      }
+    }
 
     container.innerHTML = _bosses.map((boss, i) => {
       const defeated = boss.boss <= highestDefeated;
