@@ -2156,3 +2156,8 @@
   font-size: 2rem;
   color: var(--bs-text-muted);
 }
+
+/* Forge overlay needs fully opaque background */
+#bs-forge-screen {
+  background: var(--bs-bg);
+}
