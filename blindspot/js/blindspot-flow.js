@@ -926,8 +926,15 @@
       window.ArenaBattleUI.initBattle(battleData);
     } catch (err) {
       console.error('[Blindspot] Campaign battle error:', err);
-      showErrorToast('Failed to start battle: ' + err.message);
-      showScreen('campaign');
+      if (err.message && err.message.includes('not found')) {
+        // Card doesn't exist on server — need to rebuild
+        showErrorToast('Card not found. Please rebuild your card.');
+        localStorage.removeItem('blindspot-onboarded');
+        setTimeout(() => { window.location.href = '/blindspot/'; }, 2000);
+      } else {
+        showErrorToast('Failed to start battle: ' + err.message);
+        showScreen('campaign');
+      }
     }
   }
 
