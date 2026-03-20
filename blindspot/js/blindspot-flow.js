@@ -1014,11 +1014,11 @@
   // ============================================================
 
   const TUTORIAL_HINTS = [
-    { move: 'strike',  text: '\u2694\ufe0f Strike \u2014 your basic attack. Tap to hit them.' },
-    { move: 'guard',   text: '\ud83d\udee1\ufe0f Guard \u2014 blocks 60% of strikes. Defend yourself.' },
-    { move: 'heal',    text: '\u2764\ufe0f Heal \u2014 recover HP. Use when you\'re low.' },
-    { move: 'counter', text: '\ud83d\udca5 Counter \u2014 reflects strikes back. Time it right.' },
-    { move: 'ability', text: '\u26a1 Ability \u2014 class power. Costs 2 charges.' }
+    { move: 'strike',  text: 'Strike \u2014 basic attack. Deals STR damage. Disrupts enemy heals.' },
+    { move: 'guard',   text: 'Guard \u2014 blocks 60% of strikes. Use when they attack.' },
+    { move: 'heal',    text: 'Heal \u2014 recover HP. Warning: abilities punish healers hard.' },
+    { move: 'counter', text: 'Counter \u2014 reflects enemy strikes back at them. Fails vs abilities.' },
+    { move: 'ability', text: 'Ability \u2014 your class power. Costs 2 charges. Earned by fighting.' }
   ];
 
   let _tutorialStep = 0;
