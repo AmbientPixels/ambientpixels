@@ -933,6 +933,11 @@
 
       // Bounty checks
       if (getWinStreak() >= 3) completeBounty('streak3');
+      // Track wins for win2 bounty
+      const bountyData = getDailyBounties();
+      bountyData.wins = (bountyData.wins || 0) + 1;
+      localStorage.setItem('bs-bounties', JSON.stringify(bountyData));
+      if (bountyData.wins >= 2) completeBounty('win2');
     } else {
       setWinStreak(0);
     }
@@ -994,7 +999,7 @@
 
       // Forge visit trigger
       const needed = _config ? _config.forgeVisit.winsRequired : 3;
-      if (wins >= needed) {
+      if (getForgeWins() >= needed) {
         setTimeout(() => {
           document.getElementById('arena-results-overlay').style.display = 'none';
           showOverlay('bs-forge-trigger');
@@ -1234,6 +1239,7 @@
         hideOverlay('bs-forge-screen');
         updateForgeProgress();
         renderLobby();
+        completeBounty('forgeVisit');
         showSuccessToast('Card evolved!');
       } catch (e) {
         console.warn('[Blindspot] Forge save error:', e);
@@ -1454,13 +1460,11 @@
   // ============================================================
 
   const BOUNTY_POOL = [
-    { id: 'win_no_heal', text: 'Win a fight without healing', check: 'noHeal' },
     { id: 'win_3_streak', text: 'Win 3 fights in a row', check: 'streak3' },
     { id: 'beat_new_boss', text: 'Defeat a new boss', check: 'newBoss' },
-    { id: 'use_counter', text: 'Win using Counter in the final round', check: 'counterFinish' },
-    { id: 'win_under_30', text: 'Win with under 30% HP remaining', check: 'lowHpWin' },
     { id: 'play_3', text: 'Play 3 fights today', check: 'play3' },
-    { id: 'win_fast', text: 'Win a fight in 5 rounds or less', check: 'fastWin' }
+    { id: 'win_2', text: 'Win 2 fights today', check: 'win2' },
+    { id: 'forge_card', text: 'Visit the Forge', check: 'forgeVisit' }
   ];
 
   function getDailyBounties() {

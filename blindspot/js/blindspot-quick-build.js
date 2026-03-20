@@ -676,16 +676,22 @@
 
       if (!savedCardId) {
         console.warn('[BS-QB] Could not find saved card after 5 attempts');
+        if (btn) { btn.disabled = false; btn.innerHTML = 'Enter the Arena'; }
+        // Show error — don't proceed without a card
+        const panel = _overlayEl?.querySelector('.qb-body');
+        if (panel) {
+          panel.insertAdjacentHTML('beforeend',
+            '<div style="color:var(--bs-danger,#D85A30); text-align:center; padding:0.75rem; font-size:0.85rem; margin-top:0.5rem;">Card save is taking longer than expected. Please try again.</div>'
+          );
+        }
+        return;
       }
 
       // Select the card
-      if (savedCardId) {
-        try { await window.ArenaAPI.selectCard(savedCardId); } catch (e) { console.warn('selectCard error:', e); }
-      }
+      try { await window.ArenaAPI.selectCard(savedCardId); } catch (e) { console.warn('selectCard error:', e); }
 
       close();
 
-      // Call completion callback
       if (_onComplete) {
         _onComplete(savedCardId);
       }
