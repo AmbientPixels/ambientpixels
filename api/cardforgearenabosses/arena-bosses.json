@@ -909,6 +909,82 @@
       "arenaOverrides": {
         "aiPattern": "spell_heavy"
       }
+    },
+    {
+      "id": "bs-weekly-1",
+      "bossLevel": 201,
+      "name": "The Revenant",
+      "class": "Berserker",
+      "quote": "I keep coming back.",
+      "avatar": "/cardforge/img/bosses/Gutter-Rat01.webp",
+      "bio": "A relentless weekly challenger. High STR and END with punishing counter-attacks.",
+      "stats": [
+        { "name": "Strength", "value": 80 },
+        { "name": "Agility", "value": 45 },
+        { "name": "Intelligence", "value": 35 },
+        { "name": "Endurance", "value": 85 },
+        { "name": "Luck", "value": 55 }
+      ],
+      "badges": [{ "category": "Weekly", "icon": "calendar", "quantity": 1 }],
+      "attributes": [{ "key": "Element", "value": "Blood" }],
+      "arenaOverrides": { "aiPattern": "berserker" }
+    },
+    {
+      "id": "bs-weekly-2",
+      "bossLevel": 202,
+      "name": "The Mirage",
+      "class": "Trickster",
+      "quote": "Was I ever really here?",
+      "avatar": "/cardforge/img/bosses/Void-Harbinger-01.webp",
+      "bio": "A weekly phantom. Sky-high LCK and AGI — evades everything and crits when you least expect it.",
+      "stats": [
+        { "name": "Strength", "value": 40 },
+        { "name": "Agility", "value": 85 },
+        { "name": "Intelligence", "value": 50 },
+        { "name": "Endurance", "value": 45 },
+        { "name": "Luck", "value": 90 }
+      ],
+      "badges": [{ "category": "Weekly", "icon": "calendar", "quantity": 1 }],
+      "attributes": [{ "key": "Element", "value": "Void" }],
+      "arenaOverrides": { "aiPattern": "evasive" }
+    },
+    {
+      "id": "bs-weekly-3",
+      "bossLevel": 203,
+      "name": "The Colossus",
+      "class": "Guardian",
+      "quote": "You'll need more than that.",
+      "avatar": "/cardforge/img/bosses/Titanium-Aegis-01.webp",
+      "bio": "A weekly tank. Massive END wall with self-healing. A war of attrition.",
+      "stats": [
+        { "name": "Strength", "value": 50 },
+        { "name": "Agility", "value": 30 },
+        { "name": "Intelligence", "value": 45 },
+        { "name": "Endurance", "value": 95 },
+        { "name": "Luck", "value": 60 }
+      ],
+      "badges": [{ "category": "Weekly", "icon": "calendar", "quantity": 1 }],
+      "attributes": [{ "key": "Element", "value": "Iron" }],
+      "arenaOverrides": { "aiPattern": "defensive" }
+    },
+    {
+      "id": "bs-weekly-4",
+      "bossLevel": 204,
+      "name": "The Oracle",
+      "class": "Caster",
+      "quote": "I already know your next move.",
+      "avatar": "/cardforge/img/bosses/Crystal-Weaver-10.webp",
+      "bio": "A weekly spellcaster. INT-dominant with ability spam and debuff stacking.",
+      "stats": [
+        { "name": "Strength", "value": 35 },
+        { "name": "Agility", "value": 55 },
+        { "name": "Intelligence", "value": 90 },
+        { "name": "Endurance", "value": 55 },
+        { "name": "Luck", "value": 70 }
+      ],
+      "badges": [{ "category": "Weekly", "icon": "calendar", "quantity": 1 }],
+      "attributes": [{ "key": "Element", "value": "Arcane" }],
+      "arenaOverrides": { "aiPattern": "spell_heavy" }
     }
   ]
 }

@@ -2581,6 +2581,91 @@
   font-family: 'Share Tech Mono', monospace;
 }
 
+/* Weekly Challenge */
+.bs-weekly-challenge {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border: 1px solid var(--bs-accent);
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(var(--bs-accent-rgb, 255,165,0), 0.08) 0%, transparent 60%);
+  position: relative;
+  overflow: hidden;
+}
+
+.bs-weekly-challenge::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--bs-accent), transparent);
+}
+
+.bs-weekly-challenge__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.bs-weekly-challenge__title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--bs-accent);
+  letter-spacing: 0.05em;
+}
+
+.bs-weekly-challenge__title i {
+  margin-right: 0.4rem;
+}
+
+.bs-weekly-challenge__timer {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--bs-text-muted);
+  background: rgba(255,255,255,0.05);
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  border: 1px solid var(--bs-border);
+}
+
+.bs-weekly-challenge__timer i {
+  margin-right: 0.3rem;
+}
+
+.bs-boss-card--weekly {
+  border-color: var(--bs-accent);
+  box-shadow: 0 0 12px rgba(var(--bs-accent-rgb, 255,165,0), 0.15);
+}
+
+.bs-boss-card--weekly::before {
+  background: var(--bs-accent);
+}
+
+.bs-boss-card--weekly .bs-boss-avatar {
+  border-color: var(--bs-accent);
+  box-shadow: 0 0 8px rgba(var(--bs-accent-rgb, 255,165,0), 0.3);
+}
+
+.bs-btn--weekly {
+  background: var(--bs-accent) !important;
+  color: var(--bs-bg) !important;
+  font-weight: 700;
+}
+
+.bs-btn--weekly:hover {
+  filter: brightness(1.15);
+}
+
+.bs-boss-card--weekly-done {
+  opacity: 0.7;
+}
+.bs-boss-card--weekly-done::before {
+  background: var(--bs-success);
+}
+
 /* ============================================================
    PLAY PAGE PARTICLES (iter 56)
    ============================================================ */

@@ -830,15 +830,17 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
 
     // Check if boss is unlocked
     // Blindspot bosses use levels 101-110 with separate progression
+    // Weekly bosses (201+) are always unlocked for authenticated users
     const isBlindspotBoss = bossLevel >= 101 && bossLevel <= 110;
+    const isWeeklyBoss = bossLevel >= 201;
     if (isDemo) {
-      // Demo: first 3 CardForge bosses OR first Blindspot boss
+      // Demo: first 3 CardForge bosses OR first Blindspot boss (no weekly in demo)
       const demoAllowed = isBlindspotBoss ? (bossLevel <= 101) : (bossLevel <= 3);
-      if (!demoAllowed) {
+      if (!demoAllowed || isWeeklyBoss) {
         context.res = { status: 403, headers: CORS_HEADERS, body: { error: 'Sign in to unlock more bosses' } };
         return;
       }
-    } else {
+    } else if (!isWeeklyBoss) {
       const profile = await downloadJsonBlob(containerClient, `arena/profiles/${userId}.json`);
       if (isBlindspotBoss) {
         // Blindspot: separate progression lane
@@ -855,6 +857,7 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
         }
       }
     }
+    // Weekly bosses (201+) skip progression check — always available for signed-in users
   } else {
     // PvP: load from published cards
     const published = await downloadJsonBlob(containerClient, 'published-cards.json');

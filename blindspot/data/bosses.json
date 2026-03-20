@@ -152,5 +152,73 @@
       "label": "Title: Forged"
     },
     "avatar": "/cardforge/img/bosses/The-Forge-King-01.webp"
+  },
+  {
+    "boss": 0,
+    "id": "bs-weekly-1",
+    "bossLevel": 201,
+    "name": "The Revenant",
+    "class": "Berserker",
+    "flavor": "I keep coming back.",
+    "combatStats": { "str": 80, "agi": 45, "int": 35, "end": 85, "lck": 55 },
+    "reward": {
+      "type": "stat_bonus",
+      "stat": "str",
+      "amount": 8,
+      "label": "+8 STR"
+    },
+    "avatar": "/cardforge/img/bosses/Gutter-Rat01.webp",
+    "weekly": true
+  },
+  {
+    "boss": 0,
+    "id": "bs-weekly-2",
+    "bossLevel": 202,
+    "name": "The Mirage",
+    "class": "Trickster",
+    "flavor": "Was I ever really here?",
+    "combatStats": { "str": 40, "agi": 85, "int": 50, "end": 45, "lck": 90 },
+    "reward": {
+      "type": "stat_bonus",
+      "stat": "lck",
+      "amount": 8,
+      "label": "+8 LCK"
+    },
+    "avatar": "/cardforge/img/bosses/Void-Harbinger-01.webp",
+    "weekly": true
+  },
+  {
+    "boss": 0,
+    "id": "bs-weekly-3",
+    "bossLevel": 203,
+    "name": "The Colossus",
+    "class": "Guardian",
+    "flavor": "You'll need more than that.",
+    "combatStats": { "str": 50, "agi": 30, "int": 45, "end": 95, "lck": 60 },
+    "reward": {
+      "type": "stat_bonus",
+      "stat": "end",
+      "amount": 8,
+      "label": "+8 END"
+    },
+    "avatar": "/cardforge/img/bosses/Titanium-Aegis-01.webp",
+    "weekly": true
+  },
+  {
+    "boss": 0,
+    "id": "bs-weekly-4",
+    "bossLevel": 204,
+    "name": "The Oracle",
+    "class": "Caster",
+    "flavor": "I already know your next move.",
+    "combatStats": { "str": 35, "agi": 55, "int": 90, "end": 55, "lck": 70 },
+    "reward": {
+      "type": "stat_bonus",
+      "stat": "int",
+      "amount": 8,
+      "label": "+8 INT"
+    },
+    "avatar": "/cardforge/img/bosses/Crystal-Weaver-10.webp",
+    "weekly": true
   }
 ]

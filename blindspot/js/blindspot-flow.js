@@ -382,19 +382,115 @@
     return getUnlockedVisuals().includes(key);
   }
 
+  // ============================================================
+  // WEEKLY ROTATING BOSS
+  // ============================================================
+
+  const WEEKLY_BOSSES = [
+    {
+      id: 'bs-weekly-1', bossLevel: 201, name: 'The Revenant', class: 'Berserker',
+      flavor: 'I keep coming back.', avatar: '/cardforge/img/bosses/Gutter-Rat01.webp',
+      combatStats: { str: 80, agi: 45, int: 35, end: 85, lck: 55 },
+      reward: { type: 'weekly_bundle', statBonus: { stat: 'str', amount: 3 }, forgePoints: 2, label: '+3 STR & 2 Forge Pts' }
+    },
+    {
+      id: 'bs-weekly-2', bossLevel: 202, name: 'The Mirage', class: 'Trickster',
+      flavor: 'Was I ever really here?', avatar: '/cardforge/img/bosses/Void-Harbinger-01.webp',
+      combatStats: { str: 40, agi: 85, int: 50, end: 45, lck: 90 },
+      reward: { type: 'weekly_bundle', statBonus: { stat: 'lck', amount: 3 }, forgePoints: 2, label: '+3 LCK & 2 Forge Pts' }
+    },
+    {
+      id: 'bs-weekly-3', bossLevel: 203, name: 'The Colossus', class: 'Guardian',
+      flavor: "You'll need more than that.", avatar: '/cardforge/img/bosses/Titanium-Aegis-01.webp',
+      combatStats: { str: 50, agi: 30, int: 45, end: 95, lck: 60 },
+      reward: { type: 'weekly_bundle', statBonus: { stat: 'end', amount: 3 }, forgePoints: 2, label: '+3 END & 2 Forge Pts' }
+    },
+    {
+      id: 'bs-weekly-4', bossLevel: 204, name: 'The Oracle', class: 'Caster',
+      flavor: 'I already know your next move.', avatar: '/cardforge/img/bosses/Crystal-Weaver-10.webp',
+      combatStats: { str: 35, agi: 55, int: 90, end: 55, lck: 70 },
+      reward: { type: 'weekly_bundle', statBonus: { stat: 'int', amount: 3 }, forgePoints: 2, label: '+3 INT & 2 Forge Pts' }
+    }
+  ];
+
+  function getISOWeekNumber() {
+    var d = new Date();
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7));
+    var week1 = new Date(d.getFullYear(), 0, 4);
+    return 1 + Math.round(((d.getTime() - week1.getTime()) / 86400000 - 3 + ((week1.getDay() + 6) % 7)) / 7);
+  }
+
+  function getWeeklyBoss() {
+    return WEEKLY_BOSSES[getISOWeekNumber() % WEEKLY_BOSSES.length];
+  }
+
+  function getWeeklyBossKey() {
+    var d = new Date();
+    d.setHours(0, 0, 0, 0);
+    d.setDate(d.getDate() + 3 - ((d.getDay() + 6) % 7));
+    return d.getFullYear() + '-W' + getISOWeekNumber();
+  }
+
+  function getWeeklyRecord() {
+    try {
+      var data = JSON.parse(localStorage.getItem('bs-weekly-boss') || '{}');
+      if (data.week !== getWeeklyBossKey()) return { week: getWeeklyBossKey(), wins: 0, losses: 0, rewardClaimed: false };
+      return data;
+    } catch (e) { return { week: getWeeklyBossKey(), wins: 0, losses: 0, rewardClaimed: false }; }
+  }
+
+  function recordWeeklyResult(isWin) {
+    var rec = getWeeklyRecord();
+    rec.week = getWeeklyBossKey();
+    if (isWin) rec.wins++;
+    else rec.losses++;
+    localStorage.setItem('bs-weekly-boss', JSON.stringify(rec));
+  }
+
+  function isWeeklyRewardClaimed() {
+    return getWeeklyRecord().rewardClaimed;
+  }
+
+  function claimWeeklyReward() {
+    var rec = getWeeklyRecord();
+    rec.rewardClaimed = true;
+    localStorage.setItem('bs-weekly-boss', JSON.stringify(rec));
+  }
+
+  function getDaysUntilWeeklyReset() {
+    var now = new Date();
+    var dayOfWeek = now.getDay();
+    var daysUntil = (8 - dayOfWeek) % 7;
+    if (daysUntil === 0) daysUntil = 7;
+    return daysUntil;
+  }
+
+  function isWeeklyBoss(bossId) {
+    return bossId && bossId.startsWith('bs-weekly-');
+  }
+
+  function isWeeklyBossDefeated() {
+    return getWeeklyRecord().wins > 0;
+  }
+
   // Apply boss reward to card
   async function applyBossReward(boss) {
-    if (!boss.reward || isRewardClaimed(boss.id)) return null;
+    var weekly = isWeeklyBoss(boss.id);
+    if (weekly) {
+      if (!boss.reward || isWeeklyRewardClaimed()) return null;
+    } else {
+      if (!boss.reward || isRewardClaimed(boss.id)) return null;
+    }
 
     const reward = boss.reward;
 
-    if (reward.type === 'stat_bonus' && _selectedCard && _selectedCard.combatStats) {
-      // Apply stat bonus to card
-      _selectedCard.combatStats[reward.stat] = Math.min(100,
-        (_selectedCard.combatStats[reward.stat] || 0) + reward.amount
+    // Weekly bundle: stat bonus + forge points
+    if (reward.type === 'weekly_bundle' && _selectedCard && _selectedCard.combatStats) {
+      var sb = reward.statBonus;
+      _selectedCard.combatStats[sb.stat] = Math.min(100,
+        (_selectedCard.combatStats[sb.stat] || 0) + sb.amount
       );
-
-      // Save card with new stats
       try {
         const cardToSave = { ..._selectedCard };
         cardToSave.stats = [
@@ -412,29 +508,59 @@
         if (csrfMeta && csrfMeta.content) headers['X-CSRF-Token'] = csrfMeta.content;
         const resp = await fetch(url, { method: 'POST', headers, body: JSON.stringify(cardToSave) });
         if (!resp.ok) throw new Error('Save failed');
-        claimReward(boss.id); // Only claim after successful save
+        setForgeWins(getForgeWins() + (reward.forgePoints || 0));
+        claimWeeklyReward();
       } catch (e) {
-        // Revert stat change — player can re-earn on next fight
+        _selectedCard.combatStats[sb.stat] = Math.min(100,
+          (_selectedCard.combatStats[sb.stat] || 0) - sb.amount
+        );
+        console.warn('[Blindspot] Weekly reward save failed, reverted:', e);
+        return null;
+      }
+    }
+
+    if (reward.type === 'stat_bonus' && _selectedCard && _selectedCard.combatStats) {
+      _selectedCard.combatStats[reward.stat] = Math.min(100,
+        (_selectedCard.combatStats[reward.stat] || 0) + reward.amount
+      );
+      try {
+        const cardToSave = { ..._selectedCard };
+        cardToSave.stats = [
+          { name: 'Strength', value: cardToSave.combatStats.str },
+          { name: 'Agility', value: cardToSave.combatStats.agi },
+          { name: 'Intelligence', value: cardToSave.combatStats.int },
+          { name: 'Endurance', value: cardToSave.combatStats.end },
+          { name: 'Luck', value: cardToSave.combatStats.lck }
+        ];
+        const url = window.buildApiPath('saveCard');
+        const headers = { 'Content-Type': 'application/json' };
+        const authHeaders = await window.ArenaAPI.getPrincipalHeader();
+        Object.assign(headers, authHeaders);
+        const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+        if (csrfMeta && csrfMeta.content) headers['X-CSRF-Token'] = csrfMeta.content;
+        const resp = await fetch(url, { method: 'POST', headers, body: JSON.stringify(cardToSave) });
+        if (!resp.ok) throw new Error('Save failed');
+        if (weekly) claimWeeklyReward(); else claimReward(boss.id);
+      } catch (e) {
         _selectedCard.combatStats[reward.stat] = Math.min(100,
           (_selectedCard.combatStats[reward.stat] || 0) - reward.amount
         );
         console.warn('[Blindspot] Reward save failed, reverted:', e);
-        return null; // Don't show reward popup if save failed
+        return null;
       }
     }
 
     if (reward.type === 'title') {
       setCardTitle(reward.title);
-      claimReward(boss.id);
+      if (weekly) claimWeeklyReward(); else claimReward(boss.id);
     }
 
     if (reward.type === 'visual') {
       unlockVisual(reward.unlock);
-      claimReward(boss.id);
+      if (weekly) claimWeeklyReward(); else claimReward(boss.id);
     }
 
     if (reward.type === 'forge_bonus') {
-      // Add bonus forge points
       setForgeWins(getForgeWins() + Math.floor(reward.amount / (_config?.forgeVisit?.bonusPoints || 25)));
     }
 
@@ -1343,17 +1469,23 @@
       }
       if (_battleType === 'pvp') { showScreen('pvp'); renderPvPGallery(); }
       else if (_currentBossId) {
+        const currentBoss = _bosses.find(b => b.id === _currentBossId) || WEEKLY_BOSSES.find(b => b.id === _currentBossId);
+        // Weekly boss — return to campaign after fight
+        if (isWeeklyBoss(_currentBossId)) {
+          showScreen('campaign'); renderCampaignLadder();
+        }
         // Advance to next boss if current was defeated, otherwise retry same boss
-        const currentBoss = _bosses.find(b => b.id === _currentBossId);
-        const highest = getHighestBossDefeated();
-        if (currentBoss && currentBoss.boss <= highest && currentBoss.boss < 10) {
-          // Current boss defeated — advance to next
-          const nextBoss = _bosses.find(b => b.boss === currentBoss.boss + 1);
-          if (nextBoss) { startCampaignBattle(nextBoss.id); }
-          else { showScreen('campaign'); renderCampaignLadder(); }
-        } else {
-          // Not yet defeated or last boss — retry same
-          startCampaignBattle(_currentBossId);
+        else {
+          const highest = getHighestBossDefeated();
+          if (currentBoss && currentBoss.boss <= highest && currentBoss.boss < 10) {
+            // Current boss defeated — advance to next
+            const nextBoss = _bosses.find(b => b.boss === currentBoss.boss + 1);
+            if (nextBoss) { startCampaignBattle(nextBoss.id); }
+            else { showScreen('campaign'); renderCampaignLadder(); }
+          } else {
+            // Not yet defeated or last boss — retry same
+            startCampaignBattle(_currentBossId);
+          }
         }
       }
       else { showScreen('campaign'); renderCampaignLadder(); }
@@ -1392,8 +1524,9 @@
 
     // Update progress counter in header
     const progressEl = document.getElementById('bs-campaign-progress');
+    var campaignOnly = _bosses.filter(function (b) { return !b.weekly && !isWeeklyBoss(b.id); });
     if (progressEl) {
-      const total = _bosses.length;
+      const total = campaignOnly.length;
       const defeated = Math.min(highestDefeated, total);
       if (defeated >= total) {
         progressEl.innerHTML = '<i class="fas fa-crown" style="color:var(--bs-accent);"></i> ' + total + '/' + total + ' defeated';
@@ -1402,7 +1535,51 @@
       }
     }
 
-    container.innerHTML = _bosses.map((boss, i) => {
+    // Weekly boss challenge section
+    var weeklyBoss = getWeeklyBoss();
+    var daysLeft = getDaysUntilWeeklyReset();
+    var weeklyHtml = '';
+    var weeklyRec = getWeeklyRecord();
+    var wDefeated = weeklyRec.wins > 0;
+    var wRecord = weeklyRec;
+    var wIcon = BOSS_ICONS[weeklyBoss.class] || 'fa-skull';
+    var wRecordBadge = (wRecord.wins > 0 || wRecord.losses > 0)
+      ? '<span class="bs-boss-card__record">' + wRecord.wins + 'W / ' + wRecord.losses + 'L</span>'
+      : '';
+    var wRewardClaimed = isWeeklyRewardClaimed();
+    var wRewardBadge = weeklyBoss.reward
+      ? '<span class="bs-boss-card__reward ' + (wRewardClaimed ? 'bs-boss-card__reward--claimed' : '') + '">'
+        + '<i class="fas fa-arrow-up"></i> '
+        + escHtml(weeklyBoss.reward.label)
+        + '</span>'
+      : '';
+
+    weeklyHtml = '<div class="bs-weekly-challenge">'
+      + '<div class="bs-weekly-challenge__header">'
+      + '<span class="bs-weekly-challenge__title"><i class="fas fa-calendar-week"></i> Weekly Challenge</span>'
+      + '<span class="bs-weekly-challenge__timer"><i class="fas fa-clock"></i> ' + daysLeft + 'd left</span>'
+      + '</div>'
+      + '<div class="bs-boss-card bs-boss-card--weekly ' + (wDefeated ? 'bs-boss-card--weekly-done' : '') + '" data-boss-class="' + escHtml(weeklyBoss.class) + '">'
+      + '<span class="bs-boss-card__number"><i class="fas fa-star"></i></span>'
+      + (weeklyBoss.avatar
+        ? '<div class="bs-boss-avatar" style="padding:0;overflow:hidden;"><img src="' + escHtml(weeklyBoss.avatar) + '" alt="' + escHtml(weeklyBoss.name) + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"></div>'
+        : '<div class="bs-boss-avatar"><i class="fas ' + wIcon + '"></i></div>')
+      + '<div class="bs-boss-card__info">'
+      + '<div class="bs-boss-card__name">' + escHtml(weeklyBoss.name) + ' ' + wRecordBadge + '</div>'
+      + '<div class="bs-boss-card__class">' + escHtml(weeklyBoss.class) + '</div>'
+      + wRewardBadge
+      + '<div class="bs-boss-card__flavor">"' + escHtml(weeklyBoss.flavor) + '"</div>'
+      + '</div>'
+      + '<div class="bs-boss-card__action">'
+      + '<button class="bs-btn bs-btn--weekly" style="padding:0.5rem 1rem; font-size:0.8rem;" data-fight-boss="' + weeklyBoss.id + '">'
+      + (wRewardClaimed ? '<i class="fas fa-redo"></i> Replay' : '<i class="fas fa-bolt"></i> Challenge')
+      + '</button>'
+      + '</div>'
+      + '</div>'
+      + '</div>';
+
+    var campaignBosses = _bosses.filter(function (b) { return !b.weekly && !isWeeklyBoss(b.id); });
+    container.innerHTML = weeklyHtml + campaignBosses.map((boss, i) => {
       const defeated = boss.boss <= highestDefeated;
       const current = boss.boss === highestDefeated + 1;
       const locked = boss.boss > highestDefeated + 1;
@@ -1415,7 +1592,7 @@
       const icon = BOSS_ICONS[boss.class] || 'fa-skull';
       const record = getBossRecord(boss.id);
 
-      const connector = i < _bosses.length - 1
+      const connector = i < campaignBosses.length - 1
         ? `<div class="bs-ladder-connector ${defeated ? 'bs-ladder-connector--done' : ''}"></div>`
         : '';
 
@@ -1456,7 +1633,8 @@
     container.querySelectorAll('[data-fight-boss]').forEach(btn => {
       btn.addEventListener('click', () => {
         const bossId = btn.dataset.fightBoss;
-        const boss = _bosses.find(b => b.id === bossId);
+        // Check weekly bosses first, then campaign bosses
+        const boss = WEEKLY_BOSSES.find(b => b.id === bossId) || _bosses.find(b => b.id === bossId);
         if (!boss) return;
 
         const flavorEl = document.getElementById('bs-prefight-flavor');
@@ -1590,6 +1768,11 @@
     // Track boss record
     if (_battleType === 'pve' && _currentBossId) {
       recordBossResult(_currentBossId, isWin);
+      // Track weekly boss separately
+      var weeklyBoss = getWeeklyBoss();
+      if (weeklyBoss && _currentBossId === weeklyBoss.id) {
+        recordWeeklyResult(isWin);
+      }
     }
 
     loadProfile().then(() => updateRankDisplay());
@@ -1630,17 +1813,27 @@
     completeBounty('play3');
 
     if (_battleType === 'pve' && isWin) {
-      const boss = _bosses.find(b => b.id === _currentBossId);
+      const boss = WEEKLY_BOSSES.find(b => b.id === _currentBossId) || _bosses.find(b => b.id === _currentBossId);
       const prevHighest = getHighestBossDefeated();
-      const isNewBossDefeat = boss && boss.boss > prevHighest;
+      const isWeekly = isWeeklyBoss(_currentBossId);
+      const isNewBossDefeat = !isWeekly && boss && boss.boss > prevHighest;
 
-      if (boss) setHighestBossDefeated(boss.boss);
+      if (boss && !isWeekly) setHighestBossDefeated(boss.boss);
 
       // Forge wins on NEW boss defeats + bonus for streaks
       if (isNewBossDefeat) {
         let forgeGain = 1;
         if (getWinStreak() >= 5) forgeGain = 2; // Streak bonus
         setForgeWins(getForgeWins() + forgeGain);
+      }
+
+      // Weekly boss: award reward on first weekly win (forge points handled in applyBossReward)
+      if (isWeekly && !isWeeklyRewardClaimed()) {
+        playSfx('bossDefeat');
+        const reward = await applyBossReward(boss);
+        if (reward) {
+          showRewardDrop(reward, boss);
+        }
       }
 
       // Play boss defeat fanfare on new boss kills
@@ -1713,7 +1906,7 @@
     const titleEl = document.getElementById('arena-results-title');
     const subtitleEl = document.getElementById('arena-results-subtitle');
     if (isWin) {
-      const boss = _bosses.find(b => b.id === _currentBossId);
+      const boss = _bosses.find(b => b.id === _currentBossId) || WEEKLY_BOSSES.find(b => b.id === _currentBossId);
       const streak = getWinStreak();
       if (titleEl) titleEl.textContent = streak >= 3 ? `${streak}x Victory!` : 'Victory';
       if (subtitleEl && boss) subtitleEl.textContent = `You defeated ${boss.name}`;
@@ -1729,7 +1922,7 @@
     } else {
       if (titleEl) titleEl.textContent = 'Defeated';
       if (subtitleEl) {
-        const boss = _bosses.find(b => b.id === _currentBossId);
+        const boss = _bosses.find(b => b.id === _currentBossId) || WEEKLY_BOSSES.find(b => b.id === _currentBossId);
         const tips = {
           'Enforcer': 'Enforcers guard often. Use Ability to break through.',
           'Fighter': 'Fighters strike hard. Guard or Counter their attacks.',
