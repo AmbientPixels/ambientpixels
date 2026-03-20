@@ -222,6 +222,210 @@
       "arenaOverrides": {
         "aiPattern": "balanced"
       }
+    },
+
+    {
+      "id": "bs-boss-1",
+      "bossLevel": 101,
+      "name": "The Gatekeeper",
+      "class": "Enforcer",
+      "quote": "Everyone passes through here once.",
+      "avatar": "",
+      "bio": "A disciplined enforcer who tests every newcomer. Balanced and methodical.",
+      "stats": [
+        { "name": "Strength", "value": 60 },
+        { "name": "Agility", "value": 45 },
+        { "name": "Intelligence", "value": 40 },
+        { "name": "Endurance", "value": 75 },
+        { "name": "Luck", "value": 30 }
+      ],
+      "badges": [],
+      "attributes": [{ "key": "Element", "value": "None" }],
+      "arenaOverrides": { "aiPattern": "balanced" }
+    },
+    {
+      "id": "bs-boss-2",
+      "bossLevel": 102,
+      "name": "The Warden",
+      "class": "Fighter",
+      "quote": "Rules exist for a reason.",
+      "avatar": "",
+      "bio": "A career fighter who believes in structure. Hits hard, plays fair.",
+      "stats": [
+        { "name": "Strength", "value": 70 },
+        { "name": "Agility", "value": 40 },
+        { "name": "Intelligence", "value": 35 },
+        { "name": "Endurance", "value": 65 },
+        { "name": "Luck", "value": 40 }
+      ],
+      "badges": [],
+      "attributes": [{ "key": "Element", "value": "Iron" }],
+      "arenaOverrides": { "aiPattern": "balanced" }
+    },
+    {
+      "id": "bs-boss-3",
+      "bossLevel": 103,
+      "name": "The Ghost",
+      "class": "Scout",
+      "quote": "You never see them coming.",
+      "avatar": "",
+      "bio": "Blindingly fast. Shadow Strike always lands first. Built for speed, not endurance.",
+      "stats": [
+        { "name": "Strength", "value": 45 },
+        { "name": "Agility", "value": 75 },
+        { "name": "Intelligence", "value": 40 },
+        { "name": "Endurance", "value": 50 },
+        { "name": "Luck", "value": 50 }
+      ],
+      "badges": [],
+      "attributes": [{ "key": "Element", "value": "Shadow" }],
+      "arenaOverrides": { "aiPattern": "aggressive" }
+    },
+    {
+      "id": "bs-boss-4",
+      "bossLevel": 104,
+      "name": "The Cipher",
+      "class": "Hacker",
+      "quote": "Every system has a flaw.",
+      "avatar": "",
+      "bio": "Exploits weaknesses with Arcane Blast. Applies Vulnerable debuff, then hammers the gap.",
+      "stats": [
+        { "name": "Strength", "value": 35 },
+        { "name": "Agility", "value": 55 },
+        { "name": "Intelligence", "value": 75 },
+        { "name": "Endurance", "value": 50 },
+        { "name": "Luck", "value": 55 }
+      ],
+      "badges": [],
+      "attributes": [{ "key": "Element", "value": "Arcane" }],
+      "arenaOverrides": { "aiPattern": "spell_heavy" }
+    },
+    {
+      "id": "bs-boss-5",
+      "bossLevel": 105,
+      "name": "The Brute",
+      "class": "Berserker",
+      "quote": "Subtlety is for cowards.",
+      "avatar": "",
+      "bio": "Pure aggression. Massive STR pool, relentless Power Strikes, gets dangerous when low.",
+      "stats": [
+        { "name": "Strength", "value": 85 },
+        { "name": "Agility", "value": 50 },
+        { "name": "Intelligence", "value": 25 },
+        { "name": "Endurance", "value": 70 },
+        { "name": "Luck", "value": 40 }
+      ],
+      "badges": [],
+      "attributes": [{ "key": "Element", "value": "Fire" }],
+      "arenaOverrides": { "aiPattern": "berserker" }
+    },
+    {
+      "id": "bs-boss-6",
+      "bossLevel": 106,
+      "name": "The Sage",
+      "class": "Scholar",
+      "quote": "Knowledge compounds.",
+      "avatar": "",
+      "bio": "High INT spellcaster who punishes Guard with stuns. Patient and calculating.",
+      "stats": [
+        { "name": "Strength", "value": 30 },
+        { "name": "Agility", "value": 45 },
+        { "name": "Intelligence", "value": 85 },
+        { "name": "Endurance", "value": 60 },
+        { "name": "Luck", "value": 60 }
+      ],
+      "badges": [
+        { "category": "Skill", "icon": "star", "quantity": 2 }
+      ],
+      "attributes": [{ "key": "Element", "value": "Arcane" }],
+      "arenaOverrides": { "aiPattern": "spell_heavy" }
+    },
+    {
+      "id": "bs-boss-7",
+      "bossLevel": 107,
+      "name": "The Iron",
+      "class": "Guardian",
+      "quote": "Nothing gets through.",
+      "avatar": "",
+      "bio": "Massive HP pool. Fortify heals and reduces damage. You'll run out of steam before they do.",
+      "stats": [
+        { "name": "Strength", "value": 55 },
+        { "name": "Agility", "value": 35 },
+        { "name": "Intelligence", "value": 40 },
+        { "name": "Endurance", "value": 90 },
+        { "name": "Luck", "value": 50 }
+      ],
+      "badges": [
+        { "category": "Honor", "icon": "shield", "quantity": 2 }
+      ],
+      "attributes": [{ "key": "Element", "value": "Titanium" }],
+      "arenaOverrides": { "aiPattern": "defensive" }
+    },
+    {
+      "id": "bs-boss-8",
+      "bossLevel": 108,
+      "name": "The Trickster",
+      "class": "Trickster",
+      "quote": "Probability is just a suggestion.",
+      "avatar": "",
+      "bio": "Wild Card ability means every round is a coin flip. 25% crit or 10% fizzle. High LCK amplifies chaos.",
+      "stats": [
+        { "name": "Strength", "value": 60 },
+        { "name": "Agility", "value": 65 },
+        { "name": "Intelligence", "value": 60 },
+        { "name": "Endurance", "value": 55 },
+        { "name": "Luck", "value": 80 }
+      ],
+      "badges": [
+        { "category": "Champion", "icon": "trophy", "quantity": 2 }
+      ],
+      "attributes": [{ "key": "Element", "value": "Crystal" }],
+      "arenaOverrides": { "aiPattern": "balanced" }
+    },
+    {
+      "id": "bs-boss-9",
+      "bossLevel": 109,
+      "name": "The Feral",
+      "class": "Berserker",
+      "quote": "Pain stopped mattering long ago.",
+      "avatar": "",
+      "bio": "Relentless berserker with massive STR and END. Last Stand makes them even deadlier.",
+      "stats": [
+        { "name": "Strength", "value": 90 },
+        { "name": "Agility", "value": 60 },
+        { "name": "Intelligence", "value": 30 },
+        { "name": "Endurance", "value": 80 },
+        { "name": "Luck", "value": 50 }
+      ],
+      "badges": [
+        { "category": "Champion", "icon": "trophy", "quantity": 3 },
+        { "category": "Honor", "icon": "shield", "quantity": 2 }
+      ],
+      "attributes": [{ "key": "Element", "value": "Fire" }],
+      "arenaOverrides": { "aiPattern": "berserker" }
+    },
+    {
+      "id": "bs-boss-10",
+      "bossLevel": 110,
+      "name": "The Architect",
+      "class": "Caster",
+      "quote": "This is what a Forger becomes when they never stop.",
+      "avatar": "",
+      "bio": "The final challenge. INT-heavy Caster with Arcane Blast, Vulnerable stacking, and no mercy.",
+      "stats": [
+        { "name": "Strength", "value": 50 },
+        { "name": "Agility", "value": 55 },
+        { "name": "Intelligence", "value": 95 },
+        { "name": "Endurance", "value": 75 },
+        { "name": "Luck", "value": 75 }
+      ],
+      "badges": [
+        { "category": "Champion", "icon": "trophy", "quantity": 3 },
+        { "category": "Skill", "icon": "star", "quantity": 3 },
+        { "category": "Honor", "icon": "shield", "quantity": 3 }
+      ],
+      "attributes": [{ "key": "Element", "value": "Forge Fire" }],
+      "arenaOverrides": { "aiPattern": "spell_heavy" }
     }
   ]
 }
