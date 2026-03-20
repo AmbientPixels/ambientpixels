@@ -428,7 +428,11 @@
       if (window.ArenaBackgrounds) window.ArenaBackgrounds.applyToBattleStage();
 
       window.ArenaBattleUI.initBattle(battleData);
-      showStrangerTutorial();
+      // Only show tutorial on first attempt (not on retries after losing)
+      if (!localStorage.getItem('bs-tutorial-shown')) {
+        localStorage.setItem('bs-tutorial-shown', 'true');
+        showStrangerTutorial();
+      }
     } catch (err) {
       console.error('[Blindspot] Stranger fight error:', err);
       document.getElementById('bs-landing').style.display = '';
