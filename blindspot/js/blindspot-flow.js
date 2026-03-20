@@ -28,6 +28,7 @@
   let _isFirstRealFight = false;
   let _currentBossId = null;
   let _battleType = 'pve';
+  let _pvpGallery = [];
   let _hookInstalled = false;
   let _origShowResults = null;
 
@@ -1417,6 +1418,7 @@
         return;
       }
 
+      _pvpGallery = gallery;
       container.innerHTML = gallery.map(card => `
         <div class="bs-boss-card" style="cursor:pointer;">
           <div class="bs-boss-avatar" style="width:36px;height:36px;font-size:0.9rem;">
@@ -1444,19 +1446,76 @@
     if (!_selectedCard) return;
     _currentBossId = null;
     _battleType = 'pvp';
-    showScreen('battle');
+
+    // Find opponent info from gallery
+    var opponent = _pvpGallery.find(function(c) { return c.id === opponentId; }) || {};
+    var playerName = _selectedCard.name || 'You';
+    var playerAvatar = _selectedCard.avatar || '';
+    var oppName = opponent.name || 'Challenger';
+    var oppAvatar = opponent.avatar || '';
+    var oppClass = opponent.class || '';
+
+    // Create matchmaking overlay
+    document.querySelector('.bs-matchmaking')?.remove();
+    var overlay = document.createElement('div');
+    overlay.className = 'bs-overlay bs-matchmaking';
+    overlay.innerHTML =
+      '<div class="bs-mm-content">' +
+        '<div class="bs-mm-vs-row">' +
+          '<div class="bs-mm-fighter bs-mm-fighter--left">' +
+            (playerAvatar ? '<img src="' + escHtml(playerAvatar) + '" alt="" class="bs-mm-fighter__img">' : '<div class="bs-mm-fighter__icon"><i class="fas fa-user"></i></div>') +
+            '<span class="bs-mm-fighter__name">' + escHtml(playerName) + '</span>' +
+          '</div>' +
+          '<div class="bs-mm-vs">' +
+            '<div class="bs-mm-scanner"><div class="bs-spinner" style="width:28px;height:28px;border-width:3px;"></div></div>' +
+            '<span class="bs-mm-vs__text">VS</span>' +
+          '</div>' +
+          '<div class="bs-mm-fighter bs-mm-fighter--right bs-mm-fighter--hidden">' +
+            (oppAvatar ? '<img src="' + escHtml(oppAvatar) + '" alt="" class="bs-mm-fighter__img">' : '<div class="bs-mm-fighter__icon"><i class="fas fa-skull"></i></div>') +
+            '<span class="bs-mm-fighter__name">' + escHtml(oppName) + '</span>' +
+            (oppClass ? '<span class="bs-mm-fighter__class">' + escHtml(oppClass) + '</span>' : '') +
+          '</div>' +
+        '</div>' +
+        '<p class="bs-mm-status">Searching for opponent<span class="bs-mm-dots"></span></p>' +
+      '</div>';
+    document.body.appendChild(overlay);
+
+    // Animate: searching → reveal → fight
+    requestAnimationFrame(function() { overlay.classList.add('bs-matchmaking--active'); });
 
     if (window.ArenaAudio && window.ArenaBackgrounds) {
       window.ArenaAudio.playArenaMusic(window.ArenaBackgrounds.getSelected());
     }
 
+    // Start the API call in background while showing animation
+    var battlePromise = window.ArenaAPI.startBattle('pvp', _selectedCard.id, opponentId);
+
+    // After 1.5s, reveal opponent
+    await new Promise(function(r) { setTimeout(r, 1500); });
+    var rightFighter = overlay.querySelector('.bs-mm-fighter--right');
+    if (rightFighter) rightFighter.classList.remove('bs-mm-fighter--hidden');
+    var scanner = overlay.querySelector('.bs-mm-scanner');
+    if (scanner) scanner.style.display = 'none';
+    var vsText = overlay.querySelector('.bs-mm-vs__text');
+    if (vsText) vsText.classList.add('bs-mm-vs__text--visible');
+    var statusEl = overlay.querySelector('.bs-mm-status');
+    if (statusEl) statusEl.textContent = 'Opponent found!';
+
+    // Wait another 1.5s for reveal to land
+    await new Promise(function(r) { setTimeout(r, 1500); });
+
     try {
-      const battleData = await window.ArenaAPI.startBattle('pvp', _selectedCard.id, opponentId);
+      var battleData = await battlePromise;
       _activeBattle = battleData;
+      // Fade out overlay, show battle
+      overlay.classList.add('bs-matchmaking--exit');
+      setTimeout(function() { overlay.remove(); }, 400);
+      showScreen('battle');
       window.ArenaBattleUI.initBattle(battleData);
       updateCombatTooltips();
     } catch (err) {
       console.error('[Blindspot] PvP error:', err);
+      overlay.remove();
       showErrorToast('PvP battle failed.');
       showScreen('pvp');
     }

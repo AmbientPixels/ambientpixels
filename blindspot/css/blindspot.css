@@ -3114,3 +3114,146 @@ body.bs-battle-active .bs-bottom-nav {
   .bs-reveal-card__img, .bs-reveal-card__icon { height: 140px; }
   .bs-reveal-title { font-size: 1.3rem; }
 }
+
+/* ============================================================
+   PVP MATCHMAKING OVERLAY
+   ============================================================ */
+.bs-matchmaking {
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  background: rgba(0, 0, 0, 0.92);
+}
+.bs-matchmaking--active { opacity: 1; }
+.bs-matchmaking--exit { opacity: 0; pointer-events: none; }
+
+.bs-mm-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  gap: 2rem;
+}
+
+.bs-mm-vs-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  width: 100%;
+  max-width: 500px;
+}
+
+.bs-mm-fighter {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+  animation: bs-mm-slide-in 0.5s ease-out both;
+}
+.bs-mm-fighter--left { animation-name: bs-mm-slide-left; }
+.bs-mm-fighter--right { animation-name: bs-mm-slide-right; }
+.bs-mm-fighter--hidden {
+  opacity: 0;
+  transform: scale(0.3);
+  animation: none;
+}
+.bs-mm-fighter--right:not(.bs-mm-fighter--hidden) {
+  animation: bs-mm-reveal 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+
+.bs-mm-fighter__img {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid var(--bs-accent);
+  box-shadow: 0 0 20px rgba(var(--bs-accent-rgb, 139, 92, 246), 0.4);
+}
+.bs-mm-fighter__icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--bs-bg-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  color: var(--bs-text-muted);
+  border: 3px solid var(--bs-border);
+}
+.bs-mm-fighter__name {
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--bs-text);
+  text-align: center;
+}
+.bs-mm-fighter__class {
+  font-size: 0.75rem;
+  color: var(--bs-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.bs-mm-vs {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 50px;
+}
+.bs-mm-vs__text {
+  font-size: 2rem;
+  font-weight: 900;
+  color: var(--bs-accent);
+  text-shadow: 0 0 20px var(--bs-accent-glow);
+  opacity: 0;
+  transform: scale(0);
+  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.bs-mm-vs__text--visible {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.bs-mm-status {
+  color: var(--bs-text-muted);
+  font-size: 0.9rem;
+  text-align: center;
+  animation: bs-mm-pulse 1.5s ease-in-out infinite;
+}
+.bs-mm-dots::after {
+  content: '';
+  animation: bs-mm-dots 1.5s steps(4, end) infinite;
+}
+
+@keyframes bs-mm-slide-left {
+  from { opacity: 0; transform: translateX(-60px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes bs-mm-slide-right {
+  from { opacity: 0; transform: translateX(60px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes bs-mm-reveal {
+  from { opacity: 0; transform: scale(0.3); }
+  to { opacity: 1; transform: scale(1); }
+}
+@keyframes bs-mm-pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+@keyframes bs-mm-dots {
+  0% { content: ''; }
+  25% { content: '.'; }
+  50% { content: '..'; }
+  75% { content: '...'; }
+}
+
+@media (max-width: 480px) {
+  .bs-mm-vs-row { gap: 1rem; }
+  .bs-mm-fighter__img, .bs-mm-fighter__icon { width: 60px; height: 60px; font-size: 1.5rem; }
+  .bs-mm-fighter__name { font-size: 0.85rem; }
+  .bs-mm-vs__text { font-size: 1.5rem; }
+}
