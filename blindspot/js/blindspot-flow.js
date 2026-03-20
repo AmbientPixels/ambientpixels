@@ -707,6 +707,28 @@
       `;
     }
 
+    // Stat bar breakdown
+    const statBarEl = document.getElementById('bs-stat-bars');
+    if (statBarEl && _selectedCard && _selectedCard.combatStats) {
+      const cs = _selectedCard.combatStats;
+      const statDefs = [
+        { key: 'str', label: 'STR', color: '#ff5252', desc: 'Strike damage' },
+        { key: 'agi', label: 'AGI', color: '#00e676', desc: 'Speed + dodge' },
+        { key: 'int', label: 'INT', color: '#7b2fff', desc: 'Ability power' },
+        { key: 'end', label: 'END', color: '#ff9100', desc: 'Heal + HP' },
+        { key: 'lck', label: 'LCK', color: '#ffd740', desc: 'Crit chance' }
+      ];
+      statBarEl.innerHTML = statDefs.map(d => {
+        const val = cs[d.key] || 0;
+        return `<div class="bs-stat-bar-row">
+          <span class="bs-stat-bar-label" style="color:${d.color}" data-tooltip="${d.desc}">${d.label}</span>
+          <div class="bs-stat-bar-track"><div class="bs-stat-bar-fill" style="width:${val}%;background:${d.color};"></div></div>
+          <span class="bs-stat-bar-val">${val}</span>
+        </div>`;
+      }).join('');
+      statBarEl.style.display = '';
+    }
+
     // Card title display
     const titleEl = document.getElementById('bs-card-title');
     const title = getCardTitle();
