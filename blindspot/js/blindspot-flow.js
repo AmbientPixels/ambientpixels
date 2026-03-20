@@ -72,8 +72,10 @@
   }
 
   function isNewPlayer(profile) {
-    if (localStorage.getItem('blindspot-onboarded')) return false;
-    return (!profile || (profile.xp === 0 && !profile.selectedCardId));
+    // Blindspot-specific: have they completed the Blindspot onboarding?
+    // NOT based on CardForge XP/cards — a CardForge veteran is still
+    // a new Blindspot player if they haven't been onboarded here.
+    return !localStorage.getItem('blindspot-onboarded');
   }
 
   function isDemo() { return _profileData ? (_profileData.isDemo || false) : true; }
