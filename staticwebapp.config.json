@@ -45,6 +45,10 @@
   },
   "routes": [
     {
+      "route": "/blindspot/*",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/gridos/*",
       "redirect": "/ambientos/",
       "statusCode": 301

@@ -1,0 +1,23 @@
+{
+  "id": "stranger-card",
+  "name": "The Stranger",
+  "characterClass": "Fighter",
+  "characterSubclass": "Unforged",
+  "rarity": "Common",
+  "quote": "Not yet.",
+  "biography": "No history. No allegiance. No name worth knowing.",
+  "combatStats": {
+    "str": 65,
+    "agi": 55,
+    "int": 45,
+    "end": 70,
+    "lck": 50
+  },
+  "visualSettings": {
+    "palette": "monochrome",
+    "paletteVariant": "dark",
+    "imageContainer": "masked",
+    "imageContainerVariant": "circle"
+  },
+  "isStranger": true
+}

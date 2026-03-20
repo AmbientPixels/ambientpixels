@@ -1,0 +1,850 @@
+/* ============================================================
+   BLINDSPOT — Visual Identity & Game UI
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Share+Tech+Mono&display=swap');
+
+/* --- Tokens --- */
+:root {
+  --bs-bg:           #100C08;
+  --bs-accent:       #EF9F27;
+  --bs-accent-dim:   #BA7517;
+  --bs-accent-glow:  #FAC775;
+  --bs-text:         #F5F0E8;
+  --bs-text-muted:   #8A8070;
+  --bs-card-bg:      #1A1410;
+  --bs-border:       #2A2018;
+  --bs-danger:       #D85A30;
+  --bs-success:      #1D9E75;
+  --bs-surface:      #1E1812;
+  --bs-surface-2:    #241E16;
+}
+
+/* --- Reset for Blindspot pages --- */
+.bs-page {
+  margin: 0;
+  padding: 0;
+  background: var(--bs-bg);
+  color: var(--bs-text);
+  font-family: 'Share Tech Mono', monospace;
+  font-weight: 400;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+.bs-page *,
+.bs-page *::before,
+.bs-page *::after {
+  box-sizing: border-box;
+}
+
+/* --- Typography --- */
+.bs-display {
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+}
+
+.bs-wordmark {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 2rem;
+  color: var(--bs-accent);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+/* ============================================================
+   LANDING PAGE (index.html)
+   ============================================================ */
+
+.bs-landing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+  text-align: center;
+  gap: 1.5rem;
+}
+
+/* Stranger Card (face down) */
+.bs-stranger-card {
+  width: 220px;
+  height: 320px;
+  background: var(--bs-card-bg);
+  border: 1px solid var(--bs-border);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: transform 0.3s ease;
+}
+
+.bs-stranger-card:hover {
+  transform: translateY(-4px);
+}
+
+.bs-stranger-card__icon {
+  font-size: 3rem;
+  color: var(--bs-text-muted);
+  opacity: 0.3;
+}
+
+/* Landing copy */
+.bs-landing__headline {
+  font-size: 1rem;
+  color: var(--bs-text-muted);
+  max-width: 320px;
+  line-height: 1.6;
+}
+
+.bs-landing__subline {
+  font-size: 1.125rem;
+  color: var(--bs-accent);
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+}
+
+/* --- Buttons --- */
+.bs-btn {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1rem;
+  padding: 0.875rem 2.5rem;
+  border: 2px solid var(--bs-accent);
+  background: transparent;
+  color: var(--bs-accent);
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+}
+
+.bs-btn:hover {
+  background: var(--bs-accent);
+  color: var(--bs-bg);
+}
+
+.bs-btn:active {
+  transform: scale(0.97);
+}
+
+.bs-btn--primary {
+  background: var(--bs-accent);
+  color: var(--bs-bg);
+  font-weight: 700;
+}
+
+.bs-btn--primary:hover {
+  background: var(--bs-accent-glow);
+  border-color: var(--bs-accent-glow);
+}
+
+.bs-btn--secondary {
+  border-color: var(--bs-border);
+  color: var(--bs-text-muted);
+}
+
+.bs-btn--secondary:hover {
+  border-color: var(--bs-text-muted);
+  color: var(--bs-text);
+  background: transparent;
+}
+
+.bs-btn--large {
+  padding: 1rem 3rem;
+  font-size: 1.125rem;
+}
+
+.bs-btn--full {
+  width: 100%;
+  max-width: 320px;
+}
+
+.bs-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ============================================================
+   PLAY PAGE — Layout
+   ============================================================ */
+
+.bs-play {
+  min-height: 100vh;
+  padding-bottom: 2rem;
+}
+
+/* Top bar */
+.bs-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1.25rem;
+  border-bottom: 1px solid var(--bs-border);
+  background: var(--bs-surface);
+}
+
+.bs-topbar__brand {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: var(--bs-accent);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.bs-topbar__actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+/* --- Screens --- */
+.bs-screen {
+  display: none;
+  padding: 1.5rem;
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.bs-screen.active {
+  display: block;
+}
+
+/* ============================================================
+   LOBBY
+   ============================================================ */
+
+.bs-lobby {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  padding-top: 1rem;
+}
+
+.bs-lobby__card-display {
+  width: 200px;
+  height: 290px;
+  background: var(--bs-card-bg);
+  border: 1px solid var(--bs-border);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.bs-lobby__card-display img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+/* Rank HUD */
+.bs-rank-hud {
+  text-align: center;
+  width: 100%;
+  max-width: 360px;
+}
+
+.bs-rank-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 1.125rem;
+  margin-bottom: 0.5rem;
+}
+
+.bs-xp-bar {
+  width: 100%;
+  height: 8px;
+  background: var(--bs-surface-2);
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 0.5rem 0;
+}
+
+.bs-xp-bar__fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--bs-accent-dim), var(--bs-accent));
+  border-radius: 4px;
+  transition: width 0.5s ease;
+}
+
+.bs-xp-text {
+  font-size: 0.8rem;
+  color: var(--bs-text-muted);
+}
+
+/* Forge Progress */
+.bs-forge-progress {
+  width: 100%;
+  max-width: 360px;
+  background: var(--bs-surface);
+  border: 1px solid var(--bs-border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  text-align: center;
+  cursor: default;
+  transition: all 0.3s ease;
+}
+
+.bs-forge-progress__label {
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 0.875rem;
+  letter-spacing: 0.1em;
+  color: var(--bs-text-muted);
+}
+
+.bs-forge-progress__bar {
+  width: 100%;
+  height: 6px;
+  background: var(--bs-surface-2);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 0.5rem;
+}
+
+.bs-forge-progress__bar-fill {
+  height: 100%;
+  background: var(--bs-accent-dim);
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+.bs-forge-progress--ready {
+  border-color: var(--bs-accent);
+  cursor: pointer;
+  animation: bs-forge-pulse 2s ease-in-out infinite;
+}
+
+.bs-forge-progress--ready .bs-forge-progress__label {
+  color: var(--bs-accent);
+}
+
+.bs-forge-progress--ready .bs-forge-progress__bar-fill {
+  background: var(--bs-accent);
+}
+
+@keyframes bs-forge-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 159, 39, 0); }
+  50% { box-shadow: 0 0 20px 4px rgba(239, 159, 39, 0.3); }
+}
+
+/* Mode buttons */
+.bs-modes {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 360px;
+}
+
+.bs-mode-btn {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: var(--bs-surface);
+  border: 1px solid var(--bs-border);
+  border-radius: 8px;
+  color: var(--bs-text);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+  width: 100%;
+}
+
+.bs-mode-btn:hover:not(:disabled) {
+  border-color: var(--bs-accent);
+  background: var(--bs-surface-2);
+}
+
+.bs-mode-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.bs-mode-btn i {
+  font-size: 1.25rem;
+  color: var(--bs-accent);
+  width: 24px;
+  text-align: center;
+}
+
+.bs-mode-btn__label {
+  flex: 1;
+}
+
+.bs-mode-btn__title {
+  display: block;
+  font-weight: 700;
+}
+
+.bs-mode-btn__desc {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--bs-text-muted);
+}
+
+.bs-mode-btn__lock {
+  color: var(--bs-text-muted);
+  font-size: 0.75rem;
+}
+
+/* ============================================================
+   CAMPAIGN LADDER
+   ============================================================ */
+
+.bs-campaign {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.bs-campaign__header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.bs-campaign__header h2 {
+  font-family: 'Cinzel', serif;
+  font-size: 1.25rem;
+  color: var(--bs-accent);
+  margin: 0;
+}
+
+.bs-campaign__back {
+  background: none;
+  border: none;
+  color: var(--bs-text-muted);
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0.5rem;
+}
+
+.bs-campaign__back:hover {
+  color: var(--bs-text);
+}
+
+.bs-boss-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: var(--bs-surface);
+  border: 1px solid var(--bs-border);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.bs-boss-card--current {
+  border-color: var(--bs-accent);
+  background: var(--bs-surface-2);
+}
+
+.bs-boss-card--locked {
+  opacity: 0.4;
+}
+
+.bs-boss-card--defeated {
+  border-left: 3px solid var(--bs-success);
+}
+
+.bs-boss-card__number {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1.25rem;
+  color: var(--bs-accent-dim);
+  width: 32px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.bs-boss-card__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.bs-boss-card__name {
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--bs-text);
+}
+
+.bs-boss-card__class {
+  font-size: 0.8rem;
+  color: var(--bs-text-muted);
+}
+
+.bs-boss-card__flavor {
+  font-size: 0.75rem;
+  color: var(--bs-text-muted);
+  font-style: italic;
+  margin-top: 0.25rem;
+}
+
+.bs-boss-card__action {
+  flex-shrink: 0;
+}
+
+.bs-boss-card__wins {
+  font-size: 0.75rem;
+  color: var(--bs-success);
+}
+
+/* ============================================================
+   BATTLE OVERLAYS — Stranger results, pre-fight, etc.
+   ============================================================ */
+
+.bs-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(16, 12, 8, 0.95);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  text-align: center;
+  gap: 1.5rem;
+  padding: 2rem;
+}
+
+.bs-overlay--hidden {
+  display: none;
+}
+
+.bs-overlay__title {
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 1.5rem;
+  color: var(--bs-text);
+}
+
+.bs-overlay__subtitle {
+  font-size: 1rem;
+  color: var(--bs-text-muted);
+  max-width: 360px;
+  line-height: 1.6;
+}
+
+.bs-overlay__subtitle--accent {
+  color: var(--bs-accent);
+}
+
+/* Loss screen */
+.bs-loss-screen {
+  cursor: pointer;
+}
+
+.bs-loss-screen__text {
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 2rem;
+  color: var(--bs-text);
+}
+
+.bs-loss-screen__tap {
+  font-size: 0.8rem;
+  color: var(--bs-text-muted);
+  opacity: 0;
+  animation: bs-fade-in 0.5s ease 2s forwards;
+}
+
+@keyframes bs-fade-in {
+  to { opacity: 1; }
+}
+
+/* Pre-fight screen */
+.bs-prefight {
+  gap: 2rem;
+}
+
+.bs-prefight__flavor {
+  font-style: italic;
+  color: var(--bs-text-muted);
+  font-size: 0.9rem;
+}
+
+/* ============================================================
+   FORGE SCREEN (Constrained Evolution)
+   ============================================================ */
+
+.bs-forge-screen {
+  max-width: 600px;
+  width: 100%;
+}
+
+.bs-forge-screen__title {
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 1.5rem;
+  color: var(--bs-accent);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.bs-forge-screen__budget {
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--bs-text-muted);
+  margin-bottom: 1rem;
+}
+
+.bs-forge-screen__budget strong {
+  color: var(--bs-accent);
+  font-size: 1.1rem;
+}
+
+.bs-forge-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.bs-forge-stat__label {
+  width: 40px;
+  font-weight: 700;
+  color: var(--bs-text-muted);
+  font-size: 0.875rem;
+}
+
+.bs-forge-stat__slider {
+  flex: 1;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  background: var(--bs-surface-2);
+  border-radius: 3px;
+  outline: none;
+}
+
+.bs-forge-stat__slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--bs-accent);
+  cursor: pointer;
+}
+
+.bs-forge-stat__slider::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--bs-accent);
+  cursor: pointer;
+  border: none;
+}
+
+.bs-forge-stat__value {
+  width: 32px;
+  text-align: right;
+  font-weight: 700;
+  color: var(--bs-text);
+}
+
+.bs-forge-stat__desc {
+  width: 100px;
+  font-size: 0.75rem;
+  color: var(--bs-text-muted);
+}
+
+.bs-forge-actions {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: center;
+}
+
+/* ============================================================
+   CARD FLIP ANIMATION (Quick Build Step 5)
+   ============================================================ */
+
+.bs-card-flip-container {
+  perspective: 1000px;
+  width: 240px;
+  height: 340px;
+  margin: 0 auto;
+}
+
+.bs-card-flip-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.8s ease;
+  transform-style: preserve-3d;
+}
+
+.bs-card-flip-inner.flipped {
+  transform: rotateY(180deg);
+}
+
+.bs-card-flip-front,
+.bs-card-flip-back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.bs-card-flip-back {
+  transform: rotateY(180deg);
+}
+
+.bs-card-flip-front {
+  background: var(--bs-card-bg);
+  border: 1px solid var(--bs-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ============================================================
+   PULSE ANIMATION (Round 1 action buttons)
+   ============================================================ */
+
+.bs-pulse-hint {
+  animation: bs-pulse-btn 1.5s ease-in-out infinite;
+}
+
+@keyframes bs-pulse-btn {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 159, 39, 0); }
+  50% { box-shadow: 0 0 12px 3px rgba(239, 159, 39, 0.4); }
+}
+
+/* ============================================================
+   PVP UNLOCK
+   ============================================================ */
+
+.bs-pvp-unlock {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(239, 159, 39, 0.1);
+  border: 1px solid var(--bs-accent);
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: var(--bs-accent);
+  animation: bs-forge-pulse 2s ease-in-out infinite;
+}
+
+/* ============================================================
+   QUICK BUILD OVERRIDES (Blindspot theme)
+   Applied via inline styles in blindspot-quick-build.js since
+   the modal is appended directly to document.body.
+   These are fallback selectors for the body-level overlay.
+   ============================================================ */
+
+.bs-page .qb-overlay {
+  background: rgba(16, 12, 8, 0.95);
+}
+
+.bs-page .qb-modal {
+  background: var(--bs-surface);
+  border: 1px solid var(--bs-border);
+  color: var(--bs-text);
+}
+
+.bs-page .qb-header h2 {
+  font-family: 'Cinzel', serif;
+  color: var(--bs-accent);
+}
+
+.bs-page .qb-step-dot.active {
+  background: var(--bs-accent);
+  border-color: var(--bs-accent);
+}
+
+.bs-page .qb-step-dot.completed {
+  background: var(--bs-accent-dim);
+  border-color: var(--bs-accent-dim);
+}
+
+.bs-page .qb-step-line.completed {
+  background: var(--bs-accent-dim);
+}
+
+.bs-page .qb-nav-btn--next {
+  background: var(--bs-accent);
+  border-color: var(--bs-accent);
+  color: var(--bs-bg);
+}
+
+.bs-page .qb-nav-btn--save {
+  background: var(--bs-accent);
+  border-color: var(--bs-accent);
+}
+
+/* ============================================================
+   LOADING STATE
+   ============================================================ */
+
+.bs-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 3rem;
+  color: var(--bs-text-muted);
+}
+
+.bs-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--bs-border);
+  border-top-color: var(--bs-accent);
+  border-radius: 50%;
+  animation: bs-spin 0.8s linear infinite;
+}
+
+@keyframes bs-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 768px) {
+  .bs-wordmark { font-size: 1.5rem; }
+  .bs-stranger-card { width: 180px; height: 260px; }
+  .bs-lobby__card-display { width: 160px; height: 230px; }
+
+  .bs-forge-screen {
+    padding: 0 0.5rem;
+  }
+
+  .bs-forge-stat__desc {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .bs-wordmark { font-size: 1.25rem; }
+  .bs-stranger-card { width: 160px; height: 230px; }
+  .bs-landing__headline { font-size: 0.875rem; }
+  .bs-landing__subline { font-size: 1rem; }
+  .bs-btn { padding: 0.75rem 1.5rem; font-size: 0.875rem; }
+  .bs-btn--full { max-width: 100%; }
+  .bs-screen { padding: 1rem; }
+  .bs-topbar { padding: 0.5rem 0.75rem; }
+  .bs-topbar__brand { font-size: 0.9rem; }
+}

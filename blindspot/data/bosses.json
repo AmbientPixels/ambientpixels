@@ -1,0 +1,42 @@
+[
+  {
+    "boss": 1, "id": "boss-1", "name": "The Gatekeeper", "serverName": "Training Dummy",
+    "class": "Enforcer", "flavor": "Everyone passes through here once."
+  },
+  {
+    "boss": 2, "id": "boss-2", "name": "The Warden", "serverName": "Gutter Rat",
+    "class": "Fighter", "flavor": "Rules exist for a reason."
+  },
+  {
+    "boss": 3, "id": "boss-3", "name": "The Ghost", "serverName": "Ironclad Sentinel",
+    "class": "Scout", "flavor": "You never see them coming."
+  },
+  {
+    "boss": 4, "id": "boss-4", "name": "The Cipher", "serverName": "Shadow Stalker",
+    "class": "Hacker", "flavor": "Every system has a flaw."
+  },
+  {
+    "boss": 5, "id": "boss-5", "name": "The Brute", "serverName": "Arcane Scholar",
+    "class": "Berserker", "flavor": "Subtlety is for cowards."
+  },
+  {
+    "boss": 6, "id": "boss-6", "name": "The Sage", "serverName": "Warlord Grax",
+    "class": "Scholar", "flavor": "Knowledge compounds."
+  },
+  {
+    "boss": 7, "id": "boss-7", "name": "The Iron", "serverName": "Crystal Weaver",
+    "class": "Guardian", "flavor": "Nothing gets through."
+  },
+  {
+    "boss": 8, "id": "boss-8", "name": "The Trickster", "serverName": "Void Harbinger",
+    "class": "Trickster", "flavor": "Probability is just a suggestion."
+  },
+  {
+    "boss": 9, "id": "boss-9", "name": "The Feral", "serverName": "Titanium Aegis",
+    "class": "Berserker", "flavor": "Pain stopped mattering long ago."
+  },
+  {
+    "boss": 10, "id": "boss-10", "name": "The Architect", "serverName": "The Forge King",
+    "class": "Caster", "flavor": "This is what a Forger becomes when they never stop."
+  }
+]

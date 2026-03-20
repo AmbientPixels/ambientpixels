@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blindspot — Arena</title>
+  <meta name="description" content="Blindspot campaign arena. Fight bosses. Evolve your card.">
+  <meta name="csrf-token" content="">
+  <link rel="icon" href="/images/favicon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
+  <link rel="stylesheet" href="/css/base.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="/css/theme.css">
+  <link rel="stylesheet" href="/cardforge/css/cardforge-arena.css">
+  <link rel="stylesheet" href="css/blindspot.css">
+</head>
+<body class="bs-page" data-theme="dark">
+
+  <!-- TOP BAR -->
+  <header class="bs-topbar">
+    <span class="bs-topbar__brand">Blindspot</span>
+    <div class="bs-topbar__actions">
+      <button class="arena-audio-toggle" id="arena-sfx-toggle" title="Mute SFX">
+        <i class="fas fa-bolt"></i>
+      </button>
+      <button class="arena-audio-toggle" id="arena-music-toggle" title="Mute music">
+        <i class="fas fa-music"></i>
+      </button>
+    </div>
+  </header>
+
+  <div class="bs-play">
+
+    <!-- SCREEN: LOBBY -->
+    <div id="bs-screen-lobby" class="bs-screen active">
+      <div class="bs-lobby">
+        <!-- Player card display -->
+        <div class="bs-lobby__card-display" id="bs-player-card">
+          <i class="fas fa-user" style="font-size: 2rem; color: var(--bs-text-muted);"></i>
+        </div>
+
+        <!-- Rank HUD -->
+        <div class="bs-rank-hud" id="bs-rank-hud">
+          <div class="bs-rank-badge" id="bs-rank-badge">
+            <i class="fas fa-shield-halved" style="color: #CD7F32;"></i>
+            <span>Bronze</span>
+          </div>
+          <div class="bs-xp-bar">
+            <div class="bs-xp-bar__fill" id="bs-xp-fill" style="width:0%"></div>
+          </div>
+          <div class="bs-xp-text" id="bs-xp-text">0 / 500 XP</div>
+        </div>
+
+        <!-- Forge Progress -->
+        <div class="bs-forge-progress" id="bs-forge-progress">
+          <div class="bs-forge-progress__label" id="bs-forge-label">FORGE &middot; 0 / 3</div>
+          <div class="bs-forge-progress__bar">
+            <div class="bs-forge-progress__bar-fill" id="bs-forge-fill" style="width:0%"></div>
+          </div>
+        </div>
+
+        <!-- Mode buttons -->
+        <div class="bs-modes">
+          <button class="bs-mode-btn" id="bs-btn-campaign">
+            <i class="fas fa-dragon"></i>
+            <span class="bs-mode-btn__label">
+              <span class="bs-mode-btn__title">Campaign</span>
+              <span class="bs-mode-btn__desc">Fight 10 bosses. Evolve your card.</span>
+            </span>
+            <i class="fas fa-chevron-right" style="color: var(--bs-text-muted);"></i>
+          </button>
+          <button class="bs-mode-btn" id="bs-btn-pvp" disabled>
+            <i class="fas fa-users"></i>
+            <span class="bs-mode-btn__label">
+              <span class="bs-mode-btn__title">PvP Arena</span>
+              <span class="bs-mode-btn__desc">Challenge other players' cards.</span>
+            </span>
+            <span class="bs-mode-btn__lock" id="bs-pvp-lock"><i class="fas fa-lock"></i> Beat Boss 10</span>
+          </button>
+          <button class="bs-mode-btn" id="bs-btn-leaderboard">
+            <i class="fas fa-crown"></i>
+            <span class="bs-mode-btn__label">
+              <span class="bs-mode-btn__title">Leaderboard</span>
+              <span class="bs-mode-btn__desc">See the top fighters.</span>
+            </span>
+            <i class="fas fa-chevron-right" style="color: var(--bs-text-muted);"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN: CAMPAIGN -->
+    <div id="bs-screen-campaign" class="bs-screen">
+      <div class="bs-campaign">
+        <div class="bs-campaign__header">
+          <button class="bs-campaign__back" id="bs-campaign-back"><i class="fas fa-arrow-left"></i></button>
+          <h2>Campaign</h2>
+        </div>
+        <div id="bs-boss-ladder">
+          <div class="bs-loading"><div class="bs-spinner"></div> Loading bosses...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN: PVP -->
+    <div id="bs-screen-pvp" class="bs-screen">
+      <div class="bs-campaign">
+        <div class="bs-campaign__header">
+          <button class="bs-campaign__back" id="bs-pvp-back"><i class="fas fa-arrow-left"></i></button>
+          <h2>PvP Arena</h2>
+        </div>
+        <p style="color: var(--bs-text-muted); text-align: center; padding: 1rem;">
+          The campaign is done. Now fight someone who fights back.
+        </p>
+        <div id="bs-pvp-grid">
+          <div class="bs-loading"><div class="bs-spinner"></div> Loading gallery...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN: BATTLE -->
+    <div id="bs-screen-battle" class="bs-screen">
+      <div class="arena-battle">
+        <div class="arena-battle__header">
+          <span class="arena-battle__round" id="arena-round-label">Round 1</span>
+          <button class="arena-btn arena-btn--ghost arena-btn--sm" id="arena-forfeit-btn">
+            <i class="fas fa-flag"></i> Forfeit
+          </button>
+          <span class="arena-battle__post-actions" id="arena-battle-post" style="display:none;">
+            <button class="arena-btn arena-btn--primary arena-btn--sm" id="arena-battle-again"><i class="fas fa-redo"></i> Again</button>
+            <button class="arena-btn arena-btn--ghost arena-btn--sm" id="arena-battle-back"><i class="fas fa-arrow-left"></i> Back</button>
+          </span>
+        </div>
+        <div class="arena-battle__stage">
+          <div class="arena-battle__field">
+            <div class="arena-combatant arena-combatant--player" id="arena-player-side">
+              <div class="arena-combatant__frame">
+                <div class="arena-combatant__card" id="arena-player-card"></div>
+              </div>
+              <div class="arena-combatant__nameplate">
+                <span class="arena-combatant__name" id="arena-player-name">You</span>
+              </div>
+              <div class="arena-hp-bar">
+                <div class="arena-hp-bar__track">
+                  <div class="arena-hp-bar__fill arena-hp-bar__fill--player" id="arena-player-hp-fill" style="width:100%"></div>
+                </div>
+                <div class="arena-hp-bar__text" id="arena-player-hp-text">100 / 100</div>
+              </div>
+              <div class="arena-player-buffs" id="arena-player-buffs"></div>
+              <div class="arena-status-row" id="arena-player-status"></div>
+            </div>
+            <div class="arena-battle__vs"><span class="arena-battle__vs-text">VS</span></div>
+            <div class="arena-combatant arena-combatant--opponent" id="arena-opponent-side">
+              <div class="arena-combatant__frame">
+                <div class="arena-combatant__card" id="arena-opponent-card"></div>
+              </div>
+              <div class="arena-combatant__nameplate">
+                <span class="arena-combatant__name" id="arena-opponent-name">Enemy</span>
+              </div>
+              <div class="arena-hp-bar">
+                <div class="arena-hp-bar__track">
+                  <div class="arena-hp-bar__fill arena-hp-bar__fill--opponent" id="arena-opponent-hp-fill" style="width:100%"></div>
+                </div>
+                <div class="arena-hp-bar__text" id="arena-opponent-hp-text">100 / 100</div>
+              </div>
+              <div class="arena-status-row" id="arena-opponent-status"></div>
+            </div>
+          </div>
+        </div>
+        <div class="arena-battle__log" id="arena-battle-log">
+          <div class="arena-log-entry">Battle started!</div>
+        </div>
+        <div class="arena-hype-bar" id="arena-hype-bar">
+          <div class="arena-hype-bar__label"><i class="fas fa-fire-flame-curved"></i> HYPE</div>
+          <div class="arena-hype-bar__track">
+            <div class="arena-hype-bar__fill" id="arena-hype-fill" style="width:0%"></div>
+          </div>
+        </div>
+        <div class="arena-battle__moves" id="arena-moves">
+          <button class="arena-move-btn arena-move-btn--strike" data-move="strike">
+            <div class="arena-move-btn__glow" aria-hidden="true"></div>
+            <i class="fas fa-hand-fist"></i>
+            <span class="arena-move-btn__label">Strike</span>
+            <span class="arena-move-btn__stat" id="arena-move-str">STR</span>
+            <span class="arena-move-btn__desc">Physical attack</span>
+          </button>
+          <button class="arena-move-btn arena-move-btn--guard" data-move="guard">
+            <div class="arena-move-btn__glow" aria-hidden="true"></div>
+            <i class="fas fa-shield-halved"></i>
+            <span class="arena-move-btn__label">Guard</span>
+            <span class="arena-move-btn__stat">Block</span>
+            <span class="arena-move-btn__desc">Reduce damage</span>
+          </button>
+          <button class="arena-move-btn arena-move-btn--ability" data-move="ability">
+            <div class="arena-move-btn__glow" aria-hidden="true"></div>
+            <i class="fas fa-bolt" id="arena-ability-icon"></i>
+            <span class="arena-move-btn__label" id="arena-ability-label">Ability</span>
+            <span class="arena-move-btn__stat" id="arena-move-int">INT</span>
+            <span class="arena-move-btn__desc" id="arena-ability-desc">Class ability</span>
+            <span class="arena-move-btn__charge" id="arena-ability-charge">0/2</span>
+          </button>
+          <button class="arena-move-btn arena-move-btn--heal" data-move="heal">
+            <div class="arena-move-btn__glow" aria-hidden="true"></div>
+            <i class="fas fa-heart-pulse"></i>
+            <span class="arena-move-btn__label">Heal</span>
+            <span class="arena-move-btn__stat" id="arena-move-end">END</span>
+            <span class="arena-move-btn__desc">END recovery</span>
+          </button>
+          <button class="arena-move-btn arena-move-btn--counter" data-move="counter">
+            <div class="arena-move-btn__glow" aria-hidden="true"></div>
+            <i class="fas fa-shield"></i>
+            <span class="arena-move-btn__label">Counter</span>
+            <span class="arena-move-btn__stat">Reflect</span>
+            <span class="arena-move-btn__desc">Deflect strike</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- .bs-play -->
+
+  <!-- OVERLAYS -->
+
+  <!-- Pre-fight overlay -->
+  <div id="bs-prefight-overlay" class="bs-overlay bs-overlay--hidden bs-prefight">
+    <p class="bs-prefight__flavor" id="bs-prefight-flavor"></p>
+    <p class="bs-overlay__title" id="bs-prefight-title"></p>
+    <button class="bs-btn bs-btn--primary bs-btn--large" id="bs-prefight-go">Fight</button>
+  </div>
+
+  <!-- Forge visit trigger overlay -->
+  <div id="bs-forge-trigger" class="bs-overlay bs-overlay--hidden">
+    <p class="bs-overlay__title">The Forge is ready. Evolve your card.</p>
+    <div style="display:flex; gap:1rem; flex-wrap:wrap; justify-content:center;">
+      <button class="bs-btn bs-btn--primary" id="bs-forge-now">Forge Now</button>
+      <button class="bs-btn bs-btn--secondary" id="bs-forge-later">Later</button>
+    </div>
+  </div>
+
+  <!-- Forge evolution screen overlay -->
+  <div id="bs-forge-screen" class="bs-overlay bs-overlay--hidden">
+    <div class="bs-forge-screen" id="bs-forge-panel">
+      <!-- Populated by JS -->
+    </div>
+  </div>
+
+  <!-- Forge unlock moment overlay (500 XP / Silver) -->
+  <div id="bs-forge-unlock" class="bs-overlay bs-overlay--hidden">
+    <p class="bs-overlay__title">The Forge is yours. You've earned this.</p>
+    <button class="bs-btn bs-btn--primary bs-btn--large" id="bs-forge-unlock-btn">Enter the Forge</button>
+  </div>
+
+  <!-- Boss 10 win overlay -->
+  <div id="bs-architect-win" class="bs-overlay bs-overlay--hidden">
+    <p class="bs-overlay__title">You are no longer a Stranger.</p>
+    <div class="bs-pvp-unlock">
+      <i class="fas fa-users"></i> PvP Unlocked
+    </div>
+    <p class="bs-overlay__subtitle">The arena opens. Fight someone who fights back.</p>
+    <button class="bs-btn bs-btn--primary" id="bs-architect-continue">Return to Lobby</button>
+  </div>
+
+  <!-- Results Modal -->
+  <div class="arena-results-overlay" id="arena-results-overlay" style="display:none;">
+    <div class="arena-results">
+      <button class="arena-results__close" id="arena-results-close"><i class="fas fa-xmark"></i></button>
+      <div class="arena-results__banner" id="arena-results-banner">
+        <div class="arena-results__avatars" id="arena-results-avatars"></div>
+        <h1 id="arena-results-title">Victory!</h1>
+        <p id="arena-results-subtitle">You defeated the enemy</p>
+      </div>
+      <div class="arena-results__xp" id="arena-results-xp-section">
+        <div class="arena-results__xp-amount" id="arena-results-xp">+40 XP</div>
+        <div class="arena-results__rank-label" id="arena-results-rank-label">
+          <span class="arena-results__rank-current" id="arena-results-rank-current"><i class="fas fa-shield-halved"></i> Bronze</span>
+          <i class="fas fa-arrow-right arena-results__rank-arrow"></i>
+          <span class="arena-results__rank-next" id="arena-results-rank-next"><i class="fas fa-shield"></i> Silver</span>
+        </div>
+        <div class="arena-results__bar-wrap">
+          <div class="arena-progress__bar">
+            <div class="arena-progress__bar-fill" id="arena-results-xp-fill" style="width:0%"></div>
+          </div>
+          <div class="arena-progress__xp-text" id="arena-results-xp-text">0 / 500 XP</div>
+        </div>
+        <div class="arena-results__rank-up" id="arena-results-rank-up" style="display:none;">
+          <i class="fas fa-arrow-up"></i> Rank Up! <span id="arena-results-new-rank">Silver</span>
+        </div>
+      </div>
+      <div class="arena-results__actions" id="bs-results-actions">
+        <button class="arena-btn arena-btn--primary" id="arena-results-again">Next Fight</button>
+        <button class="arena-btn arena-btn--ghost" id="arena-results-lobby">Lobby</button>
+      </div>
+      <!-- Blindspot extras in results -->
+      <div id="bs-results-forge" style="display:none; margin-top:1rem;">
+        <div class="bs-forge-progress" style="max-width:280px; margin:0 auto;">
+          <div class="bs-forge-progress__label" id="bs-results-forge-label">FORGE &middot; 0 / 3</div>
+          <div class="bs-forge-progress__bar">
+            <div class="bs-forge-progress__bar-fill" id="bs-results-forge-fill" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Forfeit Modal -->
+  <div class="arena-modal-overlay" id="arena-forfeit-modal" style="display:none;">
+    <div class="arena-modal">
+      <div class="arena-modal__icon"><i class="fas fa-flag"></i></div>
+      <h3 class="arena-modal__title">Forfeit Battle?</h3>
+      <p class="arena-modal__body">You'll take the loss.</p>
+      <div class="arena-modal__actions">
+        <button class="arena-btn arena-btn--ghost" id="arena-forfeit-cancel">Keep Fighting</button>
+        <button class="arena-btn arena-btn--danger" id="arena-forfeit-confirm">Forfeit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="/cardforge/js/config.js"></script>
+  <script src="/cardforge/js/csrf-protection.js"></script>
+  <script src="/cardforge/js/ui-utils.js"></script>
+  <script src="/cardforge/js/validation-utils.js"></script>
+  <script src="/cardforge/js/effect-tiers.js"></script>
+  <script src="/cardforge/js/entitlements.js"></script>
+  <script src="/cardforge/js/arena-audio.js"></script>
+  <script src="/cardforge/js/arena-api.js"></script>
+  <script src="/cardforge/js/arena-card-select.js"></script>
+  <script src="/cardforge/js/arena-battle-ui.js"></script>
+  <script src="/cardforge/js/arena-results.js"></script>
+  <script src="/cardforge/js/arena-backgrounds.js"></script>
+
+  <script src="js/blindspot-flow.js"></script>
+</body>
+</html>

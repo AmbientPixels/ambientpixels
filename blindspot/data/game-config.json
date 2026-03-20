@@ -1,0 +1,28 @@
+{
+  "forgeVisit": {
+    "winsRequired": 3,
+    "bonusPoints": 25,
+    "firstUnlockBonusPoints": 35
+  },
+  "tutorialBoss": {
+    "id": "boss-1",
+    "name": "The Gatekeeper",
+    "characterClass": "Enforcer",
+    "combatStats": {
+      "str": 60,
+      "agi": 45,
+      "int": 40,
+      "end": 75,
+      "lck": 30
+    },
+    "aiPattern": "balanced",
+    "flavorText": "Everyone passes through here once."
+  },
+  "newPlayerDetection": {
+    "xpThreshold": 0,
+    "localStorageKey": "blindspot-onboarded"
+  },
+  "pvpUnlock": {
+    "requireBossDefeated": 10
+  }
+}
