@@ -143,7 +143,11 @@
   function ensureCombatStats(card) {
     if (!card) return;
     if (card.combatStats) return;
-    if (!card.stats || !Array.isArray(card.stats)) return;
+    if (!card.stats || !Array.isArray(card.stats) || card.stats.length === 0) {
+      // No stats at all — assign class-based defaults or generic
+      card.combatStats = { str: 60, agi: 60, int: 60, end: 60, lck: 60 };
+      return;
+    }
 
     const STAT_MAP = {
       strength: 'str', power: 'str', combat: 'str', attack: 'str',
