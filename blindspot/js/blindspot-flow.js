@@ -192,7 +192,18 @@
         return;
       }
       if (isOnPlayPage()) {
+        // Suppress CardForge effect tier unlocks — they're irrelevant to Blindspot
+        const savedApplyLock = window.CardForge?.applyEffectLockState;
+        const savedGetUnlocks = window.EffectTiers?.getNewUnlocksForRank;
+        if (window.CardForge) window.CardForge.applyEffectLockState = function() {};
+        if (window.EffectTiers) window.EffectTiers.getNewUnlocksForRank = function() { return {}; };
+
         _origShowResults.call(window.ArenaResults, battleResult, battleData);
+
+        // Restore
+        if (window.CardForge && savedApplyLock) window.CardForge.applyEffectLockState = savedApplyLock;
+        if (window.EffectTiers && savedGetUnlocks) window.EffectTiers.getNewUnlocksForRank = savedGetUnlocks;
+
         handlePlayPageResult(battleResult, battleData);
         return;
       }
@@ -769,6 +780,14 @@
         return;
       }
 
+      // Show Blindspot rank-up message instead of CardForge's
+      if (battleResult.rankUp) {
+        const rankUpEl = document.getElementById('arena-results-rank-up');
+        const newRankEl = document.getElementById('arena-results-new-rank');
+        if (rankUpEl) rankUpEl.style.display = 'block';
+        if (newRankEl) newRankEl.textContent = battleResult.newRank;
+      }
+
       // Forge unlock at Silver rank-up
       if (battleResult.rankUp && _profile && _profile.rank === 'silver') {
         if (!localStorage.getItem('bs-forge-unlock-shown')) {
@@ -794,8 +813,23 @@
 
     showForgeProgressInResults();
 
+    // Override CardForge button labels with Blindspot copy
     const againBtn = document.getElementById('arena-results-again');
+    const lobbyBtn = document.getElementById('arena-results-lobby');
     if (againBtn) againBtn.textContent = isWin ? 'Next Fight' : 'Try Again';
+    if (lobbyBtn) lobbyBtn.textContent = 'Lobby';
+
+    // Override results title/subtitle with Blindspot flavor
+    const titleEl = document.getElementById('arena-results-title');
+    const subtitleEl = document.getElementById('arena-results-subtitle');
+    if (isWin) {
+      const boss = _bosses.find(b => b.id === _currentBossId);
+      if (titleEl) titleEl.textContent = 'Victory';
+      if (subtitleEl && boss) subtitleEl.textContent = `You defeated ${boss.name}`;
+    } else {
+      if (titleEl) titleEl.textContent = 'Defeated';
+      if (subtitleEl) subtitleEl.textContent = 'Your card remembers.';
+    }
   }
 
   // ============================================================
