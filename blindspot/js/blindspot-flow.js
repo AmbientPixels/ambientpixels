@@ -1186,10 +1186,27 @@
     const uv = getUnlockedVisuals();
 
     const panel = document.getElementById('bs-forge-panel');
+    const cardPower = getCardPower(_selectedCard);
+    const cardAvatar = _selectedCard.avatar || '';
+    const cardName = _selectedCard.name || 'Your Card';
+    const cardClass = _selectedCard.class || _selectedCard.characterClass || '';
+
     panel.innerHTML = `
+      <div class="bs-forge-layout">
+        <div class="bs-forge-preview">
+          <div class="bs-forge-card">
+            ${cardAvatar ? `<img src="${escHtml(cardAvatar)}" alt="${escHtml(cardName)}" class="bs-forge-card__img">` : `<div class="bs-forge-card__placeholder"><i class="fas fa-user"></i></div>`}
+            <div class="bs-forge-card__info">
+              <span class="bs-forge-card__name">${escHtml(cardName)}</span>
+              <span class="bs-forge-card__class">${escHtml(cardClass)}</span>
+              <span class="bs-forge-card__power"><i class="fas fa-bolt"></i> ${cardPower} Power</span>
+            </div>
+          </div>
+        </div>
+        <div class="bs-forge-editor">
       <h2 class="bs-forge-screen__title"><i class="fas fa-fire" style="color:var(--bs-accent);"></i> The Forge</h2>
-      <p style="text-align:center; color:var(--bs-text-muted); font-size:0.8rem; margin-bottom:0.5rem;">
-        ${escHtml(_selectedCard.name || 'Your Card')} &middot; Forge #${getForgeVisitCount() + 1}
+      <p style="text-align:center; color:var(--bs-text-muted); font-size:0.75rem; margin-bottom:0.5rem;">
+        Forge #${getForgeVisitCount() + 1}
       </p>
       <div class="bs-forge-tabs">
         <button class="bs-forge-tab bs-forge-tab--active" data-tab="stats"><i class="fas fa-sliders"></i> Stats</button>
@@ -1252,6 +1269,8 @@
         <button class="bs-btn bs-btn--primary bs-btn--glow" id="bs-forge-apply" disabled>
           <i class="fas fa-fire"></i> Forge
         </button>
+      </div>
+        </div>
       </div>
     `;
 
