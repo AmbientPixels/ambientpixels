@@ -873,6 +873,134 @@
 }
 
 /* ============================================================
+   BOSS AVATAR ICONS (CSS-generated, no images needed)
+   ============================================================ */
+
+.bs-boss-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  flex-shrink: 0;
+  border: 2px solid var(--bs-border);
+  background: linear-gradient(135deg, var(--bs-surface-2), var(--bs-surface));
+  color: var(--bs-text-muted);
+  transition: all 0.25s ease;
+}
+
+.bs-boss-card--current .bs-boss-avatar {
+  border-color: var(--bs-accent);
+  color: var(--bs-accent);
+  box-shadow: 0 0 12px rgba(239, 159, 39, 0.2);
+}
+
+.bs-boss-card--defeated .bs-boss-avatar {
+  border-color: var(--bs-success);
+  color: var(--bs-success);
+  opacity: 0.7;
+}
+
+/* ============================================================
+   BATTLE SCREEN — Blindspot Theme Overrides
+   ============================================================ */
+
+.bs-page .arena-battle {
+  background: var(--bs-bg);
+}
+
+.bs-page .arena-battle__header {
+  border-color: var(--bs-border);
+}
+
+.bs-page .arena-battle__round {
+  color: var(--bs-accent);
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+}
+
+.bs-page .arena-battle__vs-text {
+  color: var(--bs-accent-dim);
+  text-shadow: 0 0 20px rgba(239, 159, 39, 0.3);
+}
+
+.bs-page .arena-hp-bar__fill--player {
+  background: linear-gradient(90deg, var(--bs-accent-dim), var(--bs-accent));
+}
+
+.bs-page .arena-hp-bar__fill--opponent {
+  background: linear-gradient(90deg, var(--bs-danger), #e8724a);
+}
+
+.bs-page .arena-move-btn {
+  border-color: var(--bs-border);
+  background: var(--bs-surface);
+}
+
+.bs-page .arena-move-btn:hover:not(:disabled) {
+  border-color: var(--bs-accent-dim);
+  background: var(--bs-surface-2);
+}
+
+.bs-page .arena-move-btn__label {
+  color: var(--bs-text);
+}
+
+.bs-page .arena-hype-bar__fill {
+  background: linear-gradient(90deg, var(--bs-accent-dim), var(--bs-accent), var(--bs-accent-glow));
+}
+
+.bs-page .arena-battle__log {
+  background: var(--bs-surface);
+  border-color: var(--bs-border);
+  color: var(--bs-text-muted);
+}
+
+.bs-page .arena-results {
+  background: var(--bs-surface);
+  border: 1px solid var(--bs-border);
+}
+
+.bs-page .arena-results__banner--win {
+  background: linear-gradient(135deg, rgba(239, 159, 39, 0.15), transparent);
+}
+
+.bs-page .arena-results__banner--loss {
+  background: linear-gradient(135deg, rgba(216, 90, 48, 0.15), transparent);
+}
+
+/* ============================================================
+   TUTORIAL OVERLAY
+   ============================================================ */
+
+.bs-tutorial {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9998;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(180deg, transparent, rgba(16, 12, 8, 0.95) 30%);
+  text-align: center;
+  pointer-events: none;
+}
+
+.bs-tutorial__text {
+  font-size: 0.875rem;
+  color: var(--bs-accent-glow);
+  font-family: 'Share Tech Mono', monospace;
+  animation: bs-tutorial-pulse 2s ease-in-out infinite;
+  pointer-events: auto;
+}
+
+@keyframes bs-tutorial-pulse {
+  0%, 100% { opacity: 0.8; }
+  50% { opacity: 1; }
+}
+
+/* ============================================================
    PULSE ANIMATION (Round 1 action buttons)
    ============================================================ */
 

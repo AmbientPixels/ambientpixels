@@ -255,10 +255,8 @@
 
       window.ArenaBattleUI.initBattle(battleData);
 
-      // Pulse animation on action buttons (round 1 hint)
-      document.querySelectorAll('.arena-move-btn').forEach(btn => {
-        btn.classList.add('bs-pulse-hint');
-      });
+      // Show guided tutorial hints for first fight
+      showStrangerTutorial();
     } catch (err) {
       console.error('[Blindspot] Failed to start stranger fight:', err);
       alert('Failed to start battle. Please try again.');
@@ -294,6 +292,12 @@
       return;
     }
 
+    // Demo users can't save cards — show sign-in prompt instead
+    if (isDemo()) {
+      showDemoSignInPrompt();
+      return;
+    }
+
     window.BlindspotQuickBuild.open(function onComplete(cardId) {
       _isStrangerFight = false;
       _isFirstRealFight = true;
@@ -302,19 +306,22 @@
         window.ArenaAPI.selectCard(cardId).catch(e => console.warn('selectCard error:', e));
       }
 
-      // For demo users: redirect to play.html for the first real fight
-      // For authenticated users: also redirect (they have a saved card now)
-      if (isDemo()) {
-        // Demo users can't do a "real" first fight (no persistence)
-        // Mark as onboarded and send to play page
-        localStorage.setItem('blindspot-onboarded', 'true');
-        window.location.href = '/blindspot/play.html';
-      } else {
-        // Authenticated: redirect with firstFight flag
-        localStorage.setItem('blindspot-onboarded', 'true');
-        window.location.href = '/blindspot/play.html?firstFight=true';
-      }
+      localStorage.setItem('blindspot-onboarded', 'true');
+      window.location.href = '/blindspot/play.html?firstFight=true';
     });
+  }
+
+  function showDemoSignInPrompt() {
+    // Demo users won the stranger fight but can't save — show sign-in CTA
+    const overlay = document.createElement('div');
+    overlay.className = 'bs-overlay';
+    overlay.innerHTML = `
+      <p class="bs-overlay__title">You proved yourself. Now make it permanent.</p>
+      <p class="bs-overlay__subtitle">Sign in to build your card, track your rank, and climb the campaign.</p>
+      <a href="/.auth/login/aad?post_login_redirect_uri=/blindspot/" class="bs-btn bs-btn--primary bs-btn--full bs-btn--glow" style="text-decoration:none; text-align:center;">Sign In</a>
+      <button class="bs-btn bs-btn--secondary" style="margin-top:0.5rem;" onclick="window.location.href='/blindspot/'">Play Again as Stranger</button>
+    `;
+    document.body.appendChild(overlay);
   }
 
   function handleFirstRealFightResult(battleResult, battleData) {
@@ -592,6 +599,14 @@
   // CAMPAIGN LADDER
   // ============================================================
 
+  // Boss class → icon mapping
+  const BOSS_ICONS = {
+    Enforcer: 'fa-gavel', Fighter: 'fa-hand-fist', Scout: 'fa-binoculars',
+    Hacker: 'fa-terminal', Berserker: 'fa-fire', Scholar: 'fa-book',
+    Guardian: 'fa-shield-halved', Trickster: 'fa-dice', Caster: 'fa-wand-magic-sparkles',
+    Rogue: 'fa-user-ninja', Medic: 'fa-heart-pulse', Pilot: 'fa-rocket'
+  };
+
   function renderCampaignLadder() {
     const container = document.getElementById('bs-boss-ladder');
     if (!container) return;
@@ -608,9 +623,13 @@
       else if (current) statusClass = 'bs-boss-card--current';
       else if (locked) statusClass = 'bs-boss-card--locked';
 
+      const icon = BOSS_ICONS[boss.class] || 'fa-skull';
+
       return `
         <div class="bs-boss-card ${statusClass}">
-          <div class="bs-boss-card__number">${boss.boss}</div>
+          <div class="bs-boss-avatar">
+            <i class="fas ${icon}"></i>
+          </div>
           <div class="bs-boss-card__info">
             <div class="bs-boss-card__name">${boss.name}</div>
             <div class="bs-boss-card__class">${boss.class}</div>
@@ -689,13 +708,17 @@
     loadProfile().then(() => updateRankDisplay());
 
     if (_battleType === 'pve' && isWin) {
-      const wins = getForgeWins() + 1;
-      setForgeWins(wins);
-
       const boss = _bosses.find(b => b.id === _currentBossId);
+      const prevHighest = getHighestBossDefeated();
+      const isNewBossDefeat = boss && boss.boss > prevHighest;
+
       if (boss) {
         setHighestBossDefeated(boss.boss);
       }
+
+      // Only count forge wins on NEW boss defeats (no replay farming)
+      const wins = isNewBossDefeat ? getForgeWins() + 1 : getForgeWins();
+      if (isNewBossDefeat) setForgeWins(wins);
 
       // Boss 10 win
       if (boss && boss.boss === 10) {
@@ -828,24 +851,34 @@
       { key: 'lck', label: 'LCK', desc: 'The unexpected.',      color: '#ffd740' }
     ];
 
+    const totalBefore = Object.values(currentStats).reduce((a, b) => a + b, 0);
+
     const panel = document.getElementById('bs-forge-panel');
     panel.innerHTML = `
       <h2 class="bs-forge-screen__title">Evolve Your Card</h2>
+      <p style="text-align:center; color:var(--bs-text-muted); font-size:0.8rem; margin-bottom:0.5rem;">
+        ${_selectedCard.name || 'Your Card'} &middot; Forge Visit #${getForgeVisitCount() + 1}
+      </p>
       <div class="bs-forge-screen__budget">
-        Distribute <strong id="bs-forge-remaining">${bonusPoints}</strong> points
+        <span style="color:var(--bs-text-muted); font-size:0.8rem;">Total: ${totalBefore} → </span>
+        <strong id="bs-forge-total" style="color:var(--bs-accent);">${totalBefore}</strong>
+        <span style="color:var(--bs-text-muted); font-size:0.8rem;"> pts</span>
+        <span style="margin-left:1rem;">Remaining: <strong id="bs-forge-remaining" style="color:var(--bs-accent);">${bonusPoints}</strong></span>
       </div>
       ${statDefs.map(d => `
         <div class="bs-forge-stat">
           <span class="bs-forge-stat__label" style="color:${d.color}">${d.label}</span>
+          <span style="font-size:0.7rem; color:var(--bs-text-muted); width:24px; text-align:right;">${currentStats[d.key]}</span>
+          <span style="color:var(--bs-accent-dim); margin:0 0.25rem;">→</span>
           <input type="range" class="bs-forge-stat__slider" data-stat="${d.key}"
                  min="${currentStats[d.key]}" max="100"
                  value="${currentStats[d.key]}">
-          <span class="bs-forge-stat__value" data-stat="${d.key}">${currentStats[d.key]}</span>
+          <span class="bs-forge-stat__value" data-stat="${d.key}" style="color:var(--bs-accent); font-weight:700;">${currentStats[d.key]}</span>
           <span class="bs-forge-stat__desc">${d.desc}</span>
         </div>
       `).join('')}
       <div class="bs-forge-actions">
-        <button class="bs-btn bs-btn--primary" id="bs-forge-apply" disabled>Apply</button>
+        <button class="bs-btn bs-btn--primary bs-btn--glow" id="bs-forge-apply" disabled>Forge</button>
       </div>
     `;
 
@@ -854,10 +887,13 @@
     const remainingEl = document.getElementById('bs-forge-remaining');
     const applyBtn = document.getElementById('bs-forge-apply');
 
+    const totalEl = document.getElementById('bs-forge-total');
+
     function updateBudget() {
       const totalAllocated = Object.values(allocations).reduce((a, b) => a + b, 0);
       const remaining = bonusPoints - totalAllocated;
       if (remainingEl) remainingEl.textContent = remaining;
+      if (totalEl) totalEl.textContent = totalBefore + totalAllocated;
       if (applyBtn) applyBtn.disabled = remaining !== 0;
     }
 
@@ -883,12 +919,18 @@
 
     applyBtn.addEventListener('click', async () => {
       applyBtn.disabled = true;
-      applyBtn.textContent = 'Applying...';
+      applyBtn.innerHTML = '<i class="fas fa-fire" style="animation: bs-spin 0.8s linear infinite;"></i> Forging...';
 
       const newStats = {};
       statDefs.forEach(d => {
         newStats[d.key] = currentStats[d.key] + allocations[d.key];
       });
+
+      // Flash the panel amber briefly
+      panel.style.transition = 'box-shadow 0.5s ease';
+      panel.style.boxShadow = '0 0 40px rgba(239, 159, 39, 0.4)';
+      await new Promise(r => setTimeout(r, 800));
+      panel.style.boxShadow = '';
 
       // Update local card object
       _selectedCard.combatStats = newStats;
@@ -945,6 +987,67 @@
         : cards[0];
     }
     renderLobby();
+  }
+
+  // ============================================================
+  // STRANGER FIGHT TUTORIAL
+  // ============================================================
+
+  const TUTORIAL_HINTS = [
+    { move: 'strike',  text: 'Strike — your basic attack. Hit them.' },
+    { move: 'guard',   text: 'Guard — blocks 60% of incoming strikes.' },
+    { move: 'ability', text: 'Ability — your class power. Costs 2 charges.' },
+    { move: 'heal',    text: 'Heal — recover HP based on your Endurance.' },
+    { move: 'counter', text: 'Counter — reflects enemy strikes back at them.' }
+  ];
+
+  let _tutorialStep = 0;
+  let _tutorialEl = null;
+
+  function showStrangerTutorial() {
+    _tutorialStep = 0;
+
+    // Create tutorial overlay
+    _tutorialEl = document.createElement('div');
+    _tutorialEl.className = 'bs-tutorial';
+    _tutorialEl.innerHTML = `<div class="bs-tutorial__text" id="bs-tutorial-text">${TUTORIAL_HINTS[0].text}</div>`;
+    document.body.appendChild(_tutorialEl);
+
+    // Highlight first move button
+    highlightTutorialMove(0);
+
+    // Listen for move clicks to advance tutorial
+    document.querySelectorAll('.arena-move-btn').forEach(btn => {
+      btn.addEventListener('click', advanceTutorial);
+    });
+  }
+
+  function highlightTutorialMove(step) {
+    // Remove all highlights
+    document.querySelectorAll('.arena-move-btn').forEach(b => b.classList.remove('bs-pulse-hint'));
+
+    if (step < TUTORIAL_HINTS.length) {
+      const hint = TUTORIAL_HINTS[step];
+      const btn = document.querySelector(`[data-move="${hint.move}"]`);
+      if (btn) btn.classList.add('bs-pulse-hint');
+
+      const textEl = document.getElementById('bs-tutorial-text');
+      if (textEl) textEl.textContent = hint.text;
+    }
+  }
+
+  function advanceTutorial() {
+    _tutorialStep++;
+    if (_tutorialStep >= TUTORIAL_HINTS.length) {
+      // Tutorial complete — remove overlay and highlights
+      if (_tutorialEl) { _tutorialEl.remove(); _tutorialEl = null; }
+      document.querySelectorAll('.arena-move-btn').forEach(b => {
+        b.classList.remove('bs-pulse-hint');
+        b.removeEventListener('click', advanceTutorial);
+      });
+      return;
+    }
+    highlightTutorialMove(_tutorialStep);
   }
 
   // ============================================================

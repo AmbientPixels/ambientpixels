@@ -161,6 +161,15 @@
 
   <!-- Hidden card editor zone (needed for Quick Build preview rendering) -->
   <div id="cardforge-main-container" style="display:none;">
+    <!-- Form fields required by card-forge-editor.js for updatePreview() -->
+    <input type="text" id="card-name" value="">
+    <input type="text" id="card-avatar" value="">
+    <select id="card-class"><option value="">--</option><option value="Fighter">Fighter</option><option value="Enforcer">Enforcer</option><option value="Berserker">Berserker</option><option value="Caster">Caster</option><option value="Hacker">Hacker</option><option value="Scholar">Scholar</option><option value="Scout">Scout</option><option value="Rogue">Rogue</option><option value="Pilot">Pilot</option><option value="Guardian">Guardian</option><option value="Medic">Medic</option><option value="Trickster">Trickster</option><option value="Wildcard">Wildcard</option></select>
+    <input type="text" id="card-subclass" value="">
+    <select id="card-rarity"><option value="Common">Common</option><option value="Uncommon">Uncommon</option><option value="Rare">Rare</option><option value="Epic">Epic</option><option value="Legendary">Legendary</option></select>
+    <textarea id="card-quote"></textarea>
+    <textarea id="card-bio"></textarea>
+    <input type="text" id="card-level" value="">
     <div class="card-preview-zone">
       <div class="card-preview-canvas"></div>
     </div>
