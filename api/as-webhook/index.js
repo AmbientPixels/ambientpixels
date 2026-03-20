@@ -22,7 +22,14 @@ module.exports = async function (context, req) {
       return;
     }
 
-    const event = typeof rawBody === 'string' ? JSON.parse(rawBody) : rawBody;
+    let event;
+    try {
+      event = typeof rawBody === 'string' ? JSON.parse(rawBody) : rawBody;
+    } catch (parseErr) {
+      context.log.warn('[as-webhook] Failed to parse webhook body:', parseErr.message);
+      context.res = { status: 400, body: 'Invalid JSON payload' };
+      return;
+    }
 
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
