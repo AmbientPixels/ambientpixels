@@ -3145,6 +3145,109 @@ body.bs-battle-active .bs-bottom-nav {
 }
 
 /* ============================================================
+   ASCENSION CARD BORDER EFFECTS
+   ============================================================ */
+
+/* Ascension 1 — Ember: warm pulsing glow */
+.bs-lobby__card-display[data-ascension="1"] {
+  box-shadow: 0 0 12px 2px rgba(255, 100, 30, 0.4), inset 0 0 6px rgba(255, 100, 30, 0.1);
+  border: 1px solid rgba(255, 100, 30, 0.5);
+  animation: bs-asc-ember 3s ease-in-out infinite;
+}
+@keyframes bs-asc-ember {
+  0%, 100% { box-shadow: 0 0 12px 2px rgba(255, 100, 30, 0.4), inset 0 0 6px rgba(255, 100, 30, 0.1); }
+  50% { box-shadow: 0 0 20px 4px rgba(255, 100, 30, 0.6), inset 0 0 10px rgba(255, 100, 30, 0.15); }
+}
+
+/* Ascension 2 — Frost: icy shimmer */
+.bs-lobby__card-display[data-ascension="2"] {
+  box-shadow: 0 0 14px 2px rgba(100, 200, 255, 0.45), inset 0 0 8px rgba(100, 200, 255, 0.1);
+  border: 1px solid rgba(100, 200, 255, 0.5);
+  animation: bs-asc-frost 4s ease-in-out infinite;
+}
+@keyframes bs-asc-frost {
+  0%, 100% { box-shadow: 0 0 14px 2px rgba(100, 200, 255, 0.45), inset 0 0 8px rgba(100, 200, 255, 0.1); }
+  33% { box-shadow: 0 0 22px 5px rgba(100, 200, 255, 0.6), inset 0 0 12px rgba(150, 220, 255, 0.15); }
+  66% { box-shadow: 0 0 16px 3px rgba(80, 180, 240, 0.5), inset 0 0 6px rgba(100, 200, 255, 0.08); }
+}
+
+/* Ascension 3 — Arcane: purple energy crackle */
+.bs-lobby__card-display[data-ascension="3"] {
+  box-shadow: 0 0 16px 3px rgba(140, 60, 255, 0.5), 0 0 30px 6px rgba(140, 60, 255, 0.15);
+  border: 1px solid rgba(140, 60, 255, 0.6);
+  animation: bs-asc-arcane 3.5s ease-in-out infinite;
+}
+@keyframes bs-asc-arcane {
+  0%, 100% { box-shadow: 0 0 16px 3px rgba(140, 60, 255, 0.5), 0 0 30px 6px rgba(140, 60, 255, 0.15); border-color: rgba(140, 60, 255, 0.6); }
+  25% { box-shadow: 0 0 24px 6px rgba(180, 80, 255, 0.6), 0 0 40px 10px rgba(140, 60, 255, 0.2); border-color: rgba(180, 80, 255, 0.7); }
+  50% { box-shadow: 0 0 14px 2px rgba(120, 40, 220, 0.45), 0 0 25px 5px rgba(140, 60, 255, 0.12); border-color: rgba(120, 40, 220, 0.5); }
+  75% { box-shadow: 0 0 20px 4px rgba(160, 70, 255, 0.55), 0 0 35px 8px rgba(140, 60, 255, 0.18); border-color: rgba(160, 70, 255, 0.65); }
+}
+
+/* Ascension 4 — Void: dark energy with inner starfield */
+.bs-lobby__card-display[data-ascension="4"] {
+  box-shadow: 0 0 20px 4px rgba(60, 0, 120, 0.6), 0 0 40px 8px rgba(30, 0, 80, 0.3), inset 0 0 15px rgba(100, 50, 200, 0.15);
+  border: 1px solid rgba(100, 50, 200, 0.6);
+  animation: bs-asc-void 4s ease-in-out infinite;
+}
+@keyframes bs-asc-void {
+  0%, 100% { box-shadow: 0 0 20px 4px rgba(60, 0, 120, 0.6), 0 0 40px 8px rgba(30, 0, 80, 0.3), inset 0 0 15px rgba(100, 50, 200, 0.15); }
+  50% { box-shadow: 0 0 28px 6px rgba(80, 0, 160, 0.7), 0 0 50px 12px rgba(40, 0, 100, 0.35), inset 0 0 20px rgba(120, 60, 220, 0.2); }
+}
+
+/* Ascension 5 — Holographic: rainbow prismatic border */
+.bs-lobby__card-display[data-ascension="5"] {
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  animation: bs-asc-holo 6s linear infinite;
+}
+.bs-lobby__card-display[data-ascension="5"]::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 14px;
+  background: conic-gradient(
+    from var(--bs-holo-angle, 0deg),
+    #ff0000, #ff8800, #ffff00, #00ff00, #00ffff, #0088ff, #8800ff, #ff00ff, #ff0000
+  );
+  z-index: -1;
+  opacity: 0.8;
+  animation: bs-asc-holo-spin 4s linear infinite;
+  filter: blur(3px);
+}
+.bs-lobby__card-display[data-ascension="5"]::after {
+  content: '';
+  position: absolute;
+  inset: -2px;
+  border-radius: 13px;
+  background: conic-gradient(
+    from var(--bs-holo-angle, 0deg),
+    #ff0000, #ff8800, #ffff00, #00ff00, #00ffff, #0088ff, #8800ff, #ff00ff, #ff0000
+  );
+  z-index: -1;
+  opacity: 0.6;
+  animation: bs-asc-holo-spin 4s linear infinite reverse;
+}
+@keyframes bs-asc-holo-spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes bs-asc-holo {
+  0% { box-shadow: 0 0 20px 4px rgba(255, 0, 128, 0.4), 0 0 40px 8px rgba(0, 128, 255, 0.2); }
+  33% { box-shadow: 0 0 20px 4px rgba(0, 255, 128, 0.4), 0 0 40px 8px rgba(255, 0, 128, 0.2); }
+  66% { box-shadow: 0 0 20px 4px rgba(0, 128, 255, 0.4), 0 0 40px 8px rgba(0, 255, 128, 0.2); }
+  100% { box-shadow: 0 0 20px 4px rgba(255, 0, 128, 0.4), 0 0 40px 8px rgba(0, 128, 255, 0.2); }
+}
+
+/* Reset default hover border when ascension active */
+.bs-lobby__card-display[data-ascension="1"]::after,
+.bs-lobby__card-display[data-ascension="2"]::after,
+.bs-lobby__card-display[data-ascension="3"]::after,
+.bs-lobby__card-display[data-ascension="4"]::after {
+  display: none;
+}
+
+/* ============================================================
    MOBILE CLEANUP (iter 59)
    ============================================================ */
 

@@ -1181,11 +1181,13 @@
       cardDisplay0.classList.toggle('bs-card-streak', streak >= 3);
       cardDisplay0.classList.toggle('bs-card-streak--hot', streak >= 5);
     }
-    // Apply palette to card display
+    // Apply palette + ascension border to card display
     const cardDisplay = document.getElementById('bs-player-card');
     if (cardDisplay && _selectedCard) {
       const palette = _selectedCard.palette || 'earth';
       cardDisplay.setAttribute('data-palette', palette);
+      const asc = getAscension();
+      cardDisplay.setAttribute('data-ascension', asc > 0 ? String(asc) : '0');
     }
     // Player card — show as a mini card with name + class
     const cardEl = document.getElementById('bs-player-card');
