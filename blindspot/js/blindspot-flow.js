@@ -56,7 +56,6 @@
   // ============================================================
 
   let _audioCtx = null;
-  let _sfxMuted = localStorage.getItem('bs-sfx-muted') === 'true';
 
   function getAudioCtx() {
     if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -64,19 +63,14 @@
   }
 
   function playSfx(name) {
-    if (_sfxMuted) return;
+    // Respect ArenaAudio mute toggle (shared SFX button in top bar)
+    if (window.ArenaAudio && window.ArenaAudio.isMuted()) return;
     try {
       const ctx = getAudioCtx();
       if (ctx.state === 'suspended') ctx.resume();
       const sfx = SFX_DEFS[name];
       if (sfx) sfx(ctx);
     } catch (e) { /* audio not supported — fail silently */ }
-  }
-
-  function toggleSfxMute() {
-    _sfxMuted = !_sfxMuted;
-    localStorage.setItem('bs-sfx-muted', String(_sfxMuted));
-    return _sfxMuted;
   }
 
   // Synth definitions — each creates oscillator nodes and schedules them
@@ -982,17 +976,6 @@
     const profilePromise = loadProfile();
 
     if (window.ArenaAudio) window.ArenaAudio.init();
-
-    // Wire SFX mute toggle
-    var sfxBtn = document.getElementById('arena-sfx-toggle');
-    if (sfxBtn) {
-      var updateSfxIcon = function () {
-        var icon = sfxBtn.querySelector('i');
-        if (icon) icon.className = _sfxMuted ? 'fas fa-volume-xmark' : 'fas fa-bolt';
-      };
-      updateSfxIcon();
-      sfxBtn.addEventListener('click', function () { toggleSfxMute(); updateSfxIcon(); });
-    }
 
     if (!window._bsBattleEventsBound) {
       window.ArenaBattleUI.bindEvents();
