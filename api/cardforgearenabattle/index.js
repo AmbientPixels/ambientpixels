@@ -400,6 +400,10 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
   const config = loadArenaConfig();
   const events = [];
 
+  // Move label map for round header
+  const moveLabels = { strike: 'Strike', guard: 'Guard', ability: 'Ability', heal: 'Heal', counter: 'Counter' };
+  events.push(`\u2694\uFE0F You: ${moveLabels[playerMove] || playerMove} vs ${moveLabels[opponentMove] || opponentMove} :Enemy`);
+
   // Speed check: AGI + random 0–10 jitter determines who attacks first
   const playerSpeed = player.combatStats.agi + Math.random() * 10;
   const opponentSpeed = opponent.combatStats.agi + Math.random() * 10;
@@ -472,24 +476,26 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     const isCrit = Math.random() * 100 < playerCritChance;
     if (isCrit) {
       playerOutDmg *= 1.5;
-      events.push('Your strike landed a critical hit!');
+      events.push('\u2728 Critical hit! Your strike lands with devastating force!');
       // B2: Burn on crit strike
       newTempEffects.opponent.push({ effect: 'burn', value: Math.round(opponent.maxHp * 0.08), roundsLeft: 2 });
-      events.push('Your critical strike ignites the opponent! (Burn x2)');
+      events.push('\uD83D\uDD25 The critical strike ignites the enemy! (Burn x2 rounds)');
     }
     // B2: Blind miss chance
     if (playerBlind && Math.random() < 0.40) {
-      events.push('Blind! Your strike misses!');
+      events.push('\uD83D\uDE35 Blinded! Your strike swings wide and misses!');
       playerOutDmg = 0;
     }
     // Guard reduces strike by 60%
     if (opponentMove === 'guard' && playerOutDmg > 0) {
+      const preGuard = Math.floor(playerOutDmg);
       playerOutDmg *= 0.4;
-      events.push('Opponent braced for your strike.');
+      events.push(`\uD83D\uDEE1\uFE0F Enemy guarded, blocked 60% of your strike (${preGuard} \u2192 ${Math.floor(playerOutDmg)}).`);
     }
     if (playerOutDmg > 0) {
       playerOutDmg = Math.max(1, Math.floor(playerOutDmg * (1 - opponentDmgReduction / 100)));
       opponentDamageTaken += playerOutDmg;
+      events.push(`You struck for ${playerOutDmg} damage.`);
     }
   } else if (playerMove === 'ability') {
     const abilityResult = resolveClassAbility(player.abilityKey || 'arcaneBlast', player.combatStats, opponentMove, config, events, 'player');
@@ -497,6 +503,7 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     if (playerOutDmg > 0) {
       playerOutDmg = Math.max(1, Math.floor(playerOutDmg));
       opponentDamageTaken += playerOutDmg;
+      events.push(`Your ability dealt ${playerOutDmg} damage.`);
     }
     if (abilityResult.heal > 0) playerHeal += abilityResult.heal;
     if (abilityResult.tempEffect) newTempEffects.opponent.push(abilityResult.tempEffect);
@@ -555,12 +562,14 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
       opponentOutDmg = 0;
     }
     if (playerMove === 'guard' && opponentOutDmg > 0) {
+      const preGuard = Math.floor(opponentOutDmg);
       opponentOutDmg *= 0.4;
-      events.push('You braced for their strike.');
+      events.push(`You guarded — blocked 60% of their strike (${preGuard} → ${Math.floor(opponentOutDmg)}).`);
     }
     if (opponentOutDmg > 0) {
       opponentOutDmg = Math.max(1, Math.floor(opponentOutDmg * (1 - playerDmgReduction / 100)));
       playerDamageTaken += opponentOutDmg;
+      events.push(`Opponent struck for ${opponentOutDmg} damage.`);
     }
   } else if (opponentMove === 'ability') {
     const abilityResult = resolveClassAbility(opponent.abilityKey || 'arcaneBlast', opponent.combatStats, playerMove, config, events, 'opponent');
@@ -568,6 +577,7 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     if (opponentOutDmg > 0) {
       opponentOutDmg = Math.max(1, Math.floor(opponentOutDmg));
       playerDamageTaken += opponentOutDmg;
+      events.push(`Opponent's ability dealt ${opponentOutDmg} damage.`);
     }
     if (abilityResult.heal > 0) opponentHeal += abilityResult.heal;
     if (abilityResult.tempEffect) newTempEffects.player.push(abilityResult.tempEffect);
@@ -688,6 +698,13 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
   if (opponentRegenBonus > 0) {
     opponentHeal += opponentRegenBonus;
   }
+
+  // Round summary line
+  const parts = [];
+  if (opponentDamageTaken > 0) parts.push(`dealt ${opponentDamageTaken}`);
+  if (playerHeal > 0) parts.push(`healed ${playerHeal}`);
+  if (playerDamageTaken > 0) parts.push(`took ${playerDamageTaken}`);
+  if (parts.length > 0) events.push(`\u2014 Round summary: You ${parts.join(', ')}.`);
 
   return {
     speedWinner,
