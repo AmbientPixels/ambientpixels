@@ -1300,9 +1300,17 @@
 
       _selectedCard.combatStats = newStats;
 
+      // Apply visual selections from Look tab
+      const selectedPalette = panel.querySelector('.bs-forge-option--selected[data-palette]');
+      const selectedContainer = panel.querySelector('.bs-forge-option--selected[data-container]');
+      if (selectedPalette) _selectedCard.palette = selectedPalette.dataset.palette;
+      if (selectedContainer) _selectedCard.imageContainer = selectedContainer.dataset.container;
+
       // Save via API
       try {
         const cardToSave = { ..._selectedCard, combatStats: newStats };
+        if (selectedPalette) cardToSave.palette = selectedPalette.dataset.palette;
+        if (selectedContainer) cardToSave.imageContainer = selectedContainer.dataset.container;
         cardToSave.stats = [
           { name: 'Strength', value: newStats.str },
           { name: 'Agility', value: newStats.agi },
