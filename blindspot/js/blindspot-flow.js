@@ -386,32 +386,9 @@
   // WEEKLY ROTATING BOSS
   // ============================================================
 
-  const WEEKLY_BOSSES = [
-    {
-      id: 'bs-weekly-1', bossLevel: 201, name: 'The Revenant', class: 'Berserker',
-      flavor: 'I keep coming back.', avatar: '/cardforge/img/bosses/Gutter-Rat01.webp',
-      combatStats: { str: 80, agi: 45, int: 35, end: 85, lck: 55 },
-      reward: { type: 'weekly_bundle', statBonus: { stat: 'str', amount: 3 }, forgePoints: 2, label: '+3 STR & 2 Forge Pts' }
-    },
-    {
-      id: 'bs-weekly-2', bossLevel: 202, name: 'The Mirage', class: 'Trickster',
-      flavor: 'Was I ever really here?', avatar: '/cardforge/img/bosses/Void-Harbinger-01.webp',
-      combatStats: { str: 40, agi: 85, int: 50, end: 45, lck: 90 },
-      reward: { type: 'weekly_bundle', statBonus: { stat: 'lck', amount: 3 }, forgePoints: 2, label: '+3 LCK & 2 Forge Pts' }
-    },
-    {
-      id: 'bs-weekly-3', bossLevel: 203, name: 'The Colossus', class: 'Guardian',
-      flavor: "You'll need more than that.", avatar: '/cardforge/img/bosses/Titanium-Aegis-01.webp',
-      combatStats: { str: 50, agi: 30, int: 45, end: 95, lck: 60 },
-      reward: { type: 'weekly_bundle', statBonus: { stat: 'end', amount: 3 }, forgePoints: 2, label: '+3 END & 2 Forge Pts' }
-    },
-    {
-      id: 'bs-weekly-4', bossLevel: 204, name: 'The Oracle', class: 'Caster',
-      flavor: 'I already know your next move.', avatar: '/cardforge/img/bosses/Crystal-Weaver-10.webp',
-      combatStats: { str: 35, agi: 55, int: 90, end: 55, lck: 70 },
-      reward: { type: 'weekly_bundle', statBonus: { stat: 'int', amount: 3 }, forgePoints: 2, label: '+3 INT & 2 Forge Pts' }
-    }
-  ];
+  function getWeeklyBosses() {
+    return _bosses.filter(function (b) { return b.weekly || isWeeklyBoss(b.id); });
+  }
 
   function getISOWeekNumber() {
     var d = new Date();
@@ -422,7 +399,9 @@
   }
 
   function getWeeklyBoss() {
-    return WEEKLY_BOSSES[getISOWeekNumber() % WEEKLY_BOSSES.length];
+    var pool = getWeeklyBosses();
+    if (pool.length === 0) return null;
+    return pool[getISOWeekNumber() % pool.length];
   }
 
   function getWeeklyBossKey() {
@@ -1469,7 +1448,7 @@
       }
       if (_battleType === 'pvp') { showScreen('pvp'); renderPvPGallery(); }
       else if (_currentBossId) {
-        const currentBoss = _bosses.find(b => b.id === _currentBossId) || WEEKLY_BOSSES.find(b => b.id === _currentBossId);
+        const currentBoss = _bosses.find(b => b.id === _currentBossId);
         // Weekly boss — return to campaign after fight
         if (isWeeklyBoss(_currentBossId)) {
           showScreen('campaign'); renderCampaignLadder();
@@ -1634,7 +1613,7 @@
       btn.addEventListener('click', () => {
         const bossId = btn.dataset.fightBoss;
         // Check weekly bosses first, then campaign bosses
-        const boss = WEEKLY_BOSSES.find(b => b.id === bossId) || _bosses.find(b => b.id === bossId);
+        const boss = _bosses.find(b => b.id === bossId);
         if (!boss) return;
 
         const flavorEl = document.getElementById('bs-prefight-flavor');
@@ -1813,7 +1792,7 @@
     completeBounty('play3');
 
     if (_battleType === 'pve' && isWin) {
-      const boss = WEEKLY_BOSSES.find(b => b.id === _currentBossId) || _bosses.find(b => b.id === _currentBossId);
+      const boss = _bosses.find(b => b.id === _currentBossId);
       const prevHighest = getHighestBossDefeated();
       const isWeekly = isWeeklyBoss(_currentBossId);
       const isNewBossDefeat = !isWeekly && boss && boss.boss > prevHighest;
@@ -1906,7 +1885,7 @@
     const titleEl = document.getElementById('arena-results-title');
     const subtitleEl = document.getElementById('arena-results-subtitle');
     if (isWin) {
-      const boss = _bosses.find(b => b.id === _currentBossId) || WEEKLY_BOSSES.find(b => b.id === _currentBossId);
+      const boss = _bosses.find(b => b.id === _currentBossId);
       const streak = getWinStreak();
       if (titleEl) titleEl.textContent = streak >= 3 ? `${streak}x Victory!` : 'Victory';
       if (subtitleEl && boss) subtitleEl.textContent = `You defeated ${boss.name}`;
@@ -1922,7 +1901,7 @@
     } else {
       if (titleEl) titleEl.textContent = 'Defeated';
       if (subtitleEl) {
-        const boss = _bosses.find(b => b.id === _currentBossId) || WEEKLY_BOSSES.find(b => b.id === _currentBossId);
+        const boss = _bosses.find(b => b.id === _currentBossId);
         const tips = {
           'Enforcer': 'Enforcers guard often. Use Ability to break through.',
           'Fighter': 'Fighters strike hard. Guard or Counter their attacks.',
