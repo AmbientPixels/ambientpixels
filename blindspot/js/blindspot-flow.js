@@ -66,7 +66,7 @@
   }
 
   function updateBottomNav(screenId) {
-    var navMap = { lobby: 'lobby', campaign: 'campaign', pvp: 'pvp', forge: 'forge', battle: '__none__' };
+    var navMap = { lobby: 'lobby', campaign: 'campaign', pvp: 'pvp', forge: 'forge', leaderboard: 'leaderboard', battle: '__none__' };
     document.querySelectorAll('.bs-bottom-nav__item').forEach(function(btn) {
       btn.classList.toggle('bs-bottom-nav__item--active', btn.dataset.nav === navMap[screenId]);
     });
@@ -437,6 +437,7 @@
       if (window.ArenaBackgrounds) window.ArenaBackgrounds.applyToBattleStage();
 
       window.ArenaBattleUI.initBattle(battleData);
+      updateCombatTooltips();
       // Only show tutorial on first attempt (not on retries after losing)
       if (!localStorage.getItem('bs-tutorial-shown')) {
         localStorage.setItem('bs-tutorial-shown', 'true');
@@ -767,10 +768,15 @@
     });
 
     document.getElementById('bs-btn-leaderboard')?.addEventListener('click', () => {
-      window.open('/cardforge/arena.html#lobby', '_blank');
+      showScreen('leaderboard');
+      renderLeaderboard();
     });
 
     document.getElementById('bs-campaign-back')?.addEventListener('click', () => {
+      showScreen('lobby');
+      renderLobby();
+    });
+    document.getElementById('bs-leaderboard-back')?.addEventListener('click', () => {
       showScreen('lobby');
       renderLobby();
     });
@@ -778,6 +784,10 @@
       showScreen('lobby');
       renderLobby();
     });
+
+    // Combat guide
+    document.getElementById('bs-combat-help-btn')?.addEventListener('click', () => { showOverlay('bs-combat-guide'); });
+    document.getElementById('bs-combat-guide-close')?.addEventListener('click', () => { hideOverlay('bs-combat-guide'); });
 
     // Forge overlays
     document.getElementById('bs-forge-now')?.addEventListener('click', () => { hideOverlay('bs-forge-trigger'); openForgeScreen(); });
@@ -897,7 +907,7 @@
       return `
         <div class="bs-boss-card ${statusClass}" data-boss-class="${escHtml(boss.class)}">
           <span class="bs-boss-card__number">${boss.boss}</span>
-          <div class="bs-boss-avatar"><i class="fas ${icon}"></i></div>
+          ${boss.avatar ? `<div class="bs-boss-avatar" style="padding:0;overflow:hidden;"><img src="${escHtml(boss.avatar)}" alt="${escHtml(boss.name)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"></div>` : `<div class="bs-boss-avatar"><i class="fas ${icon}"></i></div>`}
           <div class="bs-boss-card__info">
             <div class="bs-boss-card__name">${escHtml(boss.name)} ${recordBadge}</div>
             <div class="bs-boss-card__class">${escHtml(boss.class)}</div>
@@ -929,8 +939,14 @@
         if (flavorEl) flavorEl.textContent = `"${boss.flavor}"`;
         if (titleEl) titleEl.textContent = boss.name;
         if (avatarEl) {
-          const icon = BOSS_ICONS[boss.class] || 'fa-skull';
-          avatarEl.innerHTML = `<i class="fas ${icon}"></i>`;
+          if (boss.avatar) {
+            avatarEl.innerHTML = `<img src="${escHtml(boss.avatar)}" alt="${escHtml(boss.name)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
+            avatarEl.style.width = '96px';
+            avatarEl.style.height = '96px';
+          } else {
+            const icon = BOSS_ICONS[boss.class] || 'fa-skull';
+            avatarEl.innerHTML = `<i class="fas ${icon}"></i>`;
+          }
         }
 
         showOverlay('bs-prefight-overlay');
@@ -967,6 +983,7 @@
       const battleData = await window.ArenaAPI.startBattle('pve', _selectedCard.id, bossId);
       _activeBattle = battleData;
       window.ArenaBattleUI.initBattle(battleData);
+      updateCombatTooltips();
     } catch (err) {
       console.error('[Blindspot] Campaign battle error:', err);
       if (err.message && err.message.includes('not found')) {
@@ -1016,10 +1033,20 @@
       setWinStreak(newStreak);
       setBestStreak(newStreak);
 
-      // Loot roulette — every win drops something
-      const loot = rollLoot();
-      await applyLootDrop(loot);
-      setTimeout(() => showRewardDrop(loot, 'Victory Reward'), 1500);
+      // Loot choice — pick 1 of 3 rewards
+      const lootOptions = [rollLoot(), rollLoot(), rollLoot()];
+      const usedStats = new Set();
+      lootOptions.forEach((l, i) => {
+        if (l.stat && usedStats.has(l.stat)) {
+          const available = ['str','agi','int','end','lck'].filter(s => !usedStats.has(s));
+          if (available.length > 0) {
+            const newStat = available[Math.floor(Math.random() * available.length)];
+            lootOptions[i] = { ...l, stat: newStat, label: '+' + l.amount + ' ' + newStat.toUpperCase() };
+          }
+        }
+        if (l.stat) usedStats.add(l.stat);
+      });
+      showLootChoice(lootOptions);
 
       // Bounty checks
       if (getWinStreak() >= 3) completeBounty('streak3');
@@ -1185,6 +1212,7 @@
       const battleData = await window.ArenaAPI.startBattle('pvp', _selectedCard.id, opponentId);
       _activeBattle = battleData;
       window.ArenaBattleUI.initBattle(battleData);
+      updateCombatTooltips();
     } catch (err) {
       console.error('[Blindspot] PvP error:', err);
       showErrorToast('PvP battle failed.');
@@ -1892,6 +1920,137 @@
     } catch (e) {
       console.warn('[Blindspot] Storage cleanup error:', e);
     }
+  }
+
+
+  // ============================================================
+  // LEADERBOARD
+  // ============================================================
+
+  async function renderLeaderboard() {
+    const container = document.getElementById('bs-leaderboard-content');
+    if (!container) return;
+    container.innerHTML = '<div class="bs-loading"><div class="bs-spinner"></div> Loading...</div>';
+
+    try {
+      const data = await window.ArenaAPI.loadCards();
+      const gallery = data.galleryCards || [];
+
+      // Sort by power (sum of stats)
+      const ranked = gallery.map(card => {
+        let power = 0;
+        if (card.combatStats) {
+          power = (card.combatStats.str||0) + (card.combatStats.agi||0) + (card.combatStats.int||0) + (card.combatStats.end||0) + (card.combatStats.lck||0);
+        } else if (card.stats && Array.isArray(card.stats)) {
+          power = card.stats.reduce((s,st) => s + (st.value||0), 0);
+        }
+        return { ...card, power };
+      }).sort((a, b) => b.power - a.power).slice(0, 20);
+
+      if (ranked.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:var(--bs-text-muted); padding:2rem;">No fighters yet. Be the first to publish your card.</p>';
+        return;
+      }
+
+      // Check if current player is in the list
+      const myCardId = _selectedCard ? _selectedCard.id : null;
+
+      container.innerHTML = ranked.map((card, i) => {
+        const isMe = card.id === myCardId;
+        const medalIcon = i === 0 ? '<i class="fas fa-crown" style="color:#FFD700;"></i>' : i === 1 ? '<i class="fas fa-medal" style="color:#C0C0C0;"></i>' : i === 2 ? '<i class="fas fa-medal" style="color:#CD7F32;"></i>' : '';
+        return `
+          <div class="bs-boss-card ${isMe ? 'bs-boss-card--current' : ''}" style="cursor:default;">
+            <span class="bs-boss-card__number" style="${i < 3 ? 'border-color:var(--bs-accent);color:var(--bs-accent);' : ''}">${i + 1}</span>
+            <div class="bs-boss-avatar" style="width:36px;height:36px;font-size:0.9rem;">
+              ${card.avatar ? `<img src="${escHtml(card.avatar)}" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">` : '<i class="fas fa-user"></i>'}
+            </div>
+            <div class="bs-boss-card__info">
+              <div class="bs-boss-card__name">${medalIcon} ${escHtml(card.name || 'Unnamed')} ${isMe ? '<span style="color:var(--bs-accent);font-size:0.7rem;">(you)</span>' : ''}</div>
+              <div class="bs-boss-card__class">${escHtml(card.class || '')} &middot; ${card.power} Power</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    } catch (err) {
+      container.innerHTML = '<p style="text-align:center; color:var(--bs-danger);">Failed to load leaderboard.</p>';
+    }
+  }
+
+  // ============================================================
+  // LOOT CHOICE (Pick 1 of 3)
+  // ============================================================
+
+  function showLootChoice(options) {
+    const container = document.getElementById('bs-loot-options');
+    if (!container) {
+      // Fallback: auto-apply first option
+      applyLootDrop(options[0]);
+      showRewardDrop(options[0], 'Victory Reward');
+      return;
+    }
+
+    const rarityColors = {
+      common: 'var(--bs-text-muted)',
+      uncommon: 'var(--bs-accent)',
+      rare: '#7b2fff',
+      epic: '#ff5252'
+    };
+
+    const statNames = { str: 'Strength', agi: 'Agility', int: 'Intelligence', end: 'Endurance', lck: 'Luck' };
+    const statIcons = { str: 'fa-hand-fist', agi: 'fa-feather-pointed', int: 'fa-bolt', end: 'fa-heart', lck: 'fa-clover' };
+
+    container.innerHTML = options.map((loot, i) => {
+      const color = rarityColors[loot.rarity] || 'var(--bs-accent)';
+      const icon = loot.stat ? (statIcons[loot.stat] || 'fa-gem') : 'fa-gem';
+      const statLabel = loot.stat ? (statNames[loot.stat] || loot.stat.toUpperCase()) : '';
+      const rarityLabel = loot.rarity ? loot.rarity.charAt(0).toUpperCase() + loot.rarity.slice(1) : '';
+      return `
+        <button class="bs-loot-card" data-loot-idx="${i}" style="border-color:${color};">
+          <span class="bs-loot-card__rarity" style="color:${color};">${rarityLabel}</span>
+          <i class="fas ${icon}" style="color:${color}; font-size:1.5rem;"></i>
+          <span class="bs-loot-card__label">${escHtml(loot.label)}</span>
+          <span class="bs-loot-card__stat">${escHtml(statLabel)}</span>
+        </button>
+      `;
+    }).join('');
+
+    showOverlay('bs-loot-choice');
+
+    container.querySelectorAll('.bs-loot-card').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const idx = parseInt(btn.dataset.lootIdx, 10);
+        const chosen = options[idx];
+        hideOverlay('bs-loot-choice');
+        await applyLootDrop(chosen);
+        showRewardDrop(chosen, 'Victory Reward');
+      }, { once: true });
+    });
+  }
+
+  // ============================================================
+  // COMBAT TOOLTIPS (show damage estimates on move buttons)
+  // ============================================================
+
+  function updateCombatTooltips() {
+    if (!_activeBattle || !_activeBattle.player) return;
+    const stats = _activeBattle.player.combatStats;
+    if (!stats) return;
+
+    // Strike: STR * 0.4 to STR * 0.5
+    const strMin = Math.floor(stats.str * 0.4);
+    const strMax = Math.floor(stats.str * 0.5);
+    const strEl = document.getElementById('arena-move-str');
+    if (strEl) strEl.textContent = `~${strMin}-${strMax} dmg`;
+
+    // Heal: END * 0.3 to END * 0.4
+    const endMin = Math.floor(stats.end * 0.3);
+    const endMax = Math.floor(stats.end * 0.4);
+    const endEl = document.getElementById('arena-move-end');
+    if (endEl) endEl.textContent = `~${endMin}-${endMax} HP`;
+
+    // Ability: show INT
+    const intEl = document.getElementById('arena-move-int');
+    if (intEl) intEl.textContent = `INT ${stats.int}`;
   }
 
   // ============================================================

@@ -2474,3 +2474,120 @@ body.bs-battle-active .bs-bottom-nav {
   white-space: nowrap;
   flex-shrink: 0;
 }
+
+
+/* ============================================================
+   LOOT CHOICE CARDS (iter 57)
+   ============================================================ */
+
+.bs-loot-options {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
+.bs-loot-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.25rem 1.5rem;
+  background: var(--bs-surface);
+  border: 2px solid var(--bs-border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  min-width: 100px;
+  font-family: 'Share Tech Mono', monospace;
+  color: var(--bs-text);
+}
+
+.bs-loot-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  background: var(--bs-surface-2);
+}
+
+.bs-loot-card:active {
+  transform: scale(0.97);
+}
+
+.bs-loot-card__rarity {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 700;
+}
+
+.bs-loot-card__label {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+.bs-loot-card__stat {
+  font-size: 0.7rem;
+  color: var(--bs-text-muted);
+}
+
+@media (max-width: 480px) {
+  .bs-loot-options { gap: 0.5rem; }
+  .bs-loot-card { padding: 1rem; min-width: 80px; }
+  .bs-loot-card__label { font-size: 0.9rem; }
+}
+
+/* ============================================================
+   COMBAT GUIDE (iter 57)
+   ============================================================ */
+
+.bs-combat-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.bs-combat-rule {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.6rem 0.75rem;
+  background: var(--bs-surface);
+  border: 1px solid var(--bs-border);
+  border-radius: 8px;
+  font-size: 0.8rem;
+  color: var(--bs-text);
+}
+
+.bs-combat-rule i {
+  font-size: 1.1rem;
+  width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.bs-combat-rule strong {
+  font-family: 'Cinzel', serif;
+}
+
+.bs-text-sm {
+  font-size: 0.7rem;
+  color: var(--bs-text-muted);
+}
+
+/* ============================================================
+   CAMPAIGN BOSS AVATAR WITH IMAGE (iter 57)
+   ============================================================ */
+
+.bs-boss-card .bs-boss-avatar img {
+  display: block;
+}
+
+.bs-prefight .bs-boss-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}

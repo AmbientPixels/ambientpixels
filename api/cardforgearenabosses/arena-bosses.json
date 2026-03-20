@@ -461,7 +461,7 @@
       "name": "The Gatekeeper",
       "class": "Enforcer",
       "quote": "Everyone passes through here once.",
-      "avatar": "",
+      "avatar": "/cardforge/img/bosses/Training-Dummy-02.webp",
       "bio": "A slow enforcer who tests newcomers. Methodical but predictable.",
       "stats": [
         {
@@ -502,7 +502,7 @@
       "name": "The Warden",
       "class": "Fighter",
       "quote": "Rules exist for a reason.",
-      "avatar": "",
+      "avatar": "/cardforge/img/bosses/Ironclad-Sentinel-01.webp",
       "bio": "A career fighter who believes in structure. Hits hard, plays fair.",
       "stats": [
         {
@@ -543,7 +543,7 @@
       "name": "The Ghost",
       "class": "Scout",
       "quote": "You never see them coming.",
-      "avatar": "",
+      "avatar": "/cardforge/img/bosses/Shadow-Stalker-01.webp",
       "bio": "Blindingly fast. Shadow Strike always lands first. Built for speed, not endurance.",
       "stats": [
         {
@@ -584,7 +584,7 @@
       "name": "The Cipher",
       "class": "Hacker",
       "quote": "Every system has a flaw.",
-      "avatar": "",
+      "avatar": "/cardforge/img/bosses/Crystal-Weaver-10.webp",
       "bio": "Exploits weaknesses with Arcane Blast. Applies Vulnerable debuff, then hammers the gap.",
       "stats": [
         {
@@ -625,7 +625,7 @@
       "name": "The Brute",
       "class": "Berserker",
       "quote": "Subtlety is for cowards.",
-      "avatar": "",
+      "avatar": "/cardforge/img/bosses/Warlord-Grax01.webp",
       "bio": "Pure aggression. Massive STR pool, relentless Power Strikes, gets dangerous when low.",
       "stats": [
         {
@@ -666,7 +666,7 @@
       "name": "The Sage",
       "class": "Scholar",
       "quote": "Knowledge compounds.",
-      "avatar": "",
+      "avatar": "/cardforge/img/bosses/Arcane-Scholar-01.webp",
       "bio": "High INT spellcaster who punishes Guard with stuns. Patient and calculating.",
       "stats": [
         {
@@ -713,7 +713,7 @@
       "name": "The Iron",
       "class": "Guardian",
       "quote": "Nothing gets through.",
-      "avatar": "",
+      "avatar": "/cardforge/img/bosses/Titanium-Aegis-01.webp",
       "bio": "Massive HP pool. Fortify heals and reduces damage. You'll run out of steam before they do.",
       "stats": [
         {
@@ -760,7 +760,7 @@
       "name": "The Trickster",
       "class": "Trickster",
       "quote": "Probability is just a suggestion.",
-      "avatar": "",
+      "avatar": "/cardforge/img/bosses/Void-Harbinger-01.webp",
       "bio": "Wild Card ability means every round is a coin flip. 25% crit or 10% fizzle. High LCK amplifies chaos.",
       "stats": [
         {
@@ -807,7 +807,7 @@
       "name": "The Feral",
       "class": "Berserker",
       "quote": "Pain stopped mattering long ago.",
-      "avatar": "",
+      "avatar": "/cardforge/img/bosses/Gutter-Rat01.webp",
       "bio": "Relentless berserker with massive STR and END. Last Stand makes them even deadlier.",
       "stats": [
         {
@@ -859,7 +859,7 @@
       "name": "The Architect",
       "class": "Caster",
       "quote": "This is what a Forger becomes when they never stop.",
-      "avatar": "",
+      "avatar": "/cardforge/img/bosses/The-Forge-King-01.webp",
       "bio": "The final challenge. INT-heavy Caster with Arcane Blast, Vulnerable stacking, and no mercy.",
       "stats": [
         {

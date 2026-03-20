@@ -1,62 +1,146 @@
 [
   {
-    "boss": 1, "id": "bs-boss-1", "bossLevel": 101,
-    "name": "The Gatekeeper", "class": "Enforcer",
+    "boss": 1,
+    "id": "bs-boss-1",
+    "bossLevel": 101,
+    "name": "The Gatekeeper",
+    "class": "Enforcer",
     "flavor": "Everyone passes through here once.",
-    "reward": { "type": "stat_bonus", "stat": "str", "amount": 5, "label": "+5 STR" }
+    "reward": {
+      "type": "stat_bonus",
+      "stat": "str",
+      "amount": 5,
+      "label": "+5 STR"
+    },
+    "avatar": "/cardforge/img/bosses/Training-Dummy-02.webp"
   },
   {
-    "boss": 2, "id": "bs-boss-2", "bossLevel": 102,
-    "name": "The Warden", "class": "Fighter",
+    "boss": 2,
+    "id": "bs-boss-2",
+    "bossLevel": 102,
+    "name": "The Warden",
+    "class": "Fighter",
     "flavor": "Rules exist for a reason.",
-    "reward": { "type": "visual", "unlock": "palette_ocean", "label": "Ocean Palette" }
+    "reward": {
+      "type": "visual",
+      "unlock": "palette_ocean",
+      "label": "Ocean Palette"
+    },
+    "avatar": "/cardforge/img/bosses/Ironclad-Sentinel-01.webp"
   },
   {
-    "boss": 3, "id": "bs-boss-3", "bossLevel": 103,
-    "name": "The Ghost", "class": "Scout",
+    "boss": 3,
+    "id": "bs-boss-3",
+    "bossLevel": 103,
+    "name": "The Ghost",
+    "class": "Scout",
     "flavor": "You never see them coming.",
-    "reward": { "type": "stat_bonus", "stat": "agi", "amount": 5, "label": "+5 AGI" }
+    "reward": {
+      "type": "stat_bonus",
+      "stat": "agi",
+      "amount": 5,
+      "label": "+5 AGI"
+    },
+    "avatar": "/cardforge/img/bosses/Shadow-Stalker-01.webp"
   },
   {
-    "boss": 4, "id": "bs-boss-4", "bossLevel": 104,
-    "name": "The Cipher", "class": "Hacker",
+    "boss": 4,
+    "id": "bs-boss-4",
+    "bossLevel": 104,
+    "name": "The Cipher",
+    "class": "Hacker",
     "flavor": "Every system has a flaw.",
-    "reward": { "type": "visual", "unlock": "palette_neon", "label": "Neon Palette" }
+    "reward": {
+      "type": "visual",
+      "unlock": "palette_neon",
+      "label": "Neon Palette"
+    },
+    "avatar": "/cardforge/img/bosses/Crystal-Weaver-10.webp"
   },
   {
-    "boss": 5, "id": "bs-boss-5", "bossLevel": 105,
-    "name": "The Brute", "class": "Berserker",
+    "boss": 5,
+    "id": "bs-boss-5",
+    "bossLevel": 105,
+    "name": "The Brute",
+    "class": "Berserker",
     "flavor": "Subtlety is for cowards.",
-    "reward": { "type": "title", "title": "Proven", "label": "Title: Proven" }
+    "reward": {
+      "type": "title",
+      "title": "Proven",
+      "label": "Title: Proven"
+    },
+    "avatar": "/cardforge/img/bosses/Warlord-Grax01.webp"
   },
   {
-    "boss": 6, "id": "bs-boss-6", "bossLevel": 106,
-    "name": "The Sage", "class": "Scholar",
+    "boss": 6,
+    "id": "bs-boss-6",
+    "bossLevel": 106,
+    "name": "The Sage",
+    "class": "Scholar",
     "flavor": "Knowledge compounds.",
-    "reward": { "type": "visual", "unlock": "container_fullbleed", "label": "Full Art Layout" }
+    "reward": {
+      "type": "visual",
+      "unlock": "container_fullbleed",
+      "label": "Full Art Layout"
+    },
+    "avatar": "/cardforge/img/bosses/Arcane-Scholar-01.webp"
   },
   {
-    "boss": 7, "id": "bs-boss-7", "bossLevel": 107,
-    "name": "The Iron", "class": "Guardian",
+    "boss": 7,
+    "id": "bs-boss-7",
+    "bossLevel": 107,
+    "name": "The Iron",
+    "class": "Guardian",
     "flavor": "Nothing gets through.",
-    "reward": { "type": "stat_bonus", "stat": "end", "amount": 10, "label": "+10 END" }
+    "reward": {
+      "type": "stat_bonus",
+      "stat": "end",
+      "amount": 10,
+      "label": "+10 END"
+    },
+    "avatar": "/cardforge/img/bosses/Titanium-Aegis-01.webp"
   },
   {
-    "boss": 8, "id": "bs-boss-8", "bossLevel": 108,
-    "name": "The Trickster", "class": "Trickster",
+    "boss": 8,
+    "id": "bs-boss-8",
+    "bossLevel": 108,
+    "name": "The Trickster",
+    "class": "Trickster",
     "flavor": "Probability is just a suggestion.",
-    "reward": { "type": "visual", "unlock": "palette_fire", "label": "Fire Palette" }
+    "reward": {
+      "type": "visual",
+      "unlock": "palette_fire",
+      "label": "Fire Palette"
+    },
+    "avatar": "/cardforge/img/bosses/Void-Harbinger-01.webp"
   },
   {
-    "boss": 9, "id": "bs-boss-9", "bossLevel": 109,
-    "name": "The Feral", "class": "Berserker",
+    "boss": 9,
+    "id": "bs-boss-9",
+    "bossLevel": 109,
+    "name": "The Feral",
+    "class": "Berserker",
     "flavor": "Pain stopped mattering long ago.",
-    "reward": { "type": "stat_bonus", "stat": "str", "amount": 10, "label": "+10 STR" }
+    "reward": {
+      "type": "stat_bonus",
+      "stat": "str",
+      "amount": 10,
+      "label": "+10 STR"
+    },
+    "avatar": "/cardforge/img/bosses/Gutter-Rat01.webp"
   },
   {
-    "boss": 10, "id": "bs-boss-10", "bossLevel": 110,
-    "name": "The Architect", "class": "Caster",
+    "boss": 10,
+    "id": "bs-boss-10",
+    "bossLevel": 110,
+    "name": "The Architect",
+    "class": "Caster",
     "flavor": "This is what a Forger becomes when they never stop.",
-    "reward": { "type": "title", "title": "Forged", "label": "Title: Forged" }
+    "reward": {
+      "type": "title",
+      "title": "Forged",
+      "label": "Title: Forged"
+    },
+    "avatar": "/cardforge/img/bosses/The-Forge-King-01.webp"
   }
 ]

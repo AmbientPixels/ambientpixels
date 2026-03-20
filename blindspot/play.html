@@ -99,7 +99,7 @@
             </span>
             <span class="bs-mode-btn__lock" id="bs-pvp-lock"><i class="fas fa-lock"></i> Beat Boss 10</span>
           </button>
-          <button class="bs-mode-btn" id="bs-btn-leaderboard">
+          <button class="bs-mode-btn" id="bs-btn-leaderboard" data-nav-target="leaderboard">
             <i class="fas fa-crown"></i>
             <span class="bs-mode-btn__label">
               <span class="bs-mode-btn__title">Leaderboard</span>
@@ -141,11 +141,26 @@
       </div>
     </div>
 
+
+    <!-- SCREEN: LEADERBOARD -->
+    <div id="bs-screen-leaderboard" class="bs-screen">
+      <div class="bs-campaign">
+        <div class="bs-campaign__header">
+          <button class="bs-campaign__back" id="bs-leaderboard-back"><i class="fas fa-arrow-left"></i></button>
+          <h2>Leaderboard</h2>
+        </div>
+        <div id="bs-leaderboard-content">
+          <div class="bs-loading"><div class="bs-spinner"></div> Loading...</div>
+        </div>
+      </div>
+    </div>
+
     <!-- SCREEN: BATTLE -->
     <div id="bs-screen-battle" class="bs-screen">
       <div class="arena-battle">
         <div class="arena-battle__header">
           <span class="arena-battle__round" id="arena-round-label">Round 1</span>
+          <button class="arena-btn arena-btn--ghost arena-btn--sm" id="bs-combat-help-btn" title="Combat Guide" style="font-size:0.8rem;"><i class="fas fa-question-circle"></i></button>
           <button class="arena-btn arena-btn--ghost arena-btn--sm" id="arena-forfeit-btn">
             <i class="fas fa-flag"></i> Forfeit
           </button>
@@ -244,12 +259,40 @@
 
   <!-- OVERLAYS -->
 
+  <!-- Combat Guide Overlay -->
+  <div id="bs-combat-guide" class="bs-overlay bs-overlay--hidden">
+    <div style="max-width:400px; width:100%;">
+      <h2 class="bs-overlay__title" style="font-size:1.2rem; margin-bottom:1rem;">How Combat Works</h2>
+      <div class="bs-combat-grid">
+        <div class="bs-combat-rule"><i class="fas fa-hand-fist" style="color:var(--bs-accent);"></i><div><strong>Strike</strong><br><span class="bs-text-sm">STR-based damage. Disrupts heals. Blocked by Guard.</span></div></div>
+        <div class="bs-combat-rule"><i class="fas fa-shield-halved" style="color:var(--bs-text);"></i><div><strong>Guard</strong><br><span class="bs-text-sm">Blocks 60% of strike damage. Stunned by abilities.</span></div></div>
+        <div class="bs-combat-rule"><i class="fas fa-heart-pulse" style="color:var(--bs-success);"></i><div><strong>Heal</strong><br><span class="bs-text-sm">END-based recovery. Halved by strikes. Cancelled by abilities.</span></div></div>
+        <div class="bs-combat-rule"><i class="fas fa-shield" style="color:var(--bs-text-muted);"></i><div><strong>Counter</strong><br><span class="bs-text-sm">Reflects strike damage back. Fails against abilities.</span></div></div>
+        <div class="bs-combat-rule"><i class="fas fa-bolt" style="color:var(--bs-accent-glow);"></i><div><strong>Ability</strong><br><span class="bs-text-sm">INT-based class power. Costs 2 charges. Stuns guards.</span></div></div>
+      </div>
+      <div style="margin-top:1rem; padding:0.75rem; background:var(--bs-surface); border-radius:8px; border:1px solid var(--bs-border);">
+        <p style="font-size:0.75rem; color:var(--bs-text-muted); margin:0;"><strong style="color:var(--bs-accent);">Stats:</strong> STR = strike power, AGI = speed + dodge, INT = ability power, END = heal + HP, LCK = crit chance</p>
+      </div>
+      <button class="bs-btn bs-btn--primary bs-btn--full" id="bs-combat-guide-close" style="margin-top:1rem;">Got It</button>
+    </div>
+  </div>
+
+
+
   <!-- Pre-fight overlay -->
   <div id="bs-prefight-overlay" class="bs-overlay bs-overlay--hidden bs-prefight">
     <div class="bs-boss-avatar" id="bs-prefight-avatar" style="width:64px;height:64px;font-size:1.5rem;border-color:var(--bs-accent);color:var(--bs-accent);"></div>
     <p class="bs-overlay__title" id="bs-prefight-title" style="margin-top:0.5rem;"></p>
     <p class="bs-prefight__flavor" id="bs-prefight-flavor"></p>
     <button class="bs-btn bs-btn--primary bs-btn--large bs-btn--glow" id="bs-prefight-go">Fight</button>
+  </div>
+
+
+  <!-- Loot Choice (pick 1 of 3 after win) -->
+  <div id="bs-loot-choice" class="bs-overlay bs-overlay--hidden">
+    <p class="bs-overlay__title">Victory Reward</p>
+    <p class="bs-overlay__subtitle" style="font-size:0.8rem;">Choose your reward:</p>
+    <div class="bs-loot-options" id="bs-loot-options"></div>
   </div>
 
   <!-- Forge visit trigger overlay -->
