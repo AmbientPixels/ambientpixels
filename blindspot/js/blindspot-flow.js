@@ -438,10 +438,13 @@
     renderLobby();
     bindPlayNavigation();
 
-    // Sync Blindspot boss progress from server
-    if (profile.pveProgress) {
-      const bsHighest = profile.pveProgress.blindspotHighestDefeated || 100;
-      setHighestBossDefeated(bsHighest - 100);
+    // Sync Blindspot boss progress from server (authoritative — overrides localStorage)
+    if (profile.pveProgress && profile.pveProgress.blindspotHighestDefeated !== undefined) {
+      // Server has Blindspot progress — convert level (101-110) to boss number (1-10)
+      localStorage.setItem('bs-highest-boss', String(profile.pveProgress.blindspotHighestDefeated - 100));
+    } else {
+      // Never played Blindspot — force start fresh (ignore CardForge progress)
+      localStorage.setItem('bs-highest-boss', '0');
     }
   }
 
