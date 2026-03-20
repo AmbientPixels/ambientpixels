@@ -100,6 +100,24 @@
     return d.innerHTML;
   }
 
+  // Boss attempt tracking
+  function getBossRecord(bossId) {
+    try {
+      const data = JSON.parse(localStorage.getItem('bs-boss-records') || '{}');
+      return data[bossId] || { wins: 0, losses: 0 };
+    } catch { return { wins: 0, losses: 0 }; }
+  }
+
+  function recordBossResult(bossId, isWin) {
+    try {
+      const data = JSON.parse(localStorage.getItem('bs-boss-records') || '{}');
+      if (!data[bossId]) data[bossId] = { wins: 0, losses: 0 };
+      if (isWin) data[bossId].wins++;
+      else data[bossId].losses++;
+      localStorage.setItem('bs-boss-records', JSON.stringify(data));
+    } catch (e) { console.warn('recordBossResult error:', e); }
+  }
+
   // ============================================================
   // LOAD DATA
   // ============================================================
@@ -580,17 +598,21 @@
       else if (locked) statusClass = 'bs-boss-card--locked';
 
       const icon = BOSS_ICONS[boss.class] || 'fa-skull';
+      const record = getBossRecord(boss.id);
 
-      // Show connector line between bosses (except last)
       const connector = i < _bosses.length - 1
         ? `<div class="bs-ladder-connector ${defeated ? 'bs-ladder-connector--done' : ''}"></div>`
+        : '';
+
+      const recordBadge = (record.wins > 0 || record.losses > 0)
+        ? `<span class="bs-boss-card__record">${record.wins}W / ${record.losses}L</span>`
         : '';
 
       return `
         <div class="bs-boss-card ${statusClass}">
           <div class="bs-boss-avatar"><i class="fas ${icon}"></i></div>
           <div class="bs-boss-card__info">
-            <div class="bs-boss-card__name">${escHtml(boss.name)}</div>
+            <div class="bs-boss-card__name">${escHtml(boss.name)} ${recordBadge}</div>
             <div class="bs-boss-card__class">${escHtml(boss.class)}</div>
             <div class="bs-boss-card__flavor">"${escHtml(boss.flavor)}"</div>
           </div>
@@ -614,8 +636,13 @@
 
         const flavorEl = document.getElementById('bs-prefight-flavor');
         const titleEl = document.getElementById('bs-prefight-title');
+        const avatarEl = document.getElementById('bs-prefight-avatar');
         if (flavorEl) flavorEl.textContent = `"${boss.flavor}"`;
         if (titleEl) titleEl.textContent = boss.name;
+        if (avatarEl) {
+          const icon = BOSS_ICONS[boss.class] || 'fa-skull';
+          avatarEl.innerHTML = `<i class="fas ${icon}"></i>`;
+        }
 
         showOverlay('bs-prefight-overlay');
         const goBtn = document.getElementById('bs-prefight-go');
@@ -663,6 +690,11 @@
 
   function handlePlayPageResult(battleResult, battleData) {
     const isWin = battleResult.winner === 'player';
+
+    // Track boss record
+    if (_battleType === 'pve' && _currentBossId) {
+      recordBossResult(_currentBossId, isWin);
+    }
 
     loadProfile().then(() => updateRankDisplay());
 

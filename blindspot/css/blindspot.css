@@ -649,6 +649,14 @@
   color: var(--bs-success);
 }
 
+.bs-boss-card__record {
+  font-size: 0.65rem;
+  color: var(--bs-text-muted);
+  font-weight: 400;
+  margin-left: 0.5rem;
+  font-family: 'Share Tech Mono', monospace;
+}
+
 /* ============================================================
    BATTLE OVERLAYS — Stranger results, pre-fight, etc.
    ============================================================ */
