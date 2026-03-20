@@ -2,6 +2,7 @@
 // Executes an approved action by ID, routing to platform-specific adapters.
 // Governance-gated: rejects if not approved, logs all outcomes.
 
+const crypto = require('crypto');
 const storage = require('../_utils/companyStorage');
 const { executeAction, isExecutable } = require('./executors');
 const socialTelemetry = require('../socialMetrics/telemetry');
@@ -247,7 +248,7 @@ module.exports = async function (context, req) {
     // ── MARK RUNNING ──
     if (isSocialAction) {
       if (!action.telemetry.trace_id) {
-        action.telemetry.trace_id = 'trace_' + Date.now() + '_' + Math.random().toString(36).slice(2, 8);
+        action.telemetry.trace_id = 'trace_' + Date.now() + '_' + crypto.randomUUID().split('-')[0];
       }
       action.telemetry.attempt = (action.execution.attempts || 0) + 1;
 

@@ -3,6 +3,7 @@
 // Reads the document from storage, determines visibility, writes to
 // blogPosts (public) or publishedDocs (internal), and updates doc status.
 
+const crypto = require('crypto');
 const storage = require('../../../_utils/companyStorage');
 
 const PUBLIC_KINDS = ['marketing_post', 'product_brief'];
@@ -50,7 +51,7 @@ async function publishDocument(action) {
   const store = (await storage.getState(storageKey)) || [];
 
   const publishEntry = {
-    id: 'pub_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+    id: 'pub_' + Date.now() + '_' + crypto.randomUUID().split('-')[0],
     documentId: documentId,
     actionId: action.id,
     title: title || doc.title,
@@ -121,7 +122,7 @@ async function publishDocument(action) {
   try {
     const auditLog = (await storage.getState('actionAuditLog')) || [];
     auditLog.push({
-      id: 'alog-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+      id: 'alog-' + Date.now() + '-' + crypto.randomUUID().split('-')[0],
       type: 'publish-executed-via-action-center',
       data: { actionId: action.id, documentId, title: doc.title, slug, visibility, publishEntryId: publishEntry.id },
       timestamp: now
@@ -208,7 +209,7 @@ async function publishDocument(action) {
         if (_promoExists) continue;
 
         var promoTask = {
-          id: 'task_' + Date.now() + '_promo_' + plat + '_' + Math.random().toString(36).substr(2, 4),
+          id: 'task_' + Date.now() + '_promo_' + plat + '_' + crypto.randomUUID().split('-')[0],
           title: 'Promote blog post on ' + (plat === 'x' ? 'X (Twitter)' : plat.charAt(0).toUpperCase() + plat.slice(1)) + ': ' + (doc.title || slug),
           description: 'The blog post "' + (doc.title || slug) + '" has been published and the CEO approved it for social promotion.\n\n'
             + 'Blog URL: ' + blogUrl + '\n'

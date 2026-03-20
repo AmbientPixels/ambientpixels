@@ -1,3 +1,4 @@
+const crypto = require('crypto');
 const fetch = require('node-fetch');
 const storage = require('../_utils/companyStorage');
 const { normalizeCampaignRef, ensureCampaign } = require('../_shared/campaignMatcher');
@@ -445,7 +446,7 @@ async function executeChatActions(context, actions, agentId) {
           const tasks = (await storage.getState('tasks')) || [];
           const campaignId = await _resolveCampaignId(t);
           const newTask = {
-            id: 'task-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+            id: 'task-' + Date.now() + '-' + crypto.randomUUID().split('-')[0],
             title: t.title || 'Untitled Task',
             description: t.description || '',
             status: t.status || 'todo',
@@ -521,7 +522,7 @@ async function executeChatActions(context, actions, agentId) {
           const documents = (await storage.getState('documents')) || [];
           const slug = (d.title || 'untitled').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
           const newDoc = {
-            id: 'doc-' + Date.now() + '-' + Math.random().toString(36).substr(2, 4),
+            id: 'doc-' + Date.now() + '-' + crypto.randomUUID().split('-')[0],
             title: d.title || 'Untitled Document',
             kind: d.kind || 'spec',
             status: 'draft',
@@ -543,7 +544,7 @@ async function executeChatActions(context, actions, agentId) {
           const PUBLIC_KINDS = ['marketing_post', 'product_brief'];
           if (PUBLIC_KINDS.includes(newDoc.kind)) {
             const publishAction = {
-              id: 'act-' + Date.now() + '-' + Math.random().toString(36).substr(2, 6),
+              id: 'act-' + Date.now() + '-' + crypto.randomUUID().split('-')[0],
               type: 'publish_document',
               origin_agent: agentId,
               payload: { documentId: newDoc.id, title: newDoc.title, slug: slug, kind: newDoc.kind, visibility: 'public' },
