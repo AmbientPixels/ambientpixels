@@ -216,7 +216,6 @@
     if (!boss.reward || isRewardClaimed(boss.id)) return null;
 
     const reward = boss.reward;
-    claimReward(boss.id);
 
     if (reward.type === 'stat_bonus' && _selectedCard && _selectedCard.combatStats) {
       // Apply stat bonus to card
@@ -240,18 +239,27 @@
         Object.assign(headers, authHeaders);
         const csrfMeta = document.querySelector('meta[name="csrf-token"]');
         if (csrfMeta && csrfMeta.content) headers['X-CSRF-Token'] = csrfMeta.content;
-        await fetch(url, { method: 'POST', headers, body: JSON.stringify(cardToSave) });
+        const resp = await fetch(url, { method: 'POST', headers, body: JSON.stringify(cardToSave) });
+        if (!resp.ok) throw new Error('Save failed');
+        claimReward(boss.id); // Only claim after successful save
       } catch (e) {
-        console.warn('[Blindspot] Reward save error:', e);
+        // Revert stat change — player can re-earn on next fight
+        _selectedCard.combatStats[reward.stat] = Math.min(100,
+          (_selectedCard.combatStats[reward.stat] || 0) - reward.amount
+        );
+        console.warn('[Blindspot] Reward save failed, reverted:', e);
+        return null; // Don't show reward popup if save failed
       }
     }
 
     if (reward.type === 'title') {
       setCardTitle(reward.title);
+      claimReward(boss.id);
     }
 
     if (reward.type === 'visual') {
       unlockVisual(reward.unlock);
+      claimReward(boss.id);
     }
 
     if (reward.type === 'forge_bonus') {
@@ -1056,8 +1064,9 @@
       const streak = getWinStreak();
       if (titleEl) titleEl.textContent = streak >= 3 ? `${streak}x Victory!` : 'Victory';
       if (subtitleEl && boss) subtitleEl.textContent = `You defeated ${boss.name}`;
-      // Show power after win
+      // Show power after win (remove previous to prevent stacking)
       const power = getCardPower(_selectedCard);
+      document.querySelector('.bs-results-power')?.remove();
       if (power > 0) {
         const powerEl = document.createElement('div');
         powerEl.className = 'bs-results-power';
@@ -1252,12 +1261,15 @@
     const totalEl = document.getElementById('bs-forge-total');
     const applyBtn = document.getElementById('bs-forge-apply');
 
+    let _hasVisualChange = false;
+
     function updateBudget() {
       const totalAllocated = Object.values(allocations).reduce((a, b) => a + b, 0);
       const remaining = bonusPoints - totalAllocated;
       if (remainingEl) remainingEl.textContent = remaining;
       if (totalEl) totalEl.textContent = totalBefore + totalAllocated;
-      if (applyBtn) applyBtn.disabled = remaining !== 0;
+      // Enable forge if all stats spent OR if any visual/detail change was made
+      if (applyBtn) applyBtn.disabled = !(remaining === 0 || _hasVisualChange);
     }
 
     panel.querySelectorAll('.bs-forge-stat__slider').forEach(slider => {
@@ -1301,8 +1313,8 @@
       btn.addEventListener('click', () => {
         panel.querySelectorAll('[data-palette]').forEach(b => b.classList.remove('bs-forge-option--selected'));
         btn.classList.add('bs-forge-option--selected');
-        // Enable apply button when any change is made
-        if (applyBtn) applyBtn.disabled = false;
+        _hasVisualChange = true;
+        updateBudget();
       });
     });
 
@@ -1311,8 +1323,15 @@
       btn.addEventListener('click', () => {
         panel.querySelectorAll('[data-container]').forEach(b => b.classList.remove('bs-forge-option--selected'));
         btn.classList.add('bs-forge-option--selected');
-        if (applyBtn) applyBtn.disabled = false;
+        _hasVisualChange = true;
+        updateBudget();
       });
+    });
+
+    // Details tab: any input change enables forge
+    ['bs-forge-name', 'bs-forge-quote', 'bs-forge-avatar'].forEach(id => {
+      const input = document.getElementById(id);
+      if (input) input.addEventListener('input', () => { _hasVisualChange = true; updateBudget(); });
     });
 
     applyBtn.addEventListener('click', async () => {
@@ -1526,11 +1545,10 @@
   async function applyLootDrop(loot) {
     if (!_selectedCard || !_selectedCard.combatStats || loot.type !== 'stat_shard') return;
 
-    _selectedCard.combatStats[loot.stat] = Math.min(100,
-      (_selectedCard.combatStats[loot.stat] || 0) + loot.amount
-    );
+    const oldVal = _selectedCard.combatStats[loot.stat] || 0;
+    _selectedCard.combatStats[loot.stat] = Math.min(100, oldVal + loot.amount);
 
-    // Save (non-blocking)
+    // Save with retry — revert on failure to prevent drift
     try {
       const cardToSave = { ..._selectedCard };
       cardToSave.stats = [
@@ -1546,8 +1564,13 @@
       Object.assign(headers, authHeaders);
       const csrfMeta = document.querySelector('meta[name="csrf-token"]');
       if (csrfMeta && csrfMeta.content) headers['X-CSRF-Token'] = csrfMeta.content;
-      fetch(url, { method: 'POST', headers, body: JSON.stringify(cardToSave) });
-    } catch (e) { console.warn('[Blindspot] Loot save:', e); }
+      const resp = await fetch(url, { method: 'POST', headers, body: JSON.stringify(cardToSave) });
+      if (!resp.ok) throw new Error('Save failed');
+    } catch (e) {
+      // Revert stat change on save failure
+      _selectedCard.combatStats[loot.stat] = oldVal;
+      console.warn('[Blindspot] Loot save failed, reverted:', e);
+    }
   }
 
   function showRewardDrop(reward, source) {
