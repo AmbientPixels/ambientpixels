@@ -214,6 +214,9 @@
     await gameDataPromise;
     const profile = await profilePromise;
 
+    // Update auth UI on landing page
+    updateLandingAuthUI();
+
     fightBtn.addEventListener('click', async () => {
       fightBtn.disabled = true;
       fightBtn.innerHTML = '<span class="bs-spinner" style="display:inline-block;width:14px;height:14px;"></span>';
@@ -444,6 +447,7 @@
 
     renderLobby();
     bindPlayNavigation();
+    updatePlayAuthUI();
   }
 
   // ============================================================
@@ -1105,6 +1109,44 @@
 
   function showErrorToast(msg) { showToast(msg, 'error'); }
   function showSuccessToast(msg) { showToast(msg, 'success'); }
+
+  // ============================================================
+  // AUTH UI
+  // ============================================================
+
+  function updatePlayAuthUI() {
+    const el = document.getElementById('bs-topbar-user');
+    if (!el) return;
+    fetch('/.auth/me').then(r => r.json()).then(data => {
+      if (data && data.clientPrincipal) {
+        const name = (data.clientPrincipal.userDetails || '').split('@')[0] || 'Player';
+        el.innerHTML = `${escHtml(name)} <a href="/.auth/logout?post_logout_redirect_uri=/blindspot/" style="color:var(--bs-text-muted); margin-left:0.5rem; font-size:0.7rem;"><i class="fas fa-sign-out-alt"></i></a>`;
+      }
+    }).catch(() => {});
+  }
+
+  function updateLandingAuthUI() {
+    const authArea = document.getElementById('bs-auth-area');
+    if (!authArea) return;
+
+    if (!isDemo()) {
+      // User is logged in — show name + logout
+      fetch('/.auth/me').then(r => r.json()).then(data => {
+        if (data && data.clientPrincipal) {
+          const name = (data.clientPrincipal.userDetails || '').split('@')[0] || 'Player';
+          authArea.innerHTML = `
+            <span class="bs-landing__user">
+              <i class="fas fa-user"></i> ${escHtml(name)}
+              <a href="/.auth/logout?post_logout_redirect_uri=/blindspot/" class="bs-landing__signin" style="margin-left:0.75rem;">
+                <i class="fas fa-sign-out-alt"></i> Sign out
+              </a>
+            </span>
+          `;
+        }
+      }).catch(() => {});
+    }
+    // If demo, the sign-in link stays as-is
+  }
 
   // ============================================================
   // BOOT

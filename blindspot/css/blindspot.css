@@ -332,6 +332,20 @@
   color: var(--bs-accent);
 }
 
+.bs-landing__auth {
+  margin-top: 0.5rem;
+}
+
+.bs-landing__user {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--bs-text-muted);
+}
+
+.bs-landing__user i { color: var(--bs-accent-dim); }
+
 /* ============================================================
    PLAY PAGE — Layout
    ============================================================ */
@@ -1313,6 +1327,37 @@
 .bs-page .qb-nav-btn--save {
   background: var(--bs-accent);
   border-color: var(--bs-accent);
+}
+
+/* Quick Build artwork/style tiles */
+.bs-page .qb-artwork-tile.selected,
+.bs-page .qb-style-tile.selected {
+  border-color: var(--bs-accent) !important;
+  background: rgba(239, 159, 39, 0.15) !important;
+}
+
+.bs-page .qb-vibe-card.selected {
+  border-color: var(--bs-accent) !important;
+  background: rgba(239, 159, 39, 0.1) !important;
+}
+
+.bs-page .qb-class-card.selected {
+  border-color: var(--bs-accent) !important;
+}
+
+.bs-page .qb-gallery-img.selected {
+  outline-color: var(--bs-accent) !important;
+  box-shadow: 0 0 10px rgba(239, 159, 39, 0.4) !important;
+}
+
+.bs-page .qb-surprise-btn {
+  border-color: var(--bs-accent-dim) !important;
+  color: var(--bs-accent) !important;
+}
+
+.bs-page .qb-generate-btn {
+  background: var(--bs-accent) !important;
+  border-color: var(--bs-accent) !important;
 }
 
 /* ============================================================
