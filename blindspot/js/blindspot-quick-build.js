@@ -7,20 +7,13 @@
 (function () {
   'use strict';
 
+  // 5 core archetypes — one per combat ability. Clean, focused choices.
   const CLASSES = [
-    { id: 'Fighter',   label: 'Fighter',   icon: 'fa-hand-fist',           ability: 'Power Strike',  abilityStat: 'STR', flavor: 'Hit hard. Hit first.' },
-    { id: 'Enforcer',  label: 'Enforcer',  icon: 'fa-gavel',               ability: 'Power Strike',  abilityStat: 'STR', flavor: 'Order through force.' },
-    { id: 'Berserker', label: 'Berserker', icon: 'fa-fire',                ability: 'Power Strike',  abilityStat: 'STR', flavor: 'Pain is fuel.' },
-    { id: 'Caster',    label: 'Caster',    icon: 'fa-wand-magic-sparkles', ability: 'Arcane Blast',  abilityStat: 'INT', flavor: 'Rewrite the rules.' },
-    { id: 'Hacker',    label: 'Hacker',    icon: 'fa-terminal',            ability: 'Arcane Blast',  abilityStat: 'INT', flavor: 'Find the gap. Exploit it.' },
-    { id: 'Scholar',   label: 'Scholar',   icon: 'fa-book',                ability: 'Arcane Blast',  abilityStat: 'INT', flavor: 'Knowledge never dulls.' },
-    { id: 'Scout',     label: 'Scout',     icon: 'fa-binoculars',          ability: 'Shadow Strike', abilityStat: 'AGI', flavor: 'Strike before they see you.' },
-    { id: 'Rogue',     label: 'Rogue',     icon: 'fa-user-ninja',          ability: 'Shadow Strike', abilityStat: 'AGI', flavor: 'It ends before they know.' },
-    { id: 'Pilot',     label: 'Pilot',     icon: 'fa-rocket',              ability: 'Shadow Strike', abilityStat: 'AGI', flavor: 'Speed is survival.' },
-    { id: 'Guardian',  label: 'Guardian',  icon: 'fa-shield-halved',       ability: 'Fortify',       abilityStat: 'END', flavor: 'Take everything. Give nothing.' },
-    { id: 'Medic',     label: 'Medic',     icon: 'fa-heart-pulse',         ability: 'Fortify',       abilityStat: 'END', flavor: 'Outlast them all.' },
-    { id: 'Trickster', label: 'Trickster', icon: 'fa-dice',                ability: 'Wild Card',     abilityStat: 'LCK', flavor: 'Chaos is strategy. It works.' },
-    { id: 'Wildcard',  label: 'Wildcard',  icon: 'fa-question',            ability: 'Wild Card',     abilityStat: 'LCK', flavor: 'Chaos is strategy. It works.' }
+    { id: 'Fighter',   label: 'Fighter',   icon: 'fa-hand-fist',           ability: 'Power Strike',  abilityStat: 'STR', flavor: 'Hit hard. Hit first.', desc: 'High damage strikes that overpower guards. Gets deadlier at low HP.' },
+    { id: 'Caster',    label: 'Caster',    icon: 'fa-wand-magic-sparkles', ability: 'Arcane Blast',  abilityStat: 'INT', flavor: 'Rewrite the rules.',   desc: 'Arcane blasts apply Vulnerable (+15% dmg) and stun through guards.' },
+    { id: 'Rogue',     label: 'Rogue',     icon: 'fa-user-ninja',          ability: 'Shadow Strike', abilityStat: 'AGI', flavor: 'Speed is everything.', desc: 'Always attacks first. Crits apply Blind (40% miss). Charges faster.' },
+    { id: 'Guardian',  label: 'Guardian',  icon: 'fa-shield-halved',       ability: 'Fortify',       abilityStat: 'END', flavor: 'Outlast them all.',    desc: 'Heals + damage reduction in one move. Largest HP pool in the game.' },
+    { id: 'Trickster', label: 'Trickster', icon: 'fa-dice',                ability: 'Wild Card',     abilityStat: 'LCK', flavor: 'Chaos works.',         desc: '25% chance to crit for 2x damage. 10% chance to fizzle. High risk.' }
   ];
 
   const STAT_BUDGET = 300;
@@ -173,14 +166,19 @@
     const remaining = STAT_BUDGET - spent;
 
     return `
-      <p class="qb-panel-desc">Your power defines how you fight. Each class has a unique combat ability.</p>
-      <div class="qb-class-grid">
+      <p class="qb-panel-desc">Choose your power. Each class has a unique combat ability.</p>
+      <div class="qb-class-grid" style="display:flex; flex-direction:column; gap:0.5rem;">
         ${CLASSES.map(c => `
-          <div class="qb-class-card ${_state.cardClass === c.id ? 'selected' : ''}" data-class-id="${c.id}" style="position:relative;">
-            <i class="fas ${c.icon}" style="font-size:1.25rem;"></i>
-            <span class="qb-class-label">${c.label}</span>
-            <span style="font-size:0.7rem; color:var(--bs-accent,#EF9F27); font-weight:700;">${c.ability} (${c.abilityStat})</span>
-            <span class="qb-class-desc" style="font-style:italic; font-size:0.75rem; color:var(--bs-text-muted,#8A8070);">"${c.flavor}"</span>
+          <div class="qb-class-card ${_state.cardClass === c.id ? 'selected' : ''}" data-class-id="${c.id}" style="display:flex; align-items:center; gap:1rem; padding:0.75rem 1rem; cursor:pointer; border-radius:8px; border:1px solid ${_state.cardClass === c.id ? 'var(--bs-accent,#EF9F27)' : 'var(--bs-border,#2A2018)'}; background:${_state.cardClass === c.id ? 'var(--bs-surface-2,#241E16)' : 'var(--bs-surface,#1E1812)'}; transition:all 0.2s;">
+            <i class="fas ${c.icon}" style="font-size:1.5rem; width:28px; text-align:center; color:${_state.cardClass === c.id ? 'var(--bs-accent,#EF9F27)' : 'var(--bs-text-muted,#8A8070)'};"></i>
+            <div style="flex:1; min-width:0;">
+              <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+                <span style="font-weight:700; font-size:0.95rem;">${c.label}</span>
+                <span style="font-size:0.7rem; color:var(--bs-accent,#EF9F27); font-weight:600;">${c.ability} (${c.abilityStat})</span>
+              </div>
+              <div style="font-size:0.75rem; color:var(--bs-text-muted,#8A8070); margin-top:0.15rem;">${c.desc}</div>
+              <div style="font-size:0.7rem; font-style:italic; color:var(--bs-accent-dim,#BA7517); margin-top:0.1rem;">"${c.flavor}"</div>
+            </div>
           </div>
         `).join('')}
       </div>
