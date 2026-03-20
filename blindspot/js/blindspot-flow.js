@@ -791,6 +791,9 @@
     const lobbyBtn = document.getElementById('arena-results-lobby');
     if (againBtn) againBtn.textContent = isWin ? 'Next Fight' : 'Try Again';
     if (lobbyBtn) lobbyBtn.textContent = 'Go to Lobby';
+
+    // Session stats panel
+    renderSessionStats();
   }
 
   function showForgeProgressInResults() {
