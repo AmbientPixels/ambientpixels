@@ -1547,6 +1547,8 @@
     ];
 
     const totalBefore = Object.values(currentStats).reduce((a, b) => a + b, 0);
+    const respecCost = _config ? _config.forgeVisit.winsRequired : 3;
+    let _respecActive = false;
 
     // Visual options for Look tab
     const PALETTES = [
@@ -1598,6 +1600,7 @@
         <div class="bs-forge-screen__budget">
           <span>Power: <strong id="bs-forge-total" style="color:var(--bs-accent);">${totalBefore}</strong></span>
           <span style="margin-left:1.5rem;">Points: <strong id="bs-forge-remaining" style="color:var(--bs-accent);">${bonusPoints}</strong></span>
+          ${getForgeWins() >= respecCost ? `<button class="bs-btn bs-btn--small" id="bs-forge-respec" style="margin-left:auto; font-size:0.65rem; padding:0.2rem 0.5rem;" title="Reset all stats and redistribute (costs ${respecCost} forge wins)"><i class="fas fa-rotate"></i> Respec</button>` : `<span id="bs-forge-respec-locked" style="margin-left:auto; font-size:0.6rem; color:var(--bs-text-muted); cursor:help;" title="Need ${respecCost} forge wins to respec"><i class="fas fa-lock"></i> Respec (${getForgeWins()}/${respecCost})</span>`}
         </div>
         ${statDefs.map(d => `
           <div class="bs-forge-stat">
@@ -1665,25 +1668,58 @@
     const previewPowerEl = panel.querySelector('.bs-forge-card__power');
     const previewNameEl = panel.querySelector('.bs-forge-card__name');
 
+    function getPool() {
+      return _respecActive ? totalBefore + bonusPoints : bonusPoints;
+    }
+
     function updateBudget() {
       const totalAllocated = Object.values(allocations).reduce((a, b) => a + b, 0);
-      const remaining = bonusPoints - totalAllocated;
+      const pool = getPool();
+      const remaining = pool - totalAllocated;
       if (remainingEl) remainingEl.textContent = remaining;
-      if (totalEl) totalEl.textContent = totalBefore + totalAllocated;
-      // Live update preview power
-      if (previewPowerEl) previewPowerEl.innerHTML = `<i class="fas fa-bolt"></i> ${totalBefore + totalAllocated} Power`;
-      // Enable forge if all stats spent OR if any visual/detail change was made
+      const newTotal = _respecActive ? totalAllocated : totalBefore + totalAllocated;
+      if (totalEl) totalEl.textContent = newTotal;
+      if (previewPowerEl) previewPowerEl.innerHTML = `<i class="fas fa-bolt"></i> ${newTotal} Power`;
+      // Enable forge if all points spent OR if any visual/detail change was made
       if (applyBtn) applyBtn.disabled = !(remaining === 0 || _hasVisualChange);
+    }
+
+    function activateRespec() {
+      _respecActive = true;
+      // Deduct forge wins for respec cost
+      setForgeWins(getForgeWins() - respecCost);
+      // Reset all allocations and sliders to 0
+      statDefs.forEach(d => {
+        allocations[d.key] = 0;
+        const slider = panel.querySelector(`.bs-forge-stat__slider[data-stat="${d.key}"]`);
+        if (slider) { slider.min = 0; slider.value = 0; }
+        const display = panel.querySelector(`.bs-forge-stat__value[data-stat="${d.key}"]`);
+        if (display) { display.textContent = '0'; display.style.color = 'var(--bs-accent)'; }
+        const base = slider?.parentElement?.querySelector('.bs-forge-stat__base');
+        if (base) { base.textContent = '0'; }
+      });
+      // Update respec button to show active state
+      const respecBtn = document.getElementById('bs-forge-respec');
+      if (respecBtn) {
+        respecBtn.innerHTML = '<i class="fas fa-rotate"></i> Respec ON';
+        respecBtn.disabled = true;
+        respecBtn.style.background = 'var(--bs-accent)';
+        respecBtn.style.color = 'var(--bs-bg)';
+      }
+      updateBudget();
+      showSuccessToast(`Respec active! Redistribute ${totalBefore + bonusPoints} points.`);
     }
 
     panel.querySelectorAll('.bs-forge-stat__slider').forEach(slider => {
       slider.addEventListener('input', () => {
         const key = slider.dataset.stat;
-        const desiredAllocation = parseInt(slider.value, 10) - currentStats[key];
+        const base = _respecActive ? 0 : currentStats[key];
+        const desiredAllocation = parseInt(slider.value, 10) - base;
         const totalOther = Object.entries(allocations).reduce((sum, [k, v]) => k === key ? sum : sum + v, 0);
-        const maxAllocation = bonusPoints - totalOther;
+        const pool = getPool();
+        const maxAllocation = pool - totalOther;
         const clamped = Math.min(Math.max(0, desiredAllocation), maxAllocation);
-        const clampedVal = currentStats[key] + clamped;
+        const clampedVal = base + clamped;
 
         allocations[key] = clamped;
         slider.value = clampedVal;
@@ -1699,6 +1735,13 @@
 
     document.getElementById('bs-forge-cancel')?.addEventListener('click', () => {
       hideOverlay('bs-forge-screen');
+    });
+
+    // Respec button
+    document.getElementById('bs-forge-respec')?.addEventListener('click', () => {
+      if (_respecActive) return;
+      if (!confirm(`Respec costs ${respecCost} forge wins. Reset all stats and redistribute?`)) return;
+      activateRespec();
     });
 
     // Tab switching
@@ -1772,7 +1815,7 @@
       applyBtn.innerHTML = '<i class="fas fa-fire" style="animation: bs-spin 0.8s linear infinite;"></i> Forging...';
 
       const newStats = {};
-      statDefs.forEach(d => { newStats[d.key] = currentStats[d.key] + allocations[d.key]; });
+      statDefs.forEach(d => { newStats[d.key] = (_respecActive ? 0 : currentStats[d.key]) + allocations[d.key]; });
 
       // Forging animation
       panel.style.transition = 'box-shadow 0.5s ease';
@@ -1823,14 +1866,19 @@
         const resp = await fetch(url, { method: 'POST', headers, body: JSON.stringify(cardToSave) });
         if (!resp.ok) throw new Error('Save failed: ' + resp.status);
 
-        setForgeWins(0);
+        // Deduct forge wins: respec costs extra wins on top of the normal reset
+        if (_respecActive) {
+          setForgeWins(Math.max(0, getForgeWins() - respecCost));
+        } else {
+          setForgeWins(0);
+        }
         localStorage.removeItem('bs-forge-pending');
         incForgeVisitCount();
         hideOverlay('bs-forge-screen');
         updateForgeProgress();
         renderLobby();
         completeBounty('forgeVisit');
-        showSuccessToast('Card evolved!');
+        showSuccessToast(_respecActive ? 'Card respecced!' : 'Card evolved!');
       } catch (e) {
         console.warn('[Blindspot] Forge save error:', e);
         hideOverlay('bs-forge-screen');
