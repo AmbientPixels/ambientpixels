@@ -1392,6 +1392,10 @@
     if (!authArea) return;
 
     if (!isDemo()) {
+      // Mark as authenticated for CardForge save pipeline
+      sessionStorage.setItem('isAuthenticated', 'true');
+      document.body.setAttribute('data-auth-state', 'signed-in');
+
       // User is logged in — show name + logout
       fetch('/.auth/me').then(r => r.json()).then(data => {
         if (data && data.clientPrincipal) {

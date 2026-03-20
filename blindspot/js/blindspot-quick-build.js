@@ -650,16 +650,17 @@
       _populatePreview();
       await new Promise(r => setTimeout(r, 300));
 
-      // Save via existing pipeline
+      // Save via existing pipeline (note: handleSaveCard's fetch is fire-and-forget)
       let savedCardId = null;
       if (window.cardForgeActions?.handleSaveCard) {
         await window.cardForgeActions.handleSaveCard();
       }
 
-      // Wait for save to propagate, then load cards with retry
-      await new Promise(r => setTimeout(r, 1000));
+      // handleSaveCard doesn't await its fetch — wait generously for blob propagation
+      await new Promise(r => setTimeout(r, 3000));
 
-      for (let attempt = 0; attempt < 3; attempt++) {
+      // Retry loadCards up to 5 times to find the newly saved card
+      for (let attempt = 0; attempt < 5; attempt++) {
         try {
           const data = await window.ArenaAPI.loadCards();
           const cards = data.userCards || [];
@@ -670,7 +671,11 @@
         } catch (e) {
           console.warn('[BS-QB] loadCards attempt', attempt + 1, 'failed:', e);
         }
-        if (attempt < 2) await new Promise(r => setTimeout(r, 1500));
+        if (attempt < 4) await new Promise(r => setTimeout(r, 2000));
+      }
+
+      if (!savedCardId) {
+        console.warn('[BS-QB] Could not find saved card after 5 attempts');
       }
 
       // Select the card
