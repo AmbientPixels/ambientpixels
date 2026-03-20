@@ -607,7 +607,7 @@
         <p class="bs-reveal-title">Your card is ready</p>
         <p class="bs-reveal-subtitle">The arena awaits.</p>
         <button class="bs-btn bs-btn--primary bs-btn--glow bs-reveal-enter" id="bs-reveal-enter">
-          <i class="fas fa-swords"></i> Enter the Arena
+          <i class="fas fa-shield-halved"></i> Enter the Arena
         </button>
       `;
 
@@ -811,23 +811,32 @@
       `;
     }
 
-    // Stat bar breakdown
+    // Stat bar breakdown with damage/heal estimates
     const statBarEl = document.getElementById('bs-stat-bars');
     if (statBarEl && _selectedCard && _selectedCard.combatStats) {
       const cs = _selectedCard.combatStats;
+      const strVal = cs.str || 0;
+      const endVal = cs.end || 0;
       const statDefs = [
-        { key: 'str', label: 'STR', color: '#ff5252', desc: 'Strike damage' },
-        { key: 'agi', label: 'AGI', color: '#00e676', desc: 'Speed + dodge' },
-        { key: 'int', label: 'INT', color: '#7b2fff', desc: 'Ability power' },
-        { key: 'end', label: 'END', color: '#ff9100', desc: 'Heal + HP' },
-        { key: 'lck', label: 'LCK', color: '#ffd740', desc: 'Crit chance' }
+        { key: 'str', label: 'STR', color: '#ff5252', desc: 'Strike damage',
+          estimate: function(v) { var lo = Math.round(v * 0.4); var hi = Math.round(v * 0.5); return lo > 0 ? lo + '-' + hi + ' dmg' : ''; } },
+        { key: 'agi', label: 'AGI', color: '#00e676', desc: 'Speed + dodge',
+          estimate: function(v) { return v >= 50 ? '+charge' : 'speed'; } },
+        { key: 'int', label: 'INT', color: '#7b2fff', desc: 'Ability power',
+          estimate: function(v) { var lo = Math.round(v * 0.55); var hi = Math.round(v * 0.7); return lo > 0 ? lo + '-' + hi + ' ability' : ''; } },
+        { key: 'end', label: 'END', color: '#ff9100', desc: 'Heal + HP',
+          estimate: function(v) { var hp = 50 + Math.round(v * 0.8) + Math.round(strVal * 0.2); var lo = Math.round(v * 0.3); var hi = Math.round(v * 0.4); return lo > 0 ? lo + '-' + hi + ' heal \u00b7 ' + hp + ' HP' : hp + ' HP'; } },
+        { key: 'lck', label: 'LCK', color: '#ffd740', desc: 'Crit chance',
+          estimate: function(v) { var lo = Math.round(v * 0.5); var hi = Math.round(v * 0.7); return lo > 0 ? lo + '-' + hi + ' wild' : ''; } }
       ];
       statBarEl.innerHTML = statDefs.map(d => {
         const val = cs[d.key] || 0;
+        const est = d.estimate(val);
         return `<div class="bs-stat-bar-row">
           <span class="bs-stat-bar-label" style="color:${d.color}" data-tooltip="${d.desc}">${d.label}</span>
           <div class="bs-stat-bar-track"><div class="bs-stat-bar-fill" style="width:${val}%;background:${d.color};"></div></div>
           <span class="bs-stat-bar-val">${val}</span>
+          ${est ? '<span class="bs-stat-bar-est" style="color:' + d.color + '">' + est + '</span>' : ''}
         </div>`;
       }).join('');
       statBarEl.style.display = '';

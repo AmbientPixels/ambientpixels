@@ -2864,6 +2864,14 @@ body.bs-battle-active .bs-bottom-nav {
   flex-shrink: 0;
 }
 
+.bs-stat-bar-est {
+  font-size: 0.6rem;
+  opacity: 0.7;
+  white-space: nowrap;
+  flex-shrink: 0;
+  min-width: 55px;
+}
+
 /* ============================================================
    WIN STREAK CARD GLOW (iter 60)
    ============================================================ */
@@ -2893,6 +2901,7 @@ body.bs-battle-active .bs-bottom-nav {
   }
   .bs-stat-bar-label { font-size: 0.6rem; width: 24px; }
   .bs-stat-bar-val { font-size: 0.6rem; width: 20px; }
+  .bs-stat-bar-est { font-size: 0.55rem; min-width: 45px; }
 }
 
 /* ============================================================
