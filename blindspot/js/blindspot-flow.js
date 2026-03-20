@@ -435,17 +435,15 @@
       return;
     }
 
-    renderLobby();
-    bindPlayNavigation();
-
-    // Sync Blindspot boss progress from server (authoritative — overrides localStorage)
+    // Sync Blindspot boss progress from server BEFORE rendering (authoritative source)
     if (profile.pveProgress && profile.pveProgress.blindspotHighestDefeated !== undefined) {
-      // Server has Blindspot progress — convert level (101-110) to boss number (1-10)
       localStorage.setItem('bs-highest-boss', String(profile.pveProgress.blindspotHighestDefeated - 100));
     } else {
-      // Never played Blindspot — force start fresh (ignore CardForge progress)
       localStorage.setItem('bs-highest-boss', '0');
     }
+
+    renderLobby();
+    bindPlayNavigation();
   }
 
   // ============================================================
@@ -453,17 +451,19 @@
   // ============================================================
 
   function renderLobby() {
-    // Player card
+    // Player card — show as a mini card with name + class
     const cardEl = document.getElementById('bs-player-card');
     if (cardEl && _selectedCard) {
-      if (_selectedCard.avatar) {
-        cardEl.innerHTML = `<img src="${escHtml(_selectedCard.avatar)}" alt="${escHtml(_selectedCard.name || 'Card')}">`;
-      } else {
-        cardEl.innerHTML = `<div style="text-align:center; padding:1rem;">
-          <i class="fas fa-user" style="font-size:2rem; color:var(--bs-text-muted);"></i>
-          <p style="font-size:0.8rem; color:var(--bs-text-muted); margin-top:0.5rem;">${escHtml(_selectedCard.name || 'Your Card')}</p>
-        </div>`;
-      }
+      const hasAvatar = _selectedCard.avatar && _selectedCard.avatar.trim();
+      cardEl.innerHTML = `
+        <div class="bs-card-mini">
+          ${hasAvatar ? `<img src="${escHtml(_selectedCard.avatar)}" alt="${escHtml(_selectedCard.name || 'Card')}" class="bs-card-mini__img">` : `<div class="bs-card-mini__icon"><i class="fas fa-user"></i></div>`}
+          <div class="bs-card-mini__info">
+            <span class="bs-card-mini__name">${escHtml(_selectedCard.name || 'Your Card')}</span>
+            <span class="bs-card-mini__class">${escHtml(_selectedCard.class || _selectedCard.characterClass || '')}</span>
+          </div>
+        </div>
+      `;
     }
 
     updateRankDisplay();
