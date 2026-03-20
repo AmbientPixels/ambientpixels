@@ -1417,6 +1417,101 @@
    PVP UNLOCK
    ============================================================ */
 
+/* PvP Rating Display */
+.bs-pvp-rating {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  margin: 0 1rem;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--bs-border);
+  border-radius: 8px;
+}
+.bs-pvp-rank-badge {
+  font-family: 'Cinzel', serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.bs-pvp-elo {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.95rem;
+  color: var(--bs-text);
+}
+.bs-pvp-record {
+  font-size: 0.8rem;
+  color: var(--bs-text-muted);
+}
+.bs-pvp-progress {
+  flex: 1;
+  max-width: 120px;
+  height: 4px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.bs-pvp-progress__fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+.bs-pvp-next {
+  font-size: 0.7rem;
+  color: var(--bs-text-muted);
+  white-space: nowrap;
+}
+.bs-pvp-opp-elo {
+  font-size: 0.7rem;
+  margin-left: 0.3rem;
+  opacity: 0.8;
+}
+
+/* Elo change toast */
+.bs-elo-toast {
+  position: fixed;
+  top: 80px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--bs-bg, #0a0a0f);
+  border: 1px solid var(--bs-border);
+  border-radius: 8px;
+  z-index: 10000;
+  opacity: 0;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  pointer-events: none;
+}
+.bs-elo-toast--visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+.bs-elo-toast__change {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+.bs-elo-toast__rankup {
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+@media (max-width: 480px) {
+  .bs-pvp-rating {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 0 0.5rem;
+    padding: 0.5rem 0.75rem;
+  }
+  .bs-pvp-rank-badge { font-size: 0.95rem; }
+  .bs-pvp-elo { font-size: 0.85rem; }
+}
+
 .bs-pvp-unlock {
   display: flex;
   align-items: center;

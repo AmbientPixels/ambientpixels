@@ -29,6 +29,7 @@
   let _currentBossId = null;
   let _battleType = 'pve';
   let _pvpGallery = [];
+  let _pvpOpponentId = null;
   let _hookInstalled = false;
   let _origShowResults = null;
   let _battleRoundStats = null;
@@ -42,6 +43,45 @@
     diamond:  { xp: 7000, icon: 'fa-diamond',        color: '#B9F2FF', label: 'Diamond' }
   };
   const RANK_ORDER = ['bronze', 'silver', 'gold', 'platinum', 'diamond'];
+
+  // PvP Elo rating system
+  const ELO_DEFAULT = 1000;
+  const ELO_K = 32;
+  const PVP_RANKS = [
+    { name: 'Iron',     min: 0,    icon: 'fa-shield-halved', color: '#8a8a8a' },
+    { name: 'Bronze',   min: 900,  icon: 'fa-shield-halved', color: '#CD7F32' },
+    { name: 'Silver',   min: 1100, icon: 'fa-shield',        color: '#C0C0C0' },
+    { name: 'Gold',     min: 1300, icon: 'fa-crown',          color: '#FFD700' },
+    { name: 'Platinum', min: 1500, icon: 'fa-gem',            color: '#E5E4E2' },
+    { name: 'Diamond',  min: 1700, icon: 'fa-diamond',        color: '#B9F2FF' }
+  ];
+
+  function getPvPElo() { return parseInt(localStorage.getItem('bs-pvp-elo') || ELO_DEFAULT, 10); }
+  function setPvPElo(v) { localStorage.setItem('bs-pvp-elo', Math.max(0, Math.round(v))); }
+  function getPvPRecord() {
+    try { return JSON.parse(localStorage.getItem('bs-pvp-record') || '{"w":0,"l":0}'); }
+    catch(e) { return { w: 0, l: 0 }; }
+  }
+  function setPvPRecord(rec) { localStorage.setItem('bs-pvp-record', JSON.stringify(rec)); }
+
+  function getPvPRank(elo) {
+    for (var i = PVP_RANKS.length - 1; i >= 0; i--) {
+      if (elo >= PVP_RANKS[i].min) return PVP_RANKS[i];
+    }
+    return PVP_RANKS[0];
+  }
+
+  function estimateOpponentElo(card) {
+    var power = getCardPower(card);
+    // Map power (typically 50-250) to Elo range 800-1600
+    return Math.min(1600, Math.max(800, Math.round(power * 4 + 600)));
+  }
+
+  function calcEloChange(playerElo, opponentElo, won) {
+    var expected = 1 / (1 + Math.pow(10, (opponentElo - playerElo) / 400));
+    var score = won ? 1 : 0;
+    return Math.round(ELO_K * (score - expected));
+  }
 
   // Boss class → icon mapping
   const BOSS_ICONS = {
@@ -1178,9 +1218,18 @@
       const ascHtml = ascension > 0 ? `<span class="bs-ascension-badge"><i class="fas fa-star"></i> Ascension ${ascension}</span>` : '';
       const powerHtml = power > 0 ? `<span data-tooltip="Sum of all combat stats"><i class="fas fa-bolt" style="color:var(--bs-accent);"></i> ${power} Power</span>` : '';
 
+      // PvP Elo in lobby (only show if PvP unlocked)
+      let pvpHtml = '';
+      if (highestB >= 10) {
+        const elo = getPvPElo();
+        const pvpRank = getPvPRank(elo);
+        pvpHtml = `<span style="color:${pvpRank.color};" data-tooltip="PvP Rating"><i class="fas ${pvpRank.icon}"></i> ${elo}</span>`;
+      }
+
       statsEl.innerHTML = `
         ${powerHtml}
         <span><i class="fas fa-mountain"></i> Boss ${highestB}/10</span>
+        ${pvpHtml}
         ${streakHtml}
       `;
     }
@@ -1720,6 +1769,25 @@
       }
     }
 
+    // PvP Elo update
+    if (_battleType === 'pvp') {
+      var opponent = _pvpGallery.find(function(c) { return c.id === _pvpOpponentId; });
+      var oppElo = opponent ? estimateOpponentElo(opponent) : ELO_DEFAULT;
+      var playerElo = getPvPElo();
+      var oldRank = getPvPRank(playerElo);
+      var eloChange = calcEloChange(playerElo, oppElo, isWin);
+      var newElo = Math.max(0, playerElo + eloChange);
+      setPvPElo(newElo);
+      var rec = getPvPRecord();
+      if (isWin) rec.w++; else rec.l++;
+      setPvPRecord(rec);
+      var newRank = getPvPRank(newElo);
+      // Show Elo change toast
+      var sign = eloChange >= 0 ? '+' : '';
+      var eloColor = eloChange >= 0 ? 'var(--bs-accent)' : 'var(--bs-danger, #ff5252)';
+      showEloChange(sign + eloChange, eloColor, oldRank.name !== newRank.name ? newRank : null);
+    }
+
     loadProfile().then(() => updateRankDisplay());
 
     // Win streak tracking
@@ -1897,6 +1965,9 @@
     const container = document.getElementById('bs-pvp-grid');
     if (!container) return;
 
+    // Render Elo rating header
+    updatePvPRatingDisplay();
+
     container.innerHTML = '<div class="bs-loading"><div class="bs-spinner"></div> Loading gallery...</div>';
 
     try {
@@ -1918,20 +1989,23 @@
       }
 
       _pvpGallery = gallery;
-      container.innerHTML = gallery.map(card => `
+      container.innerHTML = gallery.map(card => {
+        var oppElo = estimateOpponentElo(card);
+        var oppRank = getPvPRank(oppElo);
+        return `
         <div class="bs-boss-card" style="cursor:pointer;">
           <div class="bs-boss-avatar" style="width:36px;height:36px;font-size:0.9rem;">
             ${card.avatar ? `<img src="${escHtml(card.avatar)}" alt="" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">` : '<i class="fas fa-user"></i>'}
           </div>
           <div class="bs-boss-card__info">
             <div class="bs-boss-card__name">${escHtml(card.name || 'Unnamed')}</div>
-            <div class="bs-boss-card__class">${escHtml(card.class || '')}</div>
+            <div class="bs-boss-card__class">${escHtml(card.class || '')} <span class="bs-pvp-opp-elo" style="color:${oppRank.color};"><i class="fas ${oppRank.icon}"></i> ${oppElo}</span></div>
           </div>
           <div class="bs-boss-card__action">
             <button class="bs-btn" style="padding:0.5rem 1rem; font-size:0.8rem;" data-fight-pvp="${card.id}">Challenge</button>
           </div>
-        </div>
-      `).join('');
+        </div>`;
+      }).join('');
 
       container.querySelectorAll('[data-fight-pvp]').forEach(btn => {
         btn.addEventListener('click', () => startPvPBattle(btn.dataset.fightPvp));
@@ -1941,10 +2015,47 @@
     }
   }
 
+  function updatePvPRatingDisplay() {
+    var el = document.getElementById('bs-pvp-rating');
+    if (!el) return;
+    var elo = getPvPElo();
+    var rank = getPvPRank(elo);
+    var rec = getPvPRecord();
+    var nextRank = PVP_RANKS[PVP_RANKS.indexOf(rank) + 1];
+    var progressHtml = '';
+    if (nextRank) {
+      var pct = Math.min(100, Math.max(0, ((elo - rank.min) / (nextRank.min - rank.min)) * 100));
+      progressHtml = `<div class="bs-pvp-progress"><div class="bs-pvp-progress__fill" style="width:${pct}%;background:${rank.color};"></div></div>
+        <span class="bs-pvp-next">${nextRank.name} at ${nextRank.min}</span>`;
+    }
+    el.innerHTML = `
+      <div class="bs-pvp-rank-badge" style="color:${rank.color};">
+        <i class="fas ${rank.icon}"></i> ${rank.name}
+      </div>
+      <div class="bs-pvp-elo">${elo} Elo</div>
+      <div class="bs-pvp-record">${rec.w}W / ${rec.l}L</div>
+      ${progressHtml}
+    `;
+  }
+
+  function showEloChange(changeText, color, rankUp) {
+    var toast = document.createElement('div');
+    toast.className = 'bs-elo-toast';
+    toast.innerHTML = '<span class="bs-elo-toast__change" style="color:' + color + ';">' + changeText + ' Elo</span>' +
+      (rankUp ? '<span class="bs-elo-toast__rankup" style="color:' + rankUp.color + ';"><i class="fas ' + rankUp.icon + '"></i> Promoted to ' + rankUp.name + '!</span>' : '');
+    document.body.appendChild(toast);
+    requestAnimationFrame(function() { toast.classList.add('bs-elo-toast--visible'); });
+    setTimeout(function() {
+      toast.classList.remove('bs-elo-toast--visible');
+      setTimeout(function() { toast.remove(); }, 400);
+    }, 3000);
+  }
+
   async function startPvPBattle(opponentId) {
     if (!_selectedCard) return;
     _currentBossId = null;
     _battleType = 'pvp';
+    _pvpOpponentId = opponentId;
 
     // Find opponent info from gallery
     var opponent = _pvpGallery.find(function(c) { return c.id === opponentId; }) || {};
