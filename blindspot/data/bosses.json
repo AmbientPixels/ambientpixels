@@ -6,6 +6,7 @@
     "name": "The Gatekeeper",
     "class": "Enforcer",
     "flavor": "Everyone passes through here once.",
+    "combatStats": { "str": 45, "agi": 35, "int": 30, "end": 60, "lck": 25 },
     "reward": {
       "type": "stat_bonus",
       "stat": "str",
@@ -21,6 +22,7 @@
     "name": "The Warden",
     "class": "Fighter",
     "flavor": "Rules exist for a reason.",
+    "combatStats": { "str": 55, "agi": 35, "int": 30, "end": 55, "lck": 30 },
     "reward": {
       "type": "visual",
       "unlock": "palette_ocean",
@@ -35,6 +37,7 @@
     "name": "The Ghost",
     "class": "Scout",
     "flavor": "You never see them coming.",
+    "combatStats": { "str": 40, "agi": 60, "int": 35, "end": 45, "lck": 40 },
     "reward": {
       "type": "stat_bonus",
       "stat": "agi",
@@ -50,6 +53,7 @@
     "name": "The Cipher",
     "class": "Hacker",
     "flavor": "Every system has a flaw.",
+    "combatStats": { "str": 30, "agi": 45, "int": 60, "end": 45, "lck": 45 },
     "reward": {
       "type": "visual",
       "unlock": "palette_neon",
@@ -64,6 +68,7 @@
     "name": "The Brute",
     "class": "Berserker",
     "flavor": "Subtlety is for cowards.",
+    "combatStats": { "str": 85, "agi": 50, "int": 25, "end": 70, "lck": 40 },
     "reward": {
       "type": "title",
       "title": "Proven",
@@ -78,6 +83,7 @@
     "name": "The Sage",
     "class": "Scholar",
     "flavor": "Knowledge compounds.",
+    "combatStats": { "str": 30, "agi": 45, "int": 85, "end": 60, "lck": 60 },
     "reward": {
       "type": "visual",
       "unlock": "container_fullbleed",
@@ -92,6 +98,7 @@
     "name": "The Iron",
     "class": "Guardian",
     "flavor": "Nothing gets through.",
+    "combatStats": { "str": 55, "agi": 35, "int": 40, "end": 90, "lck": 50 },
     "reward": {
       "type": "stat_bonus",
       "stat": "end",
@@ -107,6 +114,7 @@
     "name": "The Trickster",
     "class": "Trickster",
     "flavor": "Probability is just a suggestion.",
+    "combatStats": { "str": 60, "agi": 65, "int": 60, "end": 55, "lck": 80 },
     "reward": {
       "type": "visual",
       "unlock": "palette_fire",
@@ -121,6 +129,7 @@
     "name": "The Feral",
     "class": "Berserker",
     "flavor": "Pain stopped mattering long ago.",
+    "combatStats": { "str": 90, "agi": 60, "int": 30, "end": 80, "lck": 50 },
     "reward": {
       "type": "stat_bonus",
       "stat": "str",
@@ -136,6 +145,7 @@
     "name": "The Architect",
     "class": "Caster",
     "flavor": "This is what a Forger becomes when they never stop.",
+    "combatStats": { "str": 50, "agi": 55, "int": 95, "end": 75, "lck": 75 },
     "reward": {
       "type": "title",
       "title": "Forged",

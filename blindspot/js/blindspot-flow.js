@@ -1215,6 +1215,45 @@
           }
         }
 
+        // Populate stat comparison
+        const compEl = document.getElementById('bs-prefight-comparison');
+        if (compEl && _selectedCard) {
+          ensureCombatStats(_selectedCard);
+          const ps = _selectedCard.combatStats || {};
+          const bs = boss.combatStats || {};
+          const labels = [
+            { key: 'str', label: 'STR', icon: 'fa-fist-raised' },
+            { key: 'agi', label: 'AGI', icon: 'fa-wind' },
+            { key: 'int', label: 'INT', icon: 'fa-brain' },
+            { key: 'end', label: 'END', icon: 'fa-shield-alt' },
+            { key: 'lck', label: 'LCK', icon: 'fa-dice' }
+          ];
+          compEl.innerHTML = `
+            <div class="bs-prefight-comparison__header">
+              <span class="bs-prefight-comparison__you">You</span>
+              <span class="bs-prefight-comparison__vs">VS</span>
+              <span class="bs-prefight-comparison__boss">${escHtml(boss.name)}</span>
+            </div>
+            ${labels.map(s => {
+              const pv = ps[s.key] || 0;
+              const bv = bs[s.key] || 0;
+              const diff = pv - bv;
+              const diffClass = diff > 0 ? 'bs-stat-advantage' : diff < 0 ? 'bs-stat-disadvantage' : 'bs-stat-even';
+              return `<div class="bs-prefight-stat-row">
+                <span class="bs-prefight-stat-row__pval">${pv}</span>
+                <div class="bs-prefight-stat-row__bar">
+                  <div class="bs-prefight-stat-row__fill bs-prefight-stat-row__fill--player" style="width:${pv}%"></div>
+                </div>
+                <span class="bs-prefight-stat-row__label"><i class="fas ${s.icon}"></i> ${s.label}</span>
+                <div class="bs-prefight-stat-row__bar">
+                  <div class="bs-prefight-stat-row__fill bs-prefight-stat-row__fill--boss" style="width:${bv}%"></div>
+                </div>
+                <span class="bs-prefight-stat-row__bval ${diffClass}">${bv}</span>
+              </div>`;
+            }).join('')}
+          `;
+        }
+
         showOverlay('bs-prefight-overlay');
         // Clone button to remove any previously stacked handlers
         const oldBtn = document.getElementById('bs-prefight-go');

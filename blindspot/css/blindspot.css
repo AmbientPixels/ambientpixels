@@ -923,6 +923,87 @@
   font-size: 0.9rem;
 }
 
+/* Pre-fight stat comparison (iter 63) */
+.bs-prefight-comparison {
+  width: 100%;
+  max-width: 360px;
+  margin: 0.5rem auto;
+}
+.bs-prefight-comparison__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.bs-prefight-comparison__you {
+  color: var(--bs-accent);
+  font-weight: 700;
+  flex: 1;
+  text-align: left;
+}
+.bs-prefight-comparison__vs {
+  color: var(--bs-text-muted);
+  font-weight: 600;
+  flex: 0 0 auto;
+  padding: 0 0.5rem;
+}
+.bs-prefight-comparison__boss {
+  color: #e74c3c;
+  font-weight: 700;
+  flex: 1;
+  text-align: right;
+}
+.bs-prefight-stat-row {
+  display: grid;
+  grid-template-columns: 28px 1fr 40px 1fr 28px;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 4px;
+  font-size: 0.7rem;
+}
+.bs-prefight-stat-row__pval {
+  text-align: right;
+  color: var(--bs-accent);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.bs-prefight-stat-row__bval {
+  text-align: left;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.bs-prefight-stat-row__label {
+  text-align: center;
+  color: var(--bs-text-muted);
+  font-size: 0.65rem;
+  white-space: nowrap;
+}
+.bs-prefight-stat-row__bar {
+  height: 6px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.bs-prefight-stat-row__fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+.bs-prefight-stat-row__fill--player {
+  background: var(--bs-accent);
+  float: right;
+}
+.bs-prefight-stat-row__fill--boss {
+  background: #e74c3c;
+  float: left;
+}
+.bs-stat-advantage { color: #2ecc71; }
+.bs-stat-disadvantage { color: #e74c3c; }
+.bs-stat-even { color: var(--bs-text-muted); }
+
 /* ============================================================
    FORGE SCREEN (Constrained Evolution)
    ============================================================ */
