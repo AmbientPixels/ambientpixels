@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "ac69e817-f114-4337-bb3c-77b2270d3341",
-      "hash": "b22af60862c16be2b8843001667904e23fa44691",
-      "message": "Fix product visitor cards — use URL path not page title",
-      "timestamp": "2026-03-18 21:55:03 -0700",
+      "id": "ade9f8b0-56f6-41aa-a025-e5b7e00ebce5",
+      "hash": "0a7283c03db4f2b430c762f90b9786160d20ff88",
+      "message": "Blindspot iteration 40: save visual selections from Forge Look tab",
+      "timestamp": "2026-03-20 00:33:08 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/b22af60862c16be2b8843001667904e23fa44691"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/0a7283c03db4f2b430c762f90b9786160d20ff88"
     }
   ],
-  "timestamp": "2026-03-19T14:11:33.799Z",
+  "timestamp": "2026-03-20T14:02:02.649Z",
   "count": 1,
-  "scanId": 1773929493799
+  "scanId": 1774015322649
 }

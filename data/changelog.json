@@ -1,10 +1,10 @@
 {
-  "updated": "2026-03-19T14:11:32.440Z",
+  "updated": "2026-03-20T14:02:00.419Z",
   "entries": [
     {
-      "hash": "b22af60",
-      "date": "2026-03-18 21:55:03 -0700",
-      "message": "Fix product visitor cards — use URL path not page title"
+      "hash": "0a7283c",
+      "date": "2026-03-20 00:33:08 -0700",
+      "message": "Blindspot iteration 40: save visual selections from Forge Look tab"
     }
   ]
 }

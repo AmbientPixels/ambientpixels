@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2026-03-19T14:11:32.298Z",
+  "updated": "2026-03-20T14:02:00.303Z",
   "root": [
     {
       "type": "folder",
@@ -858,6 +858,35 @@
     },
     {
       "type": "folder",
+      "name": "blindspot",
+      "path": "blindspot",
+      "children": [
+        {
+          "type": "folder",
+          "name": "css",
+          "path": "blindspot/css",
+          "children": []
+        },
+        {
+          "type": "page",
+          "name": "index.html",
+          "path": "blindspot/index.html"
+        },
+        {
+          "type": "folder",
+          "name": "js",
+          "path": "blindspot/js",
+          "children": []
+        },
+        {
+          "type": "page",
+          "name": "play.html",
+          "path": "blindspot/play.html"
+        }
+      ]
+    },
+    {
+      "type": "folder",
       "name": "blog",
       "path": "blog",
       "children": [
@@ -1420,6 +1449,11 @@
               "type": "page",
               "name": "agent-chat.html",
               "path": "modules/company/agent-chat.html"
+            },
+            {
+              "type": "page",
+              "name": "agent-intelligence.html",
+              "path": "modules/company/agent-intelligence.html"
             },
             {
               "type": "page",
