@@ -1716,8 +1716,11 @@
           html += '</div>';
 
           // ── Compact layout: donut + 2-column tables ──
+          var displayPages = (data.topPages || []).slice(0, 5).map(function (p) {
+            return { label: p.pageTitle || p.path || '/', views: p.views };
+          });
           html += '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;align-items:start;">';
-          html += '<div class="growth-traffic-col">' + _renderTable('Top Pages', 'file-alt', (data.topPages || []).slice(0, 5), 'path', 'views') + '</div>';
+          html += '<div class="growth-traffic-col">' + _renderTable('Top Pages', 'file-alt', displayPages, 'label', 'views') + '</div>';
           html += '<div class="growth-traffic-col">' + _renderTable('Top Referrers', 'external-link-alt', (data.topReferrers || []).slice(0, 5), 'referrer', 'sessions') + '</div>';
           html += '<div><div class="growth-table-title"><i class="fas fa-circle-notch"></i>Traffic by Product</div><div style="position:relative;height:130px;"><canvas id="tb-donut-canvas" height="130"></canvas></div></div>';
           html += '</div>';
@@ -4976,7 +4979,8 @@
 
       // Top Pages
       html += '<div style="background:rgba(255,255,255,0.015);border:1px solid rgba(255,255,255,0.04);border-radius:8px;padding:0.5rem 0.6rem;">';
-      html += _renderTable('Top Pages', 'file-alt', data.topPages, 'path', 'views');
+      var dispPages = (data.topPages || []).map(function (p) { return { label: p.pageTitle || p.path || '/', views: p.views }; });
+      html += _renderTable('Top Pages', 'file-alt', dispPages, 'label', 'views');
       html += '</div>';
 
       // Top Referrers

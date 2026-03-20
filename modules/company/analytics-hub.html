@@ -262,7 +262,8 @@
         }
 
         html += '<div class="sa-tb-grid" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">';
-        html += '<div>' + _renderBarChart('Top Pages', 'file-alt', data.topPages, 'path', 'views') + '</div>';
+        var dispPages = (data.topPages || []).map(function (p) { return { label: p.pageTitle || p.path || '/', views: p.views }; });
+        html += '<div>' + _renderBarChart('Top Pages', 'file-alt', dispPages, 'label', 'views') + '</div>';
         html += '<div>' + _renderBarChart('Top Referrers', 'external-link-alt', data.topReferrers, 'referrer', 'sessions') + '</div>';
         html += '<div>' + _renderBarChart('Top Campaigns', 'bullhorn', data.topCampaigns, 'campaign', 'sessions') + '</div>';
         html += '</div>';

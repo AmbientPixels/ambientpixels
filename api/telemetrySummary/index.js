@@ -113,13 +113,13 @@ module.exports = async function (context, req) {
   }
 
   try {
-    // Top pages query — extract URL path for product matching, fall back to page name
+    // Top pages query — always keep real URL path for product matching, include page title for display
     var topPagesQuery = [
       'pageViews',
       '| where isnotempty(url)',
       '| extend parsedPath = tostring(parse_url(url).Path)',
-      '| extend cleanPath = iff(parsedPath == "" or parsedPath == "/", tostring(["name"]), parsedPath)',
-      '| summarize viewCount = count() by path = cleanPath',
+      '| extend cleanPath = iff(parsedPath == "", "/", parsedPath)',
+      '| summarize viewCount = count(), pageTitle = take_any(name) by path = cleanPath',
       '| top 20 by viewCount desc'
     ].join('\n');
 
@@ -176,7 +176,7 @@ module.exports = async function (context, req) {
       _kustoQuery(dailyViewsQuery, timespan, _log)
     ]);
 
-    var pages = _parseRows(results[0]).map(function (r) { return { path: r.path || '/', views: r.viewCount || 0 }; });
+    var pages = _parseRows(results[0]).map(function (r) { return { path: r.path || '/', pageTitle: r.pageTitle || '', views: r.viewCount || 0 }; });
     var referrers = _parseRows(results[1]).map(function (r) { return { referrer: r.referrer || '', sessions: r.sessions || 0 }; });
     var campaigns = _parseRows(results[2]).map(function (r) { return { campaign: r.campaign || '', source: r.source || '', medium: r.medium || '', sessions: r.sessions || 0 }; });
     var perfRows = _parseRows(results[3]);
