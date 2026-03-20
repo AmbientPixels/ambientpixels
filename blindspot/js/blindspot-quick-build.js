@@ -155,47 +155,44 @@
     const spent = STAT_DEFS.reduce((sum, d) => sum + stats[d.key], 0);
     const remaining = STAT_BUDGET - spent;
 
-    return `
-      <p class="qb-panel-desc">Choose your power. Each class has a unique combat ability.</p>
-      <div class="qb-class-grid" style="display:flex; flex-direction:column; gap:0.5rem;">
-        ${CLASSES.map(c => `
-          <div class="qb-class-card ${_state.cardClass === c.id ? 'selected' : ''}" data-class-id="${c.id}" style="display:flex; align-items:center; gap:1rem; padding:0.75rem 1rem; cursor:pointer; border-radius:8px; border:1px solid ${_state.cardClass === c.id ? 'var(--bs-accent,#EF9F27)' : 'var(--bs-border,#2A2018)'}; background:${_state.cardClass === c.id ? 'var(--bs-surface-2,#241E16)' : 'var(--bs-surface,#1E1812)'}; transition:all 0.2s;">
-            <i class="fas ${c.icon}" style="font-size:1.5rem; width:28px; text-align:center; color:${_state.cardClass === c.id ? 'var(--bs-accent,#EF9F27)' : 'var(--bs-text-muted,#8A8070)'};"></i>
-            <div style="flex:1; min-width:0;">
-              <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
-                <span style="font-weight:700; font-size:0.95rem;">${c.label}</span>
-                <span style="font-size:0.7rem; color:var(--bs-accent,#EF9F27); font-weight:600;">${c.ability} (${c.abilityStat})</span>
-              </div>
-              <div style="font-size:0.75rem; color:var(--bs-text-muted,#8A8070); margin-top:0.15rem;">${c.desc}</div>
-              <div style="font-size:0.7rem; font-style:italic; color:var(--bs-accent-dim,#BA7517); margin-top:0.1rem;">"${c.flavor}"</div>
-            </div>
+    // Two-column layout: classes on left, stats on right (or stacked on mobile)
+    const classCards = CLASSES.map(c => {
+      const sel = _state.cardClass === c.id;
+      const classStats = CLASS_STATS[c.id];
+      const topStat = classStats ? STAT_DEFS.reduce((a, b) => (classStats[a.key] || 0) > (classStats[b.key] || 0) ? a : b) : null;
+      return `
+        <div class="bs-class-pick ${sel ? 'bs-class-pick--selected' : ''}" data-class-id="${c.id}">
+          <i class="fas ${c.icon} bs-class-pick__icon"></i>
+          <div class="bs-class-pick__info">
+            <span class="bs-class-pick__name">${c.label}</span>
+            <span class="bs-class-pick__ability">${c.ability} (${c.abilityStat})</span>
+          </div>
+          ${topStat ? `<span class="bs-class-pick__top">${topStat.label} ${classStats[topStat.key]}</span>` : ''}
+        </div>`;
+    }).join('');
+
+    const statsHtml = _state.cardClass ? `
+      <div class="bs-stats-panel">
+        <div class="bs-stats-header">
+          <span><i class="fas fa-sliders"></i> Stats</span>
+          <span class="bs-stats-budget ${remaining < 0 ? 'over' : remaining === 0 ? 'exact' : ''}">${remaining}/${STAT_BUDGET}</span>
+        </div>
+        ${STAT_DEFS.map(d => `
+          <div class="bs-stat-row">
+            <span class="bs-stat-label" style="color:${d.color}">${d.label}</span>
+            <input type="range" class="qb-stat-slider" data-stat="${d.key}" min="0" max="100" value="${stats[d.key]}" style="--fill:${stats[d.key]}%;--stat-color:${d.color}">
+            <span class="qb-stat-value" data-stat="${d.key}">${stats[d.key]}</span>
           </div>
         `).join('')}
+        <button class="bs-stats-reset" id="qb-stats-reset"><i class="fas fa-rotate-left"></i> Reset</button>
+      </div>` : '<div class="bs-stats-empty"><i class="fas fa-hand-pointer"></i> Pick a class to see stats</div>';
+
+    return `
+      <p class="qb-panel-desc">Choose your power. Each class has a unique combat ability.</p>
+      <div class="bs-power-layout">
+        <div class="bs-power-classes">${classCards}</div>
+        <div class="bs-power-stats">${statsHtml}</div>
       </div>
-      ${_state.cardClass ? `
-      <div class="qb-stats-section" style="margin-top:1rem;">
-        <div class="qb-stats-panel" style="width:100%;">
-          <div class="qb-stats-header">
-            <span class="qb-stats-title"><i class="fas fa-sliders"></i> Allocate Stats</span>
-            <span class="qb-stats-budget ${remaining < 0 ? 'over' : remaining === 0 ? 'exact' : ''}">${remaining} / ${STAT_BUDGET}</span>
-          </div>
-          <div class="qb-stats-sliders" id="qb-stats-sliders">
-            ${STAT_DEFS.map(d => `
-              <div class="qb-stat-row" data-stat="${d.key}">
-                <i class="fas ${d.icon}" style="color:${d.color}"></i>
-                <span class="qb-stat-label">${d.label}</span>
-                <input type="range" class="qb-stat-slider" data-stat="${d.key}" min="0" max="100" value="${stats[d.key]}" style="--fill:${stats[d.key]}%;--stat-color:${d.color}">
-                <span class="qb-stat-value" data-stat="${d.key}">${stats[d.key]}</span>
-                <span style="font-size:0.65rem; color:var(--bs-text-muted,#8A8070); width:90px;">${d.desc}</span>
-              </div>
-            `).join('')}
-          </div>
-          <div class="qb-stats-footer">
-            <button class="qb-stats-reset" id="qb-stats-reset"><i class="fas fa-rotate-left"></i> Reset</button>
-          </div>
-        </div>
-      </div>
-      ` : ''}
     `;
   }
 
