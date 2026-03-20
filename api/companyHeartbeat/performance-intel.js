@@ -129,7 +129,16 @@ function buildPerformanceDigest(tasks, actions, engagementSnapshots, existingDig
       // Composite
       qualityScore: 0,
       qualityTrend: 'stable',
-      previousScore: 0
+      previousScore: 0,
+
+      // Role-aware fields (populated for relevant role types)
+      roleType: (id === 'nova' || id === 'cipher') ? 'orchestrator'
+        : (id === 'quill') ? 'reviewer'
+        : (id === 'scout') ? 'researcher'
+        : 'producer',
+      delegatedTasks: 0,
+      delegatedTasksDone: 0,
+      reviewsGiven: 0
     };
   });
 
@@ -442,17 +451,113 @@ function buildPerformanceDigest(tasks, actions, engagementSnapshots, existingDig
     // Star rating bonus (if CEO has rated)
     var starBonus = a.ceoAvgStarRating > 0 ? (a.ceoAvgStarRating - 3) * 3 : 0;
 
-    // Composite quality score (0-100)
-    a.qualityScore = Math.min(100, Math.max(0, Math.round(
-      (a.ceoApprovalRate * 30) +
-      (a.peerReviewApprovalRate * 20) +
-      (revisionEfficiency * 15) +
-      (engagementOrTurnaround * 15) +
-      ((1 - a.blockRate) * 10) +
-      (a.handoffFirstPassRate * 10) -
-      blockPenalty +
-      starBonus
-    )));
+    // ── Role-aware scoring ──
+    // Orchestrators (Nova, Cipher) delegate and triage — they don't produce deliverables.
+    // Reviewers (Quill) primarily review others' work, not submit their own actions.
+    // Researchers (Scout) are scored on research acceptance, not social engagement.
+    // Producers (Echo, Scribe, Pixel, Forge) use the standard output-based formula.
+
+    var isOrchestrator = (id === 'nova' || id === 'cipher');
+    var isReviewer = (id === 'quill');
+    var isResearcher = (id === 'scout');
+
+    // Orchestrator signals: tasks delegated (created_by this agent, assigned to others),
+    // governance compliance, low block rate, team quality (avg downstream agent scores)
+    var _tasksCreatedByAgent = 0, _tasksCreatedDone = 0;
+    if (isOrchestrator) {
+      for (var _tc = 0; _tc < taskArr.length; _tc++) {
+        var _t = taskArr[_tc];
+        if (!_t) continue;
+        var _tCreatedBy = (_t.created_by || '').toLowerCase();
+        var _tAssignee = (_t.assignee || '').toLowerCase();
+        var _tTs = Date.parse(_t.createdAt || '');
+        if (Number.isFinite(_tTs) && _tTs < cutoff) continue;
+        if (_tCreatedBy === id && _tAssignee && _tAssignee !== id) {
+          _tasksCreatedByAgent++;
+          if (_t.status === 'done') _tasksCreatedDone++;
+        }
+      }
+    }
+
+    // Reviewer signals: reviews given (already tracked as peerReview on others' tasks),
+    // so count reviews authored by this agent
+    var _reviewsGiven = 0, _reviewsGivenApproved = 0;
+    if (isReviewer) {
+      for (var _rv = 0; _rv < taskArr.length; _rv++) {
+        var _rvTask = taskArr[_rv];
+        if (!_rvTask || !_rvTask.comments) continue;
+        var _rvTs = Date.parse(_rvTask.updatedAt || _rvTask.createdAt || '');
+        if (Number.isFinite(_rvTs) && _rvTs < cutoff) continue;
+        for (var _rc = 0; _rc < _rvTask.comments.length; _rc++) {
+          var _rvCmt = _rvTask.comments[_rc];
+          if (_rvCmt.type === 'review' && (_rvCmt.author || '').toLowerCase() === id) {
+            _reviewsGiven++;
+            if (_rvCmt.verdict === 'approved') _reviewsGivenApproved++;
+          }
+        }
+      }
+    }
+
+    // Compute role-aware quality score
+    if (isOrchestrator) {
+      // Orchestrator formula: delegation throughput + governance + block rate + CEO signals (if any)
+      var delegationRate = _tasksCreatedByAgent > 0 ? Math.min(1, _tasksCreatedDone / _tasksCreatedByAgent) : 0;
+      var delegationVolume = Math.min(1, _tasksCreatedByAgent / 20); // cap at 20 tasks in window
+      var govCompliance = a.governanceViolations === 0 ? 1 : Math.max(0, 1 - (a.governanceViolations / 5));
+      var orchCeoSignal = a.ceoActionsSubmitted > 0 ? a.ceoApprovalRate : 0.5; // neutral if no submissions
+      a.qualityScore = Math.min(100, Math.max(0, Math.round(
+        (delegationRate * 30) +
+        (delegationVolume * 20) +
+        (govCompliance * 20) +
+        (orchCeoSignal * 15) +
+        ((1 - a.blockRate) * 15) -
+        blockPenalty +
+        starBonus
+      )));
+      a.delegatedTasks = _tasksCreatedByAgent;
+      a.delegatedTasksDone = _tasksCreatedDone;
+    } else if (isReviewer) {
+      // Reviewer formula: reviews given + review quality + own task quality + CEO signals
+      var reviewVolume = Math.min(1, _reviewsGiven / 15); // cap at 15 reviews in window
+      var ownTaskQuality = a.tasksCompleted > 0 ? engagementOrTurnaround : 0.5;
+      var reviewerCeoSignal = a.ceoActionsSubmitted > 0 ? a.ceoApprovalRate : 0.5;
+      a.qualityScore = Math.min(100, Math.max(0, Math.round(
+        (reviewVolume * 25) +
+        (a.peerReviewApprovalRate * 20) +
+        (reviewerCeoSignal * 20) +
+        (ownTaskQuality * 15) +
+        (revisionEfficiency * 10) +
+        ((1 - a.blockRate) * 10) -
+        blockPenalty +
+        starBonus
+      )));
+      a.reviewsGiven = _reviewsGiven;
+    } else if (isResearcher) {
+      // Researcher formula: research acceptance + CEO approval + task throughput + peer review
+      var researchSignal = a.researchSubmitted > 0 ? a.researchAcceptRate : 0;
+      a.qualityScore = Math.min(100, Math.max(0, Math.round(
+        (a.ceoApprovalRate * 25) +
+        (researchSignal * 25) +
+        (a.peerReviewApprovalRate * 15) +
+        (revisionEfficiency * 15) +
+        ((1 - a.blockRate) * 10) +
+        (a.handoffFirstPassRate * 10) -
+        blockPenalty +
+        starBonus
+      )));
+    } else {
+      // Producer formula (Echo, Scribe, Pixel, Forge) — original weights
+      a.qualityScore = Math.min(100, Math.max(0, Math.round(
+        (a.ceoApprovalRate * 30) +
+        (a.peerReviewApprovalRate * 20) +
+        (revisionEfficiency * 15) +
+        (engagementOrTurnaround * 15) +
+        ((1 - a.blockRate) * 10) +
+        (a.handoffFirstPassRate * 10) -
+        blockPenalty +
+        starBonus
+      )));
+    }
 
     // Trend vs previous
     var prev = previousDigest[id];

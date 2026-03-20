@@ -136,6 +136,25 @@
         card += '<span class="ap-trend ' + trendClass + '">' + trendLabel + (deltaStr ? ' ' + deltaStr : '') + '</span>';
         card += '</div></div>';
 
+        // Role type badge
+        if (a.roleType && a.roleType !== 'producer') {
+          var roleLabel = a.roleType === 'orchestrator' ? 'Orchestrator' : (a.roleType === 'reviewer' ? 'Reviewer' : 'Researcher');
+          var roleColor = a.roleType === 'orchestrator' ? '#a78bfa' : (a.roleType === 'reviewer' ? '#fbbf24' : '#4ade80');
+          card += '<div style="margin-bottom:0.5rem;"><span style="font-size:0.65rem;font-weight:600;padding:2px 8px;border-radius:999px;background:' + roleColor + '22;color:' + roleColor + ';">' + roleLabel + '</span></div>';
+        }
+
+        // Orchestrator-specific stats
+        if (a.roleType === 'orchestrator' && a.delegatedTasks > 0) {
+          card += '<div class="ap-stat-row"><span class="ap-stat-label">Tasks Delegated</span><span class="ap-stat-val">' + a.delegatedTasks + '</span></div>';
+          card += '<div class="ap-stat-row"><span class="ap-stat-label">Delegated Complete</span><span class="ap-stat-val">' + a.delegatedTasksDone + '/' + a.delegatedTasks + ' (' + Math.round(a.delegatedTasks > 0 ? a.delegatedTasksDone / a.delegatedTasks * 100 : 0) + '%)</span></div>';
+          card += pctBar(a.delegatedTasks > 0 ? a.delegatedTasksDone / a.delegatedTasks : 0, '#a78bfa');
+        }
+
+        // Reviewer-specific stats
+        if (a.roleType === 'reviewer' && a.reviewsGiven > 0) {
+          card += '<div class="ap-stat-row"><span class="ap-stat-label">Reviews Given</span><span class="ap-stat-val">' + a.reviewsGiven + '</span></div>';
+        }
+
         // CEO star rating
         if (a.ceoAvgStarRating > 0) {
           var stars = '';
