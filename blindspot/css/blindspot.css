@@ -2855,3 +2855,22 @@ body.bs-battle-active .bs-bottom-nav {
   .bs-stat-bar-label { font-size: 0.6rem; width: 24px; }
   .bs-stat-bar-val { font-size: 0.6rem; width: 20px; }
 }
+
+/* ============================================================
+   OVERLAY FIXES (iter 62)
+   ============================================================ */
+
+/* Pre-fight overlay should be fully opaque */
+.bs-prefight {
+  background: var(--bs-bg) !important;
+}
+
+/* Loot choice should also be fully opaque */
+#bs-loot-choice {
+  background: var(--bs-bg) !important;
+}
+
+/* Combat guide fully opaque */
+#bs-combat-guide {
+  background: var(--bs-bg) !important;
+}

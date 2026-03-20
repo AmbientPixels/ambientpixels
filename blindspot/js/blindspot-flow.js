@@ -396,7 +396,15 @@
 
     fightBtn.addEventListener('click', async () => {
       fightBtn.disabled = true;
-      fightBtn.innerHTML = '<span class="bs-spinner" style="display:inline-block;width:14px;height:14px;"></span>';
+      fightBtn.innerHTML = '<span class="bs-spinner" style="display:inline-block;width:14px;height:14px;"></span> Loading...';
+      // Safety timeout — if nothing happens in 12s, reset the button
+      const fightTimeout = setTimeout(() => {
+        fightBtn.disabled = false;
+        fightBtn.innerHTML = 'Fight';
+        showErrorToast('Connection timed out. Try again.');
+        document.getElementById('bs-landing').style.display = '';
+        document.getElementById('bs-battle-container').style.display = 'none';
+      }, 12000);
 
       if (!isNewPlayer(profile)) {
         window.location.href = '/blindspot/play.html';
@@ -729,7 +737,17 @@
       statBarEl.style.display = '';
     }
 
-    // Card title display
+    // Toggle stat bars on card click
+    const _cardClickEl = document.getElementById('bs-player-card');
+    if (_cardClickEl) {
+      _cardClickEl.style.cursor = 'pointer';
+      _cardClickEl.addEventListener('click', () => {
+        const bars = document.getElementById('bs-stat-bars');
+        if (bars) bars.style.display = bars.style.display === 'none' ? '' : 'none';
+      });
+    }
+
+    // Toggle stat bars on card click
     const titleEl = document.getElementById('bs-card-title');
     const title = getCardTitle();
     if (titleEl) {
