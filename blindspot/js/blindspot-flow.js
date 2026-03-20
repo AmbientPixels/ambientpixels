@@ -747,10 +747,10 @@
     if (_navBound) return;
     _navBound = true;
 
-    document.getElementById('bs-btn-campaign')?.addEventListener('click', () => {
-      showScreen('campaign');
-      renderCampaignLadder();
-    });
+    // Primary PLAY button + Campaign button both open campaign
+    const openCampaign = () => { showScreen('campaign'); renderCampaignLadder(); };
+    document.getElementById('bs-play-btn')?.addEventListener('click', openCampaign);
+    document.getElementById('bs-btn-campaign')?.addEventListener('click', openCampaign);
 
     document.getElementById('bs-btn-pvp')?.addEventListener('click', () => {
       showScreen('pvp');

@@ -536,7 +536,7 @@
       const previewContainer = document.getElementById('qb-card-preview');
       if (sourcePreview && previewContainer) {
         const clone = sourcePreview.cloneNode(true);
-        clone.style.transform = 'scale(0.55)';
+        clone.style.transform = 'scale(0.7)';
         clone.style.transformOrigin = 'top center';
         previewContainer.innerHTML = '';
         previewContainer.appendChild(clone);
@@ -625,7 +625,7 @@
         const previewContainer = document.getElementById('qb-card-preview');
         if (sourcePreview && previewContainer) {
           const clone = sourcePreview.cloneNode(true);
-          clone.style.transform = 'scale(0.55)';
+          clone.style.transform = 'scale(0.7)';
           clone.style.transformOrigin = 'top center';
           previewContainer.innerHTML = '';
           previewContainer.appendChild(clone);
