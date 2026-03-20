@@ -126,9 +126,38 @@
 
   // Card Power Rating = sum of all combat stats
   function getCardPower(card) {
-    if (!card || !card.combatStats) return 0;
-    const s = card.combatStats;
-    return (s.str || 0) + (s.agi || 0) + (s.int || 0) + (s.end || 0) + (s.lck || 0);
+    if (!card) return 0;
+    // Try combatStats first (new format)
+    if (card.combatStats) {
+      const s = card.combatStats;
+      return (s.str || 0) + (s.agi || 0) + (s.int || 0) + (s.end || 0) + (s.lck || 0);
+    }
+    // Fall back to legacy stats array
+    if (card.stats && Array.isArray(card.stats)) {
+      return card.stats.reduce((sum, s) => sum + (s.value || 0), 0);
+    }
+    return 0;
+  }
+
+  // Ensure card has combatStats (migrate from legacy if needed)
+  function ensureCombatStats(card) {
+    if (!card) return;
+    if (card.combatStats) return;
+    if (!card.stats || !Array.isArray(card.stats)) return;
+
+    const STAT_MAP = {
+      strength: 'str', power: 'str', combat: 'str', attack: 'str',
+      agility: 'agi', speed: 'agi', dexterity: 'agi',
+      intelligence: 'int', magic: 'int', wisdom: 'int', tech: 'int',
+      endurance: 'end', defense: 'end', vitality: 'end', constitution: 'end',
+      luck: 'lck', charisma: 'lck', fortune: 'lck'
+    };
+
+    card.combatStats = { str: 50, agi: 50, int: 50, end: 50, lck: 50 };
+    card.stats.forEach(s => {
+      const key = STAT_MAP[(s.name || '').toLowerCase().trim()];
+      if (key) card.combatStats[key] = Math.min(100, Math.max(0, s.value || 0));
+    });
   }
 
   // Win streak
@@ -508,6 +537,7 @@
       _selectedCard = profile.selectedCardId
         ? cards.find(c => c.id === profile.selectedCardId) || cards[0]
         : cards[0];
+      ensureCombatStats(_selectedCard);
     } else {
       // No cards — user needs to build one first
       // Show a message and link to Quick Build on the landing page
@@ -1210,6 +1240,7 @@
       _selectedCard = (_profile && _profile.selectedCardId)
         ? cards.find(c => c.id === _profile.selectedCardId) || cards[0]
         : cards[0];
+      ensureCombatStats(_selectedCard);
     }
     renderLobby();
   }
