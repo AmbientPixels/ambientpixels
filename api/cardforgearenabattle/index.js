@@ -784,9 +784,9 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
     return;
   }
 
-  // Load player's card — demo users pass card data in request body
+  // Load player's card — demo users or Stranger card pass data in request body
   let playerCard;
-  if (isDemo && body.cardData) {
+  if (body.cardData && (isDemo || cardId === 'stranger-card')) {
     playerCard = body.cardData;
     if (!playerCard.id) playerCard.id = cardId;
   } else {

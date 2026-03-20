@@ -223,13 +223,9 @@
         return;
       }
 
-      // Authenticated new players skip Stranger fight (cardData only works in demo)
-      if (!isDemo()) {
-        openBlindspotQuickBuild();
-        return;
-      }
-
-      // Demo new player — start Stranger fight
+      // ALL new players fight as The Stranger first
+      // Demo users: cardData passed directly (server accepts it)
+      // Authenticated users: also pass cardData (server uses it when card isn't in collection)
       await startStrangerFight();
     });
   }
@@ -302,15 +298,17 @@
       return;
     }
 
-    // Demo users can't save cards
-    if (isDemo()) {
-      showDemoSignInPrompt();
-      return;
-    }
-
     window.BlindspotQuickBuild.open(function onComplete(cardId) {
       _isStrangerFight = false;
       _isFirstRealFight = true;
+
+      if (isDemo()) {
+        // Demo users experienced the full build — now prompt sign-in to save
+        showDemoSignInPrompt();
+        return;
+      }
+
+      // Authenticated users: save and continue
       if (cardId) {
         window.ArenaAPI.selectCard(cardId).catch(e => console.warn('selectCard:', e));
       }
@@ -320,13 +318,20 @@
   }
 
   function showDemoSignInPrompt() {
+    // Remove any existing prompt
+    document.querySelector('.bs-demo-prompt')?.remove();
+
     const overlay = document.createElement('div');
-    overlay.className = 'bs-overlay';
+    overlay.className = 'bs-overlay bs-demo-prompt';
     overlay.innerHTML = `
-      <p class="bs-overlay__title">You proved yourself.</p>
-      <p class="bs-overlay__subtitle">Sign in to build your card, track your rank, and climb the campaign.</p>
-      <a href="/.auth/login/aad?post_login_redirect_uri=/blindspot/" class="bs-btn bs-btn--primary bs-btn--full bs-btn--glow" style="text-decoration:none; text-align:center;">Sign In</a>
-      <button class="bs-btn bs-btn--secondary" style="margin-top:0.75rem;" id="bs-demo-replay">Play Again as Stranger</button>
+      <p class="bs-overlay__title">You built your card. Now make it real.</p>
+      <p class="bs-overlay__subtitle">Sign in to save your card, track your rank, and climb the campaign.</p>
+      <a href="/.auth/login/aad?post_login_redirect_uri=/blindspot/" class="bs-btn bs-btn--primary bs-btn--full bs-btn--glow" style="text-decoration:none; text-align:center; display:block; max-width:320px;">
+        <i class="fas fa-sign-in-alt"></i> Sign In to Continue
+      </a>
+      <button class="bs-btn bs-btn--secondary bs-btn--full" style="margin-top:0.75rem; max-width:320px;" id="bs-demo-replay">
+        <i class="fas fa-redo"></i> Start Over as Stranger
+      </button>
     `;
     document.body.appendChild(overlay);
     document.getElementById('bs-demo-replay')?.addEventListener('click', () => {

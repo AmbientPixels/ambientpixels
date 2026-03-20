@@ -309,6 +309,21 @@
   font-size: 0.65rem;
 }
 
+.bs-landing__signin {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  color: var(--bs-text-muted);
+  text-decoration: none;
+  margin-top: 0.5rem;
+  transition: color 0.2s ease;
+}
+
+.bs-landing__signin:hover {
+  color: var(--bs-accent);
+}
+
 /* ============================================================
    PLAY PAGE — Layout
    ============================================================ */
