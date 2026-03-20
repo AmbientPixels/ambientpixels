@@ -1862,15 +1862,25 @@
   .bs-overlay { padding: 1.5rem; }
   .bs-overlay__title { font-size: 1.25rem; }
 
-  /* Battle moves — 3+2 grid on tablet */
+  /* Battle moves — 3+2 grid on tablet/mobile for larger touch targets */
   .bs-page .arena-battle__moves {
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
     gap: 0.5rem;
   }
 
   .bs-page .arena-move-btn {
-    min-width: 100px;
-    flex: 1 1 30%;
+    grid-column: span 2;
+    min-height: 56px;
+    padding: 0.75rem 0.5rem;
+  }
+
+  /* Row 2: center 2 buttons by offsetting first one */
+  .bs-page .arena-battle__moves .arena-move-btn:nth-child(4) {
+    grid-column: 2 / 4;
+  }
+  .bs-page .arena-battle__moves .arena-move-btn:nth-child(5) {
+    grid-column: 4 / 6;
   }
 }
 
@@ -1909,15 +1919,22 @@
   .bs-forge-stat__value { width: 28px; font-size: 0.85rem; }
   .bs-forge-screen__title { font-size: 1.25rem; }
 
-  /* Battle on small screens */
+  /* Battle on small phones — keep 3+2 grid, bigger touch targets */
   .bs-page .arena-battle__moves {
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
     gap: 0.375rem;
   }
   .bs-page .arena-move-btn {
-    min-width: 80px;
-    flex: 1 1 28%;
-    padding: 0.5rem 0.25rem;
+    grid-column: span 2;
+    min-height: 52px;
+    padding: 0.625rem 0.375rem;
+  }
+  .bs-page .arena-battle__moves .arena-move-btn:nth-child(4) {
+    grid-column: 2 / 4;
+  }
+  .bs-page .arena-battle__moves .arena-move-btn:nth-child(5) {
+    grid-column: 4 / 6;
   }
   .bs-page .arena-move-btn__desc { display: none; }
   .bs-page .arena-move-btn__stat { font-size: 0.65rem; }
