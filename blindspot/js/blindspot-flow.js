@@ -1149,29 +1149,66 @@
 
     const totalBefore = Object.values(currentStats).reduce((a, b) => a + b, 0);
 
+    // Visual options for Look tab
+    const PALETTES = [
+      { id: 'earth', label: 'Earth', key: 'palette_earth' },
+      { id: 'ocean', label: 'Ocean', key: 'palette_ocean' },
+      { id: 'neon', label: 'Neon', key: 'palette_neon' },
+      { id: 'fire', label: 'Fire', key: 'palette_fire' },
+      { id: 'monochrome', label: 'Mono', key: 'palette_earth' },
+      { id: 'sunset', label: 'Sunset', key: 'palette_earth' }
+    ];
+    const CONTAINERS = [
+      { id: 'masked', label: 'Portrait', icon: 'fa-circle-user', key: 'container_masked' },
+      { id: 'fullbleed', label: 'Full Art', icon: 'fa-image', key: 'container_fullbleed' },
+      { id: 'framed', label: 'Framed', icon: 'fa-square', key: 'container_masked' }
+    ];
+    const uv = getUnlockedVisuals();
+
     const panel = document.getElementById('bs-forge-panel');
     panel.innerHTML = `
-      <h2 class="bs-forge-screen__title"><i class="fas fa-fire" style="color:var(--bs-accent);"></i> Evolve Your Card</h2>
-      <p style="text-align:center; color:var(--bs-text-muted); font-size:0.8rem; margin-bottom:0.75rem;">
+      <h2 class="bs-forge-screen__title"><i class="fas fa-fire" style="color:var(--bs-accent);"></i> The Forge</h2>
+      <p style="text-align:center; color:var(--bs-text-muted); font-size:0.8rem; margin-bottom:0.5rem;">
         ${escHtml(_selectedCard.name || 'Your Card')} &middot; Forge #${getForgeVisitCount() + 1}
       </p>
-      <div class="bs-forge-screen__budget">
-        <span>Power: <strong id="bs-forge-total" style="color:var(--bs-accent);">${totalBefore}</strong></span>
-        <span style="margin-left:1.5rem;">Points left: <strong id="bs-forge-remaining" style="color:var(--bs-accent);">${bonusPoints}</strong></span>
+      <div class="bs-forge-tabs">
+        <button class="bs-forge-tab bs-forge-tab--active" data-tab="stats"><i class="fas fa-sliders"></i> Stats</button>
+        <button class="bs-forge-tab" data-tab="look"><i class="fas fa-palette"></i> Look</button>
       </div>
-      ${statDefs.map(d => `
-        <div class="bs-forge-stat">
-          <i class="fas ${d.icon}" style="color:${d.color}; width:16px; text-align:center;"></i>
-          <span class="bs-forge-stat__label" style="color:${d.color}">${d.label}</span>
-          <span class="bs-forge-stat__base">${currentStats[d.key]}</span>
-          <span class="bs-forge-stat__arrow">\u2192</span>
-          <input type="range" class="bs-forge-stat__slider" data-stat="${d.key}"
-                 min="${currentStats[d.key]}" max="100" value="${currentStats[d.key]}">
-          <span class="bs-forge-stat__value" data-stat="${d.key}">${currentStats[d.key]}</span>
-          <span class="bs-forge-stat__desc">${d.desc}</span>
+      <div class="bs-forge-tab-content" id="bs-forge-tab-stats">
+        <div class="bs-forge-screen__budget">
+          <span>Power: <strong id="bs-forge-total" style="color:var(--bs-accent);">${totalBefore}</strong></span>
+          <span style="margin-left:1.5rem;">Points: <strong id="bs-forge-remaining" style="color:var(--bs-accent);">${bonusPoints}</strong></span>
         </div>
-      `).join('')}
-      <div class="bs-forge-actions" style="display:flex; gap:0.75rem; justify-content:center;">
+        ${statDefs.map(d => `
+          <div class="bs-forge-stat">
+            <i class="fas ${d.icon}" style="color:${d.color}; width:16px; text-align:center;"></i>
+            <span class="bs-forge-stat__label" style="color:${d.color}">${d.label}</span>
+            <span class="bs-forge-stat__base">${currentStats[d.key]}</span>
+            <span class="bs-forge-stat__arrow">\u2192</span>
+            <input type="range" class="bs-forge-stat__slider" data-stat="${d.key}"
+                   min="${currentStats[d.key]}" max="100" value="${currentStats[d.key]}">
+            <span class="bs-forge-stat__value" data-stat="${d.key}">${currentStats[d.key]}</span>
+            <span class="bs-forge-stat__desc">${d.desc}</span>
+          </div>
+        `).join('')}
+      </div>
+      <div class="bs-forge-tab-content" id="bs-forge-tab-look" style="display:none;">
+        <p style="font-size:0.8rem; color:var(--bs-text-muted); margin-bottom:0.75rem;">Unlock new looks by defeating bosses.</p>
+        <div style="margin-bottom:1rem;">
+          <label style="font-size:0.75rem; color:var(--bs-text-muted); display:block; margin-bottom:0.4rem;">Card Palette</label>
+          <div class="bs-forge-options">
+            ${PALETTES.map(p => `<button class="bs-forge-option ${uv.includes(p.key) ? '' : 'bs-forge-option--locked'}" data-palette="${p.id}" ${uv.includes(p.key) ? '' : 'disabled'}>${uv.includes(p.key) ? p.label : '<i class="fas fa-lock"></i>'}</button>`).join('')}
+          </div>
+        </div>
+        <div>
+          <label style="font-size:0.75rem; color:var(--bs-text-muted); display:block; margin-bottom:0.4rem;">Image Layout</label>
+          <div class="bs-forge-options">
+            ${CONTAINERS.map(c => `<button class="bs-forge-option ${uv.includes(c.key) ? '' : 'bs-forge-option--locked'}" data-container="${c.id}" ${uv.includes(c.key) ? '' : 'disabled'}><i class="fas ${c.icon}"></i> ${uv.includes(c.key) ? c.label : '<i class="fas fa-lock"></i>'}</button>`).join('')}
+          </div>
+        </div>
+      </div>
+      <div class="bs-forge-actions" style="display:flex; gap:0.75rem; justify-content:center; margin-top:1rem;">
         <button class="bs-btn bs-btn--secondary" id="bs-forge-cancel">Cancel</button>
         <button class="bs-btn bs-btn--primary bs-btn--glow" id="bs-forge-apply" disabled>
           <i class="fas fa-fire"></i> Forge
