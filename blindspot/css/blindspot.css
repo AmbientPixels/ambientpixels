@@ -163,45 +163,7 @@
   pointer-events: none;
 }
 
-/* Stranger intro — cinematic text before first fight */
-.bs-stranger-intro {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bs-bg);
-}
-
-.bs-stranger-intro__lines {
-  text-align: center;
-  max-width: 400px;
-  padding: 2rem;
-}
-
-.bs-stranger-intro__line {
-  font-family: 'Cinzel', serif;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--bs-text);
-  opacity: 0;
-  transform: translateY(12px);
-  animation: bs-intro-reveal 0.8s ease forwards;
-  margin-bottom: 1rem;
-  letter-spacing: 0.04em;
-  line-height: 1.5;
-}
-
-.bs-stranger-intro__line--accent {
-  color: var(--bs-accent);
-  font-size: 1.3rem;
-  margin-top: 0.5rem;
-}
-
-@keyframes bs-intro-reveal {
-  to { opacity: 1; transform: translateY(0); }
-}
+/* Stranger intro styles are at end of file (overlay-based) */
 
 /* Landing copy */
 .bs-landing__headline {
