@@ -19,7 +19,7 @@ Blindspot is a standalone arena combat card game at /blindspot/. 66 iterations s
 
 ## Done (continued)
 - (2026-03-20) Session stats panel: post-battle summary showing damage dealt (red), damage taken (orange), healing done (green), rounds survived, and move breakdown with icons. Hooks ArenaAPI.submitMove to track per-round data, resets on initBattle. Responsive 4-col → 2-col grid, monospace values, Cinzel title. Extended to first real fight (handleFirstRealFightResult).
-- (2026-03-20) Sound effects: Web Audio API synthesizer with 6 sounds — loot (sparkle arpeggio), bossDefeat (power chord fanfare), ascension (rising sweep + shimmer), forgeComplete (anvil hit + metallic ring), battleWin (ascending jingle), battleLoss (descending minor notes). Mute toggle + lazy AudioContext init.
+- (2026-03-20) Sound effects: Web Audio API synthesizer with 6 sounds — loot (sparkle arpeggio), bossDefeat (power chord fanfare), ascension (rising sweep + shimmer), forgeComplete (anvil hit + metallic ring), battleWin (ascending jingle), battleLoss (descending minor notes). Mute unified with ArenaAudio toggle (top bar bolt icon controls both file SFX and synth sounds). Removed redundant _sfxMuted state.
 
 ## Next up (do these in order)
 1. Weekly rotating boss with unique rewards
