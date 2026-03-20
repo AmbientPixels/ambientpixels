@@ -521,7 +521,7 @@
     const pct = Math.min(100, (wins / needed) * 100);
     const label = document.getElementById('bs-results-forge-label');
     const fill = document.getElementById('bs-results-forge-fill');
-    if (label) label.textContent = wins >= needed ? 'FORGE READY' : `FORGE \u00b7 ${wins} / ${needed}`;
+    if (label) label.textContent = wins >= needed ? 'CARD EDITOR READY \u2014 Tap to customize' : `CARD EDITOR \u00b7 ${wins} / ${needed} wins`;
     if (fill) fill.style.width = pct + '%';
   }
 
@@ -717,7 +717,7 @@
     const container = document.getElementById('bs-forge-progress');
 
     const pct = ready ? 100 : Math.min(100, (wins / needed) * 100);
-    if (label) label.textContent = ready ? 'FORGE READY' : `FORGE \u00b7 ${wins} / ${needed}`;
+    if (label) label.textContent = ready ? 'CARD EDITOR READY \u2014 Tap to customize' : `CARD EDITOR \u00b7 ${wins} / ${needed} wins`;
     if (fill) fill.style.width = pct + '%';
     if (container) {
       container.classList.toggle('bs-forge-progress--ready', ready);
@@ -1178,6 +1178,7 @@
       <div class="bs-forge-tabs">
         <button class="bs-forge-tab bs-forge-tab--active" data-tab="stats"><i class="fas fa-sliders"></i> Stats</button>
         <button class="bs-forge-tab" data-tab="look"><i class="fas fa-palette"></i> Look</button>
+        <button class="bs-forge-tab" data-tab="details"><i class="fas fa-pen"></i> Details</button>
       </div>
       <div class="bs-forge-tab-content" id="bs-forge-tab-stats">
         <div class="bs-forge-screen__budget">
@@ -1210,6 +1211,24 @@
           <div class="bs-forge-options">
             ${CONTAINERS.map(c => `<button class="bs-forge-option ${uv.includes(c.key) ? '' : 'bs-forge-option--locked'}" data-container="${c.id}" ${uv.includes(c.key) ? '' : 'disabled'}><i class="fas ${c.icon}"></i> ${uv.includes(c.key) ? c.label : '<i class="fas fa-lock"></i>'}</button>`).join('')}
           </div>
+        </div>
+      </div>
+      <div class="bs-forge-tab-content" id="bs-forge-tab-details" style="display:none;">
+        <p style="font-size:0.8rem; color:var(--bs-text-muted); margin-bottom:0.75rem;">Change your card's identity.</p>
+        <div style="margin-bottom:0.75rem;">
+          <label style="font-size:0.75rem; color:var(--bs-text-muted); display:block; margin-bottom:0.3rem;">Card Name</label>
+          <input type="text" id="bs-forge-name" value="${escHtml(_selectedCard.name || '')}" maxlength="30"
+                 style="width:100%; padding:0.5rem; background:var(--bs-surface-2); border:1px solid var(--bs-border); border-radius:6px; color:var(--bs-text); font-family:'Share Tech Mono',monospace; font-size:0.85rem;">
+        </div>
+        <div style="margin-bottom:0.75rem;">
+          <label style="font-size:0.75rem; color:var(--bs-text-muted); display:block; margin-bottom:0.3rem;">Quote</label>
+          <input type="text" id="bs-forge-quote" value="${escHtml(_selectedCard.quote || '')}" maxlength="100"
+                 style="width:100%; padding:0.5rem; background:var(--bs-surface-2); border:1px solid var(--bs-border); border-radius:6px; color:var(--bs-text); font-family:'Share Tech Mono',monospace; font-size:0.85rem;">
+        </div>
+        <div>
+          <label style="font-size:0.75rem; color:var(--bs-text-muted); display:block; margin-bottom:0.3rem;">Avatar URL</label>
+          <input type="url" id="bs-forge-avatar" value="${escHtml(_selectedCard.avatar || '')}" placeholder="https://..."
+                 style="width:100%; padding:0.5rem; background:var(--bs-surface-2); border:1px solid var(--bs-border); border-radius:6px; color:var(--bs-text); font-family:'Share Tech Mono',monospace; font-size:0.8rem;">
         </div>
       </div>
       <div class="bs-forge-actions" style="display:flex; gap:0.75rem; justify-content:center; margin-top:1rem;">
