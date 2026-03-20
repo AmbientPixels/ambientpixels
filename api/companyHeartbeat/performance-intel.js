@@ -135,6 +135,8 @@ function buildPerformanceDigest(tasks, actions, engagementSnapshots, existingDig
       roleType: (id === 'nova' || id === 'cipher') ? 'orchestrator'
         : (id === 'quill') ? 'reviewer'
         : (id === 'scout') ? 'researcher'
+        : (id === 'pixel') ? 'specialist_design'
+        : (id === 'forge') ? 'specialist_ops'
         : 'producer',
       delegatedTasks: 0,
       delegatedTasksDone: 0,
@@ -460,6 +462,7 @@ function buildPerformanceDigest(tasks, actions, engagementSnapshots, existingDig
     var isOrchestrator = (id === 'nova' || id === 'cipher');
     var isReviewer = (id === 'quill');
     var isResearcher = (id === 'scout');
+    var isSpecialist = (id === 'pixel' || id === 'forge');
 
     // Orchestrator signals: tasks delegated (created_by this agent, assigned to others),
     // governance compliance, low block rate, team quality (avg downstream agent scores)
@@ -545,8 +548,32 @@ function buildPerformanceDigest(tasks, actions, engagementSnapshots, existingDig
         blockPenalty +
         starBonus
       )));
+    } else if (isSpecialist) {
+      // Specialist formula (Pixel=Design, Forge=DevOps) — low-volume agents that activate on demand.
+      // Don't penalize for low volume; measure quality when they do act.
+      // Peer review quality is weighted heavily since their work is domain-specific and reviewed by peers.
+      var specHasActivity = (a.tasksCompleted > 0 || a.ceoActionsSubmitted > 0 || a.peerReviewsReceived > 0);
+      if (!specHasActivity) {
+        // No activity at all — neutral score, not penalized
+        a.qualityScore = 50;
+      } else {
+        var specCeoSignal = a.ceoActionsSubmitted > 0 ? a.ceoApprovalRate : 0.5;
+        var specPeerSignal = a.peerReviewsReceived > 0 ? a.peerReviewApprovalRate : 0.5;
+        var specTaskSignal = a.tasksCompleted > 0 ? Math.min(1, a.tasksCompleted / 5) : 0; // cap at 5
+        var specGovCompliance = a.governanceViolations === 0 ? 1 : Math.max(0, 1 - (a.governanceViolations / 5));
+        a.qualityScore = Math.min(100, Math.max(0, Math.round(
+          (specCeoSignal * 25) +
+          (specPeerSignal * 25) +
+          (revisionEfficiency * 15) +
+          (specTaskSignal * 15) +
+          (specGovCompliance * 10) +
+          ((1 - a.blockRate) * 10) -
+          blockPenalty +
+          starBonus
+        )));
+      }
     } else {
-      // Producer formula (Echo, Scribe, Pixel, Forge) — original weights
+      // Producer formula (Echo, Scribe) — original weights
       a.qualityScore = Math.min(100, Math.max(0, Math.round(
         (a.ceoApprovalRate * 30) +
         (a.peerReviewApprovalRate * 20) +

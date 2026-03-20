@@ -138,8 +138,10 @@
 
         // Role type badge
         if (a.roleType && a.roleType !== 'producer') {
-          var roleLabel = a.roleType === 'orchestrator' ? 'Orchestrator' : (a.roleType === 'reviewer' ? 'Reviewer' : 'Researcher');
-          var roleColor = a.roleType === 'orchestrator' ? '#a78bfa' : (a.roleType === 'reviewer' ? '#fbbf24' : '#4ade80');
+          var _roleLabels = { orchestrator: 'Orchestrator', reviewer: 'Reviewer', researcher: 'Researcher', specialist_design: 'Specialist · Design', specialist_ops: 'Specialist · DevOps' };
+          var _roleColors = { orchestrator: '#a78bfa', reviewer: '#fbbf24', researcher: '#4ade80', specialist_design: '#f472b6', specialist_ops: '#fb923c' };
+          var roleLabel = _roleLabels[a.roleType] || a.roleType;
+          var roleColor = _roleColors[a.roleType] || '#94a3b8';
           card += '<div style="margin-bottom:0.5rem;"><span style="font-size:0.65rem;font-weight:600;padding:2px 8px;border-radius:999px;background:' + roleColor + '22;color:' + roleColor + ';">' + roleLabel + '</span></div>';
         }
 
