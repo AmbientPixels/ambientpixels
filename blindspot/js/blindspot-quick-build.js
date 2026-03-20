@@ -539,23 +539,35 @@
   // ===== REVEAL ANIMATION =====
 
   function _triggerReveal() {
-    // First, populate the card preview
+    // Populate the card preview first, then flip after it renders
     _populatePreview();
 
-    // Trigger flip animation
-    const flipInner = document.getElementById('bs-flip-inner');
-    if (flipInner) {
-      flipInner.classList.add('flipped');
-    }
+    // Wait for preview to render (editor needs time), then flip
+    setTimeout(() => {
+      // Re-clone preview right before flip (in case editor rendered async)
+      const sourcePreview = document.querySelector('.card-preview-zone .card-preview-canvas');
+      const previewContainer = document.getElementById('qb-card-preview');
+      if (sourcePreview && previewContainer) {
+        const clone = sourcePreview.cloneNode(true);
+        clone.style.transform = 'scale(0.55)';
+        clone.style.transformOrigin = 'top center';
+        previewContainer.innerHTML = '';
+        previewContainer.appendChild(clone);
+      }
 
-    // Play SFX
-    if (window.ArenaAudio) {
-      try { window.ArenaAudio.playSfx('victory'); } catch (e) {}
-    }
+      // Now flip
+      const flipInner = document.getElementById('bs-flip-inner');
+      if (flipInner) flipInner.classList.add('flipped');
 
-    _cardFlipped = true;
+      // Play SFX
+      if (window.ArenaAudio) {
+        try { window.ArenaAudio.playSfx('victory'); } catch (e) {}
+      }
 
-    // Update nav button (swap Reveal → Enter the Arena)
+      _cardFlipped = true;
+    }, 300); // 300ms gives editor time to render
+
+    // Update nav button after flip animation completes
     setTimeout(() => {
       const navEl = _overlayEl?.querySelector('.qb-nav');
       if (navEl) {
@@ -566,7 +578,7 @@
         document.getElementById('bs-enter-arena')?.addEventListener('click', _handleSaveAndEnter);
         document.getElementById('qb-back')?.addEventListener('click', () => { _state.step--; _cardFlipped = false; _render(); });
       }
-    }, 900);
+    }, 1200); // After flip animation (800ms) + buffer
   }
 
   function _populatePreview() {

@@ -23,6 +23,9 @@
   <link rel="stylesheet" href="/cardforge/css/cardforge-forms.css">
   <link rel="stylesheet" href="/cardforge/css/cardforge-card.css">
   <link rel="stylesheet" href="/cardforge/css/cardforge-modular.css">
+  <link rel="stylesheet" href="/cardforge/css/cardforge-bg-effects.css">
+  <link rel="stylesheet" href="/cardforge/css/cardforge-border-effects.css">
+  <link rel="stylesheet" href="/cardforge/css/cardforge-glow-effects.css">
   <link rel="stylesheet" href="css/blindspot.css">
 </head>
 <body class="bs-page" data-theme="dark">
@@ -171,7 +174,27 @@
     <textarea id="card-bio"></textarea>
     <input type="text" id="card-level" value="">
     <div class="card-preview-zone">
-      <div class="card-preview-canvas"></div>
+      <div class="card-preview-canvas">
+        <div class="card-inner">
+          <div class="card-front">
+            <div class="card-header">
+              <div class="card-avatar-container">
+                <img class="card-avatar" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAEklEQVQImWP4////fwYiYGQAAAMdAv+q1e0QAAAAAElFTkSuQmCC" alt="Avatar" loading="lazy">
+              </div>
+              <div class="card-title-section">
+                <h3 class="card-name"></h3>
+                <p class="card-class"></p>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="card-quote"></div>
+              <div class="card-stats"></div>
+              <div class="badge-container"></div>
+            </div>
+          </div>
+          <div class="card-back"></div>
+        </div>
+      </div>
     </div>
   </div>
 
