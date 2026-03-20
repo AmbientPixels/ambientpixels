@@ -163,6 +163,46 @@
   pointer-events: none;
 }
 
+/* Stranger intro — cinematic text before first fight */
+.bs-stranger-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bs-bg);
+}
+
+.bs-stranger-intro__lines {
+  text-align: center;
+  max-width: 400px;
+  padding: 2rem;
+}
+
+.bs-stranger-intro__line {
+  font-family: 'Cinzel', serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--bs-text);
+  opacity: 0;
+  transform: translateY(12px);
+  animation: bs-intro-reveal 0.8s ease forwards;
+  margin-bottom: 1rem;
+  letter-spacing: 0.04em;
+  line-height: 1.5;
+}
+
+.bs-stranger-intro__line--accent {
+  color: var(--bs-accent);
+  font-size: 1.3rem;
+  margin-top: 0.5rem;
+}
+
+@keyframes bs-intro-reveal {
+  to { opacity: 1; transform: translateY(0); }
+}
+
 /* Landing copy */
 .bs-landing__headline {
   font-size: 1rem;
@@ -3301,4 +3341,53 @@ body.bs-battle-active .bs-bottom-nav {
   .bs-mm-fighter__img, .bs-mm-fighter__icon { width: 60px; height: 60px; font-size: 1.5rem; }
   .bs-mm-fighter__name { font-size: 0.85rem; }
   .bs-mm-vs__text { font-size: 1.5rem; }
+}
+
+/* ── Stranger intro cinematic ── */
+.bs-stranger-intro {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bs-bg, #0a0a0f);
+  z-index: 200;
+}
+.bs-stranger-intro__lines {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.6rem;
+  padding: 2rem;
+  max-width: 500px;
+}
+.bs-stranger-intro__line {
+  font-family: var(--bs-font-display, 'Inter', sans-serif);
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--bs-text, #e8e8f0);
+  text-align: center;
+  opacity: 0;
+  transform: translateY(12px);
+  letter-spacing: 0.01em;
+  line-height: 1.4;
+}
+.bs-stranger-intro__line[data-line="1"] {
+  font-size: 1.8rem;
+  color: var(--bs-accent, #ff6b35);
+}
+.bs-stranger-intro__line.bs-intro-visible {
+  animation: bs-intro-reveal 0.8s ease forwards;
+}
+.bs-stranger-intro.bs-intro-fadeout {
+  animation: bs-intro-fadeout 0.6s ease forwards;
+}
+@keyframes bs-intro-reveal {
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes bs-intro-fadeout {
+  to { opacity: 0; }
+}
+@media (max-width: 480px) {
+  .bs-stranger-intro__line { font-size: 1.2rem; }
+  .bs-stranger-intro__line[data-line="1"] { font-size: 1.4rem; }
+  .bs-stranger-intro__lines { gap: 1.2rem; padding: 1.5rem; }
 }

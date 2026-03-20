@@ -415,7 +415,28 @@
       // ALL new players fight as The Stranger first
       // Demo users: cardData passed directly (server accepts it)
       // Authenticated users: also pass cardData (server uses it when card isn't in collection)
+      await showStrangerIntro();
       await startStrangerFight();
+    });
+  }
+
+  function showStrangerIntro() {
+    return new Promise(resolve => {
+      const intro = document.createElement('div');
+      intro.className = 'bs-stranger-intro';
+      intro.innerHTML = `
+        <div class="bs-stranger-intro__lines">
+          <p class="bs-stranger-intro__line" style="animation-delay:0.3s">You are The Stranger.</p>
+          <p class="bs-stranger-intro__line" style="animation-delay:1.6s">This card is not yours.</p>
+          <p class="bs-stranger-intro__line bs-stranger-intro__line--accent" style="animation-delay:3s">Win it&hellip; or lose everything.</p>
+        </div>
+      `;
+      document.body.appendChild(intro);
+      setTimeout(() => {
+        intro.style.opacity = '0';
+        intro.style.transition = 'opacity 0.6s ease';
+        setTimeout(() => { intro.remove(); resolve(); }, 600);
+      }, 4800);
     });
   }
 
@@ -425,7 +446,19 @@
     // Clean up any existing tutorial from previous attempt
     removeTutorial();
 
-    document.getElementById('bs-landing').style.display = 'none';
+    // Show dramatic intro on first stranger fight only
+    if (!localStorage.getItem('bs-stranger-intro-shown')) {
+      localStorage.setItem('bs-stranger-intro-shown', 'true');
+      document.getElementById('bs-landing').style.opacity = '0';
+      document.getElementById('bs-landing').style.transition = 'opacity 0.5s ease';
+      await new Promise(r => setTimeout(r, 500));
+      document.getElementById('bs-landing').style.display = 'none';
+      document.getElementById('bs-landing').style.opacity = '';
+      await showStrangerIntro();
+    } else {
+      document.getElementById('bs-landing').style.display = 'none';
+    }
+
     const battleContainer = document.getElementById('bs-battle-container');
     battleContainer.style.display = 'block';
 
