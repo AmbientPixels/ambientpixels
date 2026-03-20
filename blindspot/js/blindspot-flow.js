@@ -506,12 +506,12 @@
         return;
       }
 
-      // Authenticated users: save and continue
+      // Authenticated users: save and show reveal celebration
       if (cardId) {
         window.ArenaAPI.selectCard(cardId).catch(e => console.warn('selectCard:', e));
       }
       localStorage.setItem('blindspot-onboarded', 'true');
-      window.location.href = '/blindspot/play.html?firstFight=true';
+      showCardRevealCelebration(cardId);
     });
   }
 
@@ -538,6 +538,102 @@
       const fightBtn = document.getElementById('bs-fight-btn');
       if (fightBtn) { fightBtn.disabled = false; fightBtn.textContent = 'Fight'; }
     });
+  }
+
+  function showCardRevealCelebration(cardId) {
+    document.querySelector('.bs-reveal-celebration')?.remove();
+
+    const overlay = document.createElement('div');
+    overlay.className = 'bs-overlay bs-reveal-celebration';
+
+    // Try to get card data from ArenaAPI cache or fall back to minimal display
+    let cardHtml = '';
+    const tryRender = async () => {
+      let card = null;
+      try {
+        const data = await window.ArenaAPI.loadCards();
+        const cards = data.userCards || [];
+        card = cardId ? cards.find(c => c.id === cardId) : cards[cards.length - 1];
+      } catch (e) { /* proceed without card data */ }
+
+      const name = card?.name || 'Your Card';
+      const cls = card?.class || card?.characterClass || '';
+      const rarity = card?.rarity || 'Common';
+      const avatar = card?.avatar || '';
+      const palette = card?.palette || 'earth';
+      const stats = card?.combatStats || {};
+      const statDefs = [
+        { key: 'strength', label: 'STR', color: '#D85A30' },
+        { key: 'speed', label: 'SPD', color: '#C6A84C' },
+        { key: 'defense', label: 'DEF', color: '#4A90A4' },
+        { key: 'magic', label: 'MAG', color: '#8B5CF6' },
+        { key: 'heal', label: 'HEL', color: '#22C55E' },
+      ];
+
+      const statsHtml = statDefs.map(d => {
+        const val = stats[d.key] || 0;
+        return `<div class="bs-reveal-stat">
+          <span class="bs-reveal-stat__label" style="color:${d.color}">${d.label}</span>
+          <div class="bs-reveal-stat__bar"><div class="bs-reveal-stat__fill" style="width:${val}%;background:${d.color}"></div></div>
+          <span class="bs-reveal-stat__val">${val}</span>
+        </div>`;
+      }).join('');
+
+      // Create particle elements
+      let particles = '';
+      for (let i = 0; i < 24; i++) {
+        const angle = (i / 24) * Math.PI * 2;
+        const dist = 80 + Math.random() * 120;
+        const tx = Math.cos(angle) * dist;
+        const ty = Math.sin(angle) * dist;
+        const size = 3 + Math.random() * 5;
+        const delay = Math.random() * 0.4;
+        particles += `<div class="bs-reveal-particle" style="--tx:${tx.toFixed(1)}px;--ty:${ty.toFixed(1)}px;--size:${size}px;--delay:${delay}s"></div>`;
+      }
+
+      overlay.innerHTML = `
+        <div class="bs-reveal-particles">${particles}</div>
+        <div class="bs-reveal-card-wrap">
+          <div class="bs-reveal-card" data-palette="${escHtml(palette)}" data-rarity="${escHtml(rarity.toLowerCase())}">
+            ${avatar ? `<img class="bs-reveal-card__img" src="${escHtml(avatar)}" alt="${escHtml(name)}">` : `<div class="bs-reveal-card__icon"><i class="fas fa-fire"></i></div>`}
+            <div class="bs-reveal-card__info">
+              <span class="bs-reveal-card__name">${escHtml(name)}</span>
+              ${cls ? `<span class="bs-reveal-card__class">${escHtml(cls)}</span>` : ''}
+              <span class="bs-reveal-card__rarity bs-reveal-card__rarity--${escHtml(rarity.toLowerCase())}">${escHtml(rarity)}</span>
+            </div>
+            <div class="bs-reveal-stats">${statsHtml}</div>
+          </div>
+        </div>
+        <p class="bs-reveal-title">Your card is ready</p>
+        <p class="bs-reveal-subtitle">The arena awaits.</p>
+        <button class="bs-btn bs-btn--primary bs-btn--glow bs-reveal-enter" id="bs-reveal-enter">
+          <i class="fas fa-swords"></i> Enter the Arena
+        </button>
+      `;
+
+      document.body.appendChild(overlay);
+
+      // Trigger entrance animation after a frame
+      requestAnimationFrame(() => {
+        overlay.classList.add('bs-reveal-celebration--active');
+      });
+
+      document.getElementById('bs-reveal-enter')?.addEventListener('click', () => {
+        overlay.classList.add('bs-reveal-celebration--exit');
+        setTimeout(() => {
+          window.location.href = '/blindspot/play.html?firstFight=true';
+        }, 400);
+      });
+
+      // Auto-redirect after 8 seconds if user doesn't click
+      setTimeout(() => {
+        if (document.body.contains(overlay)) {
+          window.location.href = '/blindspot/play.html?firstFight=true';
+        }
+      }, 8000);
+    };
+
+    tryRender();
   }
 
   function handleFirstRealFightResult(battleResult, battleData) {
