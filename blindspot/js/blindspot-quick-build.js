@@ -384,7 +384,7 @@
   }
 
   function _bindClassEvents() {
-    document.querySelectorAll('.qb-class-card').forEach(card => {
+    document.querySelectorAll('.bs-class-pick, .qb-class-card').forEach(card => {
       card.addEventListener('click', () => {
         _state.cardClass = card.dataset.classId;
         _state.customStats = null;
