@@ -2729,7 +2729,7 @@
   // ============================================================
 
   function openForgeScreen(isFirstUnlock) {
-    const bonusPoints = isFirstUnlock
+    var rawBonus = isFirstUnlock
       ? (_config ? _config.forgeVisit.firstUnlockBonusPoints : 35)
       : (_config ? _config.forgeVisit.bonusPoints : 25);
 
@@ -2738,7 +2738,11 @@
       return;
     }
 
-    const currentStats = { ..._selectedCard.combatStats };
+    var FORGE_POWER_CAP = 400;
+    var currentStats = { ..._selectedCard.combatStats };
+    var currentTotal = Object.values(currentStats).reduce(function(a, b) { return a + b; }, 0);
+    // Cap bonus so total power cannot exceed FORGE_POWER_CAP
+    var bonusPoints = currentTotal >= FORGE_POWER_CAP ? 0 : Math.min(rawBonus, FORGE_POWER_CAP - currentTotal);
     const allocations = { str: 0, agi: 0, int: 0, end: 0, lck: 0 };
 
     const statDefs = [
@@ -2749,7 +2753,7 @@
       { key: 'lck', label: 'LCK', desc: 'Crit chance (5%+)',    color: '#ffd740', icon: 'fa-clover' }
     ];
 
-    const totalBefore = Object.values(currentStats).reduce((a, b) => a + b, 0);
+    var totalBefore = currentTotal;
     const respecCost = _config ? _config.forgeVisit.winsRequired : 3;
     let _respecActive = false;
 
@@ -2799,7 +2803,7 @@
       </div>
       <div class="bs-forge-tab-content" id="bs-forge-tab-stats">
         <div class="bs-forge-screen__budget">
-          <span>Power: <strong id="bs-forge-total" style="color:var(--bs-accent);">${totalBefore}</strong></span>
+          <span>Power: <strong id="bs-forge-total" style="color:var(--bs-accent);">${totalBefore}</strong><span style="color:var(--bs-text-muted); font-size:0.75rem;">/${FORGE_POWER_CAP}</span></span>
           <span style="margin-left:1.5rem;">Points: <strong id="bs-forge-remaining" style="color:var(--bs-accent);">${bonusPoints}</strong></span>
           ${getForgeWins() >= respecCost ? `<button class="bs-btn bs-btn--small" id="bs-forge-respec" style="margin-left:auto; font-size:0.65rem; padding:0.2rem 0.5rem;" title="Reset all stats and redistribute (costs ${respecCost} forge wins)"><i class="fas fa-rotate"></i> Respec</button>` : `<span id="bs-forge-respec-locked" style="margin-left:auto; font-size:0.6rem; color:var(--bs-text-muted); cursor:help;" title="Need ${respecCost} forge wins to respec"><i class="fas fa-lock"></i> Respec (${getForgeWins()}/${respecCost})</span>`}
         </div>
@@ -2920,7 +2924,7 @@
     const previewNameEl = panel.querySelector('.bs-forge-card__name');
 
     function getPool() {
-      return _respecActive ? totalBefore + bonusPoints : bonusPoints;
+      return _respecActive ? Math.min(totalBefore + bonusPoints, FORGE_POWER_CAP) : bonusPoints;
     }
 
     function updateBudget() {
@@ -2958,7 +2962,7 @@
         respecBtn.style.color = 'var(--bs-bg)';
       }
       updateBudget();
-      showSuccessToast(`Respec active! Redistribute ${totalBefore + bonusPoints} points.`);
+      showSuccessToast(`Respec active! Redistribute ${Math.min(totalBefore + bonusPoints, FORGE_POWER_CAP)} points.`);
     }
 
     panel.querySelectorAll('.bs-forge-stat__slider').forEach(slider => {
