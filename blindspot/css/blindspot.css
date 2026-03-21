@@ -4503,12 +4503,21 @@ body.bs-battle-active .bs-bottom-nav {
 
 .bs-rc--compact {
   width: 100%;
-  max-width: 140px;
+  height: 100%;
 }
-.bs-rc--compact .bs-rc__art { min-height: 90px; }
+.bs-rc--compact .bs-rc__art { flex: 1; min-height: 0; }
 .bs-rc--compact .bs-rc__name { font-size: 0.7rem; }
 .bs-rc--compact .bs-rc__class { font-size: 0.55rem; }
 .bs-rc--compact .bs-rc__power { font-size: 0.55rem; padding: 0.15rem; }
+
+/* When rendered card is inside a battle combatant slot, strip the container chrome */
+.arena-combatant__card:has(.bs-rendered-card) {
+  border: none !important;
+  background: none !important;
+  box-shadow: none !important;
+  padding: 0;
+  overflow: hidden;
+}
 
 .bs-rc--micro {
   width: 64px;
