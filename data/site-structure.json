@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2026-03-20T14:02:00.303Z",
+  "updated": "2026-03-21T13:44:53.304Z",
   "root": [
     {
       "type": "folder",
@@ -880,8 +880,26 @@
         },
         {
           "type": "page",
+          "name": "login.html",
+          "path": "blindspot/login.html"
+        },
+        {
+          "type": "page",
           "name": "play.html",
           "path": "blindspot/play.html"
+        },
+        {
+          "type": "folder",
+          "name": "tests",
+          "path": "blindspot/tests",
+          "children": [
+            {
+              "type": "folder",
+              "name": "screenshots",
+              "path": "blindspot/tests/screenshots",
+              "children": []
+            }
+          ]
         }
       ]
     },

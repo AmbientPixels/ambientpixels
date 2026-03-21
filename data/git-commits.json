@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "ade9f8b0-56f6-41aa-a025-e5b7e00ebce5",
-      "hash": "0a7283c03db4f2b430c762f90b9786160d20ff88",
-      "message": "Blindspot iteration 40: save visual selections from Forge Look tab",
-      "timestamp": "2026-03-20 00:33:08 -0700",
+      "id": "99672e3c-9ff1-4f1e-b934-4a9d29731bfb",
+      "hash": "300f2a314818bc048f9ac4766577e13b1a6d779b",
+      "message": "blindspot: battle ambient audio — low rumble drone + crowd murmur",
+      "timestamp": "2026-03-21 01:53:48 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/0a7283c03db4f2b430c762f90b9786160d20ff88"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/300f2a314818bc048f9ac4766577e13b1a6d779b"
     }
   ],
-  "timestamp": "2026-03-20T14:02:02.649Z",
+  "timestamp": "2026-03-21T13:44:54.414Z",
   "count": 1,
-  "scanId": 1774015322649
+  "scanId": 1774100694414
 }
