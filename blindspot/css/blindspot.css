@@ -1403,13 +1403,13 @@
   }
 
   .bs-page .arena-battle {
-    max-width: 960px;
+    max-width: 1060px;
     margin: 0 auto;
-    padding: 0;
+    padding: 0 1rem;
   }
 
   .bs-page .arena-battle__header {
-    max-width: 820px;
+    max-width: 900px;
     margin: 0 auto 1.25rem;
     padding: 0.85rem 1.5rem;
     border-radius: 12px;
@@ -1422,16 +1422,16 @@
   }
 
   .bs-page .arena-battle__field {
-    gap: 2rem;
-    padding: 2.5rem 3rem;
+    gap: 3rem;
+    padding: 2.5rem 3.5rem;
     border-radius: 16px;
     border: 1px solid var(--bs-border);
     background: linear-gradient(180deg, rgba(26, 20, 16, 0.6), rgba(16, 12, 8, 0.8));
   }
 
   .bs-page .arena-combatant {
-    max-width: 320px;
-    padding: 1.5rem 1.5rem 1rem;
+    max-width: 340px;
+    padding: 1.75rem 1.75rem 1.25rem;
     gap: 0.75rem;
   }
 
@@ -1462,7 +1462,7 @@
   }
 
   .bs-page .arena-battle__log {
-    max-width: 820px;
+    max-width: 900px;
     margin: 0 auto 1rem;
     padding: 0.85rem 1.25rem;
     font-size: 0.8rem;
@@ -1472,7 +1472,7 @@
   }
 
   .bs-page .arena-hype-bar {
-    max-width: 820px;
+    max-width: 900px;
     margin: 0 auto 1.25rem;
     padding: 0.4rem 0.75rem;
     border-radius: 8px;
@@ -1480,7 +1480,7 @@
 
   .bs-page .arena-battle__moves {
     gap: 1rem;
-    max-width: 820px;
+    max-width: 900px;
     margin: 0 auto;
     padding: 0 0.5rem;
   }
@@ -3414,23 +3414,22 @@
   /* Hide buff chips on mobile — too noisy, takes space */
   .bs-page .arena-player-buffs { display: none; }
 
-  /* Combat log — collapsed on small phones to keep buttons above fold */
+  /* Combat log — single line on small phones to keep buttons above fold */
   .bs-page .arena-battle__log {
-    max-height: 40px;
+    max-height: 24px;
     font-size: 0.6rem;
-    padding: 0.2rem 0.5rem;
-    line-height: 1.3;
-    margin: 0.15rem 0;
+    padding: 0.15rem 0.5rem;
+    line-height: 1.2;
+    margin: 0.1rem 0;
     overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
-  /* Hype bar — minimal on small phones */
+  /* Hype bar — hidden on small phones to save vertical space */
   .bs-page .arena-hype-bar {
-    padding: 0.1rem 0.5rem;
-    font-size: 0.55rem;
-    margin: 0.1rem 0;
+    display: none !important;
   }
-  .bs-page .arena-hype-bar__label { font-size: 0.5rem; }
 
   /* Battle on small phones — keep 3+2 grid, compact to fit viewport */
   .bs-page .arena-battle__moves {
@@ -4506,9 +4505,10 @@ body.bs-battle-active .bs-bottom-nav {
   width: 100%;
   height: 100%;
 }
-.bs-rc--compact .bs-rc__art { flex: 1; min-height: 0; }
+.bs-rc--compact .bs-rc__art { flex: 1; min-height: 0; overflow: hidden; }
+.bs-rc--compact .bs-rc__info { padding: 0.25rem 0.4rem; }
 .bs-rc--compact .bs-rc__name { font-size: 0.7rem; }
-.bs-rc--compact .bs-rc__class { font-size: 0.55rem; }
+.bs-rc--compact .bs-rc__class { display: none; }
 .bs-rc--compact .bs-rc__power { font-size: 0.55rem; padding: 0.15rem; }
 
 /* When rendered card is inside a battle combatant slot, strip the container chrome */
@@ -4518,6 +4518,20 @@ body.bs-battle-active .bs-bottom-nav {
   box-shadow: none !important;
   padding: 0;
   overflow: hidden;
+}
+
+/* Mobile battle: card container too small for text — avatar only */
+@media (max-width: 480px) {
+  .arena-combatant__card .bs-rc--compact .bs-rc__info,
+  .arena-combatant__card .bs-rc--compact .bs-rc__power {
+    display: none;
+  }
+  .arena-combatant__card .bs-rc--compact {
+    border-radius: 10px;
+  }
+  .arena-combatant__card .bs-rc--compact .bs-rc__art {
+    border-radius: 10px;
+  }
 }
 
 .bs-rc--micro {
