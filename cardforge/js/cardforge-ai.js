@@ -97,7 +97,7 @@
     }
 
     // Only count usage on successful API call
-    incrementAiUsage();
+    if (!opts.skipUsageIncrement) incrementAiUsage();
     return res.json();
   }
 

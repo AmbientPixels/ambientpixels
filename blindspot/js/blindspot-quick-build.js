@@ -75,7 +75,10 @@
     _render();
   }
 
-  function close() {
+  function close(force) {
+    if (!force && _overlayEl && _state.step > 0) {
+      if (!confirm('Leave card builder? Your progress will be lost.')) return;
+    }
     if (_overlayEl) {
       _overlayEl.remove();
       _overlayEl = null;
@@ -173,6 +176,7 @@
 
     const statsHtml = _state.cardClass ? `
       <div class="bs-stats-panel">
+        <p class="qb-style-desc" style="margin:0 0 0.5rem;">Your class determines your ability. Distribute stats to match your playstyle.</p>
         <div class="bs-stats-header">
           <span><i class="fas fa-sliders"></i> Stats</span>
           <span class="bs-stats-budget ${remaining < 0 ? 'over' : remaining === 0 ? 'exact' : ''}">${remaining}/${STAT_BUDGET}</span>
@@ -220,7 +224,7 @@
             <i class="fas fa-wand-magic-sparkles"></i> Generate
           </button>
         </div>
-        <div class="qb-ai-counter">${remaining} generation${remaining !== 1 ? 's' : ''} remaining today</div>
+        <div class="qb-ai-counter">${remaining} summon${remaining !== 1 ? 's' : ''} remaining</div>
         ${_state.artworkUrl ? `<div class="qb-artwork-preview"><img src="${_state.artworkUrl}" alt="Preview"></div>` : ''}
       </div>`;
     } else if (artMode === 'url') {
@@ -231,11 +235,12 @@
     }
 
     const containerStyles = [
-      { id: 'masked',    label: 'Portrait',  icon: 'fa-circle-user' },
-      { id: 'fullbleed', label: 'Full Art',  icon: 'fa-image' },
-      { id: 'polaroid',  label: 'Polaroid',  icon: 'fa-camera-retro' },
-      { id: 'banner',    label: 'Banner',    icon: 'fa-panorama' },
-      { id: 'floating',  label: 'Floating',  icon: 'fa-expand' }
+      { id: 'masked',    label: 'Portrait',  icon: 'fa-circle-user', desc: 'Circular portrait frame', locked: false },
+      { id: 'framed',    label: 'Framed',    icon: 'fa-square',      desc: 'Classic bordered frame',  locked: false },
+      { id: 'polaroid',  label: 'Polaroid',  icon: 'fa-camera-retro', desc: 'Framed photo style',    locked: false },
+      { id: 'hero',      label: 'Hero',      icon: 'fa-mountain-sun', desc: 'Large hero image',      locked: true, unlock: 'Boss 4' },
+      { id: 'fullbleed', label: 'Full Art',  icon: 'fa-image',       desc: 'Image fills entire card', locked: true, unlock: 'Boss 6' },
+      { id: 'floating',  label: 'Floating',  icon: 'fa-expand',      desc: 'Image floats over bg',   locked: true, unlock: 'Boss 8' }
     ];
 
     return `
@@ -252,12 +257,20 @@
       <div class="qb-style-section">
         <p class="qb-style-label">Image Style</p>
         <div class="qb-style-options">
-          ${containerStyles.map(s => `
-            <div class="qb-style-tile ${_state.imageContainer === s.id ? 'selected' : ''}" data-img-container="${s.id}">
+          ${containerStyles.map(s => {
+            if (s.locked) {
+              return `<div class="qb-style-tile qb-style-tile--locked" title="Unlocked at ${s.unlock}">
+                <i class="fas fa-lock"></i>
+                <span>${s.label}</span>
+                <span class="qb-style-desc">${s.unlock}</span>
+              </div>`;
+            }
+            return `<div class="qb-style-tile ${_state.imageContainer === s.id ? 'selected' : ''}" data-img-container="${s.id}">
               <i class="fas ${s.icon}"></i>
               <span>${s.label}</span>
-            </div>
-          `).join('')}
+              <span class="qb-style-desc">${s.desc}</span>
+            </div>`;
+          }).join('')}
         </div>
       </div>
     `;
@@ -291,6 +304,7 @@
                 `<option value="${r}" ${r === rarity ? 'selected' : ''}>${r}</option>`
               ).join('')}
             </select>
+            <span class="qb-style-desc">Rarity affects your card's visual style</span>
           </div>
         </div>
       </div>
@@ -582,7 +596,8 @@
           MS.imageContainer = _state.imageContainer;
           if (_state.imageContainer === 'masked') MS.imageContainerVariant = 'circle';
           else if (_state.imageContainer === 'polaroid') MS.imageContainerVariant = 'classic';
-          else if (_state.imageContainer === 'banner') MS.imageContainerVariant = 'top';
+          else if (_state.imageContainer === 'framed') MS.imageContainerVariant = '';
+          else if (_state.imageContainer === 'hero') MS.imageContainerVariant = '';
           else MS.imageContainerVariant = '';
         }
 
@@ -690,7 +705,7 @@
       // Select the card
       try { await window.ArenaAPI.selectCard(savedCardId); } catch (e) { console.warn('selectCard error:', e); }
 
-      close();
+      close(true);
 
       if (_onComplete) {
         _onComplete(savedCardId);
@@ -722,7 +737,7 @@
     try {
       const AI = window.CardForgeAI;
       const textPrompt = AI.buildFullCardPrompt(prompt);
-      const textResp = await AI.callGemini(textPrompt, { model: AI.TEXT_MODEL });
+      const textResp = await AI.callGemini(textPrompt, { model: AI.TEXT_MODEL, skipUsageIncrement: true });
       const textRaw = AI.extractText(textResp);
       const cardData = AI.parseJSON(textRaw);
 
@@ -730,8 +745,6 @@
       const imgResp = await AI.callGemini(imgPrompt, { model: AI.IMAGE_MODEL, imageGeneration: true });
       const imgData = AI.extractImage(imgResp);
       const imageUrl = imgData ? `data:${imgData.mimeType};base64,${imgData.base64}` : '';
-
-      AI.incrementAiUsage();
 
       _state.aiData = cardData;
       _state.artworkUrl = imageUrl || _state.artworkUrl;

@@ -2193,6 +2193,20 @@
   border-color: var(--bs-accent) !important;
   background: rgba(239, 159, 39, 0.15) !important;
 }
+.bs-page .qb-style-desc {
+  font-size: 0.65rem;
+  color: var(--bs-text-muted, #A09888);
+  display: block;
+  margin-top: 0.15rem;
+}
+.bs-page .qb-style-tile--locked {
+  opacity: 0.45;
+  cursor: not-allowed;
+  border-style: dashed;
+}
+.bs-page .qb-style-tile--locked .fa-lock {
+  color: var(--bs-text-muted, #A09888);
+}
 
 .bs-page .qb-vibe-card.selected {
   border-color: var(--bs-accent) !important;
