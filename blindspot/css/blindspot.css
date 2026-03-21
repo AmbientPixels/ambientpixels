@@ -4079,3 +4079,176 @@ body.bs-battle-active .bs-bottom-nav {
   .bs-challenge__name { font-size: 0.65rem; }
   .bs-challenge__desc { font-size: 0.58rem; }
 }
+
+/* ============================================================
+   INFINITE TOWER
+   ============================================================ */
+.bs-tower-section {
+  margin-bottom: 1rem;
+}
+
+.bs-tower {
+  background: linear-gradient(135deg, rgba(var(--bs-accent-rgb, 138, 43, 226), 0.08), rgba(var(--bs-accent-rgb, 138, 43, 226), 0.02));
+  border: 1px solid var(--bs-border);
+  border-radius: 12px;
+  padding: 1rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.bs-tower::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--bs-accent), transparent);
+  opacity: 0.6;
+}
+
+.bs-tower__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.bs-tower__title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--bs-accent);
+  letter-spacing: 0.04em;
+}
+
+.bs-tower__best {
+  font-size: 0.72rem;
+  color: var(--bs-text-muted);
+}
+
+.bs-tower__best i {
+  color: #FFD700;
+  margin-right: 0.2rem;
+}
+
+.bs-tower__floor-display {
+  text-align: center;
+  margin: 0.75rem 0;
+}
+
+.bs-tower__floor-num {
+  display: block;
+  font-family: 'Cinzel', serif;
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--bs-text);
+  line-height: 1;
+}
+
+.bs-tower__floor-label {
+  display: block;
+  font-size: 0.7rem;
+  color: var(--bs-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 0.2rem;
+}
+
+.bs-tower__cycle {
+  display: inline-block;
+  font-size: 0.6rem;
+  color: var(--bs-accent);
+  background: rgba(var(--bs-accent-rgb, 138, 43, 226), 0.12);
+  padding: 0.15rem 0.5rem;
+  border-radius: 8px;
+  margin-top: 0.3rem;
+}
+
+.bs-tower__next {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.6rem;
+  background: rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  margin: 0.5rem 0;
+}
+
+.bs-tower__next-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--bs-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: var(--bs-accent);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.bs-tower__next-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+.bs-tower__next-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.bs-tower__next-label {
+  font-size: 0.65rem;
+  color: var(--bs-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.bs-tower__next-name {
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--bs-text);
+}
+
+.bs-tower__next-class {
+  font-size: 0.7rem;
+  color: var(--bs-text-muted);
+}
+
+.bs-tower__enter {
+  flex-shrink: 0;
+  padding: 0.5rem 1.2rem !important;
+  font-size: 0.85rem !important;
+}
+
+.bs-tower__milestone {
+  font-size: 0.7rem;
+  color: var(--bs-accent);
+  text-align: center;
+  margin-top: 0.5rem;
+}
+
+.bs-tower__milestone i {
+  margin-right: 0.2rem;
+}
+
+.bs-tower__desc {
+  font-size: 0.65rem;
+  color: var(--bs-text-muted);
+  text-align: center;
+  margin: 0.4rem 0 0;
+  font-style: italic;
+}
+
+@media (max-width: 480px) {
+  .bs-tower { padding: 0.75rem; }
+  .bs-tower__floor-num { font-size: 2rem; }
+  .bs-tower__next { gap: 0.5rem; padding: 0.5rem; }
+  .bs-tower__next-avatar { width: 40px; height: 40px; }
+  .bs-tower__enter { padding: 0.4rem 0.8rem !important; font-size: 0.78rem !important; }
+}

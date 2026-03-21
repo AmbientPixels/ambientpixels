@@ -34,6 +34,7 @@
   let _origShowResults = null;
   let _battleRoundStats = null;
   let _submitMoveHooked = false;
+  var _towerPendingFloor = 0;
 
   const RANKS = {
     bronze:   { xp: 0,    icon: 'fa-shield-halved', color: '#CD7F32', label: 'Bronze' },
@@ -403,6 +404,44 @@
 
   function getCardTitle() { return localStorage.getItem('bs-card-title') || ''; }
   function setCardTitle(t) { localStorage.setItem('bs-card-title', t); }
+
+  // Infinite Tower state
+  function getTowerFloor() { return parseInt(localStorage.getItem('bs-tower-floor') || '0', 10); }
+  function setTowerFloor(n) { localStorage.setItem('bs-tower-floor', String(n)); }
+  function getTowerBest() { return parseInt(localStorage.getItem('bs-tower-best') || '0', 10); }
+  function setTowerBest(n) {
+    if (n > getTowerBest()) localStorage.setItem('bs-tower-best', String(n));
+  }
+  function isTowerUnlocked() { return getAscension() >= 5; }
+  function getTowerBossForFloor(floor) {
+    // Cycle through 10 campaign bosses
+    var bossNum = ((floor - 1) % 10) + 1;
+    return _bosses.find(function(b) { return b.boss === bossNum && !b.weekly && !isWeeklyBoss(b.id); });
+  }
+  function getTowerMilestoneReward(floor) {
+    // Milestone rewards every 5 floors
+    var milestones = {
+      5: { type: 'stat_bonus', stat: 'str', amount: 3, label: '+3 STR' },
+      10: { type: 'stat_bonus', stat: 'agi', amount: 3, label: '+3 AGI' },
+      15: { type: 'stat_bonus', stat: 'int', amount: 3, label: '+3 INT' },
+      20: { type: 'stat_bonus', stat: 'end', amount: 3, label: '+3 END' },
+      25: { type: 'stat_bonus', stat: 'lck', amount: 3, label: '+3 LCK' },
+      30: { type: 'title', title: 'Tower Climber', label: 'Title: Tower Climber' },
+      50: { type: 'title', title: 'Tower Master', label: 'Title: Tower Master' }
+    };
+    return milestones[floor] || null;
+  }
+  function getTowerClaimedFloors() {
+    try { return JSON.parse(localStorage.getItem('bs-tower-claimed') || '[]'); }
+    catch { return []; }
+  }
+  function claimTowerFloor(floor) {
+    var claimed = getTowerClaimedFloors();
+    if (!claimed.includes(floor)) {
+      claimed.push(floor);
+      localStorage.setItem('bs-tower-claimed', JSON.stringify(claimed));
+    }
+  }
 
   // Claimed boss rewards (prevent double-claiming)
   function getClaimedRewards() {
@@ -1251,12 +1290,33 @@
         pvpHtml = `<span style="color:${pvpRank.color};" data-tooltip="PvP Rating"><i class="fas ${pvpRank.icon}"></i> ${elo}</span>`;
       }
 
+      // Tower best floor in lobby stats
+      let towerHtml = '';
+      if (isTowerUnlocked()) {
+        const tBest = getTowerBest();
+        const tCurrent = getTowerFloor();
+        if (tCurrent > 0) {
+          towerHtml = `<span style="color:var(--bs-accent);"><i class="fas fa-tower-observation"></i> Floor ${tCurrent}</span>`;
+        } else if (tBest > 0) {
+          towerHtml = `<span><i class="fas fa-tower-observation"></i> Best ${tBest}</span>`;
+        } else {
+          towerHtml = `<span style="color:var(--bs-accent);"><i class="fas fa-tower-observation"></i> NEW</span>`;
+        }
+      }
+
       statsEl.innerHTML = `
         ${powerHtml}
         <span><i class="fas fa-mountain"></i> Boss ${highestB}/10</span>
         ${pvpHtml}
+        ${towerHtml}
         ${streakHtml}
       `;
+    }
+
+    // Update campaign button description when tower is unlocked
+    const campaignDescEl = document.querySelector('#bs-btn-campaign .bs-mode-btn__desc');
+    if (campaignDescEl && isTowerUnlocked()) {
+      campaignDescEl.textContent = 'Campaign + Infinite Tower';
     }
 
     // Stat bar breakdown with damage/heal estimates
@@ -1484,6 +1544,20 @@
         // After first fight, go to campaign (win advances, loss can retry from ladder)
         showScreen('lobby');
         renderLobby();
+        return;
+      }
+      if (_battleType === 'tower') {
+        // Tower: continue climbing or restart
+        if (getTowerFloor() > 0) {
+          // Still in run — continue to next floor
+          showScreen('campaign');
+          renderCampaignLadder();
+          setTimeout(function() { startTowerBattle(); }, 300);
+        } else {
+          // Run ended — back to campaign
+          showScreen('campaign');
+          renderCampaignLadder();
+        }
         return;
       }
       if (_battleType === 'pvp') { showScreen('pvp'); renderPvPGallery(); }
@@ -1722,6 +1796,213 @@
         }, { once: true });
       });
     });
+
+    // Render Infinite Tower section (after Ascension 5)
+    renderTowerSection();
+  }
+
+  // ============================================================
+  // INFINITE TOWER
+  // ============================================================
+
+  function renderTowerSection() {
+    var section = document.getElementById('bs-tower-section');
+    if (!section) return;
+
+    if (!isTowerUnlocked()) {
+      section.style.display = 'none';
+      return;
+    }
+
+    section.style.display = '';
+    var currentFloor = getTowerFloor();
+    var bestFloor = getTowerBest();
+    var inRun = currentFloor > 0;
+    var nextFloor = inRun ? currentFloor + 1 : 1;
+    var nextBoss = getTowerBossForFloor(nextFloor);
+    var nextBossName = nextBoss ? nextBoss.name : 'Unknown';
+    var nextBossClass = nextBoss ? nextBoss.class : '';
+    var nextBossIcon = BOSS_ICONS[nextBossClass] || 'fa-skull';
+    var cycle = Math.floor((nextFloor - 1) / 10) + 1;
+
+    // Upcoming milestone
+    var nextMilestone = 0;
+    for (var m = 5; m <= 50; m += 5) {
+      if (m > (inRun ? currentFloor : 0)) { nextMilestone = m; break; }
+    }
+    var milestoneReward = nextMilestone ? getTowerMilestoneReward(nextMilestone) : null;
+
+    var bestHtml = bestFloor > 0
+      ? '<div class="bs-tower__best"><i class="fas fa-trophy"></i> Best: Floor ' + bestFloor + '</div>'
+      : '';
+
+    var milestoneHtml = milestoneReward
+      ? '<div class="bs-tower__milestone"><i class="fas fa-gift"></i> Floor ' + nextMilestone + ': ' + escHtml(milestoneReward.label) + '</div>'
+      : '';
+
+    var floorDisplay = inRun
+      ? '<div class="bs-tower__floor-display">'
+        + '<span class="bs-tower__floor-num">' + currentFloor + '</span>'
+        + '<span class="bs-tower__floor-label">Current Floor</span>'
+        + (cycle > 1 ? '<span class="bs-tower__cycle">Cycle ' + cycle + '</span>' : '')
+        + '</div>'
+      : '<div class="bs-tower__floor-display">'
+        + '<span class="bs-tower__floor-num"><i class="fas fa-tower-observation"></i></span>'
+        + '<span class="bs-tower__floor-label">Ready to climb</span>'
+        + '</div>';
+
+    var nextBossAvatar = nextBoss && nextBoss.avatar
+      ? '<img src="' + escHtml(nextBoss.avatar) + '" alt="' + escHtml(nextBossName) + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'
+      : '<i class="fas ' + nextBossIcon + '"></i>';
+
+    section.innerHTML = '<div class="bs-tower">'
+      + '<div class="bs-tower__header">'
+      + '<span class="bs-tower__title"><i class="fas fa-tower-observation"></i> Infinite Tower</span>'
+      + bestHtml
+      + '</div>'
+      + floorDisplay
+      + '<div class="bs-tower__next">'
+      + '<div class="bs-tower__next-avatar">' + nextBossAvatar + '</div>'
+      + '<div class="bs-tower__next-info">'
+      + '<div class="bs-tower__next-label">Floor ' + nextFloor + '</div>'
+      + '<div class="bs-tower__next-name">' + escHtml(nextBossName) + '</div>'
+      + '<div class="bs-tower__next-class">' + escHtml(nextBossClass) + '</div>'
+      + '</div>'
+      + '<button class="bs-btn bs-btn--primary bs-btn--glow bs-tower__enter" id="bs-tower-enter">'
+      + '<i class="fas fa-bolt"></i> ' + (inRun ? 'Continue' : 'Enter')
+      + '</button>'
+      + '</div>'
+      + milestoneHtml
+      + '<p class="bs-tower__desc">Climb as high as you can. Lose once and you fall back to Floor 1.</p>'
+      + '</div>';
+
+    document.getElementById('bs-tower-enter').addEventListener('click', function() {
+      startTowerBattle();
+    }, { once: true });
+  }
+
+  function startTowerBattle() {
+    var currentFloor = getTowerFloor();
+    var nextFloor = currentFloor > 0 ? currentFloor + 1 : 1;
+    var boss = getTowerBossForFloor(nextFloor);
+    if (!boss) {
+      showErrorToast('No boss found for floor ' + nextFloor);
+      return;
+    }
+    // Set tower state before battle
+    _battleType = 'tower';
+    _towerPendingFloor = nextFloor;
+
+    // Show prefight overlay with tower flavor
+    var flavorEl = document.getElementById('bs-prefight-flavor');
+    var titleEl = document.getElementById('bs-prefight-title');
+    var avatarEl = document.getElementById('bs-prefight-avatar');
+    if (flavorEl) flavorEl.textContent = 'Floor ' + nextFloor + ' — "' + boss.flavor + '"';
+    if (titleEl) titleEl.textContent = boss.name;
+    if (avatarEl) {
+      if (boss.avatar) {
+        avatarEl.innerHTML = '<img src="' + escHtml(boss.avatar) + '" alt="' + escHtml(boss.name) + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+        avatarEl.style.width = '96px';
+        avatarEl.style.height = '96px';
+      } else {
+        var icon = BOSS_ICONS[boss.class] || 'fa-skull';
+        avatarEl.innerHTML = '<i class="fas ' + icon + '"></i>';
+      }
+    }
+
+    // Stat comparison
+    var compEl = document.getElementById('bs-prefight-comparison');
+    if (compEl && _selectedCard) {
+      ensureCombatStats(_selectedCard);
+      var ps = _selectedCard.combatStats || {};
+      var bs = boss.combatStats || {};
+      var labels = [
+        { key: 'str', label: 'STR', icon: 'fa-fist-raised' },
+        { key: 'agi', label: 'AGI', icon: 'fa-wind' },
+        { key: 'int', label: 'INT', icon: 'fa-brain' },
+        { key: 'end', label: 'END', icon: 'fa-shield-alt' },
+        { key: 'lck', label: 'LCK', icon: 'fa-dice' }
+      ];
+      compEl.innerHTML = '<div class="bs-prefight-comparison__header">'
+        + '<span class="bs-prefight-comparison__you">You</span>'
+        + '<span class="bs-prefight-comparison__vs">VS</span>'
+        + '<span class="bs-prefight-comparison__boss">' + escHtml(boss.name) + '</span>'
+        + '</div>'
+        + labels.map(function(s) {
+          var pv = ps[s.key] || 0;
+          var bv = bs[s.key] || 0;
+          var diff = pv - bv;
+          var diffClass = diff > 0 ? 'bs-stat-advantage' : diff < 0 ? 'bs-stat-disadvantage' : 'bs-stat-even';
+          return '<div class="bs-prefight-stat-row">'
+            + '<span class="bs-prefight-stat-row__pval">' + pv + '</span>'
+            + '<div class="bs-prefight-stat-row__bar">'
+            + '<div class="bs-prefight-stat-row__fill bs-prefight-stat-row__fill--player" style="width:' + pv + '%"></div>'
+            + '</div>'
+            + '<span class="bs-prefight-stat-row__label"><i class="fas ' + s.icon + '"></i> ' + s.label + '</span>'
+            + '<div class="bs-prefight-stat-row__bar">'
+            + '<div class="bs-prefight-stat-row__fill bs-prefight-stat-row__fill--boss" style="width:' + bv + '%"></div>'
+            + '</div>'
+            + '<span class="bs-prefight-stat-row__bval ' + diffClass + '">' + bv + '</span>'
+            + '</div>';
+        }).join('');
+    }
+
+    showOverlay('bs-prefight-overlay');
+    var oldBtn = document.getElementById('bs-prefight-go');
+    var freshBtn = oldBtn.cloneNode(true);
+    oldBtn.parentNode.replaceChild(freshBtn, oldBtn);
+    freshBtn.addEventListener('click', async function() {
+      hideOverlay('bs-prefight-overlay');
+      _currentBossId = boss.id;
+      _battleType = 'tower';
+      if (!_isFirstRealFight) _isStrangerFight = false;
+      showScreen('battle');
+      if (window.ArenaAudio && window.ArenaBackgrounds) {
+        window.ArenaAudio.playArenaMusic(window.ArenaBackgrounds.getSelected());
+      }
+      if (window.ArenaBackgrounds) window.ArenaBackgrounds.applyToBattleStage();
+      try {
+        var battleData = await window.ArenaAPI.startBattle('pve', _selectedCard.id, boss.id);
+        _activeBattle = battleData;
+        window.ArenaBattleUI.initBattle(battleData);
+        updateCombatTooltips();
+        applyBattlePalette();
+      } catch (err) {
+        console.error('[Blindspot] Tower battle error:', err);
+        showErrorToast('Failed to start tower battle: ' + err.message);
+        showScreen('campaign');
+        renderCampaignLadder();
+      }
+    }, { once: true });
+  }
+
+  function handleTowerResult(isWin) {
+    if (isWin) {
+      var newFloor = _towerPendingFloor;
+      setTowerFloor(newFloor);
+      setTowerBest(newFloor);
+
+      // Check milestone rewards
+      var milestone = getTowerMilestoneReward(newFloor);
+      if (milestone && !getTowerClaimedFloors().includes(newFloor)) {
+        claimTowerFloor(newFloor);
+        if (milestone.type === 'stat_bonus' && _selectedCard) {
+          ensureCombatStats(_selectedCard);
+          var stat = milestone.stat;
+          _selectedCard.combatStats[stat] = Math.min(100, (_selectedCard.combatStats[stat] || 0) + milestone.amount);
+          showSuccessToast('Floor ' + newFloor + ' milestone! ' + milestone.label);
+        } else if (milestone.type === 'title') {
+          setCardTitle(milestone.title);
+          showSuccessToast('Floor ' + newFloor + ' milestone! ' + milestone.label);
+        }
+      }
+    } else {
+      // Tower run over — reset floor
+      var reachedFloor = getTowerFloor();
+      setTowerFloor(0);
+      showErrorToast('Tower run ended at Floor ' + (reachedFloor || _towerPendingFloor) + '. Best: Floor ' + getTowerBest());
+    }
+    _towerPendingFloor = 0;
   }
 
   async function startCampaignBattle(bossId) {
@@ -1885,6 +2166,33 @@
 
     // Track fight for daily bounty
     completeBounty('play3');
+
+    // Infinite Tower results
+    if (_battleType === 'tower') {
+      handleTowerResult(isWin);
+      // Override button labels for tower
+      var tAgainBtn = document.getElementById('arena-results-again');
+      var tLobbyBtn = document.getElementById('arena-results-lobby');
+      if (isWin) {
+        if (tAgainBtn) tAgainBtn.textContent = 'Next Floor';
+        if (tLobbyBtn) tLobbyBtn.textContent = 'Exit Tower';
+      } else {
+        if (tAgainBtn) tAgainBtn.textContent = 'Try Again';
+        if (tLobbyBtn) tLobbyBtn.textContent = 'Exit Tower';
+      }
+      var tTitleEl = document.getElementById('arena-results-title');
+      var tSubEl = document.getElementById('arena-results-subtitle');
+      if (isWin) {
+        var clearedFloor = getTowerFloor();
+        if (tTitleEl) tTitleEl.textContent = 'Floor ' + clearedFloor + ' Cleared';
+        if (tSubEl) tSubEl.textContent = 'The tower stretches higher...';
+      } else {
+        if (tTitleEl) tTitleEl.textContent = 'Tower Run Over';
+        if (tSubEl) tSubEl.textContent = 'You reached Floor ' + getTowerBest() + ' at your best.';
+      }
+      showForgeProgressInResults();
+      return;
+    }
 
     if (_battleType === 'pve' && isWin) {
       const boss = _bosses.find(b => b.id === _currentBossId);
@@ -3331,7 +3639,7 @@
       2: 'Frost Palette',
       3: 'Arcane Palette',
       4: 'Void Palette',
-      5: 'Holographic Border'
+      5: 'Holographic Border + Infinite Tower'
     };
     return rewards[level] || 'Prestige Star ' + level;
   }
