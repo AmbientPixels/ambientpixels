@@ -942,8 +942,8 @@
 }
 
 .bs-boss-card--locked {
-  opacity: 0.35;
-  filter: grayscale(0.3);
+  opacity: 0.5;
+  filter: grayscale(0.5);
 }
 
 .bs-boss-card--defeated::before {
@@ -1547,7 +1547,6 @@
 }
 
 .bs-page .arena-move-btn:hover:not(:disabled) {
-  border-color: var(--bs-accent-dim);
   background: var(--bs-surface-2);
 }
 
@@ -1700,9 +1699,100 @@
 .bs-page .arena-dmg-float--damage { color: var(--bs-danger); }
 .bs-page .arena-dmg-float--heal { color: var(--bs-success); }
 
-/* Battle field */
-.bs-page .arena-battle__field { background: transparent; }
+/* ============================================================
+   CARDFORGE PURPLE PURGE — replace all inherited purple/blue
+   tints with Blindspot amber/brown theme equivalents
+   ============================================================ */
+
+/* Stage grid pattern — amber instead of purple */
+.bs-page .arena-battle__stage::before {
+  background:
+    radial-gradient(ellipse 90% 60% at 50% 80%, rgba(239, 159, 39, 0.03) 0%, transparent 70%),
+    repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(245, 240, 232, 0.01) 59px, rgba(245, 240, 232, 0.01) 60px),
+    repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(245, 240, 232, 0.01) 59px, rgba(245, 240, 232, 0.01) 60px) !important;
+}
+
+/* Battle field — remove conflicting transparent override, let subtle gradient show */
+.bs-page .arena-battle__field {
+  background: linear-gradient(180deg, rgba(26, 20, 16, 0.3) 0%, rgba(16, 12, 8, 0.6) 100%);
+}
 .bs-page .arena-battle__vs { border-color: var(--bs-border); }
+
+/* Combatant containers — warm dark brown instead of blue-purple */
+.bs-page .arena-combatant {
+  background: rgba(26, 20, 16, 0.6);
+  border-color: var(--bs-border);
+}
+.bs-page .arena-combatant--player {
+  border-color: rgba(239, 159, 39, 0.15);
+  box-shadow: 0 0 30px rgba(239, 159, 39, 0.04);
+  animation: none;
+}
+.bs-page .arena-combatant--opponent {
+  border-color: rgba(216, 90, 48, 0.15);
+  box-shadow: 0 0 30px rgba(216, 90, 48, 0.04);
+  animation: none;
+}
+
+/* VS text — Cinzel instead of Orbitron, brighter */
+.bs-page .arena-battle__vs-text {
+  font-family: 'Cinzel', serif;
+  color: var(--bs-accent);
+  text-shadow: 0 0 20px rgba(239, 159, 39, 0.5), 0 0 40px rgba(239, 159, 39, 0.2);
+}
+
+/* Round counter badge — amber instead of purple */
+.bs-page .arena-battle__round {
+  background: rgba(239, 159, 39, 0.06);
+  border: 1px solid rgba(239, 159, 39, 0.12);
+}
+
+/* Combat log — Share Tech Mono, amber scrollbar */
+.bs-page .arena-battle__log {
+  font-family: 'Share Tech Mono', monospace;
+  scrollbar-color: rgba(239, 159, 39, 0.15) transparent;
+}
+.bs-page .arena-log-entry--info { color: var(--bs-accent-glow); text-shadow: 0 0 8px rgba(239, 159, 39, 0.15); }
+.bs-page .arena-log-entry--event { color: var(--bs-accent); }
+.bs-page .arena-log-entry--error { color: var(--bs-danger); }
+
+/* HP text — mono font */
+.bs-page .arena-hp-bar__text { font-family: 'Share Tech Mono', monospace; }
+
+/* Hype meter — taller track for visibility */
+.bs-page .arena-hype-bar__track { height: 8px; border-radius: 4px; }
+.bs-page .arena-hype-bar__label { color: var(--bs-accent); font-size: 0.7rem; }
+
+/* Move buttons — Share Tech Mono, proper fonts */
+.bs-page .arena-move-btn { font-family: 'Share Tech Mono', monospace; }
+.bs-page .arena-move-btn__stat { font-family: 'Share Tech Mono', monospace; }
+
+/* Ability charge badge — amber instead of purple */
+.bs-page .arena-move-btn__charge {
+  background: rgba(239, 159, 39, 0.15);
+  border-color: rgba(239, 159, 39, 0.25);
+  color: var(--bs-accent);
+}
+
+/* Move button hover — per-move identity instead of flat amber */
+.bs-page .arena-move-btn--strike:hover:not(:disabled) { border-color: rgba(216, 90, 48, 0.5); box-shadow: 0 0 12px rgba(216, 90, 48, 0.15); }
+.bs-page .arena-move-btn--guard:hover:not(:disabled) { border-color: rgba(245, 240, 232, 0.3); box-shadow: 0 0 12px rgba(245, 240, 232, 0.08); }
+.bs-page .arena-move-btn--ability:hover:not(:disabled) { border-color: rgba(239, 159, 39, 0.5); box-shadow: 0 0 12px rgba(239, 159, 39, 0.15); }
+.bs-page .arena-move-btn--heal:hover:not(:disabled) { border-color: rgba(34, 197, 94, 0.4); box-shadow: 0 0 12px rgba(34, 197, 94, 0.12); }
+.bs-page .arena-move-btn--counter:hover:not(:disabled) { border-color: rgba(139, 184, 208, 0.4); box-shadow: 0 0 12px rgba(139, 184, 208, 0.1); }
+
+/* Move button underlines — on-brand colors */
+.bs-page .arena-move-btn--strike::after { background: var(--bs-danger) !important; }
+.bs-page .arena-move-btn--guard::after { background: var(--bs-text) !important; }
+.bs-page .arena-move-btn--ability::after { background: var(--bs-accent) !important; }
+.bs-page .arena-move-btn--heal::after { background: var(--bs-success) !important; }
+.bs-page .arena-move-btn--counter::after { background: #8BB8D0 !important; }
+
+/* Forfeit button — explicit text color */
+.bs-page .arena-btn--danger { color: #fff; }
+
+/* Move buttons bottom spacing for safe-area */
+.bs-page .arena-battle__moves { padding-bottom: env(safe-area-inset-bottom, 0.5rem); }
 
 /* Audio toggles */
 .bs-page .arena-audio-toggle { color: var(--bs-text-muted); }
@@ -1924,7 +2014,7 @@
   font-weight: 700;
 }
 .bs-pvp-elo {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Share Tech Mono', monospace;
   font-size: 0.95rem;
   color: var(--bs-text);
 }
@@ -1980,7 +2070,7 @@
   transform: translateX(-50%) translateY(0);
 }
 .bs-elo-toast__change {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Share Tech Mono', monospace;
   font-size: 1.3rem;
   font-weight: 700;
 }
@@ -3578,7 +3668,7 @@
   background: none;
   border: none;
   color: var(--bs-text-muted);
-  font-size: 0.55rem;
+  font-size: 0.65rem;
   font-family: 'Share Tech Mono', monospace;
   cursor: pointer;
   transition: color 0.2s;
@@ -4472,7 +4562,8 @@ body.bs-battle-active .bs-bottom-nav {
 
 .bs-stat-bar-est {
   font-size: 0.6rem;
-  opacity: 0.7;
+  opacity: 0.85;
+  color: var(--bs-text-muted);
   white-space: nowrap;
   flex-shrink: 0;
   min-width: 55px;
@@ -5085,10 +5176,10 @@ body.bs-battle-active .bs-bottom-nav {
 }
 
 .bs-challenges__count {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Share Tech Mono', monospace;
   font-size: 0.7rem;
-  color: var(--bs-accent, #7b2fff);
-  background: rgba(123, 47, 255, 0.12);
+  color: var(--bs-accent, #EF9F27);
+  background: rgba(239, 159, 39, 0.12);
   padding: 0.15rem 0.45rem;
   border-radius: 8px;
 }
@@ -5121,8 +5212,8 @@ body.bs-battle-active .bs-bottom-nav {
   align-items: center;
   justify-content: center;
   border-radius: 8px;
-  background: rgba(123, 47, 255, 0.1);
-  color: var(--bs-accent, #7b2fff);
+  background: rgba(239, 159, 39, 0.1);
+  color: var(--bs-accent, #EF9F27);
   font-size: 0.75rem;
   flex-shrink: 0;
 }
@@ -5162,7 +5253,7 @@ body.bs-battle-active .bs-bottom-nav {
 
 .bs-challenge__bar-fill {
   height: 100%;
-  background: var(--bs-accent, #7b2fff);
+  background: var(--bs-accent, #EF9F27);
   border-radius: 2px;
   transition: width 0.4s ease;
 }
@@ -5172,14 +5263,14 @@ body.bs-battle-active .bs-bottom-nav {
 }
 
 .bs-challenge__progress {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'Share Tech Mono', monospace;
   font-size: 0.58rem;
   color: var(--bs-text-muted, rgba(255,255,255,0.4));
   margin-top: 0.15rem;
 }
 
 .bs-challenge__reward {
-  color: var(--bs-accent, #7b2fff);
+  color: var(--bs-accent, #EF9F27);
   margin-left: 0.3rem;
 }
 
@@ -5199,7 +5290,7 @@ body.bs-battle-active .bs-bottom-nav {
 }
 
 .bs-challenge-pip--ready {
-  color: var(--bs-accent, #7b2fff);
+  color: var(--bs-accent, #EF9F27);
   animation: bs-pip-pulse 1.5s ease-in-out infinite;
 }
 
