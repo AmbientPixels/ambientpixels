@@ -943,8 +943,9 @@
     await gameDataPromise;
     const profile = await profilePromise;
 
-    // Returning players skip landing page entirely — go straight to play.html
-    if (!isNewPlayer(profile)) {
+    // Returning AUTHENTICATED players skip landing page — go straight to play.html
+    // Never auto-redirect guests/demo users — they should see the landing page
+    if (!isDemo() && !isNewPlayer(profile)) {
       document.getElementById('bs-landing').style.opacity = '0';
       window.location.href = '/blindspot/play.html';
       return;
