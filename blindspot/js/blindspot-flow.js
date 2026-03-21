@@ -31,6 +31,149 @@
   }
 
   // ============================================================
+  // BLINDSPOT API — server-side progression sync
+  // ============================================================
+
+  var _syncInFlight = false;
+
+  var BlindspotAPI = {
+    _principalPromise: null,
+
+    fetchPrincipal: function () {
+      if (!this._principalPromise) {
+        this._principalPromise = fetch('/.auth/me')
+          .then(function (r) { return r.ok ? r.json() : { clientPrincipal: null }; })
+          .then(function (d) {
+            return d && d.clientPrincipal ? btoa(JSON.stringify(d.clientPrincipal)) : null;
+          })
+          .catch(function () { return null; });
+      }
+      return this._principalPromise;
+    },
+
+    _apiFetch: async function (method, body) {
+      var url = window.buildApiPath ? window.buildApiPath('blindspotProfile') : '';
+      if (!url) {
+        url = 'https://ambientpixels-nova-api.azurewebsites.net/api/blindspotprofile';
+      }
+      var opts = {
+        method: method,
+        headers: { 'Content-Type': 'application/json' }
+      };
+      var principal = await this.fetchPrincipal();
+      if (principal) opts.headers['X-CF-Auth-Principal'] = principal;
+      if (body) opts.body = JSON.stringify(body);
+      var resp = await fetch(url, opts);
+      var data = await resp.json();
+      if (!resp.ok) throw new Error(data.error || 'API error ' + resp.status);
+      return data;
+    },
+
+    loadProfile: function () {
+      return this._apiFetch('GET');
+    },
+
+    syncProfile: function (profileData) {
+      return this._apiFetch('POST', { action: 'sync', profile: profileData });
+    }
+  };
+
+  // Collect all progression keys from localStorage into a single object
+  function collectLocalProgress() {
+    function getInt(k, d) { return parseInt(localStorage.getItem(k) || String(d), 10); }
+    function getJson(k, d) { try { return JSON.parse(localStorage.getItem(k) || JSON.stringify(d)); } catch (e) { return d; } }
+    return {
+      sparks: getInt('bs-sparks', 0),
+      highestBoss: getInt('bs-highest-boss', 0),
+      totalWins: getInt('bs-total-wins', 0),
+      totalBounties: getInt('bs-total-bounties', 0),
+      winStreak: getInt('bs-win-streak', 0),
+      bestStreak: getInt('bs-best-streak', 0),
+      ascension: getInt('bs-ascension', 0),
+      towerFloor: getInt('bs-tower-floor', 0),
+      towerBest: getInt('bs-tower-best', 0),
+      forgeWins: getInt('bs-wins-to-forge', 0),
+      forgeVisits: getInt('bs-forge-visits', 0),
+      cardTitle: localStorage.getItem('bs-card-title') || '',
+      selectedCardId: localStorage.getItem('bs-selected-card-id') || null,
+      pvpElo: getInt('bs-pvp-elo', 1000),
+      pvpRecord: getJson('bs-pvp-record', { w: 0, l: 0 }),
+      crateWinCounter: getInt('bs-crate-win-counter', 0),
+      crates: getJson('bs-crates', []),
+      charms: getJson('bs-charms', []),
+      cosmetics: getJson('bs-cosmetics', []),
+      purchasedCosmetics: getJson('bs-purchased-cosmetics', []),
+      equipped: getJson('bs-equipped', {}),
+      visualUnlocks: getJson('bs-visual-unlocks', ['palette_earth', 'container_masked']),
+      bossRecords: getJson('bs-boss-records', {}),
+      masteryClaimed: getJson('bs-mastery-claimed', {}),
+      claimedRewards: getJson('bs-claimed-rewards', []),
+      towerClaimed: getJson('bs-tower-claimed', []),
+      weeklyBoss: getJson('bs-weekly-boss', {}),
+      challenges: getJson('bs-challenges', {}),
+      bounties: getJson('bs-bounties', {}),
+      lastDaily: localStorage.getItem('bs-last-daily') || ''
+    };
+  }
+
+  // Write server profile data into localStorage (server wins)
+  function mergeServerProfile(p) {
+    if (!p || typeof p !== 'object') return;
+    function setInt(k, v) { if (typeof v === 'number') safeLSSet(k, String(v)); }
+    function setJson(k, v) { if (v !== undefined && v !== null) safeLSSet(k, JSON.stringify(v)); }
+    setInt('bs-sparks', p.sparks);
+    setInt('bs-highest-boss', p.highestBoss);
+    setInt('bs-total-wins', p.totalWins);
+    setInt('bs-total-bounties', p.totalBounties);
+    setInt('bs-win-streak', p.winStreak);
+    setInt('bs-best-streak', p.bestStreak);
+    setInt('bs-ascension', p.ascension);
+    setInt('bs-tower-floor', p.towerFloor);
+    setInt('bs-tower-best', p.towerBest);
+    setInt('bs-wins-to-forge', p.forgeWins);
+    setInt('bs-forge-visits', p.forgeVisits);
+    setInt('bs-pvp-elo', p.pvpElo);
+    setInt('bs-crate-win-counter', p.crateWinCounter);
+    if (p.cardTitle) safeLSSet('bs-card-title', p.cardTitle);
+    if (p.selectedCardId) safeLSSet('bs-selected-card-id', p.selectedCardId);
+    if (p.lastDaily) safeLSSet('bs-last-daily', p.lastDaily);
+    setJson('bs-pvp-record', p.pvpRecord);
+    setJson('bs-crates', p.crates);
+    setJson('bs-charms', p.charms);
+    setJson('bs-cosmetics', p.cosmetics);
+    setJson('bs-purchased-cosmetics', p.purchasedCosmetics);
+    setJson('bs-equipped', p.equipped);
+    setJson('bs-visual-unlocks', p.visualUnlocks);
+    setJson('bs-boss-records', p.bossRecords);
+    setJson('bs-mastery-claimed', p.masteryClaimed);
+    setJson('bs-claimed-rewards', p.claimedRewards);
+    setJson('bs-tower-claimed', p.towerClaimed);
+    setJson('bs-weekly-boss', p.weeklyBoss);
+    setJson('bs-challenges', p.challenges);
+    setJson('bs-bounties', p.bounties);
+  }
+
+  // Fire-and-forget sync to server — debounced, non-blocking
+  function syncProgressToServer() {
+    if (_syncInFlight) return;
+    if (localStorage.getItem('bs-guest-mode') === 'true') return;
+    _syncInFlight = true;
+    var progress = collectLocalProgress();
+    BlindspotAPI.syncProfile(progress)
+      .then(function (resp) {
+        if (resp && resp.profile) {
+          mergeServerProfile(resp.profile);
+        }
+      })
+      .catch(function (e) {
+        console.warn('[Blindspot] sync failed:', e.message);
+      })
+      .finally(function () {
+        _syncInFlight = false;
+      });
+  }
+
+  // ============================================================
   // CONFIG & STATE
   // ============================================================
 
@@ -862,6 +1005,7 @@
     var current = getSparks();
     if (n > current) return false;
     safeLSSet('bs-sparks', String(current - n));
+    syncProgressToServer();
     return true;
   }
   function getPurchasedCosmetics() {
@@ -1513,6 +1657,7 @@
       removeCrate(crateIndex);
       applyCrateLoot(wonItem);
       updateCrateBadge();
+      syncProgressToServer();
       showSuccessToast(wonItem.name + ' added!');
       overlay.classList.remove('bs-crate-overlay--visible');
       setTimeout(function() { overlay.remove(); renderLobby(); }, 300);
@@ -2007,6 +2152,7 @@
       _selectedCard = nextCard;
       ensureCombatStats(_selectedCard);
       safeLSSet('bs-selected-card-id', _selectedCard.id);
+      syncProgressToServer();
 
       // Remove slide-out, render new card, add slide-in
       cardEl.classList.remove(outClass);
@@ -2905,6 +3051,16 @@
       dismissLoadingGate();
       window.location.href = '/blindspot/';
       return;
+    }
+
+    // Merge server-side Blindspot progression into localStorage
+    try {
+      var bsProfile = await BlindspotAPI.loadProfile();
+      if (bsProfile && bsProfile.profile && !bsProfile.isDemo) {
+        mergeServerProfile(bsProfile.profile);
+      }
+    } catch (e) {
+      console.warn('[Blindspot] profile load failed, using localStorage:', e.message);
     }
 
     const cards = await loadUserCards();
@@ -4170,6 +4326,7 @@
       var rec = getPvPRecord();
       if (isWin) rec.w++; else rec.l++;
       setPvPRecord(rec);
+      syncProgressToServer();
       var newRank = getPvPRank(newElo);
       // Show Elo change toast
       var sign = eloChange >= 0 ? '+' : '';
@@ -4360,6 +4517,9 @@
         }
         completeBounty('newBoss');
       }
+
+      // Sync progression to server after boss fight
+      syncProgressToServer();
 
       // Boss 10 — The Architect
       if (boss && boss.boss === 10 && isNewBossDefeat) {
@@ -5390,6 +5550,7 @@
         updateForgeProgress();
         renderLobby();
         completeBounty('forgeVisit');
+        syncProgressToServer();
         playSfx('forgeComplete');
         // Rarity upgrade check
         if (newRarity.id !== prevRarity.id) {
@@ -5766,6 +5927,7 @@
       }
     });
     saveChallengeProgress(data);
+    syncProgressToServer();
 
     // Grant rewards
     for (var i = 0; i < newClaims.length; i++) {
@@ -6217,6 +6379,7 @@
     setForgeWins(0);
     localStorage.removeItem('bs-forge-pending');
     showSuccessToast('Ascended to level ' + newLevel + '! Bosses are now stronger.');
+    syncProgressToServer();
     showScreen('lobby');
     renderLobby();
   }

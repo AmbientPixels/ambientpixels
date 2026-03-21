@@ -28,7 +28,8 @@ window._config = {
     arenaLeaderboard: 'cardforgearenaleaderboard',
     entitlements: 'cardforge-entitlements',
     checkout: 'cardforge-checkout',
-    billingPortal: 'cardforge-billing-portal'
+    billingPortal: 'cardforge-billing-portal',
+    blindspotProfile: 'blindspotprofile'
   },
   
   // Application Insights - Disabled in production until 400 errors are resolved
