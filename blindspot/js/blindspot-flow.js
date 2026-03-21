@@ -509,6 +509,20 @@
       + '</span>';
   }
 
+  // Class signature moves — maps class to ability name + icon
+  const CLASS_SIGNATURE_MOVES = {
+    'Fighter':   { name: 'Power Slam',    icon: 'fa-hand-fist' },
+    'Enforcer':  { name: 'Power Strike',  icon: 'fa-hand-fist' },
+    'Berserker': { name: 'Rage Strike',   icon: 'fa-hand-fist' },
+    'Caster':    { name: 'Arcane Blast',  icon: 'fa-bolt' },
+    'Hacker':    { name: 'Cyber Pulse',   icon: 'fa-bolt' },
+    'Scholar':   { name: 'Mind Spike',    icon: 'fa-bolt' },
+    'Scout':     { name: 'Shadow Strike', icon: 'fa-feather-pointed' },
+    'Rogue':     { name: 'Shadow Strike', icon: 'fa-feather-pointed' },
+    'Guardian':  { name: 'Fortify',       icon: 'fa-shield-halved' },
+    'Trickster': { name: 'Wild Card',     icon: 'fa-clover' }
+  };
+
   // Tutorial hints for first 3 campaign battles
   const TUTORIAL_MAX_BATTLES = 3;
   const TUTORIAL_ROUND1_HINTS = [
@@ -4877,6 +4891,17 @@
   }
 
   function updateCombatTooltips() {
+    // Class signature move — rename Ability button to class-specific name + icon
+    if (_selectedCard) {
+      var cardClass = _selectedCard.class || _selectedCard.characterClass || '';
+      var sig = CLASS_SIGNATURE_MOVES[cardClass];
+      if (sig) {
+        var abilLabel = document.getElementById('arena-ability-label');
+        var abilIcon = document.getElementById('arena-ability-icon');
+        if (abilLabel) abilLabel.textContent = sig.name;
+        if (abilIcon) abilIcon.className = 'fas ' + sig.icon;
+      }
+    }
     // Move upgrades — rename buttons based on stat thresholds
     if (_selectedCard && _selectedCard.combatStats) {
       var cs = _selectedCard.combatStats;
