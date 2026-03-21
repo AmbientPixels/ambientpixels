@@ -2877,6 +2877,7 @@
   // ============================================================
 
   async function initPlay() {
+   try {
     // Show lobby shell immediately while data loads
     showScreen('lobby');
 
@@ -2886,7 +2887,7 @@
 
     if (window.ArenaAudio) window.ArenaAudio.init();
 
-    if (!window._bsBattleEventsBound) {
+    if (!window._bsBattleEventsBound && window.ArenaBattleUI) {
       window.ArenaBattleUI.bindEvents();
       window._bsBattleEventsBound = true;
     }
@@ -2901,6 +2902,7 @@
     const profile = await profilePromise;
 
     if (!profile) {
+      dismissLoadingGate();
       window.location.href = '/blindspot/';
       return;
     }
@@ -2962,6 +2964,10 @@
       safeLSSet('bs-onboarded-lobby', 'true');
       showLobbyOnboarding();
     }
+   } catch (err) {
+    console.error('[Blindspot] initPlay crashed:', err);
+    dismissLoadingGate();
+   }
   }
 
   // ============================================================
