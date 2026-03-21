@@ -3156,14 +3156,12 @@
           }
         });
       } catch(e) { /* no cards available */ }
-      // Add demo defaults if player has few cards
-      if (avatars.length < 4) {
-        [
-          { src: '/cardforge/img/demo/demo-knight.webp', label: 'Knight' },
-          { src: '/cardforge/img/demo/demo-mage.webp', label: 'Mage' },
-          { src: '/cardforge/img/demo/demo-rogue.webp', label: 'Rogue' }
-        ].forEach(function(a) { if (!avatars.find(function(x) { return x.src === a.src; })) avatars.push(a); });
-      }
+      // Always show demo defaults as extra options
+      [
+        { src: '/cardforge/img/demo/demo-knight.webp', label: 'Knight' },
+        { src: '/cardforge/img/demo/demo-mage.webp', label: 'Mage' },
+        { src: '/cardforge/img/demo/demo-rogue.webp', label: 'Rogue' }
+      ].forEach(function(a) { if (!avatars.find(function(x) { return x.src === a.src; })) avatars.push(a); });
       if (avatars.length === 0) {
         grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:var(--bs-text-muted); font-size:0.7rem; padding:1rem;">No cards yet. Use AI Generate or paste a URL.</div>';
         return;
