@@ -278,7 +278,9 @@
   function updateBottomNav(screenId) {
     var navMap = { lobby: 'lobby', campaign: 'campaign', pvp: 'pvp', forge: 'forge', leaderboard: 'leaderboard', battle: '__none__' };
     document.querySelectorAll('.bs-bottom-nav__item').forEach(function(btn) {
-      btn.classList.toggle('bs-bottom-nav__item--active', btn.dataset.nav === navMap[screenId]);
+      var isActive = btn.dataset.nav === navMap[screenId];
+      btn.classList.toggle('bs-bottom-nav__item--active', isActive);
+      btn.setAttribute('aria-current', isActive ? 'true' : 'false');
     });
   }
 
@@ -3007,11 +3009,11 @@
       var pips = '';
       for (var t = 0; t < 3; t++) {
         var pipClass = t < claimed ? 'bs-challenge-pip--claimed' : (t < reached ? 'bs-challenge-pip--ready' : '');
-        pips += '<span class="bs-challenge-pip ' + pipClass + '" style="' + (t < claimed ? 'color:' + tierColors[t] : '') + '"><i class="fas ' + (t < claimed ? 'fa-star' : 'fa-circle') + '"></i></span>';
+        pips += '<span class="bs-challenge-pip ' + pipClass + '" style="' + (t < claimed ? 'color:' + tierColors[t] : '') + '"><i class="fas ' + (t < claimed ? 'fa-star' : 'fa-circle') + '" aria-hidden="true"></i></span>';
       }
 
-      return '<div class="bs-challenge ' + (isComplete ? 'bs-challenge--done' : '') + '">' +
-        '<div class="bs-challenge__icon"><i class="fas ' + ch.icon + '"></i></div>' +
+      return '<div class="bs-challenge ' + (isComplete ? 'bs-challenge--done' : '') + '" role="listitem">' +
+        '<div class="bs-challenge__icon"><i class="fas ' + ch.icon + '" aria-hidden="true"></i></div>' +
         '<div class="bs-challenge__info">' +
           '<div class="bs-challenge__name">' + ch.name + '</div>' +
           '<div class="bs-challenge__desc">' + (isComplete ? 'All tiers complete' : escHtml(ch.desc[nextIdx])) + '</div>' +
@@ -3026,10 +3028,10 @@
 
     el.innerHTML =
       '<div class="bs-challenges__header" id="bs-challenges-toggle">' +
-        '<span><i class="fas fa-trophy"></i> Challenges</span>' +
-        '<span class="bs-challenges__count">' + claimedTiers + '/' + totalTiers + '</span>' +
+        '<span><i class="fas fa-trophy" aria-hidden="true"></i> Challenges</span>' +
+        '<span class="bs-challenges__count" aria-label="' + claimedTiers + ' of ' + totalTiers + ' tiers complete">' + claimedTiers + '/' + totalTiers + '</span>' +
       '</div>' +
-      '<div class="bs-challenges__list" id="bs-challenges-list">' + rows + '</div>';
+      '<div class="bs-challenges__list" id="bs-challenges-list" role="list">' + rows + '</div>';
 
     el.style.display = '';
 
@@ -3144,12 +3146,12 @@
 
     el.innerHTML = `
       <div class="bs-bounties__header">
-        <span><i class="fas fa-scroll"></i> Daily Bounties</span>
-        <span class="bs-bounties__count">${doneCount}/3</span>
+        <span><i class="fas fa-scroll" aria-hidden="true"></i> Daily Bounties</span>
+        <span class="bs-bounties__count" aria-label="${doneCount} of 3 bounties complete">${doneCount}/3</span>
       </div>
       ${data.bounties.map(b => `
-        <div class="bs-bounty ${b.done ? 'bs-bounty--done' : ''}">
-          <i class="fas ${b.done ? 'fa-check-circle' : 'fa-circle'}"></i>
+        <div class="bs-bounty ${b.done ? 'bs-bounty--done' : ''}" role="listitem">
+          <i class="fas ${b.done ? 'fa-check-circle' : 'fa-circle'}" aria-hidden="true"></i>
           <span>${escHtml(b.text)}</span>
           ${b.reward ? `<span class="bs-bounty__reward">${escHtml(b.reward.label)}</span>` : ''}
         </div>

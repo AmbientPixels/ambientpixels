@@ -33,14 +33,14 @@
 <body class="bs-page" data-theme="dark">
 
   <!-- AMBIENT PARTICLES (background atmosphere) -->
-  <canvas id="bs-particles" class="bs-particles"></canvas>
+  <canvas id="bs-particles" class="bs-particles" aria-hidden="true"></canvas>
 
   <!-- LANDING SCREEN -->
-  <div id="bs-landing" class="bs-landing">
+  <main id="bs-landing" class="bs-landing" role="main">
     <div class="bs-landing__content">
       <h1 class="bs-wordmark bs-anim-fade-down" style="animation-delay: 0.2s;">Blindspot</h1>
 
-      <div class="bs-stranger-card bs-anim-fade-up" style="animation-delay: 0.5s;">
+      <div class="bs-stranger-card bs-anim-fade-up" aria-hidden="true" style="animation-delay: 0.5s;">
         <div class="bs-stranger-card__inner">
           <div class="bs-stranger-card__glow"></div>
           <i class="fas fa-fire bs-stranger-card__icon"></i>
@@ -51,24 +51,24 @@
       <p class="bs-landing__headline bs-anim-fade-up" style="animation-delay: 0.9s;">Every fighter starts with someone else's card.</p>
       <p class="bs-landing__subline bs-anim-fade-up" style="animation-delay: 1.2s;">Yours is waiting.</p>
 
-      <button class="bs-btn bs-btn--full bs-btn--glow bs-anim-fade-up" id="bs-fight-btn" style="animation-delay: 1.6s;">Fight</button>
+      <button class="bs-btn bs-btn--full bs-btn--glow bs-anim-fade-up" id="bs-fight-btn" aria-label="Start your first fight" style="animation-delay: 1.6s;">Fight</button>
 
       <div class="bs-landing__footer bs-anim-fade-up" style="animation-delay: 2s;">
-        <span class="bs-landing__badge"><i class="fas fa-dragon"></i> 10 Bosses</span>
-        <span class="bs-landing__badge"><i class="fas fa-fire"></i> Forge System</span>
-        <span class="bs-landing__badge"><i class="fas fa-users"></i> PvP Arena</span>
+        <span class="bs-landing__badge"><i class="fas fa-dragon" aria-hidden="true"></i> 10 Bosses</span>
+        <span class="bs-landing__badge"><i class="fas fa-fire" aria-hidden="true"></i> Forge System</span>
+        <span class="bs-landing__badge"><i class="fas fa-users" aria-hidden="true"></i> PvP Arena</span>
       </div>
       <div class="bs-landing__auth bs-anim-fade-up" style="animation-delay: 2.3s;" id="bs-auth-area">
         <a href="/.auth/login/aad?post_login_redirect_uri=/blindspot/" class="bs-landing__signin" id="bs-signin-link">
-          <i class="fas fa-sign-in-alt"></i> Sign in to save progress
+          <i class="fas fa-sign-in-alt" aria-hidden="true"></i> Sign in to save progress
         <span style="display:block; font-size:0.6rem; color:var(--bs-text-muted); margin-top:0.25rem;">Play as guest first — no account needed</span>
         </a>
       </div>
     </div>
-  </div>
+  </main>
 
   <!-- STRANGER INTRO OVERLAY -->
-  <div id="bs-stranger-intro" class="bs-overlay bs-overlay--hidden bs-stranger-intro">
+  <div id="bs-stranger-intro" class="bs-overlay bs-overlay--hidden bs-stranger-intro" role="dialog" aria-label="Introduction">
     <div class="bs-stranger-intro__lines">
       <p class="bs-stranger-intro__line" data-line="1">You are The Stranger.</p>
       <p class="bs-stranger-intro__line" data-line="2">This card is not yours.</p>
@@ -77,37 +77,37 @@
   </div>
 
   <!-- STRANGER WIN OVERLAY -->
-  <div id="bs-stranger-win" class="bs-overlay bs-overlay--hidden">
-    <div class="bs-stranger-card" style="opacity: 0.35; filter: grayscale(0.7); transform: scale(0.9);">
+  <div id="bs-stranger-win" class="bs-overlay bs-overlay--hidden" role="dialog" aria-label="Victory">
+    <div class="bs-stranger-card" aria-hidden="true" style="opacity: 0.35; filter: grayscale(0.7); transform: scale(0.9);">
       <div class="bs-stranger-card__inner">
         <i class="fas fa-fire bs-stranger-card__icon"></i>
       </div>
     </div>
     <p class="bs-overlay__title">You won. But that card wasn't you.</p>
-    <button class="bs-btn bs-btn--primary bs-btn--full bs-btn--glow" id="bs-build-btn">Build Your Card</button>
+    <button class="bs-btn bs-btn--primary bs-btn--full bs-btn--glow" id="bs-build-btn" aria-label="Build your card">Build Your Card</button>
   </div>
 
   <!-- STRANGER LOSS OVERLAY -->
-  <div id="bs-stranger-loss" class="bs-overlay bs-overlay--hidden bs-loss-screen">
+  <div id="bs-stranger-loss" class="bs-overlay bs-overlay--hidden bs-loss-screen" role="dialog" aria-label="Defeat">
     <p class="bs-loss-screen__text">Again.</p>
     <p class="bs-loss-screen__tap">Tap to continue</p>
   </div>
 
   <!-- PRE-FIGHT OVERLAY -->
-  <div id="bs-prefight-overlay" class="bs-overlay bs-overlay--hidden bs-prefight" style="display:none;">
+  <div id="bs-prefight-overlay" class="bs-overlay bs-overlay--hidden bs-prefight" style="display:none;" role="dialog" aria-label="Pre-fight">
     <p class="bs-overlay__title">Your first real test.</p>
     <button class="bs-btn bs-btn--primary bs-btn--large" id="bs-prefight-go">Fight</button>
   </div>
 
   <!-- BATTLE SCREEN -->
-  <div id="bs-battle-container" style="display:none;">
+  <div id="bs-battle-container" style="display:none;" role="region" aria-label="Battle">
     <div class="arena-battle">
       <div class="arena-battle__header">
-        <span class="arena-battle__round" id="arena-round-label">Round 1</span>
-        <button class="arena-btn arena-btn--ghost arena-btn--sm" id="arena-forfeit-btn"><i class="fas fa-flag"></i> Forfeit</button>
+        <span class="arena-battle__round" id="arena-round-label" aria-live="polite">Round 1</span>
+        <button class="arena-btn arena-btn--ghost arena-btn--sm" id="arena-forfeit-btn"><i class="fas fa-flag" aria-hidden="true"></i> Forfeit</button>
         <span class="arena-battle__post-actions" id="arena-battle-post" style="display:none;">
-          <button class="arena-btn arena-btn--primary arena-btn--sm" id="arena-battle-again"><i class="fas fa-redo"></i> Again</button>
-          <button class="arena-btn arena-btn--ghost arena-btn--sm" id="arena-battle-back"><i class="fas fa-arrow-left"></i> Back</button>
+          <button class="arena-btn arena-btn--primary arena-btn--sm" id="arena-battle-again"><i class="fas fa-redo" aria-hidden="true"></i> Again</button>
+          <button class="arena-btn arena-btn--ghost arena-btn--sm" id="arena-battle-back"><i class="fas fa-arrow-left" aria-hidden="true"></i> Back</button>
         </span>
       </div>
       <div class="arena-battle__stage">
@@ -115,35 +115,35 @@
           <div class="arena-combatant arena-combatant--player" id="arena-player-side">
             <div class="arena-combatant__frame"><div class="arena-combatant__card" id="arena-player-card"></div></div>
             <div class="arena-combatant__nameplate"><span class="arena-combatant__name" id="arena-player-name">You</span></div>
-            <div class="arena-hp-bar"><div class="arena-hp-bar__track"><div class="arena-hp-bar__fill arena-hp-bar__fill--player" id="arena-player-hp-fill" style="width:100%"></div></div><div class="arena-hp-bar__text" id="arena-player-hp-text">100 / 100</div></div>
+            <div class="arena-hp-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" aria-label="Your health"><div class="arena-hp-bar__track"><div class="arena-hp-bar__fill arena-hp-bar__fill--player" id="arena-player-hp-fill" style="width:100%"></div></div><div class="arena-hp-bar__text" id="arena-player-hp-text">100 / 100</div></div>
             <div class="arena-player-buffs" id="arena-player-buffs"></div>
             <div class="arena-status-row" id="arena-player-status"></div>
           </div>
-          <div class="arena-battle__vs"><span class="arena-battle__vs-text">VS</span></div>
+          <div class="arena-battle__vs" aria-hidden="true"><span class="arena-battle__vs-text">VS</span></div>
           <div class="arena-combatant arena-combatant--opponent" id="arena-opponent-side">
             <div class="arena-combatant__frame"><div class="arena-combatant__card" id="arena-opponent-card"></div></div>
             <div class="arena-combatant__nameplate"><span class="arena-combatant__name" id="arena-opponent-name">Enemy</span></div>
-            <div class="arena-hp-bar"><div class="arena-hp-bar__track"><div class="arena-hp-bar__fill arena-hp-bar__fill--opponent" id="arena-opponent-hp-fill" style="width:100%"></div></div><div class="arena-hp-bar__text" id="arena-opponent-hp-text">100 / 100</div></div>
+            <div class="arena-hp-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" aria-label="Enemy health"><div class="arena-hp-bar__track"><div class="arena-hp-bar__fill arena-hp-bar__fill--opponent" id="arena-opponent-hp-fill" style="width:100%"></div></div><div class="arena-hp-bar__text" id="arena-opponent-hp-text">100 / 100</div></div>
             <div class="arena-status-row" id="arena-opponent-status"></div>
           </div>
         </div>
       </div>
-      <div class="arena-battle__log" id="arena-battle-log"><div class="arena-log-entry">Battle started!</div></div>
-      <div class="arena-hype-bar" id="arena-hype-bar"><div class="arena-hype-bar__label"><i class="fas fa-fire-flame-curved"></i> HYPE</div><div class="arena-hype-bar__track"><div class="arena-hype-bar__fill" id="arena-hype-fill" style="width:0%"></div></div></div>
-      <div class="arena-battle__moves" id="arena-moves">
-        <button class="arena-move-btn arena-move-btn--strike" data-move="strike"><div class="arena-move-btn__glow" aria-hidden="true"></div><i class="fas fa-hand-fist"></i><span class="arena-move-btn__label">Strike</span><span class="arena-move-btn__stat" id="arena-move-str">STR</span><span class="arena-move-btn__desc">Physical attack</span></button>
-        <button class="arena-move-btn arena-move-btn--guard" data-move="guard"><div class="arena-move-btn__glow" aria-hidden="true"></div><i class="fas fa-shield-halved"></i><span class="arena-move-btn__label">Guard</span><span class="arena-move-btn__stat">Block</span><span class="arena-move-btn__desc">Reduce damage</span></button>
-        <button class="arena-move-btn arena-move-btn--ability" data-move="ability"><div class="arena-move-btn__glow" aria-hidden="true"></div><i class="fas fa-bolt" id="arena-ability-icon"></i><span class="arena-move-btn__label" id="arena-ability-label">Ability</span><span class="arena-move-btn__stat" id="arena-move-int">INT</span><span class="arena-move-btn__desc" id="arena-ability-desc">Class ability</span><span class="arena-move-btn__charge" id="arena-ability-charge">0/2</span></button>
-        <button class="arena-move-btn arena-move-btn--heal" data-move="heal"><div class="arena-move-btn__glow" aria-hidden="true"></div><i class="fas fa-heart-pulse"></i><span class="arena-move-btn__label">Heal</span><span class="arena-move-btn__stat" id="arena-move-end">END</span><span class="arena-move-btn__desc">END recovery</span></button>
-        <button class="arena-move-btn arena-move-btn--counter" data-move="counter"><div class="arena-move-btn__glow" aria-hidden="true"></div><i class="fas fa-shield"></i><span class="arena-move-btn__label">Counter</span><span class="arena-move-btn__stat">Reflect</span><span class="arena-move-btn__desc">Deflect strike</span></button>
+      <div class="arena-battle__log" id="arena-battle-log" role="log" aria-label="Combat log" aria-live="polite"><div class="arena-log-entry">Battle started!</div></div>
+      <div class="arena-hype-bar" id="arena-hype-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Hype meter"><div class="arena-hype-bar__label"><i class="fas fa-fire-flame-curved" aria-hidden="true"></i> HYPE</div><div class="arena-hype-bar__track"><div class="arena-hype-bar__fill" id="arena-hype-fill" style="width:0%"></div></div></div>
+      <div class="arena-battle__moves" id="arena-moves" role="group" aria-label="Combat moves">
+        <button class="arena-move-btn arena-move-btn--strike" data-move="strike" aria-label="Strike — physical attack"><div class="arena-move-btn__glow" aria-hidden="true"></div><i class="fas fa-hand-fist" aria-hidden="true"></i><span class="arena-move-btn__label">Strike</span><span class="arena-move-btn__stat" id="arena-move-str">STR</span><span class="arena-move-btn__desc">Physical attack</span></button>
+        <button class="arena-move-btn arena-move-btn--guard" data-move="guard" aria-label="Guard — reduce damage"><div class="arena-move-btn__glow" aria-hidden="true"></div><i class="fas fa-shield-halved" aria-hidden="true"></i><span class="arena-move-btn__label">Guard</span><span class="arena-move-btn__stat">Block</span><span class="arena-move-btn__desc">Reduce damage</span></button>
+        <button class="arena-move-btn arena-move-btn--ability" data-move="ability" aria-label="Ability — class power"><div class="arena-move-btn__glow" aria-hidden="true"></div><i class="fas fa-bolt" id="arena-ability-icon" aria-hidden="true"></i><span class="arena-move-btn__label" id="arena-ability-label">Ability</span><span class="arena-move-btn__stat" id="arena-move-int">INT</span><span class="arena-move-btn__desc" id="arena-ability-desc">Class ability</span><span class="arena-move-btn__charge" id="arena-ability-charge">0/2</span></button>
+        <button class="arena-move-btn arena-move-btn--heal" data-move="heal" aria-label="Heal — recover HP"><div class="arena-move-btn__glow" aria-hidden="true"></div><i class="fas fa-heart-pulse" aria-hidden="true"></i><span class="arena-move-btn__label">Heal</span><span class="arena-move-btn__stat" id="arena-move-end">END</span><span class="arena-move-btn__desc">END recovery</span></button>
+        <button class="arena-move-btn arena-move-btn--counter" data-move="counter" aria-label="Counter — deflect strike"><div class="arena-move-btn__glow" aria-hidden="true"></div><i class="fas fa-shield" aria-hidden="true"></i><span class="arena-move-btn__label">Counter</span><span class="arena-move-btn__stat">Reflect</span><span class="arena-move-btn__desc">Deflect strike</span></button>
       </div>
     </div>
   </div>
 
   <!-- Results Modal -->
-  <div class="arena-results-overlay" id="arena-results-overlay" style="display:none;">
+  <div class="arena-results-overlay" id="arena-results-overlay" style="display:none;" role="dialog" aria-label="Battle results">
     <div class="arena-results">
-      <button class="arena-results__close" id="arena-results-close"><i class="fas fa-xmark"></i></button>
+      <button class="arena-results__close" id="arena-results-close" aria-label="Close results"><i class="fas fa-xmark" aria-hidden="true"></i></button>
       <div class="arena-results__banner" id="arena-results-banner">
         <div class="arena-results__avatars" id="arena-results-avatars"></div>
         <h1 id="arena-results-title">Victory!</h1>
@@ -152,12 +152,12 @@
       <div class="arena-results__xp" id="arena-results-xp-section">
         <div class="arena-results__xp-amount" id="arena-results-xp">+40 XP</div>
         <div class="arena-results__rank-label" id="arena-results-rank-label">
-          <span class="arena-results__rank-current" id="arena-results-rank-current"><i class="fas fa-shield-halved"></i> Bronze</span>
+          <span class="arena-results__rank-current" id="arena-results-rank-current"><i class="fas fa-shield-halved" aria-hidden="true"></i> Bronze</span>
           <i class="fas fa-arrow-right arena-results__rank-arrow"></i>
-          <span class="arena-results__rank-next" id="arena-results-rank-next"><i class="fas fa-shield"></i> Silver</span>
+          <span class="arena-results__rank-next" id="arena-results-rank-next"><i class="fas fa-shield" aria-hidden="true"></i> Silver</span>
         </div>
-        <div class="arena-results__bar-wrap"><div class="arena-progress__bar"><div class="arena-progress__bar-fill" id="arena-results-xp-fill" style="width:0%"></div></div><div class="arena-progress__xp-text" id="arena-results-xp-text">0 / 500 XP</div></div>
-        <div class="arena-results__rank-up" id="arena-results-rank-up" style="display:none;"><i class="fas fa-arrow-up"></i> Rank Up! <span id="arena-results-new-rank">Silver</span></div>
+        <div class="arena-results__bar-wrap"><div class="arena-progress__bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="XP progress"><div class="arena-progress__bar-fill" id="arena-results-xp-fill" style="width:0%"></div></div><div class="arena-progress__xp-text" id="arena-results-xp-text">0 / 500 XP</div></div>
+        <div class="arena-results__rank-up" id="arena-results-rank-up" style="display:none;"><i class="fas fa-arrow-up" aria-hidden="true"></i> Rank Up! <span id="arena-results-new-rank">Silver</span></div>
       </div>
       <div class="arena-results__actions">
         <button class="arena-btn arena-btn--primary" id="arena-results-again">Again</button>
@@ -167,9 +167,9 @@
   </div>
 
   <!-- Forfeit Modal -->
-  <div class="arena-modal-overlay" id="arena-forfeit-modal" style="display:none;">
+  <div class="arena-modal-overlay" id="arena-forfeit-modal" style="display:none;" role="alertdialog" aria-label="Forfeit confirmation">
     <div class="arena-modal">
-      <div class="arena-modal__icon"><i class="fas fa-flag"></i></div>
+      <div class="arena-modal__icon"><i class="fas fa-flag" aria-hidden="true"></i></div>
       <h3 class="arena-modal__title">Forfeit Battle?</h3>
       <p class="arena-modal__body">You'll take the loss.</p>
       <div class="arena-modal__actions">
@@ -180,7 +180,7 @@
   </div>
 
   <!-- Hidden card editor zone (needed for Quick Build preview rendering) -->
-  <div id="cardforge-main-container" style="display:none;">
+  <div id="cardforge-main-container" style="display:none;" aria-hidden="true">
     <!-- Form fields required by card-forge-editor.js for updatePreview() -->
     <input type="text" id="card-name" value="">
     <input type="text" id="card-avatar" value="">
