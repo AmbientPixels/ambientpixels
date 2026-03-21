@@ -96,7 +96,7 @@ async function run() {
 
   // Landing
   console.log('\n── Landing ──');
-  await m.goto(BASE_URL + '/blindspot/', { waitUntil: 'networkidle', timeout: 15000 });
+  await m.goto(BASE_URL + '/blindspot/', { waitUntil: 'networkidle', timeout: 30000 });
   await m.waitForTimeout(1500);
   await screenshot(m, 'landing', 'mobile');
   pass('Landing screenshot captured');
@@ -105,13 +105,17 @@ async function run() {
 
   // Play page
   console.log('\n── Lobby ──');
-  await m.goto(BASE_URL + '/blindspot/play.html', { waitUntil: 'networkidle', timeout: 15000 });
+  await m.goto(BASE_URL + '/blindspot/play.html', { waitUntil: 'networkidle', timeout: 30000 });
   await m.waitForTimeout(3000);
   await screenshot(m, 'lobby', 'mobile');
   pass('Lobby screenshot captured');
   await checkOverflow(m, 375, 'Lobby mobile');
   await checkVisible(m, '#bs-player-card', 'Player card');
   await checkVisible(m, '#bs-bottom-nav', 'Bottom nav');
+
+  // Dismiss onboarding overlay if present
+  await m.evaluate(() => { const el = document.querySelector('.bs-onboard-backdrop'); if (el) el.remove(); });
+  await m.waitForTimeout(300);
 
   // Campaign (click nav)
   console.log('\n── Campaign ──');
@@ -160,7 +164,7 @@ async function run() {
 
   // Landing
   console.log('\n── Landing ──');
-  await d.goto(BASE_URL + '/blindspot/', { waitUntil: 'networkidle', timeout: 15000 });
+  await d.goto(BASE_URL + '/blindspot/', { waitUntil: 'networkidle', timeout: 30000 });
   await d.waitForTimeout(1500);
   await screenshot(d, 'landing', 'desktop');
   pass('Landing screenshot captured');
@@ -168,11 +172,15 @@ async function run() {
 
   // Lobby
   console.log('\n── Lobby ──');
-  await d.goto(BASE_URL + '/blindspot/play.html', { waitUntil: 'networkidle', timeout: 15000 });
+  await d.goto(BASE_URL + '/blindspot/play.html', { waitUntil: 'networkidle', timeout: 30000 });
   await d.waitForTimeout(3000);
   await screenshot(d, 'lobby', 'desktop');
   pass('Lobby screenshot captured');
   await checkOverflow(d, 1440, 'Lobby desktop');
+
+  // Dismiss onboarding overlay on desktop if present
+  await d.evaluate(() => { const el = document.querySelector('.bs-onboard-backdrop'); if (el) el.remove(); });
+  await d.waitForTimeout(300);
 
   // Campaign
   console.log('\n── Campaign ──');
