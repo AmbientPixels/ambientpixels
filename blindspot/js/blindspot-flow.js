@@ -2568,10 +2568,10 @@
       try {
         data = await Promise.race([
           window.ArenaAPI.loadCards(),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), TIMEOUT))
+          new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 8000))
         ]);
       } catch (timeoutErr) {
-        container.innerHTML = '<p style="text-align:center; color:var(--bs-text-muted); padding:2rem;">Could not load leaderboard. Try again later.</p>';
+        container.innerHTML = '<p style="text-align:center; color:var(--bs-text-muted); padding:2rem;">Could not load gallery. Try again later.</p>';
         return;
       }
       const gallery = data.galleryCards || [];
