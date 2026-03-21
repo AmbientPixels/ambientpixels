@@ -2398,7 +2398,7 @@
 
 .bs-charm-option--selected {
   border-color: var(--bs-accent) !important;
-  box-shadow: 0 0 8px rgba(239, 159, 39, 0.3);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--bs-accent) 30%, transparent);
 }
 
 .bs-charm-option i { font-size: 0.9rem; color: var(--bs-accent); }
@@ -2416,8 +2416,8 @@
 }
 
 @keyframes bs-charm-pulse {
-  0%, 100% { box-shadow: 0 0 4px rgba(239, 159, 39, 0.2); }
-  50% { box-shadow: 0 0 12px rgba(239, 159, 39, 0.5); }
+  0%, 100% { box-shadow: 0 0 4px color-mix(in srgb, var(--bs-accent) 20%, transparent); }
+  50% { box-shadow: 0 0 12px color-mix(in srgb, var(--bs-accent) 50%, transparent); }
 }
 
 /* 6th charm button — center below the 3+2 grid */
@@ -2431,6 +2431,11 @@
   border: 1px solid var(--bs-accent-dim);
   color: var(--bs-accent-glow);
   animation: bs-charm-pulse 2s ease-in-out infinite;
+}
+
+/* Charm button used state (after activation) */
+.bs-page .arena-move-btn--used {
+  opacity: 0.3;
 }
 
 /* Charm button disabled state (after use) */

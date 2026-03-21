@@ -1,34 +1,37 @@
-# Loop Checkpoint — 2026-03-21 (iterations 70-76)
+# Loop Checkpoint — Iteration 111 (2026-03-21)
 
-## Built
-1. **Card rarity system** — Common→Legendary tied to forge visits, border glow per tier
-2. **Move result feedback** — green/red glow on move buttons (already implemented)
-3. **Loss screen with rematch + advice** — data-driven tips + prominent Rematch button
-4. **Pre-fight boss pattern hint** — CLASS_PATTERNS map showing boss tendencies
-5. **Post-Quick-Build onboarding** — 3-step spotlight guide for new players
-6. **First-battle tutorial hints** — contextual tips for first 3 campaign battles
-7. **Boss adaptive scaling** — server-side power scaling (already implemented)
-8. **Forge stat budget cap** — total power capped at 400
-9. **Boss mastery stars** — bronze/silver/gold tiers at 3/5/10 wins
-10. **Streak rewards** — sparks bonus + milestone rewards at 5/10/15
-11. **Next unlock teasers** — contextual micro-goal hints in lobby/campaign/forge
-12. **Class signature moves** — 10 unique ability names per class with icons
-13. **Loot crate data model** — 5 crate types, 3 loot tables, 10 drop pools
+## Built (since checkpoint 76)
+
+### Phase 5: Loot Crates (complete)
+1. **Crate inventory + earn triggers** — bs-crates localStorage, earn on wins/boss/weekly/ascension, sparks shop
+2. **Crate opening ceremony** — full-screen overlay, shake animation, slot-machine reel, burst reveal, SFX
+3. **Cosmetic inventory + equip** — Collection screen with 5 tabs, equip/unequip, glow/tint/text effects
+4. **Battle charms** — pre-fight selector, glowing 6th button, 5 client-side effects (heal/damage/block/crit/charge)
+
+### Phase 6: Deck System (started)
+5. **Card collection model** — bs-deck localStorage array, getDeck/setDeck/addCard/updateCard/removeCard
+
+### Phase 7: Combat Feel (started)
+6. **Per-move combat SFX** — Web Audio synth for strike/guard/ability/heal/counter/crit/dodge
+7. **Round transition flash** — "Round X" centered overlay between rounds
+8. **Boss dialogue** — tauntStart/tauntLoss speech bubbles in combat log
+9. **Near-miss moments** — "So close!" message when boss survives with <10% HP
 
 ## Concerns
-1. **Uncommitted JS has wrong config path**: `blindspot-flow.js` has ~60 lines referencing `_config.crates.crateTypes` but game-config.json uses `_config.crates.types`. Fix in task 18.
-2. **Uncommitted HTML**: `play.html` has crate indicator div not wired to working code. Fix in task 18.
-3. **Raw hex in RARITY_TIERS** (JS lines 477-480): `#1eff8e`, `#3a9fff`, `#a855f7`, `#fbbf24`. Low risk — JS-only, not CSS. Accept or add `--bs-rarity-*` tokens later.
-4. **149 raw hex colors in smoke test**: Long-standing, mostly JS canvas/dynamic styling. Acceptable.
-5. **CSS classes referenced in game-config.json don't exist yet**: `bs-frame--*`, `bs-back--*`, `bs-plate--*`, `bs-victory--*`. Will be created in task 20 (cosmetic rendering).
 
-## Concern Resolution
-- Concerns 1-2: Will be fixed in task 18 (next task) — correct the config path and properly wire the HTML.
-- Concerns 3-4: Accepted — JS-only color values, not CSS cascade issues.
-- Concern 5: Deferred to task 20 — cosmetic CSS will be created when cosmetics are rendered.
+1. **Charm heal only updates DOM** — Heal Potion modifies HP bar text/fill directly but arena-battle-ui.js tracks its own _battleData.player.hp. Next server round overwrites the visual heal. Cosmetic only until server integration.
+   - **Resolution**: Accept for now — charm effects are explicitly labeled "client-side" with server integration deferred. The toast + combat log entry give players feedback. True gameplay effects require Task 20b (server-side charm support).
+
+2. **Charm buff chips are cosmetic only** — Power Surge/Shield Wall/Lucky Strike/Charge Boost show buff chips but don't affect combat calculations.
+   - **Resolution**: Same as #1 — accept. Visual feedback is the MVP; gameplay effects need server work.
+
+3. **Inline style opacity on charm button** — btn.style.opacity = '0.3' used alongside CSS :disabled rule.
+   - **Resolution**: Fix now — quick change.
+
+4. **Raw rgba in charm CSS** — bs-charm-option--selected box-shadow and bs-charm-pulse keyframes use raw rgba(239, 159, 39, ...).
+   - **Resolution**: Fix now — replace with color-mix tokens.
 
 ## Next
-1. **18: Crate inventory + earn triggers** — fix config path bug, wire HTML, toast on earn
-2. **19: Crate opening ceremony** — full-screen slot-machine reveal overlay
-3. **20: Cosmetic inventory + equip** — collection screen, equip system, CSS for cosmetics
-4. **21: Battle charms** — consumable items from crates, 6th combat button
+1. **23: Card switcher in lobby** — left/right arrows to cycle owned cards
+2. **24: New card creation** — "Create New Card" button opens Quick Build
+3. **25: Deck management screen** — grid of all cards with delete/sort
