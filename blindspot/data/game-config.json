@@ -9,11 +9,11 @@
     "name": "The Gatekeeper",
     "characterClass": "Enforcer",
     "combatStats": {
-      "str": 60,
-      "agi": 45,
-      "int": 40,
-      "end": 75,
-      "lck": 30
+      "str": 35,
+      "agi": 25,
+      "int": 20,
+      "end": 40,
+      "lck": 15
     },
     "aiPattern": "balanced",
     "flavorText": "Everyone passes through here once."
