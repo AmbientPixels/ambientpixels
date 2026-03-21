@@ -934,16 +934,19 @@
     await gameDataPromise;
     const profile = await profilePromise;
 
+    // Returning players skip landing page entirely — go straight to play.html
+    if (!isNewPlayer(profile)) {
+      document.getElementById('bs-landing').style.opacity = '0';
+      window.location.href = '/blindspot/play.html';
+      return;
+    }
+
     // Update auth UI on landing page
     updateLandingAuthUI();
 
     fightBtn.addEventListener('click', async () => {
       fightBtn.disabled = true;
       fightBtn.innerHTML = '<span class="bs-spinner" style="display:inline-block;width:14px;height:14px;"></span> Loading...';
-      if (!isNewPlayer(profile)) {
-        window.location.href = '/blindspot/play.html';
-        return;
-      }
 
       // ALL new players fight as The Stranger first
       // Demo users: cardData passed directly (server accepts it)
