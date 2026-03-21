@@ -551,14 +551,14 @@
       const previewContainer = document.getElementById('qb-card-preview');
       if (sourcePreview && previewContainer) {
         const clone = sourcePreview.cloneNode(true);
-        var pw = sourcePreview.offsetWidth || 350;
-        var ph = sourcePreview.offsetHeight || 490;
-        var sc = Math.min(300 / pw, 480 / ph);
-        clone.style.transform = 'scale(' + sc.toFixed(3) + ')';
-        clone.style.transformOrigin = 'top center';
+        clone.style.width = '100%';
+        clone.style.height = '100%';
         clone.style.position = 'absolute';
-        clone.style.left = ((300 - pw * sc) / 2) + 'px';
         clone.style.top = '0';
+        clone.style.left = '0';
+        clone.style.transform = '';
+        clone.style.borderRadius = '12px';
+        clone.style.overflow = 'hidden';
         previewContainer.innerHTML = '';
         previewContainer.style.position = 'relative';
         previewContainer.appendChild(clone);
@@ -648,14 +648,14 @@
         const previewContainer = document.getElementById('qb-card-preview');
         if (sourcePreview && previewContainer) {
           const clone = sourcePreview.cloneNode(true);
-          var pw2 = sourcePreview.offsetWidth || 350;
-          var ph2 = sourcePreview.offsetHeight || 490;
-          var sc2 = Math.min(300 / pw2, 480 / ph2);
-          clone.style.transform = 'scale(' + sc2.toFixed(3) + ')';
-          clone.style.transformOrigin = 'top center';
+          clone.style.width = '100%';
+          clone.style.height = '100%';
           clone.style.position = 'absolute';
-          clone.style.left = ((300 - pw2 * sc2) / 2) + 'px';
           clone.style.top = '0';
+          clone.style.left = '0';
+          clone.style.transform = '';
+          clone.style.borderRadius = '12px';
+          clone.style.overflow = 'hidden';
           previewContainer.innerHTML = '';
           previewContainer.style.position = 'relative';
           previewContainer.appendChild(clone);
