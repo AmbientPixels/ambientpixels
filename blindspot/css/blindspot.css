@@ -4917,3 +4917,183 @@ body.bs-battle-active .bs-bottom-nav {
     min-height: 44px;
   }
 }
+
+/* ============================================================
+   MOBILE CAMPAIGN + OVERLAYS (375px)
+   ============================================================ */
+
+@media (max-width: 480px) {
+  /* Campaign boss cards — compact for small screens */
+  .bs-boss-card {
+    padding: 0.6rem 0.75rem;
+    gap: 0.6rem;
+  }
+  .bs-boss-card__number {
+    font-size: 1rem;
+    width: 24px;
+  }
+  .bs-boss-card__name { font-size: 0.85rem; }
+  .bs-boss-card__class { font-size: 0.7rem; }
+  .bs-boss-card__flavor { font-size: 0.65rem; }
+  .bs-boss-card__record { font-size: 0.6rem; margin-left: 0.25rem; }
+  .bs-boss-card__reward { font-size: 0.6rem; padding: 0.1rem 0.35rem; }
+  .bs-boss-avatar { width: 32px; height: 32px; font-size: 0.8rem; }
+
+  /* Pre-fight overlay — scrollable, compact */
+  .bs-prefight {
+    gap: 1rem;
+    padding: 1.25rem 1rem;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    justify-content: flex-start;
+    padding-top: 2rem;
+  }
+  .bs-prefight .bs-overlay__title { font-size: 1rem; }
+  .bs-prefight__flavor { font-size: 0.75rem; }
+  .bs-prefight-comparison { max-width: 100%; }
+  .bs-prefight-comparison__header { font-size: 0.65rem; }
+  .bs-prefight-stat-row {
+    grid-template-columns: 22px 1fr 32px 1fr 22px;
+    font-size: 0.65rem;
+    gap: 3px;
+  }
+  .bs-prefight-stat-row__label { font-size: 0.6rem; }
+  #bs-prefight-go { min-height: 48px; width: 100%; max-width: 280px; }
+
+  /* Loot choice — stack cards vertically on small screens */
+  .bs-loot-options {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .bs-loot-card {
+    width: 100%;
+    max-width: 260px;
+    flex-direction: row;
+    padding: 0.75rem 1rem;
+    gap: 0.75rem;
+  }
+  .bs-loot-card__rarity { font-size: 0.55rem; }
+  .bs-loot-card__label { font-size: 0.85rem; }
+  .bs-loot-card__stat { font-size: 0.65rem; }
+
+  /* How to Play modal — tighter on mobile */
+  .bs-modal {
+    padding: 1.25rem;
+    max-height: 80vh;
+  }
+  .bs-modal__close {
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+  .bs-modal__title { font-size: 1rem; }
+  .bs-modal__section h3 { font-size: 0.75rem; }
+  .bs-modal__section p { font-size: 0.68rem; }
+
+  /* Combat guide overlay — tighter cards */
+  .bs-combat-rule {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.72rem;
+    gap: 0.5rem;
+  }
+  .bs-combat-rule i { font-size: 0.9rem; width: 20px; }
+
+  /* Results screen — compact, scrollable */
+  .bs-page .arena-results-overlay {
+    padding: 1rem 0.75rem;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .bs-page .arena-results {
+    gap: 1rem;
+    padding: 1rem;
+    max-height: none;
+  }
+  .bs-page .arena-results__banner {
+    padding: 1.5rem 1rem;
+    border-radius: 12px;
+  }
+  .bs-page .arena-results__banner h1 { font-size: 1.5rem; }
+  .bs-page .arena-results__close {
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Session stats in results — already handled at 480px */
+
+  /* Weekly boss card — compact */
+  .bs-weekly-challenge { margin-bottom: 0.5rem; }
+  .bs-weekly-challenge__title { font-size: 0.8rem; }
+  .bs-weekly-challenge__timer { font-size: 0.65rem; }
+
+  /* Tower section — compact */
+  .bs-tower__title { font-size: 1rem; }
+  .bs-tower__floor-num { font-size: 2.25rem; }
+  .bs-tower__floor-label { font-size: 0.65rem; }
+  .bs-tower__cycle { font-size: 0.6rem; }
+}
+
+@media (max-width: 375px) {
+  /* Campaign screen padding */
+  .bs-campaign { padding: 0.5rem; }
+  .bs-campaign__header { gap: 0.5rem; margin-bottom: 0.5rem; }
+  .bs-campaign__header h2 { font-size: 1rem; }
+  .bs-campaign__back { min-width: 44px; min-height: 44px; }
+
+  /* Boss cards — even tighter */
+  .bs-boss-card {
+    padding: 0.5rem 0.6rem;
+    gap: 0.5rem;
+  }
+  .bs-boss-card__number { font-size: 0.9rem; width: 20px; }
+  .bs-boss-card__name { font-size: 0.8rem; }
+  .bs-boss-card:not(.bs-boss-card--locked):hover {
+    transform: none;
+  }
+
+  /* Pre-fight — narrower stat comparison */
+  .bs-prefight {
+    padding: 1rem 0.75rem;
+    gap: 0.75rem;
+    padding-top: 1.5rem;
+  }
+  .bs-prefight-stat-row {
+    grid-template-columns: 18px 1fr 28px 1fr 18px;
+    font-size: 0.6rem;
+    gap: 2px;
+  }
+
+  /* Overlays general — edge-to-edge */
+  .bs-overlay { padding: 1rem 0.75rem; }
+
+  /* Loot cards — full width */
+  .bs-loot-card { max-width: 100%; }
+
+  /* Modal — tighter */
+  .bs-modal {
+    padding: 1rem;
+    border-radius: 12px;
+    max-height: 78vh;
+  }
+
+  /* Forge trigger buttons — stack */
+  #bs-forge-trigger .bs-btn { min-height: 44px; }
+
+  /* Results — reduce banner padding */
+  .bs-page .arena-results__banner {
+    padding: 1.25rem 0.75rem;
+  }
+
+  /* Tower — compact */
+  .bs-tower { padding: 0.5rem; }
+  .bs-tower__floor-num { font-size: 1.75rem; }
+  .bs-tower__next { flex-direction: column; align-items: center; text-align: center; }
+}
