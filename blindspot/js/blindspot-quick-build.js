@@ -650,22 +650,34 @@
           });
         }
 
-        // Clone preview into flip card
+        // Clone preview into flip card — scale to fit container
         const sourcePreview = document.querySelector('.card-preview-zone .card-preview-canvas');
         const previewContainer = document.getElementById('qb-card-preview');
         if (sourcePreview && previewContainer) {
           const clone = sourcePreview.cloneNode(true);
-          clone.style.width = '100%';
-          clone.style.height = '100%';
+          // Let the card render at natural size, then scale to fit the flip container
+          clone.style.width = '300px';
+          clone.style.height = 'auto';
           clone.style.position = 'absolute';
           clone.style.top = '0';
           clone.style.left = '0';
-          clone.style.transform = '';
+          clone.style.transformOrigin = 'top left';
           clone.style.borderRadius = '12px';
           clone.style.overflow = 'hidden';
           previewContainer.innerHTML = '';
           previewContainer.style.position = 'relative';
+          previewContainer.style.overflow = 'hidden';
           previewContainer.appendChild(clone);
+          // After render, scale down to fit container height
+          requestAnimationFrame(() => {
+            const containerH = previewContainer.offsetHeight || 560;
+            const cardH = clone.scrollHeight || clone.offsetHeight;
+            if (cardH > containerH) {
+              const scale = containerH / cardH;
+              clone.style.transform = 'scale(' + scale + ')';
+              clone.style.width = (300 / scale) + 'px';
+            }
+          });
         }
       } catch (err) {
         console.error('[BS-QB] Preview error:', err);
