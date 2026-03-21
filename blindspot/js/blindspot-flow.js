@@ -2875,11 +2875,17 @@
                      style="width:100%; padding:0.5rem; background:var(--bs-surface-2); border:1px solid var(--bs-border); border-radius:6px; color:var(--bs-text); font-family:'Share Tech Mono',monospace; font-size:0.8rem; margin-bottom:0.4rem;">
               <div style="display:flex; gap:0.4rem; align-items:center;">
                 <select id="bs-forge-ai-style" style="flex:1; padding:0.35rem; background:var(--bs-surface-2); border:1px solid var(--bs-border); border-radius:6px; color:var(--bs-text); font-size:0.7rem;">
+                  <option value="ap-fantasy-card">Fantasy Card Art</option>
+                  <option value="ap-dark-fantasy">Dark Fantasy</option>
+                  <option value="ap-dark-cinematic">Dark Cinematic</option>
+                  <option value="ap-comic-book">Comic Book</option>
+                  <option value="ap-anime-cel">Anime</option>
+                  <option value="ap-oil-portrait">Oil Portrait</option>
+                  <option value="ap-holographic">Holographic</option>
                   <option value="ap-neon-glass">Neon Glass</option>
-                  <option value="ap-2d-flat">2D Flat</option>
-                  <option value="ap-ornate-frame">Ornate Frame</option>
                   <option value="ap-watercolor">Watercolor</option>
-                  <option value="ap-corporate-tech">Corporate Tech</option>
+                  <option value="ap-ornate-frame">Ornate Frame</option>
+                  <option value="ap-retro-pixel">Retro Pixel</option>
                   <option value="none">No Style</option>
                 </select>
                 <button class="bs-btn bs-btn--primary bs-btn--small" id="bs-forge-ai-generate" style="padding:0.35rem 0.75rem; font-size:0.7rem; white-space:nowrap;">

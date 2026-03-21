@@ -96,6 +96,48 @@ var PRESETS = {
     author: 'Pixel',
     visibility: 'internal',
     style: 'Cinematic dark mood with dramatic chiaroscuro lighting, deep shadows, film-grain texture, moody teal-and-orange color grading, atmospheric depth of field.'
+  },
+  'ap-comic-book': {
+    label: 'Comic Book',
+    version: '1.0',
+    author: 'Pixel',
+    visibility: 'internal',
+    style: 'Bold comic book illustration with heavy black ink outlines, Ben-Day dot halftone shading, dramatic action poses, vivid primary colors, dynamic panel composition, pop art energy.'
+  },
+  'ap-fantasy-card': {
+    label: 'Fantasy Card Art',
+    version: '1.0',
+    author: 'Pixel',
+    visibility: 'internal',
+    style: 'High-fantasy trading card illustration with rich oil-painting detail, dramatic magical lighting, ornate border-ready composition, deep saturated colors, epic character portrait framing with dark atmospheric background.'
+  },
+  'ap-anime-cel': {
+    label: 'Anime',
+    version: '1.0',
+    author: 'Pixel',
+    visibility: 'internal',
+    style: 'Japanese anime cel-shading style with crisp outlines, large expressive eyes, vibrant hair colors, dynamic action energy lines, clean flat color fills with dramatic highlights.'
+  },
+  'ap-oil-portrait': {
+    label: 'Oil Portrait',
+    version: '1.0',
+    author: 'Pixel',
+    visibility: 'internal',
+    style: 'Classical oil painting portrait with rich impasto brushwork, Rembrandt-style chiaroscuro lighting, deep umber and gold tones, museum-quality fine art rendering, dramatic dark background.'
+  },
+  'ap-dark-fantasy': {
+    label: 'Dark Fantasy',
+    version: '1.0',
+    author: 'Pixel',
+    visibility: 'internal',
+    style: 'Dark gothic fantasy art with moody atmosphere, deep shadows and ember-glow highlights, weathered textures, medieval horror aesthetic, muted desaturated palette with selective warm accents.'
+  },
+  'ap-holographic': {
+    label: 'Holographic',
+    version: '1.0',
+    author: 'Pixel',
+    visibility: 'internal',
+    style: 'Iridescent holographic card art with rainbow prismatic reflections, chrome metallic surfaces, futuristic energy auras, shifting color spectrum from teal to magenta to gold, luminous glow effects.'
   }
 };
 
