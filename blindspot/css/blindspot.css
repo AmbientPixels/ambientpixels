@@ -4519,6 +4519,18 @@ body.bs-battle-active .bs-bottom-nav {
 }
 
 /* ===== CARD REVEAL CELEBRATION ===== */
+.bs-reveal-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}
+.bs-reveal-loading .bs-spinner {
+  width: 36px;
+  height: 36px;
+  border-width: 3px;
+}
 .bs-reveal-celebration {
   opacity: 0;
   transition: opacity 0.5s ease;

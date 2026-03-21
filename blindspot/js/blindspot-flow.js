@@ -2816,6 +2816,7 @@
         window.ArenaAPI.selectCard(cardId).catch(e => console.warn('selectCard:', e));
       }
       safeLSSet('blindspot-onboarded', 'true');
+      safeLSSet('bs-onboarded-lobby', 'true');
       showCardRevealCelebration(cardId);
     });
   }
@@ -2887,6 +2888,11 @@
     const overlay = document.createElement('div');
     overlay.className = 'bs-overlay bs-reveal-celebration';
 
+    // Show loading state immediately so screen doesn't feel frozen
+    overlay.innerHTML = '<div class="bs-reveal-loading"><div class="bs-spinner"></div><p style="color:var(--bs-text-muted);font-family:\'Share Tech Mono\',monospace;margin-top:1rem;font-size:0.85rem;">Forging your card\u2026</p></div>';
+    document.body.appendChild(overlay);
+    requestAnimationFrame(() => { overlay.classList.add('bs-reveal-celebration--active'); });
+
     // Try to get card data from ArenaAPI cache or fall back to minimal display
     let cardHtml = '';
     const tryRender = async () => {
@@ -2952,12 +2958,8 @@
         </button>
       `;
 
-      document.body.appendChild(overlay);
-
-      // Trigger entrance animation after a frame
-      requestAnimationFrame(() => {
-        overlay.classList.add('bs-reveal-celebration--active');
-      });
+      // Replace loading state with card reveal content
+      // (overlay already appended and animated in)
 
       document.getElementById('bs-reveal-enter')?.addEventListener('click', () => {
         overlay.classList.add('bs-reveal-celebration--exit');
