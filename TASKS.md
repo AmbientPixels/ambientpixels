@@ -4,6 +4,10 @@
 Blindspot is a standalone arena combat card game at /blindspot/. 74 iterations shipped. Core loop works: landing → stranger fight → quick build → campaign (10 bosses with images) → forge → PvP. Needs polish to feel like a shippable game.
 
 ## Done
+- (2026-03-21) Boss mastery stars: 3 tiers (bronze/silver/gold at 3/5/10 wins). Bronze: +1 to boss weakness stat. Silver: title "BossName's Bane". Gold: +25 sparks. Stars render on campaign ladder next to boss name. Mastery resets on ascension.
+- (2026-03-21) Card rarity system: forge visits drive rarity — Common (0) → Uncommon (3, +2% crit) → Rare (8, +5% crit) → Epic (15, +3 all stats) → Legendary (25, +5 all stats, "The Forgeborn" title). Border glow per tier, rarity badge on lobby card, passives panel shows rarity bonuses, upgrade toast on tier change.
+- (2026-03-21) Move result feedback: already implemented — MOVE_BEATS map, flashMoveResult() with green/red glow, CSS at line 1690.
+- (2026-03-21) Loss screen with rematch + advice: data-driven tip based on what killed the player (boss abilities → try Guard, never healed → Heal below 50%, etc.) plus prominent Rematch button for instant retry. Reduces friction from loss to retry.
 - (2026-03-21) Pre-fight boss pattern hint: CLASS_PATTERNS map (12 classes) shows "Tends to: X" line in pre-fight overlay for campaign, Enter Arena, and tower fights. Helps players anticipate boss strategy.
 - (2026-03-21) Post-Quick-Build onboarding: 3-step spotlight guide (Campaign → Forge → PvP) with dark backdrop, spotlight cutout around target element, step counter, back/next navigation. Shown once on first lobby visit via `bs-onboarded-lobby` localStorage flag. Test harnesses updated to dismiss overlay.
 - (2026-03-21) First-battle tutorial hints: contextual hint banners above move buttons for first 3 campaign battles. Round 1 shows introductory tips (Strike/Counter/Heal); after each round, shows counter-play hint based on boss move (e.g., "The boss guarded — Ability stuns guards!"). Dismissable via X button. Tracked via `bs-tutorial-battle-count` localStorage.
@@ -71,14 +75,14 @@ Blindspot is a standalone arena combat card game at /blindspot/. 74 iterations s
 
 9. ~~**Pre-fight boss pattern hint**~~ ✅ Done
 
-10. **Loss screen with rematch + advice** — After losing: (a) Show one actionable tip based on what killed the player. If boss used mostly abilities → "Try Guard." If player never healed → "Heal below 50% HP." One tip, not a wall of text. (b) Add a prominent "Rematch" button that instantly restarts the same boss fight. Reduces friction from "I almost had them" to trying again.
+10. ~~**Loss screen with rematch + advice**~~ ✅ Done
 
-11. **Move result feedback** — After each move resolves, briefly highlight the winning move button green and the losing one red (0.5s). Strike vs Guard → Guard glows green, Strike dims. Teaches the RPS system through play, not text.
+11. ~~**Move result feedback**~~ ✅ Done (already implemented — MOVE_BEATS map, flashMoveResult() with green/red glow, CSS at line 1690)
 
 ### Phase 4: Progression — reasons to keep playing
-12. **Card rarity system** — Cards start as Common (white border). Upgrading through forge visits increases rarity: Common → Uncommon (green, 3 forges) → Rare (blue, 8 forges) → Epic (purple, 15 forges) → Legendary (gold, 25 forges). Each tier adds a subtle border glow effect and a small passive: Uncommon +2% crit, Rare +5% crit, Epic +3 all stats, Legendary +5 all stats + unique title. Track forge visit count per card. Show rarity badge in lobby and battle.
+12. ~~**Card rarity system**~~ ✅ Done
 
-13. **Boss mastery stars** — Each boss tracks wins in `bs-boss-records`. At 3 wins: bronze star + permanent +1 to the boss's weakness stat. At 5 wins: silver star + title (e.g., "Gatekeeper's Bane"). At 10 wins: gold star + 25 sparks. Stars shown on campaign ladder next to each boss. Gives 30 fights of meaningful content from 10 bosses.
+13. ~~**Boss mastery stars**~~ ✅ Done (committed in 44ce3cb3)
 
 14. **Streak rewards** — Win streaks currently show fire icon but give nothing. 3-streak: +10% sparks bonus on next win. 5-streak: free Battle Crate. 10-streak: guaranteed rare crate. 15-streak: title "The Relentless" + permanent +2% crit. Losing resets streak. Show streak bonus in battle results.
 
