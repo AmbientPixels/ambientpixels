@@ -618,6 +618,7 @@
   function showOverlay(id) {
     const el = document.getElementById(id);
     if (el) { el.classList.remove('bs-overlay--hidden'); el.style.display = ''; }
+    if (id === 'bs-prefight-overlay') renderCharmSelector();
   }
 
   function hideOverlay(id) {
@@ -700,6 +701,114 @@
   function addPurchasedCosmetic(key) {
     var list = getPurchasedCosmetics();
     if (!list.includes(key)) { list.push(key); localStorage.setItem('bs-purchased-cosmetics', JSON.stringify(list)); }
+  }
+
+  // ============================================================
+  // BATTLE CHARMS
+  // ============================================================
+
+  var _equippedCharm = null; // charm selected for next battle
+  var _charmUsedThisBattle = false;
+
+  function getOwnedCharms() {
+    try { return JSON.parse(localStorage.getItem('bs-charms') || '[]'); }
+    catch(e) { return []; }
+  }
+
+  function removeCharm(charmId) {
+    var charms = getOwnedCharms();
+    var idx = charms.indexOf(charmId);
+    if (idx >= 0) charms.splice(idx, 1);
+    localStorage.setItem('bs-charms', JSON.stringify(charms));
+  }
+
+  function getCharmDef(charmId) {
+    if (!_config || !_config.crates || !_config.crates.dropPools || !_config.crates.dropPools.battle_charms) return null;
+    return _config.crates.dropPools.battle_charms.items.find(function(c) { return c.id === charmId; }) || null;
+  }
+
+  function renderCharmSelector() {
+    var container = document.getElementById('bs-charm-selector');
+    if (!container) return;
+    var charms = getOwnedCharms();
+    if (charms.length === 0) {
+      container.style.display = 'none';
+      _equippedCharm = null;
+      return;
+    }
+    // Count charms by type
+    var counts = {};
+    charms.forEach(function(id) { counts[id] = (counts[id] || 0) + 1; });
+    var uniqueIds = Object.keys(counts);
+
+    container.style.display = '';
+    container.innerHTML = '<p style="font-size:0.7rem; color:var(--bs-text-muted); margin-bottom:0.4rem;"><i class="fas fa-flask"></i> Equip a charm (optional):</p>'
+      + '<div class="bs-charm-options">'
+      + uniqueIds.map(function(id) {
+          var def = getCharmDef(id);
+          if (!def) return '';
+          var selected = _equippedCharm === id;
+          return '<button class="bs-charm-option' + (selected ? ' bs-charm-option--selected' : '') + '"'
+            + ' data-charm="' + escHtml(id) + '"'
+            + ' title="' + escHtml(def.description || def.name) + '"'
+            + ' aria-label="' + escHtml(def.name) + ' x' + counts[id] + '">'
+            + '<i class="fas ' + (def.icon || 'fa-flask') + '"></i>'
+            + '<span>' + escHtml(def.name) + '</span>'
+            + '<span class="bs-charm-count">x' + counts[id] + '</span>'
+            + '</button>';
+        }).join('')
+      + '<button class="bs-charm-option' + (!_equippedCharm ? ' bs-charm-option--selected' : '') + '" data-charm="none" aria-label="No charm">'
+      + '<i class="fas fa-ban"></i><span>None</span></button>'
+      + '</div>';
+
+    container.querySelectorAll('.bs-charm-option').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var id = btn.dataset.charm;
+        _equippedCharm = id === 'none' ? null : id;
+        renderCharmSelector();
+      });
+    });
+  }
+
+  function addCharmButtonToBattle() {
+    if (!_equippedCharm) return;
+    var def = getCharmDef(_equippedCharm);
+    if (!def) return;
+    _charmUsedThisBattle = false;
+    var movesEl = document.getElementById('arena-moves');
+    if (!movesEl) return;
+    // Check if charm button already exists
+    if (movesEl.querySelector('[data-move="charm"]')) return;
+    var btn = document.createElement('button');
+    btn.className = 'arena-move-btn arena-move-btn--charm';
+    btn.dataset.move = 'charm';
+    btn.setAttribute('aria-label', def.name + ' — ' + def.description);
+    btn.innerHTML = '<div class="arena-move-btn__glow" aria-hidden="true"></div>'
+      + '<i class="fas ' + (def.icon || 'fa-flask') + '" aria-hidden="true"></i>'
+      + '<span class="arena-move-btn__label">' + escHtml(def.name) + '</span>'
+      + '<span class="arena-move-btn__stat">1 use</span>'
+      + '<span class="arena-move-btn__desc">' + escHtml(def.description || '') + '</span>';
+    movesEl.appendChild(btn);
+
+    btn.addEventListener('click', function() {
+      if (_charmUsedThisBattle) return;
+      _charmUsedThisBattle = true;
+      btn.disabled = true;
+      btn.style.opacity = '0.3';
+      // Apply charm effect client-side (server support comes later in Task 20b)
+      applyCharmEffect(def);
+      removeCharm(_equippedCharm);
+      _equippedCharm = null;
+      showSuccessToast(def.name + ' activated!');
+      playSfx('loot');
+    }, { once: true });
+  }
+
+  function applyCharmEffect(def) {
+    // Client-side charm effects (best-effort until server support)
+    // These show toast feedback but actual combat effects need server-side Task 20b
+    if (!def || !def.effect) return;
+    // For now, just show the toast — the real effect needs server integration
   }
 
   // ============================================================
@@ -1610,7 +1719,9 @@
       const origInit = window.ArenaBattleUI.initBattle;
       window.ArenaBattleUI.initBattle = function (battleData) {
         resetBattleStats();
-        return origInit.call(window.ArenaBattleUI, battleData);
+        var result = origInit.call(window.ArenaBattleUI, battleData);
+        addCharmButtonToBattle();
+        return result;
       };
     }
     // Hook submitMove to track each round's result
