@@ -342,7 +342,7 @@
       if (!_cardFlipped) {
         return `<button class="qb-nav-btn qb-nav-btn--next" id="bs-reveal-btn" style="background:var(--bs-accent);border-color:var(--bs-accent);color:var(--bs-bg,#100C08);font-family:'Cinzel',serif;font-weight:700;font-size:1.1rem;">Reveal</button>`;
       } else {
-        return `<button class="qb-nav-btn qb-nav-btn--save" id="bs-enter-arena" style="background:var(--bs-accent);border-color:var(--bs-accent);font-family:'Cinzel',serif;font-weight:700;">Enter the Arena</button>`;
+        return `<button class="qb-nav-btn qb-nav-btn--save" id="bs-enter-arena" style="background:var(--bs-accent);border-color:var(--bs-accent);font-family:'Cinzel',serif;font-weight:700;">Continue</button>`;
       }
     }
 
@@ -582,7 +582,7 @@
       if (navEl) {
         const backBtn = navEl.querySelector('.qb-nav-btn--back');
         navEl.innerHTML = (backBtn ? backBtn.outerHTML : '<div></div>') +
-          `<button class="qb-nav-btn qb-nav-btn--save" id="bs-enter-arena" style="background:var(--bs-accent);border-color:var(--bs-accent);font-family:'Cinzel',serif;font-weight:700;">Enter the Arena</button>`;
+          `<button class="qb-nav-btn qb-nav-btn--save" id="bs-enter-arena" style="background:var(--bs-accent);border-color:var(--bs-accent);font-family:'Cinzel',serif;font-weight:700;">Continue</button>`;
 
         document.getElementById('bs-enter-arena')?.addEventListener('click', _handleSaveAndEnter);
         document.getElementById('qb-back')?.addEventListener('click', () => { _state.step--; _cardFlipped = false; _render(); });
@@ -706,7 +706,7 @@
 
       if (!savedCardId) {
         console.warn('[BS-QB] Could not find saved card after 5 attempts');
-        if (btn) { btn.disabled = false; btn.innerHTML = 'Enter the Arena'; }
+        if (btn) { btn.disabled = false; btn.innerHTML = 'Continue'; }
         // Show error — don't proceed without a card
         const panel = _overlayEl?.querySelector('.qb-body');
         if (panel) {
@@ -729,7 +729,7 @@
       console.error('[BS-QB] Save error:', err);
       if (btn) {
         btn.disabled = false;
-        btn.innerHTML = 'Enter the Arena';
+        btn.innerHTML = 'Continue';
       }
     }
   }
