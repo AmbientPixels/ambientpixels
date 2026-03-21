@@ -106,6 +106,21 @@
     Rogue: 'fa-user-ninja', Medic: 'fa-heart-pulse', Pilot: 'fa-rocket'
   };
 
+  const CLASS_PATTERNS = {
+    Enforcer: 'Strikes + Guards',
+    Fighter: 'Strikes + Guards',
+    Scout: 'Strikes + Counters',
+    Hacker: 'Abilities + Counters',
+    Berserker: 'All-out Strikes',
+    Scholar: 'Abilities + Heals',
+    Guardian: 'Guards + Heals',
+    Trickster: 'Abilities + Counters',
+    Caster: 'Abilities + Guards',
+    Rogue: 'Strikes + Counters',
+    Medic: 'Heals + Guards',
+    Pilot: 'Abilities + Strikes'
+  };
+
   // ============================================================
   // SOUND EFFECTS (Web Audio API — no files needed)
   // ============================================================
@@ -1819,7 +1834,7 @@
         const flavorEl = document.getElementById('bs-prefight-flavor');
         const titleEl = document.getElementById('bs-prefight-title');
         const avatarEl = document.getElementById('bs-prefight-avatar');
-        if (flavorEl) flavorEl.innerHTML = '"' + escHtml(nextBoss.flavor) + '"' + (nextBoss.weakness ? '<br><span style="color:' + (WEAKNESS_COLORS[nextBoss.weakness] || 'var(--bs-accent)') + ';font-size:0.8rem;margin-top:0.5rem;display:inline-block;"><i class="fas fa-crosshairs"></i> Weak to ' + (WEAKNESS_LABELS[nextBoss.weakness] || nextBoss.weakness) + '</span>' : '') + (nextBoss.bossTip ? '<br><span style="font-size:0.75rem;color:var(--bs-text-muted);font-style:normal;">' + escHtml(nextBoss.bossTip) + '</span>' : '');
+        if (flavorEl) flavorEl.innerHTML = '"' + escHtml(nextBoss.flavor) + '"' + (nextBoss.weakness ? '<br><span style="color:' + (WEAKNESS_COLORS[nextBoss.weakness] || 'var(--bs-accent)') + ';font-size:0.8rem;margin-top:0.5rem;display:inline-block;"><i class="fas fa-crosshairs"></i> Weak to ' + (WEAKNESS_LABELS[nextBoss.weakness] || nextBoss.weakness) + '</span>' : '') + (CLASS_PATTERNS[nextBoss.class] ? '<br><span style="font-size:0.8rem;color:var(--bs-text-muted);display:inline-block;"><i class="fas fa-chess"></i> Tends to: ' + CLASS_PATTERNS[nextBoss.class] + '</span>' : '') + (nextBoss.bossTip ? '<br><span style="font-size:0.75rem;color:var(--bs-text-muted);font-style:normal;">' + escHtml(nextBoss.bossTip) + '</span>' : '');
         if (titleEl) titleEl.textContent = nextBoss.name;
         if (avatarEl) {
           if (nextBoss.avatar) {
@@ -2116,7 +2131,7 @@
         const flavorEl = document.getElementById('bs-prefight-flavor');
         const titleEl = document.getElementById('bs-prefight-title');
         const avatarEl = document.getElementById('bs-prefight-avatar');
-        if (flavorEl) flavorEl.innerHTML = `"${escHtml(boss.flavor)}"` + (boss.weakness ? `<br><span style="color:${WEAKNESS_COLORS[boss.weakness] || 'var(--bs-accent)'};font-size:0.8rem;margin-top:0.5rem;display:inline-block;"><i class="fas fa-crosshairs"></i> Weak to ${WEAKNESS_LABELS[boss.weakness] || boss.weakness}</span>` : '') + (boss.bossTip ? `<br><span style="font-size:0.75rem;color:var(--bs-text-muted);font-style:normal;">${escHtml(boss.bossTip)}</span>` : '');
+        if (flavorEl) flavorEl.innerHTML = `"${escHtml(boss.flavor)}"` + (boss.weakness ? `<br><span style="color:${WEAKNESS_COLORS[boss.weakness] || 'var(--bs-accent)'};font-size:0.8rem;margin-top:0.5rem;display:inline-block;"><i class="fas fa-crosshairs"></i> Weak to ${WEAKNESS_LABELS[boss.weakness] || boss.weakness}</span>` : '') + (CLASS_PATTERNS[boss.class] ? `<br><span style="font-size:0.8rem;color:var(--bs-text-muted);display:inline-block;"><i class="fas fa-chess"></i> Tends to: ${CLASS_PATTERNS[boss.class]}</span>` : '') + (boss.bossTip ? `<br><span style="font-size:0.75rem;color:var(--bs-text-muted);font-style:normal;">${escHtml(boss.bossTip)}</span>` : '');
         if (titleEl) titleEl.textContent = boss.name;
         if (avatarEl) {
           if (boss.avatar) {
@@ -2280,7 +2295,7 @@
     var flavorEl = document.getElementById('bs-prefight-flavor');
     var titleEl = document.getElementById('bs-prefight-title');
     var avatarEl = document.getElementById('bs-prefight-avatar');
-    if (flavorEl) flavorEl.textContent = 'Floor ' + nextFloor + ' — "' + boss.flavor + '"';
+    if (flavorEl) flavorEl.innerHTML = 'Floor ' + nextFloor + ' &mdash; &ldquo;' + escHtml(boss.flavor) + '&rdquo;' + (CLASS_PATTERNS[boss.class] ? '<br><span style="font-size:0.8rem;color:var(--bs-text-muted);display:inline-block;"><i class="fas fa-chess"></i> Tends to: ' + CLASS_PATTERNS[boss.class] + '</span>' : '');
     if (titleEl) titleEl.textContent = boss.name;
     if (avatarEl) {
       if (boss.avatar) {
