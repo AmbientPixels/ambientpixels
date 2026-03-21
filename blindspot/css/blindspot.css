@@ -1329,6 +1329,7 @@
 
 .bs-card-flip-back {
   transform: rotateY(180deg);
+  overflow: hidden;
 }
 
 .bs-card-flip-front {
@@ -1337,6 +1338,16 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+/* Strip CardForge double border from cloned card inside flip reveal */
+.bs-card-flip-back .card-preview-canvas {
+  border: none !important;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.bs-card-flip-back .card-preview-canvas::before {
+  display: none !important;
 }
 
 /* ============================================================
