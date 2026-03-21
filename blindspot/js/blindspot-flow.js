@@ -3171,9 +3171,16 @@
             accountId: 'blindspot-forge'
           })
         });
-        var data = await resp.json();
-        if (data.ok !== false && data.results && data.results.length > 0) {
-          var imgUrl = data.results[0].url || data.results[0].cdnUrl;
+        var text = await resp.text();
+        var data;
+        try { data = JSON.parse(text); } catch(e) { throw new Error('Server returned invalid response (status ' + resp.status + ')'); }
+        // API returns { ok, outputs: { square_image: { imageUrl, thumbUrl } } }
+        var imgUrl = null;
+        if (data.ok && data.outputs) {
+          var firstKey = Object.keys(data.outputs).find(function(k) { return data.outputs[k].status === 'success'; });
+          if (firstKey) imgUrl = data.outputs[firstKey].imageUrl || data.outputs[firstKey].thumbUrl;
+        }
+        if (imgUrl) {
           if (imgUrl) {
             statusEl.innerHTML = '<i class="fas fa-check" style="color:var(--bs-accent);"></i> Portrait generated!';
             resultEl.innerHTML = '<img src="' + escHtml(imgUrl) + '" style="width:120px; height:120px; object-fit:cover; border-radius:8px; border:2px solid var(--bs-accent); margin-top:0.5rem; cursor:pointer;" id="bs-forge-ai-preview">';
