@@ -1,7 +1,3 @@
-# Keep only latest screenshots (for human review)
-# Ignore timestamped history
-*_20*.png
+# Screenshots are local test artifacts — never commit to git
+*.png
 manifest.json
-
-# Always track latest snapshots
-!*_latest.png
