@@ -3891,45 +3891,50 @@
     const el = document.getElementById('bs-topbar-user');
     if (!el) return;
 
-    // Mark as authenticated for CardForge save pipeline (Forge, card updates)
-    if (!isDemo()) {
-      sessionStorage.setItem('isAuthenticated', 'true');
-      document.body.setAttribute('data-auth-state', 'signed-in');
-    }
-
+    // Always check /.auth/me directly — don't rely on _profileData
     fetch('/.auth/me').then(r => r.json()).then(data => {
       if (data && data.clientPrincipal) {
+        // User IS logged in
+        sessionStorage.setItem('isAuthenticated', 'true');
+        document.body.setAttribute('data-auth-state', 'signed-in');
+
         const name = (data.clientPrincipal.userDetails || '').split('@')[0] || 'Player';
-        el.innerHTML = `${escHtml(name)} <a href="/.auth/logout?post_logout_redirect_uri=/blindspot/" style="color:var(--bs-text-muted); margin-left:0.5rem; font-size:0.7rem;"><i class="fas fa-sign-out-alt"></i></a>`;
+        el.innerHTML = `<i class="fas fa-user-check" style="color:var(--bs-accent); font-size:0.6rem;"></i> ${escHtml(name)} <a href="/.auth/logout?post_logout_redirect_uri=/blindspot/" style="color:var(--bs-text-muted); margin-left:0.5rem; font-size:0.65rem;" title="Sign out"><i class="fas fa-sign-out-alt"></i></a>`;
+      } else {
+        // Not logged in — show sign in link
+        el.innerHTML = `<a href="/.auth/login/aad?post_login_redirect_uri=/blindspot/play.html" style="color:var(--bs-accent); font-size:0.7rem;"><i class="fas fa-sign-in-alt"></i> Sign in</a>`;
       }
-    }).catch(() => {});
+    }).catch(() => {
+      // Auth check failed — show sign in link
+      el.innerHTML = `<a href="/.auth/login/aad?post_login_redirect_uri=/blindspot/play.html" style="color:var(--bs-accent); font-size:0.7rem;"><i class="fas fa-sign-in-alt"></i> Sign in</a>`;
+    });
   }
 
   function updateLandingAuthUI() {
     const authArea = document.getElementById('bs-auth-area');
     if (!authArea) return;
 
-    if (!isDemo()) {
-      // Mark as authenticated for CardForge save pipeline
-      sessionStorage.setItem('isAuthenticated', 'true');
-      document.body.setAttribute('data-auth-state', 'signed-in');
+    // Always check /.auth/me directly — don't rely on _profileData which may not have loaded
+    fetch('/.auth/me').then(r => r.json()).then(data => {
+      if (data && data.clientPrincipal) {
+        // User IS logged in
+        sessionStorage.setItem('isAuthenticated', 'true');
+        document.body.setAttribute('data-auth-state', 'signed-in');
 
-      // User is logged in — show name + logout
-      fetch('/.auth/me').then(r => r.json()).then(data => {
-        if (data && data.clientPrincipal) {
-          const name = (data.clientPrincipal.userDetails || '').split('@')[0] || 'Player';
-          authArea.innerHTML = `
-            <span class="bs-landing__user">
-              <i class="fas fa-user"></i> ${escHtml(name)}
-              <a href="/.auth/logout?post_logout_redirect_uri=/blindspot/" class="bs-landing__signin" style="margin-left:0.75rem;">
-                <i class="fas fa-sign-out-alt"></i> Sign out
-              </a>
-            </span>
-          `;
-        }
-      }).catch(() => {});
-    }
-    // If demo, the sign-in link stays as-is
+        const name = (data.clientPrincipal.userDetails || '').split('@')[0] || 'Player';
+        authArea.innerHTML = `
+          <span class="bs-landing__user" style="display:flex; align-items:center; gap:0.5rem; justify-content:center;">
+            <i class="fas fa-user-check" style="color:var(--bs-accent);"></i>
+            <span>${escHtml(name)}</span>
+            <a href="/.auth/logout?post_logout_redirect_uri=/blindspot/" class="bs-landing__signin" style="font-size:0.75rem; opacity:0.7;">
+              <i class="fas fa-sign-out-alt"></i> Sign out
+            </a>
+          </span>
+          <span style="display:block; font-size:0.6rem; color:var(--bs-text-muted); margin-top:0.25rem;">Progress saves automatically</span>
+        `;
+      }
+      // If no clientPrincipal, keep the default "Sign in to save progress" link
+    }).catch(() => {});
   }
 
   // ============================================================
