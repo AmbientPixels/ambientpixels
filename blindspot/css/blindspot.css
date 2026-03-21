@@ -2327,6 +2327,160 @@
 }
 
 /* ============================================================
+   CRATE OPENING CEREMONY
+   ============================================================ */
+
+.bs-crate-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9995;
+  background: rgba(10, 8, 5, 0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.4s ease;
+}
+
+.bs-crate-overlay--visible {
+  background: rgba(10, 8, 5, 0.92);
+}
+
+.bs-crate-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2rem;
+  max-width: 400px;
+  width: 90%;
+}
+
+/* Crate box icon */
+.bs-crate-box {
+  width: 100px;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  border: 2px solid var(--bs-border);
+  border-radius: 16px;
+  background: var(--bs-surface);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.bs-crate-box:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 20px rgba(239, 159, 39, 0.3);
+}
+
+/* Shake animation */
+.bs-crate-box--shaking {
+  animation: bs-crate-shake 0.8s ease-in-out;
+  pointer-events: none;
+}
+
+@keyframes bs-crate-shake {
+  0%, 100% { transform: translateX(0) rotate(0); }
+  10% { transform: translateX(-4px) rotate(-2deg); }
+  20% { transform: translateX(4px) rotate(2deg); }
+  30% { transform: translateX(-6px) rotate(-3deg); }
+  40% { transform: translateX(6px) rotate(3deg); }
+  50% { transform: translateX(-8px) rotate(-4deg); }
+  60% { transform: translateX(8px) rotate(4deg); }
+  70% { transform: translateX(-10px) rotate(-5deg); }
+  80% { transform: translateX(10px) rotate(5deg); }
+  90% { transform: translateX(-6px) rotate(-3deg); }
+}
+
+/* Roulette reel */
+.bs-crate-reel {
+  width: 280px;
+  height: 80px;
+  overflow: hidden;
+  position: relative;
+  border: 1px solid var(--bs-border);
+  border-radius: 10px;
+  background: var(--bs-surface);
+  margin-top: 1rem;
+}
+
+.bs-crate-strip {
+  display: flex;
+  gap: 0;
+  transition: transform 2.5s cubic-bezier(0.12, 0.8, 0.3, 1);
+  will-change: transform;
+}
+
+.bs-crate-tile {
+  flex: 0 0 90px;
+  height: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  border-right: 1px solid var(--bs-border);
+  padding: 0.25rem;
+}
+
+.bs-crate-tile i { font-size: 1.2rem; }
+.bs-crate-tile span { font-size: 0.55rem; color: var(--bs-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80px; }
+
+/* Center pointer arrow */
+.bs-crate-reel-pointer {
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid var(--bs-accent);
+}
+
+/* Reveal card */
+.bs-crate-reveal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  padding: 1.5rem;
+}
+
+.bs-crate-reveal--active {
+  animation: bs-crate-reveal-in 0.5s ease-out;
+}
+
+.bs-crate-reveal__glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  opacity: 0.15;
+  filter: blur(30px);
+}
+
+@keyframes bs-crate-reveal-in {
+  0% { transform: scale(0.3); opacity: 0; }
+  60% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Mobile */
+@media (max-width: 480px) {
+  .bs-crate-box { width: 80px; height: 80px; font-size: 2.5rem; }
+  .bs-crate-reel { width: 260px; height: 70px; }
+  .bs-crate-tile { flex: 0 0 80px; height: 70px; }
+  .bs-crate-stage { padding: 1.5rem 1rem; }
+}
+
+/* ============================================================
    SPARKS SHOP
    ============================================================ */
 
