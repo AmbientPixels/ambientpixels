@@ -207,6 +207,22 @@
     }, 1000);
   }
 
+  // Flush sync immediately (use before page navigation to avoid losing data)
+  function flushSyncBeforeNavigate() {
+    if (localStorage.getItem('bs-guest-mode') === 'true') return;
+    _cacheProgressToLocalStorage();
+    if (_syncTimer) clearTimeout(_syncTimer);
+    var url = window.buildApiPath ? window.buildApiPath('blindspotProfile') : 'https://ambientpixels-nova-api.azurewebsites.net/api/blindspotprofile';
+    var body = JSON.stringify({ action: 'sync', profile: _progress });
+    // sendBeacon survives page unload
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon(url, new Blob([body], { type: 'application/json' }));
+    } else {
+      // Fallback: fire-and-forget fetch
+      BlindspotAPI.syncProfile(_progress).catch(function() {});
+    }
+  }
+
   // ============================================================
   // CONFIG & STATE
   // ============================================================
@@ -1529,6 +1545,7 @@
           _selectedCard.combatStats[item.stat] = Math.min(100, (_selectedCard.combatStats[item.stat] || 0) + (item.amount || 3));
         }
       }
+      updateCardInDeck(_selectedCard);
     } else if (item.id.startsWith('forge_token')) {
       setForgeWins(getForgeWins() + (item.amount || 1));
     } else if (item.id === 'respec_scroll') {
@@ -1546,6 +1563,8 @@
   }
 
   function openCrateOverlay(crateIndex) {
+    // Prevent duplicate overlays from rapid clicks
+    if (document.querySelector('.bs-crate-overlay')) return;
     var crates = getCrates();
     if (crateIndex < 0 || crateIndex >= crates.length) return;
     var crate = crates[crateIndex];
@@ -1767,6 +1786,8 @@
       if (!card.design && cd.design) card.design = cd.design;
       if (!card.renderedFront && cd.renderedFront) card.renderedFront = cd.renderedFront;
       if (!card.frontClasses && cd.frontClasses) card.frontClasses = cd.frontClasses;
+      if (!card.badges && cd.badges) card.badges = cd.badges;
+      if (!card.attributes && cd.attributes) card.attributes = cd.attributes;
     }
 
     if (card.combatStats) return;
@@ -2664,6 +2685,9 @@
     // Update auth UI on landing page
     updateLandingAuthUI();
 
+    // Bind combat guide close (overlay is on index.html for first-fight tutorial)
+    document.getElementById('bs-combat-guide-close')?.addEventListener('click', () => { hideOverlay('bs-combat-guide'); });
+
     // Social proof counters — seed + player's own stats
     var proofBattles = document.getElementById('bs-proof-battles');
     var proofCards = document.getElementById('bs-proof-cards');
@@ -2852,7 +2876,7 @@
           cards.forEach(function(c) { addCardToDeck(c); });
           // Select the new card
           _progress.selectedCardId = cardId;
-          syncProgressToServer();
+          flushSyncBeforeNavigate();
           window.location.href = '/blindspot/play.html';
         }).catch(function() {
           window.location.href = '/blindspot/play.html';
@@ -3055,6 +3079,15 @@
     const profile = await profilePromise;
 
     var isGuestMode = localStorage.getItem('bs-guest-mode') === 'true';
+
+    // If guest signed in, clear guest flag and sync their cached progress to server
+    if (isGuestMode && profile && !profile.isDemo) {
+      localStorage.removeItem('bs-guest-mode');
+      isGuestMode = false;
+      // Merge cached guest progress into server profile
+      _loadProgressFromCache();
+      syncProgressToServer();
+    }
 
     if (!profile && !isGuestMode) {
       dismissLoadingGate();
@@ -4127,6 +4160,7 @@
   }
 
   function startTowerBattle() {
+    if (!_selectedCard) { showErrorToast('Select a card first.'); return; }
     var currentFloor = getTowerFloor();
     var nextFloor = currentFloor > 0 ? currentFloor + 1 : 1;
     var boss = getTowerBossForFloor(nextFloor);
@@ -4813,7 +4847,7 @@
   }
 
   async function startPvPBattle(opponentId) {
-    if (!_selectedCard) return;
+    if (!_selectedCard) { showErrorToast('Select a card first.'); return; }
     _currentBossId = null;
     _battleType = 'pvp';
     _pvpOpponentId = opponentId;

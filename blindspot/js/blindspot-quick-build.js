@@ -598,7 +598,7 @@
   }
 
   function _populatePreview() {
-    setTimeout(() => {
+    return new Promise(resolve => { setTimeout(() => {
       try {
         // Apply preset design
         if (_state.vibe && window.CardForge?.applyPresetDesignOnly) {
@@ -670,7 +670,8 @@
       } catch (err) {
         console.error('[BS-QB] Preview error:', err);
       }
-    }, 50);
+      resolve();
+    }, 50); });
   }
 
   // ===== SAVE & ENTER ARENA =====
@@ -683,9 +684,10 @@
     }
 
     try {
-      // Re-trigger preview to ensure all fields are set
-      _populatePreview();
-      await new Promise(r => setTimeout(r, 300));
+      // Re-trigger preview to ensure all fields are set (returns promise)
+      await _populatePreview();
+      // Extra frame for DOM to settle after preview render
+      await new Promise(r => requestAnimationFrame(r));
 
       // Save via existing pipeline (note: handleSaveCard's fetch is fire-and-forget)
       let savedCardId = null;
