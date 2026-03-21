@@ -1799,8 +1799,8 @@
     try {
       const data = await window.ArenaAPI.loadCards();
       var cards = data.userCards || [];
-      // Cache deck to localStorage for quick access
-      if (cards.length > 0) setDeck(cards);
+      // Cache deck to localStorage — non-critical, don't let it break card loading
+      try { if (cards.length > 0) setDeck(cards); } catch {}
       return cards;
     } catch (e) {
       console.warn('[Blindspot] Could not load cards:', e);
@@ -1823,7 +1823,17 @@
   }
 
   function setDeck(cards) {
-    localStorage.setItem('bs-deck', JSON.stringify(cards));
+    try {
+      localStorage.setItem('bs-deck', JSON.stringify(cards));
+    } catch (e) {
+      // Quota exceeded — clear non-essential caches and retry once
+      try {
+        localStorage.removeItem('bs-deck');
+        localStorage.removeItem('bs-session-stats');
+        localStorage.removeItem('cardforge_saved_cards');
+        localStorage.setItem('bs-deck', JSON.stringify(cards));
+      } catch {}
+    }
   }
 
   function getDeckSize() { return getDeck().length; }
@@ -2913,13 +2923,13 @@
       const highestB = getHighestBossDefeated();
 
       let streakHtml = '';
-      if (streak >= 5) streakHtml = `<span style="color:#ff3333;"><i class="fas fa-fire-flame-curved"></i> ${streak} STREAK</span>`;
-      else if (streak >= 3) streakHtml = `<span style="color:var(--bs-accent-glow);"><i class="fas fa-fire"></i> ${streak} streak</span>`;
-      else if (streak > 0) streakHtml = `<span><i class="fas fa-fire"></i> ${streak} streak</span>`;
+      if (streak >= 5) streakHtml = `<span class="bs-hud-streak--hot"><i class="fas fa-fire-flame-curved"></i> ${streak}</span>`;
+      else if (streak >= 3) streakHtml = `<span class="bs-hud-streak--warm"><i class="fas fa-fire"></i> ${streak}</span>`;
+      else if (streak > 0) streakHtml = `<span><i class="fas fa-fire"></i> ${streak}</span>`;
 
       const ascension = getAscension();
       const ascHtml = ascension > 0 ? `<span class="bs-ascension-badge"><i class="fas fa-star"></i> Ascension ${ascension}</span>` : '';
-      const powerHtml = power > 0 ? `<span data-tooltip="Sum of all combat stats"><i class="fas fa-bolt" style="color:var(--bs-accent);"></i> ${power} Power</span>` : '';
+      const powerHtml = power > 0 ? `<span class="bs-hud-power" data-tooltip="Total combat power"><i class="fas fa-bolt"></i> ${power}</span>` : '';
 
       // PvP Elo in lobby (only show if PvP unlocked)
       let pvpHtml = '';
@@ -2944,15 +2954,20 @@
       }
 
       const sparksCount = getSparks();
-      const sparksHtml = sparksCount > 0 ? `<span style="color:var(--bs-accent);" data-tooltip="Spend in the Forge"><i class="fas fa-fire"></i> ${sparksCount} Sparks</span>` : '';
+      const sparksHtml = sparksCount > 0 ? `<span data-tooltip="Spend in the Forge"><i class="fas fa-fire" style="color:var(--bs-accent);"></i> ${sparksCount}</span>` : '';
+
+      // Compact HUD: primary line (power · sparks · streak) + secondary line (boss · pvp · tower)
+      const primaryParts = [powerHtml, sparksHtml, streakHtml].filter(Boolean);
+      const secondaryParts = [
+        `<span><i class="fas fa-mountain"></i> Boss ${highestB}/10</span>`,
+        pvpHtml,
+        towerHtml,
+        ascHtml
+      ].filter(Boolean);
 
       statsEl.innerHTML = `
-        ${powerHtml}
-        <span><i class="fas fa-mountain"></i> Boss ${highestB}/10</span>
-        ${sparksHtml}
-        ${pvpHtml}
-        ${towerHtml}
-        ${streakHtml}
+        <div class="bs-hud-line bs-hud-line--primary">${primaryParts.join('<span class="bs-hud-sep" aria-hidden="true">·</span>')}</div>
+        ${secondaryParts.length ? '<div class="bs-hud-line bs-hud-line--secondary">' + secondaryParts.join('<span class="bs-hud-sep" aria-hidden="true">·</span>') + '</div>' : ''}
       `;
     }
 
@@ -3037,8 +3052,15 @@
           + '<span style="color:var(--bs-text-muted);">+' + rarity.statBonus + ' all stats</span>'
           + '</div>';
       }
-      if (activePassives.length > 0 || rarityPassiveTags) {
-        passivesEl.innerHTML = '<div class="bs-passives-header" style="font-size:0.7rem; color:var(--bs-text-muted); margin-bottom:0.3rem;"><i class="fas fa-star"></i> Active Passives</div>'
+      const totalPassiveCount = activePassives.length + (rarity.critBonus > 0 ? 1 : 0) + (rarity.statBonus > 0 ? 1 : 0);
+      if (totalPassiveCount > 0) {
+        const isExpanded = passivesEl.dataset.expanded === 'true';
+        const chevron = isExpanded ? 'fa-chevron-up' : 'fa-chevron-down';
+        const listDisplay = isExpanded ? '' : 'display:none;';
+        passivesEl.innerHTML = '<button class="bs-passives-toggle" aria-expanded="' + isExpanded + '" aria-controls="bs-passives-list" aria-label="Toggle passives list">'
+            + '<i class="fas fa-star"></i> ' + totalPassiveCount + ' passive' + (totalPassiveCount !== 1 ? 's' : '') + ' <i class="fas ' + chevron + ' bs-passives-chevron"></i>'
+            + '</button>'
+          + '<div class="bs-passives-list" id="bs-passives-list" style="' + listDisplay + '">'
           + rarityPassiveTags
           + activePassives.map(function(p) {
             return '<div class="bs-passive-tag" style="display:inline-flex; align-items:center; gap:0.25rem; padding:0.15rem 0.5rem; margin:0.15rem; border-radius:12px; font-size:0.65rem; border:1px solid ' + (WEAKNESS_COLORS[p.stat] || 'var(--bs-border)') + '44; background:' + (WEAKNESS_COLORS[p.stat] || 'var(--bs-border)') + '11;">'
@@ -3047,8 +3069,24 @@
               + '<span style="color:var(--bs-text-muted);">' + p.desc + '</span>'
               + '</div>';
           }).join('')
-          ;
+          + '</div>';
         passivesEl.style.display = '';
+        // Bind toggle (delegated, safe on re-render)
+        var toggleBtn = passivesEl.querySelector('.bs-passives-toggle');
+        if (toggleBtn) {
+          toggleBtn.onclick = function() {
+            var list = document.getElementById('bs-passives-list');
+            var expanded = passivesEl.dataset.expanded === 'true';
+            passivesEl.dataset.expanded = expanded ? 'false' : 'true';
+            if (list) list.style.display = expanded ? 'none' : '';
+            toggleBtn.setAttribute('aria-expanded', !expanded);
+            var chevronEl = toggleBtn.querySelector('.bs-passives-chevron');
+            if (chevronEl) {
+              chevronEl.classList.toggle('fa-chevron-down', expanded);
+              chevronEl.classList.toggle('fa-chevron-up', !expanded);
+            }
+          };
+        }
       } else {
         passivesEl.style.display = 'none';
       }
