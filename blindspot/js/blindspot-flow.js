@@ -764,6 +764,29 @@
     if (!list.includes(key)) { list.push(key); localStorage.setItem('bs-purchased-cosmetics', JSON.stringify(list)); }
   }
 
+  // ── Phase 8: Retention ──
+
+  // Task 30: Daily spark bonus
+  function checkDailyBonus() {
+    var today = new Date().toISOString().slice(0, 10);
+    var last = localStorage.getItem('bs-last-daily') || '';
+    if (last === today) return false;
+    localStorage.setItem('bs-last-daily', today);
+    addSparks(10);
+    showSuccessToast('Daily bonus: +10 Sparks!');
+    return true;
+  }
+
+  // Task 31: Card level from XP
+  function getCardLevel(xp) {
+    return Math.min(50, Math.floor(Math.sqrt((xp || 0) / 50)) + 1);
+  }
+
+  // Task 33: Forfeit grace period
+  function isEarlyForfeit() {
+    return _battleRoundStats && _battleRoundStats.rounds <= 2;
+  }
+
   // ============================================================
   // BATTLE CHARMS
   // ============================================================
@@ -855,7 +878,7 @@
       if (_charmUsedThisBattle) return;
       _charmUsedThisBattle = true;
       btn.disabled = true;
-      btn.style.opacity = '0.3'; // fallback; CSS :disabled also removes pulse
+      btn.classList.add('arena-move-btn--used');
       applyCharmEffect(def);
       removeCharm(_equippedCharm);
       _equippedCharm = null;
@@ -2557,7 +2580,7 @@
           ${hasAvatar ? `<img src="${escHtml(_selectedCard.avatar)}" alt="${escHtml(_selectedCard.name || 'Card')}" class="bs-card-mini__img">` : `<div class="bs-card-mini__icon"><i class="fas fa-user"></i></div>`}
           <div class="bs-card-mini__info">
             <span class="bs-card-mini__name">${escHtml(_selectedCard.name || 'Your Card')}</span>
-            <span class="bs-card-mini__class">${escHtml(_selectedCard.class || _selectedCard.characterClass || '')}</span>
+            <span class="bs-card-mini__class">${escHtml(_selectedCard.class || _selectedCard.characterClass || '')} <span style="color:var(--bs-text-muted); font-size:0.65rem;">Lv. ${getCardLevel(_profile ? _profile.xp : 0)}</span></span>
             ${rarity.id !== 'common' ? renderRarityBadge() : ''}
           </div>
         </div>
@@ -3634,6 +3657,8 @@
   async function handlePlayPageResult(battleResult, battleData) {
     const isWin = battleResult.winner === 'player';
     playSfx(isWin ? 'battleWin' : 'battleLoss');
+    // Daily spark bonus (first fight of the day)
+    checkDailyBonus();
 
     // Track boss record
     if (_battleType === 'pve' && _currentBossId) {
