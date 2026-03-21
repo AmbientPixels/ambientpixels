@@ -4350,7 +4350,7 @@
       }).join('');
 
       container.querySelectorAll('[data-fight-pvp]').forEach(btn => {
-        btn.addEventListener('click', () => startPvPBattle(btn.dataset.fightPvp));
+        btn.addEventListener('click', () => showPvPComparison(btn.dataset.fightPvp));
       });
     } catch (err) {
       container.innerHTML = '<p style="text-align:center; color:var(--bs-danger);">Failed to load gallery.</p>';
@@ -4391,6 +4391,89 @@
       toast.classList.remove('bs-elo-toast--visible');
       setTimeout(function() { toast.remove(); }, 400);
     }, 3000);
+  }
+
+  function showPvPComparison(opponentId) {
+    if (!_selectedCard) return;
+    var opponent = _pvpGallery.find(function(c) { return c.id === opponentId; });
+    if (!opponent) { startPvPBattle(opponentId); return; }
+
+    ensureCombatStats(_selectedCard);
+    ensureCombatStats(opponent);
+
+    var oppElo = estimateOpponentElo(opponent);
+    var oppRank = getPvPRank(oppElo);
+    var oppName = opponent.name || 'Challenger';
+    var oppClass = opponent.class || '';
+
+    // Populate prefight overlay for PvP
+    var titleEl = document.getElementById('bs-prefight-title');
+    var flavorEl = document.getElementById('bs-prefight-flavor');
+    var avatarEl = document.getElementById('bs-prefight-avatar');
+    if (titleEl) titleEl.textContent = oppName;
+    if (flavorEl) flavorEl.innerHTML = (oppClass ? '<span style="font-size:0.85rem;color:var(--bs-text-muted);">' + escHtml(oppClass) + '</span><br>' : '') +
+      '<span style="font-size:0.8rem;color:' + oppRank.color + ';"><i class="fas ' + oppRank.icon + '"></i> ' + oppRank.name + ' &middot; ' + oppElo + ' Elo</span>';
+    if (avatarEl) {
+      if (opponent.avatar) {
+        avatarEl.innerHTML = '<img src="' + escHtml(opponent.avatar) + '" alt="' + escHtml(oppName) + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+        avatarEl.style.width = '96px';
+        avatarEl.style.height = '96px';
+      } else {
+        avatarEl.innerHTML = '<i class="fas fa-user"></i>';
+        avatarEl.style.width = '64px';
+        avatarEl.style.height = '64px';
+      }
+    }
+
+    // Stat comparison
+    var compEl = document.getElementById('bs-prefight-comparison');
+    if (compEl) {
+      var ps = _selectedCard.combatStats || {};
+      var os = opponent.combatStats || {};
+      var labels = [
+        { key: 'str', label: 'STR', icon: 'fa-fist-raised' },
+        { key: 'agi', label: 'AGI', icon: 'fa-wind' },
+        { key: 'int', label: 'INT', icon: 'fa-brain' },
+        { key: 'end', label: 'END', icon: 'fa-shield-alt' },
+        { key: 'lck', label: 'LCK', icon: 'fa-dice' }
+      ];
+      compEl.innerHTML =
+        '<div class="bs-prefight-comparison__header">' +
+          '<span class="bs-prefight-comparison__you">You</span>' +
+          '<span class="bs-prefight-comparison__vs">VS</span>' +
+          '<span class="bs-prefight-comparison__boss">' + escHtml(oppName) + '</span>' +
+        '</div>' +
+        labels.map(function(s) {
+          var pv = ps[s.key] || 0;
+          var ov = os[s.key] || 0;
+          var diff = pv - ov;
+          var diffClass = diff > 0 ? 'bs-stat-advantage' : diff < 0 ? 'bs-stat-disadvantage' : 'bs-stat-even';
+          return '<div class="bs-prefight-stat-row">' +
+            '<span class="bs-prefight-stat-row__pval">' + pv + '</span>' +
+            '<div class="bs-prefight-stat-row__bar">' +
+              '<div class="bs-prefight-stat-row__fill bs-prefight-stat-row__fill--player" style="width:' + pv + '%"></div>' +
+            '</div>' +
+            '<span class="bs-prefight-stat-row__label"><i class="fas ' + s.icon + '"></i> ' + s.label + '</span>' +
+            '<div class="bs-prefight-stat-row__bar">' +
+              '<div class="bs-prefight-stat-row__fill bs-prefight-stat-row__fill--boss" style="width:' + ov + '%"></div>' +
+            '</div>' +
+            '<span class="bs-prefight-stat-row__bval ' + diffClass + '">' + ov + '</span>' +
+          '</div>';
+        }).join('');
+    }
+
+    // Render charm selector for PvP too
+    showOverlay('bs-prefight-overlay');
+    renderCharmSelector();
+
+    // Wire fight button to PvP battle (clone to remove old handlers)
+    var oldBtn = document.getElementById('bs-prefight-go');
+    var freshBtn = oldBtn.cloneNode(true);
+    oldBtn.parentNode.replaceChild(freshBtn, oldBtn);
+    freshBtn.addEventListener('click', function() {
+      hideOverlay('bs-prefight-overlay');
+      startPvPBattle(opponentId);
+    }, { once: true });
   }
 
   async function startPvPBattle(opponentId) {
