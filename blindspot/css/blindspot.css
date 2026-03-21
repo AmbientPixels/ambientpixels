@@ -1825,7 +1825,7 @@
   .bs-page .arena-combatant__card { width: 160px; height: 160px; }
   .bs-page .arena-combatant__name { font-size: 1rem; }
   .bs-page .arena-player-buffs { max-width: 260px; overflow: hidden; max-height: 1.4rem; }
-  .bs-page .arena-battle__log { max-height: 80px; }
+  .bs-page .arena-battle__log { height: 80px; max-height: 80px; }
   .bs-page .arena-battle__moves { gap: 0.75rem; }
   .bs-page .arena-move-btn { padding: 0.85rem 0.5rem 0.7rem; }
 }
