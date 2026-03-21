@@ -18,14 +18,14 @@
   // ============================================================
 
   function safeLSSet(key, value) {
-    try { safeLSSet(key, value); }
+    try { localStorage.setItem(key, value); }
     catch (e) {
       // Quota exceeded — clear non-essential caches and retry
       try {
         localStorage.removeItem('bs-session-stats');
         localStorage.removeItem('cardforge_saved_cards');
         localStorage.removeItem('bs-deck');
-        safeLSSet(key, value);
+        localStorage.setItem(key, value);
       } catch {}
     }
   }
