@@ -2134,20 +2134,6 @@
   color: var(--bs-accent);
 }
 
-.bs-page .qb-step-dot.active {
-  background: var(--bs-accent);
-  border-color: var(--bs-accent);
-}
-
-.bs-page .qb-step-dot.completed {
-  background: var(--bs-accent-dim);
-  border-color: var(--bs-accent-dim);
-}
-
-.bs-page .qb-step-line.completed {
-  background: var(--bs-accent-dim);
-}
-
 .bs-page .qb-nav-btn--next {
   background: var(--bs-accent);
   border-color: var(--bs-accent);
@@ -2165,7 +2151,30 @@
    ============================================================ */
 
 /* Step dots — inactive state */
-.bs-page .qb-step-dot { background: var(--bs-surface); border-color: var(--bs-border); color: var(--bs-text-muted); }
+.bs-page .qb-step-dot {
+  background: var(--bs-surface);
+  border-color: var(--bs-border);
+  color: var(--bs-text-muted);
+  box-shadow: none;
+}
+/* Step dots — active (current step) */
+.bs-page .qb-step-dot.active {
+  color: #fff;
+  background: var(--bs-accent) !important;
+  border-color: var(--bs-accent) !important;
+  box-shadow: 0 0 14px rgba(239, 159, 39, 0.5);
+}
+/* Step dots — completed */
+.bs-page .qb-step-dot.completed {
+  color: #fff;
+  background: var(--bs-accent-dim) !important;
+  border-color: var(--bs-accent-dim) !important;
+  box-shadow: 0 0 8px rgba(239, 159, 39, 0.2);
+}
+/* Step lines — completed */
+.bs-page .qb-step-line.completed {
+  background: var(--bs-accent-dim) !important;
+}
 
 /* Nav buttons — warm theme */
 .bs-page .qb-nav-btn--back { color: var(--bs-text-muted); border-color: var(--bs-border); font-family: 'Share Tech Mono', monospace; }

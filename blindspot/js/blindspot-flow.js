@@ -3029,12 +3029,7 @@
         }, 400);
       });
 
-      // Auto-redirect after 8 seconds if user doesn't click
-      setTimeout(() => {
-        if (document.body.contains(overlay)) {
-          window.location.href = '/blindspot/play.html';
-        }
-      }, 8000);
+      // No auto-redirect — player controls when they enter the arena
     };
 
     tryRender();
