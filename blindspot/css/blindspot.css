@@ -3060,6 +3060,25 @@ body.bs-battle-active .bs-bottom-nav {
   margin-left: 0.3rem;
 }
 
+/* Buyable cosmetic option — has a spark price */
+.bs-forge-option--buyable {
+  border: 1px dashed var(--bs-accent) !important;
+  color: var(--bs-accent) !important;
+  cursor: pointer;
+  opacity: 0.85;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.bs-forge-option--buyable:hover {
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+@keyframes bs-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
 .bs-forge-option--selected[data-container]::after {
   content: '\2713';
   margin-left: 0.3rem;

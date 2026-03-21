@@ -421,6 +421,24 @@
     return c;
   }
 
+  // Sparks — universal currency earned from all activities, spent on cosmetics
+  function getSparks() { return parseInt(localStorage.getItem('bs-sparks') || '0', 10); }
+  function addSparks(n) { localStorage.setItem('bs-sparks', String(getSparks() + Math.max(0, n))); }
+  function spendSparks(n) {
+    var current = getSparks();
+    if (n > current) return false;
+    localStorage.setItem('bs-sparks', String(current - n));
+    return true;
+  }
+  function getPurchasedCosmetics() {
+    try { return JSON.parse(localStorage.getItem('bs-purchased-cosmetics') || '[]'); }
+    catch(e) { return []; }
+  }
+  function addPurchasedCosmetic(key) {
+    var list = getPurchasedCosmetics();
+    if (!list.includes(key)) { list.push(key); localStorage.setItem('bs-purchased-cosmetics', JSON.stringify(list)); }
+  }
+
   function escHtml(s) {
     const d = document.createElement('div');
     d.textContent = s || '';
@@ -1407,9 +1425,13 @@
         }
       }
 
+      const sparksCount = getSparks();
+      const sparksHtml = sparksCount > 0 ? `<span style="color:var(--bs-accent);" data-tooltip="Spend in the Forge"><i class="fas fa-fire"></i> ${sparksCount} Sparks</span>` : '';
+
       statsEl.innerHTML = `
         ${powerHtml}
         <span><i class="fas fa-mountain"></i> Boss ${highestB}/10</span>
+        ${sparksHtml}
         ${pvpHtml}
         ${towerHtml}
         ${streakHtml}
@@ -2219,6 +2241,21 @@
       }
     }
 
+    // Spark rewards — earn currency from all activities
+    if (isWin) {
+      var sparkReward = 10; // Base win reward
+      if (_battleType === 'pve' && _currentBossId) {
+        var fightBoss = _bosses.find(function(b) { return b.id === _currentBossId; });
+        var isFirstKill = fightBoss && fightBoss.boss === getHighestBossDefeated();
+        if (isFirstKill) sparkReward = 25; // First kill bonus
+        if (fightBoss && fightBoss.boss >= 8) sparkReward += 10; // Late-game bonus
+      }
+      if (_battleType === 'pvp') sparkReward = 15; // PvP wins are worth more
+      addSparks(sparkReward);
+    } else {
+      addSparks(3); // Small consolation for losing
+    }
+
     // PvP wins grant forge progress
     if (_battleType === 'pvp' && isWin) {
       setForgeWins(getForgeWins() + 0.5);
@@ -2681,23 +2718,24 @@
     const respecCost = _config ? _config.forgeVisit.winsRequired : 3;
     let _respecActive = false;
 
-    // Visual options for Look tab
+    // Visual options for Look tab — can be unlocked via boss defeats OR purchased with Sparks
     const PALETTES = [
-      { id: 'earth', label: 'Earth', key: 'palette_earth', unlock: 'Default' },
-      { id: 'ocean', label: 'Ocean', key: 'palette_ocean', unlock: 'Beat Boss 2' },
-      { id: 'neon', label: 'Neon', key: 'palette_neon', unlock: 'Beat Boss 4' },
-      { id: 'fire', label: 'Fire', key: 'palette_fire', unlock: 'Beat Boss 8' },
-      { id: 'monochrome', label: 'Mono', key: 'palette_earth', unlock: 'Default' },
-      { id: 'sunset', label: 'Sunset', key: 'palette_earth', unlock: 'Default' },
-      { id: 'inferno', label: 'Inferno', key: 'palette_inferno', unlock: 'Ascension 1' },
-      { id: 'frost', label: 'Frost', key: 'palette_frost', unlock: 'Ascension 2' }
+      { id: 'earth', label: 'Earth', key: 'palette_earth', unlock: 'Default', cost: 0 },
+      { id: 'ocean', label: 'Ocean', key: 'palette_ocean', unlock: 'Beat Boss 2', cost: 30 },
+      { id: 'neon', label: 'Neon', key: 'palette_neon', unlock: 'Beat Boss 4', cost: 50 },
+      { id: 'fire', label: 'Fire', key: 'palette_fire', unlock: 'Beat Boss 8', cost: 75 },
+      { id: 'monochrome', label: 'Mono', key: 'palette_earth', unlock: 'Default', cost: 0 },
+      { id: 'sunset', label: 'Sunset', key: 'palette_earth', unlock: 'Default', cost: 0 },
+      { id: 'inferno', label: 'Inferno', key: 'palette_inferno', unlock: 'Ascension 1', cost: 100 },
+      { id: 'frost', label: 'Frost', key: 'palette_frost', unlock: 'Ascension 2', cost: 100 }
     ];
     const CONTAINERS = [
-      { id: 'masked', label: 'Portrait', icon: 'fa-circle-user', key: 'container_masked' },
-      { id: 'fullbleed', label: 'Full Art', icon: 'fa-image', key: 'container_fullbleed' },
-      { id: 'framed', label: 'Framed', icon: 'fa-square', key: 'container_masked' }
+      { id: 'masked', label: 'Portrait', icon: 'fa-circle-user', key: 'container_masked', cost: 0 },
+      { id: 'fullbleed', label: 'Full Art', icon: 'fa-image', key: 'container_fullbleed', cost: 40 },
+      { id: 'framed', label: 'Framed', icon: 'fa-square', key: 'container_masked', cost: 0 }
     ];
     const uv = getUnlockedVisuals();
+    const purchased = getPurchasedCosmetics();
 
     const panel = document.getElementById('bs-forge-panel');
     const cardPower = getCardPower(_selectedCard);
@@ -2747,17 +2785,28 @@
         `).join('')}
       </div>
       <div class="bs-forge-tab-content" id="bs-forge-tab-look" style="display:none;">
-        <p style="font-size:0.8rem; color:var(--bs-text-muted); margin-bottom:0.75rem;">Unlock new looks by defeating bosses.</p>
+        <p style="font-size:0.8rem; color:var(--bs-text-muted); margin-bottom:0.5rem;">Unlock looks with boss defeats or Sparks.</p>
+        <p style="font-size:0.75rem; color:var(--bs-accent); margin-bottom:0.75rem;"><i class="fas fa-fire"></i> <span id="bs-forge-sparks">${getSparks()}</span> Sparks</p>
         <div style="margin-bottom:1rem;">
           <label style="font-size:0.75rem; color:var(--bs-text-muted); display:block; margin-bottom:0.4rem;">Card Palette</label>
           <div class="bs-forge-options">
-            ${PALETTES.map(p => `<button class="bs-forge-option ${uv.includes(p.key) ? '' : 'bs-forge-option--locked'}" data-palette="${p.id}" ${uv.includes(p.key) ? '' : 'disabled'} title="${uv.includes(p.key) ? p.label : p.unlock}">${uv.includes(p.key) ? p.label : '<i class="fas fa-lock"></i> ' + p.unlock}</button>`).join('')}
+            ${PALETTES.map(p => {
+              var owned = uv.includes(p.key) || purchased.includes(p.key);
+              if (owned) return '<button class="bs-forge-option" data-palette="' + p.id + '" title="' + p.label + '">' + p.label + '</button>';
+              if (p.cost > 0) return '<button class="bs-forge-option bs-forge-option--buyable" data-buy-palette="' + p.id + '" data-buy-key="' + p.key + '" data-buy-cost="' + p.cost + '" title="' + p.cost + ' Sparks"><i class="fas fa-fire" style="color:var(--bs-accent);font-size:0.6rem;"></i> ' + p.cost + ' — ' + p.label + '</button>';
+              return '<button class="bs-forge-option bs-forge-option--locked" disabled title="' + p.unlock + '"><i class="fas fa-lock"></i> ' + p.unlock + '</button>';
+            }).join('')}
           </div>
         </div>
         <div>
           <label style="font-size:0.75rem; color:var(--bs-text-muted); display:block; margin-bottom:0.4rem;">Image Layout</label>
           <div class="bs-forge-options">
-            ${CONTAINERS.map(c => `<button class="bs-forge-option ${uv.includes(c.key) ? '' : 'bs-forge-option--locked'}" data-container="${c.id}" ${uv.includes(c.key) ? '' : 'disabled'}><i class="fas ${c.icon}"></i> ${uv.includes(c.key) ? c.label : '<i class="fas fa-lock"></i>'}</button>`).join('')}
+            ${CONTAINERS.map(c => {
+              var owned = uv.includes(c.key) || purchased.includes(c.key);
+              if (owned) return '<button class="bs-forge-option" data-container="' + c.id + '"><i class="fas ' + c.icon + '"></i> ' + c.label + '</button>';
+              if (c.cost > 0) return '<button class="bs-forge-option bs-forge-option--buyable" data-buy-container="' + c.id + '" data-buy-key="' + c.key + '" data-buy-cost="' + c.cost + '"><i class="fas fa-fire" style="color:var(--bs-accent);font-size:0.6rem;"></i> ' + c.cost + ' — <i class="fas ' + c.icon + '"></i> ' + c.label + '</button>';
+              return '<button class="bs-forge-option bs-forge-option--locked" disabled><i class="fas fa-lock"></i></button>';
+            }).join('')}
           </div>
         </div>
       </div>
@@ -2919,6 +2968,68 @@
         if (previewCard) previewCard.setAttribute('data-container', btn.dataset.container);
         _hasVisualChange = true;
         updateBudget();
+        flashPreview();
+      });
+    });
+
+    // Buy buttons — spend Sparks to unlock palettes/containers
+    panel.querySelectorAll('[data-buy-palette], [data-buy-container]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        var cost = parseInt(btn.dataset.buyCost, 10);
+        var key = btn.dataset.buyKey;
+        var paletteId = btn.dataset.buyPalette;
+        var containerId = btn.dataset.buyContainer;
+        if (getSparks() < cost) {
+          btn.style.animation = 'bs-shake 0.3s ease';
+          setTimeout(() => { btn.style.animation = ''; }, 300);
+          return;
+        }
+        if (!confirm('Spend ' + cost + ' Sparks on this?')) return;
+        spendSparks(cost);
+        addPurchasedCosmetic(key);
+        // Update sparks display
+        var sparksEl = document.getElementById('bs-forge-sparks');
+        if (sparksEl) sparksEl.textContent = getSparks();
+        // Replace buy button with selectable button
+        if (paletteId) {
+          btn.className = 'bs-forge-option';
+          btn.innerHTML = PALETTES.find(p => p.id === paletteId)?.label || paletteId;
+          btn.removeAttribute('data-buy-palette');
+          btn.removeAttribute('data-buy-key');
+          btn.removeAttribute('data-buy-cost');
+          btn.setAttribute('data-palette', paletteId);
+          btn.disabled = false;
+          // Add click handler for newly purchased palette
+          btn.addEventListener('click', () => {
+            panel.querySelectorAll('.bs-forge-option[data-palette]').forEach(b => b.classList.remove('bs-forge-option--selected'));
+            btn.classList.add('bs-forge-option--selected');
+            var previewCard = panel.querySelector('.bs-forge-card');
+            if (previewCard) previewCard.setAttribute('data-palette', paletteId);
+            _hasVisualChange = true;
+            updateBudget();
+            flashPreview();
+          });
+        }
+        if (containerId) {
+          var cDef = CONTAINERS.find(c => c.id === containerId);
+          btn.className = 'bs-forge-option';
+          btn.innerHTML = '<i class="fas ' + (cDef?.icon || 'fa-square') + '"></i> ' + (cDef?.label || containerId);
+          btn.removeAttribute('data-buy-container');
+          btn.removeAttribute('data-buy-key');
+          btn.removeAttribute('data-buy-cost');
+          btn.setAttribute('data-container', containerId);
+          btn.disabled = false;
+          btn.addEventListener('click', () => {
+            panel.querySelectorAll('.bs-forge-option[data-container]').forEach(b => b.classList.remove('bs-forge-option--selected'));
+            btn.classList.add('bs-forge-option--selected');
+            var previewCard = panel.querySelector('.bs-forge-card');
+            if (previewCard) previewCard.setAttribute('data-container', containerId);
+            _hasVisualChange = true;
+            updateBudget();
+            flashPreview();
+          });
+        }
+        playSfx('forgeComplete');
         flashPreview();
       });
     });
@@ -3927,6 +4038,10 @@
         </button>
       `;
     }).join('');
+
+    // Show sparks earned
+    var sparksLine = document.getElementById('bs-loot-sparks');
+    if (sparksLine) sparksLine.innerHTML = '<i class="fas fa-fire"></i> +' + (getSparks() > 0 ? 'Sparks earned! Total: ' + getSparks() : '0') + '';
 
     showOverlay('bs-loot-choice');
     playSfx('loot');
