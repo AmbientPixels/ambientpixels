@@ -1399,7 +1399,7 @@
   #bs-screen-battle {
     max-width: 1100px;
     margin: 0 auto;
-    padding: 2rem 4rem 4rem;
+    padding: 2rem 4rem 6rem;
   }
 
   .bs-page .arena-battle {
@@ -1482,7 +1482,7 @@
     gap: 1rem;
     max-width: 900px;
     margin: 0 auto;
-    padding: 0 0.5rem;
+    padding: 0 0.5rem 3rem;
   }
 
   .bs-page .arena-move-btn {
