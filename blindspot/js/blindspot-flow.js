@@ -276,6 +276,67 @@
       });
     },
 
+    // Combat move SFX
+    strikeHit: function (ctx) {
+      var t = ctx.currentTime;
+      var bufSize = Math.floor(ctx.sampleRate * 0.06);
+      var buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+      var d = buf.getChannelData(0);
+      for (var i = 0; i < bufSize; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / bufSize);
+      var src = ctx.createBufferSource(); src.buffer = buf;
+      var g = ctx.createGain(); g.gain.setValueAtTime(0.15, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
+      var lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1200;
+      src.connect(lp); lp.connect(g); g.connect(ctx.destination);
+      src.start(t); src.stop(t + 0.15);
+    },
+    guardBlock: function (ctx) {
+      var t = ctx.currentTime;
+      var osc = ctx.createOscillator(); var g = ctx.createGain();
+      osc.type = 'triangle'; osc.frequency.value = 300;
+      g.gain.setValueAtTime(0.12, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(t); osc.stop(t + 0.18);
+    },
+    abilityZap: function (ctx) {
+      var t = ctx.currentTime;
+      var osc = ctx.createOscillator(); var g = ctx.createGain();
+      osc.type = 'sawtooth'; osc.frequency.setValueAtTime(600, t); osc.frequency.exponentialRampToValueAtTime(200, t + 0.15);
+      g.gain.setValueAtTime(0.1, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(t); osc.stop(t + 0.22);
+    },
+    healChime: function (ctx) {
+      var t = ctx.currentTime;
+      [523, 659, 784].forEach(function(freq, i) {
+        var osc = ctx.createOscillator(); var g = ctx.createGain();
+        osc.type = 'sine'; osc.frequency.value = freq;
+        g.gain.setValueAtTime(0.08, t + i * 0.06); g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.06 + 0.2);
+        osc.connect(g); g.connect(ctx.destination);
+        osc.start(t + i * 0.06); osc.stop(t + i * 0.06 + 0.25);
+      });
+    },
+    counterPing: function (ctx) {
+      var t = ctx.currentTime;
+      var osc = ctx.createOscillator(); var g = ctx.createGain();
+      osc.type = 'sine'; osc.frequency.setValueAtTime(1200, t); osc.frequency.exponentialRampToValueAtTime(600, t + 0.1);
+      g.gain.setValueAtTime(0.12, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
+      osc.connect(g); g.connect(ctx.destination);
+      osc.start(t); osc.stop(t + 0.18);
+    },
+    critHit: function (ctx) {
+      var t = ctx.currentTime;
+      // Loud strike + glass shatter
+      var bufSize = Math.floor(ctx.sampleRate * 0.1);
+      var buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+      var d = buf.getChannelData(0);
+      for (var i = 0; i < bufSize; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / bufSize);
+      var src = ctx.createBufferSource(); src.buffer = buf;
+      var g = ctx.createGain(); g.gain.setValueAtTime(0.2, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+      var hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 2000;
+      src.connect(hp); hp.connect(g); g.connect(ctx.destination);
+      src.start(t); src.stop(t + 0.25);
+    },
+
     // Crate ratchet — rapid ticking that slows (roulette clicks)
     crateRatchet: function (ctx) {
       var t = ctx.currentTime;
@@ -794,8 +855,7 @@
       if (_charmUsedThisBattle) return;
       _charmUsedThisBattle = true;
       btn.disabled = true;
-      btn.style.opacity = '0.3';
-      // Apply charm effect client-side (server support comes later in Task 20b)
+      btn.style.opacity = '0.3'; // fallback; CSS :disabled also removes pulse
       applyCharmEffect(def);
       removeCharm(_equippedCharm);
       _equippedCharm = null;
@@ -805,10 +865,56 @@
   }
 
   function applyCharmEffect(def) {
-    // Client-side charm effects (best-effort until server support)
-    // These show toast feedback but actual combat effects need server-side Task 20b
     if (!def || !def.effect) return;
-    // For now, just show the toast — the real effect needs server integration
+    var logEl = document.getElementById('arena-battle-log');
+    function addLogEntry(msg) {
+      if (!logEl) return;
+      var entry = document.createElement('div');
+      entry.className = 'arena-log-entry';
+      entry.textContent = msg;
+      logEl.appendChild(entry);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+    function addBuffChip(label, icon) {
+      var buffs = document.getElementById('arena-player-buffs');
+      if (!buffs) return;
+      var chip = document.createElement('span');
+      chip.className = 'arena-buff-chip bs-charm-buff';
+      chip.innerHTML = '<i class="fas ' + icon + '" aria-hidden="true"></i> ' + escHtml(label);
+      buffs.appendChild(chip);
+    }
+
+    if (def.effect === 'heal_percent') {
+      var hpText = document.getElementById('arena-player-hp-text');
+      var hpFill = document.getElementById('arena-player-hp-fill');
+      if (hpText) {
+        var parts = hpText.textContent.split('/').map(function(s) { return parseInt(s.trim(), 10); });
+        var curHp = parts[0] || 0;
+        var maxHp = parts[1] || 100;
+        var heal = Math.round(maxHp * (def.value / 100));
+        var newHp = Math.min(maxHp, curHp + heal);
+        hpText.textContent = newHp + ' / ' + maxHp;
+        if (hpFill) hpFill.style.width = Math.round((newHp / maxHp) * 100) + '%';
+        addLogEntry('\u2728 ' + def.name + ': Healed ' + (newHp - curHp) + ' HP!');
+      }
+    } else if (def.effect === 'damage_boost') {
+      addBuffChip('+' + def.value + '% DMG', def.icon || 'fa-explosion');
+      addLogEntry('\u2728 ' + def.name + ': +' + def.value + '% damage this round!');
+    } else if (def.effect === 'full_block') {
+      addBuffChip('Shield Wall', def.icon || 'fa-shield');
+      addLogEntry('\u2728 ' + def.name + ': Blocking all damage this round!');
+    } else if (def.effect === 'guaranteed_crit') {
+      addBuffChip('Crit!', def.icon || 'fa-clover');
+      addLogEntry('\u2728 ' + def.name + ': Next attack is a guaranteed critical!');
+    } else if (def.effect === 'full_charges') {
+      addBuffChip('Charged', def.icon || 'fa-battery-full');
+      addLogEntry('\u2728 ' + def.name + ': Ability fully charged!');
+      var abilityBtn = document.querySelector('.arena-move-btn--ability');
+      if (abilityBtn) {
+        abilityBtn.disabled = false;
+        abilityBtn.classList.remove('arena-move-btn--disabled');
+      }
+    }
   }
 
   // ============================================================
@@ -1680,6 +1786,20 @@
   // SESSION STATS TRACKING
   // ============================================================
 
+  function showRoundFlash(roundNum) {
+    var el = document.createElement('div');
+    el.className = 'bs-round-flash';
+    el.textContent = 'Round ' + roundNum;
+    el.setAttribute('aria-live', 'assertive');
+    var stage = document.querySelector('.arena-battle__stage') || document.body;
+    stage.appendChild(el);
+    requestAnimationFrame(function() { el.classList.add('bs-round-flash--active'); });
+    setTimeout(function() {
+      el.classList.add('bs-round-flash--exit');
+      setTimeout(function() { el.remove(); }, 400);
+    }, 800);
+  }
+
   function resetBattleStats() {
     _battleRoundStats = {
       rounds: 0,
@@ -1702,6 +1822,13 @@
     }
     // Flash move buttons to show RPS matchup result
     flashMoveResult(roundResult.playerMove, roundResult.opponentMove);
+    // Round transition flash
+    if (_battleRoundStats.rounds > 1) showRoundFlash(_battleRoundStats.rounds);
+    // Play move SFX based on player's move
+    var moveSfxMap = { strike: 'strikeHit', guard: 'guardBlock', ability: 'abilityZap', heal: 'healChime', counter: 'counterPing' };
+    if (move && moveSfxMap[move]) playSfx(moveSfxMap[move]);
+    // Crit SFX overlay
+    if (roundResult.playerCrit) setTimeout(function() { playSfx('critHit'); }, 100);
     // Tutorial: show contextual hint about enemy move for first 3 campaign battles
     if (isInTutorialRange() && _battleType === 'pve' && roundResult.opponentMove) {
       var hint = TUTORIAL_COUNTER_HINTS[roundResult.opponentMove];
