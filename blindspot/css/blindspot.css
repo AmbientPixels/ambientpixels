@@ -855,7 +855,7 @@
 }
 
 .bs-overlay--hidden {
-  display: none;
+  display: none !important;
 }
 
 .bs-overlay__title {
