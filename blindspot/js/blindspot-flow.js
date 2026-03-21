@@ -416,6 +416,47 @@
     }, 600);
   }
 
+  // ============================================================
+  // CARD RARITY SYSTEM — based on forge visit count
+  // ============================================================
+
+  const CARD_RARITIES = [
+    { id: 'common',    name: 'Common',    forges: 0,  color: 'var(--bs-text-muted)', icon: 'fa-circle',        critBonus: 0,   statBonus: 0, title: null },
+    { id: 'uncommon',  name: 'Uncommon',  forges: 3,  color: '#1eff8e',              icon: 'fa-circle-half-stroke', critBonus: 2,   statBonus: 0, title: null },
+    { id: 'rare',      name: 'Rare',      forges: 8,  color: '#3a9fff',              icon: 'fa-gem',           critBonus: 5,   statBonus: 0, title: null },
+    { id: 'epic',      name: 'Epic',      forges: 15, color: '#a855f7',              icon: 'fa-crown',         critBonus: 5,   statBonus: 3, title: null },
+    { id: 'legendary', name: 'Legendary', forges: 25, color: '#fbbf24',              icon: 'fa-trophy',        critBonus: 5,   statBonus: 5, title: 'The Forgeborn' }
+  ];
+
+  function getCardRarity() {
+    var visits = getForgeVisitCount();
+    var rarity = CARD_RARITIES[0];
+    for (var i = CARD_RARITIES.length - 1; i >= 0; i--) {
+      if (visits >= CARD_RARITIES[i].forges) {
+        rarity = CARD_RARITIES[i];
+        break;
+      }
+    }
+    return rarity;
+  }
+
+  function getNextRarity() {
+    var visits = getForgeVisitCount();
+    for (var i = 0; i < CARD_RARITIES.length; i++) {
+      if (visits < CARD_RARITIES[i].forges) {
+        return { rarity: CARD_RARITIES[i], forgesNeeded: CARD_RARITIES[i].forges - visits };
+      }
+    }
+    return null;
+  }
+
+  function renderRarityBadge() {
+    var rarity = getCardRarity();
+    return '<span class="bs-rarity-badge bs-rarity-badge--' + rarity.id + '">'
+      + '<i class="fas ' + rarity.icon + '"></i> ' + rarity.name
+      + '</span>';
+  }
+
   // Tutorial hints for first 3 campaign battles
   const TUTORIAL_MAX_BATTLES = 3;
   const TUTORIAL_ROUND1_HINTS = [
@@ -1530,16 +1571,19 @@
       const asc = getAscension();
       cardDisplay.setAttribute('data-ascension', asc > 0 ? String(asc) : '0');
     }
-    // Player card — show as a mini card with name + class
+    // Player card — show as a mini card with name + class + rarity
     const cardEl = document.getElementById('bs-player-card');
     if (cardEl && _selectedCard) {
       const hasAvatar = _selectedCard.avatar && _selectedCard.avatar.trim();
+      const rarity = getCardRarity();
+      cardEl.setAttribute('data-rarity', rarity.id);
       cardEl.innerHTML = `
         <div class="bs-card-mini">
           ${hasAvatar ? `<img src="${escHtml(_selectedCard.avatar)}" alt="${escHtml(_selectedCard.name || 'Card')}" class="bs-card-mini__img">` : `<div class="bs-card-mini__icon"><i class="fas fa-user"></i></div>`}
           <div class="bs-card-mini__info">
             <span class="bs-card-mini__name">${escHtml(_selectedCard.name || 'Your Card')}</span>
             <span class="bs-card-mini__class">${escHtml(_selectedCard.class || _selectedCard.characterClass || '')}</span>
+            ${rarity.id !== 'common' ? renderRarityBadge() : ''}
           </div>
         </div>
       `;
@@ -1676,13 +1720,31 @@
       advisorEl.style.display = '';
     }
 
-    // Passives display — show active stat-threshold passives
+    // Passives display — show active stat-threshold passives + rarity passive
     // Only show passives after player has used the Forge at least once
     const passivesEl = document.getElementById('bs-passives-display');
     if (passivesEl && _selectedCard && _selectedCard.combatStats && getForgeVisitCount() > 0) {
       const activePassives = getActivePassives(_selectedCard.combatStats);
-      if (activePassives.length > 0) {
+      const rarity = getCardRarity();
+      // Build rarity passive tags
+      var rarityPassiveTags = '';
+      if (rarity.critBonus > 0) {
+        rarityPassiveTags += '<div class="bs-passive-tag" style="display:inline-flex; align-items:center; gap:0.25rem; padding:0.15rem 0.5rem; margin:0.15rem; border-radius:12px; font-size:0.65rem; border:1px solid ' + rarity.color + '44; background:' + rarity.color + '11;">'
+          + '<i class="fas ' + rarity.icon + '" style="color:' + rarity.color + '; font-size:0.6rem;"></i> '
+          + '<span style="color:' + rarity.color + ';">' + rarity.name + '</span> '
+          + '<span style="color:var(--bs-text-muted);">+' + rarity.critBonus + '% crit</span>'
+          + '</div>';
+      }
+      if (rarity.statBonus > 0) {
+        rarityPassiveTags += '<div class="bs-passive-tag" style="display:inline-flex; align-items:center; gap:0.25rem; padding:0.15rem 0.5rem; margin:0.15rem; border-radius:12px; font-size:0.65rem; border:1px solid ' + rarity.color + '44; background:' + rarity.color + '11;">'
+          + '<i class="fas fa-arrow-up" style="color:' + rarity.color + '; font-size:0.6rem;"></i> '
+          + '<span style="color:' + rarity.color + ';">' + rarity.name + '</span> '
+          + '<span style="color:var(--bs-text-muted);">+' + rarity.statBonus + ' all stats</span>'
+          + '</div>';
+      }
+      if (activePassives.length > 0 || rarityPassiveTags) {
         passivesEl.innerHTML = '<div class="bs-passives-header" style="font-size:0.7rem; color:var(--bs-text-muted); margin-bottom:0.3rem;"><i class="fas fa-star"></i> Active Passives</div>'
+          + rarityPassiveTags
           + activePassives.map(function(p) {
             return '<div class="bs-passive-tag" style="display:inline-flex; align-items:center; gap:0.25rem; padding:0.15rem 0.5rem; margin:0.15rem; border-radius:12px; font-size:0.65rem; border:1px solid ' + (WEAKNESS_COLORS[p.stat] || 'var(--bs-border)') + '44; background:' + (WEAKNESS_COLORS[p.stat] || 'var(--bs-border)') + '11;">'
               + '<i class="fas ' + p.icon + '" style="color:' + (WEAKNESS_COLORS[p.stat] || 'var(--bs-accent)') + '; font-size:0.6rem;"></i> '
@@ -3621,13 +3683,21 @@
           setForgeWins(0);
         }
         localStorage.removeItem('bs-forge-pending');
+        var prevRarity = getCardRarity();
         incForgeVisitCount();
+        var newRarity = getCardRarity();
         hideOverlay('bs-forge-screen');
         updateForgeProgress();
         renderLobby();
         completeBounty('forgeVisit');
         playSfx('forgeComplete');
-        showSuccessToast(_respecActive ? 'Card respecced!' : 'Card evolved!');
+        // Rarity upgrade check
+        if (newRarity.id !== prevRarity.id) {
+          if (newRarity.title) setCardTitle(newRarity.title);
+          showSuccessToast('Rarity up! Your card is now ' + newRarity.name + '!');
+        } else {
+          showSuccessToast(_respecActive ? 'Card respecced!' : 'Card evolved!');
+        }
       } catch (e) {
         console.warn('[Blindspot] Forge save error:', e);
         hideOverlay('bs-forge-screen');

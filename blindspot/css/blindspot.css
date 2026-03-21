@@ -18,6 +18,10 @@
   --bs-success:      #1D9E75;
   --bs-surface:      #1E1812;
   --bs-surface-2:    #241E16;
+  --bs-rarity-uncommon:  #1eff8e;
+  --bs-rarity-rare:      #3a9fff;
+  --bs-rarity-epic:      #a855f7;
+  --bs-rarity-legendary: #fbbf24;
 }
 
 /* --- Reset for Blindspot pages --- */
@@ -1698,6 +1702,51 @@
   border-color: var(--bs-danger) !important;
   opacity: 0.6;
   transition: box-shadow 0.15s ease-out, border-color 0.15s ease-out, opacity 0.15s ease-out;
+}
+
+/* ============================================================
+   CARD RARITY
+   ============================================================ */
+
+.bs-rarity-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.65rem;
+  font-weight: 600;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  letter-spacing: 0.03em;
+}
+
+.bs-rarity-badge--common { color: var(--bs-text-muted); }
+.bs-rarity-badge--uncommon { color: var(--bs-rarity-uncommon); }
+.bs-rarity-badge--rare { color: var(--bs-rarity-rare); }
+.bs-rarity-badge--epic { color: var(--bs-rarity-epic); }
+.bs-rarity-badge--legendary { color: var(--bs-rarity-legendary); text-shadow: 0 0 6px color-mix(in srgb, var(--bs-rarity-legendary) 50%, transparent); }
+
+/* Rarity border glow on lobby card */
+#bs-player-card[data-rarity="uncommon"] {
+  border-color: color-mix(in srgb, var(--bs-rarity-uncommon) 27%, transparent);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--bs-rarity-uncommon) 13%, transparent);
+}
+#bs-player-card[data-rarity="rare"] {
+  border-color: color-mix(in srgb, var(--bs-rarity-rare) 27%, transparent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--bs-rarity-rare) 20%, transparent);
+}
+#bs-player-card[data-rarity="epic"] {
+  border-color: color-mix(in srgb, var(--bs-rarity-epic) 27%, transparent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--bs-rarity-epic) 20%, transparent);
+}
+#bs-player-card[data-rarity="legendary"] {
+  border-color: color-mix(in srgb, var(--bs-rarity-legendary) 40%, transparent);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--bs-rarity-legendary) 27%, transparent), inset 0 0 8px color-mix(in srgb, var(--bs-rarity-legendary) 7%, transparent);
+  animation: bs-rarity-legendary-pulse 3s ease-in-out infinite;
+}
+
+@keyframes bs-rarity-legendary-pulse {
+  0%, 100% { box-shadow: 0 0 16px color-mix(in srgb, var(--bs-rarity-legendary) 27%, transparent), inset 0 0 8px color-mix(in srgb, var(--bs-rarity-legendary) 7%, transparent); }
+  50% { box-shadow: 0 0 24px color-mix(in srgb, var(--bs-rarity-legendary) 40%, transparent), inset 0 0 12px color-mix(in srgb, var(--bs-rarity-legendary) 13%, transparent); }
 }
 
 /* ============================================================
