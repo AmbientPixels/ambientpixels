@@ -2800,7 +2800,7 @@
 }
 
 /* Forge overlay needs fully opaque background */
-#bs-forge-screen {
+.bs-overlay--forge {
   background: var(--bs-bg);
 }
 
@@ -4784,12 +4784,12 @@ body.bs-battle-active .bs-bottom-nav {
 
 /* Make forge overlay scrollable on mobile — content taller than viewport */
 @media (max-width: 768px) {
-  #bs-forge-screen {
+  .bs-overlay--forge {
     padding: 0;
     overflow: hidden;
   }
 
-  #bs-forge-screen .bs-forge-screen {
+  .bs-overlay--forge .bs-forge-screen {
     display: flex;
     flex-direction: column;
     max-width: 100%;
@@ -4798,7 +4798,7 @@ body.bs-battle-active .bs-bottom-nav {
   }
 
   /* Forge layout — scrollable body containing preview + editor */
-  #bs-forge-screen .bs-forge-layout {
+  .bs-overlay--forge .bs-forge-layout {
     flex: 1;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
@@ -4807,7 +4807,7 @@ body.bs-battle-active .bs-bottom-nav {
   }
 
   /* Forge actions — pinned footer outside scroll */
-  #bs-forge-screen .bs-forge-actions {
+  .bs-overlay--forge .bs-forge-actions {
     flex-shrink: 0;
     padding: 0.75rem;
     background: var(--bs-bg);
@@ -4868,7 +4868,7 @@ body.bs-battle-active .bs-bottom-nav {
 
 /* Extra compact at 375px */
 @media (max-width: 480px) {
-  #bs-forge-screen .bs-forge-layout {
+  .bs-overlay--forge .bs-forge-layout {
     padding: 0.5rem;
   }
 
@@ -5098,7 +5098,7 @@ body.bs-battle-active .bs-bottom-nav {
   }
 
   /* Forge trigger buttons — stack */
-  #bs-forge-trigger .bs-btn { min-height: 44px; }
+  .bs-overlay--forge-trigger .bs-btn { min-height: 44px; }
 
   /* Results — reduce banner padding */
   .bs-page .arena-results__banner {

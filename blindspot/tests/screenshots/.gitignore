@@ -1,0 +1,7 @@
+# Keep only latest screenshots (for human review)
+# Ignore timestamped history
+*_20*.png
+manifest.json
+
+# Always track latest snapshots
+!*_latest.png
