@@ -445,6 +445,40 @@
   padding-top: 1rem;
 }
 
+/* Desktop lobby — two-column layout */
+@media (min-width: 769px) {
+  .bs-lobby {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-areas:
+      "label   label"
+      "card    bounties"
+      "rank    bounties"
+      "rank    challenges"
+      "rank    nextreward"
+      "forge   forge"
+      "play    play"
+      "modes   modes";
+    gap: 1.25rem 2rem;
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 1.5rem 2rem 2rem;
+    align-items: start;
+  }
+  .bs-lobby__status-label { grid-area: label; text-align: center; }
+  .bs-lobby__card-display { grid-area: card; justify-self: center; }
+  .bs-lobby .bs-rank-hud   { grid-area: rank; max-width: none; text-align: left; }
+  .bs-lobby .bs-bounties    { grid-area: bounties; max-width: none; }
+  .bs-lobby .bs-challenges  { grid-area: challenges; max-width: none; }
+  .bs-lobby .bs-next-reward { grid-area: nextreward; }
+  .bs-lobby .bs-forge-progress { grid-area: forge; max-width: 480px; justify-self: center; }
+  .bs-lobby .bs-play-btn    { grid-area: play; max-width: 480px !important; justify-self: center; width: 100%; }
+  .bs-lobby .bs-modes       { grid-area: modes; max-width: none; display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+  .bs-lobby .bs-rank-hud .bs-stat-bars { max-width: none; }
+  .bs-lobby .bs-rank-hud .bs-passives-display { max-width: none; }
+  .bs-lobby .bs-rank-hud .bs-lobby-stats { justify-content: flex-start; }
+}
+
 .bs-lobby__card-display {
   width: 200px;
   height: 290px;
