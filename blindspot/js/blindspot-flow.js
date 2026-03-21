@@ -617,6 +617,68 @@
     } catch (e) { console.warn('recordBossResult error:', e); }
   }
 
+  // Boss mastery tiers — stars earned by repeated boss wins
+  const MASTERY_TIERS = [
+    { wins: 3,  tier: 'bronze', icon: 'fa-star', color: 'var(--bs-accent-dim)', label: 'Bronze', statBonus: 1 },
+    { wins: 5,  tier: 'silver', icon: 'fa-star', color: 'var(--bs-text)',        label: 'Silver', statBonus: 0, titleSuffix: "'s Bane" },
+    { wins: 10, tier: 'gold',   icon: 'fa-star', color: 'var(--bs-accent-glow)', label: 'Gold',   sparks: 25 }
+  ];
+
+  function getBossMastery(bossId) {
+    var record = getBossRecord(bossId);
+    var tier = null;
+    for (var i = MASTERY_TIERS.length - 1; i >= 0; i--) {
+      if (record.wins >= MASTERY_TIERS[i].wins) { tier = MASTERY_TIERS[i]; break; }
+    }
+    return { wins: record.wins, tier: tier };
+  }
+
+  function renderMasteryStars(bossId) {
+    var mastery = getBossMastery(bossId);
+    if (!mastery.tier) return '';
+    var stars = '';
+    for (var i = 0; i < MASTERY_TIERS.length; i++) {
+      if (mastery.wins >= MASTERY_TIERS[i].wins) {
+        stars += '<i class="fas ' + MASTERY_TIERS[i].icon + '" style="color:' + MASTERY_TIERS[i].color + ';font-size:0.55rem;"></i>';
+      }
+    }
+    return '<span class="bs-mastery-stars" aria-label="Mastery: ' + mastery.tier.label + '">' + stars + '</span>';
+  }
+
+  function checkMasteryRewards(bossId) {
+    var record = getBossRecord(bossId);
+    var boss = _bosses.find(function(b) { return b.id === bossId; });
+    if (!boss || boss.weekly || isWeeklyBoss(bossId)) return;
+    var claimed = JSON.parse(localStorage.getItem('bs-mastery-claimed') || '{}');
+    if (!claimed[bossId]) claimed[bossId] = {};
+
+    for (var i = 0; i < MASTERY_TIERS.length; i++) {
+      var t = MASTERY_TIERS[i];
+      if (record.wins >= t.wins && !claimed[bossId][t.tier]) {
+        claimed[bossId][t.tier] = true;
+
+        // Bronze: +1 to boss weakness stat
+        if (t.statBonus && boss.weakness && _selectedCard && _selectedCard.combatStats) {
+          _selectedCard.combatStats[boss.weakness] = Math.min(100,
+            (_selectedCard.combatStats[boss.weakness] || 0) + t.statBonus);
+        }
+
+        // Silver: title "BossName's Bane"
+        if (t.titleSuffix) {
+          setCardTitle(boss.name + t.titleSuffix);
+        }
+
+        // Gold: sparks reward
+        if (t.sparks) {
+          addSparks(t.sparks);
+        }
+
+        showToast(t.label + ' Mastery: ' + boss.name + (t.statBonus ? ' — +' + t.statBonus + ' ' + (WEAKNESS_LABELS[boss.weakness] || '') : '') + (t.titleSuffix ? ' — Title: ' + boss.name + t.titleSuffix : '') + (t.sparks ? ' — +' + t.sparks + ' Sparks' : ''), 'success');
+      }
+    }
+    localStorage.setItem('bs-mastery-claimed', JSON.stringify(claimed));
+  }
+
   // ============================================================
   // PROGRESSION SYSTEM
   // ============================================================
@@ -2248,7 +2310,7 @@
           <span class="bs-boss-card__number">${boss.boss}</span>
           ${boss.avatar ? `<div class="bs-boss-avatar" style="padding:0;overflow:hidden;"><img src="${escHtml(boss.avatar)}" alt="${escHtml(boss.name)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"></div>` : `<div class="bs-boss-avatar"><i class="fas ${icon}"></i></div>`}
           <div class="bs-boss-card__info">
-            <div class="bs-boss-card__name">${escHtml(boss.name)} ${recordBadge}</div>
+            <div class="bs-boss-card__name">${escHtml(boss.name)} ${renderMasteryStars(boss.id)} ${recordBadge}</div>
             <div class="bs-boss-card__class">${escHtml(boss.class)}</div>
             ${current ? '<span class="bs-boss-card__here"><i class="fas fa-location-dot"></i> You are here</span>' : ''}
             ${rewardBadge}
@@ -2604,6 +2666,8 @@
       if (weeklyBoss && _currentBossId === weeklyBoss.id) {
         recordWeeklyResult(isWin);
       }
+      // Check mastery tier-ups on wins
+      if (isWin) checkMasteryRewards(_currentBossId);
     }
 
     // Spark rewards — earn currency from all activities
@@ -4501,6 +4565,7 @@
     // Reset boss progress but keep stats/visuals/rank
     localStorage.setItem('bs-highest-boss', '0');
     localStorage.removeItem('bs-boss-records');
+    localStorage.removeItem('bs-mastery-claimed');
     // Unlock ascension visual reward
     const rewardMap = {
       1: 'palette_inferno',

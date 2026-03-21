@@ -899,6 +899,13 @@
   content: ' \2713';
 }
 
+.bs-mastery-stars {
+  display: inline-flex;
+  gap: 0.15rem;
+  margin-left: 0.3rem;
+  vertical-align: middle;
+}
+
 /* ============================================================
    BATTLE OVERLAYS — Stranger results, pre-fight, etc.
    ============================================================ */
