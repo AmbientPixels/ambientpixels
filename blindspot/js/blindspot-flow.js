@@ -31,14 +31,31 @@
   }
 
   // ============================================================
-  // BLINDSPOT API — server-side progression sync
+  // BLINDSPOT PROGRESSION — server-first, in-memory source of truth
   // ============================================================
 
+  // _progress is THE source of truth for all game state.
+  // Loaded from server on initPlay(), written to server on mutations.
+  // localStorage is only a write-through cache for offline fallback.
+  var _progress = {
+    sparks: 0, highestBoss: 0, totalWins: 0, totalBounties: 0,
+    winStreak: 0, bestStreak: 0, ascension: 0,
+    towerFloor: 0, towerBest: 0, forgeWins: 0, forgeVisits: 0,
+    cardTitle: '', selectedCardId: null,
+    pvpElo: 1000, pvpRecord: { w: 0, l: 0 },
+    crateWinCounter: 0, crates: [], charms: [], cosmetics: [],
+    purchasedCosmetics: [], equipped: {},
+    visualUnlocks: ['palette_earth', 'container_masked'],
+    bossRecords: {}, masteryClaimed: {}, claimedRewards: [],
+    towerClaimed: [], weeklyBoss: {}, challenges: {}, bounties: {},
+    lastDaily: ''
+  };
+  var _progressLoaded = false;
   var _syncInFlight = false;
+  var _syncTimer = null;
 
   var BlindspotAPI = {
     _principalPromise: null,
-
     fetchPrincipal: function () {
       if (!this._principalPromise) {
         this._principalPromise = fetch('/.auth/me')
@@ -50,16 +67,10 @@
       }
       return this._principalPromise;
     },
-
     _apiFetch: async function (method, body) {
       var url = window.buildApiPath ? window.buildApiPath('blindspotProfile') : '';
-      if (!url) {
-        url = 'https://ambientpixels-nova-api.azurewebsites.net/api/blindspotprofile';
-      }
-      var opts = {
-        method: method,
-        headers: { 'Content-Type': 'application/json' }
-      };
+      if (!url) url = 'https://ambientpixels-nova-api.azurewebsites.net/api/blindspotprofile';
+      var opts = { method: method, headers: { 'Content-Type': 'application/json' } };
       var principal = await this.fetchPrincipal();
       if (principal) opts.headers['X-CF-Auth-Principal'] = principal;
       if (body) opts.body = JSON.stringify(body);
@@ -68,109 +79,132 @@
       if (!resp.ok) throw new Error(data.error || 'API error ' + resp.status);
       return data;
     },
-
-    loadProfile: function () {
-      return this._apiFetch('GET');
-    },
-
-    syncProfile: function (profileData) {
-      return this._apiFetch('POST', { action: 'sync', profile: profileData });
-    }
+    loadProfile: function () { return this._apiFetch('GET'); },
+    syncProfile: function (profileData) { return this._apiFetch('POST', { action: 'sync', profile: profileData }); }
   };
 
-  // Collect all progression keys from localStorage into a single object
-  function collectLocalProgress() {
-    function getInt(k, d) { return parseInt(localStorage.getItem(k) || String(d), 10); }
-    function getJson(k, d) { try { return JSON.parse(localStorage.getItem(k) || JSON.stringify(d)); } catch (e) { return d; } }
-    return {
-      sparks: getInt('bs-sparks', 0),
-      highestBoss: getInt('bs-highest-boss', 0),
-      totalWins: getInt('bs-total-wins', 0),
-      totalBounties: getInt('bs-total-bounties', 0),
-      winStreak: getInt('bs-win-streak', 0),
-      bestStreak: getInt('bs-best-streak', 0),
-      ascension: getInt('bs-ascension', 0),
-      towerFloor: getInt('bs-tower-floor', 0),
-      towerBest: getInt('bs-tower-best', 0),
-      forgeWins: getInt('bs-wins-to-forge', 0),
-      forgeVisits: getInt('bs-forge-visits', 0),
-      cardTitle: localStorage.getItem('bs-card-title') || '',
-      selectedCardId: localStorage.getItem('bs-selected-card-id') || null,
-      pvpElo: getInt('bs-pvp-elo', 1000),
-      pvpRecord: getJson('bs-pvp-record', { w: 0, l: 0 }),
-      crateWinCounter: getInt('bs-crate-win-counter', 0),
-      crates: getJson('bs-crates', []),
-      charms: getJson('bs-charms', []),
-      cosmetics: getJson('bs-cosmetics', []),
-      purchasedCosmetics: getJson('bs-purchased-cosmetics', []),
-      equipped: getJson('bs-equipped', {}),
-      visualUnlocks: getJson('bs-visual-unlocks', ['palette_earth', 'container_masked']),
-      bossRecords: getJson('bs-boss-records', {}),
-      masteryClaimed: getJson('bs-mastery-claimed', {}),
-      claimedRewards: getJson('bs-claimed-rewards', []),
-      towerClaimed: getJson('bs-tower-claimed', []),
-      weeklyBoss: getJson('bs-weekly-boss', {}),
-      challenges: getJson('bs-challenges', {}),
-      bounties: getJson('bs-bounties', {}),
-      lastDaily: localStorage.getItem('bs-last-daily') || ''
-    };
-  }
-
-  // Write server profile data into localStorage (server wins)
-  function mergeServerProfile(p) {
-    if (!p || typeof p !== 'object') return;
-    function setInt(k, v) { if (typeof v === 'number') safeLSSet(k, String(v)); }
-    function setJson(k, v) { if (v !== undefined && v !== null) safeLSSet(k, JSON.stringify(v)); }
-    setInt('bs-sparks', p.sparks);
-    setInt('bs-highest-boss', p.highestBoss);
-    setInt('bs-total-wins', p.totalWins);
-    setInt('bs-total-bounties', p.totalBounties);
-    setInt('bs-win-streak', p.winStreak);
-    setInt('bs-best-streak', p.bestStreak);
-    setInt('bs-ascension', p.ascension);
-    setInt('bs-tower-floor', p.towerFloor);
-    setInt('bs-tower-best', p.towerBest);
-    setInt('bs-wins-to-forge', p.forgeWins);
-    setInt('bs-forge-visits', p.forgeVisits);
-    setInt('bs-pvp-elo', p.pvpElo);
-    setInt('bs-crate-win-counter', p.crateWinCounter);
-    if (p.cardTitle) safeLSSet('bs-card-title', p.cardTitle);
-    if (p.selectedCardId) safeLSSet('bs-selected-card-id', p.selectedCardId);
-    if (p.lastDaily) safeLSSet('bs-last-daily', p.lastDaily);
-    setJson('bs-pvp-record', p.pvpRecord);
-    setJson('bs-crates', p.crates);
-    setJson('bs-charms', p.charms);
-    setJson('bs-cosmetics', p.cosmetics);
-    setJson('bs-purchased-cosmetics', p.purchasedCosmetics);
-    setJson('bs-equipped', p.equipped);
-    setJson('bs-visual-unlocks', p.visualUnlocks);
-    setJson('bs-boss-records', p.bossRecords);
-    setJson('bs-mastery-claimed', p.masteryClaimed);
-    setJson('bs-claimed-rewards', p.claimedRewards);
-    setJson('bs-tower-claimed', p.towerClaimed);
-    setJson('bs-weekly-boss', p.weeklyBoss);
-    setJson('bs-challenges', p.challenges);
-    setJson('bs-bounties', p.bounties);
-  }
-
-  // Fire-and-forget sync to server — debounced, non-blocking
-  function syncProgressToServer() {
-    if (_syncInFlight) return;
-    if (localStorage.getItem('bs-guest-mode') === 'true') return;
-    _syncInFlight = true;
-    var progress = collectLocalProgress();
-    BlindspotAPI.syncProfile(progress)
-      .then(function (resp) {
-        if (resp && resp.profile) {
-          mergeServerProfile(resp.profile);
+  // Load _progress from server. Falls back to localStorage cache if server unreachable.
+  async function loadProgressFromServer() {
+    var isGuest = localStorage.getItem('bs-guest-mode') === 'true';
+    if (isGuest) {
+      _loadProgressFromCache();
+      _progressLoaded = true;
+      return;
+    }
+    try {
+      var resp = await BlindspotAPI.loadProfile();
+      if (resp && resp.profile && !resp.isDemo) {
+        // Server is source of truth — copy into _progress
+        var p = resp.profile;
+        for (var key in _progress) {
+          if (p[key] !== undefined && p[key] !== null) _progress[key] = p[key];
         }
-      })
-      .catch(function (e) {
-        console.warn('[Blindspot] sync failed:', e.message);
-      })
-      .finally(function () {
-        _syncInFlight = false;
-      });
+      }
+    } catch (e) {
+      console.warn('[Blindspot] server load failed, using cache:', e.message);
+      _loadProgressFromCache();
+    }
+    _progressLoaded = true;
+    _cacheProgressToLocalStorage();
+  }
+
+  // Fallback: load from localStorage cache into _progress
+  function _loadProgressFromCache() {
+    function gi(k, d) { return parseInt(localStorage.getItem(k) || String(d), 10); }
+    function gj(k, d) { try { return JSON.parse(localStorage.getItem(k) || JSON.stringify(d)); } catch (e) { return d; } }
+    _progress.sparks = gi('bs-sparks', 0);
+    _progress.highestBoss = gi('bs-highest-boss', 0);
+    _progress.totalWins = gi('bs-total-wins', 0);
+    _progress.totalBounties = gi('bs-total-bounties', 0);
+    _progress.winStreak = gi('bs-win-streak', 0);
+    _progress.bestStreak = gi('bs-best-streak', 0);
+    _progress.ascension = gi('bs-ascension', 0);
+    _progress.towerFloor = gi('bs-tower-floor', 0);
+    _progress.towerBest = gi('bs-tower-best', 0);
+    _progress.forgeWins = gi('bs-wins-to-forge', 0);
+    _progress.forgeVisits = gi('bs-forge-visits', 0);
+    _progress.cardTitle = localStorage.getItem('bs-card-title') || '';
+    _progress.selectedCardId = localStorage.getItem('bs-selected-card-id') || null;
+    _progress.pvpElo = gi('bs-pvp-elo', 1000);
+    _progress.pvpRecord = gj('bs-pvp-record', { w: 0, l: 0 });
+    _progress.crateWinCounter = gi('bs-crate-win-counter', 0);
+    _progress.crates = gj('bs-crates', []);
+    _progress.charms = gj('bs-charms', []);
+    _progress.cosmetics = gj('bs-cosmetics', []);
+    _progress.purchasedCosmetics = gj('bs-purchased-cosmetics', []);
+    _progress.equipped = gj('bs-equipped', {});
+    _progress.visualUnlocks = gj('bs-visual-unlocks', ['palette_earth', 'container_masked']);
+    _progress.bossRecords = gj('bs-boss-records', {});
+    _progress.masteryClaimed = gj('bs-mastery-claimed', {});
+    _progress.claimedRewards = gj('bs-claimed-rewards', []);
+    _progress.towerClaimed = gj('bs-tower-claimed', []);
+    _progress.weeklyBoss = gj('bs-weekly-boss', {});
+    _progress.challenges = gj('bs-challenges', {});
+    _progress.bounties = gj('bs-bounties', {});
+    _progress.lastDaily = localStorage.getItem('bs-last-daily') || '';
+  }
+
+  // Write-through cache: mirror _progress to localStorage for offline fallback
+  function _cacheProgressToLocalStorage() {
+    try {
+      safeLSSet('bs-sparks', String(_progress.sparks));
+      safeLSSet('bs-highest-boss', String(_progress.highestBoss));
+      safeLSSet('bs-total-wins', String(_progress.totalWins));
+      safeLSSet('bs-total-bounties', String(_progress.totalBounties));
+      safeLSSet('bs-win-streak', String(_progress.winStreak));
+      safeLSSet('bs-best-streak', String(_progress.bestStreak));
+      safeLSSet('bs-ascension', String(_progress.ascension));
+      safeLSSet('bs-tower-floor', String(_progress.towerFloor));
+      safeLSSet('bs-tower-best', String(_progress.towerBest));
+      safeLSSet('bs-wins-to-forge', String(_progress.forgeWins));
+      safeLSSet('bs-forge-visits', String(_progress.forgeVisits));
+      safeLSSet('bs-pvp-elo', String(_progress.pvpElo));
+      safeLSSet('bs-crate-win-counter', String(_progress.crateWinCounter));
+      safeLSSet('bs-card-title', _progress.cardTitle);
+      if (_progress.selectedCardId) safeLSSet('bs-selected-card-id', _progress.selectedCardId);
+      safeLSSet('bs-last-daily', _progress.lastDaily);
+      safeLSSet('bs-pvp-record', JSON.stringify(_progress.pvpRecord));
+      safeLSSet('bs-crates', JSON.stringify(_progress.crates));
+      safeLSSet('bs-charms', JSON.stringify(_progress.charms));
+      safeLSSet('bs-cosmetics', JSON.stringify(_progress.cosmetics));
+      safeLSSet('bs-purchased-cosmetics', JSON.stringify(_progress.purchasedCosmetics));
+      safeLSSet('bs-equipped', JSON.stringify(_progress.equipped));
+      safeLSSet('bs-visual-unlocks', JSON.stringify(_progress.visualUnlocks));
+      safeLSSet('bs-boss-records', JSON.stringify(_progress.bossRecords));
+      safeLSSet('bs-mastery-claimed', JSON.stringify(_progress.masteryClaimed));
+      safeLSSet('bs-claimed-rewards', JSON.stringify(_progress.claimedRewards));
+      safeLSSet('bs-tower-claimed', JSON.stringify(_progress.towerClaimed));
+      safeLSSet('bs-weekly-boss', JSON.stringify(_progress.weeklyBoss));
+      safeLSSet('bs-challenges', JSON.stringify(_progress.challenges));
+      safeLSSet('bs-bounties', JSON.stringify(_progress.bounties));
+    } catch (e) { /* cache write failure is non-fatal */ }
+  }
+
+  // Push _progress to server. Debounced 1s so rapid mutations batch.
+  function syncProgressToServer() {
+    if (localStorage.getItem('bs-guest-mode') === 'true') return;
+    _cacheProgressToLocalStorage();
+    if (_syncTimer) clearTimeout(_syncTimer);
+    _syncTimer = setTimeout(function () {
+      if (_syncInFlight) return;
+      _syncInFlight = true;
+      BlindspotAPI.syncProfile(_progress)
+        .then(function (resp) {
+          if (resp && resp.profile) {
+            // Server merge may have resolved conflicts — update _progress
+            var p = resp.profile;
+            for (var key in _progress) {
+              if (p[key] !== undefined && p[key] !== null) _progress[key] = p[key];
+            }
+          }
+        })
+        .catch(function (e) {
+          console.warn('[Blindspot] sync failed:', e.message);
+        })
+        .finally(function () {
+          _syncInFlight = false;
+        });
+    }, 1000);
   }
 
   // ============================================================
@@ -220,13 +254,10 @@
     { name: 'Diamond',  min: 1700, icon: 'fa-diamond',        color: '#B9F2FF' }
   ];
 
-  function getPvPElo() { return parseInt(localStorage.getItem('bs-pvp-elo') || ELO_DEFAULT, 10); }
-  function setPvPElo(v) { safeLSSet('bs-pvp-elo', Math.max(0, Math.round(v))); }
-  function getPvPRecord() {
-    try { return JSON.parse(localStorage.getItem('bs-pvp-record') || '{"w":0,"l":0}'); }
-    catch(e) { return { w: 0, l: 0 }; }
-  }
-  function setPvPRecord(rec) { safeLSSet('bs-pvp-record', JSON.stringify(rec)); }
+  function getPvPElo() { return _progress.pvpElo; }
+  function setPvPElo(v) { _progress.pvpElo = Math.max(0, Math.round(v)); }
+  function getPvPRecord() { return _progress.pvpRecord; }
+  function setPvPRecord(rec) { _progress.pvpRecord = rec; }
 
   function getPvPRank(elo) {
     for (var i = PVP_RANKS.length - 1; i >= 0; i--) {
@@ -972,39 +1003,33 @@
 
   function isDemo() { return _profileData ? (_profileData.isDemo || false) : true; }
 
-  function getForgeWins() { return parseInt(localStorage.getItem('bs-wins-to-forge') || '0', 10); }
-  function setForgeWins(n) { safeLSSet('bs-wins-to-forge', String(n)); }
+  function getForgeWins() { return _progress.forgeWins; }
+  function setForgeWins(n) { _progress.forgeWins = n; }
   function isForgePending() { return localStorage.getItem('bs-forge-pending') === 'true'; }
 
-  function getHighestBossDefeated() { return parseInt(localStorage.getItem('bs-highest-boss') || '0', 10); }
+  function getHighestBossDefeated() { return _progress.highestBoss; }
   function setHighestBossDefeated(n) {
-    if (n > getHighestBossDefeated()) safeLSSet('bs-highest-boss', String(n));
+    if (n > _progress.highestBoss) _progress.highestBoss = n;
   }
 
-  function getForgeVisitCount() { return parseInt(localStorage.getItem('bs-forge-visits') || '0', 10); }
+  function getForgeVisitCount() { return _progress.forgeVisits; }
   function incForgeVisitCount() {
-    const c = getForgeVisitCount() + 1;
-    safeLSSet('bs-forge-visits', String(c));
-    return c;
+    _progress.forgeVisits++;
+    return _progress.forgeVisits;
   }
 
   // Sparks — universal currency earned from all activities, spent on cosmetics
-  function getSparks() { return parseInt(localStorage.getItem('bs-sparks') || '0', 10); }
-  function addSparks(n) { safeLSSet('bs-sparks', String(getSparks() + Math.max(0, n))); }
+  function getSparks() { return _progress.sparks; }
+  function addSparks(n) { _progress.sparks += Math.max(0, n); }
   function spendSparks(n) {
-    var current = getSparks();
-    if (n > current) return false;
-    safeLSSet('bs-sparks', String(current - n));
+    if (n > _progress.sparks) return false;
+    _progress.sparks -= n;
     syncProgressToServer();
     return true;
   }
-  function getPurchasedCosmetics() {
-    try { return JSON.parse(localStorage.getItem('bs-purchased-cosmetics') || '[]'); }
-    catch(e) { return []; }
-  }
+  function getPurchasedCosmetics() { return _progress.purchasedCosmetics; }
   function addPurchasedCosmetic(key) {
-    var list = getPurchasedCosmetics();
-    if (!list.includes(key)) { list.push(key); safeLSSet('bs-purchased-cosmetics', JSON.stringify(list)); }
+    if (!_progress.purchasedCosmetics.includes(key)) _progress.purchasedCosmetics.push(key);
   }
 
   // ── Phase 8: Retention ──
@@ -1012,9 +1037,8 @@
   // Task 30: Daily spark bonus
   function checkDailyBonus() {
     var today = new Date().toISOString().slice(0, 10);
-    var last = localStorage.getItem('bs-last-daily') || '';
-    if (last === today) return false;
-    safeLSSet('bs-last-daily', today);
+    if (_progress.lastDaily === today) return false;
+    _progress.lastDaily = today;
     addSparks(10);
     showSuccessToast('Daily bonus: +10 Sparks!');
     return true;
@@ -1037,16 +1061,11 @@
   var _equippedCharm = null; // charm selected for next battle
   var _charmUsedThisBattle = false;
 
-  function getOwnedCharms() {
-    try { return JSON.parse(localStorage.getItem('bs-charms') || '[]'); }
-    catch(e) { return []; }
-  }
+  function getOwnedCharms() { return _progress.charms; }
 
   function removeCharm(charmId) {
-    var charms = getOwnedCharms();
-    var idx = charms.indexOf(charmId);
-    if (idx >= 0) charms.splice(idx, 1);
-    safeLSSet('bs-charms', JSON.stringify(charms));
+    var idx = _progress.charms.indexOf(charmId);
+    if (idx >= 0) _progress.charms.splice(idx, 1);
   }
 
   function getCharmDef(charmId) {
@@ -1188,16 +1207,10 @@
   // ============================================================
 
   function getOwnedCosmetics() {
-    try { return JSON.parse(localStorage.getItem('bs-cosmetics') || '[]'); }
-    catch(e) { return []; }
+    return _progress.cosmetics;
   }
-  function getEquipped() {
-    try { return JSON.parse(localStorage.getItem('bs-equipped') || '{}'); }
-    catch(e) { return {}; }
-  }
-  function setEquipped(equipped) {
-    safeLSSet('bs-equipped', JSON.stringify(equipped));
-  }
+  function getEquipped() { return _progress.equipped; }
+  function setEquipped(equipped) { _progress.equipped = equipped; }
   function equipCosmetic(slot, itemId) {
     var eq = getEquipped();
     if (eq[slot] === itemId) { delete eq[slot]; } // toggle off
@@ -1371,29 +1384,21 @@
   // CRATE INVENTORY
   // ============================================================
 
-  function getCrates() {
-    try { return JSON.parse(localStorage.getItem('bs-crates') || '[]'); }
-    catch(e) { return []; }
-  }
+  function getCrates() { return _progress.crates; }
   function addCrate(type) {
-    var crates = getCrates();
-    crates.push({ type: type, earned: Date.now() });
-    safeLSSet('bs-crates', JSON.stringify(crates));
-    return crates.length;
+    _progress.crates.push({ type: type, earned: Date.now() });
+    return _progress.crates.length;
   }
   function removeCrate(index) {
-    var crates = getCrates();
-    if (index >= 0 && index < crates.length) crates.splice(index, 1);
-    safeLSSet('bs-crates', JSON.stringify(crates));
+    if (index >= 0 && index < _progress.crates.length) _progress.crates.splice(index, 1);
   }
-  function getCrateCount() { return getCrates().length; }
+  function getCrateCount() { return _progress.crates.length; }
 
   // Win counter for battle crates (every 5 wins)
-  function getCrateWinCounter() { return parseInt(localStorage.getItem('bs-crate-win-counter') || '0', 10); }
+  function getCrateWinCounter() { return _progress.crateWinCounter; }
   function incCrateWinCounter() {
-    var c = getCrateWinCounter() + 1;
-    safeLSSet('bs-crate-win-counter', String(c));
-    return c;
+    _progress.crateWinCounter++;
+    return _progress.crateWinCounter;
   }
 
   // Award a crate with toast notification
@@ -1411,7 +1416,7 @@
   function checkBattleCrate() {
     var count = incCrateWinCounter();
     if (count >= 5) {
-      safeLSSet('bs-crate-win-counter', '0');
+      _progress.crateWinCounter = 0;
       awardCrate('battle');
     }
   }
@@ -1531,16 +1536,10 @@
       setForgeWins(getForgeWins() + 3);
     } else if (item.category === 'cosmetic') {
       // Add to unlocked cosmetics
-      var cosmetics = [];
-      try { cosmetics = JSON.parse(localStorage.getItem('bs-cosmetics') || '[]'); } catch(e) {}
-      if (!cosmetics.includes(item.id)) cosmetics.push(item.id);
-      safeLSSet('bs-cosmetics', JSON.stringify(cosmetics));
+      if (!_progress.cosmetics.includes(item.id)) _progress.cosmetics.push(item.id);
     } else if (item.slot === 'charm') {
       // Add to charms inventory
-      var charms = [];
-      try { charms = JSON.parse(localStorage.getItem('bs-charms') || '[]'); } catch(e) {}
-      charms.push(item.id);
-      safeLSSet('bs-charms', JSON.stringify(charms));
+      _progress.charms.push(item.id);
     } else if (item.title) {
       setCardTitle(item.title);
     }
@@ -1662,20 +1661,13 @@
 
   // Boss attempt tracking
   function getBossRecord(bossId) {
-    try {
-      const data = JSON.parse(localStorage.getItem('bs-boss-records') || '{}');
-      return data[bossId] || { wins: 0, losses: 0 };
-    } catch { return { wins: 0, losses: 0 }; }
+    return _progress.bossRecords[bossId] || { wins: 0, losses: 0 };
   }
 
   function recordBossResult(bossId, isWin) {
-    try {
-      const data = JSON.parse(localStorage.getItem('bs-boss-records') || '{}');
-      if (!data[bossId]) data[bossId] = { wins: 0, losses: 0 };
-      if (isWin) data[bossId].wins++;
-      else data[bossId].losses++;
-      safeLSSet('bs-boss-records', JSON.stringify(data));
-    } catch (e) { console.warn('recordBossResult error:', e); }
+    if (!_progress.bossRecords[bossId]) _progress.bossRecords[bossId] = { wins: 0, losses: 0 };
+    if (isWin) _progress.bossRecords[bossId].wins++;
+    else _progress.bossRecords[bossId].losses++;
   }
 
   // Boss mastery tiers — stars earned by repeated boss wins
@@ -1710,8 +1702,8 @@
     var record = getBossRecord(bossId);
     var boss = _bosses.find(function(b) { return b.id === bossId; });
     if (!boss || boss.weekly || isWeeklyBoss(bossId)) return;
-    var claimed = JSON.parse(localStorage.getItem('bs-mastery-claimed') || '{}');
-    if (!claimed[bossId]) claimed[bossId] = {};
+    if (!_progress.masteryClaimed[bossId]) _progress.masteryClaimed[bossId] = {};
+    var claimed = _progress.masteryClaimed;
 
     for (var i = 0; i < MASTERY_TIERS.length; i++) {
       var t = MASTERY_TIERS[i];
@@ -1737,7 +1729,6 @@
         showToast(t.label + ' Mastery: ' + boss.name + (t.statBonus ? ' — +' + t.statBonus + ' ' + (WEAKNESS_LABELS[boss.weakness] || '') : '') + (t.titleSuffix ? ' — Title: ' + boss.name + t.titleSuffix : '') + (t.sparks ? ' — +' + t.sparks + ' Sparks' : ''), 'success');
       }
     }
-    safeLSSet('bs-mastery-claimed', JSON.stringify(claimed));
   }
 
   // ============================================================
@@ -1785,30 +1776,30 @@
   }
 
   // Win streak
-  function getWinStreak() { return parseInt(localStorage.getItem('bs-win-streak') || '0', 10); }
-  function setWinStreak(n) { safeLSSet('bs-win-streak', String(n)); }
+  function getWinStreak() { return _progress.winStreak; }
+  function setWinStreak(n) { _progress.winStreak = n; }
 
   // Best win streak
-  function getBestStreak() { return parseInt(localStorage.getItem('bs-best-streak') || '0', 10); }
+  function getBestStreak() { return _progress.bestStreak; }
   function setBestStreak(n) {
-    if (n > getBestStreak()) safeLSSet('bs-best-streak', String(n));
+    if (n > _progress.bestStreak) _progress.bestStreak = n;
   }
 
   // Card title (earned from boss milestones)
 
   // Ascension system
-  function getAscension() { return parseInt(localStorage.getItem('bs-ascension') || '0', 10); }
-  function setAscension(n) { safeLSSet('bs-ascension', String(n)); }
+  function getAscension() { return _progress.ascension; }
+  function setAscension(n) { _progress.ascension = n; }
 
-  function getCardTitle() { return localStorage.getItem('bs-card-title') || ''; }
-  function setCardTitle(t) { safeLSSet('bs-card-title', t); }
+  function getCardTitle() { return _progress.cardTitle; }
+  function setCardTitle(t) { _progress.cardTitle = t; }
 
   // Infinite Tower state
-  function getTowerFloor() { return parseInt(localStorage.getItem('bs-tower-floor') || '0', 10); }
-  function setTowerFloor(n) { safeLSSet('bs-tower-floor', String(n)); }
-  function getTowerBest() { return parseInt(localStorage.getItem('bs-tower-best') || '0', 10); }
+  function getTowerFloor() { return _progress.towerFloor; }
+  function setTowerFloor(n) { _progress.towerFloor = n; }
+  function getTowerBest() { return _progress.towerBest; }
   function setTowerBest(n) {
-    if (n > getTowerBest()) safeLSSet('bs-tower-best', String(n));
+    if (n > _progress.towerBest) _progress.towerBest = n;
   }
   function isTowerUnlocked() { return getAscension() >= 5; }
   function getTowerBossForFloor(floor) {
@@ -1829,49 +1820,27 @@
     };
     return milestones[floor] || null;
   }
-  function getTowerClaimedFloors() {
-    try { return JSON.parse(localStorage.getItem('bs-tower-claimed') || '[]'); }
-    catch { return []; }
-  }
+  function getTowerClaimedFloors() { return _progress.towerClaimed; }
   function claimTowerFloor(floor) {
-    var claimed = getTowerClaimedFloors();
-    if (!claimed.includes(floor)) {
-      claimed.push(floor);
-      safeLSSet('bs-tower-claimed', JSON.stringify(claimed));
-    }
+    if (!_progress.towerClaimed.includes(floor)) _progress.towerClaimed.push(floor);
   }
 
   // Claimed boss rewards (prevent double-claiming)
-  function getClaimedRewards() {
-    try { return JSON.parse(localStorage.getItem('bs-claimed-rewards') || '[]'); }
-    catch { return []; }
-  }
+  function getClaimedRewards() { return _progress.claimedRewards; }
   function claimReward(bossId) {
-    const claimed = getClaimedRewards();
-    if (!claimed.includes(bossId)) {
-      claimed.push(bossId);
-      safeLSSet('bs-claimed-rewards', JSON.stringify(claimed));
-    }
+    if (!_progress.claimedRewards.includes(bossId)) _progress.claimedRewards.push(bossId);
   }
   function isRewardClaimed(bossId) {
-    return getClaimedRewards().includes(bossId);
+    return _progress.claimedRewards.includes(bossId);
   }
-
 
   // Visual unlocks (earned from boss kills)
-  function getUnlockedVisuals() {
-    try { return JSON.parse(localStorage.getItem('bs-visual-unlocks') || '["palette_earth","container_masked"]'); }
-    catch { return ['palette_earth', 'container_masked']; }
-  }
+  function getUnlockedVisuals() { return _progress.visualUnlocks; }
   function unlockVisual(key) {
-    const unlocks = getUnlockedVisuals();
-    if (!unlocks.includes(key)) {
-      unlocks.push(key);
-      safeLSSet('bs-visual-unlocks', JSON.stringify(unlocks));
-    }
+    if (!_progress.visualUnlocks.includes(key)) _progress.visualUnlocks.push(key);
   }
   function hasVisualUnlock(key) {
-    return getUnlockedVisuals().includes(key);
+    return _progress.visualUnlocks.includes(key);
   }
 
   // ============================================================
@@ -1904,19 +1873,17 @@
   }
 
   function getWeeklyRecord() {
-    try {
-      var data = JSON.parse(localStorage.getItem('bs-weekly-boss') || '{}');
-      if (data.week !== getWeeklyBossKey()) return { week: getWeeklyBossKey(), wins: 0, losses: 0, rewardClaimed: false };
-      return data;
-    } catch (e) { return { week: getWeeklyBossKey(), wins: 0, losses: 0, rewardClaimed: false }; }
+    var wb = _progress.weeklyBoss;
+    if (!wb || wb.week !== getWeeklyBossKey()) {
+      _progress.weeklyBoss = { week: getWeeklyBossKey(), wins: 0, losses: 0, rewardClaimed: false };
+    }
+    return _progress.weeklyBoss;
   }
 
   function recordWeeklyResult(isWin) {
     var rec = getWeeklyRecord();
-    rec.week = getWeeklyBossKey();
     if (isWin) rec.wins++;
     else rec.losses++;
-    safeLSSet('bs-weekly-boss', JSON.stringify(rec));
   }
 
   function isWeeklyRewardClaimed() {
@@ -1924,9 +1891,7 @@
   }
 
   function claimWeeklyReward() {
-    var rec = getWeeklyRecord();
-    rec.rewardClaimed = true;
-    safeLSSet('bs-weekly-boss', JSON.stringify(rec));
+    getWeeklyRecord().rewardClaimed = true;
   }
 
   function getDaysUntilWeeklyReset() {
@@ -2141,7 +2106,7 @@
       // Update selected card
       _selectedCard = nextCard;
       ensureCombatStats(_selectedCard);
-      safeLSSet('bs-selected-card-id', _selectedCard.id);
+      _progress.selectedCardId = _selectedCard.id;
       syncProgressToServer();
 
       // Remove slide-out, render new card, add slide-in
@@ -2307,7 +2272,8 @@
 
       _selectedCard = targetCard;
       ensureCombatStats(_selectedCard);
-      safeLSSet('bs-selected-card-id', _selectedCard.id);
+      _progress.selectedCardId = _selectedCard.id;
+      syncProgressToServer();
       renderDeckManagement();
     };
   }
@@ -2677,8 +2643,8 @@
     if (proofBattles && proofCards) {
       var baseBattles = 12847;
       var baseCards = 3291;
-      var playerWins = parseInt(localStorage.getItem('bs-total-wins') || '0', 10);
-      var playerForge = parseInt(localStorage.getItem('bs-forge-visits') || '0', 10);
+      var playerWins = _progress.totalWins;
+      var playerForge = _progress.forgeVisits;
       proofBattles.textContent = (baseBattles + playerWins).toLocaleString();
       proofCards.textContent = (baseCards + playerForge).toLocaleString();
     }
@@ -2857,7 +2823,8 @@
           var cards = data.userCards || [];
           cards.forEach(function(c) { addCardToDeck(c); });
           // Select the new card
-          safeLSSet('bs-selected-card-id', cardId);
+          _progress.selectedCardId = cardId;
+          syncProgressToServer();
           window.location.href = '/blindspot/play.html';
         }).catch(function() {
           window.location.href = '/blindspot/play.html';
@@ -3064,17 +3031,8 @@
       return;
     }
 
-    // Merge server-side Blindspot progression into localStorage (skip for guests)
-    if (profile && !isGuestMode) {
-      try {
-        var bsProfile = await BlindspotAPI.loadProfile();
-        if (bsProfile && bsProfile.profile && !bsProfile.isDemo) {
-          mergeServerProfile(bsProfile.profile);
-        }
-      } catch (e) {
-        console.warn('[Blindspot] profile load failed, using localStorage:', e.message);
-      }
-    }
+    // Load progression from server (source of truth) — falls back to localStorage cache
+    await loadProgressFromServer();
 
     // For guests or firstFight, prioritize localStorage deck over server
     var cards;
@@ -3086,7 +3044,7 @@
       cards = await loadUserCards();
     }
     if (cards.length > 0) {
-      var savedCardId = localStorage.getItem('bs-selected-card-id') || (profile && profile.selectedCardId);
+      var savedCardId = _progress.selectedCardId || (profile && profile.selectedCardId);
       _selectedCard = savedCardId
         ? cards.find(c => c.id === savedCardId) || cards[0]
         : cards[0];
@@ -3124,11 +3082,10 @@
       return;
     }
 
-    // Sync Blindspot boss progress from server BEFORE rendering (authoritative source)
-    if (profile.pveProgress && profile.pveProgress.blindspotHighestDefeated !== undefined) {
-      safeLSSet('bs-highest-boss', String(profile.pveProgress.blindspotHighestDefeated - 100));
-    } else {
-      safeLSSet('bs-highest-boss', '0');
+    // Sync arena boss progress into _progress if server has higher
+    if (profile && profile.pveProgress && profile.pveProgress.blindspotHighestDefeated !== undefined) {
+      var serverBoss = profile.pveProgress.blindspotHighestDefeated - 100;
+      if (serverBoss > _progress.highestBoss) _progress.highestBoss = serverBoss;
     }
 
     renderLobby();
@@ -4479,7 +4436,6 @@
       // Track wins for win2 bounty
       const bountyData = getDailyBounties();
       bountyData.wins = (bountyData.wins || 0) + 1;
-      safeLSSet('bs-bounties', JSON.stringify(bountyData));
       if (bountyData.wins >= 2) completeBounty('win2');
       // Battle crate: every 5 wins
       checkBattleCrate();
@@ -5621,7 +5577,7 @@
     await loadProfile();
     const cards = await loadUserCards();
     if (cards.length > 0) {
-      var savedId = localStorage.getItem('bs-selected-card-id') || (_profile && _profile.selectedCardId);
+      var savedId = _progress.selectedCardId || (_profile && _profile.selectedCardId);
       _selectedCard = savedId
         ? cards.find(c => c.id === savedId) || cards[0]
         : cards[0];
@@ -5904,23 +5860,22 @@
   ];
 
   function getChallengeProgress() {
-    try { return JSON.parse(localStorage.getItem('bs-challenges') || '{}'); }
-    catch (e) { return {}; }
+    return _progress.challenges;
   }
 
   function saveChallengeProgress(data) {
-    safeLSSet('bs-challenges', JSON.stringify(data));
+    _progress.challenges = data;
   }
 
   function getChallengeCurrentValue(ch) {
     switch (ch.id) {
-      case 'wins': return parseInt(localStorage.getItem('bs-total-wins') || '0', 10);
+      case 'wins': return _progress.totalWins;
       case 'bosses': return getHighestBossDefeated();
       case 'streak': return getBestStreak();
       case 'forge': return getForgeVisitCount();
       case 'ascension': return getAscension();
       case 'pvp': return 'special'; // handled in tier check
-      case 'bounties': return parseInt(localStorage.getItem('bs-total-bounties') || '0', 10);
+      case 'bounties': return _progress.totalBounties;
       case 'power': return _selectedCard ? getCardPower(_selectedCard) : 0;
     }
     return 0;
@@ -6012,15 +5967,8 @@
     return newClaims.length > 0;
   }
 
-  function incrementTotalWins() {
-    var v = parseInt(localStorage.getItem('bs-total-wins') || '0', 10);
-    safeLSSet('bs-total-wins', String(v + 1));
-  }
-
-  function incrementTotalBounties() {
-    var v = parseInt(localStorage.getItem('bs-total-bounties') || '0', 10);
-    safeLSSet('bs-total-bounties', String(v + 1));
-  }
+  function incrementTotalWins() { _progress.totalWins++; }
+  function incrementTotalBounties() { _progress.totalBounties++; }
 
   function renderChallenges() {
     var el = document.getElementById('bs-challenges');
@@ -6121,14 +6069,13 @@
 
   function getDailyBounties() {
     const today = new Date().toISOString().slice(0, 10);
-    const stored = JSON.parse(localStorage.getItem('bs-bounties') || '{}');
-    if (stored.date !== today) {
+    var stored = _progress.bounties;
+    if (!stored || stored.date !== today) {
       // Generate 3 new bounties for today
       const shuffled = [...BOUNTY_POOL].sort(() => Math.random() - 0.5);
       const bounties = shuffled.slice(0, 3).map(b => ({ ...b, done: false }));
-      const data = { date: today, bounties, fights: 0 };
-      safeLSSet('bs-bounties', JSON.stringify(data));
-      return data;
+      _progress.bounties = { date: today, bounties, fights: 0 };
+      return _progress.bounties;
     }
     return stored;
   }
@@ -6150,7 +6097,6 @@
         });
       }
     }
-    safeLSSet('bs-bounties', JSON.stringify(data));
     if (completed) {
       incrementTotalBounties();
       // Grant bounty rewards
@@ -6409,9 +6355,9 @@
     setAscension(newLevel);
     awardCrate('ascension');
     // Reset boss progress but keep stats/visuals/rank
-    safeLSSet('bs-highest-boss', '0');
-    localStorage.removeItem('bs-boss-records');
-    localStorage.removeItem('bs-mastery-claimed');
+    _progress.highestBoss = 0;
+    _progress.bossRecords = {};
+    _progress.masteryClaimed = {};
     // Unlock ascension visual reward
     const rewardMap = {
       1: 'palette_inferno',
