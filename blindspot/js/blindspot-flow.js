@@ -398,7 +398,99 @@
     }
   };
 
+  // ============================================================
+  // BATTLE AMBIENT AUDIO (Web Audio — no files)
+  // Low rumble drone + subtle crowd murmur via oscillators.
+  // Fades in on battle start, out on result. Respects mute.
+  // ============================================================
 
+  let _ambientNodes = null;
+
+  function startBattleAmbient() {
+    stopBattleAmbient();
+    if (window.ArenaAudio && window.ArenaAudio.isMuted()) return;
+    try {
+      var ctx = getAudioCtx();
+      if (ctx.state === 'suspended') ctx.resume();
+      var t = ctx.currentTime;
+      var master = ctx.createGain();
+      master.gain.setValueAtTime(0, t);
+      master.gain.linearRampToValueAtTime(0.12, t + 2);
+      master.connect(ctx.destination);
+
+      // Low rumble: brown-noise through a tight lowpass (sub-bass)
+      var bufSize = ctx.sampleRate * 2;
+      var buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+      var d = buf.getChannelData(0);
+      var last = 0;
+      for (var i = 0; i < bufSize; i++) {
+        var white = Math.random() * 2 - 1;
+        last = (last + (0.02 * white)) / 1.02;
+        d[i] = last * 3.5;
+      }
+      var noise = ctx.createBufferSource();
+      noise.buffer = buf;
+      noise.loop = true;
+      var lp = ctx.createBiquadFilter();
+      lp.type = 'lowpass';
+      lp.frequency.value = 100;
+      var noiseGain = ctx.createGain();
+      noiseGain.gain.value = 0.7;
+      noise.connect(lp);
+      lp.connect(noiseGain);
+      noiseGain.connect(master);
+      noise.start(t);
+
+      // Drone hum: two detuned sine oscillators for subtle beating
+      var osc1 = ctx.createOscillator();
+      osc1.type = 'sine';
+      osc1.frequency.value = 55;
+      var osc2 = ctx.createOscillator();
+      osc2.type = 'sine';
+      osc2.frequency.value = 55.5;
+      var droneGain = ctx.createGain();
+      droneGain.gain.value = 0.4;
+      osc1.connect(droneGain);
+      osc2.connect(droneGain);
+      droneGain.connect(master);
+      osc1.start(t);
+      osc2.start(t);
+
+      // Crowd murmur: bandpass-filtered noise (distant crowd feel)
+      var crowdBuf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+      var cd = crowdBuf.getChannelData(0);
+      for (var j = 0; j < bufSize; j++) cd[j] = (Math.random() * 2 - 1);
+      var crowdSrc = ctx.createBufferSource();
+      crowdSrc.buffer = crowdBuf;
+      crowdSrc.loop = true;
+      var bp = ctx.createBiquadFilter();
+      bp.type = 'bandpass';
+      bp.frequency.value = 600;
+      bp.Q.value = 0.8;
+      var crowdGain = ctx.createGain();
+      crowdGain.gain.value = 0.15;
+      crowdSrc.connect(bp);
+      bp.connect(crowdGain);
+      crowdGain.connect(master);
+      crowdSrc.start(t);
+
+      _ambientNodes = { master: master, sources: [noise, osc1, osc2, crowdSrc], ctx: ctx };
+    } catch (e) { /* audio not supported */ }
+  }
+
+  function stopBattleAmbient() {
+    if (!_ambientNodes) return;
+    try {
+      var ctx = _ambientNodes.ctx;
+      var t = ctx.currentTime;
+      _ambientNodes.master.gain.linearRampToValueAtTime(0, t + 1.5);
+      var sources = _ambientNodes.sources;
+      setTimeout(function () {
+        sources.forEach(function (s) { try { s.stop(); } catch (e) { /* already stopped */ } });
+      }, 2000);
+    } catch (e) { /* fail silently */ }
+    _ambientNodes = null;
+  }
 
   // ============================================================
   // STRATEGY SYSTEM — Passives, Archetypes, Move Upgrades
@@ -2235,6 +2327,7 @@
       const origInit = window.ArenaBattleUI.initBattle;
       window.ArenaBattleUI.initBattle = function (battleData) {
         resetBattleStats();
+        startBattleAmbient();
         var result = origInit.call(window.ArenaBattleUI, battleData);
         addCharmButtonToBattle();
         // Boss dialogue at battle start
@@ -2364,6 +2457,8 @@
     _origShowResults = window.ArenaResults.showResults;
 
     window.ArenaResults.showResults = function (battleResult, battleData) {
+      // Fade out ambient audio
+      stopBattleAmbient();
       // Remove tutorial if active
       removeTutorial();
 
