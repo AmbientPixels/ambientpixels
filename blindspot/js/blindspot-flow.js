@@ -363,6 +363,48 @@
     healDisrupt: 'Healing is halved if the boss strikes you.'
   };
 
+  // Tutorial hints for first 3 campaign battles
+  const TUTORIAL_MAX_BATTLES = 3;
+  const TUTORIAL_ROUND1_HINTS = [
+    'Strike deals damage. Guard blocks it. Try Strike!',
+    'Counter reflects strikes back — risky but rewarding!',
+    'Heal restores HP. Use it when you\u2019re below half.'
+  ];
+  const TUTORIAL_COUNTER_HINTS = {
+    guard: 'The boss guarded — Ability stuns guards!',
+    strike: 'The boss struck — Guard or Counter blocks strikes!',
+    ability: 'The boss used an ability — Strike while they recover!',
+    heal: 'The boss healed — Strike to disrupt healing!',
+    counter: 'The boss countered — Ability bypasses counters!'
+  };
+
+  function getTutorialBattleCount() {
+    return parseInt(localStorage.getItem('bs-tutorial-battle-count') || '0', 10);
+  }
+  function incrementTutorialBattleCount() {
+    var c = getTutorialBattleCount() + 1;
+    localStorage.setItem('bs-tutorial-battle-count', String(c));
+    return c;
+  }
+  function isInTutorialRange() {
+    return getTutorialBattleCount() <= TUTORIAL_MAX_BATTLES;
+  }
+
+  function showTutorialHint(text) {
+    var el = document.getElementById('bs-battle-hint');
+    if (!el) return;
+    el.innerHTML = '<i class="fas fa-lightbulb" style="color:var(--bs-accent);" aria-hidden="true"></i> ' +
+      '<span>' + text + '</span>' +
+      '<button class="bs-hint-dismiss" aria-label="Dismiss hint" style="margin-left:auto; background:none; border:none; color:var(--bs-text-muted); cursor:pointer; padding:0.25rem; font-size:0.85rem;"><i class="fas fa-times" aria-hidden="true"></i></button>';
+    el.style.display = '';
+    var dismissBtn = el.querySelector('.bs-hint-dismiss');
+    if (dismissBtn) {
+      dismissBtn.addEventListener('click', function() {
+        el.style.display = 'none';
+      }, { once: true });
+    }
+  }
+
   // ============================================================
   // SHARED UTILITIES
   // ============================================================
@@ -813,6 +855,13 @@
     const move = roundResult.playerMove;
     if (move && _battleRoundStats.moves.hasOwnProperty(move)) {
       _battleRoundStats.moves[move]++;
+    }
+    // Tutorial: show contextual hint about enemy move for first 3 campaign battles
+    if (isInTutorialRange() && _battleType === 'pve' && roundResult.opponentMove) {
+      var hint = TUTORIAL_COUNTER_HINTS[roundResult.opponentMove];
+      if (hint) {
+        setTimeout(function() { showTutorialHint(hint); }, 600);
+      }
     }
   }
 
@@ -2363,7 +2412,14 @@
       window.ArenaBattleUI.initBattle(battleData);
       updateCombatTooltips();
       applyBattlePalette();
-      showBattleHint('round1');
+      // Tutorial hint for first 3 campaign battles; normal hint otherwise
+      var tutBattle = getTutorialBattleCount();
+      if (tutBattle < TUTORIAL_MAX_BATTLES) {
+        incrementTutorialBattleCount();
+        showTutorialHint(TUTORIAL_ROUND1_HINTS[tutBattle] || TUTORIAL_ROUND1_HINTS[0]);
+      } else {
+        showBattleHint('round1');
+      }
     } catch (err) {
       console.error('[Blindspot] Campaign battle error:', err);
       showErrorToast('Battle error: ' + (err.message || 'Unknown error'));
