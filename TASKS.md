@@ -4,6 +4,7 @@
 Blindspot is a standalone arena combat card game at /blindspot/. 74 iterations shipped. Core loop works: landing → stranger fight → quick build → campaign (10 bosses with images) → forge → PvP. Needs polish to feel like a shippable game.
 
 ## Done
+- (2026-03-21) Crate inventory + earn triggers: all earn hooks wired — Battle Crate (every 5 wins), Boss Crate (first kill), Weekly Crate (weekly boss), Ascension Crate (on ascension). Sparks Shop in lobby — buy Ember Crate for 50 sparks with disabled state. Crate badge shows count. Toast + SFX on earn.
 - (2026-03-21) Boss mastery stars: 3 tiers (bronze/silver/gold at 3/5/10 wins). Bronze: +1 to boss weakness stat. Silver: title "BossName's Bane". Gold: +25 sparks. Stars render on campaign ladder next to boss name. Mastery resets on ascension.
 - (2026-03-21) Card rarity system: forge visits drive rarity — Common (0) → Uncommon (3, +2% crit) → Rare (8, +5% crit) → Epic (15, +3 all stats) → Legendary (25, +5 all stats, "The Forgeborn" title). Border glow per tier, rarity badge on lobby card, passives panel shows rarity bonuses, upgrade toast on tier change.
 - (2026-03-21) Move result feedback: already implemented — MOVE_BEATS map, flashMoveResult() with green/red glow, CSS at line 1690.
@@ -93,7 +94,7 @@ Blindspot is a standalone arena combat card game at /blindspot/. 74 iterations s
 ### Phase 5: Loot crates — the dopamine loop
 17. **Loot crate data model** — Define crate types in `blindspot/data/game-config.json`: Battle Crate (every 5 wins), Boss Crate (first boss kill), Weekly Crate (weekly boss), Ember Crate (50 sparks), Ascension Crate (per ascension). Loot tables with weighted rarity: common 60%, uncommon 25%, rare 12%, epic 3%. Drop pools: stat boosts (+3/+5/+8/+12), sparks (10/25/50/100), forge tokens, respec scrolls, XP boosters, card frames (gold filigree, bone, crystal, circuit, dragon scale), card backs, name plates (flame text, glitch, royal banner), victory animations (confetti, lightning, ravens), battle charms, titles with effects.
 
-18. **Crate inventory + earn triggers** — Store unopened crates in localStorage `bs-crates` array. Track win counter, award Battle Crate every 5 wins. Boss Crate on first kill. Weekly Crate on weekly boss clear. Ascension Crate on ascension. Show crate count badge in lobby below forge progress. Toast "Crate earned!" on award. Ember Crate purchase in a Sparks shop section.
+18. ~~**Crate inventory + earn triggers**~~ ✅ Done
 
 19. **Crate opening ceremony** — Full-screen overlay with interactive sequence: (a) Crate appears center, glowing with rarity particles. (b) Tap to start — crate shakes with increasing intensity (CSS keyframes). (c) Roulette: items scroll through a slot-machine strip, slowing over 2-3s. (d) Burst reveal: crate explodes (scale + opacity), winning item zooms in with glow + particle burst matching rarity (white/green/blue/purple). (e) Item card with "Equip Now" / "Collect" buttons. Web Audio SFX: ratchet clicks during spin, cymbal crash on reveal.
 
