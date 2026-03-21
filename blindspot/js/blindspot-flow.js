@@ -3159,7 +3159,7 @@
       resultEl.innerHTML = '';
 
       try {
-        var resp = await fetch('/api/content-quick-generate', {
+        var resp = await fetch('https://ambientpixels-nova-api.azurewebsites.net/api/content-quick-generate', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
           body: JSON.stringify({
