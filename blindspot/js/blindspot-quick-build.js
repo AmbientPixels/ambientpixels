@@ -134,8 +134,19 @@
   // ===== STEP 1: ORIGIN (Vibe) =====
 
   function _renderVibeStep() {
+    var selectedVibe = _state.vibe;
+    var previewHtml = selectedVibe
+      ? `<div class="qb-vibe-preview">
+          <div class="qb-vibe-preview__card" data-preset="${selectedVibe.presetId}">
+            <i class="fas ${selectedVibe.icon}" style="font-size:1.5rem; opacity:0.6;"></i>
+            <span style="font-size:0.7rem; margin-top:0.25rem;">${selectedVibe.label}</span>
+          </div>
+          <span class="qb-style-desc" style="margin-top:0.35rem;">Style: ${selectedVibe.presetId.replace(/-/g, ' ')}</span>
+        </div>`
+      : '';
     return `
       <p class="qb-panel-desc">Choose your origin. This sets the visual theme for your card.</p>
+      ${previewHtml}
       <div class="qb-vibe-grid">
         ${VIBES.map(v => `
           <div class="qb-vibe-card ${_state.vibe?.id === v.id ? 'selected' : ''}" data-vibe-id="${v.id}">
@@ -550,9 +561,16 @@
       const previewContainer = document.getElementById('qb-card-preview');
       if (sourcePreview && previewContainer) {
         const clone = sourcePreview.cloneNode(true);
-        clone.style.transform = 'scale(0.7)';
+        var pw = sourcePreview.offsetWidth || 350;
+        var ph = sourcePreview.offsetHeight || 490;
+        var sc = Math.min(300 / pw, 420 / ph);
+        clone.style.transform = 'scale(' + sc.toFixed(3) + ')';
         clone.style.transformOrigin = 'top center';
+        clone.style.position = 'absolute';
+        clone.style.left = ((300 - pw * sc) / 2) + 'px';
+        clone.style.top = '0';
         previewContainer.innerHTML = '';
+        previewContainer.style.position = 'relative';
         previewContainer.appendChild(clone);
       }
 
@@ -640,9 +658,16 @@
         const previewContainer = document.getElementById('qb-card-preview');
         if (sourcePreview && previewContainer) {
           const clone = sourcePreview.cloneNode(true);
-          clone.style.transform = 'scale(0.7)';
+          var pw2 = sourcePreview.offsetWidth || 350;
+          var ph2 = sourcePreview.offsetHeight || 490;
+          var sc2 = Math.min(300 / pw2, 420 / ph2);
+          clone.style.transform = 'scale(' + sc2.toFixed(3) + ')';
           clone.style.transformOrigin = 'top center';
+          clone.style.position = 'absolute';
+          clone.style.left = ((300 - pw2 * sc2) / 2) + 'px';
+          clone.style.top = '0';
           previewContainer.innerHTML = '';
+          previewContainer.style.position = 'relative';
           previewContainer.appendChild(clone);
         }
       } catch (err) {

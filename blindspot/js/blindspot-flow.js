@@ -2881,11 +2881,21 @@
       <a href="/blindspot/login.html?redirect=/blindspot/" class="bs-btn bs-btn--primary bs-btn--full bs-btn--glow" style="text-decoration:none; text-align:center; display:block; max-width:320px;">
         <i class="fas fa-sign-in-alt"></i> Sign In to Continue
       </a>
-      <button class="bs-btn bs-btn--secondary bs-btn--full" style="margin-top:0.75rem; max-width:320px;" id="bs-demo-replay">
+      <button class="bs-btn bs-btn--secondary bs-btn--full" style="margin-top:0.75rem; max-width:320px;" id="bs-demo-guest">
+        <i class="fas fa-play"></i> Continue as Guest
+      </button>
+      <p style="font-size:0.7rem; color:var(--bs-text-muted); margin-top:0.5rem; max-width:320px; text-align:center;">Guest progress is saved locally only</p>
+      <button class="bs-btn bs-btn--secondary bs-btn--full" style="margin-top:0.5rem; max-width:320px; opacity:0.6;" id="bs-demo-replay">
         <i class="fas fa-redo"></i> Start Over as Stranger
       </button>
     `;
     document.body.appendChild(overlay);
+    document.getElementById('bs-demo-guest')?.addEventListener('click', () => {
+      overlay.remove();
+      safeLSSet('blindspot-onboarded', 'true');
+      safeLSSet('bs-guest-mode', 'true');
+      window.location.href = '/blindspot/play.html?firstFight=true';
+    });
     document.getElementById('bs-demo-replay')?.addEventListener('click', () => {
       overlay.remove();
       document.getElementById('bs-landing').style.display = '';
@@ -3047,23 +3057,35 @@
     // Wait for profile
     const profile = await profilePromise;
 
-    if (!profile) {
+    var isGuestMode = localStorage.getItem('bs-guest-mode') === 'true';
+
+    if (!profile && !isGuestMode) {
       dismissLoadingGate();
       window.location.href = '/blindspot/';
       return;
     }
 
-    // Merge server-side Blindspot progression into localStorage
-    try {
-      var bsProfile = await BlindspotAPI.loadProfile();
-      if (bsProfile && bsProfile.profile && !bsProfile.isDemo) {
-        mergeServerProfile(bsProfile.profile);
+    // Merge server-side Blindspot progression into localStorage (skip for guests)
+    if (profile && !isGuestMode) {
+      try {
+        var bsProfile = await BlindspotAPI.loadProfile();
+        if (bsProfile && bsProfile.profile && !bsProfile.isDemo) {
+          mergeServerProfile(bsProfile.profile);
+        }
+      } catch (e) {
+        console.warn('[Blindspot] profile load failed, using localStorage:', e.message);
       }
-    } catch (e) {
-      console.warn('[Blindspot] profile load failed, using localStorage:', e.message);
     }
 
-    const cards = await loadUserCards();
+    // For guests or firstFight, prioritize localStorage deck over server
+    var cards;
+    var isFirstFightParam = new URLSearchParams(window.location.search).get('firstFight') === 'true';
+    if (isGuestMode || isFirstFightParam) {
+      var localDeck = getDeck();
+      cards = localDeck.length > 0 ? localDeck : await loadUserCards();
+    } else {
+      cards = await loadUserCards();
+    }
     if (cards.length > 0) {
       var savedCardId = localStorage.getItem('bs-selected-card-id') || (profile && profile.selectedCardId);
       _selectedCard = savedCardId
@@ -3164,6 +3186,21 @@
           </div>
         </div>
       `;
+    }
+
+    // Guest mode banner
+    var guestBanner = document.getElementById('bs-guest-banner');
+    if (localStorage.getItem('bs-guest-mode') === 'true') {
+      if (!guestBanner) {
+        guestBanner = document.createElement('div');
+        guestBanner.id = 'bs-guest-banner';
+        guestBanner.style.cssText = 'text-align:center;padding:0.4rem 0.75rem;background:rgba(239,159,39,0.12);border:1px solid var(--bs-accent-dim);border-radius:6px;margin:0.5rem auto;max-width:360px;font-size:0.75rem;color:var(--bs-text-muted);';
+        guestBanner.innerHTML = '<i class="fas fa-info-circle" style="color:var(--bs-accent);"></i> Guest mode — <a href="/blindspot/login.html?redirect=/blindspot/play.html" style="color:var(--bs-accent);text-decoration:underline;">Sign in</a> to save progress across devices';
+        var lobbyScreen = document.getElementById('bs-screen-lobby');
+        if (lobbyScreen) lobbyScreen.insertBefore(guestBanner, lobbyScreen.firstChild);
+      }
+    } else if (guestBanner) {
+      guestBanner.remove();
     }
 
     renderCardSwitcher();
@@ -3591,8 +3628,18 @@
       if (e.target === backdrop) cleanup();
     });
 
+    // Safety timeout — auto-dismiss if stuck
+    var safetyTimer = setTimeout(function() { cleanup(); }, 10000);
+    var origCleanup = cleanup;
+    cleanup = function() { clearTimeout(safetyTimer); origCleanup(); };
+
     // Start first step after a brief delay for DOM to settle
-    setTimeout(function() { positionStep(0); }, 400);
+    setTimeout(function() {
+      // Verify all targets exist before starting
+      var allTargetsExist = steps.every(function(s) { return document.getElementById(s.target); });
+      if (!allTargetsExist) { cleanup(); return; }
+      positionStep(0);
+    }, 400);
   }
 
   // ============================================================
