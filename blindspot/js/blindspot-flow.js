@@ -717,6 +717,41 @@
     if (indicator) indicator.style.display = count > 0 ? '' : 'none';
     if (badge) badge.textContent = String(count);
     if (plural) plural.textContent = count === 1 ? '' : 's';
+    updateSparksShop();
+  }
+
+  // Sparks shop — Ember Crate purchase
+  var _sparksShopBound = false;
+  function updateSparksShop() {
+    var shop = document.getElementById('bs-sparks-shop');
+    var btn = document.getElementById('bs-buy-ember-crate');
+    if (!shop) return;
+    var sparks = getSparks();
+    var cost = 50;
+    // Show shop only when player has sparks (even if not enough — shows the option)
+    shop.style.display = sparks > 0 ? '' : 'none';
+    if (btn) {
+      btn.disabled = sparks < cost;
+      btn.setAttribute('aria-label', 'Buy Ember Crate for ' + cost + ' Sparks' + (sparks < cost ? ' (not enough Sparks)' : ''));
+    }
+    if (!_sparksShopBound && btn) {
+      _sparksShopBound = true;
+      btn.addEventListener('click', function() {
+        if (getSparks() < cost) {
+          showSuccessToast('Not enough Sparks! Need ' + cost + '.');
+          return;
+        }
+        spendSparks(cost);
+        awardCrate('ember');
+        updateSparksShop();
+        // Update lobby sparks display
+        var statsEl = document.getElementById('bs-lobby-stats');
+        if (statsEl) {
+          var sparksSpan = statsEl.querySelector('[data-tooltip="Spend in the Forge"]');
+          if (sparksSpan) sparksSpan.innerHTML = '<i class="fas fa-fire"></i> ' + getSparks() + ' Sparks';
+        }
+      });
+    }
   }
 
   function escHtml(s) {
