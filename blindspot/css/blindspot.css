@@ -2276,6 +2276,16 @@
   margin-top: 0.5rem;
 }
 
+.bs-results-streak-bonus {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--bs-accent-glow);
+  margin-top: 0.3rem;
+}
+
 /* Session Stats Panel */
 .bs-session-stats {
   margin-top: 0.75rem;

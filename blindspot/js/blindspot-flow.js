@@ -36,6 +36,8 @@
   let _submitMoveHooked = false;
   var _towerPendingFloor = 0;
   var _pendingForge = false;
+  var _lastStreakBonus = 0;
+  var _lastStreakMsg = '';
 
   const RANKS = {
     bronze:   { xp: 0,    icon: 'fa-shield-halved', color: '#CD7F32', label: 'Bronze' },
@@ -2753,6 +2755,41 @@
       setWinStreak(newStreak);
       setBestStreak(newStreak);
 
+      // Streak rewards — milestone bonuses
+      var streakBonus = 0;
+      var streakMsg = '';
+      if (newStreak >= 3 && newStreak < 5) {
+        streakBonus = Math.round(sparkReward * 0.1); // +10% sparks
+        streakMsg = '+' + streakBonus + ' streak sparks';
+      } else if (newStreak >= 5 && newStreak < 10) {
+        streakBonus = Math.round(sparkReward * 0.2); // +20% sparks
+        streakMsg = '+' + streakBonus + ' streak sparks';
+      } else if (newStreak >= 10 && newStreak < 15) {
+        streakBonus = Math.round(sparkReward * 0.3); // +30% sparks
+        streakMsg = '+' + streakBonus + ' streak sparks';
+      } else if (newStreak >= 15) {
+        streakBonus = Math.round(sparkReward * 0.5); // +50% sparks
+        streakMsg = '+' + streakBonus + ' streak sparks';
+      }
+      if (streakBonus > 0) addSparks(streakBonus);
+
+      // Milestone rewards at exact thresholds
+      if (newStreak === 5) {
+        setForgeWins(getForgeWins() + 1);
+        showSuccessToast('5-streak! +1 Forge Win');
+      } else if (newStreak === 10) {
+        addSparks(50);
+        showSuccessToast('10-streak! +50 Sparks');
+      } else if (newStreak === 15) {
+        setCardTitle('The Relentless');
+        addSparks(100);
+        showSuccessToast('15-streak! Title: "The Relentless" + 100 Sparks');
+      }
+
+      // Store streak bonus for results display
+      _lastStreakBonus = streakBonus;
+      _lastStreakMsg = streakMsg;
+
       // Loot choice — pick 1 of 3 rewards
       const lootOptions = [rollLoot(), rollLoot(), rollLoot()];
       const usedStats = new Set();
@@ -2777,6 +2814,8 @@
       if (bountyData.wins >= 2) completeBounty('win2');
     } else {
       setWinStreak(0);
+      _lastStreakBonus = 0;
+      _lastStreakMsg = '';
     }
 
     // Track fight for daily bounty
@@ -2911,11 +2950,20 @@
       // Show power after win (remove previous to prevent stacking)
       const power = getCardPower(_selectedCard);
       document.querySelector('.bs-results-power')?.remove();
+      document.querySelector('.bs-results-streak-bonus')?.remove();
       if (power > 0) {
         const powerEl = document.createElement('div');
         powerEl.className = 'bs-results-power';
         powerEl.innerHTML = `<i class="fas fa-bolt"></i> ${power} Power`;
         subtitleEl?.after(powerEl);
+      }
+      // Show streak bonus in results
+      if (_lastStreakBonus > 0) {
+        const streakEl = document.createElement('div');
+        streakEl.className = 'bs-results-streak-bonus';
+        streakEl.innerHTML = '<i class="fas fa-fire"></i> ' + _lastStreakMsg;
+        var afterEl = document.querySelector('.bs-results-power') || subtitleEl;
+        if (afterEl) afterEl.after(streakEl);
       }
     } else {
       if (titleEl) titleEl.textContent = 'Defeated';
