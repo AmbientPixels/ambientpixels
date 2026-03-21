@@ -3056,15 +3056,8 @@
 }
 
 .bs-play-btn::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: -100%;
-  width: 200%;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, var(--bs-accent-glow), transparent);
-  animation: bs-btn-sweep 3s ease-in-out infinite;
-  opacity: 0.6;
+  content: none !important;
+  display: none !important;
 }
 
 @keyframes bs-btn-sweep {
