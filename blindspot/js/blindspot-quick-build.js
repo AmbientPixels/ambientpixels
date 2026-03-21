@@ -448,6 +448,7 @@
   }
 
   let _galleryCache = null;
+  let _thumbCache = null;
 
   function _bindArtworkEvents() {
     document.querySelectorAll('.qb-artwork-tile').forEach(tile => {
@@ -487,10 +488,11 @@
   }
 
   function _loadGalleryImages(container) {
-    const renderGrid = (images) => {
-      container.innerHTML = images.map(url => {
+    const renderGrid = (originals, thumbs) => {
+      container.innerHTML = originals.map((url, i) => {
+        const thumbUrl = thumbs && thumbs[i] ? thumbs[i] : url;
         const selected = _state.artworkUrl === url ? ' selected' : '';
-        return `<img class="qb-gallery-img${selected}" src="${url}" alt="" loading="lazy" data-url="${url}">`;
+        return `<img class="qb-gallery-img${selected}" src="${thumbUrl}" alt="" data-url="${url}">`;
       }).join('');
 
       container.querySelectorAll('.qb-gallery-img').forEach(img => {
@@ -504,12 +506,17 @@
       });
     };
 
-    if (_galleryCache) { renderGrid(_galleryCache); return; }
+    if (_galleryCache) { renderGrid(_galleryCache, _thumbCache); return; }
 
-    fetch('/cardforge/image-manifest.json')
-      .then(r => r.json())
-      .then(images => { _galleryCache = images; renderGrid(images); })
-      .catch(() => { container.innerHTML = '<div class="qb-status error">Failed to load gallery</div>'; });
+    // Load both manifests in parallel — thumbs for display, originals for card save
+    Promise.all([
+      fetch('/cardforge/image-manifest.json').then(r => r.json()),
+      fetch('/cardforge/image-manifest-thumbs.json').then(r => r.json()).catch(() => null)
+    ]).then(([images, thumbs]) => {
+      _galleryCache = images;
+      _thumbCache = thumbs;
+      renderGrid(images, thumbs);
+    }).catch(() => { container.innerHTML = '<div class="qb-status error">Failed to load gallery</div>'; });
   }
 
   function _bindDetailsEvents() {
