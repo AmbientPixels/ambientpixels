@@ -400,12 +400,13 @@
   function isNewPlayer(profile) {
     // Check localStorage flag first (fast)
     if (localStorage.getItem('blindspot-onboarded')) return false;
-    // Also check if they have cards on the server (survives browser clears)
-    if (profile && profile.cards && profile.cards.length > 0) {
+    // Check server profile: selectedCardId means they've built and selected a card
+    if (profile && profile.selectedCardId) {
       localStorage.setItem('blindspot-onboarded', 'true');
       return false;
     }
-    if (profile && profile.selectedCard) {
+    // Check XP or wins — any progression means not new
+    if (profile && (profile.xp > 0 || (profile.record && profile.record.wins > 0))) {
       localStorage.setItem('blindspot-onboarded', 'true');
       return false;
     }
