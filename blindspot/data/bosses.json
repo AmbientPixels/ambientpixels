@@ -6,14 +6,22 @@
     "name": "The Gatekeeper",
     "class": "Enforcer",
     "flavor": "Everyone passes through here once.",
-    "combatStats": { "str": 45, "agi": 35, "int": 30, "end": 60, "lck": 25 },
+    "combatStats": {
+      "str": 45,
+      "agi": 35,
+      "int": 30,
+      "end": 60,
+      "lck": 25
+    },
     "reward": {
       "type": "stat_bonus",
       "stat": "str",
       "amount": 5,
       "label": "+5 STR"
     },
-    "avatar": "/cardforge/img/bosses/Training-Dummy-02.webp"
+    "avatar": "/cardforge/img/bosses/Training-Dummy-02.webp",
+    "weakness": "int",
+    "bossTip": "High endurance. Use abilities to bypass his guard."
   },
   {
     "boss": 2,
@@ -22,13 +30,21 @@
     "name": "The Warden",
     "class": "Fighter",
     "flavor": "Rules exist for a reason.",
-    "combatStats": { "str": 55, "agi": 35, "int": 30, "end": 55, "lck": 30 },
+    "combatStats": {
+      "str": 55,
+      "agi": 35,
+      "int": 30,
+      "end": 55,
+      "lck": 30
+    },
     "reward": {
       "type": "visual",
       "unlock": "palette_ocean",
       "label": "Ocean Palette"
     },
-    "avatar": "/cardforge/img/bosses/Ironclad-Sentinel-01.webp"
+    "avatar": "/cardforge/img/bosses/Ironclad-Sentinel-01.webp",
+    "weakness": "agi",
+    "bossTip": "Hits hard but slow. Speed lets you act first."
   },
   {
     "boss": 3,
@@ -37,14 +53,22 @@
     "name": "The Ghost",
     "class": "Scout",
     "flavor": "You never see them coming.",
-    "combatStats": { "str": 40, "agi": 60, "int": 35, "end": 45, "lck": 40 },
+    "combatStats": {
+      "str": 40,
+      "agi": 60,
+      "int": 35,
+      "end": 45,
+      "lck": 40
+    },
     "reward": {
       "type": "stat_bonus",
       "stat": "agi",
       "amount": 5,
       "label": "+5 AGI"
     },
-    "avatar": "/cardforge/img/bosses/Shadow-Stalker-01.webp"
+    "avatar": "/cardforge/img/bosses/Shadow-Stalker-01.webp",
+    "weakness": "lck",
+    "bossTip": "Fast and evasive. Crits ignore dodge chance."
   },
   {
     "boss": 4,
@@ -53,13 +77,21 @@
     "name": "The Cipher",
     "class": "Hacker",
     "flavor": "Every system has a flaw.",
-    "combatStats": { "str": 30, "agi": 45, "int": 60, "end": 45, "lck": 45 },
+    "combatStats": {
+      "str": 30,
+      "agi": 45,
+      "int": 60,
+      "end": 45,
+      "lck": 45
+    },
     "reward": {
       "type": "visual",
       "unlock": "palette_neon",
       "label": "Neon Palette"
     },
-    "avatar": "/cardforge/img/bosses/Crystal-Weaver-10.webp"
+    "avatar": "/cardforge/img/bosses/Crystal-Weaver-10.webp",
+    "weakness": "str",
+    "bossTip": "Low health pool. Overwhelming force works."
   },
   {
     "boss": 5,
@@ -68,13 +100,21 @@
     "name": "The Brute",
     "class": "Berserker",
     "flavor": "Subtlety is for cowards.",
-    "combatStats": { "str": 85, "agi": 50, "int": 25, "end": 70, "lck": 40 },
+    "combatStats": {
+      "str": 85,
+      "agi": 50,
+      "int": 25,
+      "end": 70,
+      "lck": 40
+    },
     "reward": {
       "type": "title",
       "title": "Proven",
       "label": "Title: Proven"
     },
-    "avatar": "/cardforge/img/bosses/Warlord-Grax01.webp"
+    "avatar": "/cardforge/img/bosses/Warlord-Grax01.webp",
+    "weakness": "end",
+    "bossTip": "Pure aggression. Outlast him with heals."
   },
   {
     "boss": 6,
@@ -83,13 +123,21 @@
     "name": "The Sage",
     "class": "Scholar",
     "flavor": "Knowledge compounds.",
-    "combatStats": { "str": 30, "agi": 45, "int": 85, "end": 60, "lck": 60 },
+    "combatStats": {
+      "str": 30,
+      "agi": 45,
+      "int": 85,
+      "end": 60,
+      "lck": 60
+    },
     "reward": {
       "type": "visual",
       "unlock": "container_fullbleed",
       "label": "Full Art Layout"
     },
-    "avatar": "/cardforge/img/bosses/Arcane-Scholar-01.webp"
+    "avatar": "/cardforge/img/bosses/Arcane-Scholar-01.webp",
+    "weakness": "str",
+    "bossTip": "Heals often. Strike to disrupt recovery."
   },
   {
     "boss": 7,
@@ -98,14 +146,22 @@
     "name": "The Iron",
     "class": "Guardian",
     "flavor": "Nothing gets through.",
-    "combatStats": { "str": 55, "agi": 35, "int": 40, "end": 90, "lck": 50 },
+    "combatStats": {
+      "str": 55,
+      "agi": 35,
+      "int": 40,
+      "end": 90,
+      "lck": 50
+    },
     "reward": {
       "type": "stat_bonus",
       "stat": "end",
       "amount": 10,
       "label": "+10 END"
     },
-    "avatar": "/cardforge/img/bosses/Titanium-Aegis-01.webp"
+    "avatar": "/cardforge/img/bosses/Titanium-Aegis-01.webp",
+    "weakness": "int",
+    "bossTip": "Walls of defense. Abilities pierce guards."
   },
   {
     "boss": 8,
@@ -114,13 +170,21 @@
     "name": "The Trickster",
     "class": "Trickster",
     "flavor": "Probability is just a suggestion.",
-    "combatStats": { "str": 60, "agi": 65, "int": 60, "end": 55, "lck": 80 },
+    "combatStats": {
+      "str": 60,
+      "agi": 65,
+      "int": 60,
+      "end": 55,
+      "lck": 80
+    },
     "reward": {
       "type": "visual",
       "unlock": "palette_fire",
       "label": "Fire Palette"
     },
-    "avatar": "/cardforge/img/bosses/Void-Harbinger-01.webp"
+    "avatar": "/cardforge/img/bosses/Void-Harbinger-01.webp",
+    "weakness": "lck",
+    "bossTip": "Unpredictable patterns. Crits punish chaos."
   },
   {
     "boss": 9,
@@ -129,14 +193,22 @@
     "name": "The Feral",
     "class": "Berserker",
     "flavor": "Pain stopped mattering long ago.",
-    "combatStats": { "str": 90, "agi": 60, "int": 30, "end": 80, "lck": 50 },
+    "combatStats": {
+      "str": 90,
+      "agi": 60,
+      "int": 30,
+      "end": 80,
+      "lck": 50
+    },
     "reward": {
       "type": "stat_bonus",
       "stat": "str",
       "amount": 10,
       "label": "+10 STR"
     },
-    "avatar": "/cardforge/img/bosses/Gutter-Rat01.webp"
+    "avatar": "/cardforge/img/bosses/Gutter-Rat01.webp",
+    "weakness": "agi",
+    "bossTip": "All-in berserker. Speed + counter destroys him."
   },
   {
     "boss": 10,
@@ -145,13 +217,21 @@
     "name": "The Architect",
     "class": "Caster",
     "flavor": "This is what a Forger becomes when they never stop.",
-    "combatStats": { "str": 50, "agi": 55, "int": 95, "end": 75, "lck": 75 },
+    "combatStats": {
+      "str": 50,
+      "agi": 55,
+      "int": 95,
+      "end": 75,
+      "lck": 75
+    },
     "reward": {
       "type": "title",
       "title": "Forged",
       "label": "Title: Forged"
     },
-    "avatar": "/cardforge/img/bosses/The-Forge-King-01.webp"
+    "avatar": "/cardforge/img/bosses/The-Forge-King-01.webp",
+    "weakness": "end",
+    "bossTip": "The final test. Survive his burst, then grind."
   },
   {
     "boss": 0,
@@ -160,7 +240,13 @@
     "name": "The Revenant",
     "class": "Berserker",
     "flavor": "I keep coming back.",
-    "combatStats": { "str": 80, "agi": 45, "int": 35, "end": 85, "lck": 55 },
+    "combatStats": {
+      "str": 80,
+      "agi": 45,
+      "int": 35,
+      "end": 85,
+      "lck": 55
+    },
     "reward": {
       "type": "stat_bonus",
       "stat": "str",
@@ -177,7 +263,13 @@
     "name": "The Mirage",
     "class": "Trickster",
     "flavor": "Was I ever really here?",
-    "combatStats": { "str": 40, "agi": 85, "int": 50, "end": 45, "lck": 90 },
+    "combatStats": {
+      "str": 40,
+      "agi": 85,
+      "int": 50,
+      "end": 45,
+      "lck": 90
+    },
     "reward": {
       "type": "stat_bonus",
       "stat": "lck",
@@ -194,7 +286,13 @@
     "name": "The Colossus",
     "class": "Guardian",
     "flavor": "You'll need more than that.",
-    "combatStats": { "str": 50, "agi": 30, "int": 45, "end": 95, "lck": 60 },
+    "combatStats": {
+      "str": 50,
+      "agi": 30,
+      "int": 45,
+      "end": 95,
+      "lck": 60
+    },
     "reward": {
       "type": "stat_bonus",
       "stat": "end",
@@ -211,7 +309,13 @@
     "name": "The Oracle",
     "class": "Caster",
     "flavor": "I already know your next move.",
-    "combatStats": { "str": 35, "agi": 55, "int": 90, "end": 55, "lck": 70 },
+    "combatStats": {
+      "str": 35,
+      "agi": 55,
+      "int": 90,
+      "end": 55,
+      "lck": 70
+    },
     "reward": {
       "type": "stat_bonus",
       "stat": "int",

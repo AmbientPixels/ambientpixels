@@ -259,6 +259,109 @@
     }
   };
 
+
+
+  // ============================================================
+  // STRATEGY SYSTEM — Passives, Archetypes, Move Upgrades
+  // ============================================================
+
+  const STAT_PASSIVES = {
+    str: [
+      { threshold: 60, name: 'Heavy Hitter', desc: 'Strike ignores 20% of Guard', icon: 'fa-hand-fist' },
+      { threshold: 80, name: 'Brutal', desc: '+25% crit damage', icon: 'fa-skull-crossbones' }
+    ],
+    agi: [
+      { threshold: 60, name: 'Quick Draw', desc: 'Always act first', icon: 'fa-forward' },
+      { threshold: 80, name: 'Elusive', desc: '15% dodge chance', icon: 'fa-ghost' }
+    ],
+    int: [
+      { threshold: 60, name: 'Focused', desc: 'Ability costs 1 charge (not 2)', icon: 'fa-bullseye' },
+      { threshold: 80, name: 'Arcane Mastery', desc: '+30% ability damage', icon: 'fa-hat-wizard' }
+    ],
+    end: [
+      { threshold: 60, name: 'Resilient', desc: 'Heal also grants 10% DR for 1 round', icon: 'fa-shield-heart' },
+      { threshold: 80, name: 'Unbreakable', desc: 'Auto-heal 5 HP per round', icon: 'fa-heart-circle-plus' }
+    ],
+    lck: [
+      { threshold: 50, name: 'Fortune', desc: '+10% crit chance', icon: 'fa-clover' },
+      { threshold: 70, name: 'Wild Card', desc: 'Crits deal 2x (not 1.5x)', icon: 'fa-dice' }
+    ]
+  };
+
+  const MOVE_UPGRADES = {
+    strike: { stat: 'str', threshold: 60, name: 'Heavy Strike', desc: 'Pierces 20% guard' },
+    heal:   { stat: 'end', threshold: 60, name: 'Fortified Heal', desc: '+10% DR for 1 round' },
+    ability:{ stat: 'int', threshold: 60, name: 'Focused Ability', desc: 'Costs 1 charge' },
+    counter:{ stat: 'agi', threshold: 60, name: 'Flash Counter', desc: 'Acts first' },
+    guard:  { stat: 'end', threshold: 70, name: 'Iron Guard', desc: 'Blocks 75% (not 60%)' }
+  };
+
+  const ARCHETYPES = [
+    { id: 'berserker', name: 'Berserker', primary: 'str', secondary: 'lck', desc: 'Crit-focused damage dealer', icon: 'fa-fire', color: '#ff5252' },
+    { id: 'tank', name: 'Tank', primary: 'end', secondary: 'agi', desc: 'Outlast everything', icon: 'fa-shield-halved', color: '#3498db' },
+    { id: 'mage', name: 'Mage', primary: 'int', secondary: 'agi', desc: 'Fast ability spam', icon: 'fa-hat-wizard', color: '#7b2fff' },
+    { id: 'assassin', name: 'Assassin', primary: 'agi', secondary: 'str', desc: 'Strike first, strike hard', icon: 'fa-user-ninja', color: '#00e676' },
+    { id: 'gambler', name: 'Gambler', primary: 'lck', secondary: 'int', desc: 'Chaos and crits', icon: 'fa-dice', color: '#ffd740' },
+    { id: 'balanced', name: 'Generalist', primary: null, secondary: null, desc: 'Jack of all trades', icon: 'fa-circle-nodes', color: 'var(--bs-text-muted)' }
+  ];
+
+  const WEAKNESS_LABELS = { str: 'STR', agi: 'AGI', int: 'INT', end: 'END', lck: 'LCK' };
+  const WEAKNESS_COLORS = { str: '#ff5252', agi: '#00e676', int: '#7b2fff', end: '#ff9100', lck: '#ffd740' };
+
+  function detectArchetype(stats) {
+    if (!stats) return ARCHETYPES.find(a => a.id === 'balanced');
+    const sorted = Object.entries(stats).sort((a, b) => b[1] - a[1]);
+    const top = sorted[0][0];
+    const second = sorted[1][0];
+    // Find matching archetype
+    for (const arch of ARCHETYPES) {
+      if (arch.primary === top && arch.secondary === second) return arch;
+      if (arch.primary === top) return arch; // Partial match
+    }
+    return ARCHETYPES.find(a => a.id === 'balanced');
+  }
+
+  function getActivePassives(stats) {
+    if (!stats) return [];
+    const active = [];
+    for (const [stat, tiers] of Object.entries(STAT_PASSIVES)) {
+      for (const tier of tiers) {
+        if ((stats[stat] || 0) >= tier.threshold) {
+          active.push({ ...tier, stat });
+        }
+      }
+    }
+    return active;
+  }
+
+  function getNextPassive(stats) {
+    if (!stats) return null;
+    let closest = null;
+    let closestGap = Infinity;
+    for (const [stat, tiers] of Object.entries(STAT_PASSIVES)) {
+      for (const tier of tiers) {
+        const gap = tier.threshold - (stats[stat] || 0);
+        if (gap > 0 && gap < closestGap) {
+          closestGap = gap;
+          closest = { ...tier, stat, gap };
+        }
+      }
+    }
+    return closest;
+  }
+
+  // Battle hints based on context
+  const BATTLE_HINTS = {
+    round1: 'Strike is safe round 1 — bosses rarely guard first.',
+    lowHp: 'HP critical! Heal or Guard to survive.',
+    bossGuarding: 'Boss may guard — use Ability to stun through it.',
+    abilityReady: 'Ability charged! Abilities stun guarding enemies.',
+    highStreak: 'On a streak! Keep the pressure up.',
+    bossLowHp: 'Boss is weakened — go for the kill with Strike.',
+    counterTip: 'Counter reflects strikes back. Risky vs abilities.',
+    healDisrupt: 'Healing is halved if the boss strikes you.'
+  };
+
   // ============================================================
   // SHARED UTILITIES
   // ============================================================
@@ -1457,7 +1560,7 @@
         const flavorEl = document.getElementById('bs-prefight-flavor');
         const titleEl = document.getElementById('bs-prefight-title');
         const avatarEl = document.getElementById('bs-prefight-avatar');
-        if (flavorEl) flavorEl.textContent = '"' + nextBoss.flavor + '"';
+        if (flavorEl) flavorEl.innerHTML = '"' + escHtml(nextBoss.flavor) + '"' + (nextBoss.weakness ? '<br><span style="color:' + (WEAKNESS_COLORS[nextBoss.weakness] || 'var(--bs-accent)') + ';font-size:0.8rem;margin-top:0.5rem;display:inline-block;"><i class="fas fa-crosshairs"></i> Weak to ' + (WEAKNESS_LABELS[nextBoss.weakness] || nextBoss.weakness) + '</span>' : '') + (nextBoss.bossTip ? '<br><span style="font-size:0.75rem;color:var(--bs-text-muted);font-style:normal;">' + escHtml(nextBoss.bossTip) + '</span>' : '');
         if (titleEl) titleEl.textContent = nextBoss.name;
         if (avatarEl) {
           if (nextBoss.avatar) {
@@ -1720,6 +1823,7 @@
             <div class="bs-boss-card__class">${escHtml(boss.class)}</div>
             ${current ? '<span class="bs-boss-card__here"><i class="fas fa-location-dot"></i> You are here</span>' : ''}
             ${rewardBadge}
+            ${boss.weakness ? `<span class="bs-boss-weakness" style="color:${WEAKNESS_COLORS[boss.weakness] || 'var(--bs-accent)'}"><i class="fas fa-crosshairs"></i> Weak to ${WEAKNESS_LABELS[boss.weakness] || boss.weakness}</span>` : ''}
             <div class="bs-boss-card__flavor">"${escHtml(boss.flavor)}"</div>
           </div>
           <div class="bs-boss-card__action">
@@ -1744,7 +1848,7 @@
         const flavorEl = document.getElementById('bs-prefight-flavor');
         const titleEl = document.getElementById('bs-prefight-title');
         const avatarEl = document.getElementById('bs-prefight-avatar');
-        if (flavorEl) flavorEl.textContent = `"${boss.flavor}"`;
+        if (flavorEl) flavorEl.innerHTML = `"${escHtml(boss.flavor)}"` + (boss.weakness ? `<br><span style="color:${WEAKNESS_COLORS[boss.weakness] || 'var(--bs-accent)'};font-size:0.8rem;margin-top:0.5rem;display:inline-block;"><i class="fas fa-crosshairs"></i> Weak to ${WEAKNESS_LABELS[boss.weakness] || boss.weakness}</span>` : '') + (boss.bossTip ? `<br><span style="font-size:0.75rem;color:var(--bs-text-muted);font-style:normal;">${escHtml(boss.bossTip)}</span>` : '');
         if (titleEl) titleEl.textContent = boss.name;
         if (avatarEl) {
           if (boss.avatar) {
@@ -2039,6 +2143,7 @@
       window.ArenaBattleUI.initBattle(battleData);
       updateCombatTooltips();
       applyBattlePalette();
+      showBattleHint('round1');
     } catch (err) {
       console.error('[Blindspot] Campaign battle error:', err);
       if (err.message && err.message.includes('not found')) {
@@ -3806,7 +3911,30 @@
   // COMBAT TOOLTIPS (show damage estimates on move buttons)
   // ============================================================
 
+
+  function showBattleHint(key) {
+    var el = document.getElementById('bs-battle-hint');
+    if (!el) return;
+    var text = BATTLE_HINTS[key];
+    if (!text) { el.style.display = 'none'; return; }
+    el.innerHTML = '<i class="fas fa-lightbulb" style="color:var(--bs-accent);"></i> ' + text;
+    el.style.display = '';
+  }
+
   function updateCombatTooltips() {
+    // Move upgrades — rename buttons based on stat thresholds
+    if (_selectedCard && _selectedCard.combatStats) {
+      var cs = _selectedCard.combatStats;
+      Object.entries(MOVE_UPGRADES).forEach(function(entry) {
+        var move = entry[0], upg = entry[1];
+        if ((cs[upg.stat] || 0) >= upg.threshold) {
+          var btn = document.querySelector('[data-move="' + move + '"] .arena-move-btn__label');
+          var descEl = document.querySelector('[data-move="' + move + '"] .arena-move-btn__desc');
+          if (btn) btn.textContent = upg.name;
+          if (descEl) descEl.textContent = upg.desc;
+        }
+      });
+    }
     if (!_activeBattle || !_activeBattle.player) return;
     const stats = _activeBattle.player.combatStats;
     if (!stats) return;

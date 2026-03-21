@@ -4252,3 +4252,129 @@ body.bs-battle-active .bs-bottom-nav {
   .bs-tower__next-avatar { width: 40px; height: 40px; }
   .bs-tower__enter { padding: 0.4rem 0.8rem !important; font-size: 0.78rem !important; }
 }
+
+
+/* ============================================================
+   STRATEGY LAYER (passives, advisor, weakness, hints)
+   ============================================================ */
+
+/* Build advisor */
+.bs-build-advisor {
+  width: 100%;
+  max-width: 360px;
+  padding: 0.6rem 1rem;
+  background: var(--bs-surface);
+  border: 1px solid var(--bs-border);
+  border-radius: 8px;
+  font-size: 0.8rem;
+}
+
+.bs-advisor-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.3rem;
+}
+
+.bs-advisor-archetype {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.bs-advisor-desc {
+  font-size: 0.7rem;
+  color: var(--bs-text-muted);
+  margin-left: auto;
+}
+
+.bs-advisor-next {
+  font-size: 0.7rem;
+  color: var(--bs-text-muted);
+  margin-top: 0.3rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.bs-advisor-gap {
+  font-size: 0.6rem;
+  color: var(--bs-text-muted);
+}
+
+/* Active passives */
+.bs-passives-display {
+  width: 100%;
+  max-width: 360px;
+}
+
+.bs-passives-header {
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 0.75rem;
+  color: var(--bs-accent);
+  margin-bottom: 0.4rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.bs-passive-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.6rem;
+  background: var(--bs-surface);
+  border: 1px solid var(--bs-border);
+  border-radius: 6px;
+  font-size: 0.7rem;
+  margin-bottom: 0.3rem;
+}
+
+.bs-passive-chip i {
+  font-size: 0.75rem;
+  width: 16px;
+  text-align: center;
+}
+
+.bs-passive-desc {
+  font-size: 0.6rem;
+  color: var(--bs-text-muted);
+  margin-left: auto;
+}
+
+/* Boss weakness badge */
+.bs-boss-weakness {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.6rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+  background: rgba(0,0,0,0.2);
+  margin-top: 0.15rem;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+/* Battle hint bar */
+.bs-battle-hint {
+  padding: 0.5rem 1rem;
+  background: rgba(239, 159, 39, 0.08);
+  border: 1px solid rgba(239, 159, 39, 0.15);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  color: var(--bs-text-muted);
+  text-align: center;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+@media (max-width: 480px) {
+  .bs-build-advisor { max-width: 100%; padding: 0.5rem 0.75rem; }
+  .bs-advisor-desc { display: none; }
+  .bs-passive-chip { padding: 0.25rem 0.5rem; font-size: 0.65rem; }
+  .bs-battle-hint { font-size: 0.65rem; padding: 0.4rem 0.75rem; }
+}
