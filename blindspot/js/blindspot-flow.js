@@ -904,6 +904,50 @@
     }
   }
 
+  // Data-driven loss tip based on what happened in the fight
+  function getLossTip() {
+    const s = _battleRoundStats;
+    const boss = _bosses.find(function(b) { return b.id === _currentBossId; });
+    if (!s || s.rounds === 0) {
+      // Fallback to class-based tip
+      var classTips = {
+        'Enforcer': 'Enforcers guard often. Use Ability to break through.',
+        'Fighter': 'Fighters strike hard. Guard or Counter their attacks.',
+        'Scout': 'Scouts are fast and evasive. Use abilities.',
+        'Hacker': 'Hackers use abilities often. Guard when they charge up.',
+        'Berserker': 'Berserkers are all-in on strikes. Counter destroys them.',
+        'Scholar': 'Scholars mix heals and abilities. Pressure with strikes.',
+        'Guardian': 'Guardians are tanks. Use abilities, not strikes.',
+        'Trickster': 'Tricksters are unpredictable. Watch their pattern.',
+        'Caster': 'Casters hit hard with abilities. Guard when charged.'
+      };
+      return boss ? (classTips[boss.class] || 'Your card remembers.') : 'Your card remembers.';
+    }
+    // Analyze what went wrong
+    if (s.healingDone === 0 && s.damageTaken > 0) {
+      return 'You never healed. Try Heal when below 50% HP.';
+    }
+    if (s.moves.guard === 0 && s.moves.counter === 0 && s.damageTaken > s.damageDealt) {
+      return 'You took more damage than you dealt. Try Guard or Counter.';
+    }
+    if (s.moves.strike > 0 && s.moves.ability === 0 && boss && (boss.class === 'Guardian' || boss.class === 'Enforcer')) {
+      return 'Strikes bounce off guards. Use Ability to break through.';
+    }
+    if (s.moves.ability > 0 && s.moves.strike === 0) {
+      return 'Mix in Strikes — abilities need charges to recharge.';
+    }
+    if (s.damageTaken > s.damageDealt * 1.5) {
+      return 'You were overwhelmed. Guard absorbs damage, Counter punishes attacks.';
+    }
+    if (s.moves.counter >= s.rounds * 0.5) {
+      return 'Too many Counters. Counter only works against Strikes.';
+    }
+    // Fallback to class-based
+    var patterns = CLASS_PATTERNS[boss ? boss.class : ''];
+    if (patterns) return (boss ? boss.name : 'This boss') + ' favors ' + patterns + '. Plan around that.';
+    return 'Your card remembers. Try a different strategy.';
+  }
+
   function renderSessionStats() {
     if (!_battleRoundStats || _battleRoundStats.rounds === 0) return;
     const s = _battleRoundStats;
@@ -1315,7 +1359,7 @@
 
     const againBtn = document.getElementById('arena-results-again');
     const lobbyBtn = document.getElementById('arena-results-lobby');
-    if (againBtn) againBtn.textContent = isWin ? 'Next Fight' : 'Try Again';
+    if (againBtn) againBtn.innerHTML = isWin ? 'Next Fight' : '<i class="fas fa-redo"></i> Rematch';
     if (lobbyBtn) lobbyBtn.textContent = 'Go to Lobby';
 
     // Session stats panel
@@ -2687,7 +2731,7 @@
     // Override CardForge button labels with Blindspot copy
     const againBtn = document.getElementById('arena-results-again');
     const lobbyBtn = document.getElementById('arena-results-lobby');
-    if (againBtn) againBtn.textContent = isWin ? 'Next Fight' : 'Try Again';
+    if (againBtn) againBtn.innerHTML = isWin ? 'Next Fight' : '<i class="fas fa-redo"></i> Rematch';
     if (lobbyBtn) lobbyBtn.textContent = 'Lobby';
 
     // Override results with Blindspot flavor
@@ -2710,19 +2754,7 @@
     } else {
       if (titleEl) titleEl.textContent = 'Defeated';
       if (subtitleEl) {
-        const boss = _bosses.find(b => b.id === _currentBossId);
-        const tips = {
-          'Enforcer': 'Enforcers guard often. Use Ability to break through.',
-          'Fighter': 'Fighters strike hard. Guard or Counter their attacks.',
-          'Scout': 'Scouts are fast. High AGI lets them dodge. Use abilities.',
-          'Hacker': 'Hackers use abilities frequently. Guard when they charge up.',
-          'Berserker': 'Berserkers are all-in on strikes. Counter destroys them.',
-          'Scholar': 'Scholars mix heals and abilities. Pressure them with strikes.',
-          'Guardian': 'Guardians are tanks. Chip away with abilities, not strikes.',
-          'Trickster': 'Tricksters are unpredictable. Watch their pattern and adapt.',
-          'Caster': 'Casters hit hard with abilities. Guard when they have charges.'
-        };
-        const tip = boss ? (tips[boss.class] || 'Your card remembers.') : 'Your card remembers.';
+        const tip = getLossTip();
         subtitleEl.textContent = tip;
       }
     }
