@@ -2899,13 +2899,13 @@
           </div>
         </div>
       </div>
+        </div>
+      </div>
       <div class="bs-forge-actions" style="display:flex; gap:0.75rem; justify-content:center; margin-top:1rem;">
         <button class="bs-btn bs-btn--secondary" id="bs-forge-cancel">Cancel</button>
         <button class="bs-btn bs-btn--primary bs-btn--glow" id="bs-forge-apply" disabled>
           <i class="fas fa-fire"></i> Forge
         </button>
-      </div>
-        </div>
       </div>
     `;
 
