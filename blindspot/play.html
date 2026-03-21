@@ -50,8 +50,15 @@
       <div class="bs-lobby">
         <p class="bs-lobby__status-label">Fighter Status</p>
         <!-- Player card display -->
-        <div class="bs-lobby__card-display" id="bs-player-card">
-          <div class="bs-loading" style="flex-direction:column; padding:1rem;"><div class="bs-spinner" role="status"></div><span style="font-size:0.7rem; margin-top:0.5rem;">Loading...</span></div>
+        <div class="bs-lobby__card-wrapper">
+          <div class="bs-lobby__card-display" id="bs-player-card">
+            <div class="bs-loading" style="flex-direction:column; padding:1rem;"><div class="bs-spinner" role="status"></div><span style="font-size:0.7rem; margin-top:0.5rem;">Loading...</span></div>
+          </div>
+          <div class="bs-card-switcher" id="bs-card-switcher" style="display:none;" role="navigation" aria-label="Switch cards">
+            <button class="bs-card-switcher__btn" id="bs-card-prev" aria-label="Previous card"><i class="fas fa-chevron-left" aria-hidden="true"></i></button>
+            <span class="bs-card-switcher__count" id="bs-card-count">1 / 1</span>
+            <button class="bs-card-switcher__btn" id="bs-card-next" aria-label="Next card"><i class="fas fa-chevron-right" aria-hidden="true"></i></button>
+          </div>
         </div>
 
         <!-- Rank HUD -->

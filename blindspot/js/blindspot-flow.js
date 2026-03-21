@@ -1869,6 +1869,79 @@
   }
 
   // ============================================================
+  // CARD SWITCHER
+  // ============================================================
+
+  var _switcherBound = false;
+
+  function switchCard(direction) {
+    var deck = getDeck();
+    if (deck.length <= 1) return;
+    var currentIdx = getSelectedCardIndex();
+    var nextIdx = direction === 'next'
+      ? (currentIdx + 1) % deck.length
+      : (currentIdx - 1 + deck.length) % deck.length;
+    var nextCard = deck[nextIdx];
+    if (!nextCard) return;
+
+    var cardEl = document.getElementById('bs-player-card');
+    if (!cardEl) return;
+
+    // Slide out animation
+    var outClass = direction === 'next' ? 'bs-card-slide-out-left' : 'bs-card-slide-out-right';
+    var inClass = direction === 'next' ? 'bs-card-slide-in-right' : 'bs-card-slide-in-left';
+
+    cardEl.classList.add(outClass);
+
+    setTimeout(function() {
+      // Update selected card
+      _selectedCard = nextCard;
+      ensureCombatStats(_selectedCard);
+      localStorage.setItem('bs-selected-card-id', _selectedCard.id);
+
+      // Remove slide-out, render new card, add slide-in
+      cardEl.classList.remove(outClass);
+      renderLobby();
+      cardEl.classList.add(inClass);
+
+      setTimeout(function() {
+        cardEl.classList.remove(inClass);
+      }, 250);
+    }, 250);
+  }
+
+  function renderCardSwitcher() {
+    var deck = getDeck();
+    var switcherEl = document.getElementById('bs-card-switcher');
+    if (!switcherEl) return;
+
+    if (deck.length <= 1) {
+      switcherEl.style.display = 'none';
+      return;
+    }
+
+    switcherEl.style.display = '';
+    var countEl = document.getElementById('bs-card-count');
+    if (countEl) {
+      countEl.textContent = (getSelectedCardIndex() + 1) + ' / ' + deck.length;
+    }
+
+    if (!_switcherBound) {
+      _switcherBound = true;
+      var prevBtn = document.getElementById('bs-card-prev');
+      var nextBtn = document.getElementById('bs-card-next');
+      if (prevBtn) prevBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        switchCard('prev');
+      });
+      if (nextBtn) nextBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        switchCard('next');
+      });
+    }
+  }
+
+  // ============================================================
   // SESSION STATS TRACKING
   // ============================================================
 
@@ -2491,8 +2564,9 @@
 
     const cards = await loadUserCards();
     if (cards.length > 0) {
-      _selectedCard = profile.selectedCardId
-        ? cards.find(c => c.id === profile.selectedCardId) || cards[0]
+      var savedCardId = localStorage.getItem('bs-selected-card-id') || (profile && profile.selectedCardId);
+      _selectedCard = savedCardId
+        ? cards.find(c => c.id === savedCardId) || cards[0]
         : cards[0];
       ensureCombatStats(_selectedCard);
     } else {
@@ -2587,6 +2661,7 @@
       `;
     }
 
+    renderCardSwitcher();
     updateRankDisplay();
     updateForgeProgress();
     updateCrateBadge();
@@ -4865,8 +4940,9 @@
     await loadProfile();
     const cards = await loadUserCards();
     if (cards.length > 0) {
-      _selectedCard = (_profile && _profile.selectedCardId)
-        ? cards.find(c => c.id === _profile.selectedCardId) || cards[0]
+      var savedId = localStorage.getItem('bs-selected-card-id') || (_profile && _profile.selectedCardId);
+      _selectedCard = savedId
+        ? cards.find(c => c.id === savedId) || cards[0]
         : cards[0];
       ensureCombatStats(_selectedCard);
     }
