@@ -1548,6 +1548,17 @@
         rewardEl.style.display = 'none';
       }
     }
+
+    // Update quick-fight button label to show next boss
+    const playBtnLabel = document.getElementById('bs-play-btn-label');
+    if (playBtnLabel) {
+      const nextBoss = _bosses.find(b => b.boss === highestBoss + 1);
+      if (nextBoss) {
+        playBtnLabel.textContent = 'FIGHT ' + nextBoss.name.toUpperCase();
+      } else if (highestBoss >= 10) {
+        playBtnLabel.textContent = 'CAMPAIGN COMPLETE';
+      }
+    }
   }
 
   function updateRankDisplay() {
