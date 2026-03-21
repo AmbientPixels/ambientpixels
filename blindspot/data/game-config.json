@@ -24,5 +24,175 @@
   },
   "pvpUnlock": {
     "requireBossDefeated": 10
+  },
+  "crates": {
+    "types": {
+      "battle": {
+        "id": "battle",
+        "name": "Battle Crate",
+        "icon": "fa-box",
+        "color": "var(--bs-text)",
+        "trigger": "every_n_wins",
+        "triggerValue": 5,
+        "description": "Earned every 5 wins",
+        "lootTable": "standard"
+      },
+      "boss": {
+        "id": "boss",
+        "name": "Boss Crate",
+        "icon": "fa-skull-crossbones",
+        "color": "var(--bs-accent)",
+        "trigger": "first_boss_kill",
+        "description": "Earned on first boss defeat",
+        "lootTable": "boss"
+      },
+      "weekly": {
+        "id": "weekly",
+        "name": "Weekly Crate",
+        "icon": "fa-calendar-star",
+        "color": "#fbbf24",
+        "trigger": "weekly_boss_clear",
+        "description": "Earned from the weekly boss",
+        "lootTable": "premium"
+      },
+      "ember": {
+        "id": "ember",
+        "name": "Ember Crate",
+        "icon": "fa-fire-flame-curved",
+        "color": "#ff6b35",
+        "trigger": "purchase",
+        "triggerValue": 50,
+        "description": "Buy with 50 Sparks",
+        "lootTable": "standard"
+      },
+      "ascension": {
+        "id": "ascension",
+        "name": "Ascension Crate",
+        "icon": "fa-angles-up",
+        "color": "#a855f7",
+        "trigger": "ascension",
+        "description": "Earned on each ascension",
+        "lootTable": "premium"
+      }
+    },
+    "lootTables": {
+      "standard": {
+        "rarityWeights": { "common": 60, "uncommon": 25, "rare": 12, "epic": 3 },
+        "pools": ["stat_boosts", "sparks", "forge_tokens", "card_frames", "titles", "battle_charms"]
+      },
+      "boss": {
+        "rarityWeights": { "common": 40, "uncommon": 30, "rare": 22, "epic": 8 },
+        "pools": ["stat_boosts", "sparks", "forge_tokens", "card_frames", "name_plates", "battle_charms"]
+      },
+      "premium": {
+        "rarityWeights": { "common": 25, "uncommon": 35, "rare": 28, "epic": 12 },
+        "pools": ["stat_boosts", "sparks", "forge_tokens", "respec_scrolls", "card_frames", "card_backs", "name_plates", "victory_animations", "battle_charms", "titles"]
+      }
+    },
+    "dropPools": {
+      "stat_boosts": {
+        "category": "consumable",
+        "items": [
+          { "id": "stat_str_3",  "name": "+3 Strength",  "stat": "str", "amount": 3,  "rarity": "common",   "icon": "fa-hand-fist" },
+          { "id": "stat_agi_3",  "name": "+3 Agility",   "stat": "agi", "amount": 3,  "rarity": "common",   "icon": "fa-wind" },
+          { "id": "stat_int_3",  "name": "+3 Intellect", "stat": "int", "amount": 3,  "rarity": "common",   "icon": "fa-bolt" },
+          { "id": "stat_end_3",  "name": "+3 Endurance", "stat": "end", "amount": 3,  "rarity": "common",   "icon": "fa-heart" },
+          { "id": "stat_lck_3",  "name": "+3 Luck",      "stat": "lck", "amount": 3,  "rarity": "common",   "icon": "fa-clover" },
+          { "id": "stat_str_5",  "name": "+5 Strength",  "stat": "str", "amount": 5,  "rarity": "uncommon", "icon": "fa-hand-fist" },
+          { "id": "stat_agi_5",  "name": "+5 Agility",   "stat": "agi", "amount": 5,  "rarity": "uncommon", "icon": "fa-wind" },
+          { "id": "stat_int_5",  "name": "+5 Intellect", "stat": "int", "amount": 5,  "rarity": "uncommon", "icon": "fa-bolt" },
+          { "id": "stat_end_5",  "name": "+5 Endurance", "stat": "end", "amount": 5,  "rarity": "uncommon", "icon": "fa-heart" },
+          { "id": "stat_lck_5",  "name": "+5 Luck",      "stat": "lck", "amount": 5,  "rarity": "uncommon", "icon": "fa-clover" },
+          { "id": "stat_str_8",  "name": "+8 Strength",  "stat": "str", "amount": 8,  "rarity": "rare",     "icon": "fa-hand-fist" },
+          { "id": "stat_agi_8",  "name": "+8 Agility",   "stat": "agi", "amount": 8,  "rarity": "rare",     "icon": "fa-wind" },
+          { "id": "stat_int_8",  "name": "+8 Intellect", "stat": "int", "amount": 8,  "rarity": "rare",     "icon": "fa-bolt" },
+          { "id": "stat_end_8",  "name": "+8 Endurance", "stat": "end", "amount": 8,  "rarity": "rare",     "icon": "fa-heart" },
+          { "id": "stat_lck_8",  "name": "+8 Luck",      "stat": "lck", "amount": 8,  "rarity": "rare",     "icon": "fa-clover" },
+          { "id": "stat_all_12", "name": "+12 All Stats", "stat": "all", "amount": 12, "rarity": "epic",     "icon": "fa-star" }
+        ]
+      },
+      "sparks": {
+        "category": "currency",
+        "items": [
+          { "id": "sparks_10",  "name": "10 Sparks",  "amount": 10,  "rarity": "common",   "icon": "fa-fire" },
+          { "id": "sparks_25",  "name": "25 Sparks",  "amount": 25,  "rarity": "uncommon", "icon": "fa-fire" },
+          { "id": "sparks_50",  "name": "50 Sparks",  "amount": 50,  "rarity": "rare",     "icon": "fa-fire" },
+          { "id": "sparks_100", "name": "100 Sparks", "amount": 100, "rarity": "epic",     "icon": "fa-fire" }
+        ]
+      },
+      "forge_tokens": {
+        "category": "consumable",
+        "items": [
+          { "id": "forge_token_1", "name": "Forge Token",     "amount": 1, "rarity": "uncommon", "icon": "fa-hammer", "description": "Grants 1 forge visit" },
+          { "id": "forge_token_3", "name": "Forge Token x3",  "amount": 3, "rarity": "rare",     "icon": "fa-hammer", "description": "Grants 3 forge visits" }
+        ]
+      },
+      "respec_scrolls": {
+        "category": "consumable",
+        "items": [
+          { "id": "respec_scroll", "name": "Respec Scroll", "amount": 1, "rarity": "rare", "icon": "fa-scroll", "description": "Free respec (no forge win cost)" }
+        ]
+      },
+      "card_frames": {
+        "category": "cosmetic",
+        "slot": "frame",
+        "items": [
+          { "id": "frame_gold_filigree", "name": "Gold Filigree",  "rarity": "uncommon", "icon": "fa-border-all",  "cssClass": "bs-frame--gold-filigree" },
+          { "id": "frame_bone",          "name": "Bone Frame",     "rarity": "uncommon", "icon": "fa-bone",        "cssClass": "bs-frame--bone" },
+          { "id": "frame_crystal",       "name": "Crystal Frame",  "rarity": "rare",     "icon": "fa-gem",         "cssClass": "bs-frame--crystal" },
+          { "id": "frame_circuit",       "name": "Circuit Frame",  "rarity": "rare",     "icon": "fa-microchip",   "cssClass": "bs-frame--circuit" },
+          { "id": "frame_dragon_scale",  "name": "Dragon Scale",   "rarity": "epic",     "icon": "fa-dragon",      "cssClass": "bs-frame--dragon-scale" }
+        ]
+      },
+      "card_backs": {
+        "category": "cosmetic",
+        "slot": "back",
+        "items": [
+          { "id": "back_obsidian",  "name": "Obsidian Back",  "rarity": "uncommon", "icon": "fa-circle",   "cssClass": "bs-back--obsidian" },
+          { "id": "back_starfield", "name": "Starfield Back", "rarity": "rare",     "icon": "fa-star",     "cssClass": "bs-back--starfield" },
+          { "id": "back_inferno",   "name": "Inferno Back",   "rarity": "rare",     "icon": "fa-fire",     "cssClass": "bs-back--inferno" },
+          { "id": "back_void",      "name": "Void Back",      "rarity": "epic",     "icon": "fa-circle-dot", "cssClass": "bs-back--void" }
+        ]
+      },
+      "name_plates": {
+        "category": "cosmetic",
+        "slot": "nameplate",
+        "items": [
+          { "id": "plate_flame",  "name": "Flame Text",     "rarity": "rare", "icon": "fa-fire-flame-curved", "cssClass": "bs-plate--flame" },
+          { "id": "plate_glitch", "name": "Glitch Text",    "rarity": "rare", "icon": "fa-bug",               "cssClass": "bs-plate--glitch" },
+          { "id": "plate_royal",  "name": "Royal Banner",   "rarity": "epic", "icon": "fa-crown",             "cssClass": "bs-plate--royal" }
+        ]
+      },
+      "victory_animations": {
+        "category": "cosmetic",
+        "slot": "victory",
+        "items": [
+          { "id": "victory_confetti",  "name": "Confetti Burst",  "rarity": "rare", "icon": "fa-party-horn",  "cssClass": "bs-victory--confetti" },
+          { "id": "victory_lightning", "name": "Lightning Storm", "rarity": "rare", "icon": "fa-bolt",        "cssClass": "bs-victory--lightning" },
+          { "id": "victory_ravens",    "name": "Raven Flock",     "rarity": "epic", "icon": "fa-crow",        "cssClass": "bs-victory--ravens" }
+        ]
+      },
+      "battle_charms": {
+        "category": "consumable",
+        "slot": "charm",
+        "items": [
+          { "id": "charm_heal_potion",  "name": "Heal Potion",   "rarity": "common",   "icon": "fa-flask",          "description": "Instant 30% HP restore",      "effect": "heal_percent",  "value": 30 },
+          { "id": "charm_power_surge",  "name": "Power Surge",   "rarity": "uncommon", "icon": "fa-explosion",      "description": "+25% damage this round",      "effect": "damage_boost",  "value": 25 },
+          { "id": "charm_shield_wall",  "name": "Shield Wall",   "rarity": "uncommon", "icon": "fa-shield",         "description": "Block all damage this round", "effect": "full_block",    "value": 100 },
+          { "id": "charm_lucky_strike", "name": "Lucky Strike",  "rarity": "rare",     "icon": "fa-clover",         "description": "Guaranteed critical hit",     "effect": "guaranteed_crit", "value": 1 },
+          { "id": "charm_charge_boost", "name": "Charge Boost",  "rarity": "rare",     "icon": "fa-battery-full",   "description": "Full ability charges",        "effect": "full_charges",  "value": 1 }
+        ]
+      },
+      "titles": {
+        "category": "cosmetic",
+        "slot": "title",
+        "items": [
+          { "id": "title_the_lucky",     "name": "The Lucky",      "rarity": "common",   "icon": "fa-clover",  "title": "The Lucky" },
+          { "id": "title_crate_hunter",  "name": "Crate Hunter",   "rarity": "uncommon", "icon": "fa-box",     "title": "Crate Hunter" },
+          { "id": "title_loot_goblin",   "name": "Loot Goblin",    "rarity": "rare",     "icon": "fa-sack",    "title": "Loot Goblin" },
+          { "id": "title_fortune_favored","name": "Fortune's Favored", "rarity": "epic", "icon": "fa-crown",   "title": "Fortune's Favored" }
+        ]
+      }
+    }
   }
 }
