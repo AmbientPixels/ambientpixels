@@ -5742,3 +5742,306 @@ body.bs-battle-active .bs-bottom-nav {
 
   .bs-crate-stage { padding: 1.5rem 0.75rem; }
 }
+
+/* ============================================================
+   COLLECTION SCREEN (cosmetic inventory + equip)
+   ============================================================ */
+
+/* Lobby collection button */
+.bs-collection-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  background: var(--bs-surface);
+  border: 1px solid var(--bs-border);
+  border-radius: 8px;
+  color: var(--bs-text);
+  font-family: 'Cinzel', serif;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+.bs-collection-btn:hover {
+  border-color: var(--bs-accent);
+  background: var(--bs-card-bg);
+}
+.bs-collection-btn__count {
+  background: var(--bs-accent);
+  color: var(--bs-bg);
+  font-size: 0.65rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 10px;
+  font-family: system-ui, sans-serif;
+}
+
+/* Collection tabs */
+.bs-collection__tabs {
+  display: flex;
+  gap: 0.25rem;
+  padding: 0 0.5rem;
+  margin-bottom: 1rem;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.bs-collection__tab {
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem 0.25rem;
+  background: transparent;
+  border: 1px solid var(--bs-border);
+  border-radius: 6px;
+  color: var(--bs-text-muted);
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+  white-space: nowrap;
+}
+.bs-collection__tab:hover {
+  color: var(--bs-text);
+  border-color: var(--bs-accent-dim);
+}
+.bs-collection__tab--active {
+  color: var(--bs-accent);
+  border-color: var(--bs-accent);
+  background: var(--bs-surface);
+}
+
+/* Collection grid */
+.bs-collection__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 0.75rem;
+  padding: 0 0.5rem 1rem;
+}
+
+/* Collection item card */
+.bs-collection-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.75rem 0.5rem;
+  background: var(--bs-surface);
+  border: 1px solid var(--bs-border);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.15s, box-shadow 0.2s;
+  position: relative;
+  min-height: 100px;
+}
+.bs-collection-item:hover:not(:disabled) {
+  border-color: var(--bs-item-rarity, var(--bs-accent));
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+.bs-collection-item--equipped {
+  border-color: var(--bs-item-rarity, var(--bs-accent));
+  background: linear-gradient(to bottom, var(--bs-surface), rgba(0, 0, 0, 0.2));
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2), inset 0 0 12px rgba(255, 255, 255, 0.03);
+}
+.bs-collection-item--locked {
+  opacity: 0.35;
+  cursor: default;
+}
+.bs-collection-item__icon {
+  font-size: 1.4rem;
+  color: var(--bs-item-rarity, var(--bs-text-muted));
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--bs-card-bg);
+}
+.bs-collection-item__name {
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--bs-text);
+  text-align: center;
+  line-height: 1.2;
+}
+.bs-collection-item__rarity {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.bs-collection-item__badge {
+  position: absolute;
+  top: 0.3rem;
+  right: 0.3rem;
+  font-size: 0.55rem;
+  color: var(--bs-accent);
+  background: var(--bs-bg);
+  padding: 0.1rem 0.35rem;
+  border-radius: 4px;
+  border: 1px solid var(--bs-accent);
+}
+.bs-collection-item__lock {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 1.2rem;
+  color: var(--bs-text-muted);
+  opacity: 0.5;
+}
+
+/* Equipped summary strip */
+.bs-collection-equipped__title {
+  font-family: 'Cinzel', serif;
+  font-size: 0.7rem;
+  color: var(--bs-text-muted);
+  margin-bottom: 0.3rem;
+  padding: 0 0.5rem;
+}
+.bs-collection-equipped__items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  padding: 0 0.5rem 0.75rem;
+}
+.bs-collection-equipped__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.5rem;
+  border: 1px solid var(--bs-border);
+  border-radius: 12px;
+  font-size: 0.65rem;
+  color: var(--bs-text);
+  background: var(--bs-surface);
+}
+
+/* Empty state */
+.bs-collection-empty {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--bs-text-muted);
+}
+.bs-collection-empty i {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+/* ============================================================
+   COSMETIC VISUAL EFFECTS — Card Frames
+   ============================================================ */
+
+/* Gold Filigree — warm gold border glow */
+.bs-lobby__card-display.bs-frame--gold-filigree {
+  border-color: var(--bs-accent-glow, #d4a853);
+  box-shadow: 0 0 10px 2px rgba(212, 168, 83, 0.35), inset 0 0 6px rgba(212, 168, 83, 0.1);
+}
+
+/* Bone Frame — off-white/bone glow */
+.bs-lobby__card-display.bs-frame--bone {
+  border-color: #d4c9a8;
+  box-shadow: 0 0 8px 2px rgba(212, 201, 168, 0.3), inset 0 0 4px rgba(212, 201, 168, 0.08);
+}
+
+/* Crystal Frame — light blue sparkle */
+.bs-lobby__card-display.bs-frame--crystal {
+  border-color: #7dd3fc;
+  box-shadow: 0 0 12px 3px rgba(125, 211, 252, 0.4), inset 0 0 6px rgba(125, 211, 252, 0.1);
+  animation: bs-frame-crystal 3s ease-in-out infinite;
+}
+@keyframes bs-frame-crystal {
+  0%, 100% { box-shadow: 0 0 12px 3px rgba(125, 211, 252, 0.4), inset 0 0 6px rgba(125, 211, 252, 0.1); }
+  50% { box-shadow: 0 0 18px 5px rgba(125, 211, 252, 0.55), inset 0 0 10px rgba(125, 211, 252, 0.15); }
+}
+
+/* Circuit Frame — green tech glow */
+.bs-lobby__card-display.bs-frame--circuit {
+  border-color: #4ade80;
+  box-shadow: 0 0 10px 2px rgba(74, 222, 128, 0.35), inset 0 0 5px rgba(74, 222, 128, 0.08);
+  animation: bs-frame-circuit 2.5s ease-in-out infinite;
+}
+@keyframes bs-frame-circuit {
+  0%, 100% { box-shadow: 0 0 10px 2px rgba(74, 222, 128, 0.35); }
+  50% { box-shadow: 0 0 16px 4px rgba(74, 222, 128, 0.5); }
+}
+
+/* Dragon Scale — fierce red/orange */
+.bs-lobby__card-display.bs-frame--dragon-scale {
+  border-color: #ef4444;
+  box-shadow: 0 0 14px 3px rgba(239, 68, 68, 0.45), 0 0 30px 6px rgba(239, 68, 68, 0.15);
+  animation: bs-frame-dragon 3s ease-in-out infinite;
+}
+@keyframes bs-frame-dragon {
+  0%, 100% { box-shadow: 0 0 14px 3px rgba(239, 68, 68, 0.45), 0 0 30px 6px rgba(239, 68, 68, 0.15); }
+  50% { box-shadow: 0 0 22px 6px rgba(239, 68, 68, 0.6), 0 0 40px 10px rgba(239, 68, 68, 0.2); }
+}
+
+/* ============================================================
+   COSMETIC VISUAL EFFECTS — Card Backs (subtle bg tint)
+   ============================================================ */
+
+.bs-lobby__card-display.bs-back--obsidian .bs-card-mini {
+  background: linear-gradient(135deg, #1a1a2e, #0f0f1a);
+}
+.bs-lobby__card-display.bs-back--starfield .bs-card-mini {
+  background: linear-gradient(135deg, #0a0a2e 0%, #1a0a3e 50%, #0a0a2e 100%);
+}
+.bs-lobby__card-display.bs-back--inferno .bs-card-mini {
+  background: linear-gradient(135deg, #2a0a0a, #1a0000);
+}
+.bs-lobby__card-display.bs-back--void .bs-card-mini {
+  background: linear-gradient(135deg, #0a0020, #150030, #0a0020);
+}
+
+/* ============================================================
+   COSMETIC VISUAL EFFECTS — Name Plates
+   ============================================================ */
+
+/* Flame Text — warm glow on name */
+.bs-card-mini__name.bs-plate--flame {
+  color: var(--bs-accent-glow, #ff9500);
+  text-shadow: 0 0 6px rgba(255, 149, 0, 0.5), 0 0 12px rgba(255, 100, 0, 0.3);
+}
+
+/* Glitch Text — offset text shadow */
+.bs-card-mini__name.bs-plate--glitch {
+  animation: bs-plate-glitch 4s steps(1) infinite;
+}
+@keyframes bs-plate-glitch {
+  0%, 92%, 100% { text-shadow: none; color: var(--bs-text); }
+  93% { text-shadow: -2px 0 #ff0000, 2px 0 #00ffff; color: var(--bs-text); }
+  96% { text-shadow: 2px 0 #ff0000, -2px 0 #00ffff; color: var(--bs-text); }
+}
+
+/* Royal Banner — golden shimmer */
+.bs-card-mini__name.bs-plate--royal {
+  color: #d4a853;
+  text-shadow: 0 0 8px rgba(212, 168, 83, 0.4);
+  letter-spacing: 0.08em;
+}
+
+/* ============================================================
+   COLLECTION — MOBILE
+   ============================================================ */
+
+@media (max-width: 480px) {
+  .bs-collection__grid {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 0.5rem;
+  }
+  .bs-collection-item {
+    padding: 0.5rem 0.35rem;
+    min-height: 88px;
+  }
+  .bs-collection-item__icon {
+    width: 36px;
+    height: 36px;
+    font-size: 1.1rem;
+  }
+  .bs-collection-item__name { font-size: 0.6rem; }
+  .bs-collection__tab { font-size: 0.6rem; padding: 0.4rem 0.15rem; min-height: 44px; }
+  .bs-collection-btn { font-size: 0.7rem; padding: 0.4rem 0.75rem; }
+}

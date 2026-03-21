@@ -86,6 +86,10 @@
         <div class="bs-crate-indicator" id="bs-crate-indicator" style="display:none;" aria-label="Unopened crates">
           <i class="fas fa-box" aria-hidden="true"></i> <span id="bs-crate-badge">0</span> Crate<span id="bs-crate-plural">s</span>
         </div>
+        <!-- Collection -->
+        <button class="bs-collection-btn" id="bs-btn-collection" style="display:none;" aria-label="Open collection">
+          <i class="fas fa-gem" aria-hidden="true"></i> Collection <span class="bs-collection-btn__count" id="bs-collection-count">0</span>
+        </button>
         <!-- Sparks Shop -->
         <div class="bs-sparks-shop" id="bs-sparks-shop" style="display:none;" role="region" aria-label="Sparks shop">
           <button class="bs-sparks-shop__buy" id="bs-buy-ember-crate" aria-label="Buy Ember Crate for 50 Sparks">
@@ -186,6 +190,27 @@
         </div>
         <div id="bs-leaderboard-content">
           <div class="bs-loading"><div class="bs-spinner" role="status"></div> Loading...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCREEN: COLLECTION -->
+    <div id="bs-screen-collection" class="bs-screen" role="region" aria-label="Collection">
+      <div class="bs-campaign">
+        <div class="bs-campaign__header">
+          <button class="bs-campaign__back" id="bs-collection-back" aria-label="Back to lobby"><i class="fas fa-arrow-left" aria-hidden="true"></i></button>
+          <h2>Collection</h2>
+        </div>
+        <div class="bs-collection" id="bs-collection-content">
+          <div class="bs-collection__tabs" role="tablist" aria-label="Cosmetic categories">
+            <button class="bs-collection__tab bs-collection__tab--active" data-slot="frame" role="tab" aria-selected="true">Frames</button>
+            <button class="bs-collection__tab" data-slot="back" role="tab" aria-selected="false">Backs</button>
+            <button class="bs-collection__tab" data-slot="nameplate" role="tab" aria-selected="false">Plates</button>
+            <button class="bs-collection__tab" data-slot="victory" role="tab" aria-selected="false">Effects</button>
+            <button class="bs-collection__tab" data-slot="title" role="tab" aria-selected="false">Titles</button>
+          </div>
+          <div class="bs-collection__grid" id="bs-collection-grid" role="tabpanel" aria-label="Cosmetic items"></div>
+          <div class="bs-collection__equipped" id="bs-collection-equipped" aria-label="Currently equipped"></div>
         </div>
       </div>
     </div>

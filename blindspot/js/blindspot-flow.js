@@ -703,6 +703,190 @@
   }
 
   // ============================================================
+  // COSMETIC INVENTORY + EQUIP
+  // ============================================================
+
+  function getOwnedCosmetics() {
+    try { return JSON.parse(localStorage.getItem('bs-cosmetics') || '[]'); }
+    catch(e) { return []; }
+  }
+  function getEquipped() {
+    try { return JSON.parse(localStorage.getItem('bs-equipped') || '{}'); }
+    catch(e) { return {}; }
+  }
+  function setEquipped(equipped) {
+    localStorage.setItem('bs-equipped', JSON.stringify(equipped));
+  }
+  function equipCosmetic(slot, itemId) {
+    var eq = getEquipped();
+    if (eq[slot] === itemId) { delete eq[slot]; } // toggle off
+    else { eq[slot] = itemId; }
+    setEquipped(eq);
+  }
+
+  // Look up a cosmetic item definition from game-config drop pools
+  function findCosmeticDef(itemId) {
+    if (!_config || !_config.crates || !_config.crates.dropPools) return null;
+    var pools = _config.crates.dropPools;
+    var cosmeticPools = ['card_frames', 'card_backs', 'name_plates', 'victory_animations', 'titles'];
+    for (var p = 0; p < cosmeticPools.length; p++) {
+      var pool = pools[cosmeticPools[p]];
+      if (!pool || !pool.items) continue;
+      for (var i = 0; i < pool.items.length; i++) {
+        if (pool.items[i].id === itemId) {
+          return Object.assign({}, pool.items[i], { slot: pool.slot, category: pool.category });
+        }
+      }
+    }
+    return null;
+  }
+
+  // Get all cosmetic items grouped by slot
+  function getAllCosmeticsBySlot() {
+    if (!_config || !_config.crates || !_config.crates.dropPools) return {};
+    var pools = _config.crates.dropPools;
+    var cosmeticPools = ['card_frames', 'card_backs', 'name_plates', 'victory_animations', 'titles'];
+    var bySlot = {};
+    for (var p = 0; p < cosmeticPools.length; p++) {
+      var pool = pools[cosmeticPools[p]];
+      if (!pool || !pool.items) continue;
+      var slot = pool.slot;
+      if (!bySlot[slot]) bySlot[slot] = [];
+      for (var i = 0; i < pool.items.length; i++) {
+        bySlot[slot].push(Object.assign({}, pool.items[i], { slot: slot }));
+      }
+    }
+    return bySlot;
+  }
+
+  var RARITY_COLORS = { common: 'var(--bs-text-muted)', uncommon: '#4ade80', rare: '#60a5fa', epic: '#c084fc' };
+
+  var _collectionSlot = 'frame'; // active tab
+
+  function renderCollection() {
+    var container = document.getElementById('bs-collection-grid');
+    var equippedEl = document.getElementById('bs-collection-equipped');
+    if (!container) return;
+    var owned = getOwnedCosmetics();
+    var equipped = getEquipped();
+    var bySlot = getAllCosmeticsBySlot();
+
+    // Update tab active states
+    document.querySelectorAll('.bs-collection__tab').forEach(function(tab) {
+      var isActive = tab.dataset.slot === _collectionSlot;
+      tab.classList.toggle('bs-collection__tab--active', isActive);
+      tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+
+    // Render items for active slot
+    var items = bySlot[_collectionSlot] || [];
+    var html = '';
+
+    for (var i = 0; i < items.length; i++) {
+      var item = items[i];
+      var isOwned = owned.includes(item.id);
+      var isEquipped = equipped[_collectionSlot] === item.id;
+      var rarityColor = RARITY_COLORS[item.rarity] || 'var(--bs-text-muted)';
+
+      html += '<button class="bs-collection-item'
+        + (isEquipped ? ' bs-collection-item--equipped' : '')
+        + (isOwned ? '' : ' bs-collection-item--locked')
+        + '"'
+        + ' data-item-id="' + escHtml(item.id) + '" data-slot="' + escHtml(_collectionSlot) + '"'
+        + (isOwned ? '' : ' disabled')
+        + ' aria-label="' + escHtml(item.name) + (isEquipped ? ' (equipped)' : '') + (isOwned ? '' : ' (locked)') + '"'
+        + ' style="--bs-item-rarity:' + rarityColor + ';">'
+        + '<div class="bs-collection-item__icon"><i class="fas ' + (item.icon || 'fa-star') + '" aria-hidden="true"></i></div>'
+        + '<span class="bs-collection-item__name">' + escHtml(item.name) + '</span>'
+        + '<span class="bs-collection-item__rarity" style="color:' + rarityColor + ';">' + (item.rarity || '') + '</span>'
+        + (isEquipped ? '<span class="bs-collection-item__badge"><i class="fas fa-check"></i> Equipped</span>' : '')
+        + (!isOwned ? '<span class="bs-collection-item__lock"><i class="fas fa-lock"></i></span>' : '')
+        + '</button>';
+    }
+
+    if (items.length === 0) {
+      html = '<div class="bs-collection-empty"><p style="color:var(--bs-text-muted);">No items in this category.</p></div>';
+    }
+
+    container.innerHTML = html;
+
+    // Bind click handlers for owned items
+    container.querySelectorAll('.bs-collection-item:not(.bs-collection-item--locked)').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var itemId = btn.dataset.itemId;
+        var slot = btn.dataset.slot;
+        equipCosmetic(slot, itemId);
+        renderCollection();
+        applyEquippedCosmetics();
+      });
+    });
+
+    // Update equipped summary
+    if (equippedEl) {
+      var eqSlots = ['frame', 'back', 'nameplate', 'victory', 'title'];
+      var eqHtml = '<div class="bs-collection-equipped__title">Equipped</div><div class="bs-collection-equipped__items">';
+      var hasAny = false;
+      for (var s = 0; s < eqSlots.length; s++) {
+        var sl = eqSlots[s];
+        var eqId = equipped[sl];
+        if (!eqId) continue;
+        hasAny = true;
+        var def = findCosmeticDef(eqId);
+        if (!def) continue;
+        var rc = RARITY_COLORS[def.rarity] || 'var(--bs-text-muted)';
+        eqHtml += '<span class="bs-collection-equipped__chip" style="border-color:' + rc + ';">'
+          + '<i class="fas ' + (def.icon || 'fa-star') + '" style="color:' + rc + ';" aria-hidden="true"></i> '
+          + escHtml(def.name)
+          + '</span>';
+      }
+      eqHtml += '</div>';
+      equippedEl.innerHTML = hasAny ? eqHtml : '';
+    }
+  }
+
+  // Apply equipped cosmetics to lobby card display
+  function applyEquippedCosmetics() {
+    var cardEl = document.getElementById('bs-player-card');
+    if (!cardEl) return;
+    var equipped = getEquipped();
+
+    // Clear old cosmetic classes
+    var classes = cardEl.className.split(' ').filter(function(c) {
+      return !c.startsWith('bs-frame--') && !c.startsWith('bs-back--') && !c.startsWith('bs-plate--');
+    });
+    cardEl.className = classes.join(' ');
+
+    // Apply frame
+    if (equipped.frame) {
+      var frameDef = findCosmeticDef(equipped.frame);
+      if (frameDef && frameDef.cssClass) cardEl.classList.add(frameDef.cssClass);
+    }
+    // Apply back
+    if (equipped.back) {
+      var backDef = findCosmeticDef(equipped.back);
+      if (backDef && backDef.cssClass) cardEl.classList.add(backDef.cssClass);
+    }
+    // Apply nameplate
+    var nameEl = cardEl.querySelector('.bs-card-mini__name');
+    if (nameEl) {
+      var oldPlate = nameEl.className.split(' ').filter(function(c) { return !c.startsWith('bs-plate--'); });
+      nameEl.className = oldPlate.join(' ');
+      if (equipped.nameplate) {
+        var plateDef = findCosmeticDef(equipped.nameplate);
+        if (plateDef && plateDef.cssClass) nameEl.classList.add(plateDef.cssClass);
+      }
+    }
+    // Apply title from equipped (override if set)
+    if (equipped.title) {
+      var titleDef = findCosmeticDef(equipped.title);
+      if (titleDef && titleDef.title) {
+        var titleEl = document.getElementById('bs-card-title');
+        if (titleEl) { titleEl.textContent = titleDef.title; titleEl.style.display = ''; }
+      }
+    }
+  }
+
+  // ============================================================
   // CRATE INVENTORY
   // ============================================================
 
@@ -794,6 +978,185 @@
           if (sparksSpan) sparksSpan.innerHTML = '<i class="fas fa-fire"></i> ' + getSparks() + ' Sparks';
         }
       });
+    }
+  }
+
+  // ============================================================
+  // COSMETIC INVENTORY + EQUIP
+  // ============================================================
+
+  function getOwnedCosmetics() {
+    try { return JSON.parse(localStorage.getItem('bs-cosmetics') || '[]'); }
+    catch(e) { return []; }
+  }
+  function getEquipped() {
+    try { return JSON.parse(localStorage.getItem('bs-equipped') || '{}'); }
+    catch(e) { return {}; }
+  }
+  function setEquipped(equipped) {
+    localStorage.setItem('bs-equipped', JSON.stringify(equipped));
+  }
+  function equipCosmetic(slot, itemId) {
+    var eq = getEquipped();
+    eq[slot] = itemId;
+    setEquipped(eq);
+  }
+  function unequipCosmetic(slot) {
+    var eq = getEquipped();
+    delete eq[slot];
+    setEquipped(eq);
+  }
+
+  function findCosmeticDef(itemId) {
+    if (!_config || !_config.crates || !_config.crates.dropPools) return null;
+    var pools = _config.crates.dropPools;
+    for (var poolName in pools) {
+      var pool = pools[poolName];
+      if (pool.category !== 'cosmetic') continue;
+      var items = pool.items || [];
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].id === itemId) return Object.assign({}, items[i], { slot: pool.slot });
+      }
+    }
+    return null;
+  }
+
+  function getAllCosmeticDefs() {
+    if (!_config || !_config.crates || !_config.crates.dropPools) return {};
+    var pools = _config.crates.dropPools;
+    var result = {};
+    for (var poolName in pools) {
+      var pool = pools[poolName];
+      if (pool.category !== 'cosmetic') continue;
+      var slot = pool.slot;
+      if (!result[slot]) result[slot] = [];
+      var items = pool.items || [];
+      for (var i = 0; i < items.length; i++) {
+        result[slot].push(Object.assign({}, items[i], { slot: slot }));
+      }
+    }
+    return result;
+  }
+
+  var _collectionBound = false;
+  function renderCollection(activeSlot) {
+    var grid = document.getElementById('bs-collection-grid');
+    var equippedPanel = document.getElementById('bs-collection-equipped');
+    if (!grid) return;
+
+    var allDefs = getAllCosmeticDefs();
+    var owned = getOwnedCosmetics();
+    var equipped = getEquipped();
+    var slot = activeSlot || 'frame';
+
+    document.querySelectorAll('.bs-collection__tab').forEach(function(tab) {
+      var isActive = tab.dataset.slot === slot;
+      tab.classList.toggle('bs-collection__tab--active', isActive);
+      tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+
+    var items = allDefs[slot] || [];
+    var rarityOrder = { common: 0, uncommon: 1, rare: 2, epic: 3 };
+    items.sort(function(a, b) { return (rarityOrder[a.rarity] || 0) - (rarityOrder[b.rarity] || 0); });
+
+    var html = '';
+    if (items.length === 0) {
+      html = '<p class="bs-collection__empty">No items in this category yet.</p>';
+    } else {
+      items.forEach(function(item) {
+        var isOwned = owned.includes(item.id);
+        var isEquipped = equipped[slot] === item.id;
+        var rarityColor = { common: 'var(--bs-text)', uncommon: '#4ade80', rare: '#60a5fa', epic: '#a855f7' }[item.rarity] || 'var(--bs-text)';
+        html += '<button class="bs-collection__item' +
+          (isEquipped ? ' bs-collection__item--equipped' : '') +
+          (!isOwned ? ' bs-collection__item--locked' : '') +
+          '" data-item-id="' + escHtml(item.id) + '" data-slot="' + escHtml(slot) + '"' +
+          ' aria-label="' + escHtml(item.name) + (isEquipped ? ' (equipped)' : !isOwned ? ' (locked)' : '') + '"' +
+          ' style="--item-rarity-color:' + rarityColor + ';"' +
+          (isOwned ? '' : ' disabled') + '>' +
+          '<i class="fas ' + escHtml(item.icon || 'fa-circle') + ' bs-collection__item-icon" aria-hidden="true"></i>' +
+          '<span class="bs-collection__item-name">' + escHtml(item.name) + '</span>' +
+          '<span class="bs-collection__item-rarity" style="color:' + rarityColor + ';">' + escHtml(item.rarity) + '</span>' +
+          (isEquipped ? '<span class="bs-collection__item-badge"><i class="fas fa-check"></i></span>' : '') +
+          '</button>';
+      });
+    }
+    grid.innerHTML = html;
+
+    var eqSlots = ['frame', 'back', 'nameplate', 'victory', 'title'];
+    var eqHtml = '<div class="bs-collection__equipped-title">Equipped</div><div class="bs-collection__equipped-list">';
+    eqSlots.forEach(function(s) {
+      var itemId = equipped[s];
+      var def = itemId ? findCosmeticDef(itemId) : null;
+      var slotLabel = { frame: 'Frame', back: 'Back', nameplate: 'Plate', victory: 'Effect', title: 'Title' }[s] || s;
+      eqHtml += '<span class="bs-collection__equipped-slot' + (def ? ' bs-collection__equipped-slot--active' : '') + '">' +
+        (def ? '<i class="fas ' + escHtml(def.icon || 'fa-circle') + '" aria-hidden="true"></i> ' : '') +
+        slotLabel + (def ? ': ' + escHtml(def.name) : '') +
+        '</span>';
+    });
+    eqHtml += '</div>';
+    if (equippedPanel) equippedPanel.innerHTML = eqHtml;
+
+    if (!_collectionBound) {
+      _collectionBound = true;
+      document.querySelectorAll('.bs-collection__tab').forEach(function(tab) {
+        tab.addEventListener('click', function() { renderCollection(tab.dataset.slot); });
+      });
+      var backBtn = document.getElementById('bs-collection-back');
+      if (backBtn) backBtn.addEventListener('click', function() { showScreen('lobby'); renderLobby(); });
+    }
+
+    grid.querySelectorAll('.bs-collection__item:not([disabled])').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var itemId = btn.dataset.itemId;
+        var itemSlot = btn.dataset.slot;
+        var eq = getEquipped();
+        if (eq[itemSlot] === itemId) {
+          unequipCosmetic(itemSlot);
+          showSuccessToast('Unequipped');
+        } else {
+          equipCosmetic(itemSlot, itemId);
+          var def = findCosmeticDef(itemId);
+          showSuccessToast((def ? def.name : 'Item') + ' equipped!');
+        }
+        renderCollection(itemSlot);
+      });
+    });
+  }
+
+  function updateCollectionButton() {
+    var btn = document.getElementById('bs-btn-collection');
+    var countEl = document.getElementById('bs-collection-count');
+    var owned = getOwnedCosmetics();
+    if (btn) btn.style.display = owned.length > 0 ? '' : 'none';
+    if (countEl) countEl.textContent = String(owned.length);
+  }
+
+  function applyEquippedCosmetics(cardEl) {
+    if (!cardEl) return;
+    var equipped = getEquipped();
+    var classList = cardEl.className.split(' ');
+    classList = classList.filter(function(c) {
+      return c.indexOf('bs-frame--') === -1 && c.indexOf('bs-back--') === -1 && c.indexOf('bs-plate--') === -1;
+    });
+    cardEl.className = classList.join(' ');
+    if (equipped.frame) {
+      var frameDef = findCosmeticDef(equipped.frame);
+      if (frameDef && frameDef.cssClass) cardEl.classList.add(frameDef.cssClass);
+    }
+    if (equipped.back) {
+      var backDef = findCosmeticDef(equipped.back);
+      if (backDef && backDef.cssClass) cardEl.setAttribute('data-cosmetic-back', backDef.cssClass);
+    } else {
+      cardEl.removeAttribute('data-cosmetic-back');
+    }
+    var nameEl = cardEl.querySelector('.bs-card-mini__name');
+    if (nameEl) {
+      nameEl.className = 'bs-card-mini__name';
+      if (equipped.nameplate) {
+        var plateDef = findCosmeticDef(equipped.nameplate);
+        if (plateDef && plateDef.cssClass) nameEl.classList.add(plateDef.cssClass);
+      }
     }
   }
 
@@ -2274,6 +2637,18 @@
         playBtnLabel.textContent = 'CAMPAIGN COMPLETE';
       }
     }
+
+    // Apply equipped cosmetics to card display
+    applyEquippedCosmetics();
+
+    // Update collection badge
+    var collBadge = document.getElementById('bs-collection-count');
+    var owned = getOwnedCosmetics();
+    if (collBadge) {
+      collBadge.textContent = String(owned.length);
+      var collBtn = document.getElementById('bs-btn-collection');
+      if (collBtn) collBtn.style.display = owned.length > 0 ? '' : 'none';
+    }
   }
 
   function updateRankDisplay() {
@@ -2495,6 +2870,23 @@
     document.getElementById('bs-btn-leaderboard')?.addEventListener('click', () => {
       showScreen('leaderboard');
       renderLeaderboard();
+    });
+
+    // Collection screen
+    document.getElementById('bs-btn-collection')?.addEventListener('click', function() {
+      showScreen('collection');
+      renderCollection();
+    });
+    document.getElementById('bs-collection-back')?.addEventListener('click', function() {
+      showScreen('lobby');
+      renderLobby();
+    });
+    // Collection tab switching
+    document.querySelectorAll('.bs-collection__tab').forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        _collectionSlot = tab.dataset.slot || 'frame';
+        renderCollection();
+      });
     });
 
     // How to Play modal
