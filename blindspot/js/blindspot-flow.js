@@ -398,10 +398,18 @@
   }
 
   function isNewPlayer(profile) {
-    // Blindspot-specific: have they completed the Blindspot onboarding?
-    // NOT based on CardForge XP/cards — a CardForge veteran is still
-    // a new Blindspot player if they haven't been onboarded here.
-    return !localStorage.getItem('blindspot-onboarded');
+    // Check localStorage flag first (fast)
+    if (localStorage.getItem('blindspot-onboarded')) return false;
+    // Also check if they have cards on the server (survives browser clears)
+    if (profile && profile.cards && profile.cards.length > 0) {
+      localStorage.setItem('blindspot-onboarded', 'true');
+      return false;
+    }
+    if (profile && profile.selectedCard) {
+      localStorage.setItem('blindspot-onboarded', 'true');
+      return false;
+    }
+    return true;
   }
 
   function isDemo() { return _profileData ? (_profileData.isDemo || false) : true; }
