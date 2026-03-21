@@ -2853,21 +2853,8 @@
             <button class="bs-forge-avt-tab" data-avt-tab="url" style="flex:1; padding:0.3rem; font-size:0.65rem; border:1px solid var(--bs-border); border-radius:6px; background:var(--bs-surface-2); color:var(--bs-text-muted); cursor:pointer;"><i class="fas fa-link"></i> URL</button>
           </div>
           <div id="bs-forge-avt-gallery" class="bs-forge-avt-content">
-            <div class="bs-forge-avatar-grid" style="display:grid; grid-template-columns:repeat(4, 1fr); gap:0.4rem;">
-              ${[
-                { src: '/cardforge/img/demo/demo-knight.webp', label: 'Knight' },
-                { src: '/cardforge/img/demo/demo-mage.webp', label: 'Mage' },
-                { src: '/cardforge/img/demo/demo-rogue.webp', label: 'Rogue' },
-                { src: '/cardforge/img/bosses/Training-Dummy-02.webp', label: 'Sentinel' },
-                { src: '/cardforge/img/bosses/Ironclad-Sentinel-01.webp', label: 'Ironclad' },
-                { src: '/cardforge/img/bosses/Shadow-Stalker-01.webp', label: 'Shadow' },
-                { src: '/cardforge/img/bosses/Crystal-Weaver-10.webp', label: 'Crystal' },
-                { src: '/cardforge/img/bosses/Arcane-Scholar-01.webp', label: 'Scholar' },
-                { src: '/cardforge/img/bosses/Warlord-Grax01.webp', label: 'Warlord' },
-                { src: '/cardforge/img/bosses/Void-Harbinger-01.webp', label: 'Void' },
-                { src: '/cardforge/img/bosses/Titanium-Aegis-01.webp', label: 'Aegis' },
-                { src: '/cardforge/img/bosses/The-Forge-King-01.webp', label: 'Forge King' }
-              ].map(a => '<button class="bs-forge-avatar-pick" data-avatar-src="' + a.src + '" title="' + a.label + '" style="width:100%; aspect-ratio:1; border:2px solid var(--bs-border); border-radius:8px; overflow:hidden; background:var(--bs-surface); cursor:pointer; padding:0;"><img src="' + a.src + '" alt="' + a.label + '" style="width:100%; height:100%; object-fit:cover;"></button>').join('')}
+            <div class="bs-forge-avatar-grid" id="bs-forge-avatar-grid" style="display:grid; grid-template-columns:repeat(4, 1fr); gap:0.4rem;">
+              <div style="grid-column:1/-1; text-align:center; color:var(--bs-text-muted); font-size:0.7rem; padding:1rem;"><i class="fas fa-spinner fa-spin"></i> Loading your cards...</div>
             </div>
           </div>
           <div id="bs-forge-avt-ai" class="bs-forge-avt-content" style="display:none;">
@@ -3133,28 +3120,59 @@
       });
     });
 
-    // Avatar gallery picks
-    panel.querySelectorAll('.bs-forge-avatar-pick').forEach(btn => {
-      btn.addEventListener('click', () => {
-        panel.querySelectorAll('.bs-forge-avatar-pick').forEach(b => b.style.borderColor = 'var(--bs-border)');
-        btn.style.borderColor = 'var(--bs-accent)';
-        var src = btn.dataset.avatarSrc;
-        // Update URL input too
-        var urlInput = document.getElementById('bs-forge-avatar');
-        if (urlInput) urlInput.value = src;
-        // Update preview
-        var previewImg = panel.querySelector('.bs-forge-card__img');
-        var previewPlaceholder = panel.querySelector('.bs-forge-card__placeholder');
-        if (previewImg) {
-          previewImg.src = src;
-        } else if (previewPlaceholder) {
-          previewPlaceholder.outerHTML = '<img src="' + escHtml(src) + '" alt="Avatar" class="bs-forge-card__img">';
-        }
-        _hasVisualChange = true;
-        updateBudget();
-        flashPreview();
+    // Avatar gallery — load player's CardForge cards dynamically
+    function bindAvatarPicks() {
+      panel.querySelectorAll('.bs-forge-avatar-pick').forEach(btn => {
+        btn.addEventListener('click', () => {
+          panel.querySelectorAll('.bs-forge-avatar-pick').forEach(b => b.style.borderColor = 'var(--bs-border)');
+          btn.style.borderColor = 'var(--bs-accent)';
+          var src = btn.dataset.avatarSrc;
+          var urlInput = document.getElementById('bs-forge-avatar');
+          if (urlInput) urlInput.value = src;
+          var previewImg = panel.querySelector('.bs-forge-card__img');
+          var previewPlaceholder = panel.querySelector('.bs-forge-card__placeholder');
+          if (previewImg) { previewImg.src = src; }
+          else if (previewPlaceholder) { previewPlaceholder.outerHTML = '<img src="' + escHtml(src) + '" alt="Avatar" class="bs-forge-card__img">'; }
+          _hasVisualChange = true;
+          updateBudget();
+          flashPreview();
+        });
       });
-    });
+    }
+
+    // Load gallery from player's CardForge cards + demo defaults
+    (async function loadAvatarGallery() {
+      var grid = document.getElementById('bs-forge-avatar-grid');
+      if (!grid) return;
+      var avatars = [];
+      // Load player's own cards
+      try {
+        var data = await window.ArenaAPI.loadCards();
+        var cards = data.userCards || [];
+        cards.forEach(function(c) {
+          var av = c.avatar || (c.cardData && c.cardData.cardContent && c.cardData.cardContent.frontFace && c.cardData.cardContent.frontFace.characterImage && c.cardData.cardContent.frontFace.characterImage.url) || '';
+          if (av && !avatars.find(function(a) { return a.src === av; })) {
+            avatars.push({ src: av, label: c.name || 'Card' });
+          }
+        });
+      } catch(e) { /* no cards available */ }
+      // Add demo defaults if player has few cards
+      if (avatars.length < 4) {
+        [
+          { src: '/cardforge/img/demo/demo-knight.webp', label: 'Knight' },
+          { src: '/cardforge/img/demo/demo-mage.webp', label: 'Mage' },
+          { src: '/cardforge/img/demo/demo-rogue.webp', label: 'Rogue' }
+        ].forEach(function(a) { if (!avatars.find(function(x) { return x.src === a.src; })) avatars.push(a); });
+      }
+      if (avatars.length === 0) {
+        grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:var(--bs-text-muted); font-size:0.7rem; padding:1rem;">No cards yet. Use AI Generate or paste a URL.</div>';
+        return;
+      }
+      grid.innerHTML = avatars.map(function(a) {
+        return '<button class="bs-forge-avatar-pick" data-avatar-src="' + escHtml(a.src) + '" title="' + escHtml(a.label) + '" style="width:100%; aspect-ratio:1; border:2px solid var(--bs-border); border-radius:8px; overflow:hidden; background:var(--bs-surface); cursor:pointer; padding:0;"><img src="' + escHtml(a.src) + '" alt="' + escHtml(a.label) + '" style="width:100%; height:100%; object-fit:cover;" loading="lazy"></button>';
+      }).join('');
+      bindAvatarPicks();
+    })();
 
     // AI Generate
     var aiGenBtn = document.getElementById('bs-forge-ai-generate');
