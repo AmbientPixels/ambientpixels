@@ -1775,16 +1775,106 @@
   async function loadUserCards() {
     try {
       const data = await window.ArenaAPI.loadCards();
-      return data.userCards || [];
+      var cards = data.userCards || [];
+      // Cache deck to localStorage for quick access
+      if (cards.length > 0) setDeck(cards);
+      return cards;
     } catch (e) {
       console.warn('[Blindspot] Could not load cards:', e);
+      // Fall back to cached deck
+      var cached = getDeck();
+      if (cached.length > 0) return cached;
       return [];
     }
   }
 
   // ============================================================
+  // CARD COLLECTION (DECK) MODEL
+  // ============================================================
+
+  var MAX_DECK_SIZE = 8;
+
+  function getDeck() {
+    try { return JSON.parse(localStorage.getItem('bs-deck') || '[]'); }
+    catch(e) { return []; }
+  }
+
+  function setDeck(cards) {
+    localStorage.setItem('bs-deck', JSON.stringify(cards));
+  }
+
+  function getDeckSize() { return getDeck().length; }
+
+  function addCardToDeck(card) {
+    var deck = getDeck();
+    if (deck.length >= MAX_DECK_SIZE) return false;
+    // Prevent duplicates by id
+    if (card.id && deck.some(function(c) { return c.id === card.id; })) {
+      // Update existing card
+      deck = deck.map(function(c) { return c.id === card.id ? card : c; });
+    } else {
+      deck.push(card);
+    }
+    setDeck(deck);
+    return true;
+  }
+
+  function updateCardInDeck(card) {
+    if (!card || !card.id) return;
+    var deck = getDeck();
+    var found = false;
+    deck = deck.map(function(c) {
+      if (c.id === card.id) { found = true; return card; }
+      return c;
+    });
+    if (found) setDeck(deck);
+  }
+
+  function removeCardFromDeck(cardId) {
+    var deck = getDeck();
+    deck = deck.filter(function(c) { return c.id !== cardId; });
+    setDeck(deck);
+  }
+
+  function getSelectedCardIndex() {
+    if (!_selectedCard || !_selectedCard.id) return 0;
+    var deck = getDeck();
+    for (var i = 0; i < deck.length; i++) {
+      if (deck[i].id === _selectedCard.id) return i;
+    }
+    return 0;
+  }
+
+  // ============================================================
   // SESSION STATS TRACKING
   // ============================================================
+
+  // Boss dialogue
+  var BOSS_DIALOGUE = {
+    'bs-boss-1':  { start: '"Everyone passes through here once."', loss: '"...not bad."' },
+    'bs-boss-2':  { start: '"Rules exist for a reason."',          loss: '"You broke every one."' },
+    'bs-boss-3':  { start: '"You never see them coming."',         loss: '"Neither did I."' },
+    'bs-boss-4':  { start: '"Your data is already mine."',         loss: '"Error... unexpected input."' },
+    'bs-boss-5':  { start: '"I don\'t think. I hit."',             loss: '"Hit... harder..."' },
+    'bs-boss-6':  { start: '"Knowledge is the only weapon."',      loss: '"A lesson... for me."' },
+    'bs-boss-7':  { start: '"Nothing gets through."',              loss: '"Impossible..."' },
+    'bs-boss-8':  { start: '"Which move am I thinking of?"',       loss: '"You read me..."' },
+    'bs-boss-9':  { start: '"Instinct. Teeth. Fury."',             loss: '"The hunt... ends."' },
+    'bs-boss-10': { start: '"I built this arena. I am the final wall."', loss: '"You are no longer a Stranger."' }
+  };
+
+  function showBossDialogue(bossId, phase) {
+    var d = BOSS_DIALOGUE[bossId];
+    if (!d || !d[phase]) return;
+    var logEl = document.getElementById('arena-battle-log');
+    if (!logEl) return;
+    var entry = document.createElement('div');
+    entry.className = 'arena-log-entry';
+    entry.style.cssText = 'color:var(--bs-accent-glow); font-style:italic;';
+    entry.textContent = d[phase];
+    logEl.appendChild(entry);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
 
   function showRoundFlash(roundNum) {
     var el = document.createElement('div');
@@ -2435,6 +2525,8 @@
   // ============================================================
 
   function renderLobby() {
+    // Sync selected card to deck cache
+    if (_selectedCard && _selectedCard.id) updateCardInDeck(_selectedCard);
     // Apply streak glow
     const cardDisplay0 = document.getElementById('bs-player-card');
     if (cardDisplay0) {
