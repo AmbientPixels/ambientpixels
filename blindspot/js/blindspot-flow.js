@@ -2662,7 +2662,7 @@
 
     fightBtn.addEventListener('click', async () => {
       fightBtn.disabled = true;
-      fightBtn.innerHTML = '<span class="bs-spinner" style="display:inline-block;width:14px;height:14px;"></span> Loading...';
+      fightBtn.innerHTML = '<span class="bs-spinner" style="display:inline-block;width:14px;height:14px;"></span> <i class="fas fa-khanda" style="margin-right:0.3em;"></i>Entering the arena\u2026';
 
       // ALL new players fight as The Stranger first
       // Demo users: cardData passed directly (server accepts it)
@@ -2889,7 +2889,7 @@
     overlay.className = 'bs-overlay bs-reveal-celebration';
 
     // Show loading state immediately so screen doesn't feel frozen
-    overlay.innerHTML = '<div class="bs-reveal-loading"><div class="bs-spinner"></div><p style="color:var(--bs-text-muted);font-family:\'Share Tech Mono\',monospace;margin-top:1rem;font-size:0.85rem;">Forging your card\u2026</p></div>';
+    overlay.innerHTML = '<div class="bs-reveal-loading"><div class="bs-spinner"></div><p style="color:var(--bs-text-muted);font-family:\'Share Tech Mono\',monospace;margin-top:1rem;font-size:0.85rem;"><i class="fas fa-hammer" style="color:var(--bs-accent);margin-right:0.4em;"></i>Forging your card\u2026</p></div>';
     document.body.appendChild(overlay);
     requestAnimationFrame(() => { overlay.classList.add('bs-reveal-celebration--active'); });
 
@@ -4628,7 +4628,7 @@
     // Render Elo rating header
     updatePvPRatingDisplay();
 
-    container.innerHTML = '<div class="bs-loading"><div class="bs-spinner"></div> Loading gallery...</div>';
+    container.innerHTML = '<div class="bs-loading"><div class="bs-spinner"></div> <i class="fas fa-binoculars" style="color:var(--bs-accent);margin:0 0.3em;"></i>Scouting the arena\u2026</div>';
 
     try {
       let data;
@@ -4822,6 +4822,7 @@
           '<div class="bs-mm-vs">' +
             '<div class="bs-mm-scanner"><div class="bs-spinner" style="width:28px;height:28px;border-width:3px;"></div></div>' +
             '<span class="bs-mm-vs__text">VS</span>' +
+            '<span style="font-size:0.7rem;color:var(--bs-text-muted);font-family:\'Share Tech Mono\',monospace;"><i class="fas fa-crosshairs" style="color:var(--bs-accent);margin-right:0.3em;"></i>Seeking a worthy opponent\u2026</span>' +
           '</div>' +
           '<div class="bs-mm-fighter bs-mm-fighter--right bs-mm-fighter--hidden">' +
             (oppAvatar ? '<img src="' + escHtml(oppAvatar) + '" alt="" class="bs-mm-fighter__img">' : '<div class="bs-mm-fighter__icon"><i class="fas fa-skull"></i></div>') +
@@ -5018,7 +5019,7 @@
           </div>
           <div id="bs-forge-avt-gallery" class="bs-forge-avt-content">
             <div id="bs-forge-avatar-grid" style="min-height:120px;">
-              <div style="text-align:center; color:var(--bs-text-muted); font-size:0.7rem; padding:1rem;"><i class="fas fa-spinner fa-spin"></i> Loading your cards...</div>
+              <div style="text-align:center; color:var(--bs-text-muted); font-size:0.7rem; padding:1rem;"><i class="fas fa-scroll" style="color:var(--bs-accent);margin-right:0.3em;"></i><i class="fas fa-spinner fa-spin" style="margin-right:0.3em;"></i>Gathering your collection\u2026</div>
             </div>
           </div>
           <div id="bs-forge-avt-ai" class="bs-forge-avt-content" style="display:none;">
@@ -6381,7 +6382,7 @@
     const TIMEOUT = 8000;
     const container = document.getElementById('bs-leaderboard-content');
     if (!container) return;
-    container.innerHTML = '<div class="bs-loading"><div class="bs-spinner"></div> Loading...</div>';
+    container.innerHTML = '<div class="bs-loading"><div class="bs-spinner"></div> <i class="fas fa-trophy" style="color:var(--bs-accent);margin:0 0.3em;"></i>Consulting the ranks\u2026</div>';
 
     try {
       let data;

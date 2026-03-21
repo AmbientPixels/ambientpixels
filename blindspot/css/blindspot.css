@@ -59,6 +59,14 @@
   color: var(--bs-text-muted);
   letter-spacing: 0.05em;
 }
+.bs-ellipsis-pulse {
+  display: inline-block;
+  animation: ellipsisPulse 1.4s ease-in-out infinite;
+}
+@keyframes ellipsisPulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
 .bs-page--loading .bs-topbar,
 .bs-page--loading .bs-play,
 .bs-page--loading .bs-bottom-nav {

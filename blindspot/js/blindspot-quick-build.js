@@ -215,7 +215,7 @@
 
     let panelHTML = '';
     if (artMode === 'gallery') {
-      panelHTML = `<div class="qb-artwork-panel"><div class="qb-gallery-grid" id="qb-gallery-grid"><div class="qb-status"><span class="qb-spinner"></span> Loading artwork...</div></div></div>`;
+      panelHTML = `<div class="qb-artwork-panel"><div class="qb-gallery-grid" id="qb-gallery-grid"><div class="qb-status"><span class="qb-spinner"></span> <i class="fas fa-palette" style="color:var(--bs-accent,#EF9F27);margin:0 0.3em;"></i>Unveiling the gallery\u2026</div></div></div>`;
     } else if (artMode === 'ai') {
       const prompt = _state.vibe?.aiPrompt || '';
       panelHTML = `<div class="qb-artwork-panel">
@@ -672,7 +672,7 @@
     const btn = document.getElementById('bs-enter-arena');
     if (btn) {
       btn.disabled = true;
-      btn.innerHTML = '<span class="qb-spinner"></span> Saving...';
+      btn.innerHTML = '<span class="qb-spinner"></span> <i class="fas fa-hammer" style="margin-right:0.2em;"></i>Forging\u2026';
     }
 
     try {
@@ -746,7 +746,7 @@
 
     if (btn) {
       btn.disabled = true;
-      btn.innerHTML = '<span class="qb-spinner"></span> Generating...';
+      btn.innerHTML = '<span class="qb-spinner"></span> <i class="fas fa-wand-magic-sparkles" style="margin-right:0.2em;"></i>Channeling\u2026';
     }
 
     try {
