@@ -66,6 +66,9 @@
           <button class="bs-btn bs-btn--secondary bs-new-card-btn" id="bs-new-card-btn" style="display:none;" aria-label="Create a new card">
             <i class="fas fa-plus" aria-hidden="true"></i> New Card
           </button>
+          <button class="bs-btn bs-btn--secondary bs-deck-btn" id="bs-btn-deck" style="display:none;" aria-label="Manage your deck">
+            <i class="fas fa-layer-group" aria-hidden="true"></i> Manage Deck
+          </button>
         </div>
 
         <!-- Rank HUD -->
@@ -226,6 +229,23 @@
           <div class="bs-collection__grid" id="bs-collection-grid" role="tabpanel" aria-label="Cosmetic items"></div>
           <div class="bs-collection__equipped" id="bs-collection-equipped" aria-label="Currently equipped"></div>
         </div>
+      </div>
+    </div>
+
+    <!-- SCREEN: DECK MANAGEMENT -->
+    <div id="bs-screen-deck" class="bs-screen" role="region" aria-label="Deck Management">
+      <div class="bs-campaign">
+        <div class="bs-campaign__header">
+          <button class="bs-campaign__back" id="bs-deck-back" aria-label="Back to lobby"><i class="fas fa-arrow-left" aria-hidden="true"></i></button>
+          <h2>My Deck</h2>
+          <span class="bs-deck__count" id="bs-deck-count"></span>
+        </div>
+        <div class="bs-deck-sort" id="bs-deck-sort" role="toolbar" aria-label="Sort cards">
+          <button class="bs-deck-sort__btn bs-deck-sort__btn--active" data-sort="newest" aria-label="Sort by newest">Newest</button>
+          <button class="bs-deck-sort__btn" data-sort="power" aria-label="Sort by power">Power</button>
+          <button class="bs-deck-sort__btn" data-sort="class" aria-label="Sort by class">Class</button>
+        </div>
+        <div class="bs-deck-grid" id="bs-deck-grid" role="list" aria-label="Your cards"></div>
       </div>
     </div>
 

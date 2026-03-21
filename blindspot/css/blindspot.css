@@ -6257,3 +6257,233 @@ body.bs-battle-active .bs-bottom-nav {
   .bs-collection__tab { font-size: 0.6rem; padding: 0.4rem 0.15rem; min-height: 44px; }
   .bs-collection-btn { font-size: 0.7rem; padding: 0.4rem 0.75rem; }
 }
+
+/* ============================================================
+   DECK MANAGEMENT SCREEN
+   ============================================================ */
+
+.bs-deck__count {
+  font-size: 0.75rem;
+  color: var(--bs-text-muted);
+  font-family: 'Cinzel', serif;
+}
+
+.bs-deck-sort {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+}
+
+.bs-deck-sort__btn {
+  background: transparent;
+  border: 1px solid var(--bs-border);
+  color: var(--bs-text-muted);
+  font-size: 0.7rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 999px;
+  cursor: pointer;
+  font-family: 'Cinzel', serif;
+  min-height: 44px;
+  min-width: 44px;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.bs-deck-sort__btn--active {
+  border-color: var(--bs-accent);
+  color: var(--bs-accent);
+}
+
+.bs-deck-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 0.75rem;
+  padding: 0.75rem 1rem 5rem;
+}
+
+.bs-deck-card {
+  background: var(--bs-surface);
+  border: 1px solid var(--bs-border);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.2s, transform 0.15s;
+  position: relative;
+}
+
+.bs-deck-card:hover,
+.bs-deck-card:focus-visible {
+  border-color: var(--bs-accent-dim);
+  transform: translateY(-2px);
+  outline: none;
+}
+
+.bs-deck-card--active {
+  border-color: var(--bs-accent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--bs-accent) 30%, transparent);
+}
+
+.bs-deck-card__preview {
+  width: 100%;
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bs-surface-2);
+  overflow: hidden;
+}
+
+.bs-deck-card__avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bs-deck-card__icon {
+  font-size: 2rem;
+  color: var(--bs-text-muted);
+}
+
+.bs-deck-card__info {
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.bs-deck-card__name {
+  font-family: 'Cinzel', serif;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--bs-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bs-deck-card__class {
+  font-size: 0.65rem;
+  color: var(--bs-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.bs-deck-card__power {
+  font-size: 0.65rem;
+  color: var(--bs-accent);
+}
+
+.bs-deck-card__badge {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.35rem;
+  background: var(--bs-accent);
+  color: var(--bs-bg);
+  font-size: 0.55rem;
+  font-weight: 700;
+  padding: 0.15rem 0.4rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.bs-deck-card__delete {
+  position: absolute;
+  bottom: 0.35rem;
+  right: 0.35rem;
+  background: var(--bs-surface-2);
+  border: 1px solid var(--bs-border);
+  color: var(--bs-danger);
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.bs-deck-card:hover .bs-deck-card__delete,
+.bs-deck-card:focus-within .bs-deck-card__delete {
+  opacity: 1;
+}
+
+/* Delete confirmation overlay */
+.bs-deck-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.bs-deck-confirm {
+  background: var(--bs-surface);
+  border: 1px solid var(--bs-border);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  max-width: 320px;
+  width: 100%;
+  text-align: center;
+}
+
+.bs-deck-confirm__title {
+  font-family: 'Cinzel', serif;
+  font-size: 1rem;
+  color: var(--bs-danger);
+  margin: 0 0 0.75rem;
+}
+
+.bs-deck-confirm__text {
+  font-size: 0.8rem;
+  color: var(--bs-text-muted);
+  margin: 0 0 1.25rem;
+  line-height: 1.4;
+}
+
+.bs-deck-confirm__actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.bs-deck-confirm__actions .bs-btn {
+  flex: 1;
+  min-height: 44px;
+}
+
+.bs-deck-confirm__delete-btn {
+  background: var(--bs-danger);
+  color: var(--bs-text);
+  border: none;
+  border-radius: 0.5rem;
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+}
+
+/* Deck management button in lobby */
+.bs-deck-btn {
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+/* Mobile: 375px */
+@media (max-width: 480px) {
+  .bs-deck-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem 5rem;
+  }
+  .bs-deck-card__name { font-size: 0.65rem; }
+  .bs-deck-card__delete { opacity: 1; }
+  .bs-deck-sort__btn { font-size: 0.65rem; padding: 0.3rem 0.6rem; }
+}
