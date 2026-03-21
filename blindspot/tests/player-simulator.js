@@ -94,6 +94,10 @@ async function run() {
         else pass('Play button hidden (mobile — uses bottom nav instead)');
       }
 
+      // Dismiss onboarding overlay if present
+      const hadOnboard = await play.evaluate(() => { const el = document.querySelector('.bs-onboard-backdrop'); if (el) { el.remove(); return true; } return false; });
+      if (hadOnboard) { await play.waitForTimeout(300); pass('Onboarding overlay dismissed'); }
+
       // Check bottom nav
       const bottomNav = await play.$('#bs-bottom-nav');
       if (bottomNav && await bottomNav.isVisible()) {
