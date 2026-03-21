@@ -1938,6 +1938,10 @@
         resetBattleStats();
         var result = origInit.call(window.ArenaBattleUI, battleData);
         addCharmButtonToBattle();
+        // Boss dialogue at battle start
+        if (_battleType === 'pve' && _currentBossId) {
+          setTimeout(function() { showBossDialogue(_currentBossId, 'start'); }, 500);
+        }
         return result;
       };
     }
@@ -3854,6 +3858,8 @@
 
       // Play boss defeat fanfare on new boss kills
       if (isNewBossDefeat) playSfx('bossDefeat');
+      // Boss defeat dialogue
+      if (_currentBossId) showBossDialogue(_currentBossId, 'loss');
 
       // Apply boss reward (stat bonus, title, etc.)
       if (isNewBossDefeat && boss) {
@@ -3944,8 +3950,17 @@
     } else {
       if (titleEl) titleEl.textContent = 'Defeated';
       if (subtitleEl) {
+        // "Almost" moment — check if boss had <10% HP
+        var almostMsg = '';
+        if (battleResult && battleResult.opponentHp !== undefined && battleResult.opponentMaxHp) {
+          var bossHpPct = battleResult.opponentHp / battleResult.opponentMaxHp;
+          if (bossHpPct < 0.1 && bossHpPct > 0) {
+            var bossName = _bosses.find(function(b) { return b.id === _currentBossId; });
+            almostMsg = 'So close! ' + (bossName ? bossName.name : 'The boss') + ' survived with ' + battleResult.opponentHp + ' HP. ';
+          }
+        }
         const tip = getLossTip();
-        subtitleEl.textContent = tip;
+        subtitleEl.textContent = almostMsg + tip;
       }
     }
 
