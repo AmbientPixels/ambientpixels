@@ -1398,7 +1398,7 @@
 /* --- Battle container --- */
 .bs-page .arena-battle {
   position: relative;
-  max-width: 960px;
+  max-width: 860px;
   margin: 0 auto;
   background: var(--bs-bg);
 }
@@ -4131,9 +4131,9 @@
 
 /* Battle screen — override base .bs-screen constraints */
 .bs-screen.active#bs-screen-battle {
-  max-width: 960px;
+  max-width: 860px;
   margin: 0 auto;
-  padding: 0.5rem 1.5rem 3.5rem;
+  padding: 0.5rem 2rem 3.5rem;
 }
 
 /* Hide bottom nav during battle (iter 56 fix) */
