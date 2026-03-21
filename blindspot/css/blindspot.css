@@ -2286,6 +2286,26 @@
   margin-top: 0.3rem;
 }
 
+/* ============================================================
+   NEXT UNLOCK TEASERS
+   ============================================================ */
+
+.bs-unlock-teasers {
+  width: 100%;
+  max-width: 360px;
+  margin: 0.5rem auto 0;
+  text-align: center;
+}
+
+.bs-unlock-teaser {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.7rem;
+  color: var(--bs-text-muted);
+  padding: 0.2rem 0;
+}
+
 /* Session Stats Panel */
 .bs-session-stats {
   margin-top: 0.75rem;

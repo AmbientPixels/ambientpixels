@@ -368,6 +368,56 @@
     return closest;
   }
 
+  // --- Next unlock teasers ---
+  const PALETTE_UNLOCK_BOSSES = [
+    { bossNum: 2, palette: 'Ocean' },
+    { bossNum: 4, palette: 'Neon' },
+    { bossNum: 8, palette: 'Fire' }
+  ];
+
+  const STREAK_MILESTONES = [
+    { threshold: 3, label: '+10% spark bonus' },
+    { threshold: 5, label: '+1 Forge Win' },
+    { threshold: 10, label: '+50 Sparks' },
+    { threshold: 15, label: 'Title: "The Relentless" + 100 Sparks' }
+  ];
+
+  function getNextUnlockTeasers() {
+    var teasers = [];
+    // Next rarity tier
+    var nextRar = getNextRarity();
+    if (nextRar) {
+      teasers.push({ context: 'lobby', icon: nextRar.rarity.icon, color: nextRar.rarity.color,
+        text: nextRar.forgesNeeded + ' more forge visit' + (nextRar.forgesNeeded !== 1 ? 's' : '') + ' to ' + nextRar.rarity.name });
+    }
+    // Next streak milestone
+    var streak = getWinStreak();
+    for (var i = 0; i < STREAK_MILESTONES.length; i++) {
+      if (streak < STREAK_MILESTONES[i].threshold) {
+        var gap = STREAK_MILESTONES[i].threshold - streak;
+        teasers.push({ context: 'lobby', icon: 'fa-fire', color: 'var(--bs-accent-glow)',
+          text: gap + ' more win' + (gap !== 1 ? 's' : '') + ' in a row for ' + STREAK_MILESTONES[i].label });
+        break;
+      }
+    }
+    // Next palette unlock from campaign
+    var highestBoss = getHighestBossDefeated();
+    for (var j = 0; j < PALETTE_UNLOCK_BOSSES.length; j++) {
+      if (highestBoss < PALETTE_UNLOCK_BOSSES[j].bossNum) {
+        teasers.push({ context: 'campaign', icon: 'fa-palette', color: 'var(--bs-accent)',
+          text: 'Beat Boss ' + PALETTE_UNLOCK_BOSSES[j].bossNum + ' to unlock ' + PALETTE_UNLOCK_BOSSES[j].palette + ' palette' });
+        break;
+      }
+    }
+    // Next passive unlock
+    var nextPass = _selectedCard ? getNextPassive(_selectedCard.combatStats) : null;
+    if (nextPass) {
+      teasers.push({ context: 'forge', icon: nextPass.icon, color: WEAKNESS_COLORS[nextPass.stat] || 'var(--bs-accent)',
+        text: nextPass.gap + ' more ' + (WEAKNESS_LABELS[nextPass.stat] || nextPass.stat) + ' to unlock ' + nextPass.name });
+    }
+    return teasers;
+  }
+
   // Battle hints based on context
   const BATTLE_HINTS = {
     round1: 'Strike is safe round 1 — bosses rarely guard first.',
@@ -1840,6 +1890,21 @@
       titleEl.style.display = title ? '' : 'none';
     }
 
+    // Next unlock teasers (lobby context)
+    var teasersEl = document.getElementById('bs-unlock-teasers');
+    if (teasersEl) {
+      var allTeasers = getNextUnlockTeasers();
+      var lobbyTeasers = allTeasers.filter(function(t) { return t.context === 'lobby' || t.context === 'campaign'; });
+      if (lobbyTeasers.length > 0) {
+        teasersEl.innerHTML = lobbyTeasers.map(function(t) {
+          return '<div class="bs-unlock-teaser"><i class="fas ' + t.icon + '" style="color:' + t.color + ';"></i> ' + escHtml(t.text) + '</div>';
+        }).join('');
+        teasersEl.style.display = '';
+      } else {
+        teasersEl.style.display = 'none';
+      }
+    }
+
     // Next boss reward preview
     const rewardEl = document.getElementById('bs-next-reward');
     if (rewardEl) {
@@ -2232,6 +2297,20 @@
         progressEl.innerHTML = '<i class="fas fa-crown" style="color:var(--bs-accent);"></i> ' + total + '/' + total + ' defeated';
       } else {
         progressEl.textContent = defeated + '/' + total + ' defeated';
+      }
+      // Campaign palette unlock teaser
+      var existingTeaser = document.getElementById('bs-campaign-teaser');
+      if (existingTeaser) existingTeaser.remove();
+      for (var pi = 0; pi < PALETTE_UNLOCK_BOSSES.length; pi++) {
+        if (highestDefeated < PALETTE_UNLOCK_BOSSES[pi].bossNum) {
+          var tDiv = document.createElement('div');
+          tDiv.id = 'bs-campaign-teaser';
+          tDiv.className = 'bs-unlock-teaser';
+          tDiv.style.marginTop = '0.25rem';
+          tDiv.innerHTML = '<i class="fas fa-palette" style="color:var(--bs-accent);"></i> Beat Boss ' + PALETTE_UNLOCK_BOSSES[pi].bossNum + ' to unlock ' + PALETTE_UNLOCK_BOSSES[pi].palette + ' palette';
+          progressEl.parentNode.insertBefore(tDiv, progressEl.nextSibling);
+          break;
+        }
       }
     }
 
@@ -3246,6 +3325,7 @@
             <span class="bs-forge-stat__desc">${d.desc}</span>
           </div>
         `).join('')}
+        <div class="bs-unlock-teaser" id="bs-forge-teaser" style="margin-top:0.5rem;"></div>
       </div>
       <div class="bs-forge-tab-content" id="bs-forge-tab-look" style="display:none;">
         <p style="font-size:0.8rem; color:var(--bs-text-muted); margin-bottom:0.5rem;">Unlock looks with boss defeats or Sparks.</p>
@@ -3412,8 +3492,30 @@
           display.style.color = clamped > 0 ? 'var(--bs-accent)' : 'var(--bs-text)';
         }
         updateBudget();
+        updateForgeTeaser();
       });
     });
+
+    function updateForgeTeaser() {
+      var teaserEl = document.getElementById('bs-forge-teaser');
+      if (!teaserEl) return;
+      // Build projected stats from sliders
+      var projected = {};
+      statDefs.forEach(function(d) {
+        var sl = panel.querySelector('.bs-forge-stat__slider[data-stat="' + d.key + '"]');
+        projected[d.key] = sl ? parseInt(sl.value, 10) : (currentStats[d.key] || 0);
+      });
+      var nextP = getNextPassive(projected);
+      if (nextP) {
+        teaserEl.innerHTML = '<i class="fas ' + nextP.icon + '" style="color:' + (WEAKNESS_COLORS[nextP.stat] || 'var(--bs-accent)') + ';"></i> '
+          + nextP.gap + ' more ' + (WEAKNESS_LABELS[nextP.stat] || nextP.stat) + ' → <strong>' + nextP.name + '</strong> <span style="color:var(--bs-text-muted);">(' + nextP.desc + ')</span>';
+        teaserEl.style.display = '';
+      } else {
+        teaserEl.innerHTML = '<i class="fas fa-check-circle" style="color:var(--bs-accent);"></i> All passives unlocked!';
+        teaserEl.style.display = '';
+      }
+    }
+    updateForgeTeaser();
 
     document.getElementById('bs-forge-cancel')?.addEventListener('click', () => {
       hideOverlay('bs-forge-screen');
