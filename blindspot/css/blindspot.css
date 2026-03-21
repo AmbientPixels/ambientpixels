@@ -2023,6 +2023,7 @@
 
 .bs-page .qb-overlay {
   background: rgba(16, 12, 8, 0.95);
+  overflow: hidden;
 }
 
 .bs-page .qb-modal {

@@ -2910,11 +2910,11 @@
       const palette = card?.palette || 'earth';
       const stats = card?.combatStats || {};
       const statDefs = [
-        { key: 'strength', label: 'STR', color: '#D85A30' },
-        { key: 'speed', label: 'SPD', color: '#C6A84C' },
-        { key: 'defense', label: 'DEF', color: '#4A90A4' },
-        { key: 'magic', label: 'MAG', color: '#8B5CF6' },
-        { key: 'heal', label: 'HEL', color: '#22C55E' },
+        { key: 'str', label: 'STR', color: '#ff5252' },
+        { key: 'agi', label: 'AGI', color: '#00e676' },
+        { key: 'int', label: 'INT', color: '#7b2fff' },
+        { key: 'end', label: 'END', color: '#ff9100' },
+        { key: 'lck', label: 'LCK', color: '#ffd740' },
       ];
 
       const statsHtml = statDefs.map(d => {
