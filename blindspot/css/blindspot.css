@@ -4776,3 +4776,144 @@ body.bs-battle-active .bs-bottom-nav {
   .bs-passives-display { max-width: 100%; }
   .bs-battle-hint { font-size: 0.65rem; padding: 0.4rem 0.75rem; }
 }
+
+/* ============================================================
+   MOBILE FORGE OVERLAY (375px)
+   Scrollable forge, touch-friendly sliders/tabs, sticky actions
+   ============================================================ */
+
+/* Make forge overlay scrollable on mobile — content taller than viewport */
+@media (max-width: 768px) {
+  #bs-forge-screen {
+    align-items: flex-start;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 0;
+  }
+
+  #bs-forge-screen .bs-forge-screen {
+    padding: 0.75rem 0.75rem 5rem;
+    max-width: 100%;
+  }
+
+  /* Forge tabs — 44px touch targets */
+  .bs-forge-tab {
+    min-height: 44px;
+    padding: 0.5rem 0.5rem;
+    font-size: 0.7rem;
+  }
+
+  .bs-forge-tab i {
+    font-size: 0.7rem;
+  }
+
+  /* Slider thumb — bigger for touch (28px) */
+  .bs-forge-stat__slider::-webkit-slider-thumb {
+    width: 28px;
+    height: 28px;
+  }
+  .bs-forge-stat__slider::-moz-range-thumb {
+    width: 28px;
+    height: 28px;
+  }
+
+  /* Slider track — thicker to match bigger thumb */
+  .bs-forge-stat__slider {
+    height: 10px;
+    border-radius: 5px;
+  }
+
+  /* Forge actions — visible with bottom padding on container */
+  .bs-forge-actions {
+    padding: 0.75rem 0;
+  }
+
+  /* Forge options — wrap properly on narrow screens */
+  .bs-forge-options {
+    gap: 0.35rem;
+  }
+
+  .bs-forge-option {
+    padding: 0.4rem 0.6rem;
+    font-size: 0.7rem;
+    min-height: 36px;
+  }
+
+  /* Avatar tab buttons — ensure tappable */
+  .bs-forge-avt-tab {
+    min-height: 36px;
+  }
+
+  /* Avatar gallery pagination — bigger touch targets */
+  #bs-avt-prev,
+  #bs-avt-next {
+    min-width: 44px;
+    min-height: 44px;
+    font-size: 0.8rem;
+  }
+}
+
+/* Extra compact at 375px */
+@media (max-width: 480px) {
+  #bs-forge-screen .bs-forge-screen {
+    padding: 0.5rem 0.5rem 5rem;
+  }
+
+  .bs-forge-screen__title {
+    font-size: 1.1rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .bs-forge-screen__budget {
+    font-size: 0.8rem;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    justify-content: center;
+  }
+
+  .bs-forge-screen__budget strong {
+    font-size: 0.95rem;
+  }
+
+  /* Card preview — smaller at 375px */
+  .bs-forge-card {
+    width: 100px;
+  }
+  .bs-forge-card__img,
+  .bs-forge-card__placeholder {
+    height: 120px;
+  }
+  .bs-forge-card[data-container="fullbleed"] .bs-forge-card__img {
+    height: 150px;
+  }
+  .bs-forge-card__name {
+    font-size: 0.7rem;
+  }
+  .bs-forge-card__class {
+    font-size: 0.55rem;
+  }
+  .bs-forge-card__power {
+    font-size: 0.65rem;
+  }
+  .bs-forge-card__info {
+    padding: 0.4rem;
+  }
+
+  /* Forge preview — less vertical space */
+  .bs-forge-preview {
+    padding: 0.25rem 0;
+    margin: -0.25rem 0 0.25rem;
+  }
+
+  /* Stat rows — tighter */
+  .bs-forge-stat {
+    gap: 0.35rem;
+    margin-bottom: 0.5rem;
+  }
+
+  /* Actions buttons — full width, proper touch targets */
+  .bs-forge-actions .bs-btn {
+    flex: 1;
+    min-height: 44px;
+  }
+}
