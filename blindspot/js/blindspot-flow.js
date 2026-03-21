@@ -2792,9 +2792,6 @@
         </div>
         <div class="bs-forge-editor">
       <h2 class="bs-forge-screen__title"><i class="fas fa-fire" style="color:var(--bs-accent);"></i> The Forge</h2>
-      <p style="text-align:center; color:var(--bs-text-muted); font-size:0.75rem; margin-bottom:0.5rem;">
-        Forge #${getForgeVisitCount() + 1}
-      </p>
       <div class="bs-forge-tabs">
         <button class="bs-forge-tab bs-forge-tab--active" data-tab="stats"><i class="fas fa-sliders"></i> Stats</button>
         <button class="bs-forge-tab" data-tab="look"><i class="fas fa-palette"></i> Look</button>
