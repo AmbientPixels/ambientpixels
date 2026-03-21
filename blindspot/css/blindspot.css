@@ -1697,6 +1697,83 @@
 .bs-page .arena-hype-bar__label { color: var(--bs-accent-dim); }
 .bs-page .arena-hype-bar__track { background: var(--bs-surface-2); }
 
+/* ---- Combatant breathing glows — amber/orange instead of CardForge purple/red ---- */
+.bs-page .arena-combatant--player {
+  border-color: rgba(239, 159, 39, 0.15);
+  box-shadow: 0 0 30px rgba(239, 159, 39, 0.08);
+  animation: none;
+}
+.bs-page .arena-combatant--opponent {
+  border-color: rgba(216, 90, 48, 0.15);
+  box-shadow: 0 0 30px rgba(216, 90, 48, 0.08);
+  animation: none;
+}
+.bs-page .arena-combatant {
+  background: rgba(16, 12, 8, 0.7);
+  border-color: var(--bs-border);
+}
+
+/* ---- Buff chips — amber instead of CardForge purple ---- */
+.bs-page .arena-buff-chip {
+  background: rgba(239, 159, 39, 0.1);
+  border-color: rgba(239, 159, 39, 0.25);
+  color: var(--bs-text);
+}
+.bs-page .arena-buff-chip i {
+  color: var(--bs-accent);
+}
+
+/* ---- Move button ::after underlines — match Blindspot icon colors ---- */
+.bs-page .arena-move-btn--strike::after { background: var(--bs-accent); }
+.bs-page .arena-move-btn--guard::after { background: var(--bs-text-muted); }
+.bs-page .arena-move-btn--ability::after { background: var(--bs-accent-glow); }
+.bs-page .arena-move-btn--heal::after { background: var(--bs-success); }
+.bs-page .arena-move-btn--counter::after { background: var(--bs-text-muted); }
+
+/* ---- Move button glow radials — amber instead of CardForge colors ---- */
+.bs-page .arena-move-btn--strike .arena-move-btn__glow { background: radial-gradient(ellipse at center, rgba(239, 159, 39, 0.08), transparent 70%); }
+.bs-page .arena-move-btn--guard .arena-move-btn__glow { background: radial-gradient(ellipse at center, rgba(160, 152, 136, 0.06), transparent 70%); }
+.bs-page .arena-move-btn--ability .arena-move-btn__glow { background: radial-gradient(ellipse at center, rgba(250, 199, 117, 0.08), transparent 70%); }
+.bs-page .arena-move-btn--heal .arena-move-btn__glow { background: radial-gradient(ellipse at center, rgba(29, 158, 117, 0.08), transparent 70%); }
+.bs-page .arena-move-btn--counter .arena-move-btn__glow { background: radial-gradient(ellipse at center, rgba(160, 152, 136, 0.06), transparent 70%); }
+
+/* ---- Move button hover borders — amber palette ---- */
+.bs-page .arena-move-btn--strike:hover:not(:disabled) { border-color: rgba(239, 159, 39, 0.4); box-shadow: 0 8px 24px rgba(239, 159, 39, 0.15); }
+.bs-page .arena-move-btn--guard:hover:not(:disabled) { border-color: rgba(160, 152, 136, 0.3); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); }
+.bs-page .arena-move-btn--ability:hover:not(:disabled) { border-color: rgba(250, 199, 117, 0.4); box-shadow: 0 8px 24px rgba(250, 199, 117, 0.15); }
+.bs-page .arena-move-btn--heal:hover:not(:disabled) { border-color: rgba(29, 158, 117, 0.3); box-shadow: 0 8px 24px rgba(29, 158, 117, 0.15); }
+.bs-page .arena-move-btn--counter:hover:not(:disabled) { border-color: rgba(160, 152, 136, 0.3); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); }
+
+/* ---- Log entry accent colors — amber instead of purple/gold ---- */
+.bs-page .arena-log-entry--info {
+  color: var(--bs-accent);
+  text-shadow: 0 0 8px rgba(239, 159, 39, 0.3);
+}
+.bs-page .arena-log-entry--event {
+  color: var(--bs-accent-glow);
+  text-shadow: 0 0 8px rgba(250, 199, 117, 0.3);
+}
+.bs-page .arena-log-entry--error {
+  color: var(--bs-danger);
+  text-shadow: 0 0 8px rgba(216, 90, 48, 0.3);
+}
+.bs-page .arena-log-entry--hint {
+  color: var(--bs-text-muted);
+}
+
+/* ---- Charge badge — amber instead of purple ---- */
+.bs-page .arena-move-btn__charge {
+  background: rgba(239, 159, 39, 0.15);
+  border-color: rgba(239, 159, 39, 0.25);
+  color: var(--bs-accent);
+}
+
+/* ---- VS pseudo-element dividers — amber ---- */
+.bs-page .arena-battle__vs::before,
+.bs-page .arena-battle__vs::after {
+  background: linear-gradient(to bottom, transparent, rgba(239, 159, 39, 0.3), transparent);
+}
+
 /* Damage floaters */
 .bs-page .arena-dmg-float--damage { color: var(--bs-danger); }
 .bs-page .arena-dmg-float--heal { color: var(--bs-success); }
@@ -3396,8 +3473,8 @@
     gap: 0.4rem;
   }
   .bs-page .arena-combatant__card {
-    width: 56px;
-    height: 70px;
+    width: 64px;
+    height: 80px;
     min-height: auto;
     flex-shrink: 0;
   }
@@ -3464,7 +3541,7 @@
   #bs-screen-battle { padding: 0.5rem; }
   .bs-page .arena-battle__field { padding: 0.75rem 0.25rem; gap: 0.4rem; }
   .bs-page .arena-combatant { padding: 0.5rem; gap: 0.5rem; }
-  .bs-page .arena-combatant__card { width: 64px; height: 80px; min-height: 64px; }
+  .bs-page .arena-combatant__card { width: 56px; height: 70px; min-height: auto; }
   .bs-page .arena-battle__moves { gap: 0.25rem; }
   .bs-page .arena-move-btn { min-height: 56px; padding: 0.625rem 0.25rem; }
   .bs-page .arena-move-btn i { font-size: 1.2rem; }
