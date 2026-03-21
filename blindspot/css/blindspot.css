@@ -1434,6 +1434,9 @@
   border-radius: 14px;
   overflow: visible;
   margin-bottom: 0.5rem;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 .bs-page .arena-battle__stage::before {
   content: '';
@@ -1447,6 +1450,19 @@
     repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(245, 240, 232, 0.01) 59px, rgba(245, 240, 232, 0.01) 60px),
     repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(245, 240, 232, 0.01) 59px, rgba(245, 240, 232, 0.01) 60px);
 }
+/* Stage background variants (set by ArenaBackgrounds JS) */
+.bs-page .arena-stage--colosseum { background-image: url('/cardforge/img/arena/arena-colosseum.webp'); }
+.bs-page .arena-stage--shadow-pit { background-image: url('/cardforge/img/arena/arena-shadow-pit.webp'); }
+.bs-page .arena-stage--forge-grounds { background-image: url('/cardforge/img/arena/arena-forge-grounds.webp'); }
+.bs-page .arena-stage--crystal-sanctum { background-image: url('/cardforge/img/arena/arena-crystal-sanctum.webp'); }
+.bs-page .arena-stage--void-rift { background-image: url('/cardforge/img/arena/arena-void-rift.webp'); }
+.bs-page .arena-stage--throne { background-image: url('/cardforge/img/arena/arena-throne.webp'); }
+.bs-page [class*="arena-stage--"]::before {
+  background:
+    linear-gradient(180deg, rgba(16, 12, 8, 0.55) 0%, rgba(16, 12, 8, 0.3) 40%, rgba(16, 12, 8, 0.55) 100%),
+    radial-gradient(ellipse 90% 60% at 50% 80%, rgba(239, 159, 39, 0.04) 0%, transparent 70%);
+}
+
 .bs-page .arena-battle__field {
   display: flex;
   align-items: stretch;
@@ -4132,6 +4148,16 @@
 
 @media (max-width: 480px) {
   [data-tooltip]::after { display: none; }
+}
+
+/* Battle screen — force flex layout (beats .bs-screen.active { display: block }) */
+.bs-screen.active#bs-screen-battle {
+  display: flex;
+  flex-direction: column;
+  max-width: 960px;
+  margin: 0 auto;
+  min-height: calc(100vh - 3rem);
+  padding: 0.5rem 0 3.5rem;
 }
 
 /* Hide bottom nav during battle (iter 56 fix) */
