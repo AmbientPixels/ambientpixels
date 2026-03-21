@@ -35,6 +35,7 @@
   let _battleRoundStats = null;
   let _submitMoveHooked = false;
   var _towerPendingFloor = 0;
+  var _pendingForge = false;
 
   const RANKS = {
     bronze:   { xp: 0,    icon: 'fa-shield-halved', color: '#CD7F32', label: 'Bronze' },
@@ -2466,14 +2467,11 @@
         }
       }
 
-      // Forge visit trigger
+      // Forge visit trigger — queue it to show AFTER loot choice is picked
+      // (don't return early — loot choice must still appear)
       const needed = _config ? _config.forgeVisit.winsRequired : 3;
       if (getForgeWins() >= needed) {
-        setTimeout(() => {
-          document.getElementById('arena-results-overlay').style.display = 'none';
-          showOverlay('bs-forge-trigger');
-        }, 2000);
-        return;
+        _pendingForge = true; // Flag checked after loot is picked
       }
     }
 
@@ -4064,6 +4062,15 @@
         hideOverlay('bs-loot-choice');
         await applyLootDrop(chosen);
         showRewardDrop(chosen, 'Victory Reward');
+
+        // Show forge trigger AFTER loot is picked (not during)
+        if (_pendingForge) {
+          _pendingForge = false;
+          setTimeout(() => {
+            document.getElementById('arena-results-overlay').style.display = 'none';
+            showOverlay('bs-forge-trigger');
+          }, 1500);
+        }
       }, { once: true });
     });
   }
