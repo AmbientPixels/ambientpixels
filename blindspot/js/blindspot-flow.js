@@ -2831,10 +2831,56 @@
           <input type="text" id="bs-forge-quote" value="${escHtml(_selectedCard.quote || '')}" maxlength="100"
                  style="width:100%; padding:0.5rem; background:var(--bs-surface-2); border:1px solid var(--bs-border); border-radius:6px; color:var(--bs-text); font-family:'Share Tech Mono',monospace; font-size:0.85rem;">
         </div>
-        <div>
-          <label style="font-size:0.75rem; color:var(--bs-text-muted); display:block; margin-bottom:0.3rem;">Avatar URL</label>
-          <input type="url" id="bs-forge-avatar" value="${escHtml(_selectedCard.avatar || '')}" placeholder="https://..."
-                 style="width:100%; padding:0.5rem; background:var(--bs-surface-2); border:1px solid var(--bs-border); border-radius:6px; color:var(--bs-text); font-family:'Share Tech Mono',monospace; font-size:0.8rem;">
+        <div style="margin-bottom:0.75rem;">
+          <label style="font-size:0.75rem; color:var(--bs-text-muted); display:block; margin-bottom:0.3rem;">Avatar</label>
+          <div class="bs-forge-avatar-tabs" style="display:flex; gap:0.25rem; margin-bottom:0.5rem;">
+            <button class="bs-forge-avt-tab bs-forge-avt-tab--active" data-avt-tab="gallery" style="flex:1; padding:0.3rem; font-size:0.65rem; border:1px solid var(--bs-border); border-radius:6px; background:var(--bs-surface-2); color:var(--bs-text); cursor:pointer;"><i class="fas fa-images"></i> Gallery</button>
+            <button class="bs-forge-avt-tab" data-avt-tab="ai" style="flex:1; padding:0.3rem; font-size:0.65rem; border:1px solid var(--bs-border); border-radius:6px; background:var(--bs-surface-2); color:var(--bs-text-muted); cursor:pointer;"><i class="fas fa-wand-magic-sparkles"></i> AI Generate</button>
+            <button class="bs-forge-avt-tab" data-avt-tab="url" style="flex:1; padding:0.3rem; font-size:0.65rem; border:1px solid var(--bs-border); border-radius:6px; background:var(--bs-surface-2); color:var(--bs-text-muted); cursor:pointer;"><i class="fas fa-link"></i> URL</button>
+          </div>
+          <div id="bs-forge-avt-gallery" class="bs-forge-avt-content">
+            <div class="bs-forge-avatar-grid" style="display:grid; grid-template-columns:repeat(4, 1fr); gap:0.4rem;">
+              ${[
+                { src: '/cardforge/img/demo/demo-knight.webp', label: 'Knight' },
+                { src: '/cardforge/img/demo/demo-mage.webp', label: 'Mage' },
+                { src: '/cardforge/img/demo/demo-rogue.webp', label: 'Rogue' },
+                { src: '/cardforge/img/bosses/Training-Dummy-02.webp', label: 'Sentinel' },
+                { src: '/cardforge/img/bosses/Ironclad-Sentinel-01.webp', label: 'Ironclad' },
+                { src: '/cardforge/img/bosses/Shadow-Stalker-01.webp', label: 'Shadow' },
+                { src: '/cardforge/img/bosses/Crystal-Weaver-10.webp', label: 'Crystal' },
+                { src: '/cardforge/img/bosses/Arcane-Scholar-01.webp', label: 'Scholar' },
+                { src: '/cardforge/img/bosses/Warlord-Grax01.webp', label: 'Warlord' },
+                { src: '/cardforge/img/bosses/Void-Harbinger-01.webp', label: 'Void' },
+                { src: '/cardforge/img/bosses/Titanium-Aegis-01.webp', label: 'Aegis' },
+                { src: '/cardforge/img/bosses/The-Forge-King-01.webp', label: 'Forge King' }
+              ].map(a => '<button class="bs-forge-avatar-pick" data-avatar-src="' + a.src + '" title="' + a.label + '" style="width:100%; aspect-ratio:1; border:2px solid var(--bs-border); border-radius:8px; overflow:hidden; background:var(--bs-surface); cursor:pointer; padding:0;"><img src="' + a.src + '" alt="' + a.label + '" style="width:100%; height:100%; object-fit:cover;"></button>').join('')}
+            </div>
+          </div>
+          <div id="bs-forge-avt-ai" class="bs-forge-avt-content" style="display:none;">
+            <div style="margin-bottom:0.5rem;">
+              <input type="text" id="bs-forge-ai-prompt" placeholder="Describe your character... e.g. 'cyberpunk warrior with glowing eyes'" maxlength="200"
+                     style="width:100%; padding:0.5rem; background:var(--bs-surface-2); border:1px solid var(--bs-border); border-radius:6px; color:var(--bs-text); font-family:'Share Tech Mono',monospace; font-size:0.8rem; margin-bottom:0.4rem;">
+              <div style="display:flex; gap:0.4rem; align-items:center;">
+                <select id="bs-forge-ai-style" style="flex:1; padding:0.35rem; background:var(--bs-surface-2); border:1px solid var(--bs-border); border-radius:6px; color:var(--bs-text); font-size:0.7rem;">
+                  <option value="ap-neon-glass">Neon Glass</option>
+                  <option value="ap-2d-flat">2D Flat</option>
+                  <option value="ap-ornate-frame">Ornate Frame</option>
+                  <option value="ap-watercolor">Watercolor</option>
+                  <option value="ap-corporate-tech">Corporate Tech</option>
+                  <option value="none">No Style</option>
+                </select>
+                <button class="bs-btn bs-btn--primary bs-btn--small" id="bs-forge-ai-generate" style="padding:0.35rem 0.75rem; font-size:0.7rem; white-space:nowrap;">
+                  <i class="fas fa-wand-magic-sparkles"></i> Generate
+                </button>
+              </div>
+            </div>
+            <div id="bs-forge-ai-status" style="font-size:0.7rem; color:var(--bs-text-muted); text-align:center; min-height:1.5rem;"></div>
+            <div id="bs-forge-ai-result" style="text-align:center;"></div>
+          </div>
+          <div id="bs-forge-avt-url" class="bs-forge-avt-content" style="display:none;">
+            <input type="url" id="bs-forge-avatar" value="${escHtml(_selectedCard.avatar || '')}" placeholder="https://..."
+                   style="width:100%; padding:0.5rem; background:var(--bs-surface-2); border:1px solid var(--bs-border); border-radius:6px; color:var(--bs-text); font-family:'Share Tech Mono',monospace; font-size:0.8rem;">
+          </div>
         </div>
       </div>
       <div class="bs-forge-actions" style="display:flex; gap:0.75rem; justify-content:center; margin-top:1rem;">
@@ -3059,6 +3105,103 @@
           if (previewImg && input.value.trim()) previewImg.src = input.value.trim();
         }
       });
+    });
+
+    // Avatar sub-tabs (Gallery / AI / URL)
+    panel.querySelectorAll('.bs-forge-avt-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        panel.querySelectorAll('.bs-forge-avt-tab').forEach(t => { t.classList.remove('bs-forge-avt-tab--active'); t.style.color = 'var(--bs-text-muted)'; });
+        tab.classList.add('bs-forge-avt-tab--active');
+        tab.style.color = 'var(--bs-text)';
+        panel.querySelectorAll('.bs-forge-avt-content').forEach(c => c.style.display = 'none');
+        var target = document.getElementById('bs-forge-avt-' + tab.dataset.avtTab);
+        if (target) target.style.display = '';
+      });
+    });
+
+    // Avatar gallery picks
+    panel.querySelectorAll('.bs-forge-avatar-pick').forEach(btn => {
+      btn.addEventListener('click', () => {
+        panel.querySelectorAll('.bs-forge-avatar-pick').forEach(b => b.style.borderColor = 'var(--bs-border)');
+        btn.style.borderColor = 'var(--bs-accent)';
+        var src = btn.dataset.avatarSrc;
+        // Update URL input too
+        var urlInput = document.getElementById('bs-forge-avatar');
+        if (urlInput) urlInput.value = src;
+        // Update preview
+        var previewImg = panel.querySelector('.bs-forge-card__img');
+        var previewPlaceholder = panel.querySelector('.bs-forge-card__placeholder');
+        if (previewImg) {
+          previewImg.src = src;
+        } else if (previewPlaceholder) {
+          previewPlaceholder.outerHTML = '<img src="' + escHtml(src) + '" alt="Avatar" class="bs-forge-card__img">';
+        }
+        _hasVisualChange = true;
+        updateBudget();
+        flashPreview();
+      });
+    });
+
+    // AI Generate
+    var aiGenBtn = document.getElementById('bs-forge-ai-generate');
+    if (aiGenBtn) aiGenBtn.addEventListener('click', async () => {
+      var prompt = (document.getElementById('bs-forge-ai-prompt')?.value || '').trim();
+      if (!prompt || prompt.length < 3) {
+        document.getElementById('bs-forge-ai-status').textContent = 'Describe your character (min 3 chars)';
+        return;
+      }
+      var style = document.getElementById('bs-forge-ai-style')?.value || 'ap-neon-glass';
+      var statusEl = document.getElementById('bs-forge-ai-status');
+      var resultEl = document.getElementById('bs-forge-ai-result');
+      aiGenBtn.disabled = true;
+      aiGenBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Generating...';
+      statusEl.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating your portrait with AI... (15-30s)';
+      resultEl.innerHTML = '';
+
+      try {
+        var resp = await fetch('/api/content-quick-generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-company-secret': 'pixelpusher' },
+          body: JSON.stringify({
+            topic: 'RPG character portrait: ' + prompt,
+            goal: 'Card game character avatar portrait, centered face/bust composition, dark atmospheric background',
+            preset: style,
+            outputs: ['square_image'],
+            skipApproval: true,
+            accountId: 'blindspot-forge'
+          })
+        });
+        var data = await resp.json();
+        if (data.ok !== false && data.results && data.results.length > 0) {
+          var imgUrl = data.results[0].url || data.results[0].cdnUrl;
+          if (imgUrl) {
+            statusEl.innerHTML = '<i class="fas fa-check" style="color:var(--bs-accent);"></i> Portrait generated!';
+            resultEl.innerHTML = '<img src="' + escHtml(imgUrl) + '" style="width:120px; height:120px; object-fit:cover; border-radius:8px; border:2px solid var(--bs-accent); margin-top:0.5rem; cursor:pointer;" id="bs-forge-ai-preview">';
+            // Click to use
+            document.getElementById('bs-forge-ai-preview')?.addEventListener('click', () => {
+              var urlInput = document.getElementById('bs-forge-avatar');
+              if (urlInput) urlInput.value = imgUrl;
+              var previewImg = panel.querySelector('.bs-forge-card__img');
+              var previewPlaceholder = panel.querySelector('.bs-forge-card__placeholder');
+              if (previewImg) { previewImg.src = imgUrl; }
+              else if (previewPlaceholder) { previewPlaceholder.outerHTML = '<img src="' + escHtml(imgUrl) + '" alt="AI Avatar" class="bs-forge-card__img">'; }
+              _hasVisualChange = true;
+              updateBudget();
+              flashPreview();
+              statusEl.innerHTML = '<i class="fas fa-check" style="color:var(--bs-accent);"></i> Applied! Click Forge to save.';
+            });
+            statusEl.innerHTML += ' <span style="color:var(--bs-text-muted); font-size:0.65rem;">Click image to use it.</span>';
+          } else {
+            statusEl.textContent = 'Generated but no image URL returned. Try again.';
+          }
+        } else {
+          statusEl.textContent = data.error || 'Generation failed. Try again.';
+        }
+      } catch (err) {
+        statusEl.textContent = 'Error: ' + (err.message || 'Network error');
+      }
+      aiGenBtn.disabled = false;
+      aiGenBtn.innerHTML = '<i class="fas fa-wand-magic-sparkles"></i> Generate';
     });
 
     applyBtn.addEventListener('click', async () => {
