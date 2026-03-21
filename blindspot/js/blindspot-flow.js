@@ -1699,13 +1699,14 @@
       renderLeaderboard();
     });
 
-    // How to Play
-    document.getElementById('bs-btn-howtoplay')?.addEventListener('click', () => {
-      showOverlay('bs-howtoplay');
-    });
-    document.getElementById('bs-howtoplay-close')?.addEventListener('click', () => {
-      hideOverlay('bs-howtoplay');
-    });
+    // How to Play modal
+    var htpEl = document.getElementById('bs-howtoplay');
+    function openHowToPlay() { if (htpEl) htpEl.classList.remove('bs-modal-backdrop--hidden'); }
+    function closeHowToPlay() { if (htpEl) htpEl.classList.add('bs-modal-backdrop--hidden'); }
+    document.getElementById('bs-btn-howtoplay')?.addEventListener('click', openHowToPlay);
+    document.getElementById('bs-howtoplay-close')?.addEventListener('click', closeHowToPlay);
+    document.getElementById('bs-howtoplay-gotit')?.addEventListener('click', closeHowToPlay);
+    if (htpEl) htpEl.addEventListener('click', function(e) { if (e.target === htpEl) closeHowToPlay(); });
 
     document.getElementById('bs-campaign-back')?.addEventListener('click', () => {
       showScreen('lobby');

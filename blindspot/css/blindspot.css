@@ -1550,6 +1550,96 @@
 .bs-page .arena-audio-toggle:hover { color: var(--bs-accent); }
 
 /* ============================================================
+   MODAL (How to Play, etc.)
+   ============================================================ */
+
+.bs-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9990;
+  background: rgba(10, 8, 5, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+}
+
+.bs-modal-backdrop--hidden {
+  display: none !important;
+}
+
+.bs-modal {
+  position: relative;
+  width: 90%;
+  max-height: 85vh;
+  background: var(--bs-surface);
+  border: 1px solid var(--bs-border);
+  border-radius: 16px;
+  padding: 1.75rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.bs-modal__close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: none;
+  border: 1px solid var(--bs-border);
+  border-radius: 8px;
+  color: var(--bs-text-muted);
+  font-size: 1rem;
+  padding: 0.35rem 0.55rem;
+  cursor: pointer;
+  z-index: 1;
+  transition: all 0.2s;
+}
+
+.bs-modal__close:hover {
+  color: var(--bs-text);
+  border-color: var(--bs-text-muted);
+}
+
+.bs-modal__title {
+  font-family: 'Cinzel', serif;
+  font-size: 1.15rem;
+  color: var(--bs-accent);
+  margin: 0 0 1rem;
+}
+
+.bs-modal__body {
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.bs-modal__section {
+  margin-bottom: 1.25rem;
+}
+
+.bs-modal__section:last-child {
+  margin-bottom: 0;
+}
+
+.bs-modal__section h3 {
+  font-size: 0.8rem;
+  color: var(--bs-accent);
+  margin: 0 0 0.4rem;
+  font-family: 'Cinzel', serif;
+}
+
+.bs-modal__section p {
+  font-size: 0.72rem;
+  color: var(--bs-text);
+  line-height: 1.6;
+  margin: 0 0 0.3rem;
+}
+
+.bs-modal__section p em {
+  color: var(--bs-text-muted);
+}
+
+/* ============================================================
    TUTORIAL OVERLAY
    ============================================================ */
 
