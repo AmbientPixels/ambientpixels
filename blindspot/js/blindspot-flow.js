@@ -1942,6 +1942,33 @@
   }
 
   // ============================================================
+  // NEW CARD BUTTON
+  // ============================================================
+
+  var _newCardBound = false;
+
+  function renderNewCardButton() {
+    var btn = document.getElementById('bs-new-card-btn');
+    if (!btn) return;
+
+    var deckSize = getDeckSize();
+    if (deckSize >= MAX_DECK_SIZE) {
+      btn.style.display = 'none';
+      return;
+    }
+
+    btn.style.display = '';
+
+    if (!_newCardBound) {
+      _newCardBound = true;
+      btn.addEventListener('click', function() {
+        // Redirect to landing page with newCard param to trigger Quick Build
+        window.location.href = '/blindspot/?newCard=true';
+      });
+    }
+  }
+
+  // ============================================================
   // SESSION STATS TRACKING
   // ============================================================
 
@@ -2209,6 +2236,14 @@
     await gameDataPromise;
     const profile = await profilePromise;
 
+    // New card creation flow: authenticated player came from lobby to build another card
+    var landingParams = new URLSearchParams(window.location.search);
+    if (landingParams.get('newCard') === 'true' && !isDemo()) {
+      document.getElementById('bs-landing').style.display = 'none';
+      openNewCardQuickBuild();
+      return;
+    }
+
     // Returning AUTHENTICATED players skip landing page — go straight to play.html
     // Never auto-redirect guests/demo users — they should see the landing page
     if (!isDemo() && !isNewPlayer(profile)) {
@@ -2377,6 +2412,31 @@
       }
       localStorage.setItem('blindspot-onboarded', 'true');
       showCardRevealCelebration(cardId);
+    });
+  }
+
+  function openNewCardQuickBuild() {
+    if (!window.BlindspotQuickBuild) {
+      console.error('[Blindspot] Quick Build not loaded');
+      window.location.href = '/blindspot/play.html';
+      return;
+    }
+
+    window.BlindspotQuickBuild.open(function onComplete(cardId) {
+      if (cardId) {
+        // Load the new card into the deck cache
+        window.ArenaAPI.loadCards().then(function(data) {
+          var cards = data.userCards || [];
+          cards.forEach(function(c) { addCardToDeck(c); });
+          // Select the new card
+          localStorage.setItem('bs-selected-card-id', cardId);
+          window.location.href = '/blindspot/play.html';
+        }).catch(function() {
+          window.location.href = '/blindspot/play.html';
+        });
+      } else {
+        window.location.href = '/blindspot/play.html';
+      }
     });
   }
 
@@ -2662,6 +2722,7 @@
     }
 
     renderCardSwitcher();
+    renderNewCardButton();
     updateRankDisplay();
     updateForgeProgress();
     updateCrateBadge();

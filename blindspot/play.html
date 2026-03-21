@@ -5,6 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Blindspot — Arena</title>
   <meta name="description" content="Blindspot campaign arena. Fight bosses. Evolve your card.">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Blindspot Arena">
+  <meta property="og:description" content="Build your card. Fight bosses. Evolve.">
+  <meta property="og:url" content="https://www.ambientpixels.ai/blindspot/play.html">
   <meta name="csrf-token" content="">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -59,6 +63,9 @@
             <span class="bs-card-switcher__count" id="bs-card-count">1 / 1</span>
             <button class="bs-card-switcher__btn" id="bs-card-next" aria-label="Next card"><i class="fas fa-chevron-right" aria-hidden="true"></i></button>
           </div>
+          <button class="bs-btn bs-btn--secondary bs-new-card-btn" id="bs-new-card-btn" style="display:none;" aria-label="Create a new card">
+            <i class="fas fa-plus" aria-hidden="true"></i> New Card
+          </button>
         </div>
 
         <!-- Rank HUD -->

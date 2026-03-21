@@ -610,6 +610,15 @@
   text-align: center;
 }
 
+/* New card button */
+.bs-new-card-btn {
+  margin-top: 0.5rem;
+  padding: 0.4rem 1rem;
+  font-size: 0.75rem;
+  font-family: 'Cinzel', serif;
+  letter-spacing: 0.04em;
+}
+
 /* Card slide animations */
 .bs-lobby__card-display.bs-card-slide-out-left {
   animation: bs-card-slide-out-left 0.25s ease-in forwards;
