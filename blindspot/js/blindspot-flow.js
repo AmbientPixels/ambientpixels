@@ -1502,8 +1502,9 @@
     }
 
     // Passives display — show active stat-threshold passives
+    // Only show passives after player has used the Forge at least once
     const passivesEl = document.getElementById('bs-passives-display');
-    if (passivesEl && _selectedCard && _selectedCard.combatStats) {
+    if (passivesEl && _selectedCard && _selectedCard.combatStats && getForgeVisitCount() > 0) {
       const activePassives = getActivePassives(_selectedCard.combatStats);
       if (activePassives.length > 0) {
         passivesEl.innerHTML = '<div class="bs-passives-header" style="font-size:0.7rem; color:var(--bs-text-muted); margin-bottom:0.3rem;"><i class="fas fa-star"></i> Active Passives</div>'
