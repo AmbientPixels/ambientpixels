@@ -2611,10 +2611,12 @@
 
     var landingParams = new URLSearchParams(window.location.search);
 
-    // Dev reset: ?reset=true clears all local progression for testing
+    // Dev reset: ?reset=true clears localStorage + server profile
     if (landingParams.get('reset') === 'true') {
       Object.keys(localStorage).filter(function(k) { return k.startsWith('bs-') || k === 'blindspot-onboarded' || k === 'cardforge_saved_cards'; }).forEach(function(k) { localStorage.removeItem(k); });
       sessionStorage.clear();
+      // Reset server profile
+      BlindspotAPI._apiFetch('POST', { action: 'reset' }).catch(function() {});
       window.location.href = '/blindspot/';
       return;
     }
