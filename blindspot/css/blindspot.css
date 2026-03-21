@@ -465,6 +465,7 @@
     padding: 1.5rem 2rem 2rem;
     align-items: start;
   }
+  #bs-screen-lobby { max-width: 960px; }
   .bs-lobby__status-label { grid-area: label; text-align: center; }
   .bs-lobby__card-display { grid-area: card; justify-self: center; }
   .bs-lobby .bs-rank-hud   { grid-area: rank; max-width: none; text-align: left; }
@@ -1238,7 +1239,8 @@
 /* Desktop: wider battle area, bigger cards, generous breathing room */
 @media (min-width: 769px) {
   #bs-screen-battle {
-    padding: 1.5rem 3rem 2rem;
+    max-width: 1000px;
+    padding: 1.5rem 2.5rem 2rem;
   }
 
   .bs-page .arena-battle {
