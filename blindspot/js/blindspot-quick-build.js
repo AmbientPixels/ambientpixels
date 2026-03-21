@@ -327,7 +327,7 @@
               </div>
             </div>
             <div class="bs-card-flip-back" id="bs-flip-back">
-              <div id="qb-card-preview" style="width:100%; height:100%; overflow:hidden;"></div>
+              <div id="qb-card-preview" style="width:100%; height:100%;"></div>
             </div>
           </div>
         </div>
@@ -553,7 +553,7 @@
         const clone = sourcePreview.cloneNode(true);
         var pw = sourcePreview.offsetWidth || 350;
         var ph = sourcePreview.offsetHeight || 490;
-        var sc = Math.min(300 / pw, 420 / ph);
+        var sc = Math.min(300 / pw, 480 / ph);
         clone.style.transform = 'scale(' + sc.toFixed(3) + ')';
         clone.style.transformOrigin = 'top center';
         clone.style.position = 'absolute';
@@ -650,7 +650,7 @@
           const clone = sourcePreview.cloneNode(true);
           var pw2 = sourcePreview.offsetWidth || 350;
           var ph2 = sourcePreview.offsetHeight || 490;
-          var sc2 = Math.min(300 / pw2, 420 / ph2);
+          var sc2 = Math.min(300 / pw2, 480 / ph2);
           clone.style.transform = 'scale(' + sc2.toFixed(3) + ')';
           clone.style.transformOrigin = 'top center';
           clone.style.position = 'absolute';

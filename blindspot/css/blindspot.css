@@ -1299,7 +1299,7 @@
 .bs-card-flip-container {
   perspective: 1000px;
   width: 300px;
-  height: 420px;
+  height: 480px;
   margin: 0 auto;
 }
 
@@ -1322,6 +1322,8 @@
   height: 100%;
   backface-visibility: hidden;
   border-radius: 12px;
+}
+.bs-card-flip-front {
   overflow: hidden;
 }
 
@@ -3055,7 +3057,7 @@
   .bs-lobby__card-display { width: 160px; height: 230px; }
   .bs-forge-screen { padding: 0 0.5rem; }
   .bs-forge-stat__desc { display: none; }
-  .bs-card-flip-container { width: 200px; height: 290px; }
+  .bs-card-flip-container { width: 200px; height: 330px; }
   .bs-overlay { padding: 1.5rem; }
   .bs-overlay__title { font-size: 1.25rem; }
 
@@ -3153,7 +3155,7 @@
   .bs-boss-card__name { font-size: 0.9rem; }
   .bs-boss-card__flavor { font-size: 0.7rem; }
   .bs-boss-avatar { width: 36px; height: 36px; font-size: 0.9rem; }
-  .bs-card-flip-container { width: 170px; height: 250px; }
+  .bs-card-flip-container { width: 170px; height: 280px; }
   .bs-overlay__title { font-size: 1.1rem; }
   .bs-overlay__subtitle { font-size: 0.85rem; }
   .bs-loss-screen__text { font-size: 2rem; }
