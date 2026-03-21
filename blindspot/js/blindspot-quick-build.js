@@ -36,14 +36,14 @@
   };
 
   const VIBES = [
-    { id: 'fantasy-warrior', label: 'Fantasy Warrior', icon: 'fa-khanda', description: 'Swords, shields, and ancient valor', presetId: 'hero-classic', aiPrompt: 'A heroic fantasy warrior in gleaming armor wielding a legendary sword, standing before a castle at sunset' },
-    { id: 'sci-fi-pilot', label: 'Sci-Fi Pilot', icon: 'fa-rocket', description: 'Neon cockpits and starship battles', presetId: 'split-modern', aiPrompt: 'A futuristic starship pilot in a cyberpunk cockpit with holographic displays and neon lighting' },
-    { id: 'dark-sorcerer', label: 'Dark Sorcerer', icon: 'fa-hat-wizard', description: 'Forbidden magic and shadow power', presetId: 'hero-fullbleed', aiPrompt: 'A dark sorcerer channeling shadow magic in an ancient ruined temple with purple energy swirling' },
-    { id: 'divine-guardian', label: 'Divine Guardian', icon: 'fa-shield-halved', description: 'Holy protectors blessed by the gods', presetId: 'celestial-warden', aiPrompt: 'A divine guardian angel in radiant golden armor with glowing wings standing on sacred ground' },
-    { id: 'cyber-rogue', label: 'Cyber Rogue', icon: 'fa-user-ninja', description: 'Corporate espionage and neon streets', presetId: 'framed-ornate', aiPrompt: 'A cyberpunk rogue operative in a neon-lit alley with augmented eyes and a data blade' },
-    { id: 'mystic-scholar', label: 'Mystic Scholar', icon: 'fa-book-skull', description: 'Ancient knowledge and arcane secrets', presetId: 'minimal-glow', aiPrompt: 'An arcane scholar in a library of floating books, reading from a glowing grimoire with magical runes' },
-    { id: 'beast-master', label: 'Beast Master', icon: 'fa-paw', description: 'Wild creatures and primal bonds', presetId: 'fullbleed-cinematic', aiPrompt: 'A beast master ranger with a massive dire wolf companion in a misty ancient forest' },
-    { id: 'shadow-operative', label: 'Shadow Operative', icon: 'fa-eye', description: 'Stealth, precision, and infiltration', presetId: 'raw-rounded', aiPrompt: 'A covert shadow operative in tactical gear on a rain-soaked rooftop overlooking a glowing city' }
+    { id: 'fantasy-warrior', label: 'Fantasy Warrior', icon: 'fa-khanda', description: 'Swords, shields, and ancient valor', presetId: 'hero-classic', colors: ['#3d2b1e', '#8b4513', '#228b22'], aiPrompt: 'A heroic fantasy warrior in gleaming armor wielding a legendary sword, standing before a castle at sunset' },
+    { id: 'sci-fi-pilot', label: 'Sci-Fi Pilot', icon: 'fa-rocket', description: 'Neon cockpits and starship battles', presetId: 'split-modern', colors: ['#08121a', '#0099cc', '#006994'], aiPrompt: 'A futuristic starship pilot in a cyberpunk cockpit with holographic displays and neon lighting' },
+    { id: 'dark-sorcerer', label: 'Dark Sorcerer', icon: 'fa-hat-wizard', description: 'Forbidden magic and shadow power', presetId: 'hero-fullbleed', colors: ['#1a0a0a', '#cc3300', '#ff6600'], aiPrompt: 'A dark sorcerer channeling shadow magic in an ancient ruined temple with purple energy swirling' },
+    { id: 'divine-guardian', label: 'Divine Guardian', icon: 'fa-shield-halved', description: 'Holy protectors blessed by the gods', presetId: 'celestial-warden', colors: ['#0e1b2d', '#006994', '#0099cc'], aiPrompt: 'A divine guardian angel in radiant golden armor with glowing wings standing on sacred ground' },
+    { id: 'cyber-rogue', label: 'Cyber Rogue', icon: 'fa-user-ninja', description: 'Corporate espionage and neon streets', presetId: 'framed-ornate', colors: ['#0a0a1e', '#00d4ff', '#ff00ff'], aiPrompt: 'A cyberpunk rogue operative in a neon-lit alley with augmented eyes and a data blade' },
+    { id: 'mystic-scholar', label: 'Mystic Scholar', icon: 'fa-book-skull', description: 'Ancient knowledge and arcane secrets', presetId: 'minimal-glow', colors: ['#2a2a2a', '#666666', '#999999'], aiPrompt: 'An arcane scholar in a library of floating books, reading from a glowing grimoire with magical runes' },
+    { id: 'beast-master', label: 'Beast Master', icon: 'fa-paw', description: 'Wild creatures and primal bonds', presetId: 'fullbleed-cinematic', colors: ['#1a0f08', '#f7931e', '#ff6b35'], aiPrompt: 'A beast master ranger with a massive dire wolf companion in a misty ancient forest' },
+    { id: 'shadow-operative', label: 'Shadow Operative', icon: 'fa-eye', description: 'Stealth, precision, and infiltration', presetId: 'raw-rounded', colors: ['#1a1a1a', '#999999', '#666666'], aiPrompt: 'A covert shadow operative in tactical gear on a rain-soaked rooftop overlooking a glowing city' }
   ];
 
   let _state = {
@@ -142,6 +142,7 @@
             <i class="fas ${v.icon}"></i>
             <span class="qb-vibe-label">${v.label}</span>
             <span class="qb-vibe-desc">${v.description}</span>
+            <div class="qb-vibe-swatches">${v.colors.map(c => `<span class="qb-swatch" style="background:${c};"></span>`).join('')}</div>
           </div>
         `).join('')}
         <div class="qb-surprise-btn" id="qb-surprise">

@@ -2211,6 +2211,18 @@
   border-color: var(--bs-accent) !important;
   background: rgba(239, 159, 39, 0.1) !important;
 }
+.bs-page .qb-vibe-swatches {
+  display: flex;
+  gap: 4px;
+  margin-top: 0.35rem;
+  justify-content: center;
+}
+.bs-page .qb-swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.15);
+}
 
 .bs-page .qb-class-card.selected {
   border-color: var(--bs-accent) !important;
