@@ -1391,511 +1391,448 @@
 }
 
 /* ============================================================
-   BATTLE SCREEN — Blindspot Theme Overrides
+   BATTLE SCREEN — Standalone Styles (NO CardForge dependency)
+   All arena-* elements are fully defined here.
    ============================================================ */
 
-/* Desktop: flexbox layout fills viewport — stage grows, buttons stay at bottom */
-@media (min-width: 769px) {
-  #bs-screen-battle {
-    max-width: 960px !important;
-    width: calc(100% - 6rem);
-    margin: 0 auto;
-    padding: 1rem 0 3.5rem;
-    min-height: calc(100vh - 3rem);
-    display: flex;
-    flex-direction: column;
-    overflow-x: hidden;
-  }
-
-  .bs-page .arena-battle {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    max-width: 960px;
-    width: 100%;
-    margin: 0 auto;
-    padding: 0;
-  }
-
-  .bs-page .arena-battle__header {
-    max-width: none;
-    margin: 0 0 0.5rem;
-    padding: 0.5rem 1rem;
-    border-radius: 10px;
-    background: var(--bs-surface);
-    border: 1px solid var(--bs-border);
-    flex-shrink: 0;
-  }
-
-  .bs-page .arena-battle__stage {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    margin-bottom: 0.5rem;
-    min-height: 0;
-  }
-
-  .bs-page .arena-battle__field {
-    gap: 2rem;
-    padding: 1.5rem 2.5rem;
-    border-radius: 14px;
-    border: 1px solid var(--bs-border);
-    background: linear-gradient(180deg, rgba(26, 20, 16, 0.6), rgba(16, 12, 8, 0.8));
-  }
-
-  .bs-page .arena-combatant {
-    max-width: 300px;
-    padding: 1rem 1.25rem 0.75rem;
-    gap: 0.5rem;
-  }
-
-  .bs-page .arena-combatant__card {
-    width: 160px;
-    height: 160px;
-    border-radius: 14px;
-  }
-
-  .bs-page .arena-combatant__name {
-    font-size: 1rem;
-    font-family: 'Cinzel', serif;
-    letter-spacing: 0.06em;
-  }
-
-  /* Buff chips — compact single row on desktop */
-  .bs-page .arena-player-buffs {
-    max-width: 260px;
-    overflow: hidden;
-    max-height: 1.4rem;
-    gap: 0.15rem;
-  }
-
-  .bs-page .arena-buff-chip {
-    font-size: 0.55rem;
-    padding: 0.1rem 0.3rem;
-    border-radius: 4px;
-  }
-
-  .bs-page .arena-battle__log {
-    max-width: none;
-    margin: 0 0 0.4rem;
-    padding: 0.5rem 1rem;
-    font-size: 0.75rem;
-    line-height: 1.4;
-    max-height: 60px;
-    overflow: hidden;
-    border-radius: 8px;
-    border-left: 3px solid var(--bs-accent-dim);
-    flex-shrink: 0;
-  }
-
-  .bs-page .arena-hype-bar {
-    max-width: none;
-    margin: 0 0 0.5rem;
-    padding: 0.25rem 0.75rem;
-    border-radius: 6px;
-    flex-shrink: 0;
-  }
-
-  .bs-page .arena-battle__moves {
-    gap: 0.75rem;
-    max-width: none;
-    margin: 0;
-    padding: 0;
-    flex-shrink: 0;
-  }
-
-  .bs-page .arena-move-btn {
-    padding: 0.85rem 0.5rem 0.7rem;
-    gap: 0.3rem;
-    border-radius: 12px;
-    min-width: 0;
-  }
-
-  .bs-page .arena-move-btn__icon {
-    font-size: 1.3rem;
-  }
-
-  .bs-page .arena-move-btn__label {
-    font-size: 0.8rem;
-    letter-spacing: 0.03em;
-  }
-
-  .bs-page .arena-move-btn__desc {
-    font-size: 0.6rem;
-    line-height: 1.3;
-  }
-
-  .bs-page .arena-hp-bar {
-    height: 12px;
-    border-radius: 6px;
-  }
-
-  .bs-page .arena-hp-text {
-    font-size: 0.8rem;
-  }
-}
-
+/* --- Battle container --- */
 .bs-page .arena-battle {
+  position: relative;
+  max-width: 960px;
+  margin: 0 auto;
   background: var(--bs-bg);
 }
 
+/* --- Header --- */
 .bs-page .arena-battle__header {
-  border-color: var(--bs-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  background: var(--bs-surface);
+  border: 1px solid var(--bs-border);
+  border-radius: 10px;
+  margin-bottom: 0.5rem;
 }
-
+.bs-page .arena-battle__post-actions { display: flex; gap: 0.5rem; }
 .bs-page .arena-battle__round {
-  color: var(--bs-accent);
   font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
   font-weight: 600;
+  color: var(--bs-accent);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.6rem;
+  background: rgba(239, 159, 39, 0.06);
+  border: 1px solid rgba(239, 159, 39, 0.12);
+  border-radius: 6px;
 }
 
-.bs-page .arena-battle__vs-text {
-  color: var(--bs-accent-dim);
-  text-shadow: 0 0 20px rgba(239, 159, 39, 0.3);
+/* --- Stage & Field --- */
+.bs-page .arena-battle__stage {
+  position: relative;
+  border-radius: 14px;
+  overflow: visible;
+  margin-bottom: 0.5rem;
+}
+.bs-page .arena-battle__stage::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 90% 60% at 50% 80%, rgba(239, 159, 39, 0.03) 0%, transparent 70%),
+    repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(245, 240, 232, 0.01) 59px, rgba(245, 240, 232, 0.01) 60px),
+    repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(245, 240, 232, 0.01) 59px, rgba(245, 240, 232, 0.01) 60px);
+}
+.bs-page .arena-battle__field {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 1.5rem 1rem;
+  position: relative;
+  z-index: 1;
+  border-radius: 14px;
+  border: 1px solid var(--bs-border);
+  background: linear-gradient(180deg, rgba(26, 20, 16, 0.4), rgba(16, 12, 8, 0.7));
 }
 
+/* --- Combatants --- */
+.bs-page .arena-combatant {
+  flex: 1;
+  max-width: 240px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem 0.75rem;
+  border-radius: 14px;
+  background: rgba(26, 20, 16, 0.6);
+  border: 1px solid var(--bs-border);
+  overflow: visible;
+  transition: box-shadow 0.4s ease;
+}
+.bs-page .arena-combatant--player {
+  border-color: rgba(239, 159, 39, 0.15);
+  box-shadow: 0 0 24px rgba(239, 159, 39, 0.06);
+}
+.bs-page .arena-combatant--opponent {
+  border-color: rgba(216, 90, 48, 0.15);
+  box-shadow: 0 0 24px rgba(216, 90, 48, 0.06);
+}
+.bs-page .arena-combatant--hit { animation: arena-hit-shake 0.4s ease-out; }
+.bs-page .arena-combatant__frame { position: relative; }
+.bs-page .arena-combatant__card {
+  width: 140px;
+  height: 140px;
+  border-radius: 14px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.04);
+  border: 2px solid var(--bs-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.bs-page .arena-combatant--player .arena-combatant__card { box-shadow: 0 0 15px rgba(239, 159, 39, 0.2); }
+.bs-page .arena-combatant--opponent .arena-combatant__card { box-shadow: 0 0 15px rgba(216, 90, 48, 0.2); }
+.bs-page .arena-combatant__card img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.bs-page .arena-combatant__nameplate { text-align: center; }
+.bs-page .arena-combatant__name {
+  font-family: 'Cinzel', serif;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--bs-text);
+  letter-spacing: 0.03em;
+}
+
+/* --- HP Bars --- */
+.bs-page .arena-hp-bar { width: 100%; }
+.bs-page .arena-hp-bar__track {
+  height: 12px;
+  background: var(--bs-surface-2);
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+}
+.bs-page .arena-hp-bar__fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
 .bs-page .arena-hp-bar__fill--player {
   background: linear-gradient(90deg, var(--bs-accent-dim), var(--bs-accent));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 0 8px rgba(239, 159, 39, 0.3);
 }
-
 .bs-page .arena-hp-bar__fill--opponent {
   background: linear-gradient(90deg, var(--bs-danger), #e8724a);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 0 8px rgba(216, 90, 48, 0.3);
 }
-
-.bs-page .arena-move-btn {
-  border-color: var(--bs-border);
-  background: var(--bs-surface);
+.bs-page .arena-hp-bar__fill--low {
+  background: linear-gradient(90deg, #7F1D1D, #DC2626);
+  animation: arena-hp-pulse 0.8s ease-in-out infinite;
 }
-
-.bs-page .arena-move-btn:hover:not(:disabled) {
-  background: var(--bs-surface-2);
-}
-
-.bs-page .arena-move-btn__label {
-  color: var(--bs-text);
-}
-
-.bs-page .arena-hype-bar__fill {
-  background: linear-gradient(90deg, var(--bs-accent-dim), var(--bs-accent), var(--bs-accent-glow));
-}
-
-.bs-page .arena-battle__log {
-  background: var(--bs-surface);
-  border-color: var(--bs-border);
+.bs-page .arena-hp-bar__text, .bs-page .arena-hp-text {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 600;
   color: var(--bs-text-muted);
+  text-align: center;
+  margin-top: 0.25rem;
 }
 
-.bs-page .arena-results {
-  background: var(--bs-surface);
-  border: 1px solid var(--bs-border);
+/* --- VS Divider --- */
+.bs-page .arena-battle__vs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+  width: 50px;
+  align-self: center;
 }
-
-.bs-page .arena-results__banner--win {
-  background: linear-gradient(135deg, rgba(239, 159, 39, 0.15), transparent);
-}
-
-.bs-page .arena-results__banner--loss {
-  background: linear-gradient(135deg, rgba(216, 90, 48, 0.15), transparent);
-}
-
-/* Arena buttons — override purple theme */
-.bs-page .arena-btn--primary {
-  background: linear-gradient(135deg, var(--bs-accent), var(--bs-accent-dim));
-  border-color: var(--bs-accent);
-  color: var(--bs-bg);
-}
-
-.bs-page .arena-btn--primary:hover {
-  background: linear-gradient(135deg, var(--bs-accent-glow), var(--bs-accent));
-}
-
-.bs-page .arena-btn--ghost {
-  border-color: var(--bs-border);
-  color: var(--bs-text-muted);
-}
-
-.bs-page .arena-btn--ghost:hover {
-  border-color: var(--bs-text-muted);
-  color: var(--bs-text);
-}
-
-.bs-page .arena-btn--danger {
-  background: var(--bs-danger);
-  border-color: var(--bs-danger);
-}
-
-/* Arena results overlay */
-.bs-page .arena-results-overlay {
-  background: rgba(16, 12, 8, 0.92);
-}
-
-.bs-page .arena-results__close {
-  color: var(--bs-text-muted);
-}
-
-.bs-page .arena-results__close:hover {
-  color: var(--bs-text);
-}
-
-.bs-page .arena-results__banner h1 {
-  color: var(--bs-text);
-}
-
-.bs-page .arena-results__xp-amount {
+.bs-page .arena-battle__vs-text {
+  font-family: 'Cinzel', serif;
+  font-size: 2rem;
+  font-weight: 700;
   color: var(--bs-accent);
+  text-shadow: 0 0 20px rgba(239, 159, 39, 0.5), 0 0 40px rgba(239, 159, 39, 0.2);
+  letter-spacing: 0.15em;
 }
-
-.bs-page .arena-results__rank-up {
-  color: var(--bs-accent-glow);
+.bs-page .arena-battle__vs::before,
+.bs-page .arena-battle__vs::after {
+  content: '';
+  position: absolute;
+  width: 2px;
+  height: 60%;
+  border-radius: 1px;
+  background: linear-gradient(to bottom, transparent, rgba(239, 159, 39, 0.3), transparent);
 }
+.bs-page .arena-battle__vs::before { left: 4px; }
+.bs-page .arena-battle__vs::after { right: 4px; }
 
-/* Arena modals */
-.bs-page .arena-modal-overlay {
-  background: rgba(16, 12, 8, 0.92);
-}
-
-.bs-page .arena-modal {
+/* --- Combat Log --- */
+.bs-page .arena-battle__log {
+  max-height: 120px;
+  overflow-y: auto;
+  padding: 0.5rem 0.75rem;
   background: var(--bs-surface);
   border: 1px solid var(--bs-border);
-  color: var(--bs-text);
-}
-
-.bs-page .arena-modal__icon {
-  color: var(--bs-accent-dim);
-}
-
-.bs-page .arena-modal__title {
-  color: var(--bs-text);
-}
-
-.bs-page .arena-modal__body {
+  border-left: 3px solid var(--bs-accent-dim);
+  border-radius: 8px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  line-height: 1.4;
   color: var(--bs-text-muted);
+  margin-bottom: 0.5rem;
+  scrollbar-color: rgba(239, 159, 39, 0.15) transparent;
 }
-
-/* Arena combatant cards */
-.bs-page .arena-combatant__card {
-  border-color: var(--bs-border);
+.bs-page .arena-log-entry {
+  padding: 0.25rem 0;
+  color: var(--bs-text-muted);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+  animation: arena-log-fade-in 0.3s ease-out;
 }
+.bs-page .arena-log-entry:last-child { border-bottom: none; }
+.bs-page .arena-log-entry--info { color: var(--bs-accent-glow); text-shadow: 0 0 8px rgba(239, 159, 39, 0.15); }
+.bs-page .arena-log-entry--event { color: var(--bs-accent); }
+.bs-page .arena-log-entry--error { color: var(--bs-danger); }
+.bs-page .arena-log-entry--hint { color: var(--bs-text-muted); opacity: 0.7; font-style: italic; }
 
-.bs-page .arena-combatant--player .arena-combatant__card {
-  box-shadow: 0 0 15px rgba(239, 159, 39, 0.2);
+/* --- Hype Bar --- */
+.bs-page .arena-hype-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0.25rem 0.75rem;
+  background: var(--bs-surface);
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
 }
-
-.bs-page .arena-combatant--opponent .arena-combatant__card {
-  box-shadow: 0 0 15px rgba(216, 90, 48, 0.2);
+.bs-page .arena-hype-bar__label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--bs-accent);
+  width: 44px;
+  flex-shrink: 0;
 }
-
-.bs-page .arena-combatant__name {
-  color: var(--bs-text);
-}
-
-/* Arena HP bars */
-.bs-page .arena-hp-bar__track {
+.bs-page .arena-hype-bar__label i { margin-right: 3px; }
+.bs-page .arena-hype-bar__track {
+  flex: 1;
+  height: 6px;
   background: var(--bs-surface-2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.bs-page .arena-hype-bar__fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--bs-accent-dim), var(--bs-accent), var(--bs-accent-glow));
+  border-radius: 3px;
+  transition: width 0.4s ease;
 }
 
-.bs-page .arena-hp-bar__text {
-  color: var(--bs-text-muted);
+/* --- Move Buttons --- */
+.bs-page .arena-battle__moves {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.6rem;
+  padding-bottom: env(safe-area-inset-bottom, 0.5rem);
 }
+.bs-page .arena-move-btn {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 1rem 0.5rem 0.8rem;
+  border: 1px solid var(--bs-border);
+  border-radius: 14px;
+  background: var(--bs-surface);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--bs-text);
+  font-family: 'Share Tech Mono', monospace;
+  overflow: hidden;
+}
+.bs-page .arena-move-btn:hover:not(:disabled) {
+  transform: translateY(-3px);
+  background: var(--bs-surface-2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+.bs-page .arena-move-btn:hover:not(:disabled) i { transform: scale(1.15); }
+.bs-page .arena-move-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+.bs-page .arena-move-btn::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 20%;
+  right: 20%;
+  height: 2px;
+  border-radius: 1px;
+  opacity: 0.25;
+  transition: opacity 0.2s, left 0.2s, right 0.2s;
+}
+.bs-page .arena-move-btn:hover:not(:disabled)::after { opacity: 0.7; left: 10%; right: 10%; }
+.bs-page .arena-move-btn__glow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.bs-page .arena-move-btn i { transition: transform 0.2s ease; }
+.bs-page .arena-move-btn__label { font-size: 0.78rem; font-weight: 700; color: var(--bs-text); }
+.bs-page .arena-move-btn__stat { font-family: 'Share Tech Mono', monospace; font-size: 0.6rem; font-weight: 600; color: var(--bs-text-muted); letter-spacing: 0.05em; }
+.bs-page .arena-move-btn__desc { font-size: 0.62rem; color: var(--bs-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bs-page .arena-move-btn__charge { font-family: 'Share Tech Mono', monospace; font-size: 0.58rem; font-weight: 700; padding: 0.1rem 0.35rem; background: rgba(239, 159, 39, 0.15); border: 1px solid rgba(239, 159, 39, 0.25); border-radius: 4px; color: var(--bs-accent); letter-spacing: 0.04em; }
 
-/* Arena move button icons — Blindspot amber palette */
+/* Move type colors */
 .bs-page .arena-move-btn--strike i { color: var(--bs-accent); }
 .bs-page .arena-move-btn--guard i { color: var(--bs-text); }
 .bs-page .arena-move-btn--ability i { color: var(--bs-accent-glow); }
 .bs-page .arena-move-btn--heal i { color: var(--bs-success); }
 .bs-page .arena-move-btn--counter i { color: var(--bs-text-muted); }
-
-.bs-page .arena-move-btn__stat { color: var(--bs-text-muted); }
-.bs-page .arena-move-btn__desc { color: var(--bs-text-muted); }
-.bs-page .arena-move-btn__charge { color: var(--bs-accent-dim); }
-
-/* Arena hype bar */
-.bs-page .arena-hype-bar {
-  background: var(--bs-surface);
-}
-.bs-page .arena-hype-bar__label { color: var(--bs-accent-dim); }
-.bs-page .arena-hype-bar__track { background: var(--bs-surface-2); }
-
-/* ---- Combatant breathing glows — amber/orange instead of CardForge purple/red ---- */
-.bs-page .arena-combatant--player {
-  border-color: rgba(239, 159, 39, 0.15);
-  box-shadow: 0 0 30px rgba(239, 159, 39, 0.08);
-  animation: none;
-}
-.bs-page .arena-combatant--opponent {
-  border-color: rgba(216, 90, 48, 0.15);
-  box-shadow: 0 0 30px rgba(216, 90, 48, 0.08);
-  animation: none;
-}
-.bs-page .arena-combatant {
-  background: rgba(16, 12, 8, 0.7);
-  border-color: var(--bs-border);
-}
-
-/* ---- Buff chips — amber instead of CardForge purple ---- */
-.bs-page .arena-buff-chip {
-  background: rgba(239, 159, 39, 0.1);
-  border-color: rgba(239, 159, 39, 0.25);
-  color: var(--bs-text);
-}
-.bs-page .arena-buff-chip i {
-  color: var(--bs-accent);
-}
-
-/* ---- Move button ::after underlines — match Blindspot icon colors ---- */
 .bs-page .arena-move-btn--strike::after { background: var(--bs-accent); }
 .bs-page .arena-move-btn--guard::after { background: var(--bs-text-muted); }
 .bs-page .arena-move-btn--ability::after { background: var(--bs-accent-glow); }
 .bs-page .arena-move-btn--heal::after { background: var(--bs-success); }
 .bs-page .arena-move-btn--counter::after { background: var(--bs-text-muted); }
-
-/* ---- Move button glow radials — amber instead of CardForge colors ---- */
 .bs-page .arena-move-btn--strike .arena-move-btn__glow { background: radial-gradient(ellipse at center, rgba(239, 159, 39, 0.08), transparent 70%); }
 .bs-page .arena-move-btn--guard .arena-move-btn__glow { background: radial-gradient(ellipse at center, rgba(160, 152, 136, 0.06), transparent 70%); }
 .bs-page .arena-move-btn--ability .arena-move-btn__glow { background: radial-gradient(ellipse at center, rgba(250, 199, 117, 0.08), transparent 70%); }
 .bs-page .arena-move-btn--heal .arena-move-btn__glow { background: radial-gradient(ellipse at center, rgba(29, 158, 117, 0.08), transparent 70%); }
 .bs-page .arena-move-btn--counter .arena-move-btn__glow { background: radial-gradient(ellipse at center, rgba(160, 152, 136, 0.06), transparent 70%); }
-
-/* ---- Move button hover borders — amber palette ---- */
-.bs-page .arena-move-btn--strike:hover:not(:disabled) { border-color: rgba(239, 159, 39, 0.4); box-shadow: 0 8px 24px rgba(239, 159, 39, 0.15); }
-.bs-page .arena-move-btn--guard:hover:not(:disabled) { border-color: rgba(160, 152, 136, 0.3); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); }
-.bs-page .arena-move-btn--ability:hover:not(:disabled) { border-color: rgba(250, 199, 117, 0.4); box-shadow: 0 8px 24px rgba(250, 199, 117, 0.15); }
-.bs-page .arena-move-btn--heal:hover:not(:disabled) { border-color: rgba(29, 158, 117, 0.3); box-shadow: 0 8px 24px rgba(29, 158, 117, 0.15); }
-.bs-page .arena-move-btn--counter:hover:not(:disabled) { border-color: rgba(160, 152, 136, 0.3); box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4); }
-
-/* ---- Log entry accent colors — amber instead of purple/gold ---- */
-.bs-page .arena-log-entry--info {
-  color: var(--bs-accent);
-  text-shadow: 0 0 8px rgba(239, 159, 39, 0.3);
-}
-.bs-page .arena-log-entry--event {
-  color: var(--bs-accent-glow);
-  text-shadow: 0 0 8px rgba(250, 199, 117, 0.3);
-}
-.bs-page .arena-log-entry--error {
-  color: var(--bs-danger);
-  text-shadow: 0 0 8px rgba(216, 90, 48, 0.3);
-}
-.bs-page .arena-log-entry--hint {
-  color: var(--bs-text-muted);
-}
-
-/* ---- Charge badge — amber instead of purple ---- */
-.bs-page .arena-move-btn__charge {
-  background: rgba(239, 159, 39, 0.15);
-  border-color: rgba(239, 159, 39, 0.25);
-  color: var(--bs-accent);
-}
-
-/* ---- VS pseudo-element dividers — amber ---- */
-.bs-page .arena-battle__vs::before,
-.bs-page .arena-battle__vs::after {
-  background: linear-gradient(to bottom, transparent, rgba(239, 159, 39, 0.3), transparent);
-}
-
-/* Damage floaters */
-.bs-page .arena-dmg-float--damage { color: var(--bs-danger); }
-.bs-page .arena-dmg-float--heal { color: var(--bs-success); }
-
-/* ============================================================
-   CARDFORGE PURPLE PURGE — replace all inherited purple/blue
-   tints with Blindspot amber/brown theme equivalents
-   ============================================================ */
-
-/* Stage grid pattern — amber instead of purple */
-.bs-page .arena-battle__stage::before {
-  background:
-    radial-gradient(ellipse 90% 60% at 50% 80%, rgba(239, 159, 39, 0.03) 0%, transparent 70%),
-    repeating-linear-gradient(0deg, transparent, transparent 59px, rgba(245, 240, 232, 0.01) 59px, rgba(245, 240, 232, 0.01) 60px),
-    repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(245, 240, 232, 0.01) 59px, rgba(245, 240, 232, 0.01) 60px) !important;
-}
-
-/* Battle field — remove conflicting transparent override, let subtle gradient show */
-.bs-page .arena-battle__field {
-  background: linear-gradient(180deg, rgba(26, 20, 16, 0.3) 0%, rgba(16, 12, 8, 0.6) 100%);
-}
-.bs-page .arena-battle__vs { border-color: var(--bs-border); }
-
-/* Combatant containers — warm dark brown instead of blue-purple */
-.bs-page .arena-combatant {
-  background: rgba(26, 20, 16, 0.6);
-  border-color: var(--bs-border);
-}
-.bs-page .arena-combatant--player {
-  border-color: rgba(239, 159, 39, 0.15);
-  box-shadow: 0 0 30px rgba(239, 159, 39, 0.04);
-  animation: none;
-}
-.bs-page .arena-combatant--opponent {
-  border-color: rgba(216, 90, 48, 0.15);
-  box-shadow: 0 0 30px rgba(216, 90, 48, 0.04);
-  animation: none;
-}
-
-/* VS text — Cinzel instead of Orbitron, brighter */
-.bs-page .arena-battle__vs-text {
-  font-family: 'Cinzel', serif;
-  color: var(--bs-accent);
-  text-shadow: 0 0 20px rgba(239, 159, 39, 0.5), 0 0 40px rgba(239, 159, 39, 0.2);
-}
-
-/* Round counter badge — amber instead of purple */
-.bs-page .arena-battle__round {
-  background: rgba(239, 159, 39, 0.06);
-  border: 1px solid rgba(239, 159, 39, 0.12);
-}
-
-/* Combat log — Share Tech Mono, amber scrollbar */
-.bs-page .arena-battle__log {
-  font-family: 'Share Tech Mono', monospace;
-  scrollbar-color: rgba(239, 159, 39, 0.15) transparent;
-}
-.bs-page .arena-log-entry--info { color: var(--bs-accent-glow); text-shadow: 0 0 8px rgba(239, 159, 39, 0.15); }
-.bs-page .arena-log-entry--event { color: var(--bs-accent); }
-.bs-page .arena-log-entry--error { color: var(--bs-danger); }
-
-/* HP text — mono font */
-.bs-page .arena-hp-bar__text { font-family: 'Share Tech Mono', monospace; }
-
-/* Hype meter — taller track for visibility */
-.bs-page .arena-hype-bar__track { height: 8px; border-radius: 4px; }
-.bs-page .arena-hype-bar__label { color: var(--bs-accent); font-size: 0.7rem; }
-
-/* Move buttons — Share Tech Mono, proper fonts */
-.bs-page .arena-move-btn { font-family: 'Share Tech Mono', monospace; }
-.bs-page .arena-move-btn__stat { font-family: 'Share Tech Mono', monospace; }
-
-/* Ability charge badge — amber instead of purple */
-.bs-page .arena-move-btn__charge {
-  background: rgba(239, 159, 39, 0.15);
-  border-color: rgba(239, 159, 39, 0.25);
-  color: var(--bs-accent);
-}
-
-/* Move button hover — per-move identity instead of flat amber */
 .bs-page .arena-move-btn--strike:hover:not(:disabled) { border-color: rgba(216, 90, 48, 0.5); box-shadow: 0 0 12px rgba(216, 90, 48, 0.15); }
 .bs-page .arena-move-btn--guard:hover:not(:disabled) { border-color: rgba(245, 240, 232, 0.3); box-shadow: 0 0 12px rgba(245, 240, 232, 0.08); }
 .bs-page .arena-move-btn--ability:hover:not(:disabled) { border-color: rgba(239, 159, 39, 0.5); box-shadow: 0 0 12px rgba(239, 159, 39, 0.15); }
 .bs-page .arena-move-btn--heal:hover:not(:disabled) { border-color: rgba(34, 197, 94, 0.4); box-shadow: 0 0 12px rgba(34, 197, 94, 0.12); }
 .bs-page .arena-move-btn--counter:hover:not(:disabled) { border-color: rgba(139, 184, 208, 0.4); box-shadow: 0 0 12px rgba(139, 184, 208, 0.1); }
 
-/* Move button underlines — on-brand colors */
-.bs-page .arena-move-btn--strike::after { background: var(--bs-danger) !important; }
-.bs-page .arena-move-btn--guard::after { background: var(--bs-text) !important; }
-.bs-page .arena-move-btn--ability::after { background: var(--bs-accent) !important; }
-.bs-page .arena-move-btn--heal::after { background: var(--bs-success) !important; }
-.bs-page .arena-move-btn--counter::after { background: #8BB8D0 !important; }
+/* --- Buff & Status Chips --- */
+.bs-page .arena-player-buffs { display: flex; flex-wrap: wrap; gap: 0.3rem; justify-content: center; }
+.bs-page .arena-buff-chip { display: inline-flex; align-items: center; gap: 0.2rem; padding: 0.15rem 0.4rem; border-radius: 6px; background: rgba(239, 159, 39, 0.1); border: 1px solid rgba(239, 159, 39, 0.25); color: var(--bs-text); font-size: 0.65rem; font-weight: 600; white-space: nowrap; }
+.bs-page .arena-buff-chip i { font-size: 0.55rem; color: var(--bs-accent); }
+.bs-page .arena-status-row { display: flex; gap: 6px; justify-content: center; align-items: center; margin-top: 4px; }
+.bs-page .arena-status-chip { display: inline-flex; align-items: center; gap: 4px; padding: 0.25rem 0.4rem; border-radius: 6px; font-size: 0.65rem; font-weight: 600; white-space: nowrap; }
+.bs-page .arena-status-chip--burn { background: rgba(251, 146, 60, 0.15); border: 1px solid rgba(251, 146, 60, 0.5); color: #FB923C; }
+.bs-page .arena-status-chip--stun { background: rgba(250, 204, 21, 0.15); border: 1px solid rgba(250, 204, 21, 0.5); color: #FACC15; }
+.bs-page .arena-status-chip--blind { background: rgba(167, 139, 250, 0.15); border: 1px solid rgba(167, 139, 250, 0.5); color: #A78BFA; }
 
-/* Forfeit button — explicit text color */
-.bs-page .arena-btn--danger { color: #fff; }
+/* --- Results Overlay --- */
+.bs-page .arena-results-overlay { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; background: rgba(16, 12, 8, 0.92); padding: 1rem; }
+.bs-page .arena-results { background: var(--bs-surface); border: 1px solid var(--bs-border); border-radius: 16px; padding: 2rem; max-width: 480px; width: 100%; position: relative; max-height: 90vh; overflow-y: auto; }
+.bs-page .arena-results__close { position: absolute; top: 0.75rem; right: 0.75rem; background: none; border: none; color: var(--bs-text-muted); cursor: pointer; font-size: 1.2rem; padding: 0.5rem; z-index: 1; }
+.bs-page .arena-results__close:hover { color: var(--bs-text); }
+.bs-page .arena-results__banner { padding: 1.5rem; text-align: center; margin-bottom: 1.5rem; border-radius: 12px; }
+.bs-page .arena-results__banner--win { background: linear-gradient(135deg, rgba(239, 159, 39, 0.15), transparent); }
+.bs-page .arena-results__banner--loss { background: linear-gradient(135deg, rgba(216, 90, 48, 0.15), transparent); }
+.bs-page .arena-results__banner--draw { background: linear-gradient(135deg, rgba(160, 152, 136, 0.1), transparent); }
+.bs-page .arena-results__banner h1 { font-family: 'Cinzel', serif; font-size: 1.5rem; font-weight: 700; color: var(--bs-text); margin: 0 0 0.5rem; }
+.bs-page .arena-results__banner p { font-size: 0.85rem; color: var(--bs-text-muted); margin: 0; }
+.bs-page .arena-results__xp { text-align: center; margin: 1rem 0; }
+.bs-page .arena-results__xp-amount { display: block; font-size: 1.25rem; font-weight: 700; color: var(--bs-accent); margin-bottom: 0.5rem; }
+.bs-page .arena-results__rank-label { display: flex; align-items: center; justify-content: center; gap: 0.5rem; font-size: 0.85rem; color: var(--bs-text-muted); margin-bottom: 0.5rem; }
+.bs-page .arena-results__rank-up { display: block; font-size: 0.9rem; font-weight: 700; color: var(--bs-accent-glow); margin-top: 0.5rem; }
+.bs-page .arena-progress__bar { height: 8px; background: var(--bs-surface-2); border-radius: 4px; overflow: hidden; margin: 0.5rem 0; }
+.bs-page .arena-progress__bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s ease; background: var(--bs-accent); }
+.bs-page .arena-results__actions { display: flex; gap: 0.75rem; justify-content: center; padding-top: 1rem; }
 
-/* Move buttons bottom spacing for safe-area */
-.bs-page .arena-battle__moves { padding-bottom: env(safe-area-inset-bottom, 0.5rem); }
+/* --- Arena Buttons --- */
+.bs-page .arena-btn { display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem; padding: 0.6rem 1.2rem; font-size: 0.82rem; font-weight: 600; border-radius: 10px; cursor: pointer; transition: all 0.2s ease; border: 1px solid; font-family: 'Share Tech Mono', monospace; }
+.bs-page .arena-btn--primary { background: linear-gradient(135deg, var(--bs-accent), var(--bs-accent-dim)); border-color: var(--bs-accent); color: var(--bs-bg); }
+.bs-page .arena-btn--primary:hover { background: linear-gradient(135deg, var(--bs-accent-glow), var(--bs-accent)); }
+.bs-page .arena-btn--ghost { background: none; border-color: var(--bs-border); color: var(--bs-text-muted); }
+.bs-page .arena-btn--ghost:hover { border-color: var(--bs-text-muted); color: var(--bs-text); }
+.bs-page .arena-btn--sm { padding: 0.35rem 0.7rem; font-size: 0.75rem; }
+.bs-page .arena-btn--danger { background: var(--bs-danger); border-color: var(--bs-danger); color: #fff; }
+.bs-page .arena-btn--danger:hover { background: #c44a22; }
 
-/* Audio toggles */
-.bs-page .arena-audio-toggle { color: var(--bs-text-muted); }
+/* --- Modals --- */
+.bs-page .arena-modal-overlay { position: fixed; inset: 0; z-index: 1001; display: flex; align-items: center; justify-content: center; background: rgba(16, 12, 8, 0.92); }
+.bs-page .arena-modal { background: var(--bs-surface); border: 1px solid var(--bs-border); border-radius: 16px; padding: 2rem; max-width: 400px; width: 90%; text-align: center; }
+.bs-page .arena-modal__icon { font-size: 2rem; color: var(--bs-accent-dim); margin-bottom: 1rem; }
+.bs-page .arena-modal__title { font-family: 'Cinzel', serif; font-size: 1.1rem; font-weight: 700; color: var(--bs-text); margin-bottom: 0.75rem; }
+.bs-page .arena-modal__body { font-size: 0.85rem; color: var(--bs-text-muted); margin-bottom: 1.25rem; line-height: 1.5; }
+.bs-page .arena-modal__actions { display: flex; gap: 0.75rem; justify-content: center; }
+
+/* --- Damage Floaters --- */
+.bs-page .arena-dmg-float { position: absolute; font-weight: bold; pointer-events: none; z-index: 100; font-size: 1.2rem; animation: arena-dmg-float 1s ease-out forwards; }
+.bs-page .arena-dmg-float--damage { color: var(--bs-danger); }
+.bs-page .arena-dmg-float--heal { color: var(--bs-success); }
+
+/* --- Audio Toggle --- */
+.bs-page .arena-audio-toggle { color: var(--bs-text-muted); background: none; border: none; cursor: pointer; font-size: 1rem; padding: 0.4rem; }
 .bs-page .arena-audio-toggle:hover { color: var(--bs-accent); }
+
+/* --- Focus visible --- */
+.bs-page .arena-move-btn:focus-visible,
+.bs-page .arena-btn:focus-visible {
+  outline: 2px solid var(--bs-accent-glow);
+  outline-offset: 2px;
+}
+
+/* --- Animations --- */
+@keyframes arena-hit-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px) rotate(-1deg); }
+  40% { transform: translateX(8px) rotate(1deg); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+@keyframes arena-log-fade-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes arena-hp-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+@keyframes arena-dmg-float {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-40px) scale(1.3); }
+}
+@keyframes arena-hype-pulse {
+  0%, 100% { box-shadow: 0 0 4px rgba(239, 159, 39, 0.3); }
+  50% { box-shadow: 0 0 12px rgba(239, 159, 39, 0.6); }
+}
+.bs-page .arena-hype-bar--near-full .arena-hype-bar__fill { animation: arena-hype-pulse 0.5s ease-in-out infinite; }
+
+/* --- Desktop: flexbox fills viewport --- */
+@media (min-width: 769px) {
+  #bs-screen-battle {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0.5rem 0 3.5rem;
+    min-height: calc(100vh - 3rem);
+    display: flex;
+    flex-direction: column;
+  }
+  .bs-page .arena-battle {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .bs-page .arena-battle__stage {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 0;
+  }
+  .bs-page .arena-battle__field { gap: 2rem; padding: 1.5rem 2.5rem; }
+  .bs-page .arena-combatant { max-width: 300px; padding: 1rem 1.25rem 0.75rem; }
+  .bs-page .arena-combatant__card { width: 160px; height: 160px; }
+  .bs-page .arena-combatant__name { font-size: 1rem; }
+  .bs-page .arena-player-buffs { max-width: 260px; overflow: hidden; max-height: 1.4rem; }
+  .bs-page .arena-battle__log { max-height: 60px; overflow: hidden; flex-shrink: 0; }
+  .bs-page .arena-hype-bar { flex-shrink: 0; }
+  .bs-page .arena-battle__moves { gap: 0.75rem; flex-shrink: 0; }
+  .bs-page .arena-move-btn { padding: 0.85rem 0.5rem 0.7rem; }
+  .bs-page .arena-battle__header { flex-shrink: 0; }
+}
 
 /* ============================================================
    MODAL (How to Play, etc.)
