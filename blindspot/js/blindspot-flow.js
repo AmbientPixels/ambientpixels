@@ -1213,7 +1213,7 @@
         var statsEl = document.getElementById('bs-lobby-stats');
         if (statsEl) {
           var sparksSpan = statsEl.querySelector('[data-tooltip="Spend in the Forge"]');
-          if (sparksSpan) sparksSpan.innerHTML = '<i class="fas fa-fire"></i> ' + getSparks() + ' Sparks';
+          if (sparksSpan) sparksSpan.innerHTML = '<i class="fas fa-fire"></i> ' + getSparks();
         }
       });
     }
@@ -2954,7 +2954,7 @@
       }
 
       const sparksCount = getSparks();
-      const sparksHtml = sparksCount > 0 ? `<span data-tooltip="Spend in the Forge"><i class="fas fa-fire" style="color:var(--bs-accent);"></i> ${sparksCount}</span>` : '';
+      const sparksHtml = sparksCount > 0 ? `<span class="bs-hud-sparks" data-tooltip="Spend in the Forge"><i class="fas fa-fire"></i> ${sparksCount}</span>` : '';
 
       // Compact HUD: primary line (power · sparks · streak) + secondary line (boss · pvp · tower)
       const primaryParts = [powerHtml, sparksHtml, streakHtml].filter(Boolean);

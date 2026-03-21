@@ -2935,6 +2935,15 @@
   user-select: none;
 }
 
+.bs-hud-power .fa-bolt,
+.bs-hud-sparks .fa-fire {
+  color: var(--bs-accent);
+}
+
+.bs-hud-accent {
+  color: var(--bs-accent);
+}
+
 .bs-hud-streak--warm {
   color: var(--bs-accent-glow);
 }
