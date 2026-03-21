@@ -5419,3 +5419,172 @@ body.bs-battle-active .bs-bottom-nav {
   }
   .bs-onboard-tooltip__title { font-size: 1rem; }
 }
+
+/* ============================================================
+   CRATE OPENING OVERLAY
+   ============================================================ */
+
+.bs-crate-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.92);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+.bs-crate-overlay--visible {
+  opacity: 1;
+}
+
+.bs-crate-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 400px;
+  padding: 2rem 1rem;
+  text-align: center;
+}
+
+/* Crate icon — big, centered, clickable */
+.bs-crate-box {
+  font-size: 4rem;
+  cursor: pointer;
+  transition: transform 0.15s ease;
+  outline: none;
+}
+
+.bs-crate-box:hover,
+.bs-crate-box:focus-visible {
+  transform: scale(1.08);
+}
+
+.bs-crate-box--shaking {
+  animation: bs-crate-shake 0.12s ease-in-out infinite;
+}
+
+@keyframes bs-crate-shake {
+  0%, 100% { transform: translateX(0) rotate(0deg); }
+  25% { transform: translateX(-4px) rotate(-2deg); }
+  75% { transform: translateX(4px) rotate(2deg); }
+}
+
+/* Reel / slot-machine strip */
+.bs-crate-reel {
+  position: relative;
+  width: 280px;
+  height: 90px;
+  overflow: hidden;
+  border: 1px solid var(--bs-accent-dim);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--bs-panel) 80%, transparent);
+  margin: 1rem auto;
+}
+
+.bs-crate-strip {
+  display: flex;
+  gap: 4px;
+  transition: transform 2.6s cubic-bezier(0.15, 0.85, 0.35, 1);
+  padding: 4px;
+}
+
+.bs-crate-tile {
+  flex-shrink: 0;
+  width: 86px;
+  height: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  border: 2px solid var(--bs-border);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--bs-bg) 90%, transparent);
+  font-size: 0.65rem;
+  color: var(--bs-text-muted);
+}
+
+.bs-crate-tile i {
+  font-size: 1.3rem;
+}
+
+.bs-crate-tile span {
+  max-width: 76px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Center pointer / indicator arrow */
+.bs-crate-reel-pointer {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid var(--bs-accent);
+}
+
+/* Reveal card */
+.bs-crate-reveal {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1.5rem;
+  opacity: 0;
+  transform: scale(0.6);
+}
+
+.bs-crate-reveal--active {
+  opacity: 1;
+  transform: scale(1);
+  animation: bs-crate-reveal-pop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+@keyframes bs-crate-reveal-pop {
+  0% { opacity: 0; transform: scale(0.5); }
+  60% { opacity: 1; transform: scale(1.08); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+/* Glow behind revealed item */
+.bs-crate-reveal__glow {
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  opacity: 0.25;
+  filter: blur(50px);
+  pointer-events: none;
+}
+
+/* Mobile adjustments */
+@media (max-width: 480px) {
+  .bs-crate-box { font-size: 3rem; }
+
+  .bs-crate-reel {
+    width: 240px;
+    height: 80px;
+  }
+
+  .bs-crate-tile {
+    width: 72px;
+    height: 68px;
+    font-size: 0.6rem;
+  }
+
+  .bs-crate-tile i { font-size: 1.1rem; }
+  .bs-crate-tile span { max-width: 62px; }
+
+  .bs-crate-stage { padding: 1.5rem 0.75rem; }
+}

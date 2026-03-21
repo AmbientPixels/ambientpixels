@@ -274,6 +274,49 @@
         osc.start(t + i * 0.15);
         osc.stop(t + i * 0.15 + 0.4);
       });
+    },
+
+    // Crate ratchet — rapid ticking that slows (roulette clicks)
+    crateRatchet: function (ctx) {
+      var t = ctx.currentTime;
+      for (var i = 0; i < 12; i++) {
+        var delay = i * (0.08 + i * 0.015);
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.value = 800 + Math.random() * 200;
+        gain.gain.setValueAtTime(0.1, t + delay);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + delay + 0.04);
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.start(t + delay); osc.stop(t + delay + 0.05);
+      }
+    },
+
+    // Crate reveal — cymbal crash (noise burst + rising tone)
+    crateReveal: function (ctx) {
+      var t = ctx.currentTime;
+      var bufferSize = Math.floor(ctx.sampleRate * 0.15);
+      var buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      var data = buffer.getChannelData(0);
+      for (var i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+      var noise = ctx.createBufferSource();
+      noise.buffer = buffer;
+      var nGain = ctx.createGain();
+      nGain.gain.setValueAtTime(0.18, t);
+      nGain.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+      var hp = ctx.createBiquadFilter();
+      hp.type = 'highpass'; hp.frequency.value = 3000;
+      noise.connect(hp); hp.connect(nGain); nGain.connect(ctx.destination);
+      noise.start(t); noise.stop(t + 0.6);
+      var osc = ctx.createOscillator();
+      var oGain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(440, t);
+      osc.frequency.exponentialRampToValueAtTime(1760, t + 0.3);
+      oGain.gain.setValueAtTime(0.12, t);
+      oGain.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+      osc.connect(oGain); oGain.connect(ctx.destination);
+      osc.start(t); osc.stop(t + 0.5);
     }
   };
 
@@ -752,6 +795,197 @@
         }
       });
     }
+  }
+
+  // ============================================================
+  // CRATE OPENING CEREMONY
+  // ============================================================
+
+  var RARITY_COLORS = {
+    common: 'var(--bs-text)', uncommon: '#4ade80', rare: '#60a5fa', epic: '#a855f7'
+  };
+
+  function weightedRandom(weights) {
+    var total = 0; for (var k in weights) total += weights[k];
+    var roll = Math.random() * total;
+    for (var k in weights) { roll -= weights[k]; if (roll <= 0) return k; }
+    return Object.keys(weights)[0];
+  }
+
+  function rollCrateLoot(crateType) {
+    var crateDef = _config && _config.crates && _config.crates.types[crateType];
+    if (!crateDef) return { id: 'fallback', name: '10 Sparks', rarity: 'common', icon: 'fa-fire', category: 'currency', amount: 10 };
+    var table = _config.crates.lootTables[crateDef.lootTable];
+    if (!table) return { id: 'fallback', name: '10 Sparks', rarity: 'common', icon: 'fa-fire', category: 'currency', amount: 10 };
+    var rarity = weightedRandom(table.rarityWeights);
+    var eligible = [];
+    (table.pools || []).forEach(function(poolName) {
+      var pool = _config.crates.dropPools[poolName];
+      if (!pool) return;
+      (pool.items || []).forEach(function(item) {
+        if (item.rarity === rarity) eligible.push(Object.assign({ category: pool.category, slot: pool.slot }, item));
+      });
+    });
+    if (eligible.length === 0) return { id: 'fallback_' + rarity, name: '10 Sparks', rarity: rarity, icon: 'fa-fire', category: 'currency', amount: 10 };
+    return eligible[Math.floor(Math.random() * eligible.length)];
+  }
+
+  function getRandomReelItems(count) {
+    var allItems = [];
+    if (_config && _config.crates && _config.crates.dropPools) {
+      for (var poolName in _config.crates.dropPools) {
+        var pool = _config.crates.dropPools[poolName];
+        (pool.items || []).forEach(function(item) { allItems.push(item); });
+      }
+    }
+    if (allItems.length === 0) return [];
+    var result = [];
+    for (var i = 0; i < count; i++) result.push(allItems[Math.floor(Math.random() * allItems.length)]);
+    return result;
+  }
+
+  function applyCrateLoot(item) {
+    if (!item) return;
+    if (item.category === 'currency' || item.id.startsWith('sparks')) {
+      addSparks(item.amount || 10);
+    } else if (item.stat) {
+      // Stat boost
+      if (_selectedCard && _selectedCard.combatStats) {
+        if (item.stat === 'all') {
+          ['str', 'agi', 'int', 'end', 'lck'].forEach(function(s) {
+            _selectedCard.combatStats[s] = Math.min(100, (_selectedCard.combatStats[s] || 0) + (item.amount || 3));
+          });
+        } else {
+          _selectedCard.combatStats[item.stat] = Math.min(100, (_selectedCard.combatStats[item.stat] || 0) + (item.amount || 3));
+        }
+      }
+    } else if (item.id.startsWith('forge_token')) {
+      setForgeWins(getForgeWins() + (item.amount || 1));
+    } else if (item.id === 'respec_scroll') {
+      // Grant a free respec by adding forge wins
+      setForgeWins(getForgeWins() + 3);
+    } else if (item.category === 'cosmetic') {
+      // Add to unlocked cosmetics
+      var cosmetics = [];
+      try { cosmetics = JSON.parse(localStorage.getItem('bs-cosmetics') || '[]'); } catch(e) {}
+      if (!cosmetics.includes(item.id)) cosmetics.push(item.id);
+      localStorage.setItem('bs-cosmetics', JSON.stringify(cosmetics));
+    } else if (item.slot === 'charm') {
+      // Add to charms inventory
+      var charms = [];
+      try { charms = JSON.parse(localStorage.getItem('bs-charms') || '[]'); } catch(e) {}
+      charms.push(item.id);
+      localStorage.setItem('bs-charms', JSON.stringify(charms));
+    } else if (item.title) {
+      setCardTitle(item.title);
+    }
+  }
+
+  function openCrateOverlay(crateIndex) {
+    var crates = getCrates();
+    if (crateIndex < 0 || crateIndex >= crates.length) return;
+    var crate = crates[crateIndex];
+    var crateDef = _config && _config.crates && _config.crates.types[crate.type];
+    if (!crateDef) crateDef = { name: 'Crate', icon: 'fa-box', color: 'var(--bs-accent)' };
+
+    // Roll loot before building UI (result is predetermined)
+    var wonItem = rollCrateLoot(crate.type);
+    var reelItems = getRandomReelItems(18);
+    // Insert winning item at position 14
+    reelItems.splice(14, 0, wonItem);
+
+    var _phase = 'ready'; // ready → shaking → spinning → revealed
+    var overlay = document.createElement('div');
+    overlay.className = 'bs-crate-overlay';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-label', 'Opening ' + crateDef.name);
+
+    var rarityColor = RARITY_COLORS[wonItem.rarity] || 'var(--bs-text)';
+
+    overlay.innerHTML = '<div class="bs-crate-stage">'
+      // Crate icon (clickable)
+      + '<div class="bs-crate-box" id="bs-crate-box" role="button" aria-label="Tap to open" tabindex="0">'
+      + '<i class="fas ' + escHtml(crateDef.icon) + '" style="color:' + crateDef.color + ';"></i>'
+      + '</div>'
+      + '<p class="bs-crate-prompt" id="bs-crate-prompt" style="font-family:\'Cinzel\',serif; color:var(--bs-text-muted); font-size:0.85rem; margin-top:1rem;">' + escHtml(crateDef.name) + '</p>'
+      + '<p class="bs-crate-tap" id="bs-crate-tap" style="font-size:0.7rem; color:var(--bs-accent-dim); margin-top:0.5rem;">Tap to open</p>'
+      // Reel (hidden initially)
+      + '<div class="bs-crate-reel" id="bs-crate-reel" style="display:none;">'
+      + '<div class="bs-crate-strip" id="bs-crate-strip">'
+      + reelItems.map(function(item) {
+          var rc = RARITY_COLORS[item.rarity] || 'var(--bs-text)';
+          return '<div class="bs-crate-tile" style="border-color:' + rc + ';">'
+            + '<i class="fas ' + escHtml(item.icon || 'fa-gift') + '" style="color:' + rc + ';"></i>'
+            + '<span>' + escHtml(item.name || '???') + '</span>'
+            + '</div>';
+        }).join('')
+      + '</div>'
+      + '<div class="bs-crate-reel-pointer"></div>'
+      + '</div>'
+      // Reveal card (hidden initially)
+      + '<div class="bs-crate-reveal" id="bs-crate-reveal" style="display:none;">'
+      + '<div class="bs-crate-reveal__glow" style="background:' + rarityColor + ';"></div>'
+      + '<i class="fas ' + escHtml(wonItem.icon || 'fa-gift') + '" style="font-size:2.5rem; color:' + rarityColor + '; position:relative;"></i>'
+      + '<h3 style="font-family:\'Cinzel\',serif; color:var(--bs-text); margin:0.75rem 0 0.25rem; font-size:1rem;">' + escHtml(wonItem.name) + '</h3>'
+      + (wonItem.description ? '<p style="font-size:0.7rem; color:var(--bs-text-muted); margin:0 0 0.5rem;">' + escHtml(wonItem.description) + '</p>' : '')
+      + '<span class="bs-rarity-badge bs-rarity-badge--' + wonItem.rarity + '" style="margin-bottom:1rem;"><i class="fas fa-circle" style="font-size:0.4rem;"></i> ' + wonItem.rarity.charAt(0).toUpperCase() + wonItem.rarity.slice(1) + '</span>'
+      + '<button class="bs-btn bs-btn--primary" id="bs-crate-collect" style="padding:0.6rem 2rem; font-size:0.85rem;"><i class="fas fa-check"></i> Collect</button>'
+      + '</div>'
+      + '</div>';
+
+    document.body.appendChild(overlay);
+    requestAnimationFrame(function() { overlay.classList.add('bs-crate-overlay--visible'); });
+
+    // Click to open
+    var boxEl = document.getElementById('bs-crate-box');
+    var tapEl = document.getElementById('bs-crate-tap');
+    var promptEl = document.getElementById('bs-crate-prompt');
+    var reelEl = document.getElementById('bs-crate-reel');
+    var stripEl = document.getElementById('bs-crate-strip');
+    var revealEl = document.getElementById('bs-crate-reveal');
+    var collectBtn = document.getElementById('bs-crate-collect');
+
+    function startOpening() {
+      if (_phase !== 'ready') return;
+      _phase = 'shaking';
+      if (tapEl) tapEl.style.display = 'none';
+      if (promptEl) promptEl.textContent = 'Opening...';
+      boxEl.classList.add('bs-crate-box--shaking');
+
+      setTimeout(function() {
+        _phase = 'spinning';
+        boxEl.style.display = 'none';
+        if (promptEl) promptEl.style.display = 'none';
+        if (reelEl) reelEl.style.display = '';
+        playSfx('crateRatchet');
+        // Scroll strip to winning item position (tile width ~90px, win at index 14)
+        requestAnimationFrame(function() {
+          if (stripEl) stripEl.style.transform = 'translateX(-' + (14 * 90 - 130) + 'px)';
+        });
+
+        setTimeout(function() {
+          _phase = 'revealed';
+          playSfx('crateReveal');
+          if (reelEl) reelEl.style.display = 'none';
+          if (revealEl) { revealEl.style.display = ''; revealEl.classList.add('bs-crate-reveal--active'); }
+        }, 2800);
+      }, 1000);
+    }
+
+    if (boxEl) {
+      boxEl.addEventListener('click', startOpening, { once: true });
+      boxEl.addEventListener('keydown', function(e) { if (e.key === 'Enter' || e.key === ' ') startOpening(); }, { once: true });
+    }
+
+    // Collect
+    if (collectBtn) collectBtn.addEventListener('click', function() {
+      removeCrate(crateIndex);
+      applyCrateLoot(wonItem);
+      updateCrateBadge();
+      showSuccessToast(wonItem.name + ' added!');
+      overlay.classList.remove('bs-crate-overlay--visible');
+      setTimeout(function() { overlay.remove(); renderLobby(); }, 300);
+    }, { once: true });
   }
 
   function escHtml(s) {
@@ -2207,6 +2441,11 @@
   function bindPlayNavigation() {
     if (_navBound) return;
     _navBound = true;
+
+    // Crate indicator — click to open
+    document.getElementById('bs-crate-indicator')?.addEventListener('click', function() {
+      if (getCrateCount() > 0) openCrateOverlay(0);
+    });
 
     // Primary PLAY button + Campaign button both open campaign
     const openCampaign = () => { showScreen('campaign'); renderCampaignLadder(); };
