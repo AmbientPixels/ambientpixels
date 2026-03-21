@@ -2945,11 +2945,11 @@
         const tBest = getTowerBest();
         const tCurrent = getTowerFloor();
         if (tCurrent > 0) {
-          towerHtml = `<span style="color:var(--bs-accent);"><i class="fas fa-tower-observation"></i> Floor ${tCurrent}</span>`;
+          towerHtml = `<span class="bs-hud-accent"><i class="fas fa-tower-observation"></i> F${tCurrent}</span>`;
         } else if (tBest > 0) {
           towerHtml = `<span><i class="fas fa-tower-observation"></i> Best ${tBest}</span>`;
         } else {
-          towerHtml = `<span style="color:var(--bs-accent);"><i class="fas fa-tower-observation"></i> NEW</span>`;
+          towerHtml = `<span class="bs-hud-accent"><i class="fas fa-tower-observation"></i> NEW</span>`;
         }
       }
 
