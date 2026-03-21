@@ -811,8 +811,16 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
     const userCards = userCardsData?.cards || [];
     playerCard = userCards.find(c => c.id === cardId);
     if (!playerCard) {
-      context.res = { status: 404, headers: CORS_HEADERS, body: { error: 'Card not found in your collection' } };
-      return;
+      // Fallback: accept cardData from request body if server lookup fails
+      // This handles cases where the card was saved to localStorage but not yet to server
+      if (body.cardData) {
+        context.log.warn(`[Arena Battle] Card ${cardId} not found on server for user ${userId}, using cardData fallback`);
+        playerCard = body.cardData;
+        if (!playerCard.id) playerCard.id = cardId;
+      } else {
+        context.res = { status: 404, headers: CORS_HEADERS, body: { error: 'Card not found in your collection' } };
+        return;
+      }
     }
   }
 

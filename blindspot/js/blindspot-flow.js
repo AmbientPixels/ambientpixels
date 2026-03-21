@@ -2077,7 +2077,7 @@
       }
       if (window.ArenaBackgrounds) window.ArenaBackgrounds.applyToBattleStage();
       try {
-        var battleData = await window.ArenaAPI.startBattle('pve', _selectedCard.id, boss.id);
+        var battleData = await window.ArenaAPI.startBattle('pve', _selectedCard.id, boss.id, { cardData: _selectedCard });
         _activeBattle = battleData;
         window.ArenaBattleUI.initBattle(battleData);
         updateCombatTooltips();
@@ -2138,7 +2138,8 @@
     if (window.ArenaBackgrounds) window.ArenaBackgrounds.applyToBattleStage();
 
     try {
-      const battleData = await window.ArenaAPI.startBattle('pve', _selectedCard.id, bossId);
+      // Always send cardData as fallback — prevents "Card not found" if server save was delayed
+      const battleData = await window.ArenaAPI.startBattle('pve', _selectedCard.id, bossId, { cardData: _selectedCard });
       _activeBattle = battleData;
       window.ArenaBattleUI.initBattle(battleData);
       updateCombatTooltips();
@@ -2146,28 +2147,8 @@
       showBattleHint('round1');
     } catch (err) {
       console.error('[Blindspot] Campaign battle error:', err);
-      if (err.message && err.message.includes('not found')) {
-        // Card not found by ID — retry with full cardData (bypasses server card lookup)
-        console.warn('[Blindspot] Card not found by ID, retrying with cardData...');
-        try {
-          const retryData = await window.ArenaAPI.startBattle('pve', _selectedCard.id, bossId, { cardData: _selectedCard });
-          _activeBattle = retryData;
-          window.ArenaBattleUI.initBattle(retryData);
-          updateCombatTooltips();
-          applyBattlePalette();
-          showBattleHint('round1');
-          return;
-        } catch (retryErr) {
-          console.warn('[Blindspot] cardData retry also failed:', retryErr.message || retryErr);
-        }
-        // If both attempts fail, go back to lobby
-        showErrorToast('Could not start battle. Try refreshing the page.');
-        showScreen('lobby');
-        renderLobby();
-      } else {
-        showErrorToast('Battle error: ' + err.message);
-        showScreen('campaign');
-      }
+      showErrorToast('Battle error: ' + (err.message || 'Unknown error'));
+      showScreen('campaign');
     }
   }
 
@@ -2589,7 +2570,7 @@
     }
 
     // Start the API call in background while showing animation
-    var battlePromise = window.ArenaAPI.startBattle('pvp', _selectedCard.id, opponentId);
+    var battlePromise = window.ArenaAPI.startBattle('pvp', _selectedCard.id, opponentId, { cardData: _selectedCard });
 
     // After 1.5s, reveal opponent
     await new Promise(function(r) { setTimeout(r, 1500); });
@@ -3597,6 +3578,13 @@
   function updatePlayAuthUI() {
     const el = document.getElementById('bs-topbar-user');
     if (!el) return;
+
+    // Mark as authenticated for CardForge save pipeline (Forge, card updates)
+    if (!isDemo()) {
+      sessionStorage.setItem('isAuthenticated', 'true');
+      document.body.setAttribute('data-auth-state', 'signed-in');
+    }
+
     fetch('/.auth/me').then(r => r.json()).then(data => {
       if (data && data.clientPrincipal) {
         const name = (data.clientPrincipal.userDetails || '').split('@')[0] || 'Player';

@@ -2979,44 +2979,56 @@ body.bs-battle-active .bs-bottom-nav {
 .bs-forge-card[data-palette="earth"] {
   background: linear-gradient(135deg, #2d1b0e, #3d2b1e);
   border-color: #8b6914;
+  box-shadow: 0 0 12px rgba(139, 105, 20, 0.4), inset 0 0 20px rgba(139, 105, 20, 0.1);
 }
 .bs-forge-card[data-palette="earth"] .bs-forge-card__name { color: #f4e4c1; }
 .bs-forge-card[data-palette="earth"] .bs-forge-card__class { color: #daa520; }
+.bs-forge-card[data-palette="earth"] .bs-forge-card__info { background: linear-gradient(to top, #2d1b0e, rgba(45, 27, 14, 0.6)); }
 
 .bs-forge-card[data-palette="ocean"] {
-  background: linear-gradient(135deg, #0e1b2d, #1e2b3d);
+  background: linear-gradient(135deg, #0a1525, #122a4a);
   border-color: #4a9eff;
+  box-shadow: 0 0 12px rgba(74, 158, 255, 0.4), inset 0 0 20px rgba(74, 158, 255, 0.1);
 }
 .bs-forge-card[data-palette="ocean"] .bs-forge-card__name { color: #e6f3ff; }
 .bs-forge-card[data-palette="ocean"] .bs-forge-card__class { color: #66ccff; }
+.bs-forge-card[data-palette="ocean"] .bs-forge-card__info { background: linear-gradient(to top, #0a1525, rgba(10, 21, 37, 0.6)); }
 
 .bs-forge-card[data-palette="neon"] {
-  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  background: linear-gradient(135deg, #0a0a1a, #16213e);
   border-color: #00d4ff;
+  box-shadow: 0 0 16px rgba(0, 212, 255, 0.5), inset 0 0 20px rgba(0, 212, 255, 0.1);
 }
 .bs-forge-card[data-palette="neon"] .bs-forge-card__name { color: #ffffff; }
 .bs-forge-card[data-palette="neon"] .bs-forge-card__class { color: #00d4ff; }
+.bs-forge-card[data-palette="neon"] .bs-forge-card__info { background: linear-gradient(to top, #0a0a1a, rgba(10, 10, 26, 0.6)); }
 
 .bs-forge-card[data-palette="fire"] {
-  background: linear-gradient(135deg, #2a0f0f, #3a1f1f);
+  background: linear-gradient(135deg, #2a0505, #4a1010);
   border-color: #ff6b3d;
+  box-shadow: 0 0 14px rgba(255, 107, 61, 0.5), inset 0 0 20px rgba(255, 60, 20, 0.1);
 }
 .bs-forge-card[data-palette="fire"] .bs-forge-card__name { color: #ffe0dc; }
 .bs-forge-card[data-palette="fire"] .bs-forge-card__class { color: #ff6b5c; }
+.bs-forge-card[data-palette="fire"] .bs-forge-card__info { background: linear-gradient(to top, #2a0505, rgba(42, 5, 5, 0.6)); }
 
 .bs-forge-card[data-palette="monochrome"] {
-  background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+  background: linear-gradient(135deg, #111, #222);
   border-color: #666;
+  box-shadow: 0 0 10px rgba(100, 100, 100, 0.3);
 }
 .bs-forge-card[data-palette="monochrome"] .bs-forge-card__name { color: #cccccc; }
 .bs-forge-card[data-palette="monochrome"] .bs-forge-card__class { color: #999; }
+.bs-forge-card[data-palette="monochrome"] .bs-forge-card__info { background: linear-gradient(to top, #111, rgba(17, 17, 17, 0.6)); }
 
 .bs-forge-card[data-palette="sunset"] {
-  background: linear-gradient(135deg, #2d1a0e, #3d2a1e);
+  background: linear-gradient(135deg, #2d1a0e, #4a2a10);
   border-color: #ff8c42;
+  box-shadow: 0 0 14px rgba(255, 140, 66, 0.4), inset 0 0 20px rgba(255, 205, 60, 0.08);
 }
 .bs-forge-card[data-palette="sunset"] .bs-forge-card__name { color: #fff2e6; }
 .bs-forge-card[data-palette="sunset"] .bs-forge-card__class { color: #ffcd3c; }
+.bs-forge-card[data-palette="sunset"] .bs-forge-card__info { background: linear-gradient(to top, #2d1a0e, rgba(45, 26, 14, 0.6)); }
 
 /* Container variants */
 .bs-forge-card[data-container="fullbleed"] .bs-forge-card__img {
@@ -3057,17 +3069,21 @@ body.bs-battle-active .bs-bottom-nav {
 .bs-forge-card[data-palette="inferno"] {
   background: linear-gradient(135deg, #1a0000, #4a0a0a);
   border-color: #ff2200;
+  box-shadow: 0 0 18px rgba(255, 34, 0, 0.5), inset 0 0 25px rgba(255, 0, 0, 0.15);
 }
 .bs-forge-card[data-palette="inferno"] .bs-forge-card__name { color: #ffcccc; }
 .bs-forge-card[data-palette="inferno"] .bs-forge-card__class { color: #ff4444; }
+.bs-forge-card[data-palette="inferno"] .bs-forge-card__info { background: linear-gradient(to top, #1a0000, rgba(26, 0, 0, 0.6)); }
 
 /* Frost palette (Ascension 2 unlock) */
 .bs-forge-card[data-palette="frost"] {
   background: linear-gradient(135deg, #0a1a2a, #1a3050);
   border-color: #88ddff;
+  box-shadow: 0 0 16px rgba(136, 221, 255, 0.4), inset 0 0 20px rgba(136, 221, 255, 0.1);
 }
 .bs-forge-card[data-palette="frost"] .bs-forge-card__name { color: #e6f7ff; }
 .bs-forge-card[data-palette="frost"] .bs-forge-card__class { color: #88ddff; }
+.bs-forge-card[data-palette="frost"] .bs-forge-card__info { background: linear-gradient(to top, #0a1a2a, rgba(10, 26, 42, 0.6)); }
 
 /* Mobile forge overrides — MUST come after base styles to win cascade */
 @media (max-width: 768px) {
