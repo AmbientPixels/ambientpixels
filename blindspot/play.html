@@ -16,7 +16,15 @@
   <link rel="stylesheet" href="/cardforge/css/cardforge-arena.css">
   <link rel="stylesheet" href="css/blindspot.css">
 </head>
-<body class="bs-page" data-theme="dark">
+<body class="bs-page bs-page--loading" data-theme="dark">
+
+  <!-- Loading gate — hides UI until JS initializes -->
+  <div id="bs-loading-gate" class="bs-loading-gate" aria-live="polite">
+    <div class="bs-loading-gate__inner">
+      <div class="bs-spinner" role="status"></div>
+      <span class="bs-loading-gate__text">Entering the arena...</span>
+    </div>
+  </div>
 
   <!-- Ambient particles -->
   <canvas id="bs-play-particles" class="bs-play-particles" aria-hidden="true"></canvas>

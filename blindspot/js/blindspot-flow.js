@@ -389,6 +389,14 @@
     });
   }
 
+  function dismissLoadingGate() {
+    var gate = document.getElementById('bs-loading-gate');
+    if (!gate) return;
+    document.body.classList.remove('bs-page--loading');
+    gate.classList.add('bs-loading-gate--fade');
+    setTimeout(function() { gate.remove(); }, 350);
+  }
+
   function showScreen(id) {
     document.querySelectorAll('.bs-screen').forEach(s => s.classList.remove('active'));
     const target = document.getElementById('bs-screen-' + id);
@@ -1315,6 +1323,7 @@
         </div>`;
       }
       bindPlayNavigation();
+      dismissLoadingGate();
       return;
     }
 
@@ -1330,6 +1339,7 @@
         await startCampaignBattle(_bosses[0].id);
       }, { once: true });
       bindPlayNavigation();
+      dismissLoadingGate();
       return;
     }
 
@@ -1343,6 +1353,7 @@
     renderLobby();
     bindPlayNavigation();
     updatePlayAuthUI();
+    dismissLoadingGate();
   }
 
   // ============================================================
@@ -3156,11 +3167,33 @@
           }
         });
       } catch(e) { /* no cards available */ }
-      // Always show demo defaults as extra options
+      // Show full CardForge character image library as extra options
       [
         { src: '/cardforge/img/demo/demo-knight.webp', label: 'Knight' },
         { src: '/cardforge/img/demo/demo-mage.webp', label: 'Mage' },
-        { src: '/cardforge/img/demo/demo-rogue.webp', label: 'Rogue' }
+        { src: '/cardforge/img/demo/demo-rogue.webp', label: 'Rogue' },
+        { src: '/images/image-packs/characters/navigator-kairo.jpg', label: 'Navigator Kairo' },
+        { src: '/images/image-packs/characters/eyes-of-the-storm.jpg', label: 'Eyes of the Storm' },
+        { src: '/images/image-packs/characters/regal-radiance.jpg', label: 'Regal Radiance' },
+        { src: '/images/image-packs/characters/autumnus-majestus.jpg', label: 'Autumnus Majestus' },
+        { src: '/images/image-packs/characters/carved-celestial-goddess.jpg', label: 'Celestial Goddess' },
+        { src: '/images/image-packs/characters/celestial-neptune.jpg', label: 'Celestial Neptune' },
+        { src: '/images/image-packs/characters/cyber-erenity.jpg', label: 'Cyber Erenity' },
+        { src: '/images/image-packs/characters/ember-gaze.jpg', label: 'Ember Gaze' },
+        { src: '/images/image-packs/characters/ethereal-enigma.jpg', label: 'Ethereal Enigma' },
+        { src: '/images/image-packs/characters/guardian-of-the-gilded-halls.jpg', label: 'Guardian of the Gilded Halls' },
+        { src: '/images/image-packs/characters/iron-lady.jpg', label: 'Iron Lady' },
+        { src: '/images/image-packs/characters/seraphic-sovereign.jpg', label: 'Seraphic Sovereign' },
+        { src: '/images/image-packs/characters/seraphina.jpg', label: 'Seraphina' },
+        { src: '/images/image-packs/characters/sunset-synthesis.jpg', label: 'Sunset Synthesis' },
+        { src: '/images/image-packs/characters/surreal-up-close.jpg', label: 'Surreal Up Close' },
+        { src: '/images/image-packs/characters/tangerine-tempest.jpg', label: 'Tangerine Tempest' },
+        { src: '/images/image-packs/characters/the-enigmatic-neuromancer.jpg', label: 'The Enigmatic Neuromancer' },
+        { src: '/images/image-packs/characters/twilight-titan.jpg', label: 'Twilight Titan' },
+        { src: '/images/image-packs/characters/whispers-of-the-sylvan-queen.jpg', label: 'Whispers of the Sylvan Queen' },
+        { src: '/images/image-packs/characters/hero.png', label: 'Hero' },
+        { src: '/images/image-packs/characters/hero1.png', label: 'Hero Alt' },
+        { src: '/images/image-packs/characters/hero03.jpg', label: 'Hero III' }
       ].forEach(function(a) { if (!avatars.find(function(x) { return x.src === a.src; })) avatars.push(a); });
       if (avatars.length === 0) {
         grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:var(--bs-text-muted); font-size:0.7rem; padding:1rem;">No cards yet. Use AI Generate or paste a URL.</div>';
