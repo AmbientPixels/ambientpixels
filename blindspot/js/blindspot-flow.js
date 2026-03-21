@@ -2860,7 +2860,7 @@
       overlay.remove();
       safeLSSet('blindspot-onboarded', 'true');
       safeLSSet('bs-guest-mode', 'true');
-      window.location.href = '/blindspot/play.html?firstFight=true';
+      window.location.href = '/blindspot/play.html';
     });
     document.getElementById('bs-demo-replay')?.addEventListener('click', () => {
       overlay.remove();
@@ -2951,14 +2951,14 @@
       document.getElementById('bs-reveal-enter')?.addEventListener('click', () => {
         overlay.classList.add('bs-reveal-celebration--exit');
         setTimeout(() => {
-          window.location.href = '/blindspot/play.html?firstFight=true';
+          window.location.href = '/blindspot/play.html';
         }, 400);
       });
 
       // Auto-redirect after 8 seconds if user doesn't click
       setTimeout(() => {
         if (document.body.contains(overlay)) {
-          window.location.href = '/blindspot/play.html?firstFight=true';
+          window.location.href = '/blindspot/play.html';
         }
       }, 8000);
     };
@@ -3034,10 +3034,9 @@
     // Load progression from server (source of truth) — falls back to localStorage cache
     await loadProgressFromServer();
 
-    // For guests or firstFight, prioritize localStorage deck over server
+    // For guests, prioritize localStorage deck over server
     var cards;
-    var isFirstFightParam = new URLSearchParams(window.location.search).get('firstFight') === 'true';
-    if (isGuestMode || isFirstFightParam) {
+    if (isGuestMode) {
       var localDeck = getDeck();
       cards = localDeck.length > 0 ? localDeck : await loadUserCards();
     } else {
@@ -3066,31 +3065,6 @@
       return;
     }
 
-    // First fight redirect
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('firstFight') === 'true' && _selectedCard) {
-      _isFirstRealFight = true;
-      var firstBoss = _bosses[0];
-      var titleEl = document.getElementById('bs-prefight-title');
-      var avatarEl = document.getElementById('bs-prefight-avatar');
-      var flavorEl = document.getElementById('bs-prefight-flavor');
-      if (titleEl) titleEl.textContent = 'Your first real test.';
-      if (avatarEl && firstBoss) {
-        avatarEl.innerHTML = firstBoss.avatar
-          ? '<img src="' + firstBoss.avatar + '" alt="' + (firstBoss.name || 'Boss') + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'
-          : '<i class="fas fa-skull"></i>';
-      }
-      if (flavorEl && firstBoss) flavorEl.textContent = firstBoss.flavorText || '';
-      showOverlay('bs-prefight-overlay');
-      document.getElementById('bs-prefight-go')?.addEventListener('click', async () => {
-        hideOverlay('bs-prefight-overlay');
-        await startCampaignBattle(_bosses[0].id);
-      }, { once: true });
-      bindPlayNavigation();
-      dismissLoadingGate();
-      return;
-    }
-
     // Sync arena boss progress into _progress if server has higher
     if (profile && profile.pveProgress && profile.pveProgress.blindspotHighestDefeated !== undefined) {
       var serverBoss = profile.pveProgress.blindspotHighestDefeated - 100;
@@ -3103,7 +3077,7 @@
     dismissLoadingGate();
 
     // Post-Quick-Build onboarding: show 3-step welcome on first lobby visit
-    if (params.get('firstFight') !== 'true' && !localStorage.getItem('bs-onboarded-lobby')) {
+    if (!localStorage.getItem('bs-onboarded-lobby')) {
       safeLSSet('bs-onboarded-lobby', 'true');
       showLobbyOnboarding();
     }
