@@ -1753,6 +1753,22 @@
   // Ensure card has combatStats (migrate from legacy if needed)
   function ensureCombatStats(card) {
     if (!card) return;
+
+    // Extract fields from nested cardData to top level (server stores them nested)
+    var cd = card.cardData;
+    if (cd) {
+      if (!card.combatStats && cd.combatStats) card.combatStats = cd.combatStats;
+      if (!card.stats && cd.stats) card.stats = cd.stats;
+      if (!card.palette && cd.design && cd.design.palette) card.palette = cd.design.palette;
+      if (!card.rarity && cd.rarity) card.rarity = cd.rarity;
+      if (!card.characterClass && cd.characterClass) card.characterClass = cd.characterClass;
+      if (!card.quote && cd.quote) card.quote = cd.quote;
+      if (!card.biography && cd.biography) card.biography = cd.biography;
+      if (!card.design && cd.design) card.design = cd.design;
+      if (!card.renderedFront && cd.renderedFront) card.renderedFront = cd.renderedFront;
+      if (!card.frontClasses && cd.frontClasses) card.frontClasses = cd.frontClasses;
+    }
+
     if (card.combatStats) return;
     if (!card.stats || !Array.isArray(card.stats) || card.stats.length === 0) {
       // No stats at all — assign class-based defaults or generic
