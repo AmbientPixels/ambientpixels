@@ -2025,6 +2025,10 @@
   background: rgba(16, 12, 8, 0.95);
   overflow: hidden;
 }
+/* Prevent scrollbar flash from 3D card flip on step 5 */
+.bs-page .qb-body:has(.bs-card-flip-container) {
+  overflow: hidden;
+}
 
 .bs-page .qb-modal {
   background: var(--bs-surface);

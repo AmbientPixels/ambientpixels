@@ -2919,6 +2919,8 @@
         card = cardId ? cards.find(c => c.id === cardId) : cards[cards.length - 1];
       } catch (e) { /* proceed without card data */ }
 
+      // Extract nested cardData fields to top level (server stores them nested)
+      if (card) ensureCombatStats(card);
       const name = card?.name || 'Your Card';
       const cls = card?.class || card?.characterClass || '';
       const rarity = card?.rarity || 'Common';
