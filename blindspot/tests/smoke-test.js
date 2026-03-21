@@ -159,6 +159,65 @@ try {
   fail('game-config.json check error: ' + e.message);
 }
 
+// ── 8. CSS Quality Checks ──
+try {
+  const css = fs.readFileSync(path.join(ROOT, 'css/blindspot.css'), 'utf8');
+
+  // Check for raw hex colors (should use --bs-* tokens)
+  const rawHexInRules = css.replace(/\/\*[\s\S]*?\*\//g, '').match(/[^-]#[0-9a-fA-F]{3,8}\b/g) || [];
+  // Filter out ones inside var() fallbacks and data attributes
+  const suspectHex = rawHexInRules.filter(h => !h.includes('var('));
+  if (suspectHex.length > 20) {
+    console.log('\x1b[33m  WARN\x1b[0m ' + suspectHex.length + ' raw hex colors found — prefer --bs-* tokens');
+  }
+
+  // Check for ::before/::after with content that might create ghost elements
+  const pseudoContent = css.match(/::(?:before|after)\s*\{[^}]*content\s*:\s*['"][^'"]+['"]/g) || [];
+  if (pseudoContent.length > 0) {
+    // Not a fail, just flag for review
+    console.log('\x1b[33m  INFO\x1b[0m ' + pseudoContent.length + ' ::before/::after with content — verify no ghost visuals');
+  }
+
+  // Check modal backdrop hidden class exists and has !important
+  if (css.includes('.bs-modal-backdrop--hidden')) {
+    if (css.includes('.bs-modal-backdrop--hidden') && css.match(/bs-modal-backdrop--hidden[\s\S]*?display\s*:\s*none\s*!important/)) {
+      pass('bs-modal-backdrop--hidden has !important');
+    } else {
+      fail('bs-modal-backdrop--hidden exists but may be missing !important');
+    }
+  }
+} catch (e) {
+  fail('CSS quality check error: ' + e.message);
+}
+
+// ── 9. JS Quality Checks ──
+try {
+  const js = fs.readFileSync(path.join(ROOT, 'js/blindspot-flow.js'), 'utf8');
+
+  // Check for undefined TIMEOUT references (caught this bug today)
+  const timeoutRefs = (js.match(/\bTIMEOUT\b/g) || []).length;
+  const timeoutDefs = (js.match(/(?:const|var|let)\s+TIMEOUT\b/g) || []).length;
+  if (timeoutRefs > 0 && timeoutDefs === 0) {
+    fail('TIMEOUT referenced but never defined — will cause ReferenceError');
+  } else if (timeoutRefs > timeoutDefs * 3) {
+    console.log('\x1b[33m  WARN\x1b[0m TIMEOUT used ' + timeoutRefs + ' times but only defined ' + timeoutDefs + ' — check scoping');
+  }
+
+  // Check for common localStorage key collisions (must use bs- prefix)
+  const lsWrites = js.match(/localStorage\.setItem\(['"]([^'"]+)['"]/g) || [];
+  const nonPrefixed = lsWrites.filter(m => {
+    var key = m.match(/setItem\(['"]([^'"]+)['"]/)[1];
+    return !key.startsWith('bs-') && !key.startsWith('blindspot');
+  });
+  if (nonPrefixed.length > 0) {
+    console.log('\x1b[33m  WARN\x1b[0m localStorage keys without bs- prefix: ' + nonPrefixed.map(m => m.match(/['"]([^'"]+)['"]/)[1]).join(', '));
+  }
+
+  pass('JS quality checks passed');
+} catch (e) {
+  fail('JS quality check error: ' + e.message);
+}
+
 // ── Summary ──
 console.log('\n' + '─'.repeat(50));
 if (failures === 0) {
