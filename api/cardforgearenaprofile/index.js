@@ -174,6 +174,15 @@ module.exports = async function (context, req) {
           headers: CORS_HEADERS,
           body: { success: true, selectedCardId: cardId }
         };
+      } else if (action === 'reset') {
+        const fresh = createDefaultProfile(userId);
+        await uploadJsonBlob(containerClient, profilePath, fresh);
+        context.log(`[Arena] Reset profile for user ${userId}`);
+        context.res = {
+          status: 200,
+          headers: CORS_HEADERS,
+          body: { success: true, profile: fresh }
+        };
       } else {
         context.res = {
           status: 400,

@@ -2615,8 +2615,17 @@
     if (landingParams.get('reset') === 'true') {
       Object.keys(localStorage).filter(function(k) { return k.startsWith('bs-') || k === 'blindspot-onboarded' || k === 'cardforge_saved_cards'; }).forEach(function(k) { localStorage.removeItem(k); });
       sessionStorage.clear();
-      // Reset server profile
+      // Reset server profiles (both blindspot + arena)
       BlindspotAPI._apiFetch('POST', { action: 'reset' }).catch(function() {});
+      (async function() {
+        try {
+          var url = window.buildApiPath ? window.buildApiPath('arenaProfile') : 'https://ambientpixels-nova-api.azurewebsites.net/api/cardforgearenaprofile';
+          var principal = await BlindspotAPI.fetchPrincipal();
+          var headers = { 'Content-Type': 'application/json' };
+          if (principal) headers['X-CF-Auth-Principal'] = principal;
+          fetch(url, { method: 'POST', headers: headers, body: JSON.stringify({ action: 'reset' }) });
+        } catch(e) {}
+      })();
       window.location.href = '/blindspot/';
       return;
     }
