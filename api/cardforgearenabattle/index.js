@@ -226,6 +226,36 @@ function computePassives(card, rank) {
   return passives;
 }
 
+// Compute stat-threshold passives (Blindspot strategy system)
+// These are earned by having high enough stats — no badges needed
+function computeStatThresholdPassives(combatStats) {
+  if (!combatStats) return [];
+  const passives = [];
+  const cs = combatStats;
+
+  // STR passives
+  if ((cs.str || 0) >= 60) passives.push({ source: 'stat:str60', effect: 'guard_pierce', value: 20 }); // Strike ignores 20% of Guard
+  if ((cs.str || 0) >= 80) passives.push({ source: 'stat:str80', effect: 'crit_damage', value: 25 }); // +25% crit damage
+
+  // AGI passives
+  if ((cs.agi || 0) >= 60) passives.push({ source: 'stat:agi60', effect: 'speed_priority', value: 1 }); // Always act first
+  if ((cs.agi || 0) >= 80) passives.push({ source: 'stat:agi80', effect: 'dodge', value: 15 }); // 15% dodge chance
+
+  // INT passives
+  if ((cs.int || 0) >= 60) passives.push({ source: 'stat:int60', effect: 'ability_discount', value: 1 }); // Ability costs 1 charge
+  if ((cs.int || 0) >= 80) passives.push({ source: 'stat:int80', effect: 'ability_power', value: 30 }); // +30% ability damage
+
+  // END passives
+  if ((cs.end || 0) >= 60) passives.push({ source: 'stat:end60', effect: 'heal_dr', value: 10 }); // Heal grants 10% DR for 1 round
+  if ((cs.end || 0) >= 80) passives.push({ source: 'stat:end80', effect: 'hp_regen', value: 5 }); // Auto-heal 5 HP per round
+
+  // LCK passives
+  if ((cs.lck || 0) >= 50) passives.push({ source: 'stat:lck50', effect: 'crit_chance', value: 10 }); // +10% crit chance
+  if ((cs.lck || 0) >= 70) passives.push({ source: 'stat:lck70', effect: 'crit_damage', value: 50 }); // Crits deal 2x (extra 50% on top of 1.5x)
+
+  return passives;
+}
+
 function getPassiveValue(passives, effectName) {
   return passives
     .filter(p => p.effect === effectName)
@@ -409,6 +439,10 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
   const opponentSpeed = opponent.combatStats.agi + Math.random() * 10;
   let speedWinner = playerSpeed >= opponentSpeed ? 'player' : 'opponent';
 
+  // Speed priority passive (AGI 60+): always act first
+  if (getPassiveValue(player.passives, 'speed_priority') > 0 && getPassiveValue(opponent.passives, 'speed_priority') === 0) speedWinner = 'player';
+  if (getPassiveValue(opponent.passives, 'speed_priority') > 0 && getPassiveValue(player.passives, 'speed_priority') === 0) speedWinner = 'opponent';
+
   // Shadow Strike overrides speed
   if (playerMove === 'ability' && player.abilityKey === 'shadowStrike') speedWinner = 'player';
   if (opponentMove === 'ability' && opponent.abilityKey === 'shadowStrike') speedWinner = 'opponent';
@@ -425,6 +459,7 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
   const playerStrBonus = getPassiveValue(player.passives, 'str_bonus');
   const playerIntBonus = getPassiveValue(player.passives, 'int_bonus');
   const opponentDmgReduction = getPassiveValue(opponent.passives, 'damage_reduction');
+  const playerWeaknessBonus = 1 + (getPassiveValue(player.passives, 'weakness_exploit') / 100); // Boss weakness damage bonus
 
   const opponentCritChance = 5 + getPassiveValue(opponent.passives, 'crit_chance');
   const opponentAbilityBonus = getPassiveValue(opponent.passives, 'ability_power');
@@ -475,8 +510,10 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     playerOutDmg = str * 0.4 + Math.random() * (str * 0.1);
     const isCrit = Math.random() * 100 < playerCritChance;
     if (isCrit) {
-      playerOutDmg *= 1.5;
-      events.push('\u2728 Your strike landed a critical hit with devastating force!');
+      const critDmgBonus = getPassiveValue(player.passives, 'crit_damage');
+      const critMultiplier = 1.5 + (critDmgBonus / 100);
+      playerOutDmg *= critMultiplier;
+      events.push(`\u2728 Your strike landed a critical hit! (${Math.round(critMultiplier * 100)}% damage)`);
       // B2: Burn on crit strike
       newTempEffects.opponent.push({ effect: 'burn', value: Math.round(opponent.maxHp * 0.08), roundsLeft: 2 });
       events.push('\uD83D\uDD25 The critical strike ignites the enemy! (Burn x2 rounds)');
@@ -486,11 +523,19 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
       events.push('\uD83D\uDE35 Blinded! Your strike swings wide and misses!');
       playerOutDmg = 0;
     }
-    // Guard reduces strike by 60%
+    // Dodge check (AGI 80+ passive)
+    const oppDodge = getPassiveValue(opponent.passives, 'dodge');
+    if (oppDodge > 0 && Math.random() * 100 < oppDodge && playerOutDmg > 0) {
+      events.push('\uD83D\uDCA8 Enemy dodged your strike!');
+      playerOutDmg = 0;
+    }
+    // Guard reduces strike — guard_pierce reduces guard effectiveness
     if (opponentMove === 'guard' && playerOutDmg > 0) {
+      const guardPierce = getPassiveValue(player.passives, 'guard_pierce');
+      const guardBlock = Math.max(0.2, 0.6 - (guardPierce / 100)); // Normally blocks 60%, pierce reduces it
       const preGuard = Math.floor(playerOutDmg);
-      playerOutDmg *= 0.4;
-      events.push(`\uD83D\uDEE1\uFE0F Enemy guarded, blocked 60% of your strike (${preGuard} \u2192 ${Math.floor(playerOutDmg)}).`);
+      playerOutDmg *= (1 - guardBlock);
+      events.push(`\uD83D\uDEE1\uFE0F Enemy guarded, blocked ${Math.round(guardBlock * 100)}% of your strike (${preGuard} \u2192 ${Math.floor(playerOutDmg)}).`);
     }
     if (playerOutDmg > 0) {
       playerOutDmg = Math.max(1, Math.floor(playerOutDmg * (1 - opponentDmgReduction / 100)));
@@ -535,7 +580,15 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     }
     healAmt = Math.round(healAmt);
     playerHeal += healAmt;
-    if (healAmt > 0) events.push(`\uD83D\uDC9A You focused and recovered ${healAmt} HP.`);
+    if (healAmt > 0) {
+      events.push(`\uD83D\uDC9A You focused and recovered ${healAmt} HP.`);
+      // heal_dr passive (END 60+): healing also grants damage reduction for 1 round
+      const healDr = getPassiveValue(player.passives, 'heal_dr');
+      if (healDr > 0) {
+        newTempEffects.player.push({ effect: 'fortified', value: healDr, roundsLeft: 1 });
+        events.push(`\uD83D\uDEE1\uFE0F Fortified Heal grants ${healDr}% damage reduction for 1 round!`);
+      }
+    }
   } else if (playerMove === 'counter') {
     // Resolved after opponent's attack is computed — see counter resolution block
     events.push('\uD83D\uDD04 You took a counter stance, ready to reflect.');
@@ -550,8 +603,10 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     opponentOutDmg = str * 0.4 + Math.random() * (str * 0.1);
     const isCrit = Math.random() * 100 < opponentCritChance;
     if (isCrit) {
-      opponentOutDmg *= 1.5;
-      events.push('\u2728 Enemy landed a critical hit!');
+      const critDmgBonus = getPassiveValue(opponent.passives, 'crit_damage');
+      const critMultiplier = 1.5 + (critDmgBonus / 100);
+      opponentOutDmg *= critMultiplier;
+      events.push(`\u2728 Enemy landed a critical hit! (${Math.round(critMultiplier * 100)}% damage)`);
       // B2: Burn on crit strike
       newTempEffects.player.push({ effect: 'burn', value: Math.round(player.maxHp * 0.08), roundsLeft: 2 });
       events.push('\uD83D\uDD25 The critical strike ignites you! (Burn x2 rounds)');
@@ -561,10 +616,19 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
       events.push('\uD83D\uDE35 Blinded! Enemy strike swings wide and misses!');
       opponentOutDmg = 0;
     }
+    // Dodge check (AGI 80+ passive)
+    const plDodge = getPassiveValue(player.passives, 'dodge');
+    if (plDodge > 0 && Math.random() * 100 < plDodge && opponentOutDmg > 0) {
+      events.push('\uD83D\uDCA8 You dodged the enemy strike!');
+      opponentOutDmg = 0;
+    }
+    // Guard — guard_pierce reduces guard effectiveness
     if (playerMove === 'guard' && opponentOutDmg > 0) {
+      const oppGuardPierce = getPassiveValue(opponent.passives, 'guard_pierce');
+      const guardBlock = Math.max(0.2, 0.6 - (oppGuardPierce / 100));
       const preGuard = Math.floor(opponentOutDmg);
-      opponentOutDmg *= 0.4;
-      events.push(`\uD83D\uDEE1\uFE0F You guarded, blocked 60% of their strike (${preGuard} \u2192 ${Math.floor(opponentOutDmg)}).`);
+      opponentOutDmg *= (1 - guardBlock);
+      events.push(`\uD83D\uDEE1\uFE0F You guarded, blocked ${Math.round(guardBlock * 100)}% of their strike (${preGuard} \u2192 ${Math.floor(opponentOutDmg)}).`);
     }
     if (opponentOutDmg > 0) {
       opponentOutDmg = Math.max(1, Math.floor(opponentOutDmg * (1 - playerDmgReduction / 100)));
@@ -608,7 +672,14 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     }
     healAmt = Math.round(healAmt);
     opponentHeal += healAmt;
-    if (healAmt > 0) events.push(`\uD83D\uDC9A Enemy focused and recovered ${healAmt} HP.`);
+    if (healAmt > 0) {
+      events.push(`\uD83D\uDC9A Enemy focused and recovered ${healAmt} HP.`);
+      const oppHealDr = getPassiveValue(opponent.passives, 'heal_dr');
+      if (oppHealDr > 0) {
+        newTempEffects.opponent.push({ effect: 'fortified', value: oppHealDr, roundsLeft: 1 });
+        events.push(`\uD83D\uDEE1\uFE0F Enemy's Fortified Heal grants ${oppHealDr}% damage reduction!`);
+      }
+    }
   } else if (opponentMove === 'counter') {
     // Resolved after player's attack is computed — see counter resolution block
     events.push('\uD83D\uDD04 Enemy took a counter stance, ready to reflect.');
@@ -634,6 +705,14 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     const reduction = Math.round(opponentDamageTaken * opponentFortified / 100);
     opponentDamageTaken = Math.max(1, opponentDamageTaken - reduction);
     if (reduction > 0) events.push(`🛡️ Enemy fortification resisted ${reduction} damage.`);
+  }
+
+  // Boss weakness exploit bonus — player deals bonus damage to boss weak spot
+  if (playerWeaknessBonus > 1 && opponentDamageTaken > 0) {
+    const preBonus = opponentDamageTaken;
+    opponentDamageTaken = Math.round(opponentDamageTaken * playerWeaknessBonus);
+    const extra = opponentDamageTaken - preBonus;
+    if (extra > 0) events.push(`🎯 Weakness exploit! +${extra} bonus damage!`);
   }
 
   // B3: Counter resolution — must run after temp effects so reflect uses final damage values
@@ -887,6 +966,10 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
   const playerPassives = computePassives(playerCard, playerRank);
   const opponentPassives = computePassives(opponentCard, 'diamond'); // AI/opponents use uncapped
 
+  // Merge stat-threshold passives (Blindspot strategy system)
+  playerPassives.push(...computeStatThresholdPassives(playerCombat));
+  opponentPassives.push(...computeStatThresholdPassives(opponentCombat));
+
   // Apply persistent stat bonuses from buffs (end_bonus, all_stats)
   applyStatPassives(playerCombat, playerPassives);
   applyStatPassives(opponentCombat, opponentPassives);
@@ -904,6 +987,17 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
   const opponentChargeRate = computeChargeRate(opponentCombat, 1500, config); // AI assumed Gold-level
 
   const cc = config.chargeConfig || {};
+
+  // Boss weakness: if boss has a weakness stat, player gets +20% damage when using that stat
+  const bossWeakness = opponentCard.weakness || null;
+  if (bossWeakness && type === 'pve') {
+    const playerWeaknessStat = playerCombat[bossWeakness] || 0;
+    if (playerWeaknessStat >= 40) {
+      // Add a weakness_exploit passive that boosts damage
+      const weaknessBonus = Math.min(25, Math.floor(playerWeaknessStat / 4)); // 10-25% bonus based on stat
+      playerPassives.push({ source: `weakness:${bossWeakness}`, effect: 'weakness_exploit', value: weaknessBonus });
+    }
+  }
 
   const battleId = `battle-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
   const battleState = {
@@ -975,7 +1069,7 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
       },
       charges: { player: cc.startCharges || 0, opponent: cc.startCharges || 0 },
       chargeRate: playerChargeRate,
-      abilityCost: cc.abilityCost || 2,
+      abilityCost: Math.max(1, (cc.abilityCost || 2) - getPassiveValue(playerPassives, 'ability_discount')),
       maxCharges: cc.maxCharges || 4,
       currentRound: 1,
       totalRounds: config.totalRounds,
@@ -1025,9 +1119,12 @@ async function handleMove(context, containerClient, userId, body) {
   const cc = config.chargeConfig || {};
 
   // Charge validation: ability requires enough charges
+  // ability_discount passive (INT 60+) reduces cost by 1
   const hasCharges = battle.charges && battle.charges.player !== undefined;
+  const playerAbilityDiscount = getPassiveValue(player.passives || [], 'ability_discount');
+  const playerAbilityCost = Math.max(1, (cc.abilityCost || 2) - playerAbilityDiscount);
   if (move === 'ability' && hasCharges) {
-    if (battle.charges.player < (cc.abilityCost || 2)) {
+    if (battle.charges.player < playerAbilityCost) {
       context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'Not enough charges to use ability' } };
       return;
     }
@@ -1081,9 +1178,11 @@ async function handleMove(context, containerClient, userId, body) {
     // Gain charges
     battle.charges.player = Math.min(maxCh, battle.charges.player + (rate.player || 1));
     battle.charges.opponent = Math.min(maxCh, battle.charges.opponent + (rate.opponent || 1));
-    // Deduct if ability was used
-    if (move === 'ability') battle.charges.player -= (cc.abilityCost || 2);
-    if (opponentMove === 'ability') battle.charges.opponent -= (cc.abilityCost || 2);
+    // Deduct if ability was used (ability_discount passive reduces cost)
+    if (move === 'ability') battle.charges.player -= playerAbilityCost;
+    const oppAbilityDiscount = getPassiveValue(opponent.passives || [], 'ability_discount');
+    const oppAbilityCost = Math.max(1, (cc.abilityCost || 2) - oppAbilityDiscount);
+    if (opponentMove === 'ability') battle.charges.opponent -= oppAbilityCost;
     battle.charges.player = Math.max(0, battle.charges.player);
     battle.charges.opponent = Math.max(0, battle.charges.opponent);
   }

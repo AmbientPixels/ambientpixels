@@ -113,6 +113,14 @@
             </span>
             <i class="fas fa-chevron-right" style="color: var(--bs-text-muted);" aria-hidden="true"></i>
           </button>
+          <button class="bs-mode-btn" id="bs-btn-howtoplay" style="opacity:0.7;">
+            <i class="fas fa-book-open" aria-hidden="true"></i>
+            <span class="bs-mode-btn__label">
+              <span class="bs-mode-btn__title">How to Play</span>
+              <span class="bs-mode-btn__desc">Rules, moves, strategy guide.</span>
+            </span>
+            <i class="fas fa-chevron-right" style="color: var(--bs-text-muted);" aria-hidden="true"></i>
+          </button>
         </nav>
       </div>
     </div>
@@ -325,6 +333,65 @@
   <div id="bs-forge-unlock" class="bs-overlay bs-overlay--hidden" role="dialog" aria-label="Forge unlocked">
     <p class="bs-overlay__title">The Forge is yours. You've earned this.</p>
     <button class="bs-btn bs-btn--primary bs-btn--large" id="bs-forge-unlock-btn">Enter the Forge</button>
+  </div>
+
+  <!-- How to Play overlay -->
+  <div id="bs-howtoplay" class="bs-overlay bs-overlay--hidden" role="dialog" aria-label="How to Play">
+    <div class="bs-howtoplay-content" style="max-width:480px; width:90%; max-height:80vh; overflow-y:auto; background:var(--bs-surface); border:1px solid var(--bs-border); border-radius:12px; padding:1.5rem; text-align:left;">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+        <h2 style="font-family:'Cinzel',serif; color:var(--bs-accent); margin:0; font-size:1.1rem;"><i class="fas fa-book-open"></i> How to Play</h2>
+        <button class="bs-btn bs-btn--small" id="bs-howtoplay-close" style="padding:0.25rem 0.6rem;"><i class="fas fa-times"></i></button>
+      </div>
+
+      <section style="margin-bottom:1rem;">
+        <h3 style="font-size:0.85rem; color:var(--bs-accent); margin:0 0 0.4rem;">Combat Moves</h3>
+        <div style="font-size:0.75rem; color:var(--bs-text); line-height:1.6;">
+          <p><strong style="color:#ff5252;"><i class="fas fa-hand-fist"></i> Strike</strong> — Deal STR-based damage. Crits ignite enemies (Burn). <em>Halved by Guard.</em></p>
+          <p><strong style="color:#ff9100;"><i class="fas fa-shield-alt"></i> Guard</strong> — Block 60% of incoming strikes. <em>Stunned by Abilities.</em></p>
+          <p><strong style="color:#7b2fff;"><i class="fas fa-hat-wizard"></i> Ability</strong> — Class-specific power move. Costs 2 charges. <em>Stuns guarding enemies.</em></p>
+          <p><strong style="color:#00e676;"><i class="fas fa-heart"></i> Heal</strong> — Recover END-based HP. <em>Halved by Strike, blocked by Ability.</em></p>
+          <p><strong style="color:#ffd740;"><i class="fas fa-sync-alt"></i> Counter</strong> — Reflect 50% of strike damage back. <em>Punished by Ability.</em></p>
+        </div>
+      </section>
+
+      <section style="margin-bottom:1rem;">
+        <h3 style="font-size:0.85rem; color:var(--bs-accent); margin:0 0 0.4rem;">Rock-Paper-Scissors</h3>
+        <div style="font-size:0.7rem; color:var(--bs-text-muted); line-height:1.6;">
+          <p>Strike beats Heal. Guard blocks Strike. Ability punishes Guard. Counter reflects Strike.</p>
+          <p>Choose based on what the boss tends to do — check their class and tip before fighting.</p>
+        </div>
+      </section>
+
+      <section style="margin-bottom:1rem;">
+        <h3 style="font-size:0.85rem; color:var(--bs-accent); margin:0 0 0.4rem;">Stats & What They Do</h3>
+        <div style="font-size:0.7rem; color:var(--bs-text); line-height:1.6;">
+          <p><strong style="color:#ff5252;">STR</strong> — Strike damage. At 60+: Heavy Strike (pierces guard). At 80+: +25% crit damage.</p>
+          <p><strong style="color:#00e676;">AGI</strong> — Speed (who acts first) + charge rate. At 60+: always act first. At 80+: 15% dodge.</p>
+          <p><strong style="color:#7b2fff;">INT</strong> — Ability damage. At 60+: ability costs 1 charge. At 80+: +30% ability damage.</p>
+          <p><strong style="color:#ff9100;">END</strong> — Max HP + heal amount. At 60+: heal grants DR. At 80+: auto-heal 5 HP/round.</p>
+          <p><strong style="color:#ffd740;">LCK</strong> — Crit chance. At 50+: +10% crit chance. At 70+: crits deal 2x damage.</p>
+        </div>
+      </section>
+
+      <section style="margin-bottom:1rem;">
+        <h3 style="font-size:0.85rem; color:var(--bs-accent); margin:0 0 0.4rem;">Build Archetypes</h3>
+        <div style="font-size:0.7rem; color:var(--bs-text-muted); line-height:1.6;">
+          <p><i class="fas fa-fire" style="color:#ff5252;"></i> <strong>Berserker</strong> (STR+LCK) — Crit damage dealer. Strikes hit hard, crits devastate.</p>
+          <p><i class="fas fa-shield-halved" style="color:#3498db;"></i> <strong>Tank</strong> (END+AGI) — Outlast everything. Huge HP, heals with DR.</p>
+          <p><i class="fas fa-hat-wizard" style="color:#7b2fff;"></i> <strong>Mage</strong> (INT+AGI) — Fast ability spam. 1-charge abilities, high INT damage.</p>
+          <p><i class="fas fa-user-ninja" style="color:#00e676;"></i> <strong>Assassin</strong> (AGI+STR) — Speed kills. Always strike first, dodge incoming.</p>
+          <p><i class="fas fa-dice" style="color:#ffd740;"></i> <strong>Gambler</strong> (LCK+INT) — Chaos and crits. High risk, high reward.</p>
+        </div>
+      </section>
+
+      <section>
+        <h3 style="font-size:0.85rem; color:var(--bs-accent); margin:0 0 0.4rem;">Boss Weaknesses</h3>
+        <div style="font-size:0.7rem; color:var(--bs-text-muted); line-height:1.6;">
+          <p>Each boss has a weakness stat shown in Campaign. Investing in that stat gives you bonus damage against them.</p>
+          <p>Check the <i class="fas fa-crosshairs"></i> icon next to each boss before fighting!</p>
+        </div>
+      </section>
+    </div>
   </div>
 
   <!-- Boss 10 win overlay -->

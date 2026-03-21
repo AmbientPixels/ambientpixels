@@ -1453,6 +1453,48 @@
       statBarEl.style.display = '';
     }
 
+    // Build advisor — show archetype and next passive
+    const advisorEl = document.getElementById('bs-build-advisor');
+    if (advisorEl && _selectedCard && _selectedCard.combatStats) {
+      const arch = detectArchetype(_selectedCard.combatStats);
+      const nextPass = getNextPassive(_selectedCard.combatStats);
+      let advisorHtml = '<div class="bs-build-advisor__archetype">'
+        + '<i class="fas ' + arch.icon + '" style="color:' + arch.color + ';"></i> '
+        + '<strong>' + arch.name + '</strong> <span style="color:var(--bs-text-muted);">— ' + escHtml(arch.desc) + '</span>'
+        + '</div>';
+      if (nextPass) {
+        const gap = nextPass.threshold - (_selectedCard.combatStats[nextPass.stat] || 0);
+        advisorHtml += '<div class="bs-build-advisor__next" style="font-size:0.7rem; color:var(--bs-text-muted); margin-top:0.25rem;">'
+          + '<i class="fas fa-arrow-up" style="color:var(--bs-accent);"></i> '
+          + 'Next unlock: <strong style="color:' + (WEAKNESS_COLORS[nextPass.stat] || 'var(--bs-accent)') + ';">'
+          + nextPass.name + '</strong> (' + WEAKNESS_LABELS[nextPass.stat] + ' ' + (_selectedCard.combatStats[nextPass.stat] || 0)
+          + '/' + nextPass.threshold + ' — need ' + gap + ' more)'
+          + '</div>';
+      }
+      advisorEl.innerHTML = advisorHtml;
+      advisorEl.style.display = '';
+    }
+
+    // Passives display — show active stat-threshold passives
+    const passivesEl = document.getElementById('bs-passives-display');
+    if (passivesEl && _selectedCard && _selectedCard.combatStats) {
+      const activePassives = getActivePassives(_selectedCard.combatStats);
+      if (activePassives.length > 0) {
+        passivesEl.innerHTML = '<div class="bs-passives-header" style="font-size:0.7rem; color:var(--bs-text-muted); margin-bottom:0.3rem;"><i class="fas fa-star"></i> Active Passives</div>'
+          + activePassives.map(function(p) {
+            return '<div class="bs-passive-tag" style="display:inline-flex; align-items:center; gap:0.25rem; padding:0.15rem 0.5rem; margin:0.15rem; border-radius:12px; font-size:0.65rem; border:1px solid ' + (WEAKNESS_COLORS[p.stat] || 'var(--bs-border)') + '44; background:' + (WEAKNESS_COLORS[p.stat] || 'var(--bs-border)') + '11;">'
+              + '<i class="fas ' + p.icon + '" style="color:' + (WEAKNESS_COLORS[p.stat] || 'var(--bs-accent)') + '; font-size:0.6rem;"></i> '
+              + '<span style="color:' + (WEAKNESS_COLORS[p.stat] || 'var(--bs-text)') + ';">' + p.name + '</span> '
+              + '<span style="color:var(--bs-text-muted);">' + p.desc + '</span>'
+              + '</div>';
+          }).join('')
+          ;
+        passivesEl.style.display = '';
+      } else {
+        passivesEl.style.display = 'none';
+      }
+    }
+
     // Toggle stat bars on card click
     const _cardClickEl = document.getElementById('bs-player-card');
     if (_cardClickEl) {
@@ -1463,7 +1505,6 @@
       });
     }
 
-    // Toggle stat bars on card click
     const titleEl = document.getElementById('bs-card-title');
     const title = getCardTitle();
     if (titleEl) {
@@ -1597,6 +1638,14 @@
     document.getElementById('bs-btn-leaderboard')?.addEventListener('click', () => {
       showScreen('leaderboard');
       renderLeaderboard();
+    });
+
+    // How to Play
+    document.getElementById('bs-btn-howtoplay')?.addEventListener('click', () => {
+      showOverlay('bs-howtoplay');
+    });
+    document.getElementById('bs-howtoplay-close')?.addEventListener('click', () => {
+      hideOverlay('bs-howtoplay');
     });
 
     document.getElementById('bs-campaign-back')?.addEventListener('click', () => {
