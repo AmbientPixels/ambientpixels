@@ -1816,38 +1816,16 @@
 }
 .bs-page .arena-hype-bar--near-full .arena-hype-bar__fill { animation: arena-hype-pulse 0.5s ease-in-out infinite; }
 
-/* --- Desktop: flexbox fills viewport --- */
+/* --- Desktop adjustments --- */
 @media (min-width: 769px) {
-  #bs-screen-battle {
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 0.5rem 0 3.5rem;
-    min-height: calc(100vh - 3rem);
-    display: flex;
-    flex-direction: column;
-  }
-  .bs-page .arena-battle {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-  .bs-page .arena-battle__stage {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    min-height: 0;
-  }
   .bs-page .arena-battle__field { gap: 2rem; padding: 1.5rem 2.5rem; }
   .bs-page .arena-combatant { max-width: 300px; padding: 1rem 1.25rem 0.75rem; }
   .bs-page .arena-combatant__card { width: 160px; height: 160px; }
   .bs-page .arena-combatant__name { font-size: 1rem; }
   .bs-page .arena-player-buffs { max-width: 260px; overflow: hidden; max-height: 1.4rem; }
-  .bs-page .arena-battle__log { max-height: 60px; overflow: hidden; flex-shrink: 0; }
-  .bs-page .arena-hype-bar { flex-shrink: 0; }
-  .bs-page .arena-battle__moves { gap: 0.75rem; flex-shrink: 0; }
+  .bs-page .arena-battle__log { max-height: 80px; }
+  .bs-page .arena-battle__moves { gap: 0.75rem; }
   .bs-page .arena-move-btn { padding: 0.85rem 0.5rem 0.7rem; }
-  .bs-page .arena-battle__header { flex-shrink: 0; }
 }
 
 /* ============================================================
@@ -4150,14 +4128,11 @@
   [data-tooltip]::after { display: none; }
 }
 
-/* Battle screen — force flex layout (beats .bs-screen.active { display: block }) */
+/* Battle screen — override base .bs-screen constraints */
 .bs-screen.active#bs-screen-battle {
-  display: flex;
-  flex-direction: column;
   max-width: 960px;
   margin: 0 auto;
-  min-height: calc(100vh - 3rem);
-  padding: 0.5rem 0 3.5rem;
+  padding: 0.5rem 1.5rem 3.5rem;
 }
 
 /* Hide bottom nav during battle (iter 56 fix) */
