@@ -3175,6 +3175,14 @@
   .bs-page .arena-battle__round { font-size: 0.8rem; }
   #bs-combat-help-btn { font-size: 0.7rem !important; }
   .bs-page #arena-forfeit-btn { font-size: 0.7rem; padding: 0.3rem 0.5rem; }
+  .bs-page .arena-btn--danger {
+    background: rgba(220, 50, 50, 0.9);
+    color: #fff;
+    border-color: rgba(220, 50, 50, 0.6);
+  }
+  .bs-page .arena-btn--danger:hover {
+    background: rgba(220, 50, 50, 1);
+  }
 
   /* Combatant — compact for small phones, must fit both + moves in viewport */
   .bs-page .arena-battle__field {
