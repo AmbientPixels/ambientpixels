@@ -134,19 +134,8 @@
   // ===== STEP 1: ORIGIN (Vibe) =====
 
   function _renderVibeStep() {
-    var selectedVibe = _state.vibe;
-    var previewHtml = selectedVibe
-      ? `<div class="qb-vibe-preview">
-          <div class="qb-vibe-preview__card" data-preset="${selectedVibe.presetId}">
-            <i class="fas ${selectedVibe.icon}" style="font-size:1.5rem; opacity:0.6;"></i>
-            <span style="font-size:0.7rem; margin-top:0.25rem;">${selectedVibe.label}</span>
-          </div>
-          <span class="qb-style-desc" style="margin-top:0.35rem;">Style: ${selectedVibe.presetId.replace(/-/g, ' ')}</span>
-        </div>`
-      : '';
     return `
       <p class="qb-panel-desc">Choose your origin. This sets the visual theme for your card.</p>
-      ${previewHtml}
       <div class="qb-vibe-grid">
         ${VIBES.map(v => `
           <div class="qb-vibe-card ${_state.vibe?.id === v.id ? 'selected' : ''}" data-vibe-id="${v.id}">

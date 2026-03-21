@@ -2207,25 +2207,6 @@
 .bs-page .qb-style-tile--locked .fa-lock {
   color: var(--bs-text-muted, #A09888);
 }
-.bs-page .qb-vibe-preview {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 0.75rem;
-}
-.bs-page .qb-vibe-preview__card {
-  width: 80px;
-  height: 112px;
-  border-radius: 8px;
-  border: 1px solid var(--bs-accent-dim, #5a4a30);
-  background: rgba(239, 159, 39, 0.08);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: var(--bs-accent);
-}
-
 .bs-page .qb-vibe-card.selected {
   border-color: var(--bs-accent) !important;
   background: rgba(239, 159, 39, 0.1) !important;
