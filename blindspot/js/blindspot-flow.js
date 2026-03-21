@@ -1411,14 +1411,24 @@
   function updateForgeProgress() {
     const wins = getForgeWins();
     const needed = _config ? _config.forgeVisit.winsRequired : 3;
-    const ready = wins >= needed || isForgePending();
+    const campaignComplete = getHighestBossDefeated() >= 10;
+    // After Boss 10, forge is always open
+    const ready = campaignComplete || wins >= needed || isForgePending();
 
     const label = document.getElementById('bs-forge-label');
     const fill = document.getElementById('bs-forge-fill');
     const container = document.getElementById('bs-forge-progress');
+    const hint = document.getElementById('bs-forge-hint');
 
     const pct = ready ? 100 : Math.min(100, (wins / needed) * 100);
-    if (label) label.textContent = ready ? 'CARD EDITOR READY \u2014 Tap to customize' : `CARD EDITOR \u00b7 ${wins} / ${needed} wins`;
+    if (campaignComplete) {
+      if (label) label.textContent = 'CARD EDITOR \u2014 Always available';
+      if (hint) hint.textContent = 'Campaign complete — forge whenever you want';
+    } else if (ready) {
+      if (label) label.textContent = 'CARD EDITOR READY \u2014 Tap to customize';
+    } else {
+      if (label) label.textContent = `CARD EDITOR \u00b7 ${Math.floor(wins)} / ${needed} wins`;
+    }
     if (fill) fill.style.width = pct + '%';
     if (container) {
       container.classList.toggle('bs-forge-progress--ready', ready);
@@ -1525,8 +1535,9 @@
         else if (nav === 'campaign') { showScreen('campaign'); renderCampaignLadder(); }
         else if (nav === 'forge') {
           var needed = _config ? _config.forgeVisit.winsRequired : 3;
-          if (getForgeWins() >= needed || isForgePending()) { openForgeScreen(); }
-          else { showErrorToast('Win ' + (needed - getForgeWins()) + ' more campaign fights to unlock the Forge'); }
+          var campaignDone = getHighestBossDefeated() >= 10;
+          if (campaignDone || getForgeWins() >= needed || isForgePending()) { openForgeScreen(); }
+          else { showErrorToast('Win ' + Math.ceil(needed - getForgeWins()) + ' more fights to unlock the Forge'); }
         }
         else if (nav === 'leaderboard') { showScreen('leaderboard'); renderLeaderboard(); }
         else if (nav === 'pvp') {
@@ -2075,6 +2086,11 @@
       }
     }
 
+    // PvP wins grant forge progress
+    if (_battleType === 'pvp' && isWin) {
+      setForgeWins(getForgeWins() + 0.5);
+    }
+
     // PvP Elo update
     if (_battleType === 'pvp') {
       var opponent = _pvpGallery.find(function(c) { return c.id === _pvpOpponentId; });
@@ -2202,11 +2218,14 @@
 
       if (boss && !isWeekly) setHighestBossDefeated(boss.boss);
 
-      // Forge wins on NEW boss defeats + bonus for streaks
+      // Forge progression: any win grants progress, new bosses give more
       if (isNewBossDefeat) {
         let forgeGain = 1;
         if (getWinStreak() >= 5) forgeGain = 2; // Streak bonus
         setForgeWins(getForgeWins() + forgeGain);
+      } else if (!isWeekly) {
+        // Replay wins grant half a forge point (tracked as decimals, rounded on display)
+        setForgeWins(getForgeWins() + 0.5);
       }
 
       // Weekly boss: award stat reward + 2 forge wins on first weekly win
