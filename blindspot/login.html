@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In — Blindspot</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bs-bg: #100C08;
+      --bs-surface: #1a1612;
+      --bs-accent: #EF9F27;
+      --bs-accent-glow: #f0b040;
+      --bs-text: #F5F0E8;
+      --bs-text-muted: #A09888;
+      --bs-border: #2a2420;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bs-bg);
+      color: var(--bs-text);
+      font-family: 'Share Tech Mono', monospace;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .bs-login {
+      text-align: center;
+      max-width: 400px;
+      width: 90%;
+      padding: 2rem;
+      animation: fadeIn 0.6s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .bs-login__logo {
+      font-family: 'Cinzel', serif;
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--bs-accent);
+      letter-spacing: 0.15em;
+      margin-bottom: 0.5rem;
+      text-shadow: 0 0 30px rgba(239, 159, 39, 0.3);
+    }
+
+    .bs-login__subtitle {
+      font-size: 0.8rem;
+      color: var(--bs-text-muted);
+      margin-bottom: 2.5rem;
+    }
+
+    .bs-login__card {
+      background: var(--bs-surface);
+      border: 1px solid var(--bs-border);
+      border-radius: 16px;
+      padding: 2rem 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 0 40px rgba(239, 159, 39, 0.05);
+    }
+
+    .bs-login__heading {
+      font-family: 'Cinzel', serif;
+      font-size: 1rem;
+      color: var(--bs-text);
+      margin-bottom: 0.5rem;
+    }
+
+    .bs-login__desc {
+      font-size: 0.75rem;
+      color: var(--bs-text-muted);
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+
+    .bs-login__btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0.9rem 1.5rem;
+      background: linear-gradient(135deg, #2a2015, #3a2a18);
+      border: 1px solid var(--bs-accent);
+      border-radius: 10px;
+      color: var(--bs-accent);
+      font-family: 'Cinzel', serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 15px rgba(239, 159, 39, 0.15);
+    }
+
+    .bs-login__btn:hover {
+      background: linear-gradient(135deg, #3a2a18, #4a3a22);
+      box-shadow: 0 0 25px rgba(239, 159, 39, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .bs-login__btn i {
+      font-size: 1.1rem;
+    }
+
+    .bs-login__benefits {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      margin-top: 1.25rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid var(--bs-border);
+    }
+
+    .bs-login__benefit {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.7rem;
+      color: var(--bs-text-muted);
+      text-align: left;
+    }
+
+    .bs-login__benefit i {
+      color: var(--bs-accent);
+      width: 16px;
+      text-align: center;
+      font-size: 0.65rem;
+    }
+
+    .bs-login__guest {
+      font-size: 0.75rem;
+      color: var(--bs-text-muted);
+    }
+
+    .bs-login__guest a {
+      color: var(--bs-accent);
+      text-decoration: none;
+      opacity: 0.8;
+    }
+
+    .bs-login__guest a:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+
+    /* Background particles */
+    .bs-login-bg {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      overflow: hidden;
+    }
+
+    .bs-login-bg__ember {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      background: var(--bs-accent);
+      border-radius: 50%;
+      opacity: 0;
+      animation: ember 4s ease-in-out infinite;
+    }
+
+    @keyframes ember {
+      0% { opacity: 0; transform: translateY(0) scale(0.5); }
+      30% { opacity: 0.6; }
+      100% { opacity: 0; transform: translateY(-120px) scale(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="bs-login-bg" id="bs-embers"></div>
+
+  <div class="bs-login">
+    <div class="bs-login__logo">BLINDSPOT</div>
+    <div class="bs-login__subtitle">The arena remembers those who sign in.</div>
+
+    <div class="bs-login__card">
+      <h2 class="bs-login__heading">Enter the Arena</h2>
+      <p class="bs-login__desc">Sign in to save your card, track progress across devices, and unlock PvP.</p>
+
+      <a href="/.auth/login/aad?post_login_redirect_uri=/blindspot/" class="bs-login__btn" id="bs-login-go">
+        <i class="fas fa-shield-halved"></i>
+        Sign in with Microsoft
+      </a>
+
+      <div class="bs-login__benefits">
+        <div class="bs-login__benefit"><i class="fas fa-save"></i> Your card saves to the cloud</div>
+        <div class="bs-login__benefit"><i class="fas fa-fire"></i> Forge upgrades persist across sessions</div>
+        <div class="bs-login__benefit"><i class="fas fa-users"></i> Challenge other players in PvP</div>
+        <div class="bs-login__benefit"><i class="fas fa-crown"></i> Appear on the leaderboard</div>
+      </div>
+    </div>
+
+    <p class="bs-login__guest">
+      <a href="/blindspot/"><i class="fas fa-arrow-left"></i> Back to Blindspot</a>
+      <span style="margin: 0 0.5rem;">·</span>
+      <a href="/blindspot/play.html">Continue as guest</a>
+    </p>
+  </div>
+
+  <script>
+    // Preserve the redirect target if passed via query param
+    (function() {
+      var params = new URLSearchParams(window.location.search);
+      var redirect = params.get('redirect') || '/blindspot/';
+      var loginLink = document.getElementById('bs-login-go');
+      if (loginLink) {
+        loginLink.href = '/.auth/login/aad?post_login_redirect_uri=' + encodeURIComponent(redirect);
+      }
+
+      // Spawn floating embers
+      var container = document.getElementById('bs-embers');
+      for (var i = 0; i < 15; i++) {
+        var ember = document.createElement('div');
+        ember.className = 'bs-login-bg__ember';
+        ember.style.left = (Math.random() * 100) + '%';
+        ember.style.bottom = (Math.random() * 30) + '%';
+        ember.style.animationDelay = (Math.random() * 4) + 's';
+        ember.style.animationDuration = (3 + Math.random() * 3) + 's';
+        container.appendChild(ember);
+      }
+    })();
+  </script>
+</body>
+</html>

@@ -1110,7 +1110,7 @@
     overlay.innerHTML = `
       <p class="bs-overlay__title">You built your card. Now make it real.</p>
       <p class="bs-overlay__subtitle">Sign in to save your card, track your rank, and climb the campaign.</p>
-      <a href="/.auth/login/aad?post_login_redirect_uri=/blindspot/" class="bs-btn bs-btn--primary bs-btn--full bs-btn--glow" style="text-decoration:none; text-align:center; display:block; max-width:320px;">
+      <a href="/blindspot/login.html?redirect=/blindspot/" class="bs-btn bs-btn--primary bs-btn--full bs-btn--glow" style="text-decoration:none; text-align:center; display:block; max-width:320px;">
         <i class="fas fa-sign-in-alt"></i> Sign In to Continue
       </a>
       <button class="bs-btn bs-btn--secondary bs-btn--full" style="margin-top:0.75rem; max-width:320px;" id="bs-demo-replay">
@@ -3909,11 +3909,11 @@
         el.innerHTML = `<i class="fas fa-user-check" style="color:var(--bs-accent); font-size:0.6rem;"></i> ${escHtml(name)} <a href="/.auth/logout?post_logout_redirect_uri=/blindspot/" style="color:var(--bs-text-muted); margin-left:0.5rem; font-size:0.65rem;" title="Sign out"><i class="fas fa-sign-out-alt"></i></a>`;
       } else {
         // Not logged in — show sign in link
-        el.innerHTML = `<a href="/.auth/login/aad?post_login_redirect_uri=/blindspot/play.html" style="color:var(--bs-accent); font-size:0.7rem;"><i class="fas fa-sign-in-alt"></i> Sign in</a>`;
+        el.innerHTML = `<a href="/blindspot/login.html?redirect=/blindspot/play.html" style="color:var(--bs-accent); font-size:0.7rem;"><i class="fas fa-sign-in-alt"></i> Sign in</a>`;
       }
     }).catch(() => {
       // Auth check failed — show sign in link
-      el.innerHTML = `<a href="/.auth/login/aad?post_login_redirect_uri=/blindspot/play.html" style="color:var(--bs-accent); font-size:0.7rem;"><i class="fas fa-sign-in-alt"></i> Sign in</a>`;
+      el.innerHTML = `<a href="/blindspot/login.html?redirect=/blindspot/play.html" style="color:var(--bs-accent); font-size:0.7rem;"><i class="fas fa-sign-in-alt"></i> Sign in</a>`;
     });
   }
 
