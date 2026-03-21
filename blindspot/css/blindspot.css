@@ -2160,6 +2160,79 @@
 }
 
 /* ============================================================
+   QUICK BUILD — CardForge Purple Purge
+   Replace all inherited purple/blue/cool tints with warm theme
+   ============================================================ */
+
+/* Step dots — inactive state */
+.bs-page .qb-step-dot { background: var(--bs-surface); border-color: var(--bs-border); color: var(--bs-text-muted); }
+
+/* Nav buttons — warm theme */
+.bs-page .qb-nav-btn--back { color: var(--bs-text-muted); border-color: var(--bs-border); font-family: 'Share Tech Mono', monospace; }
+.bs-page .qb-nav-btn--back:hover { color: var(--bs-text); border-color: var(--bs-accent-dim); }
+.bs-page .qb-nav-btn--next { font-family: 'Share Tech Mono', monospace; }
+.bs-page .qb-close { color: var(--bs-text-muted); }
+.bs-page .qb-close:hover { color: var(--bs-text); background: rgba(239, 159, 39, 0.08); }
+
+/* Header separator */
+.bs-page .qb-header { border-bottom-color: var(--bs-border); }
+
+/* Panel titles and descriptions */
+.bs-page .qb-panel-title { font-family: 'Cinzel', serif; color: var(--bs-accent); }
+.bs-page .qb-panel-desc { font-family: 'Share Tech Mono', monospace; color: var(--bs-text-muted); }
+
+/* Vibe cards (Step 1) — warm hover/icon/text */
+.bs-page .qb-vibe-card { background: var(--bs-surface); border-color: var(--bs-border); }
+.bs-page .qb-vibe-card:hover { border-color: rgba(239, 159, 39, 0.3); background: rgba(239, 159, 39, 0.05); }
+.bs-page .qb-vibe-card i { color: var(--bs-accent-dim); }
+.bs-page .qb-vibe-label { color: var(--bs-text); }
+.bs-page .qb-vibe-desc { color: var(--bs-text-muted); }
+
+/* Artwork tiles (Step 3) — warm hover/icon/text */
+.bs-page .qb-artwork-tile { background: var(--bs-surface); border-color: var(--bs-border); }
+.bs-page .qb-artwork-tile:hover { border-color: var(--bs-accent-dim); }
+.bs-page .qb-artwork-tile i { color: var(--bs-accent-dim); }
+.bs-page .qb-artwork-tile span { color: var(--bs-text); }
+
+/* Gallery selected image — amber instead of purple */
+.bs-page .qb-gallery-img.selected { border-color: var(--bs-accent); box-shadow: 0 0 12px rgba(239, 159, 39, 0.4); }
+.bs-page .qb-gallery-grid { scrollbar-color: rgba(239, 159, 39, 0.4) transparent; }
+
+/* Style tile hover */
+.bs-page .qb-style-tile:hover { border-color: var(--bs-accent-dim); }
+
+/* AI generate button hover */
+.bs-page .qb-generate-btn:hover { box-shadow: 0 4px 16px rgba(239, 159, 39, 0.4); }
+
+/* Form inputs + textarea (Step 3-4) — warm theme */
+.bs-page .qb-ai-prompt-wrap textarea,
+.bs-page .qb-url-input,
+.bs-page .qb-field input,
+.bs-page .qb-field select {
+  background: var(--bs-surface);
+  border-color: var(--bs-border);
+  color: var(--bs-text);
+  font-family: 'Share Tech Mono', monospace;
+}
+.bs-page .qb-ai-prompt-wrap textarea:focus,
+.bs-page .qb-url-input:focus,
+.bs-page .qb-field input:focus,
+.bs-page .qb-field select:focus {
+  border-color: var(--bs-accent);
+}
+
+/* Form labels — amber instead of purple */
+.bs-page .qb-field label { color: var(--bs-accent-dim); }
+
+/* Stat values — warm text */
+.bs-page .qb-stat-value { color: var(--bs-text); }
+
+/* Stranger intro — must use Cinzel, warm fallbacks */
+.bs-stranger-intro { background: var(--bs-bg, #100C08) !important; }
+.bs-stranger-intro__line { font-family: 'Cinzel', serif; color: var(--bs-text, #F5F0E8); }
+.bs-stranger-intro__line[data-line="1"] { color: var(--bs-accent, #EF9F27); }
+
+/* ============================================================
    QUICK BUILD — Power Step (Two-Column Layout)
    ============================================================ */
 
@@ -4706,10 +4779,10 @@ body.bs-battle-active .bs-bottom-nav {
 }
 
 /* Rarity border colors */
-.bs-reveal-card[data-rarity="uncommon"] { border-color: #4A90A4; box-shadow: 0 0 40px rgba(74, 144, 164, 0.25), 0 20px 60px rgba(0,0,0,0.6); }
-.bs-reveal-card[data-rarity="rare"] { border-color: #6366F1; box-shadow: 0 0 40px rgba(99, 102, 241, 0.25), 0 20px 60px rgba(0,0,0,0.6); }
-.bs-reveal-card[data-rarity="epic"] { border-color: #8B5CF6; box-shadow: 0 0 40px rgba(139, 92, 246, 0.3), 0 20px 60px rgba(0,0,0,0.6); }
-.bs-reveal-card[data-rarity="legendary"] { border-color: #F59E0B; box-shadow: 0 0 50px rgba(245, 158, 11, 0.4), 0 20px 60px rgba(0,0,0,0.6); }
+.bs-reveal-card[data-rarity="uncommon"] { border-color: var(--bs-rarity-uncommon); box-shadow: 0 0 40px rgba(30, 255, 142, 0.2), 0 20px 60px rgba(0,0,0,0.6); }
+.bs-reveal-card[data-rarity="rare"] { border-color: var(--bs-rarity-rare); box-shadow: 0 0 40px rgba(58, 159, 255, 0.25), 0 20px 60px rgba(0,0,0,0.6); }
+.bs-reveal-card[data-rarity="epic"] { border-color: var(--bs-rarity-epic); box-shadow: 0 0 40px rgba(168, 85, 247, 0.3), 0 20px 60px rgba(0,0,0,0.6); }
+.bs-reveal-card[data-rarity="legendary"] { border-color: var(--bs-rarity-legendary); box-shadow: 0 0 50px rgba(251, 191, 36, 0.4), 0 20px 60px rgba(0,0,0,0.6); }
 
 .bs-reveal-card__img {
   width: 100%;
@@ -4989,7 +5062,7 @@ body.bs-battle-active .bs-bottom-nav {
   max-width: 500px;
 }
 .bs-stranger-intro__line {
-  font-family: var(--bs-font-display, 'Inter', sans-serif);
+  font-family: 'Cinzel', serif;
   font-size: 1.5rem;
   font-weight: 600;
   color: var(--bs-text, #e8e8f0);
