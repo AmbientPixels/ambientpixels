@@ -378,6 +378,44 @@
     healDisrupt: 'Healing is halved if the boss strikes you.'
   };
 
+  // Move matchup map — which move beats which (RPS-style)
+  // Key = move, Value = array of moves it beats
+  const MOVE_BEATS = {
+    strike:  ['heal', 'ability'],   // strike disrupts heal, overpowers recovery
+    guard:   ['strike'],            // guard blocks strike
+    ability: ['guard', 'counter'],  // ability breaks through guard and counter
+    heal:    [],                    // heal doesn't "beat" anything offensively
+    counter: ['strike']             // counter reflects strike
+  };
+
+  function getMoveMatchup(playerMove, opponentMove) {
+    if (!playerMove || !opponentMove || playerMove === opponentMove) return 'draw';
+    if (MOVE_BEATS[playerMove] && MOVE_BEATS[playerMove].indexOf(opponentMove) !== -1) return 'win';
+    if (MOVE_BEATS[opponentMove] && MOVE_BEATS[opponentMove].indexOf(playerMove) !== -1) return 'lose';
+    return 'draw';
+  }
+
+  function flashMoveResult(playerMove, opponentMove) {
+    var matchup = getMoveMatchup(playerMove, opponentMove);
+    if (matchup === 'draw') return;
+    var playerBtn = document.querySelector('[data-move="' + playerMove + '"]');
+    var opponentBtn = document.querySelector('[data-move="' + opponentMove + '"]');
+    if (!playerBtn) return;
+    var winClass = 'bs-move-flash--win';
+    var loseClass = 'bs-move-flash--lose';
+    if (matchup === 'win') {
+      playerBtn.classList.add(winClass);
+      if (opponentBtn) opponentBtn.classList.add(loseClass);
+    } else {
+      playerBtn.classList.add(loseClass);
+      if (opponentBtn) opponentBtn.classList.add(winClass);
+    }
+    setTimeout(function () {
+      playerBtn.classList.remove(winClass, loseClass);
+      if (opponentBtn) opponentBtn.classList.remove(winClass, loseClass);
+    }, 600);
+  }
+
   // Tutorial hints for first 3 campaign battles
   const TUTORIAL_MAX_BATTLES = 3;
   const TUTORIAL_ROUND1_HINTS = [
@@ -871,6 +909,8 @@
     if (move && _battleRoundStats.moves.hasOwnProperty(move)) {
       _battleRoundStats.moves[move]++;
     }
+    // Flash move buttons to show RPS matchup result
+    flashMoveResult(roundResult.playerMove, roundResult.opponentMove);
     // Tutorial: show contextual hint about enemy move for first 3 campaign battles
     if (isInTutorialRange() && _battleType === 'pve' && roundResult.opponentMove) {
       var hint = TUTORIAL_COUNTER_HINTS[roundResult.opponentMove];

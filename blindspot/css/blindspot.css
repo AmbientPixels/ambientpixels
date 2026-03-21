@@ -1684,6 +1684,23 @@
 }
 
 /* ============================================================
+   MOVE RESULT FLASH (RPS feedback on move buttons)
+   ============================================================ */
+
+.bs-move-flash--win {
+  box-shadow: 0 0 14px 4px var(--bs-success), inset 0 0 8px var(--bs-success);
+  border-color: var(--bs-success) !important;
+  transition: box-shadow 0.15s ease-out, border-color 0.15s ease-out;
+}
+
+.bs-move-flash--lose {
+  box-shadow: 0 0 14px 4px var(--bs-danger), inset 0 0 8px var(--bs-danger);
+  border-color: var(--bs-danger) !important;
+  opacity: 0.6;
+  transition: box-shadow 0.15s ease-out, border-color 0.15s ease-out, opacity 0.15s ease-out;
+}
+
+/* ============================================================
    PVP UNLOCK
    ============================================================ */
 
