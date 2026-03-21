@@ -2386,6 +2386,40 @@
   .bs-overlay { padding: 1.5rem; }
   .bs-overlay__title { font-size: 1.25rem; }
 
+  /* Battle header — compact on mobile */
+  .bs-page .arena-battle__header {
+    padding: 0.5rem 0.75rem;
+    gap: 0.4rem;
+  }
+  .bs-page .arena-battle__round { font-size: 0.85rem; }
+
+  /* Combatant nameplate — reduce overlap for smaller cards */
+  .bs-page .arena-combatant__nameplate {
+    margin-top: -1.25rem;
+    padding: 0.3rem 0.5rem;
+  }
+  .bs-page .arena-combatant__name { font-size: 0.75rem; }
+
+  /* Combat log — constrain height, compact */
+  .bs-page .arena-battle__log {
+    max-height: 100px;
+    font-size: 0.7rem;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.5rem;
+    border-left-width: 2px;
+  }
+
+  /* HP bar text readable at mobile */
+  .bs-page .arena-hp-bar__text { font-size: 0.65rem; }
+
+  /* Buff chips — allow wrap at mobile */
+  .bs-page .arena-player-buffs {
+    max-width: 100%;
+    flex-wrap: wrap;
+    gap: 0.15rem;
+    max-height: none;
+  }
+
   /* Battle moves — 3+2 grid on tablet/mobile for larger touch targets */
   .bs-page .arena-battle__moves {
     display: grid;
@@ -2452,6 +2486,48 @@
   .bs-forge-stat__value { width: 28px; font-size: 0.85rem; }
   .bs-forge-screen__title { font-size: 1.25rem; }
 
+  /* Battle layout on small phones */
+  .bs-page .arena-battle__header {
+    padding: 0.4rem 0.5rem;
+    gap: 0.3rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .bs-page .arena-battle__round { font-size: 0.8rem; }
+  #bs-combat-help-btn { font-size: 0.7rem !important; }
+  .bs-page #arena-forfeit-btn { font-size: 0.7rem; padding: 0.3rem 0.5rem; }
+
+  /* Combatant — at 480px arena CSS makes these horizontal rows */
+  .bs-page .arena-combatant__nameplate {
+    margin-top: 0;
+    padding: 0.2rem 0.4rem;
+  }
+  .bs-page .arena-combatant__name { font-size: 0.7rem; }
+  .bs-page .arena-combatant__card {
+    min-height: 72px;
+  }
+
+  /* Combat log — tighter on small phones */
+  .bs-page .arena-battle__log {
+    max-height: 80px;
+    font-size: 0.65rem;
+    padding: 0.4rem 0.6rem;
+    line-height: 1.5;
+  }
+
+  /* HP bar text smaller */
+  .bs-page .arena-hp-bar__text { font-size: 0.6rem; }
+
+  /* Hype bar compact */
+  .bs-page .arena-hype-bar {
+    padding: 0.2rem 0.5rem;
+    font-size: 0.65rem;
+  }
+  .bs-page .arena-hype-bar__label { font-size: 0.6rem; }
+
+  /* Buff chips tiny */
+  .bs-page .arena-buff-chip { font-size: 0.55rem; padding: 0.1rem 0.25rem; }
+
   /* Battle on small phones — keep 3+2 grid, bigger touch targets */
   .bs-page .arena-battle__moves {
     display: grid;
@@ -2475,6 +2551,18 @@
   .bs-page .arena-move-btn__stat { font-size: 0.65rem; }
   .bs-tutorial { padding: 0.75rem 1rem; }
   .bs-tutorial__text { font-size: 0.75rem; }
+}
+
+@media (max-width: 375px) {
+  /* Battle screen — prevent overflow on narrowest phones */
+  #bs-screen-battle { padding: 0.5rem; }
+  .bs-page .arena-battle__field { padding: 0.75rem 0.25rem; gap: 0.4rem; }
+  .bs-page .arena-combatant { padding: 0.5rem; gap: 0.5rem; }
+  .bs-page .arena-combatant__card { width: 64px; height: 80px; min-height: 64px; }
+  .bs-page .arena-battle__moves { gap: 0.25rem; }
+  .bs-page .arena-move-btn { min-height: 56px; padding: 0.625rem 0.25rem; }
+  .bs-page .arena-move-btn i { font-size: 1.2rem; }
+  .bs-page .arena-move-btn__label { font-size: 0.75rem; }
 }
 
 @media (max-width: 360px) {
