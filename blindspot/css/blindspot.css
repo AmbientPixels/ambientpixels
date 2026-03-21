@@ -1307,8 +1307,8 @@
 
 .bs-card-flip-container {
   perspective: 1000px;
-  width: 240px;
-  height: 360px;
+  width: 260px;
+  height: 480px;
   margin: 0 auto;
 }
 
@@ -1354,9 +1354,19 @@
   border: none !important;
   border-radius: 12px;
   overflow: hidden;
+  width: 100% !important;
+  height: 100% !important;
+  max-height: 100%;
 }
 .bs-card-flip-back .card-preview-canvas::before {
   display: none !important;
+}
+/* Scale card content to fit flip container */
+.bs-card-flip-back > * {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  border-radius: 12px;
 }
 
 /* ============================================================
