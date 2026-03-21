@@ -940,15 +940,6 @@
     fightBtn.addEventListener('click', async () => {
       fightBtn.disabled = true;
       fightBtn.innerHTML = '<span class="bs-spinner" style="display:inline-block;width:14px;height:14px;"></span> Loading...';
-      // Safety timeout — if nothing happens in 12s, reset the button
-      const fightTimeout = setTimeout(() => {
-        fightBtn.disabled = false;
-        fightBtn.innerHTML = 'Fight';
-        showErrorToast('Connection timed out. Try again.');
-        document.getElementById('bs-landing').style.display = '';
-        document.getElementById('bs-battle-container').style.display = 'none';
-      }, 12000);
-
       if (!isNewPlayer(profile)) {
         window.location.href = '/blindspot/play.html';
         return;
@@ -957,8 +948,17 @@
       // ALL new players fight as The Stranger first
       // Demo users: cardData passed directly (server accepts it)
       // Authenticated users: also pass cardData (server uses it when card isn't in collection)
-      await showStrangerIntro();
-      await startStrangerFight();
+      try {
+        await showStrangerIntro();
+        await startStrangerFight();
+      } catch (err) {
+        console.error('[Blindspot] First fight error:', err);
+        fightBtn.disabled = false;
+        fightBtn.innerHTML = '<i class="fas fa-bolt"></i> Fight';
+        showErrorToast('Failed to start fight. Try again.');
+        document.getElementById('bs-landing').style.display = '';
+        document.getElementById('bs-battle-container').style.display = 'none';
+      }
     });
   }
 
