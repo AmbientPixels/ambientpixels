@@ -14,6 +14,23 @@
   'use strict';
 
   // ============================================================
+  // SAFE LOCALSTORAGE — prevents QuotaExceededError from crashing game
+  // ============================================================
+
+  function safeLSSet(key, value) {
+    try { safeLSSet(key, value); }
+    catch (e) {
+      // Quota exceeded — clear non-essential caches and retry
+      try {
+        localStorage.removeItem('bs-session-stats');
+        localStorage.removeItem('cardforge_saved_cards');
+        localStorage.removeItem('bs-deck');
+        safeLSSet(key, value);
+      } catch {}
+    }
+  }
+
+  // ============================================================
   // CONFIG & STATE
   // ============================================================
 
@@ -61,12 +78,12 @@
   ];
 
   function getPvPElo() { return parseInt(localStorage.getItem('bs-pvp-elo') || ELO_DEFAULT, 10); }
-  function setPvPElo(v) { localStorage.setItem('bs-pvp-elo', Math.max(0, Math.round(v))); }
+  function setPvPElo(v) { safeLSSet('bs-pvp-elo', Math.max(0, Math.round(v))); }
   function getPvPRecord() {
     try { return JSON.parse(localStorage.getItem('bs-pvp-record') || '{"w":0,"l":0}'); }
     catch(e) { return { w: 0, l: 0 }; }
   }
-  function setPvPRecord(rec) { localStorage.setItem('bs-pvp-record', JSON.stringify(rec)); }
+  function setPvPRecord(rec) { safeLSSet('bs-pvp-record', JSON.stringify(rec)); }
 
   function getPvPRank(elo) {
     for (var i = PVP_RANKS.length - 1; i >= 0; i--) {
@@ -647,7 +664,7 @@
   }
   function incrementTutorialBattleCount() {
     var c = getTutorialBattleCount() + 1;
-    localStorage.setItem('bs-tutorial-battle-count', String(c));
+    safeLSSet('bs-tutorial-battle-count', String(c));
     return c;
   }
   function isInTutorialRange() {
@@ -717,12 +734,12 @@
     if (localStorage.getItem('blindspot-onboarded')) return false;
     // Check server profile: selectedCardId means they've built and selected a card
     if (profile && profile.selectedCardId) {
-      localStorage.setItem('blindspot-onboarded', 'true');
+      safeLSSet('blindspot-onboarded', 'true');
       return false;
     }
     // Check XP or wins — any progression means not new
     if (profile && (profile.xp > 0 || (profile.record && profile.record.wins > 0))) {
-      localStorage.setItem('blindspot-onboarded', 'true');
+      safeLSSet('blindspot-onboarded', 'true');
       return false;
     }
     return true;
@@ -731,28 +748,28 @@
   function isDemo() { return _profileData ? (_profileData.isDemo || false) : true; }
 
   function getForgeWins() { return parseInt(localStorage.getItem('bs-wins-to-forge') || '0', 10); }
-  function setForgeWins(n) { localStorage.setItem('bs-wins-to-forge', String(n)); }
+  function setForgeWins(n) { safeLSSet('bs-wins-to-forge', String(n)); }
   function isForgePending() { return localStorage.getItem('bs-forge-pending') === 'true'; }
 
   function getHighestBossDefeated() { return parseInt(localStorage.getItem('bs-highest-boss') || '0', 10); }
   function setHighestBossDefeated(n) {
-    if (n > getHighestBossDefeated()) localStorage.setItem('bs-highest-boss', String(n));
+    if (n > getHighestBossDefeated()) safeLSSet('bs-highest-boss', String(n));
   }
 
   function getForgeVisitCount() { return parseInt(localStorage.getItem('bs-forge-visits') || '0', 10); }
   function incForgeVisitCount() {
     const c = getForgeVisitCount() + 1;
-    localStorage.setItem('bs-forge-visits', String(c));
+    safeLSSet('bs-forge-visits', String(c));
     return c;
   }
 
   // Sparks — universal currency earned from all activities, spent on cosmetics
   function getSparks() { return parseInt(localStorage.getItem('bs-sparks') || '0', 10); }
-  function addSparks(n) { localStorage.setItem('bs-sparks', String(getSparks() + Math.max(0, n))); }
+  function addSparks(n) { safeLSSet('bs-sparks', String(getSparks() + Math.max(0, n))); }
   function spendSparks(n) {
     var current = getSparks();
     if (n > current) return false;
-    localStorage.setItem('bs-sparks', String(current - n));
+    safeLSSet('bs-sparks', String(current - n));
     return true;
   }
   function getPurchasedCosmetics() {
@@ -761,7 +778,7 @@
   }
   function addPurchasedCosmetic(key) {
     var list = getPurchasedCosmetics();
-    if (!list.includes(key)) { list.push(key); localStorage.setItem('bs-purchased-cosmetics', JSON.stringify(list)); }
+    if (!list.includes(key)) { list.push(key); safeLSSet('bs-purchased-cosmetics', JSON.stringify(list)); }
   }
 
   // ── Phase 8: Retention ──
@@ -771,7 +788,7 @@
     var today = new Date().toISOString().slice(0, 10);
     var last = localStorage.getItem('bs-last-daily') || '';
     if (last === today) return false;
-    localStorage.setItem('bs-last-daily', today);
+    safeLSSet('bs-last-daily', today);
     addSparks(10);
     showSuccessToast('Daily bonus: +10 Sparks!');
     return true;
@@ -803,7 +820,7 @@
     var charms = getOwnedCharms();
     var idx = charms.indexOf(charmId);
     if (idx >= 0) charms.splice(idx, 1);
-    localStorage.setItem('bs-charms', JSON.stringify(charms));
+    safeLSSet('bs-charms', JSON.stringify(charms));
   }
 
   function getCharmDef(charmId) {
@@ -953,7 +970,7 @@
     catch(e) { return {}; }
   }
   function setEquipped(equipped) {
-    localStorage.setItem('bs-equipped', JSON.stringify(equipped));
+    safeLSSet('bs-equipped', JSON.stringify(equipped));
   }
   function equipCosmetic(slot, itemId) {
     var eq = getEquipped();
@@ -1135,13 +1152,13 @@
   function addCrate(type) {
     var crates = getCrates();
     crates.push({ type: type, earned: Date.now() });
-    localStorage.setItem('bs-crates', JSON.stringify(crates));
+    safeLSSet('bs-crates', JSON.stringify(crates));
     return crates.length;
   }
   function removeCrate(index) {
     var crates = getCrates();
     if (index >= 0 && index < crates.length) crates.splice(index, 1);
-    localStorage.setItem('bs-crates', JSON.stringify(crates));
+    safeLSSet('bs-crates', JSON.stringify(crates));
   }
   function getCrateCount() { return getCrates().length; }
 
@@ -1149,7 +1166,7 @@
   function getCrateWinCounter() { return parseInt(localStorage.getItem('bs-crate-win-counter') || '0', 10); }
   function incCrateWinCounter() {
     var c = getCrateWinCounter() + 1;
-    localStorage.setItem('bs-crate-win-counter', String(c));
+    safeLSSet('bs-crate-win-counter', String(c));
     return c;
   }
 
@@ -1168,7 +1185,7 @@
   function checkBattleCrate() {
     var count = incCrateWinCounter();
     if (count >= 5) {
-      localStorage.setItem('bs-crate-win-counter', '0');
+      safeLSSet('bs-crate-win-counter', '0');
       awardCrate('battle');
     }
   }
@@ -1291,13 +1308,13 @@
       var cosmetics = [];
       try { cosmetics = JSON.parse(localStorage.getItem('bs-cosmetics') || '[]'); } catch(e) {}
       if (!cosmetics.includes(item.id)) cosmetics.push(item.id);
-      localStorage.setItem('bs-cosmetics', JSON.stringify(cosmetics));
+      safeLSSet('bs-cosmetics', JSON.stringify(cosmetics));
     } else if (item.slot === 'charm') {
       // Add to charms inventory
       var charms = [];
       try { charms = JSON.parse(localStorage.getItem('bs-charms') || '[]'); } catch(e) {}
       charms.push(item.id);
-      localStorage.setItem('bs-charms', JSON.stringify(charms));
+      safeLSSet('bs-charms', JSON.stringify(charms));
     } else if (item.title) {
       setCardTitle(item.title);
     }
@@ -1430,7 +1447,7 @@
       if (!data[bossId]) data[bossId] = { wins: 0, losses: 0 };
       if (isWin) data[bossId].wins++;
       else data[bossId].losses++;
-      localStorage.setItem('bs-boss-records', JSON.stringify(data));
+      safeLSSet('bs-boss-records', JSON.stringify(data));
     } catch (e) { console.warn('recordBossResult error:', e); }
   }
 
@@ -1493,7 +1510,7 @@
         showToast(t.label + ' Mastery: ' + boss.name + (t.statBonus ? ' — +' + t.statBonus + ' ' + (WEAKNESS_LABELS[boss.weakness] || '') : '') + (t.titleSuffix ? ' — Title: ' + boss.name + t.titleSuffix : '') + (t.sparks ? ' — +' + t.sparks + ' Sparks' : ''), 'success');
       }
     }
-    localStorage.setItem('bs-mastery-claimed', JSON.stringify(claimed));
+    safeLSSet('bs-mastery-claimed', JSON.stringify(claimed));
   }
 
   // ============================================================
@@ -1542,29 +1559,29 @@
 
   // Win streak
   function getWinStreak() { return parseInt(localStorage.getItem('bs-win-streak') || '0', 10); }
-  function setWinStreak(n) { localStorage.setItem('bs-win-streak', String(n)); }
+  function setWinStreak(n) { safeLSSet('bs-win-streak', String(n)); }
 
   // Best win streak
   function getBestStreak() { return parseInt(localStorage.getItem('bs-best-streak') || '0', 10); }
   function setBestStreak(n) {
-    if (n > getBestStreak()) localStorage.setItem('bs-best-streak', String(n));
+    if (n > getBestStreak()) safeLSSet('bs-best-streak', String(n));
   }
 
   // Card title (earned from boss milestones)
 
   // Ascension system
   function getAscension() { return parseInt(localStorage.getItem('bs-ascension') || '0', 10); }
-  function setAscension(n) { localStorage.setItem('bs-ascension', String(n)); }
+  function setAscension(n) { safeLSSet('bs-ascension', String(n)); }
 
   function getCardTitle() { return localStorage.getItem('bs-card-title') || ''; }
-  function setCardTitle(t) { localStorage.setItem('bs-card-title', t); }
+  function setCardTitle(t) { safeLSSet('bs-card-title', t); }
 
   // Infinite Tower state
   function getTowerFloor() { return parseInt(localStorage.getItem('bs-tower-floor') || '0', 10); }
-  function setTowerFloor(n) { localStorage.setItem('bs-tower-floor', String(n)); }
+  function setTowerFloor(n) { safeLSSet('bs-tower-floor', String(n)); }
   function getTowerBest() { return parseInt(localStorage.getItem('bs-tower-best') || '0', 10); }
   function setTowerBest(n) {
-    if (n > getTowerBest()) localStorage.setItem('bs-tower-best', String(n));
+    if (n > getTowerBest()) safeLSSet('bs-tower-best', String(n));
   }
   function isTowerUnlocked() { return getAscension() >= 5; }
   function getTowerBossForFloor(floor) {
@@ -1593,7 +1610,7 @@
     var claimed = getTowerClaimedFloors();
     if (!claimed.includes(floor)) {
       claimed.push(floor);
-      localStorage.setItem('bs-tower-claimed', JSON.stringify(claimed));
+      safeLSSet('bs-tower-claimed', JSON.stringify(claimed));
     }
   }
 
@@ -1606,7 +1623,7 @@
     const claimed = getClaimedRewards();
     if (!claimed.includes(bossId)) {
       claimed.push(bossId);
-      localStorage.setItem('bs-claimed-rewards', JSON.stringify(claimed));
+      safeLSSet('bs-claimed-rewards', JSON.stringify(claimed));
     }
   }
   function isRewardClaimed(bossId) {
@@ -1623,7 +1640,7 @@
     const unlocks = getUnlockedVisuals();
     if (!unlocks.includes(key)) {
       unlocks.push(key);
-      localStorage.setItem('bs-visual-unlocks', JSON.stringify(unlocks));
+      safeLSSet('bs-visual-unlocks', JSON.stringify(unlocks));
     }
   }
   function hasVisualUnlock(key) {
@@ -1672,7 +1689,7 @@
     rec.week = getWeeklyBossKey();
     if (isWin) rec.wins++;
     else rec.losses++;
-    localStorage.setItem('bs-weekly-boss', JSON.stringify(rec));
+    safeLSSet('bs-weekly-boss', JSON.stringify(rec));
   }
 
   function isWeeklyRewardClaimed() {
@@ -1682,7 +1699,7 @@
   function claimWeeklyReward() {
     var rec = getWeeklyRecord();
     rec.rewardClaimed = true;
-    localStorage.setItem('bs-weekly-boss', JSON.stringify(rec));
+    safeLSSet('bs-weekly-boss', JSON.stringify(rec));
   }
 
   function getDaysUntilWeeklyReset() {
@@ -1799,8 +1816,8 @@
     try {
       const data = await window.ArenaAPI.loadCards();
       var cards = data.userCards || [];
-      // Cache deck to localStorage — non-critical, don't let it break card loading
-      try { if (cards.length > 0) setDeck(cards); } catch {}
+      // Cache deck to localStorage for quick access
+      if (cards.length > 0) setDeck(cards);
       return cards;
     } catch (e) {
       console.warn('[Blindspot] Could not load cards:', e);
@@ -1823,17 +1840,7 @@
   }
 
   function setDeck(cards) {
-    try {
-      localStorage.setItem('bs-deck', JSON.stringify(cards));
-    } catch (e) {
-      // Quota exceeded — clear non-essential caches and retry once
-      try {
-        localStorage.removeItem('bs-deck');
-        localStorage.removeItem('bs-session-stats');
-        localStorage.removeItem('cardforge_saved_cards');
-        localStorage.setItem('bs-deck', JSON.stringify(cards));
-      } catch {}
-    }
+    safeLSSet('bs-deck', JSON.stringify(cards));
   }
 
   function getDeckSize() { return getDeck().length; }
@@ -1907,7 +1914,7 @@
       // Update selected card
       _selectedCard = nextCard;
       ensureCombatStats(_selectedCard);
-      localStorage.setItem('bs-selected-card-id', _selectedCard.id);
+      safeLSSet('bs-selected-card-id', _selectedCard.id);
 
       // Remove slide-out, render new card, add slide-in
       cardEl.classList.remove(outClass);
@@ -2072,7 +2079,7 @@
 
       _selectedCard = targetCard;
       ensureCombatStats(_selectedCard);
-      localStorage.setItem('bs-selected-card-id', _selectedCard.id);
+      safeLSSet('bs-selected-card-id', _selectedCard.id);
       renderDeckManagement();
     };
   }
@@ -2461,7 +2468,7 @@
     return new Promise(resolve => {
       // Only show intro on first stranger fight
       if (localStorage.getItem('bs-stranger-intro-shown')) { resolve(); return; }
-      localStorage.setItem('bs-stranger-intro-shown', 'true');
+      safeLSSet('bs-stranger-intro-shown', 'true');
 
       // Fade out landing screen
       const landing = document.getElementById('bs-landing');
@@ -2534,12 +2541,12 @@
       updateCombatTooltips();
       // Show combat guide on very first battle
       if (!localStorage.getItem('bs-combat-guide-shown')) {
-        localStorage.setItem('bs-combat-guide-shown', 'true');
+        safeLSSet('bs-combat-guide-shown', 'true');
         showOverlay('bs-combat-guide');
       }
       // Only show tutorial on first attempt (not on retries after losing)
       if (!localStorage.getItem('bs-tutorial-shown')) {
-        localStorage.setItem('bs-tutorial-shown', 'true');
+        safeLSSet('bs-tutorial-shown', 'true');
         showStrangerTutorial();
       }
     } catch (err) {
@@ -2591,7 +2598,7 @@
       if (cardId) {
         window.ArenaAPI.selectCard(cardId).catch(e => console.warn('selectCard:', e));
       }
-      localStorage.setItem('blindspot-onboarded', 'true');
+      safeLSSet('blindspot-onboarded', 'true');
       showCardRevealCelebration(cardId);
     });
   }
@@ -2610,7 +2617,7 @@
           var cards = data.userCards || [];
           cards.forEach(function(c) { addCardToDeck(c); });
           // Select the new card
-          localStorage.setItem('bs-selected-card-id', cardId);
+          safeLSSet('bs-selected-card-id', cardId);
           window.location.href = '/blindspot/play.html';
         }).catch(function() {
           window.location.href = '/blindspot/play.html';
@@ -2743,7 +2750,7 @@
   }
 
   function handleFirstRealFightResult(battleResult, battleData) {
-    localStorage.setItem('blindspot-onboarded', 'true');
+    safeLSSet('blindspot-onboarded', 'true');
     const isWin = battleResult.winner === 'player';
     if (isWin) setForgeWins(1);
     showForgeProgressInResults();
@@ -2845,9 +2852,9 @@
 
     // Sync Blindspot boss progress from server BEFORE rendering (authoritative source)
     if (profile.pveProgress && profile.pveProgress.blindspotHighestDefeated !== undefined) {
-      localStorage.setItem('bs-highest-boss', String(profile.pveProgress.blindspotHighestDefeated - 100));
+      safeLSSet('bs-highest-boss', String(profile.pveProgress.blindspotHighestDefeated - 100));
     } else {
-      localStorage.setItem('bs-highest-boss', '0');
+      safeLSSet('bs-highest-boss', '0');
     }
 
     renderLobby();
@@ -2857,7 +2864,7 @@
 
     // Post-Quick-Build onboarding: show 3-step welcome on first lobby visit
     if (params.get('firstFight') !== 'true' && !localStorage.getItem('bs-onboarded-lobby')) {
-      localStorage.setItem('bs-onboarded-lobby', 'true');
+      safeLSSet('bs-onboarded-lobby', 'true');
       showLobbyOnboarding();
     }
   }
@@ -3451,7 +3458,7 @@
 
     // Forge overlays
     document.getElementById('bs-forge-now')?.addEventListener('click', () => { hideOverlay('bs-forge-trigger'); openForgeScreen(); });
-    document.getElementById('bs-forge-later')?.addEventListener('click', () => { hideOverlay('bs-forge-trigger'); localStorage.setItem('bs-forge-pending', 'true'); updateForgeProgress(); });
+    document.getElementById('bs-forge-later')?.addEventListener('click', () => { hideOverlay('bs-forge-trigger'); safeLSSet('bs-forge-pending', 'true'); updateForgeProgress(); });
     document.getElementById('bs-forge-unlock-btn')?.addEventListener('click', () => { hideOverlay('bs-forge-unlock'); openForgeScreen(true); });
 
     // Architect win
@@ -4168,7 +4175,7 @@
       // Track wins for win2 bounty
       const bountyData = getDailyBounties();
       bountyData.wins = (bountyData.wins || 0) + 1;
-      localStorage.setItem('bs-bounties', JSON.stringify(bountyData));
+      safeLSSet('bs-bounties', JSON.stringify(bountyData));
       if (bountyData.wins >= 2) completeBounty('win2');
       // Battle crate: every 5 wins
       checkBattleCrate();
@@ -4279,7 +4286,7 @@
       // Forge unlock at Silver rank-up
       if (battleResult.rankUp && _profile && _profile.rank === 'silver') {
         if (!localStorage.getItem('bs-forge-unlock-shown')) {
-          localStorage.setItem('bs-forge-unlock-shown', 'true');
+          safeLSSet('bs-forge-unlock-shown', 'true');
           setTimeout(() => {
             document.getElementById('arena-results-overlay').style.display = 'none';
             showOverlay('bs-forge-unlock');
@@ -5594,7 +5601,7 @@
   }
 
   function saveChallengeProgress(data) {
-    localStorage.setItem('bs-challenges', JSON.stringify(data));
+    safeLSSet('bs-challenges', JSON.stringify(data));
   }
 
   function getChallengeCurrentValue(ch) {
@@ -5698,12 +5705,12 @@
 
   function incrementTotalWins() {
     var v = parseInt(localStorage.getItem('bs-total-wins') || '0', 10);
-    localStorage.setItem('bs-total-wins', String(v + 1));
+    safeLSSet('bs-total-wins', String(v + 1));
   }
 
   function incrementTotalBounties() {
     var v = parseInt(localStorage.getItem('bs-total-bounties') || '0', 10);
-    localStorage.setItem('bs-total-bounties', String(v + 1));
+    safeLSSet('bs-total-bounties', String(v + 1));
   }
 
   function renderChallenges() {
@@ -5786,7 +5793,7 @@
       toggle.onclick = function() {
         var isHidden = list.style.display === 'none';
         list.style.display = isHidden ? '' : 'none';
-        localStorage.setItem('bs-challenges-collapsed', isHidden ? 'false' : 'true');
+        safeLSSet('bs-challenges-collapsed', isHidden ? 'false' : 'true');
       };
     }
   }
@@ -5811,7 +5818,7 @@
       const shuffled = [...BOUNTY_POOL].sort(() => Math.random() - 0.5);
       const bounties = shuffled.slice(0, 3).map(b => ({ ...b, done: false }));
       const data = { date: today, bounties, fights: 0 };
-      localStorage.setItem('bs-bounties', JSON.stringify(data));
+      safeLSSet('bs-bounties', JSON.stringify(data));
       return data;
     }
     return stored;
@@ -5834,7 +5841,7 @@
         });
       }
     }
-    localStorage.setItem('bs-bounties', JSON.stringify(data));
+    safeLSSet('bs-bounties', JSON.stringify(data));
     if (completed) {
       incrementTotalBounties();
       // Grant bounty rewards
@@ -5989,7 +5996,7 @@
         cleaned = true;
       }
       if (cleaned) {
-        localStorage.setItem('cardforge_saved_cards', JSON.stringify(cards));
+        safeLSSet('cardforge_saved_cards', JSON.stringify(cards));
         console.log('[Blindspot] Cleaned localStorage: removed rendered HTML from saved cards');
       }
     } catch (e) {
@@ -6093,7 +6100,7 @@
     setAscension(newLevel);
     awardCrate('ascension');
     // Reset boss progress but keep stats/visuals/rank
-    localStorage.setItem('bs-highest-boss', '0');
+    safeLSSet('bs-highest-boss', '0');
     localStorage.removeItem('bs-boss-records');
     localStorage.removeItem('bs-mastery-claimed');
     // Unlock ascension visual reward
