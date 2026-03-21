@@ -2147,27 +2147,25 @@
     } catch (err) {
       console.error('[Blindspot] Campaign battle error:', err);
       if (err.message && err.message.includes('not found')) {
-        // Card doesn't exist on server — try reloading before giving up
-        console.warn('[Blindspot] Card not found, attempting recovery...');
+        // Card not found by ID — retry with full cardData (bypasses server card lookup)
+        console.warn('[Blindspot] Card not found by ID, retrying with cardData...');
         try {
-          const recoveryCards = await loadUserCards();
-          if (recoveryCards.length > 0) {
-            _selectedCard = recoveryCards[0];
-            ensureCombatStats(_selectedCard);
-            showErrorToast('Card reloaded. Try again.');
-            showScreen('lobby');
-            renderLobby();
-            return;
-          }
-        } catch (recoveryErr) {
-          console.warn('[Blindspot] Recovery failed:', recoveryErr);
+          const retryData = await window.ArenaAPI.startBattle('pve', _selectedCard.id, bossId, { cardData: _selectedCard });
+          _activeBattle = retryData;
+          window.ArenaBattleUI.initBattle(retryData);
+          updateCombatTooltips();
+          applyBattlePalette();
+          showBattleHint('round1');
+          return;
+        } catch (retryErr) {
+          console.warn('[Blindspot] cardData retry also failed:', retryErr.message || retryErr);
         }
-        // Final fallback — rebuild card
-        showErrorToast('Card not found. Please rebuild your card.');
-        localStorage.removeItem('blindspot-onboarded');
-        setTimeout(() => { window.location.href = '/blindspot/'; }, 2000);
+        // If both attempts fail, go back to lobby
+        showErrorToast('Could not start battle. Try refreshing the page.');
+        showScreen('lobby');
+        renderLobby();
       } else {
-        showErrorToast('Failed to start battle: ' + err.message);
+        showErrorToast('Battle error: ' + err.message);
         showScreen('campaign');
       }
     }
