@@ -1223,7 +1223,7 @@
   // CRATE OPENING CEREMONY
   // ============================================================
 
-  var RARITY_COLORS = {
+  var CRATE_RARITY_COLORS = {
     common: 'var(--bs-text)', uncommon: '#4ade80', rare: '#60a5fa', epic: '#a855f7'
   };
 
@@ -1322,7 +1322,7 @@
     overlay.setAttribute('role', 'dialog');
     overlay.setAttribute('aria-label', 'Opening ' + crateDef.name);
 
-    var rarityColor = RARITY_COLORS[wonItem.rarity] || 'var(--bs-text)';
+    var rarityColor = CRATE_RARITY_COLORS[wonItem.rarity] || 'var(--bs-text)';
 
     overlay.innerHTML = '<div class="bs-crate-stage">'
       // Crate icon (clickable)
@@ -1335,7 +1335,7 @@
       + '<div class="bs-crate-reel" id="bs-crate-reel" style="display:none;">'
       + '<div class="bs-crate-strip" id="bs-crate-strip">'
       + reelItems.map(function(item) {
-          var rc = RARITY_COLORS[item.rarity] || 'var(--bs-text)';
+          var rc = CRATE_RARITY_COLORS[item.rarity] || 'var(--bs-text)';
           return '<div class="bs-crate-tile" style="border-color:' + rc + ';">'
             + '<i class="fas ' + escHtml(item.icon || 'fa-gift') + '" style="color:' + rc + ';"></i>'
             + '<span>' + escHtml(item.name || '???') + '</span>'
@@ -3543,6 +3543,7 @@
     var weeklyBoss = getWeeklyBoss();
     var daysLeft = getDaysUntilWeeklyReset();
     var weeklyHtml = '';
+    if (weeklyBoss) {
     var weeklyRec = getWeeklyRecord();
     var wDefeated = weeklyRec.wins > 0;
     var wRecord = weeklyRec;
@@ -3581,6 +3582,7 @@
       + '</div>'
       + '</div>'
       + '</div>';
+    } // end if (weeklyBoss)
 
     var campaignBosses = _bosses.filter(function (b) { return !b.weekly && !isWeeklyBoss(b.id); });
     container.innerHTML = weeklyHtml + campaignBosses.map((boss, i) => {

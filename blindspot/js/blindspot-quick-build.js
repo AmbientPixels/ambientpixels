@@ -409,12 +409,12 @@
         _state.customStats[key] = clamped;
         slider.value = clamped;
         slider.style.setProperty('--fill', clamped + '%');
-        const display = slider.closest('.qb-stat-row').querySelector('.qb-stat-value');
+        const display = slider.closest('.bs-stat-row').querySelector('.qb-stat-value');
         if (display) display.textContent = clamped;
 
         const spent = STAT_DEFS.reduce((sum, d) => sum + (_state.customStats[d.key] || 0), 0);
         const remaining = STAT_BUDGET - spent;
-        const budgetEl = document.querySelector('.qb-stats-budget');
+        const budgetEl = document.querySelector('.bs-stats-budget');
         if (budgetEl) {
           budgetEl.textContent = `${remaining} / ${STAT_BUDGET}`;
           budgetEl.classList.toggle('over', remaining < 0);
