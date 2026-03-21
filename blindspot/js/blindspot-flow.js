@@ -3070,8 +3070,17 @@
     const params = new URLSearchParams(window.location.search);
     if (params.get('firstFight') === 'true' && _selectedCard) {
       _isFirstRealFight = true;
-      const titleEl = document.getElementById('bs-prefight-title');
+      var firstBoss = _bosses[0];
+      var titleEl = document.getElementById('bs-prefight-title');
+      var avatarEl = document.getElementById('bs-prefight-avatar');
+      var flavorEl = document.getElementById('bs-prefight-flavor');
       if (titleEl) titleEl.textContent = 'Your first real test.';
+      if (avatarEl && firstBoss) {
+        avatarEl.innerHTML = firstBoss.avatar
+          ? '<img src="' + firstBoss.avatar + '" alt="' + (firstBoss.name || 'Boss') + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">'
+          : '<i class="fas fa-skull"></i>';
+      }
+      if (flavorEl && firstBoss) flavorEl.textContent = firstBoss.flavorText || '';
       showOverlay('bs-prefight-overlay');
       document.getElementById('bs-prefight-go')?.addEventListener('click', async () => {
         hideOverlay('bs-prefight-overlay');
