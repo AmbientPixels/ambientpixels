@@ -335,6 +335,38 @@
   content: none !important;
 }
 
+/* Social proof counters */
+.bs-social-proof {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  justify-content: center;
+  font-size: 0.75rem;
+  color: var(--bs-text-muted);
+  margin-top: 0.75rem;
+}
+
+.bs-social-proof__stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.bs-social-proof__stat strong {
+  color: var(--bs-accent);
+  font-family: 'Share Tech Mono', monospace;
+}
+
+.bs-social-proof__stat i {
+  color: var(--bs-accent-dim);
+  font-size: 0.65rem;
+}
+
+.bs-social-proof__dot {
+  color: var(--bs-border);
+  user-select: none;
+}
+
 /* Landing footer badges */
 .bs-landing__footer {
   display: flex;
@@ -3073,6 +3105,7 @@
   .bs-stranger-card__icon { font-size: 2.25rem; }
   .bs-landing__headline { font-size: 0.85rem; }
   .bs-landing__subline { font-size: 0.95rem; }
+  .bs-social-proof { font-size: 0.65rem; gap: 0.4rem; }
   .bs-landing__footer { gap: 0.5rem; }
   .bs-landing__badge { font-size: 0.6rem; padding: 0.25rem 0.5rem; }
   .bs-btn { padding: 0.75rem 1.5rem; font-size: 0.875rem; }

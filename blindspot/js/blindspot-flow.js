@@ -2424,6 +2424,18 @@
     // Update auth UI on landing page
     updateLandingAuthUI();
 
+    // Social proof counters — seed + player's own stats
+    var proofBattles = document.getElementById('bs-proof-battles');
+    var proofCards = document.getElementById('bs-proof-cards');
+    if (proofBattles && proofCards) {
+      var baseBattles = 12847;
+      var baseCards = 3291;
+      var playerWins = parseInt(localStorage.getItem('bs-total-wins') || '0', 10);
+      var playerForge = parseInt(localStorage.getItem('bs-forge-visits') || '0', 10);
+      proofBattles.textContent = (baseBattles + playerWins).toLocaleString();
+      proofCards.textContent = (baseCards + playerForge).toLocaleString();
+    }
+
     fightBtn.addEventListener('click', async () => {
       fightBtn.disabled = true;
       fightBtn.innerHTML = '<span class="bs-spinner" style="display:inline-block;width:14px;height:14px;"></span> Loading...';
