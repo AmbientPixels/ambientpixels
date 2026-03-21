@@ -2865,8 +2865,8 @@
             <button class="bs-forge-avt-tab" data-avt-tab="url" style="flex:1; padding:0.3rem; font-size:0.65rem; border:1px solid var(--bs-border); border-radius:6px; background:var(--bs-surface-2); color:var(--bs-text-muted); cursor:pointer;"><i class="fas fa-link"></i> URL</button>
           </div>
           <div id="bs-forge-avt-gallery" class="bs-forge-avt-content">
-            <div class="bs-forge-avatar-grid" id="bs-forge-avatar-grid" style="display:grid; grid-template-columns:repeat(4, 1fr); gap:0.4rem;">
-              <div style="grid-column:1/-1; text-align:center; color:var(--bs-text-muted); font-size:0.7rem; padding:1rem;"><i class="fas fa-spinner fa-spin"></i> Loading your cards...</div>
+            <div id="bs-forge-avatar-grid" style="min-height:120px;">
+              <div style="text-align:center; color:var(--bs-text-muted); font-size:0.7rem; padding:1rem;"><i class="fas fa-spinner fa-spin"></i> Loading your cards...</div>
             </div>
           </div>
           <div id="bs-forge-avt-ai" class="bs-forge-avt-content" style="display:none;">
@@ -3197,13 +3197,36 @@
         { src: '/images/image-packs/characters/hero03.jpg', label: 'Hero III' }
       ].forEach(function(a) { if (!avatars.find(function(x) { return x.src === a.src; })) avatars.push(a); });
       if (avatars.length === 0) {
-        grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:var(--bs-text-muted); font-size:0.7rem; padding:1rem;">No cards yet. Use AI Generate or paste a URL.</div>';
+        grid.innerHTML = '<div style="text-align:center; color:var(--bs-text-muted); font-size:0.7rem; padding:1rem;">No cards yet. Use AI Generate or paste a URL.</div>';
         return;
       }
-      grid.innerHTML = avatars.map(function(a) {
-        return '<button class="bs-forge-avatar-pick" data-avatar-src="' + escHtml(a.src) + '" title="' + escHtml(a.label) + '" style="width:100%; aspect-ratio:1; border:2px solid var(--bs-border); border-radius:8px; overflow:hidden; background:var(--bs-surface); cursor:pointer; padding:0;"><img src="' + escHtml(a.src) + '" alt="' + escHtml(a.label) + '" style="width:100%; height:100%; object-fit:cover;" loading="lazy"></button>';
-      }).join('');
-      bindAvatarPicks();
+      // Paginated gallery — 8 per page
+      var PAGE_SIZE = 8;
+      var _galleryPage = 0;
+      var totalPages = Math.ceil(avatars.length / PAGE_SIZE);
+      function renderGalleryPage() {
+        var start = _galleryPage * PAGE_SIZE;
+        var page = avatars.slice(start, start + PAGE_SIZE);
+        var html = '<div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:0.4rem;">';
+        html += page.map(function(a) {
+          return '<button class="bs-forge-avatar-pick" data-avatar-src="' + escHtml(a.src) + '" title="' + escHtml(a.label) + '" style="width:100%; aspect-ratio:1; border:2px solid var(--bs-border); border-radius:8px; overflow:hidden; background:var(--bs-surface); cursor:pointer; padding:0;"><img src="' + escHtml(a.src) + '" alt="' + escHtml(a.label) + '" style="width:100%; height:100%; object-fit:cover;" loading="lazy"></button>';
+        }).join('');
+        html += '</div>';
+        if (totalPages > 1) {
+          html += '<div style="display:flex; align-items:center; justify-content:center; gap:0.75rem; margin-top:0.5rem;">';
+          html += '<button class="bs-btn bs-btn--small" id="bs-avt-prev" style="padding:0.2rem 0.5rem; font-size:0.65rem;"' + (_galleryPage <= 0 ? ' disabled' : '') + '><i class="fas fa-chevron-left"></i></button>';
+          html += '<span style="font-size:0.65rem; color:var(--bs-text-muted);">' + (_galleryPage + 1) + ' / ' + totalPages + '</span>';
+          html += '<button class="bs-btn bs-btn--small" id="bs-avt-next" style="padding:0.2rem 0.5rem; font-size:0.65rem;"' + (_galleryPage >= totalPages - 1 ? ' disabled' : '') + '><i class="fas fa-chevron-right"></i></button>';
+          html += '</div>';
+        }
+        grid.innerHTML = html;
+        bindAvatarPicks();
+        var prevBtn = document.getElementById('bs-avt-prev');
+        var nextBtn = document.getElementById('bs-avt-next');
+        if (prevBtn) prevBtn.addEventListener('click', function() { if (_galleryPage > 0) { _galleryPage--; renderGalleryPage(); } });
+        if (nextBtn) nextBtn.addEventListener('click', function() { if (_galleryPage < totalPages - 1) { _galleryPage++; renderGalleryPage(); } });
+      }
+      renderGalleryPage();
     })();
 
     // AI Generate
