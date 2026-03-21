@@ -1,23 +1,34 @@
-# Loop Checkpoint — 2026-03-20 (iterations 65-69)
+# Loop Checkpoint — 2026-03-21 (iterations 70-76)
 
 ## Built
-1. **Mobile lobby layout (375px)** — stats flex-wrap, stat bar estimates hidden, passives max-width, touch targets
-2. **Mobile battle layout (375-480px)** — compact header, nameplate overlap fix, combat log constrained, 3+2 move grid
-3. **Mobile forge overlay** — scrollable viewport, 28px slider thumbs, 44px tabs/buttons, compact card preview
-4. **Mobile campaign + overlays** — compact boss cards, scrollable pre-fight with stat comparison, vertical loot stack, compact How to Play/results/guides
-5. **Forge sticky Cancel/Forge buttons** — moved actions outside scrollable area into flex-pinned footer with border-top separator, replacing 5rem padding workaround
-
-## Skipped
-- None
+1. **Card rarity system** — Common→Legendary tied to forge visits, border glow per tier
+2. **Move result feedback** — green/red glow on move buttons (already implemented)
+3. **Loss screen with rematch + advice** — data-driven tips + prominent Rematch button
+4. **Pre-fight boss pattern hint** — CLASS_PATTERNS map showing boss tendencies
+5. **Post-Quick-Build onboarding** — 3-step spotlight guide for new players
+6. **First-battle tutorial hints** — contextual tips for first 3 campaign battles
+7. **Boss adaptive scaling** — server-side power scaling (already implemented)
+8. **Forge stat budget cap** — total power capped at 400
+9. **Boss mastery stars** — bronze/silver/gold tiers at 3/5/10 wins
+10. **Streak rewards** — sparks bonus + milestone rewards at 5/10/15
+11. **Next unlock teasers** — contextual micro-goal hints in lobby/campaign/forge
+12. **Class signature moves** — 10 unique ability names per class with icons
+13. **Loot crate data model** — 5 crate types, 3 loot tables, 10 drop pools
 
 ## Concerns
-1. **Forge CSS still uses ID+class selectors** (`#bs-forge-screen .bs-forge-screen`, `#bs-forge-screen .bs-forge-layout`) — task 4c addresses this next
-2. **No real-device visual testing** — player simulator passes but actual 375px rendering hasn't been verified by a human. The forge sticky footer especially needs manual check on a real phone.
-3. **Forge HTML restructure** — moved `.bs-forge-actions` from inside `.bs-forge-editor` to sibling of `.bs-forge-layout`. Changes DOM nesting. No JS traversals found that depend on the old nesting, but worth noting.
+1. **Uncommitted JS has wrong config path**: `blindspot-flow.js` has ~60 lines referencing `_config.crates.crateTypes` but game-config.json uses `_config.crates.types`. Fix in task 18.
+2. **Uncommitted HTML**: `play.html` has crate indicator div not wired to working code. Fix in task 18.
+3. **Raw hex in RARITY_TIERS** (JS lines 477-480): `#1eff8e`, `#3a9fff`, `#a855f7`, `#fbbf24`. Low risk — JS-only, not CSS. Accept or add `--bs-rarity-*` tokens later.
+4. **149 raw hex colors in smoke test**: Long-standing, mostly JS canvas/dynamic styling. Acceptable.
+5. **CSS classes referenced in game-config.json don't exist yet**: `bs-frame--*`, `bs-back--*`, `bs-plate--*`, `bs-victory--*`. Will be created in task 20 (cosmetic rendering).
+
+## Concern Resolution
+- Concerns 1-2: Will be fixed in task 18 (next task) — correct the config path and properly wire the HTML.
+- Concerns 3-4: Accepted — JS-only color values, not CSS cascade issues.
+- Concern 5: Deferred to task 20 — cosmetic CSS will be created when cosmetics are rendered.
 
 ## Next
-1. **4c: Reduce forge CSS specificity** — refactor ID+class selectors to class-only
-2. **5: Boss adaptive scaling** — server-side power scaling in arena battle API
-3. **6: Forge stat budget cap** — cap total power at 400
-4. **7: Post-Quick-Build onboarding** — 3-step welcome flow for new players
-5. **8: First-battle tutorial hints** — contextual tips during first 3 battles
+1. **18: Crate inventory + earn triggers** — fix config path bug, wire HTML, toast on earn
+2. **19: Crate opening ceremony** — full-screen slot-machine reveal overlay
+3. **20: Cosmetic inventory + equip** — collection screen, equip system, CSS for cosmetics
+4. **21: Battle charms** — consumable items from crates, 6th combat button
