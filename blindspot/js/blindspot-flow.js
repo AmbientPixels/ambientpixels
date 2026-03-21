@@ -965,18 +965,8 @@
   }
 
   function isNewPlayer(profile) {
-    // Check localStorage flag first (fast)
+    // localStorage flag is authoritative — if cleared, player wants fresh start
     if (localStorage.getItem('blindspot-onboarded')) return false;
-    // Check server profile: selectedCardId means they've built and selected a card
-    if (profile && profile.selectedCardId) {
-      safeLSSet('blindspot-onboarded', 'true');
-      return false;
-    }
-    // Check XP or wins — any progression means not new
-    if (profile && (profile.xp > 0 || (profile.record && profile.record.wins > 0))) {
-      safeLSSet('blindspot-onboarded', 'true');
-      return false;
-    }
     return true;
   }
 
@@ -2653,8 +2643,17 @@
     await gameDataPromise;
     const profile = await profilePromise;
 
-    // New card creation flow: authenticated player came from lobby to build another card
     var landingParams = new URLSearchParams(window.location.search);
+
+    // Dev reset: ?reset=true clears all local progression for testing
+    if (landingParams.get('reset') === 'true') {
+      Object.keys(localStorage).filter(function(k) { return k.startsWith('bs-') || k === 'blindspot-onboarded' || k === 'cardforge_saved_cards'; }).forEach(function(k) { localStorage.removeItem(k); });
+      sessionStorage.clear();
+      window.location.href = '/blindspot/';
+      return;
+    }
+
+    // New card creation flow: authenticated player came from lobby to build another card
     if (landingParams.get('newCard') === 'true' && !isDemo()) {
       document.getElementById('bs-landing').style.display = 'none';
       openNewCardQuickBuild();
