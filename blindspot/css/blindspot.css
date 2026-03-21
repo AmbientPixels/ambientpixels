@@ -1307,7 +1307,7 @@
 .bs-card-flip-container {
   perspective: 1000px;
   width: 300px;
-  height: 480px;
+  height: 560px;
   margin: 0 auto;
 }
 
@@ -2028,6 +2028,9 @@
 /* Prevent scrollbar flash from 3D card flip on step 5 */
 .bs-page .qb-body:has(.bs-card-flip-container) {
   overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .bs-page .qb-modal {
@@ -3081,7 +3084,7 @@
   .bs-lobby__card-display { width: 160px; height: 230px; }
   .bs-forge-screen { padding: 0 0.5rem; }
   .bs-forge-stat__desc { display: none; }
-  .bs-card-flip-container { width: 200px; height: 330px; }
+  .bs-card-flip-container { width: 220px; height: 400px; }
   .bs-overlay { padding: 1.5rem; }
   .bs-overlay__title { font-size: 1.25rem; }
 
@@ -3179,7 +3182,7 @@
   .bs-boss-card__name { font-size: 0.9rem; }
   .bs-boss-card__flavor { font-size: 0.7rem; }
   .bs-boss-avatar { width: 36px; height: 36px; font-size: 0.9rem; }
-  .bs-card-flip-container { width: 170px; height: 280px; }
+  .bs-card-flip-container { width: 190px; height: 350px; }
   .bs-overlay__title { font-size: 1.1rem; }
   .bs-overlay__subtitle { font-size: 0.85rem; }
   .bs-loss-screen__text { font-size: 2rem; }
