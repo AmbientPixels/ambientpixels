@@ -659,6 +659,66 @@
     if (!list.includes(key)) { list.push(key); localStorage.setItem('bs-purchased-cosmetics', JSON.stringify(list)); }
   }
 
+  // ============================================================
+  // CRATE INVENTORY
+  // ============================================================
+
+  function getCrates() {
+    try { return JSON.parse(localStorage.getItem('bs-crates') || '[]'); }
+    catch(e) { return []; }
+  }
+  function addCrate(type) {
+    var crates = getCrates();
+    crates.push({ type: type, earned: Date.now() });
+    localStorage.setItem('bs-crates', JSON.stringify(crates));
+    return crates.length;
+  }
+  function removeCrate(index) {
+    var crates = getCrates();
+    if (index >= 0 && index < crates.length) crates.splice(index, 1);
+    localStorage.setItem('bs-crates', JSON.stringify(crates));
+  }
+  function getCrateCount() { return getCrates().length; }
+
+  // Win counter for battle crates (every 5 wins)
+  function getCrateWinCounter() { return parseInt(localStorage.getItem('bs-crate-win-counter') || '0', 10); }
+  function incCrateWinCounter() {
+    var c = getCrateWinCounter() + 1;
+    localStorage.setItem('bs-crate-win-counter', String(c));
+    return c;
+  }
+
+  // Award a crate with toast notification
+  function awardCrate(type) {
+    var crateTypes = _config && _config.crates && _config.crates.types;
+    var crateDef = crateTypes ? crateTypes[type] : null;
+    var name = crateDef ? crateDef.name : (type + ' Crate');
+    addCrate(type);
+    showSuccessToast('Crate earned: ' + name + '!');
+    playSfx('loot');
+    updateCrateBadge();
+  }
+
+  // Check and award battle crate (every 5 wins)
+  function checkBattleCrate() {
+    var count = incCrateWinCounter();
+    if (count >= 5) {
+      localStorage.setItem('bs-crate-win-counter', '0');
+      awardCrate('battle');
+    }
+  }
+
+  // Update crate count badge in lobby
+  function updateCrateBadge() {
+    var indicator = document.getElementById('bs-crate-indicator');
+    var badge = document.getElementById('bs-crate-badge');
+    var plural = document.getElementById('bs-crate-plural');
+    var count = getCrateCount();
+    if (indicator) indicator.style.display = count > 0 ? '' : 'none';
+    if (badge) badge.textContent = String(count);
+    if (plural) plural.textContent = count === 1 ? '' : 's';
+  }
+
   function escHtml(s) {
     const d = document.createElement('div');
     d.textContent = s || '';
@@ -1719,6 +1779,7 @@
 
     updateRankDisplay();
     updateForgeProgress();
+    updateCrateBadge();
     renderBounties();
     renderChallenges();
     checkAndClaimChallenges();
@@ -2905,6 +2966,8 @@
       bountyData.wins = (bountyData.wins || 0) + 1;
       localStorage.setItem('bs-bounties', JSON.stringify(bountyData));
       if (bountyData.wins >= 2) completeBounty('win2');
+      // Battle crate: every 5 wins
+      checkBattleCrate();
     } else {
       setWinStreak(0);
       _lastStreakBonus = 0;
@@ -2954,15 +3017,18 @@
         let forgeGain = 1;
         if (getWinStreak() >= 5) forgeGain = 2; // Streak bonus
         setForgeWins(getForgeWins() + forgeGain);
+        // Boss crate on first kill
+        awardCrate('boss');
       } else if (!isWeekly) {
         // Replay wins grant half a forge point (tracked as decimals, rounded on display)
         setForgeWins(getForgeWins() + 0.5);
       }
 
-      // Weekly boss: award stat reward + 2 forge wins on first weekly win
+      // Weekly boss: award stat reward + 2 forge wins + weekly crate on first weekly win
       if (isWeekly && !isWeeklyRewardClaimed()) {
         playSfx('bossDefeat');
         setForgeWins(getForgeWins() + 2);
+        awardCrate('weekly');
         const reward = await applyBossReward(boss);
         if (reward) {
           showRewardDrop(reward, boss);
@@ -4726,6 +4792,7 @@
   function performAscension(newLevel) {
     playSfx('ascension');
     setAscension(newLevel);
+    awardCrate('ascension');
     // Reset boss progress but keep stats/visuals/rank
     localStorage.setItem('bs-highest-boss', '0');
     localStorage.removeItem('bs-boss-records');
