@@ -292,8 +292,10 @@
   border-color: var(--bs-accent-glow) !important;
 }
 
-.bs-btn--glow::after {
-  display: none;
+.bs-btn--glow::after,
+.bs-page .bs-btn--glow::after {
+  display: none !important;
+  content: none !important;
 }
 
 /* Landing footer badges */
