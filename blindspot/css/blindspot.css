@@ -4346,6 +4346,188 @@ body.bs-battle-active .bs-bottom-nav {
 .bs-forge-card[data-palette="frost"] .bs-forge-card__class { color: #88ddff; }
 .bs-forge-card[data-palette="frost"] .bs-forge-card__info { background: linear-gradient(to top, #0a1a2a, rgba(10, 26, 42, 0.6)); }
 
+/* ============================================================
+   RENDERED CARD — lightweight card renderer used across screens
+   Shows the player's card with palette, container, stats, rarity
+   ============================================================ */
+
+.bs-rendered-card {
+  position: relative;
+  border-radius: 12px;
+  border: 2px solid var(--bs-border);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  font-family: 'Share Tech Mono', monospace;
+}
+
+/* --- Art section (avatar) --- */
+.bs-rc__art {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.3);
+}
+.bs-rc__avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.bs-rc__avatar-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  color: var(--bs-text-muted);
+  font-size: 2rem;
+}
+
+/* Container styles */
+.bs-rendered-card[data-container="masked"] .bs-rc__art {
+  padding: 0.75rem;
+  background: transparent;
+}
+.bs-rendered-card[data-container="masked"] .bs-rc__avatar {
+  width: 70%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  margin: 0 auto;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.15);
+}
+.bs-rendered-card[data-container="fullbleed"] .bs-rc__art { padding: 0; }
+.bs-rendered-card[data-container="fullbleed"] .bs-rc__avatar { height: auto; }
+.bs-rendered-card[data-container="framed"] .bs-rc__art { padding: 0.5rem; }
+.bs-rendered-card[data-container="framed"] .bs-rc__avatar { border-radius: 4px; border: 2px solid rgba(255, 255, 255, 0.1); }
+.bs-rendered-card[data-container="hero"] .bs-rc__art { padding: 0; }
+
+/* --- Info section --- */
+.bs-rc__info {
+  padding: 0.4rem 0.6rem;
+  text-align: center;
+  background: linear-gradient(to top, rgba(16, 12, 8, 0.95), rgba(16, 12, 8, 0.7));
+}
+.bs-rc__name {
+  display: block;
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: var(--bs-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.bs-rc__class {
+  display: block;
+  font-size: 0.65rem;
+  color: var(--bs-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* --- Stats section --- */
+.bs-rc-stats {
+  padding: 0.3rem 0.6rem 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  background: rgba(16, 12, 8, 0.9);
+}
+.bs-rc-stat {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+.bs-rc-stat__label {
+  font-size: 0.55rem;
+  font-weight: 700;
+  width: 24px;
+  flex-shrink: 0;
+}
+.bs-rc-stat__bar {
+  flex: 1;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.bs-rc-stat__fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+.bs-rc-stat__val {
+  font-size: 0.55rem;
+  color: var(--bs-text-muted);
+  width: 18px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+/* --- Power badge --- */
+.bs-rc__power {
+  display: block;
+  text-align: center;
+  padding: 0.25rem;
+  font-size: 0.65rem;
+  color: var(--bs-accent);
+  background: rgba(16, 12, 8, 0.95);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* --- Size variants --- */
+.bs-rc--full {
+  width: 100%;
+  max-width: 200px;
+}
+.bs-rc--full .bs-rc__art { min-height: 140px; }
+
+.bs-rc--compact {
+  width: 100%;
+  max-width: 140px;
+}
+.bs-rc--compact .bs-rc__art { min-height: 90px; }
+.bs-rc--compact .bs-rc__name { font-size: 0.7rem; }
+.bs-rc--compact .bs-rc__class { font-size: 0.55rem; }
+.bs-rc--compact .bs-rc__power { font-size: 0.55rem; padding: 0.15rem; }
+
+.bs-rc--micro {
+  width: 64px;
+  border-radius: 8px;
+  border-width: 1px;
+}
+.bs-rc--micro .bs-rc__art { min-height: 50px; }
+.bs-rc--micro .bs-rc__info { padding: 0.2rem 0.3rem; }
+.bs-rc--micro .bs-rc__name { font-size: 0.5rem; }
+
+/* --- Rarity name colors --- */
+.bs-rendered-card[data-rarity="uncommon"] .bs-rc__name { color: var(--bs-rarity-uncommon); }
+.bs-rendered-card[data-rarity="rare"] .bs-rc__name { color: var(--bs-rarity-rare); }
+.bs-rendered-card[data-rarity="epic"] .bs-rc__name { color: var(--bs-rarity-epic); }
+.bs-rendered-card[data-rarity="legendary"] .bs-rc__name { color: var(--bs-rarity-legendary); }
+
+/* --- Palette theming (reuse forge palette colors) --- */
+.bs-rendered-card[data-palette="earth"] { background: linear-gradient(135deg, #2d1b0e, #3d2b1e); border-color: #8b6914; box-shadow: 0 0 12px rgba(139, 105, 20, 0.3); }
+.bs-rendered-card[data-palette="earth"] .bs-rc__info { background: linear-gradient(to top, #2d1b0e, rgba(45, 27, 14, 0.7)); }
+.bs-rendered-card[data-palette="ocean"] { background: linear-gradient(135deg, #0a1525, #122a4a); border-color: #4a9eff; box-shadow: 0 0 12px rgba(74, 158, 255, 0.3); }
+.bs-rendered-card[data-palette="ocean"] .bs-rc__info { background: linear-gradient(to top, #0a1525, rgba(10, 21, 37, 0.7)); }
+.bs-rendered-card[data-palette="neon"] { background: linear-gradient(135deg, #0a0a1a, #16213e); border-color: #00d4ff; box-shadow: 0 0 14px rgba(0, 212, 255, 0.3); }
+.bs-rendered-card[data-palette="neon"] .bs-rc__info { background: linear-gradient(to top, #0a0a1a, rgba(10, 10, 26, 0.7)); }
+.bs-rendered-card[data-palette="fire"] { background: linear-gradient(135deg, #2a0505, #4a1010); border-color: #ff6b3d; box-shadow: 0 0 14px rgba(255, 107, 61, 0.3); }
+.bs-rendered-card[data-palette="fire"] .bs-rc__info { background: linear-gradient(to top, #2a0505, rgba(42, 5, 5, 0.7)); }
+.bs-rendered-card[data-palette="monochrome"] { background: linear-gradient(135deg, #111, #222); border-color: #666; box-shadow: 0 0 10px rgba(100, 100, 100, 0.2); }
+.bs-rendered-card[data-palette="monochrome"] .bs-rc__info { background: linear-gradient(to top, #111, rgba(17, 17, 17, 0.7)); }
+.bs-rendered-card[data-palette="sunset"] { background: linear-gradient(135deg, #2a1020, #3d1525); border-color: #ff6b9d; box-shadow: 0 0 12px rgba(255, 107, 157, 0.3); }
+.bs-rendered-card[data-palette="sunset"] .bs-rc__info { background: linear-gradient(to top, #2a1020, rgba(42, 16, 32, 0.7)); }
+.bs-rendered-card[data-palette="inferno"] { background: linear-gradient(135deg, #1a0000, #3d0a00); border-color: #ff3300; box-shadow: 0 0 16px rgba(255, 51, 0, 0.4); }
+.bs-rendered-card[data-palette="inferno"] .bs-rc__info { background: linear-gradient(to top, #1a0000, rgba(26, 0, 0, 0.7)); }
+.bs-rendered-card[data-palette="frost"] { background: linear-gradient(135deg, #0a1a2a, #1a3050); border-color: #88ddff; box-shadow: 0 0 14px rgba(136, 221, 255, 0.3); }
+.bs-rendered-card[data-palette="frost"] .bs-rc__info { background: linear-gradient(to top, #0a1a2a, rgba(10, 26, 42, 0.7)); }
+
 /* Mobile forge overrides — MUST come after base styles to win cascade */
 @media (max-width: 768px) {
   .bs-forge-layout {

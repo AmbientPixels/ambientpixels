@@ -1751,6 +1751,64 @@
   }
 
   // ============================================================
+  // CARD RENDERER
+  // ============================================================
+  // Lightweight card renderer — builds a rich card visual from saved data.
+  // No CardForge editor dependency. Works anywhere with just the card data object.
+
+  var RC_STAT_DEFS = [
+    { key: 'str', label: 'STR', color: '#ff5252' },
+    { key: 'agi', label: 'AGI', color: '#00e676' },
+    { key: 'int', label: 'INT', color: '#7b2fff' },
+    { key: 'end', label: 'END', color: '#ff9100' },
+    { key: 'lck', label: 'LCK', color: '#ffd740' }
+  ];
+
+  function renderCardHTML(card, size) {
+    // size: 'full' (lobby/celebration), 'compact' (battle/deck), 'micro' (pre-fight)
+    if (!card) return '';
+    ensureCombatStats(card);
+    var cs = card.combatStats || {};
+    var palette = card.palette || 'earth';
+    var container = (card.design && card.design.imageContainer) || 'masked';
+    var rarity = (card.rarity || 'Common').toLowerCase();
+    var name = card.name || 'Unknown';
+    var cls = card.class || card.characterClass || '';
+    var avatar = card.avatar || '';
+
+    var avatarHTML = avatar
+      ? '<img src="' + escHtml(avatar) + '" alt="' + escHtml(name) + '" class="bs-rc__avatar" loading="lazy">'
+      : '<div class="bs-rc__avatar-placeholder"><i class="fas fa-user"></i></div>';
+
+    var statsHTML = '';
+    if (size === 'full') {
+      statsHTML = '<div class="bs-rc-stats">' + RC_STAT_DEFS.map(function(d) {
+        var val = cs[d.key] || 0;
+        return '<div class="bs-rc-stat">'
+          + '<span class="bs-rc-stat__label" style="color:' + d.color + '">' + d.label + '</span>'
+          + '<div class="bs-rc-stat__bar"><div class="bs-rc-stat__fill" style="width:' + val + '%;background:' + d.color + '"></div></div>'
+          + '<span class="bs-rc-stat__val">' + val + '</span>'
+          + '</div>';
+      }).join('') + '</div>';
+    }
+
+    var totalPower = (cs.str || 0) + (cs.agi || 0) + (cs.int || 0) + (cs.end || 0) + (cs.lck || 0);
+    var powerHTML = size !== 'micro'
+      ? '<span class="bs-rc__power"><i class="fas fa-bolt"></i> ' + totalPower + '</span>'
+      : '';
+
+    return '<div class="bs-rendered-card bs-rc--' + size + '" data-palette="' + escHtml(palette) + '" data-container="' + escHtml(container) + '" data-rarity="' + escHtml(rarity) + '">'
+      + '<div class="bs-rc__art">' + avatarHTML + '</div>'
+      + '<div class="bs-rc__info">'
+      + '<span class="bs-rc__name">' + escHtml(name) + '</span>'
+      + (size !== 'micro' ? '<span class="bs-rc__class">' + escHtml(cls) + '</span>' : '')
+      + '</div>'
+      + statsHTML
+      + powerHTML
+      + '</div>';
+  }
+
+  // ============================================================
   // PROGRESSION SYSTEM
   // ============================================================
 
@@ -2250,24 +2308,14 @@
     };
 
     grid.innerHTML = sorted.map(function(card) {
-      var power = getCardPower(card);
-      var cls = card.class || card.characterClass || 'Unknown';
+      ensureCombatStats(card);
       var name = card.name || 'Unnamed';
-      var hasAvatar = card.avatar && card.avatar.trim();
+      var cls = card.class || card.characterClass || 'Unknown';
+      var power = getCardPower(card);
       var active = isActive(card);
-      var palette = card.palette || 'earth';
 
-      return '<div class="bs-deck-card' + (active ? ' bs-deck-card--active' : '') + '" data-card-id="' + escHtml(card.id) + '" data-palette="' + escHtml(palette) + '" role="listitem" tabindex="0" aria-label="' + escHtml(name) + ', ' + escHtml(cls) + ', Power ' + power + (active ? ', currently active' : '') + '">' +
-        '<div class="bs-deck-card__preview">' +
-          (hasAvatar
-            ? '<img src="' + escHtml(card.avatar) + '" alt="' + escHtml(name) + '" class="bs-deck-card__avatar">'
-            : '<div class="bs-deck-card__icon"><i class="fas fa-user" aria-hidden="true"></i></div>') +
-        '</div>' +
-        '<div class="bs-deck-card__info">' +
-          '<span class="bs-deck-card__name">' + escHtml(name) + '</span>' +
-          '<span class="bs-deck-card__class">' + escHtml(cls) + '</span>' +
-          '<span class="bs-deck-card__power"><i class="fas fa-bolt" aria-hidden="true"></i> ' + power + '</span>' +
-        '</div>' +
+      return '<div class="bs-deck-card' + (active ? ' bs-deck-card--active' : '') + '" data-card-id="' + escHtml(card.id) + '" role="listitem" tabindex="0" aria-label="' + escHtml(name) + ', ' + escHtml(cls) + ', Power ' + power + (active ? ', currently active' : '') + '">' +
+        renderCardHTML(card, 'compact') +
         (active ? '<div class="bs-deck-card__badge"><i class="fas fa-check-circle" aria-hidden="true"></i> Active</div>' : '') +
         (deck.length > 1 && !active ? '<button class="bs-deck-card__delete" data-delete-id="' + escHtml(card.id) + '" aria-label="Delete ' + escHtml(name) + '"><i class="fas fa-trash" aria-hidden="true"></i></button>' : '') +
       '</div>';
@@ -2795,6 +2843,7 @@
       if (window.ArenaBackgrounds) window.ArenaBackgrounds.applyToBattleStage();
 
       window.ArenaBattleUI.initBattle(battleData);
+      applyBattlePalette();
       updateCombatTooltips();
       // Show combat guide on very first battle
       if (!localStorage.getItem('bs-combat-guide-shown')) {
@@ -2943,30 +2992,8 @@
         card = cardId ? cards.find(c => c.id === cardId) : cards[cards.length - 1];
       } catch (e) { /* proceed without card data */ }
 
-      // Extract nested cardData fields to top level (server stores them nested)
+      // ensureCombatStats extracts nested cardData fields to top level
       if (card) ensureCombatStats(card);
-      const name = card?.name || 'Your Card';
-      const cls = card?.class || card?.characterClass || '';
-      const rarity = card?.rarity || 'Common';
-      const avatar = card?.avatar || '';
-      const palette = card?.palette || 'earth';
-      const stats = card?.combatStats || {};
-      const statDefs = [
-        { key: 'str', label: 'STR', color: '#ff5252' },
-        { key: 'agi', label: 'AGI', color: '#00e676' },
-        { key: 'int', label: 'INT', color: '#7b2fff' },
-        { key: 'end', label: 'END', color: '#ff9100' },
-        { key: 'lck', label: 'LCK', color: '#ffd740' },
-      ];
-
-      const statsHtml = statDefs.map(d => {
-        const val = stats[d.key] || 0;
-        return `<div class="bs-reveal-stat">
-          <span class="bs-reveal-stat__label" style="color:${d.color}">${d.label}</span>
-          <div class="bs-reveal-stat__bar"><div class="bs-reveal-stat__fill" style="width:${val}%;background:${d.color}"></div></div>
-          <span class="bs-reveal-stat__val">${val}</span>
-        </div>`;
-      }).join('');
 
       // Create particle elements
       let particles = '';
@@ -2982,16 +3009,8 @@
 
       overlay.innerHTML = `
         <div class="bs-reveal-particles">${particles}</div>
-        <div class="bs-reveal-card-wrap">
-          <div class="bs-reveal-card" data-palette="${escHtml(palette)}" data-rarity="${escHtml(rarity.toLowerCase())}">
-            ${avatar ? `<img class="bs-reveal-card__img" src="${escHtml(avatar)}" alt="${escHtml(name)}">` : `<div class="bs-reveal-card__icon"><i class="fas fa-fire"></i></div>`}
-            <div class="bs-reveal-card__info">
-              <span class="bs-reveal-card__name">${escHtml(name)}</span>
-              ${cls ? `<span class="bs-reveal-card__class">${escHtml(cls)}</span>` : ''}
-              <span class="bs-reveal-card__rarity bs-reveal-card__rarity--${escHtml(rarity.toLowerCase())}">${escHtml(rarity)}</span>
-            </div>
-            <div class="bs-reveal-stats">${statsHtml}</div>
-          </div>
+        <div class="bs-reveal-card-wrap" style="display:flex;justify-content:center;">
+          ${renderCardHTML(card, 'full')}
         </div>
         <p class="bs-reveal-title">Your card is ready</p>
         <p class="bs-reveal-subtitle">The arena awaits.</p>
@@ -3173,22 +3192,13 @@
       const asc = getAscension();
       cardDisplay.setAttribute('data-ascension', asc > 0 ? String(asc) : '0');
     }
-    // Player card — show as a mini card with name + class + rarity
+    // Player card — full rendered card with palette, container, stats
     const cardEl = document.getElementById('bs-player-card');
     if (cardEl && _selectedCard) {
-      const hasAvatar = _selectedCard.avatar && _selectedCard.avatar.trim();
       const rarity = getCardRarity();
-      cardEl.setAttribute('data-rarity', rarity.id);
-      cardEl.innerHTML = `
-        <div class="bs-card-mini">
-          ${hasAvatar ? `<img src="${escHtml(_selectedCard.avatar)}" alt="${escHtml(_selectedCard.name || 'Card')}" class="bs-card-mini__img">` : `<div class="bs-card-mini__icon"><i class="fas fa-user"></i></div>`}
-          <div class="bs-card-mini__info">
-            <span class="bs-card-mini__name">${escHtml(_selectedCard.name || 'Your Card')}</span>
-            <span class="bs-card-mini__class">${escHtml(_selectedCard.class || _selectedCard.characterClass || '')} <span style="color:var(--bs-text-muted); font-size:0.65rem;">Lv. ${getCardLevel(_profile ? _profile.xp : 0)}</span></span>
-            ${rarity.id !== 'common' ? renderRarityBadge() : ''}
-          </div>
-        </div>
-      `;
+      // Override rarity from progression system
+      _selectedCard.rarity = rarity.label || _selectedCard.rarity;
+      cardEl.innerHTML = renderCardHTML(_selectedCard, 'full');
     }
 
     // Guest mode banner
@@ -6317,30 +6327,15 @@
 
   function applyBattlePalette() {
     if (!_selectedCard) return;
-    const palette = _selectedCard.palette || 'earth';
-    const paletteColors = {
-      earth: '#8b6914',
-      ocean: '#4a9eff',
-      neon: '#00d4ff',
-      fire: '#ff6b3d',
-      monochrome: '#888',
-      sunset: '#ff8c42',
-      inferno: '#ff3333',
-      frost: '#88ddff',
-      arcane: '#9b59b6',
-      void: '#6666cc'
-    };
-    const color = paletteColors[palette] || '#8b6914';
-    const playerCard = document.getElementById('arena-player-card');
+    var palette = _selectedCard.palette || 'earth';
+
+    // Render compact card in the player combatant slot
+    var playerCard = document.getElementById('arena-player-card');
     if (playerCard) {
-      playerCard.style.borderColor = color;
-      playerCard.style.boxShadow = '0 0 15px ' + color + '40';
-    }
-    // Also style the combatant frame
-    const playerFrame = document.querySelector('.arena-combatant--player .arena-combatant__card');
-    if (playerFrame) {
-      playerFrame.style.borderColor = color;
-      playerFrame.style.boxShadow = '0 0 15px ' + color + '40';
+      playerCard.innerHTML = renderCardHTML(_selectedCard, 'compact');
+      playerCard.style.overflow = 'hidden';
+      playerCard.style.border = 'none';
+      playerCard.style.background = 'none';
     }
   }
 
