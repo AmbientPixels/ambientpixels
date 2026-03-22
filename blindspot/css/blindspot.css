@@ -1380,7 +1380,7 @@
 .bs-card-flip-container {
   perspective: 1000px;
   width: 260px;
-  height: 480px;
+  height: 560px;
   margin: 0 auto;
 }
 
@@ -4720,7 +4720,7 @@ body.bs-battle-active .bs-play {
 
 /* --- Stats section --- */
 .bs-rc-stats {
-  padding: 0.3rem 0.6rem 0.75rem;
+  padding: 0.3rem 0.6rem 0.4rem;
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
