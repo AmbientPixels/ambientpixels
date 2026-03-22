@@ -549,7 +549,7 @@
 
   /* Next reward + extras tuck into left column under rank */
   .bs-lobby .bs-next-reward { grid-column: 1; justify-self: center; }
-  .bs-lobby .bs-loot-zone        { grid-column: 1; }
+  /* Loot zone is inside sidebar — no grid-column override needed */
 
   /* Forge progress — compact inline on desktop */
   .bs-lobby .bs-forge-progress {
