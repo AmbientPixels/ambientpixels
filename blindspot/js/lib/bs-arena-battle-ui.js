@@ -301,7 +301,8 @@ window.ArenaBattleUI = (function () {
     if (existing) existing.remove();
 
     const badge = document.createElement('div');
-    badge.className = 'arena-streak-badge';
+    var heatClass = count >= 5 ? ' arena-streak-badge--fire' : count >= 3 ? ' arena-streak-badge--hot' : '';
+    badge.className = 'arena-streak-badge' + heatClass;
     badge.textContent = count >= 4 ? `\uD83D\uDD25\uD83D\uDD25 ${count}x Streak!` : `\uD83D\uDD25 ${count}x Streak!`;
     container.appendChild(badge);
     setTimeout(() => badge.remove(), 1500);
