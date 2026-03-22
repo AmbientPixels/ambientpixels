@@ -2984,7 +2984,7 @@
       <button class="bs-btn bs-btn--secondary bs-btn--full" style="margin-top:0.75rem; max-width:320px;" id="bs-demo-guest">
         <i class="fas fa-play"></i> Continue as Guest
       </button>
-      <p style="font-size:0.7rem; color:var(--bs-text-muted); margin-top:0.5rem; max-width:320px; text-align:center;">Guest progress is saved locally only</p>
+      <p style="font-size:0.7rem; color:var(--bs-text-muted); margin-top:0.5rem; max-width:320px; text-align:center;">Guest progress won't sync across devices or browsers</p>
       <button class="bs-btn bs-btn--secondary bs-btn--full" style="margin-top:0.5rem; max-width:320px; opacity:0.6;" id="bs-demo-replay">
         <i class="fas fa-redo"></i> Start Over as Stranger
       </button>
