@@ -1378,42 +1378,44 @@
    ============================================================ */
 
 .bs-card-flip-container {
+  perspective: 1000px;
   width: 280px;
+  aspect-ratio: 3 / 4;
   margin: 0 auto;
 }
 
 .bs-card-flip-inner {
   position: relative;
   width: 100%;
+  height: 100%;
+  transition: transform 0.8s ease;
+  transform-style: preserve-3d;
+}
+
+.bs-card-flip-inner.flipped {
+  transform: rotateY(180deg);
 }
 
 .bs-card-flip-front,
 .bs-card-flip-back {
+  position: absolute;
   width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
   border-radius: 12px;
-  transition: opacity 0.5s ease;
+  overflow: hidden;
 }
 
-/* Front: visible by default, hidden after flip */
 .bs-card-flip-front {
   background: var(--bs-card-bg);
   border: 1px solid var(--bs-border);
   display: flex;
   align-items: center;
   justify-content: center;
-  aspect-ratio: 3 / 4;
-  border-radius: 12px;
-}
-.bs-card-flip-inner.flipped .bs-card-flip-front {
-  display: none;
 }
 
-/* Back: hidden by default, shown after flip */
 .bs-card-flip-back {
-  display: none;
-}
-.bs-card-flip-inner.flipped .bs-card-flip-back {
-  display: block;
+  transform: rotateY(180deg);
 }
 
 /* Strip CardForge double border from cloned card inside flip reveal */
