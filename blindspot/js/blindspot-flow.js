@@ -112,6 +112,18 @@
 
   // Fallback: load from localStorage cache into _progress
   function _loadProgressFromCache() {
+    // Single-key cache (new format)
+    try {
+      var cached = localStorage.getItem('bs-progress');
+      if (cached) {
+        var p = JSON.parse(cached);
+        for (var key in _progress) {
+          if (p[key] !== undefined && p[key] !== null) _progress[key] = p[key];
+        }
+        return;
+      }
+    } catch (e) { /* fall through to legacy keys */ }
+    // Legacy: migrate from 24 individual keys (pre-optimization)
     function gi(k, d) { return parseInt(localStorage.getItem(k) || String(d), 10); }
     function gj(k, d) { try { return JSON.parse(localStorage.getItem(k) || JSON.stringify(d)); } catch (e) { return d; } }
     _progress.sparks = gi('bs-sparks', 0);
@@ -146,40 +158,10 @@
     _progress.lastDaily = localStorage.getItem('bs-last-daily') || '';
   }
 
-  // Write-through cache: mirror _progress to localStorage for offline fallback
+  // Write-through cache: single JSON blob for offline fallback (was 24 individual keys)
   function _cacheProgressToLocalStorage() {
-    try {
-      safeLSSet('bs-sparks', String(_progress.sparks));
-      safeLSSet('bs-highest-boss', String(_progress.highestBoss));
-      safeLSSet('bs-total-wins', String(_progress.totalWins));
-      safeLSSet('bs-total-bounties', String(_progress.totalBounties));
-      safeLSSet('bs-win-streak', String(_progress.winStreak));
-      safeLSSet('bs-best-streak', String(_progress.bestStreak));
-      safeLSSet('bs-ascension', String(_progress.ascension));
-      safeLSSet('bs-tower-floor', String(_progress.towerFloor));
-      safeLSSet('bs-tower-best', String(_progress.towerBest));
-      safeLSSet('bs-wins-to-forge', String(_progress.forgeWins));
-      safeLSSet('bs-forge-visits', String(_progress.forgeVisits));
-      safeLSSet('bs-pvp-elo', String(_progress.pvpElo));
-      safeLSSet('bs-crate-win-counter', String(_progress.crateWinCounter));
-      safeLSSet('bs-card-title', _progress.cardTitle);
-      if (_progress.selectedCardId) safeLSSet('bs-selected-card-id', _progress.selectedCardId);
-      safeLSSet('bs-last-daily', _progress.lastDaily);
-      safeLSSet('bs-pvp-record', JSON.stringify(_progress.pvpRecord));
-      safeLSSet('bs-crates', JSON.stringify(_progress.crates));
-      safeLSSet('bs-charms', JSON.stringify(_progress.charms));
-      safeLSSet('bs-cosmetics', JSON.stringify(_progress.cosmetics));
-      safeLSSet('bs-purchased-cosmetics', JSON.stringify(_progress.purchasedCosmetics));
-      safeLSSet('bs-equipped', JSON.stringify(_progress.equipped));
-      safeLSSet('bs-visual-unlocks', JSON.stringify(_progress.visualUnlocks));
-      safeLSSet('bs-boss-records', JSON.stringify(_progress.bossRecords));
-      safeLSSet('bs-mastery-claimed', JSON.stringify(_progress.masteryClaimed));
-      safeLSSet('bs-claimed-rewards', JSON.stringify(_progress.claimedRewards));
-      safeLSSet('bs-tower-claimed', JSON.stringify(_progress.towerClaimed));
-      safeLSSet('bs-weekly-boss', JSON.stringify(_progress.weeklyBoss));
-      safeLSSet('bs-challenges', JSON.stringify(_progress.challenges));
-      safeLSSet('bs-bounties', JSON.stringify(_progress.bounties));
-    } catch (e) { /* cache write failure is non-fatal */ }
+    try { safeLSSet('bs-progress', JSON.stringify(_progress)); }
+    catch (e) { /* cache write failure is non-fatal */ }
   }
 
   // Push _progress to server. Debounced 1s so rapid mutations batch.
@@ -225,12 +207,17 @@
     }
   }
 
+  // Flush progress on page unload (pagehide works with bfcache)
+  window.addEventListener('pagehide', flushSyncBeforeNavigate);
+
   // ============================================================
   // CONFIG & STATE
   // ============================================================
 
   let _config = null;
   let _bosses = [];
+  var _bossesById = {};
+  var _bossesByNumber = {};  // campaign bosses only (non-weekly)
   let _strangerCard = null;
   let _profile = null;
   let _profileData = null;
@@ -1236,39 +1223,37 @@
     setEquipped(eq);
   }
 
-  // Look up a cosmetic item definition from game-config drop pools
-  function findCosmeticDef(itemId) {
-    if (!_config || !_config.crates || !_config.crates.dropPools) return null;
-    var pools = _config.crates.dropPools;
-    var cosmeticPools = ['card_frames', 'card_backs', 'name_plates', 'victory_animations', 'titles'];
-    for (var p = 0; p < cosmeticPools.length; p++) {
-      var pool = pools[cosmeticPools[p]];
-      if (!pool || !pool.items) continue;
-      for (var i = 0; i < pool.items.length; i++) {
-        if (pool.items[i].id === itemId) {
-          return Object.assign({}, pool.items[i], { slot: pool.slot, category: pool.category });
-        }
-      }
-    }
-    return null;
-  }
+  // Cosmetic lookup caches — built once after config loads, O(1) access
+  var _cosmeticLookup = {};   // { itemId: { ...item, slot, category } }
+  var _cosmeticsBySlot = null; // { slot: [ items ] }
 
-  // Get all cosmetic items grouped by slot
-  function getAllCosmeticsBySlot() {
-    if (!_config || !_config.crates || !_config.crates.dropPools) return {};
+  function _buildCosmeticCaches() {
+    _cosmeticLookup = {};
+    _cosmeticsBySlot = {};
+    if (!_config || !_config.crates || !_config.crates.dropPools) return;
     var pools = _config.crates.dropPools;
     var cosmeticPools = ['card_frames', 'card_backs', 'name_plates', 'victory_animations', 'titles'];
-    var bySlot = {};
     for (var p = 0; p < cosmeticPools.length; p++) {
       var pool = pools[cosmeticPools[p]];
       if (!pool || !pool.items) continue;
       var slot = pool.slot;
-      if (!bySlot[slot]) bySlot[slot] = [];
+      if (!_cosmeticsBySlot[slot]) _cosmeticsBySlot[slot] = [];
       for (var i = 0; i < pool.items.length; i++) {
-        bySlot[slot].push(Object.assign({}, pool.items[i], { slot: slot }));
+        var entry = Object.assign({}, pool.items[i], { slot: slot, category: pool.category });
+        _cosmeticLookup[pool.items[i].id] = entry;
+        _cosmeticsBySlot[slot].push(entry);
       }
     }
-    return bySlot;
+  }
+
+  // Look up a cosmetic item definition by ID — O(1)
+  function findCosmeticDef(itemId) {
+    return _cosmeticLookup[itemId] || null;
+  }
+
+  // Get all cosmetic items grouped by slot — cached
+  function getAllCosmeticsBySlot() {
+    return _cosmeticsBySlot || {};
   }
 
   var RARITY_COLORS = { common: 'var(--bs-text-muted)', uncommon: '#4ade80', rare: '#60a5fa', epic: '#c084fc' };
@@ -1322,16 +1307,19 @@
 
     container.innerHTML = html;
 
-    // Bind click handlers for owned items
-    container.querySelectorAll('.bs-collection-item:not(.bs-collection-item--locked)').forEach(function(btn) {
-      btn.addEventListener('click', function() {
+    // Delegated click handler — bound once, survives re-renders
+    if (!container._collectionDelegated) {
+      container._collectionDelegated = true;
+      container.addEventListener('click', function(e) {
+        var btn = e.target.closest('.bs-collection-item:not(.bs-collection-item--locked)');
+        if (!btn) return;
         var itemId = btn.dataset.itemId;
         var slot = btn.dataset.slot;
         equipCosmetic(slot, itemId);
         renderCollection();
         applyEquippedCosmetics();
       });
-    });
+    }
 
     // Update equipped summary
     if (equippedEl) {
@@ -1721,7 +1709,7 @@
 
   function checkMasteryRewards(bossId) {
     var record = getBossRecord(bossId);
-    var boss = _bosses.find(function(b) { return b.id === bossId; });
+    var boss = _bossesById[bossId];
     if (!boss || boss.weekly || isWeeklyBoss(bossId)) return;
     if (!_progress.masteryClaimed[bossId]) _progress.masteryClaimed[bossId] = {};
     var claimed = _progress.masteryClaimed;
@@ -1905,7 +1893,7 @@
   function getTowerBossForFloor(floor) {
     // Cycle through 10 campaign bosses
     var bossNum = ((floor - 1) % 10) + 1;
-    return _bosses.find(function(b) { return b.boss === bossNum && !b.weekly && !isWeeklyBoss(b.id); });
+    return _bossesByNumber[bossNum];
   }
   function getTowerMilestoneReward(floor) {
     // Milestone rewards every 5 floors
@@ -2081,7 +2069,17 @@
         fetch('/blindspot/data/stranger-card.json').then(r => r.json())
       ]);
       _config = configResp;
+      _buildCosmeticCaches();
       _bosses = bossesResp;
+      // Build boss lookup maps for O(1) access
+      _bossesById = {};
+      _bossesByNumber = {};
+      for (var bi = 0; bi < _bosses.length; bi++) {
+        _bossesById[_bosses[bi].id] = _bosses[bi];
+        if (!_bosses[bi].weekly && !isWeeklyBoss(_bosses[bi].id)) {
+          _bossesByNumber[_bosses[bi].boss] = _bosses[bi];
+        }
+      }
       _strangerCard = strangerResp;
     } catch (e) {
       console.error('[Blindspot] Failed to load game data:', e);
@@ -2575,7 +2573,7 @@
   // Data-driven loss tip based on what happened in the fight
   function getLossTip() {
     const s = _battleRoundStats;
-    const boss = _bosses.find(function(b) { return b.id === _currentBossId; });
+    const boss = _bossesById[_currentBossId];
     if (!s || s.rounds === 0) {
       // Fallback to class-based tip
       var classTips = {
@@ -3095,7 +3093,7 @@
     const label = document.getElementById('bs-results-forge-label');
     const fill = document.getElementById('bs-results-forge-fill');
     if (label) label.textContent = wins >= needed ? 'CARD EDITOR READY \u2014 Tap to customize' : `CARD EDITOR \u00b7 ${wins} / ${needed} wins`;
-    if (fill) fill.style.width = pct + '%';
+    if (fill) fill.style.setProperty('--bar-pct', pct / 100);
   }
 
   // ============================================================
@@ -3483,7 +3481,7 @@
     // Next boss reward preview
     const rewardEl = document.getElementById('bs-next-reward');
     if (rewardEl) {
-      const nextBoss = _bosses.find(b => b.boss === highestBoss + 1);
+      const nextBoss = _bossesByNumber[highestBoss + 1];
       if (nextBoss && nextBoss.reward && !isRewardClaimed(nextBoss.id)) {
         rewardEl.innerHTML = `<i class="fas fa-gift" style="color:var(--bs-accent);"></i> Next reward: <strong>${nextBoss.reward.label}</strong>`;
         rewardEl.style.display = '';
@@ -3498,7 +3496,7 @@
     // Update quick-fight button label to show next boss
     const playBtnLabel = document.getElementById('bs-play-btn-label');
     if (playBtnLabel) {
-      const nextBoss = _bosses.find(b => b.boss === highestBoss + 1);
+      const nextBoss = _bossesByNumber[highestBoss + 1];
       if (nextBoss) {
         playBtnLabel.textContent = 'FIGHT ' + nextBoss.name.toUpperCase();
       } else if (highestBoss >= 10) {
@@ -3535,10 +3533,10 @@
     const currentXp = _profile.xp || 0;
     if (nextRank) {
       const progress = ((currentXp - rankInfo.xp) / (nextRank.xp - rankInfo.xp)) * 100;
-      if (xpFill) xpFill.style.width = Math.min(100, Math.max(0, progress)) + '%';
+      if (xpFill) xpFill.style.setProperty('--bar-pct', Math.min(100, Math.max(0, progress)) / 100);
       if (xpText) xpText.textContent = `${currentXp} / ${nextRank.xp} XP`;
     } else {
-      if (xpFill) xpFill.style.width = '100%';
+      if (xpFill) xpFill.style.setProperty('--bar-pct', '1');
       if (xpText) xpText.textContent = `${currentXp} XP \u2014 Max Rank`;
     }
   }
@@ -3564,7 +3562,7 @@
     } else {
       if (label) label.textContent = `CARD EDITOR \u00b7 ${Math.floor(wins)} / ${needed} wins`;
     }
-    if (fill) fill.style.width = pct + '%';
+    if (fill) fill.style.setProperty('--bar-pct', pct / 100);
     if (container) {
       container.classList.toggle('bs-forge-progress--ready', ready);
       container.onclick = ready ? () => openForgeScreen() : null;
@@ -3705,7 +3703,7 @@
     // Smart ENTER ARENA: go straight to next boss fight
     const enterArena = () => {
       const highest = getHighestBossDefeated();
-      const nextBoss = _bosses.find(b => b.boss === highest + 1);
+      const nextBoss = _bossesByNumber[highest + 1];
       if (nextBoss) {
         // Show pre-fight overlay for next boss
         const flavorEl = document.getElementById('bs-prefight-flavor');
@@ -3863,7 +3861,7 @@
       }
       if (_battleType === 'pvp') { showScreen('pvp'); renderPvPGallery(); }
       else if (_currentBossId) {
-        const currentBoss = _bosses.find(b => b.id === _currentBossId);
+        const currentBoss = _bossesById[_currentBossId];
         // Weekly boss — return to campaign after fight
         if (isWeeklyBoss(_currentBossId)) {
           showScreen('campaign'); renderCampaignLadder();
@@ -3873,7 +3871,7 @@
           const highest = getHighestBossDefeated();
           if (currentBoss && currentBoss.boss <= highest && currentBoss.boss < 10) {
             // Current boss defeated — advance to next
-            const nextBoss = _bosses.find(b => b.boss === currentBoss.boss + 1);
+            const nextBoss = _bossesByNumber[currentBoss.boss + 1];
             if (nextBoss) { startCampaignBattle(nextBoss.id); }
             else { showScreen('campaign'); renderCampaignLadder(); }
           } else {
@@ -3988,8 +3986,7 @@
       + '</div>';
     } // end if (weeklyBoss)
 
-    var campaignBosses = _bosses.filter(function (b) { return !b.weekly && !isWeeklyBoss(b.id); });
-    container.innerHTML = weeklyHtml + campaignBosses.map((boss, i) => {
+    container.innerHTML = weeklyHtml + campaignOnly.map((boss, i) => {
       const defeated = boss.boss <= highestDefeated;
       const current = boss.boss === highestDefeated + 1;
       const locked = boss.boss > highestDefeated + 1;
@@ -4045,7 +4042,7 @@
       btn.addEventListener('click', () => {
         const bossId = btn.dataset.fightBoss;
         // Check weekly bosses first, then campaign bosses
-        const boss = _bosses.find(b => b.id === bossId);
+        const boss = _bossesById[bossId];
         if (!boss) return;
 
         const flavorEl = document.getElementById('bs-prefight-flavor');
@@ -4389,7 +4386,7 @@
     if (isWin) {
       var sparkReward = 10; // Base win reward
       if (_battleType === 'pve' && _currentBossId) {
-        var fightBoss = _bosses.find(function(b) { return b.id === _currentBossId; });
+        var fightBoss = _bossesById[_currentBossId];
         var isFirstKill = fightBoss && fightBoss.boss === getHighestBossDefeated();
         if (isFirstKill) sparkReward = 25; // First kill bonus
         if (fightBoss && fightBoss.boss >= 8) sparkReward += 10; // Late-game bonus
@@ -4564,7 +4561,7 @@
     }
 
     if (_battleType === 'pve' && isWin) {
-      const boss = _bosses.find(b => b.id === _currentBossId);
+      const boss = _bossesById[_currentBossId];
       const prevHighest = getHighestBossDefeated();
       const isWeekly = isWeeklyBoss(_currentBossId);
       const isNewBossDefeat = !isWeekly && boss && boss.boss > prevHighest;
@@ -4666,7 +4663,7 @@
     const titleEl = document.getElementById('arena-results-title');
     const subtitleEl = document.getElementById('arena-results-subtitle');
     if (isWin) {
-      const boss = _bosses.find(b => b.id === _currentBossId);
+      const boss = _bossesById[_currentBossId];
       const streak = getWinStreak();
       if (titleEl) titleEl.textContent = streak >= 3 ? `${streak}x Victory!` : 'Victory';
       if (subtitleEl && boss) subtitleEl.textContent = `You defeated ${boss.name}`;
@@ -4696,7 +4693,7 @@
         if (battleResult && battleResult.opponentHp !== undefined && battleResult.opponentMaxHp) {
           var bossHpPct = battleResult.opponentHp / battleResult.opponentMaxHp;
           if (bossHpPct < 0.1 && bossHpPct > 0) {
-            var bossName = _bosses.find(function(b) { return b.id === _currentBossId; });
+            var bossName = _bossesById[_currentBossId];
             almostMsg = 'So close! ' + (bossName ? bossName.name : 'The boss') + ' survived with ' + battleResult.opponentHp + ' HP. ';
           }
         }

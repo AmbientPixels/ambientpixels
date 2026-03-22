@@ -775,9 +775,12 @@
 
 .bs-xp-bar__fill {
   height: 100%;
+  width: 100%;
   background: linear-gradient(90deg, var(--bs-accent-dim), var(--bs-accent));
   border-radius: 4px;
-  transition: width 0.5s ease;
+  transform-origin: left;
+  transform: scaleX(var(--bar-pct, 0));
+  transition: transform 0.5s ease;
 }
 
 .bs-xp-text {
@@ -824,9 +827,12 @@
 
 .bs-forge-progress__bar-fill {
   height: 100%;
+  width: 100%;
   background: var(--bs-accent-dim);
   border-radius: 3px;
-  transition: width 0.4s ease;
+  transform-origin: left;
+  transform: scaleX(var(--bar-pct, 0));
+  transition: transform 0.4s ease;
 }
 
 .bs-forge-progress--ready {
@@ -3066,19 +3072,6 @@
   pointer-events: none;
 }
 
-@keyframes bs-crate-shake {
-  0%, 100% { transform: translateX(0) rotate(0); }
-  10% { transform: translateX(-4px) rotate(-2deg); }
-  20% { transform: translateX(4px) rotate(2deg); }
-  30% { transform: translateX(-6px) rotate(-3deg); }
-  40% { transform: translateX(6px) rotate(3deg); }
-  50% { transform: translateX(-8px) rotate(-4deg); }
-  60% { transform: translateX(8px) rotate(4deg); }
-  70% { transform: translateX(-10px) rotate(-5deg); }
-  80% { transform: translateX(10px) rotate(5deg); }
-  90% { transform: translateX(-6px) rotate(-3deg); }
-}
-
 /* Roulette reel */
 .bs-crate-reel {
   width: 280px;
@@ -4468,59 +4461,59 @@ body.bs-battle-active .bs-play {
    FORGE PALETTE PREVIEW (iter 58)
    ============================================================ */
 
-.bs-forge-card[data-palette="earth"] {
-  background: linear-gradient(135deg, #2d1b0e, #3d2b1e);
-  border-color: #8b6914;
-  box-shadow: 0 0 12px rgba(139, 105, 20, 0.4), inset 0 0 20px rgba(139, 105, 20, 0.1);
+/* --- Palette token definitions --- */
+.bs-forge-card[data-palette="earth"],
+.bs-rendered-card[data-palette="earth"] {
+  --pal-bg1: #2d1b0e; --pal-bg2: #3d2b1e; --pal-border: #8b6914;
+  --pal-glow: rgba(139, 105, 20, 0.4); --pal-glow-in: rgba(139, 105, 20, 0.1);
+  --pal-name: #f4e4c1; --pal-class: #daa520;
+  --pal-info-bg: #2d1b0e; --pal-info-bg-a: rgba(45, 27, 14, 0.6);
 }
-.bs-forge-card[data-palette="earth"] .bs-forge-card__name { color: #f4e4c1; }
-.bs-forge-card[data-palette="earth"] .bs-forge-card__class { color: #daa520; }
-.bs-forge-card[data-palette="earth"] .bs-forge-card__info { background: linear-gradient(to top, #2d1b0e, rgba(45, 27, 14, 0.6)); }
+.bs-forge-card[data-palette="ocean"],
+.bs-rendered-card[data-palette="ocean"] {
+  --pal-bg1: #0a1525; --pal-bg2: #122a4a; --pal-border: #4a9eff;
+  --pal-glow: rgba(74, 158, 255, 0.4); --pal-glow-in: rgba(74, 158, 255, 0.1);
+  --pal-name: #e6f3ff; --pal-class: #66ccff;
+  --pal-info-bg: #0a1525; --pal-info-bg-a: rgba(10, 21, 37, 0.6);
+}
+.bs-forge-card[data-palette="neon"],
+.bs-rendered-card[data-palette="neon"] {
+  --pal-bg1: #0a0a1a; --pal-bg2: #16213e; --pal-border: #00d4ff;
+  --pal-glow: rgba(0, 212, 255, 0.5); --pal-glow-in: rgba(0, 212, 255, 0.1);
+  --pal-name: #ffffff; --pal-class: #00d4ff;
+  --pal-info-bg: #0a0a1a; --pal-info-bg-a: rgba(10, 10, 26, 0.6);
+}
+.bs-forge-card[data-palette="fire"],
+.bs-rendered-card[data-palette="fire"] {
+  --pal-bg1: #2a0505; --pal-bg2: #4a1010; --pal-border: #ff6b3d;
+  --pal-glow: rgba(255, 107, 61, 0.5); --pal-glow-in: rgba(255, 60, 20, 0.1);
+  --pal-name: #ffe0dc; --pal-class: #ff6b5c;
+  --pal-info-bg: #2a0505; --pal-info-bg-a: rgba(42, 5, 5, 0.6);
+}
+.bs-forge-card[data-palette="monochrome"],
+.bs-rendered-card[data-palette="monochrome"] {
+  --pal-bg1: #111; --pal-bg2: #222; --pal-border: #666;
+  --pal-glow: rgba(100, 100, 100, 0.3); --pal-glow-in: rgba(100, 100, 100, 0);
+  --pal-name: #cccccc; --pal-class: #999;
+  --pal-info-bg: #111; --pal-info-bg-a: rgba(17, 17, 17, 0.6);
+}
+.bs-forge-card[data-palette="sunset"],
+.bs-rendered-card[data-palette="sunset"] {
+  --pal-bg1: #2d1a0e; --pal-bg2: #4a2a10; --pal-border: #ff8c42;
+  --pal-glow: rgba(255, 140, 66, 0.4); --pal-glow-in: rgba(255, 205, 60, 0.08);
+  --pal-name: #fff2e6; --pal-class: #ffcd3c;
+  --pal-info-bg: #2d1a0e; --pal-info-bg-a: rgba(45, 26, 14, 0.6);
+}
 
-.bs-forge-card[data-palette="ocean"] {
-  background: linear-gradient(135deg, #0a1525, #122a4a);
-  border-color: #4a9eff;
-  box-shadow: 0 0 12px rgba(74, 158, 255, 0.4), inset 0 0 20px rgba(74, 158, 255, 0.1);
+/* Shared forge-card palette rules */
+.bs-forge-card[data-palette] {
+  background: linear-gradient(135deg, var(--pal-bg1), var(--pal-bg2));
+  border-color: var(--pal-border);
+  box-shadow: 0 0 12px var(--pal-glow), inset 0 0 20px var(--pal-glow-in);
 }
-.bs-forge-card[data-palette="ocean"] .bs-forge-card__name { color: #e6f3ff; }
-.bs-forge-card[data-palette="ocean"] .bs-forge-card__class { color: #66ccff; }
-.bs-forge-card[data-palette="ocean"] .bs-forge-card__info { background: linear-gradient(to top, #0a1525, rgba(10, 21, 37, 0.6)); }
-
-.bs-forge-card[data-palette="neon"] {
-  background: linear-gradient(135deg, #0a0a1a, #16213e);
-  border-color: #00d4ff;
-  box-shadow: 0 0 16px rgba(0, 212, 255, 0.5), inset 0 0 20px rgba(0, 212, 255, 0.1);
-}
-.bs-forge-card[data-palette="neon"] .bs-forge-card__name { color: #ffffff; }
-.bs-forge-card[data-palette="neon"] .bs-forge-card__class { color: #00d4ff; }
-.bs-forge-card[data-palette="neon"] .bs-forge-card__info { background: linear-gradient(to top, #0a0a1a, rgba(10, 10, 26, 0.6)); }
-
-.bs-forge-card[data-palette="fire"] {
-  background: linear-gradient(135deg, #2a0505, #4a1010);
-  border-color: #ff6b3d;
-  box-shadow: 0 0 14px rgba(255, 107, 61, 0.5), inset 0 0 20px rgba(255, 60, 20, 0.1);
-}
-.bs-forge-card[data-palette="fire"] .bs-forge-card__name { color: #ffe0dc; }
-.bs-forge-card[data-palette="fire"] .bs-forge-card__class { color: #ff6b5c; }
-.bs-forge-card[data-palette="fire"] .bs-forge-card__info { background: linear-gradient(to top, #2a0505, rgba(42, 5, 5, 0.6)); }
-
-.bs-forge-card[data-palette="monochrome"] {
-  background: linear-gradient(135deg, #111, #222);
-  border-color: #666;
-  box-shadow: 0 0 10px rgba(100, 100, 100, 0.3);
-}
-.bs-forge-card[data-palette="monochrome"] .bs-forge-card__name { color: #cccccc; }
-.bs-forge-card[data-palette="monochrome"] .bs-forge-card__class { color: #999; }
-.bs-forge-card[data-palette="monochrome"] .bs-forge-card__info { background: linear-gradient(to top, #111, rgba(17, 17, 17, 0.6)); }
-
-.bs-forge-card[data-palette="sunset"] {
-  background: linear-gradient(135deg, #2d1a0e, #4a2a10);
-  border-color: #ff8c42;
-  box-shadow: 0 0 14px rgba(255, 140, 66, 0.4), inset 0 0 20px rgba(255, 205, 60, 0.08);
-}
-.bs-forge-card[data-palette="sunset"] .bs-forge-card__name { color: #fff2e6; }
-.bs-forge-card[data-palette="sunset"] .bs-forge-card__class { color: #ffcd3c; }
-.bs-forge-card[data-palette="sunset"] .bs-forge-card__info { background: linear-gradient(to top, #2d1a0e, rgba(45, 26, 14, 0.6)); }
+.bs-forge-card[data-palette] .bs-forge-card__name { color: var(--pal-name); }
+.bs-forge-card[data-palette] .bs-forge-card__class { color: var(--pal-class); }
+.bs-forge-card[data-palette] .bs-forge-card__info { background: linear-gradient(to top, var(--pal-info-bg), var(--pal-info-bg-a)); }
 
 /* Container variants */
 .bs-forge-card[data-container="fullbleed"] .bs-forge-card__img {
@@ -4577,24 +4570,22 @@ body.bs-battle-active .bs-play {
 }
 
 /* Inferno palette (Ascension 1 unlock) */
-.bs-forge-card[data-palette="inferno"] {
-  background: linear-gradient(135deg, #1a0000, #4a0a0a);
-  border-color: #ff2200;
-  box-shadow: 0 0 18px rgba(255, 34, 0, 0.5), inset 0 0 25px rgba(255, 0, 0, 0.15);
+.bs-forge-card[data-palette="inferno"],
+.bs-rendered-card[data-palette="inferno"] {
+  --pal-bg1: #1a0000; --pal-bg2: #4a0a0a; --pal-border: #ff2200;
+  --pal-glow: rgba(255, 34, 0, 0.5); --pal-glow-in: rgba(255, 0, 0, 0.15);
+  --pal-name: #ffcccc; --pal-class: #ff4444;
+  --pal-info-bg: #1a0000; --pal-info-bg-a: rgba(26, 0, 0, 0.6);
 }
-.bs-forge-card[data-palette="inferno"] .bs-forge-card__name { color: #ffcccc; }
-.bs-forge-card[data-palette="inferno"] .bs-forge-card__class { color: #ff4444; }
-.bs-forge-card[data-palette="inferno"] .bs-forge-card__info { background: linear-gradient(to top, #1a0000, rgba(26, 0, 0, 0.6)); }
 
 /* Frost palette (Ascension 2 unlock) */
-.bs-forge-card[data-palette="frost"] {
-  background: linear-gradient(135deg, #0a1a2a, #1a3050);
-  border-color: #88ddff;
-  box-shadow: 0 0 16px rgba(136, 221, 255, 0.4), inset 0 0 20px rgba(136, 221, 255, 0.1);
+.bs-forge-card[data-palette="frost"],
+.bs-rendered-card[data-palette="frost"] {
+  --pal-bg1: #0a1a2a; --pal-bg2: #1a3050; --pal-border: #88ddff;
+  --pal-glow: rgba(136, 221, 255, 0.4); --pal-glow-in: rgba(136, 221, 255, 0.1);
+  --pal-name: #e6f7ff; --pal-class: #88ddff;
+  --pal-info-bg: #0a1a2a; --pal-info-bg-a: rgba(10, 26, 42, 0.6);
 }
-.bs-forge-card[data-palette="frost"] .bs-forge-card__name { color: #e6f7ff; }
-.bs-forge-card[data-palette="frost"] .bs-forge-card__class { color: #88ddff; }
-.bs-forge-card[data-palette="frost"] .bs-forge-card__info { background: linear-gradient(to top, #0a1a2a, rgba(10, 26, 42, 0.6)); }
 
 /* ============================================================
    RENDERED CARD — lightweight card renderer used across screens
@@ -4784,23 +4775,25 @@ body.bs-battle-active .bs-play {
 .bs-rendered-card[data-rarity="epic"] .bs-rc__name { color: var(--bs-rarity-epic); }
 .bs-rendered-card[data-rarity="legendary"] .bs-rc__name { color: var(--bs-rarity-legendary); }
 
-/* --- Palette theming (reuse forge palette colors) --- */
-.bs-rendered-card[data-palette="earth"] { background: linear-gradient(135deg, #2d1b0e, #3d2b1e); border-color: #8b6914; box-shadow: 0 0 12px rgba(139, 105, 20, 0.3); }
-.bs-rendered-card[data-palette="earth"] .bs-rc__info { background: linear-gradient(to top, #2d1b0e, rgba(45, 27, 14, 0.7)); }
-.bs-rendered-card[data-palette="ocean"] { background: linear-gradient(135deg, #0a1525, #122a4a); border-color: #4a9eff; box-shadow: 0 0 12px rgba(74, 158, 255, 0.3); }
-.bs-rendered-card[data-palette="ocean"] .bs-rc__info { background: linear-gradient(to top, #0a1525, rgba(10, 21, 37, 0.7)); }
-.bs-rendered-card[data-palette="neon"] { background: linear-gradient(135deg, #0a0a1a, #16213e); border-color: #00d4ff; box-shadow: 0 0 14px rgba(0, 212, 255, 0.3); }
-.bs-rendered-card[data-palette="neon"] .bs-rc__info { background: linear-gradient(to top, #0a0a1a, rgba(10, 10, 26, 0.7)); }
-.bs-rendered-card[data-palette="fire"] { background: linear-gradient(135deg, #2a0505, #4a1010); border-color: #ff6b3d; box-shadow: 0 0 14px rgba(255, 107, 61, 0.3); }
-.bs-rendered-card[data-palette="fire"] .bs-rc__info { background: linear-gradient(to top, #2a0505, rgba(42, 5, 5, 0.7)); }
-.bs-rendered-card[data-palette="monochrome"] { background: linear-gradient(135deg, #111, #222); border-color: #666; box-shadow: 0 0 10px rgba(100, 100, 100, 0.2); }
-.bs-rendered-card[data-palette="monochrome"] .bs-rc__info { background: linear-gradient(to top, #111, rgba(17, 17, 17, 0.7)); }
-.bs-rendered-card[data-palette="sunset"] { background: linear-gradient(135deg, #2a1020, #3d1525); border-color: #ff6b9d; box-shadow: 0 0 12px rgba(255, 107, 157, 0.3); }
-.bs-rendered-card[data-palette="sunset"] .bs-rc__info { background: linear-gradient(to top, #2a1020, rgba(42, 16, 32, 0.7)); }
-.bs-rendered-card[data-palette="inferno"] { background: linear-gradient(135deg, #1a0000, #3d0a00); border-color: #ff3300; box-shadow: 0 0 16px rgba(255, 51, 0, 0.4); }
-.bs-rendered-card[data-palette="inferno"] .bs-rc__info { background: linear-gradient(to top, #1a0000, rgba(26, 0, 0, 0.7)); }
-.bs-rendered-card[data-palette="frost"] { background: linear-gradient(135deg, #0a1a2a, #1a3050); border-color: #88ddff; box-shadow: 0 0 14px rgba(136, 221, 255, 0.3); }
-.bs-rendered-card[data-palette="frost"] .bs-rc__info { background: linear-gradient(to top, #0a1a2a, rgba(10, 26, 42, 0.7)); }
+/* --- Palette theming for rendered cards (tokens defined above with forge palettes) --- */
+.bs-rendered-card[data-palette] {
+  background: linear-gradient(135deg, var(--pal-bg1), var(--pal-bg2));
+  border-color: var(--pal-border);
+  box-shadow: 0 0 12px var(--pal-glow);
+}
+.bs-rendered-card[data-palette] .bs-rc__info {
+  background: linear-gradient(to top, var(--pal-info-bg), var(--pal-info-bg-a));
+}
+/* Rendered-card overrides where colors differ from forge preview */
+.bs-rendered-card[data-palette="sunset"] {
+  --pal-bg1: #2a1020; --pal-bg2: #3d1525; --pal-border: #ff6b9d;
+  --pal-glow: rgba(255, 107, 157, 0.3);
+  --pal-info-bg: #2a1020; --pal-info-bg-a: rgba(42, 16, 32, 0.7);
+}
+.bs-rendered-card[data-palette="inferno"] {
+  --pal-bg2: #3d0a00; --pal-border: #ff3300;
+  --pal-glow: rgba(255, 51, 0, 0.4);
+}
 
 /* Mobile forge overrides — MUST come after base styles to win cascade */
 @media (max-width: 768px) {
