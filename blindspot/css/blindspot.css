@@ -1592,6 +1592,7 @@
 
 /* --- Combatants --- */
 .bs-page .arena-combatant {
+  position: relative;
   flex: 1;
   max-width: 240px;
   display: flex;
@@ -1769,9 +1770,19 @@
 /* --- Move Buttons --- */
 .bs-page .arena-battle__moves {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(6, 1fr);
   gap: 0.6rem;
   padding-bottom: env(safe-area-inset-bottom, 0.5rem);
+}
+/* Without charm: 5 buttons span the 6-col grid evenly (3 top + 2 centered) */
+.bs-page .arena-battle__moves:not(:has(.arena-move-btn--charm)) .arena-move-btn {
+  grid-column: span 2;
+}
+.bs-page .arena-battle__moves:not(:has(.arena-move-btn--charm)) .arena-move-btn:nth-child(4) {
+  grid-column: 2 / 4;
+}
+.bs-page .arena-battle__moves:not(:has(.arena-move-btn--charm)) .arena-move-btn:nth-child(5) {
+  grid-column: 4 / 6;
 }
 .bs-page .arena-move-btn {
   position: relative;
@@ -1890,7 +1901,7 @@
 .bs-page .arena-modal__actions { display: flex; gap: 0.75rem; justify-content: center; }
 
 /* --- Damage Floaters --- */
-.bs-page .arena-dmg-float { position: absolute; font-weight: bold; pointer-events: none; z-index: 100; font-size: 1.2rem; animation: arena-dmg-float 1s ease-out forwards; }
+.bs-page .arena-dmg-float { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold; pointer-events: none; z-index: 100; font-size: 1.2rem; animation: arena-dmg-float 1s ease-out forwards; }
 .bs-page .arena-dmg-float--damage { color: var(--bs-danger); }
 .bs-page .arena-dmg-float--heal { color: var(--bs-success); }
 
@@ -2052,8 +2063,8 @@
   50% { opacity: 0.6; }
 }
 @keyframes arena-dmg-float {
-  0% { opacity: 1; transform: translateY(0) scale(1); }
-  100% { opacity: 0; transform: translateY(-40px) scale(1.3); }
+  0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 0; transform: translate(-50%, calc(-50% - 40px)) scale(1.3); }
 }
 @keyframes arena-hype-pulse {
   0%, 100% { box-shadow: 0 0 4px rgba(239, 159, 39, 0.3); }
@@ -3067,11 +3078,11 @@
 
 .bs-round-flash {
   position: absolute;
-  top: 50%;
+  top: 12%;
   left: 50%;
   transform: translate(-50%, -50%) scale(0.5);
   font-family: 'Cinzel', serif;
-  font-size: 1.5rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: var(--bs-accent);
   text-shadow: 0 0 20px rgba(239, 159, 39, 0.6);
@@ -3079,6 +3090,7 @@
   z-index: 100;
   pointer-events: none;
   transition: opacity 0.2s, transform 0.2s;
+  white-space: nowrap;
 }
 
 .bs-round-flash--active {
@@ -3155,10 +3167,7 @@
   50% { box-shadow: 0 0 12px color-mix(in srgb, var(--bs-accent) 50%, transparent); }
 }
 
-/* 6th charm button — center below the 3+2 grid */
-.bs-page .arena-battle__moves .arena-move-btn--charm {
-  grid-column: 3 / 5;
-}
+/* Charm button — same size as other move buttons in the 6-col grid */
 
 /* Charm buff chip in player buffs area */
 .bs-charm-buff {
@@ -3665,7 +3674,7 @@
     max-height: none;
   }
 
-  /* Battle moves — 3+2 grid on tablet/mobile for larger touch targets */
+  /* Battle moves — 3+2 grid on tablet/mobile (3+3 when charm equipped) */
   .bs-page .arena-battle__moves {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
@@ -3687,11 +3696,11 @@
 
   .bs-page .arena-move-btn i { font-size: 1.4rem; }
 
-  /* Row 2: center 2 buttons by offsetting first one */
-  .bs-page .arena-battle__moves .arena-move-btn:nth-child(4) {
+  /* Row 2: center 2 buttons only when no charm (5 buttons = 3+2) */
+  .bs-page .arena-battle__moves:not(:has(.arena-move-btn--charm)) .arena-move-btn:nth-child(4) {
     grid-column: 2 / 4;
   }
-  .bs-page .arena-battle__moves .arena-move-btn:nth-child(5) {
+  .bs-page .arena-battle__moves:not(:has(.arena-move-btn--charm)) .arena-move-btn:nth-child(5) {
     grid-column: 4 / 6;
   }
 }
@@ -3814,10 +3823,10 @@
   }
   .bs-page .arena-move-btn i { font-size: 1.3rem; }
   .bs-page .arena-move-btn__label { font-size: 0.8rem; }
-  .bs-page .arena-battle__moves .arena-move-btn:nth-child(4) {
+  .bs-page .arena-battle__moves:not(:has(.arena-move-btn--charm)) .arena-move-btn:nth-child(4) {
     grid-column: 2 / 4;
   }
-  .bs-page .arena-battle__moves .arena-move-btn:nth-child(5) {
+  .bs-page .arena-battle__moves:not(:has(.arena-move-btn--charm)) .arena-move-btn:nth-child(5) {
     grid-column: 4 / 6;
   }
   .bs-page .arena-move-btn__desc { display: none; }

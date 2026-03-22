@@ -1070,8 +1070,13 @@
   }
 
   function isNewPlayer(profile) {
-    // localStorage flag is authoritative — if cleared, player wants fresh start
+    // localStorage flag is fastest check
     if (localStorage.getItem('blindspot-onboarded')) return false;
+    // Server profile fallback — cache clear shouldn't reset a real player
+    if (profile && (profile.selectedCardId || profile.xp > 0 || (profile.record && profile.record.wins > 0))) {
+      safeLSSet('blindspot-onboarded', 'true');
+      return false;
+    }
     return true;
   }
 
