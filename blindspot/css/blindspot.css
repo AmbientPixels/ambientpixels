@@ -4569,7 +4569,7 @@ body.bs-battle-active .bs-bottom-nav {
   font-size: 2rem;
 }
 
-/* Container styles */
+/* Container styles — all containers fill the art section height consistently */
 .bs-rendered-card[data-container="masked"] .bs-rc__art {
   padding: 0.75rem;
   background: transparent;
@@ -4581,12 +4581,14 @@ body.bs-battle-active .bs-bottom-nav {
   margin: 0 auto;
   object-fit: cover;
   border: 2px solid rgba(255, 255, 255, 0.15);
+  height: auto;
 }
 .bs-rendered-card[data-container="fullbleed"] .bs-rc__art { padding: 0; }
-.bs-rendered-card[data-container="fullbleed"] .bs-rc__avatar { height: auto; }
+.bs-rendered-card[data-container="fullbleed"] .bs-rc__avatar { width: 100%; height: 100%; object-fit: cover; }
 .bs-rendered-card[data-container="framed"] .bs-rc__art { padding: 0.5rem; }
-.bs-rendered-card[data-container="framed"] .bs-rc__avatar { border-radius: 4px; border: 2px solid rgba(255, 255, 255, 0.1); }
+.bs-rendered-card[data-container="framed"] .bs-rc__avatar { width: 100%; height: 100%; object-fit: cover; border-radius: 4px; border: 2px solid rgba(255, 255, 255, 0.1); }
 .bs-rendered-card[data-container="hero"] .bs-rc__art { padding: 0; }
+.bs-rendered-card[data-container="hero"] .bs-rc__avatar { width: 100%; height: 100%; object-fit: cover; }
 
 /* --- Info section --- */
 .bs-rc__info {
@@ -4667,7 +4669,7 @@ body.bs-battle-active .bs-bottom-nav {
   width: 100%;
   max-width: 220px;
 }
-.bs-rc--full .bs-rc__art { min-height: 150px; }
+.bs-rc--full .bs-rc__art { height: 180px; min-height: 150px; }
 
 .bs-rc--compact {
   width: 100%;
