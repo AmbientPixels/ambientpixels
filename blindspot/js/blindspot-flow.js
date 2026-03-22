@@ -4202,7 +4202,7 @@
       const icon = BOSS_ICONS[boss.class] || 'fa-skull';
       const record = getBossRecord(boss.id);
 
-      const connector = i < campaignBosses.length - 1
+      const connector = i < campaignOnly.length - 1
         ? `<div class="bs-ladder-connector ${defeated ? 'bs-ladder-connector--done' : ''}"></div>`
         : '';
 
