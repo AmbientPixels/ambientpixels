@@ -3426,13 +3426,13 @@
       const highestB = getHighestBossDefeated();
 
       let streakHtml = '';
-      if (streak >= 5) streakHtml = `<span class="bs-hud-streak--hot"><i class="fas fa-skull"></i> ${streak}</span>`;
-      else if (streak >= 3) streakHtml = `<span class="bs-hud-streak--warm"><i class="fas fa-skull"></i> ${streak}</span>`;
-      else if (streak > 0) streakHtml = `<span><i class="fas fa-skull"></i> ${streak}</span>`;
+      if (streak >= 5) streakHtml = `<span class="bs-hud-streak--hot" data-tooltip="Win streak — 5+ doubles forge points"><i class="fas fa-skull"></i> ${streak} streak</span>`;
+      else if (streak >= 3) streakHtml = `<span class="bs-hud-streak--warm" data-tooltip="Win streak — 3+ earns bonus sparks"><i class="fas fa-skull"></i> ${streak} streak</span>`;
+      else if (streak > 0) streakHtml = `<span data-tooltip="Current win streak"><i class="fas fa-skull"></i> ${streak} streak</span>`;
 
       const ascension = getAscension();
       const ascHtml = ascension > 0 ? `<span class="bs-ascension-badge"><i class="fas fa-star"></i> Ascension ${ascension}</span>` : '';
-      const powerHtml = power > 0 ? `<span class="bs-hud-power" data-tooltip="Total combat power"><i class="fas fa-bolt"></i> ${power}</span>` : '';
+      const powerHtml = power > 0 ? `<span class="bs-hud-power" data-tooltip="Total combat power"><i class="fas fa-bolt"></i> ${power} power</span>` : '';
 
       // PvP Elo in lobby (only show if PvP unlocked)
       let pvpHtml = '';
@@ -3457,7 +3457,7 @@
       }
 
       const sparksCount = getSparks();
-      const sparksHtml = sparksCount > 0 ? `<span class="bs-hud-sparks" data-tooltip="Spend in the Forge"><i class="fas fa-fire"></i> ${sparksCount}</span>` : '';
+      const sparksHtml = sparksCount > 0 ? `<span class="bs-hud-sparks" data-tooltip="Currency — buy crates and Forge cosmetics"><i class="fas fa-fire"></i> ${sparksCount} sparks</span>` : '';
 
       // Compact HUD: primary line (power · sparks · streak) + secondary line (boss · pvp · tower)
       const primaryParts = [powerHtml, sparksHtml, streakHtml].filter(Boolean);
