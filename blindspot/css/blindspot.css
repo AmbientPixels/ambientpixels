@@ -920,6 +920,10 @@
   flex-direction: column;
   gap: 0.5rem;
 }
+/* Desktop: expand campaign beyond base 720px */
+@media (min-width: 769px) {
+  #bs-screen-campaign { max-width: 860px; }
+}
 
 .bs-campaign__header {
   display: flex;
