@@ -720,18 +720,22 @@
   letter-spacing: 0.04em;
 }
 
-/* Card slide animations */
+/* Card slide animations — transition: none prevents the transform transition from fighting the animation */
 .bs-lobby__card-display.bs-card-slide-out-left {
   animation: bs-card-slide-out-left 0.25s ease-in forwards;
+  transition: none !important;
 }
 .bs-lobby__card-display.bs-card-slide-in-right {
   animation: bs-card-slide-in-right 0.25s ease-out forwards;
+  transition: none !important;
 }
 .bs-lobby__card-display.bs-card-slide-out-right {
   animation: bs-card-slide-out-right 0.25s ease-in forwards;
+  transition: none !important;
 }
 .bs-lobby__card-display.bs-card-slide-in-left {
   animation: bs-card-slide-in-left 0.25s ease-out forwards;
+  transition: none !important;
 }
 
 @keyframes bs-card-slide-out-left {
@@ -1709,7 +1713,8 @@
 
 /* --- Combat Log --- */
 .bs-page .arena-battle__log {
-  max-height: 120px;
+  height: 80px;
+  flex-shrink: 0;
   overflow-y: auto;
   padding: 0.5rem 0.75rem;
   background: var(--bs-surface);
@@ -1744,6 +1749,7 @@
   background: var(--bs-surface);
   border-radius: 6px;
   margin-bottom: 0.5rem;
+  flex-shrink: 0;
 }
 .bs-page .arena-hype-bar__label {
   font-size: 0.65rem;
@@ -1768,21 +1774,15 @@
 }
 
 /* --- Move Buttons --- */
+/* Desktop: 5 across (no charm) or 6 across (with charm) */
 .bs-page .arena-battle__moves {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 0.6rem;
   padding-bottom: env(safe-area-inset-bottom, 0.5rem);
 }
-/* Without charm: 5 buttons span the 6-col grid evenly (3 top + 2 centered) */
-.bs-page .arena-battle__moves:not(:has(.arena-move-btn--charm)) .arena-move-btn {
-  grid-column: span 2;
-}
-.bs-page .arena-battle__moves:not(:has(.arena-move-btn--charm)) .arena-move-btn:nth-child(4) {
-  grid-column: 2 / 4;
-}
-.bs-page .arena-battle__moves:not(:has(.arena-move-btn--charm)) .arena-move-btn:nth-child(5) {
-  grid-column: 4 / 6;
+.bs-page .arena-battle__moves:has(.arena-move-btn--charm) {
+  grid-template-columns: repeat(6, 1fr);
 }
 .bs-page .arena-move-btn {
   position: relative;
@@ -1901,7 +1901,7 @@
 .bs-page .arena-modal__actions { display: flex; gap: 0.75rem; justify-content: center; }
 
 /* --- Damage Floaters --- */
-.bs-page .arena-dmg-float { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-weight: bold; pointer-events: none; z-index: 100; font-size: 1.2rem; animation: arena-dmg-float 1s ease-out forwards; }
+.bs-page .arena-dmg-float { position: absolute; top: 40%; left: 0; right: 0; text-align: center; font-weight: bold; pointer-events: none; z-index: 100; font-size: 1.2rem; animation: arena-dmg-float 1s ease-out forwards; }
 .bs-page .arena-dmg-float--damage { color: var(--bs-danger); }
 .bs-page .arena-dmg-float--heal { color: var(--bs-success); }
 
@@ -1930,7 +1930,7 @@
 .bs-page .arena-crit-banner { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 50; font-family: 'Cinzel', serif; font-size: 1.5rem; font-weight: 700; color: var(--bs-accent-glow); text-shadow: 0 0 20px rgba(239, 159, 39, 0.6); animation: arena-banner-pop 0.8s ease-out forwards; pointer-events: none; white-space: nowrap; }
 .bs-page .arena-speed-badge { position: absolute; top: -8px; right: -8px; z-index: 20; background: var(--bs-accent); color: var(--bs-bg); font-size: 0.6rem; font-weight: 700; padding: 0.2rem 0.5rem; border-radius: 4px; animation: arena-badge-pop 0.4s ease-out; pointer-events: none; }
 .bs-page .arena-speed-badge--enemy { background: var(--bs-danger); }
-.bs-page .arena-streak-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); z-index: 20; background: var(--bs-accent); color: var(--bs-bg); font-size: 0.65rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 4px; animation: arena-badge-pop 0.4s ease-out; pointer-events: none; white-space: nowrap; }
+.bs-page .arena-streak-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); z-index: 20; background: var(--bs-accent); color: var(--bs-bg); font-size: 0.65rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: 4px; animation: arena-streak-pop 0.4s ease-out; pointer-events: none; white-space: nowrap; }
 .bs-page .arena-last-stand-banner { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 100; font-family: 'Cinzel', serif; font-size: 2rem; font-weight: 700; color: #DC2626; text-shadow: 0 0 30px rgba(220, 38, 38, 0.6); animation: arena-banner-pop 1s ease-out forwards; pointer-events: none; }
 .bs-page .arena-counter-badge { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 50; font-family: 'Cinzel', serif; font-size: 1.2rem; font-weight: 700; color: var(--bs-text); text-shadow: 0 0 12px rgba(245, 240, 232, 0.4); animation: arena-banner-pop 0.6s ease-out forwards; pointer-events: none; }
 .bs-page .arena-reflect-banner { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 100; font-family: 'Cinzel', serif; font-size: 1.8rem; font-weight: 700; color: var(--bs-accent-glow); text-shadow: 0 0 20px rgba(250, 199, 117, 0.5); animation: arena-banner-pop 0.8s ease-out forwards; pointer-events: none; }
@@ -2020,6 +2020,11 @@
   60% { transform: scale(1.2); }
   100% { opacity: 1; transform: scale(1); }
 }
+@keyframes arena-streak-pop {
+  0% { opacity: 0; transform: translateX(-50%) scale(0); }
+  60% { transform: translateX(-50%) scale(1.2); }
+  100% { opacity: 1; transform: translateX(-50%) scale(1); }
+}
 @keyframes arena-flash-fade {
   0% { opacity: 1; }
   100% { opacity: 0; }
@@ -2063,8 +2068,8 @@
   50% { opacity: 0.6; }
 }
 @keyframes arena-dmg-float {
-  0% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-  100% { opacity: 0; transform: translate(-50%, calc(-50% - 40px)) scale(1.3); }
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-40px) scale(1.3); }
 }
 @keyframes arena-hype-pulse {
   0%, 100% { box-shadow: 0 0 4px rgba(239, 159, 39, 0.3); }
@@ -3654,9 +3659,9 @@
   }
   .bs-page .arena-combatant__name { font-size: 0.75rem; }
 
-  /* Combat log — constrain height, compact */
+  /* Combat log — fixed height, compact */
   .bs-page .arena-battle__log {
-    max-height: 100px;
+    height: 70px;
     font-size: 0.7rem;
     padding: 0.5rem 0.75rem;
     margin-bottom: 0.5rem;
@@ -3794,7 +3799,7 @@
 
   /* Combat log — single line on small phones to keep buttons above fold */
   .bs-page .arena-battle__log {
-    max-height: 24px;
+    height: 24px;
     font-size: 0.6rem;
     padding: 0.15rem 0.5rem;
     line-height: 1.2;
@@ -4502,7 +4507,7 @@
   .bs-page .arena-combatant { padding: 0.5rem 0.75rem; gap: 0.25rem; }
   .bs-page .arena-combatant__card { width: 130px; height: 130px; }
   .bs-page .arena-battle__stage { margin-bottom: 0.25rem; }
-  .bs-page .arena-battle__log { max-height: 50px; margin-bottom: 0.25rem; }
+  .bs-page .arena-battle__log { height: 50px; margin-bottom: 0.25rem; }
   .bs-page .arena-hype-bar { margin-bottom: 0.25rem; }
   .bs-page .arena-move-btn { padding: 0.6rem 0.4rem 0.5rem; }
 }
@@ -4511,7 +4516,7 @@
   .bs-page .arena-combatant__card { width: 100px; height: 100px; }
   .bs-page .arena-battle__field { padding: 0.5rem 1rem; }
   .bs-page .arena-combatant { padding: 0.35rem 0.5rem; }
-  .bs-page .arena-battle__log { max-height: 36px; }
+  .bs-page .arena-battle__log { height: 36px; }
   .bs-page .arena-combatant__name { font-size: 0.8rem; }
   .bs-page .arena-move-btn { padding: 0.5rem 0.3rem 0.4rem; border-radius: 10px; }
   .bs-page .arena-move-btn__name { font-size: 0.7rem; }
@@ -6323,7 +6328,7 @@ body.bs-battle-active .bs-play {
   font-family: 'Share Tech Mono', monospace;
 }
 
-/* Battle hint bar */
+/* Battle hint bar — visibility toggle, not display, to prevent layout shift */
 .bs-battle-hint {
   padding: 0.5rem 1rem;
   background: rgba(239, 159, 39, 0.08);
@@ -6337,6 +6342,8 @@ body.bs-battle-active .bs-play {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  visibility: hidden;
+  flex-shrink: 0;
 }
 
 @media (max-width: 480px) {

@@ -972,7 +972,10 @@
     return c;
   }
   function isInTutorialRange() {
-    return getTutorialBattleCount() <= TUTORIAL_MAX_BATTLES;
+    if (getTutorialBattleCount() > TUTORIAL_MAX_BATTLES) return false;
+    // Server profile shows experienced player — skip tutorial after cache clear
+    if (_profile && (_profile.xp > 0 || (_profile.record && _profile.record.wins > 0))) return false;
+    return true;
   }
 
   function showTutorialHint(text) {
@@ -981,11 +984,11 @@
     el.innerHTML = '<i class="fas fa-lightbulb" style="color:var(--bs-accent);" aria-hidden="true"></i> ' +
       '<span>' + text + '</span>' +
       '<button class="bs-hint-dismiss" aria-label="Dismiss hint" style="margin-left:auto; background:none; border:none; color:var(--bs-text-muted); cursor:pointer; padding:0.25rem; font-size:0.85rem;"><i class="fas fa-times" aria-hidden="true"></i></button>';
-    el.style.display = '';
+    el.style.visibility = 'visible';
     var dismissBtn = el.querySelector('.bs-hint-dismiss');
     if (dismissBtn) {
       dismissBtn.addEventListener('click', function() {
-        el.style.display = 'none';
+        el.style.visibility = 'hidden';
       }, { once: true });
     }
   }
@@ -6815,9 +6818,9 @@
     var el = document.getElementById('bs-battle-hint');
     if (!el) return;
     var text = BATTLE_HINTS[key];
-    if (!text) { el.style.display = 'none'; return; }
+    if (!text) { el.style.visibility = 'hidden'; return; }
     el.innerHTML = '<i class="fas fa-lightbulb" style="color:var(--bs-accent);"></i> ' + text;
-    el.style.display = '';
+    el.style.visibility = 'visible';
   }
 
   function updateCombatTooltips() {
