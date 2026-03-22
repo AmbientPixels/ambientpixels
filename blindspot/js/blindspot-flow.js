@@ -1807,6 +1807,8 @@
       + powerHTML
       + '</div>';
   }
+  // Expose for Quick Build reveal
+  window.renderCardHTML = renderCardHTML;
 
   // ============================================================
   // PROGRESSION SYSTEM

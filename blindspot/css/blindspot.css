@@ -1378,47 +1378,42 @@
    ============================================================ */
 
 .bs-card-flip-container {
-  perspective: 1000px;
-  width: 260px;
-  height: 560px;
+  width: 280px;
   margin: 0 auto;
 }
 
 .bs-card-flip-inner {
   position: relative;
   width: 100%;
-  height: 100%;
-  transition: transform 0.8s ease;
-  transform-style: preserve-3d;
-}
-
-.bs-card-flip-inner.flipped {
-  transform: rotateY(180deg);
 }
 
 .bs-card-flip-front,
 .bs-card-flip-back {
-  position: absolute;
   width: 100%;
-  height: 100%;
-  backface-visibility: hidden;
   border-radius: 12px;
-}
-.bs-card-flip-front {
-  overflow: hidden;
+  transition: opacity 0.5s ease;
 }
 
-.bs-card-flip-back {
-  transform: rotateY(180deg);
-  overflow: hidden;
-}
-
+/* Front: visible by default, hidden after flip */
 .bs-card-flip-front {
   background: var(--bs-card-bg);
   border: 1px solid var(--bs-border);
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 200px;
+  padding: 2rem;
+}
+.bs-card-flip-inner.flipped .bs-card-flip-front {
+  display: none;
+}
+
+/* Back: hidden by default, shown after flip */
+.bs-card-flip-back {
+  display: none;
+}
+.bs-card-flip-inner.flipped .bs-card-flip-back {
+  display: block;
 }
 
 /* Strip CardForge double border from cloned card inside flip reveal */
@@ -3496,7 +3491,7 @@
   .bs-lobby__card-display { width: 180px; min-height: 230px; height: auto; }
   .bs-forge-screen { padding: 0 0.5rem; }
   .bs-forge-stat__desc { display: none; }
-  .bs-card-flip-container { width: 220px; height: 400px; }
+  .bs-card-flip-container { width: 220px; }
   .bs-overlay { padding: 1.5rem; }
   .bs-overlay__title { font-size: 1.25rem; }
 
@@ -3594,7 +3589,7 @@
   .bs-boss-card__name { font-size: 0.9rem; }
   .bs-boss-card__flavor { font-size: 0.7rem; }
   .bs-boss-avatar { width: 36px; height: 36px; font-size: 0.9rem; }
-  .bs-card-flip-container { width: 190px; height: 350px; }
+  .bs-card-flip-container { width: 190px; }
   .bs-overlay__title { font-size: 1.1rem; }
   .bs-overlay__subtitle { font-size: 0.85rem; }
   .bs-loss-screen__text { font-size: 2rem; }

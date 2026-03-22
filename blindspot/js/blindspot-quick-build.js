@@ -539,53 +539,48 @@
   // ===== REVEAL ANIMATION =====
 
   function _triggerReveal() {
-    // Populate the card preview first, then flip after it renders
-    _populatePreview();
+    // Build card data from Quick Build state and render with Blindspot's own renderer
+    const card = {
+      name: _state.cardName || 'Unknown',
+      class: _state.cardClass || '',
+      characterClass: _state.cardClass || '',
+      rarity: 'Common',
+      avatar: _state.artworkUrl || '',
+      palette: 'earth',
+      imageContainer: _state.imageContainer || 'masked',
+      combatStats: _getActiveStats()
+    };
 
-    // Wait for preview to render (editor needs time), then flip
+    // Render using Blindspot's renderCardHTML — no CardForge dependency
+    const previewContainer = document.getElementById('qb-card-preview');
+    if (previewContainer && window.renderCardHTML) {
+      previewContainer.innerHTML = window.renderCardHTML(card, 'full');
+    } else if (previewContainer) {
+      // Fallback: populate CardForge editor preview
+      _populatePreview();
+    }
+
+    // Flip
     setTimeout(() => {
-      // Re-clone preview right before flip (in case editor rendered async)
-      const sourcePreview = document.querySelector('.card-preview-zone .card-preview-canvas');
-      const previewContainer = document.getElementById('qb-card-preview');
-      if (sourcePreview && previewContainer) {
-        const clone = sourcePreview.cloneNode(true);
-        clone.style.width = '100%';
-        clone.style.height = '100%';
-        clone.style.position = 'absolute';
-        clone.style.top = '0';
-        clone.style.left = '0';
-        clone.style.transform = '';
-        clone.style.borderRadius = '12px';
-        clone.style.overflow = 'hidden';
-        previewContainer.innerHTML = '';
-        previewContainer.style.position = 'relative';
-        previewContainer.appendChild(clone);
-      }
-
-      // Now flip
       const flipInner = document.getElementById('bs-flip-inner');
       if (flipInner) flipInner.classList.add('flipped');
-
-      // Play SFX
       if (window.ArenaAudio) {
         try { window.ArenaAudio.playSfx('victory'); } catch (e) {}
       }
-
       _cardFlipped = true;
-    }, 300); // 300ms gives editor time to render
+    }, 200);
 
-    // Update nav button after flip animation completes
+    // Update nav button after flip animation
     setTimeout(() => {
       const navEl = _overlayEl?.querySelector('.qb-nav');
       if (navEl) {
         const backBtn = navEl.querySelector('.qb-nav-btn--back');
         navEl.innerHTML = (backBtn ? backBtn.outerHTML : '<div></div>') +
           `<button class="qb-nav-btn qb-nav-btn--save" id="bs-enter-arena" style="background:var(--bs-accent);border-color:var(--bs-accent);font-family:'Cinzel',serif;font-weight:700;">Continue</button>`;
-
         document.getElementById('bs-enter-arena')?.addEventListener('click', _handleSaveAndEnter);
         document.getElementById('qb-back')?.addEventListener('click', () => { _state.step--; _cardFlipped = false; _render(); });
       }
-    }, 1200); // After flip animation (800ms) + buffer
+    }, 1100);
   }
 
   function _populatePreview() {
