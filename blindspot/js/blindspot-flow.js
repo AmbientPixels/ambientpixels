@@ -3390,10 +3390,14 @@
     dismissLoadingGate();
 
     // Post-Quick-Build onboarding: show 3-step welcome on first lobby visit
+    // Skip if server profile shows returning player (cache clear shouldn't re-onboard)
     if (!localStorage.getItem('bs-onboarded-lobby')) {
+      var isReturning = _profile && (_profile.xp > 0 || (_profile.record && _profile.record.wins > 0));
       safeLSSet('bs-onboarded-lobby', 'true');
-      // Brief delay so player sees the lobby before onboarding overlay
-      setTimeout(showLobbyOnboarding, 800);
+      if (!isReturning) {
+        // Brief delay so player sees the lobby before onboarding overlay
+        setTimeout(showLobbyOnboarding, 800);
+      }
     }
    } catch (err) {
     console.error('[Blindspot] initPlay crashed:', err);
