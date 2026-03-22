@@ -2369,7 +2369,13 @@
   background: var(--bs-surface);
   border: 1px solid var(--bs-border);
   color: var(--bs-text);
+  max-height: 95vh;
 }
+/* Hide scrollbar in Quick Build body — content still scrolls */
+.bs-page .qb-body {
+  scrollbar-width: none;
+}
+.bs-page .qb-body::-webkit-scrollbar { display: none; }
 
 .bs-page .qb-header h2 {
   font-family: 'Cinzel', serif;
