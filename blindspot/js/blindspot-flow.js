@@ -21,10 +21,12 @@
     try { localStorage.setItem(key, value); }
     catch (e) {
       // Quota exceeded — clear non-essential caches and retry
+      // NEVER clear bs-deck here — it's critical card data, not a cache
       try {
         localStorage.removeItem('bs-session-stats');
         localStorage.removeItem('cardforge_saved_cards');
-        localStorage.removeItem('bs-deck');
+        localStorage.removeItem('bs-crate-history');
+        localStorage.removeItem('bs-battle-log');
         localStorage.setItem(key, value);
       } catch {}
     }
