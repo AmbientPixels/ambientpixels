@@ -3990,8 +3990,6 @@
 .bs-lobby__card-display:hover::after {
   opacity: 0.7;
 }
-  100% { opacity: 0; transform: rotate(360deg); }
-}
 
 .bs-lobby__welcome {
   font-family: 'Cinzel', serif;
