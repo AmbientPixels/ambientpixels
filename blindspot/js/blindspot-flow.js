@@ -2855,6 +2855,9 @@
       stopBattleAmbient();
       // Remove tutorial if active
       removeTutorial();
+      // Reset charm state — unused charms don't carry into next battle
+      _equippedCharm = null;
+      _charmUsedThisBattle = false;
 
       if (_isStrangerFight) {
         handleStrangerResult(battleResult, battleData);
