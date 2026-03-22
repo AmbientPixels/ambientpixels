@@ -1,5 +1,5 @@
 {
-  "scannedAt": "2026-03-21T13:44:53.383Z",
+  "scannedAt": "2026-03-22T13:46:27.740Z",
   "folders": [
     {
       "folder": "images",
@@ -316,6 +316,82 @@
       "count": 1,
       "files": [
         "images/image-packs/planets/hero01.jpg"
+      ]
+    },
+    {
+      "folder": "images/image-packs/thumbs",
+      "count": 70,
+      "files": [
+        "images/image-packs/thumbs/characters--autumnus-majestus.webp",
+        "images/image-packs/thumbs/characters--carved-celestial-goddess.webp",
+        "images/image-packs/thumbs/characters--celestial-neptune.webp",
+        "images/image-packs/thumbs/characters--cyber-erenity.webp",
+        "images/image-packs/thumbs/characters--ember-gaze.webp",
+        "images/image-packs/thumbs/characters--ethereal-enigma.webp",
+        "images/image-packs/thumbs/characters--eyes-of-the-storm.webp",
+        "images/image-packs/thumbs/characters--guardian-of-the-gilded-halls.webp",
+        "images/image-packs/thumbs/characters--hero.webp",
+        "images/image-packs/thumbs/characters--hero03.webp",
+        "images/image-packs/thumbs/characters--hero1.webp",
+        "images/image-packs/thumbs/characters--iron-lady.webp",
+        "images/image-packs/thumbs/characters--navigator-kairo.webp",
+        "images/image-packs/thumbs/characters--regal-radiance.webp",
+        "images/image-packs/thumbs/characters--seraphic-sovereign.webp",
+        "images/image-packs/thumbs/characters--seraphina.webp",
+        "images/image-packs/thumbs/characters--sunset-synthesis.webp",
+        "images/image-packs/thumbs/characters--surreal-up-close.webp",
+        "images/image-packs/thumbs/characters--tangerine-tempest.webp",
+        "images/image-packs/thumbs/characters--the-enigmatic-neuromancer.webp",
+        "images/image-packs/thumbs/characters--twilight-titan.webp",
+        "images/image-packs/thumbs/characters--whispers-of-the-sylvan-queen.webp",
+        "images/image-packs/thumbs/characters-02--Delchron_Fusion_between_Pointillism_highly_detailed_Vibrant_col_60958c30-0dee-4d8e-9a60-ad48f7da6b17.webp",
+        "images/image-packs/thumbs/characters-02--Seraphim.webp",
+        "images/image-packs/thumbs/characters-02--delchron_anthropomorphic_deity_of_the_planet_Mars_the_colors_an_863c7cc1-f11d-4207-bdc9-29f5f1281a07.webp",
+        "images/image-packs/thumbs/characters-02--delchron_character_creation_the_deity_Jove_as_an_ancient_alien__5b4bafec-0bdb-46cf-b18b-930111644c98.webp",
+        "images/image-packs/thumbs/characters-02--delchron_surreal_photography_mind_blowing_legendary_Star_Wars_D_c4f49f63-9a23-40ca-ad44-4b888be6ebef.webp",
+        "images/image-packs/thumbs/characters-02--dievntart-template-16x9.webp",
+        "images/image-packs/thumbs/characters-03-super-heroes--Jen_The_Complexity_Tamer_poised_and_confident_superher.webp",
+        "images/image-packs/thumbs/characters-03-super-heroes--Laura.webp",
+        "images/image-packs/thumbs/characters-03-super-heroes--Tod.webp",
+        "images/image-packs/thumbs/characters-03-super-heroes--alyssa.webp",
+        "images/image-packs/thumbs/characters-03-super-heroes--chad.webp",
+        "images/image-packs/thumbs/characters-03-super-heroes--emily.webp",
+        "images/image-packs/thumbs/characters-03-super-heroes--felix.webp",
+        "images/image-packs/thumbs/characters-03-super-heroes--jacob.webp",
+        "images/image-packs/thumbs/characters-03-super-heroes--jax-lin.webp",
+        "images/image-packs/thumbs/characters-03-super-heroes--jen.webp",
+        "images/image-packs/thumbs/characters-03-super-heroes--joel.webp",
+        "images/image-packs/thumbs/characters-03-super-heroes--jon.webp",
+        "images/image-packs/thumbs/characters-03-super-heroes--keith.webp",
+        "images/image-packs/thumbs/characters-03-super-heroes--kerry.webp",
+        "images/image-packs/thumbs/characters-03-super-heroes--martina.webp",
+        "images/image-packs/thumbs/characters-03-super-heroes--matt.webp",
+        "images/image-packs/thumbs/characters-03-super-heroes--michelle.webp",
+        "images/image-packs/thumbs/characters-03-super-heroes--nova-rivera.webp",
+        "images/image-packs/thumbs/characters-03-super-heroes--rob.webp",
+        "images/image-packs/thumbs/characters-03-super-heroes--tanya.webp",
+        "images/image-packs/thumbs/characters-03-super-heroes--taryn.webp",
+        "images/image-packs/thumbs/hero01.webp",
+        "images/image-packs/thumbs/hero02.webp",
+        "images/image-packs/thumbs/hero04.webp",
+        "images/image-packs/thumbs/hero05.webp",
+        "images/image-packs/thumbs/hero06.webp",
+        "images/image-packs/thumbs/interiors--compact-cosmos.webp",
+        "images/image-packs/thumbs/interiors--cosmic-comfort.webp",
+        "images/image-packs/thumbs/interiors--dimensional-nexus.webp",
+        "images/image-packs/thumbs/interiors--earths-vanguard.webp",
+        "images/image-packs/thumbs/interiors--hero01.webp",
+        "images/image-packs/thumbs/interiors--hero02.webp",
+        "images/image-packs/thumbs/interiors--hero03.webp",
+        "images/image-packs/thumbs/interiors--hero04.webp",
+        "images/image-packs/thumbs/interiors--luminous-command.webp",
+        "images/image-packs/thumbs/interiors--luminous-retreat.webp",
+        "images/image-packs/thumbs/interiors--mechanical-marvel.webp",
+        "images/image-packs/thumbs/interiors--mistress-of-shadows.webp",
+        "images/image-packs/thumbs/interiors--neon-nexus.webp",
+        "images/image-packs/thumbs/interiors--nomadias-lounge.webp",
+        "images/image-packs/thumbs/interiors--oasis-in-orbit.webp",
+        "images/image-packs/thumbs/interiors--stellar-slumber.webp"
       ]
     },
     {
@@ -643,5 +719,5 @@
       ]
     }
   ],
-  "totalImages": 425
+  "totalImages": 495
 }

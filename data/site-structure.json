@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2026-03-21T13:44:53.304Z",
+  "updated": "2026-03-22T13:46:27.660Z",
   "root": [
     {
       "type": "folder",
@@ -319,6 +319,24 @@
           "type": "folder",
           "name": "azureCosts",
           "path": "api/azureCosts",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "blindspotbattle",
+          "path": "api/blindspotbattle",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "blindspotbosses",
+          "path": "api/blindspotbosses",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "blindspotprofile",
+          "path": "api/blindspotprofile",
           "children": []
         },
         {
@@ -863,9 +881,40 @@
       "children": [
         {
           "type": "folder",
+          "name": "audio",
+          "path": "blindspot/audio",
+          "children": []
+        },
+        {
+          "type": "folder",
           "name": "css",
           "path": "blindspot/css",
           "children": []
+        },
+        {
+          "type": "folder",
+          "name": "img",
+          "path": "blindspot/img",
+          "children": [
+            {
+              "type": "folder",
+              "name": "arena",
+              "path": "blindspot/img/arena",
+              "children": []
+            },
+            {
+              "type": "folder",
+              "name": "bosses",
+              "path": "blindspot/img/bosses",
+              "children": []
+            },
+            {
+              "type": "folder",
+              "name": "demo",
+              "path": "blindspot/img/demo",
+              "children": []
+            }
+          ]
         },
         {
           "type": "page",
@@ -876,7 +925,14 @@
           "type": "folder",
           "name": "js",
           "path": "blindspot/js",
-          "children": []
+          "children": [
+            {
+              "type": "folder",
+              "name": "lib",
+              "path": "blindspot/js/lib",
+              "children": []
+            }
+          ]
         },
         {
           "type": "page",
@@ -892,14 +948,7 @@
           "type": "folder",
           "name": "tests",
           "path": "blindspot/tests",
-          "children": [
-            {
-              "type": "folder",
-              "name": "screenshots",
-              "path": "blindspot/tests/screenshots",
-              "children": []
-            }
-          ]
+          "children": []
         }
       ]
     },
@@ -1223,6 +1272,12 @@
               "type": "folder",
               "name": "planets",
               "path": "images/image-packs/planets",
+              "children": []
+            },
+            {
+              "type": "folder",
+              "name": "thumbs",
+              "path": "images/image-packs/thumbs",
               "children": []
             }
           ]

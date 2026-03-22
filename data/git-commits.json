@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "99672e3c-9ff1-4f1e-b934-4a9d29731bfb",
-      "hash": "300f2a314818bc048f9ac4766577e13b1a6d779b",
-      "message": "blindspot: battle ambient audio — low rumble drone + crowd murmur",
-      "timestamp": "2026-03-21 01:53:48 -0700",
+      "id": "efb3b9de-8330-4efe-906d-7bac3f13d56a",
+      "hash": "8d358d1cdb834148cb5f5f9aa1d0ba367ec0aaeb",
+      "message": "fix: PvP gallery filters to Blindspot cards only (need combatStats)",
+      "timestamp": "2026-03-22 01:25:53 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/300f2a314818bc048f9ac4766577e13b1a6d779b"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/8d358d1cdb834148cb5f5f9aa1d0ba367ec0aaeb"
     }
   ],
-  "timestamp": "2026-03-21T13:44:54.414Z",
+  "timestamp": "2026-03-22T13:46:28.849Z",
   "count": 1,
-  "scanId": 1774100694414
+  "scanId": 1774187188849
 }
