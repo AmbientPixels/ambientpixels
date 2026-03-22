@@ -1242,6 +1242,13 @@ Write the full deliverable first, then the structured JSON block.`;
               var _headingIdx = deliverable.search(/\n(?:##\s|(?:\*\*(?:Headline|Title|Body|Draft|Post|Hook|Content|Copy|Subject|Platform|Website|Focus|LinkedIn|Twitter|Bluesky)[:\s*]))/i);
               if (_headingIdx > 0 && _headingIdx < 500) {
                 deliverable = deliverable.substring(_headingIdx + 1);
+              } else {
+                // Fallback: no heading found — strip preamble line(s) up to first double-newline
+                // Catches "Okay, here's the copy for LinkedIn:\n\nThe future of..."
+                var _dblNewline = deliverable.search(/\n\s*\n/);
+                if (_dblNewline > 0 && _dblNewline < 300) {
+                  deliverable = deliverable.substring(_dblNewline).replace(/^\s*\n+/, '');
+                }
               }
             }
             result.taskUpdates.push({
@@ -1643,6 +1650,16 @@ Write the full deliverable first, then the structured JSON block.`;
         if (_rcTask && _rcTask.reviewed_copy) {
           action.social.text = _rcTask.reviewed_copy;
           context.log('[Heartbeat]', agentId, 'Using reviewed_copy as social action text (' + action.social.text.length + ' chars)');
+        }
+      }
+
+      // Strip conversational preamble from social post text (e.g. "Okay, here's the copy...")
+      // Must run before all other sanitizers so downstream logic sees clean text
+      if (action.social.text) {
+        const _preambleRx = /^(?:Okay|Sure|Alright|Great|Here|Let me|I'll|I will|I've|Of course)[^\n]*(?:copy|post|draft|content|text|version|revision|here's|for you)[^\n]*[.:]\s*\n+/i;
+        if (_preambleRx.test(action.social.text)) {
+          context.log('[Heartbeat]', agentId, 'Stripping conversational preamble from social post text');
+          action.social.text = action.social.text.replace(_preambleRx, '');
         }
       }
 
