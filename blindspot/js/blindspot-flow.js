@@ -2837,7 +2837,7 @@
             intro.classList.remove('bs-intro-fadeout');
             resolve();
           }, 600);
-        }, 5000);
+        }, 8000);
       }, 500);
     });
   }

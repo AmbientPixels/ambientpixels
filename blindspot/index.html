@@ -124,6 +124,17 @@
 
   <!-- BATTLE SCREEN -->
   <div id="bs-battle-container" style="display:none;" role="region" aria-label="Battle">
+    <header class="bs-topbar" role="banner">
+      <span class="bs-topbar__brand">Blindspot</span>
+      <div class="bs-topbar__actions">
+        <button class="arena-audio-toggle" id="arena-sfx-toggle-idx" title="Mute SFX" aria-label="Toggle sound effects">
+          <i class="fas fa-bolt" aria-hidden="true"></i>
+        </button>
+        <button class="arena-audio-toggle" id="arena-music-toggle-idx" title="Mute music" aria-label="Toggle music">
+          <i class="fas fa-music" aria-hidden="true"></i>
+        </button>
+      </div>
+    </header>
     <div class="arena-battle">
       <div class="arena-battle__header">
         <span class="arena-battle__round" id="arena-round-label" aria-live="polite">Round 1</span>

@@ -99,7 +99,6 @@
       <div class="qb-modal" role="dialog" aria-label="Build Your Card" style="background:var(--bs-surface,#1E1812); border:1px solid var(--bs-border,#2A2018); color:var(--bs-text,#F5F0E8);">
         <div class="qb-header">
           <h2 style="font-family:'Cinzel',serif; color:var(--bs-accent,#EF9F27);"><i class="fas fa-fire" style="margin-right:0.5rem;"></i>${STEP_TITLES[_state.step]}</h2>
-          <button class="qb-close" onclick="window.BlindspotQuickBuild.close()" aria-label="Close"><i class="fas fa-times"></i></button>
         </div>
         <div class="qb-steps">
           ${STEP_TITLES.map((_, i) => `
@@ -284,8 +283,6 @@
     const preset = _state.vibe ? (window.PresetConfigurations?.[_state.vibe.presetId]?.sampleData || {}) : {};
     const name = _state.cardName || ai.name || preset.name || '';
     const cls = _state.cardClass || ai.characterClass || preset.characterClass || '';
-    const rarity = _state.cardRarity || ai.rarity || 'Common';
-
     return `
       <p class="qb-panel-desc">Name your card. This is who you become.</p>
       <div class="qb-form">
@@ -297,15 +294,6 @@
           <div class="qb-field">
             <label for="qb-class">Class</label>
             <input type="text" id="qb-class" value="${_escHtml(cls)}" readonly style="opacity:0.7; cursor:default;">
-          </div>
-          <div class="qb-field">
-            <label for="qb-rarity">Rarity</label>
-            <select id="qb-rarity">
-              ${['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'].map(r =>
-                `<option value="${r}" ${r === rarity ? 'selected' : ''}>${r}</option>`
-              ).join('')}
-            </select>
-            <span class="qb-style-desc">Rarity affects your card's visual style</span>
           </div>
         </div>
       </div>
@@ -522,11 +510,9 @@
   function _bindDetailsEvents() {
     const nameInput = document.getElementById('qb-name');
     const classInput = document.getElementById('qb-class');
-    const raritySelect = document.getElementById('qb-rarity');
 
     if (nameInput) nameInput.addEventListener('input', () => { _state.cardName = nameInput.value; });
     if (classInput) classInput.addEventListener('input', () => { _state.cardClass = classInput.value; });
-    if (raritySelect) raritySelect.addEventListener('change', () => { _state.cardRarity = raritySelect.value; });
   }
 
   function _bindBecomeEvents() {
@@ -806,10 +792,8 @@
     if (_state.step === 3) {
       const nameEl = document.getElementById('qb-name');
       const classEl = document.getElementById('qb-class');
-      const rarityEl = document.getElementById('qb-rarity');
       if (nameEl) _state.cardName = nameEl.value;
       if (classEl) _state.cardClass = classEl.value;
-      if (rarityEl) _state.cardRarity = rarityEl.value;
 
       if (!_state.cardName.trim()) {
         nameEl?.focus();
