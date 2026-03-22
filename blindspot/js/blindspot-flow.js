@@ -2316,8 +2316,11 @@
       var power = getCardPower(card);
       var active = isActive(card);
 
+      // Force fullbleed in deck view for consistent display
+      var deckCard = Object.assign({}, card, { design: Object.assign({}, card.design || {}, { imageContainer: 'fullbleed' }) });
+
       return '<div class="bs-deck-card' + (active ? ' bs-deck-card--active' : '') + '" data-card-id="' + escHtml(card.id) + '" role="listitem" tabindex="0" aria-label="' + escHtml(name) + ', ' + escHtml(cls) + ', Power ' + power + (active ? ', currently active' : '') + '">' +
-        renderCardHTML(card, 'compact') +
+        renderCardHTML(deckCard, 'compact') +
         (active ? '<div class="bs-deck-card__badge"><i class="fas fa-check-circle" aria-hidden="true"></i> Active</div>' : '') +
         (deck.length > 1 && !active ? '<button class="bs-deck-card__delete" data-delete-id="' + escHtml(card.id) + '" aria-label="Delete ' + escHtml(name) + '"><i class="fas fa-trash" aria-hidden="true"></i></button>' : '') +
       '</div>';
@@ -2361,7 +2364,34 @@
       ensureCombatStats(_selectedCard);
       _progress.selectedCardId = _selectedCard.id;
       syncProgressToServer();
-      renderDeckManagement();
+
+      // Swap active state in-place instead of re-rendering the entire grid
+      grid.querySelectorAll('.bs-deck-card').forEach(function(el) {
+        var isActive = el.dataset.cardId === cardId;
+        el.classList.toggle('bs-deck-card--active', isActive);
+        // Update badge
+        var existingBadge = el.querySelector('.bs-deck-card__badge');
+        var existingDelete = el.querySelector('.bs-deck-card__delete');
+        if (isActive) {
+          if (!existingBadge) {
+            var badge = document.createElement('div');
+            badge.className = 'bs-deck-card__badge';
+            badge.innerHTML = '<i class="fas fa-check-circle" aria-hidden="true"></i> Active';
+            el.appendChild(badge);
+          }
+          if (existingDelete) existingDelete.remove();
+        } else {
+          if (existingBadge) existingBadge.remove();
+          if (!existingDelete && getDeck().length > 1) {
+            var delBtn = document.createElement('button');
+            delBtn.className = 'bs-deck-card__delete';
+            delBtn.dataset.deleteId = el.dataset.cardId;
+            delBtn.setAttribute('aria-label', 'Delete card');
+            delBtn.innerHTML = '<i class="fas fa-trash" aria-hidden="true"></i>';
+            el.appendChild(delBtn);
+          }
+        }
+      });
     };
   }
 

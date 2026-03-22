@@ -7055,6 +7055,16 @@ body.bs-battle-active .bs-bottom-nav {
   transition: border-color 0.2s, transform 0.15s;
   position: relative;
 }
+/* Consistent image height across all deck cards */
+.bs-deck-card .bs-rc__art {
+  aspect-ratio: 3 / 4;
+  min-height: 0;
+}
+.bs-deck-card .bs-rc__avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
 
 .bs-deck-card:hover,
 .bs-deck-card:focus-visible {
