@@ -3112,12 +3112,18 @@
     // Show lobby shell immediately while data loads
     showScreen('lobby');
 
-    // Start ALL data loading in parallel — game data, profile, progress, cards
-    updateLoadingProgress(10, 'Connecting...');
-    const gameDataPromise = loadGameData().then(r => { updateLoadingProgress(35, 'Loading arena...'); return r; });
-    const profilePromise = loadProfile().then(r => { updateLoadingProgress(55, 'Loading profile...'); return r; });
-    const progressPromise = loadProgressFromServer().then(r => { updateLoadingProgress(70, 'Loading progress...'); return r; });
-    const cardsPromise = loadUserCards().then(r => { updateLoadingProgress(85, 'Loading cards...'); return r; });
+    // Start ALL data loading in parallel — track completion with progress bar
+    var _loadSteps = 0;
+    var _loadLabels = ['Loading arena...', 'Loading profile...', 'Loading progress...', 'Loading cards...'];
+    function _stepDone() {
+      _loadSteps++;
+      updateLoadingProgress(_loadSteps * 25, _loadSteps < 4 ? _loadLabels[_loadSteps] : 'Ready');
+    }
+    updateLoadingProgress(5, 'Connecting...');
+    const gameDataPromise = loadGameData().then(r => { _stepDone(); return r; });
+    const profilePromise = loadProfile().then(r => { _stepDone(); return r; });
+    const progressPromise = loadProgressFromServer().then(r => { _stepDone(); return r; });
+    const cardsPromise = loadUserCards().then(r => { _stepDone(); return r; });
 
     if (window.ArenaAudio) window.ArenaAudio.init();
 
