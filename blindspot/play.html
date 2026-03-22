@@ -24,8 +24,11 @@
   <!-- Loading gate — hides UI until JS initializes -->
   <div id="bs-loading-gate" class="bs-loading-gate" aria-live="polite">
     <div class="bs-loading-gate__inner">
-      <div class="bs-spinner" role="status"></div>
       <span class="bs-loading-gate__text"><i class="fas fa-fire" style="color:var(--bs-accent);margin-right:0.4em;"></i>Summoning your fighter<span class="bs-ellipsis-pulse">...</span></span>
+      <div class="bs-loading-gate__bar">
+        <div class="bs-loading-gate__fill" id="bs-loading-fill"></div>
+      </div>
+      <span class="bs-loading-gate__step" id="bs-loading-step"></span>
     </div>
   </div>
 

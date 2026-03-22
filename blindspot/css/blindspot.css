@@ -72,6 +72,27 @@
 .bs-page--loading .bs-bottom-nav {
   visibility: hidden;
 }
+.bs-loading-gate__bar {
+  width: 200px;
+  height: 4px;
+  background: var(--bs-surface-2, #1a1510);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-top: 0.25rem;
+}
+.bs-loading-gate__fill {
+  height: 100%;
+  width: 0%;
+  background: var(--bs-accent);
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+.bs-loading-gate__step {
+  font-size: 0.65rem;
+  color: var(--bs-text-muted);
+  opacity: 0.6;
+  margin-top: 0.1rem;
+}
 .bs-loading-gate--fade {
   opacity: 0;
   transition: opacity 0.3s ease;

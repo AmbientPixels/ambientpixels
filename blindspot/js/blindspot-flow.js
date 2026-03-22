@@ -984,6 +984,13 @@
     });
   }
 
+  function updateLoadingProgress(pct, label) {
+    var fill = document.getElementById('bs-loading-fill');
+    var step = document.getElementById('bs-loading-step');
+    if (fill) fill.style.width = pct + '%';
+    if (step) step.textContent = label || '';
+  }
+
   function dismissLoadingGate() {
     var gate = document.getElementById('bs-loading-gate');
     if (!gate) return;
@@ -3106,10 +3113,11 @@
     showScreen('lobby');
 
     // Start ALL data loading in parallel — game data, profile, progress, cards
-    const gameDataPromise = loadGameData();
-    const profilePromise = loadProfile();
-    const progressPromise = loadProgressFromServer();
-    const cardsPromise = loadUserCards();
+    updateLoadingProgress(10, 'Connecting...');
+    const gameDataPromise = loadGameData().then(r => { updateLoadingProgress(35, 'Loading arena...'); return r; });
+    const profilePromise = loadProfile().then(r => { updateLoadingProgress(55, 'Loading profile...'); return r; });
+    const progressPromise = loadProgressFromServer().then(r => { updateLoadingProgress(70, 'Loading progress...'); return r; });
+    const cardsPromise = loadUserCards().then(r => { updateLoadingProgress(85, 'Loading cards...'); return r; });
 
     if (window.ArenaAudio) window.ArenaAudio.init();
 
@@ -3178,6 +3186,7 @@
       if (serverBoss > _progress.highestBoss) _progress.highestBoss = serverBoss;
     }
 
+    updateLoadingProgress(100, 'Ready');
     renderLobby();
     bindPlayNavigation();
     updatePlayAuthUI();
