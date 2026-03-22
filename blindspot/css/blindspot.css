@@ -2956,6 +2956,24 @@
   flex-direction: column;
   gap: 0.5rem;
   margin: 0.5rem 0;
+  background: var(--bs-card-bg);
+  border: 1px solid var(--bs-border);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+}
+.bs-loot-zone__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: 'Cinzel', serif;
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--bs-text-muted);
+  margin-bottom: 0.25rem;
+}
+.bs-loot-zone__header i {
+  color: var(--bs-accent-dim);
+  margin-right: 0.3rem;
 }
 
 /* Crate opener — glowing treasure chest */
