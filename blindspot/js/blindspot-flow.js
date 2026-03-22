@@ -2308,8 +2308,23 @@
     if (!_newCardBound) {
       _newCardBound = true;
       btn.addEventListener('click', function() {
-        // Redirect to landing page with newCard param to trigger Quick Build
-        window.location.href = '/blindspot/?newCard=true';
+        // Open Quick Build directly on play.html (no redirect)
+        if (window.BlindspotQuickBuild) {
+          window.BlindspotQuickBuild.open(function onComplete(cardId) {
+            if (cardId) {
+              window.ArenaAPI.loadCards().then(function(data) {
+                var cards = data.userCards || [];
+                cards.forEach(function(c) { addCardToDeck(c); });
+                _progress.selectedCardId = cardId;
+                safeLSSet('bs-selected-card-id', cardId);
+                renderLobby();
+              }).catch(function() { renderLobby(); });
+            }
+          });
+        } else {
+          // Fallback: redirect to index.html with newCard param
+          window.location.href = '/blindspot/?newCard=true';
+        }
       });
     }
   }
