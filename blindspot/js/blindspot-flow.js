@@ -718,6 +718,39 @@
   const WEAKNESS_LABELS = { str: 'STR', agi: 'AGI', int: 'INT', end: 'END', lck: 'LCK' };
   const WEAKNESS_COLORS = { str: '#ff5252', agi: '#00e676', int: '#7b2fff', end: '#ff9100', lck: '#ffd740' };
 
+  function buildPrefightInfo(boss) {
+    var html = '"' + escHtml(boss.flavor) + '"';
+    // Stat weakness
+    if (boss.weakness) {
+      html += '<br><span style="color:' + (WEAKNESS_COLORS[boss.weakness] || 'var(--bs-accent)') + ';font-size:0.8rem;margin-top:0.5rem;display:inline-block;"><i class="fas fa-crosshairs"></i> Stat weakness: ' + (WEAKNESS_LABELS[boss.weakness] || boss.weakness) + '</span>';
+    }
+    // Resistances
+    var res = boss.resistances || {};
+    var resKeys = Object.keys(res).filter(function(k) { return res[k] > 0; });
+    if (resKeys.length) {
+      html += '<br><span style="font-size:0.75rem;color:#ff6b6b;display:inline-block;"><i class="fas fa-shield-halved"></i> Resists: ' + resKeys.map(function(k) { return k + ' -' + res[k] + '%'; }).join(', ') + '</span>';
+    }
+    // Move weaknesses
+    var mw = boss.moveWeaknesses || {};
+    var mwKeys = Object.keys(mw).filter(function(k) { return mw[k] > 0; });
+    if (mwKeys.length) {
+      html += '<br><span style="font-size:0.75rem;color:#4ade80;display:inline-block;"><i class="fas fa-bullseye"></i> Weak to: ' + mwKeys.map(function(k) { return k + ' +' + mw[k] + '%'; }).join(', ') + '</span>';
+    }
+    // Signature passive
+    if (boss.signaturePassive) {
+      html += '<br><span style="font-size:0.75rem;color:var(--bs-accent);display:inline-block;"><i class="fas fa-star"></i> ' + escHtml(boss.signaturePassive.name) + ' \u2014 ' + escHtml(boss.signaturePassive.desc) + '</span>';
+    }
+    // AI pattern
+    if (CLASS_PATTERNS[boss.class]) {
+      html += '<br><span style="font-size:0.75rem;color:var(--bs-text-muted);display:inline-block;"><i class="fas fa-chess"></i> Tends to: ' + CLASS_PATTERNS[boss.class] + '</span>';
+    }
+    // Boss tip
+    if (boss.bossTip) {
+      html += '<br><span style="font-size:0.75rem;color:var(--bs-text-muted);font-style:italic;margin-top:0.25rem;display:inline-block;">' + escHtml(boss.bossTip) + '</span>';
+    }
+    return html;
+  }
+
   function detectArchetype(stats) {
     if (!stats) return ARCHETYPES.find(a => a.id === 'balanced');
     const sorted = Object.entries(stats).sort((a, b) => b[1] - a[1]);
@@ -3863,7 +3896,7 @@
         const flavorEl = document.getElementById('bs-prefight-flavor');
         const titleEl = document.getElementById('bs-prefight-title');
         const avatarEl = document.getElementById('bs-prefight-avatar');
-        if (flavorEl) flavorEl.innerHTML = '"' + escHtml(nextBoss.flavor) + '"' + (nextBoss.weakness ? '<br><span style="color:' + (WEAKNESS_COLORS[nextBoss.weakness] || 'var(--bs-accent)') + ';font-size:0.8rem;margin-top:0.5rem;display:inline-block;"><i class="fas fa-crosshairs"></i> Weak to ' + (WEAKNESS_LABELS[nextBoss.weakness] || nextBoss.weakness) + '</span>' : '') + (CLASS_PATTERNS[nextBoss.class] ? '<br><span style="font-size:0.8rem;color:var(--bs-text-muted);display:inline-block;"><i class="fas fa-chess"></i> Tends to: ' + CLASS_PATTERNS[nextBoss.class] + '</span>' : '') + (nextBoss.bossTip ? '<br><span style="font-size:0.75rem;color:var(--bs-text-muted);font-style:normal;">' + escHtml(nextBoss.bossTip) + '</span>' : '');
+        if (flavorEl) flavorEl.innerHTML = buildPrefightInfo(nextBoss);
         if (titleEl) titleEl.textContent = nextBoss.name;
         if (avatarEl) {
           if (nextBoss.avatar) {
@@ -4202,7 +4235,7 @@
         const flavorEl = document.getElementById('bs-prefight-flavor');
         const titleEl = document.getElementById('bs-prefight-title');
         const avatarEl = document.getElementById('bs-prefight-avatar');
-        if (flavorEl) flavorEl.innerHTML = `"${escHtml(boss.flavor)}"` + (boss.weakness ? `<br><span style="color:${WEAKNESS_COLORS[boss.weakness] || 'var(--bs-accent)'};font-size:0.8rem;margin-top:0.5rem;display:inline-block;"><i class="fas fa-crosshairs"></i> Weak to ${WEAKNESS_LABELS[boss.weakness] || boss.weakness}</span>` : '') + (CLASS_PATTERNS[boss.class] ? `<br><span style="font-size:0.8rem;color:var(--bs-text-muted);display:inline-block;"><i class="fas fa-chess"></i> Tends to: ${CLASS_PATTERNS[boss.class]}</span>` : '') + (boss.bossTip ? `<br><span style="font-size:0.75rem;color:var(--bs-text-muted);font-style:normal;">${escHtml(boss.bossTip)}</span>` : '');
+        if (flavorEl) flavorEl.innerHTML = buildPrefightInfo(boss);
         if (titleEl) titleEl.textContent = boss.name;
         if (avatarEl) {
           if (boss.avatar) {

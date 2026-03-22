@@ -665,6 +665,38 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     if (extra > 0) events.push(`\uD83C\uDFAF Weakness exploit! +${extra} bonus damage!`);
   }
 
+  // Boss resistance/weakness modifiers (move-type based)
+  const bossRes = opponent.bossResistances || {};
+  const bossWeak = opponent.bossWeaknesses || {};
+  if (opponentDamageTaken > 0 && playerMove) {
+    const resist = bossRes[playerMove] || 0;
+    const weak = bossWeak[playerMove] || 0;
+    if (resist > 0) {
+      const reduction = Math.round(opponentDamageTaken * resist / 100);
+      opponentDamageTaken = Math.max(1, opponentDamageTaken - reduction);
+      events.push(`\uD83D\uDEE1\uFE0F Boss resists ${playerMove}! (-${reduction} damage)`);
+    }
+    if (weak > 0) {
+      const bonus = Math.round(opponentDamageTaken * weak / 100);
+      opponentDamageTaken += bonus;
+      events.push(`\uD83D\uDCA5 Boss is weak to ${playerMove}! (+${bonus} damage)`);
+    }
+  }
+
+  // Class advantage bonus
+  const playerClassAdv = getPassiveValue(player.passives, 'class_advantage_bonus');
+  if (playerClassAdv > 0 && opponentDamageTaken > 0) {
+    const extra = Math.round(opponentDamageTaken * playerClassAdv / 100);
+    opponentDamageTaken += extra;
+    if (extra > 0) events.push(`\u2694\uFE0F Class advantage! +${extra} bonus damage!`);
+  }
+  const oppClassAdv = getPassiveValue(opponent.passives, 'class_advantage_bonus');
+  if (oppClassAdv > 0 && playerDamageTaken > 0) {
+    const extra = Math.round(playerDamageTaken * oppClassAdv / 100);
+    playerDamageTaken += extra;
+    if (extra > 0) events.push(`\u2694\uFE0F Enemy has class advantage! +${extra} extra damage!`);
+  }
+
   // B3: Counter resolution — must run after temp effects so reflect uses final damage values
   let playerCounterReflect = false;
   let opponentCounterReflect = false;
@@ -956,6 +988,18 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
     }
   }
 
+  // Class advantage bonus — rock-paper-scissors between card classes
+  const classAdvTable = config.classAdvantages || {};
+  const classAdvBonus = config.classAdvantageBonus || 20;
+  const playerClass = playerCard.class || '';
+  const bossClass = opponentCard.class || '';
+  if (type === 'pve' && classAdvTable[playerClass] && classAdvTable[playerClass].includes(bossClass)) {
+    playerPassives.push({ source: 'class_advantage', effect: 'class_advantage_bonus', value: classAdvBonus });
+  }
+  if (type === 'pve' && classAdvTable[bossClass] && classAdvTable[bossClass].includes(playerClass)) {
+    opponentPassives.push({ source: 'class_advantage', effect: 'class_advantage_bonus', value: classAdvBonus });
+  }
+
   const battleId = `bs-battle-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
   const battleState = {
     battleId,
@@ -984,7 +1028,10 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
       passives: opponentPassives,
       moves: [],
       bossLevel,
-      abilityKey: opponentAbilityKey
+      abilityKey: opponentAbilityKey,
+      bossResistances: (type === 'pve' && opponentCard.resistances) ? opponentCard.resistances : {},
+      bossWeaknesses: (type === 'pve' && opponentCard.weaknesses) ? opponentCard.weaknesses : {},
+      signaturePassive: (type === 'pve' && opponentCard.signaturePassive) ? opponentCard.signaturePassive : null
     },
     charges: { player: cc.startCharges || 0, opponent: cc.startCharges || 0 },
     chargeRate: { player: playerChargeRate, opponent: opponentChargeRate },
@@ -1022,7 +1069,11 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
         maxHp: opponentMaxHp,
         hp: opponentMaxHp,
         bossLevel,
-        abilityKey: opponentAbilityKey
+        abilityKey: opponentAbilityKey,
+        resistances: (type === 'pve' && opponentCard.resistances) || undefined,
+        weaknesses: (type === 'pve' && opponentCard.weaknesses) || undefined,
+        signaturePassive: (type === 'pve' && opponentCard.signaturePassive) ? { name: opponentCard.signaturePassive.name, desc: opponentCard.signaturePassive.desc } : undefined,
+        classAdvantage: (classAdvTable[playerClass] && classAdvTable[playerClass].includes(bossClass)) ? 'player' : (classAdvTable[bossClass] && classAdvTable[bossClass].includes(playerClass)) ? 'boss' : null
       },
       charges: { player: cc.startCharges || 0, opponent: cc.startCharges || 0 },
       chargeRate: playerChargeRate,
@@ -1087,9 +1138,13 @@ async function handleMove(context, containerClient, userId, body) {
     }
   }
 
-  // Generate opponent move on-the-fly (charge-aware) or use pre-generated for old battles
+  // Mirror passive — boss copies player's last move
   let opponentMove;
-  if (hasCharges) {
+  if (battle._mirrorNextMove) {
+    opponentMove = battle._mirrorNextMove;
+    delete battle._mirrorNextMove;
+  } else if (hasCharges) {
+    // Generate opponent move on-the-fly (charge-aware)
     opponentMove = generateBossMove(
       battle.type === 'pve' ? { arenaOverrides: opponent.arenaOverrides || { aiPattern: 'balanced' }, combatStats: opponent.combatStats } : { arenaOverrides: { aiPattern: 'balanced' } },
       round, opponent.hp, opponent.maxHp, battle.charges.opponent
@@ -1098,10 +1153,11 @@ async function handleMove(context, containerClient, userId, body) {
     opponentMove = opponent.moves[round - 1] || 'strike';
   }
 
-  // Resolve the round with ability keys and temp effects
+  // Resolve the round with ability keys, temp effects, and boss strategy data
   const result = resolveRound(
     { combatStats: player.combatStats, passives: player.passives, maxHp: player.maxHp, abilityKey: player.abilityKey },
-    { combatStats: opponent.combatStats, passives: opponent.passives, maxHp: opponent.maxHp, abilityKey: opponent.abilityKey },
+    { combatStats: opponent.combatStats, passives: opponent.passives, maxHp: opponent.maxHp, abilityKey: opponent.abilityKey,
+      bossResistances: opponent.bossResistances || {}, bossWeaknesses: opponent.bossWeaknesses || {} },
     move, opponentMove, battle.tempEffects
   );
 
@@ -1122,6 +1178,91 @@ async function handleMove(context, containerClient, userId, body) {
   if (opponentInLastStand && result.playerDamageTaken > 0) {
     result.playerDamageTaken += 10;
     result.events.push('\u26A1 Last Stand! Enemy fights with desperate fury! (+10 damage)');
+  }
+
+  // Signature passive resolution
+  const sigPassive = battle.player2.signaturePassive;
+  if (sigPassive && battle.type === 'pve') {
+    const pid = sigPassive.id;
+    const params = sigPassive.params || {};
+
+    if (pid === 'rage') {
+      const threshold = params.threshold || 0.30;
+      const bonus = params.bonus || 0.40;
+      if (opponent.hp > 0 && opponent.hp < opponent.maxHp * threshold && result.playerDamageTaken > 0) {
+        const extra = Math.round(result.playerDamageTaken * bonus);
+        result.playerDamageTaken += extra;
+        result.events.push(`\uD83D\uDD25 RAGE! Boss fury intensifies! (+${extra} damage)`);
+      }
+    }
+
+    if (pid === 'phase') {
+      const interval = params.interval || 3;
+      if (round % interval === 0) {
+        result.opponentDamageTaken = 0;
+        result.events.push('\uD83D\uDC7B PHASE! The boss phases out \u2014 your attack passes through!');
+      }
+    }
+
+    if (pid === 'hack') {
+      const steal = params.steal || 1;
+      if (result.playerDamageTaken > 0 && battle.charges) {
+        const stolen = Math.min(steal, battle.charges.player);
+        if (stolen > 0) {
+          battle.charges.player -= stolen;
+          battle.charges.opponent = Math.min((cc.maxCharges || 4), battle.charges.opponent + stolen);
+          result.events.push(`\u26A1 HACK! Boss stole ${stolen} charge(s)!`);
+        }
+      }
+    }
+
+    if (pid === 'fortified_start') {
+      const startDR = params.startDR || 20;
+      const fade = params.fadePerRound || 5;
+      const currentDR = Math.max(0, startDR - (fade * (round - 1)));
+      if (currentDR > 0 && result.opponentDamageTaken > 0) {
+        const reduction = Math.round(result.opponentDamageTaken * currentDR / 100);
+        result.opponentDamageTaken = Math.max(1, result.opponentDamageTaken - reduction);
+        result.events.push(`\uD83D\uDEE1\uFE0F Fortified! Boss armor absorbs ${reduction} damage (${currentDR}% DR)`);
+      }
+    }
+
+    if (pid === 'vengeance') {
+      const bonus = params.bonus || 0.20;
+      const wasCrit = result.events.some(e => e.includes('critical hit'));
+      if (wasCrit && result.playerDamageTaken > 0) {
+        const extra = Math.round(result.playerDamageTaken * bonus);
+        result.playerDamageTaken += extra;
+        result.events.push(`\uD83D\uDCA2 VENGEANCE! Crit enrages the boss! (+${extra} damage)`);
+      }
+    }
+
+    if (pid === 'mirror') {
+      const chance = params.chance || 0.25;
+      if (Math.random() < chance) {
+        battle._mirrorNextMove = move;
+        result.events.push('\uD83E\uDE9E MIRROR! The boss mimics your technique...');
+      }
+    }
+
+    if (pid === 'leech') {
+      const pct = params.healPct || 0.15;
+      if (result.playerDamageTaken > 0) {
+        const heal = Math.round(result.playerDamageTaken * pct);
+        opponent.hp = Math.min(opponent.maxHp, opponent.hp + heal);
+        result.events.push(`\uD83E\uDE78 LEECH! Boss drains ${heal} HP from you!`);
+      }
+    }
+
+    if (pid === 'enrage') {
+      const pctPerRound = params.pctPerRound || 0.05;
+      const bonus = pctPerRound * (round - 1);
+      if (bonus > 0 && result.playerDamageTaken > 0) {
+        const extra = Math.round(result.playerDamageTaken * bonus);
+        result.playerDamageTaken += extra;
+        result.events.push(`\uD83D\uDE24 ENRAGE! Boss power grows! (+${Math.round(bonus * 100)}% = +${extra} damage)`);
+      }
+    }
   }
 
   // Apply damage and healing

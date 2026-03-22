@@ -57,7 +57,8 @@
     "balanced":    { "strike": 30, "guard": 25, "ability": 30, "heal": 15 },
     "defensive":   { "strike": 15, "guard": 35, "ability": 20, "heal": 30 },
     "spell_heavy": { "strike": 15, "guard": 10, "ability": 65, "heal": 10 },
-    "berserker":   { "strike": 70, "guard": 5,  "ability": 20, "heal": 5 }
+    "berserker":   { "strike": 70, "guard": 5,  "ability": 20, "heal": 5 },
+    "evasive":     { "strike": 25, "guard": 30, "ability": 25, "heal": 20 }
   },
   "aiLowHpGuardBoost": 20,
   "aiLowHpHealBoost": 15,
@@ -115,6 +116,22 @@
     "maxCharges": 4
   },
   "validClasses": ["Fighter", "Enforcer", "Berserker", "Caster", "Hacker", "Scholar", "Scout", "Rogue", "Pilot", "Guardian", "Medic", "Trickster", "Wildcard"],
+  "classAdvantages": {
+    "Fighter":   ["Guardian", "Medic"],
+    "Enforcer":  ["Guardian", "Medic"],
+    "Berserker": ["Guardian", "Medic"],
+    "Caster":    ["Berserker", "Fighter", "Enforcer"],
+    "Hacker":    ["Berserker", "Fighter", "Enforcer"],
+    "Scholar":   ["Berserker", "Fighter", "Enforcer"],
+    "Scout":     ["Caster", "Hacker", "Scholar"],
+    "Rogue":     ["Caster", "Hacker", "Scholar"],
+    "Pilot":     ["Caster", "Hacker", "Scholar"],
+    "Guardian":  ["Scout", "Rogue", "Pilot"],
+    "Medic":     ["Scout", "Rogue", "Pilot"],
+    "Trickster": ["Fighter", "Enforcer", "Berserker"],
+    "Wildcard":  ["Fighter", "Enforcer", "Berserker"]
+  },
+  "classAdvantageBonus": 20,
   "monetization": {
     "freeTier":    { "maxCards": 5, "layouts": 3, "palettes": 2 },
     "premiumTier": { "maxCards": -1, "layouts": -1, "palettes": -1 },
