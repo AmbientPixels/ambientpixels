@@ -4935,10 +4935,13 @@
         container.innerHTML = '<p style="text-align:center; color:var(--bs-text-muted); padding:2rem;">Could not load gallery. Try again later.</p>';
         return;
       }
-      const gallery = data.galleryCards || [];
+      // Filter to Blindspot cards only (must have combatStats to be fightable)
+      const gallery = (data.galleryCards || []).filter(function(c) {
+        return c.combatStats || (c.cardData && c.cardData.combatStats);
+      });
 
       if (gallery.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:var(--bs-text-muted); padding:2rem;">No challengers available yet. Publish your card in CardForge to appear here.</p>';
+        container.innerHTML = '<p style="text-align:center; color:var(--bs-text-muted); padding:2rem;">No challengers available yet. Other players\u2019 Blindspot cards will appear here.</p>';
         return;
       }
 
