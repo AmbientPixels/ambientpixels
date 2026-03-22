@@ -2941,19 +2941,13 @@
       _isStrangerFight = false;
       _isFirstRealFight = true;
 
-      if (isDemo()) {
-        // Demo users experienced the full build — now prompt sign-in to save
-        showDemoSignInPrompt();
-        return;
-      }
-
-      // Authenticated users: save and show reveal celebration
-      if (cardId) {
+      // Everyone sees the card reveal celebration
+      if (cardId && !isDemo()) {
         window.ArenaAPI.selectCard(cardId).catch(e => console.warn('selectCard:', e));
       }
       safeLSSet('blindspot-onboarded', 'true');
       safeLSSet('bs-onboarded-lobby', 'true');
-      showCardRevealCelebration(cardId);
+      showCardRevealCelebration(cardId, isDemo());
     });
   }
 
@@ -3018,7 +3012,7 @@
     });
   }
 
-  function showCardRevealCelebration(cardId) {
+  function showCardRevealCelebration(cardId, isDemoUser) {
     document.querySelector('.bs-reveal-celebration')?.remove();
 
     const overlay = document.createElement('div');
@@ -3064,19 +3058,24 @@
         <button class="bs-btn bs-btn--primary bs-btn--glow bs-reveal-enter" id="bs-reveal-enter">
           <i class="fas fa-shield-halved"></i> Enter the Arena
         </button>
+        ${isDemoUser ? `
+        <div style="margin-top:0.75rem; text-align:center; max-width:320px;">
+          <a href="/blindspot/login.html?redirect=/blindspot/play.html" class="bs-btn bs-btn--secondary bs-btn--full" style="text-decoration:none; display:block; margin-bottom:0.5rem;">
+            <i class="fas fa-sign-in-alt"></i> Sign In to Save Progress
+          </a>
+          <p style="font-size:0.65rem; color:var(--bs-text-muted);">Guest progress won't sync across devices</p>
+        </div>` : ''}
       `;
 
-      // Replace loading state with card reveal content
-      // (overlay already appended and animated in)
-
       document.getElementById('bs-reveal-enter')?.addEventListener('click', () => {
+        if (isDemoUser) {
+          safeLSSet('bs-guest-mode', 'true');
+        }
         overlay.classList.add('bs-reveal-celebration--exit');
         setTimeout(() => {
           window.location.href = '/blindspot/play.html';
         }, 400);
       });
-
-      // No auto-redirect — player controls when they enter the arena
     };
 
     tryRender();
@@ -3620,9 +3619,10 @@
     function positionStep(stepIdx) {
       var step = steps[stepIdx];
       var targetEl = document.getElementById(step.target);
-      if (!targetEl) { cleanup(); return; }
+      if (!targetEl || !targetEl.offsetHeight) { cleanup(); return; }
 
       var rect = targetEl.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) { cleanup(); return; }
       var pad = 8;
 
       // Position spotlight around target
@@ -3688,17 +3688,20 @@
     });
 
     // Safety timeout — auto-dismiss if stuck
-    var safetyTimer = setTimeout(function() { cleanup(); }, 10000);
+    var safetyTimer = setTimeout(function() { cleanup(); }, 8000);
     var origCleanup = cleanup;
     cleanup = function() { clearTimeout(safetyTimer); origCleanup(); };
 
     // Start first step after a brief delay for DOM to settle
     setTimeout(function() {
-      // Verify all targets exist before starting
-      var allTargetsExist = steps.every(function(s) { return document.getElementById(s.target); });
-      if (!allTargetsExist) { cleanup(); return; }
+      // Verify all targets exist AND are visible before starting
+      var allTargetsReady = steps.every(function(s) {
+        var el = document.getElementById(s.target);
+        return el && el.offsetHeight > 0;
+      });
+      if (!allTargetsReady) { cleanup(); return; }
       positionStep(0);
-    }, 400);
+    }, 600);
   }
 
   // ============================================================
