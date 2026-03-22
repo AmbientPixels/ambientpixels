@@ -1003,7 +1003,7 @@
   function showOverlay(id) {
     const el = document.getElementById(id);
     if (el) { el.classList.remove('bs-overlay--hidden'); el.style.display = ''; }
-    if (id === 'bs-prefight-overlay') renderCharmSelector();
+    if (id === 'bs-prefight-overlay') { renderCharmSelector(); renderArenaSelector(); }
   }
 
   function hideOverlay(id) {
@@ -1201,6 +1201,51 @@
         var id = btn.dataset.charm;
         _equippedCharm = id === 'none' ? null : id;
         renderCharmSelector();
+      });
+    });
+  }
+
+  function renderArenaSelector() {
+    var container = document.getElementById('bs-arena-selector');
+    if (!container || !window.ArenaBackgrounds) return;
+    var highestBoss = getHighestBossDefeated();
+    var arenas = window.ArenaBackgrounds.ARENAS;
+    var unlocked = window.ArenaBackgrounds.getUnlockedArenas(highestBoss);
+
+    // Only show picker if player has more than 1 arena unlocked
+    if (unlocked.length <= 1) {
+      container.style.display = 'none';
+      return;
+    }
+
+    var selected = window.ArenaBackgrounds.getSelected();
+    container.style.display = '';
+    container.innerHTML = '<p class="bs-arena-selector__label"><i class="fas fa-map"></i> Choose Arena:</p>'
+      + '<div class="bs-arena-options">'
+      + arenas.map(function(arena) {
+          var isOpen = window.ArenaBackgrounds.isUnlocked(arena, highestBoss);
+          var isActive = arena.id === selected;
+          var cls = 'bs-arena-option'
+            + (isActive ? ' bs-arena-option--selected' : '')
+            + (!isOpen ? ' bs-arena-option--locked' : '');
+          return '<button class="' + cls + '" data-arena="' + escHtml(arena.id) + '"'
+            + (!isOpen ? ' disabled' : '')
+            + ' title="' + escHtml(arena.name) + (!isOpen ? ' (Beat ' + escHtml(arena.bossName) + ')' : '') + '">'
+            + '<img class="bs-arena-option__img" src="' + escHtml(arena.image) + '" alt="' + escHtml(arena.name) + '" loading="lazy">'
+            + '<div class="bs-arena-option__name"><i class="fas ' + arena.icon + '"></i></div>'
+            + (isActive ? '<div class="bs-arena-option__check"><i class="fas fa-check"></i></div>' : '')
+            + (!isOpen ? '<div class="bs-arena-option__lock"><i class="fas fa-lock"></i></div>' : '')
+            + '</button>';
+        }).join('')
+      + '</div>';
+
+    container.querySelectorAll('.bs-arena-option:not([disabled])').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var arenaId = btn.dataset.arena;
+        window.ArenaBackgrounds.setSelected(arenaId);
+        renderArenaSelector();
+        // Preview arena music on selection
+        if (window.ArenaAudio) window.ArenaAudio.playArenaMusic(arenaId);
       });
     });
   }

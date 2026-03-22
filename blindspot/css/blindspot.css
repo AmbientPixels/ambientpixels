@@ -3164,6 +3164,110 @@
 .bs-charm-option i { font-size: 0.9rem; color: var(--bs-accent); }
 .bs-charm-count { font-size: 0.55rem; color: var(--bs-text-muted); }
 
+/* ============================================================
+   ARENA SELECTOR (pre-fight overlay)
+   ============================================================ */
+
+.bs-arena-selector {
+  width: 100%;
+  max-width: 360px;
+  margin: 0.5rem auto 0;
+  text-align: center;
+}
+
+.bs-arena-selector__label {
+  font-size: 0.65rem;
+  color: var(--bs-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.4rem;
+}
+
+.bs-arena-selector__label i {
+  margin-right: 0.3em;
+  color: var(--bs-accent-dim);
+}
+
+.bs-arena-options {
+  display: flex;
+  gap: 0.4rem;
+  overflow-x: auto;
+  justify-content: center;
+  scrollbar-width: thin;
+  scrollbar-color: var(--bs-surface-2) transparent;
+  padding: 0.25rem 0;
+}
+
+.bs-arena-option {
+  flex: 0 0 56px;
+  border: 2px solid var(--bs-border);
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  background: var(--bs-surface);
+  padding: 0;
+  position: relative;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.bs-arena-option:hover:not([disabled]) {
+  border-color: var(--bs-accent-dim);
+}
+
+.bs-arena-option--selected {
+  border-color: var(--bs-accent) !important;
+  box-shadow: 0 0 8px color-mix(in srgb, var(--bs-accent) 30%, transparent);
+}
+
+.bs-arena-option--locked {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.bs-arena-option__img {
+  width: 100%;
+  height: 36px;
+  object-fit: cover;
+  display: block;
+}
+
+.bs-arena-option__name {
+  font-size: 0.55rem;
+  text-align: center;
+  padding: 2px 0;
+  color: var(--bs-text-muted);
+}
+
+.bs-arena-option__name i {
+  color: var(--bs-accent-dim);
+}
+
+.bs-arena-option__check {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-size: 0.5rem;
+  color: var(--bs-accent);
+  background: rgba(16, 12, 8, 0.7);
+  border-radius: 50%;
+  width: 14px;
+  height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bs-arena-option__lock {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  font-size: 0.7rem;
+  color: var(--bs-text-muted);
+}
+
 /* Charm move button in battle */
 .bs-page .arena-move-btn--charm {
   border-color: var(--bs-accent);
@@ -3848,6 +3952,8 @@
   .bs-tutorial { padding: 0.5rem 0.75rem; }
   .bs-tutorial__text { font-size: 0.7rem; }
   .bs-battle-hint { padding: 0.3rem 0.5rem; font-size: 0.65rem; margin: 0.1rem 0; }
+  .bs-arena-option { flex: 0 0 44px; }
+  .bs-arena-option__img { height: 28px; }
 }
 
 @media (max-width: 375px) {

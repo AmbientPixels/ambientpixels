@@ -192,6 +192,11 @@
           { "id": "title_loot_goblin",   "name": "Loot Goblin",    "rarity": "rare",     "icon": "fa-sack",    "title": "Loot Goblin" },
           { "id": "title_fortune_favored","name": "Fortune's Favored", "rarity": "epic", "icon": "fa-crown",   "title": "Fortune's Favored" }
         ]
+      },
+      "arena_skins": {
+        "category": "cosmetic",
+        "slot": "arena_skin",
+        "items": []
       }
     }
   }
