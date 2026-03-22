@@ -3105,9 +3105,11 @@
     // Show lobby shell immediately while data loads
     showScreen('lobby');
 
-    // Start data loading in parallel
+    // Start ALL data loading in parallel — game data, profile, progress, cards
     const gameDataPromise = loadGameData();
     const profilePromise = loadProfile();
+    const progressPromise = loadProgressFromServer();
+    const cardsPromise = loadUserCards();
 
     if (window.ArenaAudio) window.ArenaAudio.init();
 
@@ -3119,11 +3121,8 @@
     hookBattleCompletion();
     hookBattleTracking();
 
-    // Wait for game data
-    await gameDataPromise;
-
-    // Wait for profile
-    const profile = await profilePromise;
+    // Wait for everything in parallel
+    const [, profile] = await Promise.all([gameDataPromise, profilePromise, progressPromise]);
 
     var isGuestMode = localStorage.getItem('bs-guest-mode') === 'true';
 
@@ -3142,16 +3141,13 @@
       return;
     }
 
-    // Load progression from server (source of truth) — falls back to localStorage cache
-    await loadProgressFromServer();
-
-    // For guests, prioritize localStorage deck over server
+    // Cards loaded in parallel — for guests, prefer localStorage deck
     var cards;
     if (isGuestMode) {
       var localDeck = getDeck();
-      cards = localDeck.length > 0 ? localDeck : await loadUserCards();
+      cards = localDeck.length > 0 ? localDeck : await cardsPromise;
     } else {
-      cards = await loadUserCards();
+      cards = await cardsPromise;
     }
     if (cards.length > 0) {
       var savedCardId = _progress.selectedCardId || (profile && profile.selectedCardId);
