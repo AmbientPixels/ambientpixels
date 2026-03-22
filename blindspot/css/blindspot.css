@@ -3916,10 +3916,6 @@
   margin-top: 0.35rem;
 }
 
-.bs-forge-editor {
-  min-width: 0;
-}
-
 /* ============================================================
    BATTLE COMBATANT CARD DISPLAY
    Override arena's plain image frames with card-style display
@@ -3983,7 +3979,18 @@
 
 /* Forge overlay needs fully opaque background */
 .bs-overlay--forge {
-  background: var(--bs-bg);
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(239, 159, 39, 0.06) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 80%, rgba(239, 159, 39, 0.04) 0%, transparent 50%),
+    var(--bs-bg);
+}
+
+.bs-forge-editor {
+  min-width: 0;
+  background: var(--bs-surface);
+  border: 1px solid var(--bs-border);
+  border-radius: 12px;
+  padding: 1.25rem;
 }
 
 /* Make battle placeholder icons more prominent and distinct */
