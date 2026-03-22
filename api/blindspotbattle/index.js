@@ -903,18 +903,20 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
   const playerCombat = mapCardToCombatStats(playerCard);
   const opponentCombat = mapCardToCombatStats(opponentCard);
 
-  // Boss adaptive scaling — scale boss stats when player power exceeds boss by 20%+
+  // Boss adaptive scaling — scale boss stats to match player power
   let bossScaleFactor = 1.0;
   if (type === 'pve') {
     const statKeys = ['str', 'agi', 'int', 'end', 'lck'];
     const playerPower = statKeys.reduce((sum, k) => sum + (playerCombat[k] || 0), 0);
     const bossPower = statKeys.reduce((sum, k) => sum + (opponentCombat[k] || 0), 0);
-    if (bossPower > 0 && playerPower > bossPower * 1.2) {
-      bossScaleFactor = Math.min(2.0, (playerPower / bossPower) * 0.85);
+    if (bossPower > 0 && playerPower > bossPower * 1.1) {
+      // Scale boss to 85-95% of player power (boss keeps its stat distribution)
+      const targetPower = playerPower * 0.9;
+      bossScaleFactor = Math.min(2.5, targetPower / bossPower);
       for (const k of statKeys) {
         opponentCombat[k] = Math.min(100, Math.round(opponentCombat[k] * bossScaleFactor));
       }
-      context.log(`[Blindspot] Boss adaptive scaling: player=${playerPower} boss=${bossPower} scale=${bossScaleFactor.toFixed(2)}`);
+      context.log(`[Blindspot] Boss adaptive scaling: player=${playerPower} boss=${bossPower} scale=${bossScaleFactor.toFixed(2)} target=${Math.round(targetPower)}`);
     }
   }
 
