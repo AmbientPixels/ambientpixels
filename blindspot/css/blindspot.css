@@ -1380,7 +1380,7 @@
 .bs-card-flip-container {
   perspective: 1000px;
   width: 280px;
-  aspect-ratio: 2 / 3;
+  height: 460px;
   margin: 0 auto;
 }
 
@@ -1416,7 +1416,15 @@
 
 .bs-card-flip-back {
   transform: rotateY(180deg);
-  overflow: visible;
+}
+/* Card inside flip fills the container exactly */
+.bs-card-flip-back .bs-rendered-card {
+  height: 100%;
+  max-width: 100%;
+}
+.bs-card-flip-back .bs-rc__art {
+  flex: 1;
+  min-height: 0;
 }
 
 /* Strip CardForge double border from cloned card inside flip reveal */
