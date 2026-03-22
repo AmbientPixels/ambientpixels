@@ -3984,18 +3984,12 @@
   background: conic-gradient(from 0deg, var(--bs-accent), var(--bs-accent-dim), transparent, var(--bs-accent-dim), var(--bs-accent));
   z-index: -1;
   opacity: 0;
-  animation: bs-card-border-spin 4s linear infinite;
+  transition: opacity 0.3s ease;
 }
 
 .bs-lobby__card-display:hover::after {
   opacity: 0.7;
 }
-
-@keyframes bs-card-border-spin {
-  0% { opacity: 0; transform: rotate(0deg); }
-  25% { opacity: 0.5; }
-  50% { opacity: 0; transform: rotate(180deg); }
-  75% { opacity: 0.5; }
   100% { opacity: 0; transform: rotate(360deg); }
 }
 
