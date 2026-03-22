@@ -2337,12 +2337,19 @@
     var deckSize = getDeckSize();
     var needed = _config ? _config.forgeVisit.winsRequired : 3;
     var forgeReady = isForgeUnlocked() || getHighestBossDefeated() >= 10 || getForgeWins() >= needed || isForgePending();
-    if (deckSize >= MAX_DECK_SIZE || !forgeReady) {
+    if (!forgeReady) {
       btn.style.display = 'none';
       return;
     }
 
     btn.style.display = '';
+    if (deckSize >= MAX_DECK_SIZE) {
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-layer-group" aria-hidden="true"></i> Deck Full (' + MAX_DECK_SIZE + '/' + MAX_DECK_SIZE + ')';
+    } else {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="fas fa-plus" aria-hidden="true"></i> New Card';
+    }
 
     if (!_newCardBound) {
       _newCardBound = true;
