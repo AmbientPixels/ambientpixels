@@ -1,0 +1,199 @@
+/* Blindspot B2C Custom Theme */
+
+/* Page background */
+body, .ext-sign-in-box, .login-paginated-page {
+  background-color: #100C08 !important;
+  font-family: 'Segoe UI', system-ui, sans-serif !important;
+}
+
+/* Sign-in card/box */
+.ext-sign-in-box,
+.login-paginated-page .ext-sign-in-box,
+div[data-viewid] {
+  background-color: #1a1612 !important;
+  border: 1px solid #2a2420 !important;
+  border-radius: 16px !important;
+  box-shadow: 0 0 40px rgba(239, 159, 39, 0.08) !important;
+}
+
+/* All text defaults */
+body, p, span, label, div {
+  color: #F5F0E8 !important;
+}
+
+/* Headings / title */
+h1, h2, .ext-title, .title, .text-title {
+  color: #EF9F27 !important;
+  font-weight: 700 !important;
+}
+
+/* Subtitle / description text */
+.ext-subtitle, .subtitle, .text-subtitle, .text-body {
+  color: #A09888 !important;
+}
+
+/* Input fields */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+.ext-text-field input,
+.form-control {
+  background-color: #100C08 !important;
+  border: 1px solid #2a2420 !important;
+  border-radius: 8px !important;
+  color: #F5F0E8 !important;
+  padding: 0.6rem 0.75rem !important;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="tel"]:focus,
+.ext-text-field input:focus,
+.form-control:focus {
+  border-color: #EF9F27 !important;
+  box-shadow: 0 0 8px rgba(239, 159, 39, 0.25) !important;
+  outline: none !important;
+}
+
+/* Input labels */
+label, .ext-label {
+  color: #A09888 !important;
+  font-size: 0.85rem !important;
+}
+
+/* Primary button (Sign in / Next) */
+input[type="submit"],
+button[type="submit"],
+.ext-primary,
+.ext-button.ext-primary,
+.win-button.button_primary,
+#idSIButton9,
+#next {
+  background: linear-gradient(135deg, #2a2015, #3a2a18) !important;
+  border: 1px solid #EF9F27 !important;
+  border-radius: 10px !important;
+  color: #EF9F27 !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.05em !important;
+  padding: 0.7rem 1.5rem !important;
+  box-shadow: 0 0 12px rgba(239, 159, 39, 0.15) !important;
+  transition: all 0.3s ease !important;
+  cursor: pointer !important;
+}
+
+input[type="submit"]:hover,
+button[type="submit"]:hover,
+.ext-primary:hover,
+.ext-button.ext-primary:hover,
+.win-button.button_primary:hover,
+#idSIButton9:hover,
+#next:hover {
+  background: linear-gradient(135deg, #3a2a18, #4a3a22) !important;
+  box-shadow: 0 0 20px rgba(239, 159, 39, 0.3) !important;
+}
+
+/* Secondary button */
+.ext-secondary,
+.ext-button.ext-secondary,
+.win-button.button_secondary,
+#idBtn_Back {
+  background: transparent !important;
+  border: 1px solid #2a2420 !important;
+  border-radius: 10px !important;
+  color: #A09888 !important;
+  padding: 0.7rem 1.5rem !important;
+  cursor: pointer !important;
+}
+
+.ext-secondary:hover,
+.ext-button.ext-secondary:hover,
+#idBtn_Back:hover {
+  border-color: #EF9F27 !important;
+  color: #EF9F27 !important;
+}
+
+/* Links (forgot password, sign up, etc.) */
+a, .ext-link, .link {
+  color: #EF9F27 !important;
+  text-decoration: none !important;
+}
+
+a:hover, .ext-link:hover, .link:hover {
+  text-decoration: underline !important;
+  color: #f0b040 !important;
+}
+
+/* Error messages */
+.ext-error, .error, .alert-error, .alert-danger {
+  color: #ff5252 !important;
+  background: rgba(255, 82, 82, 0.1) !important;
+  border: 1px solid rgba(255, 82, 82, 0.3) !important;
+  border-radius: 6px !important;
+  padding: 0.5rem !important;
+}
+
+/* Dividers */
+hr, .ext-divider, .divider {
+  border-color: #2a2420 !important;
+}
+
+/* Footer */
+.ext-footer, .footer, #footer {
+  color: #A09888 !important;
+}
+
+.ext-footer a, .footer a, #footer a {
+  color: #EF9F27 !important;
+}
+
+/* Social / IdP buttons */
+.ext-social-container button,
+.options button,
+.accountButton {
+  background: #1a1612 !important;
+  border: 1px solid #2a2420 !important;
+  border-radius: 8px !important;
+  color: #F5F0E8 !important;
+  padding: 0.6rem !important;
+}
+
+.ext-social-container button:hover,
+.options button:hover,
+.accountButton:hover {
+  border-color: #EF9F27 !important;
+}
+
+/* Progress indicators / spinners */
+.ext-loading, .progress {
+  color: #EF9F27 !important;
+}
+
+/* Banner logo area */
+.ext-header, .banner {
+  background: transparent !important;
+}
+
+/* Checkbox */
+input[type="checkbox"] {
+  accent-color: #EF9F27 !important;
+}
+
+/* Placeholder text */
+::placeholder {
+  color: #5a4e42 !important;
+  opacity: 1 !important;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #100C08;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2420;
+  border-radius: 3px;
+}

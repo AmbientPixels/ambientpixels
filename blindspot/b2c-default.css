@@ -1,0 +1,200 @@
+/* AmbientPixels Default Sign-in Theme — Clean Dark
+   Uses official Microsoft Entra CSS selectors:
+   https://learn.microsoft.com/en-us/entra/fundamentals/reference-company-branding-css-template
+*/
+
+/* ── Page background ── */
+body {
+  background-color: #0a0a0f !important;
+  font-family: 'Segoe UI', system-ui, sans-serif !important;
+  color: #e8e8f0 !important;
+}
+
+/* ── Background image container (full-screen template) ── */
+.ext-background-image {
+  background-color: #0a0a0f !important;
+}
+
+/* ── Middle alignment container ── */
+.ext-middle {
+  background-color: transparent !important;
+}
+
+/* ── Header ── */
+.ext-header {
+  background: transparent !important;
+}
+
+.ext-header-logo {
+  max-height: 40px !important;
+}
+
+/* ── Sign-in box (mid-tone: readable for both white + forced black text) ── */
+.ext-sign-in-box {
+  background-color: #363642 !important;
+  border: 1px solid #50506a !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4) !important;
+  color: #e8e8f0 !important;
+}
+
+/* ── Title & subtitle ── */
+.ext-title {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+.ext-subtitle {
+  color: #9090a0 !important;
+}
+
+/* ── Links ── */
+a, a:link {
+  color: #818cf8 !important;
+  text-decoration: none !important;
+}
+
+a:hover {
+  color: #a5b4fc !important;
+  text-decoration: underline !important;
+}
+
+a:focus {
+  color: #818cf8 !important;
+  outline: 2px solid rgba(99, 102, 241, 0.5) !important;
+  outline-offset: 2px !important;
+}
+
+.ext-link {
+  color: #818cf8 !important;
+}
+
+/* ── Text inputs ── */
+.ext-input.ext-text-box {
+  background-color: #2a2a38 !important;
+  border: 1px solid #50506a !important;
+  border-radius: 8px !important;
+  color: #e8e8f0 !important;
+}
+
+.ext-input.ext-text-box:hover {
+  border-color: #404060 !important;
+}
+
+.ext-input.ext-text-box:focus {
+  border-color: #6366f1 !important;
+  box-shadow: 0 0 8px rgba(99, 102, 241, 0.25) !important;
+  outline: none !important;
+}
+
+.ext-input.ext-text-box:focus:hover {
+  border-color: #6366f1 !important;
+}
+
+.ext-input.ext-text-box.ext-has-error {
+  border-color: #f87171 !important;
+}
+
+/* ── Primary button ── */
+.ext-button.ext-primary {
+  background: #6366f1 !important;
+  border: none !important;
+  border-radius: 8px !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+}
+
+.ext-button.ext-primary:hover {
+  background: #5558e6 !important;
+  box-shadow: 0 2px 12px rgba(99, 102, 241, 0.3) !important;
+}
+
+.ext-button.ext-primary:focus {
+  outline: 2px solid rgba(99, 102, 241, 0.5) !important;
+  outline-offset: 2px !important;
+}
+
+.ext-button.ext-primary:active {
+  background: #4f46e5 !important;
+}
+
+/* ── Secondary button ── */
+.ext-button.ext-secondary {
+  background: transparent !important;
+  border: 1px solid #303045 !important;
+  border-radius: 8px !important;
+  color: #9090a0 !important;
+  cursor: pointer !important;
+}
+
+.ext-button.ext-secondary:hover {
+  border-color: #6366f1 !important;
+  color: #e8e8f0 !important;
+}
+
+.ext-button.ext-secondary:focus {
+  outline: 2px solid rgba(99, 102, 241, 0.5) !important;
+  outline-offset: 2px !important;
+}
+
+.ext-button.ext-secondary:active {
+  background: rgba(99, 102, 241, 0.1) !important;
+}
+
+/* ── Error text ── */
+.ext-error {
+  color: #f87171 !important;
+}
+
+/* ── Boilerplate / custom message ── */
+.ext-boilerplate-text {
+  background-color: #363642 !important;
+  color: #b0b0c0 !important;
+  border-radius: 0 0 12px 12px !important;
+}
+
+/* ── Promoted federated credential box ── */
+.ext-promoted-fed-cred-box {
+  background-color: #2a2a38 !important;
+  border: 1px solid #50506a !important;
+  border-radius: 8px !important;
+  color: #e8e8f0 !important;
+}
+
+/* ── Footer ── */
+.ext-footer {
+  background-color: transparent !important;
+  color: #606070 !important;
+}
+
+.ext-footer-links {
+  color: #606070 !important;
+}
+
+.ext-footer-item {
+  color: #606070 !important;
+}
+
+.ext-footer-item a {
+  color: #818cf8 !important;
+}
+
+.ext-debug-item {
+  color: #404050 !important;
+}
+
+/* ── Force light text on all elements (beats MS atomic classes) ── */
+.ext-sign-in-box div,
+.ext-sign-in-box span,
+.ext-sign-in-box p,
+.ext-sign-in-box button,
+.ext-sign-in-box [data-testid],
+.ext-sign-in-box [class*="___"] {
+  color: #e8e8f0 !important;
+}
+
+/* ── Checkbox ── */
+input[type="checkbox"] {
+  accent-color: #6366f1 !important;
+}
