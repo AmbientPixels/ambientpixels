@@ -295,6 +295,11 @@
             <label for="qb-class">Class</label>
             <input type="text" id="qb-class" value="${_escHtml(cls)}" readonly style="opacity:0.7; cursor:default;">
           </div>
+          <div class="qb-field">
+            <label>Rarity</label>
+            <input type="text" value="Common" readonly style="opacity:0.7; cursor:default; color:var(--bs-text-muted);">
+            <span class="qb-style-desc" style="font-size:0.7rem; color:var(--bs-text-muted); margin-top:0.25rem;">Earn higher rarity through forge visits</span>
+          </div>
         </div>
       </div>
     `;
