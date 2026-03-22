@@ -3119,16 +3119,15 @@
 
     // Start ALL data loading in parallel — track completion with progress bar
     var _loadSteps = 0;
-    var _loadLabels = ['Loading arena...', 'Loading profile...', 'Loading progress...', 'Loading cards...'];
-    function _stepDone() {
+    function _stepDone(label) {
       _loadSteps++;
-      updateLoadingProgress(_loadSteps * 25, _loadSteps < 4 ? _loadLabels[_loadSteps] : 'Ready');
+      updateLoadingProgress(_loadSteps * 25, _loadSteps >= 4 ? 'Ready' : label);
     }
     updateLoadingProgress(5, 'Connecting...');
-    const gameDataPromise = loadGameData().then(r => { _stepDone(); return r; });
-    const profilePromise = loadProfile().then(r => { _stepDone(); return r; });
-    const progressPromise = loadProgressFromServer().then(r => { _stepDone(); return r; });
-    const cardsPromise = loadUserCards().then(r => { _stepDone(); return r; });
+    const gameDataPromise = loadGameData().then(r => { _stepDone('Arena loaded'); return r; });
+    const profilePromise = loadProfile().then(r => { _stepDone('Profile loaded'); return r; });
+    const progressPromise = loadProgressFromServer().then(r => { _stepDone('Progress loaded'); return r; });
+    const cardsPromise = loadUserCards().then(r => { _stepDone('Cards loaded'); return r; });
 
     if (window.ArenaAudio) window.ArenaAudio.init();
 
