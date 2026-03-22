@@ -9,10 +9,9 @@ window._config = window._config || {};
 var _isProd = (window.location.hostname === 'ambientpixels.ai' || window.location.hostname.endsWith('.azurestaticapps.net'));
 window._config.apiEndpoints = {
   base: _isProd ? 'https://ambientpixels-nova-api.azurewebsites.net/api' : '/api',
-  // Battle/bosses — uses existing endpoints until blindspotbattle/blindspotbosses are deployed
-  // After deploy: switch to 'blindspotbattle' and 'blindspotbosses'
-  arenaBattle: 'cardforgearenabattle',
-  arenaBosses: 'cardforgearenabosses',
+  // Blindspot-specific battle/bosses endpoints
+  arenaBattle: 'blindspotbattle',
+  arenaBosses: 'blindspotbosses',
   // Shared endpoints (product-agnostic)
   loadCards: 'cardforgeloadcards',
   saveCard: 'cardforgesavecards',
