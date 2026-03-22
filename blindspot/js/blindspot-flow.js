@@ -3426,9 +3426,9 @@
       const highestB = getHighestBossDefeated();
 
       let streakHtml = '';
-      if (streak >= 5) streakHtml = `<span class="bs-hud-streak--hot"><i class="fas fa-arrow-trend-up"></i> ${streak}</span>`;
-      else if (streak >= 3) streakHtml = `<span class="bs-hud-streak--warm"><i class="fas fa-arrow-trend-up"></i> ${streak}</span>`;
-      else if (streak > 0) streakHtml = `<span><i class="fas fa-arrow-trend-up"></i> ${streak}</span>`;
+      if (streak >= 5) streakHtml = `<span class="bs-hud-streak--hot"><i class="fas fa-crosshairs"></i> ${streak}</span>`;
+      else if (streak >= 3) streakHtml = `<span class="bs-hud-streak--warm"><i class="fas fa-crosshairs"></i> ${streak}</span>`;
+      else if (streak > 0) streakHtml = `<span><i class="fas fa-crosshairs"></i> ${streak}</span>`;
 
       const ascension = getAscension();
       const ascHtml = ascension > 0 ? `<span class="bs-ascension-badge"><i class="fas fa-star"></i> Ascension ${ascension}</span>` : '';
