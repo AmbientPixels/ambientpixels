@@ -1289,6 +1289,7 @@
   flex-direction: column;
   align-items: center;
   padding: 2rem 1rem;
+  background: var(--bs-bg);
 }
 .bs-class-picker-grid {
   display: flex;

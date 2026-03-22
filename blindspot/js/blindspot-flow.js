@@ -2329,6 +2329,14 @@
     Trickster: { str: 45, agi: 65, int: 55, end: 45, lck: 90 }
   };
 
+  var NEW_CARD_DEFAULT_AVATARS = {
+    Fighter:   '/blindspot/img/demo/demo-knight.webp',
+    Caster:    '/blindspot/img/demo/demo-mage.webp',
+    Rogue:     '/blindspot/img/demo/demo-rogue.webp',
+    Guardian:  '/blindspot/img/demo/demo-knight.webp',
+    Trickster: '/blindspot/img/demo/demo-mage.webp'
+  };
+
   var NEW_CARD_CLASSES = [
     { id: 'Fighter',   icon: 'fa-hand-fist',           label: 'Fighter',   desc: 'Power Strike — raw STR damage' },
     { id: 'Caster',    icon: 'fa-wand-magic-sparkles', label: 'Caster',    desc: 'Arcane Blast — INT + Vulnerable' },
@@ -2371,8 +2379,9 @@
         btn.innerHTML = '<span class="bs-spinner" style="display:inline-block;width:14px;height:14px;"></span> Creating\u2026';
 
         try {
+          var defaultAvatar = NEW_CARD_DEFAULT_AVATARS[chosenClass] || '/blindspot/img/demo/demo-knight.webp';
           var cardId = await window.BlindspotSaveCard.save(
-            { cardName: chosenClass, cardClass: chosenClass, cardRarity: 'Common', imageContainer: 'masked' },
+            { cardName: chosenClass, cardClass: chosenClass, cardRarity: 'Common', imageContainer: 'masked', artworkUrl: defaultAvatar },
             { ...stats }
           );
 
@@ -2400,7 +2409,7 @@
           openForgeScreen(true);
         } catch (e) {
           console.error('[Blindspot] New card creation failed:', e);
-          showErrorToast('Could not create card. Try again.');
+          showErrorToast('Could not create card: ' + (e.message || 'Unknown error'));
           btn.disabled = false;
           btn.innerHTML = '<i class="fas ' + NEW_CARD_CLASSES.find(function(cl) { return cl.id === chosenClass; }).icon + '" style="font-size:1.2rem;color:var(--bs-accent);"></i><strong>' + chosenClass + '</strong>';
         }
