@@ -4837,11 +4837,13 @@
         }
       }
 
-      // Forge visit trigger — queue it to show AFTER loot choice is picked
-      // (don't return early — loot choice must still appear)
-      const needed = _config ? _config.forgeVisit.winsRequired : 3;
-      if (getForgeWins() >= needed) {
-        _pendingForge = true; // Flag checked after loot is picked
+      // Forge visit trigger — only prompt on the FIRST unlock, not every time
+      if (!isForgeUnlocked()) {
+        const needed = _config ? _config.forgeVisit.winsRequired : 3;
+        if (getForgeWins() >= needed) {
+          setForgeUnlocked();
+          _pendingForge = true; // Flag checked after loot is picked
+        }
       }
     }
 
