@@ -2858,7 +2858,9 @@
     document.getElementById('bs-landing').style.display = 'none';
 
     const battleContainer = document.getElementById('bs-battle-container');
+    // Keep battle hidden until fully initialized to prevent empty arena flash
     battleContainer.style.display = 'block';
+    battleContainer.style.opacity = '0';
 
     if (window.ArenaAudio) window.ArenaAudio.init();
 
@@ -2885,6 +2887,9 @@
       window.ArenaBattleUI.initBattle(battleData);
       applyBattlePalette();
       updateCombatTooltips();
+      // Fade in battle container now that everything is initialized
+      battleContainer.style.transition = 'opacity 0.4s ease';
+      battleContainer.style.opacity = '1';
       // Show combat guide on very first battle
       if (!localStorage.getItem('bs-combat-guide-shown')) {
         safeLSSet('bs-combat-guide-shown', 'true');
