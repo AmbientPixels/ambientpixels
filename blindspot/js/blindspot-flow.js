@@ -2310,25 +2310,100 @@
     if (!_newCardBound) {
       _newCardBound = true;
       btn.addEventListener('click', function() {
-        // Open Quick Build directly on play.html (no redirect)
-        if (window.BlindspotQuickBuild) {
-          window.BlindspotQuickBuild.open(function onComplete(cardId) {
-            if (cardId) {
-              window.ArenaAPI.loadCards().then(function(data) {
-                var cards = data.userCards || [];
-                cards.forEach(function(c) { addCardToDeck(c); });
-                _progress.selectedCardId = cardId;
-                safeLSSet('bs-selected-card-id', cardId);
-                renderLobby();
-              }).catch(function() { renderLobby(); });
-            }
-          });
-        } else {
-          // Fallback: redirect to index.html with newCard param
-          window.location.href = '/blindspot/?newCard=true';
-        }
+        showNewCardClassPicker();
       });
     }
+  }
+
+  // ============================================================
+  // NEW CARD — CLASS PICKER → CREATE → FORGE
+  // ============================================================
+
+  var NEW_CARD_CLASS_STATS = {
+    Fighter:   { str: 90, agi: 55, int: 35, end: 80, lck: 40 },
+    Caster:    { str: 35, agi: 45, int: 95, end: 40, lck: 85 },
+    Rogue:     { str: 55, agi: 90, int: 60, end: 50, lck: 45 },
+    Guardian:  { str: 65, agi: 35, int: 45, end: 95, lck: 60 },
+    Trickster: { str: 45, agi: 65, int: 55, end: 45, lck: 90 }
+  };
+
+  var NEW_CARD_CLASSES = [
+    { id: 'Fighter',   icon: 'fa-hand-fist',           label: 'Fighter',   desc: 'Power Strike — raw STR damage' },
+    { id: 'Caster',    icon: 'fa-wand-magic-sparkles', label: 'Caster',    desc: 'Arcane Blast — INT + Vulnerable' },
+    { id: 'Rogue',     icon: 'fa-user-ninja',          label: 'Rogue',     desc: 'Shadow Strike — always first' },
+    { id: 'Guardian',  icon: 'fa-shield-halved',       label: 'Guardian',  desc: 'Fortify — heal + defense' },
+    { id: 'Trickster', icon: 'fa-dice',                label: 'Trickster', desc: 'Wild Card — high risk, high reward' }
+  ];
+
+  function showNewCardClassPicker() {
+    document.querySelector('.bs-class-picker-overlay')?.remove();
+
+    var overlay = document.createElement('div');
+    overlay.className = 'bs-overlay bs-class-picker-overlay';
+    overlay.innerHTML =
+      '<h2 style="font-family:Cinzel,serif;color:var(--bs-accent);margin-bottom:0.5rem;font-size:1.2rem;">Choose a Class</h2>' +
+      '<p style="color:var(--bs-text-muted);font-size:0.8rem;margin-bottom:1rem;">Pick your fighting style. You\'ll customize in the Forge.</p>' +
+      '<div class="bs-class-picker-grid">' +
+      NEW_CARD_CLASSES.map(function(c) {
+        return '<button class="bs-btn bs-btn--secondary bs-class-picker-btn" data-class="' + c.id + '">' +
+          '<i class="fas ' + c.icon + '" style="font-size:1.2rem;color:var(--bs-accent);"></i>' +
+          '<strong>' + c.label + '</strong>' +
+          '<span style="font-size:0.7rem;color:var(--bs-text-muted);">' + c.desc + '</span>' +
+          '</button>';
+      }).join('') +
+      '</div>' +
+      '<button class="bs-btn bs-btn--secondary" id="bs-class-picker-cancel" style="margin-top:1rem;font-size:0.8rem;">Cancel</button>';
+
+    document.body.appendChild(overlay);
+    requestAnimationFrame(function() { overlay.style.opacity = '1'; });
+
+    overlay.querySelector('#bs-class-picker-cancel').addEventListener('click', function() {
+      overlay.remove();
+    });
+
+    overlay.querySelectorAll('.bs-class-picker-btn').forEach(function(btn) {
+      btn.addEventListener('click', async function() {
+        var chosenClass = btn.getAttribute('data-class');
+        var stats = NEW_CARD_CLASS_STATS[chosenClass];
+        btn.disabled = true;
+        btn.innerHTML = '<span class="bs-spinner" style="display:inline-block;width:14px;height:14px;"></span> Creating\u2026';
+
+        try {
+          var cardId = await window.BlindspotSaveCard.save(
+            { cardName: chosenClass, cardClass: chosenClass, cardRarity: 'Common', imageContainer: 'masked' },
+            { ...stats }
+          );
+
+          // Load new card into deck
+          var data = await window.ArenaAPI.loadCards();
+          var cards = data.userCards || [];
+          cards.forEach(function(c) { addCardToDeck(c); });
+
+          // Select the new card
+          _progress.selectedCardId = cardId;
+          safeLSSet('bs-selected-card-id', cardId);
+          await window.ArenaAPI.selectCard(cardId).catch(function() {});
+
+          // Find the card data and set as selected
+          var newCard = cards.find(function(c) { return c.id === cardId; });
+          if (newCard) {
+            _selectedCard = newCard;
+            _selectedCard.combatStats = _selectedCard.combatStats || stats;
+          }
+
+          overlay.remove();
+          renderLobby();
+
+          // Open the Forge immediately
+          openForgeScreen(true);
+        } catch (e) {
+          console.error('[Blindspot] New card creation failed:', e);
+          showErrorToast('Could not create card. Try again.');
+          btn.disabled = false;
+          btn.innerHTML = '<i class="fas ' + NEW_CARD_CLASSES.find(function(cl) { return cl.id === chosenClass; }).icon + '" style="font-size:1.2rem;color:var(--bs-accent);"></i><strong>' + chosenClass + '</strong>';
+        }
+      });
+    });
   }
 
   // ============================================================
