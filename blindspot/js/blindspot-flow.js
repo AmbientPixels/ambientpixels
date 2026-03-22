@@ -3201,7 +3201,8 @@
     // Post-Quick-Build onboarding: show 3-step welcome on first lobby visit
     if (!localStorage.getItem('bs-onboarded-lobby')) {
       safeLSSet('bs-onboarded-lobby', 'true');
-      showLobbyOnboarding();
+      // Brief delay so player sees the lobby before onboarding overlay
+      setTimeout(showLobbyOnboarding, 800);
     }
    } catch (err) {
     console.error('[Blindspot] initPlay crashed:', err);

@@ -6542,7 +6542,7 @@ body.bs-battle-active .bs-play {
   position: fixed;
   inset: 0;
   z-index: 10000;
-  background: rgba(0, 0, 0, 0.75);
+  background: rgba(0, 0, 0, 0.5);
   animation: bs-onboard-fadein 0.3s ease;
 }
 
