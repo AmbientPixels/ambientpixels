@@ -3267,6 +3267,8 @@
   function showForgeProgressInResults() {
     const container = document.getElementById('bs-results-forge');
     if (!container) return;
+    // Hide in results if forge is already permanently unlocked
+    if (isForgeUnlocked()) { container.style.display = 'none'; return; }
     container.style.display = 'block';
     const wins = getForgeWins();
     const needed = _config ? _config.forgeVisit.winsRequired : 3;
