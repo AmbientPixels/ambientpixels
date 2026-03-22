@@ -1772,7 +1772,10 @@
     ensureCombatStats(card);
     var cs = card.combatStats || {};
     var palette = card.palette || 'earth';
-    var container = (card.design && card.design.imageContainer) || 'fullbleed';
+    var container = (card.design && card.design.imageContainer)
+      || card.imageContainer
+      || (card.cardData && card.cardData.design && card.cardData.design.imageContainer)
+      || 'masked';
     var rarity = (card.rarity || 'Common').toLowerCase();
     var name = card.name || 'Unknown';
     var cls = card.class || card.characterClass || '';
