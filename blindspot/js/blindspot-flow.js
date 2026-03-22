@@ -984,19 +984,44 @@
     });
   }
 
+  var _loadingTarget = 0;
+  var _loadingCurrent = 0;
+  var _loadingRAF = null;
+
   function updateLoadingProgress(pct, label) {
+    _loadingTarget = Math.max(_loadingTarget, pct);
     var fill = document.getElementById('bs-loading-fill');
     var step = document.getElementById('bs-loading-step');
-    if (fill) fill.style.width = pct + '%';
     if (step) step.textContent = label || '';
+
+    // Animate the bar smoothly toward target
+    if (!_loadingRAF && fill) {
+      (function tick() {
+        if (_loadingCurrent < _loadingTarget) {
+          // Move faster when far from target, slower when close
+          var diff = _loadingTarget - _loadingCurrent;
+          var speed = Math.max(0.5, diff * 0.15);
+          _loadingCurrent = Math.min(_loadingTarget, _loadingCurrent + speed);
+          fill.style.width = _loadingCurrent.toFixed(1) + '%';
+          _loadingRAF = requestAnimationFrame(tick);
+        } else {
+          _loadingRAF = null;
+        }
+      })();
+    }
   }
 
   function dismissLoadingGate() {
+    // Fill to 100% smoothly before dismissing
+    updateLoadingProgress(100, 'Ready');
     var gate = document.getElementById('bs-loading-gate');
     if (!gate) return;
-    document.body.classList.remove('bs-page--loading');
-    gate.classList.add('bs-loading-gate--fade');
-    setTimeout(function() { gate.remove(); }, 350);
+    // Wait for bar to visually reach 100%
+    setTimeout(function() {
+      document.body.classList.remove('bs-page--loading');
+      gate.classList.add('bs-loading-gate--fade');
+      setTimeout(function() { gate.remove(); }, 350);
+    }, 300);
   }
 
   function showScreen(id) {
@@ -3055,16 +3080,19 @@
         </div>
         <p class="bs-reveal-title">Your card is ready</p>
         <p class="bs-reveal-subtitle">The arena awaits.</p>
+        ${isDemoUser ? `
+        <a href="/blindspot/login.html?redirect=/blindspot/play.html" class="bs-btn bs-btn--primary bs-btn--glow bs-reveal-enter" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">
+          <i class="fas fa-sign-in-alt"></i> Sign In & Enter the Arena
+        </a>
+        <button class="bs-btn bs-btn--secondary bs-btn--full" style="margin-top:0.75rem; max-width:320px;" id="bs-reveal-enter">
+          <i class="fas fa-play"></i> Continue as Guest
+        </button>
+        <p style="font-size:0.65rem; color:var(--bs-text-muted); margin-top:0.5rem;">Guest progress won't sync across devices</p>
+        ` : `
         <button class="bs-btn bs-btn--primary bs-btn--glow bs-reveal-enter" id="bs-reveal-enter">
           <i class="fas fa-shield-halved"></i> Enter the Arena
         </button>
-        ${isDemoUser ? `
-        <div style="margin-top:0.75rem; text-align:center; max-width:320px;">
-          <a href="/blindspot/login.html?redirect=/blindspot/play.html" class="bs-btn bs-btn--secondary bs-btn--full" style="text-decoration:none; display:block; margin-bottom:0.5rem;">
-            <i class="fas fa-sign-in-alt"></i> Sign In to Save Progress
-          </a>
-          <p style="font-size:0.65rem; color:var(--bs-text-muted);">Guest progress won't sync across devices</p>
-        </div>` : ''}
+        `}
       `;
 
       document.getElementById('bs-reveal-enter')?.addEventListener('click', () => {
@@ -3118,17 +3146,12 @@
     // Show lobby shell immediately while data loads
     showScreen('lobby');
 
-    // Start ALL data loading in parallel — track completion with progress bar
-    var _loadSteps = 0;
-    function _stepDone(label) {
-      _loadSteps++;
-      updateLoadingProgress(_loadSteps * 25, _loadSteps >= 4 ? 'Ready' : label);
-    }
+    // Start ALL data loading in parallel — track completion with smooth progress
     updateLoadingProgress(5, 'Connecting...');
-    const gameDataPromise = loadGameData().then(r => { _stepDone('Arena loaded'); return r; });
-    const profilePromise = loadProfile().then(r => { _stepDone('Profile loaded'); return r; });
-    const progressPromise = loadProgressFromServer().then(r => { _stepDone('Progress loaded'); return r; });
-    const cardsPromise = loadUserCards().then(r => { _stepDone('Cards loaded'); return r; });
+    const gameDataPromise = loadGameData().then(r => { updateLoadingProgress(25, 'Arena loaded'); return r; });
+    const profilePromise = loadProfile().then(r => { updateLoadingProgress(45, 'Profile loaded'); return r; });
+    const progressPromise = loadProgressFromServer().then(r => { updateLoadingProgress(60, 'Progress loaded'); return r; });
+    const cardsPromise = loadUserCards().then(r => { updateLoadingProgress(75, 'Cards loaded'); return r; });
 
     if (window.ArenaAudio) window.ArenaAudio.init();
 
@@ -3197,8 +3220,10 @@
       if (serverBoss > _progress.highestBoss) _progress.highestBoss = serverBoss;
     }
 
-    updateLoadingProgress(100, 'Ready');
+    updateLoadingProgress(85, 'Preparing lobby...');
+    await new Promise(r => requestAnimationFrame(r));
     renderLobby();
+    updateLoadingProgress(95, 'Almost ready...');
     bindPlayNavigation();
     updatePlayAuthUI();
     dismissLoadingGate();
