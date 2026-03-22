@@ -1047,6 +1047,8 @@
   function getForgeWins() { return _progress.forgeWins; }
   function setForgeWins(n) { _progress.forgeWins = n; }
   function isForgePending() { return localStorage.getItem('bs-forge-pending') === 'true'; }
+  function isForgeUnlocked() { return localStorage.getItem('bs-forge-unlocked') === 'true'; }
+  function setForgeUnlocked() { safeLSSet('bs-forge-unlocked', 'true'); }
 
   function getHighestBossDefeated() { return _progress.highestBoss; }
   function setHighestBossDefeated(n) {
@@ -2299,7 +2301,7 @@
 
     var deckSize = getDeckSize();
     var needed = _config ? _config.forgeVisit.winsRequired : 3;
-    var forgeReady = getHighestBossDefeated() >= 10 || getForgeWins() >= needed || isForgePending();
+    var forgeReady = isForgeUnlocked() || getHighestBossDefeated() >= 10 || getForgeWins() >= needed || isForgePending();
     if (deckSize >= MAX_DECK_SIZE || !forgeReady) {
       btn.style.display = 'none';
       return;
@@ -3683,8 +3685,11 @@
     const wins = getForgeWins();
     const needed = _config ? _config.forgeVisit.winsRequired : 3;
     const campaignComplete = getHighestBossDefeated() >= 10;
-    // After Boss 10, forge is always open
-    const ready = campaignComplete || wins >= needed || isForgePending();
+    // Once unlocked, forge stays unlocked forever
+    const ready = isForgeUnlocked() || campaignComplete || wins >= needed || isForgePending();
+
+    // Set permanent unlock flag on first ready
+    if (ready && !isForgeUnlocked()) setForgeUnlocked();
 
     const label = document.getElementById('bs-forge-label');
     const fill = document.getElementById('bs-forge-fill');
@@ -3692,11 +3697,9 @@
     const hint = document.getElementById('bs-forge-hint');
 
     const pct = ready ? 100 : Math.min(100, (wins / needed) * 100);
-    if (campaignComplete) {
-      if (label) label.textContent = 'CARD EDITOR \u2014 Always available';
-      if (hint) hint.textContent = 'Campaign complete — forge whenever you want';
-    } else if (ready) {
-      if (label) label.textContent = 'CARD EDITOR READY \u2014 Tap to customize';
+    if (ready) {
+      if (label) label.textContent = 'CARD EDITOR \u2014 Tap to customize';
+      if (hint) hint.textContent = '';
     } else {
       if (label) label.textContent = `CARD EDITOR \u00b7 ${Math.floor(wins)} / ${needed} wins`;
     }
@@ -5766,12 +5769,8 @@
         const resp = await fetch(url, { method: 'POST', headers, body: JSON.stringify(cardToSave) });
         if (!resp.ok) throw new Error('Save failed: ' + resp.status);
 
-        // Deduct forge wins: respec costs extra wins on top of the normal reset
-        if (_respecActive) {
-          setForgeWins(Math.max(0, getForgeWins() - respecCost));
-        } else {
-          setForgeWins(0);
-        }
+        // Mark forge as permanently unlocked (no more win-gating)
+        setForgeUnlocked();
         localStorage.removeItem('bs-forge-pending');
         var prevRarity = getCardRarity();
         incForgeVisitCount();
