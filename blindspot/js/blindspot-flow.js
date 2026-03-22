@@ -2298,7 +2298,9 @@
     if (!btn) return;
 
     var deckSize = getDeckSize();
-    if (deckSize >= MAX_DECK_SIZE) {
+    var needed = _config ? _config.forgeVisit.winsRequired : 3;
+    var forgeReady = getHighestBossDefeated() >= 10 || getForgeWins() >= needed || isForgePending();
+    if (deckSize >= MAX_DECK_SIZE || !forgeReady) {
       btn.style.display = 'none';
       return;
     }
