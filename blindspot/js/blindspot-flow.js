@@ -987,41 +987,45 @@
   var _loadingTarget = 0;
   var _loadingCurrent = 0;
   var _loadingRAF = null;
+  var _loadingFill = null;
 
   function updateLoadingProgress(pct, label) {
     _loadingTarget = Math.max(_loadingTarget, pct);
-    var fill = document.getElementById('bs-loading-fill');
+    if (!_loadingFill) _loadingFill = document.getElementById('bs-loading-fill');
     var step = document.getElementById('bs-loading-step');
     if (step) step.textContent = label || '';
 
-    // Animate the bar smoothly toward target
-    if (!_loadingRAF && fill) {
-      (function tick() {
-        if (_loadingCurrent < _loadingTarget) {
-          // Move faster when far from target, slower when close
-          var diff = _loadingTarget - _loadingCurrent;
-          var speed = Math.max(0.5, diff * 0.15);
-          _loadingCurrent = Math.min(_loadingTarget, _loadingCurrent + speed);
-          fill.style.width = _loadingCurrent.toFixed(1) + '%';
-          _loadingRAF = requestAnimationFrame(tick);
-        } else {
-          _loadingRAF = null;
-        }
-      })();
-    }
+    // Start or restart the animation loop
+    if (!_loadingRAF && _loadingFill) _startLoadingAnim();
+  }
+
+  function _startLoadingAnim() {
+    (function tick() {
+      if (_loadingCurrent < _loadingTarget) {
+        // Ease toward target — slower speed for smoother feel
+        var diff = _loadingTarget - _loadingCurrent;
+        var speed = Math.max(0.3, diff * 0.08);
+        _loadingCurrent = Math.min(_loadingTarget, _loadingCurrent + speed);
+        if (_loadingFill) _loadingFill.style.width = _loadingCurrent.toFixed(1) + '%';
+        _loadingRAF = requestAnimationFrame(tick);
+      } else {
+        _loadingRAF = null;
+      }
+    })();
   }
 
   function dismissLoadingGate() {
-    // Fill to 100% smoothly before dismissing
-    updateLoadingProgress(100, 'Ready');
+    _loadingTarget = 100;
+    if (!_loadingRAF && _loadingFill) _startLoadingAnim();
     var gate = document.getElementById('bs-loading-gate');
     if (!gate) return;
-    // Wait for bar to visually reach 100%
+    // Wait for bar to visually reach ~100%
+    var waitMs = Math.max(400, (100 - _loadingCurrent) * 15);
     setTimeout(function() {
       document.body.classList.remove('bs-page--loading');
       gate.classList.add('bs-loading-gate--fade');
       setTimeout(function() { gate.remove(); }, 350);
-    }, 300);
+    }, waitMs);
   }
 
   function showScreen(id) {
