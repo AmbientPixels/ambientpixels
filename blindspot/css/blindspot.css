@@ -1540,12 +1540,12 @@
     repeating-linear-gradient(90deg, transparent, transparent 59px, rgba(245, 240, 232, 0.01) 59px, rgba(245, 240, 232, 0.01) 60px);
 }
 /* Stage background variants (set by ArenaBackgrounds JS) */
-.bs-page .arena-stage--colosseum { background-image: url('/cardforge/img/arena/arena-colosseum.webp'); }
-.bs-page .arena-stage--shadow-pit { background-image: url('/cardforge/img/arena/arena-shadow-pit.webp'); }
-.bs-page .arena-stage--forge-grounds { background-image: url('/cardforge/img/arena/arena-forge-grounds.webp'); }
-.bs-page .arena-stage--crystal-sanctum { background-image: url('/cardforge/img/arena/arena-crystal-sanctum.webp'); }
-.bs-page .arena-stage--void-rift { background-image: url('/cardforge/img/arena/arena-void-rift.webp'); }
-.bs-page .arena-stage--throne { background-image: url('/cardforge/img/arena/arena-throne.webp'); }
+.bs-page .arena-stage--colosseum { background-image: url('/blindspot/img/arena/arena-colosseum.webp'); }
+.bs-page .arena-stage--shadow-pit { background-image: url('/blindspot/img/arena/arena-shadow-pit.webp'); }
+.bs-page .arena-stage--forge-grounds { background-image: url('/blindspot/img/arena/arena-forge-grounds.webp'); }
+.bs-page .arena-stage--crystal-sanctum { background-image: url('/blindspot/img/arena/arena-crystal-sanctum.webp'); }
+.bs-page .arena-stage--void-rift { background-image: url('/blindspot/img/arena/arena-void-rift.webp'); }
+.bs-page .arena-stage--throne { background-image: url('/blindspot/img/arena/arena-throne.webp'); }
 .bs-page [class*="arena-stage--"]::before {
   background:
     linear-gradient(180deg, rgba(16, 12, 8, 0.55) 0%, rgba(16, 12, 8, 0.3) 40%, rgba(16, 12, 8, 0.55) 100%),

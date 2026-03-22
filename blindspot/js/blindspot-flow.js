@@ -5458,9 +5458,9 @@
       } catch(e) { /* no cards available */ }
       // Show full CardForge character image library as extra options
       [
-        { src: '/cardforge/img/demo/demo-knight.webp', label: 'Knight' },
-        { src: '/cardforge/img/demo/demo-mage.webp', label: 'Mage' },
-        { src: '/cardforge/img/demo/demo-rogue.webp', label: 'Rogue' },
+        { src: '/blindspot/img/demo/demo-knight.webp', label: 'Knight' },
+        { src: '/blindspot/img/demo/demo-mage.webp', label: 'Mage' },
+        { src: '/blindspot/img/demo/demo-rogue.webp', label: 'Rogue' },
         { src: '/images/image-packs/characters/navigator-kairo.jpg', label: 'Navigator Kairo' },
         { src: '/images/image-packs/characters/eyes-of-the-storm.jpg', label: 'Eyes of the Storm' },
         { src: '/images/image-packs/characters/regal-radiance.jpg', label: 'Regal Radiance' },

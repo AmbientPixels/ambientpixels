@@ -51,7 +51,7 @@ async function run() {
   // ── 1. Boss data endpoint ──
   console.log('\n── Boss Data ──');
   try {
-    const res = await fetchJSON('/cardforgearenabosses');
+    const res = await fetchJSON('/blindspotbosses');
     if (res.status === 200) pass('Boss endpoint returns 200');
     else fail('Boss endpoint returned ' + res.status);
 
@@ -101,7 +101,7 @@ async function run() {
       avatar: ''
     };
 
-    const res = await fetchJSON('/cardforgearenabattle', {
+    const res = await fetchJSON('/blindspotbattle', {
       method: 'POST',
       body: {
         action: 'start',

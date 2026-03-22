@@ -503,8 +503,8 @@
 
     // Load both manifests in parallel — thumbs for display, originals for card save
     Promise.all([
-      fetch('/cardforge/image-manifest.json').then(r => r.json()),
-      fetch('/cardforge/image-manifest-thumbs.json').then(r => r.json()).catch(() => null)
+      fetch('/blindspot/image-manifest.json').then(r => r.json()),
+      fetch('/blindspot/image-manifest-thumbs.json').then(r => r.json()).catch(() => null)
     ]).then(([images, thumbs]) => {
       _galleryCache = images;
       _thumbCache = thumbs;
@@ -551,13 +551,10 @@
       combatStats: _getActiveStats()
     };
 
-    // Render using Blindspot's renderCardHTML — no CardForge dependency
+    // Render using Blindspot's own renderCardHTML
     const previewContainer = document.getElementById('qb-card-preview');
     if (previewContainer && window.renderCardHTML) {
       previewContainer.innerHTML = window.renderCardHTML(card, 'full');
-    } else if (previewContainer) {
-      // Fallback: populate CardForge editor preview
-      _populatePreview();
     }
 
     // Flip
@@ -583,95 +580,6 @@
     }, 1100);
   }
 
-  function _populatePreview() {
-    return new Promise(resolve => { setTimeout(() => {
-      try {
-        // Apply preset design
-        if (_state.vibe && window.CardForge?.applyPresetDesignOnly) {
-          window.CardForge.applyPresetDesignOnly(_state.vibe.presetId);
-        }
-
-        // Set image container
-        if (_state.imageContainer && window.CardForge?.ModularState) {
-          const MS = window.CardForge.ModularState;
-          MS.imageContainer = _state.imageContainer;
-          if (_state.imageContainer === 'masked') MS.imageContainerVariant = 'circle';
-          else if (_state.imageContainer === 'polaroid') MS.imageContainerVariant = 'classic';
-          else if (_state.imageContainer === 'framed') MS.imageContainerVariant = '';
-          else if (_state.imageContainer === 'hero') MS.imageContainerVariant = '';
-          else MS.imageContainerVariant = '';
-        }
-
-        // Clear dynamic rows
-        if (window.CardForge?.clearAllDynamicRows) window.CardForge.clearAllDynamicRows();
-
-        // Set form fields
-        const setField = (id, val) => {
-          const el = document.getElementById(id);
-          if (el) el.value = val ?? '';
-        };
-
-        setField('card-name', _state.cardName);
-        setField('card-rarity', _state.cardRarity || 'Common');
-        setField('card-avatar', _state.artworkUrl || '');
-        setField('card-quote', _state.aiData?.quote || '');
-        setField('card-bio', _state.aiData?.biography || '');
-
-        const classSelect = document.getElementById('card-class');
-        if (classSelect) classSelect.value = _state.cardClass || '';
-
-        // Set combat stats
-        if (window.CardForge?.setCombatStatValues) {
-          const stats = _getActiveStats();
-          window.CardForge.setCombatStatValues(stats);
-        }
-
-        // Render
-        if (window.CardForge?.updatePreview) window.CardForge.updatePreview();
-
-        // Set avatar directly
-        if (_state.artworkUrl) {
-          document.querySelectorAll('.card-preview-zone .card-avatar').forEach(img => {
-            img.src = _state.artworkUrl;
-          });
-        }
-
-        // Clone preview into flip card — scale to fit container
-        const sourcePreview = document.querySelector('.card-preview-zone .card-preview-canvas');
-        const previewContainer = document.getElementById('qb-card-preview');
-        if (sourcePreview && previewContainer) {
-          const clone = sourcePreview.cloneNode(true);
-          // Let the card render at natural size, then scale to fit the flip container
-          clone.style.width = '300px';
-          clone.style.height = 'auto';
-          clone.style.position = 'absolute';
-          clone.style.top = '0';
-          clone.style.left = '0';
-          clone.style.transformOrigin = 'top left';
-          clone.style.borderRadius = '12px';
-          clone.style.overflow = 'hidden';
-          previewContainer.innerHTML = '';
-          previewContainer.style.position = 'relative';
-          previewContainer.style.overflow = 'hidden';
-          previewContainer.appendChild(clone);
-          // After render, scale down to fit container height
-          requestAnimationFrame(() => {
-            const containerH = previewContainer.offsetHeight || 560;
-            const cardH = clone.scrollHeight || clone.offsetHeight;
-            if (cardH > containerH) {
-              const scale = containerH / cardH;
-              clone.style.transform = 'scale(' + scale + ')';
-              clone.style.width = (300 / scale) + 'px';
-            }
-          });
-        }
-      } catch (err) {
-        console.error('[BS-QB] Preview error:', err);
-      }
-      resolve();
-    }, 50); });
-  }
-
   // ===== SAVE & ENTER ARENA =====
 
   async function _handleSaveAndEnter() {
@@ -682,43 +590,24 @@
     }
 
     try {
-      // Re-trigger preview to ensure all fields are set (returns promise)
-      await _populatePreview();
-      // Extra frame for DOM to settle after preview render
-      await new Promise(r => requestAnimationFrame(r));
-
-      // Save via existing pipeline (note: handleSaveCard's fetch is fire-and-forget)
+      // Save directly via BlindspotSaveCard — no CardForge editor dependency
+      const stats = _getActiveStats();
       let savedCardId = null;
-      if (window.cardForgeActions?.handleSaveCard) {
-        await window.cardForgeActions.handleSaveCard();
+
+      if (window.BlindspotSaveCard) {
+        savedCardId = await window.BlindspotSaveCard.save(_state, stats);
       }
 
-      // handleSaveCard doesn't await its fetch — wait generously for blob propagation
-      await new Promise(r => setTimeout(r, 3000));
-
-      // Retry loadCards up to 5 times to find the newly saved card
-      for (let attempt = 0; attempt < 5; attempt++) {
-        try {
-          const data = await window.ArenaAPI.loadCards();
-          const cards = data.userCards || [];
-          if (cards.length > 0) {
-            savedCardId = cards[cards.length - 1].id;
-            break;
-          }
-        } catch (e) {
-          console.warn('[BS-QB] loadCards attempt', attempt + 1, 'failed:', e);
-        }
-        if (attempt < 4) await new Promise(r => setTimeout(r, 2000));
-      }
+      // Brief wait for blob propagation
+      await new Promise(r => setTimeout(r, 1500));
 
       if (!savedCardId) {
-        console.warn('[BS-QB] Could not find saved card after 5 attempts');
+        console.warn('[BS-QB] Save returned no card ID');
         if (btn) { btn.disabled = false; btn.innerHTML = 'Continue'; }
-        // Show error — don't proceed without a card
         const panel = _overlayEl?.querySelector('.qb-body');
         if (panel) {
           panel.insertAdjacentHTML('beforeend',
-            '<div style="color:var(--bs-danger,#D85A30); text-align:center; padding:0.75rem; font-size:0.85rem; margin-top:0.5rem;">Card save is taking longer than expected. Please try again.</div>'
+            '<div style="color:var(--bs-danger,#D85A30); text-align:center; padding:0.75rem; font-size:0.85rem; margin-top:0.5rem;">Card save failed. Please try again.</div>'
           );
         }
         return;

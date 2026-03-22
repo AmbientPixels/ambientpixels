@@ -19,7 +19,7 @@
       "amount": 5,
       "label": "+5 STR"
     },
-    "avatar": "/cardforge/img/bosses/Training-Dummy-02.webp",
+    "avatar": "/blindspot/img/bosses/Training-Dummy-02.webp",
     "weakness": "int",
     "bossTip": "High endurance. Use abilities to bypass his guard."
   },
@@ -42,7 +42,7 @@
       "unlock": "palette_ocean",
       "label": "Ocean Palette"
     },
-    "avatar": "/cardforge/img/bosses/Ironclad-Sentinel-01.webp",
+    "avatar": "/blindspot/img/bosses/Ironclad-Sentinel-01.webp",
     "weakness": "agi",
     "bossTip": "Hits hard but slow. Speed lets you act first."
   },
@@ -66,7 +66,7 @@
       "amount": 5,
       "label": "+5 AGI"
     },
-    "avatar": "/cardforge/img/bosses/Shadow-Stalker-01.webp",
+    "avatar": "/blindspot/img/bosses/Shadow-Stalker-01.webp",
     "weakness": "lck",
     "bossTip": "Fast and evasive. Crits ignore dodge chance."
   },
@@ -89,7 +89,7 @@
       "unlock": "palette_neon",
       "label": "Neon Palette"
     },
-    "avatar": "/cardforge/img/bosses/Crystal-Weaver-10.webp",
+    "avatar": "/blindspot/img/bosses/Crystal-Weaver-10.webp",
     "weakness": "str",
     "bossTip": "Low health pool. Overwhelming force works."
   },
@@ -112,7 +112,7 @@
       "title": "Proven",
       "label": "Title: Proven"
     },
-    "avatar": "/cardforge/img/bosses/Warlord-Grax01.webp",
+    "avatar": "/blindspot/img/bosses/Warlord-Grax01.webp",
     "weakness": "end",
     "bossTip": "Pure aggression. Outlast him with heals."
   },
@@ -135,7 +135,7 @@
       "unlock": "container_fullbleed",
       "label": "Full Art Layout"
     },
-    "avatar": "/cardforge/img/bosses/Arcane-Scholar-01.webp",
+    "avatar": "/blindspot/img/bosses/Arcane-Scholar-01.webp",
     "weakness": "str",
     "bossTip": "Heals often. Strike to disrupt recovery."
   },
@@ -159,7 +159,7 @@
       "amount": 10,
       "label": "+10 END"
     },
-    "avatar": "/cardforge/img/bosses/Titanium-Aegis-01.webp",
+    "avatar": "/blindspot/img/bosses/Titanium-Aegis-01.webp",
     "weakness": "int",
     "bossTip": "Walls of defense. Abilities pierce guards."
   },
@@ -182,7 +182,7 @@
       "unlock": "palette_fire",
       "label": "Fire Palette"
     },
-    "avatar": "/cardforge/img/bosses/Void-Harbinger-01.webp",
+    "avatar": "/blindspot/img/bosses/Void-Harbinger-01.webp",
     "weakness": "lck",
     "bossTip": "Unpredictable patterns. Crits punish chaos."
   },
@@ -206,7 +206,7 @@
       "amount": 10,
       "label": "+10 STR"
     },
-    "avatar": "/cardforge/img/bosses/Gutter-Rat01.webp",
+    "avatar": "/blindspot/img/bosses/Gutter-Rat01.webp",
     "weakness": "agi",
     "bossTip": "All-in berserker. Speed + counter destroys him."
   },
@@ -229,7 +229,7 @@
       "title": "Forged",
       "label": "Title: Forged"
     },
-    "avatar": "/cardforge/img/bosses/The-Forge-King-01.webp",
+    "avatar": "/blindspot/img/bosses/The-Forge-King-01.webp",
     "weakness": "end",
     "bossTip": "The final test. Survive his burst, then grind."
   },
@@ -253,7 +253,7 @@
       "amount": 8,
       "label": "+8 STR"
     },
-    "avatar": "/cardforge/img/bosses/Gutter-Rat01.webp",
+    "avatar": "/blindspot/img/bosses/Gutter-Rat01.webp",
     "weekly": true
   },
   {
@@ -276,7 +276,7 @@
       "amount": 8,
       "label": "+8 LCK"
     },
-    "avatar": "/cardforge/img/bosses/Void-Harbinger-01.webp",
+    "avatar": "/blindspot/img/bosses/Void-Harbinger-01.webp",
     "weekly": true
   },
   {
@@ -299,7 +299,7 @@
       "amount": 8,
       "label": "+8 END"
     },
-    "avatar": "/cardforge/img/bosses/Titanium-Aegis-01.webp",
+    "avatar": "/blindspot/img/bosses/Titanium-Aegis-01.webp",
     "weekly": true
   },
   {
@@ -322,7 +322,7 @@
       "amount": 8,
       "label": "+8 INT"
     },
-    "avatar": "/cardforge/img/bosses/Crystal-Weaver-10.webp",
+    "avatar": "/blindspot/img/bosses/Crystal-Weaver-10.webp",
     "weekly": true
   }
 ]
