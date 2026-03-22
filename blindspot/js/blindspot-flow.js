@@ -1101,6 +1101,11 @@
     if (n > _progress.sparks) return false;
     _progress.sparks -= n;
     syncProgressToServer();
+    // Update all sparks displays
+    var hudSparks = document.querySelector('.bs-hud-sparks');
+    if (hudSparks) hudSparks.innerHTML = '<i class="fas fa-fire"></i> ' + _progress.sparks + ' sparks';
+    var forgeSparks = document.getElementById('bs-forge-sparks');
+    if (forgeSparks) forgeSparks.textContent = _progress.sparks;
     return true;
   }
   function getPurchasedCosmetics() { return _progress.purchasedCosmetics; }
@@ -1535,11 +1540,8 @@
         awardCrate('ember');
         updateSparksShop();
         // Update lobby sparks display
-        var statsEl = document.getElementById('bs-lobby-stats');
-        if (statsEl) {
-          var sparksSpan = statsEl.querySelector('[data-tooltip="Spend in the Forge"]');
-          if (sparksSpan) sparksSpan.innerHTML = '<i class="fas fa-fire"></i> ' + getSparks();
-        }
+        var sparksSpan = document.querySelector('.bs-hud-sparks');
+        if (sparksSpan) sparksSpan.innerHTML = '<i class="fas fa-fire"></i> ' + getSparks() + ' sparks';
       });
     }
   }
