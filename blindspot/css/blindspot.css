@@ -7289,47 +7289,62 @@ body.bs-battle-active .bs-play {
 
 /* Gold Filigree — warm gold border glow */
 .bs-lobby__card-display.bs-frame--gold-filigree {
-  border-color: var(--bs-accent-glow, #d4a853);
-  box-shadow: 0 0 10px 2px rgba(212, 168, 83, 0.35), inset 0 0 6px rgba(212, 168, 83, 0.1);
+  border-color: #d4a853;
+  border-width: 2px;
+  box-shadow: 0 0 16px 4px rgba(212, 168, 83, 0.5), 0 0 36px 8px rgba(212, 168, 83, 0.2), inset 0 0 8px rgba(212, 168, 83, 0.15);
+  animation: bs-frame-gold 3s ease-in-out infinite;
+}
+@keyframes bs-frame-gold {
+  0%, 100% { box-shadow: 0 0 16px 4px rgba(212, 168, 83, 0.5), 0 0 36px 8px rgba(212, 168, 83, 0.2), inset 0 0 8px rgba(212, 168, 83, 0.15); }
+  50% { box-shadow: 0 0 24px 6px rgba(212, 168, 83, 0.65), 0 0 48px 12px rgba(212, 168, 83, 0.3), inset 0 0 12px rgba(212, 168, 83, 0.2); }
 }
 
 /* Bone Frame — off-white/bone glow */
 .bs-lobby__card-display.bs-frame--bone {
   border-color: #d4c9a8;
-  box-shadow: 0 0 8px 2px rgba(212, 201, 168, 0.3), inset 0 0 4px rgba(212, 201, 168, 0.08);
+  border-width: 2px;
+  box-shadow: 0 0 14px 4px rgba(212, 201, 168, 0.45), 0 0 32px 8px rgba(212, 201, 168, 0.2), inset 0 0 6px rgba(212, 201, 168, 0.12);
+  animation: bs-frame-bone 3.5s ease-in-out infinite;
+}
+@keyframes bs-frame-bone {
+  0%, 100% { box-shadow: 0 0 14px 4px rgba(212, 201, 168, 0.45), 0 0 32px 8px rgba(212, 201, 168, 0.2); }
+  50% { box-shadow: 0 0 20px 6px rgba(212, 201, 168, 0.6), 0 0 40px 12px rgba(212, 201, 168, 0.3); }
 }
 
 /* Crystal Frame — light blue sparkle */
 .bs-lobby__card-display.bs-frame--crystal {
   border-color: #7dd3fc;
-  box-shadow: 0 0 12px 3px rgba(125, 211, 252, 0.4), inset 0 0 6px rgba(125, 211, 252, 0.1);
+  border-width: 2px;
+  box-shadow: 0 0 18px 5px rgba(125, 211, 252, 0.55), 0 0 40px 10px rgba(125, 211, 252, 0.2), inset 0 0 8px rgba(125, 211, 252, 0.15);
   animation: bs-frame-crystal 3s ease-in-out infinite;
 }
 @keyframes bs-frame-crystal {
-  0%, 100% { box-shadow: 0 0 12px 3px rgba(125, 211, 252, 0.4), inset 0 0 6px rgba(125, 211, 252, 0.1); }
-  50% { box-shadow: 0 0 18px 5px rgba(125, 211, 252, 0.55), inset 0 0 10px rgba(125, 211, 252, 0.15); }
+  0%, 100% { box-shadow: 0 0 18px 5px rgba(125, 211, 252, 0.55), 0 0 40px 10px rgba(125, 211, 252, 0.2), inset 0 0 8px rgba(125, 211, 252, 0.15); }
+  50% { box-shadow: 0 0 28px 8px rgba(125, 211, 252, 0.7), 0 0 56px 14px rgba(125, 211, 252, 0.3), inset 0 0 14px rgba(125, 211, 252, 0.2); }
 }
 
 /* Circuit Frame — green tech glow */
 .bs-lobby__card-display.bs-frame--circuit {
   border-color: #4ade80;
-  box-shadow: 0 0 10px 2px rgba(74, 222, 128, 0.35), inset 0 0 5px rgba(74, 222, 128, 0.08);
+  border-width: 2px;
+  box-shadow: 0 0 16px 4px rgba(74, 222, 128, 0.5), 0 0 36px 8px rgba(74, 222, 128, 0.2), inset 0 0 6px rgba(74, 222, 128, 0.12);
   animation: bs-frame-circuit 2.5s ease-in-out infinite;
 }
 @keyframes bs-frame-circuit {
-  0%, 100% { box-shadow: 0 0 10px 2px rgba(74, 222, 128, 0.35); }
-  50% { box-shadow: 0 0 16px 4px rgba(74, 222, 128, 0.5); }
+  0%, 100% { box-shadow: 0 0 16px 4px rgba(74, 222, 128, 0.5), 0 0 36px 8px rgba(74, 222, 128, 0.2); }
+  50% { box-shadow: 0 0 24px 6px rgba(74, 222, 128, 0.65), 0 0 48px 12px rgba(74, 222, 128, 0.3); }
 }
 
 /* Dragon Scale — fierce red/orange */
 .bs-lobby__card-display.bs-frame--dragon-scale {
   border-color: #ef4444;
-  box-shadow: 0 0 14px 3px rgba(239, 68, 68, 0.45), 0 0 30px 6px rgba(239, 68, 68, 0.15);
+  border-width: 2px;
+  box-shadow: 0 0 20px 5px rgba(239, 68, 68, 0.6), 0 0 44px 10px rgba(239, 68, 68, 0.25), inset 0 0 8px rgba(239, 68, 68, 0.15);
   animation: bs-frame-dragon 3s ease-in-out infinite;
 }
 @keyframes bs-frame-dragon {
-  0%, 100% { box-shadow: 0 0 14px 3px rgba(239, 68, 68, 0.45), 0 0 30px 6px rgba(239, 68, 68, 0.15); }
-  50% { box-shadow: 0 0 22px 6px rgba(239, 68, 68, 0.6), 0 0 40px 10px rgba(239, 68, 68, 0.2); }
+  0%, 100% { box-shadow: 0 0 20px 5px rgba(239, 68, 68, 0.6), 0 0 44px 10px rgba(239, 68, 68, 0.25); }
+  50% { box-shadow: 0 0 30px 8px rgba(239, 68, 68, 0.75), 0 0 60px 16px rgba(239, 68, 68, 0.35); }
 }
 
 /* ============================================================

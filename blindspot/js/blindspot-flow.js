@@ -5895,8 +5895,11 @@
         var prevRarity = getCardRarity();
         incForgeVisitCount();
         var newRarity = getCardRarity();
+        // Update deck cache with forged card data
+        updateCardInDeck(_selectedCard);
         hideOverlay('bs-forge-screen');
         updateForgeProgress();
+        showScreen('lobby');
         renderLobby();
         completeBounty('forgeVisit');
         syncProgressToServer();
