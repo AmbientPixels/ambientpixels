@@ -549,9 +549,7 @@
 
   /* Next reward + extras tuck into left column under rank */
   .bs-lobby .bs-next-reward { grid-column: 1; justify-self: center; }
-  .bs-lobby .bs-crate-indicator  { grid-column: 1; justify-self: center; }
-  .bs-lobby .bs-collection-btn   { grid-column: 1; justify-self: center; }
-  .bs-lobby .bs-sparks-shop      { grid-column: 1; justify-self: center; }
+  .bs-lobby .bs-loot-zone        { grid-column: 1; }
 
   /* Forge progress — compact inline on desktop */
   .bs-lobby .bs-forge-progress {
@@ -2950,23 +2948,99 @@
 }
 
 /* ============================================================
-   CRATE INDICATOR
+   LOOT ZONE (crate opener + collection + shop)
    ============================================================ */
 
-.bs-crate-indicator {
-  display: inline-flex;
+.bs-loot-zone {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+/* Crate opener — glowing treasure chest */
+.bs-crate-opener {
+  display: flex;
   align-items: center;
-  gap: 0.4rem;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--bs-accent-glow);
-  padding: 0.4rem 0.8rem;
-  margin: 0.5rem auto;
-  border: 1px solid var(--bs-accent-dim);
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--bs-accent) 8%, transparent);
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: linear-gradient(135deg, rgba(239, 159, 39, 0.15), rgba(239, 159, 39, 0.05));
+  border: 1px solid var(--bs-accent);
+  border-radius: 12px;
   cursor: pointer;
-  text-align: center;
+  animation: bs-crate-pulse 2s ease-in-out infinite;
+  box-shadow: 0 0 12px rgba(239, 159, 39, 0.2);
+}
+.bs-crate-opener:hover {
+  background: linear-gradient(135deg, rgba(239, 159, 39, 0.25), rgba(239, 159, 39, 0.1));
+  box-shadow: 0 0 20px rgba(239, 159, 39, 0.35);
+  transform: scale(1.02);
+}
+.bs-crate-opener__icon {
+  font-size: 1.5rem;
+  color: var(--bs-accent);
+  animation: bs-crate-wobble 3s ease-in-out infinite;
+}
+.bs-crate-opener__info {
+  display: flex;
+  flex-direction: column;
+}
+.bs-crate-opener__count {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+  color: var(--bs-accent-glow);
+}
+.bs-crate-opener__hint {
+  font-size: 0.65rem;
+  color: var(--bs-text-muted);
+  font-family: 'Share Tech Mono', monospace;
+}
+@keyframes bs-crate-pulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(239, 159, 39, 0.2); }
+  50% { box-shadow: 0 0 20px rgba(239, 159, 39, 0.35); }
+}
+@keyframes bs-crate-wobble {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-3deg); }
+  75% { transform: rotate(3deg); }
+}
+
+/* Loot row — collection + shop side by side */
+.bs-loot-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* Collection panel */
+.bs-collection-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--bs-surface);
+  border: 1px solid var(--bs-border);
+  border-radius: 10px;
+  color: var(--bs-text);
+  font-family: 'Cinzel', serif;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+.bs-collection-panel:hover {
+  border-color: var(--bs-accent);
+  background: var(--bs-card-bg);
+}
+.bs-collection-panel__count {
+  background: var(--bs-accent);
+  color: var(--bs-bg);
+  font-size: 0.6rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 10px;
+  font-family: system-ui, sans-serif;
+  margin-left: auto;
 }
 
 /* ============================================================
