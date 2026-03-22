@@ -98,11 +98,11 @@
     "Trickster": "wildCard",  "Wildcard": "wildCard"
   },
   "abilityDefs": {
-    "powerStrike":  { "stat": "str", "mult": 0.6,  "randMult": 0.15, "label": "Power Strike",  "icon": "fa-hand-fist",       "color": "#ff5252", "bonusDesc": "1.4x vs Guard" },
-    "arcaneBlast":  { "stat": "int", "mult": 0.55, "randMult": 0.15, "label": "Arcane Blast",  "icon": "fa-bolt",            "color": "#7b2fff", "bonusDesc": "Applies Vulnerable" },
-    "shadowStrike": { "stat": "agi", "mult": 0.5,  "randMult": 0.2,  "label": "Shadow Strike", "icon": "fa-feather-pointed", "color": "#00e676", "bonusDesc": "Always first" },
-    "fortify":      { "stat": "end", "healMult": 0.25, "healRand": 0.1, "label": "Fortify",    "icon": "fa-shield-halved",   "color": "#ff9100", "bonusDesc": "Applies Fortified" },
-    "wildCard":     { "stat": "lck", "mult": 0.5,  "randMult": 0.2,  "label": "Wild Card",     "icon": "fa-clover",          "color": "#ffd740", "bonusDesc": "25% crit / 10% fizzle" }
+    "powerStrike":  { "stat": "str", "mult": 0.45, "randMult": 0.15, "label": "Power Strike",  "icon": "fa-hand-fist",       "color": "#ff5252", "bonusDesc": "1.4x vs Guard" },
+    "arcaneBlast":  { "stat": "int", "mult": 0.42, "randMult": 0.15, "label": "Arcane Blast",  "icon": "fa-bolt",            "color": "#7b2fff", "bonusDesc": "Applies Vulnerable" },
+    "shadowStrike": { "stat": "agi", "mult": 0.38, "randMult": 0.2,  "label": "Shadow Strike", "icon": "fa-feather-pointed", "color": "#00e676", "bonusDesc": "Always first" },
+    "fortify":      { "stat": "end", "healMult": 0.35, "healRand": 0.12, "label": "Fortify",   "icon": "fa-shield-halved",   "color": "#ff9100", "bonusDesc": "Applies Fortified" },
+    "wildCard":     { "stat": "lck", "mult": 0.38, "randMult": 0.2,  "label": "Wild Card",     "icon": "fa-clover",          "color": "#ffd740", "bonusDesc": "25% crit / 10% fizzle" }
   },
   "chargeConfig": {
     "startCharges": 0,

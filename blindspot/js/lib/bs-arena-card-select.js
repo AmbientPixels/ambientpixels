@@ -41,7 +41,7 @@ window.ArenaCardSelect = (function () {
   }
 
   function computeHp(stats) {
-    return Math.round(50 + stats.end * 0.8 + stats.str * 0.2);
+    return Math.round(80 + stats.end * 1.5 + stats.str * 0.3);
   }
 
   function renderCardStrip(cards, containerId, onSelect) {

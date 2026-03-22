@@ -227,9 +227,9 @@ function applyStatPassives(combatStats, passives) {
   }
 }
 
-// HP = 50 base + END contribution (80%) + STR contribution (20%)
+// HP = 80 base + END contribution (150%) + STR contribution (30%)
 function computeMaxHp(combatStats) {
-  return Math.round(50 + (combatStats.end * 0.8) + (combatStats.str * 0.2));
+  return Math.round(80 + (combatStats.end * 1.5) + (combatStats.str * 0.3));
 }
 
 function getClassAbility(className, config) {
@@ -281,11 +281,11 @@ function resolveClassAbility(abilityKey, combatStats, opponentMove, config, even
     heal = end * def.healMult + Math.random() * (end * def.healRand);
     // Matchup modifiers for fortify heal
     if (opponentMove === 'strike') {
-      heal *= 0.5;
-      events.push(`${prefix} fortify was disrupted by ${target} strike!`);
+      heal *= 0.75;
+      events.push(`${prefix} fortify was disrupted by ${target} strike! (25% reduced)`);
     } else if (opponentMove === 'ability') {
-      heal = 0;
-      events.push(`${prefix} fortify was interrupted by ${target} ability!`);
+      heal *= 0.4;
+      events.push(`${prefix} fortify was disrupted by ${target} ability! (60% reduced)`);
     }
     heal = Math.round(heal);
     if (heal > 0) {
@@ -457,7 +457,7 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
   } else if (playerMove === 'strike') {
     // Strike: 40% of STR as base + up to 10% STR as random variance
     const str = player.combatStats.str + playerStrBonus;
-    playerOutDmg = str * 0.4 + Math.random() * (str * 0.1);
+    playerOutDmg = str * 0.3 + Math.random() * (str * 0.1);
     const isCrit = Math.random() * 100 < playerCritChance;
     if (isCrit) {
       const critDmgBonus = getPassiveValue(player.passives, 'crit_damage');
@@ -520,13 +520,13 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
   } else if (playerMove === 'heal') {
     // Heal: 30% of END as base + up to 10% END as random variance
     const end = player.combatStats.end;
-    let healAmt = end * 0.3 + Math.random() * (end * 0.1);
+    let healAmt = end * 0.5 + Math.random() * (end * 0.12);
     if (opponentMove === 'strike') {
-      healAmt *= 0.5;
-      events.push('\u26A0\uFE0F Your healing was disrupted by the enemy strike! (50% reduced)');
+      healAmt *= 0.75;
+      events.push('\u26A0\uFE0F Your healing was disrupted by the enemy strike! (25% reduced)');
     } else if (opponentMove === 'ability') {
-      healAmt = 0;
-      events.push('\u274C Your healing was interrupted by the enemy ability!');
+      healAmt *= 0.4;
+      events.push('\u26A0\uFE0F Your healing was disrupted by the enemy ability! (60% reduced)');
     }
     healAmt = Math.round(healAmt);
     playerHeal += healAmt;
@@ -550,7 +550,7 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     events.push('\uD83D\uDCA5 Enemy is stunned and cannot act this round!');
   } else if (opponentMove === 'strike') {
     const str = opponent.combatStats.str + opponentStrBonus;
-    opponentOutDmg = str * 0.4 + Math.random() * (str * 0.1);
+    opponentOutDmg = str * 0.3 + Math.random() * (str * 0.1);
     const isCrit = Math.random() * 100 < opponentCritChance;
     if (isCrit) {
       const critDmgBonus = getPassiveValue(opponent.passives, 'crit_damage');
@@ -612,13 +612,13 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     events.push('\uD83D\uDEE1\uFE0F Enemy raised their guard, bracing for impact.');
   } else if (opponentMove === 'heal') {
     const end = opponent.combatStats.end;
-    let healAmt = end * 0.3 + Math.random() * (end * 0.1);
+    let healAmt = end * 0.5 + Math.random() * (end * 0.12);
     if (playerMove === 'strike') {
-      healAmt *= 0.5;
-      events.push('\u26A0\uFE0F Enemy healing was disrupted by your strike! (50% reduced)');
+      healAmt *= 0.75;
+      events.push('\u26A0\uFE0F Enemy healing was disrupted by your strike! (25% reduced)');
     } else if (playerMove === 'ability') {
-      healAmt = 0;
-      events.push('\u274C Enemy healing was interrupted by your ability!');
+      healAmt *= 0.4;
+      events.push('\u26A0\uFE0F Enemy healing was disrupted by your ability! (60% reduced)');
     }
     healAmt = Math.round(healAmt);
     opponentHeal += healAmt;

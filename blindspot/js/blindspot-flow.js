@@ -5729,7 +5729,7 @@
   const TUTORIAL_HINTS = [
     { move: 'strike',  text: 'Strike \u2014 basic attack. Deals STR damage. Disrupts enemy heals.' },
     { move: 'guard',   text: 'Guard \u2014 blocks 60% of strikes. Use when they attack.' },
-    { move: 'heal',    text: 'Heal \u2014 recover HP. Warning: abilities punish healers hard.' },
+    { move: 'heal',    text: 'Heal \u2014 recover HP. Strikes and abilities reduce healing.' },
     { move: 'counter', text: 'Counter \u2014 reflects enemy strikes back at them. Fails vs abilities.' },
     { move: 'ability', text: 'Ability \u2014 your class power. Costs 2 charges. Earned by fighting.' }
   ];
