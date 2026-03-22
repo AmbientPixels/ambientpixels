@@ -3337,6 +3337,8 @@
       cards = await cardsPromise;
     }
     if (cards.length > 0) {
+      // Sync full server card data into deck cache so card switcher has complete data
+      cards.forEach(function(c) { ensureCombatStats(c); addCardToDeck(c); });
       var savedCardId = _progress.selectedCardId || (profile && profile.selectedCardId);
       _selectedCard = savedCardId
         ? cards.find(c => c.id === savedCardId) || cards[0]
