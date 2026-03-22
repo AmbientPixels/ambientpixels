@@ -5729,12 +5729,26 @@
   }
 
   function highlightTutorialMove(step) {
-    document.querySelectorAll('.arena-move-btn').forEach(b => b.classList.remove('bs-pulse-hint'));
-    if (step < TUTORIAL_HINTS.length) {
-      const hint = TUTORIAL_HINTS[step];
-      const btn = document.querySelector(`[data-move="${hint.move}"]`);
+    var hint = step < TUTORIAL_HINTS.length ? TUTORIAL_HINTS[step] : null;
+    document.querySelectorAll('.arena-move-btn').forEach(function (b) {
+      b.classList.remove('bs-pulse-hint');
+      if (hint) {
+        // Disable all buttons except the one being taught
+        var isTarget = b.dataset.move === hint.move;
+        b.disabled = !isTarget;
+        b.style.opacity = isTarget ? '' : '0.3';
+        b.style.pointerEvents = isTarget ? '' : 'none';
+      } else {
+        // Tutorial done — re-enable all
+        b.disabled = false;
+        b.style.opacity = '';
+        b.style.pointerEvents = '';
+      }
+    });
+    if (hint) {
+      var btn = document.querySelector('[data-move="' + hint.move + '"]');
       if (btn) btn.classList.add('bs-pulse-hint');
-      const textEl = document.getElementById('bs-tutorial-text');
+      var textEl = document.getElementById('bs-tutorial-text');
       if (textEl) textEl.textContent = hint.text;
     }
   }
@@ -5750,9 +5764,12 @@
 
   function removeTutorial() {
     if (_tutorialEl) { _tutorialEl.remove(); _tutorialEl = null; }
-    document.querySelectorAll('.arena-move-btn').forEach(b => {
+    document.querySelectorAll('.arena-move-btn').forEach(function (b) {
       b.classList.remove('bs-pulse-hint');
       b.removeEventListener('click', onTutorialMoveClick);
+      b.disabled = false;
+      b.style.opacity = '';
+      b.style.pointerEvents = '';
     });
   }
 

@@ -6,9 +6,8 @@
 window._config = window._config || {};
 
 // Merge Blindspot endpoints (don't overwrite if already set by game-config.json)
-var _isProd = (window.location.hostname === 'ambientpixels.ai' || window.location.hostname.endsWith('.azurestaticapps.net'));
 window._config.apiEndpoints = {
-  base: _isProd ? 'https://ambientpixels-nova-api.azurewebsites.net/api' : '/api',
+  base: 'https://ambientpixels-nova-api.azurewebsites.net/api',
   // Blindspot-specific battle/bosses endpoints
   arenaBattle: 'blindspotbattle',
   arenaBosses: 'blindspotbosses',

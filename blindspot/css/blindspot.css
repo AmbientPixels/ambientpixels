@@ -2036,14 +2036,18 @@
 
 /* --- Desktop adjustments --- */
 @media (min-width: 769px) {
-  .bs-page .arena-battle__field { gap: 2rem; padding: 1.5rem 2.5rem; }
-  .bs-page .arena-combatant { max-width: 300px; padding: 1rem 1.25rem 0.75rem; }
-  .bs-page .arena-combatant__card { width: 160px; height: 160px; }
-  .bs-page .arena-combatant__name { font-size: 1rem; }
-  .bs-page .arena-player-buffs { max-width: 260px; overflow: hidden; max-height: 1.4rem; }
-  .bs-page .arena-battle__log { height: 80px; max-height: 80px; }
-  .bs-page .arena-battle__moves { gap: 0.75rem; }
-  .bs-page .arena-move-btn { padding: 0.85rem 0.5rem 0.7rem; }
+  .bs-page .arena-battle { max-width: 1000px; padding: 0 2rem 1rem; }
+  .bs-page .arena-battle__header { margin-bottom: 0.75rem; padding: 0.6rem 1.25rem; }
+  .bs-page .arena-battle__field { gap: 2.5rem; padding: 2rem 3rem; }
+  .bs-page .arena-combatant { max-width: 320px; padding: 1.25rem 1.5rem 1rem; }
+  .bs-page .arena-combatant__card { width: 180px; height: 180px; }
+  .bs-page .arena-combatant__name { font-size: 1.05rem; }
+  .bs-page .arena-player-buffs { max-width: 280px; overflow: hidden; max-height: 1.4rem; }
+  .bs-page .arena-battle__stage { margin-bottom: 0.75rem; }
+  .bs-page .arena-battle__log { height: 80px; max-height: 80px; margin-bottom: 0.75rem; }
+  .bs-page .arena-hype-bar { margin-bottom: 0.75rem; padding: 0.35rem 1rem; }
+  .bs-page .arena-battle__moves { gap: 0.85rem; }
+  .bs-page .arena-move-btn { padding: 1rem 0.6rem 0.85rem; border-radius: 16px; }
 }
 
 /* ============================================================
@@ -4346,7 +4350,7 @@
 
 /* Index.html battle container — fill viewport when visible */
 #bs-battle-container {
-  max-width: 860px;
+  max-width: 1000px;
   margin: 0 auto;
   padding: 0.5rem 2rem 1rem;
   min-height: 100vh;
