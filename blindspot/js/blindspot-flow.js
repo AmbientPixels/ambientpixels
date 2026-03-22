@@ -2836,7 +2836,7 @@
 
     fightBtn.addEventListener('click', async () => {
       fightBtn.disabled = true;
-      fightBtn.innerHTML = '<span class="bs-spinner" style="display:inline-block;width:14px;height:14px;"></span> <i class="fas fa-khanda" style="margin-right:0.3em;"></i>Entering the arena\u2026';
+      fightBtn.innerHTML = '<span class="bs-spinner" style="display:inline-block;width:14px;height:14px;"></span> Loading\u2026';
 
       // ALL new players fight as The Stranger first
       // Demo users: cardData passed directly (server accepts it)
