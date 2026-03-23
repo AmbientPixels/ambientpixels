@@ -1196,33 +1196,14 @@
   gap: 0.75rem;
   justify-content: flex-start;
   padding: 1.5rem 2rem;
-  overflow: hidden;
-}
-.bs-prefight__scrollable {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.75rem;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  flex: 1 1 auto;
-  min-height: 0;
-  width: 100%;
-  text-align: center;
-  padding-bottom: 0.5rem;
-}
-.bs-prefight > button,
-.bs-prefight > div:last-child:not(.bs-prefight__scrollable) {
-  flex-shrink: 0;
-  margin-top: 0.5rem;
 }
 
 .bs-prefight__flavor {
   font-style: italic;
   color: var(--bs-text-muted);
-  font-size: 0.8rem;
-  max-height: 120px;
-  overflow-y: auto;
+  font-size: 0.85rem;
   line-height: 1.4;
 }
 
@@ -4437,6 +4418,11 @@
   height: 20px;
   margin-left: 35px;
   position: relative;
+  background: var(--bs-border);
+}
+
+.bs-ladder-connector--done {
+  background: var(--bs-success);
 }
 
 .bs-ladder-connector::before {
@@ -6691,7 +6677,6 @@ body.bs-battle-active .bs-play {
     justify-content: flex-start;
     padding-top: 1.25rem;
   }
-  .bs-prefight__scrollable { gap: 0.5rem; }
   .bs-prefight .bs-overlay__title { font-size: 1rem; }
   .bs-prefight__flavor { font-size: 0.75rem; }
   .bs-prefight-comparison { max-width: 100%; }
@@ -6809,7 +6794,6 @@ body.bs-battle-active .bs-play {
     gap: 0.5rem;
     padding-top: 1rem;
   }
-  .bs-prefight__scrollable { gap: 0.4rem; }
   .bs-prefight-stat-row {
     grid-template-columns: 18px 1fr 28px 1fr 18px;
     font-size: 0.6rem;
