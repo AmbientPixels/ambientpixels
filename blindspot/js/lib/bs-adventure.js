@@ -203,7 +203,7 @@ window.BsAdventure = (function () {
       labelEl.textContent = STAT_LABELS[result.stat] + ' Check (DC ' + result.dc + ')';
       resultEl.textContent = '';
       resultEl.className = 'bs-adventure__dice-result';
-      if (window.ArenaAudio) window.ArenaAudio.playSfx('click');
+      if (window.ArenaAudio) window.ArenaAudio.play('click');
 
       function showFinal() {
         valueEl.textContent = result.roll;
@@ -221,7 +221,7 @@ window.BsAdventure = (function () {
           resultEl.className = 'bs-adventure__dice-result bs-adventure__dice-result--failure';
           resultEl.textContent = 'Failed! (' + result.total + ' vs DC ' + result.dc + ')';
         }
-        if (window.ArenaAudio) window.ArenaAudio.playSfx(result.success ? 'hit' : 'guard');
+        if (window.ArenaAudio) window.ArenaAudio.play(result.success ? 'hit' : 'guard');
         valueEl.classList.add('bs-adventure__dice-value--burst');
 
         var holdTime = _prefersReducedMotion ? 600 : DICE_HOLD_TIME;
@@ -314,7 +314,7 @@ window.BsAdventure = (function () {
     toast.className = 'bs-adventure__item-toast';
     toast.innerHTML = '<i class="fas ' + (itemDef.icon || 'fa-box') + '"></i> Found: ' + escHtml(itemDef.name);
     container.appendChild(toast);
-    if (window.ArenaAudio) window.ArenaAudio.playSfx('loot');
+    if (window.ArenaAudio) window.ArenaAudio.play('loot');
     setTimeout(function () { if (toast.parentNode) toast.parentNode.removeChild(toast); }, BUFF_TOAST_DURATION + 500);
   }
 
@@ -494,7 +494,7 @@ window.BsAdventure = (function () {
       if (b === btn) b.classList.add('bs-adventure__choice--selected');
     });
 
-    if (window.ArenaAudio) window.ArenaAudio.playSfx('click');
+    if (window.ArenaAudio) window.ArenaAudio.play('click');
 
     if (choice.skillCheck) {
       var adjustedDC = computeAdaptiveDC(choice.skillCheck.dc);
