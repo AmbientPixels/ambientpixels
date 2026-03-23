@@ -3993,7 +3993,7 @@
     const displayWins = Math.min(Math.floor(wins), needed);
     const pct = ready ? 100 : Math.min(100, (wins / needed) * 100);
     if (ready) {
-      if (label) label.textContent = 'CARD EDITOR \u00b7 Unlocked';
+      if (label) label.textContent = 'CARD EDITOR';
       if (hint) hint.textContent = 'Tap to customize your card';
     } else {
       if (label) label.textContent = 'CARD EDITOR \u00b7 ' + displayWins + ' / ' + needed + ' wins';
