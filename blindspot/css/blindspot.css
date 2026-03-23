@@ -723,19 +723,19 @@
 
 /* Card slide animations — transition: none prevents the transform transition from fighting the animation */
 .bs-lobby__card-display.bs-card-slide-out-left {
-  animation: bs-card-slide-out-left 0.25s ease-in forwards;
+  animation: bs-card-slide-out-left 0.25s ease-in forwards !important;
   transition: none !important;
 }
 .bs-lobby__card-display.bs-card-slide-in-right {
-  animation: bs-card-slide-in-right 0.25s ease-out forwards;
+  animation: bs-card-slide-in-right 0.25s ease-out forwards !important;
   transition: none !important;
 }
 .bs-lobby__card-display.bs-card-slide-out-right {
-  animation: bs-card-slide-out-right 0.25s ease-in forwards;
+  animation: bs-card-slide-out-right 0.25s ease-in forwards !important;
   transition: none !important;
 }
 .bs-lobby__card-display.bs-card-slide-in-left {
-  animation: bs-card-slide-in-left 0.25s ease-out forwards;
+  animation: bs-card-slide-in-left 0.25s ease-out forwards !important;
   transition: none !important;
 }
 

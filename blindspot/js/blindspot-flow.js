@@ -1268,11 +1268,10 @@
 
   function renderArenaSelector() {
     var container = document.getElementById('bs-arena-selector');
-    if (!container || !window.ArenaBackgrounds) { console.log('[BS-DEBUG] arenaSelector: container=', !!container, 'ArenaBackgrounds=', !!window.ArenaBackgrounds); return; }
+    if (!container || !window.ArenaBackgrounds) return;
     var highestBoss = getHighestBossDefeated();
     var arenas = window.ArenaBackgrounds.ARENAS;
     var unlocked = window.ArenaBackgrounds.getUnlockedArenas(highestBoss);
-    console.log('[BS-DEBUG] arenaSelector: highestBoss=', highestBoss, 'unlocked=', unlocked.length, 'container.display=', container.style.display);
 
     // Only show picker if player has more than 1 arena unlocked
     if (unlocked.length <= 1) {
