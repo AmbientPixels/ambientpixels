@@ -4113,7 +4113,7 @@
 
   function setupPrefightButtons(bossId) {
     var goBtn = document.getElementById('bs-prefight-go');
-    if (!goBtn) return;
+    if (!goBtn || !goBtn.parentNode) return;
     var parent = goBtn.parentNode;
     var hasAdv = window.BsAdventure && window.BsAdventure.hasAdventure(bossId) && !isWeeklyBoss(bossId);
 
@@ -4188,13 +4188,14 @@
     // Restore after a short delay when overlay hides
     setTimeout(function () {
       var overlay = document.getElementById('bs-prefight-overlay');
-      if (overlay && overlay.classList.contains('bs-overlay--hidden')) restoreBtn();
-      else {
-        var observer = new MutationObserver(function (muts) {
-          if (overlay.classList.contains('bs-overlay--hidden')) { observer.disconnect(); restoreBtn(); }
-        });
-        if (overlay) observer.observe(overlay, { attributes: true, attributeFilter: ['class'] });
-      }
+      if (!overlay) { restoreBtn(); return; }
+      if (overlay.classList.contains('bs-overlay--hidden')) { restoreBtn(); return; }
+      var observer = new MutationObserver(function () {
+        if (overlay.classList.contains('bs-overlay--hidden')) { observer.disconnect(); restoreBtn(); }
+      });
+      observer.observe(overlay, { attributes: true, attributeFilter: ['class'] });
+      // Safety: auto-disconnect after 60s to prevent leaks
+      setTimeout(function () { observer.disconnect(); }, 60000);
     }, 100);
   }
 
@@ -4656,6 +4657,7 @@
 
     showOverlay('bs-prefight-overlay');
     var oldBtn = document.getElementById('bs-prefight-go');
+    if (!oldBtn || !oldBtn.parentNode) return;
     var freshBtn = oldBtn.cloneNode(true);
     oldBtn.parentNode.replaceChild(freshBtn, oldBtn);
     freshBtn.addEventListener('click', async function() {
@@ -5346,6 +5348,7 @@
 
     // Wire fight button to PvP battle (clone to remove old handlers)
     var oldBtn = document.getElementById('bs-prefight-go');
+    if (!oldBtn || !oldBtn.parentNode) return;
     var freshBtn = oldBtn.cloneNode(true);
     oldBtn.parentNode.replaceChild(freshBtn, oldBtn);
     freshBtn.addEventListener('click', function() {
