@@ -393,12 +393,14 @@
 
   <!-- Pre-fight overlay -->
   <div id="bs-prefight-overlay" class="bs-overlay bs-overlay--hidden bs-prefight" role="dialog" aria-label="Pre-fight">
-    <div class="bs-boss-avatar" id="bs-prefight-avatar" aria-hidden="true" style="width:64px;height:64px;font-size:1.5rem;border-color:var(--bs-accent);color:var(--bs-accent);"></div>
-    <p class="bs-overlay__title" id="bs-prefight-title" style="margin-top:0.5rem;"></p>
-    <p class="bs-prefight__flavor" id="bs-prefight-flavor"></p>
-    <div id="bs-prefight-comparison" class="bs-prefight-comparison" aria-label="Stat comparison"></div>
-    <div id="bs-charm-selector" class="bs-charm-selector" style="display:none;" aria-label="Equip a charm"></div>
-    <div id="bs-arena-selector" class="bs-arena-selector" style="display:none;" aria-label="Choose arena"></div>
+    <div class="bs-prefight__scrollable">
+      <div class="bs-boss-avatar" id="bs-prefight-avatar" aria-hidden="true" style="width:64px;height:64px;font-size:1.5rem;border-color:var(--bs-accent);color:var(--bs-accent);"></div>
+      <p class="bs-overlay__title" id="bs-prefight-title" style="margin-top:0.25rem;"></p>
+      <p class="bs-prefight__flavor" id="bs-prefight-flavor"></p>
+      <div id="bs-prefight-comparison" class="bs-prefight-comparison" aria-label="Stat comparison"></div>
+      <div id="bs-charm-selector" class="bs-charm-selector" style="display:none;" aria-label="Equip a charm"></div>
+      <div id="bs-arena-selector" class="bs-arena-selector" style="display:none;" aria-label="Choose arena"></div>
+    </div>
     <button class="bs-btn bs-btn--primary bs-btn--large bs-btn--glow" id="bs-prefight-go">Fight</button>
   </div>
 

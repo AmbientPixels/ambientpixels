@@ -1193,20 +1193,44 @@
 
 /* Pre-fight screen */
 .bs-prefight {
-  gap: 2rem;
+  gap: 0.75rem;
+  justify-content: flex-start;
+  padding: 1.5rem 2rem;
+  overflow: hidden;
+}
+.bs-prefight__scrollable {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  flex: 1 1 auto;
+  min-height: 0;
+  width: 100%;
+  text-align: center;
+  padding-bottom: 0.5rem;
+}
+.bs-prefight > button,
+.bs-prefight > div:last-child:not(.bs-prefight__scrollable) {
+  flex-shrink: 0;
+  margin-top: 0.5rem;
 }
 
 .bs-prefight__flavor {
   font-style: italic;
   color: var(--bs-text-muted);
-  font-size: 0.9rem;
+  font-size: 0.8rem;
+  max-height: 120px;
+  overflow-y: auto;
+  line-height: 1.4;
 }
 
 /* Pre-fight stat comparison (iter 63) */
 .bs-prefight-comparison {
   width: 100%;
   max-width: 360px;
-  margin: 0.5rem auto;
+  margin: 0.25rem auto;
 }
 .bs-prefight-comparison__header {
   display: flex;
@@ -3125,7 +3149,7 @@
 .bs-charm-selector {
   width: 100%;
   max-width: 360px;
-  margin: 0.75rem auto;
+  margin: 0.25rem auto;
   text-align: center;
 }
 
@@ -3172,7 +3196,7 @@
 .bs-arena-selector {
   width: 100%;
   max-width: 360px;
-  margin: 0.5rem auto 0;
+  margin: 0.25rem auto 0;
   text-align: center;
 }
 
@@ -6662,13 +6686,12 @@ body.bs-battle-active .bs-play {
 
   /* Pre-fight overlay — scrollable, compact */
   .bs-prefight {
-    gap: 1rem;
-    padding: 1.25rem 1rem;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    gap: 0.5rem;
+    padding: 1rem;
     justify-content: flex-start;
-    padding-top: 2rem;
+    padding-top: 1.25rem;
   }
+  .bs-prefight__scrollable { gap: 0.5rem; }
   .bs-prefight .bs-overlay__title { font-size: 1rem; }
   .bs-prefight__flavor { font-size: 0.75rem; }
   .bs-prefight-comparison { max-width: 100%; }
@@ -6782,10 +6805,11 @@ body.bs-battle-active .bs-play {
 
   /* Pre-fight — narrower stat comparison */
   .bs-prefight {
-    padding: 1rem 0.75rem;
-    gap: 0.75rem;
-    padding-top: 1.5rem;
+    padding: 0.75rem;
+    gap: 0.5rem;
+    padding-top: 1rem;
   }
+  .bs-prefight__scrollable { gap: 0.4rem; }
   .bs-prefight-stat-row {
     grid-template-columns: 18px 1fr 28px 1fr 18px;
     font-size: 0.6rem;

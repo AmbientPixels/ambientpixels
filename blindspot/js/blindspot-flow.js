@@ -1500,6 +1500,7 @@
         var itemId = btn.dataset.itemId;
         var slot = btn.dataset.slot;
         equipCosmetic(slot, itemId);
+        syncProgressToServer();
         renderCollection();
         applyEquippedCosmetics();
       });
