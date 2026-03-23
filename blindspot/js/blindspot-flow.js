@@ -3985,7 +3985,7 @@
     if (fill) fill.style.setProperty('--bar-pct', pct / 100);
     if (container) {
       container.classList.toggle('bs-forge-progress--ready', ready);
-      container.onclick = ready ? () => openForgeScreen() : null;
+      container.onclick = ready ? () => openForgeScreen(false, true) : null;
     }
   }
 
@@ -4327,7 +4327,7 @@
         else if (nav === 'forge') {
           var needed = _config ? _config.forgeVisit.winsRequired : 3;
           var campaignDone = getHighestBossDefeated() >= 10;
-          if (campaignDone || getForgeWins() >= needed || isForgePending()) { openForgeScreen(); }
+          if (campaignDone || getForgeWins() >= needed || isForgePending()) { openForgeScreen(false, true); }
           else { showErrorToast('Win ' + Math.ceil(needed - getForgeWins()) + ' more fights to unlock the Forge'); }
         }
         else if (nav === 'leaderboard') { showScreen('leaderboard'); renderLeaderboard(); }
@@ -5442,7 +5442,7 @@
   // FORGE SCREEN
   // ============================================================
 
-  function openForgeScreen(isFirstUnlock) {
+  function openForgeScreen(isFirstUnlock, showCardPicker) {
     var rawBonus = isFirstUnlock
       ? (_config ? _config.forgeVisit.firstUnlockBonusPoints : 35)
       : (_config ? _config.forgeVisit.bonusPoints : 25);
@@ -5496,9 +5496,18 @@
     const cardName = _selectedCard.name || 'Your Card';
     const cardClass = _selectedCard.class || _selectedCard.characterClass || '';
 
+    var deckSize = getDeck().length;
+    var showPicker = showCardPicker && deckSize > 1;
+    var cardIdx = getSelectedCardIndex();
+
     panel.innerHTML = `
       <div class="bs-forge-layout">
         <div class="bs-forge-preview">
+          ${showPicker ? `<div class="bs-forge-card-picker">
+            <button class="bs-forge-card-picker__btn" id="bs-forge-card-prev" aria-label="Previous card"><i class="fas fa-chevron-left"></i></button>
+            <span class="bs-forge-card-picker__count">${cardIdx + 1} / ${deckSize}</span>
+            <button class="bs-forge-card-picker__btn" id="bs-forge-card-next" aria-label="Next card"><i class="fas fa-chevron-right"></i></button>
+          </div>` : ''}
           <div class="bs-forge-card" data-palette="${_selectedCard.palette || 'earth'}" data-container="${_selectedCard.imageContainer || 'masked'}">
             ${cardAvatar ? `<img src="${escHtml(cardAvatar)}" alt="${escHtml(cardName)}" class="bs-forge-card__img">` : `<div class="bs-forge-card__placeholder"><i class="fas fa-user"></i></div>`}
             <div class="bs-forge-card__info">
@@ -5620,7 +5629,7 @@
       </div>
         </div>
       </div>
-      <div class="bs-forge-actions" style="display:flex; gap:0.75rem; justify-content:center; margin-top:1rem;">
+      <div class="bs-forge-actions" style="display:flex; gap:0.75rem; justify-content:flex-end; margin-top:1rem;">
         <button class="bs-btn bs-btn--secondary" id="bs-forge-cancel">Cancel</button>
         <button class="bs-btn bs-btn--primary bs-btn--glow" id="bs-forge-apply" disabled>
           <i class="fas fa-fire"></i> Forge
@@ -5633,6 +5642,28 @@
     const remainingEl = document.getElementById('bs-forge-remaining');
     const totalEl = document.getElementById('bs-forge-total');
     const applyBtn = document.getElementById('bs-forge-apply');
+
+    // Card picker — switch cards within the forge
+    if (showPicker) {
+      var forgeSwitchCard = function(direction) {
+        var deck = getDeck();
+        if (deck.length <= 1) return;
+        var curIdx = getSelectedCardIndex();
+        var nextIdx = direction === 'next'
+          ? (curIdx + 1) % deck.length
+          : (curIdx - 1 + deck.length) % deck.length;
+        var nextCard = deck[nextIdx];
+        if (!nextCard) return;
+        _selectedCard = nextCard;
+        ensureCombatStats(_selectedCard);
+        _progress.selectedCardId = _selectedCard.id;
+        syncProgressToServer();
+        // Re-render the entire forge with new card
+        openForgeScreen(isFirstUnlock, true);
+      };
+      document.getElementById('bs-forge-card-prev')?.addEventListener('click', function() { forgeSwitchCard('prev'); });
+      document.getElementById('bs-forge-card-next')?.addEventListener('click', function() { forgeSwitchCard('next'); });
+    }
 
     let _hasVisualChange = false;
     const previewPowerEl = panel.querySelector('.bs-forge-card__power');
