@@ -4984,14 +4984,21 @@ body.bs-battle-active .bs-play {
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
-.bs-rc__title {
-  display: block;
-  font-size: 0.55rem;
-  color: var(--bs-accent);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  margin-top: 0.15rem;
+.bs-rc__title-badge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  z-index: 2;
+  font-size: 0.5rem;
   font-family: 'Cinzel', serif;
+  color: var(--bs-accent);
+  background: rgba(16, 12, 8, 0.85);
+  border: 1px solid var(--bs-accent-dim, rgba(239, 159, 39, 0.3));
+  border-radius: 4px;
+  padding: 0.15rem 0.4rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
 }
 
 /* --- Stats section --- */

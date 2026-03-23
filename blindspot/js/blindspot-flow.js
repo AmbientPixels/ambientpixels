@@ -1943,16 +1943,15 @@
       }
       if (!titleText) titleText = _progress.cardTitle || '';
     }
-    var titleHTML = titleText && size !== 'micro'
-      ? '<span class="bs-rc__title">' + escHtml(titleText) + '</span>'
+    var titleHTML = titleText
+      ? '<span class="bs-rc__title-badge">' + escHtml(titleText) + '</span>'
       : '';
 
     return '<div class="bs-rendered-card bs-rc--' + size + '" data-palette="' + escHtml(palette) + '" data-container="' + escHtml(container) + '" data-rarity="' + escHtml(rarity) + '">'
-      + '<div class="bs-rc__art">' + avatarHTML + '</div>'
+      + '<div class="bs-rc__art">' + avatarHTML + titleHTML + '</div>'
       + '<div class="bs-rc__info">'
       + '<span class="bs-rc__name">' + escHtml(name) + '</span>'
       + (size !== 'micro' ? '<span class="bs-rc__class">' + escHtml(cls) + '</span>' : '')
-      + titleHTML
       + '</div>'
       + statsHTML
       + powerHTML
