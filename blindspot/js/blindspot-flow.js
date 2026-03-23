@@ -6230,18 +6230,22 @@
   // ============================================================
 
   function showToast(message, type) {
+    // Gracefully fade out any existing toast
     const existing = document.querySelector('.bs-toast');
-    if (existing) existing.remove();
+    if (existing) {
+      existing.classList.remove('bs-toast--visible');
+      setTimeout(() => { if (existing.parentNode) existing.remove(); }, 500);
+    }
 
     const toast = document.createElement('div');
     toast.className = `bs-toast bs-toast--${type}`;
     toast.textContent = message;
     document.body.appendChild(toast);
 
-    setTimeout(() => toast.classList.add('bs-toast--visible'), 10);
+    setTimeout(() => toast.classList.add('bs-toast--visible'), 20);
     setTimeout(() => {
       toast.classList.remove('bs-toast--visible');
-      setTimeout(() => toast.remove(), 300);
+      setTimeout(() => { if (toast.parentNode) toast.remove(); }, 500);
     }, 3000);
   }
 

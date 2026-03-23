@@ -3614,31 +3614,36 @@
   position: fixed;
   bottom: 1.5rem;
   left: 50%;
-  transform: translateX(-50%) translateY(20px);
+  transform: translateX(-50%) translateY(12px) scale(0.95);
   padding: 0.75rem 1.5rem;
-  border-radius: 8px;
+  border-radius: 10px;
   font-family: 'Share Tech Mono', monospace;
   font-size: 0.85rem;
   z-index: 99999;
   opacity: 0;
-  transition: all 0.3s ease;
+  transition: opacity 0.5s ease, transform 0.5s ease;
   pointer-events: none;
   max-width: 90vw;
   text-align: center;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
 }
 
 .bs-toast--visible {
   opacity: 1;
-  transform: translateX(-50%) translateY(0);
+  transform: translateX(-50%) translateY(0) scale(1);
 }
 
 .bs-toast--error {
-  background: var(--bs-danger);
+  background: rgba(220, 38, 38, 0.85);
+  border: 1px solid rgba(239, 68, 68, 0.4);
   color: #fff;
 }
 
 .bs-toast--success {
-  background: var(--bs-success);
+  background: rgba(22, 101, 52, 0.85);
+  border: 1px solid rgba(52, 211, 153, 0.3);
   color: #fff;
 }
 
