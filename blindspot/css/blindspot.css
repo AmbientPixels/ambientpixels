@@ -7352,11 +7352,11 @@ body.bs-battle-active .bs-play {
    COSMETIC VISUAL EFFECTS — Card Backs (subtle bg tint)
    ============================================================ */
 
-/* Backs apply to the rendered card container — !important to override palette bg */
-.bs-lobby__card-display.bs-back--obsidian .bs-rendered-card {
+/* Backs override palette background on rendered cards */
+.bs-back--obsidian .bs-rendered-card[data-palette] {
   background: linear-gradient(135deg, #1a1a2e, #0f0f1a) !important;
 }
-.bs-lobby__card-display.bs-back--starfield .bs-rendered-card {
+.bs-back--starfield .bs-rendered-card[data-palette] {
   background: linear-gradient(135deg, #0a0a2e 0%, #1a0a3e 50%, #0a0a2e 100%) !important;
   background-size: 200% 200% !important;
   animation: bs-back-starfield 8s ease-in-out infinite;
@@ -7365,7 +7365,7 @@ body.bs-battle-active .bs-play {
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
 }
-.bs-lobby__card-display.bs-back--inferno .bs-rendered-card {
+.bs-back--inferno .bs-rendered-card[data-palette] {
   background: linear-gradient(135deg, #2a0a0a, #3a0800, #1a0000) !important;
   background-size: 200% 200% !important;
   animation: bs-back-inferno 5s ease-in-out infinite;
@@ -7374,7 +7374,7 @@ body.bs-battle-active .bs-play {
   0%, 100% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
 }
-.bs-lobby__card-display.bs-back--void .bs-rendered-card {
+.bs-back--void .bs-rendered-card[data-palette] {
   background: linear-gradient(135deg, #0a0020, #150030, #0a0020) !important;
   background-size: 200% 200% !important;
   animation: bs-back-void 10s ease-in-out infinite;
