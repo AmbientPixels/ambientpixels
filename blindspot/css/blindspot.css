@@ -7745,9 +7745,9 @@ body.bs-battle-active .bs-play {
 /* Raven Flock */
 .bs-victory-fx--ravens .bs-vfx-raven {
   position: absolute;
-  font-size: 1.2rem;
-  color: #1a1a2e;
-  text-shadow: 0 0 4px rgba(100, 80, 120, 0.5);
+  font-size: 1.6rem;
+  color: #d0c0e0;
+  text-shadow: 0 0 8px rgba(160, 120, 200, 0.7), 0 0 16px rgba(100, 60, 140, 0.4);
   animation: bs-raven-fly 3s ease-in-out forwards;
 }
 @keyframes bs-raven-fly {
