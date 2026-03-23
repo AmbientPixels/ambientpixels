@@ -7445,28 +7445,33 @@ body.bs-battle-active .bs-play {
   50% { text-shadow: 0 0 12px rgba(255, 149, 0, 0.8), 0 0 24px rgba(255, 100, 0, 0.5), 0 0 36px rgba(255, 60, 0, 0.2); }
 }
 
-/* Glitch Text — offset text shadow */
+/* Glitch Text — frequent red/cyan offset flicker */
 .bs-rc__name.bs-plate--glitch {
-  animation: bs-plate-glitch 4s steps(1) infinite;
+  animation: bs-plate-glitch 3s steps(1) infinite;
 }
 @keyframes bs-plate-glitch {
-  0%, 88%, 100% { text-shadow: none; }
-  89% { text-shadow: -3px 0 #ff0000, 3px 0 #00ffff; transform: translateX(-1px); }
-  91% { text-shadow: 3px 0 #ff0000, -3px 0 #00ffff; transform: translateX(1px); }
-  93% { text-shadow: -2px 1px #ff0000, 2px -1px #00ffff; transform: translateX(0); }
-  95% { text-shadow: none; transform: translateX(0); }
+  0%, 78%, 100% { text-shadow: none; color: var(--bs-text); }
+  79% { text-shadow: -4px 0 #ff0000, 4px 0 #00ffff; transform: translateX(-2px); color: #fff; }
+  81% { text-shadow: 4px 0 #ff0000, -4px 0 #00ffff; transform: translateX(2px); color: #fff; }
+  83% { text-shadow: -3px 2px #ff0000, 3px -2px #00ffff; transform: translateX(-1px) skewX(-2deg); color: #fff; }
+  85% { text-shadow: 2px -1px #ff0000, -2px 1px #00ffff; transform: translateX(1px) skewX(1deg); color: #fff; }
+  87% { text-shadow: -5px 0 #ff0000, 5px 0 #00ffff; transform: translateX(0); color: #fff; }
+  89% { text-shadow: none; transform: none; }
+  93% { text-shadow: -3px 0 #ff0000, 3px 0 #00ffff; transform: translateX(-1px); color: #fff; }
+  95% { text-shadow: 3px 0 #ff0000, -3px 0 #00ffff; transform: translateX(1px); color: #fff; }
+  97% { text-shadow: none; transform: none; }
 }
 
-/* Royal Banner — golden shimmer */
+/* Royal Banner — bold golden shimmer with wide letter spacing */
 .bs-rc__name.bs-plate--royal {
-  color: #d4a853 !important;
-  text-shadow: 0 0 10px rgba(212, 168, 83, 0.5), 0 0 20px rgba(212, 168, 83, 0.2);
-  letter-spacing: 0.1em;
-  animation: bs-plate-royal 3s ease-in-out infinite;
+  color: #f0c050 !important;
+  text-shadow: 0 0 12px rgba(240, 192, 80, 0.7), 0 0 24px rgba(212, 168, 83, 0.4), 0 0 40px rgba(212, 168, 83, 0.2);
+  letter-spacing: 0.15em;
+  animation: bs-plate-royal 2.5s ease-in-out infinite;
 }
 @keyframes bs-plate-royal {
-  0%, 100% { text-shadow: 0 0 10px rgba(212, 168, 83, 0.5); }
-  50% { text-shadow: 0 0 16px rgba(212, 168, 83, 0.7), 0 0 30px rgba(212, 168, 83, 0.3); }
+  0%, 100% { text-shadow: 0 0 12px rgba(240, 192, 80, 0.7), 0 0 24px rgba(212, 168, 83, 0.4); color: #f0c050; }
+  50% { text-shadow: 0 0 20px rgba(240, 192, 80, 0.9), 0 0 40px rgba(212, 168, 83, 0.6), 0 0 60px rgba(212, 168, 83, 0.25); color: #ffe080; }
 }
 
 /* ============================================================
