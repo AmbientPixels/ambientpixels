@@ -862,25 +862,21 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
     return;
   }
 
-  // Load player's card — demo users or Stranger card pass data in request body
+  // Load player's card — prefer cardData from client (always freshest after forge edits)
   let playerCard;
-  if (body.cardData && (isDemo || cardId === 'stranger-card')) {
+  if (body.cardData) {
     playerCard = body.cardData;
     if (!playerCard.id) playerCard.id = cardId;
+  } else if (isDemo || cardId === 'stranger-card') {
+    context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'cardData required for demo/stranger battles' } };
+    return;
   } else {
     const userCardsData = await downloadJsonBlob(containerClient, `user/${userId}/cards.json`);
     const userCards = userCardsData?.cards || [];
     playerCard = userCards.find(c => c.id === cardId);
     if (!playerCard) {
-      // Fallback: accept cardData from request body if server lookup fails
-      if (body.cardData) {
-        context.log.warn(`[Blindspot Battle] Card ${cardId} not found on server for user ${userId}, using cardData fallback`);
-        playerCard = body.cardData;
-        if (!playerCard.id) playerCard.id = cardId;
-      } else {
-        context.res = { status: 404, headers: CORS_HEADERS, body: { error: 'Card not found in your collection' } };
-        return;
-      }
+      context.res = { status: 404, headers: CORS_HEADERS, body: { error: 'Card not found in your collection' } };
+      return;
     }
   }
 
