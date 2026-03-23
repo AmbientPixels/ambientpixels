@@ -4135,6 +4135,7 @@
             containerEl: document.getElementById('bs-adventure-overlay'),
             playerClass: _selectedCard.class || _selectedCard.characterClass || '',
             bossWeakness: boss ? boss.weakness : null,
+            bossName: boss ? boss.name : '',
             ascension: getAscension()
           });
           advBuffs = result.buffs || {};

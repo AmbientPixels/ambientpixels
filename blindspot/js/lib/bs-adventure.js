@@ -54,6 +54,8 @@ window.BsAdventure = (function () {
   var _resonanceBonus = 0;
   var _ascensionLevel = 0;
   var _currentAdventure = null;
+  var _lastChoiceText = '';       // tracks what the player chose (for AI context)
+  var _sceneHistory = [];         // brief log of scenes visited
   var _sceneCount = 0;
   var _sceneIndex = 0;
   var _keydownHandler = null;
@@ -367,6 +369,89 @@ window.BsAdventure = (function () {
   }
 
   // ============================================================
+  // AI SCENE TEXT GENERATION
+  // ============================================================
+
+  function generateSceneText(scene, adventure) {
+    // If no Gemini API available, fall back to static text
+    if (!window.CardForgeAI || !window.CardForgeAI.callGemini) {
+      return Promise.resolve(null);
+    }
+
+    var boss = _currentAdventure ? _bossesById_name : '';
+    var choiceOptions = '';
+    if (scene.choices) {
+      choiceOptions = scene.choices.map(function (c) { return '- ' + c.text; }).join('\n');
+    }
+
+    var historyContext = '';
+    if (_sceneHistory.length > 0) {
+      historyContext = '\nSTORY SO FAR:\n' + _sceneHistory.map(function (h) {
+        return '- Scene ' + h.scene + ': ' + h.summary + (h.choice ? ' → Player chose: ' + h.choice : '');
+      }).join('\n') + '\n';
+    }
+
+    var ascensionContext = '';
+    if (_ascensionLevel >= 1) {
+      ascensionContext = '\nThis is Ascension ' + _ascensionLevel + ' — the player has beaten this boss before. ' +
+        'The narrative should acknowledge the player is a returning challenger. The boss knows them. The environment has changed or evolved since their last visit.\n';
+    }
+
+    var prompt = [
+      'You are a dark fantasy narrator for a boss-fight arena game called Blindspot.',
+      'Write 2-3 short paragraphs of atmospheric narrative for this scene.',
+      '',
+      'ADVENTURE: "' + adventure.title + '"',
+      'BOSS: ' + (adventure.bossId || 'unknown'),
+      'SCENE: ' + (_sceneIndex + 1) + ' of ' + _sceneCount + (scene.isFinal ? ' (FINAL — just before the boss fight)' : ''),
+      '',
+      'SCENE CONTEXT (use this as a guide, but write your own unique version):',
+      scene.text,
+      '',
+      'PLAYER CARD: ' + (_playerClass || 'unknown') + ' class',
+      'STATS: STR ' + (_playerStats.str || 0) + ' AGI ' + (_playerStats.agi || 0) + ' INT ' + (_playerStats.int || 0) + ' END ' + (_playerStats.end || 0) + ' LCK ' + (_playerStats.lck || 0),
+      _lastChoiceText ? 'LAST CHOICE: "' + _lastChoiceText + '"' : '',
+      historyContext,
+      ascensionContext,
+      scene.isFinal ? 'This is the final moment before the boss fight. Build tension. End with the boss\'s presence.' : '',
+      choiceOptions ? 'The player will choose from these options next:\n' + choiceOptions : '',
+      '',
+      'RULES:',
+      '- Write ONLY the narrative text. 2-3 short paragraphs.',
+      '- Dark fantasy tone: atmospheric, gritty, tense.',
+      '- Use second person ("you").',
+      '- Do NOT list choices or options.',
+      '- Do NOT use markdown formatting.',
+      '- Keep it under 150 words.',
+      '- Separate paragraphs with blank lines.',
+      '- Each playthrough should feel unique — vary descriptions, details, and atmosphere.'
+    ].filter(Boolean).join('\n');
+
+    return window.CardForgeAI.callGemini(prompt, {
+      model: window.CardForgeAI.TEXT_MODEL,
+      skipUsageIncrement: true
+    })
+    .then(function (data) {
+      var text = window.CardForgeAI.extractText(data);
+      if (text && text.trim().length > 20) {
+        // Clean up any markdown code fences or formatting
+        text = text.trim().replace(/^```[\s\S]*?```$/gm, '').trim();
+        text = text.replace(/^\*\*.*?\*\*\s*/gm, ''); // remove bold headers
+        text = text.replace(/^#+\s*/gm, ''); // remove markdown headers
+        return text.trim();
+      }
+      return null; // fall back to static text
+    })
+    .catch(function (err) {
+      console.warn('[BsAdventure] AI text generation failed, using fallback:', err);
+      return null;
+    });
+  }
+
+  // Cached boss name lookup (set during launch)
+  var _bossesById_name = '';
+
+  // ============================================================
   // MUSIC
   // ============================================================
 
@@ -499,6 +584,7 @@ window.BsAdventure = (function () {
     if (_isProcessing) return;
     _isProcessing = true;
     removeKeyboardNav();
+    _lastChoiceText = choice.text || '';
 
     var allBtns = document.querySelectorAll('.bs-adventure__choice');
     allBtns.forEach(function (b) {
@@ -617,31 +703,46 @@ window.BsAdventure = (function () {
       }
     }
 
-    // Scene text
+    // Scene text — try AI generation first, fall back to static JSON text
     var textEl = $('bs-adventure-text');
     if (textEl) {
       textEl.classList.remove('bs-adventure__text--entering');
       void textEl.offsetWidth;
       textEl.classList.add('bs-adventure__text--entering');
 
-      var sceneText = getSceneText(scene);
+      // Show loading state while AI generates
+      textEl.innerHTML = '<p style="color:var(--bs-text-muted);font-style:italic;">The story unfolds...</p>';
 
-      if (scene.isFinal) {
-        typewriter(textEl, sceneText).then(function () { renderSummary(container); scrollToChoices(); });
-      } else {
-        typewriter(textEl, sceneText).then(function () {
-          renderChoices(scene.choices, container, playerStats);
-          scrollToChoices();
+      var fallbackText = getSceneText(scene);
+
+      generateSceneText(scene, adventure).then(function (aiText) {
+        var sceneText = aiText || fallbackText;
+
+        // Track for AI context
+        _sceneHistory.push({
+          scene: _sceneIndex,
+          summary: sceneText.substring(0, 120),
+          choice: _lastChoiceText || null
         });
-        // Early choice reveal
-        if (!_prefersReducedMotion && scene.choices) {
-          setTimeout(function () {
-            if (choicesEl && choicesEl.children.length === 0) {
-              renderChoices(scene.choices, container, playerStats);
-              choicesEl.style.opacity = '0.4';
-            }
-          }, 3000);
+
+        if (scene.isFinal) {
+          typewriter(textEl, sceneText).then(function () { renderSummary(container); scrollToChoices(); });
+        } else {
+          typewriter(textEl, sceneText).then(function () {
+            renderChoices(scene.choices, container, playerStats);
+            scrollToChoices();
+          });
         }
+      });
+
+      // Early choice reveal (show at low opacity while AI loads or typewriter runs)
+      if (!_prefersReducedMotion && scene.choices && !scene.isFinal) {
+        setTimeout(function () {
+          if (choicesEl && choicesEl.children.length === 0) {
+            renderChoices(scene.choices, container, playerStats);
+            choicesEl.style.opacity = '0.4';
+          }
+        }, 3000);
       }
     }
   }
@@ -702,10 +803,13 @@ window.BsAdventure = (function () {
       _accumulatedItems = [];
       _isProcessing = false;
       _sceneIndex = 0;
+      _lastChoiceText = '';
+      _sceneHistory = [];
       _playerStats = playerStats;
       _playerClass = (options.playerClass || '').toLowerCase();
       _bossWeakness = options.bossWeakness || null;
       _ascensionLevel = options.ascension || 0;
+      _bossesById_name = options.bossName || '';
       _containerEl = options.containerEl || $('bs-adventure-overlay');
 
       // Compute resonance: player's highest stat matches boss weakness
