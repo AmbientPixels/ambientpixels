@@ -2559,10 +2559,10 @@
     btn.style.display = '';
     if (deckSize >= MAX_DECK_SIZE) {
       btn.disabled = true;
-      btn.innerHTML = '<i class="fas fa-layer-group" aria-hidden="true"></i> Full (' + MAX_DECK_SIZE + ')';
+      btn.innerHTML = '<i class="fas fa-layer-group" aria-hidden="true"></i> Deck Full (' + MAX_DECK_SIZE + '/' + MAX_DECK_SIZE + ')';
     } else {
       btn.disabled = false;
-      btn.innerHTML = '<i class="fas fa-plus" aria-hidden="true"></i> New';
+      btn.innerHTML = '<i class="fas fa-plus" aria-hidden="true"></i> New Card';
     }
 
     if (!_newCardBound) {
