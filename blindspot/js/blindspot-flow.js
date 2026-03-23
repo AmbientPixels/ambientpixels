@@ -5510,7 +5510,9 @@
       <div class="bs-forge-layout">
         <div class="bs-forge-preview">
           <div class="bs-forge-card" data-palette="${_selectedCard.palette || 'earth'}" data-container="${_selectedCard.imageContainer || 'masked'}">
-            ${cardAvatar ? `<img src="${escHtml(cardAvatar)}" alt="${escHtml(cardName)}" class="bs-forge-card__img">` : `<div class="bs-forge-card__placeholder"><i class="fas fa-user"></i></div>`}
+            <div class="bs-forge-card__art">
+              ${cardAvatar ? `<img src="${escHtml(cardAvatar)}" alt="${escHtml(cardName)}" class="bs-forge-card__img">` : `<div class="bs-forge-card__placeholder"><i class="fas fa-user"></i></div>`}
+            </div>
             <div class="bs-forge-card__info">
               <span class="bs-forge-card__name">${escHtml(cardName)}</span>
               <span class="bs-forge-card__class">${escHtml(cardClass)}</span>
