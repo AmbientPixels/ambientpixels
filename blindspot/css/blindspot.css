@@ -8074,7 +8074,7 @@ body.bs-battle-active .bs-play {
   justify-content: center;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 2rem 1.5rem;
+  padding: 2rem 1.5rem 0;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -8084,39 +8084,42 @@ body.bs-adventure-active {
 }
 
 .bs-adventure__container {
-  max-width: 860px;
+  max-width: 520px;
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  padding-bottom: 2rem;
+  padding-bottom: 0;
 }
 
-/* --- Two-column layout --- */
+/* --- Centered story + fixed-bottom choices --- */
 .bs-adventure__columns {
-  display: grid;
-  grid-template-columns: 1fr 280px;
-  gap: 1.25rem;
-  align-items: start;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .bs-adventure__story {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  min-width: 0;
+  padding-bottom: 220px; /* space for fixed sidebar */
 }
 
 .bs-adventure__sidebar {
-  position: sticky;
-  top: 0;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  max-height: calc(100vh - 6rem);
+  max-height: 45vh;
   overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--bs-surface-2) transparent;
+  background: linear-gradient(transparent, var(--bs-bg) 12px);
+  padding: 1.5rem 1rem 1rem;
+  z-index: 10;
+  -webkit-overflow-scrolling: touch;
 }
 
 .bs-adventure__header {
@@ -8164,10 +8167,60 @@ body.bs-adventure-active {
   position: absolute;
   inset: 0;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  gap: 0.75rem;
   color: var(--bs-text-muted);
   font-size: 1.5rem;
+}
+
+.bs-adventure__particle-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.bs-adventure__loading-icon {
+  font-size: 2rem;
+  color: var(--bs-accent);
+  text-shadow: 0 0 20px rgba(239, 159, 39, 0.5);
+  animation: bs-adventure-iconPulse 2s ease-in-out infinite;
+  z-index: 1;
+}
+
+.bs-adventure__loading-icon i {
+  transition: opacity 0.2s ease;
+}
+
+.bs-adventure__loading-label {
+  font-size: 0.7rem;
+  font-family: 'Share Tech Mono', monospace;
+  color: var(--bs-text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  z-index: 1;
+}
+
+@keyframes bs-adventure-iconPulse {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.15); opacity: 1; }
+}
+
+/* --- Text loading phrases --- */
+
+.bs-adventure__text-loading {
+  color: var(--bs-text-muted);
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.bs-adventure__text-loading-phrase {
+  transition: opacity 0.3s ease;
 }
 
 /* --- Scene Text --- */
@@ -8459,31 +8512,6 @@ body.bs-adventure-active {
 }
 
 /* --- Responsive --- */
-
-/* Mobile: single column, choices fixed to bottom */
-@media (max-width: 768px) {
-  .bs-adventure { padding: 1rem 0.75rem; padding-bottom: 0; }
-  .bs-adventure__container { padding-bottom: 0; }
-  .bs-adventure__columns {
-    grid-template-columns: 1fr;
-    gap: 0;
-  }
-  .bs-adventure__story {
-    padding-bottom: 220px; /* space for fixed sidebar */
-  }
-  .bs-adventure__sidebar {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    top: auto;
-    max-height: 45vh;
-    overflow-y: auto;
-    background: linear-gradient(transparent, var(--bs-bg) 12px);
-    padding: 1.5rem 1rem 1rem;
-    z-index: 10;
-  }
-}
 
 @media (max-width: 480px) {
   .bs-adventure__title { font-size: 1rem; }

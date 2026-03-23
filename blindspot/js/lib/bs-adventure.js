@@ -346,17 +346,142 @@ window.BsAdventure = (function () {
   }
 
   // ============================================================
+  // LOADING STATE — IMAGE PARTICLES + ROTATING ICONS
+  // ============================================================
+
+  var LOADING_ICONS = ['fa-eye', 'fa-scroll', 'fa-compass', 'fa-fire', 'fa-hat-wizard', 'fa-moon'];
+  var _iconInterval = null;
+  var _particleRaf = null;
+  var _particles = [];
+
+  function startImageLoading() {
+    var loadingEl = $('bs-adventure-image-loading');
+    if (!loadingEl) return;
+    loadingEl.style.display = 'flex';
+
+    // Build loading HTML: canvas for particles + icon + sublabel
+    loadingEl.innerHTML = '<canvas class="bs-adventure__particle-canvas"></canvas>'
+      + '<div class="bs-adventure__loading-icon"><i class="fas ' + LOADING_ICONS[0] + '"></i></div>'
+      + '<span class="bs-adventure__loading-label">Scrying...</span>';
+
+    // Rotating icons
+    var iconEl = loadingEl.querySelector('.bs-adventure__loading-icon i');
+    var idx = 0;
+    _iconInterval = setInterval(function () {
+      idx = (idx + 1) % LOADING_ICONS.length;
+      if (iconEl) {
+        iconEl.style.opacity = '0';
+        setTimeout(function () {
+          iconEl.className = 'fas ' + LOADING_ICONS[idx];
+          iconEl.style.opacity = '1';
+        }, 200);
+      }
+    }, 2000);
+
+    // Particle system on canvas
+    var canvas = loadingEl.querySelector('.bs-adventure__particle-canvas');
+    if (!canvas) return;
+    var ctx = canvas.getContext('2d');
+    function resize() {
+      canvas.width = loadingEl.offsetWidth;
+      canvas.height = loadingEl.offsetHeight;
+    }
+    resize();
+    _particles = [];
+    for (var i = 0; i < 30; i++) {
+      _particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.3,
+        vy: -0.2 - Math.random() * 0.5,
+        r: 1 + Math.random() * 2,
+        a: 0.3 + Math.random() * 0.5,
+        life: Math.random()
+      });
+    }
+    function animateParticles() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      _particles.forEach(function (p) {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.life -= 0.003;
+        if (p.life <= 0 || p.y < -5) {
+          p.x = Math.random() * canvas.width;
+          p.y = canvas.height + 5;
+          p.life = 0.7 + Math.random() * 0.3;
+        }
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(239, 159, 39, ' + (p.a * p.life) + ')';
+        ctx.fill();
+      });
+      _particleRaf = requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+  }
+
+  function stopImageLoading() {
+    if (_iconInterval) { clearInterval(_iconInterval); _iconInterval = null; }
+    if (_particleRaf) { cancelAnimationFrame(_particleRaf); _particleRaf = null; }
+    _particles = [];
+    var loadingEl = $('bs-adventure-image-loading');
+    if (loadingEl) loadingEl.style.display = 'none';
+  }
+
+  // ============================================================
+  // LOADING STATE — ROTATING TEXT PHRASES
+  // ============================================================
+
+  var LOADING_PHRASES = [
+    'The shadows stir\u2026',
+    'Fate is being written\u2026',
+    'A whisper echoes through the dark\u2026',
+    'The dungeon remembers\u2026',
+    'Ancient forces converge\u2026',
+    'The path reveals itself\u2026',
+    'Embers flicker in the void\u2026',
+    'Something watches from the dark\u2026'
+  ];
+  var _phraseInterval = null;
+
+  function startTextLoading(textEl) {
+    if (!textEl) return;
+    var idx = Math.floor(Math.random() * LOADING_PHRASES.length);
+    textEl.innerHTML = '<p class="bs-adventure__text-loading">'
+      + '<span class="bs-adventure__text-loading-phrase">' + LOADING_PHRASES[idx] + '</span>'
+      + '<span class="bs-adventure__cursor"></span>'
+      + '</p>';
+
+    _phraseInterval = setInterval(function () {
+      idx = (idx + 1) % LOADING_PHRASES.length;
+      var phraseEl = textEl.querySelector('.bs-adventure__text-loading-phrase');
+      if (phraseEl) {
+        phraseEl.style.opacity = '0';
+        setTimeout(function () {
+          if (phraseEl) {
+            phraseEl.textContent = LOADING_PHRASES[idx];
+            phraseEl.style.opacity = '1';
+          }
+        }, 300);
+      }
+    }, 3000);
+  }
+
+  function stopTextLoading() {
+    if (_phraseInterval) { clearInterval(_phraseInterval); _phraseInterval = null; }
+  }
+
+  // ============================================================
   // SCENE IMAGE GENERATION
   // ============================================================
 
   function generateSceneImage(imagePrompt) {
     if (!imagePrompt || !window.CardForgeAI || !window.CardForgeAI.callGemini) return;
     var imgEl = $('bs-adventure-image');
-    var loadingEl = $('bs-adventure-image-loading');
     if (!imgEl) return;
 
     imgEl.style.display = 'none';
-    if (loadingEl) loadingEl.style.display = 'flex';
+    startImageLoading();
 
     var prompt = 'Dark fantasy scene: ' + imagePrompt + '. Atmosphere: moody, cinematic lighting, no text, no UI elements, no words. Style: dark fantasy digital painting, dramatic shadows.';
     window.CardForgeAI.callGemini(prompt, {
@@ -372,11 +497,11 @@ window.BsAdventure = (function () {
         imgEl.classList.add('bs-adventure__image--reveal');
         setTimeout(function () { imgEl.classList.remove('bs-adventure__image--reveal'); }, 700);
       }
-      if (loadingEl) loadingEl.style.display = 'none';
+      stopImageLoading();
     })
     .catch(function (err) {
       console.warn('[BsAdventure] Image generation failed:', err);
-      if (loadingEl) loadingEl.style.display = 'none';
+      stopImageLoading();
       imgEl.style.display = 'none';
     });
   }
@@ -734,11 +859,11 @@ window.BsAdventure = (function () {
     var progressEl = $('bs-adventure-progress');
     if (progressEl) progressEl.textContent = 'Scene ' + _sceneIndex + ' / ' + _sceneCount;
 
-    // Reset image
+    // Reset image + stop any previous loading animations
     var imgEl = $('bs-adventure-image');
     if (imgEl) { imgEl.style.display = 'none'; imgEl.src = ''; }
-    var loadingEl = $('bs-adventure-image-loading');
-    if (loadingEl) loadingEl.style.display = 'none';
+    stopImageLoading();
+    stopTextLoading();
 
     // Clear choices and hide until typewriter finishes
     var choicesEl = $('bs-adventure-choices');
@@ -752,10 +877,8 @@ window.BsAdventure = (function () {
     // Scene music
     if (scene.music) playSceneMusic(scene.music);
 
-    // Scene image — generated from AI prompt (no static fallback to avoid double-gen flash)
-    // Show loading spinner; image will be generated after AI returns its imagePrompt
-    var loadingImgEl = $('bs-adventure-image-loading');
-    if (loadingImgEl) loadingImgEl.style.display = 'flex';
+    // Scene image — start particle + icon loading state
+    startImageLoading();
 
     // Resonance banner (first scene only)
     if (_sceneIndex === 1 && _resonanceBonus > 0) {
@@ -778,12 +901,13 @@ window.BsAdventure = (function () {
       void textEl.offsetWidth;
       textEl.classList.add('bs-adventure__text--entering');
 
-      // Show loading state while AI generates
-      textEl.innerHTML = '<p style="color:var(--bs-text-muted);font-style:italic;">The story unfolds...</p>';
+      // Show rotating atmospheric phrases while AI generates
+      startTextLoading(textEl);
 
       var fallbackText = getSceneText(scene);
 
       generateSceneText(scene, adventure).then(function (aiResult) {
+        stopTextLoading();
         var sceneText = (aiResult && aiResult.text) ? aiResult.text : fallbackText;
 
         // Generate image from AI prompt, or fall back to static JSON prompt
@@ -832,6 +956,8 @@ window.BsAdventure = (function () {
   function finishAdventure() {
     removeKeyboardNav();
     restorePreviousMusic();
+    stopImageLoading();
+    stopTextLoading();
 
     if (_containerEl) _containerEl.classList.add('bs-overlay--hidden');
     document.body.classList.remove('bs-adventure-active');
