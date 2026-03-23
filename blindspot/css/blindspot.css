@@ -4963,7 +4963,7 @@ body.bs-battle-active .bs-play {
 
 /* --- Info section --- */
 .bs-rc__info {
-  padding: 0.4rem 0.6rem;
+  padding: 0.5rem 1rem;
   text-align: center;
   background: linear-gradient(to top, rgba(16, 12, 8, 0.95), rgba(16, 12, 8, 0.7));
 }
