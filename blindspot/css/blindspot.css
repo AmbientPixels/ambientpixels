@@ -4108,30 +4108,26 @@
 
 /* Fixed tab content height to prevent jolting between tabs */
 .bs-forge-tab-content {
-  height: 320px;
+  min-height: 320px;
+  max-height: 320px;
   overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--bs-surface-2) transparent;
+  scrollbar-width: none;
 }
-
-.bs-forge-card {
-  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+.bs-forge-tab-content::-webkit-scrollbar {
+  display: none;
 }
 
 .bs-forge-card {
   width: 180px;
-  height: 280px;
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid var(--bs-border);
   background: var(--bs-card-bg);
-  display: flex;
-  flex-direction: column;
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .bs-forge-card__art {
-  flex: 1;
-  min-height: 0;
+  height: 200px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4883,6 +4879,7 @@ body.bs-battle-active .bs-play {
 .bs-forge-card[data-palette] .bs-forge-card__info { background: linear-gradient(to top, var(--pal-info-bg), var(--pal-info-bg-a)); }
 
 /* Container variants */
+/* Container variants — art area stays fixed height, only internal styling changes */
 .bs-forge-card[data-container="fullbleed"] .bs-forge-card__info {
   margin-top: -3rem;
   background: linear-gradient(transparent, rgba(0,0,0,0.85));
@@ -5220,7 +5217,9 @@ body.bs-battle-active .bs-play {
   }
   .bs-forge-card {
     width: 120px;
-    height: 200px;
+  }
+  .bs-forge-card__art {
+    height: 140px;
   }
 }
 
@@ -6649,7 +6648,9 @@ body.bs-battle-active .bs-play {
   /* Card preview — smaller at 375px */
   .bs-forge-card {
     width: 100px;
-    height: 170px;
+  }
+  .bs-forge-card__art {
+    height: 120px;
   }
   .bs-forge-card__name {
     font-size: 0.7rem;
