@@ -1404,6 +1404,23 @@
       tab.setAttribute('aria-selected', isActive ? 'true' : 'false');
     });
 
+    // Slot descriptions
+    var slotDescs = {
+      frame: 'Glow effects around your card border in the lobby.',
+      back: 'Card sleeve patterns shown behind your card.',
+      nameplate: 'Visual effects applied to your card\'s name text.',
+      victory: 'Celebration animations that play when you win a battle.',
+      title: 'Titles displayed under your card name.'
+    };
+    var descEl = document.getElementById('bs-collection-desc');
+    if (!descEl) {
+      descEl = document.createElement('p');
+      descEl.id = 'bs-collection-desc';
+      descEl.style.cssText = 'text-align:center;font-size:0.7rem;color:var(--bs-text-muted);margin:0.5rem 0 0.75rem;';
+      container.parentNode.insertBefore(descEl, container);
+    }
+    descEl.textContent = slotDescs[_collectionSlot] || '';
+
     // Render items for active slot
     var items = bySlot[_collectionSlot] || [];
     var html = '';
