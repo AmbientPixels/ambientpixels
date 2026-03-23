@@ -372,41 +372,45 @@ window.BsAdventure = (function () {
   // AI SCENE TEXT GENERATION
   // ============================================================
 
-  // ---- WORLD LORE (injected into every AI prompt) ----
+  // ---- WORLD LORE + NARRATIVE BACKBONE ----
   var BLINDSPOT_LORE = [
-    'WORLD: The Blindspot is an ancient arena that exists between worlds — a pocket dimension built by The Architect.',
-    'It was designed as a proving ground: warriors enter, forge their identity through combat, and either ascend or are consumed.',
-    'The arena feeds on conflict. Every fight makes it stronger. The corridors shift, the walls remember, the air itself watches.',
+    'WORLD: The Blindspot is an ancient arena between worlds — a pocket dimension built by The Architect as a proving ground.',
+    'Warriors enter through a tear in reality they can\'t explain. They don\'t remember choosing to come. The arena chose them.',
+    'The Blindspot feeds on conflict. Every fight makes it stronger. Corridors shift between visits. The walls remember. The air watches.',
+    'No one has ever beaten all 10 bosses. The Architect designed it that way — or so the legends say.',
     '',
-    'THE BOSSES are the Architect\'s creations, each guarding a layer of the Blindspot:',
-    '- The Gatekeeper (Boss 1): First test. Evaluates if you\'re worth the arena\'s attention. Stoic, mechanical.',
-    '- The Warden (Boss 2): Enforces the arena\'s rules. Disciplined, cold, believes in order above all.',
-    '- The Ghost (Boss 3): The collective memory of every fighter who failed. Phases because it\'s not fully real.',
-    '- The Cipher (Boss 4): The arena\'s immune system. It learns your patterns, adapts, steals your abilities.',
-    '- The Brute (Boss 5): Raw power incarnate. The arena\'s anger given form. No subtlety, no mercy.',
-    '- The Sage (Boss 6): The arena\'s living memory. Knows everything that ever happened here. Drains knowledge.',
-    '- The Iron (Boss 7): The arena\'s walls made flesh. Endurance personified. Nothing gets through.',
-    '- The Trickster (Boss 8): Chaos incarnate — the one thing the Architect couldn\'t control. Probability bends around it.',
-    '- The Feral (Boss 9): What happens when a fighter stays in the Blindspot too long. Lost to instinct and rage.',
-    '- The Architect (Boss 10): The creator. Built the Blindspot to find someone worthy of replacing him.',
-    '',
-    'STORY ARC: The player is climbing toward the truth. The Architect built this arena to find a successor.',
-    'Each boss tests a different quality. Beat all 10 and you\'re offered the choice: become the new Architect, or walk away.',
-    'The arena is alive. It watches. It adapts. It wants to be beaten — that\'s how it evolves.'
+    'THE PLAYER\'S JOURNEY: You woke up here with nothing but a card — your identity, your weapon, your soul made physical.',
+    'You don\'t know why the Blindspot chose you. But with each boss you defeat, fragments of the truth surface.',
+    'The bosses aren\'t just guardians. They\'re pieces of something — or someone. Each one tests a different part of who you are.',
+    'By the time you reach the Architect, you\'ll understand: the arena wasn\'t trying to stop you. It was building you.'
   ].join('\n');
 
-  // ---- Boss personality prompts ----
+  // ---- NARRATIVE ARC PER BOSS (story beats the AI must weave in) ----
+  var STORY_BEATS = {
+    'bs-boss-1': 'ACT 1 — THE THRESHOLD. The player just arrived. They don\'t know why they\'re here. The Gatekeeper doesn\'t explain — it just evaluates. The arena feels impersonal, mechanical. STORY BEAT: The player notices something strange — a mark on the wall, a symbol that matches something on their card. It means nothing yet. Plant the seed.',
+    'bs-boss-2': 'ACT 1 — THE RULES. The Warden enforces the arena\'s laws. But some rules seem arbitrary, like they\'re protecting something deeper. STORY BEAT: The Warden says something cryptic: "You\'re not the first. You won\'t be the last. But you\'re the first who carries THAT mark." The player doesn\'t understand yet.',
+    'bs-boss-3': 'ACT 1 — THE WARNING. The Ghost is made of every fighter who failed before you. It whispers fragments of their final thoughts. STORY BEAT: Among the whispers, the player hears a voice that sounds like their own — but from a future that hasn\'t happened. "Turn back." They can\'t.',
+    'bs-boss-4': 'ACT 2 — THE PATTERN. The Cipher has been watching since Boss 1. It knows the player\'s patterns, their choices, their weaknesses. STORY BEAT: The Cipher reveals that every challenger\'s journey is recorded. The player sees data about previous challengers — all failed at different points. None made it past Boss 7. The Architect is paying attention now.',
+    'bs-boss-5': 'ACT 2 — THE TEST OF WILL. The Brute doesn\'t care about strategy or secrets. It only respects survival. STORY BEAT: After the approach, the player finds a mural — ancient, crumbling — showing a figure that looks like the Architect, but younger. Fighting. In THIS arena. The Architect was once a challenger too.',
+    'bs-boss-6': 'ACT 2 — THE REVELATION. The Sage knows the truth and doesn\'t hide it. STORY BEAT: The Sage tells the player directly: "The Architect built this arena to find a replacement. Every boss is a test of a quality he values. You\'re being shaped, not tested." The player must decide if this changes anything.',
+    'bs-boss-7': 'ACT 3 — THE COMMITMENT. Beyond the Iron, there\'s no going back. The arena stops pretending to be fair. STORY BEAT: The Iron speaks for the first time in centuries: "The last three who reached me chose to leave. The arena let them forget. You won\'t have that choice." The corridors behind the player have disappeared.',
+    'bs-boss-8': 'ACT 3 — THE DOUBT. The Trickster shows the player what they could become — and it\'s not flattering. STORY BEAT: The Trickster reveals that the Architect went mad building this place. The "successor" isn\'t a reward — it\'s a prison. The Architect wants to LEAVE and needs someone to take his place. Is winning actually losing?',
+    'bs-boss-9': 'ACT 3 — THE COST. The Feral was once a challenger who won. It chose to stay. The arena consumed it. STORY BEAT: The player recognizes the Feral\'s card — it\'s ancient, cracked, but real. This was a person once. A champion. The arena didn\'t reward them — it hollowed them out. This is what happens if you stay too long.',
+    'bs-boss-10': 'ACT 3 — THE CHOICE. The Architect is tired. Ancient. He built the Blindspot eons ago and has been trapped maintaining it ever since. STORY BEAT: The Architect doesn\'t want to fight — he wants to talk. He offers the truth: "Win, and you can take my place. The arena will be yours — infinite power, infinite isolation. Or walk away, and the Blindspot closes forever. No more challengers. No more proving. Just silence." The player fights regardless — the arena demands it. But the story hangs on what comes after.'
+  };
+
+  // ---- Boss personality + environment ----
   var BOSS_VOICE = {
-    'bs-boss-1':  'The Gatekeeper is stoic and mechanical. The environment is utilitarian — training grounds, simple corridors. Everything is a test.',
-    'bs-boss-2':  'The Warden is disciplined and cold. The environment is a prison — iron bars, rules etched in stone, order imposed through force.',
-    'bs-boss-3':  'The Ghost is eerie and fragmented. The environment is wrong — shadows without sources, whispers, things that shimmer. Reality is unstable here.',
-    'bs-boss-4':  'The Cipher is calculating and digital. The environment is a server room — cables, screens, data streams. Information is weaponized.',
-    'bs-boss-5':  'The Brute is primal and direct. The environment is raw — mountains, caves, bone-strewn paths. Everything is about raw power.',
-    'bs-boss-6':  'The Sage is patient and knowing. The environment is a library — floating books, living ink, stolen knowledge. It already knows your ending.',
-    'bs-boss-7':  'The Iron is immovable and silent. The environment is a fortress — seamless metal, forges, anvils. Endurance made physical.',
-    'bs-boss-8':  'The Trickster is chaotic and theatrical. The environment is a carnival — shifting colors, mirrors, impossible geometry. Nothing is what it seems.',
-    'bs-boss-9':  'The Feral is savage and instinctual. The environment is a hunting ground — blood-marked territory, bones, primal heat. It hunts by scent.',
-    'bs-boss-10': 'The Architect is calm and godlike. The environment is the Forge Eternal — creation energy, floating cards, white-hot light. This is where everything was made.'
+    'bs-boss-1':  'The Gatekeeper is stoic and mechanical. Speaks in clipped, evaluative sentences. Environment: utilitarian training corridors, stone, function over form. It has no personality — it IS the test.',
+    'bs-boss-2':  'The Warden is disciplined and cold, but hints at something beneath — a flicker of recognition. Environment: prison architecture, iron bars, rules carved in stone. Order imposed through structure.',
+    'bs-boss-3':  'The Ghost speaks in overlapping whispers — fragments of other fighters\' last words. Eerie, fragmented, sad. Environment: shadowless corridors, shimmer, things that aren\'t quite there. Reality is thin.',
+    'bs-boss-4':  'The Cipher is clinical, data-driven, almost amused by inefficiency. It speaks in analysis. Environment: server room aesthetics — cables, pulsing screens, holographic data. Information weaponized.',
+    'bs-boss-5':  'The Brute doesn\'t speak in words — it communicates through violence and presence. Grunts, roars, the crack of stone. Environment: raw mountain, caves, bones. Primal and unrefined.',
+    'bs-boss-6':  'The Sage is patient, knowing, slightly condescending. It speaks in truths that feel like traps. Environment: infinite library, floating books, ink that moves. Knowledge made physical.',
+    'bs-boss-7':  'The Iron barely speaks. When it does, the words land like hammers. Absolute conviction. Environment: seamless metal fortress, forges, anvils. A monument to endurance.',
+    'bs-boss-8':  'The Trickster is theatrical, mocking, unsettling. It tells uncomfortable truths disguised as jokes. Environment: carnival nightmare — shifting colors, mirrors, impossible geometry.',
+    'bs-boss-9':  'The Feral doesn\'t speak. It snarls, breathes, stalks. But in rare moments of clarity, a human word escapes — a name, a plea. Environment: blood-marked hunting grounds, bones, primal heat.',
+    'bs-boss-10': 'The Architect speaks softly, wearily, like someone who has had this conversation a thousand times. Not hostile — resigned. Environment: the Forge Eternal — white-hot creation light, floating unfinished cards, the hum of a universe being maintained.'
   };
 
   function generateSceneText(scene, adventure) {
@@ -439,13 +443,17 @@ window.BsAdventure = (function () {
       '',
       'BOSS PERSONALITY: ' + bossVoice,
       '',
-      'You are narrating a scene in the Blindspot arena. Write exactly 2 SHORT paragraphs (50-80 words total). Be punchy and concise — every word must earn its place.',
+      'NARRATIVE THREAD FOR THIS BOSS:',
+      STORY_BEATS[adventure.bossId] || '',
+      '',
+      'You are narrating a scene in the Blindspot arena. Write exactly 2 SHORT paragraphs (50-80 words total). Be punchy and concise.',
+      'CRITICAL: Weave the NARRATIVE THREAD into the scene naturally. The story beat should surface through environment details, boss dialogue, or things the player notices — not through exposition.',
       '',
       'ADVENTURE: "' + adventure.title + '"',
       'BOSS: ' + (_bossesById_name || adventure.bossId),
-      'SCENE: ' + (_sceneIndex + 1) + ' of ' + _sceneCount + (scene.isFinal ? ' (FINAL \u2014 the moment before the boss fight begins)' : ''),
+      'SCENE: ' + (_sceneIndex + 1) + ' of ' + _sceneCount + (scene.isFinal ? ' (FINAL \u2014 the moment before the boss fight)' : ''),
       '',
-      'SCENE GUIDE (use as inspiration, write your own unique version):',
+      'SCENE GUIDE (atmosphere and setting reference):',
       scene.text,
       '',
       'PLAYER: ' + (_playerClass || 'unknown') + ' class',
@@ -453,7 +461,7 @@ window.BsAdventure = (function () {
       _lastChoiceText ? 'LAST CHOICE: "' + _lastChoiceText + '"' : '',
       historyContext,
       ascensionContext,
-      scene.isFinal ? 'This is the final moment. The boss is present. Build tension. End with their signature line or presence.' : '',
+      scene.isFinal ? 'FINAL SCENE: The boss is present. Include the story beat revelation. End with tension and the boss\'s voice.' : '',
       choiceOptions ? 'The player will choose from these options next:\n' + choiceOptions : '',
       '',
       'Return ONLY valid JSON (no markdown, no code fences):',
