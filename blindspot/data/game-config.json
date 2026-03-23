@@ -148,9 +148,10 @@
         "category": "cosmetic",
         "slot": "back",
         "items": [
-          { "id": "back_obsidian",  "name": "Obsidian Back",  "rarity": "uncommon", "icon": "fa-circle",   "cssClass": "bs-back--obsidian" },
-          { "id": "back_starfield", "name": "Starfield Back", "rarity": "rare",     "icon": "fa-star",     "cssClass": "bs-back--starfield" },
-          { "id": "back_inferno",   "name": "Inferno Back",   "rarity": "rare",     "icon": "fa-fire",     "cssClass": "bs-back--inferno" },
+          { "id": "back_obsidian",  "name": "Obsidian Back",  "rarity": "uncommon", "icon": "fa-circle",     "cssClass": "bs-back--obsidian" },
+          { "id": "back_embers",   "name": "Ember Back",     "rarity": "uncommon", "icon": "fa-fire-alt",   "cssClass": "bs-back--embers" },
+          { "id": "back_starfield", "name": "Starfield Back", "rarity": "rare",     "icon": "fa-star",       "cssClass": "bs-back--starfield" },
+          { "id": "back_inferno",   "name": "Inferno Back",   "rarity": "rare",     "icon": "fa-fire",       "cssClass": "bs-back--inferno" },
           { "id": "back_void",      "name": "Void Back",      "rarity": "epic",     "icon": "fa-circle-dot", "cssClass": "bs-back--void" }
         ]
       },
