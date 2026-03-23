@@ -7359,8 +7359,7 @@ body.bs-battle-active .bs-play {
   content: '';
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(20, 20, 60, 0.45), rgba(10, 10, 30, 0.3));
-  mix-blend-mode: multiply;
+  background: linear-gradient(135deg, rgba(15, 15, 50, 0.6), rgba(5, 5, 25, 0.5));
   pointer-events: none;
   z-index: 1;
 }
