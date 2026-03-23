@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "efb3b9de-8330-4efe-906d-7bac3f13d56a",
-      "hash": "8d358d1cdb834148cb5f5f9aa1d0ba367ec0aaeb",
-      "message": "fix: PvP gallery filters to Blindspot cards only (need combatStats)",
-      "timestamp": "2026-03-22 01:25:53 -0700",
+      "id": "ebda6c77-9735-4146-a916-f6a849bf2920",
+      "hash": "78b44f6044a2c4622fa4f44284288c8956783663",
+      "message": "fix(blindspot): card slide animation overridden by cosmetic frame animation",
+      "timestamp": "2026-03-22 23:32:47 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/8d358d1cdb834148cb5f5f9aa1d0ba367ec0aaeb"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/78b44f6044a2c4622fa4f44284288c8956783663"
     }
   ],
-  "timestamp": "2026-03-22T13:46:28.849Z",
+  "timestamp": "2026-03-23T14:16:18.279Z",
   "count": 1,
-  "scanId": 1774187188849
+  "scanId": 1774275378279
 }

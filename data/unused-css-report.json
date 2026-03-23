@@ -1,8 +1,8 @@
 {
-  "scannedAt": "2026-03-22T13:46:28.015Z",
+  "scannedAt": "2026-03-23T14:16:16.299Z",
   "cssFile": "css/base.css",
   "totalDefined": 31,
-  "totalUsed": 4547,
+  "totalUsed": 4575,
   "unusedClasses": [
     "4",
     "2",

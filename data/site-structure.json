@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2026-03-22T13:46:27.660Z",
+  "updated": "2026-03-23T14:16:15.879Z",
   "root": [
     {
       "type": "folder",
@@ -1174,18 +1174,6 @@
     },
     {
       "type": "folder",
-      "name": "help",
-      "path": "help",
-      "children": [
-        {
-          "type": "page",
-          "name": "password-reset.html",
-          "path": "help/password-reset.html"
-        }
-      ]
-    },
-    {
-      "type": "folder",
       "name": "images",
       "path": "images",
       "children": [
@@ -1914,6 +1902,11 @@
           "type": "page",
           "name": "form-explainer-demo.html",
           "path": "pages/form-explainer-demo.html"
+        },
+        {
+          "type": "page",
+          "name": "login.html",
+          "path": "pages/login.html"
         }
       ]
     },
