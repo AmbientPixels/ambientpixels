@@ -3992,13 +3992,8 @@
 
     const displayWins = Math.min(Math.floor(wins), needed);
     const pct = ready ? 100 : Math.min(100, (wins / needed) * 100);
-    if (ready) {
-      if (label) label.textContent = 'CARD EDITOR';
-      if (hint) hint.textContent = 'Tap to customize your card';
-    } else {
-      if (label) label.textContent = 'CARD EDITOR \u00b7 ' + displayWins + ' / ' + needed + ' wins';
-      if (hint) hint.textContent = 'Win campaign fights to unlock';
-    }
+    if (label) label.textContent = 'CARD EDITOR \u00b7 ' + displayWins + '/' + needed;
+    if (hint) hint.textContent = ready ? 'Tap to customize your card' : 'Win campaign fights to unlock';
     if (fill) fill.style.setProperty('--bar-pct', pct / 100);
     if (container) {
       container.classList.toggle('bs-forge-progress--ready', ready);
