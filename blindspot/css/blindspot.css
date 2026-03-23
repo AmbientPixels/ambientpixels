@@ -4143,9 +4143,12 @@
   gap: 0.5rem;
 }
 
-/* Fixed tab content height to prevent jolting */
+/* Fixed tab content height to prevent jolting between tabs */
 .bs-forge-tab-content {
-  min-height: 280px;
+  height: 320px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--bs-surface-2) transparent;
 }
 
 .bs-forge-card {
