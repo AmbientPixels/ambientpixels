@@ -1933,11 +1933,26 @@
       ? '<span class="bs-rc__power"><i class="fas fa-bolt"></i> ' + totalPower + '</span>'
       : '';
 
+    // Title from equipped cosmetic or progression
+    var titleText = '';
+    if (size === 'full') {
+      var equipped = getEquipped();
+      if (equipped.title) {
+        var titleDef = findCosmeticDef(equipped.title);
+        if (titleDef && titleDef.title) titleText = titleDef.title;
+      }
+      if (!titleText) titleText = _progress.cardTitle || '';
+    }
+    var titleHTML = titleText && size !== 'micro'
+      ? '<span class="bs-rc__title">' + escHtml(titleText) + '</span>'
+      : '';
+
     return '<div class="bs-rendered-card bs-rc--' + size + '" data-palette="' + escHtml(palette) + '" data-container="' + escHtml(container) + '" data-rarity="' + escHtml(rarity) + '">'
       + '<div class="bs-rc__art">' + avatarHTML + '</div>'
       + '<div class="bs-rc__info">'
       + '<span class="bs-rc__name">' + escHtml(name) + '</span>'
       + (size !== 'micro' ? '<span class="bs-rc__class">' + escHtml(cls) + '</span>' : '')
+      + titleHTML
       + '</div>'
       + statsHTML
       + powerHTML

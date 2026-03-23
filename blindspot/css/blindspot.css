@@ -4984,6 +4984,15 @@ body.bs-battle-active .bs-play {
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
+.bs-rc__title {
+  display: block;
+  font-size: 0.55rem;
+  color: var(--bs-accent);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-top: 0.15rem;
+  font-family: 'Cinzel', serif;
+}
 
 /* --- Stats section --- */
 .bs-rc-stats {
