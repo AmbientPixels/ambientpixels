@@ -7352,36 +7352,73 @@ body.bs-battle-active .bs-play {
    COSMETIC VISUAL EFFECTS — Card Backs (subtle bg tint)
    ============================================================ */
 
-/* Backs override palette background on rendered cards */
-.bs-back--obsidian .bs-rendered-card[data-palette] {
-  background: linear-gradient(135deg, #1a1a2e, #0f0f1a) !important;
+/* Backs — tint the art overlay + border glow (card has no visible bg padding) */
+
+/* Obsidian — dark blue border + cool tint on art */
+.bs-back--obsidian .bs-rendered-card {
+  border-color: #3a3a6e !important;
+  box-shadow: 0 0 12px 3px rgba(58, 58, 110, 0.4), inset 0 0 20px rgba(58, 58, 110, 0.15) !important;
 }
-.bs-back--starfield .bs-rendered-card[data-palette] {
-  background: linear-gradient(135deg, #0a0a2e 0%, #1a0a3e 50%, #0a0a2e 100%) !important;
-  background-size: 200% 200% !important;
-  animation: bs-back-starfield 8s ease-in-out infinite;
+.bs-back--obsidian .bs-rc__art::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(26, 26, 46, 0.25), transparent);
+  pointer-events: none;
+}
+
+/* Starfield — purple shimmer border + purple tint */
+.bs-back--starfield .bs-rendered-card {
+  border-color: #6a4aaf !important;
+  box-shadow: 0 0 14px 3px rgba(106, 74, 175, 0.45), inset 0 0 20px rgba(106, 74, 175, 0.15) !important;
+  animation: bs-back-starfield 4s ease-in-out infinite;
 }
 @keyframes bs-back-starfield {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+  0%, 100% { box-shadow: 0 0 14px 3px rgba(106, 74, 175, 0.45), inset 0 0 20px rgba(106, 74, 175, 0.15); }
+  50% { box-shadow: 0 0 22px 5px rgba(106, 74, 175, 0.6), inset 0 0 30px rgba(106, 74, 175, 0.2); }
 }
-.bs-back--inferno .bs-rendered-card[data-palette] {
-  background: linear-gradient(135deg, #2a0a0a, #3a0800, #1a0000) !important;
-  background-size: 200% 200% !important;
-  animation: bs-back-inferno 5s ease-in-out infinite;
+.bs-back--starfield .bs-rc__art::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(10, 10, 46, 0.2), rgba(26, 10, 62, 0.15), transparent);
+  pointer-events: none;
+}
+
+/* Inferno — red/orange fire border + warm tint */
+.bs-back--inferno .bs-rendered-card {
+  border-color: #cc3300 !important;
+  box-shadow: 0 0 16px 4px rgba(204, 51, 0, 0.5), inset 0 0 20px rgba(204, 51, 0, 0.12) !important;
+  animation: bs-back-inferno 3s ease-in-out infinite;
 }
 @keyframes bs-back-inferno {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+  0%, 100% { box-shadow: 0 0 16px 4px rgba(204, 51, 0, 0.5), inset 0 0 20px rgba(204, 51, 0, 0.12); }
+  50% { box-shadow: 0 0 24px 6px rgba(255, 80, 0, 0.6), inset 0 0 30px rgba(255, 80, 0, 0.18); }
 }
-.bs-back--void .bs-rendered-card[data-palette] {
-  background: linear-gradient(135deg, #0a0020, #150030, #0a0020) !important;
-  background-size: 200% 200% !important;
-  animation: bs-back-void 10s ease-in-out infinite;
+.bs-back--inferno .bs-rc__art::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(42, 10, 0, 0.3), transparent 60%);
+  pointer-events: none;
+}
+
+/* Void — deep purple pulsing border + dark tint */
+.bs-back--void .bs-rendered-card {
+  border-color: #5500aa !important;
+  box-shadow: 0 0 18px 5px rgba(85, 0, 170, 0.5), 0 0 40px 10px rgba(85, 0, 170, 0.15), inset 0 0 20px rgba(85, 0, 170, 0.12) !important;
+  animation: bs-back-void 5s ease-in-out infinite;
 }
 @keyframes bs-back-void {
-  0%, 100% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
+  0%, 100% { box-shadow: 0 0 18px 5px rgba(85, 0, 170, 0.5), 0 0 40px 10px rgba(85, 0, 170, 0.15); }
+  50% { box-shadow: 0 0 28px 8px rgba(85, 0, 170, 0.65), 0 0 60px 16px rgba(85, 0, 170, 0.25); }
+}
+.bs-back--void .bs-rc__art::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(10, 0, 32, 0.3), transparent 70%);
+  pointer-events: none;
 }
 
 /* ============================================================
