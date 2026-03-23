@@ -3519,7 +3519,7 @@
     const pct = Math.min(100, (wins / needed) * 100);
     const label = document.getElementById('bs-results-forge-label');
     const fill = document.getElementById('bs-results-forge-fill');
-    if (label) label.textContent = wins >= needed ? 'CARD EDITOR READY \u2014 Tap to customize' : `CARD EDITOR \u00b7 ${wins} / ${needed} wins`;
+    if (label) label.textContent = wins >= needed ? 'CARD FORGE READY \u2014 Tap to customize' : `CARD FORGE \u00b7 ${wins} / ${needed} wins`;
     if (fill) fill.style.setProperty('--bar-pct', pct / 100);
   }
 
@@ -3992,7 +3992,7 @@
 
     const displayWins = Math.min(Math.floor(wins), needed);
     const pct = ready ? 100 : Math.min(100, (wins / needed) * 100);
-    if (label) label.textContent = 'CARD EDITOR \u00b7 ' + displayWins + '/' + needed;
+    if (label) label.textContent = 'CARD FORGE \u00b7 ' + displayWins + '/' + needed;
     if (hint) hint.textContent = ready ? 'Tap to customize your card' : 'Win campaign fights to unlock';
     if (fill) fill.style.setProperty('--bar-pct', pct / 100);
     if (container) {
@@ -5503,11 +5503,6 @@
     const purchased = getPurchasedCosmetics();
 
     const panel = document.getElementById('bs-forge-panel');
-    const cardPower = getCardPower(_selectedCard);
-    const cardAvatar = _selectedCard.avatar || '';
-    const cardName = _selectedCard.name || 'Your Card';
-    const cardClass = _selectedCard.class || _selectedCard.characterClass || '';
-
     var deckSize = getDeck().length;
     var showPicker = showCardPicker && deckSize > 1;
     var cardIdx = getSelectedCardIndex();
@@ -5515,16 +5510,7 @@
     panel.innerHTML = `
       <div class="bs-forge-layout">
         <div class="bs-forge-preview">
-          <div class="bs-forge-card" data-palette="${_selectedCard.palette || 'earth'}" data-container="${_selectedCard.imageContainer || 'masked'}">
-            <div class="bs-forge-card__art">
-              ${cardAvatar ? `<img src="${escHtml(cardAvatar)}" alt="${escHtml(cardName)}" class="bs-forge-card__img">` : `<div class="bs-forge-card__placeholder"><i class="fas fa-user"></i></div>`}
-            </div>
-            <div class="bs-forge-card__info">
-              <span class="bs-forge-card__name">${escHtml(cardName)}</span>
-              <span class="bs-forge-card__class">${escHtml(cardClass)}</span>
-              <span class="bs-forge-card__power"><i class="fas fa-bolt"></i> ${cardPower} Power</span>
-            </div>
-          </div>
+          ${renderCardHTML(_selectedCard, 'full')}
           ${showPicker ? `<div class="bs-card-switcher" style="margin-top:0.5rem;">
             <button class="bs-card-switcher__btn" id="bs-forge-card-prev" aria-label="Previous card"><i class="fas fa-chevron-left" aria-hidden="true"></i></button>
             <span class="bs-card-switcher__count">${cardIdx + 1} / ${deckSize}</span>
@@ -5532,59 +5518,70 @@
           </div>` : ''}
         </div>
         <div class="bs-forge-editor">
-      <h2 class="bs-forge-screen__title"><i class="fas fa-fire" style="color:var(--bs-accent);"></i> The Forge</h2>
+      <h2 class="bs-forge-screen__title"><i class="fas fa-fire" style="color:var(--bs-accent);"></i> Card Forge</h2>
       <div class="bs-forge-tabs">
         <button class="bs-forge-tab bs-forge-tab--active" data-tab="stats"><i class="fas fa-sliders"></i> Stats</button>
         <button class="bs-forge-tab" data-tab="look"><i class="fas fa-palette"></i> Look</button>
         <button class="bs-forge-tab" data-tab="details"><i class="fas fa-pen"></i> Details</button>
       </div>
-      <div class="bs-forge-tab-content" id="bs-forge-tab-stats">
-        <div class="bs-forge-screen__budget">
-          <span>Power: <strong id="bs-forge-total" style="color:var(--bs-accent);">${totalBefore}</strong><span style="color:var(--bs-text-muted); font-size:0.75rem;">/${FORGE_POWER_CAP}</span></span>
-          <span style="margin-left:1.5rem;">Points: <strong id="bs-forge-remaining" style="color:var(--bs-accent);">${bonusPoints}</strong></span>
-          ${getForgeWins() >= respecCost ? `<button class="bs-btn bs-btn--small" id="bs-forge-respec" style="margin-left:auto; font-size:0.65rem; padding:0.2rem 0.5rem;" title="Reset all stats and redistribute (costs ${respecCost} forge wins)"><i class="fas fa-rotate"></i> Respec</button>` : `<span id="bs-forge-respec-locked" style="margin-left:auto; font-size:0.6rem; color:var(--bs-text-muted); cursor:help;" title="Need ${respecCost} forge wins to respec"><i class="fas fa-lock"></i> Respec (${getForgeWins()}/${respecCost})</span>`}
+      <div class="bs-forge-tab-container">
+      <div class="bs-forge-tab-content bs-forge-tab-content--active" id="bs-forge-tab-stats">
+        <div class="bs-forge-budget">
+          <div class="bs-forge-budget__stat">
+            <span class="bs-forge-budget__label">Power</span>
+            <span class="bs-forge-budget__value"><strong id="bs-forge-total">${totalBefore}</strong><span class="bs-forge-budget__cap">/${FORGE_POWER_CAP}</span></span>
+          </div>
+          <div class="bs-forge-budget__stat">
+            <span class="bs-forge-budget__label">Points</span>
+            <span class="bs-forge-budget__value"><strong id="bs-forge-remaining">${bonusPoints}</strong></span>
+          </div>
+          <div class="bs-forge-budget__action">
+            ${getForgeWins() >= respecCost ? `<button class="bs-btn bs-btn--small" id="bs-forge-respec" title="Reset all stats and redistribute"><i class="fas fa-rotate"></i> Respec</button>` : `<span class="bs-forge-budget__locked" title="Need ${respecCost} forge wins to respec"><i class="fas fa-lock"></i> Respec (${getForgeWins()}/${respecCost})</span>`}
+          </div>
         </div>
+        <div class="bs-forge-stat-list">
         ${statDefs.map(d => `
           <div class="bs-forge-stat">
-            <i class="fas ${d.icon}" style="color:${d.color}; width:16px; text-align:center;"></i>
+            <i class="fas ${d.icon}" style="color:${d.color};"></i>
             <span class="bs-forge-stat__label" style="color:${d.color}">${d.label}</span>
             <span class="bs-forge-stat__base">${currentStats[d.key]}</span>
             <span class="bs-forge-stat__arrow">\u2192</span>
             <input type="range" class="bs-forge-stat__slider" data-stat="${d.key}"
                    min="${currentStats[d.key]}" max="100" value="${currentStats[d.key]}">
             <span class="bs-forge-stat__value" data-stat="${d.key}">${currentStats[d.key]}</span>
-            <span class="bs-forge-stat__desc">${d.desc}</span>
           </div>
         `).join('')}
-        <div class="bs-unlock-teaser" id="bs-forge-teaser" style="margin-top:0.5rem;"></div>
+        </div>
+        <div class="bs-unlock-teaser" id="bs-forge-teaser"></div>
       </div>
-      <div class="bs-forge-tab-content" id="bs-forge-tab-look" style="display:none;">
-        <p style="font-size:0.8rem; color:var(--bs-text-muted); margin-bottom:0.5rem;">Unlock looks with boss defeats or Sparks.</p>
-        <p style="font-size:0.75rem; color:var(--bs-accent); margin-bottom:0.75rem;"><i class="fas fa-fire"></i> <span id="bs-forge-sparks">${getSparks()}</span> Sparks</p>
-        <div style="margin-bottom:1rem;">
-          <label style="font-size:0.75rem; color:var(--bs-text-muted); display:block; margin-bottom:0.4rem;">Card Palette</label>
-          <div class="bs-forge-options">
+      <div class="bs-forge-tab-content" id="bs-forge-tab-look">
+        <div class="bs-forge-sparks-bar">
+          <i class="fas fa-fire"></i> <span id="bs-forge-sparks">${getSparks()}</span> Sparks available
+        </div>
+        <div class="bs-forge-look-section">
+          <label class="bs-forge-look-section__label"><i class="fas fa-palette"></i> Card Palette</label>
+          <div class="bs-forge-palette-grid">
             ${PALETTES.map(p => {
               var owned = uv.includes(p.key) || purchased.includes(p.key);
-              if (owned) return '<button class="bs-forge-option" data-palette="' + p.id + '" title="' + p.label + '">' + p.label + '</button>';
-              if (p.cost > 0) return '<button class="bs-forge-option bs-forge-option--buyable" data-buy-palette="' + p.id + '" data-buy-key="' + p.key + '" data-buy-cost="' + p.cost + '" title="' + p.cost + ' Sparks"><i class="fas fa-fire" style="color:var(--bs-accent);font-size:0.6rem;"></i> ' + p.cost + ' — ' + p.label + '</button>';
-              return '<button class="bs-forge-option bs-forge-option--locked" disabled title="' + p.unlock + '"><i class="fas fa-lock"></i> ' + p.unlock + '</button>';
+              if (owned) return '<button class="bs-forge-palette-swatch" data-palette="' + p.id + '" title="' + p.label + '"><span class="bs-forge-palette-swatch__preview" data-pal="' + p.id + '"></span><span class="bs-forge-palette-swatch__name">' + p.label + '</span></button>';
+              if (p.cost > 0) return '<button class="bs-forge-palette-swatch bs-forge-palette-swatch--buyable" data-buy-palette="' + p.id + '" data-buy-key="' + p.key + '" data-buy-cost="' + p.cost + '" title="' + p.cost + ' Sparks"><span class="bs-forge-palette-swatch__preview" data-pal="' + p.id + '"></span><span class="bs-forge-palette-swatch__name"><i class="fas fa-fire"></i> ' + p.cost + '</span></button>';
+              return '<button class="bs-forge-palette-swatch bs-forge-palette-swatch--locked" disabled title="' + p.unlock + '"><span class="bs-forge-palette-swatch__preview"></span><span class="bs-forge-palette-swatch__name"><i class="fas fa-lock"></i> ' + p.unlock + '</span></button>';
             }).join('')}
           </div>
         </div>
-        <div>
-          <label style="font-size:0.75rem; color:var(--bs-text-muted); display:block; margin-bottom:0.4rem;">Image Layout</label>
-          <div class="bs-forge-options">
+        <div class="bs-forge-look-section">
+          <label class="bs-forge-look-section__label"><i class="fas fa-crop-simple"></i> Image Layout</label>
+          <div class="bs-forge-container-grid">
             ${CONTAINERS.map(c => {
               var owned = uv.includes(c.key) || purchased.includes(c.key);
-              if (owned) return '<button class="bs-forge-option" data-container="' + c.id + '"><i class="fas ' + c.icon + '"></i> ' + c.label + '</button>';
-              if (c.cost > 0) return '<button class="bs-forge-option bs-forge-option--buyable" data-buy-container="' + c.id + '" data-buy-key="' + c.key + '" data-buy-cost="' + c.cost + '"><i class="fas fa-fire" style="color:var(--bs-accent);font-size:0.6rem;"></i> ' + c.cost + ' — <i class="fas ' + c.icon + '"></i> ' + c.label + '</button>';
-              return '<button class="bs-forge-option bs-forge-option--locked" disabled><i class="fas fa-lock"></i></button>';
+              if (owned) return '<button class="bs-forge-container-card" data-container="' + c.id + '"><i class="fas ' + c.icon + '"></i><span>' + c.label + '</span></button>';
+              if (c.cost > 0) return '<button class="bs-forge-container-card bs-forge-container-card--buyable" data-buy-container="' + c.id + '" data-buy-key="' + c.key + '" data-buy-cost="' + c.cost + '"><i class="fas ' + c.icon + '"></i><span><i class="fas fa-fire"></i> ' + c.cost + '</span></button>';
+              return '<button class="bs-forge-container-card bs-forge-container-card--locked" disabled><i class="fas fa-lock"></i><span>Locked</span></button>';
             }).join('')}
           </div>
         </div>
       </div>
-      <div class="bs-forge-tab-content" id="bs-forge-tab-details" style="display:none;">
+      <div class="bs-forge-tab-content" id="bs-forge-tab-details">
         <p style="font-size:0.8rem; color:var(--bs-text-muted); margin-bottom:0.75rem;">Change your card's identity.</p>
         <div style="margin-bottom:0.75rem;">
           <label style="font-size:0.75rem; color:var(--bs-text-muted); display:block; margin-bottom:0.3rem;">Card Name</label>
@@ -5641,6 +5638,7 @@
           </div>
         </div>
       </div>
+      </div>
         </div>
       </div>
       <div class="bs-forge-actions" style="display:flex; gap:0.75rem; justify-content:flex-end; margin-top:1rem;">
@@ -5652,6 +5650,71 @@
     `;
 
     showOverlay('bs-forge-screen');
+
+    // Ember particles rising in forge editor
+    (function initForgeEmbers() {
+      var editor = panel.querySelector('.bs-forge-editor');
+      if (!editor) return;
+      editor.style.position = 'relative';
+      var canvas = document.createElement('canvas');
+      canvas.style.cssText = 'position:absolute;left:0;right:0;bottom:0;width:100%;height:60%;pointer-events:none;opacity:0.35;';
+      editor.appendChild(canvas);
+      var ctx = canvas.getContext('2d');
+      var embers = [];
+      var raf;
+
+      function resize() {
+        canvas.width = editor.offsetWidth;
+        canvas.height = Math.round(editor.offsetHeight * 0.6);
+      }
+      resize();
+
+      function spawn() {
+        embers.push({
+          x: Math.random() * canvas.width,
+          y: canvas.height + 2,
+          r: 0.8 + Math.random() * 1,
+          vx: (Math.random() - 0.5) * 0.4,
+          vy: -(0.4 + Math.random() * 0.5),
+          life: 1,
+          decay: 0.001 + Math.random() * 0.002,
+          hue: 25 + Math.random() * 20
+        });
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (var i = embers.length - 1; i >= 0; i--) {
+          var e = embers[i];
+          e.x += e.vx + Math.sin(e.y * 0.02) * 0.15;
+          e.y += e.vy;
+          e.life -= e.decay;
+          if (e.life <= 0) { embers.splice(i, 1); continue; }
+          ctx.globalAlpha = e.life * 0.3;
+          ctx.fillStyle = 'hsl(' + e.hue + ', 80%, 50%)';
+          ctx.beginPath();
+          ctx.arc(e.x, e.y, e.r * (0.4 + e.life * 0.6), 0, Math.PI * 2);
+          ctx.fill();
+          ctx.globalAlpha = e.life * 0.07;
+          ctx.beginPath();
+          ctx.arc(e.x, e.y, e.r * 2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        if (Math.random() < 0.1) spawn();
+        raf = requestAnimationFrame(draw);
+      }
+      draw();
+
+      var forgeOverlay = document.getElementById('bs-forge-screen');
+      var obs = new MutationObserver(function() {
+        if (forgeOverlay && forgeOverlay.classList.contains('bs-overlay--hidden')) {
+          cancelAnimationFrame(raf);
+          obs.disconnect();
+        }
+      });
+      if (forgeOverlay) obs.observe(forgeOverlay, { attributes: true, attributeFilter: ['class'] });
+      window.addEventListener('resize', resize);
+    })();
 
     const remainingEl = document.getElementById('bs-forge-remaining');
     const totalEl = document.getElementById('bs-forge-total');
@@ -5680,8 +5743,8 @@
     }
 
     let _hasVisualChange = false;
-    const previewPowerEl = panel.querySelector('.bs-forge-card__power');
-    const previewNameEl = panel.querySelector('.bs-forge-card__name');
+    const previewPowerEl = panel.querySelector('.bs-rc__power');
+    const previewNameEl = panel.querySelector('.bs-rc__name');
 
     function getPool() {
       return _respecActive ? Math.min(totalBefore + bonusPoints, FORGE_POWER_CAP) : bonusPoints;
@@ -5694,7 +5757,18 @@
       if (remainingEl) remainingEl.textContent = remaining;
       const newTotal = _respecActive ? totalAllocated : totalBefore + totalAllocated;
       if (totalEl) totalEl.textContent = newTotal;
-      if (previewPowerEl) previewPowerEl.innerHTML = `<i class="fas fa-bolt"></i> ${newTotal} Power`;
+      if (previewPowerEl) previewPowerEl.innerHTML = `<i class="fas fa-bolt"></i> ${newTotal}`;
+      // Update stat bars in rendered card preview (nth-child matches RC_STAT_DEFS order)
+      var statEls = panel.querySelectorAll('.bs-rendered-card .bs-rc-stat');
+      RC_STAT_DEFS.forEach(function(d, i) {
+        if (!statEls[i]) return;
+        var sl = panel.querySelector('.bs-forge-stat__slider[data-stat="' + d.key + '"]');
+        var val = sl ? parseInt(sl.value, 10) : (currentStats[d.key] || 0);
+        var fill = statEls[i].querySelector('.bs-rc-stat__fill');
+        if (fill) fill.style.width = val + '%';
+        var valEl = statEls[i].querySelector('.bs-rc-stat__val');
+        if (valEl) valEl.textContent = val;
+      });
       // Enable forge if all points spent OR if any visual/detail change was made
       if (applyBtn) applyBtn.disabled = !(remaining === 0 || _hasVisualChange);
     }
@@ -5781,33 +5855,32 @@
       activateRespec();
     });
 
-    // Tab switching
+    // Tab switching — active class controls display, flex stretches to fill editor
     panel.querySelectorAll('.bs-forge-tab').forEach(tab => {
       tab.addEventListener('click', () => {
         panel.querySelectorAll('.bs-forge-tab').forEach(t => t.classList.remove('bs-forge-tab--active'));
         tab.classList.add('bs-forge-tab--active');
-        panel.querySelectorAll('.bs-forge-tab-content').forEach(c => c.style.display = 'none');
+        panel.querySelectorAll('.bs-forge-tab-content').forEach(c => c.classList.remove('bs-forge-tab-content--active'));
         const target = document.getElementById('bs-forge-tab-' + tab.dataset.tab);
-        if (target) target.style.display = '';
+        if (target) target.classList.add('bs-forge-tab-content--active');
       });
     });
 
     // Flash preview card after visual change (sticky keeps it visible on mobile)
     function flashPreview() {
-      const previewCard = panel.querySelector('.bs-forge-card');
+      const previewCard = panel.querySelector('.bs-rendered-card');
       if (!previewCard) return;
       previewCard.style.transition = 'box-shadow 0.3s ease';
       previewCard.style.boxShadow = '0 0 20px var(--bs-accent)';
       setTimeout(() => { previewCard.style.boxShadow = ''; }, 800);
     }
 
-    // Look tab: palette selection — only target option buttons, not the preview card itself
-    panel.querySelectorAll('.bs-forge-option[data-palette]').forEach(btn => {
+    // Look tab: palette selection
+    panel.querySelectorAll('.bs-forge-palette-swatch[data-palette]').forEach(btn => {
       btn.addEventListener('click', () => {
-        panel.querySelectorAll('.bs-forge-option[data-palette]').forEach(b => b.classList.remove('bs-forge-option--selected'));
-        btn.classList.add('bs-forge-option--selected');
-        // Live update preview card palette
-        const previewCard = panel.querySelector('.bs-forge-card');
+        panel.querySelectorAll('.bs-forge-palette-swatch[data-palette]').forEach(b => b.classList.remove('bs-forge-palette-swatch--selected'));
+        btn.classList.add('bs-forge-palette-swatch--selected');
+        const previewCard = panel.querySelector('.bs-rendered-card');
         if (previewCard) previewCard.setAttribute('data-palette', btn.dataset.palette);
         _hasVisualChange = true;
         updateBudget();
@@ -5815,13 +5888,12 @@
       });
     });
 
-    // Look tab: container selection — only target option buttons
-    panel.querySelectorAll('.bs-forge-option[data-container]').forEach(btn => {
+    // Look tab: container selection
+    panel.querySelectorAll('.bs-forge-container-card[data-container]').forEach(btn => {
       btn.addEventListener('click', () => {
-        panel.querySelectorAll('.bs-forge-option[data-container]').forEach(b => b.classList.remove('bs-forge-option--selected'));
-        btn.classList.add('bs-forge-option--selected');
-        // Live update preview card container
-        const previewCard = panel.querySelector('.bs-forge-card');
+        panel.querySelectorAll('.bs-forge-container-card[data-container]').forEach(b => b.classList.remove('bs-forge-container-card--selected'));
+        btn.classList.add('bs-forge-container-card--selected');
+        const previewCard = panel.querySelector('.bs-rendered-card');
         if (previewCard) previewCard.setAttribute('data-container', btn.dataset.container);
         _hasVisualChange = true;
         updateBudget();
@@ -5849,18 +5921,18 @@
         if (sparksEl) sparksEl.textContent = getSparks();
         // Replace buy button with selectable button
         if (paletteId) {
-          btn.className = 'bs-forge-option';
-          btn.innerHTML = PALETTES.find(p => p.id === paletteId)?.label || paletteId;
+          var pDef = PALETTES.find(p => p.id === paletteId);
+          btn.className = 'bs-forge-palette-swatch';
+          btn.innerHTML = '<span class="bs-forge-palette-swatch__preview" data-pal="' + paletteId + '"></span><span class="bs-forge-palette-swatch__name">' + (pDef?.label || paletteId) + '</span>';
           btn.removeAttribute('data-buy-palette');
           btn.removeAttribute('data-buy-key');
           btn.removeAttribute('data-buy-cost');
           btn.setAttribute('data-palette', paletteId);
           btn.disabled = false;
-          // Add click handler for newly purchased palette
           btn.addEventListener('click', () => {
-            panel.querySelectorAll('.bs-forge-option[data-palette]').forEach(b => b.classList.remove('bs-forge-option--selected'));
-            btn.classList.add('bs-forge-option--selected');
-            var previewCard = panel.querySelector('.bs-forge-card');
+            panel.querySelectorAll('.bs-forge-palette-swatch[data-palette]').forEach(b => b.classList.remove('bs-forge-palette-swatch--selected'));
+            btn.classList.add('bs-forge-palette-swatch--selected');
+            var previewCard = panel.querySelector('.bs-rendered-card');
             if (previewCard) previewCard.setAttribute('data-palette', paletteId);
             _hasVisualChange = true;
             updateBudget();
@@ -5869,17 +5941,17 @@
         }
         if (containerId) {
           var cDef = CONTAINERS.find(c => c.id === containerId);
-          btn.className = 'bs-forge-option';
-          btn.innerHTML = '<i class="fas ' + (cDef?.icon || 'fa-square') + '"></i> ' + (cDef?.label || containerId);
+          btn.className = 'bs-forge-container-card';
+          btn.innerHTML = '<i class="fas ' + (cDef?.icon || 'fa-square') + '"></i><span>' + (cDef?.label || containerId) + '</span>';
           btn.removeAttribute('data-buy-container');
           btn.removeAttribute('data-buy-key');
           btn.removeAttribute('data-buy-cost');
           btn.setAttribute('data-container', containerId);
           btn.disabled = false;
           btn.addEventListener('click', () => {
-            panel.querySelectorAll('.bs-forge-option[data-container]').forEach(b => b.classList.remove('bs-forge-option--selected'));
-            btn.classList.add('bs-forge-option--selected');
-            var previewCard = panel.querySelector('.bs-forge-card');
+            panel.querySelectorAll('.bs-forge-container-card[data-container]').forEach(b => b.classList.remove('bs-forge-container-card--selected'));
+            btn.classList.add('bs-forge-container-card--selected');
+            var previewCard = panel.querySelector('.bs-rendered-card');
             if (previewCard) previewCard.setAttribute('data-container', containerId);
             _hasVisualChange = true;
             updateBudget();
@@ -5903,7 +5975,7 @@
         }
         // Live update preview avatar
         if (id === 'bs-forge-avatar') {
-          const previewImg = panel.querySelector('.bs-forge-card__img');
+          const previewImg = panel.querySelector('.bs-rc__avatar');
           if (previewImg && input.value.trim()) previewImg.src = input.value.trim();
         }
       });
@@ -5930,10 +6002,10 @@
           var src = btn.dataset.avatarSrc;
           var urlInput = document.getElementById('bs-forge-avatar');
           if (urlInput) urlInput.value = src;
-          var previewImg = panel.querySelector('.bs-forge-card__img');
-          var previewPlaceholder = panel.querySelector('.bs-forge-card__placeholder');
+          var previewImg = panel.querySelector('.bs-rc__avatar');
+          var previewPlaceholder = panel.querySelector('.bs-rc__avatar-placeholder');
           if (previewImg) { previewImg.src = src; }
-          else if (previewPlaceholder) { previewPlaceholder.outerHTML = '<img src="' + escHtml(src) + '" alt="Avatar" class="bs-forge-card__img">'; }
+          else if (previewPlaceholder) { previewPlaceholder.outerHTML = '<img src="' + escHtml(src) + '" alt="Avatar" class="bs-rc__avatar" loading="lazy">'; }
           _hasVisualChange = true;
           updateBudget();
           flashPreview();
@@ -5996,7 +6068,7 @@
       function renderGalleryPage() {
         var start = _galleryPage * PAGE_SIZE;
         var page = avatars.slice(start, start + PAGE_SIZE);
-        var html = '<div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:0.4rem;">';
+        var html = '<div style="display:grid; grid-template-columns:repeat(4, 1fr); grid-template-rows:1fr 1fr; gap:0.4rem;">';
         html += page.map(function(a) {
           return '<button class="bs-forge-avatar-pick" data-avatar-src="' + escHtml(a.src) + '" title="' + escHtml(a.label) + '" style="width:100%; aspect-ratio:1; border:2px solid var(--bs-border); border-radius:8px; overflow:hidden; background:var(--bs-surface); cursor:pointer; padding:0;"><img src="' + escHtml(a.src) + '" alt="' + escHtml(a.label) + '" style="width:100%; height:100%; object-fit:cover;" loading="lazy"></button>';
         }).join('');
@@ -6064,10 +6136,10 @@
             document.getElementById('bs-forge-ai-preview')?.addEventListener('click', () => {
               var urlInput = document.getElementById('bs-forge-avatar');
               if (urlInput) urlInput.value = imgUrl;
-              var previewImg = panel.querySelector('.bs-forge-card__img');
-              var previewPlaceholder = panel.querySelector('.bs-forge-card__placeholder');
+              var previewImg = panel.querySelector('.bs-rc__avatar');
+              var previewPlaceholder = panel.querySelector('.bs-rc__avatar-placeholder');
               if (previewImg) { previewImg.src = imgUrl; }
-              else if (previewPlaceholder) { previewPlaceholder.outerHTML = '<img src="' + escHtml(imgUrl) + '" alt="AI Avatar" class="bs-forge-card__img">'; }
+              else if (previewPlaceholder) { previewPlaceholder.outerHTML = '<img src="' + escHtml(imgUrl) + '" alt="AI Avatar" class="bs-rc__avatar" loading="lazy">'; }
               _hasVisualChange = true;
               updateBudget();
               flashPreview();
@@ -7215,6 +7287,7 @@
       console.log('  BS.status()         — show full progress snapshot');
       console.log('  BS.reset()          — reset ALL progress (requires confirm)');
       console.log('  BS.godMode()        — max sparks, all bosses, all cosmetics, all charms');
+      console.log('  BS.forge()          — open Card Forge directly');
       console.log('  BS.refresh()        — re-render lobby after cheat changes');
       return 'Type any command above to use it.';
     },
@@ -7480,6 +7553,7 @@
   };
 
   BS_CHEATS.victoryFx = function() { playVictoryAnimation(); return 'Victory animation triggered!'; };
+  BS_CHEATS.forge = function() { openForgeScreen(false, true); return 'Card Forge opened'; };
   window.BS = BS_CHEATS;
 
   // ============================================================
