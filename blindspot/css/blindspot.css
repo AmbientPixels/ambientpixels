@@ -660,10 +660,12 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 0.5rem;
   position: relative;
   overflow: visible;
   max-width: 360px;
   padding: 12px;
+  width: 100%;
 }
 @media (min-width: 769px) {
   .bs-lobby__card-wrapper { max-width: none; }
@@ -712,13 +714,11 @@
   text-align: center;
 }
 
-/* New card button */
-.bs-new-card-btn {
-  margin-top: 0.5rem;
-  padding: 0.4rem 1rem;
-  font-size: 0.75rem;
-  font-family: 'Cinzel', serif;
-  letter-spacing: 0.04em;
+/* New card / deck buttons */
+#bs-new-card-btn,
+#bs-btn-deck {
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
 }
 
 /* Card slide animations — transition: none prevents the transform transition from fighting the animation */
