@@ -4507,6 +4507,7 @@
 
         // Populate stat comparison
         const compEl = document.getElementById('bs-prefight-comparison');
+        console.log('[BS-DEBUG] prefight: compEl=', !!compEl, '_selectedCard=', _selectedCard, 'charms=', getOwnedCharms(), 'arenas=', window.ArenaBackgrounds ? window.ArenaBackgrounds.getUnlockedArenas(getHighestBossDefeated()).length : 'N/A');
         if (compEl && _selectedCard) {
           ensureCombatStats(_selectedCard);
           const ps = _selectedCard.combatStats || {};
