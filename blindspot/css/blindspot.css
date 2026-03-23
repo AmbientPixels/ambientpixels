@@ -661,8 +661,9 @@
   flex-direction: column;
   align-items: center;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
   max-width: 360px;
+  padding: 12px;
 }
 @media (min-width: 769px) {
   .bs-lobby__card-wrapper { max-width: none; }
