@@ -7291,6 +7291,7 @@
     }
   };
 
+  BS_CHEATS.victoryFx = function() { playVictoryAnimation(); return 'Victory animation triggered!'; };
   window.BS = BS_CHEATS;
 
   // ============================================================
