@@ -5509,11 +5509,6 @@
     panel.innerHTML = `
       <div class="bs-forge-layout">
         <div class="bs-forge-preview">
-          ${showPicker ? `<div class="bs-forge-card-picker">
-            <button class="bs-forge-card-picker__btn" id="bs-forge-card-prev" aria-label="Previous card"><i class="fas fa-chevron-left"></i></button>
-            <span class="bs-forge-card-picker__count">${cardIdx + 1} / ${deckSize}</span>
-            <button class="bs-forge-card-picker__btn" id="bs-forge-card-next" aria-label="Next card"><i class="fas fa-chevron-right"></i></button>
-          </div>` : ''}
           <div class="bs-forge-card" data-palette="${_selectedCard.palette || 'earth'}" data-container="${_selectedCard.imageContainer || 'masked'}">
             ${cardAvatar ? `<img src="${escHtml(cardAvatar)}" alt="${escHtml(cardName)}" class="bs-forge-card__img">` : `<div class="bs-forge-card__placeholder"><i class="fas fa-user"></i></div>`}
             <div class="bs-forge-card__info">
@@ -5522,6 +5517,11 @@
               <span class="bs-forge-card__power"><i class="fas fa-bolt"></i> ${cardPower} Power</span>
             </div>
           </div>
+          ${showPicker ? `<div class="bs-card-switcher" style="margin-top:0.5rem;">
+            <button class="bs-card-switcher__btn" id="bs-forge-card-prev" aria-label="Previous card"><i class="fas fa-chevron-left" aria-hidden="true"></i></button>
+            <span class="bs-card-switcher__count">${cardIdx + 1} / ${deckSize}</span>
+            <button class="bs-card-switcher__btn" id="bs-forge-card-next" aria-label="Next card"><i class="fas fa-chevron-right" aria-hidden="true"></i></button>
+          </div>` : ''}
         </div>
         <div class="bs-forge-editor">
       <h2 class="bs-forge-screen__title"><i class="fas fa-fire" style="color:var(--bs-accent);"></i> The Forge</h2>
