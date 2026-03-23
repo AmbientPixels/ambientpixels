@@ -4690,6 +4690,26 @@
         bolt.style.height = (100 + Math.random() * 200) + 'px';
         fx.appendChild(bolt);
       }
+    } else if (def.id === 'victory_fireworks') {
+      fx.classList.add('bs-victory-fx--fireworks');
+      var fwColors = ['#EF9F27', '#ff5252', '#4ade80', '#7dd3fc', '#a855f7', '#ffdd00'];
+      for (var fw = 0; fw < 6; fw++) {
+        var burst = document.createElement('div');
+        burst.className = 'bs-vfx-firework';
+        burst.style.left = (15 + Math.random() * 70) + '%';
+        burst.style.top = (15 + Math.random() * 50) + '%';
+        burst.style.animationDelay = (fw * 0.4 + Math.random() * 0.3) + 's';
+        burst.style.setProperty('--fw-color', fwColors[fw % fwColors.length]);
+        fx.appendChild(burst);
+      }
+    } else if (def.id === 'victory_shockwave') {
+      fx.classList.add('bs-victory-fx--shockwave');
+      for (var sw = 0; sw < 3; sw++) {
+        var ring = document.createElement('div');
+        ring.className = 'bs-vfx-ring';
+        ring.style.animationDelay = (sw * 0.5) + 's';
+        fx.appendChild(ring);
+      }
     } else if (def.id === 'victory_ravens') {
       fx.classList.add('bs-victory-fx--ravens');
       for (var r = 0; r < 8; r++) {

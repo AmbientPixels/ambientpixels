@@ -141,36 +141,46 @@
           { "id": "frame_bone",          "name": "Bone Frame",     "rarity": "uncommon", "icon": "fa-bone",        "cssClass": "bs-frame--bone" },
           { "id": "frame_crystal",       "name": "Crystal Frame",  "rarity": "rare",     "icon": "fa-gem",         "cssClass": "bs-frame--crystal" },
           { "id": "frame_circuit",       "name": "Circuit Frame",  "rarity": "rare",     "icon": "fa-microchip",   "cssClass": "bs-frame--circuit" },
-          { "id": "frame_dragon_scale",  "name": "Dragon Scale",   "rarity": "epic",     "icon": "fa-dragon",      "cssClass": "bs-frame--dragon-scale" }
+          { "id": "frame_emerald_vine",  "name": "Emerald Vine",   "rarity": "rare",     "icon": "fa-leaf",        "cssClass": "bs-frame--emerald-vine" },
+          { "id": "frame_frost_shard",   "name": "Frost Shard",    "rarity": "rare",     "icon": "fa-snowflake",   "cssClass": "bs-frame--frost-shard" },
+          { "id": "frame_dragon_scale",  "name": "Dragon Scale",   "rarity": "epic",     "icon": "fa-dragon",      "cssClass": "bs-frame--dragon-scale" },
+          { "id": "frame_shadow_wraith", "name": "Shadow Wraith",  "rarity": "epic",     "icon": "fa-ghost",       "cssClass": "bs-frame--shadow-wraith" }
         ]
       },
       "card_backs": {
         "category": "cosmetic",
         "slot": "back",
         "items": [
-          { "id": "back_obsidian",  "name": "Obsidian Back",  "rarity": "uncommon", "icon": "fa-circle",     "cssClass": "bs-back--obsidian" },
-          { "id": "back_embers",   "name": "Ember Back",     "rarity": "uncommon", "icon": "fa-fire-alt",   "cssClass": "bs-back--embers" },
-          { "id": "back_starfield", "name": "Starfield Back", "rarity": "rare",     "icon": "fa-star",       "cssClass": "bs-back--starfield" },
-          { "id": "back_inferno",   "name": "Inferno Back",   "rarity": "rare",     "icon": "fa-fire",       "cssClass": "bs-back--inferno" },
-          { "id": "back_void",      "name": "Void Back",      "rarity": "epic",     "icon": "fa-circle-dot", "cssClass": "bs-back--void" }
+          { "id": "back_obsidian",  "name": "Obsidian Back",  "rarity": "uncommon", "icon": "fa-circle",       "cssClass": "bs-back--obsidian" },
+          { "id": "back_embers",   "name": "Ember Back",     "rarity": "uncommon", "icon": "fa-fire-alt",     "cssClass": "bs-back--embers" },
+          { "id": "back_arctic",   "name": "Arctic Back",    "rarity": "rare",     "icon": "fa-snowflake",    "cssClass": "bs-back--arctic" },
+          { "id": "back_starfield", "name": "Starfield Back", "rarity": "rare",     "icon": "fa-star",        "cssClass": "bs-back--starfield" },
+          { "id": "back_inferno",   "name": "Inferno Back",   "rarity": "rare",     "icon": "fa-fire",        "cssClass": "bs-back--inferno" },
+          { "id": "back_blood_moon","name": "Blood Moon",     "rarity": "epic",     "icon": "fa-moon",         "cssClass": "bs-back--blood-moon" },
+          { "id": "back_void",      "name": "Void Back",      "rarity": "epic",     "icon": "fa-circle-dot",   "cssClass": "bs-back--void" }
         ]
       },
       "name_plates": {
         "category": "cosmetic",
         "slot": "nameplate",
         "items": [
-          { "id": "plate_flame",  "name": "Flame Text",     "rarity": "rare", "icon": "fa-fire-flame-curved", "cssClass": "bs-plate--flame" },
-          { "id": "plate_glitch", "name": "Glitch Text",    "rarity": "rare", "icon": "fa-bug",               "cssClass": "bs-plate--glitch" },
-          { "id": "plate_royal",  "name": "Royal Banner",   "rarity": "epic", "icon": "fa-crown",             "cssClass": "bs-plate--royal" }
+          { "id": "plate_toxic",  "name": "Toxic Text",     "rarity": "uncommon", "icon": "fa-biohazard",        "cssClass": "bs-plate--toxic" },
+          { "id": "plate_flame",  "name": "Flame Text",     "rarity": "rare",     "icon": "fa-fire-flame-curved", "cssClass": "bs-plate--flame" },
+          { "id": "plate_frozen", "name": "Frozen Text",    "rarity": "rare",     "icon": "fa-snowflake",         "cssClass": "bs-plate--frozen" },
+          { "id": "plate_glitch", "name": "Glitch Text",    "rarity": "rare",     "icon": "fa-bug",               "cssClass": "bs-plate--glitch" },
+          { "id": "plate_shadow", "name": "Shadow Text",    "rarity": "epic",     "icon": "fa-mask",              "cssClass": "bs-plate--shadow" },
+          { "id": "plate_royal",  "name": "Royal Banner",   "rarity": "epic",     "icon": "fa-crown",             "cssClass": "bs-plate--royal" }
         ]
       },
       "victory_animations": {
         "category": "cosmetic",
         "slot": "victory",
         "items": [
-          { "id": "victory_confetti",  "name": "Confetti Burst",  "rarity": "rare", "icon": "fa-party-horn",  "cssClass": "bs-victory--confetti" },
-          { "id": "victory_lightning", "name": "Lightning Storm", "rarity": "rare", "icon": "fa-bolt",        "cssClass": "bs-victory--lightning" },
-          { "id": "victory_ravens",    "name": "Raven Flock",     "rarity": "epic", "icon": "fa-crow",        "cssClass": "bs-victory--ravens" }
+          { "id": "victory_fireworks",  "name": "Fireworks",       "rarity": "uncommon", "icon": "fa-burst",       "cssClass": "bs-victory--fireworks" },
+          { "id": "victory_confetti",  "name": "Confetti Burst",  "rarity": "rare",     "icon": "fa-party-horn",  "cssClass": "bs-victory--confetti" },
+          { "id": "victory_lightning", "name": "Lightning Storm",  "rarity": "rare",     "icon": "fa-bolt",        "cssClass": "bs-victory--lightning" },
+          { "id": "victory_shockwave", "name": "Shockwave",       "rarity": "rare",     "icon": "fa-circle-radiation", "cssClass": "bs-victory--shockwave" },
+          { "id": "victory_ravens",    "name": "Raven Flock",     "rarity": "epic",     "icon": "fa-crow",        "cssClass": "bs-victory--ravens" }
         ]
       },
       "battle_charms": {
@@ -188,10 +198,14 @@
         "category": "cosmetic",
         "slot": "title",
         "items": [
-          { "id": "title_the_lucky",     "name": "The Lucky",      "rarity": "common",   "icon": "fa-clover",  "title": "The Lucky" },
-          { "id": "title_crate_hunter",  "name": "Crate Hunter",   "rarity": "uncommon", "icon": "fa-box",     "title": "Crate Hunter" },
-          { "id": "title_loot_goblin",   "name": "Loot Goblin",    "rarity": "rare",     "icon": "fa-sack",    "title": "Loot Goblin" },
-          { "id": "title_fortune_favored","name": "Fortune's Favored", "rarity": "epic", "icon": "fa-crown",   "title": "Fortune's Favored" }
+          { "id": "title_the_lucky",       "name": "The Lucky",         "rarity": "common",   "icon": "fa-clover",      "title": "The Lucky" },
+          { "id": "title_the_brave",      "name": "The Brave",         "rarity": "common",   "icon": "fa-shield",      "title": "The Brave" },
+          { "id": "title_crate_hunter",   "name": "Crate Hunter",      "rarity": "uncommon", "icon": "fa-box",         "title": "Crate Hunter" },
+          { "id": "title_shadow_walker",  "name": "Shadow Walker",     "rarity": "uncommon", "icon": "fa-mask",        "title": "Shadow Walker" },
+          { "id": "title_loot_goblin",    "name": "Loot Goblin",       "rarity": "rare",     "icon": "fa-sack",        "title": "Loot Goblin" },
+          { "id": "title_arena_champion", "name": "Arena Champion",    "rarity": "rare",     "icon": "fa-trophy",      "title": "Arena Champion" },
+          { "id": "title_the_unstoppable","name": "The Unstoppable",   "rarity": "epic",     "icon": "fa-fire",        "title": "The Unstoppable" },
+          { "id": "title_fortune_favored","name": "Fortune's Favored", "rarity": "epic",     "icon": "fa-crown",       "title": "Fortune's Favored" }
         ]
       },
       "arena_skins": {
