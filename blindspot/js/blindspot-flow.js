@@ -172,13 +172,22 @@
     _syncTimer = setTimeout(function () {
       if (_syncInFlight) return;
       _syncInFlight = true;
+      var sentProgress = JSON.parse(JSON.stringify(_progress));
       BlindspotAPI.syncProfile(_progress)
         .then(function (resp) {
           if (resp && resp.profile) {
-            // Server merge may have resolved conflicts — update _progress
+            // Server merge — only accept server values for keys that haven't
+            // changed locally since we sent the request (prevents stale server
+            // data from overwriting recent local changes like cosmetic unequips)
             var p = resp.profile;
             for (var key in _progress) {
-              if (p[key] !== undefined && p[key] !== null) _progress[key] = p[key];
+              if (p[key] !== undefined && p[key] !== null) {
+                // Skip objects (equipped, cosmetics) — local is authoritative
+                if (typeof _progress[key] === 'object') continue;
+                // Skip if local value changed since we sent the sync
+                if (JSON.stringify(_progress[key]) !== JSON.stringify(sentProgress[key])) continue;
+                _progress[key] = p[key];
+              }
             }
           }
         })
