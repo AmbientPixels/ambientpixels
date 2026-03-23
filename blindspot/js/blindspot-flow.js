@@ -1512,8 +1512,8 @@
       var backDef = findCosmeticDef(equipped.back);
       if (backDef && backDef.cssClass) cardEl.classList.add(backDef.cssClass);
     }
-    // Apply nameplate
-    var nameEl = cardEl.querySelector('.bs-card-mini__name');
+    // Apply nameplate — targets .bs-rc__name inside rendered card
+    var nameEl = cardEl.querySelector('.bs-rc__name');
     if (nameEl) {
       var oldPlate = nameEl.className.split(' ').filter(function(c) { return !c.startsWith('bs-plate--'); });
       nameEl.className = oldPlate.join(' ');
@@ -4641,9 +4641,64 @@
   // BATTLE RESULTS
   // ============================================================
 
+  // Victory animation — triggered on win if player has a victory cosmetic equipped
+  function playVictoryAnimation() {
+    var equipped = getEquipped();
+    if (!equipped.victory) return;
+    var def = findCosmeticDef(equipped.victory);
+    if (!def) return;
+
+    var fx = document.createElement('div');
+    fx.className = 'bs-victory-fx';
+
+    if (def.id === 'victory_confetti') {
+      fx.classList.add('bs-victory-fx--confetti');
+      var colors = ['#EF9F27', '#ff5252', '#4ade80', '#7dd3fc', '#a855f7', '#f472b6'];
+      for (var i = 0; i < 40; i++) {
+        var p = document.createElement('div');
+        p.className = 'bs-vfx-particle';
+        p.style.left = (Math.random() * 100) + '%';
+        p.style.top = '-10px';
+        p.style.background = colors[Math.floor(Math.random() * colors.length)];
+        p.style.animationDelay = (Math.random() * 1) + 's';
+        p.style.animationDuration = (1.5 + Math.random() * 1.5) + 's';
+        p.style.transform = 'rotate(' + (Math.random() * 360) + 'deg)';
+        fx.appendChild(p);
+      }
+    } else if (def.id === 'victory_lightning') {
+      fx.classList.add('bs-victory-fx--lightning');
+      for (var b = 0; b < 5; b++) {
+        var bolt = document.createElement('div');
+        bolt.className = 'bs-vfx-bolt';
+        bolt.style.left = (10 + Math.random() * 80) + '%';
+        bolt.style.top = '0';
+        bolt.style.animationDelay = (Math.random() * 1.2) + 's';
+        bolt.style.height = (100 + Math.random() * 200) + 'px';
+        fx.appendChild(bolt);
+      }
+    } else if (def.id === 'victory_ravens') {
+      fx.classList.add('bs-victory-fx--ravens');
+      for (var r = 0; r < 8; r++) {
+        var raven = document.createElement('div');
+        raven.className = 'bs-vfx-raven';
+        raven.innerHTML = '<i class="fas fa-crow"></i>';
+        raven.style.left = (30 + Math.random() * 40) + '%';
+        raven.style.bottom = (10 + Math.random() * 30) + '%';
+        raven.style.setProperty('--raven-dx', ((Math.random() - 0.5) * 400) + 'px');
+        raven.style.setProperty('--raven-dy', (-200 - Math.random() * 300) + 'px');
+        raven.style.animationDelay = (Math.random() * 1) + 's';
+        fx.appendChild(raven);
+      }
+    }
+
+    document.body.appendChild(fx);
+    setTimeout(function() { fx.remove(); }, 4000);
+  }
+
   async function handlePlayPageResult(battleResult, battleData) {
     const isWin = battleResult.winner === 'player';
     playSfx(isWin ? 'battleWin' : 'battleLoss');
+    if (isWin) playVictoryAnimation();
     // Daily spark bonus (first fight of the day)
     checkDailyBonus();
 

@@ -7352,44 +7352,140 @@ body.bs-battle-active .bs-play {
    COSMETIC VISUAL EFFECTS — Card Backs (subtle bg tint)
    ============================================================ */
 
-.bs-lobby__card-display.bs-back--obsidian .bs-card-mini {
+/* Backs apply to the rendered card container */
+.bs-lobby__card-display.bs-back--obsidian .bs-rendered-card {
   background: linear-gradient(135deg, #1a1a2e, #0f0f1a);
 }
-.bs-lobby__card-display.bs-back--starfield .bs-card-mini {
+.bs-lobby__card-display.bs-back--starfield .bs-rendered-card {
   background: linear-gradient(135deg, #0a0a2e 0%, #1a0a3e 50%, #0a0a2e 100%);
+  background-size: 200% 200%;
+  animation: bs-back-starfield 8s ease-in-out infinite;
 }
-.bs-lobby__card-display.bs-back--inferno .bs-card-mini {
-  background: linear-gradient(135deg, #2a0a0a, #1a0000);
+@keyframes bs-back-starfield {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
-.bs-lobby__card-display.bs-back--void .bs-card-mini {
+.bs-lobby__card-display.bs-back--inferno .bs-rendered-card {
+  background: linear-gradient(135deg, #2a0a0a, #3a0800, #1a0000);
+  background-size: 200% 200%;
+  animation: bs-back-inferno 5s ease-in-out infinite;
+}
+@keyframes bs-back-inferno {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+.bs-lobby__card-display.bs-back--void .bs-rendered-card {
   background: linear-gradient(135deg, #0a0020, #150030, #0a0020);
+  background-size: 200% 200%;
+  animation: bs-back-void 10s ease-in-out infinite;
+}
+@keyframes bs-back-void {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
 /* ============================================================
    COSMETIC VISUAL EFFECTS — Name Plates
    ============================================================ */
 
+/* Nameplates apply to .bs-rc__name inside rendered card */
+
 /* Flame Text — warm glow on name */
-.bs-card-mini__name.bs-plate--flame {
-  color: var(--bs-accent-glow, #ff9500);
-  text-shadow: 0 0 6px rgba(255, 149, 0, 0.5), 0 0 12px rgba(255, 100, 0, 0.3);
+.bs-rc__name.bs-plate--flame {
+  color: #ff9500 !important;
+  text-shadow: 0 0 8px rgba(255, 149, 0, 0.6), 0 0 16px rgba(255, 100, 0, 0.35), 0 0 24px rgba(255, 60, 0, 0.15);
+  animation: bs-plate-flame 2s ease-in-out infinite;
+}
+@keyframes bs-plate-flame {
+  0%, 100% { text-shadow: 0 0 8px rgba(255, 149, 0, 0.6), 0 0 16px rgba(255, 100, 0, 0.35); }
+  50% { text-shadow: 0 0 12px rgba(255, 149, 0, 0.8), 0 0 24px rgba(255, 100, 0, 0.5), 0 0 36px rgba(255, 60, 0, 0.2); }
 }
 
 /* Glitch Text — offset text shadow */
-.bs-card-mini__name.bs-plate--glitch {
+.bs-rc__name.bs-plate--glitch {
   animation: bs-plate-glitch 4s steps(1) infinite;
 }
 @keyframes bs-plate-glitch {
-  0%, 92%, 100% { text-shadow: none; color: var(--bs-text); }
-  93% { text-shadow: -2px 0 #ff0000, 2px 0 #00ffff; color: var(--bs-text); }
-  96% { text-shadow: 2px 0 #ff0000, -2px 0 #00ffff; color: var(--bs-text); }
+  0%, 88%, 100% { text-shadow: none; }
+  89% { text-shadow: -3px 0 #ff0000, 3px 0 #00ffff; transform: translateX(-1px); }
+  91% { text-shadow: 3px 0 #ff0000, -3px 0 #00ffff; transform: translateX(1px); }
+  93% { text-shadow: -2px 1px #ff0000, 2px -1px #00ffff; transform: translateX(0); }
+  95% { text-shadow: none; transform: translateX(0); }
 }
 
 /* Royal Banner — golden shimmer */
-.bs-card-mini__name.bs-plate--royal {
-  color: #d4a853;
-  text-shadow: 0 0 8px rgba(212, 168, 83, 0.4);
-  letter-spacing: 0.08em;
+.bs-rc__name.bs-plate--royal {
+  color: #d4a853 !important;
+  text-shadow: 0 0 10px rgba(212, 168, 83, 0.5), 0 0 20px rgba(212, 168, 83, 0.2);
+  letter-spacing: 0.1em;
+  animation: bs-plate-royal 3s ease-in-out infinite;
+}
+@keyframes bs-plate-royal {
+  0%, 100% { text-shadow: 0 0 10px rgba(212, 168, 83, 0.5); }
+  50% { text-shadow: 0 0 16px rgba(212, 168, 83, 0.7), 0 0 30px rgba(212, 168, 83, 0.3); }
+}
+
+/* ============================================================
+   COSMETIC VISUAL EFFECTS — Victory Animations
+   ============================================================ */
+
+/* Victory overlay container — positioned over results screen */
+.bs-victory-fx {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+/* Confetti Burst */
+.bs-victory-fx--confetti .bs-vfx-particle {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  animation: bs-confetti-fall 2.5s ease-out forwards;
+}
+@keyframes bs-confetti-fall {
+  0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+/* Lightning Storm */
+.bs-victory-fx--lightning {
+  animation: bs-lightning-flash 0.6s ease-out 3;
+}
+@keyframes bs-lightning-flash {
+  0%, 100% { background: transparent; }
+  10% { background: rgba(180, 200, 255, 0.15); }
+  20% { background: transparent; }
+  30% { background: rgba(180, 200, 255, 0.1); }
+}
+.bs-victory-fx--lightning .bs-vfx-bolt {
+  position: absolute;
+  width: 3px;
+  background: linear-gradient(to bottom, rgba(180, 200, 255, 0.9), transparent);
+  animation: bs-bolt-strike 0.3s ease-out forwards;
+  box-shadow: 0 0 10px rgba(180, 200, 255, 0.6);
+}
+@keyframes bs-bolt-strike {
+  0% { height: 0; opacity: 1; }
+  60% { height: 200px; opacity: 1; }
+  100% { height: 200px; opacity: 0; }
+}
+
+/* Raven Flock */
+.bs-victory-fx--ravens .bs-vfx-raven {
+  position: absolute;
+  font-size: 1.2rem;
+  color: #1a1a2e;
+  text-shadow: 0 0 4px rgba(100, 80, 120, 0.5);
+  animation: bs-raven-fly 3s ease-in-out forwards;
+}
+@keyframes bs-raven-fly {
+  0% { transform: translate(0, 0) scale(0.5); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translate(var(--raven-dx, 200px), var(--raven-dy, -300px)) scale(1.2); opacity: 0; }
 }
 
 /* ============================================================
