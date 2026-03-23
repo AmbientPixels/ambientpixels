@@ -2939,6 +2939,11 @@
       window.ArenaBattleUI.initBattle = function (battleData) {
         resetBattleStats();
         startBattleAmbient();
+        // Clear leftover item + charm buttons from previous battle
+        var movesEl = document.getElementById('arena-moves');
+        if (movesEl) {
+          movesEl.querySelectorAll('.arena-move-btn--item, .arena-move-btn--charm').forEach(function(btn) { btn.remove(); });
+        }
         var result = origInit.call(window.ArenaBattleUI, battleData);
         addCharmButtonToBattle();
         addItemButtonsToBattle();

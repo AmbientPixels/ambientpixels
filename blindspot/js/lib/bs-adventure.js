@@ -80,6 +80,19 @@ window.BsAdventure = (function () {
     }
   }
 
+  function hideChoices() {
+    var el = $('bs-adventure-choices');
+    if (el) el.classList.remove('bs-adventure__choices--revealed');
+  }
+
+  function revealChoices() {
+    var el = $('bs-adventure-choices');
+    if (el) {
+      el.classList.add('bs-adventure__choices--revealed');
+      scrollToChoices();
+    }
+  }
+
   function escHtml(s) {
     var d = document.createElement('div');
     d.textContent = s || '';
@@ -727,9 +740,10 @@ window.BsAdventure = (function () {
     var loadingEl = $('bs-adventure-image-loading');
     if (loadingEl) loadingEl.style.display = 'none';
 
-    // Clear choices
+    // Clear choices and hide until typewriter finishes
     var choicesEl = $('bs-adventure-choices');
     if (choicesEl) choicesEl.innerHTML = '';
+    hideChoices();
 
     // Hide footer
     var footerEl = $('bs-adventure-footer');
@@ -784,24 +798,14 @@ window.BsAdventure = (function () {
         });
 
         if (scene.isFinal) {
-          typewriter(textEl, sceneText).then(function () { renderSummary(container); scrollToChoices(); });
+          typewriter(textEl, sceneText).then(function () { renderSummary(container); revealChoices(); });
         } else {
           typewriter(textEl, sceneText).then(function () {
             renderChoices(scene.choices, container, playerStats);
-            scrollToChoices();
+            revealChoices();
           });
         }
       });
-
-      // Early choice reveal (show at low opacity while AI loads or typewriter runs)
-      if (!_prefersReducedMotion && scene.choices && !scene.isFinal) {
-        setTimeout(function () {
-          if (choicesEl && choicesEl.children.length === 0) {
-            renderChoices(scene.choices, container, playerStats);
-            choicesEl.style.opacity = '0.4';
-          }
-        }, 3000);
-      }
     }
   }
 

@@ -409,24 +409,30 @@
         <span class="bs-adventure__title" id="bs-adventure-title"></span>
         <span class="bs-adventure__progress" id="bs-adventure-progress"></span>
       </div>
-      <div class="bs-adventure__image-wrap" id="bs-adventure-image-wrap">
-        <img id="bs-adventure-image" class="bs-adventure__image" alt="" style="display:none;">
-        <div class="bs-adventure__image-loading" id="bs-adventure-image-loading" style="display:none;">
-          <i class="fas fa-spinner fa-spin"></i>
+      <div class="bs-adventure__columns">
+        <div class="bs-adventure__story">
+          <div class="bs-adventure__image-wrap" id="bs-adventure-image-wrap">
+            <img id="bs-adventure-image" class="bs-adventure__image" alt="" style="display:none;">
+            <div class="bs-adventure__image-loading" id="bs-adventure-image-loading" style="display:none;">
+              <i class="fas fa-spinner fa-spin"></i>
+            </div>
+          </div>
+          <div class="bs-adventure__body" id="bs-adventure-body">
+            <div class="bs-adventure__text" id="bs-adventure-text"></div>
+            <div class="bs-adventure__dice" id="bs-adventure-dice">
+              <div class="bs-adventure__dice-value" id="bs-adventure-dice-value"></div>
+              <div class="bs-adventure__dice-label" id="bs-adventure-dice-label"></div>
+              <div class="bs-adventure__dice-result" id="bs-adventure-dice-result"></div>
+            </div>
+          </div>
         </div>
-      </div>
-      <div class="bs-adventure__body" id="bs-adventure-body">
-        <div class="bs-adventure__text" id="bs-adventure-text"></div>
-        <div class="bs-adventure__dice" id="bs-adventure-dice">
-          <div class="bs-adventure__dice-value" id="bs-adventure-dice-value"></div>
-          <div class="bs-adventure__dice-label" id="bs-adventure-dice-label"></div>
-          <div class="bs-adventure__dice-result" id="bs-adventure-dice-result"></div>
+        <div class="bs-adventure__sidebar">
+          <div class="bs-adventure__choices" id="bs-adventure-choices"></div>
+          <div class="bs-adventure__buffs" id="bs-adventure-buffs"></div>
+          <div class="bs-adventure__footer" id="bs-adventure-footer" style="display:none;">
+            <button class="bs-btn bs-btn--primary bs-btn--large bs-btn--glow" id="bs-adventure-fight">Enter Battle</button>
+          </div>
         </div>
-        <div class="bs-adventure__choices" id="bs-adventure-choices"></div>
-      </div>
-      <div class="bs-adventure__buffs" id="bs-adventure-buffs"></div>
-      <div class="bs-adventure__footer" id="bs-adventure-footer" style="display:none;">
-        <button class="bs-btn bs-btn--primary bs-btn--large bs-btn--glow" id="bs-adventure-fight">Enter Battle</button>
       </div>
     </div>
   </div>
