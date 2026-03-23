@@ -718,6 +718,65 @@
   const WEAKNESS_LABELS = { str: 'STR', agi: 'AGI', int: 'INT', end: 'END', lck: 'LCK' };
   const WEAKNESS_COLORS = { str: '#ff5252', agi: '#00e676', int: '#7b2fff', end: '#ff9100', lck: '#ffd740' };
 
+  // Shared prefight overlay population — called from every code path
+  function populatePrefightOverlay(boss) {
+    if (!boss) return;
+    var flavorEl = document.getElementById('bs-prefight-flavor');
+    var titleEl = document.getElementById('bs-prefight-title');
+    var avatarEl = document.getElementById('bs-prefight-avatar');
+    if (flavorEl) flavorEl.innerHTML = buildPrefightInfo(boss);
+    if (titleEl) titleEl.textContent = boss.name;
+    if (avatarEl) {
+      if (boss.avatar) {
+        avatarEl.innerHTML = '<img src="' + escHtml(boss.avatar) + '" alt="' + escHtml(boss.name) + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
+        avatarEl.style.width = '96px';
+        avatarEl.style.height = '96px';
+      } else {
+        var icon = BOSS_ICONS[boss.class] || 'fa-skull';
+        avatarEl.innerHTML = '<i class="fas ' + icon + '"></i>';
+      }
+    }
+    // Stat comparison
+    var compEl = document.getElementById('bs-prefight-comparison');
+    if (compEl && _selectedCard) {
+      ensureCombatStats(_selectedCard);
+      var ps = _selectedCard.combatStats || {};
+      var bs = boss.combatStats || {};
+      var labels = [
+        { key: 'str', label: 'STR', icon: 'fa-fist-raised' },
+        { key: 'agi', label: 'AGI', icon: 'fa-wind' },
+        { key: 'int', label: 'INT', icon: 'fa-brain' },
+        { key: 'end', label: 'END', icon: 'fa-shield-alt' },
+        { key: 'lck', label: 'LCK', icon: 'fa-dice' }
+      ];
+      compEl.innerHTML = '<div class="bs-prefight-comparison__header">'
+        + '<span class="bs-prefight-comparison__you">You</span>'
+        + '<span class="bs-prefight-comparison__vs">VS</span>'
+        + '<span class="bs-prefight-comparison__boss">' + escHtml(boss.name) + '</span>'
+        + '</div>'
+        + labels.map(function(s) {
+            var pv = ps[s.key] || 0;
+            var bv = bs[s.key] || 0;
+            var diff = pv - bv;
+            var diffClass = diff > 0 ? 'bs-stat-advantage' : diff < 0 ? 'bs-stat-disadvantage' : 'bs-stat-even';
+            return '<div class="bs-prefight-stat-row">'
+              + '<span class="bs-prefight-stat-row__pval">' + pv + '</span>'
+              + '<div class="bs-prefight-stat-row__bar">'
+              + '<div class="bs-prefight-stat-row__fill bs-prefight-stat-row__fill--player" style="width:' + pv + '%"></div>'
+              + '</div>'
+              + '<span class="bs-prefight-stat-row__label"><i class="fas ' + s.icon + '"></i> ' + s.label + '</span>'
+              + '<div class="bs-prefight-stat-row__bar">'
+              + '<div class="bs-prefight-stat-row__fill bs-prefight-stat-row__fill--boss" style="width:' + bv + '%"></div>'
+              + '</div>'
+              + '<span class="bs-prefight-stat-row__bval ' + diffClass + '">' + bv + '</span>'
+              + '</div>';
+          }).join('');
+    } else if (compEl) {
+      compEl.innerHTML = '';
+    }
+    // Charm + arena selectors rendered via showOverlay hook
+  }
+
   function buildPrefightInfo(boss) {
     var html = '"' + escHtml(boss.flavor) + '"';
     // Stat weakness
@@ -4156,21 +4215,7 @@
       const nextBoss = _bossesByNumber[highest + 1];
       if (nextBoss) {
         // Show pre-fight overlay for next boss
-        const flavorEl = document.getElementById('bs-prefight-flavor');
-        const titleEl = document.getElementById('bs-prefight-title');
-        const avatarEl = document.getElementById('bs-prefight-avatar');
-        if (flavorEl) flavorEl.innerHTML = buildPrefightInfo(nextBoss);
-        if (titleEl) titleEl.textContent = nextBoss.name;
-        if (avatarEl) {
-          if (nextBoss.avatar) {
-            avatarEl.innerHTML = '<img src="' + escHtml(nextBoss.avatar) + '" alt="' + escHtml(nextBoss.name) + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
-            avatarEl.style.width = '96px';
-            avatarEl.style.height = '96px';
-          } else {
-            const icon = BOSS_ICONS[nextBoss.class] || 'fa-skull';
-            avatarEl.innerHTML = '<i class="fas ' + icon + '"></i>';
-          }
-        }
+        populatePrefightOverlay(nextBoss);
         showOverlay('bs-prefight-overlay');
         setupPrefightButtons(nextBoss.id);
       } else {
@@ -4485,66 +4530,9 @@
     container.querySelectorAll('[data-fight-boss]').forEach(btn => {
       btn.addEventListener('click', () => {
         const bossId = btn.dataset.fightBoss;
-        // Check weekly bosses first, then campaign bosses
         const boss = _bossesById[bossId];
         if (!boss) return;
-
-        const flavorEl = document.getElementById('bs-prefight-flavor');
-        const titleEl = document.getElementById('bs-prefight-title');
-        const avatarEl = document.getElementById('bs-prefight-avatar');
-        if (flavorEl) flavorEl.innerHTML = buildPrefightInfo(boss);
-        if (titleEl) titleEl.textContent = boss.name;
-        if (avatarEl) {
-          if (boss.avatar) {
-            avatarEl.innerHTML = `<img src="${escHtml(boss.avatar)}" alt="${escHtml(boss.name)}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
-            avatarEl.style.width = '96px';
-            avatarEl.style.height = '96px';
-          } else {
-            const icon = BOSS_ICONS[boss.class] || 'fa-skull';
-            avatarEl.innerHTML = `<i class="fas ${icon}"></i>`;
-          }
-        }
-
-        // Populate stat comparison
-        const compEl = document.getElementById('bs-prefight-comparison');
-        console.log('[BS-DEBUG] prefight: compEl=', !!compEl, '_selectedCard=', _selectedCard, 'charms=', getOwnedCharms(), 'arenas=', window.ArenaBackgrounds ? window.ArenaBackgrounds.getUnlockedArenas(getHighestBossDefeated()).length : 'N/A');
-        if (compEl && _selectedCard) {
-          ensureCombatStats(_selectedCard);
-          const ps = _selectedCard.combatStats || {};
-          const bs = boss.combatStats || {};
-          const labels = [
-            { key: 'str', label: 'STR', icon: 'fa-fist-raised' },
-            { key: 'agi', label: 'AGI', icon: 'fa-wind' },
-            { key: 'int', label: 'INT', icon: 'fa-brain' },
-            { key: 'end', label: 'END', icon: 'fa-shield-alt' },
-            { key: 'lck', label: 'LCK', icon: 'fa-dice' }
-          ];
-          compEl.innerHTML = `
-            <div class="bs-prefight-comparison__header">
-              <span class="bs-prefight-comparison__you">You</span>
-              <span class="bs-prefight-comparison__vs">VS</span>
-              <span class="bs-prefight-comparison__boss">${escHtml(boss.name)}</span>
-            </div>
-            ${labels.map(s => {
-              const pv = ps[s.key] || 0;
-              const bv = bs[s.key] || 0;
-              const diff = pv - bv;
-              const diffClass = diff > 0 ? 'bs-stat-advantage' : diff < 0 ? 'bs-stat-disadvantage' : 'bs-stat-even';
-              return `<div class="bs-prefight-stat-row">
-                <span class="bs-prefight-stat-row__pval">${pv}</span>
-                <div class="bs-prefight-stat-row__bar">
-                  <div class="bs-prefight-stat-row__fill bs-prefight-stat-row__fill--player" style="width:${pv}%"></div>
-                </div>
-                <span class="bs-prefight-stat-row__label"><i class="fas ${s.icon}"></i> ${s.label}</span>
-                <div class="bs-prefight-stat-row__bar">
-                  <div class="bs-prefight-stat-row__fill bs-prefight-stat-row__fill--boss" style="width:${bv}%"></div>
-                </div>
-                <span class="bs-prefight-stat-row__bval ${diffClass}">${bv}</span>
-              </div>`;
-            }).join('')}
-          `;
-        }
-
+        populatePrefightOverlay(boss);
         showOverlay('bs-prefight-overlay');
         setupPrefightButtons(bossId);
       });
@@ -4648,58 +4636,10 @@
     _towerPendingFloor = nextFloor;
 
     // Show prefight overlay with tower flavor
+    populatePrefightOverlay(boss);
+    // Override flavor text with tower-specific format
     var flavorEl = document.getElementById('bs-prefight-flavor');
-    var titleEl = document.getElementById('bs-prefight-title');
-    var avatarEl = document.getElementById('bs-prefight-avatar');
     if (flavorEl) flavorEl.innerHTML = 'Floor ' + nextFloor + ' &mdash; &ldquo;' + escHtml(boss.flavor) + '&rdquo;' + (CLASS_PATTERNS[boss.class] ? '<br><span style="font-size:0.8rem;color:var(--bs-text-muted);display:inline-block;"><i class="fas fa-chess"></i> Tends to: ' + CLASS_PATTERNS[boss.class] + '</span>' : '');
-    if (titleEl) titleEl.textContent = boss.name;
-    if (avatarEl) {
-      if (boss.avatar) {
-        avatarEl.innerHTML = '<img src="' + escHtml(boss.avatar) + '" alt="' + escHtml(boss.name) + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
-        avatarEl.style.width = '96px';
-        avatarEl.style.height = '96px';
-      } else {
-        var icon = BOSS_ICONS[boss.class] || 'fa-skull';
-        avatarEl.innerHTML = '<i class="fas ' + icon + '"></i>';
-      }
-    }
-
-    // Stat comparison
-    var compEl = document.getElementById('bs-prefight-comparison');
-    if (compEl && _selectedCard) {
-      ensureCombatStats(_selectedCard);
-      var ps = _selectedCard.combatStats || {};
-      var bs = boss.combatStats || {};
-      var labels = [
-        { key: 'str', label: 'STR', icon: 'fa-fist-raised' },
-        { key: 'agi', label: 'AGI', icon: 'fa-wind' },
-        { key: 'int', label: 'INT', icon: 'fa-brain' },
-        { key: 'end', label: 'END', icon: 'fa-shield-alt' },
-        { key: 'lck', label: 'LCK', icon: 'fa-dice' }
-      ];
-      compEl.innerHTML = '<div class="bs-prefight-comparison__header">'
-        + '<span class="bs-prefight-comparison__you">You</span>'
-        + '<span class="bs-prefight-comparison__vs">VS</span>'
-        + '<span class="bs-prefight-comparison__boss">' + escHtml(boss.name) + '</span>'
-        + '</div>'
-        + labels.map(function(s) {
-          var pv = ps[s.key] || 0;
-          var bv = bs[s.key] || 0;
-          var diff = pv - bv;
-          var diffClass = diff > 0 ? 'bs-stat-advantage' : diff < 0 ? 'bs-stat-disadvantage' : 'bs-stat-even';
-          return '<div class="bs-prefight-stat-row">'
-            + '<span class="bs-prefight-stat-row__pval">' + pv + '</span>'
-            + '<div class="bs-prefight-stat-row__bar">'
-            + '<div class="bs-prefight-stat-row__fill bs-prefight-stat-row__fill--player" style="width:' + pv + '%"></div>'
-            + '</div>'
-            + '<span class="bs-prefight-stat-row__label"><i class="fas ' + s.icon + '"></i> ' + s.label + '</span>'
-            + '<div class="bs-prefight-stat-row__bar">'
-            + '<div class="bs-prefight-stat-row__fill bs-prefight-stat-row__fill--boss" style="width:' + bv + '%"></div>'
-            + '</div>'
-            + '<span class="bs-prefight-stat-row__bval ' + diffClass + '">' + bv + '</span>'
-            + '</div>';
-        }).join('');
-    }
 
     showOverlay('bs-prefight-overlay');
     var oldBtn = document.getElementById('bs-prefight-go');
