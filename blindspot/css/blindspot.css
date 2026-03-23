@@ -8171,6 +8171,7 @@ body.bs-adventure-active {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  margin-top: 1rem;
   transition: opacity 0.3s ease;
 }
 
