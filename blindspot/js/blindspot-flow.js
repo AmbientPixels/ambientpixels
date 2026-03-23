@@ -166,8 +166,8 @@
 
   // Push _progress to server. Debounced 1s so rapid mutations batch.
   function syncProgressToServer() {
-    if (localStorage.getItem('bs-guest-mode') === 'true') return;
     _cacheProgressToLocalStorage();
+    if (localStorage.getItem('bs-guest-mode') === 'true') return;
     if (_syncTimer) clearTimeout(_syncTimer);
     _syncTimer = setTimeout(function () {
       if (_syncInFlight) return;
@@ -1647,12 +1647,18 @@
       }
     }
     // Apply title from equipped (override if set)
+    var titleEl = document.getElementById('bs-card-title');
     if (equipped.title) {
       var titleDef = findCosmeticDef(equipped.title);
-      if (titleDef && titleDef.title) {
-        var titleEl = document.getElementById('bs-card-title');
-        if (titleEl) { titleEl.textContent = titleDef.title; titleEl.style.display = ''; }
+      if (titleDef && titleDef.title && titleEl) {
+        titleEl.textContent = titleDef.title;
+        titleEl.style.display = '';
       }
+    } else if (titleEl) {
+      // Unequipped — fall back to progression title or hide
+      var fallbackTitle = _progress.cardTitle || '';
+      titleEl.textContent = fallbackTitle;
+      titleEl.style.display = fallbackTitle ? '' : 'none';
     }
   }
 
