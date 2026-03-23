@@ -4296,6 +4296,13 @@
     document.getElementById('bs-combat-help-btn')?.addEventListener('click', () => { showOverlay('bs-combat-guide'); });
     document.getElementById('bs-combat-guide-close')?.addEventListener('click', () => { hideOverlay('bs-combat-guide'); });
 
+    // Pre-fight retreat
+    document.getElementById('bs-prefight-retreat')?.addEventListener('click', () => {
+      hideOverlay('bs-prefight-overlay');
+      showScreen('lobby');
+      renderLobby();
+    });
+
     // Forge overlays
     document.getElementById('bs-forge-now')?.addEventListener('click', () => { hideOverlay('bs-forge-trigger'); openForgeScreen(); });
     document.getElementById('bs-forge-later')?.addEventListener('click', () => { hideOverlay('bs-forge-trigger'); safeLSSet('bs-forge-pending', 'true'); updateForgeProgress(); });

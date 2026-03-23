@@ -1207,6 +1207,24 @@
   line-height: 1.4;
 }
 
+.bs-prefight__retreat {
+  background: none;
+  border: none;
+  color: var(--bs-text-muted);
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0.4rem 0.75rem;
+  margin-top: 0.25rem;
+  transition: color 0.2s ease;
+}
+.bs-prefight__retreat:hover {
+  color: var(--bs-text);
+}
+.bs-prefight__retreat i {
+  margin-right: 0.25rem;
+}
+
 /* Pre-fight stat comparison (iter 63) */
 .bs-prefight-comparison {
   width: 100%;
