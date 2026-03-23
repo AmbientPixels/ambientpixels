@@ -439,7 +439,7 @@ window.BsAdventure = (function () {
       '',
       'BOSS PERSONALITY: ' + bossVoice,
       '',
-      'You are narrating a scene in the Blindspot arena. Write 2-3 short paragraphs.',
+      'You are narrating a scene in the Blindspot arena. Write exactly 2 SHORT paragraphs (50-80 words total). Be punchy and concise — every word must earn its place.',
       '',
       'ADVENTURE: "' + adventure.title + '"',
       'BOSS: ' + (_bossesById_name || adventure.bossId),
@@ -730,13 +730,10 @@ window.BsAdventure = (function () {
     // Scene music
     if (scene.music) playSceneMusic(scene.music);
 
-    // Scene image — will be generated after AI returns (AI may provide a better prompt)
-    // Start with static prompt as early placeholder
-    var _sceneImageGenerated = false;
-    if (scene.imagePrompt) {
-      generateSceneImage(scene.imagePrompt);
-      _sceneImageGenerated = true;
-    }
+    // Scene image — generated from AI prompt (no static fallback to avoid double-gen flash)
+    // Show loading spinner; image will be generated after AI returns its imagePrompt
+    var loadingImgEl = $('bs-adventure-image-loading');
+    if (loadingImgEl) loadingImgEl.style.display = 'flex';
 
     // Resonance banner (first scene only)
     if (_sceneIndex === 1 && _resonanceBonus > 0) {
@@ -767,13 +764,9 @@ window.BsAdventure = (function () {
       generateSceneText(scene, adventure).then(function (aiResult) {
         var sceneText = (aiResult && aiResult.text) ? aiResult.text : fallbackText;
 
-        // If AI provided an image prompt, generate a scene-matched image
-        if (aiResult && aiResult.imagePrompt && !_sceneImageGenerated) {
-          generateSceneImage(aiResult.imagePrompt);
-        } else if (aiResult && aiResult.imagePrompt) {
-          // AI had a better prompt — regenerate (replaces the static one)
-          generateSceneImage(aiResult.imagePrompt);
-        }
+        // Generate image from AI prompt, or fall back to static JSON prompt
+        var imgPrompt = (aiResult && aiResult.imagePrompt) ? aiResult.imagePrompt : scene.imagePrompt;
+        if (imgPrompt) generateSceneImage(imgPrompt);
 
         // Track for AI context
         _sceneHistory.push({
