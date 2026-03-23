@@ -1508,9 +1508,35 @@
       if (frameDef && frameDef.cssClass) cardEl.classList.add(frameDef.cssClass);
     }
     // Apply back
+    // Remove old ember particles
+    var oldEmbers = cardEl.querySelector('.bs-ember-container');
+    if (oldEmbers) oldEmbers.remove();
     if (equipped.back) {
       var backDef = findCosmeticDef(equipped.back);
       if (backDef && backDef.cssClass) cardEl.classList.add(backDef.cssClass);
+      // Spawn ember particles for ember back
+      if (equipped.back === 'back_embers') {
+        var artEl = cardEl.querySelector('.bs-rc__art');
+        if (artEl) {
+          var emberContainer = document.createElement('div');
+          emberContainer.className = 'bs-ember-container';
+          var emberColors = ['#EF9F27', '#ff7b00', '#ffaa33', '#ff6600', '#ffcc44'];
+          for (var ei = 0; ei < 12; ei++) {
+            var dot = document.createElement('div');
+            dot.className = 'bs-ember-dot';
+            dot.style.left = (5 + Math.random() * 90) + '%';
+            dot.style.bottom = (Math.random() * 30) + '%';
+            dot.style.width = (2 + Math.random() * 2) + 'px';
+            dot.style.height = dot.style.width;
+            dot.style.background = emberColors[Math.floor(Math.random() * emberColors.length)];
+            dot.style.setProperty('--ember-dur', (3 + Math.random() * 4) + 's');
+            dot.style.setProperty('--ember-delay', (Math.random() * 5) + 's');
+            dot.style.setProperty('--ember-drift', ((Math.random() - 0.5) * 20) + 'px');
+            emberContainer.appendChild(dot);
+          }
+          artEl.appendChild(emberContainer);
+        }
+      }
     }
     // Apply nameplate — targets .bs-rc__name inside rendered card
     var nameEl = cardEl.querySelector('.bs-rc__name');
