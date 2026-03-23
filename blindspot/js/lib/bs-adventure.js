@@ -372,13 +372,49 @@ window.BsAdventure = (function () {
   // AI SCENE TEXT GENERATION
   // ============================================================
 
+  // ---- WORLD LORE (injected into every AI prompt) ----
+  var BLINDSPOT_LORE = [
+    'WORLD: The Blindspot is an ancient arena that exists between worlds — a pocket dimension built by The Architect.',
+    'It was designed as a proving ground: warriors enter, forge their identity through combat, and either ascend or are consumed.',
+    'The arena feeds on conflict. Every fight makes it stronger. The corridors shift, the walls remember, the air itself watches.',
+    '',
+    'THE BOSSES are the Architect\'s creations, each guarding a layer of the Blindspot:',
+    '- The Gatekeeper (Boss 1): First test. Evaluates if you\'re worth the arena\'s attention. Stoic, mechanical.',
+    '- The Warden (Boss 2): Enforces the arena\'s rules. Disciplined, cold, believes in order above all.',
+    '- The Ghost (Boss 3): The collective memory of every fighter who failed. Phases because it\'s not fully real.',
+    '- The Cipher (Boss 4): The arena\'s immune system. It learns your patterns, adapts, steals your abilities.',
+    '- The Brute (Boss 5): Raw power incarnate. The arena\'s anger given form. No subtlety, no mercy.',
+    '- The Sage (Boss 6): The arena\'s living memory. Knows everything that ever happened here. Drains knowledge.',
+    '- The Iron (Boss 7): The arena\'s walls made flesh. Endurance personified. Nothing gets through.',
+    '- The Trickster (Boss 8): Chaos incarnate — the one thing the Architect couldn\'t control. Probability bends around it.',
+    '- The Feral (Boss 9): What happens when a fighter stays in the Blindspot too long. Lost to instinct and rage.',
+    '- The Architect (Boss 10): The creator. Built the Blindspot to find someone worthy of replacing him.',
+    '',
+    'STORY ARC: The player is climbing toward the truth. The Architect built this arena to find a successor.',
+    'Each boss tests a different quality. Beat all 10 and you\'re offered the choice: become the new Architect, or walk away.',
+    'The arena is alive. It watches. It adapts. It wants to be beaten — that\'s how it evolves.'
+  ].join('\n');
+
+  // ---- Boss personality prompts ----
+  var BOSS_VOICE = {
+    'bs-boss-1':  'The Gatekeeper is stoic and mechanical. The environment is utilitarian — training grounds, simple corridors. Everything is a test.',
+    'bs-boss-2':  'The Warden is disciplined and cold. The environment is a prison — iron bars, rules etched in stone, order imposed through force.',
+    'bs-boss-3':  'The Ghost is eerie and fragmented. The environment is wrong — shadows without sources, whispers, things that shimmer. Reality is unstable here.',
+    'bs-boss-4':  'The Cipher is calculating and digital. The environment is a server room — cables, screens, data streams. Information is weaponized.',
+    'bs-boss-5':  'The Brute is primal and direct. The environment is raw — mountains, caves, bone-strewn paths. Everything is about raw power.',
+    'bs-boss-6':  'The Sage is patient and knowing. The environment is a library — floating books, living ink, stolen knowledge. It already knows your ending.',
+    'bs-boss-7':  'The Iron is immovable and silent. The environment is a fortress — seamless metal, forges, anvils. Endurance made physical.',
+    'bs-boss-8':  'The Trickster is chaotic and theatrical. The environment is a carnival — shifting colors, mirrors, impossible geometry. Nothing is what it seems.',
+    'bs-boss-9':  'The Feral is savage and instinctual. The environment is a hunting ground — blood-marked territory, bones, primal heat. It hunts by scent.',
+    'bs-boss-10': 'The Architect is calm and godlike. The environment is the Forge Eternal — creation energy, floating cards, white-hot light. This is where everything was made.'
+  };
+
   function generateSceneText(scene, adventure) {
-    // If no Gemini API available, fall back to static text
     if (!window.CardForgeAI || !window.CardForgeAI.callGemini) {
       return Promise.resolve(null);
     }
 
-    var boss = _currentAdventure ? _bossesById_name : '';
+    var bossVoice = BOSS_VOICE[adventure.bossId] || '';
     var choiceOptions = '';
     if (scene.choices) {
       choiceOptions = scene.choices.map(function (c) { return '- ' + c.text; }).join('\n');
@@ -387,44 +423,41 @@ window.BsAdventure = (function () {
     var historyContext = '';
     if (_sceneHistory.length > 0) {
       historyContext = '\nSTORY SO FAR:\n' + _sceneHistory.map(function (h) {
-        return '- Scene ' + h.scene + ': ' + h.summary + (h.choice ? ' → Player chose: ' + h.choice : '');
+        return '- Scene ' + h.scene + ': ' + h.summary + (h.choice ? ' \u2192 Player chose: ' + h.choice : '');
       }).join('\n') + '\n';
     }
 
     var ascensionContext = '';
     if (_ascensionLevel >= 1) {
-      ascensionContext = '\nThis is Ascension ' + _ascensionLevel + ' — the player has beaten this boss before. ' +
-        'The narrative should acknowledge the player is a returning challenger. The boss knows them. The environment has changed or evolved since their last visit.\n';
+      ascensionContext = '\nASCENSION ' + _ascensionLevel + ': The player has beaten this boss before and chose to return. ' +
+        'The Blindspot remembers them. The boss recognizes them. The arena has evolved — corridors shift, traps are different, ' +
+        'the boss is smarter. Write as if the arena is testing whether the player has truly grown.\n';
     }
 
     var prompt = [
-      'You are a dark fantasy narrator for a boss-fight arena game called Blindspot.',
-      'Write 2-3 short paragraphs of atmospheric narrative for this scene.',
+      BLINDSPOT_LORE,
+      '',
+      'BOSS PERSONALITY: ' + bossVoice,
+      '',
+      'You are narrating a scene in the Blindspot arena. Write 2-3 short paragraphs.',
       '',
       'ADVENTURE: "' + adventure.title + '"',
-      'BOSS: ' + (adventure.bossId || 'unknown'),
-      'SCENE: ' + (_sceneIndex + 1) + ' of ' + _sceneCount + (scene.isFinal ? ' (FINAL — just before the boss fight)' : ''),
+      'BOSS: ' + (_bossesById_name || adventure.bossId),
+      'SCENE: ' + (_sceneIndex + 1) + ' of ' + _sceneCount + (scene.isFinal ? ' (FINAL \u2014 the moment before the boss fight begins)' : ''),
       '',
-      'SCENE CONTEXT (use this as a guide, but write your own unique version):',
+      'SCENE GUIDE (use as inspiration, write your own unique version):',
       scene.text,
       '',
-      'PLAYER CARD: ' + (_playerClass || 'unknown') + ' class',
+      'PLAYER: ' + (_playerClass || 'unknown') + ' class',
       'STATS: STR ' + (_playerStats.str || 0) + ' AGI ' + (_playerStats.agi || 0) + ' INT ' + (_playerStats.int || 0) + ' END ' + (_playerStats.end || 0) + ' LCK ' + (_playerStats.lck || 0),
       _lastChoiceText ? 'LAST CHOICE: "' + _lastChoiceText + '"' : '',
       historyContext,
       ascensionContext,
-      scene.isFinal ? 'This is the final moment before the boss fight. Build tension. End with the boss\'s presence.' : '',
+      scene.isFinal ? 'This is the final moment. The boss is present. Build tension. End with their signature line or presence.' : '',
       choiceOptions ? 'The player will choose from these options next:\n' + choiceOptions : '',
       '',
-      'RULES:',
-      '- Write ONLY the narrative text. 2-3 short paragraphs.',
-      '- Dark fantasy tone: atmospheric, gritty, tense.',
-      '- Use second person ("you").',
-      '- Do NOT list choices or options.',
-      '- Do NOT use markdown formatting.',
-      '- Keep it under 150 words.',
-      '- Separate paragraphs with blank lines.',
-      '- Each playthrough should feel unique — vary descriptions, details, and atmosphere.'
+      'Return ONLY valid JSON (no markdown, no code fences):',
+      '{"sceneText":"Your narrative here. Use \\n\\n between paragraphs.","imagePrompt":"A 1-2 sentence visual description for AI image generation. Dark fantasy style. Describe the specific scene, environment, lighting, mood. Max 150 chars."}'
     ].filter(Boolean).join('\n');
 
     return window.CardForgeAI.callGemini(prompt, {
@@ -432,15 +465,24 @@ window.BsAdventure = (function () {
       skipUsageIncrement: true
     })
     .then(function (data) {
-      var text = window.CardForgeAI.extractText(data);
-      if (text && text.trim().length > 20) {
-        // Clean up any markdown code fences or formatting
-        text = text.trim().replace(/^```[\s\S]*?```$/gm, '').trim();
-        text = text.replace(/^\*\*.*?\*\*\s*/gm, ''); // remove bold headers
-        text = text.replace(/^#+\s*/gm, ''); // remove markdown headers
-        return text.trim();
-      }
-      return null; // fall back to static text
+      var raw = window.CardForgeAI.extractText(data);
+      if (!raw || raw.trim().length < 20) return null;
+
+      // Try parsing as JSON first (preferred)
+      try {
+        var cleaned = raw.trim().replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
+        var parsed = JSON.parse(cleaned);
+        if (parsed.sceneText && parsed.sceneText.length > 20) {
+          return { text: parsed.sceneText.trim(), imagePrompt: parsed.imagePrompt || null };
+        }
+      } catch (e) { /* not JSON, treat as plain text */ }
+
+      // Fallback: treat entire response as plain text
+      var text = raw.trim().replace(/^```[\s\S]*?```$/gm, '').trim();
+      text = text.replace(/^\*\*.*?\*\*\s*/gm, '');
+      text = text.replace(/^#+\s*/gm, '');
+      if (text.length > 20) return { text: text, imagePrompt: null };
+      return null;
     })
     .catch(function (err) {
       console.warn('[BsAdventure] AI text generation failed, using fallback:', err);
@@ -448,7 +490,7 @@ window.BsAdventure = (function () {
     });
   }
 
-  // Cached boss name lookup (set during launch)
+  // Cached boss name (set during launch)
   var _bossesById_name = '';
 
   // ============================================================
@@ -688,8 +730,13 @@ window.BsAdventure = (function () {
     // Scene music
     if (scene.music) playSceneMusic(scene.music);
 
-    // Scene image (fire and forget)
-    if (scene.imagePrompt) generateSceneImage(scene.imagePrompt);
+    // Scene image — will be generated after AI returns (AI may provide a better prompt)
+    // Start with static prompt as early placeholder
+    var _sceneImageGenerated = false;
+    if (scene.imagePrompt) {
+      generateSceneImage(scene.imagePrompt);
+      _sceneImageGenerated = true;
+    }
 
     // Resonance banner (first scene only)
     if (_sceneIndex === 1 && _resonanceBonus > 0) {
@@ -717,8 +764,16 @@ window.BsAdventure = (function () {
 
       var fallbackText = getSceneText(scene);
 
-      generateSceneText(scene, adventure).then(function (aiText) {
-        var sceneText = aiText || fallbackText;
+      generateSceneText(scene, adventure).then(function (aiResult) {
+        var sceneText = (aiResult && aiResult.text) ? aiResult.text : fallbackText;
+
+        // If AI provided an image prompt, generate a scene-matched image
+        if (aiResult && aiResult.imagePrompt && !_sceneImageGenerated) {
+          generateSceneImage(aiResult.imagePrompt);
+        } else if (aiResult && aiResult.imagePrompt) {
+          // AI had a better prompt — regenerate (replaces the static one)
+          generateSceneImage(aiResult.imagePrompt);
+        }
 
         // Track for AI context
         _sceneHistory.push({
