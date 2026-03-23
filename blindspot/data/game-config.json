@@ -78,11 +78,11 @@
     "lootTables": {
       "standard": {
         "rarityWeights": { "common": 60, "uncommon": 25, "rare": 12, "epic": 3 },
-        "pools": ["stat_boosts", "sparks", "forge_tokens", "card_frames", "titles", "battle_charms"]
+        "pools": ["stat_boosts", "sparks", "forge_tokens", "card_frames", "card_backs", "titles", "battle_charms"]
       },
       "boss": {
         "rarityWeights": { "common": 40, "uncommon": 30, "rare": 22, "epic": 8 },
-        "pools": ["stat_boosts", "sparks", "forge_tokens", "card_frames", "name_plates", "battle_charms"]
+        "pools": ["stat_boosts", "sparks", "forge_tokens", "card_frames", "card_backs", "name_plates", "victory_animations", "battle_charms", "titles"]
       },
       "premium": {
         "rarityWeights": { "common": 25, "uncommon": 35, "rare": 28, "epic": 12 },
