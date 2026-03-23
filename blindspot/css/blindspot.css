@@ -8061,10 +8061,17 @@ body.bs-battle-active .bs-play {
 
 .bs-adventure {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   overflow-y: auto;
-  padding: 1.5rem;
+  overflow-x: hidden;
+  padding: 2rem 1.5rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Lock body scroll when adventure overlay is open */
+body.bs-adventure-active {
+  overflow: hidden !important;
 }
 
 .bs-adventure__container {
@@ -8073,6 +8080,7 @@ body.bs-battle-active .bs-play {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  padding-bottom: 2rem;
 }
 
 .bs-adventure__header {

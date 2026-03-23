@@ -66,6 +66,18 @@ window.BsAdventure = (function () {
 
   function $(id) { return document.getElementById(id); }
 
+  function scrollToChoices() {
+    // Smooth scroll the adventure overlay so choices are visible
+    if (_containerEl) {
+      var choicesEl = $('bs-adventure-choices');
+      var footerEl = $('bs-adventure-footer');
+      var target = (footerEl && footerEl.style.display !== 'none') ? footerEl : choicesEl;
+      if (target) {
+        setTimeout(function () { target.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }, 100);
+      }
+    }
+  }
+
   function escHtml(s) {
     var d = document.createElement('div');
     d.textContent = s || '';
@@ -615,10 +627,11 @@ window.BsAdventure = (function () {
       var sceneText = getSceneText(scene);
 
       if (scene.isFinal) {
-        typewriter(textEl, sceneText).then(function () { renderSummary(container); });
+        typewriter(textEl, sceneText).then(function () { renderSummary(container); scrollToChoices(); });
       } else {
         typewriter(textEl, sceneText).then(function () {
           renderChoices(scene.choices, container, playerStats);
+          scrollToChoices();
         });
         // Early choice reveal
         if (!_prefersReducedMotion && scene.choices) {
@@ -658,6 +671,7 @@ window.BsAdventure = (function () {
     restorePreviousMusic();
 
     if (_containerEl) _containerEl.classList.add('bs-overlay--hidden');
+    document.body.classList.remove('bs-adventure-active');
 
     // Remove resonance banner
     var resonance = _containerEl && _containerEl.querySelector('.bs-adventure__resonance');
@@ -722,6 +736,7 @@ window.BsAdventure = (function () {
 
           _containerEl.classList.remove('bs-overlay--hidden');
           _containerEl.style.display = '';
+          document.body.classList.add('bs-adventure-active');
 
           renderScene(adventure.startScene, adventure, _containerEl, playerStats);
         })
