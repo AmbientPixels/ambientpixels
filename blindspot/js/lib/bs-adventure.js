@@ -295,11 +295,18 @@ window.BsAdventure = (function () {
     for (var i = 0; i < keys.length; i++) {
       var stat = keys[i], val = buffs[stat];
       var cls = val > 0 ? 'bs-adventure__buff-chip--positive' : 'bs-adventure__buff-chip--negative';
-      parts.push('<span class="bs-adventure__buff-chip ' + cls + '">' + (val > 0 ? '+' : '') + val + ' ' + STAT_LABELS[stat] + '</span>');
+      var verb = val > 0 ? 'Gained' : 'Lost';
+      parts.push('<span class="bs-adventure__buff-chip ' + cls + '">' + verb + ' ' + (val > 0 ? '+' : '') + val + ' ' + STAT_LABELS[stat] + '</span>');
     }
     toast.innerHTML = parts.join(' ');
-    container.appendChild(toast);
-    setTimeout(function () { if (toast.parentNode) toast.parentNode.removeChild(toast); }, BUFF_TOAST_DURATION + 300);
+    // Insert toast into the story body so it's visible in the scroll area
+    var bodyEl = $('bs-adventure-body');
+    (bodyEl || container).appendChild(toast);
+    // Hold, then fade out smoothly before removing
+    setTimeout(function () {
+      toast.classList.add('bs-adventure__buff-toast--fading');
+      setTimeout(function () { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 600);
+    }, BUFF_TOAST_DURATION);
   }
 
   function renderBuffBar() {
@@ -340,9 +347,13 @@ window.BsAdventure = (function () {
     var toast = document.createElement('div');
     toast.className = 'bs-adventure__item-toast';
     toast.innerHTML = '<i class="fas ' + (itemDef.icon || 'fa-box') + '"></i> Found: ' + escHtml(itemDef.name);
-    container.appendChild(toast);
+    var bodyEl = $('bs-adventure-body');
+    (bodyEl || container).appendChild(toast);
     if (window.ArenaAudio) window.ArenaAudio.play('loot');
-    setTimeout(function () { if (toast.parentNode) toast.parentNode.removeChild(toast); }, BUFF_TOAST_DURATION + 500);
+    setTimeout(function () {
+      toast.classList.add('bs-adventure__buff-toast--fading');
+      setTimeout(function () { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 600);
+    }, BUFF_TOAST_DURATION);
   }
 
   // ============================================================
