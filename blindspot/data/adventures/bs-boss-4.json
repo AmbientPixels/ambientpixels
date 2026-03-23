@@ -1,0 +1,142 @@
+{
+  "bossId": "bs-boss-4",
+  "title": "The Server Room",
+  "scenes": {
+    "s1": {
+      "text": "The corridor hums with electricity. Blue light pulses through cables that line the walls like veins. This is the Cipher's domain — a place where information flows faster than blood.\n\nA terminal flickers to life as you pass. Text scrolls across the screen:\n\n> CHALLENGER DETECTED. SCANNING...\n> WEAKNESSES CATALOGUED.\n> PROCEED. OR DON'T.\n\nThree passages branch ahead. One marked DATA, one marked POWER, one marked OVERRIDE.",
+      "ascensionText": "You've been here before. The terminal flickers the same greeting, but a new line appears: > RETURNING CHALLENGER. UPDATED PROFILE LOADED. The Cipher has been studying you between visits.",
+      "imagePrompt": "A cyberpunk server room corridor with blue pulsing cables on walls, a flickering terminal with green text, three passages marked with neon signs, dark tech atmosphere",
+      "music": "adventure-explore",
+      "choices": [
+        {
+          "id": "a",
+          "text": "DATA — learn what the Cipher knows about you",
+          "skillCheck": { "stat": "int", "dc": 11 },
+          "success": { "buffs": { "int": 4, "agi": 2 }, "next": "s2a" },
+          "failure": { "buffs": { "int": -2 }, "next": "s2b" }
+        },
+        {
+          "id": "b",
+          "text": "POWER — brute force the system",
+          "buffs": { "str": 4 },
+          "next": "s2c"
+        },
+        {
+          "id": "c",
+          "text": "OVERRIDE — try to hack the Cipher's home turf",
+          "skillCheck": { "stat": "int", "dc": 14 },
+          "success": { "buffs": { "int": 6 }, "item": "focus_elixir", "next": "s2a" },
+          "failure": { "buffs": { "int": -3 }, "next": "s2b" }
+        }
+      ]
+    },
+    "s2a": {
+      "text": "The data streams reveal the Cipher's pattern: steal charges first, overwhelm second. It's a predator that feeds on your abilities.\n\nBut the data also shows a flaw. When it steals a charge, there's a 0.3-second window where its guard drops. Brute force in that window.",
+      "imagePrompt": "Holographic data streams showing combat patterns, a glowing diagram of a humanoid figure with highlighted weak points, cyberpunk tech analysis, dark fantasy",
+      "music": "adventure-calm",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Memorize the timing — precision wins",
+          "buffs": { "agi": 3 },
+          "next": "s3"
+        },
+        {
+          "id": "b",
+          "text": "Download everything — knowledge is power",
+          "buffs": { "int": 3 },
+          "next": "s3"
+        },
+        {
+          "id": "c",
+          "text": "Rewrite the Cipher's combat algorithms — turn its own code against it",
+          "requires": { "int": 72 },
+          "buffs": { "int": 7, "lck": 2 },
+          "next": "s3"
+        }
+      ]
+    },
+    "s2b": {
+      "text": "The system fights back. Screens flash red. A surge of static runs through the floor, and your hands tingle.\n\nThe Cipher's voice echoes through speakers: \"Every system has a flaw. Yours is overconfidence.\"\n\nBut the surge also overloaded a junction box. Sparks fly from a panel, revealing raw wiring underneath.",
+      "imagePrompt": "A server room with red flashing screens, electrical sparks flying from an overloaded junction box, exposed wiring, tension and danger, cyberpunk dark fantasy",
+      "music": "adventure-tension",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Rip out the wires — disrupt the Cipher's systems",
+          "skillCheck": { "stat": "str", "dc": 12 },
+          "success": { "buffs": { "str": 5 }, "next": "s3" },
+          "failure": { "buffs": { "end": -2 }, "next": "s3" }
+        },
+        {
+          "id": "b",
+          "text": "Retreat and find another way around",
+          "buffs": { "end": 2, "agi": 1 },
+          "next": "s3"
+        },
+        {
+          "id": "c",
+          "text": "You recognize the circuit architecture — reroute the surge into the Cipher's defenses",
+          "classRequired": ["Hacker", "Scholar"],
+          "buffs": { "int": 5, "agi": 2 },
+          "next": "s3"
+        }
+      ]
+    },
+    "s2c": {
+      "text": "You slam your fist into the power conduit. It cracks. Sparks rain down, and the hallway goes dark for two heartbeats before backup power kicks in.\n\nIn those two heartbeats of darkness, you hear the Cipher's voice glitch: \"Err—every syst—has a fl—\"\n\nYou rattled it. Good.",
+      "imagePrompt": "A shattered power conduit with sparks raining down in a dark corridor, backup lights flickering on with blue emergency glow, raw destruction, cyberpunk dark fantasy",
+      "music": "adventure-tension",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Keep breaking things — chaos is your advantage",
+          "buffs": { "str": 3 },
+          "item": "smoke_bomb",
+          "next": "s3"
+        },
+        {
+          "id": "b",
+          "text": "Use the disruption to sneak deeper",
+          "skillCheck": { "stat": "agi", "dc": 11 },
+          "success": { "buffs": { "agi": 4 }, "next": "s3" },
+          "failure": { "buffs": { "agi": -1 }, "next": "s3" }
+        }
+      ]
+    },
+    "s3": {
+      "text": "The Cipher's chamber is a sphere of floating screens. Data cascades like waterfalls. At the center, a figure made of light and code shifts between forms.\n\nIt turns to face you. Its eyes are search queries.",
+      "imagePrompt": "A spherical chamber of floating holographic screens with cascading data, a humanoid figure made of light and code at the center, cyberpunk boss arena, dark fantasy",
+      "music": "adventure-tension",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Rush in — don't give it time to analyze you",
+          "buffs": { "str": 3, "agi": 1 },
+          "next": "s4_final"
+        },
+        {
+          "id": "b",
+          "text": "Outthink it — you've seen its patterns",
+          "buffs": { "int": 4 },
+          "next": "s4_final"
+        },
+        {
+          "id": "c",
+          "text": "Trust your gut — sometimes luck beats logic",
+          "skillCheck": { "stat": "lck", "dc": 13 },
+          "success": { "buffs": { "lck": 6 }, "next": "s4_final" },
+          "failure": { "buffs": { "lck": -2 }, "next": "s4_final" }
+        }
+      ]
+    },
+    "s4_final": {
+      "text": "The Cipher speaks, its voice a chorus of stolen frequencies:\n\n\"Every system has a flaw. Let me show you yours.\"",
+      "ascensionText": "The Cipher's form stabilizes faster this time. \"I've modeled you,\" it says, screens flickering with replays of your last fight. \"Every pattern. Every tell. You won't surprise me twice.\"",
+      "imagePrompt": "A figure made of pure code and light raising its hands, screens shattering around it, data becoming weapons, cyberpunk boss encounter, dark fantasy",
+      "music": "adventure-tension",
+      "isFinal": true
+    }
+  },
+  "startScene": "s1"
+}

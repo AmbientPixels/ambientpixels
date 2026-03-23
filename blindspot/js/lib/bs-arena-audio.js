@@ -33,7 +33,10 @@ window.ArenaAudio = (function () {
     'forge-grounds':   'arena-forge-grounds.mp3',
     'crystal-sanctum': 'arena-crystal-sanctum.mp3',
     'void-rift':       'arena-void-rift.mp3',
-    'throne':          'arena-throne.mp3'
+    'throne':          'arena-throne.mp3',
+    'adventure-explore': 'adventure-explore.mp3',
+    'adventure-tension': 'adventure-tension.mp3',
+    'adventure-calm':    'adventure-calm.mp3'
   };
 
   var _sfxMuted       = false;

@@ -1,0 +1,143 @@
+{
+  "bossId": "bs-boss-10",
+  "title": "The Forge Eternal",
+  "scenes": {
+    "s1": {
+      "text": "The path ends at a staircase that spirals upward into light. Not torchlight — something older, something that hums with creation itself.\n\nThis is where cards are born. The Forge Eternal. And at its heart sits the Architect — the one who built everything you've fought through.\n\nThe stairs split three ways. One carved with runes of power. One worn smooth by countless feet. One barely visible, hidden behind a waterfall of molten metal.",
+      "imagePrompt": "A grand spiral staircase ascending into brilliant ancient light, three branching paths - one with power runes, one worn smooth, one hidden behind a waterfall of molten metal, epic forge architecture, dark fantasy",
+      "ascensionText": "You've been here before. The staircase hums with recognition — the runes glow brighter, as if the Forge has been expecting you back.",
+      "music": "adventure-explore",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Climb the rune-carved stairs — embrace power",
+          "skillCheck": { "stat": "int", "dc": 13 },
+          "success": { "buffs": { "int": 5 }, "next": "s2a" },
+          "failure": { "buffs": { "int": -2 }, "next": "s2b" }
+        },
+        {
+          "id": "b",
+          "text": "Take the worn path — walk where legends walked",
+          "buffs": { "end": 3, "str": 1 },
+          "next": "s2c"
+        },
+        {
+          "id": "c",
+          "text": "Brave the molten waterfall — the hidden path",
+          "skillCheck": { "stat": "end", "dc": 14 },
+          "success": { "buffs": { "end": 5, "lck": 2 }, "next": "s2a" },
+          "failure": { "buffs": { "end": -3 }, "next": "s2b" }
+        }
+      ]
+    },
+    "s2a": {
+      "text": "The chamber opens into a gallery of finished works. Cards — hundreds of them — displayed in crystal cases. Each one is a masterpiece. Each one was forged here.\n\nAnd each one shows the Architect's hand. You can see the pattern: intelligence, precision, patience. The Architect doesn't overpower you. It outlasts you. It drains your will until you make a mistake.\n\nThe same flaw that beats the Sage beats the Architect. But the Architect has no gaps.",
+      "imagePrompt": "A grand crystal gallery displaying hundreds of glowing cards in crystal cases, each a masterpiece, architectural precision, the pinnacle of a forge, awe-inspiring, dark fantasy",
+      "music": "adventure-calm",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Study the Architect's creations — find its blind spot",
+          "skillCheck": { "stat": "int", "dc": 14 },
+          "success": { "buffs": { "int": 5 }, "item": "focus_elixir", "next": "s3" },
+          "failure": { "buffs": { "int": -1 }, "next": "s3" }
+        },
+        {
+          "id": "b",
+          "text": "Steel yourself — this fight is about endurance",
+          "buffs": { "end": 4 },
+          "next": "s3"
+        },
+        {
+          "id": "c",
+          "text": "Your Caster training lets you read the forge energy patterns",
+          "classRequired": ["Caster", "Hacker"],
+          "buffs": { "int": 6, "lck": 2 },
+          "next": "s3"
+        }
+      ]
+    },
+    "s2b": {
+      "text": "The path burns. Whether runes or metal, this place tests everyone who approaches.\n\nYou stumble into a cooling chamber. Water runs over heated stone, filling the air with steam. Your skin stings, but your resolve hardens.\n\nA forge worker's mural covers one wall: the Architect, mid-creation, light pouring from its hands. Below it, a single line: \"This is what a Forger becomes when they never stop.\"",
+      "imagePrompt": "A steam-filled cooling chamber with water running over heated stone, a massive mural of the Architect creating with light pouring from hands, inspirational and foreboding, dark fantasy",
+      "music": "adventure-tension",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Let the pain sharpen you — tougher for the trial ahead",
+          "skillCheck": { "stat": "end", "dc": 12 },
+          "success": { "buffs": { "end": 5 }, "next": "s3" },
+          "failure": { "buffs": { "end": -2 }, "next": "s3" }
+        },
+        {
+          "id": "b",
+          "text": "Rest in the steam — recover what you can",
+          "buffs": { "end": 2, "agi": 1 },
+          "next": "s3"
+        }
+      ]
+    },
+    "s2c": {
+      "text": "The worn path tells a story in its stones. Thousands of challengers walked this way. Their footsteps carved grooves in the rock.\n\nNone of them came back down.\n\nAt the top, a balcony overlooks the Forge itself — a pit of white-hot light where raw energy becomes form. The Architect stands at its edge, conducting the flames like an orchestra.\n\nIt hasn't noticed you yet. One moment of observation before everything changes.",
+      "imagePrompt": "A balcony overlooking a massive forge pit of white-hot light, a caster figure conducting flames like an orchestra conductor, raw energy becoming form, epic scale, dark fantasy",
+      "music": "adventure-explore",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Watch its technique — learn everything you can",
+          "buffs": { "int": 3, "agi": 1 },
+          "item": "iron_skin",
+          "next": "s3"
+        },
+        {
+          "id": "b",
+          "text": "Strike while it's distracted — first move advantage",
+          "skillCheck": { "stat": "agi", "dc": 15 },
+          "success": { "buffs": { "agi": 6 }, "next": "s3" },
+          "failure": { "buffs": { "agi": -2 }, "next": "s3" }
+        }
+      ]
+    },
+    "s3": {
+      "text": "The final arena is the Forge itself. Heat distorts the air. The floor glows beneath your feet. Above you, constellations of unfinished cards orbit like stars.\n\nThe Architect turns. It sees you — truly sees you, reading your card, your stats, your story. Everything you've become in this arena.\n\nIt nods. Respect, or assessment. Hard to tell with a god.",
+      "imagePrompt": "The heart of the Forge Eternal, heat-distorted air, glowing floor, unfinished cards orbiting like constellations above, the Architect turning to face the viewer with knowing eyes, ultimate boss arena, epic dark fantasy",
+      "music": "adventure-tension",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Everything you have — hold nothing back",
+          "buffs": { "str": 3, "int": 2 },
+          "next": "s4_final"
+        },
+        {
+          "id": "b",
+          "text": "Outlast the creator — endurance above all",
+          "buffs": { "end": 5 },
+          "next": "s4_final"
+        },
+        {
+          "id": "c",
+          "text": "One perfect moment — trust your luck",
+          "skillCheck": { "stat": "lck", "dc": 16 },
+          "success": { "buffs": { "lck": 8 }, "next": "s4_final" },
+          "failure": { "buffs": { "lck": -3 }, "next": "s4_final" }
+        },
+        {
+          "id": "d",
+          "text": "Deconstruct the Forge's code — rewrite the rules",
+          "requires": { "int": 75 },
+          "buffs": { "int": 8, "lck": 3 },
+          "next": "s4_final"
+        }
+      ]
+    },
+    "s4_final": {
+      "text": "The Architect speaks, and the Forge trembles:\n\n\"This is what a Forger becomes when they never stop.\"\n\nLight gathers in its hands. The final test begins.",
+      "imagePrompt": "The Architect with light gathering in outstretched hands, the Forge trembling, cards and energy swirling, the ultimate creation, final boss encounter of an epic journey, dark fantasy",
+      "ascensionText": "The Architect's eyes widen — the first emotion you've ever seen from it. \"You returned. Interesting. I built this arena to be beaten once. Let's see if the design holds.\"",
+      "music": "adventure-tension",
+      "isFinal": true
+    }
+  },
+  "startScene": "s1"
+}

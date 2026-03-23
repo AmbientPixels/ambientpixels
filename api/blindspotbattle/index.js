@@ -935,6 +935,27 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
   const playerCombat = mapCardToCombatStats(playerCard);
   const opponentCombat = mapCardToCombatStats(opponentCard);
 
+  // Apply temporary adventure buffs (CYOA pre-boss system)
+  if (type === 'pve' && body.tempBuffs && typeof body.tempBuffs === 'object') {
+    const VALID_STATS = ['str', 'agi', 'int', 'end', 'lck'];
+    const BUFF_CLAMP = 15;   // max ±15 per stat
+    const TOTAL_CLAMP = 30;  // max 30 total absolute points
+    let totalApplied = 0;
+    for (const stat of VALID_STATS) {
+      if (body.tempBuffs[stat] !== undefined) {
+        const raw = Number(body.tempBuffs[stat]);
+        if (isNaN(raw)) continue;
+        const clamped = Math.max(-BUFF_CLAMP, Math.min(BUFF_CLAMP, Math.round(raw)));
+        if (totalApplied + Math.abs(clamped) > TOTAL_CLAMP) continue;
+        playerCombat[stat] = Math.max(1, Math.min(100, playerCombat[stat] + clamped));
+        totalApplied += Math.abs(clamped);
+      }
+    }
+    if (totalApplied > 0) {
+      context.log('[Blindspot] Adventure buffs applied: ' + JSON.stringify(body.tempBuffs) + ' total=' + totalApplied);
+    }
+  }
+
   // Boss adaptive scaling — scale boss stats to match player power
   let bossScaleFactor = 1.0;
   if (type === 'pve') {
@@ -1036,11 +1057,24 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
     charges: { player: cc.startCharges || 0, opponent: cc.startCharges || 0 },
     chargeRate: { player: playerChargeRate, opponent: opponentChargeRate },
     tempEffects: { player: [], opponent: [] },
+    adventureItems: [],
     roundLog: [],
     winner: null,
     isDemo: isDemo,
     createdAt: new Date().toISOString()
   };
+
+  // Store adventure items in battle state (validated)
+  const VALID_ITEMS = ['smoke_bomb', 'war_cry', 'focus_elixir', 'iron_skin', 'lucky_coin', 'healing_salve'];
+  if (type === 'pve' && Array.isArray(body.adventureItems)) {
+    battleState.adventureItems = body.adventureItems
+      .filter(it => it && VALID_ITEMS.includes(it.id))
+      .slice(0, 3)
+      .map(it => ({ id: it.id, used: false }));
+    if (battleState.adventureItems.length > 0) {
+      context.log('[Blindspot] Adventure items stored: ' + battleState.adventureItems.map(i => i.id).join(', '));
+    }
+  }
 
   await uploadJsonBlob(containerClient, `arena/battles/${battleId}.json`, battleState);
   context.log(`[Blindspot] Battle started: ${battleId} (${type}) - ${playerCard.name} vs ${opponentCard.name}`);
@@ -1089,7 +1123,7 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
 // --- Action: move ---
 
 async function handleMove(context, containerClient, userId, body) {
-  const { battleId, round, move, crowdBoost } = body;
+  const { battleId, round, move, crowdBoost, useItem } = body;
 
   if (!battleId || !round || !move) {
     context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'battleId, round, and move are required' } };
@@ -1265,6 +1299,40 @@ async function handleMove(context, containerClient, userId, body) {
     }
   }
 
+  // Adventure item usage (server-integrated)
+  let itemUsed = null;
+  if (useItem && battle.adventureItems) {
+    const itemEntry = battle.adventureItems.find(it => it.id === useItem && !it.used);
+    if (itemEntry) {
+      itemEntry.used = true;
+      itemUsed = useItem;
+      if (useItem === 'smoke_bomb') {
+        result.playerDamageTaken = 0;
+        result.events.push('\uD83D\uDCA8 SMOKE BOMB! Opponent\'s attack misses completely!');
+      } else if (useItem === 'war_cry') {
+        const boost = Math.round(result.opponentDamageTaken * 0.30);
+        result.opponentDamageTaken += boost;
+        result.events.push('\uD83D\uDDE3\uFE0F WAR CRY! Your strike hits with fury! (+' + boost + ' damage)');
+      } else if (useItem === 'focus_elixir') {
+        if (battle.charges) battle.charges.player = (cc.maxCharges || 4);
+        result.events.push('\uD83E\uDDEA FOCUS ELIXIR! Ability charges fully restored!');
+      } else if (useItem === 'iron_skin') {
+        const blocked = Math.round(result.playerDamageTaken * 0.50);
+        result.playerDamageTaken = Math.max(0, result.playerDamageTaken - blocked);
+        result.events.push('\uD83D\uDEE1\uFE0F IRON SKIN! Blocked ' + blocked + ' damage!');
+      } else if (useItem === 'lucky_coin') {
+        const bonus = Math.round(result.opponentDamageTaken * 0.50);
+        result.opponentDamageTaken += bonus;
+        result.events.push('\uD83E\uDE99 LUCKY COIN! Critical strike! (+' + bonus + ' damage)');
+      } else if (useItem === 'healing_salve') {
+        const heal = Math.round(player.maxHp * 0.25);
+        result.playerHeal = (result.playerHeal || 0) + heal;
+        result.events.push('\uD83D\uDC9A HEALING SALVE! Restored ' + heal + ' HP!');
+      }
+      context.log('[Blindspot] Adventure item used: ' + useItem);
+    }
+  }
+
   // Apply damage and healing
   player.hp = Math.min(player.maxHp, Math.max(0, player.hp - result.playerDamageTaken + result.playerHeal));
   opponent.hp = Math.min(opponent.maxHp, Math.max(0, opponent.hp - result.opponentDamageTaken + result.opponentHeal));
@@ -1309,7 +1377,8 @@ async function handleMove(context, containerClient, userId, body) {
     playerLastStand: playerInLastStand,
     opponentLastStand: opponentInLastStand,
     playerCounterReflect: result.playerCounterReflect,
-    opponentCounterReflect: result.opponentCounterReflect
+    opponentCounterReflect: result.opponentCounterReflect,
+    itemUsed: itemUsed
   };
 
   battle.roundLog.push(roundResult);

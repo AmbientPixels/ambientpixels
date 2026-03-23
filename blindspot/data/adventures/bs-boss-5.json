@@ -1,0 +1,148 @@
+{
+  "bossId": "bs-boss-5",
+  "title": "The Mountain Pass",
+  "scenes": {
+    "s1": {
+      "text": "The mountain path narrows to a ledge barely wide enough for two. Wind howls through the gap, carrying the smell of sulfur and old fires.\n\nAbove you, the Brute's fortress clings to the cliff face like a scar. Below, nothing but fog and a very long fall.\n\nThe path forks — a steep climb up loose rock, or a narrow cave mouth that might cut through the mountain.",
+      "ascensionText": "You've been here before. The wind carries the same sulfur stink, the same distant rumble — but now there are fresh cracks in the cliff face. The Brute has been busy. The mountain itself feels angrier.",
+      "imagePrompt": "A narrow mountain ledge path with howling wind, a dark fortress clinging to cliffs above, fog below, a steep climb and a cave entrance splitting the path, epic dark fantasy landscape",
+      "music": "adventure-tension",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Climb the rock face directly",
+          "skillCheck": { "stat": "str", "dc": 12 },
+          "success": { "buffs": { "str": 5 }, "item": "war_cry", "next": "s2a" },
+          "failure": { "buffs": { "str": -2, "end": -2 }, "next": "s2b" }
+        },
+        {
+          "id": "b",
+          "text": "Enter the cave — shorter, maybe safer",
+          "next": "s2c"
+        },
+        {
+          "id": "c",
+          "text": "Search the ledge for anything useful",
+          "skillCheck": { "stat": "lck", "dc": 14 },
+          "success": { "buffs": { "lck": 6 }, "next": "s2a" },
+          "failure": { "buffs": { "lck": -1 }, "next": "s2c" }
+        }
+      ]
+    },
+    "s2a": {
+      "text": "The climb burns your arms, but the view from the top reveals the Brute's arena — an open pit carved into the mountain itself, surrounded by broken columns and shattered shields.\n\nYou can see him from here. Massive. Restless. Slamming his fists into a stone pillar like it owes him money.",
+      "imagePrompt": "View from a mountain top looking down into a carved arena pit with broken columns, a massive brute figure slamming stone pillars, epic scale, dark fantasy",
+      "music": "adventure-calm",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Watch his fighting stance — learn his patterns",
+          "buffs": { "agi": 3 },
+          "next": "s3"
+        },
+        {
+          "id": "b",
+          "text": "Rest and recover before the descent",
+          "buffs": { "end": 4 },
+          "item": "healing_salve",
+          "next": "s3"
+        }
+      ]
+    },
+    "s2b": {
+      "text": "Your grip slips on loose scree and you slide, catching yourself on a jutting root. Your hands are scraped, your pride stung.\n\nBut from this angle, you notice something — fresh tracks in the dust. Someone else came this way recently. And they left something behind: crude markings scratched into the rock.",
+      "imagePrompt": "A hand gripping a root on a mountain slope with scraped knuckles, crude markings scratched into rock below, dust and scattered stones, tense moment, dark fantasy",
+      "music": "adventure-explore",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Read the markings — they might be warnings",
+          "skillCheck": { "stat": "int", "dc": 11 },
+          "success": { "buffs": { "int": 4 }, "next": "s3" },
+          "failure": { "buffs": {}, "next": "s3" }
+        },
+        {
+          "id": "b",
+          "text": "Ignore them and push forward — no time for riddles",
+          "buffs": { "str": 2 },
+          "next": "s3"
+        }
+      ]
+    },
+    "s2c": {
+      "text": "The cave is dark and close. Water drips from somewhere above. The walls narrow until you're pressing through sideways.\n\nThen the smell hits you — old meat and smoke. This is a den. Something lives here.\n\nA low growl echoes from deeper in the dark.",
+      "imagePrompt": "A narrow dark cave with dripping water, claustrophobic walls, faint red glow from deeper within, ominous atmosphere, something lurking, dark fantasy",
+      "music": "adventure-tension",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Stand your ground — whatever it is, face it",
+          "skillCheck": { "stat": "end", "dc": 13 },
+          "success": { "buffs": { "end": 5 }, "next": "s3" },
+          "failure": { "buffs": { "end": -3 }, "next": "s3" }
+        },
+        {
+          "id": "b",
+          "text": "Back out slowly and take the cliff path",
+          "buffs": { "agi": 2 },
+          "next": "s3"
+        },
+        {
+          "id": "c",
+          "text": "Try to sneak past in the darkness",
+          "skillCheck": { "stat": "agi", "dc": 14 },
+          "success": { "buffs": { "agi": 5, "lck": 2 }, "next": "s3" },
+          "failure": { "buffs": { "agi": -2 }, "next": "s3" }
+        },
+        {
+          "id": "d",
+          "text": "The growl doesn't scare you — you roar back and charge into the dark",
+          "classRequired": ["Berserker", "Fighter"],
+          "buffs": { "str": 5, "end": 3 },
+          "next": "s3"
+        }
+      ]
+    },
+    "s3": {
+      "text": "The arena entrance is a jagged mouth in the mountainside. No gate, no ceremony. Just raw stone and the sound of heavy breathing from within.\n\nA last moment of stillness before everything becomes violence.",
+      "imagePrompt": "A jagged cave-like arena entrance in a mountainside, raw stone edges, ominous breathing mist coming from within, the calm before battle, epic dark fantasy",
+      "music": "adventure-tension",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Charge in — hit first, hit hard",
+          "buffs": { "str": 4 },
+          "next": "s4_final"
+        },
+        {
+          "id": "b",
+          "text": "Steady your breathing — endure what comes",
+          "buffs": { "end": 4 },
+          "next": "s4_final"
+        },
+        {
+          "id": "c",
+          "text": "Roll the dice — trust your luck",
+          "skillCheck": { "stat": "lck", "dc": 15 },
+          "success": { "buffs": { "lck": 7 }, "next": "s4_final" },
+          "failure": { "buffs": { "lck": -3 }, "next": "s4_final" }
+        },
+        {
+          "id": "d",
+          "text": "Rip a stone column from the ground — bring your own weapon to the pit",
+          "requires": { "str": 75 },
+          "buffs": { "str": 8 },
+          "next": "s4_final"
+        }
+      ]
+    },
+    "s4_final": {
+      "text": "The Brute doesn't speak. He doesn't need to. His fists say everything.\n\nHe sees you and grins — a predator's grin, all teeth and no warmth.\n\n\"Subtlety is for cowards.\"",
+      "ascensionText": "The Brute stops mid-swing when he sees you. For the first time, something flickers behind those eyes — not fear, but recognition. He cracks his knuckles. \"Good. I was hoping you'd come back. Last time was too easy.\"",
+      "imagePrompt": "A massive berserker brute grinning with predatory intent, scarred fists raised, mountain arena with broken columns behind, intimidating boss encounter, epic dark fantasy",
+      "music": "adventure-tension",
+      "isFinal": true
+    }
+  },
+  "startScene": "s1"
+}

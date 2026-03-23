@@ -1149,6 +1149,8 @@
 
   var _equippedCharm = null; // charm selected for next battle
   var _charmUsedThisBattle = false;
+  var _adventureItems = [];       // items from CYOA adventure
+  var _adventureItemsUsed = {};   // track which items used this battle
 
   function getOwnedCharms() { return _progress.charms; }
 
@@ -1334,6 +1336,42 @@
         abilityBtn.classList.remove('arena-move-btn--disabled');
       }
     }
+  }
+
+  // ============================================================
+  // ADVENTURE ITEM BUTTONS IN BATTLE
+  // ============================================================
+
+  function addItemButtonsToBattle() {
+    if (_adventureItems.length === 0) return;
+    var movesEl = document.getElementById('arena-moves');
+    if (!movesEl) return;
+
+    _adventureItems.forEach(function(item, idx) {
+      if (movesEl.querySelector('[data-item-idx="' + idx + '"]')) return;
+      var btn = document.createElement('button');
+      btn.className = 'arena-move-btn arena-move-btn--item';
+      btn.dataset.itemIdx = idx;
+      btn.dataset.itemId = item.id;
+      btn.setAttribute('aria-label', item.name + ' \u2014 ' + item.description);
+      btn.innerHTML = '<div class="arena-move-btn__glow" aria-hidden="true"></div>'
+        + '<i class="fas ' + (item.icon || 'fa-box') + '" aria-hidden="true"></i>'
+        + '<span class="arena-move-btn__label">' + escHtml(item.name) + '</span>'
+        + '<span class="arena-move-btn__stat">1 use</span>'
+        + '<span class="arena-move-btn__desc">' + escHtml(item.description || '') + '</span>';
+      movesEl.appendChild(btn);
+
+      btn.addEventListener('click', function() {
+        if (_adventureItemsUsed[idx]) return;
+        _adventureItemsUsed[idx] = true;
+        btn.disabled = true;
+        btn.classList.add('arena-move-btn--used');
+        // Queue item for next move submission
+        window._pendingItemUse = item.id;
+        showSuccessToast(item.name + ' ready \u2014 pick your move!');
+        playSfx('click');
+      }, { once: true });
+    });
   }
 
   // ============================================================
@@ -2843,6 +2881,7 @@
         startBattleAmbient();
         var result = origInit.call(window.ArenaBattleUI, battleData);
         addCharmButtonToBattle();
+        addItemButtonsToBattle();
         // Boss dialogue at battle start
         if (_battleType === 'pve' && _currentBossId) {
           setTimeout(function() { showBossDialogue(_currentBossId, 'start'); }, 500);
@@ -2974,9 +3013,12 @@
       stopBattleAmbient();
       // Remove tutorial if active
       removeTutorial();
-      // Reset charm state — unused charms don't carry into next battle
+      // Reset charm + adventure item state
       _equippedCharm = null;
       _charmUsedThisBattle = false;
+      _adventureItems = [];
+      _adventureItemsUsed = {};
+      window._pendingItemUse = null;
 
       if (_isStrangerFight) {
         handleStrangerResult(battleResult, battleData);
@@ -4001,6 +4043,96 @@
   }
 
   // ============================================================
+  // PRE-FIGHT: ADVENTURE / FIGHT BUTTONS
+  // ============================================================
+
+  function setupPrefightButtons(bossId) {
+    var goBtn = document.getElementById('bs-prefight-go');
+    if (!goBtn) return;
+    var parent = goBtn.parentNode;
+    var hasAdv = window.BsAdventure && window.BsAdventure.hasAdventure(bossId) && !isWeeklyBoss(bossId);
+
+    // Replace with fresh button(s)
+    var wrapper = document.createElement('div');
+    wrapper.style.cssText = 'display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;';
+
+    if (hasAdv) {
+      // Adventure button
+      var advBtn = document.createElement('button');
+      advBtn.className = 'bs-btn bs-btn--primary bs-btn--large bs-btn--glow';
+      advBtn.innerHTML = '<i class="fas fa-book-open"></i> Adventure';
+      wrapper.appendChild(advBtn);
+
+      advBtn.addEventListener('click', async function () {
+        hideOverlay('bs-prefight-overlay');
+        var advBuffs = {};
+        _adventureItems = [];
+        try {
+          ensureCombatStats(_selectedCard);
+          var boss = _bossesById[bossId];
+          var result = await window.BsAdventure.launch(bossId, _selectedCard.combatStats, {
+            containerEl: document.getElementById('bs-adventure-overlay'),
+            playerClass: _selectedCard.class || _selectedCard.characterClass || '',
+            bossWeakness: boss ? boss.weakness : null,
+            ascension: getAscension()
+          });
+          advBuffs = result.buffs || {};
+          _adventureItems = result.items || [];
+        } catch (e) { console.warn('[BS] Adventure error:', e); }
+        await startCampaignBattle(bossId, advBuffs);
+      }, { once: true });
+
+      // Fight button (skip adventure)
+      var fightBtn = document.createElement('button');
+      fightBtn.className = 'bs-btn bs-btn--secondary bs-btn--large';
+      fightBtn.innerHTML = '<i class="fas fa-swords"></i> Fight';
+      wrapper.appendChild(fightBtn);
+
+      fightBtn.addEventListener('click', async function () {
+        hideOverlay('bs-prefight-overlay');
+        _adventureItems = [];
+        await startCampaignBattle(bossId, {});
+      }, { once: true });
+    } else {
+      // No adventure — single Fight button
+      var singleBtn = document.createElement('button');
+      singleBtn.className = 'bs-btn bs-btn--primary bs-btn--large bs-btn--glow';
+      singleBtn.textContent = 'Fight';
+      wrapper.appendChild(singleBtn);
+
+      singleBtn.addEventListener('click', async function () {
+        hideOverlay('bs-prefight-overlay');
+        _adventureItems = [];
+        await startCampaignBattle(bossId, {});
+      }, { once: true });
+    }
+
+    // Replace the old button with new wrapper
+    parent.replaceChild(wrapper, goBtn);
+    // Restore original button structure on overlay close (for next open)
+    var restoreBtn = function () {
+      if (wrapper.parentNode) {
+        var newGoBtn = document.createElement('button');
+        newGoBtn.className = 'bs-btn bs-btn--primary bs-btn--large bs-btn--glow';
+        newGoBtn.id = 'bs-prefight-go';
+        newGoBtn.textContent = 'Fight';
+        wrapper.parentNode.replaceChild(newGoBtn, wrapper);
+      }
+    };
+    // Restore after a short delay when overlay hides
+    setTimeout(function () {
+      var overlay = document.getElementById('bs-prefight-overlay');
+      if (overlay && overlay.classList.contains('bs-overlay--hidden')) restoreBtn();
+      else {
+        var observer = new MutationObserver(function (muts) {
+          if (overlay.classList.contains('bs-overlay--hidden')) { observer.disconnect(); restoreBtn(); }
+        });
+        if (overlay) observer.observe(overlay, { attributes: true, attributeFilter: ['class'] });
+      }
+    }, 100);
+  }
+
+  // ============================================================
   // NAVIGATION
   // ============================================================
 
@@ -4039,13 +4171,7 @@
           }
         }
         showOverlay('bs-prefight-overlay');
-        const oldBtn = document.getElementById('bs-prefight-go');
-        const freshBtn = oldBtn.cloneNode(true);
-        oldBtn.parentNode.replaceChild(freshBtn, oldBtn);
-        freshBtn.addEventListener('click', async () => {
-          hideOverlay('bs-prefight-overlay');
-          await startCampaignBattle(nextBoss.id);
-        }, { once: true });
+        setupPrefightButtons(nextBoss.id);
       } else {
         // All bosses defeated — go to campaign to replay or ascend
         showScreen('campaign');
@@ -4418,14 +4544,7 @@
         }
 
         showOverlay('bs-prefight-overlay');
-        // Clone button to remove any previously stacked handlers
-        const oldBtn = document.getElementById('bs-prefight-go');
-        const freshBtn = oldBtn.cloneNode(true);
-        oldBtn.parentNode.replaceChild(freshBtn, oldBtn);
-        freshBtn.addEventListener('click', async () => {
-          hideOverlay('bs-prefight-overlay');
-          await startCampaignBattle(bossId);
-        }, { once: true });
+        setupPrefightButtons(bossId);
       });
     });
 
@@ -4638,7 +4757,7 @@
     _towerPendingFloor = 0;
   }
 
-  async function startCampaignBattle(bossId) {
+  async function startCampaignBattle(bossId, tempBuffs) {
     if (!_selectedCard) {
       showErrorToast('No card selected. Build a card first.');
       return;
@@ -4657,7 +4776,7 @@
 
     try {
       // Always send cardData as fallback — prevents "Card not found" if server save was delayed
-      const battleData = await window.ArenaAPI.startBattle('pve', _selectedCard.id, bossId, { cardData: _selectedCard });
+      const battleData = await window.ArenaAPI.startBattle('pve', _selectedCard.id, bossId, { cardData: _selectedCard, tempBuffs: tempBuffs || {}, adventureItems: _adventureItems || [] });
       _activeBattle = battleData;
       window.ArenaBattleUI.initBattle(battleData);
       updateCombatTooltips();
@@ -6854,6 +6973,8 @@
     // Reset forge progress
     setForgeWins(0);
     localStorage.removeItem('bs-forge-pending');
+    // Clear adventure skip flags for ascension replay with new text
+    for (var ak = 1; ak <= 10; ak++) safeLSRemove('bs-adventure-skip-bs-boss-' + ak);
     showSuccessToast('Ascended to level ' + newLevel + '! Bosses are now stronger.');
     syncProgressToServer();
     showScreen('lobby');

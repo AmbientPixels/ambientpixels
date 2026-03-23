@@ -1,0 +1,124 @@
+{
+  "bossId": "bs-boss-8",
+  "title": "The House of Mirrors",
+  "scenes": {
+    "s1": {
+      "text": "The corridor is a carnival gone wrong. Lights flicker between colors. The floor tilts — or maybe it doesn't. Hard to tell in the Trickster's domain.\n\nThree doors, each painted a different color. The red one buzzes with static. The blue one whispers. The gold one laughs.\n\n\"Pick a door,\" says a voice from everywhere. \"Or don't. I'll pick for you.\"",
+      "imagePrompt": "A surreal carnival corridor with flickering multicolored lights, tilting floor, three painted doors - red buzzing with static, blue whispering mist, gold with a laughing face, chaotic dark fantasy",
+      "ascensionText": "You've been here before. The doors have swapped colors since last time — the Trickster knows you know.",
+      "music": "adventure-tension",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Red door — meet chaos head-on",
+          "skillCheck": { "stat": "str", "dc": 12 },
+          "success": { "buffs": { "str": 4, "lck": 2 }, "next": "s2a" },
+          "failure": { "buffs": { "str": -2 }, "next": "s2b" }
+        },
+        {
+          "id": "b",
+          "text": "Blue door — listen to the whispers",
+          "skillCheck": { "stat": "int", "dc": 11 },
+          "success": { "buffs": { "int": 4 }, "next": "s2a" },
+          "failure": { "buffs": { "int": -2 }, "next": "s2b" }
+        },
+        {
+          "id": "c",
+          "text": "Gold door — play the Trickster's game",
+          "skillCheck": { "stat": "lck", "dc": 13 },
+          "success": { "buffs": { "lck": 6 }, "next": "s2a" },
+          "failure": { "buffs": { "lck": -3 }, "next": "s2b" }
+        }
+      ]
+    },
+    "s2a": {
+      "text": "The room beyond makes sense — barely. A gambling den, suspended over nothing. Cards float in mid-air. Dice roll on invisible tables.\n\nThe Trickster's playbook is written on the cards. It copies moves. It mirrors strategies. The only way to beat a mirror is to be unpredictable.",
+      "imagePrompt": "A surreal gambling den suspended over a void, floating cards and self-rolling dice on invisible tables, chaotic magical energy, dark fantasy trickster's lair",
+      "music": "adventure-calm",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Study the cards — learn what the Trickster copies",
+          "buffs": { "int": 3 },
+          "next": "s3"
+        },
+        {
+          "id": "b",
+          "text": "Scatter the cards — deny it information",
+          "buffs": { "lck": 3 },
+          "item": "smoke_bomb",
+          "next": "s3"
+        }
+      ]
+    },
+    "s2b": {
+      "text": "The door was a trick. Of course it was. You're in a maze now, reflections of yourself staring back from every angle — but each one is slightly wrong. One is faster. One is stronger. One is smiling.\n\n\"Having fun?\" the voice asks.\n\nYou need to get out of here before the reflections get ideas.",
+      "imagePrompt": "A maze of mirrors showing distorted reflections of the viewer, each slightly different - one faster, one stronger, one smiling wrongly, disorienting and sinister, dark fantasy",
+      "music": "adventure-tension",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Smash through the mirrors — raw force",
+          "skillCheck": { "stat": "str", "dc": 12 },
+          "success": { "buffs": { "str": 5 }, "next": "s3" },
+          "failure": { "buffs": { "end": -2 }, "next": "s3" }
+        },
+        {
+          "id": "b",
+          "text": "Close your eyes and feel for the exit",
+          "skillCheck": { "stat": "lck", "dc": 12 },
+          "success": { "buffs": { "lck": 5 }, "next": "s3" },
+          "failure": { "buffs": { "lck": -2 }, "next": "s3" }
+        },
+        {
+          "id": "c",
+          "text": "Slip between the reflections — you know this trick",
+          "requires": { "agi": 70 },
+          "buffs": { "agi": 7, "lck": 2 },
+          "next": "s3"
+        }
+      ]
+    },
+    "s3": {
+      "text": "The arena is a stage. Spotlights. Curtains. An audience of shadows that applaud at random.\n\nThe Trickster stands center stage, bowing to no one. It wears your face — poorly, like a mask that doesn't quite fit.\n\n\"Ready for the show?\"",
+      "imagePrompt": "A theatrical stage arena with spotlights and curtains, shadow audience applauding, a trickster figure wearing a poorly-fitting mask of the viewer's face, surreal dark fantasy",
+      "music": "adventure-tension",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Play along — outperform the performer",
+          "buffs": { "lck": 4 },
+          "next": "s4_final"
+        },
+        {
+          "id": "b",
+          "text": "Ignore the theatrics — fight, don't act",
+          "buffs": { "str": 3, "end": 1 },
+          "next": "s4_final"
+        },
+        {
+          "id": "d",
+          "text": "Your Trickster instincts see through the entire performance",
+          "classRequired": ["Trickster", "Wildcard"],
+          "buffs": { "lck": 6, "agi": 2 },
+          "next": "s4_final"
+        },
+        {
+          "id": "c",
+          "text": "Be completely random — out-chaos the chaos",
+          "skillCheck": { "stat": "lck", "dc": 14 },
+          "success": { "buffs": { "lck": 7 }, "item": "lucky_coin", "next": "s4_final" },
+          "failure": { "buffs": { "lck": -3 }, "next": "s4_final" }
+        }
+      ]
+    },
+    "s4_final": {
+      "text": "The Trickster drops your face and shows its own — shifting, impossible, grinning with too many teeth.\n\n\"Probability is just a suggestion.\"",
+      "imagePrompt": "A trickster entity dropping a mask to reveal a shifting impossible face with too many teeth grinning, spotlight from above, chaotic energy swirling, dark fantasy boss encounter",
+      "ascensionText": "The Trickster's grin falters. \"Oh. You're the one who figured it out. Fine — new tricks this time.\"",
+      "music": "adventure-tension",
+      "isFinal": true
+    }
+  },
+  "startScene": "s1"
+}

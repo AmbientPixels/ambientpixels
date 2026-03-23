@@ -1,0 +1,140 @@
+{
+  "bossId": "bs-boss-6",
+  "title": "The Library of Leech",
+  "scenes": {
+    "s1": {
+      "text": "Books line every surface — floor to ceiling, wall to wall. Some float in mid-air, their pages turning on their own. The ink seems to move, rearranging itself as you watch.\n\nThe Sage's library. Every answer ever given lives here. And the Sage feeds on them.\n\nA reading desk sits at the center, a single open book glowing faintly. To the left, a spiral staircase descends into darkness. To the right, a door sealed with a riddle.",
+      "imagePrompt": "An infinite library with floating books and self-turning pages, glowing ink rearranging on pages, a central reading desk with one illuminated book, mystical scholar's domain, dark fantasy",
+      "ascensionText": "You've been here before. The books remember you — the ink shifts nervously as you enter, rearranging itself faster than last time.",
+      "music": "adventure-explore",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Read the glowing book — risk what it teaches",
+          "skillCheck": { "stat": "int", "dc": 12 },
+          "success": { "buffs": { "int": 5 }, "item": "focus_elixir", "next": "s2a" },
+          "failure": { "buffs": { "int": -3 }, "next": "s2b" }
+        },
+        {
+          "id": "b",
+          "text": "Descend the staircase — the Sage's secrets are below",
+          "buffs": { "end": 3 },
+          "item": "healing_salve",
+          "next": "s2c"
+        },
+        {
+          "id": "c",
+          "text": "Solve the riddle door",
+          "skillCheck": { "stat": "lck", "dc": 13 },
+          "success": { "buffs": { "lck": 4, "int": 2 }, "next": "s2a" },
+          "failure": { "buffs": { "lck": -2 }, "next": "s2c" }
+        }
+      ]
+    },
+    "s2a": {
+      "text": "The book reveals the Sage's true nature. It doesn't just know things — it drains knowledge from those it defeats. Every fighter who lost became a page in these shelves.\n\nBut draining requires contact. The Sage must hit you to leech. Keep your distance, and it starves.",
+      "imagePrompt": "An ancient book showing illustrations of warriors being absorbed into pages, their essence becoming ink, glowing mystical text, dark fantasy revelation",
+      "music": "adventure-calm",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Study the Sage's combat style in the texts",
+          "buffs": { "int": 3 },
+          "next": "s3"
+        },
+        {
+          "id": "b",
+          "text": "Learn its weakness — what it fears",
+          "buffs": { "str": 4 },
+          "next": "s3"
+        },
+        {
+          "id": "c",
+          "text": "Your Scholar instincts reveal the Sage's binding ritual",
+          "classRequired": ["Scholar", "Caster"],
+          "buffs": { "int": 5, "lck": 2 },
+          "next": "s3"
+        }
+      ]
+    },
+    "s2b": {
+      "text": "The book fights back. Words crawl off the page and into your mind — riddles, paradoxes, half-truths. Your vision swims.\n\nYou slam it shut. Your head pounds, but you caught a glimpse of something: the Sage's combat stance. It always leads with its left.",
+      "imagePrompt": "Words and symbols crawling off a book page toward the viewer, visual distortion and swirling text, psychic attack, dark mystical fantasy",
+      "music": "adventure-tension",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Push through the headache — absorb what you can",
+          "skillCheck": { "stat": "end", "dc": 11 },
+          "success": { "buffs": { "end": 4 }, "next": "s3" },
+          "failure": { "buffs": { "end": -2 }, "next": "s3" }
+        },
+        {
+          "id": "b",
+          "text": "Clear your mind and move on",
+          "buffs": { "agi": 2 },
+          "next": "s3"
+        }
+      ]
+    },
+    "s2c": {
+      "text": "The staircase spirals deeper than it should. At the bottom: a training room. Practice dummies shaped like former challengers, each frozen in their final stance.\n\nThe Sage practiced against ghosts of its victories. You can see its counter techniques carved into each dummy's wounds.",
+      "imagePrompt": "A deep underground training room with practice dummies shaped like warriors frozen in combat stances, carved wound patterns on each, dim mysterious lighting, dark fantasy",
+      "music": "adventure-explore",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Study the wound patterns — learn what the Sage does",
+          "buffs": { "int": 3, "agi": 1 },
+          "next": "s3"
+        },
+        {
+          "id": "b",
+          "text": "Train against the dummies — warm up your strikes",
+          "buffs": { "str": 4 },
+          "next": "s3"
+        }
+      ]
+    },
+    "s3": {
+      "text": "The library rearranges itself. Shelves slide apart to reveal the arena — a circular platform surrounded by floating tomes that pulse with stolen energy.\n\nThe Sage stands at the center, ancient and calm. It already knows you're here.",
+      "imagePrompt": "A library transforming into a circular arena, shelves sliding apart, floating tomes pulsing with stolen energy surrounding a calm ancient scholar figure, epic reveal, dark fantasy",
+      "music": "adventure-tension",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Hit hard before it can start draining",
+          "buffs": { "str": 4 },
+          "next": "s4_final"
+        },
+        {
+          "id": "b",
+          "text": "Stay patient — outlast the leech",
+          "buffs": { "end": 4 },
+          "next": "s4_final"
+        },
+        {
+          "id": "c",
+          "text": "Use its own knowledge against it",
+          "buffs": { "int": 3, "lck": 1 },
+          "next": "s4_final"
+        },
+        {
+          "id": "d",
+          "text": "Unravel the Sage's wards with pure intellect",
+          "requires": { "int": 70 },
+          "buffs": { "int": 7, "lck": 2 },
+          "next": "s4_final"
+        }
+      ]
+    },
+    "s4_final": {
+      "text": "The Sage smiles — the patient, knowing smile of someone who has already read the ending.\n\n\"Knowledge compounds,\" it says. \"Let me add yours to the collection.\"",
+      "imagePrompt": "An ancient arcane scholar smiling knowingly, floating books orbiting around them, energy draining from the air, mystical boss encounter, dark fantasy",
+      "ascensionText": "The Sage narrows its eyes. \"You again. I've already read your ending once — it seems the text has... revised itself.\"",
+      "music": "adventure-tension",
+      "isFinal": true
+    }
+  },
+  "startScene": "s1"
+}

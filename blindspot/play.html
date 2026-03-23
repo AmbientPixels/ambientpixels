@@ -402,6 +402,34 @@
     <button class="bs-btn bs-btn--primary bs-btn--large bs-btn--glow" id="bs-prefight-go">Fight</button>
   </div>
 
+  <!-- CYOA Adventure overlay (pre-boss narrative) -->
+  <div id="bs-adventure-overlay" class="bs-overlay bs-overlay--hidden bs-adventure" role="dialog" aria-label="Adventure">
+    <div class="bs-adventure__container">
+      <div class="bs-adventure__header">
+        <span class="bs-adventure__title" id="bs-adventure-title"></span>
+        <span class="bs-adventure__progress" id="bs-adventure-progress"></span>
+      </div>
+      <div class="bs-adventure__image-wrap" id="bs-adventure-image-wrap">
+        <img id="bs-adventure-image" class="bs-adventure__image" alt="" style="display:none;">
+        <div class="bs-adventure__image-loading" id="bs-adventure-image-loading" style="display:none;">
+          <i class="fas fa-spinner fa-spin"></i>
+        </div>
+      </div>
+      <div class="bs-adventure__body" id="bs-adventure-body">
+        <div class="bs-adventure__text" id="bs-adventure-text"></div>
+        <div class="bs-adventure__dice" id="bs-adventure-dice">
+          <div class="bs-adventure__dice-value" id="bs-adventure-dice-value"></div>
+          <div class="bs-adventure__dice-label" id="bs-adventure-dice-label"></div>
+          <div class="bs-adventure__dice-result" id="bs-adventure-dice-result"></div>
+        </div>
+        <div class="bs-adventure__choices" id="bs-adventure-choices"></div>
+      </div>
+      <div class="bs-adventure__buffs" id="bs-adventure-buffs"></div>
+      <div class="bs-adventure__footer" id="bs-adventure-footer" style="display:none;">
+        <button class="bs-btn bs-btn--primary bs-btn--large bs-btn--glow" id="bs-adventure-fight">Enter Battle</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Loot Choice (pick 1 of 3 after win) -->
   <div id="bs-loot-choice" class="bs-overlay bs-overlay--hidden" role="dialog" aria-label="Victory reward">
@@ -584,6 +612,7 @@
   <script src="js/lib/bs-presets.js"></script>
   <script src="js/lib/bs-ai.js"></script>
   <script src="js/lib/bs-save-card.js"></script>
+  <script src="js/lib/bs-adventure.js"></script>
   <script src="js/blindspot-quick-build.js"></script>
   <script src="js/blindspot-flow.js"></script>
 

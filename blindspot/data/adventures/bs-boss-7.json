@@ -1,0 +1,141 @@
+{
+  "bossId": "bs-boss-7",
+  "title": "The Iron Bastion",
+  "scenes": {
+    "s1": {
+      "text": "The fortress is built from a single piece of metal. No seams, no joints, no weakness in the architecture. This is the Iron's home — a monument to endurance.\n\nThe main gate is sealed with three bolts, each as thick as your arm. A ventilation shaft runs along the ceiling. A drainage channel cuts beneath the wall.",
+      "imagePrompt": "A massive fortress carved from a single piece of dark metal, no seams or joints, three enormous bolts on the gate, a ventilation shaft above, imposing military architecture, dark fantasy",
+      "ascensionText": "You've been here before. The bolts are tighter this time — the fortress remembers what you did to get in.",
+      "music": "adventure-tension",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Force the bolts — strength against iron",
+          "skillCheck": { "stat": "str", "dc": 14 },
+          "success": { "buffs": { "str": 5 }, "item": "iron_skin", "next": "s2a" },
+          "failure": { "buffs": { "str": -2 }, "next": "s2b" }
+        },
+        {
+          "id": "b",
+          "text": "Climb into the ventilation shaft",
+          "skillCheck": { "stat": "agi", "dc": 12 },
+          "success": { "buffs": { "agi": 4 }, "next": "s2a" },
+          "failure": { "buffs": { "agi": -2 }, "next": "s2b" }
+        },
+        {
+          "id": "c",
+          "text": "Crawl through the drainage channel",
+          "buffs": { "end": 3 },
+          "next": "s2c"
+        }
+      ]
+    },
+    "s2a": {
+      "text": "Inside, the Iron's armory stretches before you. Shields of every size, each one dented but unbroken. The Iron trains by letting things hit it.\n\nA weak point map hangs on the far wall — the Iron's own analysis of its armor gaps. It studies its own flaws to fix them. But you found them first.",
+      "imagePrompt": "A vast armory filled with dented but unbroken shields of every size, a tactical map on the far wall showing armor weak points, military precision, dark fantasy",
+      "music": "adventure-calm",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Memorize the weak points",
+          "buffs": { "int": 4 },
+          "next": "s3"
+        },
+        {
+          "id": "b",
+          "text": "Grab the heaviest weapon you can find",
+          "buffs": { "str": 3 },
+          "next": "s3"
+        },
+        {
+          "id": "c",
+          "text": "Your Guardian training reveals the shield's structural flaw",
+          "classRequired": ["Guardian", "Medic"],
+          "buffs": { "end": 5, "str": 2 },
+          "next": "s3"
+        }
+      ]
+    },
+    "s2b": {
+      "text": "The iron resists you. Your muscles burn, your hands ache. This fortress wasn't built to welcome visitors.\n\nBut the struggle teaches you something: iron bends under sustained pressure, not single blows. Patience, not power.",
+      "imagePrompt": "Hands pushing against unyielding metal, muscles straining, the fortress resisting entry, determined struggle, dark fantasy",
+      "music": "adventure-tension",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Keep pushing — outlast the resistance",
+          "skillCheck": { "stat": "end", "dc": 12 },
+          "success": { "buffs": { "end": 5 }, "next": "s3" },
+          "failure": { "buffs": { "end": -2 }, "next": "s3" }
+        },
+        {
+          "id": "b",
+          "text": "Find a smarter way — brains over brawn",
+          "buffs": { "int": 3 },
+          "next": "s3"
+        }
+      ]
+    },
+    "s2c": {
+      "text": "The drainage channel is narrow, dark, and smells of rust. But it leads directly beneath the arena floor.\n\nThrough the grating above, you can see the Iron's routine: it practices blocking, over and over. Right side, left side, overhead. Always the same pattern.\n\nPattern. That's the key.",
+      "imagePrompt": "Looking up through a rusty grating at a massive armored figure practicing blocking patterns, view from below through a drainage channel, dark industrial atmosphere, dark fantasy",
+      "music": "adventure-explore",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Count the pattern — memorize the rhythm",
+          "buffs": { "int": 4 },
+          "next": "s3"
+        },
+        {
+          "id": "b",
+          "text": "Rest in the dark — conserve your strength",
+          "buffs": { "end": 3, "lck": 1 },
+          "item": "war_cry",
+          "next": "s3"
+        }
+      ]
+    },
+    "s3": {
+      "text": "The arena is a forge. Anvils ring the fighting pit. The heat is oppressive.\n\nThe Iron stands in the center, unmoving. A living statue. Waiting.\n\nIts armor catches the forge light. Nothing gets through. But everything has a breaking point.",
+      "imagePrompt": "A forge arena with anvils ringing the fighting pit, oppressive heat haze, a massive iron guardian standing motionless in the center like a living statue, forge light reflecting off armor, dark fantasy",
+      "music": "adventure-tension",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Use the heat — iron weakens in fire",
+          "buffs": { "int": 4 },
+          "next": "s4_final"
+        },
+        {
+          "id": "b",
+          "text": "Match its endurance — grind it down",
+          "buffs": { "end": 4 },
+          "next": "s4_final"
+        },
+        {
+          "id": "c",
+          "text": "Find the gap in the armor — one precise strike",
+          "skillCheck": { "stat": "agi", "dc": 14 },
+          "success": { "buffs": { "agi": 6 }, "next": "s4_final" },
+          "failure": { "buffs": { "agi": -2 }, "next": "s4_final" }
+        },
+        {
+          "id": "d",
+          "text": "Tank every blow — prove your endurance exceeds its own",
+          "requires": { "end": 70 },
+          "buffs": { "end": 7, "str": 2 },
+          "next": "s4_final"
+        }
+      ]
+    },
+    "s4_final": {
+      "text": "The Iron speaks, its voice like a hammer on an anvil:\n\n\"Nothing gets through.\"\n\nIt raises its shield. The challenge is simple: break what cannot be broken.",
+      "imagePrompt": "A massive titanium guardian raising an enormous shield, forge fire reflecting off impenetrable armor, anvils in the background, imposing boss encounter, dark fantasy",
+      "ascensionText": "The Iron pauses. Its shield arm lowers an inch — the first doubt you've ever seen in it. \"You broke through once. The fortress has been reinforced.\"",
+      "music": "adventure-tension",
+      "isFinal": true
+    }
+  },
+  "startScene": "s1"
+}

@@ -1,0 +1,141 @@
+{
+  "bossId": "bs-boss-3",
+  "title": "The Haunted Ward",
+  "scenes": {
+    "s1": {
+      "text": "The hallway ahead is wrong. The torches burn, but they cast no shadows. The air is still — too still, like the room itself is holding its breath.\n\nA faint shimmer ripples across the far wall. The Ghost is here, somewhere, watching.\n\nThree doors line the corridor. One hangs open. One is locked. One has scratch marks around the handle.",
+      "ascensionText": "You've been here before. The shadowless torches, the still air — but this time you can feel it watching you from the moment you step inside. It remembers you.",
+      "imagePrompt": "A dark corridor with torches that cast no shadows, three doors in a row, one ajar with eerie light, one locked, one with scratch marks, supernatural tension, dark fantasy",
+      "music": "adventure-tension",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Slip through the open door — it's inviting for a reason",
+          "skillCheck": { "stat": "lck", "dc": 11 },
+          "success": { "buffs": { "lck": 5 }, "next": "s2a" },
+          "failure": { "buffs": { "lck": -2 }, "next": "s2b" }
+        },
+        {
+          "id": "b",
+          "text": "Force the locked door — whatever's hidden matters",
+          "skillCheck": { "stat": "str", "dc": 12 },
+          "success": { "buffs": { "str": 4 }, "next": "s2a" },
+          "failure": { "buffs": { "end": -2 }, "next": "s2b" }
+        },
+        {
+          "id": "c",
+          "text": "Examine the scratched door — someone was desperate to get in",
+          "buffs": { "int": 3 },
+          "next": "s2c"
+        }
+      ]
+    },
+    "s2a": {
+      "text": "The room beyond is a chapel of mirrors. Reflections shift independently of your movement — echoes of the Ghost's presence.\n\nIn one mirror, you see a figure standing behind you. When you turn, nothing. But the mirror shows the Ghost's stance: low, coiled, ready to lunge from the left.",
+      "imagePrompt": "A dark chapel filled with ornate mirrors, reflections moving independently, a ghostly figure visible in one mirror behind the viewer, supernatural atmosphere, dark fantasy",
+      "music": "adventure-calm",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Study every mirror — map the Ghost's attack patterns",
+          "buffs": { "int": 3, "lck": 2 },
+          "next": "s3"
+        },
+        {
+          "id": "b",
+          "text": "Smash the mirrors — deny it hiding spots",
+          "buffs": { "str": 3 },
+          "next": "s3"
+        },
+        {
+          "id": "c",
+          "text": "You read the reflections like a trail — angles reveal where the Ghost truly stands",
+          "classRequired": ["Scout", "Rogue"],
+          "buffs": { "agi": 4, "int": 3 },
+          "next": "s3"
+        }
+      ]
+    },
+    "s2b": {
+      "text": "The room is empty. Or so you think.\n\nA cold breath on your neck. You spin — nothing. A whisper from your left. You turn — shadows. The Ghost is toying with you, testing your reflexes.\n\nYour heartbeat is deafening in the silence.",
+      "imagePrompt": "An empty dark room with swirling shadows, a faint ghostly breath visible in cold air, tense isolated feeling, supernatural horror, dark fantasy",
+      "music": "adventure-tension",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Stand perfectly still — don't give it a reaction",
+          "skillCheck": { "stat": "end", "dc": 12 },
+          "success": { "buffs": { "end": 5 }, "item": "smoke_bomb", "next": "s3" },
+          "failure": { "buffs": { "agi": -2 }, "next": "s3" }
+        },
+        {
+          "id": "b",
+          "text": "Move fast and unpredictably — match its energy",
+          "skillCheck": { "stat": "agi", "dc": 13 },
+          "success": { "buffs": { "agi": 5 }, "next": "s3" },
+          "failure": { "buffs": { "end": -2 }, "next": "s3" }
+        }
+      ]
+    },
+    "s2c": {
+      "text": "Behind the scratched door: a hunter's den. Chains, traps, and a journal — someone tried to catch the Ghost before you.\n\nThe journal's last entry reads: \"It phases every third strike. Count. Predict. Strike when it returns.\"\n\nUseful. If you can keep count under pressure.",
+      "imagePrompt": "A hunter's den with chains and traps hanging from walls, an open journal on a wooden table, candlelight, notes and diagrams pinned to walls, dark fantasy",
+      "music": "adventure-explore",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Study the traps — learn what worked against it",
+          "buffs": { "int": 3, "agi": 2 },
+          "next": "s3"
+        },
+        {
+          "id": "b",
+          "text": "Take a chain — might be useful as a weapon",
+          "buffs": { "str": 2, "lck": 2 },
+          "item": "lucky_coin",
+          "next": "s3"
+        }
+      ]
+    },
+    "s3": {
+      "text": "The arena materializes around you — you didn't walk here, the Ghost brought you. The walls shimmer like heat haze.\n\nSomewhere in this shifting space, the Ghost waits. You can't see it. But you can feel it watching.",
+      "imagePrompt": "A shifting arena with walls like heat haze, reality distorting at the edges, a faint ghostly silhouette barely visible, supernatural tension, dark fantasy",
+      "music": "adventure-tension",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Close your eyes — trust your other senses",
+          "buffs": { "lck": 4 },
+          "next": "s4_final"
+        },
+        {
+          "id": "b",
+          "text": "Sharpen your reflexes — react faster than it can phase",
+          "buffs": { "agi": 4 },
+          "next": "s4_final"
+        },
+        {
+          "id": "c",
+          "text": "Stay calm and wait for it to come to you",
+          "buffs": { "end": 3 },
+          "next": "s4_final"
+        },
+        {
+          "id": "d",
+          "text": "You sense the phase pattern — strike the exact spot where it will rematerialize",
+          "requires": { "agi": 68 },
+          "buffs": { "agi": 6, "lck": 3 },
+          "next": "s4_final"
+        }
+      ]
+    },
+    "s4_final": {
+      "text": "A whisper, right in your ear: \"You never see them coming.\"\n\nThe air splits. The fight begins.",
+      "ascensionText": "The whisper is different this time. \"You came back.\" A pause. \"Brave. Or stupid.\" The shimmer coalesces faster — the Ghost isn't playing games anymore.",
+      "imagePrompt": "A ghostly shadow stalker materializing from darkness, blurred movement, ethereal energy, the moment before an attack, dark fantasy boss encounter",
+      "music": "adventure-tension",
+      "isFinal": true
+    }
+  },
+  "startScene": "s1"
+}

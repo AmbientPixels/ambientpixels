@@ -1,0 +1,142 @@
+{
+  "bossId": "bs-boss-2",
+  "title": "The Warden's Corridor",
+  "scenes": {
+    "s1": {
+      "text": "The corridor narrows. Iron bars line every wall, remnants of a prison that never released its dead. Somewhere ahead, metal scrapes against stone — a guard's blade, dragged lazily along the floor.\n\nTwo paths diverge: a dark crawlspace to the left where the bars have rusted through, and the main gate straight ahead — guarded.",
+      "ascensionText": "You've been here before. The iron bars are the same, but now you notice the notches — tally marks from prisoners who never left. The air feels thicker, like the corridor knows you're back.",
+      "imagePrompt": "A narrow prison corridor with iron bars on every wall, dim torchlight, a dark crawlspace on the left, a guarded gate ahead, oppressive atmosphere, dark fantasy",
+      "music": "adventure-tension",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Crawl through the rusted gap",
+          "skillCheck": { "stat": "agi", "dc": 10 },
+          "success": { "buffs": { "agi": 5 }, "next": "s2a" },
+          "failure": { "buffs": { "agi": -2 }, "next": "s2b" }
+        },
+        {
+          "id": "b",
+          "text": "Challenge the gate guard head-on",
+          "buffs": { "str": 3 },
+          "next": "s2c"
+        },
+        {
+          "id": "c",
+          "text": "Study the lock mechanism on the gate",
+          "skillCheck": { "stat": "int", "dc": 12 },
+          "success": { "buffs": { "int": 4, "lck": 2 }, "next": "s2a" },
+          "failure": { "buffs": { "int": -2 }, "next": "s2b" }
+        }
+      ]
+    },
+    "s2a": {
+      "text": "You slip through unnoticed, emerging in a narrow passage behind the Warden's chamber. Through a crack in the wall, you can see him — pacing, muttering to himself about discipline and order.\n\nHis armor has a weak point: the left pauldron doesn't sit flush. It shifts when he turns.",
+      "imagePrompt": "A crack in a stone wall revealing an armored warden pacing in a torchlit chamber, perspective from hiding, spy view, dark fantasy",
+      "music": "adventure-calm",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Memorize his movement pattern",
+          "buffs": { "agi": 3 },
+          "next": "s3"
+        },
+        {
+          "id": "b",
+          "text": "Look for something to exploit in the room",
+          "skillCheck": { "stat": "int", "dc": 11 },
+          "success": { "buffs": { "int": 4 }, "next": "s3" },
+          "failure": { "buffs": { "int": -1 }, "next": "s3" }
+        },
+        {
+          "id": "c",
+          "text": "You know that armor flaw — standard issue, same weakness you were trained to exploit",
+          "classRequired": ["Fighter", "Enforcer"],
+          "buffs": { "str": 4, "agi": 3 },
+          "next": "s3"
+        }
+      ]
+    },
+    "s2b": {
+      "text": "The rust gives way with a screech that echoes through the corridor. A guard rounds the corner, lantern raised.\n\nYou're caught between the bars and the blade. But you've been in tighter spots.",
+      "imagePrompt": "A guard with a raised lantern rounding a corridor corner, alarmed expression, iron bars in foreground, tense moment, dark fantasy",
+      "music": "adventure-tension",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Fight your way through",
+          "skillCheck": { "stat": "str", "dc": 12 },
+          "success": { "buffs": { "str": 5 }, "item": "iron_skin", "next": "s3" },
+          "failure": { "buffs": { "end": -3 }, "next": "s3" }
+        },
+        {
+          "id": "b",
+          "text": "Bluff — act like you belong here",
+          "skillCheck": { "stat": "lck", "dc": 13 },
+          "success": { "buffs": { "lck": 5 }, "next": "s3" },
+          "failure": { "buffs": { "lck": -2 }, "next": "s3" }
+        }
+      ]
+    },
+    "s2c": {
+      "text": "The guard doesn't flinch as you approach. He's seen a hundred challengers. He steps aside without a word — respect, or indifference, you can't tell.\n\nBeyond the gate, the Warden's domain opens up. Cold stone, strict geometry. Everything here obeys rules.",
+      "imagePrompt": "A stern armored guard stepping aside at a prison gate, cold stone geometry beyond, strict military architecture, dark fantasy",
+      "music": "adventure-explore",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Study the layout — find tactical advantages",
+          "buffs": { "int": 3 },
+          "next": "s3"
+        },
+        {
+          "id": "b",
+          "text": "March straight to the arena — show no hesitation",
+          "buffs": { "str": 2, "end": 2 },
+          "item": "war_cry",
+          "next": "s3"
+        }
+      ]
+    },
+    "s3": {
+      "text": "The Warden's arena lies ahead. You can hear his voice — deep, measured, reciting rules to no one.\n\n\"Order. Discipline. Control.\" The words echo off iron walls.\n\nA final choice before the fight.",
+      "imagePrompt": "An imposing arena entrance with iron walls, an armored warden's silhouette visible through steam and torchlight, intimidating presence, dark fantasy",
+      "music": "adventure-tension",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Center yourself — find calm before the storm",
+          "buffs": { "end": 3 },
+          "next": "s4_final"
+        },
+        {
+          "id": "b",
+          "text": "Stretch and loosen up — speed wins fights",
+          "buffs": { "agi": 3 },
+          "next": "s4_final"
+        },
+        {
+          "id": "c",
+          "text": "Focus your mind — outsmart him",
+          "buffs": { "int": 3 },
+          "next": "s4_final"
+        },
+        {
+          "id": "d",
+          "text": "Tear a bar from the wall — forge your own weapon from his prison",
+          "requires": { "str": 70 },
+          "buffs": { "str": 6, "end": 2 },
+          "next": "s4_final"
+        }
+      ]
+    },
+    "s4_final": {
+      "text": "The iron gates grind open. The Warden turns to face you, his armor catching the torchlight. His eyes are cold, calculating.\n\n\"Rules exist for a reason,\" he says. \"Let me show you why.\"",
+      "ascensionText": "The Warden doesn't turn this time. He's already facing you, arms crossed. \"Back for another lesson?\" His voice is harder now. \"This time, I'll make sure it sticks.\"",
+      "imagePrompt": "A massive armored warden turning to face the viewer, cold calculating eyes visible through a helmet visor, iron arena, dramatic torchlight, dark fantasy boss encounter",
+      "music": "adventure-tension",
+      "isFinal": true
+    }
+  },
+  "startScene": "s1"
+}

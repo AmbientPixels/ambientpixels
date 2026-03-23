@@ -617,9 +617,11 @@ window.ArenaBattleUI = (function () {
     try {
       const boost = _crowdBoostPending;
       _crowdBoostPending = false;
+      var moveExtra = {};
+      if (boost) moveExtra.crowdBoost = true;
+      if (window._pendingItemUse) { moveExtra.useItem = window._pendingItemUse; window._pendingItemUse = null; }
       const response = await window.ArenaAPI.submitMove(
-        _battleData.battleId, _currentRound, move,
-        boost ? { crowdBoost: true } : {}
+        _battleData.battleId, _currentRound, move, moveExtra
       );
 
       await animateRoundResult(response.roundResult);

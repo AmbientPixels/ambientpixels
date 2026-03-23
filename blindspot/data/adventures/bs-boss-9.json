@@ -1,0 +1,139 @@
+{
+  "bossId": "bs-boss-9",
+  "title": "The Killing Floor",
+  "scenes": {
+    "s1": {
+      "text": "Blood on the walls. Not decorative — functional. The Feral marks its territory.\n\nThe air is thick with heat and the sound of something breathing. Deep, rhythmic, like a bellows. Whatever is ahead, it's big, and it's awake.\n\nA narrow path leads through a bone-strewn canyon. A high ledge offers a vantage point. A collapsed tunnel smells of fresh air.",
+      "imagePrompt": "A blood-marked canyon entrance with bones scattered on the ground, thick heat haze, deep primal breathing echoing, three paths visible - narrow canyon, high ledge, collapsed tunnel, savage dark fantasy",
+      "ascensionText": "You've been here before. The blood on the walls is fresher now — the Feral has been hunting since you left.",
+      "music": "adventure-tension",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Take the narrow path — speed through the danger zone",
+          "skillCheck": { "stat": "agi", "dc": 13 },
+          "success": { "buffs": { "agi": 5 }, "item": "war_cry", "next": "s2a" },
+          "failure": { "buffs": { "agi": -2, "end": -1 }, "next": "s2b" }
+        },
+        {
+          "id": "b",
+          "text": "Climb to the high ledge — observe from above",
+          "skillCheck": { "stat": "str", "dc": 11 },
+          "success": { "buffs": { "str": 3, "int": 2 }, "next": "s2a" },
+          "failure": { "buffs": { "str": -2 }, "next": "s2b" }
+        },
+        {
+          "id": "c",
+          "text": "Push through the collapsed tunnel",
+          "buffs": { "end": 3 },
+          "next": "s2c"
+        }
+      ]
+    },
+    "s2a": {
+      "text": "From your vantage point, you see the Feral. It's pacing in a circle, faster with each lap. Its muscles ripple. Its eyes are wild.\n\nThis thing doesn't fight with strategy. It fights with escalation. Every round, it hits harder. Every round, it cares less about getting hurt.\n\nThe only way to win: end it fast, or be tougher than rage.",
+      "imagePrompt": "A massive feral berserker pacing in circles with increasing speed, rippling muscles, wild unfocused eyes, viewed from above on a rocky ledge, primal aggression, dark fantasy",
+      "music": "adventure-calm",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Plan a first-strike blitz — maximum damage early",
+          "buffs": { "str": 4 },
+          "next": "s3"
+        },
+        {
+          "id": "b",
+          "text": "Prepare to absorb its rage — endurance wins",
+          "buffs": { "end": 4 },
+          "next": "s3"
+        },
+        {
+          "id": "c",
+          "text": "Your Berserker instincts read the Feral's attack rhythm",
+          "classRequired": ["Berserker", "Scout"],
+          "buffs": { "str": 5, "agi": 2 },
+          "next": "s3"
+        }
+      ]
+    },
+    "s2b": {
+      "text": "The bones crunch under your feet. Something growls from the shadows — not the Feral, but something smaller. A warning: this territory is claimed.\n\nYou press on. The growling fades. Whatever it was decided you're not worth the fight.\n\nThat's more respect than the Feral will show you.",
+      "imagePrompt": "Bones crunching underfoot in a dark canyon, glowing eyes watching from shadows, territorial markers on walls, tense predator territory, dark fantasy",
+      "music": "adventure-tension",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Move quietly — conserve energy for the real fight",
+          "buffs": { "agi": 3 },
+          "next": "s3"
+        },
+        {
+          "id": "b",
+          "text": "Grab a bone — anything is a weapon",
+          "buffs": { "str": 2, "lck": 1 },
+          "item": "smoke_bomb",
+          "next": "s3"
+        }
+      ]
+    },
+    "s2c": {
+      "text": "The tunnel opens into a pit. The floor is sand, stained dark. This is where the Feral feeds.\n\nClaw marks gouge the walls six feet deep. The sand is churned. Whatever happens here, it's violent and it's fast.\n\nBut in the chaos, you notice: the claw marks are always at the same height. The Feral doesn't vary its attack angle. It's powerful, but predictable.",
+      "imagePrompt": "A sand pit with dark stains, deep claw marks gouging stone walls at consistent height, churned sand, evidence of brutal combat, a hunter's analysis, dark fantasy",
+      "music": "adventure-explore",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Duck low — fight beneath its attack line",
+          "buffs": { "agi": 4 },
+          "next": "s3"
+        },
+        {
+          "id": "b",
+          "text": "Build your defenses — take the hits and hit back harder",
+          "buffs": { "end": 3, "str": 1 },
+          "next": "s3"
+        }
+      ]
+    },
+    "s3": {
+      "text": "The arena is raw earth. No walls. No ceiling. Just sky and dirt and the Feral, hunched at the far end, sniffing the air.\n\nIt sees you. Its eyes lock on. A low rumble builds in its chest.\n\nThere is no strategy here. Only survival.",
+      "imagePrompt": "An open-air earth arena under dark sky, raw dirt ground, a massive hunched feral berserker at the far end sniffing the air with locked predatory eyes, primal confrontation, dark fantasy",
+      "music": "adventure-tension",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Charge first — match its aggression",
+          "buffs": { "str": 4 },
+          "next": "s4_final"
+        },
+        {
+          "id": "b",
+          "text": "Dodge and weave — speed beats power",
+          "buffs": { "agi": 4 },
+          "next": "s4_final"
+        },
+        {
+          "id": "c",
+          "text": "Plant your feet — you will not be moved",
+          "buffs": { "end": 4 },
+          "next": "s4_final"
+        },
+        {
+          "id": "d",
+          "text": "Channel raw fury — match the beast blow for blow",
+          "requires": { "str": 70 },
+          "buffs": { "str": 7, "end": 2 },
+          "next": "s4_final"
+        }
+      ]
+    },
+    "s4_final": {
+      "text": "The Feral doesn't speak. It roars — a sound that shakes the ground and loosens the stones beneath your feet.\n\nPain stopped mattering to it long ago. Now it's your turn to prove the same.",
+      "imagePrompt": "A massive feral berserker mid-roar, ground shaking, stones loosening, raw primal fury, muscles taut, savage boss encounter, epic dark fantasy",
+      "ascensionText": "The Feral stops mid-roar. It sniffs the air twice. It remembers your scent — and this time, it's angry about being beaten.",
+      "music": "adventure-tension",
+      "isFinal": true
+    }
+  },
+  "startScene": "s1"
+}

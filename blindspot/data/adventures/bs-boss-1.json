@@ -1,0 +1,113 @@
+{
+  "bossId": "bs-boss-1",
+  "title": "The Gate",
+  "scenes": {
+    "s1": {
+      "text": "The corridor stretches ahead, lit by flickering torches that cast long shadows across the stone walls. A low hum vibrates through the floor — the arena's heartbeat, waiting.\n\nTwo paths branch before you. To the left, a narrow passage carved with ancient runes that pulse faintly. To the right, the main gate stands ajar, warm light spilling through the crack.",
+      "ascensionText": "You've been here before. The torches flicker the same way, the hum through the floor is familiar — but the shadows feel heavier now, like they remember you too.",
+      "imagePrompt": "A dark stone corridor splitting into two paths, ancient runes glowing faintly on left wall, warm light through a gate on the right, dramatic torchlight, dark fantasy",
+      "music": "adventure-explore",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Follow the runes — they might reveal something useful",
+          "buffs": { "int": 3 },
+          "next": "s2a"
+        },
+        {
+          "id": "b",
+          "text": "Push through the main gate — no time for detours",
+          "buffs": { "str": 2 },
+          "next": "s2b"
+        },
+        {
+          "id": "c",
+          "text": "Wait and listen before moving",
+          "buffs": { "end": 2 },
+          "next": "s2c"
+        },
+        {
+          "id": "d",
+          "text": "You recognize this gate — your training covered siege entries",
+          "classRequired": ["Fighter", "Guardian"],
+          "buffs": { "str": 4, "end": 3 },
+          "next": "s2b"
+        }
+      ]
+    },
+    "s2a": {
+      "text": "The runes tell a story — a pattern of combat. Strike, then guard, then strike again. The rhythm of the Gatekeeper's fighting style, etched into the wall by those who came before.\n\nYou memorize the sequence. Knowledge is the sharpest weapon.",
+      "imagePrompt": "Glowing blue runes on a dark stone wall depicting combat patterns, a hand reaching toward them, mystical atmosphere, dark fantasy",
+      "music": "adventure-calm",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Study them deeper before moving on",
+          "buffs": { "int": 3 },
+          "next": "s3_final"
+        },
+        {
+          "id": "b",
+          "text": "You've seen enough — press forward",
+          "buffs": { "agi": 2 },
+          "next": "s3_final"
+        }
+      ]
+    },
+    "s2b": {
+      "text": "The gate groans open. Beyond it, a training yard — scarred dummies, broken weapons, old bloodstains. This is where the Gatekeeper drills.\n\nA rack of practice weapons lines one wall. Heavy, crude, but real.",
+      "imagePrompt": "A dark training yard with scarred wooden dummies and broken weapons scattered on the ground, weapon rack on wall, moody torchlight, dark fantasy",
+      "music": "adventure-tension",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Grab a heavy practice sword and warm up",
+          "buffs": { "str": 3 },
+          "next": "s3_final"
+        },
+        {
+          "id": "b",
+          "text": "Study the damage patterns on the dummies",
+          "buffs": { "int": 2 },
+          "next": "s3_final"
+        },
+        {
+          "id": "c",
+          "text": "Smash through the reinforced dummy — prove you're stronger than his training gear",
+          "requires": { "str": 70 },
+          "buffs": { "str": 7 },
+          "item": "healing_salve",
+          "next": "s3_final"
+        }
+      ]
+    },
+    "s2c": {
+      "text": "You press your back against the cold stone and wait. Footsteps echo from the arena above — heavy, deliberate. A pattern emerges: three steps, pause, three steps.\n\nThe Gatekeeper paces. Predictable. That's something you can use.",
+      "imagePrompt": "A figure pressed against a dark stone wall in shadow, listening, faint light from above, tension, dark fantasy atmosphere",
+      "music": "adventure-tension",
+      "choices": [
+        {
+          "id": "a",
+          "text": "Move when the footsteps pause — slip in unnoticed",
+          "buffs": { "agi": 3 },
+          "next": "s3_final"
+        },
+        {
+          "id": "b",
+          "text": "Steel yourself and walk in with confidence",
+          "buffs": { "end": 2, "str": 1 },
+          "item": "healing_salve",
+          "next": "s3_final"
+        }
+      ]
+    },
+    "s3_final": {
+      "text": "The arena doors loom before you. Beyond them, the Gatekeeper waits — the first test every challenger must face.\n\nYou feel ready. Whatever you learned in these corridors, it's part of you now.",
+      "ascensionText": "The Gatekeeper is already facing the entrance when the doors open. His eyes narrow. \"You again,\" he growls. \"This time I won't hold back.\"",
+      "imagePrompt": "Massive arena doors partially open with light streaming through, a silhouette of a warrior standing ready, epic dark fantasy, dramatic lighting",
+      "music": "adventure-tension",
+      "isFinal": true
+    }
+  },
+  "startScene": "s1"
+}
