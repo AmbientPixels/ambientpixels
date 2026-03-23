@@ -8230,6 +8230,15 @@ body.bs-adventure-active {
   flex: 1;
 }
 
+/* Dice roll choices — dashed border to signal randomness */
+.bs-adventure__choice--roll {
+  border-style: dashed;
+  border-color: rgba(251, 191, 36, 0.3);
+}
+.bs-adventure__choice--roll:hover:not(:disabled) {
+  border-color: rgba(251, 191, 36, 0.5);
+}
+
 .bs-adventure__choice-dc {
   font-size: 0.7rem;
   padding: 0.15rem 0.5rem;

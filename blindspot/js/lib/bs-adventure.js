@@ -546,10 +546,12 @@ window.BsAdventure = (function () {
 
     choicesEl.innerHTML = visible.map(function (choice, i) {
       var dcBadge = '';
+      var rollModifier = '';
       if (choice.skillCheck) {
         var adjustedDC = computeAdaptiveDC(choice.skillCheck.dc);
         var label = STAT_LABELS[choice.skillCheck.stat] + ' DC' + adjustedDC;
-        dcBadge = '<span class="bs-adventure__choice-dc">' + label + '</span>';
+        dcBadge = '<span class="bs-adventure__choice-dc"><i class="fas fa-dice-d20"></i> ' + label + '</span>';
+        rollModifier = ' bs-adventure__choice--roll';
       }
       var classModifier = choice.classRequired ? ' bs-adventure__choice--class' : '';
       var classBadge = choice.classRequired ? '<span class="bs-adventure__choice-class-badge"><i class="fas fa-star"></i></span>' : '';
@@ -559,7 +561,7 @@ window.BsAdventure = (function () {
         itemBadge = '<span class="bs-adventure__choice-item-hint"><i class="fas ' + ADVENTURE_ITEMS[itemSrc].icon + '"></i></span>';
       }
 
-      return '<button class="bs-adventure__choice' + classModifier + '" data-choice-id="' + escHtml(choice.id) + '" data-index="' + i + '">' +
+      return '<button class="bs-adventure__choice' + classModifier + rollModifier + '" data-choice-id="' + escHtml(choice.id) + '" data-index="' + i + '">' +
         classBadge +
         '<span class="bs-adventure__choice-key">' + (i + 1) + '</span>' +
         '<span class="bs-adventure__choice-text">' + escHtml(choice.text) + '</span>' +
