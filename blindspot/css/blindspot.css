@@ -712,13 +712,50 @@
   text-align: center;
 }
 
-/* New card button */
-.bs-new-card-btn {
+/* Card actions cluster (forge bar + new/deck buttons) */
+.bs-card-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
   margin-top: 0.5rem;
-  padding: 0.4rem 1rem;
-  font-size: 0.75rem;
-  font-family: 'Cinzel', serif;
-  letter-spacing: 0.04em;
+  width: 100%;
+}
+
+.bs-card-actions .bs-forge-progress {
+  width: 100%;
+}
+
+.bs-card-actions__pair {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.bs-card-actions__btn {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.75rem;
+  font-size: 0.7rem;
+  font-family: 'Share Tech Mono', monospace;
+  color: var(--bs-text-muted);
+  background: var(--bs-surface);
+  border: 1px solid var(--bs-border);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+
+.bs-card-actions__btn:hover {
+  color: var(--bs-text);
+  border-color: var(--bs-accent-dim);
+  background: var(--bs-surface-2);
+}
+
+.bs-card-actions__btn i {
+  font-size: 0.65rem;
+  color: var(--bs-accent);
 }
 
 /* Card slide animations — transition: none prevents the transform transition from fighting the animation */
