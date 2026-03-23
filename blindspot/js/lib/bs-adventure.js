@@ -29,7 +29,7 @@ window.BsAdventure = (function () {
   // ============================================================
   var ADVENTURE_ITEMS = {
     smoke_bomb:    { id: 'smoke_bomb',    name: 'Smoke Bomb',    icon: 'fa-smog',              effect: 'skip_attack',     description: "Skip opponent's next attack" },
-    war_cry:       { id: 'war_cry',       name: 'War Cry',       icon: 'fa-volume-high',       effect: 'damage_boost',    value: 30, description: '+30% damage on next strike' },
+    war_cry:       { id: 'war_cry',       name: 'War Cry',       icon: 'fa-fire',              effect: 'damage_boost',    value: 30, description: '+30% damage on next strike' },
     focus_elixir:  { id: 'focus_elixir',  name: 'Focus Elixir',  icon: 'fa-flask-vial',        effect: 'full_charges',    description: 'Refill all ability charges' },
     iron_skin:     { id: 'iron_skin',     name: 'Iron Skin',     icon: 'fa-shield-virus',      effect: 'damage_reduce',   value: 50, description: 'Block 50% damage for 1 round' },
     lucky_coin:    { id: 'lucky_coin',    name: 'Lucky Coin',    icon: 'fa-coins',             effect: 'guaranteed_crit', description: 'Guaranteed crit on next attack' },
