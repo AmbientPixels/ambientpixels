@@ -8140,6 +8140,7 @@ body.bs-adventure-active {
   line-height: 1.7;
   color: var(--bs-text);
   font-size: 0.95rem;
+  text-align: left;
 }
 
 .bs-adventure__text p {
@@ -8188,13 +8189,14 @@ body.bs-adventure-active {
   text-align: left;
   font-family: inherit;
   font-size: 0.95rem;
-  color: var(--bs-text);
+  color: #fff;
   width: 100%;
 }
 
 .bs-adventure__choice:hover:not(:disabled) {
   background: rgba(239, 159, 39, 0.08);
   border-color: rgba(239, 159, 39, 0.35);
+  color: #fff;
   transform: translateX(6px);
   box-shadow: 0 0 16px rgba(239, 159, 39, 0.1);
 }
