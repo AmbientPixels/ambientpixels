@@ -3992,10 +3992,11 @@
 
     const pct = ready ? 100 : Math.min(100, (wins / needed) * 100);
     if (ready) {
-      if (label) label.textContent = 'CARD EDITOR \u2014 Tap to customize';
-      if (hint) hint.textContent = '';
+      if (label) label.textContent = 'CARD EDITOR \u00b7 ' + Math.floor(wins) + ' / ' + needed + ' wins';
+      if (hint) hint.textContent = 'Tap to customize your card';
     } else {
-      if (label) label.textContent = `CARD EDITOR \u00b7 ${Math.floor(wins)} / ${needed} wins`;
+      if (label) label.textContent = 'CARD EDITOR \u00b7 ' + Math.floor(wins) + ' / ' + needed + ' wins';
+      if (hint) hint.textContent = 'Win campaign fights to unlock';
     }
     if (fill) fill.style.setProperty('--bar-pct', pct / 100);
     if (container) {

@@ -862,7 +862,6 @@
 .bs-forge-progress--ready {
   border-color: var(--bs-accent);
   cursor: pointer;
-  animation: bs-forge-pulse 2s ease-in-out infinite;
 }
 
 .bs-forge-progress--ready .bs-forge-progress__label {
