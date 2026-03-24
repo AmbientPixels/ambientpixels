@@ -636,6 +636,15 @@
         }
       };
 
+      // Cache directly to localStorage (belt-and-suspenders — don't rely solely on callback chain)
+      try {
+        var existingDeck = JSON.parse(localStorage.getItem('bs-deck') || '[]');
+        existingDeck = existingDeck.filter(function(c) { return c.id !== savedCardId; });
+        existingDeck.push(cardData);
+        localStorage.setItem('bs-deck', JSON.stringify(existingDeck));
+        localStorage.setItem('bs-selected-card-id', savedCardId);
+      } catch (e) { console.warn('[BS-QB] Deck cache error:', e); }
+
       close(true);
 
       if (_onComplete) {
