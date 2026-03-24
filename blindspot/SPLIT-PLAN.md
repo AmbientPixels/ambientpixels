@@ -69,10 +69,38 @@ All flows tested via Playwright on live site (`ambientpixels.ai/blindspot/`):
 | 2 | `bs-campaign.js` | 254 | Easy | `renderCampaignLadder`, `renderTowerSection`, weekly boss UI |
 | 3 | `bs-forge.js` | 824 | Medium | Stat allocation, palette/container UI, avatar, canvas particles |
 
-### Deferred
-- `bs-progression.js` (~200 lines) — tiny getters/setters, low ROI
-- Battle orchestration (~461 lines) — too tangled, Round 5+
-- Lobby rendering (~365 lines) — cross-references many sections, Round 5+
+## Round 5 Plan — Big Sections
+
+Monolith is at 4616 lines. Remaining sections by size:
+
+| Size | Section | Ease | Notes |
+|------|---------|------|-------|
+| 422 | Battle Results | Medium | Victory animations, result display, session stats overlay. Reads `_battleType`, `_currentBossId`, `_activeBattle`. |
+| 393 | Landing Page | Medium | Stranger intro, fight flow, Quick Build trigger. Heavy DOM + auth flow. |
+| 368 | Lobby | Medium-Hard | Lobby rendering — cross-references many sections (card, rank HUD, bounties, challenges, mode buttons). |
+| 329 | Debug Console | Easy | `window.BS` cheat console. Zero tanglement — reads/writes `_progress` only. |
+| 212 | Session Stats | Easy | Battle round tracking + display. Isolated data collector. |
+| 207 | Navigation | Easy | `showScreen()`, bottom nav, back buttons. Low deps. |
+| 179 | Deck Management | Easy-Medium | Deck grid, card deletion, deck switcher overlay. |
+| 149 | Shared Utilities | Low ROI | `escHtml`, boss record, mastery stars — many callers depend on these. |
+| 117 | Lobby Onboarding | Easy | 3-step spotlight tutorial. Isolated DOM. |
+
+### Recommended extraction order
+
+| Order | Module | ~Lines | Ease | Why |
+|-------|--------|--------|------|-----|
+| 1 | `bs-debug.js` | 329 | Easy | Zero tanglement, self-contained `window.BS` console. Biggest easy win. |
+| 2 | `bs-session-stats.js` | 212 | Easy | Isolated data collector + display. No cross-cutting deps. |
+| 3 | `bs-nav.js` | 207 | Easy | `showScreen()`, bottom nav wiring. Low deps, high call count → big delegate surface. |
+| 4 | `bs-deck.js` | 179 | Easy-Medium | Deck management overlay. Moderate card data deps. |
+| 5 | `bs-battle-results.js` | 422 | Medium | Victory animations, XP/sparks/Elo, loot trigger. Many state writes. |
+
+Round 5 target: modules 1-3 (~748 lines, 4616→~3868, pushing below 4000).
+
+### Deferred (Round 6+)
+- Landing Page (~393 lines) — heavy auth + DOM flow, benefits from all other modules being stable first
+- Lobby rendering (~368 lines) — cross-references many sections, extract last
+- Battle orchestration (~49 lines `BATTLE COMPLETION HOOK` + scattered) — deeply tangled with state
 
 ## Architecture
 
