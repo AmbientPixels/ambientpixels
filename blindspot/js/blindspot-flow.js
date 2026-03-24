@@ -2513,212 +2513,47 @@
   }
 
   // ============================================================
-  // NAVIGATION
+  // NAVIGATION — delegated to bs-nav.js (window.BsNav)
   // ============================================================
 
-  let _navBound = false;
-
-  function bindPlayNavigation() {
-    if (_navBound) return;
-    _navBound = true;
-
-    // Crate indicator — click to open
-    document.getElementById('bs-crate-indicator')?.addEventListener('click', function() {
-      if (getCrateCount() > 0) openCrateOverlay(0);
-    });
-
-    // Primary PLAY button + Campaign button both open campaign
-    const openCampaign = () => { showScreen('campaign'); renderCampaignLadder(); };
-    // Smart ENTER ARENA: go straight to next boss fight
-    const enterArena = () => {
-      const highest = getHighestBossDefeated();
-      const nextBoss = _bossesByNumber[highest + 1];
-      if (nextBoss) {
-        // Show pre-fight overlay for next boss
-        populatePrefightOverlay(nextBoss);
-        showOverlay('bs-prefight-overlay');
-        setupPrefightButtons(nextBoss.id);
-      } else {
-        // All bosses defeated — go to campaign to replay or ascend
-        showScreen('campaign');
-        renderCampaignLadder();
-      }
-    };
-    document.getElementById('bs-play-btn')?.addEventListener('click', enterArena);
-    document.getElementById('bs-btn-campaign')?.addEventListener('click', openCampaign);
-
-    document.getElementById('bs-btn-pvp')?.addEventListener('click', () => {
-      showScreen('pvp');
-      renderPvPGallery();
-    });
-
-    document.getElementById('bs-btn-leaderboard')?.addEventListener('click', () => {
-      showScreen('leaderboard');
-      renderLeaderboard();
-    });
-
-    // Collection screen
-    document.getElementById('bs-btn-collection')?.addEventListener('click', function() {
-      showScreen('collection');
-      renderCollection();
-    });
-    document.getElementById('bs-collection-back')?.addEventListener('click', function() {
-      showScreen('lobby');
-      renderLobby();
-    });
-    // Collection tab switching
-    document.querySelectorAll('.bs-collection__tab').forEach(function(tab) {
-      tab.addEventListener('click', function() {
-        if (_Cos.setSlot) _Cos.setSlot(tab.dataset.slot || 'frame');
-        renderCollection();
-      });
-    });
-
-    // Deck management screen
-    document.getElementById('bs-btn-deck')?.addEventListener('click', function() {
-      showScreen('deck');
-      renderDeckManagement();
-    });
-    document.getElementById('bs-deck-back')?.addEventListener('click', function() {
-      showScreen('lobby');
-      renderLobby();
-    });
-
-    // How to Play modal
-    var htpEl = document.getElementById('bs-howtoplay');
-    function openHowToPlay() { if (htpEl) htpEl.classList.remove('bs-modal-backdrop--hidden'); }
-    function closeHowToPlay() { if (htpEl) htpEl.classList.add('bs-modal-backdrop--hidden'); }
-    document.getElementById('bs-btn-howtoplay')?.addEventListener('click', openHowToPlay);
-    document.getElementById('bs-howtoplay-close')?.addEventListener('click', closeHowToPlay);
-    document.getElementById('bs-howtoplay-gotit')?.addEventListener('click', closeHowToPlay);
-    if (htpEl) htpEl.addEventListener('click', function(e) { if (e.target === htpEl) closeHowToPlay(); });
-
-    document.getElementById('bs-campaign-back')?.addEventListener('click', () => {
-      showScreen('lobby');
-      renderLobby();
-    });
-    document.getElementById('bs-leaderboard-back')?.addEventListener('click', () => {
-      showScreen('lobby');
-      renderLobby();
-    });
-    document.getElementById('bs-pvp-back')?.addEventListener('click', () => {
-      showScreen('lobby');
-      renderLobby();
-    });
-
-    // Combat guide
-    document.getElementById('bs-combat-help-btn')?.addEventListener('click', () => { showOverlay('bs-combat-guide'); });
-    document.getElementById('bs-combat-guide-close')?.addEventListener('click', () => { hideOverlay('bs-combat-guide'); });
-
-    // Pre-fight retreat
-    document.getElementById('bs-prefight-retreat')?.addEventListener('click', () => {
-      hideOverlay('bs-prefight-overlay');
-      showScreen('lobby');
-      renderLobby();
-    });
-
-    // Forge overlays
-    document.getElementById('bs-forge-now')?.addEventListener('click', () => { hideOverlay('bs-forge-trigger'); openForgeScreen(); });
-    document.getElementById('bs-forge-later')?.addEventListener('click', () => { hideOverlay('bs-forge-trigger'); safeLSSet('bs-forge-pending', 'true'); updateForgeProgress(); });
-    document.getElementById('bs-forge-unlock-btn')?.addEventListener('click', () => { hideOverlay('bs-forge-unlock'); openForgeScreen(true); });
-
-    // Architect win
-    document.getElementById('bs-architect-continue')?.addEventListener('click', () => {
-      hideOverlay('bs-architect-win');
-      // First completion — offer ascension
-      showAscensionOffer(0);
-    });
-
-    // Bottom nav handling
-    document.querySelectorAll('.bs-bottom-nav__item').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        const nav = btn.dataset.nav;
-        document.querySelectorAll('.bs-bottom-nav__item').forEach(function(b) { b.classList.remove('bs-bottom-nav__item--active'); });
-        btn.classList.add('bs-bottom-nav__item--active');
-        if (nav === 'lobby') { showScreen('lobby'); renderLobby(); }
-        else if (nav === 'campaign') { showScreen('campaign'); renderCampaignLadder(); }
-        else if (nav === 'forge') {
-          var needed = _config ? _config.forgeVisit.winsRequired : 3;
-          var campaignDone = getHighestBossDefeated() >= 10;
-          if (campaignDone || getForgeWins() >= needed || isForgePending()) { openForgeScreen(false, true); }
-          else { showErrorToast('Win ' + Math.ceil(needed - getForgeWins()) + ' more fights to unlock the Forge'); }
-        }
-        else if (nav === 'leaderboard') { showScreen('leaderboard'); renderLeaderboard(); }
-        else if (nav === 'pvp') {
-          if (getHighestBossDefeated() >= 10) { showScreen('pvp'); renderPvPGallery(); }
-          else { showErrorToast('Beat Boss 10 to unlock PvP'); }
-        }
-      });
-    });
-
-    // Results buttons
-    document.getElementById('arena-results-again')?.addEventListener('click', () => {
-      document.getElementById('arena-results-overlay').style.display = 'none';
-      if (_isFirstRealFight) {
-        _isFirstRealFight = false;
-        // After first fight, go to campaign (win advances, loss can retry from ladder)
-        showScreen('lobby');
-        renderLobby();
-        return;
-      }
-      if (_battleType === 'tower') {
-        // Tower: continue climbing or restart
-        if (getTowerFloor() > 0) {
-          // Still in run — continue to next floor
-          showScreen('campaign');
-          renderCampaignLadder();
-          setTimeout(function() { startTowerBattle(); }, 300);
-        } else {
-          // Run ended — back to campaign
-          showScreen('campaign');
-          renderCampaignLadder();
-        }
-        return;
-      }
-      if (_battleType === 'pvp') { showScreen('pvp'); renderPvPGallery(); }
-      else if (_currentBossId) {
-        const currentBoss = _bossesById[_currentBossId];
-        // Weekly boss — return to campaign after fight
-        if (isWeeklyBoss(_currentBossId)) {
-          showScreen('campaign'); renderCampaignLadder();
-        }
-        // Advance to next boss if current was defeated, otherwise retry same boss
-        else {
-          const highest = getHighestBossDefeated();
-          if (currentBoss && currentBoss.boss <= highest && currentBoss.boss < 10) {
-            // Current boss defeated — advance to next
-            const nextBoss = _bossesByNumber[currentBoss.boss + 1];
-            if (nextBoss) { startCampaignBattle(nextBoss.id); }
-            else { showScreen('campaign'); renderCampaignLadder(); }
-          } else {
-            // Not yet defeated or last boss — retry same
-            startCampaignBattle(_currentBossId);
-          }
-        }
-      }
-      else { showScreen('campaign'); renderCampaignLadder(); }
-    });
-
-    document.getElementById('arena-results-lobby')?.addEventListener('click', () => {
-      document.getElementById('arena-results-overlay').style.display = 'none';
-      _isFirstRealFight = false;
-      refreshLobby();
-      showScreen('lobby');
-    });
-
-    document.getElementById('arena-results-close')?.addEventListener('click', () => {
-      document.getElementById('arena-results-overlay').style.display = 'none';
-    });
-
-    // Battle in-screen buttons
-    document.getElementById('arena-battle-again')?.addEventListener('click', () => {
-      if (_currentBossId) startCampaignBattle(_currentBossId);
-    });
-    document.getElementById('arena-battle-back')?.addEventListener('click', () => {
-      showScreen('lobby');
-      refreshLobby();
-    });
-  }
+  var _Nav = window.BsNav || {};
+  function bindPlayNavigation() { if (_Nav.bind) _Nav.bind(); }
+  if (_Nav.setCallbacks) _Nav.setCallbacks({
+    showScreen: function(id) { showScreen(id); },
+    showOverlay: function(id) { showOverlay(id); },
+    hideOverlay: function(id) { hideOverlay(id); },
+    renderLobby: function() { renderLobby(); },
+    renderCampaignLadder: function() { renderCampaignLadder(); },
+    renderPvPGallery: function() { renderPvPGallery(); },
+    renderLeaderboard: function() { renderLeaderboard(); },
+    renderCollection: function() { renderCollection(); },
+    renderDeckManagement: function() { renderDeckManagement(); },
+    openCrateOverlay: function(i) { openCrateOverlay(i); },
+    getCrateCount: function() { return getCrateCount(); },
+    openForgeScreen: function(a, b) { openForgeScreen(a, b); },
+    updateForgeProgress: function() { updateForgeProgress(); },
+    populatePrefightOverlay: function(boss) { populatePrefightOverlay(boss); },
+    setupPrefightButtons: function(id) { setupPrefightButtons(id); },
+    startCampaignBattle: function(id) { startCampaignBattle(id); },
+    startTowerBattle: function() { startTowerBattle(); },
+    refreshLobby: function() { refreshLobby(); },
+    showAscensionOffer: function(n) { showAscensionOffer(n); },
+    showErrorToast: function(msg) { showErrorToast(msg); },
+    safeLSSet: function(k, v) { safeLSSet(k, v); },
+    setCosmeticSlot: function(s) { if (_Cos.setSlot) _Cos.setSlot(s); },
+    getHighestBossDefeated: function() { return getHighestBossDefeated(); },
+    getForgeWins: function() { return getForgeWins(); },
+    getForgeWinsRequired: function() { return _config ? _config.forgeVisit.winsRequired : 3; },
+    isForgePending: function() { return isForgePending(); },
+    getTowerFloor: function() { return getTowerFloor(); },
+    isWeeklyBoss: function(id) { return isWeeklyBoss(id); },
+    getBattleType: function() { return _battleType; },
+    getCurrentBossId: function() { return _currentBossId; },
+    getBossById: function(id) { return _bossesById[id]; },
+    getBossByNumber: function(n) { return _bossesByNumber[n]; },
+    isFirstRealFight: function() { return _isFirstRealFight; },
+    clearFirstRealFight: function() { _isFirstRealFight = false; }
+  });
 
   // ============================================================
   // CAMPAIGN + TOWER — delegated to bs-campaign.js (window.BsCampaign)
