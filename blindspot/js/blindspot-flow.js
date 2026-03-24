@@ -885,6 +885,55 @@
         setActiveCard: function(card) { _selectedCard = card; ensureCombatStats(_selectedCard); _progress.selectedCardId = _selectedCard.id; syncProgressToServer(); },
         removeCardFromDeck: removeCardFromDeck
       });
+      if (_Br.setCallbacks) _Br.setCallbacks({
+        playSfx: playSfx, addSparks: addSparks, showSuccessToast: showSuccessToast,
+        showOverlay: showOverlay, safeLSSet: safeLSSet, syncProgressToServer: syncProgressToServer,
+        getCardPower: getCardPower,
+        // State accessors
+        getBattleType: function() { return _battleType; },
+        getCurrentBossId: function() { return _currentBossId; },
+        getBossesById: function() { return _bossesById; },
+        getSelectedCard: function() { return _selectedCard; },
+        getProfile: function() { return _profile; },
+        getConfig: function() { return _config; },
+        getPvpOpponentId: function() { return _pvpOpponentId; },
+        getPVP_RANKS: function() { return PVP_RANKS; },
+        getELO_DEFAULT: function() { return ELO_DEFAULT; },
+        // Pending forge / streak state
+        setPendingForge: function(v) { _pendingForge = v; },
+        setLastStreakBonus: function(v) { _lastStreakBonus = v; },
+        setLastStreakMsg: function(v) { _lastStreakMsg = v; },
+        getLastStreakBonus: function() { return _lastStreakBonus; },
+        getLastStreakMsg: function() { return _lastStreakMsg; },
+        // Progression
+        checkDailyBonus: checkDailyBonus, recordBossResult: recordBossResult,
+        getWeeklyBoss: getWeeklyBoss, recordWeeklyResult: recordWeeklyResult,
+        checkMasteryRewards: checkMasteryRewards,
+        getHighestBossDefeated: getHighestBossDefeated, setHighestBossDefeated: setHighestBossDefeated,
+        getForgeWins: getForgeWins, setForgeWins: setForgeWins,
+        getWinStreak: getWinStreak, setWinStreak: setWinStreak,
+        setBestStreak: setBestStreak, incrementTotalWins: incrementTotalWins,
+        setCardTitle: setCardTitle, getAscension: getAscension,
+        isWeeklyBoss: isWeeklyBoss, isWeeklyRewardClaimed: isWeeklyRewardClaimed,
+        isForgeUnlocked: isForgeUnlocked, setForgeUnlocked: setForgeUnlocked,
+        // Actions
+        applyBossReward: applyBossReward, showRewardDrop: showRewardDrop,
+        awardCrate: awardCrate, showBossDialogue: showBossDialogue,
+        showAscensionOffer: showAscensionOffer, showForgeProgressInResults: showForgeProgressInResults,
+        rollLoot: rollLoot, showLootChoice: showLootChoice,
+        completeBounty: completeBounty, getDailyBounties: getDailyBounties,
+        checkBattleCrate: checkBattleCrate, handleTowerResult: handleTowerResult,
+        getTowerFloor: getTowerFloor, getTowerBest: getTowerBest,
+        getLossTip: getLossTip, renderSessionStats: renderSessionStats,
+        loadProfile: loadProfile, updateRankDisplay: updateRankDisplay,
+        // PvP
+        pvpGalleryGet: _pvpGalleryGet, estimateOpponentElo: estimateOpponentElo,
+        getPvPElo: getPvPElo, setPvPElo: setPvPElo,
+        getPvPRecord: getPvPRecord, setPvPRecord: setPvPRecord,
+        getPvPRank: getPvPRank, showEloChange: showEloChange, calcEloChange: calcEloChange,
+        // Cosmetics
+        getEquipped: getEquipped, findCosmeticDef: findCosmeticDef
+      });
     } catch (e) {
       console.error('[Blindspot] Failed to load game data:', e);
       showErrorToast('Failed to load game. Please refresh.');
@@ -2409,427 +2458,12 @@
   }
 
   // ============================================================
-  // BATTLE RESULTS
+  // BATTLE RESULTS — delegated to bs-battle-results.js (window.BsBattleResults)
   // ============================================================
 
-  // Victory animation — triggered on win if player has a victory cosmetic equipped
-  function playVictoryAnimation() {
-    var equipped = getEquipped();
-    if (!equipped.victory) return;
-    var def = findCosmeticDef(equipped.victory);
-    if (!def) return;
-
-    var fx = document.createElement('div');
-    fx.className = 'bs-victory-fx';
-
-    if (def.id === 'victory_confetti') {
-      fx.classList.add('bs-victory-fx--confetti');
-      var colors = ['#EF9F27', '#ff5252', '#4ade80', '#7dd3fc', '#a855f7', '#f472b6'];
-      for (var i = 0; i < 40; i++) {
-        var p = document.createElement('div');
-        p.className = 'bs-vfx-particle';
-        p.style.left = (Math.random() * 100) + '%';
-        p.style.top = '-10px';
-        p.style.background = colors[Math.floor(Math.random() * colors.length)];
-        p.style.animationDelay = (Math.random() * 1) + 's';
-        p.style.animationDuration = (1.5 + Math.random() * 1.5) + 's';
-        p.style.transform = 'rotate(' + (Math.random() * 360) + 'deg)';
-        fx.appendChild(p);
-      }
-    } else if (def.id === 'victory_lightning') {
-      fx.classList.add('bs-victory-fx--lightning');
-      for (var b = 0; b < 5; b++) {
-        var bolt = document.createElement('div');
-        bolt.className = 'bs-vfx-bolt';
-        bolt.style.left = (10 + Math.random() * 80) + '%';
-        bolt.style.top = '0';
-        bolt.style.animationDelay = (Math.random() * 1.2) + 's';
-        bolt.style.height = (100 + Math.random() * 200) + 'px';
-        fx.appendChild(bolt);
-      }
-    } else if (def.id === 'victory_fireworks') {
-      fx.classList.add('bs-victory-fx--fireworks');
-      var fwColors = ['#EF9F27', '#ff5252', '#4ade80', '#7dd3fc', '#a855f7', '#ffdd00'];
-      for (var fw = 0; fw < 6; fw++) {
-        var burst = document.createElement('div');
-        burst.className = 'bs-vfx-firework';
-        burst.style.left = (15 + Math.random() * 70) + '%';
-        burst.style.top = (15 + Math.random() * 50) + '%';
-        burst.style.animationDelay = (fw * 0.4 + Math.random() * 0.3) + 's';
-        burst.style.setProperty('--fw-color', fwColors[fw % fwColors.length]);
-        fx.appendChild(burst);
-      }
-    } else if (def.id === 'victory_shockwave') {
-      fx.classList.add('bs-victory-fx--shockwave');
-      for (var sw = 0; sw < 3; sw++) {
-        var ring = document.createElement('div');
-        ring.className = 'bs-vfx-ring';
-        ring.style.animationDelay = (sw * 0.5) + 's';
-        fx.appendChild(ring);
-      }
-    } else if (def.id === 'victory_ravens') {
-      fx.classList.add('bs-victory-fx--ravens');
-      for (var r = 0; r < 8; r++) {
-        var raven = document.createElement('div');
-        raven.className = 'bs-vfx-raven';
-        raven.innerHTML = '<i class="fas fa-crow"></i>';
-        raven.style.left = (30 + Math.random() * 40) + '%';
-        raven.style.bottom = (10 + Math.random() * 30) + '%';
-        raven.style.setProperty('--raven-dx', ((Math.random() - 0.5) * 400) + 'px');
-        raven.style.setProperty('--raven-dy', (-200 - Math.random() * 300) + 'px');
-        raven.style.animationDelay = (Math.random() * 1) + 's';
-        fx.appendChild(raven);
-      }
-    }
-
-    document.body.appendChild(fx);
-    setTimeout(function() { fx.remove(); }, 4000);
-  }
-
-  async function handlePlayPageResult(battleResult, battleData) {
-    const isWin = battleResult.winner === 'player';
-    playSfx(isWin ? 'battleWin' : 'battleLoss');
-    if (isWin) playVictoryAnimation();
-    // Daily spark bonus (first fight of the day)
-    checkDailyBonus();
-
-    // Track boss record
-    if (_battleType === 'pve' && _currentBossId) {
-      recordBossResult(_currentBossId, isWin);
-      // Track weekly boss separately
-      var weeklyBoss = getWeeklyBoss();
-      if (weeklyBoss && _currentBossId === weeklyBoss.id) {
-        recordWeeklyResult(isWin);
-      }
-      // Check mastery tier-ups on wins
-      if (isWin) checkMasteryRewards(_currentBossId);
-    }
-
-    // Spark rewards — earn currency from all activities
-    if (isWin) {
-      var sparkReward = 10; // Base win reward
-      if (_battleType === 'pve' && _currentBossId) {
-        var fightBoss = _bossesById[_currentBossId];
-        var isFirstKill = fightBoss && fightBoss.boss === getHighestBossDefeated();
-        if (isFirstKill) sparkReward = 25; // First kill bonus
-        if (fightBoss && fightBoss.boss >= 8) sparkReward += 10; // Late-game bonus
-      }
-      if (_battleType === 'pvp') sparkReward = 15; // PvP wins are worth more
-      addSparks(sparkReward);
-    } else {
-      addSparks(3); // Small consolation for losing
-    }
-
-    // PvP wins grant forge progress
-    if (_battleType === 'pvp' && isWin) {
-      setForgeWins(getForgeWins() + 0.5);
-    }
-
-    // PvP Elo update
-    if (_battleType === 'pvp') {
-      var opponent = _pvpGalleryGet().find(function(c) { return c.id === _pvpOpponentId; });
-      var oppElo = opponent ? estimateOpponentElo(opponent) : ELO_DEFAULT;
-      var playerElo = getPvPElo();
-      var oldRank = getPvPRank(playerElo);
-      var eloChange = calcEloChange(playerElo, oppElo, isWin);
-      var newElo = Math.max(0, playerElo + eloChange);
-      setPvPElo(newElo);
-      var rec = getPvPRecord();
-      if (isWin) rec.w++; else rec.l++;
-      setPvPRecord(rec);
-      syncProgressToServer();
-      var newRank = getPvPRank(newElo);
-      // Show Elo change toast
-      var sign = eloChange >= 0 ? '+' : '';
-      var eloColor = eloChange >= 0 ? 'var(--bs-accent)' : 'var(--bs-danger, #ff5252)';
-      showEloChange(sign + eloChange, eloColor, oldRank.name !== newRank.name ? newRank : null);
-
-      // Update results modal with Elo info
-      var xpSection = document.getElementById('arena-results-xp-section');
-      if (xpSection) {
-        var xpAmtEl = document.getElementById('arena-results-xp');
-        if (xpAmtEl) xpAmtEl.innerHTML = '<span style="color:' + eloColor + ';">' + sign + eloChange + ' Elo</span>';
-        var rankLabel = document.getElementById('arena-results-rank-label');
-        if (rankLabel) {
-          rankLabel.innerHTML =
-            '<span style="color:' + oldRank.color + ';"><i class="fas ' + oldRank.icon + '"></i> ' + oldRank.name + '</span>' +
-            ' <i class="fas fa-arrow-right" style="color:var(--bs-text-muted);margin:0 0.3rem;"></i> ' +
-            '<span style="color:' + newRank.color + ';"><i class="fas ' + newRank.icon + '"></i> ' + newRank.name + ' (' + newElo + ')</span>';
-        }
-        // Show progress to next PvP rank instead of XP bar
-        var barFill = document.getElementById('arena-results-xp-fill');
-        var barText = document.getElementById('arena-results-xp-text');
-        var pvpNextRank = PVP_RANKS[PVP_RANKS.indexOf(newRank) + 1];
-        if (barFill && barText && pvpNextRank) {
-          var pvpPct = Math.min(100, Math.max(0, ((newElo - newRank.min) / (pvpNextRank.min - newRank.min)) * 100));
-          barFill.style.width = pvpPct + '%';
-          barFill.style.background = newRank.color;
-          barText.textContent = newElo + ' / ' + pvpNextRank.min + ' Elo';
-        } else if (barFill && barText) {
-          barFill.style.width = '100%';
-          barFill.style.background = newRank.color;
-          barText.textContent = newElo + ' Elo — Max Rank!';
-        }
-        // Rank up notification
-        var rankUpEl = document.getElementById('arena-results-rank-up');
-        var newRankEl = document.getElementById('arena-results-new-rank');
-        if (oldRank.name !== newRank.name && eloChange > 0) {
-          if (rankUpEl) rankUpEl.style.display = 'block';
-          if (newRankEl) newRankEl.textContent = newRank.name;
-        }
-      }
-    }
-
-    loadProfile().then(() => updateRankDisplay());
-
-    // Win streak tracking
-    if (isWin) {
-      incrementTotalWins();
-      const newStreak = getWinStreak() + 1;
-      setWinStreak(newStreak);
-      setBestStreak(newStreak);
-
-      // Streak rewards — milestone bonuses
-      var streakBonus = 0;
-      var streakMsg = '';
-      if (newStreak >= 3 && newStreak < 5) {
-        streakBonus = Math.round(sparkReward * 0.1); // +10% sparks
-        streakMsg = '+' + streakBonus + ' streak sparks';
-      } else if (newStreak >= 5 && newStreak < 10) {
-        streakBonus = Math.round(sparkReward * 0.2); // +20% sparks
-        streakMsg = '+' + streakBonus + ' streak sparks';
-      } else if (newStreak >= 10 && newStreak < 15) {
-        streakBonus = Math.round(sparkReward * 0.3); // +30% sparks
-        streakMsg = '+' + streakBonus + ' streak sparks';
-      } else if (newStreak >= 15) {
-        streakBonus = Math.round(sparkReward * 0.5); // +50% sparks
-        streakMsg = '+' + streakBonus + ' streak sparks';
-      }
-      if (streakBonus > 0) addSparks(streakBonus);
-
-      // Milestone rewards at exact thresholds
-      if (newStreak === 5) {
-        setForgeWins(getForgeWins() + 1);
-        showSuccessToast('5-streak! +1 Forge Win');
-      } else if (newStreak === 10) {
-        addSparks(50);
-        showSuccessToast('10-streak! +50 Sparks');
-      } else if (newStreak === 15) {
-        setCardTitle('The Relentless');
-        addSparks(100);
-        showSuccessToast('15-streak! Title: "The Relentless" + 100 Sparks');
-      }
-
-      // Store streak bonus for results display
-      _lastStreakBonus = streakBonus;
-      _lastStreakMsg = streakMsg;
-
-      // Loot choice — pick 1 of 3 rewards
-      const lootOptions = [rollLoot(), rollLoot(), rollLoot()];
-      const usedStats = new Set();
-      lootOptions.forEach((l, i) => {
-        if (l.stat && usedStats.has(l.stat)) {
-          const available = ['str','agi','int','end','lck'].filter(s => !usedStats.has(s));
-          if (available.length > 0) {
-            const newStat = available[Math.floor(Math.random() * available.length)];
-            lootOptions[i] = { ...l, stat: newStat, label: '+' + l.amount + ' ' + newStat.toUpperCase() };
-          }
-        }
-        if (l.stat) usedStats.add(l.stat);
-      });
-      showLootChoice(lootOptions);
-
-      // Bounty checks
-      if (getWinStreak() >= 3) completeBounty('streak3');
-      // Track wins for win2 bounty
-      const bountyData = getDailyBounties();
-      bountyData.wins = (bountyData.wins || 0) + 1;
-      if (bountyData.wins >= 2) completeBounty('win2');
-      // Battle crate: every 5 wins
-      checkBattleCrate();
-    } else {
-      setWinStreak(0);
-      _lastStreakBonus = 0;
-      _lastStreakMsg = '';
-    }
-
-    // Track fight for daily bounty
-    completeBounty('play3');
-
-    // Infinite Tower results
-    if (_battleType === 'tower') {
-      handleTowerResult(isWin);
-      // Override button labels for tower
-      var tAgainBtn = document.getElementById('arena-results-again');
-      var tLobbyBtn = document.getElementById('arena-results-lobby');
-      if (isWin) {
-        if (tAgainBtn) tAgainBtn.textContent = 'Next Floor';
-        if (tLobbyBtn) tLobbyBtn.textContent = 'Exit Tower';
-      } else {
-        if (tAgainBtn) tAgainBtn.textContent = 'Try Again';
-        if (tLobbyBtn) tLobbyBtn.textContent = 'Exit Tower';
-      }
-      var tTitleEl = document.getElementById('arena-results-title');
-      var tSubEl = document.getElementById('arena-results-subtitle');
-      if (isWin) {
-        var clearedFloor = getTowerFloor();
-        if (tTitleEl) tTitleEl.textContent = 'Floor ' + clearedFloor + ' Cleared';
-        if (tSubEl) tSubEl.textContent = 'The tower stretches higher...';
-      } else {
-        if (tTitleEl) tTitleEl.textContent = 'Tower Run Over';
-        if (tSubEl) tSubEl.textContent = 'You reached Floor ' + getTowerBest() + ' at your best.';
-      }
-      showForgeProgressInResults();
-      return;
-    }
-
-    if (_battleType === 'pve' && isWin) {
-      const boss = _bossesById[_currentBossId];
-      const prevHighest = getHighestBossDefeated();
-      const isWeekly = isWeeklyBoss(_currentBossId);
-      const isNewBossDefeat = !isWeekly && boss && boss.boss > prevHighest;
-
-      if (boss && !isWeekly) setHighestBossDefeated(boss.boss);
-
-      // Forge progression: any win grants progress, new bosses give more
-      if (isNewBossDefeat) {
-        let forgeGain = 1;
-        if (getWinStreak() >= 5) forgeGain = 2; // Streak bonus
-        setForgeWins(getForgeWins() + forgeGain);
-        // Boss crate on first kill
-        awardCrate('boss');
-      } else if (!isWeekly) {
-        // Replay wins grant half a forge point (tracked as decimals, rounded on display)
-        setForgeWins(getForgeWins() + 0.5);
-      }
-
-      // Weekly boss: award stat reward + 2 forge wins + weekly crate on first weekly win
-      if (isWeekly && !isWeeklyRewardClaimed()) {
-        playSfx('bossDefeat');
-        setForgeWins(getForgeWins() + 2);
-        awardCrate('weekly');
-        const reward = await applyBossReward(boss);
-        if (reward) {
-          showRewardDrop(reward, boss);
-        }
-      }
-
-      // Play boss defeat fanfare on new boss kills
-      if (isNewBossDefeat) playSfx('bossDefeat');
-      // Boss defeat dialogue
-      if (_currentBossId) showBossDialogue(_currentBossId, 'loss');
-
-      // Apply boss reward (stat bonus, title, etc.)
-      if (isNewBossDefeat && boss) {
-        const reward = await applyBossReward(boss);
-        if (reward) {
-          showRewardDrop(reward, boss);
-        }
-        completeBounty('newBoss');
-      }
-
-      // Sync progression to server after boss fight
-      syncProgressToServer();
-
-      // Boss 10 — The Architect
-      if (boss && boss.boss === 10 && isNewBossDefeat) {
-        setTimeout(() => {
-          document.getElementById('arena-results-overlay').style.display = 'none';
-          const asc = getAscension();
-          if (asc > 0) {
-            // Already ascended before — offer ascension again
-            showAscensionOffer(asc);
-          } else {
-            showOverlay('bs-architect-win');
-          }
-        }, 2000);
-        return;
-      }
-
-      // Show Blindspot rank-up message instead of CardForge's
-      if (battleResult.rankUp) {
-        const rankUpEl = document.getElementById('arena-results-rank-up');
-        const newRankEl = document.getElementById('arena-results-new-rank');
-        if (rankUpEl) rankUpEl.style.display = 'block';
-        if (newRankEl) newRankEl.textContent = battleResult.newRank;
-      }
-
-      // Forge unlock at Silver rank-up
-      if (battleResult.rankUp && _profile && _profile.rank === 'silver') {
-        if (!localStorage.getItem('bs-forge-unlock-shown')) {
-          safeLSSet('bs-forge-unlock-shown', 'true');
-          setTimeout(() => {
-            document.getElementById('arena-results-overlay').style.display = 'none';
-            showOverlay('bs-forge-unlock');
-          }, 2000);
-          return;
-        }
-      }
-
-      // Forge visit trigger — only prompt on the FIRST unlock, not every time
-      if (!isForgeUnlocked()) {
-        const needed = _config ? _config.forgeVisit.winsRequired : 3;
-        if (getForgeWins() >= needed) {
-          setForgeUnlocked();
-          _pendingForge = true; // Flag checked after loot is picked
-        }
-      }
-    }
-
-    showForgeProgressInResults();
-
-    // Override CardForge button labels with Blindspot copy
-    const againBtn = document.getElementById('arena-results-again');
-    const lobbyBtn = document.getElementById('arena-results-lobby');
-    if (againBtn) againBtn.innerHTML = isWin ? 'Next Fight' : '<i class="fas fa-redo"></i> Rematch';
-    if (lobbyBtn) lobbyBtn.textContent = 'Lobby';
-
-    // Override results with Blindspot flavor
-    const titleEl = document.getElementById('arena-results-title');
-    const subtitleEl = document.getElementById('arena-results-subtitle');
-    if (isWin) {
-      const boss = _bossesById[_currentBossId];
-      const streak = getWinStreak();
-      if (titleEl) titleEl.textContent = streak >= 3 ? `${streak}x Victory!` : 'Victory';
-      if (subtitleEl && boss) subtitleEl.textContent = `You defeated ${boss.name}`;
-      // Show power after win (remove previous to prevent stacking)
-      const power = getCardPower(_selectedCard);
-      document.querySelector('.bs-results-power')?.remove();
-      document.querySelector('.bs-results-streak-bonus')?.remove();
-      if (power > 0) {
-        const powerEl = document.createElement('div');
-        powerEl.className = 'bs-results-power';
-        powerEl.innerHTML = `<i class="fas fa-bolt"></i> ${power} Power`;
-        subtitleEl?.after(powerEl);
-      }
-      // Show streak bonus in results
-      if (_lastStreakBonus > 0) {
-        const streakEl = document.createElement('div');
-        streakEl.className = 'bs-results-streak-bonus';
-        streakEl.innerHTML = '<i class="fas fa-fire"></i> ' + _lastStreakMsg;
-        var afterEl = document.querySelector('.bs-results-power') || subtitleEl;
-        if (afterEl) afterEl.after(streakEl);
-      }
-    } else {
-      if (titleEl) titleEl.textContent = 'Defeated';
-      if (subtitleEl) {
-        // "Almost" moment — check if boss had <10% HP
-        var almostMsg = '';
-        if (battleResult && battleResult.opponentHp !== undefined && battleResult.opponentMaxHp) {
-          var bossHpPct = battleResult.opponentHp / battleResult.opponentMaxHp;
-          if (bossHpPct < 0.1 && bossHpPct > 0) {
-            var bossName = _bossesById[_currentBossId];
-            almostMsg = 'So close! ' + (bossName ? bossName.name : 'The boss') + ' survived with ' + battleResult.opponentHp + ' HP. ';
-          }
-        }
-        const tip = getLossTip();
-        subtitleEl.textContent = almostMsg + tip;
-      }
-    }
-
-    // Session stats panel
-    renderSessionStats();
-  }
+  var _Br = window.BsBattleResults || {};
+  function playVictoryAnimation() { if (_Br.playVictoryAnimation) _Br.playVictoryAnimation(); }
+  async function handlePlayPageResult(battleResult, battleData) { if (_Br.handleResult) return _Br.handleResult(battleResult, battleData); }
 
   // ============================================================
   // PVP — delegated to bs-pvp.js (window.BsPvp)
