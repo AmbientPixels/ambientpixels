@@ -2,7 +2,7 @@
 
 ## Progress (Mar 23, 2026)
 
-### Completed — 31 modules extracted, 7591 → 2281 lines (-70.0%)
+### Completed — 35 modules extracted, 7591 → 2091 lines (-72.5%)
 
 | Module | Lines | API | Status |
 |--------|-------|-----|--------|
@@ -37,6 +37,10 @@
 | `bs-battle-palette.js` | 35 | `window.BsBattlePalette` | Done (Round 9) |
 | `bs-card-switcher.js` | 113 | `window.BsCardSwitcher` | Done (Round 9) |
 | `bs-prefight-buttons.js` | 123 | `window.BsPrefightButtons` | Done (Round 9) |
+| `bs-card-rarity.js` | 48 | `window.BsCardRarity` | Done (Round 10) |
+| `bs-sparks-shop.js` | 44 | `window.BsSparksShop` | Done (Round 10) |
+| `bs-boss-rewards.js` | 104 | `window.BsBossRewards` | Done (Round 10) |
+| `bs-class-picker.js` | 108 | `window.BsClassPicker` | Done (Round 10) |
 
 ### Bug fix — Round 9 (Mar 23)
 - `_loadProgressFromCache` was private in bs-state.js but referenced directly in monolith
@@ -251,9 +255,35 @@ re-runs the same tests before committing. See `TESTING-PLAN.md` for full test sp
 | After bs-prefight-buttons.js | 2281 | -78 |
 | **Total Round 9** | **2281** | **-226 (-9.0%)** |
 
-### Round 10+
-- New card class picker (~100 lines, 1175-1274) — class picker + create card + forge
-- Battle completion hook (~56 lines, 1306-1361) — deeply tangled with state
+## Round 10 — Rarity + Shop + Boss Rewards + Class Picker (COMPLETED Mar 23)
+
+### Extraction results
+
+| Order | Module | Lines | Ease | Key Functions |
+|-------|--------|-------|------|---------------|
+| 1 | `bs-card-rarity.js` | 48 | Easy | getCardRarity(), getNextRarity(), renderRarityBadge(). 1 callback (getForgeVisitCount). |
+| 2 | `bs-sparks-shop.js` | 44 | Easy | updateSparksShop() / render(), buy ember crate handler. 4 callbacks. |
+| 3 | `bs-boss-rewards.js` | 104 | Medium | applyBossReward(), getClaimedRewards(), isRewardClaimed(), unlockVisual(), hasVisualUnlock(). Async→Promise. 10 callbacks. |
+| 4 | `bs-class-picker.js` | 108 | Medium | showNewCardClassPicker(), NEW_CARD_CLASS_STATS, card creation + forge open. Async→Promise. 7 callbacks. |
+
+### Design decisions
+- **bs-card-rarity.js**: Pure logic, single callback for forge visit count. CARD_RARITIES read from BsConst at module init.
+- **bs-sparks-shop.js**: Self-contained UI with click handler. `_bound` flag prevents double-binding (same pattern as monolith).
+- **bs-boss-rewards.js**: `_progress` accessed via `getProgress()` callback (returns object reference, in-place mutations work). `async/await` + `Object.assign` + spread converted to Promise chains + manual `for..in` copy.
+- **bs-class-picker.js**: `_selectedCard` write split into `setSelectedCard` + `setSelectedCardId` callbacks to avoid exposing the variable directly. `async/await` + `{ ...stats }` spread converted to Promise chain + manual copy.
+
+### Round 10 line reduction
+| Step | Monolith | Change |
+|------|----------|--------|
+| Before Round 10 | 2281 | — |
+| After bs-card-rarity.js | 2253 | -28 |
+| After bs-sparks-shop.js | 2232 | -21 |
+| After bs-boss-rewards.js | 2178 | -54 |
+| After bs-class-picker.js | 2091 | -87 |
+| **Total Round 10** | **2091** | **-190 (-8.3%)** |
+
+### Round 11+
+- Battle completion hook (~56 lines) — deeply tangled with state
 - Lobby rendering (~369 lines) — cross-references many sections, extract last
 
 ## Architecture
@@ -289,6 +319,10 @@ re-runs the same tests before committing. See `TESTING-PLAN.md` for full test sp
 <script src="js/lib/bs-storage-cleanup.js"></script>
 <script src="js/lib/bs-battle-palette.js"></script>
 <script src="js/lib/bs-card-switcher.js"></script>
+<script src="js/lib/bs-card-rarity.js"></script>
+<script src="js/lib/bs-sparks-shop.js"></script>
+<script src="js/lib/bs-boss-rewards.js"></script>
+<script src="js/lib/bs-class-picker.js"></script>
 <script src="js/lib/bs-prefight-buttons.js"></script>
 <script src="js/lib/bs-landing.js"></script>
 <!-- existing lib modules (arena API, battle UI, adventure, etc.) -->
@@ -327,6 +361,10 @@ if (_Land.setCallbacks) _Land.setCallbacks({ loadGameData, loadProfile, showOver
 // _StorageCleanup — no callbacks (safeLSSet passed as arg to .run())
 if (_Bp.setCallbacks) _Bp.setCallbacks({ getSelectedCard, renderCardHTML });
 if (_Sw.setCallbacks) _Sw.setCallbacks({ getDeck, getDeckSize, getSelectedCardIndex, getConfig, setActiveCard, renderLobby, isForgeUnlocked, isForgePending, getForgeWins, getHighestBossDefeated, showNewCardClassPicker });
+if (_Rar.setCallbacks) _Rar.setCallbacks({ getForgeVisitCount });
+if (_Shop.setCallbacks) _Shop.setCallbacks({ getSparks, spendSparks, awardCrate, toast: showSuccessToast });
+if (_BossRew.setCallbacks) _BossRew.setCallbacks({ getProgress, getSelectedCard, getConfig, isWeeklyBoss, isWeeklyRewardClaimed, claimWeeklyReward, setCardTitle, getForgeWins, setForgeWins });
+if (_Cp.setCallbacks) _Cp.setCallbacks({ addCardsToDeck, setSelectedCardId, setSelectedCard, safeLSSet, renderLobby, openForgeScreen, showErrorToast });
 if (_Pf.setCallbacks) _Pf.setCallbacks({ hideOverlay, getSelectedCard, ensureCombatStats, getBossById, getAscension, isWeeklyBoss, setAdventureItems, startCampaignBattle });
 ```
 
