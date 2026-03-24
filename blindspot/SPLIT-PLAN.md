@@ -201,14 +201,31 @@ All flows tested via Playwright on live site (`ambientpixels.ai/blindspot/`):
 | After bs-auth-ui.js | 2499 | -22 |
 | **Total Round 8** | **2499** | **-281 (-10.1%)** |
 
-### Deferred (Round 9+)
-- Lobby rendering (~369 lines) — cross-references many sections, extract last
-- Pre-fight adventure/fight buttons (~91 lines, 1848-1938) — setupPrefightButtons(), populatePrefightOverlay()
-- New card class picker (~100 lines, 1175-1274) — class picker + create card + forge
-- Card switcher (~73 lines, 1066-1138) — lobby card arrows
-- Battle completion hook (~56 lines, 1306-1361) — deeply tangled with state
+### Lessons from Round 7-8
+
+Round 7 extraction broke the main Fight button (circular callback dep) and went
+undetected — tests only checked structure, not real player flows. Polaroid container
+style had no CSS. Both basic player-facing features.
+
+**New rule:** Every round starts with player flow tests, extracts modules, then
+re-runs the same tests before committing. See `TESTING-PLAN.md` for full test spec.
+
+### Round 9 Plan — Safety net + easy extractions
+
+**Step 1:** Build `player-flow-tests.js` — Playwright click-through coverage for
+every critical path (fight button, stranger battle, Quick Build, campaign, pre-fight,
+card containers, navigation). Must pass before and after each extraction.
+
+**Step 2:** Extract easy modules with test safety net:
 - Storage cleanup (~46 lines, 2567-2612) — cleanupLocalStorage()
 - Battle card palette (~21 lines, 2613-2633) — applyBattlePalette()
+- Card switcher (~73 lines, 1066-1138) — lobby card arrows
+- Pre-fight adventure/fight buttons (~91 lines, 1848-1938) — setupPrefightButtons(), populatePrefightOverlay()
+
+### Round 10+
+- New card class picker (~100 lines, 1175-1274) — class picker + create card + forge
+- Battle completion hook (~56 lines, 1306-1361) — deeply tangled with state
+- Lobby rendering (~369 lines) — cross-references many sections, extract last
 
 ## Architecture
 
