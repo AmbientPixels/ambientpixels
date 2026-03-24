@@ -88,30 +88,31 @@ All flows tested via Playwright on live site (`ambientpixels.ai/blindspot/`):
 - **bs-session-stats.js**: Owns `_battleRoundStats` variable. Monolith `isEarlyForfeit()` uses `_Ss.getStats()` getter. Tutorial and SFX callbacks injected.
 - **bs-nav.js**: showScreen/showOverlay/hideOverlay stay in monolith (too many call sites to redirect). Module owns only event binding. 37 callbacks injected for state access + function delegation.
 
-## Round 6 Plan — Medium Sections
+## Round 6 Plan — Deck + Results + Onboarding
 
-Monolith is at 3937 lines. Remaining extractable sections:
+Monolith is at 3937 lines. Section map with exact line ranges:
 
-| Size | Section | Ease | Notes |
-|------|---------|------|-------|
-| 422 | Battle Results | Medium | Victory animations, result display. Reads `_battleType`, `_currentBossId`, `_activeBattle`. |
-| 393 | Landing Page | Medium | Stranger intro, fight flow, Quick Build trigger. Heavy DOM + auth flow. |
-| 368 | Lobby | Medium-Hard | Lobby rendering — cross-references many sections (card, rank HUD, bounties, challenges, mode buttons). |
-| 179 | Deck Management | Easy-Medium | Deck grid, card deletion, deck switcher overlay. |
-| 149 | Shared Utilities | Low ROI | `escHtml`, boss record, mastery stars — many callers depend on these. |
-| 117 | Lobby Onboarding | Easy | 3-step spotlight tutorial. Isolated DOM. |
+| Lines | Size | Section | Ease | Notes |
+|-------|------|---------|------|-------|
+| 1181-1360 | 180 | Deck Management | Easy-Medium | Deck grid, card deletion, deck switcher overlay. Card data deps. |
+| 2305-2422 | 118 | Lobby Onboarding | Easy | 3-step spotlight tutorial. Isolated DOM. |
+| 2683-3105 | 423 | Battle Results | Medium | Victory animations, XP/sparks/Elo, loot trigger. Many state writes. |
+| 1433-1826 | 394 | Landing Page | Medium | Stranger intro, fight flow, Quick Build trigger. Heavy DOM + auth. |
+| 1936-2304 | 369 | Lobby | Medium-Hard | Lobby rendering — cross-references many sections. |
 
-### Recommended next extractions
+### Extraction order
 
-| Order | Module | ~Lines | Ease | Why |
-|-------|--------|--------|------|-----|
-| 1 | `bs-deck.js` | 179 | Easy-Medium | Deck management overlay. Moderate card data deps. |
-| 2 | `bs-battle-results.js` | 422 | Medium | Victory animations, XP/sparks/Elo, loot trigger. Many state writes. |
-| 3 | `bs-lobby-onboarding.js` | 117 | Easy | 3-step spotlight tutorial. Isolated DOM. |
+| Order | Module | ~Lines | Range | Ease | Why |
+|-------|--------|--------|-------|------|-----|
+| 1 | `bs-deck.js` | 180 | 1181-1360 | Easy-Medium | Deck grid, card deletion, sort. Moderate card data deps. |
+| 2 | `bs-lobby-onboarding.js` | 118 | 2305-2422 | Easy | 3-step spotlight tutorial. Isolated DOM, no cross-cutting deps. |
+| 3 | `bs-battle-results.js` | 423 | 2683-3105 | Medium | Victory animations, XP/sparks/Elo, loot trigger. Biggest chunk left. Many state writes via callbacks. |
+
+Round 6 target: ~721 lines removed, 3937 → ~3216.
 
 ### Deferred (Round 7+)
-- Landing Page (~393 lines) — heavy auth + DOM flow, benefits from all other modules being stable first
-- Lobby rendering (~368 lines) — cross-references many sections, extract last
+- Landing Page (~394 lines, 1433-1826) — heavy auth + DOM flow, benefits from all other modules being stable first
+- Lobby rendering (~369 lines, 1936-2304) — cross-references many sections, extract last
 - Battle orchestration (~49 lines `BATTLE COMPLETION HOOK` + scattered) — deeply tangled with state
 
 ## Architecture
