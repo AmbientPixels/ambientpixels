@@ -271,7 +271,7 @@
         if (cardId && _cb.safeLSSet) _cb.safeLSSet('bs-selected-card-id', cardId);
 
         window.ArenaAPI.loadCards().then(function (data) {
-          var cards = data.userCards || [];
+          var cards = (data.userCards || []).filter(function (c) { return !c.isDefault; });
           cards.forEach(function (c) { if (_cb.addCardToDeck) _cb.addCardToDeck(c); });
           var progress = _cb.getProgress ? _cb.getProgress() : {};
           progress.selectedCardId = cardId;
@@ -350,7 +350,7 @@
       }
 
       cardPromise.then(function (data) {
-        var cards = data.userCards || [];
+        var cards = (data.userCards || []).filter(function (c) { return !c.isDefault; });
         var card = cardId ? cards.find(function (c) { return c.id === cardId; }) : cards[cards.length - 1];
         // Cache card to deck so play.html can find it (critical for guests)
         if (card) {

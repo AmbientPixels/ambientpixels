@@ -885,7 +885,7 @@
   async function loadUserCards() {
     try {
       const data = await window.ArenaAPI.loadCards();
-      var cards = data.userCards || [];
+      var cards = (data.userCards || []).filter(function(c) { return !c.isDefault; });
       // Cache deck to localStorage for quick access
       if (cards.length > 0) setDeck(cards);
       return cards;
