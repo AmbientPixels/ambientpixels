@@ -2,7 +2,7 @@
 
 ## Progress (Mar 23, 2026)
 
-### Completed — 13 modules extracted, 7591 → 4616 lines (-39.2%)
+### Completed — 16 modules extracted, 7591 → 3937 lines (-48.1%)
 
 | Module | Lines | API | Status |
 |--------|-------|-----|--------|
@@ -19,14 +19,26 @@
 | `bs-pvp.js` | 248 | `window.BsPvp` | Done (Round 4) |
 | `bs-campaign.js` | 254 | `window.BsCampaign` | Done (Round 4) |
 | `bs-forge.js` | 824 | `window.BsForge` | Done (Round 4) |
+| `bs-debug.js` | 323 | `window.BsDebug` | Done (Round 5) |
+| `bs-session-stats.js` | 191 | `window.BsSessionStats` | Done (Round 5) |
+| `bs-nav.js` | 165 | `window.BsNav` | Done (Round 5) |
 
-### Browser verification — Round 4 (Mar 23)
+### Browser verification — Round 5 (Mar 23)
 All flows tested via Playwright on live site (`ambientpixels.ai/blindspot/`):
 - Landing page: OK (13 player-simulator checks pass)
 - play.html lobby (card, rank HUD, bounties, challenges, mode buttons): OK
 - Campaign screen opens via bottom nav: OK
 - Desktop layout (no overflow, nav hidden): OK
 - Zero JS errors across index.html + play.html
+
+### Round 5 line reduction
+| Step | Monolith | Change |
+|------|----------|--------|
+| Before Round 5 | 4616 | — |
+| After bs-debug.js | 4293 | -323 |
+| After bs-session-stats.js | 4102 | -191 |
+| After bs-nav.js | 3937 | -165 |
+| **Total Round 5** | **3937** | **-679 (-14.7%)** |
 
 ### Round 4 line reduction
 | Step | Monolith | Change |
@@ -37,16 +49,17 @@ All flows tested via Playwright on live site (`ambientpixels.ai/blindspot/`):
 | After bs-forge.js | 4616 | -750 |
 | **Total Round 4** | **4616** | **-1137 (-19.8%)** |
 
-### Previous browser verification (Mar 23, pre-Round 4)
+### Previous browser verifications
+**Round 4 (Mar 23):**
+- Landing page: OK (13 player-simulator checks pass)
+- play.html lobby: OK, Campaign via bottom nav: OK, Desktop layout: OK
+- Zero JS errors
+
+**Pre-Round 4 (Mar 23):**
 - Landing page + stranger intro: OK
 - Stranger battle (tutorial + combat): OK, 12 rounds, win → "Build Your Card"
-- play.html lobby (card, rank HUD, bounties, challenges, mode buttons): OK
-- Campaign ladder (10 bosses + weekly): OK
-- Pre-fight overlay (stat comparison, charm selector, arena selector): OK
-- Forge (Stats/Look/Details tabs, palettes, containers): OK
-- Card switcher (prev/next, 1/3 → 2/3): OK
-- Adventure (BS.adventure(6), typewriter, scene image, choices): OK
-- Zero JS errors across all flows
+- Campaign ladder (10 bosses + weekly), Pre-fight overlay, Forge, Card switcher, Adventure: OK
+- Zero JS errors
 
 ### Bugs found + fixed during verification (pre-Round 4)
 - `BsCrates.openOverlay()` crashed when `crateIndex` was `undefined` (NaN index) — added guard
@@ -58,46 +71,45 @@ All flows tested via Playwright on live site (`ambientpixels.ai/blindspot/`):
 - Cross-cutting concerns use callback injection (`setCallbacks()` pattern)
 - `_progress` shared via object reference — in-place mutations work across modules
 - Functions that modify `_selectedCard` or call save API stay in monolith
+- showScreen/showOverlay/hideOverlay stay in monolith (36+ call sites) — nav module owns event binding only
 
-## Round 4 — Page Flows (COMPLETED Mar 23)
+## Round 5 — Debug + Stats + Nav (COMPLETED Mar 23)
 
 ### Extraction results
 
 | Order | Module | Lines | Ease | Key Functions |
 |-------|--------|-------|------|---------------|
-| 1 | `bs-pvp.js` | 248 | Easy | `renderPvPGallery`, `showPvPComparison`, PvP Elo helpers, rating display |
-| 2 | `bs-campaign.js` | 254 | Easy | `renderCampaignLadder`, `renderTowerSection`, weekly boss UI |
-| 3 | `bs-forge.js` | 824 | Medium | Stat allocation, palette/container UI, avatar, canvas particles |
+| 1 | `bs-debug.js` | 323 | Easy | `window.BS` cheat console (sparks, setBoss, godMode, addCrate, cosmetics, etc.) |
+| 2 | `bs-session-stats.js` | 191 | Easy | Battle round tracking, boss dialogue, loss tips, session stats display |
+| 3 | `bs-nav.js` | 165 | Easy | `bindPlayNavigation()` — bottom nav, back buttons, results buttons, forge overlays |
 
-## Round 5 Plan — Big Sections
+### Design decisions
+- **bs-debug.js**: Uses `_cb.getConfig()` instead of direct `_config` access. `_Crt.updateBadge()` called directly via `window.BsCrates`.
+- **bs-session-stats.js**: Owns `_battleRoundStats` variable. Monolith `isEarlyForfeit()` uses `_Ss.getStats()` getter. Tutorial and SFX callbacks injected.
+- **bs-nav.js**: showScreen/showOverlay/hideOverlay stay in monolith (too many call sites to redirect). Module owns only event binding. 37 callbacks injected for state access + function delegation.
 
-Monolith is at 4616 lines. Remaining sections by size:
+## Round 6 Plan — Medium Sections
+
+Monolith is at 3937 lines. Remaining extractable sections:
 
 | Size | Section | Ease | Notes |
 |------|---------|------|-------|
-| 422 | Battle Results | Medium | Victory animations, result display, session stats overlay. Reads `_battleType`, `_currentBossId`, `_activeBattle`. |
+| 422 | Battle Results | Medium | Victory animations, result display. Reads `_battleType`, `_currentBossId`, `_activeBattle`. |
 | 393 | Landing Page | Medium | Stranger intro, fight flow, Quick Build trigger. Heavy DOM + auth flow. |
 | 368 | Lobby | Medium-Hard | Lobby rendering — cross-references many sections (card, rank HUD, bounties, challenges, mode buttons). |
-| 329 | Debug Console | Easy | `window.BS` cheat console. Zero tanglement — reads/writes `_progress` only. |
-| 212 | Session Stats | Easy | Battle round tracking + display. Isolated data collector. |
-| 207 | Navigation | Easy | `showScreen()`, bottom nav, back buttons. Low deps. |
 | 179 | Deck Management | Easy-Medium | Deck grid, card deletion, deck switcher overlay. |
 | 149 | Shared Utilities | Low ROI | `escHtml`, boss record, mastery stars — many callers depend on these. |
 | 117 | Lobby Onboarding | Easy | 3-step spotlight tutorial. Isolated DOM. |
 
-### Recommended extraction order
+### Recommended next extractions
 
 | Order | Module | ~Lines | Ease | Why |
 |-------|--------|--------|------|-----|
-| 1 | `bs-debug.js` | 329 | Easy | Zero tanglement, self-contained `window.BS` console. Biggest easy win. |
-| 2 | `bs-session-stats.js` | 212 | Easy | Isolated data collector + display. No cross-cutting deps. |
-| 3 | `bs-nav.js` | 207 | Easy | `showScreen()`, bottom nav wiring. Low deps, high call count → big delegate surface. |
-| 4 | `bs-deck.js` | 179 | Easy-Medium | Deck management overlay. Moderate card data deps. |
-| 5 | `bs-battle-results.js` | 422 | Medium | Victory animations, XP/sparks/Elo, loot trigger. Many state writes. |
+| 1 | `bs-deck.js` | 179 | Easy-Medium | Deck management overlay. Moderate card data deps. |
+| 2 | `bs-battle-results.js` | 422 | Medium | Victory animations, XP/sparks/Elo, loot trigger. Many state writes. |
+| 3 | `bs-lobby-onboarding.js` | 117 | Easy | 3-step spotlight tutorial. Isolated DOM. |
 
-Round 5 target: modules 1-3 (~748 lines, 4616→~3868, pushing below 4000).
-
-### Deferred (Round 6+)
+### Deferred (Round 7+)
 - Landing Page (~393 lines) — heavy auth + DOM flow, benefits from all other modules being stable first
 - Lobby rendering (~368 lines) — cross-references many sections, extract last
 - Battle orchestration (~49 lines `BATTLE COMPLETION HOOK` + scattered) — deeply tangled with state
@@ -119,6 +131,9 @@ Round 5 target: modules 1-3 (~748 lines, 4616→~3868, pushing below 4000).
 <script src="js/lib/bs-pvp.js"></script>
 <script src="js/lib/bs-campaign.js"></script>
 <script src="js/lib/bs-forge.js"></script>
+<script src="js/lib/bs-session-stats.js"></script>
+<script src="js/lib/bs-nav.js"></script>
+<script src="js/lib/bs-debug.js"></script>
 <!-- existing lib modules (arena API, battle UI, adventure, etc.) -->
 <script src="js/blindspot-flow.js"></script>
 ```
@@ -127,6 +142,7 @@ Round 5 target: modules 1-3 (~748 lines, 4616→~3868, pushing below 4000).
 - `bs-state.js` owns `_progress` object + server sync + localStorage cache
 - `bs-constants.js` owns all game data constants
 - `bs-rewards.js` owns CHALLENGES + BOUNTY_POOL constants
+- `bs-session-stats.js` owns `_battleRoundStats` (exposed via `getStats()`)
 - Monolith still owns: `_config`, `_selectedCard`, `_bosses`, `_activeBattle`, and all UI state vars
 
 ### Callback injection (for circular deps)
@@ -138,6 +154,9 @@ if (_Rew.setCallbacks) _Rew.setCallbacks({ getHighestBoss, getBestStreak, ... })
 if (_Pvp.setCallbacks) _Pvp.setCallbacks({ getSelectedCard, getCardPower, ensureCombatStats, escHtml, ... });
 if (_Camp.setCallbacks) _Camp.setCallbacks({ getBosses, getBossesById, getHighestBoss, ... });
 if (_Forge.setCallbacks) _Forge.setCallbacks({ getConfig, getSelectedCard, setSelectedCard, ... });
+if (_Ss.setCallbacks) _Ss.setCallbacks({ flashMoveResult, playSfx, getBattleType, getCurrentBossId, ... });
+if (_Nav.setCallbacks) _Nav.setCallbacks({ showScreen, renderLobby, startCampaignBattle, ... (37 callbacks) });
+if (_Dbg.setCallbacks) _Dbg.setCallbacks({ getConfig, renderLobby, openForgeScreen, getSelectedCard, playVictoryAnimation });
 ```
 
 ## Test infrastructure
