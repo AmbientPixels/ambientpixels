@@ -1,96 +1,83 @@
 # Blindspot Monolith Split — Plan
 
-## Current State (Mar 23, 2026)
-- `blindspot-flow.js`: 7591 lines, 46 sections, ~50 shared mutable variables
-- All code inside a single IIFE — no exports, everything communicates via closure
-- Test safety net: 23 smoke checks + 83 unit tests (`node tests/run-all.js`)
+## Progress (Mar 23, 2026)
 
-## The Core Problem
-Almost everything reads/writes `_progress` and `_selectedCard`. These two objects plus `_config` and `_bosses` are the gravitational center.
+### Completed — 8 modules extracted, 7591 → 6169 lines (-18.7%)
 
-## State Management Strategy
-Create a **shared state module** (`bs-state.js`) that:
-- Owns all mutable state variables
-- Exposes getters/setters (not raw references)
-- Is loaded first, before all other modules
-- Other modules access state via `window.BsState`
+| Module | Lines | API | Status |
+|--------|-------|-----|--------|
+| `bs-constants.js` | 233 | `window.BsConst` | Done |
+| `bs-state.js` | 228 | `window.BsState` | Done |
+| `bs-audio-sfx.js` | 366 | `window.BsSfx` | Done |
+| `bs-toast.js` | 36 | `window.BsToast` | Done |
+| `bs-cosmetics.js` | 250 | `window.BsCosmetics` | Done |
+| `bs-crates.js` | 220 | `window.BsCrates` | Done |
+| `bs-strategy.js` | 207 | `window.BsStrategy` | Done |
+| `bs-card-renderer.js` | 131 | `window.BsCardRenderer` | Done |
 
-## Module Split Order (incremental, one per session)
+### Pattern used
+- Each module is a self-contained IIFE exposing `window.BsModuleName`
+- Monolith keeps thin delegate functions (1-2 lines each) preserving all call sites
+- Cross-cutting concerns use callback injection (`setCallbacks()` pattern, see bs-crates.js)
+- `_progress` shared via object reference — in-place mutations work across modules
 
-### Round 1: Pure utilities (zero risk)
-| Module | ~Lines | Source Sections |
-|--------|--------|----------------|
-| `bs-audio-sfx.js` | 260 | SFX defs + ambient audio |
-| `bs-toast.js` | 30 | Toast notifications |
+### Next session: Browser verification FIRST
+**Do not extract more modules until the game is tested in-browser.**
+The test suite (106 checks) only covers parse + math. DOM rendering, overlay transitions,
+cosmetic equip/unequip, SFX playback, crate opening, and prefight stat comparison all need
+manual browser verification. Potential failure modes:
+- Delegate functions called before module loads (script order)
+- `_config` not passed to crate/cosmetic modules (callbacks wired after loadGameData)
+- `ensureCombatStats` delegation breaking card display pipeline
+- Cosmetic collection tab switching via `_Cos.setSlot()` instead of local var
 
-### Round 2: State + constants
+### After verification: remaining Round 3 targets
 | Module | ~Lines | Notes |
 |--------|--------|-------|
-| `bs-state.js` | 200 | Central state owner. `window.BsState` |
-| `bs-constants.js` | 150 | ARCHETYPES, STAT_PASSIVES, CARD_RARITIES, LOOT_TABLE, PVP_RANKS, etc. |
-
-### Round 3: Game systems
-| Module | ~Lines | Source Sections |
-|--------|--------|----------------|
-| `bs-progression.js` | 200 | Progression getters/setters, tower, weekly, mastery |
-| `bs-strategy.js` | 280 | Passives, archetypes, move upgrades, prefight info |
-| `bs-rarity.js` | 40 | Card rarity from forge visits |
-| `bs-cosmetics.js` | 230 | Cosmetic inventory, equipping |
-| `bs-charms.js` | 200 | Charm selection, adventure items |
-| `bs-crates.js` | 250 | Crate inventory, opening ceremony |
+| `bs-charms.js` | 200 | Charm selection, adventure items in battle |
 | `bs-rewards.js` | 300 | Loot drops, challenges, bounties |
+| `bs-progression.js` | 200 | Tiny getters/setters — low ROI, defer |
 
-### Round 4: Battle systems
-| Module | ~Lines | Source Sections |
-|--------|--------|----------------|
-| `bs-battle-hooks.js` | 200 | Battle tracking, results hook |
-| `bs-pvp.js` | 260 | PvP gallery, matchmaking, Elo |
-| `bs-ascension.js` | 60 | Ascension offers and rewards |
+### Round 4+: Page flows (high interdependency)
+These are the remaining ~6000 lines. Each page flow (lobby, campaign, forge, battle results,
+PvP, tower, deck, navigation) is deeply tangled with DOM and cross-references other flows.
+Extraction requires careful callback wiring and browser testing after each module.
 
-### Round 5: Page flows (largest, most interconnected)
-| Module | ~Lines | Source Sections |
-|--------|--------|----------------|
-| `bs-lobby.js` | 400 | Lobby rendering, onboarding |
-| `bs-campaign.js` | 150 | Campaign ladder |
-| `bs-tower.js` | 180 | Infinite tower |
-| `bs-forge-screen.js` | 800 | Full forge UI |
-| `bs-deck.js` | 400 | Deck management, card switcher |
-| `bs-battle-results.js` | 400 | Post-battle screens, victory |
-| `bs-landing.js` | 200 | Landing page, stranger intro |
-| `bs-navigation.js` | 200 | Screen routing, bottom nav |
+## Architecture
 
-### Round 6: Cleanup
-| Module | ~Lines | Source Sections |
-|--------|--------|----------------|
-| `bs-cheats.js` | 350 | Debug console |
-| `blindspot-flow.js` | ~100 | Boot only (init + DOMContentLoaded) |
-
-## Per-Session Protocol
-1. Extract ONE module
-2. Wire via `window.BsModuleName` (IIFE pattern, same as bs-adventure.js)
-3. Add `<script>` tag to index.html and play.html
-4. Run `node tests/run-all.js` — must pass
-5. Manual smoke test in browser (lobby loads, battle starts)
-6. Commit + push
-
-## Shared State Variables (move to bs-state.js)
+### Load order (current)
+```html
+<script src="js/lib/bs-constants.js"></script>
+<script src="js/lib/bs-state.js"></script>
+<script src="js/lib/bs-audio-sfx.js"></script>
+<script src="js/lib/bs-toast.js"></script>
+<script src="js/lib/bs-cosmetics.js"></script>
+<script src="js/lib/bs-crates.js"></script>
+<script src="js/lib/bs-strategy.js"></script>
+<script src="js/lib/bs-card-renderer.js"></script>
+<!-- existing lib modules (arena API, battle UI, adventure, etc.) -->
+<script src="js/blindspot-flow.js"></script>
 ```
-_progress, _progressLoaded, _syncInFlight, _syncTimer
-_config, _bosses, _bossesById, _bossesByNumber
-_selectedCard, _strangerCard
-_profile, _profileData
-_activeBattle, _currentBossId, _battleType
-_isStrangerFight, _isFirstRealFight
-_equippedCharm, _charmUsedThisBattle
-_adventureItems, _adventureItemsUsed
-_pvpGallery, _pvpOpponentId
-_hookInstalled, _origShowResults, _battleRoundStats, _submitMoveHooked
-_towerPendingFloor, _pendingForge
-_lastStreakBonus, _lastStreakMsg
-_cosmeticLookup, _cosmeticsBySlot, _collectionSlot
-_switcherBound, _deckSortMode, _deckEventsBound, _deckDeleteTarget
-_newCardBound, _navBound, _sparksShopBound
-_tutorialStep, _tutorialEl
-_audioCtx, _ambientNodes
-_loadingTarget, _loadingCurrent, _loadingRAF, _loadingFill
+
+### State ownership
+- `bs-state.js` owns `_progress` object + server sync + localStorage cache
+- `bs-constants.js` owns all game data constants
+- Monolith still owns: `_config`, `_selectedCard`, `_bosses`, `_activeBattle`, and all UI state vars
+- Future: move `_config`/`_bosses` to `bs-state.js` after Round 3
+
+### Callback injection (for circular deps)
+```js
+// In monolith, after loadGameData():
+if (_Crt.setCallbacks) _Crt.setCallbacks({
+  applyCrateLoot: applyCrateLoot,
+  renderLobby: renderLobby,
+  updateSparksShop: updateSparksShop
+});
 ```
+
+## Test infrastructure
+- `tests/smoke-test.js` — 23 structural checks (parse, CSS, HTML elements)
+- `tests/unit-tests.js` — 83 game math checks (Elo, rarity, archetypes, passives, DC, loot)
+- `tests/run-all.js` — combined runner (106 total)
+- `tests/player-simulator.js` — Playwright click-through (landing, lobby, campaign, nav)
+- `tests/api-contract.js` — boss data + battle API shape validation
