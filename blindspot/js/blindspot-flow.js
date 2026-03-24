@@ -941,6 +941,10 @@
         getPendingForge: function() { return _pendingForge; },
         setPendingForge: function(v) { _pendingForge = v; }
       });
+      if (_Rd.setCallbacks) _Rd.setCallbacks({
+        getSelectedCard: function() { return _selectedCard; },
+        escHtml: escHtml
+      });
       if (_Asc.setCallbacks) _Asc.setCallbacks({
         playSfx: playSfx, showScreen: showScreen, renderLobby: renderLobby,
         showSuccessToast: showSuccessToast, syncProgressToServer: syncProgressToServer,
@@ -2240,95 +2244,11 @@
   function showErrorToast(msg) { if (window.BsToast) window.BsToast.error(msg); }
   function showSuccessToast(msg) { if (window.BsToast) window.BsToast.success(msg); }
 
-  // ============================================================
-  // REWARD SYSTEM — Roulette + Boss Drops
-  // ============================================================
-
-  var LOOT_TABLE = _C.LOOT_TABLE;
-
-  function rollLoot() {
-    const totalWeight = LOOT_TABLE.reduce((sum, item) => sum + item.weight, 0);
-    let roll = Math.random() * totalWeight;
-    for (const item of LOOT_TABLE) {
-      roll -= item.weight;
-      if (roll <= 0) return item;
-    }
-    return LOOT_TABLE[0];
-  }
-
-  async function applyLootDrop(loot) {
-    if (!_selectedCard || !_selectedCard.combatStats || loot.type !== 'stat_shard') return;
-
-    const oldVal = _selectedCard.combatStats[loot.stat] || 0;
-    _selectedCard.combatStats[loot.stat] = Math.min(100, oldVal + loot.amount);
-
-    // Save with retry — revert on failure to prevent drift
-    try {
-      const cardToSave = { ..._selectedCard };
-      cardToSave.stats = [
-        { name: 'Strength', value: cardToSave.combatStats.str },
-        { name: 'Agility', value: cardToSave.combatStats.agi },
-        { name: 'Intelligence', value: cardToSave.combatStats.int },
-        { name: 'Endurance', value: cardToSave.combatStats.end },
-        { name: 'Luck', value: cardToSave.combatStats.lck }
-      ];
-      const url = window.buildApiPath('saveCard');
-      const headers = { 'Content-Type': 'application/json' };
-      const authHeaders = await window.ArenaAPI.getPrincipalHeader();
-      Object.assign(headers, authHeaders);
-      const csrfMeta = document.querySelector('meta[name="csrf-token"]');
-      if (csrfMeta && csrfMeta.content) headers['X-CSRF-Token'] = csrfMeta.content;
-      const resp = await fetch(url, { method: 'POST', headers, body: JSON.stringify(cardToSave) });
-      if (!resp.ok) throw new Error('Save failed');
-    } catch (e) {
-      // Revert stat change on save failure
-      _selectedCard.combatStats[loot.stat] = oldVal;
-      console.warn('[Blindspot] Loot save failed, reverted:', e);
-    }
-  }
-
-  function showRewardDrop(reward, source) {
-    const existing = document.querySelector('.bs-reward-drop');
-    if (existing) existing.remove();
-
-    const rarityColors = {
-      common: 'var(--bs-text-muted)',
-      uncommon: 'var(--bs-accent)',
-      rare: '#7b2fff',
-      epic: '#ff5252'
-    };
-
-    const iconMap = {
-      stat_shard: 'fa-gem',
-      stat_bonus: 'fa-arrow-up',
-      title: 'fa-crown',
-      forge_bonus: 'fa-fire'
-    };
-
-    const color = rarityColors[reward.rarity] || 'var(--bs-accent)';
-    const rarityLabel = reward.rarity ? reward.rarity.charAt(0).toUpperCase() + reward.rarity.slice(1) : '';
-
-    const drop = document.createElement('div');
-    drop.className = 'bs-reward-drop';
-    drop.innerHTML = `
-      <div class="bs-reward-drop__content" style="border-color:${color};">
-        <div class="bs-reward-drop__icon" style="color:${color};"><i class="fas ${iconMap[reward.type] || 'fa-gift'}"></i></div>
-        <div class="bs-reward-drop__text">
-          <span class="bs-reward-drop__title" style="color:${color};">${rarityLabel} Drop</span>
-          <span class="bs-reward-drop__label">${escHtml(reward.label)}</span>
-          ${source ? `<span class="bs-reward-drop__from">${escHtml(typeof source === 'string' ? source : source.name)}</span>` : ''}
-        </div>
-      </div>
-    `;
-    document.body.appendChild(drop);
-
-    requestAnimationFrame(() => drop.classList.add('bs-reward-drop--visible'));
-
-    setTimeout(() => {
-      drop.classList.remove('bs-reward-drop--visible');
-      setTimeout(() => drop.remove(), 500);
-    }, 4000);
-  }
+  // ── Reward Drops — delegated to bs-reward-drops.js (window.BsRewardDrops) ──
+  var _Rd = window.BsRewardDrops || {};
+  function rollLoot() { return _Rd.rollLoot ? _Rd.rollLoot() : null; }
+  function applyLootDrop(loot) { return _Rd.applyLootDrop ? _Rd.applyLootDrop(loot) : Promise.resolve(); }
+  function showRewardDrop(reward, source) { if (_Rd.showRewardDrop) _Rd.showRewardDrop(reward, source); }
 
   // ============================================================
   // CHALLENGES — delegated to bs-rewards.js (window.BsRewards)
