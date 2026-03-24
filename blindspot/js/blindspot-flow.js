@@ -961,26 +961,9 @@
         setForgeWins: setForgeWins,
         getProgress: function() { return _progress; }
       });
-      if (_Land.setCallbacks) _Land.setCallbacks({
-        loadGameData: loadGameData, loadProfile: loadProfile,
-        showOverlay: showOverlay, hideOverlay: hideOverlay,
-        showErrorToast: showErrorToast, safeLSSet: safeLSSet,
-        isDemo: isDemo, isNewPlayer: isNewPlayer,
-        getProgress: function() { return _progress; },
-        getConfig: function() { return _config; },
-        getStrangerCard: function() { return _strangerCard; },
-        getBlindspotAPI: function() { return BlindspotAPI; },
-        setIsStrangerFight: function(v) { _isStrangerFight = v; },
-        setIsFirstRealFight: function(v) { _isFirstRealFight = v; },
-        setActiveBattle: function(v) { _activeBattle = v; },
-        hookBattleCompletion: hookBattleCompletion, hookBattleTracking: hookBattleTracking,
-        removeTutorial: removeTutorial, showStrangerTutorial: showStrangerTutorial,
-        applyBattlePalette: applyBattlePalette, updateCombatTooltips: updateCombatTooltips,
-        renderCardHTML: renderCardHTML, ensureCombatStats: ensureCombatStats,
-        addCardToDeck: addCardToDeck, flushSyncBeforeNavigate: flushSyncBeforeNavigate,
-        setForgeWins: setForgeWins, isForgeUnlocked: isForgeUnlocked,
-        getForgeWins: getForgeWins, renderSessionStats: renderSessionStats
-      });
+      // _Land.setCallbacks moved to IIFE top level (before DOMContentLoaded)
+      // to avoid circular dep: initLanding needs _cb.loadGameData, but
+      // _cb.loadGameData was only set after loadGameData() ran.
     } catch (e) {
       console.error('[Blindspot] Failed to load game data:', e);
       showErrorToast('Failed to load game. Please refresh.');
@@ -2485,6 +2468,31 @@
 
   var _Dbg = window.BsDebug || {};
   if (_Dbg.setCallbacks) _Dbg.setCallbacks({ getConfig: function() { return _config; }, renderLobby: function() { renderLobby(); }, playVictoryAnimation: function() { playVictoryAnimation(); }, openForgeScreen: function(a, b) { openForgeScreen(a, b); }, getSelectedCard: function() { return _selectedCard; } });
+
+  // Landing callbacks — wired at top level (not inside loadGameData) to avoid
+  // circular dep: initLanding needs _cb.loadGameData before loadGameData runs.
+  // Getter callbacks return current values at call time, so they work even though
+  // _config/_strangerCard are null until loadGameData populates them.
+  if (_Land.setCallbacks) _Land.setCallbacks({
+    loadGameData: loadGameData, loadProfile: loadProfile,
+    showOverlay: showOverlay, hideOverlay: hideOverlay,
+    showErrorToast: showErrorToast, safeLSSet: safeLSSet,
+    isDemo: isDemo, isNewPlayer: isNewPlayer,
+    getProgress: function() { return _progress; },
+    getConfig: function() { return _config; },
+    getStrangerCard: function() { return _strangerCard; },
+    getBlindspotAPI: function() { return BlindspotAPI; },
+    setIsStrangerFight: function(v) { _isStrangerFight = v; },
+    setIsFirstRealFight: function(v) { _isFirstRealFight = v; },
+    setActiveBattle: function(v) { _activeBattle = v; },
+    hookBattleCompletion: hookBattleCompletion, hookBattleTracking: hookBattleTracking,
+    removeTutorial: removeTutorial, showStrangerTutorial: showStrangerTutorial,
+    applyBattlePalette: applyBattlePalette, updateCombatTooltips: updateCombatTooltips,
+    renderCardHTML: renderCardHTML, ensureCombatStats: ensureCombatStats,
+    addCardToDeck: addCardToDeck, flushSyncBeforeNavigate: flushSyncBeforeNavigate,
+    setForgeWins: setForgeWins, isForgeUnlocked: isForgeUnlocked,
+    getForgeWins: getForgeWins, renderSessionStats: renderSessionStats
+  });
 
   // ============================================================
   // BOOT
