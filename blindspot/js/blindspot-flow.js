@@ -578,23 +578,14 @@
     if (!_progress.towerClaimed.includes(floor)) _progress.towerClaimed.push(floor);
   }
 
-  // Claimed boss rewards (prevent double-claiming)
-  function getClaimedRewards() { return _progress.claimedRewards; }
-  function claimReward(bossId) {
-    if (!_progress.claimedRewards.includes(bossId)) _progress.claimedRewards.push(bossId);
-  }
-  function isRewardClaimed(bossId) {
-    return _progress.claimedRewards.includes(bossId);
-  }
-
-  // Visual unlocks (earned from boss kills)
-  function getUnlockedVisuals() { return _progress.visualUnlocks; }
-  function unlockVisual(key) {
-    if (!_progress.visualUnlocks.includes(key)) _progress.visualUnlocks.push(key);
-  }
-  function hasVisualUnlock(key) {
-    return _progress.visualUnlocks.includes(key);
-  }
+  // Claimed rewards + visual unlocks — delegated to bs-boss-rewards.js (window.BsBossRewards)
+  var _BossRew = window.BsBossRewards || {};
+  function getClaimedRewards() { return _BossRew.getClaimedRewards ? _BossRew.getClaimedRewards() : []; }
+  function claimReward(bossId) { if (_BossRew.claimReward) _BossRew.claimReward(bossId); }
+  function isRewardClaimed(bossId) { return _BossRew.isRewardClaimed ? _BossRew.isRewardClaimed(bossId) : false; }
+  function getUnlockedVisuals() { return _BossRew.getUnlockedVisuals ? _BossRew.getUnlockedVisuals() : []; }
+  function unlockVisual(key) { if (_BossRew.unlockVisual) _BossRew.unlockVisual(key); }
+  function hasVisualUnlock(key) { return _BossRew.hasVisualUnlock ? _BossRew.hasVisualUnlock(key) : false; }
 
   // ============================================================
   // WEEKLY ROTATING BOSS
@@ -663,64 +654,8 @@
     return getWeeklyRecord().wins > 0;
   }
 
-  // Apply boss reward to card
-  async function applyBossReward(boss) {
-    var weekly = isWeeklyBoss(boss.id);
-    if (weekly) {
-      if (!boss.reward || isWeeklyRewardClaimed()) return null;
-    } else {
-      if (!boss.reward || isRewardClaimed(boss.id)) return null;
-    }
-
-    const reward = boss.reward;
-
-    if (reward.type === 'stat_bonus' && _selectedCard && _selectedCard.combatStats) {
-      _selectedCard.combatStats[reward.stat] = Math.min(100,
-        (_selectedCard.combatStats[reward.stat] || 0) + reward.amount
-      );
-      try {
-        const cardToSave = { ..._selectedCard };
-        cardToSave.stats = [
-          { name: 'Strength', value: cardToSave.combatStats.str },
-          { name: 'Agility', value: cardToSave.combatStats.agi },
-          { name: 'Intelligence', value: cardToSave.combatStats.int },
-          { name: 'Endurance', value: cardToSave.combatStats.end },
-          { name: 'Luck', value: cardToSave.combatStats.lck }
-        ];
-        const url = window.buildApiPath('saveCard');
-        const headers = { 'Content-Type': 'application/json' };
-        const authHeaders = await window.ArenaAPI.getPrincipalHeader();
-        Object.assign(headers, authHeaders);
-        const csrfMeta = document.querySelector('meta[name="csrf-token"]');
-        if (csrfMeta && csrfMeta.content) headers['X-CSRF-Token'] = csrfMeta.content;
-        const resp = await fetch(url, { method: 'POST', headers, body: JSON.stringify(cardToSave) });
-        if (!resp.ok) throw new Error('Save failed');
-        if (weekly) claimWeeklyReward(); else claimReward(boss.id);
-      } catch (e) {
-        _selectedCard.combatStats[reward.stat] = Math.min(100,
-          (_selectedCard.combatStats[reward.stat] || 0) - reward.amount
-        );
-        console.warn('[Blindspot] Reward save failed, reverted:', e);
-        return null;
-      }
-    }
-
-    if (reward.type === 'title') {
-      setCardTitle(reward.title);
-      if (weekly) claimWeeklyReward(); else claimReward(boss.id);
-    }
-
-    if (reward.type === 'visual') {
-      unlockVisual(reward.unlock);
-      if (weekly) claimWeeklyReward(); else claimReward(boss.id);
-    }
-
-    if (reward.type === 'forge_bonus') {
-      setForgeWins(getForgeWins() + Math.floor(reward.amount / (_config?.forgeVisit?.bonusPoints || 25)));
-    }
-
-    return reward;
-  }
+  // applyBossReward — delegated to bs-boss-rewards.js
+  function applyBossReward(boss) { return _BossRew.applyBossReward ? _BossRew.applyBossReward(boss) : Promise.resolve(null); }
 
   // ============================================================
   // LOAD DATA
@@ -737,6 +672,17 @@
       _buildCosmeticCaches();
       if (_Rar.setCallbacks) _Rar.setCallbacks({ getForgeVisitCount: getForgeVisitCount });
       if (_Shop.setCallbacks) _Shop.setCallbacks({ getSparks: getSparks, spendSparks: spendSparks, awardCrate: awardCrate, toast: showSuccessToast });
+      if (_BossRew.setCallbacks) _BossRew.setCallbacks({
+        getProgress: function() { return _progress; },
+        getSelectedCard: function() { return _selectedCard; },
+        getConfig: function() { return _config; },
+        isWeeklyBoss: isWeeklyBoss,
+        isWeeklyRewardClaimed: isWeeklyRewardClaimed,
+        claimWeeklyReward: claimWeeklyReward,
+        setCardTitle: setCardTitle,
+        getForgeWins: getForgeWins,
+        setForgeWins: setForgeWins
+      });
       if (_Crt.setCallbacks) _Crt.setCallbacks({ applyCrateLoot: applyCrateLoot, renderLobby: renderLobby, updateSparksShop: updateSparksShop });
       if (_Chm.setCallbacks) _Chm.setCallbacks({ getConfig: function() { return _config; }, toast: showSuccessToast, sfx: playSfx });
       if (_Pvp.setCallbacks) _Pvp.setCallbacks({
