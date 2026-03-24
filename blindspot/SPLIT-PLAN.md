@@ -123,10 +123,34 @@ All flows tested via Playwright on live site (`ambientpixels.ai/blindspot/`):
 | After bs-battle-results.js | 3299 | -366 |
 | **Total Round 6** | **3299** | **-638 (-16.2%)** |
 
-### Deferred (Round 7+)
-- Landing Page (~394 lines) — heavy auth + DOM flow, benefits from all other modules being stable first
+## Round 7 Plan — Landing + Loot + Ascension
+
+Monolith is at 3299 lines. Largest remaining un-delegated sections:
+
+| Lines | Size | Section | Ease | Notes |
+|-------|------|---------|------|-------|
+| 1322-1715 | 394 | Landing Page | Medium | Stranger intro, fight flow, Quick Build trigger. index.html only. Heavy DOM + auth. |
+| 3158-3222 | 65 | Loot Choice | Easy | showLootChoice() + applyLoot(). Small, self-contained overlay. |
+| 3011-3093 | 83 | Ascension System | Easy-Medium | showAscensionOffer(), performAscension(). Moderate state writes. |
+| 2584-2660 | 77 | Tutorial | Easy | Stranger fight tutorial overlay. index.html only. |
+
+### Extraction order
+
+| Order | Module | ~Lines | Ease | Why |
+|-------|--------|--------|------|-----|
+| 1 | `bs-loot-choice.js` | 65 | Easy | showLootChoice(), applyLoot(). Quick win, cleans up results flow. |
+| 2 | `bs-ascension.js` | 83 | Easy-Medium | Ascension offer + perform. Moderate state writes via callbacks. |
+| 3 | `bs-landing.js` | 394 | Medium | Biggest remaining chunk. Stranger intro, fight, Quick Build trigger. index.html scope only. |
+
+Round 7 target: ~542 lines removed, 3299 → ~2757.
+
+### Deferred (Round 8+)
 - Lobby rendering (~369 lines) — cross-references many sections, extract last
-- Battle orchestration (~49 lines `BATTLE COMPLETION HOOK` + scattered) — deeply tangled with state
+- Reward System / Roulette (~90 lines) — showRewardDrop() + boss drops
+- Leaderboard (~64 lines) — self-contained screen
+- Combat Tooltips (~60 lines) — battle UI helper
+- Auth UI (~54 lines) — small, could merge with landing
+- Battle orchestration (~49 lines `BATTLE COMPLETION HOOK`) — deeply tangled with state
 
 ## Architecture
 
