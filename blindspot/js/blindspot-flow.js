@@ -2386,23 +2386,10 @@
 
 
 
-  // ============================================================
-  // BATTLE CARD PALETTE
-  // ============================================================
-
-  function applyBattlePalette() {
-    if (!_selectedCard) return;
-    var palette = _selectedCard.palette || 'earth';
-
-    // Render compact card in the player combatant slot
-    var playerCard = document.getElementById('arena-player-card');
-    if (playerCard) {
-      playerCard.innerHTML = renderCardHTML(_selectedCard, 'compact');
-      playerCard.style.overflow = 'hidden';
-      playerCard.style.border = 'none';
-      playerCard.style.background = 'none';
-    }
-  }
+  // ── Battle Card Palette — delegated to bs-battle-palette.js (window.BsBattlePalette) ──
+  var _Bp = window.BsBattlePalette || {};
+  if (_Bp.setCallbacks) _Bp.setCallbacks({ getSelectedCard: function() { return _selectedCard; }, renderCardHTML: renderCardHTML });
+  function applyBattlePalette() { if (_Bp.apply) _Bp.apply(); }
 
   // ── Ascension — delegated to bs-ascension.js (window.BsAscension) ──
   var _Asc = window.BsAscension || {};
