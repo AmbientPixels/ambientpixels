@@ -949,6 +949,10 @@
         getSelectedCard: function() { return _selectedCard; },
         escHtml: escHtml
       });
+      if (_Ct.setCallbacks) _Ct.setCallbacks({
+        getSelectedCard: function() { return _selectedCard; },
+        getActiveBattle: function() { return _activeBattle; }
+      });
       if (_Asc.setCallbacks) _Asc.setCallbacks({
         playSfx: playSfx, showScreen: showScreen, renderLobby: renderLobby,
         showSuccessToast: showSuccessToast, syncProgressToServer: syncProgressToServer,
@@ -2492,65 +2496,10 @@
   var _Loot = window.BsLootChoice || {};
   function showLootChoice(options) { if (_Loot.show) _Loot.show(options); }
 
-  // ============================================================
-  // COMBAT TOOLTIPS (show damage estimates on move buttons)
-  // ============================================================
-
-
-  function showBattleHint(key) {
-    var el = document.getElementById('bs-battle-hint');
-    if (!el) return;
-    var text = BATTLE_HINTS[key];
-    if (!text) { el.style.visibility = 'hidden'; return; }
-    el.innerHTML = '<i class="fas fa-lightbulb" style="color:var(--bs-accent);"></i> ' + text;
-    el.style.visibility = 'visible';
-  }
-
-  function updateCombatTooltips() {
-    // Class signature move — rename Ability button to class-specific name + icon
-    if (_selectedCard) {
-      var cardClass = _selectedCard.class || _selectedCard.characterClass || '';
-      var sig = CLASS_SIGNATURE_MOVES[cardClass];
-      if (sig) {
-        var abilLabel = document.getElementById('arena-ability-label');
-        var abilIcon = document.getElementById('arena-ability-icon');
-        if (abilLabel) abilLabel.textContent = sig.name;
-        if (abilIcon) abilIcon.className = 'fas ' + sig.icon;
-      }
-    }
-    // Move upgrades — rename buttons based on stat thresholds
-    if (_selectedCard && _selectedCard.combatStats) {
-      var cs = _selectedCard.combatStats;
-      Object.entries(MOVE_UPGRADES).forEach(function(entry) {
-        var move = entry[0], upg = entry[1];
-        if ((cs[upg.stat] || 0) >= upg.threshold) {
-          var btn = document.querySelector('[data-move="' + move + '"] .arena-move-btn__label');
-          var descEl = document.querySelector('[data-move="' + move + '"] .arena-move-btn__desc');
-          if (btn) btn.textContent = upg.name;
-          if (descEl) descEl.textContent = upg.desc;
-        }
-      });
-    }
-    if (!_activeBattle || !_activeBattle.player) return;
-    const stats = _activeBattle.player.combatStats;
-    if (!stats) return;
-
-    // Strike: STR * 0.4 to STR * 0.5
-    const strMin = Math.floor(stats.str * 0.4);
-    const strMax = Math.floor(stats.str * 0.5);
-    const strEl = document.getElementById('arena-move-str');
-    if (strEl) strEl.textContent = `~${strMin}-${strMax} dmg`;
-
-    // Heal: END * 0.3 to END * 0.4
-    const endMin = Math.floor(stats.end * 0.3);
-    const endMax = Math.floor(stats.end * 0.4);
-    const endEl = document.getElementById('arena-move-end');
-    if (endEl) endEl.textContent = `~${endMin}-${endMax} HP`;
-
-    // Ability: show INT
-    const intEl = document.getElementById('arena-move-int');
-    if (intEl) intEl.textContent = `INT ${stats.int}`;
-  }
+  // ── Combat Tooltips — delegated to bs-combat-tooltips.js (window.BsCombatTooltips) ──
+  var _Ct = window.BsCombatTooltips || {};
+  function showBattleHint(key) { if (_Ct.showHint) _Ct.showHint(key); }
+  function updateCombatTooltips() { if (_Ct.update) _Ct.update(); }
 
   // ============================================================
   // DEBUG / CHEAT CONSOLE — delegated to bs-debug.js (window.BsDebug)
