@@ -235,7 +235,7 @@
       return;
     }
 
-    window.BlindspotQuickBuild.open(function onComplete(cardId) {
+    window.BlindspotQuickBuild.open(function onComplete(cardId, cardData) {
       if (_cb.setIsStrangerFight) _cb.setIsStrangerFight(false);
       if (_cb.setIsFirstRealFight) _cb.setIsFirstRealFight(true);
 
@@ -243,6 +243,10 @@
       if (cardId && !isDemo) {
         window.ArenaAPI.selectCard(cardId).catch(function (e) { console.warn('selectCard:', e); });
       }
+      // Cache card immediately so guest lobby can find it (server may not return it)
+      if (cardData && _cb.addCardToDeck) _cb.addCardToDeck(cardData);
+      if (cardId && _cb.safeLSSet) _cb.safeLSSet('bs-selected-card-id', cardId);
+
       if (_cb.safeLSSet) {
         _cb.safeLSSet('blindspot-onboarded', 'true');
         _cb.safeLSSet('bs-onboarded-lobby', 'true');
@@ -260,8 +264,12 @@
       return;
     }
 
-    window.BlindspotQuickBuild.open(function onComplete(cardId) {
+    window.BlindspotQuickBuild.open(function onComplete(cardId, cardData) {
       if (cardId) {
+        // Cache card data immediately in case server roundtrip fails
+        if (cardData && _cb.addCardToDeck) _cb.addCardToDeck(cardData);
+        if (cardId && _cb.safeLSSet) _cb.safeLSSet('bs-selected-card-id', cardId);
+
         window.ArenaAPI.loadCards().then(function (data) {
           var cards = data.userCards || [];
           cards.forEach(function (c) { if (_cb.addCardToDeck) _cb.addCardToDeck(c); });
@@ -344,6 +352,11 @@
       cardPromise.then(function (data) {
         var cards = data.userCards || [];
         var card = cardId ? cards.find(function (c) { return c.id === cardId; }) : cards[cards.length - 1];
+        // Cache card to deck so play.html can find it (critical for guests)
+        if (card) {
+          if (_cb.addCardToDeck) _cb.addCardToDeck(card);
+          if (_cb.safeLSSet) _cb.safeLSSet('bs-selected-card-id', card.id);
+        }
         renderCelebration(overlay, card, cardId, isDemoUser);
       }).catch(function () {
         renderCelebration(overlay, null, cardId, isDemoUser);

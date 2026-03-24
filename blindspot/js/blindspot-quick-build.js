@@ -616,10 +616,30 @@
       // Select the card
       try { await window.ArenaAPI.selectCard(savedCardId); } catch (e) { console.warn('selectCard error:', e); }
 
+      // Build card data for local cache (ensures guests see their card in lobby)
+      const cardData = {
+        id: savedCardId,
+        name: _state.cardName || 'Unknown',
+        class: _state.cardClass || 'Fighter',
+        characterClass: _state.cardClass || 'Fighter',
+        avatar: _state.artworkUrl || '',
+        rarity: _state.cardRarity || 'Common',
+        combatStats: stats,
+        cardData: {
+          name: _state.cardName || 'Unknown',
+          characterClass: _state.cardClass || 'Fighter',
+          rarity: _state.cardRarity || 'Common',
+          avatar: _state.artworkUrl || '',
+          palette: 'earth',
+          imageContainer: _state.imageContainer || 'masked',
+          combatStats: stats
+        }
+      };
+
       close(true);
 
       if (_onComplete) {
-        _onComplete(savedCardId);
+        _onComplete(savedCardId, cardData);
       }
     } catch (err) {
       console.error('[BS-QB] Save error:', err);
