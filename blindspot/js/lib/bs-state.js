@@ -223,6 +223,7 @@ window.BsState = (function () {
     sync: syncProgressToServer,
     flush: flushSyncBeforeNavigate,
     safeLSSet: safeLSSet,
+    loadFromCache: _loadProgressFromCache,
     api: BlindspotAPI
   };
 })();

@@ -1391,7 +1391,7 @@
       localStorage.removeItem('bs-guest-mode');
       isGuestMode = false;
       // Merge cached guest progress into server profile
-      _loadProgressFromCache();
+      if (_S.loadFromCache) _S.loadFromCache();
       syncProgressToServer();
     }
 
