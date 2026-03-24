@@ -247,26 +247,10 @@
   var _lastStreakBonus = 0;
   var _lastStreakMsg = '';
 
-  const RANKS = {
-    bronze:   { xp: 0,    icon: 'fa-shield-halved', color: '#CD7F32', label: 'Bronze' },
-    silver:   { xp: 500,  icon: 'fa-shield',        color: '#C0C0C0', label: 'Silver' },
-    gold:     { xp: 1500, icon: 'fa-crown',          color: '#FFD700', label: 'Gold' },
-    platinum: { xp: 3500, icon: 'fa-gem',            color: '#E5E4E2', label: 'Platinum' },
-    diamond:  { xp: 7000, icon: 'fa-diamond',        color: '#B9F2FF', label: 'Diamond' }
-  };
-  const RANK_ORDER = ['bronze', 'silver', 'gold', 'platinum', 'diamond'];
-
-  // PvP Elo rating system
-  const ELO_DEFAULT = 1000;
-  const ELO_K = 32;
-  const PVP_RANKS = [
-    { name: 'Iron',     min: 0,    icon: 'fa-shield-halved', color: '#8a8a8a' },
-    { name: 'Bronze',   min: 900,  icon: 'fa-shield-halved', color: '#CD7F32' },
-    { name: 'Silver',   min: 1100, icon: 'fa-shield',        color: '#C0C0C0' },
-    { name: 'Gold',     min: 1300, icon: 'fa-crown',          color: '#FFD700' },
-    { name: 'Platinum', min: 1500, icon: 'fa-gem',            color: '#E5E4E2' },
-    { name: 'Diamond',  min: 1700, icon: 'fa-diamond',        color: '#B9F2FF' }
-  ];
+  // ── Constants imported from bs-constants.js (window.BsConst) ──
+  var _C = window.BsConst || {};
+  var RANKS = _C.RANKS, RANK_ORDER = _C.RANK_ORDER;
+  var ELO_DEFAULT = _C.ELO_DEFAULT, ELO_K = _C.ELO_K, PVP_RANKS = _C.PVP_RANKS;
 
   function getPvPElo() { return _progress.pvpElo; }
   function setPvPElo(v) { _progress.pvpElo = Math.max(0, Math.round(v)); }
@@ -305,427 +289,23 @@
     return Math.round(ELO_K * (score - expected));
   }
 
-  // Boss class → icon mapping
-  const BOSS_ICONS = {
-    Enforcer: 'fa-gavel', Fighter: 'fa-hand-fist', Scout: 'fa-binoculars',
-    Hacker: 'fa-terminal', Berserker: 'fa-fire', Scholar: 'fa-book',
-    Guardian: 'fa-shield-halved', Trickster: 'fa-dice', Caster: 'fa-wand-magic-sparkles',
-    Rogue: 'fa-user-ninja', Medic: 'fa-heart-pulse', Pilot: 'fa-rocket'
-  };
-
-  const CLASS_PATTERNS = {
-    Enforcer: 'Strikes + Guards',
-    Fighter: 'Strikes + Guards',
-    Scout: 'Strikes + Counters',
-    Hacker: 'Abilities + Counters',
-    Berserker: 'All-out Strikes',
-    Scholar: 'Abilities + Heals',
-    Guardian: 'Guards + Heals',
-    Trickster: 'Abilities + Counters',
-    Caster: 'Abilities + Guards',
-    Rogue: 'Strikes + Counters',
-    Medic: 'Heals + Guards',
-    Pilot: 'Abilities + Strikes'
-  };
+  var BOSS_ICONS = _C.BOSS_ICONS;
+  var CLASS_PATTERNS = _C.CLASS_PATTERNS;
 
   // ============================================================
-  // SOUND EFFECTS (Web Audio API — no files needed)
+  // SOUND EFFECTS — delegated to bs-audio-sfx.js (window.BsSfx)
   // ============================================================
 
-  let _audioCtx = null;
-
-  function getAudioCtx() {
-    if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    return _audioCtx;
-  }
-
-  function playSfx(name) {
-    // Respect ArenaAudio mute toggle (shared SFX button in top bar)
-    if (window.ArenaAudio && window.ArenaAudio.isMuted()) return;
-    try {
-      const ctx = getAudioCtx();
-      if (ctx.state === 'suspended') ctx.resume();
-      const sfx = SFX_DEFS[name];
-      if (sfx) sfx(ctx);
-    } catch (e) { /* audio not supported — fail silently */ }
-  }
-
-  // Synth definitions — each creates oscillator nodes and schedules them
-  const SFX_DEFS = {
-    // Loot drop: bright sparkle arpeggio (3 rising notes)
-    loot: function (ctx) {
-      var t = ctx.currentTime;
-      [523, 659, 784].forEach(function (freq, i) {
-        var osc = ctx.createOscillator();
-        var gain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.value = freq;
-        gain.gain.setValueAtTime(0.18, t + i * 0.08);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.08 + 0.25);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(t + i * 0.08);
-        osc.stop(t + i * 0.08 + 0.3);
-      });
-    },
-
-    // Boss defeat: triumphant fanfare (power chord + octave rise)
-    bossDefeat: function (ctx) {
-      var t = ctx.currentTime;
-      // Root + fifth + octave staggered
-      [[262, 0], [330, 0.05], [392, 0.1], [523, 0.2]].forEach(function (pair) {
-        var freq = pair[0], delay = pair[1];
-        var osc = ctx.createOscillator();
-        var gain = ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.value = freq;
-        gain.gain.setValueAtTime(0.2, t + delay);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + delay + 0.5);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(t + delay);
-        osc.stop(t + delay + 0.55);
-      });
-    },
-
-    // Ascension: ethereal rising sweep with shimmer
-    ascension: function (ctx) {
-      var t = ctx.currentTime;
-      var osc = ctx.createOscillator();
-      var gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(220, t);
-      osc.frequency.exponentialRampToValueAtTime(880, t + 0.6);
-      gain.gain.setValueAtTime(0.15, t);
-      gain.gain.setValueAtTime(0.2, t + 0.3);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.8);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(t);
-      osc.stop(t + 0.85);
-      // Shimmer overtone
-      var osc2 = ctx.createOscillator();
-      var gain2 = ctx.createGain();
-      osc2.type = 'sine';
-      osc2.frequency.setValueAtTime(660, t + 0.2);
-      osc2.frequency.exponentialRampToValueAtTime(1760, t + 0.7);
-      gain2.gain.setValueAtTime(0.08, t + 0.2);
-      gain2.gain.exponentialRampToValueAtTime(0.001, t + 0.9);
-      osc2.connect(gain2);
-      gain2.connect(ctx.destination);
-      osc2.start(t + 0.2);
-      osc2.stop(t + 0.95);
-    },
-
-    // Forge complete: anvil hit (short noise burst + metallic ring)
-    forgeComplete: function (ctx) {
-      var t = ctx.currentTime;
-      // Noise burst (impact)
-      var bufferSize = ctx.sampleRate * 0.05;
-      var buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      var data = buffer.getChannelData(0);
-      for (var i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * 0.3;
-      var noise = ctx.createBufferSource();
-      noise.buffer = buffer;
-      var nGain = ctx.createGain();
-      nGain.gain.setValueAtTime(0.25, t);
-      nGain.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
-      noise.connect(nGain);
-      nGain.connect(ctx.destination);
-      noise.start(t);
-      noise.stop(t + 0.1);
-      // Metallic ring
-      var osc = ctx.createOscillator();
-      var gain = ctx.createGain();
-      osc.type = 'square';
-      osc.frequency.value = 1047;
-      gain.gain.setValueAtTime(0.1, t + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(t + 0.02);
-      osc.stop(t + 0.45);
-    },
-
-    // Battle win: short victory jingle
-    battleWin: function (ctx) {
-      var t = ctx.currentTime;
-      [392, 494, 587, 784].forEach(function (freq, i) {
-        var osc = ctx.createOscillator();
-        var gain = ctx.createGain();
-        osc.type = 'triangle';
-        osc.frequency.value = freq;
-        gain.gain.setValueAtTime(0.15, t + i * 0.1);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.1 + 0.3);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(t + i * 0.1);
-        osc.stop(t + i * 0.1 + 0.35);
-      });
-    },
-
-    // Battle loss: descending minor notes
-    battleLoss: function (ctx) {
-      var t = ctx.currentTime;
-      [392, 349, 311, 262].forEach(function (freq, i) {
-        var osc = ctx.createOscillator();
-        var gain = ctx.createGain();
-        osc.type = 'sine';
-        osc.frequency.value = freq;
-        gain.gain.setValueAtTime(0.12, t + i * 0.15);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + i * 0.15 + 0.35);
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.start(t + i * 0.15);
-        osc.stop(t + i * 0.15 + 0.4);
-      });
-    },
-
-    // Combat move SFX
-    strikeHit: function (ctx) {
-      var t = ctx.currentTime;
-      var bufSize = Math.floor(ctx.sampleRate * 0.06);
-      var buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
-      var d = buf.getChannelData(0);
-      for (var i = 0; i < bufSize; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / bufSize);
-      var src = ctx.createBufferSource(); src.buffer = buf;
-      var g = ctx.createGain(); g.gain.setValueAtTime(0.15, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.12);
-      var lp = ctx.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 1200;
-      src.connect(lp); lp.connect(g); g.connect(ctx.destination);
-      src.start(t); src.stop(t + 0.15);
-    },
-    guardBlock: function (ctx) {
-      var t = ctx.currentTime;
-      var osc = ctx.createOscillator(); var g = ctx.createGain();
-      osc.type = 'triangle'; osc.frequency.value = 300;
-      g.gain.setValueAtTime(0.12, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
-      osc.connect(g); g.connect(ctx.destination);
-      osc.start(t); osc.stop(t + 0.18);
-    },
-    abilityZap: function (ctx) {
-      var t = ctx.currentTime;
-      var osc = ctx.createOscillator(); var g = ctx.createGain();
-      osc.type = 'sawtooth'; osc.frequency.setValueAtTime(600, t); osc.frequency.exponentialRampToValueAtTime(200, t + 0.15);
-      g.gain.setValueAtTime(0.1, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
-      osc.connect(g); g.connect(ctx.destination);
-      osc.start(t); osc.stop(t + 0.22);
-    },
-    healChime: function (ctx) {
-      var t = ctx.currentTime;
-      [523, 659, 784].forEach(function(freq, i) {
-        var osc = ctx.createOscillator(); var g = ctx.createGain();
-        osc.type = 'sine'; osc.frequency.value = freq;
-        g.gain.setValueAtTime(0.08, t + i * 0.06); g.gain.exponentialRampToValueAtTime(0.001, t + i * 0.06 + 0.2);
-        osc.connect(g); g.connect(ctx.destination);
-        osc.start(t + i * 0.06); osc.stop(t + i * 0.06 + 0.25);
-      });
-    },
-    counterPing: function (ctx) {
-      var t = ctx.currentTime;
-      var osc = ctx.createOscillator(); var g = ctx.createGain();
-      osc.type = 'sine'; osc.frequency.setValueAtTime(1200, t); osc.frequency.exponentialRampToValueAtTime(600, t + 0.1);
-      g.gain.setValueAtTime(0.12, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.15);
-      osc.connect(g); g.connect(ctx.destination);
-      osc.start(t); osc.stop(t + 0.18);
-    },
-    critHit: function (ctx) {
-      var t = ctx.currentTime;
-      // Loud strike + glass shatter
-      var bufSize = Math.floor(ctx.sampleRate * 0.1);
-      var buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
-      var d = buf.getChannelData(0);
-      for (var i = 0; i < bufSize; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / bufSize);
-      var src = ctx.createBufferSource(); src.buffer = buf;
-      var g = ctx.createGain(); g.gain.setValueAtTime(0.2, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
-      var hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 2000;
-      src.connect(hp); hp.connect(g); g.connect(ctx.destination);
-      src.start(t); src.stop(t + 0.25);
-    },
-
-    // Crate ratchet — rapid ticking that slows (roulette clicks)
-    crateRatchet: function (ctx) {
-      var t = ctx.currentTime;
-      for (var i = 0; i < 12; i++) {
-        var delay = i * (0.08 + i * 0.015);
-        var osc = ctx.createOscillator();
-        var gain = ctx.createGain();
-        osc.type = 'square';
-        osc.frequency.value = 800 + Math.random() * 200;
-        gain.gain.setValueAtTime(0.1, t + delay);
-        gain.gain.exponentialRampToValueAtTime(0.001, t + delay + 0.04);
-        osc.connect(gain); gain.connect(ctx.destination);
-        osc.start(t + delay); osc.stop(t + delay + 0.05);
-      }
-    },
-
-    // Crate reveal — cymbal crash (noise burst + rising tone)
-    crateReveal: function (ctx) {
-      var t = ctx.currentTime;
-      var bufferSize = Math.floor(ctx.sampleRate * 0.15);
-      var buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      var data = buffer.getChannelData(0);
-      for (var i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
-      var noise = ctx.createBufferSource();
-      noise.buffer = buffer;
-      var nGain = ctx.createGain();
-      nGain.gain.setValueAtTime(0.18, t);
-      nGain.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
-      var hp = ctx.createBiquadFilter();
-      hp.type = 'highpass'; hp.frequency.value = 3000;
-      noise.connect(hp); hp.connect(nGain); nGain.connect(ctx.destination);
-      noise.start(t); noise.stop(t + 0.6);
-      var osc = ctx.createOscillator();
-      var oGain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(440, t);
-      osc.frequency.exponentialRampToValueAtTime(1760, t + 0.3);
-      oGain.gain.setValueAtTime(0.12, t);
-      oGain.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
-      osc.connect(oGain); oGain.connect(ctx.destination);
-      osc.start(t); osc.stop(t + 0.5);
-    }
-  };
-
-  // ============================================================
-  // BATTLE AMBIENT AUDIO (Web Audio — no files)
-  // Low rumble drone + subtle crowd murmur via oscillators.
-  // Fades in on battle start, out on result. Respects mute.
-  // ============================================================
-
-  let _ambientNodes = null;
-
-  function startBattleAmbient() {
-    stopBattleAmbient();
-    if (window.ArenaAudio && window.ArenaAudio.isMuted()) return;
-    try {
-      var ctx = getAudioCtx();
-      if (ctx.state === 'suspended') ctx.resume();
-      var t = ctx.currentTime;
-      var master = ctx.createGain();
-      master.gain.setValueAtTime(0, t);
-      master.gain.linearRampToValueAtTime(0.12, t + 2);
-      master.connect(ctx.destination);
-
-      // Low rumble: brown-noise through a tight lowpass (sub-bass)
-      var bufSize = ctx.sampleRate * 2;
-      var buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
-      var d = buf.getChannelData(0);
-      var last = 0;
-      for (var i = 0; i < bufSize; i++) {
-        var white = Math.random() * 2 - 1;
-        last = (last + (0.02 * white)) / 1.02;
-        d[i] = last * 3.5;
-      }
-      var noise = ctx.createBufferSource();
-      noise.buffer = buf;
-      noise.loop = true;
-      var lp = ctx.createBiquadFilter();
-      lp.type = 'lowpass';
-      lp.frequency.value = 100;
-      var noiseGain = ctx.createGain();
-      noiseGain.gain.value = 0.7;
-      noise.connect(lp);
-      lp.connect(noiseGain);
-      noiseGain.connect(master);
-      noise.start(t);
-
-      // Drone hum: two detuned sine oscillators for subtle beating
-      var osc1 = ctx.createOscillator();
-      osc1.type = 'sine';
-      osc1.frequency.value = 55;
-      var osc2 = ctx.createOscillator();
-      osc2.type = 'sine';
-      osc2.frequency.value = 55.5;
-      var droneGain = ctx.createGain();
-      droneGain.gain.value = 0.4;
-      osc1.connect(droneGain);
-      osc2.connect(droneGain);
-      droneGain.connect(master);
-      osc1.start(t);
-      osc2.start(t);
-
-      // Crowd murmur: bandpass-filtered noise (distant crowd feel)
-      var crowdBuf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
-      var cd = crowdBuf.getChannelData(0);
-      for (var j = 0; j < bufSize; j++) cd[j] = (Math.random() * 2 - 1);
-      var crowdSrc = ctx.createBufferSource();
-      crowdSrc.buffer = crowdBuf;
-      crowdSrc.loop = true;
-      var bp = ctx.createBiquadFilter();
-      bp.type = 'bandpass';
-      bp.frequency.value = 600;
-      bp.Q.value = 0.8;
-      var crowdGain = ctx.createGain();
-      crowdGain.gain.value = 0.15;
-      crowdSrc.connect(bp);
-      bp.connect(crowdGain);
-      crowdGain.connect(master);
-      crowdSrc.start(t);
-
-      _ambientNodes = { master: master, sources: [noise, osc1, osc2, crowdSrc], ctx: ctx };
-    } catch (e) { /* audio not supported */ }
-  }
-
-  function stopBattleAmbient() {
-    if (!_ambientNodes) return;
-    try {
-      var ctx = _ambientNodes.ctx;
-      var t = ctx.currentTime;
-      _ambientNodes.master.gain.linearRampToValueAtTime(0, t + 1.5);
-      var sources = _ambientNodes.sources;
-      setTimeout(function () {
-        sources.forEach(function (s) { try { s.stop(); } catch (e) { /* already stopped */ } });
-      }, 2000);
-    } catch (e) { /* fail silently */ }
-    _ambientNodes = null;
-  }
+  function playSfx(name) { if (window.BsSfx) window.BsSfx.play(name); }
+  function startBattleAmbient() { if (window.BsSfx) window.BsSfx.startAmbient(); }
+  function stopBattleAmbient() { if (window.BsSfx) window.BsSfx.stopAmbient(); }
 
   // ============================================================
   // STRATEGY SYSTEM — Passives, Archetypes, Move Upgrades
   // ============================================================
 
-  const STAT_PASSIVES = {
-    str: [
-      { threshold: 60, name: 'Heavy Hitter', desc: 'Strike ignores 20% of Guard', icon: 'fa-hand-fist' },
-      { threshold: 80, name: 'Brutal', desc: '+25% crit damage', icon: 'fa-skull-crossbones' }
-    ],
-    agi: [
-      { threshold: 60, name: 'Quick Draw', desc: 'Always act first', icon: 'fa-forward' },
-      { threshold: 80, name: 'Elusive', desc: '15% dodge chance', icon: 'fa-ghost' }
-    ],
-    int: [
-      { threshold: 60, name: 'Focused', desc: 'Ability costs 1 charge (not 2)', icon: 'fa-bullseye' },
-      { threshold: 80, name: 'Arcane Mastery', desc: '+30% ability damage', icon: 'fa-hat-wizard' }
-    ],
-    end: [
-      { threshold: 60, name: 'Resilient', desc: 'Heal also grants 10% DR for 1 round', icon: 'fa-shield-heart' },
-      { threshold: 80, name: 'Unbreakable', desc: 'Auto-heal 5 HP per round', icon: 'fa-heart-circle-plus' }
-    ],
-    lck: [
-      { threshold: 50, name: 'Fortune', desc: '+10% crit chance', icon: 'fa-clover' },
-      { threshold: 70, name: 'Wild Card', desc: 'Crits deal 2x (not 1.5x)', icon: 'fa-dice' }
-    ]
-  };
-
-  const MOVE_UPGRADES = {
-    strike: { stat: 'str', threshold: 60, name: 'Heavy Strike', desc: 'Pierces 20% guard' },
-    heal:   { stat: 'end', threshold: 60, name: 'Fortified Heal', desc: '+10% DR for 1 round' },
-    ability:{ stat: 'int', threshold: 60, name: 'Focused Ability', desc: 'Costs 1 charge' },
-    counter:{ stat: 'agi', threshold: 60, name: 'Flash Counter', desc: 'Acts first' },
-    guard:  { stat: 'end', threshold: 70, name: 'Iron Guard', desc: 'Blocks 75% (not 60%)' }
-  };
-
-  const ARCHETYPES = [
-    { id: 'berserker', name: 'Berserker', primary: 'str', secondary: 'lck', desc: 'Crit-focused damage dealer', icon: 'fa-fire', color: '#ff5252' },
-    { id: 'tank', name: 'Tank', primary: 'end', secondary: 'agi', desc: 'Outlast everything', icon: 'fa-shield-halved', color: '#3498db' },
-    { id: 'mage', name: 'Mage', primary: 'int', secondary: 'agi', desc: 'Fast ability spam', icon: 'fa-hat-wizard', color: '#7b2fff' },
-    { id: 'assassin', name: 'Assassin', primary: 'agi', secondary: 'str', desc: 'Strike first, strike hard', icon: 'fa-user-ninja', color: '#00e676' },
-    { id: 'gambler', name: 'Gambler', primary: 'lck', secondary: 'int', desc: 'Chaos and crits', icon: 'fa-dice', color: '#ffd740' },
-    { id: 'balanced', name: 'Generalist', primary: null, secondary: null, desc: 'Jack of all trades', icon: 'fa-circle-nodes', color: 'var(--bs-text-muted)' }
-  ];
-
-  const WEAKNESS_LABELS = { str: 'STR', agi: 'AGI', int: 'INT', end: 'END', lck: 'LCK' };
-  const WEAKNESS_COLORS = { str: '#ff5252', agi: '#00e676', int: '#7b2fff', end: '#ff9100', lck: '#ffd740' };
+  var STAT_PASSIVES = _C.STAT_PASSIVES, MOVE_UPGRADES = _C.MOVE_UPGRADES, ARCHETYPES = _C.ARCHETYPES;
+  var WEAKNESS_LABELS = _C.WEAKNESS_LABELS, WEAKNESS_COLORS = _C.WEAKNESS_COLORS;
 
   // Shared prefight overlay population — called from every code path
   function populatePrefightOverlay(boss) {
@@ -861,19 +441,8 @@
     return closest;
   }
 
-  // --- Next unlock teasers ---
-  const PALETTE_UNLOCK_BOSSES = [
-    { bossNum: 2, palette: 'Ocean' },
-    { bossNum: 4, palette: 'Neon' },
-    { bossNum: 8, palette: 'Fire' }
-  ];
-
-  const STREAK_MILESTONES = [
-    { threshold: 3, label: '+10% spark bonus' },
-    { threshold: 5, label: '+1 Forge Win' },
-    { threshold: 10, label: '+50 Sparks' },
-    { threshold: 15, label: 'Title: "The Relentless" + 100 Sparks' }
-  ];
+  var PALETTE_UNLOCK_BOSSES = _C.PALETTE_UNLOCK_BOSSES;
+  var STREAK_MILESTONES = _C.STREAK_MILESTONES;
 
   function getNextUnlockTeasers() {
     var teasers = [];
@@ -911,27 +480,8 @@
     return teasers;
   }
 
-  // Battle hints based on context
-  const BATTLE_HINTS = {
-    round1: 'Strike is safe round 1 — bosses rarely guard first.',
-    lowHp: 'HP critical! Heal or Guard to survive.',
-    bossGuarding: 'Boss may guard — use Ability to stun through it.',
-    abilityReady: 'Ability charged! Abilities stun guarding enemies.',
-    highStreak: 'On a streak! Keep the pressure up.',
-    bossLowHp: 'Boss is weakened — go for the kill with Strike.',
-    counterTip: 'Counter reflects strikes back. Risky vs abilities.',
-    healDisrupt: 'Healing is halved if the boss strikes you.'
-  };
-
-  // Move matchup map — which move beats which (RPS-style)
-  // Key = move, Value = array of moves it beats
-  const MOVE_BEATS = {
-    strike:  ['heal', 'ability'],   // strike disrupts heal, overpowers recovery
-    guard:   ['strike'],            // guard blocks strike
-    ability: ['guard', 'counter'],  // ability breaks through guard and counter
-    heal:    [],                    // heal doesn't "beat" anything offensively
-    counter: ['strike']             // counter reflects strike
-  };
+  var BATTLE_HINTS = _C.BATTLE_HINTS;
+  var MOVE_BEATS = _C.MOVE_BEATS;
 
   function getMoveMatchup(playerMove, opponentMove) {
     if (!playerMove || !opponentMove || playerMove === opponentMove) return 'draw';
@@ -965,13 +515,7 @@
   // CARD RARITY SYSTEM — based on forge visit count
   // ============================================================
 
-  const CARD_RARITIES = [
-    { id: 'common',    name: 'Common',    forges: 0,  color: 'var(--bs-text-muted)', icon: 'fa-circle',        critBonus: 0,   statBonus: 0, title: null },
-    { id: 'uncommon',  name: 'Uncommon',  forges: 3,  color: '#1eff8e',              icon: 'fa-circle-half-stroke', critBonus: 2,   statBonus: 0, title: null },
-    { id: 'rare',      name: 'Rare',      forges: 8,  color: '#3a9fff',              icon: 'fa-gem',           critBonus: 5,   statBonus: 0, title: null },
-    { id: 'epic',      name: 'Epic',      forges: 15, color: '#a855f7',              icon: 'fa-crown',         critBonus: 5,   statBonus: 3, title: null },
-    { id: 'legendary', name: 'Legendary', forges: 25, color: '#fbbf24',              icon: 'fa-trophy',        critBonus: 5,   statBonus: 5, title: 'The Forgeborn' }
-  ];
+  var CARD_RARITIES = _C.CARD_RARITIES;
 
   function getCardRarity() {
     var visits = getForgeVisitCount();
@@ -1002,34 +546,11 @@
       + '</span>';
   }
 
-  // Class signature moves — maps class to ability name + icon
-  const CLASS_SIGNATURE_MOVES = {
-    'Fighter':   { name: 'Power Slam',    icon: 'fa-hand-fist' },
-    'Enforcer':  { name: 'Power Strike',  icon: 'fa-hand-fist' },
-    'Berserker': { name: 'Rage Strike',   icon: 'fa-hand-fist' },
-    'Caster':    { name: 'Arcane Blast',  icon: 'fa-bolt' },
-    'Hacker':    { name: 'Cyber Pulse',   icon: 'fa-bolt' },
-    'Scholar':   { name: 'Mind Spike',    icon: 'fa-bolt' },
-    'Scout':     { name: 'Shadow Strike', icon: 'fa-feather-pointed' },
-    'Rogue':     { name: 'Shadow Strike', icon: 'fa-feather-pointed' },
-    'Guardian':  { name: 'Fortify',       icon: 'fa-shield-halved' },
-    'Trickster': { name: 'Wild Card',     icon: 'fa-clover' }
-  };
+  var CLASS_SIGNATURE_MOVES = _C.CLASS_SIGNATURE_MOVES;
 
-  // Tutorial hints for first 3 campaign battles
-  const TUTORIAL_MAX_BATTLES = 3;
-  const TUTORIAL_ROUND1_HINTS = [
-    'Strike deals damage. Guard blocks it. Try Strike!',
-    'Counter reflects strikes back — risky but rewarding!',
-    'Heal restores HP. Use it when you\u2019re below half.'
-  ];
-  const TUTORIAL_COUNTER_HINTS = {
-    guard: 'The boss guarded — Ability stuns guards!',
-    strike: 'The boss struck — Guard or Counter blocks strikes!',
-    ability: 'The boss used an ability — Strike while they recover!',
-    heal: 'The boss healed — Strike to disrupt healing!',
-    counter: 'The boss countered — Ability bypasses counters!'
-  };
+  var TUTORIAL_MAX_BATTLES = _C.TUTORIAL_MAX_BATTLES;
+  var TUTORIAL_ROUND1_HINTS = _C.TUTORIAL_ROUND1_HINTS;
+  var TUTORIAL_COUNTER_HINTS = _C.TUTORIAL_COUNTER_HINTS;
 
   function getTutorialBattleCount() {
     return parseInt(localStorage.getItem('bs-tutorial-battle-count') || '0', 10);
@@ -1759,9 +1280,7 @@
   // CRATE OPENING CEREMONY
   // ============================================================
 
-  var CRATE_RARITY_COLORS = {
-    common: 'var(--bs-text)', uncommon: '#4ade80', rare: '#60a5fa', epic: '#a855f7'
-  };
+  var CRATE_RARITY_COLORS = _C.CRATE_RARITY_COLORS;
 
   function weightedRandom(weights) {
     var total = 0; for (var k in weights) total += weights[k];
@@ -1961,12 +1480,7 @@
     else _progress.bossRecords[bossId].losses++;
   }
 
-  // Boss mastery tiers — stars earned by repeated boss wins
-  const MASTERY_TIERS = [
-    { wins: 3,  tier: 'bronze', icon: 'fa-star', color: 'var(--bs-accent-dim)', label: 'Bronze', statBonus: 1 },
-    { wins: 5,  tier: 'silver', icon: 'fa-star', color: 'var(--bs-text)',        label: 'Silver', statBonus: 0, titleSuffix: "'s Bane" },
-    { wins: 10, tier: 'gold',   icon: 'fa-star', color: 'var(--bs-accent-glow)', label: 'Gold',   sparks: 25 }
-  ];
+  var MASTERY_TIERS = _C.MASTERY_TIERS;
 
   function getBossMastery(bossId) {
     var record = getBossRecord(bossId);
@@ -2028,13 +1542,7 @@
   // Lightweight card renderer — builds a rich card visual from saved data.
   // No CardForge editor dependency. Works anywhere with just the card data object.
 
-  var RC_STAT_DEFS = [
-    { key: 'str', label: 'STR', color: '#ff5252' },
-    { key: 'agi', label: 'AGI', color: '#00e676' },
-    { key: 'int', label: 'INT', color: '#7b2fff' },
-    { key: 'end', label: 'END', color: '#ff9100' },
-    { key: 'lck', label: 'LCK', color: '#ffd740' }
-  ];
+  var RC_STAT_DEFS = _C.RC_STAT_DEFS;
 
   function renderCardHTML(card, size) {
     // size: 'full' (lobby/celebration), 'compact' (battle/deck), 'micro' (pre-fight)
@@ -6266,13 +5774,7 @@
   // TUTORIAL (Stranger fight)
   // ============================================================
 
-  const TUTORIAL_HINTS = [
-    { move: 'strike',  text: 'Strike \u2014 basic attack. Deals STR damage. Disrupts enemy heals.' },
-    { move: 'guard',   text: 'Guard \u2014 blocks 60% of strikes. Use when they attack.' },
-    { move: 'heal',    text: 'Heal \u2014 recover HP. Strikes and abilities reduce healing.' },
-    { move: 'counter', text: 'Counter \u2014 reflects enemy strikes back at them. Fails vs abilities.' },
-    { move: 'ability', text: 'Ability \u2014 your class power. Costs 2 charges. Earned by fighting.' }
-  ];
+  var TUTORIAL_HINTS = _C.TUTORIAL_HINTS;
 
   let _tutorialStep = 0;
   let _tutorialEl = null;
@@ -6346,52 +5848,18 @@
   }
 
   // ============================================================
-  // TOAST NOTIFICATIONS
+  // TOAST NOTIFICATIONS — delegated to bs-toast.js (window.BsToast)
   // ============================================================
 
-  function showToast(message, type) {
-    // Gracefully fade out any existing toast
-    const existing = document.querySelector('.bs-toast');
-    if (existing) {
-      existing.classList.remove('bs-toast--visible');
-      setTimeout(() => { if (existing.parentNode) existing.remove(); }, 500);
-    }
-
-    const toast = document.createElement('div');
-    toast.className = `bs-toast bs-toast--${type}`;
-    toast.textContent = message;
-    document.body.appendChild(toast);
-
-    setTimeout(() => toast.classList.add('bs-toast--visible'), 20);
-    setTimeout(() => {
-      toast.classList.remove('bs-toast--visible');
-      setTimeout(() => { if (toast.parentNode) toast.remove(); }, 500);
-    }, 3000);
-  }
-
-  function showErrorToast(msg) { showToast(msg, 'error'); }
-  function showSuccessToast(msg) { showToast(msg, 'success'); }
+  function showToast(message, type) { if (window.BsToast) window.BsToast.show(message, type); }
+  function showErrorToast(msg) { if (window.BsToast) window.BsToast.error(msg); }
+  function showSuccessToast(msg) { if (window.BsToast) window.BsToast.success(msg); }
 
   // ============================================================
   // REWARD SYSTEM — Roulette + Boss Drops
   // ============================================================
 
-  const LOOT_TABLE = [
-    { weight: 30, type: 'stat_shard', stat: 'str', amount: 3, label: '+3 STR', rarity: 'common' },
-    { weight: 30, type: 'stat_shard', stat: 'agi', amount: 3, label: '+3 AGI', rarity: 'common' },
-    { weight: 30, type: 'stat_shard', stat: 'int', amount: 3, label: '+3 INT', rarity: 'common' },
-    { weight: 30, type: 'stat_shard', stat: 'end', amount: 3, label: '+3 END', rarity: 'common' },
-    { weight: 30, type: 'stat_shard', stat: 'lck', amount: 3, label: '+3 LCK', rarity: 'common' },
-    { weight: 15, type: 'stat_shard', stat: 'str', amount: 5, label: '+5 STR', rarity: 'uncommon' },
-    { weight: 15, type: 'stat_shard', stat: 'agi', amount: 5, label: '+5 AGI', rarity: 'uncommon' },
-    { weight: 15, type: 'stat_shard', stat: 'int', amount: 5, label: '+5 INT', rarity: 'uncommon' },
-    { weight: 15, type: 'stat_shard', stat: 'end', amount: 5, label: '+5 END', rarity: 'uncommon' },
-    { weight: 15, type: 'stat_shard', stat: 'lck', amount: 5, label: '+5 LCK', rarity: 'uncommon' },
-    { weight: 5, type: 'stat_shard', stat: 'str', amount: 8, label: '+8 STR', rarity: 'rare' },
-    { weight: 5, type: 'stat_shard', stat: 'end', amount: 8, label: '+8 END', rarity: 'rare' },
-    { weight: 3, type: 'stat_shard', stat: 'str', amount: 12, label: '+12 STR', rarity: 'epic' },
-    { weight: 2, type: 'stat_shard', stat: 'int', amount: 12, label: '+12 INT', rarity: 'epic' }
-  ];
+  var LOOT_TABLE = _C.LOOT_TABLE;
 
   function rollLoot() {
     const totalWeight = LOOT_TABLE.reduce((sum, item) => sum + item.weight, 0);
@@ -7288,6 +6756,7 @@
       console.log('  BS.reset()          — reset ALL progress (requires confirm)');
       console.log('  BS.godMode()        — max sparks, all bosses, all cosmetics, all charms');
       console.log('  BS.forge()          — open Card Forge directly');
+      console.log('  BS.adventure(n)     — launch adventure for boss n (1-10)');
       console.log('  BS.refresh()        — re-render lobby after cheat changes');
       return 'Type any command above to use it.';
     },
@@ -7554,6 +7023,27 @@
 
   BS_CHEATS.victoryFx = function() { playVictoryAnimation(); return 'Victory animation triggered!'; };
   BS_CHEATS.forge = function() { openForgeScreen(false, true); return 'Card Forge opened'; };
+  BS_CHEATS.adventure = function(bossNum) {
+    bossNum = parseInt(bossNum, 10) || 1;
+    if (bossNum < 1 || bossNum > 10) { console.log('[BS] Boss must be 1-10'); return; }
+    var bossId = 'bs-boss-' + bossNum;
+    if (!window.BsAdventure) { console.log('[BS] BsAdventure not loaded'); return; }
+    if (!window.BsAdventure.hasAdventure(bossId)) { console.log('[BS] No adventure for boss ' + bossNum); return; }
+    var stats = _selectedCard ? _selectedCard.combatStats : { str: 50, agi: 50, int: 50, end: 50, lck: 50 };
+    var cls = _selectedCard ? (_selectedCard.class || _selectedCard.characterClass || '') : 'Fighter';
+    console.log('[BS] Launching adventure for Boss ' + bossNum + '...');
+    window.BsAdventure.launch(bossId, stats, {
+      containerEl: document.getElementById('bs-adventure-overlay'),
+      playerClass: cls,
+      bossWeakness: null,
+      ascension: _progress.ascension || 0
+    }).then(function(result) {
+      console.log('[BS] Adventure complete:', result);
+    }).catch(function(err) {
+      console.warn('[BS] Adventure error:', err);
+    });
+    return 'Adventure launching...';
+  };
   window.BS = BS_CHEATS;
 
   // ============================================================

@@ -361,6 +361,11 @@ window.BsAdventure = (function () {
   // ============================================================
 
   var LOADING_ICONS = ['fa-eye', 'fa-scroll', 'fa-compass', 'fa-fire', 'fa-hat-wizard', 'fa-moon'];
+  var IMAGE_LOADING_PHRASES = [
+    'Scrying\u2026', 'Conjuring vision\u2026', 'Peering beyond the veil\u2026',
+    'The mists part\u2026', 'Summoning sight\u2026', 'Gazing into the unknown\u2026',
+    'Shadows take shape\u2026', 'The lens focuses\u2026'
+  ];
   var _iconInterval = null;
   var _particleRaf = null;
   var _particles = [];
@@ -370,21 +375,34 @@ window.BsAdventure = (function () {
     if (!loadingEl) return;
     loadingEl.style.display = 'flex';
 
+    var phraseIdx = Math.floor(Math.random() * IMAGE_LOADING_PHRASES.length);
+
     // Build loading HTML: canvas for particles + icon + sublabel
     loadingEl.innerHTML = '<canvas class="bs-adventure__particle-canvas"></canvas>'
       + '<div class="bs-adventure__loading-icon"><i class="fas ' + LOADING_ICONS[0] + '"></i></div>'
-      + '<span class="bs-adventure__loading-label">Scrying...</span>';
+      + '<span class="bs-adventure__loading-label">' + IMAGE_LOADING_PHRASES[phraseIdx] + '</span>';
 
-    // Rotating icons
+    // Rotating icons + label phrases
     var iconEl = loadingEl.querySelector('.bs-adventure__loading-icon i');
+    var labelEl = loadingEl.querySelector('.bs-adventure__loading-label');
     var idx = 0;
     _iconInterval = setInterval(function () {
       idx = (idx + 1) % LOADING_ICONS.length;
+      phraseIdx = (phraseIdx + 1) % IMAGE_LOADING_PHRASES.length;
       if (iconEl) {
         iconEl.style.opacity = '0';
         setTimeout(function () {
           iconEl.className = 'fas ' + LOADING_ICONS[idx];
           iconEl.style.opacity = '1';
+        }, 200);
+      }
+      if (labelEl) {
+        labelEl.style.opacity = '0';
+        setTimeout(function () {
+          if (labelEl) {
+            labelEl.textContent = IMAGE_LOADING_PHRASES[phraseIdx];
+            labelEl.style.opacity = '1';
+          }
         }, 200);
       }
     }, 2000);

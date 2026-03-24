@@ -408,6 +408,8 @@
         <span class="bs-adventure__title" id="bs-adventure-title"></span>
         <span class="bs-adventure__progress" id="bs-adventure-progress"></span>
       </div>
+      <!-- Persistent buff/item status bar under header -->
+      <div class="bs-adventure__status-bar" id="bs-adventure-buffs"></div>
       <div class="bs-adventure__columns">
         <div class="bs-adventure__story">
           <div class="bs-adventure__image-wrap" id="bs-adventure-image-wrap">
@@ -424,10 +426,8 @@
               <div class="bs-adventure__dice-result" id="bs-adventure-dice-result"></div>
             </div>
           </div>
-        </div>
-        <div class="bs-adventure__sidebar">
+          <!-- Choices + footer now flow inline after story text -->
           <div class="bs-adventure__choices" id="bs-adventure-choices"></div>
-          <div class="bs-adventure__buffs" id="bs-adventure-buffs"></div>
           <div class="bs-adventure__footer" id="bs-adventure-footer" style="display:none;">
             <button class="bs-btn bs-btn--primary bs-btn--large bs-btn--glow" id="bs-adventure-fight">Enter Battle</button>
           </div>
@@ -619,6 +619,9 @@
   <script src="js/lib/bs-save-card.js"></script>
   <script src="js/lib/bs-adventure.js"></script>
   <script src="js/blindspot-quick-build.js"></script>
+  <script src="js/lib/bs-constants.js"></script>
+  <script src="js/lib/bs-audio-sfx.js"></script>
+  <script src="js/lib/bs-toast.js"></script>
   <script src="js/blindspot-flow.js"></script>
 
   <!-- Play page particle system -->
