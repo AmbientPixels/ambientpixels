@@ -787,140 +787,25 @@
   var _collectionSlot = 'frame';
 
   // ============================================================
-  // CRATE INVENTORY
+  // CRATE SYSTEM — delegated to bs-crates.js (window.BsCrates)
   // ============================================================
 
-  function getCrates() { return _progress.crates; }
-  function addCrate(type) {
-    _progress.crates.push({ type: type, earned: Date.now() });
-    return _progress.crates.length;
-  }
-  function removeCrate(index) {
-    if (index >= 0 && index < _progress.crates.length) _progress.crates.splice(index, 1);
-  }
-  function getCrateCount() { return _progress.crates.length; }
+  var _Crt = window.BsCrates || {};
+  function getCrates() { return _Crt.getCrates ? _Crt.getCrates() : []; }
+  function addCrate(type) { return _Crt.addCrate ? _Crt.addCrate(type) : 0; }
+  function removeCrate(i) { if (_Crt.removeCrate) _Crt.removeCrate(i); }
+  function getCrateCount() { return _Crt.getCrateCount ? _Crt.getCrateCount() : 0; }
+  function awardCrate(type) { if (_Crt.awardCrate) _Crt.awardCrate(type, _config); }
+  function checkBattleCrate() { if (_Crt.checkBattleCrate) _Crt.checkBattleCrate(_config); }
+  function updateCrateBadge() { if (_Crt.updateBadge) _Crt.updateBadge(); }
+  function openCrateOverlay(i) { if (_Crt.openOverlay) _Crt.openOverlay(i, _config); }
 
-  // Win counter for battle crates (every 5 wins)
-  function getCrateWinCounter() { return _progress.crateWinCounter; }
-  function incCrateWinCounter() {
-    _progress.crateWinCounter++;
-    return _progress.crateWinCounter;
-  }
-
-  // Award a crate with toast notification
-  function awardCrate(type) {
-    var crateTypes = _config && _config.crates && _config.crates.types;
-    var crateDef = crateTypes ? crateTypes[type] : null;
-    var name = crateDef ? crateDef.name : (type + ' Crate');
-    addCrate(type);
-    showSuccessToast('Crate earned: ' + name + '!');
-    playSfx('loot');
-    updateCrateBadge();
-  }
-
-  // Check and award battle crate (every 5 wins)
-  function checkBattleCrate() {
-    var count = incCrateWinCounter();
-    if (count >= 5) {
-      _progress.crateWinCounter = 0;
-      awardCrate('battle');
-    }
-  }
-
-  // Update crate count badge in lobby
-  function updateCrateBadge() {
-    var indicator = document.getElementById('bs-crate-indicator');
-    var badge = document.getElementById('bs-crate-badge');
-    var plural = document.getElementById('bs-crate-plural');
-    var count = getCrateCount();
-    if (indicator) indicator.style.display = count > 0 ? '' : 'none';
-    if (badge) badge.textContent = String(count);
-    if (plural) plural.textContent = count === 1 ? '' : 's';
-    updateSparksShop();
-  }
-
-  // Sparks shop — Ember Crate purchase
-  var _sparksShopBound = false;
-  function updateSparksShop() {
-    var shop = document.getElementById('bs-sparks-shop');
-    var btn = document.getElementById('bs-buy-ember-crate');
-    if (!shop) return;
-    var sparks = getSparks();
-    var cost = 50;
-    // Show shop only when player has sparks (even if not enough — shows the option)
-    shop.style.display = sparks > 0 ? '' : 'none';
-    if (btn) {
-      btn.disabled = sparks < cost;
-      btn.setAttribute('aria-label', 'Buy Ember Crate for ' + cost + ' Sparks' + (sparks < cost ? ' (not enough Sparks)' : ''));
-    }
-    if (!_sparksShopBound && btn) {
-      _sparksShopBound = true;
-      btn.addEventListener('click', function() {
-        if (getSparks() < cost) {
-          showSuccessToast('Not enough Sparks! Need ' + cost + '.');
-          return;
-        }
-        spendSparks(cost);
-        awardCrate('ember');
-        updateSparksShop();
-        // Update lobby sparks display
-        var sparksSpan = document.querySelector('.bs-hud-sparks');
-        if (sparksSpan) sparksSpan.innerHTML = '<i class="fas fa-fire"></i> ' + getSparks() + ' sparks';
-      });
-    }
-  }
-
-  // ============================================================
-  // CRATE OPENING CEREMONY
-  // ============================================================
-
-  var CRATE_RARITY_COLORS = _C.CRATE_RARITY_COLORS;
-
-  function weightedRandom(weights) {
-    var total = 0; for (var k in weights) total += weights[k];
-    var roll = Math.random() * total;
-    for (var k in weights) { roll -= weights[k]; if (roll <= 0) return k; }
-    return Object.keys(weights)[0];
-  }
-
-  function rollCrateLoot(crateType) {
-    var crateDef = _config && _config.crates && _config.crates.types[crateType];
-    if (!crateDef) return { id: 'fallback', name: '10 Sparks', rarity: 'common', icon: 'fa-fire', category: 'currency', amount: 10 };
-    var table = _config.crates.lootTables[crateDef.lootTable];
-    if (!table) return { id: 'fallback', name: '10 Sparks', rarity: 'common', icon: 'fa-fire', category: 'currency', amount: 10 };
-    var rarity = weightedRandom(table.rarityWeights);
-    var eligible = [];
-    (table.pools || []).forEach(function(poolName) {
-      var pool = _config.crates.dropPools[poolName];
-      if (!pool) return;
-      (pool.items || []).forEach(function(item) {
-        if (item.rarity === rarity) eligible.push(Object.assign({ category: pool.category, slot: pool.slot }, item));
-      });
-    });
-    if (eligible.length === 0) return { id: 'fallback_' + rarity, name: '10 Sparks', rarity: rarity, icon: 'fa-fire', category: 'currency', amount: 10 };
-    return eligible[Math.floor(Math.random() * eligible.length)];
-  }
-
-  function getRandomReelItems(count) {
-    var allItems = [];
-    if (_config && _config.crates && _config.crates.dropPools) {
-      for (var poolName in _config.crates.dropPools) {
-        var pool = _config.crates.dropPools[poolName];
-        (pool.items || []).forEach(function(item) { allItems.push(item); });
-      }
-    }
-    if (allItems.length === 0) return [];
-    var result = [];
-    for (var i = 0; i < count; i++) result.push(allItems[Math.floor(Math.random() * allItems.length)]);
-    return result;
-  }
-
+  // applyCrateLoot stays in monolith — it orchestrates across card, forge, cosmetics, charms
   function applyCrateLoot(item) {
     if (!item) return;
     if (item.category === 'currency' || item.id.startsWith('sparks')) {
       addSparks(item.amount || 10);
     } else if (item.stat) {
-      // Stat boost
       if (_selectedCard && _selectedCard.combatStats) {
         if (item.stat === 'all') {
           ['str', 'agi', 'int', 'end', 'lck'].forEach(function(s) {
@@ -934,127 +819,40 @@
     } else if (item.id.startsWith('forge_token')) {
       setForgeWins(getForgeWins() + (item.amount || 1));
     } else if (item.id === 'respec_scroll') {
-      // Grant a free respec by adding forge wins
       setForgeWins(getForgeWins() + 3);
     } else if (item.category === 'cosmetic') {
-      // Add to unlocked cosmetics
       if (!_progress.cosmetics.includes(item.id)) _progress.cosmetics.push(item.id);
     } else if (item.slot === 'charm') {
-      // Add to charms inventory
       _progress.charms.push(item.id);
     } else if (item.title) {
       setCardTitle(item.title);
     }
   }
 
-  function openCrateOverlay(crateIndex) {
-    // Prevent duplicate overlays from rapid clicks
-    if (document.querySelector('.bs-crate-overlay')) return;
-    var crates = getCrates();
-    if (crateIndex < 0 || crateIndex >= crates.length) return;
-    var crate = crates[crateIndex];
-    var crateDef = _config && _config.crates && _config.crates.types[crate.type];
-    if (!crateDef) crateDef = { name: 'Crate', icon: 'fa-box', color: 'var(--bs-accent)' };
-
-    // Roll loot before building UI (result is predetermined)
-    var wonItem = rollCrateLoot(crate.type);
-    var reelItems = getRandomReelItems(18);
-    // Insert winning item at position 14
-    reelItems.splice(14, 0, wonItem);
-
-    var _phase = 'ready'; // ready → shaking → spinning → revealed
-    var overlay = document.createElement('div');
-    overlay.className = 'bs-crate-overlay';
-    overlay.setAttribute('role', 'dialog');
-    overlay.setAttribute('aria-label', 'Opening ' + crateDef.name);
-
-    var rarityColor = CRATE_RARITY_COLORS[wonItem.rarity] || 'var(--bs-text)';
-
-    overlay.innerHTML = '<div class="bs-crate-stage">'
-      // Crate icon (clickable)
-      + '<div class="bs-crate-box" id="bs-crate-box" role="button" aria-label="Tap to open" tabindex="0">'
-      + '<i class="fas ' + escHtml(crateDef.icon) + '" style="color:' + crateDef.color + ';"></i>'
-      + '</div>'
-      + '<p class="bs-crate-prompt" id="bs-crate-prompt" style="font-family:\'Cinzel\',serif; color:var(--bs-text-muted); font-size:0.85rem; margin-top:1rem;">' + escHtml(crateDef.name) + '</p>'
-      + '<p class="bs-crate-tap" id="bs-crate-tap" style="font-size:0.7rem; color:var(--bs-accent-dim); margin-top:0.5rem;">Tap to open</p>'
-      // Reel (hidden initially)
-      + '<div class="bs-crate-reel" id="bs-crate-reel" style="display:none;">'
-      + '<div class="bs-crate-strip" id="bs-crate-strip">'
-      + reelItems.map(function(item) {
-          var rc = CRATE_RARITY_COLORS[item.rarity] || 'var(--bs-text)';
-          return '<div class="bs-crate-tile" style="border-color:' + rc + ';">'
-            + '<i class="fas ' + escHtml(item.icon || 'fa-gift') + '" style="color:' + rc + ';"></i>'
-            + '<span>' + escHtml(item.name || '???') + '</span>'
-            + '</div>';
-        }).join('')
-      + '</div>'
-      + '<div class="bs-crate-reel-pointer"></div>'
-      + '</div>'
-      // Reveal card (hidden initially)
-      + '<div class="bs-crate-reveal" id="bs-crate-reveal" style="display:none;">'
-      + '<div class="bs-crate-reveal__glow" style="background:' + rarityColor + ';"></div>'
-      + '<i class="fas ' + escHtml(wonItem.icon || 'fa-gift') + '" style="font-size:2.5rem; color:' + rarityColor + '; position:relative;"></i>'
-      + '<h3 style="font-family:\'Cinzel\',serif; color:var(--bs-text); margin:0.75rem 0 0.25rem; font-size:1rem;">' + escHtml(wonItem.name) + '</h3>'
-      + (wonItem.description ? '<p style="font-size:0.7rem; color:var(--bs-text-muted); margin:0 0 0.5rem;">' + escHtml(wonItem.description) + '</p>' : '')
-      + '<span class="bs-rarity-badge bs-rarity-badge--' + wonItem.rarity + '" style="margin-bottom:1rem;"><i class="fas fa-circle" style="font-size:0.4rem;"></i> ' + wonItem.rarity.charAt(0).toUpperCase() + wonItem.rarity.slice(1) + '</span>'
-      + '<button class="bs-btn bs-btn--primary" id="bs-crate-collect" style="padding:0.6rem 2rem; font-size:0.85rem;"><i class="fas fa-check"></i> Collect</button>'
-      + '</div>'
-      + '</div>';
-
-    document.body.appendChild(overlay);
-    requestAnimationFrame(function() { overlay.classList.add('bs-crate-overlay--visible'); });
-
-    // Click to open
-    var boxEl = document.getElementById('bs-crate-box');
-    var tapEl = document.getElementById('bs-crate-tap');
-    var promptEl = document.getElementById('bs-crate-prompt');
-    var reelEl = document.getElementById('bs-crate-reel');
-    var stripEl = document.getElementById('bs-crate-strip');
-    var revealEl = document.getElementById('bs-crate-reveal');
-    var collectBtn = document.getElementById('bs-crate-collect');
-
-    function startOpening() {
-      if (_phase !== 'ready') return;
-      _phase = 'shaking';
-      if (tapEl) tapEl.style.display = 'none';
-      if (promptEl) promptEl.textContent = 'Opening...';
-      boxEl.classList.add('bs-crate-box--shaking');
-
-      setTimeout(function() {
-        _phase = 'spinning';
-        boxEl.style.display = 'none';
-        if (promptEl) promptEl.style.display = 'none';
-        if (reelEl) reelEl.style.display = '';
-        playSfx('crateRatchet');
-        // Scroll strip to winning item position (tile width ~90px, win at index 14)
-        requestAnimationFrame(function() {
-          if (stripEl) stripEl.style.transform = 'translateX(-' + (14 * 90 - 130) + 'px)';
-        });
-
-        setTimeout(function() {
-          _phase = 'revealed';
-          playSfx('crateReveal');
-          if (reelEl) reelEl.style.display = 'none';
-          if (revealEl) { revealEl.style.display = ''; revealEl.classList.add('bs-crate-reveal--active'); }
-        }, 2800);
-      }, 1000);
+  // Sparks shop — stays in monolith (calls getSparks/spendSparks/awardCrate)
+  var _sparksShopBound = false;
+  function updateSparksShop() {
+    var shop = document.getElementById('bs-sparks-shop');
+    var btn = document.getElementById('bs-buy-ember-crate');
+    if (!shop) return;
+    var sparks = getSparks();
+    var cost = 50;
+    shop.style.display = sparks > 0 ? '' : 'none';
+    if (btn) {
+      btn.disabled = sparks < cost;
+      btn.setAttribute('aria-label', 'Buy Ember Crate for ' + cost + ' Sparks' + (sparks < cost ? ' (not enough Sparks)' : ''));
     }
-
-    if (boxEl) {
-      boxEl.addEventListener('click', startOpening, { once: true });
-      boxEl.addEventListener('keydown', function(e) { if (e.key === 'Enter' || e.key === ' ') startOpening(); }, { once: true });
+    if (!_sparksShopBound && btn) {
+      _sparksShopBound = true;
+      btn.addEventListener('click', function() {
+        if (getSparks() < cost) { showSuccessToast('Not enough Sparks! Need ' + cost + '.'); return; }
+        spendSparks(cost);
+        awardCrate('ember');
+        updateSparksShop();
+        var sparksSpan = document.querySelector('.bs-hud-sparks');
+        if (sparksSpan) sparksSpan.innerHTML = '<i class="fas fa-fire"></i> ' + getSparks() + ' sparks';
+      });
     }
-
-    // Collect
-    if (collectBtn) collectBtn.addEventListener('click', function() {
-      removeCrate(crateIndex);
-      applyCrateLoot(wonItem);
-      updateCrateBadge();
-      syncProgressToServer();
-      showSuccessToast(wonItem.name + ' added!');
-      overlay.classList.remove('bs-crate-overlay--visible');
-      setTimeout(function() { overlay.remove(); renderLobby(); }, 300);
-    }, { once: true });
   }
 
   function escHtml(s) {
@@ -1470,6 +1268,7 @@
       ]);
       _config = configResp;
       _buildCosmeticCaches();
+      if (_Crt.setCallbacks) _Crt.setCallbacks({ applyCrateLoot: applyCrateLoot, renderLobby: renderLobby, updateSparksShop: updateSparksShop });
       _bosses = bossesResp;
       // Build boss lookup maps for O(1) access
       _bossesById = {};
