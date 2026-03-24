@@ -158,14 +158,28 @@ All flows tested via Playwright on live site (`ambientpixels.ai/blindspot/`):
 | After bs-landing.js | 2780 | -394 |
 | **Total Round 7** | **2780** | **-519 (-15.7%)** |
 
-### Deferred (Round 8+)
+## Round 8 Plan — Tutorial + Rewards + Leaderboard + Tooltips + Auth
+
+Monolith is at 2780 lines. Five easy self-contained sections:
+
+| Order | Module | Lines | Range | Ease | Key Functions |
+|-------|--------|-------|-------|------|---------------|
+| 1 | `bs-tutorial.js` | ~77 | 2231-2305 | Easy | showStrangerTutorial(), onTutorialMoveClick(), highlightTutorialMove(), advanceTutorial(), removeTutorial(). State: `_tutorialStep`, `_tutorialEl`. Uses `TUTORIAL_HINTS` from BsConst. index.html only. |
+| 2 | `bs-reward-drops.js` | ~90 | 2316-2403 | Easy-Medium | rollLoot(), applyLootDrop(), showRewardDrop(). `applyLootDrop` writes `_selectedCard.combatStats` + calls save API — needs callbacks for both. `rollLoot` uses `LOOT_TABLE` from BsConst. |
+| 3 | `bs-leaderboard.js` | ~62 | 2636-2697 | Easy | renderLeaderboard(). Reads `_selectedCard` for "(you)" highlight. Self-contained async screen render. |
+| 4 | `bs-combat-tooltips.js` | ~58 | 2704-2761 | Easy | showBattleHint(), updateCombatTooltips(). Reads `_selectedCard`, `_activeBattle`. Uses `BATTLE_HINTS`, `CLASS_SIGNATURE_MOVES`, `MOVE_UPGRADES` from BsConst. |
+| 5 | `bs-auth-ui.js` | ~27 | 2540-2564 | Easy | updatePlayAuthUI(). Pure DOM + fetch. Merge with landing's updateLandingAuthUI() or keep separate? Could fold into bs-landing.js since that already owns landing auth UI. |
+
+Round 8 target: ~314 lines removed, 2780 → ~2466.
+
+### Deferred (Round 9+)
 - Lobby rendering (~369 lines) — cross-references many sections, extract last
-- Reward System / Roulette (~90 lines) — showRewardDrop() + boss drops
-- Leaderboard (~64 lines) — self-contained screen
-- Combat Tooltips (~60 lines) — battle UI helper
-- Play page auth UI (~27 lines) — updatePlayAuthUI(), small
-- Tutorial (~77 lines) — stranger fight tutorial overlay, index.html only
-- Battle orchestration (~49 lines `BATTLE COMPLETION HOOK`) — deeply tangled with state
+- Pre-fight adventure/fight buttons (~91 lines, 1848-1938) — setupPrefightButtons(), populatePrefightOverlay()
+- New card class picker (~100 lines, 1175-1274) — class picker + create card + forge
+- Card switcher (~73 lines, 1066-1138) — lobby card arrows
+- Battle completion hook (~56 lines, 1306-1361) — deeply tangled with state
+- Storage cleanup (~46 lines, 2567-2612) — cleanupLocalStorage()
+- Battle card palette (~21 lines, 2613-2633) — applyBattlePalette()
 
 ## Architecture
 
