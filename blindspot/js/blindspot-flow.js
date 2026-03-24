@@ -948,6 +948,26 @@
         setForgeWins: setForgeWins,
         getProgress: function() { return _progress; }
       });
+      if (_Land.setCallbacks) _Land.setCallbacks({
+        loadGameData: loadGameData, loadProfile: loadProfile,
+        showOverlay: showOverlay, hideOverlay: hideOverlay,
+        showErrorToast: showErrorToast, safeLSSet: safeLSSet,
+        isDemo: isDemo, isNewPlayer: isNewPlayer,
+        getProgress: function() { return _progress; },
+        getConfig: function() { return _config; },
+        getStrangerCard: function() { return _strangerCard; },
+        getBlindspotAPI: function() { return BlindspotAPI; },
+        setIsStrangerFight: function(v) { _isStrangerFight = v; },
+        setIsFirstRealFight: function(v) { _isFirstRealFight = v; },
+        setActiveBattle: function(v) { _activeBattle = v; },
+        hookBattleCompletion: hookBattleCompletion, hookBattleTracking: hookBattleTracking,
+        removeTutorial: removeTutorial, showStrangerTutorial: showStrangerTutorial,
+        applyBattlePalette: applyBattlePalette, updateCombatTooltips: updateCombatTooltips,
+        renderCardHTML: renderCardHTML, ensureCombatStats: ensureCombatStats,
+        addCardToDeck: addCardToDeck, flushSyncBeforeNavigate: flushSyncBeforeNavigate,
+        setForgeWins: setForgeWins, isForgeUnlocked: isForgeUnlocked,
+        getForgeWins: getForgeWins, renderSessionStats: renderSessionStats
+      });
     } catch (e) {
       console.error('[Blindspot] Failed to load game data:', e);
       showErrorToast('Failed to load game. Please refresh.');
@@ -1332,399 +1352,12 @@
     };
   }
 
-  // ============================================================
-  // LANDING PAGE (index.html)
-  // ============================================================
-
-  async function initLanding() {
-    // Start loading in parallel for faster boot
-    const gameDataPromise = loadGameData();
-    const profilePromise = loadProfile();
-
-    const fightBtn = document.getElementById('bs-fight-btn');
-    if (!fightBtn) return;
-
-    // Enable button as soon as possible — don't block on API
-    await gameDataPromise;
-    const profile = await profilePromise;
-
-    var landingParams = new URLSearchParams(window.location.search);
-
-    // Dev reset: ?reset=true clears localStorage + server profile
-    if (landingParams.get('reset') === 'true') {
-      Object.keys(localStorage).filter(function(k) { return k.startsWith('bs-') || k === 'blindspot-onboarded' || k === 'cardforge_saved_cards'; }).forEach(function(k) { localStorage.removeItem(k); });
-      sessionStorage.clear();
-      // Reset server profiles (both blindspot + arena)
-      BlindspotAPI._apiFetch('POST', { action: 'reset' }).catch(function() {});
-      (async function() {
-        try {
-          var url = window.buildApiPath ? window.buildApiPath('arenaProfile') : 'https://ambientpixels-nova-api.azurewebsites.net/api/cardforgearenaprofile';
-          var principal = await BlindspotAPI.fetchPrincipal();
-          var headers = { 'Content-Type': 'application/json' };
-          if (principal) headers['X-CF-Auth-Principal'] = principal;
-          fetch(url, { method: 'POST', headers: headers, body: JSON.stringify({ action: 'reset' }) });
-        } catch(e) {}
-      })();
-      window.location.href = '/blindspot/';
-      return;
-    }
-
-    // New card creation flow: authenticated player came from lobby to build another card
-    if (landingParams.get('newCard') === 'true' && !isDemo()) {
-      document.getElementById('bs-landing').style.display = 'none';
-      openNewCardQuickBuild();
-      return;
-    }
-
-    // Returning AUTHENTICATED players skip landing page — go straight to play.html
-    // Never auto-redirect guests/demo users — they should see the landing page
-    if (!isDemo() && !isNewPlayer(profile)) {
-      document.getElementById('bs-landing').style.opacity = '0';
-      window.location.href = '/blindspot/play.html';
-      return;
-    }
-
-    // Update auth UI on landing page
-    updateLandingAuthUI();
-
-    // Bind combat guide close (overlay is on index.html for first-fight tutorial)
-    document.getElementById('bs-combat-guide-close')?.addEventListener('click', () => { hideOverlay('bs-combat-guide'); });
-
-    // Social proof counters — seed + player's own stats
-    var proofBattles = document.getElementById('bs-proof-battles');
-    var proofCards = document.getElementById('bs-proof-cards');
-    if (proofBattles && proofCards) {
-      var baseBattles = 12847;
-      var baseCards = 3291;
-      var playerWins = _progress.totalWins;
-      var playerForge = _progress.forgeVisits;
-      proofBattles.textContent = (baseBattles + playerWins).toLocaleString();
-      proofCards.textContent = (baseCards + playerForge).toLocaleString();
-    }
-
-    fightBtn.addEventListener('click', async () => {
-      fightBtn.disabled = true;
-      fightBtn.innerHTML = '<span class="bs-spinner" style="display:inline-block;width:14px;height:14px;"></span> Loading\u2026';
-
-      // ALL new players fight as The Stranger first
-      // Demo users: cardData passed directly (server accepts it)
-      // Authenticated users: also pass cardData (server uses it when card isn't in collection)
-      try {
-        await showStrangerIntro();
-        await startStrangerFight();
-      } catch (err) {
-        console.error('[Blindspot] First fight error:', err);
-        fightBtn.disabled = false;
-        fightBtn.innerHTML = '<i class="fas fa-bolt"></i> Fight';
-        showErrorToast('Failed to start fight. Try again.');
-        document.getElementById('bs-landing').style.display = '';
-        document.getElementById('bs-battle-container').style.display = 'none';
-      }
-    });
-  }
-
-  function showStrangerIntro() {
-    return new Promise(resolve => {
-      // Only show intro on first stranger fight
-      if (localStorage.getItem('bs-stranger-intro-shown')) { resolve(); return; }
-      safeLSSet('bs-stranger-intro-shown', 'true');
-
-      // Fade out landing screen
-      const landing = document.getElementById('bs-landing');
-      landing.style.opacity = '0';
-      landing.style.transition = 'opacity 0.5s ease';
-
-      const intro = document.getElementById('bs-stranger-intro');
-      if (!intro) { resolve(); return; }
-
-      setTimeout(() => {
-        landing.style.display = 'none';
-        landing.style.opacity = '';
-        intro.classList.remove('bs-overlay--hidden');
-        intro.style.display = '';
-
-        // Reveal lines one by one
-        const lines = intro.querySelectorAll('.bs-stranger-intro__line');
-        const delays = [400, 1800, 3200];
-        lines.forEach((line, i) => {
-          setTimeout(() => line.classList.add('bs-intro-visible'), delays[i] || (i * 1400));
-        });
-
-        // Fade out and resolve after all lines shown
-        setTimeout(() => {
-          intro.classList.add('bs-intro-fadeout');
-          setTimeout(() => {
-            intro.classList.add('bs-overlay--hidden');
-            intro.classList.remove('bs-intro-fadeout');
-            resolve();
-          }, 600);
-        }, 8000);
-      }, 500);
-    });
-  }
-
-  async function startStrangerFight() {
-    _isStrangerFight = true;
-
-    // Clean up any existing tutorial from previous attempt
-    removeTutorial();
-
-    document.getElementById('bs-landing').style.display = 'none';
-
-    const battleContainer = document.getElementById('bs-battle-container');
-    // Keep battle hidden until fully initialized to prevent empty arena flash
-    battleContainer.style.display = 'block';
-    battleContainer.style.opacity = '0';
-
-    if (window.ArenaAudio) window.ArenaAudio.init();
-
-    if (!window._bsBattleEventsBound) {
-      window.ArenaBattleUI.bindEvents();
-      window._bsBattleEventsBound = true;
-    }
-
-    hookBattleCompletion();
-    hookBattleTracking();
-
-    try {
-      const battleData = await window.ArenaAPI.startBattle(
-        'pve', _strangerCard.id, _config.tutorialBoss.id,
-        { cardData: _strangerCard }
-      );
-      _activeBattle = battleData;
-
-      if (window.ArenaAudio && window.ArenaBackgrounds) {
-        window.ArenaAudio.playArenaMusic(window.ArenaBackgrounds.getSelected());
-      }
-      if (window.ArenaBackgrounds) window.ArenaBackgrounds.applyToBattleStage();
-
-      window.ArenaBattleUI.initBattle(battleData);
-      applyBattlePalette();
-      updateCombatTooltips();
-      // Fade in battle container now that everything is initialized
-      battleContainer.style.transition = 'opacity 0.4s ease';
-      battleContainer.style.opacity = '1';
-      // Show combat guide on very first battle
-      if (!localStorage.getItem('bs-combat-guide-shown')) {
-        safeLSSet('bs-combat-guide-shown', 'true');
-        showOverlay('bs-combat-guide');
-      }
-      // Only show tutorial on first attempt (not on retries after losing)
-      if (!localStorage.getItem('bs-tutorial-shown')) {
-        safeLSSet('bs-tutorial-shown', 'true');
-        showStrangerTutorial();
-      }
-    } catch (err) {
-      console.error('[Blindspot] Stranger fight error:', err);
-      document.getElementById('bs-landing').style.display = '';
-      battleContainer.style.display = 'none';
-      const fightBtn = document.getElementById('bs-fight-btn');
-      if (fightBtn) { fightBtn.disabled = false; fightBtn.textContent = 'Fight'; }
-      showErrorToast('Could not start battle. Try again.');
-    }
-  }
-
-  function handleStrangerResult(battleResult, battleData) {
-    const isWin = battleResult.winner === 'player';
-    document.getElementById('bs-battle-container').style.display = 'none';
-
-    if (isWin) {
-      showOverlay('bs-stranger-win');
-      document.getElementById('bs-build-btn')?.addEventListener('click', () => {
-        hideOverlay('bs-stranger-win');
-        openBlindspotQuickBuild();
-      }, { once: true });
-    } else {
-      showOverlay('bs-stranger-loss');
-      document.getElementById('bs-stranger-loss')?.addEventListener('click', () => {
-        hideOverlay('bs-stranger-loss');
-        startStrangerFight();
-      }, { once: true });
-    }
-  }
-
-  function openBlindspotQuickBuild() {
-    if (!window.BlindspotQuickBuild) {
-      console.error('[Blindspot] Quick Build not loaded');
-      return;
-    }
-
-    window.BlindspotQuickBuild.open(function onComplete(cardId) {
-      _isStrangerFight = false;
-      _isFirstRealFight = true;
-
-      // Everyone sees the card reveal celebration
-      if (cardId && !isDemo()) {
-        window.ArenaAPI.selectCard(cardId).catch(e => console.warn('selectCard:', e));
-      }
-      safeLSSet('blindspot-onboarded', 'true');
-      safeLSSet('bs-onboarded-lobby', 'true');
-      showCardRevealCelebration(cardId, isDemo());
-    });
-  }
-
-  function openNewCardQuickBuild() {
-    if (!window.BlindspotQuickBuild) {
-      console.error('[Blindspot] Quick Build not loaded');
-      window.location.href = '/blindspot/play.html';
-      return;
-    }
-
-    window.BlindspotQuickBuild.open(function onComplete(cardId) {
-      if (cardId) {
-        // Load the new card into the deck cache
-        window.ArenaAPI.loadCards().then(function(data) {
-          var cards = data.userCards || [];
-          cards.forEach(function(c) { addCardToDeck(c); });
-          // Select the new card
-          _progress.selectedCardId = cardId;
-          flushSyncBeforeNavigate();
-          window.location.href = '/blindspot/play.html';
-        }).catch(function() {
-          window.location.href = '/blindspot/play.html';
-        });
-      } else {
-        window.location.href = '/blindspot/play.html';
-      }
-    });
-  }
-
-  function showDemoSignInPrompt() {
-    // Remove any existing prompt
-    document.querySelector('.bs-demo-prompt')?.remove();
-
-    const overlay = document.createElement('div');
-    overlay.className = 'bs-overlay bs-demo-prompt';
-    overlay.innerHTML = `
-      <p class="bs-overlay__title">You built your card. Now make it real.</p>
-      <p class="bs-overlay__subtitle">Sign in to save your card, track your rank, and climb the campaign.</p>
-      <a href="/blindspot/login.html?redirect=/blindspot/" class="bs-btn bs-btn--primary bs-btn--full bs-btn--glow" style="text-decoration:none; text-align:center; display:block; max-width:320px;">
-        <i class="fas fa-sign-in-alt"></i> Sign In to Continue
-      </a>
-      <button class="bs-btn bs-btn--secondary bs-btn--full" style="margin-top:0.75rem; max-width:320px;" id="bs-demo-guest">
-        <i class="fas fa-play"></i> Continue as Guest
-      </button>
-      <p style="font-size:0.7rem; color:var(--bs-text-muted); margin-top:0.5rem; max-width:320px; text-align:center;">Guest progress won't sync across devices or browsers</p>
-      <button class="bs-btn bs-btn--secondary bs-btn--full" style="margin-top:0.5rem; max-width:320px; opacity:0.6;" id="bs-demo-replay">
-        <i class="fas fa-redo"></i> Start Over as Stranger
-      </button>
-    `;
-    document.body.appendChild(overlay);
-    document.getElementById('bs-demo-guest')?.addEventListener('click', () => {
-      overlay.remove();
-      safeLSSet('blindspot-onboarded', 'true');
-      safeLSSet('bs-guest-mode', 'true');
-      window.location.href = '/blindspot/play.html';
-    });
-    document.getElementById('bs-demo-replay')?.addEventListener('click', () => {
-      overlay.remove();
-      document.getElementById('bs-landing').style.display = '';
-      const fightBtn = document.getElementById('bs-fight-btn');
-      if (fightBtn) { fightBtn.disabled = false; fightBtn.textContent = 'Fight'; }
-    });
-  }
-
-  function showCardRevealCelebration(cardId, isDemoUser) {
-    document.querySelector('.bs-reveal-celebration')?.remove();
-
-    const overlay = document.createElement('div');
-    overlay.className = 'bs-overlay bs-reveal-celebration';
-
-    // Show loading state immediately so screen doesn't feel frozen
-    overlay.innerHTML = '<div class="bs-reveal-loading"><div class="bs-spinner"></div><p style="color:var(--bs-text-muted);font-family:\'Share Tech Mono\',monospace;margin-top:1rem;font-size:0.85rem;"><i class="fas fa-hammer" style="color:var(--bs-accent);margin-right:0.4em;"></i>Forging your card\u2026</p></div>';
-    document.body.appendChild(overlay);
-    requestAnimationFrame(() => { overlay.classList.add('bs-reveal-celebration--active'); });
-
-    // Try to get card data from ArenaAPI cache or fall back to minimal display
-    let cardHtml = '';
-    const tryRender = async () => {
-      let card = null;
-      try {
-        const data = await window.ArenaAPI.loadCards();
-        const cards = data.userCards || [];
-        card = cardId ? cards.find(c => c.id === cardId) : cards[cards.length - 1];
-      } catch (e) { /* proceed without card data */ }
-
-      // ensureCombatStats extracts nested cardData fields to top level
-      if (card) ensureCombatStats(card);
-
-      // Create particle elements
-      let particles = '';
-      for (let i = 0; i < 24; i++) {
-        const angle = (i / 24) * Math.PI * 2;
-        const dist = 80 + Math.random() * 120;
-        const tx = Math.cos(angle) * dist;
-        const ty = Math.sin(angle) * dist;
-        const size = 3 + Math.random() * 5;
-        const delay = Math.random() * 0.4;
-        particles += `<div class="bs-reveal-particle" style="--tx:${tx.toFixed(1)}px;--ty:${ty.toFixed(1)}px;--size:${size}px;--delay:${delay}s"></div>`;
-      }
-
-      overlay.innerHTML = `
-        <div class="bs-reveal-particles">${particles}</div>
-        <div class="bs-reveal-card-wrap" style="display:flex;justify-content:center;">
-          ${renderCardHTML(card, 'full')}
-        </div>
-        <p class="bs-reveal-title">Your card is ready</p>
-        <p class="bs-reveal-subtitle">The arena awaits.</p>
-        ${isDemoUser ? `
-        <a href="/blindspot/login.html?redirect=/blindspot/play.html" class="bs-btn bs-btn--primary bs-btn--glow bs-reveal-enter" style="text-decoration:none; display:inline-flex; align-items:center; justify-content:center;">
-          <i class="fas fa-sign-in-alt"></i> Sign In & Enter the Arena
-        </a>
-        <button class="bs-btn bs-btn--secondary bs-btn--full" style="margin-top:0.75rem; max-width:320px;" id="bs-reveal-enter">
-          <i class="fas fa-play"></i> Continue as Guest
-        </button>
-        <p style="font-size:0.65rem; color:var(--bs-text-muted); margin-top:0.5rem;">Guest progress won't sync across devices</p>
-        ` : `
-        <button class="bs-btn bs-btn--primary bs-btn--glow bs-reveal-enter" id="bs-reveal-enter">
-          <i class="fas fa-shield-halved"></i> Enter the Arena
-        </button>
-        `}
-      `;
-
-      document.getElementById('bs-reveal-enter')?.addEventListener('click', () => {
-        if (isDemoUser) {
-          safeLSSet('bs-guest-mode', 'true');
-        }
-        overlay.classList.add('bs-reveal-celebration--exit');
-        setTimeout(() => {
-          window.location.href = '/blindspot/play.html';
-        }, 400);
-      });
-    };
-
-    tryRender();
-  }
-
-  function handleFirstRealFightResult(battleResult, battleData) {
-    safeLSSet('blindspot-onboarded', 'true');
-    const isWin = battleResult.winner === 'player';
-    if (isWin) setForgeWins(1);
-    showForgeProgressInResults();
-
-    const againBtn = document.getElementById('arena-results-again');
-    const lobbyBtn = document.getElementById('arena-results-lobby');
-    if (againBtn) againBtn.innerHTML = isWin ? 'Next Fight' : '<i class="fas fa-redo"></i> Rematch';
-    if (lobbyBtn) lobbyBtn.textContent = 'Go to Lobby';
-
-    // Session stats panel
-    renderSessionStats();
-  }
-
-  function showForgeProgressInResults() {
-    const container = document.getElementById('bs-results-forge');
-    if (!container) return;
-    // Hide in results if forge is already permanently unlocked
-    if (isForgeUnlocked()) { container.style.display = 'none'; return; }
-    container.style.display = 'block';
-    const wins = getForgeWins();
-    const needed = _config ? _config.forgeVisit.winsRequired : 3;
-    const pct = Math.min(100, (wins / needed) * 100);
-    const label = document.getElementById('bs-results-forge-label');
-    const fill = document.getElementById('bs-results-forge-fill');
-    if (label) label.textContent = wins >= needed ? 'CARD FORGE READY \u2014 Tap to customize' : `CARD FORGE \u00b7 ${wins} / ${needed} wins`;
-    if (fill) fill.style.setProperty('--bar-pct', pct / 100);
-  }
+  // ── Landing Page — delegated to bs-landing.js (window.BsLanding) ──
+  var _Land = window.BsLanding || {};
+  function initLanding() { if (_Land.initLanding) _Land.initLanding(); }
+  function handleStrangerResult(r, d) { if (_Land.handleStrangerResult) _Land.handleStrangerResult(r, d); }
+  function handleFirstRealFightResult(r, d) { if (_Land.handleFirstRealFightResult) _Land.handleFirstRealFightResult(r, d); }
+  function showForgeProgressInResults() { if (_Land.showForgeProgressInResults) _Land.showForgeProgressInResults(); }
 
   // ============================================================
   // PLAY PAGE (play.html)
@@ -2928,33 +2561,6 @@
       // Auth check failed — show sign in link
       el.innerHTML = `<a href="/blindspot/login.html?redirect=/blindspot/play.html" style="color:var(--bs-accent); font-size:0.7rem;"><i class="fas fa-sign-in-alt"></i> Sign in</a>`;
     });
-  }
-
-  function updateLandingAuthUI() {
-    const authArea = document.getElementById('bs-auth-area');
-    if (!authArea) return;
-
-    // Always check /.auth/me directly — don't rely on _profileData which may not have loaded
-    fetch('/.auth/me').then(r => r.json()).then(data => {
-      if (data && data.clientPrincipal) {
-        // User IS logged in
-        sessionStorage.setItem('isAuthenticated', 'true');
-        document.body.setAttribute('data-auth-state', 'signed-in');
-
-        const name = (data.clientPrincipal.userDetails || '').split('@')[0] || 'Player';
-        authArea.innerHTML = `
-          <span class="bs-landing__user" style="display:flex; align-items:center; gap:0.5rem; justify-content:center;">
-            <i class="fas fa-user-check" style="color:var(--bs-accent);"></i>
-            <span>${escHtml(name)}</span>
-            <a href="/.auth/logout?post_logout_redirect_uri=/blindspot/" class="bs-landing__signin" style="font-size:0.75rem; opacity:0.7;">
-              <i class="fas fa-sign-out-alt"></i> Sign out
-            </a>
-          </span>
-          <span style="display:block; font-size:0.6rem; color:var(--bs-text-muted); margin-top:0.25rem;">Progress saves automatically</span>
-        `;
-      }
-      // If no clientPrincipal, keep the default "Sign in to save progress" link
-    }).catch(() => {});
   }
 
   // ============================================================
