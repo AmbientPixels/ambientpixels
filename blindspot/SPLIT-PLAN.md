@@ -2,7 +2,7 @@
 
 ## Progress (Mar 23, 2026)
 
-### Completed — 19 modules extracted, 7591 → 3299 lines (-56.5%)
+### Completed — 22 modules extracted, 7591 → 2780 lines (-63.4%)
 
 | Module | Lines | API | Status |
 |--------|-------|-----|--------|
@@ -25,6 +25,17 @@
 | `bs-deck.js` | 185 | `window.BsDeck` | Done (Round 6) |
 | `bs-lobby-onboarding.js` | 118 | `window.BsLobbyOnboarding` | Done (Round 6) |
 | `bs-battle-results.js` | 398 | `window.BsBattleResults` | Done (Round 6) |
+| `bs-loot-choice.js` | 84 | `window.BsLootChoice` | Done (Round 7) |
+| `bs-ascension.js` | 116 | `window.BsAscension` | Done (Round 7) |
+| `bs-landing.js` | 472 | `window.BsLanding` | Done (Round 7) |
+
+### Browser verification — Round 7 (Mar 23)
+All flows tested via Playwright on live site (`ambientpixels.ai/blindspot/`):
+- Landing page: OK (13 player-simulator checks pass)
+- play.html lobby (card, rank HUD, bounties, challenges, mode buttons): OK
+- Campaign screen opens via bottom nav: OK
+- Desktop layout (no overflow, nav hidden): OK
+- Zero JS errors across index.html + play.html
 
 ### Browser verification — Round 6 (Mar 23)
 All flows tested via Playwright on live site (`ambientpixels.ai/blindspot/`):
@@ -123,33 +134,37 @@ All flows tested via Playwright on live site (`ambientpixels.ai/blindspot/`):
 | After bs-battle-results.js | 3299 | -366 |
 | **Total Round 6** | **3299** | **-638 (-16.2%)** |
 
-## Round 7 Plan — Landing + Loot + Ascension
+## Round 7 — Loot + Ascension + Landing (COMPLETED Mar 23)
 
-Monolith is at 3299 lines. Largest remaining un-delegated sections:
+### Extraction results
 
-| Lines | Size | Section | Ease | Notes |
-|-------|------|---------|------|-------|
-| 1322-1715 | 394 | Landing Page | Medium | Stranger intro, fight flow, Quick Build trigger. index.html only. Heavy DOM + auth. |
-| 3158-3222 | 65 | Loot Choice | Easy | showLootChoice() + applyLoot(). Small, self-contained overlay. |
-| 3011-3093 | 83 | Ascension System | Easy-Medium | showAscensionOffer(), performAscension(). Moderate state writes. |
-| 2584-2660 | 77 | Tutorial | Easy | Stranger fight tutorial overlay. index.html only. |
+| Order | Module | Lines | Ease | Key Functions |
+|-------|--------|-------|------|---------------|
+| 1 | `bs-loot-choice.js` | 84 | Easy | showLootChoice() — pick 1 of 3 loot cards overlay. 8 callbacks. |
+| 2 | `bs-ascension.js` | 116 | Easy-Medium | showAscensionOffer(), performAscension(), getAscensionReward(). 9 callbacks. |
+| 3 | `bs-landing.js` | 472 | Medium | initLanding, stranger intro/fight, Quick Build, card reveal, first-fight result, auth UI, forge progress. ~25 callbacks. |
 
-### Extraction order
+### Design decisions
+- **bs-loot-choice.js**: `_pendingForge` accessed via getter/setter callbacks (same pattern as bs-battle-results.js). Converted template literals to string concat for ES5 compat.
+- **bs-ascension.js**: `_progress` accessed via `getProgress()` callback — in-place mutations work since it returns the same object reference. `safeLSRemove` replaced with direct `localStorage.removeItem` in try/catch (function only existed in bs-adventure.js, not monolith).
+- **bs-landing.js**: Largest extraction in Round 7. `initLanding()` converted from async/await to Promise.all().then() for broader compat. `startStrangerFight()` converted similarly. `showCardRevealCelebration()` split into public function + private `renderCelebration()` helper. `updateLandingAuthUI()` also moved (was in AUTH section of monolith, but only used on landing page).
 
-| Order | Module | ~Lines | Ease | Why |
-|-------|--------|--------|------|-----|
-| 1 | `bs-loot-choice.js` | 65 | Easy | showLootChoice(), applyLoot(). Quick win, cleans up results flow. |
-| 2 | `bs-ascension.js` | 83 | Easy-Medium | Ascension offer + perform. Moderate state writes via callbacks. |
-| 3 | `bs-landing.js` | 394 | Medium | Biggest remaining chunk. Stranger intro, fight, Quick Build trigger. index.html scope only. |
-
-Round 7 target: ~542 lines removed, 3299 → ~2757.
+### Round 7 line reduction
+| Step | Monolith | Change |
+|------|----------|--------|
+| Before Round 7 | 3299 | — |
+| After bs-loot-choice.js | 3245 | -54 |
+| After bs-ascension.js | 3174 | -71 |
+| After bs-landing.js | 2780 | -394 |
+| **Total Round 7** | **2780** | **-519 (-15.7%)** |
 
 ### Deferred (Round 8+)
 - Lobby rendering (~369 lines) — cross-references many sections, extract last
 - Reward System / Roulette (~90 lines) — showRewardDrop() + boss drops
 - Leaderboard (~64 lines) — self-contained screen
 - Combat Tooltips (~60 lines) — battle UI helper
-- Auth UI (~54 lines) — small, could merge with landing
+- Play page auth UI (~27 lines) — updatePlayAuthUI(), small
+- Tutorial (~77 lines) — stranger fight tutorial overlay, index.html only
 - Battle orchestration (~49 lines `BATTLE COMPLETION HOOK`) — deeply tangled with state
 
 ## Architecture
@@ -175,6 +190,9 @@ Round 7 target: ~542 lines removed, 3299 → ~2757.
 <script src="js/lib/bs-deck.js"></script>
 <script src="js/lib/bs-lobby-onboarding.js"></script>
 <script src="js/lib/bs-battle-results.js"></script>
+<script src="js/lib/bs-loot-choice.js"></script>
+<script src="js/lib/bs-ascension.js"></script>
+<script src="js/lib/bs-landing.js"></script>
 <!-- existing lib modules (arena API, battle UI, adventure, etc.) -->
 <script src="js/blindspot-flow.js"></script>
 ```
@@ -200,6 +218,9 @@ if (_Nav.setCallbacks) _Nav.setCallbacks({ showScreen, renderLobby, startCampaig
 if (_Deck.setCallbacks) _Deck.setCallbacks({ getDeck, getCardPower, ensureCombatStats, renderCardHTML, escHtml, ... (8 callbacks) });
 if (_Br.setCallbacks) _Br.setCallbacks({ playSfx, addSparks, getBattleType, getCurrentBossId, getBossesById, ... (50+ callbacks) });
 if (_Dbg.setCallbacks) _Dbg.setCallbacks({ getConfig, renderLobby, openForgeScreen, getSelectedCard, playVictoryAnimation });
+if (_Loot.setCallbacks) _Loot.setCallbacks({ showOverlay, hideOverlay, playSfx, applyLootDrop, showRewardDrop, getSparks, getPendingForge, setPendingForge });
+if (_Asc.setCallbacks) _Asc.setCallbacks({ playSfx, showScreen, renderLobby, showSuccessToast, syncProgressToServer, setAscension, awardCrate, unlockVisual, setForgeWins, getProgress });
+if (_Land.setCallbacks) _Land.setCallbacks({ loadGameData, loadProfile, showOverlay, hideOverlay, showErrorToast, safeLSSet, isDemo, isNewPlayer, ... (~25 callbacks) });
 // _Onb (BsLobbyOnboarding) — no callbacks needed (pure DOM)
 ```
 
