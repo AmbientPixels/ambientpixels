@@ -108,158 +108,31 @@
   function stopBattleAmbient() { if (window.BsSfx) window.BsSfx.stopAmbient(); }
 
   // ============================================================
-  // STRATEGY SYSTEM — Passives, Archetypes, Move Upgrades
+  // STRATEGY SYSTEM — delegated to bs-strategy.js (window.BsStrategy)
   // ============================================================
 
-  var STAT_PASSIVES = _C.STAT_PASSIVES, MOVE_UPGRADES = _C.MOVE_UPGRADES, ARCHETYPES = _C.ARCHETYPES;
-  var WEAKNESS_LABELS = _C.WEAKNESS_LABELS, WEAKNESS_COLORS = _C.WEAKNESS_COLORS;
+  var _Str = window.BsStrategy || {};
+  var STAT_PASSIVES = _Str.STAT_PASSIVES, MOVE_UPGRADES = _Str.MOVE_UPGRADES, ARCHETYPES = _Str.ARCHETYPES;
+  var WEAKNESS_LABELS = _Str.WEAKNESS_LABELS, WEAKNESS_COLORS = _Str.WEAKNESS_COLORS;
+  var BOSS_ICONS = _Str.BOSS_ICONS, BATTLE_HINTS = _Str.BATTLE_HINTS, MOVE_BEATS = _Str.MOVE_BEATS;
+  var PALETTE_UNLOCK_BOSSES = _C.PALETTE_UNLOCK_BOSSES, STREAK_MILESTONES = _C.STREAK_MILESTONES;
 
-  // Shared prefight overlay population — called from every code path
-  function populatePrefightOverlay(boss) {
-    if (!boss) return;
-    var flavorEl = document.getElementById('bs-prefight-flavor');
-    var titleEl = document.getElementById('bs-prefight-title');
-    var avatarEl = document.getElementById('bs-prefight-avatar');
-    if (flavorEl) flavorEl.innerHTML = buildPrefightInfo(boss);
-    if (titleEl) titleEl.textContent = boss.name;
-    if (avatarEl) {
-      if (boss.avatar) {
-        avatarEl.innerHTML = '<img src="' + escHtml(boss.avatar) + '" alt="' + escHtml(boss.name) + '" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">';
-        avatarEl.style.width = '96px';
-        avatarEl.style.height = '96px';
-      } else {
-        var icon = BOSS_ICONS[boss.class] || 'fa-skull';
-        avatarEl.innerHTML = '<i class="fas ' + icon + '"></i>';
-      }
-    }
-    // Stat comparison
-    var compEl = document.getElementById('bs-prefight-comparison');
-    if (compEl && _selectedCard) {
-      ensureCombatStats(_selectedCard);
-      var ps = _selectedCard.combatStats || {};
-      var bs = boss.combatStats || {};
-      var labels = [
-        { key: 'str', label: 'STR', icon: 'fa-fist-raised' },
-        { key: 'agi', label: 'AGI', icon: 'fa-wind' },
-        { key: 'int', label: 'INT', icon: 'fa-brain' },
-        { key: 'end', label: 'END', icon: 'fa-shield-alt' },
-        { key: 'lck', label: 'LCK', icon: 'fa-dice' }
-      ];
-      compEl.innerHTML = '<div class="bs-prefight-comparison__header">'
-        + '<span class="bs-prefight-comparison__you">You</span>'
-        + '<span class="bs-prefight-comparison__vs">VS</span>'
-        + '<span class="bs-prefight-comparison__boss">' + escHtml(boss.name) + '</span>'
-        + '</div>'
-        + labels.map(function(s) {
-            var pv = ps[s.key] || 0;
-            var bv = bs[s.key] || 0;
-            var diff = pv - bv;
-            var diffClass = diff > 0 ? 'bs-stat-advantage' : diff < 0 ? 'bs-stat-disadvantage' : 'bs-stat-even';
-            return '<div class="bs-prefight-stat-row">'
-              + '<span class="bs-prefight-stat-row__pval">' + pv + '</span>'
-              + '<div class="bs-prefight-stat-row__bar">'
-              + '<div class="bs-prefight-stat-row__fill bs-prefight-stat-row__fill--player" style="width:' + pv + '%"></div>'
-              + '</div>'
-              + '<span class="bs-prefight-stat-row__label"><i class="fas ' + s.icon + '"></i> ' + s.label + '</span>'
-              + '<div class="bs-prefight-stat-row__bar">'
-              + '<div class="bs-prefight-stat-row__fill bs-prefight-stat-row__fill--boss" style="width:' + bv + '%"></div>'
-              + '</div>'
-              + '<span class="bs-prefight-stat-row__bval ' + diffClass + '">' + bv + '</span>'
-              + '</div>';
-          }).join('');
-    } else if (compEl) {
-      compEl.innerHTML = '';
-    }
-    // Charm + arena selectors rendered via showOverlay hook
-  }
+  function populatePrefightOverlay(boss) { ensureCombatStats(_selectedCard); if (_Str.populatePrefightOverlay) _Str.populatePrefightOverlay(boss, _selectedCard); }
+  function buildPrefightInfo(boss) { return _Str.buildPrefightInfo ? _Str.buildPrefightInfo(boss) : ''; }
+  function detectArchetype(stats) { return _Str.detectArchetype ? _Str.detectArchetype(stats) : { id: 'balanced', name: 'Generalist' }; }
+  function getActivePassives(stats) { return _Str.getActivePassives ? _Str.getActivePassives(stats) : []; }
+  function getNextPassive(stats) { return _Str.getNextPassive ? _Str.getNextPassive(stats) : null; }
+  function getMoveMatchup(a, b) { return _Str.getMoveMatchup ? _Str.getMoveMatchup(a, b) : 'draw'; }
+  function flashMoveResult(a, b) { if (_Str.flashMoveResult) _Str.flashMoveResult(a, b); }
 
-  function buildPrefightInfo(boss) {
-    var html = '"' + escHtml(boss.flavor) + '"';
-    // Stat weakness
-    if (boss.weakness) {
-      html += '<br><span style="color:' + (WEAKNESS_COLORS[boss.weakness] || 'var(--bs-accent)') + ';font-size:0.8rem;margin-top:0.5rem;display:inline-block;"><i class="fas fa-crosshairs"></i> Stat weakness: ' + (WEAKNESS_LABELS[boss.weakness] || boss.weakness) + '</span>';
-    }
-    // Resistances
-    var res = boss.resistances || {};
-    var resKeys = Object.keys(res).filter(function(k) { return res[k] > 0; });
-    if (resKeys.length) {
-      html += '<br><span style="font-size:0.75rem;color:#ff6b6b;display:inline-block;"><i class="fas fa-shield-halved"></i> Resists: ' + resKeys.map(function(k) { return k + ' -' + res[k] + '%'; }).join(', ') + '</span>';
-    }
-    // Move weaknesses
-    var mw = boss.moveWeaknesses || {};
-    var mwKeys = Object.keys(mw).filter(function(k) { return mw[k] > 0; });
-    if (mwKeys.length) {
-      html += '<br><span style="font-size:0.75rem;color:#4ade80;display:inline-block;"><i class="fas fa-bullseye"></i> Weak to: ' + mwKeys.map(function(k) { return k + ' +' + mw[k] + '%'; }).join(', ') + '</span>';
-    }
-    // Signature passive
-    if (boss.signaturePassive) {
-      html += '<br><span style="font-size:0.75rem;color:var(--bs-accent);display:inline-block;"><i class="fas fa-star"></i> ' + escHtml(boss.signaturePassive.name) + ' \u2014 ' + escHtml(boss.signaturePassive.desc) + '</span>';
-    }
-    // AI pattern
-    if (CLASS_PATTERNS[boss.class]) {
-      html += '<br><span style="font-size:0.75rem;color:var(--bs-text-muted);display:inline-block;"><i class="fas fa-chess"></i> Tends to: ' + CLASS_PATTERNS[boss.class] + '</span>';
-    }
-    // Boss tip
-    if (boss.bossTip) {
-      html += '<br><span style="font-size:0.75rem;color:var(--bs-text-muted);font-style:italic;margin-top:0.25rem;display:inline-block;">' + escHtml(boss.bossTip) + '</span>';
-    }
-    return html;
-  }
-
-  function detectArchetype(stats) {
-    if (!stats) return ARCHETYPES.find(a => a.id === 'balanced');
-    const sorted = Object.entries(stats).sort((a, b) => b[1] - a[1]);
-    const top = sorted[0][0];
-    const second = sorted[1][0];
-    // Find matching archetype
-    for (const arch of ARCHETYPES) {
-      if (arch.primary === top && arch.secondary === second) return arch;
-      if (arch.primary === top) return arch; // Partial match
-    }
-    return ARCHETYPES.find(a => a.id === 'balanced');
-  }
-
-  function getActivePassives(stats) {
-    if (!stats) return [];
-    const active = [];
-    for (const [stat, tiers] of Object.entries(STAT_PASSIVES)) {
-      for (const tier of tiers) {
-        if ((stats[stat] || 0) >= tier.threshold) {
-          active.push({ ...tier, stat });
-        }
-      }
-    }
-    return active;
-  }
-
-  function getNextPassive(stats) {
-    if (!stats) return null;
-    let closest = null;
-    let closestGap = Infinity;
-    for (const [stat, tiers] of Object.entries(STAT_PASSIVES)) {
-      for (const tier of tiers) {
-        const gap = tier.threshold - (stats[stat] || 0);
-        if (gap > 0 && gap < closestGap) {
-          closestGap = gap;
-          closest = { ...tier, stat, gap };
-        }
-      }
-    }
-    return closest;
-  }
-
-  var PALETTE_UNLOCK_BOSSES = _C.PALETTE_UNLOCK_BOSSES;
-  var STREAK_MILESTONES = _C.STREAK_MILESTONES;
-
+  // getNextUnlockTeasers stays — calls monolith functions (getNextRarity, getWinStreak, etc.)
   function getNextUnlockTeasers() {
     var teasers = [];
-    // Next rarity tier
     var nextRar = getNextRarity();
     if (nextRar) {
       teasers.push({ context: 'lobby', icon: nextRar.rarity.icon, color: nextRar.rarity.color,
         text: nextRar.forgesNeeded + ' more forge visit' + (nextRar.forgesNeeded !== 1 ? 's' : '') + ' to ' + nextRar.rarity.name });
     }
-    // Next streak milestone
     var streak = getWinStreak();
     for (var i = 0; i < STREAK_MILESTONES.length; i++) {
       if (streak < STREAK_MILESTONES[i].threshold) {
@@ -269,7 +142,6 @@
         break;
       }
     }
-    // Next palette unlock from campaign
     var highestBoss = getHighestBossDefeated();
     for (var j = 0; j < PALETTE_UNLOCK_BOSSES.length; j++) {
       if (highestBoss < PALETTE_UNLOCK_BOSSES[j].bossNum) {
@@ -278,44 +150,12 @@
         break;
       }
     }
-    // Next passive unlock
     var nextPass = _selectedCard ? getNextPassive(_selectedCard.combatStats) : null;
     if (nextPass) {
       teasers.push({ context: 'forge', icon: nextPass.icon, color: WEAKNESS_COLORS[nextPass.stat] || 'var(--bs-accent)',
         text: nextPass.gap + ' more ' + (WEAKNESS_LABELS[nextPass.stat] || nextPass.stat) + ' to unlock ' + nextPass.name });
     }
     return teasers;
-  }
-
-  var BATTLE_HINTS = _C.BATTLE_HINTS;
-  var MOVE_BEATS = _C.MOVE_BEATS;
-
-  function getMoveMatchup(playerMove, opponentMove) {
-    if (!playerMove || !opponentMove || playerMove === opponentMove) return 'draw';
-    if (MOVE_BEATS[playerMove] && MOVE_BEATS[playerMove].indexOf(opponentMove) !== -1) return 'win';
-    if (MOVE_BEATS[opponentMove] && MOVE_BEATS[opponentMove].indexOf(playerMove) !== -1) return 'lose';
-    return 'draw';
-  }
-
-  function flashMoveResult(playerMove, opponentMove) {
-    var matchup = getMoveMatchup(playerMove, opponentMove);
-    if (matchup === 'draw') return;
-    var playerBtn = document.querySelector('[data-move="' + playerMove + '"]');
-    var opponentBtn = document.querySelector('[data-move="' + opponentMove + '"]');
-    if (!playerBtn) return;
-    var winClass = 'bs-move-flash--win';
-    var loseClass = 'bs-move-flash--lose';
-    if (matchup === 'win') {
-      playerBtn.classList.add(winClass);
-      if (opponentBtn) opponentBtn.classList.add(loseClass);
-    } else {
-      playerBtn.classList.add(loseClass);
-      if (opponentBtn) opponentBtn.classList.add(winClass);
-    }
-    setTimeout(function () {
-      playerBtn.classList.remove(winClass, loseClass);
-      if (opponentBtn) opponentBtn.classList.remove(winClass, loseClass);
-    }, 600);
   }
 
   // ============================================================
