@@ -10,7 +10,7 @@ const { GROUPS, WEIGHT_PROFILES } = require('./dimensions');
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
-const CLAUDE_MODEL = 'claude-sonnet-4-6-20250514';
+const CLAUDE_MODEL = 'claude-sonnet-4-20250514';
 
 // ── Claude Call ──────────────────────────────────────────────────
 
