@@ -2,7 +2,7 @@
 
 ## Progress (Mar 23, 2026)
 
-### Completed — 10 modules extracted, 7591 → 5753 lines (-24.2%)
+### Completed — 13 modules extracted, 7591 → 4616 lines (-39.2%)
 
 | Module | Lines | API | Status |
 |--------|-------|-----|--------|
@@ -16,9 +16,28 @@
 | `bs-card-renderer.js` | 131 | `window.BsCardRenderer` | Done |
 | `bs-charms.js` | 245 | `window.BsCharms` | Done (Round 3) |
 | `bs-rewards.js` | 279 | `window.BsRewards` | Done (Round 3) |
+| `bs-pvp.js` | 248 | `window.BsPvp` | Done (Round 4) |
+| `bs-campaign.js` | 254 | `window.BsCampaign` | Done (Round 4) |
+| `bs-forge.js` | 824 | `window.BsForge` | Done (Round 4) |
 
-### Browser verification (Mar 23)
+### Browser verification — Round 4 (Mar 23)
 All flows tested via Playwright on live site (`ambientpixels.ai/blindspot/`):
+- Landing page: OK (13 player-simulator checks pass)
+- play.html lobby (card, rank HUD, bounties, challenges, mode buttons): OK
+- Campaign screen opens via bottom nav: OK
+- Desktop layout (no overflow, nav hidden): OK
+- Zero JS errors across index.html + play.html
+
+### Round 4 line reduction
+| Step | Monolith | Change |
+|------|----------|--------|
+| Before Round 4 | 5753 | — |
+| After bs-pvp.js | 5564 | -189 |
+| After bs-campaign.js | 5366 | -198 |
+| After bs-forge.js | 4616 | -750 |
+| **Total Round 4** | **4616** | **-1137 (-19.8%)** |
+
+### Previous browser verification (Mar 23, pre-Round 4)
 - Landing page + stranger intro: OK
 - Stranger battle (tutorial + combat): OK, 12 rounds, win → "Build Your Card"
 - play.html lobby (card, rank HUD, bounties, challenges, mode buttons): OK
@@ -29,7 +48,7 @@ All flows tested via Playwright on live site (`ambientpixels.ai/blindspot/`):
 - Adventure (BS.adventure(6), typewriter, scene image, choices): OK
 - Zero JS errors across all flows
 
-### Bugs found + fixed during verification
+### Bugs found + fixed during verification (pre-Round 4)
 - `BsCrates.openOverlay()` crashed when `crateIndex` was `undefined` (NaN index) — added guard
 - `BS.addCrate()` didn't call `updateCrateBadge()` — badge stayed hidden after adding crate
 
@@ -40,33 +59,15 @@ All flows tested via Playwright on live site (`ambientpixels.ai/blindspot/`):
 - `_progress` shared via object reference — in-place mutations work across modules
 - Functions that modify `_selectedCard` or call save API stay in monolith
 
-## Round 4 Plan — Page Flows
+## Round 4 — Page Flows (COMPLETED Mar 23)
 
-### Extraction order (by ease + impact)
+### Extraction results
 
-| Order | Module | ~Lines | Ease | Key Functions |
-|-------|--------|--------|------|---------------|
-| 1 | `bs-pvp.js` | 257 | Easy | `renderPvPGallery`, `showPvPComparison`, PvP rating display |
-| 2 | `bs-campaign.js` | 280 | Easy | `renderCampaignLadder`, `renderTowerSection`, weekly boss UI |
-| 3 | `bs-forge.js` | 795 | Medium | Stat allocation, palette/container UI, avatar, canvas particles |
-
-### Round 4.1: `bs-pvp.js` (~257 lines, lines 3644-3900)
-**What moves:** PvP gallery rendering, opponent selection, Elo display, rank badges, PvP comparison overlay.
-**Dependencies:** Very low — only reads `_progress.pvpElo/pvpRecord`, `_selectedCard` for opponent estimation. No `_config` or `_bosses`. Isolated DOM (`#bs-pvp-grid`, `#bs-pvp-rating`).
-**Stays in monolith:** `startPvPBattle()` (battle orchestration), PvP result handling.
-**Callbacks needed:** `getSelectedCard`, `estimateOpponentElo`, `toast`.
-
-### Round 4.2: `bs-campaign.js` (~280 lines, lines 2871-3150)
-**What moves:** Campaign ladder rendering (10 bosses), weekly boss UI, tower section, boss selection → prefight.
-**Dependencies:** Low-medium — reads `_bosses`/`_bossesByNumber` (read-only), calls `populatePrefightOverlay()` (already delegated to `_Str`), calls `setupPrefightButtons()`.
-**Stays in monolith:** `startCampaignBattle()`, `recordBossResult()`, battle orchestration.
-**Callbacks needed:** `getBosses`, `getHighestBoss`, `getWeeklyBoss`, `setupPrefightButtons`, `showScreen`.
-
-### Round 4.3: `bs-forge.js` (~795 lines, lines 3906-4700)
-**What moves:** Full forge UI (stat sliders, palette/container unlock, avatar gallery/AI gen, name/quote editing), canvas ember particles.
-**Dependencies:** Medium — heavy read/write on `_selectedCard` (18 refs), reads `_config` for unlock costs, uses `_Cos` for cosmetics.
-**Stays in monolith:** Forge trigger logic (`_pendingForge` flag).
-**Callbacks needed:** `getSelectedCard`, `setSelectedCard`, `getConfig`, `syncProgressToServer`, `saveCard`, cosmetic delegates.
+| Order | Module | Lines | Ease | Key Functions |
+|-------|--------|-------|------|---------------|
+| 1 | `bs-pvp.js` | 248 | Easy | `renderPvPGallery`, `showPvPComparison`, PvP Elo helpers, rating display |
+| 2 | `bs-campaign.js` | 254 | Easy | `renderCampaignLadder`, `renderTowerSection`, weekly boss UI |
+| 3 | `bs-forge.js` | 824 | Medium | Stat allocation, palette/container UI, avatar, canvas particles |
 
 ### Deferred
 - `bs-progression.js` (~200 lines) — tiny getters/setters, low ROI
@@ -87,6 +88,9 @@ All flows tested via Playwright on live site (`ambientpixels.ai/blindspot/`):
 <script src="js/lib/bs-card-renderer.js"></script>
 <script src="js/lib/bs-charms.js"></script>
 <script src="js/lib/bs-rewards.js"></script>
+<script src="js/lib/bs-pvp.js"></script>
+<script src="js/lib/bs-campaign.js"></script>
+<script src="js/lib/bs-forge.js"></script>
 <!-- existing lib modules (arena API, battle UI, adventure, etc.) -->
 <script src="js/blindspot-flow.js"></script>
 ```
@@ -103,7 +107,9 @@ All flows tested via Playwright on live site (`ambientpixels.ai/blindspot/`):
 if (_Crt.setCallbacks) _Crt.setCallbacks({ applyCrateLoot, renderLobby, updateSparksShop });
 if (_Chm.setCallbacks) _Chm.setCallbacks({ getConfig, toast, sfx });
 if (_Rew.setCallbacks) _Rew.setCallbacks({ getHighestBoss, getBestStreak, ... });
-// Round 4 will add: _Pvp.setCallbacks, _Camp.setCallbacks, _Forge.setCallbacks
+if (_Pvp.setCallbacks) _Pvp.setCallbacks({ getSelectedCard, getCardPower, ensureCombatStats, escHtml, ... });
+if (_Camp.setCallbacks) _Camp.setCallbacks({ getBosses, getBossesById, getHighestBoss, ... });
+if (_Forge.setCallbacks) _Forge.setCallbacks({ getConfig, getSelectedCard, setSelectedCard, ... });
 ```
 
 ## Test infrastructure
