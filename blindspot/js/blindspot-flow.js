@@ -769,137 +769,14 @@
   }
 
   // ============================================================
-  // CARD RENDERER
+  // CARD RENDERER — delegated to bs-card-renderer.js (window.BsCardRenderer)
   // ============================================================
-  // Lightweight card renderer — builds a rich card visual from saved data.
-  // No CardForge editor dependency. Works anywhere with just the card data object.
 
-  var RC_STAT_DEFS = _C.RC_STAT_DEFS;
-
-  function renderCardHTML(card, size) {
-    // size: 'full' (lobby/celebration), 'compact' (battle/deck), 'micro' (pre-fight)
-    if (!card) return '';
-    ensureCombatStats(card);
-    var cs = card.combatStats || {};
-    var palette = card.palette || 'earth';
-    var container = (card.design && card.design.imageContainer)
-      || card.imageContainer
-      || (card.cardData && card.cardData.design && card.cardData.design.imageContainer)
-      || 'masked';
-    var rarity = (card.rarity || 'Common').toLowerCase();
-    var name = card.name || 'Unknown';
-    var cls = card.class || card.characterClass || '';
-    var avatar = card.avatar || '';
-
-    var avatarHTML = avatar
-      ? '<img src="' + escHtml(avatar) + '" alt="' + escHtml(name) + '" class="bs-rc__avatar" loading="lazy">'
-      : '<div class="bs-rc__avatar-placeholder"><i class="fas fa-user"></i></div>';
-
-    var statsHTML = '';
-    if (size === 'full') {
-      statsHTML = '<div class="bs-rc-stats">' + RC_STAT_DEFS.map(function(d) {
-        var val = cs[d.key] || 0;
-        return '<div class="bs-rc-stat">'
-          + '<span class="bs-rc-stat__label" style="color:' + d.color + '">' + d.label + '</span>'
-          + '<div class="bs-rc-stat__bar"><div class="bs-rc-stat__fill" style="width:' + val + '%;background:' + d.color + '"></div></div>'
-          + '<span class="bs-rc-stat__val">' + val + '</span>'
-          + '</div>';
-      }).join('') + '</div>';
-    }
-
-    var totalPower = (cs.str || 0) + (cs.agi || 0) + (cs.int || 0) + (cs.end || 0) + (cs.lck || 0);
-    var powerHTML = size !== 'micro'
-      ? '<span class="bs-rc__power"><i class="fas fa-bolt"></i> ' + totalPower + '</span>'
-      : '';
-
-    // Title from equipped cosmetic or progression
-    var titleText = '';
-    if (size === 'full') {
-      var equipped = getEquipped();
-      if (equipped.title) {
-        var titleDef = findCosmeticDef(equipped.title);
-        if (titleDef && titleDef.title) titleText = titleDef.title;
-      }
-      if (!titleText) titleText = _progress.cardTitle || '';
-    }
-    var titleHTML = titleText
-      ? '<span class="bs-rc__title-badge">' + escHtml(titleText) + '</span>'
-      : '';
-
-    return '<div class="bs-rendered-card bs-rc--' + size + '" data-palette="' + escHtml(palette) + '" data-container="' + escHtml(container) + '" data-rarity="' + escHtml(rarity) + '">'
-      + '<div class="bs-rc__art">' + avatarHTML + titleHTML + '</div>'
-      + '<div class="bs-rc__info">'
-      + '<span class="bs-rc__name">' + escHtml(name) + '</span>'
-      + (size !== 'micro' ? '<span class="bs-rc__class">' + escHtml(cls) + '</span>' : '')
-      + '</div>'
-      + statsHTML
-      + powerHTML
-      + '</div>';
-  }
-  // Expose for Quick Build reveal
+  var _CR = window.BsCardRenderer || {};
+  function renderCardHTML(card, size) { return _CR.render ? _CR.render(card, size) : ''; }
+  function ensureCombatStats(card) { if (_CR.ensureCombatStats) _CR.ensureCombatStats(card); }
+  function getCardPower(card) { return _CR.getCardPower ? _CR.getCardPower(card) : 0; }
   window.renderCardHTML = renderCardHTML;
-
-  // ============================================================
-  // PROGRESSION SYSTEM
-  // ============================================================
-
-  // Card Power Rating = sum of all combat stats
-  function getCardPower(card) {
-    if (!card) return 0;
-    // Try combatStats first (new format)
-    if (card.combatStats) {
-      const s = card.combatStats;
-      return (s.str || 0) + (s.agi || 0) + (s.int || 0) + (s.end || 0) + (s.lck || 0);
-    }
-    // Fall back to legacy stats array
-    if (card.stats && Array.isArray(card.stats)) {
-      return card.stats.reduce((sum, s) => sum + (s.value || 0), 0);
-    }
-    return 0;
-  }
-
-  // Ensure card has combatStats (migrate from legacy if needed)
-  function ensureCombatStats(card) {
-    if (!card) return;
-
-    // Extract fields from nested cardData to top level (server stores them nested)
-    var cd = card.cardData;
-    if (cd) {
-      if (!card.combatStats && cd.combatStats) card.combatStats = cd.combatStats;
-      if (!card.stats && cd.stats) card.stats = cd.stats;
-      if (!card.palette && cd.design && cd.design.palette) card.palette = cd.design.palette;
-      if (!card.rarity && cd.rarity) card.rarity = cd.rarity;
-      if (!card.characterClass && cd.characterClass) card.characterClass = cd.characterClass;
-      if (!card.quote && cd.quote) card.quote = cd.quote;
-      if (!card.biography && cd.biography) card.biography = cd.biography;
-      if (!card.design && cd.design) card.design = cd.design;
-      if (!card.renderedFront && cd.renderedFront) card.renderedFront = cd.renderedFront;
-      if (!card.frontClasses && cd.frontClasses) card.frontClasses = cd.frontClasses;
-      if (!card.badges && cd.badges) card.badges = cd.badges;
-      if (!card.attributes && cd.attributes) card.attributes = cd.attributes;
-    }
-
-    if (card.combatStats) return;
-    if (!card.stats || !Array.isArray(card.stats) || card.stats.length === 0) {
-      // No stats at all — assign class-based defaults or generic
-      card.combatStats = { str: 60, agi: 60, int: 60, end: 60, lck: 60 };
-      return;
-    }
-
-    const STAT_MAP = {
-      strength: 'str', power: 'str', combat: 'str', attack: 'str',
-      agility: 'agi', speed: 'agi', dexterity: 'agi',
-      intelligence: 'int', magic: 'int', wisdom: 'int', tech: 'int',
-      endurance: 'end', defense: 'end', vitality: 'end', constitution: 'end',
-      luck: 'lck', charisma: 'lck', fortune: 'lck'
-    };
-
-    card.combatStats = { str: 50, agi: 50, int: 50, end: 50, lck: 50 };
-    card.stats.forEach(s => {
-      const key = STAT_MAP[(s.name || '').toLowerCase().trim()];
-      if (key) card.combatStats[key] = Math.min(100, Math.max(0, s.value || 0));
-    });
-  }
 
   // Win streak
   function getWinStreak() { return _progress.winStreak; }
