@@ -941,6 +941,13 @@
         getPendingForge: function() { return _pendingForge; },
         setPendingForge: function(v) { _pendingForge = v; }
       });
+      if (_Asc.setCallbacks) _Asc.setCallbacks({
+        playSfx: playSfx, showScreen: showScreen, renderLobby: renderLobby,
+        showSuccessToast: showSuccessToast, syncProgressToServer: syncProgressToServer,
+        setAscension: setAscension, awardCrate: awardCrate, unlockVisual: unlockVisual,
+        setForgeWins: setForgeWins,
+        getProgress: function() { return _progress; }
+      });
     } catch (e) {
       console.error('[Blindspot] Failed to load game data:', e);
       showErrorToast('Failed to load game. Please refresh.');
@@ -3014,88 +3021,10 @@
     }
   }
 
-  // ============================================================
-  // ASCENSION SYSTEM
-  // ============================================================
-
-  function showAscensionOffer(currentAscension) {
-    const nextAsc = currentAscension + 1;
-    // Create overlay dynamically
-    const overlay = document.createElement('div');
-    overlay.className = 'bs-overlay';
-    overlay.id = 'bs-ascension-offer';
-    overlay.innerHTML = `
-      <div class="bs-ascension-overlay">
-        <p class="bs-overlay__title">Campaign Complete — Again.</p>
-        <div class="bs-ascension-stars">
-          ${Array.from({length: currentAscension}, () => '<i class="fas fa-star bs-ascension-star"></i>').join('')}
-          <i class="fas fa-star bs-ascension-star" style="color:var(--bs-text-muted);opacity:0.3;"></i>
-        </div>
-        <p class="bs-overlay__subtitle">Ascend to level ${nextAsc}? Bosses grow stronger. Your legend grows.</p>
-        <p style="font-size:0.75rem; color:var(--bs-text-muted); max-width:300px; margin:0 auto;">
-          Bosses gain +${nextAsc * 20}% stats. You keep your card, rank, and visual unlocks.
-          New palette unlocked: <strong style="color:var(--bs-accent);">${getAscensionReward(nextAsc)}</strong>
-        </p>
-        <div style="display:flex; gap:0.75rem; margin-top:1.5rem; justify-content:center; flex-wrap:wrap;">
-          <button class="bs-btn bs-btn--primary bs-btn--glow" id="bs-ascend-btn">
-            <i class="fas fa-arrow-up"></i> Ascend
-          </button>
-          <button class="bs-btn bs-btn--secondary" id="bs-ascend-skip">Stay at Ascension ${currentAscension}</button>
-        </div>
-      </div>
-    `;
-    document.body.appendChild(overlay);
-
-    document.getElementById('bs-ascend-btn').addEventListener('click', () => {
-      performAscension(nextAsc);
-      overlay.remove();
-    }, { once: true });
-
-    document.getElementById('bs-ascend-skip').addEventListener('click', () => {
-      overlay.remove();
-      showScreen('lobby');
-      renderLobby();
-    }, { once: true });
-  }
-
-  function getAscensionReward(level) {
-    const rewards = {
-      1: 'Inferno Palette',
-      2: 'Frost Palette',
-      3: 'Arcane Palette',
-      4: 'Void Palette',
-      5: 'Holographic Border + Infinite Tower'
-    };
-    return rewards[level] || 'Prestige Star ' + level;
-  }
-
-  function performAscension(newLevel) {
-    playSfx('ascension');
-    setAscension(newLevel);
-    awardCrate('ascension');
-    // Reset boss progress but keep stats/visuals/rank
-    _progress.highestBoss = 0;
-    _progress.bossRecords = {};
-    _progress.masteryClaimed = {};
-    // Unlock ascension visual reward
-    const rewardMap = {
-      1: 'palette_inferno',
-      2: 'palette_frost',
-      3: 'palette_arcane',
-      4: 'palette_void',
-      5: 'border_holographic'
-    };
-    if (rewardMap[newLevel]) unlockVisual(rewardMap[newLevel]);
-    // Reset forge progress
-    setForgeWins(0);
-    localStorage.removeItem('bs-forge-pending');
-    // Clear adventure skip flags for ascension replay with new text
-    for (var ak = 1; ak <= 10; ak++) safeLSRemove('bs-adventure-skip-bs-boss-' + ak);
-    showSuccessToast('Ascended to level ' + newLevel + '! Bosses are now stronger.');
-    syncProgressToServer();
-    showScreen('lobby');
-    renderLobby();
-  }
+  // ── Ascension — delegated to bs-ascension.js (window.BsAscension) ──
+  var _Asc = window.BsAscension || {};
+  function showAscensionOffer(n) { if (_Asc.showOffer) _Asc.showOffer(n); }
+  function getAscensionReward(level) { return _Asc.getReward ? _Asc.getReward(level) : ''; }
 
   // ============================================================
   // LEADERBOARD
