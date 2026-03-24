@@ -1058,114 +1058,19 @@
     return 0;
   }
 
-  // ============================================================
-  // CARD SWITCHER
-  // ============================================================
-
-  var _switcherBound = false;
-
-  function switchCard(direction) {
-    var deck = getDeck();
-    if (deck.length <= 1) return;
-    var currentIdx = getSelectedCardIndex();
-    var nextIdx = direction === 'next'
-      ? (currentIdx + 1) % deck.length
-      : (currentIdx - 1 + deck.length) % deck.length;
-    var nextCard = deck[nextIdx];
-    if (!nextCard) return;
-
-    var cardEl = document.getElementById('bs-player-card');
-    if (!cardEl) return;
-
-    // Slide out animation
-    var outClass = direction === 'next' ? 'bs-card-slide-out-left' : 'bs-card-slide-out-right';
-    var inClass = direction === 'next' ? 'bs-card-slide-in-right' : 'bs-card-slide-in-left';
-
-    cardEl.classList.add(outClass);
-
-    setTimeout(function() {
-      // Update selected card
-      _selectedCard = nextCard;
-      ensureCombatStats(_selectedCard);
-      _progress.selectedCardId = _selectedCard.id;
-      syncProgressToServer();
-
-      // Remove slide-out, render new card, add slide-in
-      cardEl.classList.remove(outClass);
-      renderLobby();
-      cardEl.classList.add(inClass);
-
-      setTimeout(function() {
-        cardEl.classList.remove(inClass);
-      }, 250);
-    }, 250);
-  }
-
-  function renderCardSwitcher() {
-    var deck = getDeck();
-    var switcherEl = document.getElementById('bs-card-switcher');
-    if (!switcherEl) return;
-
-    if (deck.length <= 1) {
-      switcherEl.style.display = 'none';
-      return;
-    }
-
-    switcherEl.style.display = '';
-    var countEl = document.getElementById('bs-card-count');
-    if (countEl) {
-      countEl.textContent = (getSelectedCardIndex() + 1) + ' / ' + deck.length;
-    }
-
-    if (!_switcherBound) {
-      _switcherBound = true;
-      var prevBtn = document.getElementById('bs-card-prev');
-      var nextBtn = document.getElementById('bs-card-next');
-      if (prevBtn) prevBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        switchCard('prev');
-      });
-      if (nextBtn) nextBtn.addEventListener('click', function(e) {
-        e.stopPropagation();
-        switchCard('next');
-      });
-    }
-  }
-
-  // ============================================================
-  // NEW CARD BUTTON
-  // ============================================================
-
-  var _newCardBound = false;
-
-  function renderNewCardButton() {
-    var btn = document.getElementById('bs-new-card-btn');
-    if (!btn) return;
-
-    var deckSize = getDeckSize();
-    var needed = _config ? _config.forgeVisit.winsRequired : 3;
-    var forgeReady = isForgeUnlocked() || getHighestBossDefeated() >= 10 || getForgeWins() >= needed || isForgePending();
-    if (!forgeReady) {
-      btn.style.display = 'none';
-      return;
-    }
-
-    btn.style.display = '';
-    if (deckSize >= MAX_DECK_SIZE) {
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fas fa-layer-group" aria-hidden="true"></i> Deck Full (' + MAX_DECK_SIZE + '/' + MAX_DECK_SIZE + ')';
-    } else {
-      btn.disabled = false;
-      btn.innerHTML = '<i class="fas fa-plus" aria-hidden="true"></i> New Card';
-    }
-
-    if (!_newCardBound) {
-      _newCardBound = true;
-      btn.addEventListener('click', function() {
-        showNewCardClassPicker();
-      });
-    }
-  }
+  // ── Card Switcher + New Card Button — delegated to bs-card-switcher.js (window.BsCardSwitcher) ──
+  var _Sw = window.BsCardSwitcher || {};
+  if (_Sw.setCallbacks) _Sw.setCallbacks({
+    getDeck: getDeck, getDeckSize: getDeckSize, getSelectedCardIndex: getSelectedCardIndex,
+    getConfig: function() { return _config; },
+    setActiveCard: function(card) { _selectedCard = card; ensureCombatStats(_selectedCard); _progress.selectedCardId = _selectedCard.id; syncProgressToServer(); },
+    renderLobby: function() { renderLobby(); },
+    isForgeUnlocked: isForgeUnlocked, isForgePending: isForgePending,
+    getForgeWins: getForgeWins, getHighestBossDefeated: getHighestBossDefeated,
+    showNewCardClassPicker: function() { showNewCardClassPicker(); }
+  });
+  function renderCardSwitcher() { if (_Sw.renderSwitcher) _Sw.renderSwitcher(); }
+  function renderNewCardButton() { if (_Sw.renderNewCardBtn) _Sw.renderNewCardBtn(); }
 
   // ============================================================
   // NEW CARD — CLASS PICKER → CREATE → FORGE
