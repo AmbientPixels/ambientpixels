@@ -1,10 +1,10 @@
 {
   "commits": [
     {
-      "id": "ebda6c77-9735-4146-a916-f6a849bf2920",
-      "hash": "78b44f6044a2c4622fa4f44284288c8956783663",
-      "message": "fix(blindspot): card slide animation overridden by cosmetic frame animation",
-      "timestamp": "2026-03-22 23:32:47 -0700",
+      "id": "23b81587-b5d5-40e3-b199-f4d846b5f06b",
+      "hash": "2f782ba5bfabd7407c1badd93a263160f947c2b9",
+      "message": "blindspot: refine ROADMAP execution order based on design review",
+      "timestamp": "2026-03-23 22:50:51 -0700",
       "author": {
         "name": "AmbientPixels",
         "email": "ambientpixels2022@gmail.com"
@@ -14,10 +14,10 @@
         "HEAD -> master",
         "master"
       ],
-      "url": "https://github.com/AmbientPixels/ambientpixels/commit/78b44f6044a2c4622fa4f44284288c8956783663"
+      "url": "https://github.com/AmbientPixels/ambientpixels/commit/2f782ba5bfabd7407c1badd93a263160f947c2b9"
     }
   ],
-  "timestamp": "2026-03-23T14:16:18.279Z",
+  "timestamp": "2026-03-24T14:19:41.448Z",
   "count": 1,
-  "scanId": 1774275378279
+  "scanId": 1774361981448
 }
