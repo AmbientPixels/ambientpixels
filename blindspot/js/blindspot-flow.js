@@ -1120,13 +1120,15 @@
     var cards;
     if (isGuestMode) {
       var localDeck = getDeck();
-      console.log('[Blindspot] Guest mode: localDeck has', localDeck.length, 'cards, bs-deck raw:', localStorage.getItem('bs-deck')?.substring(0, 100));
       cards = localDeck.length > 0 ? localDeck : await cardsPromise;
     } else {
       cards = await cardsPromise;
-      console.log('[Blindspot] Auth mode: server returned', cards.length, 'cards');
+      // Fallback: server returned nothing but localStorage has cards (e.g. guest who just built one)
+      if (cards.length === 0) {
+        var fallbackDeck = getDeck();
+        if (fallbackDeck.length > 0) cards = fallbackDeck;
+      }
     }
-    console.log('[Blindspot] Final cards count:', cards.length, 'isGuestMode:', isGuestMode);
     if (cards.length > 0) {
       // Sync full server card data into deck cache so card switcher has complete data
       cards.forEach(function(c) { ensureCombatStats(c); addCardToDeck(c); });
