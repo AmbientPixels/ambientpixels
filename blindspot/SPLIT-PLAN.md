@@ -40,17 +40,38 @@ All flows tested via Playwright on live site (`ambientpixels.ai/blindspot/`):
 - `_progress` shared via object reference — in-place mutations work across modules
 - Functions that modify `_selectedCard` or call save API stay in monolith
 
-### Round 3 details (charms + rewards)
-- **bs-charms.js**: Charm state, selector UI, charm battle button, charm effects, adventure item buttons. Callbacks: `getConfig`, `toast`, `sfx`
-- **bs-rewards.js**: CHALLENGES constant (8 milestones x 3 tiers), BOUNTY_POOL, challenge progress tracking, render functions. Callbacks: progression getters (highestBoss, bestStreak, forgeVisits, ascension, cardPower, PvP). `completeBounty` stays in monolith (writes to `_selectedCard`, calls save API). `checkAndClaimChallenges` also stays in monolith.
+## Round 4 Plan — Page Flows
 
-### Next: bs-progression.js (~200 lines, low ROI — defer)
-Tiny getters/setters for sparks, wins, streaks, ascension. These are already thin and well-isolated in the monolith. Extraction provides minimal line reduction since most are 1-liners.
+### Extraction order (by ease + impact)
 
-### Round 4+: Page flows (high interdependency)
-These are the remaining ~5750 lines. Each page flow (lobby, campaign, forge, battle results,
-PvP, tower, deck, navigation) is deeply tangled with DOM and cross-references other flows.
-Extraction requires careful callback wiring and browser testing after each module.
+| Order | Module | ~Lines | Ease | Key Functions |
+|-------|--------|--------|------|---------------|
+| 1 | `bs-pvp.js` | 257 | Easy | `renderPvPGallery`, `showPvPComparison`, PvP rating display |
+| 2 | `bs-campaign.js` | 280 | Easy | `renderCampaignLadder`, `renderTowerSection`, weekly boss UI |
+| 3 | `bs-forge.js` | 795 | Medium | Stat allocation, palette/container UI, avatar, canvas particles |
+
+### Round 4.1: `bs-pvp.js` (~257 lines, lines 3644-3900)
+**What moves:** PvP gallery rendering, opponent selection, Elo display, rank badges, PvP comparison overlay.
+**Dependencies:** Very low — only reads `_progress.pvpElo/pvpRecord`, `_selectedCard` for opponent estimation. No `_config` or `_bosses`. Isolated DOM (`#bs-pvp-grid`, `#bs-pvp-rating`).
+**Stays in monolith:** `startPvPBattle()` (battle orchestration), PvP result handling.
+**Callbacks needed:** `getSelectedCard`, `estimateOpponentElo`, `toast`.
+
+### Round 4.2: `bs-campaign.js` (~280 lines, lines 2871-3150)
+**What moves:** Campaign ladder rendering (10 bosses), weekly boss UI, tower section, boss selection → prefight.
+**Dependencies:** Low-medium — reads `_bosses`/`_bossesByNumber` (read-only), calls `populatePrefightOverlay()` (already delegated to `_Str`), calls `setupPrefightButtons()`.
+**Stays in monolith:** `startCampaignBattle()`, `recordBossResult()`, battle orchestration.
+**Callbacks needed:** `getBosses`, `getHighestBoss`, `getWeeklyBoss`, `setupPrefightButtons`, `showScreen`.
+
+### Round 4.3: `bs-forge.js` (~795 lines, lines 3906-4700)
+**What moves:** Full forge UI (stat sliders, palette/container unlock, avatar gallery/AI gen, name/quote editing), canvas ember particles.
+**Dependencies:** Medium — heavy read/write on `_selectedCard` (18 refs), reads `_config` for unlock costs, uses `_Cos` for cosmetics.
+**Stays in monolith:** Forge trigger logic (`_pendingForge` flag).
+**Callbacks needed:** `getSelectedCard`, `setSelectedCard`, `getConfig`, `syncProgressToServer`, `saveCard`, cosmetic delegates.
+
+### Deferred
+- `bs-progression.js` (~200 lines) — tiny getters/setters, low ROI
+- Battle orchestration (~461 lines) — too tangled, Round 5+
+- Lobby rendering (~365 lines) — cross-references many sections, Round 5+
 
 ## Architecture
 
@@ -75,14 +96,14 @@ Extraction requires careful callback wiring and browser testing after each modul
 - `bs-constants.js` owns all game data constants
 - `bs-rewards.js` owns CHALLENGES + BOUNTY_POOL constants
 - Monolith still owns: `_config`, `_selectedCard`, `_bosses`, `_activeBattle`, and all UI state vars
-- Future: move `_config`/`_bosses` to `bs-state.js` after Round 4
 
 ### Callback injection (for circular deps)
 ```js
 // In monolith, after loadGameData():
 if (_Crt.setCallbacks) _Crt.setCallbacks({ applyCrateLoot, renderLobby, updateSparksShop });
 if (_Chm.setCallbacks) _Chm.setCallbacks({ getConfig, toast, sfx });
-if (_Rew.setCallbacks) _Rew.setCallbacks({ getHighestBoss, getBestStreak, getForgeVisits, getAscension, getCardPower, getPvPRecord, getPvPElo, getPvPRank, getPvPRanks });
+if (_Rew.setCallbacks) _Rew.setCallbacks({ getHighestBoss, getBestStreak, ... });
+// Round 4 will add: _Pvp.setCallbacks, _Camp.setCallbacks, _Forge.setCallbacks
 ```
 
 ## Test infrastructure
