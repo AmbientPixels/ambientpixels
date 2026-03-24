@@ -2380,48 +2380,8 @@
   var _Au = window.BsAuthUI || {};
   function updatePlayAuthUI() { if (_Au.update) _Au.update(); }
 
-  // ============================================================
-  // STORAGE CLEANUP
-  // ============================================================
-
-  function cleanupLocalStorage() {
-    try {
-      // CardForge's cardforge_saved_cards can bloat localStorage with
-      // renderedFront/renderedBack HTML (50-100KB per card). Strip these
-      // to keep localStorage under the 5MB quota.
-      const raw = localStorage.getItem('cardforge_saved_cards');
-      if (!raw) return;
-      const cards = JSON.parse(raw);
-      let cleaned = false;
-      cards.forEach(card => {
-        if (card.cardData) {
-          if (card.cardData.renderedFront) { delete card.cardData.renderedFront; cleaned = true; }
-          if (card.cardData.renderedBack) { delete card.cardData.renderedBack; cleaned = true; }
-          if (card.cardData.frontClasses) { delete card.cardData.frontClasses; cleaned = true; }
-          if (card.cardData.backClasses) { delete card.cardData.backClasses; cleaned = true; }
-          // Strip base64 avatars (AI-generated images can be 200-500KB each)
-          if (card.cardData.avatar && card.cardData.avatar.startsWith('data:image/')) {
-            card.cardData.avatar = '';
-            cleaned = true;
-          }
-        }
-        // Also strip top-level rendered HTML
-        if (card.renderedFront) { delete card.renderedFront; cleaned = true; }
-        if (card.renderedBack) { delete card.renderedBack; cleaned = true; }
-      });
-      // Cap to 10 most recent cards
-      if (cards.length > 10) {
-        cards.splice(10);
-        cleaned = true;
-      }
-      if (cleaned) {
-        safeLSSet('cardforge_saved_cards', JSON.stringify(cards));
-        console.log('[Blindspot] Cleaned localStorage: removed rendered HTML from saved cards');
-      }
-    } catch (e) {
-      console.warn('[Blindspot] Storage cleanup error:', e);
-    }
-  }
+  // ── Storage Cleanup — delegated to bs-storage-cleanup.js (window.BsStorageCleanup) ──
+  function cleanupLocalStorage() { if (window.BsStorageCleanup) window.BsStorageCleanup.run(safeLSSet); }
 
 
 
