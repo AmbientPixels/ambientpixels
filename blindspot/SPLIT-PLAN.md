@@ -282,9 +282,33 @@ re-runs the same tests before committing. See `TESTING-PLAN.md` for full test sp
 | After bs-class-picker.js | 2091 | -87 |
 | **Total Round 10** | **2091** | **-190 (-8.3%)** |
 
-### Round 11+
-- Battle completion hook (~56 lines) — deeply tangled with state
-- Lobby rendering (~369 lines) — cross-references many sections, extract last
+### Guest Quick Build bug bash (Mar 23, post-Round 10)
+
+Three bugs found and fixed during guest flow testing:
+
+1. **CardForge default cards leaking** — `cardforgeloadcards` API returns 3 `isDefault: true`
+   gallery cards for unauthenticated users. These aren't Blindspot cards. Fixed: filter
+   `isDefault` everywhere `loadCards()` is called.
+
+2. **Quick Build card not cached** — Guest's card was saved to server but never written to
+   `bs-deck` localStorage. Fixed: Quick Build now writes card directly to `bs-deck` after
+   save succeeds (belt-and-suspenders, bypasses callback chain).
+
+3. **`bs-guest-mode` not set before redirect** — Diagnostic logs revealed `isGuestMode: false`
+   on play.html. The flag was only set in the "Continue as Guest" click handler, but wasn't
+   persisting. Fixed: `initPlay()` now falls back to localStorage deck when server returns 0
+   cards, regardless of guest mode flag.
+
+### Monolith split — COMPLETE (72.5% reduction)
+
+35 modules extracted, 7591 → 2091 lines. Remaining ~2091 lines are orchestration
+glue (callback wiring, state ownership, thin delegates, lobby renderer). Diminishing
+returns to extract further — calling the split done.
+
+### Next: Bug bash + player flow testing
+- Browser-test all paths end-to-end: guest, auth, campaign, forge, card switcher, PvP, adventures
+- Fix any rough edges found
+- Then: new features (async PvP per project_blindspot_async_pvp.md)
 
 ## Architecture
 
