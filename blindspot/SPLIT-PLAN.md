@@ -2,7 +2,7 @@
 
 ## Progress (Mar 23, 2026)
 
-### Completed — 16 modules extracted, 7591 → 3937 lines (-48.1%)
+### Completed — 19 modules extracted, 7591 → 3299 lines (-56.5%)
 
 | Module | Lines | API | Status |
 |--------|-------|-----|--------|
@@ -22,6 +22,17 @@
 | `bs-debug.js` | 323 | `window.BsDebug` | Done (Round 5) |
 | `bs-session-stats.js` | 191 | `window.BsSessionStats` | Done (Round 5) |
 | `bs-nav.js` | 165 | `window.BsNav` | Done (Round 5) |
+| `bs-deck.js` | 185 | `window.BsDeck` | Done (Round 6) |
+| `bs-lobby-onboarding.js` | 118 | `window.BsLobbyOnboarding` | Done (Round 6) |
+| `bs-battle-results.js` | 398 | `window.BsBattleResults` | Done (Round 6) |
+
+### Browser verification — Round 6 (Mar 23)
+All flows tested via Playwright on live site (`ambientpixels.ai/blindspot/`):
+- Landing page: OK (13 player-simulator checks pass)
+- play.html lobby (card, rank HUD, bounties, challenges, mode buttons): OK
+- Campaign screen opens via bottom nav: OK
+- Desktop layout (no overflow, nav hidden): OK
+- Zero JS errors across index.html + play.html
 
 ### Browser verification — Round 5 (Mar 23)
 All flows tested via Playwright on live site (`ambientpixels.ai/blindspot/`):
@@ -88,31 +99,33 @@ All flows tested via Playwright on live site (`ambientpixels.ai/blindspot/`):
 - **bs-session-stats.js**: Owns `_battleRoundStats` variable. Monolith `isEarlyForfeit()` uses `_Ss.getStats()` getter. Tutorial and SFX callbacks injected.
 - **bs-nav.js**: showScreen/showOverlay/hideOverlay stay in monolith (too many call sites to redirect). Module owns only event binding. 37 callbacks injected for state access + function delegation.
 
-## Round 6 Plan — Deck + Results + Onboarding
+## Round 6 — Deck + Onboarding + Results (COMPLETED Mar 23)
 
-Monolith is at 3937 lines. Section map with exact line ranges:
+### Extraction results
 
-| Lines | Size | Section | Ease | Notes |
-|-------|------|---------|------|-------|
-| 1181-1360 | 180 | Deck Management | Easy-Medium | Deck grid, card deletion, deck switcher overlay. Card data deps. |
-| 2305-2422 | 118 | Lobby Onboarding | Easy | 3-step spotlight tutorial. Isolated DOM. |
-| 2683-3105 | 423 | Battle Results | Medium | Victory animations, XP/sparks/Elo, loot trigger. Many state writes. |
-| 1433-1826 | 394 | Landing Page | Medium | Stranger intro, fight flow, Quick Build trigger. Heavy DOM + auth. |
-| 1936-2304 | 369 | Lobby | Medium-Hard | Lobby rendering — cross-references many sections. |
+| Order | Module | Lines | Ease | Key Functions |
+|-------|--------|-------|------|---------------|
+| 1 | `bs-deck.js` | 185 | Easy-Medium | Deck grid, card deletion confirm, sort mode toggle. 8 callbacks. |
+| 2 | `bs-lobby-onboarding.js` | 118 | Easy | 3-step spotlight welcome tutorial. Zero callbacks (pure DOM). |
+| 3 | `bs-battle-results.js` | 398 | Medium | Victory animation, handlePlayPageResult(), XP/sparks/Elo, boss rewards, loot trigger. 50+ callbacks. |
 
-### Extraction order
+### Design decisions
+- **bs-deck.js**: Card selection (_selectedCard write) stays in monolith via `setActiveCard` callback. `MAX_DECK_SIZE` duplicated as local constant (simple value, no import needed).
+- **bs-lobby-onboarding.js**: Completely self-contained — no callbacks, no state deps. Cleanest extraction possible.
+- **bs-battle-results.js**: Heaviest callback injection in the project (50+). All state reads (`_battleType`, `_currentBossId`, `_bossesById`, `_selectedCard`, `_profile`, `_config`, `_pvpOpponentId`) resolved at call time via getter callbacks. `_pendingForge`, `_lastStreakBonus`, `_lastStreakMsg` write-through via setter callbacks. Converted `const`/`let`/arrow/`Set`/spread to `var`/`function`/object for ES5 compat.
 
-| Order | Module | ~Lines | Range | Ease | Why |
-|-------|--------|--------|-------|------|-----|
-| 1 | `bs-deck.js` | 180 | 1181-1360 | Easy-Medium | Deck grid, card deletion, sort. Moderate card data deps. |
-| 2 | `bs-lobby-onboarding.js` | 118 | 2305-2422 | Easy | 3-step spotlight tutorial. Isolated DOM, no cross-cutting deps. |
-| 3 | `bs-battle-results.js` | 423 | 2683-3105 | Medium | Victory animations, XP/sparks/Elo, loot trigger. Biggest chunk left. Many state writes via callbacks. |
-
-Round 6 target: ~721 lines removed, 3937 → ~3216.
+### Round 6 line reduction
+| Step | Monolith | Change |
+|------|----------|--------|
+| Before Round 6 | 3937 | — |
+| After bs-deck.js | 3776 | -161 |
+| After bs-lobby-onboarding.js | 3665 | -111 |
+| After bs-battle-results.js | 3299 | -366 |
+| **Total Round 6** | **3299** | **-638 (-16.2%)** |
 
 ### Deferred (Round 7+)
-- Landing Page (~394 lines, 1433-1826) — heavy auth + DOM flow, benefits from all other modules being stable first
-- Lobby rendering (~369 lines, 1936-2304) — cross-references many sections, extract last
+- Landing Page (~394 lines) — heavy auth + DOM flow, benefits from all other modules being stable first
+- Lobby rendering (~369 lines) — cross-references many sections, extract last
 - Battle orchestration (~49 lines `BATTLE COMPLETION HOOK` + scattered) — deeply tangled with state
 
 ## Architecture
@@ -135,6 +148,9 @@ Round 6 target: ~721 lines removed, 3937 → ~3216.
 <script src="js/lib/bs-session-stats.js"></script>
 <script src="js/lib/bs-nav.js"></script>
 <script src="js/lib/bs-debug.js"></script>
+<script src="js/lib/bs-deck.js"></script>
+<script src="js/lib/bs-lobby-onboarding.js"></script>
+<script src="js/lib/bs-battle-results.js"></script>
 <!-- existing lib modules (arena API, battle UI, adventure, etc.) -->
 <script src="js/blindspot-flow.js"></script>
 ```
@@ -157,7 +173,10 @@ if (_Camp.setCallbacks) _Camp.setCallbacks({ getBosses, getBossesById, getHighes
 if (_Forge.setCallbacks) _Forge.setCallbacks({ getConfig, getSelectedCard, setSelectedCard, ... });
 if (_Ss.setCallbacks) _Ss.setCallbacks({ flashMoveResult, playSfx, getBattleType, getCurrentBossId, ... });
 if (_Nav.setCallbacks) _Nav.setCallbacks({ showScreen, renderLobby, startCampaignBattle, ... (37 callbacks) });
+if (_Deck.setCallbacks) _Deck.setCallbacks({ getDeck, getCardPower, ensureCombatStats, renderCardHTML, escHtml, ... (8 callbacks) });
+if (_Br.setCallbacks) _Br.setCallbacks({ playSfx, addSparks, getBattleType, getCurrentBossId, getBossesById, ... (50+ callbacks) });
 if (_Dbg.setCallbacks) _Dbg.setCallbacks({ getConfig, renderLobby, openForgeScreen, getSelectedCard, playVictoryAnimation });
+// _Onb (BsLobbyOnboarding) — no callbacks needed (pure DOM)
 ```
 
 ## Test infrastructure
