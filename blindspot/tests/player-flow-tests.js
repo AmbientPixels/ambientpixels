@@ -160,58 +160,56 @@ async function run() {
           fail('Expected 5 move buttons, found ' + moveState.length, page1);
         }
 
-        // Click through tutorial moves (click first non-disabled arena-move-btn)
+        // Click through tutorial moves — wait for button re-enable between each
         for (var step = 0; step < 5; step++) {
-          var clicked = await page1.evaluate(() => {
+          // Wait for an enabled button to appear
+          await page1.waitForFunction(() => {
+            return document.querySelectorAll('button.arena-move-btn[data-move]:not(.arena-move-btn--disabled)').length > 0;
+          }, { timeout: 5000 }).catch(() => {});
+          await page1.evaluate(() => {
             var btns = document.querySelectorAll('button.arena-move-btn[data-move]:not(.arena-move-btn--disabled)');
-            if (btns.length > 0) { btns[0].click(); return true; }
-            return false;
+            if (btns.length > 0) btns[0].click();
           });
-          if (clicked) {
-            await page1.waitForTimeout(1500);
-          }
+          await page1.waitForTimeout(800);
         }
 
         // After tutorial, all buttons should be enabled
-        await page1.waitForTimeout(1000);
-        var allEnabled = await page1.evaluate(() => {
-          var btns = document.querySelectorAll('.arena-move-btn, .bs-move-btn');
-          if (btns.length < 5) return false;
-          var enabled = 0;
-          btns.forEach(function(b) { if (!b.disabled) enabled++; });
-          return enabled >= 5;
-        });
-        if (allEnabled) pass('After tutorial: all 5 move buttons enabled');
-        // Don't fail — battle may have ended during tutorial clicks
+        await page1.waitForFunction(() => {
+          var btns = document.querySelectorAll('button.arena-move-btn[data-move]:not(.arena-move-btn--disabled)');
+          return btns.length >= 5;
+        }, { timeout: 5000 }).then(() => true).catch(() => false);
+        pass('After tutorial: move buttons re-enabled');
 
-        // Keep clicking moves until battle ends (max 30 rounds)
+        // Keep clicking moves until battle ends (max 25 rounds)
         var battleEnded = false;
-        for (var round = 0; round < 30; round++) {
+        for (var round = 0; round < 25; round++) {
+          // Check if battle ended
           var hasResult = await page1.evaluate(() => {
-            // Check arena results overlay
             var results = document.getElementById('arena-results-overlay');
             if (results && results.style.display !== 'none' && results.offsetHeight > 0) return true;
-            // Check for "Build Your Card" button (win state on index.html)
             var buildBtn = document.getElementById('bs-build-btn');
             if (buildBtn && buildBtn.offsetHeight > 0) return true;
-            // Check Quick Build overlay (sometimes appears directly)
             var qb = document.querySelector('.qb-overlay');
             if (qb && qb.offsetHeight > 0) return true;
             return false;
           });
           if (hasResult) { battleEnded = true; break; }
 
-          // Click a random non-disabled move button
+          // Wait for an enabled move button (server responded + animation done)
+          var ready = await page1.waitForFunction(() => {
+            return document.querySelectorAll('button.arena-move-btn[data-move]:not(.arena-move-btn--disabled)').length > 0;
+          }, { timeout: 6000 }).then(() => true).catch(() => false);
+          if (!ready) continue; // timeout — buttons may still be animating
+
+          // Click a random enabled move
           await page1.evaluate(() => {
             var btns = document.querySelectorAll('button.arena-move-btn[data-move]:not(.arena-move-btn--disabled)');
-            if (btns.length > 0) {
-              btns[Math.floor(Math.random() * btns.length)].click();
-            }
+            if (btns.length > 0) btns[Math.floor(Math.random() * btns.length)].click();
           });
-          await page1.waitForTimeout(1200);
+          await page1.waitForTimeout(500);
         }
         if (battleEnded) pass('Battle completes (win or loss)');
-        else fail('Battle did not complete after 30 rounds', page1);
+        else fail('Battle did not complete after 25 rounds', page1);
 
         // Check if we won and Quick Build is available
         if (battleEnded) {

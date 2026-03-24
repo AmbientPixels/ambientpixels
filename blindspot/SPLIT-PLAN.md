@@ -2,7 +2,7 @@
 
 ## Progress (Mar 23, 2026)
 
-### Completed — 27 modules extracted, 7591 → 2499 lines (-67.1%)
+### Completed — 31 modules extracted, 7591 → 2281 lines (-70.0%)
 
 | Module | Lines | API | Status |
 |--------|-------|-----|--------|
@@ -33,6 +33,20 @@
 | `bs-leaderboard.js` | 79 | `window.BsLeaderboard` | Done (Round 8) |
 | `bs-combat-tooltips.js` | 80 | `window.BsCombatTooltips` | Done (Round 8) |
 | `bs-auth-ui.js` | 43 | `window.BsAuthUI` | Done (Round 8) |
+| `bs-storage-cleanup.js` | 53 | `window.BsStorageCleanup` | Done (Round 9) |
+| `bs-battle-palette.js` | 35 | `window.BsBattlePalette` | Done (Round 9) |
+| `bs-card-switcher.js` | 113 | `window.BsCardSwitcher` | Done (Round 9) |
+| `bs-prefight-buttons.js` | 123 | `window.BsPrefightButtons` | Done (Round 9) |
+
+### Bug fix — Round 9 (Mar 23)
+- `_loadProgressFromCache` was private in bs-state.js but referenced directly in monolith
+  (guest→auth transition path). Caused ReferenceError crashing play.html for signed-in guests.
+  Fixed: exposed as `.loadFromCache` on BsState, monolith calls `_S.loadFromCache()`.
+
+### Browser verification — Round 9 (Mar 23)
+- User confirmed: stranger tutorial battle works on live site
+- Smoke tests: 23/23 pass after each module extraction
+- All 4 modules deployed individually with parse check + smoke between each
 
 ### Browser verification — Round 8 (Mar 23)
 All flows tested via Playwright on live site (`ambientpixels.ai/blindspot/`):
@@ -210,17 +224,32 @@ style had no CSS. Both basic player-facing features.
 **New rule:** Every round starts with player flow tests, extracts modules, then
 re-runs the same tests before committing. See `TESTING-PLAN.md` for full test spec.
 
-### Round 9 Plan — Safety net + easy extractions
+## Round 9 — Storage + Palette + Switcher + Prefight (COMPLETED Mar 23)
 
-**Step 1:** Build `player-flow-tests.js` — Playwright click-through coverage for
-every critical path (fight button, stranger battle, Quick Build, campaign, pre-fight,
-card containers, navigation). Must pass before and after each extraction.
+### Bug fix
+- **`_loadProgressFromCache` ReferenceError** — private function in bs-state.js referenced
+  directly in monolith (guest→auth transition). Crashed play.html for signed-in guests.
+  Exposed as `.loadFromCache` on BsState public API.
 
-**Step 2:** Extract easy modules with test safety net:
-- Storage cleanup (~46 lines, 2567-2612) — cleanupLocalStorage()
-- Battle card palette (~21 lines, 2613-2633) — applyBattlePalette()
-- Card switcher (~73 lines, 1066-1138) — lobby card arrows
-- Pre-fight adventure/fight buttons (~91 lines, 1848-1938) — setupPrefightButtons(), populatePrefightOverlay()
+### Extraction results
+
+| Order | Module | Lines | Ease | Key Functions |
+|-------|--------|-------|------|---------------|
+| 1 | `bs-storage-cleanup.js` | 53 | Easy | cleanupLocalStorage() — strip rendered HTML, base64 avatars, cap cards. 0 callbacks (safeLSSet passed as arg). |
+| 2 | `bs-battle-palette.js` | 35 | Easy | applyBattlePalette() — render compact card in battle slot. 2 callbacks. |
+| 3 | `bs-card-switcher.js` | 113 | Easy-Medium | switchCard(), renderCardSwitcher(), renderNewCardButton(). Slide animation, deck cycling, new card button with forge gate. 11 callbacks. |
+| 4 | `bs-prefight-buttons.js` | 123 | Medium | setupPrefightButtons() — Adventure/Fight dual buttons, MutationObserver restore, async adventure→battle pipeline. Converted async/await to Promise chains. 8 callbacks. |
+
+### Round 9 line reduction
+| Step | Monolith | Change |
+|------|----------|--------|
+| Before Round 9 | 2507 | — |
+| After hotfix (_loadProgressFromCache) | 2507 | 0 (line swap) |
+| After bs-storage-cleanup.js | 2467 | -40 |
+| After bs-battle-palette.js | 2454 | -13 |
+| After bs-card-switcher.js | 2359 | -95 |
+| After bs-prefight-buttons.js | 2281 | -78 |
+| **Total Round 9** | **2281** | **-226 (-9.0%)** |
 
 ### Round 10+
 - New card class picker (~100 lines, 1175-1274) — class picker + create card + forge
@@ -257,6 +286,10 @@ card containers, navigation). Must pass before and after each extraction.
 <script src="js/lib/bs-leaderboard.js"></script>
 <script src="js/lib/bs-combat-tooltips.js"></script>
 <script src="js/lib/bs-auth-ui.js"></script>
+<script src="js/lib/bs-storage-cleanup.js"></script>
+<script src="js/lib/bs-battle-palette.js"></script>
+<script src="js/lib/bs-card-switcher.js"></script>
+<script src="js/lib/bs-prefight-buttons.js"></script>
 <script src="js/lib/bs-landing.js"></script>
 <!-- existing lib modules (arena API, battle UI, adventure, etc.) -->
 <script src="js/blindspot-flow.js"></script>
@@ -291,6 +324,10 @@ if (_Ct.setCallbacks) _Ct.setCallbacks({ getSelectedCard, getActiveBattle });
 if (_Au.setCallbacks) _Au.setCallbacks({ escHtml });
 if (_Land.setCallbacks) _Land.setCallbacks({ loadGameData, loadProfile, showOverlay, hideOverlay, showErrorToast, safeLSSet, isDemo, isNewPlayer, ... (~25 callbacks) });
 // _Onb (BsLobbyOnboarding) — no callbacks needed (pure DOM)
+// _StorageCleanup — no callbacks (safeLSSet passed as arg to .run())
+if (_Bp.setCallbacks) _Bp.setCallbacks({ getSelectedCard, renderCardHTML });
+if (_Sw.setCallbacks) _Sw.setCallbacks({ getDeck, getDeckSize, getSelectedCardIndex, getConfig, setActiveCard, renderLobby, isForgeUnlocked, isForgePending, getForgeWins, getHighestBossDefeated, showNewCardClassPicker });
+if (_Pf.setCallbacks) _Pf.setCallbacks({ hideOverlay, getSelectedCard, ensureCombatStats, getBossById, getAscension, isWeeklyBoss, setAdventureItems, startCampaignBattle });
 ```
 
 ## Test infrastructure
