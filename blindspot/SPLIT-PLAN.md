@@ -2,7 +2,7 @@
 
 ## Progress (Mar 23, 2026)
 
-### Completed — 22 modules extracted, 7591 → 2780 lines (-63.4%)
+### Completed — 27 modules extracted, 7591 → 2499 lines (-67.1%)
 
 | Module | Lines | API | Status |
 |--------|-------|-----|--------|
@@ -28,6 +28,19 @@
 | `bs-loot-choice.js` | 84 | `window.BsLootChoice` | Done (Round 7) |
 | `bs-ascension.js` | 116 | `window.BsAscension` | Done (Round 7) |
 | `bs-landing.js` | 472 | `window.BsLanding` | Done (Round 7) |
+| `bs-tutorial.js` | 82 | `window.BsTutorial` | Done (Round 8) |
+| `bs-reward-drops.js` | 101 | `window.BsRewardDrops` | Done (Round 8) |
+| `bs-leaderboard.js` | 79 | `window.BsLeaderboard` | Done (Round 8) |
+| `bs-combat-tooltips.js` | 80 | `window.BsCombatTooltips` | Done (Round 8) |
+| `bs-auth-ui.js` | 43 | `window.BsAuthUI` | Done (Round 8) |
+
+### Browser verification — Round 8 (Mar 23)
+All flows tested via Playwright on live site (`ambientpixels.ai/blindspot/`):
+- Landing page: OK (13 player-simulator checks pass)
+- play.html lobby (card, rank HUD, bounties, challenges, mode buttons): OK
+- Campaign screen opens via bottom nav: OK
+- Desktop layout (no overflow, nav hidden): OK
+- Zero JS errors across index.html + play.html
 
 ### Browser verification — Round 7 (Mar 23)
 All flows tested via Playwright on live site (`ambientpixels.ai/blindspot/`):
@@ -158,19 +171,35 @@ All flows tested via Playwright on live site (`ambientpixels.ai/blindspot/`):
 | After bs-landing.js | 2780 | -394 |
 | **Total Round 7** | **2780** | **-519 (-15.7%)** |
 
-## Round 8 Plan — Tutorial + Rewards + Leaderboard + Tooltips + Auth
+## Round 8 — Tutorial + Rewards + Leaderboard + Tooltips + Auth (COMPLETED Mar 23)
 
-Monolith is at 2780 lines. Five easy self-contained sections:
+### Extraction results
 
-| Order | Module | Lines | Range | Ease | Key Functions |
-|-------|--------|-------|-------|------|---------------|
-| 1 | `bs-tutorial.js` | ~77 | 2231-2305 | Easy | showStrangerTutorial(), onTutorialMoveClick(), highlightTutorialMove(), advanceTutorial(), removeTutorial(). State: `_tutorialStep`, `_tutorialEl`. Uses `TUTORIAL_HINTS` from BsConst. index.html only. |
-| 2 | `bs-reward-drops.js` | ~90 | 2316-2403 | Easy-Medium | rollLoot(), applyLootDrop(), showRewardDrop(). `applyLootDrop` writes `_selectedCard.combatStats` + calls save API — needs callbacks for both. `rollLoot` uses `LOOT_TABLE` from BsConst. |
-| 3 | `bs-leaderboard.js` | ~62 | 2636-2697 | Easy | renderLeaderboard(). Reads `_selectedCard` for "(you)" highlight. Self-contained async screen render. |
-| 4 | `bs-combat-tooltips.js` | ~58 | 2704-2761 | Easy | showBattleHint(), updateCombatTooltips(). Reads `_selectedCard`, `_activeBattle`. Uses `BATTLE_HINTS`, `CLASS_SIGNATURE_MOVES`, `MOVE_UPGRADES` from BsConst. |
-| 5 | `bs-auth-ui.js` | ~27 | 2540-2564 | Easy | updatePlayAuthUI(). Pure DOM + fetch. Merge with landing's updateLandingAuthUI() or keep separate? Could fold into bs-landing.js since that already owns landing auth UI. |
+| Order | Module | Lines | Ease | Key Functions |
+|-------|--------|-------|------|---------------|
+| 1 | `bs-tutorial.js` | 82 | Easy | showStrangerTutorial(), removeTutorial(). Owns `_tutorialStep`, `_tutorialEl`. No callbacks (pure DOM + BsConst). |
+| 2 | `bs-reward-drops.js` | 101 | Easy-Medium | rollLoot(), applyLootDrop(), showRewardDrop(). Callbacks for `_selectedCard` + `escHtml`. Async/await → Promise chain. |
+| 3 | `bs-leaderboard.js` | 79 | Easy | renderLeaderboard(). Callbacks for `_selectedCard` + `escHtml`. Async/await → Promise, spread → manual copy. |
+| 4 | `bs-combat-tooltips.js` | 80 | Easy | showBattleHint(), updateCombatTooltips(). Reads constants from BsStrategy + BsConst. Callbacks for `_selectedCard` + `_activeBattle`. |
+| 5 | `bs-auth-ui.js` | 43 | Easy | updatePlayAuthUI(). Kept separate from bs-landing.js (different page scope). Callback for `escHtml` only. |
 
-Round 8 target: ~314 lines removed, 2780 → ~2466.
+### Design decisions
+- **bs-tutorial.js**: Zero callbacks — self-contained DOM manipulation using only BsConst data. Cleanest extraction.
+- **bs-reward-drops.js**: `applyLootDrop` modifies `_selectedCard.combatStats` in-place (object reference) then saves via API. Revert on failure stays intact. Converted `async/await` + `Object.assign` + spread to Promise chain + manual copy.
+- **bs-leaderboard.js**: Merged the inner try/catch timeout pattern into a single `.catch()` that checks error message. `{ ...card, power }` spread replaced with manual `for..in` copy.
+- **bs-combat-tooltips.js**: Reads `BATTLE_HINTS`/`MOVE_UPGRADES` from BsStrategy (not BsConst) and `CLASS_SIGNATURE_MOVES` from BsConst. Template literals converted to string concat.
+- **bs-auth-ui.js**: Created standalone module instead of merging into bs-landing.js — landing owns index.html auth, this owns play.html topbar auth. Different pages, different concerns.
+
+### Round 8 line reduction
+| Step | Monolith | Change |
+|------|----------|--------|
+| Before Round 8 | 2780 | — |
+| After bs-tutorial.js | 2708 | -72 |
+| After bs-reward-drops.js | 2628 | -80 |
+| After bs-leaderboard.js | 2572 | -56 |
+| After bs-combat-tooltips.js | 2521 | -51 |
+| After bs-auth-ui.js | 2499 | -22 |
+| **Total Round 8** | **2499** | **-281 (-10.1%)** |
 
 ### Deferred (Round 9+)
 - Lobby rendering (~369 lines) — cross-references many sections, extract last
@@ -206,6 +235,11 @@ Round 8 target: ~314 lines removed, 2780 → ~2466.
 <script src="js/lib/bs-battle-results.js"></script>
 <script src="js/lib/bs-loot-choice.js"></script>
 <script src="js/lib/bs-ascension.js"></script>
+<script src="js/lib/bs-tutorial.js"></script>
+<script src="js/lib/bs-reward-drops.js"></script>
+<script src="js/lib/bs-leaderboard.js"></script>
+<script src="js/lib/bs-combat-tooltips.js"></script>
+<script src="js/lib/bs-auth-ui.js"></script>
 <script src="js/lib/bs-landing.js"></script>
 <!-- existing lib modules (arena API, battle UI, adventure, etc.) -->
 <script src="js/blindspot-flow.js"></script>
@@ -234,6 +268,10 @@ if (_Br.setCallbacks) _Br.setCallbacks({ playSfx, addSparks, getBattleType, getC
 if (_Dbg.setCallbacks) _Dbg.setCallbacks({ getConfig, renderLobby, openForgeScreen, getSelectedCard, playVictoryAnimation });
 if (_Loot.setCallbacks) _Loot.setCallbacks({ showOverlay, hideOverlay, playSfx, applyLootDrop, showRewardDrop, getSparks, getPendingForge, setPendingForge });
 if (_Asc.setCallbacks) _Asc.setCallbacks({ playSfx, showScreen, renderLobby, showSuccessToast, syncProgressToServer, setAscension, awardCrate, unlockVisual, setForgeWins, getProgress });
+if (_Rd.setCallbacks) _Rd.setCallbacks({ getSelectedCard, escHtml });
+if (_Lb.setCallbacks) _Lb.setCallbacks({ getSelectedCard, escHtml });
+if (_Ct.setCallbacks) _Ct.setCallbacks({ getSelectedCard, getActiveBattle });
+if (_Au.setCallbacks) _Au.setCallbacks({ escHtml });
 if (_Land.setCallbacks) _Land.setCallbacks({ loadGameData, loadProfile, showOverlay, hideOverlay, showErrorToast, safeLSSet, isDemo, isNewPlayer, ... (~25 callbacks) });
 // _Onb (BsLobbyOnboarding) — no callbacks needed (pure DOM)
 ```
