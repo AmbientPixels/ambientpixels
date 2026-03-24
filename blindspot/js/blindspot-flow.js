@@ -2227,82 +2227,10 @@
     renderLobby();
   }
 
-  // ============================================================
-  // TUTORIAL (Stranger fight)
-  // ============================================================
-
-  var TUTORIAL_HINTS = _C.TUTORIAL_HINTS;
-
-  let _tutorialStep = 0;
-  let _tutorialEl = null;
-
-  function showStrangerTutorial() {
-    _tutorialStep = 0;
-    _tutorialEl = document.createElement('div');
-    _tutorialEl.className = 'bs-tutorial';
-    _tutorialEl.innerHTML = `<div class="bs-tutorial__text" id="bs-tutorial-text">${TUTORIAL_HINTS[0].text}</div>`;
-    document.body.appendChild(_tutorialEl);
-    highlightTutorialMove(0);
-
-    // Only the highlighted move button advances the tutorial
-    document.querySelectorAll('.arena-move-btn').forEach(btn => {
-      btn.addEventListener('click', onTutorialMoveClick);
-    });
-  }
-
-  function onTutorialMoveClick(e) {
-    const btn = e.currentTarget;
-    const currentHint = TUTORIAL_HINTS[_tutorialStep];
-    // Only advance if the clicked move matches the highlighted one
-    if (currentHint && btn.dataset.move === currentHint.move) {
-      advanceTutorial();
-    }
-  }
-
-  function highlightTutorialMove(step) {
-    var hint = step < TUTORIAL_HINTS.length ? TUTORIAL_HINTS[step] : null;
-    document.querySelectorAll('.arena-move-btn').forEach(function (b) {
-      b.classList.remove('bs-pulse-hint');
-      if (hint) {
-        // Disable all buttons except the one being taught
-        var isTarget = b.dataset.move === hint.move;
-        b.disabled = !isTarget;
-        b.style.opacity = isTarget ? '' : '0.3';
-        b.style.pointerEvents = isTarget ? '' : 'none';
-      } else {
-        // Tutorial done — re-enable all
-        b.disabled = false;
-        b.style.opacity = '';
-        b.style.pointerEvents = '';
-      }
-    });
-    if (hint) {
-      var btn = document.querySelector('[data-move="' + hint.move + '"]');
-      if (btn) btn.classList.add('bs-pulse-hint');
-      var textEl = document.getElementById('bs-tutorial-text');
-      if (textEl) textEl.textContent = hint.text;
-    }
-  }
-
-  function advanceTutorial() {
-    _tutorialStep++;
-    if (_tutorialStep >= TUTORIAL_HINTS.length) {
-      removeTutorial();
-      return;
-    }
-    highlightTutorialMove(_tutorialStep);
-  }
-
-  function removeTutorial() {
-    if (_tutorialEl) { _tutorialEl.remove(); _tutorialEl = null; }
-    document.querySelectorAll('.arena-move-btn').forEach(function (b) {
-      b.classList.remove('bs-pulse-hint');
-      b.removeEventListener('click', onTutorialMoveClick);
-      b.disabled = false;
-      b.style.opacity = '';
-      b.style.pointerEvents = '';
-    });
-  }
+  // ── Tutorial — delegated to bs-tutorial.js (window.BsTutorial) ──
+  var _Tut = window.BsTutorial || {};
+  function showStrangerTutorial() { if (_Tut.show) _Tut.show(); }
+  function removeTutorial() { if (_Tut.remove) _Tut.remove(); }
 
   // ============================================================
   // TOAST NOTIFICATIONS — delegated to bs-toast.js (window.BsToast)
