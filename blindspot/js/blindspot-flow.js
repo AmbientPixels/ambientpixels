@@ -934,6 +934,13 @@
         // Cosmetics
         getEquipped: getEquipped, findCosmeticDef: findCosmeticDef
       });
+      if (_Loot.setCallbacks) _Loot.setCallbacks({
+        showOverlay: showOverlay, hideOverlay: hideOverlay, playSfx: playSfx,
+        applyLootDrop: applyLootDrop, showRewardDrop: showRewardDrop,
+        getSparks: getSparks,
+        getPendingForge: function() { return _pendingForge; },
+        setPendingForge: function(v) { _pendingForge = v; }
+      });
     } catch (e) {
       console.error('[Blindspot] Failed to load game data:', e);
       showErrorToast('Failed to load game. Please refresh.');
@@ -3154,70 +3161,9 @@
     }
   }
 
-  // ============================================================
-  // LOOT CHOICE (Pick 1 of 3)
-  // ============================================================
-
-  function showLootChoice(options) {
-    const container = document.getElementById('bs-loot-options');
-    if (!container) {
-      // Fallback: auto-apply first option
-      applyLootDrop(options[0]);
-      showRewardDrop(options[0], 'Victory Reward');
-      return;
-    }
-
-    const rarityColors = {
-      common: 'var(--bs-text-muted)',
-      uncommon: 'var(--bs-accent)',
-      rare: '#7b2fff',
-      epic: '#ff5252'
-    };
-
-    const statNames = { str: 'Strength', agi: 'Agility', int: 'Intelligence', end: 'Endurance', lck: 'Luck' };
-    const statIcons = { str: 'fa-hand-fist', agi: 'fa-feather-pointed', int: 'fa-bolt', end: 'fa-heart', lck: 'fa-clover' };
-
-    container.innerHTML = options.map((loot, i) => {
-      const color = rarityColors[loot.rarity] || 'var(--bs-accent)';
-      const icon = loot.stat ? (statIcons[loot.stat] || 'fa-gem') : 'fa-gem';
-      const statLabel = loot.stat ? (statNames[loot.stat] || loot.stat.toUpperCase()) : '';
-      const rarityLabel = loot.rarity ? loot.rarity.charAt(0).toUpperCase() + loot.rarity.slice(1) : '';
-      return `
-        <button class="bs-loot-card" data-loot-idx="${i}" style="border-color:${color};">
-          <span class="bs-loot-card__rarity" style="color:${color};">${rarityLabel}</span>
-          <i class="fas ${icon}" style="color:${color}; font-size:1.5rem;"></i>
-          <span class="bs-loot-card__label">${escHtml(loot.label)}</span>
-          <span class="bs-loot-card__stat">${escHtml(statLabel)}</span>
-        </button>
-      `;
-    }).join('');
-
-    // Show sparks earned
-    var sparksLine = document.getElementById('bs-loot-sparks');
-    if (sparksLine) sparksLine.innerHTML = '<i class="fas fa-fire"></i> +' + (getSparks() > 0 ? 'Sparks earned! Total: ' + getSparks() : '0') + '';
-
-    showOverlay('bs-loot-choice');
-    playSfx('loot');
-
-    container.querySelectorAll('.bs-loot-card').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const idx = parseInt(btn.dataset.lootIdx, 10);
-        const chosen = options[idx];
-        hideOverlay('bs-loot-choice');
-        await applyLootDrop(chosen);
-        showRewardDrop(chosen, 'Victory Reward');
-
-        // Show forge trigger AFTER loot is picked (not during)
-        if (_pendingForge) {
-          _pendingForge = false;
-          setTimeout(() => {
-            document.getElementById('arena-results-overlay').style.display = 'none';
-            showOverlay('bs-forge-trigger');
-          }, 1500);
-        }
-      }, { once: true });
-    });
-  }
+  // ── Loot Choice — delegated to bs-loot-choice.js (window.BsLootChoice) ──
+  var _Loot = window.BsLootChoice || {};
+  function showLootChoice(options) { if (_Loot.show) _Loot.show(options); }
 
   // ============================================================
   // COMBAT TOOLTIPS (show damage estimates on move buttons)
