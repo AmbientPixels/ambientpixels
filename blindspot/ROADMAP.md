@@ -167,18 +167,23 @@ Target: **9/10 shipped game.**
 
 ## Execution Order
 
-| Priority | Phase | Why first |
-|----------|-------|-----------|
-| **1** | 4A: Player flow tests | Safety net before changing anything |
-| **2** | 1A-1B: Combat feedback + combos | Core loop must feel good first |
-| **3** | 2A-2B: Card history + visual evolution | Give players attachment to their card |
-| **4** | 3A: Async PvP | Retention hook — reason to come back |
-| **5** | 4C: Mobile polish | Unlock the biggest audience |
-| **6** | 1C-1D: Stamina + boss mechanics | Deepen combat after basics land |
-| **7** | 3B-3D: Sharing + tournaments + friends | Social growth after core is solid |
-| **8** | 2C-2D: Card personality + constrained creation | Identity depth after loop proven |
-| **9** | 5A-5D: Polish + juice | Final layer after everything works |
-| **10** | 4B: Guest hardening | Ongoing, weave into each phase |
+| Priority | Phase | Why first | Notes |
+|----------|-------|-----------|-------|
+| **1** | 4A: Player flow tests | Safety net before changing anything | Guest + auth + mobile (375px) Playwright flows |
+| **2** | 1A-1B: Combat feedback + combos | Core loop must feel good first | Ship these two, then assess if stamina (1C) is needed |
+| **3** | 2A-2B: Card history + visual evolution | Almost free to build, high retention | Run parallel to Phase 1 — data tracking + display, not combat logic |
+| **4** | 3B: Card sharing (canvas → PNG) | Client-side, zero infra, instant social | Ship before async PvP — word-of-mouth with no backend lift |
+| **5** | 3A: Async PvP | Retention hook — reason to come back | Needs server-side foundation (defense queue, matching, results inbox) |
+| **6** | 4C: Mobile polish | Unlock the biggest audience | After core loop + sharing are solid |
+| **7** | 1C-1D: Stamina + boss mechanics | Only if 1A+1B don't fix "coin flip" feel | Stamina is highest design risk — could add friction not tension |
+| **8** | 3C-3D: Tournaments + friends | Social growth after core is solid | Tournaments need async PvP infra first |
+| **9** | 2C-2D: Card personality + constrained creation | Identity depth after loop proven | |
+| **10** | 5A-5D: Polish + juice | Final layer after everything works | |
+| **∞** | 4B: Guest hardening | Ongoing, weave into each phase | |
+
+### Key decisions deferred until data arrives
+- **Stamina (1C):** Ship 1A+1B first. If players still say "coin flip", add stamina. If feedback layer alone fixes it, skip stamina and save the complexity.
+- **Async PvP scope (3A):** Card sharing (3B) ships first as the low-cost social test. If sharing generates engagement, invest in the full async PvP backend.
 
 ---
 
