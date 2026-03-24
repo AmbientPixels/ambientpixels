@@ -131,40 +131,11 @@
     return teasers;
   }
 
-  // ============================================================
-  // CARD RARITY SYSTEM — based on forge visit count
-  // ============================================================
-
-  var CARD_RARITIES = _C.CARD_RARITIES;
-
-  function getCardRarity() {
-    var visits = getForgeVisitCount();
-    var rarity = CARD_RARITIES[0];
-    for (var i = CARD_RARITIES.length - 1; i >= 0; i--) {
-      if (visits >= CARD_RARITIES[i].forges) {
-        rarity = CARD_RARITIES[i];
-        break;
-      }
-    }
-    return rarity;
-  }
-
-  function getNextRarity() {
-    var visits = getForgeVisitCount();
-    for (var i = 0; i < CARD_RARITIES.length; i++) {
-      if (visits < CARD_RARITIES[i].forges) {
-        return { rarity: CARD_RARITIES[i], forgesNeeded: CARD_RARITIES[i].forges - visits };
-      }
-    }
-    return null;
-  }
-
-  function renderRarityBadge() {
-    var rarity = getCardRarity();
-    return '<span class="bs-rarity-badge bs-rarity-badge--' + rarity.id + '">'
-      + '<i class="fas ' + rarity.icon + '"></i> ' + rarity.name
-      + '</span>';
-  }
+  // CARD RARITY — delegated to bs-card-rarity.js (window.BsCardRarity)
+  var _Rar = window.BsCardRarity || {};
+  function getCardRarity() { return _Rar.getCardRarity ? _Rar.getCardRarity() : { id: 'common', name: 'Common', icon: 'fa-circle' }; }
+  function getNextRarity() { return _Rar.getNextRarity ? _Rar.getNextRarity() : null; }
+  function renderRarityBadge() { return _Rar.renderRarityBadge ? _Rar.renderRarityBadge() : ''; }
 
   var CLASS_SIGNATURE_MOVES = _C.CLASS_SIGNATURE_MOVES;
 
@@ -786,6 +757,7 @@
       ]);
       _config = configResp;
       _buildCosmeticCaches();
+      if (_Rar.setCallbacks) _Rar.setCallbacks({ getForgeVisitCount: getForgeVisitCount });
       if (_Crt.setCallbacks) _Crt.setCallbacks({ applyCrateLoot: applyCrateLoot, renderLobby: renderLobby, updateSparksShop: updateSparksShop });
       if (_Chm.setCallbacks) _Chm.setCallbacks({ getConfig: function() { return _config; }, toast: showSuccessToast, sfx: playSfx });
       if (_Pvp.setCallbacks) _Pvp.setCallbacks({
