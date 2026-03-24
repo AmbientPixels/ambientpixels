@@ -51,6 +51,30 @@ async function run() {
     if (title.toLowerCase().includes('blindspot')) pass('Page title contains Blindspot');
     else warn('Page title missing Blindspot: ' + title);
 
+    // Click Fight and verify battle actually starts
+    const fightBtn2 = await landing.$('#bs-fight-btn');
+    if (fightBtn2) {
+      await fightBtn2.click();
+      // Wait for stranger intro overlay OR battle container to appear
+      let battleStarted = false;
+      try {
+        // Stranger intro shows first (8s), then battle container
+        // Check for either: intro visible OR battle container visible
+        await landing.waitForFunction(() => {
+          const intro = document.getElementById('bs-stranger-intro');
+          const battle = document.getElementById('bs-battle-container');
+          const introVisible = intro && !intro.classList.contains('bs-overlay--hidden');
+          const battleVisible = battle && battle.style.display !== 'none' && battle.offsetHeight > 0;
+          return introVisible || battleVisible;
+        }, { timeout: 10000 });
+        battleStarted = true;
+      } catch (e) {
+        battleStarted = false;
+      }
+      if (battleStarted) pass('Fight button click starts stranger flow');
+      else fail('Fight button click did nothing — stranger intro/battle never appeared');
+    }
+
   } catch (e) {
     fail('Landing page error: ' + e.message);
   }
