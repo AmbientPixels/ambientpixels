@@ -22,6 +22,7 @@ async function createCheckoutSession({ reportId, url, email, priceType }) {
 
   const params = new URLSearchParams();
   params.append('mode', 'payment');
+  params.append('allow_promotion_codes', 'true');
   params.append('line_items[0][price]', priceId);
   params.append('line_items[0][quantity]', '1');
   params.append('success_url', SITE_URL + '/ambientscore/report.html?id=' + reportId + '&session_id={CHECKOUT_SESSION_ID}');

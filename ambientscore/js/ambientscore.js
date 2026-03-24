@@ -223,13 +223,6 @@
 
     // Scroll to results
     resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-    // Gentle auto-scroll toward unlock section after 4s
-    if (blurred > 0) {
-      setTimeout(function () {
-        upgradeSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      }, 4000);
-    }
   }
 
   function scoreInterpretation(score) {
