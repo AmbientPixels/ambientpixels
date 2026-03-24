@@ -441,31 +441,9 @@
     }
   }
 
-  // Sparks shop — stays in monolith (calls getSparks/spendSparks/awardCrate)
-  var _sparksShopBound = false;
-  function updateSparksShop() {
-    var shop = document.getElementById('bs-sparks-shop');
-    var btn = document.getElementById('bs-buy-ember-crate');
-    if (!shop) return;
-    var sparks = getSparks();
-    var cost = 50;
-    shop.style.display = sparks > 0 ? '' : 'none';
-    if (btn) {
-      btn.disabled = sparks < cost;
-      btn.setAttribute('aria-label', 'Buy Ember Crate for ' + cost + ' Sparks' + (sparks < cost ? ' (not enough Sparks)' : ''));
-    }
-    if (!_sparksShopBound && btn) {
-      _sparksShopBound = true;
-      btn.addEventListener('click', function() {
-        if (getSparks() < cost) { showSuccessToast('Not enough Sparks! Need ' + cost + '.'); return; }
-        spendSparks(cost);
-        awardCrate('ember');
-        updateSparksShop();
-        var sparksSpan = document.querySelector('.bs-hud-sparks');
-        if (sparksSpan) sparksSpan.innerHTML = '<i class="fas fa-fire"></i> ' + getSparks() + ' sparks';
-      });
-    }
-  }
+  // Sparks shop — delegated to bs-sparks-shop.js (window.BsSparksShop)
+  var _Shop = window.BsSparksShop || {};
+  function updateSparksShop() { if (_Shop.render) _Shop.render(); }
 
   function escHtml(s) {
     const d = document.createElement('div');
@@ -758,6 +736,7 @@
       _config = configResp;
       _buildCosmeticCaches();
       if (_Rar.setCallbacks) _Rar.setCallbacks({ getForgeVisitCount: getForgeVisitCount });
+      if (_Shop.setCallbacks) _Shop.setCallbacks({ getSparks: getSparks, spendSparks: spendSparks, awardCrate: awardCrate, toast: showSuccessToast });
       if (_Crt.setCallbacks) _Crt.setCallbacks({ applyCrateLoot: applyCrateLoot, renderLobby: renderLobby, updateSparksShop: updateSparksShop });
       if (_Chm.setCallbacks) _Chm.setCallbacks({ getConfig: function() { return _config; }, toast: showSuccessToast, sfx: playSfx });
       if (_Pvp.setCallbacks) _Pvp.setCallbacks({
