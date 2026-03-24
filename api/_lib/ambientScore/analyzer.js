@@ -8,52 +8,55 @@ const { buildClassificationPrompt, buildExtractionPrompt, buildGroupEvalPrompt, 
 const { computeScore } = require('./scorer');
 const { GROUPS, WEIGHT_PROFILES } = require('./dimensions');
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GEMINI_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=';
+const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
+const ANTHROPIC_URL = 'https://api.anthropic.com/v1/messages';
+const CLAUDE_MODEL = 'claude-sonnet-4-6-20250514';
 
-// ── Gemini Call (forked from heartbeat/gemini.js) ────────────────
+// ── Claude Call ──────────────────────────────────────────────────
 
-async function callGemini(prompt, { temperature, maxOutputTokens, caller }) {
-  if (!GEMINI_API_KEY) throw new Error('GEMINI_API_KEY not configured');
+async function callClaude(prompt, { temperature, maxOutputTokens, caller }) {
+  if (!ANTHROPIC_API_KEY) throw new Error('ANTHROPIC_API_KEY not configured');
 
   const body = {
-    contents: [{ role: 'user', parts: [{ text: prompt }] }],
-    generationConfig: {
-      temperature: temperature || 0.3,
-      topP: 0.9,
-      maxOutputTokens: maxOutputTokens || 2000
-    }
+    model: CLAUDE_MODEL,
+    max_tokens: maxOutputTokens || 2000,
+    temperature: temperature || 0.3,
+    messages: [{ role: 'user', content: prompt }]
   };
 
-  const res = await fetch(GEMINI_URL + GEMINI_API_KEY, {
+  const res = await fetch(ANTHROPIC_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': ANTHROPIC_API_KEY,
+      'anthropic-version': '2023-06-01'
+    },
     body: JSON.stringify(body),
-    timeout: 30000
+    timeout: 60000
   });
 
   if (!res.ok) {
     const errText = await res.text().catch(() => '');
-    throw new Error('Gemini returned ' + res.status + ': ' + errText.substring(0, 200));
+    throw new Error('Claude returned ' + res.status + ': ' + errText.substring(0, 200));
   }
 
   const data = await res.json();
 
   // Log usage (non-blocking)
-  const um = data?.usageMetadata;
-  if (um) {
-    storage.logGeminiUsage({
+  const usage = data?.usage;
+  if (usage) {
+    storage.logClaudeUsage({
       caller: caller || 'ambientscore',
-      model: 'gemini-2.0-flash',
+      model: CLAUDE_MODEL,
       agentId: 'ambientscore',
-      promptTokens: um.promptTokenCount || 0,
-      completionTokens: um.candidatesTokenCount || 0,
-      totalTokens: um.totalTokenCount || 0
+      promptTokens: usage.input_tokens || 0,
+      completionTokens: usage.output_tokens || 0,
+      totalTokens: (usage.input_tokens || 0) + (usage.output_tokens || 0)
     }).catch(() => {});
   }
 
-  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error('Empty response from Gemini');
+  const text = data?.content?.[0]?.text;
+  if (!text) throw new Error('Empty response from Claude');
   return text;
 }
 
@@ -82,7 +85,7 @@ async function analyze(url) {
   const extractionPrompt = buildExtractionPrompt(scraped);
   let extraction;
   try {
-    const rawExtraction = await callGemini(extractionPrompt, {
+    const rawExtraction = await callClaude(extractionPrompt, {
       temperature: 0.3,
       maxOutputTokens: 2000,
       caller: 'as-extraction'
@@ -98,7 +101,7 @@ async function analyze(url) {
   let siteTypeReasoning = 'Classification failed, using default';
   try {
     const classPrompt = buildClassificationPrompt(extraction);
-    const rawClass = await callGemini(classPrompt, {
+    const rawClass = await callClaude(classPrompt, {
       temperature: 0.2,
       maxOutputTokens: 300,
       caller: 'as-classification'
@@ -118,7 +121,7 @@ async function analyze(url) {
   const evalPromises = Object.keys(GROUPS).map(async (groupId) => {
     try {
       const prompt = buildGroupEvalPrompt(groupId, extraction, siteType, !!scraped.jsRenderedWarning);
-      const raw = await callGemini(prompt, {
+      const raw = await callClaude(prompt, {
         temperature: 0.1,
         maxOutputTokens: 2500,
         caller: 'as-eval-group-' + groupId
@@ -158,7 +161,7 @@ async function analyze(url) {
   let synthesis = null;
   try {
     const synthPrompt = buildSynthesisPrompt(scoreResult, { _extraction: extraction, ...evaluations }, siteType);
-    const rawSynthesis = await callGemini(synthPrompt, {
+    const rawSynthesis = await callClaude(synthPrompt, {
       temperature: 0.5,
       maxOutputTokens: 1500,
       caller: 'as-synthesis'
@@ -200,7 +203,7 @@ async function analyze(url) {
         scrapeTimeMs: scrapeTimeMs,
         evalTimeMs: evalTimeMs,
         totalTimeMs: totalTimeMs,
-        geminiCalls: 5 - failedGroups,
+        claudeCalls: 5 - failedGroups,
         wordCount: scraped.wordCount,
         analyzedUrl: scraped.finalUrl || url,
         siteTypeReasoning: siteTypeReasoning,

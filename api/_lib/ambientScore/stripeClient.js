@@ -6,8 +6,8 @@ const crypto = require('crypto');
 
 const STRIPE_SECRET_KEY = process.env.STRIPE_SECRET_KEY;
 const STRIPE_WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
-const STRIPE_PRICE_SINGLE = process.env.STRIPE_PRICE_SINGLE;   // $49 price ID
-const STRIPE_PRICE_PACK = process.env.STRIPE_PRICE_PACK;       // $149 3-pack price ID
+const STRIPE_PRICE_SINGLE = process.env.STRIPE_PRICE_SINGLE;   // $29 price ID
+const STRIPE_PRICE_PACK = process.env.STRIPE_PRICE_PACK;       // $89 3-pack price ID
 const STRIPE_BASE = 'https://api.stripe.com/v1';
 
 const SITE_URL = process.env.AS_SITE_URL || process.env.CC_SITE_URL || 'https://ambientpixels.ai';

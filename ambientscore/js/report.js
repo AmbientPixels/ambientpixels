@@ -93,7 +93,7 @@
       '<div class="as-grade">Grade: ' + esc(report.grade) + '</div>' +
       '<div class="as-score-label" style="margin-bottom:24px;">AmbientScore</div>' +
       '<p style="color:var(--as-text-secondary);margin-bottom:32px;">Your report has been generated. Unlock the full 8-dimension analysis with detailed findings, headline rewrites, and CTA improvements.</p>' +
-      '<a href="/ambientscore/?url=' + encodeURIComponent(report.url || '') + '" class="as-buy-btn" style="text-decoration:none;">Unlock Full Report — $49</a>' +
+      '<a href="/ambientscore/?url=' + encodeURIComponent(report.url || '') + '" class="as-buy-btn" style="text-decoration:none;">Unlock Full Report — $29</a>' +
       '<div class="as-credits-redeem" style="margin-top:24px;">' +
       '<p class="as-credits-divider">Have a pack?</p>' +
       '<div class="as-credits-form">' +

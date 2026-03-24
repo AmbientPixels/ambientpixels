@@ -324,7 +324,7 @@
         showError(err.message);
         buySingle.disabled = false;
         buyPack.disabled = false;
-        buySingle.textContent = 'Unlock Full Breakdown \u2014 $49';
+        buySingle.textContent = 'Unlock Full Breakdown \u2014 $29';
       });
   }
 
