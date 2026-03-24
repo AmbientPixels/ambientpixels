@@ -380,68 +380,14 @@
   }
 
   // ============================================================
-  // BATTLE CHARMS
+  // BATTLE CHARMS — delegated to bs-charms.js (window.BsCharms)
   // ============================================================
 
-  var _equippedCharm = null; // charm selected for next battle
-  var _charmUsedThisBattle = false;
-  var _adventureItems = [];       // items from CYOA adventure
-  var _adventureItemsUsed = {};   // track which items used this battle
-
-  function getOwnedCharms() { return _progress.charms; }
-
-  function removeCharm(charmId) {
-    var idx = _progress.charms.indexOf(charmId);
-    if (idx >= 0) _progress.charms.splice(idx, 1);
-  }
-
-  function getCharmDef(charmId) {
-    if (!_config || !_config.crates || !_config.crates.dropPools || !_config.crates.dropPools.battle_charms) return null;
-    return _config.crates.dropPools.battle_charms.items.find(function(c) { return c.id === charmId; }) || null;
-  }
-
-  function renderCharmSelector() {
-    var container = document.getElementById('bs-charm-selector');
-    if (!container) return;
-    var charms = getOwnedCharms();
-    if (charms.length === 0) {
-      container.style.display = 'none';
-      _equippedCharm = null;
-      return;
-    }
-    // Count charms by type
-    var counts = {};
-    charms.forEach(function(id) { counts[id] = (counts[id] || 0) + 1; });
-    var uniqueIds = Object.keys(counts);
-
-    container.style.display = '';
-    container.innerHTML = '<p style="font-size:0.7rem; color:var(--bs-text-muted); margin-bottom:0.4rem;"><i class="fas fa-flask"></i> Equip a charm (optional):</p>'
-      + '<div class="bs-charm-options">'
-      + uniqueIds.map(function(id) {
-          var def = getCharmDef(id);
-          if (!def) return '';
-          var selected = _equippedCharm === id;
-          return '<button class="bs-charm-option' + (selected ? ' bs-charm-option--selected' : '') + '"'
-            + ' data-charm="' + escHtml(id) + '"'
-            + ' title="' + escHtml(def.description || def.name) + '"'
-            + ' aria-label="' + escHtml(def.name) + ' x' + counts[id] + '">'
-            + '<i class="fas ' + (def.icon || 'fa-flask') + '"></i>'
-            + '<span>' + escHtml(def.name) + '</span>'
-            + '<span class="bs-charm-count">x' + counts[id] + '</span>'
-            + '</button>';
-        }).join('')
-      + '<button class="bs-charm-option' + (!_equippedCharm ? ' bs-charm-option--selected' : '') + '" data-charm="none" aria-label="No charm">'
-      + '<i class="fas fa-ban"></i><span>None</span></button>'
-      + '</div>';
-
-    container.querySelectorAll('.bs-charm-option').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        var id = btn.dataset.charm;
-        _equippedCharm = id === 'none' ? null : id;
-        renderCharmSelector();
-      });
-    });
-  }
+  var _Chm = window.BsCharms || {};
+  function getOwnedCharms() { return _Chm.getOwned ? _Chm.getOwned() : []; }
+  function removeCharm(id) { if (_Chm.remove) _Chm.remove(id); }
+  function getCharmDef(id) { return _Chm.getDef ? _Chm.getDef(id) : null; }
+  function renderCharmSelector() { if (_Chm.renderSelector) _Chm.renderSelector(); }
 
   function renderArenaSelector() {
     var container = document.getElementById('bs-arena-selector');
@@ -488,127 +434,8 @@
     });
   }
 
-  function addCharmButtonToBattle() {
-    if (!_equippedCharm) return;
-    var def = getCharmDef(_equippedCharm);
-    if (!def) return;
-    _charmUsedThisBattle = false;
-    var movesEl = document.getElementById('arena-moves');
-    if (!movesEl) return;
-    // Check if charm button already exists
-    if (movesEl.querySelector('[data-move="charm"]')) return;
-    var btn = document.createElement('button');
-    btn.className = 'arena-move-btn arena-move-btn--charm';
-    btn.dataset.move = 'charm';
-    btn.setAttribute('aria-label', def.name + ' — ' + def.description);
-    btn.innerHTML = '<div class="arena-move-btn__glow" aria-hidden="true"></div>'
-      + '<i class="fas ' + (def.icon || 'fa-flask') + '" aria-hidden="true"></i>'
-      + '<span class="arena-move-btn__label">' + escHtml(def.name) + '</span>'
-      + '<span class="arena-move-btn__stat">1 use</span>'
-      + '<span class="arena-move-btn__desc">' + escHtml(def.description || '') + '</span>';
-    movesEl.appendChild(btn);
-
-    btn.addEventListener('click', function() {
-      if (_charmUsedThisBattle) return;
-      _charmUsedThisBattle = true;
-      btn.disabled = true;
-      btn.classList.add('arena-move-btn--used');
-      applyCharmEffect(def);
-      removeCharm(_equippedCharm);
-      _equippedCharm = null;
-      showSuccessToast(def.name + ' activated!');
-      playSfx('loot');
-    }, { once: true });
-  }
-
-  function applyCharmEffect(def) {
-    if (!def || !def.effect) return;
-    var logEl = document.getElementById('arena-battle-log');
-    function addLogEntry(msg) {
-      if (!logEl) return;
-      var entry = document.createElement('div');
-      entry.className = 'arena-log-entry';
-      entry.textContent = msg;
-      logEl.appendChild(entry);
-      logEl.scrollTop = logEl.scrollHeight;
-    }
-    function addBuffChip(label, icon) {
-      var buffs = document.getElementById('arena-player-buffs');
-      if (!buffs) return;
-      var chip = document.createElement('span');
-      chip.className = 'arena-buff-chip bs-charm-buff';
-      chip.innerHTML = '<i class="fas ' + icon + '" aria-hidden="true"></i> ' + escHtml(label);
-      buffs.appendChild(chip);
-    }
-
-    if (def.effect === 'heal_percent') {
-      var hpText = document.getElementById('arena-player-hp-text');
-      var hpFill = document.getElementById('arena-player-hp-fill');
-      if (hpText) {
-        var parts = hpText.textContent.split('/').map(function(s) { return parseInt(s.trim(), 10); });
-        var curHp = parts[0] || 0;
-        var maxHp = parts[1] || 100;
-        var heal = Math.round(maxHp * (def.value / 100));
-        var newHp = Math.min(maxHp, curHp + heal);
-        hpText.textContent = newHp + ' / ' + maxHp;
-        if (hpFill) hpFill.style.width = Math.round((newHp / maxHp) * 100) + '%';
-        addLogEntry('\u2728 ' + def.name + ': Healed ' + (newHp - curHp) + ' HP!');
-      }
-    } else if (def.effect === 'damage_boost') {
-      addBuffChip('+' + def.value + '% DMG', def.icon || 'fa-explosion');
-      addLogEntry('\u2728 ' + def.name + ': +' + def.value + '% damage this round!');
-    } else if (def.effect === 'full_block') {
-      addBuffChip('Shield Wall', def.icon || 'fa-shield');
-      addLogEntry('\u2728 ' + def.name + ': Blocking all damage this round!');
-    } else if (def.effect === 'guaranteed_crit') {
-      addBuffChip('Crit!', def.icon || 'fa-clover');
-      addLogEntry('\u2728 ' + def.name + ': Next attack is a guaranteed critical!');
-    } else if (def.effect === 'full_charges') {
-      addBuffChip('Charged', def.icon || 'fa-battery-full');
-      addLogEntry('\u2728 ' + def.name + ': Ability fully charged!');
-      var abilityBtn = document.querySelector('.arena-move-btn--ability');
-      if (abilityBtn) {
-        abilityBtn.disabled = false;
-        abilityBtn.classList.remove('arena-move-btn--disabled');
-      }
-    }
-  }
-
-  // ============================================================
-  // ADVENTURE ITEM BUTTONS IN BATTLE
-  // ============================================================
-
-  function addItemButtonsToBattle() {
-    if (_adventureItems.length === 0) return;
-    var movesEl = document.getElementById('arena-moves');
-    if (!movesEl) return;
-
-    _adventureItems.forEach(function(item, idx) {
-      if (movesEl.querySelector('[data-item-idx="' + idx + '"]')) return;
-      var btn = document.createElement('button');
-      btn.className = 'arena-move-btn arena-move-btn--item';
-      btn.dataset.itemIdx = idx;
-      btn.dataset.itemId = item.id;
-      btn.setAttribute('aria-label', item.name + ' \u2014 ' + item.description);
-      btn.innerHTML = '<div class="arena-move-btn__glow" aria-hidden="true"></div>'
-        + '<i class="fas ' + (item.icon || 'fa-box') + '" aria-hidden="true"></i>'
-        + '<span class="arena-move-btn__label">' + escHtml(item.name) + '</span>'
-        + '<span class="arena-move-btn__stat">1 use</span>'
-        + '<span class="arena-move-btn__desc">' + escHtml(item.description || '') + '</span>';
-      movesEl.appendChild(btn);
-
-      btn.addEventListener('click', function() {
-        if (_adventureItemsUsed[idx]) return;
-        _adventureItemsUsed[idx] = true;
-        btn.disabled = true;
-        btn.classList.add('arena-move-btn--used');
-        // Queue item for next move submission
-        window._pendingItemUse = item.id;
-        showSuccessToast(item.name + ' ready \u2014 pick your move!');
-        playSfx('click');
-      }, { once: true });
-    });
-  }
+  function addCharmButtonToBattle() { if (_Chm.addCharmButton) _Chm.addCharmButton(); }
+  function addItemButtonsToBattle() { if (_Chm.addItemButtons) _Chm.addItemButtons(); }
 
   // ============================================================
   // COSMETIC INVENTORY — delegated to bs-cosmetics.js (window.BsCosmetics)
@@ -986,6 +813,14 @@
       _config = configResp;
       _buildCosmeticCaches();
       if (_Crt.setCallbacks) _Crt.setCallbacks({ applyCrateLoot: applyCrateLoot, renderLobby: renderLobby, updateSparksShop: updateSparksShop });
+      if (_Chm.setCallbacks) _Chm.setCallbacks({ getConfig: function() { return _config; }, toast: showSuccessToast, sfx: playSfx });
+      if (_Rew.setCallbacks) _Rew.setCallbacks({
+        getHighestBoss: getHighestBossDefeated, getBestStreak: getBestStreak,
+        getForgeVisits: getForgeVisitCount, getAscension: getAscension,
+        getCardPower: function() { return _selectedCard ? getCardPower(_selectedCard) : 0; },
+        getPvPRecord: getPvPRecord, getPvPElo: getPvPElo, getPvPRank: getPvPRank,
+        getPvPRanks: function() { return PVP_RANKS; }
+      });
       _bosses = bossesResp;
       // Build boss lookup maps for O(1) access
       _bossesById = {};
@@ -1712,11 +1547,7 @@
       // Remove tutorial if active
       removeTutorial();
       // Reset charm + adventure item state
-      _equippedCharm = null;
-      _charmUsedThisBattle = false;
-      _adventureItems = [];
-      _adventureItemsUsed = {};
-      window._pendingItemUse = null;
+      if (_Chm.resetBattleState) _Chm.resetBattleState();
 
       if (_isStrangerFight) {
         handleStrangerResult(battleResult, battleData);
@@ -2761,7 +2592,7 @@
       advBtn.addEventListener('click', async function () {
         hideOverlay('bs-prefight-overlay');
         var advBuffs = {};
-        _adventureItems = [];
+        if (_Chm.setAdventureItems) _Chm.setAdventureItems([]);
         try {
           ensureCombatStats(_selectedCard);
           var boss = _bossesById[bossId];
@@ -2773,7 +2604,7 @@
             ascension: getAscension()
           });
           advBuffs = result.buffs || {};
-          _adventureItems = result.items || [];
+          if (_Chm.setAdventureItems) _Chm.setAdventureItems(result.items || []);
         } catch (e) { console.warn('[BS] Adventure error:', e); }
         await startCampaignBattle(bossId, advBuffs);
       }, { once: true });
@@ -2786,7 +2617,7 @@
 
       fightBtn.addEventListener('click', async function () {
         hideOverlay('bs-prefight-overlay');
-        _adventureItems = [];
+        if (_Chm.setAdventureItems) _Chm.setAdventureItems([]);
         await startCampaignBattle(bossId, {});
       }, { once: true });
     } else {
@@ -2798,7 +2629,7 @@
 
       singleBtn.addEventListener('click', async function () {
         hideOverlay('bs-prefight-overlay');
-        _adventureItems = [];
+        if (_Chm.setAdventureItems) _Chm.setAdventureItems([]);
         await startCampaignBattle(bossId, {});
       }, { once: true });
     }
@@ -3363,7 +3194,7 @@
 
     try {
       // Always send cardData as fallback — prevents "Card not found" if server save was delayed
-      const battleData = await window.ArenaAPI.startBattle('pve', _selectedCard.id, bossId, { cardData: _selectedCard, tempBuffs: tempBuffs || {}, adventureItems: _adventureItems || [] });
+      const battleData = await window.ArenaAPI.startBattle('pve', _selectedCard.id, bossId, { cardData: _selectedCard, tempBuffs: tempBuffs || {}, adventureItems: (_Chm.getAdventureItems ? _Chm.getAdventureItems() : []) || [] });
       _activeBattle = battleData;
       window.ArenaBattleUI.initBattle(battleData);
       updateCombatTooltips();
@@ -5056,133 +4887,15 @@
   }
 
   // ============================================================
-  // CHALLENGES — persistent milestones for replayability
+  // CHALLENGES — delegated to bs-rewards.js (window.BsRewards)
   // ============================================================
 
-  const CHALLENGES = [
-    { id: 'wins', name: 'Warrior', icon: 'fa-sword',
-      desc: ['Win 10 fights', 'Win 25 fights', 'Win 50 fights'],
-      target: [10, 25, 50],
-      reward: [
-        { stat: 'str', amount: 3, label: '+3 STR' },
-        { stat: 'str', amount: 5, label: '+5 STR' },
-        { forgeWins: 2, label: '+2 Forge Wins' }
-      ]
-    },
-    { id: 'bosses', name: 'Slayer', icon: 'fa-dragon',
-      desc: ['Defeat 3 bosses', 'Defeat 7 bosses', 'Defeat all 10 bosses'],
-      target: [3, 7, 10],
-      reward: [
-        { stat: 'end', amount: 3, label: '+3 END' },
-        { stat: 'end', amount: 5, label: '+5 END' },
-        { forgeWins: 3, label: '+3 Forge Wins' }
-      ]
-    },
-    { id: 'streak', name: 'Unstoppable', icon: 'fa-fire-flame-curved',
-      desc: ['Get a 3 win streak', 'Get a 5 win streak', 'Get a 10 win streak'],
-      target: [3, 5, 10],
-      reward: [
-        { stat: 'agi', amount: 3, label: '+3 AGI' },
-        { stat: 'agi', amount: 5, label: '+5 AGI' },
-        { stat: 'lck', amount: 8, label: '+8 LCK' }
-      ]
-    },
-    { id: 'forge', name: 'Artisan', icon: 'fa-fire',
-      desc: ['Visit the Forge 3 times', 'Visit the Forge 5 times', 'Visit the Forge 10 times'],
-      target: [3, 5, 10],
-      reward: [
-        { stat: 'int', amount: 3, label: '+3 INT' },
-        { forgeWins: 1, label: '+1 Forge Win' },
-        { stat: 'int', amount: 8, label: '+8 INT' }
-      ]
-    },
-    { id: 'ascension', name: 'Transcendent', icon: 'fa-star',
-      desc: ['Reach Ascension 1', 'Reach Ascension 3', 'Reach Ascension 5'],
-      target: [1, 3, 5],
-      reward: [
-        { stat: 'lck', amount: 5, label: '+5 LCK' },
-        { forgeWins: 3, label: '+3 Forge Wins' },
-        { stat: 'str', amount: 10, label: '+10 STR' }
-      ]
-    },
-    { id: 'pvp', name: 'Gladiator', icon: 'fa-users',
-      desc: ['Win 3 PvP fights', 'Win 10 PvP fights', 'Reach Gold PvP rank'],
-      target: [3, 10, 'gold'],
-      reward: [
-        { stat: 'agi', amount: 3, label: '+3 AGI' },
-        { stat: 'str', amount: 5, label: '+5 STR' },
-        { forgeWins: 3, label: '+3 Forge Wins' }
-      ]
-    },
-    { id: 'bounties', name: 'Completionist', icon: 'fa-scroll',
-      desc: ['Complete 3 daily bounties', 'Complete 10 daily bounties', 'Complete 25 daily bounties'],
-      target: [3, 10, 25],
-      reward: [
-        { stat: 'end', amount: 3, label: '+3 END' },
-        { stat: 'lck', amount: 5, label: '+5 LCK' },
-        { forgeWins: 2, label: '+2 Forge Wins' }
-      ]
-    },
-    { id: 'power', name: 'Powerhouse', icon: 'fa-bolt',
-      desc: ['Reach 200 Power', 'Reach 300 Power', 'Reach 400 Power'],
-      target: [200, 300, 400],
-      reward: [
-        { stat: 'end', amount: 3, label: '+3 END' },
-        { stat: 'int', amount: 5, label: '+5 INT' },
-        { stat: 'str', amount: 8, label: '+8 STR' }
-      ]
-    }
-  ];
-
-  function getChallengeProgress() {
-    return _progress.challenges;
-  }
-
-  function saveChallengeProgress(data) {
-    _progress.challenges = data;
-  }
-
-  function getChallengeCurrentValue(ch) {
-    switch (ch.id) {
-      case 'wins': return _progress.totalWins;
-      case 'bosses': return getHighestBossDefeated();
-      case 'streak': return getBestStreak();
-      case 'forge': return getForgeVisitCount();
-      case 'ascension': return getAscension();
-      case 'pvp': return 'special'; // handled in tier check
-      case 'bounties': return _progress.totalBounties;
-      case 'power': return _selectedCard ? getCardPower(_selectedCard) : 0;
-    }
-    return 0;
-  }
-
-  function getChallengeClaimedTier(chId) {
-    var data = getChallengeProgress();
-    return data[chId] || 0; // 0=none, 1=bronze, 2=silver, 3=gold
-  }
-
-  function getChallengeTierReached(ch) {
-    var val = getChallengeCurrentValue(ch);
-    if (ch.id === 'pvp') {
-      var rec = getPvPRecord();
-      var elo = getPvPElo();
-      var pvpRank = getPvPRank(elo);
-      // Tier 1: 3 PvP wins
-      if (rec.w < 3) return 0;
-      // Tier 2: 10 PvP wins
-      if (rec.w < 10) return 1;
-      // Tier 3: Gold PvP rank
-      var rankNames = PVP_RANKS.map(function(r) { return r.name; });
-      var goldIdx = rankNames.indexOf('Gold');
-      var curIdx = PVP_RANKS.indexOf(pvpRank);
-      if (curIdx >= goldIdx) return 3;
-      return 2;
-    }
-    for (var t = ch.target.length - 1; t >= 0; t--) {
-      if (val >= ch.target[t]) return t + 1;
-    }
-    return 0;
-  }
+  var _Rew = window.BsRewards || {};
+  var CHALLENGES = _Rew.CHALLENGES || [];
+  function getChallengeProgress() { return _Rew.getChallengeProgress ? _Rew.getChallengeProgress() : {}; }
+  function saveChallengeProgress(data) { if (_Rew.saveChallengeProgress) _Rew.saveChallengeProgress(data); }
+  function getChallengeClaimedTier(chId) { return _Rew.getChallengeClaimedTier ? _Rew.getChallengeClaimedTier(chId) : 0; }
+  function getChallengeTierReached(ch) { return _Rew.getChallengeTierReached ? _Rew.getChallengeTierReached(ch) : 0; }
 
   async function checkAndClaimChallenges() {
     var data = getChallengeProgress();
@@ -5245,116 +4958,11 @@
   function incrementTotalWins() { _progress.totalWins++; }
   function incrementTotalBounties() { _progress.totalBounties++; }
 
-  function renderChallenges() {
-    var el = document.getElementById('bs-challenges');
-    if (!el) return;
+  function renderChallenges() { if (_Rew.renderChallenges) _Rew.renderChallenges(); }
+  function renderBounties() { if (_Rew.renderBounties) _Rew.renderBounties(); }
+  function getDailyBounties() { return _Rew.getDailyBounties ? _Rew.getDailyBounties() : { bounties: [], fights: 0 }; }
 
-    var data = getChallengeProgress();
-    var totalTiers = CHALLENGES.length * 3;
-    var claimedTiers = 0;
-    CHALLENGES.forEach(function(ch) { claimedTiers += (data[ch.id] || 0); });
-
-    var tierColors = ['#CD7F32', '#C0C0C0', '#FFD700'];
-    var tierNames = ['Bronze', 'Silver', 'Gold'];
-
-    var rows = CHALLENGES.map(function(ch) {
-      var claimed = data[ch.id] || 0;
-      var reached = getChallengeTierReached(ch);
-      var currentVal = getChallengeCurrentValue(ch);
-      var nextTier = Math.min(claimed + 1, 3);
-      var nextIdx = nextTier - 1;
-      var isComplete = claimed >= 3;
-
-      // Progress bar to next tier
-      var pct = 0;
-      var progressLabel = '';
-      if (isComplete) {
-        pct = 100;
-        progressLabel = 'Complete!';
-      } else if (ch.id === 'pvp') {
-        var rec = getPvPRecord();
-        if (nextTier === 1) { pct = Math.min(100, (rec.w / 3) * 100); progressLabel = rec.w + '/3 wins'; }
-        else if (nextTier === 2) { pct = Math.min(100, (rec.w / 10) * 100); progressLabel = rec.w + '/10 wins'; }
-        else { var elo = getPvPElo(); pct = Math.min(100, (elo / 1300) * 100); progressLabel = elo + '/1300 Elo'; }
-      } else {
-        var target = ch.target[nextIdx];
-        if (typeof currentVal === 'number' && typeof target === 'number') {
-          pct = Math.min(100, (currentVal / target) * 100);
-          progressLabel = currentVal + '/' + target;
-        }
-      }
-
-      // Tier pips
-      var pips = '';
-      for (var t = 0; t < 3; t++) {
-        var pipClass = t < claimed ? 'bs-challenge-pip--claimed' : (t < reached ? 'bs-challenge-pip--ready' : '');
-        pips += '<span class="bs-challenge-pip ' + pipClass + '" style="' + (t < claimed ? 'color:' + tierColors[t] : '') + '"><i class="fas ' + (t < claimed ? 'fa-star' : 'fa-circle') + '" aria-hidden="true"></i></span>';
-      }
-
-      return '<div class="bs-challenge ' + (isComplete ? 'bs-challenge--done' : '') + '" role="listitem">' +
-        '<div class="bs-challenge__icon"><i class="fas ' + ch.icon + '" aria-hidden="true"></i></div>' +
-        '<div class="bs-challenge__info">' +
-          '<div class="bs-challenge__name">' + ch.name + '</div>' +
-          '<div class="bs-challenge__desc">' + (isComplete ? 'All tiers complete' : escHtml(ch.desc[nextIdx])) + '</div>' +
-          '<div class="bs-challenge__bar"><div class="bs-challenge__bar-fill" style="width:' + pct + '%;"></div></div>' +
-          '<div class="bs-challenge__progress">' + progressLabel +
-            (!isComplete && ch.reward[nextIdx] ? ' <span class="bs-challenge__reward">' + escHtml(ch.reward[nextIdx].label) + '</span>' : '') +
-          '</div>' +
-        '</div>' +
-        '<div class="bs-challenge__pips">' + pips + '</div>' +
-      '</div>';
-    }).join('');
-
-    el.innerHTML =
-      '<div class="bs-challenges__header" id="bs-challenges-toggle">' +
-        '<span><i class="fas fa-trophy" aria-hidden="true"></i> Challenges</span>' +
-        '<span class="bs-challenges__count" aria-label="' + claimedTiers + ' of ' + totalTiers + ' tiers complete">' + claimedTiers + '/' + totalTiers + '</span>' +
-      '</div>' +
-      '<div class="bs-challenges__list" id="bs-challenges-list" role="list">' + rows + '</div>';
-
-    el.style.display = '';
-
-    // Toggle collapse
-    var toggle = document.getElementById('bs-challenges-toggle');
-    var list = document.getElementById('bs-challenges-list');
-    if (toggle && list) {
-      // Restore collapse state
-      var collapsed = localStorage.getItem('bs-challenges-collapsed') === 'true';
-      if (collapsed) list.style.display = 'none';
-      toggle.style.cursor = 'pointer';
-      toggle.onclick = function() {
-        var isHidden = list.style.display === 'none';
-        list.style.display = isHidden ? '' : 'none';
-        safeLSSet('bs-challenges-collapsed', isHidden ? 'false' : 'true');
-      };
-    }
-  }
-
-  // ============================================================
-  // DAILY BOUNTIES
-  // ============================================================
-
-  const BOUNTY_POOL = [
-    { id: 'win_3_streak', text: 'Win 3 fights in a row', check: 'streak3', reward: { xp: 25, stat: 'str', amount: 3, label: '+25 XP, +3 STR' } },
-    { id: 'beat_new_boss', text: 'Defeat a new boss', check: 'newBoss', reward: { xp: 50, label: '+50 XP' } },
-    { id: 'play_3', text: 'Play 3 fights today', check: 'play3', reward: { xp: 15, forgePoints: 1, label: '+15 XP, +1 Forge' } },
-    { id: 'win_2', text: 'Win 2 fights today', check: 'win2', reward: { xp: 20, stat: 'agi', amount: 2, label: '+20 XP, +2 AGI' } },
-    { id: 'forge_card', text: 'Visit the Forge', check: 'forgeVisit', reward: { xp: 10, label: '+10 XP' } }
-  ];
-
-  function getDailyBounties() {
-    const today = new Date().toISOString().slice(0, 10);
-    var stored = _progress.bounties;
-    if (!stored || stored.date !== today) {
-      // Generate 3 new bounties for today
-      const shuffled = [...BOUNTY_POOL].sort(() => Math.random() - 0.5);
-      const bounties = shuffled.slice(0, 3).map(b => ({ ...b, done: false }));
-      _progress.bounties = { date: today, bounties, fights: 0 };
-      return _progress.bounties;
-    }
-    return stored;
-  }
-
+  // completeBounty stays in monolith — grants stat rewards, calls save API
   async function completeBounty(checkType) {
     const data = getDailyBounties();
     let completed = false;
@@ -5374,14 +4982,12 @@
     }
     if (completed) {
       incrementTotalBounties();
-      // Grant bounty rewards
       const completedBounty = data.bounties.find(b => b.check === checkType && b.done);
       if (completedBounty && completedBounty.reward) {
         const r = completedBounty.reward;
         if (r.stat && r.amount && _selectedCard && _selectedCard.combatStats) {
           const oldVal = _selectedCard.combatStats[r.stat] || 0;
           _selectedCard.combatStats[r.stat] = Math.min(100, oldVal + r.amount);
-          // Persist bounty stat reward to server
           try {
             const cardToSave = { ..._selectedCard };
             cardToSave.stats = [
@@ -5412,29 +5018,6 @@
       }
     }
     return completed;
-  }
-
-  function renderBounties() {
-    const el = document.getElementById('bs-bounties');
-    if (!el) return;
-
-    const data = getDailyBounties();
-    const doneCount = data.bounties.filter(b => b.done).length;
-
-    el.innerHTML = `
-      <div class="bs-bounties__header">
-        <span><i class="fas fa-scroll" aria-hidden="true"></i> Daily Bounties</span>
-        <span class="bs-bounties__count" aria-label="${doneCount} of 3 bounties complete">${doneCount}/3</span>
-      </div>
-      ${data.bounties.map(b => `
-        <div class="bs-bounty ${b.done ? 'bs-bounty--done' : ''}" role="listitem">
-          <i class="fas ${b.done ? 'fa-check-circle' : 'fa-circle'}" aria-hidden="true"></i>
-          <span>${escHtml(b.text)}</span>
-          ${b.reward ? `<span class="bs-bounty__reward">${escHtml(b.reward.label)}</span>` : ''}
-        </div>
-      `).join('')}
-    `;
-    el.style.display = '';
   }
 
   // ============================================================
@@ -5961,6 +5544,7 @@
         return;
       }
       _progress.crates.push({ type: type, earned: new Date().toISOString() });
+      if (_Crt.updateBadge) _Crt.updateBadge();
       syncProgressToServer();
       console.log('[BS] Added ' + type + ' crate. Pending: ' + _progress.crates.length);
       return _progress.crates.length;

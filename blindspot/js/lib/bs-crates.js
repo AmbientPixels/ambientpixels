@@ -117,9 +117,11 @@ window.BsCrates = (function () {
 
   function openCrateOverlay(crateIndex, config) {
     if (document.querySelector('.bs-crate-overlay')) return;
+    if (typeof crateIndex !== 'number') crateIndex = 0;
     var crates = getCrates();
     if (crateIndex < 0 || crateIndex >= crates.length) return;
     var crate = crates[crateIndex];
+    if (!crate || !crate.type) return;
     var crateDef = config && config.crates && config.crates.types[crate.type];
     if (!crateDef) crateDef = { name: 'Crate', icon: 'fa-box', color: 'var(--bs-accent)' };
 
