@@ -1878,7 +1878,7 @@
 .bs-page .arena-move-btn--on-cooldown {
   pointer-events: none;
 }
-.bs-page .arena-move-btn--on-cooldown::after {
+.bs-page .arena-move-btn--on-cooldown::before {
   content: attr(data-cd);
   position: absolute;
   inset: 0;
