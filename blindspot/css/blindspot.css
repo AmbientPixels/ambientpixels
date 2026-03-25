@@ -887,6 +887,11 @@
   0%, 100% { box-shadow: 0 0 0 0 rgba(239, 159, 39, 0); }
   50% { box-shadow: 0 0 20px 4px rgba(239, 159, 39, 0.3); }
 }
+.bs-forge-progress[data-tooltip]::after {
+  white-space: normal;
+  width: 200px;
+  text-align: center;
+}
 
 /* Mode buttons */
 .bs-modes {
