@@ -4879,6 +4879,7 @@ body.bs-battle-active .bs-play {
 .bs-guide { max-width: 400px; width: 100%; }
 .bs-guide__columns { display: flex; flex-direction: column; }
 .bs-guide__col .bs-guide-section { margin-top: 0.75rem; }
+.bs-guide__col .bs-guide-section:first-child { margin-top: 0; }
 
 @media (min-width: 769px) {
   .bs-guide { max-width: 760px; }
@@ -4889,19 +4890,26 @@ body.bs-battle-active .bs-play {
 .bs-combat-grid {
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0;
 }
 
 .bs-combat-rule {
   display: flex;
   align-items: flex-start;
   gap: 0.75rem;
-  padding: 0.6rem 0.75rem;
-  background: var(--bs-surface);
-  border: 1px solid var(--bs-border);
-  border-radius: 8px;
+  padding: 0.5rem 0;
   font-size: 0.8rem;
   color: var(--bs-text);
+  border-bottom: 1px solid var(--bs-border);
+}
+
+.bs-combat-rule:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.bs-combat-rule:first-child {
+  padding-top: 0;
 }
 
 .bs-combat-rule i {
@@ -6917,9 +6925,9 @@ body.bs-battle-active .bs-play {
   .bs-modal__section h3 { font-size: 0.75rem; }
   .bs-modal__section p { font-size: 0.68rem; }
 
-  /* Combat guide overlay — tighter cards */
+  /* Combat guide overlay — tighter rows */
   .bs-combat-rule {
-    padding: 0.4rem 0.6rem;
+    padding: 0.35rem 0;
     font-size: 0.72rem;
     gap: 0.5rem;
   }
