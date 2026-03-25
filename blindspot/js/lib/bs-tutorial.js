@@ -130,6 +130,8 @@
       btn.classList.remove('bs-pulse-hint');
       var isTarget = btn.dataset.move === allowedMove;
       btn.disabled = !isTarget;
+      // Remove the battle UI's disabled class — it overrides inline styles
+      btn.classList.toggle('arena-move-btn--disabled', !isTarget);
       btn.style.opacity = isTarget ? '' : '0.3';
       btn.style.pointerEvents = isTarget ? '' : 'none';
       if (isTarget) btn.classList.add('bs-pulse-hint');
@@ -139,7 +141,7 @@
   function _releaseAllMoves() {
     _controllingMoves = false;
     document.querySelectorAll('.arena-move-btn').forEach(function (btn) {
-      btn.classList.remove('bs-pulse-hint');
+      btn.classList.remove('bs-pulse-hint', 'arena-move-btn--disabled');
       btn.disabled = false;
       btn.style.opacity = '';
       btn.style.pointerEvents = '';
