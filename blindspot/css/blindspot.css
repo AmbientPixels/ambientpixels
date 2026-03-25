@@ -4348,6 +4348,22 @@
   padding: 1.25rem;
   display: flex;
   flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+.bs-forge-editor::before {
+  content: '\f06d';
+  font-family: 'Font Awesome 6 Free';
+  font-weight: 900;
+  position: absolute;
+  bottom: -10px;
+  right: -5px;
+  font-size: 140px;
+  color: var(--bs-accent);
+  opacity: 0.04;
+  pointer-events: none;
+  z-index: 0;
+  line-height: 1;
 }
 
 /* Make battle placeholder icons more prominent and distinct */

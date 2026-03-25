@@ -1,6 +1,6 @@
 /**
  * bs-forge.js — Forge screen: stat allocation, palette/container unlock,
- * avatar gallery/AI gen, name/quote editing, canvas ember particles.
+ * avatar gallery/AI gen, name/quote editing.
  * Extracted from blindspot-flow.js (Round 4.3).
  */
 (function () {
@@ -222,70 +222,6 @@
 
   showOverlay('bs-forge-screen');
 
-  // Ember particles rising in forge editor
-  (function initForgeEmbers() {
-    var editor = panel.querySelector('.bs-forge-editor');
-    if (!editor) return;
-    editor.style.position = 'relative';
-    var canvas = document.createElement('canvas');
-    canvas.style.cssText = 'position:absolute;left:0;right:0;bottom:0;width:100%;height:60%;pointer-events:none;opacity:0.35;';
-    editor.appendChild(canvas);
-    var ctx = canvas.getContext('2d');
-    var embers = [];
-    var raf;
-
-    function resize() {
-      canvas.width = editor.offsetWidth;
-      canvas.height = Math.round(editor.offsetHeight * 0.6);
-    }
-    resize();
-
-    function spawn() {
-      embers.push({
-        x: Math.random() * canvas.width,
-        y: canvas.height + 2,
-        r: 0.8 + Math.random() * 1,
-        vx: (Math.random() - 0.5) * 0.4,
-        vy: -(0.4 + Math.random() * 0.5),
-        life: 1,
-        decay: 0.001 + Math.random() * 0.002,
-        hue: 25 + Math.random() * 20
-      });
-    }
-
-    function draw() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (var i = embers.length - 1; i >= 0; i--) {
-        var e = embers[i];
-        e.x += e.vx + Math.sin(e.y * 0.02) * 0.15;
-        e.y += e.vy;
-        e.life -= e.decay;
-        if (e.life <= 0) { embers.splice(i, 1); continue; }
-        ctx.globalAlpha = e.life * 0.3;
-        ctx.fillStyle = 'hsl(' + e.hue + ', 80%, 50%)';
-        ctx.beginPath();
-        ctx.arc(e.x, e.y, e.r * (0.4 + e.life * 0.6), 0, Math.PI * 2);
-        ctx.fill();
-        ctx.globalAlpha = e.life * 0.07;
-        ctx.beginPath();
-        ctx.arc(e.x, e.y, e.r * 2, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      if (Math.random() < 0.1) spawn();
-      raf = requestAnimationFrame(draw);
-    }
-    draw();
-
-    var forgeOverlay = document.getElementById('bs-forge-screen');
-    var obs = new MutationObserver(function() {
-      if (forgeOverlay && forgeOverlay.classList.contains('bs-overlay--hidden')) {
-        cancelAnimationFrame(raf);
-        obs.disconnect();
-      }
-    });
-    if (forgeOverlay) obs.observe(forgeOverlay, { attributes: true, attributeFilter: ['class'] });
-    window.addEventListener('resize', resize);
-  })();
 
   const remainingEl = document.getElementById('bs-forge-remaining');
   const totalEl = document.getElementById('bs-forge-total');
