@@ -55,7 +55,7 @@
     var bh = _bubbleEl.offsetHeight;
     _bubbleEl.style.visibility = '';
 
-    var gap = 6;
+    var gap = 2;
     var left, top;
     var finalDir = direction;
 
