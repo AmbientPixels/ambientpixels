@@ -1141,7 +1141,6 @@
   text-align: center;
   gap: 1.5rem;
   padding: 2rem;
-  overflow-y: auto;
 }
 
 .bs-overlay--hidden {
@@ -4875,6 +4874,17 @@ body.bs-battle-active .bs-play {
 /* ============================================================
    COMBAT GUIDE (iter 57)
    ============================================================ */
+
+/* --- Guide wrapper + 2-col desktop layout --- */
+.bs-guide { max-width: 400px; width: 100%; }
+.bs-guide__columns { display: flex; flex-direction: column; }
+.bs-guide__col .bs-guide-section { margin-top: 0.75rem; }
+
+@media (min-width: 769px) {
+  .bs-guide { max-width: 760px; }
+  .bs-guide__columns { flex-direction: row; gap: 1.5rem; }
+  .bs-guide__col { flex: 1; min-width: 0; }
+}
 
 .bs-combat-grid {
   display: flex;
