@@ -427,9 +427,56 @@ window.ArenaBattleUI = (function () {
     if (window.ArenaAudio) window.ArenaAudio.play('killshot');
     if (field) field.classList.add('arena--killshot');
     if (defeatedEl) defeatedEl.classList.add('arena-combatant--defeated');
+    shakeScreen('heavy', 600);
+    flashScreen('rgba(255, 255, 255, 0.15)', 300);
+    burstParticles(defeatedSide, 20, defeatedSide === 'opponent' ? '#FFD700' : '#ff5252');
     await sleep(1400);
     if (field) field.classList.remove('arena--killshot');
     // Leave arena-combatant--defeated on — it stays until battle end resets the view
+  }
+
+  // ─── Screen shake + particles (Phase 5A juice) ──────────────────────────
+
+  function shakeScreen(intensity, duration) {
+    var field = document.querySelector('.arena-battle__field');
+    if (!field) return;
+    var cls = intensity === 'heavy' ? 'arena-screen-shake--heavy'
+            : intensity === 'crit' ? 'arena-screen-shake--crit'
+            : 'arena-screen-shake';
+    field.classList.remove('arena-screen-shake', 'arena-screen-shake--crit', 'arena-screen-shake--heavy');
+    void field.offsetWidth;
+    field.classList.add(cls);
+    setTimeout(function () { field.classList.remove(cls); }, duration || 500);
+  }
+
+  function flashScreen(color, duration) {
+    var existing = document.querySelector('.arena-screen-flash');
+    if (existing) existing.remove();
+    var flash = document.createElement('div');
+    flash.className = 'arena-screen-flash';
+    flash.style.background = color || 'rgba(255, 50, 50, 0.15)';
+    document.querySelector('.arena-battle__field').appendChild(flash);
+    setTimeout(function () { flash.remove(); }, duration || 400);
+  }
+
+  function spawnParticles(container, count, color, direction) {
+    if (!container) return;
+    direction = direction || 'up';
+    for (var i = 0; i < count; i++) {
+      var p = document.createElement('div');
+      p.className = 'arena-particle arena-particle--' + direction;
+      p.style.setProperty('--p-color', color || 'var(--bs-accent)');
+      p.style.setProperty('--p-x', (Math.random() * 100) + '%');
+      p.style.setProperty('--p-delay', (Math.random() * 300) + 'ms');
+      p.style.setProperty('--p-size', (3 + Math.random() * 4) + 'px');
+      container.appendChild(p);
+      setTimeout(function () { p.remove(); }, 1500);
+    }
+  }
+
+  function burstParticles(side, count, color) {
+    var container = document.getElementById(side === 'player' ? 'arena-player-side' : 'arena-opponent-side');
+    spawnParticles(container, count || 12, color || '#FFD700', 'burst');
   }
 
   // ─── Phase 1A: Matchup feedback banner ───────────────────────────────────
@@ -617,6 +664,8 @@ window.ArenaBattleUI = (function () {
     if (firstCrit) {
       const firstTarget = firstSide === 'player' ? 'opponent' : 'player';
       showCritBanner(firstTarget);
+      shakeScreen('crit', 400);
+      flashScreen('rgba(255, 50, 50, 0.12)', 350);
       if (audio) audio.play('crit');
       await sleep(150);
     }
@@ -651,6 +700,8 @@ window.ArenaBattleUI = (function () {
       if (secondCrit) {
         const secondTarget = secondSide === 'player' ? 'opponent' : 'player';
         showCritBanner(secondTarget);
+        shakeScreen('crit', 400);
+        flashScreen('rgba(255, 50, 50, 0.12)', 350);
         if (audio) audio.play('crit');
         await sleep(150);
       }
@@ -703,10 +754,14 @@ window.ArenaBattleUI = (function () {
     // Phase 1A: Flash passive activations detected from events
     showPassiveFlashes(result.events);
 
-    // Phase 1B: Combo banner + first-discovery toast
+    // Phase 1B: Combo banner + first-discovery toast + juice
     if (result.comboTriggered) {
       showComboBanner(result.comboTriggered);
       showComboDiscoveryToast(result.comboTriggered);
+      var comboColor = COMBO_DEFS[result.comboTriggered] ? COMBO_DEFS[result.comboTriggered].color : '#FFD700';
+      shakeScreen('crit', 400);
+      var field = document.querySelector('.arena-battle__field');
+      spawnParticles(field, 15, comboColor, 'up');
     }
 
     // Phase 1B: Track move history for combo hints
