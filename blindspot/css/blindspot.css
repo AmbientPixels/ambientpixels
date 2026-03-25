@@ -4798,8 +4798,14 @@
 body.bs-battle-active .bs-bottom-nav {
   display: none !important;
 }
+body.bs-battle-active {
+  overflow: hidden;
+}
 body.bs-battle-active .bs-play {
   padding-bottom: 0;
+  min-height: 0;
+  height: 100vh;
+  overflow: hidden;
 }
 
 /* Campaign progress no-wrap */
