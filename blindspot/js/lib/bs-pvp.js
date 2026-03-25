@@ -416,7 +416,7 @@
               'Defense Record: <strong>' + (myEntry.record.w || 0) + 'W</strong> / <strong>' + (myEntry.record.l || 0) + 'L</strong>' +
             '</div>' +
             '<p style="color:var(--bs-text-muted);font-size:0.8rem;margin:0.5rem 0 1rem;">Your card battles attackers while you\u2019re away. Earn Sparks even offline!</p>' +
-            '<button class="bs-btn" id="bs-withdraw-defense" style="background:var(--bs-danger);"><i class="fas fa-times"></i> Withdraw from Defense</button>' +
+            '<button class="bs-btn bs-btn--primary" id="bs-withdraw-defense" style="background:var(--bs-danger);border-color:var(--bs-danger);"><i class="fas fa-times"></i> Withdraw from Defense</button>' +
           '</div>';
 
         document.getElementById('bs-withdraw-defense').addEventListener('click', async function() {
@@ -437,7 +437,7 @@
             '<p style="color:var(--bs-text-muted);font-size:0.85rem;margin:0 0 1rem;">Your card will fight attackers while you\u2019re away. Earn passive Sparks and track defense wins!</p>' +
             (selectedCard
               ? '<div style="margin-bottom:0.8rem;color:var(--bs-text);font-size:0.9rem;"><i class="fas fa-id-card"></i> Selected: <strong>' + escHtml(selectedCard.name || 'Unnamed') + '</strong></div>' +
-                '<button class="bs-btn" id="bs-register-defense" style="background:var(--bs-accent);"><i class="fas fa-shield-halved"></i> Register for Defense</button>'
+                '<button class="bs-btn bs-btn--primary" id="bs-register-defense"><i class="fas fa-shield-halved"></i> Register for Defense</button>'
               : '<p style="color:var(--bs-danger);font-size:0.85rem;">Select a card first from your collection.</p>') +
           '</div>';
 
