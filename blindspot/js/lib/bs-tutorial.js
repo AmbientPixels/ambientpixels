@@ -129,6 +129,16 @@
 
   // ── Button State Management ──
 
+  function _lockAllMoves() {
+    _controllingMoves = true;
+    document.querySelectorAll('.arena-move-btn').forEach(function (btn) {
+      btn.disabled = true;
+      btn.classList.add('arena-move-btn--disabled');
+      btn.style.opacity = '0.3';
+      btn.style.pointerEvents = 'none';
+    });
+  }
+
   function _disableOtherMoves(allowedMove) {
     _controllingMoves = true;
     document.querySelectorAll('.arena-move-btn').forEach(function (btn) {
@@ -192,9 +202,13 @@
     _positionBubble(targetEl, step.position);
     _showBubble();
 
-    // Button management for move steps
+    // Button management
     if (step.disableOthers && step.move) {
+      // Move step — enable only the target button
       _disableOtherMoves(step.move);
+    } else if (step.advance === 'tap') {
+      // HUD intro — lock ALL buttons until move teaching starts
+      _lockAllMoves();
     }
 
     // Wire up action button for tap-to-advance steps
