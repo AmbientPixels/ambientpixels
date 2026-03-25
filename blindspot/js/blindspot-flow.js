@@ -1131,6 +1131,14 @@
         var fallbackDeck = getDeck();
         if (fallbackDeck.length > 0) cards = fallbackDeck;
       }
+      // Merge: if selected card is in localStorage but missing from server (blob replication lag),
+      // inject it so the newly created card always shows up immediately
+      var pendingCardId = localStorage.getItem('bs-selected-card-id');
+      if (pendingCardId && !cards.find(function(c) { return c.id === pendingCardId; })) {
+        var cachedDeck = getDeck();
+        var cachedCard = cachedDeck.find(function(c) { return c.id === pendingCardId; });
+        if (cachedCard) cards.push(cachedCard);
+      }
     }
     if (cards.length > 0) {
       // Sync full server card data into deck cache so card switcher has complete data
