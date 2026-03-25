@@ -531,6 +531,21 @@ window.ArenaBattleUI = (function () {
     setTimeout(function () { banner.remove(); }, 2200);
   }
 
+  // ─── Phase 1B: First-combo discovery toast (one-time per combo type) ────
+  function showComboDiscoveryToast(comboId) {
+    var combo = COMBO_DEFS[comboId];
+    if (!combo) return;
+    var key = 'bs-combo-discovered-' + comboId;
+    try { if (localStorage.getItem(key)) return; } catch (e) { return; }
+    try { localStorage.setItem(key, '1'); } catch (e) { /* ignore */ }
+    var toast = window.BsToast;
+    if (toast && toast.show) {
+      toast.show('Combo Discovered: ' + combo.name + '! Tap the \u24D8 icon for all combos.', 'success', 5000);
+    } else {
+      addLogEntry('\u2728 Combo Discovered: ' + combo.name + '! Check the combat guide (\u24D8) for all combos.', 'hint');
+    }
+  }
+
   // ─── Phase 1A: Combo hint (preview next combo in move buttons) ──────────
   function updateComboHints() {
     // Show subtle hint on move buttons when a combo is 1 move away
@@ -688,9 +703,10 @@ window.ArenaBattleUI = (function () {
     // Phase 1A: Flash passive activations detected from events
     showPassiveFlashes(result.events);
 
-    // Phase 1B: Combo banner
+    // Phase 1B: Combo banner + first-discovery toast
     if (result.comboTriggered) {
       showComboBanner(result.comboTriggered);
+      showComboDiscoveryToast(result.comboTriggered);
     }
 
     // Phase 1B: Track move history for combo hints

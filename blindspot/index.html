@@ -104,6 +104,25 @@
       <div style="margin-top:1rem; padding:0.75rem; background:var(--bs-surface); border-radius:8px; border:1px solid var(--bs-border);">
         <p style="font-size:0.75rem; color:var(--bs-text-muted); margin:0;"><strong style="color:var(--bs-accent);">Stats:</strong> STR = strike power, AGI = speed + dodge, INT = ability power, END = heal + HP, LCK = crit chance</p>
       </div>
+      <div class="bs-guide-section">
+        <h3 class="bs-guide-section__title"><i class="fas fa-chess"></i> Matchups</h3>
+        <div class="bs-guide-matchups">
+          <span class="bs-guide-matchup"><strong class="bs-guide-win">Strike</strong> beats Heal &amp; Ability</span>
+          <span class="bs-guide-matchup"><strong class="bs-guide-win">Guard</strong> beats Strike</span>
+          <span class="bs-guide-matchup"><strong class="bs-guide-win">Ability</strong> beats Guard &amp; Counter</span>
+          <span class="bs-guide-matchup"><strong class="bs-guide-win">Counter</strong> reflects Strike</span>
+          <span class="bs-guide-matchup"><strong style="color:var(--bs-text-muted);">Heal</strong> beats nothing (pure recovery)</span>
+        </div>
+      </div>
+      <div class="bs-guide-section">
+        <h3 class="bs-guide-section__title"><i class="fas fa-fire"></i> Combos</h3>
+        <div class="bs-guide-combos">
+          <div class="bs-guide-combo"><span class="bs-guide-combo__seq">Strike → Strike → Strike</span><span class="bs-guide-combo__name" style="color:#ff9100;">FLURRY</span><span class="bs-guide-combo__bonus">+30% damage</span></div>
+          <div class="bs-guide-combo"><span class="bs-guide-combo__seq">Guard → Counter</span><span class="bs-guide-combo__name" style="color:#3a9fff;">RIPOSTE</span><span class="bs-guide-combo__bonus">Forced reflect</span></div>
+          <div class="bs-guide-combo"><span class="bs-guide-combo__seq">Heal → Ability</span><span class="bs-guide-combo__name" style="color:#a855f7;">EMPOWERED</span><span class="bs-guide-combo__bonus">+50% ability damage</span></div>
+        </div>
+        <p class="bs-guide-combo-hint">Watch for the amber glow on move buttons — it means a combo is ready!</p>
+      </div>
       <button class="bs-btn bs-btn--primary bs-btn--full" id="bs-combat-guide-close" style="margin-top:1rem;">Got It</button>
     </div>
   </div>
