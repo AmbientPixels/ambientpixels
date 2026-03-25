@@ -98,6 +98,10 @@ window.ArenaBattleUI = (function () {
       updateStaminaBars(_battleData.stamina.player, _battleData.maxStamina.player, _battleData.stamina.opponent, _battleData.maxStamina.opponent);
       updateMoveCosts(_battleData.stamina.player);
     }
+
+    // Cooldown system init
+    _battleData.cooldowns = battleData.cooldowns || { player: {}, opponent: {} };
+    updateCooldownOverlays(_battleData.cooldowns.player);
   }
 
   function renderActiveBuffs(passives) {
@@ -199,6 +203,30 @@ window.ArenaBattleUI = (function () {
       }
       // Exhaustion visual warning on all buttons
       btn.classList.toggle('arena-move-btn--exhausted', playerStamina < threshold);
+    });
+  }
+
+  function updateCooldownOverlays(cds) {
+    var maxRounds = (window.BsConst && BsConst.COOLDOWN_ROUNDS) || {};
+    document.querySelectorAll('.arena-move-btn[data-move]').forEach(function(btn) {
+      var move = btn.getAttribute('data-move');
+      var remaining = (cds && cds[move]) || 0;
+      var max = maxRounds[move] || 0;
+      var wasOnCooldown = btn.classList.contains('arena-move-btn--on-cooldown');
+      btn.classList.toggle('arena-move-btn--on-cooldown', remaining > 0);
+      if (remaining > 0 && max > 0) {
+        var deg = (remaining / max) * 360;
+        btn.style.setProperty('--cd-deg', deg + 'deg');
+        btn.setAttribute('data-cd', remaining);
+      } else {
+        btn.style.removeProperty('--cd-deg');
+        btn.removeAttribute('data-cd');
+        // Ready pulse: cooldown just cleared this round
+        if (wasOnCooldown) {
+          btn.classList.add('arena-move-btn--cd-ready');
+          setTimeout(function() { btn.classList.remove('arena-move-btn--cd-ready'); }, 600);
+        }
+      }
     });
   }
 
@@ -801,6 +829,12 @@ window.ArenaBattleUI = (function () {
       updateMoveCosts(result.stamina.player);
     }
 
+    // Update cooldown overlays from round result
+    if (result.cooldowns) {
+      _battleData.cooldowns = result.cooldowns;
+      updateCooldownOverlays(result.cooldowns.player);
+    }
+
     // Log events (matchup results, crits, heals, buffs)
     if (result.events && result.events.length > 0) {
       result.events.forEach(e => addLogEntry(e, 'event'));
@@ -879,6 +913,12 @@ window.ArenaBattleUI = (function () {
 
   async function handleMoveClick(move) {
     if (_isAnimating || !_battleData) return;
+
+    // Client-side cooldown check
+    if (_battleData.cooldowns && _battleData.cooldowns.player && _battleData.cooldowns.player[move] > 0) {
+      addLogEntry(move.charAt(0).toUpperCase() + move.slice(1) + ' is on cooldown!', 'error');
+      return;
+    }
 
     enableMoves(false);
 

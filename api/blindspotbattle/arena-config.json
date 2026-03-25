@@ -124,6 +124,9 @@
     "exhaustionBurnPct": 0.05,
     "costs": { "strike": 4, "guard": 1, "heal": 2, "counter": 4, "ability": 5 }
   },
+  "cooldownConfig": {
+    "strike": 0, "guard": 0, "heal": 1, "counter": 1, "ability": 2
+  },
   "validClasses": ["Fighter", "Enforcer", "Berserker", "Caster", "Hacker", "Scholar", "Scout", "Rogue", "Pilot", "Guardian", "Medic", "Trickster", "Wildcard"],
   "classAdvantages": {
     "Fighter":   ["Guardian", "Medic"],

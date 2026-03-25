@@ -348,7 +348,7 @@ function resolveClassAbility(abilityKey, combatStats, opponentMove, config, even
   return { damage, heal, tempEffect, alwaysFirst };
 }
 
-function generateBossMove(boss, round, currentHp, maxHp, opponentCharges, bossStamina, bossMaxStamina) {
+function generateBossMove(boss, round, currentHp, maxHp, opponentCharges, bossStamina, bossMaxStamina, bossCooldowns) {
   const config = loadArenaConfig();
   const pattern = config.aiPatterns[boss.arenaOverrides?.aiPattern || 'balanced'];
   let weights = { ...pattern };
@@ -379,6 +379,13 @@ function generateBossMove(boss, round, currentHp, maxHp, opponentCharges, bossSt
     if (bossMaxStamina && bossStamina < bossMaxStamina * 0.25) {
       weights.guard = (weights.guard || 0) + 15;
     }
+  }
+
+  // Cooldown awareness: zero out weight for moves on cooldown
+  if (bossCooldowns) {
+    Object.keys(bossCooldowns).forEach(function(m) {
+      if (bossCooldowns[m] > 0) weights[m] = 0;
+    });
   }
 
   const counterWeight = weights.counter || 8;
@@ -1097,6 +1104,7 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
     stamina: { player: playerMaxStamina, opponent: opponentMaxStamina },
     maxStamina: { player: playerMaxStamina, opponent: opponentMaxStamina },
     staminaRegen: { player: playerStaminaRegen, opponent: opponentStaminaRegen },
+    cooldowns: { player: {}, opponent: {} },
     tempEffects: { player: [], opponent: [] },
     adventureItems: [],
     roundLog: [],
@@ -1157,6 +1165,7 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
       stamina: { player: playerMaxStamina, opponent: opponentMaxStamina },
       maxStamina: { player: playerMaxStamina, opponent: opponentMaxStamina },
       staminaRegen: { player: playerStaminaRegen, opponent: opponentStaminaRegen },
+      cooldowns: { player: {}, opponent: {} },
       currentRound: 1,
       totalRounds: config.totalRounds,
       status: 'active'
@@ -1237,6 +1246,12 @@ async function handleMove(context, containerClient, userId, body) {
     }
   }
 
+  // Cooldown check — hard-block if move is on cooldown
+  if (battle.cooldowns && battle.cooldowns.player[move] > 0) {
+    context.res = { status: 400, headers: CORS_HEADERS, body: { error: move + ' is on cooldown (' + battle.cooldowns.player[move] + ' rounds)' } };
+    return;
+  }
+
   // Mirror passive — boss copies player's last move
   let opponentMove;
   if (battle._mirrorNextMove) {
@@ -1248,7 +1263,8 @@ async function handleMove(context, containerClient, userId, body) {
       battle.type === 'pve' ? { arenaOverrides: opponent.arenaOverrides || { aiPattern: 'balanced' }, combatStats: opponent.combatStats } : { arenaOverrides: { aiPattern: 'balanced' } },
       round, opponent.hp, opponent.maxHp, battle.charges.opponent,
       battle.stamina ? battle.stamina.opponent : undefined,
-      battle.maxStamina ? battle.maxStamina.opponent : undefined
+      battle.maxStamina ? battle.maxStamina.opponent : undefined,
+      battle.cooldowns ? battle.cooldowns.opponent : undefined
     );
   } else {
     opponentMove = opponent.moves[round - 1] || 'strike';
@@ -1446,6 +1462,22 @@ async function handleMove(context, containerClient, userId, body) {
     }
   }
 
+  // Update cooldowns: decrement existing, then set new ones for moves just used
+  if (battle.cooldowns) {
+    var cdCfg = config.cooldownConfig || {};
+    // Decrement existing (runs on keys BEFORE new move is added —
+    // so the just-used move won't be decremented this round. Correct.)
+    ['player', 'opponent'].forEach(function(side) {
+      Object.keys(battle.cooldowns[side]).forEach(function(m) {
+        battle.cooldowns[side][m]--;
+        if (battle.cooldowns[side][m] <= 0) delete battle.cooldowns[side][m];
+      });
+    });
+    // Set cooldown for moves just used
+    if (cdCfg[move] > 0) battle.cooldowns.player[move] = cdCfg[move];
+    if (cdCfg[opponentMove] > 0) battle.cooldowns.opponent[opponentMove] = cdCfg[opponentMove];
+  }
+
   // Update temp effects: replace with new ones from this round
   if (battle.tempEffects) {
     battle.tempEffects = result.newTempEffects || { player: [], opponent: [] };
@@ -1516,7 +1548,8 @@ async function handleMove(context, containerClient, userId, body) {
       opponent: battle.stamina.opponent,
       playerMax: battle.maxStamina.player,
       opponentMax: battle.maxStamina.opponent
-    } : undefined
+    } : undefined,
+    cooldowns: battle.cooldowns || undefined
   };
 
   battle.roundLog.push(roundResult);
