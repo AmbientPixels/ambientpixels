@@ -29,12 +29,19 @@
   // ── Bubble HTML ──
 
   function _createBubbleHTML(step, actionText) {
-    return '<div class="bs-speech-bubble__header">' +
+    var html = '<div class="bs-speech-bubble__header">' +
       '<i class="fas ' + step.icon + ' bs-speech-bubble__icon" aria-hidden="true"></i>' +
       '<span class="bs-speech-bubble__label">' + step.label + '</span>' +
     '</div>' +
-    '<div class="bs-speech-bubble__text">' + step.text + '</div>' +
-    '<button class="bs-speech-bubble__action" type="button">' + actionText + '</button>';
+    '<div class="bs-speech-bubble__text">' + step.text + '</div>';
+    // Move steps: text prompt only (the glowing button IS the action)
+    // Tap steps: render a "Got it" button
+    if (step.advance === 'move') {
+      html += '<div class="bs-speech-bubble__prompt">\u25B2 Click the button above</div>';
+    } else {
+      html += '<button class="bs-speech-bubble__action" type="button">' + actionText + '</button>';
+    }
+    return html;
   }
 
   // ── Positioning ──

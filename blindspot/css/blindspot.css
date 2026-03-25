@@ -2540,6 +2540,13 @@
   border-color: var(--bs-accent);
 }
 
+.bs-speech-bubble__prompt {
+  font-size: 0.65rem;
+  color: var(--bs-text-muted);
+  text-align: center;
+  letter-spacing: 0.03em;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .bs-speech-bubble { max-width: 240px; }
