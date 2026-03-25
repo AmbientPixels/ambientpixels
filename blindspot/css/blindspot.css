@@ -1827,6 +1827,53 @@
   margin-top: 0.25rem;
 }
 
+/* --- Stamina Bars --- */
+.bs-page .arena-stamina-bar { width: 100%; margin-top: 0.2rem; }
+.bs-page .arena-stamina-bar__fill {
+  height: 5px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #7c3aed, #a78bfa);
+  box-shadow: 0 0 4px rgba(124, 58, 237, 0.3);
+  transition: width 0.4s ease;
+}
+.bs-page .arena-stamina-bar__text {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.55rem;
+  font-weight: 600;
+  color: var(--bs-text-muted);
+  text-align: center;
+  display: block;
+  margin-top: 0.1rem;
+}
+.bs-page .arena-stamina-bar--exhausted .arena-stamina-bar__fill {
+  animation: stamina-pulse 1s ease-in-out infinite;
+  background: linear-gradient(90deg, var(--bs-accent-dim), var(--bs-accent));
+}
+@keyframes stamina-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* --- Move Cost Badge --- */
+.bs-page .arena-move-btn__cost {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.5rem;
+  font-weight: 700;
+  color: #a78bfa;
+  opacity: 0.7;
+  letter-spacing: 0.03em;
+}
+.bs-page .arena-move-btn--no-stamina {
+  opacity: 0.35;
+  pointer-events: none;
+}
+.bs-page .arena-move-btn--no-stamina .arena-move-btn__cost {
+  color: var(--bs-danger, #ef4444);
+}
+.bs-page .arena-move-btn--exhausted .arena-move-btn__cost {
+  color: var(--bs-accent);
+}
+
 /* --- VS Divider --- */
 .bs-page .arena-battle__vs {
   display: flex;

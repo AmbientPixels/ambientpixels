@@ -332,6 +332,10 @@
                 </div>
                 <div class="arena-hp-bar__text" id="arena-player-hp-text">100 / 100</div>
               </div>
+              <div class="arena-stamina-bar" id="arena-player-stamina-bar" role="progressbar" aria-label="Your stamina">
+                <div class="arena-stamina-bar__fill" id="arena-player-stamina-fill" style="width:100%"></div>
+                <span class="arena-stamina-bar__text" id="arena-player-stamina-text"></span>
+              </div>
               <div class="arena-player-buffs" id="arena-player-buffs"></div>
               <div class="arena-status-row" id="arena-player-status" aria-live="polite"></div>
             </div>
@@ -348,6 +352,10 @@
                   <div class="arena-hp-bar__fill arena-hp-bar__fill--opponent" id="arena-opponent-hp-fill" style="width:100%"></div>
                 </div>
                 <div class="arena-hp-bar__text" id="arena-opponent-hp-text">100 / 100</div>
+              </div>
+              <div class="arena-stamina-bar" id="arena-opponent-stamina-bar" role="progressbar" aria-label="Enemy stamina">
+                <div class="arena-stamina-bar__fill" id="arena-opponent-stamina-fill" style="width:100%"></div>
+                <span class="arena-stamina-bar__text" id="arena-opponent-stamina-text"></span>
               </div>
               <div class="arena-status-row" id="arena-opponent-status" aria-live="polite"></div>
             </div>
@@ -370,6 +378,7 @@
             <span class="arena-move-btn__label">Strike</span>
             <span class="arena-move-btn__stat" id="arena-move-str">STR</span>
             <span class="arena-move-btn__desc">Physical attack</span>
+            <span class="arena-move-btn__cost"></span>
           </button>
           <button class="arena-move-btn arena-move-btn--guard" data-move="guard" aria-label="Guard — reduce incoming damage">
             <div class="arena-move-btn__glow" aria-hidden="true"></div>
@@ -377,6 +386,7 @@
             <span class="arena-move-btn__label">Guard</span>
             <span class="arena-move-btn__stat">Block</span>
             <span class="arena-move-btn__desc">Reduce damage</span>
+            <span class="arena-move-btn__cost"></span>
           </button>
           <button class="arena-move-btn arena-move-btn--ability" data-move="ability" aria-label="Ability — class power using INT">
             <div class="arena-move-btn__glow" aria-hidden="true"></div>
@@ -385,6 +395,7 @@
             <span class="arena-move-btn__stat" id="arena-move-int">INT</span>
             <span class="arena-move-btn__desc" id="arena-ability-desc">Class ability</span>
             <span class="arena-move-btn__charge" id="arena-ability-charge">0/2</span>
+            <span class="arena-move-btn__cost"></span>
           </button>
           <button class="arena-move-btn arena-move-btn--heal" data-move="heal" aria-label="Heal — recover HP using END">
             <div class="arena-move-btn__glow" aria-hidden="true"></div>
@@ -392,6 +403,7 @@
             <span class="arena-move-btn__label">Heal</span>
             <span class="arena-move-btn__stat" id="arena-move-end">END</span>
             <span class="arena-move-btn__desc">END recovery</span>
+            <span class="arena-move-btn__cost"></span>
           </button>
           <button class="arena-move-btn arena-move-btn--counter" data-move="counter" aria-label="Counter — deflect strike back at enemy">
             <div class="arena-move-btn__glow" aria-hidden="true"></div>
@@ -399,6 +411,7 @@
             <span class="arena-move-btn__label">Counter</span>
             <span class="arena-move-btn__stat">Reflect</span>
             <span class="arena-move-btn__desc">Deflect strike</span>
+            <span class="arena-move-btn__cost"></span>
           </button>
         </div>
       </div>
@@ -446,7 +459,11 @@
             <p class="bs-guide-combo-hint">Watch for the amber glow on move buttons — it means a combo is ready!</p>
           </div>
           <div class="bs-guide-section">
-            <p style="font-size:0.75rem; color:var(--bs-text-muted); margin:0;"><strong style="color:var(--bs-accent);">Stats:</strong> STR = strike power, AGI = speed + dodge, INT = ability power, END = heal + HP, LCK = crit chance</p>
+            <h3 class="bs-guide-section__title"><i class="fas fa-bolt"></i> Stamina</h3>
+            <p class="bs-text-sm" style="color:var(--bs-text-muted); margin:0;">Every move costs stamina. Guard (1) is cheapest, Ability (4) is most expensive. Stamina regenerates each round. Below 3 = exhausted (30% weaker).</p>
+          </div>
+          <div class="bs-guide-section">
+            <p style="font-size:0.75rem; color:var(--bs-text-muted); margin:0;"><strong style="color:var(--bs-accent);">Stats:</strong> STR = strike power, AGI = speed + dodge, INT = ability power, END = heal + HP + stamina, LCK = crit chance</p>
           </div>
         </div>
       </div>

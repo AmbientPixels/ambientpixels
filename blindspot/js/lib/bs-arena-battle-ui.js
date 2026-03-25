@@ -90,6 +90,14 @@ window.ArenaBattleUI = (function () {
 
     // Render active buff passives under player card
     renderActiveBuffs(battleData.player.passives);
+
+    // Stamina system init
+    _battleData.stamina = battleData.stamina || null;
+    _battleData.maxStamina = battleData.maxStamina || null;
+    if (_battleData.stamina && _battleData.maxStamina) {
+      updateStaminaBars(_battleData.stamina.player, _battleData.maxStamina.player, _battleData.stamina.opponent, _battleData.maxStamina.opponent);
+      updateMoveCosts(_battleData.stamina.player);
+    }
   }
 
   function renderActiveBuffs(passives) {
@@ -155,6 +163,43 @@ window.ArenaBattleUI = (function () {
     // Color shifts at low HP
     if (playerFill) playerFill.classList.toggle('arena-hp-bar__fill--low', playerPct < 30);
     if (opponentFill) opponentFill.classList.toggle('arena-hp-bar__fill--low', opponentPct < 30);
+  }
+
+  function updateStaminaBars(pStam, pMax, oStam, oMax) {
+    var pFill = document.getElementById('arena-player-stamina-fill');
+    var oFill = document.getElementById('arena-opponent-stamina-fill');
+    var pText = document.getElementById('arena-player-stamina-text');
+    var oText = document.getElementById('arena-opponent-stamina-text');
+    var pBar = document.getElementById('arena-player-stamina-bar');
+    var oBar = document.getElementById('arena-opponent-stamina-bar');
+    var threshold = (window.BsConst && BsConst.STAMINA_EXHAUSTION_THRESHOLD) || 3;
+
+    var pPct = pMax > 0 ? Math.max(0, Math.min(100, (pStam / pMax) * 100)) : 0;
+    var oPct = oMax > 0 ? Math.max(0, Math.min(100, (oStam / oMax) * 100)) : 0;
+
+    if (pFill) pFill.style.width = pPct + '%';
+    if (oFill) oFill.style.width = oPct + '%';
+    if (pText) pText.textContent = pStam + ' / ' + pMax;
+    if (oText) oText.textContent = oStam + ' / ' + oMax;
+    if (pBar) pBar.classList.toggle('arena-stamina-bar--exhausted', pStam < threshold);
+    if (oBar) oBar.classList.toggle('arena-stamina-bar--exhausted', oStam < threshold);
+  }
+
+  function updateMoveCosts(playerStamina) {
+    var costs = (window.BsConst && BsConst.STAMINA_COSTS) || { strike: 3, guard: 1, heal: 2, counter: 3, ability: 4 };
+    var threshold = (window.BsConst && BsConst.STAMINA_EXHAUSTION_THRESHOLD) || 3;
+    document.querySelectorAll('.arena-move-btn[data-move]').forEach(function(btn) {
+      var move = btn.getAttribute('data-move');
+      var cost = costs[move] || 2;
+      var costEl = btn.querySelector('.arena-move-btn__cost');
+      if (costEl) costEl.textContent = '\u26A1' + cost;
+      // Hard-block Ability if can't afford
+      if (move === 'ability') {
+        btn.classList.toggle('arena-move-btn--no-stamina', playerStamina < cost);
+      }
+      // Exhaustion visual warning on all buttons
+      btn.classList.toggle('arena-move-btn--exhausted', playerStamina < threshold);
+    });
   }
 
   function updateRoundLabel(round) {
@@ -745,6 +790,14 @@ window.ArenaBattleUI = (function () {
     // ── Phase 3: Resolution ───────────────────────────────────────────────
     // HP bars update after both attacks for clean readability
     updateHpBars(result.playerHp, _battleData.player.maxHp, result.opponentHp, _battleData.opponent.maxHp);
+
+    // Update stamina bars + move costs from round result
+    if (result.stamina) {
+      _battleData.stamina = { player: result.stamina.player, opponent: result.stamina.opponent };
+      _battleData.maxStamina = { player: result.stamina.playerMax, opponent: result.stamina.opponentMax };
+      updateStaminaBars(result.stamina.player, result.stamina.playerMax, result.stamina.opponent, result.stamina.opponentMax);
+      updateMoveCosts(result.stamina.player);
+    }
 
     // Log events (matchup results, crits, heals, buffs)
     if (result.events && result.events.length > 0) {

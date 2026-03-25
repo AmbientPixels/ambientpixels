@@ -193,6 +193,7 @@ function computeStatThresholdPassives(combatStats) {
 
   // INT passives
   if ((cs.int || 0) >= 60) passives.push({ source: 'stat:int60', effect: 'ability_discount', value: 1 }); // Ability costs 1 charge
+  if ((cs.int || 0) >= 60) passives.push({ source: 'stat:int60', effect: 'ability_stamina_discount', value: 1 }); // Ability costs 1 less stamina
   if ((cs.int || 0) >= 80) passives.push({ source: 'stat:int80', effect: 'ability_power', value: 30 }); // +30% ability damage
 
   // END passives
@@ -347,7 +348,7 @@ function resolveClassAbility(abilityKey, combatStats, opponentMove, config, even
   return { damage, heal, tempEffect, alwaysFirst };
 }
 
-function generateBossMove(boss, round, currentHp, maxHp, opponentCharges) {
+function generateBossMove(boss, round, currentHp, maxHp, opponentCharges, bossStamina, bossMaxStamina) {
   const config = loadArenaConfig();
   const pattern = config.aiPatterns[boss.arenaOverrides?.aiPattern || 'balanced'];
   let weights = { ...pattern };
@@ -365,6 +366,21 @@ function generateBossMove(boss, round, currentHp, maxHp, opponentCharges) {
     weights.ability = 0;
   }
 
+  // Stamina awareness: reduce weight for moves boss can't afford, boost Guard when low
+  if (bossStamina !== undefined) {
+    const sc = config.staminaConfig || {};
+    const costs = sc.costs || {};
+    ['strike', 'guard', 'ability', 'heal', 'counter'].forEach(function(m) {
+      const cost = costs[m] || 2;
+      if (bossStamina < cost) {
+        weights[m] = Math.max(0, (weights[m] || 0) * 0.2);
+      }
+    });
+    if (bossMaxStamina && bossStamina < bossMaxStamina * 0.25) {
+      weights.guard = (weights.guard || 0) + 15;
+    }
+  }
+
   const counterWeight = weights.counter || 8;
   const total = weights.strike + weights.guard + weights.ability + (weights.heal || 0) + counterWeight;
   const roll = Math.random() * total;
@@ -376,9 +392,18 @@ function generateBossMove(boss, round, currentHp, maxHp, opponentCharges) {
   return 'counter';
 }
 
-function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffects) {
+function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffects, staminaState) {
   const config = loadArenaConfig();
   const events = [];
+
+  // Stamina exhaustion penalty (30% damage/heal reduction when below threshold)
+  const sc = config.staminaConfig || {};
+  const exhaustionThreshold = sc.exhaustionThreshold || 3;
+  const exhaustionPenalty = sc.exhaustionPenalty || 0.7;
+  const playerExhausted = staminaState && staminaState.player < exhaustionThreshold;
+  const opponentExhausted = staminaState && staminaState.opponent < exhaustionThreshold;
+  if (playerExhausted) events.push('⚡ You are exhausted! Moves deal 30% less.');
+  if (opponentExhausted) events.push('⚡ Enemy is exhausted! Their moves deal 30% less.');
 
   // Move label map for round header
   const moveLabels = { strike: 'Strike', guard: 'Guard', ability: 'Ability', heal: 'Heal', counter: 'Counter' };
@@ -760,6 +785,16 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     opponentHeal += opponentRegenBonus;
   }
 
+  // Stamina exhaustion: reduce outgoing damage/heal by 30% when exhausted
+  if (playerExhausted) {
+    opponentDamageTaken = Math.floor(opponentDamageTaken * exhaustionPenalty);
+    playerHeal = Math.floor(playerHeal * exhaustionPenalty);
+  }
+  if (opponentExhausted) {
+    playerDamageTaken = Math.floor(playerDamageTaken * exhaustionPenalty);
+    opponentHeal = Math.floor(opponentHeal * exhaustionPenalty);
+  }
+
   // Round summary line
   const parts = [];
   if (opponentDamageTaken > 0) parts.push(`dealt ${opponentDamageTaken} dmg`);
@@ -994,6 +1029,13 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
 
   const cc = config.chargeConfig || {};
 
+  // Stamina pool: basePool + floor(END / endPoolBonus), regen: baseRegen + floor(END / endRegenDiv)
+  const stc = config.staminaConfig || {};
+  const playerMaxStamina = (stc.basePool || 15) + Math.floor((playerCombat.end || 0) / (stc.endPoolBonus || 10));
+  const opponentMaxStamina = (stc.basePool || 15) + Math.floor((opponentCombat.end || 0) / (stc.endPoolBonus || 10));
+  const playerStaminaRegen = (stc.baseRegen || 2) + Math.floor((playerCombat.end || 0) / (stc.endRegenDiv || 40));
+  const opponentStaminaRegen = (stc.baseRegen || 2) + Math.floor((opponentCombat.end || 0) / (stc.endRegenDiv || 40));
+
   // Boss weakness: if boss has a weakness stat, player gets +20% damage when using that stat
   const bossWeakness = opponentCard.weakness || null;
   if (bossWeakness && type === 'pve') {
@@ -1052,6 +1094,9 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
     },
     charges: { player: cc.startCharges || 0, opponent: cc.startCharges || 0 },
     chargeRate: { player: playerChargeRate, opponent: opponentChargeRate },
+    stamina: { player: playerMaxStamina, opponent: opponentMaxStamina },
+    maxStamina: { player: playerMaxStamina, opponent: opponentMaxStamina },
+    staminaRegen: { player: playerStaminaRegen, opponent: opponentStaminaRegen },
     tempEffects: { player: [], opponent: [] },
     adventureItems: [],
     roundLog: [],
@@ -1109,11 +1154,26 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
       chargeRate: playerChargeRate,
       abilityCost: Math.max(1, (cc.abilityCost || 2) - getPassiveValue(playerPassives, 'ability_discount')),
       maxCharges: cc.maxCharges || 4,
+      stamina: { player: playerMaxStamina, opponent: opponentMaxStamina },
+      maxStamina: { player: playerMaxStamina, opponent: opponentMaxStamina },
+      staminaRegen: { player: playerStaminaRegen, opponent: opponentStaminaRegen },
       currentRound: 1,
       totalRounds: config.totalRounds,
       status: 'active'
     }
   };
+}
+
+// --- Stamina cost helper ---
+function getStaminaCost(move, passives, config) {
+  const sc = config.staminaConfig || {};
+  const costs = sc.costs || { strike: 3, guard: 1, heal: 2, counter: 3, ability: 4 };
+  let cost = costs[move] || 2;
+  // INT 60+ Focused: Ability costs 1 less stamina
+  if (move === 'ability' && getPassiveValue(passives, 'ability_stamina_discount') > 0) {
+    cost = Math.max(1, cost - 1);
+  }
+  return cost;
 }
 
 // --- Action: move ---
@@ -1168,6 +1228,15 @@ async function handleMove(context, containerClient, userId, body) {
     }
   }
 
+  // Stamina validation: hard-block Ability if can't afford (other moves use soft exhaustion penalty)
+  if (move === 'ability' && battle.stamina) {
+    const playerStaminaCost = getStaminaCost(move, player.passives || [], config);
+    if (battle.stamina.player < playerStaminaCost) {
+      context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'Not enough stamina for Ability' } };
+      return;
+    }
+  }
+
   // Mirror passive — boss copies player's last move
   let opponentMove;
   if (battle._mirrorNextMove) {
@@ -1177,7 +1246,9 @@ async function handleMove(context, containerClient, userId, body) {
     // Generate opponent move on-the-fly (charge-aware)
     opponentMove = generateBossMove(
       battle.type === 'pve' ? { arenaOverrides: opponent.arenaOverrides || { aiPattern: 'balanced' }, combatStats: opponent.combatStats } : { arenaOverrides: { aiPattern: 'balanced' } },
-      round, opponent.hp, opponent.maxHp, battle.charges.opponent
+      round, opponent.hp, opponent.maxHp, battle.charges.opponent,
+      battle.stamina ? battle.stamina.opponent : undefined,
+      battle.maxStamina ? battle.maxStamina.opponent : undefined
     );
   } else {
     opponentMove = opponent.moves[round - 1] || 'strike';
@@ -1188,7 +1259,8 @@ async function handleMove(context, containerClient, userId, body) {
     { combatStats: player.combatStats, passives: player.passives, maxHp: player.maxHp, abilityKey: player.abilityKey },
     { combatStats: opponent.combatStats, passives: opponent.passives, maxHp: opponent.maxHp, abilityKey: opponent.abilityKey,
       bossResistances: opponent.bossResistances || {}, bossWeaknesses: opponent.bossWeaknesses || {} },
-    move, opponentMove, battle.tempEffects
+    move, opponentMove, battle.tempEffects,
+    battle.stamina ? { player: battle.stamina.player, opponent: battle.stamina.opponent } : null
   );
 
   // B4: Crowd Boost — hype meter filled by crits/streaks/stuns, +15% dmg when spent
@@ -1349,6 +1421,31 @@ async function handleMove(context, containerClient, userId, body) {
     battle.charges.opponent = Math.max(0, battle.charges.opponent);
   }
 
+  // Update stamina: regen first, then deduct costs
+  if (battle.stamina) {
+    // AGI 60+ (speed_priority) = first move costs 1 less stamina
+    let pCost = getStaminaCost(move, player.passives || [], config);
+    let oCost = getStaminaCost(opponentMove, opponent.passives || [], config);
+    if (getPassiveValue(player.passives || [], 'speed_priority') > 0) pCost = Math.max(1, pCost - 1);
+    if (getPassiveValue(opponent.passives || [], 'speed_priority') > 0) oCost = Math.max(1, oCost - 1);
+
+    // Regen
+    battle.stamina.player = Math.min(battle.maxStamina.player, battle.stamina.player + battle.staminaRegen.player);
+    battle.stamina.opponent = Math.min(battle.maxStamina.opponent, battle.stamina.opponent + battle.staminaRegen.opponent);
+
+    // Deduct
+    battle.stamina.player = Math.max(0, battle.stamina.player - pCost);
+    battle.stamina.opponent = Math.max(0, battle.stamina.opponent - oCost);
+
+    // LCK crit refund — both sides
+    if (result.events.some(function(e) { return e.includes('Your') && e.includes('critical hit'); })) {
+      battle.stamina.player = Math.min(battle.maxStamina.player, battle.stamina.player + 1);
+    }
+    if (result.events.some(function(e) { return e.includes('Enemy') && e.includes('critical hit'); })) {
+      battle.stamina.opponent = Math.min(battle.maxStamina.opponent, battle.stamina.opponent + 1);
+    }
+  }
+
   // Update temp effects: replace with new ones from this round
   if (battle.tempEffects) {
     battle.tempEffects = result.newTempEffects || { player: [], opponent: [] };
@@ -1413,7 +1510,13 @@ async function handleMove(context, containerClient, userId, body) {
     playerCounterReflect: result.playerCounterReflect,
     opponentCounterReflect: result.opponentCounterReflect,
     itemUsed: itemUsed,
-    comboTriggered: comboTriggered
+    comboTriggered: comboTriggered,
+    stamina: battle.stamina ? {
+      player: battle.stamina.player,
+      opponent: battle.stamina.opponent,
+      playerMax: battle.maxStamina.player,
+      opponentMax: battle.maxStamina.opponent
+    } : undefined
   };
 
   battle.roundLog.push(roundResult);
