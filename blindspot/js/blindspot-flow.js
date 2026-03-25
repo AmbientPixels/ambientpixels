@@ -1459,13 +1459,6 @@
       });
     }
 
-    const titleEl = document.getElementById('bs-card-title');
-    const title = getCardTitle();
-    if (titleEl) {
-      titleEl.textContent = title || '';
-      titleEl.style.display = title ? '' : 'none';
-    }
-
     // Next unlock teasers (lobby context)
     var teasersEl = document.getElementById('bs-unlock-teasers');
     if (teasersEl) {
