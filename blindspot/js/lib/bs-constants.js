@@ -107,6 +107,29 @@ window.BsConst = (function () {
   var WEAKNESS_LABELS = { str: 'STR', agi: 'AGI', int: 'INT', end: 'END', lck: 'LCK' };
   var WEAKNESS_COLORS = { str: '#ff5252', agi: '#00e676', int: '#7b2fff', end: '#ff9100', lck: '#ffd740' };
 
+  // Card border evolution tiers (based on per-card wins)
+  var BORDER_TIERS = [
+    { id: 'plain',    minWins: 0,  label: 'Untempered', color: 'var(--bs-border)' },
+    { id: 'bronze',   minWins: 5,  label: 'Bronze',     color: '#CD7F32' },
+    { id: 'silver',   minWins: 15, label: 'Silver',     color: '#C0C0C0' },
+    { id: 'gold',     minWins: 30, label: 'Gold',       color: '#FFD700' },
+    { id: 'platinum', minWins: 50, label: 'Platinum',   color: '#E5E4E2' },
+    { id: 'radiant',  minWins: 100,label: 'Radiant',    color: '#B9F2FF' }
+  ];
+
+  // Card title milestones — earned per card based on card history
+  var CARD_TITLE_MILESTONES = [
+    { id: 'first_blood',   wins: 1,   title: 'Blooded',           desc: 'Win your first battle' },
+    { id: 'proven',        wins: 10,  title: 'Proven',            desc: 'Win 10 battles' },
+    { id: 'veteran',       wins: 25,  title: 'Veteran',           desc: 'Win 25 battles' },
+    { id: 'champion',      wins: 50,  title: 'Champion',          desc: 'Win 50 battles' },
+    { id: 'legend',        wins: 100, title: 'Legend',             desc: 'Win 100 battles' },
+    { id: 'streak5',       bestStreak: 5,  title: 'Hot Streak',   desc: '5-win streak' },
+    { id: 'streak10',      bestStreak: 10, title: 'Unstoppable',  desc: '10-win streak' },
+    { id: 'boss_slayer',   bossesBeaten: 5,  title: 'Boss Slayer',  desc: 'Defeat 5 bosses' },
+    { id: 'conqueror',     bossesBeaten: 10, title: 'Conqueror',    desc: 'Defeat all 10 bosses' }
+  ];
+
   var MOVE_BEATS = {
     strike:  ['heal', 'ability'],
     guard:   ['strike'],
@@ -223,7 +246,7 @@ window.BsConst = (function () {
     STAT_PASSIVES: STAT_PASSIVES, MOVE_UPGRADES: MOVE_UPGRADES, ARCHETYPES: ARCHETYPES,
     WEAKNESS_LABELS: WEAKNESS_LABELS, WEAKNESS_COLORS: WEAKNESS_COLORS,
     MOVE_BEATS: MOVE_BEATS, BATTLE_HINTS: BATTLE_HINTS,
-    CARD_RARITIES: CARD_RARITIES,
+    CARD_RARITIES: CARD_RARITIES, BORDER_TIERS: BORDER_TIERS, CARD_TITLE_MILESTONES: CARD_TITLE_MILESTONES,
     MASTERY_TIERS: MASTERY_TIERS, PALETTE_UNLOCK_BOSSES: PALETTE_UNLOCK_BOSSES, STREAK_MILESTONES: STREAK_MILESTONES,
     LOOT_TABLE: LOOT_TABLE, CRATE_RARITY_COLORS: CRATE_RARITY_COLORS,
     RC_STAT_DEFS: RC_STAT_DEFS,

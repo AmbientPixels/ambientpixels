@@ -1569,12 +1569,50 @@ async function finalizeBattle(context, containerClient, userId, battle, result) 
 
   await uploadJsonBlob(containerClient, profilePath, profile);
 
+  // Per-card battle history tracking
+  const playerCardId = battle.player1.cardId;
+  if (playerCardId) {
+    if (!profile.cardHistory) profile.cardHistory = {};
+    if (!profile.cardHistory[playerCardId]) {
+      profile.cardHistory[playerCardId] = { wins: 0, losses: 0, bossesBeaten: [], bestStreak: 0, currentStreak: 0, nemesis: null, nemesisLosses: {} };
+    }
+    const ch = profile.cardHistory[playerCardId];
+    if (result === 'win') {
+      ch.wins++;
+      ch.currentStreak++;
+      if (ch.currentStreak > ch.bestStreak) ch.bestStreak = ch.currentStreak;
+    } else if (result === 'loss') {
+      ch.losses++;
+      ch.currentStreak = 0;
+      // Track nemesis (boss/opponent lost to most)
+      const nemKey = battle.player2.cardSnapshot.name || 'Unknown';
+      if (!ch.nemesisLosses) ch.nemesisLosses = {};
+      ch.nemesisLosses[nemKey] = (ch.nemesisLosses[nemKey] || 0) + 1;
+      // Update nemesis to whoever has the most losses
+      let maxLosses = 0; let topNemesis = null;
+      for (const k in ch.nemesisLosses) {
+        if (ch.nemesisLosses[k] > maxLosses) { maxLosses = ch.nemesisLosses[k]; topNemesis = k; }
+      }
+      ch.nemesis = topNemesis;
+    }
+    // Track bosses beaten by this card
+    if (type === 'pve' && result === 'win') {
+      const bossName = battle.player2.cardSnapshot.name;
+      if (bossName && ch.bossesBeaten.indexOf(bossName) === -1) {
+        ch.bossesBeaten.push(bossName);
+      }
+    }
+    // Re-upload profile with cardHistory (profile was already uploaded above, re-upload)
+    await uploadJsonBlob(containerClient, profilePath, profile);
+  }
+
   // Append to match history
   const historyPath = `arena/history/${userId}.json`;
   let history = await downloadJsonBlob(containerClient, historyPath) || [];
   history.unshift({
     battleId: battle.battleId,
     type,
+    playerCardId: playerCardId || null,
     opponentName: battle.player2.cardSnapshot.name,
     opponentAvatar: battle.player2.cardSnapshot.avatar,
     opponentClass: battle.player2.cardSnapshot.class,
@@ -1599,6 +1637,7 @@ async function finalizeBattle(context, containerClient, userId, battle, result) 
     newLevel: profile.level,
     newRank,
     rankUp,
-    record: profile.record
+    record: profile.record,
+    cardHistory: playerCardId && profile.cardHistory ? profile.cardHistory[playerCardId] : null
   };
 }

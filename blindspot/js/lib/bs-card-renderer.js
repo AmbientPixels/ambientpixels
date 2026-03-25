@@ -51,6 +51,34 @@ window.BsCardRenderer = (function () {
     });
   }
 
+  function getCardBorderTier(cardId) {
+    var tiers = (_C.BORDER_TIERS || []);
+    if (!tiers.length) return null;
+    var prog = window.BsState ? window.BsState.progress : {};
+    var ch = cardId && prog.cardHistory ? prog.cardHistory[cardId] : null;
+    var wins = ch ? (ch.wins || 0) : 0;
+    var tier = tiers[0];
+    for (var i = 0; i < tiers.length; i++) {
+      if (wins >= tiers[i].minWins) tier = tiers[i];
+    }
+    return tier;
+  }
+
+  function getCardEarnedTitles(cardId) {
+    var milestones = (_C.CARD_TITLE_MILESTONES || []);
+    var prog = window.BsState ? window.BsState.progress : {};
+    var ch = cardId && prog.cardHistory ? prog.cardHistory[cardId] : null;
+    if (!ch) return [];
+    var earned = [];
+    for (var i = 0; i < milestones.length; i++) {
+      var m = milestones[i];
+      if (m.wins && (ch.wins || 0) >= m.wins) earned.push(m);
+      else if (m.bestStreak && (ch.bestStreak || 0) >= m.bestStreak) earned.push(m);
+      else if (m.bossesBeaten && ch.bossesBeaten && ch.bossesBeaten.length >= m.bossesBeaten) earned.push(m);
+    }
+    return earned;
+  }
+
   function getCardPower(card) {
     if (!card) return 0;
     if (card.combatStats) {
@@ -119,7 +147,20 @@ window.BsCardRenderer = (function () {
       ? '<span class="bs-rc__title-badge">' + escHtml(titleText) + '</span>'
       : '';
 
-    return '<div class="bs-rendered-card bs-rc--' + size + '" data-palette="' + escHtml(palette) + '" data-container="' + escHtml(container) + '" data-rarity="' + escHtml(rarity) + '">'
+    // Border evolution tier based on per-card battle history
+    var cardId = card.id || '';
+    var borderTier = getCardBorderTier(cardId);
+    var borderAttr = borderTier ? ' data-border-tier="' + borderTier.id + '"' : '';
+
+    // Best earned title for this card (last = highest)
+    var earnedTitles = getCardEarnedTitles(cardId);
+    var bestEarnedTitle = earnedTitles.length > 0 ? earnedTitles[earnedTitles.length - 1] : null;
+    // Earned title overrides cosmetic/progression title if it's more impressive
+    if (bestEarnedTitle && !titleText) {
+      titleHTML = '<span class="bs-rc__title-badge">' + escHtml(bestEarnedTitle.title) + '</span>';
+    }
+
+    return '<div class="bs-rendered-card bs-rc--' + size + '" data-palette="' + escHtml(palette) + '" data-container="' + escHtml(container) + '" data-rarity="' + escHtml(rarity) + '"' + borderAttr + '>'
       + '<div class="bs-rc__art">' + avatarHTML + titleHTML + '</div>'
       + '<div class="bs-rc__info">'
       + '<span class="bs-rc__name">' + escHtml(name) + '</span>'
@@ -133,6 +174,8 @@ window.BsCardRenderer = (function () {
   return {
     render: renderCardHTML,
     ensureCombatStats: ensureCombatStats,
-    getCardPower: getCardPower
+    getCardPower: getCardPower,
+    getCardBorderTier: getCardBorderTier,
+    getCardEarnedTitles: getCardEarnedTitles
   };
 })();

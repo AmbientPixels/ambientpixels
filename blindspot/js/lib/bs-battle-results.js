@@ -283,6 +283,15 @@
 
     loadProfile().then(function() { updateRankDisplay(); });
 
+    // Per-card battle history — update from server response
+    if (battleResult.cardHistory && _selectedCard && _selectedCard.id) {
+      var _prog = window.BsState ? window.BsState.progress : null;
+      if (_prog) {
+        if (!_prog.cardHistory) _prog.cardHistory = {};
+        _prog.cardHistory[_selectedCard.id] = battleResult.cardHistory;
+      }
+    }
+
     // Win streak tracking
     if (isWin) {
       incrementTotalWins();

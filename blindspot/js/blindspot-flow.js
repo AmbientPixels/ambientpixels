@@ -1305,9 +1305,24 @@
         ascHtml
       ].filter(Boolean);
 
+      // Per-card history line
+      let cardHistoryHtml = '';
+      const cardId = _selectedCard ? _selectedCard.id : null;
+      const _chProg = window.BsState ? window.BsState.progress : {};
+      const _ch = cardId && _chProg.cardHistory ? _chProg.cardHistory[cardId] : null;
+      if (_ch && (_ch.wins > 0 || _ch.losses > 0)) {
+        const chParts = [];
+        chParts.push(`<span data-tooltip="This card's battles"><i class="fas fa-swords" style="font-size:0.6rem;"></i> ${_ch.wins}W / ${_ch.losses}L</span>`);
+        if (_ch.bestStreak > 1) chParts.push(`<span data-tooltip="Best win streak with this card"><i class="fas fa-fire"></i> ${_ch.bestStreak} best</span>`);
+        if (_ch.bossesBeaten && _ch.bossesBeaten.length > 0) chParts.push(`<span data-tooltip="Unique bosses defeated by this card"><i class="fas fa-crown"></i> ${_ch.bossesBeaten.length} bosses</span>`);
+        if (_ch.nemesis) chParts.push(`<span data-tooltip="Lost to this opponent the most" style="color:var(--bs-danger,#ff5252);"><i class="fas fa-skull-crossbones"></i> ${_ch.nemesis}</span>`);
+        cardHistoryHtml = `<div class="bs-hud-line bs-hud-line--card">${chParts.join('<span class="bs-hud-sep" aria-hidden="true">·</span>')}</div>`;
+      }
+
       statsEl.innerHTML = `
         <div class="bs-hud-line bs-hud-line--primary">${primaryParts.join('<span class="bs-hud-sep" aria-hidden="true">·</span>')}</div>
         ${secondaryParts.length ? '<div class="bs-hud-line bs-hud-line--secondary">' + secondaryParts.join('<span class="bs-hud-sep" aria-hidden="true">·</span>') + '</div>' : ''}
+        ${cardHistoryHtml}
       `;
     }
 
