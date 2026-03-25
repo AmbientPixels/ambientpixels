@@ -106,6 +106,20 @@ window.BsCardSwitcher = (function () {
         if (_cb.showNewCardClassPicker) _cb.showNewCardClassPicker();
       });
     }
+
+    // Share Card button — show when player has a card
+    var shareBtn = document.getElementById('bs-share-card-btn');
+    if (shareBtn) {
+      var hasCard = _cb.getSelectedCard && _cb.getSelectedCard();
+      shareBtn.style.display = hasCard ? '' : 'none';
+      if (hasCard && !shareBtn._bound) {
+        shareBtn._bound = true;
+        shareBtn.addEventListener('click', function () {
+          var card = _cb.getSelectedCard ? _cb.getSelectedCard() : null;
+          if (card && window.BsCardShare) window.BsCardShare.showShareModal(card);
+        });
+      }
+    }
   }
 
   function setCallbacks(cbs) { _cb = cbs; }

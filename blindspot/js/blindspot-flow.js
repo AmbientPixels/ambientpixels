@@ -960,6 +960,7 @@
   if (_Sw.setCallbacks) _Sw.setCallbacks({
     getDeck: getDeck, getDeckSize: getDeckSize, getSelectedCardIndex: getSelectedCardIndex,
     getConfig: function() { return _config; },
+    getSelectedCard: function() { return _selectedCard; },
     setActiveCard: function(card) { _selectedCard = card; ensureCombatStats(_selectedCard); _progress.selectedCardId = _selectedCard.id; syncProgressToServer(); },
     renderLobby: function() { renderLobby(); },
     isForgeUnlocked: isForgeUnlocked, isForgePending: isForgePending,
