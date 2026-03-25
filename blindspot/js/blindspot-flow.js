@@ -1569,6 +1569,7 @@
     if (container) {
       container.classList.toggle('bs-forge-progress--ready', ready);
       container.onclick = ready ? () => openForgeScreen(false, true) : null;
+      container.title = ready ? 'Open Card Forge' : 'Customize your card\u2019s stats, palette, art & name. Win ' + needed + ' campaign fights to unlock.';
     }
   }
 

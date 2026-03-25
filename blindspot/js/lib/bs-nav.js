@@ -108,17 +108,6 @@
     document.getElementById('bs-combat-help-btn')?.addEventListener('click', () => { _cb.showOverlay('bs-combat-guide'); });
     document.getElementById('bs-combat-guide-close')?.addEventListener('click', () => { _cb.hideOverlay('bs-combat-guide'); });
 
-    // Forge help tip toggle
-    document.getElementById('bs-forge-help-btn')?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      var tip = document.getElementById('bs-forge-help-tip');
-      if (tip) tip.classList.toggle('bs-forge-help-tip--hidden');
-    });
-    document.getElementById('bs-forge-help-tip-close')?.addEventListener('click', () => {
-      var tip = document.getElementById('bs-forge-help-tip');
-      if (tip) tip.classList.add('bs-forge-help-tip--hidden');
-    });
-
     // Pre-fight retreat
     document.getElementById('bs-prefight-retreat')?.addEventListener('click', () => {
       _cb.hideOverlay('bs-prefight-overlay');
