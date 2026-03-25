@@ -122,7 +122,7 @@
     "endRegenDiv": 50,
     "exhaustionThreshold": 3,
     "exhaustionPenalty": 0.7,
-    "costs": { "strike": 5, "guard": 1, "heal": 3, "counter": 5, "ability": 7 }
+    "costs": { "strike": 4, "guard": 1, "heal": 2, "counter": 4, "ability": 5 }
   },
   "validClasses": ["Fighter", "Enforcer", "Berserker", "Caster", "Hacker", "Scholar", "Scout", "Rogue", "Pilot", "Guardian", "Medic", "Trickster", "Wildcard"],
   "classAdvantages": {
