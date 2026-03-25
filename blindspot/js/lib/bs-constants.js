@@ -229,6 +229,20 @@ window.BsConst = (function () {
     counter: 'The boss countered — Ability bypasses counters!'
   };
 
+  // ── Async PvP ──
+
+  var ASYNC_PVP = {
+    ELO_K_ATTACKER: 32,
+    ELO_K_DEFENDER: 16,         // Halved — defenders didn't choose the fight
+    CHALLENGE_COOLDOWN_MS: 2 * 60 * 60 * 1000, // 2hr per defender
+    INBOX_CAP: 50,
+    PASSIVE_SPARKS: 2,          // Earned per defense battle (win or lose)
+    REVENGE_BONUS: 1.5,         // 50% sparks bonus on revenge wins
+    SPARKS_WIN_BASE: 20,
+    SPARKS_LOSS_BASE: 5,
+    STALE_DAYS: 7               // Auto-withdraw after 7 days inactive
+  };
+
   var TUTORIAL_HINTS = [
     { move: 'strike',  text: 'Strike \u2014 basic attack. Deals STR damage. Disrupts enemy heals.' },
     { move: 'guard',   text: 'Guard \u2014 blocks 60% of strikes. Use when they attack.' },
@@ -251,6 +265,7 @@ window.BsConst = (function () {
     LOOT_TABLE: LOOT_TABLE, CRATE_RARITY_COLORS: CRATE_RARITY_COLORS,
     RC_STAT_DEFS: RC_STAT_DEFS,
     TUTORIAL_MAX_BATTLES: TUTORIAL_MAX_BATTLES, TUTORIAL_ROUND1_HINTS: TUTORIAL_ROUND1_HINTS, TUTORIAL_COUNTER_HINTS: TUTORIAL_COUNTER_HINTS,
-    TUTORIAL_HINTS: TUTORIAL_HINTS
+    TUTORIAL_HINTS: TUTORIAL_HINTS,
+    ASYNC_PVP: ASYNC_PVP
   };
 })();

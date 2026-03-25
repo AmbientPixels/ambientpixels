@@ -49,7 +49,8 @@ window.BsState = (function () {
     visualUnlocks: ['palette_earth', 'container_masked'],
     bossRecords: {}, masteryClaimed: {}, claimedRewards: [],
     towerClaimed: [], weeklyBoss: {}, challenges: {}, bounties: {},
-    lastDaily: '', cardHistory: {}
+    lastDaily: '', cardHistory: {},
+    defenseCardId: null, asyncInboxCount: 0
   };
   var _progressLoaded = false;
   var _syncInFlight = false;

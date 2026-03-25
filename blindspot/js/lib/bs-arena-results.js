@@ -134,6 +134,50 @@ window.ArenaResults = (function () {
       window._arenaState.profile.record = battleResult.record;
     }
 
+    // Async PvP: show Elo change + Sparks earned
+    if (battleResult.isAsyncPvP) {
+      var asyncInfoEl = document.getElementById('arena-results-async-pvp');
+      if (!asyncInfoEl) {
+        asyncInfoEl = document.createElement('div');
+        asyncInfoEl.id = 'arena-results-async-pvp';
+        asyncInfoEl.style.cssText = 'text-align:center;padding:0.5rem 0;font-size:0.9rem;';
+        var xpSectionEl = document.getElementById('arena-results-xp-section');
+        if (xpSectionEl) xpSectionEl.parentNode.insertBefore(asyncInfoEl, xpSectionEl.nextSibling);
+      }
+      var eloColor = battleResult.eloChange >= 0 ? 'var(--bs-success, #4ade80)' : 'var(--bs-danger, #ff5252)';
+      asyncInfoEl.innerHTML =
+        '<div style="display:flex;justify-content:center;gap:1.5rem;flex-wrap:wrap;">' +
+          '<span style="color:' + eloColor + ';font-weight:600;">' +
+            '<i class="fas fa-chart-line"></i> ' + (battleResult.eloChange >= 0 ? '+' : '') + battleResult.eloChange + ' Elo' +
+          '</span>' +
+          '<span style="color:var(--bs-accent, #00e5ff);font-weight:600;">' +
+            '<i class="fas fa-bolt"></i> +' + (battleResult.sparksEarned || 0) + ' Sparks' +
+          '</span>' +
+          (battleResult.isRevenge ? '<span style="color:var(--bs-danger, #ff5252);"><i class="fas fa-fire"></i> Revenge!</span>' : '') +
+        '</div>';
+      asyncInfoEl.style.display = '';
+
+      // Update Blindspot Elo in BsPvp module
+      if (window.BsPvp) {
+        window.BsPvp.setPvPElo(battleResult.newElo);
+        window.BsPvp.setPvPRecord(battleResult.pvpRecord);
+        window.BsPvp.showEloChange(
+          (battleResult.eloChange >= 0 ? '+' : '') + battleResult.eloChange,
+          eloColor
+        );
+      }
+      // Update Blindspot sparks
+      if (window.BsState && window.BsState.progress) {
+        window.BsState.progress.sparks = (window.BsState.progress.sparks || 0) + (battleResult.sparksEarned || 0);
+        window.BsState.progress.pvpElo = battleResult.newElo;
+        window.BsState.progress.pvpRecord = battleResult.pvpRecord;
+        window.BsState.sync();
+      }
+    } else {
+      var oldAsyncEl = document.getElementById('arena-results-async-pvp');
+      if (oldAsyncEl) oldAsyncEl.style.display = 'none';
+    }
+
     // Refresh effect tier locks so newly earned effects unlock immediately
     if (window.CardForge && window.CardForge.applyEffectLockState) {
       window.CardForge.applyEffectLockState();

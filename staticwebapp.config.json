@@ -184,6 +184,21 @@
       "allowedRoles": ["anonymous"]
     },
     {
+      "route": "/api/blindspotdefensequeue",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/blindspotdefensequeue",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/blindspotasyncbattle",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/blindspotasyncbattle",
+      "allowedRoles": ["anonymous"]
+    },
+    {
+      "route": "/api/blindspotresultsinbox",
+      "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/blindspotresultsinbox",
+      "allowedRoles": ["anonymous"]
+    },
+    {
       "route": "/api/cardforgearenabattle",
       "rewrite": "https://ambientpixels-nova-api.azurewebsites.net/api/cardforgearenabattle",
       "allowedRoles": ["anonymous"]

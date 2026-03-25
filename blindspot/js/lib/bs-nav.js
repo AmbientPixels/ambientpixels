@@ -45,6 +45,9 @@
     document.getElementById('bs-btn-pvp')?.addEventListener('click', () => {
       _cb.showScreen('pvp');
       _cb.renderPvPGallery();
+      if (_cb.initPvPTabs) _cb.initPvPTabs();
+      if (_cb.renderDefenseQueue) _cb.renderDefenseQueue();
+      if (_cb.pollInboxCount) _cb.pollInboxCount();
     });
 
     document.getElementById('bs-btn-leaderboard')?.addEventListener('click', () => {

@@ -77,13 +77,16 @@ window.ArenaAPI = (function () {
       });
     },
     submitMove: function (battleId, round, move, extra) {
-      return apiFetch('arenaBattle', {
+      // Auto-route async PvP battles to the async endpoint
+      var endpoint = (battleId && battleId.indexOf('bs-async-') === 0) ? 'asyncBattle' : 'arenaBattle';
+      return apiFetch(endpoint, {
         method: 'POST',
         body: Object.assign({ action: 'move', battleId: battleId, round: round, move: move }, extra || {})
       });
     },
     forfeitBattle: function (battleId) {
-      return apiFetch('arenaBattle', {
+      var endpoint = (battleId && battleId.indexOf('bs-async-') === 0) ? 'asyncBattle' : 'arenaBattle';
+      return apiFetch(endpoint, {
         method: 'POST',
         body: { action: 'forfeit', battleId: battleId }
       });
@@ -104,6 +107,69 @@ window.ArenaAPI = (function () {
     getPrincipalHeader: async function () {
       var principal = await fetchPrincipal();
       return principal ? { 'X-CF-Auth-Principal': principal } : {};
+    },
+
+    // ── Async PvP: Defense Queue ──
+
+    loadDefenseQueue: function () {
+      return apiFetch('defenseQueue');
+    },
+    registerDefense: function (cardId, cardData) {
+      return apiFetch('defenseQueue', {
+        method: 'POST',
+        body: { action: 'register', cardId: cardId, cardData: cardData }
+      });
+    },
+    withdrawDefense: function () {
+      return apiFetch('defenseQueue', {
+        method: 'POST',
+        body: { action: 'withdraw' }
+      });
+    },
+
+    // ── Async PvP: Battle ──
+
+    startAsyncBattle: function (cardId, defenderId, extra) {
+      return apiFetch('asyncBattle', {
+        method: 'POST',
+        body: Object.assign({ action: 'start', cardId: cardId, defenderId: defenderId }, extra || {})
+      });
+    },
+    submitAsyncMove: function (battleId, round, move) {
+      return apiFetch('asyncBattle', {
+        method: 'POST',
+        body: { action: 'move', battleId: battleId, round: round, move: move }
+      });
+    },
+    forfeitAsyncBattle: function (battleId) {
+      return apiFetch('asyncBattle', {
+        method: 'POST',
+        body: { action: 'forfeit', battleId: battleId }
+      });
+    },
+
+    // ── Async PvP: Results Inbox ──
+
+    loadInbox: function () {
+      return apiFetch('resultsInbox');
+    },
+    dismissResult: function (resultId) {
+      return apiFetch('resultsInbox', {
+        method: 'POST',
+        body: { action: 'dismiss', resultId: resultId }
+      });
+    },
+    dismissAllResults: function () {
+      return apiFetch('resultsInbox', {
+        method: 'POST',
+        body: { action: 'dismissAll' }
+      });
+    },
+    clearReadResults: function () {
+      return apiFetch('resultsInbox', {
+        method: 'POST',
+        body: { action: 'clear' }
+      });
     }
   };
 })();

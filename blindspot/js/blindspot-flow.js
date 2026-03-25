@@ -693,7 +693,8 @@
         showOverlay: showOverlay,
         hideOverlay: hideOverlay,
         renderCharmSelector: renderCharmSelector,
-        startPvPBattle: startPvPBattle
+        startPvPBattle: startPvPBattle,
+        startAsyncBattle: startAsyncBattle
       });
       if (_Rew.setCallbacks) _Rew.setCallbacks({
         getHighestBoss: getHighestBossDefeated, getBestStreak: getBestStreak,
@@ -1630,7 +1631,10 @@
     getBossById: function(id) { return _bossesById[id]; },
     getBossByNumber: function(n) { return _bossesByNumber[n]; },
     isFirstRealFight: function() { return _isFirstRealFight; },
-    clearFirstRealFight: function() { _isFirstRealFight = false; }
+    clearFirstRealFight: function() { _isFirstRealFight = false; },
+    initPvPTabs: function() { if (_Pvp.initPvPTabs) _Pvp.initPvPTabs(); },
+    renderDefenseQueue: function() { if (_Pvp.renderDefenseQueue) _Pvp.renderDefenseQueue(); },
+    pollInboxCount: function() { if (_Pvp.pollInboxCount) _Pvp.pollInboxCount(); }
   });
 
   // ============================================================
@@ -1851,6 +1855,104 @@
       console.error('[Blindspot] PvP error:', err);
       overlay.remove();
       showErrorToast('PvP battle failed.');
+      showScreen('pvp');
+    }
+  }
+
+  // ── Async PvP Battle (defense queue challenges + revenge) ──
+
+  async function startAsyncBattle(defenderId, isRevenge) {
+    if (!_selectedCard) { showErrorToast('Select a card first.'); return; }
+    _battleType = 'async_pvp';
+
+    // Find defender from queue cache
+    var queue = _Pvp.getDefenseQueue ? _Pvp.getDefenseQueue() : [];
+    var defender = queue.find(function(e) { return e.userId === defenderId; });
+
+    // If revenge, defender might not be in queue — get from inbox cache
+    if (!defender && isRevenge) {
+      var inbox = _Pvp.getInbox ? _Pvp.getInbox() : [];
+      var inboxEntry = inbox.find(function(r) { return r.opponentUserId === defenderId; });
+      if (inboxEntry) {
+        defender = {
+          cardName: inboxEntry.opponentName,
+          cardClass: inboxEntry.opponentClass || '',
+          avatar: inboxEntry.opponentAvatar || '',
+          userId: inboxEntry.opponentUserId
+        };
+      }
+    }
+
+    var playerName = _selectedCard.name || 'You';
+    var playerAvatar = _selectedCard.avatar || '';
+    var oppName = defender ? defender.cardName : 'Defender';
+    var oppAvatar = defender ? defender.avatar : '';
+    var oppClass = defender ? (defender.cardClass || '') : '';
+
+    // Matchmaking overlay
+    document.querySelector('.bs-matchmaking')?.remove();
+    var overlay = document.createElement('div');
+    overlay.className = 'bs-overlay bs-matchmaking';
+    overlay.innerHTML =
+      '<div class="bs-mm-content">' +
+        '<div class="bs-mm-vs-row">' +
+          '<div class="bs-mm-fighter bs-mm-fighter--left">' +
+            (playerAvatar ? '<img src="' + escHtml(playerAvatar) + '" alt="" class="bs-mm-fighter__img">' : '<div class="bs-mm-fighter__icon"><i class="fas fa-user"></i></div>') +
+            '<span class="bs-mm-fighter__name">' + escHtml(playerName) + '</span>' +
+          '</div>' +
+          '<div class="bs-mm-vs">' +
+            '<div class="bs-mm-scanner"><div class="bs-spinner" style="width:28px;height:28px;border-width:3px;"></div></div>' +
+            '<span class="bs-mm-vs__text">VS</span>' +
+            '<span style="font-size:0.7rem;color:var(--bs-text-muted);font-family:\'Share Tech Mono\',monospace;">' +
+              (isRevenge ? '<i class="fas fa-fire" style="color:var(--bs-danger);margin-right:0.3em;"></i>Seeking revenge\u2026' : '<i class="fas fa-shield-halved" style="color:var(--bs-accent);margin-right:0.3em;"></i>Challenging defender\u2026') +
+            '</span>' +
+          '</div>' +
+          '<div class="bs-mm-fighter bs-mm-fighter--right bs-mm-fighter--hidden">' +
+            (oppAvatar ? '<img src="' + escHtml(oppAvatar) + '" alt="" class="bs-mm-fighter__img">' : '<div class="bs-mm-fighter__icon"><i class="fas fa-shield-halved"></i></div>') +
+            '<span class="bs-mm-fighter__name">' + escHtml(oppName) + '</span>' +
+            (oppClass ? '<span class="bs-mm-fighter__class">' + escHtml(oppClass) + '</span>' : '') +
+          '</div>' +
+        '</div>' +
+        '<p class="bs-mm-status">' + (isRevenge ? 'Preparing revenge' : 'Connecting to defender') + '<span class="bs-mm-dots"></span></p>' +
+      '</div>';
+    document.body.appendChild(overlay);
+    requestAnimationFrame(function() { overlay.classList.add('bs-matchmaking--active'); });
+
+    if (window.ArenaAudio && window.ArenaBackgrounds) {
+      window.ArenaAudio.playArenaMusic(window.ArenaBackgrounds.getSelected());
+    }
+
+    // Start the async battle API call
+    var battlePromise = window.ArenaAPI.startAsyncBattle(
+      _selectedCard.id, defenderId,
+      { cardData: _selectedCard, isRevenge: isRevenge === true }
+    );
+
+    // Animate reveal
+    await new Promise(function(r) { setTimeout(r, 1500); });
+    var rightFighter = overlay.querySelector('.bs-mm-fighter--right');
+    if (rightFighter) rightFighter.classList.remove('bs-mm-fighter--hidden');
+    var scanner = overlay.querySelector('.bs-mm-scanner');
+    if (scanner) scanner.style.display = 'none';
+    var vsText = overlay.querySelector('.bs-mm-vs__text');
+    if (vsText) vsText.classList.add('bs-mm-vs__text--visible');
+    var statusEl = overlay.querySelector('.bs-mm-status');
+    if (statusEl) statusEl.textContent = isRevenge ? 'Revenge time!' : 'Defender found!';
+
+    await new Promise(function(r) { setTimeout(r, 1500); });
+
+    try {
+      var battleData = await battlePromise;
+      _activeBattle = battleData;
+      overlay.classList.add('bs-matchmaking--exit');
+      setTimeout(function() { overlay.remove(); }, 400);
+      showScreen('battle');
+      window.ArenaBattleUI.initBattle(battleData);
+      updateCombatTooltips();
+    } catch (err) {
+      console.error('[Blindspot] Async PvP error:', err);
+      overlay.remove();
+      showErrorToast(err.message || 'Async PvP battle failed.');
       showScreen('pvp');
     }
   }

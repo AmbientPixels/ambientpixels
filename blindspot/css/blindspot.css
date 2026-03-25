@@ -6108,6 +6108,71 @@ body.bs-battle-active .bs-play {
 }
 
 /* ============================================================
+   ASYNC PVP — Tabs, Defense Queue, Inbox
+   ============================================================ */
+
+.bs-pvp-tabs {
+  display: flex;
+  gap: 2px;
+  padding: 0 1rem;
+  margin-bottom: 0.5rem;
+  border-bottom: 1px solid var(--bs-border, rgba(255,255,255,0.08));
+}
+
+.bs-pvp-tab {
+  flex: 1;
+  padding: 0.6rem 0.5rem;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: var(--bs-text-muted, #888);
+  font-size: 0.8rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+  text-align: center;
+}
+
+.bs-pvp-tab:hover {
+  color: var(--bs-text, #fff);
+}
+
+.bs-pvp-tab--active {
+  color: var(--bs-accent, #00e5ff);
+  border-bottom-color: var(--bs-accent, #00e5ff);
+}
+
+.bs-inbox-badge {
+  display: inline-block;
+  min-width: 16px;
+  height: 16px;
+  line-height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: var(--bs-danger, #ff5252);
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-align: center;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+.bs-pvp-panel {
+  min-height: 100px;
+}
+
+.bs-inbox-unread {
+  background: rgba(0, 229, 255, 0.05);
+  border-left: 2px solid var(--bs-accent, #00e5ff);
+}
+
+@media (max-width: 480px) {
+  .bs-pvp-tabs { padding: 0 0.5rem; }
+  .bs-pvp-tab { font-size: 0.75rem; padding: 0.5rem 0.3rem; }
+}
+
+/* ============================================================
    CHALLENGES
    ============================================================ */
 

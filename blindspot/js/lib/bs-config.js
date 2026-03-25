@@ -18,6 +18,10 @@ window._config.apiEndpoints = {
   arenaHistory: 'cardforgearenahistory',
   arenaLeaderboard: 'cardforgearenaleaderboard',
   blindspotProfile: 'blindspotprofile',
+  // Async PvP endpoints
+  defenseQueue: 'blindspotdefensequeue',
+  asyncBattle: 'blindspotasyncbattle',
+  resultsInbox: 'blindspotresultsinbox',
   // AI generation (shared)
   geminiProxy: 'geminiproxy'
 };
