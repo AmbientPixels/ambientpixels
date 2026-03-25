@@ -1874,6 +1874,60 @@
   color: var(--bs-accent);
 }
 
+/* --- Stance Selector Row --- */
+.bs-page .arena-stance-row {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+.bs-page .arena-stance-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid var(--bs-border);
+  background: var(--bs-surface);
+  color: var(--bs-text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  transition: all 0.2s;
+}
+.bs-page .arena-stance-btn:hover { border-color: var(--bs-accent-dim); }
+.bs-page .arena-stance-btn--active {
+  border-color: var(--bs-accent);
+  color: var(--bs-accent);
+  background: rgba(239, 159, 39, 0.1);
+}
+.bs-page .arena-stance-btn[data-stance="aggressive"].arena-stance-btn--active {
+  border-color: #ef4444;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+.bs-page .arena-stance-btn[data-stance="defensive"].arena-stance-btn--active {
+  border-color: #3b82f6;
+  color: #3b82f6;
+  background: rgba(59, 130, 246, 0.1);
+}
+
+/* --- Boss Stance Indicator --- */
+.bs-page .arena-boss-stance {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-size: 0.55rem;
+  border: 1px solid var(--bs-border);
+  margin-left: 0.35rem;
+  vertical-align: middle;
+}
+.bs-page .arena-boss-stance--aggressive { color: #ef4444; border-color: #ef4444; }
+.bs-page .arena-boss-stance--defensive { color: #3b82f6; border-color: #3b82f6; }
+
 /* --- Cooldown Clock Overlay --- */
 .bs-page .arena-move-btn--on-cooldown {
   pointer-events: none;

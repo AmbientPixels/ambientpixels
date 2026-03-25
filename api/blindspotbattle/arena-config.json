@@ -127,6 +127,13 @@
   "cooldownConfig": {
     "strike": 0, "guard": 0, "heal": 1, "counter": 1, "ability": 2
   },
+  "stanceConfig": {
+    "switchCost": 2,
+    "aggressive": { "dmgMult": 1.25, "defMult": 0.8, "staminaCostAdj": 1, "critBonus": 15, "label": "Aggressive" },
+    "defensive": { "dmgMult": 0.8, "defMult": 1.0, "guardBlock": 0.8, "healMult": 1.3, "staminaCostAdj": -1, "burnMult": 0.5, "label": "Defensive" },
+    "balanced": { "dmgMult": 1.0, "defMult": 1.0, "staminaCostAdj": 0, "label": "Balanced" },
+    "bossThresholds": { "aggressive": 0.6, "defensive": 0.3 }
+  },
   "validClasses": ["Fighter", "Enforcer", "Berserker", "Caster", "Hacker", "Scholar", "Scout", "Rogue", "Pilot", "Guardian", "Medic", "Trickster", "Wildcard"],
   "classAdvantages": {
     "Fighter":   ["Guardian", "Medic"],

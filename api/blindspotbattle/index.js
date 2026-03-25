@@ -348,7 +348,7 @@ function resolveClassAbility(abilityKey, combatStats, opponentMove, config, even
   return { damage, heal, tempEffect, alwaysFirst };
 }
 
-function generateBossMove(boss, round, currentHp, maxHp, opponentCharges, bossStamina, bossMaxStamina, bossCooldowns) {
+function generateBossMove(boss, round, currentHp, maxHp, opponentCharges, bossStamina, bossMaxStamina, bossCooldowns, bossStance) {
   const config = loadArenaConfig();
   const pattern = config.aiPatterns[boss.arenaOverrides?.aiPattern || 'balanced'];
   let weights = { ...pattern };
@@ -388,6 +388,15 @@ function generateBossMove(boss, round, currentHp, maxHp, opponentCharges, bossSt
     });
   }
 
+  // Stance awareness: Defensive boosts guard/heal, Aggressive boosts strike/ability
+  if (bossStance === 'defensive') {
+    weights.guard = (weights.guard || 0) + 10;
+    weights.heal = (weights.heal || 0) + 10;
+  } else if (bossStance === 'aggressive') {
+    weights.strike = (weights.strike || 0) + 10;
+    weights.ability = (weights.ability || 0) + 5;
+  }
+
   const counterWeight = weights.counter || 8;
   const total = weights.strike + weights.guard + weights.ability + (weights.heal || 0) + counterWeight;
   const roll = Math.random() * total;
@@ -399,9 +408,11 @@ function generateBossMove(boss, round, currentHp, maxHp, opponentCharges, bossSt
   return 'counter';
 }
 
-function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffects, staminaState) {
+function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffects, staminaState, stanceState) {
   const config = loadArenaConfig();
   const events = [];
+  const playerStance = (stanceState && stanceState.player) || 'balanced';
+  const opponentStance = (stanceState && stanceState.opponent) || 'balanced';
 
   // Stamina exhaustion: HP burn when below threshold (fighting costs life force)
   const sc = config.staminaConfig || {};
@@ -491,7 +502,7 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     const isCrit = Math.random() * 100 < playerCritChance;
     if (isCrit) {
       const critDmgBonus = getPassiveValue(player.passives, 'crit_damage');
-      const critMultiplier = 1.5 + (critDmgBonus / 100);
+      const critMultiplier = 1.5 + (critDmgBonus / 100) + (playerStance === 'aggressive' ? 0.15 : 0);
       playerOutDmg *= critMultiplier;
       events.push(`\u2728 Your strike landed a critical hit! (${Math.round(critMultiplier * 100)}% damage)`);
       // B2: Burn on crit strike
@@ -512,7 +523,8 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     // Guard reduces strike — guard_pierce reduces guard effectiveness
     if (opponentMove === 'guard' && playerOutDmg > 0) {
       const guardPierce = getPassiveValue(player.passives, 'guard_pierce');
-      const guardBlock = Math.max(0.2, 0.6 - (guardPierce / 100)); // Normally blocks 60%, pierce reduces it
+      const baseBlock = opponentStance === 'defensive' ? 0.8 : 0.6; // Defensive stance: 80% block
+      const guardBlock = Math.max(0.2, baseBlock - (guardPierce / 100));
       const preGuard = Math.floor(playerOutDmg);
       playerOutDmg *= (1 - guardBlock);
       events.push(`\uD83D\uDEE1\uFE0F Enemy guarded, blocked ${Math.round(guardBlock * 100)}% of your strike (${preGuard} \u2192 ${Math.floor(playerOutDmg)}).`);
@@ -584,7 +596,7 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     const isCrit = Math.random() * 100 < opponentCritChance;
     if (isCrit) {
       const critDmgBonus = getPassiveValue(opponent.passives, 'crit_damage');
-      const critMultiplier = 1.5 + (critDmgBonus / 100);
+      const critMultiplier = 1.5 + (critDmgBonus / 100) + (opponentStance === 'aggressive' ? 0.15 : 0);
       opponentOutDmg *= critMultiplier;
       events.push(`\u2728 Enemy landed a critical hit! (${Math.round(critMultiplier * 100)}% damage)`);
       // B2: Burn on crit strike
@@ -605,7 +617,8 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     // Guard — guard_pierce reduces guard effectiveness
     if (playerMove === 'guard' && opponentOutDmg > 0) {
       const oppGuardPierce = getPassiveValue(opponent.passives, 'guard_pierce');
-      const guardBlock = Math.max(0.2, 0.6 - (oppGuardPierce / 100));
+      const pBaseBlock = playerStance === 'defensive' ? 0.8 : 0.6; // Defensive stance: 80% block
+      const guardBlock = Math.max(0.2, pBaseBlock - (oppGuardPierce / 100));
       const preGuard = Math.floor(opponentOutDmg);
       opponentOutDmg *= (1 - guardBlock);
       events.push(`\uD83D\uDEE1\uFE0F You guarded, blocked ${Math.round(guardBlock * 100)}% of their strike (${preGuard} \u2192 ${Math.floor(opponentOutDmg)}).`);
@@ -791,16 +804,33 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
   }
 
   // Stamina exhaustion: HP burn — fighting while exhausted costs life force
+  // Defensive stance halves the burn rate
   if (playerExhausted) {
-    const burn = Math.max(3, Math.round(player.maxHp * exhaustionBurnPct));
+    var pBurnPct = playerStance === 'defensive' ? exhaustionBurnPct * 0.5 : exhaustionBurnPct;
+    const burn = Math.max(3, Math.round(player.maxHp * pBurnPct));
     playerDamageTaken += burn;
     events.push('\u26A1 Exhaustion burns ' + burn + ' HP!');
   }
   if (opponentExhausted) {
-    const burn = Math.max(3, Math.round(opponent.maxHp * exhaustionBurnPct));
+    var oBurnPct = opponentStance === 'defensive' ? exhaustionBurnPct * 0.5 : exhaustionBurnPct;
+    const burn = Math.max(3, Math.round(opponent.maxHp * oBurnPct));
     opponentDamageTaken += burn;
     events.push('\u26A1 Enemy exhaustion burns ' + burn + ' HP!');
   }
+
+  // Stance multipliers: outgoing damage (dmgMult)
+  if (playerStance === 'aggressive') opponentDamageTaken = Math.floor(opponentDamageTaken * 1.25);
+  if (playerStance === 'defensive') opponentDamageTaken = Math.floor(opponentDamageTaken * 0.8);
+  if (opponentStance === 'aggressive') playerDamageTaken = Math.floor(playerDamageTaken * 1.25);
+  if (opponentStance === 'defensive') playerDamageTaken = Math.floor(playerDamageTaken * 0.8);
+
+  // Stance multipliers: incoming damage (defMult — Aggressive takes 20% more)
+  if (playerStance === 'aggressive') playerDamageTaken = Math.floor(playerDamageTaken * 1.2);
+  if (opponentStance === 'aggressive') opponentDamageTaken = Math.floor(opponentDamageTaken * 1.2);
+
+  // Stance multipliers: Defensive heal bonus (+30%)
+  if (playerStance === 'defensive' && playerHeal > 0) playerHeal = Math.floor(playerHeal * 1.3);
+  if (opponentStance === 'defensive' && opponentHeal > 0) opponentHeal = Math.floor(opponentHeal * 1.3);
 
   // Round summary line
   const parts = [];
@@ -1105,6 +1135,7 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
     maxStamina: { player: playerMaxStamina, opponent: opponentMaxStamina },
     staminaRegen: { player: playerStaminaRegen, opponent: opponentStaminaRegen },
     cooldowns: { player: {}, opponent: {} },
+    stances: { player: 'balanced', opponent: 'balanced' },
     tempEffects: { player: [], opponent: [] },
     adventureItems: [],
     roundLog: [],
@@ -1166,6 +1197,7 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
       maxStamina: { player: playerMaxStamina, opponent: opponentMaxStamina },
       staminaRegen: { player: playerStaminaRegen, opponent: opponentStaminaRegen },
       cooldowns: { player: {}, opponent: {} },
+    stances: { player: 'balanced', opponent: 'balanced' },
       currentRound: 1,
       totalRounds: config.totalRounds,
       status: 'active'
@@ -1252,6 +1284,38 @@ async function handleMove(context, containerClient, userId, body) {
     return;
   }
 
+  // Stance switch (optional — null/undefined means keep current)
+  if (body.stance && body.stance !== battle.stances.player) {
+    if (!['aggressive', 'defensive', 'balanced'].includes(body.stance)) {
+      context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'Invalid stance' } };
+      return;
+    }
+    var stCfg = config.stanceConfig || {};
+    var switchCost = body.stance === 'balanced' ? 0 : (stCfg.switchCost || 2);
+    if (battle.stamina && battle.stamina.player < switchCost) {
+      context.res = { status: 400, headers: CORS_HEADERS, body: { error: 'Not enough stamina to switch stance' } };
+      return;
+    }
+    // Deducts switch cost immediately. Player may hit 0 before their move resolves —
+    // this is intentional: switching to Aggressive when low on stamina is a risky all-in play.
+    if (battle.stamina) battle.stamina.player -= switchCost;
+    battle.stances.player = body.stance;
+  }
+
+  // Boss stance shifts at HP thresholds
+  if (battle.stances) {
+    var bStCfg = config.stanceConfig || {};
+    var bossHpPct = opponent.hp / opponent.maxHp;
+    var thresholds = bStCfg.bossThresholds || {};
+    if (bossHpPct > (thresholds.aggressive || 0.6)) {
+      battle.stances.opponent = 'aggressive';
+    } else if (bossHpPct > (thresholds.defensive || 0.3)) {
+      battle.stances.opponent = 'defensive';
+    } else {
+      battle.stances.opponent = 'aggressive'; // Desperate
+    }
+  }
+
   // Mirror passive — boss copies player's last move
   let opponentMove;
   if (battle._mirrorNextMove) {
@@ -1264,7 +1328,8 @@ async function handleMove(context, containerClient, userId, body) {
       round, opponent.hp, opponent.maxHp, battle.charges.opponent,
       battle.stamina ? battle.stamina.opponent : undefined,
       battle.maxStamina ? battle.maxStamina.opponent : undefined,
-      battle.cooldowns ? battle.cooldowns.opponent : undefined
+      battle.cooldowns ? battle.cooldowns.opponent : undefined,
+      battle.stances ? battle.stances.opponent : undefined
     );
   } else {
     opponentMove = opponent.moves[round - 1] || 'strike';
@@ -1276,7 +1341,8 @@ async function handleMove(context, containerClient, userId, body) {
     { combatStats: opponent.combatStats, passives: opponent.passives, maxHp: opponent.maxHp, abilityKey: opponent.abilityKey,
       bossResistances: opponent.bossResistances || {}, bossWeaknesses: opponent.bossWeaknesses || {} },
     move, opponentMove, battle.tempEffects,
-    battle.stamina ? { player: battle.stamina.player, opponent: battle.stamina.opponent } : null
+    battle.stamina ? { player: battle.stamina.player, opponent: battle.stamina.opponent } : null,
+    battle.stances || null
   );
 
   // B4: Crowd Boost — hype meter filled by crits/streaks/stuns, +15% dmg when spent
@@ -1444,6 +1510,12 @@ async function handleMove(context, containerClient, userId, body) {
     let oCost = getStaminaCost(opponentMove, opponent.passives || [], config);
     if (getPassiveValue(player.passives || [], 'speed_priority') > 0) pCost = Math.max(1, pCost - 1);
     if (getPassiveValue(opponent.passives || [], 'speed_priority') > 0) oCost = Math.max(1, oCost - 1);
+    // Stance stamina cost adjustment: Aggressive +1, Defensive -1
+    var stCfgR = config.stanceConfig || {};
+    var pStanceAdj = (stCfgR[battle.stances.player] || {}).staminaCostAdj || 0;
+    var oStanceAdj = (stCfgR[battle.stances.opponent] || {}).staminaCostAdj || 0;
+    pCost = Math.max(1, pCost + pStanceAdj);
+    oCost = Math.max(1, oCost + oStanceAdj);
 
     // Regen
     battle.stamina.player = Math.min(battle.maxStamina.player, battle.stamina.player + battle.staminaRegen.player);
@@ -1549,7 +1621,8 @@ async function handleMove(context, containerClient, userId, body) {
       playerMax: battle.maxStamina.player,
       opponentMax: battle.maxStamina.opponent
     } : undefined,
-    cooldowns: battle.cooldowns || undefined
+    cooldowns: battle.cooldowns || undefined,
+    stances: battle.stances || undefined
   };
 
   battle.roundLog.push(roundResult);

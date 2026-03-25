@@ -20,6 +20,8 @@ window.ArenaBattleUI = (function () {
   let _crowdBoostPending = false;
   // Phase 1: move history for combo preview + matchup feedback
   let _moveHistory = [];
+  // Stance system
+  let _playerStance = 'balanced';
 
   function initBattle(battleData) {
     _battleData = battleData;
@@ -102,6 +104,12 @@ window.ArenaBattleUI = (function () {
     // Cooldown system init
     _battleData.cooldowns = battleData.cooldowns || { player: {}, opponent: {} };
     updateCooldownOverlays(_battleData.cooldowns.player);
+
+    // Stance system init
+    _playerStance = (battleData.stances && battleData.stances.player) || 'balanced';
+    _battleData.stances = battleData.stances || { player: 'balanced', opponent: 'balanced' };
+    initStanceButtons();
+    updateBossStance(_battleData.stances.opponent);
   }
 
   function renderActiveBuffs(passives) {
@@ -228,6 +236,41 @@ window.ArenaBattleUI = (function () {
         }
       }
     });
+  }
+
+  function initStanceButtons() {
+    var row = document.getElementById('arena-stance-row');
+    if (!row) return;
+    row.querySelectorAll('.arena-stance-btn').forEach(function(btn) {
+      var stance = btn.getAttribute('data-stance');
+      btn.classList.toggle('arena-stance-btn--active', stance === _playerStance);
+      btn.onclick = function() {
+        if (_isAnimating) return;
+        _playerStance = stance;
+        row.querySelectorAll('.arena-stance-btn').forEach(function(b) {
+          b.classList.toggle('arena-stance-btn--active', b.getAttribute('data-stance') === stance);
+        });
+        // Update stamina cost badges to reflect stance adjustment
+        if (_battleData.stamina) updateMoveCosts(_battleData.stamina.player);
+      };
+    });
+  }
+
+  var _lastBossStance = 'balanced';
+  function updateBossStance(stance) {
+    var el = document.getElementById('arena-boss-stance');
+    if (!el) return;
+    var defs = (window.BsConst && BsConst.STANCE_DEFS) || {};
+    var def = defs[stance] || defs.balanced || { icon: 'fa-circle-nodes' };
+    el.innerHTML = '<i class="fas ' + def.icon + '"></i>';
+    el.className = 'arena-boss-stance';
+    if (stance === 'aggressive') el.classList.add('arena-boss-stance--aggressive');
+    if (stance === 'defensive') el.classList.add('arena-boss-stance--defensive');
+    if (stance !== _lastBossStance && _lastBossStance) {
+      var label = (def.label || stance).charAt(0).toUpperCase() + (def.label || stance).slice(1);
+      addLogEntry('\u2694\uFE0F Boss shifts to ' + label + ' stance!', 'event');
+    }
+    _lastBossStance = stance;
   }
 
   function updateRoundLabel(round) {
@@ -835,6 +878,12 @@ window.ArenaBattleUI = (function () {
       updateCooldownOverlays(result.cooldowns.player);
     }
 
+    // Update stances from round result
+    if (result.stances) {
+      _battleData.stances = result.stances;
+      updateBossStance(result.stances.opponent);
+    }
+
     // Log events (matchup results, crits, heals, buffs)
     if (result.events && result.events.length > 0) {
       result.events.forEach(e => addLogEntry(e, 'event'));
@@ -928,6 +977,7 @@ window.ArenaBattleUI = (function () {
       var moveExtra = {};
       if (boost) moveExtra.crowdBoost = true;
       if (window._pendingItemUse) { moveExtra.useItem = window._pendingItemUse; window._pendingItemUse = null; }
+      if (_playerStance !== 'balanced') moveExtra.stance = _playerStance;
       const response = await window.ArenaAPI.submitMove(
         _battleData.battleId, _currentRound, move, moveExtra
       );
