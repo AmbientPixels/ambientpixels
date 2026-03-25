@@ -229,7 +229,7 @@ function createSubscriptionTabContent() {
         'Yearly plan billed at $47.88/year. Cancel anytime.' +
       '</p>'
     : '<a class="cf-upgrade-btn" style="max-width:260px;margin:0 auto;display:block;text-decoration:none;text-align:center" ' +
-        'href="/.auth/login/aad?post_login_redirect_uri=/cardforge/">' +
+        'href="/pages/login.html?redirect=/cardforge/">' +
         '<i class="fas fa-sign-in-alt"></i> Sign in to upgrade</a>';
 
   return '<div class="settings-section" style="text-align:center">' +

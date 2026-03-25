@@ -147,7 +147,7 @@ async function checkAuthAndLoadProfile() {
         // Redirect to login after a short delay
         setTimeout(() => {
             const redirectUri = encodeURIComponent(window.location.href);
-            window.location.href = `/.auth/login/aad?post_login_redirect_uri=${redirectUri}`;
+            window.location.href = `/pages/login.html?redirect=${redirectUri}`;
         }, 2000);
     }
 }
@@ -234,7 +234,7 @@ swa start http://localhost:5500 --run "npx http-server -p 5500" --api-location a
         `;
     } else {
         // In production, redirect to the auth endpoint
-        window.location.href = `/.auth/login/aad?post_login_redirect_uri=${encodeURIComponent(window.location.pathname)}`;
+        window.location.href = `/pages/login.html?redirect=${encodeURIComponent(window.location.pathname)}`;
     }
 }
 

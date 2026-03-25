@@ -240,7 +240,7 @@
       btn.innerHTML = '<i class="fas fa-sign-in-alt"></i>';
       btn.style.opacity = '0.6';
       btn.addEventListener('click', function () {
-        window.location.href = '/.auth/login/aad?post_login_redirect_uri=' + encodeURIComponent(window.location.pathname);
+        window.location.href = '/pages/login.html?redirect=' + encodeURIComponent(window.location.pathname);
       });
     }
   }).catch(function () {

@@ -15,7 +15,7 @@
         <div class="gp-auth-bar" id="gp-auth">
           <a href="/hanson/" class="gp-portal-link"><i class="fas fa-arrow-left"></i> Hanson Portal</a>
           <span class="gp-auth-divider">|</span>
-          <a id="gp-login-btn" class="gp-auth-link" href="/.auth/login/aad"><i class="fas fa-sign-in-alt"></i> Login</a>
+          <a id="gp-login-btn" class="gp-auth-link" href="/pages/login.html"><i class="fas fa-sign-in-alt"></i> Login</a>
           <span id="gp-user-status" class="gp-user-status" style="display:none;">
             <span class="gp-user-dot"></span>
             <span id="gp-user-name"></span>
@@ -723,7 +723,7 @@
 
       if (!loginBtn || !userStatus) return;
 
-      loginBtn.href = '/.auth/login/aad?post_login_redirect_uri=' + encodeURIComponent(window.location.href);
+      loginBtn.href = '/pages/login.html?redirect=' + encodeURIComponent(window.location.href);
 
       try {
         const response = await fetch('/.auth/me');

@@ -85,7 +85,7 @@
   async function startCheckout(productId) {
     // Redirect to login if not signed in
     if (!isSignedIn()) {
-      window.location.href = '/.auth/login/aad?post_login_redirect_uri=/cardforge/';
+      window.location.href = '/pages/login.html?redirect=/cardforge/';
       return;
     }
 

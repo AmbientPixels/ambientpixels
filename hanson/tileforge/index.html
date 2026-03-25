@@ -206,7 +206,7 @@
         <div class="tileforge-auth-bar" id="tileforge-auth">
           <a href="/hanson/" class="tf-portal-link"><i class="fas fa-arrow-left"></i> Hanson Portal</a>
           <span class="tf-auth-divider">|</span>
-          <a id="tf-login-btn" class="tf-auth-link" href="/.auth/login/aad"><i class="fas fa-sign-in-alt"></i> Login</a>
+          <a id="tf-login-btn" class="tf-auth-link" href="/pages/login.html"><i class="fas fa-sign-in-alt"></i> Login</a>
           <span id="tf-user-status" class="tf-user-status" style="display:none;">
             <span class="tf-user-dot"></span>
             <span id="tf-user-name"></span>
@@ -856,7 +856,7 @@
 
       if (!loginBtn || !userStatus) return;
 
-      loginBtn.href = '/.auth/login/aad?post_login_redirect_uri=' + encodeURIComponent(window.location.href);
+      loginBtn.href = '/pages/login.html?redirect=' + encodeURIComponent(window.location.href);
 
       try {
         const response = await fetch('/.auth/me');
