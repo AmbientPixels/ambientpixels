@@ -247,6 +247,8 @@ window.ArenaBattleUI = (function () {
   }
 
   function enableMoves(enabled) {
+    // If tutorial is controlling buttons, don't override its state
+    if (enabled && window.BsTutorial && window.BsTutorial.isControllingMoves && window.BsTutorial.isControllingMoves()) return;
     document.querySelectorAll('.arena-move-btn').forEach(btn => {
       btn.disabled = !enabled;
       btn.classList.toggle('arena-move-btn--disabled', !enabled);
@@ -912,6 +914,20 @@ window.ArenaBattleUI = (function () {
         _currentRound = response.currentRound;
         updateRoundLabel(_currentRound);
         addLogEntry(`Round ${_currentRound} — Choose your move.`);
+        // Tutorial hooks — wait one frame for CSS to settle after animation
+        if (window.BsTutorial && window.BsTutorial.isActive()) {
+          requestAnimationFrame(function () {
+            window.BsTutorial.onMoveComplete(move);
+            window.BsTutorial.checkContextual({
+              playerHp: response.roundResult.playerHp,
+              playerMaxHp: _battleData.player.maxHp,
+              charges: _playerCharges,
+              abilityCost: _abilityCost,
+              hype: _hype,
+              round: _currentRound
+            });
+          });
+        }
         enableMoves(true);
         updateComboHints();
       }
