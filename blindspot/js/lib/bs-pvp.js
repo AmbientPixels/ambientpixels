@@ -103,10 +103,12 @@
       try {
         data = await Promise.race([
           window.ArenaAPI.loadCards(),
-          new Promise(function(_, reject) { setTimeout(function() { reject(new Error('timeout')); }, 8000); })
+          new Promise(function(_, reject) { setTimeout(function() { reject(new Error('timeout')); }, 15000); })
         ]);
       } catch (timeoutErr) {
-        container.innerHTML = '<p style="text-align:center; color:var(--bs-text-muted); padding:2rem;">Could not load gallery. Try again later.</p>';
+        container.innerHTML = '<div style="text-align:center; padding:2rem;"><p style="color:var(--bs-text-muted); margin-bottom:0.75rem;">Could not load gallery.</p><button class="bs-btn bs-btn--primary" id="bs-pvp-gallery-retry" style="font-size:0.8rem; padding:0.5rem 1.2rem;"><i class="fas fa-rotate-right"></i> Retry</button></div>';
+        var retryBtn = document.getElementById('bs-pvp-gallery-retry');
+        if (retryBtn) retryBtn.addEventListener('click', function() { renderPvPGallery(); });
         return;
       }
       var gallery = (data.galleryCards || []).filter(function(c) {
