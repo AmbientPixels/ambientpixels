@@ -118,11 +118,11 @@
   "staminaConfig": {
     "basePool": 15,
     "endPoolBonus": 10,
-    "baseRegen": 2,
-    "endRegenDiv": 40,
+    "baseRegen": 1,
+    "endRegenDiv": 50,
     "exhaustionThreshold": 3,
     "exhaustionPenalty": 0.7,
-    "costs": { "strike": 3, "guard": 1, "heal": 2, "counter": 3, "ability": 4 }
+    "costs": { "strike": 5, "guard": 1, "heal": 3, "counter": 5, "ability": 7 }
   },
   "validClasses": ["Fighter", "Enforcer", "Berserker", "Caster", "Hacker", "Scholar", "Scout", "Rogue", "Pilot", "Guardian", "Medic", "Trickster", "Wildcard"],
   "classAdvantages": {

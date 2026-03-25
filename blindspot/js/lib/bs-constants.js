@@ -138,7 +138,7 @@ window.BsConst = (function () {
     counter: ['strike']
   };
 
-  var STAMINA_COSTS = { strike: 3, guard: 1, heal: 2, counter: 3, ability: 4 };
+  var STAMINA_COSTS = { strike: 5, guard: 1, heal: 3, counter: 5, ability: 7 };
   var STAMINA_EXHAUSTION_THRESHOLD = 3;
 
   var BATTLE_HINTS = {
