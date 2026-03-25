@@ -9,15 +9,22 @@ window.ArenaAPI = (function () {
 
   function fetchPrincipal() {
     if (!_principalPromise) {
-      _principalPromise = fetch('/.auth/me')
-        .then(function (resp) { return resp.ok ? resp.json() : { clientPrincipal: null }; })
-        .then(function (data) {
-          if (data && data.clientPrincipal) {
-            return btoa(JSON.stringify(data.clientPrincipal));
-          }
-          return null;
-        })
-        .catch(function () { return null; });
+      _principalPromise = Promise.race([
+        fetch('/.auth/me')
+          .then(function (resp) { return resp.ok ? resp.json() : { clientPrincipal: null }; })
+          .then(function (data) {
+            if (data && data.clientPrincipal) {
+              return btoa(JSON.stringify(data.clientPrincipal));
+            }
+            return null;
+          })
+          .catch(function () { return null; }),
+        new Promise(function (resolve) { setTimeout(function () { resolve(null); }, 5000); })
+      ]).then(function (result) {
+        // If timed out, clear the cache so next call retries
+        if (result === null) _principalPromise = null;
+        return result;
+      });
     }
     return _principalPromise;
   }
