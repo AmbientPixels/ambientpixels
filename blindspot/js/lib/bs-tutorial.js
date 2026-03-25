@@ -34,11 +34,9 @@
       '<span class="bs-speech-bubble__label">' + step.label + '</span>' +
     '</div>' +
     '<div class="bs-speech-bubble__text">' + step.text + '</div>';
-    // Move steps: text prompt only (the glowing button IS the action)
-    // Tap steps: render a "Got it" button
-    if (step.advance === 'move') {
-      html += '<div class="bs-speech-bubble__prompt">\u25B2 Click the button above</div>';
-    } else {
+    // Move steps: no action button — the glowing move button IS the action
+    // Tap steps: render a "Got it" button to dismiss
+    if (step.advance !== 'move') {
       html += '<button class="bs-speech-bubble__action" type="button">' + actionText + '</button>';
     }
     return html;
