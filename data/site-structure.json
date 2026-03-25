@@ -1,6 +1,6 @@
 {
   "version": "v2.3",
-  "updated": "2026-03-24T14:19:39.900Z",
+  "updated": "2026-03-25T14:18:52.565Z",
   "root": [
     {
       "type": "folder",
@@ -323,6 +323,12 @@
         },
         {
           "type": "folder",
+          "name": "blindspotasyncbattle",
+          "path": "api/blindspotasyncbattle",
+          "children": []
+        },
+        {
+          "type": "folder",
           "name": "blindspotbattle",
           "path": "api/blindspotbattle",
           "children": []
@@ -335,8 +341,20 @@
         },
         {
           "type": "folder",
+          "name": "blindspotdefensequeue",
+          "path": "api/blindspotdefensequeue",
+          "children": []
+        },
+        {
+          "type": "folder",
           "name": "blindspotprofile",
           "path": "api/blindspotprofile",
+          "children": []
+        },
+        {
+          "type": "folder",
+          "name": "blindspotresultsinbox",
+          "path": "api/blindspotresultsinbox",
           "children": []
         },
         {
