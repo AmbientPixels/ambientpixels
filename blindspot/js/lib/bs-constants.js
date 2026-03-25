@@ -264,14 +264,14 @@ window.BsConst = (function () {
     // Phase 2 — First Moves (click highlighted button to advance)
     { id: 'strike-intro',  target: '[data-move="strike"]',  position: 'above', icon: 'fa-hand-fist',    label: 'Strike', text: 'Your bread and butter. Disrupts enemy heals.', advance: 'move', move: 'strike',  disableOthers: true },
     { id: 'guard-intro',   target: '[data-move="guard"]',   position: 'above', icon: 'fa-shield-halved', label: 'Guard',  text: 'Absorbs strikes. Timing is everything.',       advance: 'move', move: 'guard',   disableOthers: true },
-    { id: 'heal-intro',    target: '[data-move="heal"]',    position: 'above', icon: 'fa-heart-pulse',  label: 'Heal',   text: 'Recover HP. Vulnerable to strikes though.',     advance: 'move', move: 'heal',    disableOthers: true }
+    { id: 'heal-intro',    target: '[data-move="heal"]',    position: 'above', icon: 'fa-heart-pulse',  label: 'Heal',   text: 'Recover HP. Vulnerable to strikes though.',     advance: 'move', move: 'heal',    disableOthers: true },
+    { id: 'counter-intro', target: '[data-move="counter"]', position: 'above', icon: 'fa-shield',       label: 'Counter', text: 'Reflects strikes back. Fails vs abilities.',   advance: 'move', move: 'counter', disableOthers: true },
+    { id: 'ability-intro', target: '[data-move="ability"]', position: 'above', icon: 'fa-bolt',         label: 'Ability', text: 'Your class power. Costs charges \u2014 earn them by fighting.', advance: 'move', move: 'ability', disableOthers: true }
   ];
 
-  // Contextual hints — triggered by game state during tutorial, one per round, priority order
+  // Contextual hints — triggered by game state after tutorial, one per round, priority order
   var TUTORIAL_CONTEXTUAL = [
     { id: 'hp-low',        target: '#arena-player-side .arena-hp-bar', position: 'below', icon: 'fa-heart-crack',  label: 'Low Health',      text: 'You\u2019re hurting. Heal or guard to buy time.',             condition: function(s) { return s.playerHp / s.playerMaxHp < 0.4; } },
-    { id: 'ability-ready', target: '[data-move="ability"]',            position: 'above', icon: 'fa-bolt',         label: 'Ability Ready',   text: 'Charged up! Your class power stuns through guards.',  condition: function(s) { return s.charges >= s.abilityCost; } },
-    { id: 'counter-intro', target: '[data-move="counter"]',            position: 'above', icon: 'fa-shield',       label: 'Counter',         text: 'Reflects strikes back at them. Risky vs abilities.',  condition: function(s) { return s.round >= 3; } },
     { id: 'hype-high',     target: '#arena-hype-bar',                  position: 'above', icon: 'fa-fire',         label: 'Hype Rising',     text: 'Big hits fill it for a damage boost.',                condition: function(s) { return s.hype > 40; } }
   ];
 

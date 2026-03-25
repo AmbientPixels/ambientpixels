@@ -135,11 +135,14 @@
       btn.classList.remove('bs-pulse-hint');
       var isTarget = btn.dataset.move === allowedMove;
       btn.disabled = !isTarget;
-      // Remove the battle UI's disabled class — it overrides inline styles
+      // Remove battle UI's disabled/locked classes — they override inline styles
       btn.classList.toggle('arena-move-btn--disabled', !isTarget);
+      if (isTarget) {
+        btn.classList.remove('arena-move-btn--locked');
+        btn.classList.add('bs-pulse-hint');
+      }
       btn.style.opacity = isTarget ? '' : '0.3';
       btn.style.pointerEvents = isTarget ? '' : 'none';
-      if (isTarget) btn.classList.add('bs-pulse-hint');
     });
   }
 
