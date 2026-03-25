@@ -85,10 +85,10 @@ window.ArenaAudio = (function () {
       }
     }
 
-    var sfxBtn = document.getElementById('arena-sfx-toggle');
+    var sfxBtn = document.getElementById('arena-sfx-toggle') || document.getElementById('arena-sfx-toggle-idx');
     if (sfxBtn) sfxBtn.addEventListener('click', toggleSfx);
 
-    var musicBtn = document.getElementById('arena-music-toggle');
+    var musicBtn = document.getElementById('arena-music-toggle') || document.getElementById('arena-music-toggle-idx');
     if (musicBtn) musicBtn.addEventListener('click', toggleMusic);
 
     var volSlider = document.getElementById('arena-music-volume');
@@ -135,6 +135,7 @@ window.ArenaAudio = (function () {
   }
 
   function toggleMusic() {
+    if (!_sfxMuted) play('click');
     _musicMuted = !_musicMuted;
     localStorage.setItem(KEY_MUSIC_MUTED, _musicMuted);
     if (_musicMuted) {
@@ -169,6 +170,7 @@ window.ArenaAudio = (function () {
   }
 
   function toggleSfx() {
+    if (!_sfxMuted) play('click');
     _sfxMuted = !_sfxMuted;
     localStorage.setItem(KEY_SFX_MUTED, _sfxMuted);
     updateSfxIcon();
@@ -176,20 +178,26 @@ window.ArenaAudio = (function () {
   }
 
   function updateSfxIcon() {
-    var btn = document.getElementById('arena-sfx-toggle');
-    if (!btn) return;
-    var icon = btn.querySelector('i');
-    if (icon) icon.className = _sfxMuted ? 'fas fa-bolt-slash' : 'fas fa-bolt';
-    btn.title = _sfxMuted ? 'Unmute SFX' : 'Mute SFX';
-    btn.classList.toggle('arena-audio-toggle--muted', _sfxMuted);
+    var ids = ['arena-sfx-toggle', 'arena-sfx-toggle-idx'];
+    for (var i = 0; i < ids.length; i++) {
+      var btn = document.getElementById(ids[i]);
+      if (!btn) continue;
+      var icon = btn.querySelector('i');
+      if (icon) icon.className = _sfxMuted ? 'fas fa-volume-xmark' : 'fas fa-volume-high';
+      btn.title = _sfxMuted ? 'Unmute SFX' : 'Mute SFX';
+      btn.classList.toggle('arena-audio-toggle--muted', _sfxMuted);
+    }
   }
 
   function updateMusicIcon() {
-    var btn = document.getElementById('arena-music-toggle');
-    if (!btn) return;
-    var icon = btn.querySelector('i');
-    if (icon) icon.className = _musicMuted ? 'fas fa-volume-xmark' : 'fas fa-music';
-    btn.title = _musicMuted ? 'Unmute music' : 'Mute music';
+    var ids = ['arena-music-toggle', 'arena-music-toggle-idx'];
+    for (var i = 0; i < ids.length; i++) {
+      var btn = document.getElementById(ids[i]);
+      if (!btn) continue;
+      var icon = btn.querySelector('i');
+      if (icon) icon.className = _musicMuted ? 'fas fa-volume-xmark' : 'fas fa-music';
+      btn.title = _musicMuted ? 'Unmute music' : 'Mute music';
+    }
     var control = document.getElementById('arena-music-control');
     if (control) control.classList.toggle('arena-music-control--muted', _musicMuted);
     var slider = document.getElementById('arena-music-volume');
