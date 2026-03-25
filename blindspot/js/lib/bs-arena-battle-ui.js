@@ -18,12 +18,15 @@ window.ArenaBattleUI = (function () {
   // B4: hype meter
   let _hype = 0;
   let _crowdBoostPending = false;
+  // Phase 1: move history for combo preview + matchup feedback
+  let _moveHistory = [];
 
   function initBattle(battleData) {
     _battleData = battleData;
     _currentRound = 1;
     _isAnimating = false;
     _playerStreak = 0;
+    _moveHistory = [];
 
     // Close results overlay if still open
     var overlay = document.getElementById('arena-results-overlay');
@@ -429,6 +432,131 @@ window.ArenaBattleUI = (function () {
     // Leave arena-combatant--defeated on — it stays until battle end resets the view
   }
 
+  // ─── Phase 1A: Matchup feedback banner ───────────────────────────────────
+  var MATCHUP_MESSAGES = {
+    strike_heal:    { text: 'Strike disrupts Heal!', cls: 'win' },
+    strike_ability: { text: 'Strike catches Ability off-guard!', cls: 'win' },
+    guard_strike:   { text: 'Guard blocks Strike!', cls: 'win' },
+    ability_guard:  { text: 'Ability breaks through Guard!', cls: 'win' },
+    ability_counter:{ text: 'Ability bypasses Counter!', cls: 'win' },
+    counter_strike: { text: 'Counter reflects Strike!', cls: 'win' },
+    heal_strike:    { text: 'Heal disrupted by Strike!', cls: 'lose' },
+    ability_strike: { text: 'Ability caught by Strike!', cls: 'lose' },
+    strike_guard:   { text: 'Strike blocked by Guard!', cls: 'lose' },
+    guard_ability:  { text: 'Guard stunned by Ability!', cls: 'lose' },
+    counter_ability:{ text: 'Counter fails vs Ability!', cls: 'lose' },
+    strike_counter: { text: 'Strike reflected by Counter!', cls: 'lose' }
+  };
+
+  function showMatchupBanner(playerMove, opponentMove) {
+    if (playerMove === opponentMove) return;
+    var key = playerMove + '_' + opponentMove;
+    var msg = MATCHUP_MESSAGES[key];
+    if (!msg) return;
+    var field = document.querySelector('.arena-battle__field');
+    if (!field) return;
+    var banner = document.createElement('div');
+    banner.className = 'arena-matchup-banner arena-matchup-banner--' + msg.cls;
+    banner.textContent = msg.text;
+    field.appendChild(banner);
+    setTimeout(function () { banner.remove(); }, 1800);
+  }
+
+  // ─── Phase 1A: Passive activation flash ─────────────────────────────────
+  var PASSIVE_PATTERNS = [
+    { pattern: /guard.+pierce/i, name: 'Heavy Hitter', icon: 'fa-hand-fist', color: '#ff5252' },
+    { pattern: /Quick Draw|speed priority|always act first/i, name: 'Quick Draw', icon: 'fa-forward', color: '#00e676' },
+    { pattern: /Elusive|dodged your strike/i, name: 'Elusive', icon: 'fa-ghost', color: '#00e676' },
+    { pattern: /Brutal|crit.*damage/i, name: 'Brutal', icon: 'fa-skull-crossbones', color: '#ff5252' },
+    { pattern: /Focused|ability costs 1/i, name: 'Focused', icon: 'fa-bullseye', color: '#7b2fff' },
+    { pattern: /Arcane Mastery/i, name: 'Arcane Mastery', icon: 'fa-hat-wizard', color: '#7b2fff' },
+    { pattern: /Fortified Heal/i, name: 'Fortified Heal', icon: 'fa-shield-heart', color: '#ff9100' },
+    { pattern: /Iron Guard|blocks 75%/i, name: 'Iron Guard', icon: 'fa-shield-halved', color: '#ff9100' },
+    { pattern: /Fortune|crit chance/i, name: 'Fortune', icon: 'fa-clover', color: '#ffd740' },
+    { pattern: /Wild Card|crits deal 2x/i, name: 'Wild Card', icon: 'fa-dice', color: '#ffd740' },
+    { pattern: /Regen restored/i, name: 'Unbreakable', icon: 'fa-heart-circle-plus', color: '#ff9100' },
+    { pattern: /Weakness exploit/i, name: 'Weakness Exploit', icon: 'fa-crosshairs', color: '#4ade80' },
+    { pattern: /Class advantage/i, name: 'Class Advantage', icon: 'fa-chess', color: '#ffd740' }
+  ];
+
+  function showPassiveFlashes(events) {
+    if (!events || !events.length) return;
+    var container = document.getElementById('arena-player-side');
+    if (!container) return;
+    var shown = {};
+    var evText = events.join(' ');
+    for (var i = 0; i < PASSIVE_PATTERNS.length; i++) {
+      var p = PASSIVE_PATTERNS[i];
+      // Only flash for player-relevant events (skip "Enemy" prefixed ones)
+      if (p.pattern.test(evText) && !shown[p.name]) {
+        // Skip if the matching text is about the enemy
+        var enemyMatch = evText.match(new RegExp('Enemy.{0,40}' + p.pattern.source, 'i'));
+        if (enemyMatch) continue;
+        shown[p.name] = true;
+        showSinglePassiveFlash(container, p, Object.keys(shown).length - 1);
+      }
+    }
+  }
+
+  function showSinglePassiveFlash(container, passive, index) {
+    var flash = document.createElement('div');
+    flash.className = 'arena-passive-flash';
+    flash.style.color = passive.color;
+    flash.style.animationDelay = (index * 200) + 'ms';
+    flash.innerHTML = '<i class="fas ' + passive.icon + '"></i> ' + passive.name + '!';
+    container.appendChild(flash);
+    setTimeout(function () { flash.remove(); }, 2000 + index * 200);
+  }
+
+  // ─── Phase 1B: Combo banner ─────────────────────────────────────────────
+  var COMBO_DEFS = {
+    flurry:    { name: 'FLURRY',    icon: '\uD83C\uDF2A\uFE0F', color: '#ff9100', desc: 'Triple Strike!' },
+    riposte:   { name: 'RIPOSTE',   icon: '\u2694\uFE0F',       color: '#3a9fff', desc: 'Guard into Counter!' },
+    empowered: { name: 'EMPOWERED', icon: '\u2728',             color: '#a855f7', desc: 'Heal into Ability!' }
+  };
+
+  function showComboBanner(comboId) {
+    if (!comboId || !COMBO_DEFS[comboId]) return;
+    var combo = COMBO_DEFS[comboId];
+    var field = document.querySelector('.arena-battle__field');
+    if (!field) return;
+    var banner = document.createElement('div');
+    banner.className = 'arena-combo-banner';
+    banner.style.setProperty('--combo-color', combo.color);
+    banner.innerHTML = '<span class="arena-combo-banner__icon">' + combo.icon + '</span>' +
+      '<span class="arena-combo-banner__name">' + combo.name + '</span>' +
+      '<span class="arena-combo-banner__desc">' + combo.desc + '</span>';
+    field.appendChild(banner);
+    if (window.ArenaAudio) window.ArenaAudio.play('crit');
+    setTimeout(function () { banner.remove(); }, 2200);
+  }
+
+  // ─── Phase 1A: Combo hint (preview next combo in move buttons) ──────────
+  function updateComboHints() {
+    // Show subtle hint on move buttons when a combo is 1 move away
+    var btns = document.querySelectorAll('.arena-move-btn');
+    btns.forEach(function (btn) { btn.classList.remove('arena-move-btn--combo-hint'); });
+
+    var last1 = _moveHistory[_moveHistory.length - 1];
+    var last2 = _moveHistory[_moveHistory.length - 2];
+
+    // Flurry hint: 2 strikes in a row → hint on Strike
+    if (last1 === 'strike' && last2 === 'strike') {
+      var strikeBtn = document.querySelector('[data-move="strike"]');
+      if (strikeBtn) strikeBtn.classList.add('arena-move-btn--combo-hint');
+    }
+    // Riposte hint: just guarded → hint on Counter
+    if (last1 === 'guard') {
+      var counterBtn = document.querySelector('[data-move="counter"]');
+      if (counterBtn) counterBtn.classList.add('arena-move-btn--combo-hint');
+    }
+    // Empowered hint: just healed → hint on Ability
+    if (last1 === 'heal') {
+      var abilityBtn = document.querySelector('.arena-move-btn--ability');
+      if (abilityBtn) abilityBtn.classList.add('arena-move-btn--combo-hint');
+    }
+  }
+
   // ─── A1: main round animation — two sequential phases ────────────────────
   async function animateRoundResult(result) {
     _isAnimating = true;
@@ -460,6 +588,9 @@ window.ArenaBattleUI = (function () {
 
     // A1: Show speed badge near the faster combatant
     showSpeedBadge(speedWinner);
+
+    // Phase 1A: Show matchup result banner
+    showMatchupBanner(result.playerMove, result.opponentMove);
 
     // ── Phase 1: First attacker ──────────────────────────────────────────
     const firstLabel = firstSide === 'player' ? 'You' : 'Opponent';
@@ -554,6 +685,17 @@ window.ArenaBattleUI = (function () {
       result.events.forEach(e => addLogEntry(e, 'event'));
     }
 
+    // Phase 1A: Flash passive activations detected from events
+    showPassiveFlashes(result.events);
+
+    // Phase 1B: Combo banner
+    if (result.comboTriggered) {
+      showComboBanner(result.comboTriggered);
+    }
+
+    // Phase 1B: Track move history for combo hints
+    _moveHistory.push(result.playerMove);
+
     // B1: Last Stand — check transition before updating stored HP
     const prevPlayerHpPct  = _battleData.player.hp   / _battleData.player.maxHp;
     const prevOpponentHpPct = _battleData.opponent.hp / _battleData.opponent.maxHp;
@@ -647,6 +789,7 @@ window.ArenaBattleUI = (function () {
         updateRoundLabel(_currentRound);
         addLogEntry(`Round ${_currentRound} — Choose your move.`);
         enableMoves(true);
+        updateComboHints();
       }
     } catch (err) {
       addLogEntry(`Error: ${err.message}`, 'error');

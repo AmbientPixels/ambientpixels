@@ -1354,6 +1354,44 @@ async function handleMove(context, containerClient, userId, body) {
     battle.tempEffects = result.newTempEffects || { player: [], opponent: [] };
   }
 
+  // Combo detection — check move history including current move
+  let comboTriggered = null;
+  const prevMoves = player.moves; // moves BEFORE this round (push happens after)
+  const moveSeq = prevMoves.slice(-2).concat(move); // last 2 + current = 3 moves
+
+  if (moveSeq.length >= 3 && moveSeq[0] === 'strike' && moveSeq[1] === 'strike' && moveSeq[2] === 'strike') {
+    // Flurry: Strike x3 = +30% damage on 3rd strike
+    if (result.opponentDamageTaken > 0) {
+      const bonus = Math.round(result.opponentDamageTaken * 0.30);
+      result.opponentDamageTaken += bonus;
+      result.events.push(`\uD83C\uDF2A\uFE0F FLURRY! Triple strike combo! (+${bonus} damage)`);
+      comboTriggered = 'flurry';
+    }
+  } else if (moveSeq.length >= 2 && moveSeq[moveSeq.length - 2] === 'guard' && move === 'counter') {
+    // Riposte: Guard → Counter = guaranteed reflect (counter always works as if opponent struck)
+    if (opponentMove !== 'strike' && !result.playerCounterReflect) {
+      // Force a reflect even if opponent didn't strike
+      const reflectDmg = Math.max(5, Math.round(player.combatStats.str * 0.25));
+      result.opponentDamageTaken += reflectDmg;
+      result.events.push(`\u2694\uFE0F RIPOSTE! Guard into Counter forces a reflect! (+${reflectDmg} damage)`);
+      comboTriggered = 'riposte';
+    } else if (result.playerCounterReflect) {
+      // Counter already reflected — add bonus damage
+      const bonus = Math.round(result.opponentDamageTaken * 0.25);
+      result.opponentDamageTaken += bonus;
+      result.events.push(`\u2694\uFE0F RIPOSTE! Perfect counter technique! (+${bonus} bonus reflect damage)`);
+      comboTriggered = 'riposte';
+    }
+  } else if (moveSeq.length >= 2 && moveSeq[moveSeq.length - 2] === 'heal' && move === 'ability') {
+    // Empowered: Heal → Ability = +50% ability damage
+    if (result.opponentDamageTaken > 0) {
+      const bonus = Math.round(result.opponentDamageTaken * 0.50);
+      result.opponentDamageTaken += bonus;
+      result.events.push(`\u2728 EMPOWERED! Heal channeled into ability! (+${bonus} damage)`);
+      comboTriggered = 'empowered';
+    }
+  }
+
   player.moves.push(move);
 
   const roundResult = {
@@ -1374,7 +1412,8 @@ async function handleMove(context, containerClient, userId, body) {
     opponentLastStand: opponentInLastStand,
     playerCounterReflect: result.playerCounterReflect,
     opponentCounterReflect: result.opponentCounterReflect,
-    itemUsed: itemUsed
+    itemUsed: itemUsed,
+    comboTriggered: comboTriggered
   };
 
   battle.roundLog.push(roundResult);

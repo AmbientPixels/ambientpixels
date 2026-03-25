@@ -2081,6 +2081,27 @@
 .bs-page .arena-crowd-banner { position: fixed; bottom: 20%; left: 50%; transform: translateX(-50%); z-index: 100; font-family: 'Cinzel', serif; font-size: 1.4rem; font-weight: 700; color: var(--bs-accent); text-shadow: 0 0 16px rgba(239, 159, 39, 0.5); animation: arena-banner-pop 1s ease-out forwards; pointer-events: none; white-space: nowrap; }
 .bs-page .arena-status-chip--new { animation: arena-status-slam 0.4s ease; }
 
+/* --- Phase 1A: Matchup feedback banner --- */
+.bs-page .arena-matchup-banner { position: fixed; top: 38%; left: 50%; transform: translate(-50%, -50%); z-index: 60; font-family: 'Cinzel', serif; font-size: 0.95rem; font-weight: 700; padding: 0.35rem 1rem; border-radius: 6px; pointer-events: none; white-space: nowrap; animation: arena-matchup-slide 1.6s ease-out forwards; }
+.bs-page .arena-matchup-banner--win { color: #4ade80; text-shadow: 0 0 12px rgba(74, 222, 128, 0.4); background: rgba(74, 222, 128, 0.08); border: 1px solid rgba(74, 222, 128, 0.2); }
+.bs-page .arena-matchup-banner--lose { color: #f87171; text-shadow: 0 0 12px rgba(248, 113, 113, 0.4); background: rgba(248, 113, 113, 0.08); border: 1px solid rgba(248, 113, 113, 0.2); }
+@keyframes arena-matchup-slide { 0% { opacity: 0; transform: translate(-50%, -50%) translateY(8px); } 15% { opacity: 1; transform: translate(-50%, -50%) translateY(0); } 75% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -50%) translateY(-12px); } }
+
+/* --- Phase 1A: Passive activation flash --- */
+.bs-page .arena-passive-flash { position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); z-index: 30; font-family: 'Cinzel', serif; font-size: 0.7rem; font-weight: 700; white-space: nowrap; pointer-events: none; opacity: 0; animation: arena-passive-pop 1.8s ease-out forwards; }
+@keyframes arena-passive-pop { 0% { opacity: 0; transform: translateX(-50%) translateY(4px) scale(0.8); } 10% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.05); } 20% { transform: translateX(-50%) translateY(0) scale(1); } 70% { opacity: 1; } 100% { opacity: 0; transform: translateX(-50%) translateY(-8px); } }
+
+/* --- Phase 1B: Combo banner --- */
+.bs-page .arena-combo-banner { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 110; display: flex; flex-direction: column; align-items: center; gap: 0.15rem; pointer-events: none; animation: arena-combo-burst 2s ease-out forwards; }
+.bs-page .arena-combo-banner__icon { font-size: 2rem; }
+.bs-page .arena-combo-banner__name { font-family: 'Cinzel', serif; font-size: 2rem; font-weight: 900; color: var(--combo-color, var(--bs-accent)); text-shadow: 0 0 30px var(--combo-color, var(--bs-accent)), 0 0 60px rgba(0,0,0,0.5); letter-spacing: 0.08em; }
+.bs-page .arena-combo-banner__desc { font-size: 0.75rem; color: var(--bs-text-muted); font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+@keyframes arena-combo-burst { 0% { opacity: 0; transform: translate(-50%, -50%) scale(0.3); } 8% { opacity: 1; transform: translate(-50%, -50%) scale(1.15); } 15% { transform: translate(-50%, -50%) scale(1); } 75% { opacity: 1; } 100% { opacity: 0; transform: translate(-50%, -50%) scale(1.05) translateY(-10px); } }
+
+/* --- Phase 1B: Combo hint glow on move buttons --- */
+.bs-page .arena-move-btn--combo-hint { box-shadow: 0 0 12px rgba(239, 159, 39, 0.35), inset 0 0 6px rgba(239, 159, 39, 0.1); border-color: var(--bs-accent-dim) !important; }
+.bs-page .arena-move-btn--combo-hint::after { content: 'COMBO'; position: absolute; top: -6px; right: -4px; font-size: 0.45rem; font-weight: 800; color: var(--bs-bg); background: var(--bs-accent); padding: 0.1rem 0.3rem; border-radius: 3px; letter-spacing: 0.05em; line-height: 1; }
+
 /* --- Unlock Toasts (arena-results.js) --- */
 .bs-page .arena-unlock-toast { position: fixed; bottom: 1.5rem; right: 1.5rem; z-index: 2000; background: var(--bs-surface); border: 1px solid var(--bs-accent-dim); border-radius: 12px; padding: 1rem 1.25rem; max-width: 300px; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5); animation: arena-toast-in 0.4s ease-out; }
 .bs-page .arena-unlock-toast--removing { animation: arena-toast-out 0.3s ease-in forwards; }
