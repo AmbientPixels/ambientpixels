@@ -1141,6 +1141,7 @@
   text-align: center;
   gap: 1.5rem;
   padding: 2rem;
+  overflow-y: auto;
 }
 
 .bs-overlay--hidden {
