@@ -250,6 +250,7 @@
     if (target) target.classList.add('active');
     document.body.classList.toggle('bs-battle-active', id === 'battle');
     updateBottomNav(id);
+    window.scrollTo(0, 0);
   }
 
   function isNewPlayer(profile) {
