@@ -116,12 +116,12 @@
     "maxCharges": 4
   },
   "staminaConfig": {
-    "basePool": 15,
+    "basePool": 12,
     "endPoolBonus": 10,
     "baseRegen": 1,
     "endRegenDiv": 50,
     "exhaustionThreshold": 3,
-    "exhaustionPenalty": 0.7,
+    "exhaustionBurnPct": 0.03,
     "costs": { "strike": 4, "guard": 1, "heal": 2, "counter": 4, "ability": 5 }
   },
   "validClasses": ["Fighter", "Enforcer", "Berserker", "Caster", "Hacker", "Scholar", "Scout", "Rogue", "Pilot", "Guardian", "Medic", "Trickster", "Wildcard"],

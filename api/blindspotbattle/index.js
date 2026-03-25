@@ -396,14 +396,12 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
   const config = loadArenaConfig();
   const events = [];
 
-  // Stamina exhaustion penalty (30% damage/heal reduction when below threshold)
+  // Stamina exhaustion: HP burn when below threshold (fighting costs life force)
   const sc = config.staminaConfig || {};
   const exhaustionThreshold = sc.exhaustionThreshold || 3;
-  const exhaustionPenalty = sc.exhaustionPenalty || 0.7;
+  const exhaustionBurnPct = sc.exhaustionBurnPct || 0.03;
   const playerExhausted = staminaState && staminaState.player < exhaustionThreshold;
   const opponentExhausted = staminaState && staminaState.opponent < exhaustionThreshold;
-  if (playerExhausted) events.push('⚡ You are exhausted! Moves deal 30% less.');
-  if (opponentExhausted) events.push('⚡ Enemy is exhausted! Their moves deal 30% less.');
 
   // Move label map for round header
   const moveLabels = { strike: 'Strike', guard: 'Guard', ability: 'Ability', heal: 'Heal', counter: 'Counter' };
@@ -785,14 +783,16 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     opponentHeal += opponentRegenBonus;
   }
 
-  // Stamina exhaustion: reduce outgoing damage/heal by 30% when exhausted
+  // Stamina exhaustion: HP burn — fighting while exhausted costs life force
   if (playerExhausted) {
-    opponentDamageTaken = Math.floor(opponentDamageTaken * exhaustionPenalty);
-    playerHeal = Math.floor(playerHeal * exhaustionPenalty);
+    const burn = Math.max(3, Math.round(player.maxHp * exhaustionBurnPct));
+    playerDamageTaken += burn;
+    events.push('\u26A1 Exhaustion burns ' + burn + ' HP!');
   }
   if (opponentExhausted) {
-    playerDamageTaken = Math.floor(playerDamageTaken * exhaustionPenalty);
-    opponentHeal = Math.floor(opponentHeal * exhaustionPenalty);
+    const burn = Math.max(3, Math.round(opponent.maxHp * exhaustionBurnPct));
+    opponentDamageTaken += burn;
+    events.push('\u26A1 Enemy exhaustion burns ' + burn + ' HP!');
   }
 
   // Round summary line
