@@ -105,7 +105,18 @@
     });
 
     // Combat guide
-    document.getElementById('bs-combat-help-btn')?.addEventListener('click', () => { _cb.showOverlay('bs-combat-guide'); });
+    document.getElementById('bs-combat-help-btn')?.addEventListener('click', () => {
+      // Progressive disclosure: re-evaluated on every open (handles mid-session boss kills)
+      // Reads localStorage — may drift from server if cleared, but cosmetic-only so fail-safe
+      var guide = document.querySelector('.bs-guide');
+      if (guide) {
+        var highest = parseInt(localStorage.getItem('blindspot-highest-boss') || '0', 10);
+        guide.classList.remove('bs-guide--tier1', 'bs-guide--tier3');
+        if (highest >= 3) guide.classList.add('bs-guide--tier3');
+        else if (highest >= 1) guide.classList.add('bs-guide--tier1');
+      }
+      _cb.showOverlay('bs-combat-guide');
+    });
     document.getElementById('bs-combat-guide-close')?.addEventListener('click', () => { _cb.hideOverlay('bs-combat-guide'); });
 
     // Pre-fight retreat
