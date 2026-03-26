@@ -1752,7 +1752,14 @@
       var _eqCharm = _Chm.getEquipped ? _Chm.getEquipped() : null;
       var _eqCharmDef = _eqCharm && _Chm.getDef ? _Chm.getDef(_eqCharm) : null;
       var _eqElCharm = (_eqCharmDef && _eqCharmDef.effect === 'element_resist' && _eqCharmDef.element) ? _eqCharmDef.element : undefined;
-      const battleData = await window.ArenaAPI.startBattle('pve', _selectedCard.id, bossId, { cardData: _selectedCard, tempBuffs: tempBuffs || {}, adventureItems: (_Chm.getAdventureItems ? _Chm.getAdventureItems() : []) || [], equippedElementCharm: _eqElCharm });
+      // Merge adventure items (from adventure encounters) + inventory items (from prefight picker)
+      var _advItems = (_Chm.getAdventureItems ? _Chm.getAdventureItems() : []) || [];
+      var _invItems = (_Chm.getSelectedItems ? _Chm.getSelectedItems() : []) || [];
+      var _allItems = _advItems.concat(_invItems);
+      const battleData = await window.ArenaAPI.startBattle('pve', _selectedCard.id, bossId, { cardData: _selectedCard, tempBuffs: tempBuffs || {}, adventureItems: _allItems, equippedElementCharm: _eqElCharm });
+      // Consume selected inventory items + equipped charm from inventory
+      if (_Chm.consumeSelectedItems) _Chm.consumeSelectedItems();
+      if (_eqCharm) { _Chm.remove(_eqCharm); _Chm.setEquipped(null); }
       _activeBattle = battleData;
       window.ArenaBattleUI.initBattle(battleData);
       updateCombatTooltips();
