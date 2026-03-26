@@ -5135,7 +5135,7 @@ body.bs-battle-active .bs-play {
 
 @media (min-width: 769px) {
   .bs-guide { max-width: 760px; }
-  .bs-guide__columns { flex-direction: row; gap: 1.5rem; }
+  .bs-guide__columns { flex-direction: row; gap: 1.5rem; align-items: center; }
   .bs-guide__col { flex: 1; min-width: 0; }
 }
 
