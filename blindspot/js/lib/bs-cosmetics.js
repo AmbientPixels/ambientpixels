@@ -82,7 +82,8 @@ window.BsCosmetics = (function () {
     charm_heal_potion: 10, charm_power_surge: 15, charm_shield_wall: 15, charm_lucky_strike: 20, charm_charge_boost: 20,
     stamina_potion: 10, endurance_tonic: 15, second_wind: 20,
     element_ward: 15, element_burst: 25, element_shift: 25, prism_shard: 35,
-    charm_resist_fire: 20, charm_resist_earth: 20, charm_resist_arcane: 20, charm_resist_shadow: 20
+    charm_resist_fire: 20, charm_resist_earth: 20, charm_resist_arcane: 20, charm_resist_shadow: 20,
+    charm_smoke_bomb: 20, charm_iron_skin: 25, charm_combo_primer: 20, charm_adrenaline_spike: 15
   };
   function _getItemCost(id) { return ITEM_PRICES[id] || 0; }
 
