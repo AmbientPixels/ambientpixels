@@ -60,7 +60,7 @@
           "id": "a",
           "text": "Smash through the mirrors — raw force",
           "skillCheck": { "stat": "str", "dc": 12 },
-          "success": { "buffs": { "str": 5 }, "next": "s3" },
+          "success": { "buffs": { "str": 5 }, "item": "element_shift", "next": "s3" },
           "failure": { "buffs": { "end": -2 }, "next": "s3" }
         },
         {

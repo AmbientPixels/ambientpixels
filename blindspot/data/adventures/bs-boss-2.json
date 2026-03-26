@@ -107,6 +107,7 @@
           "id": "a",
           "text": "Center yourself — find calm before the storm",
           "buffs": { "end": 3 },
+          "item": "element_ward",
           "next": "s4_final"
         },
         {

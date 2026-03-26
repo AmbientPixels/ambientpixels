@@ -72,7 +72,7 @@
           "id": "b",
           "text": "Move fast and unpredictably — match its energy",
           "skillCheck": { "stat": "agi", "dc": 13 },
-          "success": { "buffs": { "agi": 5 }, "next": "s3" },
+          "success": { "buffs": { "agi": 5 }, "item": "element_shift", "next": "s3" },
           "failure": { "buffs": { "end": -2 }, "next": "s3" }
         }
       ]

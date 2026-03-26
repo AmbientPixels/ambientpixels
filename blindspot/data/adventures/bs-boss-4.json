@@ -45,6 +45,7 @@
           "id": "b",
           "text": "Download everything — knowledge is power",
           "buffs": { "int": 3 },
+          "item": "prism_shard",
           "next": "s3"
         },
         {

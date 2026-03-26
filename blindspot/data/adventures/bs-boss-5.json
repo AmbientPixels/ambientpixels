@@ -78,7 +78,7 @@
           "id": "a",
           "text": "Stand your ground — whatever it is, face it",
           "skillCheck": { "stat": "end", "dc": 13 },
-          "success": { "buffs": { "end": 5 }, "next": "s3" },
+          "success": { "buffs": { "end": 5 }, "item": "endurance_tonic", "next": "s3" },
           "failure": { "buffs": { "end": -3 }, "next": "s3" }
         },
         {

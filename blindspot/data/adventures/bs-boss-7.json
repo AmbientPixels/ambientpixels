@@ -65,7 +65,7 @@
           "id": "a",
           "text": "Keep pushing — outlast the resistance",
           "skillCheck": { "stat": "end", "dc": 12 },
-          "success": { "buffs": { "end": 5 }, "next": "s3" },
+          "success": { "buffs": { "end": 5 }, "item": "stamina_potion", "next": "s3" },
           "failure": { "buffs": { "end": -2 }, "next": "s3" }
         },
         {

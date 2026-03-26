@@ -44,6 +44,7 @@
           "id": "a",
           "text": "Study them deeper before moving on",
           "buffs": { "int": 3 },
+          "item": "stamina_potion",
           "next": "s3_final"
         },
         {

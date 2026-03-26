@@ -91,6 +91,7 @@
           "id": "b",
           "text": "Build your defenses — take the hits and hit back harder",
           "buffs": { "end": 3, "str": 1 },
+          "item": "second_wind",
           "next": "s3"
         }
       ]

@@ -40,6 +40,7 @@
           "id": "a",
           "text": "Study the Sage's combat style in the texts",
           "buffs": { "int": 3 },
+          "item": "element_burst",
           "next": "s3"
         },
         {
