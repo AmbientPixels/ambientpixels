@@ -102,6 +102,7 @@
           if (_cb.showErrorToast) _cb.showErrorToast('Failed to start fight. Try again.');
           document.getElementById('bs-landing').style.display = '';
           document.getElementById('bs-battle-container').style.display = 'none';
+          document.body.classList.remove('bs-battle-active');
         });
       });
     });
@@ -156,6 +157,7 @@
     var battleContainer = document.getElementById('bs-battle-container');
     battleContainer.style.display = 'block';
     battleContainer.style.opacity = '0';
+    document.body.classList.add('bs-battle-active');
 
     if (window.ArenaAudio) window.ArenaAudio.init();
 
@@ -211,6 +213,7 @@
   function handleStrangerResult(battleResult, battleData) {
     var isWin = battleResult.winner === 'player';
     document.getElementById('bs-battle-container').style.display = 'none';
+    document.body.classList.remove('bs-battle-active');
 
     if (isWin) {
       if (_cb.showOverlay) _cb.showOverlay('bs-stranger-win');
