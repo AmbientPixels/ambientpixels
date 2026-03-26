@@ -21,7 +21,14 @@
       "element": "earth",
       "resistances": { "strike": 15 },
       "weaknesses": { "ability": 20 },
-      "signaturePassive": { "id": "fortified_start", "name": "Fortified Start", "desc": "Starts with armor that fades each round", "params": { "startDR": 20, "fadePerRound": 5 } }
+      "signaturePassive": { "id": "fortified_start", "name": "Fortified Start", "desc": "Starts with armor that fades each round", "params": { "startDR": 20, "fadePerRound": 5 } },
+      "telegraph": {
+        "strike": "The Gatekeeper raises a heavy fist...",
+        "guard": "The Gatekeeper braces behind his shield...",
+        "ability": "The Gatekeeper channels a crushing blow...",
+        "heal": "The Gatekeeper steadies his breathing...",
+        "counter": "The Gatekeeper shifts to a defensive stance..."
+      }
     },
     {
       "id": "bs-boss-2",
@@ -44,7 +51,14 @@
       "element": "shadow",
       "resistances": { "ability": 15 },
       "weaknesses": { "counter": 20 },
-      "signaturePassive": { "id": "vengeance", "name": "Vengeance", "desc": "Hits harder after being crit", "params": { "bonus": 0.25 } }
+      "signaturePassive": { "id": "vengeance", "name": "Vengeance", "desc": "Hits harder after being crit", "params": { "bonus": 0.25 } },
+      "telegraph": {
+        "strike": "The Warden winds up a disciplined strike...",
+        "guard": "The Warden locks into formation...",
+        "ability": "The Warden prepares a precision technique...",
+        "heal": "The Warden takes a measured breath...",
+        "counter": "The Warden reads your stance, waiting..."
+      }
     },
     {
       "id": "bs-boss-3",
@@ -67,7 +81,14 @@
       "element": "arcane",
       "resistances": { "counter": 25 },
       "weaknesses": { "strike": 15 },
-      "signaturePassive": { "id": "phase", "name": "Phase", "desc": "Phases out every 3rd round — your attack misses", "params": { "interval": 3 } }
+      "signaturePassive": { "id": "phase", "name": "Phase", "desc": "Phases out every 3rd round — your attack misses", "params": { "interval": 3 } },
+      "telegraph": {
+        "strike": "The Ghost's blade flickers in the dark...",
+        "guard": "The Ghost fades into shadow...",
+        "ability": "The Ghost gathers arcane speed...",
+        "heal": "The Ghost pauses, drawing from the void...",
+        "counter": "The Ghost mirrors your movement..."
+      }
     },
     {
       "id": "bs-boss-4",
@@ -90,7 +111,14 @@
       "element": "chaos",
       "resistances": { "strike": 20 },
       "weaknesses": { "ability": 15 },
-      "signaturePassive": { "id": "hack", "name": "Hack", "desc": "Steals your charges when hitting you", "params": { "steal": 1 } }
+      "signaturePassive": { "id": "hack", "name": "Hack", "desc": "Steals your charges when hitting you", "params": { "steal": 1 } },
+      "telegraph": {
+        "strike": "The Cipher's code fragments into shards...",
+        "guard": "The Cipher erects a firewall...",
+        "ability": "The Cipher compiles a devastating exploit...",
+        "heal": "The Cipher runs a restore protocol...",
+        "counter": "The Cipher prepares to reflect your input..."
+      }
     },
     {
       "id": "bs-boss-5",
@@ -113,7 +141,14 @@
       "element": "earth",
       "resistances": { "ability": 15, "counter": 15 },
       "weaknesses": {},
-      "signaturePassive": { "id": "rage", "name": "Rage", "desc": "Deals +40% damage below 30% HP", "params": { "threshold": 0.30, "bonus": 0.40 } }
+      "signaturePassive": { "id": "rage", "name": "Rage", "desc": "Deals +40% damage below 30% HP", "params": { "threshold": 0.30, "bonus": 0.40 } },
+      "telegraph": {
+        "strike": "The Brute snarls and draws back a massive fist...",
+        "guard": "The Brute hunkers down, teeth bared...",
+        "ability": "The Brute's muscles surge with fury...",
+        "heal": "The Brute growls, licking wounds...",
+        "counter": "The Brute waits, fists clenched, daring you..."
+      }
     },
     {
       "id": "bs-boss-6",
@@ -136,7 +171,14 @@
       "element": "arcane",
       "resistances": { "strike": 20 },
       "weaknesses": { "counter": 20 },
-      "signaturePassive": { "id": "leech", "name": "Leech", "desc": "Drains HP equal to 15% of damage dealt", "params": { "healPct": 0.15 } }
+      "signaturePassive": { "id": "leech", "name": "Leech", "desc": "Drains HP equal to 15% of damage dealt", "params": { "healPct": 0.15 } },
+      "telegraph": {
+        "strike": "The Sage channels raw force through a staff...",
+        "guard": "The Sage weaves a ward of light...",
+        "ability": "The Sage opens an ancient tome, words glowing...",
+        "heal": "The Sage draws life from the arcane threads...",
+        "counter": "The Sage readies a reflective glyph..."
+      }
     },
     {
       "id": "bs-boss-7",
@@ -159,7 +201,14 @@
       "element": "fire",
       "resistances": { "strike": 25, "ability": 10 },
       "weaknesses": { "counter": 15 },
-      "signaturePassive": { "id": "fortified_start", "name": "Fortified Start", "desc": "Starts with heavy armor that fades each round", "params": { "startDR": 25, "fadePerRound": 5 } }
+      "signaturePassive": { "id": "fortified_start", "name": "Fortified Start", "desc": "Starts with heavy armor that fades each round", "params": { "startDR": 25, "fadePerRound": 5 } },
+      "telegraph": {
+        "strike": "The Iron lurches forward, arm raised...",
+        "guard": "The Iron plants both feet and hardens...",
+        "ability": "The Iron channels fire through steel...",
+        "heal": "The Iron's armor begins to mend itself...",
+        "counter": "The Iron angles their shield to redirect..."
+      }
     },
     {
       "id": "bs-boss-8",
@@ -182,7 +231,14 @@
       "element": "chaos",
       "resistances": { "counter": 20 },
       "weaknesses": { "strike": 10, "ability": 10 },
-      "signaturePassive": { "id": "mirror", "name": "Mirror", "desc": "25% chance to copy your last move", "params": { "chance": 0.25 } }
+      "signaturePassive": { "id": "mirror", "name": "Mirror", "desc": "25% chance to copy your last move", "params": { "chance": 0.25 } },
+      "telegraph": {
+        "strike": "The Trickster's eyes flash with mischief...",
+        "guard": "The Trickster shimmers, half-vanishing...",
+        "ability": "The Trickster reaches into probability...",
+        "heal": "The Trickster reverses time on a wound...",
+        "counter": "The Trickster grins, daring you to act..."
+      }
     },
     {
       "id": "bs-boss-9",
@@ -208,7 +264,14 @@
       "element": "shadow",
       "resistances": { "ability": 10 },
       "weaknesses": { "counter": 15 },
-      "signaturePassive": { "id": "enrage", "name": "Enrage", "desc": "Damage increases 5% every round", "params": { "pctPerRound": 0.05 } }
+      "signaturePassive": { "id": "enrage", "name": "Enrage", "desc": "Damage increases 5% every round", "params": { "pctPerRound": 0.05 } },
+      "telegraph": {
+        "strike": "The Feral lunges with primal hunger...",
+        "guard": "The Feral crouches low, coiled to spring...",
+        "ability": "The Feral howls, shadow surging...",
+        "heal": "The Feral retreats, licking wounds...",
+        "counter": "The Feral watches with predator patience..."
+      }
     },
     {
       "id": "bs-boss-10",
@@ -235,7 +298,14 @@
       "element": "fire",
       "resistances": { "strike": 15, "counter": 20 },
       "weaknesses": {},
-      "signaturePassive": { "id": "leech", "name": "Leech", "desc": "Drains HP equal to 10% of damage dealt", "params": { "healPct": 0.10 } }
+      "signaturePassive": { "id": "leech", "name": "Leech", "desc": "Drains HP equal to 10% of damage dealt", "params": { "healPct": 0.10 } },
+      "telegraph": {
+        "strike": "The Architect shapes raw force into a blade...",
+        "guard": "The Architect raises geometric wards...",
+        "ability": "The Architect begins a grand incantation...",
+        "heal": "The Architect reconstructs damaged form...",
+        "counter": "The Architect sets a trap in your path..."
+      }
     },
     {
       "id": "bs-weekly-1",
@@ -258,7 +328,14 @@
       "element": "fire",
       "resistances": { "counter": 20 },
       "weaknesses": { "ability": 15 },
-      "signaturePassive": { "id": "rage", "name": "Rage", "desc": "Deals +40% damage below 30% HP", "params": { "threshold": 0.30, "bonus": 0.40 } }
+      "signaturePassive": { "id": "rage", "name": "Rage", "desc": "Deals +40% damage below 30% HP", "params": { "threshold": 0.30, "bonus": 0.40 } },
+      "telegraph": {
+        "strike": "The Revenant rises, swinging wildly...",
+        "guard": "The Revenant crosses scarred arms...",
+        "ability": "The Revenant's rage ignites into flame...",
+        "heal": "The Revenant feeds on lingering pain...",
+        "counter": "The Revenant sways, baiting your swing..."
+      }
     },
     {
       "id": "bs-weekly-2",
@@ -281,7 +358,14 @@
       "element": "chaos",
       "resistances": { "strike": 15 },
       "weaknesses": { "counter": 20 },
-      "signaturePassive": { "id": "phase", "name": "Phase", "desc": "Phases out every 3rd round", "params": { "interval": 3 } }
+      "signaturePassive": { "id": "phase", "name": "Phase", "desc": "Phases out every 3rd round", "params": { "interval": 3 } },
+      "telegraph": {
+        "strike": "The Mirage solidifies for a split second...",
+        "guard": "The Mirage fractures into afterimages...",
+        "ability": "The Mirage bends reality around you...",
+        "heal": "The Mirage reassembles from scattered light...",
+        "counter": "The Mirage becomes a perfect reflection..."
+      }
     },
     {
       "id": "bs-weekly-3",
@@ -304,7 +388,14 @@
       "element": "earth",
       "resistances": { "strike": 25 },
       "weaknesses": { "ability": 20 },
-      "signaturePassive": { "id": "fortified_start", "name": "Fortified Start", "desc": "Starts with heavy armor that fades each round", "params": { "startDR": 25, "fadePerRound": 4 } }
+      "signaturePassive": { "id": "fortified_start", "name": "Fortified Start", "desc": "Starts with heavy armor that fades each round", "params": { "startDR": 25, "fadePerRound": 4 } },
+      "telegraph": {
+        "strike": "The Colossus raises a stone fist...",
+        "guard": "The Colossus hunkers into the earth...",
+        "ability": "The Colossus channels seismic force...",
+        "heal": "The Colossus draws strength from bedrock...",
+        "counter": "The Colossus readies to turn your blow..."
+      }
     },
     {
       "id": "bs-weekly-4",
@@ -327,7 +418,14 @@
       "element": "arcane",
       "resistances": { "counter": 15 },
       "weaknesses": { "strike": 20 },
-      "signaturePassive": { "id": "hack", "name": "Hack", "desc": "Steals your charges when hitting you", "params": { "steal": 1 } }
+      "signaturePassive": { "id": "hack", "name": "Hack", "desc": "Steals your charges when hitting you", "params": { "steal": 1 } },
+      "telegraph": {
+        "strike": "The Oracle hurls crystallized foresight...",
+        "guard": "The Oracle erects a barrier of prophecy...",
+        "ability": "The Oracle begins weaving a fate-spell...",
+        "heal": "The Oracle rewrites recent wounds...",
+        "counter": "The Oracle already knows your choice..."
+      }
     }
   ]
 }

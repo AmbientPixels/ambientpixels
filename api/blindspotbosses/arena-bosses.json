@@ -18,7 +18,14 @@
       "badges": [],
       "attributes": [{ "key": "Element", "value": "None" }],
       "arenaOverrides": { "aiPattern": "balanced" },
-      "element": "earth"
+      "element": "earth",
+      "telegraph": {
+        "strike": "The Gatekeeper raises a heavy fist...",
+        "guard": "The Gatekeeper braces behind his shield...",
+        "ability": "The Gatekeeper channels a crushing blow...",
+        "heal": "The Gatekeeper steadies his breathing...",
+        "counter": "The Gatekeeper shifts to a defensive stance..."
+      }
     },
     {
       "id": "bs-boss-2",
@@ -38,7 +45,14 @@
       "badges": [],
       "attributes": [{ "key": "Element", "value": "Iron" }],
       "arenaOverrides": { "aiPattern": "balanced" },
-      "element": "shadow"
+      "element": "shadow",
+      "telegraph": {
+        "strike": "The Warden winds up a disciplined strike...",
+        "guard": "The Warden locks into formation...",
+        "ability": "The Warden prepares a precision technique...",
+        "heal": "The Warden takes a measured breath...",
+        "counter": "The Warden reads your stance, waiting..."
+      }
     },
     {
       "id": "bs-boss-3",
@@ -58,7 +72,14 @@
       "badges": [],
       "attributes": [{ "key": "Element", "value": "Shadow" }],
       "arenaOverrides": { "aiPattern": "aggressive" },
-      "element": "arcane"
+      "element": "arcane",
+      "telegraph": {
+        "strike": "The Ghost's blade flickers in the dark...",
+        "guard": "The Ghost fades into shadow...",
+        "ability": "The Ghost gathers arcane speed...",
+        "heal": "The Ghost pauses, drawing from the void...",
+        "counter": "The Ghost mirrors your movement..."
+      }
     },
     {
       "id": "bs-boss-4",
@@ -78,7 +99,14 @@
       "badges": [],
       "attributes": [{ "key": "Element", "value": "Arcane" }],
       "arenaOverrides": { "aiPattern": "spell_heavy" },
-      "element": "chaos"
+      "element": "chaos",
+      "telegraph": {
+        "strike": "The Cipher's code fragments into shards...",
+        "guard": "The Cipher erects a firewall...",
+        "ability": "The Cipher compiles a devastating exploit...",
+        "heal": "The Cipher runs a restore protocol...",
+        "counter": "The Cipher prepares to reflect your input..."
+      }
     },
     {
       "id": "bs-boss-5",
@@ -98,7 +126,14 @@
       "badges": [],
       "attributes": [{ "key": "Element", "value": "Fire" }],
       "arenaOverrides": { "aiPattern": "berserker" },
-      "element": "earth"
+      "element": "earth",
+      "telegraph": {
+        "strike": "The Brute snarls and draws back a massive fist...",
+        "guard": "The Brute hunkers down, teeth bared...",
+        "ability": "The Brute's muscles surge with fury...",
+        "heal": "The Brute growls, licking wounds...",
+        "counter": "The Brute waits, fists clenched, daring you..."
+      }
     },
     {
       "id": "bs-boss-6",
@@ -118,7 +153,14 @@
       "badges": [{ "category": "Skill", "icon": "star", "quantity": 2 }],
       "attributes": [{ "key": "Element", "value": "Arcane" }],
       "arenaOverrides": { "aiPattern": "spell_heavy" },
-      "element": "arcane"
+      "element": "arcane",
+      "telegraph": {
+        "strike": "The Sage channels raw force through a staff...",
+        "guard": "The Sage weaves a ward of light...",
+        "ability": "The Sage opens an ancient tome, words glowing...",
+        "heal": "The Sage draws life from the arcane threads...",
+        "counter": "The Sage readies a reflective glyph..."
+      }
     },
     {
       "id": "bs-boss-7",
@@ -138,7 +180,14 @@
       "badges": [{ "category": "Honor", "icon": "shield", "quantity": 2 }],
       "attributes": [{ "key": "Element", "value": "Titanium" }],
       "arenaOverrides": { "aiPattern": "defensive" },
-      "element": "fire"
+      "element": "fire",
+      "telegraph": {
+        "strike": "The Iron lurches forward, arm raised...",
+        "guard": "The Iron plants both feet and hardens...",
+        "ability": "The Iron channels fire through steel...",
+        "heal": "The Iron's armor begins to mend itself...",
+        "counter": "The Iron angles their shield to redirect..."
+      }
     },
     {
       "id": "bs-boss-8",
@@ -158,7 +207,14 @@
       "badges": [{ "category": "Champion", "icon": "trophy", "quantity": 2 }],
       "attributes": [{ "key": "Element", "value": "Crystal" }],
       "arenaOverrides": { "aiPattern": "balanced" },
-      "element": "chaos"
+      "element": "chaos",
+      "telegraph": {
+        "strike": "The Trickster's eyes flash with mischief...",
+        "guard": "The Trickster shimmers, half-vanishing...",
+        "ability": "The Trickster reaches into probability...",
+        "heal": "The Trickster reverses time on a wound...",
+        "counter": "The Trickster grins, daring you to act..."
+      }
     },
     {
       "id": "bs-boss-9",
@@ -181,7 +237,14 @@
       ],
       "attributes": [{ "key": "Element", "value": "Fire" }],
       "arenaOverrides": { "aiPattern": "berserker" },
-      "element": "shadow"
+      "element": "shadow",
+      "telegraph": {
+        "strike": "The Feral lunges with primal hunger...",
+        "guard": "The Feral crouches low, coiled to spring...",
+        "ability": "The Feral howls, shadow surging...",
+        "heal": "The Feral retreats, licking wounds...",
+        "counter": "The Feral watches with predator patience..."
+      }
     },
     {
       "id": "bs-boss-10",
@@ -205,7 +268,14 @@
       ],
       "attributes": [{ "key": "Element", "value": "Forge Fire" }],
       "arenaOverrides": { "aiPattern": "spell_heavy" },
-      "element": "fire"
+      "element": "fire",
+      "telegraph": {
+        "strike": "The Architect shapes raw force into a blade...",
+        "guard": "The Architect raises geometric wards...",
+        "ability": "The Architect begins a grand incantation...",
+        "heal": "The Architect reconstructs damaged form...",
+        "counter": "The Architect sets a trap in your path..."
+      }
     },
     {
       "id": "bs-weekly-1",
@@ -225,7 +295,14 @@
       "badges": [{ "category": "Weekly", "icon": "calendar", "quantity": 1 }],
       "attributes": [{ "key": "Element", "value": "Blood" }],
       "arenaOverrides": { "aiPattern": "berserker" },
-      "element": "fire"
+      "element": "fire",
+      "telegraph": {
+        "strike": "The Revenant rises, swinging wildly...",
+        "guard": "The Revenant crosses scarred arms...",
+        "ability": "The Revenant's rage ignites into flame...",
+        "heal": "The Revenant feeds on lingering pain...",
+        "counter": "The Revenant sways, baiting your swing..."
+      }
     },
     {
       "id": "bs-weekly-2",
@@ -245,7 +322,14 @@
       "badges": [{ "category": "Weekly", "icon": "calendar", "quantity": 1 }],
       "attributes": [{ "key": "Element", "value": "Void" }],
       "arenaOverrides": { "aiPattern": "evasive" },
-      "element": "chaos"
+      "element": "chaos",
+      "telegraph": {
+        "strike": "The Mirage solidifies for a split second...",
+        "guard": "The Mirage fractures into afterimages...",
+        "ability": "The Mirage bends reality around you...",
+        "heal": "The Mirage reassembles from scattered light...",
+        "counter": "The Mirage becomes a perfect reflection..."
+      }
     },
     {
       "id": "bs-weekly-3",
@@ -265,7 +349,14 @@
       "badges": [{ "category": "Weekly", "icon": "calendar", "quantity": 1 }],
       "attributes": [{ "key": "Element", "value": "Iron" }],
       "arenaOverrides": { "aiPattern": "defensive" },
-      "element": "earth"
+      "element": "earth",
+      "telegraph": {
+        "strike": "The Colossus raises a stone fist...",
+        "guard": "The Colossus hunkers into the earth...",
+        "ability": "The Colossus channels seismic force...",
+        "heal": "The Colossus draws strength from bedrock...",
+        "counter": "The Colossus readies to turn your blow..."
+      }
     },
     {
       "id": "bs-weekly-4",
@@ -285,7 +376,14 @@
       "badges": [{ "category": "Weekly", "icon": "calendar", "quantity": 1 }],
       "attributes": [{ "key": "Element", "value": "Arcane" }],
       "arenaOverrides": { "aiPattern": "spell_heavy" },
-      "element": "arcane"
+      "element": "arcane",
+      "telegraph": {
+        "strike": "The Oracle hurls crystallized foresight...",
+        "guard": "The Oracle erects a barrier of prophecy...",
+        "ability": "The Oracle begins weaving a fate-spell...",
+        "heal": "The Oracle rewrites recent wounds...",
+        "counter": "The Oracle already knows your choice..."
+      }
     }
   ]
 }

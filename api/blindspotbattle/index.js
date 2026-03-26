@@ -1303,6 +1303,24 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
     }
   }
 
+  // Telegraph: Pre-generate boss's first move so client can show intent
+  let bossIntent = null;
+  if (type === 'pve') {
+    const firstBossMove = generateBossMove(
+      { arenaOverrides: opponentCard.arenaOverrides || { aiPattern: 'balanced' }, combatStats: opponentCombat },
+      1, opponentMaxHp, opponentMaxHp, battleState.charges.opponent,
+      battleState.stamina.opponent, battleState.maxStamina.opponent,
+      battleState.cooldowns.opponent, battleState.stances.opponent
+    );
+    battleState.pendingBossMove = firstBossMove;
+    // Build intent with flavor text from boss telegraph data
+    const telegraphStrings = opponentCard.telegraph || {};
+    bossIntent = {
+      move: firstBossMove,
+      flavor: telegraphStrings[firstBossMove] || (opponentCard.name + ' prepares to ' + firstBossMove + '...')
+    };
+  }
+
   await uploadJsonBlob(containerClient, `arena/battles/${battleId}.json`, battleState);
   context.log(`[Blindspot] Battle started: ${battleId} (${type}) - ${playerCard.name} vs ${opponentCard.name}`);
 
@@ -1350,7 +1368,8 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
       elements: { player: playerElement, opponent: opponentElement },
       currentRound: 1,
       totalRounds: config.totalRounds,
-      status: 'active'
+      status: 'active',
+      bossIntent: bossIntent || undefined
     }
   };
 }
@@ -1466,13 +1485,18 @@ async function handleMove(context, containerClient, userId, body) {
     }
   }
 
-  // Mirror passive — boss copies player's last move
+  // Telegraph system: Use pre-generated boss move (committed last round / at battle start)
   let opponentMove;
   if (battle._mirrorNextMove) {
+    // Mirror passive — boss copies player's last move (overrides telegraph)
     opponentMove = battle._mirrorNextMove;
     delete battle._mirrorNextMove;
+  } else if (battle.pendingBossMove) {
+    // Use the pre-generated (telegraphed) move — boss committed to this
+    opponentMove = battle.pendingBossMove;
+    delete battle.pendingBossMove;
   } else if (hasCharges) {
-    // Generate opponent move on-the-fly (charge-aware)
+    // Fallback: generate on-the-fly (PvP or legacy battles without telegraph)
     opponentMove = generateBossMove(
       battle.type === 'pve' ? { arenaOverrides: opponent.arenaOverrides || { aiPattern: 'balanced' }, combatStats: opponent.combatStats } : { arenaOverrides: { aiPattern: 'balanced' } },
       round, opponent.hp, opponent.maxHp, battle.charges.opponent,
@@ -1884,6 +1908,29 @@ async function handleMove(context, containerClient, userId, body) {
     }
   };
 
+  // Telegraph: Pre-generate NEXT boss move for the next round
+  let nextBossIntent = null;
+  if (battle.type === 'pve' && player.hp > 0 && opponent.hp > 0) {
+    const bossData = loadBossData();
+    const bossEntry = bossData.bosses.find(b => b.id === opponent.cardId || b.id === battle.player2.userId);
+    const nextBossMove = generateBossMove(
+      { arenaOverrides: opponent.arenaOverrides || { aiPattern: 'balanced' }, combatStats: opponent.combatStats },
+      round + 1, opponent.hp, opponent.maxHp,
+      battle.charges ? battle.charges.opponent : 0,
+      battle.stamina ? battle.stamina.opponent : undefined,
+      battle.maxStamina ? battle.maxStamina.opponent : undefined,
+      battle.cooldowns ? battle.cooldowns.opponent : undefined,
+      battle.stances ? battle.stances.opponent : undefined
+    );
+    battle.pendingBossMove = nextBossMove;
+    const telegraphStrings = (bossEntry && bossEntry.telegraph) || {};
+    nextBossIntent = {
+      move: nextBossMove,
+      flavor: telegraphStrings[nextBossMove] || (opponent.cardSnapshot.name + ' prepares to ' + nextBossMove + '...')
+    };
+  }
+
+  roundResult.nextBossIntent = nextBossIntent || undefined;
   battle.roundLog.push(roundResult);
 
   // Check for battle end — KO only (round cap is a safety net, not a win condition)

@@ -291,6 +291,54 @@ window.ArenaBattleUI = (function () {
     _lastBossStance = stance;
   }
 
+  // Telegraph: show boss's pre-committed move intent above opponent card
+  var INTENT_ICONS = {
+    strike: 'fa-hand-fist',
+    guard: 'fa-shield-halved',
+    ability: 'fa-bolt',
+    heal: 'fa-heart-pulse',
+    counter: 'fa-shield'
+  };
+  var INTENT_COLORS = {
+    strike: '#ef4444',
+    guard: '#3b82f6',
+    ability: '#a855f7',
+    heal: '#22c55e',
+    counter: '#f97316'
+  };
+
+  function showBossIntent(intent) {
+    var container = document.getElementById('arena-boss-intent');
+    var iconEl = document.getElementById('arena-boss-intent-icon');
+    var textEl = document.getElementById('arena-boss-intent-text');
+    if (!container || !iconEl || !textEl) return;
+
+    if (!intent || !intent.move) {
+      container.style.display = 'none';
+      return;
+    }
+
+    var move = intent.move;
+    var flavor = intent.flavor || ('Enemy will ' + move);
+    var icon = INTENT_ICONS[move] || 'fa-question';
+    var color = INTENT_COLORS[move] || 'var(--bs-text-muted)';
+
+    iconEl.innerHTML = '<i class="fas ' + icon + '" style="color:' + color + '"></i>';
+    textEl.textContent = flavor;
+    container.style.display = '';
+    container.style.setProperty('--intent-color', color);
+
+    // Animate entrance
+    container.classList.remove('arena-boss-intent--enter');
+    void container.offsetWidth; // force reflow
+    container.classList.add('arena-boss-intent--enter');
+  }
+
+  function hideBossIntent() {
+    var container = document.getElementById('arena-boss-intent');
+    if (container) container.style.display = 'none';
+  }
+
   function updateRoundLabel(round) {
     const el = document.getElementById('arena-round-label');
     if (el) el.textContent = `Round ${round}`;
@@ -1000,6 +1048,9 @@ window.ArenaBattleUI = (function () {
         _battleData.battleId, _currentRound, move, moveExtra
       );
 
+      // Hide boss intent during animation — the telegraphed move is playing out
+      hideBossIntent();
+
       await animateRoundResult(response.roundResult);
 
       if (response.battleStatus === 'complete') {
@@ -1022,6 +1073,10 @@ window.ArenaBattleUI = (function () {
         _currentRound = response.currentRound;
         updateRoundLabel(_currentRound);
         addLogEntry(`Round ${_currentRound} — Choose your move.`);
+        // Telegraph: Show boss's next committed move
+        if (response.roundResult && response.roundResult.nextBossIntent) {
+          showBossIntent(response.roundResult.nextBossIntent);
+        }
         // Tutorial hooks — wait one frame for CSS to settle after animation
         if (window.BsTutorial && window.BsTutorial.isActive()) {
           requestAnimationFrame(function () {
@@ -1098,5 +1153,5 @@ window.ArenaBattleUI = (function () {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  return { initBattle, bindEvents, enableMoves };
+  return { initBattle, bindEvents, enableMoves, showBossIntent, hideBossIntent };
 })();

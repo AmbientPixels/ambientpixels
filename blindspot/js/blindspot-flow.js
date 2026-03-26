@@ -1701,6 +1701,8 @@
         var battleData = await window.ArenaAPI.startBattle('pve', _selectedCard.id, boss.id, { cardData: _selectedCard });
         _activeBattle = battleData;
         window.ArenaBattleUI.initBattle(battleData);
+        // Telegraph: show boss's first committed move
+        if (battleData.bossIntent) window.ArenaBattleUI.showBossIntent(battleData.bossIntent);
         updateCombatTooltips();
         applyBattlePalette();
       } catch (err) {
@@ -1774,6 +1776,8 @@
       if (_eqCharm) { _Chm.remove(_eqCharm); _Chm.setEquipped(null); }
       _activeBattle = battleData;
       window.ArenaBattleUI.initBattle(battleData);
+      // Telegraph: show boss's first committed move
+      if (battleData.bossIntent) window.ArenaBattleUI.showBossIntent(battleData.bossIntent);
       updateCombatTooltips();
       applyBattlePalette();
       // Tutorial hint for first 3 campaign battles; normal hint otherwise
