@@ -39,8 +39,17 @@ window.BsCharms = (function () {
 
   function getCharmDef(charmId, config) {
     var cfg = config || _callbacks.getConfig && _callbacks.getConfig();
-    if (!cfg || !cfg.crates || !cfg.crates.dropPools || !cfg.crates.dropPools.battle_charms) return null;
-    return cfg.crates.dropPools.battle_charms.items.find(function(c) { return c.id === charmId; }) || null;
+    if (!cfg || !cfg.crates || !cfg.crates.dropPools) return null;
+    // Search both battle_charms and stamina_items pools
+    var pools = ['battle_charms', 'stamina_items'];
+    for (var i = 0; i < pools.length; i++) {
+      var pool = cfg.crates.dropPools[pools[i]];
+      if (pool && pool.items) {
+        var found = pool.items.find(function(c) { return c.id === charmId; });
+        if (found) return found;
+      }
+    }
+    return null;
   }
 
   // ── Charm Selector UI (prefight overlay) ──
