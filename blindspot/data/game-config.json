@@ -78,15 +78,15 @@
     "lootTables": {
       "standard": {
         "rarityWeights": { "common": 60, "uncommon": 25, "rare": 12, "epic": 3 },
-        "pools": ["stat_boosts", "sparks", "forge_tokens", "card_frames", "card_backs", "titles", "battle_charms"]
+        "pools": ["stat_boosts", "sparks", "forge_tokens", "card_frames", "card_backs", "titles", "battle_charms", "stamina_items"]
       },
       "boss": {
         "rarityWeights": { "common": 40, "uncommon": 30, "rare": 22, "epic": 8 },
-        "pools": ["stat_boosts", "sparks", "forge_tokens", "card_frames", "card_backs", "name_plates", "victory_animations", "battle_charms", "titles"]
+        "pools": ["stat_boosts", "sparks", "forge_tokens", "card_frames", "card_backs", "name_plates", "victory_animations", "battle_charms", "stamina_items", "titles"]
       },
       "premium": {
         "rarityWeights": { "common": 25, "uncommon": 35, "rare": 28, "epic": 12 },
-        "pools": ["stat_boosts", "sparks", "forge_tokens", "respec_scrolls", "card_frames", "card_backs", "name_plates", "victory_animations", "battle_charms", "titles"]
+        "pools": ["stat_boosts", "sparks", "forge_tokens", "respec_scrolls", "card_frames", "card_backs", "name_plates", "victory_animations", "battle_charms", "stamina_items", "titles"]
       }
     },
     "dropPools": {
@@ -192,6 +192,15 @@
           { "id": "charm_shield_wall",  "name": "Shield Wall",   "rarity": "uncommon", "icon": "fa-shield",         "description": "Block all damage this round", "effect": "full_block",    "value": 100 },
           { "id": "charm_lucky_strike", "name": "Lucky Strike",  "rarity": "rare",     "icon": "fa-clover",         "description": "Guaranteed critical hit",     "effect": "guaranteed_crit", "value": 1 },
           { "id": "charm_charge_boost", "name": "Charge Boost",  "rarity": "rare",     "icon": "fa-battery-full",   "description": "Full ability charges",        "effect": "full_charges",  "value": 1 }
+        ]
+      },
+      "stamina_items": {
+        "category": "consumable",
+        "slot": "item",
+        "items": [
+          { "id": "stamina_potion",   "name": "Stamina Potion",   "rarity": "common",   "icon": "fa-bolt",         "description": "Restore 5 stamina mid-fight",          "effect": "stamina_restore", "value": 5 },
+          { "id": "endurance_tonic",  "name": "Endurance Tonic",  "rarity": "uncommon", "icon": "fa-dumbbell",     "description": "+3 max stamina for this fight",        "effect": "stamina_max_boost", "value": 3 },
+          { "id": "second_wind",      "name": "Second Wind",      "rarity": "rare",     "icon": "fa-wind",         "description": "Auto-restore full stamina at exhaustion", "effect": "second_wind", "value": 1 }
         ]
       },
       "titles": {

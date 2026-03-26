@@ -1145,7 +1145,7 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
   };
 
   // Store adventure items in battle state (validated)
-  const VALID_ITEMS = ['smoke_bomb', 'war_cry', 'focus_elixir', 'iron_skin', 'lucky_coin', 'healing_salve'];
+  const VALID_ITEMS = ['smoke_bomb', 'war_cry', 'focus_elixir', 'iron_skin', 'lucky_coin', 'healing_salve', 'stamina_potion', 'endurance_tonic', 'second_wind'];
   if (type === 'pve' && Array.isArray(body.adventureItems)) {
     battleState.adventureItems = body.adventureItems
       .filter(it => it && VALID_ITEMS.includes(it.id))
@@ -1478,6 +1478,24 @@ async function handleMove(context, containerClient, userId, body) {
         const heal = Math.round(player.maxHp * 0.25);
         result.playerHeal = (result.playerHeal || 0) + heal;
         result.events.push('\uD83D\uDC9A HEALING SALVE! Restored ' + heal + ' HP!');
+      } else if (useItem === 'stamina_potion') {
+        if (battle.stamina) {
+          var restore = Math.min(5, battle.maxStamina.player - battle.stamina.player);
+          battle.stamina.player = Math.min(battle.maxStamina.player, battle.stamina.player + 5);
+          result.events.push('\u26A1 STAMINA POTION! Restored ' + restore + ' stamina!');
+        }
+      } else if (useItem === 'endurance_tonic') {
+        if (battle.stamina && battle.maxStamina) {
+          battle.maxStamina.player += 3;
+          battle.stamina.player += 3;
+          result.events.push('\uD83D\uDCAA ENDURANCE TONIC! Max stamina increased by 3!');
+        }
+      } else if (useItem === 'second_wind') {
+        // Passive: stored as flag, triggers automatically when exhaustion hits
+        if (battle.stamina) {
+          battle._secondWindReady = true;
+          result.events.push('\uD83C\uDF2C\uFE0F SECOND WIND prepared! Will restore stamina at exhaustion.');
+        }
       }
       context.log('[Blindspot] Adventure item used: ' + useItem);
     }
@@ -1531,6 +1549,14 @@ async function handleMove(context, containerClient, userId, body) {
     }
     if (result.events.some(function(e) { return e.includes('Enemy') && e.includes('critical hit'); })) {
       battle.stamina.opponent = Math.min(battle.maxStamina.opponent, battle.stamina.opponent + 1);
+    }
+
+    // Second Wind: auto-restore full stamina on first exhaustion
+    var stcExh = config.staminaConfig || {};
+    if (battle._secondWindReady && battle.stamina.player < (stcExh.exhaustionThreshold || 3)) {
+      battle.stamina.player = battle.maxStamina.player;
+      battle._secondWindReady = false;
+      result.events.push('\uD83C\uDF2C\uFE0F SECOND WIND! Stamina fully restored!');
     }
   }
 
