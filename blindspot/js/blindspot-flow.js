@@ -435,7 +435,7 @@
       setForgeWins(getForgeWins() + 3);
     } else if (item.category === 'cosmetic') {
       if (!_progress.cosmetics.includes(item.id)) _progress.cosmetics.push(item.id);
-    } else if (item.slot === 'charm') {
+    } else if (item.slot === 'charm' || item.slot === 'item') {
       _progress.charms.push(item.id);
     } else if (item.title) {
       setCardTitle(item.title);
@@ -672,7 +672,7 @@
       _config = configResp;
       _buildCosmeticCaches();
       if (_Rar.setCallbacks) _Rar.setCallbacks({ getForgeVisitCount: getForgeVisitCount });
-      if (_Shop.setCallbacks) _Shop.setCallbacks({ getSparks: getSparks, spendSparks: spendSparks, awardCrate: awardCrate, toast: showSuccessToast });
+      if (_Shop.setCallbacks) _Shop.setCallbacks({ getSparks: getSparks, spendSparks: spendSparks, awardCrate: awardCrate, toast: showSuccessToast, addToInventory: function(id) { _progress.charms.push(id); syncProgressToServer(); }, getConfig: function() { return _config; } });
       if (_BossRew.setCallbacks) _BossRew.setCallbacks({
         getProgress: function() { return _progress; },
         getSelectedCard: function() { return _selectedCard; },
