@@ -172,8 +172,9 @@
         }
         else if (nav === 'leaderboard') { _cb.showScreen('leaderboard'); _cb.renderLeaderboard(); }
         else if (nav === 'pvp') {
-          if (_cb.getHighestBossDefeated() >= 10) { _cb.showScreen('pvp'); _cb.renderPvPGallery(); }
-          else { _cb.showErrorToast('Beat Boss 10 to unlock PvP'); }
+          var pvpReq = _cb.getPvpUnlockRequirement ? _cb.getPvpUnlockRequirement() : 3;
+          if (_cb.getHighestBossDefeated() >= pvpReq) { _cb.showScreen('pvp'); _cb.renderPvPGallery(); }
+          else { _cb.showErrorToast('Beat Boss ' + pvpReq + ' to unlock PvP'); }
         }
       });
     });

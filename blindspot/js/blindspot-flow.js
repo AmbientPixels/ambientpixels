@@ -1263,9 +1263,10 @@
 
     // PvP unlock check
     const highestBoss = getHighestBossDefeated();
+    const pvpUnlockAt = _config && _config.pvpUnlock ? _config.pvpUnlock.requireBossDefeated : 3;
     const pvpBtn = document.getElementById('bs-btn-pvp');
     const pvpLock = document.getElementById('bs-pvp-lock');
-    if (highestBoss >= 10) {
+    if (highestBoss >= pvpUnlockAt) {
       if (pvpBtn) pvpBtn.disabled = false;
       if (pvpLock) {
         var elo = getPvPElo();
@@ -1294,7 +1295,8 @@
 
       // PvP Elo in lobby (only show if PvP unlocked)
       let pvpHtml = '';
-      if (highestB >= 10) {
+      var pvpReq = _config && _config.pvpUnlock ? _config.pvpUnlock.requireBossDefeated : 3;
+      if (highestB >= pvpReq) {
         const elo = getPvPElo();
         const pvpRank = getPvPRank(elo);
         pvpHtml = `<span style="color:${pvpRank.color};" data-tooltip="PvP Rating"><i class="fas ${pvpRank.icon}"></i> ${elo}</span>`;
@@ -1649,7 +1651,8 @@
     clearFirstRealFight: function() { _isFirstRealFight = false; },
     initPvPTabs: function() { if (_Pvp.initPvPTabs) _Pvp.initPvPTabs(); },
     renderDefenseQueue: function() { if (_Pvp.renderDefenseQueue) _Pvp.renderDefenseQueue(); },
-    pollInboxCount: function() { if (_Pvp.pollInboxCount) _Pvp.pollInboxCount(); }
+    pollInboxCount: function() { if (_Pvp.pollInboxCount) _Pvp.pollInboxCount(); },
+    getPvpUnlockRequirement: function() { return _config && _config.pvpUnlock ? _config.pvpUnlock.requireBossDefeated : 3; }
   });
 
   // ============================================================

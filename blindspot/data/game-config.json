@@ -23,7 +23,7 @@
     "localStorageKey": "blindspot-onboarded"
   },
   "pvpUnlock": {
-    "requireBossDefeated": 10
+    "requireBossDefeated": 3
   },
   "crates": {
     "types": {
