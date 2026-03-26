@@ -5135,7 +5135,11 @@ body.bs-battle-active .bs-play {
 
 @media (min-width: 769px) {
   .bs-guide { max-width: 760px; }
+  /* Tier 0 (new player): center-align so short Matchups column sits mid-height */
   .bs-guide__columns { flex-direction: row; gap: 1.5rem; align-items: center; }
+  /* Tier 1+: top-align — right column has enough content to fill */
+  .bs-guide--tier1 .bs-guide__columns,
+  .bs-guide--tier3 .bs-guide__columns { align-items: flex-start; }
   .bs-guide__col { flex: 1; min-width: 0; }
 }
 
