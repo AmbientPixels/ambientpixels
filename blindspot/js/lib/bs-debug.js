@@ -261,12 +261,16 @@
       _progress.forgeWins = 50;
       _progress.winStreak = 10;
       _progress.bestStreak = 10;
-      // Add all charms (3 each)
+      // Add all charms + stamina items (3 each)
       var config = _cb.getConfig ? _cb.getConfig() : null;
-      if (config && config.crates && config.crates.dropPools.battle_charms) {
+      if (config && config.crates && config.crates.dropPools) {
         _progress.charms = [];
-        config.crates.dropPools.battle_charms.items.forEach(function (c) {
-          for (var i = 0; i < 3; i++) _progress.charms.push(c.id);
+        ['battle_charms', 'stamina_items'].forEach(function (pool) {
+          if (config.crates.dropPools[pool]) {
+            config.crates.dropPools[pool].items.forEach(function (c) {
+              for (var i = 0; i < 3; i++) _progress.charms.push(c.id);
+            });
+          }
         });
       }
       // Add all cosmetics
