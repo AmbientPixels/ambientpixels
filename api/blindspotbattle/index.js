@@ -747,15 +747,15 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
   const opponentEl = (elements && elements.opponent) || 'chaos';
   const ELEMENT_LABELS = { fire: 'Fire', earth: 'Earth', arcane: 'Arcane', shadow: 'Shadow', chaos: 'Chaos' };
 
-  // Chaos Flux: roll random element each round
+  // Chaos Flux: roll random element each round (Prism Shard suppresses flux — stays neutral)
   var resolvedPlayerEl = playerEl;
   var resolvedOpponentEl = opponentEl;
-  if (playerEl === 'chaos') {
+  if (playerEl === 'chaos' && !(battle.prismActive && battle.prismActive.player)) {
     var fluxOptions = ['fire', 'earth', 'arcane', 'shadow'];
     resolvedPlayerEl = fluxOptions[Math.floor(Math.random() * 4)];
     events.push('⚡ Chaos Flux! Your element shifts to ' + ELEMENT_LABELS[resolvedPlayerEl] + ' this round!');
   }
-  if (opponentEl === 'chaos') {
+  if (opponentEl === 'chaos' && !(battle.prismActive && battle.prismActive.opponent)) {
     var fluxOptionsOpp = ['fire', 'earth', 'arcane', 'shadow'];
     resolvedOpponentEl = fluxOptionsOpp[Math.floor(Math.random() * 4)];
     events.push('⚡ Chaos Flux! Enemy element shifts to ' + ELEMENT_LABELS[resolvedOpponentEl] + ' this round!');
@@ -783,7 +783,7 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     }
   }
 
-  // Player → Opponent
+  // Player → Opponent (with Element Ward + Element Burst)
   if (playerMove !== 'heal' && opponentDamageTaken > 0) {
     const pc = elChart[resolvedPlayerEl];
     if (pc && pc.strong === resolvedOpponentEl) {
@@ -791,18 +791,54 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
       opponentDamageTaken += elBonus;
       if (elBonus > 0) events.push(`✨ ${ELEMENT_LABELS[resolvedPlayerEl]} is strong vs ${ELEMENT_LABELS[resolvedOpponentEl]}! (+${elBonus} damage)`);
     } else if (pc && pc.weak === resolvedOpponentEl) {
-      const elReduction = Math.round(opponentDamageTaken * (1 - (ec.weakMult || 0.75)));
-      opponentDamageTaken = Math.max(1, opponentDamageTaken - elReduction);
-      if (elReduction > 0) events.push(`💨 ${ELEMENT_LABELS[resolvedPlayerEl]} is weak vs ${ELEMENT_LABELS[resolvedOpponentEl]}. (-${elReduction} damage)`);
+      // Element Ward: skip weak penalty if ward is active
+      if (battle.elementWard && battle.elementWard.player > 0) {
+        battle.elementWard.player--;
+        events.push(`🛡️ Element Ward absorbs the weakness! (${battle.elementWard.player} rounds remaining)`);
+      } else {
+        const elReduction = Math.round(opponentDamageTaken * (1 - (ec.weakMult || 0.75)));
+        opponentDamageTaken = Math.max(1, opponentDamageTaken - elReduction);
+        if (elReduction > 0) events.push(`💨 ${ELEMENT_LABELS[resolvedPlayerEl]} is weak vs ${ELEMENT_LABELS[resolvedOpponentEl]}. (-${elReduction} damage)`);
+      }
+    }
+    // Element Burst: amplify strong bonus or grant +50% on neutral
+    if (battle.elementBurst && battle.elementBurst.player) {
+      if (pc && pc.strong === resolvedOpponentEl) {
+        var burstAmp = Math.round(opponentDamageTaken * 0.50);
+        opponentDamageTaken += burstAmp;
+        battle.elementBurst.player = false;
+        events.push(`💥 Elemental Burst! Amplified elemental damage! (+${burstAmp})`);
+      } else if (!pc || (pc.strong !== resolvedOpponentEl && pc.weak !== resolvedOpponentEl)) {
+        var burstBonus = Math.round(opponentDamageTaken * 0.50);
+        opponentDamageTaken += burstBonus;
+        battle.elementBurst.player = false;
+        events.push(`💥 Elemental Burst! Raw elemental force! (+${burstBonus} damage)`);
+      }
+      // Weak matchup: burst doesn't fire
     }
   }
-  // Opponent → Player
+  // Opponent → Player (with Element Ward + Element Resist Charm)
   if (opponentMove !== 'heal' && playerDamageTaken > 0) {
     const oc = elChart[resolvedOpponentEl];
     if (oc && oc.strong === resolvedPlayerEl) {
-      const elBonus = Math.round(playerDamageTaken * ((ec.strongMult || 1.25) - 1));
-      playerDamageTaken += elBonus;
-      if (elBonus > 0) events.push(`✨ Enemy ${ELEMENT_LABELS[resolvedOpponentEl]} is strong vs your ${ELEMENT_LABELS[resolvedPlayerEl]}! (+${elBonus} damage to you)`);
+      // Element Resist Charm: reduce strong bonus if charm matches opponent element
+      var resistPassive = (player.passives || []).find(function(p) { return p.effect === 'element_resist'; });
+      if (resistPassive && resistPassive.element === resolvedOpponentEl) {
+        var reducedMult = (ec.strongMult || 1.25) - (resistPassive.value / 100); // 1.25 - 0.15 = 1.10
+        var elBonusResist = Math.round(playerDamageTaken * (reducedMult - 1));
+        playerDamageTaken += Math.max(0, elBonusResist);
+        events.push(`🛡️ Your ${ELEMENT_LABELS[resistPassive.element]} Ward Charm reduces elemental damage!`);
+      } else {
+        // Element Ward (opponent side): skip strong bonus if player has ward
+        if (battle.elementWard && battle.elementWard.player > 0) {
+          battle.elementWard.player--;
+          events.push(`🛡️ Element Ward blocks enemy elemental bonus! (${battle.elementWard.player} rounds remaining)`);
+        } else {
+          const elBonus = Math.round(playerDamageTaken * ((ec.strongMult || 1.25) - 1));
+          playerDamageTaken += elBonus;
+          if (elBonus > 0) events.push(`✨ Enemy ${ELEMENT_LABELS[resolvedOpponentEl]} is strong vs your ${ELEMENT_LABELS[resolvedPlayerEl]}! (+${elBonus} damage to you)`);
+        }
+      }
     } else if (oc && oc.weak === resolvedPlayerEl) {
       const elReduction = Math.round(playerDamageTaken * (1 - (ec.weakMult || 0.75)));
       playerDamageTaken = Math.max(1, playerDamageTaken - elReduction);
@@ -1191,6 +1227,12 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
     opponentPassives.push({ source: 'element:shadow', effect: 'dodge', value: elPassives.shadow.dodgeValue || 5 });
   }
 
+  // Element Resist Charm: read from body and add passive
+  const equippedElCharm = body.equippedElementCharm;
+  if (equippedElCharm && ['fire', 'earth', 'arcane', 'shadow'].includes(equippedElCharm)) {
+    playerPassives.push({ source: 'charm:element_resist', effect: 'element_resist', value: 15, element: equippedElCharm });
+  }
+
   const battleId = `bs-battle-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
   const battleState = {
     battleId,
@@ -1249,7 +1291,7 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
   }
 
   // Store adventure items in battle state (validated)
-  const VALID_ITEMS = ['smoke_bomb', 'war_cry', 'focus_elixir', 'iron_skin', 'lucky_coin', 'healing_salve', 'stamina_potion', 'endurance_tonic', 'second_wind'];
+  const VALID_ITEMS = ['smoke_bomb', 'war_cry', 'focus_elixir', 'iron_skin', 'lucky_coin', 'healing_salve', 'stamina_potion', 'endurance_tonic', 'second_wind', 'element_ward', 'element_burst', 'element_shift', 'prism_shard'];
   if (type === 'pve' && Array.isArray(body.adventureItems)) {
     battleState.adventureItems = body.adventureItems
       .filter(it => it && VALID_ITEMS.includes(it.id))
@@ -1604,6 +1646,30 @@ async function handleMove(context, containerClient, userId, body) {
           battle._secondWindReady = true;
           result.events.push('\uD83C\uDF2C\uFE0F SECOND WIND prepared! Will restore stamina at exhaustion.');
         }
+      } else if (useItem === 'element_ward') {
+        if (!battle.elementWard) battle.elementWard = {};
+        battle.elementWard.player = 3;
+        result.events.push('\uD83D\uDEE1\uFE0F ELEMENT WARD! Elemental weakness negated for 3 rounds!');
+      } else if (useItem === 'element_burst') {
+        if (!battle.elementBurst) battle.elementBurst = {};
+        battle.elementBurst.player = true;
+        result.events.push('\uD83D\uDCA5 ELEMENTAL BURST! Next elemental hit deals +50% bonus!');
+      } else if (useItem === 'element_shift') {
+        var oppEl = (battle.elements && battle.elements.opponent) || 'chaos';
+        var shiftChart = (config.elementConfig || {}).chart || {};
+        // Find the element that's strong vs opponent
+        var strongEl = Object.entries(shiftChart).find(function(entry) { return entry[1].strong === oppEl; });
+        if (strongEl) {
+          battle.elements.player = strongEl[0];
+          result.events.push('\uD83D\uDD04 ELEMENT SHIFT! Your element changes to ' + strongEl[0] + '!');
+        } else {
+          result.events.push('\uD83D\uDD04 ELEMENT SHIFT fizzles \u2014 no advantage found!');
+        }
+      } else if (useItem === 'prism_shard') {
+        battle.elements.player = 'chaos';
+        battle.prismActive = battle.prismActive || {};
+        battle.prismActive.player = true;
+        result.events.push('\uD83D\uDC8E PRISM SHARD! Your attacks become element-neutral!');
       }
       context.log('[Blindspot] Adventure item used: ' + useItem);
     }
@@ -1756,7 +1822,13 @@ async function handleMove(context, containerClient, userId, body) {
       opponentMax: battle.maxStamina.opponent
     } : undefined,
     cooldowns: battle.cooldowns || undefined,
-    stances: battle.stances || undefined
+    stances: battle.stances || undefined,
+    elementState: {
+      ward: battle.elementWard || null,
+      burst: battle.elementBurst || null,
+      elements: battle.elements,
+      prismActive: battle.prismActive || null
+    }
   };
 
   battle.roundLog.push(roundResult);

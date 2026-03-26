@@ -82,11 +82,11 @@
       },
       "boss": {
         "rarityWeights": { "common": 40, "uncommon": 30, "rare": 22, "epic": 8 },
-        "pools": ["stat_boosts", "sparks", "forge_tokens", "card_frames", "card_backs", "name_plates", "victory_animations", "battle_charms", "stamina_items", "titles"]
+        "pools": ["stat_boosts", "sparks", "forge_tokens", "card_frames", "card_backs", "name_plates", "victory_animations", "battle_charms", "stamina_items", "elemental_items", "element_resist_charms", "titles"]
       },
       "premium": {
         "rarityWeights": { "common": 25, "uncommon": 35, "rare": 28, "epic": 12 },
-        "pools": ["stat_boosts", "sparks", "forge_tokens", "respec_scrolls", "card_frames", "card_backs", "name_plates", "victory_animations", "battle_charms", "stamina_items", "titles"]
+        "pools": ["stat_boosts", "sparks", "forge_tokens", "respec_scrolls", "card_frames", "card_backs", "name_plates", "victory_animations", "battle_charms", "stamina_items", "elemental_items", "element_resist_charms", "titles"]
       }
     },
     "dropPools": {
@@ -201,6 +201,26 @@
           { "id": "stamina_potion",   "name": "Stamina Potion",   "rarity": "common",   "icon": "fa-bolt",         "description": "Restore 5 stamina mid-fight",          "effect": "stamina_restore", "value": 5 },
           { "id": "endurance_tonic",  "name": "Endurance Tonic",  "rarity": "uncommon", "icon": "fa-dumbbell",     "description": "+3 max stamina for this fight",        "effect": "stamina_max_boost", "value": 3 },
           { "id": "second_wind",      "name": "Second Wind",      "rarity": "rare",     "icon": "fa-wind",         "description": "Auto-restore full stamina at exhaustion", "effect": "second_wind", "value": 1 }
+        ]
+      },
+      "elemental_items": {
+        "category": "consumable",
+        "slot": "item",
+        "items": [
+          { "id": "element_ward",  "name": "Element Ward",  "rarity": "uncommon", "icon": "fa-shield-halved", "description": "Negate elemental weakness for 3 rounds",  "effect": "element_ward",  "value": 3 },
+          { "id": "element_burst", "name": "Element Burst", "rarity": "rare",     "icon": "fa-burst",         "description": "Next elemental hit deals +50% bonus",     "effect": "element_burst", "value": 50 },
+          { "id": "element_shift", "name": "Element Shift", "rarity": "rare",     "icon": "fa-rotate",        "description": "Shift to the element strong vs opponent", "effect": "element_shift", "value": 1 },
+          { "id": "prism_shard",   "name": "Prism Shard",   "rarity": "epic",     "icon": "fa-gem",           "description": "Become element-neutral (no weakness/strength)", "effect": "prism_shard", "value": 1 }
+        ]
+      },
+      "element_resist_charms": {
+        "category": "consumable",
+        "slot": "charm",
+        "items": [
+          { "id": "charm_resist_fire",   "name": "Fire Ward Charm",   "rarity": "rare", "icon": "fa-fire",       "description": "-15% Fire damage taken",   "effect": "element_resist", "element": "fire",   "value": 15 },
+          { "id": "charm_resist_earth",  "name": "Earth Ward Charm",  "rarity": "rare", "icon": "fa-mountain",   "description": "-15% Earth damage taken",  "effect": "element_resist", "element": "earth",  "value": 15 },
+          { "id": "charm_resist_arcane", "name": "Arcane Ward Charm", "rarity": "rare", "icon": "fa-hat-wizard", "description": "-15% Arcane damage taken", "effect": "element_resist", "element": "arcane", "value": 15 },
+          { "id": "charm_resist_shadow", "name": "Shadow Ward Charm", "rarity": "rare", "icon": "fa-ghost",      "description": "-15% Shadow damage taken", "effect": "element_resist", "element": "shadow", "value": 15 }
         ]
       },
       "titles": {

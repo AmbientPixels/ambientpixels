@@ -1748,7 +1748,11 @@
 
     try {
       // Always send cardData as fallback — prevents "Card not found" if server save was delayed
-      const battleData = await window.ArenaAPI.startBattle('pve', _selectedCard.id, bossId, { cardData: _selectedCard, tempBuffs: tempBuffs || {}, adventureItems: (_Chm.getAdventureItems ? _Chm.getAdventureItems() : []) || [] });
+      // Detect equipped element resist charm and extract its element for server
+      var _eqCharm = _Chm.getEquipped ? _Chm.getEquipped() : null;
+      var _eqCharmDef = _eqCharm && _Chm.getDef ? _Chm.getDef(_eqCharm) : null;
+      var _eqElCharm = (_eqCharmDef && _eqCharmDef.effect === 'element_resist' && _eqCharmDef.element) ? _eqCharmDef.element : undefined;
+      const battleData = await window.ArenaAPI.startBattle('pve', _selectedCard.id, bossId, { cardData: _selectedCard, tempBuffs: tempBuffs || {}, adventureItems: (_Chm.getAdventureItems ? _Chm.getAdventureItems() : []) || [], equippedElementCharm: _eqElCharm });
       _activeBattle = battleData;
       window.ArenaBattleUI.initBattle(battleData);
       updateCombatTooltips();
