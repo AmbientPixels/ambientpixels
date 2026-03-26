@@ -77,15 +77,6 @@ window.BsCosmetics = (function () {
   var RARITY_COLORS = { common: 'var(--bs-text-muted)', uncommon: '#4ade80', rare: '#60a5fa', epic: '#c084fc' };
   var _collectionSlot = 'frame';
 
-  // Consumable Spark prices
-  var ITEM_PRICES = {
-    charm_heal_potion: 10, charm_power_surge: 15, charm_shield_wall: 15, charm_lucky_strike: 20, charm_charge_boost: 20,
-    stamina_potion: 10, endurance_tonic: 15, second_wind: 20,
-    element_ward: 15, element_burst: 25, element_shift: 25, prism_shard: 35,
-    charm_resist_fire: 20, charm_resist_earth: 20, charm_resist_arcane: 20, charm_resist_shadow: 20,
-    charm_smoke_bomb: 20, charm_iron_skin: 25, charm_combo_primer: 20, charm_adrenaline_spike: 15
-  };
-  function _getItemCost(id) { return ITEM_PRICES[id] || 0; }
 
   function setCollectionSlot(slot) { _collectionSlot = slot; }
   function getCollectionSlot() { return _collectionSlot; }
@@ -110,7 +101,7 @@ window.BsCosmetics = (function () {
       nameplate: 'Visual effects applied to your card\'s name text.',
       victory: 'Celebration animations that play when you win a battle.',
       title: 'Titles displayed under your card name.',
-      consumable: 'Battle charms, stamina items, and elemental gear. Buy below or find in crates and adventures.'
+      consumable: 'Battle charms, stamina items, and elemental gear. Buy from the Sparks Shop or find in crates and adventures.'
     };
     var descEl = document.getElementById('bs-collection-desc');
     if (!descEl) {
@@ -129,14 +120,11 @@ window.BsCosmetics = (function () {
       var charms = progress().charms || [];
       var counts = {};
       charms.forEach(function(id) { counts[id] = (counts[id] || 0) + 1; });
-      var sparks = _cb.getSparks ? _cb.getSparks() : 0;
 
       for (var ci = 0; ci < items.length; ci++) {
         var cItem = items[ci];
         var qty = counts[cItem.id] || 0;
         var rarityColor = RARITY_COLORS[cItem.rarity] || 'var(--bs-text-muted)';
-        var cost = _getItemCost(cItem.id);
-        var canBuy = cost > 0 && sparks >= cost;
 
         html += '<div class="bs-collection-item' + (qty === 0 ? ' bs-collection-item--locked' : '') + '"'
           + ' style="--bs-item-rarity:' + rarityColor + ';"'
@@ -146,11 +134,6 @@ window.BsCosmetics = (function () {
           + '<span class="bs-collection-item__desc">' + escHtml(cItem.description || '') + '</span>'
           + '<span class="bs-collection-item__rarity" style="color:' + rarityColor + ';">' + (cItem.rarity || '') + '</span>'
           + '<span class="bs-collection-item__qty"' + (qty > 0 ? ' style="color:var(--bs-accent);"' : '') + '>x' + qty + '</span>'
-          + (cost > 0 ? '<button class="bs-collection-item__buy" data-buy-id="' + escHtml(cItem.id) + '"'
-            + (canBuy ? '' : ' disabled')
-            + ' aria-label="Buy ' + escHtml(cItem.name) + ' for ' + cost + ' Sparks">'
-            + '<i class="fas fa-fire"></i>' + cost
-            + '</button>' : '')
           + '</div>';
       }
     } else {
@@ -186,22 +169,6 @@ window.BsCosmetics = (function () {
     if (!container._collectionDelegated) {
       container._collectionDelegated = true;
       container.addEventListener('click', function(e) {
-        // Buy button in consumable tab
-        var buyBtn = e.target.closest('.bs-collection-item__buy');
-        if (buyBtn) {
-          var buyId = buyBtn.dataset.buyId;
-          var cost = _getItemCost(buyId);
-          var curSparks = _cb.getSparks ? _cb.getSparks() : 0;
-          if (cost <= 0 || curSparks < cost) return;
-          if (_cb.spendSparks) _cb.spendSparks(cost);
-          var prog = progress();
-          if (!prog.charms) prog.charms = [];
-          prog.charms.push(buyId);
-          sync();
-          renderCollection();
-          if (_cb.toast) _cb.toast((_cosmeticLookup[buyId] || {}).name + ' purchased!');
-          return;
-        }
         // Cosmetic equip/unequip
         var btn = e.target.closest('button.bs-collection-item:not(.bs-collection-item--locked)');
         if (!btn) return;
