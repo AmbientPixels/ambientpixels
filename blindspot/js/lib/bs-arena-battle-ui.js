@@ -316,7 +316,7 @@ window.ArenaBattleUI = (function () {
     // Support both single intent object and array of 2 intents (dual-action)
     var intents = Array.isArray(intent) ? intent : (intent && intent.move ? [intent] : []);
     if (intents.length === 0) {
-      container.style.display = 'none';
+      hideBossIntent();
       return;
     }
 
@@ -337,7 +337,6 @@ window.ArenaBattleUI = (function () {
       flavor = intents[0].flavor || (m1 + ' then ' + m2);
     }
     textEl.textContent = flavor;
-    container.style.display = '';
     container.style.setProperty('--intent-color', INTENT_COLORS[intents[0].move] || 'var(--bs-text-muted)');
 
     // Animate entrance
@@ -348,7 +347,10 @@ window.ArenaBattleUI = (function () {
 
   function hideBossIntent() {
     var container = document.getElementById('arena-boss-intent');
-    if (container) container.style.display = 'none';
+    if (container) {
+      container.classList.remove('arena-boss-intent--enter');
+      // Reset to invisible (opacity: 0 in base CSS)
+    }
   }
 
   function updateRoundLabel(round) {
