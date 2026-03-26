@@ -7870,6 +7870,20 @@ body.bs-battle-active .bs-play {
   opacity: 0.5;
 }
 
+/* Consumable tab: description + quantity */
+.bs-collection-item__desc {
+  font-size: 0.55rem;
+  color: var(--bs-text-muted);
+  text-align: center;
+  line-height: 1.2;
+}
+.bs-collection-item__qty {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--bs-text-muted);
+}
+
 /* Equipped summary strip */
 .bs-collection-equipped__title {
   font-family: 'Cinzel', serif;

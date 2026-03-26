@@ -52,6 +52,18 @@ window.BsCosmetics = (function () {
         _cosmeticsBySlot[slot].push(entry);
       }
     }
+    // Consumable pools — virtual "consumable" slot for Items tab
+    var consumablePools = ['battle_charms', 'stamina_items', 'elemental_items', 'element_resist_charms'];
+    if (!_cosmeticsBySlot['consumable']) _cosmeticsBySlot['consumable'] = [];
+    for (var cp = 0; cp < consumablePools.length; cp++) {
+      var cPool = pools[consumablePools[cp]];
+      if (!cPool || !cPool.items) continue;
+      for (var ci = 0; ci < cPool.items.length; ci++) {
+        var cEntry = Object.assign({}, cPool.items[ci], { slot: 'consumable', category: 'consumable' });
+        _cosmeticLookup[cPool.items[ci].id] = cEntry;
+        _cosmeticsBySlot['consumable'].push(cEntry);
+      }
+    }
   }
 
   function findCosmeticDef(itemId) { return _cosmeticLookup[itemId] || null; }
@@ -84,7 +96,8 @@ window.BsCosmetics = (function () {
       back: 'Card sleeve patterns shown behind your card.',
       nameplate: 'Visual effects applied to your card\'s name text.',
       victory: 'Celebration animations that play when you win a battle.',
-      title: 'Titles displayed under your card name.'
+      title: 'Titles displayed under your card name.',
+      consumable: 'Battle charms, stamina items, and elemental gear. Buy from the Sparks shop or find in crates and adventures.'
     };
     var descEl = document.getElementById('bs-collection-desc');
     if (!descEl) {
@@ -98,26 +111,49 @@ window.BsCosmetics = (function () {
     var items = bySlot[_collectionSlot] || [];
     var html = '';
 
-    for (var i = 0; i < items.length; i++) {
-      var item = items[i];
-      var isOwned = owned.includes(item.id);
-      var isEquipped = equipped[_collectionSlot] === item.id;
-      var rarityColor = RARITY_COLORS[item.rarity] || 'var(--bs-text-muted)';
+    if (_collectionSlot === 'consumable') {
+      // Consumable tab: count owned quantities from progress.charms
+      var charms = progress().charms || [];
+      var counts = {};
+      charms.forEach(function(id) { counts[id] = (counts[id] || 0) + 1; });
 
-      html += '<button class="bs-collection-item'
-        + (isEquipped ? ' bs-collection-item--equipped' : '')
-        + (isOwned ? '' : ' bs-collection-item--locked')
-        + '"'
-        + ' data-item-id="' + escHtml(item.id) + '" data-slot="' + escHtml(_collectionSlot) + '"'
-        + (isOwned ? '' : ' disabled')
-        + ' aria-label="' + escHtml(item.name) + (isEquipped ? ' (equipped)' : '') + (isOwned ? '' : ' (locked)') + '"'
-        + ' style="--bs-item-rarity:' + rarityColor + ';">'
-        + '<div class="bs-collection-item__icon"><i class="fas ' + (item.icon || 'fa-star') + '" aria-hidden="true"></i></div>'
-        + '<span class="bs-collection-item__name">' + escHtml(item.name) + '</span>'
-        + '<span class="bs-collection-item__rarity" style="color:' + rarityColor + ';">' + (item.rarity || '') + '</span>'
-        + (isEquipped ? '<span class="bs-collection-item__badge"><i class="fas fa-check"></i> Equipped</span>' : '')
-        + (!isOwned ? '<span class="bs-collection-item__lock"><i class="fas fa-lock"></i></span>' : '')
-        + '</button>';
+      for (var ci = 0; ci < items.length; ci++) {
+        var cItem = items[ci];
+        var qty = counts[cItem.id] || 0;
+        var rarityColor = RARITY_COLORS[cItem.rarity] || 'var(--bs-text-muted)';
+
+        html += '<div class="bs-collection-item' + (qty === 0 ? ' bs-collection-item--locked' : '') + '"'
+          + ' style="--bs-item-rarity:' + rarityColor + '; cursor:default;"'
+          + ' aria-label="' + escHtml(cItem.name) + ' x' + qty + '">'
+          + '<div class="bs-collection-item__icon"><i class="fas ' + (cItem.icon || 'fa-box') + '" aria-hidden="true"></i></div>'
+          + '<span class="bs-collection-item__name">' + escHtml(cItem.name) + '</span>'
+          + '<span class="bs-collection-item__desc">' + escHtml(cItem.description || '') + '</span>'
+          + '<span class="bs-collection-item__rarity" style="color:' + rarityColor + ';">' + (cItem.rarity || '') + '</span>'
+          + '<span class="bs-collection-item__qty"' + (qty > 0 ? ' style="color:var(--bs-accent);"' : '') + '>x' + qty + '</span>'
+          + '</div>';
+      }
+    } else {
+      for (var i = 0; i < items.length; i++) {
+        var item = items[i];
+        var isOwned = owned.includes(item.id);
+        var isEquipped = equipped[_collectionSlot] === item.id;
+        var rarityColor = RARITY_COLORS[item.rarity] || 'var(--bs-text-muted)';
+
+        html += '<button class="bs-collection-item'
+          + (isEquipped ? ' bs-collection-item--equipped' : '')
+          + (isOwned ? '' : ' bs-collection-item--locked')
+          + '"'
+          + ' data-item-id="' + escHtml(item.id) + '" data-slot="' + escHtml(_collectionSlot) + '"'
+          + (isOwned ? '' : ' disabled')
+          + ' aria-label="' + escHtml(item.name) + (isEquipped ? ' (equipped)' : '') + (isOwned ? '' : ' (locked)') + '"'
+          + ' style="--bs-item-rarity:' + rarityColor + ';">'
+          + '<div class="bs-collection-item__icon"><i class="fas ' + (item.icon || 'fa-star') + '" aria-hidden="true"></i></div>'
+          + '<span class="bs-collection-item__name">' + escHtml(item.name) + '</span>'
+          + '<span class="bs-collection-item__rarity" style="color:' + rarityColor + ';">' + (item.rarity || '') + '</span>'
+          + (isEquipped ? '<span class="bs-collection-item__badge"><i class="fas fa-check"></i> Equipped</span>' : '')
+          + (!isOwned ? '<span class="bs-collection-item__lock"><i class="fas fa-lock"></i></span>' : '')
+          + '</button>';
+      }
     }
 
     if (items.length === 0) {
@@ -140,7 +176,9 @@ window.BsCosmetics = (function () {
       });
     }
 
-    if (equippedEl) {
+    if (equippedEl && _collectionSlot === 'consumable') {
+      equippedEl.innerHTML = '';
+    } else if (equippedEl) {
       var eqSlots = ['frame', 'back', 'nameplate', 'victory', 'title'];
       var eqHtml = '<div class="bs-collection-equipped__title">Equipped</div><div class="bs-collection-equipped__items">';
       var hasAny = false;
