@@ -1774,18 +1774,18 @@
 .bs-page .arena-combatant__card {
   width: 140px;
   height: 140px;
-  border-radius: 14px;
+  border-radius: 6px;
   overflow: hidden;
   background: rgba(255, 255, 255, 0.04);
-  border: 2px solid var(--bs-border);
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-.bs-page .arena-combatant--player .arena-combatant__card { box-shadow: 0 0 15px rgba(239, 159, 39, 0.2); }
-.bs-page .arena-combatant--opponent .arena-combatant__card { box-shadow: 0 0 15px rgba(216, 90, 48, 0.2); }
+.bs-page .arena-combatant--player .arena-combatant__card { box-shadow: 0 2px 12px rgba(239, 159, 39, 0.15); }
+.bs-page .arena-combatant--opponent .arena-combatant__card { box-shadow: 0 2px 12px rgba(216, 90, 48, 0.15); }
 .bs-page .arena-combatant__card img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .bs-page .arena-combatant__nameplate { text-align: center; }
 .bs-page .arena-combatant__name {
@@ -2164,16 +2164,34 @@
   transition: width 0.4s ease;
 }
 
+/* --- Items Row (charms + consumables, above move buttons) --- */
+.bs-page .arena-items-row {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: 0;
+}
+.bs-page .arena-items-row:empty {
+  display: none;
+}
+.bs-page .arena-items-row .arena-move-btn {
+  flex: 0 1 120px;
+  max-width: 140px;
+  padding: 0.5rem 0.4rem 0.4rem;
+  font-size: 0.85rem;
+}
+.bs-page .arena-items-row .arena-move-btn i { font-size: 1rem; }
+.bs-page .arena-items-row .arena-move-btn__label { font-size: 0.7rem; }
+.bs-page .arena-items-row .arena-move-btn__desc { display: none; }
+.bs-page .arena-items-row .arena-move-btn__stat { font-size: 0.6rem; }
+
 /* --- Move Buttons --- */
-/* Desktop: 5 across (no charm) or 6 across (with charm) */
+/* Always 5 across — items/charms live in items row above */
 .bs-page .arena-battle__moves {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 0.6rem;
   padding-bottom: env(safe-area-inset-bottom, 0.5rem);
-}
-.bs-page .arena-battle__moves:has(.arena-move-btn--charm) {
-  grid-template-columns: repeat(6, 1fr);
 }
 .bs-page .arena-move-btn {
   position: relative;
@@ -4333,7 +4351,17 @@
     max-height: none;
   }
 
-  /* Battle moves — 3+2 grid on tablet/mobile (3+3 when charm equipped) */
+  /* Items row — compact on mobile */
+  .bs-page .arena-items-row {
+    gap: 0.35rem;
+  }
+  .bs-page .arena-items-row .arena-move-btn {
+    flex: 0 1 90px;
+    min-height: 44px;
+    padding: 0.35rem 0.3rem;
+  }
+
+  /* Battle moves — 3+2 grid on tablet/mobile */
   .bs-page .arena-battle__moves {
     display: grid;
     grid-template-columns: repeat(6, 1fr);
@@ -4356,10 +4384,10 @@
   .bs-page .arena-move-btn i { font-size: 1.4rem; }
 
   /* Row 2: center 2 buttons only when no charm (5 buttons = 3+2) */
-  .bs-page .arena-battle__moves:not(:has(.arena-move-btn--charm)) .arena-move-btn:nth-child(4) {
+  .bs-page .arena-battle__moves .arena-move-btn:nth-child(4) {
     grid-column: 2 / 4;
   }
-  .bs-page .arena-battle__moves:not(:has(.arena-move-btn--charm)) .arena-move-btn:nth-child(5) {
+  .bs-page .arena-battle__moves .arena-move-btn:nth-child(5) {
     grid-column: 4 / 6;
   }
 }
@@ -4468,6 +4496,15 @@
     display: none !important;
   }
 
+  /* Items row — tighter on small phones */
+  .bs-page .arena-items-row .arena-move-btn {
+    flex: 0 1 70px;
+    min-height: 40px;
+    padding: 0.25rem;
+  }
+  .bs-page .arena-items-row .arena-move-btn i { font-size: 0.85rem; }
+  .bs-page .arena-items-row .arena-move-btn__label { font-size: 0.6rem; }
+
   /* Battle on small phones — keep 3+2 grid, compact to fit viewport */
   .bs-page .arena-battle__moves {
     display: grid;
@@ -4482,10 +4519,10 @@
   }
   .bs-page .arena-move-btn i { font-size: 1.3rem; }
   .bs-page .arena-move-btn__label { font-size: 0.8rem; }
-  .bs-page .arena-battle__moves:not(:has(.arena-move-btn--charm)) .arena-move-btn:nth-child(4) {
+  .bs-page .arena-battle__moves .arena-move-btn:nth-child(4) {
     grid-column: 2 / 4;
   }
-  .bs-page .arena-battle__moves:not(:has(.arena-move-btn--charm)) .arena-move-btn:nth-child(5) {
+  .bs-page .arena-battle__moves .arena-move-btn:nth-child(5) {
     grid-column: 4 / 6;
   }
   .bs-page .arena-move-btn__desc { display: none; }

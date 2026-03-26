@@ -184,7 +184,7 @@ window.BsCharms = (function () {
     var def = getCharmDef(_equippedCharm);
     if (!def) return;
     _charmUsedThisBattle = false;
-    var movesEl = document.getElementById('arena-moves');
+    var movesEl = document.getElementById('arena-items-row') || document.getElementById('arena-moves');
     if (!movesEl) return;
     if (movesEl.querySelector('[data-move="charm"]')) return;
     var btn = document.createElement('button');
@@ -270,7 +270,7 @@ window.BsCharms = (function () {
 
   function addItemButtonsToBattle() {
     if (_adventureItems.length === 0) return;
-    var movesEl = document.getElementById('arena-moves');
+    var movesEl = document.getElementById('arena-items-row') || document.getElementById('arena-moves');
     if (!movesEl) return;
 
     _adventureItems.forEach(function(item, idx) {
