@@ -265,7 +265,7 @@
       var config = _cb.getConfig ? _cb.getConfig() : null;
       if (config && config.crates && config.crates.dropPools) {
         _progress.charms = [];
-        ['battle_charms', 'stamina_items'].forEach(function (pool) {
+        ['battle_charms', 'stamina_items', 'elemental_items', 'element_resist_charms'].forEach(function (pool) {
           if (config.crates.dropPools[pool]) {
             config.crates.dropPools[pool].items.forEach(function (c) {
               for (var i = 0; i < 3; i++) _progress.charms.push(c.id);
@@ -299,7 +299,7 @@
       });
       syncProgressToServer();
       console.log('%c[BS] GOD MODE ACTIVATED', 'color:#EF9F27;font-size:16px;font-weight:bold');
-      console.log('9999 Sparks, All bosses beaten, 3x every charm, all cosmetics, all palettes, 4 crates');
+      console.log('9999 Sparks, All bosses beaten, 3x every charm/item (incl. elemental), all cosmetics, all palettes, 4 crates');
       return BS_CHEATS.status();
     },
 
