@@ -72,7 +72,9 @@
       // Auth UI
       updateLandingAuthUI();
 
-      // Combat guide close
+      // Combat guide open + close
+      var guideOpen = document.getElementById('bs-combat-help-btn');
+      if (guideOpen) guideOpen.addEventListener('click', function () { if (_cb.showOverlay) _cb.showOverlay('bs-combat-guide'); });
       var guideClose = document.getElementById('bs-combat-guide-close');
       if (guideClose) guideClose.addEventListener('click', function () { if (_cb.hideOverlay) _cb.hideOverlay('bs-combat-guide'); });
 
