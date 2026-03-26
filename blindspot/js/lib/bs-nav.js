@@ -110,7 +110,9 @@
       // Reads localStorage — may drift from server if cleared, but cosmetic-only so fail-safe
       var guide = document.querySelector('.bs-guide');
       if (guide) {
-        var highest = parseInt(localStorage.getItem('blindspot-highest-boss') || '0', 10);
+        var progress = {};
+        try { progress = JSON.parse(localStorage.getItem('bs-progress') || '{}'); } catch (e) {}
+        var highest = progress.highestBoss || 0;
         guide.classList.remove('bs-guide--tier1', 'bs-guide--tier3');
         if (highest >= 3) guide.classList.add('bs-guide--tier3');
         else if (highest >= 1) guide.classList.add('bs-guide--tier1');
