@@ -185,8 +185,21 @@ window.BsCardShare = (function () {
     ctx.font = '600 11px "Share Tech Mono", monospace';
     ctx.fillText(cls.toUpperCase() + (rarity !== 'Common' ? '  ·  ' + rarity : ''), CARD_W / 2, nameY + 26);
 
+    // Element badge
+    var _Const = window.BsConst || {};
+    var element = card.element || (_Const.CLASS_DEFAULT_ELEMENT && _Const.CLASS_DEFAULT_ELEMENT[cls] ? _Const.CLASS_DEFAULT_ELEMENT[cls] : '');
+    if (element && _Const.ELEMENT_DEFS && _Const.ELEMENT_DEFS[element]) {
+      var elDef = _Const.ELEMENT_DEFS[element];
+      var ELEMENT_EMOJI = { fire: '\uD83D\uDD25', earth: '\uD83C\uDFD4\uFE0F', arcane: '\uD83D\uDD2E', shadow: '\uD83D\uDC7B', chaos: '\uD83D\uDCAB' };
+      var elEmoji = ELEMENT_EMOJI[element] || '';
+      ctx.font = '500 10px "Share Tech Mono", monospace';
+      ctx.fillStyle = elDef.color;
+      ctx.textAlign = 'center';
+      ctx.fillText(elEmoji + ' ' + elDef.label, CARD_W / 2, nameY + 42);
+    }
+
     // Stats
-    var statY = nameY + 52;
+    var statY = nameY + (element ? 60 : 52);
     var statKeys = ['str', 'agi', 'int', 'end', 'lck'];
     var barX = PADDING + 40;
     var barW = CARD_W - PADDING * 2 - 70;

@@ -165,6 +165,25 @@
                style="width:100%; padding:0.5rem; background:var(--bs-surface-2); border:1px solid var(--bs-border); border-radius:6px; color:var(--bs-text); font-family:'Share Tech Mono',monospace; font-size:0.85rem;">
       </div>
       <div style="margin-bottom:0.75rem;">
+        <label style="font-size:0.75rem; color:var(--bs-text-muted); display:block; margin-bottom:0.3rem;">Element</label>
+        <div class="bs-forge-element-row" id="bs-forge-element-row">
+          ${(function() {
+            var _elDefs = (_C.ELEMENT_DEFS || {});
+            var _cde = (_C.CLASS_DEFAULT_ELEMENT || {});
+            var curEl = _selectedCard.element || _cde[_selectedCard.class || _selectedCard.characterClass] || '';
+            var elIds = Object.keys(_elDefs);
+            var btns = '';
+            for (var ei = 0; ei < elIds.length; ei++) {
+              var eid = elIds[ei];
+              var ed = _elDefs[eid];
+              var sel = (eid === curEl) ? ' bs-forge-element-btn--selected' : '';
+              btns += '<button class="bs-forge-element-btn' + sel + '" data-element="' + eid + '" style="--el-color:' + ed.color + '"><i class="fas ' + ed.icon + '" style="color:' + ed.color + '"></i> ' + ed.label + '</button>';
+            }
+            return btns;
+          })()}
+        </div>
+      </div>
+      <div style="margin-bottom:0.75rem;">
         <label style="font-size:0.75rem; color:var(--bs-text-muted); display:block; margin-bottom:0.3rem;">Avatar</label>
         <div class="bs-forge-avatar-tabs" style="display:flex; gap:0.25rem; margin-bottom:0.5rem;">
           <button class="bs-forge-avt-tab bs-forge-avt-tab--active" data-avt-tab="gallery" style="flex:1; padding:0.3rem; font-size:0.65rem; border:1px solid var(--bs-border); border-radius:6px; background:var(--bs-surface-2); color:var(--bs-text); cursor:pointer;"><i class="fas fa-images"></i> Gallery</button>
@@ -488,6 +507,16 @@
     });
   });
 
+  // Element picker buttons
+  panel.querySelectorAll('.bs-forge-element-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      panel.querySelectorAll('.bs-forge-element-btn').forEach(function(b) { b.classList.remove('bs-forge-element-btn--selected'); });
+      btn.classList.add('bs-forge-element-btn--selected');
+      _hasVisualChange = true;
+      updateBudget();
+    });
+  });
+
   // Avatar sub-tabs (Gallery / AI / URL)
   panel.querySelectorAll('.bs-forge-avt-tab').forEach(tab => {
     tab.addEventListener('click', () => {
@@ -694,6 +723,8 @@
     if (nameInput && nameInput.value.trim()) _selectedCard.name = nameInput.value.trim();
     if (quoteInput) _selectedCard.quote = quoteInput.value.trim();
     if (avatarInput && avatarInput.value.trim()) _selectedCard.avatar = avatarInput.value.trim();
+    var elementBtn = panel.querySelector('.bs-forge-element-btn--selected');
+    if (elementBtn) _selectedCard.element = elementBtn.dataset.element;
 
     // Save via API
     try {
@@ -704,6 +735,7 @@
       if (nameInput && nameInput.value.trim()) cardToSave.name = nameInput.value.trim();
       if (quoteInput) cardToSave.quote = quoteInput.value.trim();
       if (avatarInput && avatarInput.value.trim()) cardToSave.avatar = avatarInput.value.trim();
+      if (elementBtn) cardToSave.element = elementBtn.dataset.element;
       cardToSave.stats = [
         { name: 'Strength', value: newStats.str },
         { name: 'Agility', value: newStats.agi },

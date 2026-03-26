@@ -105,6 +105,8 @@ window.BsCardRenderer = (function () {
     var name = card.name || 'Unknown';
     var cls = card.class || card.characterClass || '';
     var avatar = card.avatar || '';
+    var element = card.element || (card.cardData && card.cardData.element)
+      || (_C.CLASS_DEFAULT_ELEMENT && _C.CLASS_DEFAULT_ELEMENT[cls]) || '';
 
     var avatarHTML = avatar
       ? '<img src="' + escHtml(avatar) + '" alt="' + escHtml(name) + '" class="bs-rc__avatar" loading="lazy">'
@@ -160,11 +162,18 @@ window.BsCardRenderer = (function () {
       titleHTML = '<span class="bs-rc__title-badge">' + escHtml(bestEarnedTitle.title) + '</span>';
     }
 
-    return '<div class="bs-rendered-card bs-rc--' + size + '" data-palette="' + escHtml(palette) + '" data-container="' + escHtml(container) + '" data-rarity="' + escHtml(rarity) + '"' + borderAttr + '>'
+    var elementBadge = '';
+    if (size === 'full' && element && _C.ELEMENT_DEFS && _C.ELEMENT_DEFS[element]) {
+      var ed = _C.ELEMENT_DEFS[element];
+      elementBadge = '<span class="bs-rc__element" style="color:' + ed.color + '"><i class="fas ' + ed.icon + '"></i> ' + ed.label + '</span>';
+    }
+
+    return '<div class="bs-rendered-card bs-rc--' + size + '" data-palette="' + escHtml(palette) + '" data-container="' + escHtml(container) + '" data-rarity="' + escHtml(rarity) + '" data-element="' + escHtml(element) + '"' + borderAttr + '>'
       + '<div class="bs-rc__art">' + avatarHTML + titleHTML + '</div>'
       + '<div class="bs-rc__info">'
       + '<span class="bs-rc__name">' + escHtml(name) + '</span>'
       + (size !== 'micro' ? '<span class="bs-rc__class">' + escHtml(cls) + '</span>' : '')
+      + elementBadge
       + '</div>'
       + statsHTML
       + powerHTML

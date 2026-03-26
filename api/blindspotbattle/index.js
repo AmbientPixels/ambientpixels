@@ -408,7 +408,7 @@ function generateBossMove(boss, round, currentHp, maxHp, opponentCharges, bossSt
   return 'counter';
 }
 
-function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffects, staminaState, stanceState) {
+function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffects, staminaState, stanceState, elements) {
   const config = loadArenaConfig();
   const events = [];
   const playerStance = (stanceState && stanceState.player) || 'balanced';
@@ -738,6 +738,76 @@ function resolveRound(player, opponent, playerMove, opponentMove, battleTempEffe
     const extra = Math.round(playerDamageTaken * oppClassAdv / 100);
     playerDamageTaken += extra;
     if (extra > 0) events.push(`\u2694\uFE0F Enemy has class advantage! +${extra} extra damage!`);
+  }
+
+  // ── Elemental damage multiplier ──
+  const ec = config.elementConfig || {};
+  const elChart = ec.chart || {};
+  const playerEl = (elements && elements.player) || 'chaos';
+  const opponentEl = (elements && elements.opponent) || 'chaos';
+  const ELEMENT_LABELS = { fire: 'Fire', earth: 'Earth', arcane: 'Arcane', shadow: 'Shadow', chaos: 'Chaos' };
+
+  // Chaos Flux: roll random element each round
+  var resolvedPlayerEl = playerEl;
+  var resolvedOpponentEl = opponentEl;
+  if (playerEl === 'chaos') {
+    var fluxOptions = ['fire', 'earth', 'arcane', 'shadow'];
+    resolvedPlayerEl = fluxOptions[Math.floor(Math.random() * 4)];
+    events.push('⚡ Chaos Flux! Your element shifts to ' + ELEMENT_LABELS[resolvedPlayerEl] + ' this round!');
+  }
+  if (opponentEl === 'chaos') {
+    var fluxOptionsOpp = ['fire', 'earth', 'arcane', 'shadow'];
+    resolvedOpponentEl = fluxOptionsOpp[Math.floor(Math.random() * 4)];
+    events.push('⚡ Chaos Flux! Enemy element shifts to ' + ELEMENT_LABELS[resolvedOpponentEl] + ' this round!');
+  }
+
+  // Fire Ignite: extend burn to ALL crits (not just strike crits)
+  // Strike crits already apply burn above. This catches ability crits for Fire element.
+  if (resolvedPlayerEl === 'fire' && playerMove !== 'strike' && playerMove !== 'heal' && playerMove !== 'guard') {
+    // Check if there was a crit this round for player (search events for crit message)
+    var playerCritted = events.some(function(e) { return e.indexOf('critical') > -1 && e.indexOf('Your') > -1; });
+    if (playerCritted && opponentDamageTaken > 0) {
+      var burnPct = ((config.elementConfig || {}).passives || {}).fire ? ((config.elementConfig.passives.fire.burnPct || 0.08)) : 0.08;
+      var burnRounds = ((config.elementConfig || {}).passives || {}).fire ? ((config.elementConfig.passives.fire.burnRounds || 2)) : 2;
+      newTempEffects.opponent.push({ effect: 'burn', value: Math.round(opponent.maxHp * burnPct), roundsLeft: burnRounds });
+      events.push('🔥 Fire Ignite! Your critical hit sets the enemy ablaze! (Burn x' + burnRounds + ' rounds)');
+    }
+  }
+  if (resolvedOpponentEl === 'fire' && opponentMove !== 'strike' && opponentMove !== 'heal' && opponentMove !== 'guard') {
+    var opponentCritted = events.some(function(e) { return e.indexOf('critical') > -1 && e.indexOf('Enemy') > -1; });
+    if (opponentCritted && playerDamageTaken > 0) {
+      var burnPctOpp = ((config.elementConfig || {}).passives || {}).fire ? ((config.elementConfig.passives.fire.burnPct || 0.08)) : 0.08;
+      var burnRoundsOpp = ((config.elementConfig || {}).passives || {}).fire ? ((config.elementConfig.passives.fire.burnRounds || 2)) : 2;
+      newTempEffects.player.push({ effect: 'burn', value: Math.round(player.maxHp * burnPctOpp), roundsLeft: burnRoundsOpp });
+      events.push('🔥 Fire Ignite! Enemy critical hit ignites you! (Burn x' + burnRoundsOpp + ' rounds)');
+    }
+  }
+
+  // Player → Opponent
+  if (playerMove !== 'heal' && opponentDamageTaken > 0) {
+    const pc = elChart[resolvedPlayerEl];
+    if (pc && pc.strong === resolvedOpponentEl) {
+      const elBonus = Math.round(opponentDamageTaken * ((ec.strongMult || 1.25) - 1));
+      opponentDamageTaken += elBonus;
+      if (elBonus > 0) events.push(`✨ ${ELEMENT_LABELS[resolvedPlayerEl]} is strong vs ${ELEMENT_LABELS[resolvedOpponentEl]}! (+${elBonus} damage)`);
+    } else if (pc && pc.weak === resolvedOpponentEl) {
+      const elReduction = Math.round(opponentDamageTaken * (1 - (ec.weakMult || 0.75)));
+      opponentDamageTaken = Math.max(1, opponentDamageTaken - elReduction);
+      if (elReduction > 0) events.push(`💨 ${ELEMENT_LABELS[resolvedPlayerEl]} is weak vs ${ELEMENT_LABELS[resolvedOpponentEl]}. (-${elReduction} damage)`);
+    }
+  }
+  // Opponent → Player
+  if (opponentMove !== 'heal' && playerDamageTaken > 0) {
+    const oc = elChart[resolvedOpponentEl];
+    if (oc && oc.strong === resolvedPlayerEl) {
+      const elBonus = Math.round(playerDamageTaken * ((ec.strongMult || 1.25) - 1));
+      playerDamageTaken += elBonus;
+      if (elBonus > 0) events.push(`✨ Enemy ${ELEMENT_LABELS[resolvedOpponentEl]} is strong vs your ${ELEMENT_LABELS[resolvedPlayerEl]}! (+${elBonus} damage to you)`);
+    } else if (oc && oc.weak === resolvedPlayerEl) {
+      const elReduction = Math.round(playerDamageTaken * (1 - (ec.weakMult || 0.75)));
+      playerDamageTaken = Math.max(1, playerDamageTaken - elReduction);
+      if (elReduction > 0) events.push(`💨 Enemy ${ELEMENT_LABELS[resolvedOpponentEl]} is weak vs your ${ELEMENT_LABELS[resolvedPlayerEl]}. (-${elReduction} damage to you)`);
+    }
   }
 
   // B3: Counter resolution — must run after temp effects so reflect uses final damage values
@@ -1096,6 +1166,31 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
     opponentPassives.push({ source: 'class_advantage', effect: 'class_advantage_bonus', value: classAdvBonus });
   }
 
+  // Element system: read from card or derive from class
+  const ecDefs = config.elementConfig || {};
+  const playerElement = playerCard.element
+    || (ecDefs.classDefaults || {})[playerCard.class]
+    || 'chaos';
+  const opponentElement = opponentCard.element
+    || (ecDefs.classDefaults || {})[opponentCard.class]
+    || 'chaos';
+
+  // Element passives: Earth (+5% DR), Shadow (+5% dodge)
+  const elPassives = (ecDefs.passives || {});
+  if (playerElement === 'earth' && elPassives.earth) {
+    playerPassives.push({ source: 'element:earth', effect: 'dmg_reduction', value: elPassives.earth.drValue || 5 });
+  }
+  if (playerElement === 'shadow' && elPassives.shadow) {
+    playerPassives.push({ source: 'element:shadow', effect: 'dodge', value: elPassives.shadow.dodgeValue || 5 });
+  }
+  // Opponent element passives (so bosses benefit too)
+  if (opponentElement === 'earth' && elPassives.earth) {
+    opponentPassives.push({ source: 'element:earth', effect: 'dmg_reduction', value: elPassives.earth.drValue || 5 });
+  }
+  if (opponentElement === 'shadow' && elPassives.shadow) {
+    opponentPassives.push({ source: 'element:shadow', effect: 'dodge', value: elPassives.shadow.dodgeValue || 5 });
+  }
+
   const battleId = `bs-battle-${Date.now()}-${Math.random().toString(36).substring(2, 8)}`;
   const battleState = {
     battleId,
@@ -1136,6 +1231,7 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
     staminaRegen: { player: playerStaminaRegen, opponent: opponentStaminaRegen },
     cooldowns: { player: {}, opponent: {} },
     stances: { player: 'balanced', opponent: 'balanced' },
+    elements: { player: playerElement, opponent: opponentElement },
     tempEffects: { player: [], opponent: [] },
     adventureItems: [],
     roundLog: [],
@@ -1143,6 +1239,14 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
     isDemo: isDemo,
     createdAt: new Date().toISOString()
   };
+
+  // Arcane element passive: +1 starting charge
+  if (playerElement === 'arcane' && elPassives.arcane) {
+    battleState.charges.player = Math.min(cc.maxCharges || 4, battleState.charges.player + (elPassives.arcane.extraCharges || 1));
+  }
+  if (opponentElement === 'arcane' && elPassives.arcane) {
+    battleState.charges.opponent = Math.min(cc.maxCharges || 4, battleState.charges.opponent + (elPassives.arcane.extraCharges || 1));
+  }
 
   // Store adventure items in battle state (validated)
   const VALID_ITEMS = ['smoke_bomb', 'war_cry', 'focus_elixir', 'iron_skin', 'lucky_coin', 'healing_salve', 'stamina_potion', 'endurance_tonic', 'second_wind'];
@@ -1173,6 +1277,7 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
         hp: playerMaxHp,
         passives: playerPassives,
         abilityKey: playerAbilityKey,
+        element: playerElement,
         abilityDef: config.abilityDefs[playerAbilityKey]
       },
       opponent: {
@@ -1187,9 +1292,10 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
         resistances: (type === 'pve' && opponentCard.resistances) || undefined,
         weaknesses: (type === 'pve' && opponentCard.weaknesses) || undefined,
         signaturePassive: (type === 'pve' && opponentCard.signaturePassive) ? { name: opponentCard.signaturePassive.name, desc: opponentCard.signaturePassive.desc } : undefined,
+        element: opponentElement,
         classAdvantage: (classAdvTable[playerClass] && classAdvTable[playerClass].includes(bossClass)) ? 'player' : (classAdvTable[bossClass] && classAdvTable[bossClass].includes(playerClass)) ? 'boss' : null
       },
-      charges: { player: cc.startCharges || 0, opponent: cc.startCharges || 0 },
+      charges: { player: battleState.charges.player, opponent: battleState.charges.opponent },
       chargeRate: playerChargeRate,
       abilityCost: Math.max(1, (cc.abilityCost || 2) - getPassiveValue(playerPassives, 'ability_discount')),
       maxCharges: cc.maxCharges || 4,
@@ -1198,6 +1304,7 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
       staminaRegen: { player: playerStaminaRegen, opponent: opponentStaminaRegen },
       cooldowns: { player: {}, opponent: {} },
     stances: { player: 'balanced', opponent: 'balanced' },
+      elements: { player: playerElement, opponent: opponentElement },
       currentRound: 1,
       totalRounds: config.totalRounds,
       status: 'active'
@@ -1342,7 +1449,8 @@ async function handleMove(context, containerClient, userId, body) {
       bossResistances: opponent.bossResistances || {}, bossWeaknesses: opponent.bossWeaknesses || {} },
     move, opponentMove, battle.tempEffects,
     battle.stamina ? { player: battle.stamina.player, opponent: battle.stamina.opponent } : null,
-    battle.stances || null
+    battle.stances || null,
+    battle.elements || null
   );
 
   // B4: Crowd Boost — hype meter filled by crits/streaks/stuns, +15% dmg when spent

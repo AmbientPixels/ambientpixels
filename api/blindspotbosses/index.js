@@ -114,6 +114,7 @@ module.exports = async function (context, req) {
       bossLevel: boss.bossLevel,
       name: boss.name,
       class: boss.class,
+      element: boss.element || null,
       quote: boss.quote,
       avatar: boss.avatar,
       bio: boss.bio,

@@ -17,7 +17,8 @@
       ],
       "badges": [],
       "attributes": [{ "key": "Element", "value": "None" }],
-      "arenaOverrides": { "aiPattern": "balanced" }
+      "arenaOverrides": { "aiPattern": "balanced" },
+      "element": "earth"
     },
     {
       "id": "bs-boss-2",
@@ -36,7 +37,8 @@
       ],
       "badges": [],
       "attributes": [{ "key": "Element", "value": "Iron" }],
-      "arenaOverrides": { "aiPattern": "balanced" }
+      "arenaOverrides": { "aiPattern": "balanced" },
+      "element": "shadow"
     },
     {
       "id": "bs-boss-3",
@@ -55,7 +57,8 @@
       ],
       "badges": [],
       "attributes": [{ "key": "Element", "value": "Shadow" }],
-      "arenaOverrides": { "aiPattern": "aggressive" }
+      "arenaOverrides": { "aiPattern": "aggressive" },
+      "element": "arcane"
     },
     {
       "id": "bs-boss-4",
@@ -74,7 +77,8 @@
       ],
       "badges": [],
       "attributes": [{ "key": "Element", "value": "Arcane" }],
-      "arenaOverrides": { "aiPattern": "spell_heavy" }
+      "arenaOverrides": { "aiPattern": "spell_heavy" },
+      "element": "chaos"
     },
     {
       "id": "bs-boss-5",
@@ -93,7 +97,8 @@
       ],
       "badges": [],
       "attributes": [{ "key": "Element", "value": "Fire" }],
-      "arenaOverrides": { "aiPattern": "berserker" }
+      "arenaOverrides": { "aiPattern": "berserker" },
+      "element": "earth"
     },
     {
       "id": "bs-boss-6",
@@ -112,7 +117,8 @@
       ],
       "badges": [{ "category": "Skill", "icon": "star", "quantity": 2 }],
       "attributes": [{ "key": "Element", "value": "Arcane" }],
-      "arenaOverrides": { "aiPattern": "spell_heavy" }
+      "arenaOverrides": { "aiPattern": "spell_heavy" },
+      "element": "arcane"
     },
     {
       "id": "bs-boss-7",
@@ -131,7 +137,8 @@
       ],
       "badges": [{ "category": "Honor", "icon": "shield", "quantity": 2 }],
       "attributes": [{ "key": "Element", "value": "Titanium" }],
-      "arenaOverrides": { "aiPattern": "defensive" }
+      "arenaOverrides": { "aiPattern": "defensive" },
+      "element": "fire"
     },
     {
       "id": "bs-boss-8",
@@ -150,7 +157,8 @@
       ],
       "badges": [{ "category": "Champion", "icon": "trophy", "quantity": 2 }],
       "attributes": [{ "key": "Element", "value": "Crystal" }],
-      "arenaOverrides": { "aiPattern": "balanced" }
+      "arenaOverrides": { "aiPattern": "balanced" },
+      "element": "chaos"
     },
     {
       "id": "bs-boss-9",
@@ -172,7 +180,8 @@
         { "category": "Honor", "icon": "shield", "quantity": 2 }
       ],
       "attributes": [{ "key": "Element", "value": "Fire" }],
-      "arenaOverrides": { "aiPattern": "berserker" }
+      "arenaOverrides": { "aiPattern": "berserker" },
+      "element": "shadow"
     },
     {
       "id": "bs-boss-10",
@@ -195,7 +204,8 @@
         { "category": "Honor", "icon": "shield", "quantity": 3 }
       ],
       "attributes": [{ "key": "Element", "value": "Forge Fire" }],
-      "arenaOverrides": { "aiPattern": "spell_heavy" }
+      "arenaOverrides": { "aiPattern": "spell_heavy" },
+      "element": "fire"
     },
     {
       "id": "bs-weekly-1",
@@ -214,7 +224,8 @@
       ],
       "badges": [{ "category": "Weekly", "icon": "calendar", "quantity": 1 }],
       "attributes": [{ "key": "Element", "value": "Blood" }],
-      "arenaOverrides": { "aiPattern": "berserker" }
+      "arenaOverrides": { "aiPattern": "berserker" },
+      "element": "fire"
     },
     {
       "id": "bs-weekly-2",
@@ -233,7 +244,8 @@
       ],
       "badges": [{ "category": "Weekly", "icon": "calendar", "quantity": 1 }],
       "attributes": [{ "key": "Element", "value": "Void" }],
-      "arenaOverrides": { "aiPattern": "evasive" }
+      "arenaOverrides": { "aiPattern": "evasive" },
+      "element": "chaos"
     },
     {
       "id": "bs-weekly-3",
@@ -252,7 +264,8 @@
       ],
       "badges": [{ "category": "Weekly", "icon": "calendar", "quantity": 1 }],
       "attributes": [{ "key": "Element", "value": "Iron" }],
-      "arenaOverrides": { "aiPattern": "defensive" }
+      "arenaOverrides": { "aiPattern": "defensive" },
+      "element": "earth"
     },
     {
       "id": "bs-weekly-4",
@@ -271,7 +284,8 @@
       ],
       "badges": [{ "category": "Weekly", "icon": "calendar", "quantity": 1 }],
       "attributes": [{ "key": "Element", "value": "Arcane" }],
-      "arenaOverrides": { "aiPattern": "spell_heavy" }
+      "arenaOverrides": { "aiPattern": "spell_heavy" },
+      "element": "arcane"
     }
   ]
 }

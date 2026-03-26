@@ -49,6 +49,7 @@
   let _state = {
     step: 0,
     vibe: null,
+    element: null,
     artworkMode: 'gallery',
     artworkUrl: null,
     imageContainer: 'masked',
@@ -64,14 +65,14 @@
   let _onComplete = null; // callback(cardId) when save finishes
   let _cardFlipped = false;
 
-  const STEP_TITLES = ['Origin', 'Power', 'Form', 'Identity', 'Become'];
+  const STEP_TITLES = ['Origin', 'Power', 'Element', 'Form', 'Identity', 'Become'];
 
   // ===== PUBLIC API =====
 
   function open(onComplete) {
     _onComplete = onComplete || null;
     _cardFlipped = false;
-    _state = { step: 0, vibe: null, artworkMode: 'gallery', artworkUrl: null, imageContainer: 'masked', aiData: null, cardName: '', cardClass: '', cardRarity: 'Common', customStats: null };
+    _state = { step: 0, vibe: null, element: null, artworkMode: 'gallery', artworkUrl: null, imageContainer: 'masked', aiData: null, cardName: '', cardClass: '', cardRarity: 'Common', customStats: null };
     _render();
   }
 
@@ -123,9 +124,10 @@
     switch (_state.step) {
       case 0: return _renderVibeStep();
       case 1: return _renderClassStep();
-      case 2: return _renderArtworkStep();
-      case 3: return _renderDetailsStep();
-      case 4: return _renderBecomeStep();
+      case 2: return _renderElementStep();
+      case 3: return _renderArtworkStep();
+      case 4: return _renderDetailsStep();
+      case 5: return _renderBecomeStep();
       default: return '';
     }
   }
@@ -206,7 +208,36 @@
     return { str: 60, agi: 60, int: 60, end: 60, lck: 60 };
   }
 
-  // ===== STEP 3: FORM (Artwork) =====
+  // ===== STEP 3: ELEMENT =====
+
+  function _renderElementStep() {
+    var C = window.BsConst || {};
+    var defs = C.ELEMENT_DEFS || {};
+    var chart = C.ELEMENT_CHART || {};
+    var defaultEl = (C.CLASS_DEFAULT_ELEMENT || {})[_state.cardClass] || 'chaos';
+    if (!_state.element) _state.element = defaultEl;
+
+    var cards = Object.entries(defs).map(function([id, def]) {
+      var sel = _state.element === id;
+      var ch = chart[id] || {};
+      var strongLabel = ch.strong && defs[ch.strong] ? defs[ch.strong].label : 'None';
+      var weakLabel = ch.weak && defs[ch.weak] ? defs[ch.weak].label : 'None';
+      return '<div class="bs-element-pick ' + (sel ? 'bs-element-pick--selected' : '') + '" data-element-id="' + id + '" style="--el-color:' + def.color + '">' +
+        '<i class="fas ' + def.icon + '" style="color:' + def.color + ';font-size:1.5rem;"></i>' +
+        '<span class="bs-element-pick__name">' + def.label + '</span>' +
+        '<span class="bs-element-pick__matchup">' +
+          (ch.strong ? '<span style="color:#4ade80;">Strong vs ' + strongLabel + '</span>' : '<span style="color:var(--bs-text-muted);">Neutral</span>') +
+          (ch.weak ? '<br><span style="color:#f87171;">Weak vs ' + weakLabel + '</span>' : '') +
+        '</span>' +
+      '</div>';
+    }).join('');
+
+    return '<p class="qb-panel-desc">Choose your element. This affects damage against enemies.</p>' +
+      '<p style="font-size:0.7rem; color:var(--bs-text-muted); margin-bottom:0.75rem;">Strong: +25% damage. Weak: -25% damage. Chaos is neutral.</p>' +
+      '<div class="bs-element-grid">' + cards + '</div>';
+  }
+
+  // ===== STEP 4: FORM (Artwork) =====
 
   function _renderArtworkStep() {
     const remaining = window.CardForgeAI?.getAiRemaining?.() ?? 0;
@@ -331,7 +362,7 @@
   // ===== NAV BUTTON =====
 
   function _renderNavButton() {
-    if (_state.step === 4) {
+    if (_state.step === 5) {
       if (!_cardFlipped) {
         return `<button class="qb-nav-btn qb-nav-btn--next" id="bs-reveal-btn" style="background:var(--bs-accent);border-color:var(--bs-accent);color:var(--bs-bg,#100C08);font-family:'Cinzel',serif;font-weight:700;font-size:1.1rem;">Reveal</button>`;
       } else {
@@ -341,7 +372,8 @@
 
     const canAdvance = _state.step === 0 ? !!_state.vibe
                      : _state.step === 1 ? !!_state.cardClass
-                     : _state.step === 2 ? !!_state.artworkUrl
+                     : _state.step === 2 ? !!_state.element
+                     : _state.step === 3 ? !!_state.artworkUrl
                      : true;
     return `<button class="qb-nav-btn qb-nav-btn--next" id="qb-next" ${canAdvance ? '' : 'disabled'} style="background:var(--bs-accent);border-color:var(--bs-accent);color:var(--bs-bg,#100C08);">Next <i class="fas fa-arrow-right"></i></button>`;
   }
@@ -358,9 +390,10 @@
     switch (_state.step) {
       case 0: _bindVibeEvents(); break;
       case 1: _bindClassEvents(); break;
-      case 2: _bindArtworkEvents(); break;
-      case 3: _bindDetailsEvents(); break;
-      case 4: _bindBecomeEvents(); break;
+      case 2: _bindElementEvents(); break;
+      case 3: _bindArtworkEvents(); break;
+      case 4: _bindDetailsEvents(); break;
+      case 5: _bindBecomeEvents(); break;
     }
   }
 
@@ -442,6 +475,15 @@
 
   let _galleryCache = null;
   let _thumbCache = null;
+
+  function _bindElementEvents() {
+    document.querySelectorAll('.bs-element-pick').forEach(function(card) {
+      card.addEventListener('click', function() {
+        _state.element = card.dataset.elementId;
+        _render();
+      });
+    });
+  }
 
   function _bindArtworkEvents() {
     document.querySelectorAll('.qb-artwork-tile').forEach(tile => {
@@ -707,7 +749,7 @@
   // ===== NAVIGATION =====
 
   function _handleNext() {
-    if (_state.step === 3) {
+    if (_state.step === 4) {
       const nameEl = document.getElementById('qb-name');
       const classEl = document.getElementById('qb-class');
       if (nameEl) _state.cardName = nameEl.value;

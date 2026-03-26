@@ -325,6 +325,7 @@
               </div>
               <div class="arena-combatant__nameplate">
                 <span class="arena-combatant__name" id="arena-player-name">You</span>
+                <span class="arena-element-badge" id="arena-player-element"></span>
               </div>
               <div class="arena-hp-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" aria-label="Your health">
                 <div class="arena-hp-bar__track">
@@ -346,6 +347,7 @@
               </div>
               <div class="arena-combatant__nameplate">
                 <span class="arena-combatant__name" id="arena-opponent-name">Enemy</span>
+                <span class="arena-element-badge" id="arena-opponent-element"></span>
                 <span class="arena-boss-stance" id="arena-boss-stance"><i class="fas fa-circle-nodes"></i></span>
               </div>
               <div class="arena-hp-bar" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100" aria-label="Enemy health">
@@ -433,6 +435,25 @@
       <h2 class="bs-overlay__title" style="font-size:1.2rem; margin-bottom:1rem;">How Combat Works</h2>
       <div class="bs-guide__columns">
         <div class="bs-guide__col">
+          <div class="bs-guide-section">
+            <h3 class="bs-guide-section__title"><i class="fas fa-fire"></i> Elements</h3>
+            <div class="bs-guide-matchups" style="display:flex;flex-direction:column;gap:0.3rem;font-size:0.8rem;">
+              <span><i class="fas fa-fire" style="color:#ef4444;width:1.2em;"></i> <strong>Fire</strong> — strong vs Earth, weak vs Shadow</span>
+              <span><i class="fas fa-mountain" style="color:#84cc16;width:1.2em;"></i> <strong>Earth</strong> — strong vs Arcane, weak vs Fire</span>
+              <span><i class="fas fa-hat-wizard" style="color:#a855f7;width:1.2em;"></i> <strong>Arcane</strong> — strong vs Shadow, weak vs Earth</span>
+              <span><i class="fas fa-ghost" style="color:#6366f1;width:1.2em;"></i> <strong>Shadow</strong> — strong vs Fire, weak vs Arcane</span>
+              <span><i class="fas fa-burst" style="color:#f59e0b;width:1.2em;"></i> <strong>Chaos</strong> — neutral to all</span>
+            </div>
+            <p class="bs-guide-combo-hint" style="margin-top:0.5rem;">Strong: +25% damage. Weak: -25% damage. Applies to all attacks (not Heal).</p>
+            <h4 style="margin-top:0.75rem;font-size:0.85rem;color:var(--bs-accent);">Elemental Passives</h4>
+            <div style="display:flex;flex-direction:column;gap:0.2rem;font-size:0.75rem;color:var(--bs-text-muted);">
+              <span>🔥 Fire — Ignite: all crits apply burn</span>
+              <span>🏔️ Earth — Bedrock: +5% damage reduction</span>
+              <span>🔮 Arcane — Attunement: +1 starting ability charge</span>
+              <span>👻 Shadow — Phantom: +5% dodge chance</span>
+              <span>💫 Chaos — Flux: random element each round</span>
+            </div>
+          </div>
           <div class="bs-guide-section">
             <h3 class="bs-guide-section__title"><i class="fas fa-swords"></i> Moves</h3>
             <div class="bs-combat-grid">

@@ -18,6 +18,7 @@
       "badges": [],
       "attributes": [{ "key": "Element", "value": "None" }],
       "arenaOverrides": { "aiPattern": "balanced" },
+      "element": "earth",
       "resistances": { "strike": 15 },
       "weaknesses": { "ability": 20 },
       "signaturePassive": { "id": "fortified_start", "name": "Fortified Start", "desc": "Starts with armor that fades each round", "params": { "startDR": 20, "fadePerRound": 5 } }
@@ -40,6 +41,7 @@
       "badges": [],
       "attributes": [{ "key": "Element", "value": "Iron" }],
       "arenaOverrides": { "aiPattern": "balanced" },
+      "element": "shadow",
       "resistances": { "ability": 15 },
       "weaknesses": { "counter": 20 },
       "signaturePassive": { "id": "vengeance", "name": "Vengeance", "desc": "Hits harder after being crit", "params": { "bonus": 0.25 } }
@@ -62,6 +64,7 @@
       "badges": [],
       "attributes": [{ "key": "Element", "value": "Shadow" }],
       "arenaOverrides": { "aiPattern": "aggressive" },
+      "element": "arcane",
       "resistances": { "counter": 25 },
       "weaknesses": { "strike": 15 },
       "signaturePassive": { "id": "phase", "name": "Phase", "desc": "Phases out every 3rd round — your attack misses", "params": { "interval": 3 } }
@@ -84,6 +87,7 @@
       "badges": [],
       "attributes": [{ "key": "Element", "value": "Arcane" }],
       "arenaOverrides": { "aiPattern": "spell_heavy" },
+      "element": "chaos",
       "resistances": { "strike": 20 },
       "weaknesses": { "ability": 15 },
       "signaturePassive": { "id": "hack", "name": "Hack", "desc": "Steals your charges when hitting you", "params": { "steal": 1 } }
@@ -106,6 +110,7 @@
       "badges": [],
       "attributes": [{ "key": "Element", "value": "Fire" }],
       "arenaOverrides": { "aiPattern": "berserker" },
+      "element": "earth",
       "resistances": { "ability": 15, "counter": 15 },
       "weaknesses": {},
       "signaturePassive": { "id": "rage", "name": "Rage", "desc": "Deals +40% damage below 30% HP", "params": { "threshold": 0.30, "bonus": 0.40 } }
@@ -128,6 +133,7 @@
       "badges": [{ "category": "Skill", "icon": "star", "quantity": 2 }],
       "attributes": [{ "key": "Element", "value": "Arcane" }],
       "arenaOverrides": { "aiPattern": "spell_heavy" },
+      "element": "arcane",
       "resistances": { "strike": 20 },
       "weaknesses": { "counter": 20 },
       "signaturePassive": { "id": "leech", "name": "Leech", "desc": "Drains HP equal to 15% of damage dealt", "params": { "healPct": 0.15 } }
@@ -150,6 +156,7 @@
       "badges": [{ "category": "Honor", "icon": "shield", "quantity": 2 }],
       "attributes": [{ "key": "Element", "value": "Titanium" }],
       "arenaOverrides": { "aiPattern": "defensive" },
+      "element": "fire",
       "resistances": { "strike": 25, "ability": 10 },
       "weaknesses": { "counter": 15 },
       "signaturePassive": { "id": "fortified_start", "name": "Fortified Start", "desc": "Starts with heavy armor that fades each round", "params": { "startDR": 25, "fadePerRound": 5 } }
@@ -172,6 +179,7 @@
       "badges": [{ "category": "Champion", "icon": "trophy", "quantity": 2 }],
       "attributes": [{ "key": "Element", "value": "Crystal" }],
       "arenaOverrides": { "aiPattern": "balanced" },
+      "element": "chaos",
       "resistances": { "counter": 20 },
       "weaknesses": { "strike": 10, "ability": 10 },
       "signaturePassive": { "id": "mirror", "name": "Mirror", "desc": "25% chance to copy your last move", "params": { "chance": 0.25 } }
@@ -197,6 +205,7 @@
       ],
       "attributes": [{ "key": "Element", "value": "Fire" }],
       "arenaOverrides": { "aiPattern": "berserker" },
+      "element": "shadow",
       "resistances": { "ability": 10 },
       "weaknesses": { "counter": 15 },
       "signaturePassive": { "id": "enrage", "name": "Enrage", "desc": "Damage increases 5% every round", "params": { "pctPerRound": 0.05 } }
@@ -223,6 +232,7 @@
       ],
       "attributes": [{ "key": "Element", "value": "Forge Fire" }],
       "arenaOverrides": { "aiPattern": "spell_heavy" },
+      "element": "fire",
       "resistances": { "strike": 15, "counter": 20 },
       "weaknesses": {},
       "signaturePassive": { "id": "leech", "name": "Leech", "desc": "Drains HP equal to 10% of damage dealt", "params": { "healPct": 0.10 } }
@@ -245,6 +255,7 @@
       "badges": [{ "category": "Weekly", "icon": "calendar", "quantity": 1 }],
       "attributes": [{ "key": "Element", "value": "Blood" }],
       "arenaOverrides": { "aiPattern": "berserker" },
+      "element": "fire",
       "resistances": { "counter": 20 },
       "weaknesses": { "ability": 15 },
       "signaturePassive": { "id": "rage", "name": "Rage", "desc": "Deals +40% damage below 30% HP", "params": { "threshold": 0.30, "bonus": 0.40 } }
@@ -267,6 +278,7 @@
       "badges": [{ "category": "Weekly", "icon": "calendar", "quantity": 1 }],
       "attributes": [{ "key": "Element", "value": "Void" }],
       "arenaOverrides": { "aiPattern": "evasive" },
+      "element": "chaos",
       "resistances": { "strike": 15 },
       "weaknesses": { "counter": 20 },
       "signaturePassive": { "id": "phase", "name": "Phase", "desc": "Phases out every 3rd round", "params": { "interval": 3 } }
@@ -289,6 +301,7 @@
       "badges": [{ "category": "Weekly", "icon": "calendar", "quantity": 1 }],
       "attributes": [{ "key": "Element", "value": "Iron" }],
       "arenaOverrides": { "aiPattern": "defensive" },
+      "element": "earth",
       "resistances": { "strike": 25 },
       "weaknesses": { "ability": 20 },
       "signaturePassive": { "id": "fortified_start", "name": "Fortified Start", "desc": "Starts with heavy armor that fades each round", "params": { "startDR": 25, "fadePerRound": 4 } }
@@ -311,6 +324,7 @@
       "badges": [{ "category": "Weekly", "icon": "calendar", "quantity": 1 }],
       "attributes": [{ "key": "Element", "value": "Arcane" }],
       "arenaOverrides": { "aiPattern": "spell_heavy" },
+      "element": "arcane",
       "resistances": { "counter": 15 },
       "weaknesses": { "strike": 20 },
       "signaturePassive": { "id": "hack", "name": "Hack", "desc": "Steals your charges when hitting you", "params": { "steal": 1 } }

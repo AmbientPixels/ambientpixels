@@ -104,6 +104,14 @@ window.BsStrategy = (function () {
     if (boss.bossTip) {
       html += '<br><span style="font-size:0.75rem;color:var(--bs-text-muted);font-style:italic;margin-top:0.25rem;display:inline-block;">' + escHtml(boss.bossTip) + '</span>';
     }
+    // Element badge for boss
+    var _ED = _C.ELEMENT_DEFS || {};
+    var _EC = _C.ELEMENT_CHART || {};
+    var _CDE = _C.CLASS_DEFAULT_ELEMENT || {};
+    var bossEl = boss.element || _CDE[boss.class] || '';
+    if (bossEl && _ED[bossEl]) {
+      html += '<br><span style="font-size:0.8rem;color:' + _ED[bossEl].color + ';display:inline-block;margin-top:0.3rem;"><i class="fas ' + _ED[bossEl].icon + '"></i> ' + _ED[bossEl].label + ' Element</span>';
+    }
     return html;
   }
 
@@ -126,6 +134,31 @@ window.BsStrategy = (function () {
         avatarEl.innerHTML = '<i class="fas ' + icon + '"></i>';
       }
     }
+    // Element matchup indicator
+    var _ED = _C.ELEMENT_DEFS || {};
+    var _EC = _C.ELEMENT_CHART || {};
+    var _CDE = _C.CLASS_DEFAULT_ELEMENT || {};
+    var bossEl = boss.element || _CDE[boss.class] || '';
+    var playerEl = selectedCard ? (selectedCard.element || _CDE[selectedCard.class || selectedCard.characterClass] || '') : '';
+    var matchupEl = document.getElementById('bs-prefight-matchup');
+    if (!matchupEl) {
+      matchupEl = document.createElement('div');
+      matchupEl.id = 'bs-prefight-matchup';
+      matchupEl.style.cssText = 'text-align:center;font-size:0.8rem;margin-top:0.3rem;';
+      if (flavorEl && flavorEl.parentNode) flavorEl.parentNode.insertBefore(matchupEl, flavorEl.nextSibling);
+    }
+    if (matchupEl) {
+      var matchupHtml = '';
+      if (playerEl && bossEl && _EC[playerEl] && _ED[playerEl] && _ED[bossEl]) {
+        if (_EC[playerEl].strong === bossEl) {
+          matchupHtml = '<span style="color:#4ade80;"><i class="fas ' + _ED[playerEl].icon + '" style="color:' + _ED[playerEl].color + ';"></i> Your ' + _ED[playerEl].label + ' is strong vs ' + _ED[bossEl].label + ' (+25% dmg)</span>';
+        } else if (_EC[playerEl].weak === bossEl) {
+          matchupHtml = '<span style="color:#ef4444;"><i class="fas ' + _ED[playerEl].icon + '" style="color:' + _ED[playerEl].color + ';"></i> Your ' + _ED[playerEl].label + ' is weak vs ' + _ED[bossEl].label + ' (-25% dmg)</span>';
+        }
+      }
+      matchupEl.innerHTML = matchupHtml;
+    }
+
     var compEl = document.getElementById('bs-prefight-comparison');
     if (compEl && selectedCard) {
       var ps = selectedCard.combatStats || {};

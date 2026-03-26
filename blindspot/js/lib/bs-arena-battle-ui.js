@@ -156,6 +156,24 @@ window.ArenaBattleUI = (function () {
     }
     if (playerName) playerName.textContent = data.player.name || 'You';
     if (opponentName) opponentName.textContent = data.opponent.name || 'Enemy';
+
+    // Element badges on nameplates
+    var _Const = window.BsConst || {};
+    var _ED = _Const.ELEMENT_DEFS || {};
+    var _CDE = _Const.CLASS_DEFAULT_ELEMENT || {};
+    var elements = data.elements || {};
+    var pEl = elements.player || (data.player.element) || (_CDE[data.player.class] || '');
+    var oEl = elements.opponent || (data.opponent.element) || (_CDE[data.opponent.class] || '');
+    var pElBadge = document.getElementById('arena-player-element');
+    var oElBadge = document.getElementById('arena-opponent-element');
+    if (pElBadge && pEl && _ED[pEl]) {
+      pElBadge.innerHTML = '<i class="fas ' + _ED[pEl].icon + '" style="color:' + _ED[pEl].color + ';"></i>';
+      pElBadge.title = _ED[pEl].label + ' element';
+    }
+    if (oElBadge && oEl && _ED[oEl]) {
+      oElBadge.innerHTML = '<i class="fas ' + _ED[oEl].icon + '" style="color:' + _ED[oEl].color + ';"></i>';
+      oElBadge.title = _ED[oEl].label + ' element';
+    }
   }
 
   function updateHpBars(playerHp, playerMax, opponentHp, opponentMax) {

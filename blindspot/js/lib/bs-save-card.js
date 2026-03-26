@@ -28,6 +28,7 @@ window.BlindspotSaveCard = (function () {
       avatar: cardState.artworkUrl || '',
       quote: (cardState.aiData && cardState.aiData.quote) || '',
       rarity: cardState.cardRarity || 'Common',
+      element: cardState.element || ((window.BsConst || {}).CLASS_DEFAULT_ELEMENT || {})[cardState.cardClass] || 'chaos',
       combatStats: stats || { str: 60, agi: 60, int: 60, end: 60, lck: 60 },
       cardData: {
         name: cardState.cardName || 'Unknown',
@@ -36,6 +37,7 @@ window.BlindspotSaveCard = (function () {
         avatar: cardState.artworkUrl || '',
         palette: 'earth',
         imageContainer: cardState.imageContainer || 'masked',
+        element: cardState.element || ((window.BsConst || {}).CLASS_DEFAULT_ELEMENT || {})[cardState.cardClass] || 'chaos',
         combatStats: stats || { str: 60, agi: 60, int: 60, end: 60, lck: 60 },
         quote: (cardState.aiData && cardState.aiData.quote) || '',
         biography: (cardState.aiData && cardState.aiData.biography) || ''

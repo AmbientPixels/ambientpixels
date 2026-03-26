@@ -104,6 +104,29 @@ window.BsConst = (function () {
     { id: 'balanced',  name: 'Generalist', primary: null,  secondary: null, desc: 'Jack of all trades', icon: 'fa-circle-nodes', color: 'var(--bs-text-muted)' }
   ];
 
+  // Element system — type chart with damage multipliers
+  var ELEMENT_DEFS = {
+    fire:   { label: 'Fire',   icon: 'fa-fire',      color: '#ef4444' },
+    earth:  { label: 'Earth',  icon: 'fa-mountain',   color: '#84cc16' },
+    arcane: { label: 'Arcane', icon: 'fa-hat-wizard', color: '#a855f7' },
+    shadow: { label: 'Shadow', icon: 'fa-ghost',      color: '#6366f1' },
+    chaos:  { label: 'Chaos',  icon: 'fa-burst',      color: '#f59e0b' }
+  };
+  var ELEMENT_CHART = {
+    fire:   { strong: 'earth',  weak: 'shadow' },
+    earth:  { strong: 'arcane', weak: 'fire'   },
+    arcane: { strong: 'shadow', weak: 'earth'  },
+    shadow: { strong: 'fire',   weak: 'arcane' },
+    chaos:  { strong: null,     weak: null      }
+  };
+  var CLASS_DEFAULT_ELEMENT = {
+    Fighter: 'fire', Enforcer: 'fire', Berserker: 'fire',
+    Caster: 'arcane', Hacker: 'arcane', Scholar: 'arcane',
+    Rogue: 'shadow', Scout: 'shadow', Pilot: 'shadow',
+    Guardian: 'earth', Medic: 'earth',
+    Trickster: 'chaos', Wildcard: 'chaos'
+  };
+
   var WEAKNESS_LABELS = { str: 'STR', agi: 'AGI', int: 'INT', end: 'END', lck: 'LCK' };
   var WEAKNESS_COLORS = { str: '#ff5252', agi: '#00e676', int: '#7b2fff', end: '#ff9100', lck: '#ffd740' };
 
@@ -290,6 +313,7 @@ window.BsConst = (function () {
     ELO_DEFAULT: ELO_DEFAULT, ELO_K: ELO_K, PVP_RANKS: PVP_RANKS,
     BOSS_ICONS: BOSS_ICONS, CLASS_PATTERNS: CLASS_PATTERNS, CLASS_SIGNATURE_MOVES: CLASS_SIGNATURE_MOVES,
     STAT_PASSIVES: STAT_PASSIVES, MOVE_UPGRADES: MOVE_UPGRADES, ARCHETYPES: ARCHETYPES,
+    ELEMENT_DEFS: ELEMENT_DEFS, ELEMENT_CHART: ELEMENT_CHART, CLASS_DEFAULT_ELEMENT: CLASS_DEFAULT_ELEMENT,
     WEAKNESS_LABELS: WEAKNESS_LABELS, WEAKNESS_COLORS: WEAKNESS_COLORS,
     MOVE_BEATS: MOVE_BEATS, BATTLE_HINTS: BATTLE_HINTS, STAMINA_COSTS: STAMINA_COSTS, STAMINA_EXHAUSTION_THRESHOLD: STAMINA_EXHAUSTION_THRESHOLD, COOLDOWN_ROUNDS: COOLDOWN_ROUNDS, STANCE_DEFS: STANCE_DEFS,
     CARD_RARITIES: CARD_RARITIES, BORDER_TIERS: BORDER_TIERS, CARD_TITLE_MILESTONES: CARD_TITLE_MILESTONES,

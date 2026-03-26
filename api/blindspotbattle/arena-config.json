@@ -134,6 +134,31 @@
     "balanced": { "dmgMult": 1.0, "defMult": 1.0, "staminaCostAdj": 0, "label": "Balanced" },
     "bossThresholds": { "aggressive": 0.6, "defensive": 0.3 }
   },
+  "elementConfig": {
+    "strongMult": 1.25,
+    "weakMult": 0.75,
+    "chart": {
+      "fire":   { "strong": "earth",  "weak": "shadow" },
+      "earth":  { "strong": "arcane", "weak": "fire"   },
+      "arcane": { "strong": "shadow", "weak": "earth"  },
+      "shadow": { "strong": "fire",   "weak": "arcane" },
+      "chaos":  { "strong": null,     "weak": null      }
+    },
+    "classDefaults": {
+      "Fighter": "fire", "Enforcer": "fire", "Berserker": "fire",
+      "Caster": "arcane", "Hacker": "arcane", "Scholar": "arcane",
+      "Rogue": "shadow", "Scout": "shadow", "Pilot": "shadow",
+      "Guardian": "earth", "Medic": "earth",
+      "Trickster": "chaos", "Wildcard": "chaos"
+    },
+    "passives": {
+      "fire":   { "id": "ignite",     "desc": "All crits apply burn", "burnRounds": 2, "burnPct": 0.08 },
+      "earth":  { "id": "bedrock",    "desc": "+5% damage reduction", "drValue": 5 },
+      "arcane": { "id": "attunement", "desc": "+1 starting charge",   "extraCharges": 1 },
+      "shadow": { "id": "phantom",    "desc": "+5% dodge chance",     "dodgeValue": 5 },
+      "chaos":  { "id": "flux",       "desc": "Random element each round" }
+    }
+  },
   "validClasses": ["Fighter", "Enforcer", "Berserker", "Caster", "Hacker", "Scholar", "Scout", "Rogue", "Pilot", "Guardian", "Medic", "Trickster", "Wildcard"],
   "classAdvantages": {
     "Fighter":   ["Guardian", "Medic"],

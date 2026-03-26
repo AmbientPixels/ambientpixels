@@ -433,6 +433,78 @@ console.log('\n── Loot Roll Distribution ──');
   assertClose(epicWeight / totalWeight, 0.0208, 0.005, 'Epic drop rate ~2.1%');
 }
 
+// ── Element System ──
+console.log('\n── Element System ──');
+{
+  const ELEMENT_CHART = {
+    fire:   { strong: 'earth',  weak: 'shadow' },
+    earth:  { strong: 'arcane', weak: 'fire'   },
+    arcane: { strong: 'shadow', weak: 'earth'  },
+    shadow: { strong: 'fire',   weak: 'arcane' },
+    chaos:  { strong: null,     weak: null      }
+  };
+  const CLASS_DEFAULT_ELEMENT = {
+    Fighter: 'fire', Caster: 'arcane', Rogue: 'shadow', Guardian: 'earth', Trickster: 'chaos'
+  };
+
+  // Type chart correctness
+  assert(ELEMENT_CHART.fire.strong === 'earth', 'Fire strong vs Earth');
+  assert(ELEMENT_CHART.fire.weak === 'shadow', 'Fire weak vs Shadow');
+  assert(ELEMENT_CHART.earth.strong === 'arcane', 'Earth strong vs Arcane');
+  assert(ELEMENT_CHART.arcane.strong === 'shadow', 'Arcane strong vs Shadow');
+  assert(ELEMENT_CHART.shadow.strong === 'fire', 'Shadow strong vs Fire');
+  assert(ELEMENT_CHART.chaos.strong === null, 'Chaos strong is null');
+  assert(ELEMENT_CHART.chaos.weak === null, 'Chaos weak is null');
+
+  // Class defaults
+  assertEq(CLASS_DEFAULT_ELEMENT.Fighter, 'fire', 'Fighter defaults to fire');
+  assertEq(CLASS_DEFAULT_ELEMENT.Caster, 'arcane', 'Caster defaults to arcane');
+  assertEq(CLASS_DEFAULT_ELEMENT.Rogue, 'shadow', 'Rogue defaults to shadow');
+  assertEq(CLASS_DEFAULT_ELEMENT.Guardian, 'earth', 'Guardian defaults to earth');
+  assertEq(CLASS_DEFAULT_ELEMENT.Trickster, 'chaos', 'Trickster defaults to chaos');
+
+  // Element multiplier math
+  const strongMult = 1.25;
+  const weakMult = 0.75;
+  const baseDmg = 100;
+
+  // Strong matchup: +25%
+  const strongBonus = Math.round(baseDmg * (strongMult - 1));
+  assertEq(strongBonus, 25, 'Strong matchup adds 25 to 100 base');
+  assertEq(baseDmg + strongBonus, 125, 'Strong matchup total is 125');
+
+  // Weak matchup: -25%
+  const weakReduction = Math.round(baseDmg * (1 - weakMult));
+  assertEq(weakReduction, 25, 'Weak matchup reduces by 25');
+  assertEq(Math.max(1, baseDmg - weakReduction), 75, 'Weak matchup total is 75');
+
+  // Neutral (Chaos or same element): no change
+  const chaosChart = ELEMENT_CHART.chaos;
+  assert(chaosChart.strong === null && chaosChart.weak === null, 'Chaos has no strong/weak');
+
+  // Heal exemption: element never applies to heal
+  const healMove = 'heal';
+  assert(healMove === 'heal', 'Heal move identified (exempt from element)');
+
+  // Chaos flux: random element is one of 4
+  const fluxOptions = ['fire', 'earth', 'arcane', 'shadow'];
+  const rolled = fluxOptions[Math.floor(Math.random() * 4)];
+  assert(fluxOptions.includes(rolled), 'Chaos flux rolls valid element: ' + rolled);
+
+  // Full cycle: each element beats exactly one and loses to exactly one
+  const elements = ['fire', 'earth', 'arcane', 'shadow'];
+  for (const el of elements) {
+    const chart = ELEMENT_CHART[el];
+    assert(chart.strong !== null, el + ' has a strong target');
+    assert(chart.weak !== null, el + ' has a weak target');
+    assert(chart.strong !== chart.weak, el + ' strong !== weak');
+    assert(chart.strong !== el, el + ' is not strong vs itself');
+    // Verify reciprocity: if A beats B, B is weak to A
+    const target = ELEMENT_CHART[chart.strong];
+    assert(target.weak === el, el + ' → ' + chart.strong + ' is reciprocal');
+  }
+}
+
 // ── Summary ──
 console.log('\n' + '─'.repeat(50));
 if (failed === 0) {

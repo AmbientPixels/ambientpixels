@@ -20,5 +20,6 @@
     "imageContainer": "masked",
     "imageContainerVariant": "circle"
   },
-  "isStranger": true
+  "isStranger": true,
+  "element": "fire"
 }
