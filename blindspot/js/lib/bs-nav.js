@@ -72,6 +72,22 @@
       });
     });
 
+    // Shop screen
+    document.getElementById('bs-btn-shop')?.addEventListener('click', function() {
+      _cb.showScreen('shop');
+      if (_cb.renderShop) _cb.renderShop();
+    });
+    document.getElementById('bs-shop-back')?.addEventListener('click', function() {
+      _cb.showScreen('lobby');
+      _cb.renderLobby();
+    });
+    // Shop tab switching
+    document.querySelectorAll('.bs-shop__tab').forEach(function(tab) {
+      tab.addEventListener('click', function() {
+        if (_cb.setShopTab) _cb.setShopTab(tab.dataset.tab || 'featured');
+      });
+    });
+
     // Deck management screen
     document.getElementById('bs-btn-deck')?.addEventListener('click', function() {
       _cb.showScreen('deck');

@@ -50,7 +50,8 @@ window.BsState = (function () {
     bossRecords: {}, masteryClaimed: {}, claimedRewards: [],
     towerClaimed: [], weeklyBoss: {}, challenges: {}, bounties: {},
     lastDaily: '', cardHistory: {},
-    defenseCardId: null, asyncInboxCount: 0
+    defenseCardId: null, asyncInboxCount: 0,
+    wishlist: [], lifetimeSparksSpent: 0
   };
   var _progressLoaded = false;
   var _syncInFlight = false;

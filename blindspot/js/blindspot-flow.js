@@ -289,6 +289,7 @@
   function spendSparks(n) {
     if (n > _progress.sparks) return false;
     _progress.sparks -= n;
+    _progress.lifetimeSparksSpent = (_progress.lifetimeSparksSpent || 0) + n;
     syncProgressToServer();
     // Update all sparks displays
     var hudSparks = document.querySelector('.bs-hud-sparks');
@@ -448,6 +449,8 @@
   // Sparks shop — delegated to bs-sparks-shop.js (window.BsSparksShop)
   var _Shop = window.BsSparksShop || {};
   function updateSparksShop() { if (_Shop.render) _Shop.render(); }
+  function renderShop() { if (_Shop.render) _Shop.render(); }
+  function setShopTab(tab) { if (_Shop.setTab) _Shop.setTab(tab); }
 
   function escHtml(s) {
     const d = document.createElement('div');
@@ -676,6 +679,7 @@
       _buildCosmeticCaches();
       if (_Rar.setCallbacks) _Rar.setCallbacks({ getForgeVisitCount: getForgeVisitCount });
       if (_Shop.setCallbacks) _Shop.setCallbacks({ getSparks: getSparks, spendSparks: spendSparks, awardCrate: awardCrate, toast: showSuccessToast });
+      if (_Shop.setConfig) _Shop.setConfig(_config);
       if (_BossRew.setCallbacks) _BossRew.setCallbacks({
         getProgress: function() { return _progress; },
         getSelectedCard: function() { return _selectedCard; },
@@ -1616,6 +1620,8 @@
     renderLeaderboard: function() { renderLeaderboard(); },
     renderCollection: function() { renderCollection(); },
     renderDeckManagement: function() { renderDeckManagement(); },
+    renderShop: function() { renderShop(); },
+    setShopTab: function(tab) { setShopTab(tab); },
     openCrateOverlay: function(i) { openCrateOverlay(i); },
     getCrateCount: function() { return getCrateCount(); },
     openForgeScreen: function(a, b) { openForgeScreen(a, b); },

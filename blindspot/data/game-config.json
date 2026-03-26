@@ -191,7 +191,11 @@
           { "id": "charm_power_surge",  "name": "Power Surge",   "rarity": "uncommon", "icon": "fa-explosion",      "description": "+25% damage this round",      "effect": "damage_boost",  "value": 25 },
           { "id": "charm_shield_wall",  "name": "Shield Wall",   "rarity": "uncommon", "icon": "fa-shield",         "description": "Block all damage this round", "effect": "full_block",    "value": 100 },
           { "id": "charm_lucky_strike", "name": "Lucky Strike",  "rarity": "rare",     "icon": "fa-clover",         "description": "Guaranteed critical hit",     "effect": "guaranteed_crit", "value": 1 },
-          { "id": "charm_charge_boost", "name": "Charge Boost",  "rarity": "rare",     "icon": "fa-battery-full",   "description": "Full ability charges",        "effect": "full_charges",  "value": 1 }
+          { "id": "charm_charge_boost", "name": "Charge Boost",  "rarity": "rare",     "icon": "fa-battery-full",   "description": "Full ability charges",        "effect": "full_charges",  "value": 1 },
+          { "id": "charm_smoke_bomb",     "name": "Smoke Bomb",      "rarity": "uncommon", "icon": "fa-smog",           "description": "Opponent's next move has 50% miss chance", "effect": "smoke_bomb",       "value": 50 },
+          { "id": "charm_iron_skin",      "name": "Iron Skin Tonic", "rarity": "rare",     "icon": "fa-shield-heart",   "description": "-30% damage taken for 3 rounds",           "effect": "iron_skin",        "value": 30 },
+          { "id": "charm_combo_primer",   "name": "Combo Primer",    "rarity": "uncommon", "icon": "fa-arrows-spin",    "description": "Next combo deals +50% bonus damage",       "effect": "combo_primer",     "value": 50 },
+          { "id": "charm_adrenaline_spike","name": "Adrenaline Spike","rarity": "uncommon", "icon": "fa-bolt-lightning", "description": "Next 2 turns cost 0 stamina",              "effect": "adrenaline_spike", "value": 2 }
         ]
       },
       "stamina_items": {
@@ -243,5 +247,101 @@
         "items": []
       }
     }
+  },
+  "shop": {
+    "featured": [
+      "charm_heal_potion", "charm_power_surge", "charm_smoke_bomb",
+      "frame_gold_filigree", "back_starfield", "victory_lightning"
+    ],
+    "consumablePrices": {
+      "charm_heal_potion": 10,
+      "charm_power_surge": 15,
+      "charm_shield_wall": 15,
+      "charm_lucky_strike": 20,
+      "charm_charge_boost": 20,
+      "stamina_potion": 10,
+      "endurance_tonic": 15,
+      "second_wind": 20,
+      "element_ward": 15,
+      "element_burst": 25,
+      "element_shift": 25,
+      "prism_shard": 35,
+      "charm_resist_fire": 20,
+      "charm_resist_earth": 20,
+      "charm_resist_arcane": 20,
+      "charm_resist_shadow": 20,
+      "charm_smoke_bomb": 20,
+      "charm_iron_skin": 25,
+      "charm_combo_primer": 20,
+      "charm_adrenaline_spike": 15
+    },
+    "cosmeticPrices": {
+      "frame_gold_filigree": 120,
+      "frame_crystal": 100,
+      "frame_circuit": 100,
+      "frame_bone": 75,
+      "frame_emerald_vine": 100,
+      "frame_frost_shard": 100,
+      "frame_dragon_scale": 200,
+      "frame_shadow_wraith": 200,
+      "back_starfield": 100,
+      "back_embers": 60,
+      "back_arctic": 80,
+      "back_obsidian": 60,
+      "back_inferno": 80,
+      "back_blood_moon": 150,
+      "back_void": 150,
+      "plate_flame": 80,
+      "plate_glitch": 50,
+      "plate_toxic": 50,
+      "plate_frozen": 80,
+      "plate_shadow": 120,
+      "plate_royal": 120,
+      "victory_lightning": 120,
+      "victory_confetti": 75,
+      "victory_fireworks": 60,
+      "victory_shockwave": 100,
+      "victory_ravens": 175
+    },
+    "newConsumables": [
+      {
+        "id": "charm_smoke_bomb",
+        "name": "Smoke Bomb",
+        "rarity": "uncommon",
+        "icon": "fa-smog",
+        "description": "Opponent's next move has 50% miss chance",
+        "effect": "smoke_bomb",
+        "value": 50
+      },
+      {
+        "id": "charm_iron_skin",
+        "name": "Iron Skin Tonic",
+        "rarity": "rare",
+        "icon": "fa-shield-heart",
+        "description": "-30% damage taken for 3 rounds",
+        "effect": "iron_skin",
+        "value": 30
+      },
+      {
+        "id": "charm_combo_primer",
+        "name": "Combo Primer",
+        "rarity": "uncommon",
+        "icon": "fa-arrows-spin",
+        "description": "Next combo deals +50% bonus damage",
+        "effect": "combo_primer",
+        "value": 50
+      },
+      {
+        "id": "charm_adrenaline_spike",
+        "name": "Adrenaline Spike",
+        "rarity": "uncommon",
+        "icon": "fa-bolt-lightning",
+        "description": "Next 2 turns cost 0 stamina",
+        "effect": "adrenaline_spike",
+        "value": 2
+      }
+    ],
+    "loyaltyMilestones": [250, 500, 1000, 2500, 5000],
+    "emberCrateCost": 50
   }
 }

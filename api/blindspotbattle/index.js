@@ -1292,7 +1292,7 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
   }
 
   // Store adventure items in battle state (validated)
-  const VALID_ITEMS = ['smoke_bomb', 'war_cry', 'focus_elixir', 'iron_skin', 'lucky_coin', 'healing_salve', 'stamina_potion', 'endurance_tonic', 'second_wind', 'element_ward', 'element_burst', 'element_shift', 'prism_shard'];
+  const VALID_ITEMS = ['smoke_bomb', 'war_cry', 'focus_elixir', 'iron_skin', 'lucky_coin', 'healing_salve', 'stamina_potion', 'endurance_tonic', 'second_wind', 'element_ward', 'element_burst', 'element_shift', 'prism_shard', 'combo_primer', 'adrenaline_spike', 'charm_smoke_bomb', 'charm_iron_skin', 'charm_combo_primer', 'charm_adrenaline_spike'];
   if (type === 'pve' && Array.isArray(body.adventureItems)) {
     battleState.adventureItems = body.adventureItems
       .filter(it => it && VALID_ITEMS.includes(it.id))
@@ -1672,8 +1672,40 @@ async function handleMove(context, containerClient, userId, body) {
         battle.prismActive = battle.prismActive || {};
         battle.prismActive.player = true;
         result.events.push('\uD83D\uDC8E PRISM SHARD! Your attacks become element-neutral!');
+      } else if (useItem === 'charm_smoke_bomb') {
+        // Same as smoke_bomb — 50% miss chance on opponent's attack
+        result.playerDamageTaken = 0;
+        result.events.push('\uD83D\uDCA8 SMOKE BOMB! Opponent\'s attack misses completely!');
+      } else if (useItem === 'charm_iron_skin') {
+        // -30% damage taken for 3 rounds (store counter in battle state)
+        if (!battle.ironSkin) battle.ironSkin = {};
+        battle.ironSkin.player = 3;
+        var blocked = Math.round(result.playerDamageTaken * 0.30);
+        result.playerDamageTaken = Math.max(0, result.playerDamageTaken - blocked);
+        result.events.push('\uD83D\uDEE1\uFE0F IRON SKIN! Damage reduced by 30% for 3 rounds! (-' + blocked + ')');
+      } else if (useItem === 'charm_combo_primer') {
+        // Next combo deals +50% bonus — store flag in battle state
+        if (!battle.comboPrimer) battle.comboPrimer = {};
+        battle.comboPrimer.player = true;
+        result.events.push('\uD83C\uDFAF COMBO PRIMER! Your next combo will deal +50% bonus damage!');
+      } else if (useItem === 'charm_adrenaline_spike') {
+        // Next 2 turns cost 0 stamina
+        if (!battle.adrenalineSpike) battle.adrenalineSpike = {};
+        battle.adrenalineSpike.player = 2;
+        result.events.push('\u26A1 ADRENALINE SPIKE! Next 2 moves cost zero stamina!');
       }
       context.log('[Blindspot] Adventure item used: ' + useItem);
+    }
+  }
+
+  // Iron Skin ongoing: -30% damage taken while active
+  if (battle.ironSkin && battle.ironSkin.player > 0 && result.playerDamageTaken > 0 && !itemUsed) {
+    // Only apply on rounds after the initial activation (itemUsed handles the first round)
+    var isBlocked = Math.round(result.playerDamageTaken * 0.30);
+    result.playerDamageTaken = Math.max(0, result.playerDamageTaken - isBlocked);
+    battle.ironSkin.player--;
+    if (battle.ironSkin.player <= 0) {
+      result.events.push('\uD83D\uDEE1\uFE0F Iron Skin wears off.');
     }
   }
 
@@ -1710,6 +1742,15 @@ async function handleMove(context, containerClient, userId, body) {
     var oStanceAdj = (stCfgR[battle.stances.opponent] || {}).staminaCostAdj || 0;
     pCost = Math.max(1, pCost + pStanceAdj);
     oCost = Math.max(1, oCost + oStanceAdj);
+
+    // Adrenaline Spike: zero stamina cost for N turns
+    if (battle.adrenalineSpike && battle.adrenalineSpike.player > 0) {
+      pCost = 0;
+      battle.adrenalineSpike.player--;
+      if (battle.adrenalineSpike.player <= 0) {
+        result.events.push('\u26A1 Adrenaline Spike wears off.');
+      }
+    }
 
     // Regen
     battle.stamina.player = Math.min(battle.maxStamina.player, battle.stamina.player + battle.staminaRegen.player);
@@ -1793,6 +1834,16 @@ async function handleMove(context, containerClient, userId, body) {
       result.events.push(`\u2728 EMPOWERED! Heal channeled into ability! (+${bonus} damage)`);
       comboTriggered = 'empowered';
     }
+  }
+
+  // Combo Primer: +50% bonus when any combo triggers
+  if (battle.comboPrimer && battle.comboPrimer.player && comboTriggered) {
+    var cpBonus = Math.round(result.opponentDamageTaken * 0.50);
+    result.opponentDamageTaken += cpBonus;
+    // Also apply the extra combo primer damage to opponent HP
+    opponent.hp = Math.max(0, opponent.hp - cpBonus);
+    battle.comboPrimer.player = false;
+    result.events.push('\uD83C\uDFAF COMBO PRIMER amplifies ' + comboTriggered + '! (+' + cpBonus + ' bonus damage!)');
   }
 
   player.moves.push(move);
