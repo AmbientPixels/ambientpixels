@@ -20,7 +20,17 @@ window.BsBattlePalette = (function () {
     if (playerCard) {
       var renderCardHTML = _cb.renderCardHTML;
       if (renderCardHTML) {
-        playerCard.innerHTML = renderCardHTML(card, 'compact');
+        // Force fullbleed in battle for clean character portrait (no masked/framed)
+        var battleCard = Object.assign({}, card, {
+          imageContainer: 'fullbleed',
+          design: Object.assign({}, card.design || {}, { imageContainer: 'fullbleed' })
+        });
+        if (battleCard.cardData) {
+          battleCard.cardData = Object.assign({}, battleCard.cardData, {
+            design: Object.assign({}, (battleCard.cardData.design || {}), { imageContainer: 'fullbleed' })
+          });
+        }
+        playerCard.innerHTML = renderCardHTML(battleCard, 'compact');
       }
       playerCard.style.overflow = 'hidden';
       playerCard.style.border = 'none';
