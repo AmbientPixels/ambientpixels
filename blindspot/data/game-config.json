@@ -78,7 +78,7 @@
     "lootTables": {
       "standard": {
         "rarityWeights": { "common": 60, "uncommon": 25, "rare": 12, "epic": 3 },
-        "pools": ["stat_boosts", "sparks", "forge_tokens", "card_frames", "card_backs", "titles", "battle_charms", "stamina_items"]
+        "pools": ["stat_boosts", "sparks", "forge_tokens", "card_frames", "card_backs", "titles", "battle_charms", "stamina_items", "elemental_items", "element_resist_charms"]
       },
       "boss": {
         "rarityWeights": { "common": 40, "uncommon": 30, "rare": 22, "epic": 8 },
