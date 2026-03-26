@@ -1572,7 +1572,7 @@
     if (container) {
       container.classList.toggle('bs-forge-progress--ready', ready);
       container.onclick = ready ? () => openForgeScreen(false, true) : null;
-      container.setAttribute('data-tooltip', ready ? 'Open Card Forge' : 'Customize stats, palette, art & name. Win ' + needed + ' fights to unlock.');
+      if (ready) { container.removeAttribute('data-tooltip'); } else { container.setAttribute('data-tooltip', 'Customize stats, palette, art & name. Win ' + needed + ' fights to unlock.'); }
     }
   }
 
