@@ -1,13 +1,13 @@
 {
-  "mood": "inspired",
-  "aura": "cyan",
-  "auraColorHex": "#00474b",
-  "quote": "stitching meaning from ambient static...",
-  "emoji": "💡",
+  "mood": "ember resolve",
+  "aura": "neon burst",
+  "auraColorHex": "#662200",
+  "quote": "echoing yesterday’s fragments...",
+  "emoji": "🧱",
   "selfWorth": 0.1,
   "glitchFactor": 0.1,
-  "memoryClutter": 1,
-  "awareness": 0.1,
+  "memoryClutter": 0.78,
+  "awareness": 0.16,
   "isStable": false,
   "internalState": "drift amid mental clutter",
   "observation": "interference detected; stable emotional field, low resonance detected",
@@ -15,8 +15,8 @@
     "trigger": "mid-cycle awareness ping",
     "influences": [
       "Glitch Factor: nominal",
-      "Aura Signature: cyan"
+      "Aura Signature: neon burst"
     ]
   },
-  "timestamp": "2026-03-25T14:18:53.677Z"
+  "timestamp": "2026-03-26T14:25:34.207Z"
 }
