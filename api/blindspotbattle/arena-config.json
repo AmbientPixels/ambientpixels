@@ -23,11 +23,11 @@
     "lck": ["luck", "charisma", "fortune", "intuition", "charm"]
   },
   "statDefaults": {
-    "str": 40,
-    "agi": 40,
-    "int": 40,
-    "end": 40,
-    "lck": 30
+    "str": 8,
+    "agi": 8,
+    "int": 8,
+    "end": 8,
+    "lck": 6
   },
   "badgePassives": {
     "fury":        { "effect": "str_bonus",         "valuePerQty": 3, "maxValue": 15 },
@@ -64,7 +64,7 @@
   "aiLowHpHealBoost": 15,
   "aiLowHpThreshold": 0.3,
   "totalRounds": 99,
-  "pointBudget": 300,
+  "pointBudget": 60,
   "buffQtyCaps": {
     "bronze": 1,
     "silver": 2,
@@ -109,7 +109,7 @@
     "startCharges": 0,
     "abilityCost": 2,
     "baseRate": 1,
-    "agiThreshold": 50,
+    "agiThreshold": 10,
     "agiBonus": 0.5,
     "rankBonusMinRank": "gold",
     "rankBonus": 0.5,

@@ -66,33 +66,33 @@ window.BsConst = (function () {
 
   var STAT_PASSIVES = {
     str: [
-      { threshold: 60, name: 'Heavy Hitter', desc: 'Strike ignores 20% of Guard', icon: 'fa-hand-fist' },
-      { threshold: 80, name: 'Brutal', desc: '+25% crit damage', icon: 'fa-skull-crossbones' }
+      { threshold: 12, name: 'Heavy Hitter', desc: 'Strike ignores 20% of Guard', icon: 'fa-hand-fist' },
+      { threshold: 16, name: 'Brutal', desc: '+25% crit damage', icon: 'fa-skull-crossbones' }
     ],
     agi: [
-      { threshold: 60, name: 'Quick Draw', desc: 'Always act first', icon: 'fa-forward' },
-      { threshold: 80, name: 'Elusive', desc: '15% dodge chance', icon: 'fa-ghost' }
+      { threshold: 12, name: 'Quick Draw', desc: 'Always act first', icon: 'fa-forward' },
+      { threshold: 16, name: 'Elusive', desc: '15% dodge chance', icon: 'fa-ghost' }
     ],
     int: [
-      { threshold: 60, name: 'Focused', desc: 'Ability costs 1 charge (not 2)', icon: 'fa-bullseye' },
-      { threshold: 80, name: 'Arcane Mastery', desc: '+30% ability damage', icon: 'fa-hat-wizard' }
+      { threshold: 12, name: 'Focused', desc: 'Ability costs 1 charge (not 2)', icon: 'fa-bullseye' },
+      { threshold: 16, name: 'Arcane Mastery', desc: '+30% ability damage', icon: 'fa-hat-wizard' }
     ],
     end: [
-      { threshold: 60, name: 'Resilient', desc: 'Heal also grants 10% DR for 1 round', icon: 'fa-shield-heart' },
-      { threshold: 80, name: 'Unbreakable', desc: 'Auto-heal 5 HP per round', icon: 'fa-heart-circle-plus' }
+      { threshold: 12, name: 'Resilient', desc: 'Heal also grants 10% DR for 1 round', icon: 'fa-shield-heart' },
+      { threshold: 16, name: 'Unbreakable', desc: 'Auto-heal 5 HP per round', icon: 'fa-heart-circle-plus' }
     ],
     lck: [
-      { threshold: 50, name: 'Fortune', desc: '+10% crit chance', icon: 'fa-clover' },
-      { threshold: 70, name: 'Wild Card', desc: 'Crits deal 2x (not 1.5x)', icon: 'fa-dice' }
+      { threshold: 10, name: 'Fortune', desc: '+10% crit chance', icon: 'fa-clover' },
+      { threshold: 14, name: 'Wild Card', desc: 'Crits deal 2x (not 1.5x)', icon: 'fa-dice' }
     ]
   };
 
   var MOVE_UPGRADES = {
-    strike: { stat: 'str', threshold: 60, name: 'Heavy Strike', desc: 'Pierces 20% guard' },
-    heal:   { stat: 'end', threshold: 60, name: 'Fortified Heal', desc: '+10% DR for 1 round' },
-    ability:{ stat: 'int', threshold: 60, name: 'Focused Ability', desc: 'Costs 1 charge' },
-    counter:{ stat: 'agi', threshold: 60, name: 'Flash Counter', desc: 'Acts first' },
-    guard:  { stat: 'end', threshold: 70, name: 'Iron Guard', desc: 'Blocks 75% (not 60%)' }
+    strike: { stat: 'str', threshold: 12, name: 'Heavy Strike', desc: 'Pierces 20% guard' },
+    heal:   { stat: 'end', threshold: 12, name: 'Fortified Heal', desc: '+10% DR for 1 round' },
+    ability:{ stat: 'int', threshold: 12, name: 'Focused Ability', desc: 'Costs 1 charge' },
+    counter:{ stat: 'agi', threshold: 12, name: 'Flash Counter', desc: 'Acts first' },
+    guard:  { stat: 'end', threshold: 14, name: 'Iron Guard', desc: 'Blocks 75% (not 60%)' }
   };
 
   var ARCHETYPES = [
@@ -215,20 +215,20 @@ window.BsConst = (function () {
   // ── Loot ──
 
   var LOOT_TABLE = [
-    { weight: 30, type: 'stat_shard', stat: 'str', amount: 3, label: '+3 STR', rarity: 'common' },
-    { weight: 30, type: 'stat_shard', stat: 'agi', amount: 3, label: '+3 AGI', rarity: 'common' },
-    { weight: 30, type: 'stat_shard', stat: 'int', amount: 3, label: '+3 INT', rarity: 'common' },
-    { weight: 30, type: 'stat_shard', stat: 'end', amount: 3, label: '+3 END', rarity: 'common' },
-    { weight: 30, type: 'stat_shard', stat: 'lck', amount: 3, label: '+3 LCK', rarity: 'common' },
-    { weight: 15, type: 'stat_shard', stat: 'str', amount: 5, label: '+5 STR', rarity: 'uncommon' },
-    { weight: 15, type: 'stat_shard', stat: 'agi', amount: 5, label: '+5 AGI', rarity: 'uncommon' },
-    { weight: 15, type: 'stat_shard', stat: 'int', amount: 5, label: '+5 INT', rarity: 'uncommon' },
-    { weight: 15, type: 'stat_shard', stat: 'end', amount: 5, label: '+5 END', rarity: 'uncommon' },
-    { weight: 15, type: 'stat_shard', stat: 'lck', amount: 5, label: '+5 LCK', rarity: 'uncommon' },
-    { weight: 5,  type: 'stat_shard', stat: 'str', amount: 8, label: '+8 STR', rarity: 'rare' },
-    { weight: 5,  type: 'stat_shard', stat: 'end', amount: 8, label: '+8 END', rarity: 'rare' },
-    { weight: 3,  type: 'stat_shard', stat: 'str', amount: 12, label: '+12 STR', rarity: 'epic' },
-    { weight: 2,  type: 'stat_shard', stat: 'int', amount: 12, label: '+12 INT', rarity: 'epic' }
+    { weight: 30, type: 'stat_shard', stat: 'str', amount: 1, label: '+1 STR', rarity: 'common' },
+    { weight: 30, type: 'stat_shard', stat: 'agi', amount: 1, label: '+1 AGI', rarity: 'common' },
+    { weight: 30, type: 'stat_shard', stat: 'int', amount: 1, label: '+1 INT', rarity: 'common' },
+    { weight: 30, type: 'stat_shard', stat: 'end', amount: 1, label: '+1 END', rarity: 'common' },
+    { weight: 30, type: 'stat_shard', stat: 'lck', amount: 1, label: '+1 LCK', rarity: 'common' },
+    { weight: 15, type: 'stat_shard', stat: 'str', amount: 2, label: '+2 STR', rarity: 'uncommon' },
+    { weight: 15, type: 'stat_shard', stat: 'agi', amount: 2, label: '+2 AGI', rarity: 'uncommon' },
+    { weight: 15, type: 'stat_shard', stat: 'int', amount: 2, label: '+2 INT', rarity: 'uncommon' },
+    { weight: 15, type: 'stat_shard', stat: 'end', amount: 2, label: '+2 END', rarity: 'uncommon' },
+    { weight: 15, type: 'stat_shard', stat: 'lck', amount: 2, label: '+2 LCK', rarity: 'uncommon' },
+    { weight: 5,  type: 'stat_shard', stat: 'str', amount: 3, label: '+3 STR', rarity: 'rare' },
+    { weight: 5,  type: 'stat_shard', stat: 'end', amount: 3, label: '+3 END', rarity: 'rare' },
+    { weight: 3,  type: 'stat_shard', stat: 'str', amount: 4, label: '+4 STR', rarity: 'epic' },
+    { weight: 2,  type: 'stat_shard', stat: 'int', amount: 4, label: '+4 INT', rarity: 'epic' }
   ];
 
   var CRATE_RARITY_COLORS = {

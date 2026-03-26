@@ -41,13 +41,13 @@ window.BsCardRenderer = (function () {
     }
     if (card.combatStats) return;
     if (!card.stats || !Array.isArray(card.stats) || card.stats.length === 0) {
-      card.combatStats = { str: 60, agi: 60, int: 60, end: 60, lck: 60 };
+      card.combatStats = { str: 12, agi: 12, int: 12, end: 12, lck: 12 };
       return;
     }
-    card.combatStats = { str: 50, agi: 50, int: 50, end: 50, lck: 50 };
+    card.combatStats = { str: 10, agi: 10, int: 10, end: 10, lck: 10 };
     card.stats.forEach(function(s) {
       var key = STAT_MAP[(s.name || '').toLowerCase().trim()];
-      if (key) card.combatStats[key] = Math.min(100, Math.max(0, s.value || 0));
+      if (key) card.combatStats[key] = Math.min(20, Math.max(0, s.value || 0));
     });
   }
 
@@ -118,7 +118,7 @@ window.BsCardRenderer = (function () {
         var val = cs[d.key] || 0;
         return '<div class="bs-rc-stat">'
           + '<span class="bs-rc-stat__label" style="color:' + d.color + '">' + d.label + '</span>'
-          + '<div class="bs-rc-stat__bar"><div class="bs-rc-stat__fill" style="width:' + val + '%;background:' + d.color + '"></div></div>'
+          + '<div class="bs-rc-stat__bar"><div class="bs-rc-stat__fill" style="width:' + (val / 20 * 100) + '%;background:' + d.color + '"></div></div>'
           + '<span class="bs-rc-stat__val">' + val + '</span>'
           + '</div>';
       }).join('') + '</div>';

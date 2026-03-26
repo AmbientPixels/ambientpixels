@@ -12,7 +12,7 @@ window.ArenaCardSelect = (function () {
     end: ['endurance', 'defense', 'vitality', 'constitution', 'stamina', 'toughness', 'resilience'],
     lck: ['luck', 'charisma', 'fortune', 'intuition', 'charm']
   };
-  const STAT_DEFAULTS = { str: 40, agi: 40, int: 40, end: 40, lck: 30 };
+  const STAT_DEFAULTS = { str: 8, agi: 8, int: 8, end: 8, lck: 6 };
 
   function mapStats(card) {
     const combat = { ...STAT_DEFAULTS };
@@ -21,7 +21,7 @@ window.ArenaCardSelect = (function () {
     if (card.combatStats && typeof card.combatStats === 'object') {
       for (const key of Object.keys(combat)) {
         if (card.combatStats[key] !== undefined) {
-          combat[key] = Math.min(100, Math.max(1, Math.round(card.combatStats[key])));
+          combat[key] = Math.min(20, Math.max(1, Math.round(card.combatStats[key])));
         }
       }
       return combat;
@@ -31,17 +31,17 @@ window.ArenaCardSelect = (function () {
     if (!card.stats || card.stats.length === 0) return combat;
 
     const maxVal = Math.max(...card.stats.map(s => s.value || 0));
-    const scale = maxVal <= 10 ? 10 : 1;
+    const scale = maxVal <= 4 ? 5 : 1;
 
     for (const [key, aliases] of Object.entries(STAT_ALIASES)) {
       const match = card.stats.find(s => aliases.includes((s.name || '').toLowerCase().trim()));
-      if (match) combat[key] = Math.min(100, Math.max(1, Math.round((match.value || 0) * scale)));
+      if (match) combat[key] = Math.min(20, Math.max(1, Math.round((match.value || 0) * scale)));
     }
     return combat;
   }
 
   function computeHp(stats) {
-    return Math.round(80 + stats.end * 1.5 + stats.str * 0.3);
+    return Math.round(80 + stats.end * 7.5 + stats.str * 1.5);
   }
 
   function renderCardStrip(cards, containerId, onSelect) {

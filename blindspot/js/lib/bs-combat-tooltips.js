@@ -58,15 +58,15 @@
     var stats = battle.player.combatStats;
     if (!stats) return;
 
-    // Strike: STR * 0.4 to STR * 0.5
-    var strMin = Math.floor(stats.str * 0.4);
-    var strMax = Math.floor(stats.str * 0.5);
+    // Strike: STR * 2.0 to STR * 2.5
+    var strMin = Math.floor(stats.str * 2.0);
+    var strMax = Math.floor(stats.str * 2.5);
     var strEl = document.getElementById('arena-move-str');
     if (strEl) strEl.textContent = '~' + strMin + '-' + strMax + ' dmg';
 
-    // Heal: END * 0.3 to END * 0.4
-    var endMin = Math.floor(stats.end * 0.3);
-    var endMax = Math.floor(stats.end * 0.4);
+    // Heal: END * 1.5 to END * 2.0
+    var endMin = Math.floor(stats.end * 1.5);
+    var endMax = Math.floor(stats.end * 2.0);
     var endEl = document.getElementById('arena-move-end');
     if (endEl) endEl.textContent = '~' + endMin + '-' + endMax + ' HP';
 

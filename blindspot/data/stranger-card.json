@@ -8,11 +8,11 @@
   "quote": "Not yet.",
   "biography": "No history. No allegiance. No name worth knowing.",
   "combatStats": {
-    "str": 90,
-    "agi": 60,
-    "int": 40,
-    "end": 95,
-    "lck": 55
+    "str": 18,
+    "agi": 12,
+    "int": 8,
+    "end": 19,
+    "lck": 11
   },
   "visualSettings": {
     "palette": "monochrome",

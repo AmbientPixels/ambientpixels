@@ -16,7 +16,8 @@
     { id: 'Trickster', label: 'Trickster', icon: 'fa-dice',                ability: 'Wild Card',     abilityStat: 'LCK', flavor: 'Chaos works.',         desc: '25% chance to crit for 2x damage. 10% chance to fizzle. High risk.' }
   ];
 
-  const STAT_BUDGET = 300;
+  const STAT_BUDGET = 60;
+  const STAT_MAX = 20;
 
   const STAT_DEFS = [
     { key: 'str', label: 'STR', fullLabel: 'Strength',     icon: 'fa-hand-fist',       color: '#ff5252', desc: 'Raw damage.' },
@@ -26,13 +27,13 @@
     { key: 'lck', label: 'LCK', fullLabel: 'Luck',          icon: 'fa-clover',          color: '#ffd740', desc: 'The unexpected.' }
   ];
 
-  // Base stats per class (each sums to STAT_BUDGET = 300)
+  // Base stats per class (each sums to STAT_BUDGET = 60, scale 1-20)
   const CLASS_STATS = {
-    Fighter:   { str: 90, agi: 55, int: 35, end: 80, lck: 40 },
-    Caster:    { str: 35, agi: 45, int: 95, end: 40, lck: 85 },
-    Rogue:     { str: 55, agi: 90, int: 60, end: 50, lck: 45 },
-    Guardian:  { str: 65, agi: 35, int: 45, end: 95, lck: 60 },
-    Trickster: { str: 45, agi: 65, int: 55, end: 45, lck: 90 }
+    Fighter:   { str: 18, agi: 11, int: 7,  end: 16, lck: 8 },
+    Caster:    { str: 7,  agi: 9,  int: 19, end: 8,  lck: 17 },
+    Rogue:     { str: 11, agi: 18, int: 12, end: 10, lck: 9 },
+    Guardian:  { str: 13, agi: 7,  int: 9,  end: 19, lck: 12 },
+    Trickster: { str: 9,  agi: 13, int: 11, end: 9,  lck: 18 }
   };
 
   const VIBES = [
@@ -186,7 +187,7 @@
         ${STAT_DEFS.map(d => `
           <div class="bs-stat-row">
             <span class="bs-stat-label" style="color:${d.color}">${d.label}</span>
-            <input type="range" class="qb-stat-slider" data-stat="${d.key}" min="0" max="100" value="${stats[d.key]}" style="--fill:${stats[d.key]}%;--stat-color:${d.color}">
+            <input type="range" class="qb-stat-slider" data-stat="${d.key}" min="1" max="${STAT_MAX}" value="${stats[d.key]}" style="--fill:${(stats[d.key] / STAT_MAX * 100)}%;--stat-color:${d.color}">
             <span class="qb-stat-value" data-stat="${d.key}">${stats[d.key]}</span>
           </div>
         `).join('')}
@@ -444,12 +445,12 @@
         STAT_DEFS.forEach(d => {
           if (d.key !== key) otherTotal += (_state.customStats[d.key] || 0);
         });
-        const maxAllowed = Math.max(0, STAT_BUDGET - otherTotal);
-        const clamped = Math.min(requested, maxAllowed);
+        const maxAllowed = Math.max(1, Math.min(STAT_MAX, STAT_BUDGET - otherTotal));
+        const clamped = Math.max(1, Math.min(requested, maxAllowed));
 
         _state.customStats[key] = clamped;
         slider.value = clamped;
-        slider.style.setProperty('--fill', clamped + '%');
+        slider.style.setProperty('--fill', (clamped / STAT_MAX * 100) + '%');
         const display = slider.closest('.bs-stat-row').querySelector('.qb-stat-value');
         if (display) display.textContent = clamped;
 

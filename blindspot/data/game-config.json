@@ -9,11 +9,11 @@
     "name": "The Gatekeeper",
     "characterClass": "Enforcer",
     "combatStats": {
-      "str": 35,
-      "agi": 25,
-      "int": 20,
-      "end": 40,
-      "lck": 15
+      "str": 7,
+      "agi": 5,
+      "int": 4,
+      "end": 8,
+      "lck": 3
     },
     "aiPattern": "balanced",
     "flavorText": "Everyone passes through here once."
@@ -93,22 +93,22 @@
       "stat_boosts": {
         "category": "consumable",
         "items": [
-          { "id": "stat_str_3",  "name": "+3 Strength",  "stat": "str", "amount": 3,  "rarity": "common",   "icon": "fa-hand-fist" },
-          { "id": "stat_agi_3",  "name": "+3 Agility",   "stat": "agi", "amount": 3,  "rarity": "common",   "icon": "fa-wind" },
-          { "id": "stat_int_3",  "name": "+3 Intellect", "stat": "int", "amount": 3,  "rarity": "common",   "icon": "fa-bolt" },
-          { "id": "stat_end_3",  "name": "+3 Endurance", "stat": "end", "amount": 3,  "rarity": "common",   "icon": "fa-heart" },
-          { "id": "stat_lck_3",  "name": "+3 Luck",      "stat": "lck", "amount": 3,  "rarity": "common",   "icon": "fa-clover" },
-          { "id": "stat_str_5",  "name": "+5 Strength",  "stat": "str", "amount": 5,  "rarity": "uncommon", "icon": "fa-hand-fist" },
-          { "id": "stat_agi_5",  "name": "+5 Agility",   "stat": "agi", "amount": 5,  "rarity": "uncommon", "icon": "fa-wind" },
-          { "id": "stat_int_5",  "name": "+5 Intellect", "stat": "int", "amount": 5,  "rarity": "uncommon", "icon": "fa-bolt" },
-          { "id": "stat_end_5",  "name": "+5 Endurance", "stat": "end", "amount": 5,  "rarity": "uncommon", "icon": "fa-heart" },
-          { "id": "stat_lck_5",  "name": "+5 Luck",      "stat": "lck", "amount": 5,  "rarity": "uncommon", "icon": "fa-clover" },
-          { "id": "stat_str_8",  "name": "+8 Strength",  "stat": "str", "amount": 8,  "rarity": "rare",     "icon": "fa-hand-fist" },
-          { "id": "stat_agi_8",  "name": "+8 Agility",   "stat": "agi", "amount": 8,  "rarity": "rare",     "icon": "fa-wind" },
-          { "id": "stat_int_8",  "name": "+8 Intellect", "stat": "int", "amount": 8,  "rarity": "rare",     "icon": "fa-bolt" },
-          { "id": "stat_end_8",  "name": "+8 Endurance", "stat": "end", "amount": 8,  "rarity": "rare",     "icon": "fa-heart" },
-          { "id": "stat_lck_8",  "name": "+8 Luck",      "stat": "lck", "amount": 8,  "rarity": "rare",     "icon": "fa-clover" },
-          { "id": "stat_all_12", "name": "+12 All Stats", "stat": "all", "amount": 12, "rarity": "epic",     "icon": "fa-star" }
+          { "id": "stat_str_1",  "name": "+1 Strength",  "stat": "str", "amount": 1,  "rarity": "common",   "icon": "fa-hand-fist" },
+          { "id": "stat_agi_1",  "name": "+1 Agility",   "stat": "agi", "amount": 1,  "rarity": "common",   "icon": "fa-wind" },
+          { "id": "stat_int_1",  "name": "+1 Intellect", "stat": "int", "amount": 1,  "rarity": "common",   "icon": "fa-bolt" },
+          { "id": "stat_end_1",  "name": "+1 Endurance", "stat": "end", "amount": 1,  "rarity": "common",   "icon": "fa-heart" },
+          { "id": "stat_lck_1",  "name": "+1 Luck",      "stat": "lck", "amount": 1,  "rarity": "common",   "icon": "fa-clover" },
+          { "id": "stat_str_2",  "name": "+2 Strength",  "stat": "str", "amount": 2,  "rarity": "uncommon", "icon": "fa-hand-fist" },
+          { "id": "stat_agi_2",  "name": "+2 Agility",   "stat": "agi", "amount": 2,  "rarity": "uncommon", "icon": "fa-wind" },
+          { "id": "stat_int_2",  "name": "+2 Intellect", "stat": "int", "amount": 2,  "rarity": "uncommon", "icon": "fa-bolt" },
+          { "id": "stat_end_2",  "name": "+2 Endurance", "stat": "end", "amount": 2,  "rarity": "uncommon", "icon": "fa-heart" },
+          { "id": "stat_lck_2",  "name": "+2 Luck",      "stat": "lck", "amount": 2,  "rarity": "uncommon", "icon": "fa-clover" },
+          { "id": "stat_str_3",  "name": "+3 Strength",  "stat": "str", "amount": 3,  "rarity": "rare",     "icon": "fa-hand-fist" },
+          { "id": "stat_agi_3",  "name": "+3 Agility",   "stat": "agi", "amount": 3,  "rarity": "rare",     "icon": "fa-wind" },
+          { "id": "stat_int_3",  "name": "+3 Intellect", "stat": "int", "amount": 3,  "rarity": "rare",     "icon": "fa-bolt" },
+          { "id": "stat_end_3",  "name": "+3 Endurance", "stat": "end", "amount": 3,  "rarity": "rare",     "icon": "fa-heart" },
+          { "id": "stat_lck_3",  "name": "+3 Luck",      "stat": "lck", "amount": 3,  "rarity": "rare",     "icon": "fa-clover" },
+          { "id": "stat_all_4",  "name": "+4 All Stats", "stat": "all", "amount": 4,  "rarity": "epic",     "icon": "fa-star" }
         ]
       },
       "sparks": {

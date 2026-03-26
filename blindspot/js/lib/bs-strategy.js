@@ -183,11 +183,11 @@ window.BsStrategy = (function () {
             return '<div class="bs-prefight-stat-row">'
               + '<span class="bs-prefight-stat-row__pval">' + pv + '</span>'
               + '<div class="bs-prefight-stat-row__bar">'
-              + '<div class="bs-prefight-stat-row__fill bs-prefight-stat-row__fill--player" style="width:' + pv + '%"></div>'
+              + '<div class="bs-prefight-stat-row__fill bs-prefight-stat-row__fill--player" style="width:' + (pv / 20 * 100) + '%"></div>'
               + '</div>'
               + '<span class="bs-prefight-stat-row__label"><i class="fas ' + s.icon + '"></i> ' + s.label + '</span>'
               + '<div class="bs-prefight-stat-row__bar">'
-              + '<div class="bs-prefight-stat-row__fill bs-prefight-stat-row__fill--boss" style="width:' + bv + '%"></div>'
+              + '<div class="bs-prefight-stat-row__fill bs-prefight-stat-row__fill--boss" style="width:' + (bv / 20 * 100) + '%"></div>'
               + '</div>'
               + '<span class="bs-prefight-stat-row__bval ' + diffClass + '">' + bv + '</span>'
               + '</div>';

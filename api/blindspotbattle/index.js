@@ -122,9 +122,15 @@ function mapCardToCombatStats(card) {
 
   // New cards: use combatStats object directly
   if (card.combatStats && typeof card.combatStats === 'object') {
+    // statVersion migration: v1 (0-100) → v2 (1-20)
+    var needsMigration = !card.statVersion || card.statVersion < 2;
     for (const key of Object.keys(combat)) {
       if (card.combatStats[key] !== undefined) {
-        combat[key] = Math.min(100, Math.max(1, Math.round(card.combatStats[key])));
+        var val = card.combatStats[key];
+        if (needsMigration && val > 20) {
+          val = Math.round(val / 5); // Convert 0-100 → 1-20
+        }
+        combat[key] = Math.min(20, Math.max(1, Math.round(val)));
       }
     }
     return combat;
@@ -134,14 +140,14 @@ function mapCardToCombatStats(card) {
   if (!card.stats || card.stats.length === 0) return combat;
 
   const maxVal = Math.max(...card.stats.map(s => s.value || 0));
-  const scaleFactor = maxVal <= 10 ? 10 : 1;
+  const scaleFactor = maxVal <= 4 ? 5 : 1;
 
   for (const [combatKey, aliases] of Object.entries(config.statAliases)) {
     const match = card.stats.find(s =>
       aliases.includes((s.name || '').toLowerCase().trim())
     );
     if (match) {
-      combat[combatKey] = Math.min(100, Math.max(1, Math.round((match.value || 0) * scaleFactor)));
+      combat[combatKey] = Math.min(20, Math.max(1, Math.round((match.value || 0) * scaleFactor)));
     }
   }
 
@@ -184,25 +190,25 @@ function computeStatThresholdPassives(combatStats) {
   const cs = combatStats;
 
   // STR passives
-  if ((cs.str || 0) >= 60) passives.push({ source: 'stat:str60', effect: 'guard_pierce', value: 20 }); // Strike ignores 20% of Guard
-  if ((cs.str || 0) >= 80) passives.push({ source: 'stat:str80', effect: 'crit_damage', value: 25 }); // +25% crit damage
+  if ((cs.str || 0) >= 12) passives.push({ source: 'stat:str12', effect: 'guard_pierce', value: 20 }); // Strike ignores 20% of Guard
+  if ((cs.str || 0) >= 16) passives.push({ source: 'stat:str16', effect: 'crit_damage', value: 25 }); // +25% crit damage
 
   // AGI passives
-  if ((cs.agi || 0) >= 60) passives.push({ source: 'stat:agi60', effect: 'speed_priority', value: 1 }); // Always act first
-  if ((cs.agi || 0) >= 80) passives.push({ source: 'stat:agi80', effect: 'dodge', value: 15 }); // 15% dodge chance
+  if ((cs.agi || 0) >= 12) passives.push({ source: 'stat:agi12', effect: 'speed_priority', value: 1 }); // Always act first
+  if ((cs.agi || 0) >= 16) passives.push({ source: 'stat:agi16', effect: 'dodge', value: 15 }); // 15% dodge chance
 
   // INT passives
-  if ((cs.int || 0) >= 60) passives.push({ source: 'stat:int60', effect: 'ability_discount', value: 1 }); // Ability costs 1 charge
-  if ((cs.int || 0) >= 60) passives.push({ source: 'stat:int60', effect: 'ability_stamina_discount', value: 1 }); // Ability costs 1 less stamina
-  if ((cs.int || 0) >= 80) passives.push({ source: 'stat:int80', effect: 'ability_power', value: 30 }); // +30% ability damage
+  if ((cs.int || 0) >= 12) passives.push({ source: 'stat:int12', effect: 'ability_discount', value: 1 }); // Ability costs 1 charge
+  if ((cs.int || 0) >= 12) passives.push({ source: 'stat:int12', effect: 'ability_stamina_discount', value: 1 }); // Ability costs 1 less stamina
+  if ((cs.int || 0) >= 16) passives.push({ source: 'stat:int16', effect: 'ability_power', value: 30 }); // +30% ability damage
 
   // END passives
-  if ((cs.end || 0) >= 60) passives.push({ source: 'stat:end60', effect: 'heal_dr', value: 10 }); // Heal grants 10% DR for 1 round
-  if ((cs.end || 0) >= 80) passives.push({ source: 'stat:end80', effect: 'hp_regen', value: 5 }); // Auto-heal 5 HP per round
+  if ((cs.end || 0) >= 12) passives.push({ source: 'stat:end12', effect: 'heal_dr', value: 10 }); // Heal grants 10% DR for 1 round
+  if ((cs.end || 0) >= 16) passives.push({ source: 'stat:end16', effect: 'hp_regen', value: 5 }); // Auto-heal 5 HP per round
 
   // LCK passives
-  if ((cs.lck || 0) >= 50) passives.push({ source: 'stat:lck50', effect: 'crit_chance', value: 10 }); // +10% crit chance
-  if ((cs.lck || 0) >= 70) passives.push({ source: 'stat:lck70', effect: 'crit_damage', value: 50 }); // Crits deal 2x (extra 50% on top of 1.5x)
+  if ((cs.lck || 0) >= 10) passives.push({ source: 'stat:lck10', effect: 'crit_chance', value: 10 }); // +10% crit chance
+  if ((cs.lck || 0) >= 14) passives.push({ source: 'stat:lck14', effect: 'crit_damage', value: 50 }); // Crits deal 2x (extra 50% on top of 1.5x)
 
   return passives;
 }
@@ -216,21 +222,21 @@ function getPassiveValue(passives, effectName) {
 // Apply persistent stat bonuses from buffs (endurance bonus, all-stats boost)
 function applyStatPassives(combatStats, passives) {
   const endBonus = getPassiveValue(passives, 'end_bonus');
-  if (endBonus > 0) combatStats.end = Math.min(100, combatStats.end + endBonus);
+  if (endBonus > 0) combatStats.end = Math.min(20, combatStats.end + endBonus);
 
   const allStats = getPassiveValue(passives, 'all_stats');
   if (allStats > 0) {
-    combatStats.str = Math.min(100, combatStats.str + allStats);
-    combatStats.agi = Math.min(100, combatStats.agi + allStats);
-    combatStats.int = Math.min(100, combatStats.int + allStats);
-    combatStats.end = Math.min(100, combatStats.end + allStats);
-    combatStats.lck = Math.min(100, combatStats.lck + allStats);
+    combatStats.str = Math.min(20, combatStats.str + allStats);
+    combatStats.agi = Math.min(20, combatStats.agi + allStats);
+    combatStats.int = Math.min(20, combatStats.int + allStats);
+    combatStats.end = Math.min(20, combatStats.end + allStats);
+    combatStats.lck = Math.min(20, combatStats.lck + allStats);
   }
 }
 
 // HP = 80 base + END contribution (150%) + STR contribution (30%)
 function computeMaxHp(combatStats) {
-  return Math.round(80 + (combatStats.end * 1.5) + (combatStats.str * 0.3));
+  return Math.round(80 + (combatStats.end * 7.5) + (combatStats.str * 1.5));
 }
 
 function getClassAbility(className, config) {
@@ -1188,7 +1194,7 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
         if (isNaN(raw)) continue;
         const clamped = Math.max(-BUFF_CLAMP, Math.min(BUFF_CLAMP, Math.round(raw)));
         if (totalApplied + Math.abs(clamped) > TOTAL_CLAMP) continue;
-        playerCombat[stat] = Math.max(1, Math.min(100, playerCombat[stat] + clamped));
+        playerCombat[stat] = Math.max(1, Math.min(20, playerCombat[stat] + clamped));
         totalApplied += Math.abs(clamped);
       }
     }
@@ -1208,7 +1214,7 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
       const targetPower = playerPower * 0.9;
       bossScaleFactor = Math.min(2.5, targetPower / bossPower);
       for (const k of statKeys) {
-        opponentCombat[k] = Math.min(100, Math.round(opponentCombat[k] * bossScaleFactor));
+        opponentCombat[k] = Math.min(20, Math.round(opponentCombat[k] * bossScaleFactor));
       }
       context.log(`[Blindspot] Boss adaptive scaling: player=${playerPower} boss=${bossPower} scale=${bossScaleFactor.toFixed(2)} target=${Math.round(targetPower)}`);
     }
