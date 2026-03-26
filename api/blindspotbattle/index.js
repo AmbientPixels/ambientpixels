@@ -1364,7 +1364,7 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
   }
 
   // Store adventure items in battle state (validated)
-  const VALID_ITEMS = ['smoke_bomb', 'war_cry', 'focus_elixir', 'iron_skin', 'lucky_coin', 'healing_salve', 'stamina_potion', 'endurance_tonic', 'second_wind', 'element_ward', 'element_burst', 'element_shift', 'prism_shard', 'combo_primer', 'adrenaline_spike', 'charm_smoke_bomb', 'charm_iron_skin', 'charm_combo_primer', 'charm_adrenaline_spike'];
+  const VALID_ITEMS = ['smoke_bomb', 'war_cry', 'focus_elixir', 'iron_skin', 'lucky_coin', 'healing_salve', 'stamina_potion', 'endurance_tonic', 'second_wind', 'element_ward', 'element_burst', 'element_shift', 'prism_shard', 'combo_primer', 'adrenaline_spike', 'battle_surge', 'charm_smoke_bomb', 'charm_iron_skin', 'charm_combo_primer', 'charm_adrenaline_spike'];
   if (type === 'pve' && Array.isArray(body.adventureItems)) {
     battleState.adventureItems = body.adventureItems
       .filter(it => it && VALID_ITEMS.includes(it.id))
@@ -1375,21 +1375,21 @@ async function handleStart(context, containerClient, userId, body, isDemo = fals
     }
   }
 
-  // Telegraph: Pre-generate boss's first 2 moves (dual-action) so client can show intent
+  // Telegraph: Pre-generate boss's first move so client can show intent
   let bossIntent = null;
   if (type === 'pve') {
-    const firstBossMoves = generateBossMoves(
+    const firstBossMove = generateBossMove(
       { arenaOverrides: opponentCard.arenaOverrides || { aiPattern: 'balanced' }, combatStats: opponentCombat },
       1, opponentMaxHp, opponentMaxHp, battleState.charges.opponent,
       battleState.stamina.opponent, battleState.maxStamina.opponent,
       battleState.cooldowns.opponent, battleState.stances.opponent
     );
-    battleState.pendingBossMoves = firstBossMoves;
-    // Build intents with flavor text from boss telegraph data
+    battleState.pendingBossMove = firstBossMove;
     const telegraphStrings = opponentCard.telegraph || {};
-    bossIntent = firstBossMoves.map(function(m) {
-      return { move: m, flavor: telegraphStrings[m] || (opponentCard.name + ' prepares to ' + m + '...') };
-    });
+    bossIntent = {
+      move: firstBossMove,
+      flavor: telegraphStrings[firstBossMove] || (opponentCard.name + ' prepares to ' + firstBossMove + '...')
+    };
   }
 
   await uploadJsonBlob(containerClient, `arena/battles/${battleId}.json`, battleState);
@@ -2064,12 +2064,12 @@ async function handleMove(context, containerClient, userId, body) {
     }
   };
 
-  // Telegraph: Pre-generate NEXT 2 boss moves for the next round
+  // Telegraph: Pre-generate NEXT boss move for the next round
   let nextBossIntent = null;
   if (battle.type === 'pve' && player.hp > 0 && opponent.hp > 0) {
     const bossData = loadBossData();
     const bossEntry = bossData.bosses.find(b => b.id === opponent.cardId || b.id === battle.player2.userId);
-    const nextBossMoves = generateBossMoves(
+    const nextBossMove = generateBossMove(
       { arenaOverrides: opponent.arenaOverrides || { aiPattern: 'balanced' }, combatStats: opponent.combatStats },
       round + 1, opponent.hp, opponent.maxHp,
       battle.charges ? battle.charges.opponent : 0,
@@ -2078,11 +2078,12 @@ async function handleMove(context, containerClient, userId, body) {
       battle.cooldowns ? battle.cooldowns.opponent : undefined,
       battle.stances ? battle.stances.opponent : undefined
     );
-    battle.pendingBossMoves = nextBossMoves;
+    battle.pendingBossMove = nextBossMove;
     const telegraphStrings = (bossEntry && bossEntry.telegraph) || {};
-    nextBossIntent = nextBossMoves.map(function(m) {
-      return { move: m, flavor: telegraphStrings[m] || (opponent.cardSnapshot.name + ' prepares to ' + m + '...') };
-    });
+    nextBossIntent = {
+      move: nextBossMove,
+      flavor: telegraphStrings[nextBossMove] || (opponent.cardSnapshot.name + ' prepares to ' + nextBossMove + '...')
+    };
   }
 
   roundResult.nextBossIntent = nextBossIntent || undefined;

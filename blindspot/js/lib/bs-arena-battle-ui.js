@@ -791,23 +791,23 @@ window.ArenaBattleUI = (function () {
 
   // ─── Phase 1A: Combo hint (preview next combo in move buttons) ──────────
   function updateComboHints() {
-    // Within-turn combo hints: show when first move is selected during phase 2
+    // Combo hints: only active during Battle Surge 2-phase selection
     var btns = document.querySelectorAll('.arena-move-btn');
     btns.forEach(function (btn) { btn.classList.remove('arena-move-btn--combo-hint'); });
 
-    if (!_firstMove) return; // No hints until first move is picked
+    if (!_firstMove || !_battleSurgeActive) return;
 
-    // Flurry: Strike selected → hint on Strike (Strike + Strike)
+    // Flurry: Strike + Strike
     if (_firstMove === 'strike') {
       var strikeBtn = document.querySelector('[data-move="strike"]');
       if (strikeBtn) strikeBtn.classList.add('arena-move-btn--combo-hint');
     }
-    // Riposte: Guard selected → hint on Counter (Guard + Counter)
+    // Riposte: Guard + Counter
     if (_firstMove === 'guard') {
       var counterBtn = document.querySelector('[data-move="counter"]');
       if (counterBtn) counterBtn.classList.add('arena-move-btn--combo-hint');
     }
-    // Empowered: Heal selected → hint on Ability (Heal + Ability)
+    // Empowered: Heal + Ability
     if (_firstMove === 'heal') {
       var abilityBtn = document.querySelector('.arena-move-btn--ability');
       if (abilityBtn) abilityBtn.classList.add('arena-move-btn--combo-hint');
@@ -1037,19 +1037,9 @@ window.ArenaBattleUI = (function () {
     _isAnimating = false;
   }
 
-  // Dual-action: 2-phase move selection state
+  // Battle Surge: rare consumable that enables 2-move turns (dormant until activated)
+  var _battleSurgeActive = false;
   var _firstMove = null;
-  var _selectPromptEl = null;
-  var CD_MOVES = ['heal', 'counter', 'ability'];
-
-  function clearMoveSelection() {
-    _firstMove = null;
-    document.querySelectorAll('.arena-move-btn').forEach(function(btn) {
-      btn.classList.remove('arena-move-btn--selected-first');
-    });
-    var prompt = document.getElementById('bs-move-select-prompt');
-    if (prompt) prompt.style.display = 'none';
-  }
 
   async function handleMoveClick(move) {
     if (_isAnimating || !_battleData) return;
@@ -1060,38 +1050,29 @@ window.ArenaBattleUI = (function () {
       return;
     }
 
-    // PHASE 1: First move selection
-    if (_firstMove === null) {
+    // Battle Surge: 2-phase selection when active
+    if (_battleSurgeActive && _firstMove === null) {
       _firstMove = move;
-      // Highlight the selected button
       var btn1 = document.querySelector('.arena-move-btn[data-move="' + move + '"]');
       if (btn1) btn1.classList.add('arena-move-btn--selected-first');
-      // Show prompt
       var prompt = document.getElementById('bs-move-select-prompt');
-      if (prompt) { prompt.textContent = 'Pick second move'; prompt.style.display = ''; }
-      // Disable CD moves that were already picked (can't use same CD move twice)
-      if (CD_MOVES.indexOf(move) >= 0) {
-        var cdBtn = document.querySelector('.arena-move-btn[data-move="' + move + '"]');
-        if (cdBtn) cdBtn.classList.add('arena-move-btn--on-cooldown');
-      }
-      addLogEntry('1st: ' + move.charAt(0).toUpperCase() + move.slice(1) + ' — pick your 2nd move.');
+      if (prompt) { prompt.textContent = 'SURGE — Pick second move'; prompt.style.display = ''; }
+      addLogEntry('\u26A1 SURGE! ' + move.charAt(0).toUpperCase() + move.slice(1) + ' locked — pick 2nd move.');
       updateComboHints();
       return;
     }
 
-    // Clicking the same first-move button = deselect
-    if (move === _firstMove && CD_MOVES.indexOf(move) < 0) {
-      // Non-CD move clicked again is fine (Strike+Strike allowed)
-    } else if (move === _firstMove && CD_MOVES.indexOf(move) >= 0) {
-      // CD move clicked again = deselect
-      clearMoveSelection();
-      enableMoves(true);
-      return;
+    // Resolve the move(s) to submit
+    var submitMove = move;
+    if (_battleSurgeActive && _firstMove) {
+      submitMove = [_firstMove, move];
+      _firstMove = null;
+      _battleSurgeActive = false;
+      document.querySelectorAll('.arena-move-btn').forEach(function(b) { b.classList.remove('arena-move-btn--selected-first'); });
+      var prompt2 = document.getElementById('bs-move-select-prompt');
+      if (prompt2) prompt2.style.display = 'none';
     }
 
-    // PHASE 2: Second move selected — submit both
-    var bothMoves = [_firstMove, move];
-    clearMoveSelection();
     enableMoves(false);
 
     try {
@@ -1102,16 +1083,15 @@ window.ArenaBattleUI = (function () {
       if (window._pendingItemUse) { moveExtra.useItem = window._pendingItemUse; window._pendingItemUse = null; }
       if (_playerStance !== 'balanced') moveExtra.stance = _playerStance;
       const response = await window.ArenaAPI.submitMove(
-        _battleData.battleId, _currentRound, bothMoves, moveExtra
+        _battleData.battleId, _currentRound, submitMove, moveExtra
       );
 
-      // Hide boss intent during animation — the telegraphed moves are playing out
+      // Hide boss intent during animation
       hideBossIntent();
 
       await animateRoundResult(response.roundResult);
 
       if (response.battleStatus === 'complete') {
-        // Clean up tutorial if still active when battle ends
         if (window._arenaTutorial && window._arenaTutorial.isActive()) {
           window._arenaTutorial.end();
         }
@@ -1127,23 +1107,36 @@ window.ArenaBattleUI = (function () {
       } else {
         _currentRound = response.currentRound;
         updateRoundLabel(_currentRound);
-        addLogEntry(`Round ${_currentRound} — Choose your moves.`);
-        // Telegraph: Show boss's next 2 committed moves
+        addLogEntry(`Round ${_currentRound} — Choose your move.`);
+        // Telegraph: Show boss's next committed move
         if (response.roundResult && response.roundResult.nextBossIntent) {
           showBossIntent(response.roundResult.nextBossIntent);
         }
         if (window.BsTutorial && window.BsTutorial.isActive()) {
           requestAnimationFrame(function () {
-            window.BsTutorial.onMoveComplete(bothMoves[0]);
+            var m = Array.isArray(submitMove) ? submitMove[0] : submitMove;
+            window.BsTutorial.onMoveComplete(m);
+            window.BsTutorial.checkContextual({
+              playerHp: response.roundResult.playerHp,
+              playerMaxHp: _battleData.player.maxHp,
+              charges: _playerCharges,
+              abilityCost: _abilityCost,
+              hype: _hype,
+              round: _currentRound
+            });
           });
         }
         enableMoves(true);
-        updateComboHints();
       }
     } catch (err) {
       addLogEntry(`Error: ${err.message}`, 'error');
       enableMoves(true);
     }
+  }
+
+  function activateBattleSurge() {
+    _battleSurgeActive = true;
+    addLogEntry('\u26A1 BATTLE SURGE activated! Pick 2 moves this turn.');
   }
 
   function showForfeitModal() {
@@ -1199,5 +1192,5 @@ window.ArenaBattleUI = (function () {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
-  return { initBattle, bindEvents, enableMoves, showBossIntent, hideBossIntent };
+  return { initBattle, bindEvents, enableMoves, showBossIntent, hideBossIntent, activateBattleSurge };
 })();

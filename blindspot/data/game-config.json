@@ -82,11 +82,11 @@
       },
       "boss": {
         "rarityWeights": { "common": 40, "uncommon": 30, "rare": 22, "epic": 8 },
-        "pools": ["stat_boosts", "sparks", "forge_tokens", "card_frames", "card_backs", "name_plates", "victory_animations", "battle_charms", "stamina_items", "elemental_items", "element_resist_charms", "titles"]
+        "pools": ["stat_boosts", "sparks", "forge_tokens", "card_frames", "card_backs", "name_plates", "victory_animations", "battle_charms", "stamina_items", "elemental_items", "element_resist_charms", "battle_surge", "titles"]
       },
       "premium": {
         "rarityWeights": { "common": 25, "uncommon": 35, "rare": 28, "epic": 12 },
-        "pools": ["stat_boosts", "sparks", "forge_tokens", "respec_scrolls", "card_frames", "card_backs", "name_plates", "victory_animations", "battle_charms", "stamina_items", "elemental_items", "element_resist_charms", "titles"]
+        "pools": ["stat_boosts", "sparks", "forge_tokens", "respec_scrolls", "card_frames", "card_backs", "name_plates", "victory_animations", "battle_charms", "stamina_items", "elemental_items", "element_resist_charms", "battle_surge", "titles"]
       }
     },
     "dropPools": {
@@ -215,6 +215,13 @@
           { "id": "element_burst", "name": "Element Burst", "rarity": "rare",     "icon": "fa-burst",         "description": "Next elemental hit deals +50% bonus",     "effect": "element_burst", "value": 50 },
           { "id": "element_shift", "name": "Element Shift", "rarity": "rare",     "icon": "fa-rotate",        "description": "Shift to the element strong vs opponent", "effect": "element_shift", "value": 1 },
           { "id": "prism_shard",   "name": "Prism Shard",   "rarity": "epic",     "icon": "fa-gem",           "description": "Become element-neutral (no weakness/strength)", "effect": "prism_shard", "value": 1 }
+        ]
+      },
+      "battle_surge": {
+        "category": "consumable",
+        "slot": "item",
+        "items": [
+          { "id": "battle_surge", "name": "Battle Surge", "rarity": "epic", "icon": "fa-bolt-lightning", "description": "Pick 2 moves this turn. Within-turn combos available.", "effect": "battle_surge", "value": 1 }
         ]
       },
       "element_resist_charms": {
