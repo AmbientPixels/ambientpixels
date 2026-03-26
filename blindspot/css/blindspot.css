@@ -2617,7 +2617,13 @@
   overflow-y: auto;
   flex: 1;
   min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--bs-accent-dim) transparent;
 }
+.bs-modal__body::-webkit-scrollbar { width: 6px; }
+.bs-modal__body::-webkit-scrollbar-track { background: transparent; }
+.bs-modal__body::-webkit-scrollbar-thumb { background: var(--bs-accent-dim); border-radius: 3px; }
+.bs-modal__body::-webkit-scrollbar-thumb:hover { background: var(--bs-accent); }
 
 .bs-modal__section {
   margin-bottom: 1.25rem;
