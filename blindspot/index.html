@@ -94,27 +94,29 @@
   <div id="bs-combat-guide" class="bs-overlay bs-overlay--hidden" role="dialog" aria-label="Combat guide" aria-modal="true">
     <div class="bs-guide">
       <h2 class="bs-overlay__title" style="font-size:1.2rem; margin-bottom:1rem;">How Combat Works</h2>
+      <div class="bs-guide-section" data-guide-tier="1">
+        <h3 class="bs-guide-section__title"><i class="fas fa-fire"></i> Elements</h3>
+        <div class="bs-guide__element-grid">
+          <div class="bs-guide-matchups" style="display:flex;flex-direction:column;gap:0.3rem;font-size:0.8rem;">
+            <span><i class="fas fa-fire" style="color:#ef4444;width:1.2em;"></i> <strong>Fire</strong> — strong vs Earth, weak vs Shadow</span>
+            <span><i class="fas fa-mountain" style="color:#84cc16;width:1.2em;"></i> <strong>Earth</strong> — strong vs Arcane, weak vs Fire</span>
+            <span><i class="fas fa-hat-wizard" style="color:#a855f7;width:1.2em;"></i> <strong>Arcane</strong> — strong vs Shadow, weak vs Earth</span>
+            <span><i class="fas fa-ghost" style="color:#6366f1;width:1.2em;"></i> <strong>Shadow</strong> — strong vs Fire, weak vs Arcane</span>
+            <span><i class="fas fa-burst" style="color:#f59e0b;width:1.2em;"></i> <strong>Chaos</strong> — neutral to all</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:0.2rem;font-size:0.75rem;color:var(--bs-text-muted);">
+            <span style="font-size:0.85rem;color:var(--bs-accent);font-weight:700;margin-bottom:0.15rem;">Elemental Passives</span>
+            <span>🔥 Fire — Ignite: all crits apply burn</span>
+            <span>🏔️ Earth — Bedrock: +5% damage reduction</span>
+            <span>🔮 Arcane — Attunement: +1 starting ability charge</span>
+            <span>👻 Shadow — Phantom: +5% dodge chance</span>
+            <span>💫 Chaos — Flux: random element each round</span>
+          </div>
+        </div>
+        <p class="bs-guide-combo-hint" style="margin-top:0.5rem;">Strong: +25% damage. Weak: -25% damage. Applies to all attacks (not Heal).</p>
+      </div>
       <div class="bs-guide__columns">
         <div class="bs-guide__col">
-          <div class="bs-guide-section">
-            <h3 class="bs-guide-section__title"><i class="fas fa-fire"></i> Elements</h3>
-            <div class="bs-guide-matchups" style="display:flex;flex-direction:column;gap:0.3rem;font-size:0.8rem;">
-              <span><i class="fas fa-fire" style="color:#ef4444;width:1.2em;"></i> <strong>Fire</strong> — strong vs Earth, weak vs Shadow</span>
-              <span><i class="fas fa-mountain" style="color:#84cc16;width:1.2em;"></i> <strong>Earth</strong> — strong vs Arcane, weak vs Fire</span>
-              <span><i class="fas fa-hat-wizard" style="color:#a855f7;width:1.2em;"></i> <strong>Arcane</strong> — strong vs Shadow, weak vs Earth</span>
-              <span><i class="fas fa-ghost" style="color:#6366f1;width:1.2em;"></i> <strong>Shadow</strong> — strong vs Fire, weak vs Arcane</span>
-              <span><i class="fas fa-burst" style="color:#f59e0b;width:1.2em;"></i> <strong>Chaos</strong> — neutral to all</span>
-            </div>
-            <p class="bs-guide-combo-hint" style="margin-top:0.5rem;">Strong: +25% damage. Weak: -25% damage. Applies to all attacks (not Heal).</p>
-            <h4 style="margin-top:0.75rem;font-size:0.85rem;color:var(--bs-accent);">Elemental Passives</h4>
-            <div style="display:flex;flex-direction:column;gap:0.2rem;font-size:0.75rem;color:var(--bs-text-muted);">
-              <span>🔥 Fire — Ignite: all crits apply burn</span>
-              <span>🏔️ Earth — Bedrock: +5% damage reduction</span>
-              <span>🔮 Arcane — Attunement: +1 starting ability charge</span>
-              <span>👻 Shadow — Phantom: +5% dodge chance</span>
-              <span>💫 Chaos — Flux: random element each round</span>
-            </div>
-          </div>
           <div class="bs-guide-section">
             <h3 class="bs-guide-section__title"><i class="fas fa-swords"></i> Moves</h3>
             <div class="bs-combat-grid">
@@ -124,9 +126,6 @@
               <div class="bs-combat-rule"><i class="fas fa-shield" style="color:var(--bs-text-muted);"></i><div><strong>Counter</strong><br><span class="bs-text-sm">Reflects strike damage back. Fails against abilities.</span></div></div>
               <div class="bs-combat-rule"><i class="fas fa-bolt" style="color:var(--bs-accent-glow);"></i><div><strong>Ability</strong><br><span class="bs-text-sm">INT-based class power. Costs 2 charges. Stuns guards.</span></div></div>
             </div>
-          </div>
-          <div class="bs-guide-section">
-            <p style="font-size:0.75rem; color:var(--bs-text-muted); margin:0;"><strong style="color:var(--bs-accent);">Stats:</strong> STR = strike power, AGI = speed + dodge, INT = ability power, END = heal + HP + stamina, LCK = crit chance</p>
           </div>
         </div>
         <div class="bs-guide__col">
@@ -139,6 +138,9 @@
               <span class="bs-guide-matchup"><strong class="bs-guide-win">Counter</strong> reflects Strike</span>
               <span class="bs-guide-matchup"><strong style="color:var(--bs-text-muted);">Heal</strong> beats nothing (pure recovery)</span>
             </div>
+          </div>
+          <div class="bs-guide-section">
+            <p style="font-size:0.75rem; color:var(--bs-text-muted); margin:0;"><strong style="color:var(--bs-accent);">Stats:</strong> STR = strike power, AGI = speed + dodge, INT = ability power, END = heal + HP + stamina, LCK = crit chance</p>
           </div>
           <div class="bs-guide-section" data-guide-tier="1">
             <h3 class="bs-guide-section__title"><i class="fas fa-fire"></i> Combos</h3>
