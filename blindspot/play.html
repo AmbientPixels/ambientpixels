@@ -625,25 +625,46 @@
       <div class="bs-modal__body">
         <section class="bs-modal__section">
           <h3>Combat Moves</h3>
-          <p><strong style="color:#ff5252;"><i class="fas fa-hand-fist"></i> Strike</strong> — STR-based damage. Crits ignite (Burn). <em>Halved by Guard.</em></p>
-          <p><strong style="color:#ff9100;"><i class="fas fa-shield-alt"></i> Guard</strong> — Block 60% of strikes. <em>Stunned by Abilities.</em></p>
-          <p><strong style="color:#7b2fff;"><i class="fas fa-hat-wizard"></i> Ability</strong> — Class power. Costs 2 charges. <em>Stuns guards.</em></p>
-          <p><strong style="color:#00e676;"><i class="fas fa-heart"></i> Heal</strong> — END-based recovery. <em>Halved by Strike, blocked by Ability.</em></p>
-          <p><strong style="color:#ffd740;"><i class="fas fa-sync-alt"></i> Counter</strong> — Reflect 50% of strike damage. <em>Punished by Ability.</em></p>
+          <p><strong style="color:#ff5252;"><i class="fas fa-hand-fist"></i> Strike</strong> — STR-based damage. Crits ignite (Burn). <em>Halved by Guard.</em> <span style="color:var(--bs-text-muted);">Cost: 4 stamina</span></p>
+          <p><strong style="color:#ff9100;"><i class="fas fa-shield-alt"></i> Guard</strong> — Block 60% of strikes. <em>Stunned by Abilities.</em> <span style="color:var(--bs-text-muted);">Cost: 1 stamina</span></p>
+          <p><strong style="color:#7b2fff;"><i class="fas fa-hat-wizard"></i> Ability</strong> — Class power. Costs 2 charges. <em>Stuns guards.</em> <span style="color:var(--bs-text-muted);">Cost: 5 stamina, 2-round cooldown</span></p>
+          <p><strong style="color:#00e676;"><i class="fas fa-heart"></i> Heal</strong> — END-based recovery. <em>Halved by Strike, blocked by Ability.</em> <span style="color:var(--bs-text-muted);">Cost: 2 stamina, 1-round cooldown</span></p>
+          <p><strong style="color:#ffd740;"><i class="fas fa-sync-alt"></i> Counter</strong> — Reflect 50% of strike damage. <em>Punished by Ability.</em> <span style="color:var(--bs-text-muted);">Cost: 4 stamina, 1-round cooldown</span></p>
         </section>
 
         <section class="bs-modal__section">
-          <h3>Rock-Paper-Scissors</h3>
-          <p class="bs-text-sm">Strike beats Heal. Guard blocks Strike. Ability punishes Guard. Counter reflects Strike.</p>
+          <h3>Move Matchups</h3>
+          <p class="bs-text-sm"><strong style="color:#4ade80;">Strike</strong> beats Heal &amp; Ability. <strong style="color:#4ade80;">Guard</strong> beats Strike. <strong style="color:#4ade80;">Ability</strong> beats Guard &amp; Counter. <strong style="color:#4ade80;">Counter</strong> reflects Strike. <strong style="color:var(--bs-text-muted);">Heal</strong> beats nothing (pure recovery).</p>
         </section>
 
         <section class="bs-modal__section">
-          <h3>Stats</h3>
+          <h3><i class="fas fa-bolt" style="color:#a855f7;"></i> Stamina</h3>
+          <p class="bs-text-sm">Every move costs stamina. Pool: 12 + END/10. Regenerates each round. Below 3 stamina = exhaustion (5% HP burn per round). Manage your resources or get punished late-fight.</p>
+        </section>
+
+        <section class="bs-modal__section">
+          <h3><i class="fas fa-fire" style="color:#ef4444;"></i> Combos</h3>
+          <p class="bs-text-sm"><strong style="color:#ff9100;">Flurry</strong> — Strike &times; 3 = +30% damage. <strong style="color:#3a9fff;">Riposte</strong> — Guard &rarr; Counter = forced reflect. <strong style="color:#a855f7;">Empowered</strong> — Heal &rarr; Ability = +50% ability damage.</p>
+          <p class="bs-text-sm" style="color:var(--bs-text-muted);">Watch for the amber glow on move buttons when a combo is ready.</p>
+        </section>
+
+        <section class="bs-modal__section">
+          <h3><i class="fas fa-chess-king" style="color:var(--bs-accent);"></i> Stances</h3>
+          <p class="bs-text-sm"><strong style="color:#ef4444;">Aggressive</strong> — +25% damage, take 20% more, +1 stamina cost, +15% crit. <strong style="color:#3b82f6;">Defensive</strong> — -20% damage, Guard 80%, Heal +30%, -1 stamina cost. <strong style="color:var(--bs-text-muted);">Balanced</strong> — default, no switch cost. Switching costs 2 stamina. Bosses shift stances as HP drops.</p>
+        </section>
+
+        <section class="bs-modal__section">
+          <h3><i class="fas fa-fire-flame-curved" style="color:#4ade80;"></i> Elements</h3>
+          <p class="bs-text-sm">Fire &gt; Earth &gt; Arcane &gt; Shadow &gt; Fire. Chaos is neutral. Strong matchup: +25% damage. Weak: -25%. Each element has a passive (Fire: Ignite, Earth: DR, Arcane: +1 charge, Shadow: dodge, Chaos: random element each round).</p>
+        </section>
+
+        <section class="bs-modal__section">
+          <h3>Stats &amp; Passives</h3>
           <p><strong style="color:#ff5252;">STR</strong> — Strike power. 60+: pierces guard. 80+: +25% crit dmg.</p>
-          <p><strong style="color:#00e676;">AGI</strong> — Speed + charge. 60+: act first. 80+: 15% dodge.</p>
-          <p><strong style="color:#7b2fff;">INT</strong> — Ability power. 60+: costs 1 charge. 80+: +30% ability dmg.</p>
-          <p><strong style="color:#ff9100;">END</strong> — HP + heal. 60+: heal grants DR. 80+: auto-heal 5/round.</p>
-          <p><strong style="color:#ffd740;">LCK</strong> — Crit chance. 50+: +10%. 70+: crits deal 2x.</p>
+          <p><strong style="color:#00e676;">AGI</strong> — Speed + charge. 60+: act first, -1 stamina cost. 80+: 15% dodge.</p>
+          <p><strong style="color:#7b2fff;">INT</strong> — Ability power. 60+: costs 1 charge, -1 ability stamina. 80+: +30% ability dmg.</p>
+          <p><strong style="color:#ff9100;">END</strong> — HP + heal + stamina pool. 60+: heal grants DR. 80+: auto-heal 5/round.</p>
+          <p><strong style="color:#ffd740;">LCK</strong> — Crit chance. 50+: +10%. 70+: crits deal 2x. Crits refund 1 stamina.</p>
         </section>
 
         <section class="bs-modal__section">
@@ -657,7 +678,7 @@
 
         <section class="bs-modal__section">
           <h3>Boss Weaknesses</h3>
-          <p class="bs-text-sm">Each boss has a weakness stat. Match it for bonus damage. Check the <i class="fas fa-crosshairs" style="color:var(--bs-accent);"></i> icon in Campaign.</p>
+          <p class="bs-text-sm">Each boss has a weakness stat and an element. Match them for bonus damage. Check the <i class="fas fa-crosshairs" style="color:var(--bs-accent);"></i> icon in Campaign.</p>
         </section>
       </div>
 
