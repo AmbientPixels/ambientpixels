@@ -392,7 +392,10 @@
   function getEquipped() { return _Cos.getEquipped ? _Cos.getEquipped() : {}; }
   function setEquipped(eq) { if (_Cos.setEquipped) _Cos.setEquipped(eq); }
   function equipCosmetic(slot, itemId) { if (_Cos.equip) _Cos.equip(slot, itemId); }
-  function _buildCosmeticCaches() { if (_Cos.buildCaches) _Cos.buildCaches(_config); }
+  function _buildCosmeticCaches() {
+    if (_Cos.buildCaches) _Cos.buildCaches(_config);
+    if (_Cos.setCallbacks) _Cos.setCallbacks({ getSparks: getSparks, spendSparks: spendSparks, toast: showSuccessToast });
+  }
   function findCosmeticDef(itemId) { return _Cos.find ? _Cos.find(itemId) : null; }
   function getAllCosmeticsBySlot() { return _Cos.getAllBySlot ? _Cos.getAllBySlot() : {}; }
   function renderCollection() { if (_Cos.render) _Cos.render(); }
@@ -672,7 +675,7 @@
       _config = configResp;
       _buildCosmeticCaches();
       if (_Rar.setCallbacks) _Rar.setCallbacks({ getForgeVisitCount: getForgeVisitCount });
-      if (_Shop.setCallbacks) _Shop.setCallbacks({ getSparks: getSparks, spendSparks: spendSparks, awardCrate: awardCrate, toast: showSuccessToast, addToInventory: function(id) { _progress.charms.push(id); syncProgressToServer(); }, getConfig: function() { return _config; } });
+      if (_Shop.setCallbacks) _Shop.setCallbacks({ getSparks: getSparks, spendSparks: spendSparks, awardCrate: awardCrate, toast: showSuccessToast });
       if (_BossRew.setCallbacks) _BossRew.setCallbacks({
         getProgress: function() { return _progress; },
         getSelectedCard: function() { return _selectedCard; },
